@@ -1,7 +1,7 @@
 "use client";
 
 import { Years } from "@/types";
-import { Fragment, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import styles from "./dataSeriesInput.module.css";
 import { dataSeriesPattern, isValidPastedInput, isValidSingleInputForGrid, isValidSingleInputForTextField } from "./utils";
@@ -30,6 +30,29 @@ export default function DataSeriesInputManual({
   );
   const isPasting = useRef(false);
   const [tableIsVisible, setTableIsVisible] = useState(true);
+  useEffect(() => {
+    console.log(value)
+  }, [value])
+
+  const handleYearChange = (index: number, newValue: string) => {
+    setValue(prev =>
+      prev.map((item, i) =>
+        i === index
+          ? { ...item, year: newValue === '' ? null : Number(newValue) }
+          : item
+      )
+    );
+  };
+
+  const handleDataChange = (index: number, newValue: string) => {
+    setValue(prev =>
+      prev.map((item, i) =>
+        i === index
+          ? { ...item, data: newValue === '' ? null : Number(newValue) }
+          : item
+      )
+    );
+  };
 
   // TODO - this might not be necessary, since we are using the dataSeriesString prop to set the initial values
   // useEffect(() => {
@@ -51,10 +74,72 @@ export default function DataSeriesInputManual({
     setDataSeriesValues(newValues);
   }
 
+  function handlePaste(
+    e: React.ClipboardEvent<HTMLInputElement>,
+    startIndex: number
+  ) {
+    e.preventDefault(); // important: we fully control the paste
+    isPasting.current = true;
+
+    const pastedText = e.clipboardData.getData("text");
+
+    const rows = pastedText
+      .trim()
+      .split(/\r?\n/);
+
+    const parsedRows = rows.map(row => {
+      const [yearRaw, dataRaw] = row.split("\t");
+
+      return {
+        year: yearRaw?.trim() ? Number(yearRaw) : null,
+        data: dataRaw?.trim() ? Number(dataRaw) : null,
+      };
+    });
+
+    setValue(prev => {
+      const next = [...prev];
+
+      parsedRows.forEach((row, i) => {
+        const targetIndex = startIndex + i;
+
+        // extend array if needed
+        if (!next[targetIndex]) {
+          next[targetIndex] = { year: null, data: null };
+        }
+
+        next[targetIndex] = {
+          ...next[targetIndex],
+          ...row,
+        };
+      });
+
+      return next;
+    });
+  }
+
+  /*
   function handlePaste(e: React.ClipboardEvent<HTMLInputElement>, startIndex: number) {
     isPasting.current = true;
     // Splits input at tabs, newlines, carriage returns, vertical tabs, and semicolons (other whitespace is trimmed a few lines below)
     const pastedText = e.clipboardData.getData("text");
+
+
+    const rows = pastedText
+      .trim()
+      .split(/\r?\n/); // split into rows (handles Windows & Unix)
+
+    const result = rows.map(row => {
+      const [yearRaw, dataRaw] = row.split("\t");
+      console.log({
+        year: yearRaw?.trim()
+          ? Number(yearRaw)
+          : null,
+        data: dataRaw?.trim()
+          ? Number(dataRaw)
+          : null,
+      })
+    });
+
     const pastedValues = pastedText.includes("\n")
       ? pastedText.split(/[\n\r?]+/)
       : pastedText.split(/[\t\r\v;]/);
@@ -69,21 +154,22 @@ export default function DataSeriesInputManual({
       }
     }
 
+    console.log(newValues)
     setDataSeriesValues(newValues);
 
     setTimeout(() => {
       isPasting.current = false;
     }, 0);
-  }
+  } */
 
   return (
     <>
       <Grid // TODO: Add caption  
-        props={{ 
-          className: `grid width-100 align-items-center ${styles.grid}`, 
+        props={{
+          className: `grid width-100 align-items-center ${styles.grid}`,
           style: { gridTemplateColumns: '100px 1fr auto' }
         }}
-       >
+      >
         <Grid.ColumnHeader>Year</Grid.ColumnHeader>
         <Grid.ColumnHeader>Value</Grid.ColumnHeader>
         <Grid.ColumnHeader>Action</Grid.ColumnHeader>
@@ -94,20 +180,49 @@ export default function DataSeriesInputManual({
               style={{ borderRight: '1px solid var(--gray-80)' }}
               key={`year-${index}`}
             >
-              <input type="number" defaultValue={item.year ? item.year : ''} tabIndex={-1}></input> {/* TODO: Need to make sure we handle tabindex here.  */}
+              <input
+                type="number"
+                tabIndex={-1}
+                value={item.year ? item.year : ''}
+                onChange={(e) => handleYearChange(index, e.target.value)}
+                onPaste={(e) => {
+                  // Make sure the pasted input is valid before handling paste
+                  const pasted = e.clipboardData.getData("text");
+                  if (!isValidPastedInput(pasted)) {
+                    e.preventDefault();
+                  } else {
+                    handlePaste(e, index);
+                  }
+                }}
+              />
             </Grid.Cell>,
             <Grid.Cell
               style={{ borderRight: '1px solid var(--gray-80)' }}
               key={`data-${index}`}
             >
-              <input type="number" defaultValue={item.data ? item.data : ''} tabIndex={-1}></input> {/* TODO: Need to make sure we handle tabindex here.  */}
+              <input
+                type="number"
+                tabIndex={-1}
+                value={item.data ? item.data : ''}
+                onChange={(e) => handleDataChange(index, e.target.value)}
+                onPaste={(e) => {
+                  // Make sure the pasted input is valid before handling paste
+                  const pasted = e.clipboardData.getData("text");
+                  console.log(pasted)
+                  if (!isValidPastedInput(pasted)) {
+                    e.preventDefault();
+                  } else {
+                    handlePaste(e, index);
+                  }
+                }}
+              />
             </Grid.Cell>,
             <Grid.Cell
               className='display-flex align-items-center'
               style={{ ...(isLastRow ? {} : { borderBottom: '1px solid var(--gray-80)' }), backgroundColor: 'var(--gray-95)' }}
               key={`test-${index}`} // TODO: Remove test
             >
-              <button // TODO: Do not allow deletion of last row, instead show a warning that the last row cannot be deleted, when deleting show popup asking for confirmation
+              <button // TODO: when deleting show popup asking for confirmation
                 className="padding-25 grid round transparent margin-inline-auto"
                 type="button"
                 aria-label="Delete row" /* TODO: i18n */
