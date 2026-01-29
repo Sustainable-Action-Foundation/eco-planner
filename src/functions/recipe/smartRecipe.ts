@@ -138,7 +138,7 @@ export class SmartRecipe {
     let equation = this.equation;
 
     if (equation.trim() === "") {
-      warnings.push("Equation is empty. Early return.");
+      console.info("Equation is empty. Early return.");
       return null;
     }
 
