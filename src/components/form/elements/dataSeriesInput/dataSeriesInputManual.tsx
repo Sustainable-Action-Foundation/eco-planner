@@ -81,7 +81,7 @@ export default function DataSeriesInputManual({
       .map(row => row.split("\t"));
   }
 
-  function handlePaste(
+  function handlePaste( // Ensure normal ctrl+z behavior
     e: React.ClipboardEvent<HTMLInputElement>,
     startIndex: number,
     targetColumn: string
@@ -101,25 +101,20 @@ export default function DataSeriesInputManual({
           next[rowIndex] = { year: null, data: null };
         }
 
-        // If two columns are pasted, fill both year and data
-        if (cols.length >= 2) {
+        // If we paste into data, we do not want any new data in the previous column (i.e years)
+        // If we paste into year, we expect both the year and data column to be filled out data exists
+        if (targetColumn == 'data') {
+          next[rowIndex] = {
+            year: next[rowIndex].year,
+            data: cols[0] ? Number(cols[0]) : null,
+          }
+        } else {
           next[rowIndex] = {
             year: cols[0] ? Number(cols[0]) : null,
             data: cols[1] ? Number(cols[1]) : null,
-          };
-          return;
+          }
         }
 
-        // If one columns is pasted, fill only the column which it was pasted to
-        const value = cols[0]?.trim()
-          ? Number(cols[0])
-          : null;
-
-        if (targetColumn === "year") {
-          next[rowIndex].year = value;
-        } else {
-          next[rowIndex].data = value;
-        }
       });
 
       return next;
