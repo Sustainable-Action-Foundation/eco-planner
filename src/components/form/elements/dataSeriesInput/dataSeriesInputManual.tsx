@@ -74,48 +74,58 @@ export default function DataSeriesInputManual({
     setDataSeriesValues(newValues);
   }
 
+  function parsePastedText(text: string) {
+    return text
+      .trim()
+      .split(/\r?\n/)
+      .map(row => row.split("\t"));
+  }
+
   function handlePaste(
     e: React.ClipboardEvent<HTMLInputElement>,
-    startIndex: number
+    startIndex: number,
+    targetColumn: string
   ) {
-    e.preventDefault(); // important: we fully control the paste
-    isPasting.current = true;
+    e.preventDefault();
 
     const pastedText = e.clipboardData.getData("text");
-
-    const rows = pastedText
-      .trim()
-      .split(/\r?\n/);
-
-    const parsedRows = rows.map(row => {
-      const [yearRaw, dataRaw] = row.split("\t");
-
-      return {
-        year: yearRaw?.trim() ? Number(yearRaw) : null,
-        data: dataRaw?.trim() ? Number(dataRaw) : null,
-      };
-    });
+    const rows = parsePastedText(pastedText);
 
     setValue(prev => {
       const next = [...prev];
 
-      parsedRows.forEach((row, i) => {
-        const targetIndex = startIndex + i;
+      rows.forEach((cols, rowOffset) => {
+        const rowIndex = startIndex + rowOffset;
 
-        // extend array if needed
-        if (!next[targetIndex]) {
-          next[targetIndex] = { year: null, data: null };
+        if (!next[rowIndex]) {
+          next[rowIndex] = { year: null, data: null };
         }
 
-        next[targetIndex] = {
-          ...next[targetIndex],
-          ...row,
-        };
+        // If two columns are pasted, fill both year and data
+        if (cols.length >= 2) {
+          next[rowIndex] = {
+            year: cols[0] ? Number(cols[0]) : null,
+            data: cols[1] ? Number(cols[1]) : null,
+          };
+          return;
+        }
+
+        // If one columns is pasted, fill only the column which it was pasted to
+        const value = cols[0]?.trim()
+          ? Number(cols[0])
+          : null;
+
+        if (targetColumn === "year") {
+          next[rowIndex].year = value;
+        } else {
+          next[rowIndex].data = value;
+        }
       });
 
       return next;
     });
   }
+
 
   /*
   function handlePaste(e: React.ClipboardEvent<HTMLInputElement>, startIndex: number) {
@@ -191,7 +201,7 @@ export default function DataSeriesInputManual({
                   if (!isValidPastedInput(pasted)) {
                     e.preventDefault();
                   } else {
-                    handlePaste(e, index);
+                    handlePaste(e, index, 'year')
                   }
                 }}
               />
@@ -212,7 +222,7 @@ export default function DataSeriesInputManual({
                   if (!isValidPastedInput(pasted)) {
                     e.preventDefault();
                   } else {
-                    handlePaste(e, index);
+                    handlePaste(e, index, "data");
                   }
                 }}
               />

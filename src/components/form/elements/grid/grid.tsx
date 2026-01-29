@@ -108,7 +108,7 @@ export default function Grid({
       className={`${props.className ? `${props.className} ` : ''}`}
       style={{ ...props.style }}
       role="grid"
-      aria-labelledby="" // Remember to pass this in props
+      aria-labelledby="" // Todo: Remember to pass this in props
       onFocusCapture={(e) => { /* Todo: We currently need to shift+tab tab twice to escape the grid. We likely want to set tabindex -1 if there is a focused child.   */
         const grid = e.currentTarget as HTMLElement
         const target = e.target as HTMLElement
@@ -138,7 +138,7 @@ export default function Grid({
           return child
         }
 
-        const row = Math.floor(index / amountColumns)
+        const row = Math.floor(index / amountColumns) 
         const column = index % amountColumns
 
         let tabIndex: 0 | -1 = -1

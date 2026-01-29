@@ -21,7 +21,7 @@ export function handleKeyDownGrid({
   }
   if (e.key === 'ArrowUp') {
     e.preventDefault()
-    if (activeCell.row === 0) return
+    if (activeCell.row === 1) return // TODO: We likely want to start rows at 0 in the future. We set it to 1 for now as the headers make up the first row
     setActivecell({ row: activeCell.row - 1, column: activeCell.column })
   }
   if (e.key === 'ArrowRight') {
@@ -46,7 +46,7 @@ export function handleKeyDownGrid({
   // If the grid is scrollable other behaviour applies, see mdn. 
   if (e.key === 'PageUp') { 
     e.preventDefault()
-    setActivecell({ row: 0, column: activeCell.column })
+    setActivecell({ row: 1, column: activeCell.column }) // TODO: We likely want to start rows at 0 in the future. We set it to 1 for now as the headers make up the first row
   }
   if (e.key === 'PageDown') {
     e.preventDefault()
