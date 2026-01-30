@@ -440,28 +440,40 @@ export type GoalUpdateInput = {
 };
 
 /** The format of the data needed to create a new action. */
-export type ActionInput = Omit<
-  Prisma.ActionCreateInput,
-  'id' | 'createdAt' | 'updatedAt' | 'roadmap' | 'dataSeries' |
-  'author' | 'notes' | 'links' | 'comments' | 'effects'
-> & {
-  // UUID of the roadmap this action belongs to
-  roadmapId?: string;
-  dataSeries?: string[] | null | undefined;
-  // UUID for the goal the dataSeries (effect) affects, if any
-  goalId?: string | undefined;
-  // The type of impact the effect has, if an effect is included
-  impactType?: ActionImpactType | undefined;
-  links?: { url: string, description?: string }[] | undefined;
+export type ActionInput = {
+  roadmapId: string | undefined;
+  goalId: string | undefined;
+
+  description: string | null | undefined;
+  name: string;
+  startYear: number | null | undefined;
+  endYear: number | null | undefined;
+
+  costEfficiency: string | null | undefined;
+  expectedOutcome: string | null | undefined;
+
+  projectManager: string | null | undefined;
+  relevantActors: string | null | undefined;
+
+  isSufficiency: boolean | undefined;
+  isEfficiency: boolean | undefined;
+  isRenewables: boolean | undefined;
+
+  parentAction: Action | null | undefined;
+  childActions: Action[] | null | undefined;
+
+  dataSeries: string[] | null | undefined;
+  impactType: ActionImpactType | undefined;
+
+  // TODO: Deprecated - will be moved to description
+  links: { url: string, description?: string | null }[] | null | undefined;
 };
 
-export type EffectInput = Omit<
-  Prisma.EffectCreateInput,
-  'action' | 'goal' | 'dataSeries' | 'createdAt' | 'updatedAt'
-> & {
-  actionId: string;
+export type EffectInput = {
   goalId: string;
-  // dataSeries may be undefined when editing, to avoid changing it, but it's required when creating
+  actionId: string;
+
+  impactType: ActionImpactType | undefined;
   dataSeries: DateValuesWithUnit;
 };
 
@@ -484,7 +496,6 @@ export function isUnitString(unit: JSONValue | undefined): unit is UnitString {
 }
 /** This is not compliant with ISO-8601, it's a vary narrow format that's a subset of that standard */
 export function isISOIshDate(dateString: string): dateString is ISOIshDate {
-  // return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(dateString);
   return /^\d{4}-\d{2}-\d{2}T00:00:00\.000Z$/.test(dateString);
 }
 export function isDateValuesWithUnit(dateValues: JSONValue): dateValues is Partial<DateValuesWithUnit> {

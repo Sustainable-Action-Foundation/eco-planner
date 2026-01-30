@@ -4,12 +4,11 @@ import type getOneAction from "@/fetchers/getOneAction.ts";
 import type getOneGoal from "@/fetchers/getOneGoal.ts";
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import formSubmitter from "@/functions/formSubmitter";
-import { Years, EffectInput } from "@/types";
+import { EffectInput } from "@/types";
 import { ActionImpactType, DataSeries, Effect } from "@prisma/client";
 import { useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput";
-import { getDataSeries } from "../elements/dataSeriesInput/utils";
 import { absoluteToDelta, ActionSelector, deltaToAbsolute, GoalSelector } from "../sections/effectFormSections";
 
 export default function EffectForm({
@@ -106,7 +105,7 @@ export default function EffectForm({
           labelKey="forms:data_series_input.data_series"
         />
 
-        { 
+        {
           // TODO: This code can be cleaned up
           selectedImpactType === ActionImpactType.ABSOLUTE ?
             <div className="margin-block-100">

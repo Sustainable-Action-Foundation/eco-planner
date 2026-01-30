@@ -6,7 +6,6 @@ import accessChecker from "@/lib/accessChecker";
 import { revalidateTag } from "next/cache";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { cookies } from "next/headers";
-import dataSeriesPrep from "../goal/dataSeriesPrep";
 import { Prisma } from "@prisma/client";
 
 /**
@@ -56,21 +55,23 @@ export async function POST(request: NextRequest) {
           isPublic: true,
         }
       }),
-      action.goalId ? prisma.goal.findUnique({
-        where: { id: action.goalId },
-        include: {
-          roadmap: {
-            select: {
-              author: { select: { id: true, username: true } },
-              editors: { select: { id: true, username: true } },
-              viewers: { select: { id: true, username: true } },
-              editGroups: { include: { users: { select: { id: true, username: true } } } },
-              viewGroups: { include: { users: { select: { id: true, username: true } } } },
-              isPublic: true,
+      !action.goalId
+        ? null
+        : prisma.goal.findUnique({
+          where: { id: action.goalId },
+          include: {
+            roadmap: {
+              select: {
+                author: { select: { id: true, username: true } },
+                editors: { select: { id: true, username: true } },
+                viewers: { select: { id: true, username: true } },
+                editGroups: { include: { users: { select: { id: true, username: true } } } },
+                viewGroups: { include: { users: { select: { id: true, username: true } } } },
+                isPublic: true,
+              }
             }
           }
-        }
-      }) : null,
+        }),
     ]);
 
     // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
