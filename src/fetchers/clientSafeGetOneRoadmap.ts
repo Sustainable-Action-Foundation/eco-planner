@@ -44,7 +44,6 @@ async function getCachedClientSafeRoadmap(id: string, user: LoginData['user']): 
 
     return roadmap;
   }
-  console.log(roadmap);
 
   // If user is logged in, get all roadmaps they have access to
   if (user?.isLoggedIn) {

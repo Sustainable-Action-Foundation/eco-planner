@@ -171,41 +171,13 @@ export default function GoalForm({
 
     // Build the JSON payload for the API
     let formContent: GoalCreateInput | GoalUpdateInput;
-    if (currentGoal) {
-      formContent = {
-        goalId: currentGoal.id,
-        timestamp: timestamp, // Only needed for edits
-
-        name: formData.get("goalName") as string | null || undefined,
-        description: JSON.stringify(editorContent),
-        indicatorParameter: formData.get("indicatorParameter") as string | null ?? undefined,
-        isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked ?? undefined,
-        recipeSuggestions: undefined, // TODO: add recipe suggestions input
-
-        externalDataset: undefined,
-        externalTableId: undefined,
-        externalSelection: undefined,
-
-        dataSeriesId: undefined,
-        dataSeries: parsedDateValues,
-        dataSeriesRecipe: parsedRecipe,
-
-        baselineId: undefined,
-        baseline: undefined,
-        baselineRecipe: undefined,
-
-        roadmapId: undefined, // Can't reassign the roadmap of an existing goal
-        rawTags: undefined, // TODO: add tags input
-
-        // DEPRECATED - moved to description
-        links: undefined,
-      }
-    } else {
+    if (!currentGoal) {
+      // Create
       formContent = {
         goalId: undefined, // Ignored when creating
         timestamp: undefined, // Ignored when creating
 
-        name: formData.get("goalName") as string | null || null,
+        name: formData.get("goalName") as string | null ?? null,
         description: JSON.stringify(editorContent),
         indicatorParameter: formData.get("indicatorParameter") as string | null ?? (event.target.reportValidity(), ""),
         isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked || false,
@@ -229,7 +201,38 @@ export default function GoalForm({
 
         // DEPRECATED - moved to description
         links: undefined,
-      }
+      } satisfies GoalCreateInput;
+    }
+    else {
+      // Update
+      formContent = {
+        goalId: currentGoal.id,
+        timestamp: timestamp, // Only needed for edits
+
+        name: formData.get("goalName") as string | null ?? undefined,
+        description: JSON.stringify(editorContent),
+        indicatorParameter: formData.get("indicatorParameter") as string | null ?? undefined,
+        isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked ?? undefined,
+        recipeSuggestions: undefined, // TODO: add recipe suggestions input
+
+        externalDataset: undefined,
+        externalTableId: undefined,
+        externalSelection: undefined,
+
+        dataSeriesId: undefined,
+        dataSeries: parsedDateValues,
+        dataSeriesRecipe: parsedRecipe,
+
+        baselineId: undefined,
+        baseline: undefined,
+        baselineRecipe: undefined,
+
+        roadmapId: undefined, // Can't reassign the roadmap of an existing goal
+        rawTags: undefined, // TODO: add tags input
+
+        // DEPRECATED - moved to description
+        links: undefined,
+      } satisfies GoalUpdateInput;
     }
 
     const formJSON = JSON.stringify(formContent);
