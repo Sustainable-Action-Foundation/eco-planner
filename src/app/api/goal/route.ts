@@ -9,7 +9,6 @@ import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { Prisma } from "@prisma/client";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { isRecipe } from "@/functions/recipe/types";
-import { SmartRecipe } from "@/functions/recipe/smartRecipe";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/extractors";
 
 function tryParseJSON(value: unknown): { ok: true; value: unknown } | { ok: false } {
@@ -289,35 +288,61 @@ export async function POST(request: NextRequest) {
   // Parse form data
   try {
     await prisma.$transaction(async (prisma) => {
-      // Write recipes first
-      const dataSeriesHash = formData.dataSeriesRecipe
-        ? await SmartRecipe.hash(formData.dataSeriesRecipe)
-        : null;
-      if (formData.dataSeriesRecipe && dataSeriesHash) {
-        await prisma.recipe.upsert({
-          where: { hash: dataSeriesHash, },
-          update: { recipe: formData.dataSeriesRecipe }, // Should not happen, like at all
-          create: {
-            hash: dataSeriesHash,
-            recipe: formData.dataSeriesRecipe,
-          },
+      // Create recipes first
+      // New recipe data + existing recipe ID = update
+      if (formData.dataSeriesRecipe && formData.dataSeriesRecipeId) {
+        await prisma.recipe.update({
+          where: { id: formData.dataSeriesRecipeId, },
+          data: { recipe: formData.dataSeriesRecipe, },
         });
       }
-      const baselineHash = formData.baselineRecipe
-        ? await SmartRecipe.hash(formData.baselineRecipe)
-        : null;
-      if (formData.baselineRecipe && baselineHash) {
-        await prisma.recipe.upsert({
-          where: { hash: baselineHash, },
-          update: { recipe: formData.baselineRecipe }, // Should not happen, like at all
-          create: {
-            hash: baselineHash,
-            recipe: formData.baselineRecipe,
-          },
+      // New recipe data + no existing recipe ID = create
+      else if (formData.dataSeriesRecipe) {
+        formData.dataSeriesRecipeId = (await prisma.recipe.create({
+          data: { recipe: formData.dataSeriesRecipe, },
+          select: { id: true, },
+        })).id;
+      }
+      // No new recipe data + existing recipe ID = link (if exists)
+      else if (!formData.dataSeriesRecipe && formData.dataSeriesRecipeId) {
+        const existingRecipe = await prisma.recipe.findUnique({
+          where: { id: formData.dataSeriesRecipeId, },
+          select: { id: true, },
         });
+        if (!existingRecipe) {
+          console.warn(`Goal creation: tried linking goal with a data series recipe (${formData.dataSeriesRecipeId}) but not found, unlinking...`);
+          formData.dataSeriesRecipeId = null;
+        }
+      }
+      // Baseline recipe
+      // New recipe data + existing recipe ID = update
+      if (formData.baselineRecipe && formData.baselineRecipeId) {
+        await prisma.recipe.update({
+          where: { id: formData.baselineRecipeId, },
+          data: { recipe: formData.baselineRecipe, },
+        });
+      }
+      // New recipe data + no existing recipe ID = create
+      else if (formData.baselineRecipe) {
+        formData.baselineRecipeId = (await prisma.recipe.create({
+          data: { recipe: formData.baselineRecipe, },
+          select: { id: true, },
+        })).id;
+      }
+      // No new recipe data + existing recipe ID = link (if exists)
+      else if (!formData.baselineRecipe && formData.baselineRecipeId) {
+        const existingRecipe = await prisma.recipe.findUnique({
+          where: { id: formData.baselineRecipeId, },
+          select: { id: true, },
+        });
+        if (!existingRecipe) {
+          console.warn(`Goal creation: tried linking goal with a baseline recipe (${formData.baselineRecipeId}) but not found, unlinking...`);
+          formData.baselineRecipeId = null;
+        }
       }
 
-      const newGoal = await prisma.goal.create({
+      // Create goal
+      goalId = (await prisma.goal.create({
         data: {
           name: formData.name,
           description: formData.description,
@@ -334,24 +359,22 @@ export async function POST(request: NextRequest) {
           },
           dataSeries: {
             create: {
-              author: { connect: { id: session.user?.id } },
-              ...(dataSeriesHash
-                ? { recipeUsed: { connect: { hash: dataSeriesHash, }, }, }
-                : {}
-              ),
-              values: formData.dataSeries.dateValues,
-              unit: formData.dataSeries.unit,
-            }
+              author: { connect: { id: session.user?.id }, },
+              recipeUsed: formData.dataSeriesRecipeId !== null
+                ? { connect: { id: formData.dataSeriesRecipeId, }, }
+                : undefined,
+              values: { createMany: { data: dateValuesToDBDateRecord(formData.dataSeries.dateValues) }, },
+              ...(formData.dataSeries.unit == null ? {} : { unit: formData.dataSeries.unit }),
+            },
           },
           baseline: {
             create: {
-              author: { connect: { id: session.user?.id } },
-              ...(baselineHash
-                ? { recipeUsed: { connect: { hash: baselineHash, }, }, }
-                : {}
-              ),
-              values: formData.baseline.dateValues,
-              unit: formData.baseline.unit,
+              author: { connect: { id: session.user?.id }, },
+              recipeUsed: formData.baselineRecipeId !== null
+                ? { connect: { id: formData.baselineRecipeId, }, }
+                : undefined,
+              values: { createMany: { data: dateValuesToDBDateRecord(formData.baseline.dateValues) }, },
+              ...(formData.baseline.unit == null ? {} : { unit: formData.baseline.unit }),
             },
           },
           links: {
@@ -364,9 +387,7 @@ export async function POST(request: NextRequest) {
         select: {
           id: true,
         },
-      });
-
-      goalId = newGoal.id;
+      })).id;
     });
 
     // Invalidate old cache
