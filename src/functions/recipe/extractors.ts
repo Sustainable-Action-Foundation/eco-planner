@@ -461,3 +461,10 @@ export function dataSeriesToDateValues(dataSeries: DataSeries): DateValuesWithUn
     unit: dataSeries.unit ?? undefined, // TODO: unit handling
   };
 }
+
+export function dateValuesToDBDateRecord(dateValues: DateValues): DataSeries["values"] {
+  return Object.entries(dateValues).map(([key, val]) => ({
+    timestamp: new Date(key),
+    value: val,
+  }));
+}

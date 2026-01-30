@@ -370,12 +370,14 @@ export type GoalCreateInput = {
 
   recipeSuggestions: Recipe[] | null | undefined;
 
-  dataSeries: DateValuesWithUnit;
   dataSeriesId: string | null | undefined;
+  dataSeries: DateValuesWithUnit;
+  dataSeriesRecipeId: string | null | undefined;
   dataSeriesRecipe: Recipe | null | undefined;
 
-  baseline: DateValuesWithUnit;
   baselineId: string | null | undefined;
+  baseline: DateValuesWithUnit;
+  baselineRecipeId: string | null | undefined;
   baselineRecipe: Recipe | null | undefined;
 
   // Relations
@@ -418,12 +420,14 @@ export type GoalUpdateInput = {
   externalTableId: string | null | undefined;
   externalSelection: string | null | undefined;
 
-  dataSeries: DateValuesWithUnit | null | undefined;
   dataSeriesId: string | null | undefined;
+  dataSeries: DateValuesWithUnit | null | undefined;
+  dataSeriesRecipeId: string | null | undefined;
   dataSeriesRecipe: Recipe | null | undefined;
 
-  baseline: DateValuesWithUnit | null | undefined;
   baselineId: string | null | undefined;
+  baseline: DateValuesWithUnit | null | undefined;
+  baselineRecipeId: string | null | undefined;
   baselineRecipe: Recipe | null | undefined;
 
   recipeSuggestions: Recipe[] | null | undefined;

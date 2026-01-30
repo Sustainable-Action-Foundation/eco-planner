@@ -10,6 +10,7 @@ import { Prisma } from "@prisma/client";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { isRecipe } from "@/functions/recipe/types";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
+import { dateValuesToDBDateRecord } from "@/functions/recipe/extractors";
 
 function tryParseJSON(value: unknown): { ok: true; value: unknown } | { ok: false } {
   if (typeof value !== "string") return { ok: true, value };
@@ -480,36 +481,61 @@ export async function PUT(request: NextRequest) {
   let goalId: string | undefined = undefined;
   try {
     await prisma.$transaction(async (prisma) => {
-      // Write recipes first
-      const dataSeriesHash = goal.dataSeriesRecipe
-        ? await SmartRecipe.hash(goal.dataSeriesRecipe)
-        : null;
-      if (goal.dataSeriesRecipe && dataSeriesHash) {
-        await prisma.recipe.upsert({
-          where: { hash: dataSeriesHash, },
-          update: { recipe: goal.dataSeriesRecipe }, // Should not happen, like at all
-          create: {
-            hash: dataSeriesHash,
-            recipe: goal.dataSeriesRecipe,
-          },
+      // Do recipes before goal update
+      // New recipe data + existing recipe ID = update
+      if (goal.dataSeriesRecipe && goal.dataSeriesRecipeId) {
+        await prisma.recipe.update({
+          where: { id: goal.dataSeriesRecipeId, },
+          data: { recipe: goal.dataSeriesRecipe, },
         });
       }
-      const baselineHash = goal.baselineRecipe
-        ? await SmartRecipe.hash(goal.baselineRecipe)
-        : null;
-      if (goal.baselineRecipe && baselineHash) {
-        await prisma.recipe.upsert({
-          where: { hash: baselineHash, },
-          update: { recipe: goal.baselineRecipe }, // Should not happen, like at all
-          create: {
-            hash: baselineHash,
-            recipe: goal.baselineRecipe,
-          },
+      // New recipe data + no existing recipe ID = create
+      else if (goal.dataSeriesRecipe) {
+        goal.dataSeriesRecipeId = (await prisma.recipe.create({
+          data: { recipe: goal.dataSeriesRecipe, },
+          select: { id: true, },
+        })).id;
+      }
+      // No new recipe data + existing recipe ID = link (if exists)
+      else if (!goal.dataSeriesRecipe && goal.dataSeriesRecipeId) {
+        const existingRecipe = await prisma.recipe.findUnique({
+          where: { id: goal.dataSeriesRecipeId, },
+          select: { id: true, },
         });
+        if (!existingRecipe) {
+          console.warn(`Goal update: tried updating goal with a data series recipe (${goal.dataSeriesRecipeId}) but not found, unlinking...`);
+          goal.dataSeriesRecipeId = null;
+        }
+      }
+      // Baseline recipe
+      // New recipe data + existing recipe ID = update
+      if (goal.baselineRecipe && goal.baselineRecipeId) {
+        await prisma.recipe.update({
+          where: { id: goal.baselineRecipeId, },
+          data: { recipe: goal.baselineRecipe, },
+        });
+      }
+      // New recipe data + no existing recipe ID = create
+      else if (goal.baselineRecipe) {
+        goal.baselineRecipeId = (await prisma.recipe.create({
+          data: { recipe: goal.baselineRecipe, },
+          select: { id: true, },
+        })).id;
+      }
+      // No new recipe data + existing recipe ID = link (if exists)
+      else if (!goal.baselineRecipe && goal.baselineRecipeId) {
+        const existingRecipe = await prisma.recipe.findUnique({
+          where: { id: goal.baselineRecipeId, },
+          select: { id: true, },
+        });
+        if (!existingRecipe) {
+          console.warn(`Goal update: tried updating goal with a baseline recipe (${goal.baselineRecipeId}) but not found, unlinking...`);
+          goal.baselineRecipeId = null;
+        }
       }
 
       // Update goal
-      const editedGoal = await prisma.goal.update({
+      goalId = (await prisma.goal.update({
         where: { id: goal.goalId },
         data: {
           name: goal.name,
@@ -519,62 +545,28 @@ export async function PUT(request: NextRequest) {
           externalDataset: goal.externalDataset,
           externalTableId: goal.externalTableId,
           externalSelection: goal.externalSelection,
-          // Only update the data series if it is not undefined (undefined means no change)
-          ...(
-            goal.dataSeries === undefined
-              ? {}
-              : goal.dataSeries ? {
-                dataSeries: {
-                  upsert: {
-                    create: {
-                      author: { connect: { id: session.user?.id } },
-                      ...(dataSeriesHash
-                        ? { recipeUsed: { connect: { hash: dataSeriesHash, }, }, }
-                        : {}
-                      ),
-                      values: goal.dataSeries.dateValues,
-                      unit: goal.dataSeries.unit,
-                    },
-                    update: {
-                      ...(dataSeriesHash
-                        ? { recipeUsed: { connect: { hash: dataSeriesHash, }, }, }
-                        : {}
-                      ),
-                      values: goal.dataSeries.dateValues,
-                      unit: goal.dataSeries.unit,
-                    }
-                  }
-                }
-              } : {}
-          ),
-          // Only update the baseline if it is not undefined (undefined means no change)
-          ...(
-            goal.baseline === undefined
-              ? {}
-              : goal.baseline ? {
-                baseline: {
-                  upsert: {
-                    create: {
-                      author: { connect: { id: session.user?.id } },
-                      ...(baselineHash
-                        ? { recipeUsed: { connect: { hash: baselineHash, }, }, }
-                        : {}
-                      ),
-                      values: goal.baseline.dateValues,
-                      unit: goal.baseline.unit,
-                    },
-                    update: {
-                      ...(baselineHash
-                        ? { recipeUsed: { connect: { hash: baselineHash, }, }, }
-                        : {}
-                      ),
-                      values: goal.baseline.dateValues,
-                      unit: goal.baseline.unit,
-                    }
-                  }
-                }
-              } : {}
-          ),
+          dataSeries: !goal.dataSeries
+            ? undefined
+            : {
+              update: {
+                recipeUsed: goal.dataSeriesRecipeId !== null
+                  ? { connect: { id: goal.dataSeriesRecipeId, }, }
+                  : { disconnect: true, },
+                values: { createMany: { data: dateValuesToDBDateRecord(goal.dataSeries.dateValues) }, },
+                ...(goal.dataSeries.unit == null ? {} : { unit: goal.dataSeries.unit }),
+              },
+            },
+          baseline: !goal.baseline
+            ? undefined
+            : {
+              update: {
+                recipeUsed: goal.baselineRecipeId !== null
+                  ? { connect: { id: goal.baselineRecipeId, }, }
+                  : { disconnect: true, },
+                values: { createMany: { data: dateValuesToDBDateRecord(goal.baseline.dateValues) }, },
+                ...(goal.baseline.unit == null ? {} : { unit: goal.baseline.unit }),
+              },
+            },
           links: {
             deleteMany: {},
             create: goal.links?.map(link => ({
@@ -586,9 +578,7 @@ export async function PUT(request: NextRequest) {
         select: {
           id: true,
         },
-      });
-
-      goalId = editedGoal.id;
+      })).id;
     });
 
     // Prune any orphaned links and comments

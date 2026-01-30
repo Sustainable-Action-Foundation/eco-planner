@@ -199,8 +199,8 @@ model DataSeries {
   values DateRecord[]
 
   // Data series may be derived using a recipe so these are optional
-  recipeUsedHash   String?
-  recipeUsed       Recipe?  @relation(name: "recipe_used", fields: [recipeUsedHash], references: [hash])
+  recipeUsedId     String?
+  recipeUsed       Recipe?  @relation(name: "recipe_used", fields: [recipeUsedId], references: [id])
   dependentRecipes Recipe[] @relation(name: "source_data_series")
 
   dependentGoals     Goal[]   @relation("goal_data_series")
@@ -221,8 +221,7 @@ model DateRecord {
 }
 
 model Recipe {
-  // sha256 hash of the recipe JSON
-  hash              String       @id
+  id                String       @id @default(uuid())
   recipe            Json         @db.Json
   suggestedByGoals  Goal[]       @relation("inheritance_suggestions")
   derivedDataSeries DataSeries[] @relation("recipe_used")

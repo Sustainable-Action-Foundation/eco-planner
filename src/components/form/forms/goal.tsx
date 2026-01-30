@@ -81,11 +81,11 @@ export default function GoalForm({
     }
 
     // Parse recipe (optional)
-    let parsedRecipe: Recipe | undefined = undefined;
+    let dataSeriesRecipe: Recipe | undefined = undefined;
     const resultingRecipeString = formData.get("resultingRecipe") as string | null;
     if (resultingRecipeString) {
       try {
-        parsedRecipe = recipeFromUnknown(resultingRecipeString);
+        dataSeriesRecipe = recipeFromUnknown(resultingRecipeString);
       } catch (e) {
         console.error("Failed to parse resulting recipe from form:", e);
         event.target.reportValidity();
@@ -100,20 +100,20 @@ export default function GoalForm({
       event.target.reportValidity();
       return;
     }
-    let parsedDateValues: DateValuesWithUnit | undefined = undefined;
+    let dataSeries: DateValuesWithUnit | undefined = undefined;
     try {
-      parsedDateValues = JSON.parse(resultingDateValuesString) as DateValuesWithUnit;
+      dataSeries = JSON.parse(resultingDateValuesString) as DateValuesWithUnit;
     } catch (e) {
       console.error("Failed to parse resulting date values from form:", e);
       event.target.reportValidity();
       return;
     }
-
+    // Validate parsed date values
     if (
-      !parsedDateValues
-      || !isDateValuesWithUnit(parsedDateValues)
+      !dataSeries
+      || !isDateValuesWithUnit(dataSeries)
     ) {
-      console.error("Parsed date values from form are invalid:", parsedDateValues);
+      console.error("Parsed date values from form are invalid:", dataSeries);
       event.target.reportValidity();
       return;
     }
@@ -136,7 +136,7 @@ export default function GoalForm({
       || baselineType === BaselineType.InitialNonZero
     ) {
       // Use the first value of the data series as the baseline
-      const dates = Object.keys(parsedDateValues.dateValues).sort();
+      const dates = Object.keys(dataSeries.dateValues).sort();
       if (!dates.every(isISOIshDate)) throw new Error("Dates in data series are not in a valid ISO-ish format.");
       if (dates.length === 0) {
         console.error("Cannot use initial baseline when data series is empty.");
@@ -145,13 +145,13 @@ export default function GoalForm({
       }
 
       baseline = {
-        unit: parsedDateValues.unit,
+        unit: dataSeries.unit,
         dateValues: {},
       } satisfies DateValuesWithUnit;
 
       const firstDateValue = baselineType === BaselineType.InitialNonZero
-        ? parsedDateValues.dateValues[dates.find(date => parsedDateValues.dateValues[date] !== 0) || dates[0]]
-        : parsedDateValues.dateValues[dates[0]]
+        ? dataSeries.dateValues[dates.find(date => dataSeries.dateValues[date] !== 0) || dates[0]]
+        : dataSeries.dateValues[dates[0]]
 
       for (const date of dates) {
         baseline.dateValues[date] = firstDateValue;
@@ -168,7 +168,6 @@ export default function GoalForm({
         return;
       }
     }
-
     // Throw if baseline is missing on create
     if (!currentGoal && !baseline) {
       console.error("No baseline provided for new goal.");
@@ -196,8 +195,8 @@ export default function GoalForm({
         externalSelection: null,
 
         dataSeriesId: null,
-        dataSeries: parsedDateValues,
-        dataSeriesRecipe: parsedRecipe,
+        dataSeries: dataSeries,
+        dataSeriesRecipe: dataSeriesRecipe,
 
         baselineId: null,
         baseline: baseline,
@@ -227,8 +226,8 @@ export default function GoalForm({
         externalSelection: undefined,
 
         dataSeriesId: undefined,
-        dataSeries: parsedDateValues,
-        dataSeriesRecipe: parsedRecipe,
+        dataSeries: dataSeries,
+        dataSeriesRecipe: dataSeriesRecipe,
 
         baselineId: undefined,
         baseline: undefined,
