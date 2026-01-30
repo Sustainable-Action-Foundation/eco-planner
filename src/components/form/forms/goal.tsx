@@ -169,9 +169,16 @@ export default function GoalForm({
       }
     }
 
+    // Throw if baseline is missing on create
+    if (!currentGoal && !baseline) {
+      console.error("No baseline provided for new goal.");
+      event.target.reportValidity();
+      return;
+    }
+
     // Build the JSON payload for the API
     let formContent: GoalCreateInput | GoalUpdateInput;
-    if (!currentGoal) {
+    if (!currentGoal && baseline) {
       // Create
       formContent = {
         goalId: undefined, // Ignored when creating
@@ -193,7 +200,7 @@ export default function GoalForm({
         dataSeriesRecipe: parsedRecipe,
 
         baselineId: null,
-        baseline: null,
+        baseline: baseline,
         baselineRecipe: null,
 
         roadmapId: roadmapId || parentRoadmapId,
@@ -203,7 +210,7 @@ export default function GoalForm({
         links: undefined,
       } satisfies GoalCreateInput;
     }
-    else {
+    else if (currentGoal) {
       // Update
       formContent = {
         goalId: currentGoal.id,
@@ -233,6 +240,9 @@ export default function GoalForm({
         // DEPRECATED - moved to description
         links: undefined,
       } satisfies GoalUpdateInput;
+    }
+    else {
+      throw new Error("Missing data to create or update goal.");
     }
 
     const formJSON = JSON.stringify(formContent);
