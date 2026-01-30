@@ -479,6 +479,8 @@ export type EffectInput = {
 
   impactType: ActionImpactType | undefined;
   dataSeries: DateValuesWithUnit;
+
+  timestamp: number | undefined;
 };
 
 export type UnitString = string | null | undefined;

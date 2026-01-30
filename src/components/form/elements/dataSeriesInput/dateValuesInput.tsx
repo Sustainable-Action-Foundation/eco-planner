@@ -4,15 +4,26 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./dateValuesInput.module.css";
 import { IconCaretDownFilled, IconCaretUpFilled } from "@tabler/icons-react";
-import { DateValues, DateValuesWithUnit, isISOIshDate, ISOIshDate } from "@/types";
+import { DateValuesWithUnit, isISOIshDate, ISOIshDate } from "@/types";
 
 export default function DateValuesInput({
   initialDateValues = { unit: undefined, dateValues: {} },
+
+  dateValues: controlledDateValues,
+  dateValuesSetter,
+
   outputFormElement,
   label,
 }: {
-  initialDateValues?: DateValuesWithUnit;
-  outputFormElement: React.ReactElement<HTMLInputElement>;
+  initialDateValues?: DateValuesWithUnit | undefined;
+
+  /** Controlled input type thing */
+  dateValues?: DateValuesWithUnit | undefined;
+  /** In case changes in the data series needs to be reported upwards instantly, not through the form */
+  dateValuesSetter?: React.Dispatch<React.SetStateAction<DateValuesWithUnit>> | undefined;
+
+  /** You may choose whether to read the result of this component via a set state action or forms */
+  outputFormElement?: React.ReactElement<HTMLInputElement> | undefined;
   /** To translate, provide a t(key) so this receives a pre translated label */
   label: string;
 }) {
@@ -20,7 +31,24 @@ export default function DateValuesInput({
 
   const [tableIsVisible, setTableIsVisible] = useState(true);
 
-  const [dateValues, setDateValues] = useState<DateValues>(initialDateValues.dateValues);
+  const [uncontrolledDateValues, setUncontrolledDateValues] = useState<DateValuesWithUnit>(initialDateValues);
+  const effectiveDateValues = controlledDateValues ?? uncontrolledDateValues;
+
+  useEffect(() => {
+    if (controlledDateValues === undefined) {
+      setUncontrolledDateValues(initialDateValues);
+    }
+  }, [controlledDateValues, initialDateValues]);
+
+  const updateDateValues = (updater: (prev: DateValuesWithUnit) => DateValuesWithUnit) => {
+    const next = updater(effectiveDateValues);
+    if (controlledDateValues === undefined) {
+      setUncontrolledDateValues(next);
+    }
+    if (dateValuesSetter) {
+      dateValuesSetter(next);
+    }
+  };
 
   const [startDate, setStartDate] = useState<ISOIshDate>(`2020-01-01T00:00:00.000Z`);
   const [endDate, setEndDate] = useState<ISOIshDate>(`2050-01-01T00:00:00.000Z`);
@@ -63,8 +91,8 @@ export default function DateValuesInput({
 
   return (
     <>
-      {React.cloneElement(outputFormElement, {
-        value: JSON.stringify({ dateValues, unit: initialDateValues.unit } satisfies DateValuesWithUnit),
+      {outputFormElement && React.cloneElement(outputFormElement, {
+        value: JSON.stringify({ dateValues: effectiveDateValues.dateValues, unit: effectiveDateValues.unit } satisfies DateValuesWithUnit),
         type: "hidden",
         hidden: true,
         readOnly: true,
@@ -166,11 +194,14 @@ export default function DateValuesInput({
                   name={date}
                   className={`${styles['spreadsheet-input']} purewhite`}
 
-                  value={dateValues[date] ?? ""}
+                  value={effectiveDateValues.dateValues[date] ?? ""}
                   onChange={(e) => {
-                    setDateValues(prev => ({
+                    updateDateValues(prev => ({
                       ...prev,
-                      [date]: e.target.value
+                      dateValues: {
+                        ...prev.dateValues,
+                        [date]: e.target.value,
+                      },
                     }));
                   }}
 

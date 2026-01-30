@@ -71,7 +71,7 @@ export default async function Page(
             {t("pages:effect_create.bad_goal")}
           </p>
         }
-        <EffectForm action={badAction ? null : action} goal={badGoal ? null : goal} roadmapAlternatives={roadmapList} />
+        <EffectForm action={badAction ? null : action} goal={badGoal ? null : goal} roadmaps={roadmapList} />
       </div>
     </>
   )

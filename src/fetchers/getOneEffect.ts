@@ -1,10 +1,10 @@
 import "server-only";
 import { getSession, LoginData } from "@/lib/session.ts";
-import { Prisma } from "@prisma/client";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 import { effectInclusionSelection } from "./inclusionSelectors.ts";
 import prisma from "@/prismaClient.ts";
+import { Effect } from "@/types.ts";
 
 /**
  * Gets specified effect as well as its action and goal.
@@ -15,7 +15,7 @@ import prisma from "@/prismaClient.ts";
  * @param goalId ID of the goal this effect relates to
  * @returns Effect object with action and goal
  */
-export default async function getOneEffect(actionId: string, goalId: string) {
+export default async function getOneEffect(actionId: string, goalId: string): Promise<Effect | null> {
   const session = await getSession(await cookies());
   return getCachedEffect(actionId, goalId, session.user);
 }
@@ -24,10 +24,8 @@ export default async function getOneEffect(actionId: string, goalId: string) {
  * Caches the specified effect as well as its action and goal.
  */
 const getCachedEffect = unstable_cache(
-  async (actionId: string, goalId: string, user: LoginData['user']) => {
-    let effect: Prisma.EffectGetPayload<{
-      include: typeof effectInclusionSelection;
-    }> | null = null;
+  async (actionId: string, goalId: string, user: LoginData['user']): Promise<Effect | null> => {
+    let effect: Effect | null = null;
 
     // If user is admin, get effect without checking access
     if (user?.isAdmin) {
@@ -35,7 +33,7 @@ const getCachedEffect = unstable_cache(
         effect = await prisma.effect.findUnique({
           where: { id: { actionId, goalId } },
           include: effectInclusionSelection,
-        })
+        }) satisfies Effect | null;
       } catch (error) {
         console.log(error);
         console.log('Error fetching admin effect');
@@ -77,7 +75,7 @@ const getCachedEffect = unstable_cache(
             }
           },
           include: effectInclusionSelection,
-        });
+        }) satisfies Effect | null;
       } catch (error) {
         console.log(error);
         console.log('Error fetching user effect');
@@ -96,12 +94,14 @@ const getCachedEffect = unstable_cache(
           goal: { roadmap: { isPublic: true } }
         },
         include: effectInclusionSelection,
-      });
+      }) satisfies Effect | null;
     } catch (error) {
       console.log(error);
       console.log('Error fetching public effect');
       return null;
     }
+
+    return effect;
   },
   ['getOneEffect'],
   { revalidate: 600, tags: ['database', 'action', 'goal', 'effect'] }
