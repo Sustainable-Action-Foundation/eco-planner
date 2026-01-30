@@ -196,10 +196,12 @@ export default function GoalForm({
 
         dataSeriesId: null,
         dataSeries: dataSeries,
+        dataSeriesRecipeId: null,
         dataSeriesRecipe: dataSeriesRecipe,
 
         baselineId: null,
         baseline: baseline,
+        baselineRecipeId: null,
         baselineRecipe: null,
 
         roadmapId: roadmapId || parentRoadmapId,
@@ -227,10 +229,12 @@ export default function GoalForm({
 
         dataSeriesId: undefined,
         dataSeries: dataSeries,
+        dataSeriesRecipeId: undefined,
         dataSeriesRecipe: dataSeriesRecipe,
 
         baselineId: undefined,
-        baseline: undefined,
+        baseline: baseline,
+        baselineRecipeId: undefined,
         baselineRecipe: undefined,
 
         roadmapId: undefined, // Can't reassign the roadmap of an existing goal
