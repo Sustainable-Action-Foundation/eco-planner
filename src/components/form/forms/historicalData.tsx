@@ -16,7 +16,7 @@ import styles from '../forms.module.css';
 import dialogStyles from '../api/queryBuilder.module.css' /* TODO: This seems a bit janky */
 import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
-import { IconTrashXFilled, IconX } from "@tabler/icons-react";
+import { IconAlertTriangle, IconEdit, IconInfoCircle, IconInfoCircleFilled, IconTrashXFilled, IconX } from "@tabler/icons-react";
 {/* TODO: Metadata */ }
 export default function HistoricalData({
   goal,
@@ -99,7 +99,7 @@ export default function HistoricalData({
     if (!(event.target instanceof HTMLFormElement)) return;
 
     if (!(event.target.checkValidity())) return;
-    const formData = new FormData(event.target);
+    const formData = new FormData(event.target); // TODO: This does not seem to be anything, figure out why (goal.externalDataset is saved, goal.externalTableId is not)
     const query = buildQuery(formData);
 
     // Update the goal with the new data
@@ -216,11 +216,11 @@ export default function HistoricalData({
   function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails) {
     if (variable.option) {
       return (
-        <label key={variable.name} className='block margin-block-75'>
+        <label key={variable.name}>
           {/* Only display "optional" tags if the data source provides this information */}
           {variable.label}{optionalTag(dataSource, variable.optional)}
           {/* TODO: Use CSS to set proper capitalization of labels; something like `label::first-letter { text-transform: capitalize; }` */}
-          <select className={`block margin-block-25 ${variable.label}`}
+          <select className={`block margin-top-25 margin-bottom-100 ${variable.label}`}
             required={!variable.optional}
             name={variable.name}
             id={variable.name}
@@ -260,9 +260,9 @@ export default function HistoricalData({
         defaultValue = t("components:query_builder.select_time_period");
         displayValueKey = "id";
       }
-      return (<label key="Tid" className="block margin-block-75">
+      return (<label key="Tid">
         {heading}{optionalTag(dataSource, variableIsOptional)}
-        <select className={`block margin-block-25 TimeVariable`}
+        <select className={`block margin-top-25 margin-bottom-100`}
           required={false}
           name="Tid"
           id="Tid"
@@ -284,6 +284,7 @@ export default function HistoricalData({
   // Index for data-position attribute in legend elements (for accessibility)
   let positionIndex = 1;
 
+  {/* TODO: Must make sure to limit the width of selects, some variables are stupidly long */ }
   return (
     <div className={`${styles['dialog-body']}`}> {/* TODO: Dialog-body does not make sense here now... */}
       {/* <p className="padding-inline-100">{t("components:query_builder.add_data_to_goal", { goalName: goal.name ?? goal.indicatorParameter })}</p> */}
@@ -299,9 +300,7 @@ export default function HistoricalData({
             id="visible-form-manual"
             value="manual"
             checked={visibleForm === "manual"}
-            onChange={() => {
-              setVisibleForm("manual");
-            }}
+            onChange={() => setVisibleForm("manual")}
           />
         </label>
         <span>&#8210; {t("common:tsx.or")} &#8210;</span>
@@ -314,9 +313,7 @@ export default function HistoricalData({
             id="visible-form-external"
             value="external"
             checked={visibleForm === "external"}
-            onChange={() => {
-              setVisibleForm("external");
-            }}
+            onChange={() => setVisibleForm("external")}
           />
         </label>
       </div>
@@ -331,13 +328,30 @@ export default function HistoricalData({
 
             {goal.externalDataset && goal.externalTableId ?
               <>
-                <p>Denna målbana har redan en extern datakälla. Du kan antingen justera din historiska data manuellt eller ta bort den externa datakällan och lägga till en ny</p> {/* TODO: I18n */}
-                <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem", lineHeight: '1.5' }} onClick={() => deleteDataRef.current?.showModal()}>
-                  Ta bort extern datakälla {/* TODO: I18n (replace previous existing) */}
-                  <IconTrashXFilled fill='#CB3C3C' width={16} height={16} style={{ minWidth: '16px' }} aria-hidden="true" />
-                </button>
+                <fieldset data-info className={`${styles.timeLineFieldset} fieldset-unset-pseudo-class width-100 margin-top-200`}>
+                  <legend className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}> {/* TODO: i18n */}
+                    Information {/* TODO: I18n */}
+                  </legend>
+                  <p className="margin-0 font-weight-500">
+                    Denna målbana har redan en extern datakälla. Du kan antingen justera din historiska data manuellt eller ta bort den externa datakällan och lägga till en ny  {/* TODO: I18n */}
+                  </p> {/* TODO: I18n */}
+                  <div className="flex gap-25 margin-top-100">
+                    <button 
+                      className="flex-grow-100 flex align-items-center justify-content-space-between gap-25 font-weight-500" 
+                      style={{ transform: 'scale(1)'}}
+                      onClick={() => setVisibleForm("manual")}  
+                    >
+                      Justera manuellt {/* TODO: I18n */}
+                      <IconEdit width={18} height={18} style={{ minWidth: '18px' }} aria-hidden="true" />
+                    </button>
+                    <button type="button" className="red color-purewhite flex align-items-center justify-content-space-between gap-100 font-weight-500" style={{ transform: 'scale(1)'}} onClick={() => deleteDataRef.current?.showModal()}>
+                      Ta bort extern datakälla {/* TODO: I18n (replace previous existing) */}
+                      <IconTrashXFilled fill='white' width={16} height={16} style={{ minWidth: '16px' }} aria-hidden="true" />
+                    </button>
+                  </div>
+                </fieldset>
                 {/* TODO: We should likely not be adding a blur to the backdrop if our dialog can be light dismissed, i.e closedby=any */}
-                <dialog closedby="any" style={{width: 'min(75ch, 100%)', height: 'calc(50vh - 2rem)'}} className={`rounded padding-inline-0 padding-block-0 ${dialogStyles.dialog}`} aria-modal ref={deleteDataRef}>
+                <dialog closedby="any" style={{ width: 'min(75ch, 100%)', height: 'calc(50vh - 2rem)' }} className={`rounded padding-inline-0 padding-block-0 ${dialogStyles.dialog}`} aria-modal ref={deleteDataRef}>
                   <div className={`${dialogStyles['dialog-content']}`}>
                     <div className={`${dialogStyles['dialog-header']}`}>
                       <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => deleteDataRef.current?.close()} autoFocus aria-label={t("common:tsx.close")} >
@@ -345,8 +359,8 @@ export default function HistoricalData({
                       </button>
                       <h2 className="margin-0">Ta bort extern datakälla</h2> {/* TODO: I18n */}
                     </div>
-                    <div className="padding-100"> {/* TODO: I18n */}
-                      <p>Är du säker på att du vill ta bort extern datakälla: <span style={{fontStyle: 'italic'}}>{tables?.find(t => t.tableId === goal.externalTableId)?.label ?? goal.externalTableId}({goal.externalDataset})</span> från målbana: <span className="font-weight-600">{goal.name}</span>?</p>
+                    <div className="padding-100 flex flex-direction-column"> {/* TODO: I18n */}
+                      <p className="margin-0 flex-grow-100">Är du säker på att du vill ta bort extern datakälla: <span style={{ fontStyle: 'italic' }}>{tables?.find(t => t.tableId === goal.externalTableId)?.label ?? goal.externalTableId}({goal.externalDataset})</span> från målbana: <span className="font-weight-600">{goal.name}</span>?</p>
                       <div className="flex gap-25">
                         <button className="flex-grow-100" onClick={() => deleteDataRef.current?.close()}>
                           Avbryt {/* TODO: I18n */}
@@ -365,52 +379,52 @@ export default function HistoricalData({
               {/* Hidden disabled submit button to prevent accidental submission */}
               <button type="submit" className="display-none" disabled></button>
 
-              <fieldset disabled={goal.externalDataset && goal.externalTableId ? true : false} className="position-relative flex flex-direction-column" style={{ height: '100%' }}>
+              <fieldset disabled={goal.externalDataset && goal.externalTableId ? true : false} className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+                <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}> {/* TODO: i18n */}
+                  Välj datakälla
+                </legend>
                 <label className="margin-block-75 font-weight-500">
                   {t("components:query_builder.data_source")}
                   {/* Display warning message if the selected language is not supported by the api */}
                   {((ExternalDataset.getDatasetByAlternateName(dataSource)) && !(ExternalDataset.getDatasetByAlternateName(dataSource)?.supportedLanguages.includes(lang))) ?
                     <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</small>
                     : null}
-                  <select defaultValue={goal.externalDataset ? goal.externalDataset : ''} className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
+                  <select defaultValue={goal.externalDataset ? goal.externalDataset : ''} className="block margin-top-25 margin-bottom-100 width-100" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
                     <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_source")}</option>
                     {ExternalDataset.knownDatasetKeys.map((name) => (
                       <option key={name} value={name}>{ExternalDataset[name]?.fullName}</option>
                     ))}
                   </select>
                 </label>
-
-                {dataSource ?
-                  <>
-                    <label htmlFor="temp">Tabell</label> {/* TODO: i18n */}
-                    <SelectSingleSearch // TODO: Deal with width
-                      props={{
-                        id: 'temp',
-                        name: 'temp',
-                        placeholder: 'Välj tabell',
-                      }}
-                      defaultValue={
-                        goal.externalTableId
-                          ? {
-                            name:
-                              tables?.find(t => t.tableId === goal.externalTableId)?.label
-                              ?? goal.externalTableId,
-                            value: goal.externalTableId,
-                          }
-                          : undefined
-                      } options={
-                        tables
-                          ? tables.map(({ tableId, label }) => ({
-                            name: label,
-                            value: tableId,
-                          }))
-                          : []
+                <label htmlFor="externalTableId">Tabell</label> {/* TODO: i18n */}
+                <SelectSingleSearch // TODO: Deal with width
+                  props={{
+                    className: 'margin-top-25 margin-bottom-100',
+                    id: 'externalTableId',
+                    name: 'externalTableId',
+                    placeholder: 'Välj tabell',
+                    required: true,
+                    disabled: !dataSource ? true : false
+                  }}
+                  defaultValue={
+                    goal.externalTableId
+                      ? {
+                        name:
+                          tables?.find(t => t.tableId === goal.externalTableId)?.label
+                          ?? goal.externalTableId,
+                        value: goal.externalTableId,
                       }
-                      onChange={(value) => value?.value ? handleTableSelect(value.value) : handleTableSelect('')}
-                    />
-                  </>
-                  : null}
-
+                      : undefined
+                  } options={
+                    tables
+                      ? tables.map(({ tableId, label }) => ({
+                        name: label,
+                        value: tableId,
+                      }))
+                      : []
+                  }
+                  onChange={(value) => value?.value ? handleTableSelect(value.value) : handleTableSelect('')}
+                />
               </fieldset>
 
               {tableDetails && (
@@ -420,21 +434,20 @@ export default function HistoricalData({
                     <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>
                       {t("components:query_builder.select_metric_for_table")}
                     </legend>
-                    <div>
-                      <label key={`metric-${tableDetails.id}`} className="block margin-block-75">
-                        <select className={`block margin-block-25 metric`}
-                          required={true}
-                          name="metric"
-                          id="metric"
-                          defaultValue={undefined}
-                          onChange={handleMetricSelect}>
-                          <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_metric")}</option>
-                          {tableDetails.metrics && tableDetails.metrics.map(metric => (
-                            <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
-                          ))}
-                        </select>
-                      </label>
-                    </div>
+                    <label key={`metric-${tableDetails.id}`}>
+                      Välj mätvärde {/* TODO: I18n */}
+                      <select className={`block margin-top-25 margin-bottom-100 metric`}
+                        required={true}
+                        name="metric"
+                        id="metric"
+                        defaultValue={undefined}
+                        onChange={handleMetricSelect}>
+                        <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_metric")}</option>
+                        {tableDetails.metrics && tableDetails.metrics.map(metric => (
+                          <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
+                        ))}
+                      </select>
+                    </label>
                   </fieldset>
                   <fieldset name="variableSelectionFieldset" disabled={true} className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
                     {shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? (
@@ -499,14 +512,17 @@ export default function HistoricalData({
                   )
                 }
               </output>
-              <button
-                id="submit-button"
-                type="submit"
-                className="seagreen color-purewhite block"
-              >
-                {t("components:query_builder.add_data_source_button")}
-              </button>
 
+              <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: "1px solid var(--gray-80)" }}>
+                <button
+                  id="submit-button"
+                  type="submit"
+                  className="text-align-center seagreen color-purewhite width-100"
+                  style={{ fontSize: "14px", transform: "none" }}
+                >
+                  {t("components:query_builder.add_data_source_button")}
+                </button>
+              </div>
             </form>
           </>
         ) : null}

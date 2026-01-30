@@ -553,6 +553,14 @@ container-text {
   width: min(90ch, 100%);
 }
 
+.white-space-nowrap {
+  white-space: nowrap;
+}
+
+.text-overflow-ellipsis {
+  text-overflow: ellipsis;
+}
+
 .margin-0 {
   margin: 0rem;
 }

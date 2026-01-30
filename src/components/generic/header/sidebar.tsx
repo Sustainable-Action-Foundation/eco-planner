@@ -17,7 +17,7 @@ export default async function Sidebar() {
   ]);
 
   return <>
-    <aside className={`${styles["sidebar"]} inline-flex flex-direction-column`} style={{backgroundColor: '#fefefe'}}>
+    <aside className={`${styles["sidebar"]} inline-flex flex-direction-column secondary-neutral-background`}>
       {/* Consider using js + button instead of checkbox (or on top of using a checkbox) for accesability purposes */}
       {/* Consider adding infobubbles to items in the navbar */}
       <header>

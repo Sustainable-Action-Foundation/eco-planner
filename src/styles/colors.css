@@ -65,6 +65,17 @@
   --white-70: hsl(42, 33%, 70%);
   --white-80: hsl(42, 33%, 80%);
   --white-90: hsl(42, 33%, 90%);
+
+  --primary-neutral: #f6f6f6;
+  --secondary-neutral: #fefefe;
+}
+
+.neutral-background {
+  background-color: var(--primary-neutral);
+}
+
+.secondary-neutral-background {
+  background-color: var(--secondary-neutral);
 }
 
 /* Background color */
@@ -317,7 +328,7 @@
 }
 
 .red {
-  background-color: #e83535;
+  background-color: #f03b3b;
 }
 
 .purewhite {

@@ -32,11 +32,11 @@ export default async function RootLayout(
             }
         `}} />
       </head>
-      <body>
+      <body className='neutral-background'>
         <I18nProvider lng={locale}>
           <div className={`${styles.layout}`}>
             <Sidebar />
-            <div className='padding-100 flex-grow-100' style={{ backgroundColor: '#f6f6f6' }}>
+            <div className='padding-100 flex-grow-100'>
               <div className='container margin-inline-auto'>
                 {children}
               </div>

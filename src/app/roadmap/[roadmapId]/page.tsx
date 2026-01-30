@@ -11,7 +11,7 @@ import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { DataSeries, Goal } from "@prisma/client";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
-import { IconEdit } from "@tabler/icons-react";
+import { IconCircleFilled, IconEdit } from "@tabler/icons-react";
 import Link from "next/link";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 
@@ -59,7 +59,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
   if (!roadmap || !accessLevel) {
     return notFound();
   }
-
+ 
   return <>
 
     <Breadcrumb object={roadmap} />
@@ -85,7 +85,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
             {/* TODO: style link to better match surroundings */}
             <Link href={`/metaRoadmap/${roadmap.metaRoadmapId}`}>{t("pages:roadmap.show_series")}</Link>
           </p>
-          <div className="margin-top-100">           
+          <div className="margin-top-100">
             <TextEditor
               id="rich-description"
               editable={false}
@@ -94,7 +94,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
             />
           </div>
           {roadmap.description ? (
-            <div className="margin-top-100">           
+            <div className="margin-top-100">
               <TextEditor
                 id="rich-description"
                 editable={false}
@@ -103,16 +103,6 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
               />
             </div>
           ) : null}
-          {/* TODO: Add external resources here and to the form
-            <h2 className="margin-bottom-0 margin-top-200" style={{fontSize: '1.25rem'}}>Externa resurser</h2>
-            <ul>
-              {roadmap.metaRoadmap.links.map((link: { url: string, description: string | null }, index: number) => 
-                <li className="margin-block-25" key={index}>
-                  <a href={link.url} target="_blank">{link.description}</a>
-                </li>
-              )}
-            </ul>
-          */}
         </div>
 
         {/* Only show the edit link if the user has edit access to the roadmap */}
@@ -123,7 +113,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
             style={{ height: 'fit-content' }}
           >
             {t("common:edit.roadmap_version")}
-            <IconEdit style={{minWidth: '24px'}} aria-hidden="true" />
+            <IconEdit style={{ minWidth: '24px' }} aria-hidden="true" />
           </Link>
         }
       </section>
@@ -131,15 +121,23 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
       {featuredGoals.length > 0 ?
         <section className="margin-block-300">
           <h2>{t("pages:roadmap.featured_goals")}</h2>
-          <div className="grid gap-100" style={{ gridTemplateColumns: 'repeat(auto-fit, 300px)' }}>
+          <div className="flex flex-wrap-nowrap gap-100 overflow-x-scroll padding-bottom-100" style={{scrollbarWidth: 'thin', scrollbarColor: 'var(--gray) rgba(0,0,0,0)', scrollSnapType: 'x mandatory', direction: 'ltr'}}>
             {featuredGoals.map((goal, key) =>
               goal && (
-                <Link key={key} href={`/goal/${goal.id}`} className="color-pureblack text-decoration-none">
-                  <ThumbnailGraph goal={goal} />
+                <Link key={key} href={`/goal/${goal.id}`} className="color-pureblack text-decoration-none" style={{width: '300px', height: '250px', scrollSnapAlign: 'start'}}>
+                  <ThumbnailGraph goal={goal} historicalData={true} />
                 </Link>
               )
             )}
           </div>
+          {featuredGoals.some(
+            goal => goal?.externalDataset && goal?.externalTableId
+          ) && (
+              <div className="display-flex align-items-center gap-100 margin-top-100 font-weight-500">
+                <span style={{ color: 'var(--gray-20)' }}><IconCircleFilled width={12} height={12} fill="#0090ff" aria-hidden="true" className="margin-right-25" />{t("common:goal_one")}</span> {/* TODO: i18n, replace with icon*/}
+                <span style={{ color: 'var(--gray-20)' }}><IconCircleFilled width={12} height={12} fill="#2e8a56" aria-hidden="true" className="margin-right-25" />{t("common:historical_data")}</span> {/* TODO: i18n, replace with icon */}
+              </div>
+            )}
         </section>
         : null}
 

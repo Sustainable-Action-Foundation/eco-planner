@@ -1,3 +1,5 @@
+/* Might be sensible to abstract this to a global file? :)*/
+
 .modal {
   padding: 1rem;
   border-radius: .25rem;
@@ -5,3 +7,47 @@
   width: min(45ch, 100%);
   box-shadow: 0 0 .5rem -.25rem rgb(0, 0, 0);
 }
+
+.dialog {
+  width: min(90ch, 100%);
+  overflow: unset;
+  height: calc(70vh - 2rem);
+  border: 0; 
+  box-shadow: 0 0 .5rem -.25rem rgba(0,0,0,.25);
+  background-color: var(--primary-neutral);
+}
+
+.dialog::backdrop {
+  backdrop-filter: blur(1px);
+}
+
+.dialog-content {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100%;
+}
+
+.dialog-header {
+  background-color: var(--secondary-neutral);
+  border-bottom: 1px solid var(--gray-80);
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-radius: .5rem .5rem 0 0; /* Same as dialog */
+}
+
+.dialog-header > h1 {
+  font-size: 1.75rem;
+}
+
+.dialog-body {
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray) rgba(0,0,0,0);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+} 
+ 
