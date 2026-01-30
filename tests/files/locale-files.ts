@@ -275,14 +275,19 @@ test("Orphan keys in root of namespace files", () => {
     // Read file instead of allData to not get flattened data
     const content = fs.readFileSync(filePath, "utf-8").toString().trim();
 
-    try { JSON.parse(content); }
+    try { 
+      const parseTest: unknown = JSON.parse(content);
+      if (typeof parseTest !== "object" || parseTest === null || Array.isArray(parseTest)) {
+        throw new Error("Not an object");
+      }
+    }
     catch (e) {
       if (!perLocale[locale]) perLocale[locale] = [];
       perLocale[locale].push(`[Invalid JSON] > '${namespace}.json': '${e}'`);
       return;
     }
 
-    const data = JSON.parse(content);
+    const data = JSON.parse(content) as Record<string, unknown>;
     const keys = Object.keys(data);
 
     keys.forEach(key => {
