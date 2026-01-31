@@ -37,8 +37,7 @@ export default function HistoricalData({
 
   const [dataSource, setDataSource] = useState<string>(goal.externalDataset ? goal.externalDataset : "");
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
-  const [table, setTable] = useState<{ tableId: string, label: string } | null>(goal.externalTableId ? { label: tables?.find(t => t.tableId === goal.externalTableId)?.label ?? goal.externalTableId, tableId: goal.externalTableId} : null)
-  
+  const [table, setTable] = useState<{ tableId: string, label: string } | null>(goal.externalTableId ? { label: tables?.find(t => t.tableId === goal.externalTableId)?.label ?? goal.externalTableId, tableId: goal.externalTableId } : null)
   const [metric, setMetric] = useState<string | null>(goal.externalSelection ? JSON.parse(goal.externalSelection as string)[0].valueCodes[0] : null)
 
   const [tableDetails, setTableDetails] = useState<ApiTableDetails | null>(null);
@@ -133,38 +132,6 @@ export default function HistoricalData({
     void getTables(dataSource, undefined, lang).then(result => { setTables(result); setIsLoading(false); });
   }, [dataSource, lang]);
 
-  function deleteHistoricalData() {
-    formSubmitter("/api/goal", JSON.stringify({
-      goalId: goal.id,
-      externalDataset: null,
-      externalTableId: null,
-      externalSelection: null,
-      timestamp: Date.now(),
-    }), "PUT", t, setIsLoading);
-  }
-
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    // Return if insufficient selection has been made
-    if (!tables) return;
-    // Return if properly formatted response was not found
-    if (!tableContent) return;
-    if (!(event.target instanceof HTMLFormElement)) return;
-
-    if (!(event.target.checkValidity())) return;
-    const formData = new FormData(event.target); // TODO: This does not seem to be anything, figure out why (goal.externalDataset is saved, goal.externalTableId is not)
-    const query = buildQuery(formData);
-
-    // Update the goal with the new data
-    formSubmitter("/api/goal", JSON.stringify({
-      goalId: goal.id,
-      externalDataset: dataSource,
-      externalTableId: formData.get("externalTableId"),
-      externalSelection: JSON.stringify(query),
-      timestamp: Date.now(),
-    }), "PUT", t, setIsLoading);
-  }
-
   {/* TODO: See if we can remove table content when de-selecting  */ }
   const handleTableSelect = useCallback((tableId: string | null) => {
     if (!ExternalDataset.getDatasetByAlternateName(dataSource)?.baseUrl) return;
@@ -186,12 +153,13 @@ export default function HistoricalData({
     if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variableIsOptional) return <span className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</span>;
   }
 
-  function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails) {
+  function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails) { // TODO: Did i accidentally delete the empty values here?
     if (variable.option) {
       return (
         <label key={variable.name}>
           {/* Only display "optional" tags if the data source provides this information */}
           {variable.label}{optionalTag(dataSource, variable.optional)}
+          {/* TODO:  */}
           {/* TODO: Use CSS to set proper capitalization of labels; something like `label::first-letter { text-transform: capitalize; }` */}
           <select className='block margin-top-25 margin-bottom-100'
             required={!variable.optional}
@@ -200,8 +168,8 @@ export default function HistoricalData({
             onChange={() => tryGetResult()}
           >
             { // If only one value is available, don't show a placeholder option
-              ExternalDataset.getDatasetByAlternateName(dataSource)?.api !== "PxWeb" ||
-              ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variable.values && variable.values.length > 1 &&
+              (ExternalDataset.getDatasetByAlternateName(dataSource)?.api !== "PxWeb" ||
+              (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variable.values && variable.values.length > 1)) &&
               <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option>
             }
             {variable.values && variable.values.map(value => (
@@ -250,10 +218,40 @@ export default function HistoricalData({
     }
   }
 
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    // Return if insufficient selection has been made
+    if (!tables) return;
+    // Return if properly formatted response was not found
+    if (!tableContent) return;
+    if (!(event.target instanceof HTMLFormElement)) return;
+
+    if (!(event.target.checkValidity())) return;
+    const formData = new FormData(event.target);
+    const query = buildQuery(formData);
+    console.log(query)
+    // Update the goal with the new data
+    formSubmitter("/api/goal", JSON.stringify({
+      goalId: goal.id,
+      externalDataset: dataSource,
+      externalTableId: table?.tableId,
+      externalSelection: JSON.stringify(query),
+      timestamp: Date.now(),
+    }), "PUT", t, setIsLoading);
+  }
+
+  function deleteHistoricalData() {
+    formSubmitter("/api/goal", JSON.stringify({
+      goalId: goal.id,
+      externalDataset: null,
+      externalTableId: null,
+      externalSelection: null,
+      timestamp: Date.now(),
+    }), "PUT", t, setIsLoading);
+  }
+
   // Index for data-position attribute in legend elements (for accessibility)
   let positionIndex = 1;
-
-  console.log(tableDetails)
 
   {/* TODO: Must make sure to limit the width of selects, some variables are stupidly long */ }
   return (
@@ -385,11 +383,11 @@ export default function HistoricalData({
                     className: 'margin-top-25 margin-bottom-100',
                     id: 'externalTableId',
                     name: 'externalTableId',
-                    placeholder: !dataSource ? 'Välj datakälla för att se tabeller' : 'Välj tabell',
+                    placeholder: !dataSource ? 'Välj datakälla för att se tabeller' : 'Välj tabell', // TODO i18n
                     required: true,
                     disabled: !dataSource ? true : false
                   }}
-                  defaultValue={table ? {name: table.label, value: table.tableId} : {name: '', value: ''}}
+                  defaultValue={table ? { name: table.label, value: table.tableId } : false}
                   options={
                     tables
                       ? tables.map(({ tableId, label }) => ({
@@ -447,10 +445,13 @@ export default function HistoricalData({
                       })}
                       {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => {
                         if (hierarchy.children?.some(variable => variable.option)) return (
-                          <div key={hierarchy.name} className="block margin-block-75" style={{ backgroundColor: 'red' }}>
-                            {hierarchy.children && hierarchy.children.map(variable => {
-                              return variableSelectionHelper(variable, tableDetails);
-                            })}
+                          <div key={hierarchy.name}>
+                            <div className="font-weight-bold">{hierarchy.label}</div>
+                            <div className="block margin-block-75 margin-left-75">
+                              {hierarchy.children && hierarchy.children.map(variable => {
+                                return variableSelectionHelper(variable, tableDetails);
+                              })}
+                            </div>
                           </div>
                         )
                       })}
