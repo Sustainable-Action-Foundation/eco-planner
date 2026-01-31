@@ -18,6 +18,7 @@ import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputMa
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import { IconEdit, IconTrashXFilled, IconX } from "@tabler/icons-react";
 
+// TODO: Stuff is re-rendering like a bajillion times, fix this.
 {/* TODO: Metadata */ }
 export default function HistoricalData({
   goal,
@@ -46,16 +47,18 @@ export default function HistoricalData({
   const formRef = useRef<HTMLFormElement | null>(null);
   const deleteDataRef = useRef<HTMLDialogElement>(null)
 
+  // Gets relevant info from variable inputs
   const buildQuery = useCallback((formData: FormData) => {
     const queryObject: { variableCode: string, valueCodes: string[] }[] = [];
     formData.forEach((value, key) => {
       // Skip empty values
-      if (!value) return;
       // Skip File inputs
+      // Skip externalDataset and externalTableId, they are not part of the query
+      if (!value) return;
       if (value instanceof File) return;
-      // Skip externalDataset, externalTableId, and `tableSearchInputName`, as they are not part of the query
       if (key == "externalDataset") return;
       if (key == "externalTableId") return;
+
       // The PxWeb time variable is special, as we want to fetch every period after (and including) the selected one
       if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && key == formRef.current?.getElementsByClassName("TimeVariable")[0]?.id) {
         queryObject.push({ variableCode: key, valueCodes: [`FROM(${value})`] });
@@ -68,7 +71,6 @@ export default function HistoricalData({
 
   const tryGetResult = useCallback((event?: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) => {
     // null check
-    console.log('try get result ran!')
     if (!(formRef.current instanceof HTMLFormElement)) return;
 
     setIsLoading(true);
@@ -77,8 +79,8 @@ export default function HistoricalData({
     if (formRef.current.checkValidity()) {
       const formData = new FormData(formRef.current);
       const query = buildQuery(formData);
-      const tableId = tableDetails?.id ?? formData.get("externalTableId") as string ?? "";
-      getTableContent(tableId, dataSource, query, lang).then(result => {
+
+      getTableContent(table ? table.tableId : "", dataSource, query, lang).then(result => {
         setTableContent(result);
         setIsLoading(false);
       }).catch(e => {
@@ -86,14 +88,15 @@ export default function HistoricalData({
         setTableContent(null);
         setIsLoading(false);
       });
+
       if (dataSource == "Trafa") {
         // If metric was changed, send the metric as a query to the API to get filtered table details
         if (event?.target instanceof HTMLSelectElement && event.target.name == "metric") {
-          void getTableDetails(tableId, dataSource, query.filter(q => q.variableCode == "metric"), lang).then(result => { setTableDetails(result); });
+          void getTableDetails(table ? table.tableId : "", dataSource, query.filter(q => q.variableCode == "metric"), lang).then(result => { setTableDetails(result); });
         }
       }
-    }
-    else {
+
+    } else {
       setTableContent(null);
       setIsLoading(false);
     }
@@ -153,23 +156,40 @@ export default function HistoricalData({
     if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variableIsOptional) return <span className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</span>;
   }
 
-  function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails) { // TODO: Did i accidentally delete the empty values here?
+  function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails) { 
     if (variable.option) {
-      return (
+      // The idea here is basically to we see which variables exist, and moving them to an array separately from metric as that value is already set. 
+      // We then check if the variable which we render is in our list and get the default value from there.
+      // This isnt very optimal as each render of a variable will trigger a loop of a new list, there is likely a better way to achieve this. 
+      if (!goal.externalSelection) return // TODO: Very hacky, temp fix. TODO: Also need to do this for time also
+      const externalSelection: Array<{variableCode: string, valueCodes: Array<string>}> = JSON.parse(goal.externalSelection) as Array<{variableCode: string, valueCodes: Array<string>}>
+      const variables: Array<{variableCode: string, valueCodes: Array<string>}> = []
+      externalSelection.map((variable: {variableCode: string, valueCodes: Array<string>}) => {
+        if(variable.variableCode !== 'metric') {
+          variables.push(variable)
+        }
+      })
+      
+      const selectedVariable = variables.find(v => v.variableCode === variable.name);
+      const selectedValue = selectedVariable ? selectedVariable.valueCodes[0] : '';
+
+       return (
         <label key={variable.name}>
           {/* Only display "optional" tags if the data source provides this information */}
           {variable.label}{optionalTag(dataSource, variable.optional)}
-          {/* TODO:  */}
-          {/* TODO: Use CSS to set proper capitalization of labels; something like `label::first-letter { text-transform: capitalize; }` */}
-          <select className='block margin-top-25 margin-bottom-100'
+          {
+          /* TODO: Use CSS to set proper capitalization of labels; something like `label::first-letter { text-transform: capitalize; }` */}
+          <select 
+            className='block margin-top-25 margin-bottom-100'
             required={!variable.optional}
             name={variable.name}
             id={variable.name}
+            value={selectedValue}
             onChange={() => tryGetResult()}
           >
             { // If only one value is available, don't show a placeholder option
               (ExternalDataset.getDatasetByAlternateName(dataSource)?.api !== "PxWeb" ||
-              (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variable.values && variable.values.length > 1)) &&
+                (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variable.values && variable.values.length > 1)) &&
               <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option>
             }
             {variable.values && variable.values.map(value => (
@@ -184,7 +204,10 @@ export default function HistoricalData({
   }
 
   function timeVariableSelectionHelper(times: (TrafaVariable | PxWebTimeVariable)[], language?: string) {
-    if ((dataSource == "Trafa" && !(times.length == 1 && times[0].name == "ar")) || (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && times.length > 1)) {
+    if (
+      (dataSource == "Trafa" && !(times.length == 1 && times[0].name == "ar")) ||
+      (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && times.length > 1)
+    ) {
       let heading = "";
       let defaultValue = "";
       let displayValueKey: keyof typeof times[0]/* "label" | "id" | "name" | "type" */ = "id";
@@ -229,7 +252,6 @@ export default function HistoricalData({
     if (!(event.target.checkValidity())) return;
     const formData = new FormData(event.target);
     const query = buildQuery(formData);
-    console.log(query)
     // Update the goal with the new data
     formSubmitter("/api/goal", JSON.stringify({
       goalId: goal.id,
@@ -299,7 +321,7 @@ export default function HistoricalData({
               <>
                 <fieldset data-info className={`${styles.timeLineFieldset} fieldset-unset-pseudo-class width-100 margin-top-200`}>
                   <legend className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}> {/* TODO: i18n */}
-                    Information {/* TODO: I18n */}
+                    Information {/* TODO: I18n */} {/* TODO: Maybe we should allow editing idk */}
                   </legend>
                   <p className="margin-0 font-weight-500">
                     Denna målbana har redan en extern datakälla. Du kan antingen justera din historiska data manuellt eller ta bort den externa datakällan och lägga till en ny  {/* TODO: I18n */}
@@ -425,7 +447,7 @@ export default function HistoricalData({
                   <p>Välj en datakälla först</p> /* TODO: I18n */
                 )}
               </fieldset>
-              <fieldset name="variableSelectionFieldset" className={`${styles.timeLineFieldset} width-100 margin-top-200`}> {/* Figure out disabled for this form */}
+              <fieldset disabled={goal.externalDataset && goal.externalTableId && goal.externalSelection ? true : false} name="variableSelectionFieldset" className={`${styles.timeLineFieldset} width-100 margin-top-200`}> {/* Figure out disabled for this form */}
                 <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>
                   {t("components:query_builder.select_values_for_table")}
                 </legend>
