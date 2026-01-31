@@ -11,12 +11,13 @@ import { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
 import { TrafaVariable } from "@/lib/trafa/trafaTypes";
 import { Goal } from "@prisma/client";
 import { FormEvent, useCallback, useContext, useEffect, useRef, useState } from "react";
-import { Trans, useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
 import dialogStyles from '../api/queryBuilder.module.css' /* TODO: This seems a bit janky */
 import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
-import { IconAlertTriangle, IconEdit, IconInfoCircle, IconInfoCircleFilled, IconTrashXFilled, IconX } from "@tabler/icons-react";
+import { IconEdit, IconTrashXFilled, IconX } from "@tabler/icons-react";
+
 {/* TODO: Metadata */ }
 export default function HistoricalData({
   goal,
@@ -36,15 +37,16 @@ export default function HistoricalData({
 
   const [dataSource, setDataSource] = useState<string>(goal.externalDataset ? goal.externalDataset : "");
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
-  const [table, setTable] = useState<{ tableId: string, label: string } | null>(null)
-  const [metric, setMetric] = useState<string>(goal.externalSelection ? JSON.parse(goal.externalSelection as string)[0].valueCodes[0] : '')
+  const [table, setTable] = useState<{ tableId: string, label: string } | null>(goal.externalTableId ? { label: tables?.find(t => t.tableId === goal.externalTableId)?.label ?? goal.externalTableId, tableId: goal.externalTableId} : null)
   
+  const [metric, setMetric] = useState<string | null>(goal.externalSelection ? JSON.parse(goal.externalSelection as string)[0].valueCodes[0] : null)
+
   const [tableDetails, setTableDetails] = useState<ApiTableDetails | null>(null);
   const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
 
   const formRef = useRef<HTMLFormElement | null>(null);
   const deleteDataRef = useRef<HTMLDialogElement>(null)
- 
+
   const buildQuery = useCallback((formData: FormData) => {
     const queryObject: { variableCode: string, valueCodes: string[] }[] = [];
     formData.forEach((value, key) => {
@@ -58,7 +60,6 @@ export default function HistoricalData({
       // The PxWeb time variable is special, as we want to fetch every period after (and including) the selected one
       if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && key == formRef.current?.getElementsByClassName("TimeVariable")[0]?.id) {
         queryObject.push({ variableCode: key, valueCodes: [`FROM(${value})`] });
-        console.log(queryObject)
         return;
       }
       queryObject.push({ variableCode: key, valueCodes: [value] });
@@ -68,6 +69,7 @@ export default function HistoricalData({
 
   const tryGetResult = useCallback((event?: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) => {
     // null check
+    console.log('try get result ran!')
     if (!(formRef.current instanceof HTMLFormElement)) return;
 
     setIsLoading(true);
@@ -76,7 +78,6 @@ export default function HistoricalData({
     if (formRef.current.checkValidity()) {
       const formData = new FormData(formRef.current);
       const query = buildQuery(formData);
-      console.log('formdata+query', new FormData(formRef.current), query)
       const tableId = tableDetails?.id ?? formData.get("externalTableId") as string ?? "";
       getTableContent(tableId, dataSource, query, lang).then(result => {
         setTableContent(result);
@@ -164,24 +165,6 @@ export default function HistoricalData({
     }), "PUT", t, setIsLoading);
   }
 
-  function formChange(event: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
-    const changedElementIsExternalDataset = event.target instanceof HTMLSelectElement && event.target.name == "externalDataset";
-    const changedElementIsTableSearch = event.target instanceof HTMLInputElement && event.target.name == "tableSearch";
-    const changedElementIsTable = event.target instanceof HTMLInputElement && event.target.name == "externalTableId";
-
-    /* console.log(tableDetails); */
-    if (!changedElementIsExternalDataset && !changedElementIsTableSearch && !changedElementIsTable && tables && tableDetails) {
-      tryGetResult(event);
-    }
-  }
-
-  function handleDataSourceSelect(dataSource: string) {
-    setDataSource(dataSource);
-    // Clear table details and content whenever the data source changes
-    setTableContent(null);
-    setTableDetails(null);
-  }
-
   {/* TODO: See if we can remove table content when de-selecting  */ }
   const handleTableSelect = useCallback((tableId: string | null) => {
     if (!ExternalDataset.getDatasetByAlternateName(dataSource)?.baseUrl) return;
@@ -214,6 +197,7 @@ export default function HistoricalData({
             required={!variable.optional}
             name={variable.name}
             id={variable.name}
+            onChange={() => tryGetResult()}
           >
             { // If only one value is available, don't show a placeholder option
               ExternalDataset.getDatasetByAlternateName(dataSource)?.api !== "PxWeb" ||
@@ -253,7 +237,9 @@ export default function HistoricalData({
             required={false}
             name="time"
             id="time"
-            defaultValue={times && times.length == 1 ? times[0].label : undefined}>
+            defaultValue={times && times.length == 1 ? times[0].label : undefined}
+            onChange={() => tryGetResult()}
+          >
             <option value="" className={`font-style-italic color-gray`}>{defaultValue}</option>
             {times.map(time => (
               <option key={time.name} value={time.name} lang={language}>{time[displayValueKey]}</option>
@@ -264,17 +250,10 @@ export default function HistoricalData({
     }
   }
 
-  function shouldVariableFieldsetBeVisible(tableDetails: ApiTableDetails, dataSource: string) {
-    const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb") && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1);
-    return returnBool;
-  }
-
   // Index for data-position attribute in legend elements (for accessibility)
   let positionIndex = 1;
 
-  useEffect(() => {
-    console.log(tableDetails)
-  }, [tableDetails])
+  console.log(tableDetails)
 
   {/* TODO: Must make sure to limit the width of selects, some variables are stupidly long */ }
   return (
@@ -367,7 +346,7 @@ export default function HistoricalData({
               </>
               : null}
 
-            <form ref={setFormRef} onChange={formChange} onSubmit={handleSubmit} className="flex flex-direction-column flex-grow-1" style={{ minHeight: '0' }}>
+            <form ref={setFormRef} onSubmit={handleSubmit} className="flex flex-direction-column flex-grow-1" style={{ minHeight: '0' }}>
               {/* Hidden disabled submit button to prevent accidental submission */}
               <button type="submit" className="display-none" disabled></button>
 
@@ -381,7 +360,19 @@ export default function HistoricalData({
                   {((ExternalDataset.getDatasetByAlternateName(dataSource)) && !(ExternalDataset.getDatasetByAlternateName(dataSource)?.supportedLanguages.includes(lang))) ?
                     <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</small>
                     : null}
-                  <select defaultValue={goal.externalDataset ? goal.externalDataset : ''} className="block margin-top-25 margin-bottom-100 width-100" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
+                  <select
+                    defaultValue={goal.externalDataset ? goal.externalDataset : ''}
+                    className="block margin-top-25 margin-bottom-100 width-100"
+                    required
+                    name="externalDataset"
+                    id="externalDataset"
+                    onChange={e => {
+                      setDataSource(e.target.value);
+                      setTable(null);
+                      setMetric(null);
+                      setTableContent(null);
+                      setTableDetails(null);
+                    }}>
                     <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_source")}</option>
                     {ExternalDataset.knownDatasetKeys.map((name) => (
                       <option key={name} value={name}>{ExternalDataset[name]?.fullName}</option>
@@ -394,20 +385,12 @@ export default function HistoricalData({
                     className: 'margin-top-25 margin-bottom-100',
                     id: 'externalTableId',
                     name: 'externalTableId',
-                    placeholder: 'Välj tabell',
+                    placeholder: !dataSource ? 'Välj datakälla för att se tabeller' : 'Välj tabell',
                     required: true,
                     disabled: !dataSource ? true : false
                   }}
-                  defaultValue={
-                    goal.externalTableId
-                      ? {
-                        name:
-                          tables?.find(t => t.tableId === goal.externalTableId)?.label
-                          ?? goal.externalTableId,
-                        value: goal.externalTableId,
-                      }
-                      : undefined
-                  } options={
+                  defaultValue={table ? {name: table.label, value: table.tableId} : {name: '', value: ''}}
+                  options={
                     tables
                       ? tables.map(({ tableId, label }) => ({
                         name: label,
@@ -431,7 +414,7 @@ export default function HistoricalData({
                       required={true}
                       name="metric"
                       id="metric"
-                      value={metric}
+                      value={metric ? metric : ''}
                       onChange={(e) => setMetric(e.target.value)}
                     >
                       <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_metric")}</option>
@@ -441,7 +424,7 @@ export default function HistoricalData({
                     </select>
                   </label>
                 ) : (
-                  <p>Välj en datakälla först</p>
+                  <p>Välj en datakälla först</p> /* TODO: I18n */
                 )}
               </fieldset>
               <fieldset name="variableSelectionFieldset" className={`${styles.timeLineFieldset} width-100 margin-top-200`}> {/* Figure out disabled for this form */}
@@ -449,7 +432,12 @@ export default function HistoricalData({
                   {t("components:query_builder.select_values_for_table")}
                 </legend>
                 {tableDetails?.variables && metric ? (
-                  shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? (
+                  (tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || // TODO: Figure out why this is structured as is? Only the first if statement makes sense to me
+                    (
+                      !(ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb") &&
+                      tableDetails.variables.some(variable => variable.option)
+                    ) ||
+                    tableDetails.times.length > 1 ? (
                     <div>
                       {tableDetails.times &&
                         timeVariableSelectionHelper(tableDetails.times, tableDetails.language)
@@ -459,7 +447,7 @@ export default function HistoricalData({
                       })}
                       {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => {
                         if (hierarchy.children?.some(variable => variable.option)) return (
-                          <div key={hierarchy.name} className="block margin-block-75">
+                          <div key={hierarchy.name} className="block margin-block-75" style={{ backgroundColor: 'red' }}>
                             {hierarchy.children && hierarchy.children.map(variable => {
                               return variableSelectionHelper(variable, tableDetails);
                             })}
@@ -468,10 +456,10 @@ export default function HistoricalData({
                       })}
                     </div>
                   ) : (
-                    <p className={`font-style-italic color-gray`}>{t("components:query_builder.no_variables_found")}</p>
+                    <p className={`font-style-italic color-gray`}>{t("components:query_builder.no_variables_found")}</p> /* TODO: Text should be made clearer, e.g "no variables exist for this table..."" */
                   )
                 ) : (
-                  <p>Välj ett mätvärde först</p>
+                  <p>Välj ett mätvärde först</p> /* TODO: I18n */
                 )}
               </fieldset>
               <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: "1px solid var(--gray-80)" }}>

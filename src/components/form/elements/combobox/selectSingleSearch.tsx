@@ -32,6 +32,19 @@ export default function SelectSingleSearch({
         ? options[0]
         : null
   )
+
+  // Syncs default value to value
+  // NOTE: Might want to explore if we can make this a controlled component (i.e Move state ownership to its parent) (would mean treating value and defaultvalue as any other standard input does)
+  useEffect(() => {
+    if (
+      typeof defaultValue === "object" &&
+      defaultValue !== null &&
+      defaultValue.value !== value?.value
+    ) {
+      setValue(defaultValue);
+    }
+  }, [defaultValue, value?.value]);
+
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const [focusedListboxOption, setFocusedListboxOption] = useState<number | null>(null);
   const [searchValue, setSearchValue] = useState<string>('')
