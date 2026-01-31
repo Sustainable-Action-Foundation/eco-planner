@@ -10,7 +10,7 @@ import { LocaleContext } from "@/lib/i18nClient.tsx";
 import { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
 import { TrafaVariable } from "@/lib/trafa/trafaTypes";
 import { Goal } from "@prisma/client";
-import { FormEvent, useContext, useEffect, useRef, useState } from "react";
+import { FormEvent, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
 import dialogStyles from '../api/queryBuilder.module.css' /* TODO: This seems a bit janky */
@@ -59,7 +59,7 @@ export default function HistoricalData({
     }
   }, [tableDetails]);
 
-  function buildQuery(formData: FormData) {
+  const buildQuery = useCallback((formData: FormData) => {
     const queryObject: { variableCode: string, valueCodes: string[] }[] = [];
     formData.forEach((value, key) => {
       // Skip empty values
@@ -72,13 +72,63 @@ export default function HistoricalData({
       // The PxWeb time variable is special, as we want to fetch every period after (and including) the selected one
       if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && key == formRef.current?.getElementsByClassName("TimeVariable")[0]?.id) {
         queryObject.push({ variableCode: key, valueCodes: [`FROM(${value})`] });
+        console.log(queryObject)
         return;
       }
       queryObject.push({ variableCode: key, valueCodes: [value] });
     });
-
     return queryObject;
-  }
+  }, [dataSource])
+
+  const tryGetResult = useCallback((event?: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) => {
+    // null check
+    if (!(formRef.current instanceof HTMLFormElement)) return;
+
+    setIsLoading(true);
+
+    // Get a result if the form is valid
+    if (formRef.current.checkValidity()) {
+      const formData = new FormData(formRef.current);
+      const query = buildQuery(formData);
+      const tableId = tableDetails?.id ?? formData.get("externalTableId") as string ?? "";
+      getTableContent(tableId, dataSource, query, lang).then(result => {
+        setTableContent(result);
+        setIsLoading(false);
+      }).catch(e => {
+        console.error("Error fetching table content:", e);
+        setTableContent(null);
+        setIsLoading(false);
+      });
+      if (dataSource == "Trafa") {
+        // If metric was changed, send the metric as a query to the API to get filtered table details
+        if (event?.target instanceof HTMLSelectElement && event.target.name == "metric") {
+          void getTableDetails(tableId, dataSource, query.filter(q => q.variableCode == "metric"), lang).then(result => { setTableDetails(result); });
+        }
+      }
+    }
+    else {
+      setTableContent(null);
+      setIsLoading(false);
+    }
+  }, [dataSource, lang, tableDetails?.id, buildQuery]);
+
+  // 1. Fetch table details
+  useEffect(() => {
+    if (!goal.externalTableId || !goal.externalDataset) return;
+
+    void getTableDetails(
+      goal.externalTableId,
+      goal.externalDataset,
+      [{ variableCode: '', valueCodes: [] }],
+      lang
+    ).then(setTableDetails);
+  }, [goal.externalTableId, goal.externalDataset, lang]);
+
+  // 2. Fetch table content
+  useEffect(() => {
+    if (!formRef.current || !tableDetails) return;
+    tryGetResult();
+  }, [tableDetails, tryGetResult]);
 
   function deleteHistoricalData() {
     formSubmitter("/api/goal", JSON.stringify({
@@ -110,38 +160,6 @@ export default function HistoricalData({
       externalSelection: JSON.stringify(query),
       timestamp: Date.now(),
     }), "PUT", t, setIsLoading);
-  }
-
-  function tryGetResult(event?: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
-    // null check
-    if (!(formRef.current instanceof HTMLFormElement)) return;
-
-    setIsLoading(true);
-
-    // Get a result if the form is valid
-    if (formRef.current.checkValidity()) {
-      const formData = new FormData(formRef.current);
-      const query = buildQuery(formData);
-      const tableId = tableDetails?.id ?? formData.get("externalTableId") as string ?? "";
-      getTableContent(tableId, dataSource, query, lang).then(result => {
-        setTableContent(result);
-        setIsLoading(false);
-      }).catch(e => {
-        console.error("Error fetching table content:", e);
-        setTableContent(null);
-        setIsLoading(false);
-      });
-      if (dataSource == "Trafa") {
-        // If metric was changed, send the metric as a query to the API to get filtered table details
-        if (event?.target instanceof HTMLSelectElement && event.target.name == "metric") {
-          void getTableDetails(tableId, dataSource, query.filter(q => q.variableCode == "metric"), lang).then(result => { setTableDetails(result); });
-        }
-      }
-    }
-    else {
-      setTableContent(null);
-      setIsLoading(false);
-    }
   }
 
   function formChange(event: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
@@ -211,7 +229,6 @@ export default function HistoricalData({
   function optionalTag(dataSource: string, variableIsOptional: boolean) {
     if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variableIsOptional) return <span className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</span>;
   }
-
 
   function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails) {
     if (variable.option) {
@@ -284,6 +301,7 @@ export default function HistoricalData({
   // Index for data-position attribute in legend elements (for accessibility)
   let positionIndex = 1;
 
+
   {/* TODO: Must make sure to limit the width of selects, some variables are stupidly long */ }
   return (
     <div className={`${styles['dialog-body']}`}> {/* TODO: Dialog-body does not make sense here now... */}
@@ -336,15 +354,15 @@ export default function HistoricalData({
                     Denna målbana har redan en extern datakälla. Du kan antingen justera din historiska data manuellt eller ta bort den externa datakällan och lägga till en ny  {/* TODO: I18n */}
                   </p> {/* TODO: I18n */}
                   <div className="flex gap-25 margin-top-100">
-                    <button 
-                      className="flex-grow-100 flex align-items-center justify-content-space-between gap-25 font-weight-500" 
-                      style={{ transform: 'scale(1)'}}
-                      onClick={() => setVisibleForm("manual")}  
+                    <button
+                      className="flex-grow-100 flex align-items-center justify-content-space-between gap-25 font-weight-500"
+                      style={{ transform: 'scale(1)' }}
+                      onClick={() => setVisibleForm("manual")}
                     >
                       Justera manuellt {/* TODO: I18n */}
                       <IconEdit width={18} height={18} style={{ minWidth: '18px' }} aria-hidden="true" />
                     </button>
-                    <button type="button" className="red color-purewhite flex align-items-center justify-content-space-between gap-100 font-weight-500" style={{ transform: 'scale(1)'}} onClick={() => deleteDataRef.current?.showModal()}>
+                    <button type="button" className="red color-purewhite flex align-items-center justify-content-space-between gap-100 font-weight-500" style={{ transform: 'scale(1)' }} onClick={() => deleteDataRef.current?.showModal()}>
                       Ta bort extern datakälla {/* TODO: I18n (replace previous existing) */}
                       <IconTrashXFilled fill='white' width={16} height={16} style={{ minWidth: '16px' }} aria-hidden="true" />
                     </button>
