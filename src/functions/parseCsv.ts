@@ -1,4 +1,4 @@
-import { DateValues, GoalCreateInput, isISOIshDate } from "@/types";
+import { DateValues, GoalCreateInput, isISOIshDate, ISOIshDate } from "@/types";
 
 export default function parseCsv(csv: ArrayBuffer): string[][] {
   // Despite Windows-1252 being more common than UTF-8 in a Windows/Microsoft environment (such as when exporting CSV files from Excel),
@@ -81,13 +81,22 @@ export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void
       externalTableId: undefined,
       externalSelection: undefined,
       recipeSuggestions: undefined,
+      dataSeriesId: undefined,
       dataSeries: {
         dateValues: dateValues,
         unit: csv[i][headerIndex["dataUnit"] ?? NaN],
       },
+      dataSeriesRecipeId: undefined,
       dataSeriesRecipe: undefined,
-      baseline: undefined,
       baselineId: undefined,
+      baseline: {
+        dateValues: Object.fromEntries(definedYears.map(yyyy => (
+          [yyyy, dateValues[definedYears[0] as ISOIshDate]]
+        ))),
+        unit: null
+      },
+      baselineRecipeId: undefined,
+      baselineRecipe: undefined,
       rawTags: undefined,
       links: undefined,
       roadmapId: "", // Will be assigned later :O
