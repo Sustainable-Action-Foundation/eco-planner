@@ -445,6 +445,7 @@ export type GoalUpdateInput = {
 
 /** The format of the data needed to create a new action. */
 export type ActionInput = {
+  actionId: string | null | undefined;
   roadmapId: string | undefined;
   goalId: string | undefined;
 
@@ -466,11 +467,13 @@ export type ActionInput = {
   parentAction: Action | null | undefined;
   childActions: Action[] | null | undefined;
 
-  dataSeries: string[] | null | undefined;
+  dataSeries: DateValuesWithUnit;
   impactType: ActionImpactType | undefined;
 
   // TODO: Deprecated - will be moved to description
   links: { url: string, description?: string | null }[] | null | undefined;
+
+  timestamp: number | undefined;
 };
 
 export type EffectInput = {

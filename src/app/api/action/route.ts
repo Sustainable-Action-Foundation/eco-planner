@@ -1,30 +1,31 @@
 import { NextRequest } from "next/server";
 import { getSession } from "@/lib/session"
 import prisma from "@/prismaClient";
-import { AccessControlled, AccessLevel, ClientError, ActionInput, DateValues } from "@/types";
+import { AccessControlled, AccessLevel, ClientError, ActionInput } from "@/types";
 import accessChecker from "@/lib/accessChecker";
 import { revalidateTag } from "next/cache";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { cookies } from "next/headers";
 import { Prisma } from "@prisma/client";
+import { dateValuesToDBDateRecord } from "@/functions/recipe/extractors";
 
 /**
  * Handles POST requests to the action API
  */
 export async function POST(request: NextRequest) {
-  const [session, action] = await Promise.all([
+  const [session, actionCreate] = await Promise.all([
     getSession(await cookies()),
     request.json() as Promise<ActionInput>,
   ]);
 
   // Validate request body
-  if (!action.name) {
+  if (!actionCreate.name) {
     return Response.json({ message: 'Missing required input parameters' },
       { status: 400 }
     );
   }
 
-  if (!action.roadmapId) {
+  if (!actionCreate.roadmapId) {
     return Response.json({ message: 'Missing parent. Please report this problem unless you are sending custom requests.' },
       { status: 400 }
     );
@@ -37,6 +38,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Auth
   try {
     // Get user and goal
     const [user, roadmap, goal] = await Promise.all([
@@ -45,7 +47,7 @@ export async function POST(request: NextRequest) {
         select: { id: true, username: true, isAdmin: true, userGroups: true }
       }),
       prisma.roadmap.findUnique({
-        where: { id: action.roadmapId },
+        where: { id: actionCreate.roadmapId },
         select: {
           author: { select: { id: true, username: true } },
           editors: { select: { id: true, username: true } },
@@ -55,10 +57,10 @@ export async function POST(request: NextRequest) {
           isPublic: true,
         }
       }),
-      !action.goalId
+      !actionCreate.goalId
         ? null
         : prisma.goal.findUnique({
-          where: { id: action.goalId },
+          where: { id: actionCreate.goalId },
           include: {
             roadmap: {
               select: {
@@ -81,7 +83,7 @@ export async function POST(request: NextRequest) {
 
     // If no roadmap is found or the user has no access to the roadmap, return IllegalParent
     // Also return IllegalParent if a goalId is provided and no valid goal is found
-    if (!roadmap || (!goal && action.goalId)) {
+    if (!roadmap || (!goal && actionCreate.goalId)) {
       throw new Error(ClientError.IllegalParent, { cause: 'action' });
     }
 
@@ -125,76 +127,64 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // Prepare action impact data
-  let impactData: Partial<DateValues> | undefined | null = undefined;
-  if (action.dataSeries?.length) {
-    // Parse the data series
-    impactData = dataSeriesPrep(action.dataSeries);
-  }
   // If the data series is invalid, return an error
-  if (impactData === null) {
-    return Response.json({ message: 'Bad data series' },
+  if (!actionCreate.dataSeries) {
+    return Response.json(
+      { message: 'Bad data series' },
       { status: 400 }
     );
   }
 
   // Create the action
   try {
-    const newAction = await prisma.action.create({
+    const newActionId = (await prisma.action.create({
       data: {
-        name: action.name,
-        description: action.description,
-        costEfficiency: action.costEfficiency,
-        expectedOutcome: action.expectedOutcome,
-        startYear: action.startYear,
-        endYear: action.endYear,
-        projectManager: action.projectManager,
-        relevantActors: action.relevantActors,
-        isSufficiency: action.isSufficiency,
-        isEfficiency: action.isEfficiency,
-        isRenewables: action.isRenewables,
-        effects: (impactData && action.goalId) ? {
-          create: {
-            impactType: action.impactType,
-            dataSeries: {
-              create: {
-                ...impactData,
-                unit: null,
-                authorId: session.user.id,
+        name: actionCreate.name,
+        description: actionCreate.description,
+        costEfficiency: actionCreate.costEfficiency,
+        expectedOutcome: actionCreate.expectedOutcome,
+        startYear: actionCreate.startYear,
+        endYear: actionCreate.endYear,
+        projectManager: actionCreate.projectManager,
+        relevantActors: actionCreate.relevantActors,
+        isSufficiency: actionCreate.isSufficiency,
+        isEfficiency: actionCreate.isEfficiency,
+        isRenewables: actionCreate.isRenewables,
+        roadmap: { connect: { id: actionCreate.roadmapId } },
+        effects: !(actionCreate.dataSeries && actionCreate.goalId)
+          ? undefined
+          : {
+            create: {
+              impactType: actionCreate.impactType,
+              dataSeries: {
+                create: {
+                  author: { connect: { id: session.user.id } },
+                  unit: null,
+                  values: { createMany: { data: dateValuesToDBDateRecord(actionCreate.dataSeries) } }
+                }
+              },
+              goal: {
+                connect: { id: actionCreate.goalId }
               }
-            },
-            goal: {
-              connect: { id: action.goalId }
             }
-          }
-        } : undefined,
-        roadmap: {
-          connect: { id: action.roadmapId }
-        },
+          },
         links: {
-          create: action.links?.map(link => {
-            return {
-              url: link.url,
-              description: link.description || undefined,
-            }
-          })
+          create: actionCreate.links?.map(link => ({
+            url: link.url,
+            description: link.description || undefined,
+          })),
         },
         // TODO: Add `Note`s
-        author: {
-          connect: {
-            id: session.user.id
-          }
-        },
+        author: { connect: { id: session.user.id } },
       },
-      select: {
-        id: true,
-      }
-    });
+      select: { id: true, },
+    })).id;
+
     // Invalidate old cache
     revalidateTag('action');
     // Return the new action's ID if successful
-    return Response.json({ message: 'Action created', id: newAction.id },
-      { status: 201, headers: { 'Location': `/action/${newAction.id}` } }
+    return Response.json({ message: 'Action created', id: newActionId },
+      { status: 201, headers: { 'Location': `/action/${newActionId}` } }
     );
   } catch (error) {
     console.log(error);
@@ -215,7 +205,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   const [session, action] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<ActionInput & { actionId: string, timestamp?: number }>
+    request.json() as Promise<ActionInput>,
   ]);
 
   // Validate request body
@@ -237,6 +227,7 @@ export async function PUT(request: NextRequest) {
     );
   }
 
+  // Auth
   try {
     const [user, currentAction] = await Promise.all([
       prisma.user.findUnique({
@@ -313,7 +304,7 @@ export async function PUT(request: NextRequest) {
 
   // Update the action
   try {
-    const updatedAction = await prisma.action.update({
+    const updatedActionId = (await prisma.action.update({
       where: {
         id: action.actionId
       },
@@ -331,25 +322,21 @@ export async function PUT(request: NextRequest) {
         isRenewables: action.isRenewables,
         links: {
           set: [],
-          create: action.links?.map(link => {
-            return {
-              url: link.url,
-              description: link.description || undefined,
-            }
-          })
+          create: action.links?.map(link => ({
+            url: link.url,
+            description: link.description || undefined,
+          })),
         },
       },
-      select: {
-        id: true,
-      }
-    });
+      select: { id: true, },
+    })).id;
     // Prune any orphaned links and comments
     await pruneOrphans();
     // Invalidate old cache
     revalidateTag('action');
     // Return the new action's ID if successful
-    return Response.json({ message: 'Action updated', id: updatedAction.id },
-      { status: 200, headers: { 'Location': `/action/${updatedAction.id}` } }
+    return Response.json({ message: 'Action updated', id: updatedActionId },
+      { status: 200, headers: { 'Location': `/action/${updatedActionId}` } }
     );
   } catch (error) {
     console.log(error);
