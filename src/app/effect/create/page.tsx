@@ -34,18 +34,18 @@ export default async function Page(
   const [t, session, action, goal, roadmaps] = await Promise.all([
     serveTea("pages"),
     getSession(await cookies()),
-    getOneAction(typeof searchParams.actionId == 'string' ? searchParams.actionId : ''),
-    getOneGoal(typeof searchParams.goalId == 'string' ? searchParams.goalId : ''),
+    getOneAction(typeof searchParams.actionId === 'string' ? searchParams.actionId : ''),
+    getOneGoal(typeof searchParams.goalId === 'string' ? searchParams.goalId : ''),
     getRoadmaps(),
   ]);
 
   const badAction = (
-    (!action && typeof searchParams.actionId == 'string') ||
+    (!action && typeof searchParams.actionId === 'string') ||
     (action && !hasEditAccess(accessChecker(action.roadmap, session.user)))
   );
 
   const badGoal = (
-    (!goal && typeof searchParams.goalId == 'string') ||
+    (!goal && typeof searchParams.goalId === 'string') ||
     (goal && !hasEditAccess(accessChecker(goal.roadmap, session.user)))
   );
 
@@ -71,7 +71,11 @@ export default async function Page(
             {t("pages:effect_create.bad_goal")}
           </p>
         }
-        <EffectForm action={badAction ? null : action} goal={badGoal ? null : goal} roadmaps={roadmapList} />
+        <EffectForm
+          action={action}
+          goal={goal}
+          roadmaps={roadmapList}
+        />
       </div>
     </>
   )

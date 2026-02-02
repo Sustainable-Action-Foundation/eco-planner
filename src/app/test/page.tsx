@@ -26,7 +26,7 @@ export default async function Page() {
     <h1>Test page</h1>
 
     <EffectForm
-      effect={null}
+      currentEffect={null}
       roadmaps={roadmaps}
     />
 

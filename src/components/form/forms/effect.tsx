@@ -1,7 +1,7 @@
 'use client';
 
 import formSubmitter from "@/functions/formSubmitter";
-import { DateValuesWithUnit, Effect, EffectInput, MultiRoadmapInstance } from "@/types";
+import { Action, DateValuesWithUnit, Effect, EffectInput, Goal, MultiRoadmapInstance } from "@/types";
 import { ActionImpactType } from "@prisma/client";
 import { useMemo, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
@@ -10,18 +10,22 @@ import { absoluteToDelta, ActionSelector, deltaToAbsolute, GoalSelector } from "
 import { dataSeriesToDateValues } from "@/functions/recipe/extractors";
 
 export default function EffectForm({
-  effect,
+  goal,
+  action,
+  currentEffect,
   roadmaps,
 }: {
-  effect: Effect | null,
+  goal?: Goal | null,
+  action?: Action | null,
+  currentEffect?: Effect | null | undefined,
   roadmaps: MultiRoadmapInstance[],
 }) {
   const { t } = useTranslation(["forms", "common"]);
   const timestamp = useMemo(() => Date.now(), []);
 
-  const [selectedImpactType, setSelectedImpactType] = useState<ActionImpactType>(effect?.impactType ?? ActionImpactType.ABSOLUTE);
-  const [dateValues, setDateValues] = useState<DateValuesWithUnit>(effect?.dataSeries
-    ? dataSeriesToDateValues(effect.dataSeries)
+  const [selectedImpactType, setSelectedImpactType] = useState<ActionImpactType>(currentEffect?.impactType ?? ActionImpactType.ABSOLUTE);
+  const [dateValues, setDateValues] = useState<DateValuesWithUnit>(currentEffect?.dataSeries
+    ? dataSeriesToDateValues(currentEffect.dataSeries)
     : { unit: undefined, dateValues: {}, }
   );
 
@@ -30,8 +34,8 @@ export default function EffectForm({
 
     const formData = new FormData(event.target);
 
-    const selectedAction = effect?.actionId ?? formData.get("actionId");
-    const selectedGoal = effect?.goalId ?? formData.get("goalId");
+    const selectedAction = currentEffect?.actionId ?? formData.get("actionId");
+    const selectedGoal = currentEffect?.goalId ?? formData.get("goalId");
     const impactType = formData.get("impactType");
 
     if (
@@ -54,17 +58,17 @@ export default function EffectForm({
 
     /** Where to redirect after submitting the form, unless API returns a location header */
     let defaultLocation: string | undefined = undefined;
-    if (effect?.action) {
-      defaultLocation = `/action/${effect.action.id}`;
+    if (currentEffect?.action) {
+      defaultLocation = `/action/${currentEffect.action.id}`;
     }
-    else if (effect?.goal) {
-      defaultLocation = `/goal/${effect.goal.id}`;
+    else if (currentEffect?.goal) {
+      defaultLocation = `/goal/${currentEffect.goal.id}`;
     }
     else {
       defaultLocation = `/action/${selectedAction}`;
     }
 
-    formSubmitter('/api/effect', JSON.stringify(formContent), effect ? 'PUT' : 'POST', t, undefined, defaultLocation);
+    formSubmitter('/api/effect', JSON.stringify(formContent), currentEffect ? 'PUT' : 'POST', t, undefined, defaultLocation);
   }
 
   return (
@@ -73,11 +77,11 @@ export default function EffectForm({
         <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
         <ActionSelector
-          action={effect?.action ?? null}
+          action={action ?? currentEffect?.action ?? null}
           roadmaps={roadmaps}
         />
         <GoalSelector
-          goal={effect?.goal ?? null}
+          goal={goal ?? currentEffect?.goal ?? null}
           roadmaps={roadmaps}
         />
 
@@ -148,7 +152,7 @@ export default function EffectForm({
             type="submit"
             id="submit-button"
           >
-            {effect
+            {currentEffect
               ? t("common:tsx.save")
               : t("forms:effect.create")
             }

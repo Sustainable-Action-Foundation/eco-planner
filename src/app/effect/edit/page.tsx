@@ -105,7 +105,7 @@ export default async function Page(
           {t("pages:effect_edit.title")}
         </h1>
         <EffectForm
-          effect={effect}
+          currentEffect={effect}
           roadmaps={roadmapList}
         />
       </div>
