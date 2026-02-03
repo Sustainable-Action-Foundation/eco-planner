@@ -8,7 +8,7 @@ import GraphGraph from "@/components/graphs/graphGraph";
 import SiblingGraph from "@/components/graphs/siblingGraph";
 import CopyAndScale from "@/components/modals/copyAndScale";
 import EffectTable from "@/components/tables/effects.tsx";
-import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
+import { ObjectMenu, TableMenu } from "@/components/tables/tableMenu/tableMenu";
 import getGoalByIndicator from "@/fetchers/getGoalByIndicator";
 import getOneGoal from "@/fetchers/getOneGoal";
 import getOneRoadmap from "@/fetchers/getOneRoadmap";
@@ -173,6 +173,8 @@ export default async function Page(
   return (
     <>
       <Breadcrumb object={goal} />
+      <ObjectMenu accessLevel={accessLevel} object={goal} />
+      
       <main>
         {shouldUpdate &&
           <section

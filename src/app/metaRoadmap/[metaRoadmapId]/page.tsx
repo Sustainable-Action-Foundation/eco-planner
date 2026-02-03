@@ -5,7 +5,7 @@ import { AccessLevel } from "@/types";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import RoadmapTable from "@/components/tables/roadmapTables/roadmapTable";
-import { TableMenu } from "@/components/tables/tableMenu/tableMenu";
+import { ObjectMenu, TableMenu } from "@/components/tables/tableMenu/tableMenu";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
@@ -56,6 +56,7 @@ export default async function Page(props: { params: Promise<{ metaRoadmapId: str
   return (
     <>
       <Breadcrumb object={metaRoadmap} />
+      <ObjectMenu accessLevel={accessLevel} object={metaRoadmap} />
 
       <main>
         <section className="margin-block-300">

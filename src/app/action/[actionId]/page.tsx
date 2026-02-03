@@ -12,6 +12,7 @@ import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconEdit } from "@tabler/icons-react";
 import TextEditor from "@/components/form/elements/textEditor/editor";
+import { ObjectMenu } from "@/components/tables/tableMenu/tableMenu";
 
 export async function generateMetadata(props: { params: Promise<{ actionId: string }> }) {
   const params = await props.params
@@ -68,6 +69,7 @@ export default async function Page(props: { params: Promise<{ actionId: string }
   return (
     <>
       <Breadcrumb object={action} />
+      <ObjectMenu accessLevel={accessLevel} object={action} />
 
       <main>
         <section className="margin-block-300 container">

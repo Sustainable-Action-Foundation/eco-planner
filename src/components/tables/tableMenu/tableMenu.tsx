@@ -312,7 +312,7 @@ export function TableMenu(
 // TODO: last hr should  not be visible, can probably fix using css (:last-of-type?)
 // TODO: Style using css components
 // TODO: See if we can make font size look better here (make all the same size as button)
-// TODO: This entire thing should only be visible for users with edit access. Probably ensure that on page rather than here?
+// TODO: This entire thing should only be visible for users with edit access. Probably enforce that on page rather than here though?
 export function ObjectMenu(
   {
     accessLevel,
@@ -391,6 +391,7 @@ export function ObjectMenu(
           </>
         ) : null}
       </menu>
+      <small className='font-style-italic'>Only authors as well as users with admin- or edit access can see this panel. Which actions are available to a user depend on their level of access to this post.</small>
     </aside>
   )
 
