@@ -11,7 +11,7 @@ import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { DataSeries, Goal } from "@prisma/client";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
-import { IconCircleFilled, IconEdit } from "@tabler/icons-react";
+import { IconCircleFilled, IconEdit, IconPlus, IconTrashFilled, IconTrashXFilled } from "@tabler/icons-react";
 import Link from "next/link";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 
@@ -65,6 +65,34 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
     <Breadcrumb object={roadmap} />
 
     <main>
+      <section className="margin-top-300">
+        <h3>Administration</h3>
+        <menu
+          className="flex gap-25 align-items-stretch width-100 padding-25 margin-0 smooth"
+          style={{border: '1px solid var(--gray-80)', backgroundColor: 'var(--secondary-neutral)'}}
+        > {/* TODO: Proper keyboard navigation? */}
+          <a href="" className="flex gap-100 align-items-center padding-25 button smooth" style={{backgroundColor: 'transparent'}}>
+            Ny målbana
+            <IconPlus width='20' height='20' style={{minWidth: '20'}} />
+          </a>
+          <hr className="round" style={{borderStyle: 'solid', color: 'var(--gray-80)'}}/>
+          <a  href="" className="flex gap-100 align-items-center padding-25 button smooth" style={{backgroundColor: 'transparent'}}>
+            Ny åtgärd
+            <IconPlus width='20' height='20' style={{minWidth: '20'}} />
+          </a>
+          <hr className="round" style={{borderStyle: 'solid', color: 'var(--gray-80)'}}/>
+          <div className="flex-grow-100">
+            <a href="" className="flex gap-100 align-items-center padding-25 button smooth width-fit-content" style={{backgroundColor: 'transparent'}}>
+              Redigera
+              <IconEdit width='20' height='20' style={{minWidth: '20'}} />
+            </a>
+          </div>
+          <a href="" className="flex gap-100 align-items-center padding-25 button smooth" style={{backgroundColor: 'transparent'}}>
+            Radera
+            <IconTrashXFilled width='20' height='20' style={{minWidth: '20'}} fill="red"/>
+          </a>
+        </menu>
+      </section>
       <section className="flex justify-content-space-between flex-wrap-wrap gap-100 margin-block-300" >
         <div className="flex-grow-100">
           <span style={{ color: 'gray' }}>{t("pages:roadmap.title")}</span>
