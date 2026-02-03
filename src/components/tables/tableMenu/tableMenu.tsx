@@ -10,6 +10,186 @@ import { openModal } from "@/components/modals/modalFunctions";
 import { useTranslation } from "react-i18next";
 import { IconArrowBackUp, IconChartHistogram, IconDotsVertical, IconEdit, IconPlus, IconTrashXFilled, IconX } from "@tabler/icons-react";
 import { hasEditAccess } from '@/lib/accessChecker';
+import { TFunction } from 'i18next';
+
+type ObjectParameter = (
+  // Effect
+  | (Effect & {
+    action?: Action
+    goal?: Goal
+    roadmapVersions?: never
+    metaRoadmap?: never
+    indicatorParameter?: never
+    isSufficiency?: never
+    name?: string
+    id?: { actionId: string; goalId: string }
+  })
+
+  // Action
+  | (Action & {
+    effects?: {
+      goal: { id: string; roadmap: { id: string } }
+    }[]
+    roadmapVersions?: never
+    metaRoadmap?: never
+    indicatorParameter?: never
+  })
+
+  // Goal
+  | (Goal & {
+    _count: { effects: number }
+    dataSeries: DataSeries | null
+    roadmap: { id: string; metaRoadmap: { name: string; id: string } }
+    roadmapVersions?: never
+    metaRoadmap?: never
+    goal?: never
+  })
+
+  // Roadmap
+  | {
+    id: string
+    version: number
+    _count: { goals: number }
+    metaRoadmap: MetaRoadmap
+    roadmapVersions?: never
+    roadmap?: never
+    goal?: never
+    name?: never
+  }
+
+  // MetaRoadmap
+  | (MetaRoadmap & {
+    roadmapVersions: {
+      id: string
+      version: number
+      _count: { goals: number }
+    }[]
+    metaRoadmap?: never
+    roadmap?: never
+    goal?: never
+  })
+)
+
+type links = {
+  selfLink?: string;
+  parentLink?: string;
+  parentDescription?: string;
+  creationLink?: string;
+  creationDescription?: string;
+  creationLink2?: string;
+  creationDescription2?: string;
+  editLink?: string;
+  historicalDataLink?: string;
+  deleteLink?: string;
+}
+
+function buildLinks(
+  object: ObjectParameter,
+  t: TFunction,
+): links | null {
+
+  let selfLink: string | undefined;
+  let parentLink: string | undefined;
+  let parentDescription: string | undefined;
+  let creationLink: string | undefined;
+  let creationDescription: string | undefined;
+  let creationLink2: string | undefined;
+  let creationDescription2: string | undefined;
+  let editLink: string | undefined;
+  let historicalDataLink: string | undefined;
+  let deleteLink: string | undefined;
+
+  // MetaRoadmaps
+  if (object.roadmapVersions !== undefined) {
+    selfLink = `/metaRoadmap/${object.id}`;
+    creationLink = `/roadmap/create?metaRoadmapId=${object.id}`;
+    creationDescription = t("components:table_menu.new_roadmap_version");
+    editLink = `/metaRoadmap/${object.id}/edit`;
+    deleteLink = "/api/metaRoadmap";
+  }
+
+  // Roadmaps
+  else if (object.metaRoadmap !== undefined) {
+    selfLink = `/roadmap/${object.id}`;
+    parentLink = `/metaRoadmap/${object.metaRoadmap.id}`;
+    parentDescription = t("components:table_menu.go_to_series");
+    creationLink = `/goal/create?roadmapId=${object.id}`;
+    creationDescription = t("components:table_menu.new_goal");
+    creationLink2 = `/action/create?roadmapId=${object.id}`;
+    creationDescription2 = t("components:table_menu.new_action");
+    editLink = `/roadmap/${object.id}/edit`;
+    deleteLink = "/api/roadmap";
+  }
+
+  // Goals
+  else if (object.indicatorParameter !== undefined) {
+    selfLink = `/goal/${object.id}`;
+    parentLink = `/roadmap/${object.roadmap.id}`;
+    parentDescription = t("components:table_menu.go_to_version");
+    creationLink = `/action/create?roadmapId=${object.roadmapId}&goalId=${object.id}`;
+    creationDescription = t("components:table_menu.new_action");
+    creationLink2 = `/effect/create?goalId=${object.id}`;
+    creationDescription2 = t("components:table_menu.add_effect_from_existing_action");
+    editLink = `/goal/${object.id}/edit`;
+    historicalDataLink = `/goal/${object.id}/historical-data`;
+    deleteLink = "/api/goal";
+
+    if (!object.name) {
+      object.name = object.indicatorParameter;
+    }
+  }
+
+  // Actions
+  else if (object.isSufficiency !== undefined) {
+    selfLink = `/action/${object.id}`;
+    parentLink = `/roadmap/${object.roadmapId}`;
+    parentDescription = t("components:table_menu.go_to_version");
+    creationLink = `/effect/create?actionId=${object.id}`;
+    creationDescription = t("components:table_menu.new_effect");
+    editLink = `/action/${object.id}/edit`;
+    deleteLink = "/api/action";
+  }
+
+  // Effects
+  else if ("actionId" in object) {
+    selfLink = `/action/${object.actionId}`;
+    parentLink = `/goal/${object.goalId}`;
+    parentDescription = t("components:table_menu.go_to_goal");
+    editLink = `/effect/edit?actionId=${object.actionId}&goalId=${object.goalId}`;
+    deleteLink = "/api/effect";
+
+    if (!object.name) {
+      object.name = object.action?.name
+        ? t("components:table_menu.effect_from_action", { source: object.action.name })
+        : object.goal
+          ? (object.goal.name || object.goal.indicatorParameter)
+          : t("components:table_menu.effect_missing_name");
+    }
+
+    if (!object.id) {
+      object.id = { actionId: object.actionId, goalId: object.goalId };
+    }
+  }
+
+  else {
+    console.log("TableMenu: Object type not recognized", object);
+    return null;
+  }
+
+  return {
+    selfLink,
+    parentLink,
+    parentDescription,
+    creationLink,
+    creationDescription,
+    creationLink2,
+    creationDescription2,
+    editLink,
+    historicalDataLink,
+    deleteLink,
+  }
+}
+
 
 // General purpose button for roadmaps, goals and actions. 
 // Update the name of the component to reflect this
@@ -24,139 +204,14 @@ export function TableMenu(
     width?: number,
     height?: number,
     accessLevel?: AccessLevel,
-    object: (
-      // Effect
-      (Effect & {
-        action?: Action,
-        goal?: Goal,
-        roadmapVersions?: never,
-        metaRoadmap?: never,
-        indicatorParameter?: never,
-        isSufficiency?: never,
-        // Set name and id further down
-        name?: string,
-        id?: { actionId: string, goalId: string },
-      })
-      // Action
-      | (Action & {
-        effects?: {
-          goal: { id: string, roadmap: { id: string } },
-        }[],
-        roadmapVersions?: never,
-        metaRoadmap?: never,
-        indicatorParameter?: never,
-      })
-      // Goal
-      | (Goal & {
-        _count: { effects: number }
-        dataSeries: DataSeries | null,
-        roadmap: { id: string, metaRoadmap: { name: string, id: string } },
-        roadmapVersions?: never,
-        metaRoadmap?: never,
-        goal?: never,
-      })
-      // Roadmap
-      | ({
-        id: string,
-        version: number,
-        _count: { goals: number },
-        metaRoadmap: MetaRoadmap,
-        roadmapVersions?: never,
-        roadmap?: never,
-        goal?: never,
-        name?: never,
-      })
-      // MetaRoadmap
-      | (MetaRoadmap & {
-        roadmapVersions: { id: string, version: number, _count: { goals: number } }[],
-        metaRoadmap?: never,
-        roadmap?: never,
-        goal?: never,
-      })
-    )
+    object: ObjectParameter
   }) {
   const { t } = useTranslation(["components", "common"]);
 
   const menu = useRef<HTMLDialogElement | null>(null);
   const deletionRef = useRef<HTMLDialogElement | null>(null);
 
-  let selfLink: string | undefined;
-  let parentLink: string | undefined;
-  let parentDescription: string | undefined;
-  let creationLink: string | undefined;
-  let creationDescription: string | undefined;
-  let creationLink2: string | undefined;
-  let creationDescription2: string | undefined;
-  let editLink: string | undefined;
-  let historicalDataLink: string | undefined;
-  let deleteLink: string | undefined;
-
-  // MetaRoadmaps
-  if (object.roadmapVersions != undefined) {
-    selfLink = `/metaRoadmap/${object.id}`;
-    creationLink = `/roadmap/create?metaRoadmapId=${object.id}`;
-    creationDescription = t("components:table_menu.new_roadmap_version");
-    editLink = `/metaRoadmap/${object.id}/edit`;
-    deleteLink = "/api/metaRoadmap"
-  }
-  // Roadmaps
-  else if (object.metaRoadmap != undefined) {
-    selfLink = `/roadmap/${object.id}`
-    parentLink = `/metaRoadmap/${object.metaRoadmap.id}`;
-    parentDescription = t("components:table_menu.go_to_series");
-    creationLink = `/goal/create?roadmapId=${object.id}`;
-    creationDescription = t("components:table_menu.new_goal");
-    creationLink2 = `/action/create?roadmapId=${object.id}`;
-    creationDescription2 = t("components:table_menu.new_action");
-    editLink = `/roadmap/${object.id}/edit`;
-    deleteLink = "/api/roadmap"
-  }
-  // Goals
-  else if (object.indicatorParameter != undefined) {
-    selfLink = `/goal/${object.id}`;
-    parentLink = `/roadmap/${object.roadmap.id}`;
-    parentDescription = t("components:table_menu.go_to_version");
-    creationLink = `/action/create?roadmapId=${object.roadmapId}&goalId=${object.id}`;
-    creationDescription = t("components:table_menu.new_action");
-    creationLink2 = `/effect/create?goalId=${object.id}`;
-    creationDescription2 = t("components:table_menu.add_effect_from_existing_action");
-    editLink = `/goal/${object.id}/edit`;
-    historicalDataLink = `/goal/${object.id}/historical-data`;
-    deleteLink = "/api/goal"
-    if (!object.name) {
-      object.name = object.indicatorParameter;
-    }
-  }
-  // Actions
-  else if (object.isSufficiency != undefined) {
-    selfLink = `/action/${object.id}`;
-    parentLink = `/roadmap/${object.roadmapId}`;
-    parentDescription = t("components:table_menu.go_to_version");
-    creationLink = `/effect/create?actionId=${object.id}`;
-    creationDescription = t("components:table_menu.new_effect");
-    editLink = `/action/${object.id}/edit`;
-    deleteLink = "/api/action"
-  }
-  // Effects
-  else if (object.actionId != undefined) {
-    selfLink = `/action/${object.actionId}`;
-    parentLink = `/goal/${object.goalId}`;
-    parentDescription = t("components:table_menu.go_to_goal");
-    editLink = `/effect/edit?actionId=${object.actionId}&goalId=${object.goalId}`;
-    deleteLink = '/api/effect';
-    if (!object.name) {
-      // object.name = object.action?.name ? `Effekt från ${object.action.name}` : object.goal ? (object.goal.name || object.goal.indicatorParameter) : "Namn saknas";
-      object.name = object.action?.name ? t("components:table_menu.effect_from_action", { source: object.action.name }) : object.goal ? (object.goal.name || object.goal.indicatorParameter) : t("components:table_menu.effect_missing_name");
-    }
-    if (!object.id) {
-      object.id = { actionId: object.actionId, goalId: object.goalId };
-    }
-  }
-  // Catch all
-  else {
-    console.log("TableMenu: Object type not recognized", object);
-    return null;
-  }
+  const links = buildLinks(object, t);
 
   const openMenu = () => {
     menu.current?.show();
@@ -192,53 +247,151 @@ export function TableMenu(
               <IconX aria-hidden="true" width={18} height={18} strokeWidth={3} style={{ minWidth: '18px' }} />
             </button>
             {/* Link to the object */}
-            <Link href={selfLink} className={styles.menuHeadingTitle}>{object.name || object.metaRoadmap?.name}</Link>
+            {links?.selfLink ?
+              <Link href={links.selfLink} className={styles.menuHeadingTitle}>{object.name || object.metaRoadmap?.name}</Link>
+              : <p>Menu</p>} {/* TODO: I18n */}
           </div>
-          {parentLink &&
-            <Link href={parentLink} className={styles.menuAction}>
-              <span>{parentDescription || parentLink}</span>
-              <IconArrowBackUp aria-hidden="true" style={{ minWidth: '24px' }} />
-            </Link>
-          }
-          {hasEditAccess(accessLevel ?? AccessLevel.None) ?
+          {links ? (
             <>
-              {creationLink &&
-                <Link href={creationLink} className={styles.menuAction}>
-                  <span>{creationDescription}</span>
-                  <IconPlus aria-hidden="true" style={{ minWidth: '24px' }} />
+              {links.parentLink &&
+                <Link href={links.parentLink} className={styles.menuAction}>
+                  <span>{links.parentDescription || links.parentLink}</span>
+                  <IconArrowBackUp aria-hidden="true" style={{ minWidth: '24px' }} />
                 </Link>
               }
-              {creationLink2 &&
-                <Link href={creationLink2} className={styles.menuAction}>
-                  <span>{creationDescription2 || creationLink2}</span>
-                  <IconPlus aria-hidden="true" style={{ minWidth: '24px' }} />
-                </Link>
-              }
-              <Link href={editLink} className={styles.menuAction}>
-                <span>{t("components:table_menu.edit")}</span>
-                <IconEdit aria-hidden="true" style={{ minWidth: '24px' }} />
-              </Link>
-              {historicalDataLink &&
-                <Link href={historicalDataLink} className={styles.menuAction}>
-                  <span>{t("components:table_menu.edit")}</span> {/* TODO: Switch text here */}
-                  <IconChartHistogram aria-hidden="true" style={{ minWidth: '24px' }} />
-                </Link>
-              }
-              { // Admins and authors can delete items
-                (accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) &&
+              {hasEditAccess(accessLevel ?? AccessLevel.None) ?
                 <>
-                  <button type="button" className="width-100 transparent display-flex align-items-center justify-content-space-between padding-50" style={{ fontSize: '1rem' }} onClick={() => openModal(deletionRef)}>
-                    {t("components:table_menu.delete")}
-                    <IconTrashXFilled aria-hidden="true" fill="#CB3C3C" style={{ minWidth: '24px' }} />
-                  </button>
-                  <ConfirmDelete modalRef={deletionRef} targetUrl={deleteLink} targetName={object.name || object.metaRoadmap?.name || t("components:table_menu.delete_missing_name")} targetId={object.id} />
+                  {links.creationLink &&
+                    <Link href={links.creationLink} className={styles.menuAction}>
+                      <span>{links.creationDescription}</span>
+                      <IconPlus aria-hidden="true" style={{ minWidth: '24px' }} />
+                    </Link>
+                  }
+                  {links.creationLink2 &&
+                    <Link href={links.creationLink2} className={styles.menuAction}>
+                      <span>{links.creationDescription2 || links.creationLink2}</span>
+                      <IconPlus aria-hidden="true" style={{ minWidth: '24px' }} />
+                    </Link>
+                  }
+                  {links.editLink &&
+                    <Link href={links.editLink} className={styles.menuAction}>
+                      <span>{t("components:table_menu.edit")}</span>
+                      <IconEdit aria-hidden="true" style={{ minWidth: '24px' }} />
+                    </Link>
+                  }
+                  {links.historicalDataLink &&
+                    <Link href={links.historicalDataLink} className={styles.menuAction}>
+                      <span>{t("components:table_menu.edit")}</span> {/* TODO: Switch text here */}
+                      <IconChartHistogram aria-hidden="true" style={{ minWidth: '24px' }} />
+                    </Link>
+                  }
+                  { // Admins and authors can delete items
+                    (accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) && links.deleteLink &&
+                    <>
+                      <button type="button" className="width-100 transparent display-flex align-items-center justify-content-space-between padding-50" style={{ fontSize: '1rem' }} onClick={() => openModal(deletionRef)}>
+                        {t("components:table_menu.delete")}
+                        <IconTrashXFilled aria-hidden="true" fill="red" style={{ minWidth: '24px' }} />
+                      </button>
+                      <ConfirmDelete modalRef={deletionRef} targetUrl={links.deleteLink} targetName={object.name || object.metaRoadmap?.name || t("components:table_menu.delete_missing_name")} targetId={object.id} />
+                    </>
+                  }
                 </>
+                : null
               }
             </>
-            : null
-          }
+          ) : (
+            <p>Inga tillgängliga åtgärder</p>
+          )} {/* TODO: i18n */}
         </dialog>
       </div>
     </>
   )
+}
+
+// TODO: I18n
+// TODO: last hr should  not be visible, can probably fix using css (:last-of-type?)
+// TODO: Style using css components
+// TODO: See if we can make font size look better here (make all the same size as button)
+// TODO: This entire thing should only be visible for users with edit access. Probably ensure that on page rather than here?
+export function ObjectMenu(
+  {
+    accessLevel,
+    object,
+  }: {
+    accessLevel?: AccessLevel,
+    object: ObjectParameter
+  }) {
+  const { t } = useTranslation(["components", "common"]);
+  const links = buildLinks(object, t)
+  const deletionRef = useRef<HTMLDialogElement | null>(null);
+
+  return (
+    <aside className="margin-block-300">
+      <h1 className="margin-bottom-50 font-weight-600" style={{ fontSize: '1.25rem' }}>Administration</h1> {/* TODO: I18n */}
+      <menu
+        className="flex flex-grow-100 gap-50 align-items-stretch width-100 padding-25 margin-0 smooth"
+        style={{ border: '1px solid var(--gray-80)', backgroundColor: 'var(--secondary-neutral)' }}
+      >
+        {links ? (
+          <>
+            <nav className="display-contents">
+              {hasEditAccess(accessLevel ?? AccessLevel.None) ?
+                <>
+                  {links.creationLink &&
+                    <>
+                      <Link href={links.creationLink} className="flex gap-100 align-items-center padding-25 button smooth" style={{ backgroundColor: 'transparent' }}>
+                        <span>{links.creationDescription}</span>
+                        <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+                      </Link>
+                      <hr className="round margin-inline-0 margin-block-50" style={{ borderStyle: 'solid', color: 'var(--gray-80)' }} />
+                    </>
+                  }
+                  {links.creationLink2 &&
+                    <>
+                      <Link href={links.creationLink2} className="flex gap-100 align-items-center padding-25 button smooth" style={{ backgroundColor: 'transparent' }}>
+                        <span>{links.creationDescription2 || links.creationLink2}</span>
+                        <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+                      </Link>
+                      <hr className="round margin-inline-0 margin-block-50" style={{ borderStyle: 'solid', color: 'var(--gray-80)' }} />
+                    </>
+                  }
+                  {links.editLink &&
+                    <>
+                      <Link href={links.editLink} className="flex gap-100 align-items-center padding-25 button smooth" style={{ backgroundColor: 'transparent' }}>
+                        <span>{t("components:table_menu.edit")}</span>
+                        <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+                      </Link>
+                      <hr className="round margin-inline-0 margin-block-50" style={{ borderStyle: 'solid', color: 'var(--gray-80)' }} />
+                    </>
+                  }
+                  {links.historicalDataLink &&
+                    <>
+                      <Link href={links.historicalDataLink} className="flex gap-100 align-items-center padding-25 button smooth" style={{ backgroundColor: 'transparent' }}>
+                        <span>{t("components:table_menu.edit")}</span> {/* TODO: Switch text here */}
+                        <IconChartHistogram aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+                      </Link>
+                      <hr className="round margin-inline-0 margin-block-50" style={{ borderStyle: 'solid', color: 'var(--gray-80)' }} />
+                    </>
+                  }
+                </>
+                : null
+              }
+            </nav>
+            {/* Admins and authors can delete items */} {/* TODO: Need to run hasEditAccess here? */}
+            {(accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) && links.deleteLink &&
+              <>
+                <hr className="round margin-inline-0 margin-block-50 margin-left-auto" style={{ borderStyle: 'solid', color: 'var(--gray-80)' }} />
+                <button type="button" className="flex gap-100 align-items-center padding-25 button smooth" style={{ backgroundColor: 'transparent' }} onClick={() => openModal(deletionRef)}>
+                  {t("components:table_menu.delete")}
+                  <IconTrashXFilled aria-hidden="true" width={20} height={20} fill="red" style={{ minWidth: '20px' }} />
+                </button>
+                <ConfirmDelete modalRef={deletionRef} targetUrl={links.deleteLink} targetName={object.name || object.metaRoadmap?.name || t("components:table_menu.delete_missing_name")} targetId={object.id} />
+              </>
+            }
+          </>
+        ) : null}
+      </menu>
+    </aside>
+  )
+
 }

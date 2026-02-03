@@ -14,6 +14,7 @@ import { buildMetadata } from "@/functions/buildMetadata";
 import { IconCircleFilled, IconEdit, IconPlus, IconTrashFilled, IconTrashXFilled } from "@tabler/icons-react";
 import Link from "next/link";
 import TextEditor from "@/components/form/elements/textEditor/editor";
+import { ObjectMenu } from "@/components/tables/tableMenu/tableMenu";
 
 export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }) {
   const params = await props.params
@@ -59,100 +60,60 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
   if (!roadmap || !accessLevel) {
     return notFound();
   }
- 
+
+
   return <>
 
     <Breadcrumb object={roadmap} />
+    <ObjectMenu accessLevel={accessLevel} object={{ ...roadmap, _count: { goals: roadmap.goals.length } }} />
 
     <main>
-      <section className="margin-top-300">
-        <h3>Administration</h3>
-        <menu
-          className="flex gap-25 align-items-stretch width-100 padding-25 margin-0 smooth"
-          style={{border: '1px solid var(--gray-80)', backgroundColor: 'var(--secondary-neutral)'}}
-        > {/* TODO: Proper keyboard navigation? */}
-          <a href="" className="flex gap-100 align-items-center padding-25 button smooth" style={{backgroundColor: 'transparent'}}>
-            Ny målbana
-            <IconPlus width='20' height='20' style={{minWidth: '20'}} />
-          </a>
-          <hr className="round" style={{borderStyle: 'solid', color: 'var(--gray-80)'}}/>
-          <a  href="" className="flex gap-100 align-items-center padding-25 button smooth" style={{backgroundColor: 'transparent'}}>
-            Ny åtgärd
-            <IconPlus width='20' height='20' style={{minWidth: '20'}} />
-          </a>
-          <hr className="round" style={{borderStyle: 'solid', color: 'var(--gray-80)'}}/>
-          <div className="flex-grow-100">
-            <a href="" className="flex gap-100 align-items-center padding-25 button smooth width-fit-content" style={{backgroundColor: 'transparent'}}>
-              Redigera
-              <IconEdit width='20' height='20' style={{minWidth: '20'}} />
-            </a>
-          </div>
-          <a href="" className="flex gap-100 align-items-center padding-25 button smooth" style={{backgroundColor: 'transparent'}}>
-            Radera
-            <IconTrashXFilled width='20' height='20' style={{minWidth: '20'}} fill="red"/>
-          </a>
-        </menu>
-      </section>
-      <section className="flex justify-content-space-between flex-wrap-wrap gap-100 margin-block-300" >
-        <div className="flex-grow-100">
-          <span style={{ color: 'gray' }}>{t("pages:roadmap.title")}</span>
-          <h1 className="margin-0">{roadmap.metaRoadmap.name}</h1>
-          <p className="margin-0">
-            {t("pages:roadmap.version", { version: roadmap.version })}
-            {" • "}
-            {roadmap.metaRoadmap.actor ?
-              <>
-                {roadmap.metaRoadmap.actor}
-                {" • "}
-              </>
-              :
-              null
-            }
-            {t("common:count.goal", { count: roadmap.goals.length })}
-            {"  "}
-            {/* TODO: style link to better match surroundings */}
-            <Link href={`/metaRoadmap/${roadmap.metaRoadmapId}`}>{t("pages:roadmap.show_series")}</Link>
-          </p>
+      <section className="margin-block-300" >
+        <span style={{ color: 'gray' }}>{t("pages:roadmap.title")}</span>
+        <h1 className="margin-0">{roadmap.metaRoadmap.name}</h1>
+        <p className="margin-0">
+          {t("pages:roadmap.version", { version: roadmap.version })}
+          {" • "}
+          {roadmap.metaRoadmap.actor ?
+            <>
+              {roadmap.metaRoadmap.actor}
+              {" • "}
+            </>
+            :
+            null
+          }
+          {t("common:count.goal", { count: roadmap.goals.length })}
+          {"  "}
+          {/* TODO: style link to better match surroundings */}
+          <Link href={`/metaRoadmap/${roadmap.metaRoadmapId}`}>{t("pages:roadmap.show_series")}</Link>
+        </p>
+        <div className="margin-top-100">
+          <TextEditor
+            id="rich-description"
+            editable={false}
+            defaultStyles={false}
+            content={roadmap.metaRoadmap.description}
+          />
+        </div>
+        {roadmap.description ? (
           <div className="margin-top-100">
             <TextEditor
               id="rich-description"
               editable={false}
               defaultStyles={false}
-              content={roadmap.metaRoadmap.description}
+              content={roadmap.description}
             />
           </div>
-          {roadmap.description ? (
-            <div className="margin-top-100">
-              <TextEditor
-                id="rich-description"
-                editable={false}
-                defaultStyles={false}
-                content={roadmap.description}
-              />
-            </div>
-          ) : null}
-        </div>
-
-        {/* Only show the edit link if the user has edit access to the roadmap */}
-        {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-          <Link
-            href={`/roadmap/${roadmap.id}/edit`}
-            className="flex align-items-center gap-50 font-weight-500 button transparent round color-pureblack text-decoration-none"
-            style={{ height: 'fit-content' }}
-          >
-            {t("common:edit.roadmap_version")}
-            <IconEdit style={{ minWidth: '24px' }} aria-hidden="true" />
-          </Link>
-        }
+        ) : null}
       </section>
 
       {featuredGoals.length > 0 ?
         <section className="margin-block-300">
           <h2>{t("pages:roadmap.featured_goals")}</h2>
-          <div className="flex flex-wrap-nowrap gap-100 overflow-x-scroll padding-bottom-100" style={{scrollbarWidth: 'thin', scrollbarColor: 'var(--gray) rgba(0,0,0,0)', scrollSnapType: 'x mandatory', direction: 'ltr'}}>
+          <div className="flex flex-wrap-nowrap gap-100 overflow-x-scroll padding-bottom-100" style={{ scrollbarWidth: 'thin', scrollbarColor: 'var(--gray) rgba(0,0,0,0)', scrollSnapType: 'x mandatory', direction: 'ltr' }}>
             {featuredGoals.map((goal, key) =>
               goal && (
-                <Link key={key} href={`/goal/${goal.id}`} className="color-pureblack text-decoration-none" style={{width: '300px', height: '250px', scrollSnapAlign: 'start'}}>
+                <Link key={key} href={`/goal/${goal.id}`} className="color-pureblack text-decoration-none" style={{ width: '300px', height: '250px', scrollSnapAlign: 'start' }}>
                   <ThumbnailGraph goal={goal} historicalData={true} />
                 </Link>
               )
