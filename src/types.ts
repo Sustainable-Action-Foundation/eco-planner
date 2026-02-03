@@ -1,5 +1,5 @@
 import { ActionImpactType, Prisma, RoadmapType } from "@prisma/client";
-import { actionInclusionSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapSelection, dataSeriesInclusionSelection, effectInclusionSelection, goalInclusionSelection, metaRoadmapInclusionSelection, multiRoadmapInclusionSelection, nameSelector, roadmapInclusionSelection } from "./fetchers/inclusionSelectors";
+import { actionInclusionSelection, clientSafeDataSeriesSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapSelection, effectInclusionSelection, goalInclusionSelection, metaRoadmapInclusionSelection, multiRoadmapInclusionSelection, nameSelector, roadmapInclusionSelection } from "./fetchers/inclusionSelectors";
 import { Recipe } from "./functions/recipe/types";
 import { Unit } from "mathjs";
 
@@ -142,7 +142,7 @@ export type Effect = Prisma.EffectGetPayload<{
 }>;
 
 export type DataSeries = Prisma.DataSeriesGetPayload<{
-  include: typeof dataSeriesInclusionSelection
+  select: typeof clientSafeDataSeriesSelection
 }>;
 
 /** The format of data needed to create a new roadmap series */

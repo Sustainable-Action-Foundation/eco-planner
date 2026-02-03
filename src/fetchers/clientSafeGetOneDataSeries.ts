@@ -3,22 +3,20 @@
 import { clientSafeDataSeriesSelection } from "@/fetchers/inclusionSelectors";
 import { getSession, type LoginData } from "@/lib/session"
 import prisma from "@/prismaClient";
-import { Prisma } from "@prisma/client";
+import { DataSeries } from "@/types";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import { cookies } from "next/headers";
 
-export default async function clientSafeGetOneDataSeries(id: string) {
+export default async function clientSafeGetOneDataSeries(id: string): Promise<DataSeries | null> {
   const session = await getSession(await cookies());
   return clientSafeGetCachedDataSeries(id, session.user);
 }
 
-async function clientSafeGetCachedDataSeries(id: string, user: LoginData['user']) {
+async function clientSafeGetCachedDataSeries(id: string, user: LoginData['user']): Promise<DataSeries | null> {
   'use cache';
   cacheTag('database', 'dataSeries', 'action', 'goal');
 
-  let dataSeries: Prisma.DataSeriesGetPayload<{
-    select: typeof clientSafeDataSeriesSelection;
-  }> | null = null;
+  let dataSeries: DataSeries | null = null;
 
   const canViewParentRoadmap = {
     roadmap: {
@@ -29,8 +27,8 @@ async function clientSafeGetCachedDataSeries(id: string, user: LoginData['user']
         { editGroups: { some: { users: { some: { id: user?.id } } } } },
         { viewGroups: { some: { users: { some: { id: user?.id } } } } },
         { isPublic: true }
-      ]
-    }
+      ],
+    },
   };
 
   // If user is admin, always get the data series
@@ -39,7 +37,7 @@ async function clientSafeGetCachedDataSeries(id: string, user: LoginData['user']
       dataSeries = await prisma.dataSeries.findUnique({
         where: { id },
         select: clientSafeDataSeriesSelection,
-      });
+      }) satisfies DataSeries | null;
     } catch (error) {
       console.log(error);
       console.log('Error fetching admin data series');
@@ -102,7 +100,7 @@ async function clientSafeGetCachedDataSeries(id: string, user: LoginData['user']
           ],
         },
         select: clientSafeDataSeriesSelection
-      });
+      }) satisfies DataSeries | null;
     } catch (error) {
       console.log(error);
       console.log('Error fetching user data series');
@@ -133,7 +131,7 @@ async function clientSafeGetCachedDataSeries(id: string, user: LoginData['user']
         ],
       },
       select: clientSafeDataSeriesSelection,
-    });
+    }) satisfies DataSeries | null;
   } catch (error) {
     console.log(error);
     console.log('Error fetching public data series');

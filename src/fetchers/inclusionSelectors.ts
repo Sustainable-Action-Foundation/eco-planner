@@ -206,7 +206,7 @@ export const clientSafeMultiRoadmapSelection = {
   },
 } satisfies Prisma.RoadmapSelect;
 
-export const dataSeriesInclusionSelection = { values: { select: { timestamp: true, value: true, } } } satisfies Prisma.DataSeriesSelect;
+const dataSeriesInclusionSelection = { values: { select: { timestamp: true, value: true, } } } satisfies Prisma.DataSeriesSelect;
 
 export const goalInclusionSelection = {
   _count: { select: { effects: true } },

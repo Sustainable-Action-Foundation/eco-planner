@@ -1,9 +1,10 @@
+import getOneGoal from "@/fetchers/getOneGoal";
 import { evaluateRecipe, cleanRecipe, recipeFromUnknown } from "@/functions/recipe/parseRecipe";
 import { RecipeError } from "@/functions/recipe/types";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
-import { AccessControlled, ClientError, isDateValues, Years } from "@/types";
+import { AccessControlled, ClientError, isDateValues } from "@/types";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
@@ -11,7 +12,7 @@ import { NextRequest } from "next/server";
 export async function POST(request: NextRequest) {
   const [session, requestJson] = await Promise.all([
     getSession(await cookies()),
-    (request.json() as Promise<{ id: string }>).catch(() => null)
+    (request.json() as Promise<{ id: string }>).catch(() => null),
   ]);
 
   // Validate request
@@ -35,24 +36,7 @@ export async function POST(request: NextRequest) {
         where: { id: session.user.id },
         select: { id: true, username: true, isAdmin: true, userGroups: true }
       }),
-      prisma.goal.findUnique({
-        where: {
-          id: requestJson.id,
-        },
-        select: {
-          recipeUsed: true,
-          roadmap: {
-            select: {
-              author: { select: { id: true, username: true } },
-              editors: { select: { id: true, username: true } },
-              viewers: { select: { id: true, username: true } },
-              editGroups: { include: { users: { select: { id: true, username: true } } } },
-              viewGroups: { include: { users: { select: { id: true, username: true } } } },
-              isPublic: true,
-            }
-          },
-        }
-      }),
+      getOneGoal(requestJson.id),
     ]);
 
     // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
@@ -72,14 +56,14 @@ export async function POST(request: NextRequest) {
       editGroups: goal.roadmap.editGroups,
       viewGroups: goal.roadmap.viewGroups,
       isPublic: goal.roadmap.isPublic,
-    }
+    };
     const accessLevel = accessChecker(accessFields, session.user);
     if (!hasEditAccess(accessLevel)) {
       throw new Error(ClientError.AccessDenied)
     }
 
     // Nothing beside the recipe has the information needed to recalculate the goal's data series now after the great recipe implementation.
-    if (!goal.recipeUsed) {
+    if (!goal.dataSeries?.recipeUsedId) {
       return Response.json({ message: "Goal has no recipe to recalculate" },
         { status: 400 }
       );
