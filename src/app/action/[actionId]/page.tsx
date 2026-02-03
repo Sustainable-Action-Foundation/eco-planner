@@ -73,31 +73,17 @@ export default async function Page(props: { params: Promise<{ actionId: string }
 
       <main>
         <section className="margin-block-300 container">
-          <div className="flex flex-wrap-wrap">
-            <div className="flex-grow-100">
-              <span style={{ color: 'gray' }}>{t("pages:action.action_label")}</span>
-              <h1 className="margin-0">{action.name}</h1>
-              <p className="margin-top-0 margin-bottom-100">{action.startYear} - {action.endYear}</p>
-              {action.description ?
-                <TextEditor
-                  id="rich-description"
-                  editable={false}
-                  defaultStyles={false}
-                  content={action.description}
-                />
-                : null}
-            </div>
-            {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
-              <Link
-                href={`/action/${params.actionId}/edit`}
-                className="flex align-items-center gap-50 padding-block-50 padding-inline-100 round button transparent font-weight-500"
-                style={{ width: 'fit-content', height: 'fit-content' }}
-              >
-                {t("pages:action.edit_action")}
-                <IconEdit style={{ minWidth: '24px' }} aria-hidden="true" />
-              </Link>
-              : null}
-          </div>
+          <span style={{ color: 'gray' }}>{t("pages:action.action_label")}</span>
+          <h1 className="margin-0">{action.name}</h1>
+          <p className="margin-top-0 margin-bottom-100">{action.startYear} - {action.endYear}</p>
+          {action.description ?
+            <TextEditor
+              id="rich-description"
+              editable={false}
+              defaultStyles={false}
+              content={action.description}
+            />
+            : null}
         </section>
 
         <section className="margin-block-300">

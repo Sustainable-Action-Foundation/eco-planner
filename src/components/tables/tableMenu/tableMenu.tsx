@@ -330,7 +330,12 @@ export function ObjectMenu(
       <h1 className="margin-bottom-50 font-weight-600" style={{ fontSize: '1.25rem' }}>Administration</h1> {/* TODO: I18n */}
       <menu
         className="flex flex-grow-100 gap-50 align-items-stretch width-100 padding-25 margin-0 smooth"
-        style={{ border: '1px solid var(--gray-80)', backgroundColor: 'var(--secondary-neutral)' }}
+        style={{ 
+          border: '1px solid var(--gray-80)', 
+          backgroundColor: 'rgba(254, 254, 254, 0.75)',
+          boxShadow: '0 0 7px -5px rgba(0,0,0,.25)',
+          fontSize: '14px'
+        }}
       >
         {links ? (
           <>
