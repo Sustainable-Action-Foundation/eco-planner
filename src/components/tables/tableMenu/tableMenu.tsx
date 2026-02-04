@@ -308,10 +308,8 @@ export function TableMenu(
   )
 }
 
-// TODO: I18n
 // TODO: last hr should  not be visible, can probably fix using css (:last-of-type?)
 // TODO: Style using css components
-// TODO: See if we can make font size look better here (make all the same size as button)
 // TODO: This entire thing should only be visible for users with edit access. Probably enforce that on page rather than here though?
 export function ObjectMenu(
   {
@@ -327,7 +325,7 @@ export function ObjectMenu(
 
   return (
     <aside className="margin-block-300">
-      <h1 className="margin-bottom-50 font-weight-600" style={{ fontSize: '1.25rem' }}>Administration</h1> {/* TODO: I18n */}
+      <h1 className="margin-bottom-50 font-weight-600" style={{ fontSize: '1.25rem' }}>{t("components:table_menu.admin_panel")}</h1> {/* TODO: I18n */}
       <menu
         className="flex flex-grow-100 gap-50 align-items-stretch width-100 padding-25 margin-0 smooth"
         style={{ 
@@ -396,7 +394,7 @@ export function ObjectMenu(
           </>
         ) : null}
       </menu>
-      <small className='font-style-italic'>Only authors as well as users with admin- or edit access can see this panel. Which actions are available to a user depend on their level of access to this post.</small>
+      <small className='font-style-italic'>{t("components:table_menu.admin_panel_info")}</small>
     </aside>
   )
 

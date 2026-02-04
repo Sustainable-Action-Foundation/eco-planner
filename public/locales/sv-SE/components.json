@@ -228,7 +228,9 @@
     "new_action": "Ny $t(common:action_one)",
     "new_effect": "Ny $t(common:effect_one)",
     "new_goal": "Ny $t(common:goal_one)",
-    "new_roadmap_version": "Ny $t(common:roadmap_version_one)"
+    "new_roadmap_version": "Ny $t(common:roadmap_version_one)",
+    "admin_panel": "Administrationspanel",
+    "admin_panel_info": "Enbart användare med administrations- eller redigeringsbehörighet kan se denna panel. Vilka åtgärder som är tillgängliga för en användare beror på deras behörighetsnivå."
   },
   "table_selector": {
     "actions": "{{$t(common:action_other), titleCase}}",
