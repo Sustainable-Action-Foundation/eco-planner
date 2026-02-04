@@ -198,13 +198,15 @@ export function TableMenu(
   {
     width = 24,
     height = 24,
+    buttonText,
     accessLevel,
     object,
   }: {
     width?: number,
     height?: number,
+    buttonText?: string
     accessLevel?: AccessLevel,
-    object: ObjectParameter
+    object: ObjectParameter,
   }) {
   const { t } = useTranslation(["components", "common"]);
 
@@ -237,7 +239,8 @@ export function TableMenu(
   return (
     <>
       <div className={`${styles.actionButton} display-flex`}>
-        <button type="button" onClick={openMenu} className={styles.button} aria-label={t("components:table_menu.button_aria", { component: object.name || object.metaRoadmap?.name || t("components:table_menu.button_aria_alt") })}>
+        <button type="button" onClick={openMenu} className={styles.button} aria-label={t("components:table_menu.button_aria", { component: object.name || object.metaRoadmap?.name || t("components:table_menu.button_aria_alt") })}> {/* Remove this aria if we pass buttontext */}
+          {buttonText ? buttonText : null}
           <IconDotsVertical aria-hidden="true" width={width} height={height} />
         </button>
         <dialog className={styles.menu} id={`${typeof object.id === "string" ? object.id : object.id?.actionId + "-" + object.id?.goalId}-menu`} onBlur={closeMenu} ref={menu} onKeyUp={closeMenu}>
@@ -256,7 +259,7 @@ export function TableMenu(
               {links.parentLink &&
                 <Link href={links.parentLink} className={styles.menuAction}>
                   <span>{links.parentDescription || links.parentLink}</span>
-                  <IconArrowBackUp aria-hidden="true" style={{ minWidth: '24px' }} />
+                  <IconArrowBackUp aria-hidden="true" style={{ minWidth: '24px' }} /> {/* TODO: Probably dont want this anymore */}
                 </Link>
               }
               {hasEditAccess(accessLevel ?? AccessLevel.None) ?
@@ -311,9 +314,11 @@ export function TableMenu(
 // TODO: This entire thing should only be visible for users with edit access. Probably enforce that on page rather than here though?
 export function ObjectMenu(
   {
+    phoneMenuText,
     accessLevel,
     object,
   }: {
+    phoneMenuText?: string
     accessLevel?: AccessLevel,
     object: ObjectParameter
   }) {
@@ -323,7 +328,18 @@ export function ObjectMenu(
 
   return (
     <aside className="margin-block-300">
-      <h1 className="margin-bottom-50 font-weight-600" style={{ fontSize: '1.25rem' }}>{t("components:table_menu.admin_panel")}</h1>
+      <div className={`margin-bottom-50 flex align-items-center justify-content-space-between ${styles['object-menu-header']}`}>
+        <h1 className="font-weight-600" style={{ fontSize: '1.25rem' }}>
+          {t("components:table_menu.admin_panel_title")}
+        </h1>
+        <div className={`${styles['object-menu-small-screens']}`}>
+          <TableMenu
+            buttonText={phoneMenuText}
+            accessLevel={accessLevel}
+            object={object}
+          />
+        </div>
+      </div>
       <menu className={`flex flex-grow-100 gap-50 align-items-stretch width-100 padding-25 margin-0 smooth ${styles['object-menu']}`}>
         {links ? (
           <>
@@ -374,7 +390,7 @@ export function ObjectMenu(
             {(accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) && links.deleteLink &&
               <>
                 <hr className="round margin-inline-0 margin-block-50 margin-left-auto" />
-                <button type="button" className="flex gap-100 align-items-center padding-25 button smooth" style={{ backgroundColor: 'transparent' }} onClick={() => openModal(deletionRef)}>
+                <button type="button" className="flex gap-100 align-items-center padding-25 button smooth" style={{ backgroundColor: 'transparent', whiteSpace: 'nowrap' }} onClick={() => openModal(deletionRef)}>
                   {t("components:table_menu.delete")}
                   <IconTrashXFilled aria-hidden="true" width={20} height={20} fill="red" style={{ minWidth: '20px' }} />
                 </button>
@@ -385,6 +401,7 @@ export function ObjectMenu(
         ) : null}
       </menu>
       <small className='font-style-italic'>{t("components:table_menu.admin_panel_info")}</small>
+
     </aside>
   )
 

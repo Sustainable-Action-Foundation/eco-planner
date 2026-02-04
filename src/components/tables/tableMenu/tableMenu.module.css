@@ -19,6 +19,7 @@
   padding: .25rem;
   display: flex;
   align-items: center;
+  gap: .25rem;
   transition: background-color .2s ease;
 }
 
@@ -98,4 +99,26 @@
 
 .object-menu-link:hover {
   background-color: var(--gray-90);
+}
+
+.object-menu-small-screens {
+  display: none;
+}
+
+@media (max-width: 802px) { /* Note: arbitrary value based on the overflow width for objectmenu on goalpage */
+  .object-menu-small-screens {
+    display: block;
+  }
+  .object-menu {
+    display: none;
+  }
+  .object-menu-header {
+    background-color: rgba(254, 254, 254, 0.75);
+    border: 1px solid var(--gray-80);
+    border-radius: .5rem;
+    padding: .5rem
+  }
+  .object-menu-header h1 {
+    margin: 0;
+  }
 }
