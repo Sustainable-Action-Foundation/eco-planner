@@ -353,10 +353,10 @@ export default function HistoricalData({
                     <div className="padding-100 flex flex-direction-column"> {/* TODO: I18n */}
                       <p className="margin-0 flex-grow-100">Är du säker på att du vill ta bort extern datakälla: <span style={{ fontStyle: 'italic' }}>{tables?.find(t => t.tableId === goal.externalTableId)?.label ?? goal.externalTableId}({goal.externalDataset})</span> från målbana: <span className="font-weight-600">{goal.name}</span>?</p>
                       <div className="flex gap-25">
-                        <button className="flex-grow-100" onClick={() => deleteDataRef.current?.close()}>
+                        <button className="flex-grow-100 font-weight-500" onClick={() => deleteDataRef.current?.close()}>
                           Avbryt {/* TODO: I18n */}
                         </button>
-                        <button type="button" className="color-purewhite red gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem", lineHeight: '1.5' }} onClick={deleteHistoricalData}> {/* TODO: loading state */}
+                        <button type="button" className="color-purewhite red font-weight-500" onClick={deleteHistoricalData}> {/* TODO: loading state */}
                           Ta bort extern datakälla {/* TODO: I18n */}
                         </button>
                       </div>

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { closeModal } from "@/components/modals/modalFunctions";
 import styles from './modals.module.css'
 import { Trans, useTranslation } from "react-i18next";
+import { IconX } from "@tabler/icons-react";
 
 export default function ConfirmDelete({
   modalRef,
@@ -48,29 +49,46 @@ export default function ConfirmDelete({
   };
 
   return (
-    <dialog ref={modalRef} className={styles.modal}>
-      <form onSubmit={handleDelete}>
-        <strong className="block" style={{ fontSize: 'larger' }}>{t("components:confirm_delete.delete_post")}</strong>
-        <p className="padding-block-100" style={{ borderBlock: '2px solid var(--gray-90)' }}>
-          <Trans
-            i18nKey={"components:confirm_delete.confirmation"}
-            values={{ targetName: targetName }}
-            components={{ strong: <strong />, br: <br /> }}
-          />
-        </p>
-        <label className="block margin-block-75">
-          <Trans
-            i18nKey={"components:confirm_delete.type_to_confirm"}
-            values={{ targetName: targetName }}
-            components={{ strong: <strong /> }}
-          />
-          <input className="margin-block-25" type="text" placeholder={targetName} id={`delete-name-input-${elementId}`} required pattern={targetName} />
-        </label>
-        <div className="display-flex justify-content-flex-end margin-top-75 gap-50">
-          <button type="button" className="font-weight-500" onClick={() => closeModal(modalRef)}>{t("common:tsx.cancel")}</button>
-          <button type="submit" className="red color-purewhite font-weight-500" disabled={isLoading} onClick={handleDelete}>{t("common:tsx.delete")}</button>
+    <dialog 
+      ref={modalRef} 
+      aria-modal 
+      className={`rounded padding-inline-0 padding-block-0 ${styles['dialog']}`}
+      style={{width: 'min(75ch, 100%)', height: 'calc(-2rem + 50vh)', fontSize: 'initial'}}
+    >
+      <div className={`${styles['dialog-content']}`}>
+        <div className={`${styles['dialog-header']}`}>
+          {/* Close button */}
+          <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
+            <IconX aria-hidden="true" width={28} height={28} strokeWidth={3} style={{ minWidth: '28px' }} />
+          </button>
+
+          {/* Title */}
+          <h2 className="margin-0">{t("components:confirm_delete.delete_post")}</h2>
         </div>
-      </form>
+        <form onSubmit={handleDelete} className="padding-100 flex flex-direction-column" style={{minHeight: '0'}}>
+          <div className="flex-grow-100">
+            <p className="margin-0" >
+              <Trans
+                i18nKey={"components:confirm_delete.confirmation"}
+                values={{ targetName: targetName }}
+                components={{ strong: <strong />, br: <br /> }}
+              />
+            </p>
+            <label className="block margin-block-75">
+              <Trans
+                i18nKey={"components:confirm_delete.type_to_confirm"}
+                values={{ targetName: targetName }}
+                components={{ strong: <strong /> }}
+              />
+              <input className="margin-block-25" type="text" placeholder={targetName} id={`delete-name-input-${elementId}`} required pattern={targetName} />
+            </label>
+          </div>
+          <div className="flex gap-25">
+            <button type="button" className="font-weight-500 flex-grow-100" onClick={() => closeModal(modalRef)}>{t("common:tsx.cancel")}</button>
+            <button type="submit" className="color-purewhite red font-weight-500" disabled={isLoading} onClick={handleDelete}>{t("components:confirm_delete.delete_post")}</button>
+          </div>
+        </form>
+      </div>
     </dialog>
   );
 }
