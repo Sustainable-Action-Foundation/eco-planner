@@ -314,11 +314,9 @@ export function TableMenu(
 // TODO: This entire thing should only be visible for users with edit access. Probably enforce that on page rather than here though?
 export function ObjectMenu(
   {
-    phoneMenuText,
     accessLevel,
     object,
   }: {
-    phoneMenuText?: string
     accessLevel?: AccessLevel,
     object: ObjectParameter
   }) {
@@ -328,19 +326,10 @@ export function ObjectMenu(
 
   return (
     <aside className="margin-block-300">
-      <div className={`margin-bottom-50 flex align-items-center justify-content-space-between ${styles['object-menu-header']}`}>
-        <h1 className="font-weight-600" style={{ fontSize: '1.25rem' }}>
-          {t("components:table_menu.admin_panel_title")}
-        </h1>
-        <div className={`${styles['object-menu-small-screens']}`}>
-          <TableMenu
-            buttonText={phoneMenuText}
-            accessLevel={accessLevel}
-            object={object}
-          />
-        </div>
-      </div>
-      <menu className={`flex flex-grow-100 gap-50 align-items-stretch width-100 padding-25 margin-0 smooth ${styles['object-menu']}`}>
+      <h1 className="font-weight-600 margin-bottom-50 margin-0" style={{ fontSize: '1.25rem' }}>
+        {t("components:table_menu.admin_panel_title")}
+      </h1>
+       <menu className={`flex gap-50 align-items-stretch width-100 padding-25 margin-0 smooth ${styles['object-menu']}`}>
         {links ? (
           <>
             <nav className="display-contents">
@@ -390,7 +379,7 @@ export function ObjectMenu(
             {(accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) && links.deleteLink &&
               <>
                 <hr className="round margin-inline-0 margin-block-50 margin-left-auto" />
-                <button type="button" className="flex gap-100 align-items-center padding-25 button smooth" style={{ backgroundColor: 'transparent', whiteSpace: 'nowrap' }} onClick={() => openModal(deletionRef)}>
+                <button type="button" className={`flex gap-100 align-items-center padding-25 button smooth ${styles['object-menu-button']}`} onClick={() => openModal(deletionRef)}>
                   {t("components:table_menu.delete")}
                   <IconTrashXFilled aria-hidden="true" width={20} height={20} fill="red" style={{ minWidth: '20px' }} />
                 </button>

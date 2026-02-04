@@ -50,6 +50,7 @@ export default function ConfirmDelete({
 
   return (
     <dialog 
+      closedby="any"
       ref={modalRef} 
       aria-modal 
       className={`rounded padding-inline-0 padding-block-0 ${styles['dialog']}`}
