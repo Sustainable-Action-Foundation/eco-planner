@@ -66,7 +66,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
 
     <Breadcrumb object={roadmap} />
 
-    {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) && 
+    {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
       <ObjectMenu accessLevel={accessLevel} object={{ ...roadmap, _count: { goals: roadmap.goals.length } }} />
     }
 
@@ -74,22 +74,25 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
       <section className="margin-block-300" >
         <span style={{ color: 'gray' }}>{t("pages:roadmap.title")}</span>
         <h1 className="margin-0">{roadmap.metaRoadmap.name}</h1>
-        <p className="margin-0">
-          {t("pages:roadmap.version", { version: roadmap.version })}
-          {" • "}
-          {roadmap.metaRoadmap.actor ?
+        <div className="margin-0 font-weight-600 flex justify-content-space-between margin-bottom-50 padding-bottom-50" style={{ borderBottom: '1px solid var(--gray-80)' }}>
+          <span>
+            {t("common:count.goal", { count: roadmap.goals.length })}
+          </span>
+          <span>
+            {t("pages:roadmap.version", { version: roadmap.version })}
+            {" • "}
+            <Link href={`/metaRoadmap/${roadmap.metaRoadmapId}`}>{t("pages:roadmap.show_series")}</Link>
+          </span>
+        </div>
+        <div>
+          {roadmap.metaRoadmap.actor ? // TODO: Need to note that this is the actor somehow or it looks weird
             <>
               {roadmap.metaRoadmap.actor}
-              {" • "}
             </>
             :
             null
           }
-          {t("common:count.goal", { count: roadmap.goals.length })}
-          {"  "}
-          {/* TODO: style link to better match surroundings */}
-          <Link href={`/metaRoadmap/${roadmap.metaRoadmapId}`}>{t("pages:roadmap.show_series")}</Link>
-        </p>
+        </div>
         <div className="margin-top-100">
           <TextEditor
             id="rich-description"
