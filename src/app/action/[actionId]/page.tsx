@@ -69,7 +69,9 @@ export default async function Page(props: { params: Promise<{ actionId: string }
   return (
     <>
       <Breadcrumb object={action} />
-      <ObjectMenu accessLevel={accessLevel} object={action} />
+      {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
+        <ObjectMenu accessLevel={accessLevel} object={action} />
+      }
 
       <main>
         <section className="margin-block-300 container">

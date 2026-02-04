@@ -126,5 +126,6 @@
 
   .object-menu-link, .object-menu-button {
     justify-content: space-between;
+    padding: .5rem;
   }
 }

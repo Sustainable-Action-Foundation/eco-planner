@@ -230,7 +230,8 @@
     "new_goal": "New $t(common:goal_one)",
     "new_roadmap_version": "New $t(common:roadmap_version_one)",
     "admin_panel_title": "Admin panel",
-    "admin_panel_info": "Only users with admin- or edit access can see this panel. Which actions are available to a user depend on their level of access to this post."
+    "admin_panel_info": "Only users with admin- or edit access can see this panel. Which actions are available to a user depend on their level of access to this post.",
+    "no_available_actions": "No available actions"
   },
   "table_selector": {
     "actions": "{{$t(common:action_other), titleCase}}",

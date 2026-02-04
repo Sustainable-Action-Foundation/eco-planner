@@ -56,7 +56,10 @@ export default async function Page(props: { params: Promise<{ metaRoadmapId: str
   return (
     <>
       <Breadcrumb object={metaRoadmap} />
-      <ObjectMenu accessLevel={accessLevel} object={metaRoadmap} />
+
+      {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
+        <ObjectMenu accessLevel={accessLevel} object={metaRoadmap} />
+      }
 
       <main>
         <section className="margin-block-300">

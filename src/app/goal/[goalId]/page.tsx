@@ -173,7 +173,10 @@ export default async function Page(
   return (
     <>
       <Breadcrumb object={goal} />
-      <ObjectMenu accessLevel={accessLevel} object={goal} />
+
+      {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
+        <ObjectMenu accessLevel={accessLevel} object={goal} />
+      }
       
       <main>
         {shouldUpdate &&

@@ -230,7 +230,8 @@
     "new_goal": "Ny $t(common:goal_one)",
     "new_roadmap_version": "Ny $t(common:roadmap_version_one)",
     "admin_panel_title": "Administrationspanel",
-    "admin_panel_info": "Enbart användare med administrations- eller redigeringsbehörighet kan se denna panel. Vilka åtgärder som är tillgängliga för en användare beror på deras behörighetsnivå."
+    "admin_panel_info": "Enbart användare med administrations- eller redigeringsbehörighet kan se denna panel. Vilka åtgärder som är tillgängliga för en användare beror på deras behörighetsnivå.",
+    "no_available_actions": "Inga tillgängliga åtgärder"
   },
   "table_selector": {
     "actions": "{{$t(common:action_other), titleCase}}",

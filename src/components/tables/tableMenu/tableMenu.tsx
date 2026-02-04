@@ -239,7 +239,7 @@ export function TableMenu(
   return (
     <>
       <div className={`${styles.actionButton} display-flex`}>
-        <button type="button" onClick={openMenu} className={styles.button} aria-label={t("components:table_menu.button_aria", { component: object.name || object.metaRoadmap?.name || t("components:table_menu.button_aria_alt") })}> {/* Remove this aria if we pass buttontext */}
+        <button type="button" onClick={openMenu} className={styles.button} aria-label={t("components:table_menu.button_aria", { component: object.name || object.metaRoadmap?.name || t("components:table_menu.button_aria_alt") })}> {/* TODO: Remove this aria if we pass buttontext */}
           {buttonText ? buttonText : null}
           <IconDotsVertical aria-hidden="true" width={width} height={height} />
         </button>
@@ -252,14 +252,14 @@ export function TableMenu(
             {/* Link to the object */}
             {links?.selfLink ?
               <Link href={links.selfLink} className={styles.menuHeadingTitle}>{object.name || object.metaRoadmap?.name}</Link>
-              : <p>Menu</p>} {/* TODO: I18n */}
+              : <p>{t("common:tsx.menu")}</p>} 
           </div>
           {links ? (
             <>
               {links.parentLink &&
                 <Link href={links.parentLink} className={styles.menuAction}>
                   <span>{links.parentDescription || links.parentLink}</span>
-                  <IconArrowBackUp aria-hidden="true" style={{ minWidth: '24px' }} /> {/* TODO: Probably dont want this anymore */}
+                  <IconArrowBackUp aria-hidden="true" style={{ minWidth: '24px' }} /> {/* TODO: Probably dont want this anymore, should however make it available elsewhere before removing */}
                 </Link>
               }
               {hasEditAccess(accessLevel ?? AccessLevel.None) ?
@@ -303,15 +303,14 @@ export function TableMenu(
               }
             </>
           ) : (
-            <p>Inga tillgängliga åtgärder</p>
-          )} {/* TODO: i18n */}
+            <p>{t("components:table_menu.no_available_actions")}</p>
+          )}
         </dialog>
       </div>
     </>
   )
 }
 
-// TODO: This entire thing should only be visible for users with edit access. Probably enforce that on page rather than here though?
 export function ObjectMenu(
   {
     accessLevel,
@@ -375,7 +374,7 @@ export function ObjectMenu(
                 : null
               }
             </nav>
-            {/* Admins and authors can delete items */} {/* TODO: Need to run hasEditAccess here? */}
+            {/* Admins and authors can delete items */}
             {(accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) && links.deleteLink &&
               <>
                 <hr className="round margin-inline-0 margin-block-50 margin-left-auto" />

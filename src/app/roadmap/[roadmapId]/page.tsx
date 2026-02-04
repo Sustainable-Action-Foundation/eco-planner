@@ -65,7 +65,10 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
   return <>
 
     <Breadcrumb object={roadmap} />
-    <ObjectMenu accessLevel={accessLevel} object={{ ...roadmap, _count: { goals: roadmap.goals.length } }} />
+
+    {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) && 
+      <ObjectMenu accessLevel={accessLevel} object={{ ...roadmap, _count: { goals: roadmap.goals.length } }} />
+    }
 
     <main>
       <section className="margin-block-300" >
