@@ -308,8 +308,6 @@ export function TableMenu(
   )
 }
 
-// TODO: last hr should  not be visible, can probably fix using css (:last-of-type?)
-// TODO: Style using css components
 // TODO: This entire thing should only be visible for users with edit access. Probably enforce that on page rather than here though?
 export function ObjectMenu(
   {
@@ -325,16 +323,8 @@ export function ObjectMenu(
 
   return (
     <aside className="margin-block-300">
-      <h1 className="margin-bottom-50 font-weight-600" style={{ fontSize: '1.25rem' }}>{t("components:table_menu.admin_panel")}</h1> {/* TODO: I18n */}
-      <menu
-        className="flex flex-grow-100 gap-50 align-items-stretch width-100 padding-25 margin-0 smooth"
-        style={{ 
-          border: '1px solid var(--gray-80)', 
-          backgroundColor: 'rgba(254, 254, 254, 0.75)',
-          boxShadow: '0 0 7px -5px rgba(0,0,0,.25)',
-          fontSize: '14px'
-        }}
-      >
+      <h1 className="margin-bottom-50 font-weight-600" style={{ fontSize: '1.25rem' }}>{t("components:table_menu.admin_panel")}</h1>
+      <menu className={`flex flex-grow-100 gap-50 align-items-stretch width-100 padding-25 margin-0 smooth ${styles['object-menu']}`}>
         {links ? (
           <>
             <nav className="display-contents">
@@ -342,38 +332,38 @@ export function ObjectMenu(
                 <>
                   {links.creationLink &&
                     <>
-                      <Link href={links.creationLink} className="flex gap-100 align-items-center padding-25 button smooth" style={{ backgroundColor: 'transparent' }}>
+                      <Link href={links.creationLink} className={`flex gap-100 align-items-center padding-25 smooth ${styles['object-menu-link']}`}>
                         <span>{links.creationDescription}</span>
                         <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                       </Link>
-                      <hr className="round margin-inline-0 margin-block-50" style={{ borderStyle: 'solid', color: 'var(--gray-80)' }} />
+                      <hr className="round margin-inline-0 margin-block-50" />
                     </>
                   }
                   {links.creationLink2 &&
                     <>
-                      <Link href={links.creationLink2} className="flex gap-100 align-items-center padding-25 button smooth" style={{ backgroundColor: 'transparent' }}>
+                      <Link href={links.creationLink2} className={`flex gap-100 align-items-center padding-25 smooth ${styles['object-menu-link']}`}>
                         <span>{links.creationDescription2 || links.creationLink2}</span>
                         <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                       </Link>
-                      <hr className="round margin-inline-0 margin-block-50" style={{ borderStyle: 'solid', color: 'var(--gray-80)' }} />
+                      <hr className="round margin-inline-0 margin-block-50" />
                     </>
                   }
                   {links.editLink &&
                     <>
-                      <Link href={links.editLink} className="flex gap-100 align-items-center padding-25 button smooth" style={{ backgroundColor: 'transparent' }}>
+                      <Link href={links.editLink} className={`flex gap-100 align-items-center padding-25 smooth ${styles['object-menu-link']}`}>
                         <span>{t("components:table_menu.edit")}</span>
                         <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                       </Link>
-                      <hr className="round margin-inline-0 margin-block-50" style={{ borderStyle: 'solid', color: 'var(--gray-80)' }} />
+                      <hr className="round margin-inline-0 margin-block-50" />
                     </>
                   }
                   {links.historicalDataLink &&
                     <>
-                      <Link href={links.historicalDataLink} className="flex gap-100 align-items-center padding-25 button smooth" style={{ backgroundColor: 'transparent' }}>
+                      <Link href={links.historicalDataLink} className={`flex gap-100 align-items-center padding-25 smooth ${styles['object-menu-link']}`}>
                         <span>{t("components:table_menu.edit")}</span> {/* TODO: Switch text here */}
                         <IconChartHistogram aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                       </Link>
-                      <hr className="round margin-inline-0 margin-block-50" style={{ borderStyle: 'solid', color: 'var(--gray-80)' }} />
+                      <hr className="round margin-inline-0 margin-block-50" />
                     </>
                   }
                 </>
@@ -383,7 +373,7 @@ export function ObjectMenu(
             {/* Admins and authors can delete items */} {/* TODO: Need to run hasEditAccess here? */}
             {(accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) && links.deleteLink &&
               <>
-                <hr className="round margin-inline-0 margin-block-50 margin-left-auto" style={{ borderStyle: 'solid', color: 'var(--gray-80)' }} />
+                <hr className="round margin-inline-0 margin-block-50 margin-left-auto" />
                 <button type="button" className="flex gap-100 align-items-center padding-25 button smooth" style={{ backgroundColor: 'transparent' }} onClick={() => openModal(deletionRef)}>
                   {t("components:table_menu.delete")}
                   <IconTrashXFilled aria-hidden="true" width={20} height={20} fill="red" style={{ minWidth: '20px' }} />
