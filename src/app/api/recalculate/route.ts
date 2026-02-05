@@ -1,5 +1,5 @@
 import getOneGoal from "@/fetchers/getOneGoal";
-import { evaluateRecipe, cleanRecipe, recipeFromUnknown } from "@/functions/recipe/parseRecipe";
+import getOneRecipe from "@/fetchers/getOneRecipe";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
 import { RecipeError } from "@/functions/recipe/types";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
@@ -65,15 +65,22 @@ export async function POST(request: NextRequest) {
 
     // Nothing beside the recipe has the information needed to recalculate the goal's data series now after the great recipe implementation.
     if (!goal.dataSeries?.recipeUsedId) {
-      return Response.json({ message: "Goal has no recipe to recalculate from" },
+      return Response.json({ message: "Data series has no recipe to recalculate from" },
         { status: 400 }
       );
     }
 
     // Fetch recipe
+    const recipe = await getOneRecipe(goal.dataSeries.recipeUsedId);
+    if (!recipe) {
+      return Response.json({ message: "Recipe was not found." },
+        { status: 404 }
+      );
+    }
+
 
     // Try to recalculate the data series
-    const recipe = SmartRecipe.fromObject(goal.dataSeries.recipeUsedId);
+    // const recipe = SmartRecipe.fromObject(goal.dataSeries.recipeUsedId);
     const warnings: string[] = [];
     const { dataSeries, unit } = await evaluateRecipe(recipe, warnings) ?? { dataSeries: null, unit: null };
     if (!dataSeries) {
