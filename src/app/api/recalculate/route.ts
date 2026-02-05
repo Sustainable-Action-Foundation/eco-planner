@@ -1,5 +1,6 @@
 import getOneGoal from "@/fetchers/getOneGoal";
 import { evaluateRecipe, cleanRecipe, recipeFromUnknown } from "@/functions/recipe/parseRecipe";
+import { SmartRecipe } from "@/functions/recipe/smartRecipe";
 import { RecipeError } from "@/functions/recipe/types";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
@@ -64,15 +65,17 @@ export async function POST(request: NextRequest) {
 
     // Nothing beside the recipe has the information needed to recalculate the goal's data series now after the great recipe implementation.
     if (!goal.dataSeries?.recipeUsedId) {
-      return Response.json({ message: "Goal has no recipe to recalculate" },
+      return Response.json({ message: "Goal has no recipe to recalculate from" },
         { status: 400 }
       );
     }
 
+    // Fetch recipe
+
     // Try to recalculate the data series
-    const cleanedRecipe = cleanRecipe(recipeFromUnknown(goal.recipeUsed.recipe));
+    const recipe = SmartRecipe.fromObject(goal.dataSeries.recipeUsedId);
     const warnings: string[] = [];
-    const { dataSeries, unit } = await evaluateRecipe(cleanedRecipe, warnings) ?? { dataSeries: null, unit: null };
+    const { dataSeries, unit } = await evaluateRecipe(recipe, warnings) ?? { dataSeries: null, unit: null };
     if (!dataSeries) {
       return Response.json({ message: "Recipe evaluation was canceled" },
         { status: 500 }
@@ -80,7 +83,7 @@ export async function POST(request: NextRequest) {
     }
     if (warnings.length > 0) {
       // If there are warnings, log them
-      console.warn(`Recalculate goal ${requestJson.id} with recipe ${goal.recipeUsed.hash} (${JSON.stringify(cleanedRecipe, null, 2)})\nproduced warnings:\n${warnings.join('\n')}`);
+      console.warn(`Recalculate goal ${requestJson.id} with recipe ${goal.recipeUsed.hash} (${JSON.stringify(recipe, null, 2)})\nproduced warnings:\n${warnings.join('\n')}`);
     }
 
     // Ensure all years are defined in the data series to prevent partial updates
