@@ -328,3 +328,8 @@ export const userInfoSelector = {
     include: multiRoadmapInclusionSelection,
   },
 } satisfies Prisma.UserSelect;
+
+export const recipeSelector = {
+  id: true,
+  recipe: true,
+} satisfies Prisma.RecipeSelect;

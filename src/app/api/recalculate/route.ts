@@ -1,5 +1,7 @@
+import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
 import getOneGoal from "@/fetchers/getOneGoal";
 import getOneRecipe from "@/fetchers/getOneRecipe";
+import { dateValuesToDBDateRecord } from "@/functions/recipe/extractors";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
 import { RecipeError } from "@/functions/recipe/types";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
@@ -13,11 +15,11 @@ import { NextRequest } from "next/server";
 export async function POST(request: NextRequest) {
   const [session, requestJson] = await Promise.all([
     getSession(await cookies()),
-    (request.json() as Promise<{ id: string }>).catch(() => null),
+    (request.json() as Promise<{ dataSeriesId: string }>).catch(() => null),
   ]);
 
   // Validate request
-  if (!requestJson || !requestJson.id) {
+  if (!requestJson || !requestJson.dataSeriesId) {
     return Response.json({ message: 'Missing required input parameters' },
       { status: 400 }
     );
@@ -32,12 +34,12 @@ export async function POST(request: NextRequest) {
 
   try {
     // Get user and goal
-    const [user, goal] = await Promise.all([
+    const [user, dataSeries] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
         select: { id: true, username: true, isAdmin: true, userGroups: true }
       }),
-      getOneGoal(requestJson.id),
+      
     ]);
 
     // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
@@ -71,66 +73,70 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch recipe
-    const recipe = await getOneRecipe(goal.dataSeries.recipeUsedId);
-    if (!recipe) {
+    const dbRecipe = await getOneRecipe(goal.dataSeries.recipeUsedId);
+    if (!dbRecipe) {
       return Response.json({ message: "Recipe was not found." },
         { status: 404 }
       );
     }
 
-
     // Try to recalculate the data series
-    // const recipe = SmartRecipe.fromObject(goal.dataSeries.recipeUsedId);
+    const recipe = SmartRecipe.fromObject(dbRecipe.recipe);
     const warnings: string[] = [];
-    const { dataSeries, unit } = await evaluateRecipe(recipe, warnings) ?? { dataSeries: null, unit: null };
-    if (!dataSeries) {
-      return Response.json({ message: "Recipe evaluation was canceled" },
+    const evaluationResult = await recipe.evaluate(warnings)
+      .catch((e) => {
+        console.log(`Error evaluating recipe ${dbRecipe.id} for data series ${requestJson.dataSeriesId}:`, e);
+        if (e instanceof Error) {
+          throw new RecipeError(`Failed to evaluate recipe: ${e.message}`);
+        }
+        else {
+          throw new RecipeError('Failed to evaluate recipe due to an unknown error.');
+        }
+      });
+
+    if (!evaluationResult) {
+      return Response.json({ message: "Recipe evaluation failed." },
         { status: 500 }
       );
     }
-    if (warnings.length > 0) {
-      // If there are warnings, log them
-      console.warn(`Recalculate goal ${requestJson.id} with recipe ${goal.recipeUsed.hash} (${JSON.stringify(recipe, null, 2)})\nproduced warnings:\n${warnings.join('\n')}`);
+
+    if (!evaluationResult.dateValues) {
+      return Response.json({ message: "Recipe evaluation did not return any data." },
+        { status: 500 }
+      );
     }
 
-    // Ensure all years are defined in the data series to prevent partial updates
-    for (const year of Years) {
-      if (dataSeries[year] === undefined) {
-        dataSeries[year] = null;
-      }
+    if (warnings.length > 0) {
+      // If there are warnings, log them
+      console.warn(`Recalculate data series ${requestJson.dataSeriesId} with recipe "${recipe.name}" (${dbRecipe.id}) (${JSON.stringify(recipe)})\nproduced warnings:\n${warnings.join('\n')}`);
     }
-    // Type guard it to make it harder to mess up with prisma
-    if (!isDateValues(dataSeries)) {
-      return Response.json({ message: "Failed to update goal. The recipe used may have caused the issue." },
+
+    if (!isDateValues(evaluationResult.dateValues)) {
+      return Response.json({ message: "Failed to update data series. The recipe used may have caused the issue." },
         { status: 500 }
       );
     };
 
-    // Try to update the goal with the new data series
-    const updatedGoal = await prisma.goal.update({
-      where: {
-        id: requestJson.id,
-      },
+    const updatedDataSeries = await prisma.dataSeries.update({
+      where: { id: requestJson.dataSeriesId },
       data: {
-        dataSeries: {
-          update: {
-            ...dataSeries,
-            ...unit ? { unit } : {},
-          }
-        }
+        values: { createMany: { data: dateValuesToDBDateRecord(evaluationResult.dateValues), }, },
+        // Unit === null -> remove unit
+        // Unit === undefined -> omit (keep current unit)
+        // Unit === string -> update unit
+        ...(evaluationResult.unit === null
+          ? { unit: null }
+          : typeof evaluationResult.unit === "undefined"
+            ? {}
+            : { unit: evaluationResult.unit }
+        ),
       },
-      select: {
-        id: true,
-        roadmap: {
-          select: { id: true }
-        },
-      }
-    })
+    });
+
     // Invalidate old cache
     revalidateTag('dataSeries');
-    // Return the edited goal's ID if successful
-    return Response.json({ message: "Data series updated", id: updatedGoal.id },
-      { status: 200, headers: { 'Location': `/goal/${updatedGoal.id}` } }
+    return Response.json({ message: "Data series updated", id: updatedDataSeries.id },
+      { status: 200 }
     );
   } catch (error) {
     if (error instanceof Error) {

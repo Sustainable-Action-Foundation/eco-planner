@@ -1,5 +1,5 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import UpdateGoalButton from "@/components/buttons/updateGoalButton";
+import RecalculateDataSeriesButton from "@/components/buttons/recalculateDataSeries";
 import Comments from "@/components/comments/comments";
 import QueryBuilder from "@/components/form/api/queryBuilder";
 import ActionGraph from "@/components/graphs/actionGraph";
@@ -79,7 +79,10 @@ export default async function Page(
   const [t, session, { goal, roadmap }, secondaryGoal, unfilteredRoadmapOptions] = await Promise.all([
     serveTea("pages"),
     getSession(await cookies()),
-    getOneGoal(params.goalId).then(async goal => { return { goal, roadmap: (goal ? await getOneRoadmap(goal.roadmapId) : null) } }),
+    getOneGoal(params.goalId).then(async goal => ({
+      goal,
+      roadmap: goal ? await getOneRoadmap(goal.roadmapId) : Promise.resolve(null)
+    })),
     typeof searchParams.secondaryGoal == "string" ? getOneGoal(searchParams.secondaryGoal) : Promise.resolve(null),
     getRoadmaps(),
   ]);
@@ -173,7 +176,7 @@ export default async function Page(
     <>
       <Breadcrumb object={goal} />
       <main>
-        {shouldUpdate &&
+        {shouldUpdate && goal.dataSeries &&
           <section
             aria-label={t("pages:goal.update_needed_attention_message")}
             className="flex justify-content-space-between align-items-center margin-block-300 padding-25 rounded"
@@ -183,7 +186,10 @@ export default async function Page(
               <IconAlertTriangle style={{ minWidth: '24px' }} aria-hidden="true" />
               <strong className="font-weight-500">{t("pages:goal.update_needed")}</strong>
             </div>
-            <UpdateGoalButton id={goal.id} />
+            <RecalculateDataSeriesButton
+              label={t("components:update_goal_button.update")}
+              dataSeriesId={goal.dataSeries.id}
+            />
           </section>
         }
 
