@@ -1,5 +1,3 @@
-import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
-import getOneGoal from "@/fetchers/getOneGoal";
 import getOneRecipe from "@/fetchers/getOneRecipe";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/extractors";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
@@ -7,7 +5,7 @@ import { RecipeError } from "@/functions/recipe/types";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
-import { AccessControlled, ClientError, isDateValues } from "@/types";
+import { ClientError, isDateValues } from "@/types";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
@@ -33,13 +31,45 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // Get user and goal
+    const roadmapAccessSelect = {
+      author: { select: { id: true, username: true } },
+      editors: { select: { id: true, username: true } },
+      viewers: { select: { id: true, username: true } },
+      editGroups: { include: { users: { select: { id: true, username: true } } } },
+      viewGroups: { include: { users: { select: { id: true, username: true } } } },
+      isPublic: true,
+    };
+
+    // Get user and data series
     const [user, dataSeries] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
         select: { id: true, username: true, isAdmin: true, userGroups: true }
       }),
-      
+      prisma.dataSeries.findUnique({
+        where: { id: requestJson.dataSeriesId },
+        select: {
+          id: true,
+          authorId: true,
+          recipeUsedId: true,
+          dependentGoals: {
+            select: {
+              roadmap: { select: roadmapAccessSelect },
+            }
+          },
+          dependentBaselines: {
+            select: {
+              roadmap: { select: roadmapAccessSelect },
+            }
+          },
+          dependentEffects: {
+            select: {
+              action: { select: { roadmap: { select: roadmapAccessSelect } } },
+              goal: { select: { roadmap: { select: roadmapAccessSelect } } },
+            }
+          },
+        },
+      }),
     ]);
 
     // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
@@ -47,33 +77,37 @@ export async function POST(request: NextRequest) {
       throw new Error(ClientError.BadSession, { cause: 'goal' });
     }
 
-    // If no goal is found or if user does not have access, return 403
-    // It's fine if the user doesn't have access to the related goals, since a user with access to them created this goal in the first place.
-    if (!goal) {
-      throw new Error(ClientError.AccessDenied)
+    if (!dataSeries) {
+      throw new Error(ClientError.AccessDenied);
     }
-    const accessFields: AccessControlled = {
-      author: goal.roadmap.author,
-      editors: goal.roadmap.editors,
-      viewers: goal.roadmap.viewers,
-      editGroups: goal.roadmap.editGroups,
-      viewGroups: goal.roadmap.viewGroups,
-      isPublic: goal.roadmap.isPublic,
+
+    const hasEditRoadmapAccess = (roadmap: typeof dataSeries.dependentGoals[number]['roadmap']) => {
+      const accessLevel = accessChecker(roadmap, session.user);
+      return hasEditAccess(accessLevel);
     };
-    const accessLevel = accessChecker(accessFields, session.user);
-    if (!hasEditAccess(accessLevel)) {
+
+    const hasEditAccessToDataSeries =
+      user.isAdmin ||
+      dataSeries.authorId === user.id ||
+      dataSeries.dependentGoals.some((goal) => hasEditRoadmapAccess(goal.roadmap)) ||
+      dataSeries.dependentBaselines.some((goal) => hasEditRoadmapAccess(goal.roadmap)) ||
+      dataSeries.dependentEffects.some((effect) =>
+        hasEditRoadmapAccess(effect.action.roadmap) && hasEditRoadmapAccess(effect.goal.roadmap)
+      );
+
+    if (!hasEditAccessToDataSeries) {
       throw new Error(ClientError.AccessDenied)
     }
 
     // Nothing beside the recipe has the information needed to recalculate the goal's data series now after the great recipe implementation.
-    if (!goal.dataSeries?.recipeUsedId) {
+    if (!dataSeries.recipeUsedId) {
       return Response.json({ message: "Data series has no recipe to recalculate from" },
         { status: 400 }
       );
     }
 
     // Fetch recipe
-    const dbRecipe = await getOneRecipe(goal.dataSeries.recipeUsedId);
+    const dbRecipe = await getOneRecipe(dataSeries.recipeUsedId);
     if (!dbRecipe) {
       return Response.json({ message: "Recipe was not found." },
         { status: 404 }
