@@ -1,10 +1,10 @@
 import "server-only";
 import { getSession, LoginData } from "@/lib/session"
 import prisma from "@/prismaClient";
-import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 import { DBRecipe } from "@/types";
 import { recipeSelector } from "./inclusionSelectors";
+import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 
 export default async function getOneRecipe(id: string): Promise<DBRecipe | null> {
   const session = await getSession(await cookies());
@@ -23,89 +23,36 @@ const roadmapAccessFilter = (userId: string) => ({
   ],
 });
 
-const getCachedRecipe = unstable_cache(
-  async (id: string, user: LoginData['user']): Promise<DBRecipe | null> => {
-    let recipe: DBRecipe | null = null;
+async function getCachedRecipe(id: string, user: LoginData['user']): Promise<DBRecipe | null> {
+  'use cache';
+  cacheTag('database', 'recipe', 'dataSeries');
 
-    // If user is admin, always get the recipe
-    if (user?.isAdmin) {
-      try {
-        recipe = await prisma.recipe.findUnique({
-          where: { id },
-          select: recipeSelector,
-        }) satisfies DBRecipe | null;
-        if (!recipe) {
-          return null;
-        }
-      }
-      catch (error) {
-        console.log(error);
-        console.log('Error fetching recipe as admin');
-        return null
-      }
+  let recipe: DBRecipe | null = null;
 
-      return recipe;
-    }
-
-    // If user is logged in, get the recipe if they have access to it
-    if (user?.isLoggedIn) {
-      try {
-        // Where recipe id, and user has access to anything using the data series' using this recipe
-        recipe = await prisma.recipe.findUnique({
-          where: {
-            id,
-            derivedDataSeries: {
-              some: {
-                OR: [
-                  {
-                    dependentGoals: {
-                      some: {
-                        OR: [
-                          { authorId: user.id },
-                          { roadmap: roadmapAccessFilter(user.id) },
-                        ],
-                      },
-                    },
-                  },
-                  {
-                    dependentEffects: {
-                      some: {
-                        OR: [
-                          { goal: { authorId: user.id } },
-                          { goal: { roadmap: roadmapAccessFilter(user.id) } },
-                        ],
-                      },
-                    },
-                  },
-                  {
-                    dependentBaselines: {
-                      some: {
-                        OR: [
-                          { roadmap: roadmapAccessFilter(user.id) },
-                        ],
-                      },
-                    },
-                  },
-                ],
-              },
-            },
-          },
-        });
-        if (!recipe) {
-          return null;
-        }
-      }
-      catch (error) {
-        console.log(error);
-        console.log('Error fetching recipe as user');
-        return null
-      }
-
-      return recipe;
-    }
-
-    // If user is not logged in, get the recipe if it is public
+  // If user is admin, always get the recipe
+  if (user?.isAdmin) {
     try {
+      recipe = await prisma.recipe.findUnique({
+        where: { id },
+        select: recipeSelector,
+      }) satisfies DBRecipe | null;
+      if (!recipe) {
+        return null;
+      }
+    }
+    catch (error) {
+      console.log(error);
+      console.log('Error fetching recipe as admin');
+      return null
+    }
+
+    return recipe;
+  }
+
+  // If user is logged in, get the recipe if they have access to it
+  if (user?.isLoggedIn) {
+    try {
+      // Where recipe id, and user has access to anything using the data series' using this recipe
       recipe = await prisma.recipe.findUnique({
         where: {
           id,
@@ -115,29 +62,35 @@ const getCachedRecipe = unstable_cache(
                 {
                   dependentGoals: {
                     some: {
-                      roadmap: { isPublic: true }
-                    }
-                  }
+                      OR: [
+                        { authorId: user.id },
+                        { roadmap: roadmapAccessFilter(user.id) },
+                      ],
+                    },
+                  },
                 },
                 {
                   dependentEffects: {
                     some: {
-                      goal: {
-                        roadmap: { isPublic: true }
-                      }
-                    }
-                  }
+                      OR: [
+                        { goal: { authorId: user.id } },
+                        { goal: { roadmap: roadmapAccessFilter(user.id) } },
+                      ],
+                    },
+                  },
                 },
                 {
                   dependentBaselines: {
                     some: {
-                      roadmap: { isPublic: true }
-                    }
-                  }
-                }
-              ]
-            }
-          }
+                      OR: [
+                        { roadmap: roadmapAccessFilter(user.id) },
+                      ],
+                    },
+                  },
+                },
+              ],
+            },
+          },
         },
       });
       if (!recipe) {
@@ -146,12 +99,58 @@ const getCachedRecipe = unstable_cache(
     }
     catch (error) {
       console.log(error);
-      console.log('Error fetching public recipe');
+      console.log('Error fetching recipe as user');
       return null
     }
 
     return recipe;
-  },
-  ['getOneRecipe'],
-  { revalidate: 600, tags: ['database', 'recipe', 'dataSeries'] } // TODO - what tags are appropriate here?
-);
+  }
+
+  // If user is not logged in, get the recipe if it is public
+  try {
+    recipe = await prisma.recipe.findUnique({
+      where: {
+        id,
+        derivedDataSeries: {
+          some: {
+            OR: [
+              {
+                dependentGoals: {
+                  some: {
+                    roadmap: { isPublic: true }
+                  }
+                }
+              },
+              {
+                dependentEffects: {
+                  some: {
+                    goal: {
+                      roadmap: { isPublic: true }
+                    }
+                  }
+                }
+              },
+              {
+                dependentBaselines: {
+                  some: {
+                    roadmap: { isPublic: true }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+    });
+    if (!recipe) {
+      return null;
+    }
+  }
+  catch (error) {
+    console.log(error);
+    console.log('Error fetching public recipe');
+    return null
+  }
+
+  return recipe;
+}
