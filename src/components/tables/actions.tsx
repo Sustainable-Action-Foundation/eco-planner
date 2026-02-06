@@ -2,7 +2,7 @@
 
 // TODO: Move to actions.tsx
 import styles from './tables.module.css' with { type: "css" };
-import { AccessLevel, Action } from '@/types';
+import { AccessLevel, Action, Roadmap } from '@/types';
 import Link from 'next/link';
 import { TableMenu } from './tableMenu/tableMenu';
 import { useTranslation } from "react-i18next";
@@ -18,7 +18,7 @@ export default function ActionTable({
   accessLevel,
   roadmapId,
 }: {
-  actions: Action[];
+  actions: Action[] | Roadmap["actions"];
   accessLevel?: AccessLevel;
   roadmapId?: string;
 }) {

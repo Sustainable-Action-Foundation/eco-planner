@@ -35,7 +35,7 @@ export function TableMenu(
         id?: { actionId: string, goalId: string },
       })
       // Action
-      | (Action & {
+      | ((Action | Roadmap["actions"][number]) & {
         effects?: {
           goal: { id: string, roadmap: { id: string } },
         }[],

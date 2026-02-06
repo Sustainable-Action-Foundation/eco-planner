@@ -1,6 +1,6 @@
 import dataSeriesInterest from "@/functions/weightedAverageDelta";
 import { RoadmapType, Comment } from "@/prisma/generated";
-import { Action, DataSeries, Goal, MetaRoadmap } from "@/types";
+import { Action, Goal, MetaRoadmap } from "@/types";
 
 // Used for alphabetical sorting, we use Swedish locale and ignore case, but it can be changed here
 const collator = new Intl.Collator('sv', { numeric: true, sensitivity: 'accent', caseFirst: 'upper' });
@@ -150,7 +150,7 @@ export function goalSorterActionAmountReverse<T extends { _count: { effects: num
 /**
  * Sorts goals by how "interesting" their data series are
  */
-export function goalSorterInterest<T extends { dataSeries: DataSeries | null }>(a: T, b: T) {
+export function goalSorterInterest<T extends { dataSeries: { values: { timestamp: Date; value: number; dataSeriesId?: string; }[], unit: string | null; id: string; } | null }>(a: T, b: T) {
   if (a.dataSeries == null && b.dataSeries == null) {
     return 0;
   } else if (a.dataSeries != null && b.dataSeries == null) {
@@ -163,7 +163,15 @@ export function goalSorterInterest<T extends { dataSeries: DataSeries | null }>(
       return 0;
     }
     // Higher interest gets sorted first
-    return (dataSeriesInterest(b.dataSeries) - dataSeriesInterest(a.dataSeries))
+    const aInterest = dataSeriesInterest({
+      ...a.dataSeries,
+      values: a.dataSeries.values.map(v => ({ ...v, dataSeriesId: "" }))
+    });
+    const bInterest = dataSeriesInterest({
+      ...b.dataSeries,
+      values: b.dataSeries.values.map(v => ({ ...v, dataSeriesId: "" }))
+    });
+    return bInterest - aInterest;
   }
 }
 

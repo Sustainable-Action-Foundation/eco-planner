@@ -100,11 +100,11 @@ export default function Goals({
 
       {/* TODO: Probably not correct to handle loading as a default state? */}
       {/* TODO: Probably use a skeleton for the loading state */}
-      {viewMode == ViewMode.Tree ? (
+      {viewMode === ViewMode.Tree ? (
         <LinkTree roadmap={filteredRoadmap} />
-      ) : viewMode == ViewMode.Table ? (
+      ) : viewMode === ViewMode.Table ? (
         <GoalTable roadmap={filteredRoadmap} sortBy={sortBy} />
-      ) : viewMode == ViewMode.Actions ? (
+      ) : viewMode === ViewMode.Actions ? (
         <ActionTable actions={filteredRoadmap.actions} accessLevel={accessLevel} roadmapId={roadmap.id} />
       ) :
         <Image
