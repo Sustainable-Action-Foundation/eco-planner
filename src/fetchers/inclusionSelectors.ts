@@ -30,6 +30,8 @@ export const nameSelector = {
   },
 } satisfies Prisma.MetaRoadmapSelect;
 
+const dataSeriesInclusionSelection = { values: { select: { timestamp: true, value: true, } } } satisfies Prisma.DataSeriesSelect;
+
 export const metaRoadmapInclusionSelection = {
   roadmapVersions: {
     include: {
@@ -76,7 +78,7 @@ export const roadmapInclusionSelection = {
   goals: {
     include: {
       _count: { select: { effects: true } },
-      dataSeries: true,
+      dataSeries: { include: dataSeriesInclusionSelection, },
       author: { select: { id: true, username: true } },
       recipeSuggestions: true,
     }
@@ -205,8 +207,6 @@ export const clientSafeMultiRoadmapSelection = {
     }
   },
 } satisfies Prisma.RoadmapSelect;
-
-const dataSeriesInclusionSelection = { values: { select: { timestamp: true, value: true, } } } satisfies Prisma.DataSeriesSelect;
 
 export const goalInclusionSelection = {
   _count: { select: { effects: true } },

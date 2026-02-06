@@ -3,7 +3,6 @@ import { roadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getSession, LoginData } from "@/lib/session"
 import { goalSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
-import { Prisma } from "@prisma/client";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 import { Roadmap } from "@/types";
@@ -28,9 +27,7 @@ export default async function getOneRoadmap(id: string): Promise<Roadmap | null>
  */
 const getCachedRoadmap = unstable_cache(
   async (id: string, user: LoginData['user']) => {
-    let roadmap: Prisma.RoadmapGetPayload<{
-      include: typeof roadmapInclusionSelection
-    }> | null = null;
+    let roadmap: Roadmap | null = null;
 
     // If user is admin, always get the roadmap
     if (user?.isAdmin) {

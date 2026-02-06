@@ -2,10 +2,10 @@
 
 import findSiblings from "@/functions/findSiblings";
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
-import { DataSeries, Goal, Roadmap } from "@prisma/client";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IconChartAreaLineFilled } from "@tabler/icons-react";
+import { Goal, Roadmap } from "@/types";
 
 /**
  * A graph that shows how a goal stacks up against its siblings (other goals in the same roadmap version with similar indicator parameters and same unit).
@@ -14,10 +14,8 @@ export default function SiblingGraph({
   roadmap,
   goal,
 }: {
-  roadmap: Roadmap & {
-    goals: (Goal & { dataSeries: DataSeries | null })[],
-  },
-  goal: Goal & { dataSeries: DataSeries | null },
+  roadmap: Roadmap;
+  goal: Goal;
 }) {
   const { t } = useTranslation("graphs");
 
@@ -29,15 +27,10 @@ export default function SiblingGraph({
   for (const entry of siblings) {
     const mainSeries = [];
     if (entry.dataSeries) {
-      for (const j of Years) {
-        const value = entry.dataSeries[j];
-
+      for (const dateValue of entry.dataSeries.values) {
         mainSeries.push({
-          x: new Date(j.replace('val', '')).getTime(),
-          // Specifically in the combined graph, when stacked, default to 0 rather than null if the value is not a number
-          // This is because stacked area charts in ApexCharts do not handle null values well (other entries are shifted up outside the graph)
-          // TODO: Submit a bug report to ApexCharts, and then link it here
-          y: Number.isFinite(value) ? value : (isStacked ? 0 : null),
+          x: dateValue.timestamp.getTime(),
+          y: dateValue.value,
         });
       }
     }
@@ -66,8 +59,8 @@ export default function SiblingGraph({
       type: 'datetime',
       labels: { format: 'yyyy' },
       tooltip: { enabled: false },
-      min: new Date(Years[0].replace('val', '')).getTime(),
-      max: new Date(Years[Years.length - 1].replace('val', '')).getTime()
+      min: new Date("2020-01-01T00:00:00Z").getTime(),
+      max: new Date("2050-01-01T00:00:00Z").getTime(),
     },
     yaxis: {
       title: { text: goal.dataSeries?.unit === null ? t("common:tsx.unitless") : goal.dataSeries?.unit || t("common:tsx.unit_missing") },

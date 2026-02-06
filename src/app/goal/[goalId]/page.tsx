@@ -306,7 +306,7 @@ export default async function Page(
               }
             </div>
 
-            {/* TODO: rename to effectslist? */}
+            {/* TODO: rename to EffectsList? */}
             <EffectTable object={goal} accessLevel={accessLevel} />
 
             {goal.effects.some(effect => effect.action.startYear || effect.action.endYear) &&
