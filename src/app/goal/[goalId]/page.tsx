@@ -8,7 +8,7 @@ import GraphGraph from "@/components/graphs/graphGraph";
 import SiblingGraph from "@/components/graphs/siblingGraph";
 import CopyAndScale from "@/components/modals/copyAndScale";
 import EffectTable from "@/components/tables/effects.tsx";
-import { ObjectMenu, TableMenu } from "@/components/tables/tableMenu/tableMenu";
+import { AdminPanel } from "@/components/tables/tableMenu/tableMenu";
 import getGoalByIndicator from "@/fetchers/getGoalByIndicator";
 import getOneGoal from "@/fetchers/getOneGoal";
 import getOneRoadmap from "@/fetchers/getOneRoadmap";
@@ -175,7 +175,7 @@ export default async function Page(
       <Breadcrumb object={goal} />
 
       {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-        <ObjectMenu accessLevel={accessLevel} object={goal} />
+        <AdminPanel accessLevel={accessLevel} object={goal} />
       }
       
       <main>

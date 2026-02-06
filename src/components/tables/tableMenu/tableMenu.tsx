@@ -311,7 +311,7 @@ export function TableMenu(
   )
 }
 
-export function ObjectMenu(
+export function AdminPanel(
   {
     accessLevel,
     object,

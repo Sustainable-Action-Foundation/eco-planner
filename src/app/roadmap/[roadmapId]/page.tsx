@@ -14,7 +14,7 @@ import { buildMetadata } from "@/functions/buildMetadata";
 import { IconArrowBack, IconArrowBackUp, IconArrowNarrowRight, IconArrowNarrowRightDashed, IconBuildings, IconCircleFilled, IconEdit, IconPlus, IconTrashFilled, IconTrashXFilled, IconUser } from "@tabler/icons-react";
 import Link from "next/link";
 import TextEditor from "@/components/form/elements/textEditor/editor";
-import { ObjectMenu } from "@/components/tables/tableMenu/tableMenu";
+import { AdminPanel } from "@/components/tables/tableMenu/tableMenu";
 import ActionTable from "@/components/tables/actions";
 
 export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }) {
@@ -68,7 +68,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
     <Breadcrumb object={roadmap} />
 
     {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-      <ObjectMenu accessLevel={accessLevel} object={{ ...roadmap, _count: { goals: roadmap.goals.length } }} />
+      <AdminPanel accessLevel={accessLevel} object={{ ...roadmap, _count: { goals: roadmap.goals.length } }} />
     }
 
     <main>

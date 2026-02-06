@@ -10,9 +10,8 @@ import EffectTable from "@/components/tables/effects.tsx";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
-import { IconEdit } from "@tabler/icons-react";
 import TextEditor from "@/components/form/elements/textEditor/editor";
-import { ObjectMenu } from "@/components/tables/tableMenu/tableMenu";
+import { AdminPanel } from "@/components/tables/tableMenu/tableMenu";
 
 export async function generateMetadata(props: { params: Promise<{ actionId: string }> }) {
   const params = await props.params
@@ -70,7 +69,7 @@ export default async function Page(props: { params: Promise<{ actionId: string }
     <>
       <Breadcrumb object={action} />
       {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-        <ObjectMenu accessLevel={accessLevel} object={action} />
+        <AdminPanel accessLevel={accessLevel} object={action} />
       }
 
       <main>
