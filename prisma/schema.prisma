@@ -307,7 +307,7 @@ model Effect {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Data series representing the impact of the related action on the goal, year by year
-  dataSeriesId String?
+  dataSeriesId String? @map("data_series_id")
   dataSeries   DataSeries? @relation(name: "effect_data_series", fields: [dataSeriesId], references: [id])
 
   // The type of impact this action has, affects how the data series is interpreted
