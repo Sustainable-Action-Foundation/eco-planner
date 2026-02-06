@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { LanguageSwitcher } from "@/components/languageSwitcher"
 import serveTea from "@/lib/i18nServer";
 import { PopoverButton, Popover } from '@/components/generic/popovers/popovers';
-import { IconCirclePlus, IconHome, IconInfoCircle, IconLogin2, IconLogout2, IconMenu2, IconPlus, IconSettings, IconUser, IconUserPlus, IconWorld, IconX } from '@tabler/icons-react'
+import { IconCirclePlus, IconHome, IconInfoCircle, IconList, IconLogin2, IconLogout2, IconMenu2, IconPlus, IconSettings, IconUser, IconUserPlus, IconWorld, IconX } from '@tabler/icons-react'
 import GraphCookie from '@/components/cookies/graphCookie';
 
 export default async function Sidebar() {
@@ -44,6 +44,10 @@ export default async function Sidebar() {
           <Link href="/" className='color-pureblack rounded'>
             <IconHome aria-hidden='true' />
             {t("components:sidebar.home")}
+          </Link>
+          <Link href="/actions" className='color-pureblack rounded margin-bottom-300'>
+            <IconList aria-hidden='true' />
+            Åtgärder  {/* TODO: I18n */}
           </Link>
           <PopoverButton
             anchorName='--create-popover-button'
