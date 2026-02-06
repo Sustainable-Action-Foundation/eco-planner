@@ -1,4 +1,7 @@
 import getOneAction from "@/fetchers/getActions"
+import styles from './page.module.css'
+import Grid from "@/components/form/elements/grid/grid"
+import ActionsGrid from "./actionsGrid"
 
 
 // NOTE: Do we really want the entire page to be async?
@@ -6,12 +9,9 @@ export default async function Page() {
   const actions = await getOneAction()
 
   return (
-    <div>
-      {actions?.map(action => (
-        <div key={action.id}>
-          {action.name}
-        </div>
-      ))}
-    </div>
+    <>
+      <h1>Åtgärder</h1>
+      <ActionsGrid actions={actions} />
+    </>
   )
 }

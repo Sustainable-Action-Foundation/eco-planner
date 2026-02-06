@@ -1,0 +1,12 @@
+.actions-grid {
+    gap: .25rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(min(300px,100%),1fr));
+}
+
+.actions-grid > div {
+    padding: .5rem;
+    border-radius: .5rem;
+    height: 200px;
+    background-color: red;
+}
