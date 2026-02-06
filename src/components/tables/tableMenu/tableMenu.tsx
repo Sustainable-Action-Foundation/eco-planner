@@ -11,8 +11,6 @@ import { IconArrowBackUp, IconDotsVertical, IconEdit, IconPlus, IconTrashXFilled
 import { hasEditAccess } from '@/lib/accessChecker';
 
 // General purpose button for roadmaps, goals and actions. 
-// Update the name of the component to reflect this
-
 export function TableMenu(
   {
     width = 24,
@@ -48,7 +46,7 @@ export function TableMenu(
       // Goal
       | (Goal & {
         _count: { effects: number }
-        dataSeries: DataSeries | null,
+        dataSeries: DataSeries | Goal["dataSeries"] | null,
         roadmap: { id: string, metaRoadmap: { name: string, id: string } },
         roadmapVersions?: never,
         metaRoadmap?: never,
