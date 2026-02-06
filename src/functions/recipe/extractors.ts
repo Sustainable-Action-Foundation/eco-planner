@@ -462,8 +462,9 @@ export function dataSeriesToDateValues(dataSeries: DataSeries): DateValuesWithUn
   };
 }
 
-export function dateValuesToDBDateRecord(dateValues: DateValues): DataSeries["values"] {
+export function dateValuesToDBDateRecord(dateValues: DateValues, dataSeriesId?: string) {
   return Object.entries(dateValues).map(([key, val]) => ({
+    ...(dataSeriesId ? { dataSeriesId } : {}),
     timestamp: new Date(key),
     value: val,
   }));

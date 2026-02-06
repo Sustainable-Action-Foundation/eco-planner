@@ -20,14 +20,14 @@ import { ApiTableContent } from "@/lib/api/apiTypes";
 import { getSession } from "@/lib/session";
 import serveTea from "@/lib/i18nServer";
 import prisma from "@/prismaClient";
-import { AccessControlled, AccessLevel, Goal, Roadmap } from "@/types";
+import { AccessControlled, AccessLevel, Goal, MultiRoadmapInstance, Roadmap } from "@/types";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import getTableContent from "@/lib/api/getTableContent";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconAlertTriangle } from "@tabler/icons-react";
-import i18nServer from "i18next";
+import i18nServer, { TFunction } from "i18next";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 
 export async function generateMetadata(props: {
@@ -81,13 +81,22 @@ export default async function Page(
     getSession(await cookies()),
     getOneGoal(params.goalId).then(async goal => ({
       goal,
-      roadmap: goal ? await getOneRoadmap(goal.roadmapId) : Promise.resolve(null)
+      roadmap: goal ? await getOneRoadmap(goal.roadmapId) : null
     })),
-    typeof searchParams.secondaryGoal == "string" ? getOneGoal(searchParams.secondaryGoal) : Promise.resolve(null),
+    typeof searchParams.secondaryGoal === "string" ? getOneGoal(searchParams.secondaryGoal) : null,
     getRoadmaps(),
-  ]);
+  ]) satisfies [ // Did this cause of the nested promises so I wanna have some sanity here:3
+    TFunction,
+    Awaited<ReturnType<typeof getSession>>,
+    {
+      goal: Goal | null;
+      roadmap: Roadmap | null;
+    },
+    Goal | null,
+    MultiRoadmapInstance[],
+  ];
 
-  const locale = i18nServer.language.split("-")[0];
+  const locale = i18nServer.language.split("-")[0]; // TODO - Illegal!! plz use a more proper method 🥺
 
   let accessLevel: AccessLevel = AccessLevel.None;
   if (goal) {
