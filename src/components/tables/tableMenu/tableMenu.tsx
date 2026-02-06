@@ -8,7 +8,7 @@ import { AccessLevel } from "@/types";
 import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
 import { useTranslation } from "react-i18next";
-import { IconArrowBackUp, IconChartHistogram, IconDotsVertical, IconEdit, IconPlus, IconTrashXFilled, IconX } from "@tabler/icons-react";
+import { IconArrowBackUp, IconChartHistogram, IconDotsVertical, IconEdit, IconPlus, IconSettings, IconTrashXFilled, IconX } from "@tabler/icons-react";
 import { hasEditAccess } from '@/lib/accessChecker';
 import { TFunction } from 'i18next';
 
@@ -252,7 +252,7 @@ export function TableMenu(
             {/* Link to the object */}
             {links?.selfLink ?
               <Link href={links.selfLink} className={styles.menuHeadingTitle}>{object.name || object.metaRoadmap?.name}</Link>
-              : <p>{t("common:tsx.menu")}</p>} 
+              : <p>{t("common:tsx.menu")}</p>}
           </div>
           {links ? (
             <>
@@ -325,10 +325,8 @@ export function ObjectMenu(
 
   return (
     <aside className="margin-block-300">
-      <h1 className="font-weight-600 margin-bottom-50 margin-0" style={{ fontSize: '1.25rem' }}>
-        {t("components:table_menu.admin_panel_title")}
-      </h1>
-       <menu className={`flex gap-50 align-items-stretch width-100 padding-25 margin-0 smooth ${styles['object-menu']}`}>
+      <h1 className="font-weight-600 margin-bottom-50 margin-0" style={{ fontSize: '1.25rem', alignSelf: 'center'}}>{t("components:table_menu.admin_panel_title")}</h1>
+      <menu className={`flex gap-50 align-items-stretch flex-grow-100 margin-0 padding-block-50 padding-inline-0 ${styles['object-menu']}`}>
         {links ? (
           <>
             <nav className="display-contents">
@@ -336,7 +334,7 @@ export function ObjectMenu(
                 <>
                   {links.creationLink &&
                     <>
-                      <Link href={links.creationLink} className={`flex gap-100 align-items-center padding-25 smooth ${styles['object-menu-link']}`}>
+                      <Link href={links.creationLink} className={`flex gap-100 align-items-center smooth ${styles['object-menu-link']}`}>
                         <span>{links.creationDescription}</span>
                         <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                       </Link>
@@ -345,27 +343,27 @@ export function ObjectMenu(
                   }
                   {links.creationLink2 &&
                     <>
-                      <Link href={links.creationLink2} className={`flex gap-100 align-items-center padding-25 smooth ${styles['object-menu-link']}`}>
+                      <Link href={links.creationLink2} className={`flex gap-100 align-items-center smooth ${styles['object-menu-link']}`}>
                         <span>{links.creationDescription2 || links.creationLink2}</span>
                         <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                       </Link>
                       <hr className="round margin-inline-0 margin-block-50" />
                     </>
                   }
-                  {links.editLink &&
+                  {links.historicalDataLink &&
                     <>
-                      <Link href={links.editLink} className={`flex gap-100 align-items-center padding-25 smooth ${styles['object-menu-link']}`}>
-                        <span>{t("components:table_menu.edit")}</span>
-                        <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+                      <Link href={links.historicalDataLink} className={`flex gap-100 align-items-center smooth ${styles['object-menu-link']}`}>
+                        <span>{t("components:table_menu.historical_data")}</span>
+                        <IconChartHistogram aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                       </Link>
                       <hr className="round margin-inline-0 margin-block-50" />
                     </>
                   }
-                  {links.historicalDataLink &&
+                  {links.editLink &&
                     <>
-                      <Link href={links.historicalDataLink} className={`flex gap-100 align-items-center padding-25 smooth ${styles['object-menu-link']}`}>
-                        <span>{t("components:table_menu.edit")}</span> {/* TODO: Switch text here */}
-                        <IconChartHistogram aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+                      <Link href={links.editLink} className={`flex gap-100 align-items-center smooth ${styles['object-menu-link']}`}>
+                        <span>{t("components:table_menu.edit")}</span>
+                        <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                       </Link>
                       <hr className="round margin-inline-0 margin-block-50" />
                     </>
@@ -378,9 +376,9 @@ export function ObjectMenu(
             {(accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) && links.deleteLink &&
               <>
                 <hr className="round margin-inline-0 margin-block-50 margin-left-auto" />
-                <button type="button" className={`flex gap-100 align-items-center padding-25 button smooth ${styles['object-menu-button']}`} onClick={() => openModal(deletionRef)}>
+                <button type="button" className={`flex gap-100 align-items-center button smooth ${styles['object-menu-button']}`} style={{ color: 'white', backgroundColor: "#f03b3b", border: '0' }} onClick={() => openModal(deletionRef)}>
                   {t("components:table_menu.delete")}
-                  <IconTrashXFilled aria-hidden="true" width={20} height={20} fill="red" style={{ minWidth: '20px' }} />
+                  <IconTrashXFilled aria-hidden="true" width={20} height={20} fill="white" style={{ minWidth: '20px' }} />
                 </button>
                 <ConfirmDelete modalRef={deletionRef} targetUrl={links.deleteLink} targetName={object.name || object.metaRoadmap?.name || t("components:table_menu.delete_missing_name")} targetId={object.id} />
               </>
@@ -389,7 +387,6 @@ export function ObjectMenu(
         ) : null}
       </menu>
       <small className='font-style-italic'>{t("components:table_menu.admin_panel_info")}</small>
-
     </aside>
   )
 
