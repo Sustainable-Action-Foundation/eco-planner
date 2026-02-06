@@ -11,10 +11,11 @@ import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { DataSeries, Goal } from "@prisma/client";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
-import { IconCircleFilled, IconEdit, IconPlus, IconTrashFilled, IconTrashXFilled } from "@tabler/icons-react";
+import { IconArrowBack, IconArrowBackUp, IconArrowNarrowRight, IconArrowNarrowRightDashed, IconBuildings, IconCircleFilled, IconEdit, IconPlus, IconTrashFilled, IconTrashXFilled, IconUser } from "@tabler/icons-react";
 import Link from "next/link";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 import { ObjectMenu } from "@/components/tables/tableMenu/tableMenu";
+import ActionTable from "@/components/tables/actions";
 
 export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }) {
   const params = await props.params
@@ -72,28 +73,33 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
 
     <main>
       <section className="margin-block-300" >
-        <span style={{ color: 'gray' }}>{t("pages:roadmap.title")}</span>
+        <span style={{ color: 'gray' }}>{t("pages:roadmap.version", { version: roadmap.version })}</span>
         <h1 className="margin-0">{roadmap.metaRoadmap.name}</h1>
-        <div className="margin-0 font-weight-600 flex justify-content-space-between margin-bottom-50 padding-bottom-50" style={{ borderBottom: '1px solid var(--gray-80)' }}>
-          <span>
+        <div className="margin-0 flex justify-content-space-between margin-bottom-50 padding-bottom-50" style={{ borderBottom: '1px solid var(--gray-80)' }}>
+          <span className="font-weight-600">
             {t("common:count.goal", { count: roadmap.goals.length })}
           </span>
-          <span>
-            {t("pages:roadmap.version", { version: roadmap.version })}
-            {" • "}
-            <Link href={`/metaRoadmap/${roadmap.metaRoadmapId}`}>{t("pages:roadmap.show_series")}</Link>
-          </span>
+          <Link href={`/metaRoadmap/${roadmap.metaRoadmapId}`} className="discrete-link flex gap-25 align-items-center" style={{lineHeight: '1'}}>
+            {t("pages:roadmap.show_series")}
+            <IconArrowNarrowRight height={20} width={20} style={{minWidth: '20px'}} />
+          </Link>
         </div>
-        <div>
-          {roadmap.metaRoadmap.actor ? // TODO: Need to note that this is the actor somehow or it looks weird
-            <>
+        <div className="flex gap-75 align-items-center margin-top-75">
+          <Link className="flex gap-25 align-items-center discrete-link" href={`/@${roadmap.author.username}`}>
+            <IconUser strokeWidth={1.75}  style={{minWidth: '24px'}} />
+            {roadmap.author.username}
+          </Link>
+          <span style={{userSelect: 'none'}}>{"•"}</span>
+          {roadmap.metaRoadmap.actor ?  
+            <div className="flex gap-25 align-items-center">
+              <IconBuildings strokeWidth={1.75}  style={{minWidth: '24px'}} />
               {roadmap.metaRoadmap.actor}
-            </>
+            </div>
             :
             null
           }
         </div>
-        <div className="margin-top-100">
+        <div className="margin-top-300">
           <TextEditor
             id="rich-description"
             editable={false}
@@ -129,8 +135,8 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
             goal => goal?.externalDataset && goal?.externalTableId
           ) && (
               <div className="display-flex align-items-center gap-100 margin-top-100 font-weight-500">
-                <span style={{ color: 'var(--gray-20)' }}><IconCircleFilled width={12} height={12} fill="#0090ff" aria-hidden="true" className="margin-right-25" />{t("common:goal_one")}</span> {/* TODO: i18n, replace with icon*/}
-                <span style={{ color: 'var(--gray-20)' }}><IconCircleFilled width={12} height={12} fill="#2e8a56" aria-hidden="true" className="margin-right-25" />{t("common:historical_data")}</span> {/* TODO: i18n, replace with icon */}
+                <span style={{ color: 'var(--gray-20)' }}><IconCircleFilled width={12} height={12} fill="#0090ff" aria-hidden="true" className="margin-right-25" />{t("common:goal_one")}</span> 
+                <span style={{ color: 'var(--gray-20)' }}><IconCircleFilled width={12} height={12} fill="#2e8a56" aria-hidden="true" className="margin-right-25" />{t("common:historical_data")}</span>
               </div>
             )}
         </section>
@@ -139,6 +145,11 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
       <section className="margin-block-300">
         <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:roadmap.all_goals")}</h2>
         <Goals roadmap={roadmap} accessLevel={accessLevel} />
+      </section>
+
+      <section className="margin-block-300">
+        <h2 className='margin-bottom-100 padding-bottom-50'  style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:roadmap.all_actions")}</h2>
+        <ActionTable  actions={roadmap.actions} accessLevel={accessLevel} roadmapId={roadmap.id} />
       </section>
     </main>
 

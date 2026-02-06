@@ -108,10 +108,11 @@
   },
   "roadmap": {
     "title": "{{$t(common:roadmap_version_one), titleCase}}",
-    "version": "{{$t(common:roadmap_version_one), titleCase}} v{{version}}",
+    "version": "{{$t(common:roadmap_version_one), titleCase}} (v{{version}})",
     "show_series": "Besök $t(common:roadmap_series_one)",
     "featured_goals": "Utvalda $t(common:goal_other)",
-    "all_goals": "Alla $t(common:goal_other)"
+    "all_goals": "Alla $t(common:goal_other)",
+    "all_actions": "Alla $t(common:action_other)"
   },
   "roadmap_create": {
     "breadcrumb": "$t(common:new.roadmap_version)",

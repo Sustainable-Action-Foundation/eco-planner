@@ -30,10 +30,6 @@ export default function TableSelector({ id, current, setter }: { id: string, cur
         {t("components:table_selector.table")}
         <IconTableFilled aria-hidden="true" style={{ minWidth: '24px' }} />
       </RadioImage>
-      <RadioImage value={ViewMode.Actions} name="table" checked={current == ViewMode.Actions} onChange={handleRadioChange}>
-        {t("components:table_selector.actions")}
-        <IconList aria-hidden="true" style={{ minWidth: '24px' }} />
-      </RadioImage>
     </div>
   );
 }

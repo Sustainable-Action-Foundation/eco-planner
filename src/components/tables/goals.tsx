@@ -4,7 +4,6 @@ import { AccessLevel } from '@/types'
 import GoalTable from "./goalTables/goalTable"
 import TableSelector from './tableSelector/tableSelector'
 import LinkTree from './goalTables/linkTree'
-import ActionTable from "./actions"
 import { useEffect, useState } from "react"
 import { getStoredGoalSortBy, getStoredViewMode, setStoredGoalSortBy } from "./functions/tableFunctions"
 import Link from "next/link"
@@ -18,7 +17,6 @@ import { IconSearch } from '@tabler/icons-react'
 export const ViewMode = {
   Table: "TABLE",
   Tree: "TREE",
-  Actions: "ACTIONS",
 } as const;
 export type ViewMode = (typeof ViewMode)[keyof typeof ViewMode];
 
@@ -104,8 +102,6 @@ export default function Goals({
         <LinkTree roadmap={filteredRoadmap} />
       ) : viewMode == ViewMode.Table ? (
         <GoalTable roadmap={filteredRoadmap} sortBy={sortBy} />
-      ) : viewMode == ViewMode.Actions ? (
-        <ActionTable actions={filteredRoadmap.actions} accessLevel={accessLevel} roadmapId={roadmap.id} />
       ) :
         <Image
           src='/loaders/3-dots-scale.svg'

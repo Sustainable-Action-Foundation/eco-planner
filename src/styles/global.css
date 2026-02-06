@@ -64,6 +64,20 @@ fieldset:not(:has(input:required, select:required, textarea:required)):has(field
 
 /* Temporary while rewriting */
 
+.discrete-link {
+  color: black;
+  text-decoration: none;
+  position: relative;
+}
+
+.discrete-link:hover {
+  text-decoration: underline;
+}
+
+.discrete-link:active {
+  color: red;
+}
+
 :where(.button) {
   padding: .5rem 1rem;
   background-color: var(--gray-90);
