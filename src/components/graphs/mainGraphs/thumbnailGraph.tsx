@@ -1,11 +1,11 @@
 import WrappedChart from "@/lib/chartWrapper";
-import { DataSeries, Goal } from "@prisma/client";
 import styles from '../graphs.module.css'
+import { Goal } from "@/types";
 
 export default function ThumbnailGraph({
   goal,
 }: {
-  goal: Goal & { dataSeries: DataSeries | null },
+  goal: Goal;
 }) {
   if (!goal.dataSeries) {
     return null;
@@ -13,12 +13,10 @@ export default function ThumbnailGraph({
 
   const mainChart: ApexAxisChartSeries = [];
   const mainSeries = [];
-  for (const i of Years) {
-    const value = goal.dataSeries[i];
-
+  for (const point of goal.dataSeries.values) {
     mainSeries.push({
-      x: new Date(i.replace('val', '')).getTime(),
-      y: Number.isFinite(value) ? value : null,
+      x: new Date(point.timestamp).getTime(),
+      y: Number.isFinite(point.value) ? point.value : null,
     });
   }
   mainChart.push({
@@ -44,8 +42,8 @@ export default function ThumbnailGraph({
       type: 'datetime',
       labels: { format: 'yyyy' },
       tooltip: { enabled: false },
-      min: new Date(Years[0].replace('val', '')).getTime(),
-      max: new Date(Years[Years.length - 1].replace('val', '')).getTime()
+      min: new Date("2020-01-01T00:00:00.000Z").getTime(),
+      max: new Date("2050-01-01T00:00:00.000Z").getTime(),
       // categories: dataSeriesDataFieldNames.map(name => name.replace('val', ''))
     },
     yaxis: {

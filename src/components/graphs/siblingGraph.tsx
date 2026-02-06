@@ -29,8 +29,8 @@ export default function SiblingGraph({
     if (entry.dataSeries) {
       for (const dateValue of entry.dataSeries.values) {
         mainSeries.push({
-          x: dateValue.timestamp.getTime(),
-          y: dateValue.value,
+          x: new Date(dateValue.timestamp).getTime(),
+          y: Number.isFinite(dateValue.value) ? dateValue.value : null,
         });
       }
     }

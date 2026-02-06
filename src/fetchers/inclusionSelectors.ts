@@ -130,13 +130,7 @@ export const clientSafeRoadmapSelection = {
       externalTableId: true,
       externalSelection: true,
       _count: { select: { effects: true } },
-      dataSeries: {
-        select: {
-          id: true,
-          unit: true,
-          values: true,
-        }
-      },
+      dataSeries: { include: dataSeriesInclusionSelection, },
     }
   },
   actions: {
@@ -274,7 +268,7 @@ export const clientSafeDataSeriesSelection = {
 export const actionInclusionSelection = {
   effects: {
     include: {
-      dataSeries: true,
+      dataSeries: { include: dataSeriesInclusionSelection, },
       goal: {
         include: {
           roadmap: { select: { id: true } },
