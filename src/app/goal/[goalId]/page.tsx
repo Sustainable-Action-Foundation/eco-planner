@@ -125,6 +125,7 @@ export default async function Page(
     return false;
   }).map(roadmap => ({ id: roadmap.id, name: roadmap.metaRoadmap.name, version: roadmap.version, actor: roadmap.metaRoadmap.actor }))
 
+  // TODO: remove when moving external to data series + recipe
   // Fetch external data
   let externalData: ApiTableContent | null = null;
   if (goal.externalDataset && goal.externalTableId && goal.externalSelection) {
@@ -166,26 +167,31 @@ export default async function Page(
     }
   }
 
-  /** 
-   * TODO: Deprecated - this should crawl recipes instead
-   */
-  // If any goalParent has a data series with a later updatedAt date than the goal, the goal should be updated
-  // eslint-disable-next-line prefer-const
   let shouldUpdate = false;
-  // if (goal.combinationParents) {
-  //   for (const parent of goal.combinationParents) {
-  //     if (parent.parentGoal.dataSeries?.updatedAt && parent.parentGoal.dataSeries.updatedAt > (goal.dataSeries?.updatedAt ?? new Date(0))) {
-  //       shouldUpdate = true;
-  //       break;
-  //     }
-  //   }
-  // }
+  // If using a recipe, check all source data series if their updatedAt is newer than this data series last updated
+  if (goal.dataSeries && goal.dataSeries.recipeUsedId) {
+    const sourceDataSeries = await prisma.recipe.findMany({
+      where: {
+        id: goal.dataSeries.recipeUsedId,
+      },
+      select: {
+        sourceDataSeries: { select: { id: true, updatedAt: true, }, },
+      },
+    });
+    for (const source of sourceDataSeries) {
+      for (const dataSeries of source.sourceDataSeries) {
+        if (dataSeries.updatedAt > goal.dataSeries.updatedAt) {
+          shouldUpdate = true;
+        }
+      }
+    }
+  }
 
   return (
     <>
       <Breadcrumb object={goal} />
       <main>
-        {shouldUpdate && goal.dataSeries &&
+        {shouldUpdate && goal.dataSeries && // Redundant additional check to satisfy type engine
           <section
             aria-label={t("pages:goal.update_needed_attention_message")}
             className="flex justify-content-space-between align-items-center margin-block-300 padding-25 rounded"
