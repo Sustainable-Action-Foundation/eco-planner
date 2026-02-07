@@ -10,3 +10,14 @@
     height: 200px;
     background-color: red;
 }
+
+.actions-list {
+    display: block;
+}
+
+.actions-list > div {
+    margin-block: .25rem;
+    padding: .5rem;
+    border-radius: .5rem;
+    background-color: red;
+}
