@@ -74,6 +74,7 @@
 }
 
 /* Select multiple (alternative to simple radiobuttons */
+/* TODO: Naming makes no sense here, i think this is refering to having multiple options? */
 .radio-select-multiple {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
@@ -116,6 +117,7 @@
 }
 
 /* Select two (alternative to simple radiobuttons */
+/* TODO: Naming makes no sense here, shoudl be select either? */
 .radio-select-two {
   /* TODO: Need some sort of hover/focus state here */
   font-size: small;

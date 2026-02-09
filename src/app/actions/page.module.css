@@ -1,14 +1,30 @@
 .actions-grid {
-    gap: .25rem;
+    column-gap: .5rem;
+    row-gap: 1rem;
     display: grid;
     grid-template-columns: repeat(auto-fit,minmax(min(300px,100%),1fr));
+    list-style: none;
+    padding-left: 0;
 }
 
-.actions-list {
-    display: block;
+.actions-grid > li {
+    box-shadow: 4px .5rem 10px -.5rem var(--gray-90);
+    background-color: var(--secondary-neutral);
+    border: 1px solid var(--gray-80);
+    transition: box-shadow .2s ease;
 }
 
-.actions-list > article {
+.actions-grid > li:has(a:hover) {
+    box-shadow: 4px .5rem 10px -.5rem var(--gray-30);
+}
+
+
+.actions-list > li {
+    vertical-align: middle;
     margin-block: .25rem;
- 
+}
+
+.actions-list > li > article hr,
+.actions-list > li > article > div {
+    display: none;
 }

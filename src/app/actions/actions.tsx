@@ -3,7 +3,7 @@
 import { useState } from "react"
 import styles from "./page.module.css"
 import { Action } from "@/types"
-import { IconArrowNarrowRight, IconUser } from "@tabler/icons-react"
+import { IconArrowNarrowRight, IconGrid3x3, IconLayoutGridFilled, IconList, IconSearch, IconTable, IconTableFilled, IconUser } from "@tabler/icons-react"
 import Link from "next/link"
 
 // TODO:
@@ -20,74 +20,91 @@ export default function Actions({ actions }: { actions: Action[] | null }) {
 
   return (
     <>
-      <menu className="padding-0 flex gap-100">
-        <label>
-          <input
-            className="margin-right-25"
-            type="radio"
-            name="view-type"
-            checked={viewMode === 'grid'}
-            onChange={() => setViewMode('grid')}
-          />
-          Grid
+      <menu className="padding-0 flex align-items-flex-end gap-100 flex-wrap-wrap padding-bottom-100 margin-bottom-100">
+        <label className="flex-grow-100">
+          Sök
+          <div className="flex align-items-center margin-top-25 padding-50 smooth focusable">
+            <IconSearch width={1.5} style={{minWidth: '24px'}} />
+            <input type="search" className="padding-0 margin-inline-50" />
+          </div>
         </label>
+        <div className="flex-grow-100">
+          Visa som
+          <div className="radio-select-multiple margin-top-25" style={{ width: 'min(300px, 100%)', minWidth: 'calc(125px * 2)' }}> {/* TODO: Some magic number stuff going on here */}
+            <label className="flex gap-25 align-items-center" style={{ lineHeight: '1' }}>
+              <IconLayoutGridFilled style={{minWidth: '24px'}} />
+              Rutnät
+              <input
+                type="radio"
+                name="view-type"
+                checked={viewMode === 'grid'}
+                onChange={() => setViewMode('grid')}
+              />
+            </label>
 
-        <label>
-          <input
-            className="margin-right-25"
-            type="radio"
-            name="view-type"
-            checked={viewMode === 'list'}
-            onChange={() => setViewMode('list')}
-          />
-          List
-        </label>
+            <label className="flex gap-25 align-items-center" style={{ lineHeight: '1' }}>
+              <IconList style={{minWidth: '24px'}} />
+              Förenklad lista
+              <input
+                type="radio"
+                name="view-type"
+                checked={viewMode === 'list'}
+                onChange={() => setViewMode('list')}
+              />
+            </label>
+          </div>
+        </div>
+        <Link href={'/'} className="flex gap-100 align-items-center smooth button">
+          Skapa ny åtgärd
+        </Link>
       </menu>
 
-      <div
-        className={
-          viewMode === 'grid'
+      <ul
+        className={`
+        margin-top-0  
+        ${viewMode === 'grid'
             ? styles['actions-grid']
             : styles['actions-list']
-        }
+          }`}
       >
         {actions?.map(action => (
-          <article
+          <li
             key={action.id}
             className="smooth padding-50 padding-top-0"
-            style={{backgroundColor: 'white', border: '1px solid var(--gray-80)'}}
           >
-            <Link href={`/action/${action.id}`} className="discrete-link padding-top-75 block">
-              <div style={{color: 'gray', fontSize: '14px'}}>{action.startYear} - {action.endYear}</div>
-              <h2 className="margin-0" style={{fontSize: '1.15rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{action.name}</h2>
-              <hr className="margin-top-75" style={{borderColor: 'var(--gray-80)', borderTop: '0'}} />
-            </Link>
-            <div className="flex justify-content-space-between align-items-center">
-              <Link href={`/action/${action.id}`} className="flex gap-25 align-items-center discrete-link" style={{fontSize: '14px'}}>
-                <IconUser width={20} height={20} style={{maxWidth: '20px'}} />
-                {action.author.username}
+            <article>
+              <Link href={`/action/${action.id}`} className="discrete-link padding-top-75 block">
+                <div style={{ color: 'gray', fontSize: '14px' }}>{action.startYear} - {action.endYear}</div>
+                <h2 className="margin-0" style={{ fontSize: '1.15rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{action.name}</h2>
+                <hr className="margin-top-75" style={{ borderColor: 'var(--gray-80)', borderTop: '0' }} />
               </Link>
-              <Link href={`/@${action.author.username}`} className="flex gap-25 align-items-center discrete-link" style={{fontSize: '14px'}}>
-                Gå till färdplan {/* TODO: I18n, also poor accesibility */}
-                <IconArrowNarrowRight width={20} height={20} style={{maxWidth: '20px'}} />
-              </Link>
-            </div>
-            {/* <p>{action.description}</p>  TODO: Should use tiptap */}
-            
-            {/*
-            Antal kommentarer: {action.comments.length}<br/>
-            Skapad: {new Date(action.createdAt).toDateString()}<br/>
-            Kostnadseffektivitet: {action.costEfficiency}<br/>
-            Antal effekter: {action.effects.length}<br/>
-            Förväntat utfall: {action.expectedOutcome}<br/>
-            Effiency/suffiency/renewables: {action.isEfficiency} - {action.isSufficiency} - {action.isRenewables}<br/>
-            Projektledare: {action.projectManager}<br/>
-            Relevanta aktörer: {action.relevantActors}<br/>
-            Färdplan: {action.roadmap.metaRoadmap.name}<br/>
-            Senast uppdaterad: {new Date(action.updatedAt).toDateString()}<br/>  */}
-          </article>
+              <div className="flex justify-content-space-between align-items-center">
+                <Link href={`/action/${action.id}`} className="flex gap-25 align-items-center discrete-link" style={{ fontSize: '14px' }}>
+                  <IconUser width={20} height={20} style={{ maxWidth: '20px' }} />
+                  {action.author.username}
+                </Link>
+                <Link href={`/@${action.author.username}`} className="flex gap-25 align-items-center discrete-link" style={{ fontSize: '14px' }}>
+                  Gå till färdplan {/* TODO: I18n, also poor accesibility */}
+                  <IconArrowNarrowRight width={20} height={20} style={{ maxWidth: '20px' }} />
+                </Link>
+              </div>
+              {/* <p>{action.description}</p>  TODO: Should use tiptap */}
+
+              {/*
+              Antal kommentarer: {action.comments.length}<br/>
+              Skapad: {new Date(action.createdAt).toDateString()}<br/>
+              Kostnadseffektivitet: {action.costEfficiency}<br/>
+              Antal effekter: {action.effects.length}<br/>
+              Förväntat utfall: {action.expectedOutcome}<br/>
+              Effiency/suffiency/renewables: {action.isEfficiency} - {action.isSufficiency} - {action.isRenewables}<br/>
+              Projektledare: {action.projectManager}<br/>
+              Relevanta aktörer: {action.relevantActors}<br/>
+              Färdplan: {action.roadmap.metaRoadmap.name}<br/>
+              Senast uppdaterad: {new Date(action.updatedAt).toDateString()}<br/>  */}
+            </article>
+          </li>
         ))}
-      </div>
+      </ul>
     </>
   )
 }
