@@ -302,26 +302,13 @@ ALTER TABLE `data_series` DROP COLUMN `val_2020`,
     DROP COLUMN `effect_goal_id`,
     ADD COLUMN `recipe_used_id` VARCHAR(191) NULL;
 
--- Move recipe_used_id from goals and effects to data_series
--- Technically a data series could be linked to both a goal and an effect with different recipe_used_id values,
--- but this should not be the case in practice, and if it is, the goal's recipe_used_id will take precedence over the effect's recipe_used_id
-UPDATE `data_series`
-    SET `recipe_used_id` = (
-        SELECT `effect`.`recipe_used_id`
-        FROM `effect`
-        WHERE `effect`.`action_id` = `data_series`.`effect_action_id`
-            AND `effect`.`goal_id` = `data_series`.`effect_goal_id`
-    )
-WHERE `data_series`.`effect_action_id` IS NOT NULL
-    AND `data_series`.`effect_goal_id` IS NOT NULL;
-
+-- Move recipe_used_id from goals to data_series
 UPDATE `data_series`
     SET `recipe_used_id` = (
         SELECT `goal`.`recipe_used_id`
         FROM `goal`
-        WHERE `goal`.`id` = `data_series`.`goal_id`
-    )
-WHERE `data_series`.`goal_id` IS NOT NULL;
+        WHERE `goal`.`data_series_id` = `data_series`.`id`
+    );
 
 -- Rename `Recipe` to `recipe` to follow naming convention
 ALTER TABLE `Recipe` RENAME TO `recipe`;
