@@ -153,3 +153,5 @@ tests/report.json
 
 # Prisma generated client
 src/prisma/generated/
+
+.vscode
