@@ -86,7 +86,7 @@ export default function LinkTree({
             { // If the current object is a goal (has an id), render a link to the goal
               typeof data[key].id == 'string' ? (
                 <Link href={`/goal/${data[key].id}`} className={`display-flex align-items-center padding-block-50 smooth text-decoration-none`}>
-                  <IconLink aria-hidden="true" color="gray" className="round padding-25 margin-inline-25" /> {/* TODO: Use link icon? */}
+                  <IconLink aria-hidden="true" color="gray" className="round padding-25 margin-inline-25" />
                   <span>
                     {key}
                   </span>

@@ -10,13 +10,15 @@ import { LocaleContext } from "@/lib/i18nClient.tsx";
 import { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
 import { TrafaVariable } from "@/lib/trafa/trafaTypes";
 import { Goal } from "@prisma/client";
-import { FormEvent, useContext, useEffect, useRef, useState } from "react";
-import { Trans, useTranslation } from "react-i18next";
+import { FormEvent, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
 import dialogStyles from '../api/queryBuilder.module.css' /* TODO: This seems a bit janky */
 import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
-import { IconAlertTriangle, IconEdit, IconInfoCircle, IconInfoCircleFilled, IconTrashXFilled, IconX } from "@tabler/icons-react";
+import { IconEdit, IconTrashXFilled, IconX } from "@tabler/icons-react";
+
+// TODO: Stuff is re-rendering like a bajillion times, fix this.
 {/* TODO: Metadata */ }
 export default function HistoricalData({
   goal,
@@ -33,42 +35,30 @@ export default function HistoricalData({
 
   const [isLoading, setIsLoading] = useState(false);
   const [visibleForm, setVisibleForm] = useState('manual')
+
   const [dataSource, setDataSource] = useState<string>(goal.externalDataset ? goal.externalDataset : "");
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
+  const [table, setTable] = useState<{ tableId: string, label: string } | null>(goal.externalTableId ? { label: tables?.find(t => t.tableId === goal.externalTableId)?.label ?? goal.externalTableId, tableId: goal.externalTableId } : null)
+  const [metric, setMetric] = useState<string | null>(goal.externalSelection ? JSON.parse(goal.externalSelection as string)[0].valueCodes[0] : null)
+
   const [tableDetails, setTableDetails] = useState<ApiTableDetails | null>(null);
   const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
-  const [defaultMetricSelected, setDefaultMetricSelected] = useState(true);
 
   const formRef = useRef<HTMLFormElement | null>(null);
   const deleteDataRef = useRef<HTMLDialogElement>(null)
 
-  useEffect(() => {
-    if (!dataSource) return;
-    setIsLoading(true);
-
-    // TODO: Undefined here is query, we likely want to remove it once this is all set ut and querybuilder.tsx is removed
-    void getTables(dataSource, undefined, lang).then(result => { setTables(result); setIsLoading(false); });
-  }, [dataSource, lang]);
-
-  useEffect(() => {
-    const metricSelectElement = document.getElementById("metric") as HTMLSelectElement | null;
-    if (metricSelectElement) {
-      setDefaultMetricSelected(metricSelectElement.value.length == 0);
-    } else {
-      setDefaultMetricSelected(true);
-    }
-  }, [tableDetails]);
-
-  function buildQuery(formData: FormData) {
+  // Gets relevant info from variable inputs
+  const buildQuery = useCallback((formData: FormData) => {
     const queryObject: { variableCode: string, valueCodes: string[] }[] = [];
     formData.forEach((value, key) => {
       // Skip empty values
-      if (!value) return;
       // Skip File inputs
+      // Skip externalDataset and externalTableId, they are not part of the query
+      if (!value) return;
       if (value instanceof File) return;
-      // Skip externalDataset, externalTableId, and `tableSearchInputName`, as they are not part of the query
       if (key == "externalDataset") return;
       if (key == "externalTableId") return;
+
       // The PxWeb time variable is special, as we want to fetch every period after (and including) the selected one
       if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && key == formRef.current?.getElementsByClassName("TimeVariable")[0]?.id) {
         queryObject.push({ variableCode: key, valueCodes: [`FROM(${value})`] });
@@ -76,43 +66,10 @@ export default function HistoricalData({
       }
       queryObject.push({ variableCode: key, valueCodes: [value] });
     });
-
     return queryObject;
-  }
+  }, [dataSource])
 
-  function deleteHistoricalData() {
-    formSubmitter("/api/goal", JSON.stringify({
-      goalId: goal.id,
-      externalDataset: null,
-      externalTableId: null,
-      externalSelection: null,
-      timestamp: Date.now(),
-    }), "PUT", t, setIsLoading);
-  }
-
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    // Return if insufficient selection has been made
-    if (!tables) return;
-    // Return if properly formatted response was not found
-    if (!tableContent) return;
-    if (!(event.target instanceof HTMLFormElement)) return;
-
-    if (!(event.target.checkValidity())) return;
-    const formData = new FormData(event.target); // TODO: This does not seem to be anything, figure out why (goal.externalDataset is saved, goal.externalTableId is not)
-    const query = buildQuery(formData);
-
-    // Update the goal with the new data
-    formSubmitter("/api/goal", JSON.stringify({
-      goalId: goal.id,
-      externalDataset: dataSource,
-      externalTableId: formData.get("externalTableId"),
-      externalSelection: JSON.stringify(query),
-      timestamp: Date.now(),
-    }), "PUT", t, setIsLoading);
-  }
-
-  function tryGetResult(event?: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
+  const tryGetResult = useCallback((event?: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) => {
     // null check
     if (!(formRef.current instanceof HTMLFormElement)) return;
 
@@ -122,8 +79,8 @@ export default function HistoricalData({
     if (formRef.current.checkValidity()) {
       const formData = new FormData(formRef.current);
       const query = buildQuery(formData);
-      const tableId = tableDetails?.id ?? formData.get("externalTableId") as string ?? "";
-      getTableContent(tableId, dataSource, query, lang).then(result => {
+
+      getTableContent(table ? table.tableId : "", dataSource, query, lang).then(result => {
         setTableContent(result);
         setIsLoading(false);
       }).catch(e => {
@@ -131,103 +88,108 @@ export default function HistoricalData({
         setTableContent(null);
         setIsLoading(false);
       });
+
       if (dataSource == "Trafa") {
         // If metric was changed, send the metric as a query to the API to get filtered table details
         if (event?.target instanceof HTMLSelectElement && event.target.name == "metric") {
-          void getTableDetails(tableId, dataSource, query.filter(q => q.variableCode == "metric"), lang).then(result => { setTableDetails(result); });
+          void getTableDetails(table ? table.tableId : "", dataSource, query.filter(q => q.variableCode == "metric"), lang).then(result => { setTableDetails(result); });
         }
       }
-    }
-    else {
+
+    } else {
       setTableContent(null);
       setIsLoading(false);
     }
-  }
+  }, [dataSource, lang, tableDetails?.id, buildQuery]);
 
-  function formChange(event: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
-    const changedElementIsExternalDataset = event.target instanceof HTMLSelectElement && event.target.name == "externalDataset";
-    const changedElementIsTableSearch = event.target instanceof HTMLInputElement && event.target.name == "tableSearch";
-    const changedElementIsTable = event.target instanceof HTMLInputElement && event.target.name == "externalTableId";
-
-    /* console.log(tableDetails); */
-    if (!changedElementIsExternalDataset && !changedElementIsTableSearch && !changedElementIsTable && tables && tableDetails) {
-      tryGetResult(event);
+  const setFormRef = useCallback((node: HTMLFormElement | null) => {
+    if (node) {
+      formRef.current = node;
+      tryGetResult();
     }
-  }
+  }, [tryGetResult]);
 
-  function handleDataSourceSelect(dataSource: string) {
-    setDataSource(dataSource);
-    // Clear table details and content whenever the data source changes
-    setTableContent(null);
-    setTableDetails(null);
-  }
+  // 1. Fetch table details
+  useEffect(() => {
+    if (!goal.externalTableId || !goal.externalDataset || !goal.externalSelection) return;
 
-  {/* TODO: See if we can remove table content when de-selecting  */ }
-  function handleTableSelect(tableId: string) {
+    void getTableDetails(
+      goal.externalTableId,
+      goal.externalDataset,
+      JSON.parse(goal.externalSelection), // TODO: Fix type issue
+      lang
+    ).then(setTableDetails);
+  }, [goal.externalTableId, goal.externalDataset, goal.externalSelection, lang]);
+
+  // 2. Fetch table content
+  useEffect(() => {
+    if (!formRef.current || !tableDetails) return;
+    tryGetResult();
+  }, [tableDetails, tryGetResult]);
+
+  useEffect(() => {
+    if (!dataSource) return;
     setIsLoading(true);
 
+    // TODO: Undefined here is query, we likely want to remove it once this is all set ut and querybuilder.tsx is removed
+    void getTables(dataSource, undefined, lang).then(result => { setTables(result); setIsLoading(false); });
+  }, [dataSource, lang]);
+
+  {/* TODO: See if we can remove table content when de-selecting  */ }
+  const handleTableSelect = useCallback((tableId: string | null) => {
     if (!ExternalDataset.getDatasetByAlternateName(dataSource)?.baseUrl) return;
     if (!tableId) return;
+    setIsLoading(true);
 
     setTableContent(null);
     setTableDetails(null);
 
     void getTableDetails(tableId, dataSource, undefined, lang).then(result => { setTableDetails(result); setIsLoading(false); });
-  }
+  }, [dataSource, lang])
 
-  function handleMetricSelect(event: React.ChangeEvent<HTMLSelectElement>) {
-    setIsLoading(true);
-    const isDefaultValue = event.target.value.length == 0;
-    setDefaultMetricSelected(isDefaultValue);
-    const variableSelectionFieldSets = document?.getElementsByName("variableSelectionFieldset");
-
-    if (variableSelectionFieldSets.length > 0) {
-      variableSelectionFieldSets.forEach(variableSelectionFieldset => {
-        if (!isDefaultValue && variableSelectionFieldset.hasAttribute("disabled")) {
-          variableSelectionFieldset.removeAttribute("disabled");
-        }
-        else if (isDefaultValue) {
-          // Reset the selection of all select elements in the variable fieldset before disabling
-          variableSelectionFieldset.querySelectorAll("select").forEach(select => {
-            select.value = "";
-          });
-          variableSelectionFieldset.setAttribute("disabled", "true");
-          // Reset all the table details when disabling the form so all options are displayed when re-enabling
-          if (dataSource == "Trafa") {
-            void getTableDetails(tableDetails?.id ?? "", dataSource, undefined, lang).then(result => { setTableDetails(result); setIsLoading(false); });
-          }
-          else {
-            setIsLoading(false);
-          }
-        }
-      });
-    } else {
-      /* console.log("no variable selection fieldset found"); */
-      setIsLoading(false);
-    }
-  }
+  useEffect(() => {
+    handleTableSelect(table?.tableId ? table.tableId : null)
+  }, [table, handleTableSelect])
 
   // TODO: should probably use a pseudo class (::after) instead of a span here.
   function optionalTag(dataSource: string, variableIsOptional: boolean) {
     if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variableIsOptional) return <span className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</span>;
   }
 
-
-  function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails) {
+  function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails) { 
     if (variable.option) {
-      return (
+      // The idea here is basically to we see which variables exist, and moving them to an array separately from metric as that value is already set. 
+      // We then check if the variable which we render is in our list and get the default value from there.
+      // This isnt very optimal as each render of a variable will trigger a loop of a new list, there is likely a better way to achieve this. 
+      if (!goal.externalSelection) return // TODO: Very hacky, temp fix. TODO: Also need to do this for time also
+      const externalSelection: Array<{variableCode: string, valueCodes: Array<string>}> = JSON.parse(goal.externalSelection) as Array<{variableCode: string, valueCodes: Array<string>}>
+      const variables: Array<{variableCode: string, valueCodes: Array<string>}> = []
+      externalSelection.map((variable: {variableCode: string, valueCodes: Array<string>}) => {
+        if(variable.variableCode !== 'metric') {
+          variables.push(variable)
+        }
+      })
+      
+      const selectedVariable = variables.find(v => v.variableCode === variable.name);
+      const selectedValue = selectedVariable ? selectedVariable.valueCodes[0] : '';
+
+       return (
         <label key={variable.name}>
           {/* Only display "optional" tags if the data source provides this information */}
           {variable.label}{optionalTag(dataSource, variable.optional)}
-          {/* TODO: Use CSS to set proper capitalization of labels; something like `label::first-letter { text-transform: capitalize; }` */}
-          <select className={`block margin-top-25 margin-bottom-100 ${variable.label}`}
+          {
+          /* TODO: Use CSS to set proper capitalization of labels; something like `label::first-letter { text-transform: capitalize; }` */}
+          <select 
+            className='block margin-top-25 margin-bottom-100'
             required={!variable.optional}
             name={variable.name}
             id={variable.name}
+            value={selectedValue}
+            onChange={() => tryGetResult()}
           >
             { // If only one value is available, don't show a placeholder option
-              ExternalDataset.getDatasetByAlternateName(dataSource)?.api !== "PxWeb" ||
-              ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variable.values && variable.values.length > 1 &&
+              (ExternalDataset.getDatasetByAlternateName(dataSource)?.api !== "PxWeb" ||
+                (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variable.values && variable.values.length > 1)) &&
               <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option>
             }
             {variable.values && variable.values.map(value => (
@@ -242,43 +204,72 @@ export default function HistoricalData({
   }
 
   function timeVariableSelectionHelper(times: (TrafaVariable | PxWebTimeVariable)[], language?: string) {
-    if ((dataSource == "Trafa" && !(times.length == 1 && times[0].name == "ar")) || (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && times.length > 1)) {
+    if (
+      (dataSource == "Trafa" && !(times.length == 1 && times[0].name == "ar")) ||
+      (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && times.length > 1)
+    ) {
       let heading = "";
       let defaultValue = "";
       let displayValueKey: keyof typeof times[0]/* "label" | "id" | "name" | "type" */ = "id";
       const variableIsOptional = times[0].optional;
       if (dataSource == "Trafa") {
-        // heading = "Välj tidsintervall";
         heading = t("components:query_builder.select_time_interval");
-        // defaultValue = "Välj tidsintervall";
         defaultValue = t("components:query_builder.select_time_interval");
         displayValueKey = "label";
       } else if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb") {
-        // heading = "Välj startperiod";
         heading = t("components:query_builder.select_starting_period");
-        // defaultValue = "Välj tidsperiod";
         defaultValue = t("components:query_builder.select_time_period");
         displayValueKey = "id";
       }
-      return (<label key="Tid">
-        {heading}{optionalTag(dataSource, variableIsOptional)}
-        <select className={`block margin-top-25 margin-bottom-100`}
-          required={false}
-          name="Tid"
-          id="Tid"
-          defaultValue={times && times.length == 1 ? times[0].label : undefined}>
-          <option value="" className={`font-style-italic color-gray`}>{defaultValue}</option>
-          {times.map(time => (
-            <option key={time.name} value={time.name} lang={language}>{time[displayValueKey]}</option>
-          ))}
-        </select>
-      </label>)
+      return (
+        <label key="Tid">
+          {heading}{optionalTag(dataSource, variableIsOptional)}
+          <select className='block margin-top-25 margin-bottom-100'
+            required={false}
+            name="time"
+            id="time"
+            defaultValue={times && times.length == 1 ? times[0].label : undefined}
+            onChange={() => tryGetResult()}
+          >
+            <option value="" className={`font-style-italic color-gray`}>{defaultValue}</option>
+            {times.map(time => (
+              <option key={time.name} value={time.name} lang={language}>{time[displayValueKey]}</option>
+            ))}
+          </select>
+        </label>
+      )
     }
   }
 
-  function shouldVariableFieldsetBeVisible(tableDetails: ApiTableDetails, dataSource: string) {
-    const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb") && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1);
-    return returnBool;
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    // Return if insufficient selection has been made
+    if (!tables) return;
+    // Return if properly formatted response was not found
+    if (!tableContent) return;
+    if (!(event.target instanceof HTMLFormElement)) return;
+
+    if (!(event.target.checkValidity())) return;
+    const formData = new FormData(event.target);
+    const query = buildQuery(formData);
+    // Update the goal with the new data
+    formSubmitter("/api/goal", JSON.stringify({
+      goalId: goal.id,
+      externalDataset: dataSource,
+      externalTableId: table?.tableId,
+      externalSelection: JSON.stringify(query),
+      timestamp: Date.now(),
+    }), "PUT", t, setIsLoading);
+  }
+
+  function deleteHistoricalData() {
+    formSubmitter("/api/goal", JSON.stringify({
+      goalId: goal.id,
+      externalDataset: null,
+      externalTableId: null,
+      externalSelection: null,
+      timestamp: Date.now(),
+    }), "PUT", t, setIsLoading);
   }
 
   // Index for data-position attribute in legend elements (for accessibility)
@@ -330,21 +321,21 @@ export default function HistoricalData({
               <>
                 <fieldset data-info className={`${styles.timeLineFieldset} fieldset-unset-pseudo-class width-100 margin-top-200`}>
                   <legend className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}> {/* TODO: i18n */}
-                    Information {/* TODO: I18n */}
+                    Information {/* TODO: I18n */} {/* TODO: Maybe we should allow editing idk */}
                   </legend>
                   <p className="margin-0 font-weight-500">
                     Denna målbana har redan en extern datakälla. Du kan antingen justera din historiska data manuellt eller ta bort den externa datakällan och lägga till en ny  {/* TODO: I18n */}
                   </p> {/* TODO: I18n */}
                   <div className="flex gap-25 margin-top-100">
-                    <button 
-                      className="flex-grow-100 flex align-items-center justify-content-space-between gap-25 font-weight-500" 
-                      style={{ transform: 'scale(1)'}}
-                      onClick={() => setVisibleForm("manual")}  
+                    <button
+                      className="flex-grow-100 flex align-items-center justify-content-space-between gap-25 font-weight-500"
+                      style={{ transform: 'scale(1)' }}
+                      onClick={() => setVisibleForm("manual")}
                     >
                       Justera manuellt {/* TODO: I18n */}
                       <IconEdit width={18} height={18} style={{ minWidth: '18px' }} aria-hidden="true" />
                     </button>
-                    <button type="button" className="red color-purewhite flex align-items-center justify-content-space-between gap-100 font-weight-500" style={{ transform: 'scale(1)'}} onClick={() => deleteDataRef.current?.showModal()}>
+                    <button type="button" className="red color-purewhite flex align-items-center justify-content-space-between gap-100 font-weight-500" style={{ transform: 'scale(1)' }} onClick={() => deleteDataRef.current?.showModal()}>
                       Ta bort extern datakälla {/* TODO: I18n (replace previous existing) */}
                       <IconTrashXFilled fill='white' width={16} height={16} style={{ minWidth: '16px' }} aria-hidden="true" />
                     </button>
@@ -362,10 +353,10 @@ export default function HistoricalData({
                     <div className="padding-100 flex flex-direction-column"> {/* TODO: I18n */}
                       <p className="margin-0 flex-grow-100">Är du säker på att du vill ta bort extern datakälla: <span style={{ fontStyle: 'italic' }}>{tables?.find(t => t.tableId === goal.externalTableId)?.label ?? goal.externalTableId}({goal.externalDataset})</span> från målbana: <span className="font-weight-600">{goal.name}</span>?</p>
                       <div className="flex gap-25">
-                        <button className="flex-grow-100" onClick={() => deleteDataRef.current?.close()}>
+                        <button className="flex-grow-100 font-weight-500" onClick={() => deleteDataRef.current?.close()}>
                           Avbryt {/* TODO: I18n */}
                         </button>
-                        <button type="button" className="color-purewhite red gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem", lineHeight: '1.5' }} onClick={deleteHistoricalData}> {/* TODO: loading state */}
+                        <button type="button" className="color-purewhite red font-weight-500" onClick={deleteHistoricalData}> {/* TODO: loading state */}
                           Ta bort extern datakälla {/* TODO: I18n */}
                         </button>
                       </div>
@@ -375,7 +366,7 @@ export default function HistoricalData({
               </>
               : null}
 
-            <form ref={formRef} onChange={formChange} onSubmit={handleSubmit} className="flex flex-direction-column flex-grow-1" style={{ minHeight: '0' }}>
+            <form ref={setFormRef} onSubmit={handleSubmit} className="flex flex-direction-column flex-grow-1" style={{ minHeight: '0' }}>
               {/* Hidden disabled submit button to prevent accidental submission */}
               <button type="submit" className="display-none" disabled></button>
 
@@ -389,7 +380,19 @@ export default function HistoricalData({
                   {((ExternalDataset.getDatasetByAlternateName(dataSource)) && !(ExternalDataset.getDatasetByAlternateName(dataSource)?.supportedLanguages.includes(lang))) ?
                     <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</small>
                     : null}
-                  <select defaultValue={goal.externalDataset ? goal.externalDataset : ''} className="block margin-top-25 margin-bottom-100 width-100" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
+                  <select
+                    defaultValue={goal.externalDataset ? goal.externalDataset : ''}
+                    className="block margin-top-25 margin-bottom-100 width-100"
+                    required
+                    name="externalDataset"
+                    id="externalDataset"
+                    onChange={e => {
+                      setDataSource(e.target.value);
+                      setTable(null);
+                      setMetric(null);
+                      setTableContent(null);
+                      setTableDetails(null);
+                    }}>
                     <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_source")}</option>
                     {ExternalDataset.knownDatasetKeys.map((name) => (
                       <option key={name} value={name}>{ExternalDataset[name]?.fullName}</option>
@@ -402,20 +405,12 @@ export default function HistoricalData({
                     className: 'margin-top-25 margin-bottom-100',
                     id: 'externalTableId',
                     name: 'externalTableId',
-                    placeholder: 'Välj tabell',
+                    placeholder: !dataSource ? 'Välj datakälla för att se tabeller' : 'Välj tabell', // TODO i18n
                     required: true,
                     disabled: !dataSource ? true : false
                   }}
-                  defaultValue={
-                    goal.externalTableId
-                      ? {
-                        name:
-                          tables?.find(t => t.tableId === goal.externalTableId)?.label
-                          ?? goal.externalTableId,
-                        value: goal.externalTableId,
-                      }
-                      : undefined
-                  } options={
+                  defaultValue={table ? { name: table.label, value: table.tableId } : false}
+                  options={
                     tables
                       ? tables.map(({ tableId, label }) => ({
                         name: label,
@@ -423,102 +418,80 @@ export default function HistoricalData({
                       }))
                       : []
                   }
-                  onChange={(value) => value?.value ? handleTableSelect(value.value) : handleTableSelect('')}
+                  onChange={(value) => value?.value ? setTable({ tableId: value.value, label: value.name }) : setTable(null)}
                 />
               </fieldset>
 
-              {tableDetails && (
-                // TODO - which inputs should be optional?
-                <>
-                  <fieldset disabled={goal.externalDataset && goal.externalTableId ? true : false} className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-                    <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>
-                      {t("components:query_builder.select_metric_for_table")}
-                    </legend>
-                    <label key={`metric-${tableDetails.id}`}>
-                      Välj mätvärde {/* TODO: I18n */}
-                      <select className={`block margin-top-25 margin-bottom-100 metric`}
-                        required={true}
-                        name="metric"
-                        id="metric"
-                        defaultValue={undefined}
-                        onChange={handleMetricSelect}>
-                        <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_metric")}</option>
-                        {tableDetails.metrics && tableDetails.metrics.map(metric => (
-                          <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
-                        ))}
-                      </select>
-                    </label>
-                  </fieldset>
-                  <fieldset name="variableSelectionFieldset" disabled={true} className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-                    {shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? (
-                      <>
-                        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>
-                          {t("components:query_builder.select_values_for_table")}
-                        </legend>
-                        <div>
-                          {tableDetails.times &&
-                            timeVariableSelectionHelper(tableDetails.times, tableDetails.language)
-                          }
-                          {tableDetails.variables.map(variable => {
-                            return variableSelectionHelper(variable, tableDetails);
-                          })}
-                          {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => {
-                            if (hierarchy.children?.some(variable => variable.option)) return (
-                              <label key={hierarchy.name} className="block margin-block-75">
-                                <b>{hierarchy.label}</b>
-                                {hierarchy.children && hierarchy.children.map(variable => {
-                                  return variableSelectionHelper(variable, tableDetails);
-                                })}
-                              </label>
-                            )
-                          })}
-                        </div>
-                      </>) : (<p className={`font-style-italic color-gray`}>{t("components:query_builder.no_variables_found")}</p>)}
-                  </fieldset>
-
-                </>
-              )}
-              <output>
-                {/* TODO: style this better */}
-                {tableContent && tableContent.values.length > 0 ? (
-                  <div>
-                    <p>{t("components:query_builder.does_this_look_correct", { count: 5 })}</p>
-                    <table>
-                      <thead>
-                        <tr>
-                          <th scope="col">{t("components:query_builder.period")}</th>
-                          <th scope="col">{t("components:query_builder.value")}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {
-                          tableContent.values.map(({ period, value }, rowIndex) => {
-                            return (
-                              rowIndex < 5 &&
-                              <tr key={period}>
-                                <td>{period}</td>
-                                <td>{value}</td>
-                              </tr>
-                            )
-                          })
-                        }
-                      </tbody>
-                    </table>
-                  </div>
-                ) :
-                  !defaultMetricSelected &&
-                  formRef.current?.checkValidity() && (
-                    <p className="padding-100">{t("components:query_builder.no_result_found")}</p>
+              {/* TODO - which inputs should be optional? */}
+              <fieldset disabled={goal.externalDataset && goal.externalTableId ? true : false} className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+                <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>
+                  {t("components:query_builder.select_metric_for_table")}
+                </legend>
+                {table && tableDetails ? (
+                  <label key={`metric-${tableDetails.id}`}>
+                    Välj mätvärde {/* TODO: I18n */}
+                    <select className={`block margin-top-25 margin-bottom-100 metric`}
+                      required={true}
+                      name="metric"
+                      id="metric"
+                      value={metric ? metric : ''}
+                      onChange={(e) => setMetric(e.target.value)}
+                    >
+                      <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_metric")}</option>
+                      {tableDetails.metrics && tableDetails.metrics.map(metric => (
+                        <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
+                      ))}
+                    </select>
+                  </label>
+                ) : (
+                  <p>Välj en datakälla först</p> /* TODO: I18n */
+                )}
+              </fieldset>
+              <fieldset disabled={goal.externalDataset && goal.externalTableId && goal.externalSelection ? true : false} name="variableSelectionFieldset" className={`${styles.timeLineFieldset} width-100 margin-top-200`}> {/* Figure out disabled for this form */}
+                <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>
+                  {t("components:query_builder.select_values_for_table")}
+                </legend>
+                {tableDetails?.variables && metric ? (
+                  (tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || // TODO: Figure out why this is structured as is? Only the first if statement makes sense to me
+                    (
+                      !(ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb") &&
+                      tableDetails.variables.some(variable => variable.option)
+                    ) ||
+                    tableDetails.times.length > 1 ? (
+                    <div>
+                      {tableDetails.times &&
+                        timeVariableSelectionHelper(tableDetails.times, tableDetails.language)
+                      }
+                      {tableDetails.variables.map(variable => {
+                        return variableSelectionHelper(variable, tableDetails);
+                      })}
+                      {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => {
+                        if (hierarchy.children?.some(variable => variable.option)) return (
+                          <div key={hierarchy.name}>
+                            <div className="font-weight-bold">{hierarchy.label}</div>
+                            <div className="block margin-block-75 margin-left-75">
+                              {hierarchy.children && hierarchy.children.map(variable => {
+                                return variableSelectionHelper(variable, tableDetails);
+                              })}
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    <p className={`font-style-italic color-gray`}>{t("components:query_builder.no_variables_found")}</p> /* TODO: Text should be made clearer, e.g "no variables exist for this table..."" */
                   )
-                }
-              </output>
-
+                ) : (
+                  <p>Välj ett mätvärde först</p> /* TODO: I18n */
+                )}
+              </fieldset>
               <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: "1px solid var(--gray-80)" }}>
                 <button
                   id="submit-button"
                   type="submit"
                   className="text-align-center seagreen color-purewhite width-100"
                   style={{ fontSize: "14px", transform: "none" }}
+                  disabled={!tableDetails || !tableContent || !dataSource}
                 >
                   {t("components:query_builder.add_data_source_button")}
                 </button>

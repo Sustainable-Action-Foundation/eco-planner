@@ -108,10 +108,11 @@
   },
   "roadmap": {
     "title": "{{$t(common:roadmap_version_one), titleCase}}",
-    "version": "{{$t(common:roadmap_version_one), titleCase}} v{{version}}",
+    "version": "{{$t(common:roadmap_version_one), titleCase}} (v{{version}})",
     "show_series": "Visit $t(common:roadmap_series_one)",
     "featured_goals": "Featured $t(common:goal_other)",
-    "all_goals": "All $t(common:goal_other)"
+    "all_goals": "All $t(common:goal_other)",
+    "all_actions": "All $t(common:action_other)"
   },
   "roadmap_create": {
     "breadcrumb": "$t(common:new.roadmap_version)",

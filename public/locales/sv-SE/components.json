@@ -217,6 +217,8 @@
   },
   "table_menu": {
     "add_effect_from_existing_action": "Lägg till $t(common:effect_one) från befintlig $t(common:action_one)",
+    "admin_panel_title": "Administrationspanel",
+    "admin_panel_info": "Enbart användare med administrations- eller redigeringsbehörighet kan se denna panel. Vilka åtgärder som är tillgängliga för en användare beror på deras behörighetsnivå.",
     "button_aria": "Meny för {{component}}",
     "button_aria_alt": "namn saknas",
     "delete": "Radera inlägg",
@@ -227,10 +229,12 @@
     "go_to_goal": "Gå till $t(common:goal_one)",
     "go_to_series": "Gå till $t(common:roadmap_series_one)",
     "go_to_version": "Gå till $t(common:roadmap_version_one)",
+    "historical_data": "Justera historisk data",
     "new_action": "Ny $t(common:action_one)",
     "new_effect": "Ny $t(common:effect_one)",
     "new_goal": "Ny $t(common:goal_one)",
-    "new_roadmap_version": "Ny $t(common:roadmap_version_one)"
+    "new_roadmap_version": "Ny $t(common:roadmap_version_one)",
+    "no_available_actions": "Inga tillgängliga åtgärder"
   },
   "table_selector": {
     "actions": "{{$t(common:action_other), titleCase}}",

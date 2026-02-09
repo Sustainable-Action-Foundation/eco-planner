@@ -101,7 +101,6 @@
     "eslint-config-next": "^15.5.9",
     "lorem-ipsum": "^2.0.8",
     "playwright": "^1.57.0",
-    "pocketbase": "^0.26.5",
     "prisma": "^6.15.0",
     "regexp.escape": "^2.0.1",
     "tsx": "^4.21.0",

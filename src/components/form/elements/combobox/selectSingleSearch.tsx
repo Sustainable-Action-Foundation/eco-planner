@@ -25,13 +25,37 @@ export default function SelectSingleSearch({
 }) {
   const { t } = useTranslation(["forms"]);
 
-  const [value, setValue] = useState<Option | null>( // TODO: We probably need a check that default value exists in our options
-    typeof defaultValue === "object" && defaultValue !== null
-      ? defaultValue
-      : defaultValue === true
-        ? options[0]
-        : null
-  )
+  // TODO: We probably need a check that default value exists in our options
+  const [value, setValue] = useState<Option | null>(null)
+
+  // Syncs default value to value
+  // NOTE: Might want to explore if we can make this a controlled component (i.e Move state ownership to its parent) (would mean treating value and defaultvalue as any other standard input does)
+  useEffect(() => {
+    // Auto-select first option
+    if (defaultValue === true && options.length > 0) {
+      if (value?.value !== options[0].value) {
+        setValue(options[0]);
+      }
+      return;
+    }
+
+    // If we explicitely state that we do not want a default value
+    if (defaultValue === false) {
+      if (value !== null) {
+        setValue(null);
+      }
+      return;
+    }
+
+    // If we define an explicit default value 
+    if (typeof defaultValue === "object" && defaultValue !== null) {
+      if (value?.value !== defaultValue.value) {
+        setValue(defaultValue);
+      }
+    }
+  }, [defaultValue, options, value]);
+
+
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const [focusedListboxOption, setFocusedListboxOption] = useState<number | null>(null);
   const [searchValue, setSearchValue] = useState<string>('')

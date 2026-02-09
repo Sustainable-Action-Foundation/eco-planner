@@ -60,7 +60,7 @@ export default function QueryBuilder({
 
     void getTables(dataSource, query, lang).then(result => { setTables(result); setIsLoading(false); });
   }, [dataSource, lang]);
-
+ 
   useEffect(() => {
     if (tables) {
       setRenderedTables(tables

@@ -1,13 +1,5 @@
 /* Might be sensible to abstract this to a global file? :)*/
 
-.modal {
-  padding: 1rem;
-  border-radius: .25rem;
-  border: 0;
-  width: min(45ch, 100%);
-  box-shadow: 0 0 .5rem -.25rem rgb(0, 0, 0);
-}
-
 .dialog {
   width: min(90ch, 100%);
   overflow: unset;
@@ -38,8 +30,8 @@
   border-radius: .5rem .5rem 0 0; /* Same as dialog */
 }
 
-.dialog-header > h1 {
-  font-size: 1.75rem;
+.dialog-header > h2 {
+  font-size: 1.5rem;
 }
 
 .dialog-body {

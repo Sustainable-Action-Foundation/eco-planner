@@ -11,9 +11,11 @@ import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { DataSeries, Goal } from "@prisma/client";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
-import { IconCircleFilled, IconEdit } from "@tabler/icons-react";
+import { IconArrowBack, IconArrowBackUp, IconArrowNarrowRight, IconArrowNarrowRightDashed, IconBuildings, IconCircleFilled, IconEdit, IconPlus, IconTrashFilled, IconTrashXFilled, IconUser } from "@tabler/icons-react";
 import Link from "next/link";
 import TextEditor from "@/components/form/elements/textEditor/editor";
+import { AdminPanel } from "@/components/tables/tableMenu/tableMenu";
+import ActionTable from "@/components/tables/actions";
 
 export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }) {
   const params = await props.params
@@ -59,72 +61,71 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
   if (!roadmap || !accessLevel) {
     return notFound();
   }
- 
+
+
   return <>
 
     <Breadcrumb object={roadmap} />
 
+    {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
+      <AdminPanel accessLevel={accessLevel} object={{ ...roadmap, _count: { goals: roadmap.goals.length } }} />
+    }
+
     <main>
-      <section className="flex justify-content-space-between flex-wrap-wrap gap-100 margin-block-300" >
-        <div className="flex-grow-100">
-          <span style={{ color: 'gray' }}>{t("pages:roadmap.title")}</span>
-          <h1 className="margin-0">{roadmap.metaRoadmap.name}</h1>
-          <p className="margin-0">
-            {t("pages:roadmap.version", { version: roadmap.version })}
-            {" • "}
-            {roadmap.metaRoadmap.actor ?
-              <>
-                {roadmap.metaRoadmap.actor}
-                {" • "}
-              </>
-              :
-              null
-            }
+      <section className="margin-block-300" >
+        <span style={{ color: 'gray' }}>{t("pages:roadmap.version", { version: roadmap.version })}</span>
+        <h1 className="margin-0">{roadmap.metaRoadmap.name}</h1>
+        <div className="margin-0 flex justify-content-space-between margin-bottom-50 padding-bottom-50" style={{ borderBottom: '1px solid var(--gray-80)' }}>
+          <span className="font-weight-600">
             {t("common:count.goal", { count: roadmap.goals.length })}
-            {"  "}
-            {/* TODO: style link to better match surroundings */}
-            <Link href={`/metaRoadmap/${roadmap.metaRoadmapId}`}>{t("pages:roadmap.show_series")}</Link>
-          </p>
+          </span>
+          <Link href={`/metaRoadmap/${roadmap.metaRoadmapId}`} className="discrete-link flex gap-25 align-items-center" style={{lineHeight: '1'}}>
+            {t("pages:roadmap.show_series")}
+            <IconArrowNarrowRight height={20} width={20} style={{minWidth: '20px'}} />
+          </Link>
+        </div>
+        <div className="flex gap-75 align-items-center margin-top-75">
+          <Link className="flex gap-25 align-items-center discrete-link" href={`/@${roadmap.author.username}`}>
+            <IconUser strokeWidth={1.75}  style={{minWidth: '24px'}} />
+            {roadmap.author.username}
+          </Link>
+          <span style={{userSelect: 'none'}}>{"•"}</span>
+          {roadmap.metaRoadmap.actor ?  
+            <div className="flex gap-25 align-items-center">
+              <IconBuildings strokeWidth={1.75}  style={{minWidth: '24px'}} />
+              {roadmap.metaRoadmap.actor}
+            </div>
+            :
+            null
+          }
+        </div>
+        <div className="margin-top-300">
+          <TextEditor
+            id="rich-description"
+            editable={false}
+            defaultStyles={false}
+            content={roadmap.metaRoadmap.description}
+          />
+        </div>
+        {roadmap.description ? (
           <div className="margin-top-100">
             <TextEditor
               id="rich-description"
               editable={false}
               defaultStyles={false}
-              content={roadmap.metaRoadmap.description}
+              content={roadmap.description}
             />
           </div>
-          {roadmap.description ? (
-            <div className="margin-top-100">
-              <TextEditor
-                id="rich-description"
-                editable={false}
-                defaultStyles={false}
-                content={roadmap.description}
-              />
-            </div>
-          ) : null}
-        </div>
-
-        {/* Only show the edit link if the user has edit access to the roadmap */}
-        {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-          <Link
-            href={`/roadmap/${roadmap.id}/edit`}
-            className="flex align-items-center gap-50 font-weight-500 button transparent round color-pureblack text-decoration-none"
-            style={{ height: 'fit-content' }}
-          >
-            {t("common:edit.roadmap_version")}
-            <IconEdit style={{ minWidth: '24px' }} aria-hidden="true" />
-          </Link>
-        }
+        ) : null}
       </section>
 
       {featuredGoals.length > 0 ?
         <section className="margin-block-300">
           <h2>{t("pages:roadmap.featured_goals")}</h2>
-          <div className="flex flex-wrap-nowrap gap-100 overflow-x-scroll padding-bottom-100" style={{scrollbarWidth: 'thin', scrollbarColor: 'var(--gray) rgba(0,0,0,0)', scrollSnapType: 'x mandatory', direction: 'ltr'}}>
+          <div className="flex flex-wrap-nowrap gap-100 overflow-x-scroll padding-bottom-100" style={{ scrollbarWidth: 'thin', scrollbarColor: 'var(--gray) rgba(0,0,0,0)', scrollSnapType: 'x mandatory', direction: 'ltr' }}>
             {featuredGoals.map((goal, key) =>
               goal && (
-                <Link key={key} href={`/goal/${goal.id}`} className="color-pureblack text-decoration-none" style={{width: '300px', height: '250px', scrollSnapAlign: 'start'}}>
+                <Link key={key} href={`/goal/${goal.id}`} className="color-pureblack text-decoration-none" style={{ width: '300px', height: '250px', scrollSnapAlign: 'start' }}>
                   <ThumbnailGraph goal={goal} historicalData={true} />
                 </Link>
               )
@@ -134,8 +135,8 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
             goal => goal?.externalDataset && goal?.externalTableId
           ) && (
               <div className="display-flex align-items-center gap-100 margin-top-100 font-weight-500">
-                <span style={{ color: 'var(--gray-20)' }}><IconCircleFilled width={12} height={12} fill="#0090ff" aria-hidden="true" className="margin-right-25" />{t("common:goal_one")}</span> {/* TODO: i18n, replace with icon*/}
-                <span style={{ color: 'var(--gray-20)' }}><IconCircleFilled width={12} height={12} fill="#2e8a56" aria-hidden="true" className="margin-right-25" />{t("common:historical_data")}</span> {/* TODO: i18n, replace with icon */}
+                <span style={{ color: 'var(--gray-20)' }}><IconCircleFilled width={12} height={12} fill="#0090ff" aria-hidden="true" className="margin-right-25" />{t("common:goal_one")}</span> 
+                <span style={{ color: 'var(--gray-20)' }}><IconCircleFilled width={12} height={12} fill="#2e8a56" aria-hidden="true" className="margin-right-25" />{t("common:historical_data")}</span>
               </div>
             )}
         </section>
@@ -144,6 +145,11 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
       <section className="margin-block-300">
         <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:roadmap.all_goals")}</h2>
         <Goals roadmap={roadmap} accessLevel={accessLevel} />
+      </section>
+
+      <section className="margin-block-300">
+        <h2 className='margin-bottom-100 padding-bottom-50'  style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:roadmap.all_actions")}</h2>
+        <ActionTable  actions={roadmap.actions} accessLevel={accessLevel} roadmapId={roadmap.id} />
       </section>
     </main>
 

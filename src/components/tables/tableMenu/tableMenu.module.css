@@ -19,6 +19,7 @@
   padding: .25rem;
   display: flex;
   align-items: center;
+  gap: .25rem;
   transition: background-color .2s ease;
 }
 
@@ -70,4 +71,68 @@
 
 .menu .menuAction:hover {
   background-color: var(--gray-90);
+}
+
+/* Objectmenu */
+
+.object-menu {
+  font-size: 14px;
+  border-top: 1px solid var(--gray-80);
+  border-bottom: 1px solid var(--gray-80);
+}
+
+.object-menu hr {
+  border-style: solid;
+  color: var(--gray-80);
+}
+
+.object-menu>nav:last-of-type hr:last-of-type {
+  display: none;
+}
+
+.object-menu-link, .object-menu-button {
+  background-color: hsl(200, 15%, 92%);
+  border: 1px solid hsl(200, 20%, 82%);
+  color: black;
+  text-decoration: none;
+  transition: background-color .1s ease, border-color .1s ease;
+  padding-block: .3rem;
+  padding-inline: .6rem;
+}
+
+.object-menu-link:hover {
+  background-color: var(--gray-90);
+  border-color: var(--blue-40);
+  box-shadow: none;
+}
+
+@media (max-width: 802px) {
+
+  /* Note: arbitrary value based on the overflow width for objectmenu on goalpage */
+  .object-menu {
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .object-menu hr {
+    display: none;
+    margin-block: .25rem;
+    border-top: 0;
+  }
+
+  .object-menu>nav:last-of-type hr:last-of-type {
+    display: initial;
+  }
+  
+  .object-menu hr:last-of-type {
+    display: none;
+  }
+
+  .object-menu-link, .object-menu-button {
+    justify-content: space-between;
+    padding: .5rem;
+    margin-block: .25rem;
+  }
 }
