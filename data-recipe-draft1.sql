@@ -1,4 +1,13 @@
 -- Very manual migration :)
+-- Original prisma-generated migration is at the bottom of this file, included for reference
+
+-- Misc. foreign key and index cleanup
+-- DropForeignKey
+ALTER TABLE `_inheritance_suggestions` DROP FOREIGN KEY `_inheritance_suggestions_B_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `_recipe_data_series` DROP FOREIGN KEY `_recipe_data_series_A_fkey`,
+    DROP FOREIGN KEY `_recipe_data_series_B_fkey`;
 
 -- Data series migration
 CREATE TABLE `date_record` (
@@ -263,6 +272,11 @@ ALTER TABLE `data_series` DROP FOREIGN KEY `data_series_baseline_goal_id_fkey`,
     DROP FOREIGN KEY `data_series_effect_action_id_effect_goal_id_fkey`,
     DROP FOREIGN KEY `data_series_goal_id_fkey`;
 
+-- Remove indexes on dropped foreign keys
+DROP INDEX `data_series_baseline_goal_id_key` ON `data_series`;
+DROP INDEX `data_series_goal_id_key` ON `data_series`;
+DROP INDEX `effect_id` ON `data_series`;
+
 -- DROP val_ columns, baseline_goal_id, effect_action_id, effect_goal_id and goal_id;
 -- ADD recipe_used_id to data_series
 ALTER TABLE `data_series` DROP COLUMN `val_2020`,
@@ -310,6 +324,225 @@ UPDATE `data_series`
         WHERE `goal`.`data_series_id` = `data_series`.`id`
     );
 
+-- Remove recipe_used_id from goals
+ALTER TABLE `goal` DROP FOREIGN KEY `goal_recipe_used_id_fkey`;
+DROP INDEX `goal_recipe_used_id_fkey` ON `goal`;
+ALTER TABLE `goal` DROP COLUMN `recipe_used_id`;
+
 -- Rename `Recipe` to `recipe` to follow naming convention
 ALTER TABLE `Recipe` RENAME TO `recipe`;
 
+-- CreateTable
+CREATE TABLE `_source_data_series` (
+    `A` VARCHAR(191) NOT NULL,
+    `B` VARCHAR(191) NOT NULL,
+
+    UNIQUE INDEX `_source_data_series_AB_unique`(`A`, `B`),
+    INDEX `_source_data_series_B_index`(`B`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `goal` ADD CONSTRAINT `goal_data_series_id_fkey` FOREIGN KEY (`data_series_id`) REFERENCES `data_series`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `goal` ADD CONSTRAINT `goal_baseline_id_fkey` FOREIGN KEY (`baseline_id`) REFERENCES `data_series`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `data_series` ADD CONSTRAINT `data_series_recipe_used_id_fkey` FOREIGN KEY (`recipe_used_id`) REFERENCES `recipe`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `date_record` ADD CONSTRAINT `date_record_data_series_id_fkey` FOREIGN KEY (`data_series_id`) REFERENCES `data_series`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `effect` ADD CONSTRAINT `effect_data_series_id_fkey` FOREIGN KEY (`data_series_id`) REFERENCES `data_series`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `_inheritance_suggestions` ADD CONSTRAINT `_inheritance_suggestions_B_fkey` FOREIGN KEY (`B`) REFERENCES `recipe`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `_source_data_series` ADD CONSTRAINT `_source_data_series_A_fkey` FOREIGN KEY (`A`) REFERENCES `data_series`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `_source_data_series` ADD CONSTRAINT `_source_data_series_B_fkey` FOREIGN KEY (`B`) REFERENCES `recipe`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+-- Original prisma migration below
+/*
+  Warnings:
+
+  - You are about to drop the column `baseline_goal_id` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `effect_action_id` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `effect_goal_id` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `goal_id` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2020` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2021` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2022` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2023` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2024` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2025` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2026` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2027` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2028` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2029` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2030` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2031` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2032` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2033` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2034` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2035` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2036` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2037` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2038` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2039` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2040` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2041` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2042` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2043` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2044` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2045` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2046` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2047` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2048` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2049` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `val_2050` on the `data_series` table. All the data in the column will be lost.
+  - You are about to drop the column `recipe_used_id` on the `goal` table. All the data in the column will be lost.
+  - You are about to drop the `Recipe` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `_recipe_data_series` table. If the table is not empty, all the data it contains will be lost.
+
+*/
+/*
+-- DropForeignKey
+ALTER TABLE `_inheritance_suggestions` DROP FOREIGN KEY `_inheritance_suggestions_B_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `_recipe_data_series` DROP FOREIGN KEY `_recipe_data_series_A_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `_recipe_data_series` DROP FOREIGN KEY `_recipe_data_series_B_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `data_series` DROP FOREIGN KEY `data_series_baseline_goal_id_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `data_series` DROP FOREIGN KEY `data_series_effect_action_id_effect_goal_id_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `data_series` DROP FOREIGN KEY `data_series_goal_id_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `goal` DROP FOREIGN KEY `goal_recipe_used_id_fkey`;
+
+-- DropIndex
+DROP INDEX `data_series_baseline_goal_id_key` ON `data_series`;
+
+-- DropIndex
+DROP INDEX `data_series_goal_id_key` ON `data_series`;
+
+-- DropIndex
+DROP INDEX `effect_id` ON `data_series`;
+
+-- DropIndex
+DROP INDEX `goal_recipe_used_id_fkey` ON `goal`;
+
+-- AlterTable
+ALTER TABLE `data_series` DROP COLUMN `baseline_goal_id`,
+    DROP COLUMN `effect_action_id`,
+    DROP COLUMN `effect_goal_id`,
+    DROP COLUMN `goal_id`,
+    DROP COLUMN `val_2020`,
+    DROP COLUMN `val_2021`,
+    DROP COLUMN `val_2022`,
+    DROP COLUMN `val_2023`,
+    DROP COLUMN `val_2024`,
+    DROP COLUMN `val_2025`,
+    DROP COLUMN `val_2026`,
+    DROP COLUMN `val_2027`,
+    DROP COLUMN `val_2028`,
+    DROP COLUMN `val_2029`,
+    DROP COLUMN `val_2030`,
+    DROP COLUMN `val_2031`,
+    DROP COLUMN `val_2032`,
+    DROP COLUMN `val_2033`,
+    DROP COLUMN `val_2034`,
+    DROP COLUMN `val_2035`,
+    DROP COLUMN `val_2036`,
+    DROP COLUMN `val_2037`,
+    DROP COLUMN `val_2038`,
+    DROP COLUMN `val_2039`,
+    DROP COLUMN `val_2040`,
+    DROP COLUMN `val_2041`,
+    DROP COLUMN `val_2042`,
+    DROP COLUMN `val_2043`,
+    DROP COLUMN `val_2044`,
+    DROP COLUMN `val_2045`,
+    DROP COLUMN `val_2046`,
+    DROP COLUMN `val_2047`,
+    DROP COLUMN `val_2048`,
+    DROP COLUMN `val_2049`,
+    DROP COLUMN `val_2050`,
+    ADD COLUMN `recipe_used_id` VARCHAR(191) NULL;
+
+-- AlterTable
+ALTER TABLE `effect` ADD COLUMN `data_series_id` VARCHAR(191) NULL;
+
+-- AlterTable
+ALTER TABLE `goal` DROP COLUMN `recipe_used_id`,
+    ADD COLUMN `baseline_id` VARCHAR(191) NULL,
+    ADD COLUMN `data_series_id` VARCHAR(191) NULL;
+
+-- DropTable
+DROP TABLE `Recipe`;
+
+-- DropTable
+DROP TABLE `_recipe_data_series`;
+
+-- CreateTable
+CREATE TABLE `date_record` (
+    `timestamp` DATE NOT NULL,
+    `value` DOUBLE NOT NULL,
+    `data_series_id` VARCHAR(191) NOT NULL,
+
+    PRIMARY KEY (`data_series_id`, `timestamp`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `recipe` (
+    `id` VARCHAR(191) NOT NULL,
+    `recipe` JSON NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `_source_data_series` (
+    `A` VARCHAR(191) NOT NULL,
+    `B` VARCHAR(191) NOT NULL,
+
+    UNIQUE INDEX `_source_data_series_AB_unique`(`A`, `B`),
+    INDEX `_source_data_series_B_index`(`B`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `goal` ADD CONSTRAINT `goal_data_series_id_fkey` FOREIGN KEY (`data_series_id`) REFERENCES `data_series`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `goal` ADD CONSTRAINT `goal_baseline_id_fkey` FOREIGN KEY (`baseline_id`) REFERENCES `data_series`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `data_series` ADD CONSTRAINT `data_series_recipe_used_id_fkey` FOREIGN KEY (`recipe_used_id`) REFERENCES `recipe`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `date_record` ADD CONSTRAINT `date_record_data_series_id_fkey` FOREIGN KEY (`data_series_id`) REFERENCES `data_series`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `effect` ADD CONSTRAINT `effect_data_series_id_fkey` FOREIGN KEY (`data_series_id`) REFERENCES `data_series`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `_inheritance_suggestions` ADD CONSTRAINT `_inheritance_suggestions_B_fkey` FOREIGN KEY (`B`) REFERENCES `recipe`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `_source_data_series` ADD CONSTRAINT `_source_data_series_A_fkey` FOREIGN KEY (`A`) REFERENCES `data_series`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `_source_data_series` ADD CONSTRAINT `_source_data_series_B_fkey` FOREIGN KEY (`B`) REFERENCES `recipe`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+*/
