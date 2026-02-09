@@ -25,70 +25,80 @@ SELECT
     DATE'2020-01-01' AS `timestamp`,
     `val_2020` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2020` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2021-01-01' AS `timestamp`,
     `val_2021` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2021` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2022-01-01' AS `timestamp`,
     `val_2022` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2022` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2023-01-01' AS `timestamp`,
     `val_2023` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2023` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2024-01-01' AS `timestamp`,
     `val_2024` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2024` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2025-01-01' AS `timestamp`,
     `val_2025` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2025` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2026-01-01' AS `timestamp`,
     `val_2026` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2026` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2027-01-01' AS `timestamp`,
     `val_2027` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2027` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2028-01-01' AS `timestamp`,
     `val_2028` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2028` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2029-01-01' AS `timestamp`,
     `val_2029` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2029` IS NOT NULL;
 
 -- 2030 - 2039
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
@@ -96,70 +106,80 @@ SELECT
     DATE'2030-01-01' AS `timestamp`,
     `val_2030` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2030` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2031-01-01' AS `timestamp`,
     `val_2031` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2031` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2032-01-01' AS `timestamp`,
     `val_2032` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2032` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2033-01-01' AS `timestamp`,
     `val_2033` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2033` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2034-01-01' AS `timestamp`,
     `val_2034` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2034` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2035-01-01' AS `timestamp`,
     `val_2035` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2035` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2036-01-01' AS `timestamp`,
     `val_2036` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2036` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2037-01-01' AS `timestamp`,
     `val_2037` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2037` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2038-01-01' AS `timestamp`,
     `val_2038` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2038` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2039-01-01' AS `timestamp`,
     `val_2039` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2039` IS NOT NULL;
 
 -- 2040 - 2050
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
@@ -167,77 +187,88 @@ SELECT
     DATE'2040-01-01' AS `timestamp`,
     `val_2040` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2040` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2041-01-01' AS `timestamp`,
     `val_2041` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2041` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2042-01-01' AS `timestamp`,
     `val_2042` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2042` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2043-01-01' AS `timestamp`,
     `val_2043` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2043` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2044-01-01' AS `timestamp`,
     `val_2044` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2044` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2045-01-01' AS `timestamp`,
     `val_2045` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2045` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2046-01-01' AS `timestamp`,
     `val_2046` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2046` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2047-01-01' AS `timestamp`,
     `val_2047` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2047` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2048-01-01' AS `timestamp`,
     `val_2048` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2048` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2049-01-01' AS `timestamp`,
     `val_2049` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2049` IS NOT NULL;
 
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
     DATE'2050-01-01' AS `timestamp`,
     `val_2050` AS `value`,
     `id` AS `data_series_id`
-FROM `data_series`;
+FROM `data_series`
+    WHERE `val_2050` IS NOT NULL;
 -- End of data series copying
 
 -- Change direction of relationship between data_series and goals/effects;
