@@ -2,7 +2,7 @@ import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
 import { isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, RecipeDataTypes, RecipeError, RecipeExtractionOutput, RecipeVariable, VectorIndexPickerOptions } from "@/functions/recipe/types";
 import getTableContent from "@/lib/api/getTableContent";
 import mathjs from "@/math";
-import { DataSeries, DateValues, DateValuesWithUnit, isISOIshDate, ISOIshDate, Mask, MaskedVector, UnitString } from "@/types";
+import { DataSeries, DateValues, DateValuesWithUnit, Goal, isISOIshDate, ISOIshDate, Mask, MaskedVector, UnitString } from "@/types";
 import { Unit } from "mathjs";
 import { EvalTimeVariable } from "./types";
 import { filterToInitialYearlyRecords, parsePeriod } from "@/lib/api/utility";
@@ -446,7 +446,11 @@ export function ANDMasks(masks: Mask[]): Mask {
   return combinedMask;
 }
 
-export function dataSeriesToDateValues(dataSeries: DataSeries): DateValuesWithUnit {
+export function dataSeriesToDateValues(dataSeries: DataSeries | Goal["dataSeries"]): DateValuesWithUnit {
+  if (!dataSeries || !dataSeries.values) {
+    throw new RecipeError("DataSeriesToDateValues: Goal data series is missing or does not contain values.");
+  }
+
   const dateValues: DateValues = Object.fromEntries(
     dataSeries.values.map(v => ([
       v.timestamp.toISOString(),
