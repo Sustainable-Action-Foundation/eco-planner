@@ -360,8 +360,10 @@ ALTER TABLE `goal` DROP FOREIGN KEY `goal_recipe_used_id_fkey`;
 DROP INDEX `goal_recipe_used_id_fkey` ON `goal`;
 ALTER TABLE `goal` DROP COLUMN `recipe_used_id`;
 
+-- TODO: more changes relating to recipes
 -- Rename `Recipe` to `recipe` to follow naming convention
-ALTER TABLE `Recipe` RENAME TO `recipe`;
+ALTER TABLE `Recipe` RENAME TO `recipe`,
+    RENAME COLUMN `hash` TO `id`;
 
 -- CreateTable
 CREATE TABLE `_source_data_series` (
