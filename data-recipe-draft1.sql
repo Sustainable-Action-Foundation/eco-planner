@@ -9,7 +9,7 @@ CREATE TABLE `date_record` (
     PRIMARY KEY (`data_series_id`, `timestamp`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- A fuckton of instances (31) of copying data from data_series val_ fields into date_record rows
+-- A fuckton of instances (31) of copying data from data_series val_ fields into new date_record rows
 -- 2020 - 2029
 INSERT INTO `date_record` (`timestamp`, `value`, `data_series_id`)
 SELECT
@@ -231,8 +231,40 @@ SELECT
 FROM `data_series`;
 -- End of data series copying
 
--- How to handle baseline_goal_id, effect_action_id, effect_goal_id and goal_id during migration?
--- DROP val_ columns and ADD recipe_used_id to data_series
+-- Change direction of relationship between data_series and goals/effects;
+-- instead of data_series having foreign keys to goals and effects, goals and effects will have foreign keys to data_series.
+ALTER TABLE `effect` ADD COLUMN `data_series_id` VARCHAR(191) NULL;
+
+ALTER TABLE `goal` ADD COLUMN `data_series_id` VARCHAR(191) NULL,
+    ADD COLUMN `baseline_id` VARCHAR(191) NULL;
+
+UPDATE `effect`
+    SET `data_series_id` = (
+        SELECT `id`
+        FROM `data_series`
+        WHERE `data_series`.`effect_action_id` = `effect`.`action_id`
+            AND `data_series`.`effect_goal_id` = `effect`.`goal_id`
+    );
+
+UPDATE `goal`
+    SET `data_series_id` = (
+        SELECT `id`
+        FROM `data_series`
+        WHERE `data_series`.`goal_id` = `goal`.`id`
+    ),
+    `baseline_id` = (
+        SELECT `id`
+        FROM `data_series`
+        WHERE `data_series`.`baseline_goal_id` = `goal`.`id`
+    );
+
+-- Remove old foreign keys from data_series
+ALTER TABLE `data_series` DROP FOREIGN KEY `data_series_baseline_goal_id_fkey`,
+    DROP FOREIGN KEY `data_series_effect_action_id_effect_goal_id_fkey`,
+    DROP FOREIGN KEY `data_series_goal_id_fkey`;
+
+-- DROP val_ columns, baseline_goal_id, effect_action_id, effect_goal_id and goal_id;
+-- ADD recipe_used_id to data_series
 ALTER TABLE `data_series` DROP COLUMN `val_2020`,
     DROP COLUMN `val_2021`,
     DROP COLUMN `val_2022`,
@@ -264,7 +296,32 @@ ALTER TABLE `data_series` DROP COLUMN `val_2020`,
     DROP COLUMN `val_2048`,
     DROP COLUMN `val_2049`,
     DROP COLUMN `val_2050`,
+    DROP COLUMN `goal_id`,
+    DROP COLUMN `baseline_goal_id`,
+    DROP COLUMN `effect_action_id`,
+    DROP COLUMN `effect_goal_id`,
     ADD COLUMN `recipe_used_id` VARCHAR(191) NULL;
+
+-- Move recipe_used_id from goals and effects to data_series
+-- Technically a data series could be linked to both a goal and an effect with different recipe_used_id values,
+-- but this should not be the case in practice, and if it is, the goal's recipe_used_id will take precedence over the effect's recipe_used_id
+UPDATE `data_series`
+    SET `recipe_used_id` = (
+        SELECT `effect`.`recipe_used_id`
+        FROM `effect`
+        WHERE `effect`.`action_id` = `data_series`.`effect_action_id`
+            AND `effect`.`goal_id` = `data_series`.`effect_goal_id`
+    )
+WHERE `data_series`.`effect_action_id` IS NOT NULL
+    AND `data_series`.`effect_goal_id` IS NOT NULL;
+
+UPDATE `data_series`
+    SET `recipe_used_id` = (
+        SELECT `goal`.`recipe_used_id`
+        FROM `goal`
+        WHERE `goal`.`id` = `data_series`.`goal_id`
+    )
+WHERE `data_series`.`goal_id` IS NOT NULL;
 
 -- Rename `Recipe` to `recipe` to follow naming convention
 ALTER TABLE `Recipe` RENAME TO `recipe`;
