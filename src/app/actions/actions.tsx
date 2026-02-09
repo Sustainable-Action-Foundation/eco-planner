@@ -70,15 +70,15 @@ export default function Actions({ actions }: { actions: Action[] | null }) {
         {actions?.map(action => (
           <li
             key={action.id}
-            className="smooth padding-50 padding-top-0"
+            className="smooth padding-0 padding-top-0"
           >
             <article>
-              <Link href={`/action/${action.id}`} className="discrete-link padding-top-75 block">
+              <Link href={`/action/${action.id}`} className="discrete-link padding-top-75 padding-inline-50 block">
                 <div style={{ color: 'gray', fontSize: '14px' }}>{action.startYear} - {action.endYear}</div>
                 <h2 className="margin-0" style={{ fontSize: '1.15rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{action.name}</h2>
                 <hr className="margin-top-75" style={{ borderColor: 'var(--gray-80)', borderTop: '0' }} />
               </Link>
-              <div className="flex justify-content-space-between align-items-center">
+              <div className="flex justify-content-space-between align-items-center padding-inline-50 padding-bottom-50">
                 <Link href={`/action/${action.id}`} className="flex gap-25 align-items-center discrete-link" style={{ fontSize: '14px' }}>
                   <IconUser width={20} height={20} style={{ maxWidth: '20px' }} />
                   {action.author.username}
