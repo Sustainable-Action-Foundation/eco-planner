@@ -28,10 +28,10 @@ export default function PredictionChildGraph({
   const dataPoints: ApexAxisChartSeries = [];
 
   const definedDates: string[] = [...new Set(
-    ...goal.dataSeries.values.map(e => e.timestamp.getUTCFullYear().toString()),
+    ...goal.dataSeries.values.map(e => new Date(e.timestamp).getUTCFullYear().toString()),
     ...childGoals
       .filter(child => child.dataSeries)
-      .flatMap(child => child.dataSeries?.values.map(e => e.timestamp.getUTCFullYear().toString()))
+      .flatMap(child => child.dataSeries?.values.map(e => new Date(e.timestamp).getUTCFullYear().toString()))
   )]
     .sort()
     .map(yyyy => `${yyyy}-01-01T00:00:00Z`);

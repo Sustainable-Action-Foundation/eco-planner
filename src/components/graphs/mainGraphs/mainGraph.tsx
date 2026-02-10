@@ -72,7 +72,7 @@ export default function MainGraph({
   const mainSeries: { x: number; y: number; }[] = [];
   for (const dateEntry of goal.dataSeries.values) {
     mainSeries.push({
-      x: dateEntry.timestamp.getTime(),
+      x: new Date(dateEntry.timestamp).getTime(),
       y: dateEntry.value,
     });
   }
@@ -88,7 +88,7 @@ export default function MainGraph({
     const baseline = [];
     for (const dateEntry of goal.baseline.values) {
       baseline.push({
-        x: dateEntry.timestamp.getTime(),
+        x: new Date(dateEntry.timestamp).getTime(),
         y: dateEntry.value,
       });
     }
@@ -113,7 +113,10 @@ export default function MainGraph({
   }
   else if (effects.length > 0) {
     // If no baseline is set, use the first non-null value as baseline
-    const firstNonNull = goal.dataSeries.values.find(v => Number.isFinite(v.value))?.timestamp.getUTCFullYear()?.toString();
+    const firstNonNullEntry = goal.dataSeries.values.find(v => Number.isFinite(v.value));
+    const firstNonNull = !firstNonNullEntry
+      ? undefined
+      : new Date(firstNonNullEntry.timestamp).getUTCFullYear().toString();
     if (!firstNonNull || !isISOIshDate(firstNonNull)) throw new Error("Invalid date format in goal data series.");
 
     const dataSeries = dataSeriesToDateValues(goal.dataSeries);
@@ -171,7 +174,7 @@ export default function MainGraph({
     const secondarySeries = [];
     for (const dateEntry of secondaryGoal.dataSeries.values) {
       secondarySeries.push({
-        x: dateEntry.timestamp.getTime(),
+        x: new Date(dateEntry.timestamp).getTime(),
         y: dateEntry.value,
       });
     }
@@ -197,7 +200,7 @@ export default function MainGraph({
 
     for (const dateEntry of parentGoal.dataSeries.values) {
       nationalSeries.push({
-        x: dateEntry.timestamp.getTime(),
+        x: new Date(dateEntry.timestamp).getTime(),
         y: dateEntry.value,
       });
     }

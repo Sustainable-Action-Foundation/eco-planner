@@ -88,7 +88,7 @@ export function calculatePredictedOutcome(effects: Effect[] | Goal["effects"], b
 
   const definedDates: string[] = [...new Set(effects
     .filter(effect => effect.dataSeries)
-    .flatMap(effect => effect.dataSeries?.values.map(v => v.timestamp.getUTCFullYear())))
+    .flatMap(effect => effect.dataSeries?.values.map(v => new Date(v.timestamp).getUTCFullYear())))
   ]
     .sort()
     .map(yyyy => `${yyyy}-01-01T00:00:00Z`);
@@ -106,7 +106,7 @@ export function calculatePredictedOutcome(effects: Effect[] | Goal["effects"], b
       baseline[date] = baselineValue;
       continue;
     }
-    const found = baselineValue.values.find(v => v.timestamp.getUTCFullYear() === new Date(date).getUTCFullYear());
+    const found = baselineValue.values.find(v => new Date(v.timestamp).getUTCFullYear() === new Date(date).getUTCFullYear());
     if (found) {
       baseline[date] = found.value;
     }

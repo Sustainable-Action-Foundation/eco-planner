@@ -140,7 +140,10 @@ export default function MainDeltaGraph({
     }
   } else if (effects.length > 0) {
     // If no baseline is set, use the first non-null value as baseline
-    const firstNonNull = goal.dataSeries.values.find(v => Number.isFinite(v.value))?.timestamp.getUTCFullYear()?.toString();
+    const firstNonNullEntry = goal.dataSeries.values.find(v => Number.isFinite(v.value));
+    const firstNonNull = !firstNonNullEntry
+      ? undefined
+      : new Date(firstNonNullEntry.timestamp).getUTCFullYear().toString();
     if (!firstNonNull || !isISOIshDate(firstNonNull)) throw new Error("Invalid date format in goal data series.");
 
     if (firstNonNull) {
