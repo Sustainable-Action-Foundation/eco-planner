@@ -213,7 +213,7 @@ async function main() {
     },
   });
   [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
-  const _nationalRoadmapVersion2 = await prisma.roadmap.create({
+  const nationalRoadmapVersion2 = await prisma.roadmap.create({
     data: {
       version: 2,
       authorId: anita.id,
@@ -494,21 +494,36 @@ async function main() {
   );
 
   // National goals v2 - inherit with recipes from v1
-  const _nationalDataSeriesV2 = await prisma.$transaction(
-    Array(3).fill(null).map(() => {
+  const _nationalGoalsV2 = await prisma.$transaction(async (tx) => Promise.all(
+    nationalV1Recipes.map(async (recipe) => {
       [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
       const dateValues = getRandomCoherentDateValues();
-      return prisma.dataSeries.create({
+      const dataSeries = await tx.dataSeries.create({
         data: {
           authorId: users[Math.floor(Math.random() * users.length)].id,
           createdAt,
           updatedAt,
           unit: getRandomUnit(),
           values: { createMany: { data: dateValuesToDBDateRecord(dateValues) } },
-        }
+        },
+      });
+
+      return tx.goal.create({
+        data: {
+          name: RandomTextSE.sentence(3, 1),
+          description: RandomTextSE.paragraph(Math.floor(Math.random() * 3) + 1),
+          indicatorParameter: parameters[Math.floor(Math.random() * parameters.length)],
+          isFeatured: Math.random() > 0.7,
+          authorId: users[Math.floor(Math.random() * users.length)].id,
+          roadmapId: nationalRoadmapVersion2.id,
+          dataSeriesId: dataSeries.id,
+          recipeSuggestions: {
+            connect: [{ id: recipe.id }],
+          }
+        },
       });
     })
-  );
+  ));
 }
 
 main().then(async () => {
