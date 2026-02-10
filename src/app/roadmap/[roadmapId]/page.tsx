@@ -60,7 +60,6 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
   }
 
   return <>
-
     <Breadcrumb object={roadmap} />
 
     <main>
@@ -70,11 +69,11 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
           <h1 className="margin-0">{roadmap.metaRoadmap.name}</h1>
           <p className="margin-0">
             {t("pages:roadmap.version", { version: roadmap.version })}
-            {" • "}
+            &nbsp;&middot;&nbsp;
             {roadmap.metaRoadmap.actor ?
               <>
                 {roadmap.metaRoadmap.actor}
-                {" • "}
+                &nbsp;&middot;&nbsp;
               </>
               :
               null

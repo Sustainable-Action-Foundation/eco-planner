@@ -1,11 +1,11 @@
 import WrappedChart from "@/lib/chartWrapper";
 import styles from '../graphs.module.css'
-import { Goal } from "@/types";
+import { Goal, Roadmap } from "@/types";
 
 export default function ThumbnailGraph({
   goal,
 }: {
-  goal: Goal;
+  goal: Goal | Roadmap["goals"][number];
 }) {
   if (!goal.dataSeries) {
     return null;
