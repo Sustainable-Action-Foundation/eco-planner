@@ -52,7 +52,7 @@ export default function OutputDataSeries() {
             className={`text-align-center ${i === 0 ? "" : "padding-left-100"}`}
             style={{ gridRow: 2, borderLeft: i === 0 ? 'none' : '1px solid var(--gray-70)' }}
           >
-            {(value as number)?.toFixed(1) || "-"}
+            {value?.toFixed(1) || "-"}
           </div>
         ))}
       </div>
