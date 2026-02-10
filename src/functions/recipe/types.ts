@@ -405,7 +405,10 @@ export function isEvalTimeVariable(variable: unknown): variable is EvalTimeVaria
   return true;
 }
 
-export type RecipeExtractionOutput = (EvalTimeVariable | { series: DateValuesWithUnit, name: string, })[];
+export type RecipeExtractionOutput = (
+  EvalTimeVariable
+  | { series: DateValuesWithUnit, name: string, }
+)[];
 
 /*
  * Errors

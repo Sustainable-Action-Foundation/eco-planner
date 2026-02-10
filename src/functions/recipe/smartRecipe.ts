@@ -82,11 +82,15 @@ export class SmartRecipe {
       throw new RecipeError("Invalid recipe format");
     }
 
-    const allVars: RecipeExtractionOutput = await Promise.all([
-      ...extractScalars(this.variables),
-      ...await extractDataSeries(this.variables),
-      ...await extractExternalDatasets(this.variables),
+    const [dataSeriesVars, externalVars] = await Promise.all([
+      extractDataSeries(this.variables),
+      extractExternalDatasets(this.variables),
     ]);
+    const allVars: RecipeExtractionOutput = [
+      ...extractScalars(this.variables),
+      ...dataSeriesVars,
+      ...externalVars,
+    ];
 
     // TODO: type guard better and no magic strings
     const evalTimeVars = allVars.filter(isEvalTimeVariable);
