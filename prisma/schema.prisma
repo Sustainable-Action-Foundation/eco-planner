@@ -454,9 +454,6 @@ model User {
   @@map("user")
 }
 
-// There should be a default user group that all users are a member of, in addition to user-defined groups
-// The default group should be used when a user wants to make their goal/action/roadmap/data series public
-// There should also be a restriction in place to prevent giving edit permissions to the default group
 model UserGroup {
   // UUID of the user group
   id   String @id @default(uuid())

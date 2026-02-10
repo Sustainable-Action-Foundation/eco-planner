@@ -1,13 +1,11 @@
 -- Very manual migration :)
 -- Original prisma-generated migration is at the bottom of this file, included for reference
 
--- Misc. foreign key and index cleanup
--- DropForeignKey
-ALTER TABLE `_inheritance_suggestions` DROP FOREIGN KEY `_inheritance_suggestions_B_fkey`;
-
--- DropForeignKey
+-- Remove old _recipe_data_series joining table
 ALTER TABLE `_recipe_data_series` DROP FOREIGN KEY `_recipe_data_series_A_fkey`,
     DROP FOREIGN KEY `_recipe_data_series_B_fkey`;
+
+DROP TABLE `_recipe_data_series`;
 
 -- Data series migration
 CREATE TABLE `date_record` (
@@ -390,19 +388,18 @@ ALTER TABLE `date_record` ADD CONSTRAINT `date_record_data_series_id_fkey` FOREI
 ALTER TABLE `effect` ADD CONSTRAINT `effect_data_series_id_fkey` FOREIGN KEY (`data_series_id`) REFERENCES `data_series`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `_inheritance_suggestions` ADD CONSTRAINT `_inheritance_suggestions_B_fkey` FOREIGN KEY (`B`) REFERENCES `recipe`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE `_source_data_series` ADD CONSTRAINT `_source_data_series_A_fkey` FOREIGN KEY (`A`) REFERENCES `data_series`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `_source_data_series` ADD CONSTRAINT `_source_data_series_B_fkey` FOREIGN KEY (`B`) REFERENCES `recipe`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 
--- Original prisma migration below
+-- Original prisma migration below, commented out for reference
 /*
   Warnings:
 
+  - The primary key for the `Recipe` table will be changed. If it partially fails, the table could be left without primary key constraint.
+  - You are about to drop the column `hash` on the `Recipe` table. All the data in the column will be lost.
   - You are about to drop the column `baseline_goal_id` on the `data_series` table. All the data in the column will be lost.
   - You are about to drop the column `effect_action_id` on the `data_series` table. All the data in the column will be lost.
   - You are about to drop the column `effect_goal_id` on the `data_series` table. All the data in the column will be lost.
@@ -439,8 +436,8 @@ ALTER TABLE `_source_data_series` ADD CONSTRAINT `_source_data_series_B_fkey` FO
   - You are about to drop the column `val_2049` on the `data_series` table. All the data in the column will be lost.
   - You are about to drop the column `val_2050` on the `data_series` table. All the data in the column will be lost.
   - You are about to drop the column `recipe_used_id` on the `goal` table. All the data in the column will be lost.
-  - You are about to drop the `Recipe` table. If the table is not empty, all the data it contains will be lost.
   - You are about to drop the `_recipe_data_series` table. If the table is not empty, all the data it contains will be lost.
+  - The required column `id` was added to the `Recipe` table with a prisma-level default value. This is not possible if the table is not empty. Please add this column as optional, then populate it before making it required.
 
 */
 /*
@@ -476,6 +473,12 @@ DROP INDEX `effect_id` ON `data_series`;
 
 -- DropIndex
 DROP INDEX `goal_recipe_used_id_fkey` ON `goal`;
+
+-- AlterTable
+ALTER TABLE `Recipe` DROP PRIMARY KEY,
+    DROP COLUMN `hash`,
+    ADD COLUMN `id` VARCHAR(191) NOT NULL,
+    ADD PRIMARY KEY (`id`);
 
 -- AlterTable
 ALTER TABLE `data_series` DROP COLUMN `baseline_goal_id`,
@@ -524,9 +527,6 @@ ALTER TABLE `goal` DROP COLUMN `recipe_used_id`,
     ADD COLUMN `data_series_id` VARCHAR(191) NULL;
 
 -- DropTable
-DROP TABLE `Recipe`;
-
--- DropTable
 DROP TABLE `_recipe_data_series`;
 
 -- CreateTable
@@ -536,14 +536,6 @@ CREATE TABLE `date_record` (
     `data_series_id` VARCHAR(191) NOT NULL,
 
     PRIMARY KEY (`data_series_id`, `timestamp`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `recipe` (
-    `id` VARCHAR(191) NOT NULL,
-    `recipe` JSON NOT NULL,
-
-    PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
@@ -562,7 +554,7 @@ ALTER TABLE `goal` ADD CONSTRAINT `goal_data_series_id_fkey` FOREIGN KEY (`data_
 ALTER TABLE `goal` ADD CONSTRAINT `goal_baseline_id_fkey` FOREIGN KEY (`baseline_id`) REFERENCES `data_series`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `data_series` ADD CONSTRAINT `data_series_recipe_used_id_fkey` FOREIGN KEY (`recipe_used_id`) REFERENCES `recipe`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `data_series` ADD CONSTRAINT `data_series_recipe_used_id_fkey` FOREIGN KEY (`recipe_used_id`) REFERENCES `Recipe`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `date_record` ADD CONSTRAINT `date_record_data_series_id_fkey` FOREIGN KEY (`data_series_id`) REFERENCES `data_series`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -571,11 +563,11 @@ ALTER TABLE `date_record` ADD CONSTRAINT `date_record_data_series_id_fkey` FOREI
 ALTER TABLE `effect` ADD CONSTRAINT `effect_data_series_id_fkey` FOREIGN KEY (`data_series_id`) REFERENCES `data_series`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `_inheritance_suggestions` ADD CONSTRAINT `_inheritance_suggestions_B_fkey` FOREIGN KEY (`B`) REFERENCES `recipe`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `_inheritance_suggestions` ADD CONSTRAINT `_inheritance_suggestions_B_fkey` FOREIGN KEY (`B`) REFERENCES `Recipe`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `_source_data_series` ADD CONSTRAINT `_source_data_series_A_fkey` FOREIGN KEY (`A`) REFERENCES `data_series`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `_source_data_series` ADD CONSTRAINT `_source_data_series_B_fkey` FOREIGN KEY (`B`) REFERENCES `recipe`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `_source_data_series` ADD CONSTRAINT `_source_data_series_B_fkey` FOREIGN KEY (`B`) REFERENCES `Recipe`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 */
