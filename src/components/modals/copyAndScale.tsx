@@ -101,7 +101,9 @@ export default function CopyAndScale({
       externalTableId: null,
       externalSelection: null,
 
+      dataSeriesId: undefined,
       dataSeries: { dateValues: resultingDataSeries, unit: resultingUnit, },
+      dataSeriesRecipeId: undefined,
       dataSeriesRecipe: recipeUsed,
 
       recipeSuggestions: undefined,
@@ -109,6 +111,8 @@ export default function CopyAndScale({
       // TODO: scale baseline
       baseline: undefined,
       baselineId: undefined,
+      baselineRecipeId: undefined,
+      baselineRecipe: undefined,
 
       roadmapId: copyToId as string ?? "",
       // TODO: copy tags?

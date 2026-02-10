@@ -380,7 +380,7 @@ export type GoalCreateInput = {
   dataSeriesRecipe: Recipe | null | undefined;
 
   baselineId: string | null | undefined;
-  baseline: DateValuesWithUnit;
+  baseline: DateValuesWithUnit | null | undefined;
   baselineRecipeId: string | null | undefined;
   baselineRecipe: Recipe | null | undefined;
 
