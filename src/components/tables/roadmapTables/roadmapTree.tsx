@@ -7,12 +7,12 @@ import Link from "next/link";
 import { Fragment } from "react";
 import serveTea from "@/lib/i18nServer";
 import { IconCaretRightFilled } from "@tabler/icons-react";
-import { Roadmap } from "@/types";
+import { MultiRoadmapInstance } from "@/types";
 
 type RoadmapTreeProps = {
   user: LoginData['user'];
-  roadmaps: Roadmap[];
-}
+  roadmaps: MultiRoadmapInstance[];
+};
 
 /**
  * Renders given roadmaps in a tree structure. Roadmaps belonging to a MetaRoadmap without a(n accessible) parent are placed at the top level.
@@ -37,10 +37,14 @@ export default async function RoadmapTree({
   return (
     <nav>
       <ul className={`${styles['roadmap-nav-ul']}`} style={{ paddingInlineStart: '0' }}>
-        <NestedRoadmapRenderer allRoadmaps={roadmaps} childRoadmaps={topLevelRoadmaps} user={user} />
+        <NestedRoadmapRenderer
+          allRoadmaps={roadmaps}
+          childRoadmaps={topLevelRoadmaps}
+          user={user}
+        />
       </ul>
     </nav>
-  )
+  );
 }
 
 /**
@@ -73,7 +77,7 @@ async function NestedRoadmapRenderer({
           {newChildRoadmaps.length > 0 ?
             <li>
               <details>
-                {/* TODO: In accesibility tree, this shows as the link being labeled under "visa underliggande färdplaner" */}
+                {/* TODO: In accessibility tree, this shows as the link being labeled under "visa underliggande färdplaner" */}
                 <summary className="flex justify-content-space-between" aria-label={t("components:roadmap_tree.show_source_alt")}>
                   <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}> {/* TODO: Do i need this key here?  */}
                     <IconCaretRightFilled aria-hidden="true" className="round padding-25 margin-inline-25" />
@@ -85,7 +89,7 @@ async function NestedRoadmapRenderer({
                       {/* Type, goal count */}
                       <div className={styles["roadmap-information"]}>
                         {typeAlias}
-                        {" • "}
+                        &nbsp;&middot;&nbsp;
                         {t("common:count.goal", { count: roadmap._count.goals })}
                       </div>
                     </Link>
@@ -99,7 +103,11 @@ async function NestedRoadmapRenderer({
                 </summary>
 
                 <ul className={styles['roadmap-nav-ul']}>
-                  <NestedRoadmapRenderer allRoadmaps={allRoadmaps} childRoadmaps={newChildRoadmaps} user={user} />
+                  <NestedRoadmapRenderer
+                    allRoadmaps={allRoadmaps}
+                    childRoadmaps={newChildRoadmaps}
+                    user={user}
+                  />
                 </ul>
               </details>
             </li>
@@ -115,7 +123,7 @@ async function NestedRoadmapRenderer({
                   {/* Type, goal count */}
                   <div className={styles["roadmap-information"]}>
                     {typeAlias}
-                    {" • "}
+                    &nbsp;&middot;&nbsp;
                     {t("common:count.goal", { count: roadmap._count.goals })}
                   </div>
                 </Link>

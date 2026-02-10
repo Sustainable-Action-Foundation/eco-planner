@@ -3,7 +3,7 @@
 import styles from './tableMenu.module.css' with { type: "css" }
 import Link from "next/link";
 import { useRef } from "react";
-import { AccessLevel, Action, DataSeries, Effect, Goal, MetaRoadmap, Roadmap } from "@/types";
+import { AccessLevel, Action, DataSeries, Effect, Goal, MetaRoadmap, MultiRoadmapInstance, Roadmap } from "@/types";
 import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
 import { useTranslation } from "react-i18next";
@@ -54,6 +54,12 @@ export function TableMenu(
       })
       // Roadmap
       | (Roadmap & {
+        roadmapVersions?: never,
+        roadmap?: never,
+        goal?: never,
+        name?: never,
+      })
+      | (MultiRoadmapInstance & {
         roadmapVersions?: never,
         roadmap?: never,
         goal?: never,

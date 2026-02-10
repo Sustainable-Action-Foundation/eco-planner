@@ -13,9 +13,9 @@ import { MultiRoadmapInstance } from "@/types";
  * Returns an empty array if no roadmaps are found or user does not have access to any. Also returns an empty array on error.
  * @returns Array of roadmaps
  */
-export default async function getRoadmaps(): Promise<MultiRoadmapInstance[]> {
+export default async function getRoadmaps(roadmapIds?: string[],): Promise<MultiRoadmapInstance[]> {
   const session = await getSession(await cookies());
-  return getCachedRoadmaps(session.user);
+  return getCachedRoadmaps(session.user, roadmapIds);
 }
 
 /**
@@ -24,13 +24,14 @@ export default async function getRoadmaps(): Promise<MultiRoadmapInstance[]> {
  * @param user Data from user's session cookie.
  */
 const getCachedRoadmaps = unstable_cache(
-  async (user: LoginData['user']): Promise<MultiRoadmapInstance[]> => {
+  async (user: LoginData['user'], roadmapIds?: string[],): Promise<MultiRoadmapInstance[]> => {
     let roadmaps: MultiRoadmapInstance[] = [];
 
     // If user is admin, get all roadmaps
     if (user?.isAdmin) {
       try {
         roadmaps = await prisma.roadmap.findMany({
+          ...(roadmapIds ? { where: { id: { in: roadmapIds } } } : {}), // If roadmapIds is provided, filter by it
           include: multiRoadmapInclusionSelection
         }) satisfies MultiRoadmapInstance[];
       } catch (error) {
@@ -51,6 +52,7 @@ const getCachedRoadmaps = unstable_cache(
         // Get all roadmaps authored by the user
         roadmaps = await prisma.roadmap.findMany({
           where: {
+            ...(roadmapIds ? { id: { in: roadmapIds } } : {}), // If roadmapIds is provided, filter by it
             OR: [
               { authorId: user.id },
               { editors: { some: { id: user.id } } },
@@ -78,7 +80,8 @@ const getCachedRoadmaps = unstable_cache(
     try {
       roadmaps = await prisma.roadmap.findMany({
         where: {
-          isPublic: true
+          ...(roadmapIds ? { id: { in: roadmapIds } } : {}), // If roadmapIds is provided, filter by it
+          isPublic: true,
         },
         include: multiRoadmapInclusionSelection
       }) satisfies MultiRoadmapInstance[];

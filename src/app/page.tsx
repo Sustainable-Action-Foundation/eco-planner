@@ -1,7 +1,8 @@
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import AttributedImage, { AttributeText } from "@/components/generic/images/attributedImage";
-import getMetaRoadmaps from "@/fetchers/getMetaRoadmaps";;
+import getMetaRoadmaps from "@/fetchers/getMetaRoadmaps";
+import getRoadmaps from "@/fetchers/getRoadmaps";
 import { roadmapSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
 import { RoadmapType } from "@prisma/client";
 import RoadmapFilters from "@/components/form/filters/roadmapFilters";
@@ -35,17 +36,20 @@ export default async function Page(
   const sortBy = searchParams['sortBy'] ? (Array.isArray(searchParams['sortBy']) ? (searchParams['sortBy'][0] as RoadmapSortBy) : (searchParams['sortBy'] as RoadmapSortBy)) : RoadmapSortBy.Default;
   const searchFilter = searchParams['searchFilter'] ? (Array.isArray(searchParams['searchFilter']) ? searchParams['searchFilter'][0] : searchParams['searchFilter']) : '';
 
-  // Get the latest version of all roadmaps
-  let roadmaps: (typeof metaRoadmaps[number] & { metaRoadmap: typeof metaRoadmaps[number] })['roadmapVersions'] = [];
-  metaRoadmaps.forEach(metaRoadmap => {
-    if (metaRoadmap.roadmapVersions.length) {
-      const foundRoadmap = metaRoadmap.roadmapVersions.find(roadmap => roadmap.version === Math.max(...metaRoadmap.roadmapVersions.map(roadmap => roadmap.version)));
-      if (foundRoadmap) {
-        foundRoadmap.metaRoadmap = metaRoadmap;
-        roadmaps.push(foundRoadmap);
-      }
+  // Get the latest version ids, then fetch proper roadmaps with access and counts
+  const latestRoadmapIds = metaRoadmaps.flatMap(metaRoadmap => {
+    if (!metaRoadmap.roadmapVersions.length) {
+      return [];
     }
-  })
+
+    const latestRoadmap = metaRoadmap.roadmapVersions.reduce((current, candidate) =>
+      candidate.version > current.version ? candidate : current
+    );
+
+    return latestRoadmap.id ? [latestRoadmap.id] : [];
+  });
+
+  let roadmaps = latestRoadmapIds.length ? await getRoadmaps(latestRoadmapIds) : [];
 
   // Filter by typeFilter
   if (typeFilter.length) {
@@ -110,7 +114,7 @@ export default async function Page(
 
   return <>
     <Breadcrumb />
- 
+
     <div className="rounded width-100 margin-bottom-100 margin-top-300 position-relative overflow-hidden" style={{ height: '350px' }}>
       <AttributedImage src="/images/solar.jpg" alt="" sizes="(max-width: 1250px) 100vw, 1250px">
         <div className="flex gap-100 flex-wrap-wrap align-items-flex-end justify-content-space-between padding-100 width-100">
@@ -138,7 +142,10 @@ export default async function Page(
 
     {/* TODO: There might be some issues with displayning public roadmaps, explore this. */}
     <section className="margin-bottom-500">
-      <RoadmapTree user={session.user ?? undefined} roadmaps={roadmaps} />
+      <RoadmapTree
+        user={session.user ?? undefined}
+        roadmaps={roadmaps}
+      />
     </section>
   </>
 }

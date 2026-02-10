@@ -1,6 +1,6 @@
 import dataSeriesInterest from "@/functions/weightedAverageDelta";
 import { RoadmapType, Comment } from "@/prisma/generated";
-import { Action, Goal, MetaRoadmap } from "@/types";
+import { Action, Goal, MetaRoadmap, MultiRoadmapInstance } from "@/types";
 
 // Used for alphabetical sorting, we use Swedish locale and ignore case, but it can be changed here
 const collator = new Intl.Collator('sv', { numeric: true, sensitivity: 'accent', caseFirst: 'upper' });
@@ -56,14 +56,14 @@ export function roadmapSorter<T extends { metaRoadmap: { type: RoadmapType, name
 /**
  * Sorts roadmaps alphabetically by name, A-Z
  */
-export function roadmapSorterAZ<T extends { metaRoadmap: MetaRoadmap }>(a: T, b: T) {
+export function roadmapSorterAZ<T extends { metaRoadmap: MetaRoadmap | MultiRoadmapInstance["metaRoadmap"] }>(a: T, b: T) {
   return collator.compare(a.metaRoadmap.name, b.metaRoadmap.name);
 }
 
 /**
  * Sorts roadmaps by their number of goals (more goals first), with name as a tiebreaker
  */
-export function roadmapSorterGoalAmount<T extends { metaRoadmap: MetaRoadmap, _count: { goals: number } }>(a: T, b: T) {
+export function roadmapSorterGoalAmount<T extends { metaRoadmap: MetaRoadmap | MultiRoadmapInstance["metaRoadmap"], _count: { goals: number } }>(a: T, b: T) {
   if (a._count.goals > b._count.goals) {
     return -1;
   } else if (a._count.goals < b._count.goals) {
