@@ -367,16 +367,18 @@ export async function POST(request: NextRequest) {
               ...(formData.dataSeries.unit == null ? {} : { unit: formData.dataSeries.unit }),
             },
           },
-          baseline: {
-            create: {
-              author: { connect: { id: session.user?.id }, },
-              recipeUsed: formData.baselineRecipeId !== null
-                ? { connect: { id: formData.baselineRecipeId, }, }
-                : undefined,
-              values: { createMany: { data: dateValuesToDBDateRecord(formData.baseline.dateValues) }, },
-              ...(formData.baseline.unit == null ? {} : { unit: formData.baseline.unit }),
+          ...(!formData.baseline ? {} : {
+            baseline: {
+              create: {
+                author: { connect: { id: session.user?.id }, },
+                recipeUsed: formData.baselineRecipeId !== null
+                  ? { connect: { id: formData.baselineRecipeId, }, }
+                  : undefined,
+                values: { createMany: { data: dateValuesToDBDateRecord(formData.baseline.dateValues) }, },
+                ...(formData.baseline.unit == null ? {} : { unit: formData.baseline.unit }),
+              },
             },
-          },
+          }),
           links: {
             create: formData.links?.map(link => ({
               url: link.url,
