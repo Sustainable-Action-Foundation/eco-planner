@@ -3,23 +3,23 @@ name: build and publish docker image
 on:
   push:
     branches:
-      - 'main'
-      - 'dev'
+      - "main"
+      - "dev"
     tags:
-      - 'v*.*.*'
+      - "v*.*.*"
   pull_request:
     branches:
-      - 'main'
-      - 'dev'
+      - "main"
+      - "dev"
   workflow_dispatch:
     inputs:
       should_push:
-        description: 'Should the image be pushed to the registry? (uses default tags for the branch)'
+        description: "Should the image be pushed to the registry? (uses default tags for the branch)"
         required: false
         default: false
         type: boolean
       skip_tests:
-        description: 'Skip tests?'
+        description: "Skip tests?"
         required: false
         default: false
         type: boolean
@@ -38,19 +38,32 @@ jobs:
       id-token: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-        
+        uses: actions/checkout@v6
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
           driver: docker-container
-          use: true  # Set as default builder
+          use: true # Set as default builder
+
+      - name: Set up Node for tests
+        if: ${{ !inputs.skip_tests }}
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: package.json
+          cache: yarn
+
+      - name: Install test dependencies
+        if: ${{ !inputs.skip_tests }}
+        run: |
+          # Packages
+          yarn install --frozen-lockfile
+          # Playwright browsers
+          yarn playwright install --with-deps
 
       - name: Run tests
         id: run-tests
-        # Temporarily disabled since our tests are currently broken
-        if: ${{ false }}
-        # if: ${{ !inputs.skip_tests }}
+        if: ${{ !inputs.skip_tests }}
         env:
           TEST_BASE_URL: ${{ secrets.TEST_BASE_URL }}
           TEST_DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
@@ -60,96 +73,18 @@ jobs:
           TEST_MAIL_PASSWORD: ${{ secrets.TEST_MAIL_PASSWORD }}
           TEST_MARIADB_DATABASE: ${{ secrets.TEST_MARIADB_DATABASE }}
           TEST_MARIADB_ROOT_PASSWORD: ${{ secrets.TEST_MARIADB_ROOT_PASSWORD }}
+          GIT_LONG_HASH: ${{ github.sha }}
+          GIT_SHORT_HASH: ${{ github.sha }}
           BUILDX_EXPERIMENTAL: 1
         run: |
-          # Clean up
-          docker image prune -f || true
-          
-          # Pull base images
-          docker pull node:20-alpine || true
-          docker pull mariadb:lts || true
-                    
-          # Build and run tests (caching handled by GHA cache)
-          docker compose -f docker/compose.testing.yaml up --build --remove-orphans
-          
-          # Clean up
-          docker image prune -f || true
-
-      - name: Extract test results from container
-        id: test-results
-        if: ${{ !cancelled() && steps.run-tests.outcome != 'skipped' }}
-        run: |
-          # Create results directory
-          mkdir -p test-artifacts
-          
-          # Get the container ID
-          CONTAINER_ID=$(docker compose -f docker/compose.testing.yaml ps -aq tests)
-          
-          if [ -n "$CONTAINER_ID" ]; then
-            echo "Found tests container: $CONTAINER_ID"
-            
-            # Copy test files from the container
-            docker cp ${CONTAINER_ID}:/testing/tests/reporter.log test-artifacts/ 2>/dev/null || echo "❌ reporter.log not found"
-            docker cp ${CONTAINER_ID}:/testing/tests/report.json test-artifacts/ 2>/dev/null || echo "❌ report.json not found"
-          else
-            echo "❌ Could not find tests container"
-            echo "Available containers:"
-            docker compose -f docker/compose.testing.yaml ps -a
-          fi
-
-      - name: Generate test summary
-        id: test-summary
-        if: ${{ !cancelled() && steps.test-results.outcome != 'skipped' }}
-        run: |
-          echo "## 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          if [ -f "test-artifacts/reporter.log" ]; then
-            echo "### Test Report" >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            # Strip ANSI color codes from the log file
-            sed 's/\x1b\[[0-9;]*m//g' test-artifacts/reporter.log >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-          fi
-
-          if [ -f "test-artifacts/report.json" ]; then
-            echo "### Test Statistics" >> $GITHUB_STEP_SUMMARY
-            
-            # Parse JSON and extract key metrics
-            TOTAL_TESTS=$(jq -r '.suites | map(.specs | length) | add' test-artifacts/report.json 2>/dev/null || echo "0")
-            PASSED_TESTS=$(jq -r '.suites | map(.specs | map(select(.tests[0].results[0].status == "passed")) | length) | add' test-artifacts/report.json 2>/dev/null || echo "0")
-            FAILED_TESTS=$(jq -r '.suites | map(.specs | map(select(.tests[0].results[0].status == "failed")) | length) | add' test-artifacts/report.json 2>/dev/null || echo "0")
-            DURATION=$(jq -r '.stats.duration' test-artifacts/report.json 2>/dev/null || echo "0")
-            
-            echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
-            echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
-            echo "| Total Tests | $TOTAL_TESTS |" >> $GITHUB_STEP_SUMMARY
-            echo "| Passed | ✅ $PASSED_TESTS |" >> $GITHUB_STEP_SUMMARY
-            echo "| Failed | ❌ $FAILED_TESTS |" >> $GITHUB_STEP_SUMMARY
-            echo "| Duration | ${DURATION}ms |" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            
-            # Show failed tests if any
-            if [ "$FAILED_TESTS" -gt "0" ]; then
-              echo "### ❌ Failed Tests" >> $GITHUB_STEP_SUMMARY
-              jq -r '.suites[] | .specs[] | select(.tests[0].results[0].status == "failed") | "- **" + .title + "**: " + .tests[0].results[0].error.message' test-artifacts/report.json 2>/dev/null >> $GITHUB_STEP_SUMMARY || echo "Failed to parse failed tests" >> $GITHUB_STEP_SUMMARY
-              echo "" >> $GITHUB_STEP_SUMMARY
-            fi
-          fi
-          
-          echo "### 📊 Build Information" >> $GITHUB_STEP_SUMMARY
-          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Run Number**: ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Workflow**: ${{ github.workflow }}" >> $GITHUB_STEP_SUMMARY
+          yarn playwright test
 
       - name: Upload test artifacts
-        if: ${{ !cancelled() && steps.test-summary.outcome != 'skipped' }}
+        if: ${{ !cancelled() && steps.run-tests.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: test-results-${{ github.run_number }}
-          path: test-artifacts/
+          path: test-results/
           retention-days: 30
           if-no-files-found: warn
 
