@@ -8,6 +8,7 @@ import { TFunction } from "i18next";
 import { IconEye, IconEyeOff, IconLock, IconUser } from "@tabler/icons-react";
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction) {
+  console.log('Form submitted')
   event.preventDefault()
 
   const form = event.target
@@ -27,6 +28,7 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction) {
     headers: { 'Content-Type': 'application/json' },
   }).then((res) => {
     if (res.ok) {
+      console.log('Login successful')
       // Redirect to the page the user came from, or to the home page.
       const from = new URLSearchParams(window.location.search).get('from')
       if (from) {
@@ -35,9 +37,11 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction) {
         window.location.href = '/'
       }
     } else {
+      console.log('Login failed:', res.statusText)
       alert(t("components:login.login_failed"))
     }
   }).catch(() => {
+    console.log('Login failed: Testing')
     alert(t("components:login.login_failed"))
   })
 }

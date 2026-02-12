@@ -30,7 +30,7 @@ export default async function Sidebar() {
       <div className={`${styles['sidebar-menu']} flex-grow-100 flex flex-direction-column`}>
         <nav className='flex-grow-100 flex flex-direction-column'>
           {user?.isLoggedIn ?
-            <Link href={`/@${user.username}`} className="margin-bottom-300 color-pureblack rounded">
+            <Link href={`/@${user.username}`} className="margin-bottom-300 color-pureblack rounded" data-testid="logged-in-user-button">
               <IconUser aria-hidden='true' />
               {t("components:sidebar.my_profile")}
             </Link>
@@ -179,12 +179,12 @@ export default async function Sidebar() {
             instead of on the left as is the case with other menu items
           */ }
           {user?.isLoggedIn ?
-            <LogoutButton className='justify-content-flex-end transparent rounded' style={{ paddingRight: '.5rem' }}>
+            <LogoutButton className='justify-content-flex-end transparent rounded' style={{ paddingRight: '.5rem' }} data-testid="logout-button">
               <div className="flex-grow-100 text-align-left">{t("common:tsx.logout")}</div>
               <IconLogout2 aria-hidden="true" />
             </LogoutButton>
             :
-            <Link href="/login" className="justify-content-flex-end color-pureblack rounded" style={{ paddingRight: '.5rem' }}>
+            <Link href="/login" className="justify-content-flex-end color-pureblack rounded" style={{ paddingRight: '.5rem' }} data-testid="login-button">
               <div className="flex-grow-100 text-align-left">{t("common:tsx.login")}</div>
               <IconLogin2 aria-hidden='true' />
             </Link>
