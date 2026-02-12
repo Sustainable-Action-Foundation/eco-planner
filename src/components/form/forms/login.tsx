@@ -56,7 +56,7 @@ export default function Login() {
           {t("components:login.username")}
           <div className="margin-top-50 margin-bottom-100 padding-50 flex align-items-center smooth focusable">
             <IconUser style={{ minWidth: '24px' }} aria-hidden="true" />
-            <input className="padding-0 margin-inline-50 font-size-100" type="text" placeholder={t("common:placeholder.name")} name="username" required id="username" autoComplete="username" />
+            <input className="padding-0 margin-inline-50 font-size-100" type="text" placeholder={t("common:placeholder.name")} name="username" required id="username" autoComplete="username" data-testid="username-input" />
           </div>
         </label>
 
@@ -65,7 +65,7 @@ export default function Login() {
           {t("components:login.password")}
           <div className="margin-top-50 margin-bottom-100 padding-50 flex align-items-center smooth focusable">
             <IconLock style={{ minWidth: '24px' }} aria-hidden="true" />
-            <input className="padding-0 margin-inline-50 transparent font-size-100" type={showPassword ? 'text' : 'password'} placeholder={t("common:placeholder.password")} name="password" required id="password" autoComplete="current-password" />
+            <input className="padding-0 margin-inline-50 transparent font-size-100" type={showPassword ? 'text' : 'password'} placeholder={t("common:placeholder.password")} name="password" required id="password" autoComplete="current-password" data-testid="password-input" />
             <button
               type="button"
               className={`${styles.showPasswordButton} grid padding-0 transparent`}
@@ -93,6 +93,7 @@ export default function Login() {
             style={{ fontSize: '14px', transform: 'none' }}
             type="submit"
             id="submit-button"
+            data-testid="login-submit-button"
            >
             {t("common:tsx.login")}
           </button>

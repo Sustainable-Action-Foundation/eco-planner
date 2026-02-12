@@ -50,6 +50,7 @@ export default async function Sidebar() {
             popoverTarget='create-popover'
             className='transparent rounded'
             style={{ fontSize: '1rem' }}
+            data-testid="create-menu-popover"
           >
             <IconCirclePlus aria-hidden="true" />
             {t("components:sidebar.create")}
@@ -68,13 +69,13 @@ export default async function Sidebar() {
                 style={{ borderBottom: '1px solid var(--gray)' }}
               >
                 <h2 className='font-weight-600 margin-0' style={{ fontSize: 'inherit' }}>{t("components:sidebar.create")}</h2>
-                <button popoverTarget='create-popover' aria-label={t("components:sidebar.close_menu_create")} className='transparent grid padding-25 round'>
+                <button popoverTarget='create-popover' aria-label={t("components:sidebar.close_menu_create")} className='transparent grid padding-25 round' data-testid="close-create-menu-popover">
                   <IconX aria-hidden='true' width={16} height={16} />
                 </button>
               </header>
               <ul className='padding-0 margin-0' style={{ listStyle: 'none' }}>
                 <li>
-                  <Link href='/metaRoadmap/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none'>
+                  <Link href='/metaRoadmap/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none' data-testid="create-roadmap-series-link">
                     {t("common:roadmap_series_one")}
                     <IconPlus width={16} height={16} />
                   </Link>
