@@ -80,7 +80,7 @@ export async function extractDataSeries(
 
     const dateValues: DateValues = Object.fromEntries(
       dbDataSeries.values.map(v => ([
-        v.timestamp.toISOString(),
+        new Date(v.timestamp).toISOString(),
         v.value,
       ]))
     );

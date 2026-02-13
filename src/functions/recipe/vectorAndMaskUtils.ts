@@ -268,7 +268,7 @@ export function dataSeriesToDateValues(dataSeries: DataSeries | Goal["dataSeries
 
   const dateValues: DateValues = Object.fromEntries(
     dataSeries.values.map(v => ([
-      v.timestamp.toISOString(),
+      new Date(v.timestamp).toISOString(),
       v.value,
     ]))
   );
