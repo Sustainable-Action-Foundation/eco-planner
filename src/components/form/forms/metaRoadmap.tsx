@@ -97,7 +97,7 @@ export default function MetaRoadmapForm({
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:meta_roadmap.description_legend")}</legend>
           <label>
             {t("forms:meta_roadmap.name")}
-            <input id="name" name="name" className="margin-top-25 margin-bottom-100" type="text" defaultValue={currentRoadmap?.name ?? undefined} autoComplete="off" data-testid="name-input" required />
+            <input id="name" name="name" className="margin-top-25 margin-bottom-100" type="text" defaultValue={currentRoadmap?.name ?? undefined} autoComplete="off" required />
           </label>
 
           <label id="description-label">{t("forms:meta_roadmap.description")}</label>

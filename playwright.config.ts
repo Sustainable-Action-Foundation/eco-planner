@@ -49,14 +49,17 @@ export default defineConfig({
     baseURL: webserverURL,
 
     // Collect trace when retrying the failed test.
-    trace: "on-first-retry",
+    trace: "on",
 
-    locale: "sv-SE",
+    locale: "en-SE",
     timezoneId: "Europe/Stockholm",
   },
 
   // Configure projects for major browsers.
   projects: [
+    { 
+      name: 'setup', 
+      testMatch: /.*\.setup\.ts/ },
     {
       name: "Locale files validation",
       testMatch: ["**/locale-files.ts"],
@@ -65,15 +68,18 @@ export default defineConfig({
     },
     {
       name: "chromium 1080p",
-      use: { ...devices["Desktop Chrome"], viewport: { width: 1920, height: 1080 }, channel: "chromium", },
+      use: { ...devices["Desktop Chrome"], viewport: { width: 1920, height: 1080 }, channel: "chromium", storageState: "./playwright/.auth/user.json" },
+      dependencies: ["setup"],
     },
     {
       name: "firefox 1080p",
-      use: { ...devices["Desktop Firefox"], viewport: { width: 1920, height: 1080 }, },
+      use: { ...devices["Desktop Firefox"], viewport: { width: 1920, height: 1080 }, storageState: "./playwright/.auth/user.json" },
+      dependencies: ["setup"],
     },
     {
       name: "webkit 1080p",
-      use: { ...devices["Desktop Safari"], viewport: { width: 1920, height: 1080 }, },
+      use: { ...devices["Desktop Safari"], viewport: { width: 1920, height: 1080 }, storageState: "./playwright/.auth/user.json" },
+      dependencies: ["setup"],
     },
   ],
 

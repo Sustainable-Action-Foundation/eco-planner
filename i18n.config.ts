@@ -9,12 +9,14 @@ export const Locales = {
   enSE: "en-SE",
   svSE: "sv-SE",
   default: "en-SE",
+  test: "cimode"
 } as const;
 export type Locales = (typeof Locales)[keyof typeof Locales];
 export const uniqueLocales = [...new Set(Object.values(Locales))];
 export const localeAliases: Record<Locales, string> = {
   [Locales.enSE]: "English",
   [Locales.svSE]: "Svenska",
+  [Locales.test]: "Test"
 };
 
 export const allNamespaces = ["common", "forms", "components", "graphs", "pages", "email", "metadata"];

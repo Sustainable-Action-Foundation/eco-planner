@@ -19,7 +19,6 @@ export default function LogoutButton({
       id={id}
       className={`${className}`}
       style={{ ...style }}
-      data-testid="logout-button"
       onClick={() => {
         fetch('/api/logout', {
           method: 'POST',

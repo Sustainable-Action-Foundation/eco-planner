@@ -1,47 +1,11 @@
-import { localeAliases } from "../i18nTestVariables";
-import { switchLanguage } from "../lib/switch-language";
 import { expect, test } from "playwright/test";
 
-test("Login functionality", async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState("networkidle");
-    
-    const login = async () => {
-      await page.getByTestId("login-button").click();
+// test.use({ storageState: { cookies: [], origins: [] } });
 
-      const userInput = page.getByTestId("username-input");
-      const passwordInput = page.getByTestId("password-input");
-
-      await userInput.click();
-      await userInput.fill('admin');
-      await passwordInput.click();
-      await passwordInput.fill('admin');
-      
-      const submitButton = await page.getByTestId("login-submit-button");
-
-      await expect(submitButton).toBeVisible();
-      await expect(submitButton).toBeEnabled();
-      await submitButton.click();
-
-      await expect(page).toHaveURL('/');
-    };
-
-    const logout = async () => {
-      await page.getByTestId("logout-button").click();
-      await expect(page.getByTestId("login-button")).toBeVisible();
-    };
-
-    // Change language to English
-    await switchLanguage(page, localeAliases["en-SE"])
-
-    // English locale
-    await login();
-    await logout();
-
-    // Change language to Swedish
-    await switchLanguage(page, localeAliases["sv-SE"])
-
-    // Swedish locale
-    await login();
-    await logout();
-  });
+test('add roadmap series', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Create' }).click();
+  await page.getByRole('link', { name: 'roadmap series', exact: true }).click();
+  await page.getByRole('button', { name: 'Close menu: Create' }).click();
+  await expect(page.getByRole('heading')).toContainText('Create new roadmap series');
+});

@@ -30,7 +30,7 @@ export default async function Sidebar() {
       <div className={`${styles['sidebar-menu']} flex-grow-100 flex flex-direction-column`}>
         <nav className='flex-grow-100 flex flex-direction-column'>
           {user?.isLoggedIn ?
-            <Link href={`/@${user.username}`} className="margin-bottom-300 color-pureblack rounded" data-testid="logged-in-user-button">
+            <Link href={`/@${user.username}`} className="margin-bottom-300 color-pureblack rounded">
               <IconUser aria-hidden='true' />
               {t("components:sidebar.my_profile")}
             </Link>
@@ -50,7 +50,6 @@ export default async function Sidebar() {
             popoverTarget='create-popover'
             className='transparent rounded'
             style={{ fontSize: '1rem' }}
-            data-testid="create-menu-popover"
           >
             <IconCirclePlus aria-hidden="true" />
             {t("components:sidebar.create")}
@@ -69,13 +68,13 @@ export default async function Sidebar() {
                 style={{ borderBottom: '1px solid var(--gray)' }}
               >
                 <h2 className='font-weight-600 margin-0' style={{ fontSize: 'inherit' }}>{t("components:sidebar.create")}</h2>
-                <button popoverTarget='create-popover' aria-label={t("components:sidebar.close_menu_create")} className='transparent grid padding-25 round' data-testid="close-create-menu-popover">
+                <button popoverTarget='create-popover' aria-label={t("components:sidebar.close_menu_create")} className='transparent grid padding-25 round'>
                   <IconX aria-hidden='true' width={16} height={16} />
                 </button>
               </header>
               <ul className='padding-0 margin-0' style={{ listStyle: 'none' }}>
                 <li>
-                  <Link href='/metaRoadmap/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none' data-testid="create-roadmap-series-link">
+                  <Link href='/metaRoadmap/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none'>
                     {t("common:roadmap_series_one")}
                     <IconPlus width={16} height={16} />
                   </Link>
@@ -117,7 +116,6 @@ export default async function Sidebar() {
             anchorName='--select-language-popover-button'
             popoverTarget='select-language-popover'
             className='transparent rounded'
-            data-testid="language-switcher-dialog-button"
           >
             <IconWorld aria-hidden="true" />
             {t("components:sidebar.language")}
@@ -179,12 +177,12 @@ export default async function Sidebar() {
             instead of on the left as is the case with other menu items
           */ }
           {user?.isLoggedIn ?
-            <LogoutButton className='justify-content-flex-end transparent rounded' style={{ paddingRight: '.5rem' }} data-testid="logout-button">
+            <LogoutButton className='justify-content-flex-end transparent rounded' style={{ paddingRight: '.5rem' }}>
               <div className="flex-grow-100 text-align-left">{t("common:tsx.logout")}</div>
               <IconLogout2 aria-hidden="true" />
             </LogoutButton>
             :
-            <Link href="/login" className="justify-content-flex-end color-pureblack rounded" style={{ paddingRight: '.5rem' }} data-testid="login-button">
+            <Link href="/login" className="justify-content-flex-end color-pureblack rounded" style={{ paddingRight: '.5rem' }}>
               <div className="flex-grow-100 text-align-left">{t("common:tsx.login")}</div>
               <IconLogin2 aria-hidden='true' />
             </Link>
