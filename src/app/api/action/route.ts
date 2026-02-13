@@ -7,7 +7,7 @@ import { revalidateTag } from "next/cache";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { cookies } from "next/headers";
 import { Prisma } from "@prisma/client";
-import { dateValuesToDBDateRecord } from "@/functions/recipe/extractors";
+import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 
 /**
  * Handles POST requests to the action API

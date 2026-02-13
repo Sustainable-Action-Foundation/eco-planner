@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs";
 import { RandomTextSE } from "./randomText";
 import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types";
 import { DateValues, isISOIshDate } from "@/types";
-import { dateValuesToDBDateRecord } from "../src/functions/recipe/extractors";
+import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 
 const prisma = new PrismaClient();
 prisma.$connect().catch((e) => {

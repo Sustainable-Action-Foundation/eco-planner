@@ -12,7 +12,7 @@ import TabList from "../../generic/tablist/tabList";
 import OutputDataSeries from "../editor/output/dataSeriesDisplay";
 import OutputGraph from "../editor/output/graphDisplay";
 import OutputStatus from "../editor/output/statusDisplay";
-import { isMathjsUnit } from "@/functions/recipe/extractors";
+import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";
 import { IconAlertTriangleFilled } from "@tabler/icons-react";
 import { RecipeEditorPermissions } from "../editor/variables/variableTypes/recipeEditorPermissions";
 import { DBRecipe } from "@/types";

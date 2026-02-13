@@ -1,7 +1,7 @@
 "use client";
 
 import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
-import { dataSeriesToDateValues } from "@/functions/recipe/extractors";
+import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import { Effect, Goal, isISOIshDate, Roadmap } from "@/types";
 import { useTranslation } from "react-i18next";

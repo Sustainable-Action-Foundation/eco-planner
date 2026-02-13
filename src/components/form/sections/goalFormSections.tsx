@@ -10,7 +10,7 @@ import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput";
 import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
 import { ClientGoal, ClientMultiRoadmapInstance, ClientRoadmap, Goal, UnitString } from "@/types";
-import { dataSeriesToDateValues } from "@/functions/recipe/extractors";
+import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 
 export function ManualGoalForm({
   currentGoal,

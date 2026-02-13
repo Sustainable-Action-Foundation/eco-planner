@@ -9,7 +9,7 @@ import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { Prisma } from "@prisma/client";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { isRecipe } from "@/functions/recipe/types";
-import { dateValuesToDBDateRecord } from "@/functions/recipe/extractors";
+import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 
 function tryParseJSON(value: unknown): { ok: true; value: unknown } | { ok: false } {
   if (typeof value !== "string") return { ok: true, value };

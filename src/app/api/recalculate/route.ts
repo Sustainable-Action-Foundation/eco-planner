@@ -1,5 +1,5 @@
 import getOneRecipe from "@/fetchers/getOneRecipe";
-import { dateValuesToDBDateRecord } from "@/functions/recipe/extractors";
+import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
 import { RecipeError } from "@/functions/recipe/types";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";

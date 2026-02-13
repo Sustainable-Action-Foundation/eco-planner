@@ -1,6 +1,6 @@
 "use client";
 
-import { dataSeriesToDateValues } from "@/functions/recipe/extractors";
+import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper.tsx";
 import { Goal, isISOIshDate } from "@/types";
 import { useTranslation } from "react-i18next";

@@ -4,7 +4,7 @@ import { ApiTableContent } from "@/lib/api/apiTypes";
 import { parsePeriod } from "@/lib/api/utility";
 import getTableContent from "@/lib/api/getTableContent";
 import i18nServer from "i18next";
-import { dataSeriesToDateValues } from "@/functions/recipe/extractors";
+import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import type { Goal } from "@/types";
 
 type ThumbnailGoal = Pick<

@@ -6,7 +6,7 @@ import { parsePeriod } from "@/lib/api/utility";
 import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
 import { ApiTableContent } from "@/lib/api/apiTypes";
 import { useTranslation } from "react-i18next";
-import { dataSeriesToDateValues } from "@/functions/recipe/extractors";
+import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 
 export default function MainGraph({
   goal,

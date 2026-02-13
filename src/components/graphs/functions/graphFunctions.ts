@@ -3,7 +3,7 @@ import { GraphType } from "@/components/graphs/graphGraph";
 import { ActionImpactType } from "@prisma/client";
 import { ChildGraphType } from "@/components/graphs/childGraphs/childGraphContainer";
 import { type DateValues, type DataSeries, isISOIshDate, Effect, Goal } from "@/types";
-import { dataSeriesToDateValues } from "@/functions/recipe/extractors";
+import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 
 /** Retrieves the graph type for a goal from storage. */
 export function getStoredGraphType(goalId?: string) {

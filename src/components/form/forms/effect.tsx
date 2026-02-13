@@ -7,7 +7,7 @@ import { useMemo, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput";
 import { absoluteToDelta, ActionSelector, deltaToAbsolute, GoalSelector } from "../sections/effectFormSections";
-import { dataSeriesToDateValues } from "@/functions/recipe/extractors";
+import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 
 export default function EffectForm({
   goal,
