@@ -7,10 +7,10 @@ import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
 import { Recipe } from "@/functions/recipe/types";
-import { recipeFromUnknown } from "@/functions/recipe/parseRecipe";
 import { RecipeContextProvider } from "../recipe/context/recipeContext.provider";
 import { SuggestedRecipeApplier } from "@/components/recipe/suggestions/suggestedRecipeApplier";
 import FormIntegration from "../recipe/editor/output/formIntegration";
+import { SmartRecipe } from "@/functions/recipe/smartRecipe";
 
 export default function CopyAndScale({
   goal,
@@ -77,7 +77,10 @@ export default function CopyAndScale({
         setIsLoading(false);
         throw new Error("Why is this a file?");
       }
-      recipeUsed = recipeFromUnknown(unparsedRecipe);
+      if (!unparsedRecipe) {
+        throw new Error("Failed to parse recipe from form data");
+      }
+      recipeUsed = SmartRecipe.fromSerialized(unparsedRecipe).toRecipe();
       if (!recipeUsed) {
         throw new Error("Failed to parse recipe from form data");
       }

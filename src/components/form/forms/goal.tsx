@@ -10,12 +10,12 @@ import styles from '../forms.module.css';
 import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections";
 import { RecipeContextProvider } from "@/components/recipe/context/recipeContext.provider";
 import { Recipe } from "@/functions/recipe/types";
-import { recipeFromUnknown } from "@/functions/recipe/parseRecipe";
 import TextEditor from "../elements/textEditor/editor";
 import { Content } from "@tiptap/core";
 import SuggestedRecipeToggle from "@/components/recipe/suggestions/suggestedRecipeToggle";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import FormIntegration from "@/components/recipe/editor/output/formIntegration";
+import { SmartRecipe } from "@/functions/recipe/smartRecipe";
 
 const DataSeriesType = {
   Static: "STATIC",
@@ -85,7 +85,7 @@ export default function GoalForm({
     const resultingRecipeString = formData.get("resultingRecipe") as string | null;
     if (resultingRecipeString) {
       try {
-        dataSeriesRecipe = recipeFromUnknown(resultingRecipeString);
+        dataSeriesRecipe = SmartRecipe.fromSerialized(resultingRecipeString).toRecipe();
       } catch (e) {
         console.error("Failed to parse resulting recipe from form:", e);
         event.target.reportValidity();
