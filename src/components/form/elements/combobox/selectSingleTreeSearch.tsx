@@ -60,7 +60,6 @@ export default function SelectSingleTreeSearch({
   defaultValue?: TreeItem, // TODO: Should also allow for a boolean which sets default to first value if enabled
   onChange?: (value: TreeItem | null) => void
 }) {
-
   const { t } = useTranslation(["forms"]);
 
   const [value, setValue] = useState<TreeItem | null>(defaultValue || null)
@@ -230,7 +229,7 @@ export default function SelectSingleTreeSearch({
         title={value?.name}
         id={props.id}
         className={`${styles['select-toggle']}`}
-        style={{ borderColor: menuOpen ? '#191919' : '' }}
+        style={{ ...props.style, borderColor: menuOpen ? '#191919' : '' }} // TODO: Not sure style should be set here, do it temporarily to prevent layout shifting in recipevariableeditor for now
         value={value ? value.value : ''}
         name={props.name}
         disabled={props.disabled}

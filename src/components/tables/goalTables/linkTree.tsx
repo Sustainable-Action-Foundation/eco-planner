@@ -1,35 +1,24 @@
 "use client";
 
 import styles from '../tables.module.css' with { type: "css" };
-import { DataSeries, Goal } from "@prisma/client";
-import goalsToTree, { GoalTree } from '@/functions/goalsToTree';
+import goalsToTree, { GoalTree, GoalTreeEntry } from '@/functions/goalsToTree';
 import { SyntheticEvent } from 'react';
 import { getSessionStorage, setSessionStorage } from '@/functions/localStorage';
 import { useTranslation } from "react-i18next";
 import { IconCaretRightFilled, IconLink } from '@tabler/icons-react';
 import Link from 'next/link';
+import type { Roadmap } from "@/types";
 
 // interface LinkTreeCommonProps {}
 
 interface LinkTreeWithGoals /* extends LinkTreeCommonProps */ {
-  goals: (Goal & {
-    _count: { effects: number }
-    dataSeries: DataSeries | null,
-    roadmap: { id: string, metaRoadmap: { name: string, id: string } },
-  })[],
+  goals: GoalTreeEntry[],
   roadmap?: never,
 }
 
 interface LinkTreeWithRoadmap /* extends LinkTreeCommonProps */ {
   goals?: never,
-  roadmap: {
-    id: string,
-    metaRoadmap: { name: string, id: string },
-    goals: (Goal & {
-      _count: { effects: number },
-      dataSeries: DataSeries | null,
-    })[]
-  },
+  roadmap: Roadmap,
 }
 
 type LinkTreeProps = LinkTreeWithGoals | LinkTreeWithRoadmap;
@@ -45,12 +34,7 @@ export default function LinkTree({
   if ((!goals && !roadmap) || (goals && roadmap)) throw new Error('LinkTree: Either `goals` XOR `roadmap` must be provided');
 
   if (!goals) {
-    goals = roadmap?.goals.map(goal => {
-      return {
-        ...goal,
-        roadmap: (({ goals, ...data }) => data)(roadmap),
-      }
-    })
+    goals = roadmap?.goals ?? [];
   }
 
   if (!goals?.length) return (<p>{t("components:link_tree.no_roadmaps")}</p>);
@@ -86,7 +70,7 @@ export default function LinkTree({
             { // If the current object is a goal (has an id), render a link to the goal
               typeof data[key].id == 'string' ? (
                 <Link href={`/goal/${data[key].id}`} className={`display-flex align-items-center padding-block-50 smooth text-decoration-none`}>
-                  <IconLink aria-hidden="true" color="gray" className="round padding-25 margin-inline-25" /> {/* TODO: Use link icon? */}
+                  <IconLink aria-hidden="true" color="gray" className="round padding-25 margin-inline-25" />
                   <span>
                     {key}
                   </span>

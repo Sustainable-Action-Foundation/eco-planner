@@ -10,7 +10,6 @@
 import styles from './popovers.module.css' with { type: "css" }
 import React, { HTMLProps } from "react";
 
-// TODO: Do i even need a popoverbutton component actually?
 export function PopoverButton({
   id,
   className,

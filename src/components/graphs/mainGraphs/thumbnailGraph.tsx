@@ -1,33 +1,75 @@
 import WrappedChart from "@/lib/chartWrapper";
 import styles from '../graphs.module.css'
-import { Goal, Roadmap } from "@/types";
+import { ApiTableContent } from "@/lib/api/apiTypes";
+import { parsePeriod } from "@/lib/api/utility";
+import getTableContent from "@/lib/api/getTableContent";
+import i18nServer from "i18next";
+import { dataSeriesToDateValues } from "@/functions/recipe/extractors";
+import type { Goal } from "@/types";
 
-export default function ThumbnailGraph({
+type ThumbnailGoal = Pick<
+  Goal,
+  "id" | "name" | "indicatorParameter" | "dataSeries" | "externalDataset" | "externalTableId" | "externalSelection"
+>;
+
+export default async function ThumbnailGraph({
   goal,
+  historicalData
 }: {
-  goal: Goal | Roadmap["goals"][number];
+  goal: ThumbnailGoal,
+  historicalData?: boolean,
 }) {
   if (!goal.dataSeries) {
     return null;
   }
 
-  const mainChart: ApexAxisChartSeries = [];
-  const mainSeries = [];
-  for (const point of goal.dataSeries.values) {
-    mainSeries.push({
-      x: new Date(point.timestamp).getTime(),
-      y: Number.isFinite(point.value) ? point.value : null,
-    });
+  const locale = i18nServer.language.split("-")[0];
+  let externalData: ApiTableContent | null = null;
+  if (historicalData) {
+    // Fetch external data
+    if (goal.externalDataset && goal.externalTableId && goal.externalSelection) {
+      externalData = await getTableContent(goal.externalTableId, goal.externalDataset, goal.externalSelection, locale);
+    }
   }
+
+  const mainDateValues = dataSeriesToDateValues(goal.dataSeries);
+  const sortedMainEntries = Object.entries(mainDateValues.dateValues)
+    .sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime());
+  const mainSeries = sortedMainEntries.map(([isoDate, value]) => ({
+    x: new Date(isoDate).getTime(),
+    y: Number.isFinite(value) ? value : null,
+  }));
+
+  const mainChart: ApexAxisChartSeries = [];
   mainChart.push({
-    name: (goal.name || goal.indicatorParameter).split('\\').at(-1),
+    name: (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
     data: mainSeries,
-    type: 'line',
+    type: 'area',
   });
+
+  if (externalData) {
+    const historicalSeries = [];
+
+    if (externalData.values.length >= 0) {
+      for (const { period, value } of externalData.values) {
+        const parsedValue = parseFloat(value);
+
+        historicalSeries.push({
+          x: parsePeriod(period).getTime(),
+          y: Number.isFinite(parsedValue) ? parsedValue : null,
+        });
+      }
+      mainChart.push({
+        name: `${externalData.metadata[0]?.label}`,
+        data: historicalSeries,
+        type: 'area',
+      });
+    }
+  }
 
   const mainChartOptions: ApexCharts.ApexOptions = {
     chart: {
-      type: 'line',
+      type: 'area',
       animations: { enabled: false, dynamicAnimation: { enabled: false } },
       zoom: {
         enabled: false,
@@ -36,15 +78,27 @@ export default function ThumbnailGraph({
         show: false,
       },
     },
+    legend: {show: false},
+    colors: ['#0090ff', '#2e8a56'],
+    fill: {
+      type: 'solid',
+      opacity: [0, 0.3],
+      colors: ['#0090ff', '#2e8a56'],
+    },
     tooltip: { enabled: false },
-    stroke: { curve: 'straight' },
+    stroke: { curve: 'straight', width: 1.5 },
     xaxis: {
       type: 'datetime',
       labels: { format: 'yyyy' },
       tooltip: { enabled: false },
-      min: new Date("2020-01-01T00:00:00.000Z").getTime(),
-      max: new Date("2050-01-01T00:00:00.000Z").getTime(),
-      // categories: dataSeriesDataFieldNames.map(name => name.replace('val', ''))
+      ...(externalData?.values?.[0]?.period
+        ? { min: Date.UTC(Number(externalData.values[0].period), 0, 1) }
+        : sortedMainEntries[0]
+          ? { min: new Date(sortedMainEntries[0][0]).getTime() }
+          : {}),
+      ...(sortedMainEntries[sortedMainEntries.length - 1]
+        ? { max: new Date(sortedMainEntries[sortedMainEntries.length - 1][0]).getTime() }
+        : {})
     },
     yaxis: {
       show: false
@@ -54,16 +108,15 @@ export default function ThumbnailGraph({
   return (
     <>
       <div className={styles.graphWrapperThumbnail}>
-        <h3 className="font-weight-500 margin-0 padding-top-75 text-align-center">
+        <h3 className="font-weight-500 margin-0 padding-top-75 padding-inline-75 overflow-hidden white-space-nowrap text-align-center text-overflow-ellipsis">
           {goal.name}
-        </h3> {/* TODO: Make conditional */}
-        <div style={{ height: '200px' }}>
+        </h3>
+        <div className="flex-grow-100">
           <WrappedChart
             options={mainChartOptions}
             series={mainChart}
-            type="line"
             width="100%"
-            height="200px"
+            height="100%"
           />
         </div>
       </div>

@@ -23,7 +23,7 @@ function tryParseJSON(value: unknown): { ok: true; value: unknown } | { ok: fals
 /** 
  * WARNING! also mutates and deserializes the input goal object!
  */
-function isGoalCreate(goal: unknown): goal is GoalCreateInput {
+export function isGoalCreate(goal: unknown): goal is GoalCreateInput {
   if (!isStandardObject(goal)) return false;
 
   if ("goalId" in goal) return false;

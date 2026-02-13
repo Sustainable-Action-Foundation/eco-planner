@@ -1,8 +1,8 @@
-import { create, all, Unit } from 'mathjs';
+import { create, all, Unit, UnitDefinition } from 'mathjs';
 
 const mathjs = create(all);
 
-const customUnits = {
+const customUnits: Record<string, UnitDefinition> = {
   "Atemp": {
     prefixes: 'none',
     baseName: 'area',

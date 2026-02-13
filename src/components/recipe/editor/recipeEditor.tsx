@@ -1,3 +1,4 @@
+import "client-only";
 import TabList from "@/components/generic/tablist/tabList";
 import OutputGraph from "./output/graphDisplay";
 import OutputDataSeries from "./output/dataSeriesDisplay";

@@ -4,12 +4,14 @@ import { LocaleContext, LocaleSetterContext } from "@/lib/i18nClient";
 import { match } from "@formatjs/intl-localematcher";
 import { setCookie } from "cookies-next/client";
 import { localeAliases, Locales, uniqueLocales } from "i18n.config";
+import { useRouter } from "next/navigation";
 import { useContext, useState } from "react";
 
 export function LanguageSwitcher() {
   const locale = useContext(LocaleContext);
   const setLocaleContext = useContext(LocaleSetterContext);
   const [buttonLocale, setButtonLocale] = useState<Locales>(locale);
+  const router = useRouter();
 
   function setLocale(lng: string) {
     // Sanitize locale
@@ -24,10 +26,7 @@ export function LanguageSwitcher() {
     // Client update. Set lang and dispatch event for rerendering
     setLocaleContext(cleanLocale);
     window.dispatchEvent(new CustomEvent("i18n-language-changed"));
-    setTimeout(() => {
-      setLocaleContext(cleanLocale);
-      window.dispatchEvent(new CustomEvent("i18n-language-changed"));
-    }, 1);
+    router.refresh();
   }
 
   {/* 

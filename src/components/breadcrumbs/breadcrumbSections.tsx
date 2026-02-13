@@ -4,6 +4,7 @@ import styles from './breadcrumbs.module.css' with { type: "css" };
 import Link from 'next/link';
 import { useTranslation } from "react-i18next";
 import { IconChevronRight } from '@tabler/icons-react';
+import type { Action, Goal, MetaRoadmap, Roadmap } from "@/types";
 
 export function BreadcrumbChevron() {
   return (
@@ -51,10 +52,7 @@ export function CustomSection({
 export function MetaRoadmapSection({
   metaRoadmap,
 }: {
-  metaRoadmap: {
-    id: string,
-    name: string,
-  }
+  metaRoadmap: Pick<MetaRoadmap, "id" | "name">
 }) {
   const { t } = useTranslation("components");
   return (
@@ -70,10 +68,7 @@ export function MetaRoadmapSection({
 export function RoadmapSection({
   roadmap,
 }: {
-  roadmap: {
-    id: string,
-    version: number,
-  }
+  roadmap: Pick<Roadmap, "id" | "version">
 }) {
   const { t } = useTranslation("components");
   return (
@@ -89,11 +84,7 @@ export function RoadmapSection({
 export function GoalSection({
   goal,
 }: {
-  goal: {
-    id: string,
-    name?: string | null,
-    indicatorParameter: string,
-  }
+  goal: Pick<Goal, "id" | "indicatorParameter"> & { name?: string | null }
 }) {
   const { t } = useTranslation("components");
   return (
@@ -109,10 +100,7 @@ export function GoalSection({
 export function ActionSection({
   action,
 }: {
-  action: {
-    id: string,
-    name: string,
-  }
+  action: Pick<Action, "id" | "name">
 }) {
   const { t } = useTranslation("components");
   return (

@@ -2,7 +2,7 @@
 # Production-optimized Dockerfile for Next.js application
 
 # Build arguments
-ARG NODE_VERSION="20"
+ARG NODE_VERSION="24"
 
 # ============================================================================
 # Base stage - Common dependencies and setup

@@ -41,6 +41,7 @@
   "goal_definite_other": "the goals",
   "goal_one": "goal",
   "goal_other": "goals",
+  "historical_data": "historical data",
   "layout": {
     "app_name": "Eco - Planner",
     "app_name_compact": "Eco Planner",
@@ -118,6 +119,7 @@
     "suggestions": "Suggestions",
     "unit_missing": "missing unit",
     "unitless": "unitless",
-    "write": "Write something"
+    "write": "Write something",
+    "menu": "Menu"
   }
 }

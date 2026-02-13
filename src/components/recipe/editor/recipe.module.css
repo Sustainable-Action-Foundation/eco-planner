@@ -23,3 +23,14 @@
 .variable-list > li:not(:last-of-type) {
     border-bottom: 1px solid var(--gray);
 }
+
+.cancel-button {
+    color: gray;
+    transform: scale(1);
+}
+
+.cancel-button:hover {
+    color: black;
+    text-decoration: underline;
+    box-shadow: none;
+}

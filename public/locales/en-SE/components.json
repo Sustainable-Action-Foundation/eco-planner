@@ -126,10 +126,11 @@
     "create_variable": "Create variable",
     "data_series": "Data series",
     "dataset": "Dataset",
+    "delete_variable": "Delete variable:",
     "edit_variable": "Edit variable",
     "equation": "Equation",
     "external_data": "External data",
-    "add_external_data": "Add external data",
+    "add_external_data": "Data",
     "goal_or_effect": "Goal or effect",
     "graph": "Graph",
     "missing_resulting_data_series": "No resulting data series to display",
@@ -151,7 +152,9 @@
     "select_dataset": "Select dataset",
     "select_roadmap": "Select roadmap",
     "selection": "Selection",
-    "status": "Status",
+    "status": {
+      "no_issues_icon_aria_label": "No issues"
+    },
     "table": "Table",
     "select_recipe": "Select an existing recipe",
     "create_recipe": "Create a new recipe",
@@ -164,7 +167,7 @@
     "variable_name_placeholder": "Name",
     "variable_type_label": "Type",
     "variables": "Variables",
-    "vector_index_picker_label": "Value(s) to use"
+    "vector_index_picker_label": "Value(s)"
   },
   "roadmap_filters": {
     "default": "Default",
@@ -214,6 +217,8 @@
   },
   "table_menu": {
     "add_effect_from_existing_action": "Add $t(common:effect_one) from existing $t(common:action_one)",
+    "admin_panel_title": "Admin panel",
+    "admin_panel_info": "Only users with admin- or edit access can see this panel. Which actions are available to a user depend on their level of access to this post.",
     "button_aria": "Menu for {{component}}",
     "button_aria_alt": "Name missing",
     "delete": "Delete post",
@@ -224,10 +229,12 @@
     "go_to_goal": "Go to $t(common:goal_one)",
     "go_to_series": "Go to $t(common:roadmap_series_one)",
     "go_to_version": "Go to $t(common:roadmap_version_one)",
+    "historical_data": "Adjust historical data",
     "new_action": "New $t(common:action_one)",
     "new_effect": "New $t(common:effect_one)",
     "new_goal": "New $t(common:goal_one)",
-    "new_roadmap_version": "New $t(common:roadmap_version_one)"
+    "new_roadmap_version": "New $t(common:roadmap_version_one)",
+    "no_available_actions": "No available actions"
   },
   "table_selector": {
     "actions": "{{$t(common:action_other), titleCase}}",

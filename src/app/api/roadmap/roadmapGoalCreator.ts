@@ -1,8 +1,12 @@
-import { RoadmapInput, GoalCreateInput, isDateValuesWithUnit } from "@/types";
+import { GoalCreateInput, isDateValuesWithUnit } from "@/types";
 import { Prisma } from "@prisma/client";
 
+type RoadmapGoalInput = {
+  goals?: GoalCreateInput[] | null | undefined;
+};
+
 export default function roadmapGoalCreator(
-  roadmap: Omit<RoadmapInput, 'version'> & { goals?: GoalCreateInput[]; },
+  roadmap: RoadmapGoalInput,
   author: string,
 ) {
   if (!roadmap.goals?.length) {

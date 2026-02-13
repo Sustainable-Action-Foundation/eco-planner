@@ -1,10 +1,12 @@
 import { goalSorterTree } from "@/lib/sorters.ts";
-import type { DataSeries, Goal } from "@prisma/client";
+import type { Goal } from "@/types";
 import type { TFunction } from "i18next";
 
-export type GoalTree = { [key: string]: GoalTree | (Goal & { dataSeries: DataSeries | null } & { roadmap: { id: string, metaRoadmap: { name: string, id: string } } }) };
+export type GoalTreeEntry = Pick<Goal, "id" | "name" | "indicatorParameter" | "dataSeries">;
 
-export default function goalsToTree(goals: ((Goal & { dataSeries: DataSeries | null } & { roadmap: { id: string, metaRoadmap: { name: string, id: string } } }) | null)[], t: TFunction) {
+export type GoalTree = { [key: string]: GoalTree | GoalTreeEntry };
+
+export default function goalsToTree(goals: Array<GoalTreeEntry | null>, t: TFunction) {
   const filteredGoals = goals.filter(goal => goal != null);
   const sortedGoals = filteredGoals.sort(goalSorterTree);
   const tree: GoalTree = {};

@@ -6,6 +6,7 @@ import { AccessLevel, Action, Roadmap } from '@/types';
 import Link from 'next/link';
 import { TableMenu } from './tableMenu/tableMenu';
 import { useTranslation } from "react-i18next";
+import { IconLink } from '@tabler/icons-react';
 
 /**
  * Displays a table of actions. Requires either a goal XOR a list of actions.
@@ -42,10 +43,11 @@ export default function ActionTable({
 
   return <>
     {actions.map(action => (
-      <div className='flex gap-100 justify-content-space-between align-items-center' key={action.id}>
+      <div className='flex gap-25 justify-content-space-between align-items-center margin-block-25' key={action.id}>
+        <IconLink aria-hidden="true" color="gray" className="round padding-25 margin-inline-25" />
         <Link href={`/action/${action.id}`} className={`${styles.roadmapLink} flex-grow-100`}>
-          <span className={styles.linkTitle}>{action.name}</span>
-          <p className={styles.actionLinkInfo}>{action.description}</p>
+          <span className='font-weight-500'>{action.name}</span>
+          <p className={`${styles.actionLinkInfo} color-gray`}>{action.description || '\u00A0'}</p>
         </Link>
         <TableMenu
           accessLevel={accessLevel}

@@ -1,1 +1,8 @@
 tests/
+node_modules/
+playwright-report/
+playwright.config.ts
+.next/
+.github/workflows/
+.vscode/
+test-results/
