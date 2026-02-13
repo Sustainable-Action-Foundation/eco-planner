@@ -52,8 +52,12 @@
     "data_series": "Dataserie",
     "data_series_advanced_info": "Detta fält tar emot en serie med värden som är separerade med semikolon eller tab. Detta innebär att du kan klistra in en serie med värden från extern programvara såsom Microsoft Excel eller Google Sheets. Det första värdet representerar år 2020 och fortsätter därefter till år 2050 (totalt 31 värden). Om värden saknas för ett år kan du lämna det tomt, exempelvis anger \";1;;;;5\" värdena 1 och 5 för år 2021 respektive 2025. Decimaltal kan antingen skrivas med punkt eller kommatecken.<br /><br /> <strong>Viktigt: Värden får inte vara separerade med kommatecken (\",\").</strong>",
     "data_series_tooltip": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan antingen skrivas med punkt eller kommatecken.",
+    "end_year": "Slutår",
     "hide_table": "Minimera tabell",
+    "invalid_end_year": "Ogiltigt slutår",
+    "invalid_start_year": "Ogiltigt startår",
     "show_table": "Expandera tabell",
+    "start_year": "Startår",
     "value": "Värde",
     "year": "År"
   },
@@ -86,7 +90,8 @@
     "baseline_types": {
       "custom": "Anpassad baslinje",
       "inherited": "Använd en annan $t(common:goal_one) som baslinje",
-      "initial": "Första årets värde"
+      "initial": "Första årets värde",
+      "initial_non_zero": "Första värdet"
     },
     "choose_baseline_for_actions": "Välj en baslinje för beräkning av åtgärders effekt på denna $t(common:goal_one)",
     "choose_goal_data_series": "Ange en dataserie för denna $t(common:goal_one)",
