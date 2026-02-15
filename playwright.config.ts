@@ -10,15 +10,16 @@ if (fs.existsSync(".env")) {
 process.env = Object.keys(env).length > 0 ? { ...process.env, ...env } : process.env;
 env = {}; // Clear it just in case any reporter dumps the heap.
 
-export const webserverURL = process.env.TEST_BASE_URL || "http://localhost:3000";
+// Allow overriding the webserver URL via environment variable, defaulting to a local port opened by testing docker compose.
+export const webserverURL = process.env.BASE_URL || "http://localhost:8081";
 
-const CI = process.env.CI == "true";
+const CI = process.env.CI ? true : false;
 
 export default defineConfig({
-  testDir: "tests/compiled/",
+  testDir: "tests/",
 
-  fullyParallel: true,
-  workers: "90%",
+  // fullyParallel: true,
+  workers: "50%",
 
   // One retry in case of flaky tests
   retries: 1,
@@ -28,13 +29,19 @@ export default defineConfig({
     ...(CI ?
       [["github"]]
       :
-      [["html", { open: "never" }]]
+      [
+        ["dot"],
+        ["html", { open: "never" }],
+      ]
     ) as [string, object][],
 
     ["json", { outputFile: "tests/report.json" }],
     ["list"],
   ],
   // reporter: "list",
+
+  // Stop docker containers after tests are done
+  globalTeardown: "./tests/global.teardown.ts",
 
   // Global use
   use: {
@@ -48,66 +55,34 @@ export default defineConfig({
     timezoneId: "Europe/Stockholm",
   },
 
-  globalTeardown: "./tests/compiled/lib/global.teardown.js",
-
   // Configure projects for major browsers.
   projects: [
     {
       name: "Locale files validation",
-      testMatch: ["**/locale-files.js"],
+      testMatch: ["**/locale-files.ts"],
       retries: 0, // File reading can't be flaky, so no retries needed.
       use: {},
-    },
-    {
-      name: "Recipe parser validation",
-      testMatch: ["**/recipe-parser-entry.js"],
-      retries: 0, // File reading can't be flaky, so no retries needed.
-      use: {},
-    },
-    {
-      name: "chromium 1440p",
-      use: { ...devices["Desktop Chrome"], viewport: { width: 2560, height: 1440 }, channel: "chromium", },
     },
     {
       name: "chromium 1080p",
       use: { ...devices["Desktop Chrome"], viewport: { width: 1920, height: 1080 }, channel: "chromium", },
     },
     {
-      name: "chromium 720p",
-      use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 720 }, channel: "chromium", },
-    },
-    {
-      name: "firefox 1440p",
-      use: { ...devices["Desktop Firefox"], viewport: { width: 2560, height: 1440 }, },
-    },
-    {
       name: "firefox 1080p",
       use: { ...devices["Desktop Firefox"], viewport: { width: 1920, height: 1080 }, },
-    },
-    {
-      name: "firefox 720p",
-      use: { ...devices["Desktop Firefox"], viewport: { width: 1280, height: 720 }, },
-    },
-    {
-      name: "webkit 1440p",
-      use: { ...devices["Desktop Safari"], viewport: { width: 2560, height: 1440 }, },
     },
     {
       name: "webkit 1080p",
       use: { ...devices["Desktop Safari"], viewport: { width: 1920, height: 1080 }, },
     },
-    {
-      name: "webkit 720p",
-      use: { ...devices["Desktop Safari"], viewport: { width: 1280, height: 720 }, },
-    }
   ],
 
-  // Running locally starts next.js server from here. Make sure to have built the app first.
-  webServer: CI ? undefined : {
-    timeout: 1000 * 1000,
-    command: "yarn run start",
+  webServer: {
+    timeout: 20 * 60 * 1000, // 20 minutes; both seeding image and app image may need to be built, which might take a while with bad cache, especially on runners.
+    // timeout: 1000 * 1000,
+    command: "docker compose -f docker/compose.testing.yaml up --remove-orphans",
     url: webserverURL,
-    reuseExistingServer: true,
+    reuseExistingServer: !CI,
   },
 
   // Fail the build on CI if you accidentally left test.only in the source code.

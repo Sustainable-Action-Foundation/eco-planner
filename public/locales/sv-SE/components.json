@@ -152,7 +152,9 @@
     "select_dataset": "Välj dataset",
     "select_roadmap": "Välj färdplan",
     "selection": "Urval",
-    "status": "Status",
+    "status": {
+      "no_issues_icon_aria_label": "Inga problem"
+    },
     "table": "Tabell",
     "select_recipe": "Välj ett befintligt recept",
     "create_recipe": "Skapa ett nytt recept",

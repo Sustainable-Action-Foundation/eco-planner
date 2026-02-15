@@ -7,7 +7,7 @@ import serveTea from "@/lib/i18nServer";
 // Uses TransWithoutContext, passing in our server-side i18n instance to the component,
 // rather than using the base Trans component which would use a client-side i18n instance.
 import { Trans } from "react-i18next/TransWithoutContext";
-import i18next from "i18next"; 
+import i18next from "i18next";
 
 export async function generateMetadata() {
   const t = await serveTea("pages");
@@ -27,17 +27,15 @@ export default async function Page() {
   // If hash is not set in env, try to get it from file
   if (!gitHash.shortHash && !gitHash.longHash) {
     try {
-      if (fs.existsSync("src/lib/commitHash.json")) {
-        const parsedVersion = JSON.parse(fs.readFileSync("src/lib/commitHash.json", "utf-8")) as JSONValue;
+      const parsedVersion = JSON.parse(fs.readFileSync("src/lib/commitHash.json", "utf-8")) as JSONValue;
 
-        // Set hashes if they are properly formatted
-        if (parsedVersion instanceof Object && !(parsedVersion instanceof Array)) {
-          if (typeof parsedVersion.shortHash === "string") {
-            gitHash.shortHash = parsedVersion?.shortHash;
-          }
-          if (typeof parsedVersion.longHash === "string") {
-            gitHash.longHash = parsedVersion?.longHash;
-          }
+      // Set hashes if they are properly formatted
+      if (parsedVersion instanceof Object && !(parsedVersion instanceof Array)) {
+        if (typeof parsedVersion.shortHash === "string") {
+          gitHash.shortHash = parsedVersion?.shortHash;
+        }
+        if (typeof parsedVersion.longHash === "string") {
+          gitHash.longHash = parsedVersion?.longHash;
         }
       }
     } catch { /* Silently fail */ }
