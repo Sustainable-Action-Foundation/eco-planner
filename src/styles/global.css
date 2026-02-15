@@ -177,4 +177,29 @@ input[type="number"] {
 
 button[type="submit"]:disabled {
   background-color: lightgray;
- }
+}
+
+/* Neutral button (Not CTA or danger) */
+@property --breakpoint { /* TODO: Breakpoint is too generic */
+  initial-value: 50%;
+  inherits: false;
+  syntax: '<percentage>';
+}
+
+.neutral-action { 
+  color: #191919;
+ 
+  background: linear-gradient(var(--gray-90) var(--breakpoint), #d7dfe2);
+  border: 1px solid var(--gray-90);
+  color: black;
+  text-decoration: none;
+  transition: --breakpoint .1s ease-out, border-color .1s ease-out;
+  padding: .3rem .6rem;
+}
+
+.neutral-action:hover {
+  --breakpoint: 100%;
+  border-color: var(--blue-40);
+  box-shadow: none;
+}
+ 

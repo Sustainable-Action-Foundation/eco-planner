@@ -334,7 +334,7 @@ export function AdminPanel(
                 <>
                   {links.creationLink &&
                     <>
-                      <Link href={links.creationLink} className={`flex gap-100 align-items-center smooth ${styles['object-menu-link']}`}>
+                      <Link href={links.creationLink} className={`flex gap-100 align-items-center smooth neutral-action`}>
                         <span>{links.creationDescription}</span>
                         <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                       </Link>
@@ -343,7 +343,7 @@ export function AdminPanel(
                   }
                   {links.creationLink2 &&
                     <>
-                      <Link href={links.creationLink2} className={`flex gap-100 align-items-center smooth ${styles['object-menu-link']}`}>
+                      <Link href={links.creationLink2} className={`flex gap-100 align-items-center smooth neutral-action`}>
                         <span>{links.creationDescription2 || links.creationLink2}</span>
                         <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                       </Link>
@@ -352,7 +352,7 @@ export function AdminPanel(
                   }
                   {links.historicalDataLink &&
                     <>
-                      <Link href={links.historicalDataLink} className={`flex gap-100 align-items-center smooth ${styles['object-menu-link']}`}>
+                      <Link href={links.historicalDataLink} className={`flex gap-100 align-items-center smooth neutral-action`}>
                         <span>{t("components:table_menu.historical_data")}</span>
                         <IconChartHistogram aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                       </Link>
@@ -361,7 +361,7 @@ export function AdminPanel(
                   }
                   {links.editLink &&
                     <>
-                      <Link href={links.editLink} className={`flex gap-100 align-items-center smooth ${styles['object-menu-link']}`}>
+                      <Link href={links.editLink} className={`flex gap-100 align-items-center smooth neutral-action`}>
                         <span>{t("components:table_menu.edit")}</span>
                         <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                       </Link>

@@ -3,7 +3,7 @@
 import { useState } from "react"
 import styles from "./page.module.css"
 import { Action } from "@/types"
-import { IconArrowNarrowRight, IconGrid3x3, IconLayoutGridFilled, IconList, IconSearch, IconTable, IconTableFilled, IconUser } from "@tabler/icons-react"
+import { IconArrowNarrowRight, IconGrid3x3, IconLayoutGridFilled, IconList, IconPlus, IconSearch, IconTable, IconTableFilled, IconUser } from "@tabler/icons-react"
 import Link from "next/link"
 
 // TODO:
@@ -54,8 +54,9 @@ export default function Actions({ actions }: { actions: Action[] | null }) {
             </label>
           </div>
         </div>
-        <Link href={'/'} className="flex gap-100 align-items-center smooth button">
+        <Link href={'/action/create'} className="flex gap-50 align-items-center smooth neutral-action" style={{fontSize: '14px', marginTop: 'calc(21px + .25rem + 5px)', alignSelf: 'flex-start'}}> {/* TODO: Some more magic number stuff going on here */}
           Skapa ny åtgärd
+          <IconPlus width={20} height={20} style={{minWidth: '20px'}} strokeWidth={1.5} />
         </Link>
       </menu>
 
@@ -87,20 +88,7 @@ export default function Actions({ actions }: { actions: Action[] | null }) {
                   Gå till färdplan {/* TODO: I18n, also poor accesibility */}
                   <IconArrowNarrowRight width={20} height={20} style={{ maxWidth: '20px' }} />
                 </Link>
-              </div>
-              {/* <p>{action.description}</p>  TODO: Should use tiptap */}
-
-              {/*
-              Antal kommentarer: {action.comments.length}<br/>
-              Skapad: {new Date(action.createdAt).toDateString()}<br/>
-              Kostnadseffektivitet: {action.costEfficiency}<br/>
-              Antal effekter: {action.effects.length}<br/>
-              Förväntat utfall: {action.expectedOutcome}<br/>
-              Effiency/suffiency/renewables: {action.isEfficiency} - {action.isSufficiency} - {action.isRenewables}<br/>
-              Projektledare: {action.projectManager}<br/>
-              Relevanta aktörer: {action.relevantActors}<br/>
-              Färdplan: {action.roadmap.metaRoadmap.name}<br/>
-              Senast uppdaterad: {new Date(action.updatedAt).toDateString()}<br/>  */}
+              </div> 
             </article>
           </li>
         ))}
