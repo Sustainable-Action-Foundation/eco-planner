@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react"
+import { useEffect, useMemo, useState, useTransition } from "react"
 import styles from "../app/actions/page.module.css"
 import { Action } from "@/types"
 import { IconArrowNarrowRight, IconLayoutGridFilled, IconList, IconPlus, IconSearch, IconUser } from "@tabler/icons-react"
 import Link from "next/link"
+import Image from "next/image";
 import { useDebouncedCallback } from "use-debounce"
 import { usePathname, useSearchParams, useRouter } from "next/navigation"
 
@@ -16,11 +17,17 @@ import { usePathname, useSearchParams, useRouter } from "next/navigation"
 // - Style using modules
 // - Improve listviewstyling
 // - Search by other fields than name (e.g author, years...)
-// - Probably memoise instead of mutating actions prop
-// - Rename searchFilter -> search/filter (no url camelcase preferably)
 export default function Actions({ actions, searchParamsProp }: { actions: Action[] | null, searchParamsProp: { [key: string]: string | string[] | undefined } }) {
   const router = useRouter();
-  const debouncedUpdateStringParam = useDebouncedCallback(updateStringParam, 300);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const debouncedUpdateStringParam = useDebouncedCallback(
+    (key: string, value: string) => {
+      updateStringParam(key, value);
+      setIsLoading(false); // debounce finished
+    },
+    300
+  );
   const [_isPending, startTransition] = useTransition();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -40,31 +47,25 @@ export default function Actions({ actions, searchParamsProp }: { actions: Action
   }
 
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
-  const searchFilter = searchParamsProp['searchFilter'] ? (Array.isArray(searchParamsProp['searchFilter']) ? searchParamsProp['searchFilter'][0] : searchParamsProp['searchFilter']) : '';
+  const searchFilter = searchParamsProp['search'] ? (Array.isArray(searchParamsProp['search']) ? searchParamsProp['search'][0] : searchParamsProp['search']) : '';
 
-  if (searchFilter && actions) {
-    actions = actions.filter((action) => {
-      if (Object.values(action).some((value) => {
-        if (typeof value === 'string') {
-          return value.toLowerCase().includes(searchFilter.toLowerCase())
-        } else {
-          return false;
-        }
-      })) {
-        return true;
-      }
-    });
-  }
+  const filteredActions = useMemo(() => {
+    if (!searchFilter || !actions) return actions;
 
-  useEffect(() => {
-    console.log(actions)
-  }, [actions])
+    return actions.filter((action) =>
+      Object.values(action).some(
+        (value) =>
+          typeof value === "string" &&
+          value.toLowerCase().includes(searchFilter.toLowerCase())
+      )
+    );
+  }, [actions, searchFilter]);
 
   return (
     <div className="grid gap-200" style={{ gridTemplateColumns: 'auto 1fr' }}>
-      <menu className="margin-0 smooth padding-50" style={{width: '30ch', backgroundColor: 'var(--gray-95)', border: '1px solid var(--gray-90)', marginTop: '100px', height: 'fit-content'}}> {/* TODO: Magic number */}
+      <menu className="margin-0 smooth padding-50" style={{ width: '30ch', backgroundColor: 'var(--gray-95)', border: '1px solid var(--gray-90)', marginTop: '100px', height: 'fit-content' }}> {/* TODO: Magic number */}
         <div className="width-100">{/* TODO: Need some label */}
-          <div className="radio-select-multiple margin-top-25 width-100" style={{gridTemplateColumns: 'repeat(auto-fit, minmax(50px, 1fr))'}}>
+          <div className="radio-select-multiple margin-top-25 width-100" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(50px, 1fr))' }}>
             <label className="flex gap-25 align-items-center" style={{ lineHeight: '1' }}>
               <IconLayoutGridFilled width={20} height={20} style={{ minWidth: '20px' }} />
               Rutnät
@@ -88,7 +89,7 @@ export default function Actions({ actions, searchParamsProp }: { actions: Action
             </label>
           </div>
         </div>
-        <h1 className="padding-bottom-50 margin-block-100 font-weight-500" style={{fontSize: '1.25rem', borderBottom: '1px solid var(--gray)'}}>Filter</h1> {/* TODO: Check semantics of this */}
+        <h1 className="padding-bottom-50 margin-block-100 font-weight-500" style={{ fontSize: '1.25rem', borderBottom: '1px solid var(--gray)' }}>Filter</h1> {/* TODO: Check semantics of this */}
       </menu>
 
       <div>
@@ -96,9 +97,17 @@ export default function Actions({ actions, searchParamsProp }: { actions: Action
         <div className="margin-bottom-100 padding-bottom-100 flex gap-100 align-items-stretch" style={{ borderBottom: '1px solid var(--gray-80)' }}>
           <div className="flex align-items-center padding-50 smooth focusable flex-grow-100">
             <IconSearch strokeWidth={1.5} width={20} height={20} style={{ minWidth: '20px' }} />
-            <input aria-labelledby="search-title" type="search" className="padding-0 margin-inline-50" defaultValue={searchParams.get('searchFilter') ?? undefined} onChange={(e) => {
-              debouncedUpdateStringParam('searchFilter', e.target.value)
-            }} />
+            <input
+              aria-labelledby="search-title"
+              type="text" // No need to use search according to MDN
+              className="padding-0 margin-inline-50"
+              defaultValue={searchParams.get('search') ?? undefined}
+              onChange={(e) => {
+                setIsLoading(true); 
+                debouncedUpdateStringParam('search', e.target.value);
+              }}
+            />
+            {isLoading && <Image src={'/loaders/eclipse.svg'} width={16} height={16} alt='' aria-live="polite" />}
           </div>
           <hr style={{ borderRight: '0', color: 'var(--gray-80)', borderStyle: 'solid' }} />
           <Link href={'/action/create'} className="flex gap-100 align-items-center smooth seagreen color-purewhite text-decoration-none padding-inline-75 padding-block-50 font-weight-500 button" style={{ lineHeight: '1', fontSize: '14px' }}>
@@ -114,23 +123,23 @@ export default function Actions({ actions, searchParamsProp }: { actions: Action
               : styles['actions-list']
             }`}
         >
-          {actions?.map(action => (
+          {filteredActions?.map(action => (
             <li
               key={action.id}
               className="smooth padding-0 padding-top-0"
             >
               <article>
                 <Link href={`/action/${action.id}`} className="discrete-link padding-top-75 padding-inline-50 block">
-                  <div style={{ color: 'gray', fontSize: '14px' }}>{action.startYear} - {action.endYear}</div>
-                  <h2 className="margin-0" style={{ fontSize: '1.15rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{action.name}</h2>
+                  <div className={`${styles['action-years']}`}>{action.startYear} - {action.endYear}</div>
+                  <h2 className={`margin-0 ${styles['action-title']}`}>{action.name}</h2>
                   <hr className="margin-top-75" style={{ borderColor: 'var(--gray-80)', borderTop: '0' }} />
                 </Link>
                 <div className="flex justify-content-space-between align-items-center padding-inline-50 padding-bottom-50">
-                  <Link href={`/action/${action.id}`} className="flex gap-25 align-items-center discrete-link" style={{ fontSize: '14px' }}>
+                  <Link href={`/action/${action.id}`} className={`flex gap-25 align-items-center discrete-link ${styles['action-user']}`} style={{ fontSize: '14px' }}>
                     <IconUser width={20} height={20} style={{ maxWidth: '20px' }} />
                     {action.author.username}
                   </Link>
-                  <Link href={`/@${action.author.username}`} className="flex gap-25 align-items-center discrete-link" style={{ fontSize: '14px' }}>
+                  <Link href={`/action/${action.id}`} className={`flex gap-25 align-items-center discrete-link ${styles['action-link']}`} style={{ fontSize: '14px' }}>
                     Gå till färdplan {/* TODO: I18n, also poor accesibility */}
                     <IconArrowNarrowRight width={20} height={20} style={{ maxWidth: '20px' }} />
                   </Link>
