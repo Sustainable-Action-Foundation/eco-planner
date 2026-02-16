@@ -8,10 +8,9 @@ import Comments from "@/components/comments/comments";
 import { AccessLevel } from "@/types";
 import ThumbnailGraph from "@/components/graphs/mainGraphs/thumbnailGraph";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import { DataSeries, Goal } from "@prisma/client";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
-import { IconArrowBack, IconArrowBackUp, IconArrowNarrowRight, IconArrowNarrowRightDashed, IconBuildings, IconCircleFilled, IconEdit, IconPlus, IconTrashFilled, IconTrashXFilled, IconUser } from "@tabler/icons-react";
+import { IconArrowNarrowRight, IconBuildings, IconCircleFilled, IconUser } from "@tabler/icons-react";
 import Link from "next/link";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 import { AdminPanel } from "@/components/tables/tableMenu/tableMenu";
@@ -50,7 +49,17 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
     getOneRoadmap(params.roadmapId)
   ]);
 
-  const featuredGoals: Array<Goal & { dataSeries: DataSeries | null }> = roadmap?.goals.filter((goal) => goal.isFeatured) || [];
+  const featuredGoals = (roadmap?.goals || [])
+    .filter((goal) => goal.isFeatured)
+    .map((goal) => ({
+      id: goal.id,
+      name: goal.name,
+      indicatorParameter: goal.indicatorParameter,
+      dataSeries: goal.dataSeries,
+      externalDataset: goal.externalDataset,
+      externalTableId: goal.externalTableId,
+      externalSelection: goal.externalSelection,
+    }));
 
   let accessLevel: AccessLevel = AccessLevel.None;
   if (roadmap) {
@@ -68,7 +77,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
     <Breadcrumb object={roadmap} />
 
     {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-      <AdminPanel accessLevel={accessLevel} object={{ ...roadmap, _count: { goals: roadmap.goals.length } }} />
+      <AdminPanel accessLevel={accessLevel} object={roadmap} />
     }
 
     <main>
@@ -79,20 +88,20 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
           <span className="font-weight-600">
             {t("common:count.goal", { count: roadmap.goals.length })}
           </span>
-          <Link href={`/metaRoadmap/${roadmap.metaRoadmapId}`} className="discrete-link flex gap-25 align-items-center" style={{lineHeight: '1'}}>
+          <Link href={`/metaRoadmap/${roadmap.metaRoadmapId}`} className="discrete-link flex gap-25 align-items-center" style={{ lineHeight: '1' }}>
             {t("pages:roadmap.show_series")}
-            <IconArrowNarrowRight height={20} width={20} style={{minWidth: '20px'}} />
+            <IconArrowNarrowRight height={20} width={20} style={{ minWidth: '20px' }} />
           </Link>
         </div>
         <div className="flex gap-75 align-items-center margin-top-75">
           <Link className="flex gap-25 align-items-center discrete-link" href={`/@${roadmap.author.username}`}>
-            <IconUser strokeWidth={1.75}  style={{minWidth: '24px'}} />
+            <IconUser strokeWidth={1.75} style={{ minWidth: '24px' }} />
             {roadmap.author.username}
           </Link>
-          <span style={{userSelect: 'none'}}>{"•"}</span>
-          {roadmap.metaRoadmap.actor ?  
+          <span style={{ userSelect: 'none' }}>{"•"}</span>
+          {roadmap.metaRoadmap.actor ?
             <div className="flex gap-25 align-items-center">
-              <IconBuildings strokeWidth={1.75}  style={{minWidth: '24px'}} />
+              <IconBuildings strokeWidth={1.75} style={{ minWidth: '24px' }} />
               {roadmap.metaRoadmap.actor}
             </div>
             :
@@ -135,7 +144,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
             goal => goal?.externalDataset && goal?.externalTableId
           ) && (
               <div className="display-flex align-items-center gap-100 margin-top-100 font-weight-500">
-                <span style={{ color: 'var(--gray-20)' }}><IconCircleFilled width={12} height={12} fill="#0090ff" aria-hidden="true" className="margin-right-25" />{t("common:goal_one")}</span> 
+                <span style={{ color: 'var(--gray-20)' }}><IconCircleFilled width={12} height={12} fill="#0090ff" aria-hidden="true" className="margin-right-25" />{t("common:goal_one")}</span>
                 <span style={{ color: 'var(--gray-20)' }}><IconCircleFilled width={12} height={12} fill="#2e8a56" aria-hidden="true" className="margin-right-25" />{t("common:historical_data")}</span>
               </div>
             )}
@@ -148,8 +157,8 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
       </section>
 
       <section className="margin-block-300">
-        <h2 className='margin-bottom-100 padding-bottom-50'  style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:roadmap.all_actions")}</h2>
-        <ActionTable  actions={roadmap.actions} accessLevel={accessLevel} roadmapId={roadmap.id} />
+        <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:roadmap.all_actions")}</h2>
+        <ActionTable actions={roadmap.actions} accessLevel={accessLevel} roadmapId={roadmap.id} />
       </section>
     </main>
 

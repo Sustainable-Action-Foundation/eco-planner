@@ -1,150 +1,135 @@
 'use client';
 
-import type getOneAction from "@/fetchers/getOneAction.ts";
-import type getOneGoal from "@/fetchers/getOneGoal.ts";
-import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import formSubmitter from "@/functions/formSubmitter";
-import { Years, EffectInput } from "@/types";
-import { ActionImpactType, DataSeries, Effect } from "@prisma/client";
-import { useState } from "react";
+import { Action, DateValuesWithUnit, Effect, EffectInput, Goal, MultiRoadmapInstance } from "@/types";
+import { ActionImpactType } from "@prisma/client";
+import { useMemo, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput";
-import { getDataSeries } from "../elements/dataSeriesInput/utils";
+import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput";
 import { absoluteToDelta, ActionSelector, deltaToAbsolute, GoalSelector } from "../sections/effectFormSections";
+import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 
 export default function EffectForm({
-  action,
   goal,
-  roadmapAlternatives,
+  action,
   currentEffect,
+  roadmaps,
 }: {
-  action: Awaited<ReturnType<typeof getOneAction>> | null,
-  goal: Awaited<ReturnType<typeof getOneGoal>> | null,
-  roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
-  currentEffect?: Effect & {
-    dataSeries: DataSeries | null,
-    action: Awaited<ReturnType<typeof getOneAction>> | null,
-    goal: Awaited<ReturnType<typeof getOneGoal>> | null,
-  },
+  goal?: Goal | null,
+  action?: Action | null,
+  currentEffect?: Effect | null | undefined,
+  roadmaps: MultiRoadmapInstance[],
 }) {
   const { t } = useTranslation(["forms", "common"]);
+  const timestamp = useMemo(() => Date.now(), []);
 
-  const [selectedImpactType, setSelectedImpactType] = useState<ActionImpactType>(currentEffect?.impactType || ActionImpactType.ABSOLUTE);
-  // Use existing data series converted to a string as a default value
-  const [dataSeriesString, setDataSeriesString] = useState<string>(currentEffect?.dataSeries ? Years.map(i => currentEffect.dataSeries?.[i]).join(';') : '');
+  const [selectedImpactType, setSelectedImpactType] = useState<ActionImpactType>(currentEffect?.impactType ?? ActionImpactType.ABSOLUTE);
+  const [dateValues, setDateValues] = useState<DateValuesWithUnit>(currentEffect?.dataSeries
+    ? dataSeriesToDateValues(currentEffect.dataSeries)
+    : { unit: undefined, dateValues: {}, }
+  );
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const formData = new FormData(event.target);
 
-    const selectedAction = currentEffect?.actionId || action?.id || formData.get("actionId");
-    const selectedGoal = currentEffect?.goalId || goal?.id || formData.get("goalId");
-    const dataSeriesInput = getDataSeries(event.target.elements).join(";");
+    const selectedAction = currentEffect?.actionId ?? formData.get("actionId");
+    const selectedGoal = currentEffect?.goalId ?? formData.get("goalId");
     const impactType = formData.get("impactType");
 
-    if (!(
-      typeof selectedAction === "string" &&
-      typeof selectedGoal === "string" &&
-      typeof dataSeriesInput === "string" &&
-      typeof impactType === "string" &&
-      impactType in ActionImpactType
-    )) {
+    if (
+      typeof selectedAction !== "string"
+      || typeof selectedGoal !== "string"
+      || typeof impactType !== "string"
+      || !(impactType in ActionImpactType)
+    ) {
       event.target.reportValidity();
       return;
     }
 
-    // Get the data series as an array of numbers in string format, the actual parsing is done by the API
-    const dataSeries = getDataSeries(event.target.elements);
-
-    const formContent: EffectInput & { timestamp: number } = {
+    const formContent: EffectInput = {
       actionId: selectedAction,
       goalId: selectedGoal,
-      dataSeries,
-      impactType: impactType as ActionImpactType,
+      dataSeries: dateValues, // Gotten as state, not form input
+      impactType: impactType as ActionImpactType, // TODO: I don't like this
       timestamp,
-    }
-
-    const formJSON = JSON.stringify(formContent);
+    };
 
     /** Where to redirect after submitting the form, unless API returns a location header */
     let defaultLocation: string | undefined = undefined;
-    if (action) {
-      defaultLocation = `/action/${action.id}`;
-    } else if (goal) {
-      defaultLocation = `/goal/${goal.id}`;
-    } else {
+    if (currentEffect?.action) {
+      defaultLocation = `/action/${currentEffect.action.id}`;
+    }
+    else if (currentEffect?.goal) {
+      defaultLocation = `/goal/${currentEffect.goal.id}`;
+    }
+    else {
       defaultLocation = `/action/${selectedAction}`;
     }
 
-    formSubmitter('/api/effect', formJSON, currentEffect ? 'PUT' : 'POST', t, undefined, defaultLocation);
+    formSubmitter('/api/effect', JSON.stringify(formContent), currentEffect ? 'PUT' : 'POST', t, undefined, defaultLocation);
   }
-
-  const timestamp = Date.now();
-
-  // If there is a data series, convert it to an array of numbers to use as a default value in the form
-  // const dataArray: (number | null)[] = [];
-  // if (currentEffect?.dataSeries) {
-  //   for (const i of dataSeriesDataFieldNames) {
-  //     dataArray.push(currentEffect.dataSeries[i]);
-  //   }
-  // }
-  // const dataSeriesString = dataArray.join(';');
 
   return (
     <>
       <form onSubmit={handleSubmit}>
         <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
-        <ActionSelector action={action} roadmapAlternatives={roadmapAlternatives} />
-        <GoalSelector goal={goal} roadmapAlternatives={roadmapAlternatives} />
-
-        <DataSeriesInput
-          dataSeriesString={dataSeriesString}
-          inputName="dataSeries"
-          inputId="dataSeries"
-          labelKey="forms:data_series_input.data_series"
+        <ActionSelector
+          action={action ?? currentEffect?.action ?? null}
+          roadmaps={roadmaps}
+        />
+        <GoalSelector
+          goal={goal ?? currentEffect?.goal ?? null}
+          roadmaps={roadmaps}
         />
 
-        { 
-          // TODO: This code can be cleaned up
-          selectedImpactType === ActionImpactType.ABSOLUTE ?
+        <DateValuesInput
+          dateValues={dateValues}
+          dateValuesSetter={setDateValues}
+
+          label={t("forms:data_series_input.data_series")}
+        />
+
+        {(
+          selectedImpactType === ActionImpactType.ABSOLUTE
+          || selectedImpactType === ActionImpactType.DELTA
+        )
+          && (
             <div className="margin-block-100">
-              <button type="button" onClick={() => {
-                setSelectedImpactType(ActionImpactType.DELTA);
-
-                const formElement = document?.querySelector('form');
-                if (formElement) {
-                  setDataSeriesString(absoluteToDelta(getDataSeries(formElement.elements).join(";")));
-                }
-              }}>
-                {t("forms:effect.to_year_by_year")}
-              </button> <br />
-              <small><Trans
-                i18nKey="forms:effect.to_year_by_year_info"
-                components={{ strong: <strong /> }}
-              /></small>
-            </div>
-            :
-            selectedImpactType === ActionImpactType.DELTA ?
-              <div className="margin-block-100">
-                <button type="button" onClick={() => {
-                  setSelectedImpactType(ActionImpactType.ABSOLUTE);
-
-                  const formElement = document?.querySelector('form');
-                  if (formElement) {
-                    setDataSeriesString(deltaToAbsolute(getDataSeries(formElement.elements).join(";")));
+              <button
+                type="button"
+                onClick={() => {
+                  if (selectedImpactType === ActionImpactType.ABSOLUTE) {
+                    setSelectedImpactType(ActionImpactType.DELTA);
+                    setDateValues(prev => absoluteToDelta(prev));
+                  } else {
+                    setSelectedImpactType(ActionImpactType.ABSOLUTE);
+                    setDateValues(prev => deltaToAbsolute(prev));
                   }
-                }}>
-                  {t("forms:effect.to_absolute")}
-                </button>
-                <small><Trans
-                  i18nKey="forms:effect.to_absolute_info"
-                  components={{ strong: <strong /> }}
-                /></small>
-              </div>
-              :
-              null
+                }}
+              >
+                {selectedImpactType === ActionImpactType.ABSOLUTE
+                  ? t("forms:effect.to_year_by_year")
+                  : t("forms:effect.to_absolute")
+                }
+              </button>
+              <br />
+              <small>
+                {selectedImpactType === ActionImpactType.ABSOLUTE
+                  ? <Trans
+                    i18nKey="forms:effect.to_year_by_year_info"
+                    components={{ strong: <strong /> }}
+                  />
+                  : <Trans
+                    i18nKey="forms:effect.to_absolute_info"
+                    components={{ strong: <strong /> }}
+                  />
+                }
+              </small>
+            </div>
+          )
         }
 
         {/* TODO: Show preview of how it would affect the goal */}
@@ -167,7 +152,10 @@ export default function EffectForm({
             type="submit"
             id="submit-button"
           >
-            {currentEffect ? t("common:tsx.save") : t("forms:effect.create")}
+            {currentEffect
+              ? t("common:tsx.save")
+              : t("forms:effect.create")
+            }
           </button>
         </div>
 

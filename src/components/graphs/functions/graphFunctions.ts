@@ -1,8 +1,9 @@
 import { getLocalStorage, getSessionStorage, setLocalStorage, setSessionStorage } from "@/functions/localStorage";
-import { GraphType } from "../graphGraph";
-import { ActionImpactType, type DataSeries, type Effect } from "@prisma/client";
-import { Years, DataSeriesValueFields } from "@/types";
-import { ChildGraphType } from "../childGraphs/childGraphContainer";
+import { GraphType } from "@/components/graphs/graphGraph";
+import { ActionImpactType } from "@prisma/client";
+import { ChildGraphType } from "@/components/graphs/childGraphs/childGraphContainer";
+import { type DateValues, type DataSeries, isISOIshDate, Effect, Goal } from "@/types";
+import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 
 /** Retrieves the graph type for a goal from storage. */
 export function getStoredGraphType(goalId?: string) {
@@ -66,18 +67,6 @@ export function setStoredChildGraphType(graphType: ChildGraphType, goalId?: stri
   setLocalStorage("childGraphType", graphType);
 }
 
-/** Returns the first non-null, non-zero value from a data series. If all values are null or zero, returns null. */
-export function firstNonNullValue(dataSeries: DataSeries): number | null {
-  if (!dataSeries) { return null; }
-  for (const i of Years) {
-    const value = dataSeries[i];
-    if (Number.isFinite(value) && value !== 0) {
-      return value;
-    }
-  }
-  return null;
-}
-
 /**
  * Calculates predicted outcome based on effects and a baseline (either a data series or a single baseline value).
  * Returns an empty array upon invalid input.
@@ -85,67 +74,98 @@ export function firstNonNullValue(dataSeries: DataSeries): number | null {
  * To get relative y-values, divide all values by the first non-zero, non-null y-value (and multiply by 100 if you want percentages).
  * To get delta y-values, subtract the previous y-value from all y-values, preferably back to front to avoid needing a copy of the array.
  */
-export function calculatePredictedOutcome(effects: (Effect & { dataSeries: DataSeries | null })[], baseline: DataSeries | number) {
+export function calculatePredictedOutcome(effects: Effect[] | Goal["effects"], baselineValue: DataSeries | number | Goal["baseline"]) {
   // Early return if no effects and no custom baseline
-  if (effects.length < 1 && typeof baseline === 'number') {
+  if (effects.length < 1 && typeof baselineValue === 'number') {
     return [];
   }
 
   // Typecheck and validate baseline
-  /** Is used wherever we need to differentiate between the two types of possible baselines */
-  const isBaselineNumber = typeof baseline === 'number';
-  if (isBaselineNumber && !Number.isFinite(baseline)) {
-    return [];
-  }
-  if (!isBaselineNumber && !Years.every((field) => Object.keys(baseline).includes(field))) {
+  if (typeof baselineValue === 'number' && !Number.isFinite(baselineValue)) {
+    console.warn("Invalid baseline number provided to calculatePredictedOutcome.");
     return [];
   }
 
+  const definedDates: string[] = [...new Set(effects
+    .filter(effect => effect.dataSeries)
+    .flatMap(effect => effect.dataSeries?.values.map(v => new Date(v.timestamp).getUTCFullYear())))
+  ]
+    .sort()
+    .map(yyyy => `${yyyy}-01-01T00:00:00Z`);
+
+  if (!definedDates.every(t => isISOIshDate(t))) {
+    console.warn("Invalid date found in effects data series when calculating predicted outcome.");
+    return [];
+  }
+
+  // Transform baseline to DateValues even if it's a number for easier calculations later
+  const baseline: DateValues = {};
+  for (const date of definedDates) {
+    if (!baselineValue) continue;
+    if (typeof baselineValue === 'number') {
+      baseline[date] = baselineValue;
+      continue;
+    }
+    const found = baselineValue.values.find(v => new Date(v.timestamp).getUTCFullYear() === new Date(date).getUTCFullYear());
+    if (found) {
+      baseline[date] = found.value;
+    }
+  }
+
   // Calculate total impact of actions/effects
-  const totalEffect: Partial<DataSeriesValueFields> = {};
-  for (const i of Years) {
+  const totalEffect: DateValues = {};
+
+  for (const date of definedDates) {
     for (const effect of effects) {
-      if (effect.dataSeries && (effect.impactType === ActionImpactType.DELTA)) {
-        if (!totalEffect[i]) {
-          totalEffect[i] = 0;
-        }
+      const dataSeries = effect.dataSeries
+        ? dataSeriesToDateValues(effect.dataSeries)
+        : { dateValues: {}, unit: undefined };
+
+      if (
+        dataSeries.dateValues[date]
+        && effect.impactType === ActionImpactType.DELTA
+      ) {
+        totalEffect[date] ??= 0;
 
         // Add sum of all deltas up to this point for the current action
         let totalDelta = 0;
 
-        for (const j of Years.slice(0, Years.indexOf(i) + 1)) {
-          if (effect.dataSeries[j] != null && Number.isFinite(effect.dataSeries[j])) {
-            totalDelta += effect.dataSeries[j];
+        for (const previousDate of definedDates.filter(d => new Date(d) <= new Date(date))) {
+          if (
+            dataSeries.dateValues[previousDate]
+            && Number.isFinite(dataSeries.dateValues[previousDate])
+          ) {
+            totalDelta += dataSeries.dateValues[previousDate];
           }
         }
 
-        totalEffect[i] += totalDelta;
-      } else if (effect.dataSeries && effect.dataSeries[i] != null && Number.isFinite(effect.dataSeries[i])) {
-        if (!totalEffect[i]) {
-          totalEffect[i] = 0;
-        }
+        totalEffect[date] += totalDelta;
+      }
+      else if (
+        dataSeries.dateValues[date]
+        && Number.isFinite(dataSeries.dateValues[date])
+      ) {
+        totalEffect[date] ??= 0;
+
         switch (effect.impactType) {
-          case ActionImpactType.DELTA:
-            // Delta is handled separately above to account for cases where the current delta is null but some previous deltas are not
-            break;
+          case ActionImpactType.DELTA: break; // Delta is handled separately above to account for cases where the current delta is null but some previous deltas are not
           case ActionImpactType.PERCENT:
-            // Add previous year's (baseline + totalEffect) multiplied by current action as percent
-            const previous = Years[Years.indexOf(i) - 1];
-            if (previous == undefined) {
-              break;
-            }
+            const previousDate = definedDates[definedDates.indexOf(date) - 1];
+            if (!previousDate) break;
+
+            // TODO is this equation correct? what is being calculated here?
             // Substitute with 0 if any value is missing
-            // Handle slightly differently depending on type of baseline
-            if (isBaselineNumber) {
-              totalEffect[i] += ((totalEffect[previous] || 0) + (baseline || 0)) * (effect.dataSeries[i] / 100);
-            } else {
-              totalEffect[i] += ((totalEffect[previous] || 0) + (baseline[previous] || 0)) * (effect.dataSeries[i] / 100);
-            }
+            const prevBaseline = baseline[previousDate] || 0;
+            const prevEffect = totalEffect[previousDate] || 0;
+            const multiplier = dataSeries.dateValues[date] / 100;
+            totalEffect[date] += (prevBaseline + prevEffect) * multiplier;
+
             break;
+
           case ActionImpactType.ABSOLUTE:
           default:
             // Add current value
-            totalEffect[i] += effect.dataSeries[i];
+            totalEffect[date] += dataSeries.dateValues[date];
             break;
         }
       }
@@ -155,17 +175,15 @@ export function calculatePredictedOutcome(effects: (Effect & { dataSeries: DataS
   // Create output array
   const actionOutcome: { x: number, y: number | null }[] = [];
 
-  for (const i of Years) {
-    // Set value of baseline depending on its type
-    const baselineValue = isBaselineNumber ? (baseline ?? NaN) : (baseline[i] ?? NaN);
-    const effectValue = totalEffect[i] || 0;
-
-    const value = baselineValue + effectValue;
+  for (const date of definedDates) {
+    const baselineAtDate = baseline[date] || 0;
+    const effectAtDate = totalEffect[date] || 0;
+    const sum = baselineAtDate + effectAtDate;
 
     actionOutcome.push({
-      x: new Date(i.replace('val', '')).getTime(),
-      y: Number.isFinite(value) ? value : null
-    })
+      x: new Date(date).getTime(),
+      y: Number.isFinite(sum) ? sum : null,
+    });
   }
 
   return actionOutcome;

@@ -3,9 +3,9 @@ import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getSession, LoginData } from "@/lib/session"
 import { effectSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
-import { Prisma } from "@prisma/client";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
+import { Goal } from "@/types";
 
 /**
  * Gets specified goal and all actions for that goal.
@@ -14,7 +14,7 @@ import { cookies } from "next/headers";
  * @param id ID of the goal to get
  * @returns Goal object with actions
  */
-export default async function getOneGoal(id: string) {
+export default async function getOneGoal(id: string): Promise<Goal | null> {
   const session = await getSession(await cookies());
   return getCachedGoal(id, session.user)
 }
@@ -26,10 +26,8 @@ export default async function getOneGoal(id: string) {
  * @param user Data from user's session cookie.
  */
 const getCachedGoal = unstable_cache(
-  async (id: string, user: LoginData['user']) => {
-    let goal: Prisma.GoalGetPayload<{
-      include: typeof goalInclusionSelection;
-    }> | null = null;
+  async (id: string, user: LoginData['user']): Promise<Goal | null> => {
+    let goal: Goal | null = null;
 
     // If user is admin, always get the goal
     if (user?.isAdmin) {
@@ -37,7 +35,7 @@ const getCachedGoal = unstable_cache(
         goal = await prisma.goal.findUnique({
           where: { id },
           include: goalInclusionSelection,
-        });
+        }) satisfies Goal | null;
       } catch (error) {
         console.log(error);
         console.log('Error fetching admin goal');
@@ -67,7 +65,7 @@ const getCachedGoal = unstable_cache(
             }
           },
           include: goalInclusionSelection,
-        });
+        }) satisfies Goal | null;
       } catch (error) {
         console.log(error);
         console.log('Error fetching user goal');
@@ -87,7 +85,7 @@ const getCachedGoal = unstable_cache(
           roadmap: { isPublic: true }
         },
         include: goalInclusionSelection,
-      });
+      }) satisfies Goal | null;
     } catch (error) {
       console.log(error);
       console.log('Error fetching public goal');

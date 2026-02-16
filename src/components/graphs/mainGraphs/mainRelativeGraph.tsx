@@ -1,8 +1,7 @@
 "use client";
 
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
-import { Years } from "@/types";
-import { Goal, DataSeries, Roadmap, MetaRoadmap } from "@prisma/client";
+import { Goal, Roadmap } from "@/types";
 import { useTranslation } from "react-i18next";
 
 export default function MainRelativeGraph({
@@ -11,10 +10,10 @@ export default function MainRelativeGraph({
   parentGoal,
   parentGoalRoadmap,
 }: {
-  goal: Goal & { dataSeries: DataSeries | null },
-  secondaryGoal: Goal & { dataSeries: DataSeries | null } | null,
-  parentGoal: Goal & { dataSeries: DataSeries | null } | null,
-  parentGoalRoadmap: Roadmap & { metaRoadmap: MetaRoadmap } | null,
+  goal: Goal,
+  secondaryGoal: Goal | null,
+  parentGoal: Goal | null,
+  parentGoalRoadmap: Roadmap | null,
 }) {
   const { t } = useTranslation("graphs");
 
@@ -26,20 +25,15 @@ export default function MainRelativeGraph({
 
   // Local goal
   const mainSeries = [];
-  const mainFirstNonNullOrZero = Years.find(i => goal.dataSeries && Number.isFinite(goal.dataSeries[i]) && goal.dataSeries[i] !== 0);
-  let mainBaseValue: number = NaN;
-  if (mainFirstNonNullOrZero) {
-    mainBaseValue = goal.dataSeries[mainFirstNonNullOrZero] as number;
-  }
-  for (const i of Years) {
-    const value = ((goal.dataSeries[i] ?? NaN) / mainBaseValue) * 100;
+  const mainBaseValue: number = goal.dataSeries.values.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())[0]?.value ?? NaN;
+  for (const point of goal.dataSeries.values) {
     mainSeries.push({
-      x: new Date(i.replace('val', '')).getTime(),
-      y: Number.isFinite(value) ? value : null,
+      x: new Date(point.timestamp).getTime(),
+      y: Number.isFinite(mainBaseValue) && mainBaseValue !== 0 ? (point.value / mainBaseValue) * 100 : null,
     });
   }
   chart.push({
-    name: (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
+    name: (goal.name || goal.indicatorParameter).split('\\').at(-1),
     data: mainSeries,
     type: 'line',
   });
@@ -47,17 +41,12 @@ export default function MainRelativeGraph({
   // Secondary goal
   if (secondaryGoal?.dataSeries) {
     const secondarySeries = [];
-    const firstNonNullOrZero = Years.find(i => secondaryGoal.dataSeries && Number.isFinite(secondaryGoal.dataSeries[i]) && secondaryGoal.dataSeries[i] !== 0);
-    let baseValue: number = NaN;
-    if (firstNonNullOrZero) {
-      baseValue = secondaryGoal.dataSeries[firstNonNullOrZero] as number;
-    }
-    for (const i of Years) {
-      const value = ((secondaryGoal.dataSeries[i] ?? NaN) / baseValue) * 100;
+    const secondaryBaseValue: number = secondaryGoal.dataSeries.values.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())[0]?.value ?? NaN;
+    for (const point of secondaryGoal.dataSeries.values) {
       secondarySeries.push({
-        x: new Date(i.replace('val', '')).getTime(),
-        y: Number.isFinite(value) ? value : null,
-      })
+        x: new Date(point.timestamp).getTime(),
+        y: Number.isFinite(secondaryBaseValue) && secondaryBaseValue !== 0 ? (point.value / secondaryBaseValue) * 100 : null,
+      });
     }
     chart.push({
       name: secondaryGoal.name || secondaryGoal.indicatorParameter,
@@ -69,16 +58,11 @@ export default function MainRelativeGraph({
   // National goal
   if (parentGoal?.dataSeries) {
     const nationalSeries = [];
-    const firstNonNullOrZero = Years.find(i => parentGoal.dataSeries && Number.isFinite(parentGoal.dataSeries[i]) && parentGoal.dataSeries[i] !== 0);
-    let baseValue: number = NaN;
-    if (firstNonNullOrZero) {
-      baseValue = parentGoal.dataSeries[firstNonNullOrZero] as number;
-    }
-    for (const i of Years) {
-      const value = ((parentGoal.dataSeries[i] ?? NaN) / baseValue) * 100;
+    const parentBaseValue: number = parentGoal.dataSeries.values.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())[0]?.value ?? NaN;
+    for (const point of parentGoal.dataSeries.values) {
       nationalSeries.push({
-        x: new Date(i.replace('val', '')).getTime(),
-        y: Number.isFinite(value) ? value : null,
+        x: new Date(point.timestamp).getTime(),
+        y: Number.isFinite(parentBaseValue) && parentBaseValue !== 0 ? (point.value / parentBaseValue) * 100 : null,
       });
     }
     chart.push({
@@ -100,8 +84,8 @@ export default function MainRelativeGraph({
       type: 'datetime',
       labels: { format: 'yyyy' },
       tooltip: { enabled: false },
-      min: new Date(Years[0].replace('val', '')).getTime(),
-      max: new Date(Years[Years.length - 1].replace('val', '')).getTime()
+      min: new Date("2020-01-01T00:00:00Z").getTime(),
+      max: new Date("2050-01-01T00:00:00Z").getTime(),
     },
     yaxis: {
       title: { text: t("graphs:main_relative_graph.percent_relative_to_base_year") },

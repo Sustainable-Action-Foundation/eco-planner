@@ -1,34 +1,21 @@
 import { DatasetKeys, ExternalDataset } from "@/lib/api/utility";
-import { DataSeriesValueFields, isPartialDataSeriesValueFields, isStandardObject, JSONValue, typeguardDebug, uuidRegex } from "@/types";
+import { DateValues, DateValuesWithUnit, isDateValues, isStandardObject, JSONValue, typeguardDebug, UnitString, uuidRegex } from "@/types";
 import { Unit } from "mathjs";
+import { SmartRecipe } from "@/functions/recipe/smartRecipe";
+import mathjs from "@/math";
 
 export const VectorIndexPickerOptions = {
   Default: "whole",
 
   Whole: "whole",
+  Reverse: "reverse",
+
   Last: "last",
   First: "first",
   Median: "median",
   Mean: "mean",
 } as const;
 export type VectorIndexPickerOptions = typeof VectorIndexPickerOptions[keyof typeof VectorIndexPickerOptions];
-
-export const vectorIndexPickerFunctions = {
-  [VectorIndexPickerOptions.Whole]: (vector: number[]) => vector,
-  [VectorIndexPickerOptions.Last]: (vector: number[]) => vector.findLast((value) => typeof value === "number" && Number.isFinite(value)) ?? null,
-  [VectorIndexPickerOptions.First]: (vector: number[]) => vector.find((value) => typeof value === "number" && Number.isFinite(value)) ?? null,
-  [VectorIndexPickerOptions.Median]: (vector: number[]) => {
-    if (vector.length === 0) return null;
-    const sorted = [...vector].sort((a, b) => a - b);
-    const mid = Math.floor(sorted.length / 2);
-    return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-  },
-  [VectorIndexPickerOptions.Mean]: (vector: number[]) => {
-    if (vector.length === 0) return null;
-    const sum = vector.reduce((acc, val) => acc + val, 0);
-    return sum / vector.length;
-  },
-} as const;
 
 /* 
  * Common types for recipes
@@ -57,7 +44,7 @@ export function isRecipeDataType(variable: unknown): variable is RecipeDataTypes
 export type RecipeScalar = {
   type: typeof RecipeDataTypes.Scalar;
   value: number;
-  unit: string | null | undefined; // String if given, null if removed, undefined if not specified
+  unit: UnitString; // String if given, null if removed, undefined if not specified
 };
 export function isRecipeScalar(variable: JSONValue): variable is RecipeScalar {
   const allowedProps = ["type", "value", "unit"];
@@ -103,9 +90,9 @@ export const emptyRecipeScalar: RecipeScalar = { type: RecipeDataTypes.Scalar, v
 export type RecipeDataSeries = {
   type: typeof RecipeDataTypes.DataSeries;
   link: string | null | undefined; // uuid of data series in the database
-  value?: Partial<DataSeriesValueFields> | null | undefined; // Usually not settable by the user, mainly for internal use
+  value?: DateValues | null | undefined; // Usually not settable by the user, mainly for internal use
   pick: VectorIndexPickerOptions | number;
-  unit: string | null | undefined; // String if given, null if removed, undefined if not specified
+  unit: UnitString; // String if given, null if removed, undefined if not specified
 
   /** DO NOT USE! deprecated and will be replaced once smart recipes are implemented */
   goalName?: string;
@@ -138,7 +125,7 @@ export function isRecipeDataSeries(variable: JSONValue): variable is RecipeDataS
     (
       (
         typeof variable.pick === "string"
-        && vectorIndexPickerFunctions[variable.pick as VectorIndexPickerOptions] !== undefined
+        && Object.values(VectorIndexPickerOptions).includes(variable.pick as VectorIndexPickerOptions)
       )
       || (
         typeof variable.pick === "number"
@@ -156,7 +143,7 @@ export function isRecipeDataSeries(variable: JSONValue): variable is RecipeDataS
     (
       variable.value === undefined ||
       variable.value === null ||
-      isPartialDataSeriesValueFields(variable.value)
+      isDateValues(variable.value)
     ) &&
 
     // TODO Remove this once smart recipes are implemented
@@ -195,7 +182,7 @@ export type RecipeExternalDataset = {
     valueCodes: string[]
   }[]; // The selection to be made on the table, e.g. [{ variableCode: "Tid", valueCodes: ["2020M01"] }]
   pick: VectorIndexPickerOptions | number;
-  unit: string | null | undefined; // String if given, null if removed, undefined if not specified
+  unit: UnitString; // String if given, null if removed, undefined if not specified
 };
 export function isRecipeExternalDataset(variable: JSONValue): variable is RecipeExternalDataset {
   const allowedProps = ["type", "dataset", "tableId", "selection", "pick", "unit"];
@@ -236,7 +223,7 @@ export function isRecipeExternalDataset(variable: JSONValue): variable is Recipe
     (
       (
         typeof variable.pick === "string"
-        && vectorIndexPickerFunctions[variable.pick as VectorIndexPickerOptions] !== undefined
+        && Object.values(VectorIndexPickerOptions).includes(variable.pick as VectorIndexPickerOptions)
       )
       || (
         typeof variable.pick === "number"
@@ -296,9 +283,11 @@ export type Recipe = {
   name: string | null | undefined; // String if given, null if removed, undefined if not specified
   eq: string;
   variables: Record<string, RecipeVariable>;
+  smartMeta?: string; // Metadata for smart recipes for serialization purposes
 };
+export type RecipeIsh = Recipe | SmartRecipe;
 export function isRecipe(recipe: JSONValue): recipe is Recipe {
-  const allowedProps = ["name", "eq", "variables"];
+  const allowedProps = ["name", "eq", "variables", "smartMeta"];
 
   return (
     (
@@ -318,6 +307,11 @@ export function isRecipe(recipe: JSONValue): recipe is Recipe {
       typeof recipe.eq === "string" ||
       // recipe.eq.trim() !== "" || // Ensure eq is a non-empty string
       typeguardDebug("Type guard: 'eq' in recipe") && false
+    ) &&
+
+    (
+      recipe.smartMeta === undefined ||
+      typeof recipe.smartMeta === "string"
     ) &&
 
     (
@@ -350,6 +344,15 @@ export const isEmptyRecipe = (recipe: Recipe): boolean => {
   );
 };
 
+export function isSmartRecipe(recipe: unknown): recipe is SmartRecipe {
+  if (typeof recipe !== "object" || recipe === null) return false;
+
+  if (!("equation" in recipe) || typeof recipe["equation"] !== "string") return false;
+  if (!("checkValidity" in recipe) || typeof recipe["checkValidity"] !== "function") return false;
+
+  return true;
+}
+
 
 /** 
  * Defined here to usage before declaration.
@@ -364,27 +367,48 @@ export const emptyRecipesByDataType: Record<RecipeDataTypes, RecipeVariable> = {
 /*
  * Variable during evaluation of a recipe. Should not persist beyond that scope.
  */
-export type EvalTimeScalar = {
-  name: string; // Variable name
-  value: number; // The actual value to be used
-  unit: string | null | undefined; // Optional unit
-};
-export type EvalTimeDataSeries = {
-  name: string; // Variable name
-  link: string; // For reference sake
-  value: number | number[] | null;
-  unit: string | null | undefined; // Optional unit
-};
-export type EvalTimeExternalDataset = {
-  name: string; // Variable name
-  value: number | number[] | null;
-  unit: string | null | undefined; // Optional unit
-};
 export type EvalTimeVariable = {
   name: string;
-  value: Unit | Unit[] | number | number[];
+  value: Unit | Unit[] | number; // TODO: should it be ever be a number? rather have Unit with no unit?
+};
+export function isEvalTimeVariable(variable: unknown): variable is EvalTimeVariable {
+  if (
+    !isStandardObject(variable)
+  ) {
+    console.warn(`Type guard: eval time variable should be an object`);
+    return false;
+  }
+
+  if (
+    !("name" in variable)
+    || typeof variable.name !== "string"
+    || variable.name.trim() === ""
+  ) {
+    console.warn(`Type guard: 'name' in eval time variable`);
+    return false;
+  }
+
+  if (
+    !("value" in variable)
+    || !(
+      typeof variable.value === "number"
+      || variable.value instanceof mathjs.Unit
+      || (
+        Array.isArray(variable.value)
+        && variable.value.every(item => item instanceof mathjs.Unit)
+      )
+    )) {
+    console.warn(`Type guard: 'value' in eval time variable`);
+    return false;
+  }
+
+  return true;
 }
 
+export type RecipeExtractionOutput = (
+  EvalTimeVariable
+  | { series: DateValuesWithUnit, name: string, }
+)[];
 
 /*
  * Errors

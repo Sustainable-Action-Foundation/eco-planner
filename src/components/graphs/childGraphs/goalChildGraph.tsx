@@ -1,8 +1,8 @@
 "use client";
 
+import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper.tsx";
-import { Years } from "@/types.ts";
-import { DataSeries, Goal } from "@prisma/client";
+import { Goal, isISOIshDate } from "@/types";
 import { useTranslation } from "react-i18next";
 
 /**
@@ -13,8 +13,8 @@ export default function GoalChildGraph({
   childGoals,
   isStacked,
 }: {
-  goal: Goal & { dataSeries: DataSeries | null },
-  childGoals: (Goal & { dataSeries: DataSeries | null, roadmapName?: string })[],
+  goal: Goal,
+  childGoals: Goal[],
   isStacked: boolean,
 }) {
   const { t } = useTranslation("graphs");
@@ -31,16 +31,22 @@ export default function GoalChildGraph({
 
   // Data series for the main goal
   const mainSeries = [];
-  for (const i of Years) {
-    const value = goal.dataSeries[i];
+  const dataSeries = dataSeriesToDateValues(goal.dataSeries);
+  const dates = Object.keys(dataSeries.dateValues).sort();
+  if (!dates.every(isISOIshDate)) {
+    throw new Error("Data series contains non-date keys");
+  }
+
+  for (const date of dates) {
+    const value = dataSeries.dateValues[date];
 
     mainSeries.push({
-      x: new Date(i.replace('val', '')).getTime(),
+      x: new Date(date).getTime(),
       y: Number.isFinite(value) ? value : null,
     });
   }
   dataPoints.push({
-    name: (goal.name || goal.indicatorParameter.split('\\').slice(-1)[0]),
+    name: (goal.name || goal.indicatorParameter.split('\\').at(-1)),
     data: mainSeries,
     // Main series is always a line
     type: 'line',
@@ -49,23 +55,32 @@ export default function GoalChildGraph({
   });
 
   for (const child of childGoals) {
-    const childSeries = [];
-    if (child.dataSeries) {
-      for (const i of Years) {
-        const value = child.dataSeries[i];
+    if (!child.dataSeries) {
+      console.warn(`Child goal ${child.id} has no data series, skipping`);
+      continue;
+    }
 
-        childSeries.push({
-          x: new Date(i.replace('val', '')).getTime(),
-          // Specifically in the combined graph, when stacked, default to 0 rather than null if the value is not a number
-          // This is because stacked area charts in ApexCharts do not handle null values well (other entries are shifted up outside the graph)
-          y: Number.isFinite(value) ? value : (isStacked ? 0 : null),
-        });
-      }
+    const childSeries = [];
+    const childDataSeries = dataSeriesToDateValues(child.dataSeries);
+    const dates = Object.keys(childDataSeries.dateValues).sort();
+    if (!dates.every(isISOIshDate)) {
+      throw new Error("Data series contains non-date keys");
+    }
+
+    for (const date of dates) {
+      const value = childDataSeries.dateValues[date];
+
+      childSeries.push({
+        x: new Date(date).getTime(),
+        // Specifically in the combined graph, when stacked, default to 0 rather than null if the value is not a number
+        // This is because stacked area charts in ApexCharts do not handle null values well (other entries are shifted up outside the graph)
+        y: Number.isFinite(value) ? value : (isStacked ? 0 : null),
+      });
     }
     // Only add the series to the graph if it isn't all null/0
     if (childSeries.filter((entry) => entry.y).length > 0) {
       dataPoints.push({
-        name: `${child.name || child.indicatorParameter.split('\\').slice(-1)[0]} (${child.roadmapName || t("graphs:common.unknown_roadmap")})`,
+        name: `${child.name || child.indicatorParameter.split('\\').at(-1)} (${child.roadmap.metaRoadmap.name || t("graphs:common.unknown_roadmap")})`,
         data: childSeries,
         type: isStacked ? 'area' : 'line',
       });
@@ -103,8 +118,8 @@ export default function GoalChildGraph({
       type: 'datetime',
       labels: { format: 'yyyy' },
       tooltip: { enabled: false },
-      min: new Date(Years[0].replace('val', '')).getTime(),
-      max: new Date(Years[Years.length - 1].replace('val', '')).getTime()
+      min: new Date("2020-01-01T00:00:00Z").getTime(),
+      max: new Date("2050-01-01T00:00:00Z").getTime(),
     },
     yaxis: {
       title: { text: goal.dataSeries.unit === null ? t("common:tsx.unitless") : goal.dataSeries.unit || t("common:tsx.unit_missing") },

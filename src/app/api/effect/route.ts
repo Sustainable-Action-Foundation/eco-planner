@@ -1,12 +1,32 @@
-import dataSeriesPrep from "@/app/api/goal/dataSeriesPrep";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
-import { ClientError, DataSeriesValueFields, EffectInput, JSONValue } from "@/types";
+import { ClientError, EffectInput, isDateValuesWithUnit, JSONValue } from "@/types";
 import { ActionImpactType, Prisma } from "@prisma/client";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
+
+// Typeguard and check if the request body is valid
+function isEffect(effect: JSONValue): effect is EffectInput {
+  return (
+    typeof effect === 'object'
+    && effect != null
+    && !(effect instanceof Array)
+
+    && typeof effect.actionId === 'string'
+    && typeof effect.goalId === 'string'
+
+    && "dataSeries" in effect
+    && effect.dataSeries !== undefined
+    && isDateValuesWithUnit(effect.dataSeries)
+
+    && (
+      effect.impactType === undefined
+      || Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType)
+    )
+  );
+}
 
 /**
  * Handles POST requests to the effect API
@@ -16,23 +36,6 @@ export async function POST(request: NextRequest) {
     getSession(await cookies()),
     request.json() as Promise<JSONValue>,
   ]);
-
-  // Typeguard and check if the request body is valid
-  function isEffect(effect: JSONValue): effect is EffectInput {
-    return (
-      // effect should be an object
-      (// impactType may be included, and should in that case be one of the values in ActionImpactType
-        typeof effect === 'object' &&
-        effect != null &&
-        !(effect instanceof Array) &&
-        // actionId and goalId should be strings
-        typeof effect.actionId === 'string' &&
-        typeof effect.goalId === 'string' &&
-        // dataSeries should be an array of strings
-        effect.dataSeries instanceof Array &&
-        effect.dataSeries.every((value) => typeof value === 'string') && (effect.impactType === undefined || Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType)))
-    );
-  }
 
   if (!isEffect(effect)) {
     return Response.json({ message: 'Invalid request body' },
@@ -126,28 +129,19 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // Prepare effect data series
-  let dataSeries: Partial<DataSeriesValueFields> | null = null;
-  dataSeries = dataSeriesPrep(effect.dataSeries ?? []);
-  if (dataSeries == null) {
-    return Response.json({ message: 'Bad data series' },
-      { status: 400 }
-    );
-  }
-
   // Create the effect
   try {
     const newEffect = await prisma.effect.create({
       data: {
-        actionId: effect.actionId,
-        goalId: effect.goalId,
+        action: { connect: { id: effect.actionId } },
+        goal: { connect: { id: effect.goalId } },
         impactType: effect.impactType,
         dataSeries: {
           create: {
-            ...dataSeries,
-            unit: null,
-            authorId: session.user.id
-          }
+            values: effect.dataSeries.dateValues,
+            unit: effect.dataSeries.unit,
+            authorId: session.user.id,
+          },
         },
       },
     });
@@ -310,35 +304,25 @@ export async function PUT(request: NextRequest) {
     }
   }
 
-  // Prepare effect data series
-  let dataSeries: Partial<DataSeriesValueFields> | undefined | null = undefined;
-  if (effect.dataSeries) {
-    dataSeries = dataSeriesPrep(effect.dataSeries);
-  }
-  if (dataSeries === null) {
-    return Response.json({ message: 'Bad data series' },
-      { status: 400 }
-    );
-  }
-
   // Update the effect
   try {
     const updatedEffect = await prisma.effect.update({
       where: { id: { actionId: effect.actionId, goalId: effect.goalId } },
       data: {
         impactType: effect.impactType,
-        dataSeries: dataSeries ? {
+        dataSeries: {
           upsert: {
             create: {
-              ...dataSeries,
-              unit: null,
-              authorId: session.user.id
+              values: effect.dataSeries.dateValues,
+              unit: effect.dataSeries.unit,
+              authorId: session.user.id,
             },
             update: {
-              ...dataSeries,
+              values: effect.dataSeries.dateValues,
+              unit: effect.dataSeries.unit,
             }
           }
-        } : undefined,
+        }
       },
     });
     // Invalidate old cache

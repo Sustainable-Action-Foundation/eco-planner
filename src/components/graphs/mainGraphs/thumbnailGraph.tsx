@@ -1,17 +1,22 @@
 import WrappedChart from "@/lib/chartWrapper";
-import { Years } from "@/types";
-import { DataSeries, Goal } from "@prisma/client";
 import styles from '../graphs.module.css'
 import { ApiTableContent } from "@/lib/api/apiTypes";
 import { parsePeriod } from "@/lib/api/utility";
 import getTableContent from "@/lib/api/getTableContent";
 import i18nServer from "i18next";
+import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
+import type { Goal } from "@/types";
+
+type ThumbnailGoal = Pick<
+  Goal,
+  "id" | "name" | "indicatorParameter" | "dataSeries" | "externalDataset" | "externalTableId" | "externalSelection"
+>;
 
 export default async function ThumbnailGraph({
   goal,
   historicalData
 }: {
-  goal: Goal & { dataSeries: DataSeries | null },
+  goal: ThumbnailGoal,
   historicalData?: boolean,
 }) {
   if (!goal.dataSeries) {
@@ -27,16 +32,15 @@ export default async function ThumbnailGraph({
     }
   }
 
-  const mainChart: ApexAxisChartSeries = [];
-  const mainSeries = [];
-  for (const i of Years) {
-    const value = goal.dataSeries[i];
+  const mainDateValues = dataSeriesToDateValues(goal.dataSeries);
+  const sortedMainEntries = Object.entries(mainDateValues.dateValues)
+    .sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime());
+  const mainSeries = sortedMainEntries.map(([isoDate, value]) => ({
+    x: new Date(isoDate).getTime(),
+    y: Number.isFinite(value) ? value : null,
+  }));
 
-    mainSeries.push({
-      x: new Date(i.replace('val', '')).getTime(),
-      y: Number.isFinite(value) ? value : null,
-    });
-  }
+  const mainChart: ApexAxisChartSeries = [];
   mainChart.push({
     name: (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
     data: mainSeries,
@@ -87,8 +91,14 @@ export default async function ThumbnailGraph({
       type: 'datetime',
       labels: { format: 'yyyy' },
       tooltip: { enabled: false },
-      min: externalData ? Date.UTC(Number(externalData?.values[0].period), 0, 1) : new Date(Years[0].replace('val', '')).getTime(),
-      max: new Date(Years[Years.length - 1].replace('val', '')).getTime()
+      ...(externalData?.values?.[0]?.period
+        ? { min: Date.UTC(Number(externalData.values[0].period), 0, 1) }
+        : sortedMainEntries[0]
+          ? { min: new Date(sortedMainEntries[0][0]).getTime() }
+          : {}),
+      ...(sortedMainEntries[sortedMainEntries.length - 1]
+        ? { max: new Date(sortedMainEntries[sortedMainEntries.length - 1][0]).getTime() }
+        : {})
     },
     yaxis: {
       show: false

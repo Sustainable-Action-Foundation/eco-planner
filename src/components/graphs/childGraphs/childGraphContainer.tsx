@@ -1,6 +1,5 @@
 "use client"
 
-import { DataSeries, Effect, Goal } from "@prisma/client";
 import GoalChildGraph from "./goalChildGraph";
 import PredictionChildGraph from "./predictionChildGraph.tsx";
 import { useEffect, useState } from "react";
@@ -9,6 +8,7 @@ import { percentAndFraction } from "../graphSelector/graphSelector";
 import ChildGraphSelector from "../graphSelector/childGraphSelector";
 import { useTranslation } from "react-i18next";
 import { IconChartAreaLineFilled } from "@tabler/icons-react";
+import { Goal } from "@/types.ts";
 
 export const ChildGraphType = {
   Target: "TARGET",
@@ -21,9 +21,9 @@ export default function ChildGraphContainer({
   childGoals,
   children,
 }: {
-  goal: Goal & { dataSeries: DataSeries | null },
-  childGoals: (Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null, effects: (Effect & { dataSeries: DataSeries | null })[], roadmapName?: string })[],
-  children?: React.ReactNode,
+  goal: Goal;
+  childGoals: Goal[];
+  children?: React.ReactNode;
 }) {
   const { t } = useTranslation("graphs");
 

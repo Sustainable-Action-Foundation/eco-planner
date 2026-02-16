@@ -1,7 +1,7 @@
 "use client"
 
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
-import { useRecipe } from "@/components/recipe/context/recipeContext.use";
+import { useRecipe } from "../../context/recipeContext.use";
 import { ApexOptions } from "apexcharts";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { Locales } from "i18n.config";
@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next";
 export default function OutputGraph() {
   const { t } = useTranslation("components");
   const { resultingDataSeries } = useRecipe();
+
   if (!resultingDataSeries) {
     return <div style={{ fontSize: '14px' }} lang={Locales.enSE} className="flex align-items-flex-start gap-50 margin-top-50">
       <IconInfoCircle width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="var(--gray-70)" aria-label={t("components:recipe_editor.status.no_issues_icon_aria_label")} />

@@ -1,14 +1,36 @@
-import { Recipe } from "@/functions/recipe-parser/types";
-import { DataSeriesValueFields } from "@/types";
+import { SmartRecipe } from "@/functions/recipe/smartRecipe";
+import { Recipe, RecipeIsh, RecipeVariable } from "@/functions/recipe/types";
+import { DateValues } from "@/types";
 import { createContext } from "react";
 
+/** 
+ * A function exposing a previous version of itself to assist in updating its value
+ */
+type Historic<T> = (prev: T) => T;
+/** 
+ * A value or function used on setters
+ */
+export type SetStateAction<T> = T | Historic<T>;
+
 export type RecipeContextType = {
-  recipe: Recipe | null;
-  setRecipe: React.Dispatch<React.SetStateAction<Recipe | null>>;
+  smartRecipe: SmartRecipe;
+  recipe: Recipe;
+  resultingDataSeries: DateValues | null;
+  resultingUnit: string | null | undefined;
+
   warnings: string[];
   error: string | null;
-  resultingDataSeries: Partial<DataSeriesValueFields> | null;
-  resultingUnit: string | null | undefined;
-};
 
+  clearRecipe: () => void;
+  setSmartRecipe: (valueOrSetter: SetStateAction<RecipeIsh>) => Promise<void>;
+
+  equation: Recipe["eq"];
+  setEquation: (valueOrSetter: SetStateAction<Recipe["eq"]>) => void;
+
+  getVariable: (variableName: string) => RecipeVariable | undefined;
+  setVariable: (variableName: string, newValue: SetStateAction<RecipeVariable>) => void;
+
+  variables: Recipe["variables"];
+  setVariables: (valueOrSetter: SetStateAction<Recipe["variables"]>) => void;
+};
 export const RecipeContext = createContext<RecipeContextType | null>(null);
