@@ -107,7 +107,7 @@ export default function Actions({ actions, searchParamsProp }: { actions: Action
                 debouncedUpdateStringParam('search', e.target.value);
               }}
             />
-            {isLoading && <Image src={'/loaders/eclipse.svg'} width={16} height={16} alt='' aria-live="polite" />}
+            {isLoading && <Image src={'/loaders/3-dots-move.svg'} width={16} height={16} alt='' aria-live="polite" />}
           </div>
           <hr style={{ borderRight: '0', color: 'var(--gray-80)', borderStyle: 'solid' }} />
           <Link href={'/action/create'} className="flex gap-100 align-items-center smooth seagreen color-purewhite text-decoration-none padding-inline-75 padding-block-50 font-weight-500 button" style={{ lineHeight: '1', fontSize: '14px' }}>
