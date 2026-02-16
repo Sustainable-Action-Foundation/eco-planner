@@ -63,7 +63,7 @@ export default function Actions({ actions, searchParamsProp }: { actions: Action
 
   return (
     <div className="grid gap-200" style={{ gridTemplateColumns: 'auto 1fr' }}>
-      <menu className="margin-0 smooth padding-50" style={{ width: '30ch', backgroundColor: 'var(--gray-95)', border: '1px solid var(--gray-90)', marginTop: '100px', height: 'fit-content' }}> {/* TODO: Magic number */}
+      <menu className="margin-0 smooth padding-50" style={{ width: '30ch', backgroundColor: 'var(--gray-95)', border: '1px solid var(--gray-90)', marginTop: '40px', height: 'fit-content' }}> {/* TODO: Magic number */}
         <div className="width-100">{/* TODO: Need some label */}
           <div className="radio-select-multiple margin-top-25 width-100" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(50px, 1fr))' }}>
             <label className="flex gap-25 align-items-center" style={{ lineHeight: '1' }}>
@@ -89,11 +89,11 @@ export default function Actions({ actions, searchParamsProp }: { actions: Action
             </label>
           </div>
         </div>
-        <h1 className="padding-bottom-50 margin-block-100 font-weight-500" style={{ fontSize: '1.25rem', borderBottom: '1px solid var(--gray)' }}>Filter</h1> {/* TODO: Check semantics of this */}
+        <h2 className="padding-bottom-50 margin-block-100 font-weight-500" style={{ fontSize: '1.25rem', borderBottom: '1px solid var(--gray)' }}>Filter</h2> {/* TODO: Check semantics of this */}
       </menu>
 
       <div>
-        <h1 id="search-title" className="margin-top-300 margin-bottom-50">Sök bland {actions?.length} åtgärder</h1>
+        <h2 id="search-title" className="margin-top-0 margin-bottom-50">Sök bland {actions?.length} åtgärder</h2>
         <div className="margin-bottom-100 padding-bottom-100 flex gap-100 align-items-stretch" style={{ borderBottom: '1px solid var(--gray-80)' }}>
           <div className="flex align-items-center padding-50 smooth focusable flex-grow-100">
             <IconSearch strokeWidth={1.5} width={20} height={20} style={{ minWidth: '20px' }} />
