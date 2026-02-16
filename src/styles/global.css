@@ -180,6 +180,9 @@ button[type="submit"]:disabled {
 }
 
 /* Neutral button (Not CTA or danger) */
+/* NOTE: This design works when buttons act as a standalone element.
+  A flat design works better when hierarchy is implied
+*/
 @property --breakpoint { /* TODO: Breakpoint is too generic */
   initial-value: 50%;
   inherits: false;

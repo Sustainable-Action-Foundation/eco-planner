@@ -1,10 +1,12 @@
-'use client'
+"use client";
 
-import { useState } from "react"
-import styles from "./page.module.css"
+import { useEffect, useState, useTransition } from "react"
+import styles from "../app/actions/page.module.css"
 import { Action } from "@/types"
-import { IconArrowNarrowRight, IconGrid3x3, IconLayoutGridFilled, IconList, IconPlus, IconSearch, IconTable, IconTableFilled, IconUser } from "@tabler/icons-react"
+import { IconArrowNarrowRight, IconLayoutGridFilled, IconList, IconPlus, IconSearch, IconUser } from "@tabler/icons-react"
 import Link from "next/link"
+import { useDebouncedCallback } from "use-debounce"
+import { usePathname, useSearchParams, useRouter } from "next/navigation"
 
 // TODO:
 // - Listview should probably be default
@@ -13,10 +15,50 @@ import Link from "next/link"
 // - I18n
 // - Style using modules
 // - Improve listviewstyling
+// - Search by other fields than name (e.g author, years...)
+// - Probably memoise instead of mutating actions prop
+// - Rename searchFilter -> search/filter (no url camelcase preferably)
+export default function Actions({ actions, searchParamsProp }: { actions: Action[] | null, searchParamsProp: { [key: string]: string | string[] | undefined } }) {
+  const router = useRouter();
+  const debouncedUpdateStringParam = useDebouncedCallback(updateStringParam, 300);
+  const [_isPending, startTransition] = useTransition();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-export default function Actions({ actions }: { actions: Action[] | null }) {
+  function updateStringParam(key: string, value: string) {
+    const newParams = new URLSearchParams(searchParams);
+
+    if (value) {
+      newParams.set(key, value);
+    } else {
+      newParams.delete(key);
+    }
+
+    startTransition(() => {
+      router.replace(`${pathname}?${newParams.toString()}`)
+    })
+  }
 
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const searchFilter = searchParamsProp['searchFilter'] ? (Array.isArray(searchParamsProp['searchFilter']) ? searchParamsProp['searchFilter'][0] : searchParamsProp['searchFilter']) : '';
+
+  if (searchFilter && actions) {
+    actions = actions.filter((action) => {
+      if (Object.values(action).some((value) => {
+        if (typeof value === 'string') {
+          return value.toLowerCase().includes(searchFilter.toLowerCase())
+        } else {
+          return false;
+        }
+      })) {
+        return true;
+      }
+    });
+  }
+
+  useEffect(() => {
+    console.log(actions)
+  }, [actions])
 
   return (
     <>
@@ -24,15 +66,17 @@ export default function Actions({ actions }: { actions: Action[] | null }) {
         <label className="flex-grow-100">
           Sök
           <div className="flex align-items-center margin-top-25 padding-50 smooth focusable">
-            <IconSearch width={1.5} style={{minWidth: '24px'}} />
-            <input type="search" className="padding-0 margin-inline-50" />
+            <IconSearch width={1.5} style={{ minWidth: '24px' }} />
+            <input type="search" className="padding-0 margin-inline-50" defaultValue={searchParams.get('searchFilter') ?? undefined} onChange={(e) => {
+              debouncedUpdateStringParam('searchFilter', e.target.value)
+            }} />
           </div>
         </label>
         <div className="flex-grow-100">
           Visa som
           <div className="radio-select-multiple margin-top-25" style={{ width: 'min(300px, 100%)', minWidth: 'calc(125px * 2)' }}> {/* TODO: Some magic number stuff going on here */}
             <label className="flex gap-25 align-items-center" style={{ lineHeight: '1' }}>
-              <IconLayoutGridFilled style={{minWidth: '24px'}} />
+              <IconLayoutGridFilled style={{ minWidth: '24px' }} />
               Rutnät
               <input
                 type="radio"
@@ -43,7 +87,7 @@ export default function Actions({ actions }: { actions: Action[] | null }) {
             </label>
 
             <label className="flex gap-25 align-items-center" style={{ lineHeight: '1' }}>
-              <IconList style={{minWidth: '24px'}} />
+              <IconList style={{ minWidth: '24px' }} />
               Förenklad lista
               <input
                 type="radio"
@@ -54,9 +98,9 @@ export default function Actions({ actions }: { actions: Action[] | null }) {
             </label>
           </div>
         </div>
-        <Link href={'/action/create'} className="flex gap-50 align-items-center smooth neutral-action" style={{fontSize: '14px', marginTop: 'calc(21px + .25rem + 5px)', alignSelf: 'flex-start'}}> {/* TODO: Some more magic number stuff going on here */}
+        <Link href={'/action/create'} className="flex gap-50 align-items-center smooth neutral-action" style={{ fontSize: '14px', marginTop: 'calc(21px + .25rem + 5px)', alignSelf: 'flex-start' }}> {/* TODO: Some more magic number stuff going on here */}
           Skapa ny åtgärd
-          <IconPlus width={20} height={20} style={{minWidth: '20px'}} strokeWidth={1.5} />
+          <IconPlus width={20} height={20} style={{ minWidth: '20px' }} strokeWidth={1.5} />
         </Link>
       </menu>
 
@@ -88,7 +132,7 @@ export default function Actions({ actions }: { actions: Action[] | null }) {
                   Gå till färdplan {/* TODO: I18n, also poor accesibility */}
                   <IconArrowNarrowRight width={20} height={20} style={{ maxWidth: '20px' }} />
                 </Link>
-              </div> 
+              </div>
             </article>
           </li>
         ))}

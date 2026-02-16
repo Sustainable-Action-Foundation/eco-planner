@@ -361,7 +361,7 @@ export function AdminPanel(
                   }
                   {links.editLink &&
                     <>
-                      <Link href={links.editLink} className={`flex gap-100 align-items-center smooth neutral-action`}>
+                      <Link href={links.editLink} className={`flex gap-100 align-items-center smooth neutral-action`}> {/* TODO: The styling of theese links is a lil messed up since i changed to use neutral-action instead of custom styles. I mainly note the need to fix margin but probably check if something else broke aswell */}
                         <span>{t("components:table_menu.edit")}</span>
                         <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                       </Link>
