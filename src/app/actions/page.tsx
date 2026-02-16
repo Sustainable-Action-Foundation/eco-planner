@@ -16,7 +16,6 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
   
   return (
     <main>
-      <h1 className="margin-top-300 margin-bottom-50 padding-bottom-50" style={{borderBottom: '1px solid var(--gray-80)'}}>Åtgärder</h1>
       <Actions searchParamsProp={searchParams} actions={actions} />
     </main>
   )
