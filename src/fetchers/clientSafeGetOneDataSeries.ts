@@ -3,22 +3,20 @@
 import { clientSafeDataSeriesSelection } from "@/fetchers/inclusionSelectors";
 import { getSession, type LoginData } from "@/lib/session"
 import prisma from "@/prismaClient";
-import { Prisma } from "@prisma/client";
+import { DataSeries } from "@/types";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import { cookies } from "next/headers";
 
-export default async function clientSafeGetOneDataSeries(id: string) {
+export default async function clientSafeGetOneDataSeries(id: string): Promise<DataSeries | null> {
   const session = await getSession(await cookies());
   return clientSafeGetCachedDataSeries(id, session.user);
 }
 
-async function clientSafeGetCachedDataSeries(id: string, user: LoginData['user']) {
+async function clientSafeGetCachedDataSeries(id: string, user: LoginData['user']): Promise<DataSeries | null> {
   'use cache';
   cacheTag('database', 'dataSeries', 'action', 'goal');
 
-  let dataSeries: Prisma.DataSeriesGetPayload<{
-    select: typeof clientSafeDataSeriesSelection;
-  }> | null = null;
+  let dataSeries: DataSeries | null = null;
 
   const canViewParentRoadmap = {
     roadmap: {
@@ -29,8 +27,8 @@ async function clientSafeGetCachedDataSeries(id: string, user: LoginData['user']
         { editGroups: { some: { users: { some: { id: user?.id } } } } },
         { viewGroups: { some: { users: { some: { id: user?.id } } } } },
         { isPublic: true }
-      ]
-    }
+      ],
+    },
   };
 
   // If user is admin, always get the data series
@@ -39,7 +37,7 @@ async function clientSafeGetCachedDataSeries(id: string, user: LoginData['user']
       dataSeries = await prisma.dataSeries.findUnique({
         where: { id },
         select: clientSafeDataSeriesSelection,
-      });
+      }) satisfies DataSeries | null;
     } catch (error) {
       console.log(error);
       console.log('Error fetching admin data series');
@@ -60,43 +58,49 @@ async function clientSafeGetCachedDataSeries(id: string, user: LoginData['user']
             { authorId: user.id },
             // Has access to it through a roadmap
             {
-              goal: {
-                OR: [
-                  { authorId: user.id },
-                  canViewParentRoadmap
-                ]
-              }
+              dependentGoals: {
+                some: {
+                  OR: [
+                    { authorId: user.id },
+                    canViewParentRoadmap,
+                  ],
+                },
+              },
             },
             // Has access to it through an action
             {
-              baseline: {
-                OR: [
-                  { authorId: user.id },
-                  canViewParentRoadmap
-                ]
-              }
+              dependentBaselines: {
+                some: {
+                  OR: [
+                    { authorId: user.id },
+                    canViewParentRoadmap,
+                  ],
+                },
+              },
             },
             // Has access to it through an effect
             {
-              effect: {
-                action: {
-                  OR: [
-                    { authorId: user.id },
-                    canViewParentRoadmap
-                  ]
+              dependentEffects: {
+                some: {
+                  action: {
+                    OR: [
+                      { authorId: user.id },
+                      canViewParentRoadmap,
+                    ],
+                  },
+                  goal: {
+                    OR: [
+                      { authorId: user.id },
+                      canViewParentRoadmap,
+                    ],
+                  },
                 },
-                goal: {
-                  OR: [
-                    { authorId: user.id },
-                    canViewParentRoadmap
-                  ]
-                }
-              }
-            }
-          ]
+              },
+            },
+          ],
         },
         select: clientSafeDataSeriesSelection
-      });
+      }) satisfies DataSeries | null;
     } catch (error) {
       console.log(error);
       console.log('Error fetching user data series');
@@ -112,20 +116,22 @@ async function clientSafeGetCachedDataSeries(id: string, user: LoginData['user']
         id,
         OR: [
           // In public goal
-          { goal: { roadmap: { isPublic: true } } },
+          { dependentGoals: { some: { roadmap: { isPublic: true, }, }, }, },
           // In public action
-          { baseline: { roadmap: { isPublic: true } } },
+          { dependentBaselines: { some: { roadmap: { isPublic: true, }, }, }, },
           // In public effect
           {
-            effect: {
-              action: { roadmap: { isPublic: true } },
-              goal: { roadmap: { isPublic: true } }
-            }
-          }
-        ]
+            dependentEffects: {
+              some: {
+                action: { roadmap: { isPublic: true } },
+                goal: { roadmap: { isPublic: true } },
+              },
+            },
+          },
+        ],
       },
       select: clientSafeDataSeriesSelection,
-    });
+    }) satisfies DataSeries | null;
   } catch (error) {
     console.log(error);
     console.log('Error fetching public data series');

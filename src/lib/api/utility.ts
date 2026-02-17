@@ -195,6 +195,9 @@ export function parsePeriod(period: string): Date {
   return new Date(Date.UTC(parseInt(period), 0));
 }
 
+/** 
+ * Since there can be multiple readings a year, this picks the first reading for each year, no more.
+ */
 export function filterToInitialYearlyRecords(periodValuePairs: ApiTableContent["values"]): ApiTableContent["values"] {
   const filteredValues: ApiTableContent["values"] = [];
   const seenYears: Set<number> = new Set();

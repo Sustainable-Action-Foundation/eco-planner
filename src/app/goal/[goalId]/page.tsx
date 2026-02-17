@@ -1,5 +1,5 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import UpdateGoalButton from "@/components/buttons/updateGoalButton";
+import RecalculateDataSeriesButton from "@/components/buttons/recalculateDataSeries";
 import Comments from "@/components/comments/comments";
 import QueryBuilder from "@/components/form/api/queryBuilder";
 import ActionGraph from "@/components/graphs/actionGraph";
@@ -20,15 +20,14 @@ import { ApiTableContent } from "@/lib/api/apiTypes";
 import { getSession } from "@/lib/session";
 import serveTea from "@/lib/i18nServer";
 import prisma from "@/prismaClient";
-import { AccessControlled, AccessLevel } from "@/types";
-import type { DataSeries, Goal, MetaRoadmap, Roadmap } from "@prisma/client";
+import { AccessControlled, AccessLevel, Goal, MultiRoadmapInstance, Roadmap } from "@/types";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import getTableContent from "@/lib/api/getTableContent";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconAlertTriangle } from "@tabler/icons-react";
-import i18nServer from "i18next";
+import i18nServer, { TFunction } from "i18next";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 
 export async function generateMetadata(props: {
@@ -80,12 +79,24 @@ export default async function Page(
   const [t, session, { goal, roadmap }, secondaryGoal, unfilteredRoadmapOptions] = await Promise.all([
     serveTea("pages"),
     getSession(await cookies()),
-    getOneGoal(params.goalId).then(async goal => { return { goal, roadmap: (goal ? await getOneRoadmap(goal.roadmapId) : null) } }),
-    typeof searchParams.secondaryGoal == "string" ? getOneGoal(searchParams.secondaryGoal) : Promise.resolve(null),
+    getOneGoal(params.goalId).then(async goal => ({
+      goal,
+      roadmap: goal ? await getOneRoadmap(goal.roadmapId) : null
+    })),
+    typeof searchParams.secondaryGoal === "string" ? getOneGoal(searchParams.secondaryGoal) : null,
     getRoadmaps(),
-  ]);
+  ]) satisfies [ // Did this cause of the nested promises so I wanna have some sanity here:3
+    TFunction,
+    Awaited<ReturnType<typeof getSession>>,
+    {
+      goal: Goal | null;
+      roadmap: Roadmap | null;
+    },
+    Goal | null,
+    MultiRoadmapInstance[],
+  ];
 
-  const locale = i18nServer.language.split("-")[0];
+  const locale = i18nServer.language.split("-")[0]; // TODO - Illegal!! plz use a more proper method 🥺
 
   let accessLevel: AccessLevel = AccessLevel.None;
   if (goal) {
@@ -114,6 +125,7 @@ export default async function Page(
     return false;
   }).map(roadmap => ({ id: roadmap.id, name: roadmap.metaRoadmap.name, version: roadmap.version, actor: roadmap.metaRoadmap.actor }))
 
+  // TODO: remove when moving external to data series + recipe
   // Fetch external data
   let externalData: ApiTableContent | null = null;
   if (goal.externalDataset && goal.externalTableId && goal.externalSelection) {
@@ -121,8 +133,8 @@ export default async function Page(
   }
 
   // Fetch parent goal
-  let parentGoal: Goal & { dataSeries: DataSeries | null } | null = null;
-  let parentGoalRoadmap: Roadmap & { metaRoadmap: MetaRoadmap } | null = null;
+  let parentGoal: Goal | null = null;
+  let parentGoalRoadmap: Roadmap | null = null;
   if (roadmap?.metaRoadmap.parentRoadmapId) {
     try {
       // Get the parent roadmap (if any)
@@ -155,20 +167,25 @@ export default async function Page(
     }
   }
 
-  /** 
-   * TODO: Deprecated - this should crawl recipes instead
-   */
-  // If any goalParent has a data series with a later updatedAt date than the goal, the goal should be updated
-  // eslint-disable-next-line prefer-const
   let shouldUpdate = false;
-  // if (goal.combinationParents) {
-  //   for (const parent of goal.combinationParents) {
-  //     if (parent.parentGoal.dataSeries?.updatedAt && parent.parentGoal.dataSeries.updatedAt > (goal.dataSeries?.updatedAt ?? new Date(0))) {
-  //       shouldUpdate = true;
-  //       break;
-  //     }
-  //   }
-  // }
+  // If using a recipe, check all source data series if their updatedAt is newer than this data series last updated
+  if (goal.dataSeries && goal.dataSeries.recipeUsedId) {
+    const sourceDataSeries = await prisma.recipe.findMany({
+      where: {
+        id: goal.dataSeries.recipeUsedId,
+      },
+      select: {
+        sourceDataSeries: { select: { id: true, updatedAt: true, }, },
+      },
+    });
+    for (const source of sourceDataSeries) {
+      for (const dataSeries of source.sourceDataSeries) {
+        if (dataSeries.updatedAt > goal.dataSeries.updatedAt) {
+          shouldUpdate = true;
+        }
+      }
+    }
+  }
 
   return (
     <>
@@ -179,7 +196,7 @@ export default async function Page(
       }
       
       <main>
-        {shouldUpdate &&
+        {shouldUpdate && goal.dataSeries && // Redundant additional check to satisfy type engine
           <section
             aria-label={t("pages:goal.update_needed_attention_message")}
             className="flex justify-content-space-between align-items-center margin-block-300 padding-25 rounded"
@@ -189,7 +206,10 @@ export default async function Page(
               <IconAlertTriangle style={{ minWidth: '24px' }} aria-hidden="true" />
               <strong className="font-weight-500">{t("pages:goal.update_needed")}</strong>
             </div>
-            <UpdateGoalButton id={goal.id} />
+            <RecalculateDataSeriesButton
+              label={t("components:update_goal_button.update")}
+              dataSeriesId={goal.dataSeries.id}
+            />
           </section>
         }
 
@@ -224,7 +244,14 @@ export default async function Page(
           <h2 className="padding-bottom-50 margin-bottom-100" style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:goal.title_label")}</h2>
           <section>
             {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
-            <GraphGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} historicalData={externalData} secondaryGoal={secondaryGoal} effects={goal.effects}>
+            <GraphGraph
+              goal={goal}
+              parentGoal={parentGoal}
+              parentGoalRoadmap={parentGoalRoadmap}
+              historicalData={externalData}
+              secondaryGoal={secondaryGoal}
+              effects={goal.effects}
+            >
               <QueryBuilder goal={goal} />
               {(goal.dataSeries?.id && session.user) ?
                 <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
@@ -258,7 +285,7 @@ export default async function Page(
               }
             </div>
 
-            {/* TODO: rename to effectslist? */}
+            {/* TODO: rename to EffectsList? */}
             <EffectTable object={goal} accessLevel={accessLevel} />
 
             {goal.effects.some(effect => effect.action.startYear || effect.action.endYear) &&

@@ -1,261 +1,171 @@
 "use client";
 
-import { emptyRecipe, Recipe } from "@/functions/recipe-parser/types";
-import type { DataSeriesValueFields } from "@/types";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { evaluateRecipe, cleanRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
-import { Locales } from "i18n.config";
-import { RecipeContext } from "./recipeContext.internal";
+import { Recipe, RecipeError, RecipeIsh, RecipeVariable } from "@/functions/recipe/types";
+import type { DateValuesWithUnit } from "@/types";
+import { useEffect, useMemo, useState } from "react";
+import { SmartRecipe } from "@/functions/recipe/smartRecipe";
+import { RecipeContext, SetStateAction } from "./recipeContext.internal";
 
 export function RecipeContextProvider({
   initialRecipe,
   children,
 }: {
-  initialRecipe?: Recipe;
+  initialRecipe?: RecipeIsh;
   children: React.ReactNode;
 }) {
+  let smartRecipeEntryPoint = initialRecipe;
+
+  /**
+   * The only source of truth is this smartRecipe recipe instance.
+   */
+  const smartRecipe = useMemo(() =>
+    smartRecipeEntryPoint instanceof SmartRecipe
+      ? smartRecipeEntryPoint
+      : smartRecipeEntryPoint
+        ? SmartRecipe.fromObject(smartRecipeEntryPoint)
+        : SmartRecipe.getEmpty()
+    , [smartRecipeEntryPoint]);
+
+  const clearRecipe = () => {
+    smartRecipeEntryPoint = SmartRecipe.getEmpty();
+  };
+
+  const setSmartRecipe = async (valueOrSetter: SetStateAction<RecipeIsh>): Promise<void> => {
+    let newInstance: SmartRecipe | null = null;
+
+    const newRecipe = typeof valueOrSetter === "function"
+      ? valueOrSetter(smartRecipe.copy()) // Run users function on prev and use result
+      : valueOrSetter;
+
+    if (!newRecipe) {
+      console.warn("Deprecation warning: you should not delete recipes by setting them to null. This is not allowed type-wise so please check your typing.");
+      newInstance = SmartRecipe.getEmpty();
+    }
+    else if (newRecipe instanceof SmartRecipe) {
+      newInstance = SmartRecipe.fromSmartRecipe(newRecipe);
+    }
+    else {
+      newInstance = SmartRecipe.fromRecipe(newRecipe);
+    }
+
+    if (!newInstance) {
+      throw new RecipeError("Failed to set recipe: invalid format");
+    }
+
+    // Validate
+    const validity = await newInstance.checkValidity();
+    if (!validity.good) {
+      throw new RecipeError(`Failed to set recipe: ${validity.error || "Recipe is invalid"}`);
+    }
+
+    smartRecipeEntryPoint = newInstance;
+    return;
+  };
+
+  // Used to force re-renders when recipe changes
+  const [updatePing, setUpdatePing] = useState<number>(0);
+  // Safety to avoid overflow
+  useEffect(() => {
+    if (updatePing > Number.MAX_SAFE_INTEGER - 1) setUpdatePing(0);
+  }, [updatePing]);
+
+  const recipe = useMemo(() => { void updatePing; return smartRecipe.toRecipe(); }, [smartRecipe, updatePing]);
+  const [resultingDataSeriesWithUnit, setResultingDataSeriesWithUnit] = useState<DateValuesWithUnit | null>(null);
+
+  const resultingDataSeries = useMemo(() => {
+    if (!resultingDataSeriesWithUnit) return null;
+    const { unit, ...dataSeriesFields } = resultingDataSeriesWithUnit;
+    return dataSeriesFields;
+  }, [resultingDataSeriesWithUnit]);
+
+  const resultingUnit = useMemo(() => {
+    if (!resultingDataSeriesWithUnit) return null;
+    return resultingDataSeriesWithUnit.unit;
+  }, [resultingDataSeriesWithUnit]);
+
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  const [recipe, setRecipeState] = useState<Recipe | null>(initialRecipe ?? null);
-  const setRecipe: React.Dispatch<React.SetStateAction<Recipe | null>> = useCallback((action) => {
-    if (typeof action === "function") {
-      setRecipeState((prev) => {
-        try {
-          return action(prev);
-        }
-        catch (e) {
-          setError(e instanceof Error ? e.message : String(e));
-          return prev;
-        }
-      });
-    }
-    else {
-      try {
-        setRecipeState(action);
-      }
-      catch (e) {
-        setError(e instanceof Error ? e.message : String(e));
-      }
-    }
-  }, []);
+  const equation = useMemo(() => recipe.eq, [recipe]);
+  const setEquation = (valueOrSetter: SetStateAction<Recipe["eq"]>) => {
+    const newEquation = typeof valueOrSetter === "function"
+      ? valueOrSetter(smartRecipe.equation)
+      : valueOrSetter;
 
-  const [resultingDataSeries, setResultingDataSeries] = useState<Partial<DataSeriesValueFields> | null>(null);
-  const [resultingUnit, setResultingUnit] = useState<string | null | undefined>(null);
+    smartRecipe.equation = newEquation;
+    setUpdatePing(p => p += 1);
+  };
 
-  const [lastEvalDuration, setLastEvalDuration] = useState<number | null>(null);
-  const [lastEvalTimestamp, setLastEvalTimestamp] = useState<string | null>(null);
+  const getVariable = (variableName: string): RecipeVariable | undefined => {
+    return smartRecipe.variables[variableName];
+  };
+  const setVariable = (variableName: string, newValue: SetStateAction<RecipeVariable>): void => {
+    const valueToSet = typeof newValue === "function"
+      ? newValue(smartRecipe.variables[variableName])
+      : newValue;
+
+    smartRecipe.variables[variableName] = valueToSet;
+    setUpdatePing(p => p += 1);
+  };
+
+  const variables = useMemo(() => recipe.variables, [recipe]);
+  const setVariables = (variablesAction: SetStateAction<Recipe["variables"]>) => {
+    const newVariables = typeof variablesAction === "function"
+      ? variablesAction(smartRecipe.variables)
+      : variablesAction;
+    smartRecipe.variables = newVariables;
+
+    setUpdatePing(p => p += 1);
+  };
 
   useEffect(() => {
-    if (!recipe) {
-      setRecipe({ ...emptyRecipe });
-      setResultingDataSeries(null);
-      setResultingUnit(null);
-      setError(null);
-      setWarnings([]);
-      return;
-    }
+    const warnings: string[] = [];
 
-    const startTime = performance.now();
-    setLastEvalDuration(null);
     async function calculate() {
-      try {
-        const currentWarnings: string[] = [];
-        const evaluatedRecipe = await evaluateRecipe(cleanRecipe(recipe), currentWarnings);
-        if (!evaluatedRecipe) {
-          console.warn("Recipe evaluation was canceled.");
-          setResultingDataSeries(null);
-          setResultingUnit(null);
-          setWarnings([]);
-          setError(null);
-          return;
-        }
-        setResultingDataSeries(evaluatedRecipe.dataSeries);
-        setResultingUnit(evaluatedRecipe.unit)
-        setWarnings(currentWarnings);
-        setError(null);
-      }
-      catch (e: unknown) {
-        setResultingDataSeries(null);
-        setError((e as Error)?.message);
-        setWarnings([]);
-      }
-    }
-    calculate()
-      .catch(e => { throw e; })
-      .finally(() => {
-        const endTime = performance.now();
-        setLastEvalDuration(endTime - startTime);
-        setLastEvalTimestamp(new Date().toLocaleString());
-      });
-  }, [recipe, setRecipe]);
-
-  // Register debug key bind alt+shift+d (hold to open), Escape to close
-  const [showDebug, setShowDebug] = useState(false);
-  const debugKeyTimerRef = useRef<number | null>(null);
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      // Check for escape key to close
-      if (event.key === "Escape" && showDebug) {
-        event.preventDefault();
-        setShowDebug(false);
+      if (!smartRecipe) {
+        throw new RecipeError("No recipe provided");
       }
 
-      const isDebugCombo = event.altKey && event.shiftKey && event.key === "D";
-
-      if (!isDebugCombo || showDebug) return;
-      if (debugKeyTimerRef.current !== null) return;
-
-      debugKeyTimerRef.current = window.setTimeout(() => {
-        setShowDebug(true);
-        debugKeyTimerRef.current = null;
-      }, 500);
-    }
-
-    function handleKeyUp(event: KeyboardEvent) {
-      const isRelevantKey = ["Alt", "Shift", "D"].includes(event.key);
-      if (!isRelevantKey && !(event.altKey && event.shiftKey && event.key === "D")) {
-        return;
+      const validity = await smartRecipe.checkValidity();
+      if (!validity.good) {
+        warnings.push(...(validity.warnings || []));
+        console.warn("Tried evaluating an invalid recipe in the context provider.", validity.error, validity.warnings);
+        throw new RecipeError(validity.error || "Recipe is invalid");
       }
 
-      if (debugKeyTimerRef.current !== null) {
-        clearTimeout(debugKeyTimerRef.current);
-        debugKeyTimerRef.current = null;
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
+      return await smartRecipe.evaluate(warnings);
     };
-  }, [showDebug]);
 
-  // TODO: style this
+    calculate()
+      .then(result => {
+        setResultingDataSeriesWithUnit(result);
+        setWarnings(warnings);
+        setError(null);
+      })
+      .catch(e => {
+        setResultingDataSeriesWithUnit(null);
+        setWarnings(warnings);
+        setError((e as Error)?.message);
+      });
+  }, [smartRecipe]);
+
   return (
     <RecipeContext.Provider value={{
+      smartRecipe,
       recipe,
-      setRecipe,
-      warnings,
-      error,
+      clearRecipe,
+      setSmartRecipe,
       resultingDataSeries,
       resultingUnit,
+      equation,
+      setEquation,
+      getVariable,
+      setVariable,
+      variables,
+      setVariables,
+      warnings,
+      error,
     }}>
-      {showDebug &&
-        <div
-          style={{
-            position: "relative",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0,0,0,0.8)",
-            display: "flex",
-            flexFlow: "column nowrap",
-            justifyContent: "start",
-            alignItems: "start",
-            rowGap: "1rem",
-            padding: "1rem",
-            zIndex: 9999,
-            color: "white",
-          }}
-          lang={Locales.enSE}
-        >
-          {/* Scrollable wall of debug info */}
-          <div style={{
-            overflow: "scroll",
-            width: "100%",
-          }}>
-            <pre style={{ width: "100%", }}>
-              Recipe context debug info: <br />
-              {JSON.stringify({
-                "eval time": lastEvalDuration + " ms",
-                "eval timestamp": lastEvalTimestamp,
-                warnings,
-                error,
-                resultingUnit,
-                resultingDataSeries,
-              }, null, 2)}
-            </pre>
-
-            <pre style={{ width: "100%", }}>
-              Current Recipe: <br />
-              {JSON.stringify(recipe, null, 2)}
-            </pre>
-          </div>
-
-          {/* Buttons container */}
-          <div className="flex gap-100">
-            <button
-              type="button"
-              onClick={() => setShowDebug(false)}
-            >
-              Close Debug
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                const toBeCopied = { recipe, resultingDataSeries, resultingUnit, warnings, error, lastEvalDuration, lastEvalTimestamp };
-                navigator.clipboard.writeText(JSON.stringify(toBeCopied, null, 2))
-                  .catch((e) => {
-                    console.error(e);
-                  });
-              }}
-            >
-              Copy to Clipboard
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setRecipe(prev => prev ? { ...prev } : null);
-              }}
-            >
-              Force Re-evaluation
-            </button>
-
-            <input
-              type="text"
-              placeholder="Paste recipe here to load"
-              className="width-auto"
-              onChange={(e) => {
-                const pastedText = e.target.value;
-
-                // If the clipboard content is from the copy button above we test if the parsed object has recipe field
-                try {
-                  const parsedClipboard: unknown = JSON.parse(pastedText);
-                  if (
-                    parsedClipboard
-                    && typeof parsedClipboard === "object"
-                    && "recipe" in parsedClipboard
-                    && parsedClipboard.recipe
-                  ) {
-                    const parsedRecipe = recipeFromUnknown(parsedClipboard.recipe);
-                    setRecipe(parsedRecipe);
-                    e.target.value = "";
-                    return;
-                  }
-                }
-                catch {
-                  // Not JSON or invalid, ignore
-                }
-
-                // Actual recipes
-                try {
-                  const parsedRecipe = recipeFromUnknown(pastedText);
-                  setRecipe(parsedRecipe);
-                  e.target.value = "";
-                }
-                catch (err) {
-                  console.error("Failed to parse pasted recipe:", err);
-                }
-              }}
-            />
-          </div>
-        </div>
-      }
       {children}
     </RecipeContext.Provider>
   );

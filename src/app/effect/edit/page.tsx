@@ -75,7 +75,11 @@ export default async function Page(
     getRoadmaps(),
   ]);
 
-  if (effect == undefined || !hasEditAccess(accessChecker(effect.action.roadmap, session.user)) || !hasEditAccess(accessChecker(effect.goal.roadmap, session.user))) {
+  if (
+    !effect
+    || !hasEditAccess(accessChecker(effect.action.roadmap, session.user))
+    || !hasEditAccess(accessChecker(effect.goal.roadmap, session.user))
+  ) {
     return (
       <div className="container-text margin-inline-auto">
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
@@ -89,6 +93,7 @@ export default async function Page(
     )
   }
 
+  /** TODO: redundant? the getRoadmaps function already does checks? */
   const roadmapList = roadmaps.filter((roadmap) => hasEditAccess(accessChecker(roadmap, session.user)));
 
   return (
@@ -99,7 +104,10 @@ export default async function Page(
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
           {t("pages:effect_edit.title")}
         </h1>
-        <EffectForm action={effect.action} goal={effect.goal} roadmapAlternatives={roadmapList} currentEffect={effect} />
+        <EffectForm
+          currentEffect={effect}
+          roadmaps={roadmapList}
+        />
       </div>
     </>
   )

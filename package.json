@@ -11,7 +11,7 @@
     "preinstall": "git update-index --skip-worktree src/lib/LEAPList.json &",
     "predev": "tsx ./src/scripts/getBuildInfo.ts",
     "dev": "next dev --turbopack",
-    "prebuild": "tsx ./src/scripts/generateLeapList.ts && tsx ./src/scripts/getDataSeriesValueFieldNames.ts && tsx ./src/scripts/getBuildInfo.ts",
+    "prebuild": "tsx ./src/scripts/generateLeapList.ts && tsx ./src/scripts/getBuildInfo.ts",
     "build": "next build",
     "start": "next start",
     "lint": "tsc --noEmit && eslint ./src",

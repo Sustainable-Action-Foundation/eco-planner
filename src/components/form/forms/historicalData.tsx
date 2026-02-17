@@ -100,7 +100,7 @@ export default function HistoricalData({
       setTableContent(null);
       setIsLoading(false);
     }
-  }, [dataSource, lang, tableDetails?.id, buildQuery]);
+  }, [buildQuery, table, dataSource, lang]);
 
   const setFormRef = useCallback((node: HTMLFormElement | null) => {
     if (node) {

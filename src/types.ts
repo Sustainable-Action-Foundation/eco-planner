@@ -1,7 +1,7 @@
 import { ActionImpactType, Prisma, RoadmapType } from "@prisma/client";
-import { actionInclusionSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapSelection, effectInclusionSelection, goalInclusionSelection, metaRoadmapInclusionSelection, multiRoadmapInclusionSelection, nameSelector, roadmapInclusionSelection } from "./fetchers/inclusionSelectors";
-import { Years as GeneratedYears } from "./lib/dataSeriesCanonicalYears";
-import { Recipe } from "./functions/recipe-parser/types";
+import { actionInclusionSelection, clientSafeDataSeriesSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapSelection, effectInclusionSelection, goalInclusionSelection, metaRoadmapInclusionSelection, multiRoadmapInclusionSelection, nameSelector, recipeSelector, roadmapInclusionSelection } from "./fetchers/inclusionSelectors";
+import { Recipe } from "./functions/recipe/types";
+import { Unit } from "mathjs";
 
 /**
  * A utility function for helping with finding where something fails in a typeguard chain.
@@ -139,6 +139,14 @@ export type Action = Prisma.ActionGetPayload<{
 
 export type Effect = Prisma.EffectGetPayload<{
   include: typeof effectInclusionSelection
+}>;
+
+export type DataSeries = Prisma.DataSeriesGetPayload<{
+  select: typeof clientSafeDataSeriesSelection
+}>;
+
+export type DBRecipe = Prisma.RecipeGetPayload<{
+  select: typeof recipeSelector,
 }>;
 
 /** The format of data needed to create a new roadmap series */
@@ -295,7 +303,7 @@ export type RoadmapCreateInput = {
 
   // TODO - DEPRECATED - Will be migrated to description
   links: { url: string, description?: string | null }[] | null | undefined;
-}
+};
 
 /** 
  * The format of the data allowed to update an existing roadmap version.
@@ -336,7 +344,7 @@ export type RoadmapUpdateInput = {
 
   // TODO - DEPRECATED - Will be migrated to description
   links: { url: string, description?: string | null }[] | null | undefined;
-}
+};
 
 /**
  * The format of the data needed to create a new goal.
@@ -364,20 +372,17 @@ export type GoalCreateInput = {
   externalTableId: string | null | undefined;
   externalSelection: string | null | undefined;
 
-  // Recipes
-  recipeUsed: Recipe | null | undefined; // Note: not the hash, the entire recipe object. Server will hash safely.
-  // TODO: Creating recipe suggestions is a future feature
-  // recipeSuggestions: Recipe[] | null | undefined; // Note: not the hashes, the entire recipe objects. Server will hash safely.
+  recipeSuggestions: Recipe[] | null | undefined;
 
-  /* 
-   * TODO: DEPRECATE - raw data series should be made into data series before posting to the API and use 1:1 recipes instead 
-   */
-  // Data series
-  rawDataSeries: DataSeriesValueFields | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
-  rawDataSeriesUnit: string | null | undefined; // Combines with rawDataSeries in the API
-  // TODO: send baselines as a DataSeriesValueFields object in the future for consistency's sake
-  rawBaselineDataSeries: DataSeriesValueFields | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
-  rawBaselineDataSeriesUnit: string | null | undefined; // Combines with rawBaselineDataSeries in the API
+  dataSeriesId: string | null | undefined;
+  dataSeries: DateValuesWithUnit;
+  dataSeriesRecipeId: string | null | undefined;
+  dataSeriesRecipe: Recipe | null | undefined;
+
+  baselineId: string | null | undefined;
+  baseline: DateValuesWithUnit | null | undefined;
+  baselineRecipeId: string | null | undefined;
+  baselineRecipe: Recipe | null | undefined;
 
   // Relations
   // authorId: string; // Derived from session in the API
@@ -388,7 +393,7 @@ export type GoalCreateInput = {
 
   // TODO: Deprecated - will be moved to description
   links: { url: string, description?: string | null }[] | null | undefined;
-}
+};
 
 /**
  * The format of the data allowed to update an existing goal.
@@ -419,20 +424,17 @@ export type GoalUpdateInput = {
   externalTableId: string | null | undefined;
   externalSelection: string | null | undefined;
 
-  // Recipes
-  recipeUsed: Recipe | null | undefined; // Note: not the hash, the entire recipe object. Server will hash safely.
-  // TODO: Creating recipe suggestions is a future feature
-  // recipeSuggestions: Recipe[] | null | undefined; // Note: not the hashes, the entire recipe objects. Server will hash safely.
+  dataSeriesId: string | null | undefined;
+  dataSeries: DateValuesWithUnit | null | undefined;
+  dataSeriesRecipeId: string | null | undefined;
+  dataSeriesRecipe: Recipe | null | undefined;
 
-  /* 
-   * TODO: DEPRECATE - raw data series should be made into data series before posting to the API and use 1:1 recipes instead 
-   */
-  // Data series
-  rawDataSeries: DataSeriesValueFields | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
-  rawDataSeriesUnit: string | null | undefined; // Combines with rawDataSeries in the API
-  // TODO: send baselines as a DataSeriesValueFields object in the future for consistency's sake
-  rawBaselineDataSeries: DataSeriesValueFields | string[] | undefined; // Transform into clean DataSeriesValueFields in the server side API
-  rawBaselineDataSeriesUnit: string | null | undefined; // Combines with rawBaselineDataSeries in the API
+  baselineId: string | null | undefined;
+  baseline: DateValuesWithUnit | null | undefined;
+  baselineRecipeId: string | null | undefined;
+  baselineRecipe: Recipe | null | undefined;
+
+  recipeSuggestions: Recipe[] | null | undefined;
 
   // Relations
   // authorId: string; // Derived from session in the API
@@ -443,61 +445,82 @@ export type GoalUpdateInput = {
 
   // TODO: Deprecated - will be moved to description
   links: { url: string, description?: string | null }[] | null | undefined;
-}
+};
 
 /** The format of the data needed to create a new action. */
-export type ActionInput = Omit<
-  Prisma.ActionCreateInput,
-  'id' | 'createdAt' | 'updatedAt' | 'roadmap' | 'dataSeries' |
-  'author' | 'notes' | 'links' | 'comments' | 'effects'
-> & {
-  // UUID of the roadmap this action belongs to
-  roadmapId?: string;
-  dataSeries?: string[] | null | undefined;
-  // UUID for the goal the dataSeries (effect) affects, if any
-  goalId?: string | undefined;
-  // The type of impact the effect has, if an effect is included
-  impactType?: ActionImpactType | undefined;
-  links?: { url: string, description?: string }[] | undefined;
+export type ActionInput = {
+  actionId: string | null | undefined;
+  roadmapId: string | undefined;
+  goalId: string | undefined;
+
+  description: string | null | undefined;
+  name: string;
+  startYear: number | null | undefined;
+  endYear: number | null | undefined;
+
+  costEfficiency: string | null | undefined;
+  expectedOutcome: string | null | undefined;
+
+  projectManager: string | null | undefined;
+  relevantActors: string | null | undefined;
+
+  isSufficiency: boolean | undefined;
+  isEfficiency: boolean | undefined;
+  isRenewables: boolean | undefined;
+
+  parentAction: Action | null | undefined;
+  childActions: Action[] | null | undefined;
+
+  dataSeries: DateValuesWithUnit;
+  impactType: ActionImpactType | undefined;
+
+  // TODO: Deprecated - will be moved to description
+  links: { url: string, description?: string | null }[] | null | undefined;
+
+  timestamp: number | undefined;
 };
 
-export type EffectInput = Omit<
-  Prisma.EffectCreateInput,
-  'action' | 'goal' | 'dataSeries' | 'createdAt' | 'updatedAt'
-> & {
-  actionId: string;
+export type EffectInput = {
   goalId: string;
-  // dataSeries may be undefined when editing, to avoid changing it, but it's required when creating
-  dataSeries: string[] | undefined;
+  actionId: string;
+
+  impactType: ActionImpactType | undefined;
+  dataSeries: DateValuesWithUnit;
+
+  timestamp: number | undefined;
 };
 
-
-// These are derived from the schema file through the getDataSeriesValueFieldNames script
-export const Years = GeneratedYears;
-export type Years = (typeof Years)[number];
-
-export type DataSeriesValueFields = Record<Years, number | null>;
-export type DataSeriesValueFieldsWithUnit = DataSeriesValueFields & { unit: string | null | undefined };
-export function isPartialDataSeriesValueFields(
-  dataSeries: JSONValue,
-): dataSeries is Partial<DataSeriesValueFields> {
+export type UnitString = string | null | undefined;
+export type ISOIshDate = `${number}-${number}-${number}T00:00:00.000Z`;
+/** True: missing value, False: defined value. It masks/"covers" the undefined values */
+export type Mask = Record<ISOIshDate, boolean>;
+export type DateValues = Record<ISOIshDate, number>;
+export type DateValuesWithUnit = { dateValues: DateValues, unit: UnitString };
+export type MaskedVector = { vector: Unit[], mask: Mask };
+export function isDateValues(dateValues: JSONValue): dateValues is DateValues {
   return (
-    typeof dataSeries === 'object' &&
-    dataSeries != null &&
-    !Array.isArray(dataSeries) &&
-    Object.keys(dataSeries).every(year => Years.includes(year as Years))
+    isStandardObject(dateValues)
+    && Object.values(dateValues).every(value => typeof value === 'number')
+    && Object.keys(dateValues).every(key => isISOIshDate(key))
   );
 }
-export function isFullDataSeriesValueFields(
-  dataSeries: Partial<DataSeriesValueFields>,
-): dataSeries is DataSeriesValueFields {
-  return Object.keys(dataSeries).length === Years.length && Years.every(year => year in dataSeries);
+export function isUnitString(unit: JSONValue | undefined): unit is UnitString {
+  return typeof unit === 'string' || unit === null || unit === undefined;
 }
-export const nullFullDataSeriesValueField: DataSeriesValueFields = Years.reduce((obj, year) => {
-  obj[year] = null;
-  return obj;
-}, {} as DataSeriesValueFields);
-
+/** This is not compliant with ISO-8601, it's a vary narrow format that's a subset of that standard */
+export function isISOIshDate(dateString: string): dateString is ISOIshDate {
+  return /^\d{4}-\d{2}-\d{2}T00:00:00\.000Z$/.test(dateString);
+}
+export function isDateValuesWithUnit(dateValues: JSONValue): dateValues is Partial<DateValuesWithUnit> {
+  return (
+    isStandardObject(dateValues)
+    && 'values' in dateValues
+    && typeof dateValues.values === 'object'
+    && !Array.isArray(dateValues)
+    && isDateValues(dateValues.values)
+    && isUnitString(dateValues.unit)
+  );
+}
 
 /* TODO INPUT_UPDATES */
 declare module '@tiptap/core' {

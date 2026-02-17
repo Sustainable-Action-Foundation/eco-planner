@@ -3,18 +3,18 @@ import { roadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getSession, LoginData } from "@/lib/session"
 import { goalSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
-import { Prisma } from "@prisma/client";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
+import { Roadmap } from "@/types";
 
 /**
  * Gets specified roadmap and all goals for that roadmap.
  * 
  * Returns null if roadmap is not found or user does not have access to it. Also returns null on error.
  * @param id ID of the roadmap to get
- * @returns Roadmap object with goals
+ * @returns Roadmap object with goals or null
  */
-export default async function getOneRoadmap(id: string) {
+export default async function getOneRoadmap(id: string): Promise<Roadmap | null> {
   const session = await getSession(await cookies());
   return await getCachedRoadmap(id, session.user)
 }
@@ -27,9 +27,7 @@ export default async function getOneRoadmap(id: string) {
  */
 const getCachedRoadmap = unstable_cache(
   async (id: string, user: LoginData['user']) => {
-    let roadmap: Prisma.RoadmapGetPayload<{
-      include: typeof roadmapInclusionSelection
-    }> | null = null;
+    let roadmap: Roadmap | null = null;
 
     // If user is admin, always get the roadmap
     if (user?.isAdmin) {
@@ -37,7 +35,7 @@ const getCachedRoadmap = unstable_cache(
         roadmap = await prisma.roadmap.findUnique({
           where: { id },
           include: roadmapInclusionSelection
-        });
+        }) satisfies Roadmap | null;
       } catch (error) {
         console.error(`Error fetching admin roadmap with ID ${id}:`, error);
         return null
@@ -64,7 +62,7 @@ const getCachedRoadmap = unstable_cache(
             ]
           },
           include: roadmapInclusionSelection
-        });
+        }) satisfies Roadmap | null;
       } catch (error) {
         console.error(`Error fetching roadmap with ID ${id} for user ${user.id}:`, error);
         return null
@@ -83,7 +81,7 @@ const getCachedRoadmap = unstable_cache(
           isPublic: true,
         },
         include: roadmapInclusionSelection
-      });
+      }) satisfies Roadmap | null;
     } catch (error) {
       console.error(`Error fetching public roadmap with ID ${id}:`, error);
       return null

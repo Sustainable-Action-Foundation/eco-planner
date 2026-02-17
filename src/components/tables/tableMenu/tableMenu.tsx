@@ -3,7 +3,6 @@
 import styles from './tableMenu.module.css' with { type: "css" }
 import Link from "next/link";
 import { useRef } from "react";
-import { Action, DataSeries, Effect, Goal, MetaRoadmap } from "@prisma/client";
 import { AccessLevel } from "@/types";
 import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
@@ -11,64 +10,33 @@ import { useTranslation } from "react-i18next";
 import { IconArrowBackUp, IconChartHistogram, IconDotsVertical, IconEdit, IconPlus, IconSettings, IconTrashXFilled, IconX } from "@tabler/icons-react";
 import { hasEditAccess } from '@/lib/accessChecker';
 import { TFunction } from 'i18next';
+import type { Action, Effect, Goal, MetaRoadmap, Roadmap } from "@/types";
 
-type ObjectParameter = (
-  // Effect
-  | (Effect & {
-    action?: Action
-    goal?: Goal
-    roadmapVersions?: never
-    metaRoadmap?: never
-    indicatorParameter?: never
-    isSufficiency?: never
-    name?: string
-    id?: { actionId: string; goalId: string }
-  })
+type ActionMenuEntry = Pick<Action, "id" | "name" | "roadmapId" | "isSufficiency"> & {
+  description?: string | null;
+};
 
-  // Action
-  | (Action & {
-    effects?: {
-      goal: { id: string; roadmap: { id: string } }
-    }[]
-    roadmapVersions?: never
-    metaRoadmap?: never
-    indicatorParameter?: never
-  })
+type GoalMenuEntry = Pick<Goal, "id" | "name" | "indicatorParameter" | "roadmapId"> & {
+  roadmap: Pick<Roadmap, "id"> & { metaRoadmap: Pick<MetaRoadmap, "id" | "name"> };
+};
 
-  // Goal
-  | (Goal & {
-    _count: { effects: number }
-    dataSeries: DataSeries | null
-    roadmap: { id: string; metaRoadmap: { name: string; id: string } }
-    roadmapVersions?: never
-    metaRoadmap?: never
-    goal?: never
-  })
+type RoadmapMenuEntry = Pick<Roadmap, "id"> & {
+  metaRoadmap: Pick<MetaRoadmap, "id" | "name">;
+  _count?: { goals: number };
+};
 
-  // Roadmap
-  | {
-    id: string
-    version: number
-    _count: { goals: number }
-    metaRoadmap: MetaRoadmap
-    roadmapVersions?: never
-    roadmap?: never
-    goal?: never
-    name?: never
-  }
+type MetaRoadmapMenuEntry = Pick<MetaRoadmap, "id" | "name"> & {
+  roadmapVersions: Array<Pick<Roadmap, "id" | "version"> & { _count: { goals: number } }>;
+};
 
-  // MetaRoadmap
-  | (MetaRoadmap & {
-    roadmapVersions: {
-      id: string
-      version: number
-      _count: { goals: number }
-    }[]
-    metaRoadmap?: never
-    roadmap?: never
-    goal?: never
-  })
-)
+type EffectMenuEntry = Pick<Effect, "actionId" | "goalId"> & {
+  action?: ActionMenuEntry;
+  goal?: GoalMenuEntry;
+  name?: string;
+  id?: { actionId: string; goalId: string };
+};
+
+type ObjectParameter = EffectMenuEntry | ActionMenuEntry | GoalMenuEntry | RoadmapMenuEntry | MetaRoadmapMenuEntry;
 
 type links = {
   selfLink?: string;
@@ -81,7 +49,7 @@ type links = {
   editLink?: string;
   historicalDataLink?: string;
   deleteLink?: string;
-}
+};
 
 function buildLinks(
   object: ObjectParameter,
@@ -100,7 +68,7 @@ function buildLinks(
   let deleteLink: string | undefined;
 
   // MetaRoadmaps
-  if (object.roadmapVersions !== undefined) {
+  if ("roadmapVersions" in object) {
     selfLink = `/metaRoadmap/${object.id}`;
     creationLink = `/roadmap/create?metaRoadmapId=${object.id}`;
     creationDescription = t("components:table_menu.new_roadmap_version");
@@ -109,7 +77,7 @@ function buildLinks(
   }
 
   // Roadmaps
-  else if (object.metaRoadmap !== undefined) {
+  else if ("metaRoadmap" in object) {
     selfLink = `/roadmap/${object.id}`;
     parentLink = `/metaRoadmap/${object.metaRoadmap.id}`;
     parentDescription = t("components:table_menu.go_to_series");
@@ -122,7 +90,7 @@ function buildLinks(
   }
 
   // Goals
-  else if (object.indicatorParameter !== undefined) {
+  else if ("indicatorParameter" in object) {
     selfLink = `/goal/${object.id}`;
     parentLink = `/roadmap/${object.roadmap.id}`;
     parentDescription = t("components:table_menu.go_to_version");
@@ -140,7 +108,7 @@ function buildLinks(
   }
 
   // Actions
-  else if (object.isSufficiency !== undefined) {
+  else if ("isSufficiency" in object) {
     selfLink = `/action/${object.id}`;
     parentLink = `/roadmap/${object.roadmapId}`;
     parentDescription = t("components:table_menu.go_to_version");
@@ -190,10 +158,24 @@ function buildLinks(
   }
 }
 
+const getObjectName = (object: ObjectParameter): string | undefined => {
+  if ("indicatorParameter" in object) {
+    return object.name || object.indicatorParameter;
+  }
+  if ("name" in object && object.name) {
+    return object.name;
+  }
+  return undefined;
+};
 
-// General purpose button for roadmaps, goals and actions. 
-// Update the name of the component to reflect this
+const getMetaRoadmapName = (object: ObjectParameter): string | undefined =>
+  "metaRoadmap" in object ? object.metaRoadmap?.name : undefined;
 
+
+/** 
+ * General purpose button for roadmaps, goals and actions. 
+ * TODO: Update the name of the component to reflect this
+ */
 export function TableMenu(
   {
     width = 24,
@@ -214,6 +196,8 @@ export function TableMenu(
   const deletionRef = useRef<HTMLDialogElement | null>(null);
 
   const links = buildLinks(object, t);
+  const objectName = getObjectName(object);
+  const metaRoadmapName = getMetaRoadmapName(object);
 
   const openMenu = () => {
     menu.current?.show();
@@ -239,7 +223,7 @@ export function TableMenu(
   return (
     <>
       <div className={`${styles.actionButton} display-flex`}>
-        <button type="button" onClick={openMenu} className={styles.button} aria-label={t("components:table_menu.button_aria", { component: object.name || object.metaRoadmap?.name || t("components:table_menu.button_aria_alt") })}> {/* TODO: Remove this aria if we pass buttontext */}
+        <button type="button" onClick={openMenu} className={styles.button} aria-label={t("components:table_menu.button_aria", { component: objectName || metaRoadmapName || t("components:table_menu.button_aria_alt") })}> {/* TODO: Remove this aria if we pass buttontext */}
           {buttonText ? buttonText : null}
           <IconDotsVertical aria-hidden="true" width={width} height={height} />
         </button>
@@ -251,7 +235,7 @@ export function TableMenu(
             </button>
             {/* Link to the object */}
             {links?.selfLink ?
-              <Link href={links.selfLink} className={styles.menuHeadingTitle}>{object.name || object.metaRoadmap?.name}</Link>
+              <Link href={links.selfLink} className={styles.menuHeadingTitle}>{objectName || metaRoadmapName}</Link>
               : <p>{t("common:tsx.menu")}</p>}
           </div>
           {links ? (
@@ -295,7 +279,7 @@ export function TableMenu(
                         {t("components:table_menu.delete")}
                         <IconTrashXFilled aria-hidden="true" fill="red" style={{ minWidth: '24px' }} />
                       </button>
-                      <ConfirmDelete modalRef={deletionRef} targetUrl={links.deleteLink} targetName={object.name || object.metaRoadmap?.name || t("components:table_menu.delete_missing_name")} targetId={object.id} />
+                      <ConfirmDelete modalRef={deletionRef} targetUrl={links.deleteLink} targetName={objectName || metaRoadmapName || t("components:table_menu.delete_missing_name")} targetId={object.id} />
                     </>
                   }
                 </>
@@ -322,6 +306,8 @@ export function AdminPanel(
   const { t } = useTranslation(["components", "common"]);
   const links = buildLinks(object, t)
   const deletionRef = useRef<HTMLDialogElement | null>(null);
+  const objectName = getObjectName(object);
+  const metaRoadmapName = getMetaRoadmapName(object);
 
   return (
     <aside className="margin-block-300">
@@ -380,7 +366,7 @@ export function AdminPanel(
                   {t("components:table_menu.delete")}
                   <IconTrashXFilled aria-hidden="true" width={20} height={20} fill="white" style={{ minWidth: '20px' }} />
                 </button>
-                <ConfirmDelete modalRef={deletionRef} targetUrl={links.deleteLink} targetName={object.name || object.metaRoadmap?.name || t("components:table_menu.delete_missing_name")} targetId={object.id} />
+                <ConfirmDelete modalRef={deletionRef} targetUrl={links.deleteLink} targetName={objectName || metaRoadmapName || t("components:table_menu.delete_missing_name")} targetId={object.id} />
               </>
             }
           </>

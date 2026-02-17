@@ -1,18 +1,18 @@
 "use client";
 
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper.tsx";
-import { Years } from "@/types.ts";
-import { DataSeries, Effect, Goal } from "@prisma/client";
-import { calculatePredictedOutcome, firstNonNullValue } from "../functions/graphFunctions.ts";
+import { calculatePredictedOutcome } from "../functions/graphFunctions.ts";
 import { useTranslation } from "react-i18next";
+import { Goal, isISOIshDate } from "@/types.ts";
+import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils.ts";
 
 export default function PredictionChildGraph({
   goal,
   childGoals,
   isStacked,
 }: {
-  goal: Goal & { dataSeries: DataSeries | null },
-  childGoals: (Goal & { dataSeries: DataSeries | null, baselineDataSeries: DataSeries | null, effects: (Effect & { dataSeries: DataSeries | null })[], roadmapName?: string })[],
+  goal: Goal;
+  childGoals: Goal[];
   isStacked: boolean,
 }) {
   const { t } = useTranslation("graphs");
@@ -21,25 +21,37 @@ export default function PredictionChildGraph({
   if (!goal.dataSeries) {
     return null;
   }
-  if (childGoals.filter(child => child.dataSeries != null).length < 1) {
+  if (childGoals.filter(child => child.dataSeries).length < 1) {
     return null;
   }
 
   const dataPoints: ApexAxisChartSeries = [];
 
+  const definedDates: string[] = [...new Set(
+    ...goal.dataSeries.values.map(e => new Date(e.timestamp).getUTCFullYear().toString()),
+    ...childGoals
+      .filter(child => child.dataSeries)
+      .flatMap(child => child.dataSeries?.values.map(e => new Date(e.timestamp).getUTCFullYear().toString()))
+  )]
+    .sort()
+    .map(yyyy => `${yyyy}-01-01T00:00:00Z`);
+  if (!definedDates.every(d => isISOIshDate(d))) return null;
+
+  const dataSeries = dataSeriesToDateValues(goal.dataSeries);
+
   // Data series for the main goal
   // Use projected outcomes only for the children, not the main goal
   const mainSeries = [];
-  for (const i of Years) {
-    const value = goal.dataSeries[i];
+  for (const date of definedDates) {
+    const goalValue = dataSeries.dateValues[date];
 
     mainSeries.push({
-      x: new Date(i.replace('val', '')).getTime(),
-      y: Number.isFinite(value) ? value : null,
+      x: new Date(date).getTime(),
+      y: Number.isFinite(goalValue) ? goalValue : null,
     });
   }
   dataPoints.push({
-    name: (goal.name || goal.indicatorParameter.split('\\').slice(-1)[0]),
+    name: (goal.name || goal.indicatorParameter.split('\\').at(-1)),
     data: mainSeries,
     // Main series is always a line
     type: 'line',
@@ -48,28 +60,20 @@ export default function PredictionChildGraph({
   });
 
   for (const child of childGoals) {
-    if (child.dataSeries) {
-      const baseline = child.baselineDataSeries ?? firstNonNullValue(child.dataSeries);
-      if (!baseline) {
-        continue;
-      } else if (typeof baseline === 'number' && child.effects.length < 1) {
-        continue;
-      }
-
-      const totalEffect = calculatePredictedOutcome(child.effects, baseline);
-      if (isStacked) {
-        // For stacked area graphs, default to 0 rather than null on bad values
-        for (const entry of totalEffect) {
-          entry.y ??= 0;
-        }
-      }
-      if (totalEffect.length > 0) {
-        dataPoints.push({
-          name: `${child.name || child.indicatorParameter.split('\\').slice(-1)[0]} (${child.roadmapName || t("graphs:common.unknown_roadmap")})`,
-          data: totalEffect,
-          type: isStacked ? 'area' : 'line',
-        });
-      }
+    const definedEffects = child.effects.filter(e => e.dataSeries);
+    const totalEffect = calculatePredictedOutcome(definedEffects, child.baseline);
+    if (isStacked) {
+      // For stacked area graphs, default to 0 rather than null on bad values
+      for (const entry of totalEffect) entry.y ??= 0;
+    }
+    if (totalEffect.length > 0) {
+      const effectName = child.name || child.indicatorParameter.split('\\').at(-1);
+      const roadmapName = child.roadmap.metaRoadmap.name || t("graphs:common.unknown_roadmap");
+      dataPoints.push({
+        name: `${effectName} (${roadmapName})`,
+        data: totalEffect,
+        type: isStacked ? 'area' : 'line',
+      });
     }
   }
 
@@ -106,8 +110,8 @@ export default function PredictionChildGraph({
       type: 'datetime',
       labels: { format: 'yyyy' },
       tooltip: { enabled: false },
-      min: new Date(Years[0].replace('val', '')).getTime(),
-      max: new Date(Years[Years.length - 1].replace('val', '')).getTime()
+      min: new Date(`2020-01-01T00:00:00Z`).getTime(),
+      max: new Date(`2050-01-01T00:00:00Z`).getTime(),
     },
     yaxis: {
       title: { text: goal.dataSeries.unit === null ? t("common:tsx.unitless") : goal.dataSeries.unit || t("common:tsx.unit_missing") },

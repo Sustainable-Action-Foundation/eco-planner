@@ -3,34 +3,24 @@
 import { goalSorter, goalSorterActionAmount, goalSorterActionAmountReverse, goalSorterInterest, goalSorterReverse } from '@/lib/sorters';
 import { GoalSortBy } from '../goals';
 import styles from '../tables.module.css' with { type: "css" };
-import { DataSeries, Goal } from "@prisma/client";
 import { useTranslation } from "react-i18next";
 import Link from 'next/link';
+import { Goal, Roadmap } from "@/types";
+import { ReactNode } from "react";
 
 interface GoalTableCommonProps {
-  sortBy?: GoalSortBy,
-}
+  sortBy?: GoalSortBy;
+};
 
 interface GoalTableWithGoals extends GoalTableCommonProps {
-  goals: (Goal & {
-    _count: { effects: number }
-    dataSeries: DataSeries | null,
-    roadmap: { id: string, metaRoadmap: { name: string, id: string } },
-  })[],
-  roadmap?: never,
-}
+  goals: Goal[];
+  roadmap?: never;
+};
 
 interface GoalTableWithRoadmap extends GoalTableCommonProps {
-  goals?: never,
-  roadmap: {
-    id: string,
-    metaRoadmap: { name: string, id: string },
-    goals: (Goal & {
-      _count: { effects: number },
-      dataSeries: DataSeries | null,
-    })[]
-  },
-}
+  goals?: never;
+  roadmap: Roadmap;
+};
 
 type GoalTableProps = GoalTableWithGoals | GoalTableWithRoadmap;
 
@@ -38,42 +28,64 @@ export default function GoalTable({
   goals,
   roadmap,
   sortBy,
-}: GoalTableProps) {
+}: GoalTableProps): ReactNode {
   const { t } = useTranslation("components");
 
   // Failsafe in case wrong props are passed
-  if ((!goals && !roadmap) || (goals && roadmap)) throw new Error('GoalTable: Either `goals` XOR `roadmap` must be provided');
+  if (
+    (!goals && !roadmap)
+    || (goals && roadmap)
+  ) throw new Error('GoalTable: Either `goals` XOR `roadmap` must be provided');
 
-  if (!goals) {
-    goals = roadmap?.goals.map(goal => {
-      return {
+  const parsedGoals: Goal[] = [];
+
+  if (!goals && roadmap) {
+    const stripGoals = (roadmap: Roadmap): Goal["roadmap"] => {
+      const {
+        goals,
+        ...interestingData
+      } = roadmap;
+      return interestingData satisfies Goal["roadmap"];
+    };
+    for (const goal of roadmap.goals) {
+      parsedGoals.push({
         ...goal,
-        roadmap: (({ goals, ...data }) => data)(roadmap),
-      }
-    })
+        roadmap: stripGoals(roadmap),
+        effects: [],
+        comments: [],
+        links: [],
+        baseline: null,
+        dataSeries: null,
+      });
+    }
+  }
+  else {
+    parsedGoals.push(...goals);
   }
 
-  if (!goals?.length) return (<p>{t("components:goal_table.no_goals")}</p>);
+  if (!parsedGoals.length) return <p>
+    {t("components:goal_table.no_goals")}
+  </p>;
 
   switch (sortBy) {
     case GoalSortBy.Alpha:
-      goals.sort(goalSorter);
+      parsedGoals.sort(goalSorter);
       break;
     case GoalSortBy.AlphaReverse:
-      goals.sort(goalSorterReverse);
+      parsedGoals.sort(goalSorterReverse);
       break;
     case GoalSortBy.ActionsFalling:
-      goals.sort(goalSorterActionAmount);
+      parsedGoals.sort(goalSorterActionAmount);
       break;
     case GoalSortBy.ActionsRising:
-      goals.sort(goalSorterActionAmountReverse);
+      parsedGoals.sort(goalSorterActionAmountReverse);
       break;
     case GoalSortBy.Interesting:
-      goals.sort(goalSorterInterest);
+      parsedGoals.sort(goalSorterInterest);
       break;
     case GoalSortBy.Default:
     default:
-      goals.sort(goalSorter);
+      parsedGoals.sort(goalSorter);
       break;
   }
 
@@ -89,7 +101,7 @@ export default function GoalTable({
           </tr>
         </thead>
         <tbody>
-          {goals.map(goal => (goal &&
+          {parsedGoals.map(goal => (goal &&
             <tr key={goal.id}>
               <td><Link href={`/goal/${goal.id}`}>{goal.name || goal.indicatorParameter}</Link></td>
               <td>{goal.indicatorParameter}</td>

@@ -1,56 +1,59 @@
 import "server-only";
 import { LoginData } from '@/lib/session';
 import styles from '@/components/tables/tables.module.css' with { type: "css" };
-import { MetaRoadmap, Roadmap } from "@prisma/client";
 import { TableMenu } from '@/components/tables/tableMenu/tableMenu';
-import { AccessControlled } from '@/types';
+import { MetaRoadmap, Roadmap } from '@/types';
 import accessChecker from '@/lib/accessChecker';
 import serveTea from "@/lib/i18nServer";
 import Link from 'next/link';
-
-interface RoadmapTableCommonProps {
-  user: LoginData['user'],
-}
-
-interface RoadmapTableWithMetaRoadmap extends RoadmapTableCommonProps {
-  roadmaps?: never,
-  metaRoadmap: MetaRoadmap & AccessControlled & { roadmapVersions: (Roadmap & AccessControlled & { id: string, version: number, _count: { goals: number } })[] }
-}
-
-interface RoadmapTableWithRoadmaps extends RoadmapTableCommonProps {
-  roadmaps: (Roadmap & AccessControlled & { id: string, version: number, _count: { goals: number }, metaRoadmap: MetaRoadmap })[],
-  metaRoadmap?: never,
-}
-
-type RoadmapTableProps = RoadmapTableWithMetaRoadmap | RoadmapTableWithRoadmaps;
+import { ReactNode } from "react";
 
 export default async function RoadmapTable({
   user,
   roadmaps,
   metaRoadmap,
-}: RoadmapTableProps) {
+}: { user: LoginData['user'] } & (
+  | { roadmaps: Roadmap[]; metaRoadmap?: never; }
+  | { roadmaps?: never; metaRoadmap: MetaRoadmap; }
+)): Promise<ReactNode> {
   const t = await serveTea(["components", "common"]);
+  
   // Failsafe in case wrong props are passed
-  if ((!roadmaps && !metaRoadmap) || (roadmaps && metaRoadmap)) throw new Error('RoadmapTable: Either `roadmaps` XOR `metaRoadmap` must be provided');
+  if (
+    (!roadmaps && !metaRoadmap)
+    || (roadmaps && metaRoadmap)
+  ) throw new Error('RoadmapTable: Either `roadmaps` XOR `metaRoadmap` must be provided');
 
-  if (!roadmaps) {
-    // Between Typescript version 5.3.3 and 5.4.4 there was a change where the type of `metaRoadmap` stopped being inferred as `NonNullable<typeof metaRoadmap>`.
-    // We can claim that `metaRoadmap` is `NonNullable<typeof metaRoadmap>` since the program will throw if both `roadmaps` and `metaRoadmap` are undefined.
-    metaRoadmap = metaRoadmap as NonNullable<typeof metaRoadmap>;
-    roadmaps = metaRoadmap.roadmapVersions.map((version) => {
-      metaRoadmap = metaRoadmap as NonNullable<typeof metaRoadmap>;
-      return {
-        ...version,
-        // Sets the metaRoadmap to the parent metaRoadmap, excluding the versions array
-        metaRoadmap: (({ roadmapVersions, ...data }) => data)(metaRoadmap),
-      }
-    });
+  const parsedRoadmaps: Roadmap[] = [];
+
+  if (!roadmaps && metaRoadmap) {
+    const stripRoadmapVersions = (metaRoadmap: MetaRoadmap): Roadmap["metaRoadmap"] => {
+      const {
+        roadmapVersions,
+        ...interestingData
+      } = metaRoadmap;
+      return interestingData satisfies Roadmap["metaRoadmap"];
+    };
+
+    for (const roadmapVersion of metaRoadmap.roadmapVersions) {
+      // The roadmap versions that come with metaRoadmap omit relations, therefor these empty arrays, sorry 
+      parsedRoadmaps.push({
+        ...roadmapVersion,
+        metaRoadmap: stripRoadmapVersions(metaRoadmap),
+        goals: [],
+        actions: [],
+        comments: [],
+      });
+    }
+  }
+  else {
+    parsedRoadmaps.push(...roadmaps);
   }
 
   return <>
-    {roadmaps.length ?
+    {parsedRoadmaps.length ?
       <>
-        {roadmaps.map(roadmap => {
+        {parsedRoadmaps.map(roadmap => {
           let typeAlias = roadmap.metaRoadmap.type.toString();
           if (roadmap.metaRoadmap.type === "NATIONAL") typeAlias = t("common:scope.national");
           else if (roadmap.metaRoadmap.type === "REGIONAL") typeAlias = t("common:scope.regional");
