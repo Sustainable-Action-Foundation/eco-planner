@@ -66,7 +66,7 @@ export default function Actions({
     if (!searchFilter || !actions) return actions;
 
     return actions.filter((action) =>
-      Object.values(action).some(
+      [action.name, action.description].some(
         (value) =>
           typeof value === "string" &&
           value.toLowerCase().includes(searchFilter.toLowerCase())
