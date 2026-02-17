@@ -14,6 +14,8 @@ import { useTranslation } from "react-i18next";
 // - Style using modules
 // - Improve listviewstyling
 // - Update folder structure
+// - Clean up css
+// - Clean up code
 export default function Actions({
   actions,
   searchParamsProp
@@ -77,7 +79,7 @@ export default function Actions({
   return (
     <div className="flex flex-wrap-wrap gap-200">
       <menu className="margin-0 smooth padding-50 flex-grow-100" style={{ flexBasis: '30ch', backgroundColor: 'var(--gray-95)', border: '1px solid var(--gray-90)', height: 'fit-content' }}>
-        <fieldset className="width-100 fieldset-unset-pseudo-class"> 
+        <fieldset className="width-100 fieldset-unset-pseudo-class">
           <legend>{t("pages:actions.show_as")}</legend>
           <div className="radio-select-multiple margin-top-25 width-100" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(50px, 1fr))' }}>
             <label className="flex gap-25 align-items-center" style={{ lineHeight: '1' }}>
@@ -138,16 +140,27 @@ export default function Actions({
               : styles['actions-list']
             }`}
         >
+          {viewMode === 'list' ? // TODO: Figure out the semantics of this...
+            <li
+              style={{ listStyle: 'none', borderBottom: '1px solid var(--gray-20)', borderRadius: '0', marginBottom: '1rem' }}
+              className="smooth padding-0 padding-top-0 padding-bottom-50" /* TODO: Why do we set both padding-0 and padding-top-0 here? */
+            >
+              <article className="flex align-items-center justify-content-space-between" style={{ height: '100%' }}>
+                <h2 className="margin-0 font-weight-500" style={{ fontSize: '1rem', color: 'var(--gray-20)' }}>Title</h2> {/* TODO: i18n */}
+                <span className=" font-weight-500" style={{color: 'var(--gray-20)'}}>Author</span> {/* TODO: i18n */}
+              </article>
+            </li>
+            : null}
           {filteredActions?.map(action => (
             <li
               key={action.id}
-              className="smooth padding-0 padding-top-0"
+              className="smooth padding-0 padding-top-0" /* TODO: Why do we set both padding-0 and padding-top-0 here? */
             >
               <article className="flex flex-direction-column" style={{ height: '100%' }}>
                 <Link href={`/action/${action.id}`} className="discrete-link padding-block-75 padding-inline-50 block flex-grow-100">
                   <div className={`${styles['action-years']}`}>{action.startYear} - {action.endYear}</div>
                   <h2 className={`margin-0 ${styles['action-title']}`}>{action.name}</h2>
-                  <p className="margin-0" style={{ whiteSpace: "nowrap", textOverflow: 'ellipsis', overflow: 'hidden', color: '#292929' }}>{action.description}</p>
+                  <p className={`margin-0 ${styles['action-description']}`} style={{ whiteSpace: "nowrap", textOverflow: 'ellipsis', overflow: 'hidden', color: '#292929' }}>{action.description}</p>
                 </Link>
                 <hr className="margin-top-75" style={{ color: 'var(--gray-80)', borderBottom: '0', borderStyle: 'solid', margin: '.5rem', marginTop: '0' }} />
                 <div className="flex justify-content-space-between align-items-center padding-inline-50 padding-bottom-50">

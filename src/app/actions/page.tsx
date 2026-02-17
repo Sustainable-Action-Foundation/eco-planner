@@ -1,5 +1,4 @@
 import getOneAction from "@/fetchers/getActions"
-import styles from './page.module.css'
 import Actions from "../../components/actions"
 import serveTea from "@/lib/i18nServer";
 import { getSession } from "@/lib/session";

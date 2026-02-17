@@ -30,23 +30,29 @@
     font-size: 14px;
 }
 
+/* List */
 .actions-list {
-    padding-left: 1.5rem;
+    margin: 0;
+    padding: 0;
 }
 
 .actions-list > li::marker {
-    content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="gray" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-link"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 15l6 -6" /><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464" /><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463" /></svg>') / "";
-}
-
-.actions-list > li {
-    margin-block: 2rem;
-    padding-left: 1rem;
+    color: var(--gray-20);
+    font-size: .9rem;
 }
 
 .actions-list > li > article {
-    padding: .25rem;
+    flex-direction: row;
+    padding: 0;
     border-radius: .25rem;
+    border: 1px solid transparent;
 }
+
+.actions-list > li:not(:first-of-type) > article:hover {
+    border-color: var(--blue-40);
+    background-color: var(--gray-95);
+}
+
 
 .actions-list > li > article * {
     padding: 0;
@@ -56,14 +62,23 @@
     display: none;
 }
 
-.actions-list .action-years {
+.actions-list > li a {
+    padding: .5rem;
+}
+
+.actions-list .action-title {
+    font-weight: normal;
+    font-size: 1rem;
+
+}
+
+.actions-list .action-description {
     display: none;
 }
 
-.actions-list .action-user {
-    margin-top: .25rem;
-    color: gray;
-}
+.actions-list .action-years {
+    display: none;
+} 
 
 .actions-list .action-link {
     display: none;
