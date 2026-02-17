@@ -2,6 +2,16 @@
   "common": {
     "external_resources": "External resources"
   },
+  "actions": {
+    "actions": "Actions",
+    "list": "List",
+    "grid": "Grid",
+    "filter": "Filter",
+    "create_new_action": "$t(common:new.action)",
+    "visit_action": "Visit $t(common:action_definite_one)",
+    "author": "Author",
+    "search_actions": "Search $t(common:count.action)"
+  },
   "action": {
     "action_label": "{{$t(common:action_one), titleCase}}",
     "effects_label": "{{$t(common:effect_other), titleCase}}",

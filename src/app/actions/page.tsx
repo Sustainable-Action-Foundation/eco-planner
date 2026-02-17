@@ -5,8 +5,18 @@ import serveTea from "@/lib/i18nServer";
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import { buildMetadata } from "@/functions/buildMetadata";
+ 
+// TODO: More detailed metadata?
+export async function generateMetadata() {
+  return await buildMetadata({
+    title: 'Åtgärder',
+    description: undefined,
+    og_url: undefined,
+    og_image_url: undefined,
+  })
+}
 
-// NOTE: Do we really want the entire page to be async?
 export default async function Page(props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
   const [t, searchParams, session, actions] = await Promise.all([
     serveTea("pages"),
@@ -17,10 +27,10 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
 
   return (
     <>
-      <Breadcrumb customSections={['Åtgärder']} /> {/* TODO: I18n */}
+      <Breadcrumb customSections={[t('pages:actions.actions')]} />
 
       <main>
-        <h1 className="margin-block-300 padding-bottom-100" style={{ borderBottom: '1px solid var(--gray-80)' }}>Åtgärder</h1> {/* TODO: I18n */}
+        <h1 className="margin-block-300 padding-bottom-100" style={{ borderBottom: '1px solid var(--gray-80)' }}>{t('pages:actions.actions')}</h1>
         <Actions searchParamsProp={searchParams} actions={actions} />
       </main>
     </>

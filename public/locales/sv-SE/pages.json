@@ -2,6 +2,16 @@
   "common": {
     "external_resources": "Externa resurser"
   },
+  "actions": {
+    "actions": "Åtgärder",
+    "list": "Lista",
+    "grid": "Rutnät",
+    "filter": "Filter",
+    "create_new_action": "$t(common:new.action)",
+    "visit_action": "Gå till $t(common:action_definite_one)",
+    "author": "Skapare",
+    "search_actions": "Sök bland $t(common:count.action)"
+  },
   "action": {
     "action_label": "{{$t(common:action_one), titleCase}}",
     "effects_label": "{{$t(common:effect_other), titleCase}}",
