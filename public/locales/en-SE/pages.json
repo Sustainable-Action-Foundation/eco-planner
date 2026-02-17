@@ -10,7 +10,9 @@
     "create_new_action": "$t(common:new.action)",
     "visit_action": "Visit $t(common:action_definite_one)",
     "author": "Author",
-    "search_actions": "Search $t(common:count.action)"
+    "search_actions": "Search $t(common:count.action)",
+    "shown_results": "Showing $t(common:count.action)",
+    "show_as": "Visa som"
   },
   "action": {
     "action_label": "{{$t(common:action_one), titleCase}}",
