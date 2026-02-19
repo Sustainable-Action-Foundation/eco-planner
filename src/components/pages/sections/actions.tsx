@@ -135,9 +135,11 @@ export default function Actions({
         </div>
 
         <section>
-          <h3 className="margin-bottom-50 margin-top-200 font-style-italic color-gray font-weight-normal font-size-100">
-            {t("pages:actions.shown_results", { count: filteredActions?.length })}
-          </h3>
+          {actions && actions?.length > 0 ?
+            <h3 className="margin-bottom-50 margin-top-200 font-style-italic color-gray font-weight-normal font-size-100">
+              {t("pages:actions.shown_results", { count: filteredActions?.length })}
+            </h3>
+          : null }
           <ul
             className={`
             margin-0
