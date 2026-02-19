@@ -9,6 +9,7 @@
     "filter": "Filter",
     "create_new_action": "$t(common:new.action)",
     "visit_action": "Gå till $t(common:action_definite_one)",
+    "title": "Titel",
     "author": "Skapare",
     "search_actions": "Sök bland $t(common:count.action)",
     "shown_results": "Visar $t(common:count.action)",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react"
-import styles from "../app/actions/page.module.css"
+import styles from "./sections.module.css"
 import { Action } from "@/types"
 import { IconArrowNarrowRight, IconLayoutGridFilled, IconList, IconPlus, IconSearch, IconUser } from "@tabler/icons-react"
 import Link from "next/link"
@@ -12,7 +12,6 @@ import { useTranslation } from "react-i18next";
 
 // TODO:
 // - Style using modules
-// - Improve listviewstyling
 // - Update folder structure
 // - Clean up css
 // - Clean up code
@@ -140,21 +139,25 @@ export default function Actions({
               : styles['actions-list']
             }`}
         >
-          {viewMode === 'list' ? // TODO: Figure out the semantics of this...
+          {/* 
+            TODO: This is semantically incorrect. However as we need to update our html once we fix the treestructure of actions,
+            we can accept this untill then. In the future we likely want to separate the HTML for our grid and list views. 
+          */}
+          {viewMode === 'list' ? 
             <li
               style={{ listStyle: 'none', borderBottom: '1px solid var(--gray-20)', borderRadius: '0', marginBottom: '1rem' }}
-              className="smooth padding-0 padding-top-0 padding-bottom-50" /* TODO: Why do we set both padding-0 and padding-top-0 here? */
+              className="smooth padding-bottom-50" /* TODO: Why do we set both padding-0 and padding-top-0 here? */
             >
               <article className="flex align-items-center justify-content-space-between" style={{ height: '100%' }}>
-                <h2 className="margin-0 font-weight-500" style={{ fontSize: '1rem', color: 'var(--gray-20)' }}>Title</h2> {/* TODO: i18n */}
-                <span className=" font-weight-500" style={{color: 'var(--gray-20)'}}>Author</span> {/* TODO: i18n */}
+                <h2 className="margin-0 font-weight-500" style={{ fontSize: '1rem', color: 'var(--gray-20)' }}>{t("pages:actions.title")}</h2>
+                <span className=" font-weight-500" style={{color: 'var(--gray-20)'}}>{t("pages:actions.author")}</span>
               </article>
             </li>
             : null}
           {filteredActions?.map(action => (
             <li
               key={action.id}
-              className="smooth padding-0 padding-top-0" /* TODO: Why do we set both padding-0 and padding-top-0 here? */
+              className="smooth"  
             >
               <article className="flex flex-direction-column" style={{ height: '100%' }}>
                 <Link href={`/action/${action.id}`} className="discrete-link padding-block-75 padding-inline-50 block flex-grow-100">
