@@ -6,6 +6,7 @@ import getTableContent from "@/lib/api/getTableContent";
 import i18nServer from "i18next";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import type { Goal } from "@/types";
+import { color_palette } from "../config";
 
 type ThumbnailGoal = Pick<
   Goal,
@@ -41,10 +42,13 @@ export default async function ThumbnailGraph({
   }));
 
   const mainChart: ApexAxisChartSeries = [];
+  const colors: Array<string> = [color_palette.data.color];
+  const opacities: Array<number> = [color_palette.data.fillOpacity];
+
   mainChart.push({
     name: (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
     data: mainSeries,
-    type: 'area',
+    type: 'line',
   });
 
   if (externalData) {
@@ -65,11 +69,14 @@ export default async function ThumbnailGraph({
         type: 'area',
       });
     }
+
+    colors.push(color_palette.historical.color);
+    opacities.push(color_palette.historical.fillOpacity)
   }
 
   const mainChartOptions: ApexCharts.ApexOptions = {
     chart: {
-      type: 'area',
+      type: 'line',
       animations: { enabled: false, dynamicAnimation: { enabled: false } },
       zoom: {
         enabled: false,
@@ -78,12 +85,11 @@ export default async function ThumbnailGraph({
         show: false,
       },
     },
-    legend: {show: false},
-    colors: ['#0090ff', '#2e8a56'],
+    legend: { show: false },
     fill: {
       type: 'solid',
-      opacity: [0, 0.3],
-      colors: ['#0090ff', '#2e8a56'],
+      colors: colors,
+      opacity: opacities
     },
     tooltip: { enabled: false },
     stroke: { curve: 'straight', width: 1.5 },

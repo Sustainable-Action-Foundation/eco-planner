@@ -5,7 +5,9 @@ import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import { Effect, Goal, isISOIshDate, Roadmap } from "@/types";
 import { useTranslation } from "react-i18next";
+import { color_palette, stroke, marker } from "../config";
 
+// TODO: Come back to look at colors later, have not tested them
 export default function MainDeltaGraph({
   goal,
   secondaryGoal,
@@ -25,14 +27,23 @@ export default function MainDeltaGraph({
     return null
   }
 
+  const colors: Array<string> = [color_palette.data.color];
+  const opacities: Array<number> = [color_palette.data.fillOpacity];
+
   const chartOptions: ApexCharts.ApexOptions = {
     chart: {
       type: 'line',
       animations: { enabled: false, dynamicAnimation: { enabled: false } },
       zoom: { allowMouseWheelZoom: false },
     },
-    stroke: { curve: 'straight' },
-    markers: { size: 5 },
+    colors: colors,
+    fill: {
+      type: 'solid',
+      colors: colors,
+      opacity: opacities
+    },
+    stroke: { curve: stroke.curve, width: stroke.width },
+    markers: { size: marker.size },
     xaxis: {
       type: 'datetime',
       labels: { format: 'yyyy' },
@@ -137,7 +148,13 @@ export default function MainDeltaGraph({
         data: totalEffect,
         type: 'line',
       });
+
+      colors.push(color_palette.expected.color);
+      opacities.push(color_palette.expected.fillOpacity)
     }
+
+    colors.push(color_palette.baseline.color);
+    opacities.push(color_palette.baseline.fillOpacity)
   } else if (effects.length > 0) {
     // If no baseline is set, use the first non-null value as baseline
     const firstNonNullEntry = goal.dataSeries.values.find(v => Number.isFinite(v.value));
@@ -168,6 +185,11 @@ export default function MainDeltaGraph({
           data: totalEffect,
           type: 'line',
         });
+
+        colors.push(color_palette.baseline.color);
+        opacities.push(color_palette.baseline.fillOpacity)
+        colors.push(color_palette.expected.color);
+        opacities.push(color_palette.expected.fillOpacity)
       }
     }
   }
@@ -211,6 +233,9 @@ export default function MainDeltaGraph({
         opposite: true,
       });
     }
+
+    colors.push(color_palette.secondaryGoal.color);
+    opacities.push(color_palette.secondaryGoal.fillOpacity)
   }
 
   // National goal
@@ -240,6 +265,9 @@ export default function MainDeltaGraph({
       data: parentSeries,
       type: 'line',
     });
+
+    colors.push(color_palette.parentGoal.color);
+    opacities.push(color_palette.parentGoal.fillOpacity)
   }
 
   return (

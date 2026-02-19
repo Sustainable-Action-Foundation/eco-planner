@@ -7,11 +7,11 @@ import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFu
 import { ApiTableContent } from "@/lib/api/apiTypes";
 import { useTranslation } from "react-i18next";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
-import { color_palette } from "../config";
+import { color_palette, stroke, marker } from "../config";
 
 // TODO: IT seems we want translations in our name, e.g (${t("common:goal_one")}), to be specificly in the label instead if possible. 
 // This would make dealing with y-axis "seriesname" more sensible
-
+// TODO: Probably want some helper function to create historical, parent and comparative dataseries that we can reuse in multiple components
 export default function MainGraph({
   goal,
   secondaryGoal,
@@ -66,8 +66,8 @@ export default function MainGraph({
       colors: colors,
       opacity: opacities
     },
-    stroke: { curve: 'straight', width: 3 },
-    markers: { size: 3 },
+    stroke: { curve: stroke.curve, width: stroke.width },
+    markers: { size: marker.size },
     xaxis: {
       type: 'datetime',
       labels: { format: 'yyyy' },

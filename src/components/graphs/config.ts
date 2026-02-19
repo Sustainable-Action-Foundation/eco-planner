@@ -1,3 +1,5 @@
+/* Various style options for graphs to make consistency over several files easier */
+
 /* TODO: Look over the colours here */
 /* TODO: Create a type for this */
 /* TODO: Move more config options here? */
@@ -9,3 +11,12 @@ export const color_palette = {
   secondaryGoal: { color: 'purple', fillOpacity: 1},
   parentGoal: { color: 'teal', fillOpacity: 1},
 };
+
+export const marker: ApexMarkers = {
+  size: 3
+}
+
+export const stroke: ApexStroke = { 
+  curve: 'straight', 
+  width: 3 
+}

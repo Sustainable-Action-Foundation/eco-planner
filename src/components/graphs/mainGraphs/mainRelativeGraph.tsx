@@ -3,6 +3,7 @@
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import { Goal, Roadmap } from "@/types";
 import { useTranslation } from "react-i18next";
+import { color_palette, stroke, marker } from "../config";
 
 export default function MainRelativeGraph({
   goal,
@@ -22,6 +23,8 @@ export default function MainRelativeGraph({
   }
 
   const chart: ApexAxisChartSeries = [];
+  const colors: Array<string> = [color_palette.data.color];
+  const opacities: Array<number> = [color_palette.data.fillOpacity];
 
   // Local goal
   const mainSeries = [];
@@ -53,6 +56,8 @@ export default function MainRelativeGraph({
       data: secondarySeries,
       type: 'line',
     })
+    colors.push(color_palette.secondaryGoal.color);
+    opacities.push(color_palette.secondaryGoal.fillOpacity)
   }
 
   // National goal
@@ -70,6 +75,9 @@ export default function MainRelativeGraph({
       data: nationalSeries,
       type: 'line',
     });
+
+    colors.push(color_palette.parentGoal.color);
+    opacities.push(color_palette.parentGoal.fillOpacity)
   }
 
   const chartOptions: ApexCharts.ApexOptions = {
@@ -78,8 +86,14 @@ export default function MainRelativeGraph({
       animations: { enabled: false, dynamicAnimation: { enabled: false } },
       zoom: { allowMouseWheelZoom: false },
     },
-    stroke: { curve: 'straight' },
-    markers: { size: 5 },
+    colors: colors,
+    fill: {
+      type: 'solid',
+      colors: colors,
+      opacity: opacities
+    },
+    stroke: { curve: stroke.curve, width: stroke.width },
+    markers: { size: marker.size },
     xaxis: {
       type: 'datetime',
       labels: { format: 'yyyy' },
