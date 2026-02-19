@@ -311,8 +311,11 @@ export function AdminPanel(
 
   return (
     <aside className="margin-block-300">
-      <h1 className="font-weight-600 margin-bottom-50 margin-0" style={{ fontSize: '1.25rem', alignSelf: 'center'}}>{t("components:table_menu.admin_panel_title")}</h1>
-      <menu className={`flex gap-50 align-items-stretch flex-grow-100 margin-0 padding-block-50 padding-inline-0 ${styles['object-menu']}`}>
+      <div className='flex justify-content-space-between align-items-flex-end flex-wrap-wrap margin-bottom-50 gap-25'>
+        <h1 className="font-weight-600 margin-0" style={{ fontSize: '1.25rem'}}>{t("components:table_menu.admin_panel_title")}</h1>
+        <small className='font-style-italic'>{t("components:table_menu.admin_panel_info")}</small>
+      </div>
+      <menu className={`flex gap-50 align-items-stretch flex-grow-100 margin-0 padding-25 font-size-14px rounded ${styles['object-menu']}`}>
         {links ? (
           <>
             <nav className="display-contents">
@@ -320,7 +323,7 @@ export function AdminPanel(
                 <>
                   {links.creationLink &&
                     <>
-                      <Link href={links.creationLink} className={`flex gap-100 align-items-center smooth neutral-action`}>
+                      <Link href={links.creationLink} className={`flex gap-100 align-items-center smooth neutral-action ${styles['object-menu-link']}`}>
                         <span>{links.creationDescription}</span>
                         <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                       </Link>
@@ -329,7 +332,7 @@ export function AdminPanel(
                   }
                   {links.creationLink2 &&
                     <>
-                      <Link href={links.creationLink2} className={`flex gap-100 align-items-center smooth neutral-action`}>
+                      <Link href={links.creationLink2} className={`flex gap-100 align-items-center smooth neutral-action ${styles['object-menu-link']}`}>
                         <span>{links.creationDescription2 || links.creationLink2}</span>
                         <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                       </Link>
@@ -338,7 +341,7 @@ export function AdminPanel(
                   }
                   {links.historicalDataLink &&
                     <>
-                      <Link href={links.historicalDataLink} className={`flex gap-100 align-items-center smooth neutral-action`}>
+                      <Link href={links.historicalDataLink} className={`flex gap-100 align-items-center smooth neutral-action ${styles['object-menu-link']}`}>
                         <span>{t("components:table_menu.historical_data")}</span>
                         <IconChartHistogram aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                       </Link>
@@ -347,7 +350,7 @@ export function AdminPanel(
                   }
                   {links.editLink &&
                     <>
-                      <Link href={links.editLink} className={`flex gap-100 align-items-center smooth neutral-action`}> {/* TODO: The styling of theese links is a lil messed up since i changed to use neutral-action instead of custom styles. I mainly note the need to fix margin but probably check if something else broke aswell */}
+                      <Link href={links.editLink} className={`flex gap-100 align-items-center smooth neutral-action ${styles['object-menu-link']}`}> 
                         <span>{t("components:table_menu.edit")}</span>
                         <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                       </Link>
@@ -372,7 +375,6 @@ export function AdminPanel(
           </>
         ) : null}
       </menu>
-      <small className='font-style-italic'>{t("components:table_menu.admin_panel_info")}</small>
     </aside>
   )
 

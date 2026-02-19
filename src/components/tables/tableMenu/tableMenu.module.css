@@ -76,9 +76,8 @@
 /* Objectmenu */
 
 .object-menu {
-  font-size: 14px;
-  border-top: 1px solid var(--gray-80);
-  border-bottom: 1px solid var(--gray-80);
+  border: 1px solid var(--gray-80);
+  background-color: var(--tertiary-neutral); 
 }
 
 .object-menu hr {
@@ -90,7 +89,7 @@
   display: none;
 }
 
-.object-menu-link, .object-menu-button {
+.object-menu-button {
   background-color: hsl(200, 15%, 92%);
   border: 1px solid hsl(200, 20%, 82%);
   color: black;
@@ -106,19 +105,19 @@
   box-shadow: none;
 }
 
+  /* Note: 802px is an arbitrary value based on the overflow width for objectmenu on goalpage */
 @media (max-width: 802px) {
 
-  /* Note: arbitrary value based on the overflow width for objectmenu on goalpage */
   .object-menu {
     flex-direction: column;
-    gap: 0;
+    gap: .25rem;
     padding: 0;
     border: 0;
   }
 
   .object-menu hr {
     display: none;
-    margin-block: .25rem;
+    margin-block: 0;
     border-top: 0;
   }
 
@@ -133,6 +132,5 @@
   .object-menu-link, .object-menu-button {
     justify-content: space-between;
     padding: .5rem;
-    margin-block: .25rem;
   }
 }
