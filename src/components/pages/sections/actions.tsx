@@ -10,10 +10,6 @@ import { useDebouncedCallback } from "use-debounce"
 import { usePathname, useSearchParams, useRouter } from "next/navigation"
 import { useTranslation } from "react-i18next";
 
-// TODO:
-// - Style using modules
-// - Clean up css
-// - Clean up code
 export default function Actions({
   actions,
   searchParamsProp
@@ -144,7 +140,8 @@ export default function Actions({
           </h3>
           <ul
             className={`
-            margin-top-0  
+            margin-0
+            padding-0
             ${viewMode === 'grid'
                 ? styles['actions-grid']
                 : styles['actions-list']
@@ -157,7 +154,7 @@ export default function Actions({
             {viewMode === 'list' ?
               <li
                 style={{ listStyle: 'none', borderBottom: '1px solid var(--gray-20)', borderRadius: '0' }}
-                className="smooth padding-bottom-50 margin-block-100"
+                className="smooth padding-bottom-50 margin-bottom-50 margin-top-100"
               >
                 <article className="flex align-items-center justify-content-space-between height-100">
                   <h2 className="margin-0 font-weight-500 font-size-100" style={{ color: 'var(--gray-20)' }}>
@@ -176,7 +173,7 @@ export default function Actions({
               >
                 <article className="flex flex-direction-column height-100">
                   <Link href={`/action/${action.id}`} className="discrete-link padding-block-75 padding-inline-50 block flex-grow-100">
-                    <div className={`${styles['action-years']}`}>{action.startYear} - {action.endYear}</div>
+                    <div className={` color-gray font-size-14px ${styles['action-years']}`}>{action.startYear} - {action.endYear}</div>
                     <h2 className={`margin-0 ${styles['action-title']}`}>{action.name}</h2>
                     <p 
                       className={`margin-0 white-space-nowrap text-overflow-ellipsis overflow-hidden ${styles['action-description']}`} 
