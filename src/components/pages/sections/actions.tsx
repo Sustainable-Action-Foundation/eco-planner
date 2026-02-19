@@ -12,7 +12,6 @@ import { useTranslation } from "react-i18next";
 
 // TODO:
 // - Style using modules
-// - Update folder structure
 // - Clean up css
 // - Clean up code
 export default function Actions({
@@ -76,12 +75,13 @@ export default function Actions({
   }, [actions, searchFilter]);
 
   return (
-    <div className="flex flex-wrap-wrap gap-200">
-      <menu className="margin-0 smooth padding-50 flex-grow-100" style={{ flexBasis: '30ch', backgroundColor: 'var(--gray-95)', border: '1px solid var(--gray-90)', height: 'fit-content' }}>
+    <search className="flex flex-wrap-wrap gap-200">
+      <menu className={`margin-0 smooth padding-50 flex-grow-100 ${styles['actions-menu']}`} >
         <fieldset className="width-100 fieldset-unset-pseudo-class">
           <legend>{t("pages:actions.show_as")}</legend>
+
           <div className="radio-select-multiple margin-top-25 width-100" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(50px, 1fr))' }}>
-            <label className="flex gap-25 align-items-center" style={{ lineHeight: '1' }}>
+            <label className="flex gap-25 align-items-center line-height-100">
               <IconLayoutGridFilled width={20} height={20} style={{ minWidth: '20px' }} aria-hidden="true" />
               {t('pages:actions.grid')}
               <input
@@ -91,8 +91,7 @@ export default function Actions({
                 onChange={() => setViewMode('grid')}
               />
             </label>
-
-            <label className="flex gap-25 align-items-center" style={{ lineHeight: '1' }}>
+            <label className="flex gap-25 align-items-center line-height-100">
               <IconList width={20} height={20} style={{ minWidth: '20px' }} aria-hidden="true" />
               {t('pages:actions.list')}
               <input
@@ -107,10 +106,13 @@ export default function Actions({
         {/*<h2 className="padding-bottom-50 margin-block-100 font-weight-500" style={{ fontSize: '1.25rem', borderBottom: '1px solid var(--gray)' }}>{t('pages:actions.filter')}</h2>  */}
       </menu>
 
-      <div style={{ maxWidth: '100%', flexGrow: 'calc(infinity * 1)' }}>
-        <h2 id="search-title" className="margin-top-0 margin-bottom-50">{t("pages:actions.search_actions", { count: actions?.length })}</h2>
-        <div className="flex flex-wrap-wrap-reverse gap-50 align-items-center">
-          <div className="flex align-items-center padding-50 smooth focusable" style={{ flexGrow: 'calc(infinity * 1)' }}>
+      <div className="flex-grow-infinity max-width-100">
+        <h2 id="search-title" className="margin-top-0 margin-bottom-50">
+          {t("pages:actions.search_actions", { count: actions?.length })}
+        </h2>
+
+        <div className="flex flex-wrap-wrap gap-50 align-items-center">
+          <div className="flex align-items-center padding-50 smooth focusable flex-grow-infinity">
             <IconSearch strokeWidth={1.5} width={20} height={20} style={{ minWidth: '20px' }} aria-hidden="true" />
             <input
               aria-labelledby="search-title"
@@ -124,63 +126,84 @@ export default function Actions({
             />
             {isLoading && <Image src={'/loaders/3-dots-move.svg'} width={16} height={16} alt='' aria-live="polite" />}
           </div>
-          <hr style={{ alignSelf: 'stretch', borderStyle: 'solid', color: 'var(--gray-80)', borderRight: '0', flexShrink: '1' }} />
-          <Link href={'/action/create'} className="flex gap-100 flex-grow-100 justify-content-space-between align-items-center smooth seagreen color-purewhite text-decoration-none padding-50 font-weight-500 button" style={{ lineHeight: '1', fontSize: '14px', whiteSpace: "nowrap" }}>
+
+          <hr style={{ alignSelf: 'stretch', borderStyle: 'solid', color: 'var(--gray-80)', borderRight: '0' }} />
+          
+          <Link 
+            href={'/action/create'} 
+            className="flex gap-100 flex-grow-100 justify-content-space-between align-items-center smooth seagreen color-purewhite text-decoration-none padding-50 font-weight-500 button white-space-nowrap line-height-100 font-size-14px"
+          >
             {t("pages:actions.create_new_action")}
             <IconPlus width={20} height={20} style={{ minWidth: '20px' }} aria-hidden="true" />
           </Link>
         </div>
-        <p className="margin-top-25 margin-bottom-200" style={{ fontStyle: 'italic', color: 'gray' }}>{t("pages:actions.shown_results", { count: filteredActions?.length })}</p> {/* TODO: This looks bad when wrapping but whatever */}
-        <ul
-          className={`
-          margin-top-0  
-          ${viewMode === 'grid'
-              ? styles['actions-grid']
-              : styles['actions-list']
-            }`}
-        >
-          {/* 
-            TODO: This is semantically incorrect. However as we need to update our html once we fix the treestructure of actions,
-            we can accept this untill then. In the future we likely want to separate the HTML for our grid and list views. 
-          */}
-          {viewMode === 'list' ? 
-            <li
-              style={{ listStyle: 'none', borderBottom: '1px solid var(--gray-20)', borderRadius: '0', marginBottom: '1rem' }}
-              className="smooth padding-bottom-50" /* TODO: Why do we set both padding-0 and padding-top-0 here? */
-            >
-              <article className="flex align-items-center justify-content-space-between" style={{ height: '100%' }}>
-                <h2 className="margin-0 font-weight-500" style={{ fontSize: '1rem', color: 'var(--gray-20)' }}>{t("pages:actions.title")}</h2>
-                <span className=" font-weight-500" style={{color: 'var(--gray-20)'}}>{t("pages:actions.author")}</span>
-              </article>
-            </li>
-            : null}
-          {filteredActions?.map(action => (
-            <li
-              key={action.id}
-              className="smooth"  
-            >
-              <article className="flex flex-direction-column" style={{ height: '100%' }}>
-                <Link href={`/action/${action.id}`} className="discrete-link padding-block-75 padding-inline-50 block flex-grow-100">
-                  <div className={`${styles['action-years']}`}>{action.startYear} - {action.endYear}</div>
-                  <h2 className={`margin-0 ${styles['action-title']}`}>{action.name}</h2>
-                  <p className={`margin-0 ${styles['action-description']}`} style={{ whiteSpace: "nowrap", textOverflow: 'ellipsis', overflow: 'hidden', color: '#292929' }}>{action.description}</p>
-                </Link>
-                <hr className="margin-top-75" style={{ color: 'var(--gray-80)', borderBottom: '0', borderStyle: 'solid', margin: '.5rem', marginTop: '0' }} />
-                <div className="flex justify-content-space-between align-items-center padding-inline-50 padding-bottom-50">
-                  <Link href={`/action/${action.id}`} className={`flex gap-25 align-items-center discrete-link ${styles['action-user']}`} style={{ fontSize: '14px' }}>
-                    <IconUser width={20} height={20} style={{ maxWidth: '20px' }} aria-label={`${t('pages:actions.author')}:`} />
-                    {action.author.username}
+
+        <section>
+          <h3 className="margin-bottom-50 margin-top-200 font-style-italic color-gray font-weight-normal font-size-100">
+            {t("pages:actions.shown_results", { count: filteredActions?.length })}
+          </h3>
+          <ul
+            className={`
+            margin-top-0  
+            ${viewMode === 'grid'
+                ? styles['actions-grid']
+                : styles['actions-list']
+              }`}
+          >
+            {/* 
+              TODO: This is semantically incorrect. However as we need to update our html once we fix the treestructure of actions,
+              we can accept this untill then. In the future we likely want to separate the HTML for our grid and list views. 
+            */}
+            {viewMode === 'list' ?
+              <li
+                style={{ listStyle: 'none', borderBottom: '1px solid var(--gray-20)', borderRadius: '0' }}
+                className="smooth padding-bottom-50 margin-block-100"
+              >
+                <article className="flex align-items-center justify-content-space-between height-100">
+                  <h2 className="margin-0 font-weight-500 font-size-100" style={{ color: 'var(--gray-20)' }}>
+                    {t("pages:actions.title")}
+                  </h2>
+                  <span className=" font-weight-500" style={{ color: 'var(--gray-20)' }}>
+                    {t("pages:actions.author")}
+                  </span>
+                </article>
+              </li>
+              : null}
+            {filteredActions?.map(action => (
+              <li
+                key={action.id}
+                className="smooth"
+              >
+                <article className="flex flex-direction-column height-100">
+                  <Link href={`/action/${action.id}`} className="discrete-link padding-block-75 padding-inline-50 block flex-grow-100">
+                    <div className={`${styles['action-years']}`}>{action.startYear} - {action.endYear}</div>
+                    <h2 className={`margin-0 ${styles['action-title']}`}>{action.name}</h2>
+                    <p 
+                      className={`margin-0 white-space-nowrap text-overflow-ellipsis overflow-hidden ${styles['action-description']}`} 
+                      style={{ color: '#292929' }}
+                    >
+                      {action.description}
+                    </p>
                   </Link>
-                  <Link href={`/action/${action.id}`} className={`flex gap-25 align-items-center discrete-link ${styles['action-link']}`} style={{ fontSize: '14px' }}>
-                    {t('pages:actions.visit_action')}
-                    <IconArrowNarrowRight width={20} height={20} style={{ maxWidth: '20px' }} aria-hidden="true" />
-                  </Link>
-                </div>
-              </article>
-            </li>
-          ))}
-        </ul>
+                  
+                  <hr className="margin-50 margin-top-0" style={{ color: 'var(--gray-80)', borderBottom: '0', borderStyle: 'solid' }} />
+
+                  <div className="flex justify-content-space-between align-items-center padding-inline-50 padding-bottom-50">
+                    <Link href={`/action/${action.id}`} className={`flex gap-25 align-items-center discrete-link font-size-14px ${styles['action-user']}`}>
+                      <IconUser width={20} height={20} style={{ maxWidth: '20px' }} aria-label={`${t('pages:actions.author')}:`} />
+                      {action.author.username}
+                    </Link>
+                    <Link href={`/action/${action.id}`} className={`flex gap-25 align-items-center discrete-link font-size-14px ${styles['action-link']}`}>
+                      {t('pages:actions.visit_action')}
+                      <IconArrowNarrowRight width={20} height={20} style={{ maxWidth: '20px' }} aria-hidden="true" />
+                    </Link>
+                  </div>
+                </article>
+              </li>
+            ))}
+          </ul>
+        </section>
       </div>
-    </div>
+    </search>
   )
 }

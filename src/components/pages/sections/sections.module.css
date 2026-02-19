@@ -1,5 +1,12 @@
 
 /* Actions */
+.actions-menu {
+    flex-basis: 30ch;
+    background-color: var(--gray-95);
+    border: 1px solid var(--gray-90); 
+    height: fit-content;
+}
+
 .actions-grid {
     column-gap: .5rem;
     row-gap: 1rem;
