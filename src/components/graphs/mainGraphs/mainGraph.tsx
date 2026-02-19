@@ -7,6 +7,10 @@ import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFu
 import { ApiTableContent } from "@/lib/api/apiTypes";
 import { useTranslation } from "react-i18next";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
+import { color_palette } from "../config";
+
+// TODO: IT seems we want translations in our name, e.g (${t("common:goal_one")}), to be specificly in the label instead if possible. 
+// This would make dealing with y-axis "seriesname" more sensible
 
 export default function MainGraph({
   goal,
@@ -47,17 +51,20 @@ export default function MainGraph({
   const minDate = timelineEntries[0]?.[0];
   const maxDate = timelineEntries[timelineEntries.length - 1]?.[0];
 
+  const colors: Array<string> = [color_palette.data.color];
+  const opacities: Array<number> = [color_palette.data.fillOpacity];
+
   const mainChartOptions: ApexCharts.ApexOptions = {
     chart: {
       type: 'line',
       animations: { enabled: false, dynamicAnimation: { enabled: false } },
       zoom: { allowMouseWheelZoom: false },
     },
-    colors: ['#0090ff', '#2e8a56', 'red', 'orange'],
+    colors: colors,
     fill: {
       type: 'solid',
-      opacity: [1, 0.3, 1, 1],
-      colors: ['#0090ff', '#2e8a56', 'red', 'orange'],
+      colors: colors,
+      opacity: opacities
     },
     stroke: { curve: 'straight', width: 3 },
     markers: { size: 3 },
@@ -73,11 +80,11 @@ export default function MainGraph({
         title: { text: goal.dataSeries.unit === null ? t("common:tsx.unitless") : goal.dataSeries.unit || t("common:tsx.unit_missing") },
         labels: { formatter: graphNumberFormatter },
         seriesName: [
-          (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
+          `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
           t("graphs:common.baseline_scenario"),
           t("graphs:common.expected_outcome"),
           (secondaryGoal?.dataSeries?.unit === goal.dataSeries.unit) ? (secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0] : "",
-          historicalData ? `${historicalData.metadata[0]?.label}` : "",
+          historicalData ? `${historicalData.metadata[0]?.label} (${t("common:historical_data")})` : "",
         ]
       }
     ],
@@ -97,7 +104,7 @@ export default function MainGraph({
     type: 'line',
   })
 
-  
+
   if (historicalData) {
     const historicalSeries = [];
 
@@ -114,9 +121,12 @@ export default function MainGraph({
         name: `${historicalData.metadata[0]?.label} (${t("common:historical_data")})`,
         data: historicalSeries,
         type: 'area',
+        color: '#2e8a56',
       });
     }
-    console.log(historicalSeries)
+
+    colors.push(color_palette.historical.color);
+    opacities.push(color_palette.historical.fillOpacity)
   }
 
 
@@ -141,7 +151,13 @@ export default function MainGraph({
           type: 'line',
         });
       }
+
+      colors.push(color_palette.expected.color);
+      opacities.push(color_palette.expected.fillOpacity)
     }
+
+    colors.push(color_palette.baseline.color);
+    opacities.push(color_palette.baseline.fillOpacity)
   } else if (effects.length > 0) {
     // If no baseline is set, use the first non-null value as baseline
     const firstNonNull = mainEntries.find(([, value]) => Number.isFinite(value));
@@ -168,6 +184,11 @@ export default function MainGraph({
           data: totalEffect,
           type: 'line',
         });
+
+        colors.push(color_palette.baseline.color);
+        opacities.push(color_palette.baseline.fillOpacity)
+        colors.push(color_palette.expected.color);
+        opacities.push(color_palette.expected.fillOpacity)
       }
     }
   }
@@ -190,9 +211,12 @@ export default function MainGraph({
         opposite: true,
       });
     }
+
+    colors.push(color_palette.secondaryGoal.color);
+    opacities.push(color_palette.secondaryGoal.fillOpacity)
   }
 
-  if (parentGoal?.dataSeries) { /* TODO: See if we need to add an additinal colour for this */
+  if (parentGoal?.dataSeries) {
     const parentDateValues = dataSeriesToDateValues(parentGoal.dataSeries);
     const nationalSeries = seriesFromDateValues(parentDateValues.dateValues);
     mainChart.push({
@@ -206,6 +230,9 @@ export default function MainGraph({
       seriesName: [t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name || "" })],
       opposite: true,
     });
+
+    colors.push(color_palette.parentGoal.color);
+    opacities.push(color_palette.parentGoal.fillOpacity)
   }
 
   return (
