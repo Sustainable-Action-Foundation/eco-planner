@@ -1,6 +1,6 @@
 import GraphCookie from '@/components/cookies/graphCookie';
 import UserFilters from '@/components/form/filters/userFilters';
-import { TableMenu } from '@/components/tables/tableMenu/tableMenu';
+import { ControlsMenu } from '@/components/elements/controls/controls';
 import getMetaRoadmaps from '@/fetchers/getMetaRoadmaps';
 import getRoadmaps from '@/fetchers/getRoadmaps';
 import getUserInfo from '@/fetchers/getUserInfo';
@@ -161,7 +161,7 @@ export default async function Page(
                           <h4 className='font-weight-500 margin-0'>{metaRoadmap.name} </h4>
                           <p className='margin-0'>{t("pages:profile.version_count", { count: metaRoadmap.roadmapVersions.length })}</p>
                         </Link>
-                        <TableMenu object={metaRoadmap} />
+                        <ControlsMenu object={metaRoadmap} />
                       </div>
                     </div>
                   </li>
@@ -182,7 +182,7 @@ export default async function Page(
                           <h4 className='font-weight-500 margin-0'>{roadmap.metaRoadmap.name} {`(v${roadmap.version})`}</h4>
                           <p className='margin-0'>{t("common:count.goal", { count: roadmap._count.goals })}</p>
                         </Link>
-                        <TableMenu object={roadmap} />
+                        <ControlsMenu object={roadmap} />
                       </div>
                     </div>
                   </li>

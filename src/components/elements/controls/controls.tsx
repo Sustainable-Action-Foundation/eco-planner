@@ -1,16 +1,24 @@
 'use client'
 
-import styles from './tableMenu.module.css' with { type: "css" }
+import styles from './controls.module.css' with { type: "css" }
 import Link from "next/link";
 import { useRef } from "react";
 import { AccessLevel } from "@/types";
 import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
 import { useTranslation } from "react-i18next";
-import { IconArrowBackUp, IconChartHistogram, IconDotsVertical, IconEdit, IconPlus, IconSettings, IconTrashXFilled, IconX } from "@tabler/icons-react";
+import { IconArrowBackUp, IconChartHistogram, IconDotsVertical, IconEdit, IconPlus, IconTrashXFilled, IconX } from "@tabler/icons-react";
 import { hasEditAccess } from '@/lib/accessChecker';
 import { TFunction } from 'i18next';
 import type { Action, Effect, Goal, MetaRoadmap, Roadmap } from "@/types";
+
+/*
+  TODO: 
+  This file was renamed from the previous "TableMenu" as it has long served as a menu outside of tables.
+  The chosen name, "controls", may be too generic. We likely want to split the ControlsMenu and AdminPanel
+  into separate components at some point to clarify
+*/
+/* TODO: Add an info bubble to the admin panel to clear some space? */
 
 type ActionMenuEntry = Pick<Action, "id" | "name" | "roadmapId" | "isSufficiency"> & {
   description?: string | null;
@@ -140,7 +148,7 @@ function buildLinks(
   }
 
   else {
-    console.log("TableMenu: Object type not recognized", object);
+    console.log("ControlsMenu/AdminPanel: Object type not recognized", object);
     return null;
   }
 
@@ -174,9 +182,8 @@ const getMetaRoadmapName = (object: ObjectParameter): string | undefined =>
 
 /** 
  * General purpose button for roadmaps, goals and actions. 
- * TODO: Update the name of the component to reflect this
  */
-export function TableMenu(
+export function ControlsMenu(
   {
     width = 24,
     height = 24,

@@ -5,7 +5,7 @@ import { AccessLevel } from "@/types";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import RoadmapTable from "@/components/tables/roadmapTables/roadmapTable";
-import { AdminPanel } from "@/components/tables/tableMenu/tableMenu";
+import { AdminPanel } from "@/components/elements/controls/controls";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";

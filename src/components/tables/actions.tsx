@@ -4,7 +4,7 @@
 import styles from './tables.module.css' with { type: "css" };
 import { AccessLevel, Action, Roadmap } from '@/types';
 import Link from 'next/link';
-import { TableMenu } from './tableMenu/tableMenu';
+import { ControlsMenu } from '../elements/controls/controls';
 import { useTranslation } from "react-i18next";
 import { IconLink } from '@tabler/icons-react';
 
@@ -49,7 +49,7 @@ export default function ActionTable({
           <span className='font-weight-500'>{action.name}</span>
           <p className={`${styles.actionLinkInfo} color-gray`}>{action.description || '\u00A0'}</p>
         </Link>
-        <TableMenu
+        <ControlsMenu
           accessLevel={accessLevel}
           object={action}
         />

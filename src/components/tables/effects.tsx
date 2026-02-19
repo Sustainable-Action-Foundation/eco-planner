@@ -2,7 +2,7 @@
 
 import { AccessLevel, Action, Effect, Goal } from "@/types.ts";
 import Link from "next/link";
-import { TableMenu } from "./tableMenu/tableMenu.tsx";
+import { ControlsMenu } from "../elements/controls/controls.tsx";
 import { useTranslation } from "react-i18next";
 import styles from "@/components/tables/tables.module.css" with { type: "css" };
 import { IconCaretRightFilled, ReactNode } from "@tabler/icons-react";
@@ -79,7 +79,7 @@ export default function EffectTable({
                     : null
                 }
               </Link>
-              <TableMenu
+              <ControlsMenu
                 accessLevel={accessLevel}
                 object={effect as Effect} // TODO: Fix typing
               />

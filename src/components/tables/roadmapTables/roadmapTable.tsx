@@ -1,7 +1,7 @@
 import "server-only";
 import { LoginData } from '@/lib/session';
 import styles from '@/components/tables/tables.module.css' with { type: "css" };
-import { TableMenu } from '@/components/tables/tableMenu/tableMenu';
+import { ControlsMenu } from '@/components/elements/controls/controls';
 import { MetaRoadmap, Roadmap } from '@/types';
 import accessChecker from '@/lib/accessChecker';
 import serveTea from "@/lib/i18nServer";
@@ -76,7 +76,7 @@ export default async function RoadmapTable({
                   {t("common:count.goal", { count: roadmap._count.goals })}
                 </span>
               </Link>
-              <TableMenu
+              <ControlsMenu
                 accessLevel={accessLevel}
                 object={roadmap}
               />

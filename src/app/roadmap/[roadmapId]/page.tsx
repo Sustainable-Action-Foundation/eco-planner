@@ -13,7 +13,7 @@ import { buildMetadata } from "@/functions/buildMetadata";
 import { IconArrowNarrowRight, IconBuildings, IconCircleFilled, IconUser } from "@tabler/icons-react";
 import Link from "next/link";
 import TextEditor from "@/components/form/elements/textEditor/editor";
-import { AdminPanel } from "@/components/tables/tableMenu/tableMenu";
+import { AdminPanel } from "@/components/elements/controls/controls";
 import ActionTable from "@/components/tables/actions";
 
 export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }) {

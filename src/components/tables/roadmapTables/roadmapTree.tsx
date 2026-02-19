@@ -1,6 +1,6 @@
 import "server-only";
 import styles from "@/components/tables/tables.module.css" with { type: "css" };
-import { TableMenu } from "@/components/tables/tableMenu/tableMenu.tsx";
+import { ControlsMenu } from "@/components/elements/controls/controls";
 import accessChecker from "@/lib/accessChecker.ts";
 import { LoginData } from "@/lib/session.ts";
 import Link from "next/link";
@@ -95,7 +95,7 @@ async function NestedRoadmapRenderer({
                     </Link>
                   </div>
                   <span className="flex align-items-center padding-inline-25">
-                    <TableMenu
+                    <ControlsMenu
                       accessLevel={accessLevel}
                       object={roadmap}
                     />
@@ -129,7 +129,7 @@ async function NestedRoadmapRenderer({
                 </Link>
               </div>
               <span className="flex align-items-center padding-inline-25">
-                <TableMenu
+                <ControlsMenu
                   accessLevel={accessLevel}
                   object={roadmap}
                 />
