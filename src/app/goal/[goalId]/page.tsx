@@ -26,7 +26,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import getTableContent from "@/lib/api/getTableContent";
 import { buildMetadata } from "@/functions/buildMetadata";
-import { IconAlertTriangle } from "@tabler/icons-react";
+import { IconAlertTriangle, IconArrowBackUp, IconArrowNarrowRight, IconBuildings } from "@tabler/icons-react";
 import i18nServer, { TFunction } from "i18next";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 
@@ -194,8 +194,24 @@ export default async function Page(
       {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
         <AdminPanel accessLevel={accessLevel} object={goal} />
       }
-      
+
       <main>
+        <header className="margin-block-300" style={{ fontSize: 'smaller' }}>
+          <span style={{ color: 'gray' }}>{t("pages:roadmap.version", { version: roadmap.version })}</span>
+          <span className="block margin-0 font-weight-600" style={{ fontSize: '1.15rem' }}>{roadmap.metaRoadmap.name}</span> {/* TODO: Check semantics of this  */}
+          <div className="margin-block-25 flex justify-content-space-between margin-bottom-50 padding-bottom-50" style={{ borderBottom: '1px solid var(--gray-80)' }}>
+            <div className="flex gap-25 align-items-center">
+              <IconBuildings strokeWidth={1.75} width={20} height={20} style={{ minWidth: '20px' }} />
+              {roadmap.metaRoadmap.actor}
+            </div>
+            <Link href={`/metaRoadmap/${roadmap.metaRoadmapId}`} className="discrete-link flex gap-25 align-items-center" style={{ lineHeight: '1' }}>
+              {t("pages:roadmap.show_series")}
+              <IconArrowNarrowRight height={20} width={20} style={{ minWidth: '20px' }} />
+            </Link>
+          </div>
+        </header>
+
+        {/* TODO: Incorrect semantics, sections missing a header (not sure if the aria-label is proper). Make this something else? */}
         {shouldUpdate && goal.dataSeries && // Redundant additional check to satisfy type engine
           <section
             aria-label={t("pages:goal.update_needed_attention_message")}
@@ -213,34 +229,34 @@ export default async function Page(
           </section>
         }
 
-        <section className="margin-block-300">
+        <header>
           {goal.name ? (
             <>
-              <small style={{ color: 'gray' }}>{t("pages:goal.title_label")}</small>
+              <small style={{ color: 'gray' }}>{t("pages:goal.title_label")}</small> {/* TODO: Probably use span here instead */}
               <h1 className="margin-0" style={{ fontSize: '3rem', lineHeight: '1' }}>{goal.name}</h1>
-              <small style={{ color: 'gray' }}>{goal.indicatorParameter}</small>
+              <small style={{ color: 'gray' }}>{goal.indicatorParameter}</small> {/* TODO: Probably use span here instead */}
             </>
           ) :
             <>
-              <small style={{ color: 'gray' }}>{t("pages:goal.title_label")}</small>
+              <small style={{ color: 'gray' }}>{t("pages:goal.title_label")}</small> {/* TODO: Probably use span here instead */}
               <h1 className="margin-0" style={{ lineHeight: '1' }}>{goal.indicatorParameter}</h1>
             </>
           }
+        </header>
 
-          {goal.description ?
-            <>
-              <h2 className="margin-top-200 margin-bottom-100">{t("pages:goal.description")}</h2>
-              <TextEditor
-                id="rich-description"
-                editable={false}
-                defaultStyles={false}
-                content={goal.description}
-              />
-            </>
-            : null}
-        </section>
+        {goal.description ?
+          <>
+            <TextEditor
+              className="margin-top-50"
+              id="rich-description"
+              editable={false}
+              defaultStyles={false}
+              content={goal.description}
+            />
+          </>
+          : null}
 
-        <section className='margin-top-300'>
+        <section className='margin-top-300'> {/* TODO: Potentially break this out of a section when removing h2 (if we remove h2) (Actions may still be a section but the ) */}
           <h2 className="padding-bottom-50 margin-bottom-100" style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:goal.title_label")}</h2>
           <section>
             {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}

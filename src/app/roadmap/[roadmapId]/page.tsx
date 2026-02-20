@@ -81,24 +81,10 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
     }
 
     <main>
-      <section className="margin-block-300" >
+      <header className="margin-block-300" >
         <span style={{ color: 'gray' }}>{t("pages:roadmap.version", { version: roadmap.version })}</span>
         <h1 className="margin-0">{roadmap.metaRoadmap.name}</h1>
-        <div className="margin-0 flex justify-content-space-between margin-bottom-50 padding-bottom-50" style={{ borderBottom: '1px solid var(--gray-80)' }}>
-          <span className="font-weight-600">
-            {t("common:count.goal", { count: roadmap.goals.length })}
-          </span>
-          <Link href={`/metaRoadmap/${roadmap.metaRoadmapId}`} className="discrete-link flex gap-25 align-items-center" style={{ lineHeight: '1' }}>
-            {t("pages:roadmap.show_series")}
-            <IconArrowNarrowRight height={20} width={20} style={{ minWidth: '20px' }} />
-          </Link>
-        </div>
-        <div className="flex gap-75 align-items-center margin-top-75">
-          <Link className="flex gap-25 align-items-center discrete-link" href={`/@${roadmap.author.username}`}>
-            <IconUser strokeWidth={1.75} style={{ minWidth: '24px' }} />
-            {roadmap.author.username}
-          </Link>
-          <span style={{ userSelect: 'none' }}>{"•"}</span>
+        <div className="margin-block-25 flex justify-content-space-between margin-bottom-50 padding-bottom-50" style={{ borderBottom: '1px solid var(--gray-80)' }}>
           {roadmap.metaRoadmap.actor ?
             <div className="flex gap-25 align-items-center">
               <IconBuildings strokeWidth={1.75} style={{ minWidth: '24px' }} />
@@ -107,26 +93,34 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
             :
             null
           }
+          <Link href={`/metaRoadmap/${roadmap.metaRoadmapId}`} className="discrete-link flex gap-25 align-items-center" style={{ lineHeight: '1' }}>
+            {t("pages:roadmap.show_series")}
+            <IconArrowNarrowRight height={20} width={20} style={{ minWidth: '20px' }} />
+          </Link>
         </div>
-        <div className="margin-top-300">
+        <span className="font-weight-600">
+          {t("common:count.goal", { count: roadmap.goals.length })}
+        </span>
+      </header>
+
+      <div className="margin-top-300">
+        <TextEditor
+          id="rich-description"
+          editable={false}
+          defaultStyles={false}
+          content={roadmap.metaRoadmap.description}
+        />
+      </div>
+      {roadmap.description ? (
+        <div className="margin-top-100">
           <TextEditor
             id="rich-description"
             editable={false}
             defaultStyles={false}
-            content={roadmap.metaRoadmap.description}
+            content={roadmap.description}
           />
         </div>
-        {roadmap.description ? (
-          <div className="margin-top-100">
-            <TextEditor
-              id="rich-description"
-              editable={false}
-              defaultStyles={false}
-              content={roadmap.description}
-            />
-          </div>
-        ) : null}
-      </section>
+      ) : null}
 
       {featuredGoals.length > 0 ?
         <section className="margin-block-300">

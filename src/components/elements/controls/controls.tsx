@@ -302,6 +302,8 @@ export function ControlsMenu(
   )
 }
 
+
+/* TODO: This should probably use role="toolbar" (or menubar?) and then be labeled instead of having an h1 */
 export function AdminPanel(
   {
     accessLevel,
