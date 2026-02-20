@@ -268,10 +268,12 @@ export default async function Page(
               secondaryGoal={secondaryGoal}
               effects={goal.effects}
             >
-              <QueryBuilder goal={goal} />
-              {(goal.dataSeries?.id && session.user) ?
-                <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
-                : null}
+              <div className="flex gap-25 margin-left-100">
+                <QueryBuilder goal={goal} />
+                {(goal.dataSeries?.id && session.user) ?
+                  <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
+                  : null}
+              </div>
             </GraphGraph>
           </section>
 
