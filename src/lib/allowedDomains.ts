@@ -346,6 +346,7 @@ export const allowedDomains = [
   "vgregion.se",
   */
   //Energy Agencies
+  "bodensenergi.se",
   /*
   "energikontornorr.se",
   "regionjh.se",
@@ -364,7 +365,6 @@ export const allowedDomains = [
   "gotland.se",
   */
   //Other
-  "bodensenergi.se",
   "differ.se",
   "internetstiftelsen.se",
   // "lansstyrelsen.se",
