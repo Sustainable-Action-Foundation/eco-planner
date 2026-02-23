@@ -62,9 +62,9 @@ export default function GraphGraph({
       case GraphType.Delta:
         return <MainDeltaGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} secondaryGoal={secondaryGoal} effects={effects} />
       case GraphType.Children:
-        return <ChildGraphContainer goal={goal} childGoals={childGoals} /> 
+        return <ChildGraphContainer goal={goal} childGoals={childGoals} />
       case GraphType.Siblings:
-        return <>{findSiblings(roadmap, goal).length > 1 ? <SiblingGraph roadmap={roadmap} goal={goal} /> : null }</> // TODO: Does findsbilings make sense here?
+        return <>{findSiblings(roadmap, goal).length > 1 ? <SiblingGraph roadmap={roadmap} goal={goal} /> : null}</> // TODO: Does findsbilings make sense here?
       default:
         return graphSwitch(GraphType.Main);
     }

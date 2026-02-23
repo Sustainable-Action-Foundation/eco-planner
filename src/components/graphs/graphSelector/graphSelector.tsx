@@ -47,7 +47,7 @@ export default function GraphSelector({
         onChange={handleSelectChange}
         value={currentSelection}
       >
-        <optgroup label={t("graphs:graph_selector.goal")}>
+        <optgroup label={t("graphs:graph_selector.goal")}> {/* TODO: Remove grouping. What i am trying to achieve with groupings here should be done using tabs */}
           <option value={GraphType.Main}>{t("graphs:graph_selector.goal")}</option>
           <option value={GraphType.Delta}>{t("graphs:graph_selector.annual_change")}</option>
           { // Don't allow relative graph if the main graph is already percent or fraction
