@@ -11,11 +11,16 @@ import MainRelativeGraph from "./mainGraphs/mainRelativeGraph";
 import SecondaryGoalSelector from "./secondaryGraphSelector";
 import { Trans, useTranslation } from "react-i18next";
 import type { Effect, Goal, Roadmap } from "@/types";
+import ChildGraphContainer from "./childGraphs/childGraphContainer";
+import SiblingGraph from "./siblingGraph";
+import findSiblings from "@/functions/findSiblings";
 
 export const GraphType = {
   Main: "MAIN",
   Relative: "RELATIVE",
   Delta: "DELTA",
+  Children: "CHILDREN",
+  Siblings: "SIBLINGS"
 } as const;
 export type GraphType = (typeof GraphType)[keyof typeof GraphType];
 
@@ -23,6 +28,8 @@ export default function GraphGraph({
   goal,
   secondaryGoal,
   parentGoal,
+  childGoals,
+  roadmap,
   parentGoalRoadmap,
   historicalData,
   effects,
@@ -31,6 +38,8 @@ export default function GraphGraph({
   goal: Goal,
   secondaryGoal: Goal | null,
   parentGoal: Goal | null,
+  childGoals: Goal[], // TODO: Should be optional
+  roadmap: Roadmap,
   parentGoalRoadmap: Roadmap | null,
   historicalData?: ApiTableContent | null,
   effects: Effect[] | Goal["effects"],
@@ -52,6 +61,10 @@ export default function GraphGraph({
         return <MainRelativeGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} secondaryGoal={secondaryGoal} />
       case GraphType.Delta:
         return <MainDeltaGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} secondaryGoal={secondaryGoal} effects={effects} />
+      case GraphType.Children:
+        return <ChildGraphContainer goal={goal} childGoals={childGoals} /> 
+      case GraphType.Siblings:
+        return <>{findSiblings(roadmap, goal).length > 1 ? <SiblingGraph roadmap={roadmap} goal={goal} /> : null }</> // TODO: Does findsbilings make sense here?
       default:
         return graphSwitch(GraphType.Main);
     }
@@ -65,8 +78,8 @@ export default function GraphGraph({
   return (
     <div className="purewhite" style={{ border: '1px solid var(--gray)', borderRadius: '.5rem .5rem .25rem .25rem' }}>
       {/* TODO: Use role="toolbar" (or menubar) for this */}
-      <menu className="flex align-items-flex-end gap-25 margin-0 padding-25 flex-wrap-wrap" style={{backgroundColor: 'var(--gray-95)', borderBottom: '1px solid var(--gray-80)', borderRadius: '.5rem .5rem 0 0'}}>
-        <GraphSelector goal={goal} currentSelection={graphType} setter={setGraphType} />
+      <menu className="flex align-items-flex-end gap-25 margin-0 padding-25 flex-wrap-wrap" style={{ backgroundColor: 'var(--gray-95)', borderBottom: '1px solid var(--gray-80)', borderRadius: '.5rem .5rem 0 0' }}>
+        <GraphSelector goal={goal} childGoals={false} siblings={false} currentSelection={graphType} setter={setGraphType} /> {/* NOTE: Set childgoals and siblings to false until the feature is fully implemented */}
         <SecondaryGoalSelector />
         {children}
       </menu>

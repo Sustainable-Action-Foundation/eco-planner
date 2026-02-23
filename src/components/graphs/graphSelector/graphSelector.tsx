@@ -5,19 +5,23 @@ import { DataSeries, Goal } from "@prisma/client";
 import { GraphType } from "../graphGraph";
 import { setStoredGraphType } from '../functions/graphFunctions';
 import { useTranslation } from "react-i18next";
-
+ 
 export const percentAndFraction = ['procent', 'percent', '%', 'andel', 'fraction'];
 
 export default function GraphSelector({
   goal,
+  childGoals,
+  siblings,
   currentSelection,
   setter,
 }: {
   goal: Goal & { dataSeries: DataSeries | null },
+  childGoals: boolean,
+  siblings: boolean,
   currentSelection: GraphType | "",
   setter: Dispatch<SetStateAction<GraphType | "">>
 }) {
-  const { t } = useTranslation(["graphs", "common"]);
+  const { t } = useTranslation(["graphs", "common", "pages"]);
 
   const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setStoredGraphType(event.target.value, goal.id);
@@ -28,8 +32,9 @@ export default function GraphSelector({
       console.log("Invalid graph type");
       setter("");
     }
-  };
+  }; 
 
+  // TODO: Probably makes sense to switch between graphs using radio buttons rather than this select
   return (
     <div className='flex align-items-center gap-25'>
       <label htmlFor='select-graphType font-size-14px'>
@@ -50,6 +55,8 @@ export default function GraphSelector({
             <option value={GraphType.Relative}>{t("graphs:graph_selector.percentage_change")}</option>
           }
         </optgroup>
+        {childGoals && <option value={GraphType.Children}>{t("pages:goal.goals_working_towards", { goalName: goal.name ? goal.name : goal.indicatorParameter })}</option> }
+        {siblings && <option value={GraphType.Siblings}>{t("pages:goal.related_goals")}</option> }
       </select>
     </div>
   );

@@ -263,6 +263,8 @@ export default async function Page(
             <GraphGraph
               goal={goal}
               parentGoal={parentGoal}
+              childGoals={childGoals}
+              roadmap={roadmap}
               parentGoalRoadmap={parentGoalRoadmap}
               historicalData={externalData}
               secondaryGoal={secondaryGoal}
