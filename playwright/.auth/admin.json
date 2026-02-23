@@ -1,0 +1,15 @@
+{
+  "cookies": [
+    {
+      "name": "eco_planner",
+      "value": "Fe26.2*1*eb11c036d1a2b12ee82fab0eca3a3e18ddce9d452f5ec3d09e03710890945db6*PAqJpNcoO_ZT0dOrVeV8kA*6judlMwc9sngDxf6_D6Sedi6LFGfxZcbrWksx1gbFncLiodFvOgqIM52IoDe1An3MeMcQkzUovLSRAuvGqaoJAqOQ_24wezOuSYF6rOUSWpwtMg_M5bG_zBOoxuBQ5u8F2d4dXVq5XKEepjzYLVljJGzD6DmYbmd2C0bKkVl86w**a464e3d2a173b2214038f24fc0abe58ddf25fcbf0d6201bc087b2e1b04764153*Y9gfG2uepzT2jdPJsJ3BDx7bVftK3y3izQX8wcV_BjY~2",
+      "domain": "localhost",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": []
+}
