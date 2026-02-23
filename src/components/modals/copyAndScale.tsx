@@ -11,6 +11,8 @@ import { RecipeContextProvider } from "../recipe/context/recipeContext.provider"
 import { SuggestedRecipeApplier } from "@/components/recipe/suggestions/suggestedRecipeApplier";
 import FormIntegration from "../recipe/editor/output/formIntegration";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
+import styles from "../form/api/queryBuilder.module.css";
+
 
 export default function CopyAndScale({
   goal,
@@ -141,56 +143,55 @@ export default function CopyAndScale({
       </button>
 
       {/* Modal */}
-      <dialog ref={modalRef} aria-modal className="rounded" style={{ border: '0', boxShadow: '0 0 .5rem -.25rem rgba(0,0,0,.25)', width: '90dvw' }}>
-        {/* Title bar */}
-        <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between`}>
-          {/* Close button */}
-          <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
-            <IconX aria-hidden="true" width={18} height={18} strokeWidth={3} />
-          </button>
+      <dialog ref={modalRef} aria-modal className={`rounded padding-inline-0 padding-block-0 ${styles.dialog}`}>
+        <div className={`${styles['dialog-content']}`}>
+          <div className={`${styles['dialog-header']}`}>
+            <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
+              <IconX aria-hidden="true" width={28} height={28} strokeWidth={3} style={{ minWidth: '28px' }} />
+            </button>
+            <h2 className="margin-0">{t("components:copy_and_scale.title", { goalName: goal.name })}</h2>
+          </div>
 
-          {/* Title */}
-          <h2 className="margin-0">{t("components:copy_and_scale.title", { goalName: goal.name })}</h2>
+          <div className={`${styles['dialog-body']}`}>
+            <form action={formSubmission} name="copyAndScale">
+
+              {/* Roadmap version select */}
+              <label className="block margin-block-100">
+                {t("components:copy_and_scale.select_roadmap_version")}
+                <select className="block margin-block-25 width-100" required name="copyTo" id="copyTo">
+                  <option value="">{t("components:copy_and_scale.select_roadmap_version_option")}</option>
+                  {roadmapOptions.map(roadmap => (
+                    <option key={roadmap.id} value={roadmap.id}>
+                      {`${roadmap.name} ${roadmap.version ? `(${t("components:copy_and_scale.version")} ${roadmap.version.toString()})` : ""}`}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <RecipeContextProvider>
+                <SuggestedRecipeApplier
+                  permissions={{
+                    allowAddVariables: false,
+                    allowDeleteVariables: false,
+                    allowNameEditing: false,
+                    allowTypeEditing: false,
+                    allowValueEditing: true,
+                  }}
+                />
+
+                <FormIntegration
+                  DataSeriesFormElement={<input name="resultingDataSeries" />}
+                  UnitFormElement={<input name="resultingDataSeriesUnit" />}
+                  RecipeFormElement={<input name="resultingRecipe" />}
+                />
+              </RecipeContextProvider>
+
+              <button className="block seagreen color-purewhite smooth width-100 margin-inline-auto font-weight-500">
+                {t("components:copy_and_scale.create_scaled_copy")}
+              </button>
+            </form>
+          </div>
         </div>
-
-        {/* Scaling form */}
-        <form action={formSubmission} name="copyAndScale">
-
-          {/* Roadmap version select */}
-          <label className="block margin-block-100">
-            {t("components:copy_and_scale.select_roadmap_version")}
-            <select className="block margin-block-25 width-100" required name="copyTo" id="copyTo">
-              <option value="">{t("components:copy_and_scale.select_roadmap_version_option")}</option>
-              {roadmapOptions.map(roadmap => (
-                <option key={roadmap.id} value={roadmap.id}>
-                  {`${roadmap.name} ${roadmap.version ? `(${t("components:copy_and_scale.version")} ${roadmap.version.toString()})` : ""}`}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <RecipeContextProvider>
-            <SuggestedRecipeApplier
-              permissions={{
-                allowAddVariables: false,
-                allowDeleteVariables: false,
-                allowNameEditing: false,
-                allowTypeEditing: false,
-                allowValueEditing: true,
-              }}
-            />
-
-            <FormIntegration
-              DataSeriesFormElement={<input name="resultingDataSeries" />}
-              UnitFormElement={<input name="resultingDataSeriesUnit" />}
-              RecipeFormElement={<input name="resultingRecipe" />}
-            />
-          </RecipeContextProvider>
-
-          <button className="block seagreen color-purewhite smooth width-100 margin-inline-auto font-weight-500">
-            {t("components:copy_and_scale.create_scaled_copy")}
-          </button>
-        </form>
       </dialog>
     </>
   )

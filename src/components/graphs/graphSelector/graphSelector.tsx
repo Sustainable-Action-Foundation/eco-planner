@@ -35,19 +35,21 @@ export default function GraphSelector({
       <label htmlFor='select-graphType font-size-14px'>
         {t("common:tsx.show")}:
       </label>
-      <select 
-        id='select-graphType' 
+      <select
+        id='select-graphType'
         className='block smooth'
         style={{ "--padding": ".3rem", "--icon-size": '16px', fontSize: '.75rem', minWidth: 'unset' } as React.CSSProperties}
-        onChange={handleSelectChange} 
-        value={currentSelection}  
+        onChange={handleSelectChange}
+        value={currentSelection}
       >
-        <option value={GraphType.Main}>{t("graphs:graph_selector.goal")}</option>
-        <option value={GraphType.Delta}>{t("graphs:graph_selector.annual_change")}</option>
-        { // Don't allow relative graph if the main graph is already percent or fraction
-          !percentAndFraction.includes(goal.dataSeries?.unit?.toLowerCase() ?? "") &&
-          <option value={GraphType.Relative}>{t("graphs:graph_selector.percentage_change")}</option>
-        }
+        <optgroup label={t("graphs:graph_selector.goal")}>
+          <option value={GraphType.Main}>{t("graphs:graph_selector.goal")}</option>
+          <option value={GraphType.Delta}>{t("graphs:graph_selector.annual_change")}</option>
+          { // Don't allow relative graph if the main graph is already percent or fraction
+            !percentAndFraction.includes(goal.dataSeries?.unit?.toLowerCase() ?? "") &&
+            <option value={GraphType.Relative}>{t("graphs:graph_selector.percentage_change")}</option>
+          }
+        </optgroup>
       </select>
     </div>
   );
