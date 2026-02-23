@@ -54,7 +54,7 @@ export default async function page(
   ]);
 
   const [t, session, { goal, roadmap }, secondaryGoal, unfilteredRoadmapOptions] = await Promise.all([ // TODO: Remove stuff i dont actually need
-    serveTea("pages"),
+    serveTea(["pages", "components"]),
     getSession(await cookies()),
     getOneGoal(params.goalId).then(async goal => { return { goal, roadmap: (goal ? await getOneRoadmap(goal.roadmapId) : null) } }),
     typeof searchParams.secondaryGoal == "string" ? getOneGoal(searchParams.secondaryGoal) : Promise.resolve(null),
@@ -68,7 +68,7 @@ export default async function page(
   return (
     <div className="container-text margin-inline-auto">
       <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-        Lägg till historisk data {/* TODO: I18n */}
+        {t("components:query_builder.add_historical_data")}
       </h1>
       <HistoricalData goal={goal} />
     </div>
