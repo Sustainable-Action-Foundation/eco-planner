@@ -3,16 +3,16 @@
 import { ApiTableContent } from "@/lib/api/apiTypes";
 import { DatasetData, ExternalDataset } from "@/lib/api/utility";
 import { useEffect, useState } from "react";
-import { getStoredGraphType } from "./functions/graphFunctions";
-import GraphSelector from "./graphSelector/graphSelector";
-import MainDeltaGraph from "./mainGraphs/mainDeltaGraph";
-import MainGraph from "./mainGraphs/mainGraph";
-import MainRelativeGraph from "./mainGraphs/mainRelativeGraph";
-import SecondaryGoalSelector from "./secondaryGraphSelector";
+import { getStoredGraphType } from "../../../functions/graphFunctions";
+import GraphSelector from "../../../graphSelectors/graphSelector";
+import MainDeltaGraph from "./delta";
+import MainGraph from "./main";
+import MainRelativeGraph from "./relative";
+import SecondaryGoalSelector from "../../../graphSelectors/secondaryGoalSelector";
 import { Trans, useTranslation } from "react-i18next";
 import type { Effect, Goal, Roadmap } from "@/types";
-import ChildGraphContainer from "./childGraphs/childGraphContainer";
-import SiblingGraph from "./siblingGraph";
+import ChildGraphContainer from "../child/container";
+import SiblingGraph from "../sibling/siblings";
 import findSiblings from "@/functions/findSiblings";
 
 export const GraphType = {

@@ -2,7 +2,7 @@ import "server-only";
 import WrappedChart from "@/lib/chartWrapper";
 import { actionGraphSorter } from "@/lib/sorters";
 import { Action } from "@prisma/client";
-import styles from './graphs.module.css'
+import styles from '../graphs.module.css'
 import serveTea from "@/lib/i18nServer";
 
 export default async function ActionGraph({

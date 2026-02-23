@@ -3,7 +3,7 @@
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import { Goal, Roadmap } from "@/types";
 import { useTranslation } from "react-i18next";
-import { color_palette, stroke, marker } from "../config";
+import { color_palette, stroke, marker } from "../../../config";
 
 export default function MainRelativeGraph({
   goal,

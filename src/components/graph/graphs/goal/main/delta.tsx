@@ -1,11 +1,11 @@
 "use client";
 
-import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
+import { calculatePredictedOutcome } from "@/components/graph/functions/graphFunctions";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import { Effect, Goal, isISOIshDate, Roadmap } from "@/types";
 import { useTranslation } from "react-i18next";
-import { color_palette, stroke, marker } from "../config";
+import { color_palette, stroke, marker } from "../../../config";
 
 // TODO: Come back to look at colors later, have not tested them
 export default function MainDeltaGraph({

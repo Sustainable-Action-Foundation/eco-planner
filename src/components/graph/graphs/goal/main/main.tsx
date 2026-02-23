@@ -3,11 +3,11 @@
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import type { Goal, Roadmap } from "@/types";
 import { parsePeriod } from "@/lib/api/utility";
-import { calculatePredictedOutcome } from "@/components/graphs/functions/graphFunctions";
+import { calculatePredictedOutcome } from "@/components/graph/functions/graphFunctions";
 import { ApiTableContent } from "@/lib/api/apiTypes";
 import { useTranslation } from "react-i18next";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
-import { color_palette, stroke, marker } from "../config";
+import { color_palette, stroke, marker } from "../../../config";
 
 // TODO: IT seems we want translations in our name, e.g (${t("common:goal_one")}), to be specificly in the label instead if possible. 
 // This would make dealing with y-axis "seriesname" more sensible

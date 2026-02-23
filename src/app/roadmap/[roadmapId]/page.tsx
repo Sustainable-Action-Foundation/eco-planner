@@ -6,7 +6,7 @@ import accessChecker from "@/lib/accessChecker";
 import Goals from "@/components/tables/goals";
 import Comments from "@/components/comments/comments";
 import { AccessLevel } from "@/types";
-import ThumbnailGraph from "@/components/graphs/mainGraphs/thumbnailGraph";
+import ThumbnailGraph from "@/components/graph/graphs/thumbnail";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
