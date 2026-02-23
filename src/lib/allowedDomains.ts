@@ -364,6 +364,7 @@ export const allowedDomains = [
   "gotland.se",
   */
   //Other
+  "bodensenergi.se",
   "differ.se",
   "internetstiftelsen.se",
   // "lansstyrelsen.se",
