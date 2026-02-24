@@ -15,7 +15,7 @@ setup('authenticate as admin', async ({ page }) => {
   await page.locator('#password').fill('admin');
   await page.locator('#submit-button').click();
 
-  await expect(page.getByRole('button', { name: 'Log out' })).toBeVisible();
+  await expect(page.getByTestId("home-title")).toBeVisible();
 
   // End of authentication steps.
   await page.context().storageState({ path: adminFile });
@@ -28,7 +28,7 @@ setup('authenticate as verified', async ({ page }) => {
   await page.locator('#password').fill('anita');
   await page.locator('#submit-button').click();
 
-  await expect(page.getByRole('button', { name: 'Log out' })).toBeVisible();
+  await expect(page.getByTestId("home-title")).toBeVisible();
 
   // End of authentication steps.
   await page.context().storageState({ path: verifiedFile });

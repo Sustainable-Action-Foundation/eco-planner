@@ -51,7 +51,7 @@ export default defineConfig({
     // Collect trace when retrying the failed test.
     trace: "on",
 
-    locale: "en-SE",
+    locale: "sv-SE",
     timezoneId: "Europe/Stockholm",
   },
 
@@ -68,17 +68,17 @@ export default defineConfig({
     },
     {
       name: "chromium 1080p",
-      use: { ...devices["Desktop Chrome"], viewport: { width: 1920, height: 1080 }, channel: "chromium", storageState: "./playwright/.auth/user.json" },
+      use: { ...devices["Desktop Chrome"], viewport: { width: 1920, height: 1080 }, channel: "chromium"},
       dependencies: ["setup"],
     },
     {
       name: "firefox 1080p",
-      use: { ...devices["Desktop Firefox"], viewport: { width: 1920, height: 1080 }, storageState: "./playwright/.auth/user.json" },
+      use: { ...devices["Desktop Firefox"], viewport: { width: 1920, height: 1080 }},
       dependencies: ["setup"],
     },
     {
       name: "webkit 1080p",
-      use: { ...devices["Desktop Safari"], viewport: { width: 1920, height: 1080 }, storageState: "./playwright/.auth/user.json" },
+      use: { ...devices["Desktop Safari"], viewport: { width: 1920, height: 1080 } },
       dependencies: ["setup"],
     },
   ],

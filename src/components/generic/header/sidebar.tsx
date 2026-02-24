@@ -50,6 +50,7 @@ export default async function Sidebar() {
             popoverTarget='create-popover'
             className='transparent rounded'
             style={{ fontSize: '1rem' }}
+            data-testid='create-button'
           >
             <IconCirclePlus aria-hidden="true" />
             {t("components:sidebar.create")}
@@ -74,7 +75,7 @@ export default async function Sidebar() {
               </header>
               <ul className='padding-0 margin-0' style={{ listStyle: 'none' }}>
                 <li>
-                  <Link href='/metaRoadmap/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none'>
+                  <Link href='/metaRoadmap/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none' data-testid="create-roadmap-series"> 
                     {t("common:roadmap_series_one")}
                     <IconPlus width={16} height={16} />
                   </Link>
@@ -116,6 +117,7 @@ export default async function Sidebar() {
             anchorName='--select-language-popover-button'
             popoverTarget='select-language-popover'
             className='transparent rounded'
+            data-testid='language-switcher-dialog-button'
           >
             <IconWorld aria-hidden="true" />
             {t("components:sidebar.language")}
