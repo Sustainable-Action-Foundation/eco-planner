@@ -4,6 +4,7 @@ import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper.tsx";
 import { Goal, isISOIshDate } from "@/types";
 import { useTranslation } from "react-i18next";
+import { color_palette, stroke, marker } from "../../../config";
 
 /**
  * A graph showing how all goals with the same unit and indicator parameter in roadmaps working towards the active goal's roadmap version stack up against it.
@@ -51,7 +52,7 @@ export default function GoalChildGraph({
     // Main series is always a line
     type: 'line',
     zIndex: 999,
-    color: 'black',
+    color: color_palette.data.color,
   });
 
   for (const child of childGoals) {
@@ -113,7 +114,12 @@ export default function GoalChildGraph({
       animations: { enabled: false, dynamicAnimation: { enabled: false } },
       zoom: { allowMouseWheelZoom: false },
     },
-    markers: { size: isStacked ? 0 : 5 },
+    fill: {
+      type: 'solid',
+      opacity: [1, 0.3]
+    },
+    stroke: { curve: stroke.curve, width: stroke.width },
+    markers: { size: isStacked ? 0 : marker.size },
     xaxis: {
       type: 'datetime',
       labels: { format: 'yyyy' },
@@ -130,7 +136,6 @@ export default function GoalChildGraph({
       inverseOrder: isStacked,
     },
     dataLabels: { enabled: false },
-    stroke: { dashArray, curve },
   };
 
   return (

@@ -7,7 +7,7 @@ import { getStoredChildGraphType } from "../../../functions/graphFunctions.ts";
 import { percentAndFraction } from "../../../graphSelectors/graphSelector.tsx";
 import ChildGraphSelector from "../../../graphSelectors/childGraphSelector.tsx";
 import { useTranslation } from "react-i18next";
-import { IconChartAreaLineFilled } from "@tabler/icons-react";
+import { IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
 import { Goal } from "@/types.ts";
 
 export const ChildGraphType = {
@@ -63,13 +63,29 @@ export default function ChildGraphContainer({
         </button>
         {children}
       </menu>
-      <article className="smooth padding-inline-25 padding-bottom-50 purewhite" style={{ border: '1px solid var(--gray)' }}>
+      <article className="smooth purewhite" style={{ border: '1px solid var(--gray)' }}>
         <h2 className="text-align-center block font-weight-500 margin-block-200" style={{ fontSize: '1rem' }}>
           {t("graphs:child_graph_container.goals_toward", { goalName: goal.name ? `${goal.name}` : `${goal.indicatorParameter}` })}
         </h2>
-        <div style={{ height: '500px' }}>
+        <div style={{ height: '500px' }} className="padding-inline-25 padding-bottom-50">
           {childGraphSwitch(childGraphType)}
         </div>
+        <nav
+          className="font-size-14px flex gap-75 flex-wrap-wrap justify-content-center padding-50"
+          style={{ borderTop: '1px solid var(--gray-80)', backgroundColor: 'var(--tertiary-neutral)', borderRadius: '0 0 .25rem .25rem' }}
+        >
+          {childGoals.map((child, index) =>
+            <span key={child.id} className="flex gap-50 line-height-100">
+              <a href={`/goal/${child.id}`} className="flex gap-25 align-items-center">
+                <IconLink width={14} height={14} strokeWidth={1.5} />
+                {child.name || child.indicatorParameter.split('\\').at(-1)} ({child.roadmap.metaRoadmap.name || t("graphs:common.unknown_roadmap")})              
+              </a>
+              {index !== childGoals.length - 1 ?
+                <hr aria-orientation="vertical" className="padding-0 margin-block-25" /> /* TODO: Need to add orientation aria to other HR */
+                : null}
+            </span>
+          )}
+        </nav>
       </article>
     </>
   );

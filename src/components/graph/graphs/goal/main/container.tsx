@@ -90,7 +90,7 @@ export default function GraphGraph({
           {graphSwitch(graphType || GraphType.Main)}
         </div>
         {historicalData && (
-          <Trans
+          <Trans // TODO: Apply the same nav styling as is used in children and sibling graphs  
             i18nKey="graphs:graph_graph.historical_data_source"
             components={{ a: <a href={dataset?.userFacingUrl} target="_blank" /> }}
             tOptions={{ source: dataset?.fullName ?? historicalData.metadata[0]?.source }}

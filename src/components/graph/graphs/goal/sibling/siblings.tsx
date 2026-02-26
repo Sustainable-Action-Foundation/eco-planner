@@ -4,9 +4,12 @@ import findSiblings from "@/functions/findSiblings";
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { IconChartAreaLineFilled } from "@tabler/icons-react";
+import { IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
 import { Goal, Roadmap } from "@/types";
+import { color_palette, stroke, marker } from "../../../config";
 
+// TODO: Do we want to showcase the goal itself here or only its siblings? If we do want to showcase the goal, 
+// how can we ensure that it maintains the same colour as in the other graphs?
 /**
  * A graph that shows how a goal stacks up against its siblings (other goals in the same roadmap version with similar indicator parameters and same unit).
  */
@@ -21,7 +24,6 @@ export default function SiblingGraph({
 
   const siblings = findSiblings(roadmap, goal);
   const dataPoints: ApexAxisChartSeries = [];
-
   const [isStacked, setIsStacked] = useState(true);
 
   for (const entry of siblings) {
@@ -53,8 +55,12 @@ export default function SiblingGraph({
       animations: { enabled: false, dynamicAnimation: { enabled: false } },
       zoom: { allowMouseWheelZoom: false },
     },
-    stroke: { curve: 'straight' },
-    markers: { size: isStacked ? 0 : 5 },
+    fill: {
+      type: 'solid',
+      opacity: 0.3
+    },
+    stroke: { curve: stroke.curve, width: stroke.width },
+    markers: { size: isStacked ? 0 : marker.size },
     xaxis: {
       type: 'datetime',
       labels: { format: 'yyyy' },
@@ -97,9 +103,9 @@ export default function SiblingGraph({
           <IconChartAreaLineFilled aria-hidden="true" width={16} height={16} />
         </button>
       </menu>
-      <article className="smooth padding-inline-25 padding-bottom-50 purewhite" style={{ border: '1px solid var(--gray)' }}>
+      <article className="smooth purewhite" style={{ border: '1px solid var(--gray)' }}>
         <h2 className="text-align-center block font-weight-500 margin-block-200" style={{ fontSize: '1rem' }}>{t("graphs:sibling_graph.related_goals")}</h2>
-        <div style={{ height: '500px' }}>
+        <div style={{ height: '500px' }} className="padding-inline-25 padding-bottom-50">
           <WrappedChart
             key={"combinedGraph"}
             options={chartOptions}
@@ -109,6 +115,22 @@ export default function SiblingGraph({
             height="100%"
           />
         </div>
+        <nav 
+          className="font-size-14px flex gap-75 flex-wrap-wrap justify-content-center padding-50" 
+          style={{ borderTop: '1px solid var(--gray-80)', backgroundColor: 'var(--tertiary-neutral)', borderRadius: '0 0 .25rem .25rem' }}
+        >
+          {siblings.map((sibling, index) =>
+            <span key={sibling.id} className="flex gap-50 line-height-100">
+              <a href={`/goal/${sibling.id}`} className="flex gap-25 align-items-center">
+                <IconLink width={14} height={14} strokeWidth={1.5}  />
+                {sibling.name ? sibling.name : sibling.indicatorParameter.split('\\').at(-1)}
+              </a>
+              {index !== siblings.length - 1 ?
+                <hr aria-orientation="vertical" className="padding-0 margin-block-25" /> /* TODO: Need to add orientation aria to other HR */
+                : null}
+            </span>
+          )}
+        </nav>
       </article>
     </>
   )
