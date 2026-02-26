@@ -79,7 +79,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
           <span className="font-weight-600">
             {t("common:count.goal", { count: roadmap.goals.length })}
           </span>
-          <Link href={`/metaRoadmap/${roadmap.metaRoadmapId}`} className="discrete-link flex gap-25 align-items-center" style={{lineHeight: '1'}}>
+          <Link href={`/metaRoadmap/${roadmap.metaRoadmapId}`} className="discrete-link flex gap-25 align-items-center" style={{lineHeight: '1'}} data-testid="show-roadmap-series">
             {t("pages:roadmap.show_series")}
             <IconArrowNarrowRight height={20} width={20} style={{minWidth: '20px'}} />
           </Link>
