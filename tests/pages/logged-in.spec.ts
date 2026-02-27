@@ -16,21 +16,16 @@ test.describe("Logged in tests", () => {
     await page.goto('/metaRoadmap/create');
 
     // Fill in the metaRoadmap form
-    const nameInput = page.locator('#name');
-    await nameInput.fill("Test All");
+    await page.locator('#name').fill("Test All");
 
     // Fill description in the tiptap editor
-    const descriptionEditor = page.locator('.tiptap').first();
-    await expect(descriptionEditor).toBeVisible();
-    await descriptionEditor.fill('Test All');
+    await page.locator('.tiptap').first().fill('Test All');
 
     // Select roadmap type
-    const typeSelect = page.locator('#type');
-    await typeSelect.selectOption("LOCAL");
+    await page.locator('#type').selectOption("LOCAL");
 
     // Fill in actor field
-    const actorInput = page.locator('#actor');
-    await actorInput.fill("Test All");
+    await page.locator('#actor').fill("Test All");
 
     // Set visibility to private
     await page.locator('#visibility-private').check();
@@ -40,12 +35,10 @@ test.describe("Logged in tests", () => {
 
     // Test below non-functional at this time due to problem in code surrounding parent roadmap selection.
 
-    // const ParentSelect = page.locator('#parent-roadmap');
-    // await ParentSelect.selectOption("Rikets färdplan");
+    // await page.locator('#parent-roadmap').selectOption("Rikets färdplan");
 
     // Submit the form
-    const submitButton = page.locator('#submit-button');
-    await submitButton.click();
+    await page.locator('#submit-button').click();
 
     // Accept the alert dialog
     page.once('dialog', async (dialog) => {
@@ -57,9 +50,7 @@ test.describe("Logged in tests", () => {
 
     // Fill in the roadmap form
     // Fill description in the tiptap editor
-    const tiptapEditor = page.locator('.tiptap').first();
-    await expect(tiptapEditor).toBeVisible();
-    await tiptapEditor.fill('Test All');
+    await page.locator('.tiptap').first().fill('Test All');
 
     // Set visibility - "Vem får se färdplanen?" (Who can see the roadmap?)
     await page.locator('#visibility-private').check();
@@ -68,8 +59,7 @@ test.describe("Logged in tests", () => {
     await page.locator('#editability-private').check();
 
     // Submit the roadmap form
-    const roadmapSubmitButton = page.locator('#submit-button');
-    await roadmapSubmitButton.click();
+    await page.locator('#submit-button').click();
 
     // Listen for success dialog
     page.once('dialog', async (dialog) => {
@@ -79,47 +69,35 @@ test.describe("Logged in tests", () => {
     // Verify successful roadmap creation by checking the redirect
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+/);
 
-    const roadmapHeading = page.getByRole('heading', { name: 'Test All' });
-    await expect(roadmapHeading).toBeVisible();
-    
+    await expect(page.getByRole('heading', { name: 'Test All' })).toBeVisible();    
   });
 
   test("Edit a roadmap, no changes - All Fields", async ({ page }) => {
 
     await page.goto('/');
 
-    const TestButton = page.getByRole('link', { name: 'Test All (v1)' }).first();
-    await expect(TestButton).toBeVisible();
-    await TestButton.click();
+    await page.getByRole('link', { name: 'Test All (v1)' }).first().click();
 
     // Click the edit button
-    const editButton = page.getByTestId('edit-roadmap-version');
-    await expect(editButton).toBeVisible();
-    await editButton.click();
+    await page.getByTestId('edit-roadmap-version').click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
 
     // Verify all fields are filled in
-    const descriptionEditor = page.locator('.tiptap').first();
-    const editorContent = await descriptionEditor.textContent();
-    await expect(editorContent).toContain('Test All');
+    await expect(page.locator('.tiptap').first()).toHaveText('Test All');
 
     // Verify visibility is set
-    const visibilityCheckbox = page.locator('#visibility-private');
-    await expect(visibilityCheckbox).toBeChecked();
+    await expect(page.locator('#visibility-private')).toBeChecked();
 
     // Verify editability is set
-    const editabilityCheckbox = page.locator('#editability-custom');
-    await expect(editabilityCheckbox).toBeChecked();
+    await expect(page.locator('#editability-custom')).toBeChecked();
 
     // Verify admin user is in the editors list
-    const userContent = await page.locator('#editors').inputValue();
-    expect(userContent).toContain('admin');
+    await expect(page.locator('#editors')).toHaveValue('admin');
 
     // Click the save button
-    const saveButton = page.locator('#submit-button');
-    await saveButton.click();
+    await page.locator('#submit-button').click();
 
     // Accept the success dialog
     page.once('dialog', async (dialog) => {
@@ -128,68 +106,51 @@ test.describe("Logged in tests", () => {
 
     // Verify the save was successful
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
-    await expect(editButton).toBeVisible();
+    await expect(page.getByTestId('edit-roadmap-version')).toBeVisible();
   });
 
   test("Edit a MetaRoadmap, no changes - All Fields", async ({ page }) => {
 
     await page.goto('/');
 
-    const TestButton = page.getByRole('link', { name: 'Test All (v1)' }).first();
-    await expect(TestButton).toBeVisible();
-    await TestButton.click();
+    await page.getByRole('link', { name: 'Test All (v1)' }).first().click();
 
     // Go to MetaRoadmap page
-    const MetaRoadmapButton = page.getByTestId('show-roadmap-series');
-    await expect(MetaRoadmapButton).toBeVisible();
-    await MetaRoadmapButton.click();
+    await page.getByTestId('show-roadmap-series').click();
 
     //  Wait for MetaRoadmap page to load
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+$/);
 
     // Click the edit button
-    const editButton = page.getByTestId('edit-roadmap-version');
-    await expect(editButton).toBeVisible();
-    await editButton.click();
+    await page.getByTestId('edit-roadmap-version').click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+\/edit/);
 
-    const nameInput = page.locator('#name');
-    await expect(nameInput).toHaveValue('Test All');
+    await expect(page.locator('#name')).toHaveValue('Test All');
 
     // Verify all fields are filled in
-    const descriptionEditor = page.locator('.tiptap').first();
-    const editorContent = await descriptionEditor.textContent();
-    await expect(editorContent).toContain('Test All');
+    await expect(page.locator('.tiptap').first()).toHaveText('Test All');
 
     // Verify type is set
-    const typeSelect = page.locator('#type');
-    const selectedType = await typeSelect.inputValue();
-    expect(selectedType).toBe('LOCAL');
+    await expect(page.locator('#type')).toHaveValue('LOCAL');
 
     // Verify actor field is filled in
-    const actorInput = page.locator('#actor');
-    await expect(actorInput).toHaveValue('Test All');
+    await expect(page.locator('#actor')).toHaveValue('Test All');
 
     // Verify visibility is set
-    const visibilityCheckbox = page.locator('#visibility-private');
-    await expect(visibilityCheckbox).toBeChecked();
+    await expect(page.locator('#visibility-private')).toBeChecked();
 
     // Verify editability is set
-    const editabilityCheckbox = page.locator('#editability-private');
-    await expect(editabilityCheckbox).toBeChecked();
+    await expect(page.locator('#editability-private')).toBeChecked();
 
     // This part beleow is non-functional at this time due to problem in code surrounding parent roadmap selection.
 
     // Verify parent roadmap is set
-    // const parentSelect = page.locator('#parent-roadmap');
-    // const selectedParent = await parentSelect.inputValue();
-    // expect(selectedParent).toBe('Rikets färdplan');
+    // await expect(page.locator('#parent-roadmap')).toHaveValue('Rikets färdplan');
 
     // Click the save button
-    const saveButton = page.locator('#submit-button');
-    await saveButton.click();
+    await page.locator('#submit-button').click();
 
     // Accept the success dialog
     page.once('dialog', async (dialog) => {
@@ -198,52 +159,40 @@ test.describe("Logged in tests", () => {
 
     // Verify the save was successful
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+$/);
-    const metaRoadmapHeading = page.getByRole('heading', { name: 'Test All' });
-    await expect(metaRoadmapHeading).toBeVisible();
-
+    await expect(page.getByRole('heading', { name: 'Test All' })).toBeVisible();
   });
 
   test("Edit a roadmap, updated fields - all fields", async ({ page }) => {
 
     await page.goto('/');
 
-    const TestButton = page.getByRole('link', { name: 'Test All (v1)' }).first();
-    await expect(TestButton).toBeVisible();
-    await TestButton.click();
+    await page.getByRole('link', { name: 'Test All (v1)' }).first().click();
 
     // Click the edit button
-    const editButton = page.getByTestId('edit-roadmap-version');
-    await expect(editButton).toBeVisible();
-    await editButton.click();
+    await page.getByTestId('edit-roadmap-version').click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
 
     // Edit description in the tiptap editor
-    const descriptionEditor = page.locator('.tiptap').first();
-    await descriptionEditor.clear();
-    await descriptionEditor.fill('Updated Roadmap Description All');
+    await page.locator('.tiptap').first().clear();
+    await page.locator('.tiptap').first().fill('Updated Roadmap Description All');
 
     // Edit visibility - change to custom
-    const visibilityCustom = page.locator('#visibility-custom');
-    await visibilityCustom.check();
+    await page.locator('#visibility-custom').check();
 
     // Add viewers
-    const viewersInput = page.locator('#viewers');
-    await viewersInput.fill('admin');
+    await page.locator('#viewers').fill('admin');
 
     // Edit editability - change to custom if not already
-    const editabilityCustom = page.locator('#editability-custom');
-    await editabilityCustom.check();
+    await page.locator('#editability-custom').check();
 
     // Update editors list
-    const editorsInput = page.locator('#editors');
-    await editorsInput.clear();
-    await editorsInput.fill('admin');
+    await page.locator('#editors').clear();
+    await page.locator('#editors').fill('admin');
 
     // Click the save button
-    const saveButton = page.locator('#submit-button');
-    await saveButton.click();
+    await page.locator('#submit-button').click();
 
     // Accept the success dialog
     page.once('dialog', async (dialog) => {
@@ -254,103 +203,76 @@ test.describe("Logged in tests", () => {
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
 
     // Click the edit button again to verify all changes were saved
-    const editButtonAgain = page.getByTestId('edit-roadmap-version');
-    await expect(editButtonAgain).toBeVisible();
-    await editButtonAgain.click();
+    await page.getByTestId('edit-roadmap-version').click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
 
     // Verify description was updated
-    const descriptionEditorVerify = page.locator('.tiptap').first();
-    const editorContentVerify = await descriptionEditorVerify.textContent();
-    await expect(editorContentVerify).toContain('Updated Roadmap Description All');
+    await expect(page.locator('.tiptap').first()).toHaveText('Updated Roadmap Description All');
 
     // Verify visibility was changed to custom
-    const visibilityCustomVerify = page.locator('#visibility-custom');
-    await expect(visibilityCustomVerify).toBeChecked();
+    await expect(page.locator('#visibility-custom')).toBeChecked();
 
     // Verify viewers were added
-    const viewersInputVerify = page.locator('#viewers');
-    const viewersContent = await viewersInputVerify.inputValue();
-    await expect(viewersContent).toContain('admin');
+    await expect(page.locator('#viewers')).toHaveValue('admin');
 
     // Verify editability was changed to custom
-    const editabilityCustomVerify = page.locator('#editability-custom');
-    await expect(editabilityCustomVerify).toBeChecked();
+    await expect(page.locator('#editability-custom')).toBeChecked();
 
     // Verify editors list was updated
-    const editorsInputVerify = page.locator('#editors');
-    const editorsContent = await editorsInputVerify.inputValue();
-    await expect(editorsContent).toContain('admin');
-
+    await expect(page.locator('#editors')).toHaveValue('admin');
   });
 
   test("Edit a MetaRoadmap, updated fields - all fields", async ({ page }) => {
 
     await page.goto('/');
 
-    const TestButton = page.getByRole('link', { name: 'Test All (v1)' }).first();
-    await expect(TestButton).toBeVisible();
-    await TestButton.click();
+    await page.getByRole('link', { name: 'Test All (v1)' }).first().click();
 
     // Go to MetaRoadmap page
-    const MetaRoadmapButton = page.getByTestId('show-roadmap-series');
-    await expect(MetaRoadmapButton).toBeVisible();
-    await MetaRoadmapButton.click();
+    await page.getByTestId('show-roadmap-series').click();
 
     //  Wait for MetaRoadmap page to load
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+$/);
 
     // Click the edit button
-    const editButton = page.getByTestId('edit-roadmap-version');
-    await expect(editButton).toBeVisible();
-    await editButton.click();
+    await page.getByTestId('edit-roadmap-version').click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+\/edit/);
 
     // Edit name
-    const nameInput = page.locator('#name');
-    await nameInput.clear();
-    await nameInput.fill('Updated Name All');
+    await page.locator('#name').clear();
+    await page.locator('#name').fill('Updated Name All');
 
     // Edit description in the tiptap editor
-    const descriptionEditor = page.locator('.tiptap').first();
-    await descriptionEditor.clear();
-    await descriptionEditor.fill('Updated Description All');
+    await page.locator('.tiptap').first().clear();
+    await page.locator('.tiptap').first().fill('Updated Description All');
 
     // Edit type
-    const typeSelect = page.locator('#type');
-    await typeSelect.selectOption("OTHER");
+    await page.locator('#type').selectOption("OTHER");
 
     // Edit actor field
-    const actorInput = page.locator('#actor');
-    await actorInput.clear();
-    await actorInput.fill("Updated Actor All");
+    await page.locator('#actor').clear();
+    await page.locator('#actor').fill("Updated Actor All");
 
     // Edit visibility - uncheck private and check another option if available
-    const visibilityPrivate = page.locator('#visibility-custom');
-    await visibilityPrivate.check();
+    await page.locator('#visibility-custom').check();
 
-    const userVisibilityInput = page.locator('#viewers');
-    await userVisibilityInput.fill('admin');
+    await page.locator('#viewers').fill('admin');
 
     // Edit editability - uncheck private and check another option if available
-    const editabilityPrivate = page.locator('#editability-custom');
-    await editabilityPrivate.check();
+    await page.locator('#editability-custom').check();
 
     // Who gets edit access 
-    const userEditInput = page.locator('#editors');
-    await userEditInput.fill('admin');
+    await page.locator('#editors').fill('admin');
 
     // This part beleow is non-functional at this time due to problem in code surrounding parent roadmap selection.
-    // const parentSelect = page.locator('#parent-roadmap');
-    // await parentSelect.selectOption("Ingen förälder");
+    // await page.locator('#parent-roadmap').selectOption("Ingen förälder");
 
     // Click the save button
-    const saveButton = page.locator('#submit-button');
-    await saveButton.click();
+    await page.locator('#submit-button').click();
 
     // Accept the success dialog
     page.once('dialog', async (dialog) => {
@@ -359,13 +281,10 @@ test.describe("Logged in tests", () => {
 
     // Verify the save was successful
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+$/);
-    const metaRoadmapHeading = page.getByRole('heading', { name: 'Updated Name' });
-    await expect(metaRoadmapHeading).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Updated Name All' })).toBeVisible();
 
     // Click the edit button again to verify all changes were saved
-    const editButtonAgain = page.getByTestId('edit-roadmap-version');
-    await expect(editButtonAgain).toBeVisible();
-    await editButtonAgain.click();
+    await page.getByTestId('edit-roadmap-version').click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+\/edit/);
@@ -374,37 +293,25 @@ test.describe("Logged in tests", () => {
     await expect(nameInput).toHaveValue('Updated Name All');
 
     // Verify description was updated
-    const descriptionEditorVerify = page.locator('.tiptap').first();
-    const editorContentVerify = await descriptionEditorVerify.textContent();
-    await expect(editorContentVerify).toContain('Updated Description All');
+    await expect(page.locator('.tiptap').first()).toHaveText('Updated Description All');
 
     // Verify type was updated
-    const typeSelectVerify = page.locator('#type');
-    const selectedTypeVerify = await typeSelectVerify.inputValue();
-    await expect(selectedTypeVerify).toBe('OTHER');
+    await expect(page.locator('#type')).toHaveValue('OTHER');
 
     // Verify actor field was updated
-    const actorInputVerify = page.locator('#actor');
-    await expect(actorInputVerify).toHaveValue('Updated Actor All');
+    await expect(page.locator('#actor')).toHaveValue('Updated Actor All');
 
     // Verify visibility was unchecked
-    const visibilityCheckboxVerify = page.locator('#visibility-custom');
-    await expect(visibilityCheckboxVerify).toBeChecked();
+    await expect(page.locator('#visibility-custom')).toBeChecked();
 
     // Verify visibility value was updated    
-    const userVisibilityInputVerify = page.locator('#viewers');
-    const userVisibilityContent = await userVisibilityInputVerify.inputValue();
-    await expect(userVisibilityContent).toContain('admin');
+    await expect(page.locator('#viewers')).toHaveValue('admin');
 
     // Verify editability was unchecked
-    const editabilityCheckboxVerify = page.locator('#editability-custom');
-    await expect(editabilityCheckboxVerify).toBeChecked();
+    await expect(page.locator('#editability-custom')).toBeChecked();
 
     // Verify user has edit access
-    const userEditInputVerify = page.locator('#editors');
-    const userEditContent = await userEditInputVerify.inputValue();
-    await expect(userEditContent).toContain('admin');
-
+    await expect(page.locator('#editors')).toHaveValue('admin');
   });
 
   test("Create a metaRoadmap and roadmap with only required fields", async ({ page }) => {
@@ -643,8 +550,7 @@ test.describe("Logged in tests", () => {
     await page.locator('#editors').fill('admin');
 
     // This part beleow is non-functional at this time due to problem in code surrounding parent roadmap selection.
-    // const parentSelect = page.locator('#parent-roadmap');
-    // await parentSelect.selectOption("Ingen förälder");
+    // await page.locator('#parent-roadmap').selectOption("Ingen förälder");
 
     // Click the save button
     await page.locator('#submit-button').click();
