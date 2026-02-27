@@ -79,7 +79,7 @@ test.describe("Logged in tests", () => {
     await page.getByRole('link', { name: 'Test All (v1)' }).first().click();
 
     // Click the edit button
-    await page.getByTestId('edit-roadmap-version').click();
+    await page.getByTestId('admin-panel-edit').click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
@@ -106,7 +106,7 @@ test.describe("Logged in tests", () => {
 
     // Verify the save was successful
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
-    await expect(page.getByTestId('edit-roadmap-version')).toBeVisible();
+    await expect(page.getByTestId('admin-panel-edit')).toBeVisible();
   });
 
   test("Edit MetaRoadmap, no changes - All Fields", async ({ page }) => {
@@ -122,7 +122,7 @@ test.describe("Logged in tests", () => {
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+$/);
 
     // Click the edit button
-    await page.getByTestId('edit-roadmap-version').click();
+    await page.getByTestId('admin-panel-edit').click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+\/edit/);
@@ -169,7 +169,7 @@ test.describe("Logged in tests", () => {
     await page.getByRole('link', { name: 'Test All (v1)' }).first().click();
 
     // Click the edit button
-    await page.getByTestId('edit-roadmap-version').click();
+    await page.getByTestId('admin-panel-edit').click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
@@ -203,7 +203,7 @@ test.describe("Logged in tests", () => {
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
 
     // Click the edit button again to verify all changes were saved
-    await page.getByTestId('edit-roadmap-version').click();
+    await page.getByTestId('admin-panel-edit').click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
@@ -237,7 +237,7 @@ test.describe("Logged in tests", () => {
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+$/);
 
     // Click the edit button
-    await page.getByTestId('edit-roadmap-version').click();
+    await page.getByTestId('admin-panel-edit').click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+\/edit/);
@@ -284,7 +284,7 @@ test.describe("Logged in tests", () => {
     await expect(page.getByRole('heading', { name: 'Updated Name All' })).toBeVisible();
 
     // Click the edit button again to verify all changes were saved
-    await page.getByTestId('edit-roadmap-version').click();
+    await page.getByTestId('admin-panel-edit').click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+\/edit/);
@@ -372,7 +372,7 @@ test.describe("Logged in tests", () => {
     await page.getByRole('link', { name: 'Test Required (v1)' }).first().click();
 
     // Click the edit button
-    await page.getByTestId('edit-roadmap-version').click();
+    await page.getByTestId('admin-panel-edit').click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
@@ -396,7 +396,7 @@ test.describe("Logged in tests", () => {
 
     // Verify the save was successful
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
-    await expect(page.getByTestId('edit-roadmap-version')).toBeVisible();
+    await expect(page.getByTestId('admin-panel-edit')).toBeVisible();
   });
 
   test("Edit MetaRoadmap, no changes - Required Fields", async ({ page }) => {
@@ -412,7 +412,7 @@ test.describe("Logged in tests", () => {
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+$/);
 
     // Click the edit button
-    await page.getByTestId('edit-roadmap-version').click();
+    await page.getByTestId('admin-panel-edit').click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+\/edit/);
@@ -451,7 +451,7 @@ test.describe("Logged in tests", () => {
     await page.getByRole('link', { name: 'Test Required (v1)' }).first().click();
 
     // Click the edit button
-    await page.getByTestId('edit-roadmap-version').click();
+    await page.getByTestId('admin-panel-edit').click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
@@ -484,7 +484,7 @@ test.describe("Logged in tests", () => {
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
 
     // Click the edit button again to verify all changes were saved
-    await page.getByTestId('edit-roadmap-version').click();
+    await page.getByTestId('admin-panel-edit').click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
@@ -519,7 +519,7 @@ test.describe("Logged in tests", () => {
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+$/);
 
     // Click the edit button
-    await page.getByTestId('edit-roadmap-version').click();
+    await page.getByTestId('admin-panel-edit').click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+\/edit/);
@@ -565,7 +565,7 @@ test.describe("Logged in tests", () => {
     await expect(page.getByRole('heading', { name: 'Updated Name Required' })).toBeVisible();
 
     // Click the edit button again to verify all changes were saved
-    await page.getByTestId('edit-roadmap-version').click();
+    await page.getByTestId('admin-panel-edit').click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+\/edit/);
