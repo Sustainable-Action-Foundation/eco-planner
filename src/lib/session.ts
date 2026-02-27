@@ -24,6 +24,7 @@ export const options: SessionOptions = {
     maxAge: undefined,
     // Uses https in production and http in development
     secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
   },
 }
 
