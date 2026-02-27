@@ -10,7 +10,7 @@ const adminFile = path.join(__dirname, '../.auth/admin.json');
 test.describe("Logged in tests", () => {
   test.use({ storageState: adminFile });
 
-  test("Create a MetaRoadmap and Roadmap - All Fields filled", async ({ page }) => {
+  test("Create MetaRoadmap and Roadmap - All Fields", async ({ page }) => {
 
     // Navigate to create metaRoadmap page
     await page.goto('/metaRoadmap/create');
@@ -72,7 +72,7 @@ test.describe("Logged in tests", () => {
     await expect(page.getByRole('heading', { name: 'Test All' })).toBeVisible();    
   });
 
-  test("Edit a roadmap, no changes - All Fields", async ({ page }) => {
+  test("Edit roadmap, no changes - All Fields", async ({ page }) => {
 
     await page.goto('/');
 
@@ -109,7 +109,7 @@ test.describe("Logged in tests", () => {
     await expect(page.getByTestId('edit-roadmap-version')).toBeVisible();
   });
 
-  test("Edit a MetaRoadmap, no changes - All Fields", async ({ page }) => {
+  test("Edit MetaRoadmap, no changes - All Fields", async ({ page }) => {
 
     await page.goto('/');
 
@@ -162,7 +162,7 @@ test.describe("Logged in tests", () => {
     await expect(page.getByRole('heading', { name: 'Test All' })).toBeVisible();
   });
 
-  test("Edit a roadmap, updated fields - all fields", async ({ page }) => {
+  test("Edit roadmap, updated fields - All Fields", async ({ page }) => {
 
     await page.goto('/');
 
@@ -224,7 +224,7 @@ test.describe("Logged in tests", () => {
     await expect(page.locator('#editors')).toHaveValue('admin');
   });
 
-  test("Edit a MetaRoadmap, updated fields - all fields", async ({ page }) => {
+  test("Edit MetaRoadmap, updated fields - All Fields", async ({ page }) => {
 
     await page.goto('/');
 
@@ -314,7 +314,7 @@ test.describe("Logged in tests", () => {
     await expect(page.locator('#editors')).toHaveValue('admin');
   });
 
-  test("Create a metaRoadmap and roadmap with only required fields", async ({ page }) => {
+  test("Create MetaRoadmap and Roadmap - Required Fields", async ({ page }) => {
 
      // Navigate to create metaRoadmap page
     await page.goto('/metaRoadmap/create');
@@ -365,7 +365,7 @@ test.describe("Logged in tests", () => {
     await expect(page.getByRole('heading', { name: 'Test Required' })).toBeVisible();
   });
 
-  test("Edit a roadmap, no changes - Required Fields", async ({ page }) => {
+  test("Edit roadmap, no changes - Required Fields", async ({ page }) => {
 
     await page.goto('/');
 
@@ -399,7 +399,7 @@ test.describe("Logged in tests", () => {
     await expect(page.getByTestId('edit-roadmap-version')).toBeVisible();
   });
 
-  test("Edit a MetaRoadmap, no changes - Required Fields", async ({ page }) => {
+  test("Edit MetaRoadmap, no changes - Required Fields", async ({ page }) => {
 
     await page.goto('/');
 
@@ -444,7 +444,7 @@ test.describe("Logged in tests", () => {
     await expect(page.getByRole('heading', { name: 'Test Required' })).toBeVisible();
   });
 
-  test("Edit a roadmap, updated fields - Required fields", async ({ page }) => {
+  test("Edit roadmap, updated fields - Required Fields", async ({ page }) => {
 
     await page.goto('/');
 
@@ -505,7 +505,7 @@ test.describe("Logged in tests", () => {
     await expect(page.locator('#editors')).toHaveValue('admin');
   });
 
-  test("Edit a MetaRoadmap, updated fields - Required fields", async ({ page }) => {
+  test("Edit MetaRoadmap, updated fields - Required Fields", async ({ page }) => {
 
     await page.goto('/');
 
