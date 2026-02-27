@@ -1,14 +1,10 @@
 "use client"
 
+import { TabProps, TabPanelProps } from "@/components/types"
 import React, { useState } from "react"
 
-/** Types */
-type TabElement = {
-  children?: React.ReactNode
-}
 
-/** Tab */
-const Tab = React.forwardRef<HTMLButtonElement, TabElement & { onClick?: () => void }>(
+const Tab = React.forwardRef<HTMLButtonElement, TabProps>(
   ({ children, onClick }, ref) => (
     <button ref={ref} onClick={onClick} role="tab">
       {children}
@@ -17,8 +13,7 @@ const Tab = React.forwardRef<HTMLButtonElement, TabElement & { onClick?: () => v
 )
 Tab.displayName = "Tab"
 
-/** TabPanel */
-const TabPanel = React.forwardRef<HTMLDivElement, TabElement & { hidden?: boolean }>(
+const TabPanel = React.forwardRef<HTMLDivElement, TabPanelProps>(
   ({ children, hidden }, ref) => (
     <div ref={ref} hidden={hidden} role="tabpanel">
       {children}
@@ -27,25 +22,36 @@ const TabPanel = React.forwardRef<HTMLDivElement, TabElement & { hidden?: boolea
 )
 TabPanel.displayName = "TabPanel"
 
-/** Type guard for forwardRef components with displayName */
+/** Type guard */
 function isForwardRefWithDisplayName<P>(
   element: React.ReactNode,
   displayName: string
 ): element is React.ReactElement<P> {
+  if (!React.isValidElement(element)) return false
+
+  const type = element.type
+
   return (
-    React.isValidElement(element) &&
-    (element.type as any).displayName === displayName
+    (typeof type === "function" || typeof type === "object") &&
+    "displayName" in type &&
+    type.displayName === displayName
   )
 }
 
-/** TabList Container */
 function TabList({ children }: { children: React.ReactNode }) {
   const [activeIndex, setActiveIndex] = useState(0)
 
   const childrenArray = React.Children.toArray(children)
 
-  const tabs = childrenArray.filter((child) => isForwardRefWithDisplayName(child, "Tab"))
-  const panels = childrenArray.filter((child) => isForwardRefWithDisplayName(child, "TabPanel"))
+  const tabs = childrenArray.filter(
+    (child): child is React.ReactElement<TabProps> =>
+      isForwardRefWithDisplayName<TabProps>(child, "Tab")
+  )
+
+  const panels = childrenArray.filter(
+    (child): child is React.ReactElement<TabPanelProps> =>
+      isForwardRefWithDisplayName<TabPanelProps>(child, "TabPanel")
+  )
 
   return (
     <div>
@@ -69,7 +75,6 @@ function TabList({ children }: { children: React.ReactNode }) {
   )
 }
 
-/** Dot-notation exports */
 TabList.Tab = Tab
 TabList.TabPanel = TabPanel
 

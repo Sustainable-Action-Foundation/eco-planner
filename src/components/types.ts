@@ -46,9 +46,18 @@ export type GridElement = GenericElement & {
   onClick?: React.MouseEventHandler<HTMLDivElement> 
 } 
 
-export type TabElement = GenericElement & {
-  children?: React.ReactNode, 
-} 
+
+export type TabElement = {
+  children?: React.ReactNode
+}
+
+export type TabProps = TabElement & {
+  onClick?: () => void
+}
+
+export type TabPanelProps = TabElement & {
+  hidden?: boolean
+}
 
 
 import '@tiptap/extension-link'
