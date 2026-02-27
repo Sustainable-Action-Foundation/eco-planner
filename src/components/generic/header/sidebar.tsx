@@ -75,7 +75,7 @@ export default async function Sidebar() {
               </header>
               <ul className='padding-0 margin-0' style={{ listStyle: 'none' }}>
                 <li>
-                  <Link href='/metaRoadmap/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none' data-testid="create-roadmap-series"> 
+                  <Link href='/metaRoadmap/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none' data-testid="create-roadmap-series">
                     {t("common:roadmap_series_one")}
                     <IconPlus width={16} height={16} />
                   </Link>
@@ -87,7 +87,7 @@ export default async function Sidebar() {
                   </Link>
                 </li>
                 <li>
-                  <Link href='/goal/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none'>
+                  <Link href='/goal/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none' data-testid="create-goal">
                     {t("common:goal_one")}
                     <IconPlus width={16} height={16} />
                   </Link>

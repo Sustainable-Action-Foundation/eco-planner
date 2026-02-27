@@ -6,6 +6,7 @@
 import { createInstance, InitOptions, TFunction } from "i18next";
 
 export const Locales = {
+  // test: "cimode",
   enSE: "en-SE",
   svSE: "sv-SE",
   default: "en-SE",
@@ -15,6 +16,7 @@ export const uniqueLocales = [...new Set(Object.values(Locales))];
 export const localeAliases: Record<Locales, string> = {
   [Locales.enSE]: "English",
   [Locales.svSE]: "Svenska",
+  // [Locales.test]: "Test",
 };
 
 export const allNamespaces = ["common", "forms", "components", "graphs", "pages", "email", "metadata"];
