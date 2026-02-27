@@ -29,7 +29,7 @@ test.describe("Logged in tests", () => {
 
     // Set visibility to private
     await page.locator('#visibility-private').check();
-  
+
     // Set editability to private
     await page.locator('#editability-private').check();
 
@@ -69,7 +69,7 @@ test.describe("Logged in tests", () => {
     // Verify successful roadmap creation by checking the redirect
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+/);
 
-    await expect(page.getByRole('heading', { name: 'Test All' })).toBeVisible();    
+    await expect(page.getByRole('heading', { name: 'Test All' })).toBeVisible();
   });
 
   test("Edit roadmap, no changes - All Fields", async ({ page }) => {
@@ -316,7 +316,7 @@ test.describe("Logged in tests", () => {
 
   test("Create MetaRoadmap and Roadmap - Required Fields", async ({ page }) => {
 
-     // Navigate to create metaRoadmap page
+    // Navigate to create metaRoadmap page
     await page.goto('/metaRoadmap/create');
 
     // Fill in the metaRoadmap form
@@ -330,7 +330,7 @@ test.describe("Logged in tests", () => {
 
     // Set visibility to private
     await page.locator('#visibility-private').check();
-  
+
     // Set editability to private
     await page.locator('#editability-private').check();
 
@@ -622,7 +622,8 @@ test.describe("Logged in tests", () => {
     await page.locator('#submit-button').click();
     await page.waitForLoadState("networkidle");
 
-    await expect(page.locator('#comment-text')).toBeEmpty(); //Might be possible for a nicer expect but this was the only ID we found on the page
+    await expect(page.getByRole('heading').nth(1)).toBeEmpty();
+    await expect(page.locator('#rich-description')).toBeEmpty();
   });
 
   test('Create goal all', async ({ page }) => {
@@ -664,7 +665,8 @@ test.describe("Logged in tests", () => {
     await page.locator('#submit-button').click();
     await page.waitForLoadState("networkidle");
 
-    await expect(page.locator('#comment-text')).toBeEmpty();
+    await expect(page.getByRole('heading').nth(1)).toHaveText('Test Goal');
+    await expect(page.locator('#rich-description')).toHaveText('This is a test goal');
   });
 
 });
