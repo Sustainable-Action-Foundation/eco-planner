@@ -49,7 +49,7 @@ export default defineConfig({
     baseURL: webserverURL,
 
     // Collect trace when retrying the failed test.
-    trace: "on",
+    trace: "on-first-retry",
 
     locale: "sv-SE",
     timezoneId: "Europe/Stockholm",
