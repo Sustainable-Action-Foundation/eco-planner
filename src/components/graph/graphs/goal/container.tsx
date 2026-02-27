@@ -10,6 +10,7 @@ import getGoalByIndicator from "@/fetchers/getGoalByIndicator";
 import { ApiTableContent } from "@/lib/api/apiTypes";
 import GraphGraph from "./main/container";
 import styles from '../../graphs.module.css'
+import { useTranslation } from "react-i18next";
 
 // TODO: Rename file and component
 // TODO: Single component for footer and header
@@ -37,6 +38,10 @@ export default function GoalGraph({
   effects: Effect[] | Goal["effects"],
   children?: React.ReactNode,
 }) {
+
+  const { t } = useTranslation(["pages", "common"]);
+
+
   return (
     <TabListSimple
       props={{
@@ -46,17 +51,17 @@ export default function GoalGraph({
       <TabListSimple.Tab
         className={`font-size-14px padding-25 ${styles['graph-tab']}`}
       >
-        Målbana {/* TODO: i18n */}
+        {t("common:goal_one")} 
       </TabListSimple.Tab>
       <TabListSimple.Tab
         className={`font-size-14px padding-25 ${styles['graph-tab']}`}
       >
-        Underliggande målbanor {/* TODO: i18n */}
+        {t("pages:goal.sub_goals")} 
       </TabListSimple.Tab>
       <TabListSimple.Tab
         className={`font-size-14px padding-25 ${styles['graph-tab']}`}
       >
-        Angränsande målbanor {/* TODO: i18n */}
+        {t("pages:goal.related_goals")}
       </TabListSimple.Tab>
       <TabListSimple.TabPanel>
         <GraphGraph

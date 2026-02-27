@@ -76,7 +76,7 @@ function TabList({ props, children }: { props?: GenericElement, children: React.
 
   return (
     <div>
-      <div
+      <div /* TODO: Tabpanels should be inside the tablist no? (or just use aria) */
         className={props?.className}
         style={props?.style}
         role="tablist"
