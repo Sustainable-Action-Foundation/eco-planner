@@ -290,7 +290,7 @@ test.describe("Logged in tests", () => {
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+\/edit/);
 
     // Verify name was updated
-    await expect(nameInput).toHaveValue('Updated Name All');
+    await expect(page.locator('#name')).toHaveValue('Updated Name All');
 
     // Verify description was updated
     await expect(page.locator('.tiptap').first()).toHaveText('Updated Description All');
