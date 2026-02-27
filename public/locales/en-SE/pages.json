@@ -63,7 +63,7 @@
     "menu": "Menu",
     "description": "Description",
     "actions_for_goal": "{{$t(common:action_other), titleCase}} for {{goalName}}",
-    "link_existing_action": "Link to an existing $t(common:action_one)",
+    "link_existing_action": "Link $t(common:effect_one) to an existing $t(common:action_one)",
     "create_new_action": "$t(common:new.action)",
     "action_timeline": "{{$t(common:action_one), titleCase}} timeline",
     "goals_working_towards": "{{$t(common:goal_other), titleCase}} working towards {{goalName}}",

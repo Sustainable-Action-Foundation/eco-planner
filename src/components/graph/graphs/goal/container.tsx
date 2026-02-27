@@ -50,6 +50,7 @@ export default function GoalGraph({
     >
       <TabListSimple.Tab
         className={`font-size-14px padding-25 ${styles['graph-tab']}`}
+        style={{textTransform: 'capitalize'}}
       >
         {t("common:goal_one")} 
       </TabListSimple.Tab>

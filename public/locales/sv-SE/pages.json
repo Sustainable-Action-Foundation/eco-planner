@@ -63,7 +63,7 @@
     "menu": "Meny",
     "description": "Beskrivning",
     "actions_for_goal": "{{$t(common:action_other), titleCase}} för {{goalName}}",
-    "link_existing_action": "Koppla till en existerande $t(common:action_one)",
+    "link_existing_action": "Koppla $t(common:effect_one) till en existerande $t(common:action_one)",
     "create_new_action": "$t(common:new.action)",
     "action_timeline": "Tidslinje över $t(common:action_other)",
     "goals_working_towards": "{{$t(common:goal_other), titleCase}} som jobbar mot {{goalName}}",
