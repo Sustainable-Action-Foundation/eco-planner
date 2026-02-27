@@ -52,6 +52,7 @@ export type TabElement = GenericElement & {
 }
 
 export type TabProps = TabElement & {
+  tabIndex?: 0 | -1,
   selected?: boolean,
   onClick?: () => void
 }

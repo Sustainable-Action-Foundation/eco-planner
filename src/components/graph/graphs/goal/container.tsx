@@ -12,6 +12,10 @@ import GraphGraph from "./main/container";
 import styles from '../../graphs.module.css'
 
 // TODO: Rename file and component
+// TODO: Single component for footer and header
+// TODO: Shared styling for goal graphs
+// TODO: Ensure styling leads to no layout shifting
+// TODO: Messages for when childgoals and siblings dont exist (rather than not showing at all)
 export default function GoalGraph({
   goal,
   parentGoal,
@@ -36,15 +40,7 @@ export default function GoalGraph({
   return (
     <TabListSimple
       props={{
-        className: 'padding-25 padding-bottom-0 grid', /* TODO: This grid needs to be responsive */
-        style: {
-          paddingTop: '3px', /* 3px instead of 4px (.25rem) to compensate for the 1px offset on the tabs */
-          gridTemplateColumns: 'repeat(3, 175px)',
-          backgroundColor: 'var(--gray-90)',
-          borderRadius: '.5rem .5rem 0 0',
-          border: '1px solid var(--gray-80)',
-          borderBottom: '0'
-        }
+        className: `padding-inline-25 padding-bottom-0 grid ${styles['graph-tablist']}`, /* TODO: This grid needs to be responsive */
       }}
     >
       <TabListSimple.Tab

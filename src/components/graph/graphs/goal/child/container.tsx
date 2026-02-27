@@ -50,8 +50,8 @@ export default function ChildGraphContainer({
   };
 
   return (
-    <>
-      <menu className="flex align-items-flex-end gap-25 margin-0 margin-block-25 padding-0 flex-wrap-wrap" >
+    <div className="purewhite" style={{ border: '1px solid var(--gray-80)', borderTop: 0, borderRadius: '0 0 .25rem .25rem' }}>
+      <menu className="flex align-items-flex-end gap-25 margin-0 padding-25 flex-wrap-wrap" style={{ backgroundColor: 'var(--gray-95)', borderBottom: '1px solid var(--gray-80)' }}>
         <ChildGraphSelector goal={goal} currentSelection={childGraphType} setter={setChildGraphType} />
         <button
           className="display-flex align-items-center gap-50 gray-90 font-weight-500"
@@ -63,8 +63,8 @@ export default function ChildGraphContainer({
         </button>
         {children}
       </menu>
-      <article className="smooth purewhite" style={{ border: '1px solid var(--gray)' }}>
-        <h2 className="text-align-center block font-weight-500 margin-block-200" style={{ fontSize: '1rem' }}>
+      <article>
+        <h2 className="text-align-center block font-weight-500 margin-top-200 margin-bottom-50" style={{fontSize: '1.5rem'}}>
           {t("graphs:child_graph_container.goals_toward", { goalName: goal.name ? `${goal.name}` : `${goal.indicatorParameter}` })}
         </h2>
         <div style={{ height: '500px' }} className="padding-inline-25 padding-bottom-50">
@@ -78,7 +78,7 @@ export default function ChildGraphContainer({
             <span key={child.id} className="flex gap-50 line-height-100">
               <a href={`/goal/${child.id}`} className="flex gap-25 align-items-center">
                 <IconLink width={14} height={14} strokeWidth={1.5} />
-                {child.name || child.indicatorParameter.split('\\').at(-1)} ({child.roadmap.metaRoadmap.name || t("graphs:common.unknown_roadmap")})              
+                {child.name || child.indicatorParameter.split('\\').at(-1)} ({child.roadmap.metaRoadmap.name || t("graphs:common.unknown_roadmap")})
               </a>
               {index !== childGoals.length - 1 ?
                 <hr aria-orientation="vertical" className="padding-0 margin-block-25" /> /* TODO: Need to add orientation aria to other HR */
@@ -87,6 +87,6 @@ export default function ChildGraphContainer({
           )}
         </nav>
       </article>
-    </>
+    </div>
   );
 }

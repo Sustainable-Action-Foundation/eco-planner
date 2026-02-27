@@ -76,26 +76,33 @@ export default function GraphGraph({
   }
 
   return (
-    <div className="purewhite" style={{ border: '1px solid var(--gray)', borderRadius: '0 0 .25rem .25rem' }}>
+    <div className="purewhite" style={{ border: '1px solid var(--gray-80)', borderTop: 0, borderRadius: '0 0 .25rem .25rem' }}>
       {/* TODO: Use role="toolbar" (or menubar) for this */}
-      <menu className="flex align-items-flex-end gap-25 margin-0 padding-25 flex-wrap-wrap" style={{ backgroundColor: 'var(--gray-95)', borderBottom: '1px solid var(--gray-80)'}}>
+      <menu className="flex align-items-flex-end gap-25 margin-0 padding-25 flex-wrap-wrap" style={{ backgroundColor: 'var(--gray-95)', borderBottom: '1px solid var(--gray-80)' }}>
         <GraphSelector goal={goal} childGoals={false} siblings={false} currentSelection={graphType} setter={setGraphType} /> {/* NOTE: Set childgoals and siblings to false until the feature is fully implemented */}
         <SecondaryGoalSelector />
         {children}
       </menu>
-      <article className="padding-inline-25 padding-bottom-50">  {/* TODO: Not sure that article is correct here altough it might very well be*/}
-        <h2 className="text-align-center block font-weight-500 margin-top-200 margin-bottom-50" style={{fontSize: '1.5rem'}}>{goal.name ? goal.name : goal.indicatorParameter}</h2>
+      <article>  {/* TODO: Not sure that article is correct here altough it might very well be*/}
+        <h2 className="text-align-center block font-weight-500 margin-top-200 margin-bottom-50" style={{ fontSize: '1.5rem' }}>
+          {goal.name ? goal.name : goal.indicatorParameter}
+        </h2>
         {secondaryGoal && <p className="margin-block-0 margin-inline-auto text-align-center">{t("graphs:graph_graph.compare_with_goal", { goalName: secondaryGoal.name || secondaryGoal.indicatorParameter })}</p>}
-        <div style={{ height: '500px' }}>
+        <div style={{ height: '500px' }} className="padding-inline-25 padding-bottom-50">
           {graphSwitch(graphType || GraphType.Main)}
         </div>
-        {historicalData && (
-          <Trans // TODO: Apply the same nav styling as is used in children and sibling graphs  
-            i18nKey="graphs:graph_graph.historical_data_source"
-            components={{ a: <a href={dataset?.userFacingUrl} target="_blank" /> }}
-            tOptions={{ source: dataset?.fullName ?? historicalData.metadata[0]?.source }}
-          />
-        )}
+        <footer
+          className="font-size-14px text-align-center padding-50"
+          style={{ borderTop: '1px solid var(--gray-80)', backgroundColor: 'var(--tertiary-neutral)', borderRadius: '0 0 .25rem .25rem' }}
+        >
+          {historicalData && (
+            <Trans // TODO: Apply the same nav styling as is used in children and sibling graphs  
+              i18nKey="graphs:graph_graph.historical_data_source"
+              components={{ a: <a href={dataset?.userFacingUrl} target="_blank" /> }}
+              tOptions={{ source: dataset?.fullName ?? historicalData.metadata[0]?.source }}
+            />
+          )}
+        </footer>
       </article>
     </div>
   );

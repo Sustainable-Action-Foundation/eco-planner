@@ -249,7 +249,7 @@ export default async function Page(
         {goal.description ?
           <>
             <TextEditor
-              className="margin-top-50"
+              className="margin-top-50 margin-bottom-300"
               id="rich-description"
               editable={false}
               defaultStyles={false}
@@ -258,110 +258,66 @@ export default async function Page(
           </>
           : null}
 
-        <section className='margin-top-300'> {/* TODO: Potentially break this out of a section when removing h2 (if we remove h2) (Actions may still be a section but the ) */}
-          <h2 className="padding-bottom-50 margin-bottom-100" style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:goal.title_label")}</h2>
-          {/*
-            <GoalGraph
-              goal={goal}
-              parentGoal={parentGoal}
-              childGoals={childGoals}
-              roadmap={roadmap}
-              parentGoalRoadmap={parentGoalRoadmap}
-              externalData={externalData}
-              secondaryGoal={secondaryGoal}
-              effects={goal.effects}
-            >
-              <div className="flex gap-25 margin-left-100">
-                <QueryBuilder goal={goal} />
-                {(goal.dataSeries?.id && session.user) ?
-                  <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
-                  : null}
-              </div>
-            </GoalGraph>
-             */}
-          <section>
-            {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
-            <GraphGraph
-              goal={goal}
-              parentGoal={parentGoal}
-              childGoals={childGoals}
-              roadmap={roadmap}
-              parentGoalRoadmap={parentGoalRoadmap}
-              historicalData={externalData}
-              secondaryGoal={secondaryGoal}
-              effects={goal.effects}
-            >
-              <div className="flex gap-25 margin-left-100">
-                <QueryBuilder goal={goal} />
-                {(goal.dataSeries?.id && session.user) ?
-                  <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
-                  : null}
-              </div>
-            </GraphGraph>
-          </section>
+        {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
+        <GoalGraph
+          goal={goal}
+          parentGoal={parentGoal}
+          childGoals={childGoals}
+          roadmap={roadmap}
+          parentGoalRoadmap={parentGoalRoadmap}
+          externalData={externalData}
+          secondaryGoal={secondaryGoal}
+          effects={goal.effects}
+        >
+          <div className="flex gap-25 margin-left-100">
+            <QueryBuilder goal={goal} />
+            {(goal.dataSeries?.id && session.user) ?
+              <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
+              : null}
+          </div>
+        </GoalGraph>
 
-          <section className="margin-block-300">
-            <div
-              className='margin-bottom-100 padding-bottom-50 flex justify-content-space-between align-items-center gap-100 flex-wrap-wrap'
-              style={{ borderBottom: '1px solid var(--gray)' }}>
-              <h2 className='margin-0 font-weight-600' style={{ fontSize: '1.1rem' }}>
-                {t("pages:goal.actions_for_goal", { goalName: goal.name ? goal.name : goal.indicatorParameter })}
-              </h2>
+        <section className="margin-block-300">
+          <div
+            className='margin-bottom-100 padding-bottom-50 flex justify-content-space-between align-items-center gap-100 flex-wrap-wrap'
+            style={{ borderBottom: '1px solid var(--gray)' }}>
+            <h2 className='margin-0 font-weight-600' style={{ fontSize: '1.1rem' }}>
+              {t("pages:goal.actions_for_goal", { goalName: goal.name ? goal.name : goal.indicatorParameter })}
+            </h2>
 
-              {hasEditAccess(accessLevel) &&
-                <menu className="margin-0 padding-0 flex justify-content-flex-end gap-25">
-                  <Link
-                    href={`/effect/create?goalId=${goal.id}`}
-                    className="button smooth font-weight-500"
-                    style={{ fontSize: '.75rem', padding: '.3rem .6rem' }}>
-                    {t("pages:goal.link_existing_action")}
-                  </Link>
-                  <Link
-                    href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`}
-                    className="button smooth seagreen color-purewhite"
-                    style={{ fontSize: '.75rem', padding: '.3rem .6rem' }}>
-                    {t("pages:goal.create_new_action")}
-                  </Link>
-                </menu>
-              }
-            </div>
-
-            {/* TODO: rename to EffectsList? */}
-            <EffectTable object={goal} accessLevel={accessLevel} />
-
-            {goal.effects.some(effect => effect.action.startYear || effect.action.endYear) &&
-              <>
-                <h3 className="margin-top-500 font-weight-500">
-                  {t("pages:goal.action_timeline")}
-                </h3>
-                <article className="smooth purewhite margin-bottom-500" style={{ border: '1px solid var(--gray-90)' }}>
-                  <ActionGraph actions={goal.effects.map(effect => effect.action)} />
-                </article>
-              </>
+            {hasEditAccess(accessLevel) &&
+              <menu className="margin-0 padding-0 flex justify-content-flex-end gap-25">
+                <Link
+                  href={`/effect/create?goalId=${goal.id}`}
+                  className="button smooth font-weight-500"
+                  style={{ fontSize: '.75rem', padding: '.3rem .6rem' }}>
+                  {t("pages:goal.link_existing_action")}
+                </Link>
+                <Link
+                  href={`/action/create?roadmapId=${goal.roadmapId}&goalId=${goal.id}`}
+                  className="button smooth seagreen color-purewhite"
+                  style={{ fontSize: '.75rem', padding: '.3rem .6rem' }}>
+                  {t("pages:goal.create_new_action")}
+                </Link>
+              </menu>
             }
-          </section>
+          </div>
+
+          {/* TODO: rename to EffectsList? */}
+          <EffectTable object={goal} accessLevel={accessLevel} />
+
+          {goal.effects.some(effect => effect.action.startYear || effect.action.endYear) &&
+            <>
+              <h3 className="margin-top-500 font-weight-500">
+                {t("pages:goal.action_timeline")}
+              </h3>
+              <article className="smooth purewhite margin-bottom-500" style={{ border: '1px solid var(--gray-90)' }}>
+                <ActionGraph actions={goal.effects.map(effect => effect.action)} />
+              </article>
+            </>
+          }
         </section>
-
-        {childGoals.length > 0 ?
-          <section className="margin-block-300">
-            <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>
-              {t("pages:goal.goals_working_towards", { goalName: goal.name ? goal.name : goal.indicatorParameter })}
-            </h2>
-            <ChildGraphContainer goal={goal} childGoals={childGoals} />
-          </section>
-          : null
-        }
-
-        {findSiblings(roadmap, goal).length > 1 ?
-          <section className="margin-block-300">
-            <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>
-              {t("pages:goal.related_goals")}
-            </h2>
-            <SiblingGraph roadmap={roadmap} goal={goal} />
-          </section>
-          : null
-        }
-
+ 
       </main>
 
       <section className="margin-block-500">

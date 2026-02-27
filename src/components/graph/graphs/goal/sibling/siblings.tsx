@@ -92,8 +92,8 @@ export default function SiblingGraph({
   */
 
   return (siblings.length > 1 &&
-    <>
-      <menu className="flex align-items-flex-end gap-25 margin-0 margin-block-25 padding-0 flex-wrap-wrap">
+    <div className="purewhite" style={{ border: '1px solid var(--gray-80)', borderTop: 0, borderRadius: '0 0 .25rem .25rem' }}>
+      <menu className="flex align-items-flex-end gap-25 margin-0 padding-25 flex-wrap-wrap" style={{ backgroundColor: 'var(--gray-95)', borderBottom: '1px solid var(--gray-80)' }}>
         <button
           className="flex align-items-center gap-50 transparent font-weight-500 gray-90"
           style={{ width: 'fit-content', fontSize: '.75rem', padding: '.3rem .6rem', lineHeight: '1.5' }}
@@ -103,8 +103,10 @@ export default function SiblingGraph({
           <IconChartAreaLineFilled aria-hidden="true" width={16} height={16} />
         </button>
       </menu>
-      <article className="smooth purewhite" style={{ border: '1px solid var(--gray)' }}>
-        <h2 className="text-align-center block font-weight-500 margin-block-200" style={{ fontSize: '1rem' }}>{t("graphs:sibling_graph.related_goals")}</h2>
+      <article>
+        <h2 className="text-align-center block font-weight-500 margin-top-200 margin-bottom-50" style={{ fontSize: '1.5rem' }}>
+          {t("graphs:sibling_graph.related_goals")}
+        </h2>
         <div style={{ height: '500px' }} className="padding-inline-25 padding-bottom-50">
           <WrappedChart
             key={"combinedGraph"}
@@ -115,14 +117,14 @@ export default function SiblingGraph({
             height="100%"
           />
         </div>
-        <nav 
-          className="font-size-14px flex gap-75 flex-wrap-wrap justify-content-center padding-50" 
+        <nav
+          className="font-size-14px flex gap-75 flex-wrap-wrap justify-content-center padding-50"
           style={{ borderTop: '1px solid var(--gray-80)', backgroundColor: 'var(--tertiary-neutral)', borderRadius: '0 0 .25rem .25rem' }}
         >
           {siblings.map((sibling, index) =>
             <span key={sibling.id} className="flex gap-50 line-height-100">
               <a href={`/goal/${sibling.id}`} className="flex gap-25 align-items-center">
-                <IconLink width={14} height={14} strokeWidth={1.5}  />
+                <IconLink width={14} height={14} strokeWidth={1.5} />
                 {sibling.name ? sibling.name : sibling.indicatorParameter.split('\\').at(-1)}
               </a>
               {index !== siblings.length - 1 ?
@@ -132,6 +134,6 @@ export default function SiblingGraph({
           )}
         </nav>
       </article>
-    </>
+    </div>
   )
 }
