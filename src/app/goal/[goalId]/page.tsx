@@ -29,6 +29,8 @@ import { buildMetadata } from "@/functions/buildMetadata";
 import { IconAlertTriangle, IconArrowBackUp, IconArrowNarrowRight, IconBuildings } from "@tabler/icons-react";
 import i18nServer, { TFunction } from "i18next";
 import TextEditor from "@/components/form/elements/textEditor/editor";
+import TabListSimple from "@/components/generic/tablist/tabListSimple";
+import GoalGraph from "@/components/graph/graphs/goal/container";
 
 export async function generateMetadata(props: {
   params: Promise<{ goalId: string }>,
@@ -258,6 +260,25 @@ export default async function Page(
 
         <section className='margin-top-300'> {/* TODO: Potentially break this out of a section when removing h2 (if we remove h2) (Actions may still be a section but the ) */}
           <h2 className="padding-bottom-50 margin-bottom-100" style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:goal.title_label")}</h2>
+          {/*
+            <GoalGraph
+              goal={goal}
+              parentGoal={parentGoal}
+              childGoals={childGoals}
+              roadmap={roadmap}
+              parentGoalRoadmap={parentGoalRoadmap}
+              externalData={externalData}
+              secondaryGoal={secondaryGoal}
+              effects={goal.effects}
+            >
+              <div className="flex gap-25 margin-left-100">
+                <QueryBuilder goal={goal} />
+                {(goal.dataSeries?.id && session.user) ?
+                  <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
+                  : null}
+              </div>
+            </GoalGraph>
+          */}
           <section>
             {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
             <GraphGraph

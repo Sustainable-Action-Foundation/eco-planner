@@ -46,6 +46,11 @@ export type GridElement = GenericElement & {
   onClick?: React.MouseEventHandler<HTMLDivElement> 
 } 
 
+export type TabElement = GenericElement & {
+  children?: React.ReactNode, 
+} 
+
+
 import '@tiptap/extension-link'
 
 declare module '@tiptap/extension-link' {
