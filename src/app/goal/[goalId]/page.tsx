@@ -304,9 +304,9 @@ export default async function Page(
             <div
               className='margin-bottom-100 padding-bottom-50 flex justify-content-space-between align-items-center gap-100 flex-wrap-wrap'
               style={{ borderBottom: '1px solid var(--gray)' }}>
-              <h3 className='margin-0 font-weight-600' style={{ fontSize: '1.1rem' }}>
+              <h2 className='margin-0 font-weight-600' style={{ fontSize: '1.1rem' }}>
                 {t("pages:goal.actions_for_goal", { goalName: goal.name ? goal.name : goal.indicatorParameter })}
-              </h3>
+              </h2>
 
               {hasEditAccess(accessLevel) &&
                 <menu className="margin-0 padding-0 flex justify-content-flex-end gap-25">
@@ -331,9 +331,9 @@ export default async function Page(
 
             {goal.effects.some(effect => effect.action.startYear || effect.action.endYear) &&
               <>
-                <h4 className="margin-top-500 font-weight-500">
+                <h3 className="margin-top-500 font-weight-500">
                   {t("pages:goal.action_timeline")}
-                </h4>
+                </h3>
                 <article className="smooth purewhite margin-bottom-500" style={{ border: '1px solid var(--gray-90)' }}>
                   <ActionGraph actions={goal.effects.map(effect => effect.action)} />
                 </article>

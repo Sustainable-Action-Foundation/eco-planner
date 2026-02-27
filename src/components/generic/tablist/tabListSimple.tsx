@@ -1,12 +1,20 @@
 "use client"
 
-import { TabProps, TabPanelProps } from "@/components/types"
+import { TabProps, TabPanelProps, GenericElement } from "@/components/types"
 import React, { useState } from "react"
 
 
 const Tab = React.forwardRef<HTMLButtonElement, TabProps>(
-  ({ children, onClick }, ref) => (
-    <button ref={ref} onClick={onClick} role="tab">
+  ({ className, style, selected, children, onClick }, ref) => (
+    <button
+      className={className}
+      style={style}
+      ref={ref}
+      tabIndex={selected ? 0 : -1}
+      aria-selected={selected}
+      onClick={onClick}
+      role="tab"
+    >
       {children}
     </button>
   )
@@ -14,8 +22,14 @@ const Tab = React.forwardRef<HTMLButtonElement, TabProps>(
 Tab.displayName = "Tab"
 
 const TabPanel = React.forwardRef<HTMLDivElement, TabPanelProps>(
-  ({ children, hidden }, ref) => (
-    <div ref={ref} hidden={hidden} role="tabpanel">
+  ({ className, style, children, hidden }, ref) => (
+    <div
+      className={className}
+      style={style}
+      ref={ref}
+      hidden={hidden}
+      role="tabpanel"
+    >
       {children}
     </div>
   )
@@ -38,7 +52,7 @@ function isForwardRefWithDisplayName<P>(
   )
 }
 
-function TabList({ children }: { children: React.ReactNode }) {
+function TabList({ props, children }: { props?: GenericElement, children: React.ReactNode }) {
   const [activeIndex, setActiveIndex] = useState(0)
 
   const childrenArray = React.Children.toArray(children)
@@ -55,9 +69,14 @@ function TabList({ children }: { children: React.ReactNode }) {
 
   return (
     <div>
-      <div role="tablist">
+      <div
+        className={props?.className}
+        style={props?.style}
+        role="tablist"
+      >
         {tabs.map((tab, index) =>
           React.cloneElement(tab, {
+            selected: index === activeIndex,
             onClick: () => setActiveIndex(index),
             key: index,
           })

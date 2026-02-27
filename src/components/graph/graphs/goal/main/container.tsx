@@ -76,15 +76,15 @@ export default function GraphGraph({
   }
 
   return (
-    <div className="purewhite" style={{ border: '1px solid var(--gray)', borderRadius: '.5rem .5rem .25rem .25rem' }}>
+    <div className="purewhite" style={{ border: '1px solid var(--gray)', borderRadius: '0 0 .25rem .25rem' }}>
       {/* TODO: Use role="toolbar" (or menubar) for this */}
-      <menu className="flex align-items-flex-end gap-25 margin-0 padding-25 flex-wrap-wrap" style={{ backgroundColor: 'var(--gray-95)', borderBottom: '1px solid var(--gray-80)', borderRadius: '.5rem .5rem 0 0' }}>
+      <menu className="flex align-items-flex-end gap-25 margin-0 padding-25 flex-wrap-wrap" style={{ backgroundColor: 'var(--gray-95)', borderBottom: '1px solid var(--gray-80)'}}>
         <GraphSelector goal={goal} childGoals={false} siblings={false} currentSelection={graphType} setter={setGraphType} /> {/* NOTE: Set childgoals and siblings to false until the feature is fully implemented */}
         <SecondaryGoalSelector />
         {children}
       </menu>
       <article className="padding-inline-25 padding-bottom-50">  {/* TODO: Not sure that article is correct here altough it might very well be*/}
-        <h3 className="text-align-center block font-weight-500 margin-top-200 margin-bottom-50">{goal.name ? goal.name : goal.indicatorParameter}</h3>
+        <h2 className="text-align-center block font-weight-500 margin-top-200 margin-bottom-50" style={{fontSize: '1.5rem'}}>{goal.name ? goal.name : goal.indicatorParameter}</h2>
         {secondaryGoal && <p className="margin-block-0 margin-inline-auto text-align-center">{t("graphs:graph_graph.compare_with_goal", { goalName: secondaryGoal.name || secondaryGoal.indicatorParameter })}</p>}
         <div style={{ height: '500px' }}>
           {graphSwitch(graphType || GraphType.Main)}

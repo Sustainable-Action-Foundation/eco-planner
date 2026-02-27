@@ -54,3 +54,24 @@
 .graphWrapperThumbnail:hover {
   background-color: rgb(224, 230, 235, .35);
 }
+
+/* TEMP WHILE REWRITING */
+
+.graph-tab {
+  transform: scale(1) translateY(1px);
+  border-radius: .25rem .25rem 0 0;
+  background-color: transparent;
+  border-top: 1px solid transparent;
+  line-height: 1.75;
+}
+
+.graph-tab:hover {
+  box-shadow: none;
+  text-decoration: underline;
+}
+
+.graph-tab[aria-selected="true"] {
+  border: 1px solid var(--gray-80);
+  border-bottom: 0;
+  background-color: var(--gray-95);
+}

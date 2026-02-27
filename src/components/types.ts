@@ -47,11 +47,12 @@ export type GridElement = GenericElement & {
 } 
 
 
-export type TabElement = {
+export type TabElement = GenericElement & {
   children?: React.ReactNode
 }
 
 export type TabProps = TabElement & {
+  selected?: boolean,
   onClick?: () => void
 }
 
