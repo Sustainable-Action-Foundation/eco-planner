@@ -27,9 +27,11 @@ test.describe("Locales Test page", () => {
   test("Key count", async ({ page }) => {
     await page.goto("/localesTest");
     await page.waitForLoadState("networkidle");
+    // Ensures the page is rendered before checking the table, which reduces flakiness
+    await expect(page.getByRole("heading", { name: "Test page for translations" })).toBeVisible();
 
     const checkKeyCount = async () => {
-      const table = page.getByTestId("translation-table");
+      const table = await page.getByTestId("translation-table");
       const rows = table.getByTestId("translation-row");
 
       const rowCount = await rows.count();

@@ -361,7 +361,7 @@ export function AdminPanel(
                   }
                   {links.editLink &&
                     <>
-                      <Link href={links.editLink} className={`flex gap-100 align-items-center smooth ${styles['object-menu-link']}`}>
+                      <Link href={links.editLink} className={`flex gap-100 align-items-center smooth ${styles['object-menu-link']}`} data-testid="edit-roadmap-version">
                         <span>{t("components:table_menu.edit")}</span>
                         <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                       </Link>
