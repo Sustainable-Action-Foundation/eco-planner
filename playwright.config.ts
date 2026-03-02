@@ -24,6 +24,12 @@ export default defineConfig({
   // One retry in case of flaky tests
   retries: 1,
 
+  timeout: 60 * 1000, // Max time one test can run for
+
+  expect: {
+    timeout: 10 * 1000, // Max time expect() should wait for the condition to be met.
+  },
+
   // Reporter to use
   reporter: [
     ...(CI ?
@@ -53,6 +59,9 @@ export default defineConfig({
 
     locale: "sv-SE",
     timezoneId: "Europe/Stockholm",
+
+    // Shorter timeouts for actions to make tests that will fail, fail faster. 
+    actionTimeout: 10 * 1000, // Timeout for click, fill etc.
   },
 
   // Configure projects for major browsers.
