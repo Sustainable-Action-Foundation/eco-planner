@@ -47,11 +47,14 @@
     "show_suggestions": "Visa förslag"
   },
   "data_series_input": {
+    "action": "Åtgärd",
+    "add_new_row": "Lägg till ny rad",
     "advanced": "Avancerade alternativ",
     "custom_baseline": "Anpassad baslinje",
     "data_series": "Dataserie",
     "data_series_advanced_info": "Detta fält tar emot en serie med värden som är separerade med semikolon eller tab. Detta innebär att du kan klistra in en serie med värden från extern programvara såsom Microsoft Excel eller Google Sheets. Det första värdet representerar år 2020 och fortsätter därefter till år 2050 (totalt 31 värden). Om värden saknas för ett år kan du lämna det tomt, exempelvis anger \";1;;;;5\" värdena 1 och 5 för år 2021 respektive 2025. Decimaltal kan antingen skrivas med punkt eller kommatecken.<br /><br /> <strong>Viktigt: Värden får inte vara separerade med kommatecken (\",\").</strong>",
     "data_series_tooltip": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan antingen skrivas med punkt eller kommatecken.",
+    "delete_row": "Ta bort raden",
     "end_year": "Slutår",
     "hide_table": "Minimera tabell",
     "invalid_end_year": "Ogiltigt slutår",

@@ -94,10 +94,13 @@
     "icon_aria_label": "notifications"
   },
   "query_builder": {
+    "add_data_manually": "Add data manually",
     "add_data_source": "Add data source",
     "add_data_source_button": "Add data source",
     "add_data_to_goal": "Add a historical data series to {{goalName}}",
+    "add_external_data": "Select data from external sources",
     "add_historical_data": "Add historical data",
+    "adjust_data_manually": "Adjust data manually",
     "change_historical_data": "Change historical data",
     "data_source": "Data source",
     "does_this_look_correct_one": "Does this look correct? (showing max {{count}} value)",
@@ -123,6 +126,8 @@
     "value": "Value"
   },
   "recipe_editor": {
+    "add_external_data": "Data",
+    "create_recipe": "Create a new recipe",
     "create_variable": "Create variable",
     "data_series": "Data series",
     "dataset": "Dataset",
@@ -130,7 +135,6 @@
     "edit_variable": "Edit variable",
     "equation": "Equation",
     "external_data": "External data",
-    "add_external_data": "Data",
     "goal_or_effect": "Goal or effect",
     "graph": "Graph",
     "missing_resulting_data_series": "No resulting data series to display",
@@ -150,14 +154,13 @@
     "scalar": "Scalar",
     "select_data_series": "Choose goal or effect",
     "select_dataset": "Select dataset",
+    "select_recipe": "Select an existing recipe",
     "select_roadmap": "Select roadmap",
     "selection": "Selection",
     "status": {
       "no_issues_icon_aria_label": "No issues"
     },
     "table": "Table",
-    "select_recipe": "Select an existing recipe",
-    "create_recipe": "Create a new recipe",
     "toggle_suggested_recipe": "<option1 /><span> – or – </span><option2 />",
     "unit_label": "Unit",
     "unit_placeholder": "Unit",
@@ -217,8 +220,8 @@
   },
   "table_menu": {
     "add_effect_from_existing_action": "Add $t(common:effect_one) from existing $t(common:action_one)",
-    "admin_panel_title": "Admin panel",
     "admin_panel_info": "Only users with admin- or edit access can see this panel. Which actions are available to a user depend on their level of access to this post.",
+    "admin_panel_title": "Admin panel",
     "button_aria": "Menu for {{component}}",
     "button_aria_alt": "Name missing",
     "delete": "Delete post",

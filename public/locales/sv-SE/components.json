@@ -94,10 +94,13 @@
     "icon_aria_label": "notiser"
   },
   "query_builder": {
+    "add_data_manually": "Lägg till data manuellt",
     "add_data_source": "Lägg till datakälla",
     "add_data_source_button": "Lägg till datakälla",
     "add_data_to_goal": "Lägg till en historisk dataserie i {{goalName}}",
+    "add_external_data": "Välj data från externa datakällor",
     "add_historical_data": "Lägg till historisk data",
+    "adjust_data_manually": "Justera data manuellt",
     "change_historical_data": "Ändra historisk data",
     "data_source": "Datakälla",
     "does_this_look_correct_one": "Ser detta rimligt ut? (visar max {{count}} värde)",
@@ -123,6 +126,8 @@
     "value": "Värde"
   },
   "recipe_editor": {
+    "add_external_data": "Data",
+    "create_recipe": "Skapa ett nytt recept",
     "create_variable": "Skapa variabel",
     "data_series": "Dataserie",
     "dataset": "Dataset",
@@ -130,7 +135,6 @@
     "edit_variable": "Redigera variabel",
     "equation": "Ekvation",
     "external_data": "Extern data",
-    "add_external_data": "Data",
     "goal_or_effect": "Målbana eller effekt",
     "graph": "Graf",
     "missing_resulting_data_series": "Resulterande dataserie saknas",
@@ -150,14 +154,13 @@
     "scalar": "Skalär",
     "select_data_series": "Välj målbana eller effekt",
     "select_dataset": "Välj dataset",
+    "select_recipe": "Välj ett befintligt recept",
     "select_roadmap": "Välj färdplan",
     "selection": "Urval",
     "status": {
       "no_issues_icon_aria_label": "Inga problem"
     },
     "table": "Tabell",
-    "select_recipe": "Välj ett befintligt recept",
-    "create_recipe": "Skapa ett nytt recept",
     "toggle_suggested_recipe": "<option1 /><span> – eller – </span><option2 />",
     "unit_label": "Enhet",
     "unit_placeholder": "Enhet",
@@ -217,8 +220,8 @@
   },
   "table_menu": {
     "add_effect_from_existing_action": "Lägg till $t(common:effect_one) från befintlig $t(common:action_one)",
-    "admin_panel_title": "Administrationspanel",
     "admin_panel_info": "Enbart användare med administrations- eller redigeringsbehörighet kan se denna panel. Vilka åtgärder som är tillgängliga för en användare beror på deras behörighetsnivå.",
+    "admin_panel_title": "Administrationspanel",
     "button_aria": "Meny för {{component}}",
     "button_aria_alt": "namn saknas",
     "delete": "Radera inlägg",
