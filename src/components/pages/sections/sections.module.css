@@ -1,0 +1,85 @@
+/* Actions */
+.actions-menu {
+    flex-basis: 30ch;
+    background-color: var(--gray-95);
+    border: 1px solid var(--gray-90); 
+    height: fit-content;
+}
+
+/* Generic */
+.action-title {
+    font-size: 1.15rem;
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+} 
+
+/* Grid */ 
+.actions-grid {
+    column-gap: .5rem;
+    row-gap: 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(min(300px,100%),1fr));
+    list-style: none;
+    padding-left: 0;
+}
+
+.actions-grid > li {
+    box-shadow: 4px .5rem 10px -.5rem var(--gray-90);
+    background-color: var(--secondary-neutral);
+    border: 1px solid var(--gray-80);
+    transition: box-shadow .2s ease;
+}
+
+.actions-grid > li:has(a:hover) {
+    box-shadow: 4px .5rem 10px -.5rem var(--gray-30);
+}
+
+
+/* List */ 
+.actions-list > li::marker {
+    color: var(--gray-20);
+    font-size: .9rem;
+}
+
+.actions-list > li > article {
+    flex-direction: row;
+    padding: 0;
+    border-radius: .25rem;
+    border: 1px solid transparent;
+}
+
+.actions-list > li > article * {
+    padding: 0;
+}
+
+.actions-list .action-title {
+    font-weight: normal;
+    font-size: 1rem;
+}
+
+.actions-list > li a {
+    padding: .5rem;
+}
+
+.actions-list > li:not(:first-of-type) > article:hover {
+    border-color: var(--blue-40);
+    background-color: var(--gray-95);
+}
+
+/* We remove theese when not in grid view*/
+.actions-list .action-years {
+    display: none;
+} 
+
+.actions-list .action-description {
+    display: none;
+}
+
+.actions-list > li > article hr {
+    display: none;
+}
+
+.actions-list .action-link {
+    display: none;
+}

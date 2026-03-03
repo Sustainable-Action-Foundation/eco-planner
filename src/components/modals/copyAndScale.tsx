@@ -2,16 +2,17 @@
 
 import { closeModal, openModal } from "./modalFunctions";
 import { useRef, useState } from "react";
-import { GoalCreateInput, Goal, Years, DataSeriesValueFields, isPartialDataSeriesValueFields, JSONValue, isFullDataSeriesValueFields, nullFullDataSeriesValueField } from "@/types";
+import { GoalCreateInput, Goal, DateValues, JSONValue, isDateValues } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
-import { isRecipeDataSeries, Recipe, RecipeDataTypes } from "@/functions/recipe-parser/types";
-import { recipeFromUnknown } from "@/functions/parseRecipe";
+import { Recipe } from "@/functions/recipe/types";
 import { RecipeContextProvider } from "../recipe/context/recipeContext.provider";
 import { SuggestedRecipeApplier } from "@/components/recipe/suggestions/suggestedRecipeApplier";
 import FormIntegration from "../recipe/editor/output/formIntegration";
-import styles from './modals.module.css'
+import { SmartRecipe } from "@/functions/recipe/smartRecipe";
+import styles from "../form/api/queryBuilder.module.css";
+
 
 export default function CopyAndScale({
   goal,
@@ -36,19 +37,13 @@ export default function CopyAndScale({
     }
 
     // Try parsing the data series object from the recipe editor
-    let resultingDataSeries: DataSeriesValueFields;
+    let resultingDataSeries: DateValues;
     try {
-      const unparsedDataSeries = JSON.parse(form.get("resultingDataSeries") as string) as JSONValue;
+      const parsedDataSeries = JSON.parse(form.get("resultingDataSeries") as string) as JSONValue;
 
       // At first expect the data series to be partial
-      if (!isPartialDataSeriesValueFields(unparsedDataSeries)) {
+      if (!isDateValues(parsedDataSeries)) {
         throw new Error("Parsed data series does not match expected structure");
-      }
-
-      // Make it non partial
-      const parsedDataSeries = { ...nullFullDataSeriesValueField, ...unparsedDataSeries };
-      if (!isFullDataSeriesValueFields(parsedDataSeries)) {
-        throw new Error("Parsed data series is missing some years or has incorrect structure");
       }
 
       resultingDataSeries = parsedDataSeries;
@@ -59,6 +54,24 @@ export default function CopyAndScale({
       return;
     }
 
+    let resultingUnit: string | null = null;
+    try {
+      const parsedUnit = JSON.parse(form.get("resultingDataSeriesUnit") as string) as JSONValue;
+
+      if (typeof parsedUnit === "string") {
+        resultingUnit = parsedUnit;
+      } else if (parsedUnit === null) {
+        resultingUnit = null;
+      } else {
+        throw new Error("Parsed data series unit is not a string or null");
+      }
+    }
+    catch (error) {
+      setIsLoading(false);
+      console.error("Failed to parse resulting data series unit:", error);
+      return;
+    }
+
     let recipeUsed: Recipe | undefined;
     try {
       const unparsedRecipe = form.get("resultingRecipe");
@@ -66,7 +79,10 @@ export default function CopyAndScale({
         setIsLoading(false);
         throw new Error("Why is this a file?");
       }
-      recipeUsed = recipeFromUnknown(unparsedRecipe);
+      if (!unparsedRecipe) {
+        throw new Error("Failed to parse recipe from form data");
+      }
+      recipeUsed = SmartRecipe.fromSerialized(unparsedRecipe).toRecipe();
       if (!recipeUsed) {
         throw new Error("Failed to parse recipe from form data");
       }
@@ -76,12 +92,6 @@ export default function CopyAndScale({
       console.error("Failed to parse recipe:", error);
       return;
     }
-
-    // Make the data series into an api compatible string array
-    const rawDataSeries: string[] = Years.map(year => {
-      const value = resultingDataSeries[year];
-      return value ? value.toString() : "";
-    });
 
     const formData: GoalCreateInput = {
       goalId: undefined,
@@ -96,12 +106,18 @@ export default function CopyAndScale({
       externalTableId: null,
       externalSelection: null,
 
-      recipeUsed: recipeUsed,
+      dataSeriesId: undefined,
+      dataSeries: { dateValues: resultingDataSeries, unit: resultingUnit, },
+      dataSeriesRecipeId: undefined,
+      dataSeriesRecipe: recipeUsed,
 
-      rawDataSeries: rawDataSeries,
-      rawDataSeriesUnit: goal.dataSeries?.unit,
-      rawBaselineDataSeries: undefined,
-      rawBaselineDataSeriesUnit: undefined,
+      recipeSuggestions: undefined,
+
+      // TODO: scale baseline
+      baseline: undefined,
+      baselineId: undefined,
+      baselineRecipeId: undefined,
+      baselineRecipe: undefined,
 
       roadmapId: copyToId as string ?? "",
       // TODO: copy tags?
@@ -127,36 +143,31 @@ export default function CopyAndScale({
       </button>
 
       {/* Modal */}
-      <dialog ref={modalRef} aria-modal className={`rounded padding-inline-0 padding-block-0 ${styles['dialog']}`}  > {/* TODO: Make responsive? Or is it already but just buggy? */}
-        {/* Title bar */}
+      <dialog ref={modalRef} aria-modal className={`rounded padding-inline-0 padding-block-0 ${styles.dialog}`}>
         <div className={`${styles['dialog-content']}`}>
           <div className={`${styles['dialog-header']}`}>
-            {/* Close button */}
             <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
-              <IconX aria-hidden="true" width={28} height={28} strokeWidth={3} style={{minWidth: '28px'}} />
+              <IconX aria-hidden="true" width={28} height={28} strokeWidth={3} style={{ minWidth: '28px' }} />
             </button>
-
-            {/* Title */}
             <h2 className="margin-0">{t("components:copy_and_scale.title", { goalName: goal.name })}</h2>
           </div>
 
-          {/* Scaling form */}
-          <form action={formSubmission} name="copyAndScale" className="padding-100 flex flex-direction-column" style={{minHeight: '0'}}>
+          <div className={`${styles['dialog-body']}`}>
+            <form action={formSubmission} name="copyAndScale">
 
-            {/* Roadmap version select */}
-            <label className="block margin-block-100">
-              {t("components:copy_and_scale.select_roadmap_version")}
-              <select className="block margin-block-25 width-100" required name="copyTo" id="copyTo">
-                <option value="">{t("components:copy_and_scale.select_roadmap_version_option")}</option>
-                {roadmapOptions.map(roadmap => (
-                  <option key={roadmap.id} value={roadmap.id}>
-                    {`${roadmap.name} ${roadmap.version ? `(${t("components:copy_and_scale.version")} ${roadmap.version.toString()})` : ""}`}
-                  </option>
-                ))}
-              </select>
-            </label>
+              {/* Roadmap version select */}
+              <label className="block margin-block-100">
+                {t("components:copy_and_scale.select_roadmap_version")}
+                <select className="block margin-block-25 width-100" required name="copyTo" id="copyTo">
+                  <option value="">{t("components:copy_and_scale.select_roadmap_version_option")}</option>
+                  {roadmapOptions.map(roadmap => (
+                    <option key={roadmap.id} value={roadmap.id}>
+                      {`${roadmap.name} ${roadmap.version ? `(${t("components:copy_and_scale.version")} ${roadmap.version.toString()})` : ""}`}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-            <div className={`flex-grow-100 ${styles['dialog-body']}`}>
               <RecipeContextProvider>
                 <SuggestedRecipeApplier
                   permissions={{
@@ -166,57 +177,20 @@ export default function CopyAndScale({
                     allowTypeEditing: false,
                     allowValueEditing: true,
                   }}
-                  DEPRECATED_recipeOverrideFunctions={[
-                    // Set the value of the first data series to be of this goal
-                    (r => {
-                      if (!goal.dataSeries) {
-                        console.warn("Goal has no data series to set scaling reference");
-                        return r;
-                      }
-
-                      const firstDataSeries = Object.entries(r.variables)
-                        .find(([_n, v]) => v.type === RecipeDataTypes.DataSeries);
-
-                      const firstDataSeriesName = firstDataSeries?.[0];
-                      if (!firstDataSeriesName) {
-                        console.warn("No data series variable found to set scaling reference");
-                        return r;
-                      }
-                      const firstDataSeriesVariable = firstDataSeries?.[1];
-
-                      if (!isRecipeDataSeries(firstDataSeriesVariable)) {
-                        console.warn("First data series variable is not of type RecipeDataSeries");
-                        return r;
-                      }
-
-                      firstDataSeriesVariable.link = goal.dataSeries.id;
-                      firstDataSeriesVariable.unit = goal.dataSeries.unit;
-                      // TODO: remove evil, see the type def for RecipeDataSeriesVariable
-                      firstDataSeriesVariable.goalName = goal.name || goal.indicatorParameter;
-                      firstDataSeriesVariable.disabled = true;
-
-                      return {
-                        ...r,
-                        variables: {
-                          ...r.variables,
-                          [firstDataSeriesName]: firstDataSeriesVariable,
-                        },
-                      };
-                    })
-                  ]}
                 />
 
                 <FormIntegration
                   DataSeriesFormElement={<input name="resultingDataSeries" />}
+                  UnitFormElement={<input name="resultingDataSeriesUnit" />}
                   RecipeFormElement={<input name="resultingRecipe" />}
                 />
               </RecipeContextProvider>
-            </div>
-            
-            <button className="block seagreen color-purewhite smooth width-100 margin-inline-auto font-weight-500">
-              {t("components:copy_and_scale.create_scaled_copy")}
-            </button>
-          </form>
+
+              <button className="block seagreen color-purewhite smooth width-100 margin-inline-auto font-weight-500">
+                {t("components:copy_and_scale.create_scaled_copy")}
+              </button>
+            </form>
+          </div>
         </div>
       </dialog>
     </>

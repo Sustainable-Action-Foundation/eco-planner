@@ -2,6 +2,19 @@
   "common": {
     "external_resources": "Externa resurser"
   },
+  "actions": {
+    "actions": "Åtgärder",
+    "list": "Lista",
+    "grid": "Rutnät",
+    "filter": "Filter",
+    "create_new_action": "$t(common:new.action)",
+    "visit_action": "Gå till $t(common:action_definite_one)",
+    "title": "Titel",
+    "author": "Skapare",
+    "search_actions": "Sök bland $t(common:count.action)",
+    "shown_results": "Visar $t(common:count.action)",
+    "show_as": "Visa som"
+  }, 
   "action": {
     "action_label": "{{$t(common:action_one), titleCase}}",
     "effects_label": "{{$t(common:effect_other), titleCase}}",
@@ -50,11 +63,12 @@
     "menu": "Meny",
     "description": "Beskrivning",
     "actions_for_goal": "{{$t(common:action_other), titleCase}} för {{goalName}}",
-    "link_existing_action": "Koppla till en existerande $t(common:action_one)",
+    "link_existing_action": "Koppla $t(common:effect_one) till en existerande $t(common:action_one)",
     "create_new_action": "$t(common:new.action)",
     "action_timeline": "Tidslinje över $t(common:action_other)",
     "goals_working_towards": "{{$t(common:goal_other), titleCase}} som jobbar mot {{goalName}}",
-    "related_goals": "Angränsande $t(common:goal_other)"
+    "related_goals": "Angränsande $t(common:goal_other)",
+    "sub_goals": "Underliggande $t(common:goal_other)"
   },
   "goal_create": {
     "breadcrumb": "$t(common:new.goal)",

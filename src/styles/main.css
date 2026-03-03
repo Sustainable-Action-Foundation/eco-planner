@@ -74,6 +74,7 @@
 }
 
 /* Select multiple (alternative to simple radiobuttons */
+/* TODO: Naming makes no sense here, i think this is refering to having multiple options? */
 .radio-select-multiple {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
@@ -116,6 +117,7 @@
 }
 
 /* Select two (alternative to simple radiobuttons */
+/* TODO: Naming makes no sense here, shoudl be select either? */
 .radio-select-two {
   /* TODO: Need some sort of hover/focus state here */
   font-size: small;
@@ -149,6 +151,10 @@
 /* Utility classes */
 .font-size-smaller {
   font-size: smaller;
+}
+
+.font-size-14px {
+  font-size: 14px;
 }
 
 .font-size-100 {
@@ -235,6 +241,10 @@
   flex-direction: column-reverse;
 }
 
+.border-radius-0 {
+  border-radius: 0;
+}
+
 .smooth {
   border-radius: .25rem;
 }
@@ -313,6 +323,10 @@
 
 .width-100 {
   width: 100%;
+}
+
+.max-width-100 {
+  max-width: 100%;
 }
 
 .height-0 {
@@ -2201,6 +2215,10 @@ container-text {
   flex-grow: 5;
 }
 
+.flex-grow-infinity {
+  flex-grow: calc(infinity * 1);
+}
+
 .flex-grow-inherit {
   flex-grow: inherit;
 }
@@ -2219,6 +2237,66 @@ container-text {
 
 .flex-grow-unset {
   flex-grow: unset;
+}
+
+.flex-shrink-0 {
+  flex-shrink: 0;
+}
+
+.flex-shrink-25 {
+  flex-shrink: 0.25;
+}
+
+.flex-shrink-50 {
+  flex-shrink: 0.5;
+}
+
+.flex-shrink-75 {
+  flex-shrink: 0.75;
+}
+
+.flex-shrink-100 {
+  flex-shrink: 1;
+}
+
+.flex-shrink-200 {
+  flex-shrink: 2;
+}
+
+.flex-shrink-300 {
+  flex-shrink: 3;
+}
+
+.flex-shrink-400 {
+  flex-shrink: 4;
+}
+
+.flex-shrink-500 {
+  flex-shrink: 5;
+}
+
+.flex-shrink-infinity {
+  flex-shrink: calc(infinity * 1);
+}
+
+.flex-shrink-inherit {
+  flex-shrink: inherit;
+}
+
+.flex-shrink-initial {
+  flex-shrink: initial;
+}
+
+.flex-shrink-revert {
+  flex-shrink: revert;
+}
+
+.flex-shrink-revert-layer {
+  flex-shrink: revert-layer;
+}
+
+.flex-shrink-unset {
+  flex-shrink: unset;
 }
 
 .flex-wrap-nowrap {
@@ -2607,6 +2685,14 @@ container-text {
 
 .position-unset {
   position: unset;
+}
+
+.line-height-100 {
+  line-height: 1;
+}
+
+.line-height-150 {
+  line-height: 1.5;
 }
 
 /*# sourceMappingURL=main.css.map */

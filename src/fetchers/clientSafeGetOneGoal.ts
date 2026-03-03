@@ -3,9 +3,9 @@
 import { clientSafeGoalSelection } from "@/fetchers/inclusionSelectors";
 import { getSession, LoginData } from "@/lib/session"
 import prisma from "@/prismaClient";
-import { Prisma } from "@prisma/client";
 import { cookies } from "next/headers";
 import { unstable_cacheTag as cacheTag } from 'next/cache'
+import { ClientGoal } from "@/types";
 
 /**
  * A function similar to `getOneGoal`, but excluding potentially sensitive data.
@@ -14,18 +14,16 @@ import { unstable_cacheTag as cacheTag } from 'next/cache'
  * @param id ID of the goal to get
  * @returns Goal object with actions
  */
-export default async function clientSafeGetOneGoal(id: string) {
+export default async function clientSafeGetOneGoal(id: string): Promise<ClientGoal | null> {
   const session = await getSession(await cookies());
   return clientSafeGetCachedGoal(id, session.user)
 }
 
-async function clientSafeGetCachedGoal(id: string, user: LoginData['user']) {
+async function clientSafeGetCachedGoal(id: string, user: LoginData['user']): Promise<ClientGoal | null> {
   'use cache';
   cacheTag('database', 'goal', 'action', 'dataSeries');
 
-  let goal: Prisma.GoalGetPayload<{
-    select: typeof clientSafeGoalSelection;
-  }> | null = null;
+  let goal: ClientGoal | null = null;
 
   // If user is admin, always get the goal
   if (user?.isAdmin) {
@@ -33,11 +31,11 @@ async function clientSafeGetCachedGoal(id: string, user: LoginData['user']) {
       goal = await prisma.goal.findUnique({
         where: { id },
         select: clientSafeGoalSelection,
-      });
+      }) satisfies ClientGoal | null;
     } catch (error) {
       console.log(error);
       console.log('Error fetching admin goal');
-      return null
+      return null;
     }
 
     return goal;
@@ -61,7 +59,7 @@ async function clientSafeGetCachedGoal(id: string, user: LoginData['user']) {
           }
         },
         select: clientSafeGoalSelection,
-      });
+      }) satisfies ClientGoal | null;
     } catch (error) {
       console.log(error);
       console.log('Error fetching user goal');
@@ -79,7 +77,7 @@ async function clientSafeGetCachedGoal(id: string, user: LoginData['user']) {
         roadmap: { isPublic: true }
       },
       select: clientSafeGoalSelection,
-    });
+    }) satisfies ClientGoal | null;
   } catch (error) {
     console.log(error);
     console.log('Error fetching public goal');

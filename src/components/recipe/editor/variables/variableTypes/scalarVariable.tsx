@@ -1,12 +1,13 @@
 "use client"
 
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
-import { RecipeScalar } from "@/functions/recipe-parser/types";
+import { RecipeScalar } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "./recipeEditorPermissions";
 import { updateScalarVariableValue } from "@/components/recipe/variableEditingHelpers";
 import VariableTypeCommon from "./commonVariable";
 
+// TODO: Fix labels
 export default function VariableTypeScalar({
   name,
   permissions,
@@ -15,7 +16,7 @@ export default function VariableTypeScalar({
   permissions?: RecipeEditorPermissions;
 }) {
   const { t } = useTranslation("components");
-  const { recipe, setRecipe } = useRecipe();
+  const { recipe, setVariable } = useRecipe();
   const variable = recipe?.variables[name] as RecipeScalar;
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
@@ -26,13 +27,12 @@ export default function VariableTypeScalar({
       permissions={permissions}
     >
       <div className="floating-label inline-block" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
-        <label htmlFor={`scalar-${name}`}>
+        <label htmlFor="variable-tree-vector-index-picker">
           {t("components:recipe_editor.scalar")}
         </label>
         <input
-          id={`scalar-${name}`}
           defaultValue={variable.value}
-          onChange={(e) => updateScalarVariableValue(name, e.target.value, setRecipe)}
+          onChange={(e) => updateScalarVariableValue(name, e.target.value, setVariable)}
           type="number"
           placeholder=" "
           disabled={!permissions.allowValueEditing}
@@ -53,7 +53,7 @@ export function VariableTypeScalarSimple({
   props?: React.InputHTMLAttributes<HTMLInputElement>;
 }) {
   const { t } = useTranslation("components");
-  const { recipe, setRecipe } = useRecipe();
+  const { recipe, setVariable } = useRecipe();
   const variable = recipe?.variables[variableName] as RecipeScalar;
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
@@ -62,8 +62,8 @@ export function VariableTypeScalarSimple({
     <input
       className="inline width-auto"
       defaultValue={variable.value}
-      onChange={(e) => updateScalarVariableValue(variableName, e.target.value, setRecipe)}
-      type="text" // TODO: this should be number but it messes with parent forms like in copyAndScale
+      onChange={(e) => updateScalarVariableValue(variableName, e.target.value, setVariable)}
+      type="number"
       placeholder={t("components:recipe_editor.scalar")}
       disabled={!permissions.allowValueEditing}
       readOnly={!permissions.allowValueEditing}

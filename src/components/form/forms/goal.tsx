@@ -2,35 +2,35 @@
 
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import formSubmitter from "@/functions/formSubmitter";
-import mathjs from "@/math";
-import { Goal, GoalCreateInput, GoalUpdateInput, JSONValue, Years } from "@/types";
-import { DataSeries } from "@prisma/client";
+import { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput, isDateValuesWithUnit, isISOIshDate } from "@/types";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput";
-import { getDataSeries } from "../elements/dataSeriesInput/utils";
+import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput";
 import styles from '../forms.module.css';
 import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections";
 import { RecipeContextProvider } from "@/components/recipe/context/recipeContext.provider";
-import { Recipe } from "@/functions/recipe-parser/types";
-import { cleanRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
+import { Recipe } from "@/functions/recipe/types";
 import TextEditor from "../elements/textEditor/editor";
 import { Content } from "@tiptap/core";
 import SuggestedRecipeToggle from "@/components/recipe/suggestions/suggestedRecipeToggle";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import FormIntegration from "@/components/recipe/editor/output/formIntegration";
+import { SmartRecipe } from "@/functions/recipe/smartRecipe";
 
-enum DataSeriesType {
-  Static = "STATIC",
-  Inherited = "INHERIT",
-  Combined = "COMBINE",
-}
+const DataSeriesType = {
+  Static: "STATIC",
+  Inherited: "INHERIT",
+  Combined: "COMBINE",
+} as const;
+type DataSeriesType = (typeof DataSeriesType)[keyof typeof DataSeriesType];
 
-enum BaselineType {
-  Initial = "INITIAL",
-  Custom = "CUSTOM",
-  Inherited = "INHERIT",
-}
+const BaselineType = {
+  Initial: "INITIAL",
+  InitialNonZero: "INITIAL_NON_ZERO",
+  Custom: "CUSTOM",
+  Inherited: "INHERIT",
+} as const;
+type BaselineType = (typeof BaselineType)[keyof typeof BaselineType];
 
 export default function GoalForm({
   roadmapId,
@@ -39,17 +39,11 @@ export default function GoalForm({
 }: {
   roadmapId?: string,
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
-  currentGoal?: Goal & {
-    dataSeries: DataSeries | null,
-    baselineDataSeries: DataSeries | null,
-    author: { id: string, username: string },
-    links?: { url: string, description: string | null }[],
-    roadmap: { id: string },
-  },
+  currentGoal?: Goal;
 }) {
   const { t } = useTranslation(["forms", "common"]);
   const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(DataSeriesType.Inherited);
-  const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baselineDataSeries ? BaselineType.Custom : BaselineType.Initial);
+  const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baseline ? BaselineType.Custom : BaselineType.Initial);
   const [editorContent, setEditorContent] = useState<Content>(() => {
     if (!currentGoal?.description) return null;
 
@@ -68,7 +62,7 @@ export default function GoalForm({
     }));
   }, [roadmapAlternatives, t]);
 
-  const [timestamp] = useState(() => Date.now());
+  const timestamp = useMemo(() => Date.now(), []);
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -86,110 +80,172 @@ export default function GoalForm({
       return;
     }
 
-    // Get data series as an array of numbers in string format, the actual parsing is done by the API
-    const dataSeries = getDataSeries(form);
-
-    // Extract baseline data series (if any)
-    const baselineDataSeriesArray = getDataSeries(form, "baselineDataSeries");
-    const baselineDataSeries = baselineDataSeriesArray.length > 0 ? baselineDataSeriesArray : undefined; // Omit if empty
-
-    // Get scaling recipe for combined/inherited goals
-    const recipeString = formData.get("resultingRecipe") as string | null;
-    let parsedRecipe: Recipe | null = null;
-    if (recipeString) {
+    // Parse recipe (optional)
+    let dataSeriesRecipe: Recipe | undefined = undefined;
+    const resultingRecipeString = formData.get("resultingRecipe") as string | null;
+    if (resultingRecipeString) {
       try {
-        parsedRecipe = recipeFromUnknown(recipeString);
-      }
-      catch (error) {
-        console.error("Failed to parse recipe from form data:", error);
+        dataSeriesRecipe = SmartRecipe.fromSerialized(resultingRecipeString).toRecipe();
+      } catch (e) {
+        console.error("Failed to parse resulting recipe from form:", e);
         event.target.reportValidity();
         return;
       }
     }
 
-    // TODO: deprecated - use recipes instead
-    // Build inheritFrom array (for inherited/combined goals)
-    const inheritFrom: { id: string, isInverted?: boolean }[] = [];
-    formData.getAll("inheritFrom")?.forEach((id) => {
-      if (id instanceof File) {
-        return;
-      } else if (formData.getAll("invert-inherit")?.includes(id)) {
-        inheritFrom.push({ id: id, isInverted: true });
-        return;
-      } else {
-        inheritFrom.push({ id: id });
-      }
-    })
-
-    // Parse the unit (if provided)
-    let parsedUnit: string | null = null;
+    // Parse date values (required)
+    const resultingDateValuesString = formData.get("resultingDateValues") as string | null;
+    if (!resultingDateValuesString) {
+      console.error("No resulting date values provided in form.");
+      event.target.reportValidity();
+      return;
+    }
+    let dataSeries: DateValuesWithUnit | undefined = undefined;
     try {
-      parsedUnit = mathjs.unit((form.namedItem("dataUnit") as HTMLInputElement)?.value).toString();
-    } catch {
-      console.log("Failed to parse unit. Using raw string instead, which may disable some features.");
+      dataSeries = JSON.parse(resultingDateValuesString) as DateValuesWithUnit;
+    } catch (e) {
+      console.error("Failed to parse resulting date values from form:", e);
+      event.target.reportValidity();
+      return;
+    }
+    // Validate parsed date values
+    if (
+      !dataSeries
+      || !isDateValuesWithUnit(dataSeries)
+    ) {
+      console.error("Parsed date values from form are invalid:", dataSeries);
+      event.target.reportValidity();
+      return;
+    }
+
+    let baseline: DateValuesWithUnit | undefined = undefined;
+    if (baselineType === BaselineType.Custom) {
+      const baselineString = formData.get("baseline-data-series") as string | null;
+      if (baselineString) {
+        try {
+          baseline = JSON.parse(baselineString) as DateValuesWithUnit;
+        } catch (e) {
+          console.error("Failed to parse baseline date values from form:", e);
+          event.target.reportValidity();
+          return;
+        }
+      }
+    }
+    else if (
+      baselineType === BaselineType.Initial
+      || baselineType === BaselineType.InitialNonZero
+    ) {
+      // Use the first value of the data series as the baseline
+      const dates = Object.keys(dataSeries.dateValues).sort();
+      if (!dates.every(isISOIshDate)) throw new Error("Dates in data series are not in a valid ISO-ish format.");
+      if (dates.length === 0) {
+        console.error("Cannot use initial baseline when data series is empty.");
+        event.target.reportValidity();
+        return;
+      }
+
+      baseline = {
+        unit: dataSeries.unit,
+        dateValues: {},
+      } satisfies DateValuesWithUnit;
+
+      const firstDateValue = baselineType === BaselineType.InitialNonZero
+        ? dataSeries.dateValues[dates.find(date => dataSeries.dateValues[date] !== 0) || dates[0]]
+        : dataSeries.dateValues[dates[0]]
+
+      for (const date of dates) {
+        baseline.dateValues[date] = firstDateValue;
+      }
+    }
+    else if (baselineType === BaselineType.Inherited) {
+      const inheritedBaselineId = formData.get("inherited-baseline-id") as string | null;
+      if (inheritedBaselineId) {
+        // Just set the baseline ID, the API will handle the rest
+      }
+      else {
+        console.error("No inherited baseline ID provided in form.");
+        event.target.reportValidity();
+        return;
+      }
+    }
+    // Throw if baseline is missing on create
+    if (!currentGoal && !baseline) {
+      console.error("No baseline provided for new goal.");
+      event.target.reportValidity();
+      return;
     }
 
     // Build the JSON payload for the API
     let formContent: GoalCreateInput | GoalUpdateInput;
-    if (currentGoal) {
-      formContent = {
-        goalId: currentGoal.id,
-        timestamp: timestamp, // Only needed for edits
-
-        name: formData.get("goalName") as string | null || undefined,
-        description: JSON.stringify(editorContent),
-        indicatorParameter: formData.get("indicatorParameter") as string | null ?? undefined,
-        isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked ?? undefined,
-
-        externalDataset: undefined,
-        externalTableId: undefined,
-        externalSelection: undefined,
-
-        // TODO: Add a way to clear recipe
-        recipeUsed: parsedRecipe || undefined,
-
-        rawDataSeries: dataSeries || undefined,
-        // TODO: Add a toggle isUnitless to the form, which sets dataUnit to null if checked
-        rawDataSeriesUnit: parsedUnit || formData.get("dataUnit") as string | null || undefined,
-        // TODO: Add a way to clear baseline
-        rawBaselineDataSeries: baselineDataSeries,
-        rawBaselineDataSeriesUnit: baselineDataSeries ? parsedUnit || formData.get("dataUnit") as string | null || undefined : undefined,
-
-        roadmapId: undefined, // Can't reassign the roadmap of an existing goal
-        rawTags: undefined, // TODO: add tags input
-
-        // DEPRECATED - moved to description
-        links: undefined,
-      }
-    } else {
+    if (!currentGoal && baseline) {
+      // Create
       formContent = {
         goalId: undefined, // Ignored when creating
         timestamp: undefined, // Ignored when creating
 
-        name: formData.get("goalName") as string | null || null,
+        name: formData.get("goalName") as string | null ?? null,
         description: JSON.stringify(editorContent),
         indicatorParameter: formData.get("indicatorParameter") as string | null ?? (event.target.reportValidity(), ""),
         isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked || false,
+        recipeSuggestions: undefined, // TODO: add recipe suggestions input
 
         // Goals are currently created without historical data (external data), but the API can handle it if we change this later
         externalDataset: null,
         externalTableId: null,
         externalSelection: null,
 
-        recipeUsed: parsedRecipe,
+        dataSeriesId: null,
+        dataSeries: dataSeries,
+        dataSeriesRecipeId: null,
+        dataSeriesRecipe: dataSeriesRecipe,
 
-        rawDataSeries: dataSeries,
-        // TODO: Add a toggle isUnitless to the form, which sets dataUnit to null if checked
-        rawDataSeriesUnit: parsedUnit || formData.get("dataUnit") as string | null || undefined,
-        rawBaselineDataSeries: baselineDataSeries,
-        rawBaselineDataSeriesUnit: baselineDataSeries ? parsedUnit || formData.get("dataUnit") as string | null || undefined : undefined,
+        baselineId: null,
+        baseline: baseline,
+        baselineRecipeId: null,
+        baselineRecipe: null,
 
         roadmapId: roadmapId || parentRoadmapId,
         rawTags: undefined, // TODO: add tags input
 
         // DEPRECATED - moved to description
         links: undefined,
-      }
+      } satisfies GoalCreateInput;
+    }
+    else if (currentGoal) {
+      // Update
+      formContent = {
+        goalId: currentGoal.id,
+        timestamp: timestamp, // Only needed for edits
+
+        name: formData.get("goalName") as string | null ?? undefined,
+        description: JSON.stringify(editorContent),
+        indicatorParameter: formData.get("indicatorParameter") as string | null ?? undefined,
+        isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked ?? undefined,
+        recipeSuggestions: undefined, // TODO: add recipe suggestions input
+
+        externalDataset: undefined,
+        externalTableId: undefined,
+        externalSelection: undefined,
+
+        dataSeriesId: undefined,
+        dataSeries: dataSeries,
+        dataSeriesRecipeId: undefined,
+        dataSeriesRecipe: dataSeriesRecipe,
+
+        baselineId: undefined,
+        baseline: baseline,
+        baselineRecipeId: undefined,
+        baselineRecipe: undefined,
+
+        roadmapId: undefined, // Can't reassign the roadmap of an existing goal
+        rawTags: undefined, // TODO: add tags input
+
+        // DEPRECATED - moved to description
+        links: undefined,
+      } satisfies GoalUpdateInput;
+    }
+    else {
+      throw new Error("Missing data to create or update goal.");
     }
 
     const formJSON = JSON.stringify(formContent);
@@ -198,31 +254,8 @@ export default function GoalForm({
     formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST', t);
   }
 
-  // Prepare data series string
-  const dataArray: (number | null)[] = [];
-  if (currentGoal?.dataSeries) {
-    for (const i of Years) {
-      dataArray.push(currentGoal.dataSeries[i]);
-    }
-  }
-  const dataSeriesString = dataArray.join(';');
-
-  // Prepare baseline data series string
-  const baselineArray: (number | null)[] = []
-  if (currentGoal?.baselineDataSeries) {
-    for (const i of Years) {
-      baselineArray.push(currentGoal.baselineDataSeries[i])
-    }
-  }
-  const baselineString = baselineArray.join(';')
-
   // Index for data-position attribute in legend elements (for accessibility)
   let positionIndex = 1;
-
-  const [initialRecipe] = useState<Recipe | undefined>(() => currentGoal?.recipeUsed?.recipe
-    ? cleanRecipe(currentGoal.recipeUsed.recipe as JSONValue)
-    : undefined
-  );
 
   return (
     <>
@@ -260,7 +293,7 @@ export default function GoalForm({
 
           <label id="description-label">{t("forms:goal.goal_description")}</label>
           <TextEditor
-            className="margin-top-25 margin-bottom-100" // TODO: Need label for texteditormenu
+            className="margin-top-25 margin-bottom-100" // TODO: Need label for textEditorMenu
             id="description"
             ariaLabelledBy="description-label"
             placeholder={t("forms:text_editor_menu.default_placeholder")}
@@ -301,23 +334,24 @@ export default function GoalForm({
           {(
             dataSeriesType === DataSeriesType.Static
           ) &&
-            <ManualGoalForm currentGoal={currentGoal} dataSeriesString={dataSeriesString} />
+            <ManualGoalForm
+              currentGoal={currentGoal}
+              outputFormElement={<input name="data-series" />}
+            />
           }
           {(
             !dataSeriesType // Fallback for undefined or otherwise falsy
             || dataSeriesType === DataSeriesType.Inherited
             || dataSeriesType === DataSeriesType.Combined
           ) &&
-            <RecipeContextProvider
-              initialRecipe={initialRecipe}
-            >
-              <SuggestedRecipeToggle
-                initialRecipe={initialRecipe}
-              />
+            <RecipeContextProvider>
+              {/* TODO: Want to clear recipe when switching between suggested or custom recipes? */}
+
+              <SuggestedRecipeToggle />
 
               <FormIntegration
                 RecipeFormElement={<input name="resultingRecipe" />}
-                UnitFormElement={<input name="dataUnit" />}
+                DateValuesFormElement={<input name="resultingDateValues" />}
               />
             </RecipeContextProvider>
           }
@@ -325,11 +359,18 @@ export default function GoalForm({
 
         {/* Baseline selection section */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_baseline_for_actions")}</legend>
+          <legend
+            data-position={positionIndex++}
+            className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
+          >
+            {t("forms:goal.choose_baseline_for_actions")}
+          </legend>
+
           <label>
             {t("forms:goal.baseline_label")}
             <select className="block margin-top-25 margin-bottom-100" name="baselineSelector" id="baselineSelector" value={baselineType} onChange={(e) => setBaselineType(e.target.value as BaselineType)}>
               <option value={BaselineType.Initial}>{t("forms:goal.baseline_types.initial")}</option>
+              <option value={BaselineType.InitialNonZero}>{t("forms:goal.baseline_types.initial_non_zero")}</option>
               <option value={BaselineType.Custom}>{t("forms:goal.baseline_types.custom")}</option>
               <option value={BaselineType.Inherited}>{t("forms:goal.baseline_types.inherited")}</option>
             </select>
@@ -337,19 +378,21 @@ export default function GoalForm({
 
           {/* Custom baseline input */}
           {baselineType === BaselineType.Custom &&
-            <DataSeriesInput
-              dataSeriesString={baselineString}
-              inputName="baselineDataSeries"
-              inputId="baselineDataSeries"
-              labelKey="forms:data_series_input.custom_baseline"
+            <DateValuesInput
+              outputFormElement={<input name="baseline-data-series" />}
+              label={t("forms:data_series_input.custom_baseline")}
             />
           }
 
           {/* Inherited baseline input */}
           {baselineType === BaselineType.Inherited &&
-            <InheritingBaseline />
+            <InheritingBaseline
+              outputFormElement={<input name="inherited-baseline-id" />}
+            />
           }
         </fieldset>
+
+        {/* TODO suggested recipes to inherit with */}
 
         {/* External links section */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>

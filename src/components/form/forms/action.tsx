@@ -1,33 +1,29 @@
 "use client"
 
-import type getRoadmaps from "@/fetchers/getRoadmaps"
 import formSubmitter from "@/functions/formSubmitter"
-import { ActionInput } from "@/types"
-import { Action, ActionImpactType, DataSeries, Effect } from "@prisma/client"
+import { Action, ActionInput, DateValuesWithUnit, MultiRoadmapInstance } from "@/types"
+import { ActionImpactType } from "@prisma/client"
 import { useTranslation } from "react-i18next"
-import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput"
-import { getDataSeries } from "../elements/dataSeriesInput/utils"
+import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput"
 import styles from '../forms.module.css'
 import TextEditor from "../elements/textEditor/editor"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { Content } from "@tiptap/core"
 
 export default function ActionForm({
-  roadmapId,
-  roadmapAlternatives,
   goalId,
+  roadmapId,
   currentAction,
+  roadmaps,
 }: {
-  roadmapId?: string,
-  roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
   goalId?: string,
-  currentAction?: Action & {
-    effects: (Effect & {
-      dataSeries?: DataSeries | null,
-    })[],
-  },
+  roadmapId?: string,
+  currentAction?: Action,
+  roadmaps: MultiRoadmapInstance[],
 }) {
   const { t } = useTranslation(["forms", "common"]);
+  const timestamp = useMemo(() => Date.now(), []);
+
   const [editorContent, setEditorContent] = useState<Content>(() => {
     if (!currentAction?.description) return null;
 
@@ -43,36 +39,35 @@ export default function ActionForm({
 
     const form = event.target.elements
 
-    // Get the data series as an array of numbers, the actual parsing is done by the API
-    const dataSeries = getDataSeries(form);
-
-    const formContent: ActionInput & { actionId: string | undefined, timestamp: number } = {
-      name: (form.namedItem("actionName") as HTMLInputElement)?.value,
-      description: JSON.stringify(editorContent),
-      costEfficiency: (form.namedItem("costEfficiency") as HTMLInputElement)?.value,
-      expectedOutcome: (form.namedItem("expectedOutcome") as HTMLInputElement)?.value,
-      impactType: (form.namedItem("impactType") as HTMLSelectElement)?.value as ActionImpactType | undefined,
-      dataSeries: dataSeries,
-      startYear: (form.namedItem("startYear") as HTMLInputElement)?.value ? parseInt((form.namedItem("startYear") as HTMLInputElement)?.value) : undefined,
-      endYear: (form.namedItem("endYear") as HTMLInputElement)?.value ? parseInt((form.namedItem("endYear") as HTMLInputElement)?.value) : undefined,
-      projectManager: (form.namedItem("projectManager") as HTMLInputElement)?.value,
-      relevantActors: (form.namedItem("relevantActors") as HTMLInputElement)?.value,
-      isSufficiency: (form.namedItem("isSufficiency") as HTMLInputElement)?.checked,
-      isEfficiency: (form.namedItem("isEfficiency") as HTMLInputElement)?.checked,
-      isRenewables: (form.namedItem("isRenewables") as HTMLInputElement)?.checked,
-      roadmapId: (form.namedItem("roadmapId") as HTMLInputElement)?.value || roadmapId,
-      goalId: goalId,
-      actionId: currentAction?.id || undefined,
-      links: undefined, // TODO: Links in DB should be migrated to description
+    const formContent: ActionInput = {
+      actionId: undefined,
+      roadmapId: roadmapId ?? (form.namedItem("roadmapId") as HTMLInputElement)?.value ?? undefined,
+      goalId: goalId ?? undefined,
+      description: editorContent ? JSON.stringify(editorContent) : "",
+      name: (form.namedItem("actionName") as HTMLInputElement)?.value ?? "",
+      startYear: form.namedItem("startYear") ? parseInt((form.namedItem("startYear") as HTMLInputElement).value) : undefined,
+      endYear: form.namedItem("endYear") ? parseInt((form.namedItem("endYear") as HTMLInputElement).value) : undefined,
+      costEfficiency: (form.namedItem("costEfficiency") as HTMLInputElement)?.value ?? undefined,
+      expectedOutcome: (form.namedItem("expectedOutcome") as HTMLInputElement)?.value ?? undefined,
+      projectManager: (form.namedItem("projectManager") as HTMLInputElement)?.value ?? undefined,
+      relevantActors: (form.namedItem("relevantActors") as HTMLInputElement)?.value ?? undefined,
+      isSufficiency: (form.namedItem("isSufficiency") as HTMLInputElement)?.checked ?? false,
+      isEfficiency: (form.namedItem("isEfficiency") as HTMLInputElement)?.checked ?? false,
+      isRenewables: (form.namedItem("isRenewables") as HTMLInputElement)?.checked ?? false,
+      parentAction: currentAction ?? undefined,
+      childActions: undefined,
+      dataSeries: JSON.parse((form.namedItem("data-series") as HTMLInputElement)?.value) as DateValuesWithUnit,
+      impactType: goalId && !currentAction
+        ? (form.namedItem("impactType") as HTMLInputElement)?.value as ActionImpactType
+        : undefined,
+      links: undefined,
       timestamp,
-    }
+    };
 
     const formJSON = JSON.stringify(formContent);
 
     formSubmitter('/api/action', formJSON, currentAction ? 'PUT' : 'POST', t);
   }
-
-  const timestamp = Date.now();
 
   // Indexes for the data-position attribute in the legend elements
   let positionIndex = 1;
@@ -90,7 +85,7 @@ export default function ActionForm({
               {t("forms:action.relationship_label")}
               <select name="roadmapId" id="roadmapId" required className="block margin-top-25 margin-bottom-100 width-100" defaultValue={""}>
                 <option value="" disabled>{t("forms:action.relationship_no_chosen")}</option>
-                {roadmapAlternatives.map(roadmap => (
+                {roadmaps.map(roadmap => (
                   <option key={roadmap.id} value={roadmap.id}>
                     {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("common:count.action", { count: roadmap._count.actions })}`}
                   </option>
@@ -110,7 +105,7 @@ export default function ActionForm({
 
           <label id="description-label">{t("forms:action.action_description")}</label>
           <TextEditor
-            className="margin-top-25 margin-bottom-100" // TODO: Need label for texteditormenu
+            className="margin-top-25 margin-bottom-100" // TODO: Need label for textEditorMenu
             id="description"
             ariaLabelledBy="description-label"
             placeholder={t("forms:text_editor_menu.default_placeholder")}
@@ -143,11 +138,9 @@ export default function ActionForm({
               </select>
             </label>
 
-            <DataSeriesInput
-              inputName="dataSeries"
-              inputId="dataSeries"
-              // TODO: Take in any string and use that as the label instead of a key to alleviate testing
-              labelKey="forms:data_series_input.data_series"
+            <DateValuesInput
+              label={t("forms:data_series_input.data_series")}
+              outputFormElement={<input name="data-series" />}
             />
           </fieldset>
           : null

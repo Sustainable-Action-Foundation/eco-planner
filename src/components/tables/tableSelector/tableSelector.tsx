@@ -4,7 +4,7 @@ import RadioImage from './radioImage';
 import { ViewMode } from '../goals';
 import { setStoredViewMode } from '../functions/tableFunctions';
 import { useTranslation } from 'react-i18next';
-import { IconList, IconListTree, IconTableFilled } from '@tabler/icons-react';
+import { IconListTree, IconTableFilled } from '@tabler/icons-react';
 
 export default function TableSelector({ id, current, setter }: { id: string, current: ViewMode | "", setter: Dispatch<SetStateAction<ViewMode | "">> }) {
   const { t } = useTranslation("components");

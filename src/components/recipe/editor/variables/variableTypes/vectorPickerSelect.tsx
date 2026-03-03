@@ -1,13 +1,13 @@
 "use client"
 
-import { isRecipeDataSeries, isRecipeExternalDataset, RecipeDataSeries, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
+import { isRecipeDataSeries, isRecipeExternalDataset, RecipeDataSeries, VectorIndexPickerOptions } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "./recipeEditorPermissions";
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 
 export default function VectorPickerSelect({ permissions, variableName }: { permissions?: RecipeEditorPermissions, variableName: string }) {
   const { t } = useTranslation("components");
-  const { recipe, setRecipe } = useRecipe();
+  const { recipe, setVariable } = useRecipe();
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
 
@@ -28,13 +28,8 @@ export default function VectorPickerSelect({ permissions, variableName }: { perm
         }
 
         variable.pick = e.target.value as VectorIndexPickerOptions;
-        setRecipe({
-          ...recipe,
-          variables: {
-            ...recipe.variables,
-            [variableName]: variable,
-          },
-        });
+     
+        setVariable(variableName, variable)
       }}
     >
       <option value={VectorIndexPickerOptions.Whole}>{t("components:recipe_editor.pick_whole")}</option>

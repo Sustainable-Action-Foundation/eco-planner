@@ -1,6 +1,5 @@
 'use client'
 
-import { emptyRecipe } from "@/functions/recipe-parser/types";
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
 import React, { useRef, useState } from "react";
@@ -8,19 +7,13 @@ import { IconPlus } from "@tabler/icons-react";
 
 export default function EquationEditor() {
   const { t } = useTranslation("components");
-  const { recipe, setRecipe } = useRecipe();
+  const { recipe, setEquation } = useRecipe();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
 
   const handleUpdatedEq = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const eq = e.target.value;
-    if (!recipe) {
-      console.warn("No recipe set, initializing with new one form the RecipeEquationEditor component");
-      setRecipe({ ...emptyRecipe, eq });
-    }
-    else {
-      setRecipe({ ...recipe, eq });
-    }
+    setEquation(eq);
   };
 
   const handleInsertVariable = (key: string) => {

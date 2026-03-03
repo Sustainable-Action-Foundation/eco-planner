@@ -297,7 +297,7 @@ export default function TextEditorMenu({
                 setFocusedSubmenuItem
               )
             }}
-            role="menubar"
+            role="menubar" // TODO: See if we want this to be role="toolbar"
           >
             {submenuVisible && menuItemsList
               .filter((menuItem) =>

@@ -1,5 +1,6 @@
 import dataSeriesInterest from "@/functions/weightedAverageDelta";
-import { Action, Comment, DataSeries, Goal, MetaRoadmap, RoadmapType } from "@prisma/client";
+import { RoadmapType, Comment } from "@/prisma/generated";
+import { Action, Goal, MetaRoadmap, MultiRoadmapInstance } from "@/types";
 
 // Used for alphabetical sorting, we use Swedish locale and ignore case, but it can be changed here
 const collator = new Intl.Collator('sv', { numeric: true, sensitivity: 'accent', caseFirst: 'upper' });
@@ -55,14 +56,14 @@ export function roadmapSorter<T extends { metaRoadmap: { type: RoadmapType, name
 /**
  * Sorts roadmaps alphabetically by name, A-Z
  */
-export function roadmapSorterAZ<T extends { metaRoadmap: MetaRoadmap }>(a: T, b: T) {
+export function roadmapSorterAZ<T extends { metaRoadmap: MetaRoadmap | MultiRoadmapInstance["metaRoadmap"] }>(a: T, b: T) {
   return collator.compare(a.metaRoadmap.name, b.metaRoadmap.name);
 }
 
 /**
  * Sorts roadmaps by their number of goals (more goals first), with name as a tiebreaker
  */
-export function roadmapSorterGoalAmount<T extends { metaRoadmap: MetaRoadmap, _count: { goals: number } }>(a: T, b: T) {
+export function roadmapSorterGoalAmount<T extends { metaRoadmap: MetaRoadmap | MultiRoadmapInstance["metaRoadmap"], _count: { goals: number } }>(a: T, b: T) {
   if (a._count.goals > b._count.goals) {
     return -1;
   } else if (a._count.goals < b._count.goals) {
@@ -149,7 +150,7 @@ export function goalSorterActionAmountReverse<T extends { _count: { effects: num
 /**
  * Sorts goals by how "interesting" their data series are
  */
-export function goalSorterInterest<T extends { dataSeries: DataSeries | null }>(a: T, b: T) {
+export function goalSorterInterest<T extends { dataSeries: { values: { timestamp: Date; value: number; dataSeriesId?: string; }[], unit: string | null; id: string; } | null }>(a: T, b: T) {
   if (a.dataSeries == null && b.dataSeries == null) {
     return 0;
   } else if (a.dataSeries != null && b.dataSeries == null) {
@@ -162,7 +163,15 @@ export function goalSorterInterest<T extends { dataSeries: DataSeries | null }>(
       return 0;
     }
     // Higher interest gets sorted first
-    return (dataSeriesInterest(b.dataSeries) - dataSeriesInterest(a.dataSeries))
+    const aInterest = dataSeriesInterest({
+      ...a.dataSeries,
+      values: a.dataSeries.values.map(v => ({ ...v, dataSeriesId: "" }))
+    });
+    const bInterest = dataSeriesInterest({
+      ...b.dataSeries,
+      values: b.dataSeries.values.map(v => ({ ...v, dataSeriesId: "" }))
+    });
+    return bInterest - aInterest;
   }
 }
 

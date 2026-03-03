@@ -1,5 +1,6 @@
-import React from "react";
-import { useRecipe } from "@/components/recipe/context/recipeContext.use";
+import React, { useMemo } from "react";
+import { useRecipe } from "../../context/recipeContext.use";
+import { DateValuesWithUnit } from "@/types";
 
 /** 
  * ## What is this?
@@ -12,32 +13,48 @@ export default function FormIntegration({
   DataSeriesFormElement,
   UnitFormElement,
   RecipeFormElement,
+  DateValuesFormElement,
 }: {
   DataSeriesFormElement?: React.ReactElement<HTMLInputElement>;
   UnitFormElement?: React.ReactElement<HTMLInputElement>;
   RecipeFormElement?: React.ReactElement<HTMLInputElement>;
+  DateValuesFormElement?: React.ReactElement<HTMLInputElement>;
 }) {
   const {
     recipe,
     resultingDataSeries,
-    resultingUnit
+    resultingUnit,
   } = useRecipe();
+
+  const dateValues: DateValuesWithUnit | undefined = useMemo(() => {
+    if (!resultingDataSeries) return undefined;
+    return { unit: resultingUnit, dateValues: resultingDataSeries };
+  }, [resultingDataSeries, resultingUnit]);
 
   return (<>
     {DataSeriesFormElement && React.cloneElement(DataSeriesFormElement, {
       defaultValue: JSON.stringify(resultingDataSeries),
       type: "hidden",
       hidden: true,
+      readOnly: true,
     })}
     {UnitFormElement && React.cloneElement(UnitFormElement, {
-      defaultValue: resultingUnit || "",
+      defaultValue: resultingUnit ?? "",
       type: "hidden",
       hidden: true,
+      readOnly: true,
     })}
     {RecipeFormElement && React.cloneElement(RecipeFormElement, {
       defaultValue: JSON.stringify(recipe),
       type: "hidden",
       hidden: true,
+      readOnly: true,
+    })}
+    {DateValuesFormElement && React.cloneElement(DateValuesFormElement, {
+      defaultValue: JSON.stringify(dateValues),
+      type: "hidden",
+      hidden: true,
+      readOnly: true,
     })}
   </>);
 }

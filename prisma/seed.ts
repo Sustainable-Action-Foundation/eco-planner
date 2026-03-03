@@ -4,10 +4,9 @@ import { colors } from "../src/scripts/lib/colors";
 import { PrismaClient, RoadmapType } from '../src/prisma/generated';
 import bcrypt from "bcryptjs";
 import { RandomTextSE } from "./randomText";
-import { DataSeriesValueFields, Years } from "@/types";
-import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
-import { hashRecipe } from "@/functions/recipe-parser/getRecipeHash";
-import { allOurUnits } from "@/math";
+import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types";
+import { DateValues, isISOIshDate } from "@/types";
+import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 
 const prisma = new PrismaClient();
 prisma.$connect().catch((e) => {
@@ -27,47 +26,45 @@ function getRandomDateInThePast(): Date {
   return new Date(randomTimestamp);
 }
 
-function getRandomCreatedAtAndUpdatedAt(): { createdAt: Date; updatedAt: Date } {
+function getRandomCreatedAtAndUpdatedAt(): [Date, Date] {
   const createdAt = getRandomDateInThePast();
   const updatedAt = Math.random() < 0.75 ?
     createdAt
     :
     new Date(createdAt.getTime() + Math.floor(Math.random() * 1000 * 60 * 60 * 24 * 365.2425 * 5)); // Randomly set updatedAt to be after createdAt
 
-  return { createdAt, updatedAt };
+  return [createdAt, updatedAt];
 }
 
 function getRandomUnit(): string | null | undefined {
-  const nullChance = 0.1;
-  const undefinedChance = 0.1;
-
-  if (Math.random() < nullChance) return null;
-  if (Math.random() < undefinedChance) return undefined;
-
-  return allOurUnits[Math.floor(Math.random() * allOurUnits.length)];
+  return ['CO2e', 'capita', 'kWh', 's', 'mm^2/km*s', 'ps/sqrt(km)', 'ps/km^0.5', 'm3', 'kg', 'ton', 'Atemp', null, '', null, undefined, null, '', "", undefined, ,]
+    .sort(() => Math.random() - 0.5).at(0);
 }
 
-function getRandomCoherentDataPoints(): Partial<DataSeriesValueFields> {
-  const dataPoints: Partial<Record<typeof Years[number], number>> = {};
+function getRandomCoherentDateValues(): DateValues {
+  const dateRange: number[] = new Array(30).fill(0).map((_, i) => 2020 + i);
+
+  const dataPoints: DateValues = {};
+
   let startValue = Math.floor(Math.random() * 10000);
   const deviation = Math.floor(Math.random() * startValue + startValue / 100);
   const inclination = Math.random() < 0.5 ? -1 : 1; // Randomly choose to increase or decrease values
 
-  const fields: typeof Years = [];
+  const fields: number[] = [];
 
   // Small chance to get random start and end years
   if (Math.random() < 0.2) {
-    const emptyStart = Years.slice(0, Math.floor(Math.random() * 10));
-    const emptyEnd = Years.slice(-Math.floor(Math.random() * 10));
+    const emptyStart = dateRange.slice(0, Math.floor(Math.random() * 10));
+    const emptyEnd = dateRange.slice(-Math.floor(Math.random() * 10));
 
-    for (const year of Years) {
-      if (!emptyStart.includes(year) && !emptyEnd.includes(year)) {
-        fields.push(year);
+    for (const date of dateRange) {
+      if (!emptyStart.includes(date) && !emptyEnd.includes(date)) {
+        fields.push(date);
       }
     }
   }
   else {
-    fields.push(...Years); // Use all fields
+    fields.push(...dateRange); // Use all fields
   }
 
   for (const field of fields) { // Chance of skipping a field
@@ -76,26 +73,25 @@ function getRandomCoherentDataPoints(): Partial<DataSeriesValueFields> {
     }
 
     const value = startValue + Math.random() * inclination * (Math.floor(Math.random() * deviation) - Math.floor(Math.random() * deviation) / 2);
+    const timestamp = new Date(Date.UTC(field, 0, 1)).toISOString();
+    if (!isISOIshDate(timestamp)) {
+      throw new Error(`Generated timestamp ${timestamp} is not in a valid format.`);
+    }
     if (value < 0) {
-      dataPoints[field] = 0; // Ensure no negative values
+      dataPoints[timestamp] = 0; // Ensure no negative values
       startValue = 0; // Reset start value to 0 if it goes negative
     } else {
-      dataPoints[field] = value;
+      dataPoints[timestamp] = value;
       startValue = value; // Update start value for next iteration
     }
   }
 
   // TODO - add limit to recursion depth. Not that important since it's incredibly unlikely that it will be a problem
   if (Object.keys(dataPoints).length === 0) {
-    return getRandomCoherentDataPoints();
+    return getRandomCoherentDateValues();
   }
 
   return dataPoints;
-}
-
-function getParameter(): string {
-  const parameters = new Array(8).fill(null).map(() => RandomTextSE.words(Math.floor(Math.random() * 5) + 1).replace(/\s/g, '\\'));
-  return parameters[Math.floor(Math.random() * parameters.length)];
 }
 
 async function main() {
@@ -146,18 +142,18 @@ async function main() {
   });
   const users = [admin, anita, anton];
 
-  function getRandomUser() {
-    return users[Math.floor(Math.random() * users.length)];
-  }
 
   /* 
    * Helper function - depends on the users above
    */
   function makeRandomComment(options?: { roadmapId?: string, goalId?: string, actionId?: string, metaRoadmapId?: string }) {
+    const author = users[Math.floor(Math.random() * users.length)];
+    const [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
     return {
-      authorId: getRandomUser().id,
+      authorId: author.id,
       commentText: RandomTextSE.sentence(Math.floor(Math.random() * 20) + 1),
-      ...getRandomCreatedAtAndUpdatedAt(),
+      createdAt,
+      updatedAt,
       ...(options && {
         ...(options.roadmapId ? { roadmapId: options.roadmapId } : {}),
         ...(options.goalId ? { goalId: options.goalId } : {}),
@@ -167,54 +163,12 @@ async function main() {
     };
   }
 
-  function makeOneToOneRecipe(link: string, unit?: string | null, goalName?: string | null): Recipe {
-    if (!link || link.trim() === "") {
-      throw new Error("Link must be a non-empty string");
-    }
-
-    return {
-      name: "1:1 Recept",
-      eq: "${serie}",
-      variables: {
-        "serie": {
-          type: RecipeDataTypes.DataSeries,
-          pick: VectorIndexPickerOptions.Whole,
-          unit,
-          link,
-          goalName: goalName ?? undefined,
-        },
-      },
-    };
-  }
-  function makeScaledRecipe(link: string, scale: number, unit?: string | null, goalName?: string | null): Recipe {
-    if (!link || link.trim() === "") {
-      throw new Error("Link must be a non-empty string");
-    }
-
-    return {
-      name: "Skala",
-      eq: "${serie} * ${skalär}",
-      variables: {
-        "serie": {
-          type: RecipeDataTypes.DataSeries,
-          pick: VectorIndexPickerOptions.Whole,
-          unit,
-          link,
-          goalName: goalName ?? undefined,
-        },
-        "skalär": {
-          type: RecipeDataTypes.Scalar,
-          value: scale,
-          unit: undefined,
-        },
-      },
-    };
-  }
 
   /*
-   * National - Riket
+   * Meta Roadmaps and their versions
    */
-  // Meta and versions  
+  // National roadmap - Riket
+  let [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
   const nationalMetaRoadmap = await prisma.metaRoadmap.create({
     data: {
       name: 'Rikets färdplan',
@@ -228,11 +182,13 @@ async function main() {
           data: Array(40).fill(null).map(() => makeRandomComment()),
         }
       },
-      ...getRandomCreatedAtAndUpdatedAt(),
+      createdAt,
+      updatedAt,
       // TODO - add more props
     },
   });
-  const nationalRoadmapV1 = await prisma.roadmap.create({
+  [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
+  const nationalRoadmapVersion1 = await prisma.roadmap.create({
     data: {
       version: 1,
       authorId: anita.id,
@@ -252,10 +208,12 @@ async function main() {
           { id: anton.id },
         ],
       },
-      ...getRandomCreatedAtAndUpdatedAt(),
+      createdAt,
+      updatedAt,
     },
   });
-  const nationalRoadmapV2 = await prisma.roadmap.create({
+  [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
+  const nationalRoadmapVersion2 = await prisma.roadmap.create({
     data: {
       version: 2,
       authorId: anita.id,
@@ -275,187 +233,312 @@ async function main() {
           { id: anton.id },
         ],
       },
-      ...getRandomCreatedAtAndUpdatedAt(),
+      createdAt,
+      updatedAt,
     },
   });
 
-  // Raw
-  const nationalV1RawGoal = await prisma.goal.create({
+  // Regional roadmap - Uppsala
+  [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
+  const uppsalaMetaRoadmap = await prisma.metaRoadmap.create({
     data: {
-      authorId: getRandomUser().id,
-      roadmapId: nationalRoadmapV1.id,
-      name: RandomTextSE.sentence(3, 1),
-      description: RandomTextSE.paragraph(3, 2),
-      indicatorParameter: getParameter(),
-      isFeatured: true,
-      dataSeries: {
-        create: {
-          authorId: getRandomUser().id,
-          unit: getRandomUnit(),
-          ...getRandomCreatedAtAndUpdatedAt(),
-          ...getRandomCoherentDataPoints(),
+      name: 'Uppsala län',
+      description: 'Denna färdplan har lagts för att främst ge stöd till kommunerna inom länet.\n\nLänkar:\nhttps://www.lansstyrelsen.se/uppsala.html',
+      actor: 'Uppsala län',
+      type: RoadmapType.REGIONAL,
+      authorId: admin.id,
+      isPublic: true,
+      comments: {
+        createMany: {
+          data: Array(20).fill(null).map(() => makeRandomComment()),
         }
       },
-    },
-    include: {
-      dataSeries: true,
-    }
-  });
-  // 2.5 * raw = derived
-  const scaledRecipeOfNationalV1Raw = makeScaledRecipe(nationalV1RawGoal.dataSeries?.id ?? "", 2.5, nationalV1RawGoal.dataSeries?.unit, nationalV1RawGoal.name);
-  const nationalV1DerivedRecipe = await prisma.recipe.create({
-    data: {
-      hash: hashRecipe(scaledRecipeOfNationalV1Raw),
-      recipe: scaledRecipeOfNationalV1Raw,
-      usedDataSeries: {
-        connect: { id: nationalV1RawGoal.dataSeries?.id ?? "" },
-      },
+      createdAt,
+      updatedAt,
     },
   });
-  const nationalV1DerivedDataSeriesResult = await prisma.recipe.update({
-    where: { hash: nationalV1DerivedRecipe.hash },
+  [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
+  const _uppsalaRoadmapVersion1 = await prisma.roadmap.create({
     data: {
-      usedDataSeries: {
-        create: {
-          authorId: getRandomUser().id,
-          unit: undefined,
-          ...getRandomCreatedAtAndUpdatedAt(),
-          ...getRandomCoherentDataPoints(),
+      version: 1,
+      authorId: admin.id,
+      metaRoadmapId: uppsalaMetaRoadmap.id,
+      isPublic: true,
+      comments: {
+        createMany: {
+          data: Array(10).fill(null).map(() => makeRandomComment()),
         }
-      }
-    },
-    include: { usedDataSeries: true },
-  });
-  const nationalV1DerivedDataSeries = nationalV1DerivedDataSeriesResult.usedDataSeries[nationalV1DerivedDataSeriesResult.usedDataSeries.length - 1];
-
-  const nationalV1DerivedGoal = await prisma.goal.create({
-    data: {
-      authorId: getRandomUser().id,
-      roadmapId: nationalRoadmapV1.id,
-      name: RandomTextSE.sentence(3, 1),
-      description: RandomTextSE.paragraph(3, 2),
-      indicatorParameter: getParameter(),
-      isFeatured: true,
-      dataSeries: {
-        connect: { id: nationalV1DerivedDataSeries.id },
       },
-      recipeUsedId: nationalV1DerivedRecipe.hash,
-    },
-  });
-  // Copy of raw on V2
-  const oneToOneRecipeOfNationalV1Raw = makeOneToOneRecipe(nationalV1RawGoal.dataSeries?.id ?? "", nationalV1RawGoal.dataSeries?.unit, nationalV1RawGoal.name);
-  const nationalV2CopyRecipe = await prisma.recipe.create({
-    data: {
-      hash: hashRecipe(oneToOneRecipeOfNationalV1Raw),
-      recipe: oneToOneRecipeOfNationalV1Raw,
-      usedDataSeries: {
-        connect: { id: nationalV1RawGoal.dataSeries?.id ?? "" },
+      // TODO - is this correct?
+      editors: {
+        connect: [
+          { id: admin.id },
+          { id: anita.id },
+          { id: anton.id },
+        ],
       },
+      createdAt,
+      updatedAt,
     },
   });
-  const nationalV2CopyDataSeriesResult = await prisma.recipe.update({
-    where: { hash: nationalV2CopyRecipe.hash },
+  [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
+  const _uppsalaRoadmapVersion2 = await prisma.roadmap.create({
     data: {
-      usedDataSeries: {
-        create: {
-          authorId: getRandomUser().id,
-          unit: undefined,
-          ...getRandomCreatedAtAndUpdatedAt(),
-          ...getRandomCoherentDataPoints(),
+      version: 2,
+      authorId: admin.id,
+      metaRoadmapId: uppsalaMetaRoadmap.id,
+      isPublic: false, // Private version (maybe before public release?)
+      comments: {
+        createMany: {
+          data: Array(10).fill(null).map(() => makeRandomComment()),
         }
-      }
-    },
-    include: { usedDataSeries: true },
-  });
-  const nationalV2CopyDataSeries = nationalV2CopyDataSeriesResult.usedDataSeries[nationalV2CopyDataSeriesResult.usedDataSeries.length - 1];
-
-  const nationalV2CopyOfRawGoal = await prisma.goal.create({
-    data: {
-      authorId: getRandomUser().id,
-      roadmapId: nationalRoadmapV2.id,
-      name: nationalV1RawGoal.name,
-      description: nationalV1RawGoal.description,
-      indicatorParameter: nationalV1RawGoal.indicatorParameter,
-      isFeatured: true,
-      dataSeries: {
-        connect: { id: nationalV2CopyDataSeries.id },
       },
-      recipeUsedId: nationalV2CopyRecipe.hash,
-    },
-  });
-  // Scaled version of the derived goal of V1 on V2
-  const scaledRecipeOfNationalV1Derived = makeScaledRecipe(nationalV1DerivedDataSeries.id ?? "", 0.4, nationalV1DerivedDataSeries.unit, nationalV1DerivedGoal.name);
-  const nationalV2ScaledDerivedRecipe = await prisma.recipe.create({
-    data: {
-      hash: hashRecipe(scaledRecipeOfNationalV1Derived),
-      recipe: scaledRecipeOfNationalV1Derived,
-      usedDataSeries: {
-        connect: { id: nationalV1DerivedDataSeries.id ?? "" },
+      // TODO - is this correct?
+      editors: {
+        connect: [
+          { id: admin.id },
+          { id: anita.id },
+          { id: anton.id },
+        ],
       },
-    },
-  });
-  const nationalV2ScaledDerivedDataSeriesResult = await prisma.recipe.update({
-    where: { hash: nationalV2ScaledDerivedRecipe.hash },
-    data: {
-      usedDataSeries: {
-        create: {
-          authorId: getRandomUser().id,
-          unit: undefined,
-          ...getRandomCreatedAtAndUpdatedAt(),
-          ...getRandomCoherentDataPoints(),
-        }
-      }
-    },
-    include: { usedDataSeries: true },
-  });
-  const nationalV2ScaledDerivedDataSeries = nationalV2ScaledDerivedDataSeriesResult.usedDataSeries[nationalV2ScaledDerivedDataSeriesResult.usedDataSeries.length - 1];
-
-  const nationalV2ScaledDerivedGoal = await prisma.goal.create({
-    data: {
-      authorId: getRandomUser().id,
-      roadmapId: nationalRoadmapV2.id,
-      name: RandomTextSE.sentence(3, 1),
-      description: RandomTextSE.paragraph(3, 2),
-      indicatorParameter: getParameter(),
-      isFeatured: true,
-      dataSeries: {
-        connect: { id: nationalV2ScaledDerivedDataSeries.id },
-      },
-      recipeUsedId: nationalV2ScaledDerivedRecipe.hash,
+      createdAt,
+      updatedAt,
     },
   });
 
-  /** 
-   * At this point:
-   * - Riket (meta roadmap)
-   *  - Riket v1 (roadmap)
-   *   - v1 goal1 [d1, d2, ..]
-   *   - v1 goal2 = goal1 * 2.5
-   *  - Riket v2 (roadmap)
-   *   - v2 goal1 = copy of v1 goal1
-   *   - v2 goal2 = v1 goal2 * 0.4
+
+  /* 
+   * Basic recipes
    */
+  const _basicRecipes = await prisma.$transaction([
+    (() => { // By area
+      const recipe: Recipe = {
+        name: 'Skala utifrån yta',
+        eq: '${Riket} * ${ArvingsArea} / ${RiketsArea}',
+        variables: {
+          'Riket': {
+            type: RecipeDataTypes.DataSeries,
+            link: null,
+            pick: VectorIndexPickerOptions.Default,
+            unit: "km^2",
+          },
+          'RiketsArea': {
+            type: RecipeDataTypes.External,
+            pick: VectorIndexPickerOptions.Default,
+            unit: undefined,
+            dataset: 'SCB',
+            tableId: 'TAB6420',
+            selection: [
+              // Selected area
+              { variableCode: 'Region', valueCodes: ["00"], },
+              // Specifically land areas, not including water
+              { variableCode: "ArealTyp", valueCodes: ["01"] },
+              // Magic string to get area sizes in square kilometers (as opposed to hectares with "000007E1")
+              { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
+            ],
+          },
+          'ArvingsArea': {
+            type: RecipeDataTypes.External,
+            pick: VectorIndexPickerOptions.Default,
+            unit: undefined,
+            dataset: 'SCB',
+            tableId: 'TAB6420',
+            selection: [
+              // Specifically land areas, not including water
+              { variableCode: "ArealTyp", valueCodes: ["01"] },
+              // Magic string to get area sizes in square kilometers (as opposed to hectares with "000007E1")
+              { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
+            ],
+          },
+        },
+      };
+      return prisma.recipe.create({
+        data: {
+          recipe: recipe,
+        },
+      });
+    })(),
+    (() => { // By population
+      const recipe: Recipe = {
+        name: 'Skala utifrån befolkning',
+        eq: '${Riket} * ${ArvingsPopulation} / ${RiketsPopulation}',
+        variables: {
+          'Riket': {
+            type: RecipeDataTypes.DataSeries,
+            link: null,
+            pick: VectorIndexPickerOptions.Default,
+            unit: "capita",
+          },
+          'RiketsPopulation': {
+            type: RecipeDataTypes.External,
+            pick: VectorIndexPickerOptions.Default,
+            unit: undefined,
+            dataset: 'SCB',
+            tableId: 'BE0101N1',
+            selection: [
+              // Selected area
+              { variableCode: 'Region', valueCodes: ["00"], },
+              // Magic string to get population numbers
+              { variableCode: "ContentsCode", valueCodes: ["000007E1"] },
+            ],
+          },
+          'ArvingsPopulation': {
+            type: RecipeDataTypes.External,
+            pick: VectorIndexPickerOptions.Default,
+            unit: undefined,
+            dataset: 'SCB',
+            tableId: 'BE0101N1',
+            selection: [
+              // Magic string to get population numbers
+              { variableCode: "ContentsCode", valueCodes: ["000007E1"] },
+            ],
+          },
+        },
+      };
+      return prisma.recipe.create({
+        data: {
+          recipe: recipe,
+        },
+      });
+    })(),
+    (() => { // By scalar
+      const recipe: Recipe = {
+        name: 'Skala utifrån fast värde',
+        eq: '${Riket} / ${skalär}',
+        variables: {
+          'Riket': {
+            type: RecipeDataTypes.DataSeries,
+            link: null,
+            pick: VectorIndexPickerOptions.Default,
+            unit: getRandomUnit(),
+          },
+          'skalär': {
+            type: RecipeDataTypes.Scalar,
+            value: 1 + Math.random(),
+            unit: null,
+          },
+        },
+      };
+      return prisma.recipe.create({
+        data: {
+          recipe: recipe,
+        },
+      });
+    })(),
+  ]);
+
+
+  /* 
+   * Goals
+   */
+  // National goals v1
+  const nationalDataSeriesV1 = await prisma.$transaction(
+    Array(10).fill(null).map(() => {
+      [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
+      const dateValues = getRandomCoherentDateValues();
+      return prisma.dataSeries.create({
+        data: {
+          authorId: users[Math.floor(Math.random() * users.length)].id,
+          createdAt,
+          updatedAt,
+          unit: getRandomUnit(),
+          values: { createMany: { data: dateValuesToDBDateRecord(dateValues) } },
+        }
+      });
+    })
+  );
+  const nationalV1Recipes = await prisma.$transaction(
+    nationalDataSeriesV1.map((dataSeries, index) => {
+      const recipe: Recipe = {
+        name: `1:1 nationell mal ${index + 1}`,
+        eq: '${Riket}',
+        variables: {
+          'Riket': {
+            type: RecipeDataTypes.DataSeries,
+            link: dataSeries.id,
+            pick: VectorIndexPickerOptions.Default,
+            unit: dataSeries.unit ?? undefined,
+          },
+        },
+      };
+      return prisma.recipe.create({
+        data: {
+          recipe: recipe,
+        },
+      });
+    })
+  );
+  // This will be reassigned later
+  // eslint-disable-next-line prefer-const
+  let parameters = new Array(8).fill(null).map(() => RandomTextSE.words(Math.floor(Math.random() * 5) + 1).replace(/\s/g, '\\'));
+  const _nationalGoalsV1 = await prisma.$transaction(
+    Array(10).fill(null).map((_, i) => {
+      [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
+      return prisma.goal.create({
+        data: {
+          name: RandomTextSE.sentence(3, 1),
+          description: RandomTextSE.paragraph(Math.floor(Math.random() * 3) + 1),
+          indicatorParameter: parameters[Math.floor(Math.random() * parameters.length)],
+          isFeatured: Math.random() > 0.7,
+          authorId: users[Math.floor(Math.random() * users.length)].id,
+          roadmapId: nationalRoadmapVersion1.id,
+          dataSeriesId: nationalDataSeriesV1[i].id,
+          recipeSuggestions: {
+            connect: [
+              { id: nationalV1Recipes[i].id },
+            ],
+          },
+        },
+      });
+    })
+  );
+
+  // National goals v2 - inherit with recipes from v1
+  const _nationalGoalsV2 = await prisma.$transaction(async (tx) => Promise.all(
+    nationalV1Recipes.map(async (recipe) => {
+      [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
+      const dateValues = getRandomCoherentDateValues();
+      const dataSeries = await tx.dataSeries.create({
+        data: {
+          authorId: users[Math.floor(Math.random() * users.length)].id,
+          createdAt,
+          updatedAt,
+          unit: getRandomUnit(),
+          values: { createMany: { data: dateValuesToDBDateRecord(dateValues) } },
+        },
+      });
+
+      return tx.goal.create({
+        data: {
+          name: RandomTextSE.sentence(3, 1),
+          description: RandomTextSE.paragraph(Math.floor(Math.random() * 3) + 1),
+          indicatorParameter: parameters[Math.floor(Math.random() * parameters.length)],
+          isFeatured: Math.random() > 0.7,
+          authorId: users[Math.floor(Math.random() * users.length)].id,
+          roadmapId: nationalRoadmapVersion2.id,
+          dataSeriesId: dataSeries.id,
+          recipeSuggestions: {
+            connect: [{ id: recipe.id }],
+          }
+        },
+      });
+    })
+  ));
 }
 
-(async () => {
-  try {
-    await main();
-  }
-  catch (e) {
-    process.exitCode = 1;
-    console.error(colors.yellow(`
+main().then(async () => {
+  await prisma.$disconnect();
+}).catch(async (e) => {
+  console.error(colors.yellow(`
     Error found while seeding.
 
     - Do you have a valid database connection?
-    - Is the database empty? This seed script must run against an empty database.
+    - Is the database empty?
+
+    This seed script must run against an empty database.
 
     Error thrown:
     `), e);
-  }
-  finally {
-    await prisma.$disconnect();
-  }
-})()
-  .catch((e) => {
-    console.error("Fatal error during seeding:", e);
-  });
+  await prisma.$disconnect();
+  process.exit(1)
+});

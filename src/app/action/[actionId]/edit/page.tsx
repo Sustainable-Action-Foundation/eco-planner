@@ -75,7 +75,7 @@ export default async function Page(
             version: action.roadmap.version
           })}
         </h1>
-        <ActionForm roadmapId={action.roadmapId} currentAction={action} roadmapAlternatives={[]} />
+        <ActionForm roadmapId={action.roadmapId} currentAction={action} roadmaps={[]} />
       </div>
     </>
   )

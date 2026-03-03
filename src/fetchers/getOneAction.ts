@@ -2,9 +2,9 @@ import "server-only";
 import { actionInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getSession, LoginData } from "@/lib/session";
 import prisma from "@/prismaClient";
-import type { Prisma } from "@prisma/client";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
+import { Action } from "@/types";
 
 /**
  * Gets specified action.
@@ -13,7 +13,7 @@ import { cookies } from "next/headers";
  * @param id ID of the action to get
  * @returns Action object
  */
-export default async function getOneAction(id: string) {
+export default async function getOneAction(id: string): Promise<Action | null> {
   const session = await getSession(await cookies());
   return getCachedAction(id, session.user);
 }
@@ -25,10 +25,8 @@ export default async function getOneAction(id: string) {
  * @param user Data from user's session cookie.
  */
 const getCachedAction = unstable_cache(
-  async (id: string, user: LoginData['user']) => {
-    let action: Prisma.ActionGetPayload<{
-      include: typeof actionInclusionSelection;
-    }> | null = null;
+  async (id: string, user: LoginData['user']): Promise<Action | null> => {
+    let action: Action | null = null;
 
     // If user is admin, always get the action
     if (user?.isAdmin) {
@@ -36,7 +34,7 @@ const getCachedAction = unstable_cache(
         action = await prisma.action.findUnique({
           where: { id },
           include: actionInclusionSelection,
-        });
+        }) satisfies Action | null;
       } catch (error) {
         console.log(error);
         console.log('Error fetching admin action');
@@ -64,7 +62,7 @@ const getCachedAction = unstable_cache(
             }
           },
           include: actionInclusionSelection,
-        });
+        }) satisfies Action | null;
       } catch (error) {
         console.log(error);
         console.log('Error fetching action');
@@ -82,7 +80,7 @@ const getCachedAction = unstable_cache(
           roadmap: { isPublic: true }
         },
         include: actionInclusionSelection,
-      });
+      }) satisfies Action | null;
     } catch (error) {
       console.log(error);
       console.log('Error fetching public action');

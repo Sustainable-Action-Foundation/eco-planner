@@ -1,24 +1,22 @@
-import { DataSeries, Goal, Roadmap } from "@prisma/client";
+import { Goal, Roadmap } from "@/types";
 
 export default function findSiblings(
-  roadmap: Roadmap & {
-    goals: (Goal & { dataSeries: DataSeries | null })[],
-  },
-  goal: Goal & { dataSeries: DataSeries | null },
-) {
-  const siblings: (Goal & { dataSeries: DataSeries | null })[] = [];
+  roadmap: Roadmap,
+  goal: Goal,
+): Roadmap["goals"] {
+  const siblings: Roadmap["goals"] = [];
 
   const goalParameters = goal.indicatorParameter.split("\\");
   // Remove the "Key" or "Demand" parameter if present
   if (goalParameters[0] == "Key" || goalParameters[0] == "Demand") {
-    goalParameters.shift()
+    goalParameters.shift();
   }
 
   for (const sibling of roadmap.goals) {
     const siblingParameters = sibling.indicatorParameter.split("\\");
     // Goals can be siblings despite one of them having a "Key" and the other a "Demand" parameter
     if (siblingParameters[0] == "Key" || siblingParameters[0] == "Demand") {
-      siblingParameters.shift()
+      siblingParameters.shift();
     }
 
     let isSibling = true;

@@ -2,6 +2,19 @@
   "common": {
     "external_resources": "External resources"
   },
+  "actions": {
+    "actions": "Actions",
+    "list": "List",
+    "grid": "Grid",
+    "filter": "Filter",
+    "create_new_action": "$t(common:new.action)",
+    "visit_action": "Visit $t(common:action_definite_one)",
+    "title": "Title",
+    "author": "Author",
+    "search_actions": "Search $t(common:count.action)",
+    "shown_results": "Showing $t(common:count.action)",
+    "show_as": "Visa som"
+  },
   "action": {
     "action_label": "{{$t(common:action_one), titleCase}}",
     "effects_label": "{{$t(common:effect_other), titleCase}}",
@@ -50,11 +63,12 @@
     "menu": "Menu",
     "description": "Description",
     "actions_for_goal": "{{$t(common:action_other), titleCase}} for {{goalName}}",
-    "link_existing_action": "Link to an existing $t(common:action_one)",
+    "link_existing_action": "Link $t(common:effect_one) to an existing $t(common:action_one)",
     "create_new_action": "$t(common:new.action)",
     "action_timeline": "{{$t(common:action_one), titleCase}} timeline",
     "goals_working_towards": "{{$t(common:goal_other), titleCase}} working towards {{goalName}}",
-    "related_goals": "Related $t(common:goal_other)"
+    "related_goals": "Related $t(common:goal_other)",
+    "sub_goals": "Sub-$t(common:goal_other)"
   },
   "goal_create": {
     "breadcrumb": "$t(common:new.goal)",

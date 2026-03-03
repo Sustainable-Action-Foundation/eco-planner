@@ -12,20 +12,20 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
-import { IconChartHistogram, IconCirclePlus, IconCirclePlusFilled, IconPlus, IconSearch, IconSquareRoundedPlus, IconSquareRoundedPlusFilled, IconX } from "@tabler/icons-react";
+import { IconSearch, IconX } from "@tabler/icons-react";
 import { updateExternalVariableDataset, updateExternalVariableSelection, updateExternalVariableTable } from "@/components/recipe/variableEditingHelpers";
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 
 import getTableContent from "@/lib/api/getTableContent";
 
-export default function RecipeQueryBuilder({ variableName, variableIsSimple }: { variableName: string; variableIsSimple: boolean }) {
+export default function RecipeQueryBuilder({ variableName }: { variableName: string; }) {
   const { t } = useTranslation("components");
   // Locale has the format language-locale, e.g. "sv-SE" or "en-US"
   // We only need the language part, so we split it and take the first part
   // TODO: Fix typing, use match() instead of casting
   const lang = useContext(LocaleContext).split("-")[0];
   // const lang = useContext(LocaleContext).split("-")[0] as "sv" | "en";
-  const { recipe, setRecipe } = useRecipe();
+  const { setVariable } = useRecipe();
 
   const [isLoading, setIsLoading] = useState(false);
   const [dataSource, setDataSource] = useState<string>("");
@@ -358,48 +358,21 @@ export default function RecipeQueryBuilder({ variableName, variableIsSimple }: {
 
     const query = buildQuery(formData);
 
-    updateExternalVariableDataset(variableName, dataSource, setRecipe)
-    updateExternalVariableTable(variableName, tableDetails?.id ?? formData.get("externalTableId") as string ?? "", setRecipe)
-    updateExternalVariableSelection(variableName, JSON.stringify(query), setRecipe)
+    updateExternalVariableDataset(variableName, dataSource, setVariable)
+    updateExternalVariableTable(variableName, tableDetails?.id ?? formData.get("externalTableId") as string ?? "", setVariable)
+    updateExternalVariableSelection(variableName, JSON.stringify(query), setVariable)
     closeModal(modalRef)
   }
 
   return (
     <>
-      {variableIsSimple ? 
-        <button
-          id={`query-builder-${variableName}`} 
-          type="button" 
-          className="gray-90 flex align-items-center gap-25 purewhite" 
-          style={{width: '150px', boxShadow: 'none', border: '1px solid var(--gray-80)', transform: 'scale(1)', userSelect: 'text'}} 
-          onClick={() => openModal(modalRef)}
-        >
-          <span className="flex-grow-100 text-align-left">
-            {dataSource ? dataSource : ''}{dataSource && tableDetails ? ` - ${tableDetails.id}` : ''}
-          </span>
-          <IconPlus width={16} height={16} aria-hidden='true' />
-        </button>
-      :
-        <div className="floating-label"> 
-          <label htmlFor={`query-builder-${variableName}`}  style={{'--background': 'linear-gradient(var(--gray-95) 50%, white 100%)', cursor: 'default'} as React.CSSProperties}>{t("components:recipe_editor.add_external_data")}</label>
-          <button
-            id={`query-builder-${variableName}`} 
-            type="button" 
-            className="gray-90 flex align-items-center gap-25 purewhite" 
-            style={{width: '150px', boxShadow: 'none', border: '1px solid var(--gray-80)', transform: 'scale(1)', userSelect: 'text'}} 
-            onClick={() => openModal(modalRef)}
-          >
-            <span className="flex-grow-100 text-align-left">
-              {dataSource ? dataSource : ''}{dataSource && tableDetails ? ` - ${tableDetails.id}` : ''}
-            </span>
-            <IconPlus width={16} height={16} aria-hidden='true' />
-          </button>
-        </div>
-      }
+      <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem", lineHeight: '1.5' }} onClick={() => openModal(modalRef)}>
+        {t("components:recipe_editor.add_external_data")}
+      </button>
 
       <dialog className={`smooth padding-inline-0 ${styles.dialog}`} ref={modalRef} aria-modal style={{ backgroundColor: 'rgb(246, 246, 246)' }}>
         <div className="display-flex flex-direction-row-reverse align-items-center justify-content-space-between padding-inline-100">
-          <button className="grid round padding-50 transparent" onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
+          <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
             <IconX strokeWidth={3} width={18} height={18} style={{ minWidth: '18px' }} aria-hidden="true" />
           </button>
           <h2 className="margin-0">{t("components:query_builder.add_data_source")}</h2>
@@ -451,7 +424,7 @@ export default function RecipeQueryBuilder({ variableName, variableIsSimple }: {
                         type="radio"
                         value={id}
                         name="externalTableId"
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => { handleTableSelect((e.target as HTMLButtonElement).value); updateExternalVariableTable(variableName, e.target.value, setRecipe) }}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => { handleTableSelect((e.target as HTMLButtonElement).value); updateExternalVariableTable(variableName, e.target.value, setVariable) }}
                       />
                     </li>
                   ))}

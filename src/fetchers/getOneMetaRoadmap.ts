@@ -3,9 +3,9 @@ import { metaRoadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getSession, LoginData } from "@/lib/session";
 import { roadmapSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
-import { Prisma } from "@prisma/client";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
+import { MetaRoadmap } from "@/types";
 
 /**
  * Gets specified meta roadmap and all versions for that meta roadmap.
@@ -13,7 +13,7 @@ import { cookies } from "next/headers";
  * Returns null if meta roadmap is not found or user does not have access to it. Also returns null on error.
  * @returns Meta roadmap object with roadmap versions
  */
-export default async function getOneMetaRoadmap(id: string) {
+export default async function getOneMetaRoadmap(id: string): Promise<MetaRoadmap | null> {
   const session = await getSession(await cookies());
   return getCachedMetaRoadmap(id, session.user);
 }
@@ -25,9 +25,7 @@ export default async function getOneMetaRoadmap(id: string) {
  */
 const getCachedMetaRoadmap = unstable_cache(
   async (id: string, user: LoginData['user']) => {
-    let metaRoadmap: Prisma.MetaRoadmapGetPayload<{
-      include: typeof metaRoadmapInclusionSelection
-    }> | null = null;
+    let metaRoadmap: MetaRoadmap | null = null;
 
     // If user is admin, get all meta roadmaps
     if (user?.isAdmin) {
@@ -35,7 +33,7 @@ const getCachedMetaRoadmap = unstable_cache(
         metaRoadmap = await prisma.metaRoadmap.findUnique({
           where: { id },
           include: metaRoadmapInclusionSelection,
-        });
+        }) satisfies MetaRoadmap | null;
       } catch (error) {
         console.log(error);
         console.log('Error fetching admin meta roadmaps');
@@ -79,7 +77,7 @@ const getCachedMetaRoadmap = unstable_cache(
               include: metaRoadmapInclusionSelection.roadmapVersions.include,
             },
           },
-        });
+        }) satisfies MetaRoadmap | null;
       } catch (error) {
         console.log(error);
         console.log('Error fetching meta roadmaps');
@@ -108,7 +106,7 @@ const getCachedMetaRoadmap = unstable_cache(
             include: metaRoadmapInclusionSelection.roadmapVersions.include,
           },
         },
-      });
+      }) satisfies MetaRoadmap | null;
     } catch (error) {
       console.log(error);
       console.log('Error fetching public meta roadmaps');
