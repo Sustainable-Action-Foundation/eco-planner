@@ -93,7 +93,7 @@ export default async function Sidebar() {
                   </Link>
                 </li>
                 <li>
-                  <Link href='/action/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none'>
+                  <Link href='/action/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none' data-testid="create-action">
                     {t("common:action_one")}
                     <IconPlus width={16} height={16} />
                   </Link>
