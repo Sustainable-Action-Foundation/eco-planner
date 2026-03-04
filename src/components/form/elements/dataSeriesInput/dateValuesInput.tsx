@@ -34,11 +34,11 @@ export default function DateValuesInput({
   const [uncontrolledDateValues, setUncontrolledDateValues] = useState<DateValuesWithUnit>(initialDateValues);
   const effectiveDateValues = controlledDateValues ?? uncontrolledDateValues;
 
-  useEffect(() => {
-    if (controlledDateValues === undefined) {
-      setUncontrolledDateValues(initialDateValues);
-    }
-  }, [controlledDateValues, initialDateValues]);
+  const [startDate, setStartDate] = useState<ISOIshDate>(`2020-01-01T00:00:00.000Z`);
+  const [endDate, setEndDate] = useState<ISOIshDate>(`2050-01-01T00:00:00.000Z`);
+
+  const [visualStartYear, setVisualStartYear] = useState<string>(String(new Date(startDate).getUTCFullYear()));
+  const [visualEndYear, setVisualEndYear] = useState<string>(String(new Date(endDate).getUTCFullYear()));
 
   const updateDateValues = (updater: (prev: DateValuesWithUnit) => DateValuesWithUnit) => {
     const next = updater(effectiveDateValues);
@@ -49,12 +49,6 @@ export default function DateValuesInput({
       dateValuesSetter(next);
     }
   };
-
-  const [startDate, setStartDate] = useState<ISOIshDate>(`2020-01-01T00:00:00.000Z`);
-  const [endDate, setEndDate] = useState<ISOIshDate>(`2050-01-01T00:00:00.000Z`);
-
-  const [visualStartYear, setVisualStartYear] = useState<string>(String(new Date(startDate).getUTCFullYear()));
-  const [visualEndYear, setVisualEndYear] = useState<string>(String(new Date(endDate).getUTCFullYear()));
 
   const startISO = `${visualStartYear}-01-01T00:00:00.000Z`;
   const endISO = `${visualEndYear}-01-01T00:00:00.000Z`;
