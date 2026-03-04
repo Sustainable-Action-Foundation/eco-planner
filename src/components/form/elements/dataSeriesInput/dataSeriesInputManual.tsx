@@ -11,7 +11,7 @@ export default function DataSeriesInputManual() {
 
   const { t } = useTranslation("forms");
   const [value, setValue] = useState<Array<{ year: number | null, data: number | null }>>([{ year: null, data: null }])
-  
+
 
   const handleYearChange = (index: number, newValue: string) => {
     setValue(prev =>
@@ -43,7 +43,7 @@ export default function DataSeriesInputManual() {
   // TODO: Ensure normal ctrl+z behavior
   // TODO: We can currently paste as long as we hold ctrl+v, might want to prevent so people dont accidently click another field while pasting (see previous implementation of "isPasting")
   // TODO: Previous versions contained some type of validation here, check it out
-  function handlePaste( 
+  function handlePaste(
     e: React.ClipboardEvent<HTMLInputElement>,
     startIndex: number,
     targetColumn: string
@@ -91,9 +91,9 @@ export default function DataSeriesInputManual() {
           style: { gridTemplateColumns: '100px 1fr auto' }
         }}
       >
-        <Grid.ColumnHeader>Year</Grid.ColumnHeader>
-        <Grid.ColumnHeader>Value</Grid.ColumnHeader>
-        <Grid.ColumnHeader>Action</Grid.ColumnHeader>
+        <Grid.ColumnHeader>{t("forms:data_series_input.year")}</Grid.ColumnHeader>
+        <Grid.ColumnHeader>{t("forms:data_series_input.value")}</Grid.ColumnHeader>
+        <Grid.ColumnHeader>{t("forms:data_series_input.action")}</Grid.ColumnHeader>
         {value.flatMap((item, index) => {
           const isLastRow = index >= value.length - 1;
           return [
@@ -146,7 +146,7 @@ export default function DataSeriesInputManual() {
               <button // TODO: when deleting show popup asking for confirmation
                 className="padding-25 grid round transparent margin-inline-auto"
                 type="button"
-                aria-label="Delete row" /* TODO: i18n */
+                aria-label={t("forms:data_series_input.delete_row")}
                 tabIndex={-1}
                 onClick={() =>
                   setValue(prev => prev.filter((_, i) => i !== index))
@@ -165,7 +165,7 @@ export default function DataSeriesInputManual() {
         }
       >
         <IconPlus width={20} height={20} aria-hidden="true" />
-        Add new row {/* TODO: I18n */}
+        {t("forms:data_series_input.add_new_row")}
       </button>
     </>
   )

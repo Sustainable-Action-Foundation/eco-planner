@@ -14,6 +14,9 @@ import type { Effect, Goal, Roadmap } from "@/types";
 import ChildGraphContainer from "../child/container";
 import SiblingGraph from "../sibling/siblings";
 import findSiblings from "@/functions/findSiblings";
+import { graphHeight } from "../config";
+import CopyAndScale from "@/components/modals/copyAndScale";
+import { LoginData } from "@/lib/session";
 
 export const GraphType = {
   Main: "MAIN",
@@ -33,7 +36,8 @@ export default function GraphGraph({
   parentGoalRoadmap,
   historicalData,
   effects,
-  children,
+  session,
+  roadmapOptions
 }: {
   goal: Goal,
   secondaryGoal: Goal | null,
@@ -43,7 +47,13 @@ export default function GraphGraph({
   parentGoalRoadmap: Roadmap | null,
   historicalData?: ApiTableContent | null,
   effects: Effect[] | Goal["effects"],
-  children: React.ReactNode
+  session: LoginData,
+  roadmapOptions: {
+    id: string;
+    name: string;
+    version: number;
+    actor: string | null;
+  }[]
 }) {
   const { t } = useTranslation("graphs");
 
@@ -78,32 +88,36 @@ export default function GraphGraph({
   return (
     <div className="purewhite" style={{ border: '1px solid var(--gray-80)', borderTop: 0, borderRadius: '0 0 .25rem .25rem' }}>
       {/* TODO: Use role="toolbar" (or menubar) for this */}
-      <menu className="flex align-items-flex-end gap-25 margin-0 padding-25 flex-wrap-wrap" style={{ backgroundColor: 'var(--gray-95)', borderBottom: '1px solid var(--gray-80)' }}>
-        <GraphSelector goal={goal} childGoals={false} siblings={false} currentSelection={graphType} setter={setGraphType} /> {/* NOTE: Set childgoals and siblings to false until the feature is fully implemented */}
-        <SecondaryGoalSelector />
-        {children}
-      </menu>
-      <article>  {/* TODO: Not sure that article is correct here altough it might very well be*/}
-        <h2 className="text-align-center block font-weight-500 margin-top-200 margin-bottom-50" style={{ fontSize: '1.5rem' }}>
+      <header>
+        <menu className="flex align-items-flex-end gap-25 margin-0 padding-25 padding-top-50 flex-wrap-wrap" style={{ backgroundColor: 'var(--gray-95)', borderBottom: '1px solid var(--gray-80)' }}>
+          <GraphSelector goal={goal} childGoals={false} siblings={false} currentSelection={graphType} setter={setGraphType} /> {/* NOTE: Set childgoals and siblings to false until the feature is fully implemented */}
+          <SecondaryGoalSelector />
+          {(goal.dataSeries?.id && session.user) ?
+            <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
+            : null}
+        </menu>
+        <h2 className="text-align-center block font-weight-500 margin-top-200 margin-bottom-50 font-size-150">
           {goal.name ? goal.name : goal.indicatorParameter}
         </h2>
         {secondaryGoal && <p className="margin-block-0 margin-inline-auto text-align-center">{t("graphs:graph_graph.compare_with_goal", { goalName: secondaryGoal.name || secondaryGoal.indicatorParameter })}</p>}
-        <div style={{ height: '500px' }} className="padding-inline-25 padding-bottom-50">
-          {graphSwitch(graphType || GraphType.Main)}
-        </div>
-        <footer
-          className="font-size-14px text-align-center padding-50"
-          style={{ borderTop: '1px solid var(--gray-80)', backgroundColor: 'var(--tertiary-neutral)', borderRadius: '0 0 .25rem .25rem' }}
-        >
-          {historicalData && (
-            <Trans // TODO: Apply the same nav styling as is used in children and sibling graphs  
-              i18nKey="graphs:graph_graph.historical_data_source"
-              components={{ a: <a href={dataset?.userFacingUrl} target="_blank" /> }}
-              tOptions={{ source: dataset?.fullName ?? historicalData.metadata[0]?.source }}
-            />
-          )}
-        </footer>
-      </article>
+      </header>
+
+      <div style={{ height: graphHeight }} className="padding-inline-25 padding-bottom-50">
+        {graphSwitch(graphType || GraphType.Main)}
+      </div>
+
+      <footer
+        className="font-size-14px text-align-center padding-50"
+        style={{ borderTop: '1px solid var(--gray-80)', backgroundColor: 'var(--tertiary-neutral)', borderRadius: '0 0 .25rem .25rem' }}
+      >
+        {historicalData && (
+          <Trans 
+            i18nKey="graphs:graph_graph.historical_data_source"
+            components={{ a: <a href={dataset?.userFacingUrl} target="_blank" /> }}
+            tOptions={{ source: dataset?.fullName ?? historicalData.metadata[0]?.source }}
+          />
+        )}
+      </footer>
     </div>
   );
 }

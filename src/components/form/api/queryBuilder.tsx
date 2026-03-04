@@ -23,7 +23,7 @@ export default function QueryBuilder({
 }: {
   goal: Goal,
 }) {
-  const { t } = useTranslation("components");
+  const { t } = useTranslation(["components", "forms"]);
   // Locale has the format language-locale, e.g. "sv-SE" or "en-US"
   // We only need the language part, so we split it and take the first part
   // TODO: Fix typing, use match() instead of casting
@@ -60,7 +60,7 @@ export default function QueryBuilder({
 
     void getTables(dataSource, query, lang).then(result => { setTables(result); setIsLoading(false); });
   }, [dataSource, lang]);
- 
+
   useEffect(() => {
     if (tables) {
       setRenderedTables(tables
@@ -455,14 +455,14 @@ export default function QueryBuilder({
             </button>
             <h2 className="margin-0">{t("components:query_builder.add_data_source")}</h2> {/* Title needs to change to as we are not necessarily adding a data source here now */}
           </div>
-          
+
           <div className={`${styles['dialog-body']}`}>
             {/* <p className="padding-inline-100">{t("components:query_builder.add_data_to_goal", { goalName: goal.name ?? goal.indicatorParameter })}</p> */}
 
-            {/* TODO: It might be sensible if theese are tabs instead. Or if we warn users that data will be deleted given that you switch between them */}
-            <div className="radio-select-two margin-bottom-100" > {/* TODO: Make sure theese wrap */}
+            {/* TODO: It might be sensible if these are tabs instead. Or if we warn users that data will be deleted given that you switch between them */}
+            <div className="radio-select-two margin-bottom-100" > {/* TODO: Make sure these wrap */}
               <label id="recipe-type-suggested-label">
-                Lägg till data manuellt {/* TODO: i18n */}
+                {t("components:query_builder.add_data_manually")}
                 <input
                   className="margin-right-25"
                   type="radio"
@@ -477,7 +477,7 @@ export default function QueryBuilder({
               </label>
               <span>&#8210; {t("common:tsx.or")} &#8210;</span>
               <label>
-                Välj data från externa datakällor {/* TODO: i18n */}
+                {t("components:query_builder.add_external_data")}
                 <input
                   className="margin-right-25"
                   type="radio"
@@ -497,7 +497,7 @@ export default function QueryBuilder({
                 <DataSeriesInputManual />
               </div>
               : visibleForm === 'external' ?
-                <form ref={formRef} onChange={formChange} onSubmit={handleSubmit} className="flex flex-direction-column flex-grow-1" style={{minHeight: '0'}}>
+                <form ref={formRef} onChange={formChange} onSubmit={handleSubmit} className="flex flex-direction-column flex-grow-1" style={{ minHeight: '0' }}>
                   {/* Hidden disabled submit button to prevent accidental submission */}
                   <button type="submit" className="display-none" disabled></button>
                   <strong
@@ -508,7 +508,7 @@ export default function QueryBuilder({
                   </strong>
 
                   <FormWrapper>
-                    <fieldset className="position-relative flex flex-direction-column" style={{height: '100%'}}>
+                    <fieldset className="position-relative flex flex-direction-column" style={{ height: '100%' }}>
                       <label className="margin-block-75 font-weight-500">
                         {t("components:query_builder.data_source")}
                         {/* Display warning message if the selected language is not supported by the api */}
@@ -524,39 +524,39 @@ export default function QueryBuilder({
                       </label>
 
                       {dataSource ?
-                        <div className="purewhite smooth padding-50 flex flex-direction-column" style={{border: '1px solid var(--gray-80)', minHeight: '0'}}> {/* TODO: This whole listthing should be a combobox  */}
-                            <div className="margin-top-100 margin-bottom-25">
-                              {/* TODO: Label currently affects multiple elements, fix this (will get fixed once this is a combobox as live search removes need for a button) */}
-                              <label className="font-weight-500">
-                                {t("components:query_builder.search_for_table")}
-                                <div className="focusable flex align-items-center margin-top-25 " style={{border: '0', borderBottom: '1px solid var(--gray-80)', borderRadius: '0'}}>
-                                  <IconSearch strokeWidth={1.5} style={{ minWidth: '24px' }} aria-hidden="true" />
-                                  <input name={tableSearchInputName} type="search" className="padding-0 margin-inline-50" placeholder="skriv för att söka..." onKeyDown={searchOnEnter} style={{ backgroundColor: "transparent" }} /> {/* TODO: Placeholder i18n */}
-                                  <button type="button" onClick={searchWithButton} className="padding-block-50 padding-inline-100 transparent font-weight-500">{t("components:query_builder.search")}</button>
-                                </div>
-                              </label>
-                            </div>
+                        <div className="purewhite smooth padding-50 flex flex-direction-column" style={{ border: '1px solid var(--gray-80)', minHeight: '0' }}> {/* TODO: This whole listthing should be a combobox  */}
+                          <div className="margin-top-100 margin-bottom-25">
+                            {/* TODO: Label currently affects multiple elements, fix this (will get fixed once this is a combobox as live search removes need for a button) */}
+                            <label className="font-weight-500">
+                              {t("components:query_builder.search_for_table")}
+                              <div className="focusable flex align-items-center margin-top-25 " style={{ border: '0', borderBottom: '1px solid var(--gray-80)', borderRadius: '0' }}>
+                                <IconSearch strokeWidth={1.5} style={{ minWidth: '24px' }} aria-hidden="true" />
+                                <input name={tableSearchInputName} type="search" className="padding-0 margin-inline-50" placeholder={t("forms:combobox.default_search_placeholder")} onKeyDown={searchOnEnter} style={{ backgroundColor: "transparent" }} />
+                                <button type="button" onClick={searchWithButton} className="padding-block-50 padding-inline-100 transparent font-weight-500">{t("components:query_builder.search")}</button>
+                              </div>
+                            </label>
+                          </div>
 
-                            <ul
-                              id="tablesList"
-                              className={`position-relative padding-right-25 padding-left-0 ${styles['tableList']}`} onScroll={e => handleTableListScroll(e)}
-                              style={{ listStyle: "none" }} >
-                              {renderedTables && renderedTables.map(({ tableId: id, label }) => (
-                                <li
-                                  key={id}
-                                  id={`table${id}`}
-                                  className={`${styles.tableSelect} block padding-block-25`}
-                                >
-                                  {label}
-                                  <input
-                                    type="radio"
-                                    value={id}
-                                    name="externalTableId"
-                                    onClick={e => handleTableSelect((e.target as HTMLButtonElement).value)}
-                                  />
-                                </li>
-                              ))}
-                            </ul>
+                          <ul
+                            id="tablesList"
+                            className={`position-relative padding-right-25 padding-left-0 ${styles['tableList']}`} onScroll={e => handleTableListScroll(e)}
+                            style={{ listStyle: "none" }} >
+                            {renderedTables && renderedTables.map(({ tableId: id, label }) => (
+                              <li
+                                key={id}
+                                id={`table${id}`}
+                                className={`${styles.tableSelect} block padding-block-25`}
+                              >
+                                {label}
+                                <input
+                                  type="radio"
+                                  value={id}
+                                  name="externalTableId"
+                                  onClick={e => handleTableSelect((e.target as HTMLButtonElement).value)}
+                                />
+                              </li>
+                            ))}
+                          </ul>
                         </div>
                         : null}
 

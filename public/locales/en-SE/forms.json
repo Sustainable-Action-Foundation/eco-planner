@@ -47,11 +47,14 @@
     "show_suggestions": "Show suggestions"
   },
   "data_series_input": {
+    "action": "Action",
+    "add_new_row": "Add new row",
     "advanced": "Advanced",
     "custom_baseline": "Custom baseline",
     "data_series": "Data series",
     "data_series_advanced_info": "This field accepts a series of values separated by semicolons or tabs. This means that you may paste a series of values from third party software such as Microsoft Excel or Google Sheets. The first value in the series represents the year 2020 continuing up to the year 2050 (a total of 31 values). If values are missing for a year, you may leave it blank, for example \";1;;;;5\" specifies the values 1 and 5 for the years 2021 and 2025 respectively. Decimal numbers may use either decimal points or decimal commas.<br /><br /> <strong>Important: Values must not be separated by commas (\",\").</strong>",
     "data_series_tooltip": "Use numeric values separated by semicolons or tabs. Decimal numbers can use dots or commas as decimal separators.",
+    "delete_row": "Delete row",
     "end_year": "End year",
     "hide_table": "Minimize table",
     "invalid_end_year": "Invalid end year",

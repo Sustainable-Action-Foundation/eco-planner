@@ -11,6 +11,7 @@ import { ApiTableContent } from "@/lib/api/apiTypes";
 import GraphGraph from "./main/container";
 import styles from '../../graphs.module.css'
 import { useTranslation } from "react-i18next";
+import { LoginData } from "@/lib/session";
 
 // TODO: Rename file and component
 // TODO: Single component for footer and header
@@ -26,7 +27,8 @@ export default function GoalGraph({
   externalData,
   secondaryGoal,
   effects,
-  children
+  session,
+  roadmapOptions
 }: {
   goal: Goal,
   parentGoal: Goal | null,
@@ -36,58 +38,66 @@ export default function GoalGraph({
   externalData?: ApiTableContent | null,
   secondaryGoal: Goal | null,
   effects: Effect[] | Goal["effects"],
-  children?: React.ReactNode,
+  session: LoginData,
+  roadmapOptions: {
+    id: string;
+    name: string;
+    version: number;
+    actor: string | null;
+  }[]
 }) {
 
   const { t } = useTranslation(["pages", "common"]);
 
 
   return (
-    <TabListSimple
-      props={{
-        className: `padding-inline-25 padding-bottom-0 grid ${styles['graph-tablist']}`, /* TODO: This grid needs to be responsive */
-      }}
-    >
-      <TabListSimple.Tab
-        className={`font-size-14px padding-25 ${styles['graph-tab']}`}
-        style={{textTransform: 'capitalize'}}
+    <section>
+      <TabListSimple
+        props={{
+          className: `padding-inline-25 padding-bottom-0 grid ${styles['graph-tablist']}`, /* TODO: This grid needs to be responsive */
+        }}
       >
-        {t("common:goal_one")} 
-      </TabListSimple.Tab>
-      <TabListSimple.Tab
-        className={`font-size-14px padding-25 ${styles['graph-tab']}`}
-      >
-        {t("pages:goal.sub_goals")} 
-      </TabListSimple.Tab>
-      <TabListSimple.Tab
-        className={`font-size-14px padding-25 ${styles['graph-tab']}`}
-      >
-        {t("pages:goal.related_goals")}
-      </TabListSimple.Tab>
-      <TabListSimple.TabPanel>
-        <GraphGraph
-          goal={goal}
-          parentGoal={parentGoal}
-          childGoals={childGoals}
-          roadmap={roadmap}
-          parentGoalRoadmap={parentGoalRoadmap}
-          historicalData={externalData}
-          secondaryGoal={secondaryGoal}
-          effects={effects}
+        <TabListSimple.Tab
+          className={`font-size-14px padding-25 ${styles['graph-tab']}`}
+          style={{ textTransform: 'capitalize' }}
         >
-          {children}
-        </GraphGraph>
-      </TabListSimple.TabPanel>
-      {childGoals.length > 0 ?
+          {t("common:goal_one")}
+        </TabListSimple.Tab>
+        <TabListSimple.Tab
+          className={`font-size-14px padding-25 ${styles['graph-tab']}`}
+        >
+          {t("pages:goal.sub_goals")}
+        </TabListSimple.Tab>
+        <TabListSimple.Tab
+          className={`font-size-14px padding-25 ${styles['graph-tab']}`}
+        >
+          {t("pages:goal.related_goals")}
+        </TabListSimple.Tab>
         <TabListSimple.TabPanel>
-          <ChildGraphContainer goal={goal} childGoals={childGoals} />
-        </TabListSimple.TabPanel>
-        : null}
-      {findSiblings(roadmap, goal).length > 1 ?
-        <TabListSimple.TabPanel>
-          <SiblingGraph roadmap={roadmap} goal={goal} />
-        </TabListSimple.TabPanel>
-        : null}
-    </TabListSimple>
+          <GraphGraph
+            goal={goal}
+            parentGoal={parentGoal}
+            childGoals={childGoals}
+            roadmap={roadmap}
+            parentGoalRoadmap={parentGoalRoadmap}
+            historicalData={externalData}
+            secondaryGoal={secondaryGoal}
+            effects={effects}
+            session={session}
+            roadmapOptions={roadmapOptions}
+          />
+         </TabListSimple.TabPanel>
+        {childGoals.length > 0 ?
+          <TabListSimple.TabPanel>
+            <ChildGraphContainer goal={goal} childGoals={childGoals} />
+          </TabListSimple.TabPanel>
+          : null}
+        {findSiblings(roadmap, goal).length > 1 ?
+          <TabListSimple.TabPanel>
+            <SiblingGraph roadmap={roadmap} goal={goal} />
+          </TabListSimple.TabPanel>
+          : null}
+      </TabListSimple>
+    </section>
   )
 }

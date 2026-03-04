@@ -37,7 +37,7 @@ export default function GraphSelector({
   // TODO: Probably makes sense to switch between graphs using radio buttons rather than this select
   return (
     <div className='flex align-items-center gap-25'>
-      <label htmlFor='select-graphType font-size-14px'>
+      <label htmlFor='select-graphType' className='font-size-14px'>
         {t("common:tsx.show")}:
       </label>
       <select

@@ -1,0 +1,1 @@
+export const graphHeight: number = 500 

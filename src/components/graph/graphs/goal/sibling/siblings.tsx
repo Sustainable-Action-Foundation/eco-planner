@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
 import { Goal, Roadmap } from "@/types";
 import { color_palette, stroke, marker } from "../../../config";
+import { graphHeight } from "../config";
 
 // TODO: Do we want to showcase the goal itself here or only its siblings? If we do want to showcase the goal, 
 // how can we ensure that it maintains the same colour as in the other graphs?
@@ -93,30 +94,34 @@ export default function SiblingGraph({
 
   return (siblings.length > 1 &&
     <div className="purewhite" style={{ border: '1px solid var(--gray-80)', borderTop: 0, borderRadius: '0 0 .25rem .25rem' }}>
-      <menu className="flex align-items-flex-end gap-25 margin-0 padding-25 flex-wrap-wrap" style={{ backgroundColor: 'var(--gray-95)', borderBottom: '1px solid var(--gray-80)' }}>
-        <button
-          className="flex align-items-center gap-50 transparent font-weight-500 gray-90"
-          style={{ width: 'fit-content', fontSize: '.75rem', padding: '.3rem .6rem', lineHeight: '1.5' }}
-          type="button" onClick={() => setIsStacked(!isStacked)}
-        >
-          {t("graphs:common.change_graph_type")}
-          <IconChartAreaLineFilled aria-hidden="true" width={16} height={16} />
-        </button>
-      </menu>
-      <article>
+      <header>
+        <menu className="flex align-items-flex-end gap-25 margin-0 padding-25 padding-top-50 flex-wrap-wrap" style={{ backgroundColor: 'var(--gray-95)', borderBottom: '1px solid var(--gray-80)' }}>
+          <button
+            className="flex align-items-center gap-50 transparent font-weight-500 gray-90"
+            style={{ width: 'fit-content', fontSize: '.75rem', padding: '.3rem .6rem', lineHeight: '1.5' }}
+            type="button" onClick={() => setIsStacked(!isStacked)}
+          >
+            {t("graphs:common.change_graph_type")}
+            <IconChartAreaLineFilled aria-hidden="true" width={16} height={16} />
+          </button>
+        </menu>
         <h2 className="text-align-center block font-weight-500 margin-top-200 margin-bottom-50" style={{ fontSize: '1.5rem' }}>
           {t("graphs:sibling_graph.related_goals")}
         </h2>
-        <div style={{ height: '500px' }} className="padding-inline-25 padding-bottom-50">
-          <WrappedChart
-            key={"combinedGraph"}
-            options={chartOptions}
-            series={dataPoints}
-            type={isStacked ? 'area' : 'line'}
-            width="100%"
-            height="100%"
-          />
-        </div>
+      </header>
+
+      <div style={{ height: graphHeight }} className="padding-inline-25 padding-bottom-50">
+        <WrappedChart
+          key={"combinedGraph"}
+          options={chartOptions}
+          series={dataPoints}
+          type={isStacked ? 'area' : 'line'}
+          width="100%"
+          height="100%"
+        />
+      </div>
+      
+      <footer>
         <nav
           className="font-size-14px flex gap-75 flex-wrap-wrap justify-content-center padding-50"
           style={{ borderTop: '1px solid var(--gray-80)', backgroundColor: 'var(--tertiary-neutral)', borderRadius: '0 0 .25rem .25rem' }}
@@ -133,7 +138,7 @@ export default function SiblingGraph({
             </span>
           )}
         </nav>
-      </article>
+      </footer>
     </div>
   )
 }

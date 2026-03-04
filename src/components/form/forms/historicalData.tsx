@@ -156,30 +156,30 @@ export default function HistoricalData({
     if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variableIsOptional) return <span className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</span>;
   }
 
-  function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails) { 
+  function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails) {
     if (variable.option) {
       // The idea here is basically to we see which variables exist, and moving them to an array separately from metric as that value is already set. 
       // We then check if the variable which we render is in our list and get the default value from there.
       // This isnt very optimal as each render of a variable will trigger a loop of a new list, there is likely a better way to achieve this. 
       if (!goal.externalSelection) return // TODO: Very hacky, temp fix. TODO: Also need to do this for time also
-      const externalSelection: Array<{variableCode: string, valueCodes: Array<string>}> = JSON.parse(goal.externalSelection) as Array<{variableCode: string, valueCodes: Array<string>}>
-      const variables: Array<{variableCode: string, valueCodes: Array<string>}> = []
-      externalSelection.map((variable: {variableCode: string, valueCodes: Array<string>}) => {
-        if(variable.variableCode !== 'metric') {
+      const externalSelection: Array<{ variableCode: string, valueCodes: Array<string> }> = JSON.parse(goal.externalSelection) as Array<{ variableCode: string, valueCodes: Array<string> }>
+      const variables: Array<{ variableCode: string, valueCodes: Array<string> }> = []
+      externalSelection.map((variable: { variableCode: string, valueCodes: Array<string> }) => {
+        if (variable.variableCode !== 'metric') {
           variables.push(variable)
         }
       })
-      
+
       const selectedVariable = variables.find(v => v.variableCode === variable.name);
       const selectedValue = selectedVariable ? selectedVariable.valueCodes[0] : '';
 
-       return (
+      return (
         <label key={variable.name}>
           {/* Only display "optional" tags if the data source provides this information */}
           {variable.label}{optionalTag(dataSource, variable.optional)}
           {
           /* TODO: Use CSS to set proper capitalization of labels; something like `label::first-letter { text-transform: capitalize; }` */}
-          <select 
+          <select
             className='block margin-top-25 margin-bottom-100'
             required={!variable.optional}
             name={variable.name}
@@ -280,10 +280,10 @@ export default function HistoricalData({
     <div className={`${styles['dialog-body']}`}> {/* TODO: Dialog-body does not make sense here now... */}
       {/* <p className="padding-inline-100">{t("components:query_builder.add_data_to_goal", { goalName: goal.name ?? goal.indicatorParameter })}</p> */}
 
-      {/* TODO: It might be sensible if theese are tabs instead. Additionally that we warn users that data will be deleted given that you switch between them */}
-      <div className="radio-select-two margin-bottom-100" > {/* TODO: Make sure theese wrap */}
+      {/* TODO: It might be sensible if these are tabs instead. Additionally that we warn users that data will be deleted given that you switch between them */}
+      <div className="radio-select-two margin-bottom-100" > {/* TODO: Make sure these wrap */}
         <label id="recipe-type-suggested-label">
-          Justera data manuellt {/* TODO: i18n */}
+          {t("components:query_builder.adjust_data_manually")}
           <input
             className="margin-right-25"
             type="radio"
@@ -296,7 +296,7 @@ export default function HistoricalData({
         </label>
         <span>&#8210; {t("common:tsx.or")} &#8210;</span>
         <label>
-          Välj data från externa datakällor {/* TODO: i18n */}
+          {t("components:query_builder.add_external_data")}
           <input
             className="margin-right-25"
             type="radio"
