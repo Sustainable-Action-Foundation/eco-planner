@@ -7,16 +7,21 @@ const __dirname = path.dirname(__filename); // get the name of the directory
 
 const adminFile = path.join(__dirname, '../.auth/admin.json');
 
-test.describe("Roadmaps tests", () => {
+test.describe.serial("Roadmaps tests", () => {
   test.use({ storageState: adminFile });
+  let metaRoadmapNameAllFields = "";
+  let metaRoadmapNameAllFieldsUpdated = "";
+  let metaRoadmapNameRequiredFields = "";
+  let metaRoadmapNameRequiredFieldsUpdated = "";
 
-  test("Create MetaRoadmap and Roadmap - All Fields", async ({ page }) => {
+  test("Create MetaRoadmap and Roadmap - All Fields", async ({ page }, testInfo) => {
 
+    metaRoadmapNameAllFields = `Test ${testInfo.parallelIndex}`;
     // Navigate to create metaRoadmap page
     await page.goto('/metaRoadmap/create');
 
     // Fill in the metaRoadmap form
-    await page.locator('#name').fill("Test All");
+    await page.locator('#name').fill(metaRoadmapNameAllFields);
 
     // Fill description in the tiptap editor
     await page.locator('.tiptap').first().fill('Test All');
@@ -40,11 +45,6 @@ test.describe("Roadmaps tests", () => {
     // Submit the form
     await page.locator('#submit-button').click();
 
-    // Accept the alert dialog
-    page.once('dialog', async (dialog) => {
-      await dialog.accept();
-    });
-
     // Wait for redirect to roadmap creation page
     await expect(page).toHaveURL(/\/roadmap\/create/);
 
@@ -61,22 +61,17 @@ test.describe("Roadmaps tests", () => {
     // Submit the roadmap form
     await page.locator('#submit-button').click();
 
-    // Listen for success dialog
-    page.once('dialog', async (dialog) => {
-      await dialog.accept();
-    });
-
     // Verify successful roadmap creation by checking the redirect
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+/);
 
-    await expect(page.getByRole('heading', { name: 'Test All' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: metaRoadmapNameAllFields })).toBeVisible();
   });
 
   test("Edit roadmap, no changes - All Fields", async ({ page }) => {
 
     await page.goto('/');
 
-    await page.getByRole('link', { name: 'Test All (v1)' }).first().click();
+    await page.getByRole('link', { name: `${metaRoadmapNameAllFields} (v1)` }).first().click();
 
     // Click the edit button
     await page.getByTestId('admin-panel-edit').click();
@@ -99,11 +94,6 @@ test.describe("Roadmaps tests", () => {
     // Click the save button
     await page.locator('#submit-button').click();
 
-    // Accept the success dialog
-    page.once('dialog', async (dialog) => {
-      await dialog.accept();
-    });
-
     // Verify the save was successful
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
     await expect(page.getByTestId('admin-panel-edit')).toBeVisible();
@@ -113,7 +103,7 @@ test.describe("Roadmaps tests", () => {
 
     await page.goto('/');
 
-    await page.getByRole('link', { name: 'Test All (v1)' }).first().click();
+    await page.getByRole('link', { name: `${metaRoadmapNameAllFields} (v1)` }).first().click();
 
     // Go to MetaRoadmap page
     await page.getByTestId('show-roadmap-series').click();
@@ -127,7 +117,7 @@ test.describe("Roadmaps tests", () => {
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+\/edit/);
 
-    await expect(page.locator('#name')).toHaveValue('Test All');
+    await expect(page.locator('#name')).toHaveValue(metaRoadmapNameAllFields);
 
     // Verify all fields are filled in
     await expect(page.locator('.tiptap').first()).toHaveText('Test All');
@@ -152,21 +142,16 @@ test.describe("Roadmaps tests", () => {
     // Click the save button
     await page.locator('#submit-button').click();
 
-    // Accept the success dialog
-    page.once('dialog', async (dialog) => {
-      await dialog.accept();
-    });
-
     // Verify the save was successful
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+$/);
-    await expect(page.getByRole('heading', { name: 'Test All' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: metaRoadmapNameAllFields })).toBeVisible();
   });
 
   test("Edit roadmap, updated fields - All Fields", async ({ page }) => {
 
     await page.goto('/');
 
-    await page.getByRole('link', { name: 'Test All (v1)' }).first().click();
+    await page.getByRole('link', { name: `${metaRoadmapNameAllFields} (v1)` }).first().click();
 
     // Click the edit button
     await page.getByTestId('admin-panel-edit').click();
@@ -193,11 +178,6 @@ test.describe("Roadmaps tests", () => {
 
     // Click the save button
     await page.locator('#submit-button').click();
-
-    // Accept the success dialog
-    page.once('dialog', async (dialog) => {
-      await dialog.accept();
-    });
 
     // Verify the save was successful
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
@@ -226,9 +206,11 @@ test.describe("Roadmaps tests", () => {
 
   test("Edit MetaRoadmap, updated fields - All Fields", async ({ page }) => {
 
+    metaRoadmapNameAllFieldsUpdated = `Updated ${metaRoadmapNameAllFields}`;
+
     await page.goto('/');
 
-    await page.getByRole('link', { name: 'Test All (v1)' }).first().click();
+    await page.getByRole('link', { name: `${metaRoadmapNameAllFields} (v1)` }).first().click();
 
     // Go to MetaRoadmap page
     await page.getByTestId('show-roadmap-series').click();
@@ -244,7 +226,7 @@ test.describe("Roadmaps tests", () => {
 
     // Edit name
     await page.locator('#name').clear();
-    await page.locator('#name').fill('Updated Name All');
+    await page.locator('#name').fill(metaRoadmapNameAllFieldsUpdated);
 
     // Edit description in the tiptap editor
     await page.locator('.tiptap').first().clear();
@@ -274,14 +256,9 @@ test.describe("Roadmaps tests", () => {
     // Click the save button
     await page.locator('#submit-button').click();
 
-    // Accept the success dialog
-    page.once('dialog', async (dialog) => {
-      await dialog.accept();
-    });
-
     // Verify the save was successful
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+$/);
-    await expect(page.getByRole('heading', { name: 'Updated Name All' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: metaRoadmapNameAllFieldsUpdated })).toBeVisible();
 
     // Click the edit button again to verify all changes were saved
     await page.getByTestId('admin-panel-edit').click();
@@ -290,7 +267,7 @@ test.describe("Roadmaps tests", () => {
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+\/edit/);
 
     // Verify name was updated
-    await expect(page.locator('#name')).toHaveValue('Updated Name All');
+    await expect(page.locator('#name')).toHaveValue(metaRoadmapNameAllFieldsUpdated);
 
     // Verify description was updated
     await expect(page.locator('.tiptap').first()).toHaveText('Updated Description All');
@@ -314,13 +291,14 @@ test.describe("Roadmaps tests", () => {
     await expect(page.locator('#editors')).toHaveValue('admin');
   });
 
-  test("Create MetaRoadmap and Roadmap - Required Fields", async ({ page }) => {
+  test("Create MetaRoadmap and Roadmap - Required Fields", async ({ page }, testInfo) => {
 
+    metaRoadmapNameRequiredFields = `Test Required ${testInfo.parallelIndex}`;
     // Navigate to create metaRoadmap page
     await page.goto('/metaRoadmap/create');
 
     // Fill in the metaRoadmap form
-    await page.locator('#name').fill("Test Required");
+    await page.locator('#name').fill(metaRoadmapNameRequiredFields);
 
     // Select roadmap type
     await page.locator('#type').selectOption("LOCAL");
@@ -337,11 +315,6 @@ test.describe("Roadmaps tests", () => {
     // Submit the form
     await page.locator('#submit-button').click();
 
-    // Accept the alert dialog
-    page.once('dialog', async (dialog) => {
-      await dialog.accept();
-    });
-
     // Wait for redirect to roadmap creation page
     await expect(page).toHaveURL(/\/roadmap\/create/);
 
@@ -354,22 +327,17 @@ test.describe("Roadmaps tests", () => {
     // Submit the roadmap form
     await page.locator('#submit-button').click();
 
-    // Listen for success dialog
-    page.once('dialog', async (dialog) => {
-      await dialog.accept();
-    });
-
     // Verify successful roadmap creation by checking the redirect
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+/);
 
-    await expect(page.getByRole('heading', { name: 'Test Required' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: metaRoadmapNameRequiredFields })).toBeVisible();
   });
 
   test("Edit roadmap, no changes - Required Fields", async ({ page }) => {
 
     await page.goto('/');
 
-    await page.getByRole('link', { name: 'Test Required (v1)' }).first().click();
+    await page.getByRole('link', { name: `${metaRoadmapNameRequiredFields} (v1)` }).first().click();
 
     // Click the edit button
     await page.getByTestId('admin-panel-edit').click();
@@ -389,11 +357,6 @@ test.describe("Roadmaps tests", () => {
     // Click the save button
     await page.locator('#submit-button').click();
 
-    // Accept the success dialog
-    page.once('dialog', async (dialog) => {
-      await dialog.accept();
-    });
-
     // Verify the save was successful
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
     await expect(page.getByTestId('admin-panel-edit')).toBeVisible();
@@ -403,7 +366,7 @@ test.describe("Roadmaps tests", () => {
 
     await page.goto('/');
 
-    await page.getByRole('link', { name: 'Test Required (v1)' }).first().click();
+    await page.getByRole('link', { name: `${metaRoadmapNameRequiredFields} (v1)` }).first().click();
 
     // Go to MetaRoadmap page
     await page.getByTestId('show-roadmap-series').click();
@@ -417,7 +380,8 @@ test.describe("Roadmaps tests", () => {
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+\/edit/);
 
-    await expect(page.locator('#name')).toHaveValue('Test Required');
+    // Verify name is filled in
+    await expect(page.locator('#name')).toHaveValue(metaRoadmapNameRequiredFields);
 
     // Verify type is set
     await expect(page.locator('#type')).toHaveValue('LOCAL');
@@ -434,21 +398,16 @@ test.describe("Roadmaps tests", () => {
     // Click the save button
     await page.locator('#submit-button').click();
 
-    // Accept the success dialog
-    page.once('dialog', async (dialog) => {
-      await dialog.accept();
-    });
-
     // Verify the save was successful
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+$/);
-    await expect(page.getByRole('heading', { name: 'Test Required' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: metaRoadmapNameRequiredFields })).toBeVisible();
   });
 
   test("Edit roadmap, updated fields - Required Fields", async ({ page }) => {
 
     await page.goto('/');
 
-    await page.getByRole('link', { name: 'Test Required (v1)' }).first().click();
+    await page.getByRole('link', { name: `${metaRoadmapNameRequiredFields} (v1)` }).first().click();
 
     // Click the edit button
     await page.getByTestId('admin-panel-edit').click();
@@ -475,13 +434,9 @@ test.describe("Roadmaps tests", () => {
     // Click the save button
     await page.locator('#submit-button').click();
 
-    // Accept the success dialog
-    page.once('dialog', async (dialog) => {
-      await dialog.accept();
-    });
-
     // Verify the save was successful
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
+    await expect(page.getByRole('heading', { name: metaRoadmapNameRequiredFields })).toBeVisible();
 
     // Click the edit button again to verify all changes were saved
     await page.getByTestId('admin-panel-edit').click();
@@ -507,10 +462,11 @@ test.describe("Roadmaps tests", () => {
 
   test("Edit MetaRoadmap, updated fields - Required Fields", async ({ page }) => {
 
+    metaRoadmapNameRequiredFieldsUpdated = `Updated ${metaRoadmapNameRequiredFields}`;
     await page.goto('/');
 
-    await expect(page.getByRole('link', { name: 'Test Required (v1)' }).first()).toBeVisible();
-    await page.getByRole('link', { name: 'Test Required (v1)' }).first().click();
+    await expect(page.getByRole('link', { name: `${metaRoadmapNameRequiredFields} (v1)` })).toBeVisible();
+    await page.getByRole('link', { name: `${metaRoadmapNameRequiredFields} (v1)` }).first().click();
 
     // Go to MetaRoadmap page
     await page.getByTestId('show-roadmap-series').click();
@@ -526,7 +482,7 @@ test.describe("Roadmaps tests", () => {
 
     // Edit name
     await page.locator('#name').clear();
-    await page.locator('#name').fill('Updated Name Required');
+    await page.locator('#name').fill(metaRoadmapNameRequiredFieldsUpdated);
 
     // Edit description in the tiptap editor
     await page.locator('.tiptap').first().fill('Updated Description Required');
@@ -555,14 +511,9 @@ test.describe("Roadmaps tests", () => {
     // Click the save button
     await page.locator('#submit-button').click();
 
-    // Accept the success dialog
-    page.once('dialog', async (dialog) => {
-      await dialog.accept();
-    });
-
     // Verify the save was successful
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+$/);
-    await expect(page.getByRole('heading', { name: 'Updated Name Required' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: metaRoadmapNameRequiredFieldsUpdated })).toBeVisible();
 
     // Click the edit button again to verify all changes were saved
     await page.getByTestId('admin-panel-edit').click();
@@ -571,7 +522,7 @@ test.describe("Roadmaps tests", () => {
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+\/edit/);
 
     // Verify name was updated
-    await expect(page.locator('#name')).toHaveValue('Updated Name Required');
+    await expect(page.locator('#name')).toHaveValue(metaRoadmapNameRequiredFieldsUpdated);
 
     // Verify description was updated
     await expect(page.locator('.tiptap').first()).toHaveText('Updated Description Required');
