@@ -34,7 +34,6 @@ export default function GraphSelector({
     }
   };
 
-  // TODO: Probably makes sense to switch between graphs using radio buttons rather than this select
   return (
     <div className='floating-label'>
       <label htmlFor='select-graphType' style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties} >

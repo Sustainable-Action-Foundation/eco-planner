@@ -17,6 +17,7 @@ import findSiblings from "@/functions/findSiblings";
 import { graphHeight } from "../config";
 import CopyAndScale from "@/components/modals/copyAndScale";
 import { LoginData } from "@/lib/session";
+import styles from '../goal.module.css'
 
 export const GraphType = {
   Main: "MAIN",
@@ -86,38 +87,39 @@ export default function GraphGraph({
   }
 
   return (
-    <div className="purewhite" style={{ border: '1px solid var(--gray-80)', borderTop: 0, borderRadius: '0 0 .25rem .25rem' }}>
+    <div className={`${styles['tab-panel']}`}>
       {/* TODO: Use role="toolbar" (or menubar) for this */}
       <header>
-        <menu className="flex align-items-flex-end gap-25 margin-0 padding-25 padding-top-50 flex-wrap-wrap" style={{ backgroundColor: 'var(--gray-95)', borderBottom: '1px solid var(--gray-80)' }}>
+        <menu className={`${styles['menu']}`}>
           <GraphSelector goal={goal} childGoals={false} siblings={false} currentSelection={graphType} setter={setGraphType} /> {/* NOTE: Set childgoals and siblings to false until the feature is fully implemented */}
           <SecondaryGoalSelector />
           {(goal.dataSeries?.id && session.user) ?
             <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
             : null}
         </menu>
-        <h2 className="text-align-center block font-weight-500 margin-top-200 margin-bottom-50 font-size-150">
+        <h2 className={`${styles['heading']}`}>
           {goal.name ? goal.name : goal.indicatorParameter}
         </h2>
-        {secondaryGoal && <p className="margin-block-0 margin-inline-auto text-align-center">{t("graphs:graph_graph.compare_with_goal", { goalName: secondaryGoal.name || secondaryGoal.indicatorParameter })}</p>}
+        {secondaryGoal &&
+          <p className="margin-block-0 margin-inline-auto text-align-center">
+            {t("graphs:graph_graph.compare_with_goal", { goalName: secondaryGoal.name || secondaryGoal.indicatorParameter })}
+          </p>
+        }
       </header>
 
-      <div style={{ height: graphHeight }} className="padding-inline-25 padding-bottom-50">
+      <div className={`${styles['body']}`}>
         {graphSwitch(graphType || GraphType.Main)}
       </div>
 
-      <footer
-        className="font-size-14px text-align-center padding-50"
-        style={{ borderTop: '1px solid var(--gray-80)', backgroundColor: 'var(--tertiary-neutral)', borderRadius: '0 0 .25rem .25rem' }}
-      >
-        {historicalData && (
-          <Trans 
+      {historicalData ? 
+        <footer className={`${styles['footer']}`} >
+          <Trans
             i18nKey="graphs:graph_graph.historical_data_source"
             components={{ a: <a href={dataset?.userFacingUrl} target="_blank" /> }}
             tOptions={{ source: dataset?.fullName ?? historicalData.metadata[0]?.source }}
           />
-        )}
-      </footer>
+        </footer>
+      : null }
     </div>
   );
 }
