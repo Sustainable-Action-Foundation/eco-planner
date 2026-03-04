@@ -94,7 +94,7 @@ export default function GoalForm({
     }
 
     // Parse date values (required)
-    const resultingDateValuesString = formData.get("resultingDateValues") as string | null;
+    const resultingDateValuesString = formData.get("resultingDateValues") as string | null || formData.get("data-series") as string | null; // Fallback for manual data series input
     if (!resultingDateValuesString) {
       console.error("No resulting date values provided in form.");
       event.target.reportValidity();
@@ -184,7 +184,7 @@ export default function GoalForm({
         timestamp: undefined, // Ignored when creating
 
         name: formData.get("goalName") as string | null ?? null,
-        description: JSON.stringify(editorContent),
+        description: editorContent ? JSON.stringify(editorContent) : null,
         indicatorParameter: formData.get("indicatorParameter") as string | null ?? (event.target.reportValidity(), ""),
         isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked || false,
         recipeSuggestions: undefined, // TODO: add recipe suggestions input
@@ -197,7 +197,7 @@ export default function GoalForm({
         dataSeriesId: null,
         dataSeries: dataSeries,
         dataSeriesRecipeId: null,
-        dataSeriesRecipe: dataSeriesRecipe,
+        dataSeriesRecipe: dataSeriesRecipe || null,
 
         baselineId: null,
         baseline: baseline,
@@ -218,7 +218,7 @@ export default function GoalForm({
         timestamp: timestamp, // Only needed for edits
 
         name: formData.get("goalName") as string | null ?? undefined,
-        description: JSON.stringify(editorContent),
+        description: editorContent ? JSON.stringify(editorContent) : null,
         indicatorParameter: formData.get("indicatorParameter") as string | null ?? undefined,
         isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked ?? undefined,
         recipeSuggestions: undefined, // TODO: add recipe suggestions input

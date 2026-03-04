@@ -200,7 +200,7 @@ export default function DateValuesInput({
                       ...prev,
                       dateValues: {
                         ...prev.dateValues,
-                        [date]: e.target.value,
+                        [date]: (e.target.value === "") ? undefined : parseFloat(e.target.value),
                       },
                     }));
                   }}

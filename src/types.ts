@@ -514,10 +514,10 @@ export function isISOIshDate(dateString: string): dateString is ISOIshDate {
 export function isDateValuesWithUnit(dateValues: JSONValue): dateValues is Partial<DateValuesWithUnit> {
   return (
     isStandardObject(dateValues)
-    && 'values' in dateValues
-    && typeof dateValues.values === 'object'
+    && 'dateValues' in dateValues
+    && typeof dateValues.dateValues === 'object'
     && !Array.isArray(dateValues)
-    && isDateValues(dateValues.values)
+    && isDateValues(dateValues.dateValues)
     && isUnitString(dateValues.unit)
   );
 }
