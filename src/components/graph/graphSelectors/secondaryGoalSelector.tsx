@@ -1,24 +1,36 @@
 'use client';
 
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 export default function SecondaryGoalSelector() {
   const { t } = useTranslation("graphs");
 
+  const defaultSecondaryGoal = useMemo(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("secondaryGoal") ?? "";
+  }, []);
+
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const form = event.target;
-    if (!(form.secondaryGoal instanceof HTMLInputElement)) {
-      return;
-    }
+    const input = form.elements.namedItem("compare-goals");
 
-    const secondaryGoalId = form.secondaryGoal.value;
+    if (!(input instanceof HTMLInputElement)) return;
+
+    const secondaryGoalId = input.value.trim();
 
     const target = new URL(window.location.href);
-    target.searchParams.append("secondaryGoal", secondaryGoalId);
+
+    if (secondaryGoalId === "") {
+      target.searchParams.delete("secondaryGoal");
+    } else {
+      target.searchParams.set("secondaryGoal", secondaryGoalId);
+    }
 
     window.location.href = target.href;
+
   }
 
   return (
@@ -27,27 +39,18 @@ export default function SecondaryGoalSelector() {
         <label htmlFor="compare-goals">
           {t("graphs:secondary_graph_selector.compare_with")}
         </label>
-        <input type="text" id="compare-goals" name="compare-goals" placeholder=" " style={{ fontSize: '.75rem', padding: '.3rem' }} />
-        <button type="submit" className="font-weight-500 transparent gray-90 smooth" style={{ fontSize: '.75rem', padding: '.3rem .6rem' }} >
+        <input
+          type="text"
+          id="compare-goals"
+          name="compare-goals"
+          placeholder=" "
+          style={{ fontSize: '.75rem', padding: '.3rem' }}
+          defaultValue={defaultSecondaryGoal}
+        />
+        <button type="submit" style={{ fontSize: '.75rem', padding: '.3rem .6rem', borderRadius: '0 .25rem .25rem 0', backgroundColor: 'var(--gray-90)', borderLeft: '1px solid var(--gray-80)', transform: 'scale(1)' }} >
           {t("graphs:secondary_graph_selector.compare")}
         </button>
       </div>
     </form>
   )
 }
-
-{/*
-<div className="floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
-  <label htmlFor={`variable-name-${variableName}`}>
-    {t("components:recipe_editor.variable_name_placeholder")}
-  </label>
-  <input
-    id={`variable-name-${variableName}`}
-    placeholder=" "
-    style={{ gridRow: '1', gridColumn: '1' }}
-    defaultValue={variableName}
-    onChange={(e) => updateVariableName(variableName, e.target.value, setVariables)}
-    type="text"
-  />
-</div>
- */} 

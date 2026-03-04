@@ -5,7 +5,7 @@ import { DataSeries, Goal } from "@prisma/client";
 import { GraphType } from "../graphs/goal/main/container";
 import { setStoredGraphType } from '../functions/graphFunctions';
 import { useTranslation } from "react-i18next";
- 
+
 export const percentAndFraction = ['procent', 'percent', '%', 'andel', 'fraction'];
 
 export default function GraphSelector({
@@ -32,13 +32,13 @@ export default function GraphSelector({
       console.log("Invalid graph type");
       setter("");
     }
-  }; 
+  };
 
   // TODO: Probably makes sense to switch between graphs using radio buttons rather than this select
   return (
-    <div className='flex align-items-center gap-25'>
-      <label htmlFor='select-graphType' className='font-size-14px'>
-        {t("common:tsx.show")}:
+    <div className='floating-label'>
+      <label htmlFor='select-graphType' style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties} >
+        {t("common:tsx.show")}
       </label>
       <select
         id='select-graphType'
@@ -47,16 +47,14 @@ export default function GraphSelector({
         onChange={handleSelectChange}
         value={currentSelection}
       >
-        <optgroup label={t("graphs:graph_selector.goal")}> {/* TODO: Remove grouping. What i am trying to achieve with groupings here should be done using tabs */}
-          <option value={GraphType.Main}>{t("graphs:graph_selector.goal")}</option>
-          <option value={GraphType.Delta}>{t("graphs:graph_selector.annual_change")}</option>
-          { // Don't allow relative graph if the main graph is already percent or fraction
-            !percentAndFraction.includes(goal.dataSeries?.unit?.toLowerCase() ?? "") &&
-            <option value={GraphType.Relative}>{t("graphs:graph_selector.percentage_change")}</option>
-          }
-        </optgroup>
-        {childGoals && <option value={GraphType.Children}>{t("pages:goal.goals_working_towards", { goalName: goal.name ? goal.name : goal.indicatorParameter })}</option> }
-        {siblings && <option value={GraphType.Siblings}>{t("pages:goal.related_goals")}</option> }
+        <option value={GraphType.Main}>{t("graphs:graph_selector.goal")}</option>
+        <option value={GraphType.Delta}>{t("graphs:graph_selector.annual_change")}</option>
+        { // Don't allow relative graph if the main graph is already percent or fraction
+          !percentAndFraction.includes(goal.dataSeries?.unit?.toLowerCase() ?? "") &&
+          <option value={GraphType.Relative}>{t("graphs:graph_selector.percentage_change")}</option>
+        }
+        {childGoals && <option value={GraphType.Children}>{t("pages:goal.goals_working_towards", { goalName: goal.name ? goal.name : goal.indicatorParameter })}</option>}
+        {siblings && <option value={GraphType.Siblings}>{t("pages:goal.related_goals")}</option>}
       </select>
     </div>
   );
