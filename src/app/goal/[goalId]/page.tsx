@@ -26,10 +26,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import getTableContent from "@/lib/api/getTableContent";
 import { buildMetadata } from "@/functions/buildMetadata";
-import { IconAlertTriangle, IconArrowBackUp, IconArrowNarrowRight, IconBuildings } from "@tabler/icons-react";
+import { IconAlertTriangle, IconArrowNarrowRight, IconBuildings } from "@tabler/icons-react";
 import i18nServer, { TFunction } from "i18next";
 import TextEditor from "@/components/form/elements/textEditor/editor";
-import TabListSimple from "@/components/generic/tablist/tabListSimple";
 import GoalGraph from "@/components/graph/graphs/goal/container";
 
 export async function generateMetadata(props: {
@@ -249,7 +248,7 @@ export default async function Page(
         {goal.description ?
           <>
             <TextEditor
-              className="margin-top-50 margin-bottom-300"
+              className="margin-top-50"
               id="rich-description"
               editable={false}
               defaultStyles={false}
@@ -259,23 +258,20 @@ export default async function Page(
           : null}
 
         {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
-        <GoalGraph
-          goal={goal}
-          parentGoal={parentGoal}
-          childGoals={childGoals}
-          roadmap={roadmap}
-          parentGoalRoadmap={parentGoalRoadmap}
-          externalData={externalData}
-          secondaryGoal={secondaryGoal}
-          effects={goal.effects}
-        >
-          <div className="flex gap-25 margin-left-100">
-            <QueryBuilder goal={goal} />
-            {(goal.dataSeries?.id && session.user) ?
-              <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
-              : null}
-          </div>
-        </GoalGraph>
+        <section className="margin-top-300">
+          <GoalGraph
+            goal={goal}
+            parentGoal={parentGoal}
+            childGoals={childGoals}
+            roadmap={roadmap}
+            parentGoalRoadmap={parentGoalRoadmap}
+            externalData={externalData}
+            secondaryGoal={secondaryGoal}
+            effects={goal.effects}
+            session={{ user: session.user }}
+            roadmapOptions={roadmapOptions}
+          />
+        </section>
 
         <section className="margin-block-300">
           <div
