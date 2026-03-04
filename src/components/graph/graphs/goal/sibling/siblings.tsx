@@ -95,7 +95,7 @@ export default function SiblingGraph({
   return (siblings.length > 1 &&
     <div className="purewhite" style={{ border: '1px solid var(--gray-80)', borderTop: 0, borderRadius: '0 0 .25rem .25rem' }}>
       <header>
-        <menu className="flex align-items-flex-end gap-25 margin-0 padding-25 flex-wrap-wrap" style={{ backgroundColor: 'var(--gray-95)', borderBottom: '1px solid var(--gray-80)' }}>
+        <menu className="flex align-items-flex-end gap-25 margin-0 padding-25 padding-top-50 flex-wrap-wrap" style={{ backgroundColor: 'var(--gray-95)', borderBottom: '1px solid var(--gray-80)' }}>
           <button
             className="flex align-items-center gap-50 transparent font-weight-500 gray-90"
             style={{ width: 'fit-content', fontSize: '.75rem', padding: '.3rem .6rem', lineHeight: '1.5' }}

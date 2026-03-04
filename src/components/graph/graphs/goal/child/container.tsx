@@ -53,7 +53,7 @@ export default function ChildGraphContainer({
   return (
     <div className="purewhite" style={{ border: '1px solid var(--gray-80)', borderTop: 0, borderRadius: '0 0 .25rem .25rem' }}>
       <header>
-        <menu className="flex align-items-flex-end gap-25 margin-0 padding-25 flex-wrap-wrap" style={{ backgroundColor: 'var(--gray-95)', borderBottom: '1px solid var(--gray-80)' }}>
+        <menu className="flex align-items-flex-end gap-25 margin-0 padding-25 flex-wrap-wrap padding-top-50" style={{ backgroundColor: 'var(--gray-95)', borderBottom: '1px solid var(--gray-80)' }}>
           <ChildGraphSelector goal={goal} currentSelection={childGraphType} setter={setChildGraphType} />
           <button
             className="display-flex align-items-center gap-50 gray-90 font-weight-500"
