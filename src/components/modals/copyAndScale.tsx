@@ -135,9 +135,9 @@ export default function CopyAndScale({
       {/* Opening button */}
       <button
         type="button"
-        className="seagreen color-purewhite smooth padding-block-50 padding-inline-100 smooth"
+        className="seagreen color-purewhite smooth padding-block-50 padding-inline-100 smooth flex-grow-100 font-size-75 line-height-150"
         onClick={() => openModal(modalRef)}
-        style={{ padding: '.3rem .6rem', fontSize: '.75rem', lineHeight: '1.5' }}
+        style={{ padding: '.3rem .6rem'}}
       >
         {t("components:copy_and_scale.copy_and_scale")}
       </button>

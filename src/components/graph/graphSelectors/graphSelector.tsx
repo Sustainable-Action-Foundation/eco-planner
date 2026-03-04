@@ -35,14 +35,14 @@ export default function GraphSelector({
   };
 
   return (
-    <div className='floating-label'>
+    <div className='floating-label flex-grow-100'>
       <label htmlFor='select-graphType' style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties} >
         {t("common:tsx.show")}
       </label>
       <select
         id='select-graphType'
-        className='block smooth'
-        style={{ "--padding": ".3rem", "--icon-size": '16px', fontSize: '.75rem', minWidth: 'unset' } as React.CSSProperties}
+        className='block smooth width-100 font-size-75'
+        style={{ "--padding": ".3rem", "--icon-size": '16px', minWidth: 'unset' } as React.CSSProperties}
         onChange={handleSelectChange}
         value={currentSelection}
       >

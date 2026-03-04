@@ -15,7 +15,6 @@ import { LoginData } from "@/lib/session";
 
 // TODO: Rename file and component
 // TODO: Shared styling for goal graphs
-// TODO: Ensure styling leads to no layout shifting
 export default function GoalGraph({
   goal,
   parentGoal,
@@ -72,7 +71,7 @@ export default function GoalGraph({
     <section>
       <TabListSimple
         props={{
-          className: `padding-inline-25 padding-bottom-0 grid ${styles['tablist']}`, /* TODO: This grid needs to be responsive */
+          className: `padding-inline-25 padding-bottom-0 grid ${styles['tablist']}`,
         }}
       >
         <TabListSimple.Tab

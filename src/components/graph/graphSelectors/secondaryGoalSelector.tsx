@@ -34,7 +34,7 @@ export default function SecondaryGoalSelector() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex-grow-100 flex gap-25 align-items-center">
+    <form onSubmit={handleSubmit} className="flex-grow-infinity flex gap-25 align-items-center">
       <div className="floating-label focusable smooth flex-grow-100 flex align-items-center" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
         <label htmlFor="compare-goals">
           {t("graphs:secondary_graph_selector.compare_with")}
@@ -44,10 +44,11 @@ export default function SecondaryGoalSelector() {
           id="compare-goals"
           name="compare-goals"
           placeholder=" "
-          style={{ fontSize: '.75rem', padding: '.3rem' }}
+          className="font-size-75"
+          style={{ padding: '.3rem' }}
           defaultValue={defaultSecondaryGoal}
         />
-        <button type="submit" style={{ fontSize: '.75rem', padding: '.3rem .6rem', borderRadius: '0 .25rem .25rem 0', backgroundColor: 'var(--gray-90)', borderLeft: '1px solid var(--gray-80)', transform: 'scale(1)' }} >
+        <button type="submit" className="font-size-75" style={{padding: '.3rem .6rem', borderRadius: '0 .25rem .25rem 0', backgroundColor: 'var(--gray-90)', borderLeft: '1px solid var(--gray-80)', transform: 'scale(1)' }} >
           {t("graphs:secondary_graph_selector.compare")}
         </button>
       </div>
