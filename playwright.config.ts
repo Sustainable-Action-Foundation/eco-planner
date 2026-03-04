@@ -61,7 +61,7 @@ export default defineConfig({
     timezoneId: "Europe/Stockholm",
 
     // Shorter timeouts for actions to make tests that will fail, fail faster. 
-    actionTimeout: 10 * 1000, // Timeout for click, fill etc.
+    actionTimeout: 5 * 1000, // Timeout for click, fill etc.
   },
 
   // Configure projects for major browsers.
