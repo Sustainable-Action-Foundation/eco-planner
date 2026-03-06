@@ -75,7 +75,8 @@ export default function ActionGraph({
         fontWeight: 'normal',
         colors: ['white']
       },
-      formatter: function (val, opts) {
+      formatter: function (val, opts: { dataPointIndex: number, w: { globals: { labels: string[] } } }) {
+        if (!("w" in opts) || !("globals" in opts.w) || !("labels" in opts.w.globals) || !("dataPointIndex" in opts) || typeof opts.dataPointIndex !== 'number' || !Array.isArray(opts.w.globals.labels) || opts.w.globals.labels.some(label => typeof label !== 'string')) return val;
         const label = opts.w.globals.labels[opts.dataPointIndex];
         // Don't render label if it is for the buffer bars
         if (!label || label.trim() === '') return '';
