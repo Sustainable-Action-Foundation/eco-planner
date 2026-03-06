@@ -307,13 +307,11 @@ export default async function Page(
               <h3 className="margin-top-500 font-weight-500">
                 {t("pages:goal.action_timeline")}
               </h3>
-              <article className="smooth purewhite margin-bottom-500" style={{ border: '1px solid var(--gray-90)' }}>
-                <ActionGraph actions={goal.effects.map(effect => effect.action)} />
-              </article>
+              <ActionGraph actions={goal.effects.map(effect => effect.action)} />
             </>
           }
         </section>
- 
+
       </main>
 
       <section className="margin-block-500">

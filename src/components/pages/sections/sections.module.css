@@ -32,7 +32,7 @@
 }
 
 .actions-grid > li:has(a:hover) {
-    box-shadow: 4px .5rem 10px -.5rem var(--gray-30);
+    box-shadow: 4px .5rem 10px -.5rem var(--gray-70);
 }
 
 

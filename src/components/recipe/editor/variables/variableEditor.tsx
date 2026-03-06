@@ -43,7 +43,7 @@ export default function VariableEditor({
     >
       {Object.keys(recipe?.variables || []).length === 0 &&
         <li className="padding-bottom-75 margin-bottom-75">
-          <div className="flex flex-direction-column align-items-center justify-content-center gap-25 padding-100 border-dashed border-2 border-gray-300 border-radius-8 background-color-gray-50">
+          <div className="flex flex-direction-column align-items-center justify-content-center gap-25 padding-100 border-dashed border-2 border-gray-70 border-radius-8 background-color-gray-50">
             <p className="font-weight-500 gray-700 text-align-center">
               {t("components:recipe_editor.no_variables_yet")}
             </p>

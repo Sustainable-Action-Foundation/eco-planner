@@ -98,7 +98,7 @@
 @media (width < 600px) {
     .tablist {
         overflow: hidden;
-        overflow-x: overlay;
+        overflow-x: overlay; /* TODO: Should be auto i think (overlay is a legacy keyword according to mdn) */
         scroll-snap-type: x mandatory;
         direction: ltr;
         scrollbar-width: thin;
