@@ -160,7 +160,7 @@ export async function POST(request: NextRequest) {
                 create: {
                   author: { connect: { id: session.user.id } },
                   unit: null,
-                  values: { createMany: { data: dateValuesToDBDateRecord(actionCreate.dataSeries) } }
+                  values: { createMany: { data: dateValuesToDBDateRecord(actionCreate.dataSeries.dateValues) } }
                 }
               },
               goal: {
