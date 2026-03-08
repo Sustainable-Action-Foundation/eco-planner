@@ -6,8 +6,9 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
 import { Goal, Roadmap } from "@/types";
-import { color_palette, stroke, marker } from "../../../config";
+import { stroke, marker } from "../../../config";
 import { graphHeight } from "../config";
+import styles from '../goal.module.css'
 
 // TODO: Do we want to showcase the goal itself here or only its siblings? If we do want to showcase the goal, 
 // how can we ensure that it maintains the same colour as in the other graphs?
@@ -93,24 +94,24 @@ export default function SiblingGraph({
   */
 
   return (siblings.length > 1 &&
-    <div className="purewhite" style={{ border: '1px solid var(--gray-80)', borderTop: 0, borderRadius: '0 0 .25rem .25rem' }}>
+    <div className={`${styles['tab-panel']}`}>
       <header>
-        <menu className="flex align-items-flex-end gap-25 margin-0 padding-25 padding-top-50 flex-wrap-wrap" style={{ backgroundColor: 'var(--gray-95)', borderBottom: '1px solid var(--gray-80)' }}>
+        <menu className={`${styles['menu']}`}>
           <button
-            className="flex align-items-center gap-50 transparent font-weight-500 gray-90"
-            style={{ width: 'fit-content', fontSize: '.75rem', padding: '.3rem .6rem', lineHeight: '1.5' }}
+            className="flex align-items-center gap-50 transparent font-weight-500 gray-90 fit-content font-size-75 line-height-150"
+            style={{ padding: '.3rem .6rem' }}
             type="button" onClick={() => setIsStacked(!isStacked)}
           >
             {t("graphs:common.change_graph_type")}
             <IconChartAreaLineFilled aria-hidden="true" width={16} height={16} />
           </button>
         </menu>
-        <h2 className="text-align-center block font-weight-500 margin-top-200 margin-bottom-50" style={{ fontSize: '1.5rem' }}>
+        <h2 className={`${styles['heading']}`}>
           {t("graphs:sibling_graph.related_goals")}
         </h2>
       </header>
 
-      <div style={{ height: graphHeight }} className="padding-inline-25 padding-bottom-50">
+      <div className={`${styles['body']}`}>
         <WrappedChart
           key={"combinedGraph"}
           options={chartOptions}
@@ -120,12 +121,9 @@ export default function SiblingGraph({
           height="100%"
         />
       </div>
-      
-      <footer>
-        <nav
-          className="font-size-14px flex gap-75 flex-wrap-wrap justify-content-center padding-50"
-          style={{ borderTop: '1px solid var(--gray-80)', backgroundColor: 'var(--tertiary-neutral)', borderRadius: '0 0 .25rem .25rem' }}
-        >
+
+      <footer className={`${styles['footer']}`} >
+        <nav className="flex gap-75 flex-wrap-wrap justify-content-center">
           {siblings.map((sibling, index) =>
             <span key={sibling.id} className="flex gap-50 line-height-100">
               <a href={`/goal/${sibling.id}`} className="flex gap-25 align-items-center">

@@ -9,15 +9,12 @@ import { Effect, Goal, Roadmap } from "@/types";
 import getGoalByIndicator from "@/fetchers/getGoalByIndicator";
 import { ApiTableContent } from "@/lib/api/apiTypes";
 import GraphGraph from "./main/container";
-import styles from '../../graphs.module.css'
+import styles from './goal.module.css'
 import { useTranslation } from "react-i18next";
 import { LoginData } from "@/lib/session";
 
 // TODO: Rename file and component
-// TODO: Single component for footer and header
 // TODO: Shared styling for goal graphs
-// TODO: Ensure styling leads to no layout shifting
-// TODO: Messages for when childgoals and siblings dont exist (rather than not showing at all)
 export default function GoalGraph({
   goal,
   parentGoal,
@@ -49,30 +46,55 @@ export default function GoalGraph({
 
   const { t } = useTranslation(["pages", "common"]);
 
+  const siblings = findSiblings(roadmap, goal);
+
+  if (!(childGoals.length > 0) && !(siblings.length > 1)) {
+    return (
+      <section>
+        <GraphGraph
+          goal={goal}
+          parentGoal={parentGoal}
+          childGoals={childGoals}
+          roadmap={roadmap}
+          parentGoalRoadmap={parentGoalRoadmap}
+          historicalData={externalData}
+          secondaryGoal={secondaryGoal}
+          effects={effects}
+          session={session}
+          roadmapOptions={roadmapOptions}
+        />
+      </section>
+    );
+  }
 
   return (
     <section>
       <TabListSimple
         props={{
-          className: `padding-inline-25 padding-bottom-0 grid ${styles['graph-tablist']}`, /* TODO: This grid needs to be responsive */
+          className: `padding-inline-25 padding-bottom-0 grid ${styles['tablist']}`,
         }}
       >
         <TabListSimple.Tab
-          className={`font-size-14px padding-25 ${styles['graph-tab']}`}
+          className={`font-size-14px padding-25 ${styles['tab']}`}
           style={{ textTransform: 'capitalize' }}
         >
           {t("common:goal_one")}
         </TabListSimple.Tab>
-        <TabListSimple.Tab
-          className={`font-size-14px padding-25 ${styles['graph-tab']}`}
-        >
-          {t("pages:goal.sub_goals")}
-        </TabListSimple.Tab>
-        <TabListSimple.Tab
-          className={`font-size-14px padding-25 ${styles['graph-tab']}`}
-        >
-          {t("pages:goal.related_goals")}
-        </TabListSimple.Tab>
+        {childGoals.length > 0 ?
+          <TabListSimple.Tab
+            className={`font-size-14px padding-25 ${styles['tab']}`}
+          >
+            {t("pages:goal.sub_goals")}
+          </TabListSimple.Tab>
+          : null }
+        {siblings.length > 1 ?
+          <TabListSimple.Tab
+            className={`font-size-14px padding-25 ${styles['tab']}`}
+          >
+            {t("pages:goal.related_goals")}
+          </TabListSimple.Tab>
+          : null}
+
         <TabListSimple.TabPanel>
           <GraphGraph
             goal={goal}
@@ -86,13 +108,13 @@ export default function GoalGraph({
             session={session}
             roadmapOptions={roadmapOptions}
           />
-         </TabListSimple.TabPanel>
+        </TabListSimple.TabPanel>
         {childGoals.length > 0 ?
           <TabListSimple.TabPanel>
             <ChildGraphContainer goal={goal} childGoals={childGoals} />
           </TabListSimple.TabPanel>
           : null}
-        {findSiblings(roadmap, goal).length > 1 ?
+        {siblings.length > 1 ?
           <TabListSimple.TabPanel>
             <SiblingGraph roadmap={roadmap} goal={goal} />
           </TabListSimple.TabPanel>

@@ -28,7 +28,7 @@
   background-color: transparent;
   border: none;
   border-radius: 0;
-}
+} 
 
 /* Input with a floating label input */
 .floating-label {
@@ -155,6 +155,10 @@
 
 .font-size-14px {
   font-size: 14px;
+}
+
+.font-size-75 {
+  font-size: .75rem;
 }
 
 .font-size-100 {
