@@ -1,13 +1,13 @@
 'use client'
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from '../forms.module.css'
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
 import { IconEye, IconEyeOff, IconLock, IconUser } from "@tabler/icons-react";
 
-function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction) {
+function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction, infoDialog?: React.RefObject<HTMLDialogElement | null>) {
   event.preventDefault()
 
   const form = event.target
@@ -35,7 +35,7 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction) {
         window.location.href = '/'
       }
     } else {
-      alert(t("components:login.login_failed"))
+      infoDialog?.current?.showModal()
     }
   }).catch(() => {
     alert(t("components:login.login_failed"))
@@ -46,10 +46,11 @@ export default function Login() {
   const { t } = useTranslation(["components", "common"]);
 
   const [showPassword, setShowPassword] = useState(false)
+  const infoDialog = useRef<HTMLDialogElement>(null)
 
   return (
     <>
-      <form onSubmit={(event: React.ChangeEvent<HTMLFormElement>) => handleSubmit(event, t)} className={`${styles.padding}`}>
+      <form onSubmit={(event: React.ChangeEvent<HTMLFormElement>) => handleSubmit(event, t, infoDialog)} className={`${styles.padding}`}>
         <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid silver' }}>{t("common:tsx.login")}</h1>
 
         <label>
@@ -105,6 +106,10 @@ export default function Login() {
 
 
       </form>
+      <dialog ref={infoDialog}>
+        <p>{t("components:login.login_failed")}</p>
+        <button onClick={() => infoDialog?.current?.close()}>Close</button>
+      </dialog>
     </>
   )
 }
