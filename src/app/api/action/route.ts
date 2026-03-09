@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { getSession } from "@/lib/session"
 import prisma from "@/prismaClient";
-import { AccessControlled, AccessLevel, ClientError, ActionInput } from "@/types";
+import { AccessControlled, AccessLevel, ClientError, ActionInput, isDateValuesWithUnit } from "@/types";
 import accessChecker from "@/lib/accessChecker";
 import { revalidateTag } from "next/cache";
 import pruneOrphans from "@/functions/pruneOrphans";
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
   }
 
   // If the data series is invalid, return an error
-  if (!actionCreate.dataSeries) {
+  if (actionCreate.dataSeries && !isDateValuesWithUnit(actionCreate.dataSeries)) {
     return Response.json(
       { message: 'Bad data series' },
       { status: 400 }
