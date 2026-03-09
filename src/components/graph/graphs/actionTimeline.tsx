@@ -71,7 +71,7 @@ export default function ActionGraph({
     dataLabels: {
       enabled: true,
       textAnchor: 'start',
-       style: {
+      style: {
         fontWeight: 'normal',
         colors: ['white']
       },
@@ -89,7 +89,7 @@ export default function ActionGraph({
           position: 'bottom',
         },
         horizontal: true,
-        barHeight: '24px',
+        barHeight: '32px',
         borderRadius: 2,
         borderRadiusApplication: 'end'
       },
@@ -126,11 +126,11 @@ export default function ActionGraph({
       ],
     },
     xaxis: {
-      axisTicks: { show: false },
-      tickPlacement: 'between', /* TODO: Tickplacement is not supported for datetime (https://apexcharts.com/docs/options/xaxis/), see if we can make it category */
+      axisTicks: { show: false},
       position: 'top',
       type: 'datetime',
       labels: {
+        offsetX: 50, /* Half of the width for each tick */
         format: 'yyyy',
         style: {
           fontSize: '14px',
@@ -152,18 +152,22 @@ export default function ActionGraph({
     },
   }
 
-  /* Calculate height last */
-  const height = `${100 + (series[0].data.length * 24)}px`
+  const height = `${100 + (series[0].data.length * 32)}px`
+  const widht = `${(31 * 100)}px` /* represents one tick... TODO: Need to get the amount (32) dynamically */
 
+  /* TODO: Would be ideal to scroll directly to annnotation and have the labels be fixed so they follow scroll. 
+  Maybe there is some css solution for that which allows us to fix padding for the labels aswell */
   return (actions.length > 0 &&
-    <div style={{ height: `${height}` }}>
-      <WrappedChart
-        options={chartOptions}
-        series={series}
-        type="rangeBar"
-        width="100%"
-        height="100%"
-      />
+    <div className="padding-bottom-50" style={{overflowX: 'scroll', overflowY: 'hidden' }}>
+      <div style={{height: `${height}`, width: `${widht}` }}>
+        <WrappedChart
+          options={chartOptions}
+          series={series}
+          type="rangeBar"
+          width="100%"
+          height="100%"
+        />
+      </div>
     </div>
   );
 }
