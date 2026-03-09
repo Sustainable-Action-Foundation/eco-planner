@@ -200,7 +200,6 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
 
     // Edit description in the tiptap editor
-    await page.locator('.tiptap').first().clear();
     await page.locator('.tiptap').first().fill('Updated Roadmap Description All');
 
     // Edit visibility - change to custom
@@ -213,7 +212,6 @@ test.describe.serial("Roadmaps tests", () => {
     await page.locator('#editability-custom').check();
 
     // Update editors list
-    await page.locator('#editors').clear();
     await page.locator('#editors').fill('admin');
 
     // Click the save button
@@ -265,18 +263,15 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+\/edit/);
 
     // Edit name
-    await page.locator('#name').clear();
     await page.locator('#name').fill(metaRoadmapNameAllFieldsUpdated);
 
     // Edit description in the tiptap editor
-    await page.locator('.tiptap').first().clear();
     await page.locator('.tiptap').first().fill('Updated Description All');
 
     // Edit type
     await page.locator('#type').selectOption("OTHER");
 
     // Edit actor field
-    await page.locator('#actor').clear();
     await page.locator('#actor').fill("Updated Actor All");
 
     // Edit visibility - uncheck private and check another option if available
@@ -468,7 +463,6 @@ test.describe.serial("Roadmaps tests", () => {
     await page.locator('#editability-custom').check();
 
     // Update editors list
-    await page.locator('#editors').clear();
     await page.locator('#editors').fill('admin');
 
     // Click the save button
@@ -521,7 +515,6 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+\/edit/);
 
     // Edit name
-    await page.locator('#name').clear();
     await page.locator('#name').fill(metaRoadmapNameRequiredFieldsUpdated);
 
     // Edit description in the tiptap editor
@@ -531,7 +524,6 @@ test.describe.serial("Roadmaps tests", () => {
     await page.locator('#type').selectOption("OTHER");
 
     // Edit actor field
-    await page.locator('#actor').clear();
     await page.locator('#actor').fill("Updated Actor Required");
 
     // Edit visibility - uncheck private and check another option if available
