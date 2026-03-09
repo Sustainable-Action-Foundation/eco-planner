@@ -282,7 +282,7 @@ export function ControlsMenu(
                   { // Admins and authors can delete items
                     (accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) && links.deleteLink &&
                     <>
-                      <button type="button" className="width-100 transparent display-flex align-items-center justify-content-space-between padding-50" style={{ fontSize: '1rem' }} onClick={() => openModal(deletionRef)}>
+                      <button type="button" className="width-100 transparent display-flex align-items-center justify-content-space-between padding-50" style={{ fontSize: '1rem' }} data-testid="delete-post" onClick={() => openModal(deletionRef)}>
                         {t("components:table_menu.delete")}
                         <IconTrashXFilled aria-hidden="true" fill="red" style={{ minWidth: '24px' }} />
                       </button>

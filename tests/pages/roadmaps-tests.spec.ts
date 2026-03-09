@@ -9,14 +9,54 @@ const adminFile = path.join(__dirname, '../.auth/admin.json');
 
 test.describe.serial("Roadmaps tests", () => {
   test.use({ storageState: adminFile });
+  
+  // Variables to hold the names of created metaRoadmaps for use across all tests in this describe block.
   let metaRoadmapNameAllFields = "";
   let metaRoadmapNameAllFieldsUpdated = "";
   let metaRoadmapNameRequiredFields = "";
   let metaRoadmapNameRequiredFieldsUpdated = "";
 
-  test("Create MetaRoadmap and Roadmap - All Fields", async ({ page }, testInfo) => {
-
+  // Cleanup function to delete any created metaRoadmaps so after a retry there are no duplicates. 
+  test.beforeAll(async ({ browser }, testInfo) => {
+    // Define the metaRoadmap name here so it can be accessed in all later tests.
+    // Needs to be unique for each worker so different browsers running tests in parallel don't interfere with each other.
     metaRoadmapNameAllFields = `Test ${testInfo.parallelIndex}`;
+
+    if (testInfo.retry > 0) {
+      console.log(`Retrying tests, Cleaning up any existing metaRoadmap with name ${metaRoadmapNameAllFields} before retrying.`);
+
+      // Page cannot be used in beforeAll so a new context and page here is needed.
+      const context = await browser.newContext({ storageState: adminFile });
+      const page = await context.newPage();
+
+      await page.goto('/');
+      await page.waitForLoadState('networkidle');
+
+      // Count how many matching items exist
+      const matchingItems = page.locator('li').filter({ hasText: metaRoadmapNameAllFields });
+      const count = await matchingItems.count();
+
+      // Delete all matching items
+      for (let i = 0; i < count; i++) {
+        // firstmatch is the row that all the actions need to be performed on since after each deletion the next item will move up to take its place.
+        const firstMatch = matchingItems.first();
+
+        // All of these actions need to be performed on the correct row so they are using firstMatch as the base locator.
+        await firstMatch.locator('svg').nth(1).click();
+        await firstMatch.getByTestId('delete-post').click();
+        await firstMatch.locator('input[placeholder]').fill(metaRoadmapNameAllFields);
+        await firstMatch.locator('[type="submit"]').click();
+
+        await page.waitForLoadState('networkidle');
+      }
+
+      // Verify all are gone
+      await expect(matchingItems).toHaveCount(0);
+    }
+  });
+
+  test("Create MetaRoadmap and Roadmap - All Fields", async ({ page }) => {
+
     // Navigate to create metaRoadmap page
     await page.goto('/metaRoadmap/create');
 
