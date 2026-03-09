@@ -40,7 +40,7 @@ export default function ActionForm({
     const form = event.target.elements
 
     const formContent: ActionInput = {
-      actionId: undefined,
+      actionId: currentAction ? currentAction.id : undefined,
       roadmapId: roadmapId ?? (form.namedItem("roadmapId") as HTMLInputElement)?.value ?? undefined,
       goalId: goalId ?? undefined,
       description: editorContent ? JSON.stringify(editorContent) : "",
