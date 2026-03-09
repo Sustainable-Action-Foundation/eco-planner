@@ -56,7 +56,7 @@ export default function ActionForm({
       isRenewables: (form.namedItem("isRenewables") as HTMLInputElement)?.checked ?? false,
       parentAction: currentAction ?? undefined,
       childActions: undefined,
-      dataSeries: JSON.parse((form.namedItem("data-series") as HTMLInputElement)?.value) as DateValuesWithUnit,
+      dataSeries: (form.namedItem("data-series") as HTMLInputElement)?.value ? JSON.parse((form.namedItem("data-series") as HTMLInputElement)?.value) as DateValuesWithUnit : undefined,
       impactType: goalId && !currentAction
         ? (form.namedItem("impactType") as HTMLInputElement)?.value as ActionImpactType
         : undefined,

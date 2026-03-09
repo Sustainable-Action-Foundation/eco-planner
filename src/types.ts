@@ -471,7 +471,7 @@ export type ActionInput = {
   parentAction: Action | null | undefined;
   childActions: Action[] | null | undefined;
 
-  dataSeries: DateValuesWithUnit;
+  dataSeries: DateValuesWithUnit | undefined;
   impactType: ActionImpactType | undefined;
 
   // TODO: Deprecated - will be moved to description
