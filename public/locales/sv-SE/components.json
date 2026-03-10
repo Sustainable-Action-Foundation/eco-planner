@@ -131,6 +131,23 @@
     "create_variable": "Skapa variabel",
     "data_series": "Dataserie",
     "dataset": "Dataset",
+    "default_area_recipe": {
+      "child_area": "Arvtagares yta",
+      "name": "Skala utifrån yta",
+      "parent_area": "Förälders yta",
+      "parent_value": "Förälder"
+    },
+    "default_population_recipe": {
+      "child_population": "Arvtageres befolkning",
+      "name": "Skala utifrån befolkning",
+      "parent_population": "Förälders befolkning",
+      "parent_value": "Förälder"
+    },
+    "default_scalar_recipe": {
+      "name": "Skala utifrån fast värde",
+      "parent_value": "Förälder",
+      "scalar": "Skalär"
+    },
     "delete_variable": "Radera variabel:",
     "edit_variable": "Redigera variabel",
     "equation": "Ekvation",
