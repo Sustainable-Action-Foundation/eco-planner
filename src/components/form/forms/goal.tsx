@@ -119,6 +119,7 @@ export default function GoalForm({
     }
 
     let baseline: DateValuesWithUnit | undefined = undefined;
+    let baselineId: string | undefined = undefined;
     if (baselineType === BaselineType.Custom) {
       const baselineString = formData.get("baseline-data-series") as string | null;
       if (baselineString) {
@@ -160,7 +161,7 @@ export default function GoalForm({
     else if (baselineType === BaselineType.Inherited) {
       const inheritedBaselineId = formData.get("inherited-baseline-id") as string | null;
       if (inheritedBaselineId) {
-        // Just set the baseline ID, the API will handle the rest
+        baselineId = inheritedBaselineId;
       }
       else {
         console.error("No inherited baseline ID provided in form.");
@@ -169,7 +170,7 @@ export default function GoalForm({
       }
     }
     // Throw if baseline is missing on create
-    if (!currentGoal && !baseline) {
+    if (!currentGoal && !baseline && !baselineId) {
       console.error("No baseline provided for new goal.");
       event.target.reportValidity();
       return;
@@ -177,7 +178,7 @@ export default function GoalForm({
 
     // Build the JSON payload for the API
     let formContent: GoalCreateInput | GoalUpdateInput;
-    if (!currentGoal && baseline) {
+    if (!currentGoal && (baseline || baselineId)) {
       // Create
       formContent = {
         goalId: undefined, // Ignored when creating
@@ -199,7 +200,7 @@ export default function GoalForm({
         dataSeriesRecipeId: null,
         dataSeriesRecipe: dataSeriesRecipe || null,
 
-        baselineId: null,
+        baselineId: baselineId,
         baseline: baseline,
         baselineRecipeId: null,
         baselineRecipe: null,
@@ -232,7 +233,7 @@ export default function GoalForm({
         dataSeriesRecipeId: undefined,
         dataSeriesRecipe: dataSeriesRecipe,
 
-        baselineId: undefined,
+        baselineId: baselineId,
         baseline: baseline,
         baselineRecipeId: undefined,
         baselineRecipe: undefined,
