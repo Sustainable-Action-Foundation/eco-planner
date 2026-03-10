@@ -17,7 +17,7 @@ import { IconAlertTriangleFilled } from "@tabler/icons-react";
 import { RecipeEditorPermissions } from "../editor/variables/variableTypes/recipeEditorPermissions";
 import { DBRecipe } from "@/types";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
-import getDefaultSuggestedRecipes from "./defaultSuggestedRecipes";
+// import getDefaultSuggestedRecipes from "./defaultSuggestedRecipes";
 
 export function SuggestedRecipeApplier({
   autoInsertDefaultSuggestions = true,
@@ -29,15 +29,16 @@ export function SuggestedRecipeApplier({
   permissions?: RecipeEditorPermissions;
 }) {
   const { t } = useTranslation("components");
-  const defaultSuggestionRecipes = useMemo(() => getDefaultSuggestedRecipes(t), [t]);
+  // const defaultSuggestionRecipes = useMemo(() => getDefaultSuggestedRecipes(t), [t]);
   const { recipe, setSmartRecipe, clearRecipe } = useRecipe();
 
   const [availableRoadmaps, setAvailableRoadmaps] = useState<{ id: string; name: string; }[]>([]);
   const [selectedRecipeId, setSelectedRecipeId] = useState<string>("");
   const suggestedRecipes = useMemo(() => autoInsertDefaultSuggestions
-    ? [...defaultSuggestionRecipes, ...providedSuggestedRecipes]
+    // ? [...defaultSuggestionRecipes, ...providedSuggestedRecipes]
+    ? [...[], ...providedSuggestedRecipes]
     : [...providedSuggestedRecipes],
-    [autoInsertDefaultSuggestions, providedSuggestedRecipes, defaultSuggestionRecipes]);
+    [autoInsertDefaultSuggestions, providedSuggestedRecipes, /* defaultSuggestionRecipes */]);
 
   // On mount, fetch all roadmaps user has access to
   // TODO: This is reused from editor/variable/editor.tsx, can probably extract this somehow
