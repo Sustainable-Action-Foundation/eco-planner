@@ -56,22 +56,23 @@ export function SuggestedRecipeApplier({
     fetchRoadmaps().catch(e => { throw e; });
   }, [t]);
 
-  // Validate suggested recipes
+  // Validate suggested recipe structures
   useEffect(() => {
-    async function validateAll() {
+    // async function validateAll() {
       for (const dbRecipe of suggestedRecipes) {
         const recipe = SmartRecipe.fromObject(dbRecipe.recipe);
         if (!isSmartRecipe(recipe)) {
           console.warn("Invalid recipe in suggestions", dbRecipe);
           return;
         }
-        const validity = await recipe.checkValidity();
-        if (!validity.good) {
-          console.warn("Invalid recipe in suggestions", dbRecipe, validity.error, validity.warnings);
-        }
+        // Disabled since this checks ALL suggested recipes EVERY TIME SOMEONE OPENS THE PAGE containing this component, not even just when they actually open the related modal
+        // const validity = await recipe.checkValidity();
+        // if (!validity.good) {
+        //   console.warn("Invalid recipe in suggestions", dbRecipe, validity.error, validity.warnings);
+        // }
       }
-    }
-    validateAll().catch(e => { throw e; });
+    // }
+    // validateAll().catch(e => { throw e; });
   }, [suggestedRecipes]);
 
   // On change set the context state to the selected recipe
