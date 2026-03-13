@@ -113,6 +113,9 @@ test.describe.serial("Roadmaps tests", () => {
 
     await page.getByRole('link', { name: `${metaRoadmapNameAllFields} (v1)` }).first().click();
 
+    // Wait for roadmap page to load
+    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
+
     // Click the edit button
     await page.getByTestId('admin-panel-edit').click();
 
@@ -200,6 +203,7 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
 
     // Edit description in the tiptap editor
+    await page.locator('.tiptap').first().clear();
     await page.locator('.tiptap').first().fill('Updated Roadmap Description All');
 
     // Edit visibility - change to custom
@@ -499,7 +503,6 @@ test.describe.serial("Roadmaps tests", () => {
     metaRoadmapNameRequiredFieldsUpdated = `Updated ${metaRoadmapNameRequiredFields}`;
     await page.goto('/');
 
-    await expect(page.getByRole('link', { name: `${metaRoadmapNameRequiredFields} (v1)` })).toBeVisible();
     await page.getByRole('link', { name: `${metaRoadmapNameRequiredFields} (v1)` }).first().click();
 
     // Go to MetaRoadmap page

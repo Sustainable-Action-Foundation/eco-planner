@@ -341,7 +341,7 @@ export function AdminPanel(
                   }
                   {links.creationLink2 &&
                     <>
-                      <Link href={links.creationLink2} className={`flex gap-100 align-items-center smooth neutral-action ${styles['object-menu-link']}`}>
+                      <Link href={links.creationLink2} className={`flex gap-100 align-items-center smooth neutral-action ${styles['object-menu-link']}`} data-testid="admin-panel-new-action">
                         <span>{links.creationDescription2 || links.creationLink2}</span>
                         <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                       </Link>

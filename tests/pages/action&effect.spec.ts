@@ -8,12 +8,50 @@ const __dirname = path.dirname(__filename); // get the name of the directory
 
 const adminFile = path.join(__dirname, '../.auth/admin.json');
 
-test.describe("Action & Effect tests", async () => {
+test.describe.serial("Action & Effect tests", async () => {
     test.use({ storageState: adminFile });
     let actionNameRequiredFields = "";
     let actionNameRequiredFieldsUpdated = "";
     let actionNameAllFields = "";
     let actionNameAllFieldsUpdated = "";
+
+    test.beforeAll(async ({ browser }, testInfo) => {
+        // Define the action name here so it can be accessed in all later tests.
+        // Needs to be unique for each worker so different browsers running tests in parallel don't interfere with each other.
+        actionNameAllFields = `Test Action All Fields ${testInfo.parallelIndex}`;
+
+        if (testInfo.retry > 0) {
+            console.log(`Retrying tests, Cleaning up any existing action with name ${actionNameAllFields} before retrying.`);
+
+            // Page cannot be used in beforeAll so a new context and page here is needed.
+            const context = await browser.newContext({ storageState: adminFile });
+            const page = await context.newPage();
+
+            await page.goto('/');
+            await page.waitForLoadState('networkidle');
+
+            // Count how many matching items exist
+            const matchingItems = page.locator('li').filter({ hasText: actionNameAllFields });
+            const count = await matchingItems.count();
+
+            // Delete all matching items
+            for (let i = 0; i < count; i++) {
+                // firstmatch is the row that all the actions need to be performed on since after each deletion the next item will move up to take its place.
+                const firstMatch = matchingItems.first();
+
+                // All of these actions need to be performed on the correct row so they are using firstMatch as the base locator.
+                await firstMatch.locator('svg').nth(1).click();
+                await firstMatch.getByTestId('delete-post').click();
+                await firstMatch.locator('input[placeholder]').fill(actionNameAllFields);
+                await firstMatch.locator('[type="submit"]').click();
+
+                await page.waitForLoadState('networkidle');
+            }
+
+            // Verify all are gone
+            await expect(matchingItems).toHaveCount(0);
+        }
+    });
 
     // Action tests begin here //
     test("Create Action - required", async ({ page }, testInfo ) => {
@@ -42,8 +80,8 @@ test.describe("Action & Effect tests", async () => {
         // Navigate to the action edit form
         await page.goto('/');
         await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
-        await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
         await page.getByRole('link', { name: actionNameRequiredFields }).first().click();
+
         await page.waitForLoadState("networkidle");
         await page.getByRole('heading', { name: actionNameRequiredFields }).hover();
         await page.getByTestId("admin-panel-edit").click();
@@ -63,6 +101,7 @@ test.describe("Action & Effect tests", async () => {
         await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
         await page.getByRole('link', { name: actionNameRequiredFields }).first().click(); // TODO (fix): The tests doesn't seem to click on the right name here and therefore they fail.
         
+        await page.getByRole('heading', { name: actionNameRequiredFields }).hover();
         await page.waitForLoadState("networkidle");
         await page.getByTestId("admin-panel-edit").click();
 
@@ -90,6 +129,8 @@ test.describe("Action & Effect tests", async () => {
 
         // Submit the form
         await page.locator('#submit-button').click();
+
+        await page.waitForLoadState("networkidle");
 
         await expect(page.getByRole('heading', { name: actionNameRequiredFieldsUpdated })).toBeVisible();
 
@@ -229,6 +270,60 @@ test.describe("Action & Effect tests", async () => {
         await expect(page.locator('#isRenewables')).not.toBeChecked();
         await expect(page.locator('#isSufficiency')).toBeChecked();
     });
-    // Effect tests begin here //
     
+    test("Create Action from Roadmap - required", async ({ page }, testInfo) => {
+        actionNameRequiredFields = `Test Action ${testInfo.parallelIndex}`;
+        // Navigate to the action edit form
+        await page.goto('/');
+        await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
+        await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
+        await page.getByTestId("admin-panel-new-action").click();
+
+        await page.locator('#actionName').fill(actionNameRequiredFields);
+
+        await page.locator('#submit-button').click();
+        
+        await page.waitForLoadState("networkidle");
+
+        await expect(page.getByRole('heading', { name: actionNameRequiredFields })).toBeVisible();
+    });
+
+    test("Create Action from Roadmap - All Fields", async ({ page }, testInfo) => {
+        actionNameAllFields = `Test Action All Fields ${testInfo.parallelIndex}`;
+        // Navigate to the action edit form
+        await page.goto('/');
+        await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
+        await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
+        await page.getByTestId("admin-panel-new-action").click();
+
+        // Part 1 of the form
+        await page.locator('#actionName').fill(actionNameAllFields);
+        
+        await page.locator('.tiptap').first().fill("Test Action description.");
+
+        await page.locator('#costEfficiency').fill("Text for cost efficiency");
+
+        await page.locator('#expectedOutcome').fill("Text for expected outcome");
+        
+        // Part 2 of the form
+        // These two fields are required to be numbers
+        await page.locator('#startYear').fill("2030");
+        await page.locator('#endYear').fill("2070");
+
+        // Part 3 of the form
+        await page.locator('#projectManager').fill("Test Manager");
+        await page.locator('#relevantActors').fill("Test Actor");
+
+        // Part 4 of the form
+        await page.locator('#isEfficiency').check();
+        await page.locator('#isRenewables').check();
+
+        // Submit the form
+        await page.locator('#submit-button').click();
+
+        await page.waitForLoadState("networkidle");
+
+        await expect(page.getByRole('heading', { name: actionNameAllFields })).toBeVisible();
+    });
+    // Effect tests begin here //  
 });

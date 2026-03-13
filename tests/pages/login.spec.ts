@@ -9,13 +9,10 @@ const verifiedFile = path.join(__dirname, '../.auth/verified.json');
 
 test('Login as unverified user', async ({ page }) => {
     await page.goto('/login');
+	
     await page.locator('#username').fill('anton');
     await page.locator('#password').fill('anton');
     await page.locator('#submit-button').click();
-
-    page.once('dialog', async dialog => {
-        await dialog.accept();
-    });
 
     await expect(page.locator('#username')).toBeVisible();
 });
