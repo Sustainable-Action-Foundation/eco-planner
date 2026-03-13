@@ -593,18 +593,21 @@ export async function POST(request: NextRequest) {
               ...(formData.dataSeries.unit == null ? {} : { unit: formData.dataSeries.unit }),
             },
           },
-          ...(!formData.baseline ? {} : {
-            baseline: {
-              create: {
-                author: { connect: { id: session.user?.id }, },
-                recipeUsed: formData.baselineRecipeId !== null
-                  ? { connect: { id: formData.baselineRecipeId, }, }
-                  : undefined,
-                values: { createMany: { data: dateValuesToDBDateRecord(formData.baseline.dateValues) }, },
-                ...(formData.baseline.unit == null ? {} : { unit: formData.baseline.unit }),
-              },
-            },
-          }),
+          baseline: formData.baseline
+            ? {
+              connectOrCreate: {
+                where: { id: formData.baselineId ?? "" },
+                create: {
+                  author: { connect: { id: session.user?.id }, },
+                  recipeUsed: formData.baselineRecipeId !== null
+                    ? { connect: { id: formData.baselineRecipeId, }, }
+                    : undefined,
+                  values: { createMany: { data: dateValuesToDBDateRecord(formData.baseline.dateValues) }, },
+                  ...(formData.baseline.unit == null ? {} : { unit: formData.baseline.unit }),
+                }
+              }
+            }
+            : undefined,
           links: {
             create: formData.links?.map(link => ({
               url: link.url,
@@ -794,20 +797,19 @@ export async function PUT(request: NextRequest) {
           externalDataset: goal.externalDataset,
           externalTableId: goal.externalTableId,
           externalSelection: goal.externalSelection,
-          dataSeries: !goal.dataSeries
-            ? undefined
-            : {
-              update: {
-                recipeUsed: goal.dataSeriesRecipeId !== null
-                  ? { connect: { id: goal.dataSeriesRecipeId, }, }
-                  : { disconnect: true, },
-                values: { createMany: { data: dateValuesToDBDateRecord(goal.dataSeries.dateValues) }, },
-                ...(goal.dataSeries.unit == null ? {} : { unit: goal.dataSeries.unit }),
-              },
+          dataSeries: goal.dataSeries ? {
+            update: {
+              recipeUsed: goal.dataSeriesRecipeId !== null
+                ? { connect: { id: goal.dataSeriesRecipeId, }, }
+                : { disconnect: true, },
+              values: { createMany: { data: dateValuesToDBDateRecord(goal.dataSeries.dateValues) }, },
+              ...(goal.dataSeries.unit == null ? {} : { unit: goal.dataSeries.unit }),
             },
-          baseline: !goal.baseline
-            ? undefined
-            : {
+          } : goal.dataSeriesId ? {
+            connect: { id: goal.dataSeriesId, },
+          } : undefined,
+          baseline: goal.baseline
+            ? {
               update: {
                 recipeUsed: goal.baselineRecipeId !== null
                   ? { connect: { id: goal.baselineRecipeId, }, }
@@ -815,7 +817,9 @@ export async function PUT(request: NextRequest) {
                 values: { createMany: { data: dateValuesToDBDateRecord(goal.baseline.dateValues) }, },
                 ...(goal.baseline.unit == null ? {} : { unit: goal.baseline.unit }),
               },
-            },
+            } : goal.baselineId ? {
+              connect: { id: goal.baselineId, },
+            } : undefined,
           links: {
             deleteMany: {},
             create: goal.links?.map(link => ({

@@ -17,6 +17,7 @@ import { IconAlertTriangleFilled } from "@tabler/icons-react";
 import { RecipeEditorPermissions } from "../editor/variables/variableTypes/recipeEditorPermissions";
 import { DBRecipe } from "@/types";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
+// import getDefaultSuggestedRecipes from "./defaultSuggestedRecipes";
 
 export function SuggestedRecipeApplier({
   autoInsertDefaultSuggestions = true,
@@ -28,14 +29,16 @@ export function SuggestedRecipeApplier({
   permissions?: RecipeEditorPermissions;
 }) {
   const { t } = useTranslation("components");
+  // const defaultSuggestionRecipes = useMemo(() => getDefaultSuggestedRecipes(t), [t]);
   const { recipe, setSmartRecipe, clearRecipe } = useRecipe();
 
   const [availableRoadmaps, setAvailableRoadmaps] = useState<{ id: string; name: string; }[]>([]);
   const [selectedRecipeId, setSelectedRecipeId] = useState<string>("");
   const suggestedRecipes = useMemo(() => autoInsertDefaultSuggestions
-    ? [...[], ...providedSuggestedRecipes] // TODO: Add default suggestions here
+    // ? [...defaultSuggestionRecipes, ...providedSuggestedRecipes]
+    ? [...[], ...providedSuggestedRecipes]
     : [...providedSuggestedRecipes],
-    [autoInsertDefaultSuggestions, providedSuggestedRecipes]);
+    [autoInsertDefaultSuggestions, providedSuggestedRecipes, /* defaultSuggestionRecipes */]);
 
   // On mount, fetch all roadmaps user has access to
   // TODO: This is reused from editor/variable/editor.tsx, can probably extract this somehow
@@ -53,22 +56,23 @@ export function SuggestedRecipeApplier({
     fetchRoadmaps().catch(e => { throw e; });
   }, [t]);
 
-  // Validate suggested recipes
+  // Validate suggested recipe structures
   useEffect(() => {
-    async function validateAll() {
+    // async function validateAll() {
       for (const dbRecipe of suggestedRecipes) {
         const recipe = SmartRecipe.fromObject(dbRecipe.recipe);
         if (!isSmartRecipe(recipe)) {
           console.warn("Invalid recipe in suggestions", dbRecipe);
           return;
         }
-        const validity = await recipe.checkValidity();
-        if (!validity.good) {
-          console.warn("Invalid recipe in suggestions", dbRecipe, validity.error, validity.warnings);
-        }
+        // Disabled since this checks ALL suggested recipes EVERY TIME SOMEONE OPENS THE PAGE containing this component, not even just when they actually open the related modal
+        // const validity = await recipe.checkValidity();
+        // if (!validity.good) {
+        //   console.warn("Invalid recipe in suggestions", dbRecipe, validity.error, validity.warnings);
+        // }
       }
-    }
-    validateAll().catch(e => { throw e; });
+    // }
+    // validateAll().catch(e => { throw e; });
   }, [suggestedRecipes]);
 
   // On change set the context state to the selected recipe

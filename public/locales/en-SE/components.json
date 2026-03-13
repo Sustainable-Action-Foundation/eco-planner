@@ -131,6 +131,23 @@
     "create_variable": "Create variable",
     "data_series": "Data series",
     "dataset": "Dataset",
+    "default_area_recipe": {
+      "child_area": "Child area",
+      "name": "Scale by area",
+      "parent_area": "Parent area",
+      "parent_value": "Parent"
+    },
+    "default_population_recipe": {
+      "child_population": "Child population",
+      "name": "Scale by population",
+      "parent_population": "Parent population",
+      "parent_value": "Parent"
+    },
+    "default_scalar_recipe": {
+      "name": "Scale by constant value",
+      "parent_value": "Parent",
+      "scalar": "Scalar"
+    },
     "delete_variable": "Delete variable:",
     "edit_variable": "Edit variable",
     "equation": "Equation",
