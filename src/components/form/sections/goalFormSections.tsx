@@ -188,7 +188,7 @@ export function InheritingBaseline({
         <label className="block margin-block-75">
           {t("forms:goal.baseline_copied")}
           {React.cloneElement(outputFormElement, {
-            value: JSON.stringify(goalData.baseline?.id ?? goalData.dataSeries?.id ?? ""), // TODO: data series or baseline?
+            value: goalData.baseline?.id ?? goalData.dataSeries?.id ?? "",
             type: "hidden",
             hidden: true,
             readOnly: true,
