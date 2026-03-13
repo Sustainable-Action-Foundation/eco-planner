@@ -15,7 +15,6 @@ test.describe("Goals tests", () => {
     /*
     -------------------------------------------
 
-    Tests work best when browsers are tested separately using --project="{browser} 1080p"
     ALWAYS run full description or edit tests won't work
 
     ------------------------------------------
@@ -24,9 +23,6 @@ test.describe("Goals tests", () => {
     test.use({ storageState: adminFile });
 
     test('Create goal required only', async ({ page }) => {
-
-        // Does not work properly has as "skalär" wrongfully functions as an id and therefore blocks tests after the first. Running the tests separately by adding --project="{browser} 1080p" works.
-
         //Opening the from
         await page.goto('/');
         await page.waitForLoadState("networkidle");
@@ -40,23 +36,28 @@ test.describe("Goals tests", () => {
         await page.getByRole('option', { name: "Rikets färdplan (v2)" }).click(); //Switch to 'test' when available
 
         //From Part 3
-        await page.locator('#select-preset').selectOption("Skala serie"); //Might need to be switched to a non language dependent selector
+        // Might be switched out for a prewritten recipe when they are fixed
+        await page.getByRole('radio').first().click();
+        await page.locator('#indicatorParameter').click();
+        await page.locator('#indicatorParameter-listbox-0').click();
+        await page.locator('#dataUnit').click();
+        await page.locator('#dataUnit-listbox-0').click();
 
-        await page.locator('#recipeVariable0').click();
-        await page.getByRole('treeitem', { name: 'Rikets färdplan (v2)' }).click(); //Switch to 'test' when available
-        await page.getByRole('treeitem', { level: 2 }).first().click();
+        await page.getByPlaceholder('2050').fill('2030')
+        for (let i = 0; i < 10; i++) {
+            await page.getByRole('spinbutton').nth(2 + i).fill('1');
+        }
 
         //Form Submit
         await page.locator('#submit-button').click();
         await page.waitForLoadState("networkidle");
 
-        await expect(page.getByRole('heading').nth(1)).toBeEmpty();
-        await expect(page.locator('#rich-description')).toBeEmpty();
+        await expect(page.getByRole('heading').nth(1)).toContainText("Redigera");
     });
 
     test('Edit goal required only', async ({ page }) => {
 
-        // will only work if correctly 'Create goal required only' is run before
+        // will only work correctly if 'Create goal required only' is run before
 
         // Navigate to roadmap
         await page.goto('/');
@@ -66,9 +67,10 @@ test.describe("Goals tests", () => {
         await page.getByRole('heading', { name: "Rikets färdplan" }).hover(); //"networkidle" doesn't work for this for some reason so we are hovering to wait for load state where needed
 
         // Navigate to goal
-        await page.getByRole('listitem').first().click();
-        await page.getByRole('link').nth(14).click();
-        await page.locator('#secondaryGoal').hover();
+        await page.getByRole('listitem').getByText("Redigera", { exact: true }).filter({ visible: true })
+            .click();
+        await page.getByRole('link').filter({ hasText: "Redigera" }).nth(1).click();
+        await page.getByRole('heading', { name: "Redigera" }).first().hover();
 
         // Enter edit form
         await page.getByTestId("admin-panel-edit").click();
@@ -78,32 +80,48 @@ test.describe("Goals tests", () => {
         await expect.soft(page.locator('#goalName')).toBeEmpty();
         await expect.soft(page.locator('#description')).toBeEmpty();
 
-        await expect.soft(page.getByRole('radio').nth(1)).toBeChecked();
-        await expect.soft(page.getByRole('radio').nth(3)).toBeChecked();
+        await page.getByRole('radio').first().click();
+        await expect.soft(page.locator('#indicatorParameter')).toHaveValue("Redigera");
+        await expect.soft(page.locator('#dataUnit')).toHaveText("meter");
 
-        await page.getByRole('tab').nth(1).click();
-        await expect.soft(page.locator('#recipeVariable0')).not.toBeEmpty();
-        await expect.soft(page.locator('#scalar-skalär')).toHaveValue('1');
+        await expect.soft(page.getByPlaceholder('2020').first()).toHaveValue('2020');
+        await expect.soft(page.getByPlaceholder('2050').first()).toHaveValue('2030'); //Not 100% sure if this works as we hope it does, might need changing when the thing is checking for is fixed
+        for (let i = 0; i < 10; i++) {
+            await expect.soft(page.getByRole('spinbutton').nth(2 + i)).toHaveValue('1')
+        }
 
-        await expect.soft(page.locator('#baselineSelector')).toHaveValue('INITIAL');
+        await expect.soft(page.locator('#baselineSelector')).toHaveValue('CUSTOM');
         await expect.soft(page.locator('#isFeatured')).not.toBeChecked();
-
-        // Editing fields
-        await page.locator('#recipeVariable0-dialog').click();
-        await page.locator('#recipeVariable0-dialog-tree-Rikets-färdplan (v1)').click();
-        await page.getByRole('treeitem').first().click();
-        await page.locator('#scalar-skalär').fill('48')
 
         // Submit
         await page.locator('#submit-button').click();
         await page.waitForLoadState("networkidle");
         await expect(page.locator('#comment-text')).toBeEmpty();
+
+        // Reenter edit form
+        await page.getByTestId("admin-panel-edit").click();
+        await page.waitForLoadState("networkidle");
+
+        // Editing fields
+        await page.locator('#indicatorParameter').click();
+        await page.locator('#indicatorParameter-listbox-1').click();
+
+        await page.locator('#dataUnit').click();
+        await page.locator('#dataUnit-listbox-3').click();
+        await page.getByPlaceholder('2020').first().fill('2025');
+        await page.getByPlaceholder('2050').first().fill('2045');
+        for (let i = 0; i < 20; i++) {
+            page.getByRole('spinbutton').nth(2 + i).fill('4');
+        }
+
+        // Submit
+        await page.locator('#submit-button').click();
+        await page.locator('#comment-text').hover()
+        // await page.waitForLoadState("networkidle");
+        await expect(page.locator('#comment-text')).toBeEmpty();
     });
 
     test('Create goal all', async ({ page }) => {
-
-        // Does not work properly has as "skalär" wrongfully functions as an id and therefore blocks tests after the first. Running the tests separately by adding --project="{browser} 1080p" works.
-
         //Opening the from
         await page.goto('/');
         await page.waitForLoadState("networkidle");
@@ -120,18 +138,24 @@ test.describe("Goals tests", () => {
         await page.locator('#goalName').fill("Test Goal");
         await page.getByRole('textbox').nth(1).fill("This is a test goal"); //Might be a better way of getting this element
 
-        //Form Part 3
-        await page.locator('#select-preset').selectOption("Skala serie"); //Might need to be switched to a non language dependent selector
-        await page.locator('#recipeVariable0').click();
-        await page.getByRole('treeitem', { name: 'Rikets färdplan (v2)' }).click(); //Switch to 'test' when available
-        await page.getByRole('treeitem', { level: 2 }).first().click();
-        await page.locator('#scalar-skalär').fill("2") //Mainly done to get around the skalär/id problem
+        //From Part 3
+        // Might be switch out for a prewritten recipe when they are fixed
+        await page.getByRole('radio').first().click();
+        await page.locator('#indicatorParameter').click();
+        await page.locator('#indicatorParameter-listbox-0').click();
+        await page.locator('#dataUnit').click();
+        await page.locator('#dataUnit-listbox-0').click();
+
+        for (let i = 0; i < 30; i++) {
+            await page.getByRole('spinbutton').nth(2 + i).fill('1');
+        }
 
         //Form part 4
-        await page.locator('#baselineSelector').selectOption({ value: "INHERIT" });
-        await page.locator('#selectedRoadmap').selectOption({ index: 1 });
-        await page.locator('#inheritFrom').selectOption({ index: 1 });
-
+        /*
+            await page.locator('#baselineSelector').selectOption({ value: "INHERIT" });
+            await page.locator('#selectedRoadmap').selectOption({ index: 1 });
+            await page.locator('#inheritFrom').selectOption({ index: 1 });
+        */
         //Form part 5
         await page.locator('#isFeatured').check();
 
@@ -145,7 +169,7 @@ test.describe("Goals tests", () => {
 
     test('Edit goal all', async ({ page }) => {
 
-        // will only work if correctly 'Create goal required only' is run before
+        // will only work correctly if 'Create goal all' is run before
 
         // Navigate to roadmap
         await page.goto('/');
@@ -155,11 +179,9 @@ test.describe("Goals tests", () => {
         await page.getByRole('heading', { name: "Rikets färdplan" }).hover(); //"networkidle" doesn't work for this for some reason so we are hovering to wait for load state where needed
 
         // Navigate to goal
-        await page.getByRole('listitem').first().click();
-        await page.getByRole('link').nth(15).click();
-        await page.locator('#secondaryGoal').hover();
-
-        /* This part makes the rest not work as the submit does not go through.
+        await page.getByRole('listitem').getByText("Redigera", { exact: true }).filter({ visible: true }).click();
+        await page.getByRole('link').filter({ hasText: "Test Goal" }).first().click();
+        await page.getByRole('heading', { name: "Test Goal" }).hover();
 
         // Enter edit form
         await page.getByTestId("admin-panel-edit").click();
@@ -169,12 +191,17 @@ test.describe("Goals tests", () => {
         await expect.soft(page.locator('#goalName')).toHaveValue("Test Goal");
         await expect.soft(page.locator('#description')).toHaveText("This is a test goal");
 
-        await expect.soft(page.getByRole('radio').nth(1)).toBeChecked();
-        await expect.soft(page.getByRole('radio').nth(3)).toBeChecked();
+        await expect.soft(page.getByRole('radio').first()).toBeChecked();
 
-        await page.getByRole('tab').nth(1).click();
-        await expect.soft(page.locator('#recipeVariable0')).not.toBeEmpty();
-        await expect.soft(page.locator('#scalar-skalär')).toHaveValue('2');
+        await page.getByRole('radio').first().click();
+        await expect.soft(page.locator('#indicatorParameter')).toHaveValue("Redigera");
+        await expect.soft(page.locator('#dataUnit')).toHaveText("meter");
+        await expect.soft(page.getByPlaceholder('2020').first()).toHaveValue('2020');
+        await expect.soft(page.getByPlaceholder('2050').first()).toHaveValue('2030'); //Not 100% sure if this works as we hope it does, might need changing when the thing is checking for is fixed
+        for (let i = 0; i < 10; i++) {
+            await expect.soft(page.getByRole('spinbutton').nth(2 + i)).toHaveValue('1')
+        }
+
 
         await expect.soft(page.locator('#baselineSelector')).toHaveValue('CUSTOM');
         await expect.soft(page.locator('#isFeatured')).toBeChecked();
@@ -183,8 +210,6 @@ test.describe("Goals tests", () => {
         await page.locator('#submit-button').click();
         await page.waitForLoadState("networkidle");
         await expect(page.locator('#comment-text')).toBeEmpty();
-
-        */
 
         // Reenter edit form
         await page.getByTestId("admin-panel-edit").click();
