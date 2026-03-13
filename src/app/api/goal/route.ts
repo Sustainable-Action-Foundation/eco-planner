@@ -607,14 +607,18 @@ export async function POST(request: NextRequest) {
                 }
               }
             }
-            : undefined,
+            : formData.baselineId
+              ? {
+                connect: { id: formData.baselineId, },
+              }
+              : undefined,
           links: {
             create: formData.links?.map(link => ({
               url: link.url,
               description: link.description,
             })),
           },
-        },
+        } satisfies Prisma.GoalCreateInput,
         select: {
           id: true,
         },
