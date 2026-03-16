@@ -5,6 +5,7 @@ import I18nProvider from "@/lib/i18nClient";
 import serveTea from "@/lib/i18nServer";
 import { cookies, headers } from "next/headers";
 import { getLocale } from "@/functions/getLocale";
+import { ToastContext } from '@/context/context';
 
 export default async function RootLayout(
   { children, }: { children: React.ReactNode, }
@@ -38,7 +39,9 @@ export default async function RootLayout(
             <Sidebar />
             <div className='padding-100 flex-grow-100'>
               <div className='container margin-inline-auto'>
-                {children}
+                <ToastContext>
+                  {children}
+                </ToastContext>
               </div>
             </div>
           </div>

@@ -59,7 +59,8 @@ export default function formSubmitter(
     // If the API provides a message, alert it
     if (isStandardObject(data.body) && 'message' in data.body && typeof data.body.message === 'string') {
       if (data.body.message) {
-        alert(data.body.message);
+        // alert(data.body.message);
+
       }
     }
     // Redirect to the location provided by the API, or, if missing, to nearest valid parent

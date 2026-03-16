@@ -5,7 +5,9 @@ import { useEffect, useRef, useState } from "react";
 import styles from '../forms.module.css'
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
-import { IconEye, IconEyeOff, IconLock, IconUser } from "@tabler/icons-react";
+import { IconExclamationCircle, IconEye, IconEyeOff, IconLock, IconUser } from "@tabler/icons-react";
+import { closeModal } from "@/components/modals/modalFunctions";
+import { IconX } from "@tabler/icons-react";
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction, infoDialog?: React.RefObject<HTMLDialogElement | null>) {
   event.preventDefault()
@@ -47,6 +49,8 @@ export default function Login() {
 
   const [showPassword, setShowPassword] = useState(false)
   const infoDialog = useRef<HTMLDialogElement>(null)
+
+  const [showErrorMsg, setShowErrorMsg] = useState<boolean>(false)
 
   return (
     <>
@@ -106,10 +110,29 @@ export default function Login() {
 
 
       </form>
-      <dialog ref={infoDialog}>
-        <p>{t("components:login.login_failed")}</p>
-        <button onClick={() => infoDialog?.current?.close()}>Close</button>
-      </dialog>
+
+
+      <p>{showErrorMsg ? t("components:login.login_failed") : null}</p>
+
+      {/* Modal */}
+
+      {/* <dialog ref={infoDialog} className="rounded padding-inline-0 padding-block-0 dialog-sm">
+        <div className="dialog-content">
+            <button className="grid round transparent margin-left-auto" onClick={() => closeModal(infoDialog)} autoFocus aria-label={t("common:tsx.close")} >
+              <IconX aria-hidden="true" width={24} height={24} strokeWidth={3} style={{ minWidth: '28px' }} />
+            </button>       
+          <div className="dialog-header-sm">
+            <IconExclamationCircle aria-hidden="true" width={100} height={100} className="margin-inline-auto"/>
+          </div>
+          <div className="dialog-body-sm text-align-center">
+            <h2>{t("components:login.login_failed_header")}</h2>
+            <p className="margin-top-0">{t("components:login.login_failed")}</p>
+            <button autoFocus className="" onClick={() => infoDialog?.current?.close()}>
+              Ok
+            </button>
+          </div>
+        </div>
+      </dialog> */}
     </>
   )
 }

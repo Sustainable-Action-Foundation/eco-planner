@@ -7,8 +7,10 @@ import { useTranslation } from "react-i18next"
 import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput"
 import styles from '../forms.module.css'
 import TextEditor from "../elements/textEditor/editor"
-import { useMemo, useState } from "react"
+import { useMemo, useState, useRef } from "react"
 import { Content } from "@tiptap/core"
+import CreateToast, { showToast } from "./createToast.tsx"
+import { useToastContext } from "@/context/context.tsx"
 
 export default function ActionForm({
   goalId,
@@ -24,6 +26,8 @@ export default function ActionForm({
   const { t } = useTranslation(["forms", "common"]);
   const timestamp = useMemo(() => Date.now(), []);
 
+  const { messages, addMessage } = useToastContext();
+
   const [editorContent, setEditorContent] = useState<Content>(() => {
     if (!currentAction?.description) return null;
 
@@ -34,8 +38,12 @@ export default function ActionForm({
     }
   });
 
+  const toastRef = useRef<HTMLDivElement>(null);
+
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
+
+    showToast(toastRef);
 
     const form = event.target.elements
 
@@ -201,6 +209,8 @@ export default function ActionForm({
           </button>
         </div>
       </form>
+      <button onClick={() => addMessage("New Toast")}>Add Toast</button>
+      <CreateToast toastRef={toastRef} />
     </>
   )
 }
