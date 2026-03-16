@@ -9,7 +9,7 @@ import { IconExclamationCircle, IconEye, IconEyeOff, IconLock, IconUser } from "
 import { closeModal } from "@/components/modals/modalFunctions";
 import { IconX } from "@tabler/icons-react";
 
-function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction, infoDialog?: React.RefObject<HTMLDialogElement | null>) {
+function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction, setShowErrorMsg: React.Dispatch<React.SetStateAction<boolean>>, setErrorKey: React.Dispatch<React.SetStateAction<number>>) {
   event.preventDefault()
 
   const form = event.target
@@ -37,7 +37,9 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction, i
         window.location.href = '/'
       }
     } else {
-      infoDialog?.current?.showModal()
+      // infoDialog?.current?.showModal()
+      setShowErrorMsg(true)
+      setErrorKey(prevKey => prevKey + 1)
     }
   }).catch(() => {
     alert(t("components:login.login_failed"))
@@ -48,13 +50,15 @@ export default function Login() {
   const { t } = useTranslation(["components", "common"]);
 
   const [showPassword, setShowPassword] = useState(false)
-  const infoDialog = useRef<HTMLDialogElement>(null)
+  // const infoDialog = useRef<HTMLDialogElement>(null)
 
   const [showErrorMsg, setShowErrorMsg] = useState<boolean>(false)
 
+  const [errorKey, setErrorKey] = useState<number>(0)
+
   return (
     <>
-      <form onSubmit={(event: React.ChangeEvent<HTMLFormElement>) => handleSubmit(event, t, infoDialog)} className={`${styles.padding}`}>
+      <form onSubmit={(event: React.ChangeEvent<HTMLFormElement>) => handleSubmit(event, t, setShowErrorMsg, setErrorKey)} className={`${styles.padding}`}>
         <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid silver' }}>{t("common:tsx.login")}</h1>
 
         <label>
@@ -89,50 +93,28 @@ export default function Login() {
           </label>
 
           <small><Link href='/password'>{t("components:login.forgot_password")}</Link></small>
-
         </div>
 
-        <div className="margin-top-300 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
+        <div className={`errorWrapper rounded margin-block-50 padding-50 ${showErrorMsg ? "opacity-1" : "opacity-0"}`} key={errorKey}>
+          <p style={{ minHeight: "1.5rem" }} className="margin-0">{t("components:login.login_failed")}</p>
+        </div>
+
+        <div className="padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
           <button
             className="text-align-center seagreen color-purewhite width-100 font-weight-600"
             style={{ fontSize: '14px', transform: 'none' }}
             type="submit"
             id="submit-button"
-           >
+          >
             {t("common:tsx.login")}
           </button>
         </div>
- 
+
         <div className="flex gap-100 align-items-center justify-content-space-between align-items-center flex-wrap-wrap margin-block-100">
           <span>{t("components:login.no_account")} <Link href='/signup'>{t("components:login.create_account")}</Link></span>
           <Link href='/verify'>{t("components:login.verify_account")}</Link>
         </div>
-
-
       </form>
-
-
-      <p>{showErrorMsg ? t("components:login.login_failed") : null}</p>
-
-      {/* Modal */}
-
-      {/* <dialog ref={infoDialog} className="rounded padding-inline-0 padding-block-0 dialog-sm">
-        <div className="dialog-content">
-            <button className="grid round transparent margin-left-auto" onClick={() => closeModal(infoDialog)} autoFocus aria-label={t("common:tsx.close")} >
-              <IconX aria-hidden="true" width={24} height={24} strokeWidth={3} style={{ minWidth: '28px' }} />
-            </button>       
-          <div className="dialog-header-sm">
-            <IconExclamationCircle aria-hidden="true" width={100} height={100} className="margin-inline-auto"/>
-          </div>
-          <div className="dialog-body-sm text-align-center">
-            <h2>{t("components:login.login_failed_header")}</h2>
-            <p className="margin-top-0">{t("components:login.login_failed")}</p>
-            <button autoFocus className="" onClick={() => infoDialog?.current?.close()}>
-              Ok
-            </button>
-          </div>
-        </div>
-      </dialog> */}
     </>
   )
 }

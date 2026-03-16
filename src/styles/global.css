@@ -203,12 +203,40 @@ button[type="submit"]:disabled {
   box-shadow: none;
 }
 
+.errorWrapper {
+  width: fit-content;
+  background-color: rgb(252, 225, 225);
+  color: rgb(150, 10, 10);
+  animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-6px);
+  }
+
+  50% {
+    transform: translateX(6px);
+  }
+
+  75% {
+    transform: translateX(-4px);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
 .toast-content {
   position: fixed;
   top: 24px;
   right: 24px;
   pointer-events: none;
-  /* transform: translateY(15px); */
   transition: opacity 0.3s ease, transform 0.3s ease;
   background-color: white;
   border: 1px solid var(--gray-80);
@@ -222,16 +250,11 @@ button[type="submit"]:disabled {
 
 .toast-icon-wrapper {
   background-color: rgb(0, 235, 0);
-  /* background-color: rgba(0, 0, 0, 0.9); */
   border-radius: 50%;
-  /* width: 50px;
-  height: 50px; */
-  /* padding: .25rem; */
 }
 
 .toast-icon-wrapper > * {
   display: block;
-  /* margin: 8px; */
 }
 
 /* Default dialog styles */
@@ -243,33 +266,6 @@ button[type="submit"]:disabled {
   box-shadow: 0 0 .5rem -.25rem rgba(0, 0, 0, .25);
   background-color: rgba(246, 246, 246);
   /* Same as background*/
-}
-
-.dialog-sm {
-  width: min(55ch, 100%);
-  overflow: unset;
-  border: 0;
-  box-shadow: 0 0 .5rem -.25rem rgba(0, 0, 0, .25);
-  background-color: rgba(246, 246, 246);
-  /* Same as background */
-}
-
-.dialog-header-sm {
-  display: flex;
-  flex-direction: row-reverse;
-  align-items: center;
-  justify-content: space-between;
-  /* padding: 0rem 1rem; */
-  border-radius: .5rem .5rem 0 0;
-}
-
-.dialog-body-sm {
-  overflow-y: scroll;
-  scrollbar-width: thin;
-  scrollbar-color: var(--gray) rgba(0, 0, 0, 0);
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
 }
 
 .dialog::backdrop {
