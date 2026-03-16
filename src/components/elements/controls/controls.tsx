@@ -324,7 +324,7 @@ export function AdminPanel(
         <h1 className="font-weight-600 margin-0" style={{ fontSize: '1.25rem'}}>{t("components:table_menu.admin_panel_title")}</h1>
         <small className='font-style-italic'>{t("components:table_menu.admin_panel_info")}</small>
       </div>
-      <menu className={`flex gap-50 align-items-stretch flex-grow-100 margin-0 padding-25 font-size-14px rounded ${styles['object-menu']}`}>
+      <menu className={`flex gap-50 align-items-stretch flex-grow-100 margin-0 padding-0 padding-top-50 font-size-14px ${styles['object-menu']}`}>
         {links ? (
           <>
             <nav className="display-contents">
