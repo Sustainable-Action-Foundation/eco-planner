@@ -7,7 +7,7 @@ import { AccessLevel } from "@/types";
 import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
 import { useTranslation } from "react-i18next";
-import { IconArrowBackUp, IconChartHistogram, IconDotsVertical, IconEdit, IconPlus, IconTrashXFilled, IconX } from "@tabler/icons-react";
+import { IconArrowBackUp, IconChartHistogram, IconDotsVertical, IconEdit, IconPlus, IconStarFilled, IconTrashXFilled, IconX } from "@tabler/icons-react";
 import { hasEditAccess } from '@/lib/accessChecker';
 import { TFunction } from 'i18next';
 import type { Action, Effect, Goal, MetaRoadmap, Roadmap } from "@/types";
@@ -47,6 +47,7 @@ type EffectMenuEntry = Pick<Effect, "actionId" | "goalId"> & {
 type ObjectParameter = EffectMenuEntry | ActionMenuEntry | GoalMenuEntry | RoadmapMenuEntry | MetaRoadmapMenuEntry;
 
 type links = {
+  featureGoal?: string,
   selfLink?: string;
   parentLink?: string;
   parentDescription?: string;
@@ -59,11 +60,13 @@ type links = {
   deleteLink?: string;
 };
 
+/* TODO: This implemantation seems dumb probably */
 function buildLinks(
   object: ObjectParameter,
   t: TFunction,
 ): links | null {
 
+  let featureGoal: string | undefined
   let selfLink: string | undefined;
   let parentLink: string | undefined;
   let parentDescription: string | undefined;
@@ -99,6 +102,7 @@ function buildLinks(
 
   // Goals
   else if ("indicatorParameter" in object) {
+    featureGoal = "/api/goal"; /* TODO: Update this line */
     selfLink = `/goal/${object.id}`;
     parentLink = `/roadmap/${object.roadmap.id}`;
     parentDescription = t("components:table_menu.go_to_version");
@@ -153,6 +157,7 @@ function buildLinks(
   }
 
   return {
+    featureGoal,
     selfLink,
     parentLink,
     parentDescription,
@@ -321,15 +326,24 @@ export function AdminPanel(
   return (
     <aside className="margin-block-300">
       <div className='flex justify-content-space-between align-items-flex-end flex-wrap-wrap margin-bottom-50 gap-25'>
-        <h1 className="font-weight-600 margin-0" style={{ fontSize: '1.25rem'}}>{t("components:table_menu.admin_panel_title")}</h1>
+        <h1 className="font-weight-600 margin-0" style={{ fontSize: '1.25rem' }}>{t("components:table_menu.admin_panel_title")}</h1>
         <small className='font-style-italic'>{t("components:table_menu.admin_panel_info")}</small>
       </div>
-      <menu className={`flex gap-50 align-items-stretch flex-grow-100 margin-0 padding-0 padding-top-50 font-size-14px ${styles['object-menu']}`}>
+      <menu className={`flex gap-50 align-items-stretch margin-0 padding-0 padding-top-50 font-size-14px ${styles['object-menu']}`}>
         {links ? (
           <>
-            <nav className="display-contents">
-              {hasEditAccess(accessLevel ?? AccessLevel.None) ?
-                <>
+            {hasEditAccess(accessLevel ?? AccessLevel.None) ? (
+              <>
+                {links.featureGoal && (
+                  <>
+                    <button className={`flex gap-75 align-items-center smooth neutral-action ${styles['object-menu-link']}`} style={{ boxShadow: 'none', cursor: 'pointer', fontSize: '14px'}}>
+                      <IconStarFilled fill='gold' aria-hidden="true" width={16} height={16} style={{ minWidth: '16px' }} />
+                      <span className='margin-right-25'>Sluta lyft fram målbana</span> {/* TODO: I18n */}
+                    </button>
+                    <hr className="round margin-inline-0 margin-block-50" />
+                  </>
+                )}
+                <nav className="display-contents">
                   {links.creationLink &&
                     <>
                       <Link href={links.creationLink} className={`flex gap-100 align-items-center smooth neutral-action ${styles['object-menu-link']}`}>
@@ -359,17 +373,17 @@ export function AdminPanel(
                   }
                   {links.editLink &&
                     <>
-                      <Link href={links.editLink} className={`flex gap-100 align-items-center smooth neutral-action ${styles['object-menu-link']}`}> 
+                      <Link href={links.editLink} className={`flex gap-100 align-items-center smooth neutral-action ${styles['object-menu-link']}`}>
                         <span>{t("components:table_menu.edit")}</span>
                         <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                       </Link>
                       <hr className="round margin-inline-0 margin-block-50" />
                     </>
                   }
-                </>
-                : null
-              }
-            </nav>
+                </nav>
+              </>
+            ) : null
+            }
             {/* Admins and authors can delete items */}
             {(accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) && links.deleteLink &&
               <>
@@ -384,7 +398,7 @@ export function AdminPanel(
           </>
         ) : null}
       </menu>
-    </aside>
+    </aside >
   )
 
 }

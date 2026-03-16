@@ -93,8 +93,9 @@
   padding-inline: .6rem;
 }
 
-  /* Note: 802px is an arbitrary value based on the overflow width for objectmenu on goalpage */
-@media (max-width: 802px) {
+  /* Note: 1320px is an arbitrary value based on the overflow width for objectmenu on goalpage */
+  /* TODO: It is definetily too large, see what we can do about it...*/
+@media (max-width: 1320px) {
 
   .object-menu {
     flex-direction: column;

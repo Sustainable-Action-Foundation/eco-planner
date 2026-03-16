@@ -181,14 +181,16 @@ button[type="submit"]:disabled {
 
 /* Neutral button (Not CTA or danger) */
 
-.neutral-action { 
+.neutral-action {
   color: #191919;
-  background: hsl(223.12deg 100% 96%);
+  background-color: hsl(223.12deg 100% 96%);
   border: 1px solid var(--gray-80);
   text-decoration: none;
   padding: .3rem .6rem;
-} 
+
+}
 
 .neutral-action:hover {
   border-color: var(--blue-40);
+  background-color: hsl(223.12deg 100% 93%);
 }
