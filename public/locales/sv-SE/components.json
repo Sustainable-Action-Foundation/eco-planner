@@ -85,7 +85,8 @@
     "password": "Lösenord",
     "remember_me": "Kom ihåg mig",
     "username": "Användarnamn",
-    "verify_account": "Verifiera mitt konto"
+    "verify_account": "Verifiera mitt konto",
+    "invalid_credentials": "Inloggningen misslyckades. Kontrollera ditt användarnamn och lösenord."
   },
   "logout_button": {
     "failed": "Utloggningen misslyckades"

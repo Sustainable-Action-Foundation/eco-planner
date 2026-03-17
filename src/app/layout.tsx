@@ -47,7 +47,6 @@ export default async function RootLayout(
               </div>
             </div>
           </div>
-
         </I18nProvider>
       </body>
     </html>

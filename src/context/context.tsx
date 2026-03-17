@@ -26,6 +26,5 @@ export function useToastContext() {
   if (!context) {
     throw new Error("useToastContext must be used inside a ToastContext provider");
   }
-  console.log(toasts);
   return context;
 }
