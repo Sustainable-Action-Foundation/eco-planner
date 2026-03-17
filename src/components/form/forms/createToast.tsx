@@ -30,7 +30,7 @@ export default function CreateToast({ toastRef }: { toastRef: React.RefObject<HT
   }, [timer]);
 
   return (
-    <div ref={toastRef} className="toast-content padding-75 flex align-items-center justify-content-center rounded opacity-1"/* opacity-0 */ >
+    <div ref={toastRef} className="toast-content padding-75 flex align-items-center justify-content-center rounded opacity-0"/* opacity-0 */ >
       <div className="toast-header padding-inline-75 padding-block-25">
         <div className="toast-icon-wrapper padding-25">
           <IconCheck aria-hidden="true" className="toast-icon" width={30} height={30} strokeWidth={3} color="white" />

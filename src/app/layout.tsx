@@ -5,7 +5,8 @@ import I18nProvider from "@/lib/i18nClient";
 import serveTea from "@/lib/i18nServer";
 import { cookies, headers } from "next/headers";
 import { getLocale } from "@/functions/getLocale";
-import { ToastContext } from '@/context/context';
+import { ToastContext, useToastContext } from '@/context/context';
+import ToastList from '@/components/form/forms/toastList';
 
 export default async function RootLayout(
   { children, }: { children: React.ReactNode, }
@@ -41,10 +42,12 @@ export default async function RootLayout(
               <div className='container margin-inline-auto'>
                 <ToastContext>
                   {children}
+                  <ToastList />
                 </ToastContext>
               </div>
             </div>
           </div>
+
         </I18nProvider>
       </body>
     </html>
