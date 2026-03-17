@@ -9,7 +9,6 @@ import styles from '../forms.module.css'
 import TextEditor from "../elements/textEditor/editor"
 import { useMemo, useState, useRef } from "react"
 import { Content } from "@tiptap/core"
-import CreateToast, { showToast } from "./createToast.tsx"
 import { useToastContext } from "@/context/context.tsx"
 
 export default function ActionForm({
@@ -38,12 +37,8 @@ export default function ActionForm({
     }
   });
 
-  const toastRef = useRef<HTMLDivElement>(null);
-
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
-
-    showToast(toastRef);
 
     const form = event.target.elements
 
@@ -209,8 +204,7 @@ export default function ActionForm({
           </button>
         </div>
       </form>
-      <button onClick={() => addMessage("New Toast")}>Add Toast</button>
-      <CreateToast toastRef={toastRef} />
+      <button onClick={() => addMessage("The action has been created")}>Add Toast</button>
     </>
   )
 }

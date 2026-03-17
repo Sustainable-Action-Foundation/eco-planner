@@ -203,6 +203,7 @@ button[type="submit"]:disabled {
   box-shadow: none;
 }
 
+/* Login error message */
 .errorWrapper {
   width: fit-content;
   background-color: rgb(252, 225, 225);
@@ -232,29 +233,25 @@ button[type="submit"]:disabled {
   }
 }
 
-.toast-content {
-  position: fixed;
-  top: 24px;
-  right: 24px;
+/* Default toast styles */
+.toast-wrapper {
   pointer-events: none;
-  transition: opacity 0.3s ease, transform 0.3s ease;
   background-color: white;
   border: 1px solid var(--gray-80);
   box-shadow: 0 0 .5rem -.25rem rgba(0, 0, 0, .5);
+  animation: toast-slide-in 0.5s ease forwards;
 }
 
-.toast-body > * {
-  margin: 0;
-  white-space: nowrap;
-}
+@keyframes toast-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
 
-.toast-icon-wrapper {
-  background-color: rgb(0, 235, 0);
-  border-radius: 50%;
-}
-
-.toast-icon-wrapper > * {
-  display: block;
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 /* Default dialog styles */
