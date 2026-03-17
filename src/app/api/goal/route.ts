@@ -586,11 +586,11 @@ export async function POST(request: NextRequest) {
           dataSeries: {
             create: {
               author: { connect: { id: session.user?.id }, },
-              recipeUsed: formData.dataSeriesRecipeId !== null
+              recipeUsed: typeof formData.dataSeriesRecipeId === 'string'
                 ? { connect: { id: formData.dataSeriesRecipeId, }, }
                 : undefined,
               values: { createMany: { data: dateValuesToDBDateRecord(formData.dataSeries.dateValues) }, },
-              ...(formData.dataSeries.unit == null ? {} : { unit: formData.dataSeries.unit }),
+              unit: formData.dataSeries.unit,
             },
           },
           baseline: formData.baseline
@@ -599,11 +599,11 @@ export async function POST(request: NextRequest) {
                 where: { id: formData.baselineId ?? "" },
                 create: {
                   author: { connect: { id: session.user?.id }, },
-                  recipeUsed: formData.baselineRecipeId !== null
+                  recipeUsed: typeof formData.baselineRecipeId === 'string'
                     ? { connect: { id: formData.baselineRecipeId, }, }
                     : undefined,
                   values: { createMany: { data: dateValuesToDBDateRecord(formData.baseline.dateValues) }, },
-                  ...(formData.baseline.unit == null ? {} : { unit: formData.baseline.unit }),
+                  unit: formData.baseline.unit,
                 }
               }
             }
@@ -802,24 +802,41 @@ export async function PUT(request: NextRequest) {
           externalTableId: goal.externalTableId,
           externalSelection: goal.externalSelection,
           dataSeries: goal.dataSeries ? {
-            update: {
-              recipeUsed: goal.dataSeriesRecipeId !== null
-                ? { connect: { id: goal.dataSeriesRecipeId, }, }
-                : { disconnect: true, },
-              values: { createMany: { data: dateValuesToDBDateRecord(goal.dataSeries.dateValues) }, },
-              ...(goal.dataSeries.unit == null ? {} : { unit: goal.dataSeries.unit }),
+            upsert: {
+              create: {
+                author: { connect: { id: session.user?.id }, },
+                recipeUsed: typeof goal.dataSeriesRecipeId === 'string'
+                  ? { connect: { id: goal.dataSeriesRecipeId, }, }
+                  : undefined,
+                values: { createMany: { data: dateValuesToDBDateRecord(goal.dataSeries.dateValues) }, },
+                ...(goal.dataSeries.unit == null ? {} : { unit: goal.dataSeries.unit }),
+              },
+              update: {
+                recipeUsed: goal.dataSeriesRecipeId === undefined
+                  ? undefined
+                  : typeof goal.dataSeriesRecipeId === 'string'
+                    ? { connect: { id: goal.dataSeriesRecipeId, }, }
+                    : { disconnect: true, },
+                values: {
+                  deleteMany: {},
+                  createMany: { data: dateValuesToDBDateRecord(goal.dataSeries.dateValues) },
+                },
+                unit: goal.dataSeries.unit,
+              },
             },
           } : goal.dataSeriesId ? {
             connect: { id: goal.dataSeriesId, },
           } : undefined,
           baseline: goal.baseline
             ? {
-              update: {
-                recipeUsed: goal.baselineRecipeId !== null
+              disconnect: {},
+              create: {
+                author: { connect: { id: session.user?.id }, },
+                recipeUsed: typeof goal.baselineRecipeId === 'string'
                   ? { connect: { id: goal.baselineRecipeId, }, }
-                  : { disconnect: true, },
+                  : undefined,
                 values: { createMany: { data: dateValuesToDBDateRecord(goal.baseline.dateValues) }, },
-                ...(goal.baseline.unit == null ? {} : { unit: goal.baseline.unit }),
+                unit: goal.baseline.unit,
               },
             } : goal.baselineId ? {
               connect: { id: goal.baselineId, },
