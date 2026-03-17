@@ -80,6 +80,7 @@ test.describe.serial("Action & Effect tests", async () => {
         // Navigate to the action edit form
         await page.goto('/');
         await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
+        await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
         await page.getByRole('link', { name: actionNameRequiredFields }).first().click();
 
         await page.waitForLoadState("networkidle");
@@ -191,6 +192,7 @@ test.describe.serial("Action & Effect tests", async () => {
         await page.getByTestId("admin-panel-edit").click();
 
         await expect(page.locator('#actionName')).toHaveValue(actionNameAllFields);
+        await page.locator('.tiptap').first().hover(); // This is needed to make sure the description is loaded before checking its content, otherwise it will be empty and the test will fail.
         await expect(page.locator('.tiptap').first()).toHaveText("Test Action description.");
 
         await expect(page.locator('#costEfficiency')).toHaveValue("Text for cost efficiency");

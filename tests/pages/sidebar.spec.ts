@@ -47,10 +47,14 @@ test.describe("Sidebar tests", () => {
 
     await switchLanguage(page, localeAliases[Locales.enSE]);
 
+    await page.waitForLoadState("networkidle");
+    
     const englishTitle = await homeTitle.textContent();
     expect(englishTitle, "Page is not in English").toBe("Roadmaps")
 
     await switchLanguage(page, localeAliases[Locales.svSE]);
+
+    await page.waitForLoadState("networkidle");
 
     const swedishTitle = await homeTitle.textContent();
     expect(swedishTitle, "Page is not in Swedish").toBe("Färdplaner")
