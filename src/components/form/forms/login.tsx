@@ -37,7 +37,6 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction, s
         window.location.href = '/'
       }
     } else {
-      // infoDialog?.current?.showModal()
       setShowErrorMsg(true)
       setErrorKey(prevKey => prevKey + 1)
     }
@@ -50,7 +49,6 @@ export default function Login() {
   const { t } = useTranslation(["components", "common"]);
 
   const [showPassword, setShowPassword] = useState(false)
-  // const infoDialog = useRef<HTMLDialogElement>(null)
 
   const [showErrorMsg, setShowErrorMsg] = useState<boolean>(false)
 
@@ -95,7 +93,7 @@ export default function Login() {
           <small><Link href='/password'>{t("components:login.forgot_password")}</Link></small>
         </div>
 
-        <div className={`errorWrapper rounded margin-block-50 padding-50 ${showErrorMsg ? "opacity-1" : "opacity-0"}`} key={errorKey}>
+        <div className={`errorWrapper rounded margin-block-50 padding-75 ${showErrorMsg ? "opacity-1" : "opacity-0"}`} key={errorKey}>
           <p style={{ minHeight: "1.5rem" }} className="margin-0">{t("components:login.login_failed")}</p>
         </div>
 
