@@ -14,6 +14,8 @@ test.describe.serial("Action & Effect tests", async () => {
     let actionNameRequiredFieldsUpdated = "";
     let actionNameAllFields = "";
     let actionNameAllFieldsUpdated = "";
+    let roadmapActionNameRequiredFields = "";
+    let roadmapActionNameAllFields = "";
 
     test.beforeAll(async ({ browser }, testInfo) => {
         // Define the action name here so it can be accessed in all later tests.
@@ -82,12 +84,12 @@ test.describe.serial("Action & Effect tests", async () => {
         await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
         await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
         await page.getByRole('link', { name: actionNameRequiredFields }).first().click();
-
         await page.waitForLoadState("networkidle");
         await page.getByRole('heading', { name: actionNameRequiredFields }).hover();
         await page.getByTestId("admin-panel-edit").click();
 
-        await expect(page.locator('#actionName')).toHaveValue(actionNameRequiredFields);
+
+        await page.locator('#actionName').hover(); // This is needed to make sure the name field is loaded before checking its content, otherwise it will be empty and the test will fail.        await expect(page.locator('#actionName')).toHaveValue(actionNameRequiredFields);
 
         await page.locator('#submit-button').click();
 
@@ -130,8 +132,6 @@ test.describe.serial("Action & Effect tests", async () => {
 
         // Submit the form
         await page.locator('#submit-button').click();
-
-        await page.waitForLoadState("networkidle");
 
         await expect(page.getByRole('heading', { name: actionNameRequiredFieldsUpdated })).toBeVisible();
 
@@ -185,14 +185,13 @@ test.describe.serial("Action & Effect tests", async () => {
         await page.goto('/');
         await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
         await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
-        await page.getByRole('link', { name: actionNameAllFields }).first().click(); // TODO (fix): The tests doesn't seem to click on the right name here and therefore they fail.
+        await page.getByRole('link', { name: actionNameAllFields }).first().click();
 
         await page.waitForLoadState("networkidle");
         await page.getByRole('heading', { name: actionNameAllFields }).hover();
         await page.getByTestId("admin-panel-edit").click();
 
         await expect(page.locator('#actionName')).toHaveValue(actionNameAllFields);
-        await page.locator('.tiptap').first().hover(); // This is needed to make sure the description is loaded before checking its content, otherwise it will be empty and the test will fail.
         await expect(page.locator('.tiptap').first()).toHaveText("Test Action description.");
 
         await expect(page.locator('#costEfficiency')).toHaveValue("Text for cost efficiency");
@@ -221,7 +220,7 @@ test.describe.serial("Action & Effect tests", async () => {
         await page.goto('/');
         await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
         await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
-        await page.getByRole('link', { name: actionNameAllFields }).first().click(); // TODO (fix): The tests doesn't seem to click on the right name here and therefore they fail.
+        await page.getByRole('link', { name: actionNameAllFields }).first().click();
 
         await page.waitForLoadState("networkidle");
         await page.getByRole('heading', { name: actionNameAllFields }).hover();
@@ -274,24 +273,24 @@ test.describe.serial("Action & Effect tests", async () => {
     });
     
     test("Create Action from Roadmap - required", async ({ page }, testInfo) => {
-        actionNameRequiredFields = `Test Action ${testInfo.parallelIndex}`;
+        roadmapActionNameRequiredFields = `Test Action ${testInfo.parallelIndex}`;
         // Navigate to the action edit form
         await page.goto('/');
         await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
         await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
         await page.getByTestId("admin-panel-new-action").click();
 
-        await page.locator('#actionName').fill(actionNameRequiredFields);
+        await page.locator('#actionName').fill(roadmapActionNameRequiredFields);
 
         await page.locator('#submit-button').click();
         
         await page.waitForLoadState("networkidle");
 
-        await expect(page.getByRole('heading', { name: actionNameRequiredFields })).toBeVisible();
+        await expect(page.getByRole('heading', { name: roadmapActionNameRequiredFields })).toBeVisible();
     });
 
     test("Create Action from Roadmap - All Fields", async ({ page }, testInfo) => {
-        actionNameAllFields = `Test Action All Fields ${testInfo.parallelIndex}`;
+        roadmapActionNameAllFields = `Test Action All Fields ${testInfo.parallelIndex}`;
         // Navigate to the action edit form
         await page.goto('/');
         await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
@@ -299,7 +298,7 @@ test.describe.serial("Action & Effect tests", async () => {
         await page.getByTestId("admin-panel-new-action").click();
 
         // Part 1 of the form
-        await page.locator('#actionName').fill(actionNameAllFields);
+        await page.locator('#actionName').fill(roadmapActionNameAllFields);
         
         await page.locator('.tiptap').first().fill("Test Action description.");
 
@@ -325,7 +324,7 @@ test.describe.serial("Action & Effect tests", async () => {
 
         await page.waitForLoadState("networkidle");
 
-        await expect(page.getByRole('heading', { name: actionNameAllFields })).toBeVisible();
+        await expect(page.getByRole('heading', { name: roadmapActionNameAllFields })).toBeVisible();
     });
     // Effect tests begin here //  
 });
