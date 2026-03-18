@@ -1,11 +1,14 @@
 import { IconCheck } from "@tabler/icons-react";
 import { ReactNode, useEffect, useState } from "react";
+import { useToastContext } from "@/context/context";
 
-export default function CreateToast({ children }: { children?: ReactNode; positioned?: boolean }) {
+export default function CreateToast({ children, id }: { children?: ReactNode; id: number }) {
 
   const totalTime = 3000;
   const stepTime = 25;
   const [timer, setTimer] = useState<number>(totalTime);
+
+  const { removeMessage } = useToastContext();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -13,6 +16,7 @@ export default function CreateToast({ children }: { children?: ReactNode; positi
         const next = prev - stepTime;
         if (next <= 0) {
           clearInterval(interval);
+          setTimeout(() => removeMessage(id), 0);
           return 0;
         }
         return next;
@@ -23,10 +27,10 @@ export default function CreateToast({ children }: { children?: ReactNode; positi
 
   return (
     <div className="toast-wrapper flex flex-direction-column rounded">
-      <div className="padding-50 flex align-items-center justify-content-center rounded">
-        <div className="toast-header padding-inline-75 padding-block-25">
-          <div className="toast-icon-wrapper padding-25 circular" style={{ background: "rgb(0, 235, 0)" }}>
-            <IconCheck aria-hidden="true" className="toast-icon display-block" width={30} height={30} strokeWidth={3} color="white" />
+      <div className="flex padding-50 align-items-center justify-content-center rounded">
+        <div className="padding-inline-75 padding-block-25">
+          <div className="padding-25 circular" style={{ background: "rgb(0, 235, 0)" }}>
+            <IconCheck aria-hidden="true" className="display-block" width={30} height={30} strokeWidth={3} color="white" />
           </div>
         </div>
         <div className="padding-75 padding-left-50">

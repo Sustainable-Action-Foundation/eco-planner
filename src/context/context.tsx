@@ -1,21 +1,29 @@
 'use client'
-import { createContext, useContext, ReactNode, useState } from "react";
+import { createContext, useContext, useState, useRef } from "react";
 
+type Toast = { id: number; text: string };
 type ToastContextType = {
- messages: Array<string>;
- addMessage: (text: string) => void;
+  messages: Array<Toast>;
+  addMessage: (text: string) => void;
+  removeMessage: (id: number) => void;
 }
 
 const toasts = createContext<ToastContextType | undefined>(undefined)
 
-export function ToastContext({children}: {children: React.ReactNode}) {
-  const [messages, setMessages] = useState<Array<string>>([])
+export function ToastContext({ children }: { children: React.ReactNode }) {
+  const [messages, setMessages] = useState<Array<Toast>>([]);
+  const nextId = useRef(0);
+
   const addMessage = (text: string) => {
-    setMessages((previousMessages) => [...previousMessages, text]);
+    setMessages((prevMessages) => [...prevMessages, { id: nextId.current++, text }]);
+  };
+
+  const removeMessage = (id: number) => {
+    setMessages((prevMessages) => prevMessages.filter((toast) => toast.id !== id));
   };
 
   return (
-    <toasts.Provider value={{messages, addMessage}}>
+    <toasts.Provider value={{ messages, addMessage, removeMessage }}>
       {children}
     </toasts.Provider>
   )
