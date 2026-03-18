@@ -71,6 +71,7 @@ test.describe.serial("Action & Effect tests", async () => {
 
         await page.locator('#actionName').fill(actionNameRequiredFields);
 
+        await page.locator('#submit-button').hover();
         await page.locator('#submit-button').click();
         
         await page.waitForLoadState("networkidle");
