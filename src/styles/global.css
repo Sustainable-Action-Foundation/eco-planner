@@ -205,7 +205,6 @@ button[type="submit"]:disabled {
 
 /* Login error message */
 .errorWrapper {
-  width: fit-content;
   background-color: rgb(252, 225, 225);
   color: rgb(150, 10, 10);
   animation: shake 0.3s ease;
