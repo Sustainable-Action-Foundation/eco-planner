@@ -16,7 +16,7 @@ export default function CreateToast({ children, id }: { children?: ReactNode; id
         const next = prev - stepTime;
         if (next <= 0) {
           clearInterval(interval);
-          setTimeout(() => removeMessage(id), 0);
+          removeMessage(id);
           return 0;
         }
         return next;
@@ -38,7 +38,16 @@ export default function CreateToast({ children, id }: { children?: ReactNode; id
           <p className="margin-0">{children}</p>
         </div>
       </div>
-      <progress value={timer} max={totalTime} className="height-0" />
+      <progress value={timer} max={totalTime} className="" style={{
+        display: "block",
+        blockSize: "unset",
+        inlineSize: "unset",
+        verticalAlign: "unset",
+        width: "100%",
+        height: "10px",
+        appearance: "none",
+        accentColor: "rgb(0, 235, 0)",
+      }} />
     </div>
   )
 }

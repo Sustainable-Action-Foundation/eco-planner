@@ -38,14 +38,14 @@ export default async function RootLayout(
         <I18nProvider lng={locale}>
           <div className={`${styles.layout}`}>
             <Sidebar />
-            <div className='padding-100 flex-grow-100'>
-              <div className='container margin-inline-auto'>
-                <ToastContext>
+            <ToastContext>
+              <div className='padding-100 flex-grow-100'>
+                <div className='container margin-inline-auto'>
                   {children}
-                  <ToastList />
-                </ToastContext>
+                </div>
               </div>
-            </div>
+              <ToastList />
+            </ToastContext>
           </div>
         </I18nProvider>
       </body>
