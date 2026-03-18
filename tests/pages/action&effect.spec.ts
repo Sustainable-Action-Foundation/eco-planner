@@ -173,6 +173,7 @@ test.describe.serial("Action & Effect tests", async () => {
         await page.locator('#isRenewables').check();
 
         // Submit the form
+        await page.locator('#submit-button').hover();
         await page.locator('#submit-button').click();
 
         await page.waitForLoadState("networkidle");
@@ -192,6 +193,8 @@ test.describe.serial("Action & Effect tests", async () => {
         await page.getByTestId("admin-panel-edit").click();
 
         await expect(page.locator('#actionName')).toHaveValue(actionNameAllFields);
+
+        await page.locator('.tiptap').first().hover(); // This is needed to make sure the tiptap editor is loaded before checking its content
         await expect(page.locator('.tiptap').first()).toHaveText("Test Action description.");
 
         await expect(page.locator('#costEfficiency')).toHaveValue("Text for cost efficiency");
@@ -257,6 +260,8 @@ test.describe.serial("Action & Effect tests", async () => {
         await page.getByTestId("admin-panel-edit").click();
 
         await expect(page.locator('#actionName')).toHaveValue(actionNameAllFieldsUpdated);
+
+        await page.locator('.tiptap').first().hover(); // This is needed to make sure the tiptap editor is loaded before checking its content
         await expect(page.locator('.tiptap').first()).toHaveText("Updated Test Action description.");
         await expect(page.locator('#costEfficiency')).toHaveValue("Updated text for cost efficiency");
         await expect(page.locator('#expectedOutcome')).toHaveValue("Updated text for expected outcome");
