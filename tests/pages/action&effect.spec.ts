@@ -23,8 +23,6 @@ test.describe.serial("Action & Effect tests", async () => {
         actionNameAllFields = `Test Action All Fields ${testInfo.parallelIndex}`;
 
         if (testInfo.retry > 0) {
-            console.log(`Retrying tests, Cleaning up any existing action with name ${actionNameAllFields} before retrying.`);
-
             // Page cannot be used in beforeAll so a new context and page here is needed.
             const context = await browser.newContext({ storageState: adminFile });
             const page = await context.newPage();
@@ -32,26 +30,30 @@ test.describe.serial("Action & Effect tests", async () => {
             await page.goto('/');
             await page.waitForLoadState('networkidle');
 
-            // Count how many matching items exist
-            const matchingItems = page.locator('li').filter({ hasText: actionNameAllFields });
-            const count = await matchingItems.count();
+            // Delete both the original and updated action names to ensure a clean state
+            const namesToClean = [
+                actionNameAllFields,
+                `Updated Test Action All Fields ${testInfo.parallelIndex}`,
+                `Updated Test Action ${testInfo.parallelIndex}`,
+            ];
 
-            // Delete all matching items
-            for (let i = 0; i < count; i++) {
-                // firstmatch is the row that all the actions need to be performed on since after each deletion the next item will move up to take its place.
+            for (const nameToClean of namesToClean) {
+                console.log(`Retrying tests, Cleaning up any existing action with name "${nameToClean}" before retrying.`);
+                
+                const matchingItems = page.locator('li').filter({ hasText: nameToClean });
+                let count = await matchingItems.count();
+
+                while (count > 0) {
                 const firstMatch = matchingItems.first();
-
-                // All of these actions need to be performed on the correct row so they are using firstMatch as the base locator.
                 await firstMatch.locator('svg').nth(1).click();
                 await firstMatch.getByTestId('delete-post').click();
-                await firstMatch.locator('input[placeholder]').fill(actionNameAllFields);
+                    await firstMatch.locator('input[placeholder]').fill(nameToClean);
                 await firstMatch.locator('[type="submit"]').click();
-
                 await page.waitForLoadState('networkidle');
+                    
+                    count = await matchingItems.count();
+                }
             }
-
-            // Verify all are gone
-            await expect(matchingItems).toHaveCount(0);
         }
     });
 

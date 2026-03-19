@@ -123,6 +123,7 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
 
     // Verify all fields are filled in
+    await page.locator('.tiptap').first().hover(); // Ensure editor is fully loaded
     await expect(page.locator('.tiptap').first()).toHaveText('Test All');
 
     // Verify visibility is set
@@ -163,6 +164,7 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page.locator('#name')).toHaveValue(metaRoadmapNameAllFields);
 
     // Verify all fields are filled in
+    await page.locator('.tiptap').first().hover(); // Ensure editor is fully loaded
     await expect(page.locator('.tiptap').first()).toHaveText('Test All');
 
     // Verify type is set
@@ -224,6 +226,12 @@ test.describe.serial("Roadmaps tests", () => {
     // Verify the save was successful
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
 
+    // Navigate away and back to force fresh data from the server
+    await page.goBack();
+    await page.waitForLoadState('networkidle');
+    await page.getByRole('link', { name: `${metaRoadmapNameAllFields} (v1)` }).first().click();
+    await page.waitForLoadState('networkidle');
+
     // Click the edit button again to verify all changes were saved
     await page.getByTestId('admin-panel-edit').click();
 
@@ -231,6 +239,7 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
 
     // Verify description was updated
+    await page.locator('.tiptap').first().hover(); // Ensure editor is fully loaded
     await expect(page.locator('.tiptap').first()).toHaveText('Updated Roadmap Description All');
 
     // Verify visibility was changed to custom
@@ -299,6 +308,14 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+$/);
     await expect(page.getByRole('heading', { name: metaRoadmapNameAllFieldsUpdated })).toBeVisible();
 
+    // Navigate away and back to force fresh data from the server
+    await page.goBack();
+    await page.waitForLoadState('networkidle');
+    await page.getByRole('link', { name: `${metaRoadmapNameAllFieldsUpdated} (v1)` }).first().click();
+    await page.waitForLoadState('networkidle');
+    await page.getByTestId('show-roadmap-series').click();
+    await page.waitForLoadState('networkidle');
+
     // Click the edit button again to verify all changes were saved
     await page.getByTestId('admin-panel-edit').click();
 
@@ -309,6 +326,7 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page.locator('#name')).toHaveValue(metaRoadmapNameAllFieldsUpdated);
 
     // Verify description was updated
+    await page.locator('.tiptap').first().hover(); // Ensure editor is fully loaded
     await expect(page.locator('.tiptap').first()).toHaveText('Updated Description All');
 
     // Verify type was updated
