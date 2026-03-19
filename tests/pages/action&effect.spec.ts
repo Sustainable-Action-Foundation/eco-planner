@@ -40,21 +40,17 @@ test.describe.serial("Action & Effect tests", async () => {
             for (const nameToClean of namesToClean) {
                 console.log(`Retrying tests, Cleaning up any existing action with name "${nameToClean}" before retrying.`);
                 
-                let matchingItems = page.locator('li').filter({ hasText: nameToClean });
+                const matchingItems = page.locator('li').filter({ hasText: nameToClean });
                 let count = await matchingItems.count();
 
                 while (count > 0) {
-                    const firstMatch = matchingItems.first();
-                    await firstMatch.locator('svg').nth(1).click();
-                    await firstMatch.getByTestId('delete-post').click();
+                const firstMatch = matchingItems.first();
+                await firstMatch.locator('svg').nth(1).click();
+                await firstMatch.getByTestId('delete-post').click();
                     await firstMatch.locator('input[placeholder]').fill(nameToClean);
-                    await firstMatch.locator('[type="submit"]').click();
-                    await page.waitForLoadState('networkidle');
+                await firstMatch.locator('[type="submit"]').click();
+                await page.waitForLoadState('networkidle');
                     
-                    // Refresh the page and the locator to get accurate count
-                    await page.reload();
-                    await page.waitForLoadState('networkidle');
-                    matchingItems = page.locator('li').filter({ hasText: nameToClean });
                     count = await matchingItems.count();
                 }
             }
@@ -264,14 +260,10 @@ test.describe.serial("Action & Effect tests", async () => {
         await page.waitForLoadState("networkidle");
 
         // Verify that everything is updated correctly by navigating away and back to force fresh data from the server
-        await page.goto('/');
-        await page.waitForLoadState('networkidle');
-        await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
-        await page.waitForLoadState('networkidle');
+        await page.goBack();
+        await page.waitForLoadState("networkidle");
         await page.getByRole('link', { name: actionNameAllFieldsUpdated }).first().click();
-        await page.waitForLoadState('networkidle');
-        await page.reload(); // Force a fresh page reload to clear any cached form data
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState("networkidle");
         
         await page.getByTestId("admin-panel-edit").click();
 
