@@ -39,7 +39,7 @@ test.describe.serial("Roadmaps tests", () => {
       for (const nameToClean of namesToClean) {
         console.log(`Retrying tests, Cleaning up any existing metaRoadmap with name "${nameToClean}" before retrying.`);
         
-        const matchingItems = page.locator('li').filter({ hasText: nameToClean });
+        let matchingItems = page.locator('li').filter({ hasText: nameToClean });
         let count = await matchingItems.count();
 
         while (count > 0) {
@@ -50,6 +50,10 @@ test.describe.serial("Roadmaps tests", () => {
           await firstMatch.locator('[type="submit"]').click();
           await page.waitForLoadState('networkidle');
           
+          // Refresh the page and the locator to get accurate count
+          await page.reload();
+          await page.waitForLoadState('networkidle');
+          matchingItems = page.locator('li').filter({ hasText: nameToClean });
           count = await matchingItems.count();
         }
       }
