@@ -124,6 +124,7 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
 
     // Verify all fields are filled in
+    await page.locator('.tiptap').first().hover(); // Ensure editor is fully loaded
     await expect(page.locator('.tiptap').first()).toHaveText('Test All');
 
     // Verify visibility is set
@@ -164,6 +165,7 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page.locator('#name')).toHaveValue(metaRoadmapNameAllFields);
 
     // Verify all fields are filled in
+    await page.locator('.tiptap').first().hover(); // Ensure editor is fully loaded
     await expect(page.locator('.tiptap').first()).toHaveText('Test All');
 
     // Verify type is set
