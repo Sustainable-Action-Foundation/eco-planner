@@ -194,6 +194,8 @@ test.describe.serial("Action & Effect tests", async () => {
         await page.getByTestId("admin-panel-edit").click();
 
         await expect(page.locator('#actionName')).toHaveValue(actionNameAllFields);
+
+        await page.locator('.tiptap').first().hover(); // This is needed to make sure the description field is loaded before checking its content, otherwise it will be empty and the test will fail.
         await expect(page.locator('.tiptap').first()).toHaveText("Test Action description.");
 
         await expect(page.locator('#costEfficiency')).toHaveValue("Text for cost efficiency");
@@ -255,10 +257,16 @@ test.describe.serial("Action & Effect tests", async () => {
 
         await page.waitForLoadState("networkidle");
 
-        // Verify that everything is updated correctly
+        // Verify that everything is updated correctly by navigating away and back to force fresh data from the server
+        await page.goBack();
+        await page.waitForLoadState("networkidle");
+        await page.getByRole('link', { name: actionNameAllFieldsUpdated }).first().click();
+        await page.waitForLoadState("networkidle");
+        
         await page.getByTestId("admin-panel-edit").click();
 
         await expect(page.locator('#actionName')).toHaveValue(actionNameAllFieldsUpdated);
+        await page.locator('.tiptap').first().hover(); // This is needed to make sure the description field is loaded before checking its content, otherwise it will be empty and the test will fail.
         await expect(page.locator('.tiptap').first()).toHaveText("Updated Test Action description.");
         await expect(page.locator('#costEfficiency')).toHaveValue("Updated text for cost efficiency");
         await expect(page.locator('#expectedOutcome')).toHaveValue("Updated text for expected outcome");
