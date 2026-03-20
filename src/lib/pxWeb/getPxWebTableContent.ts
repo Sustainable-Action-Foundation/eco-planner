@@ -1,7 +1,7 @@
 // Use server in order to circumvent CORS issues
 "use server";
 
-import { JSONValue } from "@/types.ts";
+import { JSONValue } from "@/types";
 import { ApiTableContent } from "../api/apiTypes.ts";
 import { ExternalDataset } from "../api/utility.ts";
 import getPxWebTableDetails from "./getPxWebTableDetails.ts";

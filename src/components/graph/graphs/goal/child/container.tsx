@@ -8,7 +8,7 @@ import { percentAndFraction } from "../../../graphSelectors/graphSelector.tsx";
 import ChildGraphSelector from "../../../graphSelectors/childGraphSelector.tsx";
 import { useTranslation } from "react-i18next";
 import { IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
-import { Goal } from "@/types.ts";
+import { Goal } from "@/types";
 import styles from '../goal.module.css'
 
 export const ChildGraphType = {

@@ -1,6 +1,6 @@
 'use client';
 
-import { AccessLevel, Action, Effect, Goal } from "@/types.ts";
+import { AccessLevel, Action, Effect, Goal } from "@/types";
 import Link from "next/link";
 import { ControlsMenu } from "../elements/controls/controls.tsx";
 import { useTranslation } from "react-i18next";

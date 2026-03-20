@@ -4,7 +4,7 @@ import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 import { effectInclusionSelection } from "@/fetchers/inclusionSelectors";
 import prisma from "@/prismaClient.ts";
-import { Effect } from "@/types.ts";
+import { Effect } from "@/types";
 
 /**
  * Gets specified effect as well as its action and goal.
