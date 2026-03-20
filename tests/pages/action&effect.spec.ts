@@ -1,336 +1,347 @@
 import { expect, test } from "playwright/test";
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { act } from "react";
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
 
 const adminFile = path.join(__dirname, '../.auth/admin.json');
 
-test.describe.serial("Action & Effect tests", async () => {
-    test.use({ storageState: adminFile });
-    let actionNameRequiredFields = "";
-    let actionNameRequiredFieldsUpdated = "";
-    let actionNameAllFields = "";
-    let actionNameAllFieldsUpdated = "";
-    let roadmapActionNameRequiredFields = "";
-    let roadmapActionNameAllFields = "";
+test.describe.serial("Action & Effect tests", () => {
+  test.use({ storageState: adminFile });
+  let actionNameRequiredFields = "";
+  let actionNameRequiredFieldsUpdated = "";
+  let actionNameAllFields = "";
+  let actionNameAllFieldsUpdated = "";
+  let roadmapActionNameRequiredFields = "";
+  let roadmapActionNameAllFields = "";
 
-    test.beforeAll(async ({ browser }, testInfo) => {
+  test.beforeAll(async ({ browser }, testInfo) => {
     actionNameAllFields = `Test Action All Fields ${testInfo.parallelIndex}`;
 
     if (testInfo.retry > 0) {
-        console.log(`Retrying tests, Cleaning up any existing action with name ${actionNameAllFields} before retrying.`);
+      console.log(`Retrying tests, Cleaning up any existing action with name ${actionNameAllFields} before retrying.`);
 
-        const context = await browser.newContext({ storageState: adminFile });
-        const page = await context.newPage();
+      const context = await browser.newContext({ storageState: adminFile });
+      const page = await context.newPage();
 
-        await page.goto('/');
-        await page.waitForLoadState('networkidle');
+      await page.goto('/');
+      await page.waitForLoadState('networkidle');
 
-        // Cleanup both the original and updated name
-        const namesToClean = [
-            `Test Action All Fields ${testInfo.parallelIndex}`,
-            `Updated Test Action All Fields ${testInfo.parallelIndex}`,  // ← lägg till denna
-        ];
+      // Cleanup both the original and updated name
+      const namesToClean = [
+        `Test Action All Fields ${testInfo.parallelIndex}`,
+        `Updated Test Action All Fields ${testInfo.parallelIndex}`,  // ← lägg till denna
+      ];
 
-        for (const name of namesToClean) {
-            const matchingItems = page.locator('li').filter({ hasText: name });
-            const count = await matchingItems.count();
+      for (const name of namesToClean) {
+        const matchingItems = page.locator('li').filter({ hasText: name });
+        const count = await matchingItems.count();
 
-            for (let i = 0; i < count; i++) {
-                const firstMatch = matchingItems.first();
-                await firstMatch.locator('svg').nth(1).click();
-                await firstMatch.getByTestId('delete-post').click();
-                await firstMatch.locator('input[placeholder]').fill(name);
-                await firstMatch.locator('[type="submit"]').click();
-                await page.waitForLoadState('networkidle');
-            }
-
-            await expect(matchingItems).toHaveCount(0);
+        for (let i = 0; i < count; i++) {
+          const firstMatch = matchingItems.first();
+          await firstMatch.locator('svg').nth(1).click();
+          await firstMatch.getByTestId('delete-post').click();
+          await firstMatch.locator('input[placeholder]').fill(name);
+          await firstMatch.locator('[type="submit"]').click();
+          await page.waitForLoadState('networkidle');
         }
+
+        await expect(matchingItems).toHaveCount(0);
+      }
     }
-});
+  });
 
-    // Action tests begin here //
-    test("Create Action - required", async ({ page }, testInfo ) => {
-        actionNameRequiredFields = `Test Action ${testInfo.parallelIndex}`;
-        // Navigate to the action creation form
-        await page.goto('/');
-        await page.getByTestId("create-button").click();
-        await page.getByTestId("create-action").click();
+  // Action tests begin here //
+  test("Create Action - required", async ({ page }, testInfo) => {
+    actionNameRequiredFields = `Test Action ${testInfo.parallelIndex}`;
+    // Navigate to the action creation form
+    await page.goto('/');
+    await page.getByTestId("create-button").click();
+    await page.getByTestId("create-action").click();
 
-        const option = page.locator('#roadmapId option').filter({ hasText: 'Rikets färdplan (v2)' }); // Checks for Rikets färdplan (v2) to be contained in an option
+    const option = page.locator('#roadmapId option').filter({ hasText: 'Rikets färdplan (v2)' }); // Checks for Rikets färdplan (v2) to be contained in an option
 
-        const value = await option.getAttribute('value');
+    const value = await option.getAttribute('value');
 
-        await page.locator('#roadmapId').selectOption(value!);
+    await page.locator('#roadmapId').selectOption(value!);
 
-        await page.locator('#actionName').fill(actionNameRequiredFields);
+    await page.locator('#actionName').fill(actionNameRequiredFields);
 
-        await page.locator('#submit-button').hover();
-        await page.locator('#submit-button').click();
-        
-        await page.waitForLoadState("networkidle");
+    await page.locator('#submit-button').hover();
+    await page.locator('#submit-button').click();
 
-        await expect(page.getByRole('heading', { name: actionNameRequiredFields })).toBeVisible();
-    });
+    await page.waitForLoadState("networkidle");
 
-    test("No edit Action - required", async ({ page }) => {
-        // Navigate to the action edit form
-        await page.goto('/');
-        await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
-        await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
-        await page.getByRole('link', { name: actionNameRequiredFields }).first().click();
-        await page.waitForLoadState("networkidle");
-        await page.getByRole('heading', { name: actionNameRequiredFields }).hover();
-        await page.getByTestId("admin-panel-edit").click();
+    await expect(page.getByRole('heading', { name: actionNameRequiredFields })).toBeVisible();
+  });
 
+  test("No edit Action - required", async ({ page }) => {
+    // Navigate to the action edit form
+    await page.goto('/');
+    await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
+    await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
+    await page.getByRole('link', { name: actionNameRequiredFields }).first().click();
+    await page.waitForLoadState("networkidle");
+    await page.getByRole('heading', { name: actionNameRequiredFields }).hover();
+    await page.getByTestId("admin-panel-edit").click();
 
-        await page.locator('#actionName').hover(); // This is needed to make sure the name field is loaded before checking its content, otherwise it will be empty and the test will fail.        await expect(page.locator('#actionName')).toHaveValue(actionNameRequiredFields);
 
-        await page.locator('#submit-button').click();
+    await page.locator('#actionName').hover(); // This is needed to make sure the name field is loaded before checking its content, otherwise it will be empty and the test will fail.        await expect(page.locator('#actionName')).toHaveValue(actionNameRequiredFields);
 
-        await expect(page.getByRole('heading', { name: actionNameRequiredFields })).toBeVisible();
-    });
+    await page.locator('#submit-button').click();
 
-    test("Edit Action - required", async ({ page }, testInfo) => {
-        actionNameRequiredFieldsUpdated = `Updated Test Action ${testInfo.parallelIndex}`;
-        // Navigate to the action edit form
-        await page.goto('/');
-        await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
-        await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
-        await page.getByRole('link', { name: actionNameRequiredFields }).first().click(); // TODO (fix): The tests doesn't seem to click on the right name here and therefore they fail.
-        
-        await page.getByRole('heading', { name: actionNameRequiredFields }).hover();
-        await page.waitForLoadState("networkidle");
-        await page.getByTestId("admin-panel-edit").click();
-
-        // Part 1 of the form
-        await page.locator('#actionName').fill(actionNameRequiredFieldsUpdated);
-        
-        await page.locator('.tiptap').first().fill("Updated Test Action description.");
+    await expect(page.getByRole('heading', { name: actionNameRequiredFields })).toBeVisible();
+  });
 
-        await page.locator('#costEfficiency').fill("Text for cost efficiency");
+  test("Edit Action - required", async ({ page }, testInfo) => {
+    actionNameRequiredFieldsUpdated = `Updated Test Action ${testInfo.parallelIndex}`;
+    // Navigate to the action edit form
+    await page.goto('/');
+    await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
+    await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
+    await page.getByRole('link', { name: actionNameRequiredFields }).first().click(); // TODO (fix): The tests doesn't seem to click on the right name here and therefore they fail.
 
-        await page.locator('#expectedOutcome').fill("Text for expected outcome");
-        
-        // Part 2 of the form
-        // These two fields are required to be numbers
-        await page.locator('#startYear').fill("2025");
-        await page.locator('#endYear').fill("2070");
-
-        // Part 3 of the form
-        await page.locator('#projectManager').fill("Test Manager");
-        await page.locator('#relevantActors').fill("Test Actor");
-
-        // Part 4 of the form
-        await page.locator('#isEfficiency').check();
-        await page.locator('#isRenewables').check();
-
-        // Submit the form
-        await page.locator('#submit-button').click();
+    await page.getByRole('heading', { name: actionNameRequiredFields }).hover();
+    await page.waitForLoadState("networkidle");
+    await page.getByTestId("admin-panel-edit").click();
 
-        await expect(page.getByRole('heading', { name: actionNameRequiredFieldsUpdated })).toBeVisible();
-
-    });
+    // Part 1 of the form
+    await page.locator('#actionName').fill(actionNameRequiredFieldsUpdated);
 
-    test("Create Action - All Fields", async ({ page }, testInfo) => {
-        actionNameAllFields = `Test Action All Fields ${testInfo.parallelIndex}`;
-        // Navigate to the action edit form
-        await page.goto('/');
-        await page.getByTestId("create-button").click();
-        await page.getByTestId("create-action").click();
+    await page.locator('.tiptap').first().fill("Updated Test Action description.");
 
-        const option = page.locator('#roadmapId option').filter({ hasText: 'Rikets färdplan (v2)' }); // Checks for Rikets färdplan (v2) to be contained in an option
+    // Await next rerender to ensure tiptap content is registered before submitting the form
+    await page.waitForTimeout(500);
 
-        const value = await option.getAttribute('value');
+    await page.locator('#costEfficiency').fill("Text for cost efficiency");
 
-        await page.locator('#roadmapId').selectOption(value!);
+    await page.locator('#expectedOutcome').fill("Text for expected outcome");
 
-        // Part 1 of the form
-        await page.locator('#actionName').fill(actionNameAllFields);
-        
-        await page.locator('.tiptap').first().fill("Test Action description.");
-
-        await page.locator('#costEfficiency').fill("Text for cost efficiency");
-
-        await page.locator('#expectedOutcome').fill("Text for expected outcome");
-        
-        // Part 2 of the form
-        // These two fields are required to be numbers
-        await page.locator('#startYear').fill("2030");
-        await page.locator('#endYear').fill("2070");
+    // Part 2 of the form
+    // These two fields are required to be numbers
+    await page.locator('#startYear').fill("2025");
+    await page.locator('#endYear').fill("2070");
 
-        // Part 3 of the form
-        await page.locator('#projectManager').fill("Test Manager");
-        await page.locator('#relevantActors').fill("Test Actor");
-
-        // Part 4 of the form
-        await page.locator('#isEfficiency').check();
-        await page.locator('#isRenewables').check();
-
-        // Submit the form
-        await page.locator('#submit-button').hover();
-        await page.locator('#submit-button').click();
-
-        await page.waitForLoadState("networkidle");
-
-        await expect(page.getByRole('heading', { name: actionNameAllFields })).toBeVisible();
-    });
-
-    test("No edit Action - All Fields", async ({ page }) => {
-        // Navigate to the action edit form
-        await page.goto('/');
-        await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
-        await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
-        await page.getByRole('link', { name: actionNameAllFields }).first().click();
-
-        await page.waitForLoadState("networkidle");
-        await page.getByRole('heading', { name: actionNameAllFields }).hover();
-        await page.getByTestId("admin-panel-edit").click();
-
-        await expect(page.locator('#actionName')).toHaveValue(actionNameAllFields);
-
-        await page.locator('.tiptap').first().hover(); // This is needed to make sure the description field is loaded before checking its content, otherwise it will be empty and the test will fail.
-        await expect(page.locator('.tiptap').first()).toHaveText("Test Action description.");
-
-        await expect(page.locator('#costEfficiency')).toHaveValue("Text for cost efficiency");
-        await expect(page.locator('#expectedOutcome')).toHaveValue("Text for expected outcome");
-        
-        await expect(page.locator('#startYear')).toHaveValue("2030");
-        await expect(page.locator('#endYear')).toHaveValue("2070");
-        
-        await expect(page.locator('#projectManager')).toHaveValue("Test Manager");
-        await expect(page.locator('#relevantActors')).toHaveValue("Test Actor");
-        
-        await expect(page.locator('#isEfficiency')).toBeChecked();
-        await expect(page.locator('#isRenewables')).toBeChecked();
-
-        // Submit the form without making any changes
-        await page.locator('#submit-button').click();
-
-        await page.waitForLoadState("networkidle");
-
-        await expect(page.getByTestId("admin-panel-edit")).toBeVisible();
-    });
-
-    test("Edit Action - All Fields", async ({ page }, testInfo) => {
-        actionNameAllFieldsUpdated = `Updated Test Action All Fields ${testInfo.parallelIndex}`;
-        // Navigate to the action edit form
-        await page.goto('/');
-        await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
-        await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
-        await page.getByRole('link', { name: actionNameAllFields }).first().click();
-
-        await page.waitForLoadState("networkidle");
-        await page.getByRole('heading', { name: actionNameAllFields }).hover();
-        await page.getByTestId("admin-panel-edit").click();
-
-        // Part 1 of the form
-        await page.locator('#actionName').fill(actionNameAllFieldsUpdated);
-
-        await page.locator('.tiptap').first().click();
-        await page.keyboard.press('Control+A');
-        await page.keyboard.type("Updated Test Action description.");
-
-
-        await page.locator('#costEfficiency').fill("Updated text for cost efficiency");
-        await page.locator('#expectedOutcome').fill("Updated text for expected outcome");
-
-        // Part 2 of the form
-        // These two fields are required to be numbers
-        await page.locator('#startYear').fill("2026");
-        await page.locator('#endYear').fill("2071");
-
-        // Part 3 of the form
-        await page.locator('#projectManager').fill("Updated Test Manager");
-        await page.locator('#relevantActors').fill("Updated Test Actor");
-
-        // Part 4 of the form
-        await page.locator('#isEfficiency').uncheck();
-        await page.locator('#isRenewables').uncheck();
-        await page.locator('#isSufficiency').check();
-
-        // Submit the form
-        await page.locator('#submit-button').click();
-
-        await page.waitForLoadState("networkidle");
-
-        // Verify that everything is updated correctly
-        await page.getByTestId("admin-panel-edit").click();
-
-        await expect(page.locator('#actionName')).toHaveValue(actionNameAllFieldsUpdated);
-        await page.locator('.tiptap').first().hover(); // This is needed to make sure the description field is loaded before checking its content, otherwise it will be empty and the test will fail.
-        await expect(page.locator('.tiptap').first()).toHaveText("Updated Test Action description.");
-        await expect(page.locator('#costEfficiency')).toHaveValue("Updated text for cost efficiency");
-        await expect(page.locator('#expectedOutcome')).toHaveValue("Updated text for expected outcome");
-
-        await expect(page.locator('#startYear')).toHaveValue("2026");
-        await expect(page.locator('#endYear')).toHaveValue("2071");
-        
-        await expect(page.locator('#projectManager')).toHaveValue("Updated Test Manager");
-        await expect(page.locator('#relevantActors')).toHaveValue("Updated Test Actor");
-        
-        await expect(page.locator('#isEfficiency')).not.toBeChecked();
-        await expect(page.locator('#isRenewables')).not.toBeChecked();
-        await expect(page.locator('#isSufficiency')).toBeChecked();
-    });
-    
-    test("Create Action from Roadmap - required", async ({ page }, testInfo) => {
-        roadmapActionNameRequiredFields = `Test Action ${testInfo.parallelIndex}`;
-        // Navigate to the action edit form
-        await page.goto('/');
-        await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
-        await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
-        await page.getByTestId("admin-panel-new-action").click();
-
-        await page.locator('#actionName').fill(roadmapActionNameRequiredFields);
-
-        await page.locator('#submit-button').click();
-        
-        await page.waitForLoadState("networkidle");
-
-        await expect(page.getByRole('heading', { name: roadmapActionNameRequiredFields })).toBeVisible();
-    });
-
-    test("Create Action from Roadmap - All Fields", async ({ page }, testInfo) => {
-        roadmapActionNameAllFields = `Test Action All Fields ${testInfo.parallelIndex}`;
-        // Navigate to the action edit form
-        await page.goto('/');
-        await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
-        await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
-        await page.getByTestId("admin-panel-new-action").click();
-
-        // Part 1 of the form
-        await page.locator('#actionName').fill(roadmapActionNameAllFields);
-        
-        await page.locator('.tiptap').first().fill("Test Action description.");
-
-        await page.locator('#costEfficiency').fill("Text for cost efficiency");
-
-        await page.locator('#expectedOutcome').fill("Text for expected outcome");
-        
-        // Part 2 of the form
-        // These two fields are required to be numbers
-        await page.locator('#startYear').fill("2030");
-        await page.locator('#endYear').fill("2070");
-
-        // Part 3 of the form
-        await page.locator('#projectManager').fill("Test Manager");
-        await page.locator('#relevantActors').fill("Test Actor");
-
-        // Part 4 of the form
-        await page.locator('#isEfficiency').check();
-        await page.locator('#isRenewables').check();
-
-        // Submit the form
-        await page.locator('#submit-button').click();
-
-        await page.waitForLoadState("networkidle");
-
-        await expect(page.getByRole('heading', { name: roadmapActionNameAllFields })).toBeVisible();
-    });
-    // Effect tests begin here //  
+    // Part 3 of the form
+    await page.locator('#projectManager').fill("Test Manager");
+    await page.locator('#relevantActors').fill("Test Actor");
+
+    // Part 4 of the form
+    await page.locator('#isEfficiency').check();
+    await page.locator('#isRenewables').check();
+
+    // Submit the form
+    await page.locator('#submit-button').click();
+
+    await expect(page.getByRole('heading', { name: actionNameRequiredFieldsUpdated })).toBeVisible();
+
+  });
+
+  test("Create Action - All Fields", async ({ page }, testInfo) => {
+    actionNameAllFields = `Test Action All Fields ${testInfo.parallelIndex}`;
+    // Navigate to the action edit form
+    await page.goto('/');
+    await page.getByTestId("create-button").click();
+    await page.getByTestId("create-action").click();
+
+    const option = page.locator('#roadmapId option').filter({ hasText: 'Rikets färdplan (v2)' }); // Checks for Rikets färdplan (v2) to be contained in an option
+
+    const value = await option.getAttribute('value');
+
+    await page.locator('#roadmapId').selectOption(value!);
+
+    // Part 1 of the form
+    await page.locator('#actionName').fill(actionNameAllFields);
+
+    await page.locator('.tiptap').first().fill("Test Action description.");
+
+    // Await next rerender to ensure tiptap content is registered before submitting the form
+    await page.waitForTimeout(500);
+
+    await page.locator('#costEfficiency').fill("Text for cost efficiency");
+
+    await page.locator('#expectedOutcome').fill("Text for expected outcome");
+
+    // Part 2 of the form
+    // These two fields are required to be numbers
+    await page.locator('#startYear').fill("2030");
+    await page.locator('#endYear').fill("2070");
+
+    // Part 3 of the form
+    await page.locator('#projectManager').fill("Test Manager");
+    await page.locator('#relevantActors').fill("Test Actor");
+
+    // Part 4 of the form
+    await page.locator('#isEfficiency').check();
+    await page.locator('#isRenewables').check();
+
+    // Submit the form
+    await page.locator('#submit-button').hover();
+    await page.locator('#submit-button').click();
+
+    await page.waitForLoadState("networkidle");
+
+    await expect(page.getByRole('heading', { name: actionNameAllFields })).toBeVisible();
+  });
+
+  test("No edit Action - All Fields", async ({ page }) => {
+    // Navigate to the action edit form
+    await page.goto('/');
+    await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
+    await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
+    await page.getByRole('link', { name: actionNameAllFields }).first().click();
+
+    await page.waitForLoadState("networkidle");
+    await page.getByRole('heading', { name: actionNameAllFields }).hover();
+    await page.getByTestId("admin-panel-edit").click();
+
+    await expect(page.locator('#actionName')).toHaveValue(actionNameAllFields);
+
+    await page.locator('.tiptap').first().hover(); // This is needed to make sure the description field is loaded before checking its content, otherwise it will be empty and the test will fail.
+    await expect(page.locator('.tiptap').first()).toHaveText("Test Action description.");
+
+    await expect(page.locator('#costEfficiency')).toHaveValue("Text for cost efficiency");
+    await expect(page.locator('#expectedOutcome')).toHaveValue("Text for expected outcome");
+
+    await expect(page.locator('#startYear')).toHaveValue("2030");
+    await expect(page.locator('#endYear')).toHaveValue("2070");
+
+    await expect(page.locator('#projectManager')).toHaveValue("Test Manager");
+    await expect(page.locator('#relevantActors')).toHaveValue("Test Actor");
+
+    await expect(page.locator('#isEfficiency')).toBeChecked();
+    await expect(page.locator('#isRenewables')).toBeChecked();
+
+    // Submit the form without making any changes
+    await page.locator('#submit-button').click();
+
+    await page.waitForLoadState("networkidle");
+
+    await expect(page.getByTestId("admin-panel-edit")).toBeVisible();
+  });
+
+  test("Edit Action - All Fields", async ({ page }, testInfo) => {
+    actionNameAllFieldsUpdated = `Updated Test Action All Fields ${testInfo.parallelIndex}`;
+    // Navigate to the action edit form
+    await page.goto('/');
+    await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
+    await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
+    await page.getByRole('link', { name: actionNameAllFields }).first().click();
+
+    await page.waitForLoadState("networkidle");
+    await page.getByRole('heading', { name: actionNameAllFields }).hover();
+    await page.getByTestId("admin-panel-edit").click();
+
+    // Part 1 of the form
+    await page.locator('#actionName').fill(actionNameAllFieldsUpdated);
+
+    await page.locator('.tiptap').first().click();
+    await page.keyboard.press('Control+A');
+    await page.keyboard.type("Updated Test Action description.");
+
+    // Await next rerender to ensure tiptap content is registered before submitting the form
+    await page.waitForTimeout(500);
+
+
+    await page.locator('#costEfficiency').fill("Updated text for cost efficiency");
+    await page.locator('#expectedOutcome').fill("Updated text for expected outcome");
+
+    // Part 2 of the form
+    // These two fields are required to be numbers
+    await page.locator('#startYear').fill("2026");
+    await page.locator('#endYear').fill("2071");
+
+    // Part 3 of the form
+    await page.locator('#projectManager').fill("Updated Test Manager");
+    await page.locator('#relevantActors').fill("Updated Test Actor");
+
+    // Part 4 of the form
+    await page.locator('#isEfficiency').uncheck();
+    await page.locator('#isRenewables').uncheck();
+    await page.locator('#isSufficiency').check();
+
+    // Submit the form
+    await page.locator('#submit-button').click();
+
+    await page.waitForLoadState("networkidle");
+
+    // Verify that everything is updated correctly
+    await page.getByTestId("admin-panel-edit").click();
+
+    await expect(page.locator('#actionName')).toHaveValue(actionNameAllFieldsUpdated);
+    await page.locator('.tiptap').first().hover(); // This is needed to make sure the description field is loaded before checking its content, otherwise it will be empty and the test will fail.
+    await expect(page.locator('.tiptap').first()).toHaveText("Updated Test Action description.");
+    await expect(page.locator('#costEfficiency')).toHaveValue("Updated text for cost efficiency");
+    await expect(page.locator('#expectedOutcome')).toHaveValue("Updated text for expected outcome");
+
+    await expect(page.locator('#startYear')).toHaveValue("2026");
+    await expect(page.locator('#endYear')).toHaveValue("2071");
+
+    await expect(page.locator('#projectManager')).toHaveValue("Updated Test Manager");
+    await expect(page.locator('#relevantActors')).toHaveValue("Updated Test Actor");
+
+    await expect(page.locator('#isEfficiency')).not.toBeChecked();
+    await expect(page.locator('#isRenewables')).not.toBeChecked();
+    await expect(page.locator('#isSufficiency')).toBeChecked();
+  });
+
+  test("Create Action from Roadmap - required", async ({ page }, testInfo) => {
+    roadmapActionNameRequiredFields = `Test Action ${testInfo.parallelIndex}`;
+    // Navigate to the action edit form
+    await page.goto('/');
+    await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
+    await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
+    await page.getByTestId("admin-panel-new-action").click();
+
+    await page.locator('#actionName').fill(roadmapActionNameRequiredFields);
+
+    await page.locator('#submit-button').click();
+
+    await page.waitForLoadState("networkidle");
+
+    await expect(page.getByRole('heading', { name: roadmapActionNameRequiredFields })).toBeVisible();
+  });
+
+  test("Create Action from Roadmap - All Fields", async ({ page }, testInfo) => {
+    roadmapActionNameAllFields = `Test Action All Fields ${testInfo.parallelIndex}`;
+    // Navigate to the action edit form
+    await page.goto('/');
+    await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
+    await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
+    await page.getByTestId("admin-panel-new-action").click();
+
+    // Part 1 of the form
+    await page.locator('#actionName').fill(roadmapActionNameAllFields);
+
+    await page.locator('.tiptap').first().fill("Test Action description.");
+
+    // Await next rerender to ensure tiptap content is registered before submitting the form
+    await page.waitForTimeout(500);
+
+    await page.locator('#costEfficiency').fill("Text for cost efficiency");
+
+    await page.locator('#expectedOutcome').fill("Text for expected outcome");
+
+    // Part 2 of the form
+    // These two fields are required to be numbers
+    await page.locator('#startYear').fill("2030");
+    await page.locator('#endYear').fill("2070");
+
+    // Part 3 of the form
+    await page.locator('#projectManager').fill("Test Manager");
+    await page.locator('#relevantActors').fill("Test Actor");
+
+    // Part 4 of the form
+    await page.locator('#isEfficiency').check();
+    await page.locator('#isRenewables').check();
+
+    // Submit the form
+    await page.locator('#submit-button').click();
+
+    await page.waitForLoadState("networkidle");
+
+    await expect(page.getByRole('heading', { name: roadmapActionNameAllFields })).toBeVisible();
+  });
+  // Effect tests begin here //  
 });
