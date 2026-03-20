@@ -350,6 +350,9 @@ test.describe.serial("Roadmaps tests", () => {
     // Fill in the metaRoadmap form
     await page.locator('#name').fill(metaRoadmapNameRequiredFields);
 
+    // Fill description in the tiptap editor
+    await page.locator('.tiptap').first().fill('Test Required');
+
     // Select roadmap type
     await page.locator('#type').selectOption("LOCAL");
 
@@ -432,6 +435,9 @@ test.describe.serial("Roadmaps tests", () => {
 
     // Verify name is filled in
     await expect(page.locator('#name')).toHaveValue(metaRoadmapNameRequiredFields);
+
+    // Verify description in the tiptap editor is filled in
+    await expect(page.locator('.tiptap').first()).toHaveText('Test Required');
 
     // Verify type is set
     await expect(page.locator('#type')).toHaveValue('LOCAL');
