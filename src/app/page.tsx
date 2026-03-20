@@ -6,7 +6,7 @@ import { RoadmapType } from "@prisma/client";
 import RoadmapFilters from "@/components/form/filters/roadmapFilters";
 import { RoadmapSortBy } from "@/types";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import RoadmapTree from "@/components/tables/roadmapTables/roadmapTree.tsx";
+import RoadmapTree from "@/components/tables/roadmapTables/roadmapTree";
 import serveTea from "@/lib/i18nServer";
 import Link from "next/link";
 import { buildMetadata } from "@/functions/buildMetadata";

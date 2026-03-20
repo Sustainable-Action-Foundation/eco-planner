@@ -1,6 +1,6 @@
 import EffectForm from "@/components/form/forms/effect";
-import accessChecker, { hasEditAccess } from "@/lib/accessChecker.ts";
-import { getSession } from "@/lib/session.ts";
+import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
+import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";

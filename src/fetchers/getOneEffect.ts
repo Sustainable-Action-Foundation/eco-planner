@@ -1,9 +1,9 @@
 import "server-only";
-import { getSession, LoginData } from "@/lib/session.ts";
+import { getSession, LoginData } from "@/lib/session";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 import { effectInclusionSelection } from "@/fetchers/inclusionSelectors";
-import prisma from "@/prismaClient.ts";
+import prisma from "@/prismaClient";
 import { Effect } from "@/types";
 
 /**

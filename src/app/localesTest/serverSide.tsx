@@ -2,7 +2,7 @@ import "server-only";
 import serveTea from "@/lib/i18nServer";
 import { TOptions } from "i18next";
 import { reporter } from "./commonLogic";
-import { allNamespaces } from "i18n.config.ts";
+import { allNamespaces } from "i18n.config";
 
 export async function ServerSideT({ i18nKey, options }: { i18nKey: string, options: TOptions, props?: Record<string, unknown> }) {
   const t = await serveTea(allNamespaces);

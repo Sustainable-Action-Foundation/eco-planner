@@ -2,10 +2,10 @@
 "use server";
 
 import { JSONValue } from "@/types";
-import { ApiTableContent } from "../api/apiTypes.ts";
-import { ExternalDataset } from "../api/utility.ts";
-import getPxWebTableDetails from "./getPxWebTableDetails.ts";
-import { PxWebApiV2TableContent } from "./pxWebApiV2Types.ts";
+import { ApiTableContent } from "../api/apiTypes";
+import { ExternalDataset } from "../api/utility";
+import getPxWebTableDetails from "./getPxWebTableDetails";
+import { PxWebApiV2TableContent } from "./pxWebApiV2Types";
 
 export default async function getPxWebTableContent(tableId: string, externalDataset: string, selection: { variableCode: string, valueCodes: string[] }[], language?: string,) {
   // Get the base URL for the external dataset, defaulting to SCB

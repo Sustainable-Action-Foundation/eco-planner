@@ -2,7 +2,7 @@ import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import RecalculateDataSeriesButton from "@/components/buttons/recalculateDataSeries";
 import Comments from "@/components/comments/comments";
 import ActionGraph from "@/components/graph/graphs/actionTimeline";
-import EffectTable from "@/components/tables/effects.tsx";
+import EffectTable from "@/components/tables/effects";
 import { AdminPanel } from "@/components/elements/controls/controls";
 import { getGoalByIndicator, getOneGoal, getOneRoadmap, getRoadmapByVersion, getRoadmaps } from "@/fetchers";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";

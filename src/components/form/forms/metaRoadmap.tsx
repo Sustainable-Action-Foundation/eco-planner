@@ -8,10 +8,10 @@ import { useRef, useState } from "react";
 import formSubmitter from "@/functions/formSubmitter";
 import styles from '../forms.module.css'
 import { useTranslation } from "react-i18next";
-import TextEditor from "@/components/form/elements/textEditor/editor.tsx";
+import TextEditor from "@/components/form/elements/textEditor/editor";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
-import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete.tsx";
-import ConfigureAccess from "../sections/access.tsx";
+import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
+import ConfigureAccess from "../sections/access";
 
 export default function MetaRoadmapForm({
   user,

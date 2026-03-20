@@ -1,11 +1,11 @@
 "use client"
 
-import GoalChildGraph from "./children.tsx";
-import PredictionChildGraph from "./prediction.tsx";
+import GoalChildGraph from "./children";
+import PredictionChildGraph from "./prediction";
 import { useEffect, useState } from "react";
-import { getStoredChildGraphType } from "../../../functions/graphFunctions.ts";
-import { percentAndFraction } from "../../../graphSelectors/graphSelector.tsx";
-import ChildGraphSelector from "../../../graphSelectors/childGraphSelector.tsx";
+import { getStoredChildGraphType } from "../../../functions/graphFunctions";
+import { percentAndFraction } from "../../../graphSelectors/graphSelector";
+import ChildGraphSelector from "../../../graphSelectors/childGraphSelector";
 import { useTranslation } from "react-i18next";
 import { IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
 import { Goal } from "@/types";
