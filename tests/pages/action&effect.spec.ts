@@ -18,42 +18,40 @@ test.describe.serial("Action & Effect tests", async () => {
     let roadmapActionNameAllFields = "";
 
     test.beforeAll(async ({ browser }, testInfo) => {
-        // Define the action name here so it can be accessed in all later tests.
-        // Needs to be unique for each worker so different browsers running tests in parallel don't interfere with each other.
-        actionNameAllFields = `Test Action All Fields ${testInfo.parallelIndex}`;
+    actionNameAllFields = `Test Action All Fields ${testInfo.parallelIndex}`;
 
-        if (testInfo.retry > 0) {
-            console.log(`Retrying tests, Cleaning up any existing action with name ${actionNameAllFields} before retrying.`);
+    if (testInfo.retry > 0) {
+        console.log(`Retrying tests, Cleaning up any existing action with name ${actionNameAllFields} before retrying.`);
 
-            // Page cannot be used in beforeAll so a new context and page here is needed.
-            const context = await browser.newContext({ storageState: adminFile });
-            const page = await context.newPage();
+        const context = await browser.newContext({ storageState: adminFile });
+        const page = await context.newPage();
 
-            await page.goto('/');
-            await page.waitForLoadState('networkidle');
+        await page.goto('/');
+        await page.waitForLoadState('networkidle');
 
-            // Count how many matching items exist
-            const matchingItems = page.locator('li').filter({ hasText: actionNameAllFields });
+        // Cleanup both the original and updated name
+        const namesToClean = [
+            `Test Action All Fields ${testInfo.parallelIndex}`,
+            `Updated Test Action All Fields ${testInfo.parallelIndex}`,  // ← lägg till denna
+        ];
+
+        for (const name of namesToClean) {
+            const matchingItems = page.locator('li').filter({ hasText: name });
             const count = await matchingItems.count();
 
-            // Delete all matching items
             for (let i = 0; i < count; i++) {
-                // firstmatch is the row that all the actions need to be performed on since after each deletion the next item will move up to take its place.
                 const firstMatch = matchingItems.first();
-
-                // All of these actions need to be performed on the correct row so they are using firstMatch as the base locator.
                 await firstMatch.locator('svg').nth(1).click();
                 await firstMatch.getByTestId('delete-post').click();
-                await firstMatch.locator('input[placeholder]').fill(actionNameAllFields);
+                await firstMatch.locator('input[placeholder]').fill(name);
                 await firstMatch.locator('[type="submit"]').click();
-
                 await page.waitForLoadState('networkidle');
             }
 
-            // Verify all are gone
             await expect(matchingItems).toHaveCount(0);
         }
-    });
+    }
+});
 
     // Action tests begin here //
     test("Create Action - required", async ({ page }, testInfo ) => {
@@ -233,7 +231,10 @@ test.describe.serial("Action & Effect tests", async () => {
         // Part 1 of the form
         await page.locator('#actionName').fill(actionNameAllFieldsUpdated);
 
-        await page.locator('.tiptap').first().fill("Updated Test Action description.");
+        await page.locator('.tiptap').first().click();
+        await page.keyboard.press('Control+A');
+        await page.keyboard.type("Updated Test Action description.");
+
 
         await page.locator('#costEfficiency').fill("Updated text for cost efficiency");
         await page.locator('#expectedOutcome').fill("Updated text for expected outcome");

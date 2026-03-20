@@ -203,8 +203,9 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
 
     // Edit description in the tiptap editor
-    await page.locator('.tiptap').first().clear();
-    await page.locator('.tiptap').first().fill('Updated Roadmap Description All');
+    await page.locator('.tiptap').first().click();
+    await page.keyboard.press('Control+A');
+    await page.keyboard.type('Updated Roadmap Description All');
 
     // Edit visibility - change to custom
     await page.locator('#visibility-custom').check();
@@ -270,7 +271,9 @@ test.describe.serial("Roadmaps tests", () => {
     await page.locator('#name').fill(metaRoadmapNameAllFieldsUpdated);
 
     // Edit description in the tiptap editor
-    await page.locator('.tiptap').first().fill('Updated Description All');
+    await page.locator('.tiptap').first().click();
+    await page.keyboard.press('Control+A');
+    await page.keyboard.type('Updated Description All');
 
     // Edit type
     await page.locator('#type').selectOption("OTHER");
