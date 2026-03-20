@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import SelectMultipleSearch from "../elements/combobox/selectMultipleSearch"
-import { AccessControlled } from "@/types";
+import type { AccessControlled } from "@/types";
 import { MetaRoadmap, Roadmap } from "@prisma/client";
 import { LoginData } from "@/lib/session";
 import styles from '../forms.module.css'

@@ -1,6 +1,7 @@
 "use client"
 
-import { isRecipeDataSeries, isRecipeExternalDataset, RecipeDataSeries, VectorIndexPickerOptions } from "@/functions/recipe/types";
+import { isRecipeDataSeries, isRecipeExternalDataset, VectorIndexPickerOptions } from "@/functions/recipe/types";
+import type { RecipeDataSeries } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "./recipeEditorPermissions";
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";

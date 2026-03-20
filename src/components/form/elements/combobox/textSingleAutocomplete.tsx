@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import styles from './comboBox.module.css' with { type: "css" }
 import Fuse, { IFuseOptions } from "fuse.js";
 import { useTranslation } from "react-i18next";
-import { InputElement, Option, Theme } from "@/components/types";
+import type { InputElement, Option, Theme } from "@/components/types";
 import { handleKeyDownEditableCombobox, scrollOptionIntoView } from "./functions";
 
 export default function TextSingleAutocomplete({

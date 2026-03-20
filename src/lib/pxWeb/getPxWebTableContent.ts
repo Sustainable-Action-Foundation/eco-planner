@@ -1,11 +1,11 @@
 // Use server in order to circumvent CORS issues
 "use server";
 
-import { JSONValue } from "@/types";
-import { ApiTableContent } from "../api/apiTypes";
+import type { JSONValue } from "@/types";
+import type { ApiTableContent } from "../api/apiTypes";
 import { ExternalDataset } from "../api/utility";
 import getPxWebTableDetails from "./getPxWebTableDetails";
-import { PxWebApiV2TableContent } from "./pxWebApiV2Types";
+import type { PxWebApiV2TableContent } from "./pxWebApiV2Types";
 
 export default async function getPxWebTableContent(tableId: string, externalDataset: string, selection: { variableCode: string, valueCodes: string[] }[], language?: string,) {
   // Get the base URL for the external dataset, defaulting to SCB

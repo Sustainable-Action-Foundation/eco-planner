@@ -1,7 +1,7 @@
 "use client"
 
 import formSubmitter from "@/functions/formSubmitter"
-import { Action, ActionInput, DateValuesWithUnit, MultiRoadmapInstance } from "@/types"
+import type { Action, ActionInput, DateValuesWithUnit, MultiRoadmapInstance } from "@/types"
 import { ActionImpactType } from "@prisma/client"
 import { useTranslation } from "react-i18next"
 import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput"

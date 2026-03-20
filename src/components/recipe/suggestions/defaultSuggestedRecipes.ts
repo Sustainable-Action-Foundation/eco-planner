@@ -1,7 +1,8 @@
 
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
-import { RecipeDataSeries, RecipeDataTypes, RecipeExternalDataset, RecipeScalar, VectorIndexPickerOptions } from "@/functions/recipe/types";
-import { DBRecipe } from "@/types";
+import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types";
+import type { RecipeDataSeries, RecipeExternalDataset, RecipeScalar } from "@/functions/recipe/types";
+import type { DBRecipe } from "@/types";
 import type { TFunction } from "i18next";
 
 export default function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {

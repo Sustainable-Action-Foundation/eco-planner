@@ -1,6 +1,6 @@
 import dataSeriesInterest from "@/functions/weightedAverageDelta";
 import { RoadmapType, Comment } from "@prisma/client";
-import { Action, Goal, MetaRoadmap, MultiRoadmapInstance } from "@/types";
+import type { Action, Goal, MetaRoadmap, MultiRoadmapInstance } from "@/types";
 
 // Used for alphabetical sorting, we use Swedish locale and ignore case, but it can be changed here
 const collator = new Intl.Collator('sv', { numeric: true, sensitivity: 'accent', caseFirst: 'upper' });

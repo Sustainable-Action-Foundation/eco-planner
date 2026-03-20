@@ -4,8 +4,10 @@ import { colors } from "../src/scripts/lib/colors";
 import { PrismaClient, RoadmapType } from '../src/prisma/generated';
 import bcrypt from "bcryptjs";
 import { RandomTextSE } from "./randomText";
-import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types";
-import { DateValues, isISOIshDate } from "@/types";
+import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types";
+import type { Recipe } from "@/functions/recipe/types";
+import { isISOIshDate } from "@/types";
+import type { DateValues } from "@/types";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 
 const prisma = new PrismaClient();

@@ -3,7 +3,7 @@ import type { DatasetKeys } from "@/lib/api/utility";
 import type { DateValues, DateValuesWithUnit, UnitString } from "@/types";
 import type { SmartRecipe } from "@/functions/recipe/smartRecipe";
 import type { VectorIndexPickerOptions } from "./consts";
-import { RecipeDataTypes } from "./consts";
+import type { RecipeDataTypes } from "./consts";
 
 /**
  * Scalar variable types
@@ -67,19 +67,3 @@ export type RecipeExtractionOutput = (
   EvalTimeVariable
   | { series: DateValuesWithUnit, name: string, }
 )[];
-
-/*
- * Errors
- */
-export class RecipeError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "RecipeError";
-  }
-};
-export class MathjsError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "MathjsError";
-  }
-};

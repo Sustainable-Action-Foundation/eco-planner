@@ -1,6 +1,6 @@
 import WrappedChart from "@/lib/chartWrapper";
 import styles from '../graphs.module.css'
-import { ApiTableContent } from "@/lib/api/apiTypes";
+import type { ApiTableContent } from "@/lib/api/apiTypes";
 import { parsePeriod } from "@/lib/api/utility";
 import getTableContent from "@/lib/api/getTableContent";
 import i18nServer from "i18next";

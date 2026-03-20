@@ -1,4 +1,5 @@
-import { GoalCreateInput, isDateValuesWithUnit } from "@/types";
+import { isDateValuesWithUnit } from "@/types";
+import type { GoalCreateInput } from "@/types";
 import { Prisma } from "@prisma/client";
 
 type RoadmapGoalInput = {

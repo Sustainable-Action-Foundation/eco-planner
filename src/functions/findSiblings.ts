@@ -1,4 +1,4 @@
-import { Goal, Roadmap } from "@/types";
+import type { Goal, Roadmap } from "@/types";
 
 export default function findSiblings(
   roadmap: Roadmap,

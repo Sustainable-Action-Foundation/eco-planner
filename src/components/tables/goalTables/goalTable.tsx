@@ -5,7 +5,7 @@ import { GoalSortBy } from '../goals';
 import styles from '../tables.module.css' with { type: "css" };
 import { useTranslation } from "react-i18next";
 import Link from 'next/link';
-import { Goal, Roadmap } from "@/types";
+import type { Goal, Roadmap } from "@/types";
 import { ReactNode } from "react";
 
 interface GoalTableCommonProps {

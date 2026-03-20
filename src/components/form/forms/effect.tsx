@@ -1,7 +1,7 @@
 'use client';
 
 import formSubmitter from "@/functions/formSubmitter";
-import { Action, DateValuesWithUnit, Effect, EffectInput, Goal, MultiRoadmapInstance } from "@/types";
+import type { Action, DateValuesWithUnit, Effect, EffectInput, Goal, MultiRoadmapInstance } from "@/types";
 import { ActionImpactType } from "@prisma/client";
 import { useMemo, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";

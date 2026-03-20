@@ -1,5 +1,6 @@
-import { isEvalTimeVariable, isRecipe, MathjsError, Recipe, RecipeError, RecipeExtractionOutput, RecipeVariable } from "@/functions/recipe/types";
-import { DateValuesWithUnit, JSONValue, Mask } from "@/types";
+import { isEvalTimeVariable, isRecipe, MathjsError, RecipeError } from "@/functions/recipe/types";
+import type { Recipe, RecipeExtractionOutput, RecipeVariable } from "@/functions/recipe/types";
+import type { DateValuesWithUnit, JSONValue, Mask } from "@/types";
 import { parseDateValuesFromVector, transformDateValuesToVector, ANDMasks } from "@/functions/recipe/vectorAndMaskUtils";
 import mathjs from "@/math";
 import { Unit } from "mathjs";

@@ -1,9 +1,11 @@
 import { DatasetKeys, ExternalDataset } from "@/lib/api/utility";
-import { isDateValues, isStandardObject, typeguardDebug, uuidRegex } from "@/types";
+import { isStandardObject } from "@/types";
+import { isDateValues, typeguardDebug, uuidRegex } from "@/types";
 import type { JSONValue } from "@/types";
 import mathjs from "@/math";
 
-import { RecipeDataTypes, VectorIndexPickerOptions } from "./consts";
+import { RecipeDataTypes } from "./consts";
+import { VectorIndexPickerOptions } from "./consts";
 import type { SmartRecipe } from "@/functions/recipe/smartRecipe";
 import type {
   EvalTimeVariable,

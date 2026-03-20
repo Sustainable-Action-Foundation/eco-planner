@@ -1,6 +1,6 @@
 "use client"
 
-import { TabProps, TabPanelProps, GenericElement } from "@/components/types"
+import type { TabProps, TabPanelProps, GenericElement } from "@/components/types"
 import React, { useEffect, useRef, useState } from "react"
 
 // TODO: Rename file

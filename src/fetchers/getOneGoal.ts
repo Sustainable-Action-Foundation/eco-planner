@@ -5,7 +5,7 @@ import { effectSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
-import { Goal } from "@/types";
+import type { Goal } from "@/types";
 
 /**
  * Gets specified goal and all actions for that goal.

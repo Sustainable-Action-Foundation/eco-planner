@@ -1,6 +1,6 @@
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
-import { Recipe, RecipeIsh, RecipeVariable } from "@/functions/recipe/types";
-import { DateValues } from "@/types";
+import type { Recipe, RecipeIsh, RecipeVariable } from "@/functions/recipe/types";
+import type { DateValues } from "@/types";
 import { createContext } from "react";
 
 /** 

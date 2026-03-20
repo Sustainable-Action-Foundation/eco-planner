@@ -5,7 +5,7 @@ import { goalSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
-import { Roadmap } from "@/types";
+import type { Roadmap } from "@/types";
 
 /**
  * Gets specified roadmap and all goals for that roadmap.

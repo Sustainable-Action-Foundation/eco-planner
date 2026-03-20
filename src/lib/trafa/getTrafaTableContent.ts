@@ -1,8 +1,8 @@
 "use server";
 
-import { ApiTableContent } from "../api/apiTypes";
+import type { ApiTableContent } from "../api/apiTypes";
 import { ExternalDataset } from "../api/utility";
-import { TrafaDataResponse } from "./trafaTypes";
+import type { TrafaDataResponse } from "./trafaTypes";
 import { getTrafaSearchQueryString } from "./trafaUtility";
 
 // Trafa is a Swedish transport data provider. As such, their data is only relevant for usage in Sweden.
