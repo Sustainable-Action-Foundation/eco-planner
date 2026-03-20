@@ -1,6 +1,7 @@
 import { expect, test } from "playwright/test";
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { act } from "react";
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
@@ -28,29 +29,29 @@ test.describe.serial("Action & Effect tests", async () => {
       await page.goto('/');
       await page.waitForLoadState('networkidle');
 
-      // Cleanup both the original and updated name
-      const namesToClean = [
-        `Test Action All Fields ${testInfo.parallelIndex}`,
-        `Updated Test Action All Fields ${testInfo.parallelIndex}`,
-      ];
+      // Count how many matching items exist
+      const matchingItems = page.locator('li').filter({ hasText: actionNameAllFields });
+      const count = await matchingItems.count();
 
-      for (const name of namesToClean) {
-        const matchingItems = page.locator('li').filter({ hasText: name });
-        const count = await matchingItems.count();
+      // Delete all matching items
+      for (let i = 0; i < count; i++) {
+        // firstmatch is the row that all the actions need to be performed on since after each deletion the next item will move up to take its place.
+        const firstMatch = matchingItems.first();
 
-        for (let i = 0; i < count; i++) {
-          const firstMatch = matchingItems.first();
-          await firstMatch.locator('svg').nth(1).click();
-          await firstMatch.getByTestId('delete-post').click();
-          await firstMatch.locator('input[placeholder]').fill(name);
-          await firstMatch.locator('[type="submit"]').click();
-          await page.waitForLoadState('networkidle');
-        }
+        // All of these actions need to be performed on the correct row so they are using firstMatch as the base locator.
+        await firstMatch.locator('svg').nth(1).click();
+        await firstMatch.getByTestId('delete-post').click();
+        await firstMatch.locator('input[placeholder]').fill(actionNameAllFields);
+        await firstMatch.locator('[type="submit"]').click();
 
-        await expect(matchingItems).toHaveCount(0);
+        await page.waitForLoadState('networkidle');
       }
-    }
+
+      // Verify all are gone
+      await expect(matchingItems).toHaveCount(0);
+      }
   });
+
 
   // Action tests begin here //
   test("Create Action - required", async ({ page }, testInfo ) => {
