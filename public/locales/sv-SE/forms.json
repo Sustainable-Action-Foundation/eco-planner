@@ -133,6 +133,7 @@
     "create": "Skapa $t(common:roadmap_series_one)",
     "description": "Beskrivning",
     "description_legend": "Beskriv din $t(common:roadmap_series_one)",
+    "description_required": "Vänligen lägg till en beskrivning",
     "legend_editability": "Vem får redigera färdplansserien?",
     "legend_visibility": "Vem får se färdplansserien?",
     "name": "Namn",

@@ -3,9 +3,9 @@
 import formSubmitter from "@/functions/formSubmitter";
 import parseCsv, { csvToGoalList } from "@/functions/parseCsv";
 import { LoginData } from "@/lib/session";
-import { AccessControlled, GoalCreateInput, JSONValue, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
+import { AccessControlled, GoalCreateInput, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
 import { MetaRoadmap, Roadmap } from "@prisma/client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import styles from '../forms.module.css';
 import { TFunction } from "i18next";
 import { Trans, useTranslation } from "react-i18next";
@@ -37,16 +37,7 @@ export default function RoadmapForm({
   defaultMetaRoadmap?: string,
 }) {
   const { t } = useTranslation(["forms", "common"]);
-
-  const [editorContent, setEditorContent] = useState<JSONValue>(() => {
-    if (!currentRoadmap?.description) return null;
-
-    try {
-      return JSON.parse(currentRoadmap.description) as JSONValue;
-    } catch {
-      return currentRoadmap.description;
-    }
-  });
+  const descriptionRef = useRef<HTMLInputElement>(null);
 
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -55,6 +46,7 @@ export default function RoadmapForm({
     setIsLoading(true)
 
     const form = event.target.elements
+    const description = (form.namedItem("description") as HTMLInputElement | null)?.value ?? null;
     const visibility = (form.namedItem("visibility") as RadioNodeList)?.value;
     const editability = (form.namedItem("editability") as RadioNodeList)?.value;
 
@@ -88,8 +80,7 @@ export default function RoadmapForm({
         roadmapId: currentRoadmap.id,
         timestamp: timestamp,
 
-        // TODO: Decide how description should be sent to API, should it really be stringified JSON?
-        description: JSON.stringify(editorContent),
+        description,
         targetVersion: parseInt((form.namedItem('target-version') as HTMLSelectElement)?.value) || null,
         isPublic: visibility === "public",
 
@@ -110,8 +101,7 @@ export default function RoadmapForm({
         roadmapId: undefined,
         timestamp: undefined,
 
-        // TODO: Decide how description should be sent to API, should it really be stringified JSON?
-        description: JSON.stringify(editorContent),
+        description,
         targetVersion: parseInt((form.namedItem('target-version') as HTMLSelectElement)?.value) || null,
         isPublic: visibility === "public",
 
@@ -264,8 +254,9 @@ export default function RoadmapForm({
             placeholder={t("forms:text_editor_menu.default_placeholder")}
             editable={true}
             content={currentRoadmap ? currentRoadmap.description : ""}
-            onChange={(json) => setEditorContent(json)}
+            onChange={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
           />
+          <input ref={descriptionRef} type="hidden" name="description" defaultValue={currentRoadmap?.description ?? undefined} />
 
         </fieldset>
 

@@ -133,6 +133,7 @@
     "create": "Create $t(common:roadmap_series_one)",
     "description": "Description",
     "description_legend": "Describe your $t(common:roadmap_series_one)",
+    "description_required": "Please add a description",
     "legend_editability": "Who may edit the roadmap series?",
     "legend_visibility": "Who may view the roadmap series?",
     "name": "Name",

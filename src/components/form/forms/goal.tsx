@@ -3,7 +3,7 @@
 import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import formSubmitter from "@/functions/formSubmitter";
 import { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput, isDateValuesWithUnit, isISOIshDate } from "@/types";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput";
 import styles from '../forms.module.css';
@@ -11,7 +11,6 @@ import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections
 import { RecipeContextProvider } from "@/components/recipe/context/recipeContext.provider";
 import { Recipe } from "@/functions/recipe/types";
 import TextEditor from "../elements/textEditor/editor";
-import { Content } from "@tiptap/core";
 import SuggestedRecipeToggle from "@/components/recipe/suggestions/suggestedRecipeToggle";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import FormIntegration from "@/components/recipe/editor/output/formIntegration";
@@ -44,16 +43,8 @@ export default function GoalForm({
   const { t } = useTranslation(["forms", "common"]);
   const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(DataSeriesType.Inherited);
   const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baseline ? BaselineType.Custom : BaselineType.Initial);
-  const [editorContent, setEditorContent] = useState<Content>(() => {
-    if (!currentGoal?.description) return null;
-
-    try {
-      return JSON.parse(currentGoal.description) as Content;
-    } catch {
-      return currentGoal.description;
-    }
-  });
-  const [parentRoadmapId, setParentRoadmapId] = useState<string>(roadmapId || "")
+  const [parentRoadmapId, setParentRoadmapId] = useState<string>(roadmapId || "");
+  const descriptionRef = useRef<HTMLInputElement>(null);
 
   const parentRoadmaps = useMemo(() => {
     return (roadmapAlternatives ?? []).map(roadmap => ({
@@ -185,7 +176,7 @@ export default function GoalForm({
         timestamp: undefined, // Ignored when creating
 
         name: formData.get("goalName") as string | null ?? null,
-        description: editorContent ? JSON.stringify(editorContent) : null,
+        description: formData.get("description") as string | null ?? null, // Use the hidden input for the description, which contains the latest editor content
         indicatorParameter: formData.get("indicatorParameter") as string | null ?? (event.target.reportValidity(), ""),
         isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked || false,
         recipeSuggestions: undefined, // TODO: add recipe suggestions input
@@ -219,7 +210,7 @@ export default function GoalForm({
         timestamp: timestamp, // Only needed for edits
 
         name: formData.get("goalName") as string | null ?? undefined,
-        description: editorContent ? JSON.stringify(editorContent) : null,
+        description: formData.get("description") as string | null ?? undefined, // Use the hidden input for the description, which contains the latest editor content
         indicatorParameter: formData.get("indicatorParameter") as string | null ?? undefined,
         isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked ?? undefined,
         recipeSuggestions: undefined, // TODO: add recipe suggestions input
@@ -300,8 +291,10 @@ export default function GoalForm({
             placeholder={t("forms:text_editor_menu.default_placeholder")}
             editable={true}
             content={currentGoal ? currentGoal.description : ""}
-            onChange={(json) => setEditorContent(json)}
+            onChange={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
           />
+          {/* hidden input containing the text editor output */}
+          <input ref={descriptionRef} type="hidden" name="description" defaultValue={currentGoal?.description ?? undefined} />
         </fieldset>
 
         {/* Data series input section */}
