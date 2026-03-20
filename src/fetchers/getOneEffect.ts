@@ -19,6 +19,7 @@ export default async function getOneEffect(actionId: string, goalId: string): Pr
   const session = await getSession(await cookies());
   return getCachedEffect(actionId, goalId, session.user);
 }
+export { getOneEffect };
 
 /**
  * Caches the specified effect as well as its action and goal.

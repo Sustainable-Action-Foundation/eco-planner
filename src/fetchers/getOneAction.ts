@@ -17,6 +17,7 @@ export default async function getOneAction(id: string): Promise<Action | null> {
   const session = await getSession(await cookies());
   return getCachedAction(id, session.user);
 }
+export { getOneAction };
 
 /**
  * Caches the specified action.

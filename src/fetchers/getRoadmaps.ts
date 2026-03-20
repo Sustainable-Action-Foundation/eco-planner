@@ -17,6 +17,7 @@ export default async function getRoadmaps(roadmapIds?: string[],): Promise<Multi
   const session = await getSession(await cookies());
   return getCachedRoadmaps(session.user, roadmapIds);
 }
+export { getRoadmaps };
 
 /**
  * Caches all roadmaps the user has access to.

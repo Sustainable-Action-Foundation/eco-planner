@@ -18,6 +18,7 @@ export default async function getRoadmapSubset(actor?: string) {
   const session = await getSession(await cookies());
   return getCachedRoadmapSubset(session.user, actor);
 }
+export { getRoadmapSubset };
 
 // Also include the ids of goals and actions under the selected roadmaps
 const roadmapSubsetSelect = {

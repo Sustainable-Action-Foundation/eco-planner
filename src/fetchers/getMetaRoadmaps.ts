@@ -17,6 +17,7 @@ export default async function getMetaRoadmaps() {
   const session = await getSession(await cookies());
   return getCachedMetaRoadmaps(session.user);
 }
+export { getMetaRoadmaps };
 
 /**
  * Caches all meta roadmaps the user has access to.

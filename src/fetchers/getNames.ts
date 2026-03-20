@@ -16,6 +16,7 @@ export default async function getNames() {
   const session = await getSession(await cookies());
   return getCachedNames(session.user);
 }
+export { getNames };
 
 /**
  * Caches names and ids of all roadmaps, goals, and actions.

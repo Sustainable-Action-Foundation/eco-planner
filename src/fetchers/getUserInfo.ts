@@ -18,6 +18,7 @@ export default async function getUserInfo(username: string) {
   const session = await getSession(await cookies());
   return getCachedUserInfo(username, session.user);
 }
+export { getUserInfo };
 
 /**
  * Caches basic user information and all (accessible) MetaRoadmaps and Roadmaps authored by the user.

@@ -19,6 +19,7 @@ export default async function clientSafeGetOneRoadmap(id: string): Promise<Clien
   const session = await getSession(await cookies());
   return getCachedClientSafeRoadmap(id, session.user);
 }
+export { clientSafeGetOneRoadmap };
 
 async function getCachedClientSafeRoadmap(id: string, user: LoginData['user']): Promise<ClientRoadmap | null> {
   'use cache';

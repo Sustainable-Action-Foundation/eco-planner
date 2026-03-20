@@ -16,6 +16,7 @@ export default async function getNationals() {
   const session = await getSession(await cookies());
   return getCachedRoadmaps(session.user);
 }
+export { getNationals };
 
 /**
  * Caches all national roadmaps the user has access to.

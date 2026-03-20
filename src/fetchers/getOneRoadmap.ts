@@ -18,6 +18,7 @@ export default async function getOneRoadmap(id: string): Promise<Roadmap | null>
   const session = await getSession(await cookies());
   return await getCachedRoadmap(id, session.user)
 }
+export { getOneRoadmap };
 
 /**
  * Caches the specified roadmap and all goals for that roadmap.

@@ -11,6 +11,7 @@ export default async function clientSafeGetOneDataSeries(id: string): Promise<Da
   const session = await getSession(await cookies());
   return clientSafeGetCachedDataSeries(id, session.user);
 }
+export { clientSafeGetOneDataSeries };
 
 async function clientSafeGetCachedDataSeries(id: string, user: LoginData['user']): Promise<DataSeries | null> {
   'use cache';

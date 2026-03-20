@@ -18,6 +18,7 @@ export default async function clientSafeGetRoadmaps(): Promise<ClientMultiRoadma
   const session = await getSession(await cookies());
   return getCachedClientSafeRoadmaps(session.user);
 }
+export { clientSafeGetRoadmaps };
 
 async function getCachedClientSafeRoadmaps(user: LoginData['user']): Promise<ClientMultiRoadmapInstance[]> {
   'use cache';

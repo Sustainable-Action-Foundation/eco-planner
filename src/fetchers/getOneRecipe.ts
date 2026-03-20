@@ -10,6 +10,7 @@ export default async function getOneRecipe(id: string): Promise<DBRecipe | null>
   const session = await getSession(await cookies());
   return getCachedRecipe(id, session.user)
 }
+export { getOneRecipe };
 
 /** TODO - use the accessChecker? that would require a full db read and then filter on the result, not a filtered query like this is */
 const roadmapAccessFilter = (userId: string) => ({

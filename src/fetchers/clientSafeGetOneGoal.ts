@@ -18,6 +18,7 @@ export default async function clientSafeGetOneGoal(id: string): Promise<ClientGo
   const session = await getSession(await cookies());
   return clientSafeGetCachedGoal(id, session.user)
 }
+export { clientSafeGetOneGoal };
 
 async function clientSafeGetCachedGoal(id: string, user: LoginData['user']): Promise<ClientGoal | null> {
   'use cache';

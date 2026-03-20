@@ -17,6 +17,7 @@ export default async function getOneMetaRoadmap(id: string): Promise<MetaRoadmap
   const session = await getSession(await cookies());
   return getCachedMetaRoadmap(id, session.user);
 }
+export { getOneMetaRoadmap };
 
 /**
  * Caches the specified meta roadmap.

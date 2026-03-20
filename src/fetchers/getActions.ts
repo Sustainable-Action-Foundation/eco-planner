@@ -16,6 +16,7 @@ export default async function getOneAction() {
   const session = await getSession(await cookies());
   return getCachedActions(session.user);
 }
+export { getOneAction };
 
 /**
  * Caches available actions per user.

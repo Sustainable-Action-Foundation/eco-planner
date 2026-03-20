@@ -22,6 +22,7 @@ export default async function getGoalByIndicator(roadmapId: string, indicatorPar
   const session = await getSession(await cookies());
   return getCachedGoal(roadmapId, indicatorParameter, unit, session.user)
 }
+export { getGoalByIndicator };
 
 /**
  * Caches the specified goal and all actions for that goal.

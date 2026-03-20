@@ -19,6 +19,7 @@ export default async function getRoadmapByVersion(metaId: string, version: numbe
   const session = await getSession(await cookies());
   return getCachedRoadmap(metaId, version, session.user)
 }
+export { getRoadmapByVersion };
 
 /**
  * Caches the specified roadmap and all goals for that roadmap.
