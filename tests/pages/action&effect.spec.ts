@@ -1,14 +1,13 @@
 import { expect, test } from "playwright/test";
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { act } from "react";
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
 
 const adminFile = path.join(__dirname, '../.auth/admin.json');
 
-test.describe.serial("Action & Effect tests", async () => {
+test.describe.serial("Action & Effect tests", () => {
   test.use({ storageState: adminFile });
   let actionNameRequiredFields = "";
   let actionNameRequiredFieldsUpdated = "";
@@ -49,12 +48,12 @@ test.describe.serial("Action & Effect tests", async () => {
 
       // Verify all are gone
       await expect(matchingItems).toHaveCount(0);
-      }
+    }
   });
 
 
   // Action tests begin here //
-  test("Create Action - required", async ({ page }, testInfo ) => {
+  test("Create Action - required", async ({ page }, testInfo) => {
     actionNameRequiredFields = `Test Action ${testInfo.parallelIndex}`;
     // Navigate to the action creation form
     await page.goto('/');
@@ -65,7 +64,7 @@ test.describe.serial("Action & Effect tests", async () => {
 
     const value = await option.getAttribute('value');
 
-    await page.locator('#roadmapId').selectOption(value!);
+    await page.locator('#roadmapId').selectOption(value);
 
     await page.locator('#actionName').fill(actionNameRequiredFields);
 
@@ -89,7 +88,7 @@ test.describe.serial("Action & Effect tests", async () => {
 
 
     await page.locator('#actionName').hover(); // This is needed to make sure the name field is loaded before checking its content, otherwise it will be empty and the test will fail.        
-    
+
     await expect(page.locator('#actionName')).toHaveValue(actionNameRequiredFields);
 
     await page.locator('#submit-button').click();
@@ -152,7 +151,7 @@ test.describe.serial("Action & Effect tests", async () => {
 
     const value = await option.getAttribute('value');
 
-    await page.locator('#roadmapId').selectOption(value!);
+    await page.locator('#roadmapId').selectOption(value);
 
     // Part 1 of the form
     await page.locator('#actionName').fill(actionNameAllFields);
