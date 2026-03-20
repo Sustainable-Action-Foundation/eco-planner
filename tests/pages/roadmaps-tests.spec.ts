@@ -209,9 +209,7 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
 
     // Edit description in the tiptap editor
-    await page.locator('.tiptap').first().click();
-    await page.keyboard.press('Control+A');
-    await page.keyboard.type('Updated Roadmap Description All');
+    await page.locator('.tiptap').first().fill('Updated Roadmap Description All');
 
     // Await next rerender to ensure tiptap content is registered before submitting the form
     await page.waitForTimeout(500);
@@ -280,9 +278,7 @@ test.describe.serial("Roadmaps tests", () => {
     await page.locator('#name').fill(metaRoadmapNameAllFieldsUpdated);
 
     // Edit description in the tiptap editor
-    await page.locator('.tiptap').first().click();
-    await page.keyboard.press('Control+A');
-    await page.keyboard.type('Updated Description All');
+    await page.locator('.tiptap').first().fill('Updated Description All');
 
     // Await next rerender to ensure tiptap content is registered before submitting the form
     await page.waitForTimeout(500);

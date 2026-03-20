@@ -7,7 +7,7 @@ const __dirname = path.dirname(__filename); // get the name of the directory
 
 const adminFile = path.join(__dirname, '../.auth/admin.json');
 
-test.describe.serial("Action & Effect tests", () => {
+test.describe.serial("Action & Effect tests", async () => {
   test.use({ storageState: adminFile });
   let actionNameRequiredFields = "";
   let actionNameRequiredFieldsUpdated = "";
@@ -31,7 +31,7 @@ test.describe.serial("Action & Effect tests", () => {
       // Cleanup both the original and updated name
       const namesToClean = [
         `Test Action All Fields ${testInfo.parallelIndex}`,
-        `Updated Test Action All Fields ${testInfo.parallelIndex}`,  // ← lägg till denna
+        `Updated Test Action All Fields ${testInfo.parallelIndex}`,
       ];
 
       for (const name of namesToClean) {
@@ -53,7 +53,7 @@ test.describe.serial("Action & Effect tests", () => {
   });
 
   // Action tests begin here //
-  test("Create Action - required", async ({ page }, testInfo) => {
+  test("Create Action - required", async ({ page }, testInfo ) => {
     actionNameRequiredFields = `Test Action ${testInfo.parallelIndex}`;
     // Navigate to the action creation form
     await page.goto('/');
@@ -87,7 +87,9 @@ test.describe.serial("Action & Effect tests", () => {
     await page.getByTestId("admin-panel-edit").click();
 
 
-    await page.locator('#actionName').hover(); // This is needed to make sure the name field is loaded before checking its content, otherwise it will be empty and the test will fail.        await expect(page.locator('#actionName')).toHaveValue(actionNameRequiredFields);
+    await page.locator('#actionName').hover(); // This is needed to make sure the name field is loaded before checking its content, otherwise it will be empty and the test will fail.        
+    
+    await expect(page.locator('#actionName')).toHaveValue(actionNameRequiredFields);
 
     await page.locator('#submit-button').click();
 
@@ -198,7 +200,6 @@ test.describe.serial("Action & Effect tests", () => {
 
     await expect(page.locator('#actionName')).toHaveValue(actionNameAllFields);
 
-    await page.locator('.tiptap').first().hover(); // This is needed to make sure the description field is loaded before checking its content, otherwise it will be empty and the test will fail.
     await expect(page.locator('.tiptap').first()).toHaveText("Test Action description.");
 
     await expect(page.locator('#costEfficiency')).toHaveValue("Text for cost efficiency");
@@ -236,13 +237,9 @@ test.describe.serial("Action & Effect tests", () => {
     // Part 1 of the form
     await page.locator('#actionName').fill(actionNameAllFieldsUpdated);
 
-    await page.locator('.tiptap').first().click();
-    await page.keyboard.press('Control+A');
-    await page.keyboard.type("Updated Test Action description.");
+    await page.locator('.tiptap').first().fill("Updated Test Action description.");
 
-    // Await next rerender to ensure tiptap content is registered before submitting the form
     await page.waitForTimeout(500);
-
 
     await page.locator('#costEfficiency').fill("Updated text for cost efficiency");
     await page.locator('#expectedOutcome').fill("Updated text for expected outcome");
@@ -270,7 +267,6 @@ test.describe.serial("Action & Effect tests", () => {
     await page.getByTestId("admin-panel-edit").click();
 
     await expect(page.locator('#actionName')).toHaveValue(actionNameAllFieldsUpdated);
-    await page.locator('.tiptap').first().hover(); // This is needed to make sure the description field is loaded before checking its content, otherwise it will be empty and the test will fail.
     await expect(page.locator('.tiptap').first()).toHaveText("Updated Test Action description.");
     await expect(page.locator('#costEfficiency')).toHaveValue("Updated text for cost efficiency");
     await expect(page.locator('#expectedOutcome')).toHaveValue("Updated text for expected outcome");
