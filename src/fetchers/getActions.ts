@@ -12,11 +12,11 @@ import { cacheTag } from "next/dist/server/use-cache/cache-tag";
  * Returns an empty array if no actions are found or user does not have access to any. Also returns an empty array on error.
  * @returns Array of actions
  */
-export default async function getOneAction() {
+export default async function getActions() {
   const session = await getSession(await cookies());
   return getCachedActions(session.user);
 }
-export { getOneAction };
+export { getActions };
 
 /**
  * Caches available actions per user.
