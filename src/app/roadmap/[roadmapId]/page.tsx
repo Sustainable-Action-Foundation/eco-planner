@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import getOneRoadmap from "@/fetchers/getOneRoadmap";
+import { getOneRoadmap } from "@/fetchers";
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import accessChecker from "@/lib/accessChecker";
@@ -10,7 +10,7 @@ import ThumbnailGraph from "@/components/graph/graphs/thumbnail";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
-import { IconArrowNarrowRight, IconBuildings, IconCircleFilled, IconUser } from "@tabler/icons-react";
+import { IconArrowNarrowRight, IconBuildings, IconCircleFilled } from "@tabler/icons-react";
 import Link from "next/link";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 import { AdminPanel } from "@/components/elements/controls/controls";

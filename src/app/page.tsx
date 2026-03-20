@@ -1,8 +1,6 @@
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import AttributedImage, { AttributeText } from "@/components/generic/images/attributedImage";
-import getMetaRoadmaps from "@/fetchers/getMetaRoadmaps";
-import getRoadmaps from "@/fetchers/getRoadmaps";
 import { roadmapSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
 import { RoadmapType } from "@prisma/client";
 import RoadmapFilters from "@/components/form/filters/roadmapFilters";
@@ -12,6 +10,7 @@ import RoadmapTree from "@/components/tables/roadmapTables/roadmapTree.tsx";
 import serveTea from "@/lib/i18nServer";
 import Link from "next/link";
 import { buildMetadata } from "@/functions/buildMetadata";
+import { getMetaRoadmaps, getRoadmaps } from "@/fetchers";
 
 export async function generateMetadata() {
   return await buildMetadata({

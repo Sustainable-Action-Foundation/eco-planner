@@ -1,5 +1,5 @@
 import "server-only";
-import { multiRoadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
+import { multiRoadmapInclusionSelection } from "@/fetchers";
 import { getSession, LoginData } from "@/lib/session";
 import { roadmapSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";

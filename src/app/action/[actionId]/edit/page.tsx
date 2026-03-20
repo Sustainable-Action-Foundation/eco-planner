@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import ActionForm from "@/components/form/forms/action";
 import { notFound } from "next/navigation";
 import accessChecker from "@/lib/accessChecker";
-import getOneAction from "@/fetchers/getOneAction";
+import { getOneAction } from "@/fetchers";
 import { AccessControlled, AccessLevel } from "@/types";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";

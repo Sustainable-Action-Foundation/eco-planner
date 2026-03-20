@@ -1,5 +1,5 @@
 import "server-only";
-import { actionInclusionSelection } from "@/fetchers/inclusionSelectors";
+import { actionInclusionSelection } from "@/fetchers";
 import { getSession, LoginData } from "@/lib/session";
 import prisma from "@/prismaClient";
 import type { Prisma } from "@prisma/client";

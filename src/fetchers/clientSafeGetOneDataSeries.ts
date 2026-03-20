@@ -1,6 +1,6 @@
 'use server';
 
-import { clientSafeDataSeriesSelection } from "@/fetchers/inclusionSelectors";
+import { clientSafeDataSeriesSelection } from "@/fetchers";
 import { getSession, type LoginData } from "@/lib/session"
 import prisma from "@/prismaClient";
 import { DataSeries } from "@/types";

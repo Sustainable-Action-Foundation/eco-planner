@@ -1,5 +1,5 @@
 import "server-only";
-import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
+import { goalInclusionSelection } from "@/fetchers";
 import { getSession, LoginData } from "@/lib/session"
 import { effectSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";

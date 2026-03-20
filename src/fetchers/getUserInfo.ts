@@ -1,5 +1,5 @@
 import "server-only";
-import { userInfoSelector } from "@/fetchers/inclusionSelectors";
+import { userInfoSelector } from "@/fetchers";
 import { getSession, LoginData } from "@/lib/session";
 import { metaRoadmapSorter, roadmapSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";

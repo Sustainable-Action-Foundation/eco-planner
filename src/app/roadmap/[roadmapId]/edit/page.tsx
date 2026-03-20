@@ -1,5 +1,5 @@
 import RoadmapForm from "@/components/form/forms/roadmap";
-import getOneRoadmap from "@/fetchers/getOneRoadmap";
+import { getOneRoadmap } from "@/fetchers";
 import { getSession } from '@/lib/session';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
@@ -25,7 +25,7 @@ export async function generateMetadata(props: { params: Promise<{ roadmapId: str
       og_image_url: '/images/og_wind.png'
     })
   }
-  
+
   return buildMetadata({
     title: `${t("metadata:roadmap_edit.title")} ${roadmap?.metaRoadmap.name}`,
     description: roadmap?.description || roadmap?.metaRoadmap.description,

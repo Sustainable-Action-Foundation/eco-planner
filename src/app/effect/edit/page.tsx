@@ -1,6 +1,4 @@
 import EffectForm from "@/components/form/forms/effect";
-import getOneEffect from "@/fetchers/getOneEffect.ts";
-import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker.ts";
 import { getSession } from "@/lib/session.ts";
 import { cookies } from "next/headers";
@@ -8,6 +6,7 @@ import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconInfoCircle } from "@tabler/icons-react";
+import { getOneEffect, getRoadmaps } from "@/fetchers";
 
 export async function generateMetadata(
   props: {

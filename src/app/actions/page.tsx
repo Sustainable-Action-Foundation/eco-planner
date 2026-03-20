@@ -1,4 +1,4 @@
-import getActions from "@/fetchers/getActions"
+import { getActions } from "@/fetchers"
 import Actions from "../../components/pages/sections/actions"
 import serveTea from "@/lib/i18nServer"; 
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";

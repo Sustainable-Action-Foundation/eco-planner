@@ -2,13 +2,12 @@ import { getSession } from '@/lib/session';
 import RoadmapForm from '@/components/form/forms/roadmap';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
-import getMetaRoadmaps from '@/fetchers/getMetaRoadmaps';
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
 import accessChecker, { hasEditAccess } from '@/lib/accessChecker';
-import getOneMetaRoadmap from '@/fetchers/getOneMetaRoadmap';
 import serveTea from "@/lib/i18nServer";;
 import { buildMetadata } from '@/functions/buildMetadata';
 import { IconInfoCircle } from '@tabler/icons-react';
+import { getOneMetaRoadmap, getMetaRoadmaps } from "@/fetchers";
 
 export async function generateMetadata() {
   const t = await serveTea("metadata")

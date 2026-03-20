@@ -4,7 +4,7 @@ import prisma from "@/prismaClient";
 import { roadmapSorter } from "@/lib/sorters";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
-import { multiRoadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
+import { multiRoadmapInclusionSelection } from "@/fetchers";
 import { MultiRoadmapInstance } from "@/types";
 
 /**

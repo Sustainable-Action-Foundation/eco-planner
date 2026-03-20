@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { getSession } from "@/lib/session";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { AccessControlled, ClientError, GoalCreateInput, GoalUpdateInput, JSONValue, isStandardObject, isDateValuesWithUnit } from "@/types";
-import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
+import { goalInclusionSelection } from "@/fetchers";
 import { Prisma } from "@prisma/client";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { isRecipe } from "@/functions/recipe/types";

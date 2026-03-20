@@ -1,8 +1,5 @@
 "use client";
 
-import clientSafeGetOneGoal from "@/fetchers/clientSafeGetOneGoal";
-import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
-import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import mathjs, { allOurUnits } from "@/math";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -11,6 +8,7 @@ import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete"
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
 import { ClientGoal, ClientMultiRoadmapInstance, ClientRoadmap, Goal, UnitString } from "@/types";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
+import { clientSafeGetRoadmaps, clientSafeGetOneRoadmap, clientSafeGetOneGoal } from "@/fetchers";
 
 export function ManualGoalForm({
   currentGoal,

@@ -1,4 +1,4 @@
-import getOneAction from "@/fetchers/getOneAction";
+import { getOneAction }from "@/fetchers";
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import Link from "next/link";
