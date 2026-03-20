@@ -1,32 +1,19 @@
 import { DatasetKeys, ExternalDataset } from "@/lib/api/utility";
-import { DateValues, DateValuesWithUnit, isDateValues, isStandardObject, JSONValue, typeguardDebug, UnitString, uuidRegex } from "@/types";
-import { Unit } from "mathjs";
-import { SmartRecipe } from "@/functions/recipe/smartRecipe";
+import { isDateValues, isStandardObject, typeguardDebug, uuidRegex } from "@/types";
+import type { JSONValue } from "@/types";
 import mathjs from "@/math";
 
-export const VectorIndexPickerOptions = {
-  Default: "whole",
+import { RecipeDataTypes, VectorIndexPickerOptions } from "./consts";
+import type { SmartRecipe } from "@/functions/recipe/smartRecipe";
+import type {
+  EvalTimeVariable,
+  Recipe,
+  RecipeDataSeries,
+  RecipeExternalDataset,
+  RecipeScalar,
+} from "./types";
 
-  Whole: "whole",
-  Reverse: "reverse",
-
-  Last: "last",
-  First: "first",
-  Median: "median",
-  Mean: "mean",
-} as const;
-export type VectorIndexPickerOptions = typeof VectorIndexPickerOptions[keyof typeof VectorIndexPickerOptions];
-
-/* 
- * Common types for recipes
- */
-export const RecipeDataTypes = {
-  Scalar: "scalar",
-  DataSeries: "dataSeries",
-  External: "external",
-} as const;
-export type RecipeDataTypes = typeof RecipeDataTypes[keyof typeof RecipeDataTypes];
-export function isRecipeDataType(variable: unknown): variable is RecipeDataTypes {
+export function isRecipeDataType(variable: unknown): variable is (typeof RecipeDataTypes)[keyof typeof RecipeDataTypes] {
   return (
     typeof variable === "string" &&
     (
@@ -37,15 +24,6 @@ export function isRecipeDataType(variable: unknown): variable is RecipeDataTypes
   );
 }
 
-
-/** 
- * Scalar variable types
-*/
-export type RecipeScalar = {
-  type: typeof RecipeDataTypes.Scalar;
-  value: number;
-  unit: UnitString; // String if given, null if removed, undefined if not specified
-};
 export function isRecipeScalar(variable: JSONValue): variable is RecipeScalar {
   const allowedProps = ["type", "value", "unit"];
 
@@ -59,8 +37,6 @@ export function isRecipeScalar(variable: JSONValue): variable is RecipeScalar {
 
     (
       variable.type === RecipeDataTypes.Scalar
-      // No log since we tend to call isRecipeScalar(...) || isRecipeDataSeries(...) || isRecipeExternalDataset(...) in a chain, which will trigger up to two false positives
-      // typeguardDebug("Type guard: 'type' in scalar variable") && false
     ) &&
 
     (
@@ -70,35 +46,17 @@ export function isRecipeScalar(variable: JSONValue): variable is RecipeScalar {
 
     (
       typeof variable.unit === "string" ||
-      variable.unit == null || // May be null or undefined
+      variable.unit == null ||
       typeguardDebug("Type guard: 'unit' in scalar variable") && false
     ) &&
 
-    // Ensure no other properties are present
     (
       Object.keys(variable).filter(key => !allowedProps.includes(key)).length === 0 ||
       typeguardDebug("Type guard: unknown properties in scalar variable") && false
     )
   );
 }
-export const emptyRecipeScalar: RecipeScalar = { type: RecipeDataTypes.Scalar, value: 0, unit: undefined } as const;
 
-
-/* 
- * Data series types
- */
-export type RecipeDataSeries = {
-  type: typeof RecipeDataTypes.DataSeries;
-  link: string | null | undefined; // uuid of data series in the database
-  value?: DateValues | null | undefined; // Usually not settable by the user, mainly for internal use
-  pick: VectorIndexPickerOptions | number;
-  unit: UnitString; // String if given, null if removed, undefined if not specified
-
-  /** DO NOT USE! deprecated and will be replaced once smart recipes are implemented */
-  goalName?: string;
-  /** DO NOT USE! deprecated and will be replaced once smart recipes are implemented */
-  disabled?: boolean;
-};
 export function isRecipeDataSeries(variable: JSONValue): variable is RecipeDataSeries {
   const allowedProps = ["type", "link", "pick", "unit", "value", "goalName", "disabled"];
 
@@ -112,20 +70,18 @@ export function isRecipeDataSeries(variable: JSONValue): variable is RecipeDataS
 
     (
       variable.type === RecipeDataTypes.DataSeries
-      // No log since we tend to call isRecipeScalar(...) || isRecipeDataSeries(...) || isRecipeExternalDataset(...) in a chain, which will trigger up to two false positives
-      // typeguardDebug("Type guard: 'type' in data series variable") && false
     ) &&
 
     (
       (typeof variable.link === "string" && uuidRegex.test(variable.link)) ||
-      variable.link == null || // May be undefined
+      variable.link == null ||
       typeguardDebug("Type guard: 'link' in data series variable") && false
     ) &&
 
     (
       (
         typeof variable.pick === "string"
-        && Object.values(VectorIndexPickerOptions).includes(variable.pick as VectorIndexPickerOptions)
+        && Object.values(VectorIndexPickerOptions).includes(variable.pick as (typeof VectorIndexPickerOptions)[keyof typeof VectorIndexPickerOptions])
       )
       || (
         typeof variable.pick === "number"
@@ -136,7 +92,7 @@ export function isRecipeDataSeries(variable: JSONValue): variable is RecipeDataS
 
     (
       typeof variable.unit === "string" ||
-      variable.unit == null || // May be null or undefined
+      variable.unit == null ||
       typeguardDebug("Type guard: 'unit' in data series variable") && false
     ) &&
 
@@ -146,7 +102,6 @@ export function isRecipeDataSeries(variable: JSONValue): variable is RecipeDataS
       isDateValues(variable.value)
     ) &&
 
-    // TODO Remove this once smart recipes are implemented
     (
       variable.goalName === undefined ||
       (
@@ -166,24 +121,7 @@ export function isRecipeDataSeries(variable: JSONValue): variable is RecipeDataS
     )
   )
 }
-export const emptyRecipeDataSeries: RecipeDataSeries = { type: RecipeDataTypes.DataSeries, link: undefined, pick: VectorIndexPickerOptions.Default, unit: undefined } as const;
 
-
-/* 
- * External datasets types
- */
-export type RecipeExternalDataset = {
-  type: typeof RecipeDataTypes.External;
-  /** Datasets are defined in [`src/lib/api/utility.ts`](../../lib/api/utility.ts) */
-  dataset: DatasetKeys | null; // One of the datasets specified in externalDatasets
-  tableId: string | null; // The ID of the table in the dataset
-  selection: {
-    variableCode: string,
-    valueCodes: string[]
-  }[]; // The selection to be made on the table, e.g. [{ variableCode: "Tid", valueCodes: ["2020M01"] }]
-  pick: VectorIndexPickerOptions | number;
-  unit: UnitString; // String if given, null if removed, undefined if not specified
-};
 export function isRecipeExternalDataset(variable: JSONValue): variable is RecipeExternalDataset {
   const allowedProps = ["type", "dataset", "tableId", "selection", "pick", "unit"];
 
@@ -197,21 +135,19 @@ export function isRecipeExternalDataset(variable: JSONValue): variable is Recipe
 
     (
       variable.type === RecipeDataTypes.External
-      // No log since we tend to call isRecipeScalar(...) || isRecipeDataSeries(...) || isRecipeExternalDataset(...) in a chain, which will trigger up to two false positives
-      // typeguardDebug("Type guard: 'type' in external dataset variable") && false
     ) &&
 
     (
       typeof variable.dataset === "string" &&
       ExternalDataset.knownDatasetKeys.includes(variable.dataset as DatasetKeys) ||
-      variable.dataset == null || // May be null if not specified
+      variable.dataset == null ||
       typeguardDebug("Type guard: 'dataset' in external dataset variable") && false
     ) &&
 
     (
       typeof variable.tableId === "string" &&
-      variable.tableId.trim() !== "" ||  // Ensure tableId is a non-empty string
-      variable.tableId == null || // May be null if not specified
+      variable.tableId.trim() !== "" ||
+      variable.tableId == null ||
       typeguardDebug("Type guard: 'tableId' in external dataset variable") && false
     ) &&
 
@@ -223,7 +159,7 @@ export function isRecipeExternalDataset(variable: JSONValue): variable is Recipe
     (
       (
         typeof variable.pick === "string"
-        && Object.values(VectorIndexPickerOptions).includes(variable.pick as VectorIndexPickerOptions)
+        && Object.values(VectorIndexPickerOptions).includes(variable.pick as (typeof VectorIndexPickerOptions)[keyof typeof VectorIndexPickerOptions])
       )
       || (
         typeof variable.pick === "number"
@@ -234,17 +170,17 @@ export function isRecipeExternalDataset(variable: JSONValue): variable is Recipe
 
     (
       typeof variable.unit === "string" ||
-      variable.unit == null || // May be null or undefined
+      variable.unit == null ||
       typeguardDebug("Type guard: 'unit' in external dataset variable") && false
     ) &&
 
-    // Ensure no other properties are present
     (
       Object.keys(variable).filter(key => !allowedProps.includes(key)).length === 0 ||
       typeguardDebug("Type guard: unknown properties in external dataset variable") && false
     )
   );
 }
+
 export function isRecipeExternalDatasetSelection(selection: JSONValue): selection is RecipeExternalDataset["selection"] {
   return (
     Array.isArray(selection) &&
@@ -272,20 +208,7 @@ export function isRecipeExternalDatasetSelection(selection: JSONValue): selectio
     ))
   );
 }
-export const emptyRecipeExternalDataset: RecipeExternalDataset = { type: RecipeDataTypes.External, dataset: null, tableId: null, selection: [], pick: VectorIndexPickerOptions.Default, unit: undefined } as const;
 
-
-/* 
- * Main recipe types
- */
-export type RecipeVariable = RecipeScalar | RecipeDataSeries | RecipeExternalDataset;
-export type Recipe = {
-  name: string | null | undefined; // String if given, null if removed, undefined if not specified
-  eq: string;
-  variables: Record<string, RecipeVariable>;
-  smartMeta?: string; // Metadata for smart recipes for serialization purposes
-};
-export type RecipeIsh = Recipe | SmartRecipe;
 export function isRecipe(recipe: JSONValue): recipe is Recipe {
   const allowedProps = ["name", "eq", "variables", "smartMeta"];
 
@@ -305,7 +228,6 @@ export function isRecipe(recipe: JSONValue): recipe is Recipe {
 
     (
       typeof recipe.eq === "string" ||
-      // recipe.eq.trim() !== "" || // Ensure eq is a non-empty string
       typeguardDebug("Type guard: 'eq' in recipe") && false
     ) &&
 
@@ -328,21 +250,20 @@ export function isRecipe(recipe: JSONValue): recipe is Recipe {
       typeguardDebug("Type guard: 'variables' in recipe") && false
     ) &&
 
-    // Ensure no other properties are present
     (
       Object.keys(recipe).filter(key => !allowedProps.includes(key)).length === 0 ||
       typeguardDebug("Type guard: unknown properties in recipe") && false
     )
   );
 }
-export const emptyRecipe: Recipe = { name: undefined, eq: "", variables: {} } as const;
-export const isEmptyRecipe = (recipe: Recipe): boolean => {
+
+export function isEmptyRecipe(recipe: Recipe): boolean {
   return (
     (recipe.name === null || recipe.name === undefined) &&
     recipe.eq.trim() === "" &&
     Object.keys(recipe.variables).length === 0
   );
-};
+}
 
 export function isSmartRecipe(recipe: unknown): recipe is SmartRecipe {
   if (typeof recipe !== "object" || recipe === null) return false;
@@ -353,24 +274,6 @@ export function isSmartRecipe(recipe: unknown): recipe is SmartRecipe {
   return true;
 }
 
-
-/** 
- * Defined here to usage before declaration.
- */
-export const emptyRecipesByDataType: Record<RecipeDataTypes, RecipeVariable> = {
-  "scalar": emptyRecipeScalar,
-  "dataSeries": emptyRecipeDataSeries,
-  "external": emptyRecipeExternalDataset,
-} as const;
-
-
-/*
- * Variable during evaluation of a recipe. Should not persist beyond that scope.
- */
-export type EvalTimeVariable = {
-  name: string;
-  value: Unit | Unit[] | number; // TODO: should it be ever be a number? rather have Unit with no unit?
-};
 export function isEvalTimeVariable(variable: unknown): variable is EvalTimeVariable {
   if (
     !isStandardObject(variable)
@@ -404,24 +307,3 @@ export function isEvalTimeVariable(variable: unknown): variable is EvalTimeVaria
 
   return true;
 }
-
-export type RecipeExtractionOutput = (
-  EvalTimeVariable
-  | { series: DateValuesWithUnit, name: string, }
-)[];
-
-/*
- * Errors
- */
-export class RecipeError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "RecipeError";
-  }
-};
-export class MathjsError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "MathjsError";
-  }
-};
