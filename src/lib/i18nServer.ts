@@ -4,7 +4,7 @@ import { initTemplate, Locales } from "i18n.config";
 import Backend from "i18next-fs-backend";
 import path from "node:path";
 import { cookies, headers } from "next/headers";
-import { getLocale } from "@/functions/getLocale.ts";
+import { getLocale } from "@/functions/getLocale";
 
 await i18nServer.use(Backend)
   .init({

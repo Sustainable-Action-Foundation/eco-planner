@@ -2,7 +2,7 @@ import { getSession } from '@/lib/session';
 import MetaRoadmapForm from '@/components/form/forms/metaRoadmap';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
-import getMetaRoadmaps from '@/fetchers/getMetaRoadmaps';
+import { getMetaRoadmaps } from '@/fetchers';
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from '@/functions/buildMetadata';

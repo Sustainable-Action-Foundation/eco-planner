@@ -1,7 +1,5 @@
 import HistoricalData from "@/components/form/forms/historicalData";
-import getOneGoal from "@/fetchers/getOneGoal";
-import getOneRoadmap from "@/fetchers/getOneRoadmap";
-import getRoadmaps from "@/fetchers/getRoadmaps";
+import { getOneGoal, getOneRoadmap, getRoadmaps } from "@/fetchers";
 import { buildMetadata } from "@/functions/buildMetadata";
 import serveTea from "@/lib/i18nServer";
 import { getSession } from "@/lib/session";

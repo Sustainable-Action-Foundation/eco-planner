@@ -1,6 +1,6 @@
 'use client';
 
-import type getRoadmaps from "@/fetchers/getRoadmaps.ts";
+import type { getRoadmaps } from "@/fetchers";
 import formSubmitter from "@/functions/formSubmitter";
 import { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput, isDateValuesWithUnit, isISOIshDate } from "@/types";
 import { useMemo, useRef, useState } from "react";

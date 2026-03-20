@@ -1,9 +1,9 @@
 "use server";
 
-import { ApiTableContent } from "../api/apiTypes.ts";
-import { ExternalDataset } from "../api/utility.ts";
-import { TrafaDataResponse } from "./trafaTypes.ts";
-import { getTrafaSearchQueryString } from "./trafaUtility.ts";
+import { ApiTableContent } from "../api/apiTypes";
+import { ExternalDataset } from "../api/utility";
+import { TrafaDataResponse } from "./trafaTypes";
+import { getTrafaSearchQueryString } from "./trafaUtility";
 
 // Trafa is a Swedish transport data provider. As such, their data is only relevant for usage in Sweden.
 // This means that everything here in the `trafa` folder is somewhat useless for international implementations,

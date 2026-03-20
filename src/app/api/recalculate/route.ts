@@ -1,4 +1,4 @@
-import getOneRecipe from "@/fetchers/getOneRecipe";
+import { getOneRecipe } from "@/fetchers";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
 import { RecipeError } from "@/functions/recipe/types";

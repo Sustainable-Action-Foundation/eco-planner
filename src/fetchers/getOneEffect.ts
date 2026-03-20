@@ -1,10 +1,10 @@
 import "server-only";
-import { getSession, LoginData } from "@/lib/session.ts";
+import { getSession, LoginData } from "@/lib/session";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
-import { effectInclusionSelection } from "./inclusionSelectors.ts";
-import prisma from "@/prismaClient.ts";
-import { Effect } from "@/types.ts";
+import { effectInclusionSelection } from "@/fetchers/inclusionSelectors";
+import prisma from "@/prismaClient";
+import { Effect } from "@/types";
 
 /**
  * Gets specified effect as well as its action and goal.
@@ -15,7 +15,7 @@ import { Effect } from "@/types.ts";
  * @param goalId ID of the goal this effect relates to
  * @returns Effect object with action and goal
  */
-export default async function getOneEffect(actionId: string, goalId: string): Promise<Effect | null> {
+export async function getOneEffect(actionId: string, goalId: string): Promise<Effect | null> {
   const session = await getSession(await cookies());
   return getCachedEffect(actionId, goalId, session.user);
 }

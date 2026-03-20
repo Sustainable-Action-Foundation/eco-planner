@@ -1,12 +1,11 @@
 import { NextRequest } from "next/server";
-import prisma from "@/prismaClient";
+import prisma, { Prisma } from "@/prismaClient";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/session";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { AccessControlled, ClientError, GoalCreateInput, GoalUpdateInput, JSONValue, isStandardObject, isDateValuesWithUnit } from "@/types";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
-import { Prisma } from "@prisma/client";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { isRecipe } from "@/functions/recipe/types";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";

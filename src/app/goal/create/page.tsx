@@ -1,13 +1,12 @@
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import GoalForm from "@/components/form/forms/goal";
-import getOneRoadmap from "@/fetchers/getOneRoadmap";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
-import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconInfoCircle } from "@tabler/icons-react";
+import { getOneRoadmap, getRoadmaps } from "@/fetchers";
 
 export async function generateMetadata() {
   const t = await serveTea("metadata")

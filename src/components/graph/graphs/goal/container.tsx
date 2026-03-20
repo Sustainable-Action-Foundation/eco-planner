@@ -1,12 +1,10 @@
 "use client"
 
 import TabListSimple from "@/components/generic/tablist/tabListSimple";
-import MainGraph from "./main/main";
 import ChildGraphContainer from "./child/container";
 import SiblingGraph from "./sibling/siblings";
 import findSiblings from "@/functions/findSiblings";
 import { Effect, Goal, Roadmap } from "@/types";
-import getGoalByIndicator from "@/fetchers/getGoalByIndicator";
 import { ApiTableContent } from "@/lib/api/apiTypes";
 import GraphGraph from "./main/container";
 import styles from './goal.module.css'

@@ -1,4 +1,4 @@
-import { goalSorterTree } from "@/lib/sorters.ts";
+import { goalSorterTree } from "@/lib/sorters";
 import type { Goal } from "@/types";
 import type { TFunction } from "i18next";
 

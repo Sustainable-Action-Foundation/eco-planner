@@ -7,7 +7,7 @@ import { DataSeries } from "@/types";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import { cookies } from "next/headers";
 
-export default async function clientSafeGetOneDataSeries(id: string): Promise<DataSeries | null> {
+export async function clientSafeGetOneDataSeries(id: string): Promise<DataSeries | null> {
   const session = await getSession(await cookies());
   return clientSafeGetCachedDataSeries(id, session.user);
 }

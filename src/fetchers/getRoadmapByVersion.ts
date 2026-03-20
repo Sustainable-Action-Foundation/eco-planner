@@ -2,8 +2,7 @@ import "server-only";
 import { roadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getSession, LoginData } from "@/lib/session"
 import { goalSorter } from "@/lib/sorters";
-import prisma from "@/prismaClient";
-import { Prisma } from "@prisma/client";
+import prisma, { Prisma } from "@/prismaClient";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -15,7 +14,7 @@ import { cookies } from "next/headers";
  * @param version Version number of the roadmap to get
  * @returns Roadmap object with goals
  */
-export default async function getRoadmapByVersion(metaId: string, version: number) {
+export async function getRoadmapByVersion(metaId: string, version: number) {
   const session = await getSession(await cookies());
   return getCachedRoadmap(metaId, version, session.user)
 }
