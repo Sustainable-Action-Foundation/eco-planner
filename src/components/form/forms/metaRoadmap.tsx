@@ -4,7 +4,7 @@ import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" wit
 import { LoginData } from "@/lib/session";
 import { AccessControlled, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
 import { MetaRoadmap, RoadmapType } from "@prisma/client";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import formSubmitter from "@/functions/formSubmitter";
 import styles from '../forms.module.css'
 import { useTranslation } from "react-i18next";
@@ -12,7 +12,6 @@ import TextEditor from "@/components/form/elements/textEditor/editor.tsx";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete.tsx";
 import ConfigureAccess from "../sections/access.tsx";
-import { Content } from "@tiptap/core";
 
 export default function MetaRoadmapForm({
   user,
@@ -26,16 +25,7 @@ export default function MetaRoadmapForm({
   currentRoadmap?: MetaRoadmap & AccessControlled,
 }) {
   const { t } = useTranslation(["forms", "common"]);
-
-  const [editorContent, setEditorContent] = useState<Content>(() => {
-    if (!currentRoadmap?.description) return null;
-
-    try {
-      return JSON.parse(currentRoadmap.description) as Content;
-    } catch {
-      return currentRoadmap.description;
-    }
-  });
+  const descriptionRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [roadmapType, setRoadmapType] = useState<string>("");
 
@@ -63,9 +53,18 @@ export default function MetaRoadmapForm({
     const visibility = (form.namedItem("visibility") as RadioNodeList)?.value;
     const editability = (form.namedItem("editability") as RadioNodeList)?.value;
 
+    const description = form.namedItem("description") as HTMLInputElement | null;
+    if (!description?.value) {
+      event.target.reportValidity();
+      setIsLoading(false);
+      // TODO: Convert to toast notification
+      alert(t("forms:meta_roadmap.description_required"));
+      return;
+    }
+
     const formData: MetaRoadmapCreateInput | MetaRoadmapUpdateInput = {
       name: (form.namedItem("name") as HTMLInputElement)?.value,
-      description: JSON.stringify(editorContent),
+      description: (form.namedItem("description") as HTMLInputElement | null)?.value ?? "", // Should always have a value due to the check above, but just in case
       type: ((form.namedItem("type") as HTMLSelectElement)?.value as RoadmapType) || null,
       actor: (form.namedItem("actor") as HTMLInputElement)?.value || null,
       editors: editability === "custom" ? (form.namedItem("editors") as HTMLInputElement)?.value.split(',').map(string => string.trim()).filter(Boolean) : [],
@@ -108,8 +107,9 @@ export default function MetaRoadmapForm({
             placeholder={t("forms:text_editor_menu.default_placeholder")}
             editable={true}
             content={currentRoadmap ? currentRoadmap.description : ""}
-            onChange={(json) => setEditorContent(json)}
+            onChange={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
           />
+          <input required ref={descriptionRef} type="hidden" name="description" defaultValue={currentRoadmap?.description ?? undefined} />
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
