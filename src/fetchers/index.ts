@@ -4,7 +4,6 @@ export { getActions } from "./getActions";
 export { getGoalByIndicator } from "./getGoalByIndicator";
 export { getMetaRoadmaps } from "./getMetaRoadmaps";
 export { getNames } from "./getNames";
-export { getNationals } from "./getNationals";
 export { getOneAction } from "./getOneAction";
 export { getOneEffect } from "./getOneEffect";
 export { getOneGoal } from "./getOneGoal";
