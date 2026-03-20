@@ -80,7 +80,7 @@ export default function RoadmapForm({
         roadmapId: currentRoadmap.id,
         timestamp: timestamp,
 
-        description,
+        description: description ?? undefined,
         targetVersion: parseInt((form.namedItem('target-version') as HTMLSelectElement)?.value) || null,
         isPublic: visibility === "public",
 
@@ -101,7 +101,7 @@ export default function RoadmapForm({
         roadmapId: undefined,
         timestamp: undefined,
 
-        description,
+        description: description ?? null,
         targetVersion: parseInt((form.namedItem('target-version') as HTMLSelectElement)?.value) || null,
         isPublic: visibility === "public",
 
@@ -256,7 +256,7 @@ export default function RoadmapForm({
             content={currentRoadmap ? currentRoadmap.description : ""}
             onChange={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
           />
-          <input ref={descriptionRef} type="hidden" name="description" defaultValue={currentRoadmap?.description ?? undefined} />
+          <input ref={descriptionRef} type="hidden" name="description" />
 
         </fieldset>
 

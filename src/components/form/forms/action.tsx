@@ -33,7 +33,7 @@ export default function ActionForm({
       actionId: currentAction ? currentAction.id : undefined,
       roadmapId: roadmapId ?? (form.namedItem("roadmapId") as HTMLInputElement)?.value ?? undefined,
       goalId: goalId ?? undefined,
-      description: (form.namedItem("description") as HTMLInputElement | null)?.value ?? "",
+      description: (form.namedItem("description") as HTMLInputElement | null)?.value ?? undefined,
       name: (form.namedItem("actionName") as HTMLInputElement)?.value ?? "",
       startYear: form.namedItem("startYear") ? parseInt((form.namedItem("startYear") as HTMLInputElement).value) : undefined,
       endYear: form.namedItem("endYear") ? parseInt((form.namedItem("endYear") as HTMLInputElement).value) : undefined,
@@ -103,7 +103,7 @@ export default function ActionForm({
             content={currentAction ? currentAction.description : ""}
             onChange={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
           />
-          <input ref={descriptionRef} type="hidden" name="description" defaultValue={currentAction?.description ?? undefined} />
+          <input ref={descriptionRef} type="hidden" name="description" />
 
           <label>
             {t("forms:action.cost_efficiency")}
