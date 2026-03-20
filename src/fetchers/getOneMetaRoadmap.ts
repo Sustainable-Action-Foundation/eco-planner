@@ -13,11 +13,10 @@ import { MetaRoadmap } from "@/types";
  * Returns null if meta roadmap is not found or user does not have access to it. Also returns null on error.
  * @returns Meta roadmap object with roadmap versions
  */
-export default async function getOneMetaRoadmap(id: string): Promise<MetaRoadmap | null> {
+export async function getOneMetaRoadmap(id: string): Promise<MetaRoadmap | null> {
   const session = await getSession(await cookies());
   return getCachedMetaRoadmap(id, session.user);
 }
-export { getOneMetaRoadmap };
 
 /**
  * Caches the specified meta roadmap.

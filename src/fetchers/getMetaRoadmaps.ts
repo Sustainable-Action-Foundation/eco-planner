@@ -12,11 +12,10 @@ import { cookies } from "next/headers";
  * Returns an empty array if none are found or user does not have access to any. Also returns an empty array on error.
  * @returns Array of meta roadmaps
  */
-export default async function getMetaRoadmaps() {
+export async function getMetaRoadmaps() {
   const session = await getSession(await cookies());
   return getCachedMetaRoadmaps(session.user);
 }
-export { getMetaRoadmaps };
 
 /**
  * Caches all meta roadmaps the user has access to.

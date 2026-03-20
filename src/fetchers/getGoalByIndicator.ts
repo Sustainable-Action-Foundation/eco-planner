@@ -17,11 +17,10 @@ import { cookies } from "next/headers";
  * @param unit If not undefined, the goal must have this unit in its data series (even if unit is null)
  * @returns Goal object with actions
  */
-export default async function getGoalByIndicator(roadmapId: string, indicatorParameter: string, unit?: string | null) {
+export async function getGoalByIndicator(roadmapId: string, indicatorParameter: string, unit?: string | null) {
   const session = await getSession(await cookies());
   return getCachedGoal(roadmapId, indicatorParameter, unit, session.user)
 }
-export { getGoalByIndicator };
 
 /**
  * Caches the specified goal and all actions for that goal.

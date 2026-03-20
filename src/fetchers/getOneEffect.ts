@@ -15,11 +15,10 @@ import { Effect } from "@/types.ts";
  * @param goalId ID of the goal this effect relates to
  * @returns Effect object with action and goal
  */
-export default async function getOneEffect(actionId: string, goalId: string): Promise<Effect | null> {
+export async function getOneEffect(actionId: string, goalId: string): Promise<Effect | null> {
   const session = await getSession(await cookies());
   return getCachedEffect(actionId, goalId, session.user);
 }
-export { getOneEffect };
 
 /**
  * Caches the specified effect as well as its action and goal.

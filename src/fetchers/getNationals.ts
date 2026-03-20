@@ -12,11 +12,10 @@ import { cookies } from "next/headers";
  * Returns an empty array if no roadmaps are found or user does not have access to any. Also returns an empty array on error.
  * @returns Array of roadmaps
  */
-export default async function getNationals() {
+export async function getNationals() {
   const session = await getSession(await cookies());
   return getCachedRoadmaps(session.user);
 }
-export { getNationals };
 
 /**
  * Caches all national roadmaps the user has access to.

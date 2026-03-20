@@ -13,11 +13,10 @@ import { Action } from "@/types";
  * @param id ID of the action to get
  * @returns Action object
  */
-export default async function getOneAction(id: string): Promise<Action | null> {
+export async function getOneAction(id: string): Promise<Action | null> {
   const session = await getSession(await cookies());
   return getCachedAction(id, session.user);
 }
-export { getOneAction };
 
 /**
  * Caches the specified action.

@@ -11,11 +11,10 @@ import { cookies } from "next/headers";
  * Returns an empty array if user does not have access to any roadmaps. Also returns an empty array on error.
  * @returns Nested array of meta roadmaps, roadmaps, goals, and actions (just ids and names, plus indicator parameter for goals, and a version rather than name for roadmaps)
  */
-export default async function getNames() {
+export async function getNames() {
   const session = await getSession(await cookies());
   return getCachedNames(session.user);
 }
-export { getNames };
 
 /**
  * Caches names and ids of all roadmaps, goals, and actions.

@@ -14,11 +14,10 @@ import { cookies } from "next/headers";
  * @param version Version number of the roadmap to get
  * @returns Roadmap object with goals
  */
-export default async function getRoadmapByVersion(metaId: string, version: number) {
+export async function getRoadmapByVersion(metaId: string, version: number) {
   const session = await getSession(await cookies());
   return getCachedRoadmap(metaId, version, session.user)
 }
-export { getRoadmapByVersion };
 
 /**
  * Caches the specified roadmap and all goals for that roadmap.

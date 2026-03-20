@@ -13,11 +13,10 @@ import { MultiRoadmapInstance } from "@/types";
  * Returns an empty array if no roadmaps are found or user does not have access to any. Also returns an empty array on error.
  * @returns Array of roadmaps
  */
-export default async function getRoadmaps(roadmapIds?: string[],): Promise<MultiRoadmapInstance[]> {
+export async function getRoadmaps(roadmapIds?: string[],): Promise<MultiRoadmapInstance[]> {
   const session = await getSession(await cookies());
   return getCachedRoadmaps(session.user, roadmapIds);
 }
-export { getRoadmaps };
 
 /**
  * Caches all roadmaps the user has access to.
