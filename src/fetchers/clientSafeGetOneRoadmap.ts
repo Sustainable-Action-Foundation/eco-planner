@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/prismaClient";
-import { clientSafeRoadmapSelection } from "./inclusionSelectors";
+import { clientSafeRoadmapSelection } from "@/fetchers/inclusionSelectors";
 import { cookies } from "next/headers";
 import { getSession, LoginData } from "@/lib/session";
 import { goalSorter } from "@/lib/sorters";
@@ -15,11 +15,10 @@ import { ClientRoadmap } from "@/types";
  * @param id ID of the roadmap to get
  * @returns Roadmap object with goals
  */
-export default async function clientSafeGetOneRoadmap(id: string): Promise<ClientRoadmap | null> {
+export async function clientSafeGetOneRoadmap(id: string): Promise<ClientRoadmap | null> {
   const session = await getSession(await cookies());
   return getCachedClientSafeRoadmap(id, session.user);
 }
-export { clientSafeGetOneRoadmap };
 
 async function getCachedClientSafeRoadmap(id: string, user: LoginData['user']): Promise<ClientRoadmap | null> {
   'use cache';

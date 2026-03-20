@@ -1,17 +1,16 @@
 'use server';
 
-import { clientSafeDataSeriesSelection } from "@/fetchers";
+import { clientSafeDataSeriesSelection } from "@/fetchers/inclusionSelectors";
 import { getSession, type LoginData } from "@/lib/session"
 import prisma from "@/prismaClient";
 import { DataSeries } from "@/types";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import { cookies } from "next/headers";
 
-export default async function clientSafeGetOneDataSeries(id: string): Promise<DataSeries | null> {
+export async function clientSafeGetOneDataSeries(id: string): Promise<DataSeries | null> {
   const session = await getSession(await cookies());
   return clientSafeGetCachedDataSeries(id, session.user);
 }
-export { clientSafeGetOneDataSeries };
 
 async function clientSafeGetCachedDataSeries(id: string, user: LoginData['user']): Promise<DataSeries | null> {
   'use cache';

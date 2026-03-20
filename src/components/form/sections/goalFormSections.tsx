@@ -8,7 +8,7 @@ import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete"
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
 import { ClientGoal, ClientMultiRoadmapInstance, ClientRoadmap, Goal, UnitString } from "@/types";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
-import { clientSafeGetRoadmaps, clientSafeGetOneRoadmap, clientSafeGetOneGoal } from "@/fetchers";
+import { clientSafeGetRoadmaps, clientSafeGetOneRoadmap, clientSafeGetOneGoal } from "@/fetchers/client";
 
 export function ManualGoalForm({
   currentGoal,

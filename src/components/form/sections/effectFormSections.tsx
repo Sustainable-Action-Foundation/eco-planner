@@ -1,6 +1,6 @@
 'use client';
 
-import { clientSafeGetOneRoadmap } from "@/fetchers";
+import { clientSafeGetOneRoadmap } from "@/fetchers/client";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Action, ClientRoadmap, DateValuesWithUnit, Goal, isISOIshDate, MultiRoadmapInstance } from "@/types";

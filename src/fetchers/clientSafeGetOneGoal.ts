@@ -1,6 +1,6 @@
 'use server';
 
-import { clientSafeGoalSelection } from "@/fetchers";
+import { clientSafeGoalSelection } from "@/fetchers/inclusionSelectors";
 import { getSession, LoginData } from "@/lib/session"
 import prisma from "@/prismaClient";
 import { cookies } from "next/headers";
@@ -14,11 +14,10 @@ import { ClientGoal } from "@/types";
  * @param id ID of the goal to get
  * @returns Goal object with actions
  */
-export default async function clientSafeGetOneGoal(id: string): Promise<ClientGoal | null> {
+export async function clientSafeGetOneGoal(id: string): Promise<ClientGoal | null> {
   const session = await getSession(await cookies());
   return clientSafeGetCachedGoal(id, session.user)
 }
-export { clientSafeGetOneGoal };
 
 async function clientSafeGetCachedGoal(id: string, user: LoginData['user']): Promise<ClientGoal | null> {
   'use cache';

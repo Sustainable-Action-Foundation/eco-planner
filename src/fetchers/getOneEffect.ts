@@ -2,7 +2,7 @@ import "server-only";
 import { getSession, LoginData } from "@/lib/session.ts";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
-import { effectInclusionSelection } from "./inclusionSelectors.ts";
+import { effectInclusionSelection } from "@/fetchers/inclusionSelectors";
 import prisma from "@/prismaClient.ts";
 import { Effect } from "@/types.ts";
 

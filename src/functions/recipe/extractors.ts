@@ -1,4 +1,4 @@
-import { clientSafeGetOneDataSeries } from "@/fetchers";
+import { clientSafeGetOneDataSeries } from "@/fetchers/client";
 import { isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, RecipeDataTypes, RecipeError, RecipeExtractionOutput, RecipeVariable, EvalTimeVariable } from "@/functions/recipe/types";
 import getTableContent from "@/lib/api/getTableContent";
 import mathjs from "@/math";

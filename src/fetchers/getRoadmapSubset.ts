@@ -1,9 +1,8 @@
 import "server-only";
-import { multiRoadmapInclusionSelection } from "@/fetchers";
+import { multiRoadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getSession, LoginData } from "@/lib/session";
 import { roadmapSorter } from "@/lib/sorters";
-import prisma from "@/prismaClient";
-import { Prisma } from "@prisma/client";
+import prisma, { Prisma } from "@/prismaClient";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -14,11 +13,10 @@ import { cookies } from "next/headers";
  * @param actor Actor to filter by
  * @returns Array of roadmaps
  */
-export default async function getRoadmapSubset(actor?: string) {
+export async function getRoadmapSubset(actor?: string) {
   const session = await getSession(await cookies());
   return getCachedRoadmapSubset(session.user, actor);
 }
-export { getRoadmapSubset };
 
 // Also include the ids of goals and actions under the selected roadmaps
 const roadmapSubsetSelect = {

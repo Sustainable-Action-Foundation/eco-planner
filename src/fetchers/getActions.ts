@@ -1,8 +1,7 @@
 import "server-only";
-import { actionInclusionSelection } from "@/fetchers";
+import { actionInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getSession, LoginData } from "@/lib/session";
-import prisma from "@/prismaClient";
-import type { Prisma } from "@prisma/client";
+import prisma, { Prisma } from "@/prismaClient";
 import { cookies } from "next/headers";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 

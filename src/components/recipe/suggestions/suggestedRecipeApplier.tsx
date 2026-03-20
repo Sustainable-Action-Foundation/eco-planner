@@ -7,7 +7,7 @@ import { VariableTypeScalarSimple } from "../editor/variables/variableTypes/scal
 import { VariableTypeDataSeriesSimple } from "../editor/variables/variableTypes/dataSeriesVariable";
 import { VariableTypeExternalSimple } from "../editor/variables/variableTypes/externalDatasetVariable";
 import { Fragment, useEffect, useMemo, useState } from "react";
-import { clientSafeGetRoadmaps } from "@/fetchers";
+import { clientSafeGetRoadmaps } from "@/fetchers/client";
 import TabList from "../../generic/tablist/tabList";
 import OutputDataSeries from "../editor/output/dataSeriesDisplay";
 import OutputGraph from "../editor/output/graphDisplay";

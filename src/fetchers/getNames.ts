@@ -1,8 +1,7 @@
 import "server-only";
-import { nameSelector } from "@/fetchers";
+import { nameSelector } from "@/fetchers/inclusionSelectors";
 import { getSession, LoginData } from "@/lib/session";
-import prisma from "@/prismaClient";
-import { Prisma } from "@prisma/client";
+import prisma, { Prisma } from "@/prismaClient";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 

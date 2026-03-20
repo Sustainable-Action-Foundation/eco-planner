@@ -1,5 +1,5 @@
 import "server-only";
-import { roadmapInclusionSelection } from "@/fetchers";
+import { roadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getSession, LoginData } from "@/lib/session"
 import { goalSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
@@ -14,11 +14,10 @@ import { Roadmap } from "@/types";
  * @param id ID of the roadmap to get
  * @returns Roadmap object with goals or null
  */
-export default async function getOneRoadmap(id: string): Promise<Roadmap | null> {
+export async function getOneRoadmap(id: string): Promise<Roadmap | null> {
   const session = await getSession(await cookies());
   return await getCachedRoadmap(id, session.user)
 }
-export { getOneRoadmap };
 
 /**
  * Caches the specified roadmap and all goals for that roadmap.

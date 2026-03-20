@@ -3,14 +3,13 @@ import { getSession, LoginData } from "@/lib/session"
 import prisma from "@/prismaClient";
 import { cookies } from "next/headers";
 import { DBRecipe } from "@/types";
-import { recipeSelector } from "./inclusionSelectors";
+import { recipeSelector } from "@/fetchers/inclusionSelectors";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 
-export default async function getOneRecipe(id: string): Promise<DBRecipe | null> {
+export async function getOneRecipe(id: string): Promise<DBRecipe | null> {
   const session = await getSession(await cookies());
   return getCachedRecipe(id, session.user)
 }
-export { getOneRecipe };
 
 /** TODO - use the accessChecker? that would require a full db read and then filter on the result, not a filtered query like this is */
 const roadmapAccessFilter = (userId: string) => ({
