@@ -4,7 +4,7 @@ import { getSession, LoginData } from "@/lib/session";
 import prisma from "@/prismaClient";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
-import { Action } from "@/types";
+import type { Action } from "@/types";
 
 /**
  * Gets specified action.
@@ -13,7 +13,7 @@ import { Action } from "@/types";
  * @param id ID of the action to get
  * @returns Action object
  */
-export default async function getOneAction(id: string): Promise<Action | null> {
+export async function getOneAction(id: string): Promise<Action | null> {
   const session = await getSession(await cookies());
   return getCachedAction(id, session.user);
 }

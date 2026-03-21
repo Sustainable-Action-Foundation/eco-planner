@@ -3,12 +3,12 @@ import { cookies } from "next/headers";
 import GoalForm from "@/components/form/forms/goal";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { notFound } from "next/navigation";
-import getOneGoal from "@/fetchers/getOneGoal";
-import { AccessControlled, AccessLevel } from "@/types";
-import getRoadmaps from "@/fetchers/getRoadmaps.ts";
+import { AccessLevel } from "@/types";
+import type { AccessControlled } from "@/types";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
+import { getOneGoal, getRoadmaps } from "@/fetchers";
 
 export async function generateMetadata(props: { params: Promise<{ goalId: string }> }) {
   const params = await props.params;

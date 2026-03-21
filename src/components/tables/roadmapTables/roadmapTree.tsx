@@ -1,13 +1,13 @@
 import "server-only";
 import styles from "@/components/tables/tables.module.css" with { type: "css" };
 import { ControlsMenu } from "@/components/elements/controls/controls";
-import accessChecker from "@/lib/accessChecker.ts";
-import { LoginData } from "@/lib/session.ts";
+import accessChecker from "@/lib/accessChecker";
+import { LoginData } from "@/lib/session";
 import Link from "next/link";
 import { Fragment } from "react";
 import serveTea from "@/lib/i18nServer";
 import { IconCaretRightFilled } from "@tabler/icons-react";
-import { MultiRoadmapInstance } from "@/types";
+import type { MultiRoadmapInstance } from "@/types";
 
 type RoadmapTreeProps = {
   user: LoginData['user'];

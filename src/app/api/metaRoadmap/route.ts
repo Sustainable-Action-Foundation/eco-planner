@@ -1,8 +1,8 @@
 import { NextRequest } from "next/server";
 import { getSession } from "@/lib/session";
-import { AccessControlled, AccessLevel, ClientError, JSONValue, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
-import { Prisma, RoadmapType } from "@prisma/client";
-import prisma from "@/prismaClient";
+import { AccessLevel, ClientError } from "@/types";
+import type { AccessControlled, JSONValue, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
+import prisma, { Prisma, RoadmapType } from "@/prismaClient";
 import { revalidateTag } from "next/cache";
 import accessChecker from "@/lib/accessChecker";
 import pruneOrphans from "@/functions/pruneOrphans";

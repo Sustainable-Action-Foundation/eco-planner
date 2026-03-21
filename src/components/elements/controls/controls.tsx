@@ -2,15 +2,16 @@
 
 import styles from './controls.module.css' with { type: "css" }
 import Link from "next/link";
-import { useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { AccessLevel } from "@/types";
 import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
 import { useTranslation } from "react-i18next";
-import { IconArrowBackUp, IconChartHistogram, IconDotsVertical, IconEdit, IconPlus, IconTrashXFilled, IconX } from "@tabler/icons-react";
+import { IconArrowBackUp, IconChartHistogram, IconDotsVertical, IconEdit, IconPlus, IconStar, IconStarFilled, IconTrashXFilled, IconX } from "@tabler/icons-react";
 import { hasEditAccess } from '@/lib/accessChecker';
 import { TFunction } from 'i18next';
-import type { Action, Effect, Goal, MetaRoadmap, Roadmap } from "@/types";
+import type { Action, Effect, Goal, GoalUpdateInput, MetaRoadmap, Roadmap } from "@/types";
+import formSubmitter from '@/functions/formSubmitter';
 
 /*
   TODO: 
@@ -47,6 +48,7 @@ type EffectMenuEntry = Pick<Effect, "actionId" | "goalId"> & {
 type ObjectParameter = EffectMenuEntry | ActionMenuEntry | GoalMenuEntry | RoadmapMenuEntry | MetaRoadmapMenuEntry;
 
 type links = {
+  featureGoal?: string,
   selfLink?: string;
   parentLink?: string;
   parentDescription?: string;
@@ -59,11 +61,13 @@ type links = {
   deleteLink?: string;
 };
 
+/* TODO: This implemantation seems dumb probably */
 function buildLinks(
   object: ObjectParameter,
   t: TFunction,
 ): links | null {
 
+  let featureGoal: string | undefined
   let selfLink: string | undefined;
   let parentLink: string | undefined;
   let parentDescription: string | undefined;
@@ -99,6 +103,7 @@ function buildLinks(
 
   // Goals
   else if ("indicatorParameter" in object) {
+    featureGoal = "/api/goal"; /* TODO: Update this line */
     selfLink = `/goal/${object.id}`;
     parentLink = `/roadmap/${object.roadmap.id}`;
     parentDescription = t("components:table_menu.go_to_version");
@@ -153,6 +158,7 @@ function buildLinks(
   }
 
   return {
+    featureGoal,
     selfLink,
     parentLink,
     parentDescription,
@@ -317,64 +323,110 @@ export function AdminPanel(
   const deletionRef = useRef<HTMLDialogElement | null>(null);
   const objectName = getObjectName(object);
   const metaRoadmapName = getMetaRoadmapName(object);
+  const timestamp = useMemo(() => Date.now(), []);
+
+  const formContent = {
+    goalId: (object as Goal).id,
+    timestamp: timestamp, // Only needed for edits
+
+    name: undefined,
+    description: undefined,
+    indicatorParameter: undefined,
+    isFeatured: undefined,
+    recipeSuggestions: undefined,
+
+    externalDataset: undefined,
+    externalTableId: undefined,
+    externalSelection: undefined,
+
+    dataSeriesId: undefined,
+    dataSeries: undefined,
+    dataSeriesRecipeId: undefined,
+    dataSeriesRecipe: undefined,
+
+    baselineId: undefined,
+    baseline: undefined,
+    baselineRecipeId: undefined,
+    baselineRecipe: undefined,
+
+    roadmapId: undefined, // Can't reassign the roadmap of an existing goal
+    rawTags: undefined, // TODO: add tags input
+
+    // DEPRECATED - moved to description
+    links: undefined,
+  } satisfies GoalUpdateInput;
+
 
   return (
     <aside className="margin-block-300">
       <div className='flex justify-content-space-between align-items-flex-end flex-wrap-wrap margin-bottom-50 gap-25'>
-        <h1 className="font-weight-600 margin-0" style={{ fontSize: '1.25rem'}}>{t("components:table_menu.admin_panel_title")}</h1>
+        <h1 className="font-weight-600 margin-0" style={{ fontSize: '1.25rem' }}>{t("components:table_menu.admin_panel_title")}</h1>
         <small className='font-style-italic'>{t("components:table_menu.admin_panel_info")}</small>
       </div>
-      <menu className={`flex gap-50 align-items-stretch flex-grow-100 margin-0 padding-25 font-size-14px rounded ${styles['object-menu']}`}>
+      <menu className={`grid gap-50 margin-0 padding-0 padding-top-50 font-size-14px ${styles['object-menu']}`}>
         {links ? (
           <>
-            <nav className="display-contents">
-              {hasEditAccess(accessLevel ?? AccessLevel.None) ?
-                <>
+            {hasEditAccess(accessLevel ?? AccessLevel.None) ? (
+              <>
+                {links.featureGoal && (
+                  <button
+                    className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`}
+                    style={{ boxShadow: 'none', cursor: 'pointer', fontSize: '14px', transform: 'none' }}
+                    onClick={() => {
+                      const updatedForm = {
+                        ...formContent,
+                        isFeatured: !(object as Goal).isFeatured,
+                      };
+
+                      formSubmitter('/api/goal', JSON.stringify(updatedForm), 'PUT', t);
+                    }}
+                  >
+                    {(object as Goal).isFeatured ? (
+                      <>
+                        <span className='margin-right-25'>{t("components:table_menu.feature_goal_stop")}</span>
+                        <IconStarFilled fill='darkorange' aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+                      </>
+                    ) : (
+                      <>
+                        <span className='margin-right-25'>{t("components:table_menu.feature_goal")}</span>
+                        <IconStar aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+                      </>
+                    )}
+                  </button>
+                )}
+                <nav className="display-contents">
+                  {links.historicalDataLink &&
+                    <Link href={links.historicalDataLink} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`}>
+                      <span>{t("components:table_menu.historical_data")}</span>
+                      <IconChartHistogram aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+                    </Link>
+                  }
                   {links.creationLink &&
-                    <>
-                      <Link href={links.creationLink} className={`flex gap-100 align-items-center smooth neutral-action ${styles['object-menu-link']}`}>
-                        <span>{links.creationDescription}</span>
-                        <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
-                      </Link>
-                      <hr className="round margin-inline-0 margin-block-50" />
-                    </>
+                    <Link href={links.creationLink} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`}>
+                      <span>{links.creationDescription}</span>
+                      <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+                    </Link>
                   }
                   {links.creationLink2 &&
-                    <>
-                      <Link href={links.creationLink2} className={`flex gap-100 align-items-center smooth neutral-action ${styles['object-menu-link']}`}>
-                        <span>{links.creationDescription2 || links.creationLink2}</span>
-                        <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
-                      </Link>
-                      <hr className="round margin-inline-0 margin-block-50" />
-                    </>
-                  }
-                  {links.historicalDataLink &&
-                    <>
-                      <Link href={links.historicalDataLink} className={`flex gap-100 align-items-center smooth neutral-action ${styles['object-menu-link']}`}>
-                        <span>{t("components:table_menu.historical_data")}</span>
-                        <IconChartHistogram aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
-                      </Link>
-                      <hr className="round margin-inline-0 margin-block-50" />
-                    </>
+                    <Link href={links.creationLink2} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`}>
+                      <span>{links.creationDescription2 || links.creationLink2}</span>
+                      <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+                    </Link>
                   }
                   {links.editLink &&
-                    <>
-                      <Link href={links.editLink} className={`flex gap-100 align-items-center smooth neutral-action ${styles['object-menu-link']}`}> 
-                        <span>{t("components:table_menu.edit")}</span>
-                        <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
-                      </Link>
-                      <hr className="round margin-inline-0 margin-block-50" />
-                    </>
+                    <Link href={links.editLink} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`}>
+                      <span>{t("components:table_menu.edit")}</span>
+                      <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+                    </Link>
                   }
-                </>
-                : null
-              }
-            </nav>
+                </nav>
+              </>
+            ) : null
+            }
             {/* Admins and authors can delete items */}
             {(accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) && links.deleteLink &&
               <>
-                <hr className="round margin-inline-0 margin-block-50 margin-left-auto" />
-                <button type="button" className={`flex gap-100 align-items-center button smooth ${styles['object-menu-button']}`} style={{ color: 'white', backgroundColor: "#f03b3b", border: '0' }} onClick={() => openModal(deletionRef)}>
+                <button type="button" className={`flex gap-50 justify-content-space-between align-items-center button smooth  ${styles['object-menu-button']}`} style={{ textShadow: 'none', color: 'white', backgroundColor: "#f03b3b", border: '0' }} onClick={() => openModal(deletionRef)}>
                   {t("components:table_menu.delete")}
                   <IconTrashXFilled aria-hidden="true" width={20} height={20} fill="white" style={{ minWidth: '20px' }} />
                 </button>
@@ -384,7 +436,7 @@ export function AdminPanel(
           </>
         ) : null}
       </menu>
-    </aside>
+    </aside >
   )
 
 }

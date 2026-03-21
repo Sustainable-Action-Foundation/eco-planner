@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useMemo } from "react"
 import { useTranslation } from "react-i18next";
 import styles from './comboBox.module.css' with { type: "css" }
-import { InputElement, Option } from "@/components/types";
+import type { InputElement, Option } from "@/components/types";
 import { clearEditableCombobox, handleKeyDownEditableCombobox, preventInvalidFormSubmission, scrollOptionIntoView } from "./functions";
 import Fuse, { IFuseOptions } from "fuse.js";
 import { IconSearch, IconSelector } from "@tabler/icons-react";

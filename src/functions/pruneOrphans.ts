@@ -12,6 +12,7 @@ export default async function pruneOrphans() {
           AND: [
             { actionId: null },
             { goalId: null },
+            { roadmapId: null },
             { metaRoadmapId: null },
           ]
         }

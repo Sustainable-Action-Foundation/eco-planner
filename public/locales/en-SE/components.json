@@ -132,6 +132,23 @@
     "create_variable": "Create variable",
     "data_series": "Data series",
     "dataset": "Dataset",
+    "default_area_recipe": {
+      "child_area": "Child area",
+      "name": "Scale by area",
+      "parent_area": "Parent area",
+      "parent_value": "Parent"
+    },
+    "default_population_recipe": {
+      "child_population": "Child population",
+      "name": "Scale by population",
+      "parent_population": "Parent population",
+      "parent_value": "Parent"
+    },
+    "default_scalar_recipe": {
+      "name": "Scale by constant value",
+      "parent_value": "Parent",
+      "scalar": "Scalar"
+    },
     "delete_variable": "Delete variable:",
     "edit_variable": "Edit variable",
     "equation": "Equation",
@@ -220,7 +237,7 @@
     "username": "Username"
   },
   "table_menu": {
-    "add_effect_from_existing_action": "Add $t(common:effect_one) from existing $t(common:action_one)",
+    "add_effect_from_existing_action": "Add $t(common:effect_one)",
     "admin_panel_info": "Only users with admin- or edit access can see this panel. Which actions are available to a user depend on their level of access to this post.",
     "admin_panel_title": "Admin panel",
     "button_aria": "Menu for {{component}}",
@@ -230,6 +247,8 @@
     "edit": "Edit",
     "effect_from_action": "{{$t(common:effect_one), titleCase}} from {{source}}",
     "effect_missing_name": "Name missing",
+    "feature_goal": "Feature $t(common:goal_one)",
+    "feature_goal_stop": "Stop featuring $t(common:goal_one)",
     "go_to_goal": "Go to $t(common:goal_one)",
     "go_to_series": "Go to $t(common:roadmap_series_one)",
     "go_to_version": "Go to $t(common:roadmap_version_one)",

@@ -1,6 +1,6 @@
 'use client';
 
-import { JSONValue } from "@/types";
+import type { JSONValue } from "@/types";
 
 // Silently fail if sessionStorage or localStorage is not available, but log an error to the user
 

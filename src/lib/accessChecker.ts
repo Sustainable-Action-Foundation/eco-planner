@@ -1,4 +1,5 @@
-import { AccessControlled, AccessLevel } from "@/types";
+import { AccessLevel } from "@/types";
+import type { AccessControlled } from "@/types";
 import { LoginData } from "./session";
 
 /**

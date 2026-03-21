@@ -1,12 +1,13 @@
-import getOneAction from "@/fetchers/getOneAction";
+import { getOneAction }from "@/fetchers";
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AccessControlled, AccessLevel } from "@/types";
+import { AccessLevel } from "@/types";
+import type { AccessControlled } from "@/types";
 import accessChecker from "@/lib/accessChecker";
 import Comments from "@/components/comments/comments";
-import EffectTable from "@/components/tables/effects.tsx";
+import EffectTable from "@/components/tables/effects";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";

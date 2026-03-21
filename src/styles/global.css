@@ -177,30 +177,19 @@ button[type="submit"]:disabled {
 }
 
 /* Neutral button (Not CTA or danger) */
-/* NOTE: This design works when buttons act as a standalone element.
-  A flat design works better when hierarchy is implied
-*/
-@property --breakpoint {
-  /* TODO: Breakpoint is too generic */
-  initial-value: 50%;
-  inherits: false;
-  syntax: '<percentage>';
-}
 
 .neutral-action {
   color: #191919;
-  background: linear-gradient(var(--gray-90) var(--breakpoint), #d7dfe2);
-  border: 1px solid var(--gray-90);
-  color: black;
+  background-color: hsl(223.12deg 100% 96%);
+  border: 1px solid var(--gray-80);
   text-decoration: none;
-  transition: --breakpoint .1s ease-out, border-color .1s ease-out;
   padding: .3rem .6rem;
+
 }
 
 .neutral-action:hover {
-  --breakpoint: 100%;
   border-color: var(--blue-40);
-  box-shadow: none;
+  background-color: hsl(223.12deg 100% 93%); 
 }
 
 /* Login error message */

@@ -1,7 +1,7 @@
 import findTypeFromId from "@/functions/findTypeFromId";
 import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
-import { JSONValue } from "@/types";
+import type { JSONValue } from "@/types";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";

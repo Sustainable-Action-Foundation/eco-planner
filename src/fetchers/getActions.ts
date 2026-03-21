@@ -1,8 +1,7 @@
 import "server-only";
 import { actionInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getSession, LoginData } from "@/lib/session";
-import prisma from "@/prismaClient";
-import type { Prisma } from "@prisma/client";
+import prisma, { Prisma } from "@/prismaClient";
 import { cookies } from "next/headers";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 
@@ -12,7 +11,7 @@ import { cacheTag } from "next/dist/server/use-cache/cache-tag";
  * Returns an empty array if no actions are found or user does not have access to any. Also returns an empty array on error.
  * @returns Array of actions
  */
-export default async function getOneAction() {
+export async function getActions() {
   const session = await getSession(await cookies());
   return getCachedActions(session.user);
 }

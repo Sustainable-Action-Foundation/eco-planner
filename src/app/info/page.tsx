@@ -1,6 +1,6 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { buildMetadata } from "@/functions/buildMetadata";
-import { JSONValue } from "@/types.ts";
+import type { JSONValue } from "@/types";
 import fs from "fs";
 import metadata from "package.json" with { type: "json" };
 import serveTea from "@/lib/i18nServer";

@@ -1,5 +1,5 @@
 import { isStandardObject } from "@/types";
-import { ApiTableContent } from "./apiTypes";
+import type { ApiTableContent } from "./apiTypes";
 
 export type DatasetKeys = "SCB" | "Trafa" | "SSB";
 export type DatasetData = {

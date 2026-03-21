@@ -5,7 +5,7 @@ import { roadmapSorter } from "@/lib/sorters";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 import { multiRoadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
-import { MultiRoadmapInstance } from "@/types";
+import type { MultiRoadmapInstance } from "@/types";
 
 /**
  * Gets all roadmaps the user has access to, as well as the count of goals for each roadmap.
@@ -13,7 +13,7 @@ import { MultiRoadmapInstance } from "@/types";
  * Returns an empty array if no roadmaps are found or user does not have access to any. Also returns an empty array on error.
  * @returns Array of roadmaps
  */
-export default async function getRoadmaps(roadmapIds?: string[],): Promise<MultiRoadmapInstance[]> {
+export async function getRoadmaps(roadmapIds?: string[],): Promise<MultiRoadmapInstance[]> {
   const session = await getSession(await cookies());
   return getCachedRoadmaps(session.user, roadmapIds);
 }

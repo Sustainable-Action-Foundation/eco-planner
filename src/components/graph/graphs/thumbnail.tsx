@@ -1,6 +1,6 @@
 import WrappedChart from "@/lib/chartWrapper";
 import styles from '../graphs.module.css'
-import { ApiTableContent } from "@/lib/api/apiTypes";
+import type { ApiTableContent } from "@/lib/api/apiTypes";
 import { parsePeriod } from "@/lib/api/utility";
 import getTableContent from "@/lib/api/getTableContent";
 import i18nServer from "i18next";
@@ -115,7 +115,7 @@ export default async function ThumbnailGraph({
     <>
       <div className={styles.graphWrapperThumbnail}>
         <h3 className="font-weight-500 margin-0 padding-top-75 padding-inline-75 overflow-hidden white-space-nowrap text-align-center text-overflow-ellipsis">
-          {goal.name}
+          {goal.name ? goal.name : goal.indicatorParameter}
         </h3>
         <div className="flex-grow-100">
           <WrappedChart

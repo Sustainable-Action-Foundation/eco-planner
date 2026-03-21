@@ -1,5 +1,5 @@
 import React from "react"
-import { Position } from "@/components/types"
+import type { Position } from "@/components/types"
 
 export function handleKeyDownGrid({
   e,

@@ -1,12 +1,12 @@
 import { NextRequest } from "next/server";
 import { getSession } from "@/lib/session"
-import prisma from "@/prismaClient";
-import { AccessControlled, AccessLevel, ClientError, ActionInput, isDateValuesWithUnit } from "@/types";
+import prisma, { Prisma } from "@/prismaClient";
+import { AccessLevel, ClientError, isDateValuesWithUnit } from "@/types";
+import type { AccessControlled, ActionInput } from "@/types";
 import accessChecker from "@/lib/accessChecker";
 import { revalidateTag } from "next/cache";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { cookies } from "next/headers";
-import { Prisma } from "@prisma/client";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 
 /**

@@ -1,6 +1,6 @@
 "use client"
 
-import { AccessLevel } from '@/types'
+import { AccessLevel } from '@/types';
 import GoalTable from "./goalTables/goalTable"
 import TableSelector from './tableSelector/tableSelector'
 import LinkTree from './goalTables/linkTree'
@@ -9,7 +9,7 @@ import { getStoredGoalSortBy, getStoredViewMode, setStoredGoalSortBy } from "./f
 import Link from "next/link"
 import Image from "next/image"
 import styles from './tables.module.css'
-import type getOneRoadmap from "@/fetchers/getOneRoadmap.ts"
+import type { getOneRoadmap } from "@/fetchers"
 import { useTranslation } from "react-i18next"
 import { IconSearch } from '@tabler/icons-react'
 

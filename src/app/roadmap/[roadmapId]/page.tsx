@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import getOneRoadmap from "@/fetchers/getOneRoadmap";
+import { getOneRoadmap } from "@/fetchers";
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import accessChecker from "@/lib/accessChecker";
@@ -10,7 +10,7 @@ import ThumbnailGraph from "@/components/graph/graphs/thumbnail";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
-import { IconArrowNarrowRight, IconBuildings, IconCircleFilled, IconUser } from "@tabler/icons-react";
+import { IconArrowNarrowRight, IconBuildings, IconCircleFilled } from "@tabler/icons-react";
 import Link from "next/link";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 import { AdminPanel } from "@/components/elements/controls/controls";
@@ -128,7 +128,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
           <div className="flex flex-wrap-nowrap gap-100 overflow-x-scroll padding-bottom-100" style={{ scrollbarWidth: 'thin', scrollbarColor: 'var(--gray) rgba(0,0,0,0)', scrollSnapType: 'x mandatory', direction: 'ltr' }}>
             {featuredGoals.map((goal, key) =>
               goal && (
-                <Link key={key} href={`/goal/${goal.id}`} className="color-pureblack text-decoration-none" style={{ width: '300px', height: '250px', scrollSnapAlign: 'start' }}>
+                <Link key={key} href={`/goal/${goal.id}`} className="color-pureblack text-decoration-none" style={{ width: '300px', minWidth: '300px', height: '250px', scrollSnapAlign: 'start' }}>
                   <ThumbnailGraph goal={goal} historicalData={true} />
                 </Link>
               )

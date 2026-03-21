@@ -63,7 +63,7 @@ FROM base AS seed
 COPY src/scripts/lib ./src/scripts/lib
 COPY src/functions ./src/functions
 COPY src/lib ./src/lib
-COPY src/types.ts ./src/types.ts
+COPY src/types ./src/types
 COPY src/math.ts ./src/math.ts
 
 # Dependencies

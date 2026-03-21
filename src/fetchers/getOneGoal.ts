@@ -5,7 +5,7 @@ import { effectSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
-import { Goal } from "@/types";
+import type { Goal } from "@/types";
 
 /**
  * Gets specified goal and all actions for that goal.
@@ -14,7 +14,7 @@ import { Goal } from "@/types";
  * @param id ID of the goal to get
  * @returns Goal object with actions
  */
-export default async function getOneGoal(id: string): Promise<Goal | null> {
+export async function getOneGoal(id: string): Promise<Goal | null> {
   const session = await getSession(await cookies());
   return getCachedGoal(id, session.user)
 }

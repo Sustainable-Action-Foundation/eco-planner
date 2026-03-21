@@ -1,12 +1,13 @@
 'use client';
 
-import { AccessLevel, Action, Effect, Goal } from "@/types.ts";
+import { AccessLevel } from "@/types";
+import type { Action, Effect, Goal } from "@/types";
 import Link from "next/link";
-import { ControlsMenu } from "../elements/controls/controls.tsx";
+import { ControlsMenu } from "../elements/controls/controls";
 import { useTranslation } from "react-i18next";
 import styles from "@/components/tables/tables.module.css" with { type: "css" };
 import { IconCaretRightFilled, ReactNode } from "@tabler/icons-react";
-import { hasEditAccess } from "@/lib/accessChecker.ts";
+import { hasEditAccess } from "@/lib/accessChecker";
 
 interface EffectTableCommonProps {
   accessLevel?: AccessLevel;

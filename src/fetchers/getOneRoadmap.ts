@@ -5,7 +5,7 @@ import { goalSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
-import { Roadmap } from "@/types";
+import type { Roadmap } from "@/types";
 
 /**
  * Gets specified roadmap and all goals for that roadmap.
@@ -14,7 +14,7 @@ import { Roadmap } from "@/types";
  * @param id ID of the roadmap to get
  * @returns Roadmap object with goals or null
  */
-export default async function getOneRoadmap(id: string): Promise<Roadmap | null> {
+export async function getOneRoadmap(id: string): Promise<Roadmap | null> {
   const session = await getSession(await cookies());
   return await getCachedRoadmap(id, session.user)
 }

@@ -2,13 +2,12 @@ import { getSession } from '@/lib/session';
 import MetaRoadmapForm from '@/components/form/forms/metaRoadmap';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
-import getMetaRoadmaps from '@/fetchers/getMetaRoadmaps';
-import getOneMetaRoadmap from '@/fetchers/getOneMetaRoadmap';
 import accessChecker from '@/lib/accessChecker';
 import { AccessLevel } from '@/types';
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from '@/functions/buildMetadata';
+import { getOneMetaRoadmap, getMetaRoadmaps } from "@/fetchers";
 
 export async function generateMetadata(props: { params: Promise<{ metaRoadmapId: string }> }) {
   const params = await props.params

@@ -1,7 +1,7 @@
 "use server";
 
 import { ExternalDataset } from "../api/utility";
-import { StructureItem, TrafaDataResponse } from "./trafaTypes";
+import type { StructureItem, TrafaDataResponse } from "./trafaTypes";
 
 export default async function getTrafaTables(query?: string | null, language?: string) {
   const url = new URL('./structure', ExternalDataset.Trafa.baseUrl);

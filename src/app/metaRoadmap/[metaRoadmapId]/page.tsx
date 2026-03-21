@@ -1,4 +1,4 @@
-import getOneMetaRoadmap from "@/fetchers/getOneMetaRoadmap";
+import { getOneMetaRoadmap } from "@/fetchers";
 import accessChecker from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import { AccessLevel } from "@/types";

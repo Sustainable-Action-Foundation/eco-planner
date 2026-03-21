@@ -1,6 +1,6 @@
 "use client"
 
-import { InputElement, TreeItem } from "@/components/types"
+import type { InputElement, TreeItem } from "@/components/types"
 import { IconCaretRightFilled, IconSearch, IconSelector } from "@tabler/icons-react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { clearEditableCombobox, handleKeyDownTreeCombobox, preventInvalidFormSubmission } from "./functions";

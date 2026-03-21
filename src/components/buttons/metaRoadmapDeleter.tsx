@@ -1,6 +1,6 @@
 'use client';
 
-import type getOneMetaRoadmap from "@/fetchers/getOneMetaRoadmap";
+import type { getOneMetaRoadmap } from "@/fetchers";
 import { useRef } from "react";
 import ConfirmDelete from "../modals/confirmDelete";
 import { openModal } from "../modals/modalFunctions";

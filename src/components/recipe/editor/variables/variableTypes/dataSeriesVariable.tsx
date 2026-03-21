@@ -8,11 +8,10 @@ import { updateDataSeriesLink } from "@/components/recipe/variableEditingHelpers
 import VariableTypeCommon from "./commonVariable";
 import VectorPickerSelect from "./vectorPickerSelect";
 import React, { useCallback, useEffect, useState } from "react";
-import { InputElement, TreeItem } from "@/components/types";
+import type { InputElement, TreeItem } from "@/components/types";
 import SelectSingleTreeSearch from "@/components/form/elements/combobox/selectSingleTreeSearch";
-import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
-import clientSafeGetOneDataSeries from "@/fetchers/clientSafeGetOneDataSeries";
 import { RecipeContextType } from "@/components/recipe/context/recipeContext.internal";
+import { clientSafeGetOneRoadmap, clientSafeGetOneDataSeries } from "@/fetchers/client";
 
 function useRoadmapTreeItems(availableRoadmaps: { id: string; name: string; }[]) {
   const [treeItems, setTreeItems] = useState<TreeItem[]>([]);

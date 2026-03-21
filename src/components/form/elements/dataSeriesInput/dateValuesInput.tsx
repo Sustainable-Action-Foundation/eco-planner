@@ -4,7 +4,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./dataSeriesInput.module.css";
 import { IconCaretDownFilled, IconCaretUpFilled } from "@tabler/icons-react";
-import { DateValuesWithUnit, isISOIshDate, ISOIshDate } from "@/types";
+import { isISOIshDate } from "@/types";
+import type { DateValuesWithUnit, ISOIshDate } from "@/types";
 
 export default function DateValuesInput({
   initialDateValues = { unit: undefined, dateValues: {} },

@@ -5,7 +5,7 @@ import { getSession, LoginData } from "@/lib/session"
 import prisma from "@/prismaClient";
 import { cookies } from "next/headers";
 import { unstable_cacheTag as cacheTag } from 'next/cache'
-import { ClientGoal } from "@/types";
+import type { ClientGoal } from "@/types";
 
 /**
  * A function similar to `getOneGoal`, but excluding potentially sensitive data.
@@ -14,7 +14,7 @@ import { ClientGoal } from "@/types";
  * @param id ID of the goal to get
  * @returns Goal object with actions
  */
-export default async function clientSafeGetOneGoal(id: string): Promise<ClientGoal | null> {
+export async function clientSafeGetOneGoal(id: string): Promise<ClientGoal | null> {
   const session = await getSession(await cookies());
   return clientSafeGetCachedGoal(id, session.user)
 }

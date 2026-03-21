@@ -1,7 +1,8 @@
 'use client';
 
 import { TFunction } from "i18next";
-import { isStandardObject, JSONValue } from "@/types";
+import { isStandardObject } from "@/types";
+import type { JSONValue } from "@/types";
 import { SetStateAction } from "react";
 
 /**
@@ -43,7 +44,7 @@ export default function formSubmitter(
         } else {
           // If the response is not a standard object, throw a generic error
           console.error('Unexpected non-ok response: ', res);
-          throw new Error(t("common:something_went_wrong_with_details", { details: `Unexpected non-ok response, see terminal for more information. Status: ${res.status}, Status Text: ${res.statusText}` }));
+          throw new Error(t("common:errors.something_went_wrong_with_details", { details: `Unexpected non-ok response, see terminal for more information. Status: ${res.status}, Status Text: ${res.statusText}` }));
         }
       } else {
         throw new Error(t("common:errors.something_went_wrong"));

@@ -5,7 +5,7 @@ import { roadmapSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
-import { MetaRoadmap } from "@/types";
+import type { MetaRoadmap } from "@/types";
 
 /**
  * Gets specified meta roadmap and all versions for that meta roadmap.
@@ -13,7 +13,7 @@ import { MetaRoadmap } from "@/types";
  * Returns null if meta roadmap is not found or user does not have access to it. Also returns null on error.
  * @returns Meta roadmap object with roadmap versions
  */
-export default async function getOneMetaRoadmap(id: string): Promise<MetaRoadmap | null> {
+export async function getOneMetaRoadmap(id: string): Promise<MetaRoadmap | null> {
   const session = await getSession(await cookies());
   return getCachedMetaRoadmap(id, session.user);
 }
