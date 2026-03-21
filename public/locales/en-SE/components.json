@@ -246,6 +246,8 @@
     "edit": "Edit",
     "effect_from_action": "{{$t(common:effect_one), titleCase}} from {{source}}",
     "effect_missing_name": "Name missing",
+    "feature_goal": "Feature $t(common:goal_one)",
+    "feature_goal_stop": "Stop featuring $t(common:goal_one)",
     "go_to_goal": "Go to $t(common:goal_one)",
     "go_to_series": "Go to $t(common:roadmap_series_one)",
     "go_to_version": "Go to $t(common:roadmap_version_one)",

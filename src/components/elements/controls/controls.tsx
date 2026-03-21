@@ -383,12 +383,12 @@ export function AdminPanel(
                   >
                     {(object as Goal).isFeatured ? (
                       <>
-                        <span className='margin-right-25'>Sluta lyft fram målbana</span> {/* TODO: I18n */}
+                        <span className='margin-right-25'>{t("components:table_menu.feature_goal_stop")}</span>
                         <IconStarFilled fill='darkorange' aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                       </>
                     ) : (
                       <>
-                        <span className='margin-right-25'>Lyft fram målbana</span> {/* TODO: I18n */}
+                        <span className='margin-right-25'>{t("components:table_menu.feature_goal")}</span>
                         <IconStar aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                       </>
                     )}
