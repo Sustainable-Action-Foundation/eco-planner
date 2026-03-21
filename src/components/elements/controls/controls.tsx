@@ -2,7 +2,7 @@
 
 import styles from './controls.module.css' with { type: "css" }
 import Link from "next/link";
-import { useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { AccessLevel } from "@/types";
 import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
@@ -10,7 +10,8 @@ import { useTranslation } from "react-i18next";
 import { IconArrowBackUp, IconChartHistogram, IconDotsVertical, IconEdit, IconPlus, IconStar, IconStarFilled, IconTrashXFilled, IconX } from "@tabler/icons-react";
 import { hasEditAccess } from '@/lib/accessChecker';
 import { TFunction } from 'i18next';
-import type { Action, Effect, Goal, MetaRoadmap, Roadmap } from "@/types";
+import type { Action, Effect, Goal, GoalUpdateInput, MetaRoadmap, Roadmap } from "@/types";
+import formSubmitter from '@/functions/formSubmitter';
 
 /*
   TODO: 
@@ -322,7 +323,40 @@ export function AdminPanel(
   const deletionRef = useRef<HTMLDialogElement | null>(null);
   const objectName = getObjectName(object);
   const metaRoadmapName = getMetaRoadmapName(object);
-  console.log((object as Goal).isFeatured)
+  const timestamp = useMemo(() => Date.now(), []);
+
+  const formContent = {
+    goalId: (object as Goal).id,
+    timestamp: timestamp, // Only needed for edits
+
+    name: undefined,
+    description: undefined,
+    indicatorParameter: undefined,
+    isFeatured: undefined,
+    recipeSuggestions: undefined,
+
+    externalDataset: undefined,
+    externalTableId: undefined,
+    externalSelection: undefined,
+
+    dataSeriesId: undefined,
+    dataSeries: undefined,
+    dataSeriesRecipeId: undefined,
+    dataSeriesRecipe: undefined,
+
+    baselineId: undefined,
+    baseline: undefined,
+    baselineRecipeId: undefined,
+    baselineRecipe: undefined,
+
+    roadmapId: undefined, // Can't reassign the roadmap of an existing goal
+    rawTags: undefined, // TODO: add tags input
+
+    // DEPRECATED - moved to description
+    links: undefined,
+  } satisfies GoalUpdateInput;
+
+
   return (
     <aside className="margin-block-300">
       <div className='flex justify-content-space-between align-items-flex-end flex-wrap-wrap margin-bottom-50 gap-25'>
@@ -335,7 +369,18 @@ export function AdminPanel(
             {hasEditAccess(accessLevel ?? AccessLevel.None) ? (
               <>
                 {links.featureGoal && (
-                  <button className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`} style={{ boxShadow: 'none', cursor: 'pointer', fontSize: '14px', transform: 'none' }}>
+                  <button
+                    className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`}
+                    style={{ boxShadow: 'none', cursor: 'pointer', fontSize: '14px', transform: 'none' }}
+                    onClick={() => {
+                      const updatedForm = {
+                        ...formContent,
+                        isFeatured: !(object as Goal).isFeatured,
+                      };
+
+                      formSubmitter('/api/goal', JSON.stringify(updatedForm), 'PUT', t);
+                    }}
+                  >
                     {(object as Goal).isFeatured ? (
                       <>
                         <span className='margin-right-25'>Sluta lyft fram målbana</span> {/* TODO: I18n */}
