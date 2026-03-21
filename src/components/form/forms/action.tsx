@@ -10,6 +10,7 @@ import TextEditor from "../elements/textEditor/editor"
 import { useMemo, useState, useRef } from "react"
 import { Content } from "@tiptap/core"
 import { useToastContext } from "@/context/context"
+import { useRouter } from "next/navigation"
 
 export default function ActionForm({
   goalId,
@@ -24,6 +25,7 @@ export default function ActionForm({
 }) {
   const { t } = useTranslation(["forms", "common"]);
   const descriptionRef = useRef<HTMLInputElement>(null);
+  const router = useRouter()
 
   const timestamp = useMemo(() => Date.now(), []);
 
@@ -71,7 +73,7 @@ export default function ActionForm({
 
     const formJSON = JSON.stringify(formContent);
 
-    formSubmitter('/api/action', formJSON, currentAction ? 'PUT' : 'POST', t, undefined, undefined, undefined, undefined, addMessage);
+    formSubmitter('/api/action', formJSON, currentAction ? 'PUT' : 'POST', t, undefined, undefined, undefined, undefined, addMessage, router.push);
   }
 
   // Indexes for the data-position attribute in the legend elements

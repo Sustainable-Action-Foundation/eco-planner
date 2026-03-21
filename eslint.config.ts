@@ -34,8 +34,8 @@ export default defineConfig(
           "caughtErrorsIgnorePattern": "^_",
           "destructuredArrayIgnorePattern": "^_",
           "varsIgnorePattern": "^_",
-          "ignoreRestSiblings": true
-        }
+          "ignoreRestSiblings": true,
+         }
       ],
       "@typescript-eslint/no-unsafe-argument": "warn",
       "@typescript-eslint/no-unsafe-assignment": "warn",

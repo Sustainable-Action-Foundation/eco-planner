@@ -14,7 +14,6 @@ import type { Effect, Goal, Roadmap } from "@/types";
 import ChildGraphContainer from "../child/container";
 import SiblingGraph from "../sibling/siblings";
 import findSiblings from "@/functions/findSiblings";
-import { graphHeight } from "../config";
 import CopyAndScale from "@/components/modals/copyAndScale";
 import { LoginData } from "@/lib/session";
 import styles from '../goal.module.css'
