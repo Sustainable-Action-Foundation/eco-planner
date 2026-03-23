@@ -2,8 +2,7 @@ import "server-only";
 import { metaRoadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getSession, LoginData } from "@/lib/session";
 import { metaRoadmapSorter } from "@/lib/sorters";
-import prisma from "@/prismaClient";
-import { Prisma } from "@prisma/client";
+import prisma, { Prisma } from "@/prismaClient";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -13,7 +12,7 @@ import { cookies } from "next/headers";
  * Returns an empty array if none are found or user does not have access to any. Also returns an empty array on error.
  * @returns Array of meta roadmaps
  */
-export default async function getMetaRoadmaps() {
+export async function getMetaRoadmaps() {
   const session = await getSession(await cookies());
   return getCachedMetaRoadmaps(session.user);
 }

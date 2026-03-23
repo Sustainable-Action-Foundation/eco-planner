@@ -31,7 +31,7 @@ test.describe("Locales Test page", () => {
     await expect(page.getByRole("heading", { name: "Test page for translations" })).toBeVisible();
 
     const checkKeyCount = async () => {
-      const table = await page.getByTestId("translation-table");
+      const table = page.getByTestId("translation-table");
       const rows = table.getByTestId("translation-row");
 
       const rowCount = await rows.count();

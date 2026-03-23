@@ -1,24 +1,9 @@
-import { ActionImpactType, Prisma, RoadmapType } from "@prisma/client";
-import { actionInclusionSelection, clientSafeDataSeriesSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapSelection, effectInclusionSelection, goalInclusionSelection, metaRoadmapInclusionSelection, multiRoadmapInclusionSelection, nameSelector, recipeSelector, roadmapInclusionSelection } from "./fetchers/inclusionSelectors";
-import { Recipe } from "./functions/recipe/types";
+import { actionInclusionSelection, clientSafeDataSeriesSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapSelection, effectInclusionSelection, goalInclusionSelection, metaRoadmapInclusionSelection, multiRoadmapInclusionSelection, nameSelector, recipeSelector, roadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
+import { Recipe } from "@/functions/recipe/types";
 import { Unit } from "mathjs";
 
-/**
- * A utility function for helping with finding where something fails in a typeguard chain.
- * Meant to be used at the end of a chain of logical AND or OR operations, which would usually short-circuit, but call this function on failure.
- * 
- * Example:  
- *   `ShouldBeTruthy1 && ShouldBeTruthy2 || typeguardDebug("Failed AND check");`
- * 
- * or:  
- *   `ShouldBeTruthy1 || ShouldBeTruthy2 || typeguardDebug("Failed OR check");`
- * 
- * @returns `false`, so it can be used after an OR in logical operations without affecting the result.
- */
-export function typeguardDebug(message: string): false {
-  console.debug(message);
-  return false;
-}
+import type { Prisma } from "@prisma/client";
+import { RoadmapType, ActionImpactType } from "@prisma/client";
 
 /** An object that implements the AccessControlled interface can be checked with the accessChecker function. */
 export interface AccessControlled {
@@ -32,41 +17,6 @@ export interface AccessControlled {
   viewGroups: { id: string, name: string, users: { id: string, username: string }[] }[],
   isPublic: boolean,
 };
-
-/** Object and type for the different access levels returned by the accessChecker function. */
-export const AccessLevel = {
-  None: "",
-  View: "VIEW",
-  Edit: "EDIT",
-  Author: "AUTHOR",
-  Admin: "ADMIN",
-} as const;
-export type AccessLevel = (typeof AccessLevel)[keyof typeof AccessLevel];
-
-export const ClientError = {
-  AccessDenied: "You either don't have access to this entry or are trying to edit an entry that doesn't exist",
-  BadSession: "Bad session cookie; you have been logged out. Please log in and try again.",
-  IllegalParent: "You are trying to connect this object to a parent you don't have access to or that doesn't exist",
-  StaleData: "Stale data; please refresh and try again",
-} as const;
-export type ClientError = (typeof ClientError)[keyof typeof ClientError];
-
-/** Object and type with the different types of sorting available for roadmaps */
-export const RoadmapSortBy = {
-  Default: "",
-  Alpha: "ALPHA",
-  AlphaReverse: "ALPHA REVERSE",
-  GoalsFalling: "HIGH FIRST",
-  GoalsRising: "LOW FIRST",
-} as const;
-export type RoadmapSortBy = (typeof RoadmapSortBy)[keyof typeof RoadmapSortBy];
-
-export function isStandardObject(object: unknown): object is object {
-  return typeof object === "object" && object != null && !Array.isArray(object);
-}
-
-/** A regex to match UUIDs. Allows all UUIDs of all versions and variants, even non-standard ones, as specified by RFC 9562 */
-export const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
 
 /**
  * A type used by the breadcrumbs component to display the names of objects rather than their UUIDs.
@@ -167,7 +117,7 @@ export type MetaRoadmapCreateInput = {
   actor: string | null | undefined,
   isPublic: boolean | undefined,
 
-  /* Relational fields are handeled differently in our API */
+  /* Relational fields are handled differently in our API */
   // roadmapVersions?: RoadmapCreateNestedManyWithoutMetaRoadmapInput,
   // parentRoadmap?: MetaRoadmapCreateNestedOneWithoutChildRoadmapsInput,
   // childRoadmaps?: MetaRoadmapCreateNestedManyWithoutParentRoadmapInput,
@@ -214,7 +164,7 @@ export type MetaRoadmapUpdateInput = {
   actor: string | null | undefined,
   isPublic: boolean | undefined,
 
-  /* Relational fields are handeled differently in our API */
+  /* Relational fields are handled differently in our API */
   // roadmapVersions?: RoadmapCreateNestedManyWithoutMetaRoadmapInput,
   // parentRoadmap?: MetaRoadmapCreateNestedOneWithoutChildRoadmapsInput,
   // childRoadmaps?: MetaRoadmapCreateNestedManyWithoutParentRoadmapInput,
@@ -497,30 +447,6 @@ export type Mask = Record<ISOIshDate, boolean>;
 export type DateValues = Record<ISOIshDate, number>;
 export type DateValuesWithUnit = { dateValues: DateValues, unit: UnitString };
 export type MaskedVector = { vector: Unit[], mask: Mask };
-export function isDateValues(dateValues: JSONValue): dateValues is DateValues {
-  return (
-    isStandardObject(dateValues)
-    && Object.values(dateValues).every(value => typeof value === 'number')
-    && Object.keys(dateValues).every(key => isISOIshDate(key))
-  );
-}
-export function isUnitString(unit: JSONValue | undefined): unit is UnitString {
-  return typeof unit === 'string' || unit === null || unit === undefined;
-}
-/** This is not compliant with ISO-8601, it's a vary narrow format that's a subset of that standard */
-export function isISOIshDate(dateString: string): dateString is ISOIshDate {
-  return /^\d{4}-\d{2}-\d{2}T00:00:00\.000Z$/.test(dateString);
-}
-export function isDateValuesWithUnit(dateValues: JSONValue): dateValues is Partial<DateValuesWithUnit> {
-  return (
-    isStandardObject(dateValues)
-    && 'dateValues' in dateValues
-    && typeof dateValues.dateValues === 'object'
-    && !Array.isArray(dateValues)
-    && isDateValues(dateValues.dateValues)
-    && isUnitString(dateValues.unit)
-  );
-}
 
 /* TODO INPUT_UPDATES */
 declare module '@tiptap/core' {

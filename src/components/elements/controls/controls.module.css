@@ -76,8 +76,7 @@
 /* Objectmenu */
 
 .object-menu {
-  border: 1px solid var(--gray-80);
-  background-color: var(--tertiary-neutral); 
+  border-top: 1px solid var(--gray-80);
 }
 
 .object-menu hr {
@@ -90,23 +89,13 @@
 }
 
 .object-menu-button {
-  background-color: hsl(200, 15%, 92%);
-  border: 1px solid hsl(200, 20%, 82%);
-  color: black;
-  text-decoration: none;
-  transition: background-color .1s ease, border-color .1s ease;
   padding-block: .3rem;
   padding-inline: .6rem;
 }
 
-.object-menu-link:hover {
-  background-color: var(--gray-90);
-  border-color: var(--blue-40);
-  box-shadow: none;
-}
-
-  /* Note: 802px is an arbitrary value based on the overflow width for objectmenu on goalpage */
-@media (max-width: 802px) {
+  /* Note: 1320px is an arbitrary value based on the overflow width for objectmenu on goalpage */
+  /* TODO: It is definetily too large, see what we can do about it...*/
+@media (max-width: 1320px) {
 
   .object-menu {
     flex-direction: column;

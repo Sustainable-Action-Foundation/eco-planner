@@ -3,7 +3,7 @@
 import { RecipeDataTypes, RecipeVariable } from "@/functions/recipe/types";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
+import { clientSafeGetRoadmaps } from "@/fetchers/client";
 import VariableTypeDataSeries from "./variableTypes/dataSeriesVariable";
 import VariableTypeExternal from "./variableTypes/externalDatasetVariable";
 import VariableTypeScalar from "./variableTypes/scalarVariable";

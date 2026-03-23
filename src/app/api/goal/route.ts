@@ -1,12 +1,11 @@
 import { NextRequest } from "next/server";
-import prisma from "@/prismaClient";
+import prisma, { Prisma } from "@/prismaClient";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/session";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { AccessControlled, ClientError, GoalCreateInput, GoalUpdateInput, JSONValue, isStandardObject, isDateValuesWithUnit } from "@/types";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
-import { Prisma } from "@prisma/client";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { isRecipe } from "@/functions/recipe/types";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
@@ -586,32 +585,39 @@ export async function POST(request: NextRequest) {
           dataSeries: {
             create: {
               author: { connect: { id: session.user?.id }, },
-              recipeUsed: formData.dataSeriesRecipeId !== null
+              recipeUsed: typeof formData.dataSeriesRecipeId === 'string'
                 ? { connect: { id: formData.dataSeriesRecipeId, }, }
                 : undefined,
               values: { createMany: { data: dateValuesToDBDateRecord(formData.dataSeries.dateValues) }, },
-              ...(formData.dataSeries.unit == null ? {} : { unit: formData.dataSeries.unit }),
+              unit: formData.dataSeries.unit,
             },
           },
-          ...(!formData.baseline ? {} : {
-            baseline: {
-              create: {
-                author: { connect: { id: session.user?.id }, },
-                recipeUsed: formData.baselineRecipeId !== null
-                  ? { connect: { id: formData.baselineRecipeId, }, }
-                  : undefined,
-                values: { createMany: { data: dateValuesToDBDateRecord(formData.baseline.dateValues) }, },
-                ...(formData.baseline.unit == null ? {} : { unit: formData.baseline.unit }),
-              },
-            },
-          }),
+          baseline: formData.baseline
+            ? {
+              connectOrCreate: {
+                where: { id: formData.baselineId ?? "" },
+                create: {
+                  author: { connect: { id: session.user?.id }, },
+                  recipeUsed: typeof formData.baselineRecipeId === 'string'
+                    ? { connect: { id: formData.baselineRecipeId, }, }
+                    : undefined,
+                  values: { createMany: { data: dateValuesToDBDateRecord(formData.baseline.dateValues) }, },
+                  unit: formData.baseline.unit,
+                }
+              }
+            }
+            : formData.baselineId
+              ? {
+                connect: { id: formData.baselineId, },
+              }
+              : undefined,
           links: {
             create: formData.links?.map(link => ({
               url: link.url,
               description: link.description,
             })),
           },
-        },
+        } satisfies Prisma.GoalCreateInput,
         select: {
           id: true,
         },
@@ -794,28 +800,46 @@ export async function PUT(request: NextRequest) {
           externalDataset: goal.externalDataset,
           externalTableId: goal.externalTableId,
           externalSelection: goal.externalSelection,
-          dataSeries: !goal.dataSeries
-            ? undefined
-            : {
-              update: {
-                recipeUsed: goal.dataSeriesRecipeId !== null
+          dataSeries: goal.dataSeries ? {
+            upsert: {
+              create: {
+                author: { connect: { id: session.user?.id }, },
+                recipeUsed: typeof goal.dataSeriesRecipeId === 'string'
                   ? { connect: { id: goal.dataSeriesRecipeId, }, }
-                  : { disconnect: true, },
+                  : undefined,
                 values: { createMany: { data: dateValuesToDBDateRecord(goal.dataSeries.dateValues) }, },
                 ...(goal.dataSeries.unit == null ? {} : { unit: goal.dataSeries.unit }),
               },
-            },
-          baseline: !goal.baseline
-            ? undefined
-            : {
               update: {
-                recipeUsed: goal.baselineRecipeId !== null
-                  ? { connect: { id: goal.baselineRecipeId, }, }
-                  : { disconnect: true, },
-                values: { createMany: { data: dateValuesToDBDateRecord(goal.baseline.dateValues) }, },
-                ...(goal.baseline.unit == null ? {} : { unit: goal.baseline.unit }),
+                recipeUsed: goal.dataSeriesRecipeId === undefined
+                  ? undefined
+                  : typeof goal.dataSeriesRecipeId === 'string'
+                    ? { connect: { id: goal.dataSeriesRecipeId, }, }
+                    : { disconnect: true, },
+                values: {
+                  deleteMany: {},
+                  createMany: { data: dateValuesToDBDateRecord(goal.dataSeries.dateValues) },
+                },
+                unit: goal.dataSeries.unit,
               },
             },
+          } : goal.dataSeriesId ? {
+            connect: { id: goal.dataSeriesId, },
+          } : undefined,
+          baseline: goal.baseline
+            ? {
+              disconnect: {},
+              create: {
+                author: { connect: { id: session.user?.id }, },
+                recipeUsed: typeof goal.baselineRecipeId === 'string'
+                  ? { connect: { id: goal.baselineRecipeId, }, }
+                  : undefined,
+                values: { createMany: { data: dateValuesToDBDateRecord(goal.baseline.dateValues) }, },
+                unit: goal.baseline.unit,
+              },
+            } : goal.baselineId ? {
+              connect: { id: goal.baselineId, },
+            } : undefined,
           links: {
             deleteMany: {},
             create: goal.links?.map(link => ({

@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/prismaClient";
-import { clientSafeMultiRoadmapSelection } from "./inclusionSelectors";
+import { clientSafeMultiRoadmapSelection } from "@/fetchers/inclusionSelectors";
 import { cookies } from "next/headers";
 import { getSession, LoginData } from "@/lib/session";
 import { roadmapSorter } from "@/lib/sorters";
@@ -14,7 +14,7 @@ import { ClientMultiRoadmapInstance } from "@/types";
  * Returns an empty array if no roadmaps are found or user does not have access to any. Also returns an empty array on error.
  * @returns Array of roadmaps
  */
-export default async function clientSafeGetRoadmaps(): Promise<ClientMultiRoadmapInstance[]> {
+export async function clientSafeGetRoadmaps(): Promise<ClientMultiRoadmapInstance[]> {
   const session = await getSession(await cookies());
   return getCachedClientSafeRoadmaps(session.user);
 }

@@ -2,8 +2,7 @@ import "server-only";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getSession, LoginData } from "@/lib/session"
 import { effectSorter } from "@/lib/sorters";
-import prisma from "@/prismaClient";
-import { Prisma } from "@prisma/client";
+import prisma, { Prisma } from "@/prismaClient";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -18,7 +17,7 @@ import { cookies } from "next/headers";
  * @param unit If not undefined, the goal must have this unit in its data series (even if unit is null)
  * @returns Goal object with actions
  */
-export default async function getGoalByIndicator(roadmapId: string, indicatorParameter: string, unit?: string | null) {
+export async function getGoalByIndicator(roadmapId: string, indicatorParameter: string, unit?: string | null) {
   const session = await getSession(await cookies());
   return getCachedGoal(roadmapId, indicatorParameter, unit, session.user)
 }

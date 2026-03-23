@@ -4,13 +4,13 @@ import { initTemplate, Locales } from "i18n.config";
 import Backend from "i18next-fs-backend";
 import path from "node:path";
 import { cookies, headers } from "next/headers";
-import { getLocale } from "@/functions/getLocale.ts";
+import { getLocale } from "@/functions/getLocale";
 
 await i18nServer.use(Backend)
   .init({
     ...initTemplate(i18nServer.t as TFunction),
     initAsync: true,
-    lng: Locales.default,
+    lng: process.env.TEST_ENVIRONMENT === "testing" ? "cimode" : Locales.default,
     backend: {
       // Get locale data by reading files with fs
       loadPath: path.join(process.cwd(), "public/locales/{{lng}}/{{ns}}.json"),

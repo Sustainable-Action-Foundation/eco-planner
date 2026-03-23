@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { getSession } from "@/lib/session"
-import prisma from "@/prismaClient";
+import prisma, { Prisma } from "@/prismaClient";
 import { AccessControlled, AccessLevel, ClientError, JSONValue, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
 import roadmapGoalCreator from "./roadmapGoalCreator";
 import accessChecker from "@/lib/accessChecker";
@@ -9,7 +9,6 @@ import { revalidateTag } from "next/cache";
 // import getOneGoal from "@/fetchers/getOneGoal";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { cookies } from "next/headers";
-import { Prisma } from "@prisma/client";
 import { isGoalCreate } from "../goal/route";
 
 // Type guards

@@ -2,8 +2,7 @@ import "server-only";
 import { userInfoSelector } from "@/fetchers/inclusionSelectors";
 import { getSession, LoginData } from "@/lib/session";
 import { metaRoadmapSorter, roadmapSorter } from "@/lib/sorters";
-import prisma from "@/prismaClient";
-import { Prisma } from "@prisma/client";
+import prisma, { Prisma } from "@/prismaClient";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -14,7 +13,7 @@ import { cookies } from "next/headers";
  * @param username Username of the user to get
  * @returns User object with authored roadmaps
  */
-export default async function getUserInfo(username: string) {
+export async function getUserInfo(username: string) {
   const session = await getSession(await cookies());
   return getCachedUserInfo(username, session.user);
 }

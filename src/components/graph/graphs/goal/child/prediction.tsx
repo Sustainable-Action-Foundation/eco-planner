@@ -1,10 +1,10 @@
 "use client";
 
-import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper.tsx";
-import { calculatePredictedOutcome } from "../../../functions/graphFunctions.ts";
+import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
+import { calculatePredictedOutcome } from "../../../functions/graphFunctions";
 import { useTranslation } from "react-i18next";
-import { Goal, isISOIshDate } from "@/types.ts";
-import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils.ts";
+import { Goal, isISOIshDate } from "@/types";
+import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 
 export default function PredictionChildGraph({
   goal,

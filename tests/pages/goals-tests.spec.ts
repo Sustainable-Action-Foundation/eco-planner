@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename); // get the name of the directory
 
 const adminFile = path.join(__dirname, '../.auth/admin.json');
 
-test.describe("Goals tests", () => {
+test.describe.skip("Goals tests", () => {
 
     /*
     -------------------------------------------

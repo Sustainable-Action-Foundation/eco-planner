@@ -5,7 +5,6 @@ import { Content, Editor, EditorContent, useEditor } from '@tiptap/react'
 import TextEditorMenu from './menu'
 import { defaultExtensions, nodeSizeLimit } from './config/config';
 import { useMemo } from 'react';
-import { useDebouncedCallback } from 'use-debounce';
 
 {/* TODO: Update typing for content */ }
 const TextEditor = ({
@@ -38,17 +37,13 @@ const TextEditor = ({
       return content;
     }
   }, [content]);
- 
-  const debouncedOnChange  = useDebouncedCallback((editor: Editor) => {
-    if (onChange) onChange(editor.getJSON());
-  }, 200); 
 
   const editor = useEditor({
     immediatelyRender: true,
     shouldRerenderOnTransaction: true,
     editable,
     onUpdate: ({ editor }) => {
-      debouncedOnChange(editor)
+      if (onChange) onChange(editor.getJSON());
     },
     content: parsedContent,
     extensions: defaultExtensions(placeholder),

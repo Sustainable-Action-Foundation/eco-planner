@@ -7,8 +7,7 @@ import { useTranslation } from "react-i18next"
 import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput"
 import styles from '../forms.module.css'
 import TextEditor from "../elements/textEditor/editor"
-import { useMemo, useState } from "react"
-import { Content } from "@tiptap/core"
+import { useMemo, useRef } from "react"
 
 export default function ActionForm({
   goalId,
@@ -23,16 +22,7 @@ export default function ActionForm({
 }) {
   const { t } = useTranslation(["forms", "common"]);
   const timestamp = useMemo(() => Date.now(), []);
-
-  const [editorContent, setEditorContent] = useState<Content>(() => {
-    if (!currentAction?.description) return null;
-
-    try {
-      return JSON.parse(currentAction.description) as Content;
-    } catch {
-      return currentAction.description;
-    }
-  });
+  const descriptionRef = useRef<HTMLInputElement>(null);
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -43,7 +33,7 @@ export default function ActionForm({
       actionId: currentAction ? currentAction.id : undefined,
       roadmapId: roadmapId ?? (form.namedItem("roadmapId") as HTMLInputElement)?.value ?? undefined,
       goalId: goalId ?? undefined,
-      description: editorContent ? JSON.stringify(editorContent) : "",
+      description: (form.namedItem("description") as HTMLInputElement | null)?.value ?? undefined,
       name: (form.namedItem("actionName") as HTMLInputElement)?.value ?? "",
       startYear: form.namedItem("startYear") ? parseInt((form.namedItem("startYear") as HTMLInputElement).value) : undefined,
       endYear: form.namedItem("endYear") ? parseInt((form.namedItem("endYear") as HTMLInputElement).value) : undefined,
@@ -111,8 +101,9 @@ export default function ActionForm({
             placeholder={t("forms:text_editor_menu.default_placeholder")}
             editable={true}
             content={currentAction ? currentAction.description : ""}
-            onChange={(json) => setEditorContent(json)}
+            onChange={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
           />
+          <input ref={descriptionRef} type="hidden" name="description" />
 
           <label>
             {t("forms:action.cost_efficiency")}

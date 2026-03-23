@@ -37,7 +37,7 @@
 }
 
 /* Sticky tooltips and hover effects on phone might be perceived as annoying, thus we only display them on more precise devices */
-@media not (pointer: coarse)  {
+@media (pointer: fine) {
     .text-editor-menu [role^="menuitem"]:hover:not(:is([aria-checked="true"], [aria-disabled="true"], [aria-expanded="true"])),
     .text-editor-menu [role^="menuitem"]:focus:not(:is([aria-checked="true"], [aria-disabled="true"], [aria-expanded="true"])) {
         background-color: var(--gray-90)

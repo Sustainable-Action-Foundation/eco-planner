@@ -9,7 +9,7 @@ const adminFile = path.join(__dirname, '../.auth/admin.json');
 
 test.describe.serial("Roadmaps tests", () => {
   test.use({ storageState: adminFile });
-  
+
   // Variables to hold the names of created metaRoadmaps for use across all tests in this describe block.
   let metaRoadmapNameAllFields = "";
   let metaRoadmapNameAllFieldsUpdated = "";
@@ -66,6 +66,9 @@ test.describe.serial("Roadmaps tests", () => {
     // Fill description in the tiptap editor
     await page.locator('.tiptap').first().fill('Test All');
 
+    // Await next rerender to ensure tiptap content is registered before submitting the form
+    await page.waitForTimeout(500);
+
     // Select roadmap type
     await page.locator('#type').selectOption("LOCAL");
 
@@ -92,6 +95,9 @@ test.describe.serial("Roadmaps tests", () => {
     // Fill description in the tiptap editor
     await page.locator('.tiptap').first().fill('Test All');
 
+    // Await next rerender to ensure tiptap content is registered before submitting the form
+    await page.waitForTimeout(500);
+
     // Set visibility - "Vem får se färdplanen?" (Who can see the roadmap?)
     await page.locator('#visibility-private').check();
 
@@ -112,6 +118,9 @@ test.describe.serial("Roadmaps tests", () => {
     await page.goto('/');
 
     await page.getByRole('link', { name: `${metaRoadmapNameAllFields} (v1)` }).first().click();
+
+    // Wait for roadmap page to load
+    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
 
     // Click the edit button
     await page.getByTestId('admin-panel-edit').click();
@@ -202,6 +211,9 @@ test.describe.serial("Roadmaps tests", () => {
     // Edit description in the tiptap editor
     await page.locator('.tiptap').first().fill('Updated Roadmap Description All');
 
+    // Await next rerender to ensure tiptap content is registered before submitting the form
+    await page.waitForTimeout(500);
+
     // Edit visibility - change to custom
     await page.locator('#visibility-custom').check();
 
@@ -267,6 +279,9 @@ test.describe.serial("Roadmaps tests", () => {
 
     // Edit description in the tiptap editor
     await page.locator('.tiptap').first().fill('Updated Description All');
+
+    // Await next rerender to ensure tiptap content is registered before submitting the form
+    await page.waitForTimeout(500);
 
     // Edit type
     await page.locator('#type').selectOption("OTHER");
@@ -334,6 +349,9 @@ test.describe.serial("Roadmaps tests", () => {
 
     // Fill in the metaRoadmap form
     await page.locator('#name').fill(metaRoadmapNameRequiredFields);
+
+    // Fill description in the tiptap editor
+    await page.locator('.tiptap').first().fill('Test Required');
 
     // Select roadmap type
     await page.locator('#type').selectOption("LOCAL");
@@ -418,6 +436,9 @@ test.describe.serial("Roadmaps tests", () => {
     // Verify name is filled in
     await expect(page.locator('#name')).toHaveValue(metaRoadmapNameRequiredFields);
 
+    // Verify description in the tiptap editor is filled in
+    await expect(page.locator('.tiptap').first()).toHaveText('Test Required');
+
     // Verify type is set
     await expect(page.locator('#type')).toHaveValue('LOCAL');
 
@@ -452,6 +473,9 @@ test.describe.serial("Roadmaps tests", () => {
 
     // Edit description in the tiptap editor
     await page.locator('.tiptap').first().fill('Updated Roadmap Description Required');
+
+    // Await next rerender to ensure tiptap content is registered before submitting the form
+    await page.waitForTimeout(500);
 
     // Edit visibility - change to custom
     await page.locator('#visibility-custom').check();
@@ -499,7 +523,6 @@ test.describe.serial("Roadmaps tests", () => {
     metaRoadmapNameRequiredFieldsUpdated = `Updated ${metaRoadmapNameRequiredFields}`;
     await page.goto('/');
 
-    await expect(page.getByRole('link', { name: `${metaRoadmapNameRequiredFields} (v1)` })).toBeVisible();
     await page.getByRole('link', { name: `${metaRoadmapNameRequiredFields} (v1)` }).first().click();
 
     // Go to MetaRoadmap page
@@ -519,6 +542,9 @@ test.describe.serial("Roadmaps tests", () => {
 
     // Edit description in the tiptap editor
     await page.locator('.tiptap').first().fill('Updated Description Required');
+
+    // Await next rerender to ensure tiptap content is registered before submitting the form
+    await page.waitForTimeout(500);
 
     // Edit type
     await page.locator('#type').selectOption("OTHER");

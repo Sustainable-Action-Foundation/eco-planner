@@ -6,7 +6,7 @@ import getTableContent from "@/lib/api/getTableContent";
 import getTableDetails from "@/lib/api/getTableDetails";
 import getTables from "@/lib/api/getTables";
 import { ExternalDataset } from "@/lib/api/utility";
-import { LocaleContext } from "@/lib/i18nClient.tsx";
+import { LocaleContext } from "@/lib/i18nClient";
 import { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
 import { TrafaVariable } from "@/lib/trafa/trafaTypes";
 import { Goal } from "@prisma/client";

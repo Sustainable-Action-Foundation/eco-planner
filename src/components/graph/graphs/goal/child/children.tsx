@@ -1,7 +1,7 @@
 "use client";
 
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
-import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper.tsx";
+import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import { Goal, isISOIshDate } from "@/types";
 import { useTranslation } from "react-i18next";
 import { color_palette, stroke, marker } from "../../../config";

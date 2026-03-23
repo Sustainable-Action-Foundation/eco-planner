@@ -1,14 +1,5 @@
+import "dotenv/config";
 import { defineConfig, devices } from "playwright/test";
-import { parseEnv } from "node:util";
-import fs from "node:fs";
-
-//  Load environment variables from .env file
-let env: Record<string, string> = {};
-if (fs.existsSync(".env")) {
-  env = parseEnv(fs.readFileSync(".env", "utf-8")) as Record<string, string>;
-}
-process.env = Object.keys(env).length > 0 ? { ...process.env, ...env } : process.env;
-env = {}; // Clear it just in case any reporter dumps the heap.
 
 // Allow overriding the webserver URL via environment variable, defaulting to a local port opened by testing docker compose.
 export const webserverURL = process.env.BASE_URL || "http://localhost:8081";
@@ -38,11 +29,11 @@ export default defineConfig({
       [
         ["dot"],
         ["html", { open: "never" }],
+        ["list"],
       ]
     ) as [string, object][],
 
-    ["json", { outputFile: "tests/report.json" }],
-    ["list"],
+    // ["json", { outputFile: "tests/report.json" }],
   ],
   // reporter: "list",
 
@@ -57,7 +48,7 @@ export default defineConfig({
     // Collect trace when retrying the failed test.
     trace: "on-first-retry",
 
-    locale: "sv-SE",
+    locale: "cimode",
     timezoneId: "Europe/Stockholm",
 
     // Shorter timeouts for actions to make tests that will fail, fail faster. 

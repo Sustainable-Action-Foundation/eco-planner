@@ -1,9 +1,6 @@
 import GraphCookie from '@/components/cookies/graphCookie';
 import UserFilters from '@/components/form/filters/userFilters';
 import { ControlsMenu } from '@/components/elements/controls/controls';
-import getMetaRoadmaps from '@/fetchers/getMetaRoadmaps';
-import getRoadmaps from '@/fetchers/getRoadmaps';
-import getUserInfo from '@/fetchers/getUserInfo';
 import accessChecker, { hasEditAccess } from '@/lib/accessChecker';
 import { getSession } from '@/lib/session';
 import { cookies } from 'next/headers';
@@ -12,6 +9,7 @@ import styles from './page.module.css' with { type: "css" }
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from '@/functions/buildMetadata';
 import Link from 'next/link';
+import { getMetaRoadmaps, getRoadmaps, getUserInfo } from "@/fetchers";
 
 export async function generateMetadata(props: {
   params: Promise<{ user: string }>,
