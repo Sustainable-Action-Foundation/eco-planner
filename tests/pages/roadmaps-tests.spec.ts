@@ -117,7 +117,7 @@ test.describe.serial("Roadmaps tests", () => {
 
     await page.goto('/');
 
-    await page.getByRole('link', { name: `${metaRoadmapNameAllFields} (v1)` }).first().click();
+    await page.getByRole('link', { name: `${metaRoadmapNameAllFields}` }).first().click();
 
     // Wait for roadmap page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
@@ -152,7 +152,7 @@ test.describe.serial("Roadmaps tests", () => {
 
     await page.goto('/');
 
-    await page.getByRole('link', { name: `${metaRoadmapNameAllFields} (v1)` }).first().click();
+    await page.getByRole('link', { name: `${metaRoadmapNameAllFields}` }).first().click();
 
     // Go to MetaRoadmap page
     await page.getByTestId('show-roadmap-series').click();
@@ -200,7 +200,7 @@ test.describe.serial("Roadmaps tests", () => {
 
     await page.goto('/');
 
-    await page.getByRole('link', { name: `${metaRoadmapNameAllFields} (v1)` }).first().click();
+    await page.getByRole('link', { name: `${metaRoadmapNameAllFields}` }).first().click();
 
     // Click the edit button
     await page.getByTestId('admin-panel-edit').click();
@@ -260,7 +260,7 @@ test.describe.serial("Roadmaps tests", () => {
 
     await page.goto('/');
 
-    await page.getByRole('link', { name: `${metaRoadmapNameAllFields} (v1)` }).first().click();
+    await page.getByRole('link', { name: `${metaRoadmapNameAllFields}` }).first().click();
 
     // Go to MetaRoadmap page
     await page.getByTestId('show-roadmap-series').click();
@@ -390,7 +390,7 @@ test.describe.serial("Roadmaps tests", () => {
 
     await page.goto('/');
 
-    await page.getByRole('link', { name: `${metaRoadmapNameRequiredFields} (v1)` }).first().click();
+    await page.getByRole('link', { name: `${metaRoadmapNameRequiredFields}` }).first().click();
 
     // Click the edit button
     await page.getByTestId('admin-panel-edit').click();
@@ -419,7 +419,7 @@ test.describe.serial("Roadmaps tests", () => {
 
     await page.goto('/');
 
-    await page.getByRole('link', { name: `${metaRoadmapNameRequiredFields} (v1)` }).first().click();
+    await page.getByRole('link', { name: `${metaRoadmapNameRequiredFields}` }).first().click();
 
     // Go to MetaRoadmap page
     await page.getByTestId('show-roadmap-series').click();
@@ -463,7 +463,7 @@ test.describe.serial("Roadmaps tests", () => {
 
     await page.goto('/');
 
-    await page.getByRole('link', { name: `${metaRoadmapNameRequiredFields} (v1)` }).first().click();
+    await page.getByRole('link', { name: `${metaRoadmapNameRequiredFields}` }).first().click();
 
     // Click the edit button
     await page.getByTestId('admin-panel-edit').click();
@@ -523,7 +523,7 @@ test.describe.serial("Roadmaps tests", () => {
     metaRoadmapNameRequiredFieldsUpdated = `Updated ${metaRoadmapNameRequiredFields}`;
     await page.goto('/');
 
-    await page.getByRole('link', { name: `${metaRoadmapNameRequiredFields} (v1)` }).first().click();
+    await page.getByRole('link', { name: `${metaRoadmapNameRequiredFields}` }).first().click();
 
     // Go to MetaRoadmap page
     await page.getByTestId('show-roadmap-series').click();

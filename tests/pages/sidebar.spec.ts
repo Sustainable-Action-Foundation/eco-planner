@@ -44,14 +44,9 @@ test.describe("Sidebar tests", () => {
 
     await switchLanguage(page, localeAliases[Locales.enSE]);
 
-    await page.waitForLoadState("networkidle");
-
     await expect(homeTitle, "Page is not in English").toHaveText("Roadmaps");
 
     await switchLanguage(page, localeAliases[Locales.svSE]);
-
-    // TODO: remove extra waitForLoadState now that the expect is awaited instead?
-    await page.waitForLoadState("networkidle");
 
     await expect(homeTitle, "Page is not in Swedish").toHaveText("Färdplaner");
   });
