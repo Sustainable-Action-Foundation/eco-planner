@@ -275,7 +275,7 @@ test.describe.serial("Action & Effect tests", () => {
   });
 
   test("Create Action from Roadmap - required", async ({ page }, testInfo) => {
-    roadmapActionNameRequiredFields = `Test Action ${testInfo.parallelIndex}`;
+    roadmapActionNameRequiredFields = `Test Action from Roadmap ${testInfo.parallelIndex}`;
     // Navigate to the action edit form
     await page.goto('/');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
@@ -292,7 +292,7 @@ test.describe.serial("Action & Effect tests", () => {
   });
 
   test("Create Action from Roadmap - All Fields", async ({ page }, testInfo) => {
-    roadmapActionNameAllFields = `Test Action All Fields ${testInfo.parallelIndex}`;
+    roadmapActionNameAllFields = `Test Action from Roadmap All Fields ${testInfo.parallelIndex}`;
     // Navigate to the action edit form
     await page.goto('/');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
