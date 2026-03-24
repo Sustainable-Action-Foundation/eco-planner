@@ -115,6 +115,7 @@
   },
   "include": [
     ".next/types/**/*.ts",
+    // This will cover configs in root as well
     "**/*.ts",
     "**/*.tsx"
   ],
@@ -124,7 +125,12 @@
   "exclude": [
     "node_modules",
     "tests",
+    "scripts",
     "src/prisma/generated/**/*",
+    "prisma",
     ".next",
+    "out",
+    "dist",
+    "build",
   ]
 }
