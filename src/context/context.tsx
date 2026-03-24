@@ -1,10 +1,10 @@
 'use client'
 import { createContext, useContext, useState, useRef } from "react";
 
-type Toast = { id: number; text: string };
+type Toast = { id: number; text: string, type: 'success' | 'error' | 'warning' };
 type ToastContextType = {
   messages: Array<Toast>;
-  addMessage: (text: string) => void;
+  addMessage: (text: string, type: 'success' | 'error' | 'warning') => void;
   removeMessage: (id: number) => void;
 }
 
@@ -14,8 +14,8 @@ export function ToastContext({ children }: { children: React.ReactNode }) {
   const [messages, setMessages] = useState<Array<Toast>>([]);
   const nextId = useRef(0);
 
-  const addMessage = (text: string) => {
-    setMessages((prevMessages) => [...prevMessages, { id: nextId.current++, text }]);
+  const addMessage = (text: string, type: 'success' | 'error' | 'warning') => {
+    setMessages((prevMessages) => [...prevMessages, { id: nextId.current++, text, type }]);
   };
 
   const removeMessage = (id: number) => {

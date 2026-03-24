@@ -1,13 +1,20 @@
 import { IconCheck, IconX } from "@tabler/icons-react";
 import { ReactNode, useEffect, useState } from "react";
 import { useToastContext } from "@/context/context";
-import { BackgroundColor } from "@tiptap/extension-text-style";
 
-export default function CreateToast({ children, id }: { children?: ReactNode; id: number }) {
+export default function CreateToast({ children, id, type }: { children?: ReactNode; id: number; type: 'success' | 'error' | 'warning' }) {
 
   const totalTime = 3000;
   const stepTime = 25;
   const [timer, setTimer] = useState<number>(totalTime);
+
+  const colorMap = {
+    success: "rgba(56, 156, 61, 0.9)",
+    error: "rgba(255, 82, 81, 0.9)",
+    warning: "rgba(255, 193, 7, 0.9)"
+  }
+
+  const ariaRole = type === "error" ? "alert" : "status";
 
   const { removeMessage } = useToastContext();
 
@@ -27,7 +34,7 @@ export default function CreateToast({ children, id }: { children?: ReactNode; id
   }, []);
 
   return (
-    <dialog className="toast flex flex-direction-column rounded position-relative padding-0" style={{ backgroundColor: "rgb(56, 156, 61)", border: "none" }}>
+    <dialog className="toast flex flex-direction-column rounded position-relative padding-0" role={ariaRole} style={{ backgroundColor: colorMap[type], border: "none" }}>
       <header className="flex align-items-center padding-100 gap-50" >
         {/* Very small padding so the check appears inside of the circle */}
         <div className="round" style={{ backgroundColor: "rgba(254, 254, 254, 0.9)" }}>
@@ -35,10 +42,10 @@ export default function CreateToast({ children, id }: { children?: ReactNode; id
         </div>
         <p className="margin-0 color-purewhite">{children}</p>
         <button onClick={() => removeMessage(id)} className="round padding-25 transparent" aria-label="Close toast">
-          <IconX aria-hidden="true" width={20} height={20} strokeWidth={3} color="rgba(222, 222, 222, 1)" />
+          <IconX aria-hidden="true" width={20} height={20} strokeWidth={3} color="rgba(242, 242, 242, 1)" />
         </button>
       </header>
-      <progress value={timer} max={totalTime} aria-hidden="true" />
+      <progress value={timer} max={totalTime} aria-hidden="true" style={{ backgroundColor: colorMap[type] }} />
     </dialog>
   )
 }

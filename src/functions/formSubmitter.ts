@@ -25,7 +25,7 @@ export default function formSubmitter(
   defaultLocation?: string,
   thenReplacement?: (data: { body: JSONValue, location?: string | null }) => void,
   catchReplacement?: (err: unknown) => void,
-  messageFunction?: (message: string) => void,
+  messageFunction?: (message: string, type: 'success' | 'error' | 'warning') => void,
   router?: (url: string) => void /* TODO: Might make sense to accept URL here aswell */
 ): void {
   fetch(target, {
@@ -75,7 +75,7 @@ export default function formSubmitter(
       if (data.body.message) {
         // alert(data.body.message);
         if (messageFunction) {
-          messageFunction(data.body.message);
+          messageFunction(data.body.message, "success");
         } else {
           alert(data.body.message);
         }

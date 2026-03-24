@@ -12,6 +12,7 @@ import TextEditor from "@/components/form/elements/textEditor/editor";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
 import ConfigureAccess from "../sections/access";
+import { useToastContext } from "@/context/context";
 
 export default function MetaRoadmapForm({
   user,
@@ -40,6 +41,8 @@ export default function MetaRoadmapForm({
     [RoadmapType.OTHER]: t("common:scope.other"),
   }
 
+  const { messages, addMessage } = useToastContext();
+
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     // Mostly the usual submit handler stuff.
     // We might want to redirect the user to the roadmap form immediately after successfully submitting the metaRoadmap form
@@ -58,7 +61,8 @@ export default function MetaRoadmapForm({
       event.target.reportValidity();
       setIsLoading(false);
       // TODO: Convert to toast notification
-      alert(t("forms:meta_roadmap.description_required"));
+      // alert(t("forms:meta_roadmap.description_required"));
+      addMessage(t("forms:meta_roadmap.description_required"), "warning");
       return;
     }
 
@@ -234,6 +238,8 @@ export default function MetaRoadmapForm({
           </button>
         </div>
       </form>
+      <button onClick={() => addMessage("The action has been created", "success")}>Add Toast</button>
+
     </>
   )
 }

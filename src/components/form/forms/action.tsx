@@ -209,7 +209,9 @@ export default function ActionForm({
           </button>
         </div>
       </form>
-      <button onClick={() => addMessage("The action has been created")}>Add Toast</button>
+      <button onClick={() => addMessage("The action has been created", "success")}>Add Toast</button>
+      <button onClick={() => addMessage("The action has been created", "warning")}>Add Toast</button>
+      <button onClick={() => addMessage("The action has been created", "error")}>Add Toast</button>
     </>
   )
 }
