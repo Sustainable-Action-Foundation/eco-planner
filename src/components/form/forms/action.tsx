@@ -11,6 +11,7 @@ import { useMemo, useState, useRef } from "react"
 import { Content } from "@tiptap/core"
 import { useToastContext } from "@/context/context"
 import { useRouter } from "next/navigation"
+import CreateToast from "./createToast"
 
 export default function ActionForm({
   goalId,
@@ -212,6 +213,11 @@ export default function ActionForm({
       <button onClick={() => addMessage("The action has been created", "success")}>Add Toast</button>
       <button onClick={() => addMessage("The action has been created", "warning")}>Add Toast</button>
       <button onClick={() => addMessage("The action has been created", "error")}>Add Toast</button>
+      <div className="flex flex-direction-column gap-50">
+        <CreateToast key={100} id={100} type="success">Detta är en lyckad åtgärd</CreateToast>
+        <CreateToast key={200} id={200} type="warning">Detta är en varning</CreateToast>
+        <CreateToast key={300} id={300} type="error">Detta är ett felmeddelande</CreateToast>
+      </div>
     </>
   )
 }

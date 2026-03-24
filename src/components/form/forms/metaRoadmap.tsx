@@ -13,6 +13,7 @@ import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
 import ConfigureAccess from "../sections/access";
 import { useToastContext } from "@/context/context";
+import { useRouter } from "next/navigation";
 
 export default function MetaRoadmapForm({
   user,
@@ -29,6 +30,7 @@ export default function MetaRoadmapForm({
   const descriptionRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [roadmapType, setRoadmapType] = useState<string>("");
+  const router = useRouter();
 
   const timestamp = Date.now()
 
@@ -41,7 +43,7 @@ export default function MetaRoadmapForm({
     [RoadmapType.OTHER]: t("common:scope.other"),
   }
 
-  const { messages, addMessage } = useToastContext();
+  const { addMessage } = useToastContext();
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     // Mostly the usual submit handler stuff.
@@ -103,7 +105,7 @@ export default function MetaRoadmapForm({
 
     const formJSON = JSON.stringify(formData);
 
-    formSubmitter('/api/metaRoadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading);
+    formSubmitter('/api/metaRoadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading, undefined, undefined, undefined, addMessage, router.push);
   }
 
   // Indexes for the data-position attribute in the legend elements

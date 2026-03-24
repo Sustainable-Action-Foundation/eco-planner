@@ -220,8 +220,10 @@ button[type="submit"]:disabled {
 }
 
 /* Background for <progress> */
-dialog > progress,
-dialog > progress::-webkit-progress-bar {
+/* Firefox, Chrome and WebKit */
+progress,
+progress::-webkit-progress-bar {
+  background-color: var(--progress-color);
   inline-size: unset;
   overflow: hidden;
   border: none;
@@ -230,8 +232,8 @@ dialog > progress::-webkit-progress-bar {
 }
 
 /* Progress bar */
-dialog > progress::-moz-progress-bar,
-dialog > progress::-webkit-progress-value {
+progress::-moz-progress-bar,
+progress::-webkit-progress-value {
   background-color: whitesmoke;
 }
 

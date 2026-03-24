@@ -5,7 +5,7 @@ import { useToastContext } from "@/context/context";
 export default function CreateToast({ children, id, type }: { children?: ReactNode; id: number; type: 'success' | 'error' | 'warning' }) {
 
   const totalTime = 3000;
-  const stepTime = 25;
+  const stepTime = 15;
   const [timer, setTimer] = useState<number>(totalTime);
 
   const colorMap = {
@@ -45,7 +45,7 @@ export default function CreateToast({ children, id, type }: { children?: ReactNo
           <IconX aria-hidden="true" width={20} height={20} strokeWidth={3} color="rgba(242, 242, 242, 1)" />
         </button>
       </header>
-      <progress value={timer} max={totalTime} aria-hidden="true" style={{ backgroundColor: colorMap[type] }} />
+      <progress value={timer} max={totalTime} aria-hidden="true" style={{ '--progress-color': colorMap[type] } as React.CSSProperties} />
     </dialog>
   )
 }

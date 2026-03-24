@@ -16,6 +16,8 @@ import SuggestedRecipeToggle from "@/components/recipe/suggestions/suggestedReci
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import FormIntegration from "@/components/recipe/editor/output/formIntegration";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
+import { useToastContext } from "@/context/context";
+import { useRouter } from "next/navigation";
 
 const DataSeriesType = {
   Static: "STATIC",
@@ -46,6 +48,9 @@ export default function GoalForm({
   const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baseline ? BaselineType.Custom : BaselineType.Initial);
   const [parentRoadmapId, setParentRoadmapId] = useState<string>(roadmapId || "");
   const descriptionRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+
+  const { addMessage } = useToastContext();
 
   const parentRoadmaps = useMemo(() => {
     return (roadmapAlternatives ?? []).map(roadmap => ({
@@ -244,7 +249,7 @@ export default function GoalForm({
     const formJSON = JSON.stringify(formContent);
 
     // Submit the form to the API (POST for new, PUT for edit)
-    formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST', t);
+    formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST', t, undefined, undefined, undefined, undefined, addMessage, router.push);
   }
 
   // Index for data-position attribute in legend elements (for accessibility)
