@@ -113,9 +113,6 @@ test.describe.serial("Action & Effect tests", () => {
 
     await page.locator('.tiptap').first().fill("Updated Test Action description.");
 
-    // Await next rerender to ensure tiptap content is registered before submitting the form
-    await page.waitForTimeout(500);
-
     await page.locator('#costEfficiency').fill("Text for cost efficiency");
 
     await page.locator('#expectedOutcome').fill("Text for expected outcome");
@@ -157,9 +154,6 @@ test.describe.serial("Action & Effect tests", () => {
     await page.locator('#actionName').fill(actionNameAllFields);
 
     await page.locator('.tiptap').first().fill("Test Action description.");
-
-    // Await next rerender to ensure tiptap content is registered before submitting the form
-    await page.waitForTimeout(500);
 
     await page.locator('#costEfficiency').fill("Text for cost efficiency");
 
@@ -239,8 +233,6 @@ test.describe.serial("Action & Effect tests", () => {
 
     await page.locator('.tiptap').first().fill("Updated Test Action description.");
 
-    await page.waitForTimeout(500);
-
     await page.locator('#costEfficiency').fill("Updated text for cost efficiency");
     await page.locator('#expectedOutcome').fill("Updated text for expected outcome");
 
@@ -311,9 +303,6 @@ test.describe.serial("Action & Effect tests", () => {
     await page.locator('#actionName').fill(roadmapActionNameAllFields);
 
     await page.locator('.tiptap').first().fill("Test Action description.");
-
-    // Await next rerender to ensure tiptap content is registered before submitting the form
-    await page.waitForTimeout(500);
 
     await page.locator('#costEfficiency').fill("Text for cost efficiency");
 

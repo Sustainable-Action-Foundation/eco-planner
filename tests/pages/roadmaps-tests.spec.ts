@@ -66,9 +66,6 @@ test.describe.serial("Roadmaps tests", () => {
     // Fill description in the tiptap editor
     await page.locator('.tiptap').first().fill('Test All');
 
-    // Await next rerender to ensure tiptap content is registered before submitting the form
-    await page.waitForTimeout(500);
-
     // Select roadmap type
     await page.locator('#type').selectOption("LOCAL");
 
@@ -94,9 +91,6 @@ test.describe.serial("Roadmaps tests", () => {
     // Fill in the roadmap form
     // Fill description in the tiptap editor
     await page.locator('.tiptap').first().fill('Test All');
-
-    // Await next rerender to ensure tiptap content is registered before submitting the form
-    await page.waitForTimeout(500);
 
     // Set visibility - "Vem får se färdplanen?" (Who can see the roadmap?)
     await page.locator('#visibility-private').check();
@@ -211,9 +205,6 @@ test.describe.serial("Roadmaps tests", () => {
     // Edit description in the tiptap editor
     await page.locator('.tiptap').first().fill('Updated Roadmap Description All');
 
-    // Await next rerender to ensure tiptap content is registered before submitting the form
-    await page.waitForTimeout(500);
-
     // Edit visibility - change to custom
     await page.locator('#visibility-custom').check();
 
@@ -279,9 +270,6 @@ test.describe.serial("Roadmaps tests", () => {
 
     // Edit description in the tiptap editor
     await page.locator('.tiptap').first().fill('Updated Description All');
-
-    // Await next rerender to ensure tiptap content is registered before submitting the form
-    await page.waitForTimeout(500);
 
     // Edit type
     await page.locator('#type').selectOption("OTHER");
@@ -474,9 +462,6 @@ test.describe.serial("Roadmaps tests", () => {
     // Edit description in the tiptap editor
     await page.locator('.tiptap').first().fill('Updated Roadmap Description Required');
 
-    // Await next rerender to ensure tiptap content is registered before submitting the form
-    await page.waitForTimeout(500);
-
     // Edit visibility - change to custom
     await page.locator('#visibility-custom').check();
 
@@ -542,9 +527,6 @@ test.describe.serial("Roadmaps tests", () => {
 
     // Edit description in the tiptap editor
     await page.locator('.tiptap').first().fill('Updated Description Required');
-
-    // Await next rerender to ensure tiptap content is registered before submitting the form
-    await page.waitForTimeout(500);
 
     // Edit type
     await page.locator('#type').selectOption("OTHER");
