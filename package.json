@@ -14,7 +14,7 @@
     "prebuild": "tsx ./src/scripts/generateLeapList.ts && tsx ./src/scripts/getBuildInfo.ts",
     "build": "next build",
     "start": "next start",
-    "lint": "tsc --noEmit -p ./tsconfig.json && eslint ./src -c ./eslint.config.ts",
+    "lint": "tsc --noEmit -p ./tsconfig.json && tsc --noEmit -p ./tests/tsconfig.json && tsc --noEmit -p ./scripts/tsconfig.json && eslint -c ./eslint.config.ts",
     "locales:format": "tsx ./src/scripts/localesFormat.ts",
     "test:run": "tsx ./tests/run.ts",
     "test:clean": "rm -rf test-results & rm -rf playwright-report & rm tests/report.json & rm tests/reporter.log",
@@ -89,23 +89,19 @@
     "use-debounce": "^10.0.6"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.3",
     "@types/node": "^25.0.3",
     "@types/nodemailer": "^7.0.4",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@types/regexp.escape": "^2.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.50.0",
-    "@typescript-eslint/parser": "^8.50.0",
-    "eslint": "^9.39.2",
-    "eslint-config-next": "^15.5.9",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.1",
     "lorem-ipsum": "^2.0.8",
     "playwright": "^1.57.0",
     "prisma": "^6.15.0",
     "regexp.escape": "^2.0.1",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.50.0"
+    "typescript": "^5.9.3"
   },
   "devEngines": {
     "runtime": {

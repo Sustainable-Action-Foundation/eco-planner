@@ -1,30 +1,13 @@
-// @ts-check
+import path from "node:path";
+import { defineConfig, globalIgnores } from "eslint/config";
+import nextTS from "eslint-config-next/typescript";
+import nextVitals from "eslint-config-next/core-web-vitals";
 
-import tseslint from 'typescript-eslint';
-import { FlatCompat } from "@eslint/eslintrc";
-import { defineConfig } from "eslint/config";
-
-const compat = new FlatCompat({
-  baseDirectory: process.cwd(),
-});
-
-export default defineConfig(
+export default defineConfig([
+  ...nextTS,
   {
-    ignores: ["src/prisma/generated/**/*"],
-  },
-  {
-    name: "next-configs",
-    extends: [...compat.extends("next/core-web-vitals", "next/typescript")],
     rules: {
       "prefer-const": "warn",
-    }
-  },
-  {
-    name: "typescript-configs",
-    extends: [
-      tseslint.configs.recommendedTypeChecked,
-    ],
-    rules: {
       "@typescript-eslint/no-unused-vars": [
         "warn",
         {
@@ -50,13 +33,60 @@ export default defineConfig(
       "@typescript-eslint/no-floating-promises": "warn",
       "@typescript-eslint/no-unnecessary-type-assertion": "warn",
     },
-  },
-  {
     languageOptions: {
       parserOptions: {
-        projectService: true,
+        project: "./tsconfig.json",
         tsconfigRootDir: process.cwd(),
       },
     },
   },
-)
+  {
+    name: "app src/",
+    files: ["src/**/*.{ts,tsx}"],
+    extends: [
+      ...nextVitals,
+    ],
+    rules: {
+      "react-hooks/set-state-in-effect": "warn",
+      "react-hooks/set-state-in-render": "warn",
+      "react-hooks/immutability": "warn", // This should probably be a warning but the current recipe pipeline is dependant on it :sweat_smile:
+    },
+    languageOptions: {
+      parserOptions: {
+        project: "./tsconfig.json",
+        tsconfigRootDir: process.cwd(),
+      },
+    },
+  },
+  {
+    name: "tests tests/",
+    files: ["tests/**/*.{ts,tsx}"],
+    languageOptions: {
+      parserOptions: {
+        project: "./tsconfig.json",
+        tsconfigRootDir: path.join(process.cwd(), "tests"),
+      },
+    },
+  },
+  {
+    name: "scripts scripts/",
+    files: ["scripts/**/*.{ts,tsx}"],
+    languageOptions: {
+      parserOptions: {
+        project: "./tsconfig.json",
+        tsconfigRootDir: path.join(process.cwd(), "scripts"),
+      },
+    },
+  },
+  globalIgnores([
+    "src/prisma/generated/**/*",
+    "node_modules/**/*",
+    "prisma/**/*",
+    ".next/**/*",
+    "out/**/*",
+    "dist/**/*",
+    "build/**/*",
+    "ignore/**/*",
+    "next-env.d.ts",
+  ]),
+]);
