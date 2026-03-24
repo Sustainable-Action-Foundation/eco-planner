@@ -1,8 +1,13 @@
+// @ts-ignore
 
 // Extracted text from wikipedia 
 //   https://sv.wikipedia.org/wiki/H%C3%A5llbar_utveckling 
 //   https://sv.wikipedia.org/wiki/Ekosystemtj%C3%A4nster
 // Our license should be compatible https://creativecommons.org/share-your-work/licensing-considerations/compatible-licenses/
+
+/** 
+ * Paste this in your browser console and click the "Kopiera text" button
+ */
 function main() {
   if (typeof document === "undefined") return;
 
@@ -47,16 +52,16 @@ function main() {
 
   // create button that i can click to copy allText to clipboard
   const button = document.createElement("button");
-  button.textContent = "Kopiera text";
+  button.textContent = "Copy scraped text";
   button.style.position = "fixed";
   button.style.top = "10px";
   button.style.right = "10px";
   button.style.zIndex = "1000";
   button.onclick = () => {
     navigator.clipboard.writeText(JSON.stringify(allText)).then(() => {
-      console.info("Text kopierad till urklipp!");
+      console.info("Text copied to clipboard!");
     }).catch(err => {
-      console.error("Kunde inte kopiera text: ", err);
+      console.error("Could not copy text: ", err);
     });
   };
   document.body.appendChild(button);
