@@ -1,6 +1,7 @@
-import { IconCheck } from "@tabler/icons-react";
+import { IconCheck, IconX } from "@tabler/icons-react";
 import { ReactNode, useEffect, useState } from "react";
 import { useToastContext } from "@/context/context";
+import { BackgroundColor } from "@tiptap/extension-text-style";
 
 export default function CreateToast({ children, id }: { children?: ReactNode; id: number }) {
 
@@ -26,28 +27,18 @@ export default function CreateToast({ children, id }: { children?: ReactNode; id
   }, []);
 
   return (
-    <div className="toast-wrapper flex flex-direction-column rounded">
-      <div className="flex padding-50 align-items-center justify-content-center rounded">
-        <div className="padding-inline-75 padding-block-25">
-          <div className="padding-25 circular" style={{ background: "rgb(0, 235, 0)" }}>
-            <IconCheck aria-hidden="true" className="display-block" width={30} height={30} strokeWidth={3} color="white" />
-          </div>
+    <dialog className="toast flex flex-direction-column rounded position-relative padding-0" style={{ backgroundColor: "rgb(56, 156, 61)", border: "none" }}>
+      <header className="flex align-items-center padding-100 gap-50" >
+        {/* Very small padding so the check appears inside of the circle */}
+        <div className="round" style={{ backgroundColor: "rgba(254, 254, 254, 0.9)" }}>
+          <IconCheck aria-hidden="true" className="display-block round" width={16} height={16} strokeWidth={3} color="rgba(76, 176, 81, 1)" style={{ margin: "3px" }} />
         </div>
-        <div className="padding-75 padding-left-50">
-          <h3 className="margin-0">Success</h3>
-          <p className="margin-0">{children}</p>
-        </div>
-      </div>
-      <progress value={timer} max={totalTime} className="" style={{
-        display: "block",
-        blockSize: "unset",
-        inlineSize: "unset",
-        verticalAlign: "unset",
-        width: "100%",
-        height: "10px",
-        appearance: "none",
-        accentColor: "rgb(0, 235, 0)",
-      }} />
-    </div>
+        <p className="margin-0 color-purewhite">{children}</p>
+        <button onClick={() => removeMessage(id)} className="round padding-25 transparent" aria-label="Close toast">
+          <IconX aria-hidden="true" width={20} height={20} strokeWidth={3} color="rgba(222, 222, 222, 1)" />
+        </button>
+      </header>
+      <progress value={timer} max={totalTime} aria-hidden="true" />
+    </dialog>
   )
 }

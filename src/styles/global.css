@@ -177,19 +177,17 @@ button[type="submit"]:disabled {
 }
 
 /* Neutral button (Not CTA or danger) */
-
 .neutral-action {
   color: #191919;
   background-color: hsl(223.12deg 100% 96%);
   border: 1px solid var(--gray-80);
   text-decoration: none;
   padding: .3rem .6rem;
-
 }
 
 .neutral-action:hover {
   border-color: var(--blue-40);
-  background-color: hsl(223.12deg 100% 93%); 
+  background-color: hsl(223.12deg 100% 93%);
 }
 
 /* Login error message */
@@ -221,13 +219,25 @@ button[type="submit"]:disabled {
   }
 }
 
-/* Default toast styles */
-.toast-wrapper {
-  pointer-events: none;
-  background-color: white;
-  border: 1px solid var(--gray-80);
-  box-shadow: 0 0 .5rem -.25rem rgba(0, 0, 0, .5);
-  animation: toast-slide-in 0.5s ease forwards;
+/* Background for <progress> */
+dialog > progress,
+dialog > progress::-webkit-progress-bar {
+  background-color: #389c3d;
+  inline-size: unset;
+  overflow: hidden;
+  border: none;
+  border-radius: 0 0 1rem 1rem;
+  block-size: .5rem;
+}
+
+/* Progress bar */
+dialog > progress::-moz-progress-bar,
+dialog > progress::-webkit-progress-value {
+  background-color: whitesmoke;
+}
+
+.toast {
+  animation: toast-slide-in 0.3s ease;
 }
 
 @keyframes toast-slide-in {
