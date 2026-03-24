@@ -1,6 +1,6 @@
 "use client"
 
-import { ApiTableContent } from "@/lib/api/apiTypes";
+import type { ApiTableContent } from "@/lib/api/apiTypes";
 import { DatasetData, ExternalDataset } from "@/lib/api/utility";
 import { useEffect, useState } from "react";
 import { getStoredGraphType } from "../../../functions/graphFunctions";

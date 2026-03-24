@@ -1,7 +1,8 @@
 import { NextRequest } from "next/server";
 import { getSession } from "@/lib/session"
 import prisma, { Prisma } from "@/prismaClient";
-import { AccessControlled, AccessLevel, ClientError, JSONValue, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
+import { AccessLevel, ClientError } from "@/types";
+import type { AccessControlled, JSONValue, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
 import roadmapGoalCreator from "./roadmapGoalCreator";
 import accessChecker from "@/lib/accessChecker";
 import { revalidateTag } from "next/cache";

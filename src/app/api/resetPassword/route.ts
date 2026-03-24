@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import getUserHash from "@/functions/getUserHash";
 import prisma from "@/prismaClient";
 import { NextRequest } from "next/server";
-import { JSONValue } from "@/types";
+import type { JSONValue } from "@/types";
 
 export async function PATCH(request: NextRequest) {
   const body = await (request.json() as Promise<JSONValue>);

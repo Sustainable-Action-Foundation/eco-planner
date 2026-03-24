@@ -15,7 +15,7 @@ import OutputStatus from "../editor/output/statusDisplay";
 import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";
 import { IconAlertTriangleFilled } from "@tabler/icons-react";
 import { RecipeEditorPermissions } from "../editor/variables/variableTypes/recipeEditorPermissions";
-import { DBRecipe } from "@/types";
+import type { DBRecipe } from "@/types";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
 import getDefaultSuggestedRecipes from "./defaultSuggestedRecipes";
 

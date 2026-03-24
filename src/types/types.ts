@@ -1,5 +1,5 @@
 import { actionInclusionSelection, clientSafeDataSeriesSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapSelection, effectInclusionSelection, goalInclusionSelection, metaRoadmapInclusionSelection, multiRoadmapInclusionSelection, nameSelector, recipeSelector, roadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
-import { Recipe } from "@/functions/recipe/types";
+import type { Recipe } from "@/functions/recipe/types";
 import { Unit } from "mathjs";
 
 import type { Prisma } from "@prisma/client";

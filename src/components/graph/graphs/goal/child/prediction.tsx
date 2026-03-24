@@ -3,7 +3,8 @@
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import { calculatePredictedOutcome } from "../../../functions/graphFunctions";
 import { useTranslation } from "react-i18next";
-import { Goal, isISOIshDate } from "@/types";
+import { isISOIshDate } from "@/types";
+import type { Goal } from "@/types";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 
 export default function PredictionChildGraph({

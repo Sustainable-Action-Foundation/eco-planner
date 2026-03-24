@@ -2,14 +2,14 @@
 
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
 import formSubmitter from "@/functions/formSubmitter";
-import { ApiTableContent, ApiTableDetails } from "@/lib/api/apiTypes";
+import type { ApiTableContent, ApiTableDetails } from "@/lib/api/apiTypes";
 import getTableContent from "@/lib/api/getTableContent";
 import getTableDetails from "@/lib/api/getTableDetails";
 import getTables from "@/lib/api/getTables";
 import { ExternalDataset } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
-import { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
-import { TrafaVariable } from "@/lib/trafa/trafaTypes";
+import type { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
+import type { TrafaVariable } from "@/lib/trafa/trafaTypes";
 import { Goal } from "@prisma/client";
 import { FormEvent, useContext, useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";

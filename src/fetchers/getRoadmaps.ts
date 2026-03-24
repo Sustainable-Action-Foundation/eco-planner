@@ -5,7 +5,7 @@ import { roadmapSorter } from "@/lib/sorters";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 import { multiRoadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
-import { MultiRoadmapInstance } from "@/types";
+import type { MultiRoadmapInstance } from "@/types";
 
 /**
  * Gets all roadmaps the user has access to, as well as the count of goals for each roadmap.

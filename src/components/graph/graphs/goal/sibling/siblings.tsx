@@ -5,7 +5,7 @@ import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
-import { Goal, Roadmap } from "@/types";
+import type { Goal, Roadmap } from "@/types";
 import { stroke, marker } from "../../../config";
 import { graphHeight } from "../config";
 import styles from '../goal.module.css'

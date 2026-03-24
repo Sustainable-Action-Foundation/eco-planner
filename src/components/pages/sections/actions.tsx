@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react"
 import styles from "./sections.module.css"
-import { Action } from "@/types"
+import type { Action } from "@/types"
 import { IconArrowNarrowRight, IconLayoutGridFilled, IconList, IconPlus, IconSearch, IconUser } from "@tabler/icons-react"
 import Link from "next/link"
 import Image from "next/image";

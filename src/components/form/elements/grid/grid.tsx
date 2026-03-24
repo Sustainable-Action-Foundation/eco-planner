@@ -1,6 +1,6 @@
 "use client"
 
-import { GenericElement, Position, GridElement } from "@/components/types"
+import type { GenericElement, Position, GridElement } from "@/components/types"
 import React, { useEffect, useState } from "react"
 import { handleKeyDownGrid } from "./functions"
 

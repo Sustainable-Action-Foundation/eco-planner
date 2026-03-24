@@ -6,7 +6,7 @@ import styles from '../forms.module.css'
 import { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { IconEye, IconEyeOff, IconLock, IconMail, IconUser } from "@tabler/icons-react";
-import { JSONValue } from "@/types";
+import type { JSONValue } from "@/types";
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction) {
   event.preventDefault()

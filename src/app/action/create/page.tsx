@@ -2,7 +2,7 @@ import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import ActionForm from "@/components/form/forms/action";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
-import { AccessControlled } from "@/types";
+import type { AccessControlled } from "@/types";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";

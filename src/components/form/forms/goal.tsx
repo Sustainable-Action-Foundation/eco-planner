@@ -2,14 +2,15 @@
 
 import type { getRoadmaps } from "@/fetchers";
 import formSubmitter from "@/functions/formSubmitter";
-import { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput, isDateValuesWithUnit, isISOIshDate } from "@/types";
+import { isDateValuesWithUnit, isISOIshDate } from "@/types";
+import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput } from "@/types";
 import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput";
 import styles from '../forms.module.css';
 import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections";
 import { RecipeContextProvider } from "@/components/recipe/context/recipeContext.provider";
-import { Recipe } from "@/functions/recipe/types";
+import type { Recipe } from "@/functions/recipe/types";
 import TextEditor from "../elements/textEditor/editor";
 import SuggestedRecipeToggle from "@/components/recipe/suggestions/suggestedRecipeToggle";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
