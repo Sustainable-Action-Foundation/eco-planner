@@ -3,16 +3,20 @@ import fs from "node:fs";
 import path from "node:path";
 import { glob } from "glob";
 import { expect, test } from "playwright/test";
-import { uniqueLocales, namespaces, Locales, localesDir } from "../i18nTestVariables";
+import { uniqueLocales, allNamespaces, Locales } from "../../i18n.config";
 
 /* 
  **********
  * Config *
  **********
  */
+/** Where the locale files are located relative to project root. */
+const localesDir = "public/locales";
+
+const filteredLocales = uniqueLocales.filter(locale => locale !== Locales.test);
 
 /** Every combo of locale and ns in a 2d array. */
-const allPermutations = uniqueLocales.flatMap(locale => namespaces.map(namespace => [locale, namespace]));
+const allPermutations = filteredLocales.flatMap(locale => allNamespaces.map(namespace => [locale, namespace]));
 
 /** Every NS file per locale with their flattened key-values. */
 const allJSON = getAllJSONFlattened();
@@ -64,16 +68,16 @@ const exemptedUnusedKeys: string[] = ["_", "common:"];
 /* Does every namespace exist in every locale? */
 test.describe("Namespace files exist", () => {
   // Track missing and extra namespaces per locale
-  const perLocale = Object.fromEntries(uniqueLocales.map(locale =>
+  const perLocale = Object.fromEntries(filteredLocales.map(locale =>
     [locale as Locales, { missing: [] as string[], extra: [] as string[], empty: [] as string[] }]
   ));
 
-  uniqueLocales.forEach(locale => {
+  filteredLocales.forEach(locale => {
     const nsFiles = glob.sync(`${localesDir}/${locale}/*.json`);
     const nsFilesNames = nsFiles.map(file => path.basename(file, ".json"));
 
-    const missingNS = namespaces.filter(ns => !nsFilesNames.includes(ns));
-    const extraNS = nsFilesNames.filter(ns => !namespaces.includes(ns));
+    const missingNS = allNamespaces.filter(ns => !nsFilesNames.includes(ns));
+    const extraNS = nsFilesNames.filter(ns => !allNamespaces.includes(ns));
     const emptyNS = nsFilesNames.filter(ns => {
       const filePath = path.join(localesDir, locale, `${ns}.json`);
       const content = fs.readFileSync(filePath, "utf-8").trim();
@@ -102,7 +106,7 @@ test.describe("English as fallback", () => {
   const missingInOthers: Record<string, string[]> = {};
   const missingInEnglish: Record<string, string[]> = {};
 
-  uniqueLocales.forEach((locale) => {
+  filteredLocales.forEach((locale) => {
     const keys = Object.keys(allJSON[locale]);
     const missingOther = enKeys.filter(key => !keys.includes(key));
     const missingEng = keys.filter(key => !enKeys.includes(key));
@@ -118,7 +122,7 @@ test.describe("English as fallback", () => {
 /** Do namespaces use the values of common keys instead of referencing? */
 test.skip("Common values not referenced", () => {
   const perLocaleNS: Record<string, Record<string, string[]>>
-    = Object.fromEntries(uniqueLocales.map(locale => [locale, {}]));
+    = Object.fromEntries(filteredLocales.map(locale => [locale, {}]));
 
   /** To minimize false positives, the values will have to match one of these */
   const wordPatterns = [
@@ -128,7 +132,7 @@ test.skip("Common values not referenced", () => {
     (text: string) => `\\s${text}$`, // At end of string with whitespace before
   ];
 
-  uniqueLocales.forEach((locale) => {
+  filteredLocales.forEach((locale) => {
     const commonTranslations = Object.fromEntries(Object.entries(allJSON[locale])
       .filter(([key,]) => key.startsWith("common:"))
       .filter(([key,]) => !exemptedCommonKeysRef.some(exemptedKey => key.startsWith(exemptedKey)))
@@ -136,7 +140,7 @@ test.skip("Common values not referenced", () => {
       .map(([key, value]) => [key, { key, value, pattern: wordPatterns.map(pattern => new RegExp(pattern(escape(value)), "gm")) }])
     );
 
-    const namespacesToCheck = namespaces.filter(ns => ns !== "common");
+    const namespacesToCheck = allNamespaces.filter(ns => ns !== "common");
 
     const everyOtherTranslation = Object.fromEntries(Object.entries(allJSON[locale])
       .filter(([key,]) => namespacesToCheck.some(ns => key.startsWith(ns)))
@@ -162,11 +166,11 @@ test.skip("Common values not referenced", () => {
 /** Are all the nested keys used in locale files defined? */
 test("Are nested keys defined", () => {
   const perLocale: Record<string, string[]>
-    = Object.fromEntries(uniqueLocales.map(locale => [locale, []]));
+    = Object.fromEntries(filteredLocales.map(locale => [locale, []]));
 
   const nestedTRegex = /\$t\((.*?)\)/gm;
 
-  uniqueLocales.forEach(locale => {
+  filteredLocales.forEach(locale => {
     const translations = Object.entries(allJSON[locale])
       .map(([key, value]) => [key, {
         value, nested: Array.from(value.matchAll(nestedTRegex)) // Find all nested t() calls
@@ -227,9 +231,9 @@ test("Are nested keys defined", () => {
 /** Variable syntax in the JSON files i.e. {{var}}, {{var, formatter}} syntax */
 test("Variable syntax in JSON files", () => {
   const perLocale: Record<string, string[]>
-    = Object.fromEntries(uniqueLocales.map(locale => [locale, []]));
+    = Object.fromEntries(filteredLocales.map(locale => [locale, []]));
 
-  uniqueLocales.forEach(locale => {
+  filteredLocales.forEach(locale => {
     const translations = Object.entries(allJSON[locale])
       .filter(([, value]) => value.includes("{") || value.includes("}"));
 
@@ -275,7 +279,7 @@ test("Orphan keys in root of namespace files", () => {
     // Read file instead of allData to not get flattened data
     const content = fs.readFileSync(filePath, "utf-8").toString().trim();
 
-    try { 
+    try {
       const parseTest: unknown = JSON.parse(content);
       if (typeof parseTest !== "object" || parseTest === null || Array.isArray(parseTest)) {
         throw new Error("Not an object");
@@ -367,7 +371,7 @@ test("Keys used in app are not defined", () => {
     allTCalls.forEach(call => {
       const [, key] = call;
 
-      uniqueLocales.forEach(locale => {
+      filteredLocales.forEach(locale => {
         if (allJSON[locale][key]) return; // Skip if key is defined
         if (!perFile[filePath]) perFile[filePath] = [];
         perFile[filePath].push(`[Undefined key] > '${locale}': '${key}'`);
@@ -522,7 +526,7 @@ test("No hardcoded Swedish text in code", () => {
 
 /** Checks for keys in locale files that aren't used in the application */
 test("Unused keys", () => {
-  const unusedPerLocale: Record<string, string[]> = Object.fromEntries(uniqueLocales.map(locale => [locale, []]));
+  const unusedPerLocale: Record<string, string[]> = Object.fromEntries(filteredLocales.map(locale => [locale, []]));
 
   const stripSuffix = (key: string) => {
     validPluralSuffixes.forEach(suffix => {
@@ -533,7 +537,7 @@ test("Unused keys", () => {
     return key;
   };
 
-  uniqueLocales.forEach(locale => {
+  filteredLocales.forEach(locale => {
     const usedKeys: string[] = [];
 
     // Collect TSX used keys
@@ -610,7 +614,7 @@ test("Unused keys", () => {
 
 /** Structure is is `{ Locales: { "namespace:key.keyN": value } }` */
 function getAllJSONFlattened(): Record<string, Record<string, string>> {
-  const perLocale: Record<string, Record<string, string>> = Object.fromEntries(uniqueLocales.map(locale => [locale, {}]));
+  const perLocale: Record<string, Record<string, string>> = Object.fromEntries(filteredLocales.map(locale => [locale, {}]));
   allPermutations.map(([locale, namespace]) => {
     const nsData = JSON.parse(fs.readFileSync(path.join(localesDir, locale, `${namespace}.json`), "utf-8"));
     const flattened = flattenTree(nsData);

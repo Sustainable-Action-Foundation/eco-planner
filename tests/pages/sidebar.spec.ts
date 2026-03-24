@@ -1,4 +1,4 @@
-import { localeAliases, Locales } from "../i18nTestVariables";
+import { localeAliases, Locales } from "../../i18n.config";
 import { switchLanguage } from "../lib/switch-language";
 import { expect, test } from "playwright/test";
 
@@ -17,11 +17,9 @@ test.describe("Sidebar tests", () => {
     await expect(optionsUL, "Language switcher options are not visible").toBeVisible();
 
     // Find the checked element
-    const checkedElement = optionsUL.locator("li button[data-checked='true']").first();    
-    const initialLanguage = await checkedElement.textContent();
-
-    // Test browsers have accept-language set to Swedish
-    expect(initialLanguage).toBe(localeAliases[Locales.svSE]);
+    const checkedElement = optionsUL.locator("li button[data-checked='true']").first();
+    // Test browsers have accept-language set to "cimode", check that this is the default selected language
+    await expect(checkedElement, "Default language is not cimode").toHaveText(localeAliases[Locales.test]);
   });
 
   test("Language switcher correct aliases", async ({ page }) => {
@@ -42,21 +40,14 @@ test.describe("Sidebar tests", () => {
 
     const homeTitle = page.getByTestId("home-title");
 
-    const initialTitle = await homeTitle.textContent();
-    expect(initialTitle, "Page is not in Swedish").toBe("Färdplaner")
+    await expect(homeTitle, "Page is not in cimode").toHaveText("home.title");
 
     await switchLanguage(page, localeAliases[Locales.enSE]);
 
-    await page.waitForLoadState("networkidle");
-    
-    const englishTitle = await homeTitle.textContent();
-    expect(englishTitle, "Page is not in English").toBe("Roadmaps")
+    await expect(homeTitle, "Page is not in English").toHaveText("Roadmaps");
 
     await switchLanguage(page, localeAliases[Locales.svSE]);
 
-    await page.waitForLoadState("networkidle");
-
-    const swedishTitle = await homeTitle.textContent();
-    expect(swedishTitle, "Page is not in Swedish").toBe("Färdplaner")
+    await expect(homeTitle, "Page is not in Swedish").toHaveText("Färdplaner");
   });
 });

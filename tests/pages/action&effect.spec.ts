@@ -60,7 +60,7 @@ test.describe.serial("Action & Effect tests", () => {
     await page.getByTestId("create-button").click();
     await page.getByTestId("create-action").click();
 
-    const option = page.locator('#roadmapId option').filter({ hasText: 'Rikets färdplan (v2)' }); // Checks for Rikets färdplan (v2) to be contained in an option
+    const option = page.locator('#roadmapId option').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: '2' }); // Checks for Rikets färdplan to be contained in an option, with version 2 to avoid selecting the wrong roadmap
 
     const value = await option.getAttribute('value');
 
@@ -79,7 +79,7 @@ test.describe.serial("Action & Effect tests", () => {
   test("No edit Action - required", async ({ page }) => {
     // Navigate to the action edit form
     await page.goto('/');
-    await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
+    await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
     await page.getByRole('link', { name: actionNameRequiredFields }).first().click();
     await page.waitForLoadState("networkidle");
@@ -100,7 +100,7 @@ test.describe.serial("Action & Effect tests", () => {
     actionNameRequiredFieldsUpdated = `Updated Test Action ${testInfo.parallelIndex}`;
     // Navigate to the action edit form
     await page.goto('/');
-    await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
+    await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
     await page.getByRole('link', { name: actionNameRequiredFields }).first().click(); // TODO (fix): The tests doesn't seem to click on the right name here and therefore they fail.
 
@@ -112,9 +112,6 @@ test.describe.serial("Action & Effect tests", () => {
     await page.locator('#actionName').fill(actionNameRequiredFieldsUpdated);
 
     await page.locator('.tiptap').first().fill("Updated Test Action description.");
-
-    // Await next rerender to ensure tiptap content is registered before submitting the form
-    await page.waitForTimeout(500);
 
     await page.locator('#costEfficiency').fill("Text for cost efficiency");
 
@@ -147,7 +144,7 @@ test.describe.serial("Action & Effect tests", () => {
     await page.getByTestId("create-button").click();
     await page.getByTestId("create-action").click();
 
-    const option = page.locator('#roadmapId option').filter({ hasText: 'Rikets färdplan (v2)' }); // Checks for Rikets färdplan (v2) to be contained in an option
+    const option = page.locator('#roadmapId option').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: '2' }); // Checks for Rikets färdplan to be contained in an option, with version 2 to avoid selecting the wrong roadmap
 
     const value = await option.getAttribute('value');
 
@@ -157,9 +154,6 @@ test.describe.serial("Action & Effect tests", () => {
     await page.locator('#actionName').fill(actionNameAllFields);
 
     await page.locator('.tiptap').first().fill("Test Action description.");
-
-    // Await next rerender to ensure tiptap content is registered before submitting the form
-    await page.waitForTimeout(500);
 
     await page.locator('#costEfficiency').fill("Text for cost efficiency");
 
@@ -190,7 +184,7 @@ test.describe.serial("Action & Effect tests", () => {
   test("No edit Action - All Fields", async ({ page }) => {
     // Navigate to the action edit form
     await page.goto('/');
-    await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
+    await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
     await page.getByRole('link', { name: actionNameAllFields }).first().click();
 
@@ -226,7 +220,7 @@ test.describe.serial("Action & Effect tests", () => {
     actionNameAllFieldsUpdated = `Updated Test Action All Fields ${testInfo.parallelIndex}`;
     // Navigate to the action edit form
     await page.goto('/');
-    await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
+    await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
     await page.getByRole('link', { name: actionNameAllFields }).first().click();
 
@@ -238,8 +232,6 @@ test.describe.serial("Action & Effect tests", () => {
     await page.locator('#actionName').fill(actionNameAllFieldsUpdated);
 
     await page.locator('.tiptap').first().fill("Updated Test Action description.");
-
-    await page.waitForTimeout(500);
 
     await page.locator('#costEfficiency').fill("Updated text for cost efficiency");
     await page.locator('#expectedOutcome').fill("Updated text for expected outcome");
@@ -286,7 +278,7 @@ test.describe.serial("Action & Effect tests", () => {
     roadmapActionNameRequiredFields = `Test Action ${testInfo.parallelIndex}`;
     // Navigate to the action edit form
     await page.goto('/');
-    await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
+    await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
     await page.getByTestId("admin-panel-new-action").click();
 
@@ -303,7 +295,7 @@ test.describe.serial("Action & Effect tests", () => {
     roadmapActionNameAllFields = `Test Action All Fields ${testInfo.parallelIndex}`;
     // Navigate to the action edit form
     await page.goto('/');
-    await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
+    await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
     await page.getByTestId("admin-panel-new-action").click();
 
@@ -311,9 +303,6 @@ test.describe.serial("Action & Effect tests", () => {
     await page.locator('#actionName').fill(roadmapActionNameAllFields);
 
     await page.locator('.tiptap').first().fill("Test Action description.");
-
-    // Await next rerender to ensure tiptap content is registered before submitting the form
-    await page.waitForTimeout(500);
 
     await page.locator('#costEfficiency').fill("Text for cost efficiency");
 
