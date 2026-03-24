@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput"
 import styles from '../forms.module.css'
 import TextEditor from "../elements/textEditor/editor"
-import { useMemo, useRef } from "react"
+import { useRef, useState } from "react"
 
 export default function ActionForm({
   goalId,
@@ -21,7 +21,7 @@ export default function ActionForm({
   roadmaps: MultiRoadmapInstance[],
 }) {
   const { t } = useTranslation(["forms", "common"]);
-  const timestamp = useMemo(() => Date.now(), []);
+  const [timestamp] = useState(() => Date.now());
   const descriptionRef = useRef<HTMLInputElement>(null);
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {

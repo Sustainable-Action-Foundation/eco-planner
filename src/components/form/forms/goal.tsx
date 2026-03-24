@@ -54,7 +54,7 @@ export default function GoalForm({
     }));
   }, [roadmapAlternatives, t]);
 
-  const timestamp = useMemo(() => Date.now(), []);
+  const [timestamp] = useState(() => Date.now());
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
