@@ -234,7 +234,11 @@ progress::-webkit-progress-bar {
 /* Progress bar */
 progress::-moz-progress-bar,
 progress::-webkit-progress-value {
-  background-color: whitesmoke;
+  background-color: color-mix(in srgb, var(--progress-color) 80%, black 20%);
+}
+
+.toast-container {
+  width: min(40ch, 100%);
 }
 
 .toast {

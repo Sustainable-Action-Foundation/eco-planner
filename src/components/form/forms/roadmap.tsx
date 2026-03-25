@@ -16,10 +16,7 @@ import ConfigureAccess from "../sections/access";
 import { useToastContext } from "@/context/context";
 import { useRouter } from "next/navigation";
 
-// Not sure if this is the best way to make sure the function below has access to addMessage
-const { addMessage } = useToastContext();
-
-function checkForBadDecoding(csv: string[][], t: TFunction) {
+function checkForBadDecoding(csv: string[][], t: TFunction, addMessage: (text: string, type: 'success' | 'error' | 'warning') => void) {
   if (csv.some((row) => row.some((cell) => cell.includes("�")))) {
     // alert(t("forms:roadmap.bad_decoding"));
     addMessage(t("forms:roadmap.bad_decoding"), "warning");
@@ -45,6 +42,8 @@ export default function RoadmapForm({
   const { t } = useTranslation(["forms", "common"]);
   const descriptionRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+
+  const { addMessage } = useToastContext();
 
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -173,7 +172,7 @@ export default function RoadmapForm({
         currentFile.arrayBuffer()
           .then((buffer) => parseCsv(buffer))
           .then((csv) => {
-            checkForBadDecoding(csv, t);
+            checkForBadDecoding(csv, t, addMessage);
             return csvToGoalList(csv, () => addMessage(t("forms:roadmap.scale_deprecated_extended"), "warning"));
           })
           .then(() => setIsLoading(false))

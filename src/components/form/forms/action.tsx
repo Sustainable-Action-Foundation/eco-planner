@@ -210,13 +210,13 @@ export default function ActionForm({
           </button>
         </div>
       </form>
-      <button onClick={() => addMessage("The action has been created", "success")}>Add Toast</button>
-      <button onClick={() => addMessage("The action has been created", "warning")}>Add Toast</button>
-      <button onClick={() => addMessage("The action has been created", "error")}>Add Toast</button>
+      <button onClick={() => addMessage("Detta är en lyckad åtgärd!", "success")}>Add Toast</button>
+      <button onClick={() => addMessage("Detta är ett varningsmeddelande!", "warning")}>Add Toast</button>
+      <button onClick={() => addMessage("Detta är ett felmeddelande!", "error")}>Add Toast</button>
       <div className="flex flex-direction-column gap-50">
-        <CreateToast key={100} id={100} type="success">Detta är en lyckad åtgärd</CreateToast>
-        <CreateToast key={200} id={200} type="warning">Detta är en varning</CreateToast>
-        <CreateToast key={300} id={300} type="error">Detta är ett felmeddelande</CreateToast>
+        <CreateToast key={100} id={100} type="success">Lyckad! Detta är en lyckad åtgärd!</CreateToast>
+        <CreateToast key={200} id={200} type="warning">Varning! Detta är ett varningsmeddelande!</CreateToast>
+        <CreateToast key={300} id={300} type="error">Fel! Detta är ett felmeddelande!</CreateToast>
       </div>
     </>
   )
