@@ -451,13 +451,3 @@ export type Mask = Record<ISOIshDate, boolean>;
 export type DateValues = Record<ISOIshDate, number>;
 export type DateValuesWithUnit = { dateValues: DateValues, unit: UnitString };
 export type MaskedVector = { vector: Unit[], mask: Mask };
-
-/* TODO INPUT_UPDATES */
-declare module '@tiptap/core' {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-  interface Commands<ReturnType> {
-    underlineSpan: {
-      toggleUnderline: () => ReturnType
-    }
-  }
-}
