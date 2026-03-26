@@ -6,21 +6,21 @@ import styles from '../tables.module.css' with { type: "css" };
 import { useTranslation } from "react-i18next";
 import Link from 'next/link';
 import type { Goal, Roadmap } from "@/types";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
-interface GoalTableCommonProps {
+type GoalTableCommonProps = {
   sortBy?: GoalSortBy;
 };
 
-interface GoalTableWithGoals extends GoalTableCommonProps {
+type GoalTableWithGoals = {
   goals: Goal[];
   roadmap?: never;
-};
+} & GoalTableCommonProps;
 
-interface GoalTableWithRoadmap extends GoalTableCommonProps {
+type GoalTableWithRoadmap = {
   goals?: never;
   roadmap: Roadmap;
-};
+} & GoalTableCommonProps;
 
 type GoalTableProps = GoalTableWithGoals | GoalTableWithRoadmap;
 

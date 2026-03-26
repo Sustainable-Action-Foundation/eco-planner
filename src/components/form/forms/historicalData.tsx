@@ -9,8 +9,9 @@ import { ExternalDataset } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
 import type { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
 import type { TrafaVariable } from "@/lib/trafa/trafaTypes";
-import { Goal } from "@prisma/client";
-import { FormEvent, useCallback, useContext, useEffect, useRef, useState } from "react";
+import type { Goal } from "@prisma/client";
+import type { FormEvent} from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
 import dialogStyles from '../api/queryBuilder.module.css' /* TODO: This seems a bit janky */
@@ -39,7 +40,7 @@ export default function HistoricalData({
   const [dataSource, setDataSource] = useState<string>(goal.externalDataset ? goal.externalDataset : "");
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
   const [table, setTable] = useState<{ tableId: string, label: string } | null>(goal.externalTableId ? { label: tables?.find(t => t.tableId === goal.externalTableId)?.label ?? goal.externalTableId, tableId: goal.externalTableId } : null)
-  const [metric, setMetric] = useState<string | null>(goal.externalSelection ? JSON.parse(goal.externalSelection as string)[0].valueCodes[0] : null)
+  const [metric, setMetric] = useState<string | null>(goal.externalSelection ? JSON.parse(goal.externalSelection)[0].valueCodes[0] : null)
 
   const [tableDetails, setTableDetails] = useState<ApiTableDetails | null>(null);
   const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
@@ -192,7 +193,7 @@ export default function HistoricalData({
                 (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variable.values && variable.values.length > 1)) &&
               <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option>
             }
-            {variable.values && variable.values.map(value => (
+            {variable.values?.map(value => (
               <option key={`${variable.name}-${value.name}`} value={value.name} lang={tableDetails.language}>{value.label}</option>
             ))}
           </select>
@@ -228,7 +229,7 @@ export default function HistoricalData({
             required={false}
             name="time"
             id="time"
-            defaultValue={times && times.length == 1 ? times[0].label : undefined}
+            defaultValue={times?.length == 1 ? times[0].label : undefined}
             onChange={() => tryGetResult()}
           >
             <option value="" className={`font-style-italic color-gray`}>{defaultValue}</option>
@@ -465,7 +466,7 @@ export default function HistoricalData({
                       {tableDetails.variables.map(variable => {
                         return variableSelectionHelper(variable, tableDetails);
                       })}
-                      {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => {
+                      {tableDetails.hierarchies?.map(hierarchy => {
                         if (hierarchy.children?.some(variable => variable.option)) return (
                           <div key={hierarchy.name}>
                             <div className="font-weight-bold">{hierarchy.label}</div>

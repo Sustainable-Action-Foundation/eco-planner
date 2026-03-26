@@ -10,7 +10,7 @@ export type italicOptions = {
 }
 
 declare module '@tiptap/core' {
-  interface Commands<ReturnType> {
+  type Commands<ReturnType> = {
     italic: {
       /**
        * Toggle underline on the selected text

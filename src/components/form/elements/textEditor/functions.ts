@@ -1,6 +1,6 @@
 // TODO: Move all keyhandlers to shared file
 
-import { Editor } from "@tiptap/core";
+import type { Editor } from "@tiptap/core";
 
 export const handleKeyDownMenuBar = (
   e: React.KeyboardEvent<HTMLUListElement>,

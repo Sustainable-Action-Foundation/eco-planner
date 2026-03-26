@@ -8,7 +8,8 @@
 "use client"
 
 import styles from './popovers.module.css' with { type: "css" }
-import React, { HTMLProps } from "react";
+import type { HTMLProps } from "react";
+import React from "react";
 
 export function PopoverButton({
   id,

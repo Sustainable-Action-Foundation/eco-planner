@@ -18,7 +18,8 @@ import { notFound } from "next/navigation";
 import getTableContent from "@/lib/api/getTableContent";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconAlertTriangle, IconArrowNarrowRight, IconBuildings } from "@tabler/icons-react";
-import i18nServer, { TFunction } from "i18next";
+import type { TFunction } from "i18next";
+import i18nServer from "i18next";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 import GoalGraph from "@/components/graph/graphs/goal/container";
 

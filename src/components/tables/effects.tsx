@@ -6,10 +6,11 @@ import Link from "next/link";
 import { ControlsMenu } from "../elements/controls/controls";
 import { useTranslation } from "react-i18next";
 import styles from "@/components/tables/tables.module.css" with { type: "css" };
-import { IconCaretRightFilled, ReactNode } from "@tabler/icons-react";
+import type { ReactNode } from "@tabler/icons-react";
+import { IconCaretRightFilled } from "@tabler/icons-react";
 import { hasEditAccess } from "@/lib/accessChecker";
 
-interface EffectTableCommonProps {
+type EffectTableCommonProps = {
   accessLevel?: AccessLevel;
   object: Action | Goal;
 };

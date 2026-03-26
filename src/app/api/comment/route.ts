@@ -4,7 +4,7 @@ import prisma from "@/prismaClient";
 import type { JSONValue } from "@/types";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
   const session = await getSession(await cookies());

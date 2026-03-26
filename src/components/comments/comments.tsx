@@ -1,9 +1,10 @@
 'use client';
 
 import { commentSorter } from "@/lib/sorters";
-import { Comment } from "@prisma/client";
+import type { Comment } from "@prisma/client";
 import styles from './comments.module.css'
-import { ChangeEvent, useRef, useState } from "react";
+import type { ChangeEvent} from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Link from "next/link";
 import formSubmitter from "@/functions/formSubmitter";

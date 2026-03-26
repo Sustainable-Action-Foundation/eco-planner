@@ -10,7 +10,7 @@ import VectorPickerSelect from "./vectorPickerSelect";
 import React, { useCallback, useEffect, useState } from "react";
 import type { InputElement, TreeItem } from "@/components/types";
 import SelectSingleTreeSearch from "@/components/form/elements/combobox/selectSingleTreeSearch";
-import { RecipeContextType } from "@/components/recipe/context/recipeContext.internal";
+import type { RecipeContextType } from "@/components/recipe/context/recipeContext.internal";
 import { clientSafeGetOneRoadmap, clientSafeGetOneDataSeries } from "@/fetchers/client";
 
 function useRoadmapTreeItems(availableRoadmaps: { id: string; name: string; }[]) {

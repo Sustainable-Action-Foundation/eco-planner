@@ -5,7 +5,8 @@ import type { Recipe, RecipeIsh, RecipeVariable } from "@/functions/recipe/types
 import type { DateValuesWithUnit } from "@/types";
 import { useEffect, useMemo, useState } from "react";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
-import { RecipeContext, SetStateAction } from "./recipeContext.internal";
+import type { SetStateAction } from "./recipeContext.internal";
+import { RecipeContext } from "./recipeContext.internal";
 
 export function RecipeContextProvider({
   initialRecipe,

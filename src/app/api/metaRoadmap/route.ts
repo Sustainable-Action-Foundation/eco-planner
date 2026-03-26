@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { getSession } from "@/lib/session";
 import { AccessLevel, ClientError } from "@/types";
 import type { AccessControlled, JSONValue, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";

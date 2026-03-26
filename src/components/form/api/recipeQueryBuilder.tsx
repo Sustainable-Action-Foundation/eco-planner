@@ -213,7 +213,7 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
   function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails, options?: VariableSelectionHelperOptions) {
     if (variable.option) {
       return (
-        <label key={variable.name} className={`block margin-block-75 ${options?.classNames && options.classNames.map((className: string) => className).join(" ")}`}>
+        <label key={variable.name} className={`block margin-block-75 ${options?.classNames?.map((className: string) => className).join(" ")}`}>
           {/* Only display "optional" tags if the data source provides this information */}
           {variable.label[0].toUpperCase() + variable.label.slice(1)}{optionalTag(dataSource, variable.optional)}
           {/* TODO: Use CSS to set proper capitalization of labels; something like `label::first-letter { text-transform: capitalize; }` */}
@@ -225,7 +225,7 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
             id={variable.name}
             defaultValue={ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" ?
               (// If only one value is available, pre-select it
-                variable.values && variable.values.length == 1 ? variable.values[0].label : undefined
+                variable.values?.length == 1 ? variable.values[0].label : undefined
               )
               :
               undefined
@@ -238,7 +238,7 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
               !(ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb") &&
               <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option>
             }
-            {variable.values && variable.values.map(value => (
+            {variable.values?.map(value => (
               <option key={`${variable.name}-${value.name}`} value={value.name} lang={tableDetails.language}>{value.label}</option>
             ))}
           </select>
@@ -276,7 +276,7 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
           required={false}
           name="Tid"
           id="Tid"
-          defaultValue={times && times.length == 1 ? times[0].label : undefined}>
+          defaultValue={times?.length == 1 ? times[0].label : undefined}>
           <option value="" className={`font-style-italic color-gray`}>{defaultValue}</option>
           {times.map(time => (
             <option key={time.name} value={time.name} lang={language}>{time[displayValueKey]}</option>
@@ -479,7 +479,7 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
                       {tableDetails.variables.map(variable => {
                         return variableSelectionHelper(variable, tableDetails);
                       })}
-                      {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => {
+                      {tableDetails.hierarchies?.map(hierarchy => {
                         if (hierarchy.children?.some(variable => variable.option)) return (
                           <label key={hierarchy.name} className="block margin-block-75">
                             <b>{hierarchy.label}</b>

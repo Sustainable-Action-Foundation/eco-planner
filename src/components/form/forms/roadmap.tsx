@@ -2,12 +2,12 @@
 
 import formSubmitter from "@/functions/formSubmitter";
 import parseCsv, { csvToGoalList } from "@/functions/parseCsv";
-import { LoginData } from "@/lib/session";
+import type { LoginData } from "@/lib/session";
 import type { AccessControlled, GoalCreateInput, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
-import { MetaRoadmap, Roadmap } from "@prisma/client";
+import type { MetaRoadmap, Roadmap } from "@prisma/client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import styles from '../forms.module.css';
-import { TFunction } from "i18next";
+import type { TFunction } from "i18next";
 import { Trans, useTranslation } from "react-i18next";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import TextEditor from "../elements/textEditor/editor";

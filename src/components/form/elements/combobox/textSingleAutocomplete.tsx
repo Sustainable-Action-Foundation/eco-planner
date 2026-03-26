@@ -3,7 +3,8 @@
 import { IconChevronDown } from "@tabler/icons-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import styles from './comboBox.module.css' with { type: "css" }
-import Fuse, { IFuseOptions } from "fuse.js";
+import type { IFuseOptions } from "fuse.js";
+import Fuse from "fuse.js";
 import { useTranslation } from "react-i18next";
 import type { InputElement, Option, Theme } from "@/components/types";
 import { handleKeyDownEditableCombobox, scrollOptionIntoView } from "./functions";

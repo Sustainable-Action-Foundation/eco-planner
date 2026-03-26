@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import prisma, { Prisma } from "@/prismaClient";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";

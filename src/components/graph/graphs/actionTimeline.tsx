@@ -2,7 +2,7 @@
 
 import WrappedChart from "@/lib/chartWrapper";
 import { actionGraphSorter } from "@/lib/sorters";
-import { Action } from "@prisma/client";
+import type { Action } from "@prisma/client";
 import { useTranslation } from "react-i18next";
 import { color_palette, stroke, marker } from "../config";
 

@@ -1,5 +1,6 @@
 import "server-only";
-import { getSession, LoginData } from "@/lib/session";
+import type { LoginData } from "@/lib/session";
+import { getSession } from "@/lib/session";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 import { effectInclusionSelection } from "@/fetchers/inclusionSelectors";

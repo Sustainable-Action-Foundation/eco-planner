@@ -1,7 +1,8 @@
 "use client"
 
 import type { ApiTableContent } from "@/lib/api/apiTypes";
-import { DatasetData, ExternalDataset } from "@/lib/api/utility";
+import type { DatasetData} from "@/lib/api/utility";
+import { ExternalDataset } from "@/lib/api/utility";
 import { useEffect, useState } from "react";
 import { getStoredGraphType } from "../../../functions/graphFunctions";
 import GraphSelector from "../../../graphSelectors/graphSelector";
@@ -16,7 +17,7 @@ import SiblingGraph from "../sibling/siblings";
 import findSiblings from "@/functions/findSiblings";
 import { graphHeight } from "../config";
 import CopyAndScale from "@/components/modals/copyAndScale";
-import { LoginData } from "@/lib/session";
+import type { LoginData } from "@/lib/session";
 import styles from '../goal.module.css'
 
 export const GraphType = {

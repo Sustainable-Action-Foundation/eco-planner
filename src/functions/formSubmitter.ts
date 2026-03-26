@@ -1,9 +1,9 @@
 'use client';
 
-import { TFunction } from "i18next";
+import type { TFunction } from "i18next";
 import { isStandardObject } from "@/types";
 import type { JSONValue } from "@/types";
-import { SetStateAction } from "react";
+import type { SetStateAction } from "react";
 
 /**
  * Submits the data from a form to the API and handles the response

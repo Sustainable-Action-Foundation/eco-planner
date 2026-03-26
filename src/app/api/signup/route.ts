@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { allowedDomains } from "@/lib/allowedDomains";
 import prisma from "@/prismaClient"
 import bcrypt from "bcryptjs";
@@ -6,7 +6,7 @@ import mailClient from "@/mailClient";
 import getUserHash from "@/functions/getUserHash";
 import { baseUrl } from "@/lib/baseUrl";
 import serveTea from "@/lib/i18nServer";
-import Mail from "nodemailer/lib/mailer";
+import type Mail from "nodemailer/lib/mailer";
 import type { JSONValue } from "@/types";
 
 export async function POST(request: NextRequest) {

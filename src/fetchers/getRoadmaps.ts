@@ -1,5 +1,6 @@
 import "server-only";
-import { getSession, LoginData } from "@/lib/session"
+import type { LoginData } from "@/lib/session";
+import { getSession } from "@/lib/session"
 import prisma from "@/prismaClient";
 import { roadmapSorter } from "@/lib/sorters";
 import { unstable_cache } from "next/cache";

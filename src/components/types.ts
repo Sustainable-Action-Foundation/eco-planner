@@ -65,7 +65,8 @@ export type TabPanelProps = TabElement & {
 import '@tiptap/extension-link'
 
 declare module '@tiptap/extension-link' {
-  interface LinkOptions {
+  // @ts-expect-error - This is a module augmentation
+  type LinkOptions = {
     onOpenLinkModal?: () => void
   }
 }

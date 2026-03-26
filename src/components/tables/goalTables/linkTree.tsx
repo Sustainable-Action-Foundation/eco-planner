@@ -1,8 +1,9 @@
 "use client";
 
 import styles from '../tables.module.css' with { type: "css" };
-import goalsToTree, { GoalTree, GoalTreeEntry } from '@/functions/goalsToTree';
-import { SyntheticEvent } from 'react';
+import type { GoalTree, GoalTreeEntry } from '@/functions/goalsToTree';
+import goalsToTree from '@/functions/goalsToTree';
+import type { SyntheticEvent } from 'react';
 import { getSessionStorage, setSessionStorage } from '@/functions/localStorage';
 import { useTranslation } from "react-i18next";
 import { IconCaretRightFilled, IconLink } from '@tabler/icons-react';
@@ -11,12 +12,12 @@ import type { Roadmap } from "@/types";
 
 // interface LinkTreeCommonProps {}
 
-interface LinkTreeWithGoals /* extends LinkTreeCommonProps */ {
+type LinkTreeWithGoals = {
   goals: GoalTreeEntry[],
   roadmap?: never,
 }
 
-interface LinkTreeWithRoadmap /* extends LinkTreeCommonProps */ {
+type LinkTreeWithRoadmap = {
   goals?: never,
   roadmap: Roadmap,
 }

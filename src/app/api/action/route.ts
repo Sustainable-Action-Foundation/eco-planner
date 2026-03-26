@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { getSession } from "@/lib/session"
 import prisma, { Prisma } from "@/prismaClient";
 import { AccessLevel, ClientError, isDateValuesWithUnit } from "@/types";

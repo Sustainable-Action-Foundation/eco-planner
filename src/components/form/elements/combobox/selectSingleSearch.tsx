@@ -5,7 +5,8 @@ import { useTranslation } from "react-i18next";
 import styles from './comboBox.module.css' with { type: "css" }
 import type { InputElement, Option } from "@/components/types";
 import { clearEditableCombobox, handleKeyDownEditableCombobox, preventInvalidFormSubmission, scrollOptionIntoView } from "./functions";
-import Fuse, { IFuseOptions } from "fuse.js";
+import type { IFuseOptions } from "fuse.js";
+import Fuse from "fuse.js";
 import { IconSearch, IconSelector } from "@tabler/icons-react";
 
 // TODO: Should allow for options with same values? Or we should check that they are unique?

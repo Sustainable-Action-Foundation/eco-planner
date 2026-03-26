@@ -9,7 +9,7 @@ import { openModal } from "@/components/modals/modalFunctions";
 import { useTranslation } from "react-i18next";
 import { IconArrowBackUp, IconChartHistogram, IconDotsVertical, IconEdit, IconPlus, IconStar, IconStarFilled, IconTrashXFilled, IconX } from "@tabler/icons-react";
 import { hasEditAccess } from '@/lib/accessChecker';
-import { TFunction } from 'i18next';
+import type { TFunction } from 'i18next';
 import type { Action, Effect, Goal, GoalUpdateInput, MetaRoadmap, Roadmap } from "@/types";
 import formSubmitter from '@/functions/formSubmitter';
 

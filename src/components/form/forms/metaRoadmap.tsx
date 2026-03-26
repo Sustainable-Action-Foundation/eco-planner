@@ -1,9 +1,10 @@
 'use client'
 
 import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" with { type: "json" }
-import { LoginData } from "@/lib/session";
+import type { LoginData } from "@/lib/session";
 import type { AccessControlled, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
-import { MetaRoadmap, RoadmapType } from "@prisma/client";
+import type { MetaRoadmap} from "@prisma/client";
+import { RoadmapType } from "@prisma/client";
 import { useRef, useState } from "react";
 import formSubmitter from "@/functions/formSubmitter";
 import styles from '../forms.module.css'

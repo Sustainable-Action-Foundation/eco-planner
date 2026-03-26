@@ -5,7 +5,7 @@ import { ClientError, isDateValuesWithUnit } from "@/types";
 import type { EffectInput, JSONValue } from "@/types";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 
 // Typeguard and check if the request body is valid
 function isEffect(effect: JSONValue): effect is EffectInput {

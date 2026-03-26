@@ -1,12 +1,12 @@
 'use client';
 
-import { Editor } from "@tiptap/core";
+import type { Editor } from "@tiptap/core";
 import { useEditorState } from "@tiptap/react";
 import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconChevronDown, IconLinkOff,  IconAlignLeft } from "@tabler/icons-react";
 import React, { useEffect, useRef, useState } from "react";
 import styles from './textEditor.module.css' with { type: "css" }
 import { allowedProtocols } from './config/config';
-import { TFunction } from "i18next";
+import type { TFunction } from "i18next";
 import { BubbleMenu } from '@tiptap/react/menus'
 import { handleKeyDownPopUpMenu } from "./functions";
  

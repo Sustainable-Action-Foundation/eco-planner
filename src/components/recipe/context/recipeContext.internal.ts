@@ -1,4 +1,4 @@
-import { SmartRecipe } from "@/functions/recipe/smartRecipe";
+import type { SmartRecipe } from "@/functions/recipe/smartRecipe";
 import type { Recipe, RecipeIsh, RecipeVariable } from "@/functions/recipe/types";
 import type { DateValues } from "@/types";
 import { createContext } from "react";

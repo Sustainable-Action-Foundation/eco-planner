@@ -8,7 +8,7 @@ import prisma from "@/prismaClient";
 import { ClientError, isDateValues } from "@/types";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
   const [session, requestJson] = await Promise.all([
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
   ]);
 
   // Validate request
-  if (!requestJson || !requestJson.dataSeriesId) {
+  if (!requestJson?.dataSeriesId) {
     return Response.json({ message: 'Missing required input parameters' },
       { status: 400 }
     );

@@ -3,7 +3,8 @@
 import prisma from "@/prismaClient";
 import { clientSafeRoadmapSelection } from "@/fetchers/inclusionSelectors";
 import { cookies } from "next/headers";
-import { getSession, LoginData } from "@/lib/session";
+import type { LoginData } from "@/lib/session";
+import { getSession } from "@/lib/session";
 import { goalSorter } from "@/lib/sorters";
 import { unstable_cacheTag as cacheTag } from 'next/cache'
 import type { ClientRoadmap } from "@/types";

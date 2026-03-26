@@ -1,5 +1,5 @@
 import { baseUrl } from "@/lib/baseUrl";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import truncateText from "./truncateText";
 import serveTea from "@/lib/i18nServer";
 import { getLocale } from "./getLocale";

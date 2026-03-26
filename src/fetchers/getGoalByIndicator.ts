@@ -1,8 +1,10 @@
 import "server-only";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
-import { getSession, LoginData } from "@/lib/session"
+import type { LoginData } from "@/lib/session";
+import { getSession } from "@/lib/session"
 import { effectSorter } from "@/lib/sorters";
-import prisma, { Prisma } from "@/prismaClient";
+import type { Prisma } from "@/prismaClient";
+import prisma from "@/prismaClient";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 
