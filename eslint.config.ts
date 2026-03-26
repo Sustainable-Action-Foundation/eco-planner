@@ -36,10 +36,10 @@ const tsCommonRules: Config["rules"] = {
 
 export default defineConfig([
   { // App linting
-    ...nextTS,
     name: "App src/",
     files: ["src/**/*.{ts,tsx}"],
     extends: [
+      ...nextTS,
       ...nextVitals,
     ],
     rules: {
@@ -56,9 +56,11 @@ export default defineConfig([
     },
   },
   { // Test linting
-    ...nonAppTsBaseConfig,
     name: "Tests tests/",
     files: ["tests/**/*.{ts,tsx}"],
+    extends: [
+      ...nonAppTsBaseConfig,
+    ],
     rules: {
       ...tsCommonRules,
     },
@@ -70,9 +72,11 @@ export default defineConfig([
     },
   },
   { // Script linting
-    ...nonAppTsBaseConfig,
     name: "scripts scripts/",
     files: ["scripts/**/*.{ts,tsx}"],
+    extends: [
+      ...nonAppTsBaseConfig,
+    ],
     rules: {
       ...tsCommonRules,
     },
