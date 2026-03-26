@@ -287,7 +287,7 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
   }
 
   function shouldVariableFieldsetBeVisible(tableDetails: ApiTableDetails, dataSource: string) {
-    const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb") && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1);
+    const returnBool = (((tableDetails.hierarchies && (tableDetails.hierarchies.length > 0)) ?? (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb") && tableDetails.variables.some(variable => variable.option))) || tableDetails.times.length > 1);
     return returnBool;
   }
 

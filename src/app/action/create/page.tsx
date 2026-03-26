@@ -74,12 +74,12 @@ export default async function Page(
 
   return (
     <>
-      <Breadcrumb object={goal || roadmap || undefined} customSections={[t("pages:action_create.breadcrumb")]} />
+      <Breadcrumb object={(goal ?? roadmap) ?? undefined} customSections={[t("pages:action_create.breadcrumb")]} />
 
       <div className="container-text margin-inline-auto">
         {goal
           ? <h1 className='margin-top-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-            {t("pages:action_create.title_with_goal", { goalName: goal?.name || goal?.indicatorParameter })}
+            {t("pages:action_create.title_with_goal", { goalName: goal?.name ?? goal?.indicatorParameter })}
           </h1>
           : <h1 className='margin-top-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
             {t("pages:action_create.title")}

@@ -73,7 +73,11 @@ export default function ConfigureAccess({
 
   return (
     <div ref={accessSectionRef}>
-      {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) && // TODO: Check that this is correct or if we need another one for metaroadmap
+      {(
+        !currentRoadmap
+        || user?.id === currentRoadmap.authorId
+        || user?.isAdmin
+      ) && // TODO: Check that this is correct or if we need another one for meta roadmap
         // TODO: Disabled / placeholder need to be more discernable 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>
@@ -140,7 +144,7 @@ export default function ConfigureAccess({
               />
               <label htmlFor="viewer-groups" className="block width-fit-content">{`${t("forms:access_selector.groups")}:`}</label>
               <SelectMultipleSearch
-                onChange={(option) => setViewerGroups(option ? option : [])}
+                onChange={(option) => setViewerGroups(option ?? [])}
                 props={{
                   id: "viewer-groups",
                   name: "viewer-groups",
@@ -156,7 +160,7 @@ export default function ConfigureAccess({
         </fieldset>
       }
 
-      {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) && // TODO: Check that this is correct or if we need another one for metaroadmap
+      {((!currentRoadmap || user?.isAdmin) ?? user?.id === currentRoadmap.authorId) && // TODO: Check that this is correct or if we need another one for meta roadmap
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>
             {legends.editors}
@@ -176,7 +180,7 @@ export default function ConfigureAccess({
           <fieldset
             className=" fieldset-unset-pseudo-class"
           >
-            <legend> {/* TODO: This causes repetion on a screenreader */}
+            <legend> {/* TODO: This causes repetition on a screen reader */}
               <label className="flex width-fit-content align-items-center gap-50">
                 <input
                   type="radio"
@@ -212,7 +216,7 @@ export default function ConfigureAccess({
               />
               <label htmlFor="editor-groups" className="block width-fit-content">{`${t("forms:access_selector.groups")}:`}</label>
               <SelectMultipleSearch
-                onChange={(option) => setEditorGroups(option ? option : [])}
+                onChange={(option) => setEditorGroups(option ?? [])}
                 props={{
                   id: "editor-groups",
                   name: "editor-groups",

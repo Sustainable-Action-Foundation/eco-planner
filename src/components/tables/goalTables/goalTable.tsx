@@ -103,9 +103,9 @@ export default function GoalTable({
         <tbody>
           {parsedGoals.map(goal => (goal &&
             <tr key={goal.id}>
-              <td><Link href={`/goal/${goal.id}`}>{goal.name || goal.indicatorParameter}</Link></td>
+              <td><Link href={`/goal/${goal.id}`}>{goal.name ?? goal.indicatorParameter}</Link></td>
               <td>{goal.indicatorParameter}</td>
-              <td>{goal.dataSeries?.unit === null ? t("common:tsx.unitless") : goal.dataSeries?.unit || t("common:tsx.unit_missing")}</td>
+              <td>{goal.dataSeries?.unit === null ? t("common:tsx.unitless") : goal.dataSeries?.unit ?? t("common:tsx.unit_missing")}</td>
               <td>{goal._count.effects}</td>
             </tr>
           ))}

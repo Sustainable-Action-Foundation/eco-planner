@@ -38,10 +38,10 @@ export function CustomSection({
       <BreadcrumbChevron />
 
       <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
-        {title ? title : null}
+        {title ?? null}
         {link ? (
           <Link href={link} className={styles.breadCrumb}>
-            {linkText || link}
+            {linkText ?? link}
           </Link>
         ) : null}
       </span>
@@ -91,7 +91,7 @@ export function GoalSection({
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
       {t("components:breadcrumbs_sections.goal")}
       <Link href={`/goal/${goal.id}`} className={styles.breadCrumb}>
-        {goal.name || goal.indicatorParameter}
+        {goal.name ?? goal.indicatorParameter}
       </Link>
     </span>
   )

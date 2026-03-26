@@ -55,7 +55,7 @@ function styleString(str: string, options: Options): string {
 
 function styleError(error: Error, options: Options): string {
   const message = colors.underline(error.message);
-  let stack = error.stack?.replace(error.message, message) || message;
+  let stack = error.stack?.replace(error.message, message) ?? message;
 
   if (options?.breakLine) stack = `\n${stack}\n`;
 

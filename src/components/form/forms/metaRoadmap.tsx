@@ -68,7 +68,7 @@ export default function MetaRoadmapForm({
       // Create
       formData = {
         name: (form.namedItem("name") as HTMLInputElement)?.value,
-        description: (form.namedItem("description") as HTMLInputElement | null)?.value || "", // Should always have a value due to the check above, but just in case
+        description: (form.namedItem("description") as HTMLInputElement | null)?.value ?? "", // Should always have a value due to the check above, but just in case
         type: ((form.namedItem("type") as HTMLSelectElement)?.value as RoadmapType) || null,
         actor: (form.namedItem("actor") as HTMLInputElement)?.value || null,
         editors: editability === "custom" ? (form.namedItem("editors") as HTMLInputElement)?.value.split(',').map(string => string.trim()).filter(Boolean) : [],

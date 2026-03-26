@@ -40,8 +40,8 @@ export default function VariableTypeExternal({
         </div>
       </VariableTypeCommon>
       <div className="flex gap-25 margin-left-300 margin-top-100"> {/* TODO: Handle overflow a bit better here */}
-        <span style={{whiteSpace: "nowrap"}}>{t("components:recipe_editor.dataset")}: {variable.dataset || ""},</span>
-        <span style={{whiteSpace: "nowrap"}}>{t("components:recipe_editor.table")}: {variable.tableId || ""},</span>
+        <span style={{whiteSpace: "nowrap"}}>{t("components:recipe_editor.dataset")}: {variable.dataset ?? ""},</span>
+        <span style={{whiteSpace: "nowrap"}}>{t("components:recipe_editor.table")}: {variable.tableId ?? ""},</span>
         <span style={{whiteSpace: "nowrap", maxWidth: '400px', textOverflow: 'ellipsis', overflow: 'hidden'}}>{t("components:recipe_editor.selection")}: {JSON.stringify(variable.selection) || ""}</span>
       </div>  
     </>
@@ -65,7 +65,7 @@ export function VariableTypeExternalSimple({
   return (
     <div className="flex gap-25"> {/* TODO: Figure out how to deal with labels here */}
       <select
-        value={variable.dataset || ""}
+        value={variable.dataset ?? ""}
         disabled={!permissions.allowValueEditing}
         onChange={(e) => updateExternalVariableDataset(variableName, e.target.value, setVariable)}
       >
@@ -79,7 +79,7 @@ export function VariableTypeExternalSimple({
       </select>
       <input
         className="inline width-auto"
-        value={variable.tableId || ""}
+        value={variable.tableId ?? ""}
         onChange={(e) => updateExternalVariableTable(variableName, e.target.value, setVariable)}
         type="text"
         disabled={!permissions.allowValueEditing}

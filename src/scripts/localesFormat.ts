@@ -32,7 +32,7 @@ localePaths.forEach(localePath => {
 
   // Move common first
   const withoutCommon = Object.entries(sortedJson).filter(([key]) => key !== "common");
-  const common = sortedJson.common || {};
+  const common = sortedJson.common ?? {};
 
   const returnStruct = { common, ...Object.fromEntries(withoutCommon) };
   fs.writeFileSync(localePath, JSON.stringify(returnStruct, null, 2), "utf-8");

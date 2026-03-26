@@ -34,13 +34,11 @@ export default function LinkTree({
   // Failsafe in case wrong props are passed
   if ((!goals && !roadmap) || (goals && roadmap)) throw new Error('LinkTree: Either `goals` XOR `roadmap` must be provided');
 
-  if (!goals) {
-    goals = roadmap?.goals ?? [];
-  }
+  goals ??= roadmap?.goals ?? [];
 
   if (!goals?.length) return (<p>{t("components:link_tree.no_roadmaps")}</p>);
 
-  let openCategories: string[] = getSessionStorage(roadmap?.id || "") as string[] || [];
+  let openCategories: string[] = getSessionStorage(roadmap?.id ?? "") as string[] || [];
   if (!(openCategories instanceof Array)) {
     openCategories = [];
   }

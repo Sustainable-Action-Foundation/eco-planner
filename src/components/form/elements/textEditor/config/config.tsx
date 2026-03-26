@@ -62,7 +62,7 @@ export const defaultExtensions = (placeholder?: string) => [
     protocols: allowedProtocols,
   }),
   Placeholder.configure({
-    placeholder: placeholder || undefined,
+    placeholder: placeholder ?? undefined,
   }),
   CharacterCount.configure({
     limit: nodeSizeLimit,

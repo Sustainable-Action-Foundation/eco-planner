@@ -36,7 +36,7 @@ export default function MainRelativeGraph({
     });
   }
   chart.push({
-    name: (goal.name || goal.indicatorParameter).split('\\').at(-1),
+    name: (goal.name ?? goal.indicatorParameter).split('\\').at(-1),
     data: mainSeries,
     type: 'line',
   });
@@ -52,7 +52,7 @@ export default function MainRelativeGraph({
       });
     }
     chart.push({
-      name: secondaryGoal.name || secondaryGoal.indicatorParameter,
+      name: secondaryGoal.name ?? secondaryGoal.indicatorParameter,
       data: secondarySeries,
       type: 'line',
     })
@@ -71,7 +71,7 @@ export default function MainRelativeGraph({
       });
     }
     chart.push({
-      name: t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name || "" }),
+      name: t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name ?? "" }),
       data: nationalSeries,
       type: 'line',
     });

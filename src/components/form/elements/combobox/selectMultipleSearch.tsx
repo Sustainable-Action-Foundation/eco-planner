@@ -26,7 +26,7 @@ export default function SelectMultipleSearch({
 }) {
   const { t } = useTranslation(["forms", "common"]);
   const [value, setValue] = useState<Array<Option>>(
-    defaultValue ? defaultValue : []
+    defaultValue ?? []
   )
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const [focusedListboxOption, setFocusedListboxOption] = useState<number | null>(null);
@@ -94,7 +94,7 @@ export default function SelectMultipleSearch({
         aria-controls={menuOpen ? `${props.id}-dialog` : undefined}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
-        aria-required={props.required ? props.required : false}
+        aria-required={props.required ?? false}
         aria-invalid={!valueIsValid}
       >
         <span className={`${styles['selected-value-text']}`}>

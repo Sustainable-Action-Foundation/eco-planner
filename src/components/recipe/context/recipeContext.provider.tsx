@@ -57,7 +57,7 @@ export function RecipeContextProvider({
     // Validate
     const validity = await newInstance.checkValidity();
     if (!validity.good) {
-      throw new RecipeError(`Failed to set recipe: ${validity.error || "Recipe is invalid"}`);
+      throw new RecipeError(`Failed to set recipe: ${validity.error ?? "Recipe is invalid"}`);
     }
 
     smartRecipeEntryPoint = newInstance;
@@ -130,9 +130,9 @@ export function RecipeContextProvider({
 
       const validity = await smartRecipe.checkValidity();
       if (!validity.good) {
-        warnings.push(...(validity.warnings || []));
+        warnings.push(...(validity.warnings ?? []));
         console.warn("Tried evaluating an invalid recipe in the context provider.", validity.error, validity.warnings);
-        throw new RecipeError(validity.error || "Recipe is invalid");
+        throw new RecipeError(validity.error ?? "Recipe is invalid");
       }
 
       return await smartRecipe.evaluate(warnings);

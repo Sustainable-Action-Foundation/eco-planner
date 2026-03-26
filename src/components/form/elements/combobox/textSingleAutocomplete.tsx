@@ -26,7 +26,7 @@ export default function TextSingleAutocomplete({
 }) {
   const { t } = useTranslation(["forms", "common"]);
 
-  const [value, setValue] = useState<string>(props.defaultValue ? props.defaultValue : '');
+  const [value, setValue] = useState<string>(props.defaultValue ?? '');
   const [displayListBox, setDisplayListBox] = useState<boolean>(false);
   const [focusedListBoxItem, setFocusedListBoxItem] = useState<number | null>(null); // TODO: Rename -> focusedlistboxOption
   const [selectionMade, setSelectionMade] = useState(false); // TODO: Rename to something better
@@ -66,10 +66,10 @@ export default function TextSingleAutocomplete({
       >
         <input
           type="text"
-          placeholder={props.placeholder ? props.placeholder : undefined}
+          placeholder={props.placeholder ?? undefined}
           name={props.name}
           id={props.id}
-          required={props.required ? props.required : false}
+          required={props.required ?? false}
           disabled={props.disabled}
           value={value}
           autoComplete="off"

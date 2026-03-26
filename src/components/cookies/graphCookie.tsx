@@ -23,7 +23,7 @@ export default function GraphCookie({
 
   return (
     <label 
-      id={id || undefined} 
+      id={id ?? undefined} 
       className={`${className ? className + ' ' : ''} flex gap-25 align-items-center`} 
       style={style}
     >

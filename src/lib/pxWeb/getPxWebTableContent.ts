@@ -9,7 +9,7 @@ import type { PxWebApiV2TableContent } from "./pxWebApiV2Types";
 
 export default async function getPxWebTableContent(tableId: string, externalDataset: string, selection: { variableCode: string, valueCodes: string[] }[], language?: string,) {
   // Get the base URL for the external dataset, defaulting to SCB
-  const dataset = ExternalDataset.getDatasetByAlternateName(externalDataset) || ExternalDataset.SCB;
+  const dataset = ExternalDataset.getDatasetByAlternateName(externalDataset) ?? ExternalDataset.SCB;
   const url = new URL(`./tables/${tableId}/data`, dataset.baseUrl);
 
   if (!language || !dataset.supportedLanguages.includes(language)) {
