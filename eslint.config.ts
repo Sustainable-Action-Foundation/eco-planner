@@ -33,6 +33,16 @@ const tsCommonRules: Config["rules"] = {
   "@typescript-eslint/no-floating-promises": "warn",
   "@typescript-eslint/no-unnecessary-type-assertion": "warn",
   "@typescript-eslint/only-throw-error": "warn",
+  "@typescript-eslint/switch-exhaustiveness-check": "warn",
+  "@typescript-eslint/consistent-type-imports": "warn",
+  "@typescript-eslint/consistent-type-exports": "warn",
+  "@typescript-eslint/consistent-type-definitions": ["warn", "type"],
+  "@typescript-eslint/ban-ts-comment": "error",
+  "@typescript-eslint/prefer-nullish-coalescing": "warn",
+  "@typescript-eslint/prefer-optional-chain": "warn",
+  "@typescript-eslint/restrict-template-expressions": "warn",
+  "@typescript-eslint/no-base-to-string": "warn",
+  "@typescript-eslint/use-unknown-in-catch-callback-variable": "warn",
 };
 
 export default defineConfig([
