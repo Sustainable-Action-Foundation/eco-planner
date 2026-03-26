@@ -1,5 +1,7 @@
 import fs from 'node:fs';
-import prisma, { RoadmapType } from '@/prismaClient';
+import { PrismaClient, RoadmapType } from '../src/prisma/generated';
+
+const prisma = new PrismaClient();
 
 /**
  * This script generates a json file containing all indicator parameters from public, national roadmaps.
@@ -7,41 +9,50 @@ import prisma, { RoadmapType } from '@/prismaClient';
  * The output is saved in src/lib/LEAPList.json
  */
 async function generateLeapList() {
+  let rawData;
+
   // Get the indicator parameters
-  const rawData = await prisma.roadmap.findMany({
-    where: {
-      metaRoadmap: { type: RoadmapType.NATIONAL },
-      isPublic: true,
-    },
-    select: {
-      goals: {
-        select: {
-          indicatorParameter: true,
+  try {
+    rawData = await prisma.roadmap.findMany({
+      where: {
+        metaRoadmap: { type: RoadmapType.NATIONAL },
+        isPublic: true,
+      },
+      select: {
+        goals: {
+          select: {
+            indicatorParameter: true,
+          },
         },
       },
-    },
-  }).catch(() => { });
+    });
+  } catch {
+    console.log('Failed to fetch roadmaps for LEAP list generation.');
+    return;
+  }
 
-  if (rawData?.length === 0 || !rawData) {
+  if (rawData.length === 0) {
     console.log("No public, national roadmaps found; LEAP list not touched.");
     return;
   }
 
   // Flatten the data
-  let leapList = [];
+  const leapList: string[] = [];
   for (const roadmap of rawData) {
     for (const goal of roadmap.goals) {
-      leapList.push(goal.indicatorParameter);
+      if (typeof goal.indicatorParameter === 'string' && goal.indicatorParameter.length > 0) {
+        leapList.push(goal.indicatorParameter);
+      }
     }
   }
 
   // Remove duplicates and sort
-  leapList = leapList.filter((value, index, self) => self.indexOf(value) === index);
-  leapList.sort();
+  const uniqueLeapList = [...new Set(leapList)];
+  uniqueLeapList.sort();
 
   // Write to file
   try {
-    fs.writeFileSync('src/lib/LEAPList.json', JSON.stringify(leapList));
+    fs.writeFileSync('src/lib/LEAPList.json', JSON.stringify(uniqueLeapList));
     console.log('LEAP list updated');
   } catch {
     console.log('Failed to update LEAP list');

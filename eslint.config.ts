@@ -1,4 +1,3 @@
-import path from "node:path";
 import { Config, defineConfig, globalIgnores } from "eslint/config";
 import nextTS from "eslint-config-next/typescript";
 import nextVitals from "eslint-config-next/core-web-vitals";
@@ -78,8 +77,8 @@ export default defineConfig([
     },
     languageOptions: {
       parserOptions: {
-        project: "./tsconfig.json",
-        tsconfigRootDir: path.join(process.cwd(), "tests"),
+        project: "./tsconfig.tests.json",
+        tsconfigRootDir: process.cwd(),
       },
     },
   },
@@ -94,13 +93,15 @@ export default defineConfig([
     },
     languageOptions: {
       parserOptions: {
-        project: "./tsconfig.json",
-        tsconfigRootDir: path.join(process.cwd(), "scripts"),
+        project: "./tsconfig.scripts.json",
+        tsconfigRootDir: process.cwd(),
       },
     },
   },
   globalIgnores([
     "src/prisma/generated/**/*",
+    "scripts/prisma/**",
+    "**/scripts/prisma/**",
     "node_modules/**/*",
     "prisma/**/*",
     ".next/**/*",

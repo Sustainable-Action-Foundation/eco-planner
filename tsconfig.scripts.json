@@ -6,28 +6,19 @@
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "strict": true,
-    "baseUrl": "..",
+    "skipLibCheck": true,
+    "baseUrl": ".",
     "paths": {
       "@/*": [
         "./src/*"
       ],
-      "@prisma/client": [
+      "@prisma": [
         "./src/prisma/generated"
       ]
     },
     "resolveJsonModule": true,
   },
   "include": [
-    "./*.ts"
+    "./scripts/*.ts"
   ],
-  "exclude": [
-    "src/prisma/generated/",
-    "node_modules/",
-    "tests/",
-    "prisma/",
-    ".next/",
-    "out/",
-    "dist/",
-    "build/"
-  ]
 }

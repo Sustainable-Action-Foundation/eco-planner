@@ -2,7 +2,8 @@ import "./lib/console.ts";
 import fs from "node:fs";
 import path from "node:path";
 import { glob } from "glob";
-import type { JSONValue } from "../src/types";
+
+type JSONValue = { [key: string]: JSONValue } | JSONValue[] | string | number | boolean | null;
 
 const localesDir = path.join(process.cwd(), "public/locales");
 const localePaths = glob.sync(`${localesDir}/**/*.json`);
@@ -13,11 +14,11 @@ localePaths.forEach(localePath => {
   const content = fs.readFileSync(localePath, "utf-8");
 
   try {
-    const json = JSON.parse(content) as JSONValue;
+    const json: unknown = JSON.parse(content);
     if (typeof json !== "object" || json === null || Array.isArray(json)) {
       throw new Error(`Unexpected format of JSON; expected an object, got ${Array.isArray(json) ? "array" : json ? typeof json : "null"}`);
     }
-  } catch (e) {
+  } catch (e: unknown) {
     console.error(`Error parsing JSON in ${localePath}:`, e);
     return;
   }
