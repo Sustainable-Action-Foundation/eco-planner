@@ -11,7 +11,7 @@ export default function CreateToast({ children, id, type }: { children?: ReactNo
   const colorMap = {
     success: "rgb(56, 156, 61)",
     error: "rgb(255, 82, 81)",
-    warning: "rgb(255, 193, 7)",
+    warning: "rgb(237, 179, 5)",
   }
 
   const ariaRole = type === "error" ? "alert" : "status";
@@ -50,17 +50,18 @@ export default function CreateToast({ children, id, type }: { children?: ReactNo
 
   return (
     <dialog
-      className="toast flex flex-direction-column rounded position-relative padding-0 width-100"
+      className="toast flex flex-direction-column rounded position-relative padding-0 width-100 rounded"
       role={ariaRole}
-      style={{ backgroundColor: colorMap[type], border: "none", boxShadow: "0 2px 10px rgba(0,0,0,0.2)" }}
+      style={{ backgroundColor: colorMap[type], border: "none", boxShadow: "0 2px 10px rgba(0,0,0,0.2)", overflow: "hidden" }}
     >
       <header className="flex align-items-center padding-100 gap-50" >
         {getIcon()}
-        <p className="margin-0 color-purewhite">{children}</p>
+        <p className="margin-0 color-purewhite">{type.charAt(0).toUpperCase() + type.slice(1)}!</p>
         <button onClick={() => removeMessage(id)} className="round padding-25 transparent" aria-label="Close toast">
           <IconX aria-hidden="true" width={20} height={20} strokeWidth={3} color="rgb(242, 242, 242)" />
         </button>
       </header>
+      <p style={{ color: "white", margin: 0, padding: 0, paddingInline: "1rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", display: "webkitBox" }}> {children} </p>
       <progress value={timer} max={totalTime} aria-hidden="true" style={{ '--progress-color': colorMap[type] } as React.CSSProperties} />
     </dialog>
   )

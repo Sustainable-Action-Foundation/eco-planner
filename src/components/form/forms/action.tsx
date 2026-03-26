@@ -214,9 +214,7 @@ export default function ActionForm({
       <button onClick={() => addMessage("Detta är ett varningsmeddelande!", "warning")}>Add Toast</button>
       <button onClick={() => addMessage("Detta är ett felmeddelande!", "error")}>Add Toast</button>
       <div className="flex flex-direction-column gap-50">
-        <CreateToast key={100} id={100} type="success">Lyckad! Detta är en lyckad åtgärd!</CreateToast>
-        <CreateToast key={200} id={200} type="warning">Varning! Detta är ett varningsmeddelande!</CreateToast>
-        <CreateToast key={300} id={300} type="error">Fel! Detta är ett felmeddelande!</CreateToast>
+        <CreateToast key={300} id={300} type="error">The file seems to use an unknown encoding as the interpreted text contains the character '�' which indicates that a character could not be interpreted correctly (probably Å, Ä or Ö). You can still use this file, but if you are not completely sure that it *should* contain the character '�' it is recommended that you convert the file to UTF-8 encoding and try again.</CreateToast>
       </div>
     </>
   )

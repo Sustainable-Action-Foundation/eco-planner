@@ -62,8 +62,6 @@ export default function MetaRoadmapForm({
     if (!description?.value && !currentRoadmap) {
       event.target.reportValidity();
       setIsLoading(false);
-      // TODO: Convert to toast notification
-      // alert(t("forms:meta_roadmap.description_required"));
       addMessage(t("forms:meta_roadmap.description_required"), "warning");
       return;
     }
@@ -240,8 +238,6 @@ export default function MetaRoadmapForm({
           </button>
         </div>
       </form>
-      <button onClick={() => addMessage("The action has been created", "success")}>Add Toast</button>
-
     </>
   )
 }

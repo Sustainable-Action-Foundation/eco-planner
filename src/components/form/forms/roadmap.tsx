@@ -18,7 +18,6 @@ import { useRouter } from "next/navigation";
 
 function checkForBadDecoding(csv: string[][], t: TFunction, addMessage: (text: string, type: 'success' | 'error' | 'warning') => void) {
   if (csv.some((row) => row.some((cell) => cell.includes("�")))) {
-    // alert(t("forms:roadmap.bad_decoding"));
     addMessage(t("forms:roadmap.bad_decoding"), "warning");
   }
 }
@@ -337,8 +336,13 @@ export default function RoadmapForm({
             {currentRoadmap ? t("common:tsx.save") : t("forms:roadmap.create")}
           </button>
         </div>
-
       </form >
+      <button onClick={() => addMessage(t("forms:roadmap.bad_decoding"), "warning")}>Add Error Toast</button>
+      <button onClick={() => addMessage(t("forms:roadmap.scale_deprecated"), "warning")}>Add Error Toast</button>
+      <button onClick={() => addMessage(t("forms:roadmap.unknown_error"), "error")}>Add Error Toast</button>
+      <button onClick={() => addMessage(t("forms:roadmap.roadmap_version_creation_error"), "error")}>Add Error Toast</button>
+      <button onClick={() => addMessage(t("forms:roadmap.scale_deprecated_extended"), "warning")}>Add Error Toast</button>
+      <button onClick={() => addMessage(t("forms:roadmap.file_read_error"), "error")}>Add Error Toast</button>
     </>
   )
 }
