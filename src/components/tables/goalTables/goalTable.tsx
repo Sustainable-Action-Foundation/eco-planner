@@ -84,6 +84,7 @@ export default function GoalTable({
       parsedGoals.sort(goalSorterInterest);
       break;
     case GoalSortBy.Default:
+    case undefined:
     default:
       parsedGoals.sort(goalSorter);
       break;
