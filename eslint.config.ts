@@ -32,6 +32,7 @@ const tsCommonRules: Config["rules"] = {
   "@typescript-eslint/no-misused-promises": "warn",
   "@typescript-eslint/no-floating-promises": "warn",
   "@typescript-eslint/no-unnecessary-type-assertion": "warn",
+  "@typescript-eslint/only-throw-error": "warn",
 };
 
 export default defineConfig([
