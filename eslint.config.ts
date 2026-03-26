@@ -4,8 +4,9 @@ import nextTS from "eslint-config-next/typescript";
 import nextVitals from "eslint-config-next/core-web-vitals";
 
 export default defineConfig([
-  ...nextTS,
-  {
+  ...nextTS, // This is a next flavor of tseslint and it is being used on non next files... (scripts, test) but that is probably fine enough
+  { // TS rules for all files
+    files: ["**/*.{ts,tsx}"],
     rules: {
       "prefer-const": "warn",
       "@typescript-eslint/no-unused-vars": [
@@ -40,8 +41,8 @@ export default defineConfig([
       },
     },
   },
-  {
-    name: "app src/",
+  { // App linting
+    name: "App src/",
     files: ["src/**/*.{ts,tsx}"],
     extends: [
       ...nextVitals,
@@ -58,8 +59,8 @@ export default defineConfig([
       },
     },
   },
-  {
-    name: "tests tests/",
+  { // Test linting
+    name: "Tests tests/",
     files: ["tests/**/*.{ts,tsx}"],
     languageOptions: {
       parserOptions: {
@@ -68,7 +69,7 @@ export default defineConfig([
       },
     },
   },
-  {
+  { // Script linting
     name: "scripts scripts/",
     files: ["scripts/**/*.{ts,tsx}"],
     languageOptions: {
