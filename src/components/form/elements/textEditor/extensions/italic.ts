@@ -1,4 +1,3 @@
-import "@/types/tiptap-commands";
 import '@tiptap/extension-text-style';
 import { Extension } from '@tiptap/core';
 
