@@ -15,6 +15,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "tsc --noEmit -p ./tsconfig.json && tsc --noEmit -p ./tests/tsconfig.json && tsc --noEmit -p ./scripts/tsconfig.json && eslint -c ./eslint.config.ts",
+    "lint:p": "tsc --noEmit -p ./tsconfig.json & tsc --noEmit -p ./tests/tsconfig.json & tsc --noEmit -p ./scripts/tsconfig.json & eslint -c ./eslint.config.ts",
     "locales:format": "tsx ./src/scripts/localesFormat.ts",
     "test:run": "tsx ./tests/run.ts",
     "test:clean": "rm -rf test-results & rm -rf playwright-report & rm tests/report.json & rm tests/reporter.log",
