@@ -2,10 +2,10 @@ import "server-only";
 import { nameSelector } from "@/fetchers/inclusionSelectors";
 import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session";
-import type { Prisma } from "@/prismaClient";
 import prisma from "@/prismaClient";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
+import type { NameObject } from "@/types";
 
 /**
  * Gets names and ids of all meta roadmaps, roadmaps, goals, and actions. Mainly intended for breadcrumbs, but could be useful for other things too.
@@ -25,9 +25,7 @@ export async function getNames() {
  */
 const getCachedNames = unstable_cache(
   async (user: LoginData['user']) => {
-    let names: Prisma.MetaRoadmapGetPayload<{
-      select: typeof nameSelector
-    }>[] = [];
+    let names: NameObject[];
 
     // If user is admin, get all roadmaps
     if (user?.isAdmin) {

@@ -28,7 +28,7 @@ export async function getOneRoadmap(id: string): Promise<Roadmap | null> {
  */
 const getCachedRoadmap = unstable_cache(
   async (id: string, user: LoginData['user']) => {
-    let roadmap: Roadmap | null = null;
+    let roadmap: Roadmap | null;
 
     // If user is admin, always get the roadmap
     if (user?.isAdmin) {

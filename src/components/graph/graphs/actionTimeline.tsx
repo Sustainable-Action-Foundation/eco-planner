@@ -4,7 +4,6 @@ import WrappedChart from "@/lib/chartWrapper";
 import { actionGraphSorter } from "@/lib/sorters";
 import type { Action } from "@prisma/client";
 import { useTranslation } from "react-i18next";
-import { color_palette, stroke, marker } from "../config";
 
 export default function ActionGraph({
   actions,
@@ -15,8 +14,6 @@ export default function ActionGraph({
 
   const series: ApexAxisChartSeries = [];
   const actionData = []
-
-  const currentYearTimestamp = new Date(new Date().getFullYear().toString()).getTime();
 
   // The string '2020' is interpreted as a year while the number 2020 is interpreted as a timestamp
   for (const action of actions) {

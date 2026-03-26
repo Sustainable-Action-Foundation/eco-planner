@@ -3,10 +3,10 @@ import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session"
 import { effectSorter } from "@/lib/sorters";
-import type { Prisma } from "@/prismaClient";
 import prisma from "@/prismaClient";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
+import type { Goal } from "@/types";
 
 // TODO: Check if we need to include data series unit as a key to make sure we don't get the wrong goal
 
@@ -33,9 +33,7 @@ export async function getGoalByIndicator(roadmapId: string, indicatorParameter: 
  */
 const getCachedGoal = unstable_cache(
   async (roadmapId: string, indicatorParameter: string, unit: string | undefined | null, user: LoginData["user"]) => {
-    let goal: Prisma.GoalGetPayload<{
-      include: typeof goalInclusionSelection
-    }> | null = null;
+    let goal: Goal | null;
 
     // If user is admin, always get the goal
     if (user?.isAdmin) {

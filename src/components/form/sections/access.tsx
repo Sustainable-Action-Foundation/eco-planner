@@ -107,7 +107,7 @@ export default function ConfigureAccess({
             {t("forms:access_selector.all_users")}
           </label>
           <fieldset className=" fieldset-unset-pseudo-class">
-            <legend> {/* TODO: This causes repetion on a screenreader */}
+            <legend> {/* TODO: This causes repetition on a screen reader */}
               <label className="flex width-fit-content align-items-center gap-50">
                 <input
                   type="radio"
@@ -162,7 +162,11 @@ export default function ConfigureAccess({
 
       {((!currentRoadmap || user?.isAdmin) ?? user?.id === currentRoadmap.authorId) && // TODO: Check that this is correct or if we need another one for meta roadmap
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>
+          <legend
+            // Technically incrementing here is unused but if you add a another entry after this one it will be correct
+            // eslint-disable-next-line @/no-useless-assignment
+            data-position={positionIndex++}
+            className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>
             {legends.editors}
           </legend>
           <label className="flex width-fit-content  align-items-center gap-50  margin-bottom-75">

@@ -28,7 +28,7 @@ export async function getOneGoal(id: string): Promise<Goal | null> {
  */
 const getCachedGoal = unstable_cache(
   async (id: string, user: LoginData['user']): Promise<Goal | null> => {
-    let goal: Goal | null = null;
+    let goal: Goal | null;
 
     // If user is admin, always get the goal
     if (user?.isAdmin) {

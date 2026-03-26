@@ -26,7 +26,7 @@ export async function getOneEffect(actionId: string, goalId: string): Promise<Ef
  */
 const getCachedEffect = unstable_cache(
   async (actionId: string, goalId: string, user: LoginData['user']): Promise<Effect | null> => {
-    let effect: Effect | null = null;
+    let effect: Effect | null;
 
     // If user is admin, get effect without checking access
     if (user?.isAdmin) {

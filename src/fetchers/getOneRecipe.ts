@@ -28,7 +28,7 @@ async function getCachedRecipe(id: string, user: LoginData['user']): Promise<DBR
   'use cache';
   cacheTag('database', 'recipe', 'dataSeries');
 
-  let recipe: DBRecipe | null = null;
+  let recipe: DBRecipe | null;
 
   // If user is admin, always get the recipe
   if (user?.isAdmin) {

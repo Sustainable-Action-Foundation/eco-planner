@@ -37,7 +37,7 @@ const getCachedRoadmapSubset = unstable_cache(
   async (user: LoginData['user'], actor?: string) => {
     let roadmaps: Prisma.RoadmapGetPayload<{
       include: typeof roadmapSubsetSelect;
-    }>[] = [];
+    }>[];
 
     // If user is admin, get all relevant roadmaps
     if (user?.isAdmin) {

@@ -21,7 +21,7 @@ export default async function getTrafaTableContent(tableId: string, selection: {
     url.searchParams.append('lang', language);
   }
 
-  let data: TrafaDataResponse | null = null;
+  let data: TrafaDataResponse | null;
 
   try {
     const response = await fetch(url, {

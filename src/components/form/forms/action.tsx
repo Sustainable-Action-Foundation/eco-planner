@@ -164,7 +164,14 @@ export default function ActionForm({
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:action.categories_legend")}</legend>
+          <legend
+            // Technically incrementing here is unused but if you add a another entry after this one it will be correct
+            // eslint-disable-next-line @/no-useless-assignment
+            data-position={positionIndex++}
+            className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
+          >
+            {t("forms:action.categories_legend")}
+          </legend>
           <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50" htmlFor="isSufficiency">
             <input type="checkbox" name="isSufficiency" id="isSufficiency" defaultChecked={currentAction?.isSufficiency} />
             {t("forms:action.category_sufficiency")}

@@ -57,7 +57,7 @@ export default function EffectForm({
     };
 
     /** Where to redirect after submitting the form, unless API returns a location header */
-    let defaultLocation: string | undefined = undefined;
+    let defaultLocation: string | undefined;
     if (currentEffect?.action) {
       defaultLocation = `/action/${currentEffect.action.id}`;
     }

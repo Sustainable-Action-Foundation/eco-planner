@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next";
 import { IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
 import type { Goal, Roadmap } from "@/types";
 import { stroke, marker } from "../../../config";
-import { graphHeight } from "../config";
 import styles from '../goal.module.css'
 
 // TODO: Do we want to showcase the goal itself here or only its siblings? If we do want to showcase the goal, 

@@ -26,7 +26,7 @@ export async function getRoadmaps(roadmapIds?: string[],): Promise<MultiRoadmapI
  */
 const getCachedRoadmaps = unstable_cache(
   async (user: LoginData['user'], roadmapIds?: string[],): Promise<MultiRoadmapInstance[]> => {
-    let roadmaps: MultiRoadmapInstance[] = [];
+    let roadmaps: MultiRoadmapInstance[];
 
     // If user is admin, get all roadmaps
     if (user?.isAdmin) {

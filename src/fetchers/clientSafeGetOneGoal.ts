@@ -24,7 +24,7 @@ async function clientSafeGetCachedGoal(id: string, user: LoginData['user']): Pro
   'use cache';
   cacheTag('database', 'goal', 'action', 'dataSeries');
 
-  let goal: ClientGoal | null = null;
+  let goal: ClientGoal | null;
 
   // If user is admin, always get the goal
   if (user?.isAdmin) {

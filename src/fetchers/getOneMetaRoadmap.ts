@@ -26,7 +26,7 @@ export async function getOneMetaRoadmap(id: string): Promise<MetaRoadmap | null>
  */
 const getCachedMetaRoadmap = unstable_cache(
   async (id: string, user: LoginData['user']) => {
-    let metaRoadmap: MetaRoadmap | null = null;
+    let metaRoadmap: MetaRoadmap | null;
 
     // If user is admin, get all meta roadmaps
     if (user?.isAdmin) {

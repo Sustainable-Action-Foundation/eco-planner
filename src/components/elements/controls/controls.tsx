@@ -137,13 +137,11 @@ function buildLinks(
     editLink = `/effect/edit?actionId=${object.actionId}&goalId=${object.goalId}`;
     deleteLink = "/api/effect";
 
-    if (!object.name) {
-      object.name = object.action?.name
-        ? t("components:table_menu.effect_from_action", { source: object.action.name })
-        : object.goal
-          ? (object.goal.name ?? object.goal.indicatorParameter)
-          : t("components:table_menu.effect_missing_name");
-    }
+    object.name ??= object.action?.name
+      ? t("components:table_menu.effect_from_action", { source: object.action.name })
+      : object.goal
+        ? (object.goal.name ?? object.goal.indicatorParameter)
+        : t("components:table_menu.effect_missing_name");
 
     object.id ??= { actionId: object.actionId, goalId: object.goalId };
   }

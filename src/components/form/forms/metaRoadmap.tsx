@@ -3,7 +3,7 @@
 import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" with { type: "json" }
 import type { LoginData } from "@/lib/session";
 import type { AccessControlled, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
-import type { MetaRoadmap} from "@prisma/client";
+import type { MetaRoadmap } from "@prisma/client";
 import { RoadmapType } from "@prisma/client";
 import { useRef, useState } from "react";
 import formSubmitter from "@/functions/formSubmitter";
@@ -189,7 +189,13 @@ export default function MetaRoadmapForm({
         />
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:meta_roadmap.relationship_legend")}</legend>
+          <legend
+            // Technically incrementing here is unused but if you add a another entry after this one it will be correct
+            // eslint-disable-next-line @/no-useless-assignment
+            data-position={positionIndex++}
+            className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}
+          >
+            {t("forms:meta_roadmap.relationship_legend")}</legend>
           <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:meta_roadmap.relationship_label")}</label>
           {parentRoadmapOptions ? ( // TODO: This might not make sense? // TODO: Memoize this? 
             <SelectSingleSearch

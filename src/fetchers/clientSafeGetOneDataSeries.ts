@@ -16,7 +16,7 @@ async function clientSafeGetCachedDataSeries(id: string, user: LoginData['user']
   'use cache';
   cacheTag('database', 'dataSeries', 'action', 'goal');
 
-  let dataSeries: DataSeries | null = null;
+  let dataSeries: DataSeries | null;
 
   const canViewParentRoadmap = {
     roadmap: {

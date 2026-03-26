@@ -120,7 +120,7 @@ export default function TextEditorMenu({
     }
   }, [submenuVisible])
 
-  // Set focus to a submenubar item when navigating using keyboard arrows
+  // Set focus to a submenu bar item when navigating using keyboard arrows
   useEffect(() => {
     if (!submenuItemsRef.current) return;
     if (focusedSubmenuItem !== null) {
@@ -273,7 +273,7 @@ export default function TextEditorMenu({
             }}
             role='menuitem'
             aria-haspopup="menu"
-            aria-checked={submenuVisible}
+            aria-expanded={submenuVisible}
             aria-label={t("common:tsx.expand")}
             data-tooltip={t("common:tsx.expand")}
           >

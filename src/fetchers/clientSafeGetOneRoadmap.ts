@@ -25,7 +25,7 @@ async function getCachedClientSafeRoadmap(id: string, user: LoginData['user']): 
   'use cache';
   cacheTag('database', 'roadmap', 'goal', 'action');
 
-  let roadmap: ClientRoadmap | null = null;
+  let roadmap: ClientRoadmap | null;
 
   // If user is admin, get all roadmaps
   if (user?.isAdmin) {

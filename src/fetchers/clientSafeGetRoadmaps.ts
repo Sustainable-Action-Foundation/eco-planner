@@ -24,7 +24,7 @@ async function getCachedClientSafeRoadmaps(user: LoginData['user']): Promise<Cli
   'use cache';
   cacheTag('database', 'roadmap');
 
-  let roadmaps: ClientMultiRoadmapInstance[] = [];
+  let roadmaps: ClientMultiRoadmapInstance[];
 
   // If user is admin, get all roadmaps
   if (user?.isAdmin) {

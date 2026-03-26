@@ -33,7 +33,7 @@ export function RecipeContextProvider({
   };
 
   const setSmartRecipe = async (valueOrSetter: SetStateAction<RecipeIsh>): Promise<void> => {
-    let newInstance: SmartRecipe | null = null;
+    let newInstance: SmartRecipe | null;
 
     const newRecipe = typeof valueOrSetter === "function"
       ? valueOrSetter(smartRecipe.copy()) // Run users function on prev and use result

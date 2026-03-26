@@ -10,7 +10,7 @@ import { LocaleContext } from "@/lib/i18nClient";
 import type { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
 import type { TrafaVariable } from "@/lib/trafa/trafaTypes";
 import type { Goal } from "@prisma/client";
-import type { FormEvent} from "react";
+import type { FormEvent } from "react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
@@ -133,7 +133,7 @@ export default function HistoricalData({
     if (!dataSource) return;
     setIsLoading(true);
 
-    // TODO: Undefined here is query, we likely want to remove it once this is all set ut and querybuilder.tsx is removed
+    // TODO: Undefined here is query, we likely want to remove it once this is all set ut and queryBuilder.tsx is removed
     void getTables(dataSource, undefined, lang).then(result => { setTables(result); setIsLoading(false); });
   }, [dataSource, lang]);
 
@@ -313,7 +313,14 @@ export default function HistoricalData({
 
       {visibleForm === 'manual' ?
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>Data</legend> {/* TODO: I18n */}
+          <legend
+            // Technically incrementing here is unused but if you add a another entry after this one it will be correct
+            // eslint-disable-next-line @/no-useless-assignment
+            data-position={positionIndex++}
+            className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
+          >
+            Data {/* TODO: I18n */}
+          </legend>
           <DataSeriesInputManual />
         </fieldset>
         : visibleForm === 'external' ? (
@@ -440,7 +447,7 @@ export default function HistoricalData({
                       onChange={(e) => setMetric(e.target.value)}
                     >
                       <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_metric")}</option>
-                      {tableDetails.metrics && tableDetails.metrics.map(metric => (
+                      {tableDetails.metrics?.map(metric => (
                         <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
                       ))}
                     </select>
@@ -450,7 +457,12 @@ export default function HistoricalData({
                 )}
               </fieldset>
               <fieldset disabled={goal.externalDataset && goal.externalTableId && goal.externalSelection ? true : false} name="variableSelectionFieldset" className={`${styles.timeLineFieldset} width-100 margin-top-200`}> {/* Figure out disabled for this form */}
-                <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>
+                <legend
+                  // Technically incrementing here is unused but if you add a another entry after this one it will be correct
+                  // eslint-disable-next-line @/no-useless-assignment
+                  data-position={positionIndex++}
+                  className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
+                >
                   {t("components:query_builder.select_values_for_table")}
                 </legend>
                 {tableDetails?.variables && metric ? (
@@ -472,7 +484,7 @@ export default function HistoricalData({
                           <div key={hierarchy.name}>
                             <div className="font-weight-bold">{hierarchy.label}</div>
                             <div className="block margin-block-75 margin-left-75">
-                              {hierarchy.children && hierarchy.children.map(variable => {
+                              {hierarchy.children?.map(variable => {
                                 return variableSelectionHelper(variable, tableDetails);
                               })}
                             </div>
