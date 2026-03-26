@@ -43,6 +43,7 @@ const tsCommonRules: Config["rules"] = {
   "@typescript-eslint/restrict-template-expressions": "warn",
   "@typescript-eslint/no-base-to-string": "warn",
   "@typescript-eslint/use-unknown-in-catch-callback-variable": "warn",
+  "@/no-useless-assignment": "warn",
 };
 
 export default defineConfig([
