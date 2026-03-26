@@ -1,4 +1,4 @@
-import type { actionInclusionSelection, clientSafeDataSeriesSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapSelection, effectInclusionSelection, goalInclusionSelection, metaRoadmapInclusionSelection, multiRoadmapInclusionSelection, nameSelector, recipeSelector, roadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
+import type { actionInclusionSelection, clientSafeDataSeriesSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapSelection, effectInclusionSelection, goalInclusionSelection, metaRoadmapInclusionSelection, multiRoadmapInclusionSelection, nameSelector, recipeSelector, roadmapInclusionSelection, userInfoSelector } from "@/fetchers/inclusionSelectors";
 import type { Recipe } from "@/functions/recipe/types";
 import type { Unit } from "mathjs";
 
@@ -89,6 +89,10 @@ export type Action = Prisma.ActionGetPayload<{
 
 export type Effect = Prisma.EffectGetPayload<{
   include: typeof effectInclusionSelection
+}>;
+
+export type UserInfo = Prisma.UserGetPayload<{
+  select: typeof userInfoSelector
 }>;
 
 export type DataSeries = Prisma.DataSeriesGetPayload<{
