@@ -9,7 +9,7 @@
     "skipLibCheck": true,
   },
   "include": [
-    "./tests/*.ts",
-    "./tests/**/*.ts"
+    "./tests/**/*.ts",
+    "./tests/**/*.tsx"
   ],
 }

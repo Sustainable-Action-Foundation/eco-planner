@@ -77,7 +77,7 @@ export default defineConfig([
     },
     languageOptions: {
       parserOptions: {
-        project: "./tsconfig.tests.json",
+        project: ["./tsconfig.tests.json", "./tsconfig.json"],
         tsconfigRootDir: process.cwd(),
       },
     },
@@ -93,7 +93,7 @@ export default defineConfig([
     },
     languageOptions: {
       parserOptions: {
-        project: "./tsconfig.scripts.json",
+        project: ["./tsconfig.scripts.json", "./tsconfig.json"],
         tsconfigRootDir: process.cwd(),
       },
     },
