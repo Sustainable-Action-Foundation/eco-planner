@@ -15,39 +15,69 @@ test.describe.serial("Action & Effect tests", () => {
   let actionNameAllFieldsUpdated = "";
   let roadmapActionNameRequiredFields = "";
   let roadmapActionNameAllFields = "";
+  let actionidRequired = "";  // Store the action id 
+  let actionidAllFields = "";  // Store the action id 
+  let roadmapid = ""; // Store the Rikets färdplan roadmap id
 
   test.beforeAll(async ({ browser }, testInfo) => {
-    actionNameAllFields = `Test Action All Fields ${testInfo.parallelIndex}`;
+    actionNameAllFields = `Test ${testInfo.parallelIndex}`;
 
     if (testInfo.retry > 0) {
-      console.log(`Retrying tests, Cleaning up any existing action with name ${actionNameAllFields} before retrying.`);
+        console.log(`Retrying tests, Cleaning up any existing metaRoadmap with name ${actionNameAllFields} before retrying.`);
 
-      const context = await browser.newContext({ storageState: adminFile });
-      const page = await context.newPage();
+        const context = await browser.newContext({ storageState: adminFile });
+        const page = await context.newPage();
 
-      await page.goto('/');
-      await page.waitForLoadState('networkidle');
-
-      // Count how many matching items exist
-      const matchingItems = page.locator('li').filter({ hasText: actionNameAllFields });
-      const count = await matchingItems.count();
-
-      // Delete all matching items
-      for (let i = 0; i < count; i++) {
-        // firstmatch is the row that all the actions need to be performed on since after each deletion the next item will move up to take its place.
-        const firstMatch = matchingItems.first();
-
-        // All of these actions need to be performed on the correct row so they are using firstMatch as the base locator.
-        await firstMatch.locator('svg').nth(1).click();
-        await firstMatch.getByTestId('delete-post').click();
-        await firstMatch.locator('input[placeholder]').fill(actionNameAllFields);
-        await firstMatch.locator('[type="submit"]').click();
-
+        await page.goto('/');
         await page.waitForLoadState('networkidle');
-      }
 
-      // Verify all are gone
-      await expect(matchingItems).toHaveCount(0);
+        // Recover action IDs before cleanup by navigating to them via name link
+        const allFieldsLink = page.getByRole('link', { name: `${actionNameAllFields} (v1)` }).first();
+        if (await allFieldsLink.isVisible()) {
+            await allFieldsLink.click();
+            await page.waitForLoadState('networkidle');
+            const url = page.url();
+            actionidAllFields = url.split('/action/')[1]?.split('?')[0] ?? "";
+            await page.goto('/');
+            await page.waitForLoadState('networkidle');
+        }
+
+        const requiredName = `Test Required ${testInfo.parallelIndex}`;
+        const requiredFieldsLink = page.getByRole('link', { name: `${requiredName} (v1)` }).first();
+        if (await requiredFieldsLink.isVisible()) {
+            await requiredFieldsLink.click();
+            await page.waitForLoadState('networkidle');
+            const url = page.url();
+            actionidRequired = url.split('/action/')[1]?.split('?')[0] ?? "";
+            await page.goto('/');
+            await page.waitForLoadState('networkidle');
+        }
+
+        // Cleanup all name variants
+        const namesToClean = [
+          `Test Action ${testInfo.parallelIndex}`,
+          `Updated Test Action ${testInfo.parallelIndex}`,
+          `Test Action All Fields ${testInfo.parallelIndex}`,
+          `Updated Test Action All Fields ${testInfo.parallelIndex}`,
+        ];
+
+        for (const name of namesToClean) {
+            const matchingItems = page.locator('li').filter({ hasText: name });
+            const count = await matchingItems.count();
+
+            for (let i = 0; i < count; i++) {
+                const firstMatch = matchingItems.first();
+                await firstMatch.locator('svg').nth(1).click();
+                await firstMatch.getByTestId('delete-post').click();
+                await firstMatch.locator('input[placeholder]').fill(name);
+                await firstMatch.locator('[type="submit"]').click();
+                await page.waitForLoadState('networkidle');
+            }
+
+            await expect(matchingItems).toHaveCount(0);
+    }
+
+        await context.close();
     }
   });
 
@@ -74,36 +104,53 @@ test.describe.serial("Action & Effect tests", () => {
     await page.waitForLoadState("networkidle");
 
     await expect(page.getByRole('heading', { name: actionNameRequiredFields })).toBeVisible();
+
+    // Save roadmap URL
+    const urlAllFields = page.url();
+    actionidRequired = urlAllFields.split('/action/')[1].split('?')[0];
+
+    await page.getByTestId("roadmap-version").click();
+
+    await expect(page.getByRole('heading', { name: 'Rikets färdplan' })).toBeVisible();
+    const urlroadmap = page.url();
+    roadmapid = urlroadmap.split('/roadmap/')[1].split('?')[0];
   });
 
   test("No edit Action - required", async ({ page }) => {
-    // Navigate to the action edit form
     await page.goto('/');
+<<<<<<< Updated upstream
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
     await page.getByRole('link', { name: actionNameRequiredFields }).first().click();
+=======
+    await page.locator(`[href="/roadmap/${roadmapid}"]`).first().click();
+    await page.locator(`[href="/action/${actionidRequired}"]`).first().click();
+
+>>>>>>> Stashed changes
     await page.waitForLoadState("networkidle");
-    await page.getByRole('heading', { name: actionNameRequiredFields }).hover();
     await page.getByTestId("admin-panel-edit").click();
 
-
-    await page.locator('#actionName').hover(); // This is needed to make sure the name field is loaded before checking its content, otherwise it will be empty and the test will fail.        
-
+    await page.locator('#actionName').hover();
     await expect(page.locator('#actionName')).toHaveValue(actionNameRequiredFields);
 
     await page.locator('#submit-button').click();
-
     await expect(page.getByRole('heading', { name: actionNameRequiredFields })).toBeVisible();
   });
 
   test("Edit Action - required", async ({ page }, testInfo) => {
     actionNameRequiredFieldsUpdated = `Updated Test Action ${testInfo.parallelIndex}`;
-    // Navigate to the action edit form
+    // Navigate to the roadmap from home page
     await page.goto('/');
+<<<<<<< Updated upstream
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
     await page.getByRole('link', { name: actionNameRequiredFields }).first().click(); // TODO (fix): The tests doesn't seem to click on the right name here and therefore they fail.
 
+=======
+    await page.locator(`[href="/roadmap/${roadmapid}"]`).first().click();
+    // Find and click the roadmap link using the stored roadmap ID
+    await page.locator(`[href="/action/${actionidRequired}"]`).first().click();
+>>>>>>> Stashed changes
     await page.getByRole('heading', { name: actionNameRequiredFields }).hover();
     await page.waitForLoadState("networkidle");
     await page.getByTestId("admin-panel-edit").click();
@@ -134,7 +181,6 @@ test.describe.serial("Action & Effect tests", () => {
     await page.locator('#submit-button').click();
 
     await expect(page.getByRole('heading', { name: actionNameRequiredFieldsUpdated })).toBeVisible();
-
   });
 
   test("Create Action - All Fields", async ({ page }, testInfo) => {
@@ -179,14 +225,24 @@ test.describe.serial("Action & Effect tests", () => {
     await page.waitForLoadState("networkidle");
 
     await expect(page.getByRole('heading', { name: actionNameAllFields })).toBeVisible();
+
+    // Save roadmap URL
+    const urlAllFields = page.url();
+    actionidAllFields = urlAllFields.split('/action/')[1].split('?')[0];
   });
 
   test("No edit Action - All Fields", async ({ page }) => {
-    // Navigate to the action edit form
+    // Navigate to the roadmap from home page
     await page.goto('/');
+<<<<<<< Updated upstream
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
     await page.getByRole('link', { name: actionNameAllFields }).first().click();
+=======
+    await page.locator(`[href="/roadmap/${roadmapid}"]`).first().click();
+    // Find and click the roadmap link using the stored roadmap ID
+    await page.locator(`[href="/action/${actionidAllFields}"]`).first().click();
+>>>>>>> Stashed changes
 
     await page.waitForLoadState("networkidle");
     await page.getByRole('heading', { name: actionNameAllFields }).hover();
@@ -218,11 +274,17 @@ test.describe.serial("Action & Effect tests", () => {
 
   test("Edit Action - All Fields", async ({ page }, testInfo) => {
     actionNameAllFieldsUpdated = `Updated Test Action All Fields ${testInfo.parallelIndex}`;
-    // Navigate to the action edit form
+    // Navigate to the roadmap from home page
     await page.goto('/');
+<<<<<<< Updated upstream
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
     await page.getByRole('link', { name: actionNameAllFields }).first().click();
+=======
+    await page.locator(`[href="/roadmap/${roadmapid}"]`).first().click();
+    // Find and click the roadmap link using the stored roadmap ID
+    await page.locator(`[href="/action/${actionidAllFields}"]`).first().click();
+>>>>>>> Stashed changes
 
     await page.waitForLoadState("networkidle");
     await page.getByRole('heading', { name: actionNameAllFields }).hover();
@@ -275,10 +337,18 @@ test.describe.serial("Action & Effect tests", () => {
   });
 
   test("Create Action from Roadmap - required", async ({ page }, testInfo) => {
+<<<<<<< Updated upstream
     roadmapActionNameRequiredFields = `Test Action from Roadmap ${testInfo.parallelIndex}`;
     // Navigate to the action edit form
     await page.goto('/');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
+=======
+    roadmapActionNameRequiredFields = `Test Action ${testInfo.parallelIndex}`;
+    // Navigate to the roadmap from home page
+    await page.goto('/');
+    // Find and click the roadmap link using the stored roadmap ID
+    await page.locator(`[href="/roadmap/${roadmapid}"]`).first().click();
+>>>>>>> Stashed changes
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
     await page.getByTestId("admin-panel-new-action").click();
 
@@ -292,10 +362,18 @@ test.describe.serial("Action & Effect tests", () => {
   });
 
   test("Create Action from Roadmap - All Fields", async ({ page }, testInfo) => {
+<<<<<<< Updated upstream
     roadmapActionNameAllFields = `Test Action from Roadmap All Fields ${testInfo.parallelIndex}`;
     // Navigate to the action edit form
     await page.goto('/');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
+=======
+    roadmapActionNameAllFields = `Test Action All Fields ${testInfo.parallelIndex}`;
+    // Navigate to the roadmap from home page
+    await page.goto('/');
+    // Find and click the roadmap link using the stored roadmap ID
+    await page.locator(`[href="/roadmap/${roadmapid}"]`).first().click();
+>>>>>>> Stashed changes
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
     await page.getByTestId("admin-panel-new-action").click();
 
