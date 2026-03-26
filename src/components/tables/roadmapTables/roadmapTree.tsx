@@ -6,7 +6,7 @@ import { LoginData } from "@/lib/session";
 import Link from "next/link";
 import { Fragment } from "react";
 import serveTea from "@/lib/i18nServer";
-import { IconCaretRightFilled } from "@tabler/icons-react";
+import { IconCaretRightFilled, IconZoomQuestion } from "@tabler/icons-react";
 import type { MultiRoadmapInstance } from "@/types";
 
 type RoadmapTreeProps = {
@@ -26,7 +26,12 @@ export default async function RoadmapTree({
 }: RoadmapTreeProps) {
   const t = await serveTea("components");
   if (!roadmaps.length) {
-    return <p>{t("components:roadmap_tree.no_roadmap_series_ones")}</p>;
+    return (
+      <div className="grid place-items-center">
+        <IconZoomQuestion width={128} height={128} strokeWidth={1.25} />
+        <p style={{width: 'min(60ch, 100%)', fontWeight: '500', textAlign: 'center'}}>{t("components:roadmap_tree.no_roadmap_series_ones")}</p> {/* TODO: I want to set font-size: 1.25rem; here but that causes the parent flexbox to wrap?? */}
+      </div>
+    )
   }
 
   const accessibleMetaRoadmaps = roadmaps.map(roadmap => roadmap.metaRoadmapId);

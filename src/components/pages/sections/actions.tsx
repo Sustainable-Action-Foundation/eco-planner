@@ -102,7 +102,7 @@ export default function Actions({
         {/*<h2 className="padding-bottom-50 margin-block-100 font-weight-500" style={{ fontSize: '1.25rem', borderBottom: '1px solid var(--gray)' }}>{t('pages:actions.filter')}</h2>  */}
       </menu>
 
-      <div className="flex-grow-infinity max-width-100">
+      <div className="flex-grow-infinity max-width-100"> 
         <h2 id="search-title" className="margin-top-0 margin-bottom-50">
           {t("pages:actions.search_actions", { count: actions?.length })}
         </h2>
@@ -134,7 +134,7 @@ export default function Actions({
           </Link>
         </div>
 
-        <section>
+        <section> {/* TODO: Is this an output? */}
           {actions && actions?.length > 0 ?
             <h3 className="margin-bottom-50 margin-top-200 font-style-italic color-gray font-weight-normal font-size-100">
               {t("pages:actions.shown_results", { count: filteredActions?.length })}

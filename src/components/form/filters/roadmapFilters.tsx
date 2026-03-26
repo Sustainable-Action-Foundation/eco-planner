@@ -2,11 +2,9 @@
 
 import { RoadmapSortBy } from "@/types";
 import { RoadmapType } from "@prisma/client";
-import { IconSearch } from "@tabler/icons-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
 import { useTranslation } from "react-i18next";
-import { useDebouncedCallback } from "use-debounce";
 
 export default function RoadmapFilters() {
   const router = useRouter();
@@ -15,8 +13,6 @@ export default function RoadmapFilters() {
   const { t } = useTranslation(["components", "common"]);
 
   const [_isPending, startTransition] = useTransition();
-
-  const debouncedUpdateStringParam = useDebouncedCallback(updateStringParam, 300);
 
   function updateStringParam(key: string, value: string) {
     const newParams = new URLSearchParams(searchParams);
@@ -47,21 +43,11 @@ export default function RoadmapFilters() {
   }
 
   return <>
-    <menu className="flex gap-100 align-items-flex-end padding-0 margin-0 margin-top-300 margin-bottom-100 flex-wrap-wrap">
-      <label className="font-weight-600 flex-grow-100">
-        {t("components:roadmap_filters.search_roadmaps")}
-        <div className="margin-top-25 flex align-items-center padding-50 smooth focusable">
-          <IconSearch style={{ minWidth: '24px' }} strokeWidth={1.5} aria-hidden="true" />
-          <input type="search" className="padding-0 margin-inline-50" defaultValue={searchParams.get('searchFilter') ?? undefined} onChange={(e) => {
-            debouncedUpdateStringParam('searchFilter', e.target.value)
-          }} />
-        </div>
-      </label>
-      <label className="font-weight-600">
+    <menu className="margin-0 flex-grow-100 smooth padding-50" style={{height: 'fit-content', flexBasis: '30ch', border: '1px solid var(--gray-90)', backgroundColor: 'var(--gray-95)'}}> {/* TODO: Place this in a details tag */}
+      <label>
         {t("components:roadmap_filters.sort_by")}
         <select
-          className="font-weight-500 margin-top-25 block"
-          style={{ fontSize: '1rem', minHeight: 'calc(24px + 1rem + 2px)' }}
+          className="font-weight-500 margin-top-25 block width-100"
           defaultValue={searchParams.get('sortBy') ?? ""} onChange={(e) => { updateStringParam('sortBy', e.target.value) }}
         >
           <option value="">{t("components:roadmap_filters.default")}</option>
@@ -71,31 +57,29 @@ export default function RoadmapFilters() {
           <option value={RoadmapSortBy.GoalsRising}>{t("components:roadmap_filters.goal_count_ascending")}</option>
         </select>
       </label>
-      <fieldset id="roadmapFilters" className="padding-0 fieldset-unset-pseudo-class smooth" style={{ border: '0' }}>
-        <legend className="font-weight-600">{`${t("common:tsx.show")}:`}</legend>
-        <div className="flex gap-100 margin-top-25" style={{ height: '42px' }}>
-          {Object.values(RoadmapType).map((thisType, key) => (
-            <label className="inline-flex align-items-center gap-25" key={key}>
-              <input type="checkbox" value={thisType} defaultChecked={searchParams.getAll('typeFilter').includes(thisType)} onChange={(e) => {
-                if (e.target.checked) {
-                  updateArrayParam('typeFilter', e.target.value)
-                  // setTypeFilter([...typeFilter, (e.target.value as RoadmapType)])
-                } else {
-                  updateArrayParam('typeFilter', e.target.value, true)
-                  // setTypeFilter(typeFilter.filter((item) => item != e.target.value))
-                }
-              }} />
-              {`${thisType == RoadmapType.NATIONAL ? t("common:scope.national") :
-                thisType == RoadmapType.REGIONAL ? t("common:scope.regional") :
-                  thisType == RoadmapType.MUNICIPAL ? t("common:scope.municipal") :
-                    thisType == RoadmapType.LOCAL ? t("common:scope.local") :
-                      thisType == RoadmapType.ORGANIZATIONAL ? t("common:scope.organizational_roadmap") :
-                        thisType == RoadmapType.OTHER ? t("common:scope.other") :
-                          thisType
-                }`}
-            </label>
-          ))}
-        </div>
+      <fieldset id="roadmapFilters" className="padding-0 fieldset-unset-pseudo-class smooth margin-top-100" style={{ border: '0' }}>
+        <legend>{`${t("common:tsx.show")}`}</legend>
+        {Object.values(RoadmapType).map((thisType, key) => (
+          <label className="flex align-items-center gap-25 margin-block-25" key={key}>
+            <input type="checkbox" value={thisType} defaultChecked={searchParams.getAll('typeFilter').includes(thisType)} onChange={(e) => {
+              if (e.target.checked) {
+                updateArrayParam('typeFilter', e.target.value)
+                // setTypeFilter([...typeFilter, (e.target.value as RoadmapType)])
+              } else {
+                updateArrayParam('typeFilter', e.target.value, true)
+                // setTypeFilter(typeFilter.filter((item) => item != e.target.value))
+              }
+            }} />
+            {`${thisType == RoadmapType.NATIONAL ? t("common:scope.national") :
+              thisType == RoadmapType.REGIONAL ? t("common:scope.regional") :
+                thisType == RoadmapType.MUNICIPAL ? t("common:scope.municipal") :
+                  thisType == RoadmapType.LOCAL ? t("common:scope.local") :
+                    thisType == RoadmapType.ORGANIZATIONAL ? t("common:scope.organizational_roadmap") :
+                      thisType == RoadmapType.OTHER ? t("common:scope.other") :
+                        thisType
+              }`}
+          </label>
+        ))}
       </fieldset>
     </menu>
   </>
