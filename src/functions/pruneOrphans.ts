@@ -4,7 +4,6 @@ import prisma from "@/prismaClient";
 // TODO prune orphaned recipes just in case
 /** Deletes all links and comments without parents. Fails silently. */
 export default async function pruneOrphans() {
-  let success: boolean = false;
   try {
     await prisma.$transaction([
       prisma.link.deleteMany({
@@ -28,10 +27,9 @@ export default async function pruneOrphans() {
         }
       }),
     ]);
-    success = true;
-  } catch {
-    success = false;
-  } finally {
-    return success;
+    return true;
+  }
+  catch {
+    return false
   }
 }
