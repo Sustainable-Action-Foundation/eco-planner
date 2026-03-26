@@ -33,7 +33,11 @@ export default function goalsToTree(goals: Array<GoalTreeEntry | null>, t: TFunc
     // Includes a zero width non-joiner to decrease risk of colliding with user input
     // Otherwise, a param subsection could theoretically collide with a goal name/parameter and prevent the rendering of either the goal link or the param subsection <details> element
     // Example: Nameless goal with parameter "test" and unit "kg" would collide with a goal with parameter "test (kg)\\whatever"
-    current[`${goal.name || goal.indicatorParameter.split('\\').at(-1)} (\u200c${goal.dataSeries?.unit === null ? t("common:tsx.unitless") : goal.dataSeries?.unit || t("common:tsx.unit_missing")})`] = goal;
+    const indicatorName = goal.name ?? goal.indicatorParameter.split('\\').at(-1);
+    const unit = goal.dataSeries?.unit === null
+      ? t("common:tsx.unitless")
+      : goal.dataSeries?.unit ?? t("common:tsx.unit_missing");
+    current[`${indicatorName} (\u200c${unit})`] = goal;
   }
 
   return tree;
