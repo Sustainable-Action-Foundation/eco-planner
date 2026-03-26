@@ -1,8 +1,33 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "module": "nodenext",
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
     "noEmit": true,
     "strict": true,
+    "baseUrl": "..",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@prisma/client": [
+        "./src/prisma/generated"
+      ]
+    },
+    "resolveJsonModule": true,
   },
+  "include": [
+    "./*.ts"
+  ],
+  "exclude": [
+    "src/prisma/generated/",
+    "node_modules/",
+    "tests/",
+    "prisma/",
+    ".next/",
+    "out/",
+    "dist/",
+    "build/"
+  ]
 }

@@ -75,9 +75,9 @@ The `initTemplate()` function is also located in the [`/i18n.config.ts`](/i18n.c
 
 ## Tests
 As of writing this, in [`package.json`](/package.json) there are some locale related scripts:
- - `"locales:validate": "tsx ./src/scripts/localesValidate.ts"`
+ - `"locales:validate": "tsx ./scripts/localesValidate.ts"`
    - *Deprecated*. It is fully working and tests the translation files and the tsx files for missing keys, syntax errors etc. but it is being phased out in favor of `test:local` using `playwright`.
- - `"locales:format": "tsx ./src/scripts/localesFormat.ts"`
+ - `"locales:format": "tsx ./scripts/localesFormat.ts"`
    - Sorts the root level keys of every namespace except for `common` in alphabetical order.
  - `"pretest:local": "yarn run build"`
  - `"test:local": "tsx node_modules/playwright/cli.js test"`

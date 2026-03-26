@@ -1,17 +1,17 @@
 // DO NOT SEED PRODUCTION DATABASE
 
-import { colors } from "../src/scripts/lib/colors";
-import { PrismaClient, RoadmapType } from '../src/prisma/generated';
+import { colors } from "../lib/colors.ts";
+import { PrismaClient, RoadmapType } from '@prisma/client';
 import bcrypt from "bcryptjs";
 import { RandomTextSE } from "./randomText";
-import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types";
-import type { Recipe } from "@/functions/recipe/types";
-import { isISOIshDate } from "@/types";
-import type { DateValues } from "@/types";
-import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
+import { RecipeDataTypes, VectorIndexPickerOptions } from "../../src/functions/recipe/types";
+import type { Recipe } from "../../src/functions/recipe/types";
+import { isISOIshDate } from "../../src/types";
+import type { DateValues } from "../../src/types";
+import { dateValuesToDBDateRecord } from "../../src/functions/recipe/vectorAndMaskUtils";
 
 const prisma = new PrismaClient();
-prisma.$connect().catch((e) => {
+prisma.$connect().catch((e: unknown) => {
   console.error(colors.yellow(`
     Could not connect to the database. Ensure DATABASE_URL is set correctly in the .env file.
 
@@ -530,7 +530,7 @@ async function main() {
 
 main().then(async () => {
   await prisma.$disconnect();
-}).catch(async (e) => {
+}).catch(async (e: unknown) => {
   console.error(colors.yellow(`
     Error found while seeding.
 
