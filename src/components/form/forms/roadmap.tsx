@@ -170,8 +170,8 @@ export default function RoadmapForm({
             return csvToGoalList(csv, () => alert(t("forms:roadmap.scale_deprecated_extended")));
           })
           .then(() => setIsLoading(false))
-          .catch((error) => {
-            throw error;
+          .catch((e: unknown) => {
+            throw new Error(t("forms:roadmap.file_read_error", { error: e instanceof Error ? e.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }));
           });
       }
       catch (error) {

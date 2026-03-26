@@ -118,10 +118,11 @@ export async function POST(request: NextRequest) {
     const recipe = SmartRecipe.fromObject(dbRecipe.recipe);
     const warnings: string[] = [];
     const evaluationResult = await recipe.evaluate(warnings)
-      .catch((e) => {
+      .catch((e: unknown) => {
+        const errorMessage = e instanceof Error ? e.message : String(e);
         console.log(`Error evaluating recipe ${dbRecipe.id} for data series ${requestJson.dataSeriesId}:`, e);
         if (e instanceof Error) {
-          throw new RecipeError(`Failed to evaluate recipe: ${e.message}`);
+          throw new RecipeError(`Failed to evaluate recipe: ${errorMessage}`);
         }
         else {
           throw new RecipeError('Failed to evaluate recipe due to an unknown error.');

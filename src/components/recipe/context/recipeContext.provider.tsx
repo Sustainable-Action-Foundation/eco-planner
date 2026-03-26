@@ -95,7 +95,7 @@ export function RecipeContextProvider({
       : valueOrSetter;
 
     smartRecipe.equation = newEquation;
-    setUpdatePing(p => p += 1);
+    setUpdatePing(p => p + 1);
   };
 
   const getVariable = (variableName: string): RecipeVariable | undefined => {
@@ -107,7 +107,7 @@ export function RecipeContextProvider({
       : newValue;
 
     smartRecipe.variables[variableName] = valueToSet;
-    setUpdatePing(p => p += 1);
+    setUpdatePing(p => p + 1);
   };
 
   const variables = useMemo(() => recipe.variables, [recipe]);
@@ -117,7 +117,7 @@ export function RecipeContextProvider({
       : variablesAction;
     smartRecipe.variables = newVariables;
 
-    setUpdatePing(p => p += 1);
+    setUpdatePing(p => p + 1);
   };
 
   useEffect(() => {
@@ -144,10 +144,11 @@ export function RecipeContextProvider({
         setWarnings(warnings);
         setError(null);
       })
-      .catch(e => {
+      .catch((e: unknown) => {
+        const errorMessage = e instanceof Error ? e.message : String(e);
         setResultingDataSeriesWithUnit(null);
         setWarnings(warnings);
-        setError((e as Error)?.message);
+        setError(errorMessage);
       });
   }, [smartRecipe]);
 

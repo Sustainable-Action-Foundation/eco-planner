@@ -66,7 +66,10 @@ export function useHandleDataSeriesChange(
           console.warn("Failed to fetch data series unit for selection", selectedDataSeriesLink.value, e);
         }
       })()
-        .catch(e => { console.error(e); });
+        .catch((e: unknown) => {
+          const errorMessage = e instanceof Error ? e.message : String(e);
+          console.error("Failed to fetch data series for selection", selectedDataSeriesLink.value, errorMessage);
+        });
     },
     [variableName, setVariable]
   );

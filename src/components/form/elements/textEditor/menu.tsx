@@ -13,7 +13,7 @@ function arraysEqual(a: number[] | undefined, b: number[]): boolean {
     return false;
   }
 
-  for (let i = 0; i < a.length; i += 1) {
+  for (let i = 0; i < a.length; i++) {
     if (a[i] !== b[i]) {
       return false;
     }

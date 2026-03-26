@@ -42,7 +42,7 @@ const tsCommonRules: Config["rules"] = {
   "@typescript-eslint/prefer-optional-chain": "warn",
   "@typescript-eslint/restrict-template-expressions": "warn",
   "@typescript-eslint/no-base-to-string": "warn",
-  "@typescript-eslint/use-unknown-in-catch-callback-variable": "warn",
+  "@typescript-eslint/use-unknown-in-catch-callback-variable": "error",
   "@/no-useless-assignment": "warn",
 };
 
