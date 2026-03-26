@@ -76,12 +76,15 @@ export default function Grid({
 
   const [activeCell, setActivecell] = useState<Position>({ row: 0, column: 0 })
 
-  const cellRefs = React.useRef<Map<string, HTMLDivElement>>(new Map())
-  const keyFor = (row: number, column: number) => `${row}-${column}`
+  const gridRef = React.useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
-    const key = keyFor(activeCell.row, activeCell.column)
-    const cell = cellRefs.current.get(key)
+    const grid = gridRef.current
+    if (!grid) return
+
+    const cell = grid.querySelector<HTMLElement>(
+      `[data-row="${activeCell.row}"][data-column="${activeCell.column}"][role="gridcell"], [data-row="${activeCell.row}"][data-column="${activeCell.column}"][role="rowheader"]`
+    )
     if (!cell) return
 
     const focusable = cell.querySelector<HTMLElement>(
@@ -105,6 +108,7 @@ export default function Grid({
 
   return (
     <div
+      ref={gridRef}
       className={`${props.className ? `${props.className} ` : ''}`}
       style={{ ...props.style }}
       role="grid"
@@ -157,10 +161,6 @@ export default function Grid({
                 setActivecell,
               }),
             onClick: () => setActivecell({ row: row, column: column }), // Note that this might cause issues if our input inside the div is smaller than the actual div as we don't set focus here 
-            ref: (el: HTMLDivElement | null) => {
-              if (!el) return
-              cellRefs.current.set(keyFor(row, column), el)
-            }
           }
         )
       })}

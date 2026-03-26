@@ -39,6 +39,7 @@ export default function QueryBuilder({
   const [tableDetails, setTableDetails] = useState<ApiTableDetails | null>(null);
   const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
   const [defaultMetricSelected, setDefaultMetricSelected] = useState(true);
+  const [isFormValid, setIsFormValid] = useState(false);
 
   const modalRef = useRef<HTMLDialogElement | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -215,6 +216,8 @@ export default function QueryBuilder({
     }
   }
   function formChange(event: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
+    setIsFormValid(formRef.current?.checkValidity() ?? false);
+
     const changedElementIsExternalDataset = event.target instanceof HTMLSelectElement && event.target.name == "externalDataset";
     const changedElementIsTableSearch = event.target instanceof HTMLInputElement && event.target.name == "tableSearch";
     const changedElementIsTable = event.target instanceof HTMLInputElement && event.target.name == "externalTableId";
@@ -652,7 +655,7 @@ export default function QueryBuilder({
                       </div>
                     ) :
                       !defaultMetricSelected &&
-                      formRef.current?.checkValidity() && (
+                      isFormValid && (
                         <p className="padding-100">{t("components:query_builder.no_result_found")}</p>
                       )
                     }
