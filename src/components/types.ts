@@ -10,7 +10,7 @@ export type GenericElement = Theme & {
 };
 
 export type InputElement = GenericElement & {
-  id: string; 
+  id: string;
   name: string,
   required?: boolean,
   disabled?: boolean,
@@ -24,10 +24,10 @@ export type Option = {
   value: string,
 }
 
-export type TreeItem = { 
+export type TreeItem = {
   name: string,
   value: string,
-  expanded: boolean | null,  
+  expanded: boolean | null,
   loading?: boolean;
   childNodes?: Array<TreeItem>,
   onExpand?: () => Array<TreeItem> | Promise<Array<TreeItem>>
@@ -43,8 +43,8 @@ export type GridElement = GenericElement & {
   tabIndex?: 0 | -1,
   children?: React.ReactNode,
   onKeyDown?: React.KeyboardEventHandler<HTMLDivElement>, // Note: we assume a gridcell is a div for now.
-  onClick?: React.MouseEventHandler<HTMLDivElement> 
-} 
+  onClick?: React.MouseEventHandler<HTMLDivElement>
+}
 
 
 export type TabElement = GenericElement & {
@@ -65,8 +65,8 @@ export type TabPanelProps = TabElement & {
 import '@tiptap/extension-link'
 
 declare module '@tiptap/extension-link' {
-  // @ts-expect-error - This is a module augmentation
-  type LinkOptions = {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  interface LinkOptions {
     onOpenLinkModal?: () => void
   }
 }

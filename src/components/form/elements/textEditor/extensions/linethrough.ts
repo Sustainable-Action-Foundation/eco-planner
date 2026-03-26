@@ -10,7 +10,7 @@ export type LineThroughOptions = {
 }
 
 declare module '@tiptap/core' {
-  type Commands<ReturnType> = {
+  interface Commands<ReturnType> {
     LineThrough: {
       /**
        * Toggle underline on the selected text

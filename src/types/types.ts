@@ -450,7 +450,8 @@ export type MaskedVector = { vector: Unit[], mask: Mask };
 
 /* TODO INPUT_UPDATES */
 declare module '@tiptap/core' {
-  type Commands<ReturnType> = {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  interface Commands<ReturnType> {
     underlineSpan: {
       toggleUnderline: () => ReturnType
     }
