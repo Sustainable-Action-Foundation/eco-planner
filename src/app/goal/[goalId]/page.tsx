@@ -162,7 +162,7 @@ export default async function Page(
 
   let shouldUpdate = false;
   // If using a recipe, check all source data series if their updatedAt is newer than this data series last updated
-  if (goal.dataSeries && goal.dataSeries.recipeUsedId) {
+  if (goal.dataSeries?.recipeUsedId) {
     const sourceDataSeries = await prisma.recipe.findMany({
       where: {
         id: goal.dataSeries.recipeUsedId,

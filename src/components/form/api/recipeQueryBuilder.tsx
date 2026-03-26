@@ -414,7 +414,7 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
                   id="tablesList"
                   className={`position-relative padding-25 smooth purewhite ${styles.temporary}`} onScroll={e => handleTableListScroll(e)}
                   style={{ maxHeight: "300px", border: "1px solid var(--gray-80)", listStyle: "none" }} >
-                  {renderedTables && renderedTables.map(({ tableId: id, label }) => (
+                  {renderedTables?.map(({ tableId: id, label }) => (
                     <li
                       key={id}
                       id={`table${id}`}
@@ -460,7 +460,7 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
                       defaultValue={undefined}
                       onChange={handleMetricSelect}>
                       <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_metric")}</option>
-                      {tableDetails.metrics && tableDetails.metrics.map(metric => (
+                      {tableDetails.metrics?.map(metric => (
                         <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
                       ))}
                     </select>
@@ -484,7 +484,7 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
                         if (hierarchy.children?.some(variable => variable.option)) return (
                           <label key={hierarchy.name} className="block margin-block-75">
                             <b>{hierarchy.label}</b>
-                            {hierarchy.children && hierarchy.children.map(variable => {
+                            {hierarchy.children?.map(variable => {
                               return variableSelectionHelper(variable, tableDetails, { classNames: ["margin-left-75"] });
                             })}
                           </label>
