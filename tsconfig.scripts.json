@@ -12,7 +12,7 @@
       "@/*": [
         "./src/*"
       ],
-      "@prisma": [
+      "@prisma/client": [
         "./src/prisma/generated"
       ]
     },
