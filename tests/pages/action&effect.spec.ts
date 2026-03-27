@@ -97,7 +97,7 @@ test.describe.serial("Action & Effect tests", () => {
   });
 
   test("Edit Action - required", async ({ page }, testInfo) => {
-    actionNameRequiredFieldsUpdated = `Updated Test Action ${testInfo.parallelIndex}`;
+    actionNameRequiredFieldsUpdated = `Test Action Updated ${testInfo.parallelIndex}`;
     // Navigate to the action edit form
     await page.goto('/');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
@@ -111,7 +111,7 @@ test.describe.serial("Action & Effect tests", () => {
     // Part 1 of the form
     await page.locator('#actionName').fill(actionNameRequiredFieldsUpdated);
 
-    await page.locator('.tiptap').first().fill("Updated Test Action description.");
+    await page.locator('.tiptap').first().fill("Test Action Updated description.");
 
     await page.locator('#costEfficiency').fill("Text for cost efficiency");
 
@@ -217,7 +217,7 @@ test.describe.serial("Action & Effect tests", () => {
   });
 
   test("Edit Action - All Fields", async ({ page }, testInfo) => {
-    actionNameAllFieldsUpdated = `Updated Test Action All Fields ${testInfo.parallelIndex}`;
+    actionNameAllFieldsUpdated = `Test Action Updated All Fields ${testInfo.parallelIndex}`;
     // Navigate to the action edit form
     await page.goto('/');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
@@ -231,7 +231,7 @@ test.describe.serial("Action & Effect tests", () => {
     // Part 1 of the form
     await page.locator('#actionName').fill(actionNameAllFieldsUpdated);
 
-    await page.locator('.tiptap').first().fill("Updated Test Action description.");
+    await page.locator('.tiptap').first().fill("Test Action Updated description.");
 
     await page.locator('#costEfficiency').fill("Updated text for cost efficiency");
     await page.locator('#expectedOutcome').fill("Updated text for expected outcome");
@@ -259,7 +259,7 @@ test.describe.serial("Action & Effect tests", () => {
     await page.getByTestId("admin-panel-edit").click();
 
     await expect(page.locator('#actionName')).toHaveValue(actionNameAllFieldsUpdated);
-    await expect(page.locator('.tiptap').first()).toHaveText("Updated Test Action description.");
+    await expect(page.locator('.tiptap').first()).toHaveText("Test Action Updated description.");
     await expect(page.locator('#costEfficiency')).toHaveValue("Updated text for cost efficiency");
     await expect(page.locator('#expectedOutcome')).toHaveValue("Updated text for expected outcome");
 
@@ -279,7 +279,6 @@ test.describe.serial("Action & Effect tests", () => {
     // Navigate to the action edit form
     await page.goto('/');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
-    await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
     await page.getByTestId("admin-panel-new-action").click();
 
     await page.locator('#actionName').fill(roadmapActionNameRequiredFields);
@@ -296,7 +295,6 @@ test.describe.serial("Action & Effect tests", () => {
     // Navigate to the action edit form
     await page.goto('/');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
-    await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
     await page.getByTestId("admin-panel-new-action").click();
 
     // Part 1 of the form

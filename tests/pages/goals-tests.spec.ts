@@ -33,8 +33,11 @@ test.describe("Goals tests", () => {
 
         //From Part 1
         await page.locator('#parent-roadmap').click();
-        await page.getByRole('option', { name: "Rikets färdplan (v2)" }).click(); //Switch to 'test' when available
+        await page.locator('#parent-roadmap-dialog-listbox li').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: '2' }).click(); // Checks for Rikets färdplan to be contained in an option, with version 2 to avoid selecting the wrong roadmap
 
+        // const value = await option.getAttribute('value');
+
+        // await page.locator('#parent-roadmap-dialog-listbox').selectOption(value);
         //From Part 3
         // Might be switched out for a prewritten recipe when they are fixed
         await page.getByRole('radio').first().click();
@@ -63,7 +66,7 @@ test.describe("Goals tests", () => {
         await page.goto('/');
         await page.waitForLoadState("networkidle");
 
-        await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
+        await page.getByRole('link', { name: "Rikets färdplan" }).click();
         await page.getByRole('heading', { name: "Rikets färdplan" }).hover(); //"networkidle" doesn't work for this for some reason so we are hovering to wait for load state where needed
 
         // Navigate to goal
@@ -175,7 +178,7 @@ test.describe("Goals tests", () => {
         await page.goto('/');
         await page.waitForLoadState("networkidle");
 
-        await page.getByRole('link', { name: "Rikets färdplan (v2)" }).click();
+        await page.getByRole('link', { name: "Rikets färdplan" }).click();
         await page.getByRole('heading', { name: "Rikets färdplan" }).hover(); //"networkidle" doesn't work for this for some reason so we are hovering to wait for load state where needed
 
         // Navigate to goal

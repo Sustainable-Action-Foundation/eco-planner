@@ -245,9 +245,9 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page.locator('#editors')).toHaveValue('admin');
   });
 
-  test("Edit MetaRoadmap, updated fields - All Fields", async ({ page }) => {
+  test("Edit MetaRoadmap, updated fields - All Fields", async ({ page }, testInfo) => {
 
-    metaRoadmapNameAllFieldsUpdated = `Updated ${metaRoadmapNameAllFields}`;
+    metaRoadmapNameAllFieldsUpdated = `Test Updated All Fields ${testInfo.parallelIndex}`;
 
     await page.goto('/');
 
@@ -503,9 +503,9 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page.locator('#editors')).toHaveValue('admin');
   });
 
-  test("Edit MetaRoadmap, updated fields - Required Fields", async ({ page }) => {
+  test("Edit MetaRoadmap, updated fields - Required Fields", async ({ page }, testInfo) => {
 
-    metaRoadmapNameRequiredFieldsUpdated = `Updated ${metaRoadmapNameRequiredFields}`;
+    metaRoadmapNameRequiredFieldsUpdated = `Test Updated Required Fields ${testInfo.parallelIndex}`;
     await page.goto('/');
 
     await page.getByRole('link', { name: `${metaRoadmapNameRequiredFields}` }).first().click();
