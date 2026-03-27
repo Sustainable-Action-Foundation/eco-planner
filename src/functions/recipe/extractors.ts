@@ -50,8 +50,9 @@ export async function extractDataSeries(
     let dbDataSeries: Awaited<ReturnType<typeof clientSafeGetOneDataSeries>>;
     if (variable.link) {
       dbDataSeries = await clientSafeGetOneDataSeries(variable.link)
-        .catch((e: Error) => {
-          throw new RecipeError(`VariableExtractor: Error fetching data series for variable "${variableName}" with link "${variable.link}": ${e.message}`);
+        .catch((e: unknown) => {
+          const errorMessage = e instanceof Error ? e.message : String(e);
+          throw new RecipeError(`VariableExtractor: Error fetching data series for variable "${variableName}" with link "${variable.link}": ${errorMessage}`);
         });
     }
     else if (variable.value || Array.isArray(variable.value)) {

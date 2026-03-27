@@ -1,12 +1,12 @@
-import { actionInclusionSelection, clientSafeDataSeriesSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapSelection, effectInclusionSelection, goalInclusionSelection, metaRoadmapInclusionSelection, multiRoadmapInclusionSelection, nameSelector, recipeSelector, roadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
+import type { actionInclusionSelection, clientSafeDataSeriesSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapSelection, effectInclusionSelection, goalInclusionSelection, metaRoadmapInclusionSelection, multiRoadmapInclusionSelection, nameSelector, recipeSelector, roadmapInclusionSelection, userInfoSelector } from "@/fetchers/inclusionSelectors";
 import type { Recipe } from "@/functions/recipe/types";
-import { Unit } from "mathjs";
+import type { Unit } from "mathjs";
 
 import type { Prisma } from "@prisma/client";
-import { RoadmapType, ActionImpactType } from "@prisma/client";
+import type { RoadmapType, ActionImpactType } from "@prisma/client";
 
 /** An object that implements the AccessControlled interface can be checked with the accessChecker function. */
-export interface AccessControlled {
+export type AccessControlled = {
   // Author is usually a single object, but allow for an array in case we need to check if the user is
   // an author of any parent in an entry's ancestry
   // For example, if a user is an author of a roadmap, they should be able to delete any goals in it, even if they didn't create them
@@ -89,6 +89,10 @@ export type Action = Prisma.ActionGetPayload<{
 
 export type Effect = Prisma.EffectGetPayload<{
   include: typeof effectInclusionSelection
+}>;
+
+export type UserInfo = Prisma.UserGetPayload<{
+  select: typeof userInfoSelector
 }>;
 
 export type DataSeries = Prisma.DataSeriesGetPayload<{
@@ -447,12 +451,3 @@ export type Mask = Record<ISOIshDate, boolean>;
 export type DateValues = Record<ISOIshDate, number>;
 export type DateValuesWithUnit = { dateValues: DateValues, unit: UnitString };
 export type MaskedVector = { vector: Unit[], mask: Mask };
-
-/* TODO INPUT_UPDATES */
-declare module '@tiptap/core' {
-  interface Commands<ReturnType> {
-    underlineSpan: {
-      toggleUnderline: () => ReturnType
-    }
-  }
-}

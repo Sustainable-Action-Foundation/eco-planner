@@ -1,6 +1,6 @@
 "use client";
 
-import { TOptionsBase } from "i18next";
+import type { TOptionsBase } from "i18next";
 import type { $Dictionary } from "node_modules/i18next/typescript/helpers";
 import { Trans, useTranslation } from "react-i18next";
 import { reporter } from "./commonLogic";

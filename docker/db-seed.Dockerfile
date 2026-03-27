@@ -60,7 +60,8 @@ RUN yarn prisma generate
 FROM base AS seed
 
 # Various files used by the seeding script
-COPY src/scripts/lib ./src/scripts/lib
+COPY scripts/lib ./scripts/lib
+COPY scripts/prisma ./scripts/prisma
 COPY src/functions ./src/functions
 COPY src/lib ./src/lib
 COPY src/types ./src/types

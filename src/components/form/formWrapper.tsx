@@ -15,7 +15,7 @@ export default function FormWrapper({
   function iterateIndicators(currentTransformIndex: number) {
     const currentIndicator = document?.getElementById("current-indicator");
     const indicatorsParent = document?.getElementById("indicators");
-    const indicators = Array.from(indicatorsParent?.children || []);
+    const indicators = Array.from(indicatorsParent?.children ?? []);
 
     // TODO - maybe more than index should be used to check if the sections are complete? A section can be complete even if it is still in view
     // Turn indicators green if they are complete
@@ -65,13 +65,13 @@ export default function FormWrapper({
 
   // Hide the "next" button when at the final slide
   let nextButtonHiddenClass = "";
-  if (transformIndex == sections.length - 1) {
+  if (transformIndex === sections.length - 1) {
     nextButtonHiddenClass = "hidden";
   }
 
   // Hide the "back" button when at the first slide
   let backButtonHiddenClass = "";
-  if (transformIndex == 0) {
+  if (transformIndex === 0) {
     backButtonHiddenClass = "hidden";
   }
 

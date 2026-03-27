@@ -52,7 +52,7 @@ export const handleKeyDownTreeCombobox = (
     e.preventDefault()
 
     if (focusedTreeOptionIndex != null) {
-      if (focusedTreeOptionIndex != 0) {
+      if (focusedTreeOptionIndex !== 0) {
         setFocusedTreeOptionIndex(focusedTreeOptionIndex - 1)
       } else {
         setFocusedTreeOptionIndex(treeOptions.length - 1)
@@ -66,7 +66,7 @@ export const handleKeyDownTreeCombobox = (
     e.preventDefault()
 
     if (focusedTreeOptionIndex != null) {
-      if (focusedTreeOptionIndex != treeOptions.length - 1) {
+      if (focusedTreeOptionIndex !== treeOptions.length - 1) {
         setFocusedTreeOptionIndex(focusedTreeOptionIndex + 1)
       } else {
         setFocusedTreeOptionIndex(0)
@@ -144,7 +144,7 @@ export const handleKeyDownEditableCombobox = (
     }
 
     if (focusedListboxOptionIndex != null) {
-      if (focusedListboxOptionIndex != listboxOptions.length - 1) {
+      if (focusedListboxOptionIndex !== listboxOptions.length - 1) {
         setFocusedListboxOptionIndex(focusedListboxOptionIndex + 1)
       } else {
         setFocusedListboxOptionIndex(0)
@@ -170,7 +170,7 @@ export const handleKeyDownEditableCombobox = (
     }
 
     if (focusedListboxOptionIndex != null) {
-      if (focusedListboxOptionIndex != 0) {
+      if (focusedListboxOptionIndex !== 0) {
         setFocusedListboxOptionIndex(focusedListboxOptionIndex - 1)
       } else {
         setFocusedListboxOptionIndex(listboxOptions.length - 1)

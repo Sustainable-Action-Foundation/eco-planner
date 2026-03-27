@@ -1,5 +1,6 @@
 import dataSeriesInterest from "@/functions/weightedAverageDelta";
-import { RoadmapType, Comment } from "@prisma/client";
+import type { Comment } from "@prisma/client";
+import { RoadmapType } from "@prisma/client";
 import type { Action, Goal, MetaRoadmap, MultiRoadmapInstance } from "@/types";
 
 // Used for alphabetical sorting, we use Swedish locale and ignore case, but it can be changed here
@@ -44,7 +45,7 @@ export function roadmapSorter<T extends { metaRoadmap: { type: RoadmapType, name
   } else if (aIndex < bIndex) {
     return 1;
   } else {
-    if (collator.compare(a.metaRoadmap.name, b.metaRoadmap.name) == 0) {
+    if (collator.compare(a.metaRoadmap.name, b.metaRoadmap.name) === 0) {
       // If the roadmaps have the same name, sort by version (higher version first)
       return b.version - a.version;
     } else {

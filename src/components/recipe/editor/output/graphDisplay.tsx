@@ -2,7 +2,7 @@
 
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import { useRecipe } from "../../context/recipeContext.use";
-import { ApexOptions } from "apexcharts";
+import type { ApexOptions } from "apexcharts";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { Locales } from "i18n.config";
 import { useTranslation } from "react-i18next";

@@ -1,8 +1,9 @@
-import { IronSession, SessionOptions, getIronSession } from "iron-session";
-import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import type { IronSession, SessionOptions } from "iron-session";
+import { getIronSession } from "iron-session";
+import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 // The information we store in our cookie
-export interface LoginData {
+export type LoginData = {
   user?: {
     id: string;
     username: string;
@@ -31,5 +32,5 @@ export const options: SessionOptions = {
  * Reads login data from cookies
  */
 export async function getSession(cookies: ReadonlyRequestCookies, sessionOptions?: SessionOptions): Promise<IronSession<LoginData>> {
-  return getIronSession<LoginData>(cookies, sessionOptions || options);
+  return getIronSession<LoginData>(cookies, sessionOptions ?? options);
 };

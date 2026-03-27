@@ -10,8 +10,9 @@ import { ExternalDataset } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
 import type { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
 import type { TrafaVariable } from "@/lib/trafa/trafaTypes";
-import { Goal } from "@prisma/client";
-import { FormEvent, useContext, useEffect, useRef, useState } from "react";
+import type { Goal } from "@prisma/client";
+import type { FormEvent} from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
@@ -39,6 +40,7 @@ export default function QueryBuilder({
   const [tableDetails, setTableDetails] = useState<ApiTableDetails | null>(null);
   const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
   const [defaultMetricSelected, setDefaultMetricSelected] = useState(true);
+  const [isFormValid, setIsFormValid] = useState(false);
 
   const modalRef = useRef<HTMLDialogElement | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -94,7 +96,7 @@ export default function QueryBuilder({
   useEffect(() => {
     const metricSelectElement = document.getElementById("metric") as HTMLSelectElement | null;
     if (metricSelectElement) {
-      setDefaultMetricSelected(metricSelectElement.value.length == 0);
+      setDefaultMetricSelected(metricSelectElement.value.length === 0);
     } else {
       setDefaultMetricSelected(true);
     }
@@ -108,11 +110,11 @@ export default function QueryBuilder({
       // Skip File inputs
       if (value instanceof File) return;
       // Skip externalDataset, externalTableId, and `tableSearchInputName`, as they are not part of the query
-      if (key == "externalDataset") return;
-      if (key == "externalTableId") return;
-      if (key == tableSearchInputName) return;
+      if (key === "externalDataset") return;
+      if (key === "externalTableId") return;
+      if (key === tableSearchInputName) return;
       // The PxWeb time variable is special, as we want to fetch every period after (and including) the selected one
-      if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && key == formRef.current?.getElementsByClassName("TimeVariable")[0]?.id) {
+      if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && key === formRef.current?.getElementsByClassName("TimeVariable")[0]?.id) {
         queryObject.push({ variableCode: key, valueCodes: [`FROM(${value})`] });
         return;
       }
@@ -194,16 +196,16 @@ export default function QueryBuilder({
           disableSubmitButton();
         }
         setIsLoading(false);
-      }).catch(e => {
+      }).catch((e: unknown) => {
         console.error("Error fetching table content:", e);
         setTableContent(null);
         disableSubmitButton();
         setIsLoading(false);
       });
-      if (dataSource == "Trafa") {
+      if (dataSource === "Trafa") {
         // If metric was changed, send the metric as a query to the API to get filtered table details
-        if (event?.target instanceof HTMLSelectElement && event.target.name == "metric") {
-          void getTableDetails(tableId, dataSource, query.filter(q => q.variableCode == "metric"), lang).then(result => { setTableDetails(result); });
+        if (event?.target instanceof HTMLSelectElement && event.target.name === "metric") {
+          void getTableDetails(tableId, dataSource, query.filter(q => q.variableCode === "metric"), lang).then(result => { setTableDetails(result); });
         }
       }
     }
@@ -215,9 +217,11 @@ export default function QueryBuilder({
     }
   }
   function formChange(event: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
-    const changedElementIsExternalDataset = event.target instanceof HTMLSelectElement && event.target.name == "externalDataset";
-    const changedElementIsTableSearch = event.target instanceof HTMLInputElement && event.target.name == "tableSearch";
-    const changedElementIsTable = event.target instanceof HTMLInputElement && event.target.name == "externalTableId";
+    setIsFormValid(formRef.current?.checkValidity() ?? false);
+
+    const changedElementIsExternalDataset = event.target instanceof HTMLSelectElement && event.target.name === "externalDataset";
+    const changedElementIsTableSearch = event.target instanceof HTMLInputElement && event.target.name === "tableSearch";
+    const changedElementIsTable = event.target instanceof HTMLInputElement && event.target.name === "externalTableId";
 
     /* console.log(tableDetails); */
     if (!changedElementIsExternalDataset && !changedElementIsTableSearch && !changedElementIsTable && tables && tableDetails) {
@@ -276,7 +280,7 @@ export default function QueryBuilder({
 
   function handleMetricSelect(event: React.ChangeEvent<HTMLSelectElement>) {
     setIsLoading(true);
-    const isDefaultValue = event.target.value.length == 0;
+    const isDefaultValue = event.target.value.length === 0;
     setDefaultMetricSelected(isDefaultValue);
     const variableSelectionFieldSets = document?.getElementsByName("variableSelectionFieldset");
 
@@ -292,7 +296,7 @@ export default function QueryBuilder({
           });
           variableSelectionFieldset.setAttribute("disabled", "true");
           // Reset all the table details when disabling the form so all options are displayed when re-enabling
-          if (dataSource == "Trafa") {
+          if (dataSource === "Trafa") {
             void getTableDetails(tableDetails?.id ?? "", dataSource, undefined, lang).then(result => { setTableDetails(result); setIsLoading(false); });
           }
           else {
@@ -308,7 +312,7 @@ export default function QueryBuilder({
 
   // TODO: should probably use a pseudo class (::after) instead of a span here.
   function optionalTag(dataSource: string, variableIsOptional: boolean) {
-    if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variableIsOptional) return <span className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</span>;
+    if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && variableIsOptional) return <span className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</span>;
   }
 
   function handleTableListScroll(event: React.UIEvent<HTMLUListElement, UIEvent>) {
@@ -350,7 +354,7 @@ export default function QueryBuilder({
   function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails, options?: VariableSelectionHelperOptions) {
     if (variable.option) {
       return (
-        <label key={variable.name} className={`block margin-block-75 ${options?.classNames && options.classNames.map((className: string) => className).join(" ")}`}>
+        <label key={variable.name} className={`block margin-block-75 ${options?.classNames?.map((className: string) => className).join(" ")}`}>
           {/* Only display "optional" tags if the data source provides this information */}
           {variable.label[0].toUpperCase() + variable.label.slice(1)}{optionalTag(dataSource, variable.optional)}
           {/* TODO: Use CSS to set proper capitalization of labels; something like `label::first-letter { text-transform: capitalize; }` */}
@@ -358,45 +362,45 @@ export default function QueryBuilder({
             required={!variable.optional}
             name={variable.name}
             id={variable.name}
-            defaultValue={ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" ?
+            defaultValue={ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" ?
               (// If only one value is available, pre-select it
-                variable.values && variable.values.length == 1 ? variable.values[0].label : undefined
+                variable.values?.length === 1 ? variable.values[0].label : undefined
               )
               :
               undefined
             }>
             { // If only one value is available, don't show a placeholder option
-              ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variable.values && variable.values.length > 1 &&
+              ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && variable.values && variable.values.length > 1 &&
               <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option>
             }
             {
-              !(ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb") &&
+              !(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") &&
               <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option>
             }
-            {variable.values && variable.values.map(value => (
+            {variable.values?.map(value => (
               <option key={`${variable.name}-${value.name}`} value={value.name} lang={tableDetails.language}>{value.label}</option>
             ))}
           </select>
         </label>
       )
-    } else if (dataSource == "Trafa" && !variable.option && (variable as TrafaVariable).selected) {
+    } else if (dataSource === "Trafa" && !variable.option && (variable as TrafaVariable).selected) {
       console.warn("The variable is selected while it is not an option. This should not happen.");
     }
   }
 
   function timeVariableSelectionHelper(times: (TrafaVariable | PxWebTimeVariable)[], language?: string) {
-    if ((dataSource == "Trafa" && !(times.length == 1 && times[0].name == "ar")) || (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && times.length > 1)) {
+    if ((dataSource === "Trafa" && !(times.length === 1 && times[0].name === "ar")) || (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && times.length > 1)) {
       let heading = "";
       let defaultValue = "";
       let displayValueKey: keyof typeof times[0]/* "label" | "id" | "name" | "type" */ = "id";
       const variableIsOptional = times[0].optional;
-      if (dataSource == "Trafa") {
+      if (dataSource === "Trafa") {
         // heading = "Välj tidsintervall";
         heading = t("components:query_builder.select_time_interval");
         // defaultValue = "Välj tidsintervall";
         defaultValue = t("components:query_builder.select_time_interval");
         displayValueKey = "label";
-      } else if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb") {
+      } else if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") {
         // heading = "Välj startperiod";
         heading = t("components:query_builder.select_starting_period");
         // defaultValue = "Välj tidsperiod";
@@ -409,7 +413,7 @@ export default function QueryBuilder({
           required={false}
           name="Tid"
           id="Tid"
-          defaultValue={times && times.length == 1 ? times[0].label : undefined}>
+          defaultValue={times?.length === 1 ? times[0].label : undefined}>
           <option value="" className={`font-style-italic color-gray`}>{defaultValue}</option>
           {times.map(time => (
             <option key={time.name} value={time.name} lang={language}>{time[displayValueKey]}</option>
@@ -420,7 +424,7 @@ export default function QueryBuilder({
   }
 
   function shouldVariableFieldsetBeVisible(tableDetails: ApiTableDetails, dataSource: string) {
-    const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb") && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1);
+    const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1);
     return returnBool;
   }
 
@@ -541,7 +545,7 @@ export default function QueryBuilder({
                             id="tablesList"
                             className={`position-relative padding-right-25 padding-left-0 ${styles['tableList']}`} onScroll={e => handleTableListScroll(e)}
                             style={{ listStyle: "none" }} >
-                            {renderedTables && renderedTables.map(({ tableId: id, label }) => (
+                            {renderedTables?.map(({ tableId: id, label }) => (
                               <li
                                 key={id}
                                 id={`table${id}`}
@@ -586,7 +590,7 @@ export default function QueryBuilder({
                                 defaultValue={undefined}
                                 onChange={handleMetricSelect}>
                                 <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_metric")}</option>
-                                {tableDetails.metrics && tableDetails.metrics.map(metric => (
+                                {tableDetails.metrics?.map(metric => (
                                   <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
                                 ))}
                               </select>
@@ -606,11 +610,11 @@ export default function QueryBuilder({
                                 {tableDetails.variables.map(variable => {
                                   return variableSelectionHelper(variable, tableDetails);
                                 })}
-                                {tableDetails.hierarchies && tableDetails.hierarchies.map(hierarchy => {
+                                {tableDetails.hierarchies?.map(hierarchy => {
                                   if (hierarchy.children?.some(variable => variable.option)) return (
                                     <label key={hierarchy.name} className="block margin-block-75">
                                       <b>{hierarchy.label}</b>
-                                      {hierarchy.children && hierarchy.children.map(variable => {
+                                      {hierarchy.children?.map(variable => {
                                         return variableSelectionHelper(variable, tableDetails, { classNames: ["margin-left-75"] });
                                       })}
                                     </label>
@@ -652,7 +656,7 @@ export default function QueryBuilder({
                       </div>
                     ) :
                       !defaultMetricSelected &&
-                      formRef.current?.checkValidity() && (
+                      isFormValid && (
                         <p className="padding-100">{t("components:query_builder.no_result_found")}</p>
                       )
                     }

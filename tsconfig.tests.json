@@ -4,11 +4,12 @@
     "module": "Preserve",
     "target": "ES2024",
     "baseUrl": ".",
-    "outDir": "./compiled",
+    "outDir": "./tests/compiled",
     "allowImportingTsExtensions": false,
+    "skipLibCheck": true,
   },
   "include": [
-    "./*.ts",
-    "./**/*.ts",
-  ]
+    "./tests/**/*.ts",
+    "./tests/**/*.tsx"
+  ],
 }

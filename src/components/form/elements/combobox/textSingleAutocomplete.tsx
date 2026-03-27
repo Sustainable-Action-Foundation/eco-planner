@@ -3,7 +3,8 @@
 import { IconChevronDown } from "@tabler/icons-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import styles from './comboBox.module.css' with { type: "css" }
-import Fuse, { IFuseOptions } from "fuse.js";
+import type { IFuseOptions } from "fuse.js";
+import Fuse from "fuse.js";
 import { useTranslation } from "react-i18next";
 import type { InputElement, Option, Theme } from "@/components/types";
 import { handleKeyDownEditableCombobox, scrollOptionIntoView } from "./functions";
@@ -20,14 +21,14 @@ export default function TextSingleAutocomplete({
   theme?: Theme
   options: Array<Option>
   maxOptions?: number
-  fuseOptions?: IFuseOptions<Option> // TODO: Implement for selects aswell
+  fuseOptions?: IFuseOptions<Option> // TODO: Implement for selects as well
   onChange?: (value: string) => void
 }) {
   const { t } = useTranslation(["forms", "common"]);
 
-  const [value, setValue] = useState<string>(props.defaultValue ? props.defaultValue : '');
+  const [value, setValue] = useState<string>(!!props.defaultValue ? props.defaultValue : '');
   const [displayListBox, setDisplayListBox] = useState<boolean>(false);
-  const [focusedListBoxItem, setFocusedListBoxItem] = useState<number | null>(null); // TODO: Rename -> focusedlistboxOption
+  const [focusedListBoxItem, setFocusedListBoxItem] = useState<number | null>(null); // TODO: Rename -> focusedListBoxOption
   const [selectionMade, setSelectionMade] = useState(false); // TODO: Rename to something better
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
   const comboboxRef = useRef<HTMLInputElement>(null);
@@ -40,7 +41,7 @@ export default function TextSingleAutocomplete({
   const searchResults = useMemo(() => {
     if (selectionMade) {
       setSelectionMade(false); 
-      return options; // Prevent fuse from unnecesserily running when selecting an item
+      return options; // Prevent fuse from unnecessarily running when selecting an item
     }
     return value ? fuse.search(value).map(result => result.item) : options;
   }, [value, fuse, options, selectionMade]);
@@ -65,10 +66,10 @@ export default function TextSingleAutocomplete({
       >
         <input
           type="text"
-          placeholder={props.placeholder ? props.placeholder : undefined}
+          placeholder={!!props.placeholder ? props.placeholder : undefined}
           name={props.name}
           id={props.id}
-          required={props.required ? props.required : false}
+          required={!!props.required ? props.required : false}
           disabled={props.disabled}
           value={value}
           autoComplete="off"
@@ -96,7 +97,7 @@ export default function TextSingleAutocomplete({
                 )
               },
               onFocus: () => setDisplayListBox(true),
-              onBlur: (e) => { if (e.relatedTarget?.id != `${props.id}-listbox` && e.relatedTarget?.id != `${props.id}-button`) { setDisplayListBox(false) } },
+              onBlur: (e) => { if (e.relatedTarget?.id !== `${props.id}-listbox` && e.relatedTarget?.id !== `${props.id}-button`) { setDisplayListBox(false) } },
               "role": "combobox",
               "aria-expanded": displayListBox,
               "aria-haspopup": "listbox",
@@ -125,7 +126,7 @@ export default function TextSingleAutocomplete({
       </div>
 
       {options.length > 0 && searchResults.length > 0 ?
-        <ul // TODO: Need somethin which indicates theese are just suggestions (aria-activedescendent does not change when blurring)
+        <ul // TODO: Need something which indicates these are just suggestions (aria-activedescendent does not change when blurring)
           id={`${props.id}-listbox`}
           className={`
               ${styles['listbox']} 
@@ -135,10 +136,10 @@ export default function TextSingleAutocomplete({
           }
           style={{
             ...(theme?.style),
-            maxHeight: maxOptions ? `${(maxOptions * 33) + 6}px` : '300px' // TODO: Implement for select comboboxes aswell
+            maxHeight: maxOptions ? `${(maxOptions * 33) + 6}px` : '300px' // TODO: Implement for select comboboxes as well
           }}
           // TODO: Onblur does not seem to actually setFocusedListBoxItem, figure out why...
-          onBlur={(e) => { if (e.relatedTarget?.id != props.id) { setFocusedListBoxItem(null); setDisplayListBox(false); } }} // TODO: See if we can deal with blur the same way for all comboboxes
+          onBlur={(e) => { if (e.relatedTarget?.id !== props.id) { setFocusedListBoxItem(null); setDisplayListBox(false); } }} // TODO: See if we can deal with blur the same way for all comboboxes
           role="listbox"
           tabIndex={-1}
           aria-label={t("common:tsx.suggestions")}

@@ -1,8 +1,9 @@
 "use client";
 
 import styles from '../tables.module.css' with { type: "css" };
-import goalsToTree, { GoalTree, GoalTreeEntry } from '@/functions/goalsToTree';
-import { SyntheticEvent } from 'react';
+import type { GoalTree, GoalTreeEntry } from '@/functions/goalsToTree';
+import goalsToTree from '@/functions/goalsToTree';
+import type { SyntheticEvent } from 'react';
 import { getSessionStorage, setSessionStorage } from '@/functions/localStorage';
 import { useTranslation } from "react-i18next";
 import { IconCaretRightFilled, IconLink } from '@tabler/icons-react';
@@ -11,12 +12,12 @@ import type { Roadmap } from "@/types";
 
 // interface LinkTreeCommonProps {}
 
-interface LinkTreeWithGoals /* extends LinkTreeCommonProps */ {
+type LinkTreeWithGoals = {
   goals: GoalTreeEntry[],
   roadmap?: never,
 }
 
-interface LinkTreeWithRoadmap /* extends LinkTreeCommonProps */ {
+type LinkTreeWithRoadmap = {
   goals?: never,
   roadmap: Roadmap,
 }
@@ -33,9 +34,7 @@ export default function LinkTree({
   // Failsafe in case wrong props are passed
   if ((!goals && !roadmap) || (goals && roadmap)) throw new Error('LinkTree: Either `goals` XOR `roadmap` must be provided');
 
-  if (!goals) {
-    goals = roadmap?.goals ?? [];
-  }
+  goals ??= roadmap?.goals ?? [];
 
   if (!goals?.length) return (<p>{t("components:link_tree.no_roadmaps")}</p>);
 
@@ -58,7 +57,7 @@ export default function LinkTree({
         return;
       setSessionStorage(roadmap.id, [...currentStorage, key]);
     } else {
-      setSessionStorage(roadmap.id, currentStorage.filter(branch => branch != key));
+      setSessionStorage(roadmap.id, currentStorage.filter(branch => branch !== key));
     }
   };
 

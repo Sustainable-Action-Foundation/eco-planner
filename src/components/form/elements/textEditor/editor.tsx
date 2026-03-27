@@ -1,7 +1,8 @@
 'use client'
 
 // TODO: Remove duplicate extension names
-import { Content, Editor, EditorContent, useEditor } from '@tiptap/react'
+import type { Content, Editor} from '@tiptap/react';
+import { EditorContent, useEditor } from '@tiptap/react'
 import TextEditorMenu from './menu'
 import { defaultExtensions, nodeSizeLimit } from './config/config';
 import { useMemo } from 'react';

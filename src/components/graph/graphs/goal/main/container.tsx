@@ -1,7 +1,8 @@
 "use client"
 
 import type { ApiTableContent } from "@/lib/api/apiTypes";
-import { DatasetData, ExternalDataset } from "@/lib/api/utility";
+import type { DatasetData} from "@/lib/api/utility";
+import { ExternalDataset } from "@/lib/api/utility";
 import { useEffect, useState } from "react";
 import { getStoredGraphType } from "../../../functions/graphFunctions";
 import GraphSelector from "../../../graphSelectors/graphSelector";
@@ -14,9 +15,8 @@ import type { Effect, Goal, Roadmap } from "@/types";
 import ChildGraphContainer from "../child/container";
 import SiblingGraph from "../sibling/siblings";
 import findSiblings from "@/functions/findSiblings";
-import { graphHeight } from "../config";
 import CopyAndScale from "@/components/modals/copyAndScale";
-import { LoginData } from "@/lib/session";
+import type { LoginData } from "@/lib/session";
 import styles from '../goal.module.css'
 
 export const GraphType = {
@@ -98,7 +98,7 @@ export default function GraphGraph({
             : null}
         </menu>
         <h2 className={`${styles['heading']}`}>
-          {goal.name ? goal.name : goal.indicatorParameter}
+          {!!goal.name ? goal.name : goal.indicatorParameter}
         </h2>
         {secondaryGoal &&
           <p className="margin-block-0 margin-inline-auto text-align-center">

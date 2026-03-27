@@ -54,7 +54,14 @@ export default function MainDeltaGraph({
     },
     yaxis: [{
       title: {
-        text: t("graphs:main_delta_graph.annual_change", { unit: goal.dataSeries.unit?.toLowerCase() == 'procent' ? t("graphs:main_delta_graph.percentage_points") : goal.dataSeries.unit === null ? t("common:tsx.unitless") : goal.dataSeries.unit || t("common:tsx.unit_missing") })
+        text: t("graphs:main_delta_graph.annual_change", {
+          unit: goal.dataSeries.unit?.toLowerCase() === 'procent'
+            ? t("graphs:main_delta_graph.percentage_points")
+            : goal.dataSeries.unit === null
+              ? t("common:tsx.unitless")
+              : goal.dataSeries.unit
+              || t("common:tsx.unit_missing")
+        })
       },
       labels: { formatter: graphNumberFormatter },
       seriesName: [
@@ -224,10 +231,10 @@ export default function MainDeltaGraph({
       type: 'line',
     });
     // Place secondary series on separate scale if it doesn't share unit with main
-    if (secondaryGoal.dataSeries.unit != goal.dataSeries.unit) {
+    if (secondaryGoal.dataSeries.unit !== goal.dataSeries.unit) {
       (chartOptions.yaxis as ApexYAxis[]).push({
         title: {
-          text: t("graphs:main_delta_graph.annual_change", { unit: secondaryGoal.dataSeries.unit?.toLowerCase() == 'procent' ? t("graphs:main_delta_graph.percentage_points") : secondaryGoal.dataSeries.unit === null ? t("common:tsx.unitless") : secondaryGoal.dataSeries.unit || t("common:tsx.unit_missing") })
+          text: t("graphs:main_delta_graph.annual_change", { unit: secondaryGoal.dataSeries.unit?.toLowerCase() === 'procent' ? t("graphs:main_delta_graph.percentage_points") : secondaryGoal.dataSeries.unit === null ? t("common:tsx.unitless") : secondaryGoal.dataSeries.unit || t("common:tsx.unit_missing") })
         },
         labels: { formatter: graphNumberFormatter },
         seriesName: secondaryGoal.name || secondaryGoal.indicatorParameter,

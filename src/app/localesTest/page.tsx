@@ -99,8 +99,8 @@ export default async function LocaleTestPage() {
                   const [formattedInput, formatterVar, formatterType] = interpolationCall;
 
                   const formattedOutput = t(formattedInput, defaultArgs);
-                  const isEmpty = formattedOutput == "";
-                  const isMissing = formattedOutput == formattedInput;
+                  const isEmpty = formattedOutput === "";
+                  const isMissing = formattedOutput === formattedInput;
                   const output = isEmpty ? "[EMPTY]" : isMissing ? "[MISSING]" : formattedOutput;
 
                   const resolvedVar = t(formatterVar, defaultArgs);

@@ -3,8 +3,8 @@
 import { useMemo, useRef, useState } from "react";
 import SelectMultipleSearch from "../elements/combobox/selectMultipleSearch"
 import type { AccessControlled } from "@/types";
-import { MetaRoadmap, Roadmap } from "@prisma/client";
-import { LoginData } from "@/lib/session";
+import type { MetaRoadmap, Roadmap } from "@prisma/client";
+import type { LoginData } from "@/lib/session";
 import styles from '../forms.module.css'
 import { useTranslation } from "react-i18next";
 
@@ -103,7 +103,7 @@ export default function ConfigureAccess({
             {t("forms:access_selector.all_users")}
           </label>
           <fieldset className=" fieldset-unset-pseudo-class">
-            <legend> {/* TODO: This causes repetion on a screenreader */}
+            <legend> {/* TODO: This causes repetition on a screen reader */}
               <label className="flex width-fit-content align-items-center gap-50">
                 <input
                   type="radio"
@@ -132,7 +132,7 @@ export default function ConfigureAccess({
                 className="flex-grow-100"
                 placeholder={t("forms:access_selector.select_users")}
                 disabled={visibilityType !== "custom"}
-                required={visibilityType === "custom" && (!viewerGroups || viewerGroups.length == 0)}
+                required={visibilityType === "custom" && (!viewerGroups || viewerGroups.length === 0)}
                 type="text"
                 autoComplete="off"
                 defaultValue={viewers}
@@ -140,7 +140,7 @@ export default function ConfigureAccess({
               />
               <label htmlFor="viewer-groups" className="block width-fit-content">{`${t("forms:access_selector.groups")}:`}</label>
               <SelectMultipleSearch
-                onChange={(option) => setViewerGroups(option ? option : [])}
+                onChange={(option) => setViewerGroups(option ?? [])}
                 props={{
                   id: "viewer-groups",
                   name: "viewer-groups",
@@ -158,7 +158,11 @@ export default function ConfigureAccess({
 
       {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) && // TODO: Check that this is correct or if we need another one for metaroadmap
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>
+          <legend
+            // Technically incrementing here is unused but if you add a another entry after this one it will be correct
+            // eslint-disable-next-line @/no-useless-assignment
+            data-position={positionIndex++}
+            className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>
             {legends.editors}
           </legend>
           <label className="flex width-fit-content  align-items-center gap-50  margin-bottom-75">
@@ -206,13 +210,13 @@ export default function ConfigureAccess({
                 name="editors"
                 placeholder={t("forms:access_selector.select_users")}
                 disabled={editabilityType !== "custom"}
-                required={editabilityType === "custom" && (!editorGroups || editorGroups.length == 0)}
+                required={editabilityType === "custom" && (!editorGroups || editorGroups.length === 0)}
                 defaultValue={editors}
                 onChange={(e) => setEditors(e.target.value)}
               />
               <label htmlFor="editor-groups" className="block width-fit-content">{`${t("forms:access_selector.groups")}:`}</label>
               <SelectMultipleSearch
-                onChange={(option) => setEditorGroups(option ? option : [])}
+                onChange={(option) => setEditorGroups(option ?? [])}
                 props={{
                   id: "editor-groups",
                   name: "editor-groups",

@@ -3,7 +3,7 @@ import type { Recipe, RecipeExtractionOutput, RecipeVariable } from "@/functions
 import type { DateValuesWithUnit, JSONValue, Mask } from "@/types";
 import { parseDateValuesFromVector, transformDateValuesToVector, ANDMasks } from "@/functions/recipe/vectorAndMaskUtils";
 import mathjs from "@/math";
-import { Unit } from "mathjs";
+import type { Unit } from "mathjs";
 import { extractDataSeries, extractExternalDatasets, extractScalars } from "./extractors";
 
 

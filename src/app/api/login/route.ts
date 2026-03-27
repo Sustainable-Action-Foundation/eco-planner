@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { getSession, options } from "@/lib/session"
 import prisma from "@/prismaClient";
 import bcrypt from "bcryptjs";

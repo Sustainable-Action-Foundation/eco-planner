@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import styles from '../forms.module.css'
-import { TFunction } from "i18next";
+import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { IconEye, IconEyeOff, IconLock, IconMail, IconUser } from "@tabler/icons-react";
 import type { JSONValue } from "@/types";

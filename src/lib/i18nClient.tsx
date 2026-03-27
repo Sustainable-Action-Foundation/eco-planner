@@ -15,8 +15,9 @@ i18nClient
     backend: {
       loadPath: "/api/locales?lng={{lng}}&ns={{ns}}",
     },
-  }).catch((error) => {
-    console.error("i18nClient initialization failed:", error);
+  }).catch((e: unknown) => {
+    const errorMessage = e instanceof Error ? e.message : String(e);
+    console.error("i18nClient initialization failed:", errorMessage);
   });
 
 patchI18nT(i18nClient);

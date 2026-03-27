@@ -1,5 +1,5 @@
-import '@tiptap/extension-text-style'
-import { Extension } from '@tiptap/core'
+import '@tiptap/extension-text-style';
+import { Extension } from '@tiptap/core';
 
 export type italicOptions = {
   /**
@@ -10,6 +10,7 @@ export type italicOptions = {
 }
 
 declare module '@tiptap/core' {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Commands<ReturnType> {
     italic: {
       /**
