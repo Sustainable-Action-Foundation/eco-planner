@@ -74,7 +74,7 @@ export default async function Page(
 
   return (
     <>
-      <Breadcrumb object={goal || roadmap || undefined} customSections={[t("pages:action_create.breadcrumb")]} />
+      <Breadcrumb object={goal ?? roadmap ?? undefined} customSections={[t("pages:action_create.breadcrumb")]} />
 
       <div className="container-text margin-inline-auto">
         {goal

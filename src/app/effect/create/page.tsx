@@ -38,20 +38,20 @@ export default async function Page(
   ]);
 
   const badAction = (
-    (!action && typeof searchParams.actionId === 'string') ||
-    (action && !hasEditAccess(accessChecker(action.roadmap, session.user)))
+    (!action && typeof searchParams.actionId === 'string')
+    || (action && !hasEditAccess(accessChecker(action.roadmap, session.user)))
   );
 
   const badGoal = (
-    (!goal && typeof searchParams.goalId === 'string') ||
-    (goal && !hasEditAccess(accessChecker(goal.roadmap, session.user)))
+    (!goal && typeof searchParams.goalId === 'string')
+    || (goal && !hasEditAccess(accessChecker(goal.roadmap, session.user)))
   );
 
   const roadmapList = roadmaps.filter((roadmap) => hasEditAccess(accessChecker(roadmap, session.user)));
 
   return (
     <>
-      <Breadcrumb object={action || goal || undefined} customSections={[t("pages:effect_create.breadcrumb")]} />
+      <Breadcrumb object={action ?? goal ?? undefined} customSections={[t("pages:effect_create.breadcrumb")]} />
 
       <div className="container-text margin-inline-auto">
         <h1 className='margin-top-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>

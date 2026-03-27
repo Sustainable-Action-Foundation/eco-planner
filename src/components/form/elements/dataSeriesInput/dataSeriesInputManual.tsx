@@ -104,7 +104,7 @@ export default function DataSeriesInputManual() {
               <input
                 type="number"
                 tabIndex={-1}
-                value={item.year ? item.year : ''}
+                value={item.year ?? undefined}
                 onChange={(e) => handleYearChange(index, e.target.value)}
                 onPaste={(e) => {
                   // Make sure the pasted input is valid before handling paste
@@ -124,7 +124,7 @@ export default function DataSeriesInputManual() {
               <input
                 type="number"
                 tabIndex={-1}
-                value={item.data ? item.data : ''}
+                value={item.data ?? undefined}
                 onChange={(e) => handleDataChange(index, e.target.value)}
                 onPaste={(e) => {
                   // Make sure the pasted input is valid before handling paste

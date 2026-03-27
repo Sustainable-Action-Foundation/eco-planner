@@ -130,7 +130,7 @@ export function RecipeContextProvider({
 
       const validity = await smartRecipe.checkValidity();
       if (!validity.good) {
-        warnings.push(...(validity.warnings || []));
+        warnings.push(...(validity.warnings ?? []));
         console.warn("Tried evaluating an invalid recipe in the context provider.", validity.error, validity.warnings);
         throw new RecipeError(validity.error || "Recipe is invalid");
       }

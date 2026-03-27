@@ -62,7 +62,7 @@ export default function SelectSingleTreeSearch({
 }) {
   const { t } = useTranslation(["forms"]);
 
-  const [value, setValue] = useState<TreeItem | null>(defaultValue || null)
+  const [value, setValue] = useState<TreeItem | null>(defaultValue ?? null)
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const [searchValue, setSearchValue] = useState<string>('')
 

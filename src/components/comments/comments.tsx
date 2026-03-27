@@ -3,7 +3,7 @@
 import { commentSorter } from "@/lib/sorters";
 import type { Comment } from "@prisma/client";
 import styles from './comments.module.css'
-import type { ChangeEvent} from "react";
+import type { ChangeEvent } from "react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Link from "next/link";
@@ -19,8 +19,8 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
     const formJSON = JSON.stringify({
       commentText: comment,
       objectId,
-    })
-    void formSubmitter(
+    });
+    formSubmitter(
       '/api/comment',
       formJSON,
       'POST',
@@ -38,7 +38,7 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
           alert(t("common:error.generic_with_details", { details: 'See console for details' }));
         }
       }
-    );
+    )
   }
 
   // Sort comments by date
@@ -72,7 +72,7 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
   return (
     <>
       <div className="container-text">
-        <h2>{t("components:comments.comment_count", { count: comments?.length || 0 })}</h2>
+        <h2>{t("components:comments.comment_count", { count: comments?.length ?? 0 })}</h2>
         <form onSubmit={handleSubmit}>
           <span className={styles.textarea} role="textbox" id="comment-text" contentEditable aria-label={t("components:comments.add_comment")} aria-placeholder={t("components:comments.add_comment")} onInput={handleInput} onBlur={handleInput} ref={spanRef}></span>
           <input type="hidden" name="comment" id="comment" value={editedContent} />

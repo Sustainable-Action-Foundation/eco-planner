@@ -140,7 +140,7 @@ export default function ConfigureAccess({
               />
               <label htmlFor="viewer-groups" className="block width-fit-content">{`${t("forms:access_selector.groups")}:`}</label>
               <SelectMultipleSearch
-                onChange={(option) => setViewerGroups(option ? option : [])}
+                onChange={(option) => setViewerGroups(option ?? [])}
                 props={{
                   id: "viewer-groups",
                   name: "viewer-groups",
@@ -216,7 +216,7 @@ export default function ConfigureAccess({
               />
               <label htmlFor="editor-groups" className="block width-fit-content">{`${t("forms:access_selector.groups")}:`}</label>
               <SelectMultipleSearch
-                onChange={(option) => setEditorGroups(option ? option : [])}
+                onChange={(option) => setEditorGroups(option ?? [])}
                 props={{
                   id: "editor-groups",
                   name: "editor-groups",

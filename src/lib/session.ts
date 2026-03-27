@@ -1,4 +1,4 @@
-import type { IronSession, SessionOptions} from "iron-session";
+import type { IronSession, SessionOptions } from "iron-session";
 import { getIronSession } from "iron-session";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
@@ -32,5 +32,5 @@ export const options: SessionOptions = {
  * Reads login data from cookies
  */
 export async function getSession(cookies: ReadonlyRequestCookies, sessionOptions?: SessionOptions): Promise<IronSession<LoginData>> {
-  return getIronSession<LoginData>(cookies, sessionOptions || options);
+  return getIronSession<LoginData>(cookies, sessionOptions ?? options);
 };

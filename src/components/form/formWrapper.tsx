@@ -15,7 +15,7 @@ export default function FormWrapper({
   function iterateIndicators(currentTransformIndex: number) {
     const currentIndicator = document?.getElementById("current-indicator");
     const indicatorsParent = document?.getElementById("indicators");
-    const indicators = Array.from(indicatorsParent?.children || []);
+    const indicators = Array.from(indicatorsParent?.children ?? []);
 
     // TODO - maybe more than index should be used to check if the sections are complete? A section can be complete even if it is still in view
     // Turn indicators green if they are complete

@@ -42,9 +42,9 @@ export default async function Page(
   }
 
   const badMetaRoadmap = (
-    searchParams.metaRoadmapId instanceof Array ||
-    (!parent && typeof searchParams.metaRoadmapId == 'string') ||
-    (parent && !hasEditAccess(accessChecker(parent, session.user)))
+    searchParams.metaRoadmapId instanceof Array
+    || (!parent && typeof searchParams.metaRoadmapId == 'string')
+    || (parent && !hasEditAccess(accessChecker(parent, session.user)))
   );
 
   // The meta roadmaps the user can create the new roadmap under (the ones they have edit access to)
@@ -54,7 +54,7 @@ export default async function Page(
 
   return (
     <>
-      <Breadcrumb object={parent || undefined} customSections={[t("pages:roadmap_create.breadcrumb")]} />
+      <Breadcrumb object={parent ?? undefined} customSections={[t("pages:roadmap_create.breadcrumb")]} />
 
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-top-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>

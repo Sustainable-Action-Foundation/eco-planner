@@ -45,7 +45,7 @@ export default async function Page(
 
   return (
     <>
-      <Breadcrumb object={roadmap || undefined} customSections={[t("pages:goal_create.breadcrumb")]} />
+      <Breadcrumb object={roadmap ?? undefined} customSections={[t("pages:goal_create.breadcrumb")]} />
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-top-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
           {t("pages:goal_create.title")}

@@ -190,7 +190,7 @@ export default function GoalForm({
         dataSeriesId: null,
         dataSeries: dataSeries,
         dataSeriesRecipeId: null,
-        dataSeriesRecipe: dataSeriesRecipe || null,
+        dataSeriesRecipe: dataSeriesRecipe ?? null,
 
         baselineId: baselineId,
         baseline: baseline,

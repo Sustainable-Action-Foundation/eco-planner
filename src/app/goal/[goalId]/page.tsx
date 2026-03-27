@@ -131,10 +131,12 @@ export default async function Page(
   if (roadmap?.metaRoadmap.parentRoadmapId) {
     try {
       // Get the parent roadmap (if any)
-      parentGoalRoadmap = await getRoadmapByVersion(roadmap.metaRoadmap.parentRoadmapId,
-        roadmap.targetVersion ||
-        (await prisma.roadmap.aggregate({ where: { metaRoadmapId: roadmap.metaRoadmap.parentRoadmapId }, _max: { version: true } }))._max.version ||
-        0);
+      parentGoalRoadmap = await getRoadmapByVersion(
+        roadmap.metaRoadmap.parentRoadmapId,
+        (roadmap.targetVersion === null || roadmap.targetVersion === 0)
+          ? (await prisma.roadmap.aggregate({ where: { metaRoadmapId: roadmap.metaRoadmap.parentRoadmapId }, _max: { version: true } }))._max.version ?? 0
+          : roadmap.targetVersion
+      );
 
       // If there is a parent roadmap, look for a goal with the same indicator parameter in it
       if (parentGoalRoadmap) {
@@ -294,8 +296,8 @@ export default async function Page(
           {/* TODO: rename to EffectsList? */}
           <EffectTable object={goal} accessLevel={accessLevel} />
 
-          {goal.effects.some(effect => effect.action.startYear || effect.action.endYear) &&
-            <>
+          {goal.effects.some(effect => !!effect.action.startYear || !!effect.action.endYear)
+            && <>
               <h3 className="margin-top-500 font-weight-500">
                 {t("pages:goal.action_timeline")}
               </h3>
