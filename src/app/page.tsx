@@ -11,6 +11,7 @@ import serveTea from "@/lib/i18nServer";
 import Link from "next/link";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { getMetaRoadmaps, getRoadmaps } from "@/fetchers";
+import SearchRoadmaps from "@/components/form/filters/searchRoadmaps";
 
 export async function generateMetadata() {
   return await buildMetadata({
@@ -30,7 +31,7 @@ export default async function Page(
     getSession(await cookies()),
     getMetaRoadmaps(),
   ]);
-
+ 
   const typeFilter = searchParams['typeFilter'] ? (Array.isArray(searchParams['typeFilter']) ? searchParams['typeFilter'] : [searchParams['typeFilter']]) : [];
   const sortBy = searchParams['sortBy'] ? (Array.isArray(searchParams['sortBy']) ? (searchParams['sortBy'][0] as RoadmapSortBy) : (searchParams['sortBy'] as RoadmapSortBy)) : RoadmapSortBy.Default;
   const searchFilter = searchParams['searchFilter'] ? (Array.isArray(searchParams['searchFilter']) ? searchParams['searchFilter'][0] : searchParams['searchFilter']) : '';
@@ -114,37 +115,56 @@ export default async function Page(
   return <>
     <Breadcrumb />
 
-    <div className="rounded width-100 margin-bottom-100 margin-top-300 position-relative overflow-hidden" style={{ height: '350px' }}>
-      <AttributedImage src="/images/solar.jpg" alt="" sizes="(max-width: 1250px) 100vw, 1250px">
-        <div className="flex gap-100 flex-wrap-wrap align-items-flex-end justify-content-space-between padding-100 width-100">
-          <div>
-            <h1 className="margin-block-25" data-testid="home-title">{t("pages:home.title")}</h1>
-            <AttributeText
-              author={"Markus Spiske"}
-              authorLink="https://unsplash.com/@markusspiske?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash"
-              source={"Unsplash"}
-              sourceLink="https://unsplash.com/photos/white-and-blue-solar-panels-pwFr_1SUXRo?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" />
+    <main>
+      <div className="rounded width-100 margin-bottom-100 margin-top-300 position-relative overflow-hidden" style={{ height: '350px' }}>
+        <AttributedImage src="/images/solar.jpg" alt="" sizes="(max-width: 1250px) 100vw, 1250px">
+          <div className="flex gap-100 flex-wrap-wrap align-items-flex-end justify-content-space-between padding-100 width-100">
+            <div>
+              <h1 className="margin-block-25" data-testid="home-title">{t("pages:home.title")}</h1>
+              <AttributeText
+                author={"Markus Spiske"}
+                authorLink="https://unsplash.com/@markusspiske?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash"
+                source={"Unsplash"}
+                sourceLink="https://unsplash.com/photos/white-and-blue-solar-panels-pwFr_1SUXRo?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" />
+            </div>
+            { // Link to create roadmap form if logged in
+              session.user &&
+              <>
+                <Link href="/metaRoadmap/create" className="button purewhite round block">{t("pages:home.create_roadmap")}</Link>
+              </>
+            }
           </div>
-          { // Link to create roadmap form if logged in
-            session.user &&
-            <>
-              <Link href="/metaRoadmap/create" className="button purewhite round block">{t("pages:home.create_roadmap")}</Link>
-            </>
-          }
+        </AttributedImage>
+      </div>
+
+      <search className="flex flex-wrap-wrap gap-200 margin-top-300">
+        <RoadmapFilters />
+        <div className="flex-grow-infinity max-width-100">
+          <h2 id="roadmap-search-title" className="margin-top-0 margin-bottom-50">{t("pages:home.search_roadmaps", { count: metaRoadmaps.filter((metaRoadmap) => metaRoadmap.roadmapVersions.length > 0).length })}</h2>
+          <SearchRoadmaps labelledBy="roadmap-search-title" />
+          <small className="margin-bottom-200 margin-left-25 margin-top-25 block font-style-italic color-gray font-weight-normal font-size-100">
+            {t("pages:home.shown_results", { count: roadmaps.length })}
+          </small>
+          <output>
+            <RoadmapTree
+              user={session.user ?? undefined}
+              roadmaps={roadmaps}
+            />
+          </output>
         </div>
-      </AttributedImage>
-    </div>
+      </search>
+      {/*
+      <section>
+        <RoadmapFilters />
+      </section>
 
-    <section>
-      <RoadmapFilters />
-    </section>
-
-    {/* TODO: There might be some issues with displayning public roadmaps, explore this. */}
-    <section className="margin-bottom-500">
-      <RoadmapTree
-        user={session.user ?? undefined}
-        roadmaps={roadmaps}
-      />
-    </section>
+      TODO: There might be some issues with displayning public roadmaps, explore this. 
+      <section className="margin-bottom-500">
+        <RoadmapTree
+          user={session.user ?? undefined}
+          roadmaps={roadmaps}
+        />
+      </section>  */}
+    </main>
   </>
 }

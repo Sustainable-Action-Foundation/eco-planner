@@ -197,7 +197,7 @@
     "name_ascending": "Name (Z-A)",
     "name_descending": "Name (A-Z)",
     "search_roadmaps": "Search $t(common:roadmap_series_one)",
-    "sort_by": "Sort by:"
+    "sort_by": "Sort by"
   },
   "roadmap_series_one_deleter": {
     "remove_metadata": "Remove metadata"

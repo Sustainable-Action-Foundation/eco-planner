@@ -82,7 +82,9 @@
   },
   "home": {
     "title": "{{$t(common:roadmap_short_other), titleCase}}",
-    "create_roadmap": "$t(common:new.roadmap_series)"
+    "create_roadmap": "$t(common:new.roadmap_series)",
+    "search_roadmaps": "Sök bland $t(common:count.roadmap)",
+    "shown_results": "Visar $t(common:count.roadmap)"
   },
   "info": {
     "breadcrumb": "Information",
