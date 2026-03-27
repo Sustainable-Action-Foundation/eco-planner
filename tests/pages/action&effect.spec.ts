@@ -17,46 +17,39 @@ test.describe.serial("Action & Effect tests", () => {
   let roadmapActionNameAllFields = "";
 
   test.beforeAll(async ({ browser }, testInfo) => {
-      // Define the metaRoadmap name here so it can be accessed in all later tests.
-      // Needs to be unique for each worker so different browsers running tests in parallel don't interfere with each other.
-      actionNameAllFields = `Test All Fields ${testInfo.parallelIndex}`;
-  
-      if (testInfo.retry > 0) {
-          console.log(`Retrying tests, Cleaning up any existing metaRoadmap with name ${actionNameAllFields} before retrying.`);
-  
-          const context = await browser.newContext({ storageState: adminFile });
-          const page = await context.newPage();
-  
-          await page.goto('/');
-          await page.waitForLoadState('networkidle');
-  
-          // Cleanup all name variants
-          const namesToClean = [
-              `Test All Fields ${testInfo.parallelIndex}`,
-              `Updated Test All Fields ${testInfo.parallelIndex}`,
-              `Test Required ${testInfo.parallelIndex}`,
-              `Updated Test Required ${testInfo.parallelIndex}`,
-          ];
-  
-          for (const name of namesToClean) {
-              const matchingItems = page.locator('li').filter({ hasText: name });
-              const count = await matchingItems.count();
-  
-              for (let i = 0; i < count; i++) {
-                  const firstMatch = matchingItems.first();
-                  await firstMatch.locator('svg').nth(1).click();
-                  await firstMatch.getByTestId('delete-post').click();
-                  await firstMatch.locator('input[placeholder]').fill(name);
-                  await firstMatch.locator('[type="submit"]').click();
-                  await page.waitForLoadState('networkidle');
-              }
-  
-              await expect(matchingItems).toHaveCount(0);
+    actionNameAllFields = `Test Action All Fields ${testInfo.parallelIndex}`;
+
+    if (testInfo.retry > 0) {
+      console.log(`Retrying tests, Cleaning up any existing action with name ${actionNameAllFields} before retrying.`);
+
+      const context = await browser.newContext({ storageState: adminFile });
+      const page = await context.newPage();
+
+      await page.goto('/');
+      await page.waitForLoadState('networkidle');
+
+      // Count how many matching items exist
+      const matchingItems = page.locator('li').filter({ hasText: actionNameAllFields });
+      const count = await matchingItems.count();
+
+      // Delete all matching items
+      for (let i = 0; i < count; i++) {
+        // firstmatch is the row that all the actions need to be performed on since after each deletion the next item will move up to take its place.
+        const firstMatch = matchingItems.first();
+
+        // All of these actions need to be performed on the correct row so they are using firstMatch as the base locator.
+        await firstMatch.locator('svg').nth(1).click();
+        await firstMatch.getByTestId('delete-post').click();
+        await firstMatch.locator('input[placeholder]').fill(actionNameAllFields);
+        await firstMatch.locator('[type="submit"]').click();
+
+        await page.waitForLoadState('networkidle');
       }
-  
-          await context.close();
-      }
-    });
+
+      // Verify all are gone
+      await expect(matchingItems).toHaveCount(0);
+    }
+  });
 
 
   // Action tests begin here //
@@ -84,23 +77,28 @@ test.describe.serial("Action & Effect tests", () => {
   });
 
   test("No edit Action - required", async ({ page }) => {
+    // Navigate to the action edit form
     await page.goto('/');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
     await page.getByRole('link', { name: actionNameRequiredFields }).first().click();
     await page.waitForLoadState("networkidle");
+    await page.getByRole('heading', { name: actionNameRequiredFields }).hover();
     await page.getByTestId("admin-panel-edit").click();
 
-    await page.locator('#actionName').hover();
+
+    await page.locator('#actionName').hover(); // This is needed to make sure the name field is loaded before checking its content, otherwise it will be empty and the test will fail.        
+
     await expect(page.locator('#actionName')).toHaveValue(actionNameRequiredFields);
 
     await page.locator('#submit-button').click();
+
     await expect(page.getByRole('heading', { name: actionNameRequiredFields })).toBeVisible();
   });
 
   test("Edit Action - required", async ({ page }, testInfo) => {
     actionNameRequiredFieldsUpdated = `Updated Test Action ${testInfo.parallelIndex}`;
-    // Navigate to the roadmap from home page
+    // Navigate to the action edit form
     await page.goto('/');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
@@ -136,6 +134,7 @@ test.describe.serial("Action & Effect tests", () => {
     await page.locator('#submit-button').click();
 
     await expect(page.getByRole('heading', { name: actionNameRequiredFieldsUpdated })).toBeVisible();
+
   });
 
   test("Create Action - All Fields", async ({ page }, testInfo) => {
@@ -183,7 +182,7 @@ test.describe.serial("Action & Effect tests", () => {
   });
 
   test("No edit Action - All Fields", async ({ page }) => {
-    // Navigate to the roadmap from home page
+    // Navigate to the action edit form
     await page.goto('/');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
@@ -219,7 +218,7 @@ test.describe.serial("Action & Effect tests", () => {
 
   test("Edit Action - All Fields", async ({ page }, testInfo) => {
     actionNameAllFieldsUpdated = `Updated Test Action All Fields ${testInfo.parallelIndex}`;
-    // Navigate to the roadmap from home page
+    // Navigate to the action edit form
     await page.goto('/');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
