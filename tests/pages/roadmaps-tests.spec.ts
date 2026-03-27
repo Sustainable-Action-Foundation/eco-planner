@@ -15,18 +15,12 @@ test.describe.serial("Roadmaps tests", () => {
   let metaRoadmapNameAllFieldsUpdated = "";
   let metaRoadmapNameRequiredFields = "";
   let metaRoadmapNameRequiredFieldsUpdated = "";
-  let roadmapidAllFields = "";
-  let roadmapidRequiredFields = "";
 
   // Cleanup function to delete any created metaRoadmaps so after a retry there are no duplicates. 
   test.beforeAll(async ({ browser }, testInfo) => {
-<<<<<<< Updated upstream
     // Define the metaRoadmap name here so it can be accessed in all later tests.
     // Needs to be unique for each worker so different browsers running tests in parallel don't interfere with each other.
     metaRoadmapNameAllFields = `Test All Fields ${testInfo.parallelIndex}`;
-=======
-    metaRoadmapNameAllFields = `Test ${testInfo.parallelIndex}`;
->>>>>>> Stashed changes
 
     if (testInfo.retry > 0) {
         console.log(`Retrying tests, Cleaning up any existing metaRoadmap with name ${metaRoadmapNameAllFields} before retrying.`);
@@ -37,32 +31,10 @@ test.describe.serial("Roadmaps tests", () => {
         await page.goto('/');
         await page.waitForLoadState('networkidle');
 
-        // Recover roadmap IDs before cleanup by navigating to them via name link
-        const allFieldsLink = page.getByRole('link', { name: `${metaRoadmapNameAllFields} (v1)` }).first();
-        if (await allFieldsLink.isVisible()) {
-            await allFieldsLink.click();
-            await page.waitForLoadState('networkidle');
-            const url = page.url();
-            roadmapidAllFields = url.split('/roadmap/')[1]?.split('?')[0] ?? "";
-            await page.goto('/');
-            await page.waitForLoadState('networkidle');
-        }
-
-        const requiredName = `Test Required ${testInfo.parallelIndex}`;
-        const requiredFieldsLink = page.getByRole('link', { name: `${requiredName} (v1)` }).first();
-        if (await requiredFieldsLink.isVisible()) {
-            await requiredFieldsLink.click();
-            await page.waitForLoadState('networkidle');
-            const url = page.url();
-            roadmapidRequiredFields = url.split('/roadmap/')[1]?.split('?')[0] ?? "";
-            await page.goto('/');
-            await page.waitForLoadState('networkidle');
-        }
-
         // Cleanup all name variants
         const namesToClean = [
-            `Test ${testInfo.parallelIndex}`,
-            `Updated Test ${testInfo.parallelIndex}`,
+            `Test All Fields ${testInfo.parallelIndex}`,
+            `Updated Test All Fields ${testInfo.parallelIndex}`,
             `Test Required ${testInfo.parallelIndex}`,
             `Updated Test Required ${testInfo.parallelIndex}`,
         ];
@@ -138,22 +110,13 @@ test.describe.serial("Roadmaps tests", () => {
 
     // Look for heading text
     await expect(page.getByRole('heading', { name: metaRoadmapNameAllFields })).toBeVisible();
-
-    // Save roadmap URL
-    const urlAllFields = page.url();
-    roadmapidAllFields = urlAllFields.split('/roadmap/')[1].split('?')[0];
   });
 
   test("Edit roadmap, no changes - All Fields", async ({ page }) => {
 
     await page.goto('/');
 
-<<<<<<< Updated upstream
     await page.getByRole('link', { name: `${metaRoadmapNameAllFields}` }).first().click();
-=======
-    // Find and click the roadmap link using the stored roadmap ID
-    await page.locator(`[href="/roadmap/${roadmapidAllFields}"]`).first().click();
->>>>>>> Stashed changes
 
     // Wait for roadmap page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
@@ -188,12 +151,7 @@ test.describe.serial("Roadmaps tests", () => {
 
     await page.goto('/');
 
-<<<<<<< Updated upstream
     await page.getByRole('link', { name: `${metaRoadmapNameAllFields}` }).first().click();
-=======
-    // Find and click the roadmap link using the stored roadmap ID
-    await page.locator(`[href="/roadmap/${roadmapidAllFields}"]`).first().click();
->>>>>>> Stashed changes
 
     // Go to MetaRoadmap page
     await page.getByTestId('show-roadmap-series').click();
@@ -241,12 +199,7 @@ test.describe.serial("Roadmaps tests", () => {
 
     await page.goto('/');
 
-<<<<<<< Updated upstream
     await page.getByRole('link', { name: `${metaRoadmapNameAllFields}` }).first().click();
-=======
-    // Find and click the roadmap link using the stored roadmap ID
-    await page.locator(`[href="/roadmap/${roadmapidAllFields}"]`).first().click();
->>>>>>> Stashed changes
 
     // Click the edit button
     await page.getByTestId('admin-panel-edit').click();
@@ -303,12 +256,7 @@ test.describe.serial("Roadmaps tests", () => {
 
     await page.goto('/');
 
-<<<<<<< Updated upstream
     await page.getByRole('link', { name: `${metaRoadmapNameAllFields}` }).first().click();
-=======
-    // Find and click the roadmap link using the stored roadmap ID
-    await page.locator(`[href="/roadmap/${roadmapidAllFields}"]`).first().click();
->>>>>>> Stashed changes
 
     // Go to MetaRoadmap page
     await page.getByTestId('show-roadmap-series').click();
@@ -430,22 +378,13 @@ test.describe.serial("Roadmaps tests", () => {
 
     // Look for heading text
     await expect(page.getByRole('heading', { name: metaRoadmapNameRequiredFields })).toBeVisible();
-
-    // Save roadmap URL 
-    const urlRequiredFields = page.url();
-    roadmapidRequiredFields = urlRequiredFields.split('/roadmap/')[1].split('?')[0];
   });
 
   test("Edit roadmap, no changes - Required Fields", async ({ page }) => {
 
     await page.goto('/');
 
-<<<<<<< Updated upstream
     await page.getByRole('link', { name: `${metaRoadmapNameRequiredFields}` }).first().click();
-=======
-    // Find and click the roadmap link using the stored roadmap ID
-    await page.locator(`[href="/roadmap/${roadmapidRequiredFields}"]`).first().click();
->>>>>>> Stashed changes
 
     // Click the edit button
     await page.getByTestId('admin-panel-edit').click();
@@ -474,12 +413,7 @@ test.describe.serial("Roadmaps tests", () => {
 
     await page.goto('/');
 
-<<<<<<< Updated upstream
     await page.getByRole('link', { name: `${metaRoadmapNameRequiredFields}` }).first().click();
-=======
-    // Find and click the roadmap link using the stored roadmap ID
-    await page.locator(`[href="/roadmap/${roadmapidRequiredFields}"]`).first().click();
->>>>>>> Stashed changes
 
     // Go to MetaRoadmap page
     await page.getByTestId('show-roadmap-series').click();
@@ -523,12 +457,7 @@ test.describe.serial("Roadmaps tests", () => {
 
     await page.goto('/');
 
-<<<<<<< Updated upstream
     await page.getByRole('link', { name: `${metaRoadmapNameRequiredFields}` }).first().click();
-=======
-    // Find and click the roadmap link using the stored roadmap ID
-    await page.locator(`[href="/roadmap/${roadmapidRequiredFields}"]`).first().click();
->>>>>>> Stashed changes
 
     // Click the edit button
     await page.getByTestId('admin-panel-edit').click();
@@ -586,12 +515,7 @@ test.describe.serial("Roadmaps tests", () => {
 
     await page.goto('/');
 
-<<<<<<< Updated upstream
     await page.getByRole('link', { name: `${metaRoadmapNameRequiredFields}` }).first().click();
-=======
-    // Find and click the roadmap link using the stored roadmap ID
-    await page.locator(`[href="/roadmap/${roadmapidRequiredFields}"]`).first().click();
->>>>>>> Stashed changes
 
     // Go to MetaRoadmap page
     await page.getByTestId('show-roadmap-series').click();
