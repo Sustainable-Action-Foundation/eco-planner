@@ -3,7 +3,7 @@ import { baseUrl } from "@/lib/baseUrl";
 import serveTea from "@/lib/i18nServer";
 import mailClient from "@/mailClient";
 import type { JSONValue } from "@/types";
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
   const t = await serveTea("email");

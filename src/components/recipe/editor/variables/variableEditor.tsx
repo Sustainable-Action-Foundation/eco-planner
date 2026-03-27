@@ -35,7 +35,10 @@ export default function VariableEditor({
       }
     }
 
-    fetchRoadmaps().catch(e => { throw e; });
+    fetchRoadmaps().catch((e: unknown) => {
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      console.error("Failed to fetch roadmaps", errorMessage);
+    });
   }, [t]);
 
   return (

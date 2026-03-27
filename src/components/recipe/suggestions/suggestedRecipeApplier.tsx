@@ -45,31 +45,38 @@ export function SuggestedRecipeApplier({
     async function fetchRoadmaps() {
       try {
         const roadmaps = await clientSafeGetRoadmaps();
-        setAvailableRoadmaps(roadmaps.map(roadmap => ({ id: roadmap.id, name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version }) })));
+        setAvailableRoadmaps(roadmaps.map(roadmap => ({
+          id: roadmap.id,
+          name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version })
+        })));
       }
       catch (e) {
         console.error("Failed to fetch roadmaps", e);
       }
     }
 
-    fetchRoadmaps().catch(e => { throw e; });
+    fetchRoadmaps()
+      .catch((e: unknown) => {
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        console.error("Failed to fetch roadmaps", errorMessage);
+      });
   }, [t]);
 
   // Validate suggested recipe structures
   useEffect(() => {
     // async function validateAll() {
-      for (const dbRecipe of suggestedRecipes) {
-        const recipe = SmartRecipe.fromObject(dbRecipe.recipe);
-        if (!isSmartRecipe(recipe)) {
-          console.warn("Invalid recipe in suggestions", dbRecipe);
-          return;
-        }
-        // Disabled since this checks ALL suggested recipes EVERY TIME SOMEONE OPENS THE PAGE containing this component, not even just when they actually open the related modal
-        // const validity = await recipe.checkValidity();
-        // if (!validity.good) {
-        //   console.warn("Invalid recipe in suggestions", dbRecipe, validity.error, validity.warnings);
-        // }
+    for (const dbRecipe of suggestedRecipes) {
+      const recipe = SmartRecipe.fromObject(dbRecipe.recipe);
+      if (!isSmartRecipe(recipe)) {
+        console.warn("Invalid recipe in suggestions", dbRecipe);
+        return;
       }
+      // Disabled since this checks ALL suggested recipes EVERY TIME SOMEONE OPENS THE PAGE containing this component, not even just when they actually open the related modal
+      // const validity = await recipe.checkValidity();
+      // if (!validity.good) {
+      //   console.warn("Invalid recipe in suggestions", dbRecipe, validity.error, validity.warnings);
+      // }
+    }
     // }
     // validateAll().catch(e => { throw e; });
   }, [suggestedRecipes]);
@@ -86,15 +93,12 @@ export function SuggestedRecipeApplier({
       return;
     }
 
-    try {
-      setSmartRecipe(SmartRecipe.fromObject(selectedSuggestion.recipe))
-        .catch(e => { throw e; });
-    }
-    catch (e) {
-      console.error("Failed to parse suggested recipe", e);
-      clearRecipe();
-      return;
-    }
+    setSmartRecipe(SmartRecipe.fromObject(selectedSuggestion.recipe))
+      .catch((e: unknown) => {
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        console.error("Failed to set smart recipe from suggestion", errorMessage);
+        clearRecipe();
+      });
   };
 
   return (<>

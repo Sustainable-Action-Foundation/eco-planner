@@ -104,7 +104,7 @@
     "change_historical_data": "Change historical data",
     "data_source": "Data source",
     "does_this_look_correct_one": "Does this look correct? (showing max {{count}} value)",
-    "does_this_look_correct_other": "Does this look correct? (showing max {{count}} values))",
+    "does_this_look_correct_other": "Does this look correct? (showing max {{count}} values)",
     "language_support_warning": "{{dataSource}} does not support your current language. A fallback language will be used.",
     "loading": "Loading...",
     "no_result_found": "No readable result found. Please update your selections.",

@@ -67,16 +67,21 @@ function TabList({ props, children }: { props?: GenericElement, children: React.
     (child): child is React.ReactElement<TabPanelProps> =>
       isForwardRefWithDisplayName<TabPanelProps>(child, "TabPanel")
   )
-  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const tabListRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     if (activeIndex === null) return
-    tabRefs.current[activeIndex]?.focus()
-  }, [activeIndex, tabRefs])
+    const tabListElement = tabListRef.current
+    if (!tabListElement) return
+
+    const tabElements = tabListElement.querySelectorAll<HTMLButtonElement>("[role='tab']")
+    tabElements[activeIndex]?.focus()
+  }, [activeIndex])
 
   return (
     <div>
       <div
+        ref={tabListRef}
         className={props?.className}
         style={props?.style}
         role="tablist"
@@ -123,9 +128,6 @@ function TabList({ props, children }: { props?: GenericElement, children: React.
                 : false,
             onClick: () => setActiveIndex(index),
             key: index,
-            ref: (el: HTMLButtonElement | null) => {
-              tabRefs.current[index] = el
-            },
           })
         )}
       </div>

@@ -2,14 +2,14 @@
 
 import styles from './controls.module.css' with { type: "css" }
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { AccessLevel } from "@/types";
 import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
 import { useTranslation } from "react-i18next";
 import { IconArrowBackUp, IconChartHistogram, IconDotsVertical, IconEdit, IconPlus, IconStar, IconStarFilled, IconTrashXFilled, IconX } from "@tabler/icons-react";
 import { hasEditAccess } from '@/lib/accessChecker';
-import { TFunction } from 'i18next';
+import type { TFunction } from 'i18next';
 import type { Action, Effect, Goal, GoalUpdateInput, MetaRoadmap, Roadmap } from "@/types";
 import formSubmitter from '@/functions/formSubmitter';
 
@@ -115,9 +115,7 @@ function buildLinks(
     historicalDataLink = `/goal/${object.id}/historical-data`;
     deleteLink = "/api/goal";
 
-    if (!object.name) {
-      object.name = object.indicatorParameter;
-    }
+    object.name ||= object.indicatorParameter;
   }
 
   // Actions
@@ -139,17 +137,13 @@ function buildLinks(
     editLink = `/effect/edit?actionId=${object.actionId}&goalId=${object.goalId}`;
     deleteLink = "/api/effect";
 
-    if (!object.name) {
-      object.name = object.action?.name
-        ? t("components:table_menu.effect_from_action", { source: object.action.name })
-        : object.goal
-          ? (object.goal.name || object.goal.indicatorParameter)
-          : t("components:table_menu.effect_missing_name");
-    }
+    object.name ||= object.action?.name
+      ? t("components:table_menu.effect_from_action", { source: object.action.name })
+      : object.goal
+        ? (object.goal.name ?? object.goal.indicatorParameter)
+        : t("components:table_menu.effect_missing_name");
 
-    if (!object.id) {
-      object.id = { actionId: object.actionId, goalId: object.goalId };
-    }
+    object.id ??= { actionId: object.actionId, goalId: object.goalId };
   }
 
   else {
@@ -237,7 +231,7 @@ export function ControlsMenu(
     <>
       <div className={`${styles.actionButton} display-flex`}>
         <button type="button" onClick={openMenu} className={styles.button} aria-label={t("components:table_menu.button_aria", { component: objectName || metaRoadmapName || t("components:table_menu.button_aria_alt") })}> {/* TODO: Remove this aria if we pass buttontext */}
-          {buttonText ? buttonText : null}
+          {buttonText || null}
           <IconDotsVertical aria-hidden="true" width={width} height={height} />
         </button>
         <dialog className={styles.menu} id={`${typeof object.id === "string" ? object.id : object.id?.actionId + "-" + object.id?.goalId}-menu`} onBlur={closeMenu} ref={menu} onKeyUp={closeMenu}>
@@ -323,7 +317,7 @@ export function AdminPanel(
   const deletionRef = useRef<HTMLDialogElement | null>(null);
   const objectName = getObjectName(object);
   const metaRoadmapName = getMetaRoadmapName(object);
-  const timestamp = useMemo(() => Date.now(), []);
+  const [timestamp] = useState(() => Date.now());
 
   const formContent = {
     goalId: (object as Goal).id,

@@ -9,7 +9,7 @@ import type { ApiTableContent } from "@/lib/api/apiTypes";
 import GraphGraph from "./main/container";
 import styles from './goal.module.css'
 import { useTranslation } from "react-i18next";
-import { LoginData } from "@/lib/session";
+import type { LoginData } from "@/lib/session";
 
 // TODO: Rename file and component
 // TODO: Shared styling for goal graphs

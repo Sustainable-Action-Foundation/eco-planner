@@ -10,7 +10,7 @@ import VectorPickerSelect from "./vectorPickerSelect";
 import React, { useCallback, useEffect, useState } from "react";
 import type { InputElement, TreeItem } from "@/components/types";
 import SelectSingleTreeSearch from "@/components/form/elements/combobox/selectSingleTreeSearch";
-import { RecipeContextType } from "@/components/recipe/context/recipeContext.internal";
+import type { RecipeContextType } from "@/components/recipe/context/recipeContext.internal";
 import { clientSafeGetOneRoadmap, clientSafeGetOneDataSeries } from "@/fetchers/client";
 
 function useRoadmapTreeItems(availableRoadmaps: { id: string; name: string; }[]) {
@@ -25,7 +25,7 @@ function useRoadmapTreeItems(availableRoadmaps: { id: string; name: string; }[])
         const data = await clientSafeGetOneRoadmap(roadmap.id);
         if (!data) return [];
         return data.goals.map((goal) => ({
-          name: goal.name ? goal.name : goal.indicatorParameter,
+          name: !!goal.name ? goal.name : goal.indicatorParameter,
           value: goal.dataSeries ? goal.dataSeries.id : '',
           expanded: null,
         }));
@@ -66,7 +66,10 @@ export function useHandleDataSeriesChange(
           console.warn("Failed to fetch data series unit for selection", selectedDataSeriesLink.value, e);
         }
       })()
-        .catch(e => { console.error(e); });
+        .catch((e: unknown) => {
+          const errorMessage = e instanceof Error ? e.message : String(e);
+          console.error("Failed to fetch data series for selection", selectedDataSeriesLink.value, errorMessage);
+        });
     },
     [variableName, setVariable]
   );

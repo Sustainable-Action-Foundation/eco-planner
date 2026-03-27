@@ -43,7 +43,7 @@ export default function RoadmapFilters() {
   }
 
   return <>
-    <menu className="margin-0 flex-grow-100 smooth padding-50" style={{height: 'fit-content', flexBasis: '30ch', border: '1px solid var(--gray-90)', backgroundColor: 'var(--gray-95)'}}> {/* TODO: Place this in a details tag */}
+    <menu className="margin-0 flex-grow-100 smooth padding-50" style={{ height: 'fit-content', flexBasis: '30ch', border: '1px solid var(--gray-90)', backgroundColor: 'var(--gray-95)' }}> {/* TODO: Place this in a details tag */}
       <label>
         {t("components:roadmap_filters.sort_by")}
         <select
@@ -70,12 +70,12 @@ export default function RoadmapFilters() {
                 // setTypeFilter(typeFilter.filter((item) => item != e.target.value))
               }
             }} />
-            {`${thisType == RoadmapType.NATIONAL ? t("common:scope.national") :
-              thisType == RoadmapType.REGIONAL ? t("common:scope.regional") :
-                thisType == RoadmapType.MUNICIPAL ? t("common:scope.municipal") :
-                  thisType == RoadmapType.LOCAL ? t("common:scope.local") :
-                    thisType == RoadmapType.ORGANIZATIONAL ? t("common:scope.organizational_roadmap") :
-                      thisType == RoadmapType.OTHER ? t("common:scope.other") :
+            {`${thisType === RoadmapType.NATIONAL ? t("common:scope.national") :
+              thisType === RoadmapType.REGIONAL ? t("common:scope.regional") :
+                thisType === RoadmapType.MUNICIPAL ? t("common:scope.municipal") :
+                  thisType === RoadmapType.LOCAL ? t("common:scope.local") :
+                    thisType === RoadmapType.ORGANIZATIONAL ? t("common:scope.organizational_roadmap") :
+                      thisType === RoadmapType.OTHER ? t("common:scope.other") :
                         thisType
               }`}
           </label>

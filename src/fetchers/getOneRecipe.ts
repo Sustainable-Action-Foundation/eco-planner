@@ -1,5 +1,6 @@
 import "server-only";
-import { getSession, LoginData } from "@/lib/session"
+import type { LoginData } from "@/lib/session";
+import { getSession } from "@/lib/session"
 import prisma from "@/prismaClient";
 import { cookies } from "next/headers";
 import type { DBRecipe } from "@/types";
@@ -27,7 +28,7 @@ async function getCachedRecipe(id: string, user: LoginData['user']): Promise<DBR
   'use cache';
   cacheTag('database', 'recipe', 'dataSeries');
 
-  let recipe: DBRecipe | null = null;
+  let recipe: DBRecipe | null;
 
   // If user is admin, always get the recipe
   if (user?.isAdmin) {

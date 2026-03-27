@@ -1,6 +1,7 @@
 import "server-only";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
-import { getSession, LoginData } from "@/lib/session"
+import type { LoginData } from "@/lib/session";
+import { getSession } from "@/lib/session"
 import { effectSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
 import { unstable_cache } from "next/cache";
@@ -27,7 +28,7 @@ export async function getOneGoal(id: string): Promise<Goal | null> {
  */
 const getCachedGoal = unstable_cache(
   async (id: string, user: LoginData['user']): Promise<Goal | null> => {
-    let goal: Goal | null = null;
+    let goal: Goal | null;
 
     // If user is admin, always get the goal
     if (user?.isAdmin) {

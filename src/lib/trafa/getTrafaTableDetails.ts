@@ -59,32 +59,32 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
     const returnItem: TrafaMetric | TrafaHierarchy | TrafaVariable | TrafaVariableValue | TrafaFilter = {} as TrafaMetric | TrafaHierarchy | TrafaVariable | TrafaVariableValue | TrafaFilter;
 
     // Assign values depending on item type
-    if (tableDetailType == "M") {
+    if (tableDetailType === "M") {
       returnItem.type = "metric";
-      if (structureItem.DataType == "Time" || structureItem.DataType == "Region") {
+      if (structureItem.DataType === "Time" || structureItem.DataType === "Region") {
         logNotSupportedDataType(returnItem.type, structureItem);
       }
-      else if (structureItem.DataType == "String") { }
-    } else if (tableDetailType == "H") {
+      else if (structureItem.DataType === "String") { }
+    } else if (tableDetailType === "H") {
       (returnItem as TrafaHierarchy).children = [];
       returnItem.type = "hierarchy";
-      if (structureItem.DataType == "Time") {
+      if (structureItem.DataType === "Time") {
         logNotSupportedDataType(returnItem.type, structureItem);
       }
-    } else if (tableDetailType == "D" && structureItem.DataType != "Time") {
+    } else if (tableDetailType === "D" && structureItem.DataType !== "Time") {
       (returnItem as TrafaVariable).values = [];
       (returnItem as TrafaVariable).optional = true;
       returnItem.type = "variable";
-    } else if (tableDetailType == "D" && structureItem.DataType == "Time") {
+    } else if (tableDetailType === "D" && structureItem.DataType === "Time") {
       returnItem.type = "time";
-    } else if (tableDetailType == "DV") {
+    } else if (tableDetailType === "DV") {
       returnItem.type = "variableValue";
-      if (structureItem.DataType == "Time" || structureItem.DataType == "Region") {
+      if (structureItem.DataType === "Time" || structureItem.DataType === "Region") {
         logNotSupportedDataType(returnItem.type, structureItem);
       }
-    } else if (tableDetailType == "F") {
+    } else if (tableDetailType === "F") {
       returnItem.type = "filter";
-      if (structureItem.DataType == "Time" || structureItem.DataType == "Region") {
+      if (structureItem.DataType === "Time" || structureItem.DataType === "Region") {
         logNotSupportedDataType(returnItem.type, structureItem);
       }
     }
@@ -135,16 +135,16 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
     const pushItem = structureItemToTrafaTableDetailItem(item, item.Type);
 
     try {
-      if (item.Type == "M") {
+      if (item.Type === "M") {
         tableDetails.metrics.push((pushItem as TrafaMetric));
       }
-      if (item.Type == "H") {
+      if (item.Type === "H") {
         tableDetails.hierarchies?.push((pushItem as TrafaHierarchy));
       }
-      if (item.Type == "D" && item.DataType != "Time") {
+      if (item.Type === "D" && item.DataType !== "Time") {
         tableDetails.variables.push((pushItem as TrafaVariable));
       }
-      if (item.Type == "D" && item.DataType == "Time") {
+      if (item.Type === "D" && item.DataType === "Time") {
         tableDetails.times.push((pushItem as TrafaVariable));
       }
     } catch (error) {

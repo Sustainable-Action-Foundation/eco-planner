@@ -1,7 +1,7 @@
 import type { DataSeries, DateValues, DateValuesWithUnit, Goal, ISOIshDate, Mask, MaskedVector, UnitString } from "@/types";
 import { isISOIshDate } from "@/types";
 import { RecipeError, VectorIndexPickerOptions } from "@/functions/recipe/types";
-import { Unit } from "mathjs";
+import type { Unit } from "mathjs";
 import mathjs from "@/math";
 
 export function pickDateValues(
@@ -263,7 +263,7 @@ export function ANDMasks(masks: Mask[]): Mask {
 }
 
 export function dataSeriesToDateValues(dataSeries: DataSeries | Goal["dataSeries"]): DateValuesWithUnit {
-  if (!dataSeries || !dataSeries.values) {
+  if (!dataSeries?.values) {
     throw new RecipeError("DataSeriesToDateValues: Goal data series is missing or does not contain values.");
   }
 

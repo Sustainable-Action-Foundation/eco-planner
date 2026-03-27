@@ -8,7 +8,7 @@ import prisma from "@/prismaClient";
 import { ClientError, isDateValues } from "@/types";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
   const [session, requestJson] = await Promise.all([
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
   ]);
 
   // Validate request
-  if (!requestJson || !requestJson.dataSeriesId) {
+  if (!requestJson?.dataSeriesId) {
     return Response.json({ message: 'Missing required input parameters' },
       { status: 400 }
     );
@@ -118,10 +118,11 @@ export async function POST(request: NextRequest) {
     const recipe = SmartRecipe.fromObject(dbRecipe.recipe);
     const warnings: string[] = [];
     const evaluationResult = await recipe.evaluate(warnings)
-      .catch((e) => {
+      .catch((e: unknown) => {
+        const errorMessage = e instanceof Error ? e.message : String(e);
         console.log(`Error evaluating recipe ${dbRecipe.id} for data series ${requestJson.dataSeriesId}:`, e);
         if (e instanceof Error) {
-          throw new RecipeError(`Failed to evaluate recipe: ${e.message}`);
+          throw new RecipeError(`Failed to evaluate recipe: ${errorMessage}`);
         }
         else {
           throw new RecipeError('Failed to evaluate recipe due to an unknown error.');
@@ -174,13 +175,13 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message == ClientError.BadSession) {
+      if (error.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } }
         );
-      } else if (error.message == ClientError.AccessDenied) {
+      } else if (error.message === ClientError.AccessDenied) {
         return Response.json({ message: ClientError.AccessDenied },
           { status: 403 }
         );

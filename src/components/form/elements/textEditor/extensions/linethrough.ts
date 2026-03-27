@@ -10,8 +10,9 @@ export type LineThroughOptions = {
 }
 
 declare module '@tiptap/core' {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Commands<ReturnType> {
-    LineThrough: {
+    lineThrough: {
       /**
        * Toggle underline on the selected text
        * @example editor.commands.toggleUnderline()
@@ -22,7 +23,7 @@ declare module '@tiptap/core' {
 }
 
 export const LineThrough = Extension.create<LineThroughOptions>({
-  name: 'underline',
+  name: 'lineThrough',
 
   addOptions() {
     return {

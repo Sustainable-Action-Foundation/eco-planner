@@ -54,7 +54,7 @@ export default function GoalForm({
     }));
   }, [roadmapAlternatives, t]);
 
-  const timestamp = useMemo(() => Date.now(), []);
+  const [timestamp] = useState(() => Date.now());
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -190,7 +190,7 @@ export default function GoalForm({
         dataSeriesId: null,
         dataSeries: dataSeries,
         dataSeriesRecipeId: null,
-        dataSeriesRecipe: dataSeriesRecipe || null,
+        dataSeriesRecipe: dataSeriesRecipe ?? null,
 
         baselineId: baselineId,
         baseline: baseline,
@@ -391,7 +391,14 @@ export default function GoalForm({
 
         {/* External links section */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.feature_this_goal")}</legend>
+          <legend
+            // Technically incrementing here is unused but if you add a another entry after this one it will be correct
+            // eslint-disable-next-line @/no-useless-assignment
+            data-position={positionIndex++}
+            className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
+          >
+            {t("forms:goal.feature_this_goal")}
+          </legend>
           <label className="flex align-items-center gap-50 margin-bottom-100">
             <input type="checkbox" name="isFeatured" id="isFeatured" defaultChecked={currentGoal?.isFeatured} />
             {t("forms:goal.feature_goal")}

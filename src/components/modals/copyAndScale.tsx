@@ -55,7 +55,7 @@ export default function CopyAndScale({
       return;
     }
 
-    let resultingUnit: string | null = null;
+    let resultingUnit: string | null;
     try {
       const parsedUnit = JSON.parse(form.get("resultingDataSeriesUnit") as string) as JSONValue;
 

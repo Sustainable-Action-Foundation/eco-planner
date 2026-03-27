@@ -18,7 +18,8 @@ import { notFound } from "next/navigation";
 import getTableContent from "@/lib/api/getTableContent";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconAlertTriangle, IconArrowNarrowRight, IconBuildings } from "@tabler/icons-react";
-import i18nServer, { TFunction } from "i18next";
+import type { TFunction } from "i18next";
+import i18nServer from "i18next";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 import GoalGraph from "@/components/graph/graphs/goal/container";
 
@@ -130,10 +131,12 @@ export default async function Page(
   if (roadmap?.metaRoadmap.parentRoadmapId) {
     try {
       // Get the parent roadmap (if any)
-      parentGoalRoadmap = await getRoadmapByVersion(roadmap.metaRoadmap.parentRoadmapId,
-        roadmap.targetVersion ||
-        (await prisma.roadmap.aggregate({ where: { metaRoadmapId: roadmap.metaRoadmap.parentRoadmapId }, _max: { version: true } }))._max.version ||
-        0);
+      parentGoalRoadmap = await getRoadmapByVersion(
+        roadmap.metaRoadmap.parentRoadmapId,
+        (roadmap.targetVersion === null || roadmap.targetVersion === 0)
+          ? (await prisma.roadmap.aggregate({ where: { metaRoadmapId: roadmap.metaRoadmap.parentRoadmapId }, _max: { version: true } }))._max.version ?? 0
+          : roadmap.targetVersion
+      );
 
       // If there is a parent roadmap, look for a goal with the same indicator parameter in it
       if (parentGoalRoadmap) {
@@ -161,7 +164,7 @@ export default async function Page(
 
   let shouldUpdate = false;
   // If using a recipe, check all source data series if their updatedAt is newer than this data series last updated
-  if (goal.dataSeries && goal.dataSeries.recipeUsedId) {
+  if (goal.dataSeries?.recipeUsedId) {
     const sourceDataSeries = await prisma.recipe.findMany({
       where: {
         id: goal.dataSeries.recipeUsedId,
@@ -269,7 +272,7 @@ export default async function Page(
             className='margin-bottom-100 padding-bottom-50 flex justify-content-space-between align-items-center gap-100 flex-wrap-wrap'
             style={{ borderBottom: '1px solid var(--gray)' }}>
             <h2 className='margin-0 font-weight-600' style={{ fontSize: '1.1rem' }}>
-              {t("pages:goal.actions_for_goal", { goalName: goal.name ? goal.name : goal.indicatorParameter })}
+              {t("pages:goal.actions_for_goal", { goalName: !!goal.name ? goal.name : goal.indicatorParameter })}
             </h2>
 
             {hasEditAccess(accessLevel) &&
@@ -293,8 +296,8 @@ export default async function Page(
           {/* TODO: rename to EffectsList? */}
           <EffectTable object={goal} accessLevel={accessLevel} />
 
-          {goal.effects.some(effect => effect.action.startYear || effect.action.endYear) &&
-            <>
+          {goal.effects.some(effect => effect.action.startYear !== null || effect.action.endYear !== null)
+            && <>
               <h3 className="margin-top-500 font-weight-500">
                 {t("pages:goal.action_timeline")}
               </h3>

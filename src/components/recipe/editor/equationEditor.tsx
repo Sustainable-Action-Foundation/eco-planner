@@ -55,7 +55,7 @@ export default function EquationEditor() {
         style={{ backgroundColor: 'var(--gray-95)', borderLeft: '1px solid var(--gray-90)' }}
         aria-activedescendant={focusedIndex !== null ? `variable-menu-menuitem-${focusedIndex}` : ''}
         onKeyDown={(e: React.KeyboardEvent<HTMLUListElement>) => { // TODO: This is not working, try and structure stuff before tackling this. That way we can probably abstract the combobox functions and reuse some stuff
-          if (e.key == "arrowDown") {
+          if (e.key === "arrowDown") {
             console.log(focusedIndex)
             if (focusedIndex !== null) {
               setFocusedIndex(focusedIndex + 1)

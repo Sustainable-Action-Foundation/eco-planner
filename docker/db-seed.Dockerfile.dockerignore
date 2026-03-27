@@ -5,8 +5,9 @@
 !src/fetchers/
 !src/functions/
 !src/lib/
-!src/scripts/
 !src/types/
+!scripts/lib/
+!scripts/prisma/
 
 !package.json
 !prisma.config.ts

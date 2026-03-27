@@ -2,11 +2,25 @@
 
 import { useTranslation } from "react-i18next";
 import React, { useEffect, useRef, useState, useMemo } from 'react';
-import { Editor } from "@tiptap/core";
+import type { Editor } from "@tiptap/core";
 import styles from './textEditor.module.css' with { type: "css" }
 import { BulletList, Link, NumberedList, Highlight, Subscript, Superscript, Underline, StrikeThrough, Bold, Italic, GreyText, FontSize, Redo, Undo } from "./menuItems";
 import { handleKeyDownMenuBar } from "./functions";
 import { IconDotsVertical } from "@tabler/icons-react";
+
+function arraysEqual(a: number[] | undefined, b: number[]): boolean {
+  if (a?.length !== b.length) {
+    return false;
+  }
+
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) {
+      return false;
+    }
+  }
+
+  return true;
+}
 
 export default function TextEditorMenu({
   editor,
@@ -75,7 +89,7 @@ export default function TextEditorMenu({
     <li role='presentation' data-menu-group={5} key="numberedlist" >
       <NumberedList editor={editor} setFocusedMenubarItem={setFocusedMenubarItem} t={t} menuGroup={5} />
     </li>
-  ], [editor, editorId, editor.state, t]); // TODO: Should not include editor.state here, its a temporary fix
+  ], [editor, editorId, t]);
 
   // Get a ref of all menu items in our menubar
   useEffect(() => {
@@ -106,7 +120,7 @@ export default function TextEditorMenu({
     }
   }, [submenuVisible])
 
-  // Set focus to a submenubar item when navigating using keyboard arrows
+  // Set focus to a submenu bar item when navigating using keyboard arrows
   useEffect(() => {
     if (!submenuItemsRef.current) return;
     if (focusedSubmenuItem !== null) {
@@ -171,7 +185,7 @@ export default function TextEditorMenu({
     const calculatedVisibleGroups: number[] = [];
     const calculatedHiddenGroups: number[] = [];
 
-    menuItemsList.map((menuItem) => {
+    menuItemsList.forEach((menuItem) => {
       if (menuBarWidth < breakpointsRef.current[menuItem.props["data-menu-group"]]) {
         if (!calculatedHiddenGroups.includes(menuItem.props["data-menu-group"])) {
           calculatedHiddenGroups.push(menuItem.props["data-menu-group"])
@@ -183,10 +197,15 @@ export default function TextEditorMenu({
       }
     })
 
-    setVisibleGroups(calculatedVisibleGroups)
-    setHiddenGroups(calculatedHiddenGroups)
+    if (!arraysEqual(visibleGroups, calculatedVisibleGroups)) {
+      setVisibleGroups(calculatedVisibleGroups)
+    }
 
-  }, [menuBarWidth, menuItemsList])
+    if (!arraysEqual(hiddenGroups, calculatedHiddenGroups)) {
+      setHiddenGroups(calculatedHiddenGroups)
+    }
+
+  }, [menuBarWidth, menuItemsList, visibleGroups, hiddenGroups])
 
   if (!editor) {
     return null
@@ -245,7 +264,7 @@ export default function TextEditorMenu({
                 setFocusedSubmenuItem(null)
                 setSubmenuVisible(false)
               }
-              if (e.key === 'ArrowDown' || e.key == 'ArrowUp') {
+              if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
                 if (!submenuItemsRef.current) return
                 e.preventDefault()
                 if (!submenuVisible) { setSubmenuVisible(true) }
@@ -254,7 +273,7 @@ export default function TextEditorMenu({
             }}
             role='menuitem'
             aria-haspopup="menu"
-            aria-checked={submenuVisible} 
+            aria-expanded={submenuVisible}
             aria-label={t("common:tsx.expand")}
             data-tooltip={t("common:tsx.expand")}
           >

@@ -6,10 +6,11 @@ import Link from "next/link";
 import { ControlsMenu } from "../elements/controls/controls";
 import { useTranslation } from "react-i18next";
 import styles from "@/components/tables/tables.module.css" with { type: "css" };
-import { IconCaretRightFilled, ReactNode } from "@tabler/icons-react";
+import type { ReactNode } from "@tabler/icons-react";
+import { IconCaretRightFilled } from "@tabler/icons-react";
 import { hasEditAccess } from "@/lib/accessChecker";
 
-interface EffectTableCommonProps {
+type EffectTableCommonProps = {
   accessLevel?: AccessLevel;
   object: Action | Goal;
 };
@@ -33,9 +34,9 @@ export default function EffectTable({
           hasEditAccess(accessLevel ?? AccessLevel.None)
           && <span> {t("components:effects_table.wanna_create_effect")}&nbsp;
             <Link
-              href={(object as Goal).indicatorParameter != undefined
+              href={(object as Goal).indicatorParameter !== undefined
                 ? `/effect/create?goalId=${object.id}`
-                : (object as Action).isSufficiency != undefined
+                : (object as Action).isSufficiency !== undefined
                   ? `/effect/create?actionId=${object.id}`
                   : '/effect/create'}
             >
@@ -60,7 +61,7 @@ export default function EffectTable({
             <div className='flex justify-content-space-between align-items-center width-100'>
               <IconCaretRightFilled fill="lightgray" aria-hidden="true" className="margin-inline-25 padding-25" style={{ minWidth: '24px' }} />
               <Link
-                href={(object as Action).isSufficiency != undefined
+                href={(object as Action).isSufficiency !== undefined
                   ? `/goal/${effect.goalId}`
                   : `/action/${effect.actionId}`
                 }

@@ -1,4 +1,5 @@
-import { isNull, Unit } from "mathjs";
+import type { Unit } from "mathjs";
+import { isNull } from "mathjs";
 import type { EvalTimeVariable } from "./types";
 import mathjs from "@/math";
 

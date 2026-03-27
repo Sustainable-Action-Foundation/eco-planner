@@ -10,7 +10,7 @@ export default async function getTables(externalDataset: string | undefined, que
   if (dataset?.api === "PxWeb") {
     return (await getPxWebTables(externalDataset, query ?? undefined, locale))?.filter((table) => table != null) ?? null;
   } else if (dataset?.api === "Trafa") {
-    return (await getTrafaTables(query?.length == 0 ? null : query, locale))?.filter((table) => table != null) ?? null;
+    return (await getTrafaTables(query?.length === 0 ? null : query, locale))?.filter((table) => table != null) ?? null;
   } else {
     return null; // Unsupported dataset API
   }

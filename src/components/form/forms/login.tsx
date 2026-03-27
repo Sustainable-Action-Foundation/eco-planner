@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import styles from '../forms.module.css'
 import { useTranslation } from "react-i18next";
-import { TFunction } from "i18next";
+import type { TFunction } from "i18next";
 import { IconEye, IconEyeOff, IconLock, IconUser } from "@tabler/icons-react";
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction) {

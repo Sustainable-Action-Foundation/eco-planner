@@ -1,12 +1,12 @@
 import "server-only";
-import { LoginData } from '@/lib/session';
+import type { LoginData } from '@/lib/session';
 import styles from '@/components/tables/tables.module.css' with { type: "css" };
 import { ControlsMenu } from '@/components/elements/controls/controls';
 import type { MetaRoadmap, Roadmap } from '@/types';
 import accessChecker from '@/lib/accessChecker';
 import serveTea from "@/lib/i18nServer";
 import Link from 'next/link';
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 export default async function RoadmapTable({
   user,

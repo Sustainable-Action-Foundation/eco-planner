@@ -1,4 +1,5 @@
-import { create, all, Unit, UnitDefinition } from 'mathjs';
+import type { UnitDefinition } from 'mathjs';
+import { create, all, Unit } from 'mathjs';
 
 const mathjs = create(all);
 

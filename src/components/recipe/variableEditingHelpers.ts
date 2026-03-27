@@ -1,9 +1,10 @@
 import "client-only";
 import { emptyRecipeDataSeries, emptyRecipesByDataType, isRecipeExternalDatasetSelection, RecipeDataTypes } from "@/functions/recipe/types";
 import type { RecipeVariable } from "@/functions/recipe/types";
-import { DatasetKeys, ExternalDataset } from "@/lib/api/utility";
+import type { DatasetKeys} from "@/lib/api/utility";
+import { ExternalDataset } from "@/lib/api/utility";
 import type { JSONValue } from "@/types";
-import { RecipeContextType } from "./context/recipeContext.internal";
+import type { RecipeContextType } from "./context/recipeContext.internal";
 
 export function updateVariableName(currentVariableName: string, newVariableName: string, setter: RecipeContextType["setVariables"]) {
   if (!newVariableName || currentVariableName === newVariableName) {
@@ -48,7 +49,7 @@ export function updateVariableType(variableName: string, newType: string, setter
     }
 
     const newVar = { ...emptyRecipesByDataType[newType as RecipeDataTypes] } as RecipeVariable;
-    if (!newVar || !newVar.type || Object.keys(newVar).length === 0) {
+    if (!newVar?.type || Object.keys(newVar).length === 0) {
       console.warn(`No empty variable defined for data type '${newType}'`);
       return prev; // Do not update if no empty variable is defined
     }

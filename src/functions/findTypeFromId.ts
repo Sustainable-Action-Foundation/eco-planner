@@ -1,6 +1,6 @@
 import prisma from "@/prismaClient";
 
-export default async function findTypeFromId(id: string): Promise<string> {
+export default async function findTypeFromId(id: string): Promise<"action" | "goal" | "roadmap" | undefined> {
   const [action, goal, roadmap] = await Promise.all([
     prisma.action.findUnique({
       where: {
@@ -17,14 +17,10 @@ export default async function findTypeFromId(id: string): Promise<string> {
         id: id
       }
     }),
-  ])
-  if (action) {
-    return "action"
-  } else if (goal) {
-    return "goal"
-  } else if (roadmap) {
-    return "roadmap"
-  } else {
-    throw new Error("No object found with given id")
-  }
+  ]);
+  if (action) return "action";
+  if (goal) return "goal";
+  if (roadmap) return "roadmap";
+  return undefined;
+
 }
