@@ -187,10 +187,18 @@ button[type="submit"]:disabled {
   border: 1px solid var(--gray-80);
   text-decoration: none;
   padding: .3rem .6rem;
-
 }
 
-.neutral-action:hover {
+.secondary-neutral-action {
+  color: #191919;
+  background-color: #f3f6ff;
+  border: 1px solid var(--gray-80);
+  text-decoration: none;
+  padding: .3rem .6rem;
+} 
+
+.neutral-action:hover,
+.secondary-neutral-action:hover {
   border-color: var(--blue-40);
   background-color: hsl(223.12deg 100% 93%);
 }

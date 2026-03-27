@@ -1,5 +1,9 @@
 /* custom (not yet added to semantic style sheets= */
 
+.user-select-none {
+  user-select: none;
+}
+
 .list-style-none {
   list-style: none;
 }
@@ -165,12 +169,24 @@
   font-size: 1rem;
 }
 
+.font-size-125 {
+  font-size: 1.25rem;
+}
+
+.font-size-150 {
+  font-size: 1.5rem;
+}
+
 .opacity-0 {
   opacity: 0;
 }
 
 .text-transform-capitalize {
   text-transform: capitalize;
+}
+
+.text-transform-lowercase {
+  text-transform: lowercase;
 }
 
 .place-items-center {
