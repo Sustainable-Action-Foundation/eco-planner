@@ -1,7 +1,8 @@
 import "client-only";
-import { emptyRecipeDataSeries, emptyRecipesByDataType, isRecipeExternalDatasetSelection, RecipeDataTypes, RecipeVariable } from "@/functions/recipe/types";
+import { emptyRecipeDataSeries, emptyRecipesByDataType, isRecipeExternalDatasetSelection, RecipeDataTypes } from "@/functions/recipe/types";
+import type { RecipeVariable } from "@/functions/recipe/types";
 import { DatasetKeys, ExternalDataset } from "@/lib/api/utility";
-import { JSONValue } from "@/types";
+import type { JSONValue } from "@/types";
 import { RecipeContextType } from "./context/recipeContext.internal";
 
 export function updateVariableName(currentVariableName: string, newVariableName: string, setter: RecipeContextType["setVariables"]) {

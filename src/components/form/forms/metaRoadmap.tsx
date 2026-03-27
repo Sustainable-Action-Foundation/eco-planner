@@ -2,7 +2,7 @@
 
 import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" with { type: "json" }
 import { LoginData } from "@/lib/session";
-import { AccessControlled, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
+import type { AccessControlled, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
 import { MetaRoadmap, RoadmapType } from "@prisma/client";
 import { useRef, useState } from "react";
 import formSubmitter from "@/functions/formSubmitter";

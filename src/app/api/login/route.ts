@@ -3,7 +3,7 @@ import { getSession, options } from "@/lib/session"
 import prisma from "@/prismaClient";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
-import { JSONValue } from "@/types";
+import type { JSONValue } from "@/types";
 
 export async function POST(request: NextRequest) {
   const data = await request.json() as JSONValue;

@@ -5,7 +5,7 @@ import { getSession, LoginData } from "@/lib/session"
 import prisma from "@/prismaClient";
 import { cookies } from "next/headers";
 import { unstable_cacheTag as cacheTag } from 'next/cache'
-import { ClientGoal } from "@/types";
+import type { ClientGoal } from "@/types";
 
 /**
  * A function similar to `getOneGoal`, but excluding potentially sensitive data.

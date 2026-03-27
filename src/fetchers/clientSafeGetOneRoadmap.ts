@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 import { getSession, LoginData } from "@/lib/session";
 import { goalSorter } from "@/lib/sorters";
 import { unstable_cacheTag as cacheTag } from 'next/cache'
-import { ClientRoadmap } from "@/types";
+import type { ClientRoadmap } from "@/types";
 
 /**
  * A function similar to `getOneRoadmap`, but excluding potentially sensitive data.

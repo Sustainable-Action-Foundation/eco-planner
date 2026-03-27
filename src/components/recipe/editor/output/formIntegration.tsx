@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { useRecipe } from "../../context/recipeContext.use";
-import { DateValuesWithUnit } from "@/types";
+import type { DateValuesWithUnit } from "@/types";
 
 /** 
  * ## What is this?

@@ -2,7 +2,7 @@ import "server-only";
 import { getSession, LoginData } from "@/lib/session"
 import prisma from "@/prismaClient";
 import { cookies } from "next/headers";
-import { DBRecipe } from "@/types";
+import type { DBRecipe } from "@/types";
 import { recipeSelector } from "@/fetchers/inclusionSelectors";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 

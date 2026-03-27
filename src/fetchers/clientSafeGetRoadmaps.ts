@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 import { getSession, LoginData } from "@/lib/session";
 import { roadmapSorter } from "@/lib/sorters";
 import { unstable_cacheTag as cacheTag } from 'next/cache'
-import { ClientMultiRoadmapInstance } from "@/types";
+import type { ClientMultiRoadmapInstance } from "@/types";
 
 /**
  * A function similar to `getRoadmaps`, but excluding potentially sensitive data.

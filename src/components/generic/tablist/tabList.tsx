@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import styles from './tablist.module.css' with { type: "css" }
-import { GenericElement } from "@/components/types";
+import type { GenericElement } from "@/components/types";
 
 type TabChild = React.ReactElement<{ "data-tabname": string, "id": string }>;
 

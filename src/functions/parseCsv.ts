@@ -1,4 +1,5 @@
-import { DateValues, GoalCreateInput, isISOIshDate, ISOIshDate } from "@/types";
+import { isISOIshDate } from "@/types";
+import type { DateValues, GoalCreateInput, ISOIshDate } from "@/types";
 
 export default function parseCsv(csv: ArrayBuffer): string[][] {
   // Despite Windows-1252 being more common than UTF-8 in a Windows/Microsoft environment (such as when exporting CSV files from Excel),

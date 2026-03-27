@@ -1,6 +1,7 @@
 "use client";
 
-import { Recipe, RecipeError, RecipeIsh, RecipeVariable } from "@/functions/recipe/types";
+import { RecipeError } from "@/functions/recipe/types";
+import type { Recipe, RecipeIsh, RecipeVariable } from "@/functions/recipe/types";
 import type { DateValuesWithUnit } from "@/types";
 import { useEffect, useMemo, useState } from "react";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";

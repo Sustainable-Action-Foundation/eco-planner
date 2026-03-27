@@ -236,7 +236,7 @@
     "username": "Användarnamn"
   },
   "table_menu": {
-    "add_effect_from_existing_action": "Lägg till $t(common:effect_one) från befintlig $t(common:action_one)",
+    "add_effect_from_existing_action": "Lägg till $t(common:effect_one)",
     "admin_panel_info": "Enbart användare med administrations- eller redigeringsbehörighet kan se denna panel. Vilka åtgärder som är tillgängliga för en användare beror på deras behörighetsnivå.",
     "admin_panel_title": "Administrationspanel",
     "button_aria": "Meny för {{component}}",
@@ -246,6 +246,8 @@
     "edit": "Redigera",
     "effect_from_action": "{{$t(common:effect_one), titleCase}} från {{source}}",
     "effect_missing_name": "Namn saknas",
+    "feature_goal": "Lyft fram $t(common:goal_one)",
+    "feature_goal_stop": "Sluta lyfta fram $t(common:goal_one)",
     "go_to_goal": "Gå till $t(common:goal_one)",
     "go_to_series": "Gå till $t(common:roadmap_series_one)",
     "go_to_version": "Gå till $t(common:roadmap_version_one)",

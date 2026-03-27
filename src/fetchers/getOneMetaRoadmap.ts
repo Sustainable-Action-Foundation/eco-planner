@@ -5,7 +5,7 @@ import { roadmapSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
-import { MetaRoadmap } from "@/types";
+import type { MetaRoadmap } from "@/types";
 
 /**
  * Gets specified meta roadmap and all versions for that meta roadmap.

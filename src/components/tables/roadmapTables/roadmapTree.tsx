@@ -7,7 +7,7 @@ import Link from "next/link";
 import { Fragment } from "react";
 import serveTea from "@/lib/i18nServer";
 import { IconCaretRightFilled } from "@tabler/icons-react";
-import { MultiRoadmapInstance } from "@/types";
+import type { MultiRoadmapInstance } from "@/types";
 
 type RoadmapTreeProps = {
   user: LoginData['user'];

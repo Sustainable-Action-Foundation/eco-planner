@@ -6,7 +6,7 @@ import path from "node:path";
 import { ServerSideT } from "./serverSide";
 import { ClientSideT } from "./clientSide";
 import { Stats } from "./stats";
-import { JSONValue } from "@/types";
+import type { JSONValue } from "@/types";
 import { allowedProtocols } from "@/components/form/elements/textEditor/config/config";
 
 export default async function LocaleTestPage() {

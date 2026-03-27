@@ -1,7 +1,7 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { buildMetadata } from "@/functions/buildMetadata";
-import { JSONValue } from "@/types";
-import fs from "fs";
+import type { JSONValue } from "@/types";
+import fs from "node:fs";
 import metadata from "package.json" with { type: "json" };
 import serveTea from "@/lib/i18nServer";
 // Uses TransWithoutContext, passing in our server-side i18n instance to the component,

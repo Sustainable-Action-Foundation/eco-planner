@@ -1,6 +1,6 @@
 "use client"
 
-import { AccessLevel } from '@/types'
+import { AccessLevel } from '@/types';
 import GoalTable from "./goalTables/goalTable"
 import TableSelector from './tableSelector/tableSelector'
 import LinkTree from './goalTables/linkTree'

@@ -20,7 +20,7 @@ test.describe.serial("Roadmaps tests", () => {
   test.beforeAll(async ({ browser }, testInfo) => {
     // Define the metaRoadmap name here so it can be accessed in all later tests.
     // Needs to be unique for each worker so different browsers running tests in parallel don't interfere with each other.
-    metaRoadmapNameAllFields = `Test ${testInfo.parallelIndex}`;
+    metaRoadmapNameAllFields = `Test All Fields ${testInfo.parallelIndex}`;
 
     if (testInfo.retry > 0) {
       console.log(`Retrying tests, Cleaning up any existing metaRoadmap with name ${metaRoadmapNameAllFields} before retrying.`);

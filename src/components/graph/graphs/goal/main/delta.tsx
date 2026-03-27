@@ -3,7 +3,8 @@
 import { calculatePredictedOutcome } from "@/components/graph/functions/graphFunctions";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
-import { Effect, Goal, isISOIshDate, Roadmap } from "@/types";
+import { isISOIshDate } from "@/types";
+import type { Effect, Goal, Roadmap } from "@/types";
 import { useTranslation } from "react-i18next";
 import { color_palette, stroke, marker } from "../../../config";
 

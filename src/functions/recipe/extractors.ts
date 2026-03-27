@@ -1,8 +1,10 @@
 import { clientSafeGetOneDataSeries } from "@/fetchers/client";
-import { isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, RecipeDataTypes, RecipeError, RecipeExtractionOutput, RecipeVariable, EvalTimeVariable } from "@/functions/recipe/types";
+import { isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, RecipeDataTypes, RecipeError } from "@/functions/recipe/types";
+import type { RecipeExtractionOutput, RecipeVariable, EvalTimeVariable } from "@/functions/recipe/types";
 import getTableContent from "@/lib/api/getTableContent";
 import mathjs from "@/math";
-import { DateValues, isISOIshDate } from "@/types";
+import { isISOIshDate } from "@/types";
+import type { DateValues } from "@/types";
 import { filterToInitialYearlyRecords, parsePeriod } from "@/lib/api/utility";
 import { getPrevailingUnit, isMathjsUnit, pickDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 

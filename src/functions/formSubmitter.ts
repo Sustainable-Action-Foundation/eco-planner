@@ -1,7 +1,8 @@
 'use client';
 
 import { TFunction } from "i18next";
-import { isStandardObject, JSONValue } from "@/types";
+import { isStandardObject } from "@/types";
+import type { JSONValue } from "@/types";
 import { SetStateAction } from "react";
 
 /**

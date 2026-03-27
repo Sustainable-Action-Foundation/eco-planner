@@ -1,4 +1,4 @@
-import { PxWebApiV2TableArray } from "@/lib/pxWeb/pxWebApiV2Types";
+import type { PxWebApiV2TableArray } from "@/lib/pxWeb/pxWebApiV2Types";
 import { ExternalDataset } from "../api/utility";
 
 /**

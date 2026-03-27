@@ -7,7 +7,7 @@ import getUserHash from "@/functions/getUserHash";
 import { baseUrl } from "@/lib/baseUrl";
 import serveTea from "@/lib/i18nServer";
 import Mail from "nodemailer/lib/mailer";
-import { JSONValue } from "@/types";
+import type { JSONValue } from "@/types";
 
 export async function POST(request: NextRequest) {
   const t = await serveTea("email");
