@@ -1,9 +1,6 @@
 import { expect, test } from "playwright/test";
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { table } from "console";
-import { exec } from "child_process";
-import { execPath } from "process";
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
@@ -23,7 +20,7 @@ test.describe("Goals tests", () => {
     test.use({ storageState: adminFile });
 
     test('Create goal required only', async ({ page }) => {
-        //Opening the from
+        // Opening the form
         await page.goto('/');
         await page.waitForLoadState("networkidle");
 
@@ -31,15 +28,14 @@ test.describe("Goals tests", () => {
         await page.getByTestId('create-goal').click();
         await page.waitForLoadState("networkidle");
 
-        //From Part 1
+        // Form Part 1
         await page.locator('#parent-roadmap').click();
         await page.locator('#parent-roadmap-dialog-listbox li').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: '2' }).click(); // Checks for Rikets färdplan to be contained in an option, with version 2 to avoid selecting the wrong roadmap
 
-        // const value = await option.getAttribute('value');
+        // Form Part 2 is optional, so we skip it
 
-        // await page.locator('#parent-roadmap-dialog-listbox').selectOption(value);
-        //From Part 3
-        // Might be switched out for a prewritten recipe when they are fixed
+        // Form Part 3
+        // Might be switched out for a pre-written recipe when they are fixed
         await page.getByRole('radio').first().click();
         await page.locator('#indicatorParameter').click();
         await page.locator('#indicatorParameter-listbox-0').click();
@@ -51,7 +47,7 @@ test.describe("Goals tests", () => {
             await page.getByRole('spinbutton').nth(2 + i).fill('1');
         }
 
-        //Form Submit
+        // Form Submit
         await page.locator('#submit-button').click();
         await page.waitForLoadState("networkidle");
 
@@ -125,7 +121,7 @@ test.describe("Goals tests", () => {
     });
 
     test('Create goal all', async ({ page }) => {
-        //Opening the from
+        //Opening the form
         await page.goto('/');
         await page.waitForLoadState("networkidle");
 
@@ -133,15 +129,15 @@ test.describe("Goals tests", () => {
         await page.getByTestId('create-goal').click();
         await page.waitForLoadState("networkidle");
 
-        //From Part 1
+        // Form Part 1
         await page.locator('#parent-roadmap').click();
         await page.getByRole('option', { name: "Rikets färdplan (v2)" }).click(); //Switch to 'test' when available
 
-        //Form Part 2
+        // Form Part 2
         await page.locator('#goalName').fill("Test Goal");
         await page.getByRole('textbox').nth(1).fill("This is a test goal"); //Might be a better way of getting this element
 
-        //From Part 3
+        // Form Part 3
         // Might be switch out for a prewritten recipe when they are fixed
         await page.getByRole('radio').first().click();
         await page.locator('#indicatorParameter').click();
