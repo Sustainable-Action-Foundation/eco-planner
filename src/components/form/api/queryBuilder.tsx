@@ -11,7 +11,7 @@ import { LocaleContext } from "@/lib/i18nClient";
 import type { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
 import type { TrafaVariable } from "@/lib/trafa/trafaTypes";
 import type { Goal } from "@prisma/client";
-import type { FormEvent } from "react";
+import type { FormEvent} from "react";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import FormWrapper from "../formWrapper";
@@ -424,19 +424,7 @@ export default function QueryBuilder({
   }
 
   function shouldVariableFieldsetBeVisible(tableDetails: ApiTableDetails, dataSource: string) {
-    const returnBool = (
-      (
-        (
-          tableDetails.hierarchies !== undefined
-          && tableDetails.hierarchies.length > 0
-        )
-        || (
-          !(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb")
-          && tableDetails.variables.some(variable => variable.option)
-        )
-      )
-      || tableDetails.times.length > 1
-    );
+    const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb") && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1);
     return returnBool;
   }
 

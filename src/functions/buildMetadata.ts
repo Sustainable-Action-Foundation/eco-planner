@@ -40,16 +40,16 @@ export async function buildMetadata(
     icons: "/favicon/favicon.svg",
     metadataBase: new URL(baseUrl),
     alternates: {
-      canonical: og_url ?? '/'
+      canonical: og_url || '/'
     },
     openGraph: {
       title: `${title ? `${title} | ${t("metadata:default.title")}` : t("metadata:default.title")}`,
       description: description ?? t("metadata:default.description"),
       images: [{
-        url: og_image_url ?? '/images/og_solar.png'
+        url: og_image_url || '/images/og_solar.png'
       }],
       type: "website",
-      url: og_url ?? '/',
+      url: og_url || '/',
       siteName: "Eco - Planner",
       locale: locale 
     }

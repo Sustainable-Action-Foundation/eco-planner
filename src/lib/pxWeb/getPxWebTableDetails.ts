@@ -4,7 +4,7 @@ import type { PxWebApiV2MetricDimension, PxWebApiV2TableDetails, PxWebMetric, Px
 
 export default async function getPxWebTableDetails(tableId: string, externalDataset: string, language?: string) {
   // Get the base URL for the external dataset, defaulting to SCB
-  const dataset = ExternalDataset.getDatasetByAlternateName(externalDataset) ?? ExternalDataset.SCB;
+  const dataset = ExternalDataset.getDatasetByAlternateName(externalDataset) || ExternalDataset.SCB;
   const url = new URL(`./tables/${tableId}/metadata`, dataset.baseUrl);
 
   if (!language || !dataset.supportedLanguages.includes(language)) {

@@ -115,7 +115,9 @@ function buildLinks(
     historicalDataLink = `/goal/${object.id}/historical-data`;
     deleteLink = "/api/goal";
 
-    object.name ??= object.indicatorParameter;
+    if (!object.name) {
+      object.name = object.indicatorParameter;
+    }
   }
 
   // Actions
@@ -137,7 +139,7 @@ function buildLinks(
     editLink = `/effect/edit?actionId=${object.actionId}&goalId=${object.goalId}`;
     deleteLink = "/api/effect";
 
-    object.name ??= object.action?.name
+    object.name ||= object.action?.name
       ? t("components:table_menu.effect_from_action", { source: object.action.name })
       : object.goal
         ? (object.goal.name ?? object.goal.indicatorParameter)
@@ -168,7 +170,7 @@ function buildLinks(
 
 const getObjectName = (object: ObjectParameter): string | undefined => {
   if ("indicatorParameter" in object) {
-    return object.name ?? object.indicatorParameter;
+    return object.name || object.indicatorParameter;
   }
   if ("name" in object && object.name) {
     return object.name;
@@ -230,8 +232,8 @@ export function ControlsMenu(
   return (
     <>
       <div className={`${styles.actionButton} display-flex`}>
-        <button type="button" onClick={openMenu} className={styles.button} aria-label={t("components:table_menu.button_aria", { component: (objectName ?? metaRoadmapName) ?? t("components:table_menu.button_aria_alt") })}> {/* TODO: Remove this aria if we pass buttontext */}
-          {buttonText ?? null}
+        <button type="button" onClick={openMenu} className={styles.button} aria-label={t("components:table_menu.button_aria", { component: objectName || metaRoadmapName || t("components:table_menu.button_aria_alt") })}> {/* TODO: Remove this aria if we pass buttontext */}
+          {buttonText ? buttonText : null}
           <IconDotsVertical aria-hidden="true" width={width} height={height} />
         </button>
         <dialog className={styles.menu} id={`${typeof object.id === "string" ? object.id : object.id?.actionId + "-" + object.id?.goalId}-menu`} onBlur={closeMenu} ref={menu} onKeyUp={closeMenu}>
@@ -242,14 +244,14 @@ export function ControlsMenu(
             </button>
             {/* Link to the object */}
             {links?.selfLink ?
-              <Link href={links.selfLink} className={styles.menuHeadingTitle}>{objectName ?? metaRoadmapName}</Link>
+              <Link href={links.selfLink} className={styles.menuHeadingTitle}>{objectName || metaRoadmapName}</Link>
               : <p>{t("common:tsx.menu")}</p>}
           </div>
           {links ? (
             <>
               {links.parentLink &&
                 <Link href={links.parentLink} className={styles.menuAction}>
-                  <span>{links.parentDescription ?? links.parentLink}</span>
+                  <span>{links.parentDescription || links.parentLink}</span>
                   <IconArrowBackUp aria-hidden="true" style={{ minWidth: '24px' }} /> {/* TODO: Probably dont want this anymore, should however make it available elsewhere before removing */}
                 </Link>
               }
@@ -263,7 +265,7 @@ export function ControlsMenu(
                   }
                   {links.creationLink2 &&
                     <Link href={links.creationLink2} className={styles.menuAction}>
-                      <span>{links.creationDescription2 ?? links.creationLink2}</span>
+                      <span>{links.creationDescription2 || links.creationLink2}</span>
                       <IconPlus aria-hidden="true" style={{ minWidth: '24px' }} />
                     </Link>
                   }
@@ -286,7 +288,7 @@ export function ControlsMenu(
                         {t("components:table_menu.delete")}
                         <IconTrashXFilled aria-hidden="true" fill="red" style={{ minWidth: '24px' }} />
                       </button>
-                      <ConfirmDelete modalRef={deletionRef} targetUrl={links.deleteLink} targetName={(objectName ?? metaRoadmapName) ?? t("components:table_menu.delete_missing_name")} targetId={object.id} />
+                      <ConfirmDelete modalRef={deletionRef} targetUrl={links.deleteLink} targetName={objectName || metaRoadmapName || t("components:table_menu.delete_missing_name")} targetId={object.id} />
                     </>
                   }
                 </>
@@ -403,7 +405,7 @@ export function AdminPanel(
                   }
                   {links.creationLink2 &&
                     <Link href={links.creationLink2} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`}>
-                      <span>{links.creationDescription2 ?? links.creationLink2}</span>
+                      <span>{links.creationDescription2 || links.creationLink2}</span>
                       <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                     </Link>
                   }
@@ -424,7 +426,7 @@ export function AdminPanel(
                   {t("components:table_menu.delete")}
                   <IconTrashXFilled aria-hidden="true" width={20} height={20} fill="white" style={{ minWidth: '20px' }} />
                 </button>
-                <ConfirmDelete modalRef={deletionRef} targetUrl={links.deleteLink} targetName={(objectName ?? metaRoadmapName) ?? t("components:table_menu.delete_missing_name")} targetId={object.id} />
+                <ConfirmDelete modalRef={deletionRef} targetUrl={links.deleteLink} targetName={objectName || metaRoadmapName || t("components:table_menu.delete_missing_name")} targetId={object.id} />
               </>
             }
           </>

@@ -72,7 +72,7 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
   return (
     <>
       <div className="container-text">
-        <h2>{t("components:comments.comment_count", { count: comments?.length ?? 0 })}</h2>
+        <h2>{t("components:comments.comment_count", { count: comments?.length || 0 })}</h2>
         <form onSubmit={handleSubmit}>
           <span className={styles.textarea} role="textbox" id="comment-text" contentEditable aria-label={t("components:comments.add_comment")} aria-placeholder={t("components:comments.add_comment")} onInput={handleInput} onBlur={handleInput} ref={spanRef}></span>
           <input type="hidden" name="comment" id="comment" value={editedContent} />

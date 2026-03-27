@@ -78,7 +78,7 @@ export default function ChildGraphContainer({
             <span key={child.id} className="flex gap-50 line-height-100">
               <a href={`/goal/${child.id}`} className="flex gap-25 align-items-center">
                 <IconLink width={14} height={14} strokeWidth={1.5} />
-                {child.name ?? child.indicatorParameter.split('\\').at(-1)} ({child.roadmap.metaRoadmap.name || t("graphs:common.unknown_roadmap")})
+                {child.name || child.indicatorParameter.split('\\').at(-1)} ({child.roadmap.metaRoadmap.name || t("graphs:common.unknown_roadmap")})
               </a>
               {index !== childGoals.length - 1 ?
                 <hr aria-orientation="vertical" className="padding-0 margin-block-25" /> /* TODO: Need to add orientation aria to other HR */

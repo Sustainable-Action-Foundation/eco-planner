@@ -99,11 +99,11 @@ export default function GraphGraph({
             : null}
         </menu>
         <h2 className={`${styles['heading']}`}>
-          {goal.name ?? goal.indicatorParameter}
+          {goal.name ? goal.name : goal.indicatorParameter}
         </h2>
         {secondaryGoal &&
           <p className="margin-block-0 margin-inline-auto text-align-center">
-            {t("graphs:graph_graph.compare_with_goal", { goalName: secondaryGoal.name ?? secondaryGoal.indicatorParameter })}
+            {t("graphs:graph_graph.compare_with_goal", { goalName: secondaryGoal.name || secondaryGoal.indicatorParameter })}
           </p>
         }
       </header>

@@ -51,7 +51,7 @@ export default async function Page(
 
   return (
     <>
-      <Breadcrumb object={action ?? goal ?? undefined} customSections={[t("pages:effect_create.breadcrumb")]} />
+      <Breadcrumb object={action || goal || undefined} customSections={[t("pages:effect_create.breadcrumb")]} />
 
       <div className="container-text margin-inline-auto">
         <h1 className='margin-top-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>

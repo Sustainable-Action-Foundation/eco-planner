@@ -8,7 +8,7 @@ const GridCell = React.forwardRef<HTMLDivElement, GridElement>(
   ({ className, style, children, position, tabIndex, onKeyDown, onClick }, ref) => (
     <div
       className={`${className ? `${className} ` : ''}`}
-      style={{ ...(style ?? {}) }}
+      style={{ ...(style || {}) }}
       ref={ref}
       role="gridcell"
       tabIndex={tabIndex}
@@ -27,7 +27,7 @@ const RowHeader = React.forwardRef<HTMLDivElement, GridElement>(
   ({ className, style, children, position, tabIndex, onKeyDown, onClick }, ref) => (
     <div
       className={`${className ? `${className} ` : ''}`}
-      style={{ ...(style ?? {}) }}
+      style={{ ...(style || {}) }}
       ref={ref}
       role="rowheader"
       tabIndex={tabIndex}
@@ -46,7 +46,7 @@ const ColumnHeader = React.forwardRef<HTMLDivElement, GridElement>(
   ({ className, style, children, position, onKeyDown, onClick }, ref) => (
     <div
       className={`${className ? `${className} ` : ''}`}
-      style={{ ...(style ?? {}) }}
+      style={{ ...(style || {}) }}
       ref={ref}
       role="columnheader"
       tabIndex={-1}

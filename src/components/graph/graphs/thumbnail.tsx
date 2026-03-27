@@ -46,7 +46,7 @@ export default async function ThumbnailGraph({
   const opacities: Array<number> = [color_palette.data.fillOpacity];
 
   mainChart.push({
-    name: (goal.name ?? goal.indicatorParameter).split('\\').slice(-1)[0],
+    name: (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
     data: mainSeries,
     type: 'line',
   });
@@ -115,7 +115,7 @@ export default async function ThumbnailGraph({
     <>
       <div className={styles.graphWrapperThumbnail}>
         <h3 className="font-weight-500 margin-0 padding-top-75 padding-inline-75 overflow-hidden white-space-nowrap text-align-center text-overflow-ellipsis">
-          {goal.name ?? goal.indicatorParameter}
+          {goal.name ? goal.name : goal.indicatorParameter}
         </h3>
         <div className="flex-grow-100">
           <WrappedChart

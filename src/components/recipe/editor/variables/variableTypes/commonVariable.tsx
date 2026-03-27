@@ -70,7 +70,7 @@ export default function VariableTypeCommon({
               props={{
                 id: `variable-unit-${variableName}`,
                 name: `variable-unit-${variableName}`,
-                defaultValue: variable.unit ?? "",
+                defaultValue: variable.unit || "",
                 placeholder: " ",
                 style: { gridRow: '1', gridColumn: '2', width: '125px' }
               }}

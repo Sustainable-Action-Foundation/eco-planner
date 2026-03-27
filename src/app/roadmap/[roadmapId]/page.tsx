@@ -49,7 +49,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
     getOneRoadmap(params.roadmapId)
   ]);
 
-  const featuredGoals = (roadmap?.goals ?? [])
+  const featuredGoals = (roadmap?.goals || [])
     .filter((goal) => goal.isFeatured)
     .map((goal) => ({
       id: goal.id,

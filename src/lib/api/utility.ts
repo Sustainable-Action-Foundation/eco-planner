@@ -124,7 +124,7 @@ export class ExternalDataset {
         })(value)) {
           return undefined; // Skip if value is not a DatasetData object
         }
-        return [key.toLowerCase(), [key, value.fullName, ...(value.alternateNames ?? [])].map(alias => alias?.toLowerCase())];
+        return [key.toLowerCase(), [key, value.fullName, ...(value.alternateNames || [])].map(alias => alias?.toLowerCase())];
       })
       .filter(Boolean) as [string, string[]][];
 

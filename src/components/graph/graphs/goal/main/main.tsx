@@ -80,10 +80,10 @@ export default function MainGraph({
         title: { text: goal.dataSeries.unit === null ? t("common:tsx.unitless") : goal.dataSeries.unit || t("common:tsx.unit_missing") },
         labels: { formatter: graphNumberFormatter },
         seriesName: [
-          `${(goal.name ?? goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
+          `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
           t("graphs:common.baseline_scenario"),
           t("graphs:common.expected_outcome"),
-          (secondaryGoal?.dataSeries?.unit === goal.dataSeries.unit) ? (secondaryGoal.name ?? secondaryGoal.indicatorParameter).split('\\').slice(-1)[0] : "",
+          (secondaryGoal?.dataSeries?.unit === goal.dataSeries.unit) ? (secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0] : "",
           historicalData ? `${historicalData.metadata[0]?.label} (${t("common:historical_data")})` : "",
         ]
       }
@@ -99,7 +99,7 @@ export default function MainGraph({
   // Main data series for the goal
   const mainSeries = seriesFromDateValues(mainDateValues.dateValues);
   mainChart.push({
-    name: `${(goal.name ?? goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
+    name: `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
     data: mainSeries,
     type: 'line',
   })
@@ -197,7 +197,7 @@ export default function MainGraph({
     const secondaryDateValues = dataSeriesToDateValues(secondaryGoal.dataSeries);
     const secondarySeries = seriesFromDateValues(secondaryDateValues.dateValues);
     mainChart.push({
-      name: secondaryGoal.name ?? secondaryGoal.indicatorParameter,
+      name: secondaryGoal.name || secondaryGoal.indicatorParameter,
       data: secondarySeries,
       type: 'line',
     });
@@ -207,7 +207,7 @@ export default function MainGraph({
       (mainChartOptions.yaxis as ApexYAxis[]).push({
         title: { text: `${t("graphs:main_graph.secondary_goal", { unit: secondaryGoal.dataSeries.unit })}` },
         labels: { formatter: graphNumberFormatter },
-        seriesName: [(secondaryGoal.name ?? secondaryGoal.indicatorParameter).split('\\').slice(-1)[0]],
+        seriesName: [(secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0]],
         opposite: true,
       });
     }
@@ -220,14 +220,14 @@ export default function MainGraph({
     const parentDateValues = dataSeriesToDateValues(parentGoal.dataSeries);
     const nationalSeries = seriesFromDateValues(parentDateValues.dateValues);
     mainChart.push({
-      name: t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name ?? "" }),
+      name: t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name || "" }),
       data: nationalSeries,
       type: 'line',
     });
     (mainChartOptions.yaxis as ApexYAxis[]).push({
       title: { text: t("graphs:main_graph.national_goal") },
       labels: { formatter: graphNumberFormatter },
-      seriesName: [t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name ?? "" })],
+      seriesName: [t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name || "" })],
       opposite: true,
     });
 

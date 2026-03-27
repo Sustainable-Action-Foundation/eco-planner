@@ -69,7 +69,7 @@ export default async function Page(props: { params: Promise<{ goalId: string }> 
       <div className="container-text margin-inline-auto">
         <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
           {t("pages:goal_edit.title", {
-            goalName: currentGoal.name ?? currentGoal.indicatorParameter
+            goalName: currentGoal.name ? currentGoal.name : currentGoal.indicatorParameter
           })}
         </h1>
         <GoalForm roadmapId={currentGoal.roadmapId} currentGoal={currentGoal} roadmapAlternatives={roadmapList} />

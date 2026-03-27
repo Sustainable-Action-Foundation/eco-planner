@@ -84,7 +84,7 @@ export function goalSorter<T extends { name: string | null, indicatorParameter: 
   } else if (b.name && !a.name) {
     return 1;
   } else {
-    return collator.compare(a.name ?? a.indicatorParameter, b.name ?? b.indicatorParameter);
+    return collator.compare(a.name || a.indicatorParameter, b.name || b.indicatorParameter);
   }
 }
 
@@ -98,7 +98,7 @@ export function goalSorterReverse(a: Goal, b: Goal) {
   } else if (b.name && !a.name) {
     return 1;
   } else {
-    return -collator.compare(a.name ?? a.indicatorParameter, b.name ?? b.indicatorParameter);
+    return -collator.compare(a.name || a.indicatorParameter, b.name || b.indicatorParameter);
   }
 }
 

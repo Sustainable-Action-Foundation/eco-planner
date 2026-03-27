@@ -44,7 +44,7 @@ export default function GoalForm({
   const { t } = useTranslation(["forms", "common"]);
   const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(DataSeriesType.Inherited);
   const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baseline ? BaselineType.Custom : BaselineType.Initial);
-  const [parentRoadmapId, setParentRoadmapId] = useState<string>(roadmapId ?? "");
+  const [parentRoadmapId, setParentRoadmapId] = useState<string>(roadmapId || "");
   const descriptionRef = useRef<HTMLInputElement>(null);
 
   const parentRoadmaps = useMemo(() => {
@@ -86,7 +86,7 @@ export default function GoalForm({
     }
 
     // Parse date values (required)
-    const resultingDateValuesString = formData.get("resultingDateValues") as string | null ?? formData.get("data-series") as string | null; // Fallback for manual data series input
+    const resultingDateValuesString = formData.get("resultingDateValues") as string | null || formData.get("data-series") as string | null; // Fallback for manual data series input
     if (!resultingDateValuesString) {
       console.error("No resulting date values provided in form.");
       event.target.reportValidity();
@@ -143,7 +143,7 @@ export default function GoalForm({
       } satisfies DateValuesWithUnit;
 
       const firstDateValue = baselineType === BaselineType.InitialNonZero
-        ? dataSeries.dateValues[dates.find(date => dataSeries.dateValues[date] !== 0) ?? dates[0]]
+        ? dataSeries.dateValues[dates.find(date => dataSeries.dateValues[date] !== 0) || dates[0]]
         : dataSeries.dateValues[dates[0]]
 
       for (const date of dates) {
@@ -190,14 +190,14 @@ export default function GoalForm({
         dataSeriesId: null,
         dataSeries: dataSeries,
         dataSeriesRecipeId: null,
-        dataSeriesRecipe: dataSeriesRecipe ?? null,
+        dataSeriesRecipe: dataSeriesRecipe || null,
 
         baselineId: baselineId,
         baseline: baseline,
         baselineRecipeId: null,
         baselineRecipe: null,
 
-        roadmapId: roadmapId ?? parentRoadmapId,
+        roadmapId: roadmapId || parentRoadmapId,
         rawTags: undefined, // TODO: add tags input
 
         // DEPRECATED - moved to description

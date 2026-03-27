@@ -339,22 +339,22 @@ export async function POST(request: NextRequest) {
 
   // Create lists of names for linking
   const editors: { username: string }[] = [];
-  for (const name of metaRoadmap.editors ?? []) {
+  for (const name of metaRoadmap.editors || []) {
     editors.push({ username: name });
   }
 
   const viewers: { username: string }[] = [];
-  for (const name of metaRoadmap.viewers ?? []) {
+  for (const name of metaRoadmap.viewers || []) {
     viewers.push({ username: name });
   }
 
   const editGroups: { name: string }[] = [];
-  for (const name of metaRoadmap.editGroups ?? []) {
+  for (const name of metaRoadmap.editGroups || []) {
     editGroups.push({ name: name });
   }
 
   const viewGroups: { name: string }[] = [];
-  for (const name of metaRoadmap.viewGroups ?? []) {
+  for (const name of metaRoadmap.viewGroups || []) {
     viewGroups.push({ name: name });
   }
 
@@ -372,7 +372,7 @@ export async function POST(request: NextRequest) {
           create: metaRoadmap.links?.map(link => {
             return {
               url: link.url,
-              description: link.description ?? undefined,
+              description: link.description || undefined,
             }
           })
         },
@@ -491,7 +491,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Check if the client's data is stale
-    if (!metaRoadmap.timestamp || (currentRoadmap?.updatedAt?.getTime() ?? 0) > metaRoadmap.timestamp) {
+    if (!metaRoadmap.timestamp || (currentRoadmap?.updatedAt?.getTime() || 0) > metaRoadmap.timestamp) {
       throw new Error(ClientError.StaleData, { cause: 'meta roadmap' });
     }
   } catch (error) {
@@ -536,22 +536,22 @@ export async function PUT(request: NextRequest) {
 
   // Create lists of names for linking
   const editors: { username: string }[] = [];
-  for (const name of metaRoadmap.editors ?? []) {
+  for (const name of metaRoadmap.editors || []) {
     editors.push({ username: name });
   }
 
   const viewers: { username: string }[] = [];
-  for (const name of metaRoadmap.viewers ?? []) {
+  for (const name of metaRoadmap.viewers || []) {
     viewers.push({ username: name });
   }
 
   const editGroups: { name: string }[] = [];
-  for (const name of metaRoadmap.editGroups ?? []) {
+  for (const name of metaRoadmap.editGroups || []) {
     editGroups.push({ name: name });
   }
 
   const viewGroups: { name: string }[] = [];
-  for (const name of metaRoadmap.viewGroups ?? []) {
+  for (const name of metaRoadmap.viewGroups || []) {
     viewGroups.push({ name: name });
   }
 
@@ -571,7 +571,7 @@ export async function PUT(request: NextRequest) {
           create: metaRoadmap.links?.map(link => {
             return {
               url: link.url,
-              description: link.description ?? undefined,
+              description: link.description || undefined,
             }
           })
         }),

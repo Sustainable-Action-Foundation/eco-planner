@@ -51,7 +51,7 @@ export function ActionSelector({
         <label>
           {t("forms:effect.select_action_for_effect")}
           <select name="actionId" id="actionId" className="block margin-top-25 margin-bottom-100 width-100" required disabled={!!action}
-            value={action?.id ?? selectedAction}
+            value={action?.id || selectedAction}
             onChange={event => setSelectedAction(event.target.value)}
           >
             <option value="" disabled>{t("forms:effect.select_action")}</option>
@@ -118,7 +118,7 @@ export function GoalSelector({
             <option value="" disabled>{t("forms:effect.select_goal")}</option>
             {roadmapData?.goals.map(goal => (
               <option key={`goal-selector${goal.id}`} value={goal.id}>
-                {`${goal.name ?? t("forms:effect.unnamed_goal")}: ${goal.indicatorParameter} (${goal.dataSeries?.unit === null ? t("common:tsx.unitless") : goal.dataSeries?.unit ?? t("common:tsx.unit_missing")})`}
+                {`${goal.name ?? t("forms:effect.unnamed_goal")}: ${goal.indicatorParameter} (${goal.dataSeries?.unit === null ? t("common:tsx.unitless") : goal.dataSeries?.unit || t("common:tsx.unit_missing")})`}
               </option>
             ))}
           </select>

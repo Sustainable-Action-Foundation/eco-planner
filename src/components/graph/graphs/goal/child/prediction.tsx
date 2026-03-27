@@ -52,7 +52,7 @@ export default function PredictionChildGraph({
     });
   }
   dataPoints.push({
-    name: (goal.name ?? goal.indicatorParameter.split('\\').at(-1)),
+    name: (goal.name || goal.indicatorParameter.split('\\').at(-1)),
     data: mainSeries,
     // Main series is always a line
     type: 'line',
@@ -68,7 +68,7 @@ export default function PredictionChildGraph({
       for (const entry of totalEffect) entry.y ??= 0;
     }
     if (totalEffect.length > 0) {
-      const effectName = child.name ?? child.indicatorParameter.split('\\').at(-1);
+      const effectName = child.name || child.indicatorParameter.split('\\').at(-1);
       const roadmapName = child.roadmap.metaRoadmap.name || t("graphs:common.unknown_roadmap");
       dataPoints.push({
         name: `${effectName} (${roadmapName})`,

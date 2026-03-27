@@ -132,8 +132,8 @@ export default async function Page(
     try {
       // Get the parent roadmap (if any)
       parentGoalRoadmap = await getRoadmapByVersion(roadmap.metaRoadmap.parentRoadmapId,
-        (roadmap.targetVersion ??
-        (await prisma.roadmap.aggregate({ where: { metaRoadmapId: roadmap.metaRoadmap.parentRoadmapId }, _max: { version: true } }))._max.version) ??
+        roadmap.targetVersion ||
+        (await prisma.roadmap.aggregate({ where: { metaRoadmapId: roadmap.metaRoadmap.parentRoadmapId }, _max: { version: true } }))._max.version ||
         0);
 
       // If there is a parent roadmap, look for a goal with the same indicator parameter in it
@@ -152,7 +152,7 @@ export default async function Page(
   let childGoals: (NonNullable<Awaited<ReturnType<typeof getGoalByIndicator>>> & { roadmapName?: string })[] = [];
   if (childRoadmaps.length > 0) {
     const goals = await Promise.all(childRoadmaps.map(async roadmap => {
-      return getGoalByIndicator(roadmap.id, goal.indicatorParameter, goal.dataSeries?.unit ?? undefined);
+      return getGoalByIndicator(roadmap.id, goal.indicatorParameter, goal.dataSeries?.unit || undefined);
     }));
     childGoals = goals.filter(child => child !== null);
     for (const child of childGoals) {
@@ -270,7 +270,7 @@ export default async function Page(
             className='margin-bottom-100 padding-bottom-50 flex justify-content-space-between align-items-center gap-100 flex-wrap-wrap'
             style={{ borderBottom: '1px solid var(--gray)' }}>
             <h2 className='margin-0 font-weight-600' style={{ fontSize: '1.1rem' }}>
-              {t("pages:goal.actions_for_goal", { goalName: goal.name ?? goal.indicatorParameter })}
+              {t("pages:goal.actions_for_goal", { goalName: goal.name ? goal.name : goal.indicatorParameter })}
             </h2>
 
             {hasEditAccess(accessLevel) &&
@@ -294,7 +294,7 @@ export default async function Page(
           {/* TODO: rename to EffectsList? */}
           <EffectTable object={goal} accessLevel={accessLevel} />
 
-          {goal.effects.some(effect => effect.action.startYear ?? effect.action.endYear) &&
+          {goal.effects.some(effect => effect.action.startYear || effect.action.endYear) &&
             <>
               <h3 className="margin-top-500 font-weight-500">
                 {t("pages:goal.action_timeline")}

@@ -25,7 +25,7 @@ function useRoadmapTreeItems(availableRoadmaps: { id: string; name: string; }[])
         const data = await clientSafeGetOneRoadmap(roadmap.id);
         if (!data) return [];
         return data.goals.map((goal) => ({
-          name: goal.name ?? goal.indicatorParameter,
+          name: goal.name ? goal.name : goal.indicatorParameter,
           value: goal.dataSeries ? goal.dataSeries.id : '',
           expanded: null,
         }));
@@ -46,7 +46,7 @@ export function useHandleDataSeriesChange(
   return useCallback(
     (selectedDataSeriesLink: TreeItem | null) => {
       // Set the link immediately for responsiveness
-      updateDataSeriesLink(variableName, selectedDataSeriesLink?.value ?? null, setVariable);
+      updateDataSeriesLink(variableName, selectedDataSeriesLink?.value || null, setVariable);
 
       // When unsetting variable
       if (!selectedDataSeriesLink?.value) return;
@@ -181,7 +181,7 @@ export function VariableTypeDataSeriesSimple({
       {...goalName ? {
         defaultValue: {
           name: goalName,
-          value: variable.link ?? "",
+          value: variable.link || "",
           expanded: null,
         },
       } : {}}

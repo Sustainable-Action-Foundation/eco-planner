@@ -40,7 +40,7 @@ export default function SiblingGraph({
     // Only add the series to the graph if it isn't all null/0
     if (mainSeries.filter((entry) => entry.y).length > 0) {
       dataPoints.push({
-        name: (entry.name ?? entry.indicatorParameter).split('\\').at(-1),
+        name: (entry.name || entry.indicatorParameter).split('\\').at(-1),
         data: mainSeries,
         type: isStacked ? 'area' : 'line',
       })
@@ -70,7 +70,7 @@ export default function SiblingGraph({
       max: new Date("2050-01-01T00:00:00Z").getTime(),
     },
     yaxis: {
-      title: { text: goal.dataSeries?.unit === null ? t("common:tsx.unitless") : goal.dataSeries?.unit ?? t("common:tsx.unit_missing") },
+      title: { text: goal.dataSeries?.unit === null ? t("common:tsx.unitless") : goal.dataSeries?.unit || t("common:tsx.unit_missing") },
       labels: { formatter: graphNumberFormatter },
     },
     tooltip: {
@@ -127,7 +127,7 @@ export default function SiblingGraph({
             <span key={sibling.id} className="flex gap-50 line-height-100">
               <a href={`/goal/${sibling.id}`} className="flex gap-25 align-items-center">
                 <IconLink width={14} height={14} strokeWidth={1.5} />
-                {sibling.name ?? sibling.indicatorParameter.split('\\').at(-1)}
+                {sibling.name ? sibling.name : sibling.indicatorParameter.split('\\').at(-1)}
               </a>
               {index !== siblings.length - 1 ?
                 <hr aria-orientation="vertical" className="padding-0 margin-block-25" /> /* TODO: Need to add orientation aria to other HR */

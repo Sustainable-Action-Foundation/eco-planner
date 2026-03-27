@@ -61,7 +61,7 @@ export default async function Page() {
   } catch { /* Silently fail */ }
 
   if ((gitHash.shortHash || gitHash.longHash) && remoteURL) {
-    commitURL = new URL(`commit/${gitHash.longHash ?? gitHash.shortHash}`, remoteURL).toString();
+    commitURL = new URL(`commit/${gitHash.longHash || gitHash.shortHash}`, remoteURL).toString();
   }
 
   const remoteURLObject = remoteURL ? new URL(remoteURL) : undefined;
@@ -116,13 +116,13 @@ export default async function Page() {
                 a: <a href={commitURL} target="_blank" />
               }}
               tOptions={{
-                commit: (gitHash.shortHash ?? gitHash.longHash) ?? "",
+                commit: gitHash.shortHash || gitHash.longHash || "",
               }}
               i18n={i18next}
             />
           </p>
           :
-          <p>{t("pages:info.commit_without_link", { commit: (gitHash.shortHash ?? gitHash.longHash) ?? "" })}</p>
+          <p>{t("pages:info.commit_without_link", { commit: gitHash.shortHash || gitHash.longHash || "" })}</p>
         : null
       }
     </>

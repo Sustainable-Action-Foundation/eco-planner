@@ -310,7 +310,7 @@ export async function POST(request: NextRequest) {
     latestVersion = (await prisma.roadmap.aggregate({
       where: { metaRoadmapId: roadmap.metaRoadmapId },
       _max: { version: true },
-    }))._max.version ?? 0;
+    }))._max.version || 0;
   } catch {
     return Response.json({ message: 'Failed to fetch latest roadmap version' },
       { status: 500 }
@@ -319,22 +319,22 @@ export async function POST(request: NextRequest) {
 
   // Create lists of names for linking
   const editors: { username: string }[] = [];
-  for (const name of [...(roadmap.editors ?? []), originalAuthor.username]) {
+  for (const name of [...(roadmap.editors || []), originalAuthor.username]) {
     editors.push({ username: name });
   }
 
   const viewers: { username: string }[] = [];
-  for (const name of roadmap.viewers ?? []) {
+  for (const name of roadmap.viewers || []) {
     viewers.push({ username: name });
   }
 
   const editGroups: { name: string }[] = [];
-  for (const name of roadmap.editGroups ?? []) {
+  for (const name of roadmap.editGroups || []) {
     editGroups.push({ name: name });
   }
 
   const viewGroups: { name: string }[] = [];
-  for (const name of roadmap.viewGroups ?? []) {
+  for (const name of roadmap.viewGroups || []) {
     viewGroups.push({ name: name });
   }
 
@@ -441,7 +441,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Check if the client's data is stale
-    if (!roadmap.timestamp || (currentRoadmap?.updatedAt?.getTime() ?? 0) > roadmap.timestamp) {
+    if (!roadmap.timestamp || (currentRoadmap?.updatedAt?.getTime() || 0) > roadmap.timestamp) {
       throw new Error(ClientError.StaleData, { cause: 'roadmap' });
     }
   } catch (error) {
@@ -472,22 +472,22 @@ export async function PUT(request: NextRequest) {
 
   // Create lists of names for linking
   const editors: { username: string }[] = [];
-  for (const name of roadmap.editors ?? []) {
+  for (const name of roadmap.editors || []) {
     editors.push({ username: name });
   }
 
   const viewers: { username: string }[] = [];
-  for (const name of roadmap.viewers ?? []) {
+  for (const name of roadmap.viewers || []) {
     viewers.push({ username: name });
   }
 
   const editGroups: { name: string }[] = [];
-  for (const name of roadmap.editGroups ?? []) {
+  for (const name of roadmap.editGroups || []) {
     editGroups.push({ name: name });
   }
 
   const viewGroups: { name: string }[] = [];
-  for (const name of roadmap.viewGroups ?? []) {
+  for (const name of roadmap.viewGroups || []) {
     viewGroups.push({ name: name });
   }
 

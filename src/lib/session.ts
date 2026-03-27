@@ -32,5 +32,5 @@ export const options: SessionOptions = {
  * Reads login data from cookies
  */
 export async function getSession(cookies: ReadonlyRequestCookies, sessionOptions?: SessionOptions): Promise<IronSession<LoginData>> {
-  return getIronSession<LoginData>(cookies, sessionOptions ?? options);
+  return getIronSession<LoginData>(cookies, sessionOptions || options);
 };

@@ -171,7 +171,7 @@ export async function POST(request: NextRequest) {
         links: {
           create: actionCreate.links?.map(link => ({
             url: link.url,
-            description: link.description ?? undefined,
+            description: link.description || undefined,
           })),
         },
         // TODO: Add `Note`s
@@ -324,7 +324,7 @@ export async function PUT(request: NextRequest) {
           set: [],
           create: action.links?.map(link => ({
             url: link.url,
-            description: link.description ?? undefined,
+            description: link.description || undefined,
           })),
         },
       },

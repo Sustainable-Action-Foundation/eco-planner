@@ -58,11 +58,11 @@ export default function MainDeltaGraph({
       },
       labels: { formatter: graphNumberFormatter },
       seriesName: [
-        (goal.name ?? goal.indicatorParameter).split('\\').at(-1) ?? "",
+        (goal.name || goal.indicatorParameter).split('\\').at(-1) ?? "",
         t("graphs:common.baseline_scenario"),
         t("graphs:common.expected_outcome"),
-        (secondaryGoal?.dataSeries?.unit === goal.dataSeries.unit) ? (secondaryGoal.name ?? secondaryGoal.indicatorParameter) : '',
-        t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name ?? "" }),
+        (secondaryGoal?.dataSeries?.unit === goal.dataSeries.unit) ? (secondaryGoal.name || secondaryGoal.indicatorParameter) : '',
+        t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name || "" }),
       ],
     }],
     tooltip: {
@@ -96,7 +96,7 @@ export default function MainDeltaGraph({
     });
   }
   chart.push({
-    name: (goal.name ?? goal.indicatorParameter).split('\\').at(-1),
+    name: (goal.name || goal.indicatorParameter).split('\\').at(-1),
     data: mainSeries,
     type: 'line',
   });
@@ -219,7 +219,7 @@ export default function MainDeltaGraph({
       });
     }
     chart.push({
-      name: secondaryGoal.name ?? secondaryGoal.indicatorParameter,
+      name: secondaryGoal.name || secondaryGoal.indicatorParameter,
       data: secondarySeries,
       type: 'line',
     });
@@ -230,7 +230,7 @@ export default function MainDeltaGraph({
           text: t("graphs:main_delta_graph.annual_change", { unit: secondaryGoal.dataSeries.unit?.toLowerCase() == 'procent' ? t("graphs:main_delta_graph.percentage_points") : secondaryGoal.dataSeries.unit === null ? t("common:tsx.unitless") : secondaryGoal.dataSeries.unit || t("common:tsx.unit_missing") })
         },
         labels: { formatter: graphNumberFormatter },
-        seriesName: secondaryGoal.name ?? secondaryGoal.indicatorParameter,
+        seriesName: secondaryGoal.name || secondaryGoal.indicatorParameter,
         opposite: true,
       });
     }
@@ -262,7 +262,7 @@ export default function MainDeltaGraph({
       });
     }
     chart.push({
-      name: t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name ?? "" }),
+      name: t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name || "" }),
       data: parentSeries,
       type: 'line',
     });

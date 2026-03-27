@@ -7,8 +7,8 @@ import path from "node:path";
 // eslint-disable-next-line @typescript-eslint/require-await
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const paramLNG = searchParams.get("lng") ?? Locales.default;
-  const paramNS = searchParams.get("ns") ?? null;
+  const paramLNG = searchParams.get("lng") || Locales.default;
+  const paramNS = searchParams.get("ns") || null;
 
   // Validate params
   if (!paramLNG || !uniqueLocales.includes(paramLNG as Locales)) {
