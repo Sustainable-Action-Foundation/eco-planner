@@ -311,7 +311,7 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message == ClientError.BadSession) {
+      if (error.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
@@ -331,7 +331,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Only allow admins to create national roadmaps
-  if (metaRoadmap.type == RoadmapType.NATIONAL && !session.user.isAdmin) {
+  if (metaRoadmap.type === RoadmapType.NATIONAL && !session.user.isAdmin) {
     return Response.json({ message: 'Forbidden; only admins may create national roadmaps. Feel free to send an email to kontakt@sustainable-action.org if you think we should add another.' },
       { status: 403 }
     );
@@ -394,7 +394,7 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.log(error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code == 'P2025') {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
       return Response.json({ message: 'Failed to connect records. Probably invalid editor, viewer, editGroup, and/or viewGroup name(s)' },
         { status: 400 }
       )
@@ -496,19 +496,19 @@ export async function PUT(request: NextRequest) {
     }
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message == ClientError.BadSession) {
+      if (error.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } }
         );
       }
-      if (error.message == ClientError.StaleData) {
+      if (error.message === ClientError.StaleData) {
         return Response.json({ message: ClientError.StaleData },
           { status: 409 }
         );
       }
-      if (error.message == ClientError.IllegalParent) {
+      if (error.message === ClientError.IllegalParent) {
         return Response.json({ message: ClientError.IllegalParent },
           { status: 403 }
         );
@@ -527,7 +527,7 @@ export async function PUT(request: NextRequest) {
   }
 
   // Only allow admins to create national roadmaps
-  if (metaRoadmap.type == RoadmapType.NATIONAL && !session.user?.isAdmin) {
+  if (metaRoadmap.type === RoadmapType.NATIONAL && !session.user?.isAdmin) {
     return new Response(
       JSON.stringify({ message: 'Forbidden; only admins can create national roadmaps' }),
       { status: 403 }
@@ -593,7 +593,7 @@ export async function PUT(request: NextRequest) {
     );
   } catch (error) {
     console.log(error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code == 'P2025') {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
       return Response.json({ message: 'Failed to connect records. Probably invalid editor, viewer, editGroup, and/or viewGroup name(s)' },
         { status: 400 }
       )
@@ -647,13 +647,13 @@ export async function DELETE(request: NextRequest) {
       throw new Error(ClientError.BadSession, { cause: 'meta roadmap' });
     }
 
-    // If the meta roadmap is not found it eiter does not exist or the user has no access to it
+    // If the meta roadmap is not found it either does not exist or the user has no access to it
     if (!currentMetaRoadmap) {
       throw new Error(ClientError.AccessDenied, { cause: 'meta roadmap' });
     }
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message == ClientError.BadSession) {
+      if (error.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },

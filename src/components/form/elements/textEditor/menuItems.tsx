@@ -573,9 +573,9 @@ export function FontSize(props: FontSizeProps) {
       >
         {!editor.getAttributes('textStyle').fontSize ?
           t("forms:text_editor_menu.font_size.normal")
-          : editor.getAttributes('textStyle').fontSize == '1.25rem' ?
+          : editor.getAttributes('textStyle').fontSize === '1.25rem' ?
             t("forms:text_editor_menu.font_size.large")
-            : editor.getAttributes('textStyle').fontSize == '0.75rem' ?
+            : editor.getAttributes('textStyle').fontSize === '0.75rem' ?
               t("forms:text_editor_menu.font_size.small")
               : ''
         }

@@ -489,14 +489,14 @@ export async function POST(request: NextRequest) {
   }
   catch (error) {
     if (error instanceof Error) {
-      if (error.message == ClientError.BadSession) {
+      if (error.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } }
         );
       }
-      if (error.message == ClientError.IllegalParent) {
+      if (error.message === ClientError.IllegalParent) {
         return Response.json({ message: ClientError.IllegalParent },
           { status: 403 }
         );
@@ -634,7 +634,7 @@ export async function POST(request: NextRequest) {
   }
   catch (error) {
     console.log(error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code == 'P2025') {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
       return Response.json({ message: 'Failed to connect records. Given roadmap might not exist' },
         { status: 400 }
       );
@@ -703,24 +703,24 @@ export async function PUT(request: NextRequest) {
     }
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message == ClientError.BadSession) {
+      if (error.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } }
         );
       }
-      if (error.message == ClientError.StaleData) {
+      if (error.message === ClientError.StaleData) {
         return Response.json({ message: ClientError.StaleData },
           { status: 409 }
         );
       }
-      if (error.message == ClientError.IllegalParent) {
+      if (error.message === ClientError.IllegalParent) {
         return Response.json({ message: ClientError.IllegalParent },
           { status: 403 }
         );
       }
-      if (error.message == ClientError.AccessDenied) {
+      if (error.message === ClientError.AccessDenied) {
         return Response.json({ message: ClientError.AccessDenied },
           { status: 403 }
         );
@@ -927,14 +927,14 @@ export async function DELETE(request: NextRequest) {
     }
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message == ClientError.BadSession) {
+      if (error.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } }
         );
       }
-      if (error.message == ClientError.AccessDenied) {
+      if (error.message === ClientError.AccessDenied) {
         return Response.json({ message: ClientError.AccessDenied },
           { status: 403 }
         );

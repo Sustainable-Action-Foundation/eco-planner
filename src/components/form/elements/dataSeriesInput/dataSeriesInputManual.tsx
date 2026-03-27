@@ -65,7 +65,7 @@ export default function DataSeriesInputManual() {
 
         // If we paste into data, we do not want any new data in the previous column (i.e years)
         // If we paste into year, we expect both the year and data column to be filled out data exists
-        if (targetColumn == 'data') {
+        if (targetColumn === 'data') {
           next[rowIndex] = {
             year: next[rowIndex].year,
             data: cols[0] ? Number(cols[0]) : null,

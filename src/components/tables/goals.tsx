@@ -72,7 +72,7 @@ export default function Goals({
             <input type="search" className="padding-0 margin-inline-50" onChange={(e) => setSearchFilter(e.target.value)} />
           </div>
         </label>
-        {viewMode == ViewMode.Table && (
+        {viewMode === ViewMode.Table && (
           <label className="font-weight-bold">
             {t("components:goals.sort_by")}
             <select
@@ -98,9 +98,9 @@ export default function Goals({
 
       {/* TODO: Probably not correct to handle loading as a default state? */}
       {/* TODO: Probably use a skeleton for the loading state */}
-      {viewMode == ViewMode.Tree ? (
+      {viewMode === ViewMode.Tree ? (
         <LinkTree roadmap={filteredRoadmap} />
-      ) : viewMode == ViewMode.Table ? (
+      ) : viewMode === ViewMode.Table ? (
         <GoalTable roadmap={filteredRoadmap} sortBy={sortBy} />
       ) :
         <Image

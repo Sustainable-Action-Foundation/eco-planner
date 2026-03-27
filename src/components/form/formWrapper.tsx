@@ -65,13 +65,13 @@ export default function FormWrapper({
 
   // Hide the "next" button when at the final slide
   let nextButtonHiddenClass = "";
-  if (transformIndex == sections.length - 1) {
+  if (transformIndex === sections.length - 1) {
     nextButtonHiddenClass = "hidden";
   }
 
   // Hide the "back" button when at the first slide
   let backButtonHiddenClass = "";
-  if (transformIndex == 0) {
+  if (transformIndex === 0) {
     backButtonHiddenClass = "hidden";
   }
 

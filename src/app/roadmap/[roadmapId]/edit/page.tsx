@@ -46,7 +46,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
   const access = accessChecker(roadmap, session.user)
 
   // User must be signed in and have edit access to the roadmap, which must exist
-  if (!session.user || !roadmap || access == AccessLevel.None || access == AccessLevel.View) {
+  if (!session.user || !roadmap || access === AccessLevel.None || access === AccessLevel.View) {
     return notFound();
   }
 

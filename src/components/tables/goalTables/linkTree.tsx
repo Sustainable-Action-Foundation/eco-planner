@@ -57,7 +57,7 @@ export default function LinkTree({
         return;
       setSessionStorage(roadmap.id, [...currentStorage, key]);
     } else {
-      setSessionStorage(roadmap.id, currentStorage.filter(branch => branch != key));
+      setSessionStorage(roadmap.id, currentStorage.filter(branch => branch !== key));
     }
   };
 

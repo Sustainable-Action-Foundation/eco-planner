@@ -63,7 +63,7 @@ export default async function getTrafaTableContent(tableId: string, selection: {
       return null;
     }
 
-    if (timeColumns.length == 0) {
+    if (timeColumns.length === 0) {
       console.warn("No time columns found in Trafa table content");
       return null;
     } else if (timeColumns.length > 1) {
@@ -83,7 +83,7 @@ export default async function getTrafaTableContent(tableId: string, selection: {
           const yearValue = data.Cell.find(cell => cell.Column === "ar")?.Value;
           const monthValue = data.Cell.find(cell => cell.Column === "manad")?.Value;
           const dataValue = data.Cell.find(cell => cell.IsMeasure)?.Value;
-          if (yearValue != undefined && monthValue != undefined && dataValue != undefined) {
+          if (yearValue !== undefined && monthValue !== undefined && dataValue !== undefined) {
             result.values.push({
               period: `${yearValue}M${monthValue}`,
               value: dataValue
@@ -98,7 +98,7 @@ export default async function getTrafaTableContent(tableId: string, selection: {
           const yearValue = data.Cell.find(cell => cell.Column === "ar")?.Value;
           const quarterValue = data.Cell.find(cell => cell.Column === "kvartal")?.Value;
           const dataValue = data.Cell.find(cell => cell.IsMeasure)?.Value;
-          if (yearValue != undefined && quarterValue != undefined && dataValue != undefined) {
+          if (yearValue !== undefined && quarterValue !== undefined && dataValue !== undefined) {
             result.values.push({
               period: `${yearValue}K${quarterValue}`,
               value: dataValue
@@ -112,11 +112,11 @@ export default async function getTrafaTableContent(tableId: string, selection: {
         console.warn("No month or quarter column found in Trafa table content with multiple time columns. Found columns follow: ", timeColumns.map(column => column.Name));
         return null;
       }
-    } else if (timeColumns.length == 1) {
+    } else if (timeColumns.length === 1) {
       for (const data of trafaTableContent.Rows) {
         const timeValue = data.Cell.find(cell => cell.Column === timeColumns[0].Name)?.Value;
         const dataValue = data.Cell.find(cell => cell.IsMeasure)?.Value;
-        if (timeValue != undefined && dataValue != undefined) {
+        if (timeValue !== undefined && dataValue !== undefined) {
           result.values.push({
             period: timeValue,
             value: dataValue

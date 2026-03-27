@@ -21,7 +21,7 @@ export default async function getPxWebTableDetails(tableId: string, externalData
     const response = await fetch(url, { method: 'GET' });
     if (response.ok) {
       data = await response.json() as PxWebApiV2TableDetails;
-    } else if (response.status == 429) {
+    } else if (response.status === 429) {
       // Wait 10 seconds and try again
       await new Promise(resolve => setTimeout(resolve, 10000));
       return await getPxWebTableDetails(tableId, externalDataset, language);

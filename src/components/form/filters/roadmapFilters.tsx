@@ -85,12 +85,12 @@ export default function RoadmapFilters() {
                   // setTypeFilter(typeFilter.filter((item) => item != e.target.value))
                 }
               }} />
-              {`${thisType == RoadmapType.NATIONAL ? t("common:scope.national") :
-                thisType == RoadmapType.REGIONAL ? t("common:scope.regional") :
-                  thisType == RoadmapType.MUNICIPAL ? t("common:scope.municipal") :
-                    thisType == RoadmapType.LOCAL ? t("common:scope.local") :
-                      thisType == RoadmapType.ORGANIZATIONAL ? t("common:scope.organizational_roadmap") :
-                        thisType == RoadmapType.OTHER ? t("common:scope.other") :
+              {`${thisType === RoadmapType.NATIONAL ? t("common:scope.national") :
+                thisType === RoadmapType.REGIONAL ? t("common:scope.regional") :
+                  thisType === RoadmapType.MUNICIPAL ? t("common:scope.municipal") :
+                    thisType === RoadmapType.LOCAL ? t("common:scope.local") :
+                      thisType === RoadmapType.ORGANIZATIONAL ? t("common:scope.organizational_roadmap") :
+                        thisType === RoadmapType.OTHER ? t("common:scope.other") :
                           thisType
                 }`}
             </label>

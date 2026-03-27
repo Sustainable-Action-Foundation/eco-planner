@@ -111,7 +111,7 @@ export default function SelectMultipleSearch({
           margin-inline-0`
         }
         onBlur={(e) => {
-          if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget?.id != props.id) {
+          if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget?.id !== props.id) {
             setFocusedListboxOption(null)
             setMenuOpen(false);
           }

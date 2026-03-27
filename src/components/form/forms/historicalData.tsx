@@ -57,11 +57,11 @@ export default function HistoricalData({
       // Skip externalDataset and externalTableId, they are not part of the query
       if (!value) return;
       if (value instanceof File) return;
-      if (key == "externalDataset") return;
-      if (key == "externalTableId") return;
+      if (key === "externalDataset") return;
+      if (key === "externalTableId") return;
 
       // The PxWeb time variable is special, as we want to fetch every period after (and including) the selected one
-      if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && key == formRef.current?.getElementsByClassName("TimeVariable")[0]?.id) {
+      if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && key === formRef.current?.getElementsByClassName("TimeVariable")[0]?.id) {
         queryObject.push({ variableCode: key, valueCodes: [`FROM(${value})`] });
         return;
       }
@@ -91,10 +91,10 @@ export default function HistoricalData({
         setIsLoading(false);
       });
 
-      if (dataSource == "Trafa") {
+      if (dataSource === "Trafa") {
         // If metric was changed, send the metric as a query to the API to get filtered table details
-        if (event?.target instanceof HTMLSelectElement && event.target.name == "metric") {
-          void getTableDetails(table ? table.tableId : "", dataSource, query.filter(q => q.variableCode == "metric"), lang).then(result => { setTableDetails(result); });
+        if (event?.target instanceof HTMLSelectElement && event.target.name === "metric") {
+          void getTableDetails(table ? table.tableId : "", dataSource, query.filter(q => q.variableCode === "metric"), lang).then(result => { setTableDetails(result); });
         }
       }
 
@@ -155,7 +155,7 @@ export default function HistoricalData({
 
   // TODO: should probably use a pseudo class (::after) instead of a span here.
   function optionalTag(dataSource: string, variableIsOptional: boolean) {
-    if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variableIsOptional) return <span className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</span>;
+    if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && variableIsOptional) return <span className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</span>;
   }
 
   function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails) {
@@ -191,7 +191,7 @@ export default function HistoricalData({
           >
             { // If only one value is available, don't show a placeholder option
               (ExternalDataset.getDatasetByAlternateName(dataSource)?.api !== "PxWeb" ||
-                (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variable.values && variable.values.length > 1)) &&
+                (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && variable.values && variable.values.length > 1)) &&
               <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option>
             }
             {variable.values?.map(value => (
@@ -200,25 +200,25 @@ export default function HistoricalData({
           </select>
         </label>
       )
-    } else if (dataSource == "Trafa" && !variable.option && (variable as TrafaVariable).selected) {
+    } else if (dataSource === "Trafa" && !variable.option && (variable as TrafaVariable).selected) {
       console.warn("The variable is selected while it is not an option. This should not happen.");
     }
   }
 
   function timeVariableSelectionHelper(times: (TrafaVariable | PxWebTimeVariable)[], language?: string) {
     if (
-      (dataSource == "Trafa" && !(times.length == 1 && times[0].name == "ar")) ||
-      (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && times.length > 1)
+      (dataSource === "Trafa" && !(times.length === 1 && times[0].name === "ar")) ||
+      (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && times.length > 1)
     ) {
       let heading = "";
       let defaultValue = "";
       let displayValueKey: keyof typeof times[0]/* "label" | "id" | "name" | "type" */ = "id";
       const variableIsOptional = times[0].optional;
-      if (dataSource == "Trafa") {
+      if (dataSource === "Trafa") {
         heading = t("components:query_builder.select_time_interval");
         defaultValue = t("components:query_builder.select_time_interval");
         displayValueKey = "label";
-      } else if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb") {
+      } else if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") {
         heading = t("components:query_builder.select_starting_period");
         defaultValue = t("components:query_builder.select_time_period");
         displayValueKey = "id";
@@ -230,7 +230,7 @@ export default function HistoricalData({
             required={false}
             name="time"
             id="time"
-            defaultValue={times?.length == 1 ? times[0].label : undefined}
+            defaultValue={times?.length === 1 ? times[0].label : undefined}
             onChange={() => tryGetResult()}
           >
             <option value="" className={`font-style-italic color-gray`}>{defaultValue}</option>
@@ -468,7 +468,7 @@ export default function HistoricalData({
                 {tableDetails?.variables && metric ? (
                   (tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || // TODO: Figure out why this is structured as is? Only the first if statement makes sense to me
                     (
-                      !(ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb") &&
+                      !(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") &&
                       tableDetails.variables.some(variable => variable.option)
                     ) ||
                     tableDetails.times.length > 1 ? (

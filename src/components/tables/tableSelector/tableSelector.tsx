@@ -23,11 +23,11 @@ export default function TableSelector({ id, current, setter }: { id: string, cur
 
   return (
     <div className='flex align-items-center gap-25'>
-      <RadioImage value={ViewMode.Tree} name="table" checked={current == ViewMode.Tree} onChange={handleRadioChange}>
+      <RadioImage value={ViewMode.Tree} name="table" checked={current === ViewMode.Tree} onChange={handleRadioChange}>
         {t("components:table_selector.tree")}
         <IconListTree aria-hidden="true" style={{ minWidth: '24px' }} />
       </RadioImage>
-      <RadioImage value={ViewMode.Table} name="table" checked={current == ViewMode.Table} onChange={handleRadioChange}>
+      <RadioImage value={ViewMode.Table} name="table" checked={current === ViewMode.Table} onChange={handleRadioChange}>
         {t("components:table_selector.table")}
         <IconTableFilled aria-hidden="true" style={{ minWidth: '24px' }} />
       </RadioImage>

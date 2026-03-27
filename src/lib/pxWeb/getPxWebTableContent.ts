@@ -31,14 +31,14 @@ export default async function getPxWebTableContent(tableId: string, externalData
 
   // Add all selection items to payload
   selection.forEach(item => {
-    if (item.variableCode == "metrics" || item.variableCode == "metric") {
+    if (item.variableCode === "metrics" || item.variableCode === "metric") {
       const selectionItem = {
         variableCode: "ContentsCode",
         valueCodes: item.valueCodes,
       };
       payload.selection.push(selectionItem);
     }
-    else if (item.variableCode != "Tid" && item.variableCode != "Time") {
+    else if (item.variableCode !== "Tid" && item.variableCode !== "Time") {
       const selectionItem = {
         variableCode: item.variableCode,
         valueCodes: item.valueCodes,
@@ -54,7 +54,7 @@ export default async function getPxWebTableContent(tableId: string, externalData
     }
   });
 
-  const timeSelectionItemInPayload = payload.selection.filter(item => item.variableCode == "Tid" || item.variableCode == "Time")[0];
+  const timeSelectionItemInPayload = payload.selection.filter(item => item.variableCode === "Tid" || item.variableCode === "Time")[0];
   if (!timeSelectionItemInPayload) {
     // Get all time periods that are available for this table and add them to payload
     const timeSelectionItem = { variableCode: "Tid", valueCodes: [] as string[], };
@@ -74,7 +74,7 @@ export default async function getPxWebTableContent(tableId: string, externalData
     for (const line of lines) {
       lines[lines.indexOf(line)] = line.split(" \r").join("").split("\r").join("").split("\n").join("");
     }
-    lines = lines.filter((entry) => { return entry.trim() != ''; });
+    lines = lines.filter((entry) => { return entry.trim() !== ''; });
 
     for (const line of lines) {
       const match = line.match(/^(.+?)=(.+)$/); // Find KEY=VALUE;
@@ -92,7 +92,7 @@ export default async function getPxWebTableContent(tableId: string, externalData
     // Convert response values to a list
     json.DATA = (json.DATA as string).split(" ");
 
-    if (json.UNITS == "number" || json.UNITS == "antal") {
+    if (json.UNITS === "number" || json.UNITS === "antal") {
       json.DATA = (json.DATA).map(Number);
     }
 
@@ -114,7 +114,7 @@ export default async function getPxWebTableContent(tableId: string, externalData
           let cleanedValue: string | number | null = value.replace(/"/g, "").replace(/\r/g, "").trim(); // Remove citation marks and \r
           if (cleanedValue === "..") {
             cleanedValue = null;
-          } else if (!isNaN(Number(cleanedValue)) && headers[index] != "Sektor") {
+          } else if (!isNaN(Number(cleanedValue)) && headers[index] !== "Sektor") {
             cleanedValue = Number(cleanedValue); // Convert numerical values
           }
           obj[headers[index]] = cleanedValue; // Set values with headers as keys

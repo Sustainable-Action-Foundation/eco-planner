@@ -257,7 +257,7 @@ export default function SelectSingleTreeSearch({
           margin-inline-0`
         }
         onBlur={(e) => {
-          if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget?.id != props.id) {
+          if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget?.id !== props.id) {
             setFocusedIndex(null)
             setMenuOpen(false);
           }

@@ -22,14 +22,14 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
-  const objectType = await findTypeFromId(comment.objectId).catch(() => { return "" });
+  const objectType = await findTypeFromId(comment.objectId);
 
-  if (comment.commentText == "") {
+  if (comment.commentText === "") {
     return Response.json({ message: 'Comment text cannot be empty' },
       { status: 400 }
     );
   }
-  if (objectType == "") {
+  if (objectType === undefined) {
     return Response.json({ message: 'Invalid object id' },
       { status: 400 }
     );
@@ -41,9 +41,9 @@ export async function POST(request: NextRequest) {
       data: {
         commentText: comment.commentText,
         authorId: session.user.id,
-        actionId: objectType == "action" ? comment.objectId : undefined,
-        goalId: objectType == "goal" ? comment.objectId : undefined,
-        roadmapId: objectType == "roadmap" ? comment.objectId : undefined,
+        actionId: objectType === "action" ? comment.objectId : undefined,
+        goalId: objectType === "goal" ? comment.objectId : undefined,
+        roadmapId: objectType === "roadmap" ? comment.objectId : undefined,
       }
     });
     revalidateTag(objectType)

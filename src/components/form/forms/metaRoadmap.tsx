@@ -147,7 +147,7 @@ export default function MetaRoadmapForm({
               <option value="" disabled>{t("forms:meta_roadmap.no_chosen_roadmap_scope")}</option>
               {
                 Object.values(RoadmapType).map((value) => {
-                  if (value == RoadmapType.NATIONAL && !user?.isAdmin) return null;
+                  if (value === RoadmapType.NATIONAL && !user?.isAdmin) return null;
                   return (
                     <option key={value} value={value}>{value in customRoadmapTypes ? customRoadmapTypes[value] : value}</option>
                   )

@@ -43,7 +43,7 @@ const tsCommonRules: Config["rules"] = {
   "@typescript-eslint/no-base-to-string": "warn",
   "@typescript-eslint/use-unknown-in-catch-callback-variable": "error",
   "@/no-useless-assignment": "warn",
-  // "eqeqeq": ["error", "smart"], // TODO - use
+  "eqeqeq": ["error", "smart"],
 };
 
 export default defineConfig([

@@ -132,7 +132,7 @@ export default function ConfigureAccess({
                 className="flex-grow-100"
                 placeholder={t("forms:access_selector.select_users")}
                 disabled={visibilityType !== "custom"}
-                required={visibilityType === "custom" && (!viewerGroups || viewerGroups.length == 0)}
+                required={visibilityType === "custom" && (!viewerGroups || viewerGroups.length === 0)}
                 type="text"
                 autoComplete="off"
                 defaultValue={viewers}
@@ -210,7 +210,7 @@ export default function ConfigureAccess({
                 name="editors"
                 placeholder={t("forms:access_selector.select_users")}
                 disabled={editabilityType !== "custom"}
-                required={editabilityType === "custom" && (!editorGroups || editorGroups.length == 0)}
+                required={editabilityType === "custom" && (!editorGroups || editorGroups.length === 0)}
                 defaultValue={editors}
                 onChange={(e) => setEditors(e.target.value)}
               />

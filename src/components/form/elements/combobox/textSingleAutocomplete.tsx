@@ -97,7 +97,7 @@ export default function TextSingleAutocomplete({
                 )
               },
               onFocus: () => setDisplayListBox(true),
-              onBlur: (e) => { if (e.relatedTarget?.id != `${props.id}-listbox` && e.relatedTarget?.id != `${props.id}-button`) { setDisplayListBox(false) } },
+              onBlur: (e) => { if (e.relatedTarget?.id !== `${props.id}-listbox` && e.relatedTarget?.id !== `${props.id}-button`) { setDisplayListBox(false) } },
               "role": "combobox",
               "aria-expanded": displayListBox,
               "aria-haspopup": "listbox",
@@ -139,7 +139,7 @@ export default function TextSingleAutocomplete({
             maxHeight: maxOptions ? `${(maxOptions * 33) + 6}px` : '300px' // TODO: Implement for select comboboxes aswell
           }}
           // TODO: Onblur does not seem to actually setFocusedListBoxItem, figure out why...
-          onBlur={(e) => { if (e.relatedTarget?.id != props.id) { setFocusedListBoxItem(null); setDisplayListBox(false); } }} // TODO: See if we can deal with blur the same way for all comboboxes
+          onBlur={(e) => { if (e.relatedTarget?.id !== props.id) { setFocusedListBoxItem(null); setDisplayListBox(false); } }} // TODO: See if we can deal with blur the same way for all comboboxes
           role="listbox"
           tabIndex={-1}
           aria-label={t("common:tsx.suggestions")}

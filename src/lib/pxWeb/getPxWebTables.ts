@@ -31,7 +31,7 @@ export default async function getPxWebTables(externalDataset: string, searchQuer
       if (data?.page?.totalElements > data?.page?.pageSize) {
         return await getPxWebTables(externalDataset, searchQuery, language, data.page.totalElements);
       }
-    } else if (response.status == 429) {
+    } else if (response.status === 429) {
       // Wait 10 seconds and try again
       await new Promise(resolve => setTimeout(resolve, 10000));
       return await getPxWebTables(externalDataset, searchQuery, language, pageSize);

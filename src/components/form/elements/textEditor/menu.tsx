@@ -264,7 +264,7 @@ export default function TextEditorMenu({
                 setFocusedSubmenuItem(null)
                 setSubmenuVisible(false)
               }
-              if (e.key === 'ArrowDown' || e.key == 'ArrowUp') {
+              if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
                 if (!submenuItemsRef.current) return
                 e.preventDefault()
                 if (!submenuVisible) { setSubmenuVisible(true) }

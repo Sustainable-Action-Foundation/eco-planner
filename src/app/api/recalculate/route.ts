@@ -175,13 +175,13 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message == ClientError.BadSession) {
+      if (error.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } }
         );
-      } else if (error.message == ClientError.AccessDenied) {
+      } else if (error.message === ClientError.AccessDenied) {
         return Response.json({ message: ClientError.AccessDenied },
           { status: 403 }
         );

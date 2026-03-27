@@ -15,7 +15,7 @@ export default function goalsToTree(goals: Array<GoalTreeEntry | null>, t: TFunc
     const parameters = goal.indicatorParameter.split('\\');
 
     // "key" and "demand" are currently the first subsection in the parameters of our data exported from LEAP, but they are mainly metadata and not relevant for the tree structure
-    if (parameters[0].toLowerCase() == 'key' || parameters[0].toLowerCase() == 'demand') {
+    if (parameters[0].toLowerCase() === 'key' || parameters[0].toLowerCase() === 'demand') {
       parameters.shift();
     }
 

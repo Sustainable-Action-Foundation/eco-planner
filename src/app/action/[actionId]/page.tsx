@@ -104,7 +104,7 @@ export default async function Page(props: { params: Promise<{ actionId: string }
           }
 
           <h2 className="margin-top-300">{t("pages:action.project_manager")}</h2>
-          {(action.projectManager && (accessLevel == AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel == AccessLevel.Admin)) ?
+          {(action.projectManager && (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin)) ?
             <p>{action.projectManager}</p>
             :
             <p>{t("pages:action.no_project_manager")}</p>

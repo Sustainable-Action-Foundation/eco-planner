@@ -91,7 +91,7 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
   useEffect(() => {
     const metricSelectElement = document.getElementById("metric") as HTMLSelectElement | null;
     if (metricSelectElement) {
-      setDefaultMetricSelected(metricSelectElement.value.length == 0);
+      setDefaultMetricSelected(metricSelectElement.value.length === 0);
     } else {
       setDefaultMetricSelected(true);
     }
@@ -139,7 +139,7 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
   function handleMetricSelect(event: React.ChangeEvent<HTMLSelectElement>) {
     void tryGetResult();
     setIsLoading(true);
-    const isDefaultValue = event.target.value.length == 0;
+    const isDefaultValue = event.target.value.length === 0;
     setDefaultMetricSelected(isDefaultValue);
     const variableSelectionFieldSets = document?.getElementsByName("variableSelectionFieldset");
 
@@ -155,7 +155,7 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
           });
           variableSelectionFieldset.setAttribute("disabled", "true");
           // Reset all the table details when disabling the form so all options are displayed when re-enabling
-          if (dataSource == "Trafa") {
+          if (dataSource === "Trafa") {
             void getTableDetails(tableDetails?.id ?? "", dataSource, undefined, lang).then(result => { setTableDetails(result); setIsLoading(false); });
           }
           else {
@@ -171,7 +171,7 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
 
   // TODO: should probably use a pseudo class (::after) instead of a span here.
   function optionalTag(dataSource: string, variableIsOptional: boolean) {
-    if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variableIsOptional) return <span className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</span>;
+    if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && variableIsOptional) return <span className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</span>;
   }
 
   function handleTableListScroll(event: React.UIEvent<HTMLUListElement, UIEvent>) {
@@ -223,19 +223,19 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
             required={!variable.optional}
             name={variable.name}
             id={variable.name}
-            defaultValue={ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" ?
+            defaultValue={ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" ?
               (// If only one value is available, pre-select it
-                variable.values?.length == 1 ? variable.values[0].label : undefined
+                variable.values?.length === 1 ? variable.values[0].label : undefined
               )
               :
               undefined
             }>
             { // If only one value is available, don't show a placeholder option
-              ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && variable.values && variable.values.length > 1 &&
+              ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && variable.values && variable.values.length > 1 &&
               <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option>
             }
             {
-              !(ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb") &&
+              !(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") &&
               <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option>
             }
             {variable.values?.map(value => (
@@ -244,24 +244,24 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
           </select>
         </label>
       )
-    } else if (dataSource == "Trafa" && !variable.option && (variable as TrafaVariable).selected) {
+    } else if (dataSource === "Trafa" && !variable.option && (variable as TrafaVariable).selected) {
       console.warn("The variable is selected while it is not an option. This should not happen.");
     }
   }
 
   function timeVariableSelectionHelper(times: (TrafaVariable | PxWebTimeVariable)[], language?: string) {
-    if ((dataSource == "Trafa" && !(times.length == 1 && times[0].name == "ar")) || (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb" && times.length > 1)) {
+    if ((dataSource === "Trafa" && !(times.length === 1 && times[0].name === "ar")) || (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && times.length > 1)) {
       let heading = "";
       let defaultValue = "";
       let displayValueKey: keyof typeof times[0]/* "label" | "id" | "name" | "type" */ = "id";
       const variableIsOptional = times[0].optional;
-      if (dataSource == "Trafa") {
+      if (dataSource === "Trafa") {
         // heading = "Välj tidsintervall";
         heading = t("components:query_builder.select_time_interval");
         // defaultValue = "Välj tidsintervall";
         defaultValue = t("components:query_builder.select_time_interval");
         displayValueKey = "label";
-      } else if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb") {
+      } else if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") {
         // heading = "Välj startperiod";
         heading = t("components:query_builder.select_starting_period");
         // defaultValue = "Välj tidsperiod";
@@ -276,7 +276,7 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
           required={false}
           name="Tid"
           id="Tid"
-          defaultValue={times?.length == 1 ? times[0].label : undefined}>
+          defaultValue={times?.length === 1 ? times[0].label : undefined}>
           <option value="" className={`font-style-italic color-gray`}>{defaultValue}</option>
           {times.map(time => (
             <option key={time.name} value={time.name} lang={language}>{time[displayValueKey]}</option>
@@ -287,7 +287,7 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
   }
 
   function shouldVariableFieldsetBeVisible(tableDetails: ApiTableDetails, dataSource: string) {
-    const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api == "PxWeb") && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1);
+    const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1);
     return returnBool;
   }
 
@@ -299,11 +299,11 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
       // Skip File inputs
       if (value instanceof File) return;
       // Skip externalDataset, externalTableId, and `tableSearchInputName`, as they are not part of the query
-      if (key == "externalDataset") return;
-      if (key == "externalTableId") return;
-      if (key == tableSearchInputName) return;
+      if (key === "externalDataset") return;
+      if (key === "externalTableId") return;
+      if (key === tableSearchInputName) return;
       // The PxWeb time variable is special, as we want to fetch every period after (and including) the selected one
-      if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && key == selectorMenuRef.current?.getElementsByClassName("TimeVariable")[0]?.id) {
+      if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && key === selectorMenuRef.current?.getElementsByClassName("TimeVariable")[0]?.id) {
         queryObject.push({ variableCode: key, valueCodes: [`FROM(${value})`] });
         return;
       }
@@ -337,10 +337,10 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
       setTableContent(null);
       setIsLoading(false);
     });
-    if (dataSource == "Trafa") {
+    if (dataSource === "Trafa") {
       // If metric was changed, send the metric as a query to the API to get filtered table details
-      if (event?.target instanceof HTMLSelectElement && event.target.name == "metric") {
-        void getTableDetails(tableId, dataSource, query.filter(q => q.variableCode == "metric"), lang).then(result => { setTableDetails(result); });
+      if (event?.target instanceof HTMLSelectElement && event.target.name === "metric") {
+        void getTableDetails(tableId, dataSource, query.filter(q => q.variableCode === "metric"), lang).then(result => { setTableDetails(result); });
       }
     }
   }

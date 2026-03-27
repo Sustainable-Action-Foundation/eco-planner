@@ -70,7 +70,7 @@ export function Popover({
     vertical: 'up' | 'vertical' | 'down',
     horizontal?: 'left' | 'right'
   } | 'up' | 'vertical' | 'down',
-  positionTryFallbacks?: string, // TODO: String should be a comma seperated string with suggestions on allowed fallback values. (or an array?) 
+  positionTryFallbacks?: string, // TODO: String should be a comma separated string with suggestions on allowed fallback values. (or an array?) 
   /* 
     As of now, an indicator can only be given assuming a positionTryFallbacks of none. 
     It is likely that future browsers will support some css selector for checking fallback values,
@@ -82,7 +82,7 @@ export function Popover({
 }) {
 
   // TODO: Probably prevent passing none in our types if positionTryFallbacks != "none"?
-  if (positionTryFallbacks != "none") {
+  if (positionTryFallbacks !== "none") {
     indicator = undefined
   }
 
