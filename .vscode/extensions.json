@@ -3,7 +3,6 @@
     "streetsidesoftware.code-spell-checker",
     "lokalise.i18n-ally",
     "dbaeumer.vscode-eslint",
-    "mgmcdermott.vscode-language-babel",
     "Prisma.prisma"
   ],
 }
