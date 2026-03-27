@@ -64,6 +64,7 @@ export default function SelectSingleTreeSearch({
 
   const [value, setValue] = useState<TreeItem | null>(defaultValue ?? null)
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [searchValue, setSearchValue] = useState<string>('')
 
   const [items, setItems] = useState<Array<TreeItem>>(treeItems)
@@ -104,7 +105,7 @@ export default function SelectSingleTreeSearch({
     )
   }, [menuOpen]);
 
-  // Disables form subbmision if value is invalid 
+  // Disables form submission if value is invalid 
   // Define what an invalid value is (missing value or empty string). We only need this defined if the field is required
   const valueIsValid = useMemo(() => {
     if ((!value || value.value === "") && props.required) return false;

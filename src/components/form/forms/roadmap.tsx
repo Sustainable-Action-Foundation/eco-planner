@@ -127,6 +127,7 @@ export default function RoadmapForm({
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [timestamp] = useState<number>(() => Date.now());
   const [metaRoadmapId, setMetaRoadmapId] = useState<string>(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap || "")
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [targetVersion, setTargetVersion] = useState<number | null>(0)
   // Temporarily disabled
   // const [inheritableGoals, setInheritableGoals] = useState<{ id: string, name: string | null, indicatorParameter: string }[]>([])

@@ -8,7 +8,7 @@ const nonAppTsBaseConfig = tseslint.configs.recommendedTypeChecked;
 const tsCommonRules: Config["rules"] = {
   "prefer-const": "warn",
   "@typescript-eslint/no-unused-vars": [
-    "warn",
+    "error",
     {
       "args": "all",
       "argsIgnorePattern": "^_",
