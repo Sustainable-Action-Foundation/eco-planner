@@ -151,6 +151,7 @@ export default async function Sidebar() {
             anchorName='--settings-popover-button'
             popoverTarget='settings-popover'
             className='transparent rounded'
+            data-testid='settings-button'
           >
             <IconSettings aria-hidden="true" />
             {t("components:sidebar.settings")}
