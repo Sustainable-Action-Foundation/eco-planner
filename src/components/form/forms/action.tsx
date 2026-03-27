@@ -212,9 +212,12 @@ export default function ActionForm({
       </form>
       <button onClick={() => addMessage("Detta är en lyckad åtgärd!", "success")}>Add Toast</button>
       <button onClick={() => addMessage("Detta är ett varningsmeddelande!", "warning")}>Add Toast</button>
-      <button onClick={() => addMessage("Detta är ett felmeddelande!", "error")}>Add Toast</button>
-      <div className="flex flex-direction-column gap-50">
-        <CreateToast key={300} id={300} type="error">The file seems to use an unknown encoding as the interpreted text contains the character '�' which indicates that a character could not be interpreted correctly (probably Å, Ä or Ö). You can still use this file, but if you are not completely sure that it *should* contain the character '�' it is recommended that you convert the file to UTF-8 encoding and try again.</CreateToast>
+      <button onClick={() => addMessage("The file seems to use an unknown encoding as the interpreted text contains the character '' which indicates that a character could not be interpreted correctly (probably Å, Ä or Ö). You can still use this file, but if you are not completely sure that it *should* contain the character '' it is recommended that you convert the file to UTF-8 encoding and try again.", "error", false)}>Add Toast</button>
+      <button onClick={() => addMessage("The file seems to use an unknown encoding", "warning", false)}>Add Toast</button>
+      <div className="flex flex-direction-column gap-50 margin-auto" style={{ width: "40ch" }} >
+        <CreateToast key={500} id={500} type="error" hasTimeout={false}>
+          The file seems to use an unknown encoding as the interpreted text contains the character '' which indicates that a character could not be interpreted correctly (probably Å, Ä or Ö). You can still use this file, but if you are not completely sure that it *should* contain the character '' it is recommended that you convert the file to UTF-8 encoding and try again.
+        </CreateToast>
       </div>
     </>
   )

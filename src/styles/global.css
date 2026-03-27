@@ -240,7 +240,33 @@ progress::-webkit-progress-value {
 }
 
 .toast {
+  color: white;
   animation: toast-slide-in 0.3s ease;
+  user-select: none;
+}
+
+.toast-body {
+  margin: 0;
+  padding-inline: 1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+}
+
+.toast-body-error {
+  cursor: pointer;
+}
+
+.open {
+  line-clamp: unset;
+  -webkit-line-clamp: unset;
+  -webkit-box-orient: vertical;
+}
+
+.closed {
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 @keyframes toast-slide-in {
