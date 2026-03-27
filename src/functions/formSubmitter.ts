@@ -66,11 +66,10 @@ export default function formSubmitter(
     // Redirect to the location provided by the API, or, if missing, to nearest valid parent
     // POST is on pages such as /goal/create, which should default to / if no location is provided
     // PUT is on pages such as /goal/[id]/edit, which should default to /goal/[id] if no location is provided
-    window.location.href = data.location ?? (defaultLocation
-      ? defaultLocation
-      : method === "POST"
-        ? "../"
-        : "./"
+    window.location.href = data.location || (
+      !!defaultLocation
+        ? defaultLocation
+        : method === "POST" ? "../" : "./"
     );
   }).catch((err: unknown) => {
     if (catchReplacement) {

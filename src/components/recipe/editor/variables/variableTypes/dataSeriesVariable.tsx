@@ -25,7 +25,7 @@ function useRoadmapTreeItems(availableRoadmaps: { id: string; name: string; }[])
         const data = await clientSafeGetOneRoadmap(roadmap.id);
         if (!data) return [];
         return data.goals.map((goal) => ({
-          name: goal.name ? goal.name : goal.indicatorParameter,
+          name: !!goal.name ? goal.name : goal.indicatorParameter,
           value: goal.dataSeries ? goal.dataSeries.id : '',
           expanded: null,
         }));

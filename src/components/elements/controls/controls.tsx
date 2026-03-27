@@ -115,9 +115,7 @@ function buildLinks(
     historicalDataLink = `/goal/${object.id}/historical-data`;
     deleteLink = "/api/goal";
 
-    if (!object.name) {
-      object.name = object.indicatorParameter;
-    }
+    object.name ||= object.indicatorParameter;
   }
 
   // Actions
@@ -233,7 +231,7 @@ export function ControlsMenu(
     <>
       <div className={`${styles.actionButton} display-flex`}>
         <button type="button" onClick={openMenu} className={styles.button} aria-label={t("components:table_menu.button_aria", { component: objectName || metaRoadmapName || t("components:table_menu.button_aria_alt") })}> {/* TODO: Remove this aria if we pass buttontext */}
-          {buttonText ? buttonText : null}
+          {buttonText || null}
           <IconDotsVertical aria-hidden="true" width={width} height={height} />
         </button>
         <dialog className={styles.menu} id={`${typeof object.id === "string" ? object.id : object.id?.actionId + "-" + object.id?.goalId}-menu`} onBlur={closeMenu} ref={menu} onKeyUp={closeMenu}>

@@ -37,10 +37,10 @@ export default function HistoricalData({
   const [isLoading, setIsLoading] = useState(false);
   const [visibleForm, setVisibleForm] = useState('manual')
 
-  const [dataSource, setDataSource] = useState<string>(goal.externalDataset ? goal.externalDataset : "");
+  const [dataSource, setDataSource] = useState<string>(!!goal.externalDataset ? goal.externalDataset : "");
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
   const [table, setTable] = useState<{ tableId: string, label: string } | null>(goal.externalTableId ? { label: tables?.find(t => t.tableId === goal.externalTableId)?.label ?? goal.externalTableId, tableId: goal.externalTableId } : null)
-  const [metric, setMetric] = useState<string | null>(goal.externalSelection ? JSON.parse(goal.externalSelection)[0].valueCodes[0] : null)
+  const [metric, setMetric] = useState<string | null>(!!goal.externalSelection ? JSON.parse(goal.externalSelection)[0].valueCodes[0] : null)
 
   const [tableDetails, setTableDetails] = useState<ApiTableDetails | null>(null);
   const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
@@ -150,7 +150,7 @@ export default function HistoricalData({
   }, [dataSource, lang])
 
   useEffect(() => {
-    handleTableSelect(table?.tableId ? table.tableId : null)
+    handleTableSelect(!!table?.tableId ? table.tableId : null)
   }, [table, handleTableSelect])
 
   // TODO: should probably use a pseudo class (::after) instead of a span here.
@@ -390,7 +390,7 @@ export default function HistoricalData({
                     <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</small>
                     : null}
                   <select
-                    defaultValue={goal.externalDataset ? goal.externalDataset : ''}
+                    defaultValue={!!goal.externalDataset ? goal.externalDataset : ''}
                     className="block margin-top-25 margin-bottom-100 width-100"
                     required
                     name="externalDataset"
@@ -443,7 +443,7 @@ export default function HistoricalData({
                       required={true}
                       name="metric"
                       id="metric"
-                      value={metric ? metric : ''}
+                      value={!!metric ? metric : ''}
                       onChange={(e) => setMetric(e.target.value)}
                     >
                       <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_metric")}</option>

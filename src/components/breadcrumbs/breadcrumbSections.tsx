@@ -38,10 +38,10 @@ export function CustomSection({
       <BreadcrumbChevron />
 
       <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
-        {title ? title : null}
+        {title || null}
         {link ? (
           <Link href={link} className={styles.breadCrumb}>
-            {linkText || link}
+            {linkText || link || null}
           </Link>
         ) : null}
       </span>
