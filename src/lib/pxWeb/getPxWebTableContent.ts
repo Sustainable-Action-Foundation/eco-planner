@@ -27,8 +27,6 @@ export default async function getPxWebTableContent(tableId: string, externalData
     },
   };
 
-
-
   // Add all selection items to payload
   selection.forEach(item => {
     if (item.variableCode === "metrics" || item.variableCode === "metric") {
@@ -64,65 +62,6 @@ export default async function getPxWebTableContent(tableId: string, externalData
     payload.selection.push(timeSelectionItem);
   }
 
-  // TODO - make this parse in the same format as if it were json
-  function parsePxToJson(pxText: string) {
-    const json: Record<string, string | string[] | number | number[]> = {};
-
-    const cleanedPxText = pxText.replace("\r", "");
-    // Split the response line by line
-    let lines = cleanedPxText.split(";");
-    for (const line of lines) {
-      lines[lines.indexOf(line)] = line.split(" \r").join("").split("\r").join("").split("\n").join("");
-    }
-    lines = lines.filter((entry) => { return entry.trim() !== ''; });
-
-    for (const line of lines) {
-      const match = line.match(/^(.+?)=(.+)$/); // Find KEY=VALUE;
-      if (match) {
-        const key = match[1].trim();
-        let value = match[2].trim();
-
-        // Remove citation marks if they exist
-        if (value.startsWith('"') && value.endsWith('"')) {
-          value = value.slice(1, -1);
-        }
-        json[key] = value;
-      }
-    }
-    // Convert response values to a list
-    json.DATA = (json.DATA as string).split(" ");
-
-    if (json.UNITS === "number" || json.UNITS === "antal") {
-      json.DATA = (json.DATA).map(Number);
-    }
-
-    return json;
-  }
-
-  // TODO - make this parse in the same format as if it were json
-  function parseCsv(csv: string) {
-    const rows = csv.split("\n").map(row => row.split(","));
-    const headers = rows.shift()?.map(h => h.replace(/"/g, "").trim()); // First row as headers
-
-    if (!headers) throw new Error("CSV saknar headers!");
-
-    return rows
-      .filter(row => row.some(value => value.trim() !== ""))
-      .map(row => {
-        const obj: Record<string, string | number | null> = {};
-        row.forEach((value, index) => {
-          let cleanedValue: string | number | null = value.replace(/"/g, "").replace(/\r/g, "").trim(); // Remove citation marks and \r
-          if (cleanedValue === "..") {
-            cleanedValue = null;
-          } else if (!isNaN(Number(cleanedValue)) && headers[index] !== "Sektor") {
-            cleanedValue = Number(cleanedValue); // Convert numerical values
-          }
-          obj[headers[index]] = cleanedValue; // Set values with headers as keys
-        });
-        return obj;
-      });
-  }
-
   let data: JSONValue = null;
   try {
     const response = await fetch(url, {
@@ -138,22 +77,12 @@ export default async function getPxWebTableContent(tableId: string, externalData
     if (response.ok) {
       const contentType = response.headers.get("Content-Type");
 
-      // Parse response differently depending on its content type
-      if (contentType?.includes("application/octet-stream")) {
-        const buffer = await response.arrayBuffer();
-        const decoder = new TextDecoder("iso-8859-1");
-        const decodedText = decoder.decode(buffer);
-        const parsedPx = parsePxToJson(decodedText);
-        data = parsedPx;
-      }
-      else if (contentType?.includes("text/csv")) {
-        const csvText = await response.text();
-        const parsedCsv = parseCsv(csvText);
-        data = parsedCsv;
-      }
-      else if (contentType?.includes("application/json")) {
+      // Make sure content type is application/json (actually json-px, but it's basically just json)
+      if (contentType?.includes("application/json")) {
         const responseJson = await response.json() as JSONValue;
         data = responseJson;
+      } else {
+        throw new Error(`Unsupported content type: ${contentType}`);
       }
     }
   } catch (error) {
