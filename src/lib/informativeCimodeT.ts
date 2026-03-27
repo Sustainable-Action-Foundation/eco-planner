@@ -30,7 +30,7 @@ export function informativeCimodeT(instance: i18n): TFunction {
     });
 
     // If there are used parameters, return them appended after the result, otherwise just return the result
-    if (details.usedParams && Object.values(details.usedParams).filter(val => val != undefined).length > 0) {
+    if (details.usedParams && Object.values(details.usedParams).filter(val => val !== undefined).length > 0) {
       return `${details.res} :: ${JSON.stringify(details.usedParams)}`;
     } else {
       return details.res;

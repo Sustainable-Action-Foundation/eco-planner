@@ -110,7 +110,7 @@ test.describe("Goals tests", () => {
         await page.getByPlaceholder('2020').first().fill('2025');
         await page.getByPlaceholder('2050').first().fill('2045');
         for (let i = 0; i < 20; i++) {
-            page.getByRole('spinbutton').nth(2 + i).fill('4');
+            await page.getByRole('spinbutton').nth(2 + i).fill('4');
         }
 
         // Submit

@@ -1,12 +1,7 @@
 import { expect, test } from "playwright/test";
 import type { Page } from "playwright/test";
-import type { ViewportSize } from "playwright/test";
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { link } from "fs";
-import { error, time } from "console";
-import { escape } from "querystring";
-import { text } from "stream/consumers";
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
@@ -24,7 +19,7 @@ async function takeScreenshot(pathFolder: string, pageName: string, page: Page, 
 }
 
 async function isSidebarOpen(page: Page, wantedClosed: boolean) { //Checks if the sidebar is open
-    let isSidebarOpen = await page.getByTestId('language-switcher-dialog-button').boundingBox();
+    const isSidebarOpen = await page.getByTestId('language-switcher-dialog-button').boundingBox();
     if (wantedClosed) {
         if (isSidebarOpen === null) { }
         else if (isSidebarOpen.width > 100) {
@@ -230,10 +225,10 @@ test.describe('Screenshots Admin', () => {
         await page.getByRole('link', { name: "Rikets färdplan" }).click();
         await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
 
-        const URL = await page.url();
+        const URL = page.url();
         let i = 0;
 
-        while (URL === await page.url()) { // Loop to open all of the tree items to find a goal
+        while (URL === page.url()) { // Loop to open all of the tree items to find a goal
             try {
                 await page.getByRole('listitem').nth(i).click();
                 i++;
@@ -242,7 +237,7 @@ test.describe('Screenshots Admin', () => {
                     break;
                 } else {
                     // How do you throw an error good?
-                    expect(page.getByTestId('home-title')).toBeVisible(); // Needed it to throw an error and stop the test but didn't know a good way to do that
+                    await expect(page.getByTestId('home-title')).toBeVisible(); // Needed it to throw an error and stop the test but didn't know a good way to do that
                 }
             }
         }
