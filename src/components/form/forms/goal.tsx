@@ -307,36 +307,30 @@ export default function GoalForm({
           >
             {/* Suggested */}
             <div data-tabname={t("forms:goal.suggested_inheritance")} className="">
-              <div className={`${dataSeriesType !== DataSeriesType.Suggested ? "display-none" : ""}`}>
-                <SuggestedRecipeContext>
-                  <FormIntegration
-                    RecipeFormElement={<input name="resultingRecipe" />}
-                    DateValuesFormElement={<input name="resultingDateValues" />}
-                  />
-                </SuggestedRecipeContext>
-              </div>
+              <SuggestedRecipeContext>
+                <FormIntegration
+                  RecipeFormElement={<input name="resultingRecipe" />}
+                  DateValuesFormElement={<input name="resultingDateValues" />}
+                />
+              </SuggestedRecipeContext>
             </div>
 
             {/* Custom */}
             <div data-tabname={t("forms:goal.custom_recipe")} className="">
-              <div className={`${dataSeriesType !== DataSeriesType.Custom ? "display-none" : ""}`}>
-                <CustomRecipeContext>
-                  <FormIntegration
-                    RecipeFormElement={<input name="resultingRecipe" />}
-                    DateValuesFormElement={<input name="resultingDateValues" />}
-                  />
-                </CustomRecipeContext>
-              </div>
+              <CustomRecipeContext>
+                <FormIntegration
+                  RecipeFormElement={<input name="resultingRecipe" />}
+                  DateValuesFormElement={<input name="resultingDateValues" />}
+                />
+              </CustomRecipeContext>
             </div>
 
             {/* Manual */}
             <div data-tabname={t("forms:goal.static_data_series")} className="">
-              <div className={`${dataSeriesType !== DataSeriesType.Manual ? "display-none" : ""}`}>
-                <ManualGoalForm
-                  currentGoal={currentGoal}
-                  outputFormElement={<input name="data-series" />}
-                />
-              </div>
+              <ManualGoalForm
+                currentGoal={currentGoal}
+                outputFormElement={<input name="data-series" />}
+              />
             </div>
           </TabList>
 
