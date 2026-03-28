@@ -1,16 +1,15 @@
 "use client"
 
 import { useState } from "react";
-import { useRecipe } from "../context/recipeContext.use";
 import RecipeEditor from "../editor/recipeEditor";
 import { SuggestedRecipeApplier } from "./suggestedRecipeApplier";
 import { Trans, useTranslation } from "react-i18next";
+import { RecipeContextProvider } from "@/components/recipe/context/recipeContext.provider";
 
-export default function SuggestedRecipeToggle() {
+export default function SuggestedRecipeToggle({ children }: { children?: React.ReactNode }) {
   const { t } = useTranslation(["common", "components"]);
 
   const [visibilityType, setVisibilityType] = useState<"suggested" | "custom">("suggested")
-  const { clearRecipe } = useRecipe()
 
   return (
     <>
@@ -29,7 +28,6 @@ export default function SuggestedRecipeToggle() {
                 checked={visibilityType === "suggested"}
                 onChange={() => {
                   setVisibilityType("suggested");
-                  clearRecipe();
                 }}
               />
             </label>,
@@ -44,7 +42,6 @@ export default function SuggestedRecipeToggle() {
                 checked={visibilityType === "custom"}
                 onChange={() => {
                   setVisibilityType("custom");
-                  clearRecipe();
                 }}
               />
             </label>,
@@ -53,18 +50,20 @@ export default function SuggestedRecipeToggle() {
         />
       </div>
 
-      {visibilityType === "suggested" ?
-        <div className="margin-top-100">
+      <RecipeContextProvider>
+        <div className={`margin-top-100 ${visibilityType === "suggested" ? "" : "display-none"}`}>
           <SuggestedRecipeApplier />
+          {children}
         </div>
-        : null}
+      </RecipeContextProvider>
 
-      {/* Properly label textarea :) oh and all the inputs in variable-editor */}
-      {visibilityType === "custom" ?
-        <div className="margin-top-100">
+      <RecipeContextProvider>
+        {/* TODO: Properly label textarea :) oh and all the inputs in variable-editor */}
+        <div className={`margin-top-100 ${visibilityType === "custom" ? "" : "display-none"}`}>
           <RecipeEditor />
+          {children}
         </div>
-        : null}
+      </RecipeContextProvider>
     </>
   )
 }

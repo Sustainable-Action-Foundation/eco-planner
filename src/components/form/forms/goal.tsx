@@ -9,7 +9,6 @@ import { useTranslation } from "react-i18next";
 import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput";
 import styles from '../forms.module.css';
 import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections";
-import { RecipeContextProvider } from "@/components/recipe/context/recipeContext.provider";
 import type { Recipe } from "@/functions/recipe/types";
 import TextEditor from "../elements/textEditor/editor";
 import SuggestedRecipeToggle from "@/components/recipe/suggestions/suggestedRecipeToggle";
@@ -19,8 +18,7 @@ import { SmartRecipe } from "@/functions/recipe/smartRecipe";
 
 const DataSeriesType = {
   Static: "STATIC",
-  Inherited: "INHERIT",
-  Combined: "COMBINE",
+  Recipe: "RECIPE",
 } as const;
 type DataSeriesType = (typeof DataSeriesType)[keyof typeof DataSeriesType];
 
@@ -42,7 +40,7 @@ export default function GoalForm({
   currentGoal?: Goal;
 }) {
   const { t } = useTranslation(["forms", "common"]);
-  const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(DataSeriesType.Inherited);
+  const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(DataSeriesType.Recipe);
   const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baseline ? BaselineType.Custom : BaselineType.Initial);
   const [parentRoadmapId, setParentRoadmapId] = useState<string>(roadmapId || "");
   const descriptionRef = useRef<HTMLInputElement>(null);
@@ -301,6 +299,8 @@ export default function GoalForm({
         {/* Data series input section */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_goal_data_series")}</legend>
+
+          {/* Data series type */}
           <div>
             <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50">
               <input
@@ -308,48 +308,41 @@ export default function GoalForm({
                 onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
                 value={DataSeriesType.Static}
                 type="radio"
-                name="alternative"
+                name="static-vs-recipe"
                 required
               />  {/* TODO: update name */}
               {t("forms:goal.derive_data_series_manually")}
             </label>
             <label className="flex width-fit-content align-items-center gap-50 margin-bottom-100">
               <input
-                checked={dataSeriesType === DataSeriesType.Inherited}
+                checked={dataSeriesType === DataSeriesType.Recipe}
                 onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
-                value={DataSeriesType.Inherited} /* TODO: Recipe type data series */
+                value={DataSeriesType.Recipe} /* TODO: Recipe type data series */
                 type="radio"
-                name="alternative"
+                name="static-vs-recipe"
                 required
               />
               {t("forms:goal.derive_data_series_recipe")}
             </label>
           </div>
 
-          {(
-            dataSeriesType === DataSeriesType.Static
-          ) &&
+          {/* Manual */}
+          <div className={`${dataSeriesType !== DataSeriesType.Static ? "display-none" : ""}`}>
             <ManualGoalForm
               currentGoal={currentGoal}
               outputFormElement={<input name="data-series" />}
             />
-          }
-          {(
-            !dataSeriesType // Fallback for undefined or otherwise falsy
-            || dataSeriesType === DataSeriesType.Inherited
-            || dataSeriesType === DataSeriesType.Combined
-          ) &&
-            <RecipeContextProvider>
-              {/* TODO: Want to clear recipe when switching between suggested or custom recipes? */}
+          </div>
 
-              <SuggestedRecipeToggle />
-
+          {/* Recipe */}
+          <div className={`${dataSeriesType !== DataSeriesType.Recipe ? "display-none" : ""}`}>
+            <SuggestedRecipeToggle>
               <FormIntegration
                 RecipeFormElement={<input name="resultingRecipe" />}
                 DateValuesFormElement={<input name="resultingDateValues" />}
               />
-            </RecipeContextProvider>
-          }
+            </SuggestedRecipeToggle>
+          </div>
         </fieldset>
 
         {/* Baseline selection section */}
