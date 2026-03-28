@@ -15,7 +15,6 @@ import { CustomRecipeContext, SuggestedRecipeContext } from "@/components/recipe
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import FormIntegration from "@/components/recipe/editor/output/formIntegration";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
-import TabList from "@/components/generic/tablist/tabList";
 
 const DataSeriesType = {
   Manual: "Manual",
@@ -42,7 +41,7 @@ export default function GoalForm({
   currentGoal?: Goal;
 }) {
   const { t } = useTranslation(["forms", "common"]);
-  const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(DataSeriesType.Custom);
+  const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(DataSeriesType.Suggested);
   const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baseline ? BaselineType.Custom : BaselineType.Initial);
   const [parentRoadmapId, setParentRoadmapId] = useState<string>(roadmapId || "");
   const descriptionRef = useRef<HTMLInputElement>(null);
@@ -302,38 +301,63 @@ export default function GoalForm({
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_goal_data_series")}</legend>
 
-          <TabList
-            defaultIndex={0}
-          >
-            {/* Suggested */}
-            <div data-tabname={t("forms:goal.suggested_inheritance")} className="">
-              <SuggestedRecipeContext>
-                <FormIntegration
-                  RecipeFormElement={<input name="resultingRecipe" />}
-                  DateValuesFormElement={<input name="resultingDateValues" />}
-                />
-              </SuggestedRecipeContext>
-            </div>
-
-            {/* Custom */}
-            <div data-tabname={t("forms:goal.custom_recipe")} className="">
-              <CustomRecipeContext>
-                <FormIntegration
-                  RecipeFormElement={<input name="resultingRecipe" />}
-                  DateValuesFormElement={<input name="resultingDateValues" />}
-                />
-              </CustomRecipeContext>
-            </div>
-
-            {/* Manual */}
-            <div data-tabname={t("forms:goal.static_data_series")} className="">
-              <ManualGoalForm
-                currentGoal={currentGoal}
-                outputFormElement={<input name="data-series" />}
+          {/* Radio group */}
+          <fieldset className="border-none padding-0 margin-0 margin-bottom-100" role="radiogroup" aria-label={t("forms:goal.choose_goal_data_series")}>
+            <label className="flex align-items-center gap-50 margin-bottom-50">
+              <input
+                type="radio"
+                name="dataSeriesType"
+                value={DataSeriesType.Suggested}
+                checked={dataSeriesType === DataSeriesType.Suggested}
+                onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
               />
-            </div>
-          </TabList>
+              {t("forms:goal.suggested_inheritance")}
+            </label>
+            <label className="flex align-items-center gap-50 margin-bottom-50">
+              <input
+                type="radio"
+                name="dataSeriesType"
+                value={DataSeriesType.Custom}
+                checked={dataSeriesType === DataSeriesType.Custom}
+                onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
+              />
+              {t("forms:goal.custom_recipe")}
+            </label>
+            <label className="flex align-items-center gap-50 margin-bottom-50">
+              <input
+                type="radio"
+                name="dataSeriesType"
+                value={DataSeriesType.Manual}
+                checked={dataSeriesType === DataSeriesType.Manual}
+                onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
+              />
+              {t("forms:goal.static_data_series")}
+            </label>
+          </fieldset>
 
+          {/* Suggested */}
+          <SuggestedRecipeContext hidden={dataSeriesType !== DataSeriesType.Suggested}>
+            <FormIntegration
+              RecipeFormElement={<input name="resultingRecipe" />}
+              DateValuesFormElement={<input name="resultingDateValues" />}
+            />
+          </SuggestedRecipeContext>
+
+          {/* Recipe */}
+          <CustomRecipeContext hidden={dataSeriesType !== DataSeriesType.Custom}>
+            <FormIntegration
+              RecipeFormElement={<input name="resultingRecipe" />}
+              DateValuesFormElement={<input name="resultingDateValues" />}
+            />
+          </CustomRecipeContext>
+
+          {/* Manual */}
+          <div className={`${dataSeriesType === DataSeriesType.Manual ? "" : "display-none"}`}>
+            <ManualGoalForm
+              currentGoal={currentGoal}
+              outputFormElement={<input name="data-series" />}
+            />
+          </div>
         </fieldset>
 
         {/* Baseline selection section */}

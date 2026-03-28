@@ -51,12 +51,10 @@ export default function SuggestedRecipeToggle({ children }: { children?: React.R
       </div>
 
       <SuggestedRecipeContext hidden={visibilityType !== "suggested"}>
-        <SuggestedRecipeApplier />
         {children}
       </SuggestedRecipeContext>
 
       <CustomRecipeContext hidden={visibilityType !== "custom"}>
-        <RecipeEditor />
         {children}
       </CustomRecipeContext>
     </>
@@ -67,6 +65,7 @@ export function SuggestedRecipeContext({ children, hidden = false }: { children:
   return (
     <RecipeContextProvider>
       <div className={`margin-top-100 ${hidden ? "display-none" : ""}`}>
+        <SuggestedRecipeApplier />
         {children}
       </div>
     </RecipeContextProvider>
@@ -77,6 +76,7 @@ export function CustomRecipeContext({ children, hidden = false }: { children: Re
   return (
     <RecipeContextProvider>
       <div className={`margin-top-100 ${hidden ? "display-none" : ""}`}>
+        <RecipeEditor />
         {children}
       </div>
     </RecipeContextProvider>
