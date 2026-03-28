@@ -5,13 +5,12 @@ import type { RecipeExternalDataset } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "./recipeEditorPermissions";
 import { updateExternalVariableDataset, updateExternalVariableSelection, updateExternalVariableTable } from "@/components/recipe/variableEditingHelpers";
-import VariableTypeCommon from "./commonVariable";
-import VectorPickerSelect from "./vectorPickerSelect";
 import { ExternalDataset } from "@/lib/api/utility";
 import RecipeQueryBuilder from "@/components/form/api/recipeQueryBuilder";
+import { VariableTypeCommon, VectorPickerSelect } from "@/components/recipe";
 
 // TODO: Fix labels
-export default function VariableTypeExternal({
+export function VariableTypeExternal({
   variableName,
   permissions,
 }: {
@@ -40,10 +39,10 @@ export default function VariableTypeExternal({
         </div>
       </VariableTypeCommon>
       <div className="flex gap-25 margin-left-300 margin-top-100"> {/* TODO: Handle overflow a bit better here */}
-        <span style={{whiteSpace: "nowrap"}}>{t("components:recipe_editor.dataset")}: {variable.dataset || ""},</span>
-        <span style={{whiteSpace: "nowrap"}}>{t("components:recipe_editor.table")}: {variable.tableId || ""},</span>
-        <span style={{whiteSpace: "nowrap", maxWidth: '400px', textOverflow: 'ellipsis', overflow: 'hidden'}}>{t("components:recipe_editor.selection")}: {JSON.stringify(variable.selection) || ""}</span>
-      </div>  
+        <span style={{ whiteSpace: "nowrap" }}>{t("components:recipe_editor.dataset")}: {variable.dataset || ""},</span>
+        <span style={{ whiteSpace: "nowrap" }}>{t("components:recipe_editor.table")}: {variable.tableId || ""},</span>
+        <span style={{ whiteSpace: "nowrap", maxWidth: '400px', textOverflow: 'ellipsis', overflow: 'hidden' }}>{t("components:recipe_editor.selection")}: {JSON.stringify(variable.selection) || ""}</span>
+      </div>
     </>
   )
 }

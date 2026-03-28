@@ -5,7 +5,7 @@ import { useRecipe } from "../context/recipeContext.use";
 import React, { useRef, useState } from "react";
 import { IconPlus } from "@tabler/icons-react";
 
-export default function EquationEditor() {
+export function EquationEditor() {
   const { t } = useTranslation("components");
   const { recipe, setEquation } = useRecipe();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);

@@ -12,7 +12,7 @@ import TextSingleAutocomplete from "@/components/form/elements/combobox/textSing
 import { allOurUnits } from "@/math";
 
 // TODO: Fix labels
-export default function VariableTypeCommon({
+export function VariableTypeCommon({
   variableName,
   permissions,
   children,

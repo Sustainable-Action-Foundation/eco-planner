@@ -10,7 +10,7 @@ import { IconX } from "@tabler/icons-react";
 import type { Recipe } from "@/functions/recipe/types";
 import { RecipeContextProvider } from "../recipe/context/recipeContext.provider";
 import { SuggestedRecipeApplier } from "@/components/recipe/suggestions/suggestedRecipeApplier";
-import FormIntegration from "../recipe/editor/output/formIntegration";
+import { FormIntegration } from "@/components/recipe";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
 import styles from "../form/api/queryBuilder.module.css";
 
@@ -138,7 +138,7 @@ export default function CopyAndScale({
         type="button"
         className="seagreen color-purewhite smooth padding-block-50 padding-inline-100 smooth flex-grow-100 font-size-75 line-height-150"
         onClick={() => openModal(modalRef)}
-        style={{ padding: '.3rem .6rem'}}
+        style={{ padding: '.3rem .6rem' }}
       >
         {t("components:copy_and_scale.copy_and_scale")}
       </button>

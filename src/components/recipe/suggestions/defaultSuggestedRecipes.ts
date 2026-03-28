@@ -5,7 +5,7 @@ import type { RecipeDataSeries, RecipeExternalDataset, RecipeScalar } from "@/fu
 import type { DBRecipe } from "@/types";
 import type { TFunction } from "i18next";
 
-export default function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
+export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
 
   const areaRecipe: SmartRecipe = new SmartRecipe({
     name: t("components:recipe_editor.default_area_recipe.name"),

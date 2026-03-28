@@ -9,7 +9,7 @@ import type { DateValuesWithUnit } from "@/types";
  * this component is used inside of the provider to be able to inject 
  * hidden form elements with the relevant data.
  */
-export default function FormIntegration({
+export function FormIntegration({
   DataSeriesFormElement,
   UnitFormElement,
   RecipeFormElement,

@@ -1,15 +1,9 @@
 import "client-only";
 import TabList from "@/components/generic/tablist/tabList";
-import OutputGraph from "./output/graphDisplay";
-import OutputDataSeries from "./output/dataSeriesDisplay";
-import OutputStatus from "./output/statusDisplay";
-import RecipeEquationEditor from "@/components/recipe/editor/equationEditor";
-import VariableCreator from "./variables/variableCreator";
-import VariableEditor from "@/components/recipe/editor/variables/variableEditor";
 import { useTranslation } from "react-i18next";
-import FormIntegration from "./output/formIntegration";
+import { VariableCreator, EquationEditor, VariableEditor, OutputStatus, OutputDataSeries, OutputGraph, FormIntegration } from "@/components/recipe";
 
-export default function RecipeEditor() {
+export function RecipeEditor() {
   const { t } = useTranslation(["components"]);
 
   return (
@@ -27,7 +21,7 @@ export default function RecipeEditor() {
             borderRadius: '0 .25rem 0 0'
           }}
         >
-          <RecipeEquationEditor />
+          <EquationEditor />
         </div>
         <div
           data-tabname={t("components:recipe_editor.variables")}

@@ -8,7 +8,7 @@ import TextSingleAutocomplete from "@/components/form/elements/combobox/textSing
 import { useTranslation } from "react-i18next";
 import { allOurUnits } from "@/math";
 
-export default function VariableCreator({
+export function VariableCreator({
   allowAddVariables = false,
 }: {
   allowAddVariables?: boolean;

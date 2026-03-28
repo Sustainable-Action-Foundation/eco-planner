@@ -5,13 +5,12 @@ import { isRecipeDataSeries } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "./recipeEditorPermissions";
 import { updateDataSeriesLink } from "@/components/recipe/variableEditingHelpers";
-import VariableTypeCommon from "./commonVariable";
-import VectorPickerSelect from "./vectorPickerSelect";
 import React, { useCallback, useEffect, useState } from "react";
 import type { InputElement, TreeItem } from "@/components/types";
 import SelectSingleTreeSearch from "@/components/form/elements/combobox/selectSingleTreeSearch";
 import type { RecipeContextType } from "@/components/recipe/context/recipeContext.internal";
 import { clientSafeGetOneRoadmap, clientSafeGetOneDataSeries } from "@/fetchers/client";
+import { VariableTypeCommon, VectorPickerSelect } from "@/components/recipe";
 
 function useRoadmapTreeItems(availableRoadmaps: { id: string; name: string; }[]) {
   const [treeItems, setTreeItems] = useState<TreeItem[]>([]);
@@ -77,7 +76,7 @@ export function useHandleDataSeriesChange(
 
 // TODO: Fix labels
 // TODO: Check usage of permissions (prop that has been removed)
-export default function VariableTypeDataSeries({
+export function VariableTypeDataSeries({
   variableName,
   permissions,
   availableRoadmaps = [],

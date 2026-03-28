@@ -6,7 +6,7 @@ import { IconAlertTriangleFilled, IconCircleCheckFilled, IconCircleXFilled, Icon
 import { useRecipe } from "../../context/recipeContext.use";
 import { isEmptyRecipe } from "@/functions/recipe/types";
 
-export default function OutputStatus({
+export function OutputStatus({
   hideWhenNoRecipe = false,
 }: {
   hideWhenNoRecipe?: boolean,

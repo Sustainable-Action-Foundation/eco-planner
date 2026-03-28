@@ -9,15 +9,12 @@ import { VariableTypeExternalSimple } from "../editor/variables/variableTypes/ex
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { clientSafeGetRoadmaps } from "@/fetchers/client";
 import TabList from "../../generic/tablist/tabList";
-import OutputDataSeries from "../editor/output/dataSeriesDisplay";
-import OutputGraph from "../editor/output/graphDisplay";
-import OutputStatus from "../editor/output/statusDisplay";
 import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";
 import { IconAlertTriangleFilled } from "@tabler/icons-react";
 import { RecipeEditorPermissions } from "../editor/variables/variableTypes/recipeEditorPermissions";
 import type { DBRecipe } from "@/types";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
-import getDefaultSuggestedRecipes from "./defaultSuggestedRecipes";
+import { getDefaultSuggestedRecipes, OutputDataSeries, OutputGraph, OutputStatus } from "@/components/recipe";
 
 export function SuggestedRecipeApplier({
   autoInsertDefaultSuggestions = true,

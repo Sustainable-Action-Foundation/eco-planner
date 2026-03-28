@@ -5,15 +5,11 @@ import type { RecipeVariable } from "@/functions/recipe/types";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { clientSafeGetRoadmaps } from "@/fetchers/client";
-import VariableTypeDataSeries from "./variableTypes/dataSeriesVariable";
-import VariableTypeExternal from "./variableTypes/externalDatasetVariable";
-import VariableTypeScalar from "./variableTypes/scalarVariable";
 import { useRecipe } from "../../context/recipeContext.use";
 import styles from '../recipe.module.css' with { type: "css" };
-import VariableCreator from "./variableCreator";
-import { RecipeEditorPermissions } from "./variableTypes/recipeEditorPermissions";
+import { RecipeEditorPermissions, VariableCreator, VariableTypeDataSeries, VariableTypeExternal, VariableTypeScalar } from "@/components/recipe";
 
-export default function VariableEditor({
+export function VariableEditor({
   permissions = RecipeEditorPermissions,
 }: {
   permissions?: RecipeEditorPermissions;

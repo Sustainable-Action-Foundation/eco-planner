@@ -5,10 +5,10 @@ import type { RecipeScalar } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "./recipeEditorPermissions";
 import { updateScalarVariableValue } from "@/components/recipe/variableEditingHelpers";
-import VariableTypeCommon from "./commonVariable";
+import { VariableTypeCommon } from "@/components/recipe";
 
 // TODO: Fix labels
-export default function VariableTypeScalar({
+export function VariableTypeScalar({
   name,
   permissions,
 }: {
