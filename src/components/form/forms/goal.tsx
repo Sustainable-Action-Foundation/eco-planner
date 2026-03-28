@@ -11,10 +11,12 @@ import styles from '../forms.module.css';
 import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections";
 import type { Recipe } from "@/functions/recipe/types";
 import TextEditor from "../elements/textEditor/editor";
-import { CustomRecipeContext, SuggestedRecipeContext } from "@/components/recipe/suggestions/suggestedRecipeToggle";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import FormIntegration from "@/components/recipe/editor/output/formIntegration";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
+import { SuggestedRecipeApplier } from "@/components/recipe/suggestions/suggestedRecipeApplier";
+import { RecipeContextProvider } from "@/components/recipe/context/recipeContext.provider";
+import RecipeEditor from "@/components/recipe/editor/recipeEditor";
 
 const DataSeriesType = {
   Manual: "Manual",
@@ -336,20 +338,26 @@ export default function GoalForm({
           </fieldset>
 
           {/* Suggested */}
-          <SuggestedRecipeContext hidden={dataSeriesType !== DataSeriesType.Suggested}>
-            <FormIntegration
-              RecipeFormElement={<input name="resultingRecipe" />}
-              DateValuesFormElement={<input name="resultingDateValues" />}
-            />
-          </SuggestedRecipeContext>
+          <div className={`margin-top-100 ${dataSeriesType !== DataSeriesType.Suggested ? "display-none" : ""}`}>
+            <RecipeContextProvider>
+              <SuggestedRecipeApplier />
+              <FormIntegration
+                RecipeFormElement={<input name="resultingRecipe" />}
+                DateValuesFormElement={<input name="resultingDateValues" />}
+              />
+            </RecipeContextProvider>
+          </div>
 
           {/* Recipe */}
-          <CustomRecipeContext hidden={dataSeriesType !== DataSeriesType.Custom}>
-            <FormIntegration
-              RecipeFormElement={<input name="resultingRecipe" />}
-              DateValuesFormElement={<input name="resultingDateValues" />}
-            />
-          </CustomRecipeContext>
+          <div className={`margin-top-100 ${dataSeriesType !== DataSeriesType.Custom ? "display-none" : ""}`}>
+            <RecipeContextProvider>
+              <RecipeEditor />
+              <FormIntegration
+                RecipeFormElement={<input name="resultingRecipe" />}
+                DateValuesFormElement={<input name="resultingDateValues" />}
+              />
+            </RecipeContextProvider>
+          </div>
 
           {/* Manual */}
           <div className={`${dataSeriesType === DataSeriesType.Manual ? "" : "display-none"}`}>
