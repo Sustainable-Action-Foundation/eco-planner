@@ -52,9 +52,10 @@ export default function RoadmapFilters() {
                           thisType
                 }`}
             </label> <br />
-            </Fragment>
+          </Fragment>
         ))}
       </fieldset>
     </menu>
   </>
 }
+ 

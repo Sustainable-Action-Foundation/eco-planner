@@ -12,8 +12,8 @@ import Link from "next/link";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { getMetaRoadmaps, getRoadmaps } from "@/fetchers";
 import SearchRoadmaps from "@/components/form/filters/searchRoadmaps";
-import { IconAdjustmentsHorizontal } from "@tabler/icons-react";
 import SortRoadmaps from "@/components/form/filters/sortRoadmaps";
+import styles from "./page.module.css"
 
 export async function generateMetadata() {
   return await buildMetadata({
@@ -140,7 +140,7 @@ export default async function Page(
       </div>
 
       <search className="flex flex-wrap-wrap gap-200 margin-top-300"> {/* TODO: Some flex stuff is causing the netire page to shift when switching languages, look into this */}
-        <aside style={{ height: 'fit-content', flexBasis: '25ch' }} id="roadmap-filters">
+        <aside className={`flex-grow-100 ${styles['filters']}`} tabIndex={-1} id="roadmap-filters">
           <h2 className="font-size-125 margin-top-0 font-weight-600 padding-bottom-50 margin-bottom-100" style={{ borderBottom: '1px solid var(--gray-90)' }}>
             {t("pages:home.filter")}
           </h2>
@@ -156,12 +156,8 @@ export default async function Page(
                 total: metaRoadmaps.filter((metaRoadmap) => metaRoadmap.roadmapVersions.length > 0).length
               })}            
             </small>
-            <div className="flex gap-50 align-items-flex-end font-size-14px">
-              <SortRoadmaps /> {/* TODO: This element is not wide enough. */}
-              <Link href="#roadmap-filters" className="inline-flex gap-100 line-height-75 secondary-neutral-action smooth align-items-center">{t("pages:home.filter")}
-                <IconAdjustmentsHorizontal strokeWidth={1.5} height={19} width={19} style={{ minWidth: '19px' }} aria-hidden="true" />
-              </Link> {/* TODO: We want to highlight the filter menu when pressing this link  */}
-            </div>
+            <SortRoadmaps />
+
           </div>
           <output>
             <RoadmapTree

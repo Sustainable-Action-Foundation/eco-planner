@@ -27,7 +27,7 @@ export default function SortRoadmaps() {
 
 
   return (
-    <label className="flex gap-50 align-items-center white-space-nowrap">
+    <label className="flex gap-50 align-items-center white-space-nowrap font-size-14px">
       {t("components:roadmap_filters.sort_by")}: {/* TODO: Remove */}
       <select
         className="font-size-14px secondary-neutral-action"
