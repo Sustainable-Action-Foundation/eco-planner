@@ -2,6 +2,9 @@ export * from "./context/recipeContext.provider";
 export * from "./context/recipeContext.use";
 export * from "./context/recipeContext.internal";
 
+export * from "./suggestions/defaultSuggestedRecipes";
+export * from "./suggestions/suggestedRecipeApplier";
+
 export * from "./editor/recipeEditor";
 export * from "./editor/equationEditor";
 
