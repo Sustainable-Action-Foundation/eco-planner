@@ -202,3 +202,33 @@ button[type="submit"]:disabled {
   border-color: var(--blue-40);
   background-color: hsl(223.12deg 100% 93%);
 }
+
+/* Chips */ 
+
+.chip {
+  display: flex;
+  background-color: var(--secondary-neutral);
+  padding: .3rem .6rem;
+  box-shadow: 0 0 4px -2px var(--gray-70);
+  text-shadow: 0 0 var(--darkblue);
+  color: var(--blue-20);
+  border-radius: 9999px;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chip input[type="checkbox"] {
+  visibility: hidden;
+  width: 0;
+  height: 0;
+}
+
+*:hover > .chip {
+  background-color:rgba(153, 211, 255, .25); 
+}
+
+.chip:has(input[type="checkbox"]:checked) {
+  background-color: rgba(153, 211, 255, .5);
+}
