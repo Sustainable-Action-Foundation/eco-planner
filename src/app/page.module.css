@@ -11,9 +11,5 @@
 
 .filters {
   height: fit-content; 
-  flex-basis: 25ch;
-  scroll-margin: 1rem; 
-  padding: .5rem;
-  border-radius: .25rem;
-  transition: background-color .3s ease-out;
+  flex-basis: 28ch;
 } 
