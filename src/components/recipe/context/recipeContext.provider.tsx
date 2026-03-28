@@ -181,6 +181,10 @@ export function RecipeContextProvider({
       warnings,
       error,
     }}>
+      <div style={{ position: "fixed", top: 0, left: 0, backgroundColor: "white", zIndex: 999, padding: "1rem" }}>
+        {JSON.stringify(smartRecipe, null, 2)}
+      </div>
+
       {children}
     </RecipeContext.Provider>
   );

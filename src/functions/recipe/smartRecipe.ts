@@ -196,7 +196,9 @@ export class SmartRecipe {
   public toSerialized(): string {
     return JSON.stringify({
       ...this.toRecipe(),
-      smartMeta: { v: 1 },
+      smartMeta: JSON.stringify({
+        v: 1,
+      }),
     });
   }
 
@@ -231,12 +233,13 @@ export class SmartRecipe {
 
     try {
       objectForm = JSON.parse(serializedRecipe) as JSONValue;
-    } catch (_) {
-      throw new RecipeError("Invalid serialized recipe format");
+    }
+    catch (_) {
+      throw new RecipeError("Invalid serialized recipe format, not a valid JSON string");
     }
 
     if (!isRecipe(objectForm)) {
-      throw new RecipeError("Invalid serialized recipe format");
+      throw new RecipeError("Invalid serialized recipe format, not a valid Recipe object");
     }
 
     return SmartRecipe.fromObject(objectForm);
@@ -247,11 +250,11 @@ export class SmartRecipe {
    */
   public static fromObject(obj: JSONValue): SmartRecipe {
     if (typeof obj !== "object" || obj === null) {
-      throw new RecipeError("Invalid object format for recipe");
+      throw new RecipeError("Invalid object format for recipe, expected an object");
     }
 
     if (!isRecipe(obj)) {
-      throw new RecipeError("Invalid object format for recipe");
+      throw new RecipeError("Invalid object format for recipe, object does not conform to Recipe type");
     }
 
     return new SmartRecipe({

@@ -1,4 +1,4 @@
-import type { DatasetKeys} from "@/lib/api/utility";
+import type { DatasetKeys } from "@/lib/api/utility";
 import { ExternalDataset } from "@/lib/api/utility";
 import { isStandardObject } from "@/types";
 import { isDateValues, typeguardDebug, uuidRegex } from "@/types";
@@ -215,49 +215,62 @@ export function isRecipeExternalDatasetSelection(selection: JSONValue): selectio
 export function isRecipe(recipe: JSONValue): recipe is Recipe {
   const allowedProps = ["name", "eq", "variables", "smartMeta"];
 
-  return (
-    (
-      recipe instanceof Object &&
-      !Array.isArray(recipe) &&
-      recipe != null ||
-      typeguardDebug("Type guard: recipe should be an object") && false
-    ) &&
+  if (
+    !(recipe instanceof Object)
+    || Array.isArray(recipe)
+    || recipe === null
+  ) {
+    console.warn("Type guard: recipe should be an object");
+    return false;
+  }
 
-    (
-      typeof recipe.name === "string" ||
-      recipe.name == null ||
-      typeguardDebug("Type guard: 'name' in recipe") && false
-    ) &&
+  if (
+    !("name" in recipe)
+    || (typeof recipe.name !== "string" && recipe.name !== null && recipe.name !== undefined)
+  ) {
+    console.warn("Type guard: 'name' in recipe");
+    return false;
+  }
 
-    (
-      typeof recipe.eq === "string" ||
-      typeguardDebug("Type guard: 'eq' in recipe") && false
-    ) &&
+  if (
+    !("eq" in recipe)
+    || typeof recipe.eq !== "string"
+  ) {
+    console.warn("Type guard: 'eq' in recipe");
+    return false;
+  }
 
-    (
-      recipe.smartMeta === undefined ||
-      typeof recipe.smartMeta === "string"
-    ) &&
+  if (
+    "smartMeta" in recipe
+    && typeof recipe.smartMeta !== "string"
+  ) {
+    console.warn("Type guard: 'smartMeta' in recipe");
+    return false;
+  }
 
-    (
-      isStandardObject(recipe.variables) &&
-      Object.entries(recipe.variables).every(([key, value]) => (
-        typeof key === "string" &&
-        key.trim() !== "" &&
-        (
-          isRecipeScalar(value ?? null) ||
-          isRecipeDataSeries(value ?? null) ||
-          isRecipeExternalDataset(value ?? null)
-        )
-      )) ||
-      typeguardDebug("Type guard: 'variables' in recipe") && false
-    ) &&
+  if (
+    !("variables" in recipe)
+    || !isStandardObject(recipe.variables)
+    || Object.entries(recipe.variables).some(([key, value]) => (
+      typeof key !== "string" ||
+      key.trim() === "" ||
+      !(
+        isRecipeScalar(value ?? null) ||
+        isRecipeDataSeries(value ?? null) ||
+        isRecipeExternalDataset(value ?? null)
+      )
+    ))
+  ) {
+    console.warn("Type guard: 'variables' in recipe");
+    return false;
+  }
 
-    (
-      Object.keys(recipe).filter(key => !allowedProps.includes(key)).length === 0 ||
-      typeguardDebug("Type guard: unknown properties in recipe") && false
-    )
-  );
+  if (Object.keys(recipe).some(key => !allowedProps.includes(key))) {
+    console.warn("Type guard: unknown properties in recipe");
+    return false;
+  }
+
+  return true;
 }
 
 export function isEmptyRecipe(recipe: Recipe): boolean {

@@ -90,7 +90,15 @@ export function SuggestedRecipeApplier({
       return;
     }
 
-    setSmartRecipe(SmartRecipe.fromObject(selectedSuggestion.recipe))
+    const parsedRecipe = SmartRecipe.fromObject(selectedSuggestion.recipe);
+
+    if (!isSmartRecipe(parsedRecipe)) {
+      console.error("Selected suggested recipe is not a valid SmartRecipe", selectedSuggestion);
+      clearRecipe();
+      return;
+    }
+
+    setSmartRecipe(parsedRecipe)
       .catch((e: unknown) => {
         const errorMessage = e instanceof Error ? e.message : String(e);
         console.error("Failed to set smart recipe from suggestion", errorMessage);

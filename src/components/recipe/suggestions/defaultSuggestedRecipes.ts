@@ -7,7 +7,7 @@ import type { TFunction } from "i18next";
 
 export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
 
-  const areaRecipe: SmartRecipe = new SmartRecipe({
+  const areaRecipe = new SmartRecipe({
     name: t("components:recipe_editor.default_area_recipe.name"),
     eq: `\$\{${t("components:recipe_editor.default_area_recipe.parent_value")}\} * \$\{${t("components:recipe_editor.default_area_recipe.child_area")}\} / \$\{${t("components:recipe_editor.default_area_recipe.parent_area")}\}`,
     variables: {
@@ -17,6 +17,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
         pick: VectorIndexPickerOptions.Default,
         unit: undefined
       } satisfies RecipeDataSeries,
+
       [t("components:recipe_editor.default_area_recipe.parent_area")]: {
         type: RecipeDataTypes.External,
         dataset: 'SCB',
@@ -32,6 +33,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
         pick: VectorIndexPickerOptions.Default,
         unit: undefined,
       } satisfies RecipeExternalDataset,
+
       [t("components:recipe_editor.default_area_recipe.child_area")]: {
         type: RecipeDataTypes.External,
         dataset: 'SCB',
@@ -47,7 +49,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
         pick: VectorIndexPickerOptions.Default,
         unit: undefined,
       } satisfies RecipeExternalDataset,
-    }
+    },
   });
 
   const populationRecipe: SmartRecipe = new SmartRecipe({
@@ -60,6 +62,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
         pick: VectorIndexPickerOptions.Default,
         unit: undefined
       } satisfies RecipeDataSeries,
+
       [t("components:recipe_editor.default_population_recipe.parent_population")]: {
         type: RecipeDataTypes.External,
         dataset: 'SCB',
@@ -73,6 +76,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
         pick: VectorIndexPickerOptions.Default,
         unit: undefined,
       } satisfies RecipeExternalDataset,
+
       [t("components:recipe_editor.default_population_recipe.child_population")]: {
         type: RecipeDataTypes.External,
         dataset: 'SCB',
@@ -99,6 +103,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
         pick: VectorIndexPickerOptions.Default,
         unit: undefined
       } satisfies RecipeDataSeries,
+
       [t("components:recipe_editor.default_scalar_recipe.scalar")]: {
         type: RecipeDataTypes.Scalar,
         value: 1,
