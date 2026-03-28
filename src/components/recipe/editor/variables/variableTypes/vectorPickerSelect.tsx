@@ -22,15 +22,18 @@ export default function VectorPickerSelect({ permissions, variableName }: { perm
 
         const variable = recipe.variables[variableName];
 
-        // Make sure variables is of correct type
+        // Make sure variable is of correct type
         if (!isRecipeDataSeries(variable) && !isRecipeExternalDataset(variable)) {
           console.error(`Variable ${variableName} is not of type RecipeDataSeries or RecipeExternalDataset so should not be picked.`);
           return;
         }
 
-        variable.pick = e.target.value as VectorIndexPickerOptions;
-     
-        setVariable(variableName, variable)
+        const variableWithNewPick = {
+          ...variable,
+          pick: e.target.value as VectorIndexPickerOptions
+        };
+
+        setVariable(variableName, variableWithNewPick);
       }}
     >
       <option value={VectorIndexPickerOptions.Whole}>{t("components:recipe_editor.pick_whole")}</option>
