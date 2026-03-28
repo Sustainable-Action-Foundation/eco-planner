@@ -50,20 +50,35 @@ export default function SuggestedRecipeToggle({ children }: { children?: React.R
         />
       </div>
 
-      <RecipeContextProvider>
-        <div className={`margin-top-100 ${visibilityType === "suggested" ? "" : "display-none"}`}>
-          <SuggestedRecipeApplier />
-          {children}
-        </div>
-      </RecipeContextProvider>
+      <SuggestedRecipeContext hidden={visibilityType !== "suggested"}>
+        <SuggestedRecipeApplier />
+        {children}
+      </SuggestedRecipeContext>
 
-      <RecipeContextProvider>
-        {/* TODO: Properly label textarea :) oh and all the inputs in variable-editor */}
-        <div className={`margin-top-100 ${visibilityType === "custom" ? "" : "display-none"}`}>
-          <RecipeEditor />
-          {children}
-        </div>
-      </RecipeContextProvider>
+      <CustomRecipeContext hidden={visibilityType !== "custom"}>
+        <RecipeEditor />
+        {children}
+      </CustomRecipeContext>
     </>
   )
+}
+
+export function SuggestedRecipeContext({ children, hidden = false }: { children: React.ReactNode; hidden?: boolean }) {
+  return (
+    <RecipeContextProvider>
+      <div className={`margin-top-100 ${hidden ? "" : "display-none"}`}>
+        {children}
+      </div>
+    </RecipeContextProvider>
+  );
+}
+
+export function CustomRecipeContext({ children, hidden = false }: { children: React.ReactNode; hidden?: boolean }) {
+  return (
+    <RecipeContextProvider>
+      <div className={`margin-top-100 ${hidden ? "" : "display-none"}`}>
+        {children}
+      </div>
+    </RecipeContextProvider>
+  );
 }

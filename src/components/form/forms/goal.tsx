@@ -11,22 +11,24 @@ import styles from '../forms.module.css';
 import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections";
 import type { Recipe } from "@/functions/recipe/types";
 import TextEditor from "../elements/textEditor/editor";
-import SuggestedRecipeToggle from "@/components/recipe/suggestions/suggestedRecipeToggle";
+import { CustomRecipeContext, SuggestedRecipeContext } from "@/components/recipe/suggestions/suggestedRecipeToggle";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import FormIntegration from "@/components/recipe/editor/output/formIntegration";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
+import TabList from "@/components/generic/tablist/tabList";
 
 const DataSeriesType = {
-  Static: "STATIC",
-  Recipe: "RECIPE",
+  Manual: "Manual",
+  Suggested: "Suggested",
+  Custom: "Custom",
 } as const;
 type DataSeriesType = (typeof DataSeriesType)[keyof typeof DataSeriesType];
 
 const BaselineType = {
-  Initial: "INITIAL",
-  InitialNonZero: "INITIAL_NON_ZERO",
-  Custom: "CUSTOM",
-  Inherited: "INHERIT",
+  Initial: "Initial",
+  InitialNonZero: "InitialNonZero",
+  Custom: "Custom",
+  Inherited: "Inherit",
 } as const;
 type BaselineType = (typeof BaselineType)[keyof typeof BaselineType];
 
@@ -40,7 +42,7 @@ export default function GoalForm({
   currentGoal?: Goal;
 }) {
   const { t } = useTranslation(["forms", "common"]);
-  const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(DataSeriesType.Recipe);
+  const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(DataSeriesType.Custom);
   const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baseline ? BaselineType.Custom : BaselineType.Initial);
   const [parentRoadmapId, setParentRoadmapId] = useState<string>(roadmapId || "");
   const descriptionRef = useRef<HTMLInputElement>(null);
@@ -300,49 +302,44 @@ export default function GoalForm({
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_goal_data_series")}</legend>
 
-          {/* Data series type */}
-          <div>
-            <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50">
-              <input
-                checked={dataSeriesType === DataSeriesType.Static}
-                onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
-                value={DataSeriesType.Static}
-                type="radio"
-                name="static-vs-recipe"
-                required
-              />  {/* TODO: update name */}
-              {t("forms:goal.derive_data_series_manually")}
-            </label>
-            <label className="flex width-fit-content align-items-center gap-50 margin-bottom-100">
-              <input
-                checked={dataSeriesType === DataSeriesType.Recipe}
-                onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
-                value={DataSeriesType.Recipe} /* TODO: Recipe type data series */
-                type="radio"
-                name="static-vs-recipe"
-                required
-              />
-              {t("forms:goal.derive_data_series_recipe")}
-            </label>
-          </div>
+          <TabList
+            defaultIndex={0}
+          >
+            {/* Suggested */}
+            <div data-tabname={t("forms:goal.suggested_inheritance")} className="">
+              <div className={`${dataSeriesType !== DataSeriesType.Suggested ? "display-none" : ""}`}>
+                <SuggestedRecipeContext>
+                  <FormIntegration
+                    RecipeFormElement={<input name="resultingRecipe" />}
+                    DateValuesFormElement={<input name="resultingDateValues" />}
+                  />
+                </SuggestedRecipeContext>
+              </div>
+            </div>
 
-          {/* Manual */}
-          <div className={`${dataSeriesType !== DataSeriesType.Static ? "display-none" : ""}`}>
-            <ManualGoalForm
-              currentGoal={currentGoal}
-              outputFormElement={<input name="data-series" />}
-            />
-          </div>
+            {/* Custom */}
+            <div data-tabname={t("forms:goal.custom_recipe")} className="">
+              <div className={`${dataSeriesType !== DataSeriesType.Custom ? "display-none" : ""}`}>
+                <CustomRecipeContext>
+                  <FormIntegration
+                    RecipeFormElement={<input name="resultingRecipe" />}
+                    DateValuesFormElement={<input name="resultingDateValues" />}
+                  />
+                </CustomRecipeContext>
+              </div>
+            </div>
 
-          {/* Recipe */}
-          <div className={`${dataSeriesType !== DataSeriesType.Recipe ? "display-none" : ""}`}>
-            <SuggestedRecipeToggle>
-              <FormIntegration
-                RecipeFormElement={<input name="resultingRecipe" />}
-                DateValuesFormElement={<input name="resultingDateValues" />}
-              />
-            </SuggestedRecipeToggle>
-          </div>
+            {/* Manual */}
+            <div data-tabname={t("forms:goal.static_data_series")} className="">
+              <div className={`${dataSeriesType !== DataSeriesType.Manual ? "display-none" : ""}`}>
+                <ManualGoalForm
+                  currentGoal={currentGoal}
+                  outputFormElement={<input name="data-series" />}
+                />
+              </div>
+            </div>
+          </TabList>
+
         </fieldset>
 
         {/* Baseline selection section */}
