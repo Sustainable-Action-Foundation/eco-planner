@@ -44,7 +44,7 @@ export function isRecipeDataType(variable: unknown): variable is (typeof RecipeD
 }
 
 export function isRecipeScalar(variable: JSONValue): variable is ScalarVariable {
-  const allowedProps = ["type", "value", "unit"];
+  const allowedProps = ["name", "type", "unit", "template", "value"];
 
   return (
     (
@@ -70,6 +70,21 @@ export function isRecipeScalar(variable: JSONValue): variable is ScalarVariable 
     ) &&
 
     (
+      variable.name === undefined ||
+      (
+        typeof variable.name === "string" &&
+        variable.name.trim() !== ""
+      ) ||
+      typeguardDebug("Type guard: 'name' in scalar variable") && false
+    ) &&
+
+    (
+      variable.template === undefined ||
+      typeof variable.template === "boolean" ||
+      typeguardDebug("Type guard: 'template' in scalar variable") && false
+    ) &&
+
+    (
       Object.keys(variable).filter(key => !allowedProps.includes(key)).length === 0 ||
       typeguardDebug("Type guard: unknown properties in scalar variable") && false
     )
@@ -77,7 +92,7 @@ export function isRecipeScalar(variable: JSONValue): variable is ScalarVariable 
 }
 
 export function isRecipeDataSeries(variable: JSONValue): variable is DataSeriesVariable {
-  const allowedProps = ["type", "link", "pick", "unit", "value", "goalName", "disabled"];
+  const allowedProps = ["name", "type", "unit", "template", "pick", "dataSeriesId", "value"];
 
   return (
     (
@@ -92,9 +107,9 @@ export function isRecipeDataSeries(variable: JSONValue): variable is DataSeriesV
     ) &&
 
     (
-      (typeof variable.link === "string" && uuidRegex.test(variable.link)) ||
-      variable.link == null ||
-      typeguardDebug("Type guard: 'link' in data series variable") && false
+      (typeof variable.dataSeriesId === "string" && uuidRegex.test(variable.dataSeriesId)) ||
+      variable.dataSeriesId == null ||
+      typeguardDebug("Type guard: 'dataSeriesId' in data series variable") && false
     ) &&
 
     (
@@ -111,20 +126,23 @@ export function isRecipeDataSeries(variable: JSONValue): variable is DataSeriesV
     (
       variable.value === undefined ||
       variable.value === null ||
-      isDateValues(variable.value)
+      isDateValues(variable.value) ||
+      typeguardDebug("Type guard: 'value' in data series variable") && false
     ) &&
 
     (
-      variable.goalName === undefined ||
+      variable.name === undefined ||
       (
-        typeof variable.goalName === "string" &&
-        variable.goalName.trim() !== ""
-      )
+        typeof variable.name === "string" &&
+        variable.name.trim() !== ""
+      ) ||
+      typeguardDebug("Type guard: 'name' in data series variable") && false
     ) &&
 
     (
-      variable.disabled === undefined ||
-      typeof variable.disabled === "boolean"
+      variable.template === undefined ||
+      typeof variable.template === "boolean" ||
+      typeguardDebug("Type guard: 'template' in data series variable") && false
     ) &&
 
     (
@@ -135,7 +153,7 @@ export function isRecipeDataSeries(variable: JSONValue): variable is DataSeriesV
 }
 
 export function isRecipeExternalDataset(variable: JSONValue): variable is ExternalVariable {
-  const allowedProps = ["type", "dataset", "tableId", "selection", "pick", "unit"];
+  const allowedProps = ["name", "type", "unit", "template", "dataset", "tableId", "selection", "pick"];
 
   return (
     (
@@ -177,6 +195,21 @@ export function isRecipeExternalDataset(variable: JSONValue): variable is Extern
       typeof variable.unit === "string" ||
       variable.unit == null ||
       typeguardDebug("Type guard: 'unit' in external dataset variable") && false
+    ) &&
+
+    (
+      variable.name === undefined ||
+      (
+        typeof variable.name === "string" &&
+        variable.name.trim() !== ""
+      ) ||
+      typeguardDebug("Type guard: 'name' in external dataset variable") && false
+    ) &&
+
+    (
+      variable.template === undefined ||
+      typeof variable.template === "boolean" ||
+      typeguardDebug("Type guard: 'template' in external dataset variable") && false
     ) &&
 
     (
