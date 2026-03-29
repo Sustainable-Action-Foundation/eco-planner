@@ -108,17 +108,17 @@ export class Recipe {
         ];
       })()
       : [
-        new Date(`2010-01-01T00:00:00.000Z`),
-        new Date(`2100-01-01T00:00:00.000Z`),
+        new Date(`2020-01-01T00:00:00.000Z`),
+        new Date(`2050-01-01T00:00:00.000Z`),
       ];
-    const commonLength = commonEndDate.getUTCFullYear() - commonStartDate.getUTCFullYear();
+    const maxTimeSpan = commonEndDate.getUTCFullYear() - commonStartDate.getUTCFullYear();
 
     const masks: Mask[] = [];
     for (const ds of seriesVariables) {
       const { mask, vector } = transformDateValuesToVector(
         ds.series,
         commonStartDate,
-        commonLength,
+        maxTimeSpan,
       );
       masks.push(mask);
       evalTimeVars.push({
@@ -171,7 +171,7 @@ export class Recipe {
 
     if (result instanceof mathjs.Unit) {
       console.warn("Equation returned a scalar, applying to all fields.");
-      result = Array(commonLength).fill(result.clone()) as Unit[];
+      result = Array(maxTimeSpan).fill(result.clone()) as Unit[];
     }
 
     return parseDateValuesFromVector(

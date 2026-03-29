@@ -124,7 +124,7 @@ export function pickDateValues(
 export function transformDateValuesToVector(
   dateValues: DateValuesWithUnit,
   commonStartDate: Date,
-  commonLength: number,
+  maxTimeSpan: number,
 ): MaskedVector {
 
   const { dateValues: timeline, unit, } = dateValues;
@@ -132,7 +132,7 @@ export function transformDateValuesToVector(
   const vector: Unit[] = [];
   const mask: Record<string, boolean> = {};
 
-  for (let i = 0; i < commonLength; i++) {
+  for (let i = 0; i < maxTimeSpan; i++) {
     const currentYear = commonStartDate.getUTCFullYear() + i;
 
     const isoYearString = new Date(`${currentYear}-01-01T00:00:00Z`).toISOString();
