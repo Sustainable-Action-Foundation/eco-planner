@@ -50,7 +50,7 @@ export type RecipeExtractionOutput = (
  */
 export type SerializedRecipeShape = {
   name: string | null | undefined;
-  eq: string;
+  equation: string;
   variables: Record<string, RecipeVariable>;
   meta: {
     [key: string]: JSONValue;

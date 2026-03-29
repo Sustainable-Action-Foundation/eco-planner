@@ -208,7 +208,7 @@ export class SmartRecipe {
   public toSerialized(): SerializedRecipe {
     return JSON.stringify({
       name: this.name,
-      eq: this.equation,
+      equation: this.equation,
       variables: this.variables,
       meta: {
         v: 1,
@@ -225,7 +225,7 @@ export class SmartRecipe {
     try {
       objectForm = JSON.parse(serializedRecipe) as JSONValue;
     }
-    catch (_) {
+    catch {
       throw new RecipeError("Invalid serialized recipe format, not a valid JSON string");
     }
 
@@ -252,16 +252,10 @@ export class SmartRecipe {
       throw new RecipeError("Invalid object format for recipe, object does not conform to Recipe type");
     }
 
-    const parsed = obj as {
-      name: string | null | undefined;
-      eq: string;
-      variables: Record<string, RecipeVariable>;
-    };
-
     return new SmartRecipe({
-      name: parsed.name,
-      equation: parsed.eq,
-      variables: parsed.variables,
+      name: obj.name,
+      equation: obj.equation,
+      variables: obj.variables,
     });
   }
 

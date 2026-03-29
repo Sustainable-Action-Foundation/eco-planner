@@ -27,7 +27,7 @@ export function SuggestedRecipeApplier({
 }) {
   const { t } = useTranslation("components");
   const defaultSuggestionRecipes = useMemo(() => getDefaultSuggestedRecipes(t), [t]);
-  const { recipe, setRecipe: setSmartRecipe, clearRecipe } = useRecipe();
+  const { recipe, setRecipe, clearRecipe } = useRecipe();
 
   const [availableRoadmaps, setAvailableRoadmaps] = useState<{ id: string; name: string; }[]>([]);
   const [selectedRecipeId, setSelectedRecipeId] = useState<string>("");
@@ -98,7 +98,7 @@ export function SuggestedRecipeApplier({
       return;
     }
 
-    setSmartRecipe(parsedRecipe)
+    setRecipe(parsedRecipe)
       .catch((e: unknown) => {
         const errorMessage = e instanceof Error ? e.message : String(e);
         console.error("Failed to set smart recipe from suggestion", errorMessage);
@@ -246,7 +246,7 @@ export function SuggestedRecipeApplier({
           data-tabname={t("components:recipe_editor.equation")}
           className="padding-top-50 margin-bottom-100"
         >
-          <p className="margin-0">{recipe.equation}</p>
+          <p className="margin-0">{recipe?.equation}</p>
         </div>
       </TabList>
     }

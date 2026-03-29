@@ -185,9 +185,9 @@ export function RecipeContextProvider({
       error,
     }}>
       {isDebug &&
-        <div style={{ position: "fixed", top: 0, left: 0, backgroundColor: "white", zIndex: 999, padding: "1rem" }}>
+        <pre style={{ position: "fixed", top: 0, left: 0, backgroundColor: "white", zIndex: 999, padding: "1rem", border: "1px solid block" }}>
           {recipe.toString()}
-        </div>
+        </pre>
       }
 
       {children}

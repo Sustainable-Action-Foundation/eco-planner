@@ -213,7 +213,7 @@ export function isRecipeExternalDatasetSelection(selection: JSONValue): selectio
 }
 
 export function isRecipe(recipe: unknown): recipe is SerializedRecipeShape {
-  const allowedProps = ["name", "eq", "variables", "meta"];
+  const allowedProps = ["name", "equation", "variables", "meta"];
 
   if (
     !(recipe instanceof Object)
@@ -233,10 +233,10 @@ export function isRecipe(recipe: unknown): recipe is SerializedRecipeShape {
   }
 
   if (
-    !("eq" in recipe)
-    || typeof recipe.eq !== "string"
+    !("equation" in recipe)
+    || typeof recipe.equation !== "string"
   ) {
-    console.warn("Type guard: 'eq' in recipe");
+    console.warn("Type guard: 'equation' in recipe");
     return false;
   }
 

@@ -12,8 +12,8 @@ export function EquationEditor() {
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
 
   const handleUpdatedEq = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const eq = e.target.value;
-    setEquation(eq);
+    const equation = e.target.value;
+    setEquation(equation);
   };
 
   const handleInsertVariable = (key: string) => {
