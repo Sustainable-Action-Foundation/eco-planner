@@ -1,7 +1,6 @@
 import type { Unit } from "mathjs";
 import type { DatasetKeys } from "@/lib/api/utility";
-import type { DateValues, DateValuesWithUnit, JSONValue, UnitString } from "@/types";
-import type { SmartRecipe } from "@/functions/recipe/smartRecipe";
+import type { DateValues, DateValuesWithUnit, UnitString } from "@/types";
 import type { VectorIndexPickerOptions } from "./consts";
 import type { RecipeDataTypes } from "./consts";
 
@@ -43,17 +42,7 @@ export type RecipeExternalDataset = {
   unit: UnitString;
 };
 
-/*
- * Main recipe types
- */
 export type RecipeVariable = RecipeScalar | RecipeDataSeries | RecipeExternalDataset;
-export type Recipe = {
-  name: string | null | undefined;
-  eq: string;
-  variables: Record<string, RecipeVariable>;
-  smartMeta?: string | JSONValue;
-};
-export type RecipeIsh = Recipe | SmartRecipe;
 
 /*
  * Variable during evaluation of a recipe. Should not persist beyond that scope.

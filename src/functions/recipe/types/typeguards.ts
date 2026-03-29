@@ -10,7 +10,6 @@ import { VectorIndexPickerOptions } from "./consts";
 import type { SmartRecipe } from "@/functions/recipe/smartRecipe";
 import type {
   EvalTimeVariable,
-  Recipe,
   RecipeDataSeries,
   RecipeExternalDataset,
   RecipeScalar,
@@ -212,8 +211,8 @@ export function isRecipeExternalDatasetSelection(selection: JSONValue): selectio
   );
 }
 
-export function isRecipe(recipe: JSONValue): recipe is Recipe {
-  const allowedProps = ["name", "eq", "variables", "smartMeta"];
+export function isRecipe(recipe: unknown): recipe is SmartRecipe {
+  const allowedProps = ["name", "eq", "variables"];
 
   if (
     !(recipe instanceof Object)
@@ -241,25 +240,25 @@ export function isRecipe(recipe: JSONValue): recipe is Recipe {
   }
 
   if (
-    "smartMeta" in recipe
-    && typeof recipe.smartMeta !== "string"
+    !("variables" in recipe)
+    || !isStandardObject(recipe.variables)
   ) {
-    console.warn("Type guard: 'smartMeta' in recipe");
+    console.warn("Type guard: 'variables' in recipe should be an object");
     return false;
   }
 
+  const variables = recipe.variables as Record<string, unknown>;
+
   if (
-    !("variables" in recipe)
-    || !isStandardObject(recipe.variables)
-    || Object.entries(recipe.variables).some(([key, value]) => (
-      typeof key !== "string" ||
-      key.trim() === "" ||
-      !(
-        isRecipeScalar(value ?? null) ||
-        isRecipeDataSeries(value ?? null) ||
-        isRecipeExternalDataset(value ?? null)
-      )
-    ))
+    Object.entries(variables).some(([key, value]) => {
+      if (key.trim() === "") return true; // key is already string from Object.entries
+      if (!isStandardObject(value)) return true; // important: removes `any` -> `JSONValue` unsafe arg
+      return !(
+        isRecipeScalar(value)
+        || isRecipeDataSeries(value)
+        || isRecipeExternalDataset(value)
+      );
+    })
   ) {
     console.warn("Type guard: 'variables' in recipe");
     return false;
@@ -273,21 +272,12 @@ export function isRecipe(recipe: JSONValue): recipe is Recipe {
   return true;
 }
 
-export function isEmptyRecipe(recipe: Recipe): boolean {
+export function isEmptyRecipe(recipe: SmartRecipe): boolean {
   return (
     (recipe.name === null || recipe.name === undefined) &&
-    recipe.eq.trim() === "" &&
+    recipe.equation.trim() === "" &&
     Object.keys(recipe.variables).length === 0
   );
-}
-
-export function isSmartRecipe(recipe: unknown): recipe is SmartRecipe {
-  if (typeof recipe !== "object" || recipe === null) return false;
-
-  if (!("equation" in recipe) || typeof recipe["equation"] !== "string") return false;
-  if (!("checkValidity" in recipe) || typeof recipe["checkValidity"] !== "function") return false;
-
-  return true;
 }
 
 export function isEvalTimeVariable(variable: unknown): variable is EvalTimeVariable {

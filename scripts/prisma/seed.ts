@@ -5,7 +5,7 @@ import { PrismaClient, RoadmapType } from '../../src/prisma/generated';
 import bcrypt from "bcryptjs";
 import { RandomTextSE } from "./randomText";
 import { RecipeDataTypes, VectorIndexPickerOptions } from "../../src/functions/recipe/types";
-import type { Recipe } from "../../src/functions/recipe/types";
+import { SmartRecipe } from "../../src/functions/recipe/smartRecipe";
 import { isISOIshDate } from "../../src/types";
 import type { DateValues } from "../../src/types";
 import { dateValuesToDBDateRecord } from "../../src/functions/recipe/vectorAndMaskUtils";
@@ -314,9 +314,9 @@ async function main() {
    */
   const _basicRecipes = await prisma.$transaction([
     (() => { // By area
-      const recipe: Recipe = {
+      const recipe = new SmartRecipe({
         name: 'Skala utifrån yta',
-        eq: '${Riket} * ${ArvingsArea} / ${RiketsArea}',
+        equation: '${Riket} * ${ArvingsArea} / ${RiketsArea}',
         variables: {
           'Riket': {
             type: RecipeDataTypes.DataSeries,
@@ -353,17 +353,17 @@ async function main() {
             ],
           },
         },
-      };
+      });
       return prisma.recipe.create({
         data: {
-          recipe: recipe,
+          recipe: recipe.toSerialized(),
         },
       });
     })(),
     (() => { // By population
-      const recipe: Recipe = {
+      const recipe = new SmartRecipe({
         name: 'Skala utifrån befolkning',
-        eq: '${Riket} * ${ArvingsPopulation} / ${RiketsPopulation}',
+        equation: '${Riket} * ${ArvingsPopulation} / ${RiketsPopulation}',
         variables: {
           'Riket': {
             type: RecipeDataTypes.DataSeries,
@@ -396,17 +396,17 @@ async function main() {
             ],
           },
         },
-      };
+      });
       return prisma.recipe.create({
         data: {
-          recipe: recipe,
+          recipe: recipe.toSerialized(),
         },
       });
     })(),
     (() => { // By scalar
-      const recipe: Recipe = {
+      const recipe = new SmartRecipe({
         name: 'Skala utifrån fast värde',
-        eq: '${Riket} / ${skalär}',
+        equation: '${Riket} / ${skalär}',
         variables: {
           'Riket': {
             type: RecipeDataTypes.DataSeries,
@@ -420,10 +420,10 @@ async function main() {
             unit: null,
           },
         },
-      };
+      });
       return prisma.recipe.create({
         data: {
-          recipe: recipe,
+          recipe: recipe.toSerialized(),
         },
       });
     })(),
@@ -451,9 +451,9 @@ async function main() {
   );
   const nationalV1Recipes = await prisma.$transaction(
     nationalDataSeriesV1.map((dataSeries, index) => {
-      const recipe: Recipe = {
+      const recipe = new SmartRecipe({
         name: `1:1 nationell mal ${index + 1}`,
-        eq: '${Riket}',
+        equation: '${Riket}',
         variables: {
           'Riket': {
             type: RecipeDataTypes.DataSeries,
@@ -462,13 +462,13 @@ async function main() {
             unit: dataSeries.unit ?? undefined,
           },
         },
-      };
+      });
       return prisma.recipe.create({
         data: {
-          recipe: recipe,
+          recipe: recipe.toSerialized(),
         },
       });
-    })
+    }),
   );
   // This will be reassigned later
   // eslint-disable-next-line prefer-const

@@ -1,7 +1,7 @@
 "use client";
 
 import { RecipeError } from "@/functions/recipe/types";
-import type { Recipe, RecipeIsh, RecipeVariable } from "@/functions/recipe/types";
+import type { RecipeVariable } from "@/functions/recipe/types";
 import type { DateValuesWithUnit } from "@/types";
 import { useEffect, useMemo, useState } from "react";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
@@ -12,7 +12,7 @@ export function RecipeContextProvider({
   initialRecipe,
   children,
 }: {
-  initialRecipe?: RecipeIsh;
+  initialRecipe?: SmartRecipe;
   children: React.ReactNode;
 }) {
   const [smartRecipeEntryPoint, setSmartRecipeEntryPoint] = useState<SmartRecipe>(
@@ -36,7 +36,7 @@ export function RecipeContextProvider({
     setSmartRecipeEntryPoint(SmartRecipe.getEmpty());
   };
 
-  const setSmartRecipe = async (valueOrSetter: SetStateAction<RecipeIsh>): Promise<void> => {
+  const setSmartRecipe = async (valueOrSetter: SetStateAction<SmartRecipe>): Promise<void> => {
     let newInstance: SmartRecipe | null;
 
     const newRecipe = typeof valueOrSetter === "function"
@@ -48,7 +48,7 @@ export function RecipeContextProvider({
       newInstance = SmartRecipe.getEmpty();
     }
     else if (newRecipe instanceof SmartRecipe) {
-      newInstance = SmartRecipe.fromSmartRecipe(newRecipe);
+      newInstance = SmartRecipe.fromRecipe(newRecipe);
     }
     else {
       newInstance = SmartRecipe.fromRecipe(newRecipe);
@@ -68,7 +68,6 @@ export function RecipeContextProvider({
     return;
   };
 
-  const recipe = useMemo(() => { return smartRecipe.toRecipe(); }, [smartRecipe]);
   const [resultingDataSeriesWithUnit, setResultingDataSeriesWithUnit] = useState<DateValuesWithUnit | null>(null);
 
   const resultingDataSeries = useMemo(() => {
@@ -85,8 +84,8 @@ export function RecipeContextProvider({
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  const equation = useMemo(() => recipe.eq, [recipe]);
-  const setEquation = (valueOrSetter: SetStateAction<Recipe["eq"]>) => {
+  const equation = useMemo(() => smartRecipe.equation, [smartRecipe]);
+  const setEquation = (valueOrSetter: SetStateAction<SmartRecipe["equation"]>) => {
     const newEquation = typeof valueOrSetter === "function"
       ? valueOrSetter(smartRecipe.equation)
       : valueOrSetter;
@@ -118,8 +117,8 @@ export function RecipeContextProvider({
       });
   };
 
-  const variables = useMemo(() => recipe.variables, [recipe]);
-  const setVariables = (variablesAction: SetStateAction<Recipe["variables"]>) => {
+  const variables = useMemo(() => smartRecipe.variables, [smartRecipe]);
+  const setVariables = (variablesAction: SetStateAction<SmartRecipe["variables"]>) => {
     const newVariables = typeof variablesAction === "function"
       ? variablesAction(smartRecipe.variables)
       : variablesAction;
@@ -167,9 +166,9 @@ export function RecipeContextProvider({
   return (
     <RecipeContext.Provider value={{
       smartRecipe,
-      recipe,
+      recipe: smartRecipe,
       clearRecipe,
-      setSmartRecipe,
+      setRecipe: setSmartRecipe,
       resultingDataSeries,
       resultingUnit,
       equation,

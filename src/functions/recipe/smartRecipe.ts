@@ -1,18 +1,11 @@
 import { isEvalTimeVariable, isRecipe, MathjsError, RecipeError } from "@/functions/recipe/types";
-import type { Recipe, RecipeExtractionOutput, RecipeIsh, RecipeVariable } from "@/functions/recipe/types";
+import type { RecipeExtractionOutput, RecipeVariable } from "@/functions/recipe/types";
 import type { DateValuesWithUnit, JSONValue, Mask } from "@/types";
 import { parseDateValuesFromVector, transformDateValuesToVector, ANDMasks } from "@/functions/recipe/vectorAndMaskUtils";
 import mathjs from "@/math";
 import type { Unit } from "mathjs";
 import { extractDataSeries, extractExternalDatasets, extractScalars } from "./extractors";
 
-
-/** 
- * TODO / Ideas for this file
- * - Cache data series and external datasets
- * - Save last eval result so implementations can get that without re-evaluating
- * - Save warnings and errors from last evaluation
- */
 
 export class SmartRecipe {
   public name: string | null | undefined; // String if given, null if removed, undefined if not specified
@@ -21,15 +14,15 @@ export class SmartRecipe {
 
   public constructor({
     name,
-    eq,
+    equation,
     variables,
   }: {
     name: string | null | undefined;
-    eq: string;
+    equation: string;
     variables: Record<string, RecipeVariable>;
   }) {
     this.name = name;
-    this.equation = eq;
+    this.equation = equation;
     this.variables = variables;
   }
 
@@ -80,7 +73,7 @@ export class SmartRecipe {
    * @param warnings **Side effect only**. Array will be mutated in place to include any warnings encountered during evaluation. 
    */
   public async evaluate(warnings: string[] = []): Promise<DateValuesWithUnit | null> {
-    if (!isRecipe(this.recipe)) {
+    if (!isRecipe(this)) {
       throw new RecipeError("Invalid recipe format");
     }
 
@@ -191,38 +184,24 @@ export class SmartRecipe {
   }
 
   /** 
+   * Clones this instance of SmartRecipe.
+   */
+  public copy(): SmartRecipe {
+    return SmartRecipe.fromSerialized(this.toSerialized());
+  }
+
+  /** 
    * Stringify SmartRecipe to a state that can be reversed for storage purposes.
    */
   public toSerialized(): string {
     return JSON.stringify({
-      ...this.toRecipe(),
+      name: this.name,
+      eq: this.equation,
+      variables: this.variables,
       smartMeta: JSON.stringify({
         v: 1,
       }),
     });
-  }
-
-  /** 
-   * Get converted SmartRecipe as a plain Recipe object.
-   */
-  public toRecipe(): Recipe {
-    // TODO: parse smart meta
-    return {
-      name: this.name,
-      eq: this.equation,
-      variables: this.variables,
-    };
-  }
-  /** 
-   * Get converted SmartRecipe as a plain Recipe object.
-   */
-  public get recipe(): Recipe { return this.toRecipe(); }
-
-  /** 
-   * Clones this instance of SmartRecipe.
-   */
-  public copy(): SmartRecipe {
-    return SmartRecipe.fromObject(this.toRecipe());
   }
 
   /** 
@@ -259,13 +238,14 @@ export class SmartRecipe {
 
     return new SmartRecipe({
       name: obj.name,
-      eq: obj.eq,
+      equation: obj.equation,
       variables: obj.variables,
     });
   }
-  public static fromRecipe(recipe: RecipeIsh): SmartRecipe {
+
+  public static fromRecipe(recipe: SmartRecipe): SmartRecipe {
     if (recipe instanceof SmartRecipe) {
-      return SmartRecipe.fromSmartRecipe(recipe);
+      return SmartRecipe.fromRecipe(recipe);
     }
     else {
       return SmartRecipe.fromObject(recipe);
@@ -278,15 +258,8 @@ export class SmartRecipe {
   public static getEmpty(): SmartRecipe {
     return new SmartRecipe({
       name: undefined,
-      eq: "",
+      equation: "",
       variables: {},
     });
-  }
-
-  /** 
-   * Factory method to create a SmartRecipe from another SmartRecipe.
-   */
-  public static fromSmartRecipe(smartRecipe: SmartRecipe): SmartRecipe {
-    return SmartRecipe.fromSerialized(smartRecipe.toSerialized());
   }
 }

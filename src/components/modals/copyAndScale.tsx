@@ -7,7 +7,6 @@ import type { GoalCreateInput, Goal, DateValues, JSONValue } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
-import type { Recipe } from "@/functions/recipe/types";
 import { RecipeContextProvider } from "../recipe/context/recipeContext.provider";
 import { SuggestedRecipeApplier } from "@/components/recipe/suggestions/suggestedRecipeApplier";
 import { FormIntegration } from "@/components/recipe";
@@ -73,7 +72,7 @@ export default function CopyAndScale({
       return;
     }
 
-    let recipeUsed: Recipe | undefined;
+    let recipeUsed: SmartRecipe | undefined;
     try {
       const unparsedRecipe = form.get("resultingRecipe");
       if (unparsedRecipe instanceof File) {

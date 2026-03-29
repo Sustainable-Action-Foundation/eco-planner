@@ -9,7 +9,6 @@ import { useTranslation } from "react-i18next";
 import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput";
 import styles from '../forms.module.css';
 import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections";
-import type { Recipe } from "@/functions/recipe/types";
 import TextEditor from "../elements/textEditor/editor";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
@@ -71,12 +70,13 @@ export default function GoalForm({
     }
 
     // Parse recipe (optional)
-    let dataSeriesRecipe: Recipe | undefined = undefined;
+    let dataSeriesRecipe: SmartRecipe | undefined = undefined;
     const resultingRecipeString = formData.get("resultingRecipe") as string | null;
     if (resultingRecipeString) {
       try {
-        dataSeriesRecipe = SmartRecipe.fromSerialized(resultingRecipeString).toRecipe();
-      } catch (e) {
+        dataSeriesRecipe = SmartRecipe.fromSerialized(resultingRecipeString);
+      }
+      catch (e) {
         console.error("Failed to parse resulting recipe from form:", e);
         event.target.reportValidity();
         return;

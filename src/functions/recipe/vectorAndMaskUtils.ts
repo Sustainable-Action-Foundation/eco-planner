@@ -283,9 +283,22 @@ export function dataSeriesToDateValues(dataSeries: DataSeries | Goal["dataSeries
 }
 
 export function dateValuesToDBDateRecord(dateValues: DateValues, dataSeriesId?: string) {
-  return Object.entries(dateValues).map(([key, val]) => ({
-    ...(dataSeriesId ? { dataSeriesId } : {}),
-    timestamp: new Date(key),
-    value: val,
-  }));
+  const dateRecord: {
+    timestamp: Date;
+    value: number;
+    dataSeriesId?: string;
+  }[] = [];
+
+  for (const [key, val] of Object.entries(dateValues)) {
+    if (!isISOIshDate(key)) {
+      throw new RecipeError(`dateValuesToDBDateRecord: Invalid ISOIshDate key '${key}' in dateValues.`);
+    }
+    dateRecord.push({
+      ...(dataSeriesId ? { dataSeriesId } : {}),
+      timestamp: new Date(key),
+      value: val,
+    });
+  }
+
+  return dateRecord;
 }

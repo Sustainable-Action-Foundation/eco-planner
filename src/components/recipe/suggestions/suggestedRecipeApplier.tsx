@@ -1,6 +1,6 @@
 'use client'
 
-import { isSmartRecipe, RecipeDataTypes } from "@/functions/recipe/types";
+import { isRecipe, RecipeDataTypes } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
 import { VariableTypeScalarSimple } from "../editor/variables/variableTypes/scalarVariable";
@@ -27,7 +27,7 @@ export function SuggestedRecipeApplier({
 }) {
   const { t } = useTranslation("components");
   const defaultSuggestionRecipes = useMemo(() => getDefaultSuggestedRecipes(t), [t]);
-  const { recipe, setSmartRecipe, clearRecipe } = useRecipe();
+  const { recipe, setRecipe: setSmartRecipe, clearRecipe } = useRecipe();
 
   const [availableRoadmaps, setAvailableRoadmaps] = useState<{ id: string; name: string; }[]>([]);
   const [selectedRecipeId, setSelectedRecipeId] = useState<string>("");
@@ -64,7 +64,7 @@ export function SuggestedRecipeApplier({
     // async function validateAll() {
     for (const dbRecipe of suggestedRecipes) {
       const recipe = SmartRecipe.fromObject(dbRecipe.recipe);
-      if (!isSmartRecipe(recipe)) {
+      if (!isRecipe(recipe)) {
         console.warn("Invalid recipe in suggestions", dbRecipe);
         return;
       }
@@ -92,7 +92,7 @@ export function SuggestedRecipeApplier({
 
     const parsedRecipe = SmartRecipe.fromObject(selectedSuggestion.recipe);
 
-    if (!isSmartRecipe(parsedRecipe)) {
+    if (!isRecipe(parsedRecipe)) {
       console.error("Selected suggested recipe is not a valid SmartRecipe", selectedSuggestion);
       clearRecipe();
       return;
