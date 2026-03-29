@@ -1,4 +1,4 @@
-import type { DateValues, DateValuesWithUnit, GoalCreateInput, GoalUpdateInput, ISOIshDate, JSONValue, MetaRoadmapCreateInput, MetaRoadmapUpdateInput, UnitString } from "./types";
+import type { DateValues, DateValuesWithUnit, ISOIshDate, JSONValue, UnitString, GoalCreateInput, GoalUpdateInput, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
 
 /**
  * A utility function for helping with finding where something fails in a typeguard chain.
