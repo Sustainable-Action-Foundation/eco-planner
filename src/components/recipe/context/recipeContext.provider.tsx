@@ -3,7 +3,7 @@
 import { RecipeError } from "@/functions/recipe/types";
 import type { RecipeVariable } from "@/functions/recipe/types";
 import type { DateValuesWithUnit } from "@/types";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Recipe } from "@/functions/recipe/recipe";
 import type { SetStateAction } from "./recipeContext.internal";
 import { RecipeContext } from "./recipeContext.internal";
@@ -19,153 +19,132 @@ export function RecipeContextProvider({
   const searchParams = useSearchParams();
   const isDebug = useMemo(() => searchParams.get("debug") === "true", [searchParams]);
 
-  const [recipeEntryPoint, setRecipeEntryPoint] = useState<Recipe>(
-    !!initialRecipe
+  const [recipe, setRecipeState] = useState<Recipe>(() =>
+    initialRecipe
       ? Recipe.from(initialRecipe)
       : Recipe.getEmpty()
   );
+  const [resultingSeries, setResultingSeries] = useState<DateValuesWithUnit | null>(null);
 
-  /**
-   * The only source of truth is this Recipe instance.
-   */
-  const recipe = useMemo(() =>
-    recipeEntryPoint instanceof Recipe
-      ? recipeEntryPoint
-      : recipeEntryPoint
-        ? Recipe.from(recipeEntryPoint)
-        : Recipe.getEmpty()
-    , [recipeEntryPoint]);
+  const [warnings, setWarnings] = useState<string[]>([]);
+  const [error, setErrorState] = useState<string | null>(null);
 
-  const clearRecipe = () => {
-    setRecipeEntryPoint(Recipe.getEmpty());
-  };
+  const setError = useCallback((reason: unknown) => {
+    const errorMessage = reason instanceof Error ? reason.message : String(reason);
+    setErrorState(errorMessage);
+  }, []);
 
-  const setRecipe = async (valueOrSetter: SetStateAction<Recipe>): Promise<void> => {
-    let newInstance: Recipe | null;
+  const clearRecipe = useCallback(() => {
+    setRecipeState(Recipe.getEmpty());
+  }, []);
+
+  const setRecipe = useCallback(async (valueOrSetter: SetStateAction<Recipe>): Promise<void> => {
+    const currentRecipe = recipe;
 
     const newRecipe = typeof valueOrSetter === "function"
-      ? valueOrSetter(recipe.copy()) // Run users function on prev and use result
+      ? valueOrSetter(currentRecipe.copy())
       : valueOrSetter;
+
+    let nextRecipe: Recipe;
 
     if (!newRecipe) {
       console.warn("Deprecation warning: you should not delete recipes by setting them to null. This is not allowed type-wise so please check your typing.");
-      newInstance = Recipe.getEmpty();
-    }
-    else if (newRecipe instanceof Recipe) {
-      newInstance = Recipe.from(newRecipe);
+      nextRecipe = Recipe.getEmpty();
     }
     else {
-      newInstance = Recipe.from(newRecipe);
-    }
-
-    if (!newInstance) {
-      throw new RecipeError("Failed to set recipe: invalid format");
+      nextRecipe = Recipe.from(newRecipe);
     }
 
     // Validate
-    const validity = await newInstance.checkValidity();
+    const validity = await nextRecipe.checkValidity();
     if (!validity.good) {
+      console.warn("Warning produced after validity check in setRecipe:", validity.warnings);
       throw new RecipeError(`Failed to set recipe: ${validity.error || "Recipe is invalid"}`);
     }
 
-    setRecipeEntryPoint(newInstance);
-    return;
-  };
+    setRecipeState(nextRecipe);
+  }, [recipe]);
 
-  const [resultingDataSeriesWithUnit, setResultingDataSeriesWithUnit] = useState<DateValuesWithUnit | null>(null);
+  const runRecipeUpdate = useCallback((recipeUpdater: (nextRecipe: Recipe) => void): void => {
+    const nextRecipe = recipe.copy();
+    recipeUpdater(nextRecipe);
+    setRecipe(nextRecipe)
+      .catch(setError);
+  }, [recipe, setRecipe, setError]);
 
-  const resultingDataSeries = useMemo(() => {
-    if (!resultingDataSeriesWithUnit) return null;
-    const { unit, ...dataSeriesFields } = resultingDataSeriesWithUnit;
-    return dataSeriesFields;
-  }, [resultingDataSeriesWithUnit]);
-
-  const resultingUnit = useMemo(() => {
-    if (!resultingDataSeriesWithUnit) return null;
-    return resultingDataSeriesWithUnit.unit;
-  }, [resultingDataSeriesWithUnit]);
-
-  const [warnings, setWarnings] = useState<string[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  // Data series and unit
+  const {
+    dataSeriesFields: resultingDataSeries,
+    unit: resultingUnit,
+  } = useMemo(() => {
+    if (!resultingSeries) return { dataSeriesFields: null, unit: null };
+    const { unit, ...dataSeriesFields } = resultingSeries;
+    return { dataSeriesFields, unit };
+  }, [resultingSeries]);
 
   const equation = useMemo(() => recipe.equation, [recipe]);
-  const setEquation = (valueOrSetter: SetStateAction<Recipe["equation"]>) => {
-    const newEquation = typeof valueOrSetter === "function"
-      ? valueOrSetter(recipe.equation)
-      : valueOrSetter;
+  const setEquation = useCallback((valueOrSetter: SetStateAction<Recipe["equation"]>) => {
+    runRecipeUpdate((nextRecipe) => {
+      nextRecipe.equation = typeof valueOrSetter === "function"
+        ? valueOrSetter(nextRecipe.equation)
+        : valueOrSetter;
+    });
+  }, [runRecipeUpdate]);
 
-    const newRecipe = recipe.copy();
-    newRecipe.equation = newEquation;
-    setRecipe(newRecipe)
-      .catch((e: unknown) => {
-        const errorMessage = e instanceof Error ? e.message : String(e);
-        setError(errorMessage);
-      });
-  };
-
-  const getVariable = (variableName: string): RecipeVariable | undefined => {
+  const getVariable = useCallback((variableName: string): RecipeVariable | undefined => {
     return recipe.variables[variableName];
-  };
-  const setVariable = (variableName: string, newValue: SetStateAction<RecipeVariable>): void => {
-    const valueToSet = typeof newValue === "function"
-      ? newValue(recipe.variables[variableName])
-      : newValue;
-
-    const newRecipe = recipe.copy();
-    newRecipe.variables[variableName] = valueToSet;
-
-    setRecipe(newRecipe)
-      .catch((e: unknown) => {
-        const errorMessage = e instanceof Error ? e.message : String(e);
-        setError(errorMessage);
-      });
-  };
+  }, [recipe]);
+  const setVariable = useCallback((variableName: string, newValue: SetStateAction<RecipeVariable>): void => {
+    runRecipeUpdate((nextRecipe) => {
+      nextRecipe.variables[variableName] = typeof newValue === "function"
+        ? newValue(nextRecipe.variables[variableName])
+        : newValue;
+    });
+  }, [runRecipeUpdate]);
 
   const variables = useMemo(() => recipe.variables, [recipe]);
-  const setVariables = (variablesAction: SetStateAction<Recipe["variables"]>) => {
-    const newVariables = typeof variablesAction === "function"
-      ? variablesAction(recipe.variables)
-      : variablesAction;
-    const newRecipe = recipe.copy();
-    newRecipe.variables = newVariables;
-    setRecipe(newRecipe)
-      .catch((e: unknown) => {
-        const errorMessage = e instanceof Error ? e.message : String(e);
-        setError(errorMessage);
-      });
-  };
+  const setVariables = useCallback((variablesAction: SetStateAction<Recipe["variables"]>) => {
+    runRecipeUpdate((nextRecipe) => {
+      nextRecipe.variables = typeof variablesAction === "function"
+        ? variablesAction(nextRecipe.variables)
+        : variablesAction;
+    });
+  }, [runRecipeUpdate]);
 
   // Eval on update
   useEffect(() => {
-    const warnings: string[] = [];
+    let isActive = true;
+    const nextWarnings: string[] = [];
 
     async function calculate() {
-      if (!recipe) {
-        throw new RecipeError("No recipe provided");
-      }
-
       const validity = await recipe.checkValidity();
       if (!validity.good) {
-        warnings.push(...(validity.warnings ?? []));
+        nextWarnings.push(...(validity.warnings ?? []));
         console.warn("Tried evaluating an invalid recipe in the context provider.", validity.error, validity.warnings);
         throw new RecipeError(validity.error || "Recipe is invalid");
       }
 
-      return await recipe.evaluate(warnings);
+      return await recipe.evaluate(nextWarnings);
     };
 
     calculate()
       .then(result => {
-        setResultingDataSeriesWithUnit(result);
-        setWarnings(warnings);
-        setError(null);
+        if (!isActive) return;
+        setResultingSeries(result);
+        setWarnings(nextWarnings);
+        setErrorState(null);
       })
       .catch((e: unknown) => {
+        if (!isActive) return;
         const errorMessage = e instanceof Error ? e.message : String(e);
-        setResultingDataSeriesWithUnit(null);
-        setWarnings(warnings);
-        setError(errorMessage);
+        setResultingSeries(null);
+        setWarnings(nextWarnings);
+        setErrorState(errorMessage);
       });
+
+    return () => {
+      isActive = false;
+    };
   }, [recipe]);
 
   return (
@@ -185,7 +164,7 @@ export function RecipeContextProvider({
       error,
     }}>
       {isDebug &&
-        <pre style={{ position: "fixed", top: 0, left: 0, backgroundColor: "white", zIndex: 999, padding: "1rem", border: "1px solid block" }}>
+        <pre style={{ position: "fixed", top: 0, left: 0, backgroundColor: "white", zIndex: 999, padding: "1rem", border: "1px solid black" }}>
           {recipe.toString()}
         </pre>
       }
