@@ -188,7 +188,7 @@ export default function GoalForm({
         dataSeriesId: null,
         dataSeries: dataSeries,
         dataSeriesRecipeId: null,
-        dataSeriesRecipe: dataSeriesRecipe ?? null,
+        dataSeriesRecipe: dataSeriesRecipe?.toSerialized() ?? null,
 
         baselineId: baselineId,
         baseline: baseline,
@@ -221,7 +221,7 @@ export default function GoalForm({
         dataSeriesId: undefined,
         dataSeries: dataSeries,
         dataSeriesRecipeId: undefined,
-        dataSeriesRecipe: dataSeriesRecipe,
+        dataSeriesRecipe: dataSeriesRecipe?.toSerialized() ?? undefined,
 
         baselineId: baselineId,
         baseline: baseline,

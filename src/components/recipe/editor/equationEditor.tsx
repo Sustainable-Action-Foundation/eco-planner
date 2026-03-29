@@ -45,7 +45,7 @@ export function EquationEditor() {
           borderRadius: '0',
           resize: 'none'
         }}
-        value={recipe?.eq || ""}
+        value={recipe.equation}
         onChange={handleUpdatedEq}
       />
       <ul
@@ -67,22 +67,22 @@ export function EquationEditor() {
           }
         }}
       >
-        {/* Todo: should be a proper menu with keycontrols */}
+        {/* TODO: should be a proper menu with key controls */}
         {recipe?.variables ?
           <>
             <h2 className="font-weight-normal text-align-center margin-block-25 padding-bottom-25" style={{ fontSize: '14px', whiteSpace: 'nowrap', borderBottom: '1px solid var(--gray)' }}>Infoga variabel</h2>
             {recipe?.variables &&
-              Object.entries(recipe.variables).map(([key], index) => (
-                <li key={key} role="presentation">
+              Object.entries(recipe.variables).map(([variableName], index) => (
+                <li key={variableName} role="presentation">
                   <button
                     id={`variable-menu-menuitem-${index}`}
                     tabIndex={-1}
                     role="menuitem"
                     className="transparent padding-25 width-100 flex gap-100 justify-content-space-between align-items-center"
                     type="button"
-                    onClick={() => handleInsertVariable(key)}
+                    onClick={() => handleInsertVariable(variableName)}
                   >
-                    {key} {/* TODO: Rename, what is key? */}
+                    {variableName}
                     <IconPlus width={16} height={16} strokeWidth={1.5} style={{ minWidth: '16px' }} />
                   </button>
                 </li>

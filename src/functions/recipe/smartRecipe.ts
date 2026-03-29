@@ -1,5 +1,5 @@
 import { isEvalTimeVariable, isRecipe, MathjsError, RecipeError } from "@/functions/recipe/types";
-import type { RecipeExtractionOutput, RecipeVariable } from "@/functions/recipe/types";
+import type { RecipeExtractionOutput, RecipeVariable, SerializedRecipe } from "@/functions/recipe/types";
 import type { DateValuesWithUnit, JSONValue, Mask } from "@/types";
 import { parseDateValuesFromVector, transformDateValuesToVector, ANDMasks } from "@/functions/recipe/vectorAndMaskUtils";
 import mathjs from "@/math";
@@ -197,7 +197,7 @@ export class SmartRecipe {
   /** 
    * Stringify SmartRecipe to a state that can be reversed for storage purposes.
    */
-  public toSerialized(): string {
+  public toSerialized(): SerializedRecipe {
     return JSON.stringify({
       name: this.name,
       eq: this.equation,
@@ -211,7 +211,7 @@ export class SmartRecipe {
   /** 
    * SmartRecipe factory, takes serialized recipe and returns a new smart recipe instance.
    */
-  public static fromSerialized(serializedRecipe: string): SmartRecipe {
+  public static fromSerialized(serializedRecipe: SerializedRecipe): SmartRecipe {
     let objectForm: JSONValue;
 
     try {
