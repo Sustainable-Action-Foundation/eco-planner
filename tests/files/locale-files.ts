@@ -133,7 +133,7 @@ test.skip("Common values not referenced", () => {
       .filter(([key,]) => key.startsWith("common:"))
       .filter(([key,]) => !exemptedCommonKeysRef.some(exemptedKey => key.startsWith(exemptedKey)))
       .filter(([, value]) => !exemptedCommonValuesRef.some(exemptedValue => value.startsWith(exemptedValue)))
-      .map(([key, value]) => [key, { key, value, pattern: wordPatterns.map(pattern => new RegExp(pattern(escape(value)), "gm")) }])
+      .map(([key, value]) => [key, { key, value, pattern: wordPatterns.map(pattern => new RegExp(pattern(escapeRegExp(value)), "gm")) }])
     );
 
     const namespacesToCheck = namespaces.filter(ns => ns !== "common");
@@ -275,7 +275,7 @@ test("Orphan keys in root of namespace files", () => {
     // Read file instead of allData to not get flattened data
     const content = fs.readFileSync(filePath, "utf-8").toString().trim();
 
-    try { 
+    try {
       const parseTest: unknown = JSON.parse(content);
       if (typeof parseTest !== "object" || parseTest === null || Array.isArray(parseTest)) {
         throw new Error("Not an object");
@@ -612,7 +612,7 @@ test("Unused keys", () => {
 function getAllJSONFlattened(): Record<string, Record<string, string>> {
   const perLocale: Record<string, Record<string, string>> = Object.fromEntries(uniqueLocales.map(locale => [locale, {}]));
   allPermutations.map(([locale, namespace]) => {
-    const nsData = JSON.parse(fs.readFileSync(path.join(localesDir, locale, `${namespace}.json`), "utf-8"));
+    const nsData: unknown = JSON.parse(fs.readFileSync(path.join(localesDir, locale, `${namespace}.json`), "utf-8"));
     const flattened = flattenTree(nsData);
     const prefixed = Object.fromEntries(Object.entries(flattened)
       .map(([key, value]) => [`${namespace}:${key}`, value])
@@ -672,22 +672,31 @@ function getAllTSXFiles() {
 }
 
 /** Returns a flattened object with the structure `{ "key1.key2.keyN": value }` */
-function flattenTree(obj: object) {
+function flattenTree(obj: unknown) {
   const result: Record<string, string> = {};
 
-  const recurse = (obj: object, prefix = "") => {
+  const isRecord = (value: unknown): value is Record<string, unknown> =>
+    typeof value === "object" && value !== null && !Array.isArray(value);
+
+  const recurse = (obj: Record<string, unknown>, prefix = "") => {
     for (const [key, value] of Object.entries(obj)) {
       const newPrefix = prefix ? `${prefix}.${key}` : key;
-      if (typeof value === "object") {
+      if (isRecord(value)) {
         recurse(value, newPrefix);
       }
       else {
-        result[newPrefix] = value;
+        result[newPrefix] = String(value);
       }
     }
   };
 
-  recurse(obj);
+  if (isRecord(obj)) {
+    recurse(obj);
+  }
 
   return result;
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
