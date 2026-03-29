@@ -131,7 +131,7 @@ export function updateDataSeriesLink(variableName: string, newLink: string | nul
     if (newLink) {
       return {
         ...currentVar,
-        link: newLink,
+        dataSeriesId: newLink,
       };
     }
     else {

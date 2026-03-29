@@ -18,7 +18,7 @@ export type DataSeriesVariable = BaseVariable & {
   type: typeof RecipeDataTypes.DataSeries;
   pick: VectorIndexPickerOptions | number | ISOIshDate;
 
-  link: string | null | undefined;
+  dataSeriesId: string | null | undefined;
   value: DateValues | null | undefined;
 
   goalName?: string;

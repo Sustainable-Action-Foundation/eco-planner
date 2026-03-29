@@ -180,7 +180,7 @@ export function VariableTypeDataSeriesSimple({
       {...goalName ? {
         defaultValue: {
           name: goalName,
-          value: variable.link || "",
+          value: variable.dataSeriesId || "",
           expanded: null,
         },
       } : {}}

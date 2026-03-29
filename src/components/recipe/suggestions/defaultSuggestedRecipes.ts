@@ -15,7 +15,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
         type: RecipeDataTypes.DataSeries,
         pick: VectorIndexPickerOptions.Default,
         value: undefined,
-        link: undefined,
+        dataSeriesId: undefined,
         unit: undefined
       } satisfies DataSeriesVariable,
 
@@ -62,7 +62,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
         pick: VectorIndexPickerOptions.Default,
         unit: undefined,
         value: undefined,
-        link: undefined,
+        dataSeriesId: undefined,
       } satisfies DataSeriesVariable,
 
       [t("components:recipe_editor.default_population_recipe.parent_population")]: {
@@ -102,7 +102,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
       [t("components:recipe_editor.default_scalar_recipe.parent_value")]: {
         type: RecipeDataTypes.DataSeries,
         pick: VectorIndexPickerOptions.Default,
-        link: undefined,
+        dataSeriesId: undefined,
         value: undefined,
         unit: undefined,
       } satisfies DataSeriesVariable,

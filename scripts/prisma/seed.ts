@@ -319,7 +319,7 @@ async function main() {
         variables: {
           'Riket': {
             type: RecipeDataTypes.DataSeries,
-            link: null,
+            dataSeriesId: null,
             pick: VectorIndexPickerOptions.Default,
             value: null,
             unit: "km^2",
@@ -367,7 +367,7 @@ async function main() {
         variables: {
           'Riket': {
             type: RecipeDataTypes.DataSeries,
-            link: null,
+            dataSeriesId: null,
             pick: VectorIndexPickerOptions.Default,
             value: null,
             unit: "capita",
@@ -411,7 +411,7 @@ async function main() {
         variables: {
           'Riket': {
             type: RecipeDataTypes.DataSeries,
-            link: null,
+            dataSeriesId: null,
             pick: VectorIndexPickerOptions.Default,
             value: null,
             unit: getRandomUnit(),
@@ -459,7 +459,7 @@ async function main() {
         variables: {
           'Riket': {
             type: RecipeDataTypes.DataSeries,
-            link: dataSeries.id,
+            dataSeriesId: dataSeries.id,
             pick: VectorIndexPickerOptions.Default,
             value: null,
             unit: dataSeries.unit ?? undefined,

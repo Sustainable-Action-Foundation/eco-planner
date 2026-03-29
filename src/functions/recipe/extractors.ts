@@ -48,11 +48,11 @@ export async function extractDataSeries(
     if (!isRecipeDataSeries(variable)) continue;
 
     let dbDataSeries: Awaited<ReturnType<typeof clientSafeGetOneDataSeries>>;
-    if (variable.link) {
-      dbDataSeries = await clientSafeGetOneDataSeries(variable.link)
+    if (variable.dataSeriesId) {
+      dbDataSeries = await clientSafeGetOneDataSeries(variable.dataSeriesId)
         .catch((e: unknown) => {
           const errorMessage = e instanceof Error ? e.message : String(e);
-          throw new RecipeError(`VariableExtractor: Error fetching data series for variable "${variableName}" with link "${variable.link}": ${errorMessage}`);
+          throw new RecipeError(`VariableExtractor: Error fetching data series for variable "${variableName}" with link "${variable.dataSeriesId}": ${errorMessage}`);
         });
     }
     else if (variable.value || Array.isArray(variable.value)) {
@@ -73,7 +73,7 @@ export async function extractDataSeries(
     }
 
     if (!dbDataSeries) {
-      throw new RecipeError(`VariableExtractor: Failed to fetch data series for variable "${variableName}" with link "${variable.link}".`);
+      throw new RecipeError(`VariableExtractor: Failed to fetch data series for variable "${variableName}" with link "${variable.dataSeriesId}".`);
     }
 
     const bestUnit = getPrevailingUnit(dbDataSeries.unit, variable.unit);

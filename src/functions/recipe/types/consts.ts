@@ -24,7 +24,7 @@ export const RecipeDataTypes = {
 export type RecipeDataTypes = typeof RecipeDataTypes[keyof typeof RecipeDataTypes];
 
 export const emptyRecipeScalar: ScalarVariable = { type: RecipeDataTypes.Scalar, value: 0, unit: undefined } as const;
-export const emptyRecipeDataSeries: DataSeriesVariable = { type: RecipeDataTypes.DataSeries, link: undefined, pick: VectorIndexPickerOptions.Default, unit: undefined, value: undefined } as const;
+export const emptyRecipeDataSeries: DataSeriesVariable = { type: RecipeDataTypes.DataSeries, dataSeriesId: undefined, pick: VectorIndexPickerOptions.Default, unit: undefined, value: undefined } as const;
 export const emptyRecipeExternalDataset: ExternalVariable = { type: RecipeDataTypes.External, dataset: null, tableId: null, selection: [], pick: VectorIndexPickerOptions.Default, unit: undefined } as const;
 
 /**
