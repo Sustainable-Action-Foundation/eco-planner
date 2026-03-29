@@ -4,7 +4,7 @@ import { RecipeError } from "@/functions/recipe/types";
 import type { RecipeVariable } from "@/functions/recipe/types";
 import type { DateValuesWithUnit } from "@/types";
 import { useEffect, useMemo, useState } from "react";
-import { SmartRecipe } from "@/functions/recipe/recipe";
+import { Recipe } from "@/functions/recipe/recipe";
 import type { SetStateAction } from "./recipeContext.internal";
 import { RecipeContext } from "./recipeContext.internal";
 import { useSearchParams } from "next/navigation";
@@ -13,35 +13,35 @@ export function RecipeContextProvider({
   initialRecipe,
   children,
 }: {
-  initialRecipe?: SmartRecipe;
+  initialRecipe?: Recipe;
   children: React.ReactNode;
 }) {
   const searchParams = useSearchParams();
   const isDebug = useMemo(() => searchParams.get("debug") === "true", [searchParams]);
 
-  const [smartRecipeEntryPoint, setSmartRecipeEntryPoint] = useState<SmartRecipe>(
+  const [smartRecipeEntryPoint, setSmartRecipeEntryPoint] = useState<Recipe>(
     !!initialRecipe
-      ? SmartRecipe.from(initialRecipe)
-      : SmartRecipe.getEmpty()
+      ? Recipe.from(initialRecipe)
+      : Recipe.getEmpty()
   );
 
   /**
    * The only source of truth is this smartRecipe recipe instance.
    */
   const recipe = useMemo(() =>
-    smartRecipeEntryPoint instanceof SmartRecipe
+    smartRecipeEntryPoint instanceof Recipe
       ? smartRecipeEntryPoint
       : smartRecipeEntryPoint
-        ? SmartRecipe.from(smartRecipeEntryPoint)
-        : SmartRecipe.getEmpty()
+        ? Recipe.from(smartRecipeEntryPoint)
+        : Recipe.getEmpty()
     , [smartRecipeEntryPoint]);
 
   const clearRecipe = () => {
-    setSmartRecipeEntryPoint(SmartRecipe.getEmpty());
+    setSmartRecipeEntryPoint(Recipe.getEmpty());
   };
 
-  const setSmartRecipe = async (valueOrSetter: SetStateAction<SmartRecipe>): Promise<void> => {
-    let newInstance: SmartRecipe | null;
+  const setSmartRecipe = async (valueOrSetter: SetStateAction<Recipe>): Promise<void> => {
+    let newInstance: Recipe | null;
 
     const newRecipe = typeof valueOrSetter === "function"
       ? valueOrSetter(recipe.copy()) // Run users function on prev and use result
@@ -49,13 +49,13 @@ export function RecipeContextProvider({
 
     if (!newRecipe) {
       console.warn("Deprecation warning: you should not delete recipes by setting them to null. This is not allowed type-wise so please check your typing.");
-      newInstance = SmartRecipe.getEmpty();
+      newInstance = Recipe.getEmpty();
     }
-    else if (newRecipe instanceof SmartRecipe) {
-      newInstance = SmartRecipe.from(newRecipe);
+    else if (newRecipe instanceof Recipe) {
+      newInstance = Recipe.from(newRecipe);
     }
     else {
-      newInstance = SmartRecipe.from(newRecipe);
+      newInstance = Recipe.from(newRecipe);
     }
 
     if (!newInstance) {
@@ -89,7 +89,7 @@ export function RecipeContextProvider({
   const [error, setError] = useState<string | null>(null);
 
   const equation = useMemo(() => recipe.equation, [recipe]);
-  const setEquation = (valueOrSetter: SetStateAction<SmartRecipe["equation"]>) => {
+  const setEquation = (valueOrSetter: SetStateAction<Recipe["equation"]>) => {
     const newEquation = typeof valueOrSetter === "function"
       ? valueOrSetter(recipe.equation)
       : valueOrSetter;
@@ -122,7 +122,7 @@ export function RecipeContextProvider({
   };
 
   const variables = useMemo(() => recipe.variables, [recipe]);
-  const setVariables = (variablesAction: SetStateAction<SmartRecipe["variables"]>) => {
+  const setVariables = (variablesAction: SetStateAction<Recipe["variables"]>) => {
     const newVariables = typeof variablesAction === "function"
       ? variablesAction(recipe.variables)
       : variablesAction;

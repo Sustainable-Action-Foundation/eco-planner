@@ -7,7 +7,7 @@ import type { Unit } from "mathjs";
 import { extractDataSeries, extractExternalDatasets, extractScalars } from "./extractors";
 
 
-export class SmartRecipe {
+export class Recipe {
   public name: string | null | undefined; // String if given, null if removed, undefined if not specified
   public equation: string;
   public variables: Record<string, RecipeVariable>;
@@ -188,8 +188,8 @@ export class SmartRecipe {
   /** 
    * Clones this instance of SmartRecipe.
    */
-  public copy(): SmartRecipe {
-    return SmartRecipe.deserialize(this.serialize());
+  public copy(): Recipe {
+    return Recipe.deserialize(this.serialize());
   }
 
   /** 
@@ -219,7 +219,7 @@ export class SmartRecipe {
   /** 
    * SmartRecipe factory, takes serialized recipe and returns a new smart recipe instance.
    */
-  public static deserialize(serializedRecipe: SerializedRecipe): SmartRecipe {
+  public static deserialize(serializedRecipe: SerializedRecipe): Recipe {
     let objectForm: JSONValue;
 
     try {
@@ -233,40 +233,40 @@ export class SmartRecipe {
       throw new RecipeError("Invalid serialized recipe format, not a valid Recipe object");
     }
 
-    return SmartRecipe.fromObject(objectForm);
+    return Recipe.fromObject(objectForm);
   }
 
   /** 
    * SmartRecipe factory, takes either a serialized recipe, a plain object recipe or an existing SmartRecipe and returns a new smart recipe instance.
    */
-  public static from(input: string | SmartRecipe | JSONValue): SmartRecipe {
+  public static from(input: string | Recipe | JSONValue): Recipe {
     if (typeof input === "string") {
-      return SmartRecipe.deserialize(input);
+      return Recipe.deserialize(input);
     }
-    else if (input instanceof SmartRecipe) {
-      return SmartRecipe.deserialize(input.serialize());
+    else if (input instanceof Recipe) {
+      return Recipe.deserialize(input.serialize());
     }
     else {
-      return SmartRecipe.fromObject(input);
+      return Recipe.fromObject(input);
     }
   }
 
   /** 
    * SmartRecipe factory, takes recipe object and returns a new smart recipe instance if valid.
    */
-  private static fromObject(obj: JSONValue): SmartRecipe {
+  private static fromObject(obj: JSONValue): Recipe {
     if (typeof obj === "string") {
       console.info("Parsing recipe from string input, attempting to parse as serialized recipe.");
-      return SmartRecipe.deserialize(obj);
+      return Recipe.deserialize(obj);
     }
 
-    const normalized = SmartRecipe.normalizeRecipeObject(obj);
+    const normalized = Recipe.normalizeRecipeObject(obj);
 
     if (!isRecipe(normalized)) {
       throw new RecipeError("Invalid object format for recipe, object does not conform to Recipe type");
     }
 
-    return new SmartRecipe({
+    return new Recipe({
       name: normalized.name,
       equation: normalized.equation,
       variables: normalized.variables,
@@ -294,8 +294,8 @@ export class SmartRecipe {
   /** 
    * SmartRecipe factory, returns an empty smart recipe instance.
    */
-  public static getEmpty(): SmartRecipe {
-    return new SmartRecipe({
+  public static getEmpty(): Recipe {
+    return new Recipe({
       name: undefined,
       equation: "",
       variables: {},

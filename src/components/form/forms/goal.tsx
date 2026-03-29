@@ -11,7 +11,7 @@ import styles from '../forms.module.css';
 import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections";
 import TextEditor from "../elements/textEditor/editor";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
-import { SmartRecipe } from "@/functions/recipe/recipe";
+import { Recipe } from "@/functions/recipe/recipe";
 import { FormIntegration, RecipeContextProvider, RecipeEditor, SuggestedRecipeApplier } from "@/components/recipe";
 
 const DataSeriesType = {
@@ -70,11 +70,11 @@ export default function GoalForm({
     }
 
     // Parse recipe (optional)
-    let dataSeriesRecipe: SmartRecipe | undefined = undefined;
+    let dataSeriesRecipe: Recipe | undefined = undefined;
     const resultingRecipeString = formData.get("resultingRecipe") as string | null;
     if (resultingRecipeString) {
       try {
-        dataSeriesRecipe = SmartRecipe.deserialize(resultingRecipeString);
+        dataSeriesRecipe = Recipe.deserialize(resultingRecipeString);
       }
       catch (e) {
         console.error("Failed to parse resulting recipe from form:", e);

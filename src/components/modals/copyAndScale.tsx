@@ -8,7 +8,7 @@ import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
 import styles from "../form/api/queryBuilder.module.css";
-import { SmartRecipe } from "@/functions/recipe";
+import { Recipe } from "@/functions/recipe";
 import { FormIntegration, RecipeContextProvider, SuggestedRecipeApplier } from "@/components/recipe";
 
 
@@ -70,7 +70,7 @@ export default function CopyAndScale({
       return;
     }
 
-    let recipeUsed: SmartRecipe | undefined;
+    let recipeUsed: Recipe | undefined;
     try {
       const unparsedRecipe = form.get("resultingRecipe");
       if (unparsedRecipe instanceof File) {
@@ -80,7 +80,7 @@ export default function CopyAndScale({
       if (!unparsedRecipe) {
         throw new Error("Failed to parse recipe from form data");
       }
-      recipeUsed = SmartRecipe.deserialize(unparsedRecipe);
+      recipeUsed = Recipe.deserialize(unparsedRecipe);
       if (!recipeUsed) {
         throw new Error("Failed to parse recipe from form data");
       }

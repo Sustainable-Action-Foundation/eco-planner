@@ -1,5 +1,5 @@
 
-import { SmartRecipe } from "@/functions/recipe/recipe";
+import { Recipe } from "@/functions/recipe/recipe";
 import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types";
 import type { RecipeDataSeries, RecipeExternalDataset, RecipeScalar } from "@/functions/recipe/types";
 import type { DBRecipe } from "@/types";
@@ -7,7 +7,7 @@ import type { TFunction } from "i18next";
 
 export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
 
-  const areaRecipe = new SmartRecipe({
+  const areaRecipe = new Recipe({
     name: t("components:recipe_editor.default_area_recipe.name"),
     equation: `\$\{${t("components:recipe_editor.default_area_recipe.parent_value")}\} * \$\{${t("components:recipe_editor.default_area_recipe.child_area")}\} / \$\{${t("components:recipe_editor.default_area_recipe.parent_area")}\}`,
     variables: {
@@ -52,7 +52,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
     },
   });
 
-  const populationRecipe = new SmartRecipe({
+  const populationRecipe = new Recipe({
     name: t("components:recipe_editor.default_population_recipe.name"),
     equation: `\$\{${t("components:recipe_editor.default_population_recipe.parent_value")}\} * \$\{${t("components:recipe_editor.default_population_recipe.child_population")}\} / \$\{${t("components:recipe_editor.default_population_recipe.parent_population")}\}`,
     variables: {
@@ -93,7 +93,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
     },
   });
 
-  const scalarRecipe = new SmartRecipe({
+  const scalarRecipe = new Recipe({
     name: t("components:recipe_editor.default_scalar_recipe.name"),
     equation: `\$\{${t("components:recipe_editor.default_scalar_recipe.parent_value")}\} * \$\{${t("components:recipe_editor.default_scalar_recipe.scalar")}\}`,
     variables: {

@@ -1,4 +1,4 @@
-import type { SmartRecipe } from "@/functions/recipe/recipe";
+import type { Recipe } from "@/functions/recipe/recipe";
 import type { RecipeVariable } from "@/functions/recipe/types";
 import type { DateValues } from "@/types";
 import { createContext } from "react";
@@ -13,7 +13,7 @@ type Historic<T> = (prev: T) => T;
 export type SetStateAction<T> = T | Historic<T>;
 
 export type RecipeContextType = {
-  recipe: SmartRecipe;
+  recipe: Recipe;
   resultingDataSeries: DateValues | null;
   resultingUnit: string | null | undefined;
 
@@ -21,13 +21,13 @@ export type RecipeContextType = {
   error: string | null;
 
   clearRecipe: () => void;
-  setRecipe: (valueOrSetter: SetStateAction<SmartRecipe>) => Promise<void>;
+  setRecipe: (valueOrSetter: SetStateAction<Recipe>) => Promise<void>;
 
-  equation: SmartRecipe["equation"];
-  setEquation: (valueOrSetter: SetStateAction<SmartRecipe["equation"]>) => void;
+  equation: Recipe["equation"];
+  setEquation: (valueOrSetter: SetStateAction<Recipe["equation"]>) => void;
 
-  variables: SmartRecipe["variables"];
-  setVariables: (valueOrSetter: SetStateAction<SmartRecipe["variables"]>) => void;
+  variables: Recipe["variables"];
+  setVariables: (valueOrSetter: SetStateAction<Recipe["variables"]>) => void;
 
   getVariable: (variableName: string) => RecipeVariable | undefined;
   setVariable: (variableName: string, newValue: SetStateAction<RecipeVariable>) => void;

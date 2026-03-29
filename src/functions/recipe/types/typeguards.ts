@@ -7,7 +7,7 @@ import mathjs from "@/math";
 
 import { RecipeDataTypes } from "./consts";
 import { VectorIndexPickerOptions } from "./consts";
-import type { SmartRecipe } from "@/functions/recipe/recipe";
+import type { Recipe } from "@/functions/recipe/recipe";
 import type {
   EvalTimeVariable,
   RecipeDataSeries,
@@ -290,7 +290,7 @@ export function isRecipe(recipe: unknown): recipe is SerializedRecipeShape {
   return true;
 }
 
-export function isEmptyRecipe(recipe: SmartRecipe): boolean {
+export function isEmptyRecipe(recipe: Recipe): boolean {
   return (
     (recipe.name === null || recipe.name === undefined)
     && recipe.equation.trim() === ""

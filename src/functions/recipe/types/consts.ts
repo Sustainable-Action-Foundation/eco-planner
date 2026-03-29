@@ -1,4 +1,4 @@
-import { SmartRecipe } from "@/functions/recipe/recipe";
+import { Recipe } from "@/functions/recipe/recipe";
 import type { RecipeDataSeries, RecipeExternalDataset, RecipeScalar, RecipeVariable } from "./types";
 
 export const VectorIndexPickerOptions = {
@@ -28,7 +28,7 @@ export const emptyRecipeScalar: RecipeScalar = { type: RecipeDataTypes.Scalar, v
 export const emptyRecipeDataSeries: RecipeDataSeries = { type: RecipeDataTypes.DataSeries, link: undefined, pick: VectorIndexPickerOptions.Default, unit: undefined } as const;
 export const emptyRecipeExternalDataset: RecipeExternalDataset = { type: RecipeDataTypes.External, dataset: null, tableId: null, selection: [], pick: VectorIndexPickerOptions.Default, unit: undefined } as const;
 
-export const emptyRecipe: SmartRecipe = SmartRecipe.getEmpty();
+export const emptyRecipe: Recipe = Recipe.getEmpty();
 
 /**
  * Defined here to usage before declaration.

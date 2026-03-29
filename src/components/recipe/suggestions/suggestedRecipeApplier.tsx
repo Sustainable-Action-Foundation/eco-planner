@@ -13,7 +13,7 @@ import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";
 import { IconAlertTriangleFilled } from "@tabler/icons-react";
 import { RecipeEditorPermissions } from "../editor/variables/variableTypes/recipeEditorPermissions";
 import type { DBRecipe } from "@/types";
-import { SmartRecipe } from "@/functions/recipe/recipe";
+import { Recipe } from "@/functions/recipe/recipe";
 import { getDefaultSuggestedRecipes, OutputDataSeries, OutputGraph, OutputStatus } from "@/components/recipe";
 
 export function SuggestedRecipeApplier({
@@ -63,7 +63,7 @@ export function SuggestedRecipeApplier({
   useEffect(() => {
     // async function validateAll() {
     for (const dbRecipe of suggestedRecipes) {
-      const recipe = SmartRecipe.from(dbRecipe.recipe);
+      const recipe = Recipe.from(dbRecipe.recipe);
       if (!isRecipe(recipe)) {
         console.warn("Invalid recipe in suggestions", dbRecipe);
         return;
@@ -90,7 +90,7 @@ export function SuggestedRecipeApplier({
       return;
     }
 
-    const parsedRecipe = SmartRecipe.from(selectedSuggestion.recipe);
+    const parsedRecipe = Recipe.from(selectedSuggestion.recipe);
 
     if (!isRecipe(parsedRecipe)) {
       console.error("Selected suggested recipe is not a valid SmartRecipe", selectedSuggestion);
@@ -118,7 +118,7 @@ export function SuggestedRecipeApplier({
         <option disabled value={""}>{t("common:tsx.generic_select")}</option>
         {suggestedRecipes.map((suggestedRecipe, index) => (
           <option key={index} value={suggestedRecipe.id}> {/* TODO: The selected value needs to be preselected */}
-            {SmartRecipe.from(suggestedRecipe.recipe).name ?? t("components:copy_and_scale.unnamed_suggestion")}
+            {Recipe.from(suggestedRecipe.recipe).name ?? t("components:copy_and_scale.unnamed_suggestion")}
           </option>
         ))}
       </select>
