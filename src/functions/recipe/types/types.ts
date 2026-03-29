@@ -20,9 +20,6 @@ export type DataSeriesVariable = BaseVariable & {
 
   dataSeriesId: string | null | undefined;
   value: DateValues | null | undefined;
-
-  goalName?: string;
-  disabled?: boolean;
 };
 export type ExternalVariable = BaseVariable & {
   type: typeof RecipeDataTypes.External;

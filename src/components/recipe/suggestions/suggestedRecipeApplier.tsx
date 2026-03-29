@@ -183,12 +183,11 @@ export function SuggestedRecipeApplier({
                     name: "recipeVariable" + i,
                     placeholder: t("components:recipe_editor.select_data_series"),
                     required: true,
-                    disabled: variable.disabled || false,
+                    disabled: false,
                   }}
                   key={"recipeVariable" + i}
                   variableName={variableName}
                   availableRoadmaps={availableRoadmaps}
-                  goalName={variable.goalName}
                 />
               </Fragment>
             );
