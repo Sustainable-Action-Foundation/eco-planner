@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Try to recalculate the data series
-    const recipe = SmartRecipe.fromObject(dbRecipe.recipe);
+    const recipe = SmartRecipe.from(dbRecipe.recipe);
     const warnings: string[] = [];
     const evaluationResult = await recipe.evaluate(warnings)
       .catch((e: unknown) => {

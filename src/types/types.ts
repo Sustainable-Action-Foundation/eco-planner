@@ -1,5 +1,4 @@
 import type { actionInclusionSelection, clientSafeDataSeriesSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapSelection, effectInclusionSelection, goalInclusionSelection, metaRoadmapInclusionSelection, multiRoadmapInclusionSelection, nameSelector, recipeSelector, roadmapInclusionSelection, userInfoSelector } from "@/fetchers/inclusionSelectors";
-import type { SerializedRecipe } from "@/functions/recipe/types";
 import type { Unit } from "mathjs";
 import type { Prisma } from "@prisma/client";
 
@@ -97,13 +96,9 @@ export type DataSeries = Prisma.DataSeriesGetPayload<{
   select: typeof clientSafeDataSeriesSelection
 }>;
 
-type DBRecipePayload = Prisma.RecipeGetPayload<{
+export type DBRecipe = Prisma.RecipeGetPayload<{
   select: typeof recipeSelector,
 }>;
-
-export type DBRecipe = Omit<DBRecipePayload, "recipe"> & {
-  recipe: SerializedRecipe;
-};
 
 export type UnitString = string | null | undefined;
 export type ISOIshDate = `${number}-${number}-${number}T00:00:00.000Z`;

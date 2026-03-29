@@ -73,7 +73,7 @@ export class SmartRecipe {
    * @param warnings **Side effect only**. Array will be mutated in place to include any warnings encountered during evaluation. 
    */
   public async evaluate(warnings: string[] = []): Promise<DateValuesWithUnit | null> {
-    const serialized = this.toSerialized();
+    const serialized = this.serialize();
     const asObject = JSON.parse(serialized) as JSONValue;
     if (!isRecipe(asObject)) {
       throw new RecipeError("Invalid recipe format");
@@ -189,7 +189,7 @@ export class SmartRecipe {
    * Clones this instance of SmartRecipe.
    */
   public copy(): SmartRecipe {
-    return SmartRecipe.fromSerialized(this.toSerialized());
+    return SmartRecipe.deserialize(this.serialize());
   }
 
   /** 
@@ -199,13 +199,13 @@ export class SmartRecipe {
    * Uses JSON to format the recipe in a readable way.
    */
   public toString(): string {
-    return JSON.stringify(JSON.parse(this.toSerialized()), null, 2);
+    return JSON.stringify(JSON.parse(this.serialize()), null, 2);
   }
 
   /** 
    * Stringify SmartRecipe to a state that can be reversed for storage purposes.
    */
-  public toSerialized(): SerializedRecipe {
+  public serialize(): SerializedRecipe {
     return JSON.stringify({
       name: this.name,
       equation: this.equation,
@@ -219,7 +219,7 @@ export class SmartRecipe {
   /** 
    * SmartRecipe factory, takes serialized recipe and returns a new smart recipe instance.
    */
-  public static fromSerialized(serializedRecipe: SerializedRecipe): SmartRecipe {
+  public static deserialize(serializedRecipe: SerializedRecipe): SmartRecipe {
     let objectForm: JSONValue;
 
     try {
@@ -237,11 +237,27 @@ export class SmartRecipe {
   }
 
   /** 
+   * SmartRecipe factory, takes either a serialized recipe, a plain object recipe or an existing SmartRecipe and returns a new smart recipe instance.
+   */
+  public static from(input: string | SmartRecipe | JSONValue): SmartRecipe {
+    if (typeof input === "string") {
+      return SmartRecipe.deserialize(input);
+    }
+    else if (input instanceof SmartRecipe) {
+      return SmartRecipe.deserialize(input.serialize());
+    }
+    else {
+      return SmartRecipe.fromObject(input);
+    }
+  }
+
+  /** 
    * SmartRecipe factory, takes recipe object and returns a new smart recipe instance if valid.
    */
-  public static fromObject(obj: JSONValue): SmartRecipe {
+  private static fromObject(obj: JSONValue): SmartRecipe {
     if (typeof obj === "string") {
-      return SmartRecipe.fromSerialized(obj);
+      console.info("Parsing recipe from string input, attempting to parse as serialized recipe.");
+      return SmartRecipe.deserialize(obj);
     }
 
     if (typeof obj !== "object" || obj === null) {
@@ -264,15 +280,6 @@ export class SmartRecipe {
       equation: obj.equation,
       variables: obj.variables,
     });
-  }
-
-  public static fromRecipe(recipe: SmartRecipe | JSONValue): SmartRecipe {
-    if (recipe instanceof SmartRecipe) {
-      return SmartRecipe.fromSerialized(recipe.toSerialized());
-    }
-    else {
-      return SmartRecipe.fromObject(recipe);
-    }
   }
 
   /** 

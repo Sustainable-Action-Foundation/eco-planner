@@ -74,7 +74,7 @@ export default function GoalForm({
     const resultingRecipeString = formData.get("resultingRecipe") as string | null;
     if (resultingRecipeString) {
       try {
-        dataSeriesRecipe = SmartRecipe.fromSerialized(resultingRecipeString);
+        dataSeriesRecipe = SmartRecipe.deserialize(resultingRecipeString);
       }
       catch (e) {
         console.error("Failed to parse resulting recipe from form:", e);
@@ -188,7 +188,7 @@ export default function GoalForm({
         dataSeriesId: null,
         dataSeries: dataSeries,
         dataSeriesRecipeId: null,
-        dataSeriesRecipe: dataSeriesRecipe?.toSerialized() ?? null,
+        dataSeriesRecipe: dataSeriesRecipe?.serialize() ?? null,
 
         baselineId: baselineId,
         baseline: baseline,
@@ -221,7 +221,7 @@ export default function GoalForm({
         dataSeriesId: undefined,
         dataSeries: dataSeries,
         dataSeriesRecipeId: undefined,
-        dataSeriesRecipe: dataSeriesRecipe?.toSerialized() ?? undefined,
+        dataSeriesRecipe: dataSeriesRecipe?.serialize() ?? undefined,
 
         baselineId: baselineId,
         baseline: baseline,

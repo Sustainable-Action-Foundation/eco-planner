@@ -80,7 +80,7 @@ export default function CopyAndScale({
       if (!unparsedRecipe) {
         throw new Error("Failed to parse recipe from form data");
       }
-      recipeUsed = SmartRecipe.fromSerialized(unparsedRecipe);
+      recipeUsed = SmartRecipe.deserialize(unparsedRecipe);
       if (!recipeUsed) {
         throw new Error("Failed to parse recipe from form data");
       }
@@ -107,7 +107,7 @@ export default function CopyAndScale({
       dataSeriesId: undefined,
       dataSeries: { dateValues: resultingDataSeries, unit: resultingUnit, },
       dataSeriesRecipeId: undefined,
-      dataSeriesRecipe: recipeUsed.toSerialized(),
+      dataSeriesRecipe: recipeUsed.serialize(),
 
       recipeSuggestions: undefined,
 

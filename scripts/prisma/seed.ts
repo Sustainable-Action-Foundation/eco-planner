@@ -79,13 +79,8 @@ function getRandomCoherentDateValues(): DateValues {
     if (!isISOIshDate(timestamp)) {
       throw new Error(`Generated timestamp ${timestamp} is not in a valid format.`);
     }
-    if (value < 0) {
-      dataPoints[timestamp] = 0; // Ensure no negative values
-      startValue = 0; // Reset start value to 0 if it goes negative
-    } else {
-      dataPoints[timestamp] = value;
-      startValue = value; // Update start value for next iteration
-    }
+    dataPoints[timestamp] = value;
+    startValue = value; // Update start value for next iteration
   }
 
   // TODO - add limit to recursion depth. Not that important since it's incredibly unlikely that it will be a problem
@@ -356,7 +351,7 @@ async function main() {
       });
       return prisma.recipe.create({
         data: {
-          recipe: recipe.toSerialized(),
+          recipe: recipe.serialize(),
         },
       });
     })(),
@@ -399,7 +394,7 @@ async function main() {
       });
       return prisma.recipe.create({
         data: {
-          recipe: recipe.toSerialized(),
+          recipe: recipe.serialize(),
         },
       });
     })(),
@@ -423,7 +418,7 @@ async function main() {
       });
       return prisma.recipe.create({
         data: {
-          recipe: recipe.toSerialized(),
+          recipe: recipe.serialize(),
         },
       });
     })(),
@@ -465,7 +460,7 @@ async function main() {
       });
       return prisma.recipe.create({
         data: {
-          recipe: recipe.toSerialized(),
+          recipe: recipe.serialize(),
         },
       });
     }),

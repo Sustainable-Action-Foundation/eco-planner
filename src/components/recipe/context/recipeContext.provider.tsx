@@ -21,7 +21,7 @@ export function RecipeContextProvider({
 
   const [smartRecipeEntryPoint, setSmartRecipeEntryPoint] = useState<SmartRecipe>(
     !!initialRecipe
-      ? SmartRecipe.fromRecipe(initialRecipe)
+      ? SmartRecipe.from(initialRecipe)
       : SmartRecipe.getEmpty()
   );
 
@@ -32,7 +32,7 @@ export function RecipeContextProvider({
     smartRecipeEntryPoint instanceof SmartRecipe
       ? smartRecipeEntryPoint
       : smartRecipeEntryPoint
-        ? SmartRecipe.fromObject(smartRecipeEntryPoint)
+        ? SmartRecipe.from(smartRecipeEntryPoint)
         : SmartRecipe.getEmpty()
     , [smartRecipeEntryPoint]);
 
@@ -52,10 +52,10 @@ export function RecipeContextProvider({
       newInstance = SmartRecipe.getEmpty();
     }
     else if (newRecipe instanceof SmartRecipe) {
-      newInstance = SmartRecipe.fromRecipe(newRecipe);
+      newInstance = SmartRecipe.from(newRecipe);
     }
     else {
-      newInstance = SmartRecipe.fromRecipe(newRecipe);
+      newInstance = SmartRecipe.from(newRecipe);
     }
 
     if (!newInstance) {

@@ -115,15 +115,15 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
   return [
     {
       id: "area-recipe-dummy-uuid",
-      recipe: areaRecipe.toSerialized(),
+      recipe: areaRecipe.serialize(),
     },
     {
       id: "population-recipe-dummy-uuid",
-      recipe: populationRecipe.toSerialized(),
+      recipe: populationRecipe.serialize(),
     },
     {
       id: "scalar-recipe-dummy-uuid",
-      recipe: scalarRecipe.toSerialized(),
+      recipe: scalarRecipe.serialize(),
     }
   ] satisfies DBRecipe[];
 }

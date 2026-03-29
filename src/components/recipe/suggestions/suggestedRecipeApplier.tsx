@@ -63,7 +63,7 @@ export function SuggestedRecipeApplier({
   useEffect(() => {
     // async function validateAll() {
     for (const dbRecipe of suggestedRecipes) {
-      const recipe = SmartRecipe.fromSerialized(dbRecipe.recipe);
+      const recipe = SmartRecipe.from(dbRecipe.recipe);
       if (!isRecipe(recipe)) {
         console.warn("Invalid recipe in suggestions", dbRecipe);
         return;
@@ -90,7 +90,7 @@ export function SuggestedRecipeApplier({
       return;
     }
 
-    const parsedRecipe = SmartRecipe.fromObject(selectedSuggestion.recipe);
+    const parsedRecipe = SmartRecipe.from(selectedSuggestion.recipe);
 
     if (!isRecipe(parsedRecipe)) {
       console.error("Selected suggested recipe is not a valid SmartRecipe", selectedSuggestion);
@@ -118,7 +118,7 @@ export function SuggestedRecipeApplier({
         <option disabled value={""}>{t("common:tsx.generic_select")}</option>
         {suggestedRecipes.map((suggestedRecipe, index) => (
           <option key={index} value={suggestedRecipe.id}> {/* TODO: The selected value needs to be preselected */}
-            {SmartRecipe.fromObject(suggestedRecipe.recipe).name ?? t("components:copy_and_scale.unnamed_suggestion")}
+            {SmartRecipe.from(suggestedRecipe.recipe).name ?? t("components:copy_and_scale.unnamed_suggestion")}
           </option>
         ))}
       </select>
