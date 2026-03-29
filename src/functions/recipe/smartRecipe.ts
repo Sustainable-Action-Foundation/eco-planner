@@ -260,6 +260,23 @@ export class SmartRecipe {
       return SmartRecipe.deserialize(obj);
     }
 
+    const normalized = SmartRecipe.normalizeRecipeObject(obj);
+
+    if (!isRecipe(normalized)) {
+      throw new RecipeError("Invalid object format for recipe, object does not conform to Recipe type");
+    }
+
+    return new SmartRecipe({
+      name: normalized.name,
+      equation: normalized.equation,
+      variables: normalized.variables,
+    });
+  }
+
+  /**
+   * Normalizes supported input shapes to the actual recipe object payload.
+   */
+  private static normalizeRecipeObject(obj: JSONValue): JSONValue {
     if (typeof obj !== "object" || obj === null) {
       throw new RecipeError("Invalid object format for recipe, expected an object");
     }
@@ -268,18 +285,10 @@ export class SmartRecipe {
       if (typeof obj.recipe !== "object" || obj.recipe === null) {
         throw new RecipeError("Invalid object format for recipe, 'recipe' field is not an object");
       }
-      obj = obj.recipe as JSONValue;
+      return obj.recipe as JSONValue;
     }
 
-    if (!isRecipe(obj)) {
-      throw new RecipeError("Invalid object format for recipe, object does not conform to Recipe type");
-    }
-
-    return new SmartRecipe({
-      name: obj.name,
-      equation: obj.equation,
-      variables: obj.variables,
-    });
+    return obj;
   }
 
   /** 
