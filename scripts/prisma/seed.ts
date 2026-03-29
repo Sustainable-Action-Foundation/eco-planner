@@ -5,7 +5,7 @@ import { PrismaClient, RoadmapType } from '../../src/prisma/generated';
 import bcrypt from "bcryptjs";
 import { RandomTextSE } from "./randomText";
 import { RecipeDataTypes, VectorIndexPickerOptions } from "../../src/functions/recipe/types";
-import { SmartRecipe } from "../../src/functions/recipe/recipe.ts";
+import { Recipe } from "../../src/functions/recipe/recipe";
 import { isISOIshDate } from "../../src/types";
 import type { DateValues } from "../../src/types";
 import { dateValuesToDBDateRecord } from "../../src/functions/recipe/vectorAndMaskUtils";
@@ -313,7 +313,7 @@ async function main() {
    */
   await prisma.$transaction([
     (() => { // By area
-      const recipe = new SmartRecipe({
+      const recipe = new Recipe({
         name: 'Skala utifrån yta',
         equation: '${Riket} * ${ArvingsArea} / ${RiketsArea}',
         variables: {
@@ -360,7 +360,7 @@ async function main() {
       });
     })(),
     (() => { // By population
-      const recipe = new SmartRecipe({
+      const recipe = new Recipe({
         name: 'Skala utifrån befolkning',
         equation: '${Riket} * ${ArvingsPopulation} / ${RiketsPopulation}',
         variables: {
@@ -403,7 +403,7 @@ async function main() {
       });
     })(),
     (() => { // By scalar
-      const recipe = new SmartRecipe({
+      const recipe = new Recipe({
         name: 'Skala utifrån fast värde',
         equation: '${Riket} / ${skalär}',
         variables: {
@@ -450,7 +450,7 @@ async function main() {
   );
   const nationalV1Recipes = await prisma.$transaction(
     nationalDataSeriesV1.map((dataSeries, index) => {
-      const recipe = new SmartRecipe({
+      const recipe = new Recipe({
         name: `1:1 nationell mal ${index + 1}`,
         equation: '${Riket}',
         variables: {
