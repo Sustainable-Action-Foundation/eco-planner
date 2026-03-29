@@ -214,8 +214,19 @@ export function isRecipeExternalDatasetSelection(selection: JSONValue): selectio
   );
 }
 
-export function isRecipe(recipe: unknown): recipe is SerializedRecipeShape {
+export function isRecipe(recipe: JSONValue): recipe is SerializedRecipeShape {
   const allowedProps = ["name", "equation", "variables", "meta"];
+
+  if (typeof recipe === "string") {
+    try {
+      const parsed = JSON.parse(recipe) as JSONValue;
+      return isRecipe(parsed);
+    }
+    catch {
+      console.warn("Type guard: recipe should be a valid JSON string");
+      return false;
+    }
+  }
 
   if (
     !(recipe instanceof Object)

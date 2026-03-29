@@ -64,7 +64,7 @@ export function SuggestedRecipeApplier({
     // async function validateAll() {
     for (const dbRecipe of suggestedRecipes) {
       const recipe = Recipe.from(dbRecipe.recipe);
-      if (!isRecipe(recipe)) {
+      if (!isRecipe(recipe.serialize())) {
         console.warn("Invalid recipe in suggestions", dbRecipe);
         return;
       }
@@ -92,7 +92,7 @@ export function SuggestedRecipeApplier({
 
     const parsedRecipe = Recipe.from(selectedSuggestion.recipe);
 
-    if (!isRecipe(parsedRecipe)) {
+    if (!isRecipe(parsedRecipe.serialize())) {
       console.error("Selected suggested recipe is not a valid Recipe", selectedSuggestion);
       clearRecipe();
       return;
