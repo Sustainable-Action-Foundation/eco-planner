@@ -250,6 +250,7 @@ export function isRecipeExternalDatasetSelection(selection: JSONValue): selectio
 export function isRecipe(recipe: JSONValue): recipe is SerializedRecipeShape {
   const allowedProps = ["name", "equation", "variables", "meta"];
 
+  // Passed as serialized string, try to parse it first
   if (typeof recipe === "string") {
     try {
       const parsed = JSON.parse(recipe) as JSONValue;
@@ -261,6 +262,7 @@ export function isRecipe(recipe: JSONValue): recipe is SerializedRecipeShape {
     }
   }
 
+  // Truthy basic object
   if (
     !(recipe instanceof Object)
     || Array.isArray(recipe)
@@ -270,7 +272,7 @@ export function isRecipe(recipe: JSONValue): recipe is SerializedRecipeShape {
     return false;
   }
 
-  // name: string | null | undefined | omitted
+  // .name: string | null | undefined | omitted
   if (
     "name" in recipe
     && (typeof recipe.name !== "string" && recipe.name !== null && recipe.name !== undefined)
@@ -279,7 +281,7 @@ export function isRecipe(recipe: JSONValue): recipe is SerializedRecipeShape {
     return false;
   }
 
-  // equation: string
+  // .equation: string
   if (
     !("equation" in recipe)
     || typeof recipe.equation !== "string"
@@ -288,7 +290,7 @@ export function isRecipe(recipe: JSONValue): recipe is SerializedRecipeShape {
     return false;
   }
 
-  // variables: Record<string, RecipeVariable>
+  // .variables: Record<string, RecipeVariable>
   if (
     !("variables" in recipe)
     || !isStandardObject(recipe.variables)
@@ -297,6 +299,7 @@ export function isRecipe(recipe: JSONValue): recipe is SerializedRecipeShape {
     return false;
   }
 
+  // .meta: Record<> | omitted
   if (
     "meta" in recipe
     && recipe.meta !== undefined
@@ -313,6 +316,7 @@ export function isRecipe(recipe: JSONValue): recipe is SerializedRecipeShape {
 
   const variables = recipe.variables as Record<string, unknown>;
 
+  // .variables: Record<string, RecipeVariable> - check each variable
   if (
     Object.entries(variables).some(([key, value]) => {
       if (key.trim() === "") return true; // key is already string from Object.entries
@@ -337,9 +341,10 @@ export function isRecipe(recipe: JSONValue): recipe is SerializedRecipeShape {
 }
 
 export function isEmptyRecipe(recipe: Recipe): boolean {
+  // Falsy name, empty and no variables
   return (
-    (recipe.name === null || recipe.name === undefined)
-    && recipe.equation.trim() === ""
+    !!recipe.name
+    && !!recipe.equation.trim()
     && Object.keys(recipe.variables).length === 0
   );
 }
