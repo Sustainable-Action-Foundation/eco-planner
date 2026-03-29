@@ -10,9 +10,9 @@ import { VectorIndexPickerOptions } from "./consts";
 import type { Recipe } from "@/functions/recipe/recipe";
 import type {
   EvalTimeVariable,
-  RecipeDataSeries,
-  RecipeExternalDataset,
-  RecipeScalar,
+  DataSeriesVariable,
+  ExternalVariable,
+  ScalarVariable,
   SerializedRecipeShape,
 } from "@/functions/recipe/types";
 
@@ -27,7 +27,7 @@ export function isRecipeDataType(variable: unknown): variable is (typeof RecipeD
   );
 }
 
-export function isRecipeScalar(variable: JSONValue): variable is RecipeScalar {
+export function isRecipeScalar(variable: JSONValue): variable is ScalarVariable {
   const allowedProps = ["type", "value", "unit"];
 
   return (
@@ -60,7 +60,7 @@ export function isRecipeScalar(variable: JSONValue): variable is RecipeScalar {
   );
 }
 
-export function isRecipeDataSeries(variable: JSONValue): variable is RecipeDataSeries {
+export function isRecipeDataSeries(variable: JSONValue): variable is DataSeriesVariable {
   const allowedProps = ["type", "link", "pick", "unit", "value", "goalName", "disabled"];
 
   return (
@@ -125,7 +125,7 @@ export function isRecipeDataSeries(variable: JSONValue): variable is RecipeDataS
   )
 }
 
-export function isRecipeExternalDataset(variable: JSONValue): variable is RecipeExternalDataset {
+export function isRecipeExternalDataset(variable: JSONValue): variable is ExternalVariable {
   const allowedProps = ["type", "dataset", "tableId", "selection", "pick", "unit"];
 
   return (
@@ -184,7 +184,7 @@ export function isRecipeExternalDataset(variable: JSONValue): variable is Recipe
   );
 }
 
-export function isRecipeExternalDatasetSelection(selection: JSONValue): selection is RecipeExternalDataset["selection"] {
+export function isRecipeExternalDatasetSelection(selection: JSONValue): selection is ExternalVariable["selection"] {
   return (
     Array.isArray(selection) &&
     selection.every(item => (

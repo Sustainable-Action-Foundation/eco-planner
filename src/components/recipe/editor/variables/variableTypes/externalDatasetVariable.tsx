@@ -1,7 +1,7 @@
 "use client"
 
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
-import type { RecipeExternalDataset } from "@/functions/recipe/types";
+import type { ExternalVariable } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "./recipeEditorPermissions";
 import { updateExternalVariableDataset, updateExternalVariableSelection, updateExternalVariableTable } from "@/components/recipe/variableEditingHelpers";
@@ -20,7 +20,7 @@ export function VariableTypeExternal({
   const { t } = useTranslation("components");
   const { recipe } = useRecipe();
   // TODO: Handle undefined variable
-  const variable = recipe?.variables[variableName] as RecipeExternalDataset;
+  const variable = recipe?.variables[variableName] as ExternalVariable;
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
 
@@ -57,7 +57,7 @@ export function VariableTypeExternalSimple({
 }) {
   const { t } = useTranslation("components");
   const { recipe, setVariable } = useRecipe();
-  const variable = recipe?.variables[variableName] as RecipeExternalDataset;
+  const variable = recipe?.variables[variableName] as ExternalVariable;
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
 

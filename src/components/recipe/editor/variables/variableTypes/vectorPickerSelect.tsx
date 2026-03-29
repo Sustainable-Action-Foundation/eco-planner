@@ -1,7 +1,7 @@
 "use client"
 
 import { isRecipeDataSeries, isRecipeExternalDataset, VectorIndexPickerOptions } from "@/functions/recipe/types";
-import type { RecipeDataSeries } from "@/functions/recipe/types";
+import type { DataSeriesVariable } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "./recipeEditorPermissions";
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
@@ -15,7 +15,7 @@ export function VectorPickerSelect({ permissions, variableName }: { permissions?
   return (
     <select
       id={variableName}
-      defaultValue={(recipe?.variables[variableName] as RecipeDataSeries)?.pick || VectorIndexPickerOptions.Default}
+      defaultValue={(recipe?.variables[variableName] as DataSeriesVariable)?.pick || VectorIndexPickerOptions.Default}
       disabled={!permissions.allowValueEditing}
       onChange={(e) => {
         if (!recipe) return; // Early return if recipe is null which is only the case in race conditions with the context provider

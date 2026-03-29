@@ -1,7 +1,7 @@
 
 import { Recipe } from "@/functions/recipe/recipe";
 import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types";
-import type { RecipeDataSeries, RecipeExternalDataset, RecipeScalar } from "@/functions/recipe/types";
+import type { DataSeriesVariable, ExternalVariable, ScalarVariable } from "@/functions/recipe/types";
 import type { DBRecipe } from "@/types";
 import type { TFunction } from "i18next";
 
@@ -13,10 +13,11 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
     variables: {
       [t("components:recipe_editor.default_area_recipe.parent_value")]: {
         type: RecipeDataTypes.DataSeries,
-        link: undefined,
         pick: VectorIndexPickerOptions.Default,
+        value: undefined,
+        link: undefined,
         unit: undefined
-      } satisfies RecipeDataSeries,
+      } satisfies DataSeriesVariable,
 
       [t("components:recipe_editor.default_area_recipe.parent_area")]: {
         type: RecipeDataTypes.External,
@@ -32,7 +33,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
         ],
         pick: VectorIndexPickerOptions.Default,
         unit: undefined,
-      } satisfies RecipeExternalDataset,
+      } satisfies ExternalVariable,
 
       [t("components:recipe_editor.default_area_recipe.child_area")]: {
         type: RecipeDataTypes.External,
@@ -48,7 +49,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
         ],
         pick: VectorIndexPickerOptions.Default,
         unit: undefined,
-      } satisfies RecipeExternalDataset,
+      } satisfies ExternalVariable,
     },
   });
 
@@ -58,13 +59,16 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
     variables: {
       [t("components:recipe_editor.default_population_recipe.parent_value")]: {
         type: RecipeDataTypes.DataSeries,
-        link: undefined,
         pick: VectorIndexPickerOptions.Default,
-        unit: undefined
-      } satisfies RecipeDataSeries,
+        unit: undefined,
+        value: undefined,
+        link: undefined,
+      } satisfies DataSeriesVariable,
 
       [t("components:recipe_editor.default_population_recipe.parent_population")]: {
         type: RecipeDataTypes.External,
+        pick: VectorIndexPickerOptions.Default,
+        unit: undefined,
         dataset: 'SCB',
         tableId: 'BE0101N1',
         selection: [
@@ -73,9 +77,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
           // Magic string to get population numbers
           { variableCode: "ContentsCode", valueCodes: ["000007E1"] },
         ],
-        pick: VectorIndexPickerOptions.Default,
-        unit: undefined,
-      } satisfies RecipeExternalDataset,
+      } satisfies ExternalVariable,
 
       [t("components:recipe_editor.default_population_recipe.child_population")]: {
         type: RecipeDataTypes.External,
@@ -89,7 +91,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
         ],
         pick: VectorIndexPickerOptions.Default,
         unit: undefined,
-      } satisfies RecipeExternalDataset,
+      } satisfies ExternalVariable,
     },
   });
 
@@ -99,16 +101,17 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
     variables: {
       [t("components:recipe_editor.default_scalar_recipe.parent_value")]: {
         type: RecipeDataTypes.DataSeries,
-        link: undefined,
         pick: VectorIndexPickerOptions.Default,
-        unit: undefined
-      } satisfies RecipeDataSeries,
+        link: undefined,
+        value: undefined,
+        unit: undefined,
+      } satisfies DataSeriesVariable,
 
       [t("components:recipe_editor.default_scalar_recipe.scalar")]: {
         type: RecipeDataTypes.Scalar,
         value: 1,
         unit: null,
-      } satisfies RecipeScalar,
+      } satisfies ScalarVariable,
     },
   });
 

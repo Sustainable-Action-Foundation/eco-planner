@@ -1,7 +1,7 @@
 "use client"
 
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
-import type { RecipeScalar } from "@/functions/recipe/types";
+import type { ScalarVariable } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "./recipeEditorPermissions";
 import { updateScalarVariableValue } from "@/components/recipe/variableEditingHelpers";
@@ -17,7 +17,7 @@ export function VariableTypeScalar({
 }) {
   const { t } = useTranslation("components");
   const { recipe, setVariable } = useRecipe();
-  const variable = recipe?.variables[name] as RecipeScalar;
+  const variable = recipe?.variables[name] as ScalarVariable;
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
 
@@ -54,7 +54,7 @@ export function VariableTypeScalarSimple({
 }) {
   const { t } = useTranslation("components");
   const { recipe, setVariable } = useRecipe();
-  const variable = recipe?.variables[variableName] as RecipeScalar;
+  const variable = recipe?.variables[variableName] as ScalarVariable;
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
 

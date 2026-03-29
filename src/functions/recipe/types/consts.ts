@@ -1,5 +1,4 @@
-import { Recipe } from "@/functions/recipe/recipe";
-import type { RecipeDataSeries, RecipeExternalDataset, RecipeScalar, RecipeVariable } from "./types";
+import type { DataSeriesVariable, ExternalVariable, ScalarVariable, RecipeVariable } from "./types";
 
 export const VectorIndexPickerOptions = {
   Default: "whole",
@@ -24,11 +23,9 @@ export const RecipeDataTypes = {
 } as const;
 export type RecipeDataTypes = typeof RecipeDataTypes[keyof typeof RecipeDataTypes];
 
-export const emptyRecipeScalar: RecipeScalar = { type: RecipeDataTypes.Scalar, value: 0, unit: undefined } as const;
-export const emptyRecipeDataSeries: RecipeDataSeries = { type: RecipeDataTypes.DataSeries, link: undefined, pick: VectorIndexPickerOptions.Default, unit: undefined } as const;
-export const emptyRecipeExternalDataset: RecipeExternalDataset = { type: RecipeDataTypes.External, dataset: null, tableId: null, selection: [], pick: VectorIndexPickerOptions.Default, unit: undefined } as const;
-
-export const emptyRecipe: Recipe = Recipe.getEmpty();
+export const emptyRecipeScalar: ScalarVariable = { type: RecipeDataTypes.Scalar, value: 0, unit: undefined } as const;
+export const emptyRecipeDataSeries: DataSeriesVariable = { type: RecipeDataTypes.DataSeries, link: undefined, pick: VectorIndexPickerOptions.Default, unit: undefined, value: undefined } as const;
+export const emptyRecipeExternalDataset: ExternalVariable = { type: RecipeDataTypes.External, dataset: null, tableId: null, selection: [], pick: VectorIndexPickerOptions.Default, unit: undefined } as const;
 
 /**
  * Defined here to usage before declaration.

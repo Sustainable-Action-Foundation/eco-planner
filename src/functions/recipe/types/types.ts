@@ -3,33 +3,40 @@ import type { DatasetKeys } from "@/lib/api/utility";
 import type { DateValues, DateValuesWithUnit, JSONValue, UnitString } from "@/types";
 import type { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/consts";
 
-export type RecipeScalar = {
+type BaseVariable = {
+  name?: string | undefined;
+  type: RecipeDataTypes;
+  unit: UnitString;
+  template?: boolean | undefined;
+};
+
+export type ScalarVariable = BaseVariable & {
   type: typeof RecipeDataTypes.Scalar;
   value: number;
-  unit: UnitString;
 };
-export type RecipeDataSeries = {
+export type DataSeriesVariable = BaseVariable & {
   type: typeof RecipeDataTypes.DataSeries;
-  link: string | null | undefined;
-  value?: DateValues | null | undefined;
   pick: VectorIndexPickerOptions | number;
-  unit: UnitString;
+
+  link: string | null | undefined;
+  value: DateValues | null | undefined;
 
   goalName?: string;
   disabled?: boolean;
 };
-export type RecipeExternalDataset = {
+export type ExternalVariable = BaseVariable & {
   type: typeof RecipeDataTypes.External;
+  pick: VectorIndexPickerOptions | number;
+
+  // API stuff
   dataset: DatasetKeys | null;
   tableId: string | null;
   selection: {
     variableCode: string,
     valueCodes: string[]
   }[];
-  pick: VectorIndexPickerOptions | number;
-  unit: UnitString;
 };
-export type RecipeVariable = RecipeScalar | RecipeDataSeries | RecipeExternalDataset;
+export type RecipeVariable = ScalarVariable | DataSeriesVariable | ExternalVariable;
 
 /*
  * Variable during evaluation of a recipe. Should not persist beyond that scope.

@@ -164,7 +164,7 @@ export function RecipeContextProvider({
       error,
     }}>
       {isDebug &&
-        <pre style={{ position: "fixed", top: 0, left: 0, backgroundColor: "white", zIndex: 999, padding: "1rem", border: "1px solid black" }}>
+        <pre style={{ position: "fixed", top: 0, left: 16, backgroundColor: "white", zIndex: 999, padding: "1rem", border: "1px solid black" }}>
           {recipe.toString()}
         </pre>
       }
