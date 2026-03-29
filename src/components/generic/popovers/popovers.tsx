@@ -5,6 +5,9 @@
 // As such this should only be used within the sidebar until-
 // greater browser support. 
 
+// Anchor is supported on all major browsers as of January 2026. However, overall 
+// browser support is still quite low (~80%) and we keep fallbacks for now.
+
 "use client"
 
 import styles from './popovers.module.css' with { type: "css" }
@@ -54,7 +57,7 @@ export function Popover({
   positionAnchor,
   anchorInlinePosition,
   popoverDirection,
-  positionTryFallbacks = "none",
+  positionTryFallbacks,
   indicator,
   margin
 }: {
