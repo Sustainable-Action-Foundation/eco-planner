@@ -349,11 +349,26 @@ export function isRecipe(recipe: JSONValue): recipe is SerializedRecipeShape {
     Object.entries(variables).some(([key, value]) => {
       if (key.trim() === "") return true; // key is already string from Object.entries
       if (!isStandardObject(value)) return true; // important: removes `any` -> `JSONValue` unsafe arg
-      return !(
-        isScalarVariable(value)
-        || isDataSeriesVariable(value)
-        || isExternalVariable(value)
-      );
+
+      // Determine variable kind first to avoid logging expected type mismatches
+      // from guards that are not relevant for the current variable.
+      if (!("type" in value) || typeof value.type !== "string") {
+        return true;
+      }
+
+      if (value.type === RecipeDataTypes.Scalar) {
+        return !isScalarVariable(value);
+      }
+
+      if (value.type === RecipeDataTypes.DataSeries) {
+        return !isDataSeriesVariable(value);
+      }
+
+      if (value.type === RecipeDataTypes.External) {
+        return !isExternalVariable(value);
+      }
+
+      return true;
     })
   ) {
     console.warn("Type guard: 'variables' in recipe", recipe);
