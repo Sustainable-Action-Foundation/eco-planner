@@ -1,15 +1,3 @@
 {
-  "compilerOptions": {
-    "strict": true,
-    "module": "Preserve",
-    "target": "ES2024",
-    "baseUrl": ".",
-    "outDir": "./tests/compiled",
-    "allowImportingTsExtensions": false,
-    "skipLibCheck": true,
-  },
-  "include": [
-    "./tests/**/*.ts",
-    "./tests/**/*.tsx"
-  ],
+  "extends": "./tsconfig.tools.json"
 }
