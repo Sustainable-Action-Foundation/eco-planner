@@ -43,6 +43,10 @@ function getRandomUnit(): string | null | undefined {
     .sort(() => Math.random() - 0.5).at(0);
 }
 
+function isDateValuesKey(value: string): value is keyof DateValues {
+  return isISOIshDate(value);
+}
+
 function getRandomCoherentDateValues(): DateValues {
   const dateRange: number[] = new Array(30).fill(0).map((_, i) => 2020 + i);
 
@@ -76,7 +80,7 @@ function getRandomCoherentDateValues(): DateValues {
 
     const value = startValue + Math.random() * inclination * (Math.floor(Math.random() * deviation) - Math.floor(Math.random() * deviation) / 2);
     const timestamp = new Date(Date.UTC(field, 0, 1)).toISOString();
-    if (!isISOIshDate(timestamp)) {
+    if (!isDateValuesKey(timestamp)) {
       throw new Error(`Generated timestamp ${timestamp} is not in a valid format.`);
     }
     dataPoints[timestamp] = value;
@@ -255,7 +259,7 @@ async function main() {
     },
   });
   [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
-  const _uppsalaRoadmapVersion1 = await prisma.roadmap.create({
+  await prisma.roadmap.create({
     data: {
       version: 1,
       authorId: admin.id,
@@ -279,7 +283,7 @@ async function main() {
     },
   });
   [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
-  const _uppsalaRoadmapVersion2 = await prisma.roadmap.create({
+  await prisma.roadmap.create({
     data: {
       version: 2,
       authorId: admin.id,
@@ -307,7 +311,7 @@ async function main() {
   /* 
    * Basic recipes
    */
-  const _basicRecipes = await prisma.$transaction([
+  await prisma.$transaction([
     (() => { // By area
       const recipe = new SmartRecipe({
         name: 'Skala utifrån yta',
@@ -468,7 +472,7 @@ async function main() {
   // This will be reassigned later
   // eslint-disable-next-line prefer-const
   let parameters = new Array(8).fill(null).map(() => RandomTextSE.words(Math.floor(Math.random() * 5) + 1).replace(/\s/g, '\\'));
-  const _nationalGoalsV1 = await prisma.$transaction(
+  await prisma.$transaction(
     Array(10).fill(null).map((_, i) => {
       [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
       return prisma.goal.create({
@@ -491,7 +495,7 @@ async function main() {
   );
 
   // National goals v2 - inherit with recipes from v1
-  const _nationalGoalsV2 = await prisma.$transaction(async (tx) => Promise.all(
+  await prisma.$transaction(async (tx) => Promise.all(
     nationalV1Recipes.map(async (recipe) => {
       [createdAt, updatedAt] = getRandomCreatedAtAndUpdatedAt();
       const dateValues = getRandomCoherentDateValues();
