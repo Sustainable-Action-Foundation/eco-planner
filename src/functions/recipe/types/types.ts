@@ -1,21 +1,13 @@
 import type { Unit } from "mathjs";
 import type { DatasetKeys } from "@/lib/api/utility";
 import type { DateValues, DateValuesWithUnit, UnitString } from "@/types";
-import type { VectorIndexPickerOptions } from "./consts";
-import type { RecipeDataTypes } from "./consts";
+import type { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/consts";
 
-/**
- * Scalar variable types
-*/
 export type RecipeScalar = {
   type: typeof RecipeDataTypes.Scalar;
   value: number;
   unit: UnitString;
 };
-
-/*
- * Data series types
- */
 export type RecipeDataSeries = {
   type: typeof RecipeDataTypes.DataSeries;
   link: string | null | undefined;
@@ -26,10 +18,6 @@ export type RecipeDataSeries = {
   goalName?: string;
   disabled?: boolean;
 };
-
-/*
- * External datasets types
- */
 export type RecipeExternalDataset = {
   type: typeof RecipeDataTypes.External;
   dataset: DatasetKeys | null;
@@ -41,7 +29,6 @@ export type RecipeExternalDataset = {
   pick: VectorIndexPickerOptions | number;
   unit: UnitString;
 };
-
 export type RecipeVariable = RecipeScalar | RecipeDataSeries | RecipeExternalDataset;
 
 /*
@@ -56,3 +43,5 @@ export type RecipeExtractionOutput = (
   EvalTimeVariable
   | { series: DateValuesWithUnit, name: string, }
 )[];
+
+export type SerializedRecipe = string;
