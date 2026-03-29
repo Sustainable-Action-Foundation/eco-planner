@@ -58,7 +58,7 @@ export function RecipeContextProvider({
     // Validate
     const validity = await nextRecipe.checkValidity();
     if (!validity.good) {
-      console.warn("Warning produced after validity check in setRecipe:", validity.warnings);
+      console.warn("Warning produced after validity check in setRecipe:", validity.warnings ?? []);
       throw new RecipeError(`Failed to set recipe: ${validity.error || "Recipe is invalid"}`);
     }
 

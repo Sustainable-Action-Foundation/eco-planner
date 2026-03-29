@@ -1,11 +1,9 @@
-import { isEvalTimeVariable, isRecipe, MathjsError, RecipeError } from "@/functions/recipe/types";
-import type { RecipeExtractionOutput, RecipeVariable, SerializedRecipe, SerializedRecipeShape } from "@/functions/recipe/types";
 import type { DateValuesWithUnit, JSONValue, Mask } from "@/types";
-import { parseDateValuesFromVector, transformDateValuesToVector, ANDMasks } from "@/functions/recipe/vectorAndMaskUtils";
 import mathjs from "@/math";
 import type { Unit } from "mathjs";
-import { extractDataSeries, extractExternalDatasets, extractScalars } from "./extractors";
-
+import type { RecipeExtractionOutput, RecipeVariable, SerializedRecipe, SerializedRecipeShape } from "@/functions/recipe";
+import { isEvalTimeVariable, isRecipe, MathjsError, RecipeError, parseDateValuesFromVector, transformDateValuesToVector, ANDMasks, extractDataSeries, extractExternalDatasets, extractScalars, } from "@/functions/recipe";
+import { sanityCheckDataSeries, sanityCheckExternalDatasets, sanityCheckScalars } from "@/functions/recipe/sanityChecks";
 
 export class Recipe {
   public name: string | null | undefined; // String if given, null if removed, undefined if not specified
@@ -79,12 +77,13 @@ export class Recipe {
       throw new RecipeError("Invalid recipe format");
     }
 
+    const scalarVars = extractScalars(this.variables, warnings);
     const [dataSeriesVars, externalVars] = await Promise.all([
-      extractDataSeries(this.variables),
-      extractExternalDatasets(this.variables),
+      extractDataSeries(this.variables, warnings),
+      extractExternalDatasets(this.variables, warnings),
     ]);
     const allVars: RecipeExtractionOutput = [
-      ...extractScalars(this.variables),
+      ...scalarVars,
       ...dataSeriesVars,
       ...externalVars,
     ];
@@ -128,11 +127,9 @@ export class Recipe {
       });
     }
 
-    // TODO - reimplement these
-    warnings.push("Sanity checks are not yet implemented.");
-    // sanityCheckScalars(scalars, warnings);
-    // sanityCheckDataSeries(dataSeries, warnings);
-    // sanityCheckExternalDatasets(externalDatasets, warnings);
+    sanityCheckScalars(scalarVars, warnings);
+    sanityCheckDataSeries(dataSeriesVars, warnings);
+    sanityCheckExternalDatasets(externalVars, warnings);
 
     const scope: Record<string, number | number[] | Unit | Unit[]> = {};
     let equation = this.equation;
