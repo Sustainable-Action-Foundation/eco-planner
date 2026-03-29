@@ -1,7 +1,7 @@
 import type { DatasetKeys } from "@/lib/api/utility";
 import { ExternalDataset } from "@/lib/api/utility";
 import { isStandardObject } from "@/types";
-import { isDateValues, isISOIshDate, typeguardDebug, uuidRegex } from "@/types";
+import { isDateValues, isISOIshDate, uuidRegex } from "@/types";
 import type { JSONValue } from "@/types";
 import mathjs from "@/math";
 
@@ -17,234 +17,262 @@ import type {
 } from "@/functions/recipe/types";
 
 function isRecipePickValue(pick: unknown): pick is DataSeriesVariable["pick"] {
-  return (
-    (
-      typeof pick === "string"
-      && (
-        Object.values(VectorIndexPickerOptions).includes(pick as (typeof VectorIndexPickerOptions)[keyof typeof VectorIndexPickerOptions])
-        || isISOIshDate(pick)
-      )
-    )
-    || (
-      typeof pick === "number"
-      && Number.isInteger(pick)
-    )
-  );
+  // "first" | "last" | ... or ISO-ish date string
+  if (typeof pick === "string") {
+    if (
+      Object.values(VectorIndexPickerOptions).includes(pick as VectorIndexPickerOptions)
+      || isISOIshDate(pick)
+    ) {
+      return true;
+    }
+  }
+
+  // Integer index
+  if (typeof pick === "number" && Number.isInteger(pick)) {
+    return true;
+  }
+
+  return false;
 }
 
-export function isRecipeDataType(variable: unknown): variable is (typeof RecipeDataTypes)[keyof typeof RecipeDataTypes] {
-  return (
-    typeof variable === "string" &&
-    (
-      variable === RecipeDataTypes.Scalar ||
-      variable === RecipeDataTypes.DataSeries ||
-      variable === RecipeDataTypes.External
-    )
-  );
-}
-
-export function isRecipeScalar(variable: JSONValue): variable is ScalarVariable {
+export function isScalarVariable(variable: JSONValue): variable is ScalarVariable {
   const allowedProps = ["name", "type", "unit", "template", "value"];
 
-  return (
-    (
-      variable instanceof Object &&
-      !Array.isArray(variable) &&
-      variable != null ||
-      typeguardDebug("Type guard: scalar variable should be an object") && false
-    ) &&
+  if (!isStandardObject(variable)) {
+    console.warn("Type guard: scalar variable should be an object", variable);
+    return false;
+  }
+  const scalar = variable as Record<string, unknown>;
 
-    (
-      variable.type === RecipeDataTypes.Scalar
-    ) &&
+  // .type: RecipeDataTypes.Scalar
+  if (scalar.type !== RecipeDataTypes.Scalar) {
+    console.warn("Type guard: 'type' in scalar variable", variable);
+    return false;
+  }
 
-    (
-      typeof variable.value === "number" ||
-      typeguardDebug("Type guard: 'value' in scalar variable") && false
-    ) &&
+  // .value: number
+  if (typeof scalar.value !== "number") {
+    console.warn("Type guard: 'value' in scalar variable", variable);
+    return false;
+  }
 
-    (
-      typeof variable.unit === "string" ||
-      variable.unit == null ||
-      typeguardDebug("Type guard: 'unit' in scalar variable") && false
-    ) &&
+  // .unit: string | null | undefined
+  if (typeof scalar.unit !== "string" && scalar.unit !== null && scalar.unit !== undefined) {
+    console.warn("Type guard: 'unit' in scalar variable", variable);
+    return false;
+  }
 
-    (
-      variable.name === undefined ||
-      (
-        typeof variable.name === "string" &&
-        variable.name.trim() !== ""
-      ) ||
-      typeguardDebug("Type guard: 'name' in scalar variable") && false
-    ) &&
+  // .name: non-empty string | undefined
+  const name = scalar.name;
+  if (
+    name !== undefined
+    && (typeof name !== "string" || name.trim() === "")
+  ) {
+    console.warn("Type guard: 'name' in scalar variable", variable);
+    return false;
+  }
 
-    (
-      variable.template === undefined ||
-      typeof variable.template === "boolean" ||
-      typeguardDebug("Type guard: 'template' in scalar variable") && false
-    ) &&
+  // .template: boolean | undefined
+  if (scalar.template !== undefined && typeof scalar.template !== "boolean") {
+    console.warn("Type guard: 'template' in scalar variable", variable);
+    return false;
+  }
 
-    (
-      Object.keys(variable).filter(key => !allowedProps.includes(key)).length === 0 ||
-      typeguardDebug("Type guard: unknown properties in scalar variable") && false
-    )
-  );
+  if (Object.keys(scalar).some(key => !allowedProps.includes(key))) {
+    console.warn("Type guard: unknown properties in scalar variable", variable);
+    return false;
+  }
+
+  return true;
 }
 
-export function isRecipeDataSeries(variable: JSONValue): variable is DataSeriesVariable {
+export function isDataSeriesVariable(variable: JSONValue): variable is DataSeriesVariable {
   const allowedProps = ["name", "type", "unit", "template", "pick", "dataSeriesId", "value"];
+  if (!isStandardObject(variable)) {
+    console.warn("Type guard: data series variable should be an object", variable);
+    return false;
+  }
+  const dataSeries = variable as Record<string, unknown>;
 
-  return (
-    (
-      variable instanceof Object &&
-      !Array.isArray(variable) &&
-      variable != null ||
-      typeguardDebug("Type guard: data series variable should be an object") && false
-    ) &&
+  // .type: RecipeDataTypes.DataSeries
+  if (dataSeries.type !== RecipeDataTypes.DataSeries) {
+    console.warn("Type guard: 'type' in data series variable", variable);
+    return false;
+  }
 
-    (
-      variable.type === RecipeDataTypes.DataSeries
-    ) &&
+  // .dataSeriesId: UUID string | null | undefined
+  const dataSeriesId = dataSeries.dataSeriesId;
+  if (
+    dataSeriesId !== null
+    && dataSeriesId !== undefined
+    && (typeof dataSeriesId !== "string" || !uuidRegex.test(dataSeriesId))
+  ) {
+    console.warn("Type guard: 'dataSeriesId' in data series variable", variable);
+    return false;
+  }
 
-    (
-      (typeof variable.dataSeriesId === "string" && uuidRegex.test(variable.dataSeriesId)) ||
-      variable.dataSeriesId == null ||
-      typeguardDebug("Type guard: 'dataSeriesId' in data series variable") && false
-    ) &&
+  // .pick: required
+  if (!isRecipePickValue(dataSeries.pick)) {
+    console.warn("Type guard: 'pick' in data series variable", variable);
+    return false;
+  }
 
-    (
-      isRecipePickValue(variable.pick) ||
-      typeguardDebug("Type guard: 'pick' in data series variable") && false
-    ) &&
+  // .unit: string | null | undefined
+  if (typeof dataSeries.unit !== "string" && dataSeries.unit !== null && dataSeries.unit !== undefined) {
+    console.warn("Type guard: 'unit' in data series variable", variable);
+    return false;
+  }
 
-    (
-      typeof variable.unit === "string" ||
-      variable.unit == null ||
-      typeguardDebug("Type guard: 'unit' in data series variable") && false
-    ) &&
+  // .value: DateValues | null | undefined
+  if (dataSeries.value !== undefined && dataSeries.value !== null && !isDateValues(dataSeries.value)) {
+    console.warn("Type guard: 'value' in data series variable", variable);
+    return false;
+  }
 
-    (
-      variable.value === undefined ||
-      variable.value === null ||
-      isDateValues(variable.value) ||
-      typeguardDebug("Type guard: 'value' in data series variable") && false
-    ) &&
+  // .name: non-empty string | undefined
+  const name = dataSeries.name;
+  if (
+    name !== undefined
+    && (typeof name !== "string" || name.trim() === "")
+  ) {
+    console.warn("Type guard: 'name' in data series variable", variable);
+    return false;
+  }
 
-    (
-      variable.name === undefined ||
-      (
-        typeof variable.name === "string" &&
-        variable.name.trim() !== ""
-      ) ||
-      typeguardDebug("Type guard: 'name' in data series variable") && false
-    ) &&
+  // .template: boolean | undefined
+  if (dataSeries.template !== undefined && typeof dataSeries.template !== "boolean") {
+    console.warn("Type guard: 'template' in data series variable", variable);
+    return false;
+  }
 
-    (
-      variable.template === undefined ||
-      typeof variable.template === "boolean" ||
-      typeguardDebug("Type guard: 'template' in data series variable") && false
-    ) &&
+  if (Object.keys(dataSeries).some(key => !allowedProps.includes(key))) {
+    console.warn("Type guard: unknown properties in data series variable", variable);
+    return false;
+  }
 
-    (
-      Object.keys(variable).filter(key => !allowedProps.includes(key)).length === 0 ||
-      typeguardDebug("Type guard: unknown properties in data series variable") && false
-    )
-  )
+  return true;
 }
 
-export function isRecipeExternalDataset(variable: JSONValue): variable is ExternalVariable {
+export function isExternalVariable(variable: JSONValue): variable is ExternalVariable {
   const allowedProps = ["name", "type", "unit", "template", "dataset", "tableId", "selection", "pick"];
+  if (!isStandardObject(variable)) {
+    console.warn("Type guard: external dataset variable should be an object", variable);
+    return false;
+  }
+  const external = variable as Record<string, unknown>;
 
-  return (
-    (
-      variable instanceof Object &&
-      !Array.isArray(variable) &&
-      variable != null ||
-      typeguardDebug("Type guard: external dataset variable should be an object") && false
-    ) &&
+  // .type: RecipeDataTypes.External
+  if (external.type !== RecipeDataTypes.External) {
+    console.warn("Type guard: 'type' in external dataset variable", variable);
+    return false;
+  }
 
-    (
-      variable.type === RecipeDataTypes.External
-    ) &&
-
-    (
-      typeof variable.dataset === "string" &&
-      ExternalDataset.knownDatasetKeys.includes(variable.dataset as DatasetKeys) ||
-      variable.dataset == null ||
-      typeguardDebug("Type guard: 'dataset' in external dataset variable") && false
-    ) &&
-
-    (
-      typeof variable.tableId === "string" &&
-      variable.tableId.trim() !== "" ||
-      variable.tableId == null ||
-      typeguardDebug("Type guard: 'tableId' in external dataset variable") && false
-    ) &&
-
-    (
-      isRecipeExternalDatasetSelection(variable.selection ?? null) ||
-      typeguardDebug("Type guard: 'selection' in external dataset variable") && false
-    ) &&
-
-    (
-      isRecipePickValue(variable.pick) ||
-      typeguardDebug("Type guard: 'pick' in external dataset variable") && false
-    ) &&
-
-    (
-      typeof variable.unit === "string" ||
-      variable.unit == null ||
-      typeguardDebug("Type guard: 'unit' in external dataset variable") && false
-    ) &&
-
-    (
-      variable.name === undefined ||
-      (
-        typeof variable.name === "string" &&
-        variable.name.trim() !== ""
-      ) ||
-      typeguardDebug("Type guard: 'name' in external dataset variable") && false
-    ) &&
-
-    (
-      variable.template === undefined ||
-      typeof variable.template === "boolean" ||
-      typeguardDebug("Type guard: 'template' in external dataset variable") && false
-    ) &&
-
-    (
-      Object.keys(variable).filter(key => !allowedProps.includes(key)).length === 0 ||
-      typeguardDebug("Type guard: unknown properties in external dataset variable") && false
+  // .dataset: known dataset key | null | undefined
+  const dataset = external.dataset;
+  if (
+    dataset !== null
+    && dataset !== undefined
+    && (
+      typeof dataset !== "string"
+      || !ExternalDataset.knownDatasetKeys.includes(dataset as DatasetKeys)
     )
-  );
+  ) {
+    console.warn("Type guard: 'dataset' in external dataset variable", variable);
+    return false;
+  }
+
+  // .tableId: non-empty string | null | undefined
+  const tableId = external.tableId;
+  if (
+    tableId !== null
+    && tableId !== undefined
+    && (typeof tableId !== "string" || tableId.trim() === "")
+  ) {
+    console.warn("Type guard: 'tableId' in external dataset variable", variable);
+    return false;
+  }
+
+  // .selection: required array of selection items
+  if (!isExternalSelection(external.selection as JSONValue)) {
+    console.warn("Type guard: 'selection' in external dataset variable", variable);
+    return false;
+  }
+
+  // .pick: required
+  if (!isRecipePickValue(external.pick)) {
+    console.warn("Type guard: 'pick' in external dataset variable", variable);
+    return false;
+  }
+
+  // .unit: string | null | undefined
+  if (typeof external.unit !== "string" && external.unit !== null && external.unit !== undefined) {
+    console.warn("Type guard: 'unit' in external dataset variable", variable);
+    return false;
+  }
+
+  // .name: non-empty string | undefined
+  const name = external.name;
+  if (
+    name !== undefined
+    && (typeof name !== "string" || name.trim() === "")
+  ) {
+    console.warn("Type guard: 'name' in external dataset variable", variable);
+    return false;
+  }
+
+  // .template: boolean | undefined
+  if (external.template !== undefined && typeof external.template !== "boolean") {
+    console.warn("Type guard: 'template' in external dataset variable", variable);
+    return false;
+  }
+
+  if (Object.keys(external).some(key => !allowedProps.includes(key))) {
+    console.warn("Type guard: unknown properties in external dataset variable", variable);
+    return false;
+  }
+
+  return true;
 }
 
-export function isRecipeExternalDatasetSelection(selection: JSONValue): selection is ExternalVariable["selection"] {
-  return (
-    Array.isArray(selection) &&
-    selection.every(item => (
-      (
-        item instanceof Object &&
-        !Array.isArray(item) &&
-        item != null ||
-        typeguardDebug("Type guard: selection items should be objects") && false
-      ) &&
+export function isExternalSelection(selection: JSONValue): selection is ExternalVariable["selection"] {
+  if (!Array.isArray(selection)) {
+    console.warn("Type guard: selection should be an array", selection);
+    return false;
+  }
 
-      (
-        "variableCode" in item &&
-        typeof item.variableCode === "string" &&
-        item.variableCode.trim() !== "" ||
-        typeguardDebug("Type guard: 'variableCode' in selection item") && false
-      ) &&
+  if (
+    selection.some(item => {
+      if (!isStandardObject(item)) {
+        console.warn("Type guard: selection items should be objects", item);
+        return true;
+      }
+      const selectionItem = item as Record<string, unknown>;
 
-      (
-        "valueCodes" in item &&
-        Array.isArray(item.valueCodes) &&
-        item.valueCodes.every(code => typeof code === "string" && code.trim() !== "") ||
-        typeguardDebug("Type guard: 'valueCodes' in selection item") && false
-      )
-    ))
-  );
+      if (
+        !("variableCode" in selectionItem)
+        || typeof selectionItem.variableCode !== "string"
+        || selectionItem.variableCode.trim() === ""
+      ) {
+        console.warn("Type guard: 'variableCode' in selection item", item);
+        return true;
+      }
+
+      if (
+        !("valueCodes" in selectionItem)
+        || !Array.isArray(selectionItem.valueCodes)
+        || selectionItem.valueCodes.some(code => typeof code !== "string" || code.trim() === "")
+      ) {
+        console.warn("Type guard: 'valueCodes' in selection item", item);
+        return true;
+      }
+
+      return false;
+    })
+  ) {
+    return false;
+  }
+
+  return true;
 }
 
 export function isRecipe(recipe: JSONValue): recipe is SerializedRecipeShape {
@@ -322,9 +350,9 @@ export function isRecipe(recipe: JSONValue): recipe is SerializedRecipeShape {
       if (key.trim() === "") return true; // key is already string from Object.entries
       if (!isStandardObject(value)) return true; // important: removes `any` -> `JSONValue` unsafe arg
       return !(
-        isRecipeScalar(value)
-        || isRecipeDataSeries(value)
-        || isRecipeExternalDataset(value)
+        isScalarVariable(value)
+        || isDataSeriesVariable(value)
+        || isExternalVariable(value)
       );
     })
   ) {
@@ -357,6 +385,7 @@ export function isEvalTimeVariable(variable: unknown): variable is EvalTimeVaria
     return false;
   }
 
+  // .name: string
   if (
     !("name" in variable)
     || typeof variable.name !== "string"
@@ -366,6 +395,7 @@ export function isEvalTimeVariable(variable: unknown): variable is EvalTimeVaria
     return false;
   }
 
+  // .type: RecipeDataTypes
   if (
     !("value" in variable)
     || !(
@@ -375,7 +405,8 @@ export function isEvalTimeVariable(variable: unknown): variable is EvalTimeVaria
         Array.isArray(variable.value)
         && variable.value.every(item => item instanceof mathjs.Unit)
       )
-    )) {
+    )
+  ) {
     console.warn(`Type guard: 'value' in eval time variable`);
     return false;
   }

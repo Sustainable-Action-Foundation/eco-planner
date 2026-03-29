@@ -1,6 +1,6 @@
 "use client"
 
-import { isRecipeDataSeries, isRecipeExternalDataset, VectorIndexPickerOptions } from "@/functions/recipe/types";
+import { isDataSeriesVariable, isExternalVariable, VectorIndexPickerOptions } from "@/functions/recipe/types";
 import type { DataSeriesVariable } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "./recipeEditorPermissions";
@@ -23,7 +23,7 @@ export function VectorPickerSelect({ permissions, variableName }: { permissions?
         const variable = recipe.variables[variableName];
 
         // Make sure variable is of correct type
-        if (!isRecipeDataSeries(variable) && !isRecipeExternalDataset(variable)) {
+        if (!isDataSeriesVariable(variable) && !isExternalVariable(variable)) {
           console.error(`Variable ${variableName} is not of type RecipeDataSeries or RecipeExternalDataset so should not be picked.`);
           return;
         }

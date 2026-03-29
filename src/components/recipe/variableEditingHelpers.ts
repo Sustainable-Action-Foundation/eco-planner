@@ -1,5 +1,5 @@
 import "client-only";
-import { emptyRecipeDataSeries, emptyRecipesByDataType, isRecipeExternalDatasetSelection, RecipeDataTypes } from "@/functions/recipe/types";
+import { emptyRecipeDataSeries, emptyRecipesByDataType, isExternalSelection, RecipeDataTypes } from "@/functions/recipe/types";
 import type { RecipeVariable } from "@/functions/recipe/types";
 import type { DatasetKeys} from "@/lib/api/utility";
 import { ExternalDataset } from "@/lib/api/utility";
@@ -199,7 +199,7 @@ export function updateExternalVariableSelection(variableName: string, newSelecti
 
     try {
       const selection = JSON.parse(newSelection) as JSONValue;
-      if (!isRecipeExternalDatasetSelection(selection)) {
+      if (!isExternalSelection(selection)) {
         console.warn("Invalid selection format", selection);
         return prev; // Do not update if selection is invalid
       }

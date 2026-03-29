@@ -1,5 +1,5 @@
 import { clientSafeGetOneDataSeries } from "@/fetchers/client";
-import { isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, RecipeDataTypes, RecipeError } from "@/functions/recipe/types";
+import { isDataSeriesVariable, isExternalVariable, isExternalSelection, isScalarVariable, RecipeDataTypes, RecipeError } from "@/functions/recipe/types";
 import type { RecipeExtractionOutput, RecipeVariable, EvalTimeVariable } from "@/functions/recipe/types";
 import getTableContent from "@/lib/api/getTableContent";
 import mathjs from "@/math";
@@ -17,7 +17,7 @@ export function extractScalars(
   for (const variableName in variables) {
     const variable = variables[variableName];
     if (variable.type !== RecipeDataTypes.Scalar) continue;
-    if (!isRecipeScalar(variable)) continue;
+    if (!isScalarVariable(variable)) continue;
 
     const bestUnit = getPrevailingUnit(undefined, variable.unit);
     const isValidUnit = isMathjsUnit(bestUnit);
@@ -45,7 +45,7 @@ export async function extractDataSeries(
   for (const variableName in variables) {
     const variable = variables[variableName];
     if (variable.type !== RecipeDataTypes.DataSeries) continue;
-    if (!isRecipeDataSeries(variable)) continue;
+    if (!isDataSeriesVariable(variable)) continue;
 
     let dbDataSeries: Awaited<ReturnType<typeof clientSafeGetOneDataSeries>>;
     if (variable.dataSeriesId) {
@@ -125,13 +125,13 @@ export async function extractExternalDatasets(
   for (const variableName in variables) {
     const variable = variables[variableName];
     if (variable.type !== RecipeDataTypes.External) continue;
-    if (!isRecipeExternalDataset(variable)) {
+    if (!isExternalVariable(variable)) {
       throw new RecipeError(`Variable '${variableName}', typed as '${(variable as { type: string }).type} ' is not a valid RecipeExternalDataset.`);
     }
 
     const { dataset, tableId, selection } = variable;
 
-    if (!dataset || !tableId || !isRecipeExternalDatasetSelection(selection)) { // These props may all be null
+    if (!dataset || !tableId || !isExternalSelection(selection)) { // These props may all be null
       throw new RecipeError(`External dataset variable '${variableName}' is missing 'dataset', 'tableId' and/or 'selection' properties.`);
     }
 

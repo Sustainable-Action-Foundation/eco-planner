@@ -1,7 +1,7 @@
 "use client"
 
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
-import { isRecipeDataSeries } from "@/functions/recipe/types";
+import { isDataSeriesVariable } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "./recipeEditorPermissions";
 import { updateDataSeriesLink } from "@/components/recipe/variableEditingHelpers";
@@ -99,7 +99,7 @@ export function VariableTypeDataSeries({
     return null;
   }
 
-  if (!isRecipeDataSeries(variable)) {
+  if (!isDataSeriesVariable(variable)) {
     console.error(`Variable "${variableName}" is not a valid DataSeriesVariable`, variable);
     return null;
   }
@@ -161,7 +161,7 @@ export function VariableTypeDataSeriesSimple({
     return null;
   }
 
-  if (!isRecipeDataSeries(variable)) {
+  if (!isDataSeriesVariable(variable)) {
     console.error(`Variable "${variableName}" is not a valid DataSeriesVariable`, variable);
     return null;
   }
