@@ -2,7 +2,7 @@
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
 import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types";
 import type { RecipeDataSeries, RecipeExternalDataset, RecipeScalar } from "@/functions/recipe/types";
-import type { DBRecipe, JSONValue } from "@/types";
+import type { DBRecipe } from "@/types";
 import type { TFunction } from "i18next";
 
 export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
@@ -115,15 +115,15 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
   return [
     {
       id: "area-recipe-dummy-uuid",
-      recipe: JSON.parse(areaRecipe.toSerialized()) as JSONValue,
+      recipe: areaRecipe.toSerialized(),
     },
     {
       id: "population-recipe-dummy-uuid",
-      recipe: JSON.parse(populationRecipe.toSerialized()) as JSONValue,
+      recipe: populationRecipe.toSerialized(),
     },
     {
       id: "scalar-recipe-dummy-uuid",
-      recipe: JSON.parse(scalarRecipe.toSerialized()) as JSONValue,
+      recipe: scalarRecipe.toSerialized(),
     }
-  ];
+  ] satisfies DBRecipe[];
 }

@@ -240,12 +240,19 @@ export class SmartRecipe {
    * SmartRecipe factory, takes recipe object and returns a new smart recipe instance if valid.
    */
   public static fromObject(obj: JSONValue): SmartRecipe {
+    if (typeof obj === "string") {
+      return SmartRecipe.fromSerialized(obj);
+    }
+
     if (typeof obj !== "object" || obj === null) {
       throw new RecipeError("Invalid object format for recipe, expected an object");
     }
 
     if ("recipe" in obj) {
-      return SmartRecipe.fromPersisted(obj.recipe);
+      if (typeof obj.recipe !== "object" || obj.recipe === null) {
+        throw new RecipeError("Invalid object format for recipe, 'recipe' field is not an object");
+      }
+      obj = obj.recipe as JSONValue;
     }
 
     if (!isRecipe(obj)) {
@@ -259,20 +266,12 @@ export class SmartRecipe {
     });
   }
 
-  public static fromPersisted(persistedRecipe: unknown): SmartRecipe {
-    if (typeof persistedRecipe === "string") {
-      return SmartRecipe.fromSerialized(persistedRecipe);
-    }
-
-    return SmartRecipe.fromObject(persistedRecipe as JSONValue);
-  }
-
   public static fromRecipe(recipe: SmartRecipe | JSONValue): SmartRecipe {
     if (recipe instanceof SmartRecipe) {
       return SmartRecipe.fromSerialized(recipe.toSerialized());
     }
     else {
-      return SmartRecipe.fromPersisted(recipe);
+      return SmartRecipe.fromObject(recipe);
     }
   }
 

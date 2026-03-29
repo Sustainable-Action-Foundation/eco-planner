@@ -63,7 +63,7 @@ export function SuggestedRecipeApplier({
   useEffect(() => {
     // async function validateAll() {
     for (const dbRecipe of suggestedRecipes) {
-      const recipe = SmartRecipe.fromObject(dbRecipe.recipe);
+      const recipe = SmartRecipe.fromSerialized(dbRecipe.recipe);
       if (!isRecipe(recipe)) {
         console.warn("Invalid recipe in suggestions", dbRecipe);
         return;

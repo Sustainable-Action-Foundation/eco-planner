@@ -14,7 +14,7 @@ import type {
   RecipeExternalDataset,
   RecipeScalar,
   SerializedRecipeShape,
-} from "./types";
+} from "@/functions/recipe/types";
 
 export function isRecipeDataType(variable: unknown): variable is (typeof RecipeDataTypes)[keyof typeof RecipeDataTypes] {
   return (
@@ -224,27 +224,30 @@ export function isRecipe(recipe: unknown): recipe is SerializedRecipeShape {
     return false;
   }
 
+  // name: string | null | undefined | omitted
   if (
-    !("name" in recipe)
-    || (typeof recipe.name !== "string" && recipe.name !== null && recipe.name !== undefined)
+    "name" in recipe
+    && (typeof recipe.name !== "string" && recipe.name !== null && recipe.name !== undefined)
   ) {
-    console.warn("Type guard: 'name' in recipe");
+    console.warn("Type guard: 'name' in recipe", recipe);
     return false;
   }
 
+  // equation: string
   if (
     !("equation" in recipe)
     || typeof recipe.equation !== "string"
   ) {
-    console.warn("Type guard: 'equation' in recipe");
+    console.warn("Type guard: 'equation' in recipe", recipe);
     return false;
   }
 
+  // variables: Record<string, RecipeVariable>
   if (
     !("variables" in recipe)
     || !isStandardObject(recipe.variables)
   ) {
-    console.warn("Type guard: 'variables' in recipe should be an object");
+    console.warn("Type guard: 'variables' in recipe should be an object", recipe);
     return false;
   }
 
@@ -258,7 +261,7 @@ export function isRecipe(recipe: unknown): recipe is SerializedRecipeShape {
     && !isStandardObject(recipe.meta)
     && !Array.isArray(recipe.meta)
   ) {
-    console.warn("Type guard: 'meta' in recipe");
+    console.warn("Type guard: 'meta' in recipe", recipe);
     return false;
   }
 
@@ -275,12 +278,12 @@ export function isRecipe(recipe: unknown): recipe is SerializedRecipeShape {
       );
     })
   ) {
-    console.warn("Type guard: 'variables' in recipe");
+    console.warn("Type guard: 'variables' in recipe", recipe);
     return false;
   }
 
   if (Object.keys(recipe).some(key => !allowedProps.includes(key))) {
-    console.warn("Type guard: unknown properties in recipe");
+    console.warn("Type guard: unknown properties in recipe", recipe);
     return false;
   }
 
@@ -289,9 +292,9 @@ export function isRecipe(recipe: unknown): recipe is SerializedRecipeShape {
 
 export function isEmptyRecipe(recipe: SmartRecipe): boolean {
   return (
-    (recipe.name === null || recipe.name === undefined) &&
-    recipe.equation.trim() === "" &&
-    Object.keys(recipe.variables).length === 0
+    (recipe.name === null || recipe.name === undefined)
+    && recipe.equation.trim() === ""
+    && Object.keys(recipe.variables).length === 0
   );
 }
 
