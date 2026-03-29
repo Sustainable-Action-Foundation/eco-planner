@@ -194,7 +194,9 @@ export function isGoalCreate(goal: unknown): goal is GoalCreateInput {
       goal.baseline = parsed.value as GoalCreateInput["baseline"];
     }
     if (!(
-      isStandardObject(goal.baseline)
+      goal.baseline === null
+      || goal.baseline === undefined
+      || isStandardObject(goal.baseline)
       && isDateValuesWithUnit(goal.baseline)
     )) {
       console.log(`optional goal parameter "baseline" is neither nullish nor a valid DateValuesWithUnit`);
@@ -223,6 +225,19 @@ export function isGoalCreate(goal: unknown): goal is GoalCreateInput {
   // baselineRecipeId: string | null | undefined;
   if ("baselineRecipeId" in goal && !(typeof goal.baselineRecipeId === 'string' || goal.baselineRecipeId === null || goal.baselineRecipeId === undefined)) {
     console.log(`optional goal parameter "baselineRecipeId" has wrong type: ${typeof goal.baselineRecipeId}`);
+    return false;
+  }
+
+  // rawTags: string[] | null | undefined;
+  if ("rawTags" in goal && !(
+    goal.rawTags === null
+    || goal.rawTags === undefined
+    || (
+      Array.isArray(goal.rawTags)
+      && goal.rawTags.every(tag => typeof tag === "string")
+    )
+  )) {
+    console.log(`optional goal parameter "rawTags" has wrong type: ${typeof goal.rawTags}`);
     return false;
   }
 
@@ -314,6 +329,19 @@ export function isGoalUpdate(goal: unknown): goal is GoalUpdateInput {
     return false;
   }
 
+  // recipeSuggestions: SerializedRecipe[] | null | undefined;
+  if ("recipeSuggestions" in goal && !(
+    (
+      Array.isArray(goal.recipeSuggestions)
+      && goal.recipeSuggestions.every(recipe => typeof recipe === "string")
+    )
+    || goal.recipeSuggestions === null
+    || goal.recipeSuggestions === undefined
+  )) {
+    console.log(`optional goal parameter "recipeSuggestions" has wrong type: ${typeof goal.recipeSuggestions}`);
+    return false;
+  }
+
   // dataSeries: DateValuesWithUnit | null | undefined;
   if ("dataSeries" in goal) {
     const parsed = tryParseJSON(goal.dataSeries);
@@ -365,10 +393,12 @@ export function isGoalUpdate(goal: unknown): goal is GoalUpdateInput {
         console.log(`failed to parse goal parameter "baseline" as JSON`);
         return false;
       }
-      goal.baseline = parsed.value as GoalCreateInput["baseline"];
+      goal.baseline = parsed.value as GoalUpdateInput["baseline"];
     }
     if (!(
-      isStandardObject(goal.baseline)
+      goal.baseline === null
+      || goal.baseline === undefined
+      || isStandardObject(goal.baseline)
       && isDateValuesWithUnit(goal.baseline)
     )) {
       console.log(`optional goal parameter "baseline" is neither nullish nor a valid DateValuesWithUnit`);
@@ -397,6 +427,19 @@ export function isGoalUpdate(goal: unknown): goal is GoalUpdateInput {
   // baselineRecipeId: string | null | undefined;
   if ("baselineRecipeId" in goal && !(typeof goal.baselineRecipeId === 'string' || goal.baselineRecipeId === null || goal.baselineRecipeId === undefined)) {
     console.log(`optional goal parameter "baselineRecipeId" has wrong type: ${typeof goal.baselineRecipeId}`);
+    return false;
+  }
+
+  // rawTags: string[] | null | undefined;
+  if ("rawTags" in goal && !(
+    goal.rawTags === null
+    || goal.rawTags === undefined
+    || (
+      Array.isArray(goal.rawTags)
+      && goal.rawTags.every(tag => typeof tag === "string")
+    )
+  )) {
+    console.log(`optional goal parameter "rawTags" has wrong type: ${typeof goal.rawTags}`);
     return false;
   }
 
@@ -525,8 +568,7 @@ export function isMetaRoadmapCreate(metaRoadmap: JSONValue): metaRoadmap is Meta
           typeof entry.url === 'string' &&
           (
             typeof entry.description === 'string' ||
-            entry.description === undefined ||
-            entry.description === null
+            entry.description === undefined
           )
         ))
       )
@@ -619,6 +661,22 @@ export function isMetaRoadmapUpdate(metaRoadmap: JSONValue): metaRoadmap is Meta
       )
     ) &&
 
+    // parentRoadmapId: string | null | undefined;
+    (
+      ("parentRoadmapId" in metaRoadmap) &&
+      (
+        typeof metaRoadmap.parentRoadmapId === 'string' ||
+        metaRoadmap.parentRoadmapId === null ||
+        metaRoadmap.parentRoadmapId === undefined
+      )
+    ) &&
+
+    // timestamp: number;
+    (
+      ("timestamp" in metaRoadmap) &&
+      typeof metaRoadmap.timestamp === 'number'
+    ) &&
+
     // TODO: Deprecated - will be moved to description
     // links: { url: string, description?: string | null }[] | null | undefined;
     (
@@ -636,8 +694,7 @@ export function isMetaRoadmapUpdate(metaRoadmap: JSONValue): metaRoadmap is Meta
           typeof entry.url === 'string' &&
           (
             typeof entry.description === 'string' ||
-            entry.description === undefined ||
-            entry.description === null
+            entry.description === undefined
           )
         ))
       )
