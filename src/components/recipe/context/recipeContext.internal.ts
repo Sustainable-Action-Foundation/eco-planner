@@ -13,7 +13,7 @@ type Historic<T> = (prev: T) => T;
 export type SetStateAction<T> = T | Historic<T>;
 
 export type RecipeContextType = {
-  smartRecipe: SmartRecipe;
+  recipe: SmartRecipe;
   resultingDataSeries: DateValues | null;
   resultingUnit: string | null | undefined;
 

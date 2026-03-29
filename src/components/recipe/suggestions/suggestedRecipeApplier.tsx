@@ -246,7 +246,7 @@ export function SuggestedRecipeApplier({
           data-tabname={t("components:recipe_editor.equation")}
           className="padding-top-50 margin-bottom-100"
         >
-          <p className="margin-0">{recipe?.eq}</p>
+          <p className="margin-0">{recipe.equation}</p>
         </div>
       </TabList>
     }

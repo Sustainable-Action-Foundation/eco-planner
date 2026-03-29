@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
 import type { SetStateAction } from "./recipeContext.internal";
 import { RecipeContext } from "./recipeContext.internal";
+import { useSearchParams } from "next/navigation";
 
 export function RecipeContextProvider({
   initialRecipe,
@@ -15,6 +16,9 @@ export function RecipeContextProvider({
   initialRecipe?: SmartRecipe;
   children: React.ReactNode;
 }) {
+  const searchParams = useSearchParams();
+  const isDebug = useMemo(() => searchParams.get("debug") === "true", [searchParams]);
+
   const [smartRecipeEntryPoint, setSmartRecipeEntryPoint] = useState<SmartRecipe>(
     !!initialRecipe
       ? SmartRecipe.fromRecipe(initialRecipe)
@@ -24,7 +28,7 @@ export function RecipeContextProvider({
   /**
    * The only source of truth is this smartRecipe recipe instance.
    */
-  const smartRecipe = useMemo(() =>
+  const recipe = useMemo(() =>
     smartRecipeEntryPoint instanceof SmartRecipe
       ? smartRecipeEntryPoint
       : smartRecipeEntryPoint
@@ -40,7 +44,7 @@ export function RecipeContextProvider({
     let newInstance: SmartRecipe | null;
 
     const newRecipe = typeof valueOrSetter === "function"
-      ? valueOrSetter(smartRecipe.copy()) // Run users function on prev and use result
+      ? valueOrSetter(recipe.copy()) // Run users function on prev and use result
       : valueOrSetter;
 
     if (!newRecipe) {
@@ -84,13 +88,13 @@ export function RecipeContextProvider({
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  const equation = useMemo(() => smartRecipe.equation, [smartRecipe]);
+  const equation = useMemo(() => recipe.equation, [recipe]);
   const setEquation = (valueOrSetter: SetStateAction<SmartRecipe["equation"]>) => {
     const newEquation = typeof valueOrSetter === "function"
-      ? valueOrSetter(smartRecipe.equation)
+      ? valueOrSetter(recipe.equation)
       : valueOrSetter;
 
-    const newRecipe = smartRecipe.copy();
+    const newRecipe = recipe.copy();
     newRecipe.equation = newEquation;
     setSmartRecipe(newRecipe)
       .catch((e: unknown) => {
@@ -100,14 +104,14 @@ export function RecipeContextProvider({
   };
 
   const getVariable = (variableName: string): RecipeVariable | undefined => {
-    return smartRecipe.variables[variableName];
+    return recipe.variables[variableName];
   };
   const setVariable = (variableName: string, newValue: SetStateAction<RecipeVariable>): void => {
     const valueToSet = typeof newValue === "function"
-      ? newValue(smartRecipe.variables[variableName])
+      ? newValue(recipe.variables[variableName])
       : newValue;
 
-    const newRecipe = smartRecipe.copy();
+    const newRecipe = recipe.copy();
     newRecipe.variables[variableName] = valueToSet;
 
     setSmartRecipe(newRecipe)
@@ -117,12 +121,12 @@ export function RecipeContextProvider({
       });
   };
 
-  const variables = useMemo(() => smartRecipe.variables, [smartRecipe]);
+  const variables = useMemo(() => recipe.variables, [recipe]);
   const setVariables = (variablesAction: SetStateAction<SmartRecipe["variables"]>) => {
     const newVariables = typeof variablesAction === "function"
-      ? variablesAction(smartRecipe.variables)
+      ? variablesAction(recipe.variables)
       : variablesAction;
-    const newRecipe = smartRecipe.copy();
+    const newRecipe = recipe.copy();
     newRecipe.variables = newVariables;
     setSmartRecipe(newRecipe)
       .catch((e: unknown) => {
@@ -131,22 +135,23 @@ export function RecipeContextProvider({
       });
   };
 
+  // Eval on update
   useEffect(() => {
     const warnings: string[] = [];
 
     async function calculate() {
-      if (!smartRecipe) {
+      if (!recipe) {
         throw new RecipeError("No recipe provided");
       }
 
-      const validity = await smartRecipe.checkValidity();
+      const validity = await recipe.checkValidity();
       if (!validity.good) {
         warnings.push(...(validity.warnings ?? []));
         console.warn("Tried evaluating an invalid recipe in the context provider.", validity.error, validity.warnings);
         throw new RecipeError(validity.error || "Recipe is invalid");
       }
 
-      return await smartRecipe.evaluate(warnings);
+      return await recipe.evaluate(warnings);
     };
 
     calculate()
@@ -161,12 +166,11 @@ export function RecipeContextProvider({
         setWarnings(warnings);
         setError(errorMessage);
       });
-  }, [smartRecipe]);
+  }, [recipe]);
 
   return (
     <RecipeContext.Provider value={{
-      smartRecipe,
-      recipe: smartRecipe,
+      recipe,
       clearRecipe,
       setRecipe: setSmartRecipe,
       resultingDataSeries,
@@ -181,7 +185,8 @@ export function RecipeContextProvider({
       error,
     }}>
       <div style={{ position: "fixed", top: 0, left: 0, backgroundColor: "white", zIndex: 999, padding: "1rem" }}>
-        {JSON.stringify(smartRecipe, null, 2)}
+        {recipe.toString()}
+        {isDebug}
       </div>
 
       {children}

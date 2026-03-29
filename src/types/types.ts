@@ -1,7 +1,6 @@
 import type { actionInclusionSelection, clientSafeDataSeriesSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapSelection, effectInclusionSelection, goalInclusionSelection, metaRoadmapInclusionSelection, multiRoadmapInclusionSelection, nameSelector, recipeSelector, roadmapInclusionSelection, userInfoSelector } from "@/fetchers/inclusionSelectors";
-import type { Recipe } from "@/functions/recipe/types";
 import type { Unit } from "mathjs";
-
+import type { SmartRecipe } from "@/functions/recipe";
 import type { Prisma } from "@prisma/client";
 import type { RoadmapType, ActionImpactType } from "@prisma/client";
 
@@ -326,17 +325,17 @@ export type GoalCreateInput = {
   externalTableId: string | null | undefined;
   externalSelection: string | null | undefined;
 
-  recipeSuggestions: Recipe[] | null | undefined;
+  recipeSuggestions: SmartRecipe[] | null | undefined;
 
   dataSeriesId: string | null | undefined;
   dataSeries: DateValuesWithUnit;
   dataSeriesRecipeId: string | null | undefined;
-  dataSeriesRecipe: Recipe | null | undefined;
+  dataSeriesRecipe: SmartRecipe | null | undefined;
 
   baselineId: string | null | undefined;
   baseline: DateValuesWithUnit | null | undefined;
   baselineRecipeId: string | null | undefined;
-  baselineRecipe: Recipe | null | undefined;
+  baselineRecipe: SmartRecipe | null | undefined;
 
   // Relations
   // authorId: string; // Derived from session in the API
@@ -381,14 +380,14 @@ export type GoalUpdateInput = {
   dataSeriesId: string | null | undefined;
   dataSeries: DateValuesWithUnit | null | undefined;
   dataSeriesRecipeId: string | null | undefined;
-  dataSeriesRecipe: Recipe | null | undefined;
+  dataSeriesRecipe: SmartRecipe | null | undefined;
 
   baselineId: string | null | undefined;
   baseline: DateValuesWithUnit | null | undefined;
   baselineRecipeId: string | null | undefined;
-  baselineRecipe: Recipe | null | undefined;
+  baselineRecipe: SmartRecipe | null | undefined;
 
-  recipeSuggestions: Recipe[] | null | undefined;
+  recipeSuggestions: SmartRecipe[] | null | undefined;
 
   // Relations
   // authorId: string; // Derived from session in the API

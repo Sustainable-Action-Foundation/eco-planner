@@ -7,11 +7,9 @@ import type { GoalCreateInput, Goal, DateValues, JSONValue } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
-import { RecipeContextProvider } from "../recipe/context/recipeContext.provider";
-import { SuggestedRecipeApplier } from "@/components/recipe/suggestions/suggestedRecipeApplier";
-import { FormIntegration } from "@/components/recipe";
-import { SmartRecipe } from "@/functions/recipe/smartRecipe";
 import styles from "../form/api/queryBuilder.module.css";
+import { SmartRecipe } from "@/functions/recipe";
+import { FormIntegration, RecipeContextProvider, SuggestedRecipeApplier } from "@/components/recipe";
 
 
 export default function CopyAndScale({
@@ -82,7 +80,7 @@ export default function CopyAndScale({
       if (!unparsedRecipe) {
         throw new Error("Failed to parse recipe from form data");
       }
-      recipeUsed = SmartRecipe.fromSerialized(unparsedRecipe).toRecipe();
+      recipeUsed = SmartRecipe.fromSerialized(unparsedRecipe);
       if (!recipeUsed) {
         throw new Error("Failed to parse recipe from form data");
       }

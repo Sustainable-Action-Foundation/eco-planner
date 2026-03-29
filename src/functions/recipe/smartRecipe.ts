@@ -190,6 +190,10 @@ export class SmartRecipe {
     return SmartRecipe.fromSerialized(this.toSerialized());
   }
 
+  public toString(): string {
+    return JSON.stringify(JSON.parse(this.toSerialized()), null, 2);
+  }
+
   /** 
    * Stringify SmartRecipe to a state that can be reversed for storage purposes.
    */

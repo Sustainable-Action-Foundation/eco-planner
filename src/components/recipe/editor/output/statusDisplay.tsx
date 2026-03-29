@@ -32,7 +32,7 @@ export function OutputStatus({
         : null}
 
       {/* No errors */}
-      {!error && recipe && (Object.values(recipe?.variables).length !== 0 && recipe.eq.trim() !== "") ?
+      {!error && recipe && (Object.values(recipe?.variables).length !== 0 && recipe.equation.trim() !== "") ?
         <div lang={Locales.enSE} className="flex align-items-flex-start gap-50 margin-block-50" style={{ color: 'green', fontSize: '14px' }}>
           <IconCircleCheckFilled width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="green" /> {/* TODO: Aria-label */}
           {t("components:recipe_editor.no_errors")}
