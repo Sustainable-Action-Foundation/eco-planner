@@ -321,6 +321,7 @@ async function main() {
             type: RecipeDataTypes.DataSeries,
             link: null,
             pick: VectorIndexPickerOptions.Default,
+            value: null,
             unit: "km^2",
           },
           'RiketsArea': {
@@ -368,6 +369,7 @@ async function main() {
             type: RecipeDataTypes.DataSeries,
             link: null,
             pick: VectorIndexPickerOptions.Default,
+            value: null,
             unit: "capita",
           },
           'RiketsPopulation': {
@@ -411,6 +413,7 @@ async function main() {
             type: RecipeDataTypes.DataSeries,
             link: null,
             pick: VectorIndexPickerOptions.Default,
+            value: null,
             unit: getRandomUnit(),
           },
           'skalär': {
@@ -458,6 +461,7 @@ async function main() {
             type: RecipeDataTypes.DataSeries,
             link: dataSeries.id,
             pick: VectorIndexPickerOptions.Default,
+            value: null,
             unit: dataSeries.unit ?? undefined,
           },
         },

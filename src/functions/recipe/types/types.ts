@@ -1,6 +1,6 @@
 import type { Unit } from "mathjs";
 import type { DatasetKeys } from "@/lib/api/utility";
-import type { DateValues, DateValuesWithUnit, JSONValue, UnitString } from "@/types";
+import type { DateValues, DateValuesWithUnit, ISOIshDate, JSONValue, UnitString } from "@/types";
 import type { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/consts";
 
 type BaseVariable = {
@@ -16,7 +16,7 @@ export type ScalarVariable = BaseVariable & {
 };
 export type DataSeriesVariable = BaseVariable & {
   type: typeof RecipeDataTypes.DataSeries;
-  pick: VectorIndexPickerOptions | number;
+  pick: VectorIndexPickerOptions | number | ISOIshDate;
 
   link: string | null | undefined;
   value: DateValues | null | undefined;
@@ -26,7 +26,7 @@ export type DataSeriesVariable = BaseVariable & {
 };
 export type ExternalVariable = BaseVariable & {
   type: typeof RecipeDataTypes.External;
-  pick: VectorIndexPickerOptions | number;
+  pick: VectorIndexPickerOptions | number | ISOIshDate;
 
   // API stuff
   dataset: DatasetKeys | null;

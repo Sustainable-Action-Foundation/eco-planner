@@ -14,13 +14,14 @@ export function pickDateValues(
     && Number.isFinite(pick)
     && Number.isInteger(pick)
   ) {
-    const isoYearString = new Date(`${pick}-01-01T00:00:00Z`).toISOString();
+    const yearString = typeof pick === "number" ? pick.toString() : pick;
+    const isoYearString = new Date(`${yearString}-01-01T00:00:00Z`).toISOString();
     if (!isISOIshDate(isoYearString)) {
-      throw new RecipeError(`PickDataSeries: Invalid year pick value '${pick}'.`);
+      throw new RecipeError(`PickDataSeries: Invalid year pick value '${pick as string | number}'.`);
     }
     const valueAtPickedYear = dataSeries.dateValues[isoYearString];
     if (typeof valueAtPickedYear !== "number") {
-      throw new RecipeError(`PickDataSeries: Data series does not contain a valid number for year ${pick}.`);
+      throw new RecipeError(`PickDataSeries: Data series does not contain a valid number for year ${yearString}.`);
     }
     return dataSeries.unit
       ? mathjs.unit(valueAtPickedYear, dataSeries.unit)

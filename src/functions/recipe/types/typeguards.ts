@@ -1,7 +1,7 @@
 import type { DatasetKeys } from "@/lib/api/utility";
 import { ExternalDataset } from "@/lib/api/utility";
 import { isStandardObject } from "@/types";
-import { isDateValues, typeguardDebug, uuidRegex } from "@/types";
+import { isDateValues, isISOIshDate, typeguardDebug, uuidRegex } from "@/types";
 import type { JSONValue } from "@/types";
 import mathjs from "@/math";
 
@@ -15,6 +15,22 @@ import type {
   ScalarVariable,
   SerializedRecipeShape,
 } from "@/functions/recipe/types";
+
+function isRecipePickValue(pick: unknown): pick is DataSeriesVariable["pick"] {
+  return (
+    (
+      typeof pick === "string"
+      && (
+        Object.values(VectorIndexPickerOptions).includes(pick as (typeof VectorIndexPickerOptions)[keyof typeof VectorIndexPickerOptions])
+        || isISOIshDate(pick)
+      )
+    )
+    || (
+      typeof pick === "number"
+      && Number.isInteger(pick)
+    )
+  );
+}
 
 export function isRecipeDataType(variable: unknown): variable is (typeof RecipeDataTypes)[keyof typeof RecipeDataTypes] {
   return (
@@ -82,15 +98,8 @@ export function isRecipeDataSeries(variable: JSONValue): variable is DataSeriesV
     ) &&
 
     (
-      (
-        typeof variable.pick === "string"
-        && Object.values(VectorIndexPickerOptions).includes(variable.pick as (typeof VectorIndexPickerOptions)[keyof typeof VectorIndexPickerOptions])
-      )
-      || (
-        typeof variable.pick === "number"
-        && Number.isInteger(variable.pick)
-      )
-      || typeguardDebug("Type guard: 'pick' in data series variable") && false
+      isRecipePickValue(variable.pick) ||
+      typeguardDebug("Type guard: 'pick' in data series variable") && false
     ) &&
 
     (
@@ -160,15 +169,8 @@ export function isRecipeExternalDataset(variable: JSONValue): variable is Extern
     ) &&
 
     (
-      (
-        typeof variable.pick === "string"
-        && Object.values(VectorIndexPickerOptions).includes(variable.pick as (typeof VectorIndexPickerOptions)[keyof typeof VectorIndexPickerOptions])
-      )
-      || (
-        typeof variable.pick === "number"
-        && Number.isInteger(variable.pick)
-      )
-      || typeguardDebug("Type guard: 'pick' in external dataset variable") && false
+      isRecipePickValue(variable.pick) ||
+      typeguardDebug("Type guard: 'pick' in external dataset variable") && false
     ) &&
 
     (
