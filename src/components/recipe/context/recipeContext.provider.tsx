@@ -184,10 +184,11 @@ export function RecipeContextProvider({
       warnings,
       error,
     }}>
-      <div style={{ position: "fixed", top: 0, left: 0, backgroundColor: "white", zIndex: 999, padding: "1rem" }}>
-        {recipe.toString()}
-        {isDebug}
-      </div>
+      {isDebug &&
+        <div style={{ position: "fixed", top: 0, left: 0, backgroundColor: "white", zIndex: 999, padding: "1rem" }}>
+          {recipe.toString()}
+        </div>
+      }
 
       {children}
     </RecipeContext.Provider>
