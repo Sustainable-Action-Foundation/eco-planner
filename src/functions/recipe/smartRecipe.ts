@@ -1,5 +1,5 @@
 import { isEvalTimeVariable, isRecipe, MathjsError, RecipeError } from "@/functions/recipe/types";
-import type { RecipeExtractionOutput, RecipeVariable, SerializedRecipe } from "@/functions/recipe/types";
+import type { RecipeExtractionOutput, RecipeVariable, SerializedRecipe, SerializedRecipeShape } from "@/functions/recipe/types";
 import type { DateValuesWithUnit, JSONValue, Mask } from "@/types";
 import { parseDateValuesFromVector, transformDateValuesToVector, ANDMasks } from "@/functions/recipe/vectorAndMaskUtils";
 import mathjs from "@/math";
@@ -73,7 +73,9 @@ export class SmartRecipe {
    * @param warnings **Side effect only**. Array will be mutated in place to include any warnings encountered during evaluation. 
    */
   public async evaluate(warnings: string[] = []): Promise<DateValuesWithUnit | null> {
-    if (!isRecipe(this)) {
+    const serialized = this.toSerialized();
+    const asObject = JSON.parse(serialized) as JSONValue;
+    if (!isRecipe(asObject)) {
       throw new RecipeError("Invalid recipe format");
     }
 
@@ -190,6 +192,12 @@ export class SmartRecipe {
     return SmartRecipe.fromSerialized(this.toSerialized());
   }
 
+  /** 
+   * ## Notice
+   * ### This is not the serialization method!
+   * 
+   * Uses JSON to format the recipe in a readable way.
+   */
   public toString(): string {
     return JSON.stringify(JSON.parse(this.toSerialized()), null, 2);
   }
@@ -202,10 +210,10 @@ export class SmartRecipe {
       name: this.name,
       eq: this.equation,
       variables: this.variables,
-      smartMeta: JSON.stringify({
+      meta: {
         v: 1,
-      }),
-    });
+      },
+    } satisfies SerializedRecipeShape);
   }
 
   /** 
@@ -236,23 +244,41 @@ export class SmartRecipe {
       throw new RecipeError("Invalid object format for recipe, expected an object");
     }
 
+    if ("recipe" in obj) {
+      return SmartRecipe.fromPersisted(obj.recipe);
+    }
+
     if (!isRecipe(obj)) {
       throw new RecipeError("Invalid object format for recipe, object does not conform to Recipe type");
     }
 
+    const parsed = obj as {
+      name: string | null | undefined;
+      eq: string;
+      variables: Record<string, RecipeVariable>;
+    };
+
     return new SmartRecipe({
-      name: obj.name,
-      equation: obj.equation,
-      variables: obj.variables,
+      name: parsed.name,
+      equation: parsed.eq,
+      variables: parsed.variables,
     });
   }
 
-  public static fromRecipe(recipe: SmartRecipe): SmartRecipe {
+  public static fromPersisted(persistedRecipe: unknown): SmartRecipe {
+    if (typeof persistedRecipe === "string") {
+      return SmartRecipe.fromSerialized(persistedRecipe);
+    }
+
+    return SmartRecipe.fromObject(persistedRecipe as JSONValue);
+  }
+
+  public static fromRecipe(recipe: SmartRecipe | JSONValue): SmartRecipe {
     if (recipe instanceof SmartRecipe) {
-      return SmartRecipe.fromRecipe(recipe);
+      return SmartRecipe.fromSerialized(recipe.toSerialized());
     }
     else {
-      return SmartRecipe.fromObject(recipe);
+      return SmartRecipe.fromPersisted(recipe);
     }
   }
 

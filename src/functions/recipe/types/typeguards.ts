@@ -13,6 +13,7 @@ import type {
   RecipeDataSeries,
   RecipeExternalDataset,
   RecipeScalar,
+  SerializedRecipeShape,
 } from "./types";
 
 export function isRecipeDataType(variable: unknown): variable is (typeof RecipeDataTypes)[keyof typeof RecipeDataTypes] {
@@ -211,8 +212,8 @@ export function isRecipeExternalDatasetSelection(selection: JSONValue): selectio
   );
 }
 
-export function isRecipe(recipe: unknown): recipe is SmartRecipe {
-  const allowedProps = ["name", "eq", "variables"];
+export function isRecipe(recipe: unknown): recipe is SerializedRecipeShape {
+  const allowedProps = ["name", "eq", "variables", "meta"];
 
   if (
     !(recipe instanceof Object)
@@ -244,6 +245,20 @@ export function isRecipe(recipe: unknown): recipe is SmartRecipe {
     || !isStandardObject(recipe.variables)
   ) {
     console.warn("Type guard: 'variables' in recipe should be an object");
+    return false;
+  }
+
+  if (
+    "meta" in recipe
+    && recipe.meta !== undefined
+    && recipe.meta !== null
+    && typeof recipe.meta !== "string"
+    && typeof recipe.meta !== "number"
+    && typeof recipe.meta !== "boolean"
+    && !isStandardObject(recipe.meta)
+    && !Array.isArray(recipe.meta)
+  ) {
+    console.warn("Type guard: 'meta' in recipe");
     return false;
   }
 

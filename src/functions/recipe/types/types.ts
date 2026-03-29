@@ -1,6 +1,6 @@
 import type { Unit } from "mathjs";
 import type { DatasetKeys } from "@/lib/api/utility";
-import type { DateValues, DateValuesWithUnit, UnitString } from "@/types";
+import type { DateValues, DateValuesWithUnit, JSONValue, UnitString } from "@/types";
 import type { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/consts";
 
 export type RecipeScalar = {
@@ -44,4 +44,16 @@ export type RecipeExtractionOutput = (
   | { series: DateValuesWithUnit, name: string, }
 )[];
 
+/** 
+ * # Notice
+ * Do not use to type variables, only use for type checking when serializing/deserializing recipes
+ */
+export type SerializedRecipeShape = {
+  name: string | null | undefined;
+  eq: string;
+  variables: Record<string, RecipeVariable>;
+  meta: {
+    [key: string]: JSONValue;
+  };
+};
 export type SerializedRecipe = string;
