@@ -11,7 +11,7 @@ import styles from '../forms.module.css';
 import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections";
 import TextEditor from "../elements/textEditor/editor";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
-import { SmartRecipe } from "@/functions/recipe/smartRecipe";
+import { SmartRecipe } from "@/functions/recipe/recipe";
 import { FormIntegration, RecipeContextProvider, RecipeEditor, SuggestedRecipeApplier } from "@/components/recipe";
 
 const DataSeriesType = {

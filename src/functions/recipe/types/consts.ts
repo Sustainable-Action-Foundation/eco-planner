@@ -1,4 +1,4 @@
-import { SmartRecipe } from "@/functions/recipe/smartRecipe";
+import { SmartRecipe } from "@/functions/recipe/recipe";
 import type { RecipeDataSeries, RecipeExternalDataset, RecipeScalar, RecipeVariable } from "./types";
 
 export const VectorIndexPickerOptions = {

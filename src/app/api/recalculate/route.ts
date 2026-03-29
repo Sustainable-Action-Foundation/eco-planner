@@ -1,6 +1,6 @@
 import { getOneRecipe } from "@/fetchers";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
-import { SmartRecipe } from "@/functions/recipe/smartRecipe";
+import { SmartRecipe } from "@/functions/recipe/recipe";
 import { RecipeError } from "@/functions/recipe/types";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";

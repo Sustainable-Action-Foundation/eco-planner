@@ -7,7 +7,7 @@ import mathjs from "@/math";
 
 import { RecipeDataTypes } from "./consts";
 import { VectorIndexPickerOptions } from "./consts";
-import type { SmartRecipe } from "@/functions/recipe/smartRecipe";
+import type { SmartRecipe } from "@/functions/recipe/recipe";
 import type {
   EvalTimeVariable,
   RecipeDataSeries,

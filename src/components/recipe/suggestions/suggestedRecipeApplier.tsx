@@ -13,7 +13,7 @@ import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";
 import { IconAlertTriangleFilled } from "@tabler/icons-react";
 import { RecipeEditorPermissions } from "../editor/variables/variableTypes/recipeEditorPermissions";
 import type { DBRecipe } from "@/types";
-import { SmartRecipe } from "@/functions/recipe/smartRecipe";
+import { SmartRecipe } from "@/functions/recipe/recipe";
 import { getDefaultSuggestedRecipes, OutputDataSeries, OutputGraph, OutputStatus } from "@/components/recipe";
 
 export function SuggestedRecipeApplier({

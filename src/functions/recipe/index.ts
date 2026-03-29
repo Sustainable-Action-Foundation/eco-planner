@@ -1,5 +1,5 @@
 export * from "./types";
-export * from "./smartRecipe";
+export * from "./recipe";
 export * from "./sanityChecks";
 export * from "./extractors";
 export * from "./vectorAndMaskUtils";

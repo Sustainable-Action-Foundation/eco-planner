@@ -1,5 +1,5 @@
 
-import { SmartRecipe } from "@/functions/recipe/smartRecipe";
+import { SmartRecipe } from "@/functions/recipe/recipe";
 import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types";
 import type { RecipeDataSeries, RecipeExternalDataset, RecipeScalar } from "@/functions/recipe/types";
 import type { DBRecipe } from "@/types";

@@ -5,7 +5,7 @@ import { PrismaClient, RoadmapType } from '../../src/prisma/generated';
 import bcrypt from "bcryptjs";
 import { RandomTextSE } from "./randomText";
 import { RecipeDataTypes, VectorIndexPickerOptions } from "../../src/functions/recipe/types";
-import { SmartRecipe } from "../../src/functions/recipe/smartRecipe";
+import { SmartRecipe } from "../../src/functions/recipe/recipe.ts";
 import { isISOIshDate } from "../../src/types";
 import type { DateValues } from "../../src/types";
 import { dateValuesToDBDateRecord } from "../../src/functions/recipe/vectorAndMaskUtils";
