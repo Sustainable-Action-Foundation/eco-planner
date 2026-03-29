@@ -129,7 +129,7 @@ export class Recipe {
     }
 
     // TODO - reimplement these
-    warnings.push("Sanity checks are not yet implemented for SmartRecipe.");
+    warnings.push("Sanity checks are not yet implemented.");
     // sanityCheckScalars(scalars, warnings);
     // sanityCheckDataSeries(dataSeries, warnings);
     // sanityCheckExternalDatasets(externalDatasets, warnings);
@@ -186,7 +186,7 @@ export class Recipe {
   }
 
   /** 
-   * Clones this instance of SmartRecipe.
+   * Clones this instance of Recipe.
    */
   public copy(): Recipe {
     return Recipe.deserialize(this.serialize());
@@ -203,7 +203,7 @@ export class Recipe {
   }
 
   /** 
-   * Stringify SmartRecipe to a state that can be reversed for storage purposes.
+   * Stringify Recipe to a state that can be reversed for storage purposes.
    */
   public serialize(): SerializedRecipe {
     return JSON.stringify({
@@ -217,7 +217,7 @@ export class Recipe {
   }
 
   /** 
-   * SmartRecipe factory, takes serialized recipe and returns a new smart recipe instance.
+   * Recipe factory, takes serialized recipe and returns a new recipe instance.
    */
   public static deserialize(serializedRecipe: SerializedRecipe): Recipe {
     let objectForm: JSONValue;
@@ -237,7 +237,7 @@ export class Recipe {
   }
 
   /** 
-   * SmartRecipe factory, takes either a serialized recipe, a plain object recipe or an existing SmartRecipe and returns a new smart recipe instance.
+   * Recipe factory, takes either a serialized recipe, a plain object recipe or an existing Recipe and returns a new recipe instance.
    */
   public static from(input: string | Recipe | JSONValue): Recipe {
     if (typeof input === "string") {
@@ -252,7 +252,7 @@ export class Recipe {
   }
 
   /** 
-   * SmartRecipe factory, takes recipe object and returns a new smart recipe instance if valid.
+   * Recipe factory, takes recipe object and returns a new recipe instance if valid.
    */
   private static fromObject(obj: JSONValue): Recipe {
     if (typeof obj === "string") {
@@ -292,7 +292,7 @@ export class Recipe {
   }
 
   /** 
-   * SmartRecipe factory, returns an empty smart recipe instance.
+   * Recipe factory, returns an empty recipe instance.
    */
   public static getEmpty(): Recipe {
     return new Recipe({

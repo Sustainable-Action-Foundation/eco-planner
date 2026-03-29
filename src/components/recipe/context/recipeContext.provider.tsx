@@ -19,28 +19,28 @@ export function RecipeContextProvider({
   const searchParams = useSearchParams();
   const isDebug = useMemo(() => searchParams.get("debug") === "true", [searchParams]);
 
-  const [smartRecipeEntryPoint, setSmartRecipeEntryPoint] = useState<Recipe>(
+  const [recipeEntryPoint, setRecipeEntryPoint] = useState<Recipe>(
     !!initialRecipe
       ? Recipe.from(initialRecipe)
       : Recipe.getEmpty()
   );
 
   /**
-   * The only source of truth is this smartRecipe recipe instance.
+   * The only source of truth is this Recipe instance.
    */
   const recipe = useMemo(() =>
-    smartRecipeEntryPoint instanceof Recipe
-      ? smartRecipeEntryPoint
-      : smartRecipeEntryPoint
-        ? Recipe.from(smartRecipeEntryPoint)
+    recipeEntryPoint instanceof Recipe
+      ? recipeEntryPoint
+      : recipeEntryPoint
+        ? Recipe.from(recipeEntryPoint)
         : Recipe.getEmpty()
-    , [smartRecipeEntryPoint]);
+    , [recipeEntryPoint]);
 
   const clearRecipe = () => {
-    setSmartRecipeEntryPoint(Recipe.getEmpty());
+    setRecipeEntryPoint(Recipe.getEmpty());
   };
 
-  const setSmartRecipe = async (valueOrSetter: SetStateAction<Recipe>): Promise<void> => {
+  const setRecipe = async (valueOrSetter: SetStateAction<Recipe>): Promise<void> => {
     let newInstance: Recipe | null;
 
     const newRecipe = typeof valueOrSetter === "function"
@@ -68,7 +68,7 @@ export function RecipeContextProvider({
       throw new RecipeError(`Failed to set recipe: ${validity.error || "Recipe is invalid"}`);
     }
 
-    setSmartRecipeEntryPoint(newInstance);
+    setRecipeEntryPoint(newInstance);
     return;
   };
 
@@ -96,7 +96,7 @@ export function RecipeContextProvider({
 
     const newRecipe = recipe.copy();
     newRecipe.equation = newEquation;
-    setSmartRecipe(newRecipe)
+    setRecipe(newRecipe)
       .catch((e: unknown) => {
         const errorMessage = e instanceof Error ? e.message : String(e);
         setError(errorMessage);
@@ -114,7 +114,7 @@ export function RecipeContextProvider({
     const newRecipe = recipe.copy();
     newRecipe.variables[variableName] = valueToSet;
 
-    setSmartRecipe(newRecipe)
+    setRecipe(newRecipe)
       .catch((e: unknown) => {
         const errorMessage = e instanceof Error ? e.message : String(e);
         setError(errorMessage);
@@ -128,7 +128,7 @@ export function RecipeContextProvider({
       : variablesAction;
     const newRecipe = recipe.copy();
     newRecipe.variables = newVariables;
-    setSmartRecipe(newRecipe)
+    setRecipe(newRecipe)
       .catch((e: unknown) => {
         const errorMessage = e instanceof Error ? e.message : String(e);
         setError(errorMessage);
@@ -172,7 +172,7 @@ export function RecipeContextProvider({
     <RecipeContext.Provider value={{
       recipe,
       clearRecipe,
-      setRecipe: setSmartRecipe,
+      setRecipe: setRecipe,
       resultingDataSeries,
       resultingUnit,
       equation,

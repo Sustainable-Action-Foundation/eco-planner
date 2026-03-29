@@ -93,7 +93,7 @@ export function SuggestedRecipeApplier({
     const parsedRecipe = Recipe.from(selectedSuggestion.recipe);
 
     if (!isRecipe(parsedRecipe)) {
-      console.error("Selected suggested recipe is not a valid SmartRecipe", selectedSuggestion);
+      console.error("Selected suggested recipe is not a valid Recipe", selectedSuggestion);
       clearRecipe();
       return;
     }
@@ -101,7 +101,7 @@ export function SuggestedRecipeApplier({
     setRecipe(parsedRecipe)
       .catch((e: unknown) => {
         const errorMessage = e instanceof Error ? e.message : String(e);
-        console.error("Failed to set smart recipe from suggestion", errorMessage);
+        console.error("Failed to set recipe from suggestion", errorMessage);
         clearRecipe();
       });
   };
