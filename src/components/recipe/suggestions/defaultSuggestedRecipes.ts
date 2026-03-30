@@ -16,7 +16,8 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
         pick: VectorIndexPickerOptions.Default,
         value: undefined,
         dataSeriesId: undefined,
-        unit: undefined
+        unit: undefined,
+        template: true,
       } satisfies DataSeriesVariable,
 
       [t("components:recipe_editor.default_area_recipe.parent_area")]: {
@@ -33,6 +34,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
         ],
         pick: VectorIndexPickerOptions.Default,
         unit: undefined,
+        template: true,
       } satisfies ExternalVariable,
 
       [t("components:recipe_editor.default_area_recipe.child_area")]: {
@@ -63,6 +65,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
         unit: undefined,
         value: undefined,
         dataSeriesId: undefined,
+        template: true,
       } satisfies DataSeriesVariable,
 
       [t("components:recipe_editor.default_population_recipe.parent_population")]: {
@@ -77,6 +80,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
           // Magic string to get population numbers
           { variableCode: "ContentsCode", valueCodes: ["000007E1"] },
         ],
+        template: true,
       } satisfies ExternalVariable,
 
       [t("components:recipe_editor.default_population_recipe.child_population")]: {
@@ -91,6 +95,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
         ],
         pick: VectorIndexPickerOptions.Default,
         unit: undefined,
+        template: true,
       } satisfies ExternalVariable,
     },
   });
@@ -105,6 +110,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
         dataSeriesId: undefined,
         value: undefined,
         unit: undefined,
+        template: true,
       } satisfies DataSeriesVariable,
 
       [t("components:recipe_editor.default_scalar_recipe.scalar")]: {
