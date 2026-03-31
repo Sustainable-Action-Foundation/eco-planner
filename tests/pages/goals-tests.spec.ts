@@ -9,6 +9,12 @@ const adminFile = path.join(__dirname, '../.auth/admin.json');
 
 test.describe("Goals tests", () => {
   test.use({ storageState: adminFile });
+  const indicatorRequiredOnly = "Required\\only";
+  const unitRequiredOnly = "meter";
+  const nameAll = "Test goal";
+  const descriptionAll = "This is a test goal";
+  const indicatorAll = "All\\fields";
+  const unitAll = "tonnes";
 
   test('Create goal required only', async ({ page }) => {
     // Opening the form
@@ -27,13 +33,11 @@ test.describe("Goals tests", () => {
 
     // Form Part 3
     // Might be switched out for a pre-written recipe when they are fixed
-    await page.getByRole('radio').first().click();
-    await page.locator('#indicatorParameter').click();
-    await page.locator('#indicatorParameter-listbox-0').click();
-    await page.locator('#dataUnit').click();
-    await page.locator('#dataUnit-listbox-0').click();
+    await page.getByRole('radio', { name: "goal.derive_data_series_manually" }).click();
+    await page.locator('#indicatorParameter').fill(indicatorRequiredOnly);
+    await page.locator('#dataUnit').fill(unitRequiredOnly);
 
-    await page.getByPlaceholder('2050').fill('2030');
+    await page.getByLabel("data_series_input.end_year").fill('2030');
     for (let i = 0; i < 10; i++) {
       await page.getByRole('spinbutton').nth(2 + i).fill('1');
     }
@@ -42,7 +46,7 @@ test.describe("Goals tests", () => {
     await page.locator('#submit-button').click();
     await page.waitForLoadState("networkidle");
 
-    await expect(page.getByRole('heading').nth(1)).toContainText("Redigera");
+    await expect(page.getByRole('main')).toContainText("goal.title_label");
   });
 
   test('Edit goal required only', async ({ page }) => {
@@ -57,13 +61,13 @@ test.describe("Goals tests", () => {
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover(); //"networkidle" doesn't work for this for some reason so we are hovering to wait for load state where needed
 
     // Navigate to goal
-    await page.getByRole('listitem').getByText("Redigera", { exact: true }).filter({ visible: true })
-      .click();
-    await page.getByRole('link').filter({ hasText: "Redigera" }).nth(1).click();
-    await page.getByRole('heading', { name: "Redigera" }).first().hover();
+    await page.getByRole('radio', { name: "table_selector.table" }).click();
+    await page.getByRole('link', { name: indicatorRequiredOnly }).first().click();
+    // Wait for page to load
+    await page.getByRole('heading', { name: indicatorRequiredOnly }).first().hover();
 
     // Enter edit form
-    await page.getByTestId("admin-panel-edit").click();
+    await page.getByRole('link', { name: "table_menu.edit" }).click();
     await page.waitForLoadState("networkidle");
 
     // Check that everything is auto filled
@@ -71,16 +75,18 @@ test.describe("Goals tests", () => {
     await expect.soft(page.locator('#description')).toBeEmpty();
 
     await page.getByRole('radio').first().click();
-    await expect.soft(page.locator('#indicatorParameter')).toHaveValue("Redigera");
-    await expect.soft(page.locator('#dataUnit')).toHaveText("meter");
+    await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorRequiredOnly);
+    await expect.soft(page.locator('#dataUnit')).toHaveText(unitRequiredOnly);
 
-    await expect.soft(page.getByPlaceholder('2020').first()).toHaveValue('2020');
-    await expect.soft(page.getByPlaceholder('2050').first()).toHaveValue('2030'); //Not 100% sure if this works as we hope it does, might need changing when the thing is checking for is fixed
+    await expect.soft(page.getByLabel("data_series_input.start_year")).toHaveValue('2020');
+    await expect.soft(page.getByLabel("data_series_input.end_year")).toHaveValue('2030');
+    // await expect.soft(page.getByPlaceholder('2020').first()).toHaveValue('2020');
+    // await expect.soft(page.getByPlaceholder('2050').first()).toHaveValue('2030'); //Not 100% sure if this works as we hope it does, might need changing when the thing is checking for is fixed
     for (let i = 0; i < 10; i++) {
       await expect.soft(page.getByRole('spinbutton').nth(2 + i)).toHaveValue('1');
     }
 
-    await expect.soft(page.locator('#baselineSelector')).toHaveValue('CUSTOM');
+    await expect.soft(page.locator('#baselineSelector')).toHaveValue('INITIAL');
     await expect.soft(page.locator('#isFeatured')).not.toBeChecked();
 
     // Submit
@@ -98,8 +104,8 @@ test.describe("Goals tests", () => {
 
     await page.locator('#dataUnit').click();
     await page.locator('#dataUnit-listbox-3').click();
-    await page.getByPlaceholder('2020').first().fill('2025');
-    await page.getByPlaceholder('2050').first().fill('2045');
+    await page.getByLabel("data_series_input.start_year").fill('2025');
+    await page.getByLabel("data_series_input.end_year").fill('2045');
     for (let i = 0; i < 20; i++) {
       await page.getByRole('spinbutton').nth(2 + i).fill('4');
     }
@@ -122,25 +128,27 @@ test.describe("Goals tests", () => {
 
     // Form Part 1
     await page.locator('#parent-roadmap').click();
-    await page.getByRole('option', { name: "Rikets färdplan (v2)" }).click(); //Switch to 'test' when available
+    await page.locator('#parent-roadmap-dialog-listbox li').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: '2' }).click(); // Checks for Rikets färdplan to be contained in an option, with version 2 to avoid selecting the wrong roadmap
+
 
     // Form Part 2
-    await page.locator('#goalName').fill("Test Goal");
-    await page.getByRole('textbox').nth(1).fill("This is a test goal"); //Might be a better way of getting this element
+    await page.locator('#goalName').fill(nameAll);
+    await page.getByRole('textbox').nth(1).fill(descriptionAll); //Might be a better way of getting this element
 
     // Form Part 3
     // Might be switch out for a prewritten recipe when they are fixed
-    await page.getByRole('radio').first().click();
-    await page.locator('#indicatorParameter').click();
-    await page.locator('#indicatorParameter-listbox-0').click();
-    await page.locator('#dataUnit').click();
-    await page.locator('#dataUnit-listbox-0').click();
+    await page.getByRole('radio', { name: "goal.derive_data_series_manually" }).click();
+    await page.locator('#indicatorParameter').fill(indicatorAll);
+    await page.locator('#dataUnit').fill(unitAll);
+    await page.getByLabel("data_series_input.start_year").fill('2020');
+    await page.getByLabel("data_series_input.end_year").fill('2050');
 
     for (let i = 0; i < 30; i++) {
-      await page.getByRole('spinbutton').nth(2 + i).fill('1');
+      await page.getByRole('spinbutton').nth(2 + i).fill(String(i));
     }
 
     //Form part 4
+    await page.locator('#baselineSelector').selectOption({ value: "INITIAL" });
     /*
         await page.locator('#baselineSelector').selectOption({ value: "INHERIT" });
         await page.locator('#selectedRoadmap').selectOption({ index: 1 });
@@ -153,8 +161,8 @@ test.describe("Goals tests", () => {
     await page.locator('#submit-button').click();
     await page.waitForLoadState("networkidle");
 
-    await expect(page.getByRole('heading').nth(1)).toHaveText('Test Goal');
-    await expect(page.locator('#rich-description')).toHaveText('This is a test goal');
+    await expect(page.getByRole('heading').nth(1)).toHaveText(nameAll);
+    await expect(page.locator('#rich-description')).toHaveText(descriptionAll);
   });
 
   test('Edit goal all', async ({ page }) => {
@@ -169,30 +177,34 @@ test.describe("Goals tests", () => {
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover(); //"networkidle" doesn't work for this for some reason so we are hovering to wait for load state where needed
 
     // Navigate to goal
-    await page.getByRole('listitem').getByText("Redigera", { exact: true }).filter({ visible: true }).click();
-    await page.getByRole('link').filter({ hasText: "Test Goal" }).first().click();
-    await page.getByRole('heading', { name: "Test Goal" }).hover();
+    await page.getByRole('radio', { name: "table_selector.table" }).click();
+    await page.getByRole('link', { name: nameAll }).first().click();
+    // Wait for page to load
+    await page.getByRole('heading', { name: nameAll }).first().hover();
 
     // Enter edit form
-    await page.getByTestId("admin-panel-edit").click();
+    await page.getByRole('link', { name: "table_menu.edit" }).click();
     await page.waitForLoadState("networkidle");
 
     // Check that everything is auto filled
-    await expect.soft(page.locator('#goalName')).toHaveValue("Test Goal");
-    await expect.soft(page.locator('#description')).toHaveText("This is a test goal");
+    await expect.soft(page.locator('#goalName')).toHaveValue(nameAll);
+    await expect.soft(page.locator('#description')).toHaveText(descriptionAll);
 
-    await expect.soft(page.getByRole('radio').first()).toBeChecked();
+    // Expect the form to remember that we chose manual input, even though this is not the default choice
+    await expect.soft(page.getByRole('radio', { name: "goal.derive_data_series_manually" })).toBeChecked();
 
-    await page.getByRole('radio').first().click();
-    await expect.soft(page.locator('#indicatorParameter')).toHaveValue("Redigera");
-    await expect.soft(page.locator('#dataUnit')).toHaveText("meter");
-    await expect.soft(page.getByPlaceholder('2020').first()).toHaveValue('2020');
-    await expect.soft(page.getByPlaceholder('2050').first()).toHaveValue('2030'); //Not 100% sure if this works as we hope it does, might need changing when the thing is checking for is fixed
-    for (let i = 0; i < 10; i++) {
-      await expect.soft(page.getByRole('spinbutton').nth(2 + i)).toHaveValue('1');
+    // Set to manual input in case it isn't, to see if the values are saved correctly at least
+    await page.getByRole('radio', { name: "goal.derive_data_series_manually" }).click();
+
+    await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorAll);
+    await expect.soft(page.locator('#dataUnit')).toHaveText(unitAll);
+    await expect.soft(page.getByLabel("data_series_input.start_year")).toHaveValue('2020');
+    await expect.soft(page.getByLabel("data_series_input.end_year")).toHaveValue('2050'); //Not 100% sure if this works as we hope it does, might need changing when the thing is checking for is fixed
+    for (let i = 0; i < 30; i++) {
+      await expect.soft(page.getByRole('spinbutton').nth(2 + i)).toHaveValue(String(i));
     }
 
-    await expect.soft(page.locator('#baselineSelector')).toHaveValue('CUSTOM');
+    await expect.soft(page.locator('#baselineSelector')).toHaveValue('INITIAL');
     await expect.soft(page.locator('#isFeatured')).toBeChecked();
 
     // Submit
@@ -214,8 +226,7 @@ test.describe("Goals tests", () => {
     await page.getByRole('treeitem').first().click();
     await page.locator('#scalar-skalär').fill('48');
 
-
-    await page.locator('#baselineSelector').selectOption("INITIAL");
+    await page.locator('#baselineSelector').selectOption("INITIAL_NON_ZERO");
     await page.locator('#isFeatured').uncheck();
 
     // Submit
@@ -234,6 +245,7 @@ test.describe("Goals tests", () => {
     await page.getByRole('tab').nth(1).click();
     await expect.soft(page.locator('#recipeVariable0')).not.toBeEmpty();
     await expect.soft(page.locator('#scalar-skalär')).toHaveValue('48');
+    await expect.soft(page.locator('#baselineSelector')).toHaveValue('INITIAL_NON_ZERO');
 
     await expect(page.locator('#isFeatured')).not.toBeChecked();
   });
