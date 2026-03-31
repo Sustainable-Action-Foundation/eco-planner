@@ -12,6 +12,8 @@ import Link from "next/link";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { getMetaRoadmaps, getRoadmaps } from "@/fetchers";
 import SearchRoadmaps from "@/components/form/filters/searchRoadmaps";
+import SortRoadmaps from "@/components/form/filters/sortRoadmaps";
+import styles from "./page.module.css"
 
 export async function generateMetadata() {
   return await buildMetadata({
@@ -31,7 +33,7 @@ export default async function Page(
     getSession(await cookies()),
     getMetaRoadmaps(),
   ]);
- 
+
   const typeFilter = searchParams['typeFilter'] ? (Array.isArray(searchParams['typeFilter']) ? searchParams['typeFilter'] : [searchParams['typeFilter']]) : [];
   const sortBy = searchParams['sortBy'] ? (Array.isArray(searchParams['sortBy']) ? (searchParams['sortBy'][0] as RoadmapSortBy) : (searchParams['sortBy'] as RoadmapSortBy)) : RoadmapSortBy.Default;
   const searchFilter = searchParams['searchFilter'] ? (Array.isArray(searchParams['searchFilter']) ? searchParams['searchFilter'][0] : searchParams['searchFilter']) : '';
@@ -136,15 +138,27 @@ export default async function Page(
           </div>
         </AttributedImage>
       </div>
-
-      <search className="flex flex-wrap-wrap gap-200 margin-top-300">
-        <RoadmapFilters />
+ 
+      <search className="flex flex-wrap-wrap gap-300 margin-top-300"> {/* TODO: Some flex stuff is causing the netire page to shift when switching languages, look into this */}
+        <aside className={`flex-grow-100 ${styles['filters']}`} tabIndex={-1} id="roadmap-filters">
+          <h2 className="font-size-125 margin-top-50 font-weight-600 padding-bottom-50 margin-bottom-100" style={{ borderBottom: '1px solid var(--gray-80)' }}>
+            {t("pages:home.filter")}
+          </h2>
+          <RoadmapFilters />
+        </aside>
         <div className="flex-grow-infinity max-width-100">
-          <h2 id="roadmap-search-title" className="margin-top-0 margin-bottom-50">{t("pages:home.search_roadmaps", { count: metaRoadmaps.filter((metaRoadmap) => metaRoadmap.roadmapVersions.length > 0).length })}</h2>
+          <h2 id="roadmap-search-title" className="margin-top-0 margin-bottom-50 font-weight-600">{t("pages:home.search_roadmaps", { count: metaRoadmaps.filter((metaRoadmap) => metaRoadmap.roadmapVersions.length > 0).length })}</h2>
           <SearchRoadmaps labelledBy="roadmap-search-title" />
-          <small className="margin-bottom-200 margin-left-25 margin-top-25 block font-style-italic color-gray font-weight-normal font-size-100">
-            {t("pages:home.shown_results", { count: roadmaps.length })}
-          </small>
+          <div className="flex align-items-center gap-100 flex-wrap-wrap justify-content-space-between margin-bottom-200 margin-top-50">
+            <small className="font-size-100" aria-live="polite"> {/* TODO: Pretty sure this should have an aria-live but double check against a screenreader */}
+              {t("pages:home.shown_results", {
+                shown: roadmaps.length,
+                total: metaRoadmaps.filter((metaRoadmap) => metaRoadmap.roadmapVersions.length > 0).length
+              })}
+            </small>
+            <SortRoadmaps />
+
+          </div>
           <output>
             <RoadmapTree
               user={session.user ?? undefined}
