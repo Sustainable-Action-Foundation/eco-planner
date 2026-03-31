@@ -28,6 +28,11 @@ export class Recipe {
    * Runs evaluator on recipe and catch anything wrong
    */
   public async checkValidity(): Promise<{ good: boolean, error: string | undefined, warnings: string[] | undefined }> {
+    if (Object.values(this.variables).some(v => v.template)) {
+      console.info("Recipe contains template variables, skipping validity check.");
+      return { good: true, error: undefined, warnings: undefined, };
+    }
+
     const warnings: string[] = [];
     try {
       const _ = await this.evaluate(warnings);
