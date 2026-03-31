@@ -156,7 +156,7 @@ export function RecipeContextProvider({
     <RecipeContext.Provider value={{
       recipe,
       clearRecipe,
-      setRecipe: setRecipe,
+      setRecipe,
       resultingDataSeries,
       resultingUnit,
       equation,
