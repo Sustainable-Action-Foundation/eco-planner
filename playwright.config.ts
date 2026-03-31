@@ -29,7 +29,7 @@ export default defineConfig({
       [
         ["dot"],
         ["html", { open: "never" }],
-        ["list"],
+        // ["list"],
       ]
     ) as [string, object][],
 
