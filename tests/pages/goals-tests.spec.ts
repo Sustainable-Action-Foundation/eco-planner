@@ -74,7 +74,11 @@ test.describe("Goals tests", () => {
     await expect.soft(page.locator('#goalName')).toBeEmpty();
     await expect.soft(page.locator('#description')).toBeEmpty();
 
-    await page.getByRole('radio').first().click();
+    // Expect the form to remember that we chose manual input, even though this is not the default choice
+    await expect.soft(page.getByRole('radio', { name: "goal.derive_data_series_manually" })).toBeChecked();
+
+    // Set to manual input in case it isn't, to see if the values are saved correctly at least
+    await page.getByRole('radio', { name: "goal.derive_data_series_manually" }).click();
     await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorRequiredOnly);
     await expect.soft(page.locator('#dataUnit')).toHaveText(unitRequiredOnly);
 
