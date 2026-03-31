@@ -3,23 +3,15 @@
 import { useTranslation } from "react-i18next";
 import { Locales } from "i18n.config";
 import { IconAlertTriangleFilled, IconCircleCheckFilled, IconCircleXFilled, IconInfoCircle } from "@tabler/icons-react";
-import { useRecipe } from "../../context/recipeContext.use";
-import { isEmptyRecipe } from "@/functions/recipe/types";
+import { useRecipe } from "@/components/recipe";
 
 export function OutputStatus({
-  hideWhenNoRecipe = false,
+  showAllGood = true,
 }: {
-  hideWhenNoRecipe?: boolean,
+  showAllGood?: boolean,
 }) {
   const { t } = useTranslation("components");
   const { recipe, error, warnings } = useRecipe();
-
-  if (
-    (!recipe || isEmptyRecipe(recipe))
-    && hideWhenNoRecipe
-  ) {
-    return null;
-  }
 
   return (
     <>
@@ -52,7 +44,7 @@ export function OutputStatus({
         : null}
 
       {/* All good */}
-      {warnings.length === 0 && !error &&
+      {showAllGood && warnings.length === 0 && !error &&
         <div className="flex align-items-flex-start gap-50 margin-block-50" style={{ fontSize: '14px' }} >
           <IconInfoCircle width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="var(--gray-70)" aria-label={t("components:recipe_editor.status.no_issues_icon_aria_label")} />
           {t("components:recipe_editor.no_warnings")}

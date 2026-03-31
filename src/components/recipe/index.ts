@@ -12,6 +12,7 @@ export * from "./editor/output/formIntegration";
 export * from "./editor/output/dataSeriesDisplay";
 export * from "./editor/output/graphDisplay";
 export * from "./editor/output/statusDisplay";
+export * from "./editor/output/combinedDisplay";
 
 export * from "./editor/variables/variableCreator";
 export * from "./editor/variables/variableEditor";

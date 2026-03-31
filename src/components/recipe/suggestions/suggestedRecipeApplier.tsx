@@ -8,13 +8,12 @@ import { VariableTypeDataSeriesSimple } from "../editor/variables/variableTypes/
 import { VariableTypeExternalSimple } from "../editor/variables/variableTypes/externalDatasetVariable";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { clientSafeGetRoadmaps } from "@/fetchers/client";
-import TabList from "../../generic/tablist/tabList";
 import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";
 import { IconAlertTriangleFilled } from "@tabler/icons-react";
 import { RecipeEditorPermissions } from "../editor/variables/variableTypes/recipeEditorPermissions";
 import type { DBRecipe } from "@/types";
 import { Recipe } from "@/functions/recipe/recipe";
-import { getDefaultSuggestedRecipes, OutputDataSeries, OutputGraph, OutputStatus } from "@/components/recipe";
+import { CombinedStatusDisplay, getDefaultSuggestedRecipes, OutputStatus } from "@/components/recipe";
 
 export function SuggestedRecipeApplier({
   autoInsertDefaultSuggestions = true,
@@ -61,21 +60,14 @@ export function SuggestedRecipeApplier({
 
   // Validate suggested recipe structures
   useEffect(() => {
-    // async function validateAll() {
     for (const dbRecipe of suggestedRecipes) {
       const recipe = Recipe.from(dbRecipe.recipe);
       if (!isRecipe(recipe.serialize())) {
-        console.warn("Invalid recipe in suggestions", dbRecipe);
+        console.warn("Invalid recipe type in suggestions", dbRecipe);
         return;
       }
-      // Disabled since this checks ALL suggested recipes EVERY TIME SOMEONE OPENS THE PAGE containing this component, not even just when they actually open the related modal
-      // const validity = await recipe.checkValidity();
-      // if (!validity.good) {
-      //   console.warn("Invalid recipe in suggestions", dbRecipe, validity.error, validity.warnings);
-      // }
     }
-    // }
-    // validateAll().catch(e => { throw e; });
+    // TODO - validate with recipe.isValid() here as well when the API calls are removed from stored recipes
   }, [suggestedRecipes]);
 
   // On change set the context state to the selected recipe
@@ -126,6 +118,8 @@ export function SuggestedRecipeApplier({
 
     {/* TODO: Note that labels are as of now not valid. I believe however that it will be solved with tree select as this should reduce the number of items in a simple variable type to one */}
     {/* TODO: We should be using a grid instead of flex to properly align items here */}
+
+    {/* Select of available recipes */}
     <div
       className="grid gap-50 padding-left-100"
       style={{
@@ -134,7 +128,7 @@ export function SuggestedRecipeApplier({
         columnGap: '1rem'
       }}
     >
-      {Object.entries(recipe?.variables ?? {}).map(([variableName, variable], i) => {
+      {Object.entries(recipe?.variables ?? {}).map(([variableKey, variable], i) => {
         const unitIsProvided = typeof variable.unit !== "undefined" && variable.unit !== null;
         const isValidUnit = unitIsProvided ? isMathjsUnit(variable.unit as string) : false;
         const unitDisplay = isValidUnit
@@ -156,13 +150,13 @@ export function SuggestedRecipeApplier({
         switch (variable.type) {
           case RecipeDataTypes.Scalar: {/* TODO: Fix these labels */ }
             return (
-              <Fragment key={variableName}>
+              <Fragment key={variable.name ?? variableKey}>
                 <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
-                  <span>{variableName}{unitDisplay}:</span>
+                  <span>{variable.name ?? variableKey}{unitDisplay}:</span>
                 </label>
                 <VariableTypeScalarSimple
                   key={"recipeVariable" + i}
-                  variableName={variableName}
+                  variableName={variable.name ?? variableKey}
                   permissions={permissions}
                   props={{
                     defaultValue: variable.value,
@@ -173,9 +167,9 @@ export function SuggestedRecipeApplier({
 
           case RecipeDataTypes.DataSeries:
             return (
-              <Fragment key={variableName}>
+              <Fragment key={variable.name ?? variableKey}>
                 <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
-                  <span>{variableName}{unitDisplay}:</span>
+                  <span>{variable.name ?? variableKey}{unitDisplay}:</span>
                 </label>
                 <VariableTypeDataSeriesSimple
                   props={{
@@ -186,7 +180,7 @@ export function SuggestedRecipeApplier({
                     disabled: false,
                   }}
                   key={"recipeVariable" + i}
-                  variableName={variableName}
+                  variableName={variable.name ?? variableKey}
                   availableRoadmaps={availableRoadmaps}
                 />
               </Fragment>
@@ -194,61 +188,34 @@ export function SuggestedRecipeApplier({
 
           case RecipeDataTypes.External:
             return (
-              <Fragment key={variableName}>
+              <Fragment key={variable.name ?? variableKey}>
                 <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
-                  <span>{variableName}{unitDisplay}:</span>
+                  <span>{variable.name ?? variableKey}{unitDisplay}:</span>
                 </label>
                 <VariableTypeExternalSimple
                   key={"recipeVariable" + i}
-                  variableName={variableName}
+                  variableName={variable.name ?? variableKey}
                   permissions={permissions}
                 />
               </Fragment>
             );
 
           default:
-            console.warn("Unknown variable type for variable", variableName);
+            console.warn("Unknown variable type for variable", { variable });
             return (
-              <p key={variableName}>
-                {variableName}: {t("components:recipe_editor.unknown_variable_type")}
+              <p key={variableKey}>
+                {variableKey}: {t("components:recipe_editor.unknown_variable_type")}
               </p>
             );
         }
       })}
     </div>
 
-    <OutputStatus
-      hideWhenNoRecipe={true}
-    />
+    {selectedRecipeId && <>
+      <OutputStatus showAllGood={false} />
 
-    {selectedRecipeId &&
-      <TabList
-        defaultIndex={0}
-        styling="simple"
-        props={{
-          className: "margin-top-200",
-        }}
-      >
-        <div
-          data-tabname={t("components:recipe_editor.data_series")}
-          className="padding-top-50 margin-bottom-100"
-        >
-          <OutputDataSeries />
-        </div>
-        <div
-          data-tabname={t("components:recipe_editor.graph")}
-          className="padding-top-50 margin-bottom-100"
-        >
-          <OutputGraph />
-        </div>
-        <div
-          data-tabname={t("components:recipe_editor.equation")}
-          className="padding-top-50 margin-bottom-100"
-        >
-          <p className="margin-0">{recipe?.equation}</p>
-        </div>
-      </TabList>
-    }
+      <CombinedStatusDisplay />
+    </>}
   </>
   );
 }
