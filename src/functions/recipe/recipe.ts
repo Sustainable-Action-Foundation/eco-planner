@@ -24,11 +24,15 @@ export class Recipe {
     this.variables = variables;
   }
 
+  public isTemplate(): boolean {
+    return Object.values(this.variables).some(v => v.template);
+  }
+
   /** 
    * Runs evaluator on recipe and catch anything wrong
    */
   public async checkValidity(): Promise<{ good: boolean, error: string | undefined, warnings: string[] | undefined }> {
-    if (Object.values(this.variables).some(v => v.template)) {
+    if (this.isTemplate()) {
       console.info("Recipe contains template variables, skipping validity check.");
       return { good: true, error: undefined, warnings: undefined, };
     }

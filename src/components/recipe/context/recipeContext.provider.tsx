@@ -117,6 +117,11 @@ export function RecipeContextProvider({
     const nextWarnings: string[] = [];
 
     async function calculate() {
+      if (recipe.isTemplate()) {
+        console.info("Recipe contains template variables, skipping evaluation.");
+        return null;
+      }
+
       const validity = await recipe.checkValidity();
       if (!validity.good) {
         nextWarnings.push(...(validity.warnings ?? []));
@@ -163,11 +168,42 @@ export function RecipeContextProvider({
       warnings,
       error,
     }}>
-      {isDebug &&
-        <pre style={{ position: "fixed", top: 0, left: 16, backgroundColor: "white", zIndex: 999, padding: "1rem", border: "1px solid black" }}>
-          {recipe.toString()}
-        </pre>
-      }
+
+      {isDebug && (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column-reverse",
+            alignItems: "flex-end",
+            position: "fixed",
+            right: 24,
+            bottom: 24,
+            zIndex: 9999,
+            pointerEvents: "none",
+          }}
+        >
+          <pre
+            style={{
+              position: "relative",
+              background: "white",
+              padding: "1rem",
+              border: "1px solid #bbb",
+              borderRadius: 10,
+              boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+              maxWidth: 420,
+              maxHeight: "40vh",
+              overflow: "auto",
+              fontSize: "0.95em",
+              fontFamily: "monospace",
+              opacity: 0.97,
+              marginBottom: 12,
+              pointerEvents: "auto",
+            }}
+          >
+            {recipe.toString()}
+          </pre>
+        </div>
+      )}
 
       {children}
     </RecipeContext.Provider>
