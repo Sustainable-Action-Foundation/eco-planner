@@ -103,7 +103,7 @@ export default function MetaRoadmapForm({
 
     const formJSON = JSON.stringify(formData);
 
-    formSubmitter('/api/metaRoadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading, undefined, undefined, undefined, addMessage, router.push);
+    formSubmitter('/api/metaRoadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading, undefined, undefined, undefined, undefined, router.push); // addMessage
   }
 
   // Indexes for the data-position attribute in the legend elements

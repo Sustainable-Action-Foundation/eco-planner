@@ -1,6 +1,7 @@
-import { IconAlertTriangleFilled, IconCheck, IconInfoCircleFilled, IconX } from "@tabler/icons-react";
+import { IconAlertTriangleFilled, IconArrowDown, IconArrowRight, IconArrowUp, IconCheck, IconInfoCircleFilled, IconX } from "@tabler/icons-react";
 import { ReactNode, useEffect, useState } from "react";
 import { useToastContext } from "@/context/context";
+import { error } from "node:console";
 
 export default function CreateToast({ children, id, type, hasTimeout = true }: { children?: ReactNode; id: number; type: 'success' | 'error' | 'warning'; hasTimeout?: boolean }) {
 
@@ -18,11 +19,16 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
   }
 
   const ariaRole = type === "error" ? "alert" : "status";
-
   const openAble = type === "error" ? (isOpen ? "open" : "closed") : "";
 
-  if (typeof children === "string" && children.length > 45 && type !== "error") {
-    throw new Error("Toast message is too long for a success or warning toast. Consider shortening the message if it is the correct type.");
+  let errorLong = false;
+
+  if (typeof children === "string" && children.length > 45) {
+    if (type !== "error") {
+      throw new Error("Toast message is too long for a success or warning toast. Consider shortening the message if it is the correct type.");
+    } else {
+      errorLong = true;
+    }
   }
 
   useEffect(() => {
@@ -59,7 +65,7 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
 
   return (
     <dialog
-      className={`toast flex flex-direction-column rounded position-relative padding-0 width-100 rounded ${type === 'error' ? 'cursor-pointer' : ''}`}
+      className={`toast flex flex-direction-column rounded position-relative padding-0 width-100 rounded ${type === "error" && errorLong === true ? "cursor-pointer" : ""}`}
       role={ariaRole}
       style={{ backgroundColor: colorMap[type], border: "none", boxShadow: "0 2px 10px rgba(0,0,0,0.2)", overflow: "hidden" }}
       onClick={() => setIsOpen((prev) => !prev)}
@@ -71,8 +77,19 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
           <IconX aria-hidden="true" width={24} height={24} strokeWidth={3} color="rgb(242, 242, 242)" />
         </button>
       </header>
-      <p className={`toast-body ${type === 'error' ? 'toast-body-error' : ''}  ${openAble}`}>{children}</p>
-      <progress value={hasTimeout ? timer : 0} max={totalTime} aria-hidden="true" style={{ marginTop: "1rem", '--progress-color': colorMap[type] } as React.CSSProperties} />
+      <div className="margin-0 padding-inline-100">
+        <p className={`toast-body margin-0 margin-bottom-50 ${openAble}`}>
+          {children}
+        </p>
+        {type === 'error' && errorLong &&
+          <span className="flex align-items-flex-end font-weight-600" >
+            Show
+            {isOpen ? ' less' : ' more'}
+            {isOpen ? <IconArrowUp className="margin-top-auto margin-left-25" width={20} height={20} /> : <IconArrowDown className="margin-top-auto margin-left-25" width={20} height={20} style={{ marginTop: "auto" }} />}
+          </span>}
+      </div>
+
+      <progress className="margin-top-25" value={hasTimeout ? timer : 0} max={totalTime} aria-hidden="true" style={{ '--progress-color': colorMap[type] } as React.CSSProperties} />
     </dialog>
   )
 }

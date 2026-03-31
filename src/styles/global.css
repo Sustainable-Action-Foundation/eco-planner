@@ -246,15 +246,9 @@ progress::-webkit-progress-value {
 }
 
 .toast-body {
-  margin: 0;
-  padding-inline: 1rem;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-}
-
-.toast-body-error {
-  cursor: pointer;
 }
 
 .open {

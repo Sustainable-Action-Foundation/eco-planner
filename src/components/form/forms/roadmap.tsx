@@ -180,7 +180,6 @@ export default function RoadmapForm({
           });
       }
       catch (error) {
-        // alert(t("forms:roadmap.file_read_error", { error: error instanceof Error ? error.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }))
         addMessage(t("forms:roadmap.file_read_error", { error: error instanceof Error ? error.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }), "error");
         setIsLoading(false);
         return;
@@ -337,12 +336,6 @@ export default function RoadmapForm({
           </button>
         </div>
       </form >
-      <button onClick={() => addMessage(t("forms:roadmap.bad_decoding"), "warning")}>Add Error Toast</button>
-      <button onClick={() => addMessage(t("forms:roadmap.scale_deprecated"), "warning")}>Add Error Toast</button>
-      <button onClick={() => addMessage(t("forms:roadmap.unknown_error"), "error")}>Add Error Toast</button>
-      <button onClick={() => addMessage(t("forms:roadmap.roadmap_version_creation_error"), "error")}>Add Error Toast</button>
-      <button onClick={() => addMessage(t("forms:roadmap.scale_deprecated_extended"), "warning")}>Add Error Toast</button>
-      <button onClick={() => addMessage(t("forms:roadmap.file_read_error"), "error")}>Add Error Toast</button>
     </>
   )
 }
