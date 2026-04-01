@@ -150,7 +150,7 @@ export function DataSeriesVariableEditor({
 }
 
 // TODO: Check usage of permissions (prop that has been removed)
-export function VariableTypeDataSeriesSimple({
+export function DataSeriesVariableSimpleEditor({
   variableId,
   availableDataSeries = [],
   props,

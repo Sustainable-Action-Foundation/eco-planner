@@ -4,7 +4,7 @@ import { isRecipe, RecipeDataTypes } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
 import { VariableTypeScalarSimple } from "../editor/variables/scalarVariable";
-import { VariableTypeDataSeriesSimple } from "../editor/variables/dataSeriesVariable";
+import { DataSeriesVariableSimpleEditor } from "../editor/variables/dataSeriesVariable";
 import { VariableTypeExternalSimple } from "../editor/variables/externalDatasetVariable";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { clientSafeGetOneRoadmap, clientSafeGetRoadmaps } from "@/fetchers/client";
@@ -192,7 +192,7 @@ export function SuggestedRecipeApplier({
                 <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
                   <span>{variable.name ?? variableKey}{unitDisplay}:</span>
                 </label>
-                <VariableTypeDataSeriesSimple
+                <DataSeriesVariableSimpleEditor
                   props={{
                     id: "recipeVariable" + i,
                     name: "recipeVariable" + i,
