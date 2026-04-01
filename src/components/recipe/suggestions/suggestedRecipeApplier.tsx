@@ -3,14 +3,14 @@
 import { isRecipe, RecipeDataTypes } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
-import { VariableTypeScalarSimple } from "../editor/variables/variableTypes/scalarVariable";
-import { VariableTypeDataSeriesSimple } from "../editor/variables/variableTypes/dataSeriesVariable";
-import { VariableTypeExternalSimple } from "../editor/variables/variableTypes/externalDatasetVariable";
+import { VariableTypeScalarSimple } from "../editor/variables/scalarVariable";
+import { VariableTypeDataSeriesSimple } from "../editor/variables/dataSeriesVariable";
+import { VariableTypeExternalSimple } from "../editor/variables/externalDatasetVariable";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { clientSafeGetRoadmaps } from "@/fetchers/client";
 import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";
 import { IconAlertTriangleFilled } from "@tabler/icons-react";
-import { RecipeEditorPermissions } from "../editor/variables/variableTypes/recipeEditorPermissions";
+import { RecipeEditorPermissions } from "../editor/variables/recipeEditorPermissions";
 import type { DBRecipe } from "@/types";
 import { Recipe } from "@/functions/recipe/recipe";
 import { CombinedStatusDisplay, getDefaultSuggestedRecipes, OutputStatus } from "@/components/recipe";

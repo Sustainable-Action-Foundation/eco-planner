@@ -5,7 +5,7 @@ import type { RecipeVariable } from "@/functions/recipe/types";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { clientSafeGetRoadmaps } from "@/fetchers/client";
-import { useRecipe } from "../../context/recipeContext.use";
+import { useRecipe } from "../context/recipeContext.use";
 import styles from '../recipe.module.css' with { type: "css" };
 import { RecipeEditorPermissions, VariableCreator, VariableTypeDataSeries, VariableTypeExternal, VariableTypeScalar } from "@/components/recipe";
 

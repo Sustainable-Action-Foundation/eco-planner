@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { useRecipe } from "../../context/recipeContext.use";
+import { useRecipe } from "../context/recipeContext.use";
 import type { DateValuesWithUnit } from "@/types";
 
 /** 

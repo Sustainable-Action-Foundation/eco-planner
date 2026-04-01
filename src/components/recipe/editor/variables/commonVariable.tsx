@@ -4,7 +4,7 @@ import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 import { RecipeDataTypes, RecipeError } from "@/functions/recipe/types";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { RecipeEditorPermissions } from "./recipeEditorPermissions";
+import { RecipeEditorPermissions } from "./variableTypes/recipeEditorPermissions";
 import styles from "../../recipe.module.css" with { type: "css" }
 import { updateVariableName, updateVariableType, removeVariable } from "@/components/recipe/variableEditingHelpers";
 import { IconEdit, IconTrashXFilled } from "@tabler/icons-react";
