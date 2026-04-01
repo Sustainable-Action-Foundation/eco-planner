@@ -1,7 +1,6 @@
-import { IconAlertTriangleFilled, IconArrowDown, IconArrowRight, IconArrowUp, IconCheck, IconInfoCircleFilled, IconX } from "@tabler/icons-react";
+import { IconAlertTriangleFilled, IconArrowDown, IconArrowUp, IconCheck, IconInfoCircleFilled, IconX } from "@tabler/icons-react";
 import { ReactNode, useEffect, useState } from "react";
 import { useToastContext } from "@/context/context";
-import { error } from "node:console";
 
 export default function CreateToast({ children, id, type, hasTimeout = true }: { children?: ReactNode; id: number; type: 'success' | 'error' | 'warning'; hasTimeout?: boolean }) {
 
@@ -14,7 +13,7 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
 
   const colorMap = {
     success: "rgb(56, 156, 61)",
-    error: "rgb(255, 82, 81)",
+    error: "rgb(255, 72, 72)",
     warning: "rgb(252, 193, 16)",
   }
 
@@ -67,18 +66,18 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
     <dialog
       className={`toast flex flex-direction-column rounded position-relative padding-0 width-100 rounded ${type === "error" && errorLong === true ? "cursor-pointer" : ""}`}
       role={ariaRole}
-      style={{ backgroundColor: colorMap[type], border: "none", boxShadow: "0 2px 10px rgba(0,0,0,0.2)", overflow: "hidden" }}
+      style={{ backgroundColor: colorMap[type] }}
       onClick={() => setIsOpen((prev) => !prev)}
     >
       <header className="flex align-items-center padding-100 padding-bottom-25 gap-50" >
         {getIcon()}
         <h3 className="margin-0">{type.charAt(0).toUpperCase() + type.slice(1)}!</h3>
-        <button onClick={() => removeMessage(id)} className="round padding-25 transparent margin-left-auto" aria-label="Close toast">
-          <IconX aria-hidden="true" width={24} height={24} strokeWidth={3} color="rgb(242, 242, 242)" />
+        <button onClick={() => removeMessage(id)} className="round padding-25 transparent margin-left-auto grid" aria-label="Close toast">
+          <IconX aria-hidden="true" width={20} height={20} strokeWidth={3} color="white" />
         </button>
       </header>
       <div className="margin-0 padding-inline-100">
-        <p className={`toast-body margin-0 margin-bottom-50 ${openAble}`}>
+        <p className={`toast-body margin-0 margin-bottom-50 ${type === "error" && errorLong ? (isOpen ? "open" : "closed") : ""}`}>
           {children}
         </p>
         {type === 'error' && errorLong &&
@@ -88,7 +87,6 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
             {isOpen ? <IconArrowUp className="margin-top-auto margin-left-25" width={20} height={20} /> : <IconArrowDown className="margin-top-auto margin-left-25" width={20} height={20} style={{ marginTop: "auto" }} />}
           </span>}
       </div>
-
       <progress className="margin-top-25" value={hasTimeout ? timer : 0} max={totalTime} aria-hidden="true" style={{ '--progress-color': colorMap[type] } as React.CSSProperties} />
     </dialog>
   )
