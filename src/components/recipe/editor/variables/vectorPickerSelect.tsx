@@ -3,7 +3,7 @@
 import { isDataSeriesVariable, isExternalVariable, VectorIndexPickerOptions } from "@/functions/recipe/types";
 import type { DataSeriesVariable } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
-import { RecipeEditorPermissions } from "./recipeEditorPermissions";
+import { RecipeEditorPermissions } from "../recipeEditorPermissions";
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 
 export function VectorPickerSelect({ permissions, variableName }: { permissions?: RecipeEditorPermissions, variableName: string }) {

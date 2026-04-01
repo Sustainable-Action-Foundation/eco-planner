@@ -3,7 +3,7 @@
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 import { isDataSeriesVariable } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
-import { RecipeEditorPermissions } from "./recipeEditorPermissions";
+import { RecipeEditorPermissions } from "../recipeEditorPermissions";
 import { updateDataSeriesLink } from "@/components/recipe/variableEditingHelpers";
 import React, { useCallback, useEffect, useState } from "react";
 import type { InputElement, TreeItem } from "@/components/types";

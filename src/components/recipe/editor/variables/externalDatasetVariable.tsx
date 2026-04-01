@@ -3,7 +3,7 @@
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 import type { ExternalVariable } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
-import { RecipeEditorPermissions } from "./recipeEditorPermissions";
+import { RecipeEditorPermissions } from "../recipeEditorPermissions";
 import { updateExternalVariableDataset, updateExternalVariableSelection, updateExternalVariableTable } from "@/components/recipe/variableEditingHelpers";
 import { ExternalDataset } from "@/lib/api/utility";
 import RecipeQueryBuilder from "@/components/form/api/recipeQueryBuilder";
