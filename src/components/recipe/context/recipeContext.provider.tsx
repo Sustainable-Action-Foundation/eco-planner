@@ -107,7 +107,7 @@ export function RecipeContextProvider({
         ? newValue(next.variables[variableName])
         : newValue;
 
-      if (JSON.stringify(oldVar) === JSON.stringify(newVar)) {
+      if (Recipe.variableEq(oldVar, newVar)) {
         console.info(`Variable "${variableName}" not updated because the new value is the same as the old value.`);
         return current;
       }
@@ -130,7 +130,7 @@ export function RecipeContextProvider({
         ? variablesAction(oldVars)
         : variablesAction;
 
-      if (JSON.stringify(oldVars) === JSON.stringify(newVars)) {
+      if (Recipe.variablesEq(oldVars, newVars)) {
         console.info(`Variables not updated because the new value is the same as the old value.`);
         return current;
       }

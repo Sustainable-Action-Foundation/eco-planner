@@ -100,6 +100,7 @@
     "choose_goal_data_series": "Input a data series for this $t(common:goal_one)",
     "choose_relationship": "Which $t(common:roadmap_series_one) does your $t(common:goal_one) belong to?",
     "create": "Create $t(common:goal_one)",
+    "custom_recipe": "Recipe",
     "data_missing": "DATA MISSING; ",
     "data_series_type_legend": "Choose type of data series for your $t(common:goal_one)",
     "data_unit": "Data series unit",
@@ -123,6 +124,8 @@
     "select_goal_to_inherit": "Select a $t(common:goal_one) to inherit from",
     "select_goals_to_combine": "Select $t(common:goal_other) in the current $t(common:roadmap_version_one) to combine",
     "select_roadmap_version": "Select a $t(common:roadmap_version_one) to inherit a $t(common:goal_one) from",
+    "static_data_series": "Manual",
+    "suggested_inheritance": "Inherit",
     "unit_interpreted_as": "Unit interpreted as:",
     "unit_not_interpreted": "The unit could not be interpreted. You can still save the $t(common:goal_one), but some functionality may be missing.",
     "unnamed_goal": "Unnamed $t(common:goal_one)"

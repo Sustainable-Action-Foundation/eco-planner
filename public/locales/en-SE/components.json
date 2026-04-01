@@ -178,6 +178,7 @@
       "no_issues_icon_aria_label": "No issues",
       "template_recipe": "Editing template recipe, set all template fields"
     },
+    "suggested_recipe_label": "Suggested methods",
     "table": "Table",
     "toggle_suggested_recipe": "<option1 /><span> – or – </span><option2 />",
     "unit_label": "Unit",

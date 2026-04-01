@@ -101,7 +101,7 @@ export function SuggestedRecipeApplier({
   return (<>
     {/* Select which suggested recipe to use */}
     <label className="flex gap-50 margin-bottom-100 margin-top-25 align-items-center">
-      {t("components:recipe_editor.recipe")}:
+      {t("components:recipe_editor.suggested_recipe_label")}:
       <select
         id="select-preset"
         value={selectedRecipeId}
