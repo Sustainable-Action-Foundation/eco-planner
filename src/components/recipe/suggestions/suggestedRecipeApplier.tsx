@@ -7,7 +7,7 @@ import { VariableTypeScalarSimple } from "../editor/variables/scalarVariable";
 import { VariableTypeDataSeriesSimple } from "../editor/variables/dataSeriesVariable";
 import { VariableTypeExternalSimple } from "../editor/variables/externalDatasetVariable";
 import { Fragment, useEffect, useMemo, useState } from "react";
-import { clientSafeGetRoadmaps } from "@/fetchers/client";
+import { clientSafeGetOneRoadmap, clientSafeGetRoadmaps } from "@/fetchers/client";
 import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";
 import { IconAlertTriangleFilled } from "@tabler/icons-react";
 import { RecipeEditorPermissions } from "../editor/recipeEditorPermissions";
@@ -41,10 +41,30 @@ export function SuggestedRecipeApplier({
     async function fetchRoadmaps() {
       try {
         const roadmaps = await clientSafeGetRoadmaps();
-        setAvailableRoadmaps(roadmaps.map(roadmap => ({
-          id: roadmap.id,
-          name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version })
-        })));
+
+        const roadmapsWithData = await Promise.all(
+          roadmaps.map(async (roadmap) => {
+            const fullRoadmap = await clientSafeGetOneRoadmap(roadmap.id);
+            if (!fullRoadmap) return null;
+
+            const hasPullableData = fullRoadmap.goals.some((goal) => {
+              if (goal.dataSeries || goal.baseline) return true;
+              return goal.effects.some((effect) => !!effect.dataSeries);
+            });
+
+            if (!hasPullableData) return null;
+            return roadmap;
+          })
+        );
+
+        setAvailableRoadmaps(
+          roadmapsWithData
+            .filter((roadmap): roadmap is NonNullable<typeof roadmap> => !!roadmap)
+            .map((roadmap) => ({
+              id: roadmap.id,
+              name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version })
+            }))
+        );
       }
       catch (e) {
         console.error("Failed to fetch roadmaps", e);

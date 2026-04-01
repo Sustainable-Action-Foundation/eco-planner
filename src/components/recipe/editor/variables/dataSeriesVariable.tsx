@@ -4,37 +4,66 @@ import { isDataSeriesVariable, RecipeError } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "../recipeEditorPermissions";
 import { updateDataSeriesLink } from "@/components/recipe/variableEditingHelpers";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useMemo } from "react";
 import type { InputElement, TreeItem } from "@/components/types";
 import SelectSingleTreeSearch from "@/components/form/elements/combobox/selectSingleTreeSearch";
 import type { RecipeContextType } from "@/components/recipe/context/recipeContext.internal";
 import { clientSafeGetOneRoadmap, clientSafeGetOneDataSeries } from "@/fetchers/client";
 import { CommonVariable, useRecipe, VectorPickerSelect } from "@/components/recipe";
-import type { DataSeries } from "@/types";
 
-function useRoadmapTreeItems(availableRoadmaps: { id: string; name: string; }[]) {
-  const [treeItems, setTreeItems] = useState<TreeItem[]>([]);
+type AvailableRoadmapOption = { id: string; name: string; };
 
-  useEffect(() => {
-    const newItems: TreeItem[] = availableRoadmaps.map((roadmap) => ({
-      expanded: null,
+function useRoadmapTreeItems(availableRoadmaps: AvailableRoadmapOption[]) {
+  const { t } = useTranslation("components");
+
+  return useMemo(() => {
+    return availableRoadmaps.map((roadmap): TreeItem => ({
+      expanded: false,
       name: roadmap.name,
-      value: roadmap.id,
+      value: `roadmap:${roadmap.id}`,
       onExpand: async () => {
         const data = await clientSafeGetOneRoadmap(roadmap.id);
         if (!data) return [];
-        return data.goals.map((goal) => ({
-          name: !!goal.name ? goal.name : goal.indicatorParameter,
-          value: goal.dataSeries ? goal.dataSeries.id : '',
-          expanded: null,
-        }));
+
+        return data.goals.map((goal): TreeItem => {
+          const goalDisplayName = goal.name || goal.indicatorParameter;
+          const goalChildren: TreeItem[] = [];
+
+          if (goal.dataSeries) {
+            goalChildren.push({
+              name: goalDisplayName,
+              value: goal.dataSeries.id,
+              expanded: null,
+            });
+          }
+
+          if (goal.baseline) {
+            goalChildren.push({
+              name: `${goalDisplayName} ${t("components:recipe_editor.baseline")}`,
+              value: goal.baseline.id,
+              expanded: null,
+            });
+          }
+
+          for (const effect of goal.effects) {
+            if (!effect.dataSeries) continue;
+            goalChildren.push({
+              name: `${goalDisplayName} ${t("components:recipe_editor.effect")}`,
+              value: effect.dataSeries.id,
+              expanded: null,
+            });
+          }
+
+          return {
+            name: goalDisplayName,
+            value: `goal:${goal.id}`,
+            expanded: goalChildren.length > 0 ? false : null,
+            ...(goalChildren.length > 0 ? { childNodes: goalChildren } : {}),
+          };
+        });
       },
     }));
-
-    return () => setTreeItems(newItems);
-  }, [availableRoadmaps]);
-
-  return treeItems;
+  }, [availableRoadmaps, t]);
 }
 
 // TODO: don't fetch again :sob: This data is fetched deeper down in the tree select but the scope jumping would probably be worse spaghetti than this solution
@@ -74,7 +103,7 @@ export function useHandleDataSeriesChange(
   );
 }
 
-type AvailableDataSeries = { displayName: string; dataSeries: DataSeries }[];
+type AvailableDataSeries = AvailableRoadmapOption[];
 
 // TODO: Fix labels
 // TODO: Check usage of permissions (prop that has been removed)
@@ -82,18 +111,17 @@ export function DataSeriesVariableEditor({
   variableId,
   permissions,
   availableDataSeries = [],
-  props = {},
 }: {
   variableId: string;
   permissions?: RecipeEditorPermissions;
   availableDataSeries?: AvailableDataSeries;
-  props?: InputElement;
 }) {
   const { t } = useTranslation("components");
   const { recipe, setVariable, getVariable } = useRecipe();
   const variable = getVariable(variableId);
+  const fieldIdBase = `recipe-data-series-${variableId.replace(/[^A-Za-z0-9_-]/g, "-")}`;
 
-  const treeItems = useRoadmapTreeItems(availableDataSeries.map(ds => ({ id: ds.dataSeries.id, name: ds.displayName })));
+  const treeItems = useRoadmapTreeItems(availableDataSeries);
   const handleDataSeriesChange = useHandleDataSeriesChange(variableId, setVariable);
 
   if (!variable) {
@@ -115,16 +143,15 @@ export function DataSeriesVariableEditor({
     >
       {/* TODO: Why is this height mismatched */}
       <div className="inline-block floating-label" style={{ verticalAlign: "top", width: "200px", "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
-        <label htmlFor={props.id}>
+        <label htmlFor={fieldIdBase}>
           {t("components:recipe_editor.select_data_series")}
         </label>
         <SelectSingleTreeSearch
           props={{
-            id: props.id,
-            name: props.name,
-            placeholder: props.placeholder,
-            defaultValue: props.defaultValue,
-            required: props.required,
+            id: fieldIdBase,
+            name: fieldIdBase,
+            placeholder: t("components:recipe_editor.select_data_series"),
+            required: false,
           }}
           treeItems={treeItems}
           onChange={handleDataSeriesChange}
@@ -148,7 +175,7 @@ export function VariableTypeDataSeriesSimple({
   goalName,
 }: {
   variableId: string;
-  availableDataSeries?:
+  availableDataSeries?: AvailableRoadmapOption[];
   props: InputElement;
   goalName?: string;
 }) {

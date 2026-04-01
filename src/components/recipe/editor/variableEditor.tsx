@@ -3,7 +3,7 @@
 import { RecipeDataTypes } from "@/functions/recipe/types";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { clientSafeGetRoadmaps } from "@/fetchers/client";
+import { clientSafeGetOneRoadmap, clientSafeGetRoadmaps } from "@/fetchers/client";
 import { useRecipe } from "../context/recipeContext.use";
 import styles from '../recipe.module.css' with { type: "css" };
 import { RecipeEditorPermissions, VariableCreator, DataSeriesVariableEditor, VariableTypeExternal, VariableTypeScalar } from "@/components/recipe";
@@ -23,7 +23,30 @@ export function VariableEditor({
     async function fetchRoadmaps() {
       try {
         const roadmaps = await clientSafeGetRoadmaps();
-        setAvailableRoadmaps(roadmaps.map(roadmap => ({ id: roadmap.id, name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version }) })));
+
+        const roadmapsWithData = await Promise.all(
+          roadmaps.map(async (roadmap) => {
+            const fullRoadmap = await clientSafeGetOneRoadmap(roadmap.id);
+            if (!fullRoadmap) return null;
+
+            const hasInterestingChildren = fullRoadmap.goals.some((goal) => {
+              if (goal.dataSeries || goal.baseline) return true;
+              return goal.effects.some((effect) => !!effect.dataSeries);
+            });
+
+            if (!hasInterestingChildren) return null;
+            return roadmap;
+          })
+        );
+
+        setAvailableRoadmaps(
+          roadmapsWithData
+            .filter((roadmap): roadmap is NonNullable<typeof roadmap> => !!roadmap)
+            .map((roadmap) => ({
+              id: roadmap.id,
+              name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version })
+            }))
+        );
       }
       catch (e) {
         console.error("Failed to fetch roadmaps", e);
