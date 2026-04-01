@@ -11,11 +11,11 @@ export type GenericElement = Theme & {
 
 export type InputElement = GenericElement & {
   id: string;
-  name: string,
-  required?: boolean,
-  disabled?: boolean,
-  placeholder?: string,
-  defaultValue?: string,
+  name: string;
+  required?: boolean;
+  disabled?: boolean;
+  placeholder?: string;
+  defaultValue?: string;
 };
 
 // TODO: DO not use name (reserved keyword)

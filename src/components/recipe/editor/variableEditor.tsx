@@ -1,7 +1,6 @@
 'use client'
 
 import { RecipeDataTypes } from "@/functions/recipe/types";
-import type { RecipeVariable } from "@/functions/recipe/types";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { clientSafeGetRoadmaps } from "@/fetchers/client";
@@ -52,47 +51,36 @@ export function VariableEditor({
         </li>
       }
       {Object.entries(recipe?.variables || []).map(([name, variable], i) => {
-        switch (variable.type) {
-          case RecipeDataTypes.Scalar:
-            return (
-              <li className="padding-bottom-75 margin-bottom-75" key={name}>
-                <VariableTypeScalar
-                  key={"recipeVariable" + i}
-                  name={name}
-                  permissions={permissions}
-                />
-              </li>
-            )
-          case RecipeDataTypes.DataSeries:
-            return (
-              <li className="padding-bottom-75 margin-bottom-75" key={name}>
-                <DataSeriesVariableEditor
-                  props={{
-                    id: "recipeVariable" + i,
-                    name: "recipeVariable" + i,
-                  }}
-                  key={"recipeVariable" + i}
-                  variableId={name}
-                  permissions={permissions}
-                  availableRoadmaps={availableRoadmaps}
-                />
-              </li>
-            )
-          case RecipeDataTypes.External:
-            return (
-              <li className="padding-bottom-75 margin-bottom-75" key={name}>
-                <VariableTypeExternal
-                  key={"recipeVariable" + i}
-                  variableName={name}
-                  permissions={permissions}
-                />
-              </li>
-            )
-          default:
-            variable = variable as RecipeVariable;
-            console.warn("Unknown variable type", variable.type, "for variable", name);
-        }
+        if (variable.type === RecipeDataTypes.Scalar) return (
+          <li className="padding-bottom-75 margin-bottom-75" key={name} >
+            <VariableTypeScalar
+              key={"recipeVariable" + i}
+              name={name}
+              permissions={permissions}
+            />
+          </li>
+        )
+        else if (variable.type === RecipeDataTypes.DataSeries) return (
+          <li className="padding-bottom-75 margin-bottom-75" key={name}>
+            <DataSeriesVariableEditor
+              key={"recipeVariable" + i}
+              variableId={name}
+              permissions={permissions}
+              availableDataSeries={availableRoadmaps}
+            />
+          </li>
+        )
+        else if (variable.type === RecipeDataTypes.External) return (
+          <li className="padding-bottom-75 margin-bottom-75" key={name}>
+            <VariableTypeExternal
+              key={"recipeVariable" + i}
+              variableName={name}
+              permissions={permissions}
+            />
+          </li>
+        )
+        else console.warn("Unknown variable type", { variable }, "for variable", name);
       })}
-    </ul >
+    </ul>
   );
 }

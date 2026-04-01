@@ -182,8 +182,8 @@ export function SuggestedRecipeApplier({
                     ...(variable.template ? { style: { outline: "1px solid blue", borderRadius: "8px" } } : {})
                   }}
                   key={"recipeVariable" + i}
-                  variableName={variable.name ?? variableKey}
-                  availableRoadmaps={availableRoadmaps}
+                  variableId={variable.name ?? variableKey}
+                  availableDataSeries={availableRoadmaps}
                 />
               </Fragment>
             );

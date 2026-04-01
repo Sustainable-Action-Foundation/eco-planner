@@ -1,7 +1,6 @@
 "use client"
 
-import { useRecipe } from "@/components/recipe/context/recipeContext.use";
-import { isDataSeriesVariable } from "@/functions/recipe/types";
+import { isDataSeriesVariable, RecipeError } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "../recipeEditorPermissions";
 import { updateDataSeriesLink } from "@/components/recipe/variableEditingHelpers";
@@ -10,7 +9,8 @@ import type { InputElement, TreeItem } from "@/components/types";
 import SelectSingleTreeSearch from "@/components/form/elements/combobox/selectSingleTreeSearch";
 import type { RecipeContextType } from "@/components/recipe/context/recipeContext.internal";
 import { clientSafeGetOneRoadmap, clientSafeGetOneDataSeries } from "@/fetchers/client";
-import { CommonVariable, VectorPickerSelect } from "@/components/recipe";
+import { CommonVariable, useRecipe, VectorPickerSelect } from "@/components/recipe";
+import type { DataSeries } from "@/types";
 
 function useRoadmapTreeItems(availableRoadmaps: { id: string; name: string; }[]) {
   const [treeItems, setTreeItems] = useState<TreeItem[]>([]);
@@ -74,41 +74,43 @@ export function useHandleDataSeriesChange(
   );
 }
 
+type AvailableDataSeries = { displayName: string; dataSeries: DataSeries }[];
+
 // TODO: Fix labels
 // TODO: Check usage of permissions (prop that has been removed)
 export function DataSeriesVariableEditor({
   variableId,
   permissions,
-  availableRoadmaps = [],
-  props
+  availableDataSeries = [],
+  props = {},
 }: {
   variableId: string;
   permissions?: RecipeEditorPermissions;
-  availableRoadmaps?: { id: string; name: string; }[];
-  props: InputElement;
+  availableDataSeries?: AvailableDataSeries;
+  props?: InputElement;
 }) {
   const { t } = useTranslation("components");
   const { recipe, setVariable, getVariable } = useRecipe();
   const variable = getVariable(variableId);
 
-  const treeItems = useRoadmapTreeItems(availableRoadmaps);
+  const treeItems = useRoadmapTreeItems(availableDataSeries.map(ds => ({ id: ds.dataSeries.id, name: ds.displayName })));
   const handleDataSeriesChange = useHandleDataSeriesChange(variableId, setVariable);
 
   if (!variable) {
-    console.error(`Variable "${variableId}" not found in recipe`, recipe);
-    return null;
+    console.error(`Variable "${variableId}" not found in recipe`, { recipe, variableId, variable, availableDataSeries });
+    throw new RecipeError(`Variable "${variableId}" not found in recipe`);
   }
 
   if (!isDataSeriesVariable(variable)) {
     console.error(`Variable "${variableId}" is not a valid DataSeriesVariable`, variable);
-    return null;
+    throw new RecipeError(`Variable "${variableId}" is not a valid DataSeriesVariable`);
   }
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
 
   return (
     <CommonVariable
-      variableName={variableId}
+      variableId={variableId}
       permissions={permissions}
     >
       {/* TODO: Why is this height mismatched */}
@@ -140,29 +142,29 @@ export function DataSeriesVariableEditor({
 
 // TODO: Check usage of permissions (prop that has been removed)
 export function VariableTypeDataSeriesSimple({
-  variableName,
-  availableRoadmaps = [],
+  variableId,
+  availableDataSeries = [],
   props,
   goalName,
 }: {
-  variableName: string;
-  availableRoadmaps?: { id: string; name: string; }[];
+  variableId: string;
+  availableDataSeries?:
   props: InputElement;
   goalName?: string;
 }) {
   const { recipe, setVariable, getVariable } = useRecipe();
-  const variable = getVariable(variableName);
+  const variable = getVariable(variableId);
 
-  const treeItems = useRoadmapTreeItems(availableRoadmaps);
-  const handleDataSeriesChange = useHandleDataSeriesChange(variableName, setVariable);
+  const treeItems = useRoadmapTreeItems(availableDataSeries);
+  const handleDataSeriesChange = useHandleDataSeriesChange(variableId, setVariable);
 
   if (!variable) {
-    console.error(`Variable "${variableName}" not found in recipe`, recipe);
+    console.error(`Variable "${variableId}" not found in recipe`, recipe);
     return null;
   }
 
   if (!isDataSeriesVariable(variable)) {
-    console.error(`Variable "${variableName}" is not a valid DataSeriesVariable`, variable);
+    console.error(`Variable "${variableId}" is not a valid DataSeriesVariable`, variable);
     return null;
   }
 

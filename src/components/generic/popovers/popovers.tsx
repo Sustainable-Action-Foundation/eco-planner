@@ -11,7 +11,6 @@
 "use client"
 
 import styles from './popovers.module.css' with { type: "css" }
-import type { HTMLProps } from "react";
 import React from "react";
 
 export function PopoverButton({
@@ -29,7 +28,7 @@ export function PopoverButton({
   children?: React.ReactNode,
   anchorName: string,
   popoverTarget: string
-  props?: HTMLProps<HTMLButtonElement>
+  props?: React.HTMLProps<HTMLButtonElement>
 }) {
   return (
     <button
