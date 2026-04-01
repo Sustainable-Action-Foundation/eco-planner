@@ -5,7 +5,7 @@ import type { ScalarVariable } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "../recipeEditorPermissions";
 import { updateScalarVariableValue } from "@/components/recipe/variableEditingHelpers";
-import { VariableTypeCommon } from "@/components/recipe";
+import { CommonVariable } from "@/components/recipe";
 
 // TODO: Fix labels
 export function VariableTypeScalar({
@@ -22,7 +22,7 @@ export function VariableTypeScalar({
   permissions = { ...RecipeEditorPermissions, ...permissions };
 
   return (
-    <VariableTypeCommon
+    <CommonVariable
       variableName={name}
       permissions={permissions}
     >
@@ -39,7 +39,7 @@ export function VariableTypeScalar({
           readOnly={!permissions.allowValueEditing}
         />
       </div>
-    </VariableTypeCommon>
+    </CommonVariable>
   )
 }
 

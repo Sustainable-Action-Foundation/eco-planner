@@ -7,7 +7,7 @@ import { RecipeEditorPermissions } from "../recipeEditorPermissions";
 import { updateExternalVariableDataset, updateExternalVariableSelection, updateExternalVariableTable } from "@/components/recipe/variableEditingHelpers";
 import { ExternalDataset } from "@/lib/api/utility";
 import RecipeQueryBuilder from "@/components/form/api/recipeQueryBuilder";
-import { VariableTypeCommon, VectorPickerSelect } from "@/components/recipe";
+import { CommonVariable, VectorPickerSelect } from "@/components/recipe";
 
 // TODO: Fix labels
 export function VariableTypeExternal({
@@ -26,7 +26,7 @@ export function VariableTypeExternal({
 
   return (
     <>
-      <VariableTypeCommon
+      <CommonVariable
         variableName={variableName}
         permissions={permissions}
       >
@@ -37,7 +37,7 @@ export function VariableTypeExternal({
           </label>
           <VectorPickerSelect permissions={permissions} variableName={variableName} />
         </div>
-      </VariableTypeCommon>
+      </CommonVariable>
       <div className="flex gap-25 margin-left-300 margin-top-100"> {/* TODO: Handle overflow a bit better here */}
         <span style={{ whiteSpace: "nowrap" }}>{t("components:recipe_editor.dataset")}: {variable.dataset || ""},</span>
         <span style={{ whiteSpace: "nowrap" }}>{t("components:recipe_editor.table")}: {variable.tableId || ""},</span>

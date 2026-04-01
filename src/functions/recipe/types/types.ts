@@ -4,7 +4,7 @@ import type { DateValues, DateValuesWithUnit, ISOIshDate, JSONValue, UnitString 
 import type { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/consts";
 
 type BaseVariable = {
-  name?: string | undefined;
+  name: string;
   type: RecipeDataTypes;
   unit: UnitString;
   template?: boolean | undefined;

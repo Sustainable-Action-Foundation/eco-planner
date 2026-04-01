@@ -23,9 +23,9 @@ export const RecipeDataTypes = {
 } as const;
 export type RecipeDataTypes = typeof RecipeDataTypes[keyof typeof RecipeDataTypes];
 
-export const emptyRecipeScalar: ScalarVariable = { type: RecipeDataTypes.Scalar, value: 0, unit: undefined } as const;
-export const emptyRecipeDataSeries: DataSeriesVariable = { type: RecipeDataTypes.DataSeries, dataSeriesId: undefined, pick: VectorIndexPickerOptions.Default, unit: undefined, value: undefined } as const;
-export const emptyRecipeExternalDataset: ExternalVariable = { type: RecipeDataTypes.External, dataset: null, tableId: null, selection: [], pick: VectorIndexPickerOptions.Default, unit: undefined } as const;
+export const emptyRecipeScalar: ScalarVariable = { type: RecipeDataTypes.Scalar, value: 0, unit: undefined, name: "empty-scalar" } as const;
+export const emptyRecipeDataSeries: DataSeriesVariable = { type: RecipeDataTypes.DataSeries, dataSeriesId: undefined, pick: VectorIndexPickerOptions.Default, unit: undefined, value: undefined, name: "empty-data-series" } as const;
+export const emptyRecipeExternal: ExternalVariable = { type: RecipeDataTypes.External, dataset: null, tableId: null, selection: [], pick: VectorIndexPickerOptions.Default, unit: undefined, name: "empty-external" } as const;
 
 /**
  * Defined here to usage before declaration.
@@ -33,5 +33,5 @@ export const emptyRecipeExternalDataset: ExternalVariable = { type: RecipeDataTy
 export const emptyRecipesByDataType: Record<RecipeDataTypes, RecipeVariable> = {
   scalar: emptyRecipeScalar,
   dataSeries: emptyRecipeDataSeries,
-  external: emptyRecipeExternalDataset,
+  external: emptyRecipeExternal,
 } as const;

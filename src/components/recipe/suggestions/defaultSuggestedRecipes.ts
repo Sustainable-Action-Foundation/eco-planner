@@ -64,6 +64,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
     equation: `\$\{${t("components:recipe_editor.default_population_recipe.parent_value")}\} * \$\{${t("components:recipe_editor.default_population_recipe.child_population")}\} / \$\{${t("components:recipe_editor.default_population_recipe.parent_population")}\}`,
     variables: {
       [t("components:recipe_editor.default_population_recipe.parent_value")]: {
+        name: t("components:recipe_editor.default_population_recipe.parent_value"),
         type: RecipeDataTypes.DataSeries,
         pick: VectorIndexPickerOptions.Default,
         unit: undefined,
@@ -73,6 +74,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
       } satisfies DataSeriesVariable,
 
       [t("components:recipe_editor.default_population_recipe.parent_population")]: {
+        name: t("components:recipe_editor.default_population_recipe.parent_population"),
         type: RecipeDataTypes.External,
         pick: VectorIndexPickerOptions.Default,
         unit: undefined,
@@ -88,6 +90,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
       } satisfies ExternalVariable,
 
       [t("components:recipe_editor.default_population_recipe.child_population")]: {
+        name: t("components:recipe_editor.default_population_recipe.child_population"),
         type: RecipeDataTypes.External,
         dataset: 'SCB',
         tableId: 'BE0101N1',
@@ -109,6 +112,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
     equation: `\$\{${t("components:recipe_editor.default_scalar_recipe.parent_value")}\} * \$\{${t("components:recipe_editor.default_scalar_recipe.scalar")}\}`,
     variables: {
       [t("components:recipe_editor.default_scalar_recipe.parent_value")]: {
+        name: t("components:recipe_editor.default_scalar_recipe.parent_value"),
         type: RecipeDataTypes.DataSeries,
         pick: VectorIndexPickerOptions.Default,
         dataSeriesId: undefined,
@@ -118,6 +122,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
       } satisfies DataSeriesVariable,
 
       [t("components:recipe_editor.default_scalar_recipe.scalar")]: {
+        name: t("components:recipe_editor.default_scalar_recipe.scalar"),
         type: RecipeDataTypes.Scalar,
         value: 1,
         unit: null,

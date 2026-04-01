@@ -10,7 +10,7 @@ import type { InputElement, TreeItem } from "@/components/types";
 import SelectSingleTreeSearch from "@/components/form/elements/combobox/selectSingleTreeSearch";
 import type { RecipeContextType } from "@/components/recipe/context/recipeContext.internal";
 import { clientSafeGetOneRoadmap, clientSafeGetOneDataSeries } from "@/fetchers/client";
-import { VariableTypeCommon, VectorPickerSelect } from "@/components/recipe";
+import { CommonVariable, VectorPickerSelect } from "@/components/recipe";
 
 function useRoadmapTreeItems(availableRoadmaps: { id: string; name: string; }[]) {
   const [treeItems, setTreeItems] = useState<TreeItem[]>([]);
@@ -107,7 +107,7 @@ export function VariableTypeDataSeries({
   permissions = { ...RecipeEditorPermissions, ...permissions };
 
   return (
-    <VariableTypeCommon
+    <CommonVariable
       variableName={variableName}
       permissions={permissions}
     >
@@ -134,7 +134,7 @@ export function VariableTypeDataSeries({
         </label>
         <VectorPickerSelect permissions={permissions} variableName={variableName} />
       </div>
-    </VariableTypeCommon >
+    </CommonVariable >
   )
 }
 
