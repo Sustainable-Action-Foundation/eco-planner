@@ -175,7 +175,8 @@
     "select_roadmap": "Select roadmap",
     "selection": "Selection",
     "status": {
-      "no_issues_icon_aria_label": "No issues"
+      "no_issues_icon_aria_label": "No issues",
+      "template_recipe": "Editing template recipe, set all template fields"
     },
     "table": "Table",
     "toggle_suggested_recipe": "<option1 /><span> – or – </span><option2 />",
