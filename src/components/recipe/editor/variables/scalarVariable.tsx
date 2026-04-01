@@ -23,7 +23,7 @@ export function VariableTypeScalar({
 
   return (
     <CommonVariable
-      variableName={name}
+      variableId={name}
       permissions={permissions}
     >
       <div className="floating-label inline-block" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>

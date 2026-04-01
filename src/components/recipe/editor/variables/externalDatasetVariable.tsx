@@ -27,7 +27,7 @@ export function VariableTypeExternal({
   return (
     <>
       <CommonVariable
-        variableName={variableName}
+        variableId={variableName}
         permissions={permissions}
       >
         <RecipeQueryBuilder variableName={variableName} />
