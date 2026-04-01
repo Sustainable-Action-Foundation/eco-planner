@@ -77,30 +77,30 @@ export function useHandleDataSeriesChange(
 // TODO: Fix labels
 // TODO: Check usage of permissions (prop that has been removed)
 export function VariableTypeDataSeries({
-  variableName,
+  variableId,
   permissions,
   availableRoadmaps = [],
   props
 }: {
-  variableName: string;
+  variableId: string;
   permissions?: RecipeEditorPermissions;
   availableRoadmaps?: { id: string; name: string; }[];
   props: InputElement;
 }) {
   const { t } = useTranslation("components");
   const { recipe, setVariable, getVariable } = useRecipe();
-  const variable = getVariable(variableName);
+  const variable = getVariable(variableId);
 
   const treeItems = useRoadmapTreeItems(availableRoadmaps);
-  const handleDataSeriesChange = useHandleDataSeriesChange(variableName, setVariable);
+  const handleDataSeriesChange = useHandleDataSeriesChange(variableId, setVariable);
 
   if (!variable) {
-    console.error(`Variable "${variableName}" not found in recipe`, recipe);
+    console.error(`Variable "${variableId}" not found in recipe`, recipe);
     return null;
   }
 
   if (!isDataSeriesVariable(variable)) {
-    console.error(`Variable "${variableName}" is not a valid DataSeriesVariable`, variable);
+    console.error(`Variable "${variableId}" is not a valid DataSeriesVariable`, variable);
     return null;
   }
 
@@ -108,7 +108,7 @@ export function VariableTypeDataSeries({
 
   return (
     <CommonVariable
-      variableName={variableName}
+      variableName={variableId}
       permissions={permissions}
     >
       {/* TODO: Why is this height mismatched */}
@@ -132,7 +132,7 @@ export function VariableTypeDataSeries({
         <label htmlFor="variable-tree-vector-index-picker">
           {t("components:recipe_editor.vector_index_picker_label")}
         </label>
-        <VectorPickerSelect permissions={permissions} variableName={variableName} />
+        <VectorPickerSelect permissions={permissions} variableName={variableId} />
       </div>
     </CommonVariable >
   )

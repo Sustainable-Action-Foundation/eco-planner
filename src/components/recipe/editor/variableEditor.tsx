@@ -72,7 +72,7 @@ export function VariableEditor({
                     name: "recipeVariable" + i,
                   }}
                   key={"recipeVariable" + i}
-                  variableName={name}
+                  variableId={name}
                   permissions={permissions}
                   availableRoadmaps={availableRoadmaps}
                 />
