@@ -1,28 +1,32 @@
 "use client";
 
 import type { RecipeVariable } from "@/functions/recipe/types";
-import { RecipeDataTypes } from "@/functions/recipe/types";
+import { emptyRecipesByDataType, RecipeDataTypes, RecipeError } from "@/functions/recipe/types";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions, useRecipe } from "@/components/recipe";
 import styles from "../../recipe.module.css" with { type: "css" }
-import { updateVariableName, updateVariableType, removeVariable } from "@/components/recipe/variableEditingHelpers";
 import { IconEdit, IconTrashXFilled } from "@tabler/icons-react";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { allOurUnits } from "@/math";
+import type { Recipe } from "@/functions/recipe";
 
 // TODO: Fix labels
 export function CommonVariable({
-  variable,
+  variableId,
   permissions,
   children,
 }: {
-  variable: RecipeVariable
+  variableId: keyof Recipe["variables"];
   permissions?: RecipeEditorPermissions;
   children: React.ReactNode;
 }) {
   const { t } = useTranslation(["common", "components"]);
-  const { setVariable, setVariables } = useRecipe();
+
+  const { setVariable, getVariable } = useRecipe();
+  const variable = getVariable(variableId);
+  if (!variable) throw new RecipeError(`Variable with id "${variableId}" not found in recipe context.`);
+
   const [editable, setEditable] = useState<boolean>(false)
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
@@ -31,6 +35,7 @@ export function CommonVariable({
     <fieldset
       className={`flex gap-100 align-items-flex-start justify-content-space-between ${styles['variable-fieldset']}`}
     >
+      {/* Edit protection */}
       <button
         className="padding-25 round transparent "
         style={{ verticalAlign: 'middle' }}
@@ -43,27 +48,31 @@ export function CommonVariable({
       </button>
       <fieldset disabled={!editable} className="flex-grow-100">
         <div className="flex gap-25 align-items-center margin-bottom-75">
+
+          {/* Name */}
           <div className="floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
-            <label htmlFor={`variable-name-${variable.name}`}>
+            <label htmlFor={`variable-name-${variableId}`}>
               {t("components:recipe_editor.variable_name_placeholder")}
             </label>
             <input
-              id={`variable-name-${variable.name}`}
+              id={`variable-name-${variableId}`}
               placeholder=" "
               style={{ gridRow: '1', gridColumn: '1' }}
               defaultValue={variable.name}
-              onChange={(e) => updateVariableName(variable.name, e.target.value, setVariables)}
+              onChange={(e) => setVariable(variableId, v => ({ ...v, name: e.target.value }))}
               type="text"
             />
           </div>
+
+          {/* Unit */}
           <div className="floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
-            <label htmlFor={`variable-unit-${variable.name}`}>
+            <label htmlFor={`variable-unit-${variableId}`}>
               {t("components:recipe_editor.unit_placeholder")}
             </label>
             <TextSingleAutocomplete
               props={{
-                id: `variable-unit-${variable.name}`,
-                name: `variable-unit-${variable.name}`,
+                id: `variable-unit-${variableId}`,
+                name: `variable-unit-${variableId}`,
                 defaultValue: variable.unit || "",
                 placeholder: " ",
                 style: { gridRow: '1', gridColumn: '2', width: '125px' }
@@ -71,15 +80,30 @@ export function CommonVariable({
               options={allOurUnits.map(unit => ({ name: unit, value: unit }))}
             />
           </div>
+
+          {/* Variable Type */}
+          {/* TODO: you should not be allowed to switch?? */}
           <div className="floating-label" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
-            <label htmlFor={`variable-type-${variable.name}`}>
+            <label htmlFor={`variable-type-${variableId}`}>
               {t("components:recipe_editor.variable_type_label")}
             </label>
             <select
-              id={`variable-type-${variable.name}`}
+              id={`variable-type-${variableId}`}
               style={{ gridRow: '2', gridColumn: '1' }}
               defaultValue={variable.type}
-              onChange={(e) => updateVariableType(variable.name, e.target.value, setVariable)}
+              onChange={(e) => setVariable(variableId, v => {
+                const newType = e.target.value as RecipeDataTypes;
+                if (!Object.values(RecipeDataTypes).includes(newType)) {
+                  console.error(`Invalid variable type selected: ${newType}`, variable, "->", v);
+                  return v;
+                }
+                return {
+                  ...emptyRecipesByDataType[newType],
+                  name: v.name,
+                  unit: v.unit,
+                  template: v.template,
+                } satisfies RecipeVariable;
+              })}
             >
               <option value={RecipeDataTypes.DataSeries}>{t("components:recipe_editor.data_series")}</option>
               <option value={RecipeDataTypes.External}>{t("components:recipe_editor.external_data")}</option>
@@ -87,22 +111,27 @@ export function CommonVariable({
             </select>
           </div>
         </div>
+
+        {/* Type specific things go here */}
         <div className="flex gap-25 align-items-center ">
           {children}
         </div>
       </fieldset>
-      {permissions.allowDeleteVariables &&
+
+      {/* Delete */}
+      {
+        permissions.allowDeleteVariables &&
         <button
           disabled={!editable}
           className="padding-25 round transparent margin-left-50"
           style={{ verticalAlign: 'middle' }}
           type="button"
           title={t("common:tsx.delete")}
-          onClick={() => removeVariable(variable.name, setVariables)}
+          onClick={() => setVariable(variableId, null)}
         >
           <IconTrashXFilled width={20} height={20} className="grid" />
         </button>
       }
-    </fieldset>
+    </fieldset >
   )
 }

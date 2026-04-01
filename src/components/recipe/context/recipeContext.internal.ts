@@ -29,7 +29,7 @@ export type RecipeContextType = {
   variables: Recipe["variables"];
   setVariables: (valueOrSetter: SetStateAction<Recipe["variables"]>) => void;
 
-  getVariable: (variableName: string) => RecipeVariable | undefined;
-  setVariable: (variableName: string, newValue: SetStateAction<RecipeVariable>) => void;
+  getVariable: (variableId: string) => RecipeVariable | undefined;
+  setVariable: (variableId: string, newValue: SetStateAction<RecipeVariable> | null) => void;
 };
 export const RecipeContext = createContext<RecipeContextType | null>(null);

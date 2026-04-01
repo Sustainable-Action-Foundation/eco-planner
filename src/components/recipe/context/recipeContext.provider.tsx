@@ -99,25 +99,40 @@ export function RecipeContextProvider({
       });
   }, [setRecipe]);
 
-  const setVariable = useCallback((variableName: string, newValue: SetStateAction<RecipeVariable>): void => {
+  const setVariable = useCallback((variableId: string, newValue: SetStateAction<RecipeVariable> | null): void => {
     setRecipe((current) => {
       const next = current.copy();
-      const oldVar = next.variables[variableName];
+      const oldVar = next.variables[variableId];
+
+      if (newValue === null) {
+        if (!oldVar) {
+          console.info(`Variable "${variableId}" not deleted because it does not exist.`);
+          return current;
+        }
+        delete next.variables[variableId];
+        return next;
+      }
+
       const newVar = typeof newValue === "function"
-        ? newValue(next.variables[variableName])
+        ? newValue(next.variables[variableId])
         : newValue;
 
+      if (!newVar) {
+        throw new RecipeError(`setVariable was called with null or undefined newValue for variable "${variableId}". To delete a variable, set newValue to null explicitly.`);
+      }
+
+      // Avoid updating on no change
       if (Recipe.isVariableEqual(oldVar, newVar)) {
-        console.info(`Variable "${variableName}" not updated because the new value is the same as the old value.`);
+        console.info(`Variable "${variableId}" not updated because the new value is the same as the old value.`);
         return current;
       }
 
-      next.variables[variableName] = newVar;
+      next.variables[variableId] = newVar;
       return next;
     })
       .catch((e: unknown) => {
         const errorMessage = e instanceof Error ? e.message : String(e);
-        console.error(`Failed to set variable "${variableName}":`, errorMessage);
+        console.error(`Failed to set variable "${variableId}":`, errorMessage);
         setError(errorMessage);
       });
   }, [setRecipe]);
