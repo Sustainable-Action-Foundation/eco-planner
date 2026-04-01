@@ -102,9 +102,17 @@ export function RecipeContextProvider({
   const setVariable = useCallback((variableName: string, newValue: SetStateAction<RecipeVariable>): void => {
     setRecipe((current) => {
       const next = current.copy();
-      next.variables[variableName] = typeof newValue === "function"
+      const oldVar = next.variables[variableName];
+      const newVar = typeof newValue === "function"
         ? newValue(next.variables[variableName])
         : newValue;
+
+      if (JSON.stringify(oldVar) === JSON.stringify(newVar)) {
+        console.info(`Variable "${variableName}" not updated because the new value is the same as the old value.`);
+        return current;
+      }
+
+      next.variables[variableName] = newVar;
       return next;
     })
       .catch((e: unknown) => {
@@ -117,9 +125,17 @@ export function RecipeContextProvider({
   const setVariables = useCallback((variablesAction: SetStateAction<Recipe["variables"]>) => {
     setRecipe((current) => {
       const next = current.copy();
-      next.variables = typeof variablesAction === "function"
-        ? variablesAction(next.variables)
+      const oldVars = next.variables;
+      const newVars = typeof variablesAction === "function"
+        ? variablesAction(oldVars)
         : variablesAction;
+
+      if (JSON.stringify(oldVars) === JSON.stringify(newVars)) {
+        console.info(`Variables not updated because the new value is the same as the old value.`);
+        return current;
+      }
+
+      next.variables = newVars;
       return next;
     })
       .catch((e: unknown) => {
