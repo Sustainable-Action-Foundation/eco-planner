@@ -318,6 +318,7 @@ async function main() {
         equation: '${Riket} * ${ArvingsArea} / ${RiketsArea}',
         variables: {
           'Riket': {
+            name: "Riket",
             type: RecipeDataTypes.DataSeries,
             dataSeriesId: null,
             pick: VectorIndexPickerOptions.Default,
@@ -325,6 +326,7 @@ async function main() {
             unit: "km^2",
           },
           'RiketsArea': {
+            name: "Rikets area",
             type: RecipeDataTypes.External,
             pick: VectorIndexPickerOptions.Default,
             unit: undefined,
@@ -340,6 +342,7 @@ async function main() {
             ],
           },
           'ArvingsArea': {
+            name: "Arvings area",
             type: RecipeDataTypes.External,
             pick: VectorIndexPickerOptions.Default,
             unit: undefined,
@@ -366,6 +369,7 @@ async function main() {
         equation: '${Riket} * ${ArvingsPopulation} / ${RiketsPopulation}',
         variables: {
           'Riket': {
+            name: "Riket",
             type: RecipeDataTypes.DataSeries,
             dataSeriesId: null,
             pick: VectorIndexPickerOptions.Default,
@@ -373,6 +377,7 @@ async function main() {
             unit: "capita",
           },
           'RiketsPopulation': {
+            name: "Rikets befolkning",
             type: RecipeDataTypes.External,
             pick: VectorIndexPickerOptions.Default,
             unit: undefined,
@@ -386,6 +391,7 @@ async function main() {
             ],
           },
           'ArvingsPopulation': {
+            name: "Arvings befolkning",
             type: RecipeDataTypes.External,
             pick: VectorIndexPickerOptions.Default,
             unit: undefined,
@@ -410,6 +416,7 @@ async function main() {
         equation: '${Riket} / ${skalär}',
         variables: {
           'Riket': {
+            name: "Riket",
             type: RecipeDataTypes.DataSeries,
             dataSeriesId: null,
             pick: VectorIndexPickerOptions.Default,
@@ -417,6 +424,7 @@ async function main() {
             unit: getRandomUnit(),
           },
           'skalär': {
+            name: "skalär",
             type: RecipeDataTypes.Scalar,
             value: 1 + Math.random(),
             unit: null,
@@ -458,6 +466,7 @@ async function main() {
         equation: '${Riket}',
         variables: {
           'Riket': {
+            name: "Riket",
             type: RecipeDataTypes.DataSeries,
             dataSeriesId: dataSeries.id,
             pick: VectorIndexPickerOptions.Default,
