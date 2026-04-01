@@ -196,6 +196,7 @@
     "goal_count_descending": "{{$t(common:goal_one), titleCase}} count (high to low)",
     "name_ascending": "Name (Z-A)",
     "name_descending": "Name (A-Z)",
+    "roadmap_type": "Roadmap type",
     "search_roadmaps": "Search $t(common:roadmap_series_one)",
     "sort_by": "Sort by"
   },

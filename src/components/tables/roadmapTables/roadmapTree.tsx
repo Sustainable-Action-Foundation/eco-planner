@@ -84,15 +84,15 @@ async function NestedRoadmapRenderer({
               <details>
                 {/* TODO: In accessibility tree, this shows as the link being labeled under "visa underliggande färdplaner" */}
                 <summary className="flex justify-content-space-between" aria-label={t("components:roadmap_tree.show_source_alt")}>
-                  <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}> {/* TODO: Do i need this key here?  */}
+                  <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}>
                     <IconCaretRightFilled aria-hidden="true" className="round padding-25 margin-inline-25" />
-                    <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth' style={{ lineHeight: '1' }}>
+                    <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth font-size-125' style={{ lineHeight: '1.1' }}>
                       {/* Name, version */}
                       <div>
                         {t("components:roadmap_tree.title", { name: roadmap.metaRoadmap.name, version: roadmap.version })}
                       </div>
                       {/* Type, goal count */}
-                      <div className={styles["roadmap-information"]}>
+                      <div className="color-gray font-size-14px text-transform-lowercase font-weight-normal">
                         {typeAlias}
                         &nbsp;&middot;&nbsp;
                         {t("common:count.goal", { count: roadmap._count.goals })}
@@ -120,13 +120,13 @@ async function NestedRoadmapRenderer({
             <li className="inline-flex align-items-center flex-grow-100 width-100">
               <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}>
                 <IconCaretRightFilled aria-hidden="true" color="lightgray" className="round padding-25 margin-inline-25" />
-                <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth' style={{ lineHeight: '1' }}>
+                <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth font-size-125' style={{ lineHeight: '1.1' }}>
                   {/* Name, version */}
                   <div>
                     {t("components:roadmap_tree.title", { name: roadmap.metaRoadmap.name, version: roadmap.version })}
                   </div>
                   {/* Type, goal count */}
-                  <div className={styles["roadmap-information"]}>
+                  <div className="color-gray font-size-14px text-transform-lowercase font-weight-normal">
                     {typeAlias}
                     &nbsp;&middot;&nbsp;
                     {t("common:count.goal", { count: roadmap._count.goals })}
