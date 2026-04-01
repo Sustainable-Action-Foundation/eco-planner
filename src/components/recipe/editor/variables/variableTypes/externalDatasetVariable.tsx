@@ -50,10 +50,12 @@ export function VariableTypeExternal({
 
 export function VariableTypeExternalSimple({
   variableName,
-  permissions
+  permissions,
+  props = {},
 }: {
   variableName: string,
   permissions?: RecipeEditorPermissions
+  props?: React.InputHTMLAttributes<HTMLInputElement>;
 }) {
   const { t } = useTranslation("components");
   const { recipe, setVariable } = useRecipe();
@@ -62,7 +64,10 @@ export function VariableTypeExternalSimple({
   permissions = { ...RecipeEditorPermissions, ...permissions };
 
   return (
-    <div className="flex gap-25"> {/* TODO: Figure out how to deal with labels here */}
+    <div
+      className="flex gap-25"
+      {...props}
+    > {/* TODO: Figure out how to deal with labels here */}
       <select
         value={variable.dataset || ""}
         disabled={!permissions.allowValueEditing}

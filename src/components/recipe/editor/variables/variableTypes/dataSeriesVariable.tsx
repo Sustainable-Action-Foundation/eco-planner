@@ -31,7 +31,7 @@ function useRoadmapTreeItems(availableRoadmaps: { id: string; name: string; }[])
       },
     }));
 
-    setTreeItems(newItems);
+    return () => setTreeItems(newItems);
   }, [availableRoadmaps]);
 
   return treeItems;
@@ -174,6 +174,7 @@ export function VariableTypeDataSeriesSimple({
         placeholder: props.placeholder,
         required: props.required,
         disabled: props.disabled,
+        style: props.style,
       }}
       treeItems={treeItems}
       onChange={handleDataSeriesChange}

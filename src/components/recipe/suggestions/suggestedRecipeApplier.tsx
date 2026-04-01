@@ -160,6 +160,7 @@ export function SuggestedRecipeApplier({
                   permissions={permissions}
                   props={{
                     defaultValue: variable.value,
+                    ...(variable.template ? { style: { outline: "1px solid blue", borderRadius: "8px" } } : {})
                   }}
                 />
               </Fragment>
@@ -178,6 +179,7 @@ export function SuggestedRecipeApplier({
                     placeholder: t("components:recipe_editor.select_data_series"),
                     required: true,
                     disabled: false,
+                    ...(variable.template ? { style: { outline: "1px solid blue", borderRadius: "8px" } } : {})
                   }}
                   key={"recipeVariable" + i}
                   variableName={variable.name ?? variableKey}
@@ -196,6 +198,9 @@ export function SuggestedRecipeApplier({
                   key={"recipeVariable" + i}
                   variableName={variable.name ?? variableKey}
                   permissions={permissions}
+                  props={{
+                    ...(variable.template ? { style: { outline: "1px solid blue", borderRadius: "8px" } } : {})
+                  }}
                 />
               </Fragment>
             );
