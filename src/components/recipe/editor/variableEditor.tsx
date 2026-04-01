@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { clientSafeGetRoadmaps } from "@/fetchers/client";
 import { useRecipe } from "../context/recipeContext.use";
 import styles from '../recipe.module.css' with { type: "css" };
-import { RecipeEditorPermissions, VariableCreator, VariableTypeDataSeries, VariableTypeExternal, VariableTypeScalar } from "@/components/recipe";
+import { RecipeEditorPermissions, VariableCreator, DataSeriesVariableEditor, VariableTypeExternal, VariableTypeScalar } from "@/components/recipe";
 
 export function VariableEditor({
   permissions = RecipeEditorPermissions,
@@ -66,7 +66,7 @@ export function VariableEditor({
           case RecipeDataTypes.DataSeries:
             return (
               <li className="padding-bottom-75 margin-bottom-75" key={name}>
-                <VariableTypeDataSeries
+                <DataSeriesVariableEditor
                   props={{
                     id: "recipeVariable" + i,
                     name: "recipeVariable" + i,

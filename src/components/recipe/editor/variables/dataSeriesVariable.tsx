@@ -76,7 +76,7 @@ export function useHandleDataSeriesChange(
 
 // TODO: Fix labels
 // TODO: Check usage of permissions (prop that has been removed)
-export function VariableTypeDataSeries({
+export function DataSeriesVariableEditor({
   variableId,
   permissions,
   availableRoadmaps = [],
