@@ -14,8 +14,8 @@ let sendPageName = ""; // Denotes what a screenshot is of
 async function takeScreenshot(pathFolder: string, pageName: string, page: Page, worker: string) {
     await isSidebarOpen(page, true);
 
-    await page.screenshot({ path: `./tests/screenshots/${pathFolder}/${pageName}-${worker}.jpeg`, fullPage: false, animations: "disabled" });
-    await page.screenshot({ path: `./tests/screenshots/${pathFolder}/${pageName}-${worker}-fullPage.jpeg`, fullPage: true, animations: "disabled" });
+    await page.screenshot({ path: `./tests/screenshots/${pageName}/${worker}.jpeg`, fullPage: false, animations: "disabled" });
+    await page.screenshot({ path: `./tests/screenshots/${pageName}/${worker}-fullPage.jpeg`, fullPage: true, animations: "disabled" });
 }
 
 async function isSidebarOpen(page: Page, wantedClosed: boolean) { //Checks if the sidebar is open
@@ -37,7 +37,7 @@ async function isSidebarOpen(page: Page, wantedClosed: boolean) { //Checks if th
 test.describe('Screenshot tests', () => {
 
     test('Main page pics', async ({ page }, metadata) => {
-        sendFolderPath = "mainPage"; // The folder the screenshots should be added to
+        sendFolderPath = "MainPage"; // The folder the screenshots should be added to
 
         await page.goto('/');
         await page.waitForLoadState('networkidle');
@@ -47,8 +47,8 @@ test.describe('Screenshot tests', () => {
         sendPageName = "mainPage"; // What the screenshot is of
         await takeScreenshot(sendFolderPath, sendPageName, page, metadata.project.name);
         await isSidebarOpen(page, false);
-        await page.screenshot({ path: `./tests/screenshots/mainPage/mainPage-${metadata.project.name}-sidebar.jpeg`, fullPage: false, animations: "disabled" });
-        await page.screenshot({ path: `./tests/screenshots/mainPage/mainPage-${metadata.project.name}-sidebar-fullPage.jpeg`, fullPage: true, animations: "disabled" });
+        await page.screenshot({ path: `./tests/screenshots/mainPage/${metadata.project.name}-sidebar.jpeg`, fullPage: false, animations: "disabled" });
+        await page.screenshot({ path: `./tests/screenshots/mainPage/${metadata.project.name}-sidebar-fullPage.jpeg`, fullPage: true, animations: "disabled" });
     });
 
     async function sidebarTest(page: Page, openState: string, worker: string) {
@@ -56,22 +56,22 @@ test.describe('Screenshot tests', () => {
         await page.getByTestId('create-button').click();
         await expect.soft(page.getByTestId('create-roadmap-series')).toBeVisible();
 
-        await page.screenshot({ path: `./tests/screenshots/sidebar/createMenuPopped-${openState}-${worker}.jpeg`, fullPage: false, animations: "disabled" });
-        await page.screenshot({ path: `./tests/screenshots/sidebar/createMenuPopped-${openState}-${worker}-fullPage.jpeg`, fullPage: true, animations: "disabled" });
+        await page.screenshot({ path: `./tests/screenshots/createMenuPopped/${openState}-${worker}-fullPage.jpeg`, fullPage: true, animations: "disabled" });
+        await page.screenshot({ path: `./tests/screenshots/createMenuPopped/${openState}-${worker}.jpeg`, fullPage: false, animations: "disabled" });
         await page.keyboard.press('Escape')
 
         // Language popover
         await page.getByTestId('language-switcher-dialog-button').click();
         await expect.soft(page.getByTestId('language-switcher-option-English')).toBeVisible();
-        await page.screenshot({ path: `./tests/screenshots/sidebar/languageMenuPopped-${openState}-${worker}.jpeg`, fullPage: false, animations: "disabled" });
-        await page.screenshot({ path: `./tests/screenshots/sidebar/languageMenuPopped-${openState}-${worker}-fullPage.jpeg`, fullPage: true, animations: "disabled" });
+        await page.screenshot({ path: `./tests/screenshots/languageMenuPopped/${openState}-${worker}.jpeg`, fullPage: false, animations: "disabled" });
+        await page.screenshot({ path: `./tests/screenshots/languageMenuPopped/${openState}-${worker}-fullPage.jpeg`, fullPage: true, animations: "disabled" });
         await page.keyboard.press('Escape')
 
         // Settings popover
         await page.getByTestId('settings-button').click();
         await expect.soft(page.locator('#allowStorage')).toBeVisible();
-        await page.screenshot({ path: `./tests/screenshots/sidebar/SettingsMenuPopped-${openState}-${worker}.jpeg`, fullPage: false, animations: "disabled" });
-        await page.screenshot({ path: `./tests/screenshots/sidebar/SettingsMenuPopped-${openState}-${worker}-fullPage.jpeg`, fullPage: true, animations: "disabled" });
+        await page.screenshot({ path: `./tests/screenshots/settingsMenuPopped/${openState}-${worker}.jpeg`, fullPage: false, animations: "disabled" });
+        await page.screenshot({ path: `./tests/screenshots/settingsMenuPopped/${openState}-${worker}-fullPage.jpeg`, fullPage: true, animations: "disabled" });
         await page.keyboard.press('Escape')
     }
 
@@ -128,9 +128,12 @@ test.describe('Screenshots Admin', () => {
         await page.waitForLoadState('networkidle');
 
         await expect.soft(page.getByTestId('home-title')).toBeVisible();
-        sendPageName = "loggedIn" // What the screenshot is of
-        await takeScreenshot(sendFolderPath, sendPageName, page, metadata.project.name);
 
+        isSidebarOpen(page, false);
+
+        // Wanted the sidebar to be open, so couldn't use the takeScreenshot function
+        await page.screenshot({ path: `./tests/screenshots/loggedIn/${metadata.project.name}.jpeg`, fullPage: false, animations: "disabled" });
+        await page.screenshot({ path: `./tests/screenshots/loggedIn/${metadata.project.name}-fullPage.jpeg`, fullPage: true, animations: "disabled" });
     });
 
     test('My account pics', async ({ page }, metadata) => {
@@ -146,7 +149,7 @@ test.describe('Screenshots Admin', () => {
     });
 
     test('Roadmap Series pics', async ({ page }, metadata) => {
-        sendFolderPath = "Roadmap" // The folder the screenshots should be added to
+        sendFolderPath = "roadmap" // The folder the screenshots should be added to
 
         // Roadmap Series create
         await page.goto('/metaRoadmap/create');
@@ -179,7 +182,7 @@ test.describe('Screenshots Admin', () => {
     });
 
     test('Roadmap pics', async ({ page }, metadata) => {
-        sendFolderPath = "Roadmap" // The folder the screenshots should be added to
+        sendFolderPath = "roadmap" // The folder the screenshots should be added to
 
         // Roadmap create
         await page.goto('/roadmap/create');
@@ -209,7 +212,7 @@ test.describe('Screenshots Admin', () => {
 
 
     test('Goal pics', async ({ page }, metadata) => {
-        sendFolderPath = "Goal" // The folder the screenshots should be added to
+        sendFolderPath = "goal" // The folder the screenshots should be added to
 
         // Create
         await page.goto('/goal/create');
@@ -255,7 +258,7 @@ test.describe('Screenshots Admin', () => {
     });
 
     test('Action pics', async ({ page }, metadata) => {
-        sendFolderPath = "Action" // The folder the screenshots should be added to
+        sendFolderPath = "action" // The folder the screenshots should be added to
 
         // Create
         await page.goto('/action/create');
@@ -274,7 +277,7 @@ test.describe('Screenshots Admin', () => {
     });
 
     test('Effect', async ({ page }, metadata) => {
-        sendFolderPath = "Effect" // The folder the screenshots should be added to
+        sendFolderPath = "effect" // The folder the screenshots should be added to
 
         // Create
         await page.goto('/effect/create');
