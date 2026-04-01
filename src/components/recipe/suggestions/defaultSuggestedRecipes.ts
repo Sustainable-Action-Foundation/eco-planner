@@ -12,6 +12,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
     equation: `\$\{${t("components:recipe_editor.default_area_recipe.parent_value")}\} * \$\{${t("components:recipe_editor.default_area_recipe.child_area")}\} / \$\{${t("components:recipe_editor.default_area_recipe.parent_area")}\}`,
     variables: {
       [t("components:recipe_editor.default_area_recipe.parent_value")]: {
+        name: t("components:recipe_editor.default_area_recipe.parent_value"),
         type: RecipeDataTypes.DataSeries,
         pick: VectorIndexPickerOptions.Default,
         value: undefined,
@@ -21,6 +22,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
       } satisfies DataSeriesVariable,
 
       [t("components:recipe_editor.default_area_recipe.parent_area")]: {
+        name: t("components:recipe_editor.default_area_recipe.parent_area"),
         type: RecipeDataTypes.External,
         dataset: 'SCB',
         tableId: 'TAB6420',
@@ -38,6 +40,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
       } satisfies ExternalVariable,
 
       [t("components:recipe_editor.default_area_recipe.child_area")]: {
+        name: t("components:recipe_editor.default_area_recipe.child_area"),
         type: RecipeDataTypes.External,
         dataset: 'SCB',
         tableId: 'TAB6420',
@@ -51,6 +54,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
         ],
         pick: VectorIndexPickerOptions.Default,
         unit: undefined,
+        template: true,
       } satisfies ExternalVariable,
     },
   });
