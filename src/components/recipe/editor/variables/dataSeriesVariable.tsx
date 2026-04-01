@@ -154,12 +154,10 @@ export function DataSeriesVariableSimpleEditor({
   variableId,
   availableDataSeries = [],
   props,
-  goalName,
 }: {
   variableId: string;
   availableDataSeries?: AvailableRoadmapOption[];
   props: InputElement;
-  goalName?: string;
 }) {
   const { recipe, setVariable, getVariable } = useRecipe();
   const variable = getVariable(variableId);
@@ -189,13 +187,6 @@ export function DataSeriesVariableSimpleEditor({
       }}
       treeItems={treeItems}
       onChange={handleDataSeriesChange}
-      {...goalName ? {
-        defaultValue: {
-          name: goalName,
-          value: variable.dataSeriesId || "",
-          expanded: null,
-        },
-      } : {}}
     />
   )
 }
