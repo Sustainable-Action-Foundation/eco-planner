@@ -311,13 +311,16 @@ export class Recipe {
   /** 
    * Selective compare if two variables are the same
    */
-  public static variableEq(var1: RecipeVariable, var2: RecipeVariable): boolean {
+  public static isVariableEqual(var1: RecipeVariable, var2: RecipeVariable): boolean {
     const ignoredFields: (keyof RecipeVariable)[] = ["template"];
     const var1Stripped = Object.fromEntries(Object.entries(var1).filter(([key]) => !ignoredFields.includes(key as keyof RecipeVariable)));
     const var2Stripped = Object.fromEntries(Object.entries(var2).filter(([key]) => !ignoredFields.includes(key as keyof RecipeVariable)));
     return JSON.stringify(var1Stripped) === JSON.stringify(var2Stripped);
   }
-  public static variablesEq(vars1: Recipe["variables"], vars2: Recipe["variables"]): boolean {
+  /** 
+   * Selective compare if two variable sets are the same
+   */
+  public static isVariablesEqual(vars1: Recipe["variables"], vars2: Recipe["variables"]): boolean {
     const keys1 = Object.keys(vars1);
     const keys2 = Object.keys(vars2);
     if (keys1.length !== keys2.length) {
@@ -327,7 +330,7 @@ export class Recipe {
       if (!(key in vars2)) {
         return false;
       }
-      if (!Recipe.variableEq(vars1[key], vars2[key])) {
+      if (!Recipe.isVariableEqual(vars1[key], vars2[key])) {
         return false;
       }
     }

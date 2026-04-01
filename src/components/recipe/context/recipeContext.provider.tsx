@@ -107,7 +107,7 @@ export function RecipeContextProvider({
         ? newValue(next.variables[variableName])
         : newValue;
 
-      if (Recipe.variableEq(oldVar, newVar)) {
+      if (Recipe.isVariableEqual(oldVar, newVar)) {
         console.info(`Variable "${variableName}" not updated because the new value is the same as the old value.`);
         return current;
       }
@@ -130,7 +130,7 @@ export function RecipeContextProvider({
         ? variablesAction(oldVars)
         : variablesAction;
 
-      if (Recipe.variablesEq(oldVars, newVars)) {
+      if (Recipe.isVariablesEqual(oldVars, newVars)) {
         console.info(`Variables not updated because the new value is the same as the old value.`);
         return current;
       }
