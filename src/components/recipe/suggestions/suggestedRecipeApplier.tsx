@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
 import { VariableTypeScalarSimple } from "../editor/variables/scalarVariable";
 import { DataSeriesVariableSimpleEditor } from "../editor/variables/dataSeriesVariable";
-import { VariableTypeExternalSimple } from "../editor/variables/externalDatasetVariable";
+import { VariableTypeExternalSimple } from "../editor/variables/externalVariable";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { clientSafeGetOneRoadmap, clientSafeGetRoadmaps } from "@/fetchers/client";
 import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";

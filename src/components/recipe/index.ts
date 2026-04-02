@@ -19,6 +19,6 @@ export * from "./editor/variablesEditor";
 export * from "./editor/variables/commonVariable";
 export * from "./editor/variables/scalarVariable";
 export * from "./editor/variables/dataSeriesVariable";
-export * from "./editor/variables/externalDatasetVariable";
+export * from "./editor/variables/externalVariable";
 export * from "./editor/recipeEditorPermissions";
 export * from "./editor/variables/vectorPickerSelect";
