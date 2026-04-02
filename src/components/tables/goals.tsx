@@ -4,7 +4,7 @@ import { AccessLevel } from '@/types';
 import GoalTable from "./goalTables/goalTable"
 import TableSelector from './tableSelector/tableSelector'
 import LinkTree from './goalTables/linkTree'
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { getStoredGoalSortBy, getStoredViewMode, setStoredGoalSortBy } from "./functions/tableFunctions"
 import Link from "next/link"
 import Image from "next/image"
@@ -39,15 +39,10 @@ export default function Goals({
 }) {
   const { t } = useTranslation("components");
 
-  const [viewMode, setViewMode] = useState<ViewMode | ''>('');
-  const [sortBy, setSortBy] = useState<GoalSortBy>(GoalSortBy.Default);
+  const [viewMode, setViewMode] = useState<ViewMode | ''>(getStoredViewMode(roadmap.id));
+  const [sortBy, setSortBy] = useState<GoalSortBy>(getStoredGoalSortBy() || GoalSortBy.Default);
   const [searchFilter, setSearchFilter] = useState<string>('');
   const [recipeOnly, setRecipeOnly] = useState<boolean>(false)
-
-  useEffect(() => {
-    setViewMode(getStoredViewMode(roadmap.id));
-    setSortBy(getStoredGoalSortBy());
-  }, [roadmap.id]);
 
   let filteredRoadmap = roadmap;
   if (searchFilter) {
@@ -71,7 +66,7 @@ export default function Goals({
           return true
         } else {
           return false
-        } 
+        }
       })
     }
   }
