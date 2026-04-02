@@ -6,7 +6,7 @@ import { IconAlertTriangleFilled, IconCircleCheckFilled, IconCircleXFilled, Icon
 import { useRecipe } from "@/components/recipe";
 import { isEmptyRecipe } from "@/functions/recipe";
 
-export function OutputStatus({
+export function TextStatus({
   showAllGood = true,
 }: {
   showAllGood?: boolean,

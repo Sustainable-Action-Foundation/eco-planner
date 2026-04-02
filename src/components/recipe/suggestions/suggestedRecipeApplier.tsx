@@ -13,7 +13,7 @@ import { IconAlertTriangleFilled } from "@tabler/icons-react";
 import { RecipeEditorPermissions } from "../editor/recipeEditorPermissions";
 import type { DBRecipe } from "@/types";
 import { Recipe } from "@/functions/recipe/recipe";
-import { CombinedStatusDisplay, getDefaultSuggestedRecipes, OutputStatus } from "@/components/recipe";
+import { CombinedStatusDisplay, getDefaultSuggestedRecipes, TextStatus } from "@/components/recipe";
 
 export function SuggestedRecipeApplier({
   autoInsertDefaultSuggestions = true,
@@ -237,7 +237,7 @@ export function SuggestedRecipeApplier({
     </div>
 
     {selectedRecipeId && <>
-      <OutputStatus showAllGood={false} />
+      <TextStatus showAllGood={false} />
 
       <CombinedStatusDisplay />
     </>}

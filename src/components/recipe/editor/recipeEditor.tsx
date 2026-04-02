@@ -1,7 +1,7 @@
 import "client-only";
 import TabList from "@/components/generic/tablist/tabList";
 import { useTranslation } from "react-i18next";
-import { VariableCreator, EquationEditor, VariablesEditor, OutputStatus, OutputDataSeries, OutputGraph, FormIntegration } from "@/components/recipe";
+import { VariableCreator, EquationEditor, VariablesEditor, TextStatus, OutputDataSeries, OutputGraph, FormIntegration } from "@/components/recipe";
 
 export function RecipeEditor() {
   const { t } = useTranslation(["components"]);
@@ -44,7 +44,7 @@ export function RecipeEditor() {
         className="padding-50"
         style={{ backgroundColor: 'var(--gray-95)', border: '1px solid var(--gray)', borderTop: '0', borderRadius: '0 0 .25rem .25rem' }}
       >
-        <OutputStatus />
+        <TextStatus />
 
         <TabList
           defaultIndex={0}
