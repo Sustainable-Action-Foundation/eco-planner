@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
+    "target": "esnext",
     "lib": [
       "dom",
       "dom.iterable",
@@ -13,6 +13,7 @@
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
     "baseUrl": ".",
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -44,12 +45,10 @@
   "exclude": [
     "src/prisma/generated/**/*",
     "node_modules",
-    "tests",
-    "scripts",
     "prisma",
     ".next",
     "out",
     "dist",
     "build"
-  ]
+  ],
 }
