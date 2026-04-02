@@ -2,12 +2,11 @@
 
 import { isDataSeriesVariable, RecipeError } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
-import { RecipeEditorPermissions } from "../recipeEditorPermissions";
 import React, { useCallback, useMemo } from "react";
 import type { InputElement, TreeItem } from "@/components/types";
 import SelectSingleTreeSearch from "@/components/form/elements/combobox/selectSingleTreeSearch";
 import { clientSafeGetOneRoadmap } from "@/fetchers/client";
-import { CommonVariable, useRecipe, VectorPickerSelect } from "@/components/recipe";
+import { RecipeEditorPermissions, CommonVariable, useRecipe, VectorPickerSelect } from "@/components/recipe";
 import type { RecipeContextType } from "@/components/recipe";
 
 type AvailableRoadmapOption = { id: string; name: string; };
