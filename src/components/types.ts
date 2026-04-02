@@ -1,4 +1,5 @@
 // TODO: Use set for tree items and map for options?
+import "@/types/tiptap-commands";
 
 export type Theme = {
   className?: string;
@@ -59,14 +60,4 @@ export type TabProps = TabElement & {
 
 export type TabPanelProps = TabElement & {
   hidden?: boolean
-}
-
-
-import '@tiptap/extension-link'
-
-declare module '@tiptap/extension-link' {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-  interface LinkOptions {
-    onOpenLinkModal?: () => void
-  }
 }
