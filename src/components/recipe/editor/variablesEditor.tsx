@@ -8,7 +8,7 @@ import { useRecipe } from "../context/recipeContext.use";
 import styles from '../recipe.module.css' with { type: "css" };
 import { RecipeEditorPermissions, VariableCreator, DataSeriesVariableEditor, VariableTypeExternal, VariableTypeScalar } from "@/components/recipe";
 
-export function VariableEditor({
+export function VariablesEditor({
   permissions = RecipeEditorPermissions,
 }: {
   permissions?: RecipeEditorPermissions;
