@@ -15,7 +15,7 @@ export * from "./output/textStatusDisplay";
 export * from "./output/tabListDisplay";
 
 export * from "./editor/variableCreator";
-export * from "./editor/variableEditor";
+export * from "./editor/variablesEditor";
 export * from "./editor/variables/commonVariable";
 export * from "./editor/variables/scalarVariable";
 export * from "./editor/variables/dataSeriesVariable";
