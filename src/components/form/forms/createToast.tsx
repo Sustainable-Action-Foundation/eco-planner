@@ -47,13 +47,16 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
     if (!element) return;
 
     const lineHeight = parseFloat(getComputedStyle(element).lineHeight);
-    const isMultiline = element.scrollHeight > Math.ceil(lineHeight);
+    const isTwoLine = element.scrollHeight > Math.ceil(lineHeight);
+    const isMultiLine = element.scrollHeight > Math.ceil(lineHeight) * 2;
 
-    if (isMultiline) {
+    if (isTwoLine) {
       if (type !== "error") {
         throw new Error("Toast message is too long for a success or warning toast.");
       }
-      setErrorLong(true);
+      if (isMultiLine) {
+        setErrorLong(true);
+      }
     }
   }, [type]);
 
@@ -105,7 +108,7 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
       </header>
       <p
         ref={messageRef}
-        className={`toast-body margin-0 margin-bottom-75 padding-inline-100 ${type === "error" && errorLong ? (isOpen ? "open" : "closed") : ""}`} >
+        className={`toast-body margin-0 margin-bottom-75 ${type === "error" && errorLong ? (isOpen ? "open" : "closed") : ""}`} style={{ paddingInline: "1.25rem" }} >
         {children}
       </p>
       {type === 'error' && errorLong &&

@@ -211,7 +211,7 @@ export default function ActionForm({
         </div>
       </form>
       <button onClick={() => addMessage("Detta är en lyckad åtgärd!", "success", false)}>Add Toast</button>
-      <button onClick={() => addMessage("The file seems to use an unknown encoding", "warning", false)}>Add Toast</button>
+      <button onClick={() => addMessage("Detta är ett varningsmeddelande!", "warning", false)}>Add Toast</button>
       <button onClick={() => addMessage("The file seems to use an unknown encoding", "error", false)}>Add Toast</button>
       <button onClick={() => addMessage("The file seems to use an unknown encoding as the interpreted text contains the character '' which indicates that a character could not be interpreted correctly (probably Å, Ä or Ö). You can still use this file, but if you are not completely sure that it *should* contain the character '' it is recommended that you convert the file to UTF-8 encoding and try again.", "error", false)}>Add Toast</button>
       <div className="flex flex-direction-column gap-50 margin-auto margin-top-50" style={{ width: "40ch" }} >
