@@ -10,6 +10,7 @@ const adminFile = path.join(__dirname, '../.auth/admin.json');
 test.describe("Goals tests", () => {
   test.use({ storageState: adminFile });
   const indicatorRequiredOnly = "Required\\only";
+  const indicatorRequiredUpdated = "Required\\only\\updated";
   const unitRequiredOnly = "meter";
   const nameAll = "Test goal";
   const descriptionAll = "This is a test goal";
@@ -82,8 +83,8 @@ test.describe("Goals tests", () => {
     await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorRequiredOnly);
     await expect.soft(page.locator('#dataUnit')).toHaveText(unitRequiredOnly);
 
-    await expect.soft(page.getByLabel("data_series_input.start_year")).toHaveValue('2020');
-    await expect.soft(page.getByLabel("data_series_input.end_year")).toHaveValue('2030');
+    await expect.soft(page.getByLabel("data_series_input.start_year").first()).toHaveValue('2020');
+    await expect.soft(page.getByLabel("data_series_input.end_year").first()).toHaveValue('2050');
     // await expect.soft(page.getByPlaceholder('2020').first()).toHaveValue('2020');
     // await expect.soft(page.getByPlaceholder('2050').first()).toHaveValue('2030'); //Not 100% sure if this works as we hope it does, might need changing when the thing is checking for is fixed
     for (let i = 0; i < 10; i++) {
@@ -103,21 +104,45 @@ test.describe("Goals tests", () => {
     await page.waitForLoadState("networkidle");
 
     // Editing fields
-    await page.locator('#indicatorParameter').click();
-    await page.locator('#indicatorParameter-listbox-1').click();
+    await page.locator('#indicatorParameter').fill(indicatorRequiredUpdated);
 
     await page.locator('#dataUnit').click();
     await page.locator('#dataUnit-listbox-3').click();
+
+    await page.waitForLoadState("networkidle");
+
     await page.getByLabel("data_series_input.start_year").fill('2025');
     await page.getByLabel("data_series_input.end_year").fill('2045');
     for (let i = 0; i < 20; i++) {
       await page.getByRole('spinbutton').nth(2 + i).fill('4');
     }
 
+    await page.locator('#isFeatured').check();
+
     // Submit
     await page.locator('#submit-button').click();
     await page.locator('#comment-text').hover();
     // await page.waitForLoadState("networkidle");
+    await expect(page.locator('#comment-text')).toBeEmpty();
+
+      // Reenter edit form to see that everything is updated
+      await page.getByTestId("admin-panel-edit").click();
+      await page.waitForLoadState("networkidle");
+
+    await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorRequiredUpdated);
+    await expect.soft(page.locator('#dataUnit')).toHaveText('hektar'); // Might need to be changed when the thing that checks for changes is fixed, currently it doesn't recognize the change of data unit as a change so it doesn't update the value in the form
+
+    await expect.soft(page.getByLabel("data_series_input.start_year").first()).toHaveValue('2025');
+    await expect.soft(page.getByLabel("data_series_input.end_year").first()).toHaveValue('2045');
+    for (let i = 0; i < 20; i++) {
+      await expect.soft(page.getByRole('spinbutton').nth(2 + i)).toHaveValue('4');
+    }
+
+    await expect(page.locator('#isFeatured')).toBeChecked();
+
+    // Submit without changes to see that the form is not broken
+    await page.locator('#submit-button').click();
+    await page.waitForLoadState("networkidle");
     await expect(page.locator('#comment-text')).toBeEmpty();
   });
 
@@ -202,8 +227,8 @@ test.describe("Goals tests", () => {
 
     await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorAll);
     await expect.soft(page.locator('#dataUnit')).toHaveText(unitAll);
-    await expect.soft(page.getByLabel("data_series_input.start_year")).toHaveValue('2020');
-    await expect.soft(page.getByLabel("data_series_input.end_year")).toHaveValue('2050'); //Not 100% sure if this works as we hope it does, might need changing when the thing is checking for is fixed
+    await expect.soft(page.getByLabel("data_series_input.start_year").first()).toHaveValue('2020');
+    await expect.soft(page.getByLabel("data_series_input.end_year").first()).toHaveValue('2050'); //Not 100% sure if this works as we hope it does, might need changing when the thing is checking for is fixed
     for (let i = 0; i < 30; i++) {
       await expect.soft(page.getByRole('spinbutton').nth(2 + i)).toHaveValue(String(i));
     }
