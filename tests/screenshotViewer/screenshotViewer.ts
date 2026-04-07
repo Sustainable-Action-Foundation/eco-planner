@@ -5,11 +5,19 @@ const cardComponent = fs.readFileSync("tests/screenshotViewer/components/card.ht
 const imgComponent = fs.readFileSync("tests/screenshotViewer/components/img.html").toString();
 const screenshotDirs = fs.readdirSync("tests/screenshots");
 
+
+/*
+
+Currently to make this work, you must run 'yarn tsx screenshotViewer.ts' in you command console after having run the screenshot tests
+
+*/
+
+
+
 function createViewPage() {
   let page = "";
 
   let cards = [""];
-
 
   screenshotDirs.forEach(catName => {
     let card = "";
@@ -50,7 +58,3 @@ function createViewPage() {
 }
 
 createViewPage();
-
-
-
-// fs.globSync("tests/screenshots/**/*.jpeg")
