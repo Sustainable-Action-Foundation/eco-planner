@@ -93,6 +93,7 @@ export default function GoalForm({
     let dataSeries: DateValuesWithUnit | undefined = undefined;
     try {
       dataSeries = JSON.parse(resultingDateValuesString) as DateValuesWithUnit;
+      dataSeries.unit = formData.get("dataUnit") as string | null;
     } catch (e) {
       console.error("Failed to parse resulting date values from form:", e);
       event.target.reportValidity();
