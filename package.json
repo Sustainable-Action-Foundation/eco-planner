@@ -15,8 +15,9 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "tsc --noEmit -p ./tsconfig.json && eslint -c ./eslint.config.ts --cache --concurrency auto",
-    "test:run": "tsx ./tests/run.ts",
-    "test:clean": "rm -rf test-results & rm -rf playwright-report & rm tests/report.json & rm tests/reporter.log",
+    "test": "playwright test",
+    "screenshot": "playwright test -c playwright.screenshot.config.ts",
+    "screenshot:clean": "rm -rf tests/screenshots",
     "docker:up": "docker compose -f docker/compose.staging.yaml --env-file docker/.env.local up -d --build",
     "docker:down": "docker compose -f docker/compose.staging.yaml --env-file docker/.env.local down"
   },
