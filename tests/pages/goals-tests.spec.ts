@@ -10,12 +10,15 @@ const adminFile = path.join(__dirname, '../.auth/admin.json');
 test.describe("Goals tests", () => {
   test.use({ storageState: adminFile });
   const indicatorRequiredOnly = "Required\\only";
-  const indicatorRequiredUpdated = "Required\\only\\updated";
+  const indicatorRequiredUpdated = "Required\\updated\\only";
   const unitRequiredOnly = "meter";
+  const unitRequiredUpdated = "yard";
   const nameAll = "Test goal";
   const descriptionAll = "This is a test goal";
   const indicatorAll = "All\\fields";
+  const indicatorAllUpdated = "All\\updated\\fields";
   const unitAll = "tonnes";
+  const unitAllUpdated = "grams";
 
   test('Create goal required only', async ({ page }) => {
     // Opening the form
@@ -81,7 +84,7 @@ test.describe("Goals tests", () => {
     // Set to manual input in case it isn't, to see if the values are saved correctly at least
     await page.getByRole('radio', { name: "goal.derive_data_series_manually" }).click();
     await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorRequiredOnly);
-    await expect.soft(page.locator('#dataUnit')).toHaveText(unitRequiredOnly);
+    await expect.soft(page.locator('#dataUnit')).toHaveValue(unitRequiredOnly);
 
     await expect.soft(page.getByLabel("data_series_input.start_year").first()).toHaveValue('2020');
     await expect.soft(page.getByLabel("data_series_input.end_year").first()).toHaveValue('2050');
@@ -91,7 +94,7 @@ test.describe("Goals tests", () => {
       await expect.soft(page.getByRole('spinbutton').nth(2 + i)).toHaveValue('1');
     }
 
-    await expect.soft(page.locator('#baselineSelector')).toHaveValue('INITIAL');
+    await expect.soft(page.locator('#baselineSelector')).toHaveValue('CUSTOM');
     await expect.soft(page.locator('#isFeatured')).not.toBeChecked();
 
     // Submit
@@ -105,9 +108,7 @@ test.describe("Goals tests", () => {
 
     // Editing fields
     await page.locator('#indicatorParameter').fill(indicatorRequiredUpdated);
-
-    await page.locator('#dataUnit').click();
-    await page.locator('#dataUnit-listbox-3').click();
+    await page.locator('#dataUnit').fill(unitRequiredUpdated);
 
     await page.waitForLoadState("networkidle");
 
@@ -117,6 +118,7 @@ test.describe("Goals tests", () => {
       await page.getByRole('spinbutton').nth(2 + i).fill('4');
     }
 
+    await page.locator('#baselineSelector').selectOption("INITIAL_NON_ZERO");
     await page.locator('#isFeatured').check();
 
     // Submit
@@ -130,7 +132,7 @@ test.describe("Goals tests", () => {
       await page.waitForLoadState("networkidle");
 
     await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorRequiredUpdated);
-    await expect.soft(page.locator('#dataUnit')).toHaveText('hektar'); // Might need to be changed when the thing that checks for changes is fixed, currently it doesn't recognize the change of data unit as a change so it doesn't update the value in the form
+    await expect.soft(page.locator('#dataUnit')).toHaveValue(unitRequiredUpdated); // Might need to be changed when the thing that checks for changes is fixed, currently it doesn't recognize the change of data unit as a change so it doesn't update the value in the form
 
     await expect.soft(page.getByLabel("data_series_input.start_year").first()).toHaveValue('2025');
     await expect.soft(page.getByLabel("data_series_input.end_year").first()).toHaveValue('2045');
@@ -138,6 +140,7 @@ test.describe("Goals tests", () => {
       await expect.soft(page.getByRole('spinbutton').nth(2 + i)).toHaveValue('4');
     }
 
+    await expect.soft(page.locator('#baselineSelector')).toHaveValue('INITIAL_NON_ZERO');
     await expect(page.locator('#isFeatured')).toBeChecked();
 
     // Submit without changes to see that the form is not broken
@@ -177,7 +180,7 @@ test.describe("Goals tests", () => {
     }
 
     //Form part 4
-    await page.locator('#baselineSelector').selectOption({ value: "INITIAL" });
+    await page.locator('#baselineSelector').selectOption({ value: "INITIAL_NON_ZERO" });
     /*
         await page.locator('#baselineSelector').selectOption({ value: "INHERIT" });
         await page.locator('#selectedRoadmap').selectOption({ index: 1 });
@@ -233,7 +236,7 @@ test.describe("Goals tests", () => {
       await expect.soft(page.getByRole('spinbutton').nth(2 + i)).toHaveValue(String(i));
     }
 
-    await expect.soft(page.locator('#baselineSelector')).toHaveValue('INITIAL');
+    await expect.soft(page.locator('#baselineSelector')).toHaveValue('INITIAL_NON_ZERO');
     await expect.soft(page.locator('#isFeatured')).toBeChecked();
 
     // Submit
@@ -249,13 +252,16 @@ test.describe("Goals tests", () => {
     await page.locator('#goalName').fill("Edited Test");
     await page.locator('#description').fill("Edited test description"); //does not work, needs a different action to fill
 
+    await page.locator('#indicatorParameter').fill(indicatorAllUpdated);
+    await page.locator('#dataUnit').fill(unitAllUpdated);
+
     await page.getByRole('tab').nth(1).click();
     await page.locator('#recipeVariable0-dialog').click();
     await page.locator('#recipeVariable0-dialog-tree-Rikets-färdplan (v1)').click();
     await page.getByRole('treeitem').first().click();
     await page.locator('#scalar-skalär').fill('48');
 
-    await page.locator('#baselineSelector').selectOption("INITIAL_NON_ZERO");
+    await page.locator('#baselineSelector').selectOption("INITIAL");
     await page.locator('#isFeatured').uncheck();
 
     // Submit
@@ -271,10 +277,13 @@ test.describe("Goals tests", () => {
     await expect.soft(page.locator('#goalName')).toHaveValue("Edited Test");
     await expect.soft(page.locator('#description')).toHaveText("Edited test description");
 
+    await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorAllUpdated);
+    await expect.soft(page.locator('#dataUnit')).toHaveValue(unitAllUpdated); // Might need to be changed when the thing that checks for changes is fixed, currently it doesn't recognize the change of data unit as a change so it doesn't update the value in the form 
+
     await page.getByRole('tab').nth(1).click();
     await expect.soft(page.locator('#recipeVariable0')).not.toBeEmpty();
     await expect.soft(page.locator('#scalar-skalär')).toHaveValue('48');
-    await expect.soft(page.locator('#baselineSelector')).toHaveValue('INITIAL_NON_ZERO');
+    await expect.soft(page.locator('#baselineSelector')).toHaveValue('INITIAL');
 
     await expect(page.locator('#isFeatured')).not.toBeChecked();
   });
