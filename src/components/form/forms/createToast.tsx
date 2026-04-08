@@ -5,7 +5,7 @@ import { useToastContext } from "@/context/context";
 export default function CreateToast({ children, id, type, hasTimeout = true }: { children?: ReactNode; id: number; type: 'success' | 'error' | 'warning'; hasTimeout?: boolean }) {
 
   const totalTime = 3000;
-  const stepTime = 15;
+  const stepTime = 25;
   const [timer, setTimer] = useState<number>(totalTime);
 
   const { removeMessage } = useToastContext();
@@ -58,7 +58,13 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
         setErrorLong(true);
       }
     }
-  }, [type]);
+  }, []);
+
+  useEffect(() => {
+    if (timer === 0 && hasTimeout) {
+      removeMessage(id);
+    }
+  }, [timer]);
 
   useEffect(() => {
     if (!hasTimeout) return;
@@ -68,14 +74,14 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
         const next = prev - stepTime;
         if (next <= 0) {
           clearInterval(interval);
-          removeMessage(id);
           return 0;
         }
         return next;
       });
     }, stepTime);
+
     return () => clearInterval(interval);
-  }, [id, removeMessage, hasTimeout]);
+  }, [hasTimeout]);
 
   function getIcon() {
     switch (type) {
