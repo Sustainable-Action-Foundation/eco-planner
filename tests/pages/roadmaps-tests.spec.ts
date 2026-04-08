@@ -1,6 +1,6 @@
 import { expect, test } from "playwright/test";
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
@@ -38,7 +38,7 @@ test.describe.serial("Roadmaps tests", () => {
 
       // Delete all matching items
       for (let i = 0; i < count; i++) {
-        // firstmatch is the row that all the actions need to be performed on since after each deletion the next item will move up to take its place.
+        // firstMatch is the row that all the actions need to be performed on since after each deletion the next item will move up to take its place.
         const firstMatch = matchingItems.first();
 
         // All of these actions need to be performed on the correct row so they are using firstMatch as the base locator.
@@ -177,7 +177,7 @@ test.describe.serial("Roadmaps tests", () => {
     // Verify editability is set
     await expect(page.locator('#editability-private')).toBeChecked();
 
-    // This part beleow is non-functional at this time due to problem in code surrounding parent roadmap selection.
+    // This part below is non-functional at this time due to problem in code surrounding parent roadmap selection.
 
     // Verify parent roadmap is set
     // await expect(page.locator('#parent-roadmap')).toHaveValue('Rikets färdplan');
@@ -288,7 +288,7 @@ test.describe.serial("Roadmaps tests", () => {
     // Who gets edit access 
     await page.locator('#editors').fill('admin');
 
-    // This part beleow is non-functional at this time due to problem in code surrounding parent roadmap selection.
+    // This part below is non-functional at this time due to problem in code surrounding parent roadmap selection.
     // await page.locator('#parent-roadmap').selectOption("Ingen förälder");
 
     // Click the save button
@@ -545,7 +545,7 @@ test.describe.serial("Roadmaps tests", () => {
     // Who gets edit access 
     await page.locator('#editors').fill('admin');
 
-    // This part beleow is non-functional at this time due to problem in code surrounding parent roadmap selection.
+    // This part below is non-functional at this time due to problem in code surrounding parent roadmap selection.
     // await page.locator('#parent-roadmap').selectOption("Ingen förälder");
 
     // Click the save button

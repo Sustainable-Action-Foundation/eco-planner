@@ -3,7 +3,7 @@
   * For now, only allow a small subsection of these during testing phase.
   */
 export const allowedDomains = [
-  //Municipalities
+  // Municipalities
   /*
   "ale.se",
   "alingsas.se",
@@ -321,7 +321,7 @@ export const allowedDomains = [
   "ydre.se",
   "ystad.se",
   */
-  //Regions
+  // Regions
   /*
   "regionblekinge.se",
   "regiondalarna.se",
@@ -345,7 +345,7 @@ export const allowedDomains = [
   "regionvastmanland.se",
   "vgregion.se",
   */
-  //Energy Agencies
+  // Energy Agencies
   /*
   "energikontornorr.se",
   "regionjh.se",
@@ -363,7 +363,7 @@ export const allowedDomains = [
   "energikontorsyd.se",
   "gotland.se",
   */
-  //Other
+  // Other
   "differ.se",
   "internetstiftelsen.se",
   // "lansstyrelsen.se",
@@ -371,4 +371,4 @@ export const allowedDomains = [
   "postkodstiftelsen.se",
   // "stuns.se",
   "sustainable-action.org",
-]
+];

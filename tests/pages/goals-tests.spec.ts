@@ -1,6 +1,6 @@
 import { expect, test } from "playwright/test";
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
@@ -62,7 +62,7 @@ test.describe("Goals tests", () => {
     await page.waitForLoadState("networkidle");
 
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
-    await page.getByRole('heading', { name: "Rikets färdplan" }).hover(); //"networkidle" doesn't work for this for some reason so we are hovering to wait for load state where needed
+    await page.getByRole('heading', { name: "Rikets färdplan" }).hover(); // "networkidle" doesn't work for this for some reason so we are hovering to wait for load state where needed
 
     // Navigate to goal
     await page.getByRole('radio', { name: "table_selector.table" }).click();
@@ -89,7 +89,7 @@ test.describe("Goals tests", () => {
     await expect.soft(page.getByLabel("data_series_input.start_year").first()).toHaveValue('2020');
     await expect.soft(page.getByLabel("data_series_input.end_year").first()).toHaveValue('2050');
     // await expect.soft(page.getByPlaceholder('2020').first()).toHaveValue('2020');
-    // await expect.soft(page.getByPlaceholder('2050').first()).toHaveValue('2030'); //Not 100% sure if this works as we hope it does, might need changing when the thing is checking for is fixed
+    // await expect.soft(page.getByPlaceholder('2050').first()).toHaveValue('2030'); // Not 100% sure if this works as we hope it does, might need changing when the thing is checking for is fixed
     for (let i = 0; i < 10; i++) {
       await expect.soft(page.getByRole('spinbutton').nth(2 + i)).toHaveValue('1');
     }
@@ -150,7 +150,7 @@ test.describe("Goals tests", () => {
   });
 
   test('Create goal all', async ({ page }) => {
-    //Opening the form
+    // Opening the form
     await page.goto('/');
     await page.waitForLoadState("networkidle");
 
@@ -165,10 +165,10 @@ test.describe("Goals tests", () => {
 
     // Form Part 2
     await page.locator('#goalName').fill(nameAll);
-    await page.getByRole('textbox').nth(1).fill(descriptionAll); //Might be a better way of getting this element
+    await page.getByRole('textbox').nth(1).fill(descriptionAll); // Might be a better way of getting this element
 
     // Form Part 3
-    // Might be switch out for a prewritten recipe when they are fixed
+    // Might be switch out for a pre-written recipe when they are fixed
     await page.getByRole('radio', { name: "goal.derive_data_series_manually" }).click();
     await page.locator('#indicatorParameter').fill(indicatorAll);
     await page.locator('#dataUnit').fill(unitAll);
@@ -179,17 +179,17 @@ test.describe("Goals tests", () => {
       await page.getByRole('spinbutton').nth(2 + i).fill(String(i));
     }
 
-    //Form part 4
+    // Form part 4
     await page.locator('#baselineSelector').selectOption({ value: "INITIAL_NON_ZERO" });
     /*
-        await page.locator('#baselineSelector').selectOption({ value: "INHERIT" });
-        await page.locator('#selectedRoadmap').selectOption({ index: 1 });
-        await page.locator('#inheritFrom').selectOption({ index: 1 });
+      await page.locator('#baselineSelector').selectOption({ value: "INHERIT" });
+      await page.locator('#selectedRoadmap').selectOption({ index: 1 });
+      await page.locator('#inheritFrom').selectOption({ index: 1 });
     */
-    //Form part 5
+    // Form part 5
     await page.locator('#isFeatured').check();
 
-    //Form Submit
+    // Form Submit
     await page.locator('#submit-button').click();
     await page.waitForLoadState("networkidle");
 
@@ -199,14 +199,14 @@ test.describe("Goals tests", () => {
 
   test('Edit goal all', async ({ page }) => {
 
-    // will only work correctly if 'Create goal all' is run before
+    // Will only work correctly if 'Create goal all' is run before
 
     // Navigate to roadmap
     await page.goto('/');
     await page.waitForLoadState("networkidle");
 
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
-    await page.getByRole('heading', { name: "Rikets färdplan" }).hover(); //"networkidle" doesn't work for this for some reason so we are hovering to wait for load state where needed
+    await page.getByRole('heading', { name: "Rikets färdplan" }).hover(); // "networkidle" doesn't work for this for some reason so we are hovering to wait for load state where needed
 
     // Navigate to goal
     await page.getByRole('radio', { name: "table_selector.table" }).click();
@@ -232,7 +232,7 @@ test.describe("Goals tests", () => {
     await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorAll);
     await expect.soft(page.locator('#dataUnit')).toHaveText(unitAll);
     await expect.soft(page.getByLabel("data_series_input.start_year").first()).toHaveValue('2020');
-    await expect.soft(page.getByLabel("data_series_input.end_year").first()).toHaveValue('2050'); //Not 100% sure if this works as we hope it does, might need changing when the thing is checking for is fixed
+    await expect.soft(page.getByLabel("data_series_input.end_year").first()).toHaveValue('2050'); // Not 100% sure if this works as we hope it does, might need changing when the thing is checking for is fixed
     for (let i = 0; i < 30; i++) {
       await expect.soft(page.getByRole('spinbutton').nth(2 + i)).toHaveValue(String(i));
     }
@@ -251,7 +251,7 @@ test.describe("Goals tests", () => {
 
     // Editing form
     await page.locator('#goalName').fill("Edited Test");
-    await page.locator('#description').fill("Edited test description"); //does not work, needs a different action to fill
+    await page.locator('#description').fill("Edited test description"); // Does not work, needs a different action to fill
 
     await page.locator('#indicatorParameter').fill(indicatorAllUpdated);
     await page.locator('#dataUnit').fill(unitAllUpdated);

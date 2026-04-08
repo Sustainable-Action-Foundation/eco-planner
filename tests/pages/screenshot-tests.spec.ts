@@ -1,7 +1,7 @@
 import { expect, test } from "playwright/test";
 import type { Page } from "playwright/test";
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
@@ -17,7 +17,7 @@ async function takeScreenshot(pageName: string, page: Page, worker: string) {
   await page.screenshot({ path: `./tests/screenshots/${pageName}/${worker}-fullPage.jpeg`, fullPage: true, animations: "disabled" });
 }
 
-async function isSidebarOpen(page: Page, wantedClosed: boolean) { //Checks if the sidebar is open
+async function isSidebarOpen(page: Page, wantedClosed: boolean) { // Checks if the sidebar is open
   const isSidebarOpen = await page.getByTestId('language-switcher-dialog-button').boundingBox();
   if (wantedClosed) {
     if (isSidebarOpen === null) { }
@@ -269,5 +269,4 @@ test.describe('Screenshots Admin', () => {
     await takeScreenshot(sendPageName, page, metadata.project.name);
 
   });
-
 });

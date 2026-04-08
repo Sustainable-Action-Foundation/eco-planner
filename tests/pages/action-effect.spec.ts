@@ -34,7 +34,7 @@ test.describe.serial("Action & Effect tests", () => {
 
       // Delete all matching items
       for (let i = 0; i < count; i++) {
-        // FirstMatch is the row that all the actions need to be performed on since after each deletion the next item will move up to take its place.
+        // firstMatch is the row that all the actions need to be performed on since after each deletion the next item will move up to take its place.
         const firstMatch = matchingItems.first();
 
         // All of these actions need to be performed on the correct row so they are using firstMatch as the base locator.
