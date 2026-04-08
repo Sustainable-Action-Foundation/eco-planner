@@ -1,10 +1,10 @@
 .screenshotScroll {
-    display: flex;
-    flex-direction: row;
-    overflow: scroll;
-    max-height: fit-content;
+  display: flex;
+  flex-direction: row;
+  overflow: scroll;
+  max-height: fit-content;
 }
 
 img {
-    max-height: 600px;
+  max-height: 600px;
 }

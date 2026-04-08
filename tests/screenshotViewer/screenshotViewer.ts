@@ -15,9 +15,9 @@ Currently to make this work, you must run 'yarn tsx screenshotViewer.ts' in you 
 
 
 function createViewPage() {
-  let page = "";
+  let page;
 
-  let cards = [""];
+  const cards = [""];
 
   screenshotDirs.forEach(catName => {
     let card = "";
@@ -25,8 +25,8 @@ function createViewPage() {
 
     let img = "";
     let imgCard = "";
-    let imgCards = [""];
-    let fullPageImgs = [""];
+    const imgCards = [""];
+    const fullPageImgs = [""];
 
     const thisDir = fs.readdirSync("tests/screenshots/" + catName);
     thisDir.forEach(capture => {

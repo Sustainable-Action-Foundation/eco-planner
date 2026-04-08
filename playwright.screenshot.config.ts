@@ -14,8 +14,6 @@ const CI = process.env.CI ? true : false;
 
 */
 
-
-
 export default defineConfig({
   testDir: "tests/",
 
