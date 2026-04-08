@@ -83,6 +83,9 @@ jobs:
         run: |
           yarn screenshot
 
+        # Run screenshot build file
+
+        # Replace with actions/upload-pages-artifact@v4
       - name: Upload test artifacts
         # if: ${{ !cancelled() && steps.run-tests.outcome != 'skipped' }}
         if: ${{ !cancelled() }}
@@ -112,6 +115,7 @@ jobs:
       #     username: ${{ github.repository_owner }}
       #     password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Replace with actions/deploy-pages@v5
       # - name: Build and push
       #   uses: docker/build-push-action@v7
       #   with:
