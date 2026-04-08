@@ -2,6 +2,7 @@ tests/
 node_modules/
 playwright-report/
 playwright.config.ts
+playwright.screenshot.config.ts
 .next/
 .github/workflows/
 .vscode/
