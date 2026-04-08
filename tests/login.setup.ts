@@ -1,4 +1,5 @@
 import { test as setup, expect } from 'playwright/test';
+import type { Page } from 'playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -8,28 +9,36 @@ const __dirname = path.dirname(__filename); // get the name of the directory
 const adminFile = path.join(__dirname, '.auth/admin.json');
 const verifiedFile = path.join(__dirname, '.auth/verified.json');
 
-setup('authenticate as admin', async ({ page }) => {
-  // Perform authentication steps. Replace these actions with your own.
+async function loginHelper(page: Page, username: string, password: string) {
   await page.goto('/login');
-  await page.locator('#username').fill('admin');
-  await page.locator('#password').fill('admin');
+  await page.locator('#username').fill(username);
+  await page.locator('#password').fill(password);
   await page.locator('#submit-button').click();
 
-  await expect(page.getByTestId("home-title")).toBeVisible();
+  // Logout button replaces the login button in the sidebar when logged in
+  await expect(page.getByTestId("logout-button")).toBeVisible();
+}
 
-  // End of authentication steps.
+setup('authenticate as admin', async ({ page }) => {
+  await loginHelper(page, 'admin', 'admin');
+
+  // Save authenticated state to file
   await page.context().storageState({ path: adminFile });
 });
 
-setup('authenticate as verified', async ({ page }) => {
-  // Perform authentication steps. Replace these actions with your own.
-  await page.goto('/login');
-  await page.locator('#username').fill('anita');
-  await page.locator('#password').fill('anita');
-  await page.locator('#submit-button').click();
+setup('authenticate as verified user', async ({ page }) => {
+  await loginHelper(page, 'anita', 'anita');
 
-  await expect(page.getByTestId("home-title")).toBeVisible();
-
-  // End of authentication steps.
+  // Save authenticated state to file
   await page.context().storageState({ path: verifiedFile });
+});
+
+setup('authenticate as unverified user', async ({ page }) => {
+  setup.fail(true, 'Unverified users should not be able to log in until they verify their email address.');
+  await loginHelper(page, 'anton', 'anton');
+});
+
+setup('authenticate with wrong credentials', async ({ page }) => {
+  setup.fail(true, 'Users should not be able to log in with wrong credentials/as non-existent users.');
+  await loginHelper(page, 'badUser', 'badPassword');
 });
