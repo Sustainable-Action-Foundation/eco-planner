@@ -211,6 +211,7 @@ test.describe("Goals tests", () => {
     // Navigate to goal
     await page.getByRole('radio', { name: "table_selector.table" }).click();
     await page.getByRole('link', { name: nameAll }).first().click();
+    await page.waitForLoadState("networkidle");
     // Wait for page to load
     await page.getByRole('heading', { name: nameAll }).first().hover();
 
