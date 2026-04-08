@@ -24,20 +24,13 @@ export default defineConfig({
   },
 
   // Reporter to use
-  reporter: [
-    ...(CI ?
-      [["github"]]
-      :
-      [
-        ["dot"],
-        ["html", { open: "never" }],
-        // ["list"],
-      ]
-    ) as [string, object][],
-
-    // ["json", { outputFile: "tests/report.json" }],
-  ],
-  // reporter: "list",
+  reporter: (() => {
+    const reporters = [["html", { open: "never" }],];
+    if (CI)
+      reporters.push(["github"]);
+    else
+      reporters.push(["dot"]);
+  })(),
 
   // Stop docker containers after tests are done
   globalTeardown: "./tests/global.teardown.ts",
