@@ -273,5 +273,10 @@
     "posts": "Inlägg",
     "roadmap_series": "{{$t(common:roadmap_series_other), titleCase}}",
     "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}"
+  },
+  "toasts": {
+    "warning": "Varning!",
+    "success": "Succé!",
+    "error": "Misslyckades!"
   }
 }

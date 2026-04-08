@@ -273,5 +273,10 @@
     "posts": "Posts",
     "roadmap_series": "{{$t(common:roadmap_series_one), titleCase}}",
     "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}"
+  },
+  "toasts": {
+    "success": "Success!",
+    "warning": "Warning!",
+    "error": "Error!"
   }
 }

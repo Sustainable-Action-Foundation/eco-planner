@@ -1,8 +1,11 @@
 import { IconAlertTriangle, IconArrowDown, IconArrowUp, IconCircleCheck, IconInfoCircle, IconX } from "@tabler/icons-react";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { useToastContext } from "@/context/context";
+import { useTranslation } from "node_modules/react-i18next";
 
 export default function CreateToast({ children, id, type, hasTimeout = true }: { children?: ReactNode; id: number; type: 'success' | 'error' | 'warning'; hasTimeout?: boolean }) {
+
+  const { t } = useTranslation(["components"]);
 
   const totalTime = 3000;
   const stepTime = 25;
@@ -10,6 +13,8 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
 
   const { removeMessage } = useToastContext();
   const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  const [closeToast, setCloseToast] = useState<boolean>(false);
 
   const colorMap = {
     success: {
@@ -34,6 +39,16 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
       extends: "none",
     },
   };
+
+  let toastTitle = "";
+
+  if (type === "success") {
+    toastTitle = t("components:toasts.success");
+  } else if (type === "warning") {
+    toastTitle = t("components:toasts.warning");
+  } else if (type === "error") {
+    toastTitle = t("components:toasts.error");
+  }
 
   const ariaRole = type === "error" ? "alert" : "status";
 
@@ -61,8 +76,10 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
   }, []);
 
   useEffect(() => {
-    if (timer === 0 && hasTimeout) {
-      removeMessage(id);
+    if (timer <= 0 && hasTimeout) {
+      setCloseToast(true);
+      setTimeout(() => removeMessage(id), 200);
+      // This timeout should be less than the duration of the closing animation to make sure the animation has completed
     }
   }, [timer]);
 
@@ -99,7 +116,7 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
 
   return (
     <dialog
-      className="toast flex flex-direction-column rounded position-relative padding-0 width-100 rounded"
+      className={"toast flex flex-direction-column rounded position-relative padding-0 width-100 rounded" + (closeToast ? " toast-closing" : "")}
       role={ariaRole}
       style={{ backgroundColor: color.background, borderLeft: `4px solid ${color.accent}` }}
     >
@@ -107,7 +124,7 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
         <div className="padding-50 round grid" style={{ backgroundColor: color.darker }}>
           {getIcon()}
         </div>
-        <h3 className="margin-0 font-weight-600">{type.charAt(0).toUpperCase() + type.slice(1)}!</h3>
+        <h3 className="margin-0 font-weight-600">{toastTitle}</h3>
         <button onClick={() => removeMessage(id)} className="round padding-25 transparent margin-left-auto grid" aria-label="Close toast">
           <IconX aria-hidden="true" width={22} height={22} strokeWidth={3} color={color.accent} />
         </button>

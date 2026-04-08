@@ -11,7 +11,6 @@ import { useMemo, useState, useRef } from "react"
 import { Content } from "@tiptap/core"
 import { useToastContext } from "@/context/context"
 import { useRouter } from "next/navigation"
-import CreateToast from "./createToast"
 
 export default function ActionForm({
   goalId,
@@ -30,7 +29,7 @@ export default function ActionForm({
 
   const timestamp = useMemo(() => Date.now(), []);
 
-  const { messages, addMessage } = useToastContext();
+  const { addMessage } = useToastContext();
 
   const [editorContent, setEditorContent] = useState<Content>(() => {
     if (!currentAction?.description) return null;

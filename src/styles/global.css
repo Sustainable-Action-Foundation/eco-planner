@@ -276,6 +276,22 @@ progress::-webkit-progress-value {
   }
 }
 
+.toast-closing {
+  animation: toast-slide-out 0.3s ease;
+}
+
+@keyframes toast-slide-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+}
+
 /* Default dialog styles */
 .dialog {
   width: min(90ch, 100%);
