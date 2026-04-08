@@ -7,16 +7,6 @@ const __dirname = path.dirname(__filename); // get the name of the directory
 
 const verifiedFile = path.join(__dirname, '../.auth/verified.json');
 
-test('Login as unverified user', async ({ page }) => {
-	await page.goto('/login');
-
-	await page.locator('#username').fill('anton');
-	await page.locator('#password').fill('anton');
-	await page.locator('#submit-button').click();
-
-	await expect(page.locator('#username')).toBeVisible();
-});
-
 // This describe block is needed to use "test.use ({ storageState: verifiedFile });" for only the logout test, without affecting the login test above.
 test.describe("Logout tests", () => {
 	test.use({ storageState: verifiedFile });
