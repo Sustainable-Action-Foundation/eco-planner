@@ -1,6 +1,6 @@
 name: run screenshot tests
 
-concurrency: 
+concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
@@ -66,9 +66,8 @@ jobs:
           yarn screenshot
 
         # Run screenshot build file
-        name: Build screenshot page
-        run:
-          yarn tsx tests/screenshotViewer/screenshotViewer.ts
+      - name: Build screenshot page
+        run: yarn tsx tests/screenshotViewer/screenshotViewer.ts
 
         # Replace with actions/upload-pages-artifact@v4
       - name: Upload test artifacts
@@ -79,15 +78,17 @@ jobs:
 
   deploy:
     if: ${{ !cancelled() && !inputs.skip_deployment }}
+
     needs: screenshot-tests
+
     permissions:
       pages: write
       id-token: write
-    
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    
+
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to GitHub Pages
