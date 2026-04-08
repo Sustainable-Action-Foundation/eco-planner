@@ -44,6 +44,21 @@
       "name": "Jesper Cejie",
       "email": "jesper@cejie.se",
       "url": "https://jesper.cejie.se"
+    },
+    {
+      "name": "Pontus Noaksson",
+      "email": "pontusnoaksson.dev@gmail.com",
+      "url": "https://programmingfrog.github.io/Portfolio/"
+    },
+    {
+      "name": "Rosé",
+      "email": "roseeriksson.dev@gmail.com",
+      "url": "https://pysor2.github.io/Portfolio/"
+    },
+    {
+      "name": "Linus Eliste Wester",
+      "email": "linusew.dev@gmail.com",
+      "url": "https://linuselistewester.github.io/"
     }
   ],
   "type": "module",
