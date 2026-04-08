@@ -8,7 +8,7 @@ const screenshotDirs = fs.readdirSync("tests/screenshots");
 
 /*
 
-Currently to make this work, you must run 'yarn tsx screenshotViewer.ts' in you command console after having run the screenshot tests
+Currently to make this work, you must run 'yarn tsx tests/screenshotViewer/screenshotViewer.ts' in you command console after having run the screenshot tests
 
 */
 
@@ -34,14 +34,14 @@ function createViewPage() {
         card = cardComponent.replace("{{HEADER}}", catName + "FullPage");
 
         img = imgComponent.replace("{{PROJECT}}", capture);
-        img = img.replace("{{SRC}}", "../screenshots/" + catName + "/" + capture);
+        img = img.replace("{{SRC}}", "./" + catName + "/" + capture);
         imgCard = img.replace("{{ALT}}", capture);
         fullPageImgs.push(imgCard);
       } else {
         fullPageCard = cardComponent.replace("{{HEADER}}", catName);
 
         img = imgComponent.replace("{{PROJECT}}", capture);
-        img = img.replace("{{SRC}}", "../screenshots/" + catName + "/" + capture);
+        img = img.replace("{{SRC}}", "./" + catName + "/" + capture);
         imgCard = img.replace("{{ALT}}", capture);
         imgCards.push(imgCard);
       }
@@ -54,7 +54,7 @@ function createViewPage() {
   });
   page = viewPage.replace("{{BODY}}", cards.toString());
   page = page.replaceAll(",", "");
-  fs.writeFileSync("tests/screenshotViewer/screenshotViewPage.html", page);
+  fs.writeFileSync("tests/screenshots/screenshotViewPage.html", page);
 }
 
 createViewPage();
