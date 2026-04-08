@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { defineConfig, devices } from "playwright/test";
+import { defineConfig, devices, ReporterDescription } from "playwright/test";
 
 // Allow overriding the webserver URL via environment variable, defaulting to a local port opened by testing docker compose.
 export const webserverURL = process.env.BASE_URL || "http://localhost:8081";
@@ -25,11 +25,13 @@ export default defineConfig({
 
   // Reporter to use
   reporter: (() => {
-    const reporters = [["html", { open: "never" }],];
+    const reporters: ReporterDescription[] = [["html", { open: "never" }]];
     if (CI)
       reporters.push(["github"]);
     else
       reporters.push(["dot"]);
+
+    return reporters;
   })(),
 
   // Stop docker containers after tests are done
