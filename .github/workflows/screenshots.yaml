@@ -89,7 +89,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: screenshots-${{ github.run_number }}
-          path: /tests/screenshots/
+          path: ./tests/screenshots/
           retention-days: 1
           if-no-files-found: warn
 
