@@ -199,7 +199,7 @@ test("Are nested keys defined", () => {
           // Find and escape the arguments
           const args = nestedKey
             .replace(/.*?:.*?,\s*/gm, "") // Remove key part
-            .replace(/(?<=\".*?\":\s*)([^"']*?)(?=\s*,|\s*}$)/gm, "\"$1\"") // var => "var"
+            .replace(/(?<=\".*?\":\s*)([^"']*?)(?=\s*,|\s*}$)/gm, "\"$1\""); // var => "var"
 
           // Notice on argument, syntax error
           try { JSON.parse(args); }
@@ -634,7 +634,7 @@ function getAllJSONFlattened(): Record<string, Record<string, string>> {
       console.warn(`Failed to read or parse JSON file for locale '${locale}' and namespace '${namespace}':`, e);
       throw e;
     }
-  })
+  });
   return perLocale;
 }
 

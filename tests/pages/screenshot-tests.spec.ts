@@ -55,21 +55,21 @@ test.describe('Screenshot tests', () => {
 
     await page.screenshot({ path: `./tests/screenshots/createMenuPopped/${openState}-${worker}-fullPage.jpeg`, fullPage: true, animations: "disabled" });
     await page.screenshot({ path: `./tests/screenshots/createMenuPopped/${openState}-${worker}.jpeg`, fullPage: false, animations: "disabled" });
-    await page.keyboard.press('Escape')
+    await page.keyboard.press('Escape');
 
     // Language popover
     await page.getByTestId('language-switcher-dialog-button').click();
     await expect.soft(page.getByTestId('language-switcher-option-English')).toBeVisible();
     await page.screenshot({ path: `./tests/screenshots/languageMenuPopped/${openState}-${worker}.jpeg`, fullPage: false, animations: "disabled" });
     await page.screenshot({ path: `./tests/screenshots/languageMenuPopped/${openState}-${worker}-fullPage.jpeg`, fullPage: true, animations: "disabled" });
-    await page.keyboard.press('Escape')
+    await page.keyboard.press('Escape');
 
     // Settings popover
     await page.getByTestId('settings-button').click();
     await expect.soft(page.locator('#allowStorage')).toBeVisible();
     await page.screenshot({ path: `./tests/screenshots/settingsMenuPopped/${openState}-${worker}.jpeg`, fullPage: false, animations: "disabled" });
     await page.screenshot({ path: `./tests/screenshots/settingsMenuPopped/${openState}-${worker}-fullPage.jpeg`, fullPage: true, animations: "disabled" });
-    await page.keyboard.press('Escape')
+    await page.keyboard.press('Escape');
   }
 
   test('Sidebar pics', async ({ page }, metadata) => {
@@ -78,12 +78,12 @@ test.describe('Screenshot tests', () => {
 
     let tooSmallScreen = false;
 
-    await isSidebarOpen(page, true)
+    await isSidebarOpen(page, true);
     const sidebarStatus = await page.getByTestId('language-switcher-dialog-button').boundingBox();
     if (sidebarStatus === null) {
       tooSmallScreen = true;
     }
-    await isSidebarOpen(page, false)
+    await isSidebarOpen(page, false);
 
     // First runs sidebarTest with the sidebar open then closes it and runs the test again
     await sidebarTest(page, "open", metadata.project.name);
@@ -99,7 +99,7 @@ test.describe('Screenshot tests', () => {
     await page.waitForLoadState('networkidle');
 
     await expect.soft(page.locator('#submit-button')).toBeVisible();
-    sendPageName = "createAccount" // What the screenshot is of
+    sendPageName = "createAccount"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
 
     // Log in page
@@ -107,7 +107,7 @@ test.describe('Screenshot tests', () => {
     await page.waitForLoadState('networkidle');
 
     await expect.soft(page.locator('#remember')).toBeVisible();
-    sendPageName = "logIn" // What the screenshot is of
+    sendPageName = "logIn"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
   });
 
@@ -135,7 +135,7 @@ test.describe('Screenshots Admin', () => {
     await page.waitForLoadState('networkidle');
 
     await expect.soft(page.getByRole('heading', { name: 'admin' })).toBeVisible();
-    sendPageName = "myAccount" // What the screenshot is of
+    sendPageName = "myAccount"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
   });
 
@@ -145,7 +145,7 @@ test.describe('Screenshots Admin', () => {
     await page.waitForLoadState('networkidle');
 
     await expect.soft(page.locator('#submit-button')).toBeVisible();
-    sendPageName = "createSeries" // What the screenshot is of
+    sendPageName = "createSeries"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
 
     // Roadmap Series 
@@ -160,13 +160,13 @@ test.describe('Screenshots Admin', () => {
 
     // await page.getByRole('heading', { name: 'roadmap_versions' }).hover();
     await expect.soft(page.getByRole('heading', { name: 'roadmap_versions' })).toBeVisible();
-    sendPageName = "roadmapSeries" // What the screenshot is of
+    sendPageName = "roadmapSeries"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
 
     // Roadmap Series Edit
     await page.getByTestId('admin-panel-edit').click();
     await expect.soft(page.locator('#submit-button')).toBeVisible();
-    sendPageName = "editRoadmapSeries" // What the screenshot is of
+    sendPageName = "editRoadmapSeries"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
   });
 
@@ -176,7 +176,7 @@ test.describe('Screenshots Admin', () => {
     await page.waitForLoadState('networkidle');
 
     await expect.soft(page.locator('#submit-button')).toBeVisible();
-    sendPageName = "createRoadmap" // What the screenshot is of
+    sendPageName = "createRoadmap"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
 
     // Roadmap
@@ -186,14 +186,14 @@ test.describe('Screenshots Admin', () => {
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
 
     await expect.soft(page.getByRole('heading', { name: "Rikets färdplan" })).toBeVisible();
-    sendPageName = "roadmap" // What the screenshot is of
+    sendPageName = "roadmap"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
 
     // Roadmap Edit
     await page.getByTestId('admin-panel-edit').click();
 
     await expect.soft(page.locator('#submit-button')).toBeVisible();
-    sendPageName = "editRoadmap" // What the screenshot is of
+    sendPageName = "editRoadmap"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
   });
 
@@ -203,7 +203,7 @@ test.describe('Screenshots Admin', () => {
     await page.goto('/goal/create');
 
     await expect.soft(page.locator('#submit-button')).toBeVisible();
-    sendPageName = "createGoal" // What the screenshot is of
+    sendPageName = "createGoal"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
 
     // Goal
@@ -231,13 +231,13 @@ test.describe('Screenshots Admin', () => {
     }
 
     await expect.soft(page.locator('#select-graphType')).toBeVisible();
-    sendPageName = "goal" // What the screenshot is of
+    sendPageName = "goal"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
 
     await page.getByTestId('admin-panel-edit').click();
 
     await expect.soft(page.locator('#submit-button')).toBeVisible();
-    sendPageName = "editGoal" // What the screenshot is of
+    sendPageName = "editGoal"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
 
   });
@@ -248,14 +248,14 @@ test.describe('Screenshots Admin', () => {
     await page.waitForLoadState('networkidle');
 
     await expect.soft(page.locator('#submit-button')).toBeVisible();
-    sendPageName = "createAction" // What the screenshot is of
+    sendPageName = "createAction"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
 
-    await page.goto('/actions')
+    await page.goto('/actions');
     await page.waitForLoadState('networkidle');
 
     await expect.soft(page.getByRole('heading').first()).toBeVisible();
-    sendPageName = "actionsPage" // What the screenshot is of
+    sendPageName = "actionsPage"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
   });
 
@@ -265,7 +265,7 @@ test.describe('Screenshots Admin', () => {
     await page.waitForLoadState('networkidle');
 
     await expect.soft(page.locator('#submit-button')).toBeVisible();
-    sendPageName = "createEffect" // What the screenshot is of
+    sendPageName = "createEffect"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
 
   });
