@@ -1,9 +1,12 @@
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import fs from "node:fs";
 import path from "node:path";
 import { glob } from "glob";
 import { expect, test } from "playwright/test";
 import { uniqueLocales, allNamespaces, Locales } from "../../i18n.config";
+
+function isStandardObject(object: unknown): object is object {
+  return typeof object === "object" && object != null && !Array.isArray(object);
+}
 
 /* 
  **********
@@ -183,7 +186,7 @@ test("Are nested keys defined", () => {
         if (allJSON[locale][nestedKey]) return;
 
         // Is it a valid namespace?
-        const nestedNS = nestedKey.match(/[^:]+:/)?.[0];
+        const nestedNS = /[^:]+:/.exec(nestedKey)?.[0];
         if (!nestedNS) {
           if (!perLocale[locale]) perLocale[locale] = [];
           perLocale[locale].push(`[Missing namespace] > '${key}': '${values.value}'`);
@@ -218,7 +221,7 @@ test("Are nested keys defined", () => {
         }
 
         if (!perLocale[locale]) perLocale[locale] = [];
-        perLocale[locale].push(`[${key}] > '${match}'`);
+        perLocale[locale].push(`[${key}] > '${match.toString()}'`);
       });
     });
   });
@@ -239,18 +242,16 @@ test("Variable syntax in JSON files", () => {
 
     translations.forEach(([key, value]) => {
       let count = 0;
-      for (let i = 0; i < value.length; i++) {
-        const char = value[i];
-
+      value.split("").forEach(char => {
         if (char === "{") count++;
         if (char === "}") count--;
 
         if (count < 0) {
           if (!perLocale[locale]) perLocale[locale] = [];
           perLocale[locale].push(`[Missing '{'] > '${key}': '${value}'`);
-          break;
+          return;
         }
-      }
+      });
       if (count > 0) {
         if (!perLocale[locale]) perLocale[locale] = [];
         perLocale[locale].push(`[Missing '}'] > '${key}': '${value}'`);
@@ -285,9 +286,10 @@ test("Orphan keys in root of namespace files", () => {
         throw new Error("Not an object");
       }
     }
-    catch (e) {
-      if (!perLocale[locale]) perLocale[locale] = [];
-      perLocale[locale].push(`[Invalid JSON] > '${namespace}.json': '${e}'`);
+    catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      perLocale[locale] ??= [];
+      perLocale[locale].push(`[Invalid JSON] > '${namespace}.json': ${errorMessage}`);
       return;
     }
 
@@ -396,7 +398,7 @@ test.skip("Common keys used directly in files", () => {
       const [, key] = call;
       if (keysAllowedDirectlyInApp.some(allowedKey => key.startsWith(allowedKey))) return; // Skip allowed keys
 
-      const namespace = key.match(/(^[^:]+):/)?.[1];
+      const namespace = /(^[^:]+):/.exec(key)?.[1];
       if (!namespace) return; // Skip if no namespace
 
       if (namespace === "common") {
@@ -450,8 +452,8 @@ test("<Trans /> syntax", () => {
       const [matchTrans] = call;
       const collapsedWhitespace = matchTrans.replace(/\s+/g, " ");
 
-      const i18nKeyStringMatch = collapsedWhitespace.match(/\si18nKey=["'](.*?)["']/);
-      const i18nKeyVarMatch = collapsedWhitespace.match(/\si18nKey=\{(.*?)\}/);
+      const i18nKeyStringMatch = /\si18nKey=["'](.*?)["']/.exec(collapsedWhitespace);
+      const i18nKeyVarMatch = /\si18nKey=\{(.*?)\}/.exec(collapsedWhitespace);
 
       if (i18nKeyVarMatch) return; // Skip if it's a variable
 
@@ -463,7 +465,7 @@ test("<Trans /> syntax", () => {
       }
 
       const i18nKey = i18nKeyStringMatch[1];
-      const componentsMatch = collapsedWhitespace.match(/components=\{\{(.*?)\}\}/);
+      const componentsMatch = /\scomponents=\{\{(.*?)\}\}/.exec(collapsedWhitespace);
 
       // TODO: Maybe use a more sophisticated check for this?
       const componentsInTag = componentsMatch && componentsMatch[1] !== "null" && componentsMatch[1] !== "undefined";
@@ -616,12 +618,22 @@ test("Unused keys", () => {
 function getAllJSONFlattened(): Record<string, Record<string, string>> {
   const perLocale: Record<string, Record<string, string>> = Object.fromEntries(filteredLocales.map(locale => [locale, {}]));
   allPermutations.map(([locale, namespace]) => {
-    const nsData = JSON.parse(fs.readFileSync(path.join(localesDir, locale, `${namespace}.json`), "utf-8"));
-    const flattened = flattenTree(nsData);
-    const prefixed = Object.fromEntries(Object.entries(flattened)
-      .map(([key, value]) => [`${namespace}:${key}`, value])
-    );
-    perLocale[locale] = { ...perLocale[locale], ...prefixed };
+    try {
+      const unparsed = fs.readFileSync(path.join(localesDir, locale, `${namespace}.json`), "utf-8");
+      const nsData = JSON.parse(unparsed) as unknown;
+      if (typeof nsData !== "object" || nsData === null || Array.isArray(nsData)) {
+        throw new Error("Not an object");
+      }
+      const flattened = flattenTree(nsData);
+      const prefixed = Object.fromEntries(Object.entries(flattened)
+        .map(([key, value]) => [`${namespace}:${key}`, value])
+      );
+      perLocale[locale] = { ...perLocale[locale], ...prefixed };
+    }
+    catch (e: unknown) {
+      console.warn(`Failed to read or parse JSON file for locale '${locale}' and namespace '${namespace}':`, e);
+      throw e;
+    }
   })
   return perLocale;
 }
@@ -682,11 +694,15 @@ function flattenTree(obj: object) {
   const recurse = (obj: object, prefix = "") => {
     for (const [key, value] of Object.entries(obj)) {
       const newPrefix = prefix ? `${prefix}.${key}` : key;
-      if (typeof value === "object") {
+
+      if (isStandardObject(value)) {
         recurse(value, newPrefix);
       }
-      else {
+      else if (typeof value === "string") {
         result[newPrefix] = value;
+      }
+      else {
+        console.warn(`Unexpected value type at key '${newPrefix}':`, value);
       }
     }
   };
