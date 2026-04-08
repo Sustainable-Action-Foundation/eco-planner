@@ -74,7 +74,7 @@ export function RoadmapSection({
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
       {t("components:breadcrumbs_sections.version_label")}
-      <Link href={`/roadmap/${roadmap.id}`} className={styles.breadCrumb} data-testid="roadmap-version">
+      <Link href={`/roadmap/${roadmap.id}`} className={styles.breadCrumb}>
         {t("components:breadcrumbs_sections.version", { version: roadmap.version })}
       </Link>
     </span>

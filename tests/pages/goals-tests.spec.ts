@@ -127,9 +127,9 @@ test.describe("Goals tests", () => {
     // await page.waitForLoadState("networkidle");
     await expect(page.locator('#comment-text')).toBeEmpty();
 
-      // Reenter edit form to see that everything is updated
-      await page.getByTestId("admin-panel-edit").click();
-      await page.waitForLoadState("networkidle");
+    // Reenter edit form to see that everything is updated
+    await page.getByTestId("admin-panel-edit").click();
+    await page.waitForLoadState("networkidle");
 
     await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorRequiredUpdated);
     await expect.soft(page.locator('#dataUnit')).toHaveValue(unitRequiredUpdated); // Might need to be changed when the thing that checks for changes is fixed, currently it doesn't recognize the change of data unit as a change so it doesn't update the value in the form
@@ -211,6 +211,7 @@ test.describe("Goals tests", () => {
     // Navigate to goal
     await page.getByRole('radio', { name: "table_selector.table" }).click();
     await page.getByRole('link', { name: nameAll }).first().click();
+    await page.waitForLoadState("networkidle");
     // Wait for page to load
     await page.getByRole('heading', { name: nameAll }).first().hover();
 
