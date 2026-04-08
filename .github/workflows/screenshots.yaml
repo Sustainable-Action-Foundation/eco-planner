@@ -16,17 +16,17 @@ on:
       - "main"
       - "dev"
   workflow_dispatch:
-    inputs:
-      should_push:
-        description: "Should the image be pushed to the registry? (uses default tags for the branch)"
-        required: false
-        default: false
-        type: boolean
-      skip_tests:
-        description: "Skip tests?"
-        required: false
-        default: false
-        type: boolean
+    # inputs:
+    #   should_push:
+    #     description: "Should the image be pushed to the registry? (uses default tags for the branch)"
+    #     required: false
+    #     default: false
+    #     type: boolean
+    #   skip_tests:
+    #     description: "Skip tests?"
+    #     required: false
+    #     default: false
+    #     type: boolean
 
 env:
   REGISTRY: ghcr.io
@@ -51,14 +51,14 @@ jobs:
       #     use: true # Set as default builder
 
       - name: Set up Node for tests
-        if: ${{ !inputs.skip_tests }}
+        # if: ${{ !inputs.skip_tests }}
         uses: actions/setup-node@v6
         with:
           node-version-file: package.json
           cache: yarn
 
       - name: Install test dependencies
-        if: ${{ !inputs.skip_tests }}
+        # if: ${{ !inputs.skip_tests }}
         run: |
           # Packages
           yarn install --frozen-lockfile
@@ -67,7 +67,7 @@ jobs:
 
       - name: Run tests
         id: run-tests
-        if: ${{ !inputs.skip_tests }}
+        # if: ${{ !inputs.skip_tests }}
         env:
           TEST_BASE_URL: ${{ secrets.TEST_BASE_URL }}
           TEST_DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
@@ -84,11 +84,12 @@ jobs:
           yarn screenshot
 
       - name: Upload test artifacts
-        if: ${{ !cancelled() && steps.run-tests.outcome != 'skipped' }}
+        # if: ${{ !cancelled() && steps.run-tests.outcome != 'skipped' }}
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7
         with:
-          name: test-results-${{ github.run_number }}
-          path: /test-results/
+          name: screenshots-${{ github.run_number }}
+          path: /tests/screenshots/
           retention-days: 1
           if-no-files-found: warn
 
