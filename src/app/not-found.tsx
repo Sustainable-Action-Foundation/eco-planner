@@ -2,7 +2,7 @@
 
 import { useTranslation } from "react-i18next";
 
-//TODO METADATA: Add metadata
+// TODO METADATA: Add metadata
 export default function NotFound() {
   const { t } = useTranslation("common");
 

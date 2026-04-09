@@ -1,0 +1,96 @@
+name: run screenshot tests
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - "main"
+      - "dev"
+    tags:
+      - "v*.*.*"
+  pull_request:
+    branches:
+      - "main"
+      - "dev"
+  workflow_dispatch:
+    inputs:
+      skip_deployment:
+        description: "Skip deploy to github pages?"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  screenshot-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Node for tests
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: package.json
+          cache: yarn
+
+      - name: Install test dependencies
+        run: |
+          # Packages
+          yarn install --frozen-lockfile
+          # Playwright browsers
+          yarn playwright install --with-deps
+
+      - name: Run tests
+        id: run-tests
+        env:
+          TEST_BASE_URL: ${{ secrets.TEST_BASE_URL }}
+          TEST_DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+          TEST_IRON_SESSION_PASSWORD: ${{ secrets.TEST_IRON_SESSION_PASSWORD }}
+          TEST_MAIL_HOST: ${{ secrets.TEST_MAIL_HOST }}
+          TEST_MAIL_USER: ${{ secrets.TEST_MAIL_USER }}
+          TEST_MAIL_PASSWORD: ${{ secrets.TEST_MAIL_PASSWORD }}
+          TEST_MARIADB_DATABASE: ${{ secrets.TEST_MARIADB_DATABASE }}
+          TEST_MARIADB_ROOT_PASSWORD: ${{ secrets.TEST_MARIADB_ROOT_PASSWORD }}
+          GIT_LONG_HASH: ${{ github.sha }}
+          GIT_SHORT_HASH: ${{ github.sha }}
+          BUILDX_EXPERIMENTAL: 1
+        run: |
+          yarn screenshot
+
+        # Run screenshot build file
+      - name: Build screenshot page
+        run: yarn tsx tests/screenshotViewer/screenshotViewer.ts
+
+        # Replace with actions/upload-pages-artifact@v4
+      - name: Upload test artifacts
+        if: ${{ !cancelled() }}
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./tests/screenshots/
+
+  deploy:
+    if: ${{ !cancelled() && !inputs.skip_deployment }}
+
+    needs: screenshot-tests
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

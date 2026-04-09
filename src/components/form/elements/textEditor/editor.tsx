@@ -7,7 +7,7 @@ import TextEditorMenu from './menu'
 import { defaultExtensions, nodeSizeLimit } from './config/config';
 import { useMemo } from 'react';
 
-{/* TODO: Update typing for content */ }
+{/* TODO: Update typing for content */}
 const TextEditor = ({
   className,
   style,

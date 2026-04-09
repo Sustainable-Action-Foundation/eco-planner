@@ -282,7 +282,7 @@ export function ControlsMenu(
                   { // Admins and authors can delete items
                     (accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) && links.deleteLink &&
                     <>
-                      <button type="button" className="width-100 transparent display-flex align-items-center justify-content-space-between padding-50" style={{ fontSize: '1rem' }} onClick={() => openModal(deletionRef)}>
+                      <button type="button" className="width-100 transparent display-flex align-items-center justify-content-space-between padding-50" style={{ fontSize: '1rem' }} data-testid="delete-post" onClick={() => openModal(deletionRef)}>
                         {t("components:table_menu.delete")}
                         <IconTrashXFilled aria-hidden="true" fill="red" style={{ minWidth: '24px' }} />
                       </button>
@@ -402,13 +402,13 @@ export function AdminPanel(
                     </Link>
                   }
                   {links.creationLink2 &&
-                    <Link href={links.creationLink2} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`}>
+                    <Link href={links.creationLink2} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`} data-testid="admin-panel-new-action">
                       <span>{links.creationDescription2 || links.creationLink2}</span>
                       <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                     </Link>
                   }
                   {links.editLink &&
-                    <Link href={links.editLink} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`}>
+                    <Link href={links.editLink} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`} data-testid="admin-panel-edit">
                       <span>{t("components:table_menu.edit")}</span>
                       <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                     </Link>

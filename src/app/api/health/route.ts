@@ -33,7 +33,11 @@ export async function GET() {
         throw new Error("Invalid commit hash file format");
       }
     } catch (e) {
-      console.error("No commit hash in environment and failed to read commit hash file:", e);
+      if (process.env.TEST_ENVIRONMENT !== "testing") {
+        console.error("No commit hash in environment and failed to read commit hash file:", e);
+      } else {
+        // Silently ignore missing commit hash, as it is expected during local tests and clogs console output
+      }
     }
   }
 
