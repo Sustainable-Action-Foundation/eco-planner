@@ -7,11 +7,7 @@ export const webserverURL = process.env.BASE_URL || "http://localhost:8081";
 const CI = process.env.CI ? true : false;
 
 /**
- 
-
-  To run this you must run: yarn playwright test -c playwright.screenshot.config.ts
-
-
+  To run screenshot tests locally you must run: yarn screenshot
 */
 
 export default defineConfig({
@@ -102,7 +98,7 @@ export default defineConfig({
       dependencies: ["setup"],
     },
     {
-      name: "safari 720p",
+      name: "webkit 720p",
       use: { ...devices["Desktop Safari"], viewport: { width: 1280, height: 720 } },
       testMatch: ["**/screenshot-tests.spec.ts"],
       dependencies: ["setup"],
@@ -121,7 +117,7 @@ export default defineConfig({
       dependencies: ["setup"],
     },
     {
-      name: "safari 1080p-vert",
+      name: "webkit 1080p-vert",
       use: { ...devices["Desktop Safari"], viewport: { width: 1080, height: 1920 } },
       testMatch: ["**/screenshot-tests.spec.ts"],
       dependencies: ["setup"],
@@ -140,7 +136,7 @@ export default defineConfig({
     //   dependencies: ["setup"],
     // },
     // {
-    //   name: "safari 1440p",
+    //   name: "webkit 1440p",
     //   use: { ...devices["Desktop Safari"], viewport: { width: 2560, height: 1440 } },
     //   testMatch: ["**/screenshot-tests.spec.ts"],
     //   dependencies: ["setup"],
@@ -159,7 +155,7 @@ export default defineConfig({
       dependencies: ["setup"],
     },
     {
-      name: "safari 4k",
+      name: "webkit 4k",
       use: { ...devices["Desktop Safari"], viewport: { width: 3840, height: 2160 } },
       testMatch: ["**/screenshot-tests.spec.ts"],
       dependencies: ["setup"],
@@ -178,7 +174,7 @@ export default defineConfig({
     //   dependencies: ["setup"],
     // },
     // {
-    //   name: "safari office",
+    //   name: "webkit office",
     //   use: { ...devices["Desktop Safari"], viewport: { width: 1440, height: 1080 } },
     //   testMatch: ["**/screenshot-tests.spec.ts"],
     //   dependencies: ["setup"],
@@ -197,7 +193,7 @@ export default defineConfig({
     //   dependencies: ["setup"],
     // },
     // {
-    //   name: "safari Noëlle",
+    //   name: "webkit Noëlle",
     //   use: { ...devices["Desktop Safari"], deviceScaleFactor: 2.25, viewport: { width: 1280, height: 853 } },
     //   testMatch: ["**/screenshot-tests.spec.ts"],
     //   dependencies: ["setup"],
@@ -216,7 +212,7 @@ export default defineConfig({
     //   dependencies: ["setup"],
     // },
     // {
-    //   name: "safari desktop HiDPI",
+    //   name: "webkit desktop HiDPI",
     //   use: { ...devices["Desktop Safari"] },
     //   testMatch: ["**/screenshot-tests.spec.ts"],
     //   dependencies: ["setup"],
