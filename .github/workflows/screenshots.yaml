@@ -67,7 +67,7 @@ jobs:
 
         # Run screenshot build file
       - name: Build screenshot page
-        if: ${{ !cancelled }}
+        if: ${{ !cancelled() }}
         run: yarn tsx tests/screenshotViewer/screenshotViewer.ts
 
         # Replace with actions/upload-pages-artifact@v4
