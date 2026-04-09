@@ -54,7 +54,7 @@ function createViewPage() {
   });
   page = viewPage.replace("{{BODY}}", cards.toString());
   page = page.replaceAll(",", "");
-  fs.writeFileSync("tests/screenshots/screenshotViewPage.html", page);
+  fs.writeFileSync("tests/screenshots/index.html", page);
 }
 
 createViewPage();

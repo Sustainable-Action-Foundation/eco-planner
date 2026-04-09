@@ -146,7 +146,7 @@ blob-report/
 playwright-report/
 playwright-results.json/
 tests/screenshots/
-tests/screenshotViewer/screenshotViewPage.html
+tests/screenshotViewer/index.html
 
 # Transpiled tests
 tests/.auth/
