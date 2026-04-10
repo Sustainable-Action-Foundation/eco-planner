@@ -4,7 +4,7 @@ import { closeModal, openModal } from "@/components/modals/modalFunctions";
 import type { ApiTableContent, ApiTableDetails } from "@/lib/api/apiTypes";
 import getTableDetails from "@/lib/api/getTableDetails";
 import getTables from "@/lib/api/getTables";
-import { ExternalDataset } from "@/lib/api/utility";
+import { ExternalDataset, isDataSetKeys } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
 import type { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
 import type { TrafaVariable } from "@/lib/trafa/trafaTypes";
@@ -13,10 +13,10 @@ import { Trans, useTranslation } from "react-i18next";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
 import { IconSearch, IconX } from "@tabler/icons-react";
-import { updateExternalVariableDataset, updateExternalVariableSelection, updateExternalVariableTable } from "@/components/recipe/variableEditingHelpers";
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 
 import getTableContent from "@/lib/api/getTableContent";
+import { RecipeDataTypes } from "@/functions/recipe";
 
 export default function RecipeQueryBuilder({ variableName }: { variableName: string; }) {
   const { t } = useTranslation("components");
@@ -359,9 +359,15 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
 
     const query = buildQuery(formData);
 
-    updateExternalVariableDataset(variableName, dataSource, setVariable)
-    updateExternalVariableTable(variableName, tableDetails?.id ?? formData.get("externalTableId") as string ?? "", setVariable)
-    updateExternalVariableSelection(variableName, JSON.stringify(query), setVariable)
+    setVariable(variableName, prev => prev.type === RecipeDataTypes.External
+      ? {
+        ...prev,
+        dataset: isDataSetKeys(dataSource) ? dataSource : prev.dataset,
+        tableId: tableDetails?.id ?? formData.get("externalTableId") as string ?? prev.tableId,
+        selection: query,
+      }
+      : prev
+    );
     closeModal(modalRef)
   }
 
@@ -425,7 +431,13 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
                         type="radio"
                         value={id}
                         name="externalTableId"
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => { handleTableSelect((e.target as HTMLButtonElement).value); updateExternalVariableTable(variableName, e.target.value, setVariable) }}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          handleTableSelect((e.target as HTMLInputElement).value);
+                          setVariable(variableName, prev => prev.type === RecipeDataTypes.External
+                            ? { ...prev, tableId: e.target.value }
+                            : prev
+                          );
+                        }}
                       />
                     </li>
                   ))}
