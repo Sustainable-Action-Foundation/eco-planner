@@ -1,10 +1,9 @@
 "use client"
 
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
-import type { ScalarVariable } from "@/functions/recipe/types";
+import { RecipeDataTypes, type ScalarVariable } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "../recipeEditorPermissions";
-import { updateScalarVariableValue } from "@/components/recipe/variableEditingHelpers";
 import { CommonVariable } from "@/components/recipe";
 
 // TODO: Fix labels
@@ -32,7 +31,10 @@ export function VariableTypeScalar({
         </label>
         <input
           defaultValue={variable.value}
-          onChange={(e) => updateScalarVariableValue(name, e.target.value, setVariable)}
+          onChange={(e) => setVariable(name, prev => prev.type === RecipeDataTypes.Scalar
+            ? { ...prev, value: Number(e.target.value) }
+            : prev
+          )}
           type="number"
           placeholder=" "
           disabled={!permissions.allowValueEditing}
@@ -62,7 +64,10 @@ export function VariableTypeScalarSimple({
     <input
       className="inline width-auto"
       defaultValue={variable.value}
-      onChange={(e) => updateScalarVariableValue(variableName, e.target.value, setVariable)}
+      onChange={(e) => setVariable(variableName, prev => prev.type === RecipeDataTypes.Scalar
+        ? { ...prev, value: Number(e.target.value) }
+        : prev
+      )}
       type="number"
       placeholder={t("components:recipe_editor.scalar")}
       disabled={!permissions.allowValueEditing}
