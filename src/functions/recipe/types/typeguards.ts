@@ -234,6 +234,20 @@ export function isExternalVariable(variable: JSONValue): variable is ExternalVar
   return true;
 }
 
+export function isStringifiedExternalSelection(selection: unknown): selection is string {
+  if (typeof selection !== "string") {
+    return false;
+  }
+
+  try {
+    const parsed = JSON.parse(selection) as JSONValue;
+    return isExternalSelection(parsed);
+  }
+  catch {
+    console.warn("Type guard: selection should be a valid JSON string");
+    return false;
+  }
+}
 export function isExternalSelection(selection: JSONValue): selection is ExternalVariable["selection"] {
   if (!Array.isArray(selection)) {
     console.warn("Type guard: selection should be an array", selection);

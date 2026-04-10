@@ -4,9 +4,9 @@ import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "../recipeEditorPermissions";
 import { ExternalDataset, isDataSetKeys } from "@/lib/api/utility";
 import RecipeQueryBuilder from "@/components/form/api/recipeQueryBuilder";
-import { isExternalSelection, RecipeDataTypes, type ExternalVariable } from "@/functions/recipe/types";
+import type { ExternalVariable } from "@/functions/recipe/types";
+import { isStringifiedExternalSelection, RecipeDataTypes } from "@/functions/recipe/types";
 import { useRecipe, CommonVariable, VectorPickerSelect } from "@/components/recipe";
-import type { JSONValue } from "@/types";
 
 // TODO: Fix labels
 export function VariableTypeExternal({
@@ -67,6 +67,7 @@ export function VariableTypeExternalSimple({
       className="flex gap-25"
       {...props}
     > {/* TODO: Figure out how to deal with labels here */}
+      {/* Dataset */}
       <select
         value={variable.dataset || ""}
         disabled={!permissions.allowValueEditing}
@@ -76,13 +77,14 @@ export function VariableTypeExternalSimple({
         )}
       >
         <option value="">{t("components:recipe_editor.dataset")}</option>
-        {/* <option value={variable.dataset}>{variable.dataset}</option> */}
         {ExternalDataset.knownDatasetKeys.map((datasetName, i) => (
           <option key={`datasetOption-${i}`} value={datasetName}>
             {datasetName}
           </option>
         ))}
       </select>
+
+      {/* Table */}
       <input
         className="inline width-auto"
         value={variable.tableId || ""}
@@ -94,25 +96,19 @@ export function VariableTypeExternalSimple({
         disabled={!permissions.allowValueEditing}
         placeholder={t("components:recipe_editor.table")}
       />
+
+      {/* Selection */}
       <input
         className="inline width-auto"
         value={JSON.stringify(variable.selection) || ""}
-        onChange={(e) => {
-          try {
-            const selection = JSON.parse(e.target.value) as JSONValue;
-            setVariable(variableName, prev => prev.type === RecipeDataTypes.External
-              ? {
-                ...prev, selection: isExternalSelection(selection)
-                  ? selection
-                  : prev.selection
-              }
-              : prev
-            );
+        onChange={(e) => setVariable(variableName, prev => prev.type === RecipeDataTypes.External
+          ? {
+            ...prev, selection: isStringifiedExternalSelection(e.target.value)
+              ? JSON.parse(e.target.value) as ExternalVariable["selection"]
+              : prev.selection
           }
-          catch (error) {
-            console.warn("Invalid selection JSON:", error);
-          }
-        }}
+          : prev
+        )}
         type="text"
         disabled={!permissions.allowValueEditing}
         placeholder={t("components:recipe_editor.selection")}
