@@ -1,6 +1,5 @@
 import fs from "node:fs";
 import path from "node:path";
-import { glob } from "glob";
 import { expect, test } from "playwright/test";
 import { uniqueLocales, allNamespaces, Locales } from "../../i18n.config";
 
@@ -76,7 +75,7 @@ test.describe("Namespace files exist", () => {
   ));
 
   filteredLocales.forEach(locale => {
-    const nsFiles = glob.sync(`${localesDir}/${locale}/*.json`);
+    const nsFiles = fs.globSync(`${localesDir}/${locale}/*.json`);
     const nsFilesNames = nsFiles.map(file => path.basename(file, ".json"));
 
     const missingNS = allNamespaces.filter(ns => !nsFilesNames.includes(ns));
@@ -640,7 +639,7 @@ function getAllJSONFlattened(): Record<string, Record<string, string>> {
 
 /** Get every file where t might be implemented as an array of objects storing the file path and their content as text */
 function getAllTSXFiles() {
-  const allTSXPaths = glob.sync("src/**/*.{tsx,ts}", { ignore: ["scripts/**/*", "src/prisma/generated/**/*"] });
+  const allTSXPaths = fs.globSync(["src/**/*.{tsx,ts}", "!scripts/**/*", "!src/prisma/generated/**/*"]);
 
   return allTSXPaths.map(filePath => {
     const contentRaw = fs.readFileSync(filePath, "utf-8");
