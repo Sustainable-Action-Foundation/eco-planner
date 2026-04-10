@@ -17,7 +17,7 @@ const tsCommonRules: Config["rules"] = {
       "destructuredArrayIgnorePattern": "^_",
       "varsIgnorePattern": "^_",
       "ignoreRestSiblings": true
-    }
+    },
   ],
   "@typescript-eslint/no-unsafe-argument": "warn",
   "@typescript-eslint/no-unsafe-assignment": "warn",
@@ -42,8 +42,11 @@ const tsCommonRules: Config["rules"] = {
   "@typescript-eslint/restrict-template-expressions": "warn",
   "@typescript-eslint/no-base-to-string": "warn",
   "@typescript-eslint/use-unknown-in-catch-callback-variable": "error",
+  "@typescript-eslint/consistent-type-assertions": "error",
   "@/no-useless-assignment": "warn",
   "eqeqeq": ["error", "smart"],
+  // "semi": ["error", "always"],
+  // "comma-dangle": ["error", "always-multiline",], // Would be nice but not tweakable enough
 };
 
 export default defineConfig([
