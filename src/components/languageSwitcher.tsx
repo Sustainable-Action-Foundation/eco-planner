@@ -39,7 +39,7 @@ export function LanguageSwitcher() {
         {uniqueLocales
           .sort((a, b) => localeAliases[a].localeCompare(localeAliases[b]))
           .map((locale) => (
-            <li key={locale} className="margin-top-25">
+            <li key={locale} className="margin-top-25" hidden={locale === Locales.test}>
               <button
                 key={locale}
                 onClick={() => setLocale(locale)}

@@ -15,9 +15,9 @@ import { Recipe } from "@/functions/recipe/recipe";
 import { FormIntegration, RecipeContextProvider, RecipeEditor, SuggestedRecipeApplier } from "@/components/recipe";
 
 const DataSeriesType = {
-  Manual: "Manual",
-  Suggested: "Suggested",
-  Custom: "Custom",
+  Manual: "MANUAL",
+  Suggested: "SUGGESTED",
+  Custom: "CUSTOM",
 } as const;
 type DataSeriesType = (typeof DataSeriesType)[keyof typeof DataSeriesType];
 
@@ -29,6 +29,30 @@ const BaselineType = {
 } as const;
 type BaselineType = (typeof BaselineType)[keyof typeof BaselineType];
 
+function dataSeriesTypeFromGoal(goal?: Goal): DataSeriesType {
+  // Default to suggested recipes for new goals
+  if (!goal?.dataSeries) return DataSeriesType.Suggested;
+
+  if (!goal.dataSeries.recipeUsedId) {
+    return DataSeriesType.Manual;
+  } else {
+    return DataSeriesType.Custom;
+  }
+}
+
+function baselineTypeFromGoal(goal?: Goal): BaselineType {
+  // Default to first value for new goals
+  if (!goal?.baseline) return BaselineType.Initial;
+
+  if (!goal.baseline.recipeUsedId) {
+    // Manual value input
+    return BaselineType.Custom;
+  } else {
+    // Recipe-based
+    return BaselineType.Inherited;
+  }
+}
+
 export default function GoalForm({
   roadmapId,
   roadmapAlternatives,
@@ -39,8 +63,8 @@ export default function GoalForm({
   currentGoal?: Goal;
 }) {
   const { t } = useTranslation(["forms", "common"]);
-  const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(DataSeriesType.Suggested);
-  const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baseline ? BaselineType.Custom : BaselineType.Initial);
+  const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(dataSeriesTypeFromGoal(currentGoal));
+  const [baselineType, setBaselineType] = useState<BaselineType>(baselineTypeFromGoal(currentGoal));
   const [parentRoadmapId, setParentRoadmapId] = useState<string>(roadmapId || "");
   const descriptionRef = useRef<HTMLInputElement>(null);
 

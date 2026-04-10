@@ -5,6 +5,7 @@ import i18nClient, { t } from "i18next";
 import { I18nextProvider, initReactI18next } from "react-i18next";
 import Backend from "i18next-http-backend";
 import { useEffect, useState, createContext } from "react";
+import { patchI18nT } from "@/lib/informativeCimodeT";
 
 i18nClient
   .use(Backend)
@@ -18,6 +19,8 @@ i18nClient
     const errorMessage = e instanceof Error ? e.message : String(e);
     console.error("i18nClient initialization failed:", errorMessage);
   });
+
+patchI18nT(i18nClient);
 
 export const LocaleContext = createContext<Locales>(Locales.default);
 export const LocaleSetterContext = createContext<React.Dispatch<React.SetStateAction<Locales>>>(() => { });

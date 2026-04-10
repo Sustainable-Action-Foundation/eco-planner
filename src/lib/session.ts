@@ -24,7 +24,7 @@ export const options: SessionOptions = {
     // This results in GDPR-compliant login cookies (with a "remember me"-checkbox or similar we may set a maxAge and keep the cookie between sessions)
     maxAge: undefined,
     // Uses https in production and http in development
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV === "production" && process.env.TEST_ENVIRONMENT !== "testing",
   },
 }
 
