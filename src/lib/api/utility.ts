@@ -1,6 +1,8 @@
 import { isStandardObject } from "@/types";
 import type { ApiTableContent } from "./apiTypes";
 
+// TODO: Refactor file
+
 export type DatasetKeys = "SCB" | "Trafa" | "SSB";
 export type DatasetData = {
   baseUrl: string,
@@ -10,6 +12,10 @@ export type DatasetData = {
   fullName?: string,
   alternateNames?: string[]
 };
+
+export function isDataSetKeys(value: unknown): value is DatasetKeys {
+  return typeof value === "string" && ExternalDataset.knownDatasetKeys.includes(value as DatasetKeys);
+}
 
 /**
  * # **DOCSTRING OUTDATED**
