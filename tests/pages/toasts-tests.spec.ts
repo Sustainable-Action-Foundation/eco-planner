@@ -7,7 +7,7 @@ const __dirname = path.dirname(__filename); // get the name of the directory
 
 const adminFile = path.join(__dirname, '../.auth/admin.json');
 
-test.describe('Toasts', () => {
+test.describe('Toasts tests', () => {
     test.use({ storageState: adminFile });
 
     test('Login toast - yellow alert and green alert', async ({ page }) => {
