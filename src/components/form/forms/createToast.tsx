@@ -1,5 +1,6 @@
 import { IconAlertTriangle, IconArrowDown, IconArrowUp, IconCircleCheck, IconInfoCircle, IconX } from "@tabler/icons-react";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useToastContext } from "@/context/context";
 import { useTranslation } from "node_modules/react-i18next";
 
@@ -147,6 +148,5 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
       }
       <progress className={`${hasTimeout ? "" : "none"}`} value={hasTimeout ? timer : 0} max={totalTime} aria-hidden="true" style={{ '--progress-color': color.accent, '--progress-background-color': color.background } as React.CSSProperties} />
     </dialog>
-
-  )
+  );
 }
