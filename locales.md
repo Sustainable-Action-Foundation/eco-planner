@@ -73,15 +73,5 @@ The config file for the translations is located at [`/i18n.config.ts`](/i18n.con
 
 The `initTemplate()` function is also located in the [`/i18n.config.ts`](/i18n.config.ts) file. It is the shared config between the client and server instances. Specific configs can be made in their respective files, [`/src/lib/i18nClient.tsx`](/src/lib/i18nClient.tsx) and [`/src/lib/i18nServer.ts`](/src/lib/i18nServer.ts).
 
-## Tests
-As of writing this, in [`package.json`](/package.json) there are some locale related scripts:
- - `"locales:validate": "tsx ./src/scripts/localesValidate.ts"`
-   - *Deprecated*. It is fully working and tests the translation files and the tsx files for missing keys, syntax errors etc. but it is being phased out in favor of `test:local` using `playwright`.
- - `"locales:format": "tsx ./src/scripts/localesFormat.ts"`
-   - Sorts the root level keys of every namespace except for `common` in alphabetical order.
- - `"pretest:local": "yarn run build"`
- - `"test:local": "tsx node_modules/playwright/cli.js test"`
-   - Runs the tests in [`/tests/locale-files.ts`](/tests/locale-files.ts) using `playwright`. All tests from `locales:validate` are being ported to this system. Additional tests will also be added soon, including browser tests.
-
 ### Manual testing
 There's a page on the site [`http://localhost:3000/localesTest`](http://localhost:3000/localesTest) that shows every key, translated both on the server and client and displays some stats and help text.

@@ -1,9 +1,10 @@
 'use client'
 
 import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" with { type: "json" }
-import { LoginData } from "@/lib/session";
+import type { LoginData } from "@/lib/session";
 import type { AccessControlled, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
-import { MetaRoadmap, RoadmapType } from "@prisma/client";
+import type { MetaRoadmap } from "@prisma/client";
+import { RoadmapType } from "@prisma/client";
 import { useRef, useState } from "react";
 import formSubmitter from "@/functions/formSubmitter";
 import styles from '../forms.module.css'
@@ -32,7 +33,7 @@ export default function MetaRoadmapForm({
   const [roadmapType, setRoadmapType] = useState<string>("");
   const router = useRouter();
 
-  const timestamp = Date.now()
+  const [timestamp] = useState(() => Date.now());
 
   const customRoadmapTypes = {
     [RoadmapType.NATIONAL]: t("common:scope.national"),
@@ -150,7 +151,7 @@ export default function MetaRoadmapForm({
               <option value="" disabled>{t("forms:meta_roadmap.no_chosen_roadmap_scope")}</option>
               {
                 Object.values(RoadmapType).map((value) => {
-                  if (value == RoadmapType.NATIONAL && !user?.isAdmin) return null;
+                  if (value === RoadmapType.NATIONAL && !user?.isAdmin) return null;
                   return (
                     <option key={value} value={value}>{value in customRoadmapTypes ? customRoadmapTypes[value] : value}</option>
                   )
@@ -192,7 +193,13 @@ export default function MetaRoadmapForm({
         />
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:meta_roadmap.relationship_legend")}</legend>
+          <legend
+            // Technically incrementing here is unused but if you add a another entry after this one it will be correct
+            // eslint-disable-next-line @/no-useless-assignment
+            data-position={positionIndex++}
+            className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}
+          >
+            {t("forms:meta_roadmap.relationship_legend")}</legend>
           <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:meta_roadmap.relationship_label")}</label>
           {parentRoadmapOptions ? ( // TODO: This might not make sense? // TODO: Memoize this? 
             <SelectSingleSearch

@@ -1,4 +1,4 @@
-import { Unit } from "mathjs";
+import type { Unit } from "mathjs";
 import type { DatasetKeys } from "@/lib/api/utility";
 import type { DateValues, DateValuesWithUnit, UnitString } from "@/types";
 import type { SmartRecipe } from "@/functions/recipe/smartRecipe";

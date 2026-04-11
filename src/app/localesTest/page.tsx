@@ -99,8 +99,8 @@ export default async function LocaleTestPage() {
                   const [formattedInput, formatterVar, formatterType] = interpolationCall;
 
                   const formattedOutput = t(formattedInput, defaultArgs);
-                  const isEmpty = formattedOutput == "";
-                  const isMissing = formattedOutput == formattedInput;
+                  const isEmpty = formattedOutput === "";
+                  const isMissing = formattedOutput === formattedInput;
                   const output = isEmpty ? "[EMPTY]" : isMissing ? "[MISSING]" : formattedOutput;
 
                   const resolvedVar = t(formatterVar, defaultArgs);
@@ -171,6 +171,7 @@ function getAllJSONFlattened(): Record<string, Record<string, string>> {
   const allPermutations = uniqueLocales.flatMap(locale => allNamespaces.map(namespace => [locale, namespace]));
 
   allPermutations.map(([locale, namespace]) => {
+    if (locale === Locales.test) return; // Skip test locale as it is not guaranteed to be a valid JSON
     const nsData = JSON.parse(fs.readFileSync(path.join("public/locales", locale, `${namespace}.json`), "utf-8")) as JSONValue;
     if (typeof nsData !== "object" || nsData === null || Array.isArray(nsData)) {
       console.warn(`Skipping invalid JSON for locale "${locale}" and namespace "${namespace}":`, nsData);

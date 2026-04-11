@@ -2,12 +2,12 @@
 
 import formSubmitter from "@/functions/formSubmitter";
 import parseCsv, { csvToGoalList } from "@/functions/parseCsv";
-import { LoginData } from "@/lib/session";
+import type { LoginData } from "@/lib/session";
 import type { AccessControlled, GoalCreateInput, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
-import { MetaRoadmap, Roadmap } from "@prisma/client";
+import type { MetaRoadmap, Roadmap } from "@prisma/client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import styles from '../forms.module.css';
-import { TFunction } from "i18next";
+import type { TFunction } from "i18next";
 import { Trans, useTranslation } from "react-i18next";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import TextEditor from "../elements/textEditor/editor";
@@ -130,8 +130,9 @@ export default function RoadmapForm({
 
   const [currentFile, setCurrentFile] = useState<File | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const timestamp = Date.now()
+  const [timestamp] = useState<number>(() => Date.now());
   const [metaRoadmapId, setMetaRoadmapId] = useState<string>(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap || "")
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [targetVersion, setTargetVersion] = useState<number | null>(0)
   // Temporarily disabled
   // const [inheritableGoals, setInheritableGoals] = useState<{ id: string, name: string | null, indicatorParameter: string }[]>([])
@@ -175,8 +176,8 @@ export default function RoadmapForm({
             return csvToGoalList(csv, () => addMessage(t("forms:roadmap.scale_deprecated_extended"), "warning"));
           })
           .then(() => setIsLoading(false))
-          .catch((error) => {
-            throw error;
+          .catch((e: unknown) => {
+            throw new Error(t("forms:roadmap.file_read_error", { error: e instanceof Error ? e.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }));
           });
       }
       catch (error) {
@@ -234,7 +235,7 @@ export default function RoadmapForm({
             {metaRoadmapTarget?.roadmapVersions.length && (
               <label>
                 {t("forms:roadmap.roadmap_target_label", { targetName: metaRoadmapTarget.name })}
-                <select className="block margin-top-25 margin-bottom-100 width-100" name="target-version" id="target-version" required defaultValue={currentRoadmap?.targetVersion || ""} onChange={(e) => setTargetVersion(parseInt(e.target.value) || null)}>
+                <select className="block margin-top-25 margin-bottom-100 width-100" name="target-version" id="target-version" required defaultValue={currentRoadmap?.targetVersion ?? ""} onChange={(e) => setTargetVersion(parseInt(e.target.value) || null)}>
                   <option value="">{t("forms:roadmap.roadmap_target_no_chosen")}</option>
                   <option value={0}>{t("forms:roadmap.roadmap_target_always_latest")}</option>
                   {metaRoadmapTarget.roadmapVersions.map((version) => {

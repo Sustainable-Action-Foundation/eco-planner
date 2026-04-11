@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "streetsidesoftware.code-spell-checker",
+    "lokalise.i18n-ally",
+    "dbaeumer.vscode-eslint",
+    "Prisma.prisma"
+  ],
+}

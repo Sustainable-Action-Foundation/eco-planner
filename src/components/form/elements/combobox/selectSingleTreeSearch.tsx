@@ -62,8 +62,9 @@ export default function SelectSingleTreeSearch({
 }) {
   const { t } = useTranslation(["forms"]);
 
-  const [value, setValue] = useState<TreeItem | null>(defaultValue || null)
+  const [value, setValue] = useState<TreeItem | null>(defaultValue ?? null)
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [searchValue, setSearchValue] = useState<string>('')
 
   const [items, setItems] = useState<Array<TreeItem>>(treeItems)
@@ -104,7 +105,7 @@ export default function SelectSingleTreeSearch({
     )
   }, [menuOpen]);
 
-  // Disables form subbmision if value is invalid 
+  // Disables form submission if value is invalid 
   // Define what an invalid value is (missing value or empty string). We only need this defined if the field is required
   const valueIsValid = useMemo(() => {
     if ((!value || value.value === "") && props.required) return false;
@@ -240,7 +241,7 @@ export default function SelectSingleTreeSearch({
         aria-controls={menuOpen ? `${props.id}-dialog` : undefined}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
-        aria-required={props.required ? props.required : false}
+        aria-required={!!props.required ? props.required : false}
         aria-invalid={!valueIsValid}
       >
         <span className={`${styles['selected-value-text']}`}>
@@ -257,7 +258,7 @@ export default function SelectSingleTreeSearch({
           margin-inline-0`
         }
         onBlur={(e) => {
-          if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget?.id != props.id) {
+          if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget?.id !== props.id) {
             setFocusedIndex(null)
             setMenuOpen(false);
           }

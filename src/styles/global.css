@@ -111,7 +111,7 @@ input:disabled:hover {
   cursor: not-allowed;
 }
 
-kbd > kbd {
+kbd>kbd {
   border-radius: 3px;
   padding: 1px 2px 0;
   border: 1px solid black;
@@ -139,7 +139,7 @@ input:-webkit-autofill:focus {
   transition: outline-color .1s ease;
 }
 
-.tiptap > :first-child {
+.tiptap> :first-child {
   margin-block: 0;
 }
 
@@ -185,7 +185,16 @@ button[type="submit"]:disabled {
   padding: .3rem .6rem;
 }
 
-.neutral-action:hover {
+.secondary-neutral-action {
+  color: #191919;
+  background-color: #f3f6ff;
+  border: 1px solid var(--gray-80);
+  text-decoration: none;
+  padding: .3rem .6rem;
+}
+
+.neutral-action:not(:is(select)):hover,
+.secondary-neutral-action:not(:is(select)):hover {
   border-color: var(--blue-40);
   background-color: hsl(223.12deg 100% 93%);
 }
@@ -325,7 +334,7 @@ progress::-webkit-progress-value {
   /* Same as dialog */
 }
 
-.dialog-header > h1 {
+.dialog-header>h1 {
   font-size: 1.75rem;
 }
 
@@ -341,4 +350,42 @@ progress::-webkit-progress-value {
 .dialog fieldset button:active {
   /* TODO: Remove? */
   transform: scale(.995);
+}
+
+/* Chips */
+
+.chip {
+  display: flex;
+  background-color: var(--secondary-neutral);
+  padding: .6rem;
+  line-height: 1;
+  box-shadow: 0 0 4px -2px var(--gray-70);
+  text-shadow: 0 0 var(--darkblue);
+  color: var(--blue-10);
+  border-radius: 9999px;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.chip input[type="checkbox"] {
+  visibility: hidden;
+  width: 0;
+  height: 0;
+}
+
+.chip:hover {
+  box-shadow: inset 0 0 9999px rgba(153, 211, 255, .5);
+}
+
+.chip:has(input[type="checkbox"]:checked) {
+  background-color: rgba(153, 211, 255, .65);
+}
+
+@media (pointer: coarse) {
+  .chip {
+    padding: .75rem;
+  }
 }

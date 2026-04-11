@@ -1,10 +1,12 @@
 import "server-only";
 import { roadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
-import { getSession, LoginData } from "@/lib/session"
+import type { LoginData } from "@/lib/session";
+import { getSession } from "@/lib/session"
 import { goalSorter } from "@/lib/sorters";
-import prisma, { Prisma } from "@/prismaClient";
+import prisma from "@/prismaClient";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
+import type { Roadmap } from "@/types";
 
 /**
  * Gets a roadmap from a meta roadmap ID and version number.
@@ -28,9 +30,7 @@ export async function getRoadmapByVersion(metaId: string, version: number) {
  */
 const getCachedRoadmap = unstable_cache(
   async (metaId: string, version: number, user: LoginData['user']) => {
-    let roadmap: Prisma.RoadmapGetPayload<{
-      include: typeof roadmapInclusionSelection
-    }> | null = null;
+    let roadmap: Roadmap | null;
 
     // If user is admin, always get the roadmap
     if (user?.isAdmin) {

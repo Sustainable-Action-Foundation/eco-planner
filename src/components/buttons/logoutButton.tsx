@@ -19,6 +19,7 @@ export default function LogoutButton({
       id={id}
       className={`${className}`}
       style={{ ...style }}
+      data-testid="logout-button"
       onClick={() => {
         fetch('/api/logout', {
           method: 'POST',
@@ -29,8 +30,8 @@ export default function LogoutButton({
           } else {
             alert(t("components:logout_button.failed"))
           }
-        }).catch((error) => {
-          console.error("Logout failed:", error)
+        }).catch((e: unknown) => {
+          console.error("Logout failed:", e)
           alert(t("components:logout_button.failed"))
         })
       }}>

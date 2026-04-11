@@ -9,8 +9,8 @@ import { useTranslation } from "react-i18next";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import { color_palette, stroke, marker } from "../../../config";
 
-// TODO: IT seems we want translations in our name, e.g (${t("common:goal_one")}), to be specificly in the label instead if possible. 
-// This would make dealing with y-axis "seriesname" more sensible
+// TODO: IT seems we want translations in our name, e.g (${t("common:goal_one")}), to be specifically in the label instead if possible. 
+// This would make dealing with y-axis "series name" more sensible
 // TODO: Probably want some helper function to create historical, parent and comparative dataseries that we can reuse in multiple components
 export default function MainGraph({
   goal,
@@ -203,7 +203,7 @@ export default function MainGraph({
     });
     // Place secondary and main series on different scales if they don't share the same unit
     // TODO: Use mathjs to see if the units are the same, rather than just comparing strings
-    if (secondaryGoal.dataSeries.unit != goal.dataSeries.unit) {
+    if (secondaryGoal.dataSeries.unit !== goal.dataSeries.unit) {
       (mainChartOptions.yaxis as ApexYAxis[]).push({
         title: { text: `${t("graphs:main_graph.secondary_goal", { unit: secondaryGoal.dataSeries.unit })}` },
         labels: { formatter: graphNumberFormatter },

@@ -1,14 +1,5 @@
-import { defineConfig, devices } from "playwright/test";
-import { parseEnv } from "node:util";
-import fs from "node:fs";
-
-//  Load environment variables from .env file
-let env: Record<string, string> = {};
-if (fs.existsSync(".env")) {
-  env = parseEnv(fs.readFileSync(".env", "utf-8")) as Record<string, string>;
-}
-process.env = Object.keys(env).length > 0 ? { ...process.env, ...env } : process.env;
-env = {}; // Clear it just in case any reporter dumps the heap.
+import "dotenv/config";
+import { defineConfig, devices, ReporterDescription } from "playwright/test";
 
 // Allow overriding the webserver URL via environment variable, defaulting to a local port opened by testing docker compose.
 export const webserverURL = process.env.BASE_URL || "http://localhost:8081";
@@ -18,27 +9,30 @@ const CI = process.env.CI ? true : false;
 export default defineConfig({
   testDir: "tests/",
 
+  testIgnore: "screenshot-tests.spec.ts",
+
   // fullyParallel: true,
   workers: "50%",
 
   // One retry in case of flaky tests
   retries: 1,
 
-  // Reporter to use
-  reporter: [
-    ...(CI ?
-      [["github"]]
-      :
-      [
-        ["dot"],
-        ["html", { open: "never" }],
-      ]
-    ) as [string, object][],
+  timeout: 60 * 1000, // Max time one test can run for
 
-    ["json", { outputFile: "tests/report.json" }],
-    ["list"],
-  ],
-  // reporter: "list",
+  expect: {
+    timeout: 10 * 1000, // Max time expect() should wait for the condition to be met.
+  },
+
+  // Reporter to use
+  reporter: (() => {
+    const reporters: ReporterDescription[] = [["html", { open: "never" }]];
+    if (CI)
+      reporters.push(["github"]);
+    else
+      reporters.push(["dot"]);
+
+    return reporters;
+  })(),
 
   // Stop docker containers after tests are done
   globalTeardown: "./tests/global.teardown.ts",
@@ -51,12 +45,19 @@ export default defineConfig({
     // Collect trace when retrying the failed test.
     trace: "on-first-retry",
 
-    locale: "sv-SE",
+    locale: "cimode",
     timezoneId: "Europe/Stockholm",
+
+    // Shorter timeouts for actions to make tests that will fail, fail faster. 
+    actionTimeout: 5 * 1000, // Timeout for click, fill etc.
   },
 
   // Configure projects for major browsers.
   projects: [
+    {
+      name: 'setup',
+      testMatch: /.*\.setup\.ts/
+    },
     {
       name: "Locale files validation",
       testMatch: ["**/locale-files.ts"],
@@ -65,15 +66,18 @@ export default defineConfig({
     },
     {
       name: "chromium 1080p",
-      use: { ...devices["Desktop Chrome"], viewport: { width: 1920, height: 1080 }, channel: "chromium", },
+      use: { ...devices["Desktop Chrome"], viewport: { width: 1920, height: 1080 }, channel: "chromium" },
+      dependencies: ["setup"],
     },
     {
       name: "firefox 1080p",
-      use: { ...devices["Desktop Firefox"], viewport: { width: 1920, height: 1080 }, },
+      use: { ...devices["Desktop Firefox"], viewport: { width: 1920, height: 1080 } },
+      dependencies: ["setup"],
     },
     {
       name: "webkit 1080p",
-      use: { ...devices["Desktop Safari"], viewport: { width: 1920, height: 1080 }, },
+      use: { ...devices["Desktop Safari"], viewport: { width: 1920, height: 1080 } },
+      dependencies: ["setup"],
     },
   ],
 

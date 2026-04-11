@@ -1,5 +1,6 @@
 import "server-only";
-import { getSession, LoginData } from "@/lib/session"
+import type { LoginData } from "@/lib/session";
+import { getSession } from "@/lib/session"
 import prisma from "@/prismaClient";
 import { roadmapSorter } from "@/lib/sorters";
 import { unstable_cache } from "next/cache";
@@ -25,7 +26,7 @@ export async function getRoadmaps(roadmapIds?: string[],): Promise<MultiRoadmapI
  */
 const getCachedRoadmaps = unstable_cache(
   async (user: LoginData['user'], roadmapIds?: string[],): Promise<MultiRoadmapInstance[]> => {
-    let roadmaps: MultiRoadmapInstance[] = [];
+    let roadmaps: MultiRoadmapInstance[];
 
     // If user is admin, get all roadmaps
     if (user?.isAdmin) {

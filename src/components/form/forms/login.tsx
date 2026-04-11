@@ -1,11 +1,11 @@
 'use client'
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import styles from '../forms.module.css'
 import { useTranslation } from "react-i18next";
-import { TFunction } from "i18next";
 import { IconExclamationCircle, IconEye, IconEyeOff, IconLock, IconUser } from "@tabler/icons-react";
+import type { TFunction } from "i18next";
 
 let errorMessage = "";
 

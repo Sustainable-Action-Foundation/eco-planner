@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { getSession } from "@/lib/session"
 import prisma, { Prisma } from "@/prismaClient";
 import { AccessLevel, ClientError } from "@/types";
@@ -267,7 +267,7 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message == ClientError.BadSession) {
+      if (error.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
@@ -310,7 +310,7 @@ export async function POST(request: NextRequest) {
     latestVersion = (await prisma.roadmap.aggregate({
       where: { metaRoadmapId: roadmap.metaRoadmapId },
       _max: { version: true },
-    }))._max.version || 0;
+    }))._max.version ?? 0;
   } catch {
     return Response.json({ message: 'Failed to fetch latest roadmap version' },
       { status: 500 }
@@ -319,22 +319,22 @@ export async function POST(request: NextRequest) {
 
   // Create lists of names for linking
   const editors: { username: string }[] = [];
-  for (const name of [...(roadmap.editors || []), originalAuthor.username]) {
+  for (const name of [...(roadmap.editors ?? []), originalAuthor.username]) {
     editors.push({ username: name });
   }
 
   const viewers: { username: string }[] = [];
-  for (const name of roadmap.viewers || []) {
+  for (const name of roadmap.viewers ?? []) {
     viewers.push({ username: name });
   }
 
   const editGroups: { name: string }[] = [];
-  for (const name of roadmap.editGroups || []) {
+  for (const name of roadmap.editGroups ?? []) {
     editGroups.push({ name: name });
   }
 
   const viewGroups: { name: string }[] = [];
-  for (const name of roadmap.viewGroups || []) {
+  for (const name of roadmap.viewGroups ?? []) {
     viewGroups.push({ name: name });
   }
 
@@ -367,13 +367,13 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     // Custom error if there are errors in the nested goal creation
     if (error instanceof Error) {
-      if (error.cause == 'nestedGoalCreation') {
+      if (error.cause === 'nestedGoalCreation') {
         return Response.json({ message: error.message },
           { status: 400 }
         );
       }
     }
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code == 'P2025') {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
       return Response.json({ message: 'Failed to connect records. Probably invalid editor, viewer, editGroup, and/or viewGroup name(s)' },
         { status: 400 }
       );
@@ -441,19 +441,19 @@ export async function PUT(request: NextRequest) {
     }
 
     // Check if the client's data is stale
-    if (!roadmap.timestamp || (currentRoadmap?.updatedAt?.getTime() || 0) > roadmap.timestamp) {
+    if (!roadmap.timestamp || (currentRoadmap?.updatedAt?.getTime() ?? 0) > roadmap.timestamp) {
       throw new Error(ClientError.StaleData, { cause: 'roadmap' });
     }
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message == ClientError.BadSession) {
+      if (error.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } }
         );
       }
-      if (error.message == ClientError.StaleData) {
+      if (error.message === ClientError.StaleData) {
         return Response.json({ message: ClientError.StaleData },
           { status: 409 }
         );
@@ -472,22 +472,22 @@ export async function PUT(request: NextRequest) {
 
   // Create lists of names for linking
   const editors: { username: string }[] = [];
-  for (const name of roadmap.editors || []) {
+  for (const name of roadmap.editors ?? []) {
     editors.push({ username: name });
   }
 
   const viewers: { username: string }[] = [];
-  for (const name of roadmap.viewers || []) {
+  for (const name of roadmap.viewers ?? []) {
     viewers.push({ username: name });
   }
 
   const editGroups: { name: string }[] = [];
-  for (const name of roadmap.editGroups || []) {
+  for (const name of roadmap.editGroups ?? []) {
     editGroups.push({ name: name });
   }
 
   const viewGroups: { name: string }[] = [];
-  for (const name of roadmap.viewGroups || []) {
+  for (const name of roadmap.viewGroups ?? []) {
     viewGroups.push({ name: name });
   }
 
@@ -522,13 +522,13 @@ export async function PUT(request: NextRequest) {
     console.log(error);
     // Custom error if there are errors in the nested goal creation
     if (error instanceof Error) {
-      if (error.cause == 'nestedGoalCreation') {
+      if (error.cause === 'nestedGoalCreation') {
         return Response.json({ message: error.message },
           { status: 400 }
         );
       }
     }
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code == 'P2025') {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
       return Response.json({ message: 'Failed to connect records. Probably invalid editor, viewer, editGroup, and/or viewGroup name(s)' },
         { status: 400 }
       );
@@ -586,13 +586,13 @@ export async function DELETE(request: NextRequest) {
       throw new Error(ClientError.BadSession, { cause: 'roadmap' });
     }
 
-    // If the roadmap is not found it eiter does not exist or the user has no access to it
+    // If the roadmap is not found it either does not exist or the user has no access to it
     if (!currentRoadmap) {
       throw new Error(ClientError.AccessDenied, { cause: 'roadmap' });
     }
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message == ClientError.BadSession) {
+      if (error.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },

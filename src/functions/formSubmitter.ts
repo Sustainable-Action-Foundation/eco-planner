@@ -1,9 +1,9 @@
 'use client';
 
-import { TFunction } from "i18next";
+import type { TFunction } from "i18next";
 import { isStandardObject } from "@/types";
 import type { JSONValue } from "@/types";
-import { SetStateAction } from "react";
+import type { SetStateAction } from "react";
 
 /**
  * Submits the data from a form to the API and handles the response
@@ -60,7 +60,7 @@ export default function formSubmitter(
       loadingStateSetter(false);
     }
 
-    const targetPath = data.location ?? (defaultLocation ? defaultLocation : method.toUpperCase() == "POST" ? "../" : "./");
+    const targetPath = data.location ?? (defaultLocation ? defaultLocation : method.toUpperCase() === "POST" ? "../" : "./");
     if (router) {
       router(targetPath)
     } else {
@@ -81,6 +81,14 @@ export default function formSubmitter(
         }
       }
     }
+    // Redirect to the location provided by the API, or, if missing, to nearest valid parent
+    // POST is on pages such as /goal/create, which should default to / if no location is provided
+    // PUT is on pages such as /goal/[id]/edit, which should default to /goal/[id] if no location is provided
+    window.location.href = data.location || (
+      !!defaultLocation
+        ? defaultLocation
+        : method === "POST" ? "../" : "./"
+    );
   }).catch((err: unknown) => {
     if (catchReplacement) {
       catchReplacement(err);

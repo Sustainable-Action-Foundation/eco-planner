@@ -1,9 +1,11 @@
 import "server-only";
 import { actionInclusionSelection } from "@/fetchers/inclusionSelectors";
-import { getSession, LoginData } from "@/lib/session";
-import prisma, { Prisma } from "@/prismaClient";
+import type { LoginData } from "@/lib/session";
+import { getSession } from "@/lib/session";
+import prisma from "@/prismaClient";
 import { cookies } from "next/headers";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
+import type { Action } from "@/types";
 
 /**
  * Gets all available actions.
@@ -24,10 +26,8 @@ async function getCachedActions(user: LoginData['user']) {
   'use cache';
   cacheTag('database', 'action');
 
-  let actions: Prisma.ActionGetPayload<{
-    // TODO: Use a different inclusion selection, probably excluding effects and parent roadmap
-    include: typeof actionInclusionSelection;
-  }>[] = [];
+  // TODO: Use a different inclusion selection, probably excluding effects and parent roadmap
+  let actions: Action[];
 
   // If user is admin, get all actions
   if (user?.isAdmin) {

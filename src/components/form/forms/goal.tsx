@@ -20,9 +20,9 @@ import { useToastContext } from "@/context/context";
 import { useRouter } from "next/navigation";
 
 const DataSeriesType = {
-  Static: "STATIC",
-  Inherited: "INHERIT",
-  Combined: "COMBINE",
+  Manual: "MANUAL",
+  Suggested: "SUGGESTED",
+  Custom: "CUSTOM",
 } as const;
 type DataSeriesType = (typeof DataSeriesType)[keyof typeof DataSeriesType];
 
@@ -34,6 +34,30 @@ const BaselineType = {
 } as const;
 type BaselineType = (typeof BaselineType)[keyof typeof BaselineType];
 
+function dataSeriesTypeFromGoal(goal?: Goal): DataSeriesType {
+  // Default to suggested recipes for new goals
+  if (!goal?.dataSeries) return DataSeriesType.Suggested;
+
+  if (!goal.dataSeries.recipeUsedId) {
+    return DataSeriesType.Manual;
+  } else {
+    return DataSeriesType.Custom;
+  }
+}
+
+function baselineTypeFromGoal(goal?: Goal): BaselineType {
+  // Default to first value for new goals
+  if (!goal?.baseline) return BaselineType.Initial;
+
+  if (!goal.baseline.recipeUsedId) {
+    // Manual value input
+    return BaselineType.Custom;
+  } else {
+    // Recipe-based
+    return BaselineType.Inherited;
+  }
+}
+
 export default function GoalForm({
   roadmapId,
   roadmapAlternatives,
@@ -44,8 +68,8 @@ export default function GoalForm({
   currentGoal?: Goal;
 }) {
   const { t } = useTranslation(["forms", "common"]);
-  const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(DataSeriesType.Inherited);
-  const [baselineType, setBaselineType] = useState<BaselineType>(currentGoal?.baseline ? BaselineType.Custom : BaselineType.Initial);
+  const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(dataSeriesTypeFromGoal(currentGoal));
+  const [baselineType, setBaselineType] = useState<BaselineType>(baselineTypeFromGoal(currentGoal));
   const [parentRoadmapId, setParentRoadmapId] = useState<string>(roadmapId || "");
   const descriptionRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
@@ -59,7 +83,7 @@ export default function GoalForm({
     }));
   }, [roadmapAlternatives, t]);
 
-  const timestamp = useMemo(() => Date.now(), []);
+  const [timestamp] = useState(() => Date.now());
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -100,6 +124,7 @@ export default function GoalForm({
     let dataSeries: DateValuesWithUnit | undefined = undefined;
     try {
       dataSeries = JSON.parse(resultingDateValuesString) as DateValuesWithUnit;
+      dataSeries.unit = formData.get("dataUnit") as string | null;
     } catch (e) {
       console.error("Failed to parse resulting date values from form:", e);
       event.target.reportValidity();
@@ -195,7 +220,7 @@ export default function GoalForm({
         dataSeriesId: null,
         dataSeries: dataSeries,
         dataSeriesRecipeId: null,
-        dataSeriesRecipe: dataSeriesRecipe || null,
+        dataSeriesRecipe: dataSeriesRecipe ?? null,
 
         baselineId: baselineId,
         baseline: baseline,
@@ -309,9 +334,9 @@ export default function GoalForm({
           <div>
             <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50">
               <input
-                checked={dataSeriesType === DataSeriesType.Static}
+                checked={dataSeriesType === DataSeriesType.Manual}
                 onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
-                value={DataSeriesType.Static}
+                value={DataSeriesType.Manual}
                 type="radio"
                 name="alternative"
                 required
@@ -320,9 +345,9 @@ export default function GoalForm({
             </label>
             <label className="flex width-fit-content align-items-center gap-50 margin-bottom-100">
               <input
-                checked={dataSeriesType === DataSeriesType.Inherited}
+                checked={dataSeriesType === DataSeriesType.Suggested}
                 onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
-                value={DataSeriesType.Inherited} /* TODO: Recipe type data series */
+                value={DataSeriesType.Suggested} /* TODO: Recipe type data series */
                 type="radio"
                 name="alternative"
                 required
@@ -332,7 +357,7 @@ export default function GoalForm({
           </div>
 
           {(
-            dataSeriesType === DataSeriesType.Static
+            dataSeriesType === DataSeriesType.Manual
           ) &&
             <ManualGoalForm
               currentGoal={currentGoal}
@@ -341,8 +366,8 @@ export default function GoalForm({
           }
           {(
             !dataSeriesType // Fallback for undefined or otherwise falsy
-            || dataSeriesType === DataSeriesType.Inherited
-            || dataSeriesType === DataSeriesType.Combined
+            || dataSeriesType === DataSeriesType.Suggested
+            || dataSeriesType === DataSeriesType.Custom
           ) &&
             <RecipeContextProvider>
               {/* TODO: Want to clear recipe when switching between suggested or custom recipes? */}
@@ -396,7 +421,14 @@ export default function GoalForm({
 
         {/* External links section */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.feature_this_goal")}</legend>
+          <legend
+            // Technically incrementing here is unused but if you add a another entry after this one it will be correct
+            // eslint-disable-next-line @/no-useless-assignment
+            data-position={positionIndex++}
+            className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
+          >
+            {t("forms:goal.feature_this_goal")}
+          </legend>
           <label className="flex align-items-center gap-50 margin-bottom-100">
             <input type="checkbox" name="isFeatured" id="isFeatured" defaultChecked={currentGoal?.isFeatured} />
             {t("forms:goal.feature_goal")}

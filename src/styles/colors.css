@@ -31,6 +31,7 @@
   --blue-70: hsl(206, 100%, 70%);
   --blue-80: hsl(206, 100%, 80%);
   --blue-90: hsl(206, 100%, 90%);
+  --blue-95: hsl(206, 100%, 95%);
 
   --brown: hsl(28, 40%, 83%);
   --brown-10: hsl(28, 40%, 10%);
@@ -202,6 +203,10 @@
 
 .blue-90 {
   background-color: var(--blue-90);
+}
+
+.blue-95 {
+  background-color: var(--blue-95);
 }
 
 .brown {

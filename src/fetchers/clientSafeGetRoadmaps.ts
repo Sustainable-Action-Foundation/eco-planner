@@ -3,7 +3,8 @@
 import prisma from "@/prismaClient";
 import { clientSafeMultiRoadmapSelection } from "@/fetchers/inclusionSelectors";
 import { cookies } from "next/headers";
-import { getSession, LoginData } from "@/lib/session";
+import type { LoginData } from "@/lib/session";
+import { getSession } from "@/lib/session";
 import { roadmapSorter } from "@/lib/sorters";
 import { unstable_cacheTag as cacheTag } from 'next/cache'
 import type { ClientMultiRoadmapInstance } from "@/types";
@@ -23,7 +24,7 @@ async function getCachedClientSafeRoadmaps(user: LoginData['user']): Promise<Cli
   'use cache';
   cacheTag('database', 'roadmap');
 
-  let roadmaps: ClientMultiRoadmapInstance[] = [];
+  let roadmaps: ClientMultiRoadmapInstance[];
 
   // If user is admin, get all roadmaps
   if (user?.isAdmin) {

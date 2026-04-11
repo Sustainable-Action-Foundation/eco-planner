@@ -10,6 +10,7 @@ export type UnderlineOptions = {
 }
 
 declare module '@tiptap/core' {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Commands<ReturnType> {
     underline: {
       /**

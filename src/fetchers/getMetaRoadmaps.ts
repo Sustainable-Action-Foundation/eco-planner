@@ -1,10 +1,12 @@
 import "server-only";
 import { metaRoadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
-import { getSession, LoginData } from "@/lib/session";
+import type { LoginData } from "@/lib/session";
+import { getSession } from "@/lib/session";
 import { metaRoadmapSorter } from "@/lib/sorters";
-import prisma, { Prisma } from "@/prismaClient";
+import prisma from "@/prismaClient";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
+import type { MetaRoadmap } from "@/types";
 
 /**
  * Get all meta roadmaps the user has access to, as well as the different versions the user has access to.
@@ -24,9 +26,7 @@ export async function getMetaRoadmaps() {
  */
 const getCachedMetaRoadmaps = unstable_cache(
   async (user: LoginData['user']) => {
-    let metaRoadmaps: Prisma.MetaRoadmapGetPayload<{
-      include: typeof metaRoadmapInclusionSelection
-    }>[] = [];
+    let metaRoadmaps: MetaRoadmap[];
 
     // If user is admin, get all meta roadmaps
     if (user?.isAdmin) {

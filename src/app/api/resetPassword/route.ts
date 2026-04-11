@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import getUserHash from "@/functions/getUserHash";
 import prisma from "@/prismaClient";
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import type { JSONValue } from "@/types";
 
 export async function PATCH(request: NextRequest) {

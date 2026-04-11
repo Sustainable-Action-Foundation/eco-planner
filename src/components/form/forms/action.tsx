@@ -7,8 +7,7 @@ import { useTranslation } from "react-i18next"
 import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput"
 import styles from '../forms.module.css'
 import TextEditor from "../elements/textEditor/editor"
-import { useMemo, useState, useRef } from "react"
-import { Content } from "@tiptap/core"
+import { useState, useRef } from "react"
 import { useToastContext } from "@/context/context"
 import { useRouter } from "next/navigation"
 
@@ -24,22 +23,11 @@ export default function ActionForm({
   roadmaps: MultiRoadmapInstance[],
 }) {
   const { t } = useTranslation(["forms", "common"]);
+  const [timestamp] = useState(() => Date.now());
   const descriptionRef = useRef<HTMLInputElement>(null);
   const router = useRouter()
 
-  const timestamp = useMemo(() => Date.now(), []);
-
   const { addMessage } = useToastContext();
-
-  const [editorContent, setEditorContent] = useState<Content>(() => {
-    if (!currentAction?.description) return null;
-
-    try {
-      return JSON.parse(currentAction.description) as Content;
-    } catch {
-      return currentAction.description;
-    }
-  });
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -181,7 +169,14 @@ export default function ActionForm({
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:action.categories_legend")}</legend>
+          <legend
+            // Technically incrementing here is unused but if you add a another entry after this one it will be correct
+            // eslint-disable-next-line @/no-useless-assignment
+            data-position={positionIndex++}
+            className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
+          >
+            {t("forms:action.categories_legend")}
+          </legend>
           <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50" htmlFor="isSufficiency">
             <input type="checkbox" name="isSufficiency" id="isSufficiency" defaultChecked={currentAction?.isSufficiency} />
             {t("forms:action.category_sufficiency")}

@@ -65,7 +65,7 @@ export default function DataSeriesInputManual() {
 
         // If we paste into data, we do not want any new data in the previous column (i.e years)
         // If we paste into year, we expect both the year and data column to be filled out data exists
-        if (targetColumn == 'data') {
+        if (targetColumn === 'data') {
           next[rowIndex] = {
             year: next[rowIndex].year,
             data: cols[0] ? Number(cols[0]) : null,
@@ -104,7 +104,7 @@ export default function DataSeriesInputManual() {
               <input
                 type="number"
                 tabIndex={-1}
-                value={item.year ? item.year : ''}
+                value={item.year ?? undefined}
                 onChange={(e) => handleYearChange(index, e.target.value)}
                 onPaste={(e) => {
                   // Make sure the pasted input is valid before handling paste
@@ -124,7 +124,7 @@ export default function DataSeriesInputManual() {
               <input
                 type="number"
                 tabIndex={-1}
-                value={item.data ? item.data : ''}
+                value={item.data ?? undefined}
                 onChange={(e) => handleDataChange(index, e.target.value)}
                 onPaste={(e) => {
                   // Make sure the pasted input is valid before handling paste

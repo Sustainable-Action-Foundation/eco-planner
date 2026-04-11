@@ -29,11 +29,11 @@ export function Stats(
       const clientSide: HTMLElement | null = row.querySelector(`*[data-type="client"]`);
 
       // Server side check
-      if (serverSide && serverSide.textContent === empty) {
+      if (serverSide?.textContent === empty) {
         serverSide.dataset["content"] = "empty";
         emptyCount++;
       }
-      else if (serverSide && serverSide.textContent === missing) {
+      else if (serverSide?.textContent === missing) {
         serverSide.dataset["content"] = "missing";
         missingCount++;
       }
@@ -42,11 +42,11 @@ export function Stats(
       }
 
       // Client side check
-      if (clientSide && clientSide.textContent === empty) {
+      if (clientSide?.textContent === empty) {
         clientSide.dataset["content"] = "empty";
         emptyCount++;
       }
-      else if (clientSide && clientSide.textContent === missing) {
+      else if (clientSide?.textContent === missing) {
         clientSide.dataset["content"] = "missing";
         missingCount++;
       }

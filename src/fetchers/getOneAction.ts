@@ -1,6 +1,7 @@
 import "server-only";
 import { actionInclusionSelection } from "@/fetchers/inclusionSelectors";
-import { getSession, LoginData } from "@/lib/session";
+import type { LoginData } from "@/lib/session";
+import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
@@ -26,7 +27,7 @@ export async function getOneAction(id: string): Promise<Action | null> {
  */
 const getCachedAction = unstable_cache(
   async (id: string, user: LoginData['user']): Promise<Action | null> => {
-    let action: Action | null = null;
+    let action: Action | null;
 
     // If user is admin, always get the action
     if (user?.isAdmin) {

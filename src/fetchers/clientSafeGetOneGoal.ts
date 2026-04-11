@@ -1,7 +1,8 @@
 'use server';
 
 import { clientSafeGoalSelection } from "@/fetchers/inclusionSelectors";
-import { getSession, LoginData } from "@/lib/session"
+import type { LoginData } from "@/lib/session";
+import { getSession } from "@/lib/session"
 import prisma from "@/prismaClient";
 import { cookies } from "next/headers";
 import { unstable_cacheTag as cacheTag } from 'next/cache'
@@ -23,7 +24,7 @@ async function clientSafeGetCachedGoal(id: string, user: LoginData['user']): Pro
   'use cache';
   cacheTag('database', 'goal', 'action', 'dataSeries');
 
-  let goal: ClientGoal | null = null;
+  let goal: ClientGoal | null;
 
   // If user is admin, always get the goal
   if (user?.isAdmin) {

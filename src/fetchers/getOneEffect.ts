@@ -1,5 +1,6 @@
 import "server-only";
-import { getSession, LoginData } from "@/lib/session";
+import type { LoginData } from "@/lib/session";
+import { getSession } from "@/lib/session";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 import { effectInclusionSelection } from "@/fetchers/inclusionSelectors";
@@ -25,7 +26,7 @@ export async function getOneEffect(actionId: string, goalId: string): Promise<Ef
  */
 const getCachedEffect = unstable_cache(
   async (actionId: string, goalId: string, user: LoginData['user']): Promise<Effect | null> => {
-    let effect: Effect | null = null;
+    let effect: Effect | null;
 
     // If user is admin, get effect without checking access
     if (user?.isAdmin) {

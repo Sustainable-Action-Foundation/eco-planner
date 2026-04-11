@@ -1,4 +1,5 @@
-import { DatasetKeys, ExternalDataset } from "@/lib/api/utility";
+import type { DatasetKeys} from "@/lib/api/utility";
+import { ExternalDataset } from "@/lib/api/utility";
 import { isStandardObject } from "@/types";
 import { isDateValues, typeguardDebug, uuidRegex } from "@/types";
 import type { JSONValue } from "@/types";

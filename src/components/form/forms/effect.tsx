@@ -3,7 +3,7 @@
 import formSubmitter from "@/functions/formSubmitter";
 import type { Action, DateValuesWithUnit, Effect, EffectInput, Goal, MultiRoadmapInstance } from "@/types";
 import { ActionImpactType } from "@prisma/client";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput";
 import { absoluteToDelta, ActionSelector, deltaToAbsolute, GoalSelector } from "../sections/effectFormSections";
@@ -23,11 +23,10 @@ export default function EffectForm({
   roadmaps: MultiRoadmapInstance[],
 }) {
   const { t } = useTranslation(["forms", "common"]);
-  const timestamp = useMemo(() => Date.now(), []);
+  const [timestamp] = useState(() => Date.now());
   const router = useRouter();
 
   const { addMessage } = useToastContext();
-
 
   const [selectedImpactType, setSelectedImpactType] = useState<ActionImpactType>(currentEffect?.impactType ?? ActionImpactType.ABSOLUTE);
   const [dateValues, setDateValues] = useState<DateValuesWithUnit>(currentEffect?.dataSeries
@@ -63,7 +62,7 @@ export default function EffectForm({
     };
 
     /** Where to redirect after submitting the form, unless API returns a location header */
-    let defaultLocation: string | undefined = undefined;
+    let defaultLocation: string | undefined;
     if (currentEffect?.action) {
       defaultLocation = `/action/${currentEffect.action.id}`;
     }

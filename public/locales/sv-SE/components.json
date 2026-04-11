@@ -197,8 +197,9 @@
     "goal_count_descending": "Antal $t(common:goal_other) (fallande)",
     "name_ascending": "Namn (Ö-A)",
     "name_descending": "Namn (A-Ö)",
+    "roadmap_type": "Typ av färdplansserie",
     "search_roadmaps": "Sök bland $t(common:roadmap_series_other)",
-    "sort_by": "Sortera utifrån:"
+    "sort_by": "Sortera utifrån"
   },
   "roadmap_series_one_deleter": {
     "remove_metadata": "Ta bort metadata"

@@ -1,5 +1,5 @@
 import HistoricalData from "@/components/form/forms/historicalData";
-import { getOneGoal, getOneRoadmap, getRoadmaps } from "@/fetchers";
+import { getOneGoal } from "@/fetchers";
 import { buildMetadata } from "@/functions/buildMetadata";
 import serveTea from "@/lib/i18nServer";
 import { getSession } from "@/lib/session";
@@ -46,17 +46,14 @@ export default async function page(
     }>,
   }
 ) {
-  const [params, searchParams] = await Promise.all([
+  const [params] = await Promise.all([
     props.params,
-    props.searchParams
+    // props.searchParams, // TODO: use?
   ]);
 
-  const [t, session, { goal, roadmap }, secondaryGoal, unfilteredRoadmapOptions] = await Promise.all([ // TODO: Remove stuff i dont actually need
+  const [t, goal] = await Promise.all([
     serveTea(["pages", "components"]),
-    getSession(await cookies()),
-    getOneGoal(params.goalId).then(async goal => { return { goal, roadmap: (goal ? await getOneRoadmap(goal.roadmapId) : null) } }),
-    typeof searchParams.secondaryGoal == "string" ? getOneGoal(searchParams.secondaryGoal) : Promise.resolve(null),
-    getRoadmaps(),
+    getOneGoal(params.goalId)
   ]);
 
   if (!goal) {

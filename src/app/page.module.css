@@ -8,3 +8,8 @@
     display: initial;
   }
 }
+
+.filters {
+  height: fit-content; 
+  flex-basis: 28ch;
+} 

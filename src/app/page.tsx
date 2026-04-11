@@ -11,6 +11,9 @@ import serveTea from "@/lib/i18nServer";
 import Link from "next/link";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { getMetaRoadmaps, getRoadmaps } from "@/fetchers";
+import SearchRoadmaps from "@/components/form/filters/searchRoadmaps";
+import SortRoadmaps from "@/components/form/filters/sortRoadmaps";
+import styles from "./page.module.css"
 
 export async function generateMetadata() {
   return await buildMetadata({
@@ -114,37 +117,68 @@ export default async function Page(
   return <>
     <Breadcrumb />
 
-    <div className="rounded width-100 margin-bottom-100 margin-top-300 position-relative overflow-hidden" style={{ height: '350px' }}>
-      <AttributedImage src="/images/solar.jpg" alt="" sizes="(max-width: 1250px) 100vw, 1250px">
-        <div className="flex gap-100 flex-wrap-wrap align-items-flex-end justify-content-space-between padding-100 width-100">
-          <div>
-            <h1 className="margin-block-25" data-testid="home-title">{t("pages:home.title")}</h1>
-            <AttributeText
-              author={"Markus Spiske"}
-              authorLink="https://unsplash.com/@markusspiske?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash"
-              source={"Unsplash"}
-              sourceLink="https://unsplash.com/photos/white-and-blue-solar-panels-pwFr_1SUXRo?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" />
+    <main>
+      <div className="rounded width-100 margin-bottom-100 margin-top-300 position-relative overflow-hidden" style={{ height: '350px' }}>
+        <AttributedImage src="/images/solar.jpg" alt="" sizes="(max-width: 1250px) 100vw, 1250px">
+          <div className="flex gap-100 flex-wrap-wrap align-items-flex-end justify-content-space-between padding-100 width-100">
+            <div>
+              <h1 className="margin-block-25" data-testid="home-title">{t("pages:home.title")}</h1>
+              <AttributeText
+                author={"Markus Spiske"}
+                authorLink="https://unsplash.com/@markusspiske?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash"
+                source={"Unsplash"}
+                sourceLink="https://unsplash.com/photos/white-and-blue-solar-panels-pwFr_1SUXRo?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" />
+            </div>
+            { // Link to create roadmap form if logged in
+              session.user &&
+              <>
+                <Link href="/metaRoadmap/create" className="button purewhite round block">{t("pages:home.create_roadmap")}</Link>
+              </>
+            }
           </div>
-          { // Link to create roadmap form if logged in
-            session.user &&
-            <>
-              <Link href="/metaRoadmap/create" className="button purewhite round block">{t("pages:home.create_roadmap")}</Link>
-            </>
-          }
+        </AttributedImage>
+      </div>
+ 
+      <search className="flex flex-wrap-wrap gap-300 margin-top-300"> {/* TODO: Some flex stuff is causing the netire page to shift when switching languages, look into this */}
+        <aside className={`flex-grow-100 ${styles['filters']}`} tabIndex={-1} id="roadmap-filters">
+          <h2 className="font-size-125 margin-top-50 font-weight-600 padding-bottom-50 margin-bottom-100" style={{ borderBottom: '1px solid var(--gray-80)' }}>
+            {t("pages:home.filter")}
+          </h2>
+          <RoadmapFilters />
+        </aside>
+        <div className="flex-grow-infinity max-width-100">
+          <h2 id="roadmap-search-title" className="margin-top-0 margin-bottom-50 font-weight-600">{t("pages:home.search_roadmaps", { count: metaRoadmaps.filter((metaRoadmap) => metaRoadmap.roadmapVersions.length > 0).length })}</h2>
+          <SearchRoadmaps labelledBy="roadmap-search-title" />
+          <div className="flex align-items-center gap-100 flex-wrap-wrap justify-content-space-between margin-bottom-200 margin-top-50">
+            <small className="font-size-100" aria-live="polite"> {/* TODO: Pretty sure this should have an aria-live but double check against a screenreader */}
+              {t("pages:home.shown_results", {
+                shown: roadmaps.length,
+                total: metaRoadmaps.filter((metaRoadmap) => metaRoadmap.roadmapVersions.length > 0).length
+              })}
+            </small>
+            <SortRoadmaps />
+
+          </div>
+          <output>
+            <RoadmapTree
+              user={session.user ?? undefined}
+              roadmaps={roadmaps}
+            />
+          </output>
         </div>
-      </AttributedImage>
-    </div>
+      </search>
+      {/*
+      <section>
+        <RoadmapFilters />
+      </section>
 
-    <section>
-      <RoadmapFilters />
-    </section>
-
-    {/* TODO: There might be some issues with displayning public roadmaps, explore this. */}
-    <section className="margin-bottom-500">
-      <RoadmapTree
-        user={session.user ?? undefined}
-        roadmaps={roadmaps}
-      />
-    </section>
+      TODO: There might be some issues with displayning public roadmaps, explore this. 
+      <section className="margin-bottom-500">
+        <RoadmapTree
+          user={session.user ?? undefined}
+          roadmaps={roadmaps}
+        />
+      </section>  */}
+    </main>
   </>
 }

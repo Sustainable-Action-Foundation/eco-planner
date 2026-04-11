@@ -5,7 +5,8 @@ import type { Recipe, RecipeIsh, RecipeVariable } from "@/functions/recipe/types
 import type { DateValuesWithUnit } from "@/types";
 import { useEffect, useMemo, useState } from "react";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
-import { RecipeContext, SetStateAction } from "./recipeContext.internal";
+import type { SetStateAction } from "./recipeContext.internal";
+import { RecipeContext } from "./recipeContext.internal";
 
 export function RecipeContextProvider({
   initialRecipe,
@@ -32,7 +33,7 @@ export function RecipeContextProvider({
   };
 
   const setSmartRecipe = async (valueOrSetter: SetStateAction<RecipeIsh>): Promise<void> => {
-    let newInstance: SmartRecipe | null = null;
+    let newInstance: SmartRecipe | null;
 
     const newRecipe = typeof valueOrSetter === "function"
       ? valueOrSetter(smartRecipe.copy()) // Run users function on prev and use result
@@ -94,7 +95,7 @@ export function RecipeContextProvider({
       : valueOrSetter;
 
     smartRecipe.equation = newEquation;
-    setUpdatePing(p => p += 1);
+    setUpdatePing(p => p + 1);
   };
 
   const getVariable = (variableName: string): RecipeVariable | undefined => {
@@ -106,7 +107,7 @@ export function RecipeContextProvider({
       : newValue;
 
     smartRecipe.variables[variableName] = valueToSet;
-    setUpdatePing(p => p += 1);
+    setUpdatePing(p => p + 1);
   };
 
   const variables = useMemo(() => recipe.variables, [recipe]);
@@ -116,7 +117,7 @@ export function RecipeContextProvider({
       : variablesAction;
     smartRecipe.variables = newVariables;
 
-    setUpdatePing(p => p += 1);
+    setUpdatePing(p => p + 1);
   };
 
   useEffect(() => {
@@ -129,7 +130,7 @@ export function RecipeContextProvider({
 
       const validity = await smartRecipe.checkValidity();
       if (!validity.good) {
-        warnings.push(...(validity.warnings || []));
+        warnings.push(...(validity.warnings ?? []));
         console.warn("Tried evaluating an invalid recipe in the context provider.", validity.error, validity.warnings);
         throw new RecipeError(validity.error || "Recipe is invalid");
       }
@@ -143,10 +144,11 @@ export function RecipeContextProvider({
         setWarnings(warnings);
         setError(null);
       })
-      .catch(e => {
+      .catch((e: unknown) => {
+        const errorMessage = e instanceof Error ? e.message : String(e);
         setResultingDataSeriesWithUnit(null);
         setWarnings(warnings);
-        setError((e as Error)?.message);
+        setError(errorMessage);
       });
   }, [smartRecipe]);
 

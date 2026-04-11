@@ -1,6 +1,7 @@
 import "server-only";
 import { roadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
-import { getSession, LoginData } from "@/lib/session"
+import type { LoginData } from "@/lib/session";
+import { getSession } from "@/lib/session"
 import { goalSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
 import { unstable_cache } from "next/cache";
@@ -27,7 +28,7 @@ export async function getOneRoadmap(id: string): Promise<Roadmap | null> {
  */
 const getCachedRoadmap = unstable_cache(
   async (id: string, user: LoginData['user']) => {
-    let roadmap: Roadmap | null = null;
+    let roadmap: Roadmap | null;
 
     // If user is admin, always get the roadmap
     if (user?.isAdmin) {

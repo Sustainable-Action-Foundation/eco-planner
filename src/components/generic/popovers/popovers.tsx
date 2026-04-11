@@ -5,10 +5,14 @@
 // As such this should only be used within the sidebar until-
 // greater browser support. 
 
+// Anchor is supported on all major browsers as of January 2026. However, overall 
+// browser support is still quite low (~80%) and we keep fallbacks for now.
+
 "use client"
 
 import styles from './popovers.module.css' with { type: "css" }
-import React, { HTMLProps } from "react";
+import type { HTMLProps } from "react";
+import React from "react";
 
 export function PopoverButton({
   id,
@@ -53,7 +57,7 @@ export function Popover({
   positionAnchor,
   anchorInlinePosition,
   popoverDirection,
-  positionTryFallbacks = "none",
+  positionTryFallbacks,
   indicator,
   margin
 }: {
@@ -69,7 +73,7 @@ export function Popover({
     vertical: 'up' | 'vertical' | 'down',
     horizontal?: 'left' | 'right'
   } | 'up' | 'vertical' | 'down',
-  positionTryFallbacks?: string, // TODO: String should be a comma seperated string with suggestions on allowed fallback values. (or an array?) 
+  positionTryFallbacks?: string, // TODO: String should be a comma separated string with suggestions on allowed fallback values. (or an array?) 
   /* 
     As of now, an indicator can only be given assuming a positionTryFallbacks of none. 
     It is likely that future browsers will support some css selector for checking fallback values,
@@ -81,7 +85,7 @@ export function Popover({
 }) {
 
   // TODO: Probably prevent passing none in our types if positionTryFallbacks != "none"?
-  if (positionTryFallbacks != "none") {
+  if (positionTryFallbacks !== "none") {
     indicator = undefined
   }
 

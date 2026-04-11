@@ -91,7 +91,7 @@ function BreadcrumbSection({
 
   if (object.roadmap || object.metaRoadmap) {
     return <>
-      <BreadcrumbSection object={object.roadmap || object.metaRoadmap}>
+      <BreadcrumbSection object={object.roadmap ?? object.metaRoadmap}>
         <BreadcrumbChevron />
 
         { // Use appropriate section based on the object type

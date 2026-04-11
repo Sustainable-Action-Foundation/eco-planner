@@ -1,10 +1,8 @@
 'use client';
 
-import { RoadmapSortBy } from "@/types";
 import { RoadmapType } from "@prisma/client";
-import { IconSearch } from "@tabler/icons-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useTransition } from "react";
+import { Fragment, useEffect, useState, useTransition } from "react";
 import { useTranslation } from "react-i18next";
 import { useDebouncedCallback } from "use-debounce";
 
@@ -16,87 +14,57 @@ export default function RoadmapFilters() {
 
   const [_isPending, startTransition] = useTransition();
 
-  const debouncedUpdateStringParam = useDebouncedCallback(updateStringParam, 300);
+  const [selectedFilterTypes, setSelectedFiltersTypes] = useState<Array<string>>(
+    searchParams.getAll('typeFilter')
+  );
 
-  function updateStringParam(key: string, value: string) {
-    const newParams = new URLSearchParams(searchParams);
+  // Need this useffect to sync local state if URL changes via links or backbuttons
+  useEffect(() => {
+    setSelectedFiltersTypes(searchParams.getAll('typeFilter'));
+  }, [searchParams]);
 
-    if (value) {
-      newParams.set(key, value);
-    } else {
-      newParams.delete(key);
-    }
-
-    startTransition(() => {
-      router.replace(`${pathname}?${newParams.toString()}`)
-    })
-  }
-
-  function updateArrayParam(key: string, value: string, remove?: boolean) {
-    const newParams = new URLSearchParams(searchParams);
-
-    if (remove) {
-      newParams.delete(key, value);
-    } else {
-      newParams.append(key, value);
-    }
+  // Removes current params and replaces them with our string array from  the usestate
+  const debouncedUrlSync = useDebouncedCallback((selectedFilterTypes: Array<string>) => {
+    const newParams = new URLSearchParams(window.location.search);
+    newParams.delete('typeFilter');
+    selectedFilterTypes.forEach(filterType => newParams.append('typeFilter', filterType));
 
     startTransition(() => {
-      router.replace(`${pathname}?${newParams.toString()}`)
-    })
-  }
+      router.replace(`${pathname}?${newParams.toString()}`, { scroll: false });
+    });
+  }, 300);
+
+  // Update usestate immediately when toggling a checkbox
+  // Then debounce when actually updating the URL params
+  // We do this so that we can update all changed toogle states simultaneously as it 
+  // debouncing each individual toggle could create issues when syncing URL params with local state. 
+  const handleToggle = (value: string, checked: boolean) => {
+    const nextState = checked
+      ? [...selectedFilterTypes, value]
+      : selectedFilterTypes.filter(filterType => filterType !== value);
+    setSelectedFiltersTypes(nextState);
+
+    debouncedUrlSync(nextState);
+  };
 
   return <>
-    <menu className="flex gap-100 align-items-flex-end padding-0 margin-0 margin-top-300 margin-bottom-100 flex-wrap-wrap">
-      <label className="font-weight-600 flex-grow-100">
-        {t("components:roadmap_filters.search_roadmaps")}
-        <div className="margin-top-25 flex align-items-center padding-50 smooth focusable">
-          <IconSearch style={{ minWidth: '24px' }} strokeWidth={1.5} aria-hidden="true" />
-          <input type="search" className="padding-0 margin-inline-50" defaultValue={searchParams.get('searchFilter') ?? undefined} onChange={(e) => {
-            debouncedUpdateStringParam('searchFilter', e.target.value)
-          }} />
-        </div>
-      </label>
-      <label className="font-weight-600">
-        {t("components:roadmap_filters.sort_by")}
-        <select
-          className="font-weight-500 margin-top-25 block"
-          style={{ fontSize: '1rem', minHeight: 'calc(24px + 1rem + 2px)' }}
-          defaultValue={searchParams.get('sortBy') ?? ""} onChange={(e) => { updateStringParam('sortBy', e.target.value) }}
-        >
-          <option value="">{t("components:roadmap_filters.default")}</option>
-          <option value={RoadmapSortBy.Alpha}>{t("components:roadmap_filters.name_descending")}</option>
-          <option value={RoadmapSortBy.AlphaReverse}>{t("components:roadmap_filters.name_ascending")}</option>
-          <option value={RoadmapSortBy.GoalsFalling}>{t("components:roadmap_filters.goal_count_descending")}</option>
-          <option value={RoadmapSortBy.GoalsRising}>{t("components:roadmap_filters.goal_count_ascending")}</option>
-        </select>
-      </label>
-      <fieldset id="roadmapFilters" className="padding-0 fieldset-unset-pseudo-class smooth" style={{ border: '0' }}>
-        <legend className="font-weight-600">{`${t("common:tsx.show")}:`}</legend>
-        <div className="flex gap-100 margin-top-25" style={{ height: '42px' }}>
-          {Object.values(RoadmapType).map((thisType, key) => (
-            <label className="inline-flex align-items-center gap-25" key={key}>
-              <input type="checkbox" value={thisType} defaultChecked={searchParams.getAll('typeFilter').includes(thisType)} onChange={(e) => {
-                if (e.target.checked) {
-                  updateArrayParam('typeFilter', e.target.value)
-                  // setTypeFilter([...typeFilter, (e.target.value as RoadmapType)])
-                } else {
-                  updateArrayParam('typeFilter', e.target.value, true)
-                  // setTypeFilter(typeFilter.filter((item) => item != e.target.value))
-                }
-              }} />
-              {`${thisType == RoadmapType.NATIONAL ? t("common:scope.national") :
-                thisType == RoadmapType.REGIONAL ? t("common:scope.regional") :
-                  thisType == RoadmapType.MUNICIPAL ? t("common:scope.municipal") :
-                    thisType == RoadmapType.LOCAL ? t("common:scope.local") :
-                      thisType == RoadmapType.ORGANIZATIONAL ? t("common:scope.organizational_roadmap") :
-                        thisType == RoadmapType.OTHER ? t("common:scope.other") :
-                          thisType
-                }`}
+    <menu className="margin-0 padding-0">
+      <fieldset id="roadmapFilters" className="padding-0 fieldset-unset-pseudo-class smooth margin-top-150 flex flex-wrap-wrap gap-50" style={{ border: '0' }}>
+        <legend className="margin-bottom-100" style={{textShadow: '0 0 black'}}>{`${t("components:roadmap_filters.roadmap_type")}`}</legend>
+        {Object.values(RoadmapType).map((filterType, key) => (
+          <Fragment key={key}>
+            <label className="chip flex-grow-100">
+              <input 
+                type="checkbox" 
+                value={filterType} 
+                checked={selectedFilterTypes.includes(filterType)}
+                onChange={(e) => handleToggle(filterType, e.target.checked)}
+              />
+              {t("common:scope." + filterType.toLowerCase())}
             </label>
-          ))}
-        </div>
+          </Fragment>
+        ))}
       </fieldset>
-    </menu>
+    </menu >
   </>
 }

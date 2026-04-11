@@ -42,6 +42,7 @@ export default function Goals({
   const [viewMode, setViewMode] = useState<ViewMode | ''>('');
   const [sortBy, setSortBy] = useState<GoalSortBy>(GoalSortBy.Default);
   const [searchFilter, setSearchFilter] = useState<string>('');
+  const [recipeOnly, setRecipeOnly] = useState<boolean>(false)
 
   useEffect(() => {
     setViewMode(getStoredViewMode(roadmap.id));
@@ -62,6 +63,19 @@ export default function Goals({
     }
   }
 
+  if (recipeOnly) {
+    filteredRoadmap = {
+      ...roadmap,
+      goals: roadmap.goals.filter(goal => {
+        if (goal.dataSeries?.recipeUsedId) {
+          return true
+        } else {
+          return false
+        } 
+      })
+    }
+  }
+
   return (
     <>
       <menu className={`margin-bottom-100 flex justify-content-space-between align-items-flex-end flex-wrap-wrap gap-100 padding-0 margin-0 ${styles.tableNav}`}>
@@ -72,7 +86,11 @@ export default function Goals({
             <input type="search" className="padding-0 margin-inline-50" onChange={(e) => setSearchFilter(e.target.value)} />
           </div>
         </label>
-        {viewMode == ViewMode.Table && (
+        <label className='flex align-items-center gap-50'>
+          Visa enbart målbanor med recept
+          <input checked={recipeOnly} onChange={() => setRecipeOnly(!recipeOnly)} type='checkbox' />
+        </label>
+        {viewMode === ViewMode.Table && (
           <label className="font-weight-bold">
             {t("components:goals.sort_by")}
             <select
@@ -98,9 +116,9 @@ export default function Goals({
 
       {/* TODO: Probably not correct to handle loading as a default state? */}
       {/* TODO: Probably use a skeleton for the loading state */}
-      {viewMode == ViewMode.Tree ? (
+      {viewMode === ViewMode.Tree ? (
         <LinkTree roadmap={filteredRoadmap} />
-      ) : viewMode == ViewMode.Table ? (
+      ) : viewMode === ViewMode.Table ? (
         <GoalTable roadmap={filteredRoadmap} sortBy={sortBy} />
       ) :
         <Image

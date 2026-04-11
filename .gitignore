@@ -145,13 +145,15 @@ test-results/
 blob-report/
 playwright-report/
 playwright-results.json/
-test/screenshots/
+tests/screenshots/
+tests/screenshotViewer/index.html
 
 # Transpiled tests
-tests/compiled/
+tests/.auth/
 tests/report.json
 
 # Prisma generated client
 src/prisma/generated/
 
-.vscode/
+.vscode/*
+!.vscode/extensions.json
