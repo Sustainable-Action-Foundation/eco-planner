@@ -67,52 +67,56 @@ export function VariableTypeExternalSimple({
       className="flex gap-25"
       {...props}
     > {/* TODO: Figure out how to deal with labels here */}
-      {/* Dataset */}
-      <select
-        value={variable.dataset || ""}
-        disabled={!permissions.allowValueEditing}
-        onChange={(e) => setVariable(variableName, prev => prev.type === RecipeDataTypes.External
-          ? { ...prev, dataset: isDataSetKeys(e.target.value) ? e.target.value : prev.dataset }
-          : prev
-        )}
-      >
-        <option value="">{t("components:recipe_editor.dataset")}</option>
-        {ExternalDataset.knownDatasetKeys.map((datasetName, i) => (
-          <option key={`datasetOption-${i}`} value={datasetName}>
-            {datasetName}
-          </option>
-        ))}
-      </select>
+      <RecipeQueryBuilder variableName={variableName} />
 
-      {/* Table */}
-      <input
-        className="inline width-auto"
-        value={variable.tableId || ""}
-        onChange={(e) => setVariable(variableName, prev => prev.type === RecipeDataTypes.External
-          ? { ...prev, tableId: e.target.value }
-          : prev
-        )}
-        type="text"
-        disabled={!permissions.allowValueEditing}
-        placeholder={t("components:recipe_editor.table")}
-      />
+      <div hidden>
+        {/* Dataset */}
+        <select
+          value={variable.dataset || ""}
+          disabled={!permissions.allowValueEditing}
+          onChange={(e) => setVariable(variableName, prev => prev.type === RecipeDataTypes.External
+            ? { ...prev, dataset: isDataSetKeys(e.target.value) ? e.target.value : prev.dataset }
+            : prev
+          )}
+        >
+          <option value="">{t("components:recipe_editor.dataset")}</option>
+          {ExternalDataset.knownDatasetKeys.map((datasetName, i) => (
+            <option key={`datasetOption-${i}`} value={datasetName}>
+              {datasetName}
+            </option>
+          ))}
+        </select>
 
-      {/* Selection */}
-      <input
-        className="inline width-auto"
-        value={JSON.stringify(variable.selection) || ""}
-        onChange={(e) => setVariable(variableName, prev => prev.type === RecipeDataTypes.External
-          ? {
-            ...prev, selection: isStringifiedExternalSelection(e.target.value)
-              ? JSON.parse(e.target.value) as ExternalVariable["selection"]
-              : prev.selection
-          }
-          : prev
-        )}
-        type="text"
-        disabled={!permissions.allowValueEditing}
-        placeholder={t("components:recipe_editor.selection")}
-      />
+        {/* Table */}
+        <input
+          className="inline width-auto"
+          value={variable.tableId || ""}
+          onChange={(e) => setVariable(variableName, prev => prev.type === RecipeDataTypes.External
+            ? { ...prev, tableId: e.target.value }
+            : prev
+          )}
+          type="text"
+          disabled={!permissions.allowValueEditing}
+          placeholder={t("components:recipe_editor.table")}
+        />
+
+        {/* Selection */}
+        <input
+          className="inline width-auto"
+          value={JSON.stringify(variable.selection) || ""}
+          onChange={(e) => setVariable(variableName, prev => prev.type === RecipeDataTypes.External
+            ? {
+              ...prev, selection: isStringifiedExternalSelection(e.target.value)
+                ? JSON.parse(e.target.value) as ExternalVariable["selection"]
+                : prev.selection
+            }
+            : prev
+          )}
+          type="text"
+          disabled={!permissions.allowValueEditing}
+          placeholder={t("components:recipe_editor.selection")}
+        />
+      </div>
     </div>
   )
 }

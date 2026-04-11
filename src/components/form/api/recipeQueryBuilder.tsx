@@ -18,7 +18,11 @@ import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 import getTableContent from "@/lib/api/getTableContent";
 import { RecipeDataTypes } from "@/functions/recipe";
 
-export default function RecipeQueryBuilder({ variableName }: { variableName: string; }) {
+export default function RecipeQueryBuilder({
+  variableName,
+}: {
+  variableName: string;
+}) {
   const { t } = useTranslation("components");
   // Locale has the format language-locale, e.g. "sv-SE" or "en-US"
   // We only need the language part, so we split it and take the first part
