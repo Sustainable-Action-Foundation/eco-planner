@@ -6,25 +6,30 @@ import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "../recipeEditorPermissions";
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 
-export function VectorPickerSelect({ permissions, variableName }: { permissions?: RecipeEditorPermissions, variableName: string }) {
+export function VectorPickerSelect({ permissions, variableId }: { permissions?: RecipeEditorPermissions, variableId: string }) {
   const { t } = useTranslation("components");
-  const { recipe, setVariable } = useRecipe();
+  const { recipe, setVariable, getVariable } = useRecipe();
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
 
   return (
     <select
-      id={variableName}
-      defaultValue={(recipe?.variables[variableName] as DataSeriesVariable)?.pick || VectorIndexPickerOptions.Default}
+      id={variableId}
+      defaultValue={(getVariable(variableId) as DataSeriesVariable)?.pick ?? VectorIndexPickerOptions.Default}
       disabled={!permissions.allowValueEditing}
       onChange={(e) => {
         if (!recipe) return; // Early return if recipe is null which is only the case in race conditions with the context provider
 
-        const variable = recipe.variables[variableName];
+        const variable = getVariable(variableId);
+
+        if (!variable) {
+          console.error(`Variable with id ${variableId} not found in recipe when trying to change vector picker option.`);
+          return;
+        }
 
         // Make sure variable is of correct type
         if (!isDataSeriesVariable(variable) && !isExternalVariable(variable)) {
-          console.error(`Variable ${variableName} is not of type RecipeDataSeries or RecipeExternalDataset so should not be picked.`);
+          console.error(`Variable ${variableId} is not of type RecipeDataSeries or RecipeExternalDataset so should not be picked.`);
           return;
         }
 
@@ -33,7 +38,7 @@ export function VectorPickerSelect({ permissions, variableName }: { permissions?
           pick: e.target.value as VectorIndexPickerOptions
         };
 
-        setVariable(variableName, variableWithNewPick);
+        setVariable(variableId, variableWithNewPick);
       }}
     >
       <option value={VectorIndexPickerOptions.Whole}>{t("components:recipe_editor.pick_whole")}</option>

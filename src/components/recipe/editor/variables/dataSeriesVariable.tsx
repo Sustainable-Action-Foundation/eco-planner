@@ -142,7 +142,7 @@ export function DataSeriesVariableEditor({
         <label htmlFor="variable-tree-vector-index-picker">
           {t("components:recipe_editor.vector_index_picker_label")}
         </label>
-        <VectorPickerSelect permissions={permissions} variableName={variableId} />
+        <VectorPickerSelect permissions={permissions} variableId={variableId} />
       </div>
     </CommonVariable >
   )

@@ -4,6 +4,7 @@ import type { DateValues, DateValuesWithUnit, ISOIshDate, JSONValue, UnitString 
 import type { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/consts";
 
 type BaseVariable = {
+  id: string;
   name: string;
   type: RecipeDataTypes;
   unit: UnitString;
@@ -55,7 +56,7 @@ export type RecipeExtractionOutput = (
 export type SerializedRecipeShape = {
   name: string | null | undefined;
   equation: string;
-  variables: Record<string, RecipeVariable>;
+  variables: RecipeVariable[];
   meta: {
     [key: string]: JSONValue;
   };

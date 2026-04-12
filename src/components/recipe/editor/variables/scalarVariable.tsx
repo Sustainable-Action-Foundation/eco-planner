@@ -1,7 +1,7 @@
 "use client"
 
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
-import { RecipeDataTypes, type ScalarVariable } from "@/functions/recipe/types";
+import { RecipeDataTypes, RecipeError } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "../recipeEditorPermissions";
 import { CommonVariable } from "@/components/recipe";
@@ -15,8 +15,9 @@ export function VariableTypeScalar({
   permissions?: RecipeEditorPermissions;
 }) {
   const { t } = useTranslation("components");
-  const { recipe, setVariable } = useRecipe();
-  const variable = recipe?.variables[name] as ScalarVariable;
+  const { setVariable, getVariable } = useRecipe();
+  const variable = getVariable(name, RecipeDataTypes.Scalar);
+  if (!variable) throw new RecipeError(`Scalar variable with id "${name}" not found.`);
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
 
@@ -55,8 +56,9 @@ export function VariableTypeScalarSimple({
   props?: React.InputHTMLAttributes<HTMLInputElement>;
 }) {
   const { t } = useTranslation("components");
-  const { recipe, setVariable } = useRecipe();
-  const variable = recipe?.variables[variableName] as ScalarVariable;
+  const { setVariable, getVariable } = useRecipe();
+  const variable = getVariable(variableName, RecipeDataTypes.Scalar);
+  if (!variable) throw new RecipeError(`Scalar variable with id "${variableName}" not found.`);
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
 

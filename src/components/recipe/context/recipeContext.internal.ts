@@ -1,5 +1,5 @@
 import type { Recipe } from "@/functions/recipe/recipe";
-import type { RecipeVariable } from "@/functions/recipe/types";
+import type { RecipeDataTypes, RecipeVariable } from "@/functions/recipe/types";
 import type { DateValues } from "@/types";
 import { createContext } from "react";
 
@@ -11,6 +11,13 @@ type Historic<T> = (prev: T) => T;
  * A value or function used on setters
  */
 export type SetStateAction<T> = T | Historic<T>;
+
+type VariableByType<TType extends RecipeDataTypes> = Extract<RecipeVariable, { type: TType }>;
+
+export type GetVariable = {
+  (variableId: string): RecipeVariable | undefined;
+  <TType extends RecipeDataTypes>(variableId: string, expectedType: TType): VariableByType<TType> | undefined;
+};
 
 export type RecipeContextType = {
   recipe: Recipe;
@@ -26,10 +33,10 @@ export type RecipeContextType = {
   equation: Recipe["equation"];
   setEquation: (valueOrSetter: SetStateAction<Recipe["equation"]>) => void;
 
-  variables: Recipe["variables"];
-  setVariables: (valueOrSetter: SetStateAction<Recipe["variables"]>) => void;
+  variables: RecipeVariable[];
+  setVariables: (valueOrSetter: SetStateAction<RecipeVariable[]>) => void;
 
-  getVariable: (variableId: string) => RecipeVariable | undefined;
+  getVariable: GetVariable;
   setVariable: (variableId: string, newValue: SetStateAction<RecipeVariable> | null) => void;
 };
 export const RecipeContext = createContext<RecipeContextType | null>(null);

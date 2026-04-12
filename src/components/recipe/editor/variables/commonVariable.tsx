@@ -9,7 +9,6 @@ import styles from "../../recipe.module.css" with { type: "css" }
 import { IconEdit, IconTrashXFilled } from "@tabler/icons-react";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { allOurUnits } from "@/math";
-import type { Recipe } from "@/functions/recipe";
 
 // TODO: Fix labels
 export function CommonVariable({
@@ -17,7 +16,7 @@ export function CommonVariable({
   permissions,
   children,
 }: {
-  variableId: keyof Recipe["variables"];
+  variableId: string;
   permissions?: RecipeEditorPermissions;
   children: React.ReactNode;
 }) {

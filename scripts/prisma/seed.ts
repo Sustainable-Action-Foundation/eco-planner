@@ -316,8 +316,9 @@ async function main() {
       const recipe = new Recipe({
         name: 'Skala utifrån yta',
         equation: '${Riket} * ${ArvingsArea} / ${RiketsArea}',
-        variables: {
-          'Riket': {
+        variables: [
+          {
+            id: `riket-area-${1}`,
             name: "Riket",
             type: RecipeDataTypes.DataSeries,
             dataSeriesId: null,
@@ -325,7 +326,8 @@ async function main() {
             value: null,
             unit: "km^2",
           },
-          'RiketsArea': {
+          {
+            id: `riket-area-${2}`,
             name: "Rikets area",
             type: RecipeDataTypes.External,
             pick: VectorIndexPickerOptions.Default,
@@ -341,7 +343,8 @@ async function main() {
               { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
             ],
           },
-          'ArvingsArea': {
+          {
+            id: `arvings-area-${1}`,
             name: "Arvings area",
             type: RecipeDataTypes.External,
             pick: VectorIndexPickerOptions.Default,
@@ -355,7 +358,7 @@ async function main() {
               { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
             ],
           },
-        },
+        ],
       });
       return prisma.recipe.create({
         data: {
@@ -367,8 +370,9 @@ async function main() {
       const recipe = new Recipe({
         name: 'Skala utifrån befolkning',
         equation: '${Riket} * ${ArvingsPopulation} / ${RiketsPopulation}',
-        variables: {
-          'Riket': {
+        variables: [
+          {
+            id: `riket-population-${1}`,
             name: "Riket",
             type: RecipeDataTypes.DataSeries,
             dataSeriesId: null,
@@ -376,7 +380,8 @@ async function main() {
             value: null,
             unit: "capita",
           },
-          'RiketsPopulation': {
+          {
+            id: `riket-population-${2}`,
             name: "Rikets befolkning",
             type: RecipeDataTypes.External,
             pick: VectorIndexPickerOptions.Default,
@@ -390,7 +395,8 @@ async function main() {
               { variableCode: "ContentsCode", valueCodes: ["000007E1"] },
             ],
           },
-          'ArvingsPopulation': {
+          {
+            id: `arvings-population-${1}`,
             name: "Arvings befolkning",
             type: RecipeDataTypes.External,
             pick: VectorIndexPickerOptions.Default,
@@ -402,7 +408,7 @@ async function main() {
               { variableCode: "ContentsCode", valueCodes: ["000007E1"] },
             ],
           },
-        },
+        ],
       });
       return prisma.recipe.create({
         data: {
@@ -414,8 +420,9 @@ async function main() {
       const recipe = new Recipe({
         name: 'Skala utifrån fast värde',
         equation: '${Riket} / ${skalär}',
-        variables: {
-          'Riket': {
+        variables: [
+          {
+            id: `riket-scalar-${1}`,
             name: "Riket",
             type: RecipeDataTypes.DataSeries,
             dataSeriesId: null,
@@ -423,13 +430,14 @@ async function main() {
             value: null,
             unit: getRandomUnit(),
           },
-          'skalär': {
+          {
+            id: `scalar-${1}`,
             name: "skalär",
             type: RecipeDataTypes.Scalar,
             value: 1 + Math.random(),
             unit: null,
           },
-        },
+        ],
       });
       return prisma.recipe.create({
         data: {
@@ -464,8 +472,9 @@ async function main() {
       const recipe = new Recipe({
         name: `1:1 nationell mal ${index + 1}`,
         equation: '${Riket}',
-        variables: {
-          'Riket': {
+        variables: [
+          {
+            id: `riket-${index + 1}`,
             name: "Riket",
             type: RecipeDataTypes.DataSeries,
             dataSeriesId: dataSeries.id,
@@ -473,7 +482,7 @@ async function main() {
             value: null,
             unit: dataSeries.unit ?? undefined,
           },
-        },
+        ],
       });
       return prisma.recipe.create({
         data: {

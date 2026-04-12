@@ -9,7 +9,7 @@ import { filterToInitialYearlyRecords, parsePeriod } from "@/lib/api/utility";
 import { getPrevailingUnit, isMathjsUnit, pickDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 
 export function extractScalars(
-  variables: Record<string, RecipeVariable>,
+  variables: RecipeVariable[],
   warnings: string[] = [],
 ): EvalTimeVariable[] {
   const scalars: EvalTimeVariable[] = [];
@@ -36,7 +36,7 @@ export function extractScalars(
 }
 
 export async function extractDataSeries(
-  variables: Record<string, RecipeVariable>,
+  variables: RecipeVariable[],
   warnings: string[] = [],
 ): Promise<RecipeExtractionOutput> {
 
@@ -115,7 +115,7 @@ export async function extractDataSeries(
 }
 
 export async function extractExternalDatasets(
-  variables: Record<string, RecipeVariable>,
+  variables: RecipeVariable[],
   warnings: string[] = [],
 ): Promise<RecipeExtractionOutput> {
 

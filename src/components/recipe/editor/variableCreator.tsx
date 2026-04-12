@@ -19,8 +19,8 @@ export function VariableCreator({
   const popoverRef = useRef<HTMLDivElement>(null);
   const [newName, setNewName] = useState<string>('');
   const [newNameStatus, setNewNameStatus] = useState<string>('');
-  const [newUnit, setNewUnit] = useState<string>('');
-  const [newType, setNewType] = useState<RecipeDataTypes | undefined>(undefined);
+  const [providedUnit, setProvidedUnit] = useState<string>('');
+  const [providedType, setProvidedType] = useState<RecipeDataTypes | undefined>(undefined);
   const [newTypeStatus, setNewTypeStatus] = useState<string>('');
 
   // Hard coded to make a new data series variable. TODO: reconsider this behavior
@@ -29,7 +29,7 @@ export function VariableCreator({
       setNewNameStatus(t("components:recipe_editor.provide_variable_name"));
       return;
     }
-    if (!newType) {
+    if (!providedType) {
       setNewTypeStatus(t("components:recipe_editor.provide_variable_type"));
       return;
     }
@@ -39,19 +39,20 @@ export function VariableCreator({
       return;
     }
 
-    setVariables(prev => ({
+    setVariables(prev => ([
       ...prev,
-      // TODO: Don't index with the name, use a generated ID instead or change vars to an array
-      [newName]: {
-        ...emptyRecipesByDataType[newType],
-        ...newUnit ? { unit: newUnit } : {},
+      {
+        ...emptyRecipesByDataType[providedType],
+        ...providedUnit ? { unit: providedUnit } : {},
+        id: crypto.randomUUID(), // TODO: more robust
+        name: newName,
       },
-    }));
+    ]));
 
     // Clear the form after adding to context
     setNewName('');
-    setNewUnit('');
-    setNewType(undefined);
+    setProvidedUnit('');
+    setProvidedType(undefined);
     setNewNameStatus('')
     setNewTypeStatus('')
     popoverRef.current?.hidePopover()
@@ -105,14 +106,14 @@ export function VariableCreator({
               id: "variable-unit",
               name: "variable-unit",
               placeholder: t("forms:combobox.default_autocomplete_placeholder"),
-              defaultValue: newUnit,
+              defaultValue: providedUnit,
             }}
             theme={{
               style: { backgroundColor: 'var(--gray-95)' }
             }}
             options={allOurUnits.map(unit => ({ name: unit, value: unit }))}
             maxOptions={3}
-            onChange={(unit) => setNewUnit(unit ?? '')}
+            onChange={(unit) => setProvidedUnit(unit ?? '')}
           />
           <div className="margin-top-100">
             <label className="block margin-left-25">
@@ -121,8 +122,8 @@ export function VariableCreator({
                 className="margin-right-25"
                 name="variable-type"
                 value={RecipeDataTypes.Scalar}
-                checked={newType === RecipeDataTypes.Scalar}
-                onChange={() => setNewType(RecipeDataTypes.Scalar)}
+                checked={providedType === RecipeDataTypes.Scalar}
+                onChange={() => setProvidedType(RecipeDataTypes.Scalar)}
               />
               {t("components:recipe_editor.scalar")}
             </label>
@@ -132,8 +133,8 @@ export function VariableCreator({
                 className="margin-right-25"
                 name="variable-type"
                 value={RecipeDataTypes.DataSeries}
-                checked={newType === RecipeDataTypes.DataSeries}
-                onChange={() => setNewType(RecipeDataTypes.DataSeries)}
+                checked={providedType === RecipeDataTypes.DataSeries}
+                onChange={() => setProvidedType(RecipeDataTypes.DataSeries)}
               />
               {t("components:recipe_editor.data_series")}
             </label>
@@ -143,8 +144,8 @@ export function VariableCreator({
                 className="margin-right-25"
                 name="variable-type"
                 value={RecipeDataTypes.External}
-                checked={newType === RecipeDataTypes.External}
-                onChange={() => setNewType(RecipeDataTypes.External)}
+                checked={providedType === RecipeDataTypes.External}
+                onChange={() => setProvidedType(RecipeDataTypes.External)}
               />
               {t("components:recipe_editor.external_data")}
             </label>

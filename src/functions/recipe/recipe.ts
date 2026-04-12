@@ -8,7 +8,7 @@ import { sanityCheckDataSeries, sanityCheckExternalDatasets, sanityCheckScalars 
 export class Recipe {
   public name: string | null | undefined; // String if given, null if removed, undefined if not specified
   public equation: string;
-  public variables: Record<string, RecipeVariable>;
+  public variables: RecipeVariable[];
 
   public constructor({
     name,
@@ -17,11 +17,15 @@ export class Recipe {
   }: {
     name: string | null | undefined;
     equation: string;
-    variables: Record<string, RecipeVariable>;
+    variables: RecipeVariable[];
   }) {
     this.name = name;
     this.equation = equation;
     this.variables = variables;
+  }
+
+  public get variableMap(): Record<string, RecipeVariable> {
+    return Object.fromEntries(this.variables.map(variable => [variable.id, variable]));
   }
 
   public isTemplate(): boolean {
@@ -357,7 +361,7 @@ export class Recipe {
     return new Recipe({
       name: undefined,
       equation: "",
-      variables: {},
+      variables: [],
     });
   }
 
@@ -374,19 +378,18 @@ export class Recipe {
    * Selective compare if two variable sets are the same
    */
   public static isVariablesEqual(vars1: Recipe["variables"], vars2: Recipe["variables"]): boolean {
-    const keys1 = Object.keys(vars1);
-    const keys2 = Object.keys(vars2);
-    if (keys1.length !== keys2.length) {
+    if (vars1.length !== vars2.length) {
       return false;
     }
-    for (const key of keys1) {
-      if (!(key in vars2)) {
-        return false;
-      }
-      if (!Recipe.isVariableEqual(vars1[key], vars2[key])) {
+
+    // TODO: Should this be order sensitive or not? Right now it is.
+    const length = vars1.length;
+    for (let i = 0; i < length; i++) {
+      if (!Recipe.isVariableEqual(vars1[i], vars2[i])) {
         return false;
       }
     }
+
     return true;
   }
 }

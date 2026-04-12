@@ -1,7 +1,7 @@
 "use client";
 
 import { RecipeError } from "@/functions/recipe/types";
-import type { RecipeVariable, SerializedRecipe } from "@/functions/recipe/types";
+import type { RecipeDataTypes, RecipeVariable, SerializedRecipe } from "@/functions/recipe/types";
 import type { DateValues, UnitString } from "@/types";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Recipe } from "@/functions/recipe/recipe";
@@ -43,8 +43,14 @@ export function RecipeContextProvider({
 
   const equation = useMemo(() => outputRecipe.equation, [outputRecipe]);
   const variables = useMemo(() => outputRecipe.variables, [outputRecipe]);
-  const getVariable = useCallback((variableName: string): RecipeVariable | undefined => {
-    return outputRecipe.variables[variableName];
+  const getVariable = useCallback((
+    variableId: string,
+    expectedType?: RecipeDataTypes,
+  ) => {
+    const variable = outputRecipe.variableMap[variableId];
+    if (!variable) return undefined;
+    if (expectedType && variable.type !== expectedType) return undefined;
+    return variable;
   }, [outputRecipe]);
 
   const clearRecipe = useCallback(() => {
@@ -103,19 +109,19 @@ export function RecipeContextProvider({
   const setVariable = useCallback((variableId: string, newValue: SetStateAction<RecipeVariable> | null): void => {
     setRecipe((current) => {
       const next = current.copy();
-      const oldVar = next.variables[variableId];
+      const oldVar = next.variableMap[variableId];
 
       if (newValue === null) {
         if (!oldVar) {
           console.info(`Variable "${variableId}" not deleted because it does not exist.`);
           return current;
         }
-        delete next.variables[variableId];
+        next.variables = next.variables.filter(variable => variable.id !== variableId);
         return next;
       }
 
       const newVar = typeof newValue === "function"
-        ? newValue(next.variables[variableId])
+        ? newValue(next.variableMap[variableId])
         : newValue;
 
       if (!newVar) {
@@ -128,7 +134,7 @@ export function RecipeContextProvider({
         return current;
       }
 
-      next.variables[variableId] = newVar;
+      next.variableMap[variableId] = newVar;
       return next;
     })
       .catch((e: unknown) => {
@@ -138,7 +144,7 @@ export function RecipeContextProvider({
       });
   }, [setRecipe]);
 
-  const setVariables = useCallback((variablesAction: SetStateAction<Recipe["variables"]>) => {
+  const setVariables = useCallback((variablesAction: SetStateAction<RecipeVariable[]>) => {
     setRecipe((current) => {
       const next = current.copy();
       const oldVars = next.variables;

@@ -17,9 +17,10 @@ export function VariableTypeExternal({
   permissions?: RecipeEditorPermissions;
 }) {
   const { t } = useTranslation("components");
-  const { recipe } = useRecipe();
-  // TODO: Handle undefined variable
-  const variable = recipe?.variables[variableName] as ExternalVariable;
+
+  const { getVariable } = useRecipe();
+  const variable = getVariable(variableName, RecipeDataTypes.External);
+  if (!variable) throw new Error(`External variable with id "${variableName}" not found.`);
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
 
@@ -34,7 +35,7 @@ export function VariableTypeExternal({
           <label htmlFor="variable-tree-vector-index-picker">
             {t("components:recipe_editor.vector_index_picker_label")}
           </label>
-          <VectorPickerSelect permissions={permissions} variableName={variableName} />
+          <VectorPickerSelect permissions={permissions} variableId={variableName} />
         </div>
       </CommonVariable>
       <div className="flex gap-25 margin-left-300 margin-top-100"> {/* TODO: Handle overflow a bit better here */}
@@ -57,8 +58,10 @@ export function VariableTypeExternalSimple({
   props?: React.InputHTMLAttributes<HTMLInputElement>;
 }) {
   const { t } = useTranslation("components");
-  const { recipe, setVariable } = useRecipe();
-  const variable = recipe?.variables[variableName] as ExternalVariable;
+
+  const { setVariable, getVariable } = useRecipe();
+  const variable = getVariable(variableName, RecipeDataTypes.External);
+  if (!variable) throw new Error(`External variable with id "${variableName}" not found.`);
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
 
