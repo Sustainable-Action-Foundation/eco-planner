@@ -184,6 +184,17 @@ export class Recipe {
       };
 
       const normalizeResult = (value: unknown): Unit | Unit[] => {
+        // Handle 1d matrix
+        if (
+          typeof value === "object"
+          && value !== null
+          && "toArray" in value
+          && typeof (value as { toArray: unknown }).toArray === "function"
+        ) {
+          return normalizeResult((value as { toArray: () => unknown }).toArray());
+        }
+
+        // Handle (Unit | number)[]
         if (Array.isArray(value)) {
           if (!value.every(item => mathjs.isUnit(item) || typeof item === "number")) {
             console.error("Result array contains unsupported value types.", { value, type: typeof value });
@@ -192,6 +203,7 @@ export class Recipe {
           return value.map(toUnit);
         }
 
+        // Handle single number | Unit
         return toUnit(value);
       };
 
