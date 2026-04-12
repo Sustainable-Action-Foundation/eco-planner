@@ -1,4 +1,4 @@
-import type { DateValuesWithUnit, JSONValue, Mask } from "@/types";
+import { isISOIshDate, type DateValuesWithUnit, type JSONValue, type Mask } from "@/types";
 import mathjs from "@/math";
 import type { Unit } from "mathjs";
 import type { RecipeExtractionOutput, RecipeVariable, SerializedRecipe, SerializedRecipeShape } from "@/functions/recipe";
@@ -163,16 +163,43 @@ export class Recipe {
       scope[newName] = variable.value;
     }
 
-    let result;
+    let result: Unit | Unit[];
     try {
       const rawResult: unknown = mathjs.evaluate(equation, scope);
-      // We expect result to be a Unit or Unit[]
-      if (mathjs.typeOf(rawResult) === "Unit" || (Array.isArray(rawResult) && rawResult.every(item => mathjs.typeOf(item) === "Unit"))) {
-        result = rawResult as Unit | Unit[];
-      }
-      else {
-        throw new RecipeError("Result is not a Unit or array of Units.");
-      }
+
+      const toUnit = (value: unknown): Unit => {
+        if (mathjs.isUnit(value)) {
+          return value;
+        }
+        if (typeof value === "number") {
+          return mathjs.unit(value);
+        }
+
+        throw new RecipeError(`Result contains unsupported value types. {value: ${String(value)}, type: ${typeof value}}`);
+      };
+
+      const normalizeResult = (value: unknown): Unit | Unit[] => {
+        // Normalize matrix output by converting it to plain arrays first.
+        if (
+          mathjs.typeOf(value) === "Matrix"
+          || (
+            typeof value === "object"
+            && value !== null
+            && "toArray" in value
+            && typeof (value as { toArray: unknown }).toArray === "function"
+          )
+        ) {
+          return normalizeResult((value as { toArray: () => unknown }).toArray());
+        }
+
+        if (Array.isArray(value)) {
+          return value.flat(Infinity).map(toUnit);
+        }
+
+        return toUnit(value);
+      };
+
+      result = normalizeResult(rawResult);
     }
     catch (e) {
       throw new MathjsError("Error evaluating recipe equation: " + (e as Error).message);
@@ -183,10 +210,28 @@ export class Recipe {
       result = Array(maxTimeSpan).fill(result.clone()) as Unit[];
     }
 
+    const outputMask: Mask = masks.length > 0
+      ? ANDMasks(masks)
+      : (() => {
+        const generatedMask: Mask = {};
+        const vectorLength = Array.isArray(result) ? result.length : 1;
+
+        for (let i = 0; i < vectorLength; i++) {
+          const currentYear = commonStartDate.getUTCFullYear() + i;
+          const isoYearString = new Date(`${currentYear}-01-01T00:00:00Z`).toISOString();
+          if (!isISOIshDate(isoYearString)) {
+            throw new RecipeError(`Generated invalid ISOIshDate string: "${isoYearString}"`);
+          }
+          generatedMask[isoYearString] = false;
+        }
+
+        return generatedMask;
+      })();
+
     return parseDateValuesFromVector(
       {
         vector: result,
-        mask: ANDMasks(masks),
+        mask: outputMask,
       }
     );
   }
