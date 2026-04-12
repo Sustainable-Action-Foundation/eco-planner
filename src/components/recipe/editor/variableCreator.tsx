@@ -17,26 +17,41 @@ export function VariableCreator({
   const { recipe, setVariables } = useRecipe();
 
   const popoverRef = useRef<HTMLDivElement>(null);
-  const [newName, setNewName] = useState<string>('');
-  const [newNameStatus, setNewNameStatus] = useState<string>('');
+
+  const [providedName, setProvidedName] = useState<string>('');
   const [providedUnit, setProvidedUnit] = useState<string>('');
   const [providedType, setProvidedType] = useState<RecipeDataTypes | undefined>(undefined);
-  const [newTypeStatus, setNewTypeStatus] = useState<string>('');
+
+  const [nameStatus, setNameStatus] = useState<string>('');
+  const [typeStatus, setTypeStatus] = useState<string>('');
 
   // Hard coded to make a new data series variable. TODO: reconsider this behavior
   const addVariableToContext = () => {
-    if (newName === '') {
-      setNewNameStatus(t("components:recipe_editor.provide_variable_name"));
+    if (providedName === '') {
+      setNameStatus(t("components:recipe_editor.provide_variable_name"));
       return;
     }
     if (!providedType) {
-      setNewTypeStatus(t("components:recipe_editor.provide_variable_type"));
+      setTypeStatus(t("components:recipe_editor.provide_variable_type"));
       return;
     }
-    const usedNames = Object.values(recipe?.variables ?? {}).map(variable => variable.name);
-    if (usedNames.includes(newName)) {
-      setNewNameStatus(t("components:recipe_editor.variable_name_exists"));
+    const usedNames = recipe.variables.map(variable => variable.name);
+    if (usedNames.includes(providedName)) {
+      setNameStatus(t("components:recipe_editor.variable_name_exists"));
       return;
+    }
+
+    const usedIDs = recipe.variables.map(variable => variable.id);
+    let newID = crypto.randomUUID();
+    for (let i = 20; i > 0; i--) {
+      if (!usedIDs.includes(newID)) break;
+      newID = crypto.randomUUID();
+
+      if (i <= 1) {
+        console.error(`Failed to generate unique ID for new variable after 20 attempts. Compared against IDs: ${usedIDs.join(", ")}`);
+        setNameStatus(t("components:recipe_editor.unable_to_generate_variable_id"));
+        return;
+      }
     }
 
     setVariables(prev => ([
@@ -44,17 +59,17 @@ export function VariableCreator({
       {
         ...emptyRecipesByDataType[providedType],
         ...providedUnit ? { unit: providedUnit } : {},
-        id: crypto.randomUUID(), // TODO: more robust
-        name: newName,
+        id: newID,
+        name: providedName,
       },
     ]));
 
     // Clear the form after adding to context
-    setNewName('');
+    setProvidedName('');
     setProvidedUnit('');
     setProvidedType(undefined);
-    setNewNameStatus('')
-    setNewTypeStatus('')
+    setNameStatus('')
+    setTypeStatus('')
     popoverRef.current?.hidePopover()
   };
 
@@ -94,10 +109,10 @@ export function VariableCreator({
             id="variable-name"
             style={{ backgroundColor: 'var(--gray-95)' }}
             placeholder={t("components:recipe_editor.variable_name_placeholder")}
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
+            value={providedName}
+            onChange={(e) => setProvidedName(e.target.value)}
           />
-          <small className="block margin-bottom-50 margin-top-25 font-weight-500" style={{ color: 'red' }}>{newNameStatus}</small>
+          <small className="block margin-bottom-50 margin-top-25 font-weight-500" style={{ color: 'red' }}>{nameStatus}</small>
           <label htmlFor="variable-unit">
             {t("components:recipe_editor.unit_label")}
           </label>
@@ -150,7 +165,7 @@ export function VariableCreator({
               {t("components:recipe_editor.external_data")}
             </label>
           </div>
-          <small className="block margin-bottom-100 margin-top-25 font-weight-500" style={{ color: 'red' }}>{newTypeStatus}</small>
+          <small className="block margin-bottom-100 margin-top-25 font-weight-500" style={{ color: 'red' }}>{typeStatus}</small>
           <button
             type="button"
             className="width-100 color-purewhite font-weight-600 margin-top-50"
