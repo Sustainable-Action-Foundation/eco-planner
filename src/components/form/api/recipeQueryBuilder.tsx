@@ -45,11 +45,10 @@ export default function RecipeQueryBuilder({
     return fromMatch?.[1] ?? valueCode;
   }
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(Boolean(initialDataSource));
   const [dataSource, setDataSource] = useState<string>(initialDataSource ?? "");
   const [selectedTableId, setSelectedTableId] = useState<string>(initialTableId ?? "");
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
-  const [renderedTables, setRenderedTables] = useState<{ tableId: string, label: string }[] | null>(null);
   const [offset, setOffset] = useState(0);
   const [tableDetails, setTableDetails] = useState<ApiTableDetails | null>(null);
   const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
@@ -69,25 +68,48 @@ export default function RecipeQueryBuilder({
   const tablesListRenderingChunkSize = 50;
   const renderedTablesListMaxLength = 100;
   const initialRenderingMargin = 15;
+  const shouldRenderAllTables = (tables?.length ?? 0) <= renderedTablesListMaxLength + initialRenderingMargin;
+  const renderedTables = tables
+    ? tables.slice(
+      shouldRenderAllTables ? 0 : offset,
+      shouldRenderAllTables ? tables.length : offset + renderedTablesListMaxLength
+    )
+    : null;
 
+  // Get tables when source or language changes.
   useEffect(() => {
     if (!dataSource) return;
-    setIsLoading(true);
 
     const query = (fieldsetRef.current?.elements.namedItem(tableSearchInputName) as HTMLInputElement | null)?.value;
 
-    void getTables(dataSource, query, lang).then(result => { setTables(result); setIsLoading(false); });
+    getTables(dataSource, query, lang)
+      .then(result => { setTables(result); setOffset(0); })
+      .catch((e: unknown) => {
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        console.error("Error fetching tables:", errorMessage);
+        setTables(null);
+      })
+      .finally(() => setIsLoading(false));
   }, [dataSource, lang]);
 
+  // If we got an initial table, load its details.
   useEffect(() => {
     if (!dataSource || !initialTableId || hasAppliedInitialTableSelectionRef.current) return;
     if (!tables?.some(table => table.tableId === initialTableId)) return;
     if (!ExternalDataset.getDatasetByAlternateName(dataSource)?.baseUrl) return;
 
     hasAppliedInitialTableSelectionRef.current = true;
-    void getTableDetails(initialTableId, dataSource, undefined, lang).then(result => { setTableDetails(result); setIsLoading(false); });
+    getTableDetails(initialTableId, dataSource, undefined, lang)
+      .then(result => { setTableDetails(result); })
+      .catch((e: unknown) => {
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        console.error("Error fetching initial table details:", errorMessage);
+        setTableDetails(null);
+      })
+      .finally(() => setIsLoading(false));
   }, [dataSource, initialTableId, lang, tables]);
 
+  // Run one first query when initial values are set.
   useEffect(() => {
     if (!tableDetails || !initialSelection?.length || hasAppliedInitialSelectionRef.current) return;
     if (!(selectorMenuRef.current instanceof HTMLDivElement)) return;
@@ -100,25 +122,7 @@ export default function RecipeQueryBuilder({
     metricSelect.dispatchEvent(new Event("change", { bubbles: true }));
   }, [initialSelection, tableDetails]);
 
-  useEffect(() => {
-    if (tables) {
-      setRenderedTables(tables
-        .slice(
-          0,
-          /* If the total amount of tables is less than, or equal to, the max amount of rendered tables plus a margin (currently adding to 115), show all tables */
-          tables.length <= renderedTablesListMaxLength + initialRenderingMargin
-            ?
-            tables.length
-            : /* Otherwise, only show the first (100) tables. */
-            renderedTablesListMaxLength
-        ));
-      setOffset(0);
-    } else {
-      setRenderedTables(null);
-      setOffset(0);
-    }
-  }, [tables]);
-
+  // Show or hide the loader.
   useEffect(() => {
     const loader = document?.getElementById("loader");
     if (isLoading && loader) {
@@ -129,15 +133,6 @@ export default function RecipeQueryBuilder({
       }, 0);
     }
   }, [isLoading]);
-
-  useEffect(() => {
-    const metricSelectElement = document.getElementById("metric") as HTMLSelectElement | null;
-    if (metricSelectElement) {
-      setDefaultMetricSelected(metricSelectElement.value.length === 0);
-    } else {
-      setDefaultMetricSelected(true);
-    }
-  }, [tableDetails]);
 
   function searchOnEnter(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === "Enter") {
@@ -155,12 +150,23 @@ export default function RecipeQueryBuilder({
   function handleSearch(query?: string) {
     if (!dataSource || !ExternalDataset.getDatasetByAlternateName(dataSource)?.baseUrl) return;
 
-    void getTables(dataSource, query, lang).then(result => setTables(result));
+    setIsLoading(true);
+    getTables(dataSource, query, lang)
+      .then(result => { setTables(result); setOffset(0); })
+      .catch((e: unknown) => {
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        console.error("Error fetching tables:", errorMessage);
+        setTables(null);
+      })
+      .finally(() => setIsLoading(false));
   }
 
   function handleDataSourceSelect(dataSource: string) {
+    setIsLoading(true);
     setDataSource(dataSource);
     setSelectedTableId("");
+    setDefaultMetricSelected(true);
+    setOffset(0);
     hasAppliedInitialTableSelectionRef.current = false;
     hasAppliedInitialSelectionRef.current = false;
     // Clear table details and content whenever the data source changes
@@ -172,6 +178,7 @@ export default function RecipeQueryBuilder({
   function handleTableSelect(tableId: string) {
     setIsLoading(true);
     setSelectedTableId(tableId);
+    setDefaultMetricSelected(true);
     hasAppliedInitialSelectionRef.current = false;
 
     if (!ExternalDataset.getDatasetByAlternateName(dataSource)?.baseUrl) return;
@@ -180,11 +187,18 @@ export default function RecipeQueryBuilder({
     setTableContent(null);
     setTableDetails(null);
 
-    void getTableDetails(tableId, dataSource, undefined, lang).then(result => { setTableDetails(result); setIsLoading(false); });
+    getTableDetails(tableId, dataSource, undefined, lang)
+      .then(result => { setTableDetails(result); })
+      .catch((e: unknown) => {
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        console.error("Error fetching table details:", errorMessage);
+        setTableDetails(null);
+      })
+      .finally(() => setIsLoading(false));
   }
 
   function handleMetricSelect(event: React.ChangeEvent<HTMLSelectElement>) {
-    void tryGetResult();
+    tryGetResult();
     setIsLoading(true);
     const isDefaultValue = event.target.value.length === 0;
     setDefaultMetricSelected(isDefaultValue);
@@ -203,7 +217,13 @@ export default function RecipeQueryBuilder({
           variableSelectionFieldset.setAttribute("disabled", "true");
           // Reset all the table details when disabling the form so all options are displayed when re-enabling
           if (dataSource === "Trafa") {
-            void getTableDetails(tableDetails?.id ?? "", dataSource, undefined, lang).then(result => { setTableDetails(result); setIsLoading(false); });
+            getTableDetails(tableDetails?.id ?? "", dataSource, undefined, lang)
+              .then(result => { setTableDetails(result); })
+              .catch((e: unknown) => {
+                const errorMessage = e instanceof Error ? e.message : String(e);
+                console.error("Error resetting table details:", errorMessage);
+              })
+              .finally(() => setIsLoading(false));
           }
           else {
             setIsLoading(false);
@@ -233,8 +253,6 @@ export default function RecipeQueryBuilder({
         !renderedTables.includes(tables[tables.length - 1])
       ) {
         const newOffset = offset + tablesListRenderingChunkSize;
-        const newRenderedTables = tables.slice(newOffset, newOffset + renderedTablesListMaxLength);
-        setRenderedTables(newRenderedTables);
         setOffset(newOffset);
       }
       else if ( // This block is only executed when the user scrolls up
@@ -247,17 +265,12 @@ export default function RecipeQueryBuilder({
         !renderedTables.includes(tables[0])
       ) {
         const newOffset = Math.max(offset - tablesListRenderingChunkSize, 0);
-        const newRenderedTables = tables.slice(newOffset, newOffset + renderedTablesListMaxLength);
-        setRenderedTables(newRenderedTables);
         setOffset(newOffset);
       }
     }
   }
 
-  type VariableSelectionHelperOptions = {
-    classNames?: string[],
-  }
-  function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails, options?: VariableSelectionHelperOptions) {
+  function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails, options?: { classNames?: string[], }) {
     if (variable.option) {
       return (
         <label key={variable.name} className={`block margin-block-75 ${options?.classNames?.map((className: string) => className).join(" ")}`}>
@@ -391,7 +404,12 @@ export default function RecipeQueryBuilder({
     if (dataSource === "Trafa") {
       // If metric was changed, send the metric as a query to the API to get filtered table details
       if (event?.target instanceof HTMLSelectElement && event.target.name === "metric") {
-        void getTableDetails(tableId, dataSource, query.filter(q => q.variableCode === "metric"), lang).then(result => { setTableDetails(result); });
+        getTableDetails(tableId, dataSource, query.filter(q => q.variableCode === "metric"), lang)
+          .then(result => { setTableDetails(result); })
+          .catch((e: unknown) => {
+            const errorMessage = e instanceof Error ? e.message : String(e);
+            console.error("Error fetching metric-filtered table details:", errorMessage);
+          });
       }
     }
   }
