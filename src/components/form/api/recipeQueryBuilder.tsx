@@ -19,12 +19,12 @@ import getTableContent from "@/lib/api/getTableContent";
 import { RecipeDataTypes } from "@/functions/recipe";
 
 export default function RecipeQueryBuilder({
-  variableName,
+  variableId,
   initialDataSource,
   initialTableId,
   initialSelection,
 }: {
-  variableName: string;
+  variableId: string;
   initialDataSource?: string;
   initialTableId?: string;
   initialSelection?: { variableCode: string, valueCodes: string[] }[];
@@ -428,7 +428,7 @@ export default function RecipeQueryBuilder({
 
     const query = buildQuery(formData);
 
-    setVariable(variableName, prev => prev.type === RecipeDataTypes.External
+    setVariable(variableId, prev => prev.type === RecipeDataTypes.External
       ? {
         ...prev,
         dataset: isDataSetKeys(dataSource) ? dataSource : prev.dataset,
@@ -503,7 +503,7 @@ export default function RecipeQueryBuilder({
                         checked={selectedTableId === id}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                           handleTableSelect((e.target as HTMLInputElement).value);
-                          setVariable(variableName, prev => prev.type === RecipeDataTypes.External
+                          setVariable(variableId, prev => prev.type === RecipeDataTypes.External
                             ? { ...prev, tableId: e.target.value }
                             : prev
                           );

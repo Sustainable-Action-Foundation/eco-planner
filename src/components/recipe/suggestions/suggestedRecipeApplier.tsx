@@ -148,7 +148,9 @@ export function SuggestedRecipeApplier({
         columnGap: '1rem'
       }}
     >
-      {Object.entries(recipe?.variables ?? {}).map(([variableKey, variable], i) => {
+      {(recipe?.variables ?? []).map((variable, i) => {
+        const variableId = variable.id;
+        const variableDisplayName = variable.name;
         const unitIsProvided = typeof variable.unit !== "undefined" && variable.unit !== null;
         const isValidUnit = unitIsProvided ? isMathjsUnit(variable.unit as string) : false;
         const unitDisplay = isValidUnit
@@ -170,13 +172,13 @@ export function SuggestedRecipeApplier({
         switch (variable.type) {
           case RecipeDataTypes.Scalar: {/* TODO: Fix these labels */ }
             return (
-              <Fragment key={variable.name ?? variableKey}>
+              <Fragment key={variableId}>
                 <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
-                  <span>{variable.name ?? variableKey}{unitDisplay}:</span>
+                  <span>{variableDisplayName}{unitDisplay}:</span>
                 </label>
                 <VariableTypeScalarSimple
                   key={"recipeVariable" + i}
-                  variableName={variable.name ?? variableKey}
+                  variableId={variableId}
                   permissions={permissions}
                   props={{
                     defaultValue: variable.value,
@@ -188,9 +190,9 @@ export function SuggestedRecipeApplier({
 
           case RecipeDataTypes.DataSeries:
             return (
-              <Fragment key={variable.name ?? variableKey}>
+              <Fragment key={variableId}>
                 <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
-                  <span>{variable.name ?? variableKey}{unitDisplay}:</span>
+                  <span>{variableDisplayName}{unitDisplay}:</span>
                 </label>
                 <DataSeriesVariableSimpleEditor
                   props={{
@@ -202,7 +204,7 @@ export function SuggestedRecipeApplier({
                     ...(variable.template ? { style: { outline: "1px solid blue", borderRadius: "8px" } } : {})
                   }}
                   key={"recipeVariable" + i}
-                  variableId={variable.name ?? variableKey}
+                  variableId={variableId}
                   availableDataSeries={availableRoadmaps}
                 />
               </Fragment>
@@ -210,13 +212,13 @@ export function SuggestedRecipeApplier({
 
           case RecipeDataTypes.External:
             return (
-              <Fragment key={variable.name ?? variableKey}>
+              <Fragment key={variableId}>
                 <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
-                  <span>{variable.name ?? variableKey}{unitDisplay}:</span>
+                  <span>{variableDisplayName}{unitDisplay}:</span>
                 </label>
                 <VariableTypeExternalSimple
                   key={"recipeVariable" + i}
-                  variableName={variable.name ?? variableKey}
+                  variableId={variableId}
                   permissions={permissions}
                   props={{
                     ...(variable.template ? { style: { outline: "1px solid blue", borderRadius: "8px" } } : {})
@@ -228,8 +230,8 @@ export function SuggestedRecipeApplier({
           default:
             console.warn("Unknown variable type for variable", { variable });
             return (
-              <p key={variableKey}>
-                {variableKey}: {t("components:recipe_editor.unknown_variable_type")}
+              <p key={variableId}>
+                {variableDisplayName}: {t("components:recipe_editor.unknown_variable_type")}
               </p>
             );
         }

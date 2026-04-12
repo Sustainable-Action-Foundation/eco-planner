@@ -65,11 +65,11 @@ function useRoadmapTreeItems(availableRoadmaps: AvailableRoadmapOption[]) {
 }
 
 function useHandleDataSeriesChange(
-  variableName: string,
+  variableId: string,
   setVariable: RecipeContextType["setVariable"],
 ) {
   return useCallback((treeValue: TreeItem | null) => {
-    setVariable(variableName, (prev) => {
+    setVariable(variableId, (prev) => {
       if (!treeValue?.value) {
         return { ...prev, dataSeriesId: undefined };
       }
@@ -81,7 +81,7 @@ function useHandleDataSeriesChange(
 
       return { ...prev, dataSeriesId: treeValue.value };
     });
-  }, [setVariable, variableName]);
+  }, [setVariable, variableId]);
 }
 
 type AvailableDataSeries = AvailableRoadmapOption[];

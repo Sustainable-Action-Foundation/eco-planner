@@ -63,7 +63,7 @@ export function VariablesEditor({
     <ul
       className={`list-style-none padding-50 margin-0 flex-grow-100 ${styles['variable-list']}`}
     >
-      {Object.keys(recipe?.variables || []).length === 0 &&
+      {(recipe?.variables.length ?? 0) === 0 &&
         <li className="padding-bottom-75 margin-bottom-75">
           <div className="flex flex-direction-column align-items-center justify-content-center gap-25 padding-100 border-dashed border-2 border-gray-70 border-radius-8 background-color-gray-50">
             <p className="font-weight-500 gray-700 text-align-center">
@@ -73,36 +73,37 @@ export function VariablesEditor({
           </div>
         </li>
       }
-      {Object.entries(recipe?.variables || []).map(([name, variable], i) => {
+      {(recipe?.variables ?? []).map((variable, i) => {
+        const variableId = variable.id;
         if (variable.type === RecipeDataTypes.Scalar) return (
-          <li className="padding-bottom-75 margin-bottom-75" key={name} >
+          <li className="padding-bottom-75 margin-bottom-75" key={variableId} >
             <VariableTypeScalar
               key={"recipeVariable" + i}
-              name={name}
+              variableId={variableId}
               permissions={permissions}
             />
           </li>
         )
         else if (variable.type === RecipeDataTypes.DataSeries) return (
-          <li className="padding-bottom-75 margin-bottom-75" key={name}>
+          <li className="padding-bottom-75 margin-bottom-75" key={variableId}>
             <DataSeriesVariableEditor
               key={"recipeVariable" + i}
-              variableId={name}
+              variableId={variableId}
               permissions={permissions}
               availableDataSeries={availableRoadmaps}
             />
           </li>
         )
         else if (variable.type === RecipeDataTypes.External) return (
-          <li className="padding-bottom-75 margin-bottom-75" key={name}>
+          <li className="padding-bottom-75 margin-bottom-75" key={variableId}>
             <VariableTypeExternal
               key={"recipeVariable" + i}
-              variableName={name}
+              variableId={variableId}
               permissions={permissions}
             />
           </li>
         )
-        else console.warn("Unknown variable type", { variable }, "for variable", name);
+        else console.warn("Unknown variable type", { variable }, "for variable", variableId);
       })}
     </ul>
   );

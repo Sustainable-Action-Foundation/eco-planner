@@ -10,32 +10,32 @@ import { useRecipe, CommonVariable, VectorPickerSelect } from "@/components/reci
 
 // TODO: Fix labels
 export function VariableTypeExternal({
-  variableName,
+  variableId,
   permissions,
 }: {
-  variableName: string;
+  variableId: string;
   permissions?: RecipeEditorPermissions;
 }) {
   const { t } = useTranslation("components");
 
   const { getVariable } = useRecipe();
-  const variable = getVariable(variableName, RecipeDataTypes.External);
-  if (!variable) throw new Error(`External variable with id "${variableName}" not found.`);
+  const variable = getVariable(variableId, RecipeDataTypes.External);
+  if (!variable) throw new Error(`External variable with id "${variableId}" not found.`);
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
 
   return (
     <>
       <CommonVariable
-        variableId={variableName}
+        variableId={variableId}
         permissions={permissions}
       >
-        <RecipeQueryBuilder variableName={variableName} />
+        <RecipeQueryBuilder variableId={variableId} />
         <div className="floating-label inline-block" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
           <label htmlFor="variable-tree-vector-index-picker">
             {t("components:recipe_editor.vector_index_picker_label")}
           </label>
-          <VectorPickerSelect permissions={permissions} variableId={variableName} />
+          <VectorPickerSelect permissions={permissions} variableId={variableId} />
         </div>
       </CommonVariable>
       <div className="flex gap-25 margin-left-300 margin-top-100"> {/* TODO: Handle overflow a bit better here */}
@@ -49,19 +49,19 @@ export function VariableTypeExternal({
 
 // TODO: Add the modal here
 export function VariableTypeExternalSimple({
-  variableName,
+  variableId,
   permissions,
   props = {},
 }: {
-  variableName: string,
+  variableId: string,
   permissions?: RecipeEditorPermissions
   props?: React.InputHTMLAttributes<HTMLInputElement>;
 }) {
   const { t } = useTranslation("components");
 
   const { setVariable, getVariable } = useRecipe();
-  const variable = getVariable(variableName, RecipeDataTypes.External);
-  if (!variable) throw new Error(`External variable with id "${variableName}" not found.`);
+  const variable = getVariable(variableId, RecipeDataTypes.External);
+  if (!variable) throw new Error(`External variable with id "${variableId}" not found.`);
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
 
@@ -71,7 +71,7 @@ export function VariableTypeExternalSimple({
       {...props}
     > {/* TODO: Figure out how to deal with labels here */}
       <RecipeQueryBuilder
-        variableName={variableName}
+        variableId={variableId}
         initialDataSource={variable.dataset ?? undefined}
         initialTableId={variable.tableId ?? undefined}
         initialSelection={variable.selection}
@@ -82,7 +82,7 @@ export function VariableTypeExternalSimple({
         <select
           value={variable.dataset || ""}
           disabled={!permissions.allowValueEditing}
-          onChange={(e) => setVariable(variableName, prev => prev.type === RecipeDataTypes.External
+          onChange={(e) => setVariable(variableId, prev => prev.type === RecipeDataTypes.External
             ? { ...prev, dataset: isDataSetKeys(e.target.value) ? e.target.value : prev.dataset }
             : prev
           )}
@@ -99,7 +99,7 @@ export function VariableTypeExternalSimple({
         <input
           className="inline width-auto"
           value={variable.tableId || ""}
-          onChange={(e) => setVariable(variableName, prev => prev.type === RecipeDataTypes.External
+          onChange={(e) => setVariable(variableId, prev => prev.type === RecipeDataTypes.External
             ? { ...prev, tableId: e.target.value }
             : prev
           )}
@@ -112,7 +112,7 @@ export function VariableTypeExternalSimple({
         <input
           className="inline width-auto"
           value={JSON.stringify(variable.selection) || ""}
-          onChange={(e) => setVariable(variableName, prev => prev.type === RecipeDataTypes.External
+          onChange={(e) => setVariable(variableId, prev => prev.type === RecipeDataTypes.External
             ? {
               ...prev, selection: isStringifiedExternalSelection(e.target.value)
                 ? JSON.parse(e.target.value) as ExternalVariable["selection"]

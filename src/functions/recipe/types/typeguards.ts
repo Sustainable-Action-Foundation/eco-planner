@@ -332,12 +332,12 @@ export function isRecipe(recipe: JSONValue): recipe is SerializedRecipeShape {
     return false;
   }
 
-  // .variables: Record<string, RecipeVariable>
+  // .variables: RecipeVariable[]
   if (
     !("variables" in recipe)
-    || !isStandardObject(recipe.variables)
+    || !Array.isArray(recipe.variables)
   ) {
-    console.warn("Type guard: 'variables' in recipe should be an object", recipe);
+    console.warn("Type guard: 'variables' in recipe should be an array", recipe);
     return false;
   }
 
@@ -356,12 +356,11 @@ export function isRecipe(recipe: JSONValue): recipe is SerializedRecipeShape {
     return false;
   }
 
-  const variables = recipe.variables as Record<string, unknown>;
+  const variables = recipe.variables as unknown[];
 
-  // .variables: Record<string, RecipeVariable> - check each variable
+  // .variables: RecipeVariable[] - check each variable
   if (
-    Object.entries(variables).some(([key, value]) => {
-      if (key.trim() === "") return true; // key is already string from Object.entries
+    variables.some((value) => {
       if (!isStandardObject(value)) return true; // important: removes `any` -> `JSONValue` unsafe arg
 
       // Determine variable kind first to avoid logging expected type mismatches
@@ -402,7 +401,7 @@ export function isEmptyRecipe(recipe: Recipe): boolean {
   return (
     !!recipe.name
     && !!recipe.equation.trim()
-    && Object.keys(recipe.variables).length === 0
+    && recipe.variables.length === 0
   );
 }
 

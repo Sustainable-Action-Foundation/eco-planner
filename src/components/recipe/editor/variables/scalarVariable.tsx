@@ -8,22 +8,22 @@ import { CommonVariable } from "@/components/recipe";
 
 // TODO: Fix labels
 export function VariableTypeScalar({
-  name,
+  variableId,
   permissions,
 }: {
-  name: string;
+  variableId: string;
   permissions?: RecipeEditorPermissions;
 }) {
   const { t } = useTranslation("components");
   const { setVariable, getVariable } = useRecipe();
-  const variable = getVariable(name, RecipeDataTypes.Scalar);
-  if (!variable) throw new RecipeError(`Scalar variable with id "${name}" not found.`);
+  const variable = getVariable(variableId, RecipeDataTypes.Scalar);
+  if (!variable) throw new RecipeError(`Scalar variable with id "${variableId}" not found.`);
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
 
   return (
     <CommonVariable
-      variableId={name}
+      variableId={variableId}
       permissions={permissions}
     >
       <div className="floating-label inline-block" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
@@ -32,7 +32,7 @@ export function VariableTypeScalar({
         </label>
         <input
           defaultValue={variable.value}
-          onChange={(e) => setVariable(name, prev => prev.type === RecipeDataTypes.Scalar
+          onChange={(e) => setVariable(variableId, prev => prev.type === RecipeDataTypes.Scalar
             ? { ...prev, value: Number(e.target.value) }
             : prev
           )}
@@ -47,18 +47,18 @@ export function VariableTypeScalar({
 }
 
 export function VariableTypeScalarSimple({
-  variableName,
+  variableId,
   permissions,
   props = {},
 }: {
-  variableName: string;
+  variableId: string;
   permissions?: RecipeEditorPermissions;
   props?: React.InputHTMLAttributes<HTMLInputElement>;
 }) {
   const { t } = useTranslation("components");
   const { setVariable, getVariable } = useRecipe();
-  const variable = getVariable(variableName, RecipeDataTypes.Scalar);
-  if (!variable) throw new RecipeError(`Scalar variable with id "${variableName}" not found.`);
+  const variable = getVariable(variableId, RecipeDataTypes.Scalar);
+  if (!variable) throw new RecipeError(`Scalar variable with id "${variableId}" not found.`);
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
 
@@ -66,7 +66,7 @@ export function VariableTypeScalarSimple({
     <input
       className="inline width-auto"
       defaultValue={variable.value}
-      onChange={(e) => setVariable(variableName, prev => prev.type === RecipeDataTypes.Scalar
+      onChange={(e) => setVariable(variableId, prev => prev.type === RecipeDataTypes.Scalar
         ? { ...prev, value: Number(e.target.value) }
         : prev
       )}
