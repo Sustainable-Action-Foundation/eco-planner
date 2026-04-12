@@ -1,7 +1,7 @@
 "use client";
 
 import { RecipeError } from "@/functions/recipe/types";
-import type { RecipeVariable } from "@/functions/recipe/types";
+import type { RecipeVariable, SerializedRecipe } from "@/functions/recipe/types";
 import type { DateValues, UnitString } from "@/types";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Recipe } from "@/functions/recipe/recipe";
@@ -14,7 +14,7 @@ export function RecipeContextProvider({
   initialRecipe,
   children,
 }: {
-  initialRecipe?: Recipe;
+  initialRecipe?: SerializedRecipe;
   children: React.ReactNode;
 }) {
   const searchParams = useSearchParams();
@@ -72,9 +72,10 @@ export function RecipeContextProvider({
     // Validate
     const validity = await nextRecipe.checkValidity();
     if (!validity.good) {
-      console.warn("Warning produced after validity check in setRecipe:", validity.warnings ?? []);
+      if (validity.warnings?.length)
+        console.warn("Warning produced after validity check in setRecipe:", validity.warnings);
       setWarnings(validity.warnings ?? []);
-      throw new RecipeError(`Failed to set recipe: ${validity.error || "Recipe is invalid"}`);
+      setError(validity.error || "Recipe is invalid");
     }
 
     recipeRef.current = nextRecipe;
