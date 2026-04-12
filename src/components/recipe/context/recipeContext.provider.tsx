@@ -190,7 +190,7 @@ export function RecipeContextProvider({
         if (!isCurrent) return;
 
         const errorMessage = e instanceof Error ? e.message : String(e);
-        console.error("Failed to evaluate recipe:", errorMessage);
+        console.warn("Failed to evaluate recipe:", errorMessage);
 
         setResultingDataSeries(null);
         setResultingUnit(null);
