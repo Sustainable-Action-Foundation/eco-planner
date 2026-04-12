@@ -176,13 +176,14 @@ export function RecipeContextProvider({
       };
     }
 
-    updatedDebounce.evaluate()
+    const warnings: string[] = [];
+    updatedDebounce.evaluate(warnings)
       .then(result => {
         if (!isCurrent) return;
 
         setResultingDataSeries(result?.dateValues ?? null);
         setResultingUnit(result?.unit ?? null);
-        setWarnings([]);
+        setWarnings(warnings);
         setError(null);
       })
       .catch((e: unknown) => {
@@ -193,7 +194,7 @@ export function RecipeContextProvider({
 
         setResultingDataSeries(null);
         setResultingUnit(null);
-        setWarnings([]);
+        setWarnings(warnings);
         setError(errorMessage);
       });
 

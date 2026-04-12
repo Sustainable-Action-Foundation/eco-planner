@@ -40,7 +40,9 @@ export class Recipe {
     const warnings: string[] = [];
     try {
       const _ = await this.evaluate(warnings);
-      if (warnings.length) console.warn(warnings);
+      if (warnings.length) {
+        console.warn("Warnings encountered during recipe validity check:", warnings);
+      }
       return {
         good: true,
         error: undefined,
@@ -48,7 +50,9 @@ export class Recipe {
       };
     }
     catch (e) {
-      if (warnings.length) console.warn(warnings);
+      if (warnings.length) {
+        console.warn("Warnings encountered during recipe validity check:", warnings);
+      }
 
       const errorAliases = {
         "Unexpected type of argument in function addScalar (expected: Unit, actual: number, index: 1)":
@@ -198,7 +202,7 @@ export class Recipe {
     }
 
     if (result instanceof mathjs.Unit) {
-      console.warn("Equation returned a scalar, applying to all fields.");
+      warnings.push("Equation returned a scalar, applying to all fields.");
       result = Array(maxTimeSpan).fill(result.clone()) as Unit[];
     }
 
