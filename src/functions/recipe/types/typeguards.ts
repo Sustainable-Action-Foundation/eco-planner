@@ -36,7 +36,7 @@ function isRecipePickValue(pick: unknown): pick is DataSeriesVariable["pick"] {
 }
 
 export function isScalarVariable(variable: JSONValue): variable is ScalarVariable {
-  const allowedProps = ["name", "type", "unit", "template", "value"];
+  const allowedProps = ["id", "name", "type", "unit", "template", "value"];
 
   if (!isStandardObject(variable)) {
     console.warn("Type guard: scalar variable should be an object", variable);
@@ -47,6 +47,12 @@ export function isScalarVariable(variable: JSONValue): variable is ScalarVariabl
   // .type: RecipeDataTypes.Scalar
   if (scalar.type !== RecipeDataTypes.Scalar) {
     console.warn("Type guard: 'type' in scalar variable", variable);
+    return false;
+  }
+
+  // .id: non-empty string
+  if (typeof scalar.id !== "string" || scalar.id.trim() === "") {
+    console.warn("Type guard: 'id' in scalar variable", variable);
     return false;
   }
 
@@ -62,12 +68,9 @@ export function isScalarVariable(variable: JSONValue): variable is ScalarVariabl
     return false;
   }
 
-  // .name: non-empty string | undefined
+  // .name: non-empty string
   const name = scalar.name;
-  if (
-    name !== undefined
-    && (typeof name !== "string" || name.trim() === "")
-  ) {
+  if (typeof name !== "string" || name.trim() === "") {
     console.warn("Type guard: 'name' in scalar variable", variable);
     return false;
   }
@@ -87,7 +90,7 @@ export function isScalarVariable(variable: JSONValue): variable is ScalarVariabl
 }
 
 export function isDataSeriesVariable(variable: JSONValue): variable is DataSeriesVariable {
-  const allowedProps = ["name", "type", "unit", "template", "pick", "dataSeriesId", "value"];
+  const allowedProps = ["id", "name", "type", "unit", "template", "pick", "dataSeriesId", "value"];
   if (!isStandardObject(variable)) {
     console.warn("Type guard: data series variable should be an object", variable);
     return false;
@@ -97,6 +100,12 @@ export function isDataSeriesVariable(variable: JSONValue): variable is DataSerie
   // .type: RecipeDataTypes.DataSeries
   if (dataSeries.type !== RecipeDataTypes.DataSeries) {
     console.warn("Type guard: 'type' in data series variable", variable);
+    return false;
+  }
+
+  // .id: non-empty string
+  if (typeof dataSeries.id !== "string" || dataSeries.id.trim() === "") {
+    console.warn("Type guard: 'id' in data series variable", variable);
     return false;
   }
 
@@ -129,12 +138,9 @@ export function isDataSeriesVariable(variable: JSONValue): variable is DataSerie
     return false;
   }
 
-  // .name: non-empty string | undefined
+  // .name: non-empty string
   const name = dataSeries.name;
-  if (
-    name !== undefined
-    && (typeof name !== "string" || name.trim() === "")
-  ) {
+  if (typeof name !== "string" || name.trim() === "") {
     console.warn("Type guard: 'name' in data series variable", variable);
     return false;
   }
@@ -154,7 +160,7 @@ export function isDataSeriesVariable(variable: JSONValue): variable is DataSerie
 }
 
 export function isExternalVariable(variable: JSONValue): variable is ExternalVariable {
-  const allowedProps = ["name", "type", "unit", "template", "dataset", "tableId", "selection", "pick"];
+  const allowedProps = ["id", "name", "type", "unit", "template", "dataset", "tableId", "selection", "pick"];
   if (!isStandardObject(variable)) {
     console.warn("Type guard: external dataset variable should be an object", variable);
     return false;
@@ -167,11 +173,16 @@ export function isExternalVariable(variable: JSONValue): variable is ExternalVar
     return false;
   }
 
-  // .dataset: known dataset key | null | undefined
+  // .id: non-empty string
+  if (typeof external.id !== "string" || external.id.trim() === "") {
+    console.warn("Type guard: 'id' in external dataset variable", variable);
+    return false;
+  }
+
+  // .dataset: known dataset key | null
   const dataset = external.dataset;
   if (
     dataset !== null
-    && dataset !== undefined
     && (
       typeof dataset !== "string"
       || !ExternalDataset.knownDatasetKeys.includes(dataset as DatasetKeys)
@@ -181,11 +192,10 @@ export function isExternalVariable(variable: JSONValue): variable is ExternalVar
     return false;
   }
 
-  // .tableId: non-empty string | null | undefined
+  // .tableId: non-empty string | null
   const tableId = external.tableId;
   if (
     tableId !== null
-    && tableId !== undefined
     && (typeof tableId !== "string" || tableId.trim() === "")
   ) {
     console.warn("Type guard: 'tableId' in external dataset variable", variable);
@@ -210,12 +220,9 @@ export function isExternalVariable(variable: JSONValue): variable is ExternalVar
     return false;
   }
 
-  // .name: non-empty string | undefined
+  // .name: non-empty string
   const name = external.name;
-  if (
-    name !== undefined
-    && (typeof name !== "string" || name.trim() === "")
-  ) {
+  if (typeof name !== "string" || name.trim() === "") {
     console.warn("Type guard: 'name' in external dataset variable", variable);
     return false;
   }
@@ -314,10 +321,10 @@ export function isRecipe(recipe: JSONValue): recipe is SerializedRecipeShape {
     return false;
   }
 
-  // .name: string | null | undefined | omitted
+  // .name: string | null | undefined
   if (
-    "name" in recipe
-    && (typeof recipe.name !== "string" && recipe.name !== null && recipe.name !== undefined)
+    !("name" in recipe)
+    || (typeof recipe.name !== "string" && recipe.name !== null && recipe.name !== undefined)
   ) {
     console.warn("Type guard: 'name' in recipe", recipe);
     return false;
@@ -341,16 +348,10 @@ export function isRecipe(recipe: JSONValue): recipe is SerializedRecipeShape {
     return false;
   }
 
-  // .meta: Record<> | omitted
+  // .meta: Record<string, JSONValue>
   if (
-    "meta" in recipe
-    && recipe.meta !== undefined
-    && recipe.meta !== null
-    && typeof recipe.meta !== "string"
-    && typeof recipe.meta !== "number"
-    && typeof recipe.meta !== "boolean"
-    && !isStandardObject(recipe.meta)
-    && !Array.isArray(recipe.meta)
+    !("meta" in recipe)
+    || !isStandardObject(recipe.meta)
   ) {
     console.warn("Type guard: 'meta' in recipe", recipe);
     return false;
