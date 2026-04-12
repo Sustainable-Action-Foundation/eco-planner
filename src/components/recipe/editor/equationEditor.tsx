@@ -2,16 +2,34 @@
 
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
-import React, { useRef, useState } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import { IconPlus } from "@tabler/icons-react";
 
 export function EquationEditor() {
   const { t } = useTranslation("components");
   const { recipe, setEquation } = useRecipe();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const pendingSelectionRef = useRef<{ start: number, end: number } | null>(null);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
 
+  useLayoutEffect(() => {
+    const textarea = textareaRef.current;
+    const selection = pendingSelectionRef.current;
+    if (!textarea || !selection) return;
+
+    if (document.activeElement === textarea) {
+      textarea.setSelectionRange(selection.start, selection.end);
+    }
+
+    pendingSelectionRef.current = null;
+  }, [recipe.equation]);
+
   const handleUpdatedEq = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    pendingSelectionRef.current = {
+      start: e.target.selectionStart,
+      end: e.target.selectionEnd,
+    };
+
     const equation = e.target.value;
     setEquation(equation);
   };
@@ -70,7 +88,7 @@ export function EquationEditor() {
         {/* TODO: should be a proper menu with key controls */}
         {recipe?.variables ?
           <>
-            <h2 className="font-weight-normal text-align-center margin-block-25 padding-bottom-25" style={{ fontSize: '14px', whiteSpace: 'nowrap', borderBottom: '1px solid var(--gray)' }}>Infoga variabel</h2>
+            <h2 className="font-weight-normal text-align-center margin-block-25 padding-bottom-25" style={{ fontSize: '14px', whiteSpace: 'nowrap', borderBottom: '1px solid var(--gray)' }}>{t("components:recipe_editor.insert_variable")}</h2>
             {recipe?.variables &&
               Object.entries(recipe.variables).map(([variableName], index) => (
                 <li key={variableName} role="presentation">
