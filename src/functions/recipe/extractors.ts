@@ -24,7 +24,8 @@ export function extractScalars(
     const unit = isValidUnit ? bestUnit : undefined;
 
     scalars.push({
-      name: variable.name,
+      id: variable.id,
+      displayName: variable.name,
       value: unit
         ? mathjs.unit(variable.value, unit)
         : mathjs.unit(variable.value),
@@ -94,13 +95,15 @@ export async function extractDataSeries(
 
     if (picked instanceof mathjs.Unit) {
       dataSeries.push({
-        name: variable.name,
+        id: variable.id,
+        displayName: variable.name,
         value: picked,
       });
     }
     else {
       dataSeries.push({
-        name: variable.name,
+        id: variable.id,
+        displayName: variable.name,
         series: {
           dateValues: picked,
           unit,
@@ -161,13 +164,15 @@ export async function extractExternalDatasets(
 
       if (picked instanceof mathjs.Unit) {
         externalDatasets.push({
-          name: variable.name,
+          id: variable.id,
+          displayName: variable.name,
           value: picked,
         });
       }
       else {
         externalDatasets.push({
-          name: variable.name,
+          id: variable.id,
+          displayName: variable.name,
           series: {
             dateValues: picked,
             unit,

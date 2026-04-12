@@ -413,13 +413,23 @@ export function isEvalTimeVariable(variable: unknown): variable is EvalTimeVaria
     return false;
   }
 
-  // .name: string
+  // .id: string
   if (
-    !("name" in variable)
-    || typeof variable.name !== "string"
-    || variable.name.trim() === ""
+    !("id" in variable)
+    || typeof variable.id !== "string"
+    || variable.id.trim() === ""
   ) {
-    console.warn(`Type guard: 'name' in eval time variable`);
+    console.warn(`Type guard: 'id' in eval time variable`);
+    return false;
+  }
+
+  // .displayName: string
+  if (
+    !("displayName" in variable)
+    || typeof variable.displayName !== "string"
+    || variable.displayName.trim() === ""
+  ) {
+    console.warn(`Type guard: 'displayName' in eval time variable`);
     return false;
   }
 

@@ -139,7 +139,8 @@ export class Recipe {
       );
       masks.push(mask);
       evalTimeVars.push({
-        name: ds.name,
+        id: ds.id,
+        displayName: ds.displayName,
         value: vector,
       });
     }
@@ -156,18 +157,56 @@ export class Recipe {
       return null;
     }
 
-    const nameNormalizer = (name: string) => name.replace(/\s+/g, "_");
+    const nameNormalizer = (name: string) => {
+      const collapsedWhitespace = name.trim().replace(/\s+/g, "_");
+      const identifierSafe = collapsedWhitespace.replace(/[^A-Za-z0-9_]/g, "_");
+      return /^[A-Za-z_]/.test(identifierSafe) ? identifierSafe : `v_${identifierSafe}`;
+    };
     const inlineEqEscapeFormat = (name: string) => `\${${name}}`;
+    const displayNameCounts = this.variables.reduce((counts, variable) => {
+      counts[variable.name] = (counts[variable.name] ?? 0) + 1;
+      return counts;
+    }, {} as Record<string, number>);
+    const usedScopeNames = new Set<string>();
+    const loggedLegacyDisplayNameInfo = new Set<string>();
 
     for (const variable of evalTimeVars) {
       if (!variable.value) {
-        throw new RecipeError(`Variable "${variable.name}" has no values.`);
+        throw new RecipeError(`Variable "${variable.displayName}" (id: "${variable.id}") has no values.`);
       }
 
-      const newName = nameNormalizer(variable.name);
+      const variableId = variable.id;
+      const recipeVariable = this.variableMap[variableId];
+      const legacyDisplayNamePlaceholder = recipeVariable
+        ? inlineEqEscapeFormat(recipeVariable.name)
+        : null;
+      const hasLegacyDisplayNamePlaceholder = !!legacyDisplayNamePlaceholder && equation.includes(legacyDisplayNamePlaceholder);
 
-      // Normalize equation variable names
-      equation = equation.replaceAll(inlineEqEscapeFormat(variable.name), newName);
+      const newNameBase = nameNormalizer(variableId);
+      let newName = newNameBase;
+      let suffix = 1;
+      while (usedScopeNames.has(newName)) {
+        newName = `${newNameBase}_${suffix}`;
+        suffix += 1;
+      }
+      usedScopeNames.add(newName);
+
+      // Normalize equation variable IDs.
+      equation = equation.replaceAll(inlineEqEscapeFormat(variableId), newName);
+
+      // Backward compatibility for legacy formulas that still reference display names.
+      if (recipeVariable && displayNameCounts[recipeVariable.name] === 1) {
+        if (hasLegacyDisplayNamePlaceholder && !loggedLegacyDisplayNameInfo.has(recipeVariable.name)) {
+          console.info(`Recipe.evaluate: replacing deprecated display-name placeholder "${legacyDisplayNamePlaceholder}" with id-based placeholder for variable id "${variableId}".`);
+          loggedLegacyDisplayNameInfo.add(recipeVariable.name);
+        }
+        equation = equation.replaceAll(inlineEqEscapeFormat(recipeVariable.name), newName);
+      }
+      else if (recipeVariable && hasLegacyDisplayNamePlaceholder && !loggedLegacyDisplayNameInfo.has(recipeVariable.name)) {
+        console.info(`Recipe.evaluate: found deprecated display-name placeholder "${legacyDisplayNamePlaceholder}" but skipped auto-replacement because display name "${recipeVariable.name}" is ambiguous.`);
+        loggedLegacyDisplayNameInfo.add(recipeVariable.name);
+      }
+
       scope[newName] = variable.value;
     }
 

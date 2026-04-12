@@ -97,7 +97,7 @@ export function EquationEditor() {
                     role="menuitem"
                     className="transparent padding-25 width-100 flex gap-100 justify-content-space-between align-items-center"
                     type="button"
-                    onClick={() => handleInsertVariable(variable.name)}
+                    onClick={() => handleInsertVariable(variable.id)}
                   >
                     {variable.name}
                     <IconPlus width={16} height={16} strokeWidth={1.5} style={{ minWidth: '16px' }} />

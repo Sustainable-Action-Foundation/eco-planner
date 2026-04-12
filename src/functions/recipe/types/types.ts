@@ -40,13 +40,14 @@ export type RecipeVariable = ScalarVariable | DataSeriesVariable | ExternalVaria
  * Variable during evaluation of a recipe. Should not persist beyond that scope.
  */
 export type EvalTimeVariable = {
-  name: string;
+  id: string;
+  displayName: string;
   value: Unit | Unit[] | number;
 };
 
 export type RecipeExtractionOutput = (
   EvalTimeVariable
-  | { series: DateValuesWithUnit, name: string, }
+  | { id: string, displayName: string, series: DateValuesWithUnit, }
 )[];
 
 /** 
