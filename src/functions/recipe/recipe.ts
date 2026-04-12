@@ -175,25 +175,17 @@ export class Recipe {
           return mathjs.unit(value);
         }
 
+        console.error("Result contains unsupported value type.", { value, type: typeof value });
         throw new RecipeError(`Result contains unsupported value types. {value: ${String(value)}, type: ${typeof value}}`);
       };
 
       const normalizeResult = (value: unknown): Unit | Unit[] => {
-        // Normalize matrix output by converting it to plain arrays first.
-        if (
-          mathjs.typeOf(value) === "Matrix"
-          || (
-            typeof value === "object"
-            && value !== null
-            && "toArray" in value
-            && typeof (value as { toArray: unknown }).toArray === "function"
-          )
-        ) {
-          return normalizeResult((value as { toArray: () => unknown }).toArray());
-        }
-
         if (Array.isArray(value)) {
-          return value.flat(Infinity).map(toUnit);
+          if (!value.every(item => mathjs.isUnit(item) || typeof item === "number")) {
+            console.error("Result array contains unsupported value types.", { value, type: typeof value });
+            throw new RecipeError("Result array contains unsupported value types.");
+          }
+          return value.map(toUnit);
         }
 
         return toUnit(value);
