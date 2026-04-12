@@ -67,7 +67,12 @@ export function VariableTypeExternalSimple({
       className="flex gap-25"
       {...props}
     > {/* TODO: Figure out how to deal with labels here */}
-      <RecipeQueryBuilder variableName={variableName} />
+      <RecipeQueryBuilder
+        variableName={variableName}
+        initialDataSource={variable.dataset ?? undefined}
+        initialTableId={variable.tableId ?? undefined}
+        initialSelection={variable.selection}
+      />
 
       <div hidden>
         {/* Dataset */}

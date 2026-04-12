@@ -20,8 +20,14 @@ import { RecipeDataTypes } from "@/functions/recipe";
 
 export default function RecipeQueryBuilder({
   variableName,
+  initialDataSource,
+  initialTableId,
+  initialSelection,
 }: {
   variableName: string;
+  initialDataSource?: string;
+  initialTableId?: string;
+  initialSelection?: { variableCode: string, valueCodes: string[] }[];
 }) {
   const { t } = useTranslation("components");
   // Locale has the format language-locale, e.g. "sv-SE" or "en-US"
@@ -31,14 +37,25 @@ export default function RecipeQueryBuilder({
   // const lang = useContext(LocaleContext).split("-")[0] as "sv" | "en";
   const { setVariable } = useRecipe();
 
+  function getInitialSelectionValue(variableCode: string) {
+    const valueCode = initialSelection?.find(selection => selection.variableCode === variableCode)?.valueCodes?.[0];
+    if (!valueCode) return undefined;
+
+    const fromMatch = /^FROM\((.+)\)$/.exec(valueCode);
+    return fromMatch?.[1] ?? valueCode;
+  }
+
   const [isLoading, setIsLoading] = useState(false);
-  const [dataSource, setDataSource] = useState<string>("");
+  const [dataSource, setDataSource] = useState<string>(initialDataSource ?? "");
+  const [selectedTableId, setSelectedTableId] = useState<string>(initialTableId ?? "");
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
   const [renderedTables, setRenderedTables] = useState<{ tableId: string, label: string }[] | null>(null);
   const [offset, setOffset] = useState(0);
   const [tableDetails, setTableDetails] = useState<ApiTableDetails | null>(null);
   const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
   const [defaultMetricSelected, setDefaultMetricSelected] = useState(true);
+  const hasAppliedInitialTableSelectionRef = useRef(false);
+  const hasAppliedInitialSelectionRef = useRef(false);
 
   const modalRef = useRef<HTMLDialogElement | null>(null);
   const fieldsetRef = useRef<HTMLFieldSetElement | null>(null);
@@ -61,6 +78,27 @@ export default function RecipeQueryBuilder({
 
     void getTables(dataSource, query, lang).then(result => { setTables(result); setIsLoading(false); });
   }, [dataSource, lang]);
+
+  useEffect(() => {
+    if (!dataSource || !initialTableId || hasAppliedInitialTableSelectionRef.current) return;
+    if (!tables?.some(table => table.tableId === initialTableId)) return;
+    if (!ExternalDataset.getDatasetByAlternateName(dataSource)?.baseUrl) return;
+
+    hasAppliedInitialTableSelectionRef.current = true;
+    void getTableDetails(initialTableId, dataSource, undefined, lang).then(result => { setTableDetails(result); setIsLoading(false); });
+  }, [dataSource, initialTableId, lang, tables]);
+
+  useEffect(() => {
+    if (!tableDetails || !initialSelection?.length || hasAppliedInitialSelectionRef.current) return;
+    if (!(selectorMenuRef.current instanceof HTMLDivElement)) return;
+
+    const metricSelect = selectorMenuRef.current.querySelector("#metric");
+    if (!(metricSelect instanceof HTMLSelectElement)) return;
+    if (!metricSelect.value) return;
+
+    hasAppliedInitialSelectionRef.current = true;
+    metricSelect.dispatchEvent(new Event("change", { bubbles: true }));
+  }, [initialSelection, tableDetails]);
 
   useEffect(() => {
     if (tables) {
@@ -122,6 +160,9 @@ export default function RecipeQueryBuilder({
 
   function handleDataSourceSelect(dataSource: string) {
     setDataSource(dataSource);
+    setSelectedTableId("");
+    hasAppliedInitialTableSelectionRef.current = false;
+    hasAppliedInitialSelectionRef.current = false;
     // Clear table details and content whenever the data source changes
     setTableContent(null);
     setTableDetails(null);
@@ -130,6 +171,8 @@ export default function RecipeQueryBuilder({
 
   function handleTableSelect(tableId: string) {
     setIsLoading(true);
+    setSelectedTableId(tableId);
+    hasAppliedInitialSelectionRef.current = false;
 
     if (!ExternalDataset.getDatasetByAlternateName(dataSource)?.baseUrl) return;
     if (!tableId) return;
@@ -227,12 +270,16 @@ export default function RecipeQueryBuilder({
             required={!variable.optional}
             name={variable.name}
             id={variable.name}
-            defaultValue={ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" ?
-              (// If only one value is available, pre-select it
-                variable.values?.length === 1 ? variable.values[0].label : undefined
+            defaultValue={
+              getInitialSelectionValue(variable.name)
+              ??
+              (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" ?
+                (// If only one value is available, pre-select it
+                  variable.values?.length === 1 ? variable.values[0].name : undefined
+                )
+                :
+                undefined
               )
-              :
-              undefined
             }>
             { // If only one value is available, don't show a placeholder option
               ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && variable.values && variable.values.length > 1 &&
@@ -280,7 +327,7 @@ export default function RecipeQueryBuilder({
           required={false}
           name="Tid"
           id="Tid"
-          defaultValue={times?.length === 1 ? times[0].label : undefined}>
+          defaultValue={getInitialSelectionValue("Tid") ?? (times?.length === 1 ? times[0].name : undefined)}>
           <option value="" className={`font-style-italic color-gray`}>{defaultValue}</option>
           {times.map(time => (
             <option key={time.name} value={time.name} lang={language}>{time[displayValueKey]}</option>
@@ -398,7 +445,7 @@ export default function RecipeQueryBuilder({
               {((ExternalDataset.getDatasetByAlternateName(dataSource)) && !(ExternalDataset.getDatasetByAlternateName(dataSource)?.supportedLanguages.includes(lang))) ?
                 <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</small>
                 : null}
-              <select className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" onChange={(e) => { handleDataSourceSelect(e.target.value) }}>
+              <select className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" value={dataSource} onChange={(e) => { handleDataSourceSelect(e.target.value) }}>
                 <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_source")}</option>
                 {ExternalDataset.knownDatasetKeys.map((name) => (
                   <option key={name} value={name}>{ExternalDataset[name]?.fullName}</option>
@@ -435,6 +482,7 @@ export default function RecipeQueryBuilder({
                         type="radio"
                         value={id}
                         name="externalTableId"
+                        checked={selectedTableId === id}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                           handleTableSelect((e.target as HTMLInputElement).value);
                           setVariable(variableName, prev => prev.type === RecipeDataTypes.External
@@ -473,7 +521,7 @@ export default function RecipeQueryBuilder({
                       required={true}
                       name="metric"
                       id="metric"
-                      defaultValue={undefined}
+                      defaultValue={getInitialSelectionValue("metric")}
                       onChange={handleMetricSelect}>
                       <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_metric")}</option>
                       {tableDetails.metrics?.map(metric => (
