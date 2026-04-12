@@ -33,13 +33,15 @@ export function VariableCreator({
       setNewTypeStatus(t("components:recipe_editor.provide_variable_type"));
       return;
     }
-    if (recipe?.variables && Object.keys(recipe.variables).includes(newName)) {
+    const usedNames = Object.values(recipe?.variables ?? {}).map(variable => variable.name);
+    if (usedNames.includes(newName)) {
       setNewNameStatus(t("components:recipe_editor.variable_name_exists"));
       return;
     }
 
     setVariables(prev => ({
       ...prev,
+      // TODO: Don't index with the name, use a generated ID instead or change vars to an array
       [newName]: {
         ...emptyRecipesByDataType[newType],
         ...newUnit ? { unit: newUnit } : {},
