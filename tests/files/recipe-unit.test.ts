@@ -22,7 +22,7 @@ import {
   transformDateValuesToVector,
 } from "../../src/functions/recipe";
 import type { DataSeriesVariable, ScalarVariable } from "../../src/functions/recipe/types";
-import type { DateValues, DateValuesWithUnit, ISOIshDate } from "../../src/types";
+import type { DataSeries, DateValues, DateValuesWithUnit, ISOIshDate } from "../../src/types";
 
 const isoYear = (year: number): ISOIshDate => `${year}-01-01T00:00:00.000Z`;
 
@@ -69,6 +69,26 @@ function inlineDataSeriesVariable({
     dataSeriesId: undefined,
     value: values,
     unit,
+  };
+}
+
+function makeDataSeriesGetter(seed: Record<string, { values: DateValues; unit?: string | null }>) {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  return async (dataSeriesId: string): Promise<DataSeries | null> => {
+    const found = seed[dataSeriesId];
+    if (!found) {
+      return null;
+    }
+
+    return {
+      id: dataSeriesId,
+      unit: found.unit ?? null,
+      values: Object.entries(found.values).map(([timestamp, value]) => ({
+        dataSeriesId,
+        timestamp: new Date(timestamp),
+        value,
+      })),
+    } as DataSeries;
   };
 }
 
@@ -244,7 +264,7 @@ test.describe("Recipe extractors", () => {
           [isoYear(2021)]: 3,
         },
       }),
-    ]);
+    ], [], makeDataSeriesGetter({}));
 
     expect(output).toHaveLength(1);
     expect("series" in output[0]).toBe(true);
@@ -265,7 +285,7 @@ test.describe("Recipe extractors", () => {
           [isoYear(2021)]: 6,
         },
       }),
-    ]);
+    ], [], makeDataSeriesGetter({}));
 
     expect(output).toHaveLength(1);
     expect("value" in output[0]).toBe(true);
@@ -285,7 +305,36 @@ test.describe("Recipe extractors", () => {
         value: undefined,
         unit: undefined,
       },
-    ])).rejects.toThrow(RecipeError);
+    ], [], makeDataSeriesGetter({}))).rejects.toThrow(RecipeError);
+  });
+
+  test("extractDataSeries supports linked id with custom getter", async () => {
+    const output = await extractDataSeries([
+      {
+        id: "linked",
+        name: "Linked",
+        type: RecipeDataTypes.DataSeries,
+        pick: VectorIndexPickerOptions.Whole,
+        dataSeriesId: "ds-1",
+        value: undefined,
+        unit: "kg",
+      },
+    ], [], makeDataSeriesGetter({
+      "ds-1": {
+        unit: "kg",
+        values: {
+          [isoYear(2020)]: 10,
+          [isoYear(2021)]: 20,
+        },
+      },
+    }));
+
+    expect(output).toHaveLength(1);
+    expect("series" in output[0]).toBe(true);
+    if ("series" in output[0]) {
+      expect(output[0].series.dateValues[isoYear(2020)]).toBe(10);
+      expect(output[0].series.unit).toBe("kg");
+    }
   });
 
   test("extractExternalDatasets fails fast for missing required props", async () => {
