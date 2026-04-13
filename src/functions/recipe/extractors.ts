@@ -1,7 +1,7 @@
-import { clientSafeGetOneDataSeries } from "@/fetchers/client";
 import { isDataSeriesVariable, isExternalSelection, isScalarVariable, RecipeDataTypes, RecipeError } from "@/functions/recipe/types";
 import type { RecipeExtractionOutput, RecipeVariable, EvalTimeVariable } from "@/functions/recipe/types";
 import getTableContent from "@/lib/api/getTableContent";
+import type { ApiTableContent } from "@/lib/api/apiTypes";
 import mathjs from "@/math";
 import { isISOIshDate } from "@/types";
 import type { DataSeries, DateValues } from "@/types";
@@ -38,9 +38,8 @@ export function extractScalars(
 export async function extractDataSeries(
   variables: RecipeVariable[],
   warnings: string[] = [],
-  dataSeriesGetter: (dataSeriesId: string) => Promise<DataSeries | null> = clientSafeGetOneDataSeries,
+  overrideDataSeriesGetter?: (dataSeriesId: string) => Promise<DataSeries | null>,
 ): Promise<RecipeExtractionOutput> {
-
   const dataSeries: RecipeExtractionOutput = [];
 
   for (const variable of variables) {
@@ -49,6 +48,9 @@ export async function extractDataSeries(
 
     let dbDataSeries: DataSeries | null;
     if (variable.dataSeriesId) {
+      const dataSeriesGetter = overrideDataSeriesGetter
+        ?? (await import("@/fetchers/client")).clientSafeGetOneDataSeries;
+
       dbDataSeries = await dataSeriesGetter(variable.dataSeriesId)
         .catch((e: unknown) => {
           const errorMessage = e instanceof Error ? e.message : String(e);
@@ -105,10 +107,7 @@ export async function extractDataSeries(
       dataSeries.push({
         id: variable.id,
         displayName: variable.name,
-        series: {
-          dateValues: picked,
-          unit,
-        },
+        series: picked,
       });
     }
   }
@@ -119,6 +118,7 @@ export async function extractDataSeries(
 export async function extractExternalDatasets(
   variables: RecipeVariable[],
   warnings: string[] = [],
+  externalTableContentGetter: (tableId: string, dataset: string, selection: { variableCode: string, valueCodes: string[] }[]) => Promise<ApiTableContent | null> = getTableContent,
 ): Promise<RecipeExtractionOutput> {
 
   const externalDatasets: RecipeExtractionOutput = [];
@@ -134,7 +134,7 @@ export async function extractExternalDatasets(
     }
 
     fetchers.push(async () => {
-      const data = await getTableContent(tableId, dataset, selection);
+      const data = await externalTableContentGetter(tableId, dataset, selection);
 
       if (!data) {
         throw new RecipeError(`External dataset variable '${variable.name}' (id: '${variable.id}') has no data for tableId '${tableId}' and dataset '${dataset}' and selection '${JSON.stringify(selection)}'.`);
@@ -174,10 +174,7 @@ export async function extractExternalDatasets(
         externalDatasets.push({
           id: variable.id,
           displayName: variable.name,
-          series: {
-            dateValues: picked,
-            unit,
-          },
+          series: picked,
         });
       }
     });

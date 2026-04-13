@@ -2,6 +2,7 @@ import type { DataSeries, DateValuesWithUnit, JSONValue, Mask } from "@/types";
 import { isISOIshDate } from "@/types";
 import mathjs from "@/math";
 import type { Unit } from "mathjs";
+import type { ApiTableContent } from "@/lib/api/apiTypes";
 import type { RecipeExtractionOutput, RecipeVariable, SerializedRecipe, SerializedRecipeShape } from "@/functions/recipe";
 import { isEvalTimeVariable, isRecipe, MathjsError, RecipeError, parseDateValuesFromVector, transformDateValuesToVector, ANDMasks, extractDataSeries, extractExternalDatasets, extractScalars, } from "@/functions/recipe";
 import { sanityCheckDataSeries, sanityCheckExternalDatasets, sanityCheckScalars } from "@/functions/recipe/sanityChecks";
@@ -88,7 +89,13 @@ export class Recipe {
    * 
    * @param warnings **Side effect only**. Array will be mutated in place to include any warnings encountered during evaluation. 
    */
-  public async evaluate(warnings: string[] = [], options?: { dataSeriesGetter: (dataSeriesId: string) => Promise<DataSeries | null> }): Promise<DateValuesWithUnit | null> {
+  public async evaluate(
+    warnings: string[] = [],
+    options?: {
+      dataSeriesGetter?: (dataSeriesId: string) => Promise<DataSeries | null>;
+      externalTableContentGetter?: (tableId: string, dataset: string, selection: { variableCode: string, valueCodes: string[] }[]) => Promise<ApiTableContent | null>;
+    }
+  ): Promise<DateValuesWithUnit | null> {
     const serialized = this.serialize();
     const asObject = JSON.parse(serialized) as JSONValue;
     if (!isRecipe(asObject)) {
@@ -98,7 +105,7 @@ export class Recipe {
     const scalarVars = extractScalars(this.variables, warnings);
     const [dataSeriesVars, externalVars] = await Promise.all([
       extractDataSeries(this.variables, warnings, options?.dataSeriesGetter),
-      extractExternalDatasets(this.variables, warnings),
+      extractExternalDatasets(this.variables, warnings, options?.externalTableContentGetter),
     ]);
     const allVars: RecipeExtractionOutput = [
       ...scalarVars,

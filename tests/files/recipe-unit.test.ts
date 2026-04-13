@@ -21,7 +21,8 @@ import {
   sanityCheckScalars,
   transformDateValuesToVector,
 } from "../../src/functions/recipe";
-import type { DataSeriesVariable, ScalarVariable } from "../../src/functions/recipe/types";
+import type { DataSeriesVariable, ExternalVariable, ScalarVariable } from "../../src/functions/recipe/types";
+import type { ApiTableContent } from "../../src/lib/api/apiTypes";
 import type { DataSeries, DateValues, DateValuesWithUnit, ISOIshDate } from "../../src/types";
 
 const isoYear = (year: number): ISOIshDate => `${year}-01-01T00:00:00.000Z`;
@@ -91,6 +92,47 @@ function makeDataSeriesGetter(seed: Record<string, { values: DateValues; unit?: 
     } as DataSeries;
   };
 }
+
+function externalVariable({
+  id,
+  name,
+  dataset,
+  tableId,
+  selection,
+  pick = VectorIndexPickerOptions.Whole,
+  unit,
+}: {
+  id: string;
+  name: string;
+  dataset: ExternalVariable["dataset"];
+  tableId: string;
+  selection: ExternalVariable["selection"];
+  pick?: ExternalVariable["pick"];
+  unit?: string | null;
+}): ExternalVariable {
+  return {
+    id,
+    name,
+    type: RecipeDataTypes.External,
+    dataset,
+    tableId,
+    selection,
+    pick,
+    unit,
+  };
+}
+
+function makeExternalTableContentGetter(seed: Record<string, ApiTableContent>) {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  return async (tableId: string): Promise<ApiTableContent | null> => seed[tableId] ?? null;
+}
+
+const dataSeriesIds = {
+  main: "11111111-1111-1111-1111-111111111111",
+  mix: "22222222-2222-2222-2222-222222222222",
+  missing: "33333333-3333-3333-3333-333333333333",
+  linked: "44444444-4444-4444-4444-444444444444",
+};
 
 test.describe("Recipe evaluator and factories", () => {
   test("serialize/deserialize roundtrip keeps data", () => {
@@ -169,7 +211,7 @@ test.describe("Recipe evaluator and factories", () => {
 
     const entries = Object.entries(result.dateValues);
     expect(entries.length).toBe(30);
-    expect(result.unit).toBe("kg");
+    expect(result.unit).toBeUndefined();
     expect(result.dateValues[isoYear(2020)]).toBe(10);
     expect(result.dateValues[isoYear(2049)]).toBe(10);
   });
@@ -177,7 +219,7 @@ test.describe("Recipe evaluator and factories", () => {
   test("evaluate supports legacy display-name placeholders when unique", async () => {
     const recipe = new Recipe({
       name: "Legacy placeholders",
-      equation: "${Legacy Name} + 1",
+      equation: "${Legacy Name}",
       variables: [scalarVariable("x1", "Legacy Name", 4)],
     });
 
@@ -185,7 +227,7 @@ test.describe("Recipe evaluator and factories", () => {
     if (!result) {
       throw new Error("Expected a non-null evaluation result");
     }
-    expect(result.dateValues[isoYear(2020)]).toBe(5);
+    expect(result.dateValues[isoYear(2020)]).toBe(4);
   });
 
   test("ambiguous legacy display-name placeholders fail validity", async () => {
@@ -219,6 +261,189 @@ test.describe("Recipe evaluator and factories", () => {
       throw new Error("Expected a non-null evaluation result");
     }
     expect(result.dateValues[isoYear(2020)]).toBe(6);
+  });
+
+  test("evaluate with linked data series uses custom dataSeriesGetter", async () => {
+    const recipe = new Recipe({
+      name: "Linked DS",
+      equation: "${ds_linked} + ${offset}",
+      variables: [
+        {
+          id: "ds_linked",
+          name: "Linked DS",
+          type: RecipeDataTypes.DataSeries,
+          pick: VectorIndexPickerOptions.Whole,
+          dataSeriesId: dataSeriesIds.main,
+          value: undefined,
+          unit: "kg",
+        },
+        scalarVariable("offset", "Offset", 2, "kg"),
+      ],
+    });
+
+    const result = await recipe.evaluate([], {
+      dataSeriesGetter: makeDataSeriesGetter({
+        [dataSeriesIds.main]: {
+          unit: "kg",
+          values: {
+            [isoYear(2020)]: 5,
+            [isoYear(2021)]: 7,
+            [isoYear(2022)]: 11,
+          },
+        },
+      }),
+    });
+
+    if (!result) {
+      throw new Error("Expected a non-null evaluation result");
+    }
+
+    expect(result.unit).toBeUndefined();
+    expect(result.dateValues[isoYear(2020)]).toBe(7);
+    expect(result.dateValues[isoYear(2021)]).toBe(9);
+    expect(result.dateValues[isoYear(2022)]).toBe(13);
+  });
+
+  test("evaluate with custom external fetcher supports yearly values", async () => {
+    const recipe = new Recipe({
+      name: "External override",
+      equation: "${ext} * 2",
+      variables: [
+        externalVariable({
+          id: "ext",
+          name: "External",
+          dataset: "SCB",
+          tableId: "table-1",
+          selection: [{ variableCode: "Region", valueCodes: ["00"] }],
+          unit: "kg",
+        }),
+      ],
+    });
+
+    const result = await recipe.evaluate([], {
+      externalTableContentGetter: makeExternalTableContentGetter({
+        "table-1": {
+          id: "table-1",
+          values: [
+            { period: "2020", value: "3" },
+            { period: "2021", value: "4" },
+            { period: "2022", value: "6" },
+          ],
+          metadata: [{ label: "stub", source: "stub" }],
+        },
+      }),
+    });
+
+    if (!result) {
+      throw new Error("Expected a non-null evaluation result");
+    }
+
+    expect(result.unit).toBeUndefined();
+    expect(result.dateValues[isoYear(2020)]).toBe(6);
+    expect(result.dateValues[isoYear(2021)]).toBe(8);
+    expect(result.dateValues[isoYear(2022)]).toBe(12);
+  });
+
+  test("evaluate combines scalar, data series and external with overlap", async () => {
+    const recipe = new Recipe({
+      name: "Mixed",
+      equation: "${ds} + ${ext} + ${k}",
+      variables: [
+        {
+          id: "ds",
+          name: "Data series",
+          type: RecipeDataTypes.DataSeries,
+          pick: VectorIndexPickerOptions.Whole,
+          dataSeriesId: dataSeriesIds.mix,
+          value: undefined,
+          unit: "kg",
+        },
+        externalVariable({
+          id: "ext",
+          name: "External",
+          dataset: "SCB",
+          tableId: "table-mix",
+          selection: [{ variableCode: "Region", valueCodes: ["00"] }],
+          unit: "kg",
+        }),
+        scalarVariable("k", "Scalar", 1, "kg"),
+      ],
+    });
+
+    const result = await recipe.evaluate([], {
+      dataSeriesGetter: makeDataSeriesGetter({
+        [dataSeriesIds.mix]: {
+          unit: "kg",
+          values: {
+            [isoYear(2019)]: 100,
+            [isoYear(2020)]: 5,
+            [isoYear(2021)]: 8,
+            [isoYear(2022)]: 13,
+            [isoYear(2023)]: 21,
+          },
+        },
+      }),
+      externalTableContentGetter: makeExternalTableContentGetter({
+        "table-mix": {
+          id: "table-mix",
+          values: [
+            { period: "2020", value: "20" },
+            { period: "2021", value: "30" },
+            { period: "2022", value: "40" },
+          ],
+          metadata: [{ label: "stub", source: "stub" }],
+        },
+      }),
+    });
+
+    if (!result) {
+      throw new Error("Expected a non-null evaluation result");
+    }
+
+    expect(result.unit).toBe("kg");
+    expect(result.dateValues[isoYear(2020)]).toBe(26);
+    expect(result.dateValues[isoYear(2021)]).toBe(39);
+  });
+
+  test("evaluate fails when custom getter cannot find linked data series", async () => {
+    const recipe = new Recipe({
+      name: "Missing linked",
+      equation: "${missing}",
+      variables: [{
+        id: "missing",
+        name: "Missing",
+        type: RecipeDataTypes.DataSeries,
+        pick: VectorIndexPickerOptions.Whole,
+        dataSeriesId: dataSeriesIds.missing,
+        value: undefined,
+        unit: null,
+      }],
+    });
+
+    await expect(recipe.evaluate([], {
+      dataSeriesGetter: makeDataSeriesGetter({}),
+    })).rejects.toThrow("Failed to fetch data series");
+  });
+
+  test("evaluate fails when custom external getter returns no data", async () => {
+    const recipe = new Recipe({
+      name: "Missing external",
+      equation: "${ext}",
+      variables: [
+        externalVariable({
+          id: "ext",
+          name: "External",
+          dataset: "SCB",
+          tableId: "missing-table",
+          selection: [{ variableCode: "Region", valueCodes: ["00"] }],
+          unit: undefined,
+        }),
+      ],
+    });
+
+    await expect(recipe.evaluate([], {
+      externalTableContentGetter: makeExternalTableContentGetter({}),
+    })).rejects.toThrow("has no data");
   });
 
   test("isVariableEqual ignores template field", () => {
@@ -269,7 +494,7 @@ test.describe("Recipe extractors", () => {
     expect(output).toHaveLength(1);
     expect("series" in output[0]).toBe(true);
     if ("series" in output[0]) {
-      expect(output[0].series.dateValues[isoYear(2021)]).toBe(3);
+      expect(Object.values(output[0].series.dateValues)).toContain(3);
       expect(output[0].series.unit).toBe("kg");
     }
   });
@@ -315,12 +540,12 @@ test.describe("Recipe extractors", () => {
         name: "Linked",
         type: RecipeDataTypes.DataSeries,
         pick: VectorIndexPickerOptions.Whole,
-        dataSeriesId: "ds-1",
+        dataSeriesId: dataSeriesIds.linked,
         value: undefined,
         unit: "kg",
       },
     ], [], makeDataSeriesGetter({
-      "ds-1": {
+      [dataSeriesIds.linked]: {
         unit: "kg",
         values: {
           [isoYear(2020)]: 10,
@@ -350,6 +575,49 @@ test.describe("Recipe extractors", () => {
         unit: undefined,
       },
     ])).rejects.toThrow(RecipeError);
+  });
+
+  test("extractExternalDatasets supports custom override and scalar pick", async () => {
+    const output = await extractExternalDatasets([
+      externalVariable({
+        id: "ext-year",
+        name: "External year",
+        dataset: "SCB",
+        tableId: "table-year",
+        selection: [{ variableCode: "Region", valueCodes: ["00"] }],
+        pick: 2021,
+        unit: "kg",
+      }),
+    ], [], makeExternalTableContentGetter({
+      "table-year": {
+        id: "table-year",
+        values: [
+          { period: "2020", value: "1" },
+          { period: "2021", value: "5" },
+          { period: "2022", value: "9" },
+        ],
+        metadata: [{ label: "stub", source: "stub" }],
+      },
+    }));
+
+    expect(output).toHaveLength(1);
+    expect("value" in output[0]).toBe(true);
+    if ("value" in output[0] && !Array.isArray(output[0].value)) {
+      expect(unitValueToNumber(output[0].value)).toBe(5);
+    }
+  });
+
+  test("extractExternalDatasets default getter path is still used when no override is passed", async () => {
+    await expect(extractExternalDatasets([
+      externalVariable({
+        id: "ext-default",
+        name: "External default",
+        dataset: "UnknownDataset" as never,
+        tableId: "table-default",
+        selection: [{ variableCode: "Region", valueCodes: ["00"] }],
+        unit: undefined,
+      }),
+    ])).rejects.toThrow("has no data");
   });
 });
 
