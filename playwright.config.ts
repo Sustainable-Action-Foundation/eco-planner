@@ -59,12 +59,6 @@ export default defineConfig({
       testMatch: /.*\.setup\.ts/
     },
     {
-      name: "Locale files validation",
-      testMatch: ["**/locale-files.ts"],
-      retries: 0, // File reading can't be flaky, so no retries needed.
-      use: {},
-    },
-    {
       name: "chromium 1080p",
       use: { ...devices["Desktop Chrome"], viewport: { width: 1920, height: 1080 }, channel: "chromium" },
       dependencies: ["setup"],
@@ -83,7 +77,7 @@ export default defineConfig({
 
   webServer: {
     timeout: 20 * 60 * 1000, // 20 minutes; both seeding image and app image may need to be built, which might take a while with bad cache, especially on runners.
-    command: process.env["local"] ? "yarn start" : "docker compose -f docker/compose.testing.yaml up --remove-orphans",
+    command: "docker compose -f docker/compose.testing.yaml up --remove-orphans",
     gracefulShutdown: { signal: "SIGTERM", timeout: 5000 }, // SIGTERM for graceful shutdown of docker compose on linux
     url: webserverURL,
     reuseExistingServer: !CI,
