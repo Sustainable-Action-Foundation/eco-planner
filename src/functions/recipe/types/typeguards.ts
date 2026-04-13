@@ -321,10 +321,10 @@ export function isRecipe(recipe: JSONValue): recipe is SerializedRecipeShape {
     return false;
   }
 
-  // .name: string | null | undefined
+  // .name: string
   if (
     !("name" in recipe)
-    || (typeof recipe.name !== "string" && recipe.name !== null && recipe.name !== undefined)
+    || typeof recipe.name !== "string"
   ) {
     console.warn("Type guard: 'name' in recipe", recipe);
     return false;

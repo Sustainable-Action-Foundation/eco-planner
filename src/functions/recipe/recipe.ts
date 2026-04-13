@@ -8,7 +8,7 @@ import { isEvalTimeVariable, isRecipe, MathjsError, RecipeError, parseDateValues
 import { sanityCheckDataSeries, sanityCheckExternalDatasets, sanityCheckScalars } from "@/functions/recipe/sanityChecks";
 
 export class Recipe {
-  public name: string | null | undefined; // String if given, null if removed, undefined if not specified
+  public name: string;
   public equation: string;
   public variables: RecipeVariable[];
 
@@ -17,7 +17,7 @@ export class Recipe {
     equation,
     variables,
   }: {
-    name: string | null | undefined;
+    name: string;
     equation: string;
     variables: RecipeVariable[];
   }) {
@@ -406,7 +406,7 @@ export class Recipe {
    */
   public static getEmpty(): Recipe {
     return new Recipe({
-      name: undefined,
+      name: "Empty Recipe",
       equation: "",
       variables: [],
     });

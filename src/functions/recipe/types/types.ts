@@ -55,7 +55,7 @@ export type RecipeExtractionOutput = (
  * Do not use to type variables, only use for type checking when serializing/deserializing recipes
  */
 export type SerializedRecipeShape = {
-  name: string | null | undefined;
+  name: string;
   equation: string;
   variables: RecipeVariable[];
   meta: {
