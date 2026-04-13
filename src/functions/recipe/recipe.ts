@@ -1,4 +1,5 @@
-import { isISOIshDate, type DateValuesWithUnit, type JSONValue, type Mask } from "@/types";
+import type { DataSeries, DateValuesWithUnit, JSONValue, Mask } from "@/types";
+import { isISOIshDate } from "@/types";
 import mathjs from "@/math";
 import type { Unit } from "mathjs";
 import type { RecipeExtractionOutput, RecipeVariable, SerializedRecipe, SerializedRecipeShape } from "@/functions/recipe";
@@ -87,7 +88,7 @@ export class Recipe {
    * 
    * @param warnings **Side effect only**. Array will be mutated in place to include any warnings encountered during evaluation. 
    */
-  public async evaluate(warnings: string[] = []): Promise<DateValuesWithUnit | null> {
+  public async evaluate(warnings: string[] = [], options?: { dataSeriesGetter: (dataSeriesId: string) => Promise<DataSeries | null> }): Promise<DateValuesWithUnit | null> {
     const serialized = this.serialize();
     const asObject = JSON.parse(serialized) as JSONValue;
     if (!isRecipe(asObject)) {
@@ -96,7 +97,7 @@ export class Recipe {
 
     const scalarVars = extractScalars(this.variables, warnings);
     const [dataSeriesVars, externalVars] = await Promise.all([
-      extractDataSeries(this.variables, warnings),
+      extractDataSeries(this.variables, warnings, options?.dataSeriesGetter),
       extractExternalDatasets(this.variables, warnings),
     ]);
     const allVars: RecipeExtractionOutput = [

@@ -4,7 +4,7 @@ import type { RecipeExtractionOutput, RecipeVariable, EvalTimeVariable } from "@
 import getTableContent from "@/lib/api/getTableContent";
 import mathjs from "@/math";
 import { isISOIshDate } from "@/types";
-import type { DateValues } from "@/types";
+import type { DataSeries, DateValues } from "@/types";
 import { filterToInitialYearlyRecords, parsePeriod } from "@/lib/api/utility";
 import { getPrevailingUnit, isMathjsUnit, pickDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 
@@ -38,6 +38,7 @@ export function extractScalars(
 export async function extractDataSeries(
   variables: RecipeVariable[],
   warnings: string[] = [],
+  dataSeriesGetter: (dataSeriesId: string) => Promise<DataSeries | null> = clientSafeGetOneDataSeries,
 ): Promise<RecipeExtractionOutput> {
 
   const dataSeries: RecipeExtractionOutput = [];
@@ -46,9 +47,9 @@ export async function extractDataSeries(
     if (variable.type !== RecipeDataTypes.DataSeries) continue;
     if (!isDataSeriesVariable(variable)) continue;
 
-    let dbDataSeries: Awaited<ReturnType<typeof clientSafeGetOneDataSeries>>;
+    let dbDataSeries: DataSeries | null;
     if (variable.dataSeriesId) {
-      dbDataSeries = await clientSafeGetOneDataSeries(variable.dataSeriesId)
+      dbDataSeries = await dataSeriesGetter(variable.dataSeriesId)
         .catch((e: unknown) => {
           const errorMessage = e instanceof Error ? e.message : String(e);
           throw new RecipeError(`VariableExtractor: Error fetching data series for variable "${variable.name}" (id: "${variable.id}") with link "${variable.dataSeriesId}": ${errorMessage}`);
