@@ -6,7 +6,7 @@ import serveTea from "@/lib/i18nServer";
 import { cookies, headers } from "next/headers";
 import { getLocale } from "@/functions/getLocale";
 import { ToastContext } from '@/context/context';
-import ToastList from '@/components/form/forms/toastList';
+import ToastList from '@/components/generic/toast/toastList';
 
 export default async function RootLayout(
   { children, }: { children: React.ReactNode, }
@@ -36,9 +36,9 @@ export default async function RootLayout(
       </head>
       <body className='neutral-background'>
         <I18nProvider lng={locale}>
-          <div className={`${styles.layout}`}>
-            <Sidebar />
-            <ToastContext>
+          <ToastContext>
+            <div className={`${styles.layout}`}>
+              <Sidebar />
               <div className='padding-100' style={{ minWidth: '0' }}>
                 {/*
                   Note: We set minWidth 0 here to prevent unexpected issues with this grid item becoming to large.
@@ -58,10 +58,10 @@ export default async function RootLayout(
                 </div>
               </div>
               <ToastList />
-            </ToastContext>
-          </div>
+            </div>
+          </ToastContext>
         </I18nProvider>
       </body>
-    </html>
+    </html >
   )
 }

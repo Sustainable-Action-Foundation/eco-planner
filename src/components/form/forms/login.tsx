@@ -96,7 +96,7 @@ export default function Login() {
           <small><Link href='/password'>{t("components:login.forgot_password")}</Link></small>
         </div>
 
-        <div className={`errorWrapper flex flex-direction-column-reversed rounded margin-block-75 padding-75 ${showErrorMessage ? "opacity-1" : "opacity-0"}`} key={errorKey}>
+        <div className={`${styles.loginErrorMessage} flex flex-direction-column-reversed rounded margin-block-75 padding-75 ${showErrorMessage ? "opacity-1" : "opacity-0"}`} key={errorKey}>
           <IconExclamationCircle width={24} height={24} aria-hidden="true" className="margin-right-50" />
           <p style={{ minHeight: "1.5rem" }} className="margin-0">{errorMessage}</p>
         </div>

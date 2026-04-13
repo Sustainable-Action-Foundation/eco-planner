@@ -1,6 +1,7 @@
 import { IconAlertTriangle, IconArrowDown, IconArrowUp, IconCircleCheck, IconInfoCircle, IconX } from "@tabler/icons-react";
 import type { ReactNode } from "react";
-import { useEffect, useRef, useState } from "react";
+import styles from './toast.module.css';
+import { useEffect, useState } from "react";
 import { useToastContext } from "@/context/context";
 import { useTranslation } from "node_modules/react-i18next";
 
@@ -22,67 +23,42 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
       normal: "rgb(56, 156, 61)",
       accent: "rgb(45, 122, 45)",
       darker: "rgba(170, 242, 170, 0.75)",
-      background: "rgb(227, 255, 227)",
+      background: "rgba(227, 255, 227, 0.95)",
+      extends: "none",
+    },
+    warning: {
+      normal: "rgb(252, 193, 16)",
+      accent: "rgb(184, 134, 11)",
+      darker: "rgba(237, 219, 147, 0.75)",
+      background: "rgba(255, 250, 230, 0.95)",
       extends: "none",
     },
     error: {
       normal: "rgb(255, 72, 72)",
       accent: "rgb(197, 48, 48)",
       darker: "rgba(248, 131, 131, 0.25)",
-      background: "rgb(249, 237, 237)",
+      background: "rgba(249, 237, 237, 0.95)",
       extends: "rgb(243, 227, 227)",
     },
-    warning: {
-      normal: "rgb(252, 193, 16)",
-      accent: "rgb(184, 134, 11)",
-      darker: "rgba(237, 219, 147, 0.75)",
-      background: "rgb(255, 250, 230)",
-      extends: "none",
-    },
+
   };
-
-  let toastTitle = "";
-
-  if (type === "success") {
-    toastTitle = t("components:toasts.success");
-  } else if (type === "warning") {
-    toastTitle = t("components:toasts.warning");
-  } else if (type === "error") {
-    toastTitle = t("components:toasts.error");
-  }
-
-  const ariaRole = type === "error" ? "alert" : "status";
 
   const color = colorMap[type];
 
-  const messageRef = useRef<HTMLParagraphElement>(null);
-  const [errorLong, setErrorLong] = useState(false);
+  if (typeof children === "string" && type !== "error" && children.length > 40) {
+    throw new Error("Toast message is too long for a success or warning toast.");
+  }
 
-  useEffect(() => {
-    const element = messageRef.current;
-    if (!element) return;
-
-    const lineHeight = parseFloat(getComputedStyle(element).lineHeight);
-    const isTwoLine = element.scrollHeight > Math.ceil(lineHeight);
-    const isMultiLine = element.scrollHeight > Math.ceil(lineHeight) * 2;
-
-    if (isTwoLine) {
-      if (type !== "error") {
-        throw new Error("Toast message is too long for a success or warning toast.");
-      }
-      if (isMultiLine) {
-        setErrorLong(true);
-      }
-    }
-  }, []);
+  const errorLong = typeof children === "string" && type === "error" && children.length > 40;
 
   useEffect(() => {
     if (timer <= 0 && hasTimeout) {
       setCloseToast(true);
       setTimeout(() => removeMessage(id), 200);
-      // This timeout should be less than the duration of the closing animation to make sure the animation has completed
+      // This timeout should be less than the duration of the closing animation 
+      // to make sure the removal of the toast is before the animation is finished
     }
-  }, [timer]);
+  }, [timer, hasTimeout]);
 
   useEffect(() => {
     if (!hasTimeout) return;
@@ -117,26 +93,31 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
 
   return (
     <dialog
-      className={"toast flex flex-direction-column rounded position-relative padding-0 width-100 rounded" + (closeToast ? " toast-closing" : "")}
-      role={ariaRole}
+      className={styles.toast + " flex flex-direction-column rounded position-relative padding-0 width-100 rounded" + (closeToast ? " " + styles.toastClosing : "")}
+      role={type === "error" ? "alert" : "status"}
       style={{ backgroundColor: color.background, borderLeft: `4px solid ${color.accent}` }}
     >
       <header className="flex align-items-center padding-inline-100 padding-top-75 padding-bottom-25 gap-50" >
         <div className="padding-50 round grid" style={{ backgroundColor: color.darker }}>
           {getIcon()}
         </div>
-        <h3 className="margin-0 font-weight-600">{toastTitle}</h3>
+        <span className="margin-0 font-weight-600" style={{ fontSize: "1.2rem" }}>{
+          type === "success"
+            ? t("components:toasts.success")
+            : type === "warning"
+              ? t("components:toasts.warning")
+              : t("components:toasts.error")
+        }</span>
         <button onClick={() => removeMessage(id)} className="round padding-25 transparent margin-left-auto grid" aria-label="Close toast">
           <IconX aria-hidden="true" width={22} height={22} strokeWidth={3} color={color.accent} />
         </button>
       </header>
       <p
-        ref={messageRef}
-        className={`toast-body margin-0 margin-bottom-75 ${type === "error" && errorLong ? (isOpen ? "open" : "closed") : ""}`} style={{ paddingInline: "1.25rem" }} >
+        className={` ${styles.toastBody} margin-0 margin-bottom-75 ${type === "error" && errorLong ? (isOpen ? styles.toastOpen : styles.toastClosed) : ""}`} style={{ paddingInline: "1.25rem" }} >
         {children}
       </p>
       {type === 'error' && errorLong &&
-        <button className={`margin-0 padding-25 width-100 ${type === "error" && errorLong === true ? "cursor-pointer" : ""}`}
+        <button className={"margin-0 padding-25 width-100 cursor-pointer"}
           onClick={() => setIsOpen((prev) => !prev)} style={{ backgroundColor: color.extends }}>
           <span className="flex align-items-flex-end font-weight-600" >
             {isOpen ?

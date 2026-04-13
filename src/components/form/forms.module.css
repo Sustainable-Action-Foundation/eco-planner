@@ -152,3 +152,32 @@
     scale: 1;
   }
 }
+
+/* Login error message */
+.loginErrorMessage {
+  background-color: rgb(252, 225, 225);
+  color: rgb(150, 10, 10);
+  animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-6px);
+  }
+
+  50% {
+    transform: translateX(6px);
+  }
+
+  75% {
+    transform: translateX(-4px);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
