@@ -138,7 +138,8 @@ export class Recipe {
         new Date(`2020-01-01T00:00:00.000Z`),
         new Date(`2050-01-01T00:00:00.000Z`),
       ];
-    const maxTimeSpan = commonEndDate.getUTCFullYear() - commonStartDate.getUTCFullYear();
+    // +1 since the diff would miss one fence post year
+    const maxTimeSpan = commonEndDate.getUTCFullYear() - commonStartDate.getUTCFullYear() + 1;
 
     const masks: Mask[] = [];
     for (const ds of seriesVariables) {
