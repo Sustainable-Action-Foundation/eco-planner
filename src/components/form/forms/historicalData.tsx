@@ -10,7 +10,7 @@ import { LocaleContext } from "@/lib/i18nClient";
 import type { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
 import type { TrafaVariable } from "@/lib/trafa/trafaTypes";
 import type { Goal } from "@prisma/client";
-import type { FormEvent } from "react";
+import type { SubmitEvent } from "react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
@@ -70,7 +70,7 @@ export default function HistoricalData({
     return queryObject;
   }, [dataSource])
 
-  const tryGetResult = useCallback((event?: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) => {
+  const tryGetResult = useCallback((event?: React.ChangeEvent<HTMLSelectElement> | SubmitEvent<HTMLFormElement> | Event) => {
     // null check
     if (!(formRef.current instanceof HTMLFormElement)) return;
 
@@ -243,7 +243,7 @@ export default function HistoricalData({
     }
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     // Return if insufficient selection has been made
     if (!tables) return;
