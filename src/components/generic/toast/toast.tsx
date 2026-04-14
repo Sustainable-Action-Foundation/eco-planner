@@ -52,16 +52,14 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
   const errorLong = typeof children === "string" && type === "error" && children.length > 40;
 
   useEffect(() => {
-    if (timer <= 0 && hasTimeout) {
+    if (!hasTimeout) return;
+
+    if (timer <= 0) {
       setCloseToast(true);
       setTimeout(() => removeMessage(id), 200);
       // This timeout should be less than the duration of the closing animation 
       // to make sure the removal of the toast is before the animation is finished
     }
-  }, [timer, hasTimeout]);
-
-  useEffect(() => {
-    if (!hasTimeout) return;
 
     const interval = setInterval(() => {
       setTimer((prev) => {
@@ -75,7 +73,7 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
     }, stepTime);
 
     return () => clearInterval(interval);
-  }, [hasTimeout]);
+  }, [timer, hasTimeout, id, removeMessage]);
 
   function getIcon() {
     switch (type) {
