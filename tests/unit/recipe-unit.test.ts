@@ -34,6 +34,17 @@ const unitValueToNumber = (value: unknown): number => {
   return value.toNumber();
 };
 
+type EvaluateOptions = Parameters<Recipe["evaluate"]>[1];
+
+async function evaluateWithWarnings(recipe: Recipe, options?: EvaluateOptions) {
+  const warnings: string[] = [];
+  const result = await recipe.evaluate(warnings, options);
+  if (warnings.length > 0) {
+    console.warn("Recipe.evaluate warnings:", warnings);
+  }
+  return { result, warnings };
+}
+
 function scalarVariable(
   id: string,
   name: string,
@@ -193,7 +204,7 @@ test.describe("Recipe evaluator and factories", () => {
       variables: [scalarVariable("x", "X", 1)],
     });
 
-    const result = await recipe.evaluate([], { dataSeriesGetter: () => new Promise(() => null) });
+    const { result } = await evaluateWithWarnings(recipe, { dataSeriesGetter: () => new Promise(() => null) });
     expect(result).toBeNull();
   });
 
@@ -204,7 +215,7 @@ test.describe("Recipe evaluator and factories", () => {
       variables: [scalarVariable("s", "Scalar", 5, "kg")],
     });
 
-    const result = await recipe.evaluate();
+    const { result } = await evaluateWithWarnings(recipe);
     if (!result) {
       throw new Error("Expected a non-null evaluation result");
     }
@@ -223,7 +234,7 @@ test.describe("Recipe evaluator and factories", () => {
       variables: [scalarVariable("x1", "Legacy Name", 4)],
     });
 
-    const result = await recipe.evaluate();
+    const { result } = await evaluateWithWarnings(recipe);
     if (!result) {
       throw new Error("Expected a non-null evaluation result");
     }
@@ -256,7 +267,7 @@ test.describe("Recipe evaluator and factories", () => {
       ],
     });
 
-    const result = await recipe.evaluate();
+    const { result } = await evaluateWithWarnings(recipe);
     if (!result) {
       throw new Error("Expected a non-null evaluation result");
     }
@@ -281,7 +292,7 @@ test.describe("Recipe evaluator and factories", () => {
       ],
     });
 
-    const result = await recipe.evaluate([], {
+    const { result } = await evaluateWithWarnings(recipe, {
       dataSeriesGetter: makeDataSeriesGetter({
         [dataSeriesIds.main]: {
           unit: "kg",
@@ -320,7 +331,7 @@ test.describe("Recipe evaluator and factories", () => {
       ],
     });
 
-    const result = await recipe.evaluate([], {
+    const { result } = await evaluateWithWarnings(recipe, {
       externalTableContentGetter: makeExternalTableContentGetter({
         "table-1": {
           id: "table-1",
@@ -370,7 +381,7 @@ test.describe("Recipe evaluator and factories", () => {
       ],
     });
 
-    const result = await recipe.evaluate([], {
+    const { result } = await evaluateWithWarnings(recipe, {
       dataSeriesGetter: makeDataSeriesGetter({
         [dataSeriesIds.mix]: {
           unit: "kg",
@@ -420,9 +431,13 @@ test.describe("Recipe evaluator and factories", () => {
       }],
     });
 
-    await expect(recipe.evaluate([], {
+    const warnings: string[] = [];
+    await expect(recipe.evaluate(warnings, {
       dataSeriesGetter: makeDataSeriesGetter({}),
     })).rejects.toThrow("Failed to fetch data series");
+    if (warnings.length > 0) {
+      console.warn("Recipe.evaluate warnings:", warnings);
+    }
   });
 
   test("evaluate fails when custom external getter returns no data", async () => {
@@ -441,9 +456,13 @@ test.describe("Recipe evaluator and factories", () => {
       ],
     });
 
-    await expect(recipe.evaluate([], {
+    const warnings: string[] = [];
+    await expect(recipe.evaluate(warnings, {
       externalTableContentGetter: makeExternalTableContentGetter({}),
     })).rejects.toThrow("has no data");
+    if (warnings.length > 0) {
+      console.warn("Recipe.evaluate warnings:", warnings);
+    }
   });
 
   test("isVariableEqual ignores template field", () => {
