@@ -1,19 +1,15 @@
 import type { EvalTimeVariable, RecipeExtractionOutput } from "@/functions/recipe/types";
-import { isEvalTimeVariable } from "@/functions/recipe/types";
+import { isEvalTimeVariable, isEvalTimeSeries } from "@/functions/recipe/types";
+import type { Unit } from "mathjs";
 
 const HUGE_THRESHOLD = 1e12;
 const NEAR_ZERO_THRESHOLD = 1e-12;
 const LONG_SERIES_THRESHOLD = 50;
 
-type SeriesVariable = Extract<RecipeExtractionOutput[number], { series: unknown }>;
-type NumericScalar = Pick<EvalTimeVariable, "displayName"> & { value: number };
-type NumericSeries = Pick<EvalTimeVariable, "displayName"> & { values: number[] };
+type NumericScalar = { displayName: string, value: number };
+type NumericSeries = { displayName: string, values: number[] };
 
-function isSeriesVariable(variable: RecipeExtractionOutput[number]): variable is SeriesVariable {
-  return "series" in variable;
-}
-
-function toNumber(value: EvalTimeVariable["value"]): number | null {
+function toNumber(value: Unit | Unit[] | number): number | null {
   if (Array.isArray(value)) return null;
   if (typeof value === "number") return value;
 
@@ -25,7 +21,7 @@ function toNumber(value: EvalTimeVariable["value"]): number | null {
   }
 }
 
-function isNumericScalar(variable: Pick<EvalTimeVariable, "displayName"> & { value: number | null }): variable is NumericScalar {
+function isNumericScalar(variable: { displayName: string, value: number | null }): variable is NumericScalar {
   return variable.value !== null;
 }
 
@@ -100,7 +96,7 @@ export function sanityCheckDataSeries(variables: RecipeExtractionOutput, warning
   warnForNumericScalars("Data series extraction", scalarValues, warnings);
 
   const cleanDataSeries = variables
-    .filter(isSeriesVariable)
+    .filter(v => isEvalTimeSeries(v, { silent: true }))
     .map(variable => ({
       displayName: variable.displayName,
       values: Object.values(variable.series.dateValues)
@@ -122,7 +118,7 @@ export function sanityCheckExternalDatasets(variables: RecipeExtractionOutput, w
   warnForNumericScalars("External dataset extraction", scalarValues, warnings);
 
   const cleanDataSeries = variables
-    .filter(isSeriesVariable)
+    .filter(v => isEvalTimeSeries(v, { silent: true }))
     .map(variable => ({
       displayName: variable.displayName,
       values: Object.values(variable.series.dateValues)
