@@ -108,7 +108,7 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
         {children}
       </p>
       {type === 'error' && errorLong &&
-        <button className={"margin-0 padding-25 width-100 cursor-pointer"}
+        <button className={"margin-0 padding-25 width-100"}
           onClick={() => setIsOpen((prev) => !prev)} style={{ backgroundColor: color.extends }}>
           <span className="flex align-items-flex-end font-weight-600" >
             <IconArrowUp className="margin-left-25 margin-right-50" width={16} height={16} style={{ transform: `${isOpen ? '' : 'rotate(180deg)'}` }} />
