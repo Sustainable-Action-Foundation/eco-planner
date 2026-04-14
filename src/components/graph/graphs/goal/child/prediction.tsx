@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { isISOIshDate } from "@/types";
 import type { Goal } from "@/types";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
+import type { ApexAxisChartSeries } from "apexcharts";
 
 export default function PredictionChildGraph({
   goal,

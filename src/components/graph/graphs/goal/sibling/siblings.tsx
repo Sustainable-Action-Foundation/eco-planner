@@ -8,6 +8,7 @@ import { IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
 import type { Goal, Roadmap } from "@/types";
 import { stroke, marker } from "../../../config";
 import styles from '../goal.module.css'
+import type { ApexAxisChartSeries } from "apexcharts";
 
 // TODO: Do we want to showcase the goal itself here or only its siblings? If we do want to showcase the goal, 
 // how can we ensure that it maintains the same colour as in the other graphs?

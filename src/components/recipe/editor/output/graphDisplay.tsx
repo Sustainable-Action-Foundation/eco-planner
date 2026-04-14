@@ -4,7 +4,7 @@ import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import { useRecipe } from "../../context/recipeContext.use";
 import type { ApexOptions } from "apexcharts";
 import { IconInfoCircle } from "@tabler/icons-react";
-import { Locales } from "i18n.config";
+import { Locales } from "@/../i18n.config";
 import { useTranslation } from "react-i18next";
 
 // TODO: Does this take historical data into account? Do we need to account for it?

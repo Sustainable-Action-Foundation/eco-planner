@@ -3,7 +3,9 @@
  * This file contains shared resources for the client and server instances of i18next.
 */
 
-import { createInstance, InitOptions, TFunction } from "i18next";
+import { createInstance, InitOptions, TFunction, TOptions as RealTOptions } from "i18next";
+
+export type TOptions = Omit<RealTOptions, "context"> & { context?: string };
 
 export const Locales = {
   test: "cimode",

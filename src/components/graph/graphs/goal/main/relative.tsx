@@ -4,6 +4,7 @@ import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import type { Goal, Roadmap } from "@/types";
 import { useTranslation } from "react-i18next";
 import { color_palette, stroke, marker } from "../../../config";
+import type { ApexAxisChartSeries } from "apexcharts";
 
 export default function MainRelativeGraph({
   goal,

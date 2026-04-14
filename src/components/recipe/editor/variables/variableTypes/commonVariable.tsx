@@ -28,7 +28,6 @@ export default function VariableTypeCommon({
 
   if (!variable) {
     throw new RecipeError(`Variable ${variableName} not found in recipe context`);
-    return null;
   }
 
   permissions = { ...RecipeEditorPermissions, ...permissions };

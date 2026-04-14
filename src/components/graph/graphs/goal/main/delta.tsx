@@ -7,6 +7,7 @@ import { isISOIshDate } from "@/types";
 import type { Effect, Goal, Roadmap } from "@/types";
 import { useTranslation } from "react-i18next";
 import { color_palette, stroke, marker } from "../../../config";
+import type { ApexAxisChartSeries, ApexYAxis } from "apexcharts";
 
 // TODO: Come back to look at colors later, have not tested them
 export default function MainDeltaGraph({
