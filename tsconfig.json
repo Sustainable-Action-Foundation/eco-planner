@@ -14,10 +14,9 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
-    "baseUrl": ".",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
     "plugins": [
       {
@@ -40,7 +39,7 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts",
-    "src/types/**/*.d.ts",
+    "src/types/**/*.d.ts"
   ],
   "exclude": [
     "src/prisma/generated/**/*",
@@ -50,5 +49,5 @@
     "out",
     "dist",
     "build"
-  ],
+  ]
 }
