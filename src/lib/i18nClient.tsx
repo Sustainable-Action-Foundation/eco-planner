@@ -1,6 +1,6 @@
 "use client";
 
-import { initTemplate, Locales } from "i18n.config";
+import { initTemplate, Locales } from "@/../i18n.config";
 import i18nClient, { t } from "i18next";
 import { I18nextProvider, initReactI18next } from "react-i18next";
 import Backend from "i18next-http-backend";

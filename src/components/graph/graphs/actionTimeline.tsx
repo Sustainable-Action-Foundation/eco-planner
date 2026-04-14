@@ -3,6 +3,7 @@
 import WrappedChart from "@/lib/chartWrapper";
 import { actionGraphSorter } from "@/lib/sorters";
 import type { Action } from "@prisma/client";
+import type { ApexAxisChartSeries } from "apexcharts";
 import { useTranslation } from "react-i18next";
 
 export default function ActionGraph({
@@ -72,8 +73,8 @@ export default function ActionGraph({
         fontWeight: 'normal',
         colors: ['white']
       },
-      formatter: function (val, opts: { dataPointIndex: number, w: { globals: { labels: string[] } } }) {
-        if (!("w" in opts) || !("globals" in opts.w) || !("labels" in opts.w.globals) || !("dataPointIndex" in opts) || typeof opts.dataPointIndex !== 'number' || !Array.isArray(opts.w.globals.labels) || opts.w.globals.labels.some(label => typeof label !== 'string')) return val;
+      formatter: function (val, opts?: { dataPointIndex: number, w: { globals: { labels: string[] } } }) {
+        if (!opts || !("w" in opts) || !("globals" in opts.w) || !("labels" in opts.w.globals) || !("dataPointIndex" in opts) || typeof opts.dataPointIndex !== 'number' || !Array.isArray(opts.w.globals.labels) || opts.w.globals.labels.some(label => typeof label !== 'string')) return val;
         const label = opts.w.globals.labels[opts.dataPointIndex];
         // Don't render label if it is for the buffer bars
         if (!label || label.trim() === '') return '';
@@ -123,7 +124,7 @@ export default function ActionGraph({
       ],
     },
     xaxis: {
-      axisTicks: { show: false},
+      axisTicks: { show: false },
       position: 'top',
       type: 'datetime',
       labels: {
@@ -155,8 +156,8 @@ export default function ActionGraph({
   /* TODO: Would be ideal to scroll directly to annnotation and have the labels be fixed so they follow scroll. 
   Maybe there is some css solution for that which allows us to fix padding for the labels aswell */
   return (actions.length > 0 &&
-    <div className="padding-bottom-50" style={{overflowX: 'scroll', overflowY: 'hidden' }}>
-      <div style={{height: `${height}`, width: `${widht}` }}>
+    <div className="padding-bottom-50" style={{ overflowX: 'scroll', overflowY: 'hidden' }}>
+      <div style={{ height: `${height}`, width: `${widht}` }}>
         <WrappedChart
           options={chartOptions}
           series={series}

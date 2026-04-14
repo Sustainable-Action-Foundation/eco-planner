@@ -1,12 +1,11 @@
 import { Locales } from "@/../i18n.config";
-import type { TFunction, TOptions, i18n } from "i18next";
-
-type CompatibleOptions = Omit<TOptions, "context"> & { context?: string };
+import type { TOptions } from "@/../i18n.config";
+import type { TFunction, i18n } from "i18next";
 
 /**
  * Whether the extra information should be shown, or just the translation result.
  */
-function shouldExpand(instance: i18n, options?: CompatibleOptions): boolean {
+function shouldExpand(instance: i18n, options?: TOptions): boolean {
   return (
     instance.language === Locales.test ||
     instance.resolvedLanguage === Locales.test ||
@@ -20,7 +19,7 @@ function shouldExpand(instance: i18n, options?: CompatibleOptions): boolean {
 export function informativeCimodeT(instance: i18n): TFunction {
   const baseT = instance.t.bind(instance) as TFunction;
 
-  return ((key: string | string[], options?: CompatibleOptions): string => {
+  return ((key: string | string[], options?: TOptions): string => {
     // Default case, just return the translation result
     if (!shouldExpand(instance, options)) {
       return baseT(key, options);

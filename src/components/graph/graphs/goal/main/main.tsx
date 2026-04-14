@@ -8,6 +8,7 @@ import type { ApiTableContent } from "@/lib/api/apiTypes";
 import { useTranslation } from "react-i18next";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import { color_palette, stroke, marker } from "../../../config";
+import type { ApexAxisChartSeries, ApexYAxis } from "apexcharts";
 
 // TODO: IT seems we want translations in our name, e.g (${t("common:goal_one")}), to be specifically in the label instead if possible. 
 // This would make dealing with y-axis "series name" more sensible

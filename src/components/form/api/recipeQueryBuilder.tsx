@@ -425,7 +425,7 @@ export default function RecipeQueryBuilder({ variableName }: { variableName: str
                         type="radio"
                         value={id}
                         name="externalTableId"
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => { handleTableSelect((e.target as HTMLButtonElement).value); updateExternalVariableTable(variableName, e.target.value, setVariable) }}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => { handleTableSelect(e.target.value); updateExternalVariableTable(variableName, e.target.value, setVariable) }}
                       />
                     </li>
                   ))}
