@@ -45,11 +45,13 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
 
   const color = colorMap[type];
 
-  if (typeof children === "string" && type !== "error" && children.length > 40) {
+  const maxLengthMessage = 35;
+
+  if (typeof children === "string" && type !== "error" && children.length > maxLengthMessage) {
     throw new Error("Toast message is too long for a success or warning toast.");
   }
 
-  const errorLong = typeof children === "string" && type === "error" && children.length > 40;
+  const errorLong = typeof children === "string" && type === "error" && children.length > maxLengthMessage;
 
   useEffect(() => {
     if (!hasTimeout) return;
@@ -60,7 +62,7 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
       // This timeout should be less than the duration of the closing animation 
       // to make sure the removal of the toast is before the animation is finished
     }
-
+    
     const interval = setInterval(() => {
       setTimer((prev) => {
         const next = prev - stepTime;
@@ -111,7 +113,7 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
         </button>
       </header>
       <p
-        className={` ${styles.toastBody} margin-0 margin-bottom-75 ${type === "error" && errorLong ? (isOpen ? styles.toastOpen : styles.toastClosed) : ""}`} style={{ paddingInline: "1.25rem" }} >
+        className={`margin-0 margin-bottom-75 ${type === "error" && errorLong ? (isOpen ? styles.toastOpen : styles.toastClosed) : ""}`} style={{ paddingInline: "1.25rem" }} >
         {children}
       </p>
       {type === 'error' && errorLong &&

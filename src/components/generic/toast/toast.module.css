@@ -10,7 +10,7 @@
   overflow: hidden;
 }
 
-.toastBody {
+.toast p {
   overflow: hidden;
   line-height: 1.4;
   text-overflow: ellipsis;
