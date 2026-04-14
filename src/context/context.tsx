@@ -6,10 +6,10 @@ const toasts = createContext<ToastContextType | undefined>(undefined)
 
 export function ToastContext({ children }: { children: React.ReactNode }) {
   const [messages, setMessages] = useState<Array<Toast>>([]);
-  const nextId = useRef(0);
+  const nextToastId = useRef(0);
 
   const addToast = (text: string, type: ToastType, hasTimeout: boolean = true) => {
-    setMessages((prevMessages) => [...prevMessages, { id: nextId.current++, text, type, hasTimeout }]);
+    setMessages((prevMessages) => [...prevMessages, { id: nextToastId.current++, text, type, hasTimeout }]);
   };
 
   const removeToast = (id: number) => {
