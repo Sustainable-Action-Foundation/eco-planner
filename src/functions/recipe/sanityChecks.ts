@@ -91,7 +91,7 @@ export function sanityCheckScalars(allVariables: EvalTimeVariable[], warnings: s
 
 export function sanityCheckDataSeries(variables: RecipeExtractionOutput, warnings: string[]) {
   const scalarValues = variables
-    .filter(isEvalTimeVariable)
+    .filter(v => isEvalTimeVariable(v, { silent: true }))
     .map(variable => ({
       displayName: variable.displayName,
       value: toNumber(variable.value),
@@ -113,7 +113,7 @@ export function sanityCheckDataSeries(variables: RecipeExtractionOutput, warning
 
 export function sanityCheckExternalDatasets(variables: RecipeExtractionOutput, warnings: string[]) {
   const scalarValues = variables
-    .filter(isEvalTimeVariable)
+    .filter((variable): variable is EvalTimeVariable => isEvalTimeVariable(variable, { silent: true }))
     .map(variable => ({
       displayName: variable.displayName,
       value: toNumber(variable.value),

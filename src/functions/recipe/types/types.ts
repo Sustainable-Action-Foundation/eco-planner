@@ -44,11 +44,12 @@ export type EvalTimeVariable = {
   displayName: string;
   value: Unit | Unit[] | number;
 };
-
-export type RecipeExtractionOutput = (
-  EvalTimeVariable
-  | { id: string, displayName: string, series: DateValuesWithUnit, }
-)[];
+export type EvalTimeSeries = {
+  id: string;
+  displayName: string;
+  series: DateValuesWithUnit;
+}
+export type RecipeExtractionOutput = (EvalTimeVariable | EvalTimeSeries)[];
 
 /** 
  * # Notice

@@ -1,6 +1,6 @@
 import type { DatasetKeys } from "@/lib/api/utility";
 import { ExternalDataset } from "@/lib/api/utility";
-import { isStandardObject } from "@/types";
+import { isDateValuesWithUnit, isStandardObject } from "@/types";
 import { isDateValues, isISOIshDate, uuidRegex } from "@/types";
 import type { JSONValue } from "@/types";
 import mathjs from "@/math";
@@ -14,6 +14,8 @@ import type {
   ExternalVariable,
   ScalarVariable,
   SerializedRecipeShape,
+  EvalTimeSeries,
+  RecipeExtractionOutput,
 } from "@/functions/recipe/types";
 
 function isRecipePickValue(pick: unknown): pick is DataSeriesVariable["pick"] {
@@ -406,11 +408,16 @@ export function isEmptyRecipe(recipe: Recipe): boolean {
   );
 }
 
-export function isEvalTimeVariable(variable: unknown): variable is EvalTimeVariable {
+export function isEvalTimeVariable(
+  variable: unknown,
+  options: { silent?: boolean } = {}
+): variable is EvalTimeVariable {
+  const warn = (...args: unknown[]) => !!options.silent ? undefined : console.warn(...args);
+
   if (
     !isStandardObject(variable)
   ) {
-    console.warn(`Type guard: eval time variable should be an object`);
+    warn(`Type guard: eval time variable should be an object`, variable);
     return false;
   }
 
@@ -420,7 +427,7 @@ export function isEvalTimeVariable(variable: unknown): variable is EvalTimeVaria
     || typeof variable.id !== "string"
     || variable.id.trim() === ""
   ) {
-    console.warn(`Type guard: 'id' in eval time variable`);
+    warn(`Type guard: 'id' in eval time variable`, variable);
     return false;
   }
 
@@ -430,7 +437,7 @@ export function isEvalTimeVariable(variable: unknown): variable is EvalTimeVaria
     || typeof variable.displayName !== "string"
     || variable.displayName.trim() === ""
   ) {
-    console.warn(`Type guard: 'displayName' in eval time variable`);
+    warn(`Type guard: 'displayName' in eval time variable`, variable);
     return false;
   }
 
@@ -446,9 +453,59 @@ export function isEvalTimeVariable(variable: unknown): variable is EvalTimeVaria
       )
     )
   ) {
-    console.warn(`Type guard: 'value' in eval time variable`);
+    warn(`Type guard: 'value' in eval time variable`, variable);
     return false;
   }
 
   return true;
+}
+
+export function isEvalTimeSeries(variable: unknown, options: { silent?: boolean } = {}): variable is EvalTimeSeries {
+  const warn = (...args: unknown[]) => !!options.silent ? undefined : console.warn(...args);
+
+  if (
+    !isStandardObject(variable)
+  ) {
+    warn(`Type guard: eval time series variable should be an object`, variable);
+    return false;
+  }
+
+  // .id: string
+  if (
+    !("id" in variable)
+    || typeof variable.id !== "string"
+    || variable.id.trim() === ""
+  ) {
+    warn(`Type guard: 'id' in eval time series variable`, variable);
+    return false;
+  }
+
+  // .displayName: string
+  if (
+    !("displayName" in variable)
+    || typeof variable.displayName !== "string"
+    || variable.displayName.trim() === ""
+  ) {
+    warn(`Type guard: 'displayName' in eval time series variable`, variable);
+    return false;
+  }
+
+  // .series: DateValuesWithUnit
+  if (
+    !("series" in variable)
+    || !isStandardObject(variable.series)
+    || !isDateValuesWithUnit(variable.series)
+  ) {
+    warn(`Type guard: 'series' in eval time series variable`, variable);
+    return false;
+  }
+
+  return true;
+}
+
+export function isRecipeExtractionOutput(value: unknown): value is RecipeExtractionOutput {
+  return (
+    Array.isArray(value)
+    && value.every(item => isEvalTimeVariable(item) || isEvalTimeSeries(item))
+  );
 }
