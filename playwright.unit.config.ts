@@ -8,7 +8,7 @@ export default defineConfig({
   expect: {
     timeout: 10 * 1000,
   },
-  reporter: [["list"], ["html", { outputFolder: "playwright-report-unit", open: "never" }]],
+  reporter: [["dot"], ["html", { outputFolder: "playwright-report-unit", open: "never" }]],
   use: {
     locale: "cimode",
     timezoneId: "Europe/Stockholm",
