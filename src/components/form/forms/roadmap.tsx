@@ -13,7 +13,7 @@ import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import TextEditor from "../elements/textEditor/editor";
 import { IconUpload } from "@tabler/icons-react";
 import ConfigureAccess from "../sections/access";
-import { useToastContext } from "@/context/context";
+import { useToastContext } from "@/components/generic/toast/toastContext";
 import { useRouter } from "next/navigation";
 
 function checkForBadDecoding(csv: string[][], t: TFunction, addToast: (text: string, type: 'success' | 'error' | 'warning') => void) {

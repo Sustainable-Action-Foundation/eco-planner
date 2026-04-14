@@ -16,7 +16,7 @@ import SuggestedRecipeToggle from "@/components/recipe/suggestions/suggestedReci
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import FormIntegration from "@/components/recipe/editor/output/formIntegration";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
-import { useToastContext } from "@/context/context";
+import { useToastContext } from "@/components/generic/toast/toastContext";
 import { useRouter } from "next/navigation";
 
 const DataSeriesType = {

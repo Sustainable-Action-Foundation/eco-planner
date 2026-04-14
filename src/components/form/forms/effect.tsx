@@ -8,7 +8,7 @@ import { Trans, useTranslation } from "react-i18next";
 import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput";
 import { absoluteToDelta, ActionSelector, deltaToAbsolute, GoalSelector } from "../sections/effectFormSections";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
-import { useToastContext } from "@/context/context";
+import { useToastContext } from "@/components/generic/toast/toastContext";
 import { useRouter } from "next/navigation";
 
 export default function EffectForm({

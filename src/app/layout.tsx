@@ -5,7 +5,7 @@ import I18nProvider from "@/lib/i18nClient";
 import serveTea from "@/lib/i18nServer";
 import { cookies, headers } from "next/headers";
 import { getLocale } from "@/functions/getLocale";
-import { ToastContext } from '@/context/context';
+import { ToastContext } from '@/components/generic/toast/toastContext';
 import ToastList from '@/components/generic/toast/toastList';
 
 export default async function RootLayout(

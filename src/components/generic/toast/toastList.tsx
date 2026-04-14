@@ -1,5 +1,5 @@
 "use client"
-import { useToastContext } from "@/context/context";
+import { useToastContext } from "@/components/generic/toast/toastContext";
 import CreateToast from "./toast";
 import styles from './toast.module.css'
 
