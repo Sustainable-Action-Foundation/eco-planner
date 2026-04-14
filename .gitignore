@@ -87,6 +87,9 @@ web_modules/
 .next
 out
 
+# Auto-generated Next file
+next-env.d.ts
+
 # Nuxt.js build / generate output
 .nuxt
 dist
