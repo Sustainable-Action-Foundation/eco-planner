@@ -310,7 +310,7 @@ test.describe("Recipe evaluator and factories", () => {
       throw new Error("Expected a non-null evaluation result");
     }
 
-    expect(result.unit).toBeUndefined();
+    expect(result.unit).toBe("kg");
     expect(result.dateValues[isoYear(2020)]).toBe(7);
     expect(result.dateValues[isoYear(2021)]).toBe(9);
     expect(result.dateValues[isoYear(2022)]).toBe(13);
