@@ -111,9 +111,7 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
         <button className={"margin-0 padding-25 width-100 cursor-pointer"}
           onClick={() => setIsOpen((prev) => !prev)} style={{ backgroundColor: color.extends }}>
           <span className="flex align-items-flex-end font-weight-600" >
-            {isOpen ?
-              <IconArrowUp className="margin-left-25 margin-right-50" width={16} height={16} /> :
-              <IconArrowDown className="margin-top-auto margin-left-25 margin-right-50" width={16} height={16} style={{ marginTop: "auto" }} />}
+            <IconArrowUp className="margin-left-25 margin-right-50" width={16} height={16} style={{ transform: `${isOpen ? '' : 'rotate(180deg)'}` }} />
             {isOpen ? 'Show less' : 'Show more'}
           </span>
         </button>
