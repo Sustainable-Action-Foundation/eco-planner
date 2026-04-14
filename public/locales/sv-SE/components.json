@@ -276,8 +276,8 @@
     "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}"
   },
   "toasts": {
+    "success": "Lyckades!",
     "warning": "Varning!",
-    "success": "Succé!",
-    "error": "Misslyckades!"
+    "error": "Något gick fel!"
   }
 }

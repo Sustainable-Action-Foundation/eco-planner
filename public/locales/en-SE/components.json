@@ -278,6 +278,6 @@
   "toasts": {
     "success": "Success!",
     "warning": "Warning!",
-    "error": "Error!"
+    "error": "Something went wrong!"
   }
 }

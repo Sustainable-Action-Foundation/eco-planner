@@ -92,7 +92,7 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
               : <IconAlertTriangle aria-hidden="true" className="display-block round" width={24} height={24} strokeWidth={3} color={color.accent} />
           }
         </div>
-        <span className="margin-0 font-weight-600" style={{ fontSize: "1.2rem" }}>{
+        <span className="margin-0 font-weight-600" style={{ fontSize: "1.1rem" }}>{
           type === "success"
             ? t("components:toasts.success")
             : type === "warning"
