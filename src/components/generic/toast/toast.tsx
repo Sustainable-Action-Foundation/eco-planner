@@ -1,11 +1,12 @@
 import { IconAlertTriangle, IconArrowUp, IconCircleCheck, IconInfoCircle, IconX } from "@tabler/icons-react";
 import type { ReactNode } from "react";
+import type { ToastType } from '@/components/generic/toast/types.ts';
 import styles from './toast.module.css';
 import { useEffect, useState } from "react";
 import { useToastContext } from "@/context/context";
 import { useTranslation } from "node_modules/react-i18next";
 
-export default function CreateToast({ children, id, type, hasTimeout = true }: { children?: ReactNode; id: number; type: 'success' | 'error' | 'warning'; hasTimeout?: boolean }) {
+export default function CreateToast({ children, id, type, hasTimeout = true }: { children?: ReactNode; id: number; type: ToastType; hasTimeout?: boolean }) {
 
   const { t } = useTranslation(["components"]);
 
