@@ -221,10 +221,11 @@ test.describe("Recipe evaluator and factories", () => {
     }
 
     const entries = Object.entries(result.dateValues);
-    expect(entries.length).toBe(30);
-    expect(result.unit).toBeUndefined();
+    expect(entries.length).toBe(31);
+    expect(result.unit).toBe("kg");
     expect(result.dateValues[isoYear(2020)]).toBe(10);
-    expect(result.dateValues[isoYear(2049)]).toBe(10);
+    expect(result.dateValues[isoYear(2031)]).toBe(10);
+    expect(result.dateValues[isoYear(2050)]).toBe(10);
   });
 
   test("evaluate supports legacy display-name placeholders when unique", async () => {
