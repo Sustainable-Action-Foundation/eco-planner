@@ -626,7 +626,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Invalidate old cache
-    revalidateTag('goal');
+    revalidateTag('goal', 'max');
     // Return the new goal's ID if successful
     return Response.json({ message: "Goal created", id: goalId },
       { status: 201, headers: { 'Location': `/goal/${goalId}` } }
@@ -858,7 +858,7 @@ export async function PUT(request: NextRequest) {
     // Prune any orphaned links and comments
     void pruneOrphans();
     // Invalidate old cache
-    revalidateTag('goal');
+    revalidateTag('goal', 'max');
     // Return the edited goal's ID if successful
     return Response.json({ message: "Goal updated", id: goalId },
       { status: 200, headers: { 'Location': `/goal/${goalId}` } }
@@ -963,7 +963,7 @@ export async function DELETE(request: NextRequest) {
       }
     });
     // Invalidate old cache
-    revalidateTag('goal');
+    revalidateTag('goal', 'max');
     return Response.json({ message: 'Goal deleted', id: deletedGoal.id },
       // Redirect to the parent roadmap
       { status: 200, headers: { 'Location': `/roadmap/${deletedGoal.roadmap.id}` } }

@@ -146,8 +146,8 @@ export async function POST(request: NextRequest) {
       },
     });
     // Invalidate old cache
-    revalidateTag('action');
-    revalidateTag('goal');
+    revalidateTag('action', 'max');
+    revalidateTag('goal', 'max');
     // Return success
     return Response.json({ message: 'Effect created', actionId: newEffect.actionId, goalId: newEffect.goalId },
       { status: 201 }
@@ -326,8 +326,8 @@ export async function PUT(request: NextRequest) {
       },
     });
     // Invalidate old cache
-    revalidateTag('action');
-    revalidateTag('goal');
+    revalidateTag('action', 'max');
+    revalidateTag('goal', 'max');
     // Return success
     return Response.json({ message: 'Effect updated', actionId: updatedEffect.actionId, goalId: updatedEffect.goalId },
       { status: 200 }
@@ -439,8 +439,8 @@ export async function DELETE(request: NextRequest) {
       where: { id: { actionId: effect.actionId, goalId: effect.goalId } },
     });
     // Invalidate old cache
-    revalidateTag('action');
-    revalidateTag('goal');
+    revalidateTag('action', 'max');
+    revalidateTag('goal', 'max');
     // Return success
     return Response.json({ message: 'Effect deleted', actionId: deletedEffect.actionId, goalId: deletedEffect.goalId },
       { status: 200 }

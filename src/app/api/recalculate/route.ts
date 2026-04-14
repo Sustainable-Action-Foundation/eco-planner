@@ -169,7 +169,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Invalidate old cache
-    revalidateTag('dataSeries');
+    revalidateTag('dataSeries', 'max');
     return Response.json({ message: "Data series updated", id: updatedDataSeries.id },
       { status: 200 }
     );
