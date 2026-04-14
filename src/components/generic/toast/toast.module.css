@@ -1,5 +1,10 @@
 .toastCard {
   width: min(40ch, 100%);
+  top: 0px;
+  right: 0px;
+  z-index: calc(infinity * 1);
+  padding-block: 1rem;
+  padding-inline: 1rem;
 }
 
 .toast {
