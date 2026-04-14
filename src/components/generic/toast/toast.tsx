@@ -1,4 +1,4 @@
-import { IconAlertTriangle, IconArrowDown, IconArrowUp, IconCircleCheck, IconInfoCircle, IconX } from "@tabler/icons-react";
+import { IconAlertTriangle, IconArrowUp, IconCircleCheck, IconInfoCircle, IconX } from "@tabler/icons-react";
 import type { ReactNode } from "react";
 import styles from './toast.module.css';
 import { useEffect, useState } from "react";
@@ -109,7 +109,7 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
       </p>
       {type === 'error' && errorLong &&
         <button className={"margin-0 padding-25 width-100"}
-          onClick={() => setIsOpen((prev) => !prev)} style={{ backgroundColor: color.extends }}>
+          onClick={() => setIsOpen((prev) => !prev)} style={{ backgroundColor: color.extends, transform: "scale(1)" }}>
           <span className="flex align-items-flex-end font-weight-600" >
             <IconArrowUp className="margin-left-25 margin-right-50" width={16} height={16} style={{ transform: `${isOpen ? '' : 'rotate(180deg)'}` }} />
             {isOpen ? 'Show less' : 'Show more'}
