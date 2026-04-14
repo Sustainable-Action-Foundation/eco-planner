@@ -31,6 +31,7 @@ export default function MetaRoadmapForm({
   const descriptionRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [roadmapType, setRoadmapType] = useState<string>("");
+  const { addToast } = useToastContext();
   const router = useRouter();
 
   const [timestamp] = useState(() => Date.now());
@@ -43,8 +44,6 @@ export default function MetaRoadmapForm({
     [RoadmapType.ORGANIZATIONAL]: t("common:scope.organizational"),
     [RoadmapType.OTHER]: t("common:scope.other"),
   }
-
-  const { addToast } = useToastContext();
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     // Mostly the usual submit handler stuff.
