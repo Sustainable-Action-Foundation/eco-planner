@@ -27,7 +27,7 @@ export default function ActionForm({
   const descriptionRef = useRef<HTMLInputElement>(null);
   const router = useRouter()
 
-  const { addMessage } = useToastContext();
+  const { addToast } = useToastContext();
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -61,7 +61,7 @@ export default function ActionForm({
 
     const formJSON = JSON.stringify(formContent);
 
-    formSubmitter('/api/action', formJSON, currentAction ? 'PUT' : 'POST', t, undefined, undefined, undefined, undefined, addMessage, router.push);
+    formSubmitter('/api/action', formJSON, currentAction ? 'PUT' : 'POST', t, undefined, undefined, undefined, undefined, addToast, router.push);
   }
 
   // Indexes for the data-position attribute in the legend elements

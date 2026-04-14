@@ -4,8 +4,8 @@ import { createContext, useContext, useState, useRef } from "react";
 type Toast = { id: number; text: string, type: 'success' | 'error' | 'warning'; hasTimeout: boolean };
 type ToastContextType = {
   messages: Array<Toast>;
-  addMessage: (text: string, type: 'success' | 'error' | 'warning', hasTimeout?: boolean) => void;
-  removeMessage: (id: number) => void;
+  addToast: (text: string, type: 'success' | 'error' | 'warning', hasTimeout?: boolean) => void;
+  removeToast: (id: number) => void;
 }
 
 const toasts = createContext<ToastContextType | undefined>(undefined)
@@ -14,16 +14,16 @@ export function ToastContext({ children }: { children: React.ReactNode }) {
   const [messages, setMessages] = useState<Array<Toast>>([]);
   const nextId = useRef(0);
 
-  const addMessage = (text: string, type: 'success' | 'error' | 'warning', hasTimeout: boolean = true) => {
+  const addToast = (text: string, type: 'success' | 'error' | 'warning', hasTimeout: boolean = true) => {
     setMessages((prevMessages) => [...prevMessages, { id: nextId.current++, text, type, hasTimeout }]);
   };
 
-  const removeMessage = (id: number) => {
+  const removeToast = (id: number) => {
     setMessages((prevMessages) => prevMessages.filter((toast) => toast.id !== id));
   };
 
   return (
-    <toasts.Provider value={{ messages, addMessage, removeMessage }}>
+    <toasts.Provider value={{ messages, addToast, removeToast }}>
       {children}
     </toasts.Provider>
   )

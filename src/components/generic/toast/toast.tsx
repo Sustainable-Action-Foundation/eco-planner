@@ -13,7 +13,7 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
   const stepTime = 25;
   const [timer, setTimer] = useState<number>(totalTime);
 
-  const { removeMessage } = useToastContext();
+  const { removeToast } = useToastContext();
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const [closeToast, setCloseToast] = useState<boolean>(false);
@@ -58,7 +58,7 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
 
     if (timer <= 0) {
       setCloseToast(true);
-      setTimeout(() => removeMessage(id), 200);
+      setTimeout(() => removeToast(id), 200);
       // This timeout should be less than the duration of the closing animation 
       // to make sure the removal of the toast is before the animation is finished
     }
@@ -75,7 +75,7 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
     }, stepTime);
 
     return () => clearInterval(interval);
-  }, [timer, hasTimeout, id, removeMessage]);
+  }, [timer, hasTimeout, id, removeToast]);
 
   return (
     <dialog
@@ -99,7 +99,7 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
               ? t("components:toasts.warning")
               : t("components:toasts.error")
         }</span>
-        <button onClick={() => removeMessage(id)} className="round padding-25 transparent margin-left-auto grid" aria-label="Close toast">
+        <button onClick={() => removeToast(id)} className="round padding-25 transparent margin-left-auto grid" aria-label="Close toast">
           <IconX aria-hidden="true" width={22} height={22} strokeWidth={3} color={color.accent} />
         </button>
       </header>

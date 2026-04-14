@@ -44,7 +44,7 @@ export default function MetaRoadmapForm({
     [RoadmapType.OTHER]: t("common:scope.other"),
   }
 
-  const { addMessage } = useToastContext();
+  const { addToast } = useToastContext();
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     // Mostly the usual submit handler stuff.
@@ -63,7 +63,7 @@ export default function MetaRoadmapForm({
     if (!description?.value && !currentRoadmap) {
       event.target.reportValidity();
       setIsLoading(false);
-      addMessage(t("forms:meta_roadmap.description_required"), "warning");
+      addToast(t("forms:meta_roadmap.description_required"), "warning");
       return;
     }
 
@@ -104,7 +104,7 @@ export default function MetaRoadmapForm({
 
     const formJSON = JSON.stringify(formData);
 
-    formSubmitter('/api/metaRoadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading, undefined, undefined, undefined, undefined, router.push); // addMessage
+    formSubmitter('/api/metaRoadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading, undefined, undefined, undefined, undefined, router.push); // addToast
   }
 
   // Indexes for the data-position attribute in the legend elements

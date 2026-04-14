@@ -74,7 +74,7 @@ export default function GoalForm({
   const descriptionRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  const { addMessage } = useToastContext();
+  const { addToast } = useToastContext();
 
   const parentRoadmaps = useMemo(() => {
     return (roadmapAlternatives ?? []).map(roadmap => ({
@@ -274,7 +274,7 @@ export default function GoalForm({
     const formJSON = JSON.stringify(formContent);
 
     // Submit the form to the API (POST for new, PUT for edit)
-    formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST', t, undefined, undefined, undefined, undefined, addMessage, router.push);
+    formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST', t, undefined, undefined, undefined, undefined, addToast, router.push);
   }
 
   // Index for data-position attribute in legend elements (for accessibility)
