@@ -4,6 +4,7 @@ import type { TFunction } from "i18next";
 import { isStandardObject } from "@/types";
 import type { JSONValue } from "@/types";
 import type { SetStateAction } from "react";
+import type { ToastType } from '@/components/generic/toast/types.ts';
 
 /**
  * Submits the data from a form to the API and handles the response
@@ -25,7 +26,7 @@ export default function formSubmitter(
   defaultLocation?: string,
   thenReplacement?: (data: { body: JSONValue, location?: string | null }) => void,
   catchReplacement?: (err: unknown) => void,
-  messageFunction?: (message: string, type: 'success' | 'error' | 'warning') => void,
+  showToast?: (message: string, type: ToastType, hasTimeout?: boolean) => void,
   router?: (url: string) => void /* TODO: Might make sense to accept URL here aswell */
 ): void {
   fetch(target, {
@@ -74,8 +75,8 @@ export default function formSubmitter(
     if (isStandardObject(data.body) && 'message' in data.body && typeof data.body.message === 'string') {
       if (data.body.message) {
         // alert(data.body.message);
-        if (messageFunction) {
-          messageFunction(data.body.message, "success");
+        if (showToast) {
+          showToast(data.body.message, "success");
         } else {
           alert(data.body.message);
         }
@@ -99,7 +100,11 @@ export default function formSubmitter(
     }
     console.error(err);
     if (err instanceof Error) {
-      alert(`${t("common:errors.something_went_wrong_with_details", { details: err.message })}`);
+      if (showToast) {
+        showToast(err.message, "error", false);
+      } else {
+        alert(`${t("common:errors.something_went_wrong_with_details", { details: err.message })}`)
+      };
     } else if (isStandardObject(err) && 'message' in err && typeof err.message === 'string') {
       alert(`${t("common:errors.something_went_wrong_with_details", { details: err.message })}`);
       if ("location" in err && typeof err.location === 'string') {
