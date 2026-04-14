@@ -62,7 +62,7 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
       // This timeout should be less than the duration of the closing animation 
       // to make sure the removal of the toast is before the animation is finished
     }
-    
+
     const interval = setInterval(() => {
       setTimer((prev) => {
         const next = prev - stepTime;
@@ -77,20 +77,6 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
     return () => clearInterval(interval);
   }, [timer, hasTimeout, id, removeMessage]);
 
-  function getIcon() {
-    switch (type) {
-      case "success": return <div>
-        <IconCircleCheck aria-hidden="true" className="display-block round" width={24} height={24} strokeWidth={3} color={color.accent} />
-      </div>;
-      case "warning": return <div>
-        <IconInfoCircle aria-hidden="true" className="display-block round" width={24} height={24} strokeWidth={3} color={color.accent} />
-      </div>;
-      case "error": return <div>
-        <IconAlertTriangle aria-hidden="true" className="display-block round" width={24} height={24} strokeWidth={3} color={color.accent} />
-      </div>;
-    }
-  }
-
   return (
     <dialog
       className={styles.toast + " flex flex-direction-column rounded position-relative padding-0 width-100 rounded" + (closeToast ? " " + styles.toastClosing : "")}
@@ -99,7 +85,12 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
     >
       <header className="flex align-items-center padding-inline-100 padding-top-75 padding-bottom-25 gap-50" >
         <div className="padding-50 round grid" style={{ backgroundColor: color.darker }}>
-          {getIcon()}
+          {type === "success"
+            ? <IconCircleCheck aria-hidden="true" className="display-block round" width={24} height={24} strokeWidth={3} color={color.accent} />
+            : type === "warning"
+              ? <IconInfoCircle aria-hidden="true" className="display-block round" width={24} height={24} strokeWidth={3} color={color.accent} />
+              : <IconAlertTriangle aria-hidden="true" className="display-block round" width={24} height={24} strokeWidth={3} color={color.accent} />
+          }
         </div>
         <span className="margin-0 font-weight-600" style={{ fontSize: "1.2rem" }}>{
           type === "success"
