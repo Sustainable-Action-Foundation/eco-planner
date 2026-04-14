@@ -1,6 +1,5 @@
-import type { EvalTimeVariable, RecipeExtractionOutput } from "./types";
-import { isEvalTimeVariable } from "./types/typeguards";
-import mathjs from "@/math";
+import type { EvalTimeVariable, RecipeExtractionOutput } from "@/functions/recipe/types";
+import { isEvalTimeVariable } from "@/functions/recipe/types";
 
 const HUGE_THRESHOLD = 1e12;
 const NEAR_ZERO_THRESHOLD = 1e-12;
@@ -77,7 +76,7 @@ function warnForSeries(prefix: string, series: NumericSeries[], warnings: string
 
 export function sanityCheckScalars(allVariables: EvalTimeVariable[], warnings: string[]) {
   const cleanScalars = allVariables
-    .filter(variable => !Array.isArray(variable.value) && (typeof variable.value === "number" || mathjs.typeOf(variable.value) === "Unit"))
+    .filter(v => isEvalTimeVariable(v, { silent: true }))
     .map(variable => ({
       displayName: variable.displayName,
       value: toNumber(variable.value),
@@ -113,7 +112,7 @@ export function sanityCheckDataSeries(variables: RecipeExtractionOutput, warning
 
 export function sanityCheckExternalDatasets(variables: RecipeExtractionOutput, warnings: string[]) {
   const scalarValues = variables
-    .filter((variable): variable is EvalTimeVariable => isEvalTimeVariable(variable, { silent: true }))
+    .filter(v => isEvalTimeVariable(v, { silent: true }))
     .map(variable => ({
       displayName: variable.displayName,
       value: toNumber(variable.value),
