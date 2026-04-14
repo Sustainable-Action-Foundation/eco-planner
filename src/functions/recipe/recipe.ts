@@ -4,7 +4,7 @@ import mathjs from "@/math";
 import type { Unit } from "mathjs";
 import type { ApiTableContent } from "@/lib/api/apiTypes";
 import type { RecipeExtractionOutput, RecipeVariable, SerializedRecipe, SerializedRecipeShape } from "@/functions/recipe";
-import { isEvalTimeVariable, isRecipe, MathjsError, RecipeError, parseDateValuesFromVector, transformDateValuesToVector, ANDMasks, extractDataSeries, extractExternalDatasets, extractScalars, } from "@/functions/recipe";
+import { isEvalTimeVariable, isRecipe, MathjsError, RecipeError, parseDateValuesFromVector, transformDateValuesToVector, ANDMasks, extractDataSeries, extractExternalDatasets, extractScalars, isEvalTimeSeries, } from "@/functions/recipe";
 import { sanityCheckDataSeries, sanityCheckExternalDatasets, sanityCheckScalars } from "@/functions/recipe/sanityChecks";
 
 export class Recipe {
@@ -114,22 +114,24 @@ export class Recipe {
     ];
 
     // TODO: type guard better and no magic strings
-    const evalTimeVars = allVars.filter(isEvalTimeVariable);
-    const seriesVariables = allVars.filter(v => "series" in v);
+    const evalTimeVars = allVars.filter(v => isEvalTimeVariable(v, { silent: true }));
+    const seriesVariables = allVars.filter(v => isEvalTimeSeries(v, { silent: true }));
 
     const [commonStartDate, commonEndDate] = seriesVariables.length > 0
       ? (() => {
-        const startDates = seriesVariables.map(v => {
+        const startYears = seriesVariables.map(v => {
           const dates = Object.keys(v.series.dateValues).sort();
           return new Date(dates[0]).getUTCFullYear();
         });
-        const endDates = seriesVariables.map(v => {
+        const endYears = seriesVariables.map(v => {
           const dates = Object.keys(v.series.dateValues).sort();
           return new Date(dates[dates.length - 1]).getUTCFullYear();
         });
+        const commonStartYear = Math.max(...startYears);
+        const commonEndYear = Math.min(...endYears);
         return [
-          new Date(Math.max(...startDates)),
-          new Date(Math.min(...endDates)),
+          new Date(`${commonStartYear}-01-01T00:00:00.000Z`),
+          new Date(`${commonEndYear}-01-01T00:00:00.000Z`),
         ];
       })()
       : [
