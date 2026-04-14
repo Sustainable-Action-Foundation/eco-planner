@@ -1,4 +1,4 @@
-import '@/styles/global.css'
+import '@/styles/global.css' with { type: "css" }
 import Sidebar from '@/components/generic/header/sidebar'
 import styles from './page.module.css' with { type: "css" }
 import I18nProvider from "@/lib/i18nClient";
