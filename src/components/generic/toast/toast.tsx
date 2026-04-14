@@ -80,7 +80,7 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
 
   return (
     <dialog
-      className={styles.toast + " flex flex-direction-column rounded position-relative padding-0 width-100 rounded" + (closeToast ? " " + styles.toastClosing : "")}
+      className={`${styles.toast} flex flex-direction-column rounded position-relative padding-0 width-100 rounded"} ${closeToast ? " " + styles.toastClosing : ""}`}
       role={type === "error" ? "alert" : "status"}
       style={{ backgroundColor: color.background, borderLeft: `4px solid ${color.accent}` }}
     >
