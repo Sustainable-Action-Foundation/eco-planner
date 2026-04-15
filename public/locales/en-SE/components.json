@@ -86,7 +86,7 @@
     "remember_me": "Remember me",
     "username": "Username",
     "verify_account": "Verify my account",
-    "invalid_credentials": "Login failed. Please check your username and password."
+    "invalid_credentials": "Login failed. Please check your credentials and that your email is verified."
   },
   "logout_button": {
     "failed": "Logout failed"
