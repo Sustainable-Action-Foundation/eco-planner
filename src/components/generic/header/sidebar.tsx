@@ -9,6 +9,7 @@ import serveTea from "@/lib/i18nServer";
 import { PopoverButton, Popover } from '@/components/generic/popovers/popovers';
 import { IconCirclePlus, IconHome, IconInfoCircle, IconList, IconLogin2, IconLogout2, IconMenu2, IconPlus, IconSettings, IconUser, IconUserPlus, IconWorld, IconX } from '@tabler/icons-react'
 import GraphCookie from '@/components/cookies/graphCookie';
+import { useState } from "react";
 
 export default async function Sidebar() {
   const [t, { user }] = await Promise.all([
@@ -16,8 +17,36 @@ export default async function Sidebar() {
     getSession(await cookies()),
   ]);
 
+  const [touchX, setTouchX] = useState(-240); // start hidden
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(0);
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    setTouchX(e.touches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    const newX = e.touches[0].clientX; // The current X position of the touch
+
+    setTouchX(newX);
+    setSidebarWidth(prev => Math.min(Math.max(prev + (newX - touchX), 0), 240)); // Ensures the width stays between 0px and 240px
+
+  };
+
+  const handleTouchEnd = () => {
+    // Snap open or closed when lifting finger
+    setSidebarWidth(sidebarWidth > 120 ? 240 : 0);
+
+    setIsTransitioning(true);
+    setTimeout(() => setIsTransitioning(false), 400); // match CSS transition duration
+  };
+
+
   return <>
-    <aside className={`${styles["sidebar"]} inline-flex flex-direction-column secondary-neutral-background`}>
+    <aside className={`${styles["sidebar"]} inline-flex flex-direction-column secondary-neutral-background`}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}>
       {/* Consider using js + button instead of checkbox (or on top of using a checkbox) for accesability purposes */}
       {/* Consider adding infobubbles to items in the navbar */}
       <header>
