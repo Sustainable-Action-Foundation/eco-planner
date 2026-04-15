@@ -55,18 +55,13 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
   useEffect(() => {
     if (!hasTimeout) return;
 
-    if (timer <= 0) {
-      setCloseToast(true);
-      setTimeout(() => removeToast(id), 200);
-      // This timeout should be less than the duration of the closing animation 
-      // to make sure the removal of the toast is before the animation is finished
-    }
-
     const interval = setInterval(() => {
       setTimer((prev) => {
         const next = prev - stepTime;
         if (next <= 0) {
           clearInterval(interval);
+          setCloseToast(true);
+          setTimeout(() => removeToast(id), 200); // This timeout should be less than the duration of the closing animation
           return 0;
         }
         return next;
@@ -74,6 +69,7 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
     }, stepTime);
 
     return () => clearInterval(interval);
+
   }, [timer, hasTimeout, id, removeToast]);
 
   return (
