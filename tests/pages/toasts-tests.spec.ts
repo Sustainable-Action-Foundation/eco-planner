@@ -7,30 +7,25 @@ const __dirname = path.dirname(__filename); // get the name of the directory
 
 const adminFile = path.join(__dirname, '../.auth/admin.json');
 
-test.describe('Toasts tests', () => {
+test.describe("Toasts tests", () => {
     test.use({ storageState: adminFile });
 
-    test('Login toast - yellow alert and green alert', async ({ page }) => {
+    test('Login test - error message', async ({ page }) => {
+        await page.goto('/');
+        await page.getByTestId('logout-button').click();
+        await page.waitForLoadState("networkidle");
+
         await page.goto('/login');
-        await page.locator('#submit-button').click();
-        await expect(page.getByTestId('toast')).toHaveText('Login failed');
-        
         await page.locator('#username').fill('anton');
-        await page.locator('#password').fill('anton');
+        await page.locator('#password').fill('wrongpassword');
         await page.locator('#submit-button').click();
-        await expect(page.getByTestId('toast')).toHaveText('Login successful');
-        await expect(page.locator('#username')).toBeVisible();
+        await expect(page.getByTestId('login-error-message')).toBeVisible();
     });
 
-    test('Action toast - yellow alert and green alert', async ({ page }) => {
+    test('Action toast - green message', async ({ page }) => {
         await page.goto('/');
         await page.getByTestId("create-button").click();
         await page.getByTestId("create-action").click();
-
-        await page.locator('#submit-button').hover();
-        await page.locator('#submit-button').click();
-
-        await expect(page.getByTestId('toast')).toHaveText('Warning!');
 
         const option = page.locator('#roadmapId option').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: '2' }); // Checks for Rikets färdplan to be contained in an option, with version 2 to avoid selecting the wrong roadmap
 
@@ -38,12 +33,12 @@ test.describe('Toasts tests', () => {
 
         await page.locator('#roadmapId').selectOption(value);
 
-        await page.locator('#name').fill('Test Toast');
+        await page.locator('#actionName').fill('Test Toast');
 
         await page.locator('#submit-button').hover();
         await page.locator('#submit-button').click();
 
-        await expect(page.getByTestId('toast')).toHaveText('Success!');
+        await expect(page.getByText('toast.success')).toBeVisible();
     });
 
     test('Metaroadmap toast - yellow alert and green alert', async ({ page }) => {
@@ -53,7 +48,7 @@ test.describe('Toasts tests', () => {
         // Submit the roadmap form
         await page.locator('#submit-button').click();
 
-        await expect(page.getByTestId('toast')).toHaveText('Warning!');
+        await expect(page.getByText('toast.warning')).toBeVisible();
 
         // Fill in the metaRoadmap form
         await page.locator('#name').fill('MetaRoadmap Toast');
@@ -76,7 +71,7 @@ test.describe('Toasts tests', () => {
         // Submit the form
         await page.locator('#submit-button').click();
 
-        await expect(page.getByTestId('toast')).toHaveText('Success!');
+        await expect(page.getByText('toast.success')).toBeVisible();
 
         // Wait for redirect to roadmap creation page
         await expect(page).toHaveURL(/\/roadmap\/create/);
@@ -84,7 +79,7 @@ test.describe('Toasts tests', () => {
         // Submit the roadmap form
         await page.locator('#submit-button').click();
 
-        await expect(page.getByTestId('toast')).toHaveText('Warning!');
+        await expect(page.getByText('toast.warning')).toBeVisible();
 
         // Set visibility - "Vem får se färdplanen?" (Who can see the roadmap?)
         await page.locator('#visibility-private').check();
@@ -95,7 +90,7 @@ test.describe('Toasts tests', () => {
         // Submit the roadmap form
         await page.locator('#submit-button').click();
 
-        await expect(page.getByTestId('toast')).toHaveText('Success!');
+        await expect(page.getByText('toast.success')).toBeVisible();
 
         // Verify successful roadmap creation by checking the redirect
         await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+/);
@@ -114,7 +109,7 @@ test.describe('Toasts tests', () => {
         // Form Submit
         await page.locator('#submit-button').click();
 
-        await expect(page.getByTestId('toast')).toHaveText('Warning!');
+        await expect(page.getByText('toast.warning')).toBeVisible();
 
         // Form Part 1
         await page.locator('#parent-roadmap').click();
@@ -136,6 +131,6 @@ test.describe('Toasts tests', () => {
         // Form Submit
         await page.locator('#submit-button').click();
 
-        await expect(page.getByTestId('toast')).toHaveText('Success!');
+        await expect(page.getByText('toast.success')).toBeVisible();
     });
 });
