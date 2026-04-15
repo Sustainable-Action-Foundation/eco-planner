@@ -186,7 +186,7 @@ export default function RoadmapForm({
         return;
       }
     }
-  }, [currentFile, t])
+  }, [addToast, currentFile, t])
 
 
   // Indexes for the data-position attribute in the legend elements

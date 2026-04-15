@@ -9,15 +9,13 @@ import { useTranslation } from "node_modules/react-i18next";
 export default function CreateToast({ children, id, type, hasTimeout = true }: { children?: ReactNode; id: number; type: ToastType; hasTimeout?: boolean }) {
 
   const { t } = useTranslation(["components"]);
+  const { removeToast } = useToastContext();
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [closeToast, setCloseToast] = useState<boolean>(false);
 
   const totalTime = 3000;
   const stepTime = 25;
   const [timer, setTimer] = useState<number>(totalTime);
-
-  const { removeToast } = useToastContext();
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-
-  const [closeToast, setCloseToast] = useState<boolean>(false);
 
   const colorMap = {
     success: {
