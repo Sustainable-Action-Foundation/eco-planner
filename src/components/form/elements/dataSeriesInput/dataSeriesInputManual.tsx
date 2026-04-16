@@ -22,11 +22,20 @@ export default function DataSeriesInputManual({
 }) {
 
   const { t } = useTranslation("forms");
-  const [value, setValue] = useState<Array<{ year: number | null, data: number | null }>>([{ year: null, data: null }])
+  const [value, setValue] = useState<Array<{ year: number | null, data: number | null }>>(() => {
+    if (!initialDateValues) {
+      return [{ year: null, data: null }]; /* TODO: This does not create one empty row on initiliasiation of page? */
+    }
+
+    return Object.entries(initialDateValues.dateValues).map(([date, value]) => ({
+      year: new Date(date).getFullYear(),
+      data: value ?? null
+    }));
+  })
 
   const [uncontrolledDateValues, setUncontrolledDateValues] = useState<DateValuesWithUnit>(initialDateValues);
   const effectiveDateValues = controlledDateValues ?? uncontrolledDateValues;
-  
+
   const updateDateValues = (updater: (prev: DateValuesWithUnit) => DateValuesWithUnit) => {
     const next = updater(effectiveDateValues);
     if (controlledDateValues === undefined) {
@@ -36,6 +45,7 @@ export default function DataSeriesInputManual({
       dateValuesSetter(next);
     }
   };
+
 
   const handleYearChange = (index: number, newValue: string) => {
     setValue(prev =>
