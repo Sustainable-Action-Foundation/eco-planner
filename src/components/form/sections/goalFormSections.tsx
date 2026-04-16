@@ -9,6 +9,7 @@ import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
 import type { ClientGoal, ClientMultiRoadmapInstance, ClientRoadmap, Goal, UnitString } from "@/types";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import { clientSafeGetRoadmaps, clientSafeGetOneRoadmap, clientSafeGetOneGoal } from "@/fetchers/client";
+import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
 
 export function ManualGoalForm({
   currentGoal,
@@ -87,6 +88,13 @@ export function ManualGoalForm({
         )}
       </small>
 
+      <DataSeriesInputManual
+        {...currentGoal?.dataSeries
+          ? { initialDateValues: dataSeriesToDateValues(currentGoal.dataSeries) }
+          : {}
+        }
+        outputFormElement={outputFormElement}
+      />
       <DateValuesInput
         {...currentGoal?.dataSeries
           ? { initialDateValues: dataSeriesToDateValues(currentGoal.dataSeries) }

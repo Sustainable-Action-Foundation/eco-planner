@@ -6,12 +6,36 @@ import styles from "./dataSeriesInput.module.css";
 import { isValidPastedInput } from "./utils";
 import { IconPlus, IconTrashXFilled } from "@tabler/icons-react";
 import Grid from "../grid/grid";
+import React from "react";
+import { DateValuesWithUnit } from "@/types";
 
-export default function DataSeriesInputManual() {
+export default function DataSeriesInputManual({
+  initialDateValues = { unit: undefined, dateValues: {} },
+  dateValues: controlledDateValues,
+  dateValuesSetter,
+  outputFormElement,
+}: {
+  initialDateValues?: DateValuesWithUnit | undefined;
+  dateValues?: DateValuesWithUnit | undefined;
+  dateValuesSetter?: React.Dispatch<React.SetStateAction<DateValuesWithUnit>> | undefined;
+  outputFormElement?: React.ReactElement<HTMLInputElement> | undefined;
+}) {
 
   const { t } = useTranslation("forms");
   const [value, setValue] = useState<Array<{ year: number | null, data: number | null }>>([{ year: null, data: null }])
 
+  const [uncontrolledDateValues, setUncontrolledDateValues] = useState<DateValuesWithUnit>(initialDateValues);
+  const effectiveDateValues = controlledDateValues ?? uncontrolledDateValues;
+  
+  const updateDateValues = (updater: (prev: DateValuesWithUnit) => DateValuesWithUnit) => {
+    const next = updater(effectiveDateValues);
+    if (controlledDateValues === undefined) {
+      setUncontrolledDateValues(next);
+    }
+    if (dateValuesSetter) {
+      dateValuesSetter(next);
+    }
+  };
 
   const handleYearChange = (index: number, newValue: string) => {
     setValue(prev =>
@@ -85,6 +109,14 @@ export default function DataSeriesInputManual() {
 
   return (
     <>
+
+      {outputFormElement && React.cloneElement(outputFormElement, {
+        value: JSON.stringify({ dateValues: effectiveDateValues.dateValues, unit: effectiveDateValues.unit } satisfies DateValuesWithUnit),
+        type: "hidden",
+        hidden: true,
+        readOnly: true,
+      })}
+
       <Grid // TODO: Add caption  
         props={{
           className: `grid width-100 align-items-center ${styles.grid}`,
@@ -125,11 +157,19 @@ export default function DataSeriesInputManual() {
                 type="number"
                 tabIndex={-1}
                 value={item.data ?? undefined}
-                onChange={(e) => handleDataChange(index, e.target.value)}
+                onChange={(e) => {
+                  handleDataChange(index, e.target.value);
+                  updateDateValues(prev => ({
+                    ...prev,
+                    dateValues: {
+                      ...prev.dateValues,
+                      [item.year?.toString() as string]: (e.target.value === "") ? undefined : parseFloat(e.target.value),
+                    },
+                  }));
+                }}
                 onPaste={(e) => {
                   // Make sure the pasted input is valid before handling paste
                   const pasted = e.clipboardData.getData("text");
-                  console.log(pasted)
                   if (!isValidPastedInput(pasted)) {
                     e.preventDefault();
                   } else {
@@ -159,6 +199,7 @@ export default function DataSeriesInputManual() {
         })}
       </Grid>
       <button
+        type="button"
         className="rounded font-weight-500 flex align-items-center gap-50 padding-50 padding-right-75 margin-top-50" style={{ lineHeight: '1', transform: 'scale(1)' }}
         onClick={() =>
           setValue(prev => [...prev, { year: null, data: null }])
