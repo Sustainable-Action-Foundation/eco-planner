@@ -95,9 +95,9 @@ export function RecipeContextProvider({
       : valueOrSetter;
 
     setRecipe((current) => {
-      const next = current.copy();
-      next.equation = newEquation;
-      return next;
+      const nextRecipe = current.copy();
+      nextRecipe.equation = newEquation;
+      return nextRecipe;
     })
       .catch((e: unknown) => {
         const errorMessage = e instanceof Error ? e.message : String(e);
@@ -108,20 +108,20 @@ export function RecipeContextProvider({
 
   const setVariable = useCallback((variableId: string, newValue: SetStateAction<RecipeVariable> | null): void => {
     setRecipe((current) => {
-      const next = current.copy();
-      const oldVar = next.variableMap[variableId];
+      const newRecipe = current.copy();
+      const oldVar = newRecipe.variableMap[variableId];
 
       if (newValue === null) {
         if (!oldVar) {
           console.info(`Variable "${variableId}" not deleted because it does not exist.`);
           return current;
         }
-        next.variables = next.variables.filter(variable => variable.id !== variableId);
-        return next;
+        newRecipe.variables = newRecipe.variables.filter(variable => variable.id !== variableId);
+        return newRecipe;
       }
 
       const newVar = typeof newValue === "function"
-        ? newValue(next.variableMap[variableId])
+        ? newValue(newRecipe.variableMap[variableId])
         : newValue;
 
       if (!newVar) {
@@ -134,15 +134,15 @@ export function RecipeContextProvider({
         return current;
       }
 
-      next.variables = next.variableMap[variableId]
+      newRecipe.variables = newRecipe.variableMap[variableId]
         // Update existing variable
-        ? next.variables.map(v => v.id === variableId
+        ? newRecipe.variables.map(v => v.id === variableId
           ? { ...newVar, template: false }
           : v
         )
         // Or append new variable
-        : [...next.variables, { ...newVar, template: false }];
-      return next;
+        : [...newRecipe.variables, { ...newVar, template: false }];
+      return newRecipe;
     })
       .catch((e: unknown) => {
         const errorMessage = e instanceof Error ? e.message : String(e);
@@ -153,8 +153,8 @@ export function RecipeContextProvider({
 
   const setVariables = useCallback((variablesAction: SetStateAction<RecipeVariable[]>) => {
     setRecipe((current) => {
-      const next = current.copy();
-      const oldVars = next.variables;
+      const newRecipe = current.copy();
+      const oldVars = newRecipe.variables;
       const newVars = typeof variablesAction === "function"
         ? variablesAction(oldVars)
         : variablesAction;
@@ -164,8 +164,8 @@ export function RecipeContextProvider({
         return current;
       }
 
-      next.variables = newVars.map(v => ({ ...v, template: false }));
-      return next;
+      newRecipe.variables = newVars.map(v => ({ ...v, template: false }));
+      return newRecipe;
     })
       .catch((e: unknown) => {
         const errorMessage = e instanceof Error ? e.message : String(e);
