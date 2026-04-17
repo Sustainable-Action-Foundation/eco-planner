@@ -134,7 +134,14 @@ export function RecipeContextProvider({
         return current;
       }
 
-      next.variableMap[variableId] = newVar;
+      next.variables = next.variableMap[variableId]
+        // Update existing variable
+        ? next.variables.map(v => v.id === variableId
+          ? { ...newVar, template: false }
+          : v
+        )
+        // Or append new variable
+        : [...next.variables, { ...newVar, template: false }];
       return next;
     })
       .catch((e: unknown) => {
@@ -157,7 +164,7 @@ export function RecipeContextProvider({
         return current;
       }
 
-      next.variables = newVars;
+      next.variables = newVars.map(v => ({ ...v, template: false }));
       return next;
     })
       .catch((e: unknown) => {
