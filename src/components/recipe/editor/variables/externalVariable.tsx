@@ -59,7 +59,7 @@ export function VariableTypeExternalSimple({
 }) {
   const { t } = useTranslation("components");
 
-  const { setVariable, getVariable } = useRecipe();
+  const { upsertVariable, getVariable } = useRecipe();
   const variable = getVariable(variableId, RecipeDataTypes.External);
   if (!variable) throw new Error(`External variable with id "${variableId}" not found.`);
 
@@ -86,7 +86,7 @@ export function VariableTypeExternalSimple({
         <select
           value={variable.dataset || ""}
           disabled={!permissions.allowValueEditing}
-          onChange={(e) => setVariable(variableId, prev => prev.type === RecipeDataTypes.External
+          onChange={(e) => upsertVariable(variableId, prev => prev.type === RecipeDataTypes.External
             ? { ...prev, dataset: isDataSetKeys(e.target.value) ? e.target.value : prev.dataset }
             : prev
           )}
@@ -103,7 +103,7 @@ export function VariableTypeExternalSimple({
         <input
           className="inline width-auto"
           value={variable.tableId || ""}
-          onChange={(e) => setVariable(variableId, prev => prev.type === RecipeDataTypes.External
+          onChange={(e) => upsertVariable(variableId, prev => prev.type === RecipeDataTypes.External
             ? { ...prev, tableId: e.target.value }
             : prev
           )}
@@ -116,7 +116,7 @@ export function VariableTypeExternalSimple({
         <input
           className="inline width-auto"
           value={JSON.stringify(variable.selection) || ""}
-          onChange={(e) => setVariable(variableId, prev => prev.type === RecipeDataTypes.External
+          onChange={(e) => upsertVariable(variableId, prev => prev.type === RecipeDataTypes.External
             ? {
               ...prev, selection: isStringifiedExternalSelection(e.target.value)
                 ? JSON.parse(e.target.value) as ExternalVariable["selection"]

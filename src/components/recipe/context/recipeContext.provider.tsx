@@ -29,7 +29,7 @@ export function RecipeContextProvider({
   /** 
    * Canonical recipe for this context
    */
-  const recipeRef = useRef<Recipe>(initialRecipe
+  const canonicalRecipeRef = useRef<Recipe>(initialRecipe
     ? Recipe.from(initialRecipe)
     : Recipe.getEmpty()
   );
@@ -37,150 +37,150 @@ export function RecipeContextProvider({
   /** 
    * Update to push to UI
    */
-  const [outputRecipe, setOutputRecipe] = useState<Recipe>(initialRecipe
+  const [publishedRecipe, setPublishedRecipe] = useState<Recipe>(initialRecipe
     ? Recipe.from(initialRecipe)
     : Recipe.getEmpty());
 
-  const equation = useMemo(() => outputRecipe.equation, [outputRecipe]);
-  const variables = useMemo(() => outputRecipe.variables, [outputRecipe]);
+  const equation = useMemo(() => publishedRecipe.equation, [publishedRecipe]);
+  const variables = useMemo(() => publishedRecipe.variables, [publishedRecipe]);
   const getVariable = useCallback((
     variableId: string,
     expectedType?: RecipeDataTypes,
   ) => {
-    const variable = outputRecipe.variableMap[variableId];
+    const variable = publishedRecipe.variableMap[variableId];
     if (!variable) return undefined;
     if (expectedType && variable.type !== expectedType) return undefined;
     return variable;
-  }, [outputRecipe]);
+  }, [publishedRecipe]);
 
   const clearRecipe = useCallback(() => {
-    recipeRef.current = Recipe.getEmpty();
-    setOutputRecipe(Recipe.getEmpty());
+    canonicalRecipeRef.current = Recipe.getEmpty();
+    setPublishedRecipe(Recipe.getEmpty());
   }, []);
 
-  const setRecipe = useCallback(async (valueOrSetter: SetStateAction<Recipe>): Promise<void> => {
-    const currentRecipe = recipeRef.current;
+  const applyRecipeUpdate = useCallback(async (recipeUpdate: SetStateAction<Recipe>): Promise<void> => {
+    const baseRecipe = canonicalRecipeRef.current;
 
-    const newRecipe = typeof valueOrSetter === "function"
-      ? valueOrSetter(currentRecipe.copy())
-      : valueOrSetter;
+    const candidateRecipe = typeof recipeUpdate === "function"
+      ? recipeUpdate(baseRecipe.copy())
+      : recipeUpdate;
 
-    let nextRecipe: Recipe;
+    let validatedRecipe: Recipe;
 
-    if (!newRecipe) {
+    if (!candidateRecipe) {
       console.warn("Deprecation warning: you should not delete recipes by setting them to null. This is not allowed type-wise so please check your typing.");
-      nextRecipe = Recipe.getEmpty();
+      validatedRecipe = Recipe.getEmpty();
     }
     else {
-      nextRecipe = Recipe.from(newRecipe);
+      validatedRecipe = Recipe.from(candidateRecipe);
     }
 
     // Validate
-    const validity = await nextRecipe.checkValidity();
+    const validity = await validatedRecipe.checkValidity();
     if (!validity.good) {
       if (validity.warnings?.length)
-        console.warn("Warning produced after validity check in setRecipe:", validity.warnings);
+        console.warn("Warning produced after validity check in applyRecipeUpdate:", validity.warnings);
       setWarnings(validity.warnings ?? []);
       setError(validity.error || "Recipe is invalid");
     }
 
-    recipeRef.current = nextRecipe;
-    setOutputRecipe(nextRecipe);
+    canonicalRecipeRef.current = validatedRecipe;
+    setPublishedRecipe(validatedRecipe);
   }, []);
 
-  const setEquation = useCallback((valueOrSetter: SetStateAction<Recipe["equation"]>) => {
-    const currentRecipe = recipeRef.current;
-    const newEquation = typeof valueOrSetter === "function"
-      ? valueOrSetter(currentRecipe.equation)
-      : valueOrSetter;
+  const updateEquation = useCallback((equationUpdate: SetStateAction<Recipe["equation"]>) => {
+    const baseRecipe = canonicalRecipeRef.current;
+    const nextEquation = typeof equationUpdate === "function"
+      ? equationUpdate(baseRecipe.equation)
+      : equationUpdate;
 
-    setRecipe((current) => {
-      const nextRecipe = current.copy();
-      nextRecipe.equation = newEquation;
-      return nextRecipe;
+    applyRecipeUpdate((current) => {
+      const recipeWithUpdatedEquation = current.copy();
+      recipeWithUpdatedEquation.equation = nextEquation;
+      return recipeWithUpdatedEquation;
     })
       .catch((e: unknown) => {
         const errorMessage = e instanceof Error ? e.message : String(e);
-        console.error("Failed to set equation:", errorMessage);
+        console.error("Failed to update equation:", errorMessage);
         setError(errorMessage);
       });
-  }, [setRecipe]);
+  }, [applyRecipeUpdate]);
 
-  const setVariable = useCallback((variableId: string, newValue: SetStateAction<RecipeVariable> | null): void => {
-    setRecipe((current) => {
-      const newRecipe = current.copy();
-      const oldVar = newRecipe.variableMap[variableId];
+  const upsertVariable = useCallback((variableId: string, variableUpdate: SetStateAction<RecipeVariable> | null): void => {
+    applyRecipeUpdate((current) => {
+      const candidateRecipe = current.copy();
+      const existingVariable = candidateRecipe.variableMap[variableId];
 
-      if (newValue === null) {
-        if (!oldVar) {
+      if (variableUpdate === null) {
+        if (!existingVariable) {
           console.info(`Variable "${variableId}" not deleted because it does not exist.`);
           return current;
         }
-        newRecipe.variables = newRecipe.variables.filter(variable => variable.id !== variableId);
-        return newRecipe;
+        candidateRecipe.variables = candidateRecipe.variables.filter(variable => variable.id !== variableId);
+        return candidateRecipe;
       }
 
-      const newVar = typeof newValue === "function"
-        ? newValue(newRecipe.variableMap[variableId])
-        : newValue;
+      const nextVariable = typeof variableUpdate === "function"
+        ? variableUpdate(candidateRecipe.variableMap[variableId])
+        : variableUpdate;
 
-      if (!newVar) {
-        throw new RecipeError(`setVariable was called with null or undefined newValue for variable "${variableId}". To delete a variable, set newValue to null explicitly.`);
+      if (!nextVariable) {
+        throw new RecipeError(`upsertVariable was called with null or undefined variableUpdate for variable "${variableId}". To delete a variable, set variableUpdate to null explicitly.`);
       }
 
       // Avoid updating on no change
-      if (Recipe.isVariableEqual(oldVar, newVar)) {
+      if (Recipe.isVariableEqual(existingVariable, nextVariable)) {
         console.info(`Variable "${variableId}" not updated because the new value is the same as the old value.`);
         return current;
       }
 
-      newRecipe.variables = newRecipe.variableMap[variableId]
+      candidateRecipe.variables = candidateRecipe.variableMap[variableId]
         // Update existing variable
-        ? newRecipe.variables.map(v => v.id === variableId
-          ? { ...newVar, template: false }
+        ? candidateRecipe.variables.map(v => v.id === variableId
+          ? { ...nextVariable, template: false }
           : v
         )
         // Or append new variable
-        : [...newRecipe.variables, { ...newVar, template: false }];
-      return newRecipe;
+        : [...candidateRecipe.variables, { ...nextVariable, template: false }];
+      return candidateRecipe;
     })
       .catch((e: unknown) => {
         const errorMessage = e instanceof Error ? e.message : String(e);
-        console.error(`Failed to set variable "${variableId}":`, errorMessage);
+        console.error(`Failed to upsert variable "${variableId}":`, errorMessage);
         setError(errorMessage);
       });
-  }, [setRecipe]);
+  }, [applyRecipeUpdate]);
 
-  const setVariables = useCallback((variablesAction: SetStateAction<RecipeVariable[]>) => {
-    setRecipe((current) => {
-      const newRecipe = current.copy();
-      const oldVars = newRecipe.variables;
-      const newVars = typeof variablesAction === "function"
-        ? variablesAction(oldVars)
-        : variablesAction;
+  const replaceVariables = useCallback((variablesUpdate: SetStateAction<RecipeVariable[]>) => {
+    applyRecipeUpdate((current) => {
+      const candidateRecipe = current.copy();
+      const oldVars = candidateRecipe.variables;
+      const nextVars = typeof variablesUpdate === "function"
+        ? variablesUpdate(oldVars)
+        : variablesUpdate;
 
-      if (Recipe.isVariablesEqual(oldVars, newVars)) {
+      if (Recipe.isVariablesEqual(oldVars, nextVars)) {
         console.info(`Variables not updated because the new value is the same as the old value.`);
         return current;
       }
 
-      newRecipe.variables = newVars.map(v => ({ ...v, template: false }));
-      return newRecipe;
+      candidateRecipe.variables = nextVars.map(v => ({ ...v, template: false }));
+      return candidateRecipe;
     })
       .catch((e: unknown) => {
         const errorMessage = e instanceof Error ? e.message : String(e);
-        console.error("Failed to set variables:", errorMessage);
+        console.error("Failed to replace variables:", errorMessage);
         setError(errorMessage);
       });
-  }, [setRecipe]);
+  }, [applyRecipeUpdate]);
 
-  const updatedDebounce = useDebounce(outputRecipe, 500)[0];
+  const debouncedRecipe = useDebounce(publishedRecipe, 500)[0];
 
   // Evaluate recipe and update resulting data and unit, whenever recipe changes
   useEffect(() => {
-    let isCurrent = true;
+    let isEffectActive = true;
 
-    if (updatedDebounce.isTemplate()) {
+    if (debouncedRecipe.isTemplate()) {
       return () => {
         setResultingDataSeries(null);
         setResultingUnit(null);
@@ -190,9 +190,9 @@ export function RecipeContextProvider({
     }
 
     const warnings: string[] = [];
-    updatedDebounce.evaluate(warnings)
+    debouncedRecipe.evaluate(warnings)
       .then(result => {
-        if (!isCurrent) return;
+        if (!isEffectActive) return;
 
         setResultingDataSeries(result?.dateValues ?? null);
         setResultingUnit(result?.unit ?? null);
@@ -200,7 +200,7 @@ export function RecipeContextProvider({
         setError(null);
       })
       .catch((e: unknown) => {
-        if (!isCurrent) return;
+        if (!isEffectActive) return;
 
         const errorMessage = e instanceof Error ? e.message : String(e);
         console.warn("Failed to evaluate recipe:", errorMessage);
@@ -212,23 +212,23 @@ export function RecipeContextProvider({
       });
 
     return () => {
-      isCurrent = false;
+      isEffectActive = false;
     };
-  }, [updatedDebounce]);
+  }, [debouncedRecipe]);
 
   return (
     <RecipeContext.Provider value={{
-      recipe: outputRecipe,
+      recipe: publishedRecipe,
       clearRecipe,
-      setRecipe,
+      applyRecipeUpdate,
       resultingDataSeries,
       resultingUnit,
       equation,
-      setEquation,
+      updateEquation,
       getVariable,
-      setVariable,
+      upsertVariable,
       variables,
-      setVariables,
+      replaceVariables,
       warnings,
       error,
     }}>

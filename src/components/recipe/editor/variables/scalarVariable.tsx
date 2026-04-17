@@ -15,7 +15,7 @@ export function VariableTypeScalar({
   permissions?: RecipeEditorPermissions;
 }) {
   const { t } = useTranslation("components");
-  const { setVariable, getVariable } = useRecipe();
+  const { upsertVariable, getVariable } = useRecipe();
   const variable = getVariable(variableId, RecipeDataTypes.Scalar);
   if (!variable) throw new RecipeError(`Scalar variable with id "${variableId}" not found.`);
 
@@ -32,7 +32,7 @@ export function VariableTypeScalar({
         </label>
         <input
           defaultValue={variable.value}
-          onChange={(e) => setVariable(variableId, prev => prev.type === RecipeDataTypes.Scalar
+          onChange={(e) => upsertVariable(variableId, prev => prev.type === RecipeDataTypes.Scalar
             ? { ...prev, value: Number(e.target.value) }
             : prev
           )}
@@ -56,7 +56,7 @@ export function VariableTypeScalarSimple({
   props?: React.InputHTMLAttributes<HTMLInputElement>;
 }) {
   const { t } = useTranslation("components");
-  const { setVariable, getVariable } = useRecipe();
+  const { upsertVariable, getVariable } = useRecipe();
   const variable = getVariable(variableId, RecipeDataTypes.Scalar);
   if (!variable) throw new RecipeError(`Scalar variable with id "${variableId}" not found.`);
 
@@ -66,7 +66,7 @@ export function VariableTypeScalarSimple({
     <input
       className="inline width-auto"
       defaultValue={variable.value}
-      onChange={(e) => setVariable(variableId, prev => prev.type === RecipeDataTypes.Scalar
+      onChange={(e) => upsertVariable(variableId, prev => prev.type === RecipeDataTypes.Scalar
         ? { ...prev, value: Number(e.target.value) }
         : prev
       )}

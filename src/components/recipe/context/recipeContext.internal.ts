@@ -28,15 +28,15 @@ export type RecipeContextType = {
   error: string | null;
 
   clearRecipe: () => void;
-  setRecipe: (valueOrSetter: SetStateAction<Recipe>) => Promise<void>;
+  applyRecipeUpdate: (recipeUpdate: SetStateAction<Recipe>) => Promise<void>;
 
   equation: Recipe["equation"];
-  setEquation: (valueOrSetter: SetStateAction<Recipe["equation"]>) => void;
+  updateEquation: (equationUpdate: SetStateAction<Recipe["equation"]>) => void;
 
   variables: RecipeVariable[];
-  setVariables: (valueOrSetter: SetStateAction<RecipeVariable[]>) => void;
+  replaceVariables: (variablesUpdate: SetStateAction<RecipeVariable[]>) => void;
 
   getVariable: GetVariable;
-  setVariable: (variableId: string, newValue: SetStateAction<RecipeVariable> | null) => void;
+  upsertVariable: (variableId: string, variableUpdate: SetStateAction<RecipeVariable> | null) => void;
 };
 export const RecipeContext = createContext<RecipeContextType | null>(null);

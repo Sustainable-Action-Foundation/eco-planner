@@ -26,7 +26,7 @@ export function SuggestedRecipeApplier({
 }) {
   const { t } = useTranslation("components");
   const defaultSuggestionRecipes = useMemo(() => getDefaultSuggestedRecipes(t), [t]);
-  const { recipe, setRecipe, clearRecipe } = useRecipe();
+  const { recipe, applyRecipeUpdate, clearRecipe } = useRecipe();
 
   const [availableRoadmaps, setAvailableRoadmaps] = useState<{ id: string; name: string; }[]>([]);
   const [selectedRecipeId, setSelectedRecipeId] = useState<string>("");
@@ -110,7 +110,7 @@ export function SuggestedRecipeApplier({
       return;
     }
 
-    setRecipe(parsedRecipe)
+    applyRecipeUpdate(parsedRecipe)
       .catch((e: unknown) => {
         const errorMessage = e instanceof Error ? e.message : String(e);
         console.error("Failed to set recipe from suggestion", errorMessage);

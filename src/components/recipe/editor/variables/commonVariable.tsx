@@ -22,7 +22,7 @@ export function CommonVariable({
 }) {
   const { t } = useTranslation(["common", "components"]);
 
-  const { setVariable, getVariable } = useRecipe();
+  const { upsertVariable, getVariable } = useRecipe();
   const variable = getVariable(variableId);
   if (!variable) throw new RecipeError(`Variable with id "${variableId}" not found in recipe context.`);
 
@@ -58,7 +58,7 @@ export function CommonVariable({
               placeholder=" "
               style={{ gridRow: '1', gridColumn: '1' }}
               defaultValue={variable.name}
-              onChange={(e) => setVariable(variableId, v => ({ ...v, name: e.target.value }))}
+              onChange={(e) => upsertVariable(variableId, v => ({ ...v, name: e.target.value }))}
               type="text"
             />
           </div>
@@ -90,7 +90,7 @@ export function CommonVariable({
               id={`variable-type-${variableId}`}
               style={{ gridRow: '2', gridColumn: '1' }}
               defaultValue={variable.type}
-              onChange={(e) => setVariable(variableId, v => {
+              onChange={(e) => upsertVariable(variableId, v => {
                 const newType = e.target.value as RecipeDataTypes;
                 if (!Object.values(RecipeDataTypes).includes(newType)) {
                   console.error(`Invalid variable type selected: ${newType}`, variable, "->", v);
@@ -126,7 +126,7 @@ export function CommonVariable({
           style={{ verticalAlign: 'middle' }}
           type="button"
           title={t("common:tsx.delete")}
-          onClick={() => setVariable(variableId, null)}
+          onClick={() => upsertVariable(variableId, null)}
         >
           <IconTrashXFilled width={20} height={20} className="grid" />
         </button>

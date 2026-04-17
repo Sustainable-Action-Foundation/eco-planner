@@ -7,7 +7,7 @@ import { IconPlus } from "@tabler/icons-react";
 
 export function EquationEditor() {
   const { t } = useTranslation("components");
-  const { recipe, setEquation } = useRecipe();
+  const { recipe, updateEquation } = useRecipe();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const pendingSelectionRef = useRef<{ start: number, end: number } | null>(null);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
@@ -31,7 +31,7 @@ export function EquationEditor() {
     };
 
     const equation = e.target.value;
-    setEquation(equation);
+    updateEquation(equation);
   };
 
   const handleInsertVariable = (key: string) => {

@@ -8,7 +8,7 @@ import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 
 export function VectorPickerSelect({ permissions, variableId }: { permissions?: RecipeEditorPermissions, variableId: string }) {
   const { t } = useTranslation("components");
-  const { recipe, setVariable, getVariable } = useRecipe();
+  const { recipe, upsertVariable, getVariable } = useRecipe();
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
 
@@ -38,7 +38,7 @@ export function VectorPickerSelect({ permissions, variableId }: { permissions?: 
           pick: e.target.value as VectorIndexPickerOptions
         };
 
-        setVariable(variableId, variableWithNewPick);
+        upsertVariable(variableId, variableWithNewPick);
       }}
     >
       <option value={VectorIndexPickerOptions.Whole}>{t("components:recipe_editor.pick_whole")}</option>

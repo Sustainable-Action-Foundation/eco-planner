@@ -14,7 +14,7 @@ export function VariableCreator({
   allowAddVariables?: boolean;
 }) {
   const { t } = useTranslation(["components", "forms"]);
-  const { recipe, setVariables } = useRecipe();
+  const { recipe, replaceVariables } = useRecipe();
 
   const popoverRef = useRef<HTMLDivElement>(null);
 
@@ -54,7 +54,7 @@ export function VariableCreator({
       }
     }
 
-    setVariables(prev => ([
+    replaceVariables(prev => ([
       ...prev,
       {
         ...emptyRecipesByDataType[providedType],

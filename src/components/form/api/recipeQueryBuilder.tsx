@@ -35,7 +35,7 @@ export default function RecipeQueryBuilder({
   // TODO: Fix typing, use match() instead of casting
   const lang = useContext(LocaleContext).split("-")[0];
   // const lang = useContext(LocaleContext).split("-")[0] as "sv" | "en";
-  const { setVariable } = useRecipe();
+  const { upsertVariable } = useRecipe();
 
   function getInitialSelectionValue(variableCode: string) {
     const valueCode = initialSelection?.find(selection => selection.variableCode === variableCode)?.valueCodes?.[0];
@@ -428,7 +428,7 @@ export default function RecipeQueryBuilder({
 
     const query = buildQuery(formData);
 
-    setVariable(variableId, prev => prev.type === RecipeDataTypes.External
+    upsertVariable(variableId, prev => prev.type === RecipeDataTypes.External
       ? {
         ...prev,
         dataset: isDataSetKeys(dataSource) ? dataSource : prev.dataset,
@@ -503,7 +503,7 @@ export default function RecipeQueryBuilder({
                         checked={selectedTableId === id}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                           handleTableSelect((e.target as HTMLInputElement).value);
-                          setVariable(variableId, prev => prev.type === RecipeDataTypes.External
+                          upsertVariable(variableId, prev => prev.type === RecipeDataTypes.External
                             ? { ...prev, tableId: e.target.value }
                             : prev
                           );

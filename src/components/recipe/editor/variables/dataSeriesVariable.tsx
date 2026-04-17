@@ -66,10 +66,10 @@ function useRoadmapTreeItems(availableRoadmaps: AvailableRoadmapOption[]) {
 
 function useHandleDataSeriesChange(
   variableId: string,
-  setVariable: RecipeContextType["setVariable"],
+  upsertVariable: RecipeContextType["upsertVariable"],
 ) {
   return useCallback((treeValue: TreeItem | null) => {
-    setVariable(variableId, (prev) => {
+    upsertVariable(variableId, (prev) => {
       if (!treeValue?.value) {
         return { ...prev, dataSeriesId: undefined };
       }
@@ -81,7 +81,7 @@ function useHandleDataSeriesChange(
 
       return { ...prev, dataSeriesId: treeValue.value };
     });
-  }, [setVariable, variableId]);
+  }, [upsertVariable, variableId]);
 }
 
 type AvailableDataSeries = AvailableRoadmapOption[];
@@ -98,12 +98,12 @@ export function DataSeriesVariableEditor({
   availableDataSeries?: AvailableDataSeries;
 }) {
   const { t } = useTranslation("components");
-  const { recipe, setVariable, getVariable } = useRecipe();
+  const { recipe, upsertVariable, getVariable } = useRecipe();
   const variable = getVariable(variableId);
   const fieldIdBase = `recipe-data-series-${variableId.replace(/[^A-Za-z0-9_-]/g, "-")}`;
 
   const treeItems = useRoadmapTreeItems(availableDataSeries);
-  const handleDataSeriesChange = useHandleDataSeriesChange(variableId, setVariable);
+  const handleDataSeriesChange = useHandleDataSeriesChange(variableId, upsertVariable);
 
   if (!variable) {
     console.error(`Variable "${variableId}" not found in recipe`, { recipe, variableId, variable, availableDataSeries });
@@ -158,11 +158,11 @@ export function DataSeriesVariableSimpleEditor({
   availableDataSeries?: AvailableRoadmapOption[];
   props: InputElement;
 }) {
-  const { recipe, setVariable, getVariable } = useRecipe();
+  const { recipe, upsertVariable, getVariable } = useRecipe();
   const variable = getVariable(variableId);
 
   const treeItems = useRoadmapTreeItems(availableDataSeries);
-  const handleDataSeriesChange = useHandleDataSeriesChange(variableId, setVariable);
+  const handleDataSeriesChange = useHandleDataSeriesChange(variableId, upsertVariable);
 
   if (!variable) {
     console.error(`Variable "${variableId}" not found in recipe`, recipe);
