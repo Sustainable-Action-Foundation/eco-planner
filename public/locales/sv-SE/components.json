@@ -126,7 +126,7 @@
     "value": "Värde"
   },
   "recipe_editor": {
-    "add_external_data": "Data",
+    "add_external_data": "Hitta historisk data",
     "create_recipe": "Skapa ett nytt recept",
     "create_variable": "Skapa variabel",
     "data_series": "Dataserie",

@@ -77,7 +77,11 @@ export function VariableTypeExternalSimple({
         initialSelection={variable.selection}
       />
 
-      <div hidden>
+      {/* 
+        Hidden since the query builder is supposed to replace these 
+        TODO: make this component pretty and UX friendly 
+      */}
+      <div hidden className="display-hidden">
         {/* Dataset */}
         <select
           value={variable.dataset || ""}

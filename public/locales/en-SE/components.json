@@ -126,7 +126,7 @@
     "value": "Value"
   },
   "recipe_editor": {
-    "add_external_data": "Data",
+    "add_external_data": "Find external data",
     "create_recipe": "Create a new recipe",
     "create_variable": "Create variable",
     "data_series": "Data series",
