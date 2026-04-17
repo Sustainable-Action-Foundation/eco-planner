@@ -44,7 +44,7 @@ jobs:
       - name: Install test dependencies
         run: |
           # Packages
-          yarn install --frozen-lockfile
+          yarn install --immutable
           # Playwright browsers
           yarn playwright install --with-deps
 

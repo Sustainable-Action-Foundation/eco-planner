@@ -61,7 +61,7 @@ jobs:
         if: ${{ !inputs.skip_tests }}
         run: |
           # Packages
-          yarn install --frozen-lockfile
+          yarn install --immutable
           # Playwright browsers
           yarn playwright install --with-deps
 

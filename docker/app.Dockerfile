@@ -17,11 +17,14 @@ RUN apk update && apk upgrade && \
   curl \
   && rm -rf /var/cache/apk/*
 
-# Enable corepack for modern package manager support
-RUN corepack enable
 
 # Set working directory
 WORKDIR /app
+
+COPY package.json yarn.lock .yarnrc.yml ./
+
+# Enable corepack for modern package manager support
+RUN corepack enable
 
 # Create non-root user for security (no shell)
 RUN addgroup --system --gid 1001 nodejs && \
@@ -33,11 +36,8 @@ RUN addgroup --system --gid 1001 nodejs && \
 # ============================================================================
 FROM base AS deps
 
-# Copy package manager files for dependency installation
-COPY package.json yarn.lock* ./
-
 # Install dependencies (GHA cache handled by buildx)
-RUN yarn install --frozen-lockfile
+RUN yarn install --immutable
 
 # Clean up temporary files to reduce image size
 RUN rm -rf /tmp/* /var/tmp/*
