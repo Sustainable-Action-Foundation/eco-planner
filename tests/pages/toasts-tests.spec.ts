@@ -27,7 +27,7 @@ test.describe("Toasts tests", () => {
         await page.getByTestId("create-button").click();
         await page.getByTestId("create-action").click();
 
-        const option = page.locator('#roadmapId option').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: '2' }); // Checks for Rikets färdplan to be contained in an option, with version 2 to avoid selecting the wrong roadmap
+        const option = page.locator('#roadmapId option').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: '2' });
 
     const value = await option.getAttribute('value');
 
@@ -106,19 +106,13 @@ test.describe("Toasts tests", () => {
     await page.getByTestId('create-goal').click();
     await page.waitForLoadState("networkidle");
 
-    // Form Submit
     await page.locator('#submit-button').click();
 
     await expect(page.getByText('toast.warning')).toBeVisible();
 
-    // Form Part 1
     await page.locator('#parent-roadmap').click();
-    await page.locator('#parent-roadmap-dialog-listbox li').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: '2' }).click(); // Checks for Rikets färdplan to be contained in an option, with version 2 to avoid selecting the wrong roadmap
+    await page.locator('#parent-roadmap-dialog-listbox li').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: '2' }).click();
 
-    // Form Part 2 is optional, so we skip it
-
-    // Form Part 3
-    // Might be switched out for a pre-written recipe when they are fixed
     await page.getByRole('radio', { name: "goal.derive_data_series_manually" }).click();
     await page.locator('#indicatorParameter').fill('Goal Toast');
     await page.locator('#dataUnit').fill('yard');
