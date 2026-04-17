@@ -4,7 +4,7 @@ import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session";
 import { roadmapSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
-import { unstable_cache } from "next/cache";
+import { cacheTag } from "next/cache";
 import { cookies } from "next/headers";
 import type { MetaRoadmap } from "@/types";
 
@@ -24,93 +24,21 @@ export async function getOneMetaRoadmap(id: string): Promise<MetaRoadmap | null>
  * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'metaRoadmap', 'roadmap']`, which is done in relevant API routes.
  * @param user Data from user's session cookie.
  */
-const getCachedMetaRoadmap = unstable_cache(
-  async (id: string, user: LoginData['user']) => {
-    let metaRoadmap: MetaRoadmap | null;
+async function getCachedMetaRoadmap(id: string, user: LoginData['user']) {
+  'use cache'
+  cacheTag('database', 'metaRoadmap', 'roadmap');
+  let metaRoadmap: MetaRoadmap | null;
 
-    // If user is admin, get all meta roadmaps
-    if (user?.isAdmin) {
-      try {
-        metaRoadmap = await prisma.metaRoadmap.findUnique({
-          where: { id },
-          include: metaRoadmapInclusionSelection,
-        }) satisfies MetaRoadmap | null;
-      } catch (error) {
-        console.log(error);
-        console.log('Error fetching admin meta roadmaps');
-        return null;
-      }
-
-      // Sort roadmap versions
-      metaRoadmap?.roadmapVersions.sort(roadmapSorter);
-
-      return metaRoadmap;
-    }
-
-    // If user is logged in, get all meta roadmaps they have access to
-    if (user?.isLoggedIn) {
-      try {
-        metaRoadmap = await prisma.metaRoadmap.findUnique({
-          where: {
-            id,
-            OR: [
-              { authorId: user.id },
-              { editors: { some: { id: user.id } } },
-              { viewers: { some: { id: user.id } } },
-              { editGroups: { some: { users: { some: { id: user.id } } } } },
-              { viewGroups: { some: { users: { some: { id: user.id } } } } },
-              { isPublic: true }
-            ]
-          },
-          include: {
-            ...metaRoadmapInclusionSelection,
-            roadmapVersions: {
-              where: {
-                OR: [
-                  { authorId: user.id },
-                  { editors: { some: { id: user.id } } },
-                  { viewers: { some: { id: user.id } } },
-                  { editGroups: { some: { users: { some: { id: user.id } } } } },
-                  { viewGroups: { some: { users: { some: { id: user.id } } } } },
-                  { isPublic: true }
-                ]
-              },
-              include: metaRoadmapInclusionSelection.roadmapVersions.include,
-            },
-          },
-        }) satisfies MetaRoadmap | null;
-      } catch (error) {
-        console.log(error);
-        console.log('Error fetching meta roadmaps');
-        return null;
-      }
-
-      // Sort roadmap versions
-      metaRoadmap?.roadmapVersions.sort(roadmapSorter);
-
-      return metaRoadmap;
-    }
-
-    // Get all public meta roadmaps
+  // If user is admin, get all meta roadmaps
+  if (user?.isAdmin) {
     try {
       metaRoadmap = await prisma.metaRoadmap.findUnique({
-        where: {
-          id,
-          isPublic: true
-        },
-        include: {
-          ...metaRoadmapInclusionSelection,
-          roadmapVersions: {
-            where: {
-              isPublic: true
-            },
-            include: metaRoadmapInclusionSelection.roadmapVersions.include,
-          },
-        },
+        where: { id },
+        include: metaRoadmapInclusionSelection,
       }) satisfies MetaRoadmap | null;
     } catch (error) {
       console.log(error);
-      console.log('Error fetching public meta roadmaps');
+      console.log('Error fetching admin meta roadmaps');
       return null;
     }
 
@@ -118,7 +46,77 @@ const getCachedMetaRoadmap = unstable_cache(
     metaRoadmap?.roadmapVersions.sort(roadmapSorter);
 
     return metaRoadmap;
-  },
-  ['getOneMetaRoadmap'],
-  { revalidate: 600, tags: ['database', 'metaRoadmap', 'roadmap'] },
-);
+  }
+
+  // If user is logged in, get all meta roadmaps they have access to
+  if (user?.isLoggedIn) {
+    try {
+      metaRoadmap = await prisma.metaRoadmap.findUnique({
+        where: {
+          id,
+          OR: [
+            { authorId: user.id },
+            { editors: { some: { id: user.id } } },
+            { viewers: { some: { id: user.id } } },
+            { editGroups: { some: { users: { some: { id: user.id } } } } },
+            { viewGroups: { some: { users: { some: { id: user.id } } } } },
+            { isPublic: true }
+          ]
+        },
+        include: {
+          ...metaRoadmapInclusionSelection,
+          roadmapVersions: {
+            where: {
+              OR: [
+                { authorId: user.id },
+                { editors: { some: { id: user.id } } },
+                { viewers: { some: { id: user.id } } },
+                { editGroups: { some: { users: { some: { id: user.id } } } } },
+                { viewGroups: { some: { users: { some: { id: user.id } } } } },
+                { isPublic: true }
+              ]
+            },
+            include: metaRoadmapInclusionSelection.roadmapVersions.include,
+          },
+        },
+      }) satisfies MetaRoadmap | null;
+    } catch (error) {
+      console.log(error);
+      console.log('Error fetching meta roadmaps');
+      return null;
+    }
+
+    // Sort roadmap versions
+    metaRoadmap?.roadmapVersions.sort(roadmapSorter);
+
+    return metaRoadmap;
+  }
+
+  // Get all public meta roadmaps
+  try {
+    metaRoadmap = await prisma.metaRoadmap.findUnique({
+      where: {
+        id,
+        isPublic: true
+      },
+      include: {
+        ...metaRoadmapInclusionSelection,
+        roadmapVersions: {
+          where: {
+            isPublic: true
+          },
+          include: metaRoadmapInclusionSelection.roadmapVersions.include,
+        },
+      },
+    }) satisfies MetaRoadmap | null;
+  } catch (error) {
+    console.log(error);
+    console.log('Error fetching public meta roadmaps');
+    return null;
+  }
+
+  // Sort roadmap versions
+  metaRoadmap?.roadmapVersions.sort(roadmapSorter);
+
+  return metaRoadmap;
+};

@@ -4,7 +4,7 @@ import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session"
 import { goalSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
-import { unstable_cache } from "next/cache";
+import { cacheTag } from "next/cache";
 import { cookies } from "next/headers";
 import type { Roadmap } from "@/types";
 
@@ -28,75 +28,73 @@ export async function getRoadmapByVersion(metaId: string, version: number) {
  * @param version Version number of the roadmap to cache
  * @param user Data from user's session cookie.
  */
-const getCachedRoadmap = unstable_cache(
-  async (metaId: string, version: number, user: LoginData['user']) => {
-    let roadmap: Roadmap | null;
+async function getCachedRoadmap(metaId: string, version: number, user: LoginData['user']) {
+  'use cache'
+  cacheTag('database', 'roadmap', 'goal');
+  let roadmap: Roadmap | null;
 
-    // If user is admin, always get the roadmap
-    if (user?.isAdmin) {
-      try {
-        roadmap = await prisma.roadmap.findUnique({
-          where: { meta_version: { metaRoadmapId: metaId, version } },
-          include: roadmapInclusionSelection
-        });
-      } catch (error) {
-        console.log(error);
-        console.log('Error fetching admin roadmap');
-        return null
-      }
-
-      roadmap?.goals.sort(goalSorter);
-
-      return roadmap;
-    }
-
-    // If user is logged in, get the roadmap if they have access to it
-    if (user?.isLoggedIn) {
-      try {
-        roadmap = await prisma.roadmap.findUnique({
-          where: {
-            meta_version: { metaRoadmapId: metaId, version },
-            OR: [
-              { authorId: user.id },
-              { editors: { some: { id: user.id } } },
-              { viewers: { some: { id: user.id } } },
-              { editGroups: { some: { users: { some: { id: user.id } } } } },
-              { viewGroups: { some: { users: { some: { id: user.id } } } } },
-              { isPublic: true }
-            ]
-          },
-          include: roadmapInclusionSelection
-        });
-      } catch (error) {
-        console.log(error);
-        console.log('Error fetching user roadmap');
-        return null
-      }
-
-      roadmap?.goals.sort(goalSorter);
-
-      return roadmap;
-    }
-
-    // If user is not logged in, get the roadmap if it is public
+  // If user is admin, always get the roadmap
+  if (user?.isAdmin) {
     try {
       roadmap = await prisma.roadmap.findUnique({
-        where: {
-          meta_version: { metaRoadmapId: metaId, version },
-          isPublic: true,
-        },
+        where: { meta_version: { metaRoadmapId: metaId, version } },
         include: roadmapInclusionSelection
       });
     } catch (error) {
       console.log(error);
-      console.log('Error fetching public roadmap');
+      console.log('Error fetching admin roadmap');
       return null
     }
 
     roadmap?.goals.sort(goalSorter);
 
     return roadmap;
-  },
-  ['roadmapByVersion'],
-  { revalidate: 600, tags: ['database', 'roadmap', 'goal'] },
-);
+  }
+
+  // If user is logged in, get the roadmap if they have access to it
+  if (user?.isLoggedIn) {
+    try {
+      roadmap = await prisma.roadmap.findUnique({
+        where: {
+          meta_version: { metaRoadmapId: metaId, version },
+          OR: [
+            { authorId: user.id },
+            { editors: { some: { id: user.id } } },
+            { viewers: { some: { id: user.id } } },
+            { editGroups: { some: { users: { some: { id: user.id } } } } },
+            { viewGroups: { some: { users: { some: { id: user.id } } } } },
+            { isPublic: true }
+          ]
+        },
+        include: roadmapInclusionSelection
+      });
+    } catch (error) {
+      console.log(error);
+      console.log('Error fetching user roadmap');
+      return null
+    }
+
+    roadmap?.goals.sort(goalSorter);
+
+    return roadmap;
+  }
+
+  // If user is not logged in, get the roadmap if it is public
+  try {
+    roadmap = await prisma.roadmap.findUnique({
+      where: {
+        meta_version: { metaRoadmapId: metaId, version },
+        isPublic: true,
+      },
+      include: roadmapInclusionSelection
+    });
+  } catch (error) {
+    console.log(error);
+    console.log('Error fetching public roadmap');
+    return null
+  }
+
+  roadmap?.goals.sort(goalSorter);
+
+  return roadmap;
+};
