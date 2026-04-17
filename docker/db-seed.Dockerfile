@@ -23,7 +23,7 @@ COPY package.json yarn.lock .yarnrc.yml ./
 # Enable corepack for modern package manager support
 RUN corepack enable
 # Preinstall yarn to ensure it's available for seeding stage
-RUN corepack install
+RUN corepack prepare --activate
 
 
 # =============================================================================
@@ -68,6 +68,7 @@ COPY src/math.ts ./src/math.ts
 
 # Dependencies
 COPY --from=deps /app/node_modules ./node_modules
+
 # Prisma client and generated files
 COPY --from=prisma /app/src/prisma ./src/prisma
 

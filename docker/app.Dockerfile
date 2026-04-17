@@ -59,6 +59,8 @@ FROM base AS builder
 
 # Copy dependencies
 COPY --from=deps /app/node_modules ./node_modules
+# Copy yarn from corepack cache, to avoid downloading it again
+COPY --from=deps /root/.cache/node/corepack /root/.cache/node/corepack
 
 # Copy source code (using .dockerignore)
 COPY . .
