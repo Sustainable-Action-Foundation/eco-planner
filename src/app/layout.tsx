@@ -5,6 +5,8 @@ import I18nProvider from "@/lib/i18nClient";
 import serveTea from "@/lib/i18nServer";
 import { cookies, headers } from "next/headers";
 import { getLocale } from "@/functions/getLocale";
+import { SidebarProvider } from '@/components/generic/header/sidebarContext';
+import SidebarSwipeListener from '@/components/generic/header/sidebarSwipeListener';
 
 export default async function RootLayout(
   { children, }: { children: React.ReactNode, }
@@ -34,9 +36,11 @@ export default async function RootLayout(
       </head>
       <body className='neutral-background'>
         <I18nProvider lng={locale}>
-          <div className={`${styles.layout}`}>
-            <Sidebar />
-            {/*
+          <SidebarProvider>
+            <SidebarSwipeListener />
+            <div className={`${styles.layout}`}>
+              <Sidebar />
+              {/*
               Note: We set minWidth 0 here to prevent unexpected issues with this grid item becoming to large.
               Per the documentation (https://www.w3.org/TR/css3-grid-layout/#min-size-auto) grid items have a default
               min width of auto which means that they cannot be smaller than their smallest child. While this seemingly 
@@ -49,12 +53,13 @@ export default async function RootLayout(
               element, that does however seem less stable and could potentially lead to issues in the other direction where
               this element refuses to become smaller than the screen (that should never cause an issue but hey who knows...)
             */}
-            <div className='padding-100' style={{minWidth: '0'}}> 
-              <div className='container margin-inline-auto'>
-                {children}
+              <div className='padding-100' style={{ minWidth: '0' }}>
+                <div className='container margin-inline-auto'>
+                  {children}
+                </div>
               </div>
             </div>
-          </div>
+          </SidebarProvider>
         </I18nProvider>
       </body>
     </html>
