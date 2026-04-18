@@ -11,13 +11,9 @@ import type { DateValuesWithUnit } from "@/types";
 
 export default function DataSeriesInputManual({
   initialDateValues = { unit: undefined, dateValues: {} },
-  dateValues: controlledDateValues,
-  dateValuesSetter,
   outputFormElement,
 }: {
   initialDateValues?: DateValuesWithUnit | undefined;
-  dateValues?: DateValuesWithUnit | undefined;
-  dateValuesSetter?: React.Dispatch<React.SetStateAction<DateValuesWithUnit>> | undefined;
   outputFormElement?: React.ReactElement<HTMLInputElement> | undefined;
 }) {
 
@@ -33,18 +29,6 @@ export default function DataSeriesInputManual({
     }));
   })
 
-  const [uncontrolledDateValues, setUncontrolledDateValues] = useState<DateValuesWithUnit>(initialDateValues);
-  const effectiveDateValues = controlledDateValues ?? uncontrolledDateValues;
-
-  const updateDateValues = (updater: (prev: DateValuesWithUnit) => DateValuesWithUnit) => {
-    const next = updater(effectiveDateValues);
-    if (controlledDateValues === undefined) {
-      setUncontrolledDateValues(next);
-    }
-    if (dateValuesSetter) {
-      dateValuesSetter(next);
-    }
-  };
 
 
   const handleYearChange = (index: number, newValue: string) => {
@@ -121,7 +105,13 @@ export default function DataSeriesInputManual({
     <>
 
       {outputFormElement && React.cloneElement(outputFormElement, {
-        value: JSON.stringify({ dateValues: effectiveDateValues.dateValues, unit: effectiveDateValues.unit } satisfies DateValuesWithUnit),
+        value: JSON.stringify({
+          dateValues: value.every(({ year, data }) => !year && !data) // If all values are completely empty, we return an empty object
+            ? {}
+            : Object.fromEntries(
+              value.map(({ year, data }) => [`${year}-01-01T00:00:00.000Z`, data]) // Otherwise we return the year + data (frontend just requires year, backend handles more specific validation)
+            )
+        }),
         type: "hidden",
         hidden: true,
         readOnly: true,
@@ -145,8 +135,9 @@ export default function DataSeriesInputManual({
             >
               <input
                 type="number"
+                required
                 tabIndex={-1}
-                value={item.year ?? undefined}
+                defaultValue={item.year ?? undefined}
                 onChange={(e) => handleYearChange(index, e.target.value)}
                 onPaste={(e) => {
                   // Make sure the pasted input is valid before handling paste
@@ -166,16 +157,9 @@ export default function DataSeriesInputManual({
               <input
                 type="number"
                 tabIndex={-1}
-                value={item.data ?? undefined}
+                defaultValue={item.data ?? undefined}
                 onChange={(e) => {
                   handleDataChange(index, e.target.value);
-                  updateDateValues(prev => ({
-                    ...prev,
-                    dateValues: {
-                      ...prev.dateValues,
-                      [item.year?.toString() as string]: (e.target.value === "") ? undefined : parseFloat(e.target.value),
-                    },
-                  }));
                 }}
                 onPaste={(e) => {
                   // Make sure the pasted input is valid before handling paste

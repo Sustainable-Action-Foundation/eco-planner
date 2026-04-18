@@ -3,7 +3,7 @@
 import mathjs, { allOurUnits } from "@/math";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput";
+// import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput";
 import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
 import type { ClientGoal, ClientMultiRoadmapInstance, ClientRoadmap, Goal, UnitString } from "@/types";
@@ -95,6 +95,8 @@ export function ManualGoalForm({
         }
         outputFormElement={outputFormElement}
       />
+      
+      {/*
       <DateValuesInput
         {...currentGoal?.dataSeries
           ? { initialDateValues: dataSeriesToDateValues(currentGoal.dataSeries) }
@@ -103,6 +105,7 @@ export function ManualGoalForm({
         outputFormElement={outputFormElement}
         label={t("forms:data_series_input.data_series")}
       />
+      */}
     </>
   )
 }
