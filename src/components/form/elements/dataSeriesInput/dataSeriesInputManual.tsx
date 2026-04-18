@@ -4,10 +4,10 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./dataSeriesInput.module.css";
 import { isValidPastedInput } from "./utils";
-import { IconPlus, IconTrashXFilled } from "@tabler/icons-react";
+import { IconTrashXFilled } from "@tabler/icons-react";
 import Grid from "../grid/grid";
 import React from "react";
-import { DateValuesWithUnit } from "@/types";
+import type { DateValuesWithUnit } from "@/types";
 
 export default function DataSeriesInputManual({
   initialDateValues = { unit: undefined, dateValues: {} },
@@ -23,8 +23,8 @@ export default function DataSeriesInputManual({
 
   const { t } = useTranslation("forms");
   const [value, setValue] = useState<Array<{ year: number | null, data: number | null }>>(() => {
-    if (!initialDateValues) {
-      return [{ year: null, data: null }]; /* TODO: This does not create one empty row on initiliasiation of page? */
+    if (Object.keys(initialDateValues.dateValues).length === 0) {
+      return [{ year: null, data: null }];
     }
 
     return Object.entries(initialDateValues.dateValues).map(([date, value]) => ({
@@ -133,8 +133,8 @@ export default function DataSeriesInputManual({
           style: { gridTemplateColumns: '100px 1fr auto' }
         }}
       >
-        <Grid.ColumnHeader style={{ borderRight: '1px solid var(--gray-80)' }}>{t("forms:data_series_input.year")}</Grid.ColumnHeader>
-        <Grid.ColumnHeader style={{ borderRight: '1px solid var(--gray-80)' }}>{t("forms:data_series_input.value")}</Grid.ColumnHeader>
+        <Grid.ColumnHeader>{t("forms:data_series_input.year")}</Grid.ColumnHeader>
+        <Grid.ColumnHeader>{t("forms:data_series_input.value")}</Grid.ColumnHeader>
         <Grid.ColumnHeader>{t("forms:data_series_input.action")}</Grid.ColumnHeader>
         {value.flatMap((item, index) => {
           const isLastRow = index >= value.length - 1;
@@ -190,7 +190,7 @@ export default function DataSeriesInputManual({
             </Grid.Cell>,
             <Grid.Cell
               className='display-flex align-items-center'
-              style={{ ...(isLastRow ? {} : { borderBottom: '1px solid var(--gray-80)' }), backgroundColor: 'var(--gray-95)' }}
+              style={{ ...(isLastRow ? {} : { borderBottom: '1px solid var(--gray-80)' }), backgroundColor: 'var(--tertiary-neutral)' }}
               key={`test-${index}`} // TODO: Remove test
             >
               <button // TODO: when deleting show popup asking for confirmation
