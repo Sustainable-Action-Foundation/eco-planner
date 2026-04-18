@@ -133,8 +133,8 @@ export default function DataSeriesInputManual({
           style: { gridTemplateColumns: '100px 1fr auto' }
         }}
       >
-        <Grid.ColumnHeader>{t("forms:data_series_input.year")}</Grid.ColumnHeader>
-        <Grid.ColumnHeader>{t("forms:data_series_input.value")}</Grid.ColumnHeader>
+        <Grid.ColumnHeader style={{ borderRight: '1px solid var(--gray-80)' }}>{t("forms:data_series_input.year")}</Grid.ColumnHeader>
+        <Grid.ColumnHeader style={{ borderRight: '1px solid var(--gray-80)' }}>{t("forms:data_series_input.value")}</Grid.ColumnHeader>
         <Grid.ColumnHeader>{t("forms:data_series_input.action")}</Grid.ColumnHeader>
         {value.flatMap((item, index) => {
           const isLastRow = index >= value.length - 1;
@@ -210,12 +210,11 @@ export default function DataSeriesInputManual({
       </Grid>
       <button
         type="button"
-        className="rounded font-weight-500 flex align-items-center gap-50 padding-50 padding-right-75 margin-top-50" style={{ lineHeight: '1', transform: 'scale(1)' }}
+        className="font-weight-600 text-align-center padding-50 width-100" style={{ lineHeight: '1', transform: 'scale(1)', borderRadius: '0 0 .25rem .25rem', border: '1px solid var(--gray-80)', borderTop: '0', backgroundColor: '#ebf0ff' }}
         onClick={() =>
           setValue(prev => [...prev, { year: null, data: null }])
         }
       >
-        <IconPlus width={20} height={20} aria-hidden="true" />
         {t("forms:data_series_input.add_new_row")}
       </button>
     </>
