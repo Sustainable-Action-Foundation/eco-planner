@@ -116,6 +116,7 @@ export default function GoalForm({
       event.target.reportValidity();
       return;
     }
+
     let dataSeries: DateValuesWithUnit | undefined = undefined;
     try {
       dataSeries = JSON.parse(resultingDateValuesString) as DateValuesWithUnit;

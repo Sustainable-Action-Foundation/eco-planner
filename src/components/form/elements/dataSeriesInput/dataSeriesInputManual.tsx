@@ -28,9 +28,7 @@ export default function DataSeriesInputManual({
       data: value ?? null
     }));
   })
-
-
-
+ 
   const handleYearChange = (index: number, newValue: string) => {
     setValue(prev =>
       prev.map((item, i) =>
