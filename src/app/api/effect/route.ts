@@ -1,3 +1,4 @@
+import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import prisma, { Prisma, ActionImpactType } from "@/prismaClient";
@@ -138,7 +139,7 @@ export async function POST(request: NextRequest) {
         impactType: effect.impactType,
         dataSeries: {
           create: {
-            values: effect.dataSeries.dateValues,
+            values: { createMany: { data: dateValuesToDBDateRecord(effect.dataSeries.dateValues) }, },
             unit: effect.dataSeries.unit,
             authorId: session.user.id,
           },
@@ -175,31 +176,7 @@ export async function PUT(request: NextRequest) {
     request.json() as Promise<JSONValue>,
   ]);
 
-  // Typeguard and check if the request body is valid
-  function isEffect(effect: JSONValue): effect is EffectInput & { timestamp: number } {
-    return (
-      // effect should be an object
-      (typeof effect === 'object' &&
-        effect != null &&
-        !(effect instanceof Array) &&
-        // actionId and goalId should be strings
-        typeof effect.actionId === 'string' &&
-        typeof effect.goalId === 'string' &&
-        // dataSeries should be either undefined or an array of strings
-        (
-          effect.dataSeries === undefined ||
-          (
-            effect.dataSeries instanceof Array &&
-            effect.dataSeries.every((value) => typeof value === 'string')
-          )
-        ) &&
-        // impactType may be included, and should in that case be one of the values in ActionImpactType
-        (effect.impactType === undefined || Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType)) && // timestamp should be a number
-        typeof effect.timestamp === 'number')
-    );
-  }
-
-  if (!isEffect(effect)) {
+  if (!isEffect(effect) || !effect.timestamp) {
     return Response.json({ message: 'Invalid request body' },
       { status: 400 }
     );
@@ -313,12 +290,15 @@ export async function PUT(request: NextRequest) {
         dataSeries: {
           upsert: {
             create: {
-              values: effect.dataSeries.dateValues,
+              values: { createMany: { data: dateValuesToDBDateRecord(effect.dataSeries.dateValues) }, },
               unit: effect.dataSeries.unit,
               authorId: session.user.id,
             },
             update: {
-              values: effect.dataSeries.dateValues,
+              values: {
+                deleteMany: {},
+                createMany: { data: dateValuesToDBDateRecord(effect.dataSeries.dateValues) }
+              },
               unit: effect.dataSeries.unit,
             }
           }
