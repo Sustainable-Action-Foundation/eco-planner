@@ -20,7 +20,7 @@ export function extractScalars(
 
     const bestUnit = getPrevailingUnit(undefined, variable.unit);
     const isValidUnit = isMathjsUnit(bestUnit);
-    if (bestUnit && !isValidUnit) warnings.push(`Scalar variable "${variable.name}" (id: "${variable.id}") has an invalid unit "${bestUnit}". Treating as unitless.`);
+    if (bestUnit && !isValidUnit) warnings.push(`Scalar variable "${variable.name}" has an invalid unit "${bestUnit}". Treating as unitless.`);
     const unit = isValidUnit ? bestUnit : undefined;
 
     scalars.push({
@@ -54,7 +54,7 @@ export async function extractDataSeries(
       dbDataSeries = await dataSeriesGetter(variable.dataSeriesId)
         .catch((e: unknown) => {
           const errorMessage = e instanceof Error ? e.message : String(e);
-          throw new RecipeError(`VariableExtractor: Error fetching data series for variable "${variable.name}" (id: "${variable.id}") with link "${variable.dataSeriesId}": ${errorMessage}`);
+          throw new RecipeError(`VariableExtractor: Error fetching data series for variable "${variable.name}" with link "${variable.dataSeriesId}": ${errorMessage}`);
         });
     }
     else if (variable.value) {
@@ -71,16 +71,16 @@ export async function extractDataSeries(
       };
     }
     else {
-      throw new RecipeError(`VariableExtractor: Variable "${variable.name}" (id: "${variable.id}") is not referencing a goal or data series.`);
+      throw new RecipeError(`VariableExtractor: Variable "${variable.name}" is not referencing a goal or data series.`);
     }
 
     if (!dbDataSeries) {
-      throw new RecipeError(`VariableExtractor: Failed to fetch data series for variable "${variable.name}" (id: "${variable.id}") with link "${variable.dataSeriesId}".`);
+      throw new RecipeError(`VariableExtractor: Failed to fetch data series for variable "${variable.name}" with link "${variable.dataSeriesId}".`);
     }
 
     const bestUnit = getPrevailingUnit(dbDataSeries.unit, variable.unit);
     const isValidUnit = isMathjsUnit(bestUnit);
-    if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variable.name}" (id: "${variable.id}") has an invalid unit "${bestUnit}". Treating as unitless during evaluation.`);
+    if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variable.name}" has an invalid unit "${bestUnit}". Treating as unitless during evaluation.`);
     const unit = isValidUnit ? bestUnit : undefined;
 
     const dateValues: DateValues = Object.fromEntries(
@@ -91,7 +91,7 @@ export async function extractDataSeries(
     );
 
     if (Object.keys(dateValues).some(k => !isISOIshDate(k))) {
-      throw new RecipeError(`Data series variable "${variable.name}" (id: "${variable.id}") contains invalid ISOIshDate keys.`);
+      throw new RecipeError(`Data series variable "${variable.name}" contains invalid ISOIshDate keys.`);
     }
 
     const picked = pickDateValues({ dateValues, unit }, variable.pick);
@@ -150,7 +150,7 @@ export async function extractExternalDatasets(
         const parsedDate = parsePeriod(valuePeriod.period);
         const isoDateString = new Date(`${parsedDate.getUTCFullYear()}-01-01T00:00:00Z`).toISOString();
         if (!isISOIshDate(isoDateString)) {
-          throw new RecipeError(`External dataset variable "${variable.name}" (id: "${variable.id}") contains invalid ISOIshDate keys after parsing period "${valuePeriod.period}".`);
+          throw new RecipeError(`External dataset variable "${variable.name}" contains invalid ISOIshDate keys after parsing period "${valuePeriod.period}".`);
         }
         timeline[isoDateString] = parseFloat(valuePeriod.value); // TODO: what is the preferred way to parse these values?
       }
@@ -158,7 +158,7 @@ export async function extractExternalDatasets(
       // TODO: how should units be derived here? I can't find anything in the API response that indicates units.
       const bestUnit = getPrevailingUnit(undefined, variable.unit);
       const isValidUnit = isMathjsUnit(bestUnit);
-      if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variable.name}" (id: "${variable.id}") has an invalid unit "${bestUnit}". Treating as unitless.`);
+      if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variable.name}" has an invalid unit "${bestUnit}". Treating as unitless.`);
       const unit = isValidUnit ? bestUnit : undefined;
 
       const picked = pickDateValues({ dateValues: timeline, unit }, variable.pick);
