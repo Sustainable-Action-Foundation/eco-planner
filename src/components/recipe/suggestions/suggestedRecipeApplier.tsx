@@ -138,8 +138,8 @@ export function SuggestedRecipeApplier({
       </select>
     </label>
 
-    {/* TODO: Note that labels are as of now not valid. I believe however that it will be solved with tree select as this should reduce the number of items in a simple variable type to one */}
-    {/* TODO: We should be using a grid instead of flex to properly align items here */}
+
+    {/* TODO: Look into using an ordered list for this. */}
 
     {/* Select of available recipes */}
     <ul
