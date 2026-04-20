@@ -172,7 +172,6 @@ export default function CopyAndScale({
                     allowAddVariables: false,
                     allowDeleteVariables: false,
                     allowNameEditing: false,
-                    allowTypeEditing: false,
                     allowValueEditing: true,
                   }}
                 />

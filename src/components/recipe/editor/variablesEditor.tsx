@@ -9,7 +9,7 @@ import styles from '../recipe.module.css' with { type: "css" };
 import { RecipeEditorPermissions, VariableCreator, DataSeriesVariableEditor, VariableTypeExternal, VariableTypeScalar } from "@/components/recipe";
 
 export function VariablesEditor({
-  permissions = RecipeEditorPermissions,
+  permissions: incomingPermissions,
 }: {
   permissions?: RecipeEditorPermissions;
 }) {
@@ -17,6 +17,8 @@ export function VariablesEditor({
   const { recipe } = useRecipe();
 
   const [availableRoadmaps, setAvailableRoadmaps] = useState<{ id: string; name: string; }[]>([]);
+
+  const permissions = { ...RecipeEditorPermissions, ...incomingPermissions };
 
   // On mount, fetch all roadmaps user has access to
   useEffect(() => {
@@ -69,7 +71,7 @@ export function VariablesEditor({
             <p className="font-weight-500 gray-700 text-align-center">
               {t("components:recipe_editor.no_variables_yet")}
             </p>
-            <VariableCreator allowAddVariables={true} />
+            <VariableCreator />
           </div>
         </li>
       }
@@ -80,7 +82,7 @@ export function VariablesEditor({
             <VariableTypeScalar
               key={"recipeVariable" + i}
               variableId={variableId}
-              permissions={permissions}
+              permissions={{ ...permissions }}
             />
           </li>
         )
@@ -89,7 +91,7 @@ export function VariablesEditor({
             <DataSeriesVariableEditor
               key={"recipeVariable" + i}
               variableId={variableId}
-              permissions={permissions}
+              permissions={{ ...permissions }}
               availableDataSeries={availableRoadmaps}
             />
           </li>
@@ -99,7 +101,7 @@ export function VariablesEditor({
             <VariableTypeExternal
               key={"recipeVariable" + i}
               variableId={variableId}
-              permissions={permissions}
+              permissions={{ ...permissions }}
             />
           </li>
         )

@@ -7,11 +7,12 @@ import { emptyRecipesByDataType, RecipeDataTypes } from "@/functions/recipe/type
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { useTranslation } from "react-i18next";
 import { allOurUnits } from "@/math";
+import { RecipeEditorPermissions } from "@/components/recipe/editor/recipeEditorPermissions";
 
 export function VariableCreator({
-  allowAddVariables = false,
+  permissions: incomingPermissions,
 }: {
-  allowAddVariables?: boolean;
+  permissions?: RecipeEditorPermissions
 }) {
   const { t } = useTranslation(["components", "forms"]);
   const { recipe, replaceVariables } = useRecipe();
@@ -73,7 +74,9 @@ export function VariableCreator({
     popoverRef.current?.hidePopover()
   };
 
-  if (!allowAddVariables) return null;
+  const permissions = { ...RecipeEditorPermissions, ...incomingPermissions };
+
+  if (!permissions.allowAddVariables) return null;
 
   return (
     <>

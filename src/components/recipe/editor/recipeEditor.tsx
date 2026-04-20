@@ -10,7 +10,7 @@ export function RecipeEditor() {
     <>
       <TabList
         defaultIndex={0}
-        menuItems={<VariableCreator allowAddVariables={true} />}
+        menuItems={<VariableCreator />}
       >
         <div
           data-tabname={t("components:recipe_editor.recipe")}
@@ -28,15 +28,7 @@ export function RecipeEditor() {
           className="purewhite padding-25 flex flex-direction-column"
           style={{ border: '1px solid var(--gray)', borderRadius: '.25rem .25rem 0 0', minHeight: '225px', resize: 'vertical', overflow: 'auto', backgroundColor: 'white' }}
         >
-          <VariablesEditor
-            permissions={{
-              allowAddVariables: true,
-              allowDeleteVariables: true,
-              allowNameEditing: true,
-              allowTypeEditing: true,
-              allowValueEditing: true,
-            }}
-          />
+          <VariablesEditor />
         </div>
       </TabList>
 

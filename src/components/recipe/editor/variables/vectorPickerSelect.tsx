@@ -6,11 +6,11 @@ import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "../recipeEditorPermissions";
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 
-export function VectorPickerSelect({ permissions, variableId }: { permissions?: RecipeEditorPermissions, variableId: string }) {
+export function VectorPickerSelect({ permissions: incomingPermissions, variableId }: { permissions?: RecipeEditorPermissions, variableId: string }) {
   const { t } = useTranslation("components");
   const { recipe, upsertVariable, getVariable } = useRecipe();
 
-  permissions = { ...RecipeEditorPermissions, ...permissions };
+  const permissions = { ...RecipeEditorPermissions, ...incomingPermissions };
 
   return (
     <select
