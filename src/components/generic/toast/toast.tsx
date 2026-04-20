@@ -74,7 +74,7 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
 
   return (
     <dialog
-      className={`${styles.toast} flex flex-direction-column rounded position-relative padding-0 width-100 rounded"} ${closeToast ? " " + styles.toastClosing : ""}`}
+      className={`${styles.toast} flex flex-direction-column rounded position-relative padding-0 width-100 rounded"} ${closeToast ? " " + styles["toast-closing"] : ""}`}
       role={type === "error" ? "alert" : "status"}
       style={{ backgroundColor: color.background, borderLeft: `4px solid ${color.accent}` }}
     >
@@ -99,7 +99,7 @@ export default function CreateToast({ children, id, type, hasTimeout = true }: {
         </button>
       </header>
       <p
-        className={`margin-0 margin-bottom-75 ${type === "error" && errorLong ? (isOpen ? styles.toastOpen : styles.toastClosed) : ""}`} style={{ paddingInline: "1.25rem" }} >
+        className={`margin-0 margin-bottom-75 ${type === "error" && errorLong ? (isOpen ? styles["toast-open"] : styles["toast-closed"]) : ""}`} style={{ paddingInline: "1.25rem" }} >
         {children}
       </p>
       {type === 'error' && errorLong &&
