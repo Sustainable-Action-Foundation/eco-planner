@@ -14,6 +14,7 @@ import { RecipeEditorPermissions } from "../editor/recipeEditorPermissions";
 import type { DBRecipe } from "@/types";
 import { Recipe } from "@/functions/recipe/recipe";
 import { CombinedStatusDisplay, getDefaultSuggestedRecipes, TextStatus } from "@/components/recipe";
+import styles from "../recipe.module.css" with {type: "css"}
 
 export function SuggestedRecipeApplier({
   autoInsertDefaultSuggestions = true,
@@ -120,6 +121,7 @@ export function SuggestedRecipeApplier({
 
   return (<>
     {/* Select which suggested recipe to use */}
+    {/* TODO: Might be reasonable if this is a fieldset where this label is the legend? */}
     <label className="flex gap-50 margin-bottom-100 margin-top-25 align-items-center">
       {t("components:recipe_editor.suggested_recipe_label")}:
       <select
@@ -140,12 +142,11 @@ export function SuggestedRecipeApplier({
     {/* TODO: We should be using a grid instead of flex to properly align items here */}
 
     {/* Select of available recipes */}
-    <div
-      className="grid gap-50 padding-left-100"
+    <ul
+      className="grid gap-50 padding-left-100 align-items-center"
       style={{
-        gridTemplateColumns: 'auto 1fr',
+        gridTemplateColumns: 'auto auto 1fr',
         gridTemplateRows: 'auto auto',
-        columnGap: '1rem'
       }}
     >
       {(recipe?.variables ?? []).map((variable, i) => {
@@ -172,9 +173,9 @@ export function SuggestedRecipeApplier({
         switch (variable.type) {
           case RecipeDataTypes.Scalar: {/* TODO: Fix these labels */ }
             return (
-              <Fragment key={variableId}>
-                <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
-                  <span>{variableDisplayName}{unitDisplay}:</span>
+              <li key={variableId} className={`${styles["variable"]} ${!variable.template ? styles["variable-selected"] : ""}`}>
+                <label className="margin-right-150 margin-left-25">
+                  {variableDisplayName}{unitDisplay}:
                 </label>
                 <VariableTypeScalarSimple
                   key={"recipeVariable" + i}
@@ -182,17 +183,16 @@ export function SuggestedRecipeApplier({
                   permissions={permissions}
                   props={{
                     defaultValue: variable.value,
-                    ...(variable.template ? { style: { outline: "1px solid blue", borderRadius: "8px" } } : {})
                   }}
                 />
-              </Fragment>
+              </li>
             );
 
           case RecipeDataTypes.DataSeries:
             return (
-              <Fragment key={variableId}>
-                <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
-                  <span>{variableDisplayName}{unitDisplay}:</span>
+              <li key={variableId} className={`${styles["variable"]} ${!variable.template ? styles["variable-selected"] : ""}`}>
+                <label className="margin-right-150 margin-left-25">
+                  {variableDisplayName}{unitDisplay}:
                 </label>
                 <DataSeriesVariableSimpleEditor
                   props={{
@@ -201,30 +201,26 @@ export function SuggestedRecipeApplier({
                     placeholder: t("components:recipe_editor.select_data_series"),
                     required: true,
                     disabled: false,
-                    ...(variable.template ? { style: { outline: "1px solid blue", borderRadius: "8px" } } : {})
                   }}
                   key={"recipeVariable" + i}
                   variableId={variableId}
                   availableDataSeries={availableRoadmaps}
                 />
-              </Fragment>
+              </li>
             );
 
           case RecipeDataTypes.External:
             return (
-              <Fragment key={variableId}>
-                <label className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
-                  <span>{variableDisplayName}{unitDisplay}:</span>
+              <li key={variableId} className={`${styles["variable"]} ${!variable.template ? styles["variable-selected"] : ""}`}>
+                <label className="margin-right-150 margin-left-25">
+                  {variableDisplayName}{unitDisplay}:
                 </label>
                 <VariableTypeExternalSimple
                   key={"recipeVariable" + i}
                   variableId={variableId}
                   permissions={permissions}
-                  props={{
-                    ...(variable.template ? { style: { outline: "1px solid blue", borderRadius: "8px" } } : {})
-                  }}
                 />
-              </Fragment>
+              </li>
             );
 
           default:
@@ -236,7 +232,7 @@ export function SuggestedRecipeApplier({
             );
         }
       })}
-    </div>
+    </ul>
 
     {selectedRecipeId && <>
       <TextStatus showAllGood={false} />
