@@ -16,8 +16,8 @@
     "show_as": "Visa som"
   },
   "action": {
-    "action_label": "{{$t(common:action_one), titleCase}}",
-    "effects_label": "{{$t(common:effect_other), titleCase}}",
+    "action_label": "$t(common:action_one, titleCase)",
+    "effects_label": "$t(common:effect_other, titleCase)",
     "edit_action": "$t(common:edit.action)",
     "expected_effect": "Expected $t(common:effect_other)",
     "no_effect": "No specified $t(common:effect_other)",
@@ -54,19 +54,19 @@
     "breadcrumb": "$t(common:edit.effect)",
     "title": "$t(common:edit.effect)",
     "information_icon_aria": "Information",
-    "no_access": "{{$t(common:effect_definite_one), titleCase}} you are trying to edit does not exist or you do not have permission to edit it."
+    "no_access": "$t(common:effect_definite_one, titleCase) you are trying to edit does not exist or you do not have permission to edit it."
   },
   "goal": {
     "update_needed_attention_message": "Attention!",
     "update_needed": "Update your $t(common:goal_one) to get the latest information.",
-    "title_label": "{{$t(common:goal_one), titleCase}}",
+    "title_label": "$t(common:goal_one, titleCase)",
     "menu": "Menu",
     "description": "Description",
-    "actions_for_goal": "{{$t(common:action_other), titleCase}} for {{goalName}}",
+    "actions_for_goal": "$t(common:action_other, titleCase) for {{goalName}}",
     "link_existing_action": "Link $t(common:effect_one) to an existing $t(common:action_one)",
     "create_new_action": "$t(common:new.action)",
-    "action_timeline": "{{$t(common:action_one), titleCase}} timeline",
-    "goals_working_towards": "{{$t(common:goal_other), titleCase}} working towards {{goalName}}",
+    "action_timeline": "$t(common:action_one, titleCase) timeline",
+    "goals_working_towards": "$t(common:goal_other, titleCase) working towards {{goalName}}",
     "related_goals": "Related $t(common:goal_other)",
     "sub_goals": "Sub-$t(common:goal_other)"
   },
@@ -81,7 +81,7 @@
     "title": "$t(common:edit.goal): {{goalName}}"
   },
   "home": {
-    "title": "{{$t(common:roadmap_short_other), titleCase}}",
+    "title": "$t(common:roadmap_short_other, titleCase)",
     "create_roadmap": "$t(common:new.roadmap_series)",
     "search_roadmaps": "Search among $t(common:count.roadmap)",
     "shown_results": "Showing {{shown}} out of {{total}} $t(common:roadmap_series, {\"count\": {{total}}})",
@@ -118,14 +118,14 @@
     "handle_data": "Data management",
     "my_posts": "My posts",
     "user_posts": "{{name, possessive, titleCase}} posts",
-    "roadmap_series_ones": "{{$t(common:roadmap_series_one), titleCase}}",
+    "roadmap_series_ones": "$t(common:roadmap_series_one, titleCase)",
     "version_count_one": "{{count}} version",
     "version_count_other": "{{count}} versions",
-    "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}"
+    "roadmap_versions": "$t(common:roadmap_version_other, titleCase)"
   },
   "roadmap": {
-    "title": "{{$t(common:roadmap_version_one), titleCase}}",
-    "version": "{{$t(common:roadmap_version_one), titleCase}} (v{{version}})",
+    "title": "$t(common:roadmap_version_one, titleCase)",
+    "version": "$t(common:roadmap_version_one, titleCase) (v{{version}})",
     "show_series": "Visit $t(common:roadmap_series_one)",
     "featured_goals": "Featured $t(common:goal_other)",
     "all_goals": "All $t(common:goal_other)",
@@ -144,9 +144,9 @@
     "are_you_in_the_right_place": "Did you mean to edit the entire $t(common:roadmap_series_definite_one)? In that case, <Link>go here</Link> to edit the metadata."
   },
   "roadmap_series_one": {
-    "title_legend": "{{$t(common:roadmap_series_one), titleCase}}",
+    "title_legend": "$t(common:roadmap_series_one, titleCase)",
     "description_legend": "Metadata for a series of $t(common:roadmap_version_other)",
-    "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
+    "roadmap_versions": "$t(common:roadmap_version_other, titleCase)",
     "create_roadmap_version": "$t(common:new.roadmap_version)"
   },
   "roadmap_series_one_create": {

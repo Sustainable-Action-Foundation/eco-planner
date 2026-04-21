@@ -42,65 +42,11 @@ export function initTemplate(t: TFunction): InitOptions {
     ns: "common",
     interpolation: {
       escapeValue: false, // React already escapes
-      format: (formatterValue, format, lng, options): string => {
-        /** 
-         * `format` is a requirement for the *formatter* of course.
-         * `options.interpolationkey` is required as it stores the value to be formatted.
-         * `uniqueLocales` is a check to ensure that the locale is supported.
-         */
-        if (!format || !options || !options.interpolationkey || !uniqueLocales.includes(lng as Locales)) return "";
-        /** There can be multiple formats */
-        const formats = format.split(",").map((f) => f.trim()).filter(Boolean);
-
-        if (typeof options.interpolationkey !== "string") {
-          console.warn(`Value passed to formatter is not a string. Received: ${options.interpolationkey}, type: ${typeof options.interpolationkey}. Returning empty string.`);
-          return "";
-        }
-
-        // Resolve the value with provided key
-        let value: string | undefined = options.interpolationkey.includes("$t(") ? t(options.interpolationkey) : options.interpolationkey;
-
-        // Guard against undefined values
-        if (typeof value === "undefined") {
-          console.warn(`Value for key "${options.interpolationkey}" is undefined (Value: ${value as string}, type: ${typeof value}). Check the key and the translation file. Returning empty string.`);
-          return "";
-        }
-
-        // At this point a value is likely defined so if there are no formats, return the value
-        if (formats.length < 1) return value;
-
-        /* Default formatters */
-        const defaultFormat = i18nFormatter.format(formatterValue, format, lng, options);
-        if (defaultFormat && typeof defaultFormat === "string") {
-          value = defaultFormat;
-        }
-        /* Title case */
-        if (formats.includes("titleCase")) {
-          value = titleCase(value, lng);
-        }
-        /* Possessive */
-        if (formats.includes("possessive")) {
-          value = possessive(value, lng);
-        }
-        /* Relative time */
-        if (formats.includes("timeAgo")) {
-          const date = options.date as Date | undefined;
-          value = relativeTime(value, lng, date);
-        }
-
-
-        // Guard against undefined values
-        if (!value) {
-          console.warn(`A formatter likely failed to return a value (returned: ${value}, type: ${typeof value}). Check the formatter for errors. Setting value to empty string.`);
-          value = "";
-        }
-        return value;
-      },
     },
   };
 }
 
-function titleCase(value: string | undefined, lng: string | undefined): string | undefined {
+export function titleCase<T extends unknown>(value: T, lng: string | undefined): string | T {
   if (typeof value !== "string") {
     console.warn(`Value passed to titleCase formatter is not a string. Received: ${value}, type: ${typeof value}. Returning value as is.`);
     return value;
@@ -136,7 +82,7 @@ function titleCase(value: string | undefined, lng: string | undefined): string |
   }
 }
 
-function possessive(value: string | undefined, lng: string | undefined): string | undefined {
+export function possessive<T extends unknown>(value: T, lng: string | undefined): string | T {
   if (typeof value !== "string") {
     console.warn(`Value passed to possessive formatter is not a string. Received: ${value}, type: ${typeof value}. Returning value as is.`);
     return value;
@@ -147,12 +93,13 @@ function possessive(value: string | undefined, lng: string | undefined): string 
     return value;
   }
 
+  let result: string = value;
   if (lng === Locales.enSE) {
     // https://en.wikipedia.org/wiki/Genitive_case
     if (["s", "x", "y"].includes(value.slice(-1))) {
-      value = value + "'";
+      result = result + "'";
     } else {
-      value = value + "'s";
+      result = result + "'s";
     }
   }
   else if (lng === Locales.svSE) {
@@ -160,17 +107,17 @@ function possessive(value: string | undefined, lng: string | undefined): string 
     if (["s", "x", "z"].includes(value.slice(-1))) {
       // Nothing
     } else {
-      value = value + "s";
+      result = result + "s";
     }
   }
   else {
     console.warn(`Possessive formatter not implemented for locale: ${lng}. Returning value as is.`);
   }
 
-  return value;
+  return result;
 }
 
-function relativeTime(value: string | undefined, lng: string | undefined, date: Date | undefined): string | undefined {
+export function relativeTime<T extends unknown>(value: T, lng: string | undefined, date: Date | undefined): string | T {
   if (!lng) {
     console.warn("Relative time formatter requires a locale to be set. Returning value as is.");
     return value;

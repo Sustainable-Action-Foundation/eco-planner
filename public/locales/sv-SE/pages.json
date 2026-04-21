@@ -16,8 +16,8 @@
     "show_as": "Visa som"
   }, 
   "action": {
-    "action_label": "{{$t(common:action_one), titleCase}}",
-    "effects_label": "{{$t(common:effect_other), titleCase}}",
+    "action_label": "$t(common:action_one, titleCase)",
+    "effects_label": "$t(common:effect_other, titleCase)",
     "edit_action": "$t(common:edit.action)",
     "expected_effect": "Förväntad $t(common:effect_one)",
     "no_effect": "Ingen angiven $t(common:effect_one)",
@@ -47,26 +47,26 @@
     "breadcrumb": "$t(common:new.effect)",
     "title": "$t(common:new.effect)",
     "information_icon_aria": "Information",
-    "bad_action": "{{$t(common:action_definite_one), titleCase}} du angav i URL:en kunde inte hittas eller så har du inte redigeringsbehörighet till den. Vänligen välj en ny i formuläret nedan.",
-    "bad_goal": "{{$t(common:goal_definite_one), titleCase}} du angav i URL:en kunde inte hittas eller så har du inte redigeringsbehörighet till den. Vänligen välj en ny i formuläret nedan."
+    "bad_action": "$t(common:action_definite_one, titleCase) du angav i URL:en kunde inte hittas eller så har du inte redigeringsbehörighet till den. Vänligen välj en ny i formuläret nedan.",
+    "bad_goal": "$t(common:goal_definite_one, titleCase) du angav i URL:en kunde inte hittas eller så har du inte redigeringsbehörighet till den. Vänligen välj en ny i formuläret nedan."
   },
   "effect_edit": {
     "breadcrumb": "$t(common:edit.effect)",
     "title": "$t(common:edit.effect)",
     "information_icon_aria": "Information",
-    "no_access": "{{$t(common:effect_definite_one), titleCase}} du försöker redigera finns inte eller så har du inte redigeringsbehörighet till den."
+    "no_access": "$t(common:effect_definite_one, titleCase) du försöker redigera finns inte eller så har du inte redigeringsbehörighet till den."
   },
   "goal": {
     "update_needed_attention_message": "Uppmärksamhet!",
     "update_needed": "Uppdatera din $t(common:goal_one) för att få den senaste informationen.",
-    "title_label": "{{$t(common:goal_one), titleCase}}",
+    "title_label": "$t(common:goal_one, titleCase)",
     "menu": "Meny",
     "description": "Beskrivning",
-    "actions_for_goal": "{{$t(common:action_other), titleCase}} för {{goalName}}",
+    "actions_for_goal": "$t(common:action_other, titleCase) för {{goalName}}",
     "link_existing_action": "Koppla $t(common:effect_one) till en existerande $t(common:action_one)",
     "create_new_action": "$t(common:new.action)",
     "action_timeline": "Tidslinje över $t(common:action_other)",
-    "goals_working_towards": "{{$t(common:goal_other), titleCase}} som jobbar mot {{goalName}}",
+    "goals_working_towards": "$t(common:goal_other, titleCase) som jobbar mot {{goalName}}",
     "related_goals": "Angränsande $t(common:goal_other)",
     "sub_goals": "Underliggande $t(common:goal_other)"
   },
@@ -81,7 +81,7 @@
     "title": "$t(common:edit.goal): {{goalName}}"
   },
   "home": {
-    "title": "{{$t(common:roadmap_short_other), titleCase}}",
+    "title": "$t(common:roadmap_short_other, titleCase)",
     "create_roadmap": "$t(common:new.roadmap_series)",
     "search_roadmaps": "Sök bland $t(common:count.roadmap)",
     "shown_results": "Visar {{shown}} av {{total}} $t(common:roadmap_series, {\"count\": {{total}}})",
@@ -118,14 +118,14 @@
     "handle_data": "Hantera min data",
     "my_posts": "Mina inlägg",
     "user_posts": "{{name, possessive, titleCase}} inlägg",
-    "roadmap_series_ones": "{{$t(common:roadmap_series_other), titleCase}}",
+    "roadmap_series_ones": "$t(common:roadmap_series_other, titleCase)",
     "version_count_one": "{{count}} version",
     "version_count_other": "{{count}} versioner",
-    "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}"
+    "roadmap_versions": "$t(common:roadmap_version_other, titleCase)"
   },
   "roadmap": {
-    "title": "{{$t(common:roadmap_version_one), titleCase}}",
-    "version": "{{$t(common:roadmap_version_one), titleCase}} (v{{version}})",
+    "title": "$t(common:roadmap_version_one, titleCase)",
+    "version": "$t(common:roadmap_version_one, titleCase) (v{{version}})",
     "show_series": "Besök $t(common:roadmap_series_one)",
     "featured_goals": "Utvalda $t(common:goal_other)",
     "all_goals": "Alla $t(common:goal_other)",
@@ -144,9 +144,9 @@
     "are_you_in_the_right_place": "Ville du redigera den gemensamma metadatan för hela $t(common:roadmap_series_definite_one)? I så fall kan du <Link>gå hit</Link> för att redigera metadatan."
   },
   "roadmap_series_one": {
-    "title_legend": "{{$t(common:roadmap_series_one), titleCase}}",
+    "title_legend": "$t(common:roadmap_series_one, titleCase)",
     "description_legend": "Metadata för en serie av $t(common:roadmap_version_other)",
-    "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
+    "roadmap_versions": "$t(common:roadmap_version_other, titleCase)",
     "create_roadmap_version": "$t(common:new.roadmap_version)"
   },
   "roadmap_series_one_create": {

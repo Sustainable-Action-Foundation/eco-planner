@@ -1,6 +1,6 @@
 import "server-only";
 import i18nServer, { type TFunction } from "i18next";
-import { initTemplate, Locales } from "@/../i18n.config";
+import { initTemplate, Locales, possessive, relativeTime, titleCase } from "@/../i18n.config";
 import Backend from "i18next-fs-backend";
 import path from "node:path";
 import { cookies, headers } from "next/headers";
@@ -19,6 +19,14 @@ await i18nServer.use(Backend)
   });
 
 patchI18nT(i18nServer);
+
+if (!i18nServer.services.formatter) {
+  console.warn("i18nServer formatter is not available. Custom formatters will not be added.");
+}
+
+i18nServer.services.formatter?.add("titleCase", titleCase);
+i18nServer.services.formatter?.add("possessive", possessive);
+i18nServer.services.formatter?.add("timeAgo", relativeTime);
 
 /**
  * An async function to serve the i18n instance for server components.

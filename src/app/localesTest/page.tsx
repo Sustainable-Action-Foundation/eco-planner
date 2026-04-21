@@ -17,6 +17,7 @@ export default async function LocaleTestPage() {
     date: new Date("2025-04-23T18:23:31.501Z"),
     fileTypes: [".txt", ".pdf", ".docx"],
     encodings: ["utf-8", "utf-16", "ascii"],
+    name: "martin",
     allowedProtocols: allowedProtocols,
   };
 
