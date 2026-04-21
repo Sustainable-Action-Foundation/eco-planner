@@ -442,7 +442,12 @@ export default function RecipeQueryBuilder({
 
   return (
     <>
-      <button type="button" className="purewhite flex justify-content-space-between align-items-center gap-25 padding-50 font-size-14px width-100 color-gray" style={{border: '1px solid var(--gray-80)'}} onClick={() => openModal(modalRef)}>
+      <button 
+        type="button"
+        className="purewhite flex justify-content-space-between align-items-center gap-25 padding-50 font-size-14px width-100 color-gray"
+        style={{border: '1px solid var(--gray-80)', transform: 'scale(1)'}}
+        onClick={() => openModal(modalRef)}
+      >
         {t("components:recipe_editor.add_external_data")}
         <IconDatabaseSearch strokeWidth={1.75} width={20} height={20} color='black' style={{minWidth: '20'}} aria-hidden="true" />
       </button>
