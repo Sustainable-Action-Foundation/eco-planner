@@ -1,21 +1,21 @@
 // Custom
-import { Italic } from '../extensions/italic'
-import { Bold } from '../extensions/bold'
-import { LineThrough } from '../extensions/linethrough'
-import { Underline } from '../extensions/underline'
+import { Italic } from '../extensions/italic';
+import { Bold } from '../extensions/bold';
+import { LineThrough } from '../extensions/linethrough';
+import { Underline } from '../extensions/underline';
 
 // Tiptap extensions
-import { BulletList, OrderedList, ListItem, } from '@tiptap/extension-list'
-import { Placeholder, UndoRedo, CharacterCount } from '@tiptap/extensions'
-import { TextStyle, Color, FontSize } from '@tiptap/extension-text-style'
-import Superscript from '@tiptap/extension-superscript'
-import Subscript from '@tiptap/extension-subscript'
-import Link from '@tiptap/extension-link'
-import Document from '@tiptap/extension-document'
-import Paragraph from '@tiptap/extension-paragraph'
-import Text from '@tiptap/extension-text'
-import Highlight from '@tiptap/extension-highlight'
-import HardBreak from '@tiptap/extension-hard-break'
+import { BulletList, OrderedList, ListItem, } from '@tiptap/extension-list';
+import { Placeholder, UndoRedo, CharacterCount } from '@tiptap/extensions';
+import { TextStyle, Color, FontSize } from '@tiptap/extension-text-style';
+import Superscript from '@tiptap/extension-superscript';
+import Subscript from '@tiptap/extension-subscript';
+import Link from '@tiptap/extension-link';
+import Document from '@tiptap/extension-document';
+import Paragraph from '@tiptap/extension-paragraph';
+import Text from '@tiptap/extension-text';
+import Highlight from '@tiptap/extension-highlight';
+import HardBreak from '@tiptap/extension-hard-break';
 
 export const allowedProtocols = ['http', 'https', 'mailto', 'callto', 'tel'];
 export const nodeSizeLimit = 5000
@@ -32,10 +32,17 @@ export const CustomColor = Color.extend({
       }
     }
   },
-})
+});
 
+const uniqueExtensionsByName = <T extends { name: string }>(extensions: T[]) => {
+  const seenNames = new Set<string>()
+  return extensions.filter((extension) => {
+    if (seenNames.has(extension.name)) return false
+    else seenNames.add(extension.name); return true
+  });
+};
 
-export const defaultExtensions = (placeholder?: string) => [
+export const defaultExtensions = (placeholder?: string) => uniqueExtensionsByName([
   Document,
   Text,
   CustomColor.configure({}),
@@ -53,7 +60,6 @@ export const defaultExtensions = (placeholder?: string) => [
   LineThrough,
   Bold,
   Italic,
-  Color,
   UndoRedo,
   Link.configure({
     openOnClick: false,
@@ -68,4 +74,4 @@ export const defaultExtensions = (placeholder?: string) => [
     limit: nodeSizeLimit,
     mode: 'nodeSize'
   }),
-]
+]);
