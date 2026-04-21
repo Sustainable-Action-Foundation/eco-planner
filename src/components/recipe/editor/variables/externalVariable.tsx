@@ -11,7 +11,7 @@ import { useRecipe, CommonVariable, VectorPickerSelect } from "@/components/reci
 // TODO: Fix labels
 export function VariableTypeExternal({
   variableId,
-  permissions,
+  permissions: incomingPermissions,
 }: {
   variableId: string;
   permissions?: RecipeEditorPermissions;
@@ -22,20 +22,20 @@ export function VariableTypeExternal({
   const variable = getVariable(variableId, RecipeDataTypes.External);
   if (!variable) throw new Error(`External variable with id "${variableId}" not found.`);
 
-  permissions = { ...RecipeEditorPermissions, ...permissions };
+  const permissions = { ...RecipeEditorPermissions, ...incomingPermissions };
 
   return (
     <>
       <CommonVariable
         variableId={variableId}
-        permissions={permissions}
+        permissions={{ ...permissions }}
       >
         <RecipeQueryBuilder variableId={variableId} />
         <div className="floating-label inline-block" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
           <label htmlFor="variable-tree-vector-index-picker">
             {t("components:recipe_editor.vector_index_picker_label")}
           </label>
-          <VectorPickerSelect permissions={permissions} variableId={variableId} />
+          <VectorPickerSelect permissions={{ ...permissions }} variableId={variableId} />
         </div>
       </CommonVariable>
       <div className="flex gap-25 margin-left-300 margin-top-100"> {/* TODO: Handle overflow a bit better here */}
@@ -47,10 +47,9 @@ export function VariableTypeExternal({
   )
 }
 
-// TODO: Add the modal here
 export function VariableTypeExternalSimple({
   variableId,
-  permissions,
+  permissions: incomingPermissions,
   props = {},
 }: {
   variableId: string,
@@ -63,7 +62,7 @@ export function VariableTypeExternalSimple({
   const variable = getVariable(variableId, RecipeDataTypes.External);
   if (!variable) throw new Error(`External variable with id "${variableId}" not found.`);
 
-  permissions = { ...RecipeEditorPermissions, ...permissions };
+  const permissions = { ...RecipeEditorPermissions, ...incomingPermissions };
 
   return (
     <div

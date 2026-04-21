@@ -32,7 +32,7 @@ export function CommonVariable({
       className={`flex gap-100 align-items-flex-start justify-content-space-between ${styles['variable-fieldset']}`}
     >
       <fieldset className="flex-grow-100">
-        <p>{variable.type}</p> {/* TODO: i18n */}
+        <p style={{ marginTop: 0 }}>{variable.type}</p> {/* TODO: i18n */}
 
         <div className="flex gap-25 align-items-center margin-bottom-75">
           {/* Name */}

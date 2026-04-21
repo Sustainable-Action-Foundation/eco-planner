@@ -3,7 +3,7 @@
 import { isDataSeriesVariable, RecipeError } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import React, { useCallback, useMemo } from "react";
-import type { InputElement, TreeItem } from "@/components/types";
+import type { TreeItem } from "@/components/types";
 import SelectSingleTreeSearch from "@/components/form/elements/combobox/selectSingleTreeSearch";
 import { clientSafeGetOneRoadmap } from "@/fetchers/client";
 import { RecipeEditorPermissions, CommonVariable, useRecipe, VectorPickerSelect } from "@/components/recipe";
@@ -87,10 +87,9 @@ function useHandleDataSeriesChange(
 type AvailableDataSeries = AvailableRoadmapOption[];
 
 // TODO: Fix labels
-// TODO: Check usage of permissions (prop that has been removed)
 export function DataSeriesVariableEditor({
   variableId,
-  permissions,
+  permissions: incomingPermissions,
   availableDataSeries = [],
 }: {
   variableId: string;
@@ -115,12 +114,12 @@ export function DataSeriesVariableEditor({
     throw new RecipeError(`Variable "${variableId}" is not a valid DataSeriesVariable`);
   }
 
-  permissions = { ...RecipeEditorPermissions, ...permissions };
+  const permissions = { ...RecipeEditorPermissions, ...incomingPermissions };
 
   return (
     <CommonVariable
       variableId={variableId}
-      permissions={permissions}
+      permissions={{ ...permissions }}
     >
       {/* TODO: Why is this height mismatched */}
       <div className="inline-block floating-label" style={{ verticalAlign: "top", width: "200px", "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
@@ -142,27 +141,29 @@ export function DataSeriesVariableEditor({
         <label htmlFor="variable-tree-vector-index-picker">
           {t("components:recipe_editor.vector_index_picker_label")}
         </label>
-        <VectorPickerSelect permissions={permissions} variableId={variableId} />
+        <VectorPickerSelect permissions={{ ...permissions }} variableId={variableId} />
       </div>
     </CommonVariable >
   )
 }
 
-// TODO: Check usage of permissions (prop that has been removed)
 export function DataSeriesVariableSimpleEditor({
   variableId,
   availableDataSeries = [],
-  props,
+  permissions: incomingPermissions,
 }: {
   variableId: string;
   availableDataSeries?: AvailableRoadmapOption[];
-  props: InputElement;
+  permissions?: RecipeEditorPermissions;
 }) {
+  const { t } = useTranslation("components");
   const { recipe, upsertVariable, getVariable } = useRecipe();
   const variable = getVariable(variableId);
 
   const treeItems = useRoadmapTreeItems(availableDataSeries);
   const handleDataSeriesChange = useHandleDataSeriesChange(variableId, upsertVariable);
+
+  const permissions = { ...RecipeEditorPermissions, ...incomingPermissions };
 
   if (!variable) {
     console.error(`Variable "${variableId}" not found in recipe`, recipe);
@@ -177,12 +178,12 @@ export function DataSeriesVariableSimpleEditor({
   return (
     <SelectSingleTreeSearch
       props={{
-        id: props.id,
-        name: props.name,
-        placeholder: props.placeholder,
-        required: props.required,
-        disabled: props.disabled,
-        style: props.style,
+        id: "recipeVariable" + variableId,
+        name: "recipeVariable" + variableId,
+        placeholder: t("components:recipe_editor.select_data_series"),
+        required: true,
+        disabled: !permissions.allowValueEditing,
+        ...(variable.template ? { style: { outline: "1px solid blue", borderRadius: "8px" } } : {})
       }}
       treeItems={treeItems}
       onChange={handleDataSeriesChange}

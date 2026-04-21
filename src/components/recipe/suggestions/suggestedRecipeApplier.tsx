@@ -29,7 +29,7 @@ export function SuggestedRecipeApplier({
   const defaultSuggestionRecipes = useMemo(() => getDefaultSuggestedRecipes(t), [t]);
   const { recipe, applyRecipeUpdate, clearRecipe } = useRecipe();
 
-  const [availableRoadmaps, setAvailableRoadmaps] = useState<{ id: string; name: string; }[]>([]);
+  const [availableDataSeries, setAvailableDataSeries] = useState<{ id: string; name: string; }[]>([]);
   const [selectedRecipeId, setSelectedRecipeId] = useState<string>("");
   const suggestedRecipes = useMemo(() => autoInsertDefaultSuggestions
     ? [...defaultSuggestionRecipes, ...providedSuggestedRecipes]
@@ -58,7 +58,7 @@ export function SuggestedRecipeApplier({
           })
         );
 
-        setAvailableRoadmaps(
+        setAvailableDataSeries(
           roadmapsWithData
             .filter((roadmap): roadmap is NonNullable<typeof roadmap> => !!roadmap)
             .map((roadmap) => ({
@@ -195,16 +195,10 @@ export function SuggestedRecipeApplier({
                   {variableDisplayName}{unitDisplay}:
                 </label>
                 <DataSeriesVariableSimpleEditor
-                  props={{
-                    id: "recipeVariable" + i,
-                    name: "recipeVariable" + i,
-                    placeholder: t("components:recipe_editor.select_data_series"),
-                    required: true,
-                    disabled: false,
-                  }}
                   key={"recipeVariable" + i}
                   variableId={variableId}
-                  availableDataSeries={availableRoadmaps}
+                  availableDataSeries={availableDataSeries}
+                  permissions={{ ...permissions }}
                 />
               </li>
             );
