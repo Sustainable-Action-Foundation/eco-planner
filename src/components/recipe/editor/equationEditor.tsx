@@ -43,7 +43,7 @@ export function EquationEditor() {
     const end = textarea.selectionEnd;
 
     // Replace the selection with the variable key
-    textarea.setRangeText('${' + key + '}', start, end, "end");
+    textarea.setRangeText("${" + key + "}", start, end, "end");
 
     // Fire onChange manually so your state stays in sync
     const event = new Event("input", { bubbles: true });
@@ -90,20 +90,20 @@ export function EquationEditor() {
           <>
             <h2 className="font-weight-normal text-align-center margin-block-25 padding-bottom-25" style={{ fontSize: '14px', whiteSpace: 'nowrap', borderBottom: '1px solid var(--gray)' }}>{t("components:recipe_editor.insert_variable")}</h2>
             {recipe?.variables?.map((variable, index) => (
-                <li key={variable.id} role="presentation">
-                  <button
-                    id={`variable-menu-menuitem-${index}`}
-                    tabIndex={-1}
-                    role="menuitem"
-                    className="transparent padding-25 width-100 flex gap-100 justify-content-space-between align-items-center"
-                    type="button"
-                    onClick={() => handleInsertVariable(variable.id)}
-                  >
-                    {variable.name}
-                    <IconPlus width={16} height={16} strokeWidth={1.5} style={{ minWidth: '16px' }} />
-                  </button>
-                </li>
-              ))}
+              <li key={variable.id} role="presentation">
+                <button
+                  id={`variable-menu-menuitem-${index}`}
+                  tabIndex={-1}
+                  role="menuitem"
+                  className="transparent padding-25 width-100 flex gap-100 justify-content-space-between align-items-center"
+                  type="button"
+                  onClick={() => handleInsertVariable(variable.id)}
+                >
+                  {variable.name}
+                  <IconPlus width={16} height={16} strokeWidth={1.5} style={{ minWidth: '16px' }} />
+                </button>
+              </li>
+            ))}
           </>
           : null}
       </ul>
