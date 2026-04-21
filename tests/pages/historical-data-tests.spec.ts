@@ -1,4 +1,4 @@
-import { expect, test } from "playwright/test";
+import { test } from "playwright/test";
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -22,29 +22,29 @@ test.describe("Historical Data Tests", () => {
     await page.getByTestId('historical-data-link').click();
 
     const dataRows = [
-        [2025, 200],
-        [2026, 250],
-        [2027, 275],
-        [2028, 300],
-        [2029, 325]
+      [2025, 200],
+      [2026, 250],
+      [2027, 275],
+      [2028, 300],
+      [2029, 325]
     ];
 
     // Create all rows first
     for (let i = 1; i < dataRows.length; i++) {
-        await page.getByTestId('add-row-button').click();
+      await page.getByTestId('add-row-button').click();
     }
 
     // Fill all rows (starting at row 1)
     for (let rowNum = 1; rowNum <= dataRows.length; rowNum++) {
-        for (let col = 0; col < dataRows[rowNum - 1].length; col++) {
+      for (let col = 0; col < dataRows[rowNum - 1].length; col++) {
         await page.locator(`[data-row="${rowNum}"][data-column="${col}"] input`)
-            .fill(dataRows[rowNum - 1][col].toString());
-        }
+          .fill(dataRows[rowNum - 1][col].toString());
+      }
     }
     // Delete 5 rows
     for (let i = 0; i < 5; i++) {
-        await page.getByTestId('delete-row-button').last().click();
-        // or use .last() if deleting from bottom to top
+      await page.getByTestId('delete-row-button').last().click();
+      // or use .last() if deleting from bottom to top
     }
   });
 
@@ -58,7 +58,7 @@ test.describe("Historical Data Tests", () => {
 
     await page.getByTestId('featured-goals').first().click();
     await page.getByTestId('historical-data-link').click();
-    
+
     await page.getByRole('radio', { name: "visible-form" }).click();
     const option = page.locator('#externalDataset').filter({ hasText: 'Statiska centralbyrån' });
 
@@ -66,5 +66,5 @@ test.describe("Historical Data Tests", () => {
 
     await page.locator('#externalDataset').selectOption(value);
 
-  }); 
+  });
 });
