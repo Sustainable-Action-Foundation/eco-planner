@@ -37,8 +37,6 @@
   scrollbar-width: thin;
   scrollbar-color: var(--gray) rgba(0,0,0,0);
   padding: 1rem;
-  display: flex;
-  flex-direction: column;
 } 
  
 

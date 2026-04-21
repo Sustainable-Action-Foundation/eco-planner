@@ -79,11 +79,12 @@ export default function SelectSingleTreeSearch({
   }, [value, onChange])
 
   useEffect(() => {
+    if (items.length === 0) return
     setFlattenedItems(flattenTree(items))
   }, [items])
 
   useEffect(() => {
-    if (focusedIndex == null) return
+    if (focusedIndex == null || flattenedItems.length === 0) return
     const selectedItem = flattenedItems[focusedIndex]
     const selectedItemElement = document.getElementById(`${props.id}-dialog-tree-${selectedItem.name.replace(' ', '-')}`)
     if (!selectedItemElement) return
@@ -322,9 +323,15 @@ export default function SelectSingleTreeSearch({
           role="tree"
           aria-label={t("common:tsx.options")}
         >
-          {items.map((treeItem, index) => (
-            <TreeNode key={index} item={treeItem} onUpdate={handleUpdateNode} />
-          ))}
+          {items.length > 0 ? (
+            items.map((treeItem, index) => (
+              <TreeNode key={index} item={treeItem} onUpdate={handleUpdateNode} />
+            ))
+          ) : (
+            <li className={`${styles['no-results']} font-weight-600`} style={{padding: '.5rem'}}> {/* TODO: For whatever reason i need to set padding here but not for the selectsingleserach no results <li>. They are seemingly implemented the same way so probably figure out why this is. */}
+              {t("common:tsx.no_results")}
+            </li>
+          )}
         </ul>
       </div>
     </div>
