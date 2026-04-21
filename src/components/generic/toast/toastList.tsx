@@ -1,6 +1,6 @@
 "use client"
 import { useToastContext } from "@/components/generic/toast/toastContext";
-import CreateToast from "./toast";
+import Toast from "./toast";
 import styles from './toast.module.css'
 
 export default function ToastList() {
@@ -9,9 +9,9 @@ export default function ToastList() {
     <aside>
       <output className={`${styles["toast-list"]} position-fixed flex flex-direction-column-reverse gap-50`} aria-live="polite">
         {messages.map((message) => (
-          <CreateToast key={message.id} id={message.id} type={message.type} hasTimeout={message.hasTimeout}>
+          <Toast key={message.id} id={message.id} type={message.type} hasTimeout={message.hasTimeout}>
             {message.text}
-          </CreateToast>
+          </Toast>
         ))}
       </output>
     </aside>
