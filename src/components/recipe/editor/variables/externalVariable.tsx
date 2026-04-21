@@ -66,7 +66,6 @@ export function VariableTypeExternalSimple({
 
   return (
     <div
-      className="flex gap-25"
       {...props}
     > {/* TODO: Figure out how to deal with labels here */}
       <RecipeQueryBuilder

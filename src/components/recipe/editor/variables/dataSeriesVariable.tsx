@@ -183,7 +183,6 @@ export function DataSeriesVariableSimpleEditor({
         placeholder: t("components:recipe_editor.select_data_series"),
         required: true,
         disabled: !permissions.allowValueEditing,
-        ...(variable.template ? { style: { outline: "1px solid blue", borderRadius: "8px" } } : {})
       }}
       treeItems={treeItems}
       onChange={handleDataSeriesChange}

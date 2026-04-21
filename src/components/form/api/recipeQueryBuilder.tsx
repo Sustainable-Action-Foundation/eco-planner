@@ -12,7 +12,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
-import { IconSearch, IconX } from "@tabler/icons-react";
+import { IconDatabaseSearch, IconSearch, IconX } from "@tabler/icons-react";
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 
 import getTableContent from "@/lib/api/getTableContent";
@@ -442,8 +442,9 @@ export default function RecipeQueryBuilder({
 
   return (
     <>
-      <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem", lineHeight: '1.5' }} onClick={() => openModal(modalRef)}>
+      <button type="button" className="purewhite flex justify-content-space-between align-items-center gap-25 padding-50 font-size-14px width-100 color-gray" style={{border: '1px solid var(--gray-80)'}} onClick={() => openModal(modalRef)}>
         {t("components:recipe_editor.add_external_data")}
+        <IconDatabaseSearch strokeWidth={1.75} width={20} height={20} color='black' style={{minWidth: '20'}} aria-hidden="true" />
       </button>
 
       <dialog className={`smooth padding-inline-0 ${styles.dialog}`} ref={modalRef} aria-modal style={{ backgroundColor: 'rgb(246, 246, 246)' }}>
