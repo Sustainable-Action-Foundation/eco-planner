@@ -26,7 +26,7 @@ export default function formSubmitter(
   defaultLocation?: string,
   thenReplacement?: (data: { body: JSONValue, location?: string | null }) => void,
   catchReplacement?: (err: unknown) => void,
-  toast?: (message: string, type: ToastType, hasTimeout?: boolean) => void,
+  createToast?: (message: string, type: ToastType, hasTimeout?: boolean) => void,
   router?: (url: string) => void /* TODO: Might make sense to accept URL here aswell */
 ): void {
   fetch(target, {
@@ -75,8 +75,8 @@ export default function formSubmitter(
     if (isStandardObject(data.body) && 'message' in data.body && typeof data.body.message === 'string') {
       if (data.body.message) {
         // alert(data.body.message);
-        if (toast) {
-          toast(data.body.message, "success");
+        if (createToast) {
+          createToast(data.body.message, "success");
         } else {
           alert(data.body.message);
         }
@@ -92,8 +92,8 @@ export default function formSubmitter(
     }
     console.error(err);
     if (err instanceof Error) {
-      if (toast) {
-        toast(err.message, "error", false);
+      if (createToast) {
+        createToast(err.message, "error", false);
       } else {
         alert(`${t("common:errors.something_went_wrong_with_details", { details: err.message })}`)
       };

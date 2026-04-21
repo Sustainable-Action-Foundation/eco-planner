@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useToastContext } from "@/components/generic/toast/toastContext";
 import { useTranslation } from "node_modules/react-i18next";
 
-export default function CreateToast({ children, id, type, hasTimeout = true }: { children?: ReactNode; id: number; type: ToastType; hasTimeout?: boolean }) {
+export default function Toast({ children, id, type, hasTimeout = true }: { children?: ReactNode; id: number; type: ToastType; hasTimeout?: boolean }) {
 
   const { t } = useTranslation(["components"]);
   const { removeToast } = useToastContext();
