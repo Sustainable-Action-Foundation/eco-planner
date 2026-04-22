@@ -13,6 +13,8 @@ import TextEditor from "@/components/form/elements/textEditor/editor";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
 import ConfigureAccess from "../sections/access";
+import { useToastContext } from "@/components/generic/toast/toastContext";
+import { useRouter } from "next/navigation";
 
 export default function MetaRoadmapForm({
   user,
@@ -29,6 +31,8 @@ export default function MetaRoadmapForm({
   const descriptionRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [roadmapType, setRoadmapType] = useState<string>("");
+  const { addToast } = useToastContext();
+  const router = useRouter();
 
   const [timestamp] = useState(() => Date.now());
 
@@ -58,8 +62,7 @@ export default function MetaRoadmapForm({
     if (!description?.value && !currentRoadmap) {
       event.target.reportValidity();
       setIsLoading(false);
-      // TODO: Convert to toast notification
-      alert(t("forms:meta_roadmap.description_required"));
+      addToast(t("forms:meta_roadmap.description_required"), "warning");
       return;
     }
 
@@ -100,7 +103,7 @@ export default function MetaRoadmapForm({
 
     const formJSON = JSON.stringify(formData);
 
-    formSubmitter('/api/metaRoadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading);
+    formSubmitter('/api/metaRoadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading, undefined, undefined, undefined, undefined, router.push); // addToast
   }
 
   // Indexes for the data-position attribute in the legend elements
