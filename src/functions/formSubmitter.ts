@@ -63,24 +63,23 @@ export default function formSubmitter(
 
     const targetPath = data.location ?? (defaultLocation ? defaultLocation : method.toUpperCase() === "POST" ? "../" : "./");
     if (router) {
+      // If the API provides a message, alert it
+      if (isStandardObject(data.body) && 'message' in data.body && typeof data.body.message === 'string') {
+        if (data.body.message) {
+          // alert(data.body.message);
+          if (createToast) {
+            createToast(data.body.message, "success");
+          } else {
+            alert(data.body.message);
+          }
+        }
+      }
       router(targetPath)
     } else {
       // Redirect to the location provided by the API, or, if missing, to nearest valid parent
       // POST is on pages such as /goal/create, which should default to / if no location is provided
       // PUT is on pages such as /goal/[id]/edit, which should default to /goal/[id] if no location is provided
       window.location.href = targetPath
-    }
-
-    // If the API provides a message, alert it
-    if (isStandardObject(data.body) && 'message' in data.body && typeof data.body.message === 'string') {
-      if (data.body.message) {
-        // alert(data.body.message);
-        if (createToast) {
-          createToast(data.body.message, "success");
-        } else {
-          alert(data.body.message);
-        }
-      }
     }
   }).catch((err: unknown) => {
     if (catchReplacement) {
