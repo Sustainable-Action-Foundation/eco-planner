@@ -586,7 +586,7 @@ export async function PUT(request: NextRequest) {
     await pruneOrphans();
     // Invalidate old cache
     revalidateTag('roadmap', 'max');
-    revalidateTag('metaRoadmap', 'max');
+    revalidateTag('metaRoadmap', { expire: 0 });
     // Return the updated meta roadmap's ID if successful
     return Response.json({ message: "Roadmap metadata updated", id: updatedMetaRoadmap.id },
       { status: 200, headers: { 'Location': `/metaRoadmap/${updatedMetaRoadmap.id}` } }

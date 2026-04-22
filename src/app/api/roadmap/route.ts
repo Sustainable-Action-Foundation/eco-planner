@@ -513,7 +513,7 @@ export async function PUT(request: NextRequest) {
     // Prune any orphaned links and comments
     await pruneOrphans();
     // Invalidate old cache
-    revalidateTag('roadmap', 'max');
+    revalidateTag('roadmap', { expire: 0});
     // Return the new roadmap's ID if successful
     return Response.json({ message: "Roadmap updated", id: updatedRoadmap.id },
       { status: 200, headers: { 'Location': `/roadmap/${updatedRoadmap.id}` } }

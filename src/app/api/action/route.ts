@@ -333,7 +333,7 @@ export async function PUT(request: NextRequest) {
     // Prune any orphaned links and comments
     await pruneOrphans();
     // Invalidate old cache
-    revalidateTag('action', 'max');
+    revalidateTag('action', {expire: 0});
     // Return the new action's ID if successful
     return Response.json({ message: 'Action updated', id: updatedActionId },
       { status: 200, headers: { 'Location': `/action/${updatedActionId}` } }
