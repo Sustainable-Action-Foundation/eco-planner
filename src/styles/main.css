@@ -2439,6 +2439,55 @@ container-text {
   align-items: unset;
 }
 
+.align-self-normal {
+  align-self: normal;
+}
+
+.align-self-stretch {
+  align-self: stretch;
+}
+
+.align-self-center {
+  align-self: center;
+}
+
+.align-self-start {
+  align-self: start;
+}
+
+.align-self-end {
+  align-self: end;
+}
+
+.align-self-flex-start {
+  align-self: flex-start;
+}
+
+.align-self-flex-end {
+  align-self: flex-end;
+}
+
+.align-self-inherit {
+  align-self: inherit;
+}
+
+.align-self-initial {
+  align-self: initial;
+}
+
+.align-self-revert {
+  align-self: revert;
+}
+
+.align-self-revert-layer {
+  align-self: revert-layer;
+}
+
+.align-self-unset {
+  align-self: unset;
+}
+
+
 .justify-content-center {
   justify-content: center;
 }

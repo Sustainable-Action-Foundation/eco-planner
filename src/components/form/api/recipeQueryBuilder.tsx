@@ -442,14 +442,24 @@ export default function RecipeQueryBuilder({
 
   return (
     <>
-      <button 
+      <button
         type="button"
-        className="purewhite flex justify-content-space-between align-items-center gap-25 padding-50 font-size-14px width-100 color-gray"
-        style={{border: '1px solid var(--gray-80)', transform: 'scale(1)'}}
+        className="purewhite flex justify-content-space-between align-items-center gap-25 padding-50 font-size-14px width-100"
+        style={{ border: '1px solid var(--gray-80)', transform: 'scale(1)', color: dataSource && tableDetails?.id && tableContent?.metadata[0].label ? 'black' : 'gray' }}
         onClick={() => openModal(modalRef)}
-      >
-        {t("components:recipe_editor.add_external_data")}
-        <IconDatabaseSearch strokeWidth={1.75} width={20} height={20} color='black' style={{minWidth: '20'}} aria-hidden="true" />
+      > 
+        {dataSource && tableDetails?.id
+          ? `${dataSource}(${tableDetails.id}) - `
+          : t("components:recipe_editor.add_external_data")
+        }
+        {dataSource && tableDetails?.id && (
+          <span className="flex-grow-100 align-self-flex-end text-align-left" style={{ borderBottom: tableContent?.metadata[0].label ? '' : '1px solid gray'}}>
+            {tableContent?.metadata[0].label
+              ? tableContent.metadata[0].label // TODO: This should probably be an actual loop?
+              : ""}
+          </span>
+        )}
+        <IconDatabaseSearch strokeWidth={1.75} width={20} height={20} color='black' style={{ minWidth: '20' }} aria-hidden="true" />
       </button>
 
       <dialog className={`smooth padding-inline-0 ${styles.dialog}`} ref={modalRef} aria-modal style={{ backgroundColor: 'rgb(246, 246, 246)' }}>
