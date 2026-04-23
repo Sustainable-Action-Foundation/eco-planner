@@ -19,6 +19,8 @@
     "jsx": "react-jsx",
     "incremental": true,
     "allowUnreachableCode": false,
+    // "noUncheckedIndexedAccess": true,
+    // "noPropertyAccessFromIndexSignature": true,
     "plugins": [
       {
         "name": "next"

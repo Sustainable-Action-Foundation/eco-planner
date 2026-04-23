@@ -13,10 +13,12 @@ import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import TextEditor from "../elements/textEditor/editor";
 import { IconUpload } from "@tabler/icons-react";
 import ConfigureAccess from "../sections/access";
+import { useToastContext } from "@/components/generic/toast/toastContext";
+import { useRouter } from "next/navigation";
 
-function checkForBadDecoding(csv: string[][], t: TFunction) {
+function checkForBadDecoding(csv: string[][], t: TFunction, addToast: (text: string, type: 'success' | 'error' | 'warning') => void) {
   if (csv.some((row) => row.some((cell) => cell.includes("�")))) {
-    alert(t("forms:roadmap.bad_decoding"));
+    addToast(t("forms:roadmap.bad_decoding"), "warning");
   }
 }
 
@@ -38,6 +40,9 @@ export default function RoadmapForm({
 }) {
   const { t } = useTranslation(["forms", "common"]);
   const descriptionRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+
+  const { addToast } = useToastContext();
 
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -53,11 +58,11 @@ export default function RoadmapForm({
     let goals: GoalCreateInput[] = [];
     if (currentFile) {
       try {
-        goals = csvToGoalList(parseCsv(await currentFile.arrayBuffer().then((buffer) => { return buffer })), () => alert(t("forms:roadmap.scale_deprecated")));
+        goals = csvToGoalList(parseCsv(await currentFile.arrayBuffer().then((buffer) => { return buffer })), () => addToast(t("forms:roadmap.scale_deprecated"), "warning"));
       }
       catch (error) {
         setIsLoading(false)
-        alert(t("forms:roadmap.roadmap_version_creation_error", { error: error instanceof Error ? error.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }))
+        addToast(t("forms:roadmap.roadmap_version_creation_error", { error: error instanceof Error ? error.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }), "error");
         return
       }
     }
@@ -120,7 +125,7 @@ export default function RoadmapForm({
 
     const formJSON = JSON.stringify(formData)
 
-    formSubmitter('/api/roadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading);
+    formSubmitter('/api/roadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading, undefined, undefined, undefined, addToast, router.push);
   }
 
   const [currentFile, setCurrentFile] = useState<File | null>(null)
@@ -167,8 +172,8 @@ export default function RoadmapForm({
         currentFile.arrayBuffer()
           .then((buffer) => parseCsv(buffer))
           .then((csv) => {
-            checkForBadDecoding(csv, t);
-            return csvToGoalList(csv, () => alert(t("forms:roadmap.scale_deprecated_extended")));
+            checkForBadDecoding(csv, t, addToast);
+            return csvToGoalList(csv, () => addToast(t("forms:roadmap.scale_deprecated_extended"), "warning"));
           })
           .then(() => setIsLoading(false))
           .catch((e: unknown) => {
@@ -176,12 +181,12 @@ export default function RoadmapForm({
           });
       }
       catch (error) {
-        alert(t("forms:roadmap.file_read_error", { error: error instanceof Error ? error.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }))
+        addToast(t("forms:roadmap.file_read_error", { error: error instanceof Error ? error.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }), "error");
         setIsLoading(false);
         return;
       }
     }
-  }, [currentFile, t])
+  }, [addToast, currentFile, t])
 
 
   // Indexes for the data-position attribute in the legend elements
@@ -331,7 +336,6 @@ export default function RoadmapForm({
             {currentRoadmap ? t("common:tsx.save") : t("forms:roadmap.create")}
           </button>
         </div>
-
       </form >
     </>
   )

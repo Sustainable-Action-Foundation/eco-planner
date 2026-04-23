@@ -628,7 +628,7 @@ export default function QueryBuilder({
                       </>
                     )}
                   </FormWrapper>
-                  <output>
+                  <output className="block padding-bottom-100">
                     {/* TODO: style this better */}
                     {tableContent && tableContent.values.length > 0 ? (
                       <div>

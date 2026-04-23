@@ -151,7 +151,7 @@ export default function DataSeriesInputManual() {
                 onClick={() =>
                   setValue(prev => prev.filter((_, i) => i !== index))
                 }
-              >
+              data-testid='delete-row-button'>
                 <IconTrashXFilled height={20} width={20} style={{ maxWidth: '20' }} aria-hidden="true" />
               </button>
             </Grid.Cell>
@@ -163,7 +163,7 @@ export default function DataSeriesInputManual() {
         onClick={() =>
           setValue(prev => [...prev, { year: null, data: null }])
         }
-      >
+      data-testid="add-row-button">
         <IconPlus width={20} height={20} aria-hidden="true" />
         {t("forms:data_series_input.add_new_row")}
       </button>

@@ -7,6 +7,7 @@ import { revalidateTag } from "next/cache";
 import accessChecker from "@/lib/accessChecker";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { cookies } from "next/headers";
+import serveTea from "@/lib/i18nServer";
 
 function isMetaRoadmapCreate(metaRoadmap: JSONValue): metaRoadmap is MetaRoadmapCreateInput {
   return (
@@ -239,17 +240,18 @@ export async function POST(request: NextRequest) {
     getSession(await cookies()),
     request.json() as Promise<JSONValue>,
   ]);
+  const t = await serveTea("api");
 
   // Validate session
   if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
+    return Response.json({ message: t('api:common.unauthorized') },
       { status: 401, headers: { 'Location': '/login' } }
     );
   }
 
   // Validate request body
   if (!isMetaRoadmapCreate(metaRoadmap)) {
-    return Response.json({ message: 'Missing required input parameters' },
+    return Response.json({ message: t('api:common.missing_input') },
       { status: 400 }
     );
   }
@@ -324,7 +326,7 @@ export async function POST(request: NextRequest) {
     } else {
       // If non-error is thrown, log it and return a generic error message
       console.log(error);
-      return Response.json({ message: "Unknown internal server error" },
+      return Response.json({ message: t('api:common.unknown_server_error') },
         { status: 500 }
       );
     }
@@ -332,7 +334,7 @@ export async function POST(request: NextRequest) {
 
   // Only allow admins to create national roadmaps
   if (metaRoadmap.type === RoadmapType.NATIONAL && !session.user.isAdmin) {
-    return Response.json({ message: 'Forbidden; only admins may create national roadmaps. Feel free to send an email to kontakt@sustainable-action.org if you think we should add another.' },
+    return Response.json({ message: t('api:metaRoadmap.national_roadmap_forbidden') },
       { status: 403 }
     );
   }
@@ -389,17 +391,17 @@ export async function POST(request: NextRequest) {
     revalidateTag('roadmap', 'max');
     revalidateTag('metaRoadmap', 'max');
     // Return the new meta roadmap's ID if successful
-    return Response.json({ message: "Roadmap metadata created. \n You will now be sent to another form to add goals and other details for the first version of this roadmap", id: newMetaRoadmap.id },
+    return Response.json({ message: t('api:metaRoadmap.meta_roadmap_created'), id: newMetaRoadmap.id },
       { status: 201, headers: { 'Location': `/roadmap/create?metaRoadmapId=${newMetaRoadmap.id}` } }
     );
   } catch (error) {
     console.log(error);
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-      return Response.json({ message: 'Failed to connect records. Probably invalid editor, viewer, editGroup, and/or viewGroup name(s)' },
+      return Response.json({ message: t('api:metaRoadmap.failed_record_connection') },
         { status: 400 }
       )
     }
-    return Response.json({ message: 'Failed to create roadmap metadata' },
+    return Response.json({ message: t('api:metaRoadmap.failed_roadmap_creation') },
       { status: 500 }
     );
   }
@@ -413,10 +415,11 @@ export async function PUT(request: NextRequest) {
     getSession(await cookies()),
     request.json() as Promise<JSONValue>,
   ]);
+  const t = await serveTea("api");
 
   // Validate session
   if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
+    return Response.json({ message: t('api:common.unauthorized') },
       { status: 401, headers: { 'Location': '/login' } }
     );
   }
@@ -424,7 +427,7 @@ export async function PUT(request: NextRequest) {
   // Validate request body
   if (!isMetaRoadmapUpdate(metaRoadmap)) {
     return new Response(
-      JSON.stringify({ message: 'Missing required input parameters' }),
+      JSON.stringify({ message: t('api:common.missing_input') }),
       { status: 400 }
     );
   }
@@ -520,7 +523,7 @@ export async function PUT(request: NextRequest) {
     // If non-error is thrown, log it and return a generic error message
     else {
       console.log(error);
-      return Response.json({ message: "Unknown internal server error" },
+      return Response.json({ message: t('api:common.unknown_server_error') },
         { status: 500 }
       );
     }
@@ -529,7 +532,7 @@ export async function PUT(request: NextRequest) {
   // Only allow admins to create national roadmaps
   if (metaRoadmap.type === RoadmapType.NATIONAL && !session.user?.isAdmin) {
     return new Response(
-      JSON.stringify({ message: 'Forbidden; only admins can create national roadmaps' }),
+      JSON.stringify({ message: t('api:metaRoadmap.national_roadmap_forbidden') }),
       { status: 403 }
     );
   }
@@ -588,17 +591,17 @@ export async function PUT(request: NextRequest) {
     revalidateTag('roadmap', 'max');
     revalidateTag('metaRoadmap', { expire: 0 });
     // Return the updated meta roadmap's ID if successful
-    return Response.json({ message: "Roadmap metadata updated", id: updatedMetaRoadmap.id },
+    return Response.json({ message: t('api:metaRoadmap.meta_roadmap_updated'), id: updatedMetaRoadmap.id },
       { status: 200, headers: { 'Location': `/metaRoadmap/${updatedMetaRoadmap.id}` } }
     );
   } catch (error) {
     console.log(error);
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-      return Response.json({ message: 'Failed to connect records. Probably invalid editor, viewer, editGroup, and/or viewGroup name(s)' },
+      return Response.json({ message: t('api:metaRoadmap.failed_record_connection') },
         { status: 400 }
       )
     }
-    return Response.json({ message: 'Internal server error' },
+    return Response.json({ message: t('api:common.server_error') },
       { status: 500 }
     );
   }
@@ -612,17 +615,18 @@ export async function DELETE(request: NextRequest) {
     getSession(await cookies()),
     request.json() as Promise<{ id: string }>
   ]);
+  const t = await serveTea("api");
 
   // Validate request body
   if (!metaRoadmap.id) {
-    return Response.json({ message: 'Missing required input parameters' },
+    return Response.json({ message: t('api:common.missing_input') },
       { status: 400 }
     );
   }
 
   // Validate session
   if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
+    return Response.json({ message: t('api:common.unauthorized') },
       { status: 401, headers: { 'Location': '/login' } }
     );
   }
@@ -665,7 +669,7 @@ export async function DELETE(request: NextRequest) {
       );
     } else {
       console.log(error);
-      return Response.json({ message: "Unknown internal server error" },
+      return Response.json({ message: t('api:common.unknown_server_error') },
         { status: 500 }
       );
     }
@@ -686,12 +690,12 @@ export async function DELETE(request: NextRequest) {
     // Invalidate old cache
     revalidateTag('roadmap', 'max');
     revalidateTag('metaRoadmap', 'max');
-    return Response.json({ message: 'Meta roadmap deleted', id: deletedMetaRoadmap.id },
+    return Response.json({ message: t('api:metaRoadmap.meta_roadmap_deleted'), id: deletedMetaRoadmap.id },
       { status: 200, headers: { 'Location': `/` } }
     );
   } catch (error) {
     console.log(error);
-    return Response.json({ message: "Internal server error" },
+    return Response.json({ message: t('api:common.server_error') },
       { status: 500 }
     );
   }

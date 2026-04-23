@@ -85,7 +85,8 @@
     "password": "Password",
     "remember_me": "Remember me",
     "username": "Username",
-    "verify_account": "Verify my account"
+    "verify_account": "Verify my account",
+    "invalid_credentials": "Login failed. Please check your credentials and that your email is verified."
   },
   "logout_button": {
     "failed": "Logout failed"
@@ -273,5 +274,10 @@
     "posts": "Posts",
     "roadmap_series": "$t(common:roadmap_series_one, titleCase)",
     "roadmap_versions": "$t(common:roadmap_version_other, titleCase)"
+  },
+  "toasts": {
+    "success": "Success!",
+    "warning": "Warning!",
+    "error": "Something went wrong!"
   }
 }
