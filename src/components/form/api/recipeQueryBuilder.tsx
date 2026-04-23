@@ -8,7 +8,7 @@ import { ExternalDataset, isDataSetKeys } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
 import type { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
 import type { TrafaVariable } from "@/lib/trafa/trafaTypes";
-import { useContext, useEffect, useRef, useState } from "react";
+import { Fragment, useContext, useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
@@ -447,15 +447,24 @@ export default function RecipeQueryBuilder({
         className="purewhite flex justify-content-space-between align-items-center gap-25 padding-50 font-size-14px width-100"
         style={{ border: '1px solid var(--gray-80)', transform: 'scale(1)', color: dataSource && tableDetails?.id && tableContent?.metadata[0].label ? 'black' : 'gray' }}
         onClick={() => openModal(modalRef)}
-      > 
-        {dataSource && tableDetails?.id
-          ? `${dataSource}(${tableDetails.id}) - `
-          : t("components:recipe_editor.add_external_data")
-        }
+      // TODO: This needs a title incase of overflow...
+      >
+        <span className="white-space-nowrap">
+          {dataSource && tableDetails?.id
+            ? `${dataSource}(${tableDetails.id}) - `
+            : t("components:recipe_editor.add_external_data")
+          }
+        </span>
         {dataSource && tableDetails?.id && (
-          <span className="flex-grow-100 align-self-flex-end text-align-left" style={{ borderBottom: tableContent?.metadata[0].label ? '' : '1px solid gray'}}>
-            {tableContent?.metadata[0].label
-              ? tableContent.metadata[0].label // TODO: This should probably be an actual loop?
+          <span
+            className="flex-grow-100 align-self-flex-end text-align-left white-space-nowrap width-0 text-overflow-ellipsis overflow-hidden" // I can never figure out flex, honestly not sure why width-0 works here... 
+            style={{ borderBottom: tableContent?.metadata[0].label ? '' : '1px solid gray' }} // TODO: Should just be if any label, not specifically [0]...
+          >
+            {tableContent?.metadata?.length
+              ? tableContent.metadata
+                .map(item => item.label)
+                .filter(Boolean)
+                .join(", ")
               : ""}
           </span>
         )}
