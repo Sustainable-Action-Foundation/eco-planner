@@ -20,7 +20,7 @@ test.describe.serial("Roadmaps tests", () => {
   test.beforeAll(async ({ browser }, testInfo) => {
     // Define the metaRoadmap name here so it can be accessed in all later tests.
     // Needs to be unique for each worker so different browsers running tests in parallel don't interfere with each other.
-    metaRoadmapNameAllFields = `Test All Fields ${testInfo.parallelIndex} ${testInfo.project.name}`;
+    metaRoadmapNameAllFields = `Test All Fields  ${testInfo.project.name}`;
 
     if (testInfo.retry > 0) {
       console.log(`Retrying tests, Cleaning up any existing metaRoadmap with name ${metaRoadmapNameAllFields} before retrying.`);
@@ -247,7 +247,7 @@ test.describe.serial("Roadmaps tests", () => {
 
   test("Edit MetaRoadmap, updated fields - All Fields", async ({ page }, testInfo) => {
 
-    metaRoadmapNameAllFieldsUpdated = `Test Updated All Fields ${testInfo.parallelIndex} ${testInfo.project.name}`;
+    metaRoadmapNameAllFieldsUpdated = `Test Updated All Fields  ${testInfo.project.name}`;
 
     await page.goto('/');
 
@@ -331,7 +331,7 @@ test.describe.serial("Roadmaps tests", () => {
 
   test("Create MetaRoadmap and Roadmap - Required Fields", async ({ page }, testInfo) => {
 
-    metaRoadmapNameRequiredFields = `Test Required ${testInfo.parallelIndex} ${testInfo.project.name}`;
+    metaRoadmapNameRequiredFields = `Test Required  ${testInfo.project.name}`;
     // Navigate to create metaRoadmap page
     await page.goto('/metaRoadmap/create');
 
@@ -505,7 +505,7 @@ test.describe.serial("Roadmaps tests", () => {
 
   test("Edit MetaRoadmap, updated fields - Required Fields", async ({ page }, testInfo) => {
 
-    metaRoadmapNameRequiredFieldsUpdated = `Test Updated Required Fields ${testInfo.parallelIndex} ${testInfo.project.name}`;
+    metaRoadmapNameRequiredFieldsUpdated = `Test Updated Required Fields  ${testInfo.project.name}`;
     await page.goto('/');
 
     await page.getByRole('link', { name: `${metaRoadmapNameRequiredFields}` }).first().click();
