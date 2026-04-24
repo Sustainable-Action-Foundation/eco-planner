@@ -19,7 +19,7 @@ export const localeAliases: Record<Locales, string> = {
   [Locales.test]: "Test",
 };
 
-export const allNamespaces = ["common", "forms", "components", "graphs", "pages", "email", "metadata"];
+export const allNamespaces = ["common", "forms", "components", "graphs", "pages", "email", "metadata", "api"];
 
 const i18nFormatter = createInstance();
 i18nFormatter.init({}).catch((e: unknown) => {
