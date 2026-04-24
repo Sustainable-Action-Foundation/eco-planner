@@ -389,7 +389,7 @@ export async function POST(request: NextRequest) {
     });
     // Invalidate old cache
     revalidateTag('roadmap', 'max');
-    revalidateTag('metaRoadmap', 'max');
+    revalidateTag('metaRoadmap', { expire: 0 });
     // Return the new meta roadmap's ID if successful
     return Response.json({ message: t('api:metaRoadmap.meta_roadmap_created'), id: newMetaRoadmap.id },
       { status: 201, headers: { 'Location': `/roadmap/create?metaRoadmapId=${newMetaRoadmap.id}` } }
