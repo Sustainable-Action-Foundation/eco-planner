@@ -6,7 +6,6 @@ import { isDateValuesWithUnit, isISOIshDate } from "@/types";
 import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput } from "@/types";
 import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput";
 import styles from '../forms.module.css';
 import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections";
 import { RecipeContextProvider } from "@/components/recipe/context/recipeContext.provider";
@@ -16,6 +15,7 @@ import SuggestedRecipeToggle from "@/components/recipe/suggestions/suggestedReci
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import FormIntegration from "@/components/recipe/editor/output/formIntegration";
 import { SmartRecipe } from "@/functions/recipe/smartRecipe";
+import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
 
 const DataSeriesType = {
   Manual: "MANUAL",
@@ -399,9 +399,8 @@ export default function GoalForm({
 
           {/* Custom baseline input */}
           {baselineType === BaselineType.Custom &&
-            <DateValuesInput
+            <DataSeriesInputManual
               outputFormElement={<input name="baseline-data-series" />}
-              label={t("forms:data_series_input.custom_baseline")}
             />
           }
 

@@ -5,7 +5,6 @@ import { isDateValuesWithUnit, type Action, type DateValuesWithUnit, type Effect
 import { ActionImpactType } from "@prisma/client";
 import { useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
-// import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput";
 import { absoluteToDelta, ActionSelector, deltaToAbsolute, GoalSelector } from "../sections/effectFormSections";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
@@ -119,14 +118,6 @@ export default function EffectForm({
           initialDateValues={dateValues}
           outputFormElement={<input name="data-series" />}
         />
-        
-        {/*
-        <DateValuesInput
-          dateValues={dateValues}
-          dateValuesSetter={setDateValues}
-
-          label={t("forms:data_series_input.data_series")}
-        /> */}
  
         {(
           selectedImpactType === ActionImpactType.ABSOLUTE
