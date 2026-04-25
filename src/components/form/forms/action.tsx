@@ -4,10 +4,10 @@ import formSubmitter from "@/functions/formSubmitter"
 import type { Action, ActionInput, DateValuesWithUnit, MultiRoadmapInstance } from "@/types"
 import { ActionImpactType } from "@prisma/client"
 import { useTranslation } from "react-i18next"
-import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput"
 import styles from '../forms.module.css'
 import TextEditor from "../elements/textEditor/editor"
 import { useRef, useState } from "react"
+import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual"
 
 export default function ActionForm({
   goalId,
@@ -129,8 +129,7 @@ export default function ActionForm({
               </select>
             </label>
 
-            <DateValuesInput
-              label={t("forms:data_series_input.data_series")}
+            <DataSeriesInputManual 
               outputFormElement={<input name="data-series" />}
             />
           </fieldset>
