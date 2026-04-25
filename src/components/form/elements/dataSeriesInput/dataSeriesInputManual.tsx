@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./dataSeriesInput.module.css";
 import { isValidPastedInput } from "./utils";
-import { IconPlus, IconTrashXFilled } from "@tabler/icons-react";
+import { IconTrashXFilled } from "@tabler/icons-react";
 import Grid from "../grid/grid";
 import React from "react";
 import type { DateValuesWithUnit } from "@/types";

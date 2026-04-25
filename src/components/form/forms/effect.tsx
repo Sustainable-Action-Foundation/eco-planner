@@ -101,13 +101,8 @@ export default function EffectForm({
     else {
       defaultLocation = `/action/${selectedAction}`;
     }
-<<<<<<< HEAD
-    
-    formSubmitter('/api/effect', JSON.stringify(formContent), currentEffect ? 'PUT' : 'POST', t, undefined, defaultLocation);
-=======
 
     formSubmitter('/api/effect', JSON.stringify(formContent), currentEffect ? 'PUT' : 'POST', t, undefined, defaultLocation, undefined, undefined, addToast, router.push);
->>>>>>> dev
   }
 
   return (
