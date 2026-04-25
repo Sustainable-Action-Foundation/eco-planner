@@ -87,6 +87,9 @@
     "shown_results": "Visar {{shown}} av {{total}} $t(common:roadmap_series, {\"count\": {{total}}})",
     "filter": "Filter"
   },
+  "historical_data": {
+    "breadcrumb": "Redigera historisk data"
+  },
   "info": {
     "breadcrumb": "Information",
     "title": "Information",

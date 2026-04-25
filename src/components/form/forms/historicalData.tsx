@@ -14,10 +14,9 @@ import type { FormEvent } from "react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
-import dialogStyles from '../api/queryBuilder.module.css' /* TODO: This seems a bit janky */
-import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
+// import dialogStyles from '../api/queryBuilder.module.css' /* TODO: This seems a bit janky */
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
-import { IconEdit, IconTrashXFilled, IconX } from "@tabler/icons-react";
+// import { IconEdit, IconTrashXFilled, IconX } from "@tabler/icons-react";
 
 // TODO: Stuff is re-rendering like a bajillion times, fix this.
 {/* TODO: Metadata */ }
@@ -27,15 +26,15 @@ export default function HistoricalData({
   goal: Goal
 }) {
 
-  const { t } = useTranslation("components");
+  const { t } = useTranslation(["components", "common"]);
   // Locale has the format language-locale, e.g. "sv-SE" or "en-US"
   // We only need the language part, so we split it and take the first part
   // TODO: Fix typing, use match() instead of casting
   const lang = useContext(LocaleContext).split("-")[0];
   // const lang = useContext(LocaleContext).split("-")[0] as "sv" | "en";
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [visibleForm, setVisibleForm] = useState('manual')
+  // const [isLoading, setIsLoading] = useState(false);
+  // const [visibleForm, setVisibleForm] = useState('manual')
 
   const [dataSource, setDataSource] = useState<string>(!!goal.externalDataset ? goal.externalDataset : "");
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
@@ -46,7 +45,7 @@ export default function HistoricalData({
   const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
 
   const formRef = useRef<HTMLFormElement | null>(null);
-  const deleteDataRef = useRef<HTMLDialogElement>(null)
+  // const deleteDataRef = useRef<HTMLDialogElement>(null)
 
   // Gets relevant info from variable inputs
   const buildQuery = useCallback((formData: FormData) => {
@@ -74,7 +73,7 @@ export default function HistoricalData({
     // null check
     if (!(formRef.current instanceof HTMLFormElement)) return;
 
-    setIsLoading(true);
+    // setIsLoading(true);
 
     // Get a result if the form is valid
     if (formRef.current.checkValidity()) {
@@ -83,12 +82,12 @@ export default function HistoricalData({
 
       getTableContent(table ? table.tableId : "", dataSource, query, lang).then(result => {
         setTableContent(result);
-        setIsLoading(false);
+        // setIsLoading(false);
       }).catch((e: unknown) => {
         const errorMessage = e instanceof Error ? e.message : String(e);
         console.error("Error fetching table content:", errorMessage);
         setTableContent(null);
-        setIsLoading(false);
+        // setIsLoading(false);
       });
 
       if (dataSource === "Trafa") {
@@ -100,7 +99,7 @@ export default function HistoricalData({
 
     } else {
       setTableContent(null);
-      setIsLoading(false);
+      // setIsLoading(false);
     }
   }, [buildQuery, table, dataSource, lang]);
 
@@ -131,22 +130,28 @@ export default function HistoricalData({
 
   useEffect(() => {
     if (!dataSource) return;
-    setIsLoading(true);
+    // setIsLoading(true);
 
     // TODO: Undefined here is query, we likely want to remove it once this is all set ut and queryBuilder.tsx is removed
-    void getTables(dataSource, undefined, lang).then(result => { setTables(result); setIsLoading(false); });
+    void getTables(dataSource, undefined, lang).then(result => { 
+      setTables(result);
+      // setIsLoading(false);
+    });
   }, [dataSource, lang]);
 
   {/* TODO: See if we can remove table content when de-selecting  */ }
   const handleTableSelect = useCallback((tableId: string | null) => {
     if (!ExternalDataset.getDatasetByAlternateName(dataSource)?.baseUrl) return;
     if (!tableId) return;
-    setIsLoading(true);
+    // setIsLoading(true);
 
     setTableContent(null);
     setTableDetails(null);
 
-    void getTableDetails(tableId, dataSource, undefined, lang).then(result => { setTableDetails(result); setIsLoading(false); });
+    void getTableDetails(tableId, dataSource, undefined, lang).then(result => { 
+      setTableDetails(result);
+      // setIsLoading(false);
+    });
   }, [dataSource, lang])
 
   useEffect(() => {
@@ -261,9 +266,10 @@ export default function HistoricalData({
       externalTableId: table?.tableId,
       externalSelection: JSON.stringify(query),
       timestamp: Date.now(),
-    }), "PUT", t, setIsLoading);
+    }), "PUT", t); // TODO: add setIsLoading when we reintroduce it
   }
 
+  {/* TODO: Temprorarily removed as we won't have manual historical data on release. This should still exist though, so re add
   function deleteHistoricalData() {
     formSubmitter("/api/goal", JSON.stringify({
       goalId: goal.id,
@@ -273,6 +279,7 @@ export default function HistoricalData({
       timestamp: Date.now(),
     }), "PUT", t, setIsLoading);
   }
+  */}
 
   // Index for data-position attribute in legend elements (for accessibility)
   let positionIndex = 1;
@@ -282,8 +289,9 @@ export default function HistoricalData({
     <div className={`${styles['dialog-body']}`}> {/* TODO: Dialog-body does not make sense here now... */}
       {/* <p className="padding-inline-100">{t("components:query_builder.add_data_to_goal", { goalName: goal.name ?? goal.indicatorParameter })}</p> */}
 
-      {/* TODO: It might be sensible if these are tabs instead. Additionally that we warn users that data will be deleted given that you switch between them */}
-      <div className="radio-select-two margin-bottom-100" > {/* TODO: Make sure these wrap */}
+      {/* TODO: It might be sensible if these are tabs instead. Additionally that we warn users that data will be deleted given that you switch between them 
+      {/* TODO: Make sure these wrap
+      <div className="radio-select-two margin-bottom-100"> 
         <label id="recipe-type-suggested-label">
           {t("components:query_builder.adjust_data_manually")}
           <input
@@ -310,7 +318,9 @@ export default function HistoricalData({
           />
         </label>
       </div>
+       */}
 
+      {/*
       {visibleForm === 'manual' ?
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend
@@ -319,54 +329,56 @@ export default function HistoricalData({
             data-position={positionIndex++}
             className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
           >
-            Data {/* TODO: I18n */}
+            Data {/* TODO: I18n 
           </legend>
           <DataSeriesInputManual />
         </fieldset>
         : visibleForm === 'external' ? (
-          <>
-
+      */}
+          {/* TODO: A bunch of i18n
+            TODO: We should likely not be adding a blur to the backdrop if our dialog can be light dismissed, i.e closedby=any
+            TODO: dialog loading state (for the remove button)
             {goal.externalDataset && goal.externalTableId ?
               <>
                 <fieldset data-info className={`${styles.timeLineFieldset} fieldset-unset-pseudo-class width-100 margin-top-200`}>
-                  <legend className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}> {/* TODO: i18n */}
-                    Information {/* TODO: I18n */} {/* TODO: Maybe we should allow editing idk */}
+                  <legend className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>
+                    Information 
                   </legend>
                   <p className="margin-0 font-weight-500">
-                    Denna målbana har redan en extern datakälla. Du kan antingen justera din historiska data manuellt eller ta bort den externa datakällan och lägga till en ny  {/* TODO: I18n */}
-                  </p> {/* TODO: I18n */}
+                    Denna målbana har redan en extern datakälla. Du kan antingen justera din historiska data manuellt eller ta bort den externa datakällan och lägga till en ny 
+                  </p> 
                   <div className="flex gap-25 margin-top-100">
                     <button
                       className="flex-grow-100 flex align-items-center justify-content-space-between gap-25 font-weight-500"
                       style={{ transform: 'scale(1)' }}
                       onClick={() => setVisibleForm("manual")}
                     >
-                      Justera manuellt {/* TODO: I18n */}
+                      Justera manuellt
                       <IconEdit width={18} height={18} style={{ minWidth: '18px' }} aria-hidden="true" />
                     </button>
                     <button type="button" className="red color-purewhite flex align-items-center justify-content-space-between gap-100 font-weight-500" style={{ transform: 'scale(1)' }} onClick={() => deleteDataRef.current?.showModal()}>
-                      Ta bort extern datakälla {/* TODO: I18n (replace previous existing) */}
+                      Ta bort extern datakälla
                       <IconTrashXFilled fill='white' width={16} height={16} style={{ minWidth: '16px' }} aria-hidden="true" />
                     </button>
                   </div>
                 </fieldset>
-                {/* TODO: We should likely not be adding a blur to the backdrop if our dialog can be light dismissed, i.e closedby=any */}
+
                 <dialog closedby="any" style={{ width: 'min(75ch, 100%)', height: 'calc(50vh - 2rem)' }} className={`rounded padding-inline-0 padding-block-0 ${dialogStyles.dialog}`} aria-modal ref={deleteDataRef}>
                   <div className={`${dialogStyles['dialog-content']}`}>
                     <div className={`${dialogStyles['dialog-header']}`}>
                       <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => deleteDataRef.current?.close()} autoFocus aria-label={t("common:tsx.close")} >
                         <IconX strokeWidth={3} width={28} height={28} style={{ minWidth: '28px' }} aria-hidden="true" />
                       </button>
-                      <h2 className="margin-0">Ta bort extern datakälla</h2> {/* TODO: I18n */}
+                      <h2 className="margin-0">Ta bort extern datakälla</h2> 
                     </div>
-                    <div className="padding-100 flex flex-direction-column"> {/* TODO: I18n */}
+                    <div className="padding-100 flex flex-direction-column">
                       <p className="margin-0 flex-grow-100">Är du säker på att du vill ta bort extern datakälla: <span style={{ fontStyle: 'italic' }}>{tables?.find(t => t.tableId === goal.externalTableId)?.label ?? goal.externalTableId}({goal.externalDataset})</span> från målbana: <span className="font-weight-600">{goal.name}</span>?</p>
                       <div className="flex gap-25">
                         <button className="flex-grow-100 font-weight-500" onClick={() => deleteDataRef.current?.close()}>
-                          Avbryt {/* TODO: I18n */}
+                          Avbryt
                         </button>
-                        <button type="button" className="color-purewhite red font-weight-500" onClick={deleteHistoricalData}> {/* TODO: loading state */}
-                          Ta bort extern datakälla {/* TODO: I18n */}
+                        <button type="button" className="color-purewhite red font-weight-500" onClick={deleteHistoricalData}> 
+                          Ta bort extern datakälla
                         </button>
                       </div>
                     </div>
@@ -374,12 +386,21 @@ export default function HistoricalData({
                 </dialog>
               </>
               : null}
+            */}
 
-            <form ref={setFormRef} onSubmit={handleSubmit} className="flex flex-direction-column flex-grow-1" style={{ minHeight: '0' }}>
+            <form 
+              ref={setFormRef} 
+              onSubmit={handleSubmit}
+              className="flex flex-direction-column flex-grow-1" 
+              style={{ minHeight: '0' }}
+            >
               {/* Hidden disabled submit button to prevent accidental submission */}
               <button type="submit" className="display-none" disabled></button>
 
-              <fieldset disabled={goal.externalDataset && goal.externalTableId ? true : false} className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+              <fieldset 
+                // disabled={goal.externalDataset && goal.externalTableId ? true : false} 
+                className={`${styles.timeLineFieldset} width-100`} // margin-top-200
+              >
                 <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}> {/* TODO: i18n */}
                   Välj datakälla
                 </legend>
@@ -432,8 +453,11 @@ export default function HistoricalData({
               </fieldset>
 
               {/* TODO - which inputs should be optional? */}
-              <fieldset disabled={goal.externalDataset && goal.externalTableId ? true : false} className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-                <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>
+              <fieldset 
+                // disabled={goal.externalDataset && goal.externalTableId ? true : false} 
+                className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+                <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
+              >
                   {t("components:query_builder.select_metric_for_table")}
                 </legend>
                 {table && tableDetails ? (
@@ -456,7 +480,11 @@ export default function HistoricalData({
                   <p>Välj en datakälla först</p> /* TODO: I18n */
                 )}
               </fieldset>
-              <fieldset disabled={goal.externalDataset && goal.externalTableId && goal.externalSelection ? true : false} name="variableSelectionFieldset" className={`${styles.timeLineFieldset} width-100 margin-top-200`}> {/* Figure out disabled for this form */}
+              <fieldset 
+                // disabled={goal.externalDataset && goal.externalTableId && goal.externalSelection ? true : false}
+                name="variableSelectionFieldset" 
+                className={`${styles.timeLineFieldset} width-100 margin-top-200`}
+              > {/* Figure out disabled for this form */}
                 <legend
                   // Technically incrementing here is unused but if you add a another entry after this one it will be correct
                   // eslint-disable-next-line @/no-useless-assignment
@@ -507,12 +535,11 @@ export default function HistoricalData({
                   style={{ fontSize: "14px", transform: "none" }}
                   disabled={!tableDetails || !tableContent || !dataSource}
                 >
-                  {t("components:query_builder.add_data_source_button")}
+                  {t("common:tsx.save_changes")}
                 </button>
               </div>
             </form>
-          </>
-        ) : null}
+        {/*) : null}  */}
     </div>
   )
 }
