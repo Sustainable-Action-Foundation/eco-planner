@@ -390,7 +390,7 @@ export function AdminPanel(
                 )}
                 <nav className="display-contents">
                   {links.historicalDataLink &&
-                    <Link href={links.historicalDataLink} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`}>
+                    <Link href={links.historicalDataLink} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`} data-testid="historical-data-link">
                       <span>{t("components:table_menu.historical_data")}</span>
                       <IconChartHistogram aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                     </Link>

@@ -19,6 +19,8 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    // "noUncheckedIndexedAccess": true,
+    // "noPropertyAccessFromIndexSignature": true,
     "plugins": [
       {
         "name": "next"

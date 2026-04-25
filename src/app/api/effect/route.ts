@@ -7,6 +7,7 @@ import type { EffectInput, JSONValue } from "@/types";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
+import serveTea from "@/lib/i18nServer";
 
 // Typeguard and check if the request body is valid
 function isEffect(effect: JSONValue): effect is EffectInput {
@@ -37,15 +38,16 @@ export async function POST(request: NextRequest) {
     getSession(await cookies()),
     request.json() as Promise<JSONValue>,
   ]);
+  const t = await serveTea("api");
 
   if (!isEffect(effect)) {
-    return Response.json({ message: 'Invalid request body' },
+    return Response.json({ message: t('api:common.invalid_request_body') },
       { status: 400 }
     );
   }
 
   if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
+    return Response.json({ message: t('api:common.unauthorized') },
       { status: 401, headers: { 'Location': '/login' } }
     );
   }
@@ -118,13 +120,13 @@ export async function POST(request: NextRequest) {
             { status: 403 }
           );
         default:
-          return Response.json({ message: 'Unknown error' },
+          return Response.json({ message: t('api:common.unknown_error') },
             { status: 500 }
           );
       }
     } else {
       console.log(error);
-      return Response.json({ message: 'Unknown error' },
+      return Response.json({ message: t('api:common.unknown_error') },
         { status: 500 }
       );
     }
@@ -150,18 +152,18 @@ export async function POST(request: NextRequest) {
     revalidateTag('action');
     revalidateTag('goal');
     // Return success
-    return Response.json({ message: 'Effect created', actionId: newEffect.actionId, goalId: newEffect.goalId },
+    return Response.json({ message: t('api:effect.effect_created'), actionId: newEffect.actionId, goalId: newEffect.goalId },
       { status: 201 }
     );
   } catch (error) {
     // Unique constraint error
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-      return Response.json({ message: 'Effect already exists, try edit page if you want to change values' },
+      return Response.json({ message: t('api:effect.effect_already_exists') },
         { status: 409 }
       );
     }
     console.log(error);
-    return Response.json({ message: 'Internal server error' },
+    return Response.json({ message: t('api:common.server_error') },
       { status: 500 }
     );
   }
@@ -175,15 +177,40 @@ export async function PUT(request: NextRequest) {
     getSession(await cookies()),
     request.json() as Promise<JSONValue>,
   ]);
+  const t = await serveTea("api");
 
-  if (!isEffect(effect) || !effect.timestamp) {
-    return Response.json({ message: 'Invalid request body' },
+  // Typeguard and check if the request body is valid
+  function isEffect(effect: JSONValue): effect is EffectInput & { timestamp: number } {
+    return (
+      // effect should be an object
+      (typeof effect === 'object' &&
+        effect != null &&
+        !(effect instanceof Array) &&
+        // actionId and goalId should be strings
+        typeof effect.actionId === 'string' &&
+        typeof effect.goalId === 'string' &&
+        // dataSeries should be either undefined or an array of strings
+        (
+          effect.dataSeries === undefined ||
+          (
+            effect.dataSeries instanceof Array &&
+            effect.dataSeries.every((value) => typeof value === 'string')
+          )
+        ) &&
+        // impactType may be included, and should in that case be one of the values in ActionImpactType
+        (effect.impactType === undefined || Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType)) && // timestamp should be a number
+        typeof effect.timestamp === 'number')
+    );
+  }
+
+  if (!isEffect(effect)) {
+    return Response.json({ message: t('api:common.invalid_request_body') },
       { status: 400 }
     );
   }
 
   if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
+    return Response.json({ message: t('api:common.unauthorized') },
       { status: 401, headers: { 'Location': '/login' } }
     );
   }
@@ -269,13 +296,13 @@ export async function PUT(request: NextRequest) {
             { status: 409 }
           );
         default:
-          return Response.json({ message: 'Unknown error' },
+          return Response.json({ message: t('api:common.unknown_error') },
             { status: 500 }
           );
       }
     } else {
       console.log(error);
-      return Response.json({ message: 'Unknown error' },
+      return Response.json({ message: t('api:common.unknown_error') },
         { status: 500 }
       );
     }
@@ -309,12 +336,12 @@ export async function PUT(request: NextRequest) {
     revalidateTag('action');
     revalidateTag('goal');
     // Return success
-    return Response.json({ message: 'Effect updated', actionId: updatedEffect.actionId, goalId: updatedEffect.goalId },
+    return Response.json({ message: t('api:effect.effect_updated'), actionId: updatedEffect.actionId, goalId: updatedEffect.goalId },
       { status: 200 }
     );
   } catch (error) {
     console.log(error);
-    return Response.json({ message: 'Internal server error' },
+    return Response.json({ message: t('api:common.server_error') },
       { status: 500 }
     );
   }
@@ -328,6 +355,7 @@ export async function DELETE(request: NextRequest) {
     getSession(await cookies()),
     request.json() as Promise<JSONValue>,
   ]);
+  const t = await serveTea("api");
 
   // Typeguard and check if the request body is valid
   // For delete, only expect actionId and goalId (but allow other fields)
@@ -343,13 +371,13 @@ export async function DELETE(request: NextRequest) {
   }
 
   if (!isEffect(effect)) {
-    return Response.json({ message: 'Invalid request body' },
+    return Response.json({ message: t('api:common.invalid_request_body') },
       { status: 400 }
     );
   }
 
   if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
+    return Response.json({ message: t('api:common.unauthorized') },
       { status: 401, headers: { 'Location': '/login' } }
     );
   }
@@ -401,13 +429,13 @@ export async function DELETE(request: NextRequest) {
             { status: 403 }
           );
         default:
-          return Response.json({ message: 'Unknown error' },
+          return Response.json({ message: t('api:common.unknown_error') },
             { status: 500 }
           );
       }
     } else {
       console.log(error);
-      return Response.json({ message: 'Unknown error' },
+      return Response.json({ message: t('api:common.unknown_error') },
         { status: 500 }
       );
     }
@@ -422,12 +450,12 @@ export async function DELETE(request: NextRequest) {
     revalidateTag('action');
     revalidateTag('goal');
     // Return success
-    return Response.json({ message: 'Effect deleted', actionId: deletedEffect.actionId, goalId: deletedEffect.goalId },
+    return Response.json({ message: t('api:effect.effect_deleted'), actionId: deletedEffect.actionId, goalId: deletedEffect.goalId },
       { status: 200 }
     );
   } catch (error) {
     console.log(error);
-    return Response.json({ message: 'Internal server error' },
+    return Response.json({ message: t('api:common.server_error') },
       { status: 500 }
     );
   }

@@ -46,7 +46,6 @@ p {
 }
 
 /* Legends and labels */
-
 fieldset:not(:has(input:required, select:required, textarea:required, [aria-required="true"])) legend::after {
   content: var(--i18n-optional);
   font-style: italic;
@@ -63,7 +62,6 @@ fieldset:not(:has(input:required, select:required, textarea:required)):has(field
 }
 
 /* Temporary while rewriting */
-
 .discrete-link {
   color: black;
   text-decoration: none;
@@ -130,7 +128,6 @@ input:-webkit-autofill:focus {
 }
 
 /* TipTap text editor */
-
 .tiptap-wrapper .tiptap {
   border-radius: .25rem;
   padding-top: .75rem;
@@ -180,7 +177,6 @@ button[type="submit"]:disabled {
 }
 
 /* Neutral button (Not CTA or danger) */
-
 .neutral-action {
   color: #191919;
   background-color: hsl(223.12deg 100% 96%);
@@ -195,7 +191,7 @@ button[type="submit"]:disabled {
   border: 1px solid var(--gray-80);
   text-decoration: none;
   padding: .3rem .6rem;
-} 
+}
 
 .neutral-action:not(:is(select)):hover,
 .secondary-neutral-action:not(:is(select)):hover {
@@ -203,7 +199,58 @@ button[type="submit"]:disabled {
   background-color: hsl(223.12deg 100% 93%);
 }
 
-/* Chips */ 
+/* Default dialog styles */
+.dialog {
+  width: min(90ch, 100%);
+  overflow: unset;
+  height: calc(70vh - 2rem);
+  border: 0;
+  box-shadow: 0 0 .5rem -.25rem rgba(0, 0, 0, .25);
+  background-color: rgba(246, 246, 246);
+  /* Same as background*/
+}
+
+.dialog::backdrop {
+  backdrop-filter: blur(1px);
+}
+
+.dialog-content {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100%;
+}
+
+.dialog-header {
+  background-color: white;
+  border-bottom: 1px solid var(--gray-80);
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-radius: .5rem .5rem 0 0;
+  /* Same as dialog */
+}
+
+.dialog-header>h1 {
+  font-size: 1.75rem;
+}
+
+.dialog-body {
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray) rgba(0, 0, 0, 0);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog fieldset button:active {
+  /* TODO: Remove? */
+  transform: scale(.995);
+}
+
+/* Chips */
 
 .chip {
   display: flex;
@@ -228,12 +275,12 @@ button[type="submit"]:disabled {
 }
 
 .chip:hover {
-  box-shadow: inset 0 0 9999px rgba(153, 211, 255, .5); 
+  box-shadow: inset 0 0 9999px rgba(153, 211, 255, .5);
 }
 
 .chip:has(input[type="checkbox"]:checked) {
   background-color: rgba(153, 211, 255, .65);
-} 
+}
 
 @media (pointer: coarse) {
   .chip {

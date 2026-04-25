@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./dataSeriesInput.module.css";
 import { isValidPastedInput } from "./utils";
-import { IconTrashXFilled } from "@tabler/icons-react";
+import { IconPlus, IconTrashXFilled } from "@tabler/icons-react";
 import Grid from "../grid/grid";
 import React from "react";
 import type { DateValuesWithUnit } from "@/types";
@@ -183,7 +183,7 @@ export default function DataSeriesInputManual({
                 onClick={() =>
                   setValue(prev => prev.filter((_, i) => i !== index))
                 }
-              >
+              data-testid='delete-row-button'>
                 <IconTrashXFilled height={20} width={20} style={{ maxWidth: '20' }} aria-hidden="true" />
               </button>
             </Grid.Cell>
@@ -196,7 +196,7 @@ export default function DataSeriesInputManual({
         onClick={() =>
           setValue(prev => [...prev, { year: null, data: null }])
         }
-      >
+      data-testid="add-row-button">
         {t("forms:data_series_input.add_new_row")}
       </button>
     </>
