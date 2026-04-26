@@ -1,5 +1,4 @@
 import React from "react"
-import type { Position } from "@/components/types"
 
 export function handleKeyDownGrid({
   e,
@@ -8,11 +7,11 @@ export function handleKeyDownGrid({
   activeCell,
   setActivecell
 }: {
-  e: React.KeyboardEvent<HTMLDivElement>,
+  e: React.KeyboardEvent<HTMLTableCellElement>,
   amountColumns: number,
   children: React.ReactNode,
-  activeCell: Position,
-  setActivecell: React.Dispatch<React.SetStateAction<Position>>,
+  activeCell: {row: number, column: number},
+  setActivecell: React.Dispatch<React.SetStateAction<{row: number, column: number}>>,
 }) { /* TODO: We can probably create an "edit" mode weere just disable theese so the user isnt thrown out of the input when trying to type (if we are not in edit mode we overwrite existing data when typing maybe? see google docs...) */
   if (e.key === 'ArrowDown') {
     e.preventDefault()

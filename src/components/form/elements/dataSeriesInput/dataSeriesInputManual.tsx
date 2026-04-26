@@ -115,15 +115,15 @@ export default function DataSeriesInputManual({
         readOnly: true,
       })}
 
-      <Grid // TODO: Add caption  
+      <Grid // TODO: Add caption (html <caption> element), TODO: Might want to define gridrows here rather than in the component?   
         props={{
           className: `grid width-100 align-items-center ${styles.grid}`,
           style: { gridTemplateColumns: '100px 1fr auto' }
         }}
       >
-        <Grid.ColumnHeader>{t("forms:data_series_input.year")}</Grid.ColumnHeader>
-        <Grid.ColumnHeader>{t("forms:data_series_input.value")}</Grid.ColumnHeader>
-        <Grid.ColumnHeader>{t("forms:data_series_input.action")}</Grid.ColumnHeader>
+        <Grid.ColumnHeader className="text-align-left font-weight-600">{t("forms:data_series_input.year")}</Grid.ColumnHeader>
+        <Grid.ColumnHeader className="text-align-left font-weight-600">{t("forms:data_series_input.value")}</Grid.ColumnHeader>
+        <Grid.ColumnHeader className="text-align-left font-weight-600">{t("forms:data_series_input.action")}</Grid.ColumnHeader>
         {value.flatMap((item, index) => {
           const isLastRow = index >= value.length - 1;
           return [
