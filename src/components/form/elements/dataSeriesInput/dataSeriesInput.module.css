@@ -87,4 +87,11 @@ fieldset .spreadsheet-label:last-child {
   background-color: transparent;
   padding: .25rem;
 }
+
+.grid [role="gridcell"]:focus-within {
+  outline: 1px solid var(--blue-40);
+  box-shadow: 0 0 0 1px var(--blue-90);
+  z-index: 1;
+  outline-offset: -1px;
+}
  
