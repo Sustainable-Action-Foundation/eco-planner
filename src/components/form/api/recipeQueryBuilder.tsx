@@ -20,11 +20,8 @@ import getTableContent from "@/lib/api/getTableContent";
 
 export default function RecipeQueryBuilder({ variableName }: { variableName: string; }) {
   const { t } = useTranslation("components");
-  // Locale has the format language-locale, e.g. "sv-SE" or "en-US"
-  // We only need the language part, so we split it and take the first part
-  // TODO: Fix typing, use match() instead of casting
-  const lang = useContext(LocaleContext).split("-")[0];
-  // const lang = useContext(LocaleContext).split("-")[0] as "sv" | "en";
+  // Locale has the format language-REGION, e.g. "sv-SE" or "en-US", we only need the language part
+  const lang = new Intl.Locale(useContext(LocaleContext)).language;
   const { setVariable } = useRecipe();
 
   const [isLoading, setIsLoading] = useState(false);

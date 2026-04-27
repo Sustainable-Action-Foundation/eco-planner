@@ -89,7 +89,7 @@ export default async function Page(
     MultiRoadmapInstance[],
   ];
 
-  const locale = i18nServer.language.split("-")[0]; // TODO - Illegal!! plz use a more proper method 🥺
+  const locale = new Intl.Locale(i18nServer.language).language;
 
   let accessLevel: AccessLevel = AccessLevel.None;
   if (goal) {
