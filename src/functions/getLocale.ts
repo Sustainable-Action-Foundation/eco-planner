@@ -2,7 +2,11 @@ import { match } from "@formatjs/intl-localematcher";
 import { Locales, uniqueLocales } from "i18n.config";
 import acceptLanguage from "accept-language";
 
-acceptLanguage.languages(uniqueLocales);
+acceptLanguage.languages([
+  Locales.default,
+  ...uniqueLocales,
+  ...uniqueLocales.map((locale) => new Intl.Locale(locale).language)
+]);
 
 export function getLocale(
   localeCookie: string | undefined,
@@ -15,7 +19,7 @@ export function getLocale(
   else if (localeCookie) localeContender = localeCookie;
   else if (acceptLanguageHeader) localeContender = acceptLanguage.get(acceptLanguageHeader) ?? Locales.default;
   else {
-    // Note: When running tests with playwright, this will be thrown one tests without a defined browser environment since the server tries to translate in the prerendering phase.
+    // Note: When running tests with playwright, this will be thrown on tests without a defined browser environment since the server tries to translate in the prerendering phase.
     console.warn(`No user locale found. Using default locale (${Locales.default}). If this is is a browserless test, ignore this.`);
   }
 
