@@ -49,6 +49,8 @@ services:
     build:
       context: ..
       dockerfile: docker/app.Dockerfile
+      args:
+        COMMIT_SHA: ${COMMIT_SHA}
       cache_from:
         - type=gha
       cache_to:
@@ -77,8 +79,7 @@ services:
       - MAIL_PASSWORD=${TEST_MAIL_PASSWORD}
       # Used for links in emails and as canonical url in meta tags
       - BASE_URL=${TEST_BASE_URL:-http://app:8081}
-      - GIT_LONG_HASH=${GIT_LONG_HASH}
-      - GIT_SHORT_HASH=${GIT_SHORT_HASH}
+      - COMMIT_SHA=${COMMIT_SHA}
 
 networks:
   testing_network:
