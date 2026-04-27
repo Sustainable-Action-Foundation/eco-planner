@@ -10,6 +10,17 @@ import { isISOIshDate } from "../../src/types";
 import type { DateValues } from "../../src/types";
 import { dateValuesToDBDateRecord } from "../../src/functions/recipe/vectorAndMaskUtils";
 
+/** 
+ * The seed goal
+ * 
+ * A national roadmap with a couple of version where it's mostly 1:1 recipes on all goals from previous versions.
+ * A couple of regional roadmaps with a couple of versions where it's mostly 1:1 recipes on all goals in previous version, but also a bunch of inherited from national roadmap.
+ *   - a side effect of this is that there will be a bunch of recipes made in the process:) and defaultSuggestedRecipes.ts can be used
+ * National and regionals have a lot of goals, some related, some not (leap params my share a root or be the same or completely different)
+ * A lot of actions, some orphaned.
+ * A lot of effects.
+ */
+
 const prisma = new PrismaClient();
 prisma.$connect().catch((e: unknown) => {
   console.error(colors.yellow(`
