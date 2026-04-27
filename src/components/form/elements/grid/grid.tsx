@@ -1,6 +1,6 @@
 "use client"
 
-import type { GenericElement, GridCell, GridColumnHeader, GridRowHeader } from "@/components/types"
+import type { GenericElement, GridCell, GridColumnHeader, GridRowHeader, GridRow } from "@/components/types"
 import React, { useEffect, useState } from "react"
 import { handleKeyDownGrid } from "./functions"
 
@@ -23,12 +23,25 @@ const GridCell = React.forwardRef<HTMLTableCellElement, GridCell>(
 )
 GridCell.displayName = "GridCell"
 
-const RowHeader = React.forwardRef<HTMLTableCellElement, GridRowHeader>(
-  ({ className, style, children}, ref) => (
-    <th
+const GridRow = React.forwardRef<HTMLTableRowElement, GridRow>(
+  ({ className, style, children }, ref) => (
+    <tr
+      ref={ref}
       className={`${className ? `${className} ` : ''}`}
       style={{ ...(style ?? {}) }}
+    >
+      {children}
+    </tr>
+  )
+)
+GridRow.displayName = "GridRow"
+
+const RowHeader = React.forwardRef<HTMLTableCellElement, GridRowHeader>(
+  ({ className, style, children }, ref) => (
+    <th
       ref={ref}
+      className={`${className ? `${className} ` : ''}`}
+      style={{ ...(style ?? {}) }}
       role="rowheader"
     >
       {children}
@@ -38,18 +51,36 @@ const RowHeader = React.forwardRef<HTMLTableCellElement, GridRowHeader>(
 RowHeader.displayName = "RowHeader"
 
 const ColumnHeader = React.forwardRef<HTMLTableCellElement, GridColumnHeader>(
-  ({ className, style, children}, ref) => (
+  ({ className, style, children }, ref) => (
     <th
+      ref={ref}
       className={`${className ? `${className} ` : ''}`}
       style={{ ...(style ?? {}) }}
-      ref={ref}
       role="columnheader"
-     >
+    >
       {children}
     </th>
   )
 )
 ColumnHeader.displayName = "ColumnHeader"
+
+
+function isGridRow(
+  child: React.ReactNode
+): child is React.ReactElement<GridRow> {
+  return React.isValidElement(child) && child.type === GridRow
+}
+
+function isGridCell(
+  child: React.ReactNode
+): child is React.ReactElement<
+  React.ComponentProps<typeof GridCell>
+> {
+  return (
+    React.isValidElement(child) &&
+    (child.type === GridCell || child.type === RowHeader)
+  )
+}
 
 /***
  * A css grid needs to be defined and passed under props for layout
@@ -64,7 +95,7 @@ export default function Grid({
   // TODO: Add like a check that the amount of children is divisible by the amount of columns or something 
   // to ensure that we have the correct amount of children
 
-  const [activeCell, setActivecell] = useState<{row: number, column: number}>({ row: 0, column: 0 })
+  const [activeCell, setActivecell] = useState<{ row: number, column: number }>({ row: 0, column: 0 })
 
   const gridRef = React.useRef<HTMLTableElement | null>(null)
 
@@ -90,38 +121,14 @@ export default function Grid({
 
   const childrenArray = React.Children.toArray(children)
 
-  // Split elements
   const columnHeaders = childrenArray.filter(
     (child) =>
       React.isValidElement(child) &&
       child.type === Grid.ColumnHeader
   )
 
-  const bodyCells = childrenArray.filter(
-    (child) =>
-      React.isValidElement(child) &&
-      (child.type === GridCell || child.type === RowHeader)
-  )
+  const bodyRows = childrenArray.filter(isGridRow)
 
-  const amountColumns = columnHeaders.length
-
-  // Chunk into rows
-  const rows = bodyCells.reduce<React.ReactNode[][]>(
-    (rowsCollection, currentChild, currentIndex) => {
-      const computedRowIndex = Math.floor(currentIndex / amountColumns)
-
-      if (!rowsCollection[computedRowIndex]) {
-        rowsCollection[computedRowIndex] = []
-      }
-
-      rowsCollection[computedRowIndex].push(currentChild)
-
-      return rowsCollection
-    },
-    []
-  )
-
-  
   return (
     <table
       ref={gridRef}
@@ -153,50 +160,47 @@ export default function Grid({
       {/* Header */}
       <thead className="display-contents">
         <tr className="display-contents">
-          {columnHeaders.map((child) => {
-            if (!React.isValidElement(child)) return child
-
-            return React.cloneElement(child)
-          })}
+          {columnHeaders.map((child) =>
+            React.isValidElement(child) ? React.cloneElement(child) : child
+          )}
         </tr>
       </thead>
 
       {/* Body */}
       <tbody className="display-contents">
-        {rows.map((rowChildren, row) => (
-          <tr key={row} className="display-contents">
-            {rowChildren.map((child, column) => {
-              if (
-                !React.isValidElement(child) ||
-                (child.type !== GridCell && child.type !== RowHeader)
-              ) {
-                return child
-              }
+        {bodyRows.map((rowElement, rowIndex) => {
+          const rowChildren = React.Children.toArray(rowElement.props.children)
 
-              const isActive =
-                activeCell.row === row && activeCell.column === column
+          return (
+            <tr key={rowIndex} className="display-contents">
+              {rowChildren.map((child, columnIndex) => {
+                if (!isGridCell(child)) return child
 
-              return React.cloneElement(
-                child as React.ReactElement<
-                  GridCell & React.RefAttributes<HTMLTableCellElement>
-                >,
-                {
-                  position: { row, column },
+                const isActive =
+                  activeCell.row === rowIndex &&
+                  activeCell.column === columnIndex
+
+                return React.cloneElement(child, {
+                  position: { row: rowIndex, column: columnIndex },
                   tabIndex: isActive ? 0 : -1,
-                  onKeyDown: (e) =>
+                  onKeyDown: (event) =>
                     handleKeyDownGrid({
-                      e,
-                      amountColumns,
+                      e: event,
+                      amountColumns: columnHeaders.length,
                       children,
                       activeCell,
                       setActivecell,
                     }),
-                  onClick: () => setActivecell({ row, column }),
-                }
-              )
-            })}
-          </tr>
-        ))}
+                  onClick: () =>
+                    setActivecell({
+                      row: rowIndex,
+                      column: columnIndex,
+                    }),
+                })
+              })}
+            </tr>
+          )
+        })}
       </tbody>
     </table>
   )
@@ -210,5 +214,7 @@ Grid.Cell = GridCell
 *  Remember to set tabindex -1 for children if they are focusable, i.e inputs
 */
 Grid.RowHeader = RowHeader
+Grid.Row = GridRow
 Grid.ColumnHeader = ColumnHeader
+
 

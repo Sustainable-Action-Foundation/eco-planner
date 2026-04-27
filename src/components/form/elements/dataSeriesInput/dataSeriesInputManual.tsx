@@ -115,78 +115,76 @@ export default function DataSeriesInputManual({
         readOnly: true,
       })}
 
-      <Grid // TODO: Add caption (html <caption> element), TODO: Might want to define gridrows here rather than in the component?   
+      <Grid // TODO: Add caption (html <caption> element), TODO: Might want to define gridrows here rather than in the component?, TODO: the grid rows are currently labeled "ta bort rad", fix this...   
         props={{
           className: `grid width-100 align-items-center ${styles.grid}`,
-          style: { gridTemplateColumns: '100px 1fr auto' }
+          style: { gridTemplateColumns: 'auto auto 1fr auto' }
         }}
-      >
-        <Grid.ColumnHeader className="text-align-left font-weight-600">{t("forms:data_series_input.year")}</Grid.ColumnHeader>
-        <Grid.ColumnHeader className="text-align-left font-weight-600">{t("forms:data_series_input.value")}</Grid.ColumnHeader>
-        <Grid.ColumnHeader className="text-align-left font-weight-600">{t("forms:data_series_input.action")}</Grid.ColumnHeader>
+      > 
+        <Grid.ColumnHeader className="text-align-left">#</Grid.ColumnHeader>
+        <Grid.ColumnHeader className="text-align-left overflow-hidden" style={{resize: 'horizontal', minWidth: 'fit-content', width: '100px'}}>{t("forms:data_series_input.year")}</Grid.ColumnHeader>
+        <Grid.ColumnHeader className="text-align-left">{t("forms:data_series_input.value")}</Grid.ColumnHeader>
+        <Grid.ColumnHeader className="text-align-left">{t("forms:data_series_input.action")}</Grid.ColumnHeader>
         {value.flatMap((item, index) => {
-          const isLastRow = index >= value.length - 1;
           return [
-            <Grid.Cell
-              style={{ borderRight: '1px solid var(--gray-80)' }}
-              key={`year-${index}`}
-            >
-              <input
-                type="number"
-                required
-                tabIndex={-1}
-                defaultValue={item.year ?? undefined}
-                onChange={(e) => handleYearChange(index, e.target.value)}
-                onPaste={(e) => {
-                  // Make sure the pasted input is valid before handling paste
-                  const pasted = e.clipboardData.getData("text");
-                  if (!isValidPastedInput(pasted)) {
-                    e.preventDefault();
-                  } else {
-                    handlePaste(e, index, 'year')
+            <Grid.Row key={`row-${index}`}>
+              <Grid.RowHeader className="grid place-items-center">
+                {index}
+              </Grid.RowHeader>
+              <Grid.Cell
+                style={{ minWidth: '100%', width: '0' }}
+              >
+                <input
+                  type="number"
+                  required
+                  tabIndex={-1}
+                  defaultValue={item.year ?? undefined}
+                  onChange={(e) => handleYearChange(index, e.target.value)}
+                  onPaste={(e) => {
+                    // Make sure the pasted input is valid before handling paste
+                    const pasted = e.clipboardData.getData("text");
+                    if (!isValidPastedInput(pasted)) {
+                      e.preventDefault();
+                    } else {
+                      handlePaste(e, index, 'year')
+                    }
+                  }}
+                />
+              </Grid.Cell>
+              <Grid.Cell>
+                <input
+                  type="number"
+                  tabIndex={-1}
+                  defaultValue={item.data ?? undefined}
+                  onChange={(e) => {
+                    handleDataChange(index, e.target.value);
+                  }}
+                  onPaste={(e) => {
+                    // Make sure the pasted input is valid before handling paste
+                    const pasted = e.clipboardData.getData("text");
+                    if (!isValidPastedInput(pasted)) {
+                      e.preventDefault();
+                    } else {
+                      handlePaste(e, index, "data");
+                    }
+                  }}
+                />
+              </Grid.Cell>
+              <Grid.Cell
+                className='display-flex align-items-center'>
+                <button // TODO: when deleting show popup asking for confirmation, TODO: Add row below/above should be things you can do...
+                  className="padding-25 grid round transparent margin-inline-auto"
+                  type="button"
+                  aria-label={t("forms:data_series_input.delete_row")}
+                  tabIndex={-1}
+                  onClick={() =>
+                    setValue(prev => prev.filter((_, i) => i !== index))
                   }
-                }}
-              />
-            </Grid.Cell>,
-            <Grid.Cell
-              style={{ borderRight: '1px solid var(--gray-80)' }}
-              key={`data-${index}`}
-            >
-              <input
-                type="number"
-                tabIndex={-1}
-                defaultValue={item.data ?? undefined}
-                onChange={(e) => {
-                  handleDataChange(index, e.target.value);
-                }}
-                onPaste={(e) => {
-                  // Make sure the pasted input is valid before handling paste
-                  const pasted = e.clipboardData.getData("text");
-                  if (!isValidPastedInput(pasted)) {
-                    e.preventDefault();
-                  } else {
-                    handlePaste(e, index, "data");
-                  }
-                }}
-              />
-            </Grid.Cell>,
-            <Grid.Cell
-              className='display-flex align-items-center'
-              style={{ ...(isLastRow ? {} : { borderBottom: '1px solid var(--gray-80)' }), backgroundColor: 'var(--tertiary-neutral)' }}
-              key={`test-${index}`} // TODO: Remove test
-            >
-              <button // TODO: when deleting show popup asking for confirmation
-                className="padding-25 grid round transparent margin-inline-auto"
-                type="button"
-                aria-label={t("forms:data_series_input.delete_row")}
-                tabIndex={-1}
-                onClick={() =>
-                  setValue(prev => prev.filter((_, i) => i !== index))
-                }
-              data-testid='delete-row-button'>
-                <IconTrashXFilled height={20} width={20} style={{ maxWidth: '20' }} aria-hidden="true" />
-              </button>
-            </Grid.Cell>
+                data-testid='delete-row-button'>
+                  <IconTrashXFilled height={20} width={20} style={{ maxWidth: '20' }} aria-hidden="true" />
+                </button>
+              </Grid.Cell>
+            </Grid.Row>
           ]
         })}
       </Grid>

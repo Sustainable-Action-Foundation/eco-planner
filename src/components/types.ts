@@ -40,6 +40,7 @@ export type GridCell = GenericElement & {
   onKeyDown?: React.KeyboardEventHandler<HTMLTableCellElement>, 
   onClick?: React.MouseEventHandler<HTMLTableCellElement>
 }
+export type GridRow = GenericElement & { children?: React.ReactNode }
 export type GridColumnHeader = GenericElement & { children?: React.ReactNode }
 export type GridRowHeader = GenericElement & { children?: React.ReactNode }
 
