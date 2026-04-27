@@ -1,7 +1,7 @@
 "use client"
 
 import type { GenericElement, GridCell, GridColumnHeader, GridRowHeader, GridRow } from "@/components/types"
-import React, { useEffect, useState } from "react"
+import React, { useEffect } from "react"
 import { handleKeyDownGrid } from "./functions"
 
 const GridCell = React.forwardRef<HTMLTableCellElement, GridCell>(
@@ -87,15 +87,19 @@ function isGridCell(
  */
 export default function Grid({
   props,
-  children
+  children,
+  activeCell,
+  setActiveCell
 }: {
   props: GenericElement
-  children: React.ReactNode
+  children: React.ReactNode,
+  activeCell: { row: number; column: number }
+  setActiveCell: React.Dispatch<React.SetStateAction<{ row: number; column: number }>>
 }) {
   // TODO: Add like a check that the amount of children is divisible by the amount of columns or something 
   // to ensure that we have the correct amount of children
 
-  const [activeCell, setActivecell] = useState<{ row: number, column: number }>({ row: 0, column: 0 })
+ 
 
   const gridRef = React.useRef<HTMLTableElement | null>(null)
 
@@ -153,7 +157,7 @@ export default function Grid({
         const column = Number(cell.dataset.column)
 
         if (!Number.isNaN(row) && !Number.isNaN(column)) {
-          setActivecell({ row, column })
+          setActiveCell({ row, column })
         }
       }}
     >
@@ -189,10 +193,10 @@ export default function Grid({
                       amountColumns: columnHeaders.length,
                       children,
                       activeCell,
-                      setActivecell,
+                      setActiveCell,
                     }),
                   onClick: () =>
-                    setActivecell({
+                    setActiveCell({
                       row: rowIndex,
                       column: columnIndex,
                     }),

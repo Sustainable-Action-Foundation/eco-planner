@@ -28,7 +28,9 @@ export default function DataSeriesInputManual({
       data: value ?? null
     }));
   })
- 
+
+  const [activeCell, setActiveCell] = useState({ row: 0, column: 0 });
+
   const handleYearChange = (index: number, newValue: string) => {
     setValue(prev =>
       prev.map((item, i) =>
@@ -116,19 +118,24 @@ export default function DataSeriesInputManual({
       })}
 
       <Grid // TODO: Add caption (html <caption> element), TODO: Might want to define gridrows here rather than in the component?, TODO: the grid rows are currently labeled "ta bort rad", fix this...   
+        activeCell={activeCell}
+        setActiveCell={setActiveCell}
         props={{
           className: `grid width-100 align-items-center ${styles.grid}`,
           style: { gridTemplateColumns: 'auto auto 1fr auto' }
         }}
       > 
         <Grid.ColumnHeader className="text-align-left">#</Grid.ColumnHeader>
-        <Grid.ColumnHeader className="text-align-left overflow-hidden" style={{resize: 'horizontal', minWidth: 'fit-content', width: '100px'}}>{t("forms:data_series_input.year")}</Grid.ColumnHeader>
-        <Grid.ColumnHeader className="text-align-left">{t("forms:data_series_input.value")}</Grid.ColumnHeader>
-        <Grid.ColumnHeader className="text-align-left">{t("forms:data_series_input.action")}</Grid.ColumnHeader>
+        <Grid.ColumnHeader className="text-align-left overflow-hidden" style={{resize: 'horizontal', minWidth: 'fit-content', width: '100px', backgroundColor: activeCell.column === 1 ? 'hsl(206,100%,90%,1)' : 'var(--tertiary-neutral)'}}>{t("forms:data_series_input.year")}</Grid.ColumnHeader>
+        <Grid.ColumnHeader className="text-align-left" style={{backgroundColor: activeCell.column === 2 ? 'hsl(206,100%,90%,1)' : 'var(--tertiary-neutral)'}}>{t("forms:data_series_input.value")}</Grid.ColumnHeader>
+        <Grid.ColumnHeader className="text-align-left" style={{backgroundColor: activeCell.column === 3 ? 'hsl(206,100%,90%,1)' : 'var(--tertiary-neutral)'}}>{t("forms:data_series_input.action")}</Grid.ColumnHeader>
         {value.flatMap((item, index) => {
           return [
             <Grid.Row key={`row-${index}`}>
-              <Grid.RowHeader className="grid place-items-center">
+              <Grid.RowHeader
+                className="grid place-items-center"
+                style={{backgroundColor: activeCell.row === index ? 'hsl(206,100%,90%,1)' : 'var(--tertiary-neutral)'}}
+              >
                 {index}
               </Grid.RowHeader>
               <Grid.Cell
