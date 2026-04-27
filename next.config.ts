@@ -32,8 +32,9 @@ function getCommitHash(): { sha: string, dirty: boolean } {
   }
 
   if (!hashInfo.sha) {
-    console.error("No commit hash found.");
-    throw new Error("No commit hash found. Ensure that the build environment has access to git information, or set the COMMIT_SHA environment variable manually.");
+    console.warn("No commit hash found, using 'unknown'");
+    hashInfo.sha = "unknown";
+    hashInfo.dirty = true;
   }
 
   return hashInfo;
