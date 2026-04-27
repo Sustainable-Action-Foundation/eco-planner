@@ -135,7 +135,7 @@ dist
 /cypress/downloads/
 /cypress.env.json
 
-# JSON file containing git commit hash
+# JSON file containing git commit sha
 /src/lib/commitHash.json
 
 # Playwright test results

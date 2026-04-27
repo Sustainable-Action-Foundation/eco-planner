@@ -29,11 +29,8 @@ export default function RecipeQueryBuilder({
   initialSelection?: { variableCode: string, valueCodes: string[] }[];
 }) {
   const { t } = useTranslation("components");
-  // Locale has the format language-locale, e.g. "sv-SE" or "en-US"
-  // We only need the language part, so we split it and take the first part
-  // TODO: Fix typing, use match() instead of casting
-  const lang = useContext(LocaleContext).split("-")[0];
-  // const lang = useContext(LocaleContext).split("-")[0] as "sv" | "en";
+  // Locale has the format language-REGION, e.g. "sv-SE" or "en-US", we only need the language part
+  const lang = new Intl.Locale(useContext(LocaleContext)).language;
   const { upsertVariable } = useRecipe();
 
   function getInitialSelectionValue(variableCode: string) {
@@ -446,7 +443,7 @@ export default function RecipeQueryBuilder({
         className="purewhite flex justify-content-space-between align-items-center gap-25 padding-50 font-size-14px width-100"
         style={{ border: '1px solid var(--gray-80)', transform: 'scale(1)', color: dataSource && tableDetails?.id && tableContent?.metadata[0].label ? 'black' : 'gray' }}
         onClick={() => openModal(modalRef)}
-      // TODO: This needs a title incase of overflow...
+      // TODO: This needs a title in case of overflow...
       >
         <span className="white-space-nowrap">
           {dataSource && tableDetails?.id

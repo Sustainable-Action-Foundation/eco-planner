@@ -24,7 +24,7 @@ export default async function ThumbnailGraph({
     return null;
   }
 
-  const locale = i18nServer.language.split("-")[0];
+  const locale = new Intl.Locale(i18nServer.language).language;
   let externalData: ApiTableContent | null = null;
   if (historicalData) {
     // Fetch external data
