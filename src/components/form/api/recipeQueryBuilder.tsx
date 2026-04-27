@@ -8,13 +8,12 @@ import { ExternalDataset, isDataSetKeys } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
 import type { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
 import type { TrafaVariable } from "@/lib/trafa/trafaTypes";
-import { Fragment, useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
 import { IconDatabaseSearch, IconSearch, IconX } from "@tabler/icons-react";
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
-
 import getTableContent from "@/lib/api/getTableContent";
 import { RecipeDataTypes } from "@/functions/recipe";
 
