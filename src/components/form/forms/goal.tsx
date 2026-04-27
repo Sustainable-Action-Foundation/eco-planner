@@ -13,6 +13,8 @@ import TextEditor from "../elements/textEditor/editor";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import { Recipe } from "@/functions/recipe/recipe";
 import { FormIntegration, RecipeContextProvider, RecipeEditor, SuggestedRecipeApplier } from "@/components/recipe";
+import { useToastContext } from "@/components/generic/toast/toastContext";
+import { useRouter } from "next/navigation";
 
 const DataSeriesType = {
   Manual: "MANUAL",
@@ -67,6 +69,9 @@ export default function GoalForm({
   const [baselineType, setBaselineType] = useState<BaselineType>(baselineTypeFromGoal(currentGoal));
   const [parentRoadmapId, setParentRoadmapId] = useState<string>(roadmapId || "");
   const descriptionRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+
+  const { addToast } = useToastContext();
 
   const parentRoadmaps = useMemo(() => {
     return (roadmapAlternatives ?? []).map(roadmap => ({
@@ -267,7 +272,7 @@ export default function GoalForm({
     const formJSON = JSON.stringify(formContent);
 
     // Submit the form to the API (POST for new, PUT for edit)
-    formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST', t);
+    formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST', t, undefined, undefined, undefined, undefined, addToast, router.push);
   }
 
   // Index for data-position attribute in legend elements (for accessibility)

@@ -4,10 +4,10 @@ import Link from "next/link";
 import { useState } from "react";
 import styles from '../forms.module.css'
 import { useTranslation } from "react-i18next";
+import { IconExclamationCircle, IconEye, IconEyeOff, IconLock, IconUser } from "@tabler/icons-react";
 import type { TFunction } from "i18next";
-import { IconEye, IconEyeOff, IconLock, IconUser } from "@tabler/icons-react";
 
-function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction) {
+function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction, setErrorMessage: React.Dispatch<React.SetStateAction<string | null>>, setErrorKey: React.Dispatch<React.SetStateAction<number>>) {
   event.preventDefault()
 
   const form = event.target
@@ -35,10 +35,12 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction) {
         window.location.href = '/'
       }
     } else {
-      alert(t("components:login.login_failed"))
+      setErrorKey(prevKey => prevKey + 1)
+      setErrorMessage(t("components:login.invalid_credentials"));
     }
   }).catch(() => {
-    alert(t("components:login.login_failed"))
+    setErrorKey(prevKey => prevKey + 1)
+    setErrorMessage(t("components:login.login_failed"));
   })
 }
 
@@ -47,9 +49,13 @@ export default function Login() {
 
   const [showPassword, setShowPassword] = useState(false)
 
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorKey, setErrorKey] = useState<number>(0)
+
+
   return (
     <>
-      <form onSubmit={(event: React.ChangeEvent<HTMLFormElement>) => handleSubmit(event, t)} className={`${styles.padding}`}>
+      <form onSubmit={(event: React.ChangeEvent<HTMLFormElement>) => handleSubmit(event, t, setErrorMessage, setErrorKey)} className={`${styles.padding}`}>
         <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid silver' }}>{t("common:tsx.login")}</h1>
 
         <label>
@@ -84,26 +90,31 @@ export default function Login() {
           </label>
 
           <small><Link href='/password'>{t("components:login.forgot_password")}</Link></small>
-
         </div>
 
-        <div className="margin-top-300 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
+        <div className={`${styles["login-error-message"]} flex flex-direction-column-reversed rounded margin-block-75 padding-75 ${errorMessage ? "opacity-1" : "opacity-0"}`}
+          key={errorKey} data-testid="login-error-message">
+          <IconExclamationCircle width={24} height={24} aria-hidden="true" className="margin-right-50" />
+          <p style={{ minHeight: "1.5rem" }} className="margin-0" aria-hidden={!!errorMessage}>
+            {errorMessage}
+          </p>
+        </div>
+
+        <div className="padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
           <button
             className="text-align-center seagreen color-purewhite width-100 font-weight-600"
             style={{ fontSize: '14px', transform: 'none' }}
             type="submit"
             id="submit-button"
-           >
+          >
             {t("common:tsx.login")}
           </button>
         </div>
- 
+
         <div className="flex gap-100 align-items-center justify-content-space-between align-items-center flex-wrap-wrap margin-block-100">
           <span>{t("components:login.no_account")} <Link href='/signup'>{t("components:login.create_account")}</Link></span>
           <Link href='/verify'>{t("components:login.verify_account")}</Link>
         </div>
-
-
       </form>
     </>
   )

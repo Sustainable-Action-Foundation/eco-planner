@@ -8,6 +8,8 @@ import { Trans, useTranslation } from "react-i18next";
 import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput";
 import { absoluteToDelta, ActionSelector, deltaToAbsolute, GoalSelector } from "../sections/effectFormSections";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
+import { useToastContext } from "@/components/generic/toast/toastContext";
+import { useRouter } from "next/navigation";
 
 export default function EffectForm({
   goal,
@@ -22,6 +24,9 @@ export default function EffectForm({
 }) {
   const { t } = useTranslation(["forms", "common"]);
   const [timestamp] = useState(() => Date.now());
+  const router = useRouter();
+
+  const { addToast } = useToastContext();
 
   const [selectedImpactType, setSelectedImpactType] = useState<ActionImpactType>(currentEffect?.impactType ?? ActionImpactType.ABSOLUTE);
   const [dateValues, setDateValues] = useState<DateValuesWithUnit>(currentEffect?.dataSeries
@@ -68,7 +73,7 @@ export default function EffectForm({
       defaultLocation = `/action/${selectedAction}`;
     }
 
-    formSubmitter('/api/effect', JSON.stringify(formContent), currentEffect ? 'PUT' : 'POST', t, undefined, defaultLocation);
+    formSubmitter('/api/effect', JSON.stringify(formContent), currentEffect ? 'PUT' : 'POST', t, undefined, defaultLocation, undefined, undefined, addToast, router.push);
   }
 
   return (

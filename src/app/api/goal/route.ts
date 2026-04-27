@@ -9,6 +9,7 @@ import type { AccessControlled, JSONValue } from "@/types";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
+import serveTea from "@/lib/i18nServer";
 
 
 /**
@@ -19,10 +20,11 @@ export async function POST(request: NextRequest) {
     getSession(await cookies()),
     request.json() as Promise<JSONValue>,
   ]);
+  const t = await serveTea("api");
 
   // Validate session
   if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
+    return Response.json({ message: t('api:common.unauthorized') },
       { status: 401, headers: { 'Location': '/login' } }
     );
   }
@@ -30,7 +32,7 @@ export async function POST(request: NextRequest) {
   // Validate form data type
   if (!isGoalCreate(formData)) {
     console.log("formData failed validation");
-    return Response.json({ message: 'Invalid request body' },
+    return Response.json({ message: t('api:common.invalid_request_body') },
       { status: 400 }
     );
   }
@@ -95,7 +97,7 @@ export async function POST(request: NextRequest) {
     }
     // If no matching error is thrown, log the error and return a generic error message
     console.log(error);
-    return Response.json({ message: "Internal server error" },
+    return Response.json({ message: t('api:common.server_error') },
       { status: 500 }
     );
   }
@@ -219,18 +221,18 @@ export async function POST(request: NextRequest) {
     // Invalidate old cache
     revalidateTag('goal');
     // Return the new goal's ID if successful
-    return Response.json({ message: "Goal created", id: goalId },
+    return Response.json({ message: t('api:goal.goal_created'), id: goalId },
       { status: 201, headers: { 'Location': `/goal/${goalId}` } }
     );
   }
   catch (error) {
     console.log(error);
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-      return Response.json({ message: 'Failed to connect records. Given roadmap might not exist' },
+      return Response.json({ message: t('api:goal.roadmap_not_found') },
         { status: 400 }
       );
     }
-    return Response.json({ message: "Internal server error" },
+    return Response.json({ message: t('api:common.server_error') },
       { status: 500 }
     );
   }
@@ -244,17 +246,18 @@ export async function PUT(request: NextRequest) {
     getSession(await cookies()),
     request.json() as Promise<JSONValue>,
   ]);
+  const t = await serveTea("api");
 
   // Validate session
   if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
+    return Response.json({ message: t('api:common.unauthorized') },
       { status: 401, headers: { 'Location': '/login' } }
     );
   }
 
   // Validate input
   if (!isGoalUpdate(goal)) {
-    return Response.json({ message: 'Invalid request body' },
+    return Response.json({ message: t('api:common.invalid_request_body') },
       { status: 400 }
     );
   }
@@ -319,7 +322,7 @@ export async function PUT(request: NextRequest) {
     }
     // If no matching error is thrown, log the error and return a generic error message
     console.log(error);
-    return Response.json({ message: "Internal server error" },
+    return Response.json({ message: t('api:common.server_error') },
       { status: 500 }
     );
   }
@@ -451,12 +454,12 @@ export async function PUT(request: NextRequest) {
     // Invalidate old cache
     revalidateTag('goal');
     // Return the edited goal's ID if successful
-    return Response.json({ message: "Goal updated", id: goalId },
+    return Response.json({ message: t('api:goal.goal_updated'), id: goalId },
       { status: 200, headers: { 'Location': `/goal/${goalId}` } }
     );
   } catch (error) {
     console.log(error);
-    return Response.json({ message: "Internal server error" },
+    return Response.json({ message: t('api:common.server_error') },
       { status: 500 }
     );
   }
@@ -470,17 +473,18 @@ export async function DELETE(request: NextRequest) {
     getSession(await cookies()),
     request.json() as Promise<JSONValue>
   ]);
+  const t = await serveTea("api");
 
   // Validate session
   if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
+    return Response.json({ message: t('api:common.unauthorized') },
       { status: 401, headers: { 'Location': '/login' } }
     );
   }
 
   // Validate request body
   if (!goal || !(typeof goal === 'object') || Array.isArray(goal) || typeof goal.id !== 'string' || goal.id.length === 0) {
-    return Response.json({ message: 'Missing required input parameters' },
+    return Response.json({ message: t('api:common.missing_input') },
       { status: 400 }
     );
   }
@@ -533,7 +537,7 @@ export async function DELETE(request: NextRequest) {
     }
     // If no matching error is thrown, log the error and return a generic error message
     console.log(error);
-    return Response.json({ message: "Internal server error" },
+    return Response.json({ message: t('api:common.server_error') },
       { status: 500 }
     );
   }
@@ -555,13 +559,13 @@ export async function DELETE(request: NextRequest) {
     });
     // Invalidate old cache
     revalidateTag('goal');
-    return Response.json({ message: 'Goal deleted', id: deletedGoal.id },
+    return Response.json({ message: t('api:goal.goal_deleted'), id: deletedGoal.id },
       // Redirect to the parent roadmap
       { status: 200, headers: { 'Location': `/roadmap/${deletedGoal.roadmap.id}` } }
     );
   } catch (error) {
     console.log(error);
-    return Response.json({ message: "Internal server error" },
+    return Response.json({ message: t('api:common.server_error') },
       { status: 500 }
     );
   }

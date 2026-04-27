@@ -8,6 +8,7 @@ import accessChecker from "@/lib/accessChecker";
 import { revalidateTag } from "next/cache";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { cookies } from "next/headers";
+import serveTea from "@/lib/i18nServer";
 
 // Type guards
 function isRoadmapCreate(roadmap: JSONValue): roadmap is RoadmapCreateInput {
@@ -206,16 +207,17 @@ export async function POST(request: NextRequest) {
     getSession(await cookies()),
     request.json() as Promise<JSONValue>,
   ]);
+  const t = await serveTea("api");
 
   // Validate session
   if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
+    return Response.json({ message: t('api:common.unauthorized') },
       { status: 401, headers: { 'Location': '/login' } }
     );
   }
 
   if (!isRoadmapCreate(roadmap)) {
-    return Response.json({ message: 'Invalid request body' },
+    return Response.json({ message: t('api:common.invalid_request_body') },
       { status: 400 }
     );
   }
@@ -277,7 +279,7 @@ export async function POST(request: NextRequest) {
     } else {
       // If non-error is thrown, log it and return a generic error message
       console.log(error);
-      return Response.json({ message: "Unknown internal server error" },
+      return Response.json({ message: t('api:common.unknown_server_error') },
         { status: 500 }
       );
     }
@@ -309,7 +311,7 @@ export async function POST(request: NextRequest) {
       _max: { version: true },
     }))._max.version ?? 0;
   } catch {
-    return Response.json({ message: 'Failed to fetch latest roadmap version' },
+    return Response.json({ message: t('api:roadmap.failed_fetch_latest') },
       { status: 500 }
     );
   }
@@ -358,7 +360,7 @@ export async function POST(request: NextRequest) {
     // Invalidate old cache
     revalidateTag('roadmap');
     // Return the new roadmap's ID if successful
-    return Response.json({ message: "Roadmap created", id: newRoadmap.id },
+    return Response.json({ message: t('api:roadmap.roadmap_created'), id: newRoadmap.id },
       { status: 201, headers: { 'Location': `/roadmap/${newRoadmap.id}` } }
     );
   } catch (error) {
@@ -371,12 +373,12 @@ export async function POST(request: NextRequest) {
       }
     }
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-      return Response.json({ message: 'Failed to connect records. Probably invalid editor, viewer, editGroup, and/or viewGroup name(s)' },
+      return Response.json({ message: t('api:roadmap.failed_record_connection') },
         { status: 400 }
       );
     }
     console.log(error);
-    return Response.json({ message: "Internal server error" },
+    return Response.json({ message: t('api:common.server_error') },
       { status: 500 }
     );
   }
@@ -391,17 +393,18 @@ export async function PUT(request: NextRequest) {
     // The version number is not allowed to be changed
     request.json() as Promise<JSONValue>,
   ]);
+  const t = await serveTea("api")
 
   // Validate session
   if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
+    return Response.json({ message: t('api:common.unauthorized') },
       { status: 401, headers: { 'Location': '/login' } }
     );
   }
 
   // Validate request body
   if (!isRoadmapUpdate(roadmap)) {
-    return Response.json({ message: 'Invalid request body' },
+    return Response.json({ message: t('api:common.invalid_request_body') },
       { status: 400 }
     );
   }
@@ -512,7 +515,7 @@ export async function PUT(request: NextRequest) {
     // Invalidate old cache
     revalidateTag('roadmap');
     // Return the new roadmap's ID if successful
-    return Response.json({ message: "Roadmap updated", id: updatedRoadmap.id },
+    return Response.json({ message: t('api:roadmap.roadmap_updated'), id: updatedRoadmap.id },
       { status: 200, headers: { 'Location': `/roadmap/${updatedRoadmap.id}` } }
     );
   } catch (error) {
@@ -526,11 +529,11 @@ export async function PUT(request: NextRequest) {
       }
     }
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-      return Response.json({ message: 'Failed to connect records. Probably invalid editor, viewer, editGroup, and/or viewGroup name(s)' },
+      return Response.json({ message: t('api:roadmap.failed_record_connection') },
         { status: 400 }
       );
     }
-    return Response.json({ message: "Internal server error" },
+    return Response.json({ message: t('api:common.server_error') },
       { status: 500 }
     );
   }
@@ -544,17 +547,18 @@ export async function DELETE(request: NextRequest) {
     getSession(await cookies()),
     request.json() as Promise<{ id: string }>
   ]);
+  const t = await serveTea("api")
 
   // Validate request body
   if (!roadmap.id) {
-    return Response.json({ message: 'Missing required input parameters' },
+    return Response.json({ message: t('api:common.missing_input') },
       { status: 400 }
     );
   }
 
   // Validate session
   if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
+    return Response.json({ message: t('api:common.unauthorized') },
       { status: 401, headers: { 'Location': '/login' } }
     );
   }
@@ -601,7 +605,7 @@ export async function DELETE(request: NextRequest) {
       );
     } else {
       console.log(error);
-      return Response.json({ message: "Unknown internal server error" },
+      return Response.json({ message: t('api:common.unknown_server_error') },
         { status: 500 }
       );
     }
@@ -622,13 +626,13 @@ export async function DELETE(request: NextRequest) {
     await pruneOrphans();
     // Invalidate old cache
     revalidateTag('roadmap');
-    return Response.json({ message: 'Roadmap deleted', id: deletedRoadmap.id },
+    return Response.json({ message: t('api:roadmap.roadmap_deleted'), id: deletedRoadmap.id },
       // Redirect to the parent meta roadmap
       { status: 200, headers: { 'Location': `/metaRoadmap/${deletedRoadmap.metaRoadmapId}` } }
     );
   } catch (error) {
     console.log(error);
-    return Response.json({ message: "Internal server error" },
+    return Response.json({ message: t('api:common.server_error') },
       { status: 500 }
     );
   }

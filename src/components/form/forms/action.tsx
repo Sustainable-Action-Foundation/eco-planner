@@ -7,7 +7,9 @@ import { useTranslation } from "react-i18next"
 import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput"
 import styles from '../forms.module.css'
 import TextEditor from "../elements/textEditor/editor"
-import { useRef, useState } from "react"
+import { useState, useRef } from "react"
+import { useToastContext } from "@/components/generic/toast/toastContext"
+import { useRouter } from "next/navigation"
 
 export default function ActionForm({
   goalId,
@@ -23,6 +25,9 @@ export default function ActionForm({
   const { t } = useTranslation(["forms", "common"]);
   const [timestamp] = useState(() => Date.now());
   const descriptionRef = useRef<HTMLInputElement>(null);
+  const router = useRouter()
+
+  const { addToast } = useToastContext();
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -56,7 +61,7 @@ export default function ActionForm({
 
     const formJSON = JSON.stringify(formContent);
 
-    formSubmitter('/api/action', formJSON, currentAction ? 'PUT' : 'POST', t);
+    formSubmitter('/api/action', formJSON, currentAction ? 'PUT' : 'POST', t, undefined, undefined, undefined, undefined, addToast, router.push);
   }
 
   // Indexes for the data-position attribute in the legend elements
