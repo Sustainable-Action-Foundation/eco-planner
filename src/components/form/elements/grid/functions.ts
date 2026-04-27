@@ -3,24 +3,27 @@ import React from "react"
 export function handleKeyDownGrid({
   e,
   amountColumns,
+  amountRows,
   children,
   activeCell,
   setActiveCell
 }: {
   e: React.KeyboardEvent<HTMLTableCellElement>,
   amountColumns: number,
+  amountRows: number,
   children: React.ReactNode,
   activeCell: {row: number, column: number},
   setActiveCell: React.Dispatch<React.SetStateAction<{row: number, column: number}>>,
 }) { /* TODO: We can probably create an "edit" mode weere just disable theese so the user isnt thrown out of the input when trying to type (if we are not in edit mode we overwrite existing data when typing maybe? see google docs...) */
   if (e.key === 'ArrowDown') {
     e.preventDefault()
-    if (activeCell.row === (React.Children.count(children) / amountColumns) - 1) return // Total amount of rows minus 1 to get index
+    if (activeCell.row === amountRows - 1) return // Total amount of rows minus 1 to get index
+    console.log(activeCell.row)
     setActiveCell({ row: activeCell.row + 1, column: activeCell.column })
   }
   if (e.key === 'ArrowUp') {
     e.preventDefault()
-    if (activeCell.row === 1) return // TODO: We likely want to start rows at 0 in the future. We set it to 1 for now as the headers make up the first row
+    if (activeCell.row === 0) return // Cant move past the first row
     setActiveCell({ row: activeCell.row - 1, column: activeCell.column })
   }
   if (e.key === 'ArrowRight') {
@@ -30,7 +33,7 @@ export function handleKeyDownGrid({
   }
   if (e.key === 'ArrowLeft') {
     e.preventDefault()
-    if (activeCell.column === 0) return
+    if (activeCell.column === 1) return // Our headers count as a column but we don't want to tab into those
     setActiveCell({ row: activeCell.row, column: activeCell.column - 1 })
   }
   if (e.key === 'Home') {

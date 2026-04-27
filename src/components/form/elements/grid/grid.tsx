@@ -191,6 +191,7 @@ export default function Grid({
                     handleKeyDownGrid({
                       e: event,
                       amountColumns: columnHeaders.length,
+                      amountRows: bodyRows.length,
                       children,
                       activeCell,
                       setActiveCell,
