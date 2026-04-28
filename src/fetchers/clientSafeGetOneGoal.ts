@@ -3,7 +3,7 @@
 import { clientSafeGoalSelection } from "@/fetchers/inclusionSelectors";
 import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session"
-import prisma from "@/prisma";
+import prisma from "@/lib/prisma/prisma";
 import { cookies } from "next/headers";
 import { cacheTag } from 'next/cache'
 import type { ClientGoal } from "@/types";

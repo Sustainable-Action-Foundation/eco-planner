@@ -1,7 +1,7 @@
 import "server-only";
 import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session"
-import prisma from "@/prisma";
+import prisma from "@/lib/prisma/prisma";
 import { roadmapSorter } from "@/lib/sorters";
 import { cacheTag } from "next/cache";
 import { cookies } from "next/headers";

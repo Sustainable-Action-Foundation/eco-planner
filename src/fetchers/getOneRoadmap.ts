@@ -3,7 +3,7 @@ import { roadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session"
 import { goalSorter } from "@/lib/sorters";
-import prisma from "@/prisma";
+import prisma from "@/lib/prisma/prisma";
 import { cacheTag } from "next/cache";
 import { cookies } from "next/headers";
 import type { Roadmap } from "@/types";

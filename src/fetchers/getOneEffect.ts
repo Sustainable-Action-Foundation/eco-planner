@@ -4,7 +4,7 @@ import { getSession } from "@/lib/session";
 import { cacheTag } from "next/cache";
 import { cookies } from "next/headers";
 import { effectInclusionSelection } from "@/fetchers/inclusionSelectors";
-import prisma from "@/prisma";
+import prisma from "@/lib/prisma/prisma";
 import type { Effect } from "@/types";
 
 /**

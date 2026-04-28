@@ -1,6 +1,6 @@
 "use server";
 
-import prisma from "@/prisma";
+import prisma from "@/lib/prisma/prisma";
 import { clientSafeMultiRoadmapSelection } from "@/fetchers/inclusionSelectors";
 import { cookies } from "next/headers";
 import type { LoginData } from "@/lib/session";

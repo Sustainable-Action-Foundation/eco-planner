@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { getSession } from "@/lib/session"
-import prisma, { Prisma } from "@/prisma";
+import prisma, { Prisma } from "@/lib/prisma/prisma";
 import { AccessLevel, ClientError, isDateValuesWithUnit } from "@/types";
 import type { AccessControlled, ActionInput } from "@/types";
 import accessChecker from "@/lib/accessChecker";
