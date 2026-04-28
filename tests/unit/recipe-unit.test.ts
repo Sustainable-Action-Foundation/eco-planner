@@ -100,7 +100,7 @@ function makeDataSeriesGetter(seed: Record<string, { values: DateValues; unit?: 
         timestamp: new Date(timestamp),
         value,
       })),
-    } as DataSeries;
+    } satisfies DataSeries;
   };
 }
 
@@ -794,7 +794,7 @@ test.describe("Sanity checks", () => {
 
     const longSeries = Object.fromEntries(
       Array.from({ length: 60 }, (_, i) => [isoYear(2000 + i), i])
-    ) as DateValues;
+    ) satisfies DateValues;
 
     sanityCheckDataSeries([
       { id: "s1", displayName: "HugeScalar", value: 1e14 },
@@ -826,7 +826,7 @@ test.describe("Sanity checks", () => {
     const warnings: string[] = [];
     const extLongDateValues = Object.fromEntries(
       Array.from({ length: 51 }, (_, i) => [isoYear(2000 + i), i])
-    ) as DateValues;
+    ) satisfies DateValues;
 
     sanityCheckExternalDatasets([
       { id: "s1", displayName: "ExternalZero", value: 0 },

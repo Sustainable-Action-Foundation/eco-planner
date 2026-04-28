@@ -1,7 +1,7 @@
 import { GlobalEnv } from "@/types";
 import type { NextConfig } from "next";
 import { execSync } from "node:child_process";
-import packageJSON from "package.json" with { type: "json" };
+import packageJSON from "./package.json" with { type: "json" };
 
 function getCommitHash(): { sha: string, dirty: boolean } {
   const hashInfo: { sha: string; dirty: boolean; } = {
@@ -65,6 +65,6 @@ const nextConfig: NextConfig = {
   experimental: {
     useCache: true,
   },
-}
+};
 
-export default nextConfig
+export default nextConfig;
