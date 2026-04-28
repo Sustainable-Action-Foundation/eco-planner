@@ -135,6 +135,7 @@ export default function ActionForm({
             </label>
 
             <DataSeriesInputManual 
+              label={t("forms:data_series_input.data_series")}
               outputFormElement={<input name="data-series" />}
             />
           </fieldset>

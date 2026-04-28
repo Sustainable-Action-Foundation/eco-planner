@@ -12,9 +12,11 @@ import { IconArrowsMaximize, IconArrowsMinimize, IconPlus, IconRowInsertTop, Ico
 export default function DataSeriesInputManual({
   initialDateValues = { unit: undefined, dateValues: {} },
   outputFormElement,
+  label
 }: {
   initialDateValues?: DateValuesWithUnit | undefined;
   outputFormElement?: React.ReactElement<HTMLInputElement> | undefined;
+  label: string;
 }) {
 
   const { t } = useTranslation("forms");
@@ -107,7 +109,7 @@ export default function DataSeriesInputManual({
 
   return (
     <>
-
+      <div className="margin-bottom-25" id={`table-${label}`}>{label}</div>
       <menu className="flex gap-25 margin-0 gray-95 align-items-center justify-content-space-between" style={{ borderRadius: '.25rem .25rem 0 0', padding: '2px', borderTop: '1px solid var(--gray-80)', borderInline: '1px solid var(--gray-80)' }}>
         <div className="flex gap-25 align-items-center">
           <button
@@ -178,9 +180,9 @@ export default function DataSeriesInputManual({
             onClick={() => setGridExpanded(!gridExpanded)}
             data-testid="expand-grid-button">
             {gridExpanded ?
-              <IconArrowsMinimize width={20} height={20} style={{ minWidth: '20px' }} aria-hidden="true" />
+              <IconArrowsMinimize width={20} height={20} style={{ minWidth: '20px' }} aria-label={t("forms:data_series_input.hide_table")} />
               :
-              <IconArrowsMaximize width={20} height={20} style={{ minWidth: '20px' }} aria-hidden="true" />
+              <IconArrowsMaximize width={20} height={20} style={{ minWidth: '20px' }} aria-label={t("forms:data_series_input.show_table")} />
             }
           </button>
         </div>
@@ -199,7 +201,8 @@ export default function DataSeriesInputManual({
         readOnly: true,
       })}
 
-      <Grid // TODO: Add caption (html <caption> element), TODO: Might want to define gridrows here rather than in the component?, TODO: the grid rows are currently labeled "ta bort rad", fix this...   
+      <Grid // TODO: the grid rows are currently labeled "ta bort rad", fix this...   
+        ariaLabelledBy={`table-${label}`}
         activeCell={activeCell}
         setActiveCell={setActiveCell}
         props={{

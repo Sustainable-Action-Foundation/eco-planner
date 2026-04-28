@@ -405,6 +405,7 @@ export default function GoalForm({
           {/* Custom baseline input */}
           {baselineType === BaselineType.Custom &&
             <DataSeriesInputManual
+              label={t("forms:data_series_input.data_series")}
               outputFormElement={<input name="baseline-data-series" />}
             />
           }

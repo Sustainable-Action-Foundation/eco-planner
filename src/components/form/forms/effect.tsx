@@ -120,6 +120,7 @@ export default function EffectForm({
         />
   
         <DataSeriesInputManual
+          label={t("forms:data_series_input.data_series")}
           initialDateValues={dateValues}
           outputFormElement={<input name="data-series" />}
         />

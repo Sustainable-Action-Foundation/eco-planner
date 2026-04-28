@@ -86,11 +86,13 @@ function isGridCell(
  * A css grid needs to be defined and passed under props for layout
  */
 export default function Grid({
+  ariaLabelledBy,
   props,
   children,
   activeCell,
   setActiveCell
 }: {
+  ariaLabelledBy: string,
   props: GenericElement
   children: React.ReactNode,
   activeCell: { row: number; column: number }
@@ -139,7 +141,7 @@ export default function Grid({
       className={`${props.className ? `${props.className} ` : ''}`}
       style={{ ...props.style }}
       role="grid"
-      aria-labelledby="" // Todo: Remember to pass this in props
+      aria-labelledby={ariaLabelledBy}
       onFocusCapture={(e) => { /* Todo: We currently need to shift+tab tab twice to escape the grid. We likely want to set tabindex -1 if there is a focused child.   */
         const grid = e.currentTarget as HTMLElement
         const target = e.target as HTMLElement

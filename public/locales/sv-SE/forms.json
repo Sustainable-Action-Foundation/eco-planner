@@ -48,8 +48,6 @@
   },
   "data_series_input": {
     "action": "Åtgärd",
-    "insert_row_bottom": "Infoga rad underst",
-    "insert_row_above": "Infoga rad ovan",
     "advanced": "Avancerade alternativ",
     "custom_baseline": "Anpassad baslinje",
     "data_series": "Dataserie",
@@ -60,6 +58,8 @@
     "hide_table": "Minimera tabell",
     "invalid_end_year": "Ogiltigt slutår",
     "invalid_start_year": "Ogiltigt startår",
+    "insert_row_bottom": "Infoga rad underst",
+    "insert_row_above": "Infoga rad ovan",
     "show_table": "Expandera tabell",
     "start_year": "Startår",
     "value": "Värde",

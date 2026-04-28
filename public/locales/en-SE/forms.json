@@ -49,8 +49,6 @@
   "data_series_input": {
     "action": "Action",
     "add_new_row": "Add new row",
-    "insert_row_bottom": "Insert row to bottom",
-    "insert_row_above": "Insert row above",
     "advanced": "Advanced",
     "custom_baseline": "Custom baseline",
     "data_series": "Data series",
@@ -61,6 +59,8 @@
     "hide_table": "Minimize table",
     "invalid_end_year": "Invalid end year",
     "invalid_start_year": "Invalid start year",
+    "insert_row_bottom": "Insert row to bottom",
+    "insert_row_above": "Insert row above",
     "show_table": "Expand table",
     "start_year": "Start year",
     "value": "Value",
