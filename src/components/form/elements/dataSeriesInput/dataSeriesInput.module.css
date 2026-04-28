@@ -95,3 +95,10 @@ fieldset .spreadsheet-label:last-child {
   outline-offset: -1px;
 }
  
+.grid .active-header {
+  background-color: hsl(206,100%,90%,.5);
+}
+
+.grid:has([role="gridcell"]:focus-within) .active-header {
+  background-color: hsl(206,100%,90%,1);
+}

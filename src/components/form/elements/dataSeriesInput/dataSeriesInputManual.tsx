@@ -29,7 +29,7 @@ export default function DataSeriesInputManual({
     }));
   })
 
-  const [activeCell, setActiveCell] = useState({ row: 0, column: 0 });
+  const [activeCell, setActiveCell] = useState({ row: 0, column: 1 }); // Column 0 is always headers
 
   const handleYearChange = (index: number, newValue: string) => {
     setValue(prev =>
@@ -126,15 +126,14 @@ export default function DataSeriesInputManual({
         }}
       > 
         <Grid.ColumnHeader className="text-align-left">#</Grid.ColumnHeader>
-        <Grid.ColumnHeader className="text-align-left overflow-hidden" style={{resize: 'horizontal', minWidth: 'fit-content', width: '100px', backgroundColor: activeCell.column === 1 ? 'hsl(206,100%,90%,1)' : 'var(--tertiary-neutral)'}}>{t("forms:data_series_input.year")}</Grid.ColumnHeader>
-        <Grid.ColumnHeader className="text-align-left" style={{backgroundColor: activeCell.column === 2 ? 'hsl(206,100%,90%,1)' : 'var(--tertiary-neutral)'}}>{t("forms:data_series_input.value")}</Grid.ColumnHeader>
-        <Grid.ColumnHeader className="text-align-left" style={{backgroundColor: activeCell.column === 3 ? 'hsl(206,100%,90%,1)' : 'var(--tertiary-neutral)'}}>{t("forms:data_series_input.action")}</Grid.ColumnHeader>
+        <Grid.ColumnHeader className={`text-align-left overflow-hidden ${activeCell.column === 1 ? styles['active-header'] : ''} `} style={{resize: 'horizontal', minWidth: 'fit-content', width: '100px'}}>{t("forms:data_series_input.year")}</Grid.ColumnHeader>
+        <Grid.ColumnHeader className={`text-align-left ${activeCell.column === 2 ? styles['active-header'] : ''} `}>{t("forms:data_series_input.value")}</Grid.ColumnHeader>
+        <Grid.ColumnHeader className={`text-align-left ${activeCell.column === 3 ? styles['active-header'] : ''} `}>{t("forms:data_series_input.action")}</Grid.ColumnHeader>
         {value.flatMap((item, index) => {
           return [
             <Grid.Row key={`row-${index}`}>
               <Grid.RowHeader
-                className="grid place-items-center"
-                style={{backgroundColor: activeCell.row === index ? 'hsl(206,100%,90%,1)' : 'var(--tertiary-neutral)'}}
+                className={`grid place-items-center ${activeCell.row === index ? styles['active-header'] : ''} `}
               >
                 {index}
               </Grid.RowHeader>
