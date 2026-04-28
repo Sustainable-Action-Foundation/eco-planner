@@ -75,13 +75,27 @@ export default defineConfig({
     },
   ],
 
-  webServer: {
-    timeout: 20 * 60 * 1000, // 20 minutes; both seeding image and app image may need to be built, which might take a while with bad cache, especially on runners.
-    command: "docker compose -f docker/compose.testing.yaml up --remove-orphans",
-    gracefulShutdown: { signal: "SIGTERM", timeout: 5000 }, // SIGTERM for graceful shutdown of docker compose on linux
-    url: webserverURL,
-    reuseExistingServer: !CI,
-  },
+  ...(
+    typeof process.env.LOCAL_TESTS === "undefined"
+      || process.env.LOCAL_TESTS !== "true"
+      ? {
+        webServer: {
+          timeout: 20 * 60 * 1000, // 20 minutes; both seeding image and app image may need to be built, which might take a while with bad cache, especially on runners.
+          command: "docker compose -f docker/compose.testing.yaml up --remove-orphans",
+          gracefulShutdown: { signal: "SIGTERM", timeout: 5000 }, // SIGTERM for graceful shutdown of docker compose on linux
+          url: webserverURL,
+          reuseExistingServer: !CI,
+        },
+      }
+      : {
+        webServer: {
+          timeout: 20 * 1000, // 20 seconds
+          command: "yarn start",
+          url: webserverURL,
+          reuseExistingServer: true,
+        },
+      }
+  ),
 
   // Fail the build on CI if you accidentally left test.only in the source code.
   forbidOnly: CI,
