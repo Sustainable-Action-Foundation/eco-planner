@@ -23,17 +23,17 @@
     // "noPropertyAccessFromIndexSignature": true,
     "plugins": [
       {
-        "name": "next"
-      }
+        "name": "next",
+      },
     ],
     "paths": {
       "@/*": [
-        "./src/*"
+        "./src/*",
       ],
       "@prisma/client": [
-        "./src/prisma/generated"
-      ]
-    }
+        "./.prisma/generated",
+      ],
+    },
   },
   "include": [
     "next-env.d.ts",
@@ -42,7 +42,7 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts",
-    "src/types/**/*.d.ts"
+    "src/types/**/*.d.ts",
   ],
   "exclude": [
     "src/prisma/generated/**/*",
@@ -51,6 +51,6 @@
     ".next",
     "out",
     "dist",
-    "build"
-  ]
+    "build",
+  ],
 }

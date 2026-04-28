@@ -1,7 +1,7 @@
 // DO NOT SEED PRODUCTION DATABASE
 
 import { colors } from "../lib/colors.ts";
-import { PrismaClient, RoadmapType } from '../../src/prisma/generated';
+import { PrismaClient, RoadmapType } from '../../.prisma/generated';
 import bcrypt from "bcryptjs";
 import { RandomTextSE } from "./randomText";
 import { RecipeDataTypes, VectorIndexPickerOptions } from "../../src/functions/recipe/types";
