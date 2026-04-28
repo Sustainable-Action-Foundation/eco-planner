@@ -113,7 +113,6 @@ export class Recipe {
       ...externalVars,
     ];
 
-    // TODO: type guard better and no magic strings
     const evalTimeVars = allVars.filter(v => isEvalTimeVariable(v, { silent: true }));
     const seriesVariables = allVars.filter(v => isEvalTimeSeries(v, { silent: true }));
 

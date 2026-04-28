@@ -89,8 +89,8 @@ export default defineConfig({
       }
       : {
         webServer: {
-          timeout: 20 * 1000, // 20 seconds
-          command: "yarn start",
+          timeout: 60 * 1000,
+          command: "yarn build && yarn start",
           url: webserverURL,
           reuseExistingServer: true,
         },
