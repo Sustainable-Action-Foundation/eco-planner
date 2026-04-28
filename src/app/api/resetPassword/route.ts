@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import getUserHash from "@/functions/getUserHash";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import type { NextRequest } from "next/server";
 import type { JSONValue } from "@/types";
 

@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { getSession } from "@/lib/session"
-import prisma, { Prisma } from "@/lib/prisma";
+import { prisma, Prisma } from "@/lib/prisma";
 import { AccessLevel, ClientError, isDateValuesWithUnit } from "@/types";
 import type { AccessControlled, ActionInput } from "@/types";
 import accessChecker from "@/lib/accessChecker";
@@ -336,7 +336,7 @@ export async function PUT(request: NextRequest) {
     // Prune any orphaned links and comments
     await pruneOrphans();
     // Invalidate old cache
-    revalidateTag('action', {expire: 0});
+    revalidateTag('action', { expire: 0 });
     // Return the new action's ID if successful
     return Response.json({ message: t('api:action.action_created'), id: updatedActionId },
       { status: 200, headers: { 'Location': `/action/${updatedActionId}` } }

@@ -1,7 +1,7 @@
 import "server-only";
 import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session"
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import type { DBRecipe } from "@/types";
 import { recipeSelector } from "@/fetchers/inclusionSelectors";

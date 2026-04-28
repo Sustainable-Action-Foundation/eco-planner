@@ -1,5 +1,5 @@
 import "server-only";
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
 
 export default async function getUserHash(userEmail: string): Promise<string> {

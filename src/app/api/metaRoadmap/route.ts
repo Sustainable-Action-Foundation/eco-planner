@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 import { getSession } from "@/lib/session";
 import { AccessLevel, ClientError, isMetaRoadmapCreate, isMetaRoadmapUpdate } from "@/types";
 import type { AccessControlled, JSONValue } from "@/types";
-import prisma, { Prisma, RoadmapType } from "@/lib/prisma";
+import { prisma, Prisma, RoadmapType } from "@/lib/prisma";
 import { revalidateTag } from "next/cache";
 import accessChecker from "@/lib/accessChecker";
 import pruneOrphans from "@/functions/pruneOrphans";

@@ -9,7 +9,7 @@ import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import type { ApiTableContent } from "@/lib/api/apiTypes";
 import { getSession } from "@/lib/session";
 import serveTea from "@/lib/i18nServer";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { AccessLevel } from "@/types";
 import type { AccessControlled, Goal, MultiRoadmapInstance, Roadmap } from "@/types";
 import { cookies } from "next/headers";

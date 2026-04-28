@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { allowedDomains } from "@/lib/allowedDomains";
-import prisma from "@/lib/prisma"
+import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs";
 import mailClient from "@/mailClient";
 import getUserHash from "@/functions/getUserHash";

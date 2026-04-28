@@ -4,7 +4,7 @@ import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session";
 import { roadmapSorter } from "@/lib/sorters";
 import type { Prisma } from "@/lib/prisma";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { cacheTag } from "next/cache";
 import { cookies } from "next/headers";
 
