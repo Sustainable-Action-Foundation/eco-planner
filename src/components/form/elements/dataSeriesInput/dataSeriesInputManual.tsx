@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./dataSeriesInput.module.css";
 import { isValidPastedInput } from "./utils";
-import { IconTrashXFilled } from "@tabler/icons-react";
 import Grid from "../grid/grid";
 import React from "react";
 import type { DateValuesWithUnit } from "@/types";
@@ -18,12 +17,13 @@ export default function DataSeriesInputManual({
 }) {
 
   const { t } = useTranslation("forms");
-  const [value, setValue] = useState<Array<{ year: number | null, data: number | null }>>(() => {
+  const [value, setValue] = useState<Array<{ id: string; year: number | null; data: number | null }>>(() => {
     if (Object.keys(initialDateValues.dateValues).length === 0) {
-      return [{ year: null, data: null }];
+      return [{ id: crypto.randomUUID(), year: null, data: null }];
     }
 
     return Object.entries(initialDateValues.dateValues).map(([date, value]) => ({
+      id: crypto.randomUUID(),
       year: new Date(date).getFullYear(),
       data: value ?? null
     }));
@@ -78,18 +78,20 @@ export default function DataSeriesInputManual({
         const rowIndex = startIndex + rowOffset;
 
         if (!next[rowIndex]) {
-          next[rowIndex] = { year: null, data: null };
+          next[rowIndex] = { id: crypto.randomUUID(), year: null, data: null };
         }
 
         // If we paste into data, we do not want any new data in the previous column (i.e years)
         // If we paste into year, we expect both the year and data column to be filled out data exists
         if (targetColumn === 'data') {
           next[rowIndex] = {
+            id: next[rowIndex].id,
             year: next[rowIndex].year,
             data: cols[0] ? Number(cols[0]) : null,
           }
         } else {
           next[rowIndex] = {
+            id: next[rowIndex].id,
             year: cols[0] ? Number(cols[0]) : null,
             data: cols[1] ? Number(cols[1]) : null,
           }
@@ -103,6 +105,57 @@ export default function DataSeriesInputManual({
 
   return (
     <>
+
+      <menu className="flex gap-25">
+        <button
+          type="button"
+          onClick={() =>
+            setValue(prev => [...prev, { id: crypto.randomUUID(), year: null, data: null }])
+          }
+          data-testid="add-row-button">
+          {t("forms:data_series_input.add_new_row")}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setValue(prev => [
+              ...prev.slice(0, activeCell.row),
+              { id: crypto.randomUUID(), year: null, data: null },
+              ...prev.slice(activeCell.row)
+            ])
+            setActiveCell(prev => ({
+              ...prev,
+              row: prev.row
+            }))
+          }}
+          data-testid="add-row-before-button">
+          {t("forms:data_series_input.insert_row_before")}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setValue(prev => {
+              if (prev.length === 0) return prev;
+
+              const next = prev.filter((_, i) => i !== activeCell.row);
+
+              // Ensure at least one row exists
+              if (next.length === 0) {
+                return [{ id: crypto.randomUUID(), year: null, data: null }];
+              }
+
+              return next;
+            });
+
+            setActiveCell(prev => ({
+              ...prev,
+              row: Math.max(0, prev.row - 1)
+            }));
+          }}
+          data-testid="delete-row-button">
+          {t("forms:data_series_input.delete_row")}
+        </button>
+      </menu>
 
       {outputFormElement && React.cloneElement(outputFormElement, {
         value: JSON.stringify({
@@ -122,16 +175,15 @@ export default function DataSeriesInputManual({
         setActiveCell={setActiveCell}
         props={{
           className: `grid width-100 align-items-center ${styles.grid}`,
-          style: { gridTemplateColumns: 'auto auto 1fr auto' }
+          style: { gridTemplateColumns: 'auto auto 1fr' }
         }}
-      > 
+      >
         <Grid.ColumnHeader className="text-align-left">#</Grid.ColumnHeader>
-        <Grid.ColumnHeader className={`text-align-left overflow-hidden ${activeCell.column === 1 ? styles['active-header'] : ''} `} style={{resize: 'horizontal', minWidth: 'fit-content', width: '100px'}}>{t("forms:data_series_input.year")}</Grid.ColumnHeader>
+        <Grid.ColumnHeader className={`text-align-left overflow-hidden ${activeCell.column === 1 ? styles['active-header'] : ''} `} style={{ resize: 'horizontal', minWidth: 'fit-content', width: '100px' }}>{t("forms:data_series_input.year")}</Grid.ColumnHeader>
         <Grid.ColumnHeader className={`text-align-left ${activeCell.column === 2 ? styles['active-header'] : ''} `}>{t("forms:data_series_input.value")}</Grid.ColumnHeader>
-        <Grid.ColumnHeader className={`text-align-left ${activeCell.column === 3 ? styles['active-header'] : ''} `}>{t("forms:data_series_input.action")}</Grid.ColumnHeader>
         {value.flatMap((item, index) => {
           return [
-            <Grid.Row key={`row-${index}`}>
+            <Grid.Row key={item.id}>
               <Grid.RowHeader
                 className={`grid place-items-center ${activeCell.row === index ? styles['active-header'] : ''} `}
               >
@@ -144,7 +196,7 @@ export default function DataSeriesInputManual({
                   type="number"
                   required
                   tabIndex={-1}
-                  defaultValue={item.year ?? undefined}
+                  value={item.year === null ? '' : String(item.year)}
                   onChange={(e) => handleYearChange(index, e.target.value)}
                   onPaste={(e) => {
                     // Make sure the pasted input is valid before handling paste
@@ -161,7 +213,7 @@ export default function DataSeriesInputManual({
                 <input
                   type="number"
                   tabIndex={-1}
-                  defaultValue={item.data ?? undefined}
+                  value={item.data === null ? '' : String(item.data)}
                   onChange={(e) => {
                     handleDataChange(index, e.target.value);
                   }}
@@ -176,33 +228,10 @@ export default function DataSeriesInputManual({
                   }}
                 />
               </Grid.Cell>
-              <Grid.Cell
-                className='display-flex align-items-center'>
-                <button // TODO: when deleting show popup asking for confirmation, TODO: Add row below/above should be things you can do...
-                  className="padding-25 grid round transparent margin-inline-auto"
-                  type="button"
-                  aria-label={t("forms:data_series_input.delete_row")}
-                  tabIndex={-1}
-                  onClick={() =>
-                    setValue(prev => prev.filter((_, i) => i !== index))
-                  }
-                data-testid='delete-row-button'>
-                  <IconTrashXFilled height={20} width={20} style={{ maxWidth: '20' }} aria-hidden="true" />
-                </button>
-              </Grid.Cell>
             </Grid.Row>
           ]
         })}
       </Grid>
-      <button
-        type="button"
-        className="font-weight-600 text-align-center padding-50 width-100" style={{ lineHeight: '1', transform: 'scale(1)', borderRadius: '0 0 .25rem .25rem', border: '1px solid var(--gray-80)', borderTop: '0', backgroundColor: '#ebf0ff' }}
-        onClick={() =>
-          setValue(prev => [...prev, { year: null, data: null }])
-        }
-      data-testid="add-row-button">
-        {t("forms:data_series_input.add_new_row")}
-      </button>
     </>
   )
 }

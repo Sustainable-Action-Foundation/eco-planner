@@ -99,7 +99,7 @@ export default function Grid({
   // TODO: Add like a check that the amount of children is divisible by the amount of columns or something 
   // to ensure that we have the correct amount of children
 
- 
+
 
   const gridRef = React.useRef<HTMLTableElement | null>(null)
 
@@ -116,7 +116,7 @@ export default function Grid({
       'input, textarea, select, button, [tabindex]:not([tabindex="-1"])'
     )
 
-    if (focusable) {
+    if (focusable && document.activeElement !== focusable) {
       focusable.focus()
     } else {
       cell.focus()
@@ -157,7 +157,10 @@ export default function Grid({
         const column = Number(cell.dataset.column)
 
         if (!Number.isNaN(row) && !Number.isNaN(column)) {
-          setActiveCell({ row, column })
+          setActiveCell(prev => {
+            if (prev.row === row && prev.column === column) return prev
+            return { row, column }
+          })
         }
       }}
     >
