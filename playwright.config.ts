@@ -12,7 +12,7 @@ export default defineConfig({
   testIgnore: "screenshot-tests.spec.ts",
 
   // fullyParallel: true,
-  workers: "50%",
+  workers: "80%",
 
   // One retry in case of flaky tests
   retries: 1,
