@@ -4,7 +4,7 @@ import { Recipe } from "@/functions/recipe/recipe";
 import { RecipeError } from "@/functions/recipe/types";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
-import prisma from "@/lib/prisma/prisma";
+import prisma from "@/lib/prisma";
 import { ClientError, isDateValues } from "@/types";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";

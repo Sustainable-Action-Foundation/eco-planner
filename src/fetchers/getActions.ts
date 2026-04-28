@@ -2,7 +2,7 @@ import "server-only";
 import { actionInclusionSelection } from "@/fetchers/inclusionSelectors";
 import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session";
-import prisma from "@/lib/prisma/prisma";
+import prisma from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import type { Action } from "@/types";

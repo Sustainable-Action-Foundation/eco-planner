@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma/prisma";
+import prisma from "@/lib/prisma";
 
 export default async function findTypeFromId(id: string): Promise<"action" | "goal" | "roadmap" | undefined> {
   const [action, goal, roadmap] = await Promise.all([

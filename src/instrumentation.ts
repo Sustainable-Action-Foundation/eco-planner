@@ -33,7 +33,7 @@ export async function register() {
       });
 
       // Self-test database connection
-      const prisma = await import('@/lib/prisma/prisma').then(module => module.default);
+      const prisma = await import('@/lib/prisma').then(module => module.default);
 
       await prisma.$executeRaw`SELECT 1;`.catch((e: unknown) => {
         const errorMessage = e instanceof Error ? e.message : String(e);

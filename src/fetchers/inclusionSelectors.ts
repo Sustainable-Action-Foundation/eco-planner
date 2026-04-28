@@ -1,4 +1,4 @@
-import type { Prisma } from "@generated/prisma";
+import type { Prisma } from "@/lib/prisma";
 
 export const nameSelector = {
   name: true,
