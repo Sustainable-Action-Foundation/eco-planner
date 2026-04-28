@@ -44,10 +44,10 @@
     "external_resources": "Externa resurser"
   },
   "effect_create": {
-    "breadcrumb": "$t(common:new.effect)",
-    "information_icon_aria": "Information",
     "bad_action": "$t(common:action_definite_one, titleCase) du angav i URL:en kunde inte hittas eller så har du inte redigeringsbehörighet till den. Vänligen välj en ny i formuläret nedan.",
     "bad_goal": "$t(common:goal_definite_one, titleCase) du angav i URL:en kunde inte hittas eller så har du inte redigeringsbehörighet till den. Vänligen välj en ny i formuläret nedan.",
+    "breadcrumb": "$t(common:new.effect)",
+    "information_icon_aria": "Information",
     "title": "$t(common:new.effect)"
   },
   "effect_edit": {
@@ -67,8 +67,8 @@
     "related_goals": "Angränsande $t(common:goal_other)",
     "sub_goals": "Underliggande $t(common:goal_other)",
     "title_label": "$t(common:goal_one, titleCase)",
-    "update_needed_attention_message": "Uppmärksamhet!",
-    "update_needed": "Uppdatera din $t(common:goal_one) för att få den senaste informationen."
+    "update_needed": "Uppdatera din $t(common:goal_one) för att få den senaste informationen.",
+    "update_needed_attention_message": "Uppmärksamhet!"
   },
   "goal_create": {
     "bad_roadmap": "Kunde inte hitta, eller har inte tillgång till, $t(common:roadmap_version_definite_one) i länken.\n\nAnvänd dropdown-menyn för att välja en $t(common:roadmap_version_one) att skapa $t(common:goal_definite_one) under.",
@@ -81,11 +81,11 @@
     "title": "$t(common:edit.goal): {{goalName}}"
   },
   "home": {
-    "title": "$t(common:roadmap_short_other, titleCase)",
     "create_roadmap": "$t(common:new.roadmap_series)",
     "filter": "Filter",
     "search_roadmaps": "Sök bland $t(common:count.roadmap)",
-    "shown_results": "Visar {{shown}} av {{total}} $t(common:roadmap_series, {\"count\": {{total}}})"
+    "shown_results": "Visar {{shown}} av {{total}} $t(common:roadmap_series, {\"count\": {{total}}})",
+    "title": "$t(common:roadmap_short_other, titleCase)"
   },
   "info": {
     "breadcrumb": "Information",
@@ -118,10 +118,10 @@
     "handle_data": "Hantera min data",
     "my_posts": "Mina inlägg",
     "roadmap_series_ones": "$t(common:roadmap_series_other, titleCase)",
+    "roadmap_versions": "$t(common:roadmap_version_other, titleCase)",
     "user_posts": "{{name, possessive, titleCase}} inlägg",
     "version_count_one": "{{count}} version",
-    "version_count_other": "{{count}} versioner",
-    "roadmap_versions": "$t(common:roadmap_version_other, titleCase)"
+    "version_count_other": "{{count}} versioner"
   },
   "roadmap": {
     "all_actions": "Alla $t(common:action_other)",
@@ -145,9 +145,9 @@
   },
   "roadmap_series_one": {
     "create_roadmap_version": "$t(common:new.roadmap_version)",
-    "title_legend": "$t(common:roadmap_series_one, titleCase)",
     "description_legend": "Metadata för en serie av $t(common:roadmap_version_other)",
-    "roadmap_versions": "$t(common:roadmap_version_other, titleCase)"
+    "roadmap_versions": "$t(common:roadmap_version_other, titleCase)",
+    "title_legend": "$t(common:roadmap_series_one, titleCase)"
   },
   "roadmap_series_one_create": {
     "breadcrumb": "$t(common:new.roadmap_series)",
