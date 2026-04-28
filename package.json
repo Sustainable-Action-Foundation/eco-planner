@@ -9,9 +9,8 @@
   "repository": "github:Sustainable-Action-Foundation/eco-planner",
   "scripts": {
     "preinstall": "git update-index --skip-worktree src/lib/LEAPList.json &",
-    "pre-dev": "tsx ./scripts/getBuildInfo.ts",
-    "dev": "yarn pre-dev && yarn lint & yarn next dev",
-    "pre-build": "tsx ./scripts/generateLeapList.ts && tsx ./scripts/getBuildInfo.ts && yarn lint",
+    "dev": "yarn lint & yarn next dev",
+    "pre-build": "tsx ./scripts/generateLeapList.ts && yarn lint",
     "build": "yarn pre-build && yarn next build",
     "start": "next start",
     "lint": "tsc --noEmit -p ./tsconfig.json && eslint -c ./eslint.config.ts --cache --concurrency auto",

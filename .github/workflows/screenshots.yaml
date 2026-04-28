@@ -59,8 +59,7 @@ jobs:
           TEST_MAIL_PASSWORD: ${{ secrets.TEST_MAIL_PASSWORD }}
           TEST_MARIADB_DATABASE: ${{ secrets.TEST_MARIADB_DATABASE }}
           TEST_MARIADB_ROOT_PASSWORD: ${{ secrets.TEST_MARIADB_ROOT_PASSWORD }}
-          GIT_LONG_HASH: ${{ github.sha }}
-          GIT_SHORT_HASH: ${{ github.sha }}
+          COMMIT_SHA: ${{ github.sha }}
           BUILDX_EXPERIMENTAL: 1
         run: |
           yarn screenshot

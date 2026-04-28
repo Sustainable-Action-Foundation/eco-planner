@@ -57,6 +57,8 @@ RUN yarn prisma generate
 # ============================================================================
 FROM base AS builder
 
+ARG COMMIT_SHA
+
 # Copy dependencies
 COPY --from=deps /app/node_modules ./node_modules
 # Copy yarn from corepack cache, to avoid downloading it again
@@ -73,6 +75,7 @@ ENV NODE_ENV=production
 # Next.js collects completely anonymous telemetry data about general usage. Learn more here: https://nextjs.org/telemetry
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV CI=true
+ENV COMMIT_SHA=${COMMIT_SHA}
 
 # Build with cache mount for Next.js
 RUN --mount=type=cache,target=/app/.next/cache \
@@ -84,12 +87,10 @@ RUN --mount=type=cache,target=/app/.next/cache \
 # ============================================================================
 FROM base AS runner
 
-ARG GIT_LONG_HASH
-ARG GIT_SHORT_HASH
+ARG COMMIT_SHA
 
 # Build arguments for git information (for debugging/monitoring)
-ENV GIT_LONG_HASH=${GIT_LONG_HASH}
-ENV GIT_SHORT_HASH=${GIT_SHORT_HASH}
+ENV COMMIT_SHA=${COMMIT_SHA}
 
 # Set production environment variables
 ENV NODE_ENV=production
