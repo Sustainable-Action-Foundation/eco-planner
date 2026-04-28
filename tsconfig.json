@@ -30,7 +30,7 @@
       "@/*": [
         "./src/*",
       ],
-      "@prisma/client": [
+      "@generated/prisma": [
         "./.prisma/generated",
       ],
     },

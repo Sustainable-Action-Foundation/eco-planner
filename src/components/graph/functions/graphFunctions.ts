@@ -1,6 +1,6 @@
 import { getLocalStorage, getSessionStorage, setLocalStorage, setSessionStorage } from "@/functions/localStorage";
 import { GraphType } from "@/components/graph/graphs/goal/main/container";
-import { ActionImpactType } from "@prisma/client";
+import { ActionImpactType } from "@generated/prisma";
 import { ChildGraphType } from "@/components/graph/graphs/goal/child/container";
 import { isISOIshDate } from "@/types";
 import type { DateValues, DataSeries, Effect, Goal } from "@/types";

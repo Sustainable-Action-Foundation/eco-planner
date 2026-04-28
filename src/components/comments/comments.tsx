@@ -1,7 +1,7 @@
 'use client';
 
 import { commentSorter } from "@/lib/sorters";
-import type { Comment } from "@prisma/client";
+import type { Comment } from "@generated/prisma";
 import styles from './comments.module.css'
 import type { FocusEventHandler, InputEventHandler } from "react";
 import { useRef, useState } from "react";
