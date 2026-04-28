@@ -1,10 +1,21 @@
-// This file makes it so we can use a single instance of PrismaClient across the entire application.
-// There will still be multiple instances running in dev environment, but it's not really a problem.
-import { PrismaClient } from "@prisma/client";
+import "dotenv/config";
+import { PrismaClient } from "@generated/prisma";
+import { makeMariaDBAdapter } from "@/lib/prisma/mariadb-adapter";
 
-const prisma = new PrismaClient();
+const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
-export default prisma;
+const { DATABASE_URL } = process.env;
+if (!DATABASE_URL) throw new Error("DATABASE_URL is not defined");
 
-export { Prisma } from "@prisma/client";
-export { RoadmapType, ActionImpactType } from "@prisma/client";
+export const prisma = globalForPrisma.prisma ?? new PrismaClient(makeMariaDBAdapter(DATABASE_URL));
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+
+process.on("beforeExit", () => {
+  prisma.$disconnect()
+    .catch((err: unknown) => {
+      console.error("Error disconnecting Prisma Client:", err);
+    });
+});
+
+export * from "@generated/prisma";

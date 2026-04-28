@@ -65,6 +65,7 @@
   "dependencies": {
     "@floating-ui/dom": "^1.7.6",
     "@formatjs/intl-localematcher": "^0.8.4",
+    "@prisma/adapter-mariadb": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@tabler/icons-react": "^3.41.1",
     "@tiptap/core": "^3.22.5",
