@@ -1,6 +1,7 @@
 import "dotenv/config";
-import { PrismaClient } from "@generated/prisma";
 import { makeMariaDBAdapter } from "@/lib/prisma/mariadb-adapter";
+import { PrismaClient } from "../../../.prisma/generated";
+export * from "../../../.prisma/generated";
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
@@ -17,5 +18,3 @@ process.on("beforeExit", () => {
       console.error("Error disconnecting Prisma Client:", err);
     });
 });
-
-export * from "@generated/prisma";

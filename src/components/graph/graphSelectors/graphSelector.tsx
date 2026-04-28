@@ -2,7 +2,7 @@
 
 import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
 import React from 'react';
-import type { DataSeries, Goal } from "@generated/prisma";
+import type { DataSeries, Goal } from "@/lib/prisma";
 import { GraphType } from "../graphs/goal/main/container";
 import { setStoredGraphType } from '../functions/graphFunctions';
 import { useTranslation } from "react-i18next";

@@ -2,7 +2,7 @@
 
 import WrappedChart from "@/lib/chartWrapper";
 import { actionGraphSorter } from "@/lib/sorters";
-import type { Action } from "@generated/prisma";
+import type { Action } from "@/lib/prisma";
 import type { ApexAxisChartSeries } from "apexcharts";
 import { useTranslation } from "react-i18next";
 

@@ -1,6 +1,6 @@
 import { isDateValuesWithUnit } from "@/types";
 import type { GoalCreateInput } from "@/types";
-import type { Prisma } from "@generated/prisma";
+import type { Prisma } from "@/lib/prisma";
 
 type RoadmapGoalInput = {
   goals?: GoalCreateInput[] | null | undefined;

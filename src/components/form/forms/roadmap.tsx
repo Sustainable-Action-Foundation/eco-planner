@@ -4,7 +4,7 @@ import formSubmitter from "@/functions/formSubmitter";
 import parseCsv, { csvToGoalList } from "@/functions/parseCsv";
 import type { LoginData } from "@/lib/session";
 import type { AccessControlled, GoalCreateInput, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
-import type { MetaRoadmap, Roadmap } from "@generated/prisma";
+import type { MetaRoadmap, Roadmap } from "@/lib/prisma";
 import { useEffect, useMemo, useRef, useState } from "react";
 import styles from '../forms.module.css';
 import type { TFunction } from "i18next";

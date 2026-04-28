@@ -1,6 +1,6 @@
 import dataSeriesInterest from "@/functions/weightedAverageDelta";
-import type { Comment } from "@generated/prisma";
-import { RoadmapType } from "@generated/prisma";
+import type { Comment } from "@/lib/prisma";
+import { RoadmapType } from "@/lib/prisma";
 import type { Action, Goal, MetaRoadmap, MultiRoadmapInstance } from "@/types";
 
 // Used for alphabetical sorting, we use Swedish locale and ignore case, but it can be changed here

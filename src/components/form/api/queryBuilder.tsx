@@ -10,7 +10,7 @@ import { ExternalDataset } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
 import type { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
 import type { TrafaVariable } from "@/lib/trafa/trafaTypes";
-import type { Goal } from "@generated/prisma";
+import type { Goal } from "@/lib/prisma";
 import type { ChangeEventHandler, SubmitEvent } from "react";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";

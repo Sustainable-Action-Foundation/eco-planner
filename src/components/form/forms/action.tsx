@@ -2,7 +2,7 @@
 
 import formSubmitter from "@/functions/formSubmitter"
 import type { Action, ActionInput, DateValuesWithUnit, MultiRoadmapInstance } from "@/types"
-import { ActionImpactType } from "@generated/prisma"
+import { ActionImpactType } from "@/lib/prisma"
 import { useTranslation } from "react-i18next"
 import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput"
 import styles from '../forms.module.css'

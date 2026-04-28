@@ -30,9 +30,6 @@
       "@/*": [
         "./src/*",
       ],
-      "@generated/prisma": [
-        "./.prisma/generated",
-      ],
     },
   },
   "include": [
