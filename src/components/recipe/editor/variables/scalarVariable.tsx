@@ -1,29 +1,29 @@
 "use client"
 
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
-import type { RecipeScalar } from "@/functions/recipe/types";
+import { RecipeDataTypes, RecipeError } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
-import { RecipeEditorPermissions } from "./recipeEditorPermissions";
-import { updateScalarVariableValue } from "@/components/recipe/variableEditingHelpers";
-import VariableTypeCommon from "./commonVariable";
+import { RecipeEditorPermissions } from "../recipeEditorPermissions";
+import { CommonVariable } from "@/components/recipe";
 
 // TODO: Fix labels
-export default function VariableTypeScalar({
-  name,
+export function VariableTypeScalar({
+  variableId,
   permissions,
 }: {
-  name: string;
+  variableId: string;
   permissions?: RecipeEditorPermissions;
 }) {
   const { t } = useTranslation("components");
-  const { recipe, setVariable } = useRecipe();
-  const variable = recipe?.variables[name] as RecipeScalar;
+  const { upsertVariable, getVariable } = useRecipe();
+  const variable = getVariable(variableId, RecipeDataTypes.Scalar);
+  if (!variable) throw new RecipeError(`Scalar variable with id "${variableId}" not found.`);
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
 
   return (
-    <VariableTypeCommon
-      variableName={name}
+    <CommonVariable
+      variableId={variableId}
       permissions={permissions}
     >
       <div className="floating-label inline-block" style={{ "--background": "linear-gradient(var(--gray-95) 50%, white 100%)" } as React.CSSProperties}>
@@ -32,29 +32,33 @@ export default function VariableTypeScalar({
         </label>
         <input
           defaultValue={variable.value}
-          onChange={(e) => updateScalarVariableValue(name, e.target.value, setVariable)}
+          onChange={(e) => upsertVariable(variableId, prev => prev.type === RecipeDataTypes.Scalar
+            ? { ...prev, value: Number(e.target.value) }
+            : prev
+          )}
           type="number"
           placeholder=" "
           disabled={!permissions.allowValueEditing}
           readOnly={!permissions.allowValueEditing}
         />
       </div>
-    </VariableTypeCommon>
+    </CommonVariable>
   )
 }
 
 export function VariableTypeScalarSimple({
-  variableName,
+  variableId,
   permissions,
   props = {},
 }: {
-  variableName: string;
+  variableId: string;
   permissions?: RecipeEditorPermissions;
   props?: React.InputHTMLAttributes<HTMLInputElement>;
 }) {
   const { t } = useTranslation("components");
-  const { recipe, setVariable } = useRecipe();
-  const variable = recipe?.variables[variableName] as RecipeScalar;
+  const { upsertVariable, getVariable } = useRecipe();
+  const variable = getVariable(variableId, RecipeDataTypes.Scalar);
+  if (!variable) throw new RecipeError(`Scalar variable with id "${variableId}" not found.`);
 
   permissions = { ...RecipeEditorPermissions, ...permissions };
 
@@ -62,7 +66,10 @@ export function VariableTypeScalarSimple({
     <input
       className="inline width-auto"
       defaultValue={variable.value}
-      onChange={(e) => updateScalarVariableValue(variableName, e.target.value, setVariable)}
+      onChange={(e) => upsertVariable(variableId, prev => prev.type === RecipeDataTypes.Scalar
+        ? { ...prev, value: Number(e.target.value) }
+        : prev
+      )}
       type="number"
       placeholder={t("components:recipe_editor.scalar")}
       disabled={!permissions.allowValueEditing}

@@ -14,13 +14,14 @@ export function pickDateValues(
     && Number.isFinite(pick)
     && Number.isInteger(pick)
   ) {
-    const isoYearString = new Date(`${pick}-01-01T00:00:00Z`).toISOString();
+    const yearString = typeof pick === "number" ? pick.toString() : pick;
+    const isoYearString = new Date(`${yearString}-01-01T00:00:00Z`).toISOString();
     if (!isISOIshDate(isoYearString)) {
-      throw new RecipeError(`PickDataSeries: Invalid year pick value '${pick}'.`);
+      throw new RecipeError(`PickDataSeries: Invalid year pick value '${pick as string | number}'.`);
     }
     const valueAtPickedYear = dataSeries.dateValues[isoYearString];
     if (typeof valueAtPickedYear !== "number") {
-      throw new RecipeError(`PickDataSeries: Data series does not contain a valid number for year ${pick}.`);
+      throw new RecipeError(`PickDataSeries: Data series does not contain a valid number for year ${yearString}.`);
     }
     return dataSeries.unit
       ? mathjs.unit(valueAtPickedYear, dataSeries.unit)
@@ -123,7 +124,7 @@ export function pickDateValues(
 export function transformDateValuesToVector(
   dateValues: DateValuesWithUnit,
   commonStartDate: Date,
-  commonLength: number,
+  maxTimeSpan: number,
 ): MaskedVector {
 
   const { dateValues: timeline, unit, } = dateValues;
@@ -131,7 +132,7 @@ export function transformDateValuesToVector(
   const vector: Unit[] = [];
   const mask: Record<string, boolean> = {};
 
-  for (let i = 0; i < commonLength; i++) {
+  for (let i = 0; i < maxTimeSpan; i++) {
     const currentYear = commonStartDate.getUTCFullYear() + i;
 
     const isoYearString = new Date(`${currentYear}-01-01T00:00:00Z`).toISOString();
@@ -283,9 +284,22 @@ export function dataSeriesToDateValues(dataSeries: DataSeries | Goal["dataSeries
 }
 
 export function dateValuesToDBDateRecord(dateValues: DateValues, dataSeriesId?: string) {
-  return Object.entries(dateValues).map(([key, val]) => ({
-    ...(dataSeriesId ? { dataSeriesId } : {}),
-    timestamp: new Date(key),
-    value: val,
-  }));
+  const dateRecord: {
+    timestamp: Date;
+    value: number;
+    dataSeriesId?: string;
+  }[] = [];
+
+  for (const [key, val] of Object.entries(dateValues)) {
+    if (!isISOIshDate(key)) {
+      throw new RecipeError(`dateValuesToDBDateRecord: Invalid ISOIshDate key '${key}' in dateValues.`);
+    }
+    dateRecord.push({
+      ...(dataSeriesId ? { dataSeriesId } : {}),
+      timestamp: new Date(key),
+      value: val,
+    });
+  }
+
+  return dateRecord;
 }

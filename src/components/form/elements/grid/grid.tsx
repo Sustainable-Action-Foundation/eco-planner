@@ -74,7 +74,7 @@ export default function Grid({
   // TODO: Add like a check that the amount of children is divisible by the amount of columns or something 
   // to ensure that we have the correct amount of children
 
-  const [activeCell, setActivecell] = useState<Position>({ row: 0, column: 0 })
+  const [activeCell, setActiveCell] = useState<Position>({ row: 0, column: 0 })
 
   const gridRef = React.useRef<HTMLDivElement | null>(null)
 
@@ -130,7 +130,7 @@ export default function Grid({
         const column = Number(cell.dataset.column)
 
         if (!Number.isNaN(row) && !Number.isNaN(column)) {
-          setActivecell({ row, column })
+          setActiveCell({ row, column })
         }
       }}
     >
@@ -158,9 +158,9 @@ export default function Grid({
                 amountColumns,
                 children,
                 activeCell,
-                setActivecell,
+                setActiveCell,
               }),
-            onClick: () => setActivecell({ row: row, column: column }), // Note that this might cause issues if our input inside the div is smaller than the actual div as we don't set focus here 
+            onClick: () => setActiveCell({ row: row, column: column }), // Note that this might cause issues if our input inside the div is smaller than the actual div as we don't set focus here 
           }
         )
       })}

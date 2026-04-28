@@ -100,6 +100,7 @@
     "choose_goal_data_series": "Ange en dataserie för denna $t(common:goal_one)",
     "choose_relationship": "Vilken $t(common:roadmap_series_one) tillhör din $t(common:goal_one)?",
     "create": "Skapa $t(common:goal_one)",
+    "custom_recipe": "Recept",
     "data_missing": "DATA SAKNAS; ",
     "data_series_type_legend": "Välj typ av dataserie för din $t(common:goal_one)",
     "data_unit": "Enhet för dataserie",
@@ -123,6 +124,8 @@
     "select_goal_to_inherit": "Välj en $t(common:goal_one) att ärva från",
     "select_goals_to_combine": "Välj $t(common:goal_other) i den aktuella $t(common:roadmap_version_definite_one) att kombinera",
     "select_roadmap_version": "Välj en $t(common:roadmap_version_one) att ärva en $t(common:goal_one) från",
+    "static_data_series": "Manuellt",
+    "suggested_inheritance": "Ärv",
     "unit_interpreted_as": "Enheten tolkas som:",
     "unit_not_interpreted": "Enheten kunde inte tolkas. Du kan fortfarande spara $t(common:goal_definite_one), men viss funktionalitet kan saknas.",
     "unnamed_goal": "Namnlös $t(common:goal_one)"

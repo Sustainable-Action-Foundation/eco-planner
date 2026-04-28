@@ -36,8 +36,6 @@ We use i18next for internationalization. If you use VS Code we recommend install
 ## Recipe Editor notes
 The recipe editor lives in a context provider and keeps the recipe state there. There are a whole bunch of components that may live inside of it to allow for viewing, editing and evaluating recipes. 
 
-There's a debug view which is opened with `Shift + Alt + D (Hold)` and closed with the button in the UI or by pressing `Esc`.
-
 ## Backend notes
 We use the function unstable_cache from Next.js, which currently returns cached `Date`s in stringified form (See this [GitHub issue](https://github.com/vercel/next.js/issues/51613)). Remember to always create a `new Date()` from the date value whenever you use one, until this problem is fixed.
 

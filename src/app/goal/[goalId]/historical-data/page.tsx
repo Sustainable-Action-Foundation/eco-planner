@@ -3,6 +3,7 @@ import { getOneGoal } from "@/fetchers";
 import { buildMetadata } from "@/functions/buildMetadata";
 import serveTea from "@/lib/i18nServer";
 import { getSession } from "@/lib/session";
+import type { Metadata } from "next";
 import { cookies } from "next/headers";
 
 export async function generateMetadata(props: {
@@ -11,7 +12,7 @@ export async function generateMetadata(props: {
     secondaryGoal?: string | string[] | undefined,
     [key: string]: string | string[] | undefined
   }>,
-}) {
+}): Promise<Metadata> {
   const params = await props.params;
 
   const [t, session, goal] = await Promise.all([

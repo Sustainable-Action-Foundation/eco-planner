@@ -19,6 +19,28 @@ import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputMa
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import { IconEdit, IconTrashXFilled, IconX } from "@tabler/icons-react";
 
+type ExternalSelection = NonNullable<Parameters<typeof getTableDetails>[2]>;
+type ExternalSelectionItem = ExternalSelection[number];
+
+const parseExternalSelection = (selection: string | null): ExternalSelectionItem[] => {
+  if (!selection) return [];
+  try {
+    const parsed: unknown = JSON.parse(selection);
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed.filter((item): item is ExternalSelectionItem => {
+      if (!item || typeof item !== "object") return false;
+
+      const maybeItem = item as { variableCode?: unknown, valueCodes?: unknown };
+      return typeof maybeItem.variableCode === "string"
+        && Array.isArray(maybeItem.valueCodes)
+        && maybeItem.valueCodes.every((value): value is string => typeof value === "string");
+    });
+  } catch {
+    return [];
+  }
+};
+
 // TODO: Stuff is re-rendering like a bajillion times, fix this.
 {/* TODO: Metadata */ }
 export default function HistoricalData({
@@ -37,7 +59,7 @@ export default function HistoricalData({
   const [dataSource, setDataSource] = useState<string>(!!goal.externalDataset ? goal.externalDataset : "");
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
   const [table, setTable] = useState<{ tableId: string, label: string } | null>(goal.externalTableId ? { label: tables?.find(t => t.tableId === goal.externalTableId)?.label ?? goal.externalTableId, tableId: goal.externalTableId } : null)
-  const [metric, setMetric] = useState<string | null>(!!goal.externalSelection ? JSON.parse(goal.externalSelection)[0].valueCodes[0] : null)
+  const [metric, setMetric] = useState<string | null>(() => parseExternalSelection(goal.externalSelection)[0]?.valueCodes?.[0] ?? null)
 
   const [tableDetails, setTableDetails] = useState<ApiTableDetails | null>(null);
   const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
@@ -47,7 +69,7 @@ export default function HistoricalData({
 
   // Gets relevant info from variable inputs
   const buildQuery = useCallback((formData: FormData) => {
-    const queryObject: { variableCode: string, valueCodes: string[] }[] = [];
+    const queryObject: ExternalSelection = [];
     formData.forEach((value, key) => {
       // Skip empty values
       // Skip File inputs
@@ -115,7 +137,7 @@ export default function HistoricalData({
     void getTableDetails(
       goal.externalTableId,
       goal.externalDataset,
-      JSON.parse(goal.externalSelection), // TODO: Fix type issue
+      parseExternalSelection(goal.externalSelection),
       lang
     ).then(setTableDetails);
   }, [goal.externalTableId, goal.externalDataset, goal.externalSelection, lang]);
@@ -161,13 +183,8 @@ export default function HistoricalData({
       // We then check if the variable which we render is in our list and get the default value from there.
       // This isnt very optimal as each render of a variable will trigger a loop of a new list, there is likely a better way to achieve this. 
       if (!goal.externalSelection) return // TODO: Very hacky, temp fix. TODO: Also need to do this for time also
-      const externalSelection: Array<{ variableCode: string, valueCodes: Array<string> }> = JSON.parse(goal.externalSelection) as Array<{ variableCode: string, valueCodes: Array<string> }>
-      const variables: Array<{ variableCode: string, valueCodes: Array<string> }> = []
-      externalSelection.map((variable: { variableCode: string, valueCodes: Array<string> }) => {
-        if (variable.variableCode !== 'metric') {
-          variables.push(variable)
-        }
-      })
+      const externalSelection = parseExternalSelection(goal.externalSelection);
+      const variables = externalSelection.filter((selectionVariable) => selectionVariable.variableCode !== "metric");
 
       const selectedVariable = variables.find(v => v.variableCode === variable.name);
       const selectedValue = selectedVariable ? selectedVariable.valueCodes[0] : '';

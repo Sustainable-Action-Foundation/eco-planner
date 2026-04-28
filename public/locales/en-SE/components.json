@@ -127,7 +127,7 @@
     "value": "Value"
   },
   "recipe_editor": {
-    "add_external_data": "Data",
+    "add_external_data": "Find external data",
     "create_recipe": "Create a new recipe",
     "create_variable": "Create variable",
     "data_series": "Data series",
@@ -176,8 +176,10 @@
     "select_roadmap": "Select roadmap",
     "selection": "Selection",
     "status": {
-      "no_issues_icon_aria_label": "No issues"
+      "no_issues_icon_aria_label": "No issues",
+      "template_recipe": "Editing template recipe, set all template fields"
     },
+    "suggested_recipe_label": "Suggested methods",
     "table": "Table",
     "toggle_suggested_recipe": "<option1 /><span> – or – </span><option2 />",
     "unit_label": "Unit",

@@ -1,12 +1,12 @@
 "use client"
 
 import { useTranslation } from "react-i18next";
-import { useRecipe } from "../../context/recipeContext.use";
+import { useRecipe } from "../context/recipeContext.use";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { Locales } from "@/../i18n.config";
 
 // TODO: Does this take historical data into account? Do we need to account for it?
-export default function OutputDataSeries() {
+export function OutputDataSeries() {
   const { t } = useTranslation("components");
   const { resultingDataSeries, resultingUnit } = useRecipe();
 

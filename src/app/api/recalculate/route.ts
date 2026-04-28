@@ -1,6 +1,6 @@
 import { getOneRecipe } from "@/fetchers";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
-import { SmartRecipe } from "@/functions/recipe/smartRecipe";
+import { Recipe } from "@/functions/recipe/recipe";
 import { RecipeError } from "@/functions/recipe/types";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Try to recalculate the data series
-    const recipe = SmartRecipe.fromObject(dbRecipe.recipe);
+    const recipe = Recipe.from(dbRecipe.recipe);
     const warnings: string[] = [];
     const evaluationResult = await recipe.evaluate(warnings)
       .catch((e: unknown) => {

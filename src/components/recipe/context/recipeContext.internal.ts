@@ -1,5 +1,5 @@
-import type { SmartRecipe } from "@/functions/recipe/smartRecipe";
-import type { Recipe, RecipeIsh, RecipeVariable } from "@/functions/recipe/types";
+import type { Recipe } from "@/functions/recipe/recipe";
+import type { RecipeDataTypes, RecipeVariable } from "@/functions/recipe/types";
 import type { DateValues } from "@/types";
 import { createContext } from "react";
 
@@ -12,8 +12,14 @@ type Historic<T> = (prev: T) => T;
  */
 export type SetStateAction<T> = T | Historic<T>;
 
+type VariableByType<TType extends RecipeDataTypes> = Extract<RecipeVariable, { type: TType }>;
+
+export type GetVariable = {
+  (variableId: string): RecipeVariable | undefined;
+  <TType extends RecipeDataTypes>(variableId: string, expectedType: TType): VariableByType<TType> | undefined;
+};
+
 export type RecipeContextType = {
-  smartRecipe: SmartRecipe;
   recipe: Recipe;
   resultingDataSeries: DateValues | null;
   resultingUnit: string | null | undefined;
@@ -22,15 +28,15 @@ export type RecipeContextType = {
   error: string | null;
 
   clearRecipe: () => void;
-  setSmartRecipe: (valueOrSetter: SetStateAction<RecipeIsh>) => Promise<void>;
+  applyRecipeUpdate: (recipeUpdate: SetStateAction<Recipe>) => Promise<void>;
 
-  equation: Recipe["eq"];
-  setEquation: (valueOrSetter: SetStateAction<Recipe["eq"]>) => void;
+  equation: Recipe["equation"];
+  updateEquation: (equationUpdate: SetStateAction<Recipe["equation"]>) => void;
 
-  getVariable: (variableName: string) => RecipeVariable | undefined;
-  setVariable: (variableName: string, newValue: SetStateAction<RecipeVariable>) => void;
+  variables: RecipeVariable[];
+  replaceVariables: (variablesUpdate: SetStateAction<RecipeVariable[]>) => void;
 
-  variables: Recipe["variables"];
-  setVariables: (valueOrSetter: SetStateAction<Recipe["variables"]>) => void;
+  getVariable: GetVariable;
+  upsertVariable: (variableId: string, variableUpdate: SetStateAction<RecipeVariable> | null) => void;
 };
 export const RecipeContext = createContext<RecipeContextType | null>(null);

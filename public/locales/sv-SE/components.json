@@ -127,7 +127,7 @@
     "value": "Värde"
   },
   "recipe_editor": {
-    "add_external_data": "Data",
+    "add_external_data": "Hitta historisk data",
     "create_recipe": "Skapa ett nytt recept",
     "create_variable": "Skapa variabel",
     "data_series": "Dataserie",
@@ -176,8 +176,10 @@
     "select_roadmap": "Välj färdplan",
     "selection": "Urval",
     "status": {
-      "no_issues_icon_aria_label": "Inga problem"
+      "no_issues_icon_aria_label": "Inga problem",
+      "template_recipe": "Redigerar en mall, ange alla fält"
     },
+    "suggested_recipe_label": "Föreslagna metoder",
     "table": "Tabell",
     "toggle_suggested_recipe": "<option1 /><span> – eller – </span><option2 />",
     "unit_label": "Enhet",

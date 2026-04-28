@@ -1,9 +1,9 @@
 "use client"
 
 import type { ApiTableContent } from "@/lib/api/apiTypes";
-import type { DatasetData} from "@/lib/api/utility";
+import type { DatasetData } from "@/lib/api/utility";
 import { ExternalDataset } from "@/lib/api/utility";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { getStoredGraphType } from "../../../functions/graphFunctions";
 import GraphSelector from "../../../graphSelectors/graphSelector";
 import MainDeltaGraph from "./delta";
@@ -58,11 +58,7 @@ export default function GraphGraph({
 }) {
   const { t } = useTranslation("graphs");
 
-  const [graphType, setGraphType] = useState<GraphType | "">("");
-
-  useEffect(() => {
-    setGraphType(getStoredGraphType(goal.id));
-  }, [goal.id]);
+  const [graphType, setGraphType] = useState<GraphType | "">(getStoredGraphType(goal.id));
 
   function graphSwitch(graphType: GraphType) {
     switch (graphType) {
@@ -111,7 +107,7 @@ export default function GraphGraph({
         {graphSwitch(graphType || GraphType.Main)}
       </div>
 
-      {historicalData ? 
+      {historicalData ?
         <footer className={`${styles['footer']}`} >
           <Trans
             i18nKey="graphs:graph_graph.historical_data_source"
@@ -119,7 +115,7 @@ export default function GraphGraph({
             tOptions={{ source: dataset?.fullName ?? historicalData.metadata[0]?.source }}
           />
         </footer>
-      : null }
+        : null}
     </div>
   );
 }

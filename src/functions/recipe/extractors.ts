@@ -1,31 +1,31 @@
-import { clientSafeGetOneDataSeries } from "@/fetchers/client";
-import { isRecipeDataSeries, isRecipeExternalDataset, isRecipeExternalDatasetSelection, isRecipeScalar, RecipeDataTypes, RecipeError } from "@/functions/recipe/types";
+import { isDataSeriesVariable, isExternalSelection, isScalarVariable, RecipeDataTypes, RecipeError } from "@/functions/recipe/types";
 import type { RecipeExtractionOutput, RecipeVariable, EvalTimeVariable } from "@/functions/recipe/types";
 import getTableContent from "@/lib/api/getTableContent";
+import type { ApiTableContent } from "@/lib/api/apiTypes";
 import mathjs from "@/math";
 import { isISOIshDate } from "@/types";
-import type { DateValues } from "@/types";
+import type { DataSeries, DateValues } from "@/types";
 import { filterToInitialYearlyRecords, parsePeriod } from "@/lib/api/utility";
 import { getPrevailingUnit, isMathjsUnit, pickDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 
 export function extractScalars(
-  variables: Record<string, RecipeVariable>,
+  variables: RecipeVariable[],
   warnings: string[] = [],
 ): EvalTimeVariable[] {
   const scalars: EvalTimeVariable[] = [];
 
-  for (const variableName in variables) {
-    const variable = variables[variableName];
+  for (const variable of variables) {
     if (variable.type !== RecipeDataTypes.Scalar) continue;
-    if (!isRecipeScalar(variable)) continue;
+    if (!isScalarVariable(variable)) continue;
 
     const bestUnit = getPrevailingUnit(undefined, variable.unit);
     const isValidUnit = isMathjsUnit(bestUnit);
-    if (bestUnit && !isValidUnit) warnings.push(`Scalar variable "${variableName}" has an invalid unit "${bestUnit}". Treating as unitless.`);
+    if (bestUnit && !isValidUnit) warnings.push(`Scalar variable "${variable.name}" has an invalid unit "${bestUnit}". Treating as unitless.`);
     const unit = isValidUnit ? bestUnit : undefined;
 
     scalars.push({
-      name: variableName,
+      id: variable.id,
+      displayName: variable.name,
       value: unit
         ? mathjs.unit(variable.value, unit)
         : mathjs.unit(variable.value),
@@ -36,26 +36,28 @@ export function extractScalars(
 }
 
 export async function extractDataSeries(
-  variables: Record<string, RecipeVariable>,
+  variables: RecipeVariable[],
   warnings: string[] = [],
+  overrideDataSeriesGetter?: (dataSeriesId: string) => Promise<DataSeries | null>,
 ): Promise<RecipeExtractionOutput> {
-
   const dataSeries: RecipeExtractionOutput = [];
 
-  for (const variableName in variables) {
-    const variable = variables[variableName];
+  for (const variable of variables) {
     if (variable.type !== RecipeDataTypes.DataSeries) continue;
-    if (!isRecipeDataSeries(variable)) continue;
+    if (!isDataSeriesVariable(variable)) continue;
 
-    let dbDataSeries: Awaited<ReturnType<typeof clientSafeGetOneDataSeries>>;
-    if (variable.link) {
-      dbDataSeries = await clientSafeGetOneDataSeries(variable.link)
+    let dbDataSeries: DataSeries | null;
+    if (variable.dataSeriesId) {
+      const dataSeriesGetter = overrideDataSeriesGetter
+        ?? (await import("@/fetchers/client")).clientSafeGetOneDataSeries;
+
+      dbDataSeries = await dataSeriesGetter(variable.dataSeriesId)
         .catch((e: unknown) => {
           const errorMessage = e instanceof Error ? e.message : String(e);
-          throw new RecipeError(`VariableExtractor: Error fetching data series for variable "${variableName}" with link "${variable.link}": ${errorMessage}`);
+          throw new RecipeError(`VariableExtractor: Error fetching data series for variable "${variable.name}" with link "${variable.dataSeriesId}": ${errorMessage}`);
         });
     }
-    else if (variable.value || Array.isArray(variable.value)) {
+    else if (variable.value) {
       // TODO: maybe remove this "exception" or at least make the id more robust
       const inlineId = "inline-" + Math.random().toString(36).substring(2, 15); // TODO: better unique id
       dbDataSeries = {
@@ -69,16 +71,16 @@ export async function extractDataSeries(
       };
     }
     else {
-      throw new RecipeError(`VariableExtractor: Variable "${variableName}" is not referencing a goal or data series.`);
+      throw new RecipeError(`VariableExtractor: Variable "${variable.name}" is not referencing a goal or data series.`);
     }
 
     if (!dbDataSeries) {
-      throw new RecipeError(`VariableExtractor: Failed to fetch data series for variable "${variableName}" with link "${variable.link}".`);
+      throw new RecipeError(`VariableExtractor: Failed to fetch data series for variable "${variable.name}" with link "${variable.dataSeriesId}".`);
     }
 
     const bestUnit = getPrevailingUnit(dbDataSeries.unit, variable.unit);
     const isValidUnit = isMathjsUnit(bestUnit);
-    if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variableName}" has an invalid unit "${bestUnit}". Treating as unitless during evaluation.`);
+    if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variable.name}" has an invalid unit "${bestUnit}". Treating as unitless during evaluation.`);
     const unit = isValidUnit ? bestUnit : undefined;
 
     const dateValues: DateValues = Object.fromEntries(
@@ -89,24 +91,23 @@ export async function extractDataSeries(
     );
 
     if (Object.keys(dateValues).some(k => !isISOIshDate(k))) {
-      throw new RecipeError(`Data series variable "${variableName}" contains invalid ISOIshDate keys.`);
+      throw new RecipeError(`Data series variable "${variable.name}" contains invalid ISOIshDate keys.`);
     }
 
     const picked = pickDateValues({ dateValues, unit }, variable.pick);
 
     if (picked instanceof mathjs.Unit) {
       dataSeries.push({
-        name: variableName,
+        id: variable.id,
+        displayName: variable.name,
         value: picked,
       });
     }
     else {
       dataSeries.push({
-        name: variableName,
-        series: {
-          dateValues: picked,
-          unit,
-        },
+        id: variable.id,
+        displayName: variable.name,
+        series: picked,
       });
     }
   }
@@ -115,34 +116,31 @@ export async function extractDataSeries(
 }
 
 export async function extractExternalDatasets(
-  variables: Record<string, RecipeVariable>,
+  variables: RecipeVariable[],
   warnings: string[] = [],
+  externalTableContentGetter: (tableId: string, dataset: string, selection: { variableCode: string, valueCodes: string[] }[]) => Promise<ApiTableContent | null> = getTableContent,
 ): Promise<RecipeExtractionOutput> {
 
   const externalDatasets: RecipeExtractionOutput = [];
   const fetchers: Array<() => Promise<void>> = [];
 
-  for (const variableName in variables) {
-    const variable = variables[variableName];
+  for (const variable of variables) {
     if (variable.type !== RecipeDataTypes.External) continue;
-    if (!isRecipeExternalDataset(variable)) {
-      throw new RecipeError(`Variable '${variableName}', typed as '${(variable as { type: string }).type} ' is not a valid RecipeExternalDataset.`);
-    }
 
     const { dataset, tableId, selection } = variable;
 
-    if (!dataset || !tableId || !isRecipeExternalDatasetSelection(selection)) { // These props may all be null
-      throw new RecipeError(`External dataset variable '${variableName}' is missing 'dataset', 'tableId' and/or 'selection' properties.`);
+    if (!dataset || !tableId || !isExternalSelection(selection)) { // These props may all be null
+      throw new RecipeError(`External dataset variable '${variable.name}' (id: '${variable.id}') is missing 'dataset', 'tableId' and/or 'selection' properties.`);
     }
 
     fetchers.push(async () => {
-      const data = await getTableContent(tableId, dataset, selection);
+      const data = await externalTableContentGetter(tableId, dataset, selection);
 
       if (!data) {
-        throw new RecipeError(`External dataset variable '${variableName}' has no data for tableId '${tableId}' and dataset '${dataset}' and selection '${JSON.stringify(selection)}'.`);
+        throw new RecipeError(`External dataset variable '${variable.name}' (id: '${variable.id}') has no data for tableId '${tableId}' and dataset '${dataset}' and selection '${JSON.stringify(selection)}'.`);
       }
       if (data.values.length === 0) {
-        throw new RecipeError(`External dataset variable '${variableName}' has no values. Expected an array of values with 'period' and 'value' properties.`);
+        throw new RecipeError(`External dataset variable '${variable.name}' (id: '${variable.id}') has no values. Expected an array of values with 'period' and 'value' properties.`);
       }
 
       const timeline: DateValues = {};
@@ -152,7 +150,7 @@ export async function extractExternalDatasets(
         const parsedDate = parsePeriod(valuePeriod.period);
         const isoDateString = new Date(`${parsedDate.getUTCFullYear()}-01-01T00:00:00Z`).toISOString();
         if (!isISOIshDate(isoDateString)) {
-          throw new RecipeError(`External dataset variable "${variableName}" contains invalid ISOIshDate keys after parsing period "${valuePeriod.period}".`);
+          throw new RecipeError(`External dataset variable "${variable.name}" contains invalid ISOIshDate keys after parsing period "${valuePeriod.period}".`);
         }
         timeline[isoDateString] = parseFloat(valuePeriod.value); // TODO: what is the preferred way to parse these values?
       }
@@ -160,24 +158,23 @@ export async function extractExternalDatasets(
       // TODO: how should units be derived here? I can't find anything in the API response that indicates units.
       const bestUnit = getPrevailingUnit(undefined, variable.unit);
       const isValidUnit = isMathjsUnit(bestUnit);
-      if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variableName}" has an invalid unit "${bestUnit}". Treating as unitless.`);
+      if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variable.name}" has an invalid unit "${bestUnit}". Treating as unitless.`);
       const unit = isValidUnit ? bestUnit : undefined;
 
       const picked = pickDateValues({ dateValues: timeline, unit }, variable.pick);
 
       if (picked instanceof mathjs.Unit) {
         externalDatasets.push({
-          name: variableName,
+          id: variable.id,
+          displayName: variable.name,
           value: picked,
         });
       }
       else {
         externalDatasets.push({
-          name: variableName,
-          series: {
-            dateValues: picked,
-            unit,
-          },
+          id: variable.id,
+          displayName: variable.name,
+          series: picked,
         });
       }
     });

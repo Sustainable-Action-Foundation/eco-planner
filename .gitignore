@@ -146,8 +146,7 @@ certificates
 json-results/
 test-results/
 blob-report/
-playwright-report/
-playwright-report-unit/
+playwright-report*/
 playwright-results.json/
 tests/screenshots/
 tests/screenshotViewer/index.html
@@ -158,6 +157,7 @@ tests/report.json
 
 # Prisma generated client
 src/prisma/generated/
+.prisma/
 
 .vscode/*
 !.vscode/extensions.json

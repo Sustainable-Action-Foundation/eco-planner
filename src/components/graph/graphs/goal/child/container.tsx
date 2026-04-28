@@ -2,7 +2,7 @@
 
 import GoalChildGraph from "./children";
 import PredictionChildGraph from "./prediction";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { getStoredChildGraphType } from "../../../functions/graphFunctions";
 import { percentAndFraction } from "../../../graphSelectors/graphSelector";
 import ChildGraphSelector from "../../../graphSelectors/childGraphSelector";
@@ -26,17 +26,16 @@ export default function ChildGraphContainer({
 }) {
   const { t } = useTranslation("graphs");
 
-  const [childGraphType, setChildGraphType] = useState<ChildGraphType>(ChildGraphType.Target);
+  const [childGraphType, setChildGraphType] = useState<ChildGraphType>((() => {
+    const storedGraphType = getStoredChildGraphType(goal.id);
+    if (Object.values(ChildGraphType).includes(storedGraphType)) {
+      return storedGraphType;
+    }
+    else return ChildGraphType.Target;
+  })());
 
   // Default to stacked unless the unit is percent or fraction
   const [isStacked, setIsStacked] = useState(!percentAndFraction.includes(goal.dataSeries?.unit?.toLowerCase() ?? ""));
-
-  useEffect(() => {
-    const storedGraphType = getStoredChildGraphType(goal.id);
-    if (Object.values(ChildGraphType).includes(storedGraphType)) {
-      setChildGraphType(storedGraphType);
-    }
-  }, [goal.id]);
 
   function childGraphSwitch(childGraphType: string) {
     switch (childGraphType) {

@@ -139,7 +139,7 @@ test.skip("Common values not referenced", () => {
       .filter(([key,]) => key.startsWith("common:"))
       .filter(([key,]) => !exemptedCommonKeysRef.some(exemptedKey => key.startsWith(exemptedKey)))
       .filter(([, value]) => !exemptedCommonValuesRef.some(exemptedValue => value.startsWith(exemptedValue)))
-      .map(([key, value]) => [key, { key, value, pattern: wordPatterns.map(pattern => new RegExp(pattern(escape(value)), "gm")) }])
+      .map(([key, value]) => [key, { key, value, pattern: wordPatterns.map(pattern => new RegExp(pattern(escapeRegExp(value)), "gm")) }])
     );
 
     const namespacesToCheck = allNamespaces.filter(ns => ns !== "common");
@@ -687,8 +687,11 @@ function getAllTSXFiles() {
 }
 
 /** Returns a flattened object with the structure `{ "key1.key2.keyN": value }` */
-function flattenTree(obj: object) {
+function flattenTree(obj: unknown) {
   const result: Record<string, string> = {};
+
+  const isRecord = (value: unknown): value is Record<string, unknown> =>
+    typeof value === "object" && value !== null && !Array.isArray(value);
 
   const recurse = (obj: object, prefix = "") => {
     for (const [key, value] of Object.entries(obj)) {
@@ -706,7 +709,13 @@ function flattenTree(obj: object) {
     }
   };
 
-  recurse(obj);
+  if (isRecord(obj)) {
+    recurse(obj);
+  }
 
   return result;
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }

@@ -1,23 +1,30 @@
 
-import { SmartRecipe } from "@/functions/recipe/smartRecipe";
+import { Recipe } from "@/functions/recipe/recipe";
 import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types";
-import type { RecipeDataSeries, RecipeExternalDataset, RecipeScalar } from "@/functions/recipe/types";
+import type { DataSeriesVariable, ExternalVariable, ScalarVariable } from "@/functions/recipe/types";
 import type { DBRecipe } from "@/types";
 import type { TFunction } from "i18next";
 
-export default function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
+export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
 
-  const areaRecipe: SmartRecipe = new SmartRecipe({
+  const areaRecipe = new Recipe({
     name: t("components:recipe_editor.default_area_recipe.name"),
-    eq: `\$\{${t("components:recipe_editor.default_area_recipe.parent_value")}\} * \$\{${t("components:recipe_editor.default_area_recipe.child_area")}\} / \$\{${t("components:recipe_editor.default_area_recipe.parent_area")}\}`,
-    variables: {
-      [t("components:recipe_editor.default_area_recipe.parent_value")]: {
+    equation: `\$\{${t("components:recipe_editor.default_area_recipe.parent_value")}\} * \$\{${t("components:recipe_editor.default_area_recipe.child_area")}\} / \$\{${t("components:recipe_editor.default_area_recipe.parent_area")}\}`,
+    variables: [
+      {
+        id: "parent-value-dummy-uuid",
+        name: t("components:recipe_editor.default_area_recipe.parent_value"),
         type: RecipeDataTypes.DataSeries,
-        link: undefined,
         pick: VectorIndexPickerOptions.Default,
-        unit: undefined
-      } satisfies RecipeDataSeries,
-      [t("components:recipe_editor.default_area_recipe.parent_area")]: {
+        value: undefined,
+        dataSeriesId: undefined,
+        unit: undefined,
+        template: true,
+      } satisfies DataSeriesVariable,
+
+      {
+        id: "parent-area-dummy-uuid",
+        name: t("components:recipe_editor.default_area_recipe.parent_area"),
         type: RecipeDataTypes.External,
         dataset: 'SCB',
         tableId: 'TAB6420',
@@ -29,10 +36,14 @@ export default function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
           // Magic string to get area sizes in square kilometers (as opposed to hectares with "000007E1")
           { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
         ],
-        pick: VectorIndexPickerOptions.Default,
+        pick: VectorIndexPickerOptions.Last,
         unit: undefined,
-      } satisfies RecipeExternalDataset,
-      [t("components:recipe_editor.default_area_recipe.child_area")]: {
+        template: true,
+      } satisfies ExternalVariable,
+
+      {
+        id: "child-area-dummy-uuid",
+        name: t("components:recipe_editor.default_area_recipe.child_area"),
         type: RecipeDataTypes.External,
         dataset: 'SCB',
         tableId: 'TAB6420',
@@ -44,24 +55,34 @@ export default function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
           // Magic string to get area sizes in square kilometers (as opposed to hectares with "000007E1")
           { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
         ],
-        pick: VectorIndexPickerOptions.Default,
+        pick: VectorIndexPickerOptions.Last,
         unit: undefined,
-      } satisfies RecipeExternalDataset,
-    }
+        template: true,
+      } satisfies ExternalVariable,
+    ],
   });
 
-  const populationRecipe: SmartRecipe = new SmartRecipe({
+  const populationRecipe = new Recipe({
     name: t("components:recipe_editor.default_population_recipe.name"),
-    eq: `\$\{${t("components:recipe_editor.default_population_recipe.parent_value")}\} * \$\{${t("components:recipe_editor.default_population_recipe.child_population")}\} / \$\{${t("components:recipe_editor.default_population_recipe.parent_population")}\}`,
-    variables: {
-      [t("components:recipe_editor.default_population_recipe.parent_value")]: {
+    equation: `\$\{${t("components:recipe_editor.default_population_recipe.parent_value")}\} * \$\{${t("components:recipe_editor.default_population_recipe.child_population")}\} / \$\{${t("components:recipe_editor.default_population_recipe.parent_population")}\}`,
+    variables: [
+      {
+        id: "parent-value-dummy-uuid",
+        name: t("components:recipe_editor.default_population_recipe.parent_value"),
         type: RecipeDataTypes.DataSeries,
-        link: undefined,
         pick: VectorIndexPickerOptions.Default,
-        unit: undefined
-      } satisfies RecipeDataSeries,
-      [t("components:recipe_editor.default_population_recipe.parent_population")]: {
+        unit: undefined,
+        value: undefined,
+        dataSeriesId: undefined,
+        template: true,
+      } satisfies DataSeriesVariable,
+
+      {
+        id: "parent-population-dummy-uuid",
+        name: t("components:recipe_editor.default_population_recipe.parent_population"),
         type: RecipeDataTypes.External,
+        pick: VectorIndexPickerOptions.Default,
+        unit: undefined,
         dataset: 'SCB',
         tableId: 'BE0101N1',
         selection: [
@@ -70,10 +91,12 @@ export default function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
           // Magic string to get population numbers
           { variableCode: "ContentsCode", valueCodes: ["000007E1"] },
         ],
-        pick: VectorIndexPickerOptions.Default,
-        unit: undefined,
-      } satisfies RecipeExternalDataset,
-      [t("components:recipe_editor.default_population_recipe.child_population")]: {
+        template: true,
+      } satisfies ExternalVariable,
+
+      {
+        id: "child-population-dummy-uuid",
+        name: t("components:recipe_editor.default_population_recipe.child_population"),
         type: RecipeDataTypes.External,
         dataset: 'SCB',
         tableId: 'BE0101N1',
@@ -85,40 +108,48 @@ export default function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
         ],
         pick: VectorIndexPickerOptions.Default,
         unit: undefined,
-      } satisfies RecipeExternalDataset,
-    }
+        template: true,
+      } satisfies ExternalVariable,
+    ],
   });
 
-  const scalarRecipe: SmartRecipe = new SmartRecipe({
+  const scalarRecipe = new Recipe({
     name: t("components:recipe_editor.default_scalar_recipe.name"),
-    eq: `\$\{${t("components:recipe_editor.default_scalar_recipe.parent_value")}\} * \$\{${t("components:recipe_editor.default_scalar_recipe.scalar")}\}`,
-    variables: {
-      [t("components:recipe_editor.default_scalar_recipe.parent_value")]: {
+    equation: `\$\{${t("components:recipe_editor.default_scalar_recipe.parent_value")}\} * \$\{${t("components:recipe_editor.default_scalar_recipe.scalar")}\}`,
+    variables: [
+      {
+        id: "parent-value-dummy-uuid",
+        name: t("components:recipe_editor.default_scalar_recipe.parent_value"),
         type: RecipeDataTypes.DataSeries,
-        link: undefined,
         pick: VectorIndexPickerOptions.Default,
-        unit: undefined
-      } satisfies RecipeDataSeries,
-      [t("components:recipe_editor.default_scalar_recipe.scalar")]: {
+        dataSeriesId: undefined,
+        value: undefined,
+        unit: undefined,
+        template: true,
+      } satisfies DataSeriesVariable,
+
+      {
+        id: "scalar-dummy-uuid",
+        name: t("components:recipe_editor.default_scalar_recipe.scalar"),
         type: RecipeDataTypes.Scalar,
         value: 1,
         unit: null,
-      } satisfies RecipeScalar,
-    }
+      } satisfies ScalarVariable,
+    ],
   });
 
   return [
     {
       id: "area-recipe-dummy-uuid",
-      recipe: areaRecipe.toRecipe()
+      recipe: areaRecipe.serialize(),
     },
     {
       id: "population-recipe-dummy-uuid",
-      recipe: populationRecipe.toRecipe(),
+      recipe: populationRecipe.serialize(),
     },
     {
       id: "scalar-recipe-dummy-uuid",
-      recipe: scalarRecipe.toRecipe(),
+      recipe: scalarRecipe.serialize(),
     }
-  ];
+  ] satisfies DBRecipe[];
 }
