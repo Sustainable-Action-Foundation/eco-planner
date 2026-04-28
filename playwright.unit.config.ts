@@ -17,7 +17,7 @@ export default defineConfig({
   projects: [
     {
       name: "Locale files validation",
-      testMatch: ["**/locale-files.ts"],
+      testMatch: ["**/locale-files.test.ts"],
       retries: 0, // File reading can't be flaky, so no retries needed.
       use: {},
     },
