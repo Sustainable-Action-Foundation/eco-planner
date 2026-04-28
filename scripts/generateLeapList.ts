@@ -1,7 +1,5 @@
-import fs from 'node:fs';
-import { PrismaClient, RoadmapType } from "../.prisma/generated";
-
-const prisma = new PrismaClient();
+import { prisma, RoadmapType } from "@/lib/prisma";
+import fs from "node:fs";
 
 /**
  * This script generates a json file containing all indicator parameters from public, national roadmaps.

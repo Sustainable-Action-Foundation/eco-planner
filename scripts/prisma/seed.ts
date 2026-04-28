@@ -1,7 +1,6 @@
 // DO NOT SEED PRODUCTION DATABASE
 
 import { colors } from "../lib/colors.ts";
-import { PrismaClient, RoadmapType } from '../../.prisma/generated';
 import bcrypt from "bcryptjs";
 import { RandomTextSE } from "./randomText";
 import { RecipeDataTypes, VectorIndexPickerOptions } from "../../src/functions/recipe/types";
@@ -9,6 +8,7 @@ import { Recipe } from "../../src/functions/recipe/recipe";
 import { isISOIshDate } from "../../src/types";
 import type { DateValues } from "../../src/types";
 import { dateValuesToDBDateRecord } from "../../src/functions/recipe/vectorAndMaskUtils";
+import { prisma, RoadmapType } from "@/lib/prisma";
 
 /** 
  * The seed goal
@@ -21,7 +21,6 @@ import { dateValuesToDBDateRecord } from "../../src/functions/recipe/vectorAndMa
  * A lot of effects.
  */
 
-const prisma = new PrismaClient();
 prisma.$connect().catch((e: unknown) => {
   console.error(colors.yellow(`
     Could not connect to the database. Ensure DATABASE_URL is set correctly in the .env file.
