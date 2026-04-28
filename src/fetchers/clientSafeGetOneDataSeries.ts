@@ -2,7 +2,7 @@
 
 import { clientSafeDataSeriesSelection } from "@/fetchers/inclusionSelectors";
 import { getSession, type LoginData } from "@/lib/session"
-import prisma from "@/prismaClient";
+import prisma from "@/prisma";
 import type { DataSeries } from "@/types";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import { cookies } from "next/headers";

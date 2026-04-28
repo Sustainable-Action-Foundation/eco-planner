@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import prisma, { Prisma } from "@/prismaClient";
+import prisma, { Prisma } from "@/prisma";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/session";
