@@ -39,6 +39,12 @@ fieldset .spreadsheet-label:last-child {
  
 .grid {
   border: 1px solid var(--gray-80);
+  height: auto;
+  overflow: hidden;
+  transition: height .3s ease-out;
+  interpolate-size: allow-keywords;
+  border-bottom-right-radius: .25rem;
+  border-bottom-left-radius: .25rem;
 }
 
 .grid td, .grid th {

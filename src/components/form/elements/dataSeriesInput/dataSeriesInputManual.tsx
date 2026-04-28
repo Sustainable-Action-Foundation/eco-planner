@@ -7,6 +7,7 @@ import { isValidPastedInput } from "./utils";
 import Grid from "../grid/grid";
 import React from "react";
 import type { DateValuesWithUnit } from "@/types";
+import { IconArrowsMaximize, IconArrowsMinimize, IconPlus, IconRowInsertTop, IconTrashXFilled } from "@tabler/icons-react";
 
 export default function DataSeriesInputManual({
   initialDateValues = { unit: undefined, dateValues: {} },
@@ -30,6 +31,7 @@ export default function DataSeriesInputManual({
   })
 
   const [activeCell, setActiveCell] = useState({ row: 0, column: 1 }); // Column 0 is always headers
+  const [gridExpanded, setGridExpanded] = useState<boolean>(true);
 
   const handleYearChange = (index: number, newValue: string) => {
     setValue(prev =>
@@ -106,55 +108,82 @@ export default function DataSeriesInputManual({
   return (
     <>
 
-      <menu className="flex gap-25">
-        <button
-          type="button"
-          onClick={() =>
-            setValue(prev => [...prev, { id: crypto.randomUUID(), year: null, data: null }])
-          }
-          data-testid="add-row-button">
-          {t("forms:data_series_input.add_new_row")}
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setValue(prev => [
-              ...prev.slice(0, activeCell.row),
-              { id: crypto.randomUUID(), year: null, data: null },
-              ...prev.slice(activeCell.row)
-            ])
-            setActiveCell(prev => ({
-              ...prev,
-              row: prev.row
-            }))
-          }}
-          data-testid="add-row-before-button">
-          {t("forms:data_series_input.insert_row_before")}
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setValue(prev => {
-              if (prev.length === 0) return prev;
+      <menu className="flex gap-25 margin-0 gray-95 align-items-center justify-content-space-between" style={{ borderRadius: '.25rem .25rem 0 0', padding: '2px', borderTop: '1px solid var(--gray-80)', borderInline: '1px solid var(--gray-80)' }}>
+        <div className="flex gap-25 align-items-center">
+          <button
+            style={{ transform: 'scale(1)' }}
+            className="flex gap-50 padding-25 transparent  align-items-center font-size-75"
+            type="button"
+            onClick={() =>
+              setValue(prev => [...prev, { id: crypto.randomUUID(), year: null, data: null }])
+            }
+            data-testid="add-row-button">
+            {t("forms:data_series_input.insert_row_bottom")}
+            <IconPlus width={18} height={18} style={{ minWidth: '18px' }} aria-hidden="true" />
+          </button>
+          <button
+            style={{ transform: 'scale(1)' }}
+            className="flex gap-50 padding-25 transparent  align-items-center font-size-75"
+            type="button"
+            onClick={() => {
+              setValue(prev => [
+                ...prev.slice(0, activeCell.row),
+                { id: crypto.randomUUID(), year: null, data: null },
+                ...prev.slice(activeCell.row)
+              ])
+              setActiveCell(prev => ({
+                ...prev,
+                row: prev.row
+              }))
+            }}
+            data-testid="add-row-above-button">
+            {t("forms:data_series_input.insert_row_above")}
+            <IconRowInsertTop width={18} height={18} style={{ minWidth: '18px' }} aria-hidden="true" />
+          </button>
+        </div>
+        <div className="flex align-items-center">
+          <div className="padding-right-25 margin-right-25" style={{ borderRight: '1px solid var(--gray-80)' }}>
+            <button
+              style={{ transform: 'scale(1)' }}
+              className="flex gap-50 padding-25 padding-inline-50 transparent  align-items-center font-size-75"
+              type="button"
+              onClick={() => {
+                setValue(prev => {
+                  if (prev.length === 0) return prev;
 
-              const next = prev.filter((_, i) => i !== activeCell.row);
+                  const next = prev.filter((_, i) => i !== activeCell.row);
 
-              // Ensure at least one row exists
-              if (next.length === 0) {
-                return [{ id: crypto.randomUUID(), year: null, data: null }];
-              }
+                  // Ensure at least one row exists
+                  if (next.length === 0) {
+                    return [{ id: crypto.randomUUID(), year: null, data: null }];
+                  }
 
-              return next;
-            });
+                  return next;
+                });
 
-            setActiveCell(prev => ({
-              ...prev,
-              row: Math.max(0, prev.row - 1)
-            }));
-          }}
-          data-testid="delete-row-button">
-          {t("forms:data_series_input.delete_row")}
-        </button>
+                setActiveCell(prev => ({
+                  ...prev,
+                  row: Math.max(0, prev.row - 1)
+                }));
+              }}
+              data-testid="delete-row-button">
+              {t("forms:data_series_input.delete_selected_row")}
+              <IconTrashXFilled width={18} height={18} fill="#CB3C3C" style={{ minWidth: '18px' }} aria-hidden="true" />
+            </button>
+          </div>
+          <button
+            style={{ transform: 'scale(1)' }}
+            className=" padding-25 transparent grid"
+            type="button"
+            onClick={() => setGridExpanded(!gridExpanded)}
+            data-testid="expand-grid-button">
+            {gridExpanded ?
+              <IconArrowsMinimize width={20} height={20} style={{ minWidth: '20px' }} aria-hidden="true" />
+              :
+              <IconArrowsMaximize width={20} height={20} style={{ minWidth: '20px' }} aria-hidden="true" />
+            }
+          </button>
+        </div>
       </menu>
 
       {outputFormElement && React.cloneElement(outputFormElement, {
@@ -174,8 +203,8 @@ export default function DataSeriesInputManual({
         activeCell={activeCell}
         setActiveCell={setActiveCell}
         props={{
-          className: `grid width-100 align-items-center ${styles.grid}`,
-          style: { gridTemplateColumns: 'auto auto 1fr' }
+          className: `grid width-100 align-items-center ${styles['grid']}`,
+          style: { gridTemplateColumns: 'auto auto 1fr', height: gridExpanded ? 'auto' : '0', borderBottom: gridExpanded ? '1px solid var(--gray-80)' : '0' }
         }}
       >
         <Grid.ColumnHeader className="text-align-left">#</Grid.ColumnHeader>
