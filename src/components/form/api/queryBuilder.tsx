@@ -11,7 +11,7 @@ import { LocaleContext } from "@/lib/i18nClient";
 import type { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
 import type { TrafaVariable } from "@/lib/trafa/trafaTypes";
 import type { Goal } from "@prisma/client";
-import type { FormEvent} from "react";
+import type { ChangeEventHandler, SubmitEvent } from "react";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import FormWrapper from "../formWrapper";
@@ -132,7 +132,7 @@ export default function QueryBuilder({
     closeModal(modalRef);
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     // Return if insufficient selection has been made
     if (!tables) return;
@@ -174,7 +174,7 @@ export default function QueryBuilder({
     }
   }
 
-  function tryGetResult(event?: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
+  const tryGetResult: ChangeEventHandler = (event) => {
     // null check
     if (!(formRef.current instanceof HTMLFormElement)) return;
 
@@ -213,7 +213,8 @@ export default function QueryBuilder({
       setIsLoading(false);
     }
   }
-  function formChange(event: React.ChangeEvent<HTMLSelectElement> | FormEvent<HTMLFormElement> | Event) {
+
+  const formChange: ChangeEventHandler = (event) => {
     setIsFormValid(formRef.current?.checkValidity() ?? false);
 
     const changedElementIsExternalDataset = event.target instanceof HTMLSelectElement && event.target.name === "externalDataset";

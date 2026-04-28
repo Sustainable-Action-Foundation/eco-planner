@@ -7,7 +7,7 @@ services:
     networks:
       - staging_network
     volumes:
-      - staging_data:/mariadb
+      - staging_data:/var/lib/mysql
     environment:
       - MARIADB_DATABASE=${MARIADB_DATABASE}
       - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}

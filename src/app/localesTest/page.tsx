@@ -1,6 +1,6 @@
 import styles from "./localesTest.module.css" with {type: "css"};
 import serveTea from "@/lib/i18nServer";
-import { uniqueLocales, Locales, allNamespaces } from "i18n.config";
+import { uniqueLocales, Locales, allNamespaces } from "@/../i18n.config";
 import fs from "node:fs";
 import path from "node:path";
 import { ServerSideT } from "./serverSide";
@@ -17,6 +17,7 @@ export default async function LocaleTestPage() {
     date: new Date("2025-04-23T18:23:31.501Z"),
     fileTypes: [".txt", ".pdf", ".docx"],
     encodings: ["utf-8", "utf-16", "ascii"],
+    name: "martin",
     allowedProtocols: allowedProtocols,
   };
 

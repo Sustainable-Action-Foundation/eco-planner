@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
         roadmapId: objectType === "roadmap" ? comment.objectId : undefined,
       }
     });
-    revalidateTag(objectType)
+    revalidateTag(objectType, 'max')
     return Response.json({ message: 'Comment created', id: newComment.id },
       { status: 200 }
     );
@@ -55,9 +55,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-
-  // If we get here, something went wrong
-  return Response.json({ message: 'Internal server error' },
-    { status: 500 }
-  )
 }

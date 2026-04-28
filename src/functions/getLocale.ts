@@ -1,5 +1,5 @@
 import { match } from "@formatjs/intl-localematcher";
-import { Locales, uniqueLocales } from "i18n.config";
+import { Locales, uniqueLocales } from "@/../i18n.config";
 import acceptLanguage from "accept-language";
 
 acceptLanguage.languages([

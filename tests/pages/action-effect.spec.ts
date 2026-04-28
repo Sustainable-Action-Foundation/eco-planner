@@ -17,7 +17,7 @@ test.describe.serial("Action & Effect tests", () => {
   let roadmapActionNameAllFields = "";
 
   test.beforeAll(async ({ browser }, testInfo) => {
-    actionNameAllFields = `Test Action All Fields ${testInfo.parallelIndex}`;
+    actionNameAllFields = `Test Action All Fields  ${testInfo.project.name}`;
 
     if (testInfo.retry > 0) {
       console.log(`Retrying tests, Cleaning up any existing action with name ${actionNameAllFields} before retrying.`);
@@ -54,7 +54,7 @@ test.describe.serial("Action & Effect tests", () => {
 
   // Action tests begin here //
   test("Create Action - required", async ({ page }, testInfo) => {
-    actionNameRequiredFields = `Test Action ${testInfo.parallelIndex}`;
+    actionNameRequiredFields = `Test Action  ${testInfo.project.name}`;
     // Navigate to the action creation form
     await page.goto('/');
     await page.getByTestId("create-button").click();
@@ -97,7 +97,7 @@ test.describe.serial("Action & Effect tests", () => {
   });
 
   test("Edit Action - required", async ({ page }, testInfo) => {
-    actionNameRequiredFieldsUpdated = `Test Action Updated ${testInfo.parallelIndex}`;
+    actionNameRequiredFieldsUpdated = `Test Updated Action  ${testInfo.project.name}`;
     // Navigate to the action edit form
     await page.goto('/');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
@@ -110,6 +110,7 @@ test.describe.serial("Action & Effect tests", () => {
 
     // Part 1 of the form
     await page.locator('#actionName').fill(actionNameRequiredFieldsUpdated);
+    await page.locator('#actionName').blur(); // This is needed to make sure the name field is loaded before filling it, otherwise it will be empty and the test will fail.
 
     await page.locator('.tiptap').first().fill("Test Action Updated description.");
 
@@ -134,11 +135,10 @@ test.describe.serial("Action & Effect tests", () => {
     await page.locator('#submit-button').click();
 
     await expect(page.getByRole('heading', { name: actionNameRequiredFieldsUpdated })).toBeVisible();
-
   });
 
   test("Create Action - All Fields", async ({ page }, testInfo) => {
-    actionNameAllFields = `Test Action All Fields ${testInfo.parallelIndex}`;
+    actionNameAllFields = `Test Action All Fields  ${testInfo.project.name}`;
     // Navigate to the action edit form
     await page.goto('/');
     await page.getByTestId("create-button").click();
@@ -217,7 +217,7 @@ test.describe.serial("Action & Effect tests", () => {
   });
 
   test("Edit Action - All Fields", async ({ page }, testInfo) => {
-    actionNameAllFieldsUpdated = `Test Action Updated All Fields ${testInfo.parallelIndex}`;
+    actionNameAllFieldsUpdated = `Test Action Updated All Fields  ${testInfo.project.name}`;
     // Navigate to the action edit form
     await page.goto('/');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
@@ -275,7 +275,7 @@ test.describe.serial("Action & Effect tests", () => {
   });
 
   test("Create Action from Roadmap - required", async ({ page }, testInfo) => {
-    roadmapActionNameRequiredFields = `Test Action from Roadmap ${testInfo.parallelIndex}`;
+    roadmapActionNameRequiredFields = `Test Action from Roadmap  ${testInfo.project.name}`;
     // Navigate to the action edit form
     await page.goto('/');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
@@ -291,7 +291,7 @@ test.describe.serial("Action & Effect tests", () => {
   });
 
   test("Create Action from Roadmap - All Fields", async ({ page }, testInfo) => {
-    roadmapActionNameAllFields = `Test Action from Roadmap All Fields ${testInfo.parallelIndex}`;
+    roadmapActionNameAllFields = `Test Action from Roadmap All Fields  ${testInfo.project.name}`;
     // Navigate to the action edit form
     await page.goto('/');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();

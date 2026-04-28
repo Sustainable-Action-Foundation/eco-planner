@@ -358,7 +358,7 @@ export async function POST(request: NextRequest) {
       select: { id: true },
     });
     // Invalidate old cache
-    revalidateTag('roadmap');
+    revalidateTag('roadmap', 'max');
     // Return the new roadmap's ID if successful
     return Response.json({ message: t('api:roadmap.roadmap_created'), id: newRoadmap.id },
       { status: 201, headers: { 'Location': `/roadmap/${newRoadmap.id}` } }
@@ -513,7 +513,7 @@ export async function PUT(request: NextRequest) {
     // Prune any orphaned links and comments
     await pruneOrphans();
     // Invalidate old cache
-    revalidateTag('roadmap');
+    revalidateTag('roadmap', { expire: 0});
     // Return the new roadmap's ID if successful
     return Response.json({ message: t('api:roadmap.roadmap_updated'), id: updatedRoadmap.id },
       { status: 200, headers: { 'Location': `/roadmap/${updatedRoadmap.id}` } }
@@ -625,7 +625,7 @@ export async function DELETE(request: NextRequest) {
     // Prune any orphaned links and comments
     await pruneOrphans();
     // Invalidate old cache
-    revalidateTag('roadmap');
+    revalidateTag('roadmap', 'max');
     return Response.json({ message: t('api:roadmap.roadmap_deleted'), id: deletedRoadmap.id },
       // Redirect to the parent meta roadmap
       { status: 200, headers: { 'Location': `/metaRoadmap/${deletedRoadmap.metaRoadmapId}` } }

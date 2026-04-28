@@ -1,6 +1,6 @@
 "use client";
 
-import { initTemplate, Locales } from "i18n.config";
+import { initTemplate, Locales, possessive, relativeTime, titleCase } from "@/../i18n.config";
 import i18nClient, { t } from "i18next";
 import { I18nextProvider, initReactI18next } from "react-i18next";
 import Backend from "i18next-http-backend";
@@ -21,6 +21,14 @@ i18nClient
   });
 
 patchI18nT(i18nClient);
+
+if (!i18nClient.services.formatter) {
+  console.warn("i18nServer formatter is not available. Custom formatters will not be added.");
+}
+
+i18nClient.services.formatter?.add("titleCase", titleCase);
+i18nClient.services.formatter?.add("possessive", possessive);
+i18nClient.services.formatter?.add("timeAgo", relativeTime);
 
 export const LocaleContext = createContext<Locales>(Locales.default);
 export const LocaleSetterContext = createContext<React.Dispatch<React.SetStateAction<Locales>>>(() => { });

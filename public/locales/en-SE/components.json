@@ -5,10 +5,10 @@
     "wanna_create_action": "Do you want to create one?"
   },
   "breadcrumbs_sections": {
-    "action": "{{$t(common:action_one), titleCase}}:",
-    "goal": "{{$t(common:goal_one), titleCase}}:",
+    "action": "$t(common:action_one, titleCase):",
+    "goal": "$t(common:goal_one, titleCase):",
     "home": "$t(common:tsx.home)",
-    "roadmap_series": "{{$t(common:roadmap_series_one), titleCase}}:",
+    "roadmap_series": "$t(common:roadmap_series_one, titleCase):",
     "version": "Version {{version}}",
     "version_label": "Version:"
   },
@@ -52,8 +52,8 @@
     "wanna_create_effect": "Do you want to create one?"
   },
   "goal_table": {
-    "action_count": "{{$t(common:action_other), titleCase}}",
-    "goal_name": "{{$t(common:goal_one), titleCase}} name",
+    "action_count": "$t(common:action_other, titleCase)",
+    "goal_name": "$t(common:goal_one, titleCase) name",
     "leap_parameter": "LEAP parameter",
     "no_goals": "You do not have access to any $t(common:goal_other) in this $t(common:roadmap_version_one), or $t(common:roadmap_version_definite_one) lacks $t(common:goal_other).",
     "unit": "Unit"
@@ -62,8 +62,8 @@
     "loading_alt": "Loading",
     "new_goal": "New $t(common:goal_one)",
     "search": "Search $t(common:goal_other)",
-    "sort_action_count_ascending": "{{$t(common:action_one), titleCase}} count (low to high)",
-    "sort_action_count_descending": "{{$t(common:action_one), titleCase}} count (high to low)",
+    "sort_action_count_ascending": "$t(common:action_one, titleCase) count (low to high)",
+    "sort_action_count_descending": "$t(common:action_one, titleCase) count (high to low)",
     "sort_by": "Sort by",
     "sort_default": "Default",
     "sort_interest": "Interest",
@@ -195,8 +195,8 @@
   "roadmap_filters": {
     "default": "Default",
     "filter": "Filter",
-    "goal_count_ascending": "{{$t(common:goal_one), titleCase}} count (low to high)",
-    "goal_count_descending": "{{$t(common:goal_one), titleCase}} count (high to low)",
+    "goal_count_ascending": "$t(common:goal_one, titleCase) count (low to high)",
+    "goal_count_descending": "$t(common:goal_one, titleCase) count (high to low)",
     "name_ascending": "Name (Z-A)",
     "name_descending": "Name (A-Z)",
     "roadmap_type": "Roadmap type",
@@ -248,7 +248,7 @@
     "delete": "Delete post",
     "delete_missing_name": "Name missing",
     "edit": "Edit",
-    "effect_from_action": "{{$t(common:effect_one), titleCase}} from {{source}}",
+    "effect_from_action": "$t(common:effect_one, titleCase) from {{source}}",
     "effect_missing_name": "Name missing",
     "feature_goal": "Feature $t(common:goal_one)",
     "feature_goal_stop": "Stop featuring $t(common:goal_one)",
@@ -263,7 +263,7 @@
     "no_available_actions": "No available actions"
   },
   "table_selector": {
-    "actions": "{{$t(common:action_other), titleCase}}",
+    "actions": "$t(common:action_other, titleCase)",
     "table": "Table",
     "tree": "Tree"
   },
@@ -274,8 +274,8 @@
     "access_level": "Access level",
     "editing_access": "Editing access",
     "posts": "Posts",
-    "roadmap_series": "{{$t(common:roadmap_series_one), titleCase}}",
-    "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}"
+    "roadmap_series": "$t(common:roadmap_series_one, titleCase)",
+    "roadmap_versions": "$t(common:roadmap_version_other, titleCase)"
   },
   "toasts": {
     "success": "Success!",

@@ -1,7 +1,7 @@
 import "server-only";
 import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session";
-import { unstable_cache } from "next/cache";
+import { cacheTag } from "next/cache";
 import { cookies } from "next/headers";
 import { effectInclusionSelection } from "@/fetchers/inclusionSelectors";
 import prisma from "@/prismaClient";
@@ -24,86 +24,85 @@ export async function getOneEffect(actionId: string, goalId: string): Promise<Ef
 /**
  * Caches the specified effect as well as its action and goal.
  */
-const getCachedEffect = unstable_cache(
-  async (actionId: string, goalId: string, user: LoginData['user']): Promise<Effect | null> => {
-    let effect: Effect | null;
+async function getCachedEffect(actionId: string, goalId: string, user: LoginData['user']): Promise<Effect | null> {
+  'use cache'
+  cacheTag('database', 'action', 'goal', 'effect');
 
-    // If user is admin, get effect without checking access
-    if (user?.isAdmin) {
-      try {
-        effect = await prisma.effect.findUnique({
-          where: { id: { actionId, goalId } },
-          include: effectInclusionSelection,
-        }) satisfies Effect | null;
-      } catch (error) {
-        console.log(error);
-        console.log('Error fetching admin effect');
-        return null;
-      }
+  let effect: Effect | null;
 
-      return effect;
+  // If user is admin, get effect without checking access
+  if (user?.isAdmin) {
+    try {
+      effect = await prisma.effect.findUnique({
+        where: { id: { actionId, goalId } },
+        include: effectInclusionSelection,
+      }) satisfies Effect | null;
+    } catch (error) {
+      console.log(error);
+      console.log('Error fetching admin effect');
+      return null;
     }
 
-    // Get effect with access check
-    if (user?.isLoggedIn) {
-      try {
-        effect = await prisma.effect.findUnique({
-          where: {
-            id: { actionId, goalId },
-            action: {
-              roadmap: {
-                OR: [
-                  { authorId: user.id },
-                  { editors: { some: { id: user.id } } },
-                  { viewers: { some: { id: user.id } } },
-                  { editGroups: { some: { users: { some: { id: user.id } } } } },
-                  { viewGroups: { some: { users: { some: { id: user.id } } } } },
-                  { isPublic: true }
-                ]
-              }
-            },
-            goal: {
-              roadmap: {
-                OR: [
-                  { authorId: user.id },
-                  { editors: { some: { id: user.id } } },
-                  { viewers: { some: { id: user.id } } },
-                  { editGroups: { some: { users: { some: { id: user.id } } } } },
-                  { viewGroups: { some: { users: { some: { id: user.id } } } } },
-                  { isPublic: true }
-                ]
-              }
-            }
-          },
-          include: effectInclusionSelection,
-        }) satisfies Effect | null;
-      } catch (error) {
-        console.log(error);
-        console.log('Error fetching user effect');
-        return null;
-      }
+    return effect;
+  }
 
-      return effect;
-    }
-
-    // If user is not logged in, get the effect if it is public
+  // Get effect with access check
+  if (user?.isLoggedIn) {
     try {
       effect = await prisma.effect.findUnique({
         where: {
           id: { actionId, goalId },
-          action: { roadmap: { isPublic: true } },
-          goal: { roadmap: { isPublic: true } }
+          action: {
+            roadmap: {
+              OR: [
+                { authorId: user.id },
+                { editors: { some: { id: user.id } } },
+                { viewers: { some: { id: user.id } } },
+                { editGroups: { some: { users: { some: { id: user.id } } } } },
+                { viewGroups: { some: { users: { some: { id: user.id } } } } },
+                { isPublic: true }
+              ]
+            }
+          },
+          goal: {
+            roadmap: {
+              OR: [
+                { authorId: user.id },
+                { editors: { some: { id: user.id } } },
+                { viewers: { some: { id: user.id } } },
+                { editGroups: { some: { users: { some: { id: user.id } } } } },
+                { viewGroups: { some: { users: { some: { id: user.id } } } } },
+                { isPublic: true }
+              ]
+            }
+          }
         },
         include: effectInclusionSelection,
       }) satisfies Effect | null;
     } catch (error) {
       console.log(error);
-      console.log('Error fetching public effect');
+      console.log('Error fetching user effect');
       return null;
     }
 
     return effect;
-  },
-  ['getOneEffect'],
-  { revalidate: 600, tags: ['database', 'action', 'goal', 'effect'] }
-)
+  }
+
+  // If user is not logged in, get the effect if it is public
+  try {
+    effect = await prisma.effect.findUnique({
+      where: {
+        id: { actionId, goalId },
+        action: { roadmap: { isPublic: true } },
+        goal: { roadmap: { isPublic: true } }
+      },
+      include: effectInclusionSelection,
+    }) satisfies Effect | null;
+  } catch (error) {
+    console.log(error);
+    console.log('Error fetching public effect');
+    return null;
+  }
+
+  return effect;
+};

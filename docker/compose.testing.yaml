@@ -12,7 +12,7 @@ services:
     # ports:
     #   - "3366:3306"
     volumes:
-      - testing_data:/mariadb
+      - testing_data:/var/lib/mysql
     environment:
       - MARIADB_DATABASE=${TEST_MARIADB_DATABASE:-eco-planner}
       - MARIADB_ROOT_PASSWORD=${TEST_MARIADB_ROOT_PASSWORD:-admin}
@@ -87,6 +87,4 @@ networks:
 
 volumes:
   testing_data:
-    driver: local
-  test-folder:
     driver: local

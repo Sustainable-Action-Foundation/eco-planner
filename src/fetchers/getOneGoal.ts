@@ -4,7 +4,7 @@ import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session"
 import { effectSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
-import { unstable_cache } from "next/cache";
+import { cacheTag } from "next/cache";
 import { cookies } from "next/headers";
 import type { Goal } from "@/types";
 
@@ -26,77 +26,76 @@ export async function getOneGoal(id: string): Promise<Goal | null> {
  * @param id ID of the goal to cache
  * @param user Data from user's session cookie.
  */
-const getCachedGoal = unstable_cache(
-  async (id: string, user: LoginData['user']): Promise<Goal | null> => {
-    let goal: Goal | null;
+async function getCachedGoal(id: string, user: LoginData['user']): Promise<Goal | null> {
+  'use cache'
+  cacheTag('database', 'goal', 'action', 'dataSeries');
 
-    // If user is admin, always get the goal
-    if (user?.isAdmin) {
-      try {
-        goal = await prisma.goal.findUnique({
-          where: { id },
-          include: goalInclusionSelection,
-        }) satisfies Goal | null;
-      } catch (error) {
-        console.log(error);
-        console.log('Error fetching admin goal');
-        return null
-      }
+  let goal: Goal | null;
 
-      goal?.effects.sort(effectSorter);
-
-      return goal;
-    }
-
-    // If user is logged in, get the goal if they have access to it
-    if (user?.isLoggedIn) {
-      try {
-        goal = await prisma.goal.findUnique({
-          where: {
-            id,
-            roadmap: {
-              OR: [
-                { authorId: user.id },
-                { editors: { some: { id: user.id } } },
-                { viewers: { some: { id: user.id } } },
-                { editGroups: { some: { users: { some: { id: user.id } } } } },
-                { viewGroups: { some: { users: { some: { id: user.id } } } } },
-                { isPublic: true }
-              ]
-            }
-          },
-          include: goalInclusionSelection,
-        }) satisfies Goal | null;
-      } catch (error) {
-        console.log(error);
-        console.log('Error fetching user goal');
-        return null
-      }
-
-      goal?.effects.sort(effectSorter);
-
-      return goal;
-    }
-
-    // If user is not logged in, get the goal if it is public
+  // If user is admin, always get the goal
+  if (user?.isAdmin) {
     try {
       goal = await prisma.goal.findUnique({
-        where: {
-          id,
-          roadmap: { isPublic: true }
-        },
+        where: { id },
         include: goalInclusionSelection,
       }) satisfies Goal | null;
     } catch (error) {
       console.log(error);
-      console.log('Error fetching public goal');
+      console.log('Error fetching admin goal');
       return null
     }
 
     goal?.effects.sort(effectSorter);
 
     return goal;
-  },
-  ['getOneGoal'],
-  { revalidate: 600, tags: ['database', 'goal', 'action', 'dataSeries'] }
-);
+  }
+
+  // If user is logged in, get the goal if they have access to it
+  if (user?.isLoggedIn) {
+    try {
+      goal = await prisma.goal.findUnique({
+        where: {
+          id,
+          roadmap: {
+            OR: [
+              { authorId: user.id },
+              { editors: { some: { id: user.id } } },
+              { viewers: { some: { id: user.id } } },
+              { editGroups: { some: { users: { some: { id: user.id } } } } },
+              { viewGroups: { some: { users: { some: { id: user.id } } } } },
+              { isPublic: true }
+            ]
+          }
+        },
+        include: goalInclusionSelection,
+      }) satisfies Goal | null;
+    } catch (error) {
+      console.log(error);
+      console.log('Error fetching user goal');
+      return null
+    }
+
+    goal?.effects.sort(effectSorter);
+
+    return goal;
+  }
+
+  // If user is not logged in, get the goal if it is public
+  try {
+    goal = await prisma.goal.findUnique({
+      where: {
+        id,
+        roadmap: { isPublic: true }
+      },
+      include: goalInclusionSelection,
+    }) satisfies Goal | null;
+  } catch (error) {
+    console.log(error);
+    console.log('Error fetching public goal');
+    return null
+  }
+
+  goal?.effects.sort(effectSorter);
+
+  return goal;
+};
