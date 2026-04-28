@@ -4,8 +4,9 @@ import styles from "./page.module.css" with { type: "css" };
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
+import type { Metadata } from "next";
 
-export async function generateMetadata() {
+export async function generateMetadata(): Promise<Metadata> {
   const t = await serveTea("metadata");
 
   return buildMetadata({

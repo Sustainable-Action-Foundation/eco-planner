@@ -3,9 +3,10 @@ import Actions from "../../components/pages/sections/actions"
 import serveTea from "@/lib/i18nServer"; 
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { buildMetadata } from "@/functions/buildMetadata";
+import type { Metadata } from "next";
  
 // TODO: More detailed metadata?
-export async function generateMetadata() {
+export async function generateMetadata(): Promise<Metadata> {
   return await buildMetadata({
     title: 'Åtgärder',
     description: undefined,

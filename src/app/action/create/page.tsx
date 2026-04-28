@@ -8,8 +8,9 @@ import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { getOneGoal, getOneRoadmap, getRoadmaps } from "@/fetchers";
+import type { Metadata } from "next";
 
-export async function generateMetadata() {
+export async function generateMetadata(): Promise<Metadata> {
   const t = await serveTea("metadata")
 
   return buildMetadata({
