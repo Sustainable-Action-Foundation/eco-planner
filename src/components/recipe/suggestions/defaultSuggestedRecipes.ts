@@ -36,7 +36,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
           // Magic string to get area sizes in square kilometers (as opposed to hectares with "000007E1")
           { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
         ],
-        pick: VectorIndexPickerOptions.Default,
+        pick: VectorIndexPickerOptions.Last,
         unit: undefined,
         template: true,
       } satisfies ExternalVariable,
@@ -55,7 +55,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
           // Magic string to get area sizes in square kilometers (as opposed to hectares with "000007E1")
           { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
         ],
-        pick: VectorIndexPickerOptions.Default,
+        pick: VectorIndexPickerOptions.Last,
         unit: undefined,
         template: true,
       } satisfies ExternalVariable,
