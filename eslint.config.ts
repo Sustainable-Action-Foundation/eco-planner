@@ -61,8 +61,8 @@ export default defineConfig([
       ...nextVitals,
     ],
     rules: {
-      "react-hooks/set-state-in-effect": "off",
-      "react-hooks/set-state-in-render": "off",
+      "react-hooks/set-state-in-effect": "warn",
+      "react-hooks/set-state-in-render": "warn",
       "react-hooks/immutability": "warn", // This should probably be a warning but the current recipe pipeline is dependant on it :sweat_smile:
       ...tsCommonRules,
     },
