@@ -2,7 +2,7 @@ import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import AttributedImage, { AttributeText } from "@/components/generic/images/attributedImage";
 import { roadmapSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
-import { RoadmapType } from "@/lib/prisma/enums";
+import { RoadmapType } from "@/lib/prisma";
 import RoadmapFilters from "@/components/form/filters/roadmapFilters";
 import { RoadmapSortBy } from "@/types";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";

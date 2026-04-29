@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { makeMariaDBAdapter } from "@/lib/prisma/mariadb-adapter";
-import { PrismaClient } from "../../.prisma/generated/client";
-export * from "../../.prisma/generated/client";
+import { PrismaClient, Prisma } from "../../.prisma/generated/client";
+export { Prisma }; // Some things need the full Prisma namespace, otherwise they get by with the types from ./index.ts
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 

@@ -1,4 +1,5 @@
-import { prisma, RoadmapType } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
+import { RoadmapType } from "@/lib/prisma";
 import fs from "node:fs";
 
 /**
