@@ -1,4 +1,4 @@
-import { GlobalEnv } from "@/types";
+import type { GlobalEnv } from "@/types";
 import type { NextConfig } from "next";
 import { execSync } from "node:child_process";
 import packageJSON from "./package.json" with { type: "json" };

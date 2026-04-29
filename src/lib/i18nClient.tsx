@@ -1,7 +1,7 @@
 "use client";
 
 import { initTemplate, Locales, possessive, relativeTime, titleCase } from "@/../i18n.config";
-import i18nClient, { t } from "i18next";
+import i18nClient from "i18next";
 import { I18nextProvider, initReactI18next } from "react-i18next";
 import Backend from "i18next-http-backend";
 import { useEffect, useState, createContext } from "react";
@@ -11,7 +11,7 @@ i18nClient
   .use(Backend)
   .use(initReactI18next)
   .init({
-    ...initTemplate(t),
+    ...initTemplate(),
     backend: {
       loadPath: "/api/locales?lng={{lng}}&ns={{ns}}",
     },

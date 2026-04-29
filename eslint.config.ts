@@ -1,4 +1,5 @@
-import { Config, defineConfig, globalIgnores } from "eslint/config";
+import type { Config} from "eslint/config";
+import { defineConfig, globalIgnores } from "eslint/config";
 import nextTS from "eslint-config-next/typescript";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import tseslint from "typescript-eslint";
@@ -60,8 +61,8 @@ export default defineConfig([
       ...nextVitals,
     ],
     rules: {
-      "react-hooks/set-state-in-effect": "warn",
-      "react-hooks/set-state-in-render": "warn",
+      "react-hooks/set-state-in-effect": "off",
+      "react-hooks/set-state-in-render": "off",
       "react-hooks/immutability": "warn", // This should probably be a warning but the current recipe pipeline is dependant on it :sweat_smile:
       ...tsCommonRules,
     },
@@ -90,7 +91,7 @@ export default defineConfig([
   },
   { // Script linting
     name: "scripts scripts/",
-    files: ["scripts/**/*.{ts,tsx}"],
+    files: ["scripts/**/*.{ts,tsx}", "*.config.ts"],
     extends: [
       ...nonAppTsBaseConfig,
     ],

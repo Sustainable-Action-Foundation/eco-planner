@@ -3,7 +3,8 @@
  * This file contains shared resources for the client and server instances of i18next.
 */
 
-import { createInstance, InitOptions, TFunction, TOptions as RealTOptions } from "i18next";
+import type { InitOptions, TOptions as RealTOptions } from "i18next";
+import { createInstance } from "i18next";
 
 export type TOptions = Omit<RealTOptions, "context"> & { context?: string };
 
@@ -33,7 +34,7 @@ i18nFormatter.init({}).catch((e: unknown) => {
   }
 });
 
-export function initTemplate(t: TFunction): InitOptions {
+export function initTemplate(): InitOptions {
   return {
     debug: false, // Set to true to get logs from i18next
     fallbackLng: Locales.default,
@@ -46,9 +47,9 @@ export function initTemplate(t: TFunction): InitOptions {
   };
 }
 
-export function titleCase<T extends unknown>(value: T, lng: string | undefined): string | T {
+export function titleCase<T>(value: T, lng: string | undefined): string | T {
   if (typeof value !== "string") {
-    console.warn(`Value passed to titleCase formatter is not a string. Received: ${value}, type: ${typeof value}. Returning value as is.`);
+    console.warn(`Value passed to titleCase formatter is not a string. Received: ${JSON.stringify({ value })}, type: ${typeof value}. Returning value as is.`);
     return value;
   }
 
@@ -82,9 +83,9 @@ export function titleCase<T extends unknown>(value: T, lng: string | undefined):
   }
 }
 
-export function possessive<T extends unknown>(value: T, lng: string | undefined): string | T {
+export function possessive<T>(value: T, lng: string | undefined): string | T {
   if (typeof value !== "string") {
-    console.warn(`Value passed to possessive formatter is not a string. Received: ${value}, type: ${typeof value}. Returning value as is.`);
+    console.warn(`Value passed to possessive formatter is not a string. Received: ${JSON.stringify({ value })}, type: ${typeof value}. Returning value as is.`);
     return value;
   }
 
@@ -117,7 +118,7 @@ export function possessive<T extends unknown>(value: T, lng: string | undefined)
   return result;
 }
 
-export function relativeTime<T extends unknown>(value: T, lng: string | undefined, date: Date | undefined): string | T {
+export function relativeTime<T>(value: T, lng: string | undefined, date: Date | undefined): string | T {
   if (!lng) {
     console.warn("Relative time formatter requires a locale to be set. Returning value as is.");
     return value;
@@ -128,7 +129,7 @@ export function relativeTime<T extends unknown>(value: T, lng: string | undefine
   }
 
   if (isNaN(date.getTime())) {
-    console.warn(`Invalid date provided for relative time formatter. Received: ${value}, type: ${typeof value}. Returning value as is.`);
+    console.warn(`Invalid date provided for relative time formatter. Received: ${JSON.stringify({ value })}, type: ${typeof value}. Returning value as is.`);
     return value;
   }
 
@@ -140,7 +141,7 @@ export function relativeTime<T extends unknown>(value: T, lng: string | undefine
   const secondDelta = Math.round((date.getTime() - Date.now()) / (1_000));
 
   if (isNaN(dayDelta) || isNaN(hourDelta) || isNaN(minuteDelta) || isNaN(secondDelta)) {
-    console.error(`Invalid date provided for relative time calculations. Received: ${value}, type: ${typeof value}. Returning value as is.`);
+    console.error(`Invalid date provided for relative time calculations. Received: ${JSON.stringify({ value })}, type: ${typeof value}. Returning value as is.`);
     return value;
   }
 

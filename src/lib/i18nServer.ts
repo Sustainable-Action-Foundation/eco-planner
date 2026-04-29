@@ -9,7 +9,7 @@ import { patchI18nT } from "@/lib/informativeCimodeT";
 
 await i18nServer.use(Backend)
   .init({
-    ...initTemplate(i18nServer.t as TFunction),
+    ...initTemplate(),
     initAsync: true,
     lng: process.env.TEST_ENVIRONMENT === "testing" ? "cimode" : Locales.default,
     backend: {
