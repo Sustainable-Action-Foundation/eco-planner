@@ -24,7 +24,8 @@ async function generateLeapList() {
         },
       },
     });
-  } catch {
+  }
+  catch {
     console.log('Failed to fetch roadmaps for LEAP list generation.');
     return;
   }
@@ -58,6 +59,7 @@ async function generateLeapList() {
 }
 
 generateLeapList()
+  .finally(() => prisma.$disconnect())
   .catch((err: unknown) => {
     console.error("Error generating LEAP list:", err);
     process.exit(1);
