@@ -43,9 +43,9 @@
   ],
   "exclude": [
     "src/prisma/generated/**/*",
+    "src/.prisma/**/*",
     ".prisma/**/*",
     "node_modules",
-    "prisma",
     ".next",
     "out",
     "dist",

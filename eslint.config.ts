@@ -105,12 +105,9 @@ export default defineConfig([
     },
   },
   globalIgnores([
-    // Old and new generated
     "src/prisma/generated/**/*",
+    "src/.prisma/**/*",
     ".prisma/**/*",
-    // Probably no ts in here?
-    "prisma/**/*",
-
     "node_modules/**/*",
     ".next/**/*",
     "out/**/*",

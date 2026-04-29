@@ -70,7 +70,7 @@ COPY src/math.ts ./src/math.ts
 COPY --from=deps /app/node_modules ./node_modules
 
 # Prisma client and generated files
-COPY --from=prisma /app/.prisma ./.prisma
+COPY --from=prisma /app/src/.prisma ./src/.prisma
 
 # Prisma schema and config files
 COPY prisma/ ./prisma/
