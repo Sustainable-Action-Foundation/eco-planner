@@ -3,6 +3,35 @@ import type { NextConfig } from "next";
 import { execSync } from "node:child_process";
 import packageJSON from "./package.json" with { type: "json" };
 
+const { sha, dirty: dirtyTree } = getCommitHash();
+
+const buildTimeEnv: GlobalEnv = {
+  APP_VERSION: process.env.npm_package_version ?? "unknown",
+  COMMIT_SHA: sha,
+  COMMIT_URL: dirtyTree ? undefined : new URL(`commit/${sha}`, packageJSON.homepage).toString(),
+  REMOTE_REPO_URL: packageJSON.homepage,
+} as const;
+
+const nextConfig: NextConfig = {
+  devIndicators: {
+    position: 'bottom-right'
+  },
+  env: buildTimeEnv,
+  ...(process.env.NODE_ENV === "production" ? {
+    compiler: {
+      removeConsole: {
+        exclude: ['info', 'error', 'warn']
+      },
+    }
+  } : {}),
+  output: process.env.CI ? 'standalone' : undefined,
+  experimental: {
+    useCache: true,
+  },
+};
+
+export default nextConfig;
+
 function getCommitHash(): { sha: string, dirty: boolean } {
   const hashInfo: { sha: string; dirty: boolean; } = {
     sha: process.env.COMMIT_SHA,
@@ -39,32 +68,3 @@ function getCommitHash(): { sha: string, dirty: boolean } {
 
   return hashInfo;
 }
-
-const { sha, dirty: dirtyTree } = getCommitHash();
-
-const buildTimeEnv: GlobalEnv = {
-  APP_VERSION: process.env.npm_package_version ?? "unknown",
-  COMMIT_SHA: sha,
-  COMMIT_URL: dirtyTree ? undefined : new URL(`commit/${sha}`, packageJSON.homepage).toString(),
-  REMOTE_REPO_URL: packageJSON.homepage,
-} as const;
-
-const nextConfig: NextConfig = {
-  devIndicators: {
-    position: 'bottom-right'
-  },
-  env: buildTimeEnv,
-  ...(process.env.NODE_ENV === "production" ? {
-    compiler: {
-      removeConsole: {
-        exclude: ['info', 'error', 'warn']
-      },
-    }
-  } : {}),
-  output: process.env.CI ? 'standalone' : undefined,
-  experimental: {
-    useCache: true,
-  },
-};
-
-export default nextConfig;
