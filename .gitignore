@@ -159,6 +159,7 @@ tests/report.json
 src/prisma/generated/
 src/.prisma/
 .prisma/
+prisma/generated/
 
 .vscode/*
 !.vscode/extensions.json

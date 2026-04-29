@@ -69,10 +69,7 @@ COPY src/math.ts ./src/math.ts
 # Dependencies
 COPY --from=deps /app/node_modules ./node_modules
 
-# Prisma client and generated files
-COPY --from=prisma /app/src/.prisma ./src/.prisma
-
-# Prisma schema and config files
+# Prisma schema and config files and generated
 COPY prisma/ ./prisma/
 COPY prisma.config.ts tsconfig.json ./
 

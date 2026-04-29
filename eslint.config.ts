@@ -110,6 +110,7 @@ export default defineConfig([
     "src/prisma/generated/**/*",
     "src/.prisma/**/*",
     ".prisma/**/*",
+    "prisma/generated/**/*",
     "node_modules/**/*",
     ".next/**/*",
     "out/**/*",

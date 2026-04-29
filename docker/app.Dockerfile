@@ -68,7 +68,7 @@ COPY --from=deps /root/.cache/node/corepack /root/.cache/node/corepack
 COPY . .
 
 # Copy Prisma clients generated files from the prisma stage
-COPY --from=prisma /app/src/.prisma/ ./src/.prisma/
+COPY --from=prisma /app/prisma/generated ./prisma/generated
 
 # Set build environment variables
 ENV NODE_ENV=production
