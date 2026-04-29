@@ -4,7 +4,7 @@ import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" wit
 import type { LoginData } from "@/lib/session";
 import type { AccessControlled, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
 import type { MetaRoadmap } from "@/lib/prisma";
-import { RoadmapType } from "@/lib/prisma";
+import { RoadmapType } from "@/lib/prisma/enums";
 import { useRef, useState } from "react";
 import formSubmitter from "@/functions/formSubmitter";
 import styles from '../forms.module.css'
