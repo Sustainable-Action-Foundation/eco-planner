@@ -111,13 +111,11 @@
     "@types/nodemailer": "^8.0.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "@types/regexp.escape": "^2.0.0",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.4",
     "lorem-ipsum": "^2.0.8",
     "playwright": "^1.59.1",
     "prisma": "^7.8.0",
-    "regexp.escape": "^2.0.1",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.59.0"
