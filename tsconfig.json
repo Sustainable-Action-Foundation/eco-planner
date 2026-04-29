@@ -42,6 +42,7 @@
     "src/types/**/*.d.ts",
   ],
   "exclude": [
+    ".prisma/**/*",
     "src/prisma/generated/**/*",
     "src/.prisma/**/*",
     ".prisma/**/*",

@@ -106,6 +106,7 @@ export default defineConfig([
     },
   },
   globalIgnores([
+    ".prisma/**/*",
     "src/prisma/generated/**/*",
     "src/.prisma/**/*",
     ".prisma/**/*",
