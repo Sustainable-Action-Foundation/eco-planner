@@ -12,9 +12,12 @@ export const prisma = globalForPrisma.prisma ?? new PrismaClient(makeMariaDBAdap
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
-process.on("beforeExit", () => {
+const disconnect = () => {
   prisma.$disconnect()
     .catch((err: unknown) => {
       console.error("Error disconnecting Prisma Client:", err);
     });
-});
+};
+process.on("beforeExit", disconnect);
+process.on("exit", disconnect);
+process.on("uncaughtException", disconnect);

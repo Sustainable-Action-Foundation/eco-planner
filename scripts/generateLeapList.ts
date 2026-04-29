@@ -57,4 +57,8 @@ async function generateLeapList() {
   }
 }
 
-void generateLeapList();
+generateLeapList()
+  .catch((err: unknown) => {
+    console.error("Error generating LEAP list:", err);
+    process.exit(1);
+  });
