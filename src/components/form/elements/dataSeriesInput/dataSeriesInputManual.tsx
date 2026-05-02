@@ -107,6 +107,53 @@ export default function DataSeriesInputManual({
     });
   }
 
+  function insertRowBottom() {
+    setValue((prev) => [
+      ...prev,
+      {
+        id: crypto.randomUUID(),
+        year: null,
+        data: null,
+      },
+    ]);
+  }
+
+  function insertRowAbove() {
+    setValue(prev => [
+      ...prev.slice(0, activeCell.row),
+      { id: crypto.randomUUID(), year: null, data: null },
+      ...prev.slice(activeCell.row)
+    ])
+  }
+
+  function deleteCurrentRow() {
+    setValue(prev => {
+      if (prev.length === 0) return prev;
+
+      const next = prev.filter((_, i) => i !== activeCell.row);
+
+      // Ensure at least one row exists
+      if (next.length === 0) {
+        return [{ id: crypto.randomUUID(), year: null, data: null }];
+      }
+
+      return next;
+    });
+
+    setActiveCell(prev => ({
+      ...prev,
+      row: Math.max(0, prev.row - 1)
+    }));
+  }
+
+  // TODO: Tooltips for menu buttons (see tiptap editor)
+  // TODO: Add keyboard controls for actions
+  // TODO: Add edit state for a cell (by pressing enter) (Enter when in edit mode should move down one cell) (We can add a delete shortcut at this point as well maybe?) (And escape to exit edit mode)
+  // TODO: Double check i18n
+  // TODO: Ensure proper validation when copypasting text
+  // TODO: Cleanup code by checking semantics, css and js for this component and for the grid component
+  // TODO: Remove old component
+
   return (
     <>
       <div className="margin-bottom-25" id={`table-${label}`}>{label}</div>
@@ -116,9 +163,7 @@ export default function DataSeriesInputManual({
             style={{ transform: 'scale(1)' }}
             className="flex gap-50 padding-25 transparent  align-items-center font-size-75"
             type="button"
-            onClick={() =>
-              setValue(prev => [...prev, { id: crypto.randomUUID(), year: null, data: null }])
-            }
+            onClick={insertRowBottom}
             data-testid="add-row-button">
             {t("forms:data_series_input.insert_row_bottom")}
             <IconPlus width={18} height={18} style={{ minWidth: '18px' }} aria-hidden="true" />
@@ -127,17 +172,7 @@ export default function DataSeriesInputManual({
             style={{ transform: 'scale(1)' }}
             className="flex gap-50 padding-25 transparent  align-items-center font-size-75"
             type="button"
-            onClick={() => {
-              setValue(prev => [
-                ...prev.slice(0, activeCell.row),
-                { id: crypto.randomUUID(), year: null, data: null },
-                ...prev.slice(activeCell.row)
-              ])
-              setActiveCell(prev => ({
-                ...prev,
-                row: prev.row
-              }))
-            }}
+            onClick={insertRowAbove}
             data-testid="add-row-above-button">
             {t("forms:data_series_input.insert_row_above")}
             <IconRowInsertTop width={18} height={18} style={{ minWidth: '18px' }} aria-hidden="true" />
@@ -149,25 +184,7 @@ export default function DataSeriesInputManual({
               style={{ transform: 'scale(1)' }}
               className="flex gap-50 padding-25 padding-inline-50 transparent  align-items-center font-size-75"
               type="button"
-              onClick={() => {
-                setValue(prev => {
-                  if (prev.length === 0) return prev;
-
-                  const next = prev.filter((_, i) => i !== activeCell.row);
-
-                  // Ensure at least one row exists
-                  if (next.length === 0) {
-                    return [{ id: crypto.randomUUID(), year: null, data: null }];
-                  }
-
-                  return next;
-                });
-
-                setActiveCell(prev => ({
-                  ...prev,
-                  row: Math.max(0, prev.row - 1)
-                }));
-              }}
+              onClick={deleteCurrentRow}
               data-testid="delete-row-button">
               {t("forms:data_series_input.delete_selected_row")}
               <IconTrashXFilled width={18} height={18} fill="#CB3C3C" style={{ minWidth: '18px' }} aria-hidden="true" />
@@ -205,6 +222,9 @@ export default function DataSeriesInputManual({
         ariaLabelledBy={`table-${label}`}
         activeCell={activeCell}
         setActiveCell={setActiveCell}
+        insertRowBottom={insertRowBottom}
+        insertRowAbove={insertRowAbove}
+        deleteCurrentRow={deleteCurrentRow}
         props={{
           className: `grid width-100 align-items-center ${styles['grid']}`,
           style: { gridTemplateColumns: 'auto auto 1fr', height: gridExpanded ? 'auto' : '0', borderBottom: gridExpanded ? '1px solid var(--gray-80)' : '0' }

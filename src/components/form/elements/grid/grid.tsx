@@ -90,19 +90,20 @@ export default function Grid({
   props,
   children,
   activeCell,
-  setActiveCell
+  setActiveCell,
+  insertRowBottom,
+  insertRowAbove,
+  deleteCurrentRow
 }: {
-  ariaLabelledBy: string,
-  props: GenericElement
-  children: React.ReactNode,
-  activeCell: { row: number; column: number }
-  setActiveCell: React.Dispatch<React.SetStateAction<{ row: number; column: number }>>
+  ariaLabelledBy: string;
+  props: GenericElement;
+  children: React.ReactNode;
+  activeCell: { row: number; column: number };
+  setActiveCell: React.Dispatch<React.SetStateAction<{ row: number; column: number }>>;
+  insertRowBottom: () => void;
+  insertRowAbove: () => void;
+  deleteCurrentRow: () => void;
 }) {
-  // TODO: Add like a check that the amount of children is divisible by the amount of columns or something 
-  // to ensure that we have the correct amount of children
-
-
-
   const gridRef = React.useRef<HTMLTableElement | null>(null)
 
   useEffect(() => {
@@ -113,12 +114,13 @@ export default function Grid({
       `[data-row="${activeCell.row}"][data-column="${activeCell.column}"][role="gridcell"], [data-row="${activeCell.row}"][data-column="${activeCell.column}"][role="rowheader"]`
     )
     if (!cell) return
-
+ 
     const focusable = cell.querySelector<HTMLElement>(
       'input, textarea, select, button, [tabindex]:not([tabindex="-1"])'
     )
 
-    if (focusable && document.activeElement !== focusable) {
+
+    if (focusable && document.activeElement !== focusable) { // TODO: This doesnt work when pressing using a mouse as we already focus the activeelement...
       focusable.focus()
     } else {
       cell.focus()
@@ -192,7 +194,7 @@ export default function Grid({
                 return React.cloneElement(child, {
                   position: { row: rowIndex, column: columnIndex },
                   tabIndex: isActive ? 0 : -1,
-                  onKeyDown: (event) =>
+                  onKeyDown: (event) => 
                     handleKeyDownGrid({
                       e: event,
                       amountColumns: columnHeaders.length,
@@ -200,8 +202,11 @@ export default function Grid({
                       children,
                       activeCell,
                       setActiveCell,
+                      insertRowBottom,
+                      insertRowAbove,
+                      deleteCurrentRow
                     }),
-                  onClick: () =>
+                  onClick: () => 
                     setActiveCell({
                       row: rowIndex,
                       column: columnIndex,
