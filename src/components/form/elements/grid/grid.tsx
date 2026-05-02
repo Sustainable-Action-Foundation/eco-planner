@@ -120,7 +120,7 @@ export default function Grid({
     )
 
 
-    if (focusable && document.activeElement !== focusable) { // TODO: This doesnt work when pressing using a mouse as we already focus the activeelement...
+    if (focusable && document.activeElement !== focusable) { // TODO: This doesnt work when pressing using a mouse as we already focus the activeelement... (when we include an edit move we can simply just keep cell.focus here)
       focusable.focus()
     } else {
       cell.focus()

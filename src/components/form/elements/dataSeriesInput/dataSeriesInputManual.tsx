@@ -139,11 +139,6 @@ export default function DataSeriesInputManual({
 
       return next;
     });
-
-    setActiveCell(prev => ({
-      ...prev,
-      row: Math.max(0, prev.row - 1)
-    }));
   }
 
   // TODO: Tooltips for menu buttons (see tiptap editor)
