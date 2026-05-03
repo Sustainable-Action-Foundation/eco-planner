@@ -1,4 +1,4 @@
-import React from "react"
+import type React from "react"
 
 export function handleKeyDownGrid({
   e,// TODO: rename --> event
@@ -99,7 +99,7 @@ export function handleKeyDownGrid({
     case "+": {
       e.preventDefault();
       if (e.ctrlKey) {
-        insertRowAbove(); // For reasons unclear to me, we don't set an activecell here
+        insertRowAbove(); // Retaining our active cell places us on the new cell automatically
       }
       break;
     }
@@ -108,9 +108,16 @@ export function handleKeyDownGrid({
     case "Delete": { // We save e.key === Delete without a modifier for deleting the contents of a cell. Altough this won't be an issue when allowing users to select rows
       e.preventDefault();
       if (e.ctrlKey) {
+
+        const nextRow =
+          amountRows <= 1
+            ? 0 
+            : Math.min(activeCell.row, amountRows - 2);
+
+
         deleteCurrentRow();
-        if (activeCell.row === 0) return;
-        setActiveCell({ row: activeCell.row, column: activeCell.column }); // For reasons unclear to me, we do set an activecell here, TODO: Must handle focus when on last row.
+ 
+        setActiveCell({ row: nextRow, column: activeCell.column });
       }
       break;
     }

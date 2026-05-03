@@ -199,7 +199,6 @@ export default function Grid({
                       e: event,
                       amountColumns: columnHeaders.length,
                       amountRows: bodyRows.length,
-                      children,
                       activeCell,
                       setActiveCell,
                       insertRowBottom,
