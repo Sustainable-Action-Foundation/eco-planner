@@ -137,7 +137,8 @@ export function handleKeyDownGrid({
       break;
     }
 
-    case "Enter": { // Need escape to unfocus element
+    // If we already focus an input we want this to move down to next row
+    case "Enter": { // Need escape to unfocus element 
       e.preventDefault();
       setFocusWithin(activeCell)
       break;

@@ -39,7 +39,7 @@ fieldset .spreadsheet-label:last-child {
  
 .grid {
   overflow: visible;  /* TODO: We need to set this to hidden when collapsing the input */
-   border: 1px solid var(--gray-80);
+  border: 1px solid var(--gray-80);
   height: auto;
   transition: height .3s ease-out;
   interpolate-size: allow-keywords;
@@ -88,10 +88,11 @@ fieldset .spreadsheet-label:last-child {
   border-right: 1px solid var(--gray-90);
 }
 
-.grid [role="gridcell"] input {
+.grid [role="gridcell"] :is(input, textarea, select, button) {
   border: 0;
   background-color: transparent;
   padding: .25rem;
+  pointer-events: none; /* TODO: Remember to disable this when in edit mode*/
 }
 
 .grid [role="gridcell"]:has(:is(input, textarea, select, button):focus) {
