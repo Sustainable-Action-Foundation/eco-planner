@@ -111,20 +111,11 @@ export default function Grid({
     if (!grid) return
 
     const cell = grid.querySelector<HTMLElement>(
-      `[data-row="${activeCell.row}"][data-column="${activeCell.column}"][role="gridcell"], [data-row="${activeCell.row}"][data-column="${activeCell.column}"][role="rowheader"]`
+      `[data-row="${activeCell.row}"][data-column="${activeCell.column}"]`
     )
     if (!cell) return
- 
-    const focusable = cell.querySelector<HTMLElement>(
-      'input, textarea, select, button, [tabindex]:not([tabindex="-1"])'
-    )
-
-
-    if (focusable && document.activeElement !== focusable) { // TODO: This doesnt work when pressing using a mouse as we already focus the activeelement... (when we include an edit move we can simply just keep cell.focus here)
-      focusable.focus()
-    } else {
-      cell.focus()
-    }
+  
+    cell.focus()
   }, [activeCell])
 
   const childrenArray = React.Children.toArray(children)
@@ -137,6 +128,12 @@ export default function Grid({
 
   const bodyRows = childrenArray.filter(isGridRow)
 
+  // TODO: Double clicking a cell should have the same affect as pressing enter. It should:
+  // 1. Set active cell
+  // 2. Enable pointer events for inputs within said cell
+  // 3. Focus the input within the cell
+  // 4. Disable other keyboard navigation.
+  // TODO: might be sensible to handle the above through a useState(editmode true/false) and the focusing input with a useeffect? 
   return (
     <table
       ref={gridRef}

@@ -1,5 +1,20 @@
 import type React from "react"
 
+function setFocusWithin(
+  activeCell: { row: number, column: number },
+) {
+  const cell = document.querySelector<HTMLElement>( // TODO: Probably pass like an id so we select the correct grid 
+    `[data-row="${activeCell.row}"][data-column="${activeCell.column}"]`
+  )
+  if (!cell) return
+
+  const focusable = cell.querySelector<HTMLElement>(
+    'input, textarea, select, button, [tabindex]:not([tabindex="-1"])'
+  )
+  if (!focusable) return
+  focusable.focus()
+}
+
 export function handleKeyDownGrid({
   e,// TODO: rename --> event
   amountColumns,
@@ -18,7 +33,7 @@ export function handleKeyDownGrid({
   insertRowBottom: () => void;
   insertRowAbove: () => void;
   deleteCurrentRow: () => void;
-}) { /* TODO: We can probably create an "edit" mode weere just disable theese so the user isnt thrown out of the input when trying to type (if we are not in edit mode we overwrite existing data when typing maybe? see google docs...) */
+}) { 
   const key = e.key;
   switch (key) { // If we match what is expected from a number input we may type it, otherwise nothing happens (default case)
     case "ArrowDown":
@@ -111,16 +126,23 @@ export function handleKeyDownGrid({
 
         const nextRow =
           amountRows <= 1
-            ? 0 
+            ? 0
             : Math.min(activeCell.row, amountRows - 2);
 
 
         deleteCurrentRow();
- 
+
         setActiveCell({ row: nextRow, column: activeCell.column });
       }
       break;
     }
+
+    case "Enter": { // Need escape to unfocus element
+      e.preventDefault();
+      setFocusWithin(activeCell)
+      break;
+    }
+
 
     default:
       console.log("a"); // TODO: We should enter edit mode here!

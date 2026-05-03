@@ -38,9 +38,9 @@ fieldset .spreadsheet-label:last-child {
 /* TODO: Can probably remove the above once we are done here */
  
 .grid {
-  border: 1px solid var(--gray-80);
+  overflow: visible;  /* TODO: We need to set this to hidden when collapsing the input */
+   border: 1px solid var(--gray-80);
   height: auto;
-  overflow: hidden;
   transition: height .3s ease-out;
   interpolate-size: allow-keywords;
   border-bottom-right-radius: .25rem;
@@ -94,17 +94,25 @@ fieldset .spreadsheet-label:last-child {
   padding: .25rem;
 }
 
-.grid [role="gridcell"]:focus-within {
-  outline: 1px solid var(--blue-40);
-  box-shadow: 0 0 0 1px var(--blue-90);
+.grid [role="gridcell"]:has(:is(input, textarea, select, button):focus) {
   z-index: 1;
   outline-offset: -1px;
+  outline: 1px solid var(--blue-40);
+  box-shadow: 0 0 0 2px var(--blue-80);
 }
  
+.grid [role="gridcell"]:focus {
+  z-index: 1;
+  outline-offset: -1px;
+  outline: 1px solid var(--blue-40);
+}
+ 
+
 /* TODO: Only want to darken this element once you are entirely out of the component. I.e you do not want to do this when we are still in the menu */
 .grid .active-header {
   background-color: hsl(206,100%,90%,.5);
 }
+
 
 .grid:has([role="gridcell"]:focus-within) .active-header {
   background-color: hsl(206,100%,90%,1);
