@@ -1,20 +1,5 @@
 import type React from "react"
-
-export function setFocusWithin(
-  activeCell: { row: number, column: number },
-) {
-  const cell = document.querySelector<HTMLElement>( // TODO: Probably pass like an id so we select the correct grid 
-    `[data-row="${activeCell.row}"][data-column="${activeCell.column}"]`
-  )
-  if (!cell) return
-
-  const focusable = cell.querySelector<HTMLElement>(
-    'input, textarea, select, button, [tabindex]:not([tabindex="-1"])'
-  )
-  if (!focusable) return
-  focusable.focus()
-}
-
+ 
 export function handleKeyDownGrid({
   e,// TODO: rename --> event
   amountColumns,
@@ -23,7 +8,8 @@ export function handleKeyDownGrid({
   setActiveCell,
   insertRowBottom,
   insertRowAbove,
-  deleteCurrentRow
+  deleteCurrentRow,
+  setFocusInGridcell
 }: {
   e: React.KeyboardEvent<HTMLTableCellElement>,
   amountColumns: number,
@@ -33,6 +19,7 @@ export function handleKeyDownGrid({
   insertRowBottom: () => void;
   insertRowAbove: () => void;
   deleteCurrentRow: () => void;
+  setFocusInGridcell: (activeCell: { row: number; column: number }) => void;
 }) { 
   const key = e.key;
   switch (key) { // If we match what is expected from a number input we may type it, otherwise nothing happens (default case)
@@ -140,7 +127,7 @@ export function handleKeyDownGrid({
     // If we already focus an input we want this to move down to next row
     case "Enter": { // Need escape to unfocus element 
       e.preventDefault();
-      setFocusWithin(activeCell)
+      setFocusInGridcell(activeCell)
       break;
     }
 

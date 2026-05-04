@@ -2,7 +2,33 @@
 
 import type { GenericElement, GridCell, GridColumnHeader, GridRowHeader, GridRow } from "@/components/types"
 import React, { useEffect } from "react"
-import { handleKeyDownGrid, setFocusWithin } from "./functions"
+import { handleKeyDownGrid } from "./functions"
+ 
+function setFocusOnGridcell(
+  activeCell: { row: number, column: number },
+) {
+  const cell = document.querySelector<HTMLElement>( // TODO: Probably pass like an id so we select the correct grid 
+    `[data-row="${activeCell.row}"][data-column="${activeCell.column}"]`
+  )
+  if (!cell) return
+
+  cell.focus()
+}
+
+function setFocusInGridcell(
+  activeCell: { row: number, column: number },
+) {
+  const cell = document.querySelector<HTMLElement>( // TODO: Probably pass like an id so we select the correct grid 
+    `[data-row="${activeCell.row}"][data-column="${activeCell.column}"]`
+  )
+  if (!cell) return
+
+  const focusable = cell.querySelector<HTMLElement>(
+    'input, textarea, select, button, [tabindex]:not([tabindex="-1"])'
+  )
+  if (!focusable) return
+  focusable.focus()
+}
 
 const GridCell = React.forwardRef<HTMLTableCellElement, GridCell>(
   ({ className, style, children, position, tabIndex, onKeyDown, onClick, onDoubleClick }, ref) => (
@@ -105,18 +131,9 @@ export default function Grid({
   insertRowAbove: () => void;
   deleteCurrentRow: () => void;
 }) {
-  const gridRef = React.useRef<HTMLTableElement | null>(null)
-
+ 
   useEffect(() => {
-    const grid = gridRef.current
-    if (!grid) return
-
-    const cell = grid.querySelector<HTMLElement>(
-      `[data-row="${activeCell.row}"][data-column="${activeCell.column}"]`
-    )
-    if (!cell) return
-  
-    cell.focus()
+    setFocusOnGridcell({ row: activeCell.row, column: activeCell.column })
   }, [activeCell])
 
   const childrenArray = React.Children.toArray(children)
@@ -137,7 +154,6 @@ export default function Grid({
   // TODO: might be sensible to handle the above through a useState(editmode true/false) and the focusing input with a useeffect? 
   return (
     <table
-      ref={gridRef}
       className={`${props.className ? `${props.className} ` : ''}`}
       style={{ ...props.style }}
       role="grid"
@@ -192,7 +208,7 @@ export default function Grid({
                 return React.cloneElement(child, {
                   position: { row: rowIndex, column: columnIndex },
                   tabIndex: isActive ? 0 : -1,
-                  onKeyDown: (event) => 
+                  onKeyDown: (event) =>
                     handleKeyDownGrid({
                       e: event,
                       amountColumns: columnHeaders.length,
@@ -201,15 +217,16 @@ export default function Grid({
                       setActiveCell,
                       insertRowBottom,
                       insertRowAbove,
-                      deleteCurrentRow
+                      deleteCurrentRow,
+                      setFocusInGridcell
                     }),
-                  onClick: () => 
+                  onClick: () =>
                     setActiveCell({ /* TODO: If foucus is within, we should retain it...  */
                       row: rowIndex,
                       column: columnIndex,
                     }),
-                  onDoubleClick: () => 
-                    setFocusWithin({row: rowIndex, column: columnIndex})
+                  onDoubleClick: () =>
+                    setFocusInGridcell({ row: rowIndex, column: columnIndex })
                 })
               })}
             </tr>
