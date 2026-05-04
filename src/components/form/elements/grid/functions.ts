@@ -1,5 +1,5 @@
 import type React from "react"
- 
+
 export function handleKeyDownGrid({
   e,// TODO: rename --> event
   amountColumns,
@@ -22,34 +22,45 @@ export function handleKeyDownGrid({
   insertRowBottom: () => void;
   insertRowAbove: () => void;
   deleteCurrentRow: () => void;
-}) { 
+}) {
   const key = e.key;
-  switch (key) { // If we match what is expected from a number input we may type it, otherwise nothing happens (default case)
+  switch (key) {
     case "ArrowDown":
       e.preventDefault();
+
+      if (editMode) return // Up and down arrows in a number input are annoying so we check this after preventing default
+
       if (activeCell.row === amountRows - 1) return; // Total amount of rows minus 1 to get index
       setActiveCell({ row: activeCell.row + 1, column: activeCell.column });
       break;
 
     case "ArrowUp":
       e.preventDefault();
+
+      if (editMode) return // Up and down arrows in a number input are annoying so we check this after preventing default
+
       if (activeCell.row === 0) return; // Cant move past the first row
       setActiveCell({ row: activeCell.row - 1, column: activeCell.column });
       break;
 
     case "ArrowRight":
+      if (editMode) return
+
       e.preventDefault();
       if (activeCell.column === amountColumns - 1) return;
       setActiveCell({ row: activeCell.row, column: activeCell.column + 1 });
       break;
 
     case "ArrowLeft":
+      if (editMode) return
+
       e.preventDefault();
       if (activeCell.column === 1) return; // Our headers count as a column but we don't want to tab into those
       setActiveCell({ row: activeCell.row, column: activeCell.column - 1 });
       break;
 
     case "PageUp":
+      if (editMode) setEditMode(false)
       e.preventDefault();
       // Note: the behavior for page up/down is correct for a fully visible grid (which we assume it is for now). 
       // If the grid is scrollable other behaviour applies, see mdn. 
@@ -57,11 +68,13 @@ export function handleKeyDownGrid({
       break;
 
     case "PageDown":
+      if (editMode) setEditMode(false)
       e.preventDefault();
       setActiveCell({ row: amountRows - 1, column: activeCell.column });
       break;
 
     case "Home":
+      if (editMode) setEditMode(false)
       e.preventDefault();
       if (e.ctrlKey) {
         setActiveCell({ row: 0, column: 1 });
@@ -71,6 +84,7 @@ export function handleKeyDownGrid({
       break;
 
     case "End":
+      if (editMode) setEditMode(false)
       e.preventDefault();
       if (e.ctrlKey) {
         setActiveCell({ row: amountRows - 1, column: amountColumns - 1 });
@@ -80,6 +94,7 @@ export function handleKeyDownGrid({
       break;
 
     case "?": {
+      if (editMode) setEditMode(false)
       e.preventDefault();
       if (e.ctrlKey && e.shiftKey) {
         insertRowBottom();
@@ -89,6 +104,7 @@ export function handleKeyDownGrid({
     }
 
     case "Insert": {
+      if (editMode) setEditMode(false)
       e.preventDefault();
       if (e.ctrlKey) {
         insertRowBottom();
@@ -101,6 +117,7 @@ export function handleKeyDownGrid({
     }
 
     case "+": {
+      if (editMode) setEditMode(false)
       e.preventDefault();
       if (e.ctrlKey) {
         insertRowAbove(); // Retaining our active cell places us on the new cell automatically
@@ -109,7 +126,8 @@ export function handleKeyDownGrid({
     }
 
     case "-":
-    case "Delete": { // We save e.key === Delete without a modifier for deleting the contents of a cell. Altough this won't be an issue when allowing users to select rows
+    case "Delete": { // We save e.key === Delete without a modifier for deleting the contents of a cell. Altough this won't be an issue when allowing users to select rows (as we only delete a row when the entire row is selected in that case)
+      if (editMode) setEditMode(false)
       e.preventDefault();
       if (e.ctrlKey) {
 
@@ -126,10 +144,12 @@ export function handleKeyDownGrid({
       break;
     }
 
-    // If we already focus an input we want this to move down to next row
-    case "Enter": { // Need escape to unfocus element 
+    // Enter edit mode if we aren't already in it
+    // If we are in edit mode, we want to move down to the next row when pressing enter
+    // If we are on the last row when moving down to the next row, we create a new row
+    case "Enter": {
       e.preventDefault();
-      
+
       if (editMode === false) {
         setEditMode(true)
       } else if (editMode === true && activeCell.row === amountRows - 1) {
@@ -144,17 +164,22 @@ export function handleKeyDownGrid({
       break;
     }
 
-    // If we already focus an input we want this to move down to next row
-    case "Escape": { // Need escape to unfocus element 
+    case "Escape": {
       e.preventDefault();
-      
+
       if (editMode === false) return
-      
+
       setEditMode(false)
       break;
     }
-    
+
+    // If we match what is expected from a number  input, and we arent in editmode, we may type it
+    // TODO: This does not work for negative numbers as "-" isn't a number.
+    // We could probably add "-" as an exception in our if-statment. However it might be smart to check if any other excemptions apply here.  
     default:
-      console.log("a"); // TODO: We should enter edit mode here!
+      if (!Number.isNaN(Number(key)) && !editMode) {
+        setEditMode(true);
+      }
+      break;
   }
 }

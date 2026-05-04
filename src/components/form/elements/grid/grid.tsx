@@ -4,11 +4,6 @@ import type { GenericElement, GridCell, GridColumnHeader, GridRowHeader, GridRow
 import React, { useEffect, useState } from "react"
 import { handleKeyDownGrid } from "./functions"
 
-// SetEditmode using a usestate
-// Track editmode with a useeffect
-// If editmode == true, setFocusINgridcell
-// if editmode == false, setFocusONgridcell
-
 function setFocusOnGridcell(
   activeCell: { row: number, column: number },
 ) {
@@ -139,13 +134,11 @@ export default function Grid({
 
   const [editMode, setEditMode] = useState<boolean>(false)
 
-  useEffect(() => {
+  useEffect(() => { // TODO: Not entirely conviced that i like this...
     setFocusOnGridcell({ row: activeCell.row, column: activeCell.column })
 
     if (editMode) {
       setFocusInGridcell({ row: activeCell.row, column: activeCell.column })
-    } else {
-      setFocusOnGridcell({ row: activeCell.row, column: activeCell.column })
     }
   }, [activeCell, editMode])
 
@@ -159,12 +152,8 @@ export default function Grid({
 
   const bodyRows = childrenArray.filter(isGridRow)
 
-  // TODO: Double clicking a cell should have the same affect as pressing enter. It should:
-  // 1. Set active cell
-  // 2. Enable pointer events for inputs within said cell
-  // 3. Focus the input within the cell
-  // 4. Disable other keyboard navigation.
-  // TODO: might be sensible to handle the above through a useState(editmode true/false) and the focusing input with a useeffect? 
+  // TODO: Gotta make sure to unset edit mode if we lose focus of the grid!
+
   return (
     <table
       className={`${props.className ? `${props.className} ` : ''}`}
@@ -234,13 +223,19 @@ export default function Grid({
                       insertRowAbove,
                       deleteCurrentRow,
                     }),
-                  onClick: () =>
-                    setActiveCell({ /* TODO: If foucus is within, we should retain it...  */
+                  onClick: () => {
+                    if (activeCell.row !== rowIndex || activeCell.column !== columnIndex) {
+                      setEditMode(false)  // Exit edit mode (only) when pressing another cell
+                    }
+                    
+                    setActiveCell({ 
                       row: rowIndex,
                       column: columnIndex,
-                    }),
-                  onDoubleClick: () =>
-                    setEditMode(true)
+                    })
+                  },
+                  onDoubleClick: () => {
+                    setEditMode(true) // Enter edit mode when double clicking a cell
+                  }
                 })
               })}
             </tr>
