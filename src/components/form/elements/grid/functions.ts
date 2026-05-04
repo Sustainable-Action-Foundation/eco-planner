@@ -1,6 +1,6 @@
 import type React from "react"
 
-function setFocusWithin(
+export function setFocusWithin(
   activeCell: { row: number, column: number },
 ) {
   const cell = document.querySelector<HTMLElement>( // TODO: Probably pass like an id so we select the correct grid 

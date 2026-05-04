@@ -38,7 +38,8 @@ export type GridCell = GenericElement & {
   tabIndex?: 0 | -1,
   children?: React.ReactNode,
   onKeyDown?: React.KeyboardEventHandler<HTMLTableCellElement>, 
-  onClick?: React.MouseEventHandler<HTMLTableCellElement>
+  onClick?: React.MouseEventHandler<HTMLTableCellElement>,
+  onDoubleClick?: React.MouseEventHandler<HTMLTableCellElement>
 }
 export type GridRow = GenericElement & { children?: React.ReactNode }
 export type GridColumnHeader = GenericElement & { children?: React.ReactNode }

@@ -2,10 +2,10 @@
 
 import type { GenericElement, GridCell, GridColumnHeader, GridRowHeader, GridRow } from "@/components/types"
 import React, { useEffect } from "react"
-import { handleKeyDownGrid } from "./functions"
+import { handleKeyDownGrid, setFocusWithin } from "./functions"
 
 const GridCell = React.forwardRef<HTMLTableCellElement, GridCell>(
-  ({ className, style, children, position, tabIndex, onKeyDown, onClick }, ref) => (
+  ({ className, style, children, position, tabIndex, onKeyDown, onClick, onDoubleClick }, ref) => (
     <td
       className={`${className ? `${className} ` : ''}`}
       style={{ ...(style ?? {}) }}
@@ -16,6 +16,7 @@ const GridCell = React.forwardRef<HTMLTableCellElement, GridCell>(
       data-column={position?.column}
       onKeyDown={onKeyDown}
       onClick={onClick}
+      onDoubleClick={onDoubleClick}
     >
       {children}
     </td>
@@ -203,10 +204,12 @@ export default function Grid({
                       deleteCurrentRow
                     }),
                   onClick: () => 
-                    setActiveCell({
+                    setActiveCell({ /* TODO: If foucus is within, we should retain it...  */
                       row: rowIndex,
                       column: columnIndex,
                     }),
+                  onDoubleClick: () => 
+                    setFocusWithin({row: rowIndex, column: columnIndex})
                 })
               })}
             </tr>
