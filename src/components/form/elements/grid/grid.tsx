@@ -1,9 +1,14 @@
 "use client"
 
 import type { GenericElement, GridCell, GridColumnHeader, GridRowHeader, GridRow } from "@/components/types"
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { handleKeyDownGrid } from "./functions"
- 
+
+// SetEditmode using a usestate
+// Track editmode with a useeffect
+// If editmode == true, setFocusINgridcell
+// if editmode == false, setFocusONgridcell
+
 function setFocusOnGridcell(
   activeCell: { row: number, column: number },
 ) {
@@ -125,16 +130,24 @@ export default function Grid({
   ariaLabelledBy: string;
   props: GenericElement;
   children: React.ReactNode;
-  activeCell: { row: number; column: number };
-  setActiveCell: React.Dispatch<React.SetStateAction<{ row: number; column: number }>>;
+  activeCell: { row: number; column: number }; // TODO: RENAME --> FocusedCell
+  setActiveCell: React.Dispatch<React.SetStateAction<{ row: number; column: number }>>; // TODO: RENAME --> SetFocusedCell
   insertRowBottom: () => void;
   insertRowAbove: () => void;
   deleteCurrentRow: () => void;
 }) {
- 
+
+  const [editMode, setEditMode] = useState<boolean>(false)
+
   useEffect(() => {
     setFocusOnGridcell({ row: activeCell.row, column: activeCell.column })
-  }, [activeCell])
+
+    if (editMode) {
+      setFocusInGridcell({ row: activeCell.row, column: activeCell.column })
+    } else {
+      setFocusOnGridcell({ row: activeCell.row, column: activeCell.column })
+    }
+  }, [activeCell, editMode])
 
   const childrenArray = React.Children.toArray(children)
 
@@ -215,10 +228,11 @@ export default function Grid({
                       amountRows: bodyRows.length,
                       activeCell,
                       setActiveCell,
+                      editMode,
+                      setEditMode,
                       insertRowBottom,
                       insertRowAbove,
                       deleteCurrentRow,
-                      setFocusInGridcell
                     }),
                   onClick: () =>
                     setActiveCell({ /* TODO: If foucus is within, we should retain it...  */
@@ -226,7 +240,7 @@ export default function Grid({
                       column: columnIndex,
                     }),
                   onDoubleClick: () =>
-                    setFocusInGridcell({ row: rowIndex, column: columnIndex })
+                    setEditMode(true)
                 })
               })}
             </tr>

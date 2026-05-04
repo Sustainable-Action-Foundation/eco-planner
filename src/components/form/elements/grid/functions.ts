@@ -6,20 +6,22 @@ export function handleKeyDownGrid({
   amountRows,
   activeCell,
   setActiveCell,
+  editMode,
+  setEditMode,
   insertRowBottom,
   insertRowAbove,
   deleteCurrentRow,
-  setFocusInGridcell
 }: {
   e: React.KeyboardEvent<HTMLTableCellElement>,
   amountColumns: number,
   amountRows: number,
-  activeCell: { row: number, column: number },
-  setActiveCell: React.Dispatch<React.SetStateAction<{ row: number, column: number }>>,
+  activeCell: { row: number, column: number }, // TODO: RENAME --> FocusedCell
+  setActiveCell: React.Dispatch<React.SetStateAction<{ row: number, column: number }>>,  // TODO: RENAME --> SetFocusedCell
+  editMode: boolean,
+  setEditMode: React.Dispatch<React.SetStateAction<boolean>>,
   insertRowBottom: () => void;
   insertRowAbove: () => void;
   deleteCurrentRow: () => void;
-  setFocusInGridcell: (activeCell: { row: number; column: number }) => void;
 }) { 
   const key = e.key;
   switch (key) { // If we match what is expected from a number input we may type it, otherwise nothing happens (default case)
@@ -127,11 +129,31 @@ export function handleKeyDownGrid({
     // If we already focus an input we want this to move down to next row
     case "Enter": { // Need escape to unfocus element 
       e.preventDefault();
-      setFocusInGridcell(activeCell)
+      
+      if (editMode === false) {
+        setEditMode(true)
+      } else if (editMode === true && activeCell.row === amountRows - 1) {
+        setEditMode(false)
+        insertRowBottom();
+        setActiveCell({ row: amountRows, column: 1 });
+      } else {
+        setEditMode(false)
+        setActiveCell({ row: activeCell.row + 1, column: activeCell.column });
+      }
+
       break;
     }
 
-
+    // If we already focus an input we want this to move down to next row
+    case "Escape": { // Need escape to unfocus element 
+      e.preventDefault();
+      
+      if (editMode === false) return
+      
+      setEditMode(false)
+      break;
+    }
+    
     default:
       console.log("a"); // TODO: We should enter edit mode here!
   }
