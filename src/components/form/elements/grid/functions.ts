@@ -11,6 +11,7 @@ export function handleKeyDownGrid({
   insertRowBottom,
   insertRowAbove,
   deleteCurrentRow,
+  deleteCurrentGridCellContents
 }: {
   e: React.KeyboardEvent<HTMLTableCellElement>,
   amountColumns: number,
@@ -22,6 +23,7 @@ export function handleKeyDownGrid({
   insertRowBottom: () => void;
   insertRowAbove: () => void;
   deleteCurrentRow: () => void;
+  deleteCurrentGridCellContents: (cell: { row: number; column: number }) => void;
 }) {
   const key = e.key;
   switch (key) {
@@ -125,20 +127,16 @@ export function handleKeyDownGrid({
       break;
     }
 
-    case "-":
-    case "Delete": { // We save e.key === Delete without a modifier for deleting the contents of a cell. Altough this won't be an issue when allowing users to select rows (as we only delete a row when the entire row is selected in that case)
+    case "-": { // We save e.key === Delete without a modifier for deleting the contents of a cell. Altough this won't be an issue when allowing users to select rows (as we only delete a row when the entire row is selected in that case)
       if (editMode) setEditMode(false)
       e.preventDefault();
       if (e.ctrlKey) {
-
         const nextRow =
           amountRows <= 1
             ? 0
             : Math.min(activeCell.row, amountRows - 2);
 
-
         deleteCurrentRow();
-
         setActiveCell({ row: nextRow, column: activeCell.column });
       }
       break;
@@ -173,9 +171,31 @@ export function handleKeyDownGrid({
       break;
     }
 
+    case "Delete": {
+
+      if (editMode) return
+
+      e.preventDefault();
+      if (e.ctrlKey) {
+        const nextRow =
+          amountRows <= 1
+            ? 0
+            : Math.min(activeCell.row, amountRows - 2);
+
+        deleteCurrentRow();
+        setActiveCell({ row: nextRow, column: activeCell.column });
+      } else {
+        deleteCurrentGridCellContents({ row: activeCell.row, column: activeCell.column }) // TODO: Unsure if this function should run here or if it should be inside a useEffect to sync state
+      }
+
+      break;
+    }
+
     // If we match what is expected from a number  input, and we arent in editmode, we may type it
     // TODO: This does not work for negative numbers as "-" isn't a number.
     // We could probably add "-" as an exception in our if-statment. However it might be smart to check if any other excemptions apply here.  
+    // It also doesnt work for delete :/
+    // TODO: Should also probably override existing input if we start writing stuff here
     default:
       if (!Number.isNaN(Number(key)) && !editMode) {
         setEditMode(true);

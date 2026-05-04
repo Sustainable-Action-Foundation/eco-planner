@@ -141,6 +141,24 @@ export default function DataSeriesInputManual({
     });
   }
 
+  function deleteCurrentGridCellContents() {
+    setValue(prev =>
+      prev.map((item, index) => {
+        if (index !== activeCell.row) return item;
+
+        if (activeCell.column === 1) { // Delete the year
+          return { ...item, year: null };
+        }
+
+        if (activeCell.column === 2) { // Delete the data
+          return { ...item, data: null };
+        }
+
+        return item;
+      })
+    );
+  }
+
   // TODO: Tooltips for menu buttons (see tiptap editor)
   // TODO: Add keyboard controls for actions
   // TODO: Add edit state for a cell (by pressing enter) (Enter when in edit mode should move down one cell) (We can add a delete shortcut at this point as well maybe?) (And escape to exit edit mode)
@@ -220,6 +238,7 @@ export default function DataSeriesInputManual({
         insertRowBottom={insertRowBottom}
         insertRowAbove={insertRowAbove}
         deleteCurrentRow={deleteCurrentRow}
+        deleteCurrentGridCellContents={deleteCurrentGridCellContents}
         props={{
           className: `grid width-100 align-items-center ${styles['grid']}`,
           style: { gridTemplateColumns: 'auto auto 1fr', height: gridExpanded ? 'auto' : '0', borderBottom: gridExpanded ? '1px solid var(--gray-80)' : '0' }

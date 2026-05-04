@@ -4,6 +4,8 @@ import type { GenericElement, GridCell, GridColumnHeader, GridRowHeader, GridRow
 import React, { useEffect, useState } from "react"
 import { handleKeyDownGrid } from "./functions"
 
+// TODO: Check that tabindex is properly handled
+
 function setFocusOnGridcell(
   activeCell: { row: number, column: number },
 ) {
@@ -120,7 +122,8 @@ export default function Grid({
   setActiveCell,
   insertRowBottom,
   insertRowAbove,
-  deleteCurrentRow
+  deleteCurrentRow,
+  deleteCurrentGridCellContents
 }: {
   ariaLabelledBy: string;
   props: GenericElement;
@@ -130,6 +133,7 @@ export default function Grid({
   insertRowBottom: () => void;
   insertRowAbove: () => void;
   deleteCurrentRow: () => void;
+  deleteCurrentGridCellContents: (cell: { row: number; column: number }) => void;
 }) {
 
   const [editMode, setEditMode] = useState<boolean>(false)
@@ -222,13 +226,14 @@ export default function Grid({
                       insertRowBottom,
                       insertRowAbove,
                       deleteCurrentRow,
+                      deleteCurrentGridCellContents
                     }),
                   onClick: () => {
                     if (activeCell.row !== rowIndex || activeCell.column !== columnIndex) {
                       setEditMode(false)  // Exit edit mode (only) when pressing another cell
                     }
-                    
-                    setActiveCell({ 
+
+                    setActiveCell({
                       row: rowIndex,
                       column: columnIndex,
                     })
