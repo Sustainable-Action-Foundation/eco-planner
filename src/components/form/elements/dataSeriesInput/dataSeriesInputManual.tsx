@@ -159,24 +159,30 @@ export default function DataSeriesInputManual({
     );
   }
 
-  // TODO: Tooltips for menu buttons (see tiptap editor)
-  // TODO: Add keyboard controls for actions
-  // TODO: Add edit state for a cell (by pressing enter) (Enter when in edit mode should move down one cell) (We can add a delete shortcut at this point as well maybe?) (And escape to exit edit mode)
+  // TODO: See if we need any more actions
   // TODO: Double check i18n
   // TODO: Ensure proper validation when copypasting text
   // TODO: Cleanup code by checking semantics, css and js for this component and for the grid component
   // TODO: Remove old component
+  // TODO: Figure out how we want to deal with tab
+  // TODO: Check proper aria (aria-selected etc...), i don't think we currently indicate a highlighted/focused cell
 
   return (
     <>
       <div className="margin-bottom-25" id={`table-${label}`}>{label}</div>
-      <menu className="flex gap-25 margin-0 gray-95 align-items-center justify-content-space-between" style={{ borderRadius: '.25rem .25rem 0 0', padding: '2px', borderTop: '1px solid var(--gray-80)', borderInline: '1px solid var(--gray-80)' }}>
+      {/* TODO: Might make sense to make an actual, keyboard navigable menu component */}
+      <menu 
+        className={`flex gap-25 margin-0 gray-95 align-items-center justify-content-space-between ${styles['grid-menu']}`} 
+        style={{ borderRadius: '.25rem .25rem 0 0', padding: '2px', borderTop: '1px solid var(--gray-80)', borderInline: '1px solid var(--gray-80)' }}
+      >
         <div className="flex gap-25 align-items-center">
           <button
             style={{ transform: 'scale(1)' }}
             className="flex gap-50 padding-25 transparent  align-items-center font-size-75"
             type="button"
             onClick={insertRowBottom}
+            aria-keyshortcuts="control+insert control+shift+plus"
+            data-tooltip="control+insert, control+shift+plus" // TODO: I18n
             data-testid="add-row-button">
             {t("forms:data_series_input.insert_row_bottom")}
             <IconPlus width={18} height={18} style={{ minWidth: '18px' }} aria-hidden="true" />
@@ -186,6 +192,8 @@ export default function DataSeriesInputManual({
             className="flex gap-50 padding-25 transparent  align-items-center font-size-75"
             type="button"
             onClick={insertRowAbove}
+            aria-keyshortcuts="insert control+plus"
+            data-tooltip="insert, control+plus" // TODO: I18n
             data-testid="add-row-above-button">
             {t("forms:data_series_input.insert_row_above")}
             <IconRowInsertTop width={18} height={18} style={{ minWidth: '18px' }} aria-hidden="true" />
@@ -198,6 +206,8 @@ export default function DataSeriesInputManual({
               className="flex gap-50 padding-25 padding-inline-50 transparent  align-items-center font-size-75"
               type="button"
               onClick={deleteCurrentRow}
+              aria-keyshortcuts="control+- control+delete"
+              data-tooltip="control+-, control+delete" // TODO: I18n
               data-testid="delete-row-button">
               {t("forms:data_series_input.delete_selected_row")}
               <IconTrashXFilled width={18} height={18} fill="#CB3C3C" style={{ minWidth: '18px' }} aria-hidden="true" />
@@ -241,7 +251,7 @@ export default function DataSeriesInputManual({
         deleteCurrentGridCellContents={deleteCurrentGridCellContents}
         props={{
           className: `grid width-100 align-items-center ${styles['grid']}`,
-          style: { gridTemplateColumns: 'auto auto 1fr', height: gridExpanded ? 'auto' : '0', borderBottom: gridExpanded ? '1px solid var(--gray-80)' : '0' }
+          style: { gridTemplateColumns: 'auto auto 1fr', height: gridExpanded ? 'auto' : '0', borderBottom: gridExpanded ? '1px solid var(--gray-80)' : '0'  }
         }}
       >
         <Grid.ColumnHeader className="text-align-left">#</Grid.ColumnHeader>
