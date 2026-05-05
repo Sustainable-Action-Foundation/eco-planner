@@ -145,7 +145,7 @@ export default function Grid({
 
   const [editMode, setEditMode] = useState<boolean>(false)
 
-  useEffect(() => { 
+  useEffect(() => {
     if (!activeCell) return
 
     setFocusOnGridcell(props.id, { row: activeCell.row, column: activeCell.column })
@@ -174,30 +174,12 @@ export default function Grid({
       style={{ ...props.style }}
       role="grid"
       aria-labelledby={ariaLabelledBy}
-      onFocusCapture={(e) => {
-        const grid = e.currentTarget as HTMLElement
-        const target = e.target as HTMLElement
-        const previous = e.relatedTarget as HTMLElement | null
-
-        if (previous && grid.contains(previous)) return
-
-        const cell = target.closest<HTMLElement>('[role="gridcell"]')
-        if (!cell) return
-
-        const row = Number(cell.dataset.row)
-        const column = Number(cell.dataset.column)
-
+      onFocusCapture={() => {
         if (!activeCell) {
           setActiveCell({row: 0, column: 1}) // Column 0 are unfocusable rowheaders
-        } else if (!Number.isNaN(row) && !Number.isNaN(column) && activeCell) {
-          setActiveCell(prev => {
-            if (prev?.row === row && prev?.column === column) return prev
-            return { row, column }
-          })
-        }
+        }  
       }}
     >
-      {/* Header */}
       <thead className="display-contents">
         <tr className="display-contents">
           {columnHeaders.map((child) =>
@@ -206,7 +188,6 @@ export default function Grid({
         </tr>
       </thead>
 
-      {/* Body */}
       <tbody className="display-contents">
         {bodyRows.map((rowElement, rowIndex) => {
           const rowChildren = React.Children.toArray(rowElement.props.children)
@@ -216,13 +197,13 @@ export default function Grid({
               {rowChildren.map((child, columnIndex) => {
                 if (!isGridCell(child)) return child
 
-                const isActive =
-                  activeCell?.row === rowIndex &&
-                  activeCell?.column === columnIndex
+                const isFocusable = activeCell
+                  ? activeCell.row === rowIndex && activeCell.column === columnIndex
+                  : rowIndex === 0 && columnIndex === 1; // Column index 1 as headerrows count as column 0 
 
                 return React.cloneElement(child, {
                   position: { row: rowIndex, column: columnIndex },
-                  tabIndex: isActive ? 0 : -1,
+                  tabIndex: isFocusable ? 0 : -1,
                   onKeyDown: (event) =>
                     handleKeyDownGrid({
                       e: event,
@@ -239,8 +220,8 @@ export default function Grid({
                     }),
                   onClick: () => {
                     if (!activeCell) {
-                      setActiveCell({row: 0, column: 1}) // Column 0 are unfocusable rowheaders
-                    } 
+                      setActiveCell({ row: 0, column: 1 }) // Column 0 are unfocusable rowheaders
+                    }
 
                     if (activeCell && (activeCell.row !== rowIndex || activeCell.column !== columnIndex)) {
                       setEditMode(false)  // Exit edit mode (only) when pressing another cell
