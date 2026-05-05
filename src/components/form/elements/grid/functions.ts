@@ -129,10 +129,10 @@ export function handleKeyDownGrid({
       break;
     }
 
-    case "-": { // We save e.key === Delete without a modifier for deleting the contents of a cell. Altough this won't be an issue when allowing users to select rows (as we only delete a row when the entire row is selected in that case)
-      if (editMode) setEditMode(false)
-      e.preventDefault();
+    case "-": { 
       if (e.ctrlKey) {
+        e.preventDefault();
+        if (editMode) setEditMode(false)
         const nextRow =
           amountRows <= 1
             ? 0
@@ -140,7 +140,9 @@ export function handleKeyDownGrid({
 
         deleteCurrentRow();
         setActiveCell({ row: nextRow, column: activeCell.column });
-      }
+      } else (
+        setEditMode(true) // a minus sign makes for a valid number
+      )
       break;
     }
 
@@ -193,13 +195,40 @@ export function handleKeyDownGrid({
       break;
     }
 
+    case "Tab": {
+      if (!editMode) return // Default tab behavior if not editing
+
+      e.preventDefault()
+      setEditMode(false)
+
+      if (e.shiftKey) {
+
+        if (activeCell.row === 0 && activeCell.column === 1) return // Do nothing on first cell
+
+        // If on first column, move up a row. Otherwise move to previous column. 
+        if (activeCell.column === 1) { 
+          setActiveCell({ row: activeCell.row - 1, column: amountColumns - 1 });
+        } else { 
+          setActiveCell({ row: activeCell.row, column: activeCell.column - 1 });
+        }
+      } else {
+
+        if (activeCell.row === amountRows - 1 && activeCell.column === amountColumns - 1) return // Do nothing on last cell
+        
+        // If on last column, go down a row. Otherwise move to next column. 
+        if (activeCell.column === amountColumns - 1) { 
+          setActiveCell({ row: activeCell.row + 1, column: 1 });
+        } else { 
+          setActiveCell({ row: activeCell.row, column: activeCell.column + 1 });
+        }
+      }
+
+    }
+
     // If we match what is expected from a number  input, and we arent in editmode, we may type it
-    // TODO: This does not work for negative numbers as "-" isn't a number.
-    // We could probably add "-" as an exception in our if-statment. However it might be smart to check if any other excemptions apply here.  
-    // It also doesnt work for delete :/
     // TODO: Should also probably override existing input if we start writing stuff here
     default:
-      if (!Number.isNaN(Number(key)) && !editMode) {
+      if ((!Number.isNaN(Number(key))) && !editMode) {
         setEditMode(true);
       }
       break;
