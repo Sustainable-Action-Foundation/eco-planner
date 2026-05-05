@@ -4,17 +4,15 @@ import type { GridCell, GridColumnHeader, GridRowHeader, GridRow, GridElement } 
 import React, { useEffect, useState } from "react"
 import { handleKeyDownGrid } from "./functions"
 
-// TODO: Check that tabindex is properly handled
-
 function setFocusOnGridcell(
   id: string,
-  activeCell: { row: number, column: number },
+  focusedCell: { row: number, column: number },
 ) {
   const grid = document.getElementById(id)
   if (!grid) return
 
   const cell = grid.querySelector<HTMLElement>(
-    `[data-row="${activeCell.row}"][data-column="${activeCell.column}"]`
+    `[data-row="${focusedCell.row}"][data-column="${focusedCell.column}"]`
   )
   if (!cell) return
 
@@ -23,13 +21,13 @@ function setFocusOnGridcell(
 
 function setFocusInGridcell(
   id: string,
-  activeCell: { row: number; column: number },
+  focusedCell: { row: number; column: number },
 ) {
   const grid = document.getElementById(id)
   if (!grid) return
 
   const cell = grid.querySelector<HTMLElement>(
-    `[data-row="${activeCell.row}"][data-column="${activeCell.column}"]`
+    `[data-row="${focusedCell.row}"][data-column="${focusedCell.column}"]`
   )
   if (!cell) return
 
@@ -125,8 +123,8 @@ export default function Grid({
   ariaLabelledBy,
   props,
   children,
-  activeCell,
-  setActiveCell,
+  focusedCell,
+  setFocusedCell,
   insertRowBottom,
   insertRowAbove,
   deleteCurrentRow,
@@ -135,8 +133,8 @@ export default function Grid({
   ariaLabelledBy: string;
   props: GridElement;
   children: React.ReactNode;
-  activeCell: { row: number; column: number } | null; // TODO: RENAME --> FocusedCell
-  setActiveCell: React.Dispatch<React.SetStateAction<{ row: number; column: number } | null>>; // TODO: RENAME --> SetFocusedCell
+  focusedCell: { row: number; column: number } | null;
+  setFocusedCell: React.Dispatch<React.SetStateAction<{ row: number; column: number } | null>>;
   insertRowBottom: () => void;
   insertRowAbove: () => void;
   deleteCurrentRow: () => void;
@@ -146,14 +144,14 @@ export default function Grid({
   const [editMode, setEditMode] = useState<boolean>(false)
 
   useEffect(() => {
-    if (!activeCell) return
+    if (!focusedCell) return
 
-    setFocusOnGridcell(props.id, { row: activeCell.row, column: activeCell.column })
+    setFocusOnGridcell(props.id, { row: focusedCell.row, column: focusedCell.column })
 
     if (editMode) {
-      setFocusInGridcell(props.id, { row: activeCell.row, column: activeCell.column })
+      setFocusInGridcell(props.id, { row: focusedCell.row, column: focusedCell.column })
     }
-  }, [props.id, activeCell, editMode])
+  }, [props.id, focusedCell, editMode])
 
   const childrenArray = React.Children.toArray(children)
 
@@ -165,8 +163,6 @@ export default function Grid({
 
   const bodyRows = childrenArray.filter(isGridRow)
 
-  // TODO: Gotta make sure to unset edit mode if we lose focus of the grid!
-
   return (
     <table
       id={props.id}
@@ -175,8 +171,8 @@ export default function Grid({
       role="grid"
       aria-labelledby={ariaLabelledBy}
       onFocusCapture={() => {
-        if (!activeCell) {
-          setActiveCell({row: 0, column: 1}) // Column 0 are unfocusable rowheaders
+        if (!focusedCell) {
+          setFocusedCell({row: 0, column: 1}) // Column 0 are unfocusable rowheaders
         }  
       }}
     >
@@ -197,8 +193,8 @@ export default function Grid({
               {rowChildren.map((child, columnIndex) => {
                 if (!isGridCell(child)) return child
 
-                const isFocusable = activeCell
-                  ? activeCell.row === rowIndex && activeCell.column === columnIndex
+                const isFocusable = focusedCell
+                  ? focusedCell.row === rowIndex && focusedCell.column === columnIndex
                   : rowIndex === 0 && columnIndex === 1; // Column index 1 as headerrows count as column 0 
 
                 return React.cloneElement(child, {
@@ -209,8 +205,8 @@ export default function Grid({
                       e: event,
                       amountColumns: columnHeaders.length,
                       amountRows: bodyRows.length,
-                      activeCell,
-                      setActiveCell,
+                      focusedCell,
+                      setFocusedCell,
                       editMode,
                       setEditMode,
                       insertRowBottom,
@@ -219,15 +215,15 @@ export default function Grid({
                       deleteCurrentGridCellContents
                     }),
                   onClick: () => {
-                    if (!activeCell) {
-                      setActiveCell({ row: 0, column: 1 }) // Column 0 are unfocusable rowheaders
+                    if (!focusedCell) {
+                      setFocusedCell({ row: 0, column: 1 }) // Column 0 are unfocusable rowheaders
                     }
 
-                    if (activeCell && (activeCell.row !== rowIndex || activeCell.column !== columnIndex)) {
+                    if (focusedCell && (focusedCell.row !== rowIndex || focusedCell.column !== columnIndex)) {
                       setEditMode(false)  // Exit edit mode (only) when pressing another cell
                     }
 
-                    setActiveCell({
+                    setFocusedCell({
                       row: rowIndex,
                       column: columnIndex,
                     })

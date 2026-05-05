@@ -34,7 +34,7 @@ export default function DataSeriesInputManual({
     }));
   })
 
-  const [activeCell, setActiveCell] = useState<{ row: number, column: number } | null>(null);
+  const [focusedCell, setFocusedCell] = useState<{ row: number, column: number } | null>(null);
   const [gridExpanded, setGridExpanded] = useState<boolean>(true);
 
   const handleYearChange = (index: number, newValue: string) => {
@@ -121,22 +121,22 @@ export default function DataSeriesInputManual({
   }
 
   function insertRowAbove() {
-    if (!activeCell) return
+    if (!focusedCell) return
 
     setValue(prev => [
-      ...prev.slice(0, activeCell.row),
+      ...prev.slice(0, focusedCell.row),
       { id: crypto.randomUUID(), year: null, data: null },
-      ...prev.slice(activeCell.row)
+      ...prev.slice(focusedCell.row)
     ])
   }
 
   function deleteCurrentRow() {
-    if (!activeCell) return
+    if (!focusedCell) return
 
     setValue(prev => {
       if (prev.length === 0) return prev;
 
-      const next = prev.filter((_, i) => i !== activeCell.row);
+      const next = prev.filter((_, i) => i !== focusedCell.row);
 
       // Ensure at least one row exists
       if (next.length === 0) {
@@ -148,17 +148,17 @@ export default function DataSeriesInputManual({
   }
 
   function deleteCurrentGridCellContents() {
-    if (!activeCell) return
+    if (!focusedCell) return
 
     setValue(prev =>
       prev.map((item, index) => {
-        if (index !== activeCell.row) return item;
+        if (index !== focusedCell.row) return item;
 
-        if (activeCell.column === 1) { // Delete the year
+        if (focusedCell.column === 1) { // Delete the year
           return { ...item, year: null };
         }
 
-        if (activeCell.column === 2) { // Delete the data
+        if (focusedCell.column === 2) { // Delete the data
           return { ...item, data: null };
         }
 
@@ -167,12 +167,10 @@ export default function DataSeriesInputManual({
     );
   }
 
-  // TODO: See if we need any more actions
   // TODO: Double check i18n
   // TODO: Ensure proper validation when copypasting text
   // TODO: Cleanup code by checking semantics, css and js for this component and for the grid component
   // TODO: Remove old component
-  // TODO: Figure out how we want to deal with tab
   // TODO: Check proper aria (aria-selected etc...), i don't think we currently indicate a highlighted/focused cell
 
   return (
@@ -249,10 +247,10 @@ export default function DataSeriesInputManual({
         readOnly: true,
       })}
 
-      <Grid // TODO: the grid rows are currently labeled "ta bort rad", fix this...   
+      <Grid 
         ariaLabelledBy={`table-${label}`}
-        activeCell={activeCell}
-        setActiveCell={setActiveCell}
+        focusedCell={focusedCell}
+        setFocusedCell={setFocusedCell}
         insertRowBottom={insertRowBottom}
         insertRowAbove={insertRowAbove}
         deleteCurrentRow={deleteCurrentRow}
@@ -264,13 +262,13 @@ export default function DataSeriesInputManual({
         }}
       >
         <Grid.ColumnHeader className="text-align-left">#</Grid.ColumnHeader>
-        <Grid.ColumnHeader className={`text-align-left overflow-hidden ${activeCell?.column === 1 ? styles['active-header'] : ''} `} style={{ resize: 'horizontal', minWidth: 'fit-content', width: '100px' }}>{t("forms:data_series_input.year")}</Grid.ColumnHeader>
-        <Grid.ColumnHeader className={`text-align-left ${activeCell?.column === 2 ? styles['active-header'] : ''} `}>{t("forms:data_series_input.value")}</Grid.ColumnHeader>
+        <Grid.ColumnHeader className={`text-align-left overflow-hidden ${focusedCell?.column === 1 ? styles['active-header'] : ''} `} style={{ resize: 'horizontal', minWidth: 'fit-content', width: '100px' }}>{t("forms:data_series_input.year")}</Grid.ColumnHeader>
+        <Grid.ColumnHeader className={`text-align-left ${focusedCell?.column === 2 ? styles['active-header'] : ''} `}>{t("forms:data_series_input.value")}</Grid.ColumnHeader>
         {value.flatMap((item, index) => {
           return [
             <Grid.Row key={item.id}>
               <Grid.RowHeader
-                className={`grid place-items-center ${activeCell?.row === index ? styles['active-header'] : ''} `}
+                className={`grid place-items-center ${focusedCell?.row === index ? styles['active-header'] : ''} `}
               >
                 {index}
               </Grid.RowHeader>

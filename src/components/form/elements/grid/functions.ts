@@ -4,8 +4,8 @@ export function handleKeyDownGrid({
   e,// TODO: rename --> event
   amountColumns,
   amountRows,
-  activeCell,
-  setActiveCell,
+  focusedCell,
+  setFocusedCell,
   editMode,
   setEditMode,
   insertRowBottom,
@@ -16,8 +16,8 @@ export function handleKeyDownGrid({
   e: React.KeyboardEvent<HTMLTableCellElement>,
   amountColumns: number,
   amountRows: number,
-  activeCell: { row: number, column: number } | null, // TODO: RENAME --> FocusedCell
-  setActiveCell: React.Dispatch<React.SetStateAction<{ row: number, column: number } | null>>,  // TODO: RENAME --> SetFocusedCell
+  focusedCell: { row: number, column: number } | null, // TODO: RENAME --> FocusedCell
+  setFocusedCell: React.Dispatch<React.SetStateAction<{ row: number, column: number } | null>>,  // TODO: RENAME --> SetFocusedCell
   editMode: boolean,
   setEditMode: React.Dispatch<React.SetStateAction<boolean>>,
   insertRowBottom: () => void;
@@ -25,7 +25,7 @@ export function handleKeyDownGrid({
   deleteCurrentRow: () => void;
   deleteCurrentGridCellContents: (cell: { row: number; column: number }) => void;
 }) {
-  if (!activeCell) return
+  if (!focusedCell) return
 
   const key = e.key;
   switch (key) {
@@ -34,8 +34,8 @@ export function handleKeyDownGrid({
 
       if (editMode) return // Up and down arrows in a number input are annoying so we check this after preventing default
 
-      if (activeCell.row === amountRows - 1) return; // Total amount of rows minus 1 to get index
-      setActiveCell({ row: activeCell.row + 1, column: activeCell.column });
+      if (focusedCell.row === amountRows - 1) return; // Total amount of rows minus 1 to get index
+      setFocusedCell({ row: focusedCell.row + 1, column: focusedCell.column });
       break;
 
     case "ArrowUp":
@@ -43,24 +43,24 @@ export function handleKeyDownGrid({
 
       if (editMode) return // Up and down arrows in a number input are annoying so we check this after preventing default
 
-      if (activeCell.row === 0) return; // Cant move past the first row
-      setActiveCell({ row: activeCell.row - 1, column: activeCell.column });
+      if (focusedCell.row === 0) return; // Cant move past the first row
+      setFocusedCell({ row: focusedCell.row - 1, column: focusedCell.column });
       break;
 
     case "ArrowRight":
       if (editMode) return
 
       e.preventDefault();
-      if (activeCell.column === amountColumns - 1) return;
-      setActiveCell({ row: activeCell.row, column: activeCell.column + 1 });
+      if (focusedCell.column === amountColumns - 1) return;
+      setFocusedCell({ row: focusedCell.row, column: focusedCell.column + 1 });
       break;
 
     case "ArrowLeft":
       if (editMode) return
 
       e.preventDefault();
-      if (activeCell.column === 1) return; // Our headers count as a column but we don't want to tab into those
-      setActiveCell({ row: activeCell.row, column: activeCell.column - 1 });
+      if (focusedCell.column === 1) return; // Our headers count as a column but we don't want to tab into those
+      setFocusedCell({ row: focusedCell.row, column: focusedCell.column - 1 });
       break;
 
     case "PageUp":
@@ -68,22 +68,22 @@ export function handleKeyDownGrid({
       e.preventDefault();
       // Note: the behavior for page up/down is correct for a fully visible grid (which we assume it is for now). 
       // If the grid is scrollable other behaviour applies, see mdn. 
-      setActiveCell({ row: 0, column: activeCell.column }); // TODO: We likely want to start rows at 0 in the future. We set it to 1 for now as the headers make up the first row
+      setFocusedCell({ row: 0, column: focusedCell.column }); // TODO: We likely want to start rows at 0 in the future. We set it to 1 for now as the headers make up the first row
       break;
 
     case "PageDown":
       if (editMode) setEditMode(false)
       e.preventDefault();
-      setActiveCell({ row: amountRows - 1, column: activeCell.column });
+      setFocusedCell({ row: amountRows - 1, column: focusedCell.column });
       break;
 
     case "Home":
       if (editMode) setEditMode(false)
       e.preventDefault();
       if (e.ctrlKey) {
-        setActiveCell({ row: 0, column: 1 });
+        setFocusedCell({ row: 0, column: 1 });
       } else {
-        setActiveCell({ row: activeCell.row, column: 1 });
+        setFocusedCell({ row: focusedCell.row, column: 1 });
       }
       break;
 
@@ -91,9 +91,9 @@ export function handleKeyDownGrid({
       if (editMode) setEditMode(false)
       e.preventDefault();
       if (e.ctrlKey) {
-        setActiveCell({ row: amountRows - 1, column: amountColumns - 1 });
+        setFocusedCell({ row: amountRows - 1, column: amountColumns - 1 });
       } else {
-        setActiveCell({ row: activeCell.row, column: amountColumns - 1 });
+        setFocusedCell({ row: focusedCell.row, column: amountColumns - 1 });
       }
       break;
 
@@ -102,7 +102,7 @@ export function handleKeyDownGrid({
       e.preventDefault();
       if (e.ctrlKey && e.shiftKey) {
         insertRowBottom();
-        setActiveCell({ row: amountRows, column: 1 });
+        setFocusedCell({ row: amountRows, column: 1 });
       }
       break;
     }
@@ -112,7 +112,7 @@ export function handleKeyDownGrid({
       e.preventDefault();
       if (e.ctrlKey) {
         insertRowBottom();
-        setActiveCell({ row: amountRows, column: 1 });
+        setFocusedCell({ row: amountRows, column: 1 });
       } else {
         insertRowAbove();
       }
@@ -136,10 +136,10 @@ export function handleKeyDownGrid({
         const nextRow =
           amountRows <= 1
             ? 0
-            : Math.min(activeCell.row, amountRows - 2);
+            : Math.min(focusedCell.row, amountRows - 2);
 
         deleteCurrentRow();
-        setActiveCell({ row: nextRow, column: activeCell.column });
+        setFocusedCell({ row: nextRow, column: focusedCell.column });
       } else (
         setEditMode(true) // a minus sign makes for a valid number
       )
@@ -154,13 +154,13 @@ export function handleKeyDownGrid({
 
       if (editMode === false) {
         setEditMode(true)
-      } else if (editMode === true && activeCell.row === amountRows - 1) {
+      } else if (editMode === true && focusedCell.row === amountRows - 1) {
         setEditMode(false)
         insertRowBottom();
-        setActiveCell({ row: amountRows, column: 1 });
+        setFocusedCell({ row: amountRows, column: 1 });
       } else {
         setEditMode(false)
-        setActiveCell({ row: activeCell.row + 1, column: activeCell.column });
+        setFocusedCell({ row: focusedCell.row + 1, column: focusedCell.column });
       }
 
       break;
@@ -184,12 +184,12 @@ export function handleKeyDownGrid({
         const nextRow =
           amountRows <= 1
             ? 0
-            : Math.min(activeCell.row, amountRows - 2);
+            : Math.min(focusedCell.row, amountRows - 2);
 
         deleteCurrentRow();
-        setActiveCell({ row: nextRow, column: activeCell.column });
+        setFocusedCell({ row: nextRow, column: focusedCell.column });
       } else {
-        deleteCurrentGridCellContents({ row: activeCell.row, column: activeCell.column }) // TODO: Unsure if this function should run here or if it should be inside a useEffect to sync state
+        deleteCurrentGridCellContents({ row: focusedCell.row, column: focusedCell.column }) // TODO: Unsure if this function should run here or if it should be inside a useEffect to sync state
       }
 
       break;
@@ -203,33 +203,33 @@ export function handleKeyDownGrid({
 
       if (e.shiftKey) {
 
-        if (activeCell.row === 0 && activeCell.column === 1) return // Do nothing on first cell
+        if (focusedCell.row === 0 && focusedCell.column === 1) return // Do nothing on first cell
 
         // If on first column, move up a row. Otherwise move to previous column. 
-        if (activeCell.column === 1) { 
-          setActiveCell({ row: activeCell.row - 1, column: amountColumns - 1 });
+        if (focusedCell.column === 1) { 
+          setFocusedCell({ row: focusedCell.row - 1, column: amountColumns - 1 });
         } else { 
-          setActiveCell({ row: activeCell.row, column: activeCell.column - 1 });
+          setFocusedCell({ row: focusedCell.row, column: focusedCell.column - 1 });
         }
       } else {
 
-        if (activeCell.row === amountRows - 1 && activeCell.column === amountColumns - 1) return // Do nothing on last cell
+        if (focusedCell.row === amountRows - 1 && focusedCell.column === amountColumns - 1) return // Do nothing on last cell
         
         // If on last column, go down a row. Otherwise move to next column. 
-        if (activeCell.column === amountColumns - 1) { 
-          setActiveCell({ row: activeCell.row + 1, column: 1 });
+        if (focusedCell.column === amountColumns - 1) { 
+          setFocusedCell({ row: focusedCell.row + 1, column: 1 });
         } else { 
-          setActiveCell({ row: activeCell.row, column: activeCell.column + 1 });
+          setFocusedCell({ row: focusedCell.row, column: focusedCell.column + 1 });
         }
       }
 
     }
 
-    // If we match what is expected from a number  input, and we arent in editmode, we may type it
-    // TODO: Should also probably override existing input if we start writing stuff here
+    // If we match what is expected from a number input, and we arent in editmode, we may type it
+    // IT should be noted that the below is probably not the exact same as what a number input allows
     default:
       if ((!Number.isNaN(Number(key))) && !editMode) {
-        deleteCurrentGridCellContents({ row: activeCell.row, column: activeCell.column }) // TODO: Unsure if this function should run here or if it should be inside a useEffect to sync state
+        deleteCurrentGridCellContents({ row: focusedCell.row, column: focusedCell.column }) // TODO: Unsure if this function should run here or if it should be inside a useEffect to sync state
         setEditMode(true);
       }
       break;
