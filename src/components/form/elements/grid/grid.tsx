@@ -135,8 +135,8 @@ export default function Grid({
   ariaLabelledBy: string;
   props: GridElement;
   children: React.ReactNode;
-  activeCell: { row: number; column: number }; // TODO: RENAME --> FocusedCell
-  setActiveCell: React.Dispatch<React.SetStateAction<{ row: number; column: number }>>; // TODO: RENAME --> SetFocusedCell
+  activeCell: { row: number; column: number } | null; // TODO: RENAME --> FocusedCell
+  setActiveCell: React.Dispatch<React.SetStateAction<{ row: number; column: number } | null>>; // TODO: RENAME --> SetFocusedCell
   insertRowBottom: () => void;
   insertRowAbove: () => void;
   deleteCurrentRow: () => void;
@@ -145,7 +145,9 @@ export default function Grid({
 
   const [editMode, setEditMode] = useState<boolean>(false)
 
-  useEffect(() => { // TODO: Not entirely conviced that i like this...
+  useEffect(() => { 
+    if (!activeCell) return
+
     setFocusOnGridcell(props.id, { row: activeCell.row, column: activeCell.column })
 
     if (editMode) {
@@ -179,18 +181,17 @@ export default function Grid({
 
         if (previous && grid.contains(previous)) return
 
-        const cell = target.closest<HTMLElement>(
-          '[role="gridcell"], [role="rowheader"]'
-        )
-
+        const cell = target.closest<HTMLElement>('[role="gridcell"]')
         if (!cell) return
 
         const row = Number(cell.dataset.row)
         const column = Number(cell.dataset.column)
 
-        if (!Number.isNaN(row) && !Number.isNaN(column)) {
+        if (!activeCell) {
+          setActiveCell({row: 0, column: 1}) // Column 0 are unfocusable rowheaders
+        } else if (!Number.isNaN(row) && !Number.isNaN(column) && activeCell) {
           setActiveCell(prev => {
-            if (prev.row === row && prev.column === column) return prev
+            if (prev?.row === row && prev?.column === column) return prev
             return { row, column }
           })
         }
@@ -216,8 +217,8 @@ export default function Grid({
                 if (!isGridCell(child)) return child
 
                 const isActive =
-                  activeCell.row === rowIndex &&
-                  activeCell.column === columnIndex
+                  activeCell?.row === rowIndex &&
+                  activeCell?.column === columnIndex
 
                 return React.cloneElement(child, {
                   position: { row: rowIndex, column: columnIndex },
@@ -237,7 +238,11 @@ export default function Grid({
                       deleteCurrentGridCellContents
                     }),
                   onClick: () => {
-                    if (activeCell.row !== rowIndex || activeCell.column !== columnIndex) {
+                    if (!activeCell) {
+                      setActiveCell({row: 0, column: 1}) // Column 0 are unfocusable rowheaders
+                    } 
+
+                    if (activeCell && (activeCell.row !== rowIndex || activeCell.column !== columnIndex)) {
                       setEditMode(false)  // Exit edit mode (only) when pressing another cell
                     }
 

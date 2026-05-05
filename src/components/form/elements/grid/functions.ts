@@ -16,8 +16,8 @@ export function handleKeyDownGrid({
   e: React.KeyboardEvent<HTMLTableCellElement>,
   amountColumns: number,
   amountRows: number,
-  activeCell: { row: number, column: number }, // TODO: RENAME --> FocusedCell
-  setActiveCell: React.Dispatch<React.SetStateAction<{ row: number, column: number }>>,  // TODO: RENAME --> SetFocusedCell
+  activeCell: { row: number, column: number } | null, // TODO: RENAME --> FocusedCell
+  setActiveCell: React.Dispatch<React.SetStateAction<{ row: number, column: number } | null>>,  // TODO: RENAME --> SetFocusedCell
   editMode: boolean,
   setEditMode: React.Dispatch<React.SetStateAction<boolean>>,
   insertRowBottom: () => void;
@@ -25,6 +25,8 @@ export function handleKeyDownGrid({
   deleteCurrentRow: () => void;
   deleteCurrentGridCellContents: (cell: { row: number; column: number }) => void;
 }) {
+  if (!activeCell) return
+
   const key = e.key;
   switch (key) {
     case "ArrowDown":

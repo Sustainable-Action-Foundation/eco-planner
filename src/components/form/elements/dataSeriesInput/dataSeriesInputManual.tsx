@@ -34,7 +34,7 @@ export default function DataSeriesInputManual({
     }));
   })
 
-  const [activeCell, setActiveCell] = useState({ row: 0, column: 1 }); // Column 0 is always headers
+  const [activeCell, setActiveCell] = useState<{ row: number, column: number } | null>(null);
   const [gridExpanded, setGridExpanded] = useState<boolean>(true);
 
   const handleYearChange = (index: number, newValue: string) => {
@@ -121,6 +121,8 @@ export default function DataSeriesInputManual({
   }
 
   function insertRowAbove() {
+    if (!activeCell) return
+
     setValue(prev => [
       ...prev.slice(0, activeCell.row),
       { id: crypto.randomUUID(), year: null, data: null },
@@ -129,6 +131,8 @@ export default function DataSeriesInputManual({
   }
 
   function deleteCurrentRow() {
+    if (!activeCell) return
+
     setValue(prev => {
       if (prev.length === 0) return prev;
 
@@ -144,6 +148,8 @@ export default function DataSeriesInputManual({
   }
 
   function deleteCurrentGridCellContents() {
+    if (!activeCell) return
+
     setValue(prev =>
       prev.map((item, index) => {
         if (index !== activeCell.row) return item;
@@ -258,13 +264,13 @@ export default function DataSeriesInputManual({
         }}
       >
         <Grid.ColumnHeader className="text-align-left">#</Grid.ColumnHeader>
-        <Grid.ColumnHeader className={`text-align-left overflow-hidden ${activeCell.column === 1 ? styles['active-header'] : ''} `} style={{ resize: 'horizontal', minWidth: 'fit-content', width: '100px' }}>{t("forms:data_series_input.year")}</Grid.ColumnHeader>
-        <Grid.ColumnHeader className={`text-align-left ${activeCell.column === 2 ? styles['active-header'] : ''} `}>{t("forms:data_series_input.value")}</Grid.ColumnHeader>
+        <Grid.ColumnHeader className={`text-align-left overflow-hidden ${activeCell?.column === 1 ? styles['active-header'] : ''} `} style={{ resize: 'horizontal', minWidth: 'fit-content', width: '100px' }}>{t("forms:data_series_input.year")}</Grid.ColumnHeader>
+        <Grid.ColumnHeader className={`text-align-left ${activeCell?.column === 2 ? styles['active-header'] : ''} `}>{t("forms:data_series_input.value")}</Grid.ColumnHeader>
         {value.flatMap((item, index) => {
           return [
             <Grid.Row key={item.id}>
               <Grid.RowHeader
-                className={`grid place-items-center ${activeCell.row === index ? styles['active-header'] : ''} `}
+                className={`grid place-items-center ${activeCell?.row === index ? styles['active-header'] : ''} `}
               >
                 {index}
               </Grid.RowHeader>
