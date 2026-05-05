@@ -229,6 +229,7 @@ export function handleKeyDownGrid({
     // TODO: Should also probably override existing input if we start writing stuff here
     default:
       if ((!Number.isNaN(Number(key))) && !editMode) {
+        deleteCurrentGridCellContents({ row: activeCell.row, column: activeCell.column }) // TODO: Unsure if this function should run here or if it should be inside a useEffect to sync state
         setEditMode(true);
       }
       break;
