@@ -88,6 +88,7 @@ export function ManualGoalForm({
       </small>
 
       <DataSeriesInputManual
+        id="goal-dataseries"
         label={t("forms:data_series_input.data_series")}
         {...currentGoal?.dataSeries
           ? { initialDateValues: dataSeriesToDateValues(currentGoal.dataSeries) }

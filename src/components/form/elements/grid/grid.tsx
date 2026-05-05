@@ -1,15 +1,19 @@
 "use client"
 
-import type { GenericElement, GridCell, GridColumnHeader, GridRowHeader, GridRow } from "@/components/types"
+import type { GridCell, GridColumnHeader, GridRowHeader, GridRow, GridElement } from "@/components/types"
 import React, { useEffect, useState } from "react"
 import { handleKeyDownGrid } from "./functions"
 
 // TODO: Check that tabindex is properly handled
 
 function setFocusOnGridcell(
+  id: string,
   activeCell: { row: number, column: number },
 ) {
-  const cell = document.querySelector<HTMLElement>( // TODO: Probably pass like an id so we select the correct grid 
+  const grid = document.getElementById(id)
+  if (!grid) return
+
+  const cell = grid.querySelector<HTMLElement>(
     `[data-row="${activeCell.row}"][data-column="${activeCell.column}"]`
   )
   if (!cell) return
@@ -18,9 +22,13 @@ function setFocusOnGridcell(
 }
 
 function setFocusInGridcell(
-  activeCell: { row: number, column: number },
+  id: string,
+  activeCell: { row: number; column: number },
 ) {
-  const cell = document.querySelector<HTMLElement>( // TODO: Probably pass like an id so we select the correct grid 
+  const grid = document.getElementById(id)
+  if (!grid) return
+
+  const cell = grid.querySelector<HTMLElement>(
     `[data-row="${activeCell.row}"][data-column="${activeCell.column}"]`
   )
   if (!cell) return
@@ -28,8 +36,7 @@ function setFocusInGridcell(
   const focusable = cell.querySelector<HTMLElement>(
     'input, textarea, select, button, [tabindex]:not([tabindex="-1"])'
   )
-  if (!focusable) return
-  focusable.focus()
+  focusable?.focus()
 }
 
 const GridCell = React.forwardRef<HTMLTableCellElement, GridCell>(
@@ -126,7 +133,7 @@ export default function Grid({
   deleteCurrentGridCellContents
 }: {
   ariaLabelledBy: string;
-  props: GenericElement;
+  props: GridElement;
   children: React.ReactNode;
   activeCell: { row: number; column: number }; // TODO: RENAME --> FocusedCell
   setActiveCell: React.Dispatch<React.SetStateAction<{ row: number; column: number }>>; // TODO: RENAME --> SetFocusedCell
@@ -139,12 +146,12 @@ export default function Grid({
   const [editMode, setEditMode] = useState<boolean>(false)
 
   useEffect(() => { // TODO: Not entirely conviced that i like this...
-    setFocusOnGridcell({ row: activeCell.row, column: activeCell.column })
+    setFocusOnGridcell(props.id, { row: activeCell.row, column: activeCell.column })
 
     if (editMode) {
-      setFocusInGridcell({ row: activeCell.row, column: activeCell.column })
+      setFocusInGridcell(props.id, { row: activeCell.row, column: activeCell.column })
     }
-  }, [activeCell, editMode])
+  }, [props.id, activeCell, editMode])
 
   const childrenArray = React.Children.toArray(children)
 
@@ -160,11 +167,12 @@ export default function Grid({
 
   return (
     <table
+      id={props.id}
       className={`${props.className ? `${props.className} ` : ''}`}
       style={{ ...props.style }}
       role="grid"
       aria-labelledby={ariaLabelledBy}
-      onFocusCapture={(e) => { /* Todo: We currently need to shift+tab tab twice to escape the grid. We likely want to set tabindex -1 if there is a focused child.   */
+      onFocusCapture={(e) => {
         const grid = e.currentTarget as HTMLElement
         const target = e.target as HTMLElement
         const previous = e.relatedTarget as HTMLElement | null

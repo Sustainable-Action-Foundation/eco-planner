@@ -33,6 +33,10 @@ export type TreeItem = {
   onExpand?: () => Array<TreeItem> | Promise<Array<TreeItem>>
 }
 
+export type GridElement = Theme & {
+  id: string,
+}
+
 export type GridCell = GenericElement & {
   position?: {row: number, column: number},
   tabIndex?: 0 | -1,

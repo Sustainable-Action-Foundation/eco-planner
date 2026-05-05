@@ -12,11 +12,13 @@ import { IconArrowsMaximize, IconArrowsMinimize, IconPlus, IconRowInsertTop, Ico
 export default function DataSeriesInputManual({
   initialDateValues = { unit: undefined, dateValues: {} },
   outputFormElement,
-  label
+  label,
+  id
 }: {
   initialDateValues?: DateValuesWithUnit | undefined;
   outputFormElement?: React.ReactElement<HTMLInputElement> | undefined;
   label: string;
+  id: string;
 }) {
 
   const { t } = useTranslation("forms");
@@ -250,6 +252,7 @@ export default function DataSeriesInputManual({
         deleteCurrentRow={deleteCurrentRow}
         deleteCurrentGridCellContents={deleteCurrentGridCellContents}
         props={{
+          id: id,
           className: `grid width-100 align-items-center ${styles['grid']}`,
           style: { gridTemplateColumns: 'auto auto 1fr', height: gridExpanded ? 'auto' : '0', borderBottom: gridExpanded ? '1px solid var(--gray-80)' : '0'  }
         }}
