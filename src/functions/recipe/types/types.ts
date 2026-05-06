@@ -1,69 +1,66 @@
 import type { Unit } from "mathjs";
 import type { DatasetKeys } from "@/lib/api/utility";
-import type { DateValues, DateValuesWithUnit, UnitString } from "@/types";
-import type { SmartRecipe } from "@/functions/recipe/smartRecipe";
-import type { VectorIndexPickerOptions } from "./consts";
-import type { RecipeDataTypes } from "./consts";
+import type { DateValues, DateValuesWithUnit, ISOIshDate, JSONValue, UnitString } from "@/types";
+import type { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/consts";
 
-/**
- * Scalar variable types
-*/
-export type RecipeScalar = {
+type BaseVariable = {
+  id: string;
+  name: string;
+  type: RecipeDataTypes;
+  unit: UnitString;
+  template?: boolean | undefined;
+};
+
+export type ScalarVariable = BaseVariable & {
   type: typeof RecipeDataTypes.Scalar;
   value: number;
-  unit: UnitString;
 };
-
-/*
- * Data series types
- */
-export type RecipeDataSeries = {
+export type DataSeriesVariable = BaseVariable & {
   type: typeof RecipeDataTypes.DataSeries;
-  link: string | null | undefined;
-  value?: DateValues | null | undefined;
-  pick: VectorIndexPickerOptions | number;
-  unit: UnitString;
+  pick: VectorIndexPickerOptions | number | ISOIshDate;
 
-  goalName?: string;
-  disabled?: boolean;
+  dataSeriesId: string | null | undefined;
+  value: DateValues | null | undefined;
 };
-
-/*
- * External datasets types
- */
-export type RecipeExternalDataset = {
+export type ExternalVariable = BaseVariable & {
   type: typeof RecipeDataTypes.External;
+  pick: VectorIndexPickerOptions | number | ISOIshDate;
+
+  // API stuff
   dataset: DatasetKeys | null;
   tableId: string | null;
   selection: {
     variableCode: string,
     valueCodes: string[]
   }[];
-  pick: VectorIndexPickerOptions | number;
-  unit: UnitString;
 };
-
-/*
- * Main recipe types
- */
-export type RecipeVariable = RecipeScalar | RecipeDataSeries | RecipeExternalDataset;
-export type Recipe = {
-  name: string | null | undefined;
-  eq: string;
-  variables: Record<string, RecipeVariable>;
-  smartMeta?: string;
-};
-export type RecipeIsh = Recipe | SmartRecipe;
+export type RecipeVariable = ScalarVariable | DataSeriesVariable | ExternalVariable;
 
 /*
  * Variable during evaluation of a recipe. Should not persist beyond that scope.
  */
 export type EvalTimeVariable = {
-  name: string;
+  id: string;
+  displayName: string;
   value: Unit | Unit[] | number;
 };
+export type EvalTimeSeries = {
+  id: string;
+  displayName: string;
+  series: DateValuesWithUnit;
+}
+export type RecipeExtractionOutput = (EvalTimeVariable | EvalTimeSeries)[];
 
-export type RecipeExtractionOutput = (
-  EvalTimeVariable
-  | { series: DateValuesWithUnit, name: string, }
-)[];
+/** 
+ * # Notice
+ * Do not use to type variables, only use for type checking when serializing/deserializing recipes
+ */
+export type SerializedRecipeShape = {
+  name: string;
+  equation: string;
+  variables: RecipeVariable[];
+  meta: {
+    [key: string]: JSONValue;
+  };
+};
+export type SerializedRecipe = string;

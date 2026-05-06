@@ -1,61 +1,82 @@
 "use client"
 
 import { Popover, PopoverButton } from "@/components/generic/popovers/popovers";
-import { useRecipe } from "../../context/recipeContext.use";
+import { useRecipe } from "../context/recipeContext.use";
 import { useRef, useState } from "react";
 import { emptyRecipesByDataType, RecipeDataTypes } from "@/functions/recipe/types";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { useTranslation } from "react-i18next";
 import { allOurUnits } from "@/math";
+import { RecipeEditorPermissions } from "@/components/recipe/editor/recipeEditorPermissions";
 
-export default function VariableCreator({
-  allowAddVariables = false,
+export function VariableCreator({
+  permissions: incomingPermissions,
 }: {
-  allowAddVariables?: boolean;
+  permissions?: RecipeEditorPermissions
 }) {
   const { t } = useTranslation(["components", "forms"]);
-  const { recipe, setVariables } = useRecipe();
+  const { recipe, replaceVariables } = useRecipe();
 
   const popoverRef = useRef<HTMLDivElement>(null);
-  const [newName, setNewName] = useState<string>('');
-  const [newNameStatus, setNewNameStatus] = useState<string>('');
-  const [newUnit, setNewUnit] = useState<string>('');
-  const [newType, setNewType] = useState<RecipeDataTypes | undefined>(undefined);
-  const [newTypeStatus, setNewTypeStatus] = useState<string>('');
+
+  const [providedName, setProvidedName] = useState<string>('');
+  const [providedUnit, setProvidedUnit] = useState<string>('');
+  const [providedType, setProvidedType] = useState<RecipeDataTypes | undefined>(undefined);
+
+  const [nameStatus, setNameStatus] = useState<string>('');
+  const [typeStatus, setTypeStatus] = useState<string>('');
 
   // Hard coded to make a new data series variable. TODO: reconsider this behavior
   const addVariableToContext = () => {
-    if (newName === '') {
-      setNewNameStatus(t("components:recipe_editor.provide_variable_name"));
+    if (providedName === '') {
+      setNameStatus(t("components:recipe_editor.provide_variable_name"));
       return;
     }
-    if (!newType) {
-      setNewTypeStatus(t("components:recipe_editor.provide_variable_type"));
+    if (!providedType) {
+      setTypeStatus(t("components:recipe_editor.provide_variable_type"));
       return;
     }
-    if (recipe?.variables && Object.keys(recipe.variables).includes(newName)) {
-      setNewNameStatus(t("components:recipe_editor.variable_name_exists"));
+    const usedNames = recipe.variables.map(variable => variable.name);
+    if (usedNames.includes(providedName)) {
+      setNameStatus(t("components:recipe_editor.variable_name_exists"));
       return;
     }
 
-    setVariables(prev => ({
+    const usedIDs = recipe.variables.map(variable => variable.id);
+    let newID = crypto.randomUUID();
+    for (let i = 20; i > 0; i--) {
+      if (!usedIDs.includes(newID)) break;
+      newID = crypto.randomUUID();
+
+      if (i <= 1) {
+        console.error(`Failed to generate unique ID for new variable after 20 attempts. Compared against IDs: ${usedIDs.join(", ")}`);
+        setNameStatus(t("components:recipe_editor.unable_to_generate_variable_id"));
+        return;
+      }
+    }
+
+    replaceVariables(prev => ([
       ...prev,
-      [newName]: {
-        ...emptyRecipesByDataType[newType],
-        ...newUnit ? { unit: newUnit } : {},
+      {
+        ...emptyRecipesByDataType[providedType],
+        ...providedUnit ? { unit: providedUnit } : {},
+        id: newID,
+        name: providedName,
       },
-    }));
+    ]));
 
     // Clear the form after adding to context
-    setNewName('');
-    setNewUnit('');
-    setNewType(undefined);
-    setNewNameStatus('')
-    setNewTypeStatus('')
+    setProvidedName('');
+    setProvidedUnit('');
+    setProvidedType(undefined);
+    setNameStatus('')
+    setTypeStatus('')
     popoverRef.current?.hidePopover()
   };
 
-  if (!allowAddVariables) return null;
+  const permissions = { ...RecipeEditorPermissions, ...incomingPermissions };
+
+  if (!permissions.allowAddVariables) return null;
 
   return (
     <>
@@ -91,10 +112,10 @@ export default function VariableCreator({
             id="variable-name"
             style={{ backgroundColor: 'var(--gray-95)' }}
             placeholder={t("components:recipe_editor.variable_name_placeholder")}
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
+            value={providedName}
+            onChange={(e) => setProvidedName(e.target.value)}
           />
-          <small className="block margin-bottom-50 margin-top-25 font-weight-500" style={{ color: 'red' }}>{newNameStatus}</small>
+          <small className="block margin-bottom-50 margin-top-25 font-weight-500" style={{ color: 'red' }}>{nameStatus}</small>
           <label htmlFor="variable-unit">
             {t("components:recipe_editor.unit_label")}
           </label>
@@ -103,14 +124,14 @@ export default function VariableCreator({
               id: "variable-unit",
               name: "variable-unit",
               placeholder: t("forms:combobox.default_autocomplete_placeholder"),
-              defaultValue: newUnit,
+              defaultValue: providedUnit,
             }}
             theme={{
               style: { backgroundColor: 'var(--gray-95)' }
             }}
             options={allOurUnits.map(unit => ({ name: unit, value: unit }))}
             maxOptions={3}
-            onChange={(unit) => setNewUnit(unit ?? '')}
+            onChange={(unit) => setProvidedUnit(unit ?? '')}
           />
           <div className="margin-top-100">
             <label className="block margin-left-25">
@@ -119,8 +140,8 @@ export default function VariableCreator({
                 className="margin-right-25"
                 name="variable-type"
                 value={RecipeDataTypes.Scalar}
-                checked={newType === RecipeDataTypes.Scalar}
-                onChange={() => setNewType(RecipeDataTypes.Scalar)}
+                checked={providedType === RecipeDataTypes.Scalar}
+                onChange={() => setProvidedType(RecipeDataTypes.Scalar)}
               />
               {t("components:recipe_editor.scalar")}
             </label>
@@ -130,8 +151,8 @@ export default function VariableCreator({
                 className="margin-right-25"
                 name="variable-type"
                 value={RecipeDataTypes.DataSeries}
-                checked={newType === RecipeDataTypes.DataSeries}
-                onChange={() => setNewType(RecipeDataTypes.DataSeries)}
+                checked={providedType === RecipeDataTypes.DataSeries}
+                onChange={() => setProvidedType(RecipeDataTypes.DataSeries)}
               />
               {t("components:recipe_editor.data_series")}
             </label>
@@ -141,13 +162,13 @@ export default function VariableCreator({
                 className="margin-right-25"
                 name="variable-type"
                 value={RecipeDataTypes.External}
-                checked={newType === RecipeDataTypes.External}
-                onChange={() => setNewType(RecipeDataTypes.External)}
+                checked={providedType === RecipeDataTypes.External}
+                onChange={() => setProvidedType(RecipeDataTypes.External)}
               />
               {t("components:recipe_editor.external_data")}
             </label>
           </div>
-          <small className="block margin-bottom-100 margin-top-25 font-weight-500" style={{ color: 'red' }}>{newTypeStatus}</small>
+          <small className="block margin-bottom-100 margin-top-25 font-weight-500" style={{ color: 'red' }}>{typeStatus}</small>
           <button
             type="button"
             className="width-100 color-purewhite font-weight-600 margin-top-50"

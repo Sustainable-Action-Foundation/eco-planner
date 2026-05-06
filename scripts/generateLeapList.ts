@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import { PrismaClient, RoadmapType } from '../src/prisma/generated';
+import { PrismaClient, RoadmapType } from "../.prisma/generated";
 
 const prisma = new PrismaClient();
 

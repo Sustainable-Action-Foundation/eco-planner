@@ -7,13 +7,13 @@
     "unknown_roadmap": "Unknown $t(common:roadmap_version_one)"
   },
   "action_graph": {
-    "actions": "{{$t(common:action_other), titleCase}}"
+    "actions": "$t(common:action_other, titleCase)"
   },
   "child_graph_container": {
-    "goals_toward": "{{$t(common:goal_other), titleCase}} contributing to {{goalName}}"
+    "goals_toward": "$t(common:goal_other, titleCase) contributing to {{goalName}}"
   },
   "child_graph_selector": {
-    "target_goals": "{{$t(common:goal_other), titleCase}}"
+    "target_goals": "$t(common:goal_other, titleCase)"
   },
   "graph_cookie": {
     "save_preferences": "Save future view changes between sessions and page navigations"
@@ -23,7 +23,7 @@
     "historical_data_source": "The historical data in the graph is fetched from <a>{{source}}</a>"
   },
   "graph_selector": {
-    "goal": "{{$t(common:goal_one), titleCase}}",
+    "goal": "$t(common:goal_one, titleCase)",
     "annual_change": "Annual change",
     "percentage_change": "Percentage change"
   },

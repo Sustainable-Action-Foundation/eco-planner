@@ -14,26 +14,26 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
-    "baseUrl": ".",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
+    "allowUnreachableCode": false,
     // "noUncheckedIndexedAccess": true,
     // "noPropertyAccessFromIndexSignature": true,
     "plugins": [
       {
-        "name": "next"
-      }
+        "name": "next",
+      },
     ],
     "paths": {
       "@/*": [
-        "./src/*"
+        "./src/*",
       ],
       "@prisma/client": [
-        "./src/prisma/generated"
-      ]
-    }
+        "./.prisma/generated",
+      ],
+    },
   },
   "include": [
     "next-env.d.ts",
@@ -45,12 +45,13 @@
     "src/types/**/*.d.ts",
   ],
   "exclude": [
+    ".prisma/**/*",
     "src/prisma/generated/**/*",
     "node_modules",
     "prisma",
     ".next",
     "out",
     "dist",
-    "build"
+    "build",
   ],
 }

@@ -3,7 +3,7 @@ import { actionInclusionSelection } from "@/fetchers/inclusionSelectors";
 import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
-import { unstable_cache } from "next/cache";
+import { cacheTag } from "next/cache";
 import { cookies } from "next/headers";
 import type { Action } from "@/types";
 
@@ -25,71 +25,69 @@ export async function getOneAction(id: string): Promise<Action | null> {
  * @param id ID of the action to cache
  * @param user Data from user's session cookie.
  */
-const getCachedAction = unstable_cache(
-  async (id: string, user: LoginData['user']): Promise<Action | null> => {
-    let action: Action | null;
+async function getCachedAction(id: string, user: LoginData['user']): Promise<Action | null> {
+  'use cache'
+  cacheTag('database', 'action');
+  let action: Action | null;
 
-    // If user is admin, always get the action
-    if (user?.isAdmin) {
-      try {
-        action = await prisma.action.findUnique({
-          where: { id },
-          include: actionInclusionSelection,
-        }) satisfies Action | null;
-      } catch (error) {
-        console.log(error);
-        console.log('Error fetching admin action');
-        return null;
-      }
-
-      return action;
+  // If user is admin, always get the action
+  if (user?.isAdmin) {
+    try {
+      action = await prisma.action.findUnique({
+        where: { id },
+        include: actionInclusionSelection,
+      }) satisfies Action | null;
+    } catch (error) {
+      console.log(error);
+      console.log('Error fetching admin action');
+      return null;
     }
 
-    // If user is logged in, get the action if they have access to it
-    if (user?.isLoggedIn) {
-      try {
-        action = await prisma.action.findUnique({
-          where: {
-            id,
-            roadmap: {
-              OR: [
-                { authorId: user.id },
-                { editors: { some: { id: user.id } } },
-                { viewers: { some: { id: user.id } } },
-                { editGroups: { some: { users: { some: { id: user.id } } } } },
-                { viewGroups: { some: { users: { some: { id: user.id } } } } },
-                { isPublic: true }
-              ]
-            }
-          },
-          include: actionInclusionSelection,
-        }) satisfies Action | null;
-      } catch (error) {
-        console.log(error);
-        console.log('Error fetching action');
-        return null;
-      }
+    return action;
+  }
 
-      return action;
-    }
-
-    // If user is not logged in, get the action if it is public
+  // If user is logged in, get the action if they have access to it
+  if (user?.isLoggedIn) {
     try {
       action = await prisma.action.findUnique({
         where: {
           id,
-          roadmap: { isPublic: true }
+          roadmap: {
+            OR: [
+              { authorId: user.id },
+              { editors: { some: { id: user.id } } },
+              { viewers: { some: { id: user.id } } },
+              { editGroups: { some: { users: { some: { id: user.id } } } } },
+              { viewGroups: { some: { users: { some: { id: user.id } } } } },
+              { isPublic: true }
+            ]
+          }
         },
         include: actionInclusionSelection,
       }) satisfies Action | null;
     } catch (error) {
       console.log(error);
-      console.log('Error fetching public action');
+      console.log('Error fetching action');
       return null;
     }
 
     return action;
-  },
-  ['getOneAction'],
-  { revalidate: 600, tags: ['database', 'action'] }
-)
+  }
+
+  // If user is not logged in, get the action if it is public
+  try {
+    action = await prisma.action.findUnique({
+      where: {
+        id,
+        roadmap: { isPublic: true }
+      },
+      include: actionInclusionSelection,
+    }) satisfies Action | null;
+  } catch (error) {
+    console.log(error);
+    console.log('Error fetching public action');
+    return null;
+  }
+
+  return action;
+};

@@ -4,7 +4,7 @@ import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session"
 import { goalSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
-import { unstable_cache } from "next/cache";
+import { cacheTag } from "next/cache";
 import { cookies } from "next/headers";
 import type { Roadmap } from "@/types";
 
@@ -26,72 +26,70 @@ export async function getOneRoadmap(id: string): Promise<Roadmap | null> {
  * @param id ID of the roadmap to cache
  * @param user Data from user's session cookie.
  */
-const getCachedRoadmap = unstable_cache(
-  async (id: string, user: LoginData['user']) => {
-    let roadmap: Roadmap | null;
+async function getCachedRoadmap(id: string, user: LoginData['user']) {
+  'use cache'
+  cacheTag('database', 'roadmap', 'goal', 'action');
+  let roadmap: Roadmap | null;
 
-    // If user is admin, always get the roadmap
-    if (user?.isAdmin) {
-      try {
-        roadmap = await prisma.roadmap.findUnique({
-          where: { id },
-          include: roadmapInclusionSelection
-        }) satisfies Roadmap | null;
-      } catch (error) {
-        console.error(`Error fetching admin roadmap with ID ${id}:`, error);
-        return null
-      }
-
-      roadmap?.goals.sort(goalSorter);
-
-      return roadmap;
-    }
-
-    // If user is logged in, get the roadmap if they have access to it
-    if (user?.isLoggedIn) {
-      try {
-        roadmap = await prisma.roadmap.findUnique({
-          where: {
-            id,
-            OR: [
-              { authorId: user.id },
-              { editors: { some: { id: user.id } } },
-              { viewers: { some: { id: user.id } } },
-              { editGroups: { some: { users: { some: { id: user.id } } } } },
-              { viewGroups: { some: { users: { some: { id: user.id } } } } },
-              { isPublic: true }
-            ]
-          },
-          include: roadmapInclusionSelection
-        }) satisfies Roadmap | null;
-      } catch (error) {
-        console.error(`Error fetching roadmap with ID ${id} for user ${user.id}:`, error);
-        return null
-      }
-
-      roadmap?.goals.sort(goalSorter);
-
-      return roadmap;
-    }
-
-    // If user is not logged in, get the roadmap if it is public
+  // If user is admin, always get the roadmap
+  if (user?.isAdmin) {
     try {
       roadmap = await prisma.roadmap.findUnique({
-        where: {
-          id,
-          isPublic: true,
-        },
+        where: { id },
         include: roadmapInclusionSelection
       }) satisfies Roadmap | null;
     } catch (error) {
-      console.error(`Error fetching public roadmap with ID ${id}:`, error);
+      console.error(`Error fetching admin roadmap with ID ${id}:`, error);
       return null
     }
 
     roadmap?.goals.sort(goalSorter);
 
     return roadmap;
-  },
-  ['getOneRoadmap'],
-  { revalidate: 600, tags: ['database', 'roadmap', 'goal', 'action'] },
-);
+  }
+
+  // If user is logged in, get the roadmap if they have access to it
+  if (user?.isLoggedIn) {
+    try {
+      roadmap = await prisma.roadmap.findUnique({
+        where: {
+          id,
+          OR: [
+            { authorId: user.id },
+            { editors: { some: { id: user.id } } },
+            { viewers: { some: { id: user.id } } },
+            { editGroups: { some: { users: { some: { id: user.id } } } } },
+            { viewGroups: { some: { users: { some: { id: user.id } } } } },
+            { isPublic: true }
+          ]
+        },
+        include: roadmapInclusionSelection
+      }) satisfies Roadmap | null;
+    } catch (error) {
+      console.error(`Error fetching roadmap with ID ${id} for user ${user.id}:`, error);
+      return null
+    }
+
+    roadmap?.goals.sort(goalSorter);
+
+    return roadmap;
+  }
+
+  // If user is not logged in, get the roadmap if it is public
+  try {
+    roadmap = await prisma.roadmap.findUnique({
+      where: {
+        id,
+        isPublic: true,
+      },
+      include: roadmapInclusionSelection
+    }) satisfies Roadmap | null;
+  } catch (error) {
+    console.error(`Error fetching public roadmap with ID ${id}:`, error);
+    return null
+  }
+
+  roadmap?.goals.sort(goalSorter);
+
+  return roadmap;
+};

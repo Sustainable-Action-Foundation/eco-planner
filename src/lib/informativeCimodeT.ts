@@ -1,5 +1,6 @@
-import { Locales } from "i18n.config";
-import type { TFunction, TOptions, i18n } from "i18next";
+import { Locales } from "@/../i18n.config";
+import type { TOptions } from "@/../i18n.config";
+import type { TFunction, i18n } from "i18next";
 
 /**
  * Whether the extra information should be shown, or just the translation result.

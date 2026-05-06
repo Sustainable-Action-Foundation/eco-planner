@@ -131,6 +131,20 @@ export const clientSafeRoadmapSelection = {
       externalSelection: true,
       _count: { select: { effects: true } },
       dataSeries: { include: dataSeriesInclusionSelection, },
+      baseline: { include: dataSeriesInclusionSelection, },
+      effects: {
+        select: {
+          actionId: true,
+          goalId: true,
+          dataSeries: { include: dataSeriesInclusionSelection, },
+          action: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
     }
   },
   actions: {

@@ -1,11 +1,11 @@
 {
   "action": {
-    "action_label": "{{$t(common:action_one), titleCase}}",
+    "action_label": "$t(common:action_one, titleCase)",
     "categories": "Categories",
     "cost_efficiency": "Cost efficiency",
     "create_new_effect": "$t(common:new.effect)",
     "edit_action": "$t(common:edit.action)",
-    "effects_label": "{{$t(common:effect_other), titleCase}}",
+    "effects_label": "$t(common:effect_other, titleCase)",
     "expected_effect": "Expected $t(common:effect_other)",
     "no_actors": "No specified actors",
     "no_category": "No specified category",
@@ -53,20 +53,20 @@
   "effect_edit": {
     "breadcrumb": "$t(common:edit.effect)",
     "information_icon_aria": "Information",
-    "no_access": "{{$t(common:effect_definite_one), titleCase}} you are trying to edit does not exist or you do not have permission to edit it.",
+    "no_access": "$t(common:effect_definite_one, titleCase) you are trying to edit does not exist or you do not have permission to edit it.",
     "title": "$t(common:edit.effect)"
   },
   "goal": {
-    "action_timeline": "{{$t(common:action_one), titleCase}} timeline",
-    "actions_for_goal": "{{$t(common:action_other), titleCase}} for {{goalName}}",
+    "action_timeline": "$t(common:action_one, titleCase) timeline",
+    "actions_for_goal": "$t(common:action_other, titleCase) for {{goalName}}",
     "create_new_action": "$t(common:new.action)",
     "description": "Description",
-    "goals_working_towards": "{{$t(common:goal_other), titleCase}} working towards {{goalName}}",
+    "goals_working_towards": "$t(common:goal_other, titleCase) working towards {{goalName}}",
     "link_existing_action": "Link $t(common:effect_one) to an existing $t(common:action_one)",
     "menu": "Menu",
     "related_goals": "Related $t(common:goal_other)",
     "sub_goals": "Sub-$t(common:goal_other)",
-    "title_label": "{{$t(common:goal_one), titleCase}}",
+    "title_label": "$t(common:goal_one, titleCase)",
     "update_needed": "Update your $t(common:goal_one) to get the latest information.",
     "update_needed_attention_message": "Attention!"
   },
@@ -88,7 +88,7 @@
     "filter": "Filter",
     "search_roadmaps": "Search among $t(common:count.roadmap)",
     "shown_results": "Showing {{shown}} out of {{total}} $t(common:roadmap_series, {\"count\": {{total}}})",
-    "title": "{{$t(common:roadmap_short_other), titleCase}}"
+    "title": "$t(common:roadmap_short_other, titleCase)"
   },
   "info": {
     "breadcrumb": "Information",
@@ -120,8 +120,8 @@
   "profile": {
     "handle_data": "Data management",
     "my_posts": "My posts",
-    "roadmap_series_ones": "{{$t(common:roadmap_series_one), titleCase}}",
-    "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
+    "roadmap_series_ones": "$t(common:roadmap_series_one, titleCase)",
+    "roadmap_versions": "$t(common:roadmap_version_other, titleCase)",
     "user_posts": "{{name, possessive, titleCase}} posts",
     "version_count_one": "{{count}} version",
     "version_count_other": "{{count}} versions"
@@ -131,8 +131,8 @@
     "all_goals": "All $t(common:goal_other)",
     "featured_goals": "Featured $t(common:goal_other)",
     "show_series": "Visit $t(common:roadmap_series_one)",
-    "title": "{{$t(common:roadmap_version_one), titleCase}}",
-    "version": "{{$t(common:roadmap_version_one), titleCase}} (v{{version}})"
+    "title": "$t(common:roadmap_version_one, titleCase)",
+    "version": "$t(common:roadmap_version_one, titleCase) (v{{version}})"
   },
   "roadmap_create": {
     "bad_roadmap_series": "Could not find or do not have access to $t(common:roadmap_series_definite_one) in the link.",
@@ -149,8 +149,8 @@
   "roadmap_series_one": {
     "create_roadmap_version": "$t(common:new.roadmap_version)",
     "description_legend": "Metadata for a series of $t(common:roadmap_version_other)",
-    "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}",
-    "title_legend": "{{$t(common:roadmap_series_one), titleCase}}"
+    "roadmap_versions": "$t(common:roadmap_version_other, titleCase)",
+    "title_legend": "$t(common:roadmap_series_one, titleCase)"
   },
   "roadmap_series_one_create": {
     "breadcrumb": "$t(common:new.roadmap_series)",

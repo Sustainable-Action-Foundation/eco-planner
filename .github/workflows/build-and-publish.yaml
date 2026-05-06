@@ -50,6 +50,11 @@ jobs:
           driver: docker-container
           use: true # Set as default builder
 
+      - name: Enable yarn through corepack
+        run: |
+          corepack enable
+          corepack prepare --activate
+
       - name: Set up Node for tests
         if: ${{ !inputs.skip_tests }}
         uses: actions/setup-node@v6
@@ -61,7 +66,7 @@ jobs:
         if: ${{ !inputs.skip_tests }}
         run: |
           # Packages
-          yarn install --frozen-lockfile
+          yarn install --immutable
           # Playwright browsers
           yarn playwright install --with-deps
 

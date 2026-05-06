@@ -7,12 +7,9 @@ import type { GoalCreateInput, Goal, DateValues, JSONValue } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
-import type { Recipe } from "@/functions/recipe/types";
-import { RecipeContextProvider } from "../recipe/context/recipeContext.provider";
-import { SuggestedRecipeApplier } from "@/components/recipe/suggestions/suggestedRecipeApplier";
-import FormIntegration from "../recipe/editor/output/formIntegration";
-import { SmartRecipe } from "@/functions/recipe/smartRecipe";
 import styles from "../form/api/queryBuilder.module.css";
+import { Recipe } from "@/functions/recipe";
+import { FormIntegration, RecipeContextProvider, SuggestedRecipeApplier } from "@/components/recipe";
 
 
 export default function CopyAndScale({
@@ -83,7 +80,7 @@ export default function CopyAndScale({
       if (!unparsedRecipe) {
         throw new Error("Failed to parse recipe from form data");
       }
-      recipeUsed = SmartRecipe.fromSerialized(unparsedRecipe).toRecipe();
+      recipeUsed = Recipe.deserialize(unparsedRecipe);
       if (!recipeUsed) {
         throw new Error("Failed to parse recipe from form data");
       }
@@ -110,7 +107,7 @@ export default function CopyAndScale({
       dataSeriesId: undefined,
       dataSeries: { dateValues: resultingDataSeries, unit: resultingUnit, },
       dataSeriesRecipeId: undefined,
-      dataSeriesRecipe: recipeUsed,
+      dataSeriesRecipe: recipeUsed.serialize(),
 
       recipeSuggestions: undefined,
 
@@ -138,7 +135,7 @@ export default function CopyAndScale({
         type="button"
         className="seagreen color-purewhite smooth padding-block-50 padding-inline-100 smooth flex-grow-100 font-size-75 line-height-150"
         onClick={() => openModal(modalRef)}
-        style={{ padding: '.3rem .6rem'}}
+        style={{ padding: '.3rem .6rem' }}
       >
         {t("components:copy_and_scale.copy_and_scale")}
       </button>
@@ -175,7 +172,6 @@ export default function CopyAndScale({
                     allowAddVariables: false,
                     allowDeleteVariables: false,
                     allowNameEditing: false,
-                    allowTypeEditing: false,
                     allowValueEditing: true,
                   }}
                 />

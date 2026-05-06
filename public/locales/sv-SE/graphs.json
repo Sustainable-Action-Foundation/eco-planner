@@ -7,13 +7,13 @@
     "change_graph_type": "Ändra graftyp"
   },
   "action_graph": {
-    "actions": "{{$t(common:action_other), titleCase}}"
+    "actions": "$t(common:action_other, titleCase)"
   },
   "child_graph_container": {
-    "goals_toward": "{{$t(common:goal_other), titleCase}} som jobbar mot {{goalName}}"
+    "goals_toward": "$t(common:goal_other, titleCase) som jobbar mot {{goalName}}"
   },
   "child_graph_selector": {
-    "target_goals": "{{$t(common:goal_other), titleCase}}"
+    "target_goals": "$t(common:goal_other, titleCase)"
   },
   "graph_cookie": {
     "save_preferences": "Spara framtida vyändringar mellan sessioner och sidnavigeringar"
@@ -23,7 +23,7 @@
     "historical_data_source": "Den historiska datan i grafen är hämtad från <a>{{source}}</a>"
   },
   "graph_selector": {
-    "goal": "{{$t(common:goal_one), titleCase}}",
+    "goal": "$t(common:goal_one, titleCase)",
     "annual_change": "Årlig förändring",
     "percentage_change": "Procentuell förändring"
   },

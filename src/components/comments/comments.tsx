@@ -3,7 +3,7 @@
 import { commentSorter } from "@/lib/sorters";
 import type { Comment } from "@prisma/client";
 import styles from './comments.module.css'
-import type { ChangeEvent } from "react";
+import type { FocusEventHandler, InputEventHandler } from "react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Link from "next/link";
@@ -46,9 +46,13 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
 
   /* Handle input from span */
   const [editedContent, setEditedContent] = useState('');
-  const handleInput = (event: ChangeEvent<HTMLSpanElement>) => {
-    setEditedContent(event.target.innerText);
+  const handleInput: InputEventHandler<HTMLSpanElement> = (event) => {
+    setEditedContent(event.currentTarget.innerText);
   };
+
+  const handleBlur: FocusEventHandler<HTMLSpanElement> = (event) => {
+    setEditedContent(event.currentTarget.innerText);
+  }
 
   const spanRef = useRef<HTMLSpanElement>(null);
   const removeText = () => {
@@ -74,7 +78,7 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
       <div className="container-text">
         <h2>{t("components:comments.comment_count", { count: comments?.length ?? 0 })}</h2>
         <form onSubmit={handleSubmit}>
-          <span className={styles.textarea} role="textbox" id="comment-text" contentEditable aria-label={t("components:comments.add_comment")} aria-placeholder={t("components:comments.add_comment")} onInput={handleInput} onBlur={handleInput} ref={spanRef}></span>
+          <span className={styles.textarea} role="textbox" id="comment-text" contentEditable aria-label={t("components:comments.add_comment")} aria-placeholder={t("components:comments.add_comment")} onInput={handleInput} onBlur={handleBlur} ref={spanRef}></span>
           <input type="hidden" name="comment" id="comment" value={editedContent} />
           <div className="display-flex justify-content-flex-end gap-50 padding-block-50">
             <button type="button" disabled={!editedContent} className={`${styles.button} ${styles.cancel}`} onClick={removeText}>{t("common:tsx.cancel")}</button>

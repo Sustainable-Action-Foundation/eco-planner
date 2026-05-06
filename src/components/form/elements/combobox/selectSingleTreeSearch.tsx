@@ -55,9 +55,9 @@ export default function SelectSingleTreeSearch({
   defaultValue,
   onChange,
 }: {
-  treeItems: Array<TreeItem>,
-  props: InputElement,
-  defaultValue?: TreeItem, // TODO: Should also allow for a boolean which sets default to first value if enabled
+  treeItems: TreeItem[];
+  props: InputElement;
+  defaultValue?: TreeItem; // TODO: Should also allow for a boolean which sets default to first value if enabled
   onChange?: (value: TreeItem | null) => void
 }) {
   const { t } = useTranslation(["forms"]);

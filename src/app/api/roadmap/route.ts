@@ -1,16 +1,13 @@
 import type { NextRequest } from "next/server";
 import { getSession } from "@/lib/session"
 import prisma, { Prisma } from "@/prismaClient";
-import { AccessLevel, ClientError } from "@/types";
+import { AccessLevel, ClientError, isGoalCreate } from "@/types";
 import type { AccessControlled, JSONValue, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
 import roadmapGoalCreator from "./roadmapGoalCreator";
 import accessChecker from "@/lib/accessChecker";
 import { revalidateTag } from "next/cache";
-// import goalInputFromGoalArray from "@/functions/goalInputFromGoalArray";
-// import getOneGoal from "@/fetchers/getOneGoal";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { cookies } from "next/headers";
-import { isGoalCreate } from "../goal/route";
 import serveTea from "@/lib/i18nServer";
 
 // Type guards
@@ -361,7 +358,7 @@ export async function POST(request: NextRequest) {
       select: { id: true },
     });
     // Invalidate old cache
-    revalidateTag('roadmap');
+    revalidateTag('roadmap', 'max');
     // Return the new roadmap's ID if successful
     return Response.json({ message: t('api:roadmap.roadmap_created'), id: newRoadmap.id },
       { status: 201, headers: { 'Location': `/roadmap/${newRoadmap.id}` } }
@@ -516,7 +513,7 @@ export async function PUT(request: NextRequest) {
     // Prune any orphaned links and comments
     await pruneOrphans();
     // Invalidate old cache
-    revalidateTag('roadmap');
+    revalidateTag('roadmap', { expire: 0});
     // Return the new roadmap's ID if successful
     return Response.json({ message: t('api:roadmap.roadmap_updated'), id: updatedRoadmap.id },
       { status: 200, headers: { 'Location': `/roadmap/${updatedRoadmap.id}` } }
@@ -628,7 +625,7 @@ export async function DELETE(request: NextRequest) {
     // Prune any orphaned links and comments
     await pruneOrphans();
     // Invalidate old cache
-    revalidateTag('roadmap');
+    revalidateTag('roadmap', 'max');
     return Response.json({ message: t('api:roadmap.roadmap_deleted'), id: deletedRoadmap.id },
       // Redirect to the parent meta roadmap
       { status: 200, headers: { 'Location': `/metaRoadmap/${deletedRoadmap.metaRoadmapId}` } }

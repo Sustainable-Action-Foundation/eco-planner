@@ -5,7 +5,7 @@ import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session"
 import prisma from "@/prismaClient";
 import { cookies } from "next/headers";
-import { unstable_cacheTag as cacheTag } from 'next/cache'
+import { cacheTag } from 'next/cache'
 import type { ClientGoal } from "@/types";
 
 /**

@@ -1,7 +1,7 @@
 "use client"
 
 import { storageConsent, allowStorage, clearStorage } from "@/functions/localStorage";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export default function GraphCookie({
@@ -15,16 +15,12 @@ export default function GraphCookie({
 }) {
   const { t } = useTranslation("graphs");
 
-  const [storageAllowed, setStorageAllowed] = useState(false)
-
-  useEffect(() => {
-    setStorageAllowed(storageConsent())
-  }, [])
+  const [storageAllowed, setStorageAllowed] = useState(storageConsent())
 
   return (
-    <label 
-      id={id || undefined} 
-      className={`${className ? className + ' ' : ''} flex gap-25 align-items-center`} 
+    <label
+      id={id || undefined}
+      className={`${className ? className + ' ' : ''} flex gap-25 align-items-center`}
       style={style}
     >
       <input type="checkbox" id="allowStorage" checked={storageAllowed} onChange={e => {

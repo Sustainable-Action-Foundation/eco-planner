@@ -5,10 +5,10 @@
     "wanna_create_action": "Vill du skapa en?"
   },
   "breadcrumbs_sections": {
-    "action": "{{$t(common:action_one), titleCase}}:",
-    "goal": "{{$t(common:goal_one), titleCase}}:",
+    "action": "$t(common:action_one, titleCase):",
+    "goal": "$t(common:goal_one, titleCase):",
     "home": "$t(common:tsx.home)",
-    "roadmap_series": "{{$t(common:roadmap_series_one), titleCase}}:",
+    "roadmap_series": "$t(common:roadmap_series_one, titleCase):",
     "version": "Version {{version}}",
     "version_label": "Version:"
   },
@@ -127,7 +127,7 @@
     "value": "Värde"
   },
   "recipe_editor": {
-    "add_external_data": "Data",
+    "add_external_data": "Hitta historisk data",
     "create_recipe": "Skapa ett nytt recept",
     "create_variable": "Skapa variabel",
     "data_series": "Dataserie",
@@ -176,8 +176,10 @@
     "select_roadmap": "Välj färdplan",
     "selection": "Urval",
     "status": {
-      "no_issues_icon_aria_label": "Inga problem"
+      "no_issues_icon_aria_label": "Inga problem",
+      "template_recipe": "Redigerar en mall, ange alla fält"
     },
+    "suggested_recipe_label": "Föreslagna metoder",
     "table": "Tabell",
     "toggle_suggested_recipe": "<option1 /><span> – eller – </span><option2 />",
     "unit_label": "Enhet",
@@ -246,7 +248,7 @@
     "delete": "Radera inlägg",
     "delete_missing_name": "Namn saknas",
     "edit": "Redigera",
-    "effect_from_action": "{{$t(common:effect_one), titleCase}} från {{source}}",
+    "effect_from_action": "$t(common:effect_one, titleCase) från {{source}}",
     "effect_missing_name": "Namn saknas",
     "feature_goal": "Lyft fram $t(common:goal_one)",
     "feature_goal_stop": "Sluta lyfta fram $t(common:goal_one)",
@@ -261,7 +263,7 @@
     "no_available_actions": "Inga tillgängliga åtgärder"
   },
   "table_selector": {
-    "actions": "{{$t(common:action_other), titleCase}}",
+    "actions": "$t(common:action_other, titleCase)",
     "table": "Tabell",
     "tree": "Träd"
   },
@@ -272,8 +274,8 @@
     "access_level": "Behörighet",
     "editing_access": "Redigeringsbehörighet",
     "posts": "Inlägg",
-    "roadmap_series": "{{$t(common:roadmap_series_other), titleCase}}",
-    "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}"
+    "roadmap_series": "$t(common:roadmap_series_other, titleCase)",
+    "roadmap_versions": "$t(common:roadmap_version_other, titleCase)"
   },
   "toasts": {
     "success": "Lyckades!",

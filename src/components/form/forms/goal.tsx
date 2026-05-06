@@ -8,13 +8,10 @@ import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
 import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections";
-import { RecipeContextProvider } from "@/components/recipe/context/recipeContext.provider";
-import type { Recipe } from "@/functions/recipe/types";
 import TextEditor from "../elements/textEditor/editor";
-import SuggestedRecipeToggle from "@/components/recipe/suggestions/suggestedRecipeToggle";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
-import FormIntegration from "@/components/recipe/editor/output/formIntegration";
-import { SmartRecipe } from "@/functions/recipe/smartRecipe";
+import { Recipe } from "@/functions/recipe/recipe";
+import { FormIntegration, RecipeContextProvider, RecipeEditor, SuggestedRecipeApplier } from "@/components/recipe";
 import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
 import { useToastContext } from "@/components/generic/toast/toastContext";
 import { useRouter } from "next/navigation";
@@ -27,10 +24,10 @@ const DataSeriesType = {
 type DataSeriesType = (typeof DataSeriesType)[keyof typeof DataSeriesType];
 
 const BaselineType = {
-  Initial: "INITIAL",
-  InitialNonZero: "INITIAL_NON_ZERO",
-  Custom: "CUSTOM",
-  Inherited: "INHERIT",
+  Initial: "Initial",
+  InitialNonZero: "InitialNonZero",
+  Custom: "Custom",
+  Inherited: "Inherit",
 } as const;
 type BaselineType = (typeof BaselineType)[keyof typeof BaselineType];
 
@@ -106,8 +103,9 @@ export default function GoalForm({
     const resultingRecipeString = formData.get("resultingRecipe") as string | null;
     if (resultingRecipeString) {
       try {
-        dataSeriesRecipe = SmartRecipe.fromSerialized(resultingRecipeString).toRecipe();
-      } catch (e) {
+        dataSeriesRecipe = Recipe.deserialize(resultingRecipeString);
+      }
+      catch (e) {
         console.error("Failed to parse resulting recipe from form:", e);
         event.target.reportValidity();
         return;
@@ -221,7 +219,7 @@ export default function GoalForm({
         dataSeriesId: null,
         dataSeries: dataSeries,
         dataSeriesRecipeId: null,
-        dataSeriesRecipe: dataSeriesRecipe ?? null,
+        dataSeriesRecipe: dataSeriesRecipe?.serialize() ?? null,
 
         baselineId: baselineId,
         baseline: baseline,
@@ -254,7 +252,7 @@ export default function GoalForm({
         dataSeriesId: undefined,
         dataSeries: dataSeries,
         dataSeriesRecipeId: undefined,
-        dataSeriesRecipe: dataSeriesRecipe,
+        dataSeriesRecipe: dataSeriesRecipe?.serialize() ?? undefined,
 
         baselineId: baselineId,
         baseline: baseline,
@@ -332,55 +330,70 @@ export default function GoalForm({
         {/* Data series input section */}
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_goal_data_series")}</legend>
-          <div>
-            <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50">
+
+          {/* Radio group */}
+          <fieldset className="border-none padding-0 margin-0 margin-bottom-100" role="radiogroup" aria-label={t("forms:goal.choose_goal_data_series")}>
+            <label className="flex align-items-center gap-50 margin-bottom-50">
               <input
-                checked={dataSeriesType === DataSeriesType.Manual}
-                onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
-                value={DataSeriesType.Manual}
                 type="radio"
-                name="alternative"
-                required
-              />  {/* TODO: update name */}
-              {t("forms:goal.derive_data_series_manually")}
-            </label>
-            <label className="flex width-fit-content align-items-center gap-50 margin-bottom-100">
-              <input
+                name="dataSeriesType"
+                value={DataSeriesType.Suggested}
                 checked={dataSeriesType === DataSeriesType.Suggested}
                 onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
-                value={DataSeriesType.Suggested} /* TODO: Recipe type data series */
-                type="radio"
-                name="alternative"
-                required
               />
-              {t("forms:goal.derive_data_series_recipe")}
+              {t("forms:goal.suggested_inheritance")}
             </label>
-          </div>
+            <label className="flex align-items-center gap-50 margin-bottom-50">
+              <input
+                type="radio"
+                name="dataSeriesType"
+                value={DataSeriesType.Custom}
+                checked={dataSeriesType === DataSeriesType.Custom}
+                onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
+              />
+              {t("forms:goal.custom_recipe")}
+            </label>
+            <label className="flex align-items-center gap-50 margin-bottom-50">
+              <input
+                type="radio"
+                name="dataSeriesType"
+                value={DataSeriesType.Manual}
+                checked={dataSeriesType === DataSeriesType.Manual}
+                onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
+              />
+              {t("forms:goal.static_data_series")}
+            </label>
+          </fieldset>
 
-          {(
-            dataSeriesType === DataSeriesType.Manual
-          ) &&
-            <ManualGoalForm
-              currentGoal={currentGoal}
-              outputFormElement={<input name="data-series" />}
-            />
-          }
-          {(
-            !dataSeriesType // Fallback for undefined or otherwise falsy
-            || dataSeriesType === DataSeriesType.Suggested
-            || dataSeriesType === DataSeriesType.Custom
-          ) &&
+          {/* Suggested */}
+          <div className={`margin-top-100 ${dataSeriesType !== DataSeriesType.Suggested ? "display-none" : ""}`}>
             <RecipeContextProvider>
-              {/* TODO: Want to clear recipe when switching between suggested or custom recipes? */}
-
-              <SuggestedRecipeToggle />
-
+              <SuggestedRecipeApplier />
               <FormIntegration
                 RecipeFormElement={<input name="resultingRecipe" />}
                 DateValuesFormElement={<input name="resultingDateValues" />}
               />
             </RecipeContextProvider>
-          }
+          </div>
+
+          {/* Recipe */}
+          <div className={`margin-top-100 ${dataSeriesType !== DataSeriesType.Custom ? "display-none" : ""}`}>
+            <RecipeContextProvider>
+              <RecipeEditor />
+              <FormIntegration
+                RecipeFormElement={<input name="resultingRecipe" />}
+                DateValuesFormElement={<input name="resultingDateValues" />}
+              />
+            </RecipeContextProvider>
+          </div>
+
+          {/* Manual */}
+          <div className={`${dataSeriesType === DataSeriesType.Manual ? "" : "display-none"}`}>
+            <ManualGoalForm
+              currentGoal={currentGoal}
+              outputFormElement={<input name="data-series" />}
+            />
+          </div>
         </fieldset>
 
         {/* Baseline selection section */}

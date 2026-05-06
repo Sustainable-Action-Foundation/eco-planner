@@ -129,7 +129,7 @@ export function handleKeyDownGrid({
       break;
     }
 
-    case "-": { 
+    case "-": {
       if (e.ctrlKey) {
         e.preventDefault();
         if (editMode) setEditMode(false)
@@ -206,19 +206,19 @@ export function handleKeyDownGrid({
         if (focusedCell.row === 0 && focusedCell.column === 1) return // Do nothing on first cell
 
         // If on first column, move up a row. Otherwise move to previous column. 
-        if (focusedCell.column === 1) { 
+        if (focusedCell.column === 1) {
           setFocusedCell({ row: focusedCell.row - 1, column: amountColumns - 1 });
-        } else { 
+        } else {
           setFocusedCell({ row: focusedCell.row, column: focusedCell.column - 1 });
         }
       } else {
 
         if (focusedCell.row === amountRows - 1 && focusedCell.column === amountColumns - 1) return // Do nothing on last cell
-        
+
         // If on last column, go down a row. Otherwise move to next column. 
-        if (focusedCell.column === amountColumns - 1) { 
+        if (focusedCell.column === amountColumns - 1) {
           setFocusedCell({ row: focusedCell.row + 1, column: 1 });
-        } else { 
+        } else {
           setFocusedCell({ row: focusedCell.row, column: focusedCell.column + 1 });
         }
       }

@@ -48,6 +48,7 @@ const tsCommonRules: Config["rules"] = {
   "eqeqeq": ["error", "smart"],
   // "semi": ["error", "always"],
   // "comma-dangle": ["error", "always-multiline",], // Would be nice but not tweakable enough
+  // "quotes": ["error", "double", { avoidEscape: true }], // Authoritarian option :))
 };
 
 export default defineConfig([
@@ -104,6 +105,7 @@ export default defineConfig([
     },
   },
   globalIgnores([
+    ".prisma/**/*",
     "src/prisma/generated/**/*",
     "scripts/prisma/**",
     "**/scripts/prisma/**",

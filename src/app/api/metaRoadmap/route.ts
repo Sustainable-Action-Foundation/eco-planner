@@ -1,236 +1,13 @@
 import type { NextRequest } from "next/server";
 import { getSession } from "@/lib/session";
-import { AccessLevel, ClientError } from "@/types";
-import type { AccessControlled, JSONValue, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
+import { AccessLevel, ClientError, isMetaRoadmapCreate, isMetaRoadmapUpdate } from "@/types";
+import type { AccessControlled, JSONValue } from "@/types";
 import prisma, { Prisma, RoadmapType } from "@/prismaClient";
 import { revalidateTag } from "next/cache";
 import accessChecker from "@/lib/accessChecker";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { cookies } from "next/headers";
 import serveTea from "@/lib/i18nServer";
-
-function isMetaRoadmapCreate(metaRoadmap: JSONValue): metaRoadmap is MetaRoadmapCreateInput {
-  return (
-    (
-      typeof metaRoadmap === 'object' &&
-      metaRoadmap !== null &&
-      !Array.isArray(metaRoadmap)
-    ) &&
-
-    // name: string;
-    (
-      typeof metaRoadmap.name === 'string'
-    ) &&
-
-    // description: string;
-    (
-      typeof metaRoadmap.description === 'string'
-    ) &&
-
-    // type: RoadmapType | undefined;
-    // We cast an unchecked string to RoadmapType, so it has to be validated later
-    (
-      typeof metaRoadmap.type === 'string' ||
-      metaRoadmap.type === undefined
-    ) &&
-
-    // actor: string | null | undefined;
-    (
-      typeof metaRoadmap.actor === 'string' ||
-      metaRoadmap.actor === null ||
-      metaRoadmap.actor === undefined
-    ) &&
-
-    // isPublic: boolean | undefined;
-    (
-      typeof metaRoadmap.isPublic === 'boolean' ||
-      metaRoadmap.isPublic === undefined
-    ) &&
-
-    // editors: string[] | null | undefined;
-    (
-      metaRoadmap.editors === null ||
-      metaRoadmap.editors === undefined ||
-      (
-        Array.isArray(metaRoadmap.editors) &&
-        metaRoadmap.editors.every(name => typeof name === 'string')
-      )
-    ) &&
-
-    // viewers: string[] | null | undefined;
-    (
-      metaRoadmap.viewers === null ||
-      metaRoadmap.viewers === undefined ||
-      (
-        Array.isArray(metaRoadmap.viewers) &&
-        metaRoadmap.viewers.every(name => typeof name === 'string')
-      )
-    ) &&
-
-    // editGroups: string[] | null | undefined;
-
-    (
-      metaRoadmap.editGroups === null ||
-      metaRoadmap.editGroups === undefined ||
-      (
-        Array.isArray(metaRoadmap.editGroups) &&
-        metaRoadmap.editGroups.every(group => typeof group === 'string')
-      )
-    ) &&
-
-    // viewGroups: string[] | null | undefined;
-    (
-      metaRoadmap.viewGroups === null ||
-      metaRoadmap.viewGroups === undefined ||
-      (
-        Array.isArray(metaRoadmap.viewGroups) &&
-        metaRoadmap.viewGroups.every(group => typeof group === 'string')
-      )
-    ) &&
-
-    // parentRoadmapId: string | null | undefined;
-    (
-      typeof metaRoadmap.parentRoadmapId === 'string' ||
-      metaRoadmap.parentRoadmapId === null ||
-      metaRoadmap.parentRoadmapId === undefined
-    ) &&
-
-    // TODO: Deprecated - will be moved to description
-    // links: { url: string, description?: string | null }[] | null | undefined;
-    (
-      metaRoadmap.links === undefined ||
-      metaRoadmap.links === null ||
-      (
-        Array.isArray(metaRoadmap.links) &&
-        metaRoadmap.links.every((entry: JSONValue) => (
-          (
-            typeof entry === 'object' &&
-            entry !== null &&
-            !Array.isArray(entry)
-          ) &&
-
-          typeof entry.url === 'string' &&
-          (
-            typeof entry.description === 'string' ||
-            entry.description === undefined ||
-            entry.description === null
-          )
-        ))
-      )
-    )
-  )
-}
-
-function isMetaRoadmapUpdate(metaRoadmap: JSONValue): metaRoadmap is MetaRoadmapUpdateInput {
-  return (
-    (
-      typeof metaRoadmap === 'object' &&
-      metaRoadmap !== null &&
-      !Array.isArray(metaRoadmap)
-    ) &&
-
-    // id: string;
-    (
-      typeof metaRoadmap.id === 'string'
-    ) &&
-
-    // name: string | undefined;
-    (
-      typeof metaRoadmap.name === 'string' ||
-      metaRoadmap.name === undefined
-    ) &&
-
-    // description: string | undefined;
-    (
-      typeof metaRoadmap.description === 'string' ||
-      metaRoadmap.description === undefined
-    ) &&
-
-    // type: RoadmapType | undefined;
-    // We cast an unchecked string to RoadmapType, so it has to be validated later
-    (
-      typeof metaRoadmap.type === 'string' ||
-      metaRoadmap.type === undefined
-    ) &&
-
-    // actor: string | null | undefined;
-    (
-      typeof metaRoadmap.actor === 'string' ||
-      metaRoadmap.actor === null ||
-      metaRoadmap.actor === undefined
-    ) &&
-
-    // isPublic: boolean | undefined;
-    (
-      typeof metaRoadmap.isPublic === 'boolean' ||
-      metaRoadmap.isPublic === undefined
-    ) &&
-
-    // editors: string[] | null | undefined;
-    (
-      metaRoadmap.editors === null ||
-      metaRoadmap.editors === undefined ||
-      (
-        Array.isArray(metaRoadmap.editors) &&
-        metaRoadmap.editors.every(name => typeof name === 'string')
-      )
-    ) &&
-
-    // viewers: string[] | null | undefined;
-    (
-      metaRoadmap.viewers === null ||
-      metaRoadmap.viewers === undefined ||
-      (
-        Array.isArray(metaRoadmap.viewers) &&
-        metaRoadmap.viewers.every(name => typeof name === 'string')
-      )
-    ) &&
-
-    // editGroups: string[] | null | undefined;
-    (
-      metaRoadmap.editGroups === null ||
-      metaRoadmap.editGroups === undefined ||
-      (
-        Array.isArray(metaRoadmap.editGroups) &&
-        metaRoadmap.editGroups.every(group => typeof group === 'string')
-      )
-    ) &&
-
-    // viewGroups: string[] | null | undefined;
-    (
-      metaRoadmap.viewGroups === null ||
-      metaRoadmap.viewGroups === undefined ||
-      (
-        Array.isArray(metaRoadmap.viewGroups) &&
-        metaRoadmap.viewGroups.every(group => typeof group === 'string')
-      )
-    ) &&
-
-    // TODO: Deprecated - will be moved to description
-    // links: { url: string, description?: string | null }[] | null | undefined;
-    (
-      metaRoadmap.links === undefined ||
-      metaRoadmap.links === null ||
-      (
-        Array.isArray(metaRoadmap.links) &&
-        metaRoadmap.links.every((entry: JSONValue) => (
-          (
-            typeof entry === 'object' &&
-            entry !== null &&
-            !Array.isArray(entry)
-          ) &&
-
-          typeof entry.url === 'string' &&
-          (
-            typeof entry.description === 'string' ||
-            entry.description === undefined ||
-            entry.description === null
-          )
-        ))
-      )
-    )
-  )
-}
 
 /**
  * Handles POST requests to the metaRoadmap API
@@ -388,8 +165,8 @@ export async function POST(request: NextRequest) {
       select: { id: true }
     });
     // Invalidate old cache
-    revalidateTag('roadmap');
-    revalidateTag('metaRoadmap');
+    revalidateTag('roadmap', 'max');
+    revalidateTag('metaRoadmap', { expire: 0 });
     // Return the new meta roadmap's ID if successful
     return Response.json({ message: t('api:metaRoadmap.meta_roadmap_created'), id: newMetaRoadmap.id },
       { status: 201, headers: { 'Location': `/roadmap/create?metaRoadmapId=${newMetaRoadmap.id}` } }
@@ -588,8 +365,8 @@ export async function PUT(request: NextRequest) {
     // Prune any orphaned links and comments
     await pruneOrphans();
     // Invalidate old cache
-    revalidateTag('roadmap');
-    revalidateTag('metaRoadmap');
+    revalidateTag('roadmap', 'max');
+    revalidateTag('metaRoadmap', { expire: 0 });
     // Return the updated meta roadmap's ID if successful
     return Response.json({ message: t('api:metaRoadmap.meta_roadmap_updated'), id: updatedMetaRoadmap.id },
       { status: 200, headers: { 'Location': `/metaRoadmap/${updatedMetaRoadmap.id}` } }
@@ -688,8 +465,8 @@ export async function DELETE(request: NextRequest) {
     // Prune any orphaned links and comments
     await pruneOrphans();
     // Invalidate old cache
-    revalidateTag('roadmap');
-    revalidateTag('metaRoadmap');
+    revalidateTag('roadmap', 'max');
+    revalidateTag('metaRoadmap', 'max');
     return Response.json({ message: t('api:metaRoadmap.meta_roadmap_deleted'), id: deletedMetaRoadmap.id },
       { status: 200, headers: { 'Location': `/` } }
     );

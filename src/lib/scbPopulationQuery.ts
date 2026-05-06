@@ -1,7 +1,7 @@
 'use server';
 
 import getPxWebTableContent from "./pxWeb/getPxWebTableContent";
-import { unstable_cacheTag as cacheTag, unstable_cacheLife as cacheLife } from 'next/cache';
+import { cacheTag, cacheLife } from 'next/cache';
 
 
 /**

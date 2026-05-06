@@ -1,4 +1,5 @@
 // TODO: Use set for tree items and map for options?
+import "@/types/tiptap-commands";
 
 export type Theme = {
   className?: string;
@@ -11,11 +12,11 @@ export type GenericElement = Theme & {
 
 export type InputElement = GenericElement & {
   id: string;
-  name: string,
-  required?: boolean,
-  disabled?: boolean,
-  placeholder?: string,
-  defaultValue?: string,
+  name: string;
+  required?: boolean;
+  disabled?: boolean;
+  placeholder?: string;
+  defaultValue?: string;
 };
 
 // TODO: DO not use name (reserved keyword)
@@ -61,14 +62,4 @@ export type TabProps = TabElement & {
 
 export type TabPanelProps = TabElement & {
   hidden?: boolean
-}
-
-
-import '@tiptap/extension-link'
-
-declare module '@tiptap/extension-link' {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-  interface LinkOptions {
-    onOpenLinkModal?: () => void
-  }
 }

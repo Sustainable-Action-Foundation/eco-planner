@@ -4,7 +4,7 @@ import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session";
 import { metaRoadmapSorter, roadmapSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
-import { unstable_cache } from "next/cache";
+import { cacheTag } from "next/cache";
 import { cookies } from "next/headers";
 
 /**
@@ -25,94 +25,32 @@ export async function getUserInfo(username: string) {
  * @param username Username of the user to get
  * @param activeUser Data from requesting user's session cookie.
  */
-const getCachedUserInfo = unstable_cache(
-  async (username: string, activeUser: LoginData['user']) => {
-    // If active user is admin, get all relevant roadmaps
-    if (activeUser?.isAdmin) {
-      try {
-        const fetchedUser = await prisma.user.findUnique({
-          where: { username },
-          select: userInfoSelector,
-        });
+async function getCachedUserInfo(username: string, activeUser: LoginData['user']) {
+  'use cache'
+  cacheTag('database', 'user', 'roadmap', 'metaRoadmap')
+  // If active user is admin, get all relevant roadmaps
+  if (activeUser?.isAdmin) {
+    try {
+      const fetchedUser = await prisma.user.findUnique({
+        where: { username },
+        select: userInfoSelector,
+      });
 
-        // Sort roadmaps and meta roadmaps
-        fetchedUser?.authoredRoadmaps.sort(roadmapSorter);
-        fetchedUser?.authoredMetaRoadmaps.sort(metaRoadmapSorter);
+      // Sort roadmaps and meta roadmaps
+      fetchedUser?.authoredRoadmaps.sort(roadmapSorter);
+      fetchedUser?.authoredMetaRoadmaps.sort(metaRoadmapSorter);
 
-        return fetchedUser;
-      }
-      catch (error) {
-        console.log(error);
-        console.log('Error admin fetching authored posts');
-        return null;
-      }
+      return fetchedUser;
     }
-
-    // If active user is logged in, get relevant roadmaps they have access to
-    if (activeUser?.isLoggedIn) {
-      try {
-        const fetchedUser = await prisma.user.findUnique({
-          where: { username },
-          select: {
-            ...userInfoSelector,
-            authoredRoadmaps: {
-              where: {
-                OR: [
-                  { authorId: activeUser.id },
-                  { editors: { some: { id: activeUser.id } } },
-                  { viewers: { some: { id: activeUser.id } } },
-                  { editGroups: { some: { users: { some: { id: activeUser.id } } } } },
-                  { viewGroups: { some: { users: { some: { id: activeUser.id } } } } },
-                  { isPublic: true },
-                ]
-              },
-              include: userInfoSelector.authoredRoadmaps.include,
-            },
-            authoredMetaRoadmaps: {
-              where: {
-                OR: [
-                  { authorId: activeUser.id },
-                  { editors: { some: { id: activeUser.id } } },
-                  { viewers: { some: { id: activeUser.id } } },
-                  { editGroups: { some: { users: { some: { id: activeUser.id } } } } },
-                  { viewGroups: { some: { users: { some: { id: activeUser.id } } } } },
-                  { isPublic: true },
-                ]
-              },
-              include: {
-                ...userInfoSelector.authoredMetaRoadmaps.include,
-                roadmapVersions: {
-                  where: {
-                    OR: [
-                      { authorId: activeUser.id },
-                      { editors: { some: { id: activeUser.id } } },
-                      { viewers: { some: { id: activeUser.id } } },
-                      { editGroups: { some: { users: { some: { id: activeUser.id } } } } },
-                      { viewGroups: { some: { users: { some: { id: activeUser.id } } } } },
-                      { isPublic: true },
-                    ]
-                  },
-                  include: userInfoSelector.authoredMetaRoadmaps.include.roadmapVersions.include,
-                },
-              }
-            },
-          }
-        });
-
-        // Sort roadmaps and meta roadmaps
-        fetchedUser?.authoredRoadmaps.sort(roadmapSorter);
-        fetchedUser?.authoredMetaRoadmaps.sort(metaRoadmapSorter);
-
-        return fetchedUser;
-      }
-      catch (error) {
-        console.log(error);
-        console.log('Error user fetching authored posts');
-        return null;
-      }
+    catch (error) {
+      console.log(error);
+      console.log('Error admin fetching authored posts');
+      return null;
     }
+  }
 
-    // If active user is not logged in, get relevant public roadmaps
+  // If active user is logged in, get relevant roadmaps they have access to
+  if (activeUser?.isLoggedIn) {
     try {
       const fetchedUser = await prisma.user.findUnique({
         where: { username },
@@ -120,23 +58,44 @@ const getCachedUserInfo = unstable_cache(
           ...userInfoSelector,
           authoredRoadmaps: {
             where: {
-              isPublic: true,
+              OR: [
+                { authorId: activeUser.id },
+                { editors: { some: { id: activeUser.id } } },
+                { viewers: { some: { id: activeUser.id } } },
+                { editGroups: { some: { users: { some: { id: activeUser.id } } } } },
+                { viewGroups: { some: { users: { some: { id: activeUser.id } } } } },
+                { isPublic: true },
+              ]
             },
             include: userInfoSelector.authoredRoadmaps.include,
           },
           authoredMetaRoadmaps: {
             where: {
-              isPublic: true,
+              OR: [
+                { authorId: activeUser.id },
+                { editors: { some: { id: activeUser.id } } },
+                { viewers: { some: { id: activeUser.id } } },
+                { editGroups: { some: { users: { some: { id: activeUser.id } } } } },
+                { viewGroups: { some: { users: { some: { id: activeUser.id } } } } },
+                { isPublic: true },
+              ]
             },
             include: {
               ...userInfoSelector.authoredMetaRoadmaps.include,
               roadmapVersions: {
                 where: {
-                  isPublic: true,
+                  OR: [
+                    { authorId: activeUser.id },
+                    { editors: { some: { id: activeUser.id } } },
+                    { viewers: { some: { id: activeUser.id } } },
+                    { editGroups: { some: { users: { some: { id: activeUser.id } } } } },
+                    { viewGroups: { some: { users: { some: { id: activeUser.id } } } } },
+                    { isPublic: true },
+                  ]
                 },
                 include: userInfoSelector.authoredMetaRoadmaps.include.roadmapVersions.include,
               },
-            },
+            }
           },
         }
       });
@@ -149,10 +108,49 @@ const getCachedUserInfo = unstable_cache(
     }
     catch (error) {
       console.log(error);
-      console.log('Error public fetching authored posts');
+      console.log('Error user fetching authored posts');
       return null;
     }
-  },
-  ['getUserInfo'],
-  { revalidate: 600, tags: ['database', 'user', 'roadmap', 'metaRoadmap'] },
-)
+  }
+
+  // If active user is not logged in, get relevant public roadmaps
+  try {
+    const fetchedUser = await prisma.user.findUnique({
+      where: { username },
+      select: {
+        ...userInfoSelector,
+        authoredRoadmaps: {
+          where: {
+            isPublic: true,
+          },
+          include: userInfoSelector.authoredRoadmaps.include,
+        },
+        authoredMetaRoadmaps: {
+          where: {
+            isPublic: true,
+          },
+          include: {
+            ...userInfoSelector.authoredMetaRoadmaps.include,
+            roadmapVersions: {
+              where: {
+                isPublic: true,
+              },
+              include: userInfoSelector.authoredMetaRoadmaps.include.roadmapVersions.include,
+            },
+          },
+        },
+      }
+    });
+
+    // Sort roadmaps and meta roadmaps
+    fetchedUser?.authoredRoadmaps.sort(roadmapSorter);
+    fetchedUser?.authoredMetaRoadmaps.sort(metaRoadmapSorter);
+
+    return fetchedUser;
+  }
+  catch (error) {
+    console.log(error);
+    console.log('Error public fetching authored posts');
+    return null;
+  }
+};

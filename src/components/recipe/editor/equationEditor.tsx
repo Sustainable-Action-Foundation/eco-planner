@@ -2,18 +2,36 @@
 
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
-import React, { useRef, useState } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import { IconPlus } from "@tabler/icons-react";
 
-export default function EquationEditor() {
+export function EquationEditor() {
   const { t } = useTranslation("components");
-  const { recipe, setEquation } = useRecipe();
+  const { recipe, updateEquation } = useRecipe();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const pendingSelectionRef = useRef<{ start: number, end: number } | null>(null);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
 
+  useLayoutEffect(() => {
+    const textarea = textareaRef.current;
+    const selection = pendingSelectionRef.current;
+    if (!textarea || !selection) return;
+
+    if (document.activeElement === textarea) {
+      textarea.setSelectionRange(selection.start, selection.end);
+    }
+
+    pendingSelectionRef.current = null;
+  }, [recipe.equation]);
+
   const handleUpdatedEq = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const eq = e.target.value;
-    setEquation(eq);
+    pendingSelectionRef.current = {
+      start: e.target.selectionStart,
+      end: e.target.selectionEnd,
+    };
+
+    const equation = e.target.value;
+    updateEquation(equation);
   };
 
   const handleInsertVariable = (key: string) => {
@@ -25,7 +43,7 @@ export default function EquationEditor() {
     const end = textarea.selectionEnd;
 
     // Replace the selection with the variable key
-    textarea.setRangeText('${' + key + '}', start, end, "end");
+    textarea.setRangeText("${" + key + "}", start, end, "end");
 
     // Fire onChange manually so your state stays in sync
     const event = new Event("input", { bubbles: true });
@@ -45,7 +63,7 @@ export default function EquationEditor() {
           borderRadius: '0',
           resize: 'none'
         }}
-        value={recipe?.eq || ""}
+        value={recipe.equation}
         onChange={handleUpdatedEq}
       />
       <ul
@@ -67,27 +85,25 @@ export default function EquationEditor() {
           }
         }}
       >
-        {/* Todo: should be a proper menu with keycontrols */}
+        {/* TODO: should be a proper menu with key controls */}
         {recipe?.variables ?
           <>
-            <h2 className="font-weight-normal text-align-center margin-block-25 padding-bottom-25" style={{ fontSize: '14px', whiteSpace: 'nowrap', borderBottom: '1px solid var(--gray)' }}>Infoga variabel</h2>
-            {recipe?.variables &&
-              Object.entries(recipe.variables).map(([key], index) => (
-                <li key={key} role="presentation">
-                  <button
-                    id={`variable-menu-menuitem-${index}`}
-                    tabIndex={-1}
-                    role="menuitem"
-                    className="transparent padding-25 width-100 flex gap-100 justify-content-space-between align-items-center"
-                    type="button"
-                    onClick={() => handleInsertVariable(key)}
-                  >
-                    {key} {/* TODO: Rename, what is key? */}
-                    <IconPlus width={16} height={16} strokeWidth={1.5} style={{ minWidth: '16px' }} />
-                  </button>
-                </li>
-              ))
-            }
+            <h2 className="font-weight-normal text-align-center margin-block-25 padding-bottom-25" style={{ fontSize: '14px', whiteSpace: 'nowrap', borderBottom: '1px solid var(--gray)' }}>{t("components:recipe_editor.insert_variable")}</h2>
+            {recipe?.variables?.map((variable, index) => (
+              <li key={variable.id} role="presentation">
+                <button
+                  id={`variable-menu-menuitem-${index}`}
+                  tabIndex={-1}
+                  role="menuitem"
+                  className="transparent padding-25 width-100 flex gap-100 justify-content-space-between align-items-center"
+                  type="button"
+                  onClick={() => handleInsertVariable(variable.name)}
+                >
+                  {variable.name}
+                  <IconPlus width={16} height={16} strokeWidth={1.5} style={{ minWidth: '16px' }} />
+                </button>
+              </li>
+            ))}
           </>
           : null}
       </ul>

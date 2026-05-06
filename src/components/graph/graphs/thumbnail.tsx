@@ -7,6 +7,7 @@ import i18nServer from "i18next";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import type { Goal } from "@/types";
 import { color_palette } from "../config";
+import type { ApexAxisChartSeries } from "apexcharts";
 
 type ThumbnailGoal = Pick<
   Goal,

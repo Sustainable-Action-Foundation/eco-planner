@@ -183,7 +183,7 @@ export async function POST(request: NextRequest) {
     })).id;
 
     // Invalidate old cache
-    revalidateTag('action');
+    revalidateTag('action', 'max');
     // Return the new action's ID if successful
     return Response.json({ message: t('api:action.action_created'), id: newActionId },
       { status: 201, headers: { 'Location': `/action/${newActionId}` } }
@@ -336,7 +336,7 @@ export async function PUT(request: NextRequest) {
     // Prune any orphaned links and comments
     await pruneOrphans();
     // Invalidate old cache
-    revalidateTag('action');
+    revalidateTag('action', {expire: 0});
     // Return the new action's ID if successful
     return Response.json({ message: t('api:action.action_created'), id: updatedActionId },
       { status: 200, headers: { 'Location': `/action/${updatedActionId}` } }
@@ -441,7 +441,7 @@ export async function DELETE(request: NextRequest) {
     // Prune any orphaned links and comments
     await pruneOrphans();
     // Invalidate old cache
-    revalidateTag('action');
+    revalidateTag('action', 'max');
     return Response.json({ message: t('api:action.action_deleted'), id: deletedAction.id },
       // Redirect to the parent goal
       { status: 200, headers: { 'Location': `/roadmap/${deletedAction.roadmap.id}` } }

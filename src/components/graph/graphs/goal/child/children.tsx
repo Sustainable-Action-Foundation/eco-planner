@@ -6,6 +6,7 @@ import { isISOIshDate } from "@/types";
 import type { Goal } from "@/types";
 import { useTranslation } from "react-i18next";
 import { color_palette, stroke, marker } from "../../../config";
+import type { ApexAxisChartSeries } from "apexcharts";
 
 /**
  * A graph showing how all goals with the same unit and indicator parameter in roadmaps working towards the active goal's roadmap version stack up against it.
