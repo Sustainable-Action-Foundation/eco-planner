@@ -5,14 +5,14 @@ import nextVitals from "eslint-config-next/core-web-vitals";
 import tseslint from "typescript-eslint";
 
 const tsBaseConfig = tseslint.configs.recommendedTypeChecked;
-const nextBaseConfig = [...nextTS, ...nextVitals,];
+const nextBaseConfig = [...nextTS, ...nextVitals];
 
 const commonRules: Config["rules"] = {
   "eqeqeq": ["error", "smart"],
   "no-duplicate-imports": ["error", { allowSeparateTypeImports: true, includeExports: true }],
   "no-useless-assignment": "warn",
   "prefer-const": "error",
-  // "comma-dangle": ["error", "always-multiline",], // Would be nice but not tweakable enough
+  "comma-dangle": ["error", "always-multiline"], // Would be nice but not tweakable enough
   // "quotes": ["error", "double", { avoidEscape: true }], // Authoritarian option :))
   // "semi": ["error", "always"],
   "@typescript-eslint/no-unused-vars": [
@@ -24,7 +24,7 @@ const commonRules: Config["rules"] = {
       "caughtErrorsIgnorePattern": "^_",
       "destructuredArrayIgnorePattern": "^_",
       "varsIgnorePattern": "^_",
-      "ignoreRestSiblings": true
+      "ignoreRestSiblings": true,
     },
   ],
   "@typescript-eslint/ban-ts-comment": "error",
@@ -46,7 +46,7 @@ const commonRules: Config["rules"] = {
   "@typescript-eslint/no-unsafe-member-access": "warn",
   "@typescript-eslint/no-unsafe-return": "error",
   "@typescript-eslint/only-throw-error": "warn",
-  "@typescript-eslint/prefer-nullish-coalescing": ["warn", { ignorePrimitives: { string: true, boolean: true, } }],
+  "@typescript-eslint/prefer-nullish-coalescing": ["warn", { ignorePrimitives: { string: true, boolean: true } }],
   "@typescript-eslint/prefer-optional-chain": "warn",
   "@typescript-eslint/require-await": "warn",
   "@typescript-eslint/restrict-template-expressions": "warn",
