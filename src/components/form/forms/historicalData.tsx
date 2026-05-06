@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import formSubmitter from "@/functions/formSubmitter";
 import type { ApiTableContent, ApiTableDetails } from "@/lib/api/apiTypes";
@@ -57,8 +57,8 @@ export default function HistoricalData({
 
   const [dataSource, setDataSource] = useState<string>(!!goal.externalDataset ? goal.externalDataset : "");
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
-  const [table, setTable] = useState<{ tableId: string, label: string } | null>(goal.externalTableId ? { label: tables?.find(t => t.tableId === goal.externalTableId)?.label ?? goal.externalTableId, tableId: goal.externalTableId } : null)
-  const [metric, setMetric] = useState<string | null>(() => parseExternalSelection(goal.externalSelection)[0]?.valueCodes?.[0] ?? null)
+  const [table, setTable] = useState<{ tableId: string, label: string } | null>(goal.externalTableId ? { label: tables?.find(t => t.tableId === goal.externalTableId)?.label ?? goal.externalTableId, tableId: goal.externalTableId } : null);
+  const [metric, setMetric] = useState<string | null>(() => parseExternalSelection(goal.externalSelection)[0]?.valueCodes?.[0] ?? null);
 
   const [tableDetails, setTableDetails] = useState<ApiTableDetails | null>(null);
   const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
@@ -86,7 +86,7 @@ export default function HistoricalData({
       queryObject.push({ variableCode: key, valueCodes: [value] });
     });
     return queryObject;
-  }, [dataSource])
+  }, [dataSource]);
 
   const tryGetResult = useCallback((event?: React.ChangeEvent<HTMLSelectElement> | SubmitEvent<HTMLFormElement> | Event) => {
     // null check
@@ -137,7 +137,7 @@ export default function HistoricalData({
       goal.externalTableId,
       goal.externalDataset,
       parseExternalSelection(goal.externalSelection),
-      lang
+      lang,
     ).then(setTableDetails);
   }, [goal.externalTableId, goal.externalDataset, goal.externalSelection, lang]);
 
@@ -171,11 +171,11 @@ export default function HistoricalData({
       setTableDetails(result);
       // setIsLoading(false);
     });
-  }, [dataSource, lang])
+  }, [dataSource, lang]);
 
   useEffect(() => {
-    handleTableSelect(!!table?.tableId ? table.tableId : null)
-  }, [table, handleTableSelect])
+    handleTableSelect(!!table?.tableId ? table.tableId : null);
+  }, [table, handleTableSelect]);
 
   // TODO: should probably use a pseudo class (::after) instead of a span here.
   function optionalTag(dataSource: string, variableIsOptional: boolean) {
@@ -187,7 +187,7 @@ export default function HistoricalData({
       // The idea here is basically to we see which variables exist, and moving them to an array separately from metric as that value is already set. 
       // We then check if the variable which we render is in our list and get the default value from there.
       // This isnt very optimal as each render of a variable will trigger a loop of a new list, there is likely a better way to achieve this. 
-      if (!goal.externalSelection) return // TODO: Very hacky, temp fix. TODO: Also need to do this for time also
+      if (!goal.externalSelection) return; // TODO: Very hacky, temp fix. TODO: Also need to do this for time also
       const externalSelection = parseExternalSelection(goal.externalSelection);
       const variables = externalSelection.filter((selectionVariable) => selectionVariable.variableCode !== "metric");
 
@@ -218,7 +218,7 @@ export default function HistoricalData({
             ))}
           </select>
         </label>
-      )
+      );
     } else if (dataSource === "Trafa" && !variable.option && (variable as TrafaVariable).selected) {
       console.warn("The variable is selected while it is not an option. This should not happen.");
     }
@@ -258,7 +258,7 @@ export default function HistoricalData({
             ))}
           </select>
         </label>
-      )
+      );
     }
   }
 
@@ -451,7 +451,7 @@ export default function HistoricalData({
                     name: 'externalTableId',
                     placeholder: !dataSource ? 'Välj datakälla för att se tabeller' : 'Välj tabell', // TODO i18n
                     required: true,
-                    disabled: !dataSource ? true : false
+                    disabled: !dataSource ? true : false,
                   }}
                   defaultValue={table ? { name: table.label, value: table.tableId } : false}
                   options={
@@ -531,7 +531,7 @@ export default function HistoricalData({
                               })}
                             </div>
                           </div>
-                        )
+                        );
                       })}
                     </div>
                   ) : (
@@ -555,5 +555,5 @@ export default function HistoricalData({
             </form>
         {/*) : null}  */}
     </div>
-  )
+  );
 }

@@ -1,13 +1,13 @@
 import "server-only";
-import styles from './header.module.css' with { type: "css" }
-import LogoutButton from '@/components/buttons/logoutButton'
-import { getSession } from '@/lib/session'
-import { cookies } from 'next/headers'
-import Link from 'next/link'
-import { LanguageSwitcher } from "@/components/languageSwitcher"
+import styles from './header.module.css' with { type: "css" };
+import LogoutButton from '@/components/buttons/logoutButton';
+import { getSession } from '@/lib/session';
+import { cookies } from 'next/headers';
+import Link from 'next/link';
+import { LanguageSwitcher } from "@/components/languageSwitcher";
 import serveTea from "@/lib/i18nServer";
 import { PopoverButton, Popover } from '@/components/generic/popovers/popovers';
-import { IconCirclePlus, IconHome, IconInfoCircle, IconList, IconLogin2, IconLogout2, IconMenu2, IconPlus, IconSettings, IconUser, IconUserPlus, IconWorld, IconX } from '@tabler/icons-react'
+import { IconCirclePlus, IconHome, IconInfoCircle, IconList, IconLogin2, IconLogout2, IconMenu2, IconPlus, IconSettings, IconUser, IconUserPlus, IconWorld, IconX } from '@tabler/icons-react';
 import GraphCookie from '@/components/cookies/graphCookie';
 
 export default async function Sidebar() {
@@ -197,5 +197,5 @@ export default async function Sidebar() {
         </div>
       </div>
     </aside>
-  </>
+  </>;
 }

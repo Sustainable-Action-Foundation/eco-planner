@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { isDataSeriesVariable, isExternalVariable, VectorIndexPickerOptions } from "@/functions/recipe/types";
 import type { DataSeriesVariable } from "@/functions/recipe/types";
@@ -35,7 +35,7 @@ export function VectorPickerSelect({ permissions: incomingPermissions, variableI
 
         const variableWithNewPick = {
           ...variable,
-          pick: e.target.value as VectorIndexPickerOptions
+          pick: e.target.value as VectorIndexPickerOptions,
         };
 
         upsertVariable(variableId, variableWithNewPick);
@@ -47,5 +47,5 @@ export function VectorPickerSelect({ permissions: incomingPermissions, variableI
       <option value={VectorIndexPickerOptions.Median}>{t("components:recipe_editor.pick_median")}</option>
       <option value={VectorIndexPickerOptions.Mean}>{t("components:recipe_editor.pick_mean")}</option>
     </select>
-  )
+  );
 }

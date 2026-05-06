@@ -19,9 +19,9 @@ export default async function getTableContent(tableId: string, externalDataset: 
         typeof item.variableCode === "string" &&
         Array.isArray(item.valueCodes) &&
         item.valueCodes.every(code => typeof code === "string")
-      )
+      );
     })) {
-      return null
+      return null;
     }
     selection = intermediateSelection as { variableCode: string, valueCodes: string[] }[];
   }

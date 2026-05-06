@@ -16,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description: t("pages:info.info_body"),
     og_url: `/info`,
     og_image_url: undefined,
-  })
+  });
 }
 
 export default async function Page() {
@@ -36,10 +36,10 @@ export default async function Page() {
         <Trans
           i18nKey="pages:info.known_remote"
           components={{
-            a: <a href={env.REMOTE_REPO_URL} target="_blank" />
+            a: <a href={env.REMOTE_REPO_URL} target="_blank" />,
           }}
           tOptions={{
-            remote: env.REMOTE_REPO_URL
+            remote: env.REMOTE_REPO_URL,
           }}
           i18n={i18next}
         />
@@ -61,5 +61,5 @@ export default async function Page() {
         }
       </p>
     </>
-  )
+  );
 }

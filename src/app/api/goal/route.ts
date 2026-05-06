@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
   // Validate session
   if (!session.user?.id) {
     return Response.json({ message: t('api:common.unauthorized') },
-      { status: 401, headers: { 'Location': '/login' } }
+      { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
   if (!isGoalCreate(formData)) {
     console.log("formData failed validation");
     return Response.json({ message: t('api:common.invalid_request_body') },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     const [user, roadmap] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true }
+        select: { id: true, username: true, isAdmin: true, userGroups: true },
       }),
       prisma.roadmap.findUnique({
         where: { id: formData.roadmapId },
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
           editGroups: { include: { users: { select: { id: true, username: true } } } },
           viewGroups: { include: { users: { select: { id: true, username: true } } } },
           isPublic: true,
-        }
+        },
       }),
     ]);
 
@@ -87,19 +87,19 @@ export async function POST(request: NextRequest) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
-          { status: 400, headers: { 'Location': '/login' } }
+          { status: 400, headers: { 'Location': '/login' } },
         );
       }
       if (error.message === ClientError.IllegalParent) {
         return Response.json({ message: ClientError.IllegalParent },
-          { status: 403 }
+          { status: 403 },
         );
       }
     }
     // If no matching error is thrown, log the error and return a generic error message
     console.log(error);
     return Response.json({ message: t('api:common.server_error') },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -112,22 +112,22 @@ export async function POST(request: NextRequest) {
       // New recipe data + existing recipe ID = update
       if (formData.dataSeriesRecipe && formData.dataSeriesRecipeId) {
         await prisma.recipe.update({
-          where: { id: formData.dataSeriesRecipeId, },
-          data: { recipe: formData.dataSeriesRecipe, },
+          where: { id: formData.dataSeriesRecipeId },
+          data: { recipe: formData.dataSeriesRecipe },
         });
       }
       // New recipe data + no existing recipe ID = create
       else if (formData.dataSeriesRecipe) {
         formData.dataSeriesRecipeId = (await prisma.recipe.create({
-          data: { recipe: formData.dataSeriesRecipe, },
-          select: { id: true, },
+          data: { recipe: formData.dataSeriesRecipe },
+          select: { id: true },
         })).id;
       }
       // No new recipe data + existing recipe ID = link (if exists)
       else if (!formData.dataSeriesRecipe && formData.dataSeriesRecipeId) {
         const existingRecipe = await prisma.recipe.findUnique({
-          where: { id: formData.dataSeriesRecipeId, },
-          select: { id: true, },
+          where: { id: formData.dataSeriesRecipeId },
+          select: { id: true },
         });
         if (!existingRecipe) {
           console.warn(`Goal creation: tried linking goal with a data series recipe (${formData.dataSeriesRecipeId}) but not found, unlinking...`);
@@ -138,22 +138,22 @@ export async function POST(request: NextRequest) {
       // New recipe data + existing recipe ID = update
       if (formData.baselineRecipe && formData.baselineRecipeId) {
         await prisma.recipe.update({
-          where: { id: formData.baselineRecipeId, },
-          data: { recipe: formData.baselineRecipe, },
+          where: { id: formData.baselineRecipeId },
+          data: { recipe: formData.baselineRecipe },
         });
       }
       // New recipe data + no existing recipe ID = create
       else if (formData.baselineRecipe) {
         formData.baselineRecipeId = (await prisma.recipe.create({
-          data: { recipe: formData.baselineRecipe, },
-          select: { id: true, },
+          data: { recipe: formData.baselineRecipe },
+          select: { id: true },
         })).id;
       }
       // No new recipe data + existing recipe ID = link (if exists)
       else if (!formData.baselineRecipe && formData.baselineRecipeId) {
         const existingRecipe = await prisma.recipe.findUnique({
-          where: { id: formData.baselineRecipeId, },
-          select: { id: true, },
+          where: { id: formData.baselineRecipeId },
+          select: { id: true },
         });
         if (!existingRecipe) {
           console.warn(`Goal creation: tried linking goal with a baseline recipe (${formData.baselineRecipeId}) but not found, unlinking...`);
@@ -179,11 +179,11 @@ export async function POST(request: NextRequest) {
           },
           dataSeries: {
             create: {
-              author: { connect: { id: session.user?.id }, },
+              author: { connect: { id: session.user?.id } },
               recipeUsed: typeof formData.dataSeriesRecipeId === 'string'
-                ? { connect: { id: formData.dataSeriesRecipeId, }, }
+                ? { connect: { id: formData.dataSeriesRecipeId } }
                 : undefined,
-              values: { createMany: { data: dateValuesToDBDateRecord(formData.dataSeries.dateValues) }, },
+              values: { createMany: { data: dateValuesToDBDateRecord(formData.dataSeries.dateValues) } },
               unit: formData.dataSeries.unit,
             },
           },
@@ -192,18 +192,18 @@ export async function POST(request: NextRequest) {
               connectOrCreate: {
                 where: { id: formData.baselineId ?? "" },
                 create: {
-                  author: { connect: { id: session.user?.id }, },
+                  author: { connect: { id: session.user?.id } },
                   recipeUsed: typeof formData.baselineRecipeId === 'string'
-                    ? { connect: { id: formData.baselineRecipeId, }, }
+                    ? { connect: { id: formData.baselineRecipeId } }
                     : undefined,
-                  values: { createMany: { data: dateValuesToDBDateRecord(formData.baseline.dateValues) }, },
+                  values: { createMany: { data: dateValuesToDBDateRecord(formData.baseline.dateValues) } },
                   unit: formData.baseline.unit,
-                }
-              }
+                },
+              },
             }
             : formData.baselineId
               ? {
-                connect: { id: formData.baselineId, },
+                connect: { id: formData.baselineId },
               }
               : undefined,
           links: {
@@ -223,18 +223,18 @@ export async function POST(request: NextRequest) {
     revalidateTag('goal', 'max');
     // Return the new goal's ID if successful
     return Response.json({ message: t('api:goal.goal_created'), id: goalId },
-      { status: 201, headers: { 'Location': `/goal/${goalId}` } }
+      { status: 201, headers: { 'Location': `/goal/${goalId}` } },
     );
   }
   catch (error) {
     console.log(error);
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
       return Response.json({ message: t('api:goal.roadmap_not_found') },
-        { status: 400 }
+        { status: 400 },
       );
     }
     return Response.json({ message: t('api:common.server_error') },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -252,14 +252,14 @@ export async function PUT(request: NextRequest) {
   // Validate session
   if (!session.user?.id) {
     return Response.json({ message: t('api:common.unauthorized') },
-      { status: 401, headers: { 'Location': '/login' } }
+      { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
   // Validate input
   if (!isGoalUpdate(goal)) {
     return Response.json({ message: t('api:common.invalid_request_body') },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -268,7 +268,7 @@ export async function PUT(request: NextRequest) {
     const [user, currentGoal] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true }
+        select: { id: true, username: true, isAdmin: true, userGroups: true },
       }),
       prisma.goal.findUnique({
         where: { id: goal.goalId },
@@ -302,29 +302,29 @@ export async function PUT(request: NextRequest) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
-          { status: 400, headers: { 'Location': '/login' } }
+          { status: 400, headers: { 'Location': '/login' } },
         );
       }
       if (error.message === ClientError.StaleData) {
         return Response.json({ message: ClientError.StaleData },
-          { status: 409 }
+          { status: 409 },
         );
       }
       if (error.message === ClientError.IllegalParent) {
         return Response.json({ message: ClientError.IllegalParent },
-          { status: 403 }
+          { status: 403 },
         );
       }
       if (error.message === ClientError.AccessDenied) {
         return Response.json({ message: ClientError.AccessDenied },
-          { status: 403 }
+          { status: 403 },
         );
       }
     }
     // If no matching error is thrown, log the error and return a generic error message
     console.log(error);
     return Response.json({ message: t('api:common.server_error') },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -336,22 +336,22 @@ export async function PUT(request: NextRequest) {
       // New recipe data + existing recipe ID = update
       if (goal.dataSeriesRecipe && goal.dataSeriesRecipeId) {
         await prisma.recipe.update({
-          where: { id: goal.dataSeriesRecipeId, },
-          data: { recipe: goal.dataSeriesRecipe, },
+          where: { id: goal.dataSeriesRecipeId },
+          data: { recipe: goal.dataSeriesRecipe },
         });
       }
       // New recipe data + no existing recipe ID = create
       else if (goal.dataSeriesRecipe) {
         goal.dataSeriesRecipeId = (await prisma.recipe.create({
-          data: { recipe: goal.dataSeriesRecipe, },
-          select: { id: true, },
+          data: { recipe: goal.dataSeriesRecipe },
+          select: { id: true },
         })).id;
       }
       // No new recipe data + existing recipe ID = link (if exists)
       else if (!goal.dataSeriesRecipe && goal.dataSeriesRecipeId) {
         const existingRecipe = await prisma.recipe.findUnique({
-          where: { id: goal.dataSeriesRecipeId, },
-          select: { id: true, },
+          where: { id: goal.dataSeriesRecipeId },
+          select: { id: true },
         });
         if (!existingRecipe) {
           console.warn(`Goal update: tried updating goal with a data series recipe (${goal.dataSeriesRecipeId}) but not found, unlinking...`);
@@ -362,22 +362,22 @@ export async function PUT(request: NextRequest) {
       // New recipe data + existing recipe ID = update
       if (goal.baselineRecipe && goal.baselineRecipeId) {
         await prisma.recipe.update({
-          where: { id: goal.baselineRecipeId, },
-          data: { recipe: goal.baselineRecipe, },
+          where: { id: goal.baselineRecipeId },
+          data: { recipe: goal.baselineRecipe },
         });
       }
       // New recipe data + no existing recipe ID = create
       else if (goal.baselineRecipe) {
         goal.baselineRecipeId = (await prisma.recipe.create({
-          data: { recipe: goal.baselineRecipe, },
-          select: { id: true, },
+          data: { recipe: goal.baselineRecipe },
+          select: { id: true },
         })).id;
       }
       // No new recipe data + existing recipe ID = link (if exists)
       else if (!goal.baselineRecipe && goal.baselineRecipeId) {
         const existingRecipe = await prisma.recipe.findUnique({
-          where: { id: goal.baselineRecipeId, },
-          select: { id: true, },
+          where: { id: goal.baselineRecipeId },
+          select: { id: true },
         });
         if (!existingRecipe) {
           console.warn(`Goal update: tried updating goal with a baseline recipe (${goal.baselineRecipeId}) but not found, unlinking...`);
@@ -399,19 +399,19 @@ export async function PUT(request: NextRequest) {
           dataSeries: goal.dataSeries ? {
             upsert: {
               create: {
-                author: { connect: { id: session.user?.id }, },
+                author: { connect: { id: session.user?.id } },
                 recipeUsed: typeof goal.dataSeriesRecipeId === 'string'
-                  ? { connect: { id: goal.dataSeriesRecipeId, }, }
+                  ? { connect: { id: goal.dataSeriesRecipeId } }
                   : undefined,
-                values: { createMany: { data: dateValuesToDBDateRecord(goal.dataSeries.dateValues) }, },
+                values: { createMany: { data: dateValuesToDBDateRecord(goal.dataSeries.dateValues) } },
                 ...(goal.dataSeries.unit == null ? {} : { unit: goal.dataSeries.unit }),
               },
               update: {
                 recipeUsed: goal.dataSeriesRecipeId === undefined
                   ? undefined
                   : typeof goal.dataSeriesRecipeId === 'string'
-                    ? { connect: { id: goal.dataSeriesRecipeId, }, }
-                    : { disconnect: true, },
+                    ? { connect: { id: goal.dataSeriesRecipeId } }
+                    : { disconnect: true },
                 values: {
                   deleteMany: {},
                   createMany: { data: dateValuesToDBDateRecord(goal.dataSeries.dateValues) },
@@ -420,21 +420,21 @@ export async function PUT(request: NextRequest) {
               },
             },
           } : goal.dataSeriesId ? {
-            connect: { id: goal.dataSeriesId, },
+            connect: { id: goal.dataSeriesId },
           } : undefined,
           baseline: goal.baseline
             ? {
               disconnect: {},
               create: {
-                author: { connect: { id: session.user?.id }, },
+                author: { connect: { id: session.user?.id } },
                 recipeUsed: typeof goal.baselineRecipeId === 'string'
-                  ? { connect: { id: goal.baselineRecipeId, }, }
+                  ? { connect: { id: goal.baselineRecipeId } }
                   : undefined,
-                values: { createMany: { data: dateValuesToDBDateRecord(goal.baseline.dateValues) }, },
+                values: { createMany: { data: dateValuesToDBDateRecord(goal.baseline.dateValues) } },
                 unit: goal.baseline.unit,
               },
             } : goal.baselineId ? {
-              connect: { id: goal.baselineId, },
+              connect: { id: goal.baselineId },
             } : undefined,
           links: {
             deleteMany: {},
@@ -456,12 +456,12 @@ export async function PUT(request: NextRequest) {
     revalidateTag('goal', 'max');
     // Return the edited goal's ID if successful
     return Response.json({ message: t('api:goal.goal_updated'), id: goalId },
-      { status: 200, headers: { 'Location': `/goal/${goalId}` } }
+      { status: 200, headers: { 'Location': `/goal/${goalId}` } },
     );
   } catch (error) {
     console.log(error);
     return Response.json({ message: t('api:common.server_error') },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -472,21 +472,21 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const [session, goal] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<JSONValue>
+    request.json() as Promise<JSONValue>,
   ]);
   const t = await serveTea("api");
 
   // Validate session
   if (!session.user?.id) {
     return Response.json({ message: t('api:common.unauthorized') },
-      { status: 401, headers: { 'Location': '/login' } }
+      { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
   // Validate request body
   if (!goal || !(typeof goal === 'object') || Array.isArray(goal) || typeof goal.id !== 'string' || goal.id.length === 0) {
     return Response.json({ message: t('api:common.missing_input') },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -494,7 +494,7 @@ export async function DELETE(request: NextRequest) {
     const [user, currentGoal] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true }
+        select: { id: true, username: true, isAdmin: true, userGroups: true },
       }),
       prisma.goal.findUnique({
         where: {
@@ -506,8 +506,8 @@ export async function DELETE(request: NextRequest) {
               { authorId: session.user.id },
               { roadmap: { authorId: session.user.id } },
               { roadmap: { metaRoadmap: { authorId: session.user.id } } },
-            ]
-          })
+            ],
+          }),
         },
       }),
     ]);
@@ -527,19 +527,19 @@ export async function DELETE(request: NextRequest) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
-          { status: 400, headers: { 'Location': '/login' } }
+          { status: 400, headers: { 'Location': '/login' } },
         );
       }
       if (error.message === ClientError.AccessDenied) {
         return Response.json({ message: ClientError.AccessDenied },
-          { status: 403 }
+          { status: 403 },
         );
       }
     }
     // If no matching error is thrown, log the error and return a generic error message
     console.log(error);
     return Response.json({ message: t('api:common.server_error') },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -547,27 +547,27 @@ export async function DELETE(request: NextRequest) {
   try {
     const deletedGoal = await prisma.goal.delete({
       where: {
-        id: goal.id
+        id: goal.id,
       },
       select: {
         id: true,
         roadmap: {
           select: {
             id: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
     // Invalidate old cache
     revalidateTag('goal', 'max');
     return Response.json({ message: t('api:goal.goal_deleted'), id: deletedGoal.id },
       // Redirect to the parent roadmap
-      { status: 200, headers: { 'Location': `/roadmap/${deletedGoal.roadmap.id}` } }
+      { status: 200, headers: { 'Location': `/roadmap/${deletedGoal.roadmap.id}` } },
     );
   } catch (error) {
     console.log(error);
     return Response.json({ message: t('api:common.server_error') },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

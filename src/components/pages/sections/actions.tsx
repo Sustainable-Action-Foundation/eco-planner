@@ -1,18 +1,18 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react"
-import styles from "./sections.module.css"
-import type { Action } from "@/types"
-import { IconArrowNarrowRight, IconLayoutGridFilled, IconList, IconPlus, IconSearch, IconUser } from "@tabler/icons-react"
-import Link from "next/link"
+import { useMemo, useState, useTransition } from "react";
+import styles from "./sections.module.css";
+import type { Action } from "@/types";
+import { IconArrowNarrowRight, IconLayoutGridFilled, IconList, IconPlus, IconSearch, IconUser } from "@tabler/icons-react";
+import Link from "next/link";
 import Image from "next/image";
-import { useDebouncedCallback } from "use-debounce"
-import { usePathname, useSearchParams, useRouter } from "next/navigation"
+import { useDebouncedCallback } from "use-debounce";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 
 export default function Actions({
   actions,
-  searchParamsProp
+  searchParamsProp,
 }: {
   actions: Action[] | null,
   searchParamsProp: { [key: string]: string | string[] | undefined }
@@ -22,7 +22,7 @@ export default function Actions({
 
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [_isPending, startTransition] = useTransition();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -39,8 +39,8 @@ export default function Actions({
     }
 
     startTransition(() => {
-      router.replace(`${pathname}?${newParams.toString()}`)
-    })
+      router.replace(`${pathname}?${newParams.toString()}`);
+    });
   }
 
   const slowDebounce = useDebouncedCallback(update, 300);
@@ -65,8 +65,8 @@ export default function Actions({
       [action.name, action.description].some(
         (value) =>
           typeof value === "string" &&
-          value.toLowerCase().includes(searchFilter.toLowerCase())
-      )
+          value.toLowerCase().includes(searchFilter.toLowerCase()),
+      ),
     );
   }, [actions, searchFilter]);
 
@@ -204,5 +204,5 @@ export default function Actions({
         </section>
       </div>
     </search>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { startTransition } from "react";
@@ -21,8 +21,8 @@ export default function SortRoadmaps() {
     }
 
     startTransition(() => {
-      router.replace(`${pathname}?${newParams.toString()}`)
-    })
+      router.replace(`${pathname}?${newParams.toString()}`);
+    });
   }
 
 
@@ -31,7 +31,7 @@ export default function SortRoadmaps() {
       {t("components:roadmap_filters.sort_by")}: {/* TODO: Remove */}
       <select
         className="font-size-14px secondary-neutral-action"
-        defaultValue={searchParams.get('sortBy') ?? ""} onChange={(e) => { updateStringParam('sortBy', e.target.value) }}
+        defaultValue={searchParams.get('sortBy') ?? ""} onChange={(e) => { updateStringParam('sortBy', e.target.value); }}
         style={{paddingRight: 'calc(1rem + 20px)', '--padding': '.5rem'} as React.CSSProperties}
       >
         <option value="">{t("components:roadmap_filters.default")}</option>
@@ -41,5 +41,5 @@ export default function SortRoadmaps() {
         <option value={RoadmapSortBy.GoalsRising}>{t("components:roadmap_filters.goal_count_ascending")}</option>
       </select>
     </label>
-  )
+  );
 }

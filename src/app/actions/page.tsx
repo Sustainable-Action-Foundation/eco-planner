@@ -1,5 +1,5 @@
-import { getActions } from "@/fetchers"
-import Actions from "../../components/pages/sections/actions"
+import { getActions } from "@/fetchers";
+import Actions from "../../components/pages/sections/actions";
 import serveTea from "@/lib/i18nServer"; 
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import { buildMetadata } from "@/functions/buildMetadata";
@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description: undefined,
     og_url: undefined,
     og_image_url: undefined,
-  })
+  });
 }
 
 export default async function Page(props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
@@ -31,5 +31,5 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
         <Actions searchParamsProp={searchParams} actions={actions} />
       </main>
     </>
-  )
+  );
 }

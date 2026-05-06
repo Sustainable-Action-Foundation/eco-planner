@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import TabListSimple from "@/components/generic/tablist/tabListSimple";
 import ChildGraphContainer from "./child/container";
@@ -7,7 +7,7 @@ import findSiblings from "@/functions/findSiblings";
 import type { Effect, Goal, Roadmap } from "@/types";
 import type { ApiTableContent } from "@/lib/api/apiTypes";
 import GraphGraph from "./main/container";
-import styles from './goal.module.css'
+import styles from './goal.module.css';
 import { useTranslation } from "react-i18next";
 import type { LoginData } from "@/lib/session";
 
@@ -23,7 +23,7 @@ export default function GoalGraph({
   secondaryGoal,
   effects,
   session,
-  roadmapOptions
+  roadmapOptions,
 }: {
   goal: Goal,
   parentGoal: Goal | null,
@@ -119,5 +119,5 @@ export default function GoalGraph({
           : null}
       </TabListSimple>
     </section>
-  )
+  );
 }

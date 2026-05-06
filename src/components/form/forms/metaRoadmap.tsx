@@ -1,13 +1,13 @@
-'use client'
+'use client';
 
-import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" with { type: "json" }
+import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" with { type: "json" };
 import type { LoginData } from "@/lib/session";
 import type { AccessControlled, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
 import type { MetaRoadmap } from "@/lib/prisma/generated";
 import { RoadmapType } from "@/lib/prisma/generated";
 import { useRef, useState } from "react";
 import formSubmitter from "@/functions/formSubmitter";
-import styles from '../forms.module.css'
+import styles from '../forms.module.css';
 import { useTranslation } from "react-i18next";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
@@ -29,7 +29,7 @@ export default function MetaRoadmapForm({
 }) {
   const { t } = useTranslation(["forms", "common"]);
   const descriptionRef = useRef<HTMLInputElement>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [roadmapType, setRoadmapType] = useState<string>("");
   const { addToast } = useToastContext();
   const router = useRouter();
@@ -43,7 +43,7 @@ export default function MetaRoadmapForm({
     [RoadmapType.LOCAL]: t("common:scope.local"),
     [RoadmapType.ORGANIZATIONAL]: t("common:scope.organizational"),
     [RoadmapType.OTHER]: t("common:scope.other"),
-  }
+  };
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     // Mostly the usual submit handler stuff.
@@ -153,7 +153,7 @@ export default function MetaRoadmapForm({
                   if (value === RoadmapType.NATIONAL && !user?.isAdmin) return null;
                   return (
                     <option key={value} value={value}>{value in customRoadmapTypes ? customRoadmapTypes[value] : value}</option>
-                  )
+                  );
                 })
               }
             </select>
@@ -187,7 +187,7 @@ export default function MetaRoadmapForm({
           positionIndex={positionIndex}
           legends={{
             viewers: t("forms:meta_roadmap.legend_visibility"),
-            editors: t("forms:meta_roadmap.legend_editability")
+            editors: t("forms:meta_roadmap.legend_editability"),
           }}
         />
 
@@ -207,14 +207,14 @@ export default function MetaRoadmapForm({
                 id: "parent-roadmap",
                 name: "parent-roadmap",
                 placeholder: t("forms:combobox.select_or_leave"),
-                disabled: !parentRoadmapOptions
+                disabled: !parentRoadmapOptions,
               }}
               defaultValue={ // TODO: Might be a better way to do this
                 currentRoadmap
                   ? currentRoadmap.parentRoadmapId
                     ? (() => {
                       const selected = parentRoadmapOptions.find(
-                        (roadmap) => roadmap.id === currentRoadmap.parentRoadmapId
+                        (roadmap) => roadmap.id === currentRoadmap.parentRoadmapId,
                       );
                       return selected ? { name: selected.name, value: selected.id } : false;
                     })()
@@ -225,8 +225,8 @@ export default function MetaRoadmapForm({
                 { name: t("forms:meta_roadmap.relationship_no_chosen"), value: "" },
                 ...parentRoadmapOptions.map((metaRoadmap) => ({
                   name: metaRoadmap.name,
-                  value: metaRoadmap.id
-                }))
+                  value: metaRoadmap.id,
+                })),
               ]}
             />
           ) : null}
@@ -245,5 +245,5 @@ export default function MetaRoadmapForm({
         </div>
       </form>
     </>
-  )
+  );
 }

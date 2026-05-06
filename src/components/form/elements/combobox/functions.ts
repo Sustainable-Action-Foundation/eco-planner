@@ -18,20 +18,20 @@ export const handleKeyDownTreeCombobox = (
   // 3. Focuses the element which made the listbox visible
   if (e.key === "Escape") {
     if (treeDisplayed) { 
-      e.preventDefault()
+      e.preventDefault();
     }
     setFocusedTreeOptionIndex(null);
     if (treeDisplayed && setTreeDisplayed) {
       setTreeDisplayed(false);
-      comboboxElement.focus()
+      comboboxElement.focus();
     }
   }
   
   if (e.key === "Enter") {
-    e.preventDefault()
+    e.preventDefault();
     const selectedTreeItem = focusedTreeOptionIndex != null ? treeOptions[focusedTreeOptionIndex] : null;
     if (onEnter) {
-      onEnter(selectedTreeItem, focusedTreeOptionIndex)
+      onEnter(selectedTreeItem, focusedTreeOptionIndex);
     }
 
   }
@@ -49,13 +49,13 @@ export const handleKeyDownTreeCombobox = (
   }
 
   if (e.key === "ArrowUp" && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
-    e.preventDefault()
+    e.preventDefault();
 
     if (focusedTreeOptionIndex != null) {
       if (focusedTreeOptionIndex !== 0) {
-        setFocusedTreeOptionIndex(focusedTreeOptionIndex - 1)
+        setFocusedTreeOptionIndex(focusedTreeOptionIndex - 1);
       } else {
-        setFocusedTreeOptionIndex(treeOptions.length - 1)
+        setFocusedTreeOptionIndex(treeOptions.length - 1);
       }
     } else {
       setFocusedTreeOptionIndex(0);
@@ -63,13 +63,13 @@ export const handleKeyDownTreeCombobox = (
   }
 
   if (e.key === "ArrowDown" && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
-    e.preventDefault()
+    e.preventDefault();
 
     if (focusedTreeOptionIndex != null) {
       if (focusedTreeOptionIndex !== treeOptions.length - 1) {
-        setFocusedTreeOptionIndex(focusedTreeOptionIndex + 1)
+        setFocusedTreeOptionIndex(focusedTreeOptionIndex + 1);
       } else {
-        setFocusedTreeOptionIndex(0)
+        setFocusedTreeOptionIndex(0);
       }
     } else {
       setFocusedTreeOptionIndex(0);
@@ -77,16 +77,16 @@ export const handleKeyDownTreeCombobox = (
   }
 
   if (e.key === 'Home') {
-    e.preventDefault()
-    setFocusedTreeOptionIndex(0)
+    e.preventDefault();
+    setFocusedTreeOptionIndex(0);
   }
 
   if (e.key === 'End') {
-    e.preventDefault()
-    setFocusedTreeOptionIndex(treeOptions.length - 1)
+    e.preventDefault();
+    setFocusedTreeOptionIndex(treeOptions.length - 1);
   }
 
-}
+};
 
 // TODO: Replace {name: string, value: string} with option type
 export const handleKeyDownEditableCombobox = (
@@ -97,7 +97,7 @@ export const handleKeyDownEditableCombobox = (
   listboxOptions: Array<{ name: string, value: string }>,
   focusedListboxOptionIndex: number | null,
   setFocusedListboxOptionIndex: React.Dispatch<React.SetStateAction<number | null>>,
-  onEnter: (selectedOption: { name: string, value: string } | null, index: number | null) => void // TODO: Do we even need index?
+  onEnter: (selectedOption: { name: string, value: string } | null, index: number | null) => void, // TODO: Do we even need index?
 ) => {
 
   // 1. Stops focusing any listbox item
@@ -105,26 +105,26 @@ export const handleKeyDownEditableCombobox = (
   // 3. Focuses the element which made the listbox visible
   if (e.key === "Escape") {
     if (listboxDisplayed) { 
-      e.preventDefault()
+      e.preventDefault();
     }
     setFocusedListboxOptionIndex(null);
     if (listboxDisplayed && setListboxDisplayed) {
       setListboxDisplayed(false);
-      comboboxElement.focus()
+      comboboxElement.focus();
     }
   }
 
   if (e.key === 'Home') {
-    e.preventDefault()
+    e.preventDefault();
     if (listboxDisplayed) {
-      setFocusedListboxOptionIndex(0)
+      setFocusedListboxOptionIndex(0);
     }
   }
 
   if (e.key === 'End') {
-    e.preventDefault()
+    e.preventDefault();
     if (listboxDisplayed) {
-      setFocusedListboxOptionIndex(listboxOptions.length - 1)
+      setFocusedListboxOptionIndex(listboxOptions.length - 1);
     }
   }
 
@@ -136,21 +136,21 @@ export const handleKeyDownEditableCombobox = (
   //    2.2. Move focus to the first option  
   // 3. If the menu is open and no option is focused we messed up somewhere, panic ensues and we set focus to the first option
   if (e.key === 'ArrowDown' && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!listboxDisplayed && setListboxDisplayed) {
-      setListboxDisplayed(true)
-      setFocusedListboxOptionIndex(0)
+      setListboxDisplayed(true);
+      setFocusedListboxOptionIndex(0);
     }
 
     if (focusedListboxOptionIndex != null) {
       if (focusedListboxOptionIndex !== listboxOptions.length - 1) {
-        setFocusedListboxOptionIndex(focusedListboxOptionIndex + 1)
+        setFocusedListboxOptionIndex(focusedListboxOptionIndex + 1);
       } else {
-        setFocusedListboxOptionIndex(0)
+        setFocusedListboxOptionIndex(0);
       }
     } else {
-      setFocusedListboxOptionIndex(0)
+      setFocusedListboxOptionIndex(0);
     }
   }
 
@@ -162,21 +162,21 @@ export const handleKeyDownEditableCombobox = (
   //    2.2. Move focus to the last option  
   // 3. If the menu is open and no option is focused we messed up somewhere, panic ensues and we set focus to the first option
   if (e.key === 'ArrowUp' && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!listboxDisplayed && setListboxDisplayed) {
-      setListboxDisplayed(true)
-      setFocusedListboxOptionIndex(0)
+      setListboxDisplayed(true);
+      setFocusedListboxOptionIndex(0);
     }
 
     if (focusedListboxOptionIndex != null) {
       if (focusedListboxOptionIndex !== 0) {
-        setFocusedListboxOptionIndex(focusedListboxOptionIndex - 1)
+        setFocusedListboxOptionIndex(focusedListboxOptionIndex - 1);
       } else {
-        setFocusedListboxOptionIndex(listboxOptions.length - 1)
+        setFocusedListboxOptionIndex(listboxOptions.length - 1);
       }
     } else {
-      setFocusedListboxOptionIndex(0)
+      setFocusedListboxOptionIndex(0);
     }
   }
 
@@ -192,10 +192,10 @@ export const handleKeyDownEditableCombobox = (
   // Therefore we explicitly define backwards tab behavior as prevent a sticky menu 
   // We could also solve this by defining blur on the combobox element itself but this seems like a more elegant solution
   if (e.key === 'Tab' && e.shiftKey && listboxDisplayed && setListboxDisplayed) {
-    e.preventDefault()
-    setListboxDisplayed(false)
-    setFocusedListboxOptionIndex(null)
-    comboboxElement.focus()
+    e.preventDefault();
+    setListboxDisplayed(false);
+    setFocusedListboxOptionIndex(null);
+    comboboxElement.focus();
   }
 };
 
@@ -207,17 +207,17 @@ export function clearEditableCombobox(
   popupElementDisplayed: boolean | undefined, // Wether or not the listbox is displayed/not displayed, or if it is uncontrolled (always open or always closed)  
   setFocusedOptionIndex: React.Dispatch<React.SetStateAction<number | null>>,
 ) {
-  comboboxElement.value = ''
-  setComboboxValue('')
+  comboboxElement.value = '';
+  setComboboxValue('');
   if (popupElementDisplayed) {
     comboboxElement.focus();
   }
-  setFocusedOptionIndex(null)
+  setFocusedOptionIndex(null);
 }
 
 export function scrollOptionIntoView(
   listboxOptionElements: Array<HTMLLIElement | null>,
-  focusedListboxOptionIndex: number | null
+  focusedListboxOptionIndex: number | null,
 ) {
   if (focusedListboxOptionIndex !== null && listboxOptionElements) {
     listboxOptionElements[focusedListboxOptionIndex]?.scrollIntoView({

@@ -23,8 +23,8 @@ export async function generateMetadata(props: { params: Promise<{ goalId: string
       title: t("metadata:login.title"),
       description: t("metadata:login.title"),
       og_url: `/goal/${params.goalId}/edit`,
-      og_image_url: '/images/og_wind.png'
-    })
+      og_image_url: '/images/og_wind.png',
+    });
   }
 
   return buildMetadata({
@@ -32,7 +32,7 @@ export async function generateMetadata(props: { params: Promise<{ goalId: string
     description: currentGoal?.description,
     og_url: `/goal/${params.goalId}/edit`,
     og_image_url: undefined, // TODO METADATA: Use graph api here once ready
-  })
+  });
 }
 
 export default async function Page(props: { params: Promise<{ goalId: string }> }) {
@@ -52,8 +52,8 @@ export default async function Page(props: { params: Promise<{ goalId: string }> 
       viewers: currentGoal.roadmap.viewers,
       editGroups: currentGoal.roadmap.editGroups,
       viewGroups: currentGoal.roadmap.viewGroups,
-      isPublic: currentGoal.roadmap.isPublic
-    }
+      isPublic: currentGoal.roadmap.isPublic,
+    };
   }
   // User must be signed in and have edit access to the goal, and the goal must exist
   if (!currentGoal || !session.user || !accessChecker(goalAccessData, session.user) || accessChecker(goalAccessData, session.user) === AccessLevel.View) {
@@ -69,11 +69,11 @@ export default async function Page(props: { params: Promise<{ goalId: string }> 
       <div className="container-text margin-inline-auto">
         <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
           {t("pages:goal_edit.title", {
-            goalName: !!currentGoal.name ? currentGoal.name : currentGoal.indicatorParameter
+            goalName: !!currentGoal.name ? currentGoal.name : currentGoal.indicatorParameter,
           })}
         </h1>
         <GoalForm roadmapId={currentGoal.roadmapId} currentGoal={currentGoal} roadmapAlternatives={roadmapList} />
       </div>
     </>
-  )
+  );
 }

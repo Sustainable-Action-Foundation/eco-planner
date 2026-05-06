@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { getSession } from "@/lib/session"
+import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@PRISMA-NAMESPACE-ONLY";
 import { AccessLevel, ClientError, isDateValuesWithUnit } from "@/types";
@@ -24,20 +24,20 @@ export async function POST(request: NextRequest) {
   // Validate request body
   if (!actionCreate.name) {
     return Response.json({ message: t('api:common.missing_input') },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   if (!actionCreate.roadmapId) {
     return Response.json({ message: t('api:action.missing_parent') },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   // Validate session
   if (!session.user?.id) {
     return Response.json({ message: t('api:common.unauthorized') },
-      { status: 401, headers: { 'Location': '/login' } }
+      { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     const [user, roadmap, goal] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true }
+        select: { id: true, username: true, isAdmin: true, userGroups: true },
       }),
       prisma.roadmap.findUnique({
         where: { id: actionCreate.roadmapId },
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
           editGroups: { include: { users: { select: { id: true, username: true } } } },
           viewGroups: { include: { users: { select: { id: true, username: true } } } },
           isPublic: true,
-        }
+        },
       }),
       !actionCreate.goalId
         ? null
@@ -73,9 +73,9 @@ export async function POST(request: NextRequest) {
                 editGroups: { include: { users: { select: { id: true, username: true } } } },
                 viewGroups: { include: { users: { select: { id: true, username: true } } } },
                 isPublic: true,
-              }
-            }
-          }
+              },
+            },
+          },
         }),
     ]);
 
@@ -103,8 +103,8 @@ export async function POST(request: NextRequest) {
         editGroups: goal.roadmap.editGroups,
         viewGroups: goal.roadmap.viewGroups,
         isPublic: goal.roadmap.isPublic,
-      }
-      const accessLevel = accessChecker(accessFields, session.user)
+      };
+      const accessLevel = accessChecker(accessFields, session.user);
       if (accessLevel === AccessLevel.None || accessLevel === AccessLevel.View) {
         throw new Error(ClientError.IllegalParent, { cause: 'action' });
       }
@@ -115,17 +115,17 @@ export async function POST(request: NextRequest) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: t(ClientError.StaleData) },
-          { status: 400, headers: { 'Location': '/login' } }
+          { status: 400, headers: { 'Location': '/login' } },
         );
       }
       return Response.json({ message: t(ClientError.IllegalParent) },
-        { status: 403 }
+        { status: 403 },
       );
     } else {
       // If non-error is thrown, log it and return a generic error message
       console.log(error);
       return Response.json({ message: t('api:common.unknown_server_error') },
-        { status: 500 }
+        { status: 500 },
       );
     }
   }
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
   if (actionCreate.dataSeries && !isDateValuesWithUnit(actionCreate.dataSeries)) {
     return Response.json(
       { message: t('api:action.invalid_data_series') },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -163,13 +163,13 @@ export async function POST(request: NextRequest) {
                 create: {
                   author: { connect: { id: session.user.id } },
                   unit: null,
-                  values: { createMany: { data: dateValuesToDBDateRecord(actionCreate.dataSeries.dateValues) } }
-                }
+                  values: { createMany: { data: dateValuesToDBDateRecord(actionCreate.dataSeries.dateValues) } },
+                },
               },
               goal: {
-                connect: { id: actionCreate.goalId }
-              }
-            }
+                connect: { id: actionCreate.goalId },
+              },
+            },
           },
         links: {
           create: actionCreate.links?.map(link => ({
@@ -180,24 +180,24 @@ export async function POST(request: NextRequest) {
         // TODO: Add `Note`s
         author: { connect: { id: session.user.id } },
       },
-      select: { id: true, },
+      select: { id: true },
     })).id;
 
     // Invalidate old cache
     revalidateTag('action', 'max');
     // Return the new action's ID if successful
     return Response.json({ message: t('api:action.action_created'), id: newActionId },
-      { status: 201, headers: { 'Location': `/action/${newActionId}` } }
+      { status: 201, headers: { 'Location': `/action/${newActionId}` } },
     );
   } catch (error) {
     console.log(error);
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
       return Response.json({ message: t('api:action.goal_not_found') },
-        { status: 400 }
+        { status: 400 },
       );
     }
     return Response.json({ message: t('api:common.server_error') },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -215,19 +215,19 @@ export async function PUT(request: NextRequest) {
   // Validate request body
   if (!action.actionId || !action.name) {
     return Response.json({ message: t('api:common.missing_input') },
-      { status: 400 }
+      { status: 400 },
     );
   }
   if (!action.timestamp) {
     return Response.json({ message: t('api:common.missing_input') },
-      { status: 409 }
+      { status: 409 },
     );
   }
 
   // Validate session
   if (!session.user?.id) {
     return Response.json({ message: t('api:common.unauthorized') },
-      { status: 401, headers: { 'Location': '/login' } }
+      { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
@@ -236,7 +236,7 @@ export async function PUT(request: NextRequest) {
     const [user, currentAction] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true }
+        select: { id: true, username: true, isAdmin: true, userGroups: true },
       }),
       prisma.action.findUnique({
         where: { id: action.actionId },
@@ -250,9 +250,9 @@ export async function PUT(request: NextRequest) {
               editGroups: { include: { users: { select: { id: true, username: true } } } },
               viewGroups: { include: { users: { select: { id: true, username: true } } } },
               isPublic: true,
-            }
+            },
           },
-        }
+        },
       }),
     ]);
     // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
@@ -271,8 +271,8 @@ export async function PUT(request: NextRequest) {
       editGroups: currentAction.roadmap.editGroups,
       viewGroups: currentAction.roadmap.viewGroups,
       isPublic: currentAction.roadmap.isPublic,
-    }
-    const accessLevel = accessChecker(accessFields, session.user)
+    };
+    const accessLevel = accessChecker(accessFields, session.user);
     if (accessLevel === AccessLevel.None || accessLevel === AccessLevel.View) {
       throw new Error(ClientError.AccessDenied, { cause: 'action' });
     }
@@ -287,21 +287,21 @@ export async function PUT(request: NextRequest) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
-          { status: 400, headers: { 'Location': '/login' } }
+          { status: 400, headers: { 'Location': '/login' } },
         );
       }
       if (error.message === ClientError.StaleData) {
         return Response.json({ message: ClientError.StaleData },
-          { status: 409 }
+          { status: 409 },
         );
       }
       return Response.json({ message: ClientError.AccessDenied },
-        { status: 403 }
+        { status: 403 },
       );
     } else {
       console.log(error);
       return Response.json({ message: t('api:common.unknown_server_error') },
-        { status: 500 }
+        { status: 500 },
       );
     }
   }
@@ -310,7 +310,7 @@ export async function PUT(request: NextRequest) {
   try {
     const updatedActionId = (await prisma.action.update({
       where: {
-        id: action.actionId
+        id: action.actionId,
       },
       data: {
         name: action.name,
@@ -332,7 +332,7 @@ export async function PUT(request: NextRequest) {
           })),
         },
       },
-      select: { id: true, },
+      select: { id: true },
     })).id;
     // Prune any orphaned links and comments
     await pruneOrphans();
@@ -340,12 +340,12 @@ export async function PUT(request: NextRequest) {
     revalidateTag('action', { expire: 0 });
     // Return the new action's ID if successful
     return Response.json({ message: t('api:action.action_created'), id: updatedActionId },
-      { status: 200, headers: { 'Location': `/action/${updatedActionId}` } }
+      { status: 200, headers: { 'Location': `/action/${updatedActionId}` } },
     );
   } catch (error) {
     console.log(error);
     return Response.json({ message: t('api:common.server_error') },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -356,21 +356,21 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const [session, action] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<{ id: string }>
+    request.json() as Promise<{ id: string }>,
   ]);
   const t = await serveTea("api");
 
   // Validate request body
   if (!action.id) {
     return Response.json({ message: t('api:common.missing_input') },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   // Validate session
   if (!session.user?.id) {
     return Response.json({ message: t('api:common.unauthorized') },
-      { status: 401, headers: { 'Location': '/login' } }
+      { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
@@ -378,7 +378,7 @@ export async function DELETE(request: NextRequest) {
     const [user, currentAction] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true }
+        select: { id: true, username: true, isAdmin: true, userGroups: true },
       }),
       prisma.action.findUnique({
         where: {
@@ -389,8 +389,8 @@ export async function DELETE(request: NextRequest) {
               { authorId: session.user.id },
               { roadmap: { authorId: session.user.id } },
               { roadmap: { metaRoadmap: { authorId: session.user.id } } },
-            ]
-          })
+            ],
+          }),
         },
       }),
     ]);
@@ -410,16 +410,16 @@ export async function DELETE(request: NextRequest) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
-          { status: 400, headers: { 'Location': '/login' } }
+          { status: 400, headers: { 'Location': '/login' } },
         );
       }
       return Response.json({ message: ClientError.AccessDenied },
-        { status: 403 }
+        { status: 403 },
       );
     } else {
       console.log(error);
       return Response.json({ message: t('api:common.unknown_server_error') },
-        { status: 500 }
+        { status: 500 },
       );
     }
   }
@@ -428,16 +428,16 @@ export async function DELETE(request: NextRequest) {
   try {
     const deletedAction = await prisma.action.delete({
       where: {
-        id: action.id
+        id: action.id,
       },
       select: {
         id: true,
         roadmap: {
           select: {
             id: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
     // Prune any orphaned links and comments
     await pruneOrphans();
@@ -445,12 +445,12 @@ export async function DELETE(request: NextRequest) {
     revalidateTag('action', 'max');
     return Response.json({ message: t('api:action.action_deleted'), id: deletedAction.id },
       // Redirect to the parent goal
-      { status: 200, headers: { 'Location': `/roadmap/${deletedAction.roadmap.id}` } }
+      { status: 200, headers: { 'Location': `/roadmap/${deletedAction.roadmap.id}` } },
     );
   } catch (error) {
     console.log(error);
     return Response.json({ message: t('api:common.server_error') },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

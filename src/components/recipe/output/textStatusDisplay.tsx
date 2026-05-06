@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useTranslation } from "react-i18next";
 import { Locales } from "@/../i18n.config";
@@ -22,7 +22,7 @@ export function TextStatus({
       <div lang={Locales.enSE} key="template" className="flex align-items-flex-start gap-50 margin-block-50" style={{ color: 'blue', fontSize: '14px' }}>
         <IconInfoCircle width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="blue" aria-label={t("components:recipe_editor.status.template_recipe_icon_aria_label")} />
         {t("components:recipe_editor.status.template_recipe")}
-      </div>
+      </div>,
     );
     return out;
   }
@@ -33,7 +33,7 @@ export function TextStatus({
       <div lang={Locales.enSE} key="error" className="flex align-items-flex-start gap-50 margin-block-50" style={{ color: 'red', fontSize: '14px' }}>
         <IconCircleXFilled width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="red" aria-label={t("components:copy_and_scale.evaluation_error_title")} />
         {`[EN] ${error}`}
-      </div>
+      </div>,
     );
   }
 
@@ -43,7 +43,7 @@ export function TextStatus({
       <div lang={Locales.enSE} key="no-error" className="flex align-items-flex-start gap-50 margin-block-50" style={{ color: 'green', fontSize: '14px' }}>
         <IconCircleCheckFilled width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="green" /> {/* TODO: Aria-label */}
         {t("components:recipe_editor.no_errors")}
-      </div>
+      </div>,
     );
   }
 
@@ -57,7 +57,7 @@ export function TextStatus({
             {`[EN] ${warning}`}
           </li>
         ))}
-      </ul>
+      </ul>,
     );
   }
 
@@ -67,7 +67,7 @@ export function TextStatus({
       <div lang={Locales.enSE} key={"all-good"} className="flex align-items-flex-start gap-50 margin-block-50" style={{ fontSize: '14px' }} >
         <IconInfoCircle width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="var(--gray-70)" aria-label={t("components:recipe_editor.status.no_issues_icon_aria_label")} />
         {t("components:recipe_editor.no_warnings")}
-      </div>
+      </div>,
     );
   }
 

@@ -118,7 +118,7 @@ export default function GoalChildGraph({
     },
     fill: {
       type: 'solid',
-      opacity: [1, 0.3]
+      opacity: [1, 0.3],
     },
     stroke: { curve: stroke.curve, width: stroke.width },
     markers: { size: isStacked ? 0 : marker.size },
@@ -148,5 +148,5 @@ export default function GoalChildGraph({
       width="100%"
       height="100%"
     />
-  )
+  );
 }

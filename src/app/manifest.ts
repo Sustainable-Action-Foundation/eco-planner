@@ -1,9 +1,9 @@
-import type { MetadataRoute } from 'next'
+import type { MetadataRoute } from 'next';
 import serveTea from "@/lib/i18nServer";
 
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
   
-  const t = await serveTea('metadata')
+  const t = await serveTea('metadata');
   
   return {
     name: t("metadata:default.title"),
@@ -25,5 +25,5 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
         type: 'image/png',
       }, 
     ],
-  }
+  };
 }

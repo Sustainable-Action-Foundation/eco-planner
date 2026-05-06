@@ -53,5 +53,5 @@ export default function SecondaryGoalSelector() {
         </button>
       </div>
     </form>
-  )
+  );
 }

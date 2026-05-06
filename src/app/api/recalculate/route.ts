@@ -19,14 +19,14 @@ export async function POST(request: NextRequest) {
   // Validate request
   if (!requestJson?.dataSeriesId) {
     return Response.json({ message: 'Missing required input parameters' },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   // Validate session
   if (!session.user?.id) {
     return Response.json({ message: 'Unauthorized' },
-      { status: 401, headers: { 'Location': '/login' } }
+      { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     const [user, dataSeries] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true }
+        select: { id: true, username: true, isAdmin: true, userGroups: true },
       }),
       prisma.dataSeries.findUnique({
         where: { id: requestJson.dataSeriesId },
@@ -55,18 +55,18 @@ export async function POST(request: NextRequest) {
           dependentGoals: {
             select: {
               roadmap: { select: roadmapAccessSelect },
-            }
+            },
           },
           dependentBaselines: {
             select: {
               roadmap: { select: roadmapAccessSelect },
-            }
+            },
           },
           dependentEffects: {
             select: {
               action: { select: { roadmap: { select: roadmapAccessSelect } } },
               goal: { select: { roadmap: { select: roadmapAccessSelect } } },
-            }
+            },
           },
         },
       }),
@@ -92,17 +92,17 @@ export async function POST(request: NextRequest) {
       dataSeries.dependentGoals.some((goal) => hasEditRoadmapAccess(goal.roadmap)) ||
       dataSeries.dependentBaselines.some((goal) => hasEditRoadmapAccess(goal.roadmap)) ||
       dataSeries.dependentEffects.some((effect) =>
-        hasEditRoadmapAccess(effect.action.roadmap) && hasEditRoadmapAccess(effect.goal.roadmap)
+        hasEditRoadmapAccess(effect.action.roadmap) && hasEditRoadmapAccess(effect.goal.roadmap),
       );
 
     if (!hasEditAccessToDataSeries) {
-      throw new Error(ClientError.AccessDenied)
+      throw new Error(ClientError.AccessDenied);
     }
 
     // Nothing beside the recipe has the information needed to recalculate the goal's data series now after the great recipe implementation.
     if (!dataSeries.recipeUsedId) {
       return Response.json({ message: "Data series has no recipe to recalculate from" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
     const dbRecipe = await getOneRecipe(dataSeries.recipeUsedId);
     if (!dbRecipe) {
       return Response.json({ message: "Recipe was not found." },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -131,13 +131,13 @@ export async function POST(request: NextRequest) {
 
     if (!evaluationResult) {
       return Response.json({ message: "Recipe evaluation failed." },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     if (!evaluationResult.dateValues) {
       return Response.json({ message: "Recipe evaluation did not return any data." },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -148,14 +148,14 @@ export async function POST(request: NextRequest) {
 
     if (!isDateValues(evaluationResult.dateValues)) {
       return Response.json({ message: "Failed to update data series. The recipe used may have caused the issue." },
-        { status: 500 }
+        { status: 500 },
       );
     };
 
     const updatedDataSeries = await prisma.dataSeries.update({
       where: { id: requestJson.dataSeriesId },
       data: {
-        values: { createMany: { data: dateValuesToDBDateRecord(evaluationResult.dateValues), }, },
+        values: { createMany: { data: dateValuesToDBDateRecord(evaluationResult.dateValues) } },
         // Unit === null -> remove unit
         // Unit === undefined -> omit (keep current unit)
         // Unit === string -> update unit
@@ -171,7 +171,7 @@ export async function POST(request: NextRequest) {
     // Invalidate old cache
     revalidateTag('dataSeries', 'max');
     return Response.json({ message: "Data series updated", id: updatedDataSeries.id },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     if (error instanceof Error) {
@@ -179,21 +179,21 @@ export async function POST(request: NextRequest) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
-          { status: 400, headers: { 'Location': '/login' } }
+          { status: 400, headers: { 'Location': '/login' } },
         );
       } else if (error.message === ClientError.AccessDenied) {
         return Response.json({ message: ClientError.AccessDenied },
-          { status: 403 }
+          { status: 403 },
         );
       } else if (error instanceof RecipeError) {
         return Response.json({ message: error.message },
-          { status: 500 }
+          { status: 500 },
         );
       }
     }
     console.log(error);
     return Response.json({ message: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -28,7 +28,7 @@ for (const [key, colorFunc] of Object.entries(consoleColors)) {
     } else {
       __console[key as keyof typeof consoleColors](...args.map((arg, index) => color(String(styleByType(arg, { index: index, argCount: args.length, breakLine: true })))));
     }
-  }
+  };
 }
 
 function styleByType(value: unknown, options: Options): unknown {

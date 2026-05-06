@@ -25,7 +25,7 @@ const roadmapSubsetSelect = {
   ...multiRoadmapInclusionSelection,
   goals: { select: { id: true } },
   actions: { select: { id: true } },
-}
+};
 
 /**
  * Caches a subset of roadmaps the user has access to, based on the parameters passed to the function.
@@ -34,8 +34,8 @@ const roadmapSubsetSelect = {
  * @param actor Actor to filter by
  */
 async function getCachedRoadmapSubset(user: LoginData['user'], actor?: string) {
-  'use cache'
-  cacheTag('database', 'roadmap')
+  'use cache';
+  cacheTag('database', 'roadmap');
   let roadmaps: Prisma.RoadmapGetPayload<{
     include: typeof roadmapSubsetSelect;
   }>[];
@@ -47,7 +47,7 @@ async function getCachedRoadmapSubset(user: LoginData['user'], actor?: string) {
         where: {
           metaRoadmap: { actor: actor ?? undefined },
         },
-        include: roadmapSubsetSelect
+        include: roadmapSubsetSelect,
       });
     } catch (error) {
       console.log(error);
@@ -74,9 +74,9 @@ async function getCachedRoadmapSubset(user: LoginData['user'], actor?: string) {
             { editGroups: { some: { users: { some: { id: user.id } } } } },
             { viewGroups: { some: { users: { some: { id: user.id } } } } },
             { isPublic: true },
-          ]
+          ],
         },
-        include: roadmapSubsetSelect
+        include: roadmapSubsetSelect,
       });
     } catch (error) {
       console.log(error);
@@ -97,7 +97,7 @@ async function getCachedRoadmapSubset(user: LoginData['user'], actor?: string) {
         metaRoadmap: { actor: actor ?? undefined },
         isPublic: true,
       },
-      include: roadmapSubsetSelect
+      include: roadmapSubsetSelect,
     });
   } catch (error) {
     console.log(error);

@@ -408,7 +408,7 @@ export function isEmptyRecipe(recipe: Recipe): boolean {
 
 export function isEvalTimeVariable(
   variable: unknown,
-  options: { silent?: boolean } = {}
+  options: { silent?: boolean } = {},
 ): variable is EvalTimeVariable {
   const warn = (...args: unknown[]) => !!options.silent ? undefined : console.warn(...args);
 

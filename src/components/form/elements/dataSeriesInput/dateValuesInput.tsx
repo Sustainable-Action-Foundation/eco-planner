@@ -60,13 +60,13 @@ export default function DateValuesInput({
     () =>
       isStartISOValid
       && (!isEndISOValid || Number(visualStartYear) < Number(visualEndYear)),
-    [isStartISOValid, isEndISOValid, visualStartYear, visualEndYear]
+    [isStartISOValid, isEndISOValid, visualStartYear, visualEndYear],
   );
   const isEndDateValid = useMemo(
     () =>
       isEndISOValid
       && (!isStartISOValid || Number(visualEndYear) > Number(visualStartYear)),
-    [isEndISOValid, isStartISOValid, visualEndYear, visualStartYear]
+    [isEndISOValid, isStartISOValid, visualEndYear, visualStartYear],
   );
 
   useEffect(() => setVisualStartYear(String(new Date(startDate).getUTCFullYear())), [startDate]);
@@ -107,7 +107,7 @@ export default function DateValuesInput({
               ? t("forms:data_series_input.hide_table")
               : t("forms:data_series_input.show_table")
             }
-            onClick={() => { setTableIsVisible(!tableIsVisible) }}
+            onClick={() => { setTableIsVisible(!tableIsVisible); }}
           >
             {tableIsVisible
               ? <>
@@ -230,5 +230,5 @@ export default function DateValuesInput({
         )}
       </fieldset>
     </>
-  )
+  );
 }

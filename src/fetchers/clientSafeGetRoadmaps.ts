@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session";
 import { roadmapSorter } from "@/lib/sorters";
-import { cacheTag } from 'next/cache'
+import { cacheTag } from 'next/cache';
 import type { ClientMultiRoadmapInstance } from "@/types";
 
 /**
@@ -30,7 +30,7 @@ async function getCachedClientSafeRoadmaps(user: LoginData['user']): Promise<Cli
   if (user?.isAdmin) {
     try {
       roadmaps = await prisma.roadmap.findMany({
-        select: clientSafeMultiRoadmapSelection
+        select: clientSafeMultiRoadmapSelection,
       }) satisfies ClientMultiRoadmapInstance[];
     } catch (error) {
       console.log(error);
@@ -56,10 +56,10 @@ async function getCachedClientSafeRoadmaps(user: LoginData['user']): Promise<Cli
             { viewers: { some: { id: user.id } } },
             { editGroups: { some: { users: { some: { id: user.id } } } } },
             { viewGroups: { some: { users: { some: { id: user.id } } } } },
-            { isPublic: true }
-          ]
+            { isPublic: true },
+          ],
         },
-        select: clientSafeMultiRoadmapSelection
+        select: clientSafeMultiRoadmapSelection,
       }) satisfies ClientMultiRoadmapInstance[];
     } catch (error) {
       console.log(error);
@@ -77,9 +77,9 @@ async function getCachedClientSafeRoadmaps(user: LoginData['user']): Promise<Cli
   try {
     roadmaps = await prisma.roadmap.findMany({
       where: {
-        isPublic: true
+        isPublic: true,
       },
-      select: clientSafeMultiRoadmapSelection
+      select: clientSafeMultiRoadmapSelection,
     }) satisfies ClientMultiRoadmapInstance[];
   } catch (error) {
     console.log(error);

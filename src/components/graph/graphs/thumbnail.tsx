@@ -1,5 +1,5 @@
 import WrappedChart from "@/lib/chartWrapper";
-import styles from '../graph.module.css'
+import styles from '../graph.module.css';
 import type { ApiTableContent } from "@/lib/api/apiTypes";
 import { parsePeriod } from "@/lib/api/utility";
 import getTableContent from "@/lib/api/getTableContent";
@@ -16,7 +16,7 @@ type ThumbnailGoal = Pick<
 
 export default async function ThumbnailGraph({
   goal,
-  historicalData
+  historicalData,
 }: {
   goal: ThumbnailGoal,
   historicalData?: boolean,
@@ -72,7 +72,7 @@ export default async function ThumbnailGraph({
     }
 
     colors.push(color_palette.historical.color);
-    opacities.push(color_palette.historical.fillOpacity)
+    opacities.push(color_palette.historical.fillOpacity);
   }
 
   const mainChartOptions: ApexCharts.ApexOptions = {
@@ -90,7 +90,7 @@ export default async function ThumbnailGraph({
     fill: {
       type: 'solid',
       colors: colors,
-      opacity: opacities
+      opacity: opacities,
     },
     tooltip: { enabled: false },
     stroke: { curve: 'straight', width: 1.5 },
@@ -105,12 +105,12 @@ export default async function ThumbnailGraph({
           : {}),
       ...(sortedMainEntries[sortedMainEntries.length - 1]
         ? { max: new Date(sortedMainEntries[sortedMainEntries.length - 1][0]).getTime() }
-        : {})
+        : {}),
     },
     yaxis: {
-      show: false
-    }
-  }
+      show: false,
+    },
+  };
 
   return (
     <>
@@ -128,5 +128,5 @@ export default async function ThumbnailGraph({
         </div>
       </div>
     </>
-  )
+  );
 }

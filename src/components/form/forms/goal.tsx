@@ -76,7 +76,7 @@ export default function GoalForm({
   const parentRoadmaps = useMemo(() => {
     return (roadmapAlternatives ?? []).map(roadmap => ({
       name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version }),
-      value: roadmap.id
+      value: roadmap.id,
     }));
   }, [roadmapAlternatives, t]);
 
@@ -173,7 +173,7 @@ export default function GoalForm({
 
       const firstDateValue = baselineType === BaselineType.InitialNonZero
         ? dataSeries.dateValues[dates.find(date => dataSeries.dateValues[date] !== 0) || dates[0]]
-        : dataSeries.dateValues[dates[0]]
+        : dataSeries.dateValues[dates[0]];
 
       for (const date of dates) {
         baseline.dateValues[date] = firstDateValue;
@@ -463,5 +463,5 @@ export default function GoalForm({
         </div>
       </form >
     </>
-  )
+  );
 }

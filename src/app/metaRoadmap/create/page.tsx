@@ -9,14 +9,14 @@ import { buildMetadata } from '@/functions/buildMetadata';
 import type { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await serveTea("metadata")
+  const t = await serveTea("metadata");
 
   return buildMetadata({
     title: t("metadata:roadmap_series_create.title"),
     description: t("metadata:roadmap_series_create.description"),
     og_url: `/metaRoadmap/create`,
-    og_image_url: undefined
-  })
+    og_image_url: undefined,
+  });
 }
 
 export default async function Page() {
@@ -46,5 +46,5 @@ export default async function Page() {
         />
       </div>
     </>
-  )
+  );
 }

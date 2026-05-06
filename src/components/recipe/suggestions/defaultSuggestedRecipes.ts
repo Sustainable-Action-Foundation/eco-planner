@@ -150,6 +150,6 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
     {
       id: "scalar-recipe-dummy-uuid",
       recipe: scalarRecipe.serialize(),
-    }
+    },
   ] satisfies DBRecipe[];
 }

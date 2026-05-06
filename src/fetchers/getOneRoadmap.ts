@@ -1,7 +1,7 @@
 import "server-only";
 import { roadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import type { LoginData } from "@/lib/session";
-import { getSession } from "@/lib/session"
+import { getSession } from "@/lib/session";
 import { goalSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
 import { cacheTag } from "next/cache";
@@ -17,7 +17,7 @@ import type { Roadmap } from "@/types";
  */
 export async function getOneRoadmap(id: string): Promise<Roadmap | null> {
   const session = await getSession(await cookies());
-  return await getCachedRoadmap(id, session.user)
+  return await getCachedRoadmap(id, session.user);
 }
 
 /**
@@ -27,7 +27,7 @@ export async function getOneRoadmap(id: string): Promise<Roadmap | null> {
  * @param user Data from user's session cookie.
  */
 async function getCachedRoadmap(id: string, user: LoginData['user']) {
-  'use cache'
+  'use cache';
   cacheTag('database', 'roadmap', 'goal', 'action');
   let roadmap: Roadmap | null;
 
@@ -36,11 +36,11 @@ async function getCachedRoadmap(id: string, user: LoginData['user']) {
     try {
       roadmap = await prisma.roadmap.findUnique({
         where: { id },
-        include: roadmapInclusionSelection
+        include: roadmapInclusionSelection,
       }) satisfies Roadmap | null;
     } catch (error) {
       console.error(`Error fetching admin roadmap with ID ${id}:`, error);
-      return null
+      return null;
     }
 
     roadmap?.goals.sort(goalSorter);
@@ -60,14 +60,14 @@ async function getCachedRoadmap(id: string, user: LoginData['user']) {
             { viewers: { some: { id: user.id } } },
             { editGroups: { some: { users: { some: { id: user.id } } } } },
             { viewGroups: { some: { users: { some: { id: user.id } } } } },
-            { isPublic: true }
-          ]
+            { isPublic: true },
+          ],
         },
-        include: roadmapInclusionSelection
+        include: roadmapInclusionSelection,
       }) satisfies Roadmap | null;
     } catch (error) {
       console.error(`Error fetching roadmap with ID ${id} for user ${user.id}:`, error);
-      return null
+      return null;
     }
 
     roadmap?.goals.sort(goalSorter);
@@ -82,11 +82,11 @@ async function getCachedRoadmap(id: string, user: LoginData['user']) {
         id,
         isPublic: true,
       },
-      include: roadmapInclusionSelection
+      include: roadmapInclusionSelection,
     }) satisfies Roadmap | null;
   } catch (error) {
     console.error(`Error fetching public roadmap with ID ${id}:`, error);
-    return null
+    return null;
   }
 
   roadmap?.goals.sort(goalSorter);

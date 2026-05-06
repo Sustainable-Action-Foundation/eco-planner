@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useEffect, useState, useRef, useMemo } from "react"
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import styles from './comboBox.module.css' with { type: "css" }
+import styles from './comboBox.module.css' with { type: "css" };
 import type { InputElement, Option } from "@/components/types";
 import { clearEditableCombobox, handleKeyDownEditableCombobox, preventInvalidFormSubmission, scrollOptionIntoView } from "./functions";
 import type { IFuseOptions } from "fuse.js";
@@ -27,7 +27,7 @@ export default function SelectSingleSearch({
   const { t } = useTranslation(["forms"]);
 
   // TODO: We probably need a check that default value exists in our options
-  const [value, setValue] = useState<Option | null>(null)
+  const [value, setValue] = useState<Option | null>(null);
 
   // Syncs default value to value
   // NOTE: Might want to explore if we can make this a controlled component (i.e Move state ownership to its parent) (would mean treating value and defaultvalue as any other standard input does)
@@ -57,9 +57,9 @@ export default function SelectSingleSearch({
   }, [defaultValue, options, value]);
 
 
-  const [menuOpen, setMenuOpen] = useState<boolean>(false)
+  const [menuOpen, setMenuOpen] = useState<boolean>(false);
   const [focusedListboxOption, setFocusedListboxOption] = useState<number | null>(null);
-  const [searchValue, setSearchValue] = useState<string>('')
+  const [searchValue, setSearchValue] = useState<string>('');
   const [selectionMade, setSelectionMade] = useState(false); // TODO: Rename to something better
   const toggleRef = useRef<HTMLButtonElement>(null); // TODO: Rename?
   const searchRef = useRef<HTMLInputElement>(null);
@@ -67,7 +67,7 @@ export default function SelectSingleSearch({
 
   const fuse = useMemo(() => new Fuse(options, {
     keys: ['name'],
-    ...(fuseOptions ?? {})
+    ...(fuseOptions ?? {}),
   }), [options, fuseOptions]);
 
   const searchResults = useMemo(() => {
@@ -86,22 +86,22 @@ export default function SelectSingleSearch({
   }, [value, props.required]);
 
   useEffect(() => {
-    if (!toggleRef.current) return
-    return preventInvalidFormSubmission(toggleRef.current, valueIsValid)
+    if (!toggleRef.current) return;
+    return preventInvalidFormSubmission(toggleRef.current, valueIsValid);
   }, [valueIsValid]);
 
   useEffect(() => {
-    if (!searchRef.current) return
+    if (!searchRef.current) return;
     clearEditableCombobox(
       searchRef.current,
       setSearchValue,
       menuOpen,
-      setFocusedListboxOption
-    )
+      setFocusedListboxOption,
+    );
   }, [menuOpen]);
 
   useEffect(() => {
-    scrollOptionIntoView(optionRefs.current, focusedListboxOption)
+    scrollOptionIntoView(optionRefs.current, focusedListboxOption);
   }, [focusedListboxOption]);
 
   return (
@@ -117,7 +117,7 @@ export default function SelectSingleSearch({
         name={props.name}
         disabled={props.disabled}
         ref={toggleRef}
-        onClick={() => { setMenuOpen(!menuOpen) }}
+        onClick={() => { setMenuOpen(!menuOpen); }}
         role="combobox"
         type="button"
         aria-controls={menuOpen ? `${props.id}-dialog` : undefined}
@@ -140,7 +140,7 @@ export default function SelectSingleSearch({
         }
         onBlur={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget?.id !== props.id) {
-            setFocusedListboxOption(null)
+            setFocusedListboxOption(null);
             setMenuOpen(false);
           }
         }}
@@ -175,8 +175,8 @@ export default function SelectSingleSearch({
                   setMenuOpen(false);
                   toggleRef.current?.focus();
                   if (onChange) onChange(selectedOption?.value !== value?.value ? selectedOption : null);
-                }
-              )
+                },
+              );
             }}
             role="combobox"
             aria-controls={`${props.id}-dialog-listbox`}
@@ -199,7 +199,7 @@ export default function SelectSingleSearch({
                 key={option.value}
                 id={`${props.id}-dialog-listbox-${index}`}
                 className={index === focusedListboxOption ? styles['focused-option'] : ''}
-                ref={(el) => { optionRefs.current[index] = el }}
+                ref={(el) => { optionRefs.current[index] = el; }}
                 onClick={() => {
                   setValue(option.value !== value?.value ? option : null);
                   setSelectionMade(true);
@@ -220,5 +220,5 @@ export default function SelectSingleSearch({
         </ul>
       </div>
     </div>
-  )
+  );
 }

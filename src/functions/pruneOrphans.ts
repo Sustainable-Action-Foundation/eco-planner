@@ -13,8 +13,8 @@ export default async function pruneOrphans() {
             { goalId: null },
             { roadmapId: null },
             { metaRoadmapId: null },
-          ]
-        }
+          ],
+        },
       }),
       prisma.comment.deleteMany({
         where: {
@@ -23,13 +23,13 @@ export default async function pruneOrphans() {
             { goalId: null },
             { roadmapId: null },
             { metaRoadmapId: null },
-          ]
-        }
+          ],
+        },
       }),
     ]);
     return true;
   }
   catch {
-    return false
+    return false;
   }
 }

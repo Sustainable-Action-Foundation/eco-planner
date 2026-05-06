@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import WrappedChart from "@/lib/chartWrapper";
 import { actionGraphSorter } from "@/lib/sorters";
@@ -14,7 +14,7 @@ export default function ActionGraph({
   const { t } = useTranslation("graphs");
 
   const series: ApexAxisChartSeries = [];
-  const actionData = []
+  const actionData = [];
 
   // The string '2020' is interpreted as a year while the number 2020 is interpreted as a timestamp
   for (const action of actions) {
@@ -24,18 +24,18 @@ export default function ActionGraph({
       x: action.name,
       y: [
         new Date((action.startYear ?? 2020).toString()).getTime(),
-        new Date((action.endYear ?? 2050).toString()).getTime()
-      ]
-    })
+        new Date((action.endYear ?? 2050).toString()).getTime(),
+      ],
+    });
   }
 
-  actionData.sort(actionGraphSorter)
+  actionData.sort(actionGraphSorter);
 
   series.push({
     name: t("graphs:action_graph.actions"),
     data: actionData,
     type: 'rangeBar',
-  })
+  });
 
   // Add empty buffers as a cheap fix for padding not behaving
   actionData.unshift({ x: ' ', y: [null, null] });
@@ -50,8 +50,8 @@ export default function ActionGraph({
       animations: {
         enabled: false,
         dynamicAnimation: {
-          enabled: false
-        }
+          enabled: false,
+        },
       },
       toolbar: {
         show: false,
@@ -59,19 +59,19 @@ export default function ActionGraph({
     },
     fill: {
       type: 'solid',
-      colors: ['var(--blue-40)']
+      colors: ['var(--blue-40)'],
     },
     states: {
       active: {
-        filter: { type: 'none' }
-      }
+        filter: { type: 'none' },
+      },
     },
     dataLabels: {
       enabled: true,
       textAnchor: 'start',
       style: {
         fontWeight: 'normal',
-        colors: ['white']
+        colors: ['white'],
       },
       formatter: function (val, opts?: { dataPointIndex: number, w: { globals: { labels: string[] } } }) {
         if (!opts || !("w" in opts) || !("globals" in opts.w) || !("labels" in opts.w.globals) || !("dataPointIndex" in opts) || typeof opts.dataPointIndex !== 'number' || !Array.isArray(opts.w.globals.labels) || opts.w.globals.labels.some(label => typeof label !== 'string')) return val;
@@ -89,12 +89,12 @@ export default function ActionGraph({
         horizontal: true,
         barHeight: '32px',
         borderRadius: 2,
-        borderRadiusApplication: 'end'
+        borderRadiusApplication: 'end',
       },
     },
     grid: {
       xaxis: { lines: { show: true } },
-      yaxis: { lines: { show: false } }
+      yaxis: { lines: { show: false } },
     },
     annotations: {
       xaxis: [
@@ -115,7 +115,7 @@ export default function ActionGraph({
             text: new Date().toLocaleDateString('en-GB', { /* TODO: i18n */
               day: 'numeric',
               month: 'short',
-              year: 'numeric'
+              year: 'numeric',
             }),
           },
           strokeDashArray: 0,
@@ -133,7 +133,7 @@ export default function ActionGraph({
         style: {
           fontSize: '14px',
           fontFamily: 'system-ui',
-          colors: 'black'
+          colors: 'black',
         },
       },
       axisBorder: { /* TODO: add colors for this and grid */
@@ -146,12 +146,12 @@ export default function ActionGraph({
       show: false,
     },
     tooltip: {
-      x: { format: 'yyyy' }
+      x: { format: 'yyyy' },
     },
-  }
+  };
 
-  const height = `${100 + (series[0].data.length * 32)}px`
-  const widht = `${(31 * 100)}px` /* represents one tick... TODO: Need to get the amount (32) dynamically */
+  const height = `${100 + (series[0].data.length * 32)}px`;
+  const widht = `${(31 * 100)}px`; /* represents one tick... TODO: Need to get the amount (32) dynamically */
 
   /* TODO: Would be ideal to scroll directly to annnotation and have the labels be fixed so they follow scroll. 
   Maybe there is some css solution for that which allows us to fix padding for the labels aswell */

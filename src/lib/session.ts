@@ -26,7 +26,7 @@ export const options: SessionOptions = {
     // Uses https in production and http in development
     secure: process.env.NODE_ENV === "production" && process.env.TEST_ENVIRONMENT !== "testing",
   },
-}
+};
 
 /**
  * Reads login data from cookies

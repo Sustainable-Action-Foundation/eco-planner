@@ -4,7 +4,7 @@ import mathjs from "@/math";
 import type { Unit } from "mathjs";
 import type { ApiTableContent } from "@/lib/api/apiTypes";
 import type { RecipeExtractionOutput, RecipeVariable, SerializedRecipe, SerializedRecipeShape } from "@/functions/recipe";
-import { isEvalTimeVariable, isRecipe, MathjsError, RecipeError, parseDateValuesFromVector, transformDateValuesToVector, ANDMasks, extractDataSeries, extractExternalDatasets, extractScalars, isEvalTimeSeries, } from "@/functions/recipe";
+import { isEvalTimeVariable, isRecipe, MathjsError, RecipeError, parseDateValuesFromVector, transformDateValuesToVector, ANDMasks, extractDataSeries, extractExternalDatasets, extractScalars, isEvalTimeSeries } from "@/functions/recipe";
 import { sanityCheckDataSeries, sanityCheckExternalDatasets, sanityCheckScalars } from "@/functions/recipe/sanityChecks";
 
 export class Recipe {
@@ -40,7 +40,7 @@ export class Recipe {
   public async checkValidity(): Promise<{ good: boolean, error: string | undefined, warnings: string[] | undefined }> {
     if (this.isTemplate()) {
       console.info("Recipe contains template variables, skipping validity check.");
-      return { good: true, error: undefined, warnings: undefined, };
+      return { good: true, error: undefined, warnings: undefined };
     }
 
     const warnings: string[] = [];
@@ -52,7 +52,7 @@ export class Recipe {
       return {
         good: true,
         error: undefined,
-        warnings: warnings.length ? warnings : undefined
+        warnings: warnings.length ? warnings : undefined,
       };
     }
     catch (e) {
@@ -73,7 +73,7 @@ export class Recipe {
       return {
         good: false,
         error: friendlyMessage,
-        warnings: warnings.length ? warnings : undefined
+        warnings: warnings.length ? warnings : undefined,
       };
     }
   }
@@ -94,7 +94,7 @@ export class Recipe {
     options?: {
       dataSeriesGetter?: (dataSeriesId: string) => Promise<DataSeries | null>;
       externalTableContentGetter?: (tableId: string, dataset: string, selection: { variableCode: string, valueCodes: string[] }[]) => Promise<ApiTableContent | null>;
-    }
+    },
   ): Promise<DateValuesWithUnit | null> {
     const serialized = this.serialize();
     const asObject = JSON.parse(serialized) as JSONValue;
@@ -293,7 +293,7 @@ export class Recipe {
       {
         vector: result,
         mask: outputMask,
-      }
+      },
     );
   }
 

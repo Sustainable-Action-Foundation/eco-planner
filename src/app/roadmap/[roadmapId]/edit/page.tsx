@@ -10,11 +10,11 @@ import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }) {
-  const params = await props.params
+  const params = await props.params;
   const [t, session, roadmap] = await Promise.all([
     serveTea("metadata"),
     getSession(await cookies()),
-    getOneRoadmap(params.roadmapId)
+    getOneRoadmap(params.roadmapId),
   ]);
 
   if (!session.user?.isLoggedIn) {
@@ -22,16 +22,16 @@ export async function generateMetadata(props: { params: Promise<{ roadmapId: str
       title: t("metadata:login.title"),
       description: t("metadata:login.title"),
       og_url: `/roadmap/${params.roadmapId}/edit`,
-      og_image_url: '/images/og_wind.png'
-    })
+      og_image_url: '/images/og_wind.png',
+    });
   }
 
   return buildMetadata({
     title: `${t("metadata:roadmap_edit.title")} ${roadmap?.metaRoadmap.name}`,
     description: roadmap?.description || roadmap?.metaRoadmap.description,
     og_url: `/roadmap/${params.roadmapId}/edit`,
-    og_image_url: undefined
-  })
+    og_image_url: undefined,
+  });
 }
 
 
@@ -43,7 +43,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
     getOneRoadmap(params.roadmapId),
   ]);
 
-  const access = accessChecker(roadmap, session.user)
+  const access = accessChecker(roadmap, session.user);
 
   // User must be signed in and have edit access to the roadmap, which must exist
   if (!session.user || !roadmap || access === AccessLevel.None || access === AccessLevel.View) {
@@ -65,5 +65,5 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
         />
       </div>
     </>
-  )
+  );
 }

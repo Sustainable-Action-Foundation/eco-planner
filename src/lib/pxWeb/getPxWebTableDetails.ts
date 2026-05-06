@@ -57,7 +57,7 @@ export default async function getPxWebTableDetails(tableId: string, externalData
   }
 
   // Find all time periods for the table and add to tableDetails
-  const timeCategory = data.dimension.Tid.category
+  const timeCategory = data.dimension.Tid.category;
   for (const timeVariableName in timeCategory.index) {
     const pxWebItem = data.dimension.Tid;
     const pxWebTimeVariable: PxWebTimeVariable = {
@@ -75,7 +75,7 @@ export default async function getPxWebTableDetails(tableId: string, externalData
 
   // Find all variables for the table and add to tableDetails
   for (const variableName of data.extension.px.stub) {
-    const pxWebItem = data.dimension[variableName]
+    const pxWebItem = data.dimension[variableName];
     const pxWebVariable: PxWebVariable = {
       type: "variable",
       id: variableName,

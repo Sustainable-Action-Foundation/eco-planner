@@ -1,6 +1,6 @@
 import "server-only";
 import type { LoginData } from "@/lib/session";
-import { getSession } from "@/lib/session"
+import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { roadmapSorter } from "@/lib/sorters";
 import { cacheTag } from "next/cache";
@@ -14,7 +14,7 @@ import type { MultiRoadmapInstance } from "@/types";
  * Returns an empty array if no roadmaps are found or user does not have access to any. Also returns an empty array on error.
  * @returns Array of roadmaps
  */
-export async function getRoadmaps(roadmapIds?: string[],): Promise<MultiRoadmapInstance[]> {
+export async function getRoadmaps(roadmapIds?: string[]): Promise<MultiRoadmapInstance[]> {
   const session = await getSession(await cookies());
   return getCachedRoadmaps(session.user, roadmapIds);
 }
@@ -24,8 +24,8 @@ export async function getRoadmaps(roadmapIds?: string[],): Promise<MultiRoadmapI
  * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap']`, which is done in relevant API routes.
  * @param user Data from user's session cookie.
  */
-async function getCachedRoadmaps(user: LoginData['user'], roadmapIds?: string[],): Promise<MultiRoadmapInstance[]> {
-  'use cache'
+async function getCachedRoadmaps(user: LoginData['user'], roadmapIds?: string[]): Promise<MultiRoadmapInstance[]> {
+  'use cache';
   cacheTag('database', 'roadmap');
   let roadmaps: MultiRoadmapInstance[];
 
@@ -34,7 +34,7 @@ async function getCachedRoadmaps(user: LoginData['user'], roadmapIds?: string[],
     try {
       roadmaps = await prisma.roadmap.findMany({
         ...(roadmapIds ? { where: { id: { in: roadmapIds } } } : {}), // If roadmapIds is provided, filter by it
-        include: multiRoadmapInclusionSelection
+        include: multiRoadmapInclusionSelection,
       }) satisfies MultiRoadmapInstance[];
     } catch (error) {
       console.log(error);
@@ -61,10 +61,10 @@ async function getCachedRoadmaps(user: LoginData['user'], roadmapIds?: string[],
             { viewers: { some: { id: user.id } } },
             { editGroups: { some: { users: { some: { id: user.id } } } } },
             { viewGroups: { some: { users: { some: { id: user.id } } } } },
-            { isPublic: true }
-          ]
+            { isPublic: true },
+          ],
         },
-        include: multiRoadmapInclusionSelection
+        include: multiRoadmapInclusionSelection,
       }) satisfies MultiRoadmapInstance[];
     } catch (error) {
       console.log(error);
@@ -85,7 +85,7 @@ async function getCachedRoadmaps(user: LoginData['user'], roadmapIds?: string[],
         ...(roadmapIds ? { id: { in: roadmapIds } } : {}), // If roadmapIds is provided, filter by it
         isPublic: true,
       },
-      include: multiRoadmapInclusionSelection
+      include: multiRoadmapInclusionSelection,
     }) satisfies MultiRoadmapInstance[];
   } catch (error) {
     console.log(error);

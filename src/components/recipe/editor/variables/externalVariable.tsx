@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "../recipeEditorPermissions";
@@ -44,7 +44,7 @@ export function VariableTypeExternal({
         <span style={{ whiteSpace: "nowrap", maxWidth: '400px', textOverflow: 'ellipsis', overflow: 'hidden' }}>{t("components:recipe_editor.selection")}: {JSON.stringify(variable.selection) || ""}</span>
       </div>
     </>
-  )
+  );
 }
 
 export function VariableTypeExternalSimple({
@@ -86,7 +86,7 @@ export function VariableTypeExternalSimple({
           disabled={!permissions.allowValueEditing}
           onChange={(e) => upsertVariable(variableId, prev => prev.type === RecipeDataTypes.External
             ? { ...prev, dataset: isDataSetKeys(e.target.value) ? e.target.value : prev.dataset }
-            : prev
+            : prev,
           )}
         >
           <option value="">{t("components:recipe_editor.dataset")}</option>
@@ -103,7 +103,7 @@ export function VariableTypeExternalSimple({
           value={variable.tableId || ""}
           onChange={(e) => upsertVariable(variableId, prev => prev.type === RecipeDataTypes.External
             ? { ...prev, tableId: e.target.value }
-            : prev
+            : prev,
           )}
           type="text"
           disabled={!permissions.allowValueEditing}
@@ -118,9 +118,9 @@ export function VariableTypeExternalSimple({
             ? {
               ...prev, selection: isStringifiedExternalSelection(e.target.value)
                 ? JSON.parse(e.target.value) as ExternalVariable["selection"]
-                : prev.selection
+                : prev.selection,
             }
-            : prev
+            : prev,
           )}
           type="text"
           disabled={!permissions.allowValueEditing}
@@ -128,5 +128,5 @@ export function VariableTypeExternalSimple({
         />
       </div>
     </div>
-  )
+  );
 }

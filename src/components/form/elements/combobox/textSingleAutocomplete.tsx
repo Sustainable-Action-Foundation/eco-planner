@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
 import { IconChevronDown } from "@tabler/icons-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import styles from './comboBox.module.css' with { type: "css" }
+import styles from './comboBox.module.css' with { type: "css" };
 import type { IFuseOptions } from "fuse.js";
 import Fuse from "fuse.js";
 import { useTranslation } from "react-i18next";
@@ -35,7 +35,7 @@ export default function TextSingleAutocomplete({
 
   const fuse = useMemo(() => new Fuse(options, { 
     keys: ['name'], 
-    ...(fuseOptions ?? {}) 
+    ...(fuseOptions ?? {}), 
   }), [options, fuseOptions]);
 
   const searchResults = useMemo(() => {
@@ -47,13 +47,13 @@ export default function TextSingleAutocomplete({
   }, [value, fuse, options, selectionMade]);
 
   useEffect(() => {
-    scrollOptionIntoView(optionRefs.current, focusedListBoxItem)
+    scrollOptionIntoView(optionRefs.current, focusedListBoxItem);
   }, [focusedListBoxItem, value]);
 
   useEffect(() => {
-    if (!onChange) return
-    onChange(value)
-  }, [value, onChange])
+    if (!onChange) return;
+    onChange(value);
+  }, [value, onChange]);
 
   return (
     <div
@@ -73,12 +73,12 @@ export default function TextSingleAutocomplete({
           disabled={props.disabled}
           value={value}
           autoComplete="off"
-          onChange={(e) => { setValue(e.target.value); setFocusedListBoxItem(0) }} // TODO: Enter seems to select values even if nothing is selected
+          onChange={(e) => { setValue(e.target.value); setFocusedListBoxItem(0); }} // TODO: Enter seems to select values even if nothing is selected
           {...(options.length > 0
             ? {
               ref: comboboxRef,
               onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => {
-                e.stopPropagation()
+                e.stopPropagation();
                 if (!comboboxRef.current) return;
                 handleKeyDownEditableCombobox(
                   e,
@@ -93,17 +93,17 @@ export default function TextSingleAutocomplete({
                     setSelectionMade(true); 
                     setFocusedListBoxItem(null); 
                     setDisplayListBox(false);
-                  }
-                )
+                  },
+                );
               },
               onFocus: () => setDisplayListBox(true),
-              onBlur: (e) => { if (e.relatedTarget?.id !== `${props.id}-listbox` && e.relatedTarget?.id !== `${props.id}-button`) { setDisplayListBox(false) } },
+              onBlur: (e) => { if (e.relatedTarget?.id !== `${props.id}-listbox` && e.relatedTarget?.id !== `${props.id}-button`) { setDisplayListBox(false); } },
               "role": "combobox",
               "aria-expanded": displayListBox,
               "aria-haspopup": "listbox",
               "aria-controls": displayListBox ? `${props.id}-listbox` : undefined,
               "aria-activedescendant": focusedListBoxItem != null ? `${props.id}-listbox-${focusedListBoxItem}` : undefined,
-              "aria-autocomplete": "list" /* TODO input_updates: Implement features to enable this to have a value of "both" (tab to autocomplete inline)  */
+              "aria-autocomplete": "list", /* TODO input_updates: Implement features to enable this to have a value of "both" (tab to autocomplete inline)  */
             }
             : {})}
         />
@@ -113,7 +113,7 @@ export default function TextSingleAutocomplete({
             className="round grid margin-right-25 transparent"
             style={{ padding: '2px' }}
             disabled={props.disabled}
-            onClick={() => { comboboxRef.current?.focus(); setDisplayListBox(!displayListBox) }}
+            onClick={() => { comboboxRef.current?.focus(); setDisplayListBox(!displayListBox); }}
             type="button"
             tabIndex={-1}
             aria-pressed={displayListBox}
@@ -136,7 +136,7 @@ export default function TextSingleAutocomplete({
           }
           style={{
             ...(theme?.style),
-            maxHeight: maxOptions ? `${(maxOptions * 33) + 6}px` : '300px' // TODO: Implement for select comboboxes as well
+            maxHeight: maxOptions ? `${(maxOptions * 33) + 6}px` : '300px', // TODO: Implement for select comboboxes as well
           }}
           // TODO: Onblur does not seem to actually setFocusedListBoxItem, figure out why...
           onBlur={(e) => { if (e.relatedTarget?.id !== props.id) { setFocusedListBoxItem(null); setDisplayListBox(false); } }} // TODO: See if we can deal with blur the same way for all comboboxes
@@ -149,20 +149,20 @@ export default function TextSingleAutocomplete({
               key={option.value}
               id={`${props.id}-listbox-${index}`}
               className={index === focusedListBoxItem ? styles['focused-option'] : ''}
-              ref={(el) => { optionRefs.current[index] = el }}
+              ref={(el) => { optionRefs.current[index] = el; }}
               onClick={() => { 
                 setValue(option.name); // TODO: Should be .value?
                 setSelectionMade(true); 
-                setDisplayListBox(false)
+                setDisplayListBox(false);
               }}
               role="option"
               aria-selected={option.name === value}
             >
               {option.name}
-            </li>
+            </li>,
           )}
         </ul>
         : null}
     </div>
-  )
+  );
 }

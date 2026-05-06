@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
 import { useTranslation } from "react-i18next";
-import React, { useState } from "react"
-import styles from "./forms.module.css"
+import React, { useState } from "react";
+import styles from "./forms.module.css";
 import { IconArrowLeft, IconArrowRight } from "@tabler/icons-react";
 
 export default function FormWrapper({
@@ -107,5 +107,5 @@ export default function FormWrapper({
       </div>
 
     </>
-  )
+  );
 }

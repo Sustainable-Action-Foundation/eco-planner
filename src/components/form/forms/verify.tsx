@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import formSubmitter from "@/functions/formSubmitter";
 import { IconMail } from "@tabler/icons-react";
@@ -31,5 +31,5 @@ export default function VerifyForm() {
       </label>
       <button type="submit" className="font-weight-500 margin-left-auto block" >{t("pages:verify.submit_resend")}</button>
     </form>
-  )
+  );
 }

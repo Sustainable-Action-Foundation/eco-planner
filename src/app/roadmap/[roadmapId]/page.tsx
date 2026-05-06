@@ -17,11 +17,11 @@ import { AdminPanel } from "@/components/elements/controls/controls";
 import ActionTable from "@/components/tables/actions";
 
 export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }) {
-  const params = await props.params
+  const params = await props.params;
   const [t, session, roadmap] = await Promise.all([
     serveTea("metadata"),
     getSession(await cookies()),
-    getOneRoadmap(params.roadmapId)
+    getOneRoadmap(params.roadmapId),
   ]);
 
   if (!session.user?.isLoggedIn) {
@@ -29,16 +29,16 @@ export async function generateMetadata(props: { params: Promise<{ roadmapId: str
       title: t("metadata:login.title"),
       description: t("metadata:login.title"),
       og_url: `/roadmap/${params.roadmapId}`,
-      og_image_url: '/images/og_wind.png'
-    })
+      og_image_url: '/images/og_wind.png',
+    });
   }
 
   return buildMetadata({
     title: roadmap?.metaRoadmap.name,
     description: roadmap?.description,
     og_url: `/roadmap/${params.roadmapId}`,
-    og_image_url: undefined
-  })
+    og_image_url: undefined,
+  });
 }
 
 export default async function Page(props: { params: Promise<{ roadmapId: string }> }) {
@@ -46,7 +46,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
   const [t, session, roadmap] = await Promise.all([
     serveTea(["pages", "common"]),
     getSession(await cookies()),
-    getOneRoadmap(params.roadmapId)
+    getOneRoadmap(params.roadmapId),
   ]);
 
   const featuredGoals = (roadmap?.goals ?? [])
@@ -63,7 +63,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
 
   let accessLevel: AccessLevel = AccessLevel.None;
   if (roadmap) {
-    accessLevel = accessChecker(roadmap, session.user)
+    accessLevel = accessChecker(roadmap, session.user);
   }
 
   // 404 if the roadmap doesn't exist or if the user doesn't have access to it
@@ -131,11 +131,11 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
                 <Link key={key} href={`/goal/${goal.id}`} className="color-pureblack text-decoration-none" style={{ width: '300px', minWidth: '300px', height: '250px', scrollSnapAlign: 'start' }} data-testid="featured-goals">
                   <ThumbnailGraph goal={goal} historicalData={true} />
                 </Link>
-              )
+              ),
             )}
           </div>
           {featuredGoals.some(
-            goal => goal?.externalDataset && goal?.externalTableId
+            goal => goal?.externalDataset && goal?.externalTableId,
           ) && (
               <div className="display-flex align-items-center gap-100 margin-top-100 font-weight-500">
                 <span style={{ color: 'var(--gray-20)' }}><IconCircleFilled width={12} height={12} fill="#0090ff" aria-hidden="true" className="margin-right-25" />{t("common:goal_one")}</span>
@@ -159,5 +159,5 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
     <section className="margin-block-500">
       <Comments comments={roadmap.comments} objectId={roadmap.id} />
     </section>
-  </>
+  </>;
 }

@@ -7,7 +7,7 @@ export function Stats(
     keys,
   }: {
     keys: string[],
-  }
+  },
 ) {
   const [emptyCount, setEmptyCount] = useState(0);
   const [missingCount, setMissingCount] = useState(0);

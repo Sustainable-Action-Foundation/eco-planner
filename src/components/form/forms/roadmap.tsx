@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import formSubmitter from "@/functions/formSubmitter";
 import parseCsv, { csvToGoalList } from "@/functions/parseCsv";
@@ -45,12 +45,12 @@ export default function RoadmapForm({
   const { addToast } = useToastContext();
 
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
-    event.preventDefault()
+    event.preventDefault();
     if (!metaRoadmapId && !currentRoadmap) { return; }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
-    const form = event.target.elements
+    const form = event.target.elements;
     const description = (form.namedItem("description") as HTMLInputElement | null)?.value ?? null;
     const visibility = (form.namedItem("visibility") as RadioNodeList)?.value;
     const editability = (form.namedItem("editability") as RadioNodeList)?.value;
@@ -58,12 +58,12 @@ export default function RoadmapForm({
     let goals: GoalCreateInput[] = [];
     if (currentFile) {
       try {
-        goals = csvToGoalList(parseCsv(await currentFile.arrayBuffer().then((buffer) => { return buffer })), () => addToast(t("forms:roadmap.scale_deprecated"), "warning"));
+        goals = csvToGoalList(parseCsv(await currentFile.arrayBuffer().then((buffer) => { return buffer; })), () => addToast(t("forms:roadmap.scale_deprecated"), "warning"));
       }
       catch (error) {
-        setIsLoading(false)
+        setIsLoading(false);
         addToast(t("forms:roadmap.roadmap_version_creation_error", { error: error instanceof Error ? error.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }), "error");
-        return
+        return;
       }
     }
 
@@ -74,9 +74,9 @@ export default function RoadmapForm({
     const inheritGoalIds: string[] = [];
     (form.namedItem('inherit-goals') as RadioNodeList | null)?.forEach((checkbox) => {
       if (checkbox.checked) {
-        inheritGoalIds.push(checkbox.value)
+        inheritGoalIds.push(checkbox.value);
       }
-    })
+    });
 
     let formData: RoadmapCreateInput | RoadmapUpdateInput;
     if (currentRoadmap) {
@@ -99,7 +99,7 @@ export default function RoadmapForm({
 
         // DEPRECATED - moved to description
         links: undefined,
-      }
+      };
     } else {
       // Creating new roadmap
       formData = {
@@ -120,26 +120,26 @@ export default function RoadmapForm({
 
         // DEPRECATED - moved to description
         links: undefined,
-      }
+      };
     }
 
-    const formJSON = JSON.stringify(formData)
+    const formJSON = JSON.stringify(formData);
 
     formSubmitter('/api/roadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading, undefined, undefined, undefined, addToast, router.push);
   }
 
-  const [currentFile, setCurrentFile] = useState<File | null>(null)
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [currentFile, setCurrentFile] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [timestamp] = useState<number>(() => Date.now());
-  const [metaRoadmapId, setMetaRoadmapId] = useState<string>(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap || "")
+  const [metaRoadmapId, setMetaRoadmapId] = useState<string>(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap || "");
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [targetVersion, setTargetVersion] = useState<number | null>(0)
+  const [targetVersion, setTargetVersion] = useState<number | null>(0);
   // Temporarily disabled
   // const [inheritableGoals, setInheritableGoals] = useState<{ id: string, name: string | null, indicatorParameter: string }[]>([])
   const metaRoadmapTarget = useMemo(() => {
     // The meta roadmap that the parent meta roadmap works towards, if any
-    return metaRoadmapAlternatives?.find((parentRoadmap) => parentRoadmap.id === metaRoadmapAlternatives?.find((roadmap) => roadmap.id === metaRoadmapId)?.parentRoadmapId)
-  }, [metaRoadmapId, metaRoadmapAlternatives])
+    return metaRoadmapAlternatives?.find((parentRoadmap) => parentRoadmap.id === metaRoadmapAlternatives?.find((roadmap) => roadmap.id === metaRoadmapId)?.parentRoadmapId);
+  }, [metaRoadmapId, metaRoadmapAlternatives]);
 
   // Fetch inheritable goals when the target version changes
   // Temporarily disabled
@@ -167,7 +167,7 @@ export default function RoadmapForm({
   useEffect(() => {
     if (!currentFile) return;
     if (currentFile) {
-      setIsLoading(true)
+      setIsLoading(true);
       try {
         currentFile.arrayBuffer()
           .then((buffer) => parseCsv(buffer))
@@ -186,7 +186,7 @@ export default function RoadmapForm({
         return;
       }
     }
-  }, [addToast, currentFile, t])
+  }, [addToast, currentFile, t]);
 
 
   // Indexes for the data-position attribute in the legend elements
@@ -195,7 +195,7 @@ export default function RoadmapForm({
   const metaRoadmaps = useMemo(() => {
     return (metaRoadmapAlternatives ?? []).map(metaRoadmap => ({
       name: metaRoadmap.name,
-      value: metaRoadmap.id
+      value: metaRoadmap.id,
     }));
   }, [metaRoadmapAlternatives]);
 
@@ -241,7 +241,7 @@ export default function RoadmapForm({
                   {metaRoadmapTarget.roadmapVersions.map((version) => {
                     return (
                       <option key={version.version} value={version.version}>{`Version ${version.version}`}</option>
-                    )
+                    );
                   })}
                 </select>
               </label>
@@ -321,7 +321,7 @@ export default function RoadmapForm({
           positionIndex={positionIndex}
           legends={{
             viewers: t("forms:roadmap.legend_visibility"),
-            editors: t("forms:roadmap.legend_editability")
+            editors: t("forms:roadmap.legend_editability"),
           }}
         />
 
@@ -338,5 +338,5 @@ export default function RoadmapForm({
         </div>
       </form >
     </>
-  )
+  );
 }

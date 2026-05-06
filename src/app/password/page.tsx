@@ -10,8 +10,8 @@ export async function generateMetadata(): Promise<Metadata> {
     title: t("pages:password.title"),
     description: t("pages:password.description"),
     og_url: `/password`,
-    og_image_url: undefined
-  })
+    og_image_url: undefined,
+  });
 }
 
 export default async function Page() {
@@ -28,5 +28,5 @@ export default async function Page() {
         </div>
       </main>
     </>
-  )
+  );
 }

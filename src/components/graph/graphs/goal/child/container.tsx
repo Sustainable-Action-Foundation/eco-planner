@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import GoalChildGraph from "./children";
 import PredictionChildGraph from "./prediction";
@@ -9,7 +9,7 @@ import ChildGraphSelector from "../../../graphSelectors/childGraphSelector";
 import { useTranslation } from "react-i18next";
 import { IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
 import type { Goal } from "@/types";
-import styles from '../goal.module.css'
+import styles from '../goal.module.css';
 
 export const ChildGraphType = {
   Target: "TARGET",
@@ -40,9 +40,9 @@ export default function ChildGraphContainer({
   function childGraphSwitch(childGraphType: string) {
     switch (childGraphType) {
       case ChildGraphType.Target:
-        return <GoalChildGraph goal={goal} childGoals={childGoals} isStacked={isStacked} />
+        return <GoalChildGraph goal={goal} childGoals={childGoals} isStacked={isStacked} />;
       case ChildGraphType.Prediction:
-        return <PredictionChildGraph goal={goal} childGoals={childGoals} isStacked={isStacked} />
+        return <PredictionChildGraph goal={goal} childGoals={childGoals} isStacked={isStacked} />;
       default:
         return childGraphSwitch(ChildGraphType.Target);
     }
@@ -82,7 +82,7 @@ export default function ChildGraphContainer({
               {index !== childGoals.length - 1 ?
                 <hr aria-orientation="vertical" className="padding-0 margin-block-25" /> /* TODO: Need to add orientation aria to other HR */
                 : null}
-            </span>
+            </span>,
           )}
         </nav>
       </footer>

@@ -21,7 +21,7 @@ export default function AttributedImage({
         {children}
       </div>
     </>
-  )
+  );
 }
 
 export async function AttributeText(

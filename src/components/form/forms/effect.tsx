@@ -32,7 +32,7 @@ export default function EffectForm({
   const [selectedImpactType, setSelectedImpactType] = useState<ActionImpactType>(currentEffect?.impactType ?? ActionImpactType.ABSOLUTE);
   const [dateValues, setDateValues] = useState<DateValuesWithUnit>(currentEffect?.dataSeries
     ? dataSeriesToDateValues(currentEffect.dataSeries)
-    : { unit: undefined, dateValues: {}, }
+    : { unit: undefined, dateValues: {} },
   );
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
@@ -56,7 +56,7 @@ export default function EffectForm({
     // let dataSeries: DateValuesWithUnit | undefined = undefined;
     try {
       dataSeries = JSON.parse(resultingDateValuesString) as DateValuesWithUnit;
-      dataSeries.unit = undefined
+      dataSeries.unit = undefined;
       // dataSeries.unit = formData.get("dataUnit") as string | null;
     } catch (e) {
       console.error("Failed to parse resulting date values from form:", e);
@@ -196,5 +196,5 @@ export default function EffectForm({
 
       </form>
     </>
-  )
+  );
 }

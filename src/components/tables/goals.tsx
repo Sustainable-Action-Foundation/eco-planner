@@ -1,17 +1,17 @@
-"use client"
+"use client";
 
 import { AccessLevel } from '@/types';
-import GoalTable from "./goalTables/goalTable"
-import TableSelector from './tableSelector/tableSelector'
-import LinkTree from './goalTables/linkTree'
-import { useState } from "react"
-import { getStoredGoalSortBy, getStoredViewMode, setStoredGoalSortBy } from "./functions/tableFunctions"
-import Link from "next/link"
-import Image from "next/image"
-import styles from './tables.module.css'
-import type { getOneRoadmap } from "@/fetchers"
-import { useTranslation } from "react-i18next"
-import { IconSearch } from '@tabler/icons-react'
+import GoalTable from "./goalTables/goalTable";
+import TableSelector from './tableSelector/tableSelector';
+import LinkTree from './goalTables/linkTree';
+import { useState } from "react";
+import { getStoredGoalSortBy, getStoredViewMode, setStoredGoalSortBy } from "./functions/tableFunctions";
+import Link from "next/link";
+import Image from "next/image";
+import styles from './tables.module.css';
+import type { getOneRoadmap } from "@/fetchers";
+import { useTranslation } from "react-i18next";
+import { IconSearch } from '@tabler/icons-react';
 
 /** Object containing the different view modes for the goal table. */
 export const ViewMode = {
@@ -42,7 +42,7 @@ export default function Goals({
   const [viewMode, setViewMode] = useState<ViewMode | ''>(getStoredViewMode(roadmap.id));
   const [sortBy, setSortBy] = useState<GoalSortBy>(getStoredGoalSortBy() || GoalSortBy.Default);
   const [searchFilter, setSearchFilter] = useState<string>('');
-  const [recipeOnly, setRecipeOnly] = useState<boolean>(false)
+  const [recipeOnly, setRecipeOnly] = useState<boolean>(false);
 
   let filteredRoadmap = roadmap;
   if (searchFilter) {
@@ -55,7 +55,7 @@ export default function Goals({
           return true;
         }
       }),
-    }
+    };
   }
 
   if (recipeOnly) {
@@ -63,12 +63,12 @@ export default function Goals({
       ...roadmap,
       goals: roadmap.goals.filter(goal => {
         if (goal.dataSeries?.recipeUsedId) {
-          return true
+          return true;
         } else {
-          return false
+          return false;
         }
-      })
-    }
+      }),
+    };
   }
 
   return (
@@ -91,7 +91,7 @@ export default function Goals({
             <select
               className="font-weight-500 margin-top-25 block"
               style={{ fontSize: '1rem', minHeight: 'calc(24px + 1rem)' }}
-              onChange={(e) => { setSortBy(e.target.value as GoalSortBy); setStoredGoalSortBy(e.target.value as GoalSortBy) }} defaultValue={sortBy}
+              onChange={(e) => { setSortBy(e.target.value as GoalSortBy); setStoredGoalSortBy(e.target.value as GoalSortBy); }} defaultValue={sortBy}
             >
               <option value={GoalSortBy.Default}>{t("components:goals.sort_default")}</option>
               <option value={GoalSortBy.Alpha}>{t("components:goals.sort_name_descending")}</option>
@@ -127,5 +127,5 @@ export default function Goals({
 
 
     </>
-  )
+  );
 }
