@@ -194,7 +194,7 @@ export default function MetaRoadmapForm({
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend
             // Technically incrementing here is unused but if you add a another entry after this one it will be correct
-            // eslint-disable-next-line @/no-useless-assignment
+            // eslint-disable-next-line no-useless-assignment
             data-position={positionIndex++}
             className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}
           >
