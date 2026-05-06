@@ -8,7 +8,8 @@ import { Recipe } from "../../src/functions/recipe/recipe";
 import { isISOIshDate } from "../../src/types";
 import type { DateValues } from "../../src/types";
 import { dateValuesToDBDateRecord } from "../../src/functions/recipe/vectorAndMaskUtils";
-import { prisma, RoadmapType } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
+import { RoadmapType } from "../../prisma/generated/enums";
 
 /** 
  * The seed goal

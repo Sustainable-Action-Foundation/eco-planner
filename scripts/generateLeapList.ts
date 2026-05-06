@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { RoadmapType } from "../prisma/generated/enums";
+import { RoadmapType } from "@/lib/prisma/generated";
 import fs from "node:fs";
 
 /**

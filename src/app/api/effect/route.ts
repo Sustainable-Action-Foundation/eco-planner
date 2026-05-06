@@ -1,6 +1,7 @@
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
-import { prisma, ActionImpactType } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
+import { ActionImpactType } from "@/lib/prisma/generated";
 import { Prisma } from "@/lib/prisma/generated";
 import { ClientError, isDateValuesWithUnit } from "@/types";
 import type { EffectInput, JSONValue } from "@/types";
