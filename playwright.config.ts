@@ -10,7 +10,7 @@ const CI = process.env.CI ? true : false;
 export default defineConfig({
   testDir: "tests/",
 
-  testIgnore: "screenshot-tests.spec.ts",
+  testIgnore: ["screenshot-tests.spec.ts", "**\/unit/**"],
 
   // fullyParallel: true,
   workers: "80%",
