@@ -74,4 +74,4 @@ COPY prisma/ ./prisma/
 COPY prisma.config.ts tsconfig.json ./
 
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["sh", "-c", "yarn prisma migrate reset --force --skip-generate && yarn prisma db seed"]
+CMD ["sh", "-c", "yarn prisma migrate reset --force && yarn prisma db seed"]
