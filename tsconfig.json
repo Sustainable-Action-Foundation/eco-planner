@@ -30,7 +30,7 @@
       "@/*": [
         "./src/*",
       ],
-      "@@PRISMA-NAMESPACE-ONLY": [
+      "@PRISMA-NAMESPACE-ONLY": [
         "./prisma/generated/client",
       ],
     },
