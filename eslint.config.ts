@@ -1,4 +1,4 @@
-import type { Config} from "eslint/config";
+import type { Config } from "eslint/config";
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextTS from "eslint-config-next/typescript";
 import nextVitals from "eslint-config-next/core-web-vitals";
@@ -63,7 +63,7 @@ export default defineConfig([
     rules: {
       "react-hooks/set-state-in-effect": "warn",
       "react-hooks/set-state-in-render": "warn",
-      "react-hooks/immutability": "warn", // This should probably be a warning but the current recipe pipeline is dependant on it :sweat_smile:
+      "react-hooks/immutability": "error",
       ...tsCommonRules,
     },
     languageOptions: {
@@ -84,7 +84,7 @@ export default defineConfig([
     },
     languageOptions: {
       parserOptions: {
-        project: ["./tsconfig.json"],
+        project: "./tsconfig.json",
         tsconfigRootDir: process.cwd(),
       },
     },
@@ -100,7 +100,7 @@ export default defineConfig([
     },
     languageOptions: {
       parserOptions: {
-        project: ["./tsconfig.json"],
+        project: "./tsconfig.json",
         tsconfigRootDir: process.cwd(),
       },
     },
