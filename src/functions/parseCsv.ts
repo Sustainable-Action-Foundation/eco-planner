@@ -101,7 +101,7 @@ export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void
       rawTags: undefined,
       links: undefined,
       roadmapId: "", // Will be assigned later :O
-    })
+    });
   }
 
   return output;

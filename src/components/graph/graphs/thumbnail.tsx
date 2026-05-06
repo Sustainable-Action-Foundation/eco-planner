@@ -1,5 +1,5 @@
 import WrappedChart from "@/lib/chartWrapper";
-import styles from '../graph.module.css'
+import styles from '../graph.module.css';
 import type { ApiTableContent } from "@/lib/api/apiTypes";
 import { parsePeriod } from "@/lib/api/utility";
 import getTableContent from "@/lib/api/getTableContent";
@@ -72,7 +72,7 @@ export default async function ThumbnailGraph({
     }
 
     colors.push(color_palette.historical.color);
-    opacities.push(color_palette.historical.fillOpacity)
+    opacities.push(color_palette.historical.fillOpacity);
   }
 
   const mainChartOptions: ApexCharts.ApexOptions = {
@@ -110,7 +110,7 @@ export default async function ThumbnailGraph({
     yaxis: {
       show: false,
     },
-  }
+  };
 
   return (
     <>
@@ -128,5 +128,5 @@ export default async function ThumbnailGraph({
         </div>
       </div>
     </>
-  )
+  );
 }

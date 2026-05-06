@@ -18,7 +18,7 @@ import Highlight from '@tiptap/extension-highlight';
 import HardBreak from '@tiptap/extension-hard-break';
 
 export const allowedProtocols = ['http', 'https', 'mailto', 'callto', 'tel'];
-export const nodeSizeLimit = 5000
+export const nodeSizeLimit = 5000;
 
 export const CustomColor = Color.extend({
   addKeyboardShortcuts() {
@@ -30,15 +30,15 @@ export const CustomColor = Color.extend({
           ? this.editor.chain().focus().unsetColor().run()
           : this.editor.chain().focus().setColor('grey').run();
       },
-    }
+    };
   },
 });
 
 const uniqueExtensionsByName = <T extends { name: string }>(extensions: T[]) => {
-  const seenNames = new Set<string>()
+  const seenNames = new Set<string>();
   return extensions.filter((extension) => {
-    if (seenNames.has(extension.name)) return false
-    else seenNames.add(extension.name); return true
+    if (seenNames.has(extension.name)) return false;
+    else seenNames.add(extension.name); return true;
   });
 };
 

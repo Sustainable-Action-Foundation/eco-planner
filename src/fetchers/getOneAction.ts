@@ -26,7 +26,7 @@ export async function getOneAction(id: string): Promise<Action | null> {
  * @param user Data from user's session cookie.
  */
 async function getCachedAction(id: string, user: LoginData['user']): Promise<Action | null> {
-  'use cache'
+  'use cache';
   cacheTag('database', 'action');
   let action: Action | null;
 

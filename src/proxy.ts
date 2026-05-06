@@ -1,22 +1,22 @@
-import { NextResponse, type NextRequest } from 'next/server'
-import { getSession } from '@/lib/session'
-import { cookies } from 'next/headers'
+import { NextResponse, type NextRequest } from 'next/server';
+import { getSession } from '@/lib/session';
+import { cookies } from 'next/headers';
 
 export async function proxy(req: NextRequest) {
-  const session = await getSession(await cookies())
-  const response = NextResponse.next()
+  const session = await getSession(await cookies());
+  const response = NextResponse.next();
 
   // Redirect away from login page if already logged in
   if (req.nextUrl.pathname.startsWith('/login')) {
     if (session.user?.isLoggedIn === true) {
-      return NextResponse.redirect(new URL('/', req.url))
+      return NextResponse.redirect(new URL('/', req.url));
     }
   }
 
   // Redirect away from signup page if already logged in
   if (req.nextUrl.pathname.startsWith('/signup')) {
     if (session.user?.isLoggedIn === true) {
-      return NextResponse.redirect(new URL('/', req.url))
+      return NextResponse.redirect(new URL('/', req.url));
     }
   }
 
@@ -25,14 +25,14 @@ export async function proxy(req: NextRequest) {
    * For example, "/metaRoadmap/create" or "/action/edit/"
    * TODO: This no longer works as /createMetaRoadmap now looks like metaRoadmap/create
    */
-  const createOrEditRegEx = /\/(create|edit)\/?$/
+  const createOrEditRegEx = /\/(create|edit)\/?$/;
   // Redirect away from creation and editing pages if not logged in
   if (req.nextUrl.pathname.match(createOrEditRegEx)) {
     if (!session.user?.isLoggedIn) {
-      const loginUrl = new URL('/login', req.url)
+      const loginUrl = new URL('/login', req.url);
       // Save the current page as the "from" query parameter so we can redirect back after logging in
-      loginUrl.searchParams.set('from', req.nextUrl.pathname)
-      return NextResponse.redirect(loginUrl)
+      loginUrl.searchParams.set('from', req.nextUrl.pathname);
+      return NextResponse.redirect(loginUrl);
     }
   }
 
@@ -41,9 +41,9 @@ export async function proxy(req: NextRequest) {
 
   // Silently redirect from "/@username" to "/user/@username"
   if (req.nextUrl.pathname.match(userIndicatorRegEx)) {
-    const newUrl = new URL(`/user${req.nextUrl.pathname}`, req.url)
-    newUrl.search = req.nextUrl.search
-    return NextResponse.rewrite(newUrl)
+    const newUrl = new URL(`/user${req.nextUrl.pathname}`, req.url);
+    newUrl.search = req.nextUrl.search;
+    return NextResponse.rewrite(newUrl);
   }
   // If we add for example # or $ to go to organisation pages or something, we can do it in a similar way to the above user rewrite
 

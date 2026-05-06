@@ -11,14 +11,14 @@ import { getOneGoal, getOneRoadmap, getRoadmaps } from "@/fetchers";
 import type { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await serveTea("metadata")
+  const t = await serveTea("metadata");
 
   return buildMetadata({
     title: t("metadata:action_create.title"),
     description: t("metadata:action_create.description"),
     og_url: `/action/create`,
     og_image_url: undefined,
-  })
+  });
 }
 
 export default async function Page(
@@ -55,7 +55,7 @@ export default async function Page(
       editGroups: goal.roadmap.editGroups,
       viewGroups: goal.roadmap.viewGroups,
       isPublic: goal.roadmap.isPublic,
-    }
+    };
   }
 
   // Ignore the goal or roadmap (and inform user) if they are not found or the user does not have edit access
@@ -105,5 +105,5 @@ export default async function Page(
         />
       </div>
     </>
-  )
+  );
 }

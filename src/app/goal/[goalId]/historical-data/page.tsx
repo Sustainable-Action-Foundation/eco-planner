@@ -28,7 +28,7 @@ export async function generateMetadata(props: {
       description: t("metadata:login.title"),
       og_url: `/goal/${params.goalId}`,
       og_image_url: '/images/og_wind.png',
-    })
+    });
   }
 
   return buildMetadata({
@@ -36,7 +36,7 @@ export async function generateMetadata(props: {
     description: goal?.description,
     og_url: `/goal/${params.goalId}`,
     og_image_url: undefined, // TODO: Use graph api here once ready 
-  })
+  });
 }
 
 export default async function page(
@@ -72,5 +72,5 @@ export default async function page(
           <HistoricalData goal={goal} />
         </main>
     </>
-  )
+  );
 }

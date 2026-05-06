@@ -1,4 +1,4 @@
-import EffectForm from "@/components/form/forms/effect"
+import EffectForm from "@/components/form/forms/effect";
 import { getOneAction, getOneGoal, getRoadmaps } from "@/fetchers";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
@@ -10,14 +10,14 @@ import { IconInfoCircle } from "@tabler/icons-react";
 import type { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await serveTea("metadata")
+  const t = await serveTea("metadata");
 
   return buildMetadata({
     title: t("metadata:effect_create.title"),
     description: t("metadata:effect_create.description"),
     og_url: `/effect/create`,
     og_image_url: undefined,
-  })
+  });
 }
 
 export default async function Page(
@@ -77,5 +77,5 @@ export default async function Page(
         />
       </div>
     </>
-  )
+  );
 }

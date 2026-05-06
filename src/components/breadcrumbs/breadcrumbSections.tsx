@@ -9,7 +9,7 @@ import type { Action, Goal, MetaRoadmap, Roadmap } from "@/types";
 export function BreadcrumbChevron() {
   return (
     <IconChevronRight strokeWidth='2px' stroke='gray' aria-hidden="true"  height={16} width={16} />
-  )
+  );
 }
 
 export function BaseSection() {
@@ -20,7 +20,7 @@ export function BaseSection() {
         {t("components:breadcrumbs_sections.home")}
       </Link>
     </span>
-  )
+  );
 }
 
 export function CustomSection({
@@ -46,7 +46,7 @@ export function CustomSection({
         ) : null}
       </span>
     </>
-  )
+  );
 }
 
 export function MetaRoadmapSection({
@@ -62,7 +62,7 @@ export function MetaRoadmapSection({
         {metaRoadmap.name}
       </Link>
     </span>
-  )
+  );
 }
 
 export function RoadmapSection({
@@ -78,7 +78,7 @@ export function RoadmapSection({
         {t("components:breadcrumbs_sections.version", { version: roadmap.version })}
       </Link>
     </span>
-  )
+  );
 }
 
 export function GoalSection({
@@ -94,7 +94,7 @@ export function GoalSection({
         {goal.name || goal.indicatorParameter}
       </Link>
     </span>
-  )
+  );
 }
 
 export function ActionSection({
@@ -110,5 +110,5 @@ export function ActionSection({
         {action.name}
       </Link>
     </span>
-  )
+  );
 }

@@ -5,7 +5,7 @@ import accessChecker, { hasEditAccess } from '@/lib/accessChecker';
 import { getSession } from '@/lib/session';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
-import styles from './page.module.css' with { type: "css" }
+import styles from './page.module.css' with { type: "css" };
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from '@/functions/buildMetadata';
 import Link from 'next/link';
@@ -16,7 +16,7 @@ export async function generateMetadata(props: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 },
 ) {
-  const params = await props.params
+  const params = await props.params;
   let username = params.user;
   const userIndicatorRegEx = /^(@|%40)/;
   if (username?.match(userIndicatorRegEx)) {
@@ -28,7 +28,7 @@ export async function generateMetadata(props: {
     description: undefined, // TODO: Should be like a bio or something
     og_url: `/user/${username}`,
     og_image_url: undefined,
-  })
+  });
 }
 
 export default async function Page(
@@ -117,7 +117,7 @@ export default async function Page(
     }
   }
 
-  toggleRoadmaps()
+  toggleRoadmaps();
 
   return <>
     <main>
@@ -193,5 +193,5 @@ export default async function Page(
       </section>
 
     </main>
-  </>
+  </>;
 }

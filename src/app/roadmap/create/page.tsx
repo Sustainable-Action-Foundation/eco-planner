@@ -11,14 +11,14 @@ import { getOneMetaRoadmap, getMetaRoadmaps } from "@/fetchers";
 import type { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await serveTea("metadata")
+  const t = await serveTea("metadata");
 
   return buildMetadata({
     title: t("metadata:roadmap_create.title"),
     description: t('metadata:roadmap_create.description'),
     og_url: `/roadmap/create`,
     og_image_url: undefined,
-  })
+  });
 }
 
 export default async function Page(
@@ -76,5 +76,5 @@ export default async function Page(
         />
       </div>
     </>
-  )
+  );
 }

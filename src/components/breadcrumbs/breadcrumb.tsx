@@ -63,18 +63,18 @@ export function Breadcrumb({
           if (typeof section === 'string') {
             return (
               <CustomSection title={section} key={`breadcrumb-${index}`} />
-            )
+            );
           } else {
             return (
               <CustomSection {...section} key={`breadcrumb-${index}`} />
-            )
+            );
           }
         })}
 
         {children}
       </BreadcrumbSection>
     </nav>
-  )
+  );
 }
 
 /**
@@ -108,7 +108,7 @@ function BreadcrumbSection({
 
         {children}
       </BreadcrumbSection>
-    </>
+    </>;
   } else {
     return <>
       <BreadcrumbChevron />
@@ -116,6 +116,6 @@ function BreadcrumbSection({
       <MetaRoadmapSection metaRoadmap={object} />
 
       {children}
-    </>
+    </>;
   }
 }

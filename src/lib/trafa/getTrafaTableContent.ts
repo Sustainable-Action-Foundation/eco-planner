@@ -50,7 +50,7 @@ export default async function getTrafaTableContent(tableId: string, selection: {
         label: trafaTableContent.Name ?? "",
         source: "Trafa",
       }],
-    }
+    };
 
     const timeColumns = trafaTableContent.Header.Column.filter(column => column.DataType === "Time");
     const dataColumns = trafaTableContent.Header.Column.filter(column => column.Type === "M");
@@ -87,7 +87,7 @@ export default async function getTrafaTableContent(tableId: string, selection: {
             result.values.push({
               period: `${yearValue}M${monthValue}`,
               value: dataValue,
-            })
+            });
           } else {
             console.warn("Missing year or month value in Trafa table content with multiple time columns");
             return null;

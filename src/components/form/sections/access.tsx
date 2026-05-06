@@ -1,11 +1,11 @@
-'use client'
+'use client';
 
 import { useMemo, useRef, useState } from "react";
-import SelectMultipleSearch from "../elements/combobox/selectMultipleSearch"
+import SelectMultipleSearch from "../elements/combobox/selectMultipleSearch";
 import type { AccessControlled } from "@/types";
 import type { MetaRoadmap, Roadmap } from "@/lib/prisma/generated";
 import type { LoginData } from "@/lib/session";
-import styles from '../forms.module.css'
+import styles from '../forms.module.css';
 import { useTranslation } from "react-i18next";
 
 export default function ConfigureAccess({
@@ -34,13 +34,13 @@ export default function ConfigureAccess({
       editGroups: currentRoadmap.editGroups,
       viewGroups: currentRoadmap.viewGroups,
       isPublic: currentRoadmap.isPublic,
-    }
+    };
   }
 
-  const [viewers, setViewers] = useState<string>(currentAccess ? currentAccess.viewers.map((viewer) => viewer.username).join(', ') : '') // TODO: This has NOT been tested with multiple usernames, ensure it gives back exactly what the user initially wrote
-  const [viewerGroups, setViewerGroups] = useState<Array<{ name: string, value: string }>>(currentAccess ? currentAccess?.viewGroups.map((group) => { return { name: group.name, value: group.name } }) : [])
-  const [editors, setEditors] = useState<string>(currentAccess ? currentAccess?.editors.map((editor) => editor.username).join(', ') : '') // TODO: This has NOT been tested with multiple usernames, ensure it gives back exactly what the user initially wrote
-  const [editorGroups, setEditorGroups] = useState<Array<{ name: string, value: string }>>(currentAccess ? currentAccess?.editGroups.map((group) => { return { name: group.name, value: group.name } }) : [])
+  const [viewers, setViewers] = useState<string>(currentAccess ? currentAccess.viewers.map((viewer) => viewer.username).join(', ') : ''); // TODO: This has NOT been tested with multiple usernames, ensure it gives back exactly what the user initially wrote
+  const [viewerGroups, setViewerGroups] = useState<Array<{ name: string, value: string }>>(currentAccess ? currentAccess?.viewGroups.map((group) => { return { name: group.name, value: group.name }; }) : []);
+  const [editors, setEditors] = useState<string>(currentAccess ? currentAccess?.editors.map((editor) => editor.username).join(', ') : ''); // TODO: This has NOT been tested with multiple usernames, ensure it gives back exactly what the user initially wrote
+  const [editorGroups, setEditorGroups] = useState<Array<{ name: string, value: string }>>(currentAccess ? currentAccess?.editGroups.map((group) => { return { name: group.name, value: group.name }; }) : []);
 
   const [visibilityType, setVisibilityType] = useState<"private" | "public" | "custom" | undefined>(
     currentAccess
@@ -232,5 +232,5 @@ export default function ConfigureAccess({
         </fieldset>
       }
     </div>
-  )
+  );
 }

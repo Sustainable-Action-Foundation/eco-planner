@@ -29,7 +29,7 @@ export default function QueryBuilder({
   const lang = new Intl.Locale(useContext(LocaleContext)).language;
 
   const [isLoading, setIsLoading] = useState(false);
-  const [visibleForm, setVisibleForm] = useState('manual')
+  const [visibleForm, setVisibleForm] = useState('manual');
   const [dataSource, setDataSource] = useState<string>("");
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
   const [renderedTables, setRenderedTables] = useState<{ tableId: string, label: string }[] | null>(null);
@@ -212,7 +212,7 @@ export default function QueryBuilder({
       clearTableContent();
       setIsLoading(false);
     }
-  }
+  };
 
   const formChange: ChangeEventHandler = (event) => {
     setIsFormValid(formRef.current?.checkValidity() ?? false);
@@ -225,7 +225,7 @@ export default function QueryBuilder({
     if (!changedElementIsExternalDataset && !changedElementIsTableSearch && !changedElementIsTable && tables && tableDetails) {
       tryGetResult(event);
     }
-  }
+  };
 
   function searchOnEnter(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === "Enter") {
@@ -380,7 +380,7 @@ export default function QueryBuilder({
             ))}
           </select>
         </label>
-      )
+      );
     } else if (dataSource === "Trafa" && !variable.option && (variable as TrafaVariable).selected) {
       console.warn("The variable is selected while it is not an option. This should not happen.");
     }
@@ -417,7 +417,7 @@ export default function QueryBuilder({
             <option key={time.name} value={time.name} lang={language}>{time[displayValueKey]}</option>
           ))}
         </select>
-      </label>)
+      </label>);
     }
   }
 
@@ -517,7 +517,7 @@ export default function QueryBuilder({
                         {((ExternalDataset.getDatasetByAlternateName(dataSource)) && !(ExternalDataset.getDatasetByAlternateName(dataSource)?.supportedLanguages.includes(lang))) ?
                           <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</small>
                           : null}
-                        <select className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value) }}>
+                        <select className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value); }}>
                           <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_source")}</option>
                           {ExternalDataset.knownDatasetKeys.map((name) => (
                             <option key={name} value={name}>{ExternalDataset[name]?.fullName}</option>
@@ -616,7 +616,7 @@ export default function QueryBuilder({
                                         return variableSelectionHelper(variable, tableDetails, { classNames: ["margin-left-75"] });
                                       })}
                                     </label>
-                                  )
+                                  );
                                 })}
                               </div>
                             </>) : (<p className={`font-style-italic color-gray`}>{t("components:query_builder.no_variables_found")}</p>)}
@@ -646,7 +646,7 @@ export default function QueryBuilder({
                                     <td>{period}</td>
                                     <td>{value}</td>
                                   </tr>
-                                )
+                                );
                               })
                             }
                           </tbody>
@@ -675,5 +675,5 @@ export default function QueryBuilder({
         </div>
       </dialog>
     </>
-  )
+  );
 }

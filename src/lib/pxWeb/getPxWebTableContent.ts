@@ -47,7 +47,7 @@ export default async function getPxWebTableContent(tableId: string, externalData
       const timeSelectionItem = {
         variableCode: item.variableCode,
         valueCodes: item.valueCodes,
-      }
+      };
       payload.selection.push(timeSelectionItem);
     }
   });

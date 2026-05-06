@@ -10,14 +10,14 @@ import { getOneRoadmap, getRoadmaps } from "@/fetchers";
 import type { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await serveTea("metadata")
+  const t = await serveTea("metadata");
 
   return buildMetadata({
     title: t("metadata:goal_create.title"),
     description: t("metadata:goal_create.title"),
     og_url: `/goal/create`,
     og_image_url: undefined,
-  })
+  });
 }
 
 export default async function Page(
@@ -60,5 +60,5 @@ export default async function Page(
         <GoalForm roadmapId={badRoadmap ? undefined : searchParams.roadmapId as string} roadmapAlternatives={filteredRoadmaps} />
       </div>
     </>
-  )
+  );
 }

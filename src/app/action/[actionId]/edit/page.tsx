@@ -11,7 +11,7 @@ import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 
 export async function generateMetadata(props: { params: Promise<{ actionId: string }> }) {
-  const params = await props.params
+  const params = await props.params;
   const [t, session, action] = await Promise.all([
     serveTea("metadata"),
     getSession(await cookies()),
@@ -24,7 +24,7 @@ export async function generateMetadata(props: { params: Promise<{ actionId: stri
       description: t("metadata:login.title"),
       og_url: `/goal/${params.actionId}/edit`,
       og_image_url: '/images/og_wind.png',
-    })
+    });
   }
 
   return buildMetadata({
@@ -32,7 +32,7 @@ export async function generateMetadata(props: { params: Promise<{ actionId: stri
     description: action?.description,
     og_url: `/goal/${params.actionId}/edit`,
     og_image_url: undefined,
-  })
+  });
 }
 
 export default async function Page(
@@ -56,7 +56,7 @@ export default async function Page(
       editGroups: action.roadmap.editGroups,
       viewGroups: action.roadmap.viewGroups,
       isPublic: action.roadmap.isPublic,
-    }
+    };
   }
 
   // User must be signed in and have edit access to the action, and the action must exist
@@ -79,5 +79,5 @@ export default async function Page(
         <ActionForm roadmapId={action.roadmapId} currentAction={action} roadmaps={[]} />
       </div>
     </>
-  )
+  );
 }

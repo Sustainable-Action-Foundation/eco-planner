@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions } from "../recipeEditorPermissions";
@@ -44,7 +44,7 @@ export function VariableTypeExternal({
         <span style={{ whiteSpace: "nowrap", maxWidth: '400px', textOverflow: 'ellipsis', overflow: 'hidden' }}>{t("components:recipe_editor.selection")}: {JSON.stringify(variable.selection) || ""}</span>
       </div>
     </>
-  )
+  );
 }
 
 export function VariableTypeExternalSimple({
@@ -128,5 +128,5 @@ export function VariableTypeExternalSimple({
         />
       </div>
     </div>
-  )
+  );
 }

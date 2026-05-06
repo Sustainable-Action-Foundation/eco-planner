@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import formSubmitter from "@/functions/formSubmitter"
-import type { Action, ActionInput, DateValuesWithUnit, MultiRoadmapInstance } from "@/types"
-import { ActionImpactType } from "@/lib/prisma/generated"
-import { useTranslation } from "react-i18next"
-import styles from '../forms.module.css'
-import TextEditor from "../elements/textEditor/editor"
-import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual"
-import { useState, useRef } from "react"
-import { useToastContext } from "@/components/generic/toast/toastContext"
-import { useRouter } from "next/navigation"
+import formSubmitter from "@/functions/formSubmitter";
+import type { Action, ActionInput, DateValuesWithUnit, MultiRoadmapInstance } from "@/types";
+import { ActionImpactType } from "@/lib/prisma/generated";
+import { useTranslation } from "react-i18next";
+import styles from '../forms.module.css';
+import TextEditor from "../elements/textEditor/editor";
+import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
+import { useState, useRef } from "react";
+import { useToastContext } from "@/components/generic/toast/toastContext";
+import { useRouter } from "next/navigation";
 
 export default function ActionForm({
   goalId,
@@ -25,14 +25,14 @@ export default function ActionForm({
   const { t } = useTranslation(["forms", "common"]);
   const [timestamp] = useState(() => Date.now());
   const descriptionRef = useRef<HTMLInputElement>(null);
-  const router = useRouter()
+  const router = useRouter();
 
   const { addToast } = useToastContext();
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
-    event.preventDefault()
+    event.preventDefault();
 
-    const form = event.target.elements
+    const form = event.target.elements;
 
     const formContent: ActionInput = {
       actionId: currentAction ? currentAction.id : undefined,
@@ -206,5 +206,5 @@ export default function ActionForm({
         </div>
       </form>
     </>
-  )
+  );
 }

@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useEffect, useState, useRef, useMemo } from "react"
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import styles from './comboBox.module.css' with { type: "css" }
+import styles from './comboBox.module.css' with { type: "css" };
 import type { InputElement, Option } from "@/components/types";
 import { clearEditableCombobox, handleKeyDownEditableCombobox, preventInvalidFormSubmission, scrollOptionIntoView } from "./functions";
 import type { IFuseOptions } from "fuse.js";
@@ -25,10 +25,10 @@ export default function SelectMultipleSearch({
   onChange?: (value: Option[] | null) => void
 }) {
   const { t } = useTranslation(["forms", "common"]);
-  const [value, setValue] = useState<Option[]>(defaultValue ?? [])
-  const [menuOpen, setMenuOpen] = useState<boolean>(false)
+  const [value, setValue] = useState<Option[]>(defaultValue ?? []);
+  const [menuOpen, setMenuOpen] = useState<boolean>(false);
   const [focusedListboxOption, setFocusedListboxOption] = useState<number | null>(null);
-  const [searchValue, setSearchValue] = useState<string>('')
+  const [searchValue, setSearchValue] = useState<string>('');
   const [selectionMade, setSelectionMade] = useState(false); // TODO: Rename to something better
   const toggleRef = useRef<HTMLButtonElement>(null); // TODO: Rename?
   const searchRef = useRef<HTMLInputElement>(null);
@@ -55,22 +55,22 @@ export default function SelectMultipleSearch({
   }, [value, props.required]);
 
   useEffect(() => {
-    if (!toggleRef.current) return
-    return preventInvalidFormSubmission(toggleRef.current, valueIsValid)
+    if (!toggleRef.current) return;
+    return preventInvalidFormSubmission(toggleRef.current, valueIsValid);
   }, [valueIsValid]);
 
   useEffect(() => {
-    if (!searchRef.current) return
+    if (!searchRef.current) return;
     clearEditableCombobox(
       searchRef.current,
       setSearchValue,
       menuOpen,
       setFocusedListboxOption,
-    )
+    );
   }, [menuOpen]);
 
   useEffect(() => {
-    scrollOptionIntoView(optionRefs.current, focusedListboxOption)
+    scrollOptionIntoView(optionRefs.current, focusedListboxOption);
   }, [focusedListboxOption]);
 
   return (
@@ -87,7 +87,7 @@ export default function SelectMultipleSearch({
         disabled={props.disabled}
         value={value.map((value) => value.value).toString()}
         ref={toggleRef}
-        onClick={() => { setMenuOpen(!menuOpen) }}
+        onClick={() => { setMenuOpen(!menuOpen); }}
         role="combobox"
         aria-controls={menuOpen ? `${props.id}-dialog` : undefined}
         aria-expanded={menuOpen}
@@ -112,7 +112,7 @@ export default function SelectMultipleSearch({
         }
         onBlur={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget?.id !== props.id) {
-            setFocusedListboxOption(null)
+            setFocusedListboxOption(null);
             setMenuOpen(false);
           }
         }}
@@ -155,7 +155,7 @@ export default function SelectMultipleSearch({
                     if (onChange) onChange(newValue);
                   }
                 },
-              )
+              );
             }}
             role="combobox"
             aria-controls={`${props.id}-dialog-listbox`}
@@ -180,7 +180,7 @@ export default function SelectMultipleSearch({
                   key={option.value}
                   id={`${props.id}-dialog-listbox-${index}`}
                   className={index === focusedListboxOption ? styles['focused-option'] : ''}
-                  ref={(el) => { optionRefs.current[index] = el }}
+                  ref={(el) => { optionRefs.current[index] = el; }}
                   onClick={() => {
                     const optionPreviouslySelected = value.some(value => value.value === option.value);
 
@@ -192,14 +192,14 @@ export default function SelectMultipleSearch({
                     setSelectionMade(true);
 
                     if (onChange) onChange(newValue);
-                    searchRef.current?.focus() // TODO: Might be a more clean way to do this
+                    searchRef.current?.focus(); // TODO: Might be a more clean way to do this
                   }}
                   role="option"
                   aria-selected={value.some(value => value.value === option.value)}
                 >
                   {option.name}
                 </li>
-              )
+              );
             })
           ) : (
             <li className={`${styles['no-results']} font-weight-600`} >
@@ -209,5 +209,5 @@ export default function SelectMultipleSearch({
         </ul>
       </div>
     </div>
-  )
+  );
 }

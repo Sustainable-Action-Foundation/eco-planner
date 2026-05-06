@@ -30,6 +30,6 @@ export default async function pruneOrphans() {
     return true;
   }
   catch {
-    return false
+    return false;
   }
 }

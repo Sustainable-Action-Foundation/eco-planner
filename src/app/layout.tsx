@@ -1,6 +1,6 @@
-import '@/styles/global.css' with { type: "css" }
-import Sidebar from '@/components/generic/header/sidebar'
-import styles from './page.module.css' with { type: "css" }
+import '@/styles/global.css' with { type: "css" };
+import Sidebar from '@/components/generic/header/sidebar';
+import styles from './page.module.css' with { type: "css" };
 import I18nProvider from "@/lib/i18nClient";
 import serveTea from "@/lib/i18nServer";
 import { cookies, headers } from "next/headers";
@@ -63,5 +63,5 @@ export default async function RootLayout(
         </I18nProvider>
       </body>
     </html >
-  )
+  );
 }

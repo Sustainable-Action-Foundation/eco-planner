@@ -9,20 +9,20 @@ export const handleKeyDownMenuBar = (
   setFocusedMenuBarItemIndex: React.Dispatch<React.SetStateAction<number | null>>,
 ) => {
   if (e.key === 'ArrowRight') {
-    e.stopPropagation()
+    e.stopPropagation();
     if (focusedMenuBarItemIndex !== menuBarItems.length - 1) {
       setFocusedMenuBarItemIndex(focusedMenuBarItemIndex === null ? 1 : focusedMenuBarItemIndex + 1);
     } else {
-      setFocusedMenuBarItemIndex(0)
+      setFocusedMenuBarItemIndex(0);
     }
   }
 
   if (e.key === 'ArrowLeft') {
-    e.stopPropagation()
+    e.stopPropagation();
     if (focusedMenuBarItemIndex !== 0) {
       setFocusedMenuBarItemIndex(focusedMenuBarItemIndex === null ? menuBarItems.length - 1 : focusedMenuBarItemIndex - 1);
     } else {
-      setFocusedMenuBarItemIndex(menuBarItems.length - 1)
+      setFocusedMenuBarItemIndex(menuBarItems.length - 1);
     }
   }
 
@@ -43,7 +43,7 @@ export const handleKeyDownMenuBar = (
   if (e.key === 'Escape') {
     setFocusedMenuBarItemIndex(null);
   }
-}
+};
 
 /** 
  * A popup menu is **always** vertical and **must** be located in a parent `menuitem` 
@@ -61,48 +61,48 @@ export const handleKeyDownPopUpMenu = (
 
   if (e.key === 'ArrowDown') {
     if (focusedMenuItemIndex != null) {
-      e.preventDefault()
-      e.stopPropagation()
+      e.preventDefault();
+      e.stopPropagation();
 
       if (focusedMenuItemIndex !== menuItems.length - 1) {
-        setFocusedMenuItemIndex(focusedMenuItemIndex + 1)
+        setFocusedMenuItemIndex(focusedMenuItemIndex + 1);
       } else {
-        setFocusedMenuItemIndex(0)
+        setFocusedMenuItemIndex(0);
       }
     }
   }
 
   if (e.key === 'ArrowUp') {
     if (focusedMenuItemIndex != null) {
-      e.preventDefault()
-      e.stopPropagation()
+      e.preventDefault();
+      e.stopPropagation();
 
       if (focusedMenuItemIndex !== 0) {
-        setFocusedMenuItemIndex(focusedMenuItemIndex - 1)
+        setFocusedMenuItemIndex(focusedMenuItemIndex - 1);
       } else {
-        setFocusedMenuItemIndex(menuItems.length - 1)
+        setFocusedMenuItemIndex(menuItems.length - 1);
       }
     }
   }
 
   if (e.key === 'Escape') {
-    e.preventDefault()   
+    e.preventDefault();   
     e.stopPropagation();
     parentMenuItem.focus();
-    setMenuOpen(false)
-    setFocusedMenuItemIndex(null)
+    setMenuOpen(false);
+    setFocusedMenuItemIndex(null);
   }
 
   /* These do not affect our menu, we instead close menu and let parent menu controls kick in. */
   if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'Tab' || e.key === 'End' || e.key === 'Home') {
-    setMenuOpen(false)
-    setFocusedMenuItemIndex(null)
+    setMenuOpen(false);
+    setFocusedMenuItemIndex(null);
   }
 
   
   if (e.key === 'Enter') {
     e.preventDefault();
-    e.stopPropagation()
+    e.stopPropagation();
     if (focusedMenuItemIndex != null) {
       const itemEl = menuItems[focusedMenuItemIndex];
       const selectedSize = itemEl?.getAttribute('data-size');
@@ -119,7 +119,7 @@ export const handleKeyDownPopUpMenu = (
 
   if (e.key === ' ') {
     e.preventDefault();
-    e.stopPropagation()
+    e.stopPropagation();
     if (focusedMenuItemIndex != null) {
       const itemEl = menuItems[focusedMenuItemIndex];
       const selectedSize = itemEl?.getAttribute('data-size');
@@ -131,4 +131,4 @@ export const handleKeyDownPopUpMenu = (
     }
   }
   
-}
+};

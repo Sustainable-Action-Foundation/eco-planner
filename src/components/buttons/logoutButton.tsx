@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "react-i18next";
 
 export default function LogoutButton({
   id,
@@ -13,7 +13,7 @@ export default function LogoutButton({
   style?: React.CSSProperties,
   children?: React.ReactNode,
 }) {
-  const { t } = useTranslation(["common", "components"])
+  const { t } = useTranslation(["common", "components"]);
   return (
     <button
       id={id}
@@ -26,16 +26,16 @@ export default function LogoutButton({
           headers: { 'Content-Type': 'application/json' },
         }).then((res) => {
           if (res.ok) {
-            window.location.href = '/'
+            window.location.href = '/';
           } else {
-            alert(t("components:logout_button.failed"))
+            alert(t("components:logout_button.failed"));
           }
         }).catch((e: unknown) => {
-          console.error("Logout failed:", e)
-          alert(t("components:logout_button.failed"))
-        })
+          console.error("Logout failed:", e);
+          alert(t("components:logout_button.failed"));
+        });
       }}>
       {children}
     </button>
-  )
+  );
 }

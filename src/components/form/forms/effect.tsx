@@ -56,7 +56,7 @@ export default function EffectForm({
     // let dataSeries: DateValuesWithUnit | undefined = undefined;
     try {
       dataSeries = JSON.parse(resultingDateValuesString) as DateValuesWithUnit;
-      dataSeries.unit = undefined
+      dataSeries.unit = undefined;
       // dataSeries.unit = formData.get("dataUnit") as string | null;
     } catch (e) {
       console.error("Failed to parse resulting date values from form:", e);
@@ -196,5 +196,5 @@ export default function EffectForm({
 
       </form>
     </>
-  )
+  );
 }

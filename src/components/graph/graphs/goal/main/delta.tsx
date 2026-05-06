@@ -26,7 +26,7 @@ export default function MainDeltaGraph({
   const { t } = useTranslation("graphs");
 
   if (!goal.dataSeries) {
-    return null
+    return null;
   }
 
   const colors: Array<string> = [color_palette.data.color];
@@ -76,7 +76,7 @@ export default function MainDeltaGraph({
     tooltip: {
       x: { format: 'yyyy' },
     },
-  }
+  };
 
   const chart: ApexAxisChartSeries = [];
 
@@ -159,11 +159,11 @@ export default function MainDeltaGraph({
       });
 
       colors.push(color_palette.expected.color);
-      opacities.push(color_palette.expected.fillOpacity)
+      opacities.push(color_palette.expected.fillOpacity);
     }
 
     colors.push(color_palette.baseline.color);
-    opacities.push(color_palette.baseline.fillOpacity)
+    opacities.push(color_palette.baseline.fillOpacity);
   } else if (effects.length > 0) {
     // If no baseline is set, use the first non-null value as baseline
     const firstNonNullEntry = goal.dataSeries.values.find(v => Number.isFinite(v.value));
@@ -196,9 +196,9 @@ export default function MainDeltaGraph({
         });
 
         colors.push(color_palette.baseline.color);
-        opacities.push(color_palette.baseline.fillOpacity)
+        opacities.push(color_palette.baseline.fillOpacity);
         colors.push(color_palette.expected.color);
-        opacities.push(color_palette.expected.fillOpacity)
+        opacities.push(color_palette.expected.fillOpacity);
       }
     }
   }
@@ -244,12 +244,12 @@ export default function MainDeltaGraph({
     }
 
     colors.push(color_palette.secondaryGoal.color);
-    opacities.push(color_palette.secondaryGoal.fillOpacity)
+    opacities.push(color_palette.secondaryGoal.fillOpacity);
   }
 
   // National goal
   if (parentGoal?.dataSeries) {
-    const parentSeries = []
+    const parentSeries = [];
     const parentDataSeries = dataSeriesToDateValues(parentGoal.dataSeries);
     const dates = Object.keys(parentDataSeries.dateValues).sort();
     if (!dates.every(d => isISOIshDate(d))) {
@@ -276,7 +276,7 @@ export default function MainDeltaGraph({
     });
 
     colors.push(color_palette.parentGoal.color);
-    opacities.push(color_palette.parentGoal.fillOpacity)
+    opacities.push(color_palette.parentGoal.fillOpacity);
   }
 
   return (

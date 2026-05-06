@@ -64,5 +64,5 @@ export function RecipeEditor() {
         RecipeFormElement={<input name="resultingRecipe" />}
       />
     </>
-  )
+  );
 }

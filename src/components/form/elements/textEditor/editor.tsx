@@ -1,9 +1,9 @@
-'use client'
+'use client';
 
 // TODO: Remove duplicate extension names
 import type { Content, Editor} from '@tiptap/react';
-import { EditorContent, useEditor } from '@tiptap/react'
-import TextEditorMenu from './menu'
+import { EditorContent, useEditor } from '@tiptap/react';
+import TextEditorMenu from './menu';
 import { defaultExtensions, nodeSizeLimit } from './config/config';
 import { useMemo } from 'react';
 
@@ -48,13 +48,13 @@ const TextEditor = ({
     },
     content: parsedContent,
     extensions: defaultExtensions(placeholder),
-  })
+  });
 
   if (!editor) {
-    return null
+    return null;
   }
 
-  const percentage = editor ? Math.round((100 / nodeSizeLimit) * editor.storage.characterCount.characters({ mode: 'nodeSize' })) : 0
+  const percentage = editor ? Math.round((100 / nodeSizeLimit) * editor.storage.characterCount.characters({ mode: 'nodeSize' })) : 0;
   const circumference = 2 * Math.PI * 5; // r = 5
   const dash = (percentage / 100) * circumference;
 
@@ -86,7 +86,7 @@ const TextEditor = ({
         </div>
         : null}
     </div>
-  )
-}
+  );
+};
 
-export default TextEditor
+export default TextEditor;

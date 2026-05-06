@@ -31,7 +31,7 @@ export default async function getUserHash(userEmail: string): Promise<string> {
       isAdmin: true,
       isVerified: true,
     },
-  })
+  });
   if (!user) {
     return Promise.reject(new Error('User not found'));
   }

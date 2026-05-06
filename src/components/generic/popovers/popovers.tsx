@@ -8,9 +8,9 @@
 // Anchor is supported on all major browsers as of January 2026. However, overall 
 // browser support is still quite low (~80%) and we keep fallbacks for now.
 
-"use client"
+"use client";
 
-import styles from './popovers.module.css' with { type: "css" }
+import styles from './popovers.module.css' with { type: "css" };
 import React from "react";
 
 export function PopoverButton({
@@ -41,7 +41,7 @@ export function PopoverButton({
     >
       {children}
     </button>
-  )
+  );
 }
 
 // TODO: A horizontal popover direction should only be 
@@ -85,7 +85,7 @@ export function Popover({
 
   // TODO: Probably prevent passing none in our types if positionTryFallbacks != "none"?
   if (positionTryFallbacks !== "none") {
-    indicator = undefined
+    indicator = undefined;
   }
 
   // Normalize vertical direction for consistent access
@@ -148,5 +148,5 @@ export function Popover({
         {children}
       </div>
     </>
-  )
+  );
 }

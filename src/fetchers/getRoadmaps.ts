@@ -1,6 +1,6 @@
 import "server-only";
 import type { LoginData } from "@/lib/session";
-import { getSession } from "@/lib/session"
+import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { roadmapSorter } from "@/lib/sorters";
 import { cacheTag } from "next/cache";
@@ -25,7 +25,7 @@ export async function getRoadmaps(roadmapIds?: string[]): Promise<MultiRoadmapIn
  * @param user Data from user's session cookie.
  */
 async function getCachedRoadmaps(user: LoginData['user'], roadmapIds?: string[]): Promise<MultiRoadmapInstance[]> {
-  'use cache'
+  'use cache';
   cacheTag('database', 'roadmap');
   let roadmaps: MultiRoadmapInstance[];
 

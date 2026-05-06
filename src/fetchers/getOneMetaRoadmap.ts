@@ -25,7 +25,7 @@ export async function getOneMetaRoadmap(id: string): Promise<MetaRoadmap | null>
  * @param user Data from user's session cookie.
  */
 async function getCachedMetaRoadmap(id: string, user: LoginData['user']) {
-  'use cache'
+  'use cache';
   cacheTag('database', 'metaRoadmap', 'roadmap');
   let metaRoadmap: MetaRoadmap | null;
 

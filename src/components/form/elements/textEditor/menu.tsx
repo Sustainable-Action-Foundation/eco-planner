@@ -3,7 +3,7 @@
 import { useTranslation } from "react-i18next";
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import type { Editor } from "@tiptap/core";
-import styles from './textEditor.module.css' with { type: "css" }
+import styles from './textEditor.module.css' with { type: "css" };
 import { BulletList, Link, NumberedList, Highlight, Subscript, Superscript, Underline, StrikeThrough, Bold, Italic, GreyText, FontSize, Redo, Undo } from "./menuItems";
 import { handleKeyDownMenuBar } from "./functions";
 import { IconDotsVertical } from "@tabler/icons-react";
@@ -33,10 +33,10 @@ export default function TextEditorMenu({
 
   const [focusedMenubarItem, setFocusedMenubarItem] = useState<number | null>(null);
   const [focusedSubmenuItem, setFocusedSubmenuItem] = useState<number | null>(null);
-  const [submenuVisible, setSubmenuVisible] = useState<boolean>()
+  const [submenuVisible, setSubmenuVisible] = useState<boolean>();
   const [menuBarWidth, setMenuBarWidth] = useState<number | undefined>(undefined); // width of menubar parent, updated on resize
-  const [visibleGroups, setVisibleGroups] = useState<number[]>() // Groups which should be shown in the menubar 
-  const [hiddenGroups, setHiddenGroups] = useState<number[]>() // Groups which should be shown in an expandable menu
+  const [visibleGroups, setVisibleGroups] = useState<number[]>(); // Groups which should be shown in the menubar 
+  const [hiddenGroups, setHiddenGroups] = useState<number[]>(); // Groups which should be shown in an expandable menu
 
   const menubarRef = useRef<HTMLUListElement | null>(null);
   const menuItemsRef = useRef<NodeListOf<HTMLElement> | null>(null);
@@ -98,7 +98,7 @@ export default function TextEditorMenu({
         "div > [role='menubar'] > li > [role='menuitem'], div > [role='menubar'] > li > [role='menuitemcheckbox'], div > [role='menubar'] > li > [role='menuitemradio']",
       );
     }
-  }, [menuBarWidth, visibleGroups, hiddenGroups])
+  }, [menuBarWidth, visibleGroups, hiddenGroups]);
 
   // Set focus to a menubar item when navigating using keyboard arrows
   useEffect(() => {
@@ -118,7 +118,7 @@ export default function TextEditorMenu({
         "li > [role='menuitem'], li > [role='menuitemcheckbox'], li > [role='menuitemradio']",
       );
     }
-  }, [submenuVisible])
+  }, [submenuVisible]);
 
   // Set focus to a submenu bar item when navigating using keyboard arrows
   useEffect(() => {
@@ -147,7 +147,7 @@ export default function TextEditorMenu({
       groupWidths[menuItemGroup] =
         (groupWidths[menuItemGroup] ?? 0) +
         width;
-    })
+    });
 
     const breakpoints: Record<string, number> = {};
     let runningTotal = 0;
@@ -159,12 +159,12 @@ export default function TextEditorMenu({
       });
 
     breakpointsRef.current = breakpoints;
-  }, [])
+  }, []);
 
   // Add resize observer to our menubar
   useEffect(() => {
     function updateWidth() {
-      if (!menubarRef.current) return
+      if (!menubarRef.current) return;
 
       setMenuBarWidth(
         menubarRef.current.clientWidth -
@@ -176,11 +176,11 @@ export default function TextEditorMenu({
     updateWidth();
     window.addEventListener("resize", updateWidth);
     return () => window.removeEventListener("resize", updateWidth);
-  }, [])
+  }, []);
 
   // Checks which groups should be visible by comparing menubar width to breakpoints
   useEffect(() => {
-    if (!menuBarWidth) return
+    if (!menuBarWidth) return;
 
     const calculatedVisibleGroups: number[] = [];
     const calculatedHiddenGroups: number[] = [];
@@ -188,27 +188,27 @@ export default function TextEditorMenu({
     menuItemsList.forEach((menuItem) => {
       if (menuBarWidth < breakpointsRef.current[menuItem.props["data-menu-group"]]) {
         if (!calculatedHiddenGroups.includes(menuItem.props["data-menu-group"])) {
-          calculatedHiddenGroups.push(menuItem.props["data-menu-group"])
+          calculatedHiddenGroups.push(menuItem.props["data-menu-group"]);
         }
       } else {
         if (!calculatedVisibleGroups.includes(menuItem.props["data-menu-group"])) {
-          calculatedVisibleGroups.push(menuItem.props["data-menu-group"])
+          calculatedVisibleGroups.push(menuItem.props["data-menu-group"]);
         }
       }
-    })
+    });
 
     if (!arraysEqual(visibleGroups, calculatedVisibleGroups)) {
-      setVisibleGroups(calculatedVisibleGroups)
+      setVisibleGroups(calculatedVisibleGroups);
     }
 
     if (!arraysEqual(hiddenGroups, calculatedHiddenGroups)) {
-      setHiddenGroups(calculatedHiddenGroups)
+      setHiddenGroups(calculatedHiddenGroups);
     }
 
-  }, [menuBarWidth, menuItemsList, visibleGroups, hiddenGroups])
+  }, [menuBarWidth, menuItemsList, visibleGroups, hiddenGroups]);
 
   if (!editor) {
-    return null
+    return null;
   }
 
   return (
@@ -226,7 +226,7 @@ export default function TextEditorMenu({
             menuItemsRef.current,
             focusedMenubarItem,
             setFocusedMenubarItem,
-          )
+          );
         }}
         role='menubar'
       >
@@ -250,25 +250,25 @@ export default function TextEditorMenu({
             onKeyDown={(e: React.KeyboardEvent) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
-                setSubmenuVisible(!submenuVisible)
-                setFocusedSubmenuItem(0)
+                setSubmenuVisible(!submenuVisible);
+                setFocusedSubmenuItem(0);
               }
               if (e.key === ' ') {
                 e.preventDefault();
-                setSubmenuVisible(!submenuVisible)
+                setSubmenuVisible(!submenuVisible);
               }
               if (e.key === "Escape") {
-                e.preventDefault()
-                e.stopPropagation()
-                submenuButtonRef.current?.focus()
-                setFocusedSubmenuItem(null)
-                setSubmenuVisible(false)
+                e.preventDefault();
+                e.stopPropagation();
+                submenuButtonRef.current?.focus();
+                setFocusedSubmenuItem(null);
+                setSubmenuVisible(false);
               }
               if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-                if (!submenuItemsRef.current) return
-                e.preventDefault()
-                if (!submenuVisible) { setSubmenuVisible(true) }
-                setFocusedSubmenuItem(0)
+                if (!submenuItemsRef.current) return;
+                e.preventDefault();
+                if (!submenuVisible) { setSubmenuVisible(true); }
+                setFocusedSubmenuItem(0);
               }
             }}
             role='menuitem'
@@ -295,26 +295,26 @@ export default function TextEditorMenu({
             }}
             ref={submenuRef}
             onKeyDown={(e: React.KeyboardEvent<HTMLUListElement>) => {
-              if (!submenuItemsRef.current) return
+              if (!submenuItemsRef.current) return;
               if (e.key === "Escape") {
-                e.preventDefault()
-                e.stopPropagation()
-                submenuButtonRef.current?.focus()
-                setFocusedSubmenuItem(null)
-                setSubmenuVisible(false)
+                e.preventDefault();
+                e.stopPropagation();
+                submenuButtonRef.current?.focus();
+                setFocusedSubmenuItem(null);
+                setSubmenuVisible(false);
               }
               if (e.key === "ArrowUp") {
-                e.preventDefault()
-                e.stopPropagation()
-                submenuButtonRef.current?.focus()
-                setFocusedSubmenuItem(null)
+                e.preventDefault();
+                e.stopPropagation();
+                submenuButtonRef.current?.focus();
+                setFocusedSubmenuItem(null);
               }
               handleKeyDownMenuBar(
                 e,
                 submenuItemsRef.current,
                 focusedSubmenuItem,
                 setFocusedSubmenuItem,
-              )
+              );
             }}
             role="menubar" // TODO: See if we want this to be role="toolbar"
           >
@@ -328,5 +328,5 @@ export default function TextEditorMenu({
         </li>
       </ul>
     </div>
-  )
+  );
 }

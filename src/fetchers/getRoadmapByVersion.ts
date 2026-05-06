@@ -1,7 +1,7 @@
 import "server-only";
 import { roadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import type { LoginData } from "@/lib/session";
-import { getSession } from "@/lib/session"
+import { getSession } from "@/lib/session";
 import { goalSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
 import { cacheTag } from "next/cache";
@@ -18,7 +18,7 @@ import type { Roadmap } from "@/types";
  */
 export async function getRoadmapByVersion(metaId: string, version: number) {
   const session = await getSession(await cookies());
-  return getCachedRoadmap(metaId, version, session.user)
+  return getCachedRoadmap(metaId, version, session.user);
 }
 
 /**
@@ -29,7 +29,7 @@ export async function getRoadmapByVersion(metaId: string, version: number) {
  * @param user Data from user's session cookie.
  */
 async function getCachedRoadmap(metaId: string, version: number, user: LoginData['user']) {
-  'use cache'
+  'use cache';
   cacheTag('database', 'roadmap', 'goal');
   let roadmap: Roadmap | null;
 
@@ -43,7 +43,7 @@ async function getCachedRoadmap(metaId: string, version: number, user: LoginData
     } catch (error) {
       console.log(error);
       console.log('Error fetching admin roadmap');
-      return null
+      return null;
     }
 
     roadmap?.goals.sort(goalSorter);
@@ -71,7 +71,7 @@ async function getCachedRoadmap(metaId: string, version: number, user: LoginData
     } catch (error) {
       console.log(error);
       console.log('Error fetching user roadmap');
-      return null
+      return null;
     }
 
     roadmap?.goals.sort(goalSorter);
@@ -91,7 +91,7 @@ async function getCachedRoadmap(metaId: string, version: number, user: LoginData
   } catch (error) {
     console.log(error);
     console.log('Error fetching public roadmap');
-    return null
+    return null;
   }
 
   roadmap?.goals.sort(goalSorter);

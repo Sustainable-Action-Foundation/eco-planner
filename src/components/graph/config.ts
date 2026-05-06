@@ -16,9 +16,9 @@ export const color_palette = {
 
 export const marker: ApexMarkers = {
   size: 3,
-}
+};
 
 export const stroke: ApexStroke = {
   curve: 'straight',
   width: 3,
-}
+};

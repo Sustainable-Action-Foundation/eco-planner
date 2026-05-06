@@ -81,9 +81,9 @@ export default async function RoadmapTable({
                 object={roadmap}
               />
             </div>
-          )
+          );
         })}
       </>
       : <p>{t("components:roadmap_table.no_roadmap_versions_found")}</p>}
-  </>
+  </>;
 }

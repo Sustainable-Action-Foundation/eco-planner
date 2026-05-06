@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { goalSorter, goalSorterActionAmount, goalSorterActionAmountReverse, goalSorterInterest, goalSorterReverse } from '@/lib/sorters';
 import { GoalSortBy } from '../goals';
@@ -113,5 +113,5 @@ export default function GoalTable({
         </tbody>
       </table>
     </div>
-  </>
+  </>;
 }

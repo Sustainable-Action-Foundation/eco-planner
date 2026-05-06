@@ -25,7 +25,7 @@ const roadmapSubsetSelect = {
   ...multiRoadmapInclusionSelection,
   goals: { select: { id: true } },
   actions: { select: { id: true } },
-}
+};
 
 /**
  * Caches a subset of roadmaps the user has access to, based on the parameters passed to the function.
@@ -34,8 +34,8 @@ const roadmapSubsetSelect = {
  * @param actor Actor to filter by
  */
 async function getCachedRoadmapSubset(user: LoginData['user'], actor?: string) {
-  'use cache'
-  cacheTag('database', 'roadmap')
+  'use cache';
+  cacheTag('database', 'roadmap');
   let roadmaps: Prisma.RoadmapGetPayload<{
     include: typeof roadmapSubsetSelect;
   }>[];

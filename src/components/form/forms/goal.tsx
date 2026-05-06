@@ -173,7 +173,7 @@ export default function GoalForm({
 
       const firstDateValue = baselineType === BaselineType.InitialNonZero
         ? dataSeries.dateValues[dates.find(date => dataSeries.dateValues[date] !== 0) || dates[0]]
-        : dataSeries.dateValues[dates[0]]
+        : dataSeries.dateValues[dates[0]];
 
       for (const date of dates) {
         baseline.dateValues[date] = firstDateValue;
@@ -463,5 +463,5 @@ export default function GoalForm({
         </div>
       </form >
     </>
-  )
+  );
 }

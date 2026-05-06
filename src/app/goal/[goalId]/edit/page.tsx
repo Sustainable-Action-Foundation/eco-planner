@@ -24,7 +24,7 @@ export async function generateMetadata(props: { params: Promise<{ goalId: string
       description: t("metadata:login.title"),
       og_url: `/goal/${params.goalId}/edit`,
       og_image_url: '/images/og_wind.png',
-    })
+    });
   }
 
   return buildMetadata({
@@ -32,7 +32,7 @@ export async function generateMetadata(props: { params: Promise<{ goalId: string
     description: currentGoal?.description,
     og_url: `/goal/${params.goalId}/edit`,
     og_image_url: undefined, // TODO METADATA: Use graph api here once ready
-  })
+  });
 }
 
 export default async function Page(props: { params: Promise<{ goalId: string }> }) {
@@ -53,7 +53,7 @@ export default async function Page(props: { params: Promise<{ goalId: string }> 
       editGroups: currentGoal.roadmap.editGroups,
       viewGroups: currentGoal.roadmap.viewGroups,
       isPublic: currentGoal.roadmap.isPublic,
-    }
+    };
   }
   // User must be signed in and have edit access to the goal, and the goal must exist
   if (!currentGoal || !session.user || !accessChecker(goalAccessData, session.user) || accessChecker(goalAccessData, session.user) === AccessLevel.View) {
@@ -75,5 +75,5 @@ export default async function Page(props: { params: Promise<{ goalId: string }> 
         <GoalForm roadmapId={currentGoal.roadmapId} currentGoal={currentGoal} roadmapAlternatives={roadmapList} />
       </div>
     </>
-  )
+  );
 }

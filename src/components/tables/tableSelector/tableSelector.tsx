@@ -16,7 +16,7 @@ export default function TableSelector({ id, current, setter }: { id: string, cur
       setter(event.target.value as ViewMode);
     }
     else {
-      console.log("Invalid view mode")
+      console.log("Invalid view mode");
       setter("");
     }
   };

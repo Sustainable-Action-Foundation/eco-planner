@@ -56,9 +56,9 @@ export default function MainRelativeGraph({
       name: secondaryGoal.name || secondaryGoal.indicatorParameter,
       data: secondarySeries,
       type: 'line',
-    })
+    });
     colors.push(color_palette.secondaryGoal.color);
-    opacities.push(color_palette.secondaryGoal.fillOpacity)
+    opacities.push(color_palette.secondaryGoal.fillOpacity);
   }
 
   // National goal
@@ -78,7 +78,7 @@ export default function MainRelativeGraph({
     });
 
     colors.push(color_palette.parentGoal.color);
-    opacities.push(color_palette.parentGoal.fillOpacity)
+    opacities.push(color_palette.parentGoal.fillOpacity);
   }
 
   const chartOptions: ApexCharts.ApexOptions = {
@@ -109,7 +109,7 @@ export default function MainRelativeGraph({
     tooltip: {
       x: { format: 'yyyy' },
     },
-  }
+  };
 
   return (
     <WrappedChart
@@ -119,5 +119,5 @@ export default function MainRelativeGraph({
       width="100%"
       height="100%"
     />
-  )
+  );
 }

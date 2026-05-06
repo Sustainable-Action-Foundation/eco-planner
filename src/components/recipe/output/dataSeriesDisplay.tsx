@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
@@ -57,5 +57,5 @@ export function OutputDataSeries() {
         ))}
       </div>
     </>
-  )
+  );
 }

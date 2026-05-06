@@ -93,7 +93,7 @@ export default function MainGraph({
       x: { format: 'yyyy' },
       shared: true,
     },
-  }
+  };
 
   const mainChart: ApexAxisChartSeries = [];
 
@@ -103,7 +103,7 @@ export default function MainGraph({
     name: `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
     data: mainSeries,
     type: 'line',
-  })
+  });
 
 
   if (historicalData) {
@@ -127,7 +127,7 @@ export default function MainGraph({
     }
 
     colors.push(color_palette.historical.color);
-    opacities.push(color_palette.historical.fillOpacity)
+    opacities.push(color_palette.historical.fillOpacity);
   }
 
 
@@ -139,10 +139,10 @@ export default function MainGraph({
       name: t("graphs:common.baseline_scenario"),
       data: baseline,
       type: 'line',
-    })
+    });
 
     if (effects.length > 0) {
-      const totalEffect = calculatePredictedOutcome(effects, goal.baseline)
+      const totalEffect = calculatePredictedOutcome(effects, goal.baseline);
 
       // Line based on totalEffect + baseline
       if (totalEffect.length > 0) {
@@ -154,17 +154,17 @@ export default function MainGraph({
       }
 
       colors.push(color_palette.expected.color);
-      opacities.push(color_palette.expected.fillOpacity)
+      opacities.push(color_palette.expected.fillOpacity);
     }
 
     colors.push(color_palette.baseline.color);
-    opacities.push(color_palette.baseline.fillOpacity)
+    opacities.push(color_palette.baseline.fillOpacity);
   } else if (effects.length > 0) {
     // If no baseline is set, use the first non-null value as baseline
     const firstNonNull = mainEntries.find(([, value]) => Number.isFinite(value));
 
     if (firstNonNull) {
-      const totalEffect = calculatePredictedOutcome(effects, firstNonNull[1])
+      const totalEffect = calculatePredictedOutcome(effects, firstNonNull[1]);
 
       // Only draw if totalEffect has values
       if (totalEffect.length > 0) {
@@ -187,9 +187,9 @@ export default function MainGraph({
         });
 
         colors.push(color_palette.baseline.color);
-        opacities.push(color_palette.baseline.fillOpacity)
+        opacities.push(color_palette.baseline.fillOpacity);
         colors.push(color_palette.expected.color);
-        opacities.push(color_palette.expected.fillOpacity)
+        opacities.push(color_palette.expected.fillOpacity);
       }
     }
   }
@@ -214,7 +214,7 @@ export default function MainGraph({
     }
 
     colors.push(color_palette.secondaryGoal.color);
-    opacities.push(color_palette.secondaryGoal.fillOpacity)
+    opacities.push(color_palette.secondaryGoal.fillOpacity);
   }
 
   if (parentGoal?.dataSeries) {
@@ -233,7 +233,7 @@ export default function MainGraph({
     });
 
     colors.push(color_palette.parentGoal.color);
-    opacities.push(color_palette.parentGoal.fillOpacity)
+    opacities.push(color_palette.parentGoal.fillOpacity);
   }
 
   return (
@@ -244,5 +244,5 @@ export default function MainGraph({
       width="100%"
       height="100%"
     />
-  )
+  );
 }

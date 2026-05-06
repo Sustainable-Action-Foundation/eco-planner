@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { getSession } from "@/lib/session"
+import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@PRISMA-NAMESPACE-ONLY";
 import { AccessLevel, ClientError, isGoalCreate } from "@/types";
@@ -100,7 +100,7 @@ function isRoadmapCreate(roadmap: JSONValue): roadmap is RoadmapCreateInput {
     )
 
     // links are deprecated and not checked
-  )
+  );
 }
 
 function isRoadmapUpdate(roadmap: JSONValue): roadmap is RoadmapUpdateInput {
@@ -197,7 +197,7 @@ function isRoadmapUpdate(roadmap: JSONValue): roadmap is RoadmapUpdateInput {
     )
 
     // links are deprecated and not checked
-  )
+  );
 }
 
 /**
@@ -260,7 +260,7 @@ export async function POST(request: NextRequest) {
       editGroups: metaRoadmap.editGroups,
       viewGroups: metaRoadmap.viewGroups,
       isPublic: metaRoadmap.isPublic,
-    }
+    };
     const accessLevel = accessChecker(accessFields, session.user);
     if (accessLevel === AccessLevel.None || accessLevel === AccessLevel.View) {
       throw new Error(ClientError.IllegalParent, { cause: 'roadmap' });
@@ -394,7 +394,7 @@ export async function PUT(request: NextRequest) {
     // The version number is not allowed to be changed
     request.json() as Promise<JSONValue>,
   ]);
-  const t = await serveTea("api")
+  const t = await serveTea("api");
 
   // Validate session
   if (!session.user?.id) {
@@ -436,7 +436,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Check if the roadmap exists and the user has access to it
-    const access = accessChecker(currentRoadmap, session.user)
+    const access = accessChecker(currentRoadmap, session.user);
     if (access === AccessLevel.None || access === AccessLevel.View) {
       throw new Error(ClientError.AccessDenied, { cause: 'roadmap' });
     }
@@ -548,7 +548,7 @@ export async function DELETE(request: NextRequest) {
     getSession(await cookies()),
     request.json() as Promise<{ id: string }>,
   ]);
-  const t = await serveTea("api")
+  const t = await serveTea("api");
 
   // Validate request body
   if (!roadmap.id) {

@@ -5,10 +5,10 @@ import type { Transaction } from "@tiptap/pm/state";
 import { useEditorState } from "@tiptap/react";
 import { IconArrowBackUp, IconArrowForwardUp, IconItalic, IconBold, IconStrikethrough, IconUnderline, IconSuperscript, IconSubscript, IconHighlight, IconLink, IconList, IconListNumbers, IconChevronDown, IconLinkOff, IconAlignLeft } from "@tabler/icons-react";
 import React, { useEffect, useRef, useState } from "react";
-import styles from './textEditor.module.css' with { type: "css" }
+import styles from './textEditor.module.css' with { type: "css" };
 import { allowedProtocols } from './config/config';
 import type { TFunction } from "i18next";
-import { BubbleMenu } from '@tiptap/react/menus'
+import { BubbleMenu } from '@tiptap/react/menus';
 import { handleKeyDownPopUpMenu } from "./functions";
 
 type MenubarButtonProps = {
@@ -71,7 +71,7 @@ export function Undo(props: MenubarButtonProps) {
         aria-hidden="true"
       />
     </span>
-  )
+  );
 }
 
 export function Redo(props: MenubarButtonProps) {
@@ -105,7 +105,7 @@ export function Redo(props: MenubarButtonProps) {
         aria-hidden="true"
       />
     </span>
-  )
+  );
 }
 
 export function GreyText(props: MenubarButtonProps) {
@@ -137,7 +137,7 @@ export function GreyText(props: MenubarButtonProps) {
         <path d="M5 21h14" color='darkgrey' strokeWidth={3} />
       </svg>
     </span>
-  )
+  );
 }
 
 export function Italic(props: MenubarButtonProps) {
@@ -156,7 +156,7 @@ export function Italic(props: MenubarButtonProps) {
     >
       <IconItalic className="grid" width={16} height={16} aria-hidden="true" />
     </span>
-  )
+  );
 }
 
 export function Bold(props: MenubarButtonProps) {
@@ -175,7 +175,7 @@ export function Bold(props: MenubarButtonProps) {
     >
       <IconBold className="grid" width={16} height={16} aria-hidden="true" />
     </span>
-  )
+  );
 }
 
 export function StrikeThrough(props: MenubarButtonProps) {
@@ -200,7 +200,7 @@ export function StrikeThrough(props: MenubarButtonProps) {
     >
       <IconStrikethrough className="grid" width={16} height={16} aria-hidden="true" />
     </span>
-  )
+  );
 }
 
 export function Underline(props: MenubarButtonProps) {
@@ -219,7 +219,7 @@ export function Underline(props: MenubarButtonProps) {
     >
       <IconUnderline className="grid" width={16} height={16} aria-hidden="true" />
     </span>
-  )
+  );
 }
 
 export function Superscript(props: MenubarButtonProps) {
@@ -238,7 +238,7 @@ export function Superscript(props: MenubarButtonProps) {
     >
       <IconSuperscript className="grid" width={16} height={16} aria-hidden="true" />
     </span>
-  )
+  );
 }
 
 export function Subscript(props: MenubarButtonProps) {
@@ -257,7 +257,7 @@ export function Subscript(props: MenubarButtonProps) {
     >
       <IconSubscript className="grid" width={16} height={16} aria-hidden="true" />
     </span>
-  )
+  );
 }
 
 export function Highlight(props: MenubarButtonProps) {
@@ -276,7 +276,7 @@ export function Highlight(props: MenubarButtonProps) {
     >
       <IconHighlight className="grid" width={16} height={16} aria-hidden="true" />
     </span>
-  )
+  );
 }
 
 export function BulletList(props: MenubarButtonProps) {
@@ -295,7 +295,7 @@ export function BulletList(props: MenubarButtonProps) {
     >
       <IconList width={16} height={16} className="grid" aria-hidden='true' />
     </span>
-  )
+  );
 }
 
 export function NumberedList(props: MenubarButtonProps) {
@@ -314,7 +314,7 @@ export function NumberedList(props: MenubarButtonProps) {
     >
       <IconListNumbers width={16} height={16} className="grid" aria-hidden='true' />
     </span>
-  )
+  );
 }
 
 // TODO: Export this as something else to avoid confusion with nextjs Link component?
@@ -323,9 +323,9 @@ export function Link(props: MenubarButtonProps) {
 
   const [textValue, setTextValue] = useState("");
   const [hrefValue, setHrefValue] = useState("");
-  const linkNameRef = useRef<HTMLInputElement | null>(null)
-  const linkHrefRef = useRef<HTMLInputElement | null>(null)
-  const dialogRef = useRef<HTMLDialogElement | null>(null)
+  const linkNameRef = useRef<HTMLInputElement | null>(null);
+  const linkHrefRef = useRef<HTMLInputElement | null>(null);
+  const dialogRef = useRef<HTMLDialogElement | null>(null);
 
   function setLink(text: string, url: string) {
 
@@ -369,8 +369,8 @@ export function Link(props: MenubarButtonProps) {
         ],
       })
       .command(({ tr }: { tr: Transaction }) => {
-        tr.setStoredMarks([])
-        return true
+        tr.setStoredMarks([]);
+        return true;
       })
       .run();
 
@@ -384,17 +384,17 @@ export function Link(props: MenubarButtonProps) {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             if (editor.isActive('link')) {
-              editor.chain().focus().unsetLink().run()
+              editor.chain().focus().unsetLink().run();
             } else {
-              dialogRef.current?.showModal()
+              dialogRef.current?.showModal();
             }
           }
         }}
         onClick={() => {
           if (editor.isActive('link')) {
-            editor.chain().focus().unsetLink().run()
+            editor.chain().focus().unsetLink().run();
           } else {
-            dialogRef.current?.showModal()
+            dialogRef.current?.showModal();
           }
         }}
         tabIndex={-1}
@@ -453,9 +453,9 @@ export function Link(props: MenubarButtonProps) {
             onClick={(e) => {
               e.stopPropagation();
               setLink(textValue, hrefValue);
-              setTextValue('')
-              setHrefValue('')
-              dialogRef.current?.close()
+              setTextValue('');
+              setHrefValue('');
+              dialogRef.current?.close();
             }}
           >
             {t('forms:text_editor_menu.link.apply')}
@@ -485,7 +485,7 @@ export function Link(props: MenubarButtonProps) {
                 style={{ transform: 'scale(1)' }}
                 aria-label={t('forms:text_editor_menu.link.remove_link')}
                 data-tooltip={t('forms:text_editor_menu.link.remove_link')}
-                onClick={() => { editor.chain().focus().unsetLink().run() }}
+                onClick={() => { editor.chain().focus().unsetLink().run(); }}
               >
                 <IconLinkOff height={18} width={18} aria-hidden={true} />
               </button>
@@ -494,7 +494,7 @@ export function Link(props: MenubarButtonProps) {
         </BubbleMenu>
       }
     </>
-  )
+  );
 }
 
 type FontSizeProps = MenubarButtonProps & { editorId: string };
@@ -514,7 +514,7 @@ export function FontSize(props: FontSizeProps) {
         "li > [role='menuitem'], li > [role='menuitemcheckbox'], li > [role='menuitemradio']",
       );
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
     if (!fontSizeMenuItemsRef.current) return;
@@ -536,7 +536,7 @@ export function FontSize(props: FontSizeProps) {
         (fontSizeMenuButtonRef.current && !fontSizeMenuButtonRef.current.contains(event.target))
       ) {
         setFontSizeMenuOpen(false);
-        editor.commands.focus()
+        editor.commands.focus();
       }
     };
 
@@ -556,9 +556,9 @@ export function FontSize(props: FontSizeProps) {
         onClick={() => setFontSizeMenuOpen(!fontSizeMenuOpen)}
         onKeyDown={(e: React.KeyboardEvent) => {
           if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-            e.preventDefault()
-            setFontSizeMenuOpen(true)
-            setFocusedFontSizeMenuItem(0)
+            e.preventDefault();
+            setFontSizeMenuOpen(true);
+            setFocusedFontSizeMenuItem(0);
           }
         }}
         ref={fontSizeMenuButtonRef}
@@ -595,7 +595,7 @@ export function FontSize(props: FontSizeProps) {
             fontSize: '1rem',
           }}
           onKeyDown={(e: React.KeyboardEvent<HTMLUListElement>) => {
-            if (!fontSizeMenuButtonRef.current || !fontSizeMenuItemsRef.current || !fontSizeMenuOpen) return
+            if (!fontSizeMenuButtonRef.current || !fontSizeMenuItemsRef.current || !fontSizeMenuOpen) return;
 
             handleKeyDownPopUpMenu(
               e,
@@ -606,12 +606,12 @@ export function FontSize(props: FontSizeProps) {
               setFocusedFontSizeMenuItem,
               setFontSizeMenuOpen,
               setFocusedMenubarItem,
-            )
+            );
           }}
         >
           <li role='presentation' style={{ borderBottom: '1px solid var(--gray)', paddingBottom: '2px' }}>
             <div
-              onClick={() => { editor.chain().focus().setFontSize('1.25rem').run(); setFontSizeMenuOpen(false) }}
+              onClick={() => { editor.chain().focus().setFontSize('1.25rem').run(); setFontSizeMenuOpen(false); }}
               // onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => {chain.setFontSize('1.25rem'); setFontSizeMenuOpen(false)})}
               data-size="1.25rem"
               className='smooth font-size-smaller width-100'
@@ -626,7 +626,7 @@ export function FontSize(props: FontSizeProps) {
           </li>
           <li role='presentation' style={{ borderBottom: '1px solid var(--gray)', paddingBlock: '2px' }}>
             <div
-              onClick={() => { editor.chain().focus().unsetFontSize().run(); setFontSizeMenuOpen(false) }}
+              onClick={() => { editor.chain().focus().unsetFontSize().run(); setFontSizeMenuOpen(false); }}
               // onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => {chain.unsetFontSize(); setFontSizeMenuOpen(false)})}
               data-size="unset"
               className='smooth font-size-smaller width-100'
@@ -642,7 +642,7 @@ export function FontSize(props: FontSizeProps) {
           </li>
           <li role='presentation' style={{ paddingTop: '2px' }}>
             <div
-              onClick={() => { editor.chain().focus().setFontSize('0.75rem').run(); setFontSizeMenuOpen(false) }}
+              onClick={() => { editor.chain().focus().setFontSize('0.75rem').run(); setFontSizeMenuOpen(false); }}
               // onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => {chain.setFontSize('0.75rem'); setFontSizeMenuOpen(false)})}
               data-size="0.75rem"
               className='smooth font-size-smaller width-100'
@@ -659,5 +659,5 @@ export function FontSize(props: FontSizeProps) {
         </ul>
       </span>
     </>
-  )
+  );
 }

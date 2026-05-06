@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description: t("metadata:verify_verify.description"),
     og_url: `/verify/verify`,
     og_image_url: undefined,
-  })
+  });
 }
 
 export default async function Page() {
@@ -25,5 +25,5 @@ export default async function Page() {
         <VerifyButton />
       </div>
     </main>
-  )
+  );
 }

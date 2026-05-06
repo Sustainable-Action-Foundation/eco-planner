@@ -25,7 +25,7 @@ export async function getMetaRoadmaps() {
  * @param user Data from user's session cookie.
  */
 async function getCachedMetaRoadmaps(user: LoginData['user']) {
-  'use cache'
+  'use cache';
   cacheTag('database', 'metaRoadmap', 'roadmap');
 
   let metaRoadmaps: MetaRoadmap[];

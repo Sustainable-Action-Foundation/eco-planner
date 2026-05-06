@@ -31,7 +31,7 @@ export default function DataSeriesInputManual({
       year: new Date(date).getFullYear(),
       data: value ?? null,
     }));
-  })
+  });
 
   const [focusedCell, setFocusedCell] = useState<{ row: number, column: number } | null>(null);
   const [gridExpanded, setGridExpanded] = useState<boolean>(true);
@@ -93,13 +93,13 @@ export default function DataSeriesInputManual({
             id: next[rowIndex].id,
             year: next[rowIndex].year,
             data: cols[0] ? Number(cols[0]) : null,
-          }
+          };
         } else {
           next[rowIndex] = {
             id: next[rowIndex].id,
             year: cols[0] ? Number(cols[0]) : null,
             data: cols[1] ? Number(cols[1]) : null,
-          }
+          };
         }
 
       });
@@ -120,17 +120,17 @@ export default function DataSeriesInputManual({
   }
 
   function insertRowAbove() {
-    if (!focusedCell) return
+    if (!focusedCell) return;
 
     setValue(prev => [
       ...prev.slice(0, focusedCell.row),
       { id: crypto.randomUUID(), year: null, data: null },
       ...prev.slice(focusedCell.row),
-    ])
+    ]);
   }
 
   function deleteCurrentRow() {
-    if (!focusedCell) return
+    if (!focusedCell) return;
 
     setValue(prev => {
       if (prev.length === 0) return prev;
@@ -147,7 +147,7 @@ export default function DataSeriesInputManual({
   }
 
   function deleteCurrentGridCellContents() {
-    if (!focusedCell) return
+    if (!focusedCell) return;
 
     setValue(prev =>
       prev.map((item, index) => {
@@ -286,7 +286,7 @@ export default function DataSeriesInputManual({
                     if (!isValidPastedInput(pasted)) {
                       e.preventDefault();
                     } else {
-                      handlePaste(e, index, 'year')
+                      handlePaste(e, index, 'year');
                     }
                   }}
                 />
@@ -311,9 +311,9 @@ export default function DataSeriesInputManual({
                 />
               </Grid.Cell>
             </Grid.Row>,
-          ]
+          ];
         })}
       </Grid>
     </>
-  )
+  );
 }

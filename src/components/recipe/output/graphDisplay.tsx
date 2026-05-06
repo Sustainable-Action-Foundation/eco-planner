@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import { useRecipe } from "../context/recipeContext.use";

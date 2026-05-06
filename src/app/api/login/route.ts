@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { getSession, options } from "@/lib/session"
+import { getSession, options } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";

@@ -2,10 +2,10 @@
 
 import { clientSafeGoalSelection } from "@/fetchers/inclusionSelectors";
 import type { LoginData } from "@/lib/session";
-import { getSession } from "@/lib/session"
+import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
-import { cacheTag } from 'next/cache'
+import { cacheTag } from 'next/cache';
 import type { ClientGoal } from "@/types";
 
 /**
@@ -17,7 +17,7 @@ import type { ClientGoal } from "@/types";
  */
 export async function clientSafeGetOneGoal(id: string): Promise<ClientGoal | null> {
   const session = await getSession(await cookies());
-  return clientSafeGetCachedGoal(id, session.user)
+  return clientSafeGetCachedGoal(id, session.user);
 }
 
 async function clientSafeGetCachedGoal(id: string, user: LoginData['user']): Promise<ClientGoal | null> {
@@ -64,7 +64,7 @@ async function clientSafeGetCachedGoal(id: string, user: LoginData['user']): Pro
     } catch (error) {
       console.log(error);
       console.log('Error fetching user goal');
-      return null
+      return null;
     }
 
     return goal;
@@ -82,7 +82,7 @@ async function clientSafeGetCachedGoal(id: string, user: LoginData['user']): Pro
   } catch (error) {
     console.log(error);
     console.log('Error fetching public goal');
-    return null
+    return null;
   }
 
   return goal;

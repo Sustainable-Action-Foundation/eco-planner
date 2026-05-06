@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 import { RecipeDataTypes, RecipeError } from "@/functions/recipe/types";
@@ -43,7 +43,7 @@ export function VariableTypeScalar({
         />
       </div>
     </CommonVariable>
-  )
+  );
 }
 
 export function VariableTypeScalarSimple({
@@ -76,5 +76,5 @@ export function VariableTypeScalarSimple({
       readOnly={!permissions.allowValueEditing}
       {...props}
     />
-  )
+  );
 }

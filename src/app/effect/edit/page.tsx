@@ -49,7 +49,7 @@ export async function generateMetadata(
       description: t("metadata:login.title"),
       og_url: ownUrl,
       og_image_url: '/images/og_wind.png',
-    })
+    });
   }
 
   return buildMetadata({
@@ -57,7 +57,7 @@ export async function generateMetadata(
     description: undefined,
     og_url: ownUrl,
     og_image_url: undefined,
-  })
+  });
 }
 
 
@@ -93,7 +93,7 @@ export default async function Page(
           {t("pages:effect_edit.no_access")}
         </p>
       </div>
-    )
+    );
   }
 
   /** TODO: redundant? the getRoadmaps function already does checks? */
@@ -113,5 +113,5 @@ export default async function Page(
         />
       </div>
     </>
-  )
+  );
 }

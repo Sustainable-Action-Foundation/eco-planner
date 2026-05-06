@@ -25,7 +25,7 @@ export async function getOneEffect(actionId: string, goalId: string): Promise<Ef
  * Caches the specified effect as well as its action and goal.
  */
 async function getCachedEffect(actionId: string, goalId: string, user: LoginData['user']): Promise<Effect | null> {
-  'use cache'
+  'use cache';
   cacheTag('database', 'action', 'goal', 'effect');
 
   let effect: Effect | null;

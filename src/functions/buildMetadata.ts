@@ -28,7 +28,7 @@ export async function buildMetadata(
     headerContent.get("accept-language"),
   );
 
-  const t = await serveTea('metadata')
+  const t = await serveTea('metadata');
 
   // Truncates metadata text to fit commonly used lengths (60 for title, 150 for description)
   title = truncateText(title, 60 - t("metadata:default.title").length);

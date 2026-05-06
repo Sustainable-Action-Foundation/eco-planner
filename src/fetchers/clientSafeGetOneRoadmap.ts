@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session";
 import { goalSorter } from "@/lib/sorters";
-import { cacheTag } from 'next/cache'
+import { cacheTag } from 'next/cache';
 import type { ClientRoadmap } from "@/types";
 
 /**

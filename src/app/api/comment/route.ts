@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
         roadmapId: objectType === "roadmap" ? comment.objectId : undefined,
       },
     });
-    revalidateTag(objectType, 'max')
+    revalidateTag(objectType, 'max');
     return Response.json({ message: 'Comment created', id: newComment.id },
       { status: 200 },
     );

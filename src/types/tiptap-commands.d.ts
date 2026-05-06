@@ -1,5 +1,5 @@
 import '@tiptap/core';
-import '@tiptap/extension-link'
+import '@tiptap/extension-link';
 
 declare module '@tiptap/extension-link' {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions

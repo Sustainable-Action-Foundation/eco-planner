@@ -1,5 +1,5 @@
-import '@tiptap/extension-text-style'
-import { Extension } from '@tiptap/core'
+import '@tiptap/extension-text-style';
+import { Extension } from '@tiptap/core';
 
 export type LineThroughOptions = {
   /**
@@ -28,7 +28,7 @@ export const LineThrough = Extension.create<LineThroughOptions>({
   addOptions() {
     return {
       types: ['textStyle'],
-    }
+    };
   },
 
   addGlobalAttributes() {
@@ -39,29 +39,29 @@ export const LineThrough = Extension.create<LineThroughOptions>({
           textDecoration: {
             default: null,
             parseHTML: element => {
-              const textDecoration = element.style.textDecoration?.replace(/['"]+/g, '')
-              return textDecoration === 'line-through' ? 'line-through' : null
+              const textDecoration = element.style.textDecoration?.replace(/['"]+/g, '');
+              return textDecoration === 'line-through' ? 'line-through' : null;
             },
             renderHTML: attributes => {
               if (attributes.textDecoration !== 'line-through') {
-                return {}
+                return {};
               }
 
               return {
                 style: 'text-decoration: line-through',
-              }
+              };
             },
           },
         },
       },
-    ]
+    ];
   },
 
   addCommands() {
     return {
       toggleLineThrough: () => ({ chain }) => {
         const attrs = this.editor.getAttributes('textStyle');
-        const isLineThrough = attrs.textDecoration === 'line-through'
+        const isLineThrough = attrs.textDecoration === 'line-through';
 
         return isLineThrough
           ? chain()
@@ -70,15 +70,15 @@ export const LineThrough = Extension.create<LineThroughOptions>({
             .run()
           : chain()
             .setMark('textStyle', { textDecoration: 'line-through' })
-            .run()
+            .run();
       },
-    }
+    };
   },
 
   addKeyboardShortcuts() {
     return {
       'Mod-Shift-s': () => this.editor.commands.toggleLineThrough(),
-    }
+    };
   },
 
-})
+});

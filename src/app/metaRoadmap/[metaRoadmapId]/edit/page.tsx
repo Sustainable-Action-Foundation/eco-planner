@@ -10,7 +10,7 @@ import { buildMetadata } from '@/functions/buildMetadata';
 import { getOneMetaRoadmap, getMetaRoadmaps } from "@/fetchers";
 
 export async function generateMetadata(props: { params: Promise<{ metaRoadmapId: string }> }) {
-  const params = await props.params
+  const params = await props.params;
   const [t, session, metaRoadmap] = await Promise.all([
     serveTea("metadata"),
     getSession(await cookies()),
@@ -23,7 +23,7 @@ export async function generateMetadata(props: { params: Promise<{ metaRoadmapId:
       description: t("metadata:login.title"),
       og_url: `/roadmap/${params.metaRoadmapId}/edit`,
       og_image_url: '/images/og_wind.png',
-    })
+    });
   }
 
   return buildMetadata({
@@ -31,7 +31,7 @@ export async function generateMetadata(props: { params: Promise<{ metaRoadmapId:
     description: metaRoadmap?.description,
     og_url: `/roadmap/${params.metaRoadmapId}/edit`,
     og_image_url: undefined,
-  })
+  });
 }
 
 
@@ -44,7 +44,7 @@ export default async function Page(props: { params: Promise<{ metaRoadmapId: str
     getMetaRoadmaps(),
   ]);
 
-  const access = accessChecker(currentRoadmap, session.user)
+  const access = accessChecker(currentRoadmap, session.user);
 
   // User must be signed in and have edit access to the roadmap, which must exist
   if (!session.user || !currentRoadmap || access === AccessLevel.None || access === AccessLevel.View) {
@@ -67,5 +67,5 @@ export default async function Page(props: { params: Promise<{ metaRoadmapId: str
         />
       </div>
     </>
-  )
+  );
 }

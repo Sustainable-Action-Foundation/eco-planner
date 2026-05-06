@@ -26,8 +26,8 @@ export async function getUserInfo(username: string) {
  * @param activeUser Data from requesting user's session cookie.
  */
 async function getCachedUserInfo(username: string, activeUser: LoginData['user']) {
-  'use cache'
-  cacheTag('database', 'user', 'roadmap', 'metaRoadmap')
+  'use cache';
+  cacheTag('database', 'user', 'roadmap', 'metaRoadmap');
   // If active user is admin, get all relevant roadmaps
   if (activeUser?.isAdmin) {
     try {

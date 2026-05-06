@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { RecipeDataTypes } from "@/functions/recipe/types";
 import { useEffect, useState } from "react";
@@ -85,7 +85,7 @@ export function VariablesEditor({
               permissions={{ ...permissions }}
             />
           </li>
-        )
+        );
         else if (variable.type === RecipeDataTypes.DataSeries) return (
           <li className="padding-bottom-75 margin-bottom-75" key={variableId}>
             <DataSeriesVariableEditor
@@ -95,7 +95,7 @@ export function VariablesEditor({
               availableDataSeries={availableRoadmaps}
             />
           </li>
-        )
+        );
         else if (variable.type === RecipeDataTypes.External) return (
           <li className="padding-bottom-75 margin-bottom-75" key={variableId}>
             <VariableTypeExternal
@@ -104,7 +104,7 @@ export function VariablesEditor({
               permissions={{ ...permissions }}
             />
           </li>
-        )
+        );
         else console.warn("Unknown variable type", { variable }, "for variable", variableId);
       })}
     </ul>

@@ -15,7 +15,7 @@ import TextEditor from "@/components/form/elements/textEditor/editor";
 import { AdminPanel } from "@/components/elements/controls/controls";
 
 export async function generateMetadata(props: { params: Promise<{ actionId: string }> }) {
-  const params = await props.params
+  const params = await props.params;
   const [t, session, action] = await Promise.all([
     serveTea("metadata"),
     getSession(await cookies()),
@@ -28,7 +28,7 @@ export async function generateMetadata(props: { params: Promise<{ actionId: stri
       description: t("metadata:login.title"),
       og_url: `/action/${params.actionId}`,
       og_image_url: '/images/og_wind.png',
-    })
+    });
   }
 
   return buildMetadata({
@@ -36,7 +36,7 @@ export async function generateMetadata(props: { params: Promise<{ actionId: stri
     description: action?.description,
     og_url: `/action/${params.actionId}`,
     og_image_url: undefined,
-  })
+  });
 
 }
 
@@ -57,7 +57,7 @@ export default async function Page(props: { params: Promise<{ actionId: string }
       editGroups: action.roadmap.editGroups,
       viewGroups: action.roadmap.viewGroups,
       isPublic: action.roadmap.isPublic,
-    }
+    };
     accessLevel = accessChecker(actionAccessData, session.user);
   }
 
@@ -143,5 +143,5 @@ export default async function Page(props: { params: Promise<{ actionId: string }
         <Comments comments={action.comments} objectId={action.id} />
       </section>
     </>
-  )
+  );
 }

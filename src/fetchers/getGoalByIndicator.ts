@@ -1,7 +1,7 @@
 import "server-only";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import type { LoginData } from "@/lib/session";
-import { getSession } from "@/lib/session"
+import { getSession } from "@/lib/session";
 import { effectSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
 import { cacheTag } from "next/cache";
@@ -21,7 +21,7 @@ import type { Goal } from "@/types";
  */
 export async function getGoalByIndicator(roadmapId: string, indicatorParameter: string, unit?: string | null) {
   const session = await getSession(await cookies());
-  return getCachedGoal(roadmapId, indicatorParameter, unit, session.user)
+  return getCachedGoal(roadmapId, indicatorParameter, unit, session.user);
 }
 
 /**
@@ -32,8 +32,8 @@ export async function getGoalByIndicator(roadmapId: string, indicatorParameter: 
  * @param user Data from user's session cookie.
  */
 async function getCachedGoal(roadmapId: string, indicatorParameter: string, unit: string | undefined | null, user: LoginData["user"]) {
-  'use cache'
-  cacheTag('database', 'goal', 'action', 'dataSeries')
+  'use cache';
+  cacheTag('database', 'goal', 'action', 'dataSeries');
 
   let goal: Goal | null;
 
@@ -52,7 +52,7 @@ async function getCachedGoal(roadmapId: string, indicatorParameter: string, unit
     } catch (error) {
       console.log(error);
       console.log('Error fetching admin goal');
-      return null
+      return null;
     }
 
     goal?.effects.sort(effectSorter);
@@ -84,7 +84,7 @@ async function getCachedGoal(roadmapId: string, indicatorParameter: string, unit
     } catch (error) {
       console.log(error);
       console.log('Error fetching user goal');
-      return null
+      return null;
     }
 
     goal?.effects.sort(effectSorter);
@@ -108,7 +108,7 @@ async function getCachedGoal(roadmapId: string, indicatorParameter: string, unit
   } catch (error) {
     console.log(error);
     console.log('Error fetching public goal');
-    return null
+    return null;
   }
 
   goal?.effects.sort(effectSorter);

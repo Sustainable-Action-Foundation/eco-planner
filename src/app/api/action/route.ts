@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { getSession } from "@/lib/session"
+import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@PRISMA-NAMESPACE-ONLY";
 import { AccessLevel, ClientError, isDateValuesWithUnit } from "@/types";
@@ -103,8 +103,8 @@ export async function POST(request: NextRequest) {
         editGroups: goal.roadmap.editGroups,
         viewGroups: goal.roadmap.viewGroups,
         isPublic: goal.roadmap.isPublic,
-      }
-      const accessLevel = accessChecker(accessFields, session.user)
+      };
+      const accessLevel = accessChecker(accessFields, session.user);
       if (accessLevel === AccessLevel.None || accessLevel === AccessLevel.View) {
         throw new Error(ClientError.IllegalParent, { cause: 'action' });
       }
@@ -271,8 +271,8 @@ export async function PUT(request: NextRequest) {
       editGroups: currentAction.roadmap.editGroups,
       viewGroups: currentAction.roadmap.viewGroups,
       isPublic: currentAction.roadmap.isPublic,
-    }
-    const accessLevel = accessChecker(accessFields, session.user)
+    };
+    const accessLevel = accessChecker(accessFields, session.user);
     if (accessLevel === AccessLevel.None || accessLevel === AccessLevel.View) {
       throw new Error(ClientError.AccessDenied, { cause: 'action' });
     }

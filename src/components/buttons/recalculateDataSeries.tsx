@@ -24,5 +24,5 @@ export default function RecalculateDataSeriesButton({
     >
       {label}
     </button>
-  )
+  );
 }

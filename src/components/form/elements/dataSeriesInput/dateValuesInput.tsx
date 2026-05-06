@@ -107,7 +107,7 @@ export default function DateValuesInput({
               ? t("forms:data_series_input.hide_table")
               : t("forms:data_series_input.show_table")
             }
-            onClick={() => { setTableIsVisible(!tableIsVisible) }}
+            onClick={() => { setTableIsVisible(!tableIsVisible); }}
           >
             {tableIsVisible
               ? <>
@@ -230,5 +230,5 @@ export default function DateValuesInput({
         )}
       </fieldset>
     </>
-  )
+  );
 }

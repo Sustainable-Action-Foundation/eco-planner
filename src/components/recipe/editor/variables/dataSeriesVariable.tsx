@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { isDataSeriesVariable, RecipeError } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
@@ -144,7 +144,7 @@ export function DataSeriesVariableEditor({
         <VectorPickerSelect permissions={{ ...permissions }} variableId={variableId} />
       </div>
     </CommonVariable >
-  )
+  );
 }
 
 export function DataSeriesVariableSimpleEditor({
@@ -187,5 +187,5 @@ export function DataSeriesVariableSimpleEditor({
       treeItems={treeItems}
       onChange={handleDataSeriesChange}
     />
-  )
+  );
 }

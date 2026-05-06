@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Popover, PopoverButton } from "@/components/generic/popovers/popovers";
 import { useRecipe } from "../context/recipeContext.use";
@@ -69,9 +69,9 @@ export function VariableCreator({
     setProvidedName('');
     setProvidedUnit('');
     setProvidedType(undefined);
-    setNameStatus('')
-    setTypeStatus('')
-    popoverRef.current?.hidePopover()
+    setNameStatus('');
+    setTypeStatus('');
+    popoverRef.current?.hidePopover();
   };
 
   const permissions = { ...RecipeEditorPermissions, ...incomingPermissions };

@@ -191,5 +191,5 @@ export default function CopyAndScale({
         </div>
       </dialog>
     </>
-  )
+  );
 }

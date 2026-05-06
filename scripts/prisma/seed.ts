@@ -574,5 +574,5 @@ main().then(async () => {
     Error thrown:
     `), e);
   await prisma.$disconnect();
-  process.exit(1)
+  process.exit(1);
 });

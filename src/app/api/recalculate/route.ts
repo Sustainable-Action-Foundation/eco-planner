@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
       );
 
     if (!hasEditAccessToDataSeries) {
-      throw new Error(ClientError.AccessDenied)
+      throw new Error(ClientError.AccessDenied);
     }
 
     // Nothing beside the recipe has the information needed to recalculate the goal's data series now after the great recipe implementation.

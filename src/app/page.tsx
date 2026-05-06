@@ -13,7 +13,7 @@ import { buildMetadata } from "@/functions/buildMetadata";
 import { getMetaRoadmaps, getRoadmaps } from "@/fetchers";
 import SearchRoadmaps from "@/components/form/filters/searchRoadmaps";
 import SortRoadmaps from "@/components/form/filters/sortRoadmaps";
-import styles from "./page.module.css"
+import styles from "./page.module.css";
 import type { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -22,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description: undefined,
     og_url: undefined,
     og_image_url: undefined,
-  })
+  });
 }
 
 export default async function Page(
@@ -65,7 +65,7 @@ export default async function Page(
       } else {
         return false;
       }
-    })
+    });
   }
 
   // Filter by searchFilter
@@ -73,7 +73,7 @@ export default async function Page(
     roadmaps = roadmaps.filter((roadmap) => {
       if (Object.values(roadmap).some((value) => {
         if (typeof value === 'string') {
-          return value.toLowerCase().includes(searchFilter.toLowerCase())
+          return value.toLowerCase().includes(searchFilter.toLowerCase());
         } else {
           return false;
         }
@@ -81,7 +81,7 @@ export default async function Page(
         return true;
       } else if (Object.values(roadmap.metaRoadmap).some((value) => {
         if (typeof value === 'string') {
-          return value.toLowerCase().includes(searchFilter.toLowerCase())
+          return value.toLowerCase().includes(searchFilter.toLowerCase());
         } else {
           return false;
         }
@@ -103,15 +103,15 @@ export default async function Page(
       roadmaps.reverse();
       break;
     case RoadmapSortBy.GoalsFalling:
-      roadmaps.sort(roadmapSorterGoalAmount)
+      roadmaps.sort(roadmapSorterGoalAmount);
       break;
     case RoadmapSortBy.GoalsRising:
-      roadmaps.sort(roadmapSorterGoalAmount)
-      roadmaps.reverse()
+      roadmaps.sort(roadmapSorterGoalAmount);
+      roadmaps.reverse();
       break;
     case RoadmapSortBy.Default:
     default:
-      roadmaps.sort(roadmapSorter)
+      roadmaps.sort(roadmapSorter);
       break;
   }
 
@@ -181,5 +181,5 @@ export default async function Page(
         />
       </section>  */}
     </main>
-  </>
+  </>;
 }

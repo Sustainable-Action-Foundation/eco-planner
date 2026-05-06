@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import styles from './controls.module.css' with { type: "css" }
+import styles from './controls.module.css' with { type: "css" };
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { AccessLevel } from "@/types";
@@ -67,7 +67,7 @@ function buildLinks(
   t: TFunction,
 ): links | null {
 
-  let featureGoal: string | undefined
+  let featureGoal: string | undefined;
   let selfLink: string | undefined;
   let parentLink: string | undefined;
   let parentDescription: string | undefined;
@@ -163,7 +163,7 @@ function buildLinks(
     editLink,
     historicalDataLink,
     deleteLink,
-  }
+  };
 }
 
 const getObjectName = (object: ObjectParameter): string | undefined => {
@@ -208,12 +208,12 @@ export function ControlsMenu(
 
   const openMenu = () => {
     menu.current?.show();
-  }
+  };
 
   const closeMenu = (e: React.FocusEvent<HTMLDialogElement> | React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLDialogElement>) => {
     // Don't close if focus stays within menu
     if (e.type === 'blur') {
-      e = e as React.FocusEvent<HTMLDialogElement>
+      e = e as React.FocusEvent<HTMLDialogElement>;
       if (menu.current?.contains(e.relatedTarget as Node) || menu.current === e.relatedTarget) {
         return;
       }
@@ -225,7 +225,7 @@ export function ControlsMenu(
     menu.current?.close();
     // Close children as well
     deletionRef.current?.close();
-  }
+  };
 
   return (
     <>
@@ -299,7 +299,7 @@ export function ControlsMenu(
         </dialog>
       </div>
     </>
-  )
+  );
 }
 
 
@@ -313,7 +313,7 @@ export function AdminPanel(
     object: ObjectParameter
   }) {
   const { t } = useTranslation(["components", "common"]);
-  const links = buildLinks(object, t)
+  const links = buildLinks(object, t);
   const deletionRef = useRef<HTMLDialogElement | null>(null);
   const objectName = getObjectName(object);
   const metaRoadmapName = getMetaRoadmapName(object);
@@ -431,6 +431,6 @@ export function AdminPanel(
         ) : null}
       </menu>
     </aside >
-  )
+  );
 
 }

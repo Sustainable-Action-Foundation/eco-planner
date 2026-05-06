@@ -1,5 +1,5 @@
-import '@tiptap/extension-text-style'
-import { Extension } from '@tiptap/core'
+import '@tiptap/extension-text-style';
+import { Extension } from '@tiptap/core';
 
 export type boldOptions = {
   /**
@@ -28,7 +28,7 @@ export const Bold = Extension.create<boldOptions>({
   addOptions() {
     return {
       types: ['textStyle'],
-    }
+    };
   },
 
   addGlobalAttributes() {
@@ -39,29 +39,29 @@ export const Bold = Extension.create<boldOptions>({
           fontWeight: {
             default: null,
             parseHTML: element => {
-              const fontWeight = element.style.fontWeight?.replace(/['"]+/g, '')
-              return fontWeight === 'bold' ? 'bold' : null
+              const fontWeight = element.style.fontWeight?.replace(/['"]+/g, '');
+              return fontWeight === 'bold' ? 'bold' : null;
             },
             renderHTML: attributes => {
               if (attributes.fontWeight !== 'bold') {
-                return {}
+                return {};
               }
 
               return {
                 style: 'font-weight: 600',
-              }
+              };
             },
           },
         },
       },
-    ]
+    ];
   },
 
   addCommands() {
     return {
       toggleBold: () => ({ chain }) => {
         const attrs = this.editor.getAttributes('textStyle');
-        const isBold = attrs.fontWeight === 'bold'
+        const isBold = attrs.fontWeight === 'bold';
 
         return isBold
           ? chain()
@@ -70,16 +70,16 @@ export const Bold = Extension.create<boldOptions>({
             .run()
           : chain()
             .setMark('textStyle', { fontWeight: 'bold' })
-            .run()
+            .run();
       },
-    }
+    };
   },
 
   addKeyboardShortcuts() {
     return {
       'Mod-b': () => this.editor.commands.toggleBold(),
       'Mod-B': () => this.editor.commands.toggleBold(),
-    }
+    };
   },
 
-})
+});

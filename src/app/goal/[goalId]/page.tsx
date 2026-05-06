@@ -45,7 +45,7 @@ export async function generateMetadata(props: {
       description: t("metadata:login.title"),
       og_url: `/goal/${params.goalId}`,
       og_image_url: '/images/og_wind.png',
-    })
+    });
   }
 
   return buildMetadata({
@@ -53,7 +53,7 @@ export async function generateMetadata(props: {
     description: goal?.description,
     og_url: `/goal/${params.goalId}`,
     og_image_url: undefined, // TODO: Use graph api here once ready 
-  })
+  });
 }
 
 export default async function Page(
@@ -101,7 +101,7 @@ export default async function Page(
       editGroups: goal.roadmap.editGroups,
       viewGroups: goal.roadmap.viewGroups,
       isPublic: goal.roadmap.isPublic,
-    }
+    };
     accessLevel = accessChecker(goalAccessData, session.user);
   }
 
@@ -117,7 +117,7 @@ export default async function Page(
     if (roadmap.editors.some(editor => editor.id === session.user?.id)) return true;
     if (roadmap.editGroups.some(editGroup => session.user?.userGroups.some(userGroup => userGroup === editGroup.name))) return true;
     return false;
-  }).map(roadmap => ({ id: roadmap.id, name: roadmap.metaRoadmap.name, version: roadmap.version, actor: roadmap.metaRoadmap.actor }))
+  }).map(roadmap => ({ id: roadmap.id, name: roadmap.metaRoadmap.name, version: roadmap.version, actor: roadmap.metaRoadmap.actor }));
 
   // TODO: remove when moving external to data series + recipe
   // Fetch external data
@@ -314,5 +314,5 @@ export default async function Page(
       </section>
 
     </>
-  )
+  );
 }

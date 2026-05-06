@@ -2,7 +2,7 @@
 
 import { commentSorter } from "@/lib/sorters";
 import type { Comment } from "@/lib/prisma/generated";
-import styles from './comments.module.css'
+import styles from './comments.module.css';
 import type { FocusEventHandler, InputEventHandler } from "react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -13,9 +13,9 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
   const { t } = useTranslation(["components", "common"]);
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
-    event.preventDefault()
-    const form = event.target.elements
-    const comment = (form.namedItem("comment") as HTMLInputElement)?.value
+    event.preventDefault();
+    const form = event.target.elements;
+    const comment = (form.namedItem("comment") as HTMLInputElement)?.value;
     const formJSON = JSON.stringify({
       commentText: comment,
       objectId,
@@ -38,7 +38,7 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
           alert(t("common:error.generic_with_details", { details: 'See console for details' }));
         }
       },
-    )
+    );
   }
 
   // Sort comments by date
@@ -52,15 +52,15 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
 
   const handleBlur: FocusEventHandler<HTMLSpanElement> = (event) => {
     setEditedContent(event.currentTarget.innerText);
-  }
+  };
 
   const spanRef = useRef<HTMLSpanElement>(null);
   const removeText = () => {
     if (spanRef.current) {
-      spanRef.current.innerHTML = ''
+      spanRef.current.innerHTML = '';
     }
-    setEditedContent('')
-  }
+    setEditedContent('');
+  };
 
   const [expandedComments, setExpandedComments] = useState<string[]>([]);
   const expandComment = (commentId: string) => {
@@ -105,5 +105,5 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
         ))}
       </div>
     </>
-  )
+  );
 }

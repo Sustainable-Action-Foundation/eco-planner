@@ -16,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description: t("pages:info.info_body"),
     og_url: `/info`,
     og_image_url: undefined,
-  })
+  });
 }
 
 export default async function Page() {
@@ -61,5 +61,5 @@ export default async function Page() {
         }
       </p>
     </>
-  )
+  );
 }

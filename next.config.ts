@@ -57,7 +57,7 @@ function getCommitHash(): { sha: string, dirty: boolean } {
     }
   }
   catch (err: unknown) {
-    console.warn("Failed to get commit hashes", { err })
+    console.warn("Failed to get commit hashes", { err });
   }
 
   if (!hashInfo.sha) {

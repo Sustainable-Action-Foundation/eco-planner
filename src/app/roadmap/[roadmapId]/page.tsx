@@ -17,7 +17,7 @@ import { AdminPanel } from "@/components/elements/controls/controls";
 import ActionTable from "@/components/tables/actions";
 
 export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }) {
-  const params = await props.params
+  const params = await props.params;
   const [t, session, roadmap] = await Promise.all([
     serveTea("metadata"),
     getSession(await cookies()),
@@ -30,7 +30,7 @@ export async function generateMetadata(props: { params: Promise<{ roadmapId: str
       description: t("metadata:login.title"),
       og_url: `/roadmap/${params.roadmapId}`,
       og_image_url: '/images/og_wind.png',
-    })
+    });
   }
 
   return buildMetadata({
@@ -38,7 +38,7 @@ export async function generateMetadata(props: { params: Promise<{ roadmapId: str
     description: roadmap?.description,
     og_url: `/roadmap/${params.roadmapId}`,
     og_image_url: undefined,
-  })
+  });
 }
 
 export default async function Page(props: { params: Promise<{ roadmapId: string }> }) {
@@ -63,7 +63,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
 
   let accessLevel: AccessLevel = AccessLevel.None;
   if (roadmap) {
-    accessLevel = accessChecker(roadmap, session.user)
+    accessLevel = accessChecker(roadmap, session.user);
   }
 
   // 404 if the roadmap doesn't exist or if the user doesn't have access to it
@@ -159,5 +159,5 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
     <section className="margin-block-500">
       <Comments comments={roadmap.comments} objectId={roadmap.id} />
     </section>
-  </>
+  </>;
 }

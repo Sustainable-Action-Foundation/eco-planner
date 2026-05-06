@@ -27,8 +27,8 @@ export default function UserFilters({
     }
 
     startTransition(() => {
-      router.replace(`${pathname}?${newParams.toString()}`)
-    })
+      router.replace(`${pathname}?${newParams.toString()}`);
+    });
   }
 
   return (
@@ -38,9 +38,9 @@ export default function UserFilters({
         <label className='flex gap-25 align-items-center'>
           <input type='checkbox' value='roadmap' defaultChecked={searchParams.getAll('objects').includes('roadmap')} onChange={(e) => {
             if (e.target.checked) {
-              updateArrayParam('objects', e.target.value)
+              updateArrayParam('objects', e.target.value);
             } else {
-              updateArrayParam('objects', e.target.value, true)
+              updateArrayParam('objects', e.target.value, true);
             }
           }}
           />
@@ -49,9 +49,9 @@ export default function UserFilters({
         <label className='flex gap-25 align-items-center'>
           <input type='checkbox' value='roadmapseries' defaultChecked={searchParams.getAll('objects').includes('roadmapseries')} onChange={(e) => {
             if (e.target.checked) {
-              updateArrayParam('objects', e.target.value)
+              updateArrayParam('objects', e.target.value);
             } else {
-              updateArrayParam('objects', e.target.value, true)
+              updateArrayParam('objects', e.target.value, true);
             }
           }}
           />
@@ -65,9 +65,9 @@ export default function UserFilters({
           <label className='flex gap-25 align-items-center'>
             <input type='checkbox' value='edit' defaultChecked={searchParams.getAll('access').includes('edit')} onChange={(e) => {
               if (e.target.checked) {
-                updateArrayParam('access', e.target.value)
+                updateArrayParam('access', e.target.value);
               } else {
-                updateArrayParam('access', e.target.value, true)
+                updateArrayParam('access', e.target.value, true);
               }
             }}
             />
@@ -76,6 +76,6 @@ export default function UserFilters({
         </fieldset>
         : null}
     </menu>
-  )
+  );
 
 }

@@ -1,17 +1,17 @@
-'use client'
+'use client';
 
 import Link from "next/link";
 import { useState } from "react";
-import styles from '../forms.module.css'
+import styles from '../forms.module.css';
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { IconEye, IconEyeOff, IconLock, IconMail, IconUser } from "@tabler/icons-react";
 import type { JSONValue } from "@/types";
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction) {
-  event.preventDefault()
+  event.preventDefault();
 
-  const form = event.target
+  const form = event.target;
   if (!(form.username instanceof HTMLInputElement) || !(form.email instanceof HTMLInputElement) || !(form.password instanceof HTMLInputElement)) {
     return;
   }
@@ -20,7 +20,7 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction) {
     email: form.email?.value,
     password: form.password?.value,
     remember: (form.remember as HTMLInputElement | null)?.checked,
-  })
+  });
 
   // Try to signup, redirect to page informing user to verify email if successful.
   fetch('/api/signup', {
@@ -29,25 +29,25 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction) {
     headers: { 'Content-Type': 'application/json' },
   }).then((res) => {
     if (res.ok) {
-      window.location.href = '/verify'
+      window.location.href = '/verify';
     } else {
       (res.json() as Promise<JSONValue>).then((data) => {
         if (data instanceof Object && "message" in data) {
-          alert(t("components:signup.signup_failed_motivated", { reason: data.message }))
+          alert(t("components:signup.signup_failed_motivated", { reason: data.message }));
         }
       }).catch(() => {
-        alert(t("components:signup.signup_failed"))
-      })
+        alert(t("components:signup.signup_failed"));
+      });
     }
   }).catch(() => {
-    alert(t("components:signup.signup_failed"))
-  })
+    alert(t("components:signup.signup_failed"));
+  });
 }
 
 export default function Signup() {
   const { t } = useTranslation(["components", "common"]);
 
-  const [showPassword, setShowPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <>
@@ -101,5 +101,5 @@ export default function Signup() {
 
       </form>
     </>
-  )
+  );
 }

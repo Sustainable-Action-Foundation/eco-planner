@@ -71,7 +71,7 @@ export function ManualGoalForm({
         options={allOurUnits.map(u => ({ name: u, value: u }))}
         onChange={(unit) => {
           try {
-            setParsedUnit(mathjs.unit(unit).toString())
+            setParsedUnit(mathjs.unit(unit).toString());
           } catch {
             setParsedUnit(null);
           }
@@ -97,7 +97,7 @@ export function ManualGoalForm({
         outputFormElement={outputFormElement}
       />
     </>
-  )
+  );
 }
 
 export function InheritingBaseline({
@@ -154,7 +154,7 @@ export function InheritingBaseline({
         {t("forms:goal.select_roadmap_version")}
         <select name="selectedRoadmap" id="selectedRoadmap" className="margin-inline-25" required
           value={selectedRoadmap}
-          onChange={(e) => { setSelectedRoadmap(e.target.value); setSelectedGoal(undefined) }}
+          onChange={(e) => { setSelectedRoadmap(e.target.value); setSelectedGoal(undefined); }}
         >
           <option value="">{t("forms:goal.select_roadmap_version")}</option>
           {roadmapList.map((roadmap) => (
@@ -195,5 +195,5 @@ export function InheritingBaseline({
         </label>
       }
     </>
-  )
+  );
 }

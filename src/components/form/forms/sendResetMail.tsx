@@ -1,14 +1,14 @@
 'use client';
 
-import formSubmitter from "@/functions/formSubmitter"
-import { useTranslation } from "react-i18next"
+import formSubmitter from "@/functions/formSubmitter";
+import { useTranslation } from "react-i18next";
 import { IconMail } from "@tabler/icons-react";
 
 export default function SendResetMail() {
   const { t } = useTranslation(["pages", "common"]);
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
-    event.preventDefault()
+    event.preventDefault();
 
     const form = event.target;
     if (form.email instanceof HTMLInputElement && typeof form.email.value === "string") {
@@ -19,7 +19,7 @@ export default function SendResetMail() {
       }
 
       // Send a new verification email
-      formSubmitter('/api/sendReset', JSON.stringify({ email: emailAddress }), 'POST', t)
+      formSubmitter('/api/sendReset', JSON.stringify({ email: emailAddress }), 'POST', t);
     }
   }
 
@@ -34,5 +34,5 @@ export default function SendResetMail() {
       </label>
       <button className="margin-left-auto block" type="submit">{t("pages:password.submit")}</button>
     </form>
-  )
+  );
 }

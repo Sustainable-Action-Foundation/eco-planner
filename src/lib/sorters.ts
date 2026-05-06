@@ -70,7 +70,7 @@ export function roadmapSorterGoalAmount<T extends { metaRoadmap: MetaRoadmap | M
   } else if (a._count.goals < b._count.goals) {
     return 1;
   } else {
-    return collator.compare(a.metaRoadmap.name, b.metaRoadmap.name)
+    return collator.compare(a.metaRoadmap.name, b.metaRoadmap.name);
   }
 }
 
@@ -131,7 +131,7 @@ export function goalSorterActionAmount<T extends { _count: { effects: number } }
   } else if (a._count.effects < b._count.effects) {
     return 1;
   } else {
-    return 0
+    return 0;
   }
 }
 
@@ -144,7 +144,7 @@ export function goalSorterActionAmountReverse<T extends { _count: { effects: num
   } else if (a._count.effects > b._count.effects) {
     return 1;
   } else {
-    return 0
+    return 0;
   }
 }
 

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { IconSearch } from "@tabler/icons-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -20,8 +20,8 @@ export default function SearchRoadmaps({labelledBy}: {labelledBy: string}) {
     }
 
     startTransition(() => {
-      router.replace(`${pathname}?${newParams.toString()}`)
-    })
+      router.replace(`${pathname}?${newParams.toString()}`);
+    });
   }
 
   const debouncedUpdateStringParam = useDebouncedCallback(updateStringParam, 300);
@@ -35,9 +35,9 @@ export default function SearchRoadmaps({labelledBy}: {labelledBy: string}) {
         className="padding-0 margin-inline-50" 
         defaultValue={searchParams.get('searchFilter') ?? undefined} 
         onChange={(e) => {
-          debouncedUpdateStringParam('searchFilter', e.target.value)
+          debouncedUpdateStringParam('searchFilter', e.target.value);
         }} 
       />
     </div>
-  )
+  );
 }

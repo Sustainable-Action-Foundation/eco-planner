@@ -183,7 +183,7 @@ function getAllJSONFlattened(): Record<string, Record<string, string>> {
       .map(([key, value]) => [`${namespace}:${key}`, value]),
     );
     perLocale[locale] = { ...perLocale[locale], ...prefixed };
-  })
+  });
   return perLocale;
 }
 function flattenTree(obj: Partial<{ [key: string]: JSONValue; }>) {

@@ -24,7 +24,7 @@ export async function getNames() {
  * @param user Data from user's session cookie.
  */
 async function getCachedNames(user: LoginData['user']) {
-  'use cache'
+  'use cache';
   cacheTag('database', 'roadmap', 'goal', 'action');
 
   let names: NameObject[];

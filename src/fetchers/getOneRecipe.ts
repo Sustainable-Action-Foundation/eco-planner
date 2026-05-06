@@ -1,6 +1,6 @@
 import "server-only";
 import type { LoginData } from "@/lib/session";
-import { getSession } from "@/lib/session"
+import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import type { DBRecipe } from "@/types";
@@ -9,7 +9,7 @@ import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 
 export async function getOneRecipe(id: string): Promise<DBRecipe | null> {
   const session = await getSession(await cookies());
-  return getCachedRecipe(id, session.user)
+  return getCachedRecipe(id, session.user);
 }
 
 /** TODO - use the accessChecker? that would require a full db read and then filter on the result, not a filtered query like this is */
@@ -44,7 +44,7 @@ async function getCachedRecipe(id: string, user: LoginData['user']): Promise<DBR
     catch (error) {
       console.log(error);
       console.log('Error fetching recipe as admin');
-      return null
+      return null;
     }
 
     return recipe;
@@ -101,7 +101,7 @@ async function getCachedRecipe(id: string, user: LoginData['user']): Promise<DBR
     catch (error) {
       console.log(error);
       console.log('Error fetching recipe as user');
-      return null
+      return null;
     }
 
     return recipe;
@@ -150,7 +150,7 @@ async function getCachedRecipe(id: string, user: LoginData['user']): Promise<DBR
   catch (error) {
     console.log(error);
     console.log('Error fetching public recipe');
-    return null
+    return null;
   }
 
   return recipe;

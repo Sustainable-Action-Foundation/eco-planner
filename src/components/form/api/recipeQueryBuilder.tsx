@@ -303,7 +303,7 @@ export default function RecipeQueryBuilder({
             ))}
           </select>
         </label>
-      )
+      );
     } else if (dataSource === "Trafa" && !variable.option && (variable as TrafaVariable).selected) {
       console.warn("The variable is selected while it is not an option. This should not happen.");
     }
@@ -342,7 +342,7 @@ export default function RecipeQueryBuilder({
             <option key={time.name} value={time.name} lang={language}>{time[displayValueKey]}</option>
           ))}
         </select>
-      </label>)
+      </label>);
     }
   }
 
@@ -433,7 +433,7 @@ export default function RecipeQueryBuilder({
       }
       : prev,
     );
-    closeModal(modalRef)
+    closeModal(modalRef);
   }
 
   return (
@@ -485,7 +485,7 @@ export default function RecipeQueryBuilder({
                   {((ExternalDataset.getDatasetByAlternateName(dataSource)) && !(ExternalDataset.getDatasetByAlternateName(dataSource)?.supportedLanguages.includes(lang))) ?
                     <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</small>
                     : null}
-                  <select className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" value={dataSource} onChange={(e) => { handleDataSourceSelect(e.target.value) }}>
+                  <select className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" value={dataSource} onChange={(e) => { handleDataSourceSelect(e.target.value); }}>
                     <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_source")}</option>
                     {ExternalDataset.knownDatasetKeys.map((name) => (
                       <option key={name} value={name}>{ExternalDataset[name]?.fullName}</option>
@@ -592,7 +592,7 @@ export default function RecipeQueryBuilder({
                                   return variableSelectionHelper(variable, tableDetails, { classNames: ["margin-left-75"] });
                                 })}
                               </label>
-                            )
+                            );
                           })}
                         </div>
                       </>) : (<p className={`font-style-italic color-gray`}>{t("components:query_builder.no_variables_found")}</p>)}
@@ -622,7 +622,7 @@ export default function RecipeQueryBuilder({
                               <td>{period}</td>
                               <td>{value}</td>
                             </tr>
-                          )
+                          );
                         })
                       }
                     </tbody>
@@ -648,5 +648,5 @@ export default function RecipeQueryBuilder({
         </div>
       </dialog>
     </>
-  )
+  );
 }

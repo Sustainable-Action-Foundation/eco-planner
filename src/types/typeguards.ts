@@ -573,7 +573,7 @@ export function isMetaRoadmapCreate(metaRoadmap: JSONValue): metaRoadmap is Meta
         ))
       )
     )
-  )
+  );
 }
 
 export function isMetaRoadmapUpdate(metaRoadmap: JSONValue): metaRoadmap is MetaRoadmapUpdateInput {
@@ -699,5 +699,5 @@ export function isMetaRoadmapUpdate(metaRoadmap: JSONValue): metaRoadmap is Meta
         ))
       )
     )
-  )
+  );
 }

@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description: t('metadata:password_reset.description'),
     og_url: `/password/reset`,
     og_image_url: undefined,
-  })
+  });
 }
 
 export default async function Page() {
@@ -28,5 +28,5 @@ export default async function Page() {
         </div>
       </main>
     </>
-  )
+  );
 }

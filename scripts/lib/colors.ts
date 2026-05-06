@@ -340,4 +340,4 @@ export const colors = {
    * @returns {string} Text with RGB background applied
    */
   rgbBG: (r: number, g: number, b: number, text: string): string => `\x1b[48;2;${r};${g};${b}m${text}\x1b[49m`,
-}
+};
