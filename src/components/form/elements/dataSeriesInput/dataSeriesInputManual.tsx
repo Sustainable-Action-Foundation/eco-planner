@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./dataSeriesInput.module.css";
 import { isValidPastedInput } from "./utils";
 import Grid from "../grid/grid";
-import React from "react";
 import type { DateValuesWithUnit } from "@/types";
 import { IconArrowsMaximize, IconArrowsMinimize, IconPlus, IconRowInsertTop, IconTrashXFilled } from "@tabler/icons-react";
 
