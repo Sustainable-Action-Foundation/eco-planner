@@ -6,13 +6,13 @@ import { isDateValuesWithUnit, isISOIshDate } from "@/types";
 import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput } from "@/types";
 import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput";
 import styles from '../forms.module.css';
 import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections";
 import TextEditor from "../elements/textEditor/editor";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import { Recipe } from "@/functions/recipe/recipe";
 import { FormIntegration, RecipeContextProvider, RecipeEditor, SuggestedRecipeApplier } from "@/components/recipe";
+import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
 import { useToastContext } from "@/components/generic/toast/toastContext";
 import { useRouter } from "next/navigation";
 
@@ -119,6 +119,7 @@ export default function GoalForm({
       event.target.reportValidity();
       return;
     }
+
     let dataSeries: DateValuesWithUnit | undefined = undefined;
     try {
       dataSeries = JSON.parse(resultingDateValuesString) as DateValuesWithUnit;
@@ -416,9 +417,10 @@ export default function GoalForm({
 
           {/* Custom baseline input */}
           {baselineType === BaselineType.Custom &&
-            <DateValuesInput
+            <DataSeriesInputManual
+              id="baseline-dataseries"
+              label={t("forms:data_series_input.data_series")}
               outputFormElement={<input name="baseline-data-series" />}
-              label={t("forms:data_series_input.custom_baseline")}
             />
           }
 

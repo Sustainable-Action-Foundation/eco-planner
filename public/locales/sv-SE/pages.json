@@ -87,6 +87,9 @@
     "shown_results": "Visar {{shown}} av {{total}} $t(common:roadmap_series, {\"count\": {{total}}})",
     "title": "$t(common:roadmap_short_other, titleCase)"
   },
+  "historical_data": {
+    "breadcrumb": "Redigera historisk data"
+  },
   "info": {
     "breadcrumb": "Information",
     "commit_with_link": "Baserad på commit: <a>{{commit}}</a>",

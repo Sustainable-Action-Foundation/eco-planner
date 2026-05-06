@@ -2,12 +2,13 @@
 
 import formSubmitter from "@/functions/formSubmitter";
 import type { Action, DateValuesWithUnit, Effect, EffectInput, Goal, MultiRoadmapInstance } from "@/types";
+import { isDateValuesWithUnit } from "@/types";
 import { ActionImpactType } from "@/lib/prisma/generated";
 import { useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput";
 import { absoluteToDelta, ActionSelector, deltaToAbsolute, GoalSelector } from "../sections/effectFormSections";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
+import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
 import { useToastContext } from "@/components/generic/toast/toastContext";
 import { useRouter } from "next/navigation";
 
@@ -43,6 +44,35 @@ export default function EffectForm({
     const selectedGoal = currentEffect?.goalId ?? formData.get("goalId");
     const impactType = formData.get("impactType");
 
+    // Parse date values (required)
+    const resultingDateValuesString = formData.get("resultingDateValues") as string | null || formData.get("data-series") as string | null; // Fallback for manual data series input
+    if (!resultingDateValuesString) {
+      console.error("No resulting date values provided in form.");
+      event.target.reportValidity();
+      return;
+    }
+
+    let dataSeries: DateValuesWithUnit;
+    // let dataSeries: DateValuesWithUnit | undefined = undefined;
+    try {
+      dataSeries = JSON.parse(resultingDateValuesString) as DateValuesWithUnit;
+      dataSeries.unit = undefined
+      // dataSeries.unit = formData.get("dataUnit") as string | null;
+    } catch (e) {
+      console.error("Failed to parse resulting date values from form:", e);
+      event.target.reportValidity();
+      return;
+    }
+    // Validate parsed date values
+    if (
+      !dataSeries
+      || !isDateValuesWithUnit(dataSeries)
+    ) {
+      console.error("Parsed date values from form are invalid:", dataSeries);
+      event.target.reportValidity();
+      return;
+    }
+
     if (
       typeof selectedAction !== "string"
       || typeof selectedGoal !== "string"
@@ -56,7 +86,7 @@ export default function EffectForm({
     const formContent: EffectInput = {
       actionId: selectedAction,
       goalId: selectedGoal,
-      dataSeries: dateValues, // Gotten as state, not form input
+      dataSeries: dataSeries,
       impactType: impactType as ActionImpactType, // TODO: I don't like this
       timestamp,
     };
@@ -90,11 +120,11 @@ export default function EffectForm({
           roadmaps={roadmaps}
         />
 
-        <DateValuesInput
-          dateValues={dateValues}
-          dateValuesSetter={setDateValues}
-
+        <DataSeriesInputManual
+          id="effect-dataseries"
           label={t("forms:data_series_input.data_series")}
+          initialDateValues={dateValues}
+          outputFormElement={<input name="data-series" />}
         />
 
         {(

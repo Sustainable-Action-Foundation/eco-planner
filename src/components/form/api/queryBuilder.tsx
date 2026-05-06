@@ -496,7 +496,7 @@ export default function QueryBuilder({
 
             {visibleForm === 'manual' ?
               <div>
-                <DataSeriesInputManual />
+                <DataSeriesInputManual id="dataseries" label={t("forms:data_series_input.data_series")} />
               </div>
               : visibleForm === 'external' ?
                 <form ref={formRef} onChange={formChange} onSubmit={handleSubmit} className="flex flex-direction-column flex-grow-1" style={{ minHeight: '0' }}>

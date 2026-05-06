@@ -4,9 +4,9 @@ import formSubmitter from "@/functions/formSubmitter"
 import type { Action, ActionInput, DateValuesWithUnit, MultiRoadmapInstance } from "@/types"
 import { ActionImpactType } from "@/lib/prisma/generated"
 import { useTranslation } from "react-i18next"
-import DateValuesInput from "../elements/dataSeriesInput/dateValuesInput"
 import styles from '../forms.module.css'
 import TextEditor from "../elements/textEditor/editor"
+import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual"
 import { useState, useRef } from "react"
 import { useToastContext } from "@/components/generic/toast/toastContext"
 import { useRouter } from "next/navigation"
@@ -134,7 +134,8 @@ export default function ActionForm({
               </select>
             </label>
 
-            <DateValuesInput
+            <DataSeriesInputManual 
+              id="action-dataseries"
               label={t("forms:data_series_input.data_series")}
               outputFormElement={<input name="data-series" />}
             />

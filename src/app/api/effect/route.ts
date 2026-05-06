@@ -1,3 +1,4 @@
+import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
@@ -142,7 +143,7 @@ export async function POST(request: NextRequest) {
         impactType: effect.impactType,
         dataSeries: {
           create: {
-            values: effect.dataSeries.dateValues,
+            values: { createMany: { data: dateValuesToDBDateRecord(effect.dataSeries.dateValues) }, },
             unit: effect.dataSeries.unit,
             authorId: session.user.id,
           },
@@ -318,12 +319,15 @@ export async function PUT(request: NextRequest) {
         dataSeries: {
           upsert: {
             create: {
-              values: effect.dataSeries.dateValues,
+              values: { createMany: { data: dateValuesToDBDateRecord(effect.dataSeries.dateValues) }, },
               unit: effect.dataSeries.unit,
               authorId: session.user.id,
             },
             update: {
-              values: effect.dataSeries.dateValues,
+              values: {
+                deleteMany: {},
+                createMany: { data: dateValuesToDBDateRecord(effect.dataSeries.dateValues) }
+              },
               unit: effect.dataSeries.unit,
             }
           }
