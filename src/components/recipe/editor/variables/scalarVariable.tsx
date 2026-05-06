@@ -34,7 +34,7 @@ export function VariableTypeScalar({
           defaultValue={variable.value}
           onChange={(e) => upsertVariable(variableId, prev => prev.type === RecipeDataTypes.Scalar
             ? { ...prev, value: Number(e.target.value) }
-            : prev
+            : prev,
           )}
           type="number"
           placeholder=" "
@@ -68,7 +68,7 @@ export function VariableTypeScalarSimple({
       defaultValue={variable.value}
       onChange={(e) => upsertVariable(variableId, prev => prev.type === RecipeDataTypes.Scalar
         ? { ...prev, value: Number(e.target.value) }
-        : prev
+        : prev,
       )}
       type="number"
       placeholder={t("components:recipe_editor.scalar")}

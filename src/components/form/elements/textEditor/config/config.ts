@@ -5,7 +5,7 @@ import { LineThrough } from '../extensions/linethrough';
 import { Underline } from '../extensions/underline';
 
 // Tiptap extensions
-import { BulletList, OrderedList, ListItem, } from '@tiptap/extension-list';
+import { BulletList, OrderedList, ListItem } from '@tiptap/extension-list';
 import { Placeholder, UndoRedo, CharacterCount } from '@tiptap/extensions';
 import { TextStyle, Color, FontSize } from '@tiptap/extension-text-style';
 import Superscript from '@tiptap/extension-superscript';
@@ -29,7 +29,7 @@ export const CustomColor = Color.extend({
         return isGrey
           ? this.editor.chain().focus().unsetColor().run()
           : this.editor.chain().focus().setColor('grey').run();
-      }
+      },
     }
   },
 });
@@ -72,6 +72,6 @@ export const defaultExtensions = (placeholder?: string) => uniqueExtensionsByNam
   }),
   CharacterCount.configure({
     limit: nodeSizeLimit,
-    mode: 'nodeSize'
+    mode: 'nodeSize',
   }),
 ]);

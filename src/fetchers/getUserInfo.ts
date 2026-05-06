@@ -65,7 +65,7 @@ async function getCachedUserInfo(username: string, activeUser: LoginData['user']
                 { editGroups: { some: { users: { some: { id: activeUser.id } } } } },
                 { viewGroups: { some: { users: { some: { id: activeUser.id } } } } },
                 { isPublic: true },
-              ]
+              ],
             },
             include: userInfoSelector.authoredRoadmaps.include,
           },
@@ -78,7 +78,7 @@ async function getCachedUserInfo(username: string, activeUser: LoginData['user']
                 { editGroups: { some: { users: { some: { id: activeUser.id } } } } },
                 { viewGroups: { some: { users: { some: { id: activeUser.id } } } } },
                 { isPublic: true },
-              ]
+              ],
             },
             include: {
               ...userInfoSelector.authoredMetaRoadmaps.include,
@@ -91,13 +91,13 @@ async function getCachedUserInfo(username: string, activeUser: LoginData['user']
                     { editGroups: { some: { users: { some: { id: activeUser.id } } } } },
                     { viewGroups: { some: { users: { some: { id: activeUser.id } } } } },
                     { isPublic: true },
-                  ]
+                  ],
                 },
                 include: userInfoSelector.authoredMetaRoadmaps.include.roadmapVersions.include,
               },
-            }
+            },
           },
-        }
+        },
       });
 
       // Sort roadmaps and meta roadmaps
@@ -139,7 +139,7 @@ async function getCachedUserInfo(username: string, activeUser: LoginData['user']
             },
           },
         },
-      }
+      },
     });
 
     // Sort roadmaps and meta roadmaps

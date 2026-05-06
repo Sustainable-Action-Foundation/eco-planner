@@ -14,7 +14,7 @@ export async function generateMetadata(props: { params: Promise<{ roadmapId: str
   const [t, session, roadmap] = await Promise.all([
     serveTea("metadata"),
     getSession(await cookies()),
-    getOneRoadmap(params.roadmapId)
+    getOneRoadmap(params.roadmapId),
   ]);
 
   if (!session.user?.isLoggedIn) {
@@ -22,7 +22,7 @@ export async function generateMetadata(props: { params: Promise<{ roadmapId: str
       title: t("metadata:login.title"),
       description: t("metadata:login.title"),
       og_url: `/roadmap/${params.roadmapId}/edit`,
-      og_image_url: '/images/og_wind.png'
+      og_image_url: '/images/og_wind.png',
     })
   }
 
@@ -30,7 +30,7 @@ export async function generateMetadata(props: { params: Promise<{ roadmapId: str
     title: `${t("metadata:roadmap_edit.title")} ${roadmap?.metaRoadmap.name}`,
     description: roadmap?.description || roadmap?.metaRoadmap.description,
     og_url: `/roadmap/${params.roadmapId}/edit`,
-    og_image_url: undefined
+    og_image_url: undefined,
   })
 }
 

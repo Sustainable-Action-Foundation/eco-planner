@@ -71,7 +71,7 @@ export const Italic = Extension.create<italicOptions>({
           : chain()
             .setMark('textStyle', { fontStyle: 'italic' })
             .run()
-      }
+      },
     }
   },
 

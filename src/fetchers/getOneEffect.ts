@@ -60,9 +60,9 @@ async function getCachedEffect(actionId: string, goalId: string, user: LoginData
                 { viewers: { some: { id: user.id } } },
                 { editGroups: { some: { users: { some: { id: user.id } } } } },
                 { viewGroups: { some: { users: { some: { id: user.id } } } } },
-                { isPublic: true }
-              ]
-            }
+                { isPublic: true },
+              ],
+            },
           },
           goal: {
             roadmap: {
@@ -72,10 +72,10 @@ async function getCachedEffect(actionId: string, goalId: string, user: LoginData
                 { viewers: { some: { id: user.id } } },
                 { editGroups: { some: { users: { some: { id: user.id } } } } },
                 { viewGroups: { some: { users: { some: { id: user.id } } } } },
-                { isPublic: true }
-              ]
-            }
-          }
+                { isPublic: true },
+              ],
+            },
+          },
         },
         include: effectInclusionSelection,
       }) satisfies Effect | null;
@@ -94,7 +94,7 @@ async function getCachedEffect(actionId: string, goalId: string, user: LoginData
       where: {
         id: { actionId, goalId },
         action: { roadmap: { isPublic: true } },
-        goal: { roadmap: { isPublic: true } }
+        goal: { roadmap: { isPublic: true } },
       },
       include: effectInclusionSelection,
     }) satisfies Effect | null;

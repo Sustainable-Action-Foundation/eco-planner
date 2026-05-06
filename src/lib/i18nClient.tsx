@@ -34,7 +34,7 @@ export const LocaleContext = createContext<Locales>(Locales.default);
 export const LocaleSetterContext = createContext<React.Dispatch<React.SetStateAction<Locales>>>(() => { });
 
 export default function I18nProvider(
-  { children, lng }: { children: React.ReactNode, lng: Locales }
+  { children, lng }: { children: React.ReactNode, lng: Locales },
 ) {
   // This initialize state prevents the app from rendering (and rerendering forever) before the language is set
   const [isInitialized, setInitialized] = useState(false);

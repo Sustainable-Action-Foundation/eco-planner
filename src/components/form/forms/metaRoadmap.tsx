@@ -187,7 +187,7 @@ export default function MetaRoadmapForm({
           positionIndex={positionIndex}
           legends={{
             viewers: t("forms:meta_roadmap.legend_visibility"),
-            editors: t("forms:meta_roadmap.legend_editability")
+            editors: t("forms:meta_roadmap.legend_editability"),
           }}
         />
 
@@ -207,14 +207,14 @@ export default function MetaRoadmapForm({
                 id: "parent-roadmap",
                 name: "parent-roadmap",
                 placeholder: t("forms:combobox.select_or_leave"),
-                disabled: !parentRoadmapOptions
+                disabled: !parentRoadmapOptions,
               }}
               defaultValue={ // TODO: Might be a better way to do this
                 currentRoadmap
                   ? currentRoadmap.parentRoadmapId
                     ? (() => {
                       const selected = parentRoadmapOptions.find(
-                        (roadmap) => roadmap.id === currentRoadmap.parentRoadmapId
+                        (roadmap) => roadmap.id === currentRoadmap.parentRoadmapId,
                       );
                       return selected ? { name: selected.name, value: selected.id } : false;
                     })()
@@ -225,8 +225,8 @@ export default function MetaRoadmapForm({
                 { name: t("forms:meta_roadmap.relationship_no_chosen"), value: "" },
                 ...parentRoadmapOptions.map((metaRoadmap) => ({
                   name: metaRoadmap.name,
-                  value: metaRoadmap.id
-                }))
+                  value: metaRoadmap.id,
+                })),
               ]}
             />
           ) : null}

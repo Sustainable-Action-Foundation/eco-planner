@@ -21,7 +21,7 @@ type MenubarButtonProps = {
 function handleKeyDownMenuItem(
   editor: Editor,
   setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
-  action: (chain: ReturnType<Editor['chain']>) => void
+  action: (chain: ReturnType<Editor['chain']>) => void,
 ) {
   return (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -122,7 +122,7 @@ export function GreyText(props: MenubarButtonProps) {
         }
       }}
       onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) =>
-        editor.getAttributes('textStyle').color !== 'grey' ? chain.setColor('grey') : chain.unsetColor()
+        editor.getAttributes('textStyle').color !== 'grey' ? chain.setColor('grey') : chain.unsetColor(),
       )}
       tabIndex={-1}
       aria-label={t("forms:text_editor_menu.grey_text")}
@@ -511,7 +511,7 @@ export function FontSize(props: FontSizeProps) {
   useEffect(() => {
     if (fontSizeMenuRef.current) {
       fontSizeMenuItemsRef.current = fontSizeMenuRef.current.querySelectorAll(
-        "li > [role='menuitem'], li > [role='menuitemcheckbox'], li > [role='menuitemradio']"
+        "li > [role='menuitem'], li > [role='menuitemcheckbox'], li > [role='menuitemradio']",
       );
     }
   }, [])
@@ -592,7 +592,7 @@ export function FontSize(props: FontSizeProps) {
           }
           style={{
             boxShadow: 'rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px',
-            fontSize: '1rem'
+            fontSize: '1rem',
           }}
           onKeyDown={(e: React.KeyboardEvent<HTMLUListElement>) => {
             if (!fontSizeMenuButtonRef.current || !fontSizeMenuItemsRef.current || !fontSizeMenuOpen) return
@@ -605,7 +605,7 @@ export function FontSize(props: FontSizeProps) {
               focusedFontSizeMenuItem,
               setFocusedFontSizeMenuItem,
               setFontSizeMenuOpen,
-              setFocusedMenubarItem
+              setFocusedMenubarItem,
             )
           }}
         >

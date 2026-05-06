@@ -63,7 +63,7 @@ async function getCachedNames(user: LoginData['user']) {
             { roadmapVersions: { some: { editGroups: { some: { users: { some: { id: user.id } } } } } } },
             { roadmapVersions: { some: { viewGroups: { some: { users: { some: { id: user.id } } } } } } },
             { roadmapVersions: { some: { isPublic: true } } },
-          ]
+          ],
         },
         select: nameSelector,
       });
@@ -83,7 +83,7 @@ async function getCachedNames(user: LoginData['user']) {
         OR: [
           { isPublic: true },
           { roadmapVersions: { some: { isPublic: true } } },
-        ]
+        ],
       },
       select: nameSelector,
     });

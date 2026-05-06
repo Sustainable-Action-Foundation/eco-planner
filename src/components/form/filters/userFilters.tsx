@@ -5,7 +5,7 @@ import { useTransition } from "react";
 import { useTranslation } from "react-i18next";
 
 export default function UserFilters({
-  userPage
+  userPage,
 }: {
   userPage: boolean
 }) {

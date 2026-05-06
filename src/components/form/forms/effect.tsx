@@ -32,7 +32,7 @@ export default function EffectForm({
   const [selectedImpactType, setSelectedImpactType] = useState<ActionImpactType>(currentEffect?.impactType ?? ActionImpactType.ABSOLUTE);
   const [dateValues, setDateValues] = useState<DateValuesWithUnit>(currentEffect?.dataSeries
     ? dataSeriesToDateValues(currentEffect.dataSeries)
-    : { unit: undefined, dateValues: {}, }
+    : { unit: undefined, dateValues: {} },
   );
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {

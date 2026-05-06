@@ -40,7 +40,7 @@ export default function roadmapGoalCreator(
 
       // TODO: handle providing a DateValuesWithUnit baseline
       ...!goal.baselineId ? {} : {
-        baseline: { connect: { id: goal.baselineId, }, },
+        baseline: { connect: { id: goal.baselineId } },
       },
 
       author: { connect: { id: author } },

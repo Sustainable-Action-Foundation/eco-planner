@@ -26,7 +26,7 @@ export default async function Page(
       roadmapId?: string | string[] | undefined,
       [key: string]: string | string[] | undefined
     }>
-  }
+  },
 ) {
   const searchParams = await props.searchParams;
   const [t, session, roadmap, roadmapList] = await Promise.all([

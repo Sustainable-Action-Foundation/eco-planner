@@ -5,7 +5,7 @@ import acceptLanguage from "accept-language";
 acceptLanguage.languages([
   Locales.default,
   ...uniqueLocales,
-  ...uniqueLocales.map((locale) => new Intl.Locale(locale).language)
+  ...uniqueLocales.map((locale) => new Intl.Locale(locale).language),
 ]);
 
 export function getLocale(

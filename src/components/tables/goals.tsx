@@ -67,7 +67,7 @@ export default function Goals({
         } else {
           return false
         }
-      })
+      }),
     }
   }
 

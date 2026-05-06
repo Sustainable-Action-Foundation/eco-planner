@@ -44,7 +44,7 @@ export async function generateMetadata(props: {
       title: t("metadata:login.title"),
       description: t("metadata:login.title"),
       og_url: `/goal/${params.goalId}`,
-      og_image_url: '/images/og_wind.png'
+      og_image_url: '/images/og_wind.png',
     })
   }
 
@@ -63,11 +63,11 @@ export default async function Page(
       secondaryGoal?: string | string[] | undefined,
       [key: string]: string | string[] | undefined
     }>,
-  }
+  },
 ) {
   const [params, searchParams] = await Promise.all([
     props.params,
-    props.searchParams
+    props.searchParams,
   ]);
 
   const [t, session, { goal, roadmap }, secondaryGoal, unfilteredRoadmapOptions] = await Promise.all([
@@ -75,7 +75,7 @@ export default async function Page(
     getSession(await cookies()),
     getOneGoal(params.goalId).then(async goal => ({
       goal,
-      roadmap: goal ? await getOneRoadmap(goal.roadmapId) : null
+      roadmap: goal ? await getOneRoadmap(goal.roadmapId) : null,
     })),
     typeof searchParams.secondaryGoal === "string" ? getOneGoal(searchParams.secondaryGoal) : null,
     getRoadmaps(),
@@ -100,7 +100,7 @@ export default async function Page(
       viewers: goal.roadmap.viewers,
       editGroups: goal.roadmap.editGroups,
       viewGroups: goal.roadmap.viewGroups,
-      isPublic: goal.roadmap.isPublic
+      isPublic: goal.roadmap.isPublic,
     }
     accessLevel = accessChecker(goalAccessData, session.user);
   }
@@ -136,7 +136,7 @@ export default async function Page(
         roadmap.metaRoadmap.parentRoadmapId,
         (roadmap.targetVersion === null || roadmap.targetVersion === 0)
           ? (await prisma.roadmap.aggregate({ where: { metaRoadmapId: roadmap.metaRoadmap.parentRoadmapId }, _max: { version: true } }))._max.version ?? 0
-          : roadmap.targetVersion
+          : roadmap.targetVersion,
       );
 
       // If there is a parent roadmap, look for a goal with the same indicator parameter in it
@@ -171,7 +171,7 @@ export default async function Page(
         id: goal.dataSeries.recipeUsedId,
       },
       select: {
-        sourceDataSeries: { select: { id: true, updatedAt: true, }, },
+        sourceDataSeries: { select: { id: true, updatedAt: true } },
       },
     });
     for (const source of sourceDataSeries) {

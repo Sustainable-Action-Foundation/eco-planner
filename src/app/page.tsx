@@ -26,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Page(
-  props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }
+  props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> },
 ) {
   const [t, searchParams, session, metaRoadmaps] = await Promise.all([
     serveTea("pages"),
@@ -46,7 +46,7 @@ export default async function Page(
     }
 
     const latestRoadmap = metaRoadmap.roadmapVersions.reduce((current, candidate) =>
-      candidate.version > current.version ? candidate : current
+      candidate.version > current.version ? candidate : current,
     );
 
     return latestRoadmap.id ? [latestRoadmap.id] : [];
@@ -154,7 +154,7 @@ export default async function Page(
             <small className="font-size-100" aria-live="polite"> {/* TODO: Pretty sure this should have an aria-live but double check against a screenreader */}
               {t("pages:home.shown_results", {
                 shown: roadmaps.length,
-                total: metaRoadmaps.filter((metaRoadmap) => metaRoadmap.roadmapVersions.length > 0).length
+                total: metaRoadmaps.filter((metaRoadmap) => metaRoadmap.roadmapVersions.length > 0).length,
               })}
             </small>
             <SortRoadmaps />

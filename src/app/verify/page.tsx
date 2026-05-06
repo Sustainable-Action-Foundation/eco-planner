@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: t("pages:verify.title"),
     description: t("pages:verify.description"),
     og_url: `/verify`,
-    og_image_url: undefined
+    og_image_url: undefined,
   })
 }
 

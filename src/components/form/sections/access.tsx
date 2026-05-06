@@ -49,19 +49,19 @@ export default function ConfigureAccess({
         : (currentAccess.viewers.length > 0 || currentAccess.viewGroups.length > 0
           ? "custom"
           : "private"))
-      : undefined
+      : undefined,
   );
 
   const [editabilityType, setEditabilityType] = useState<"private" | "custom" | undefined>(
-    currentAccess ? (currentAccess.editors.length > 0 || currentAccess.editGroups.length > 0 ? "custom" : "private") : undefined
+    currentAccess ? (currentAccess.editors.length > 0 || currentAccess.editGroups.length > 0 ? "custom" : "private") : undefined,
   );
 
   const selectableGroups = useMemo(() => {
     return [
       ...(userGroups?.map(group => ({
         name: group,
-        value: group
-      })) ?? [])
+        value: group,
+      })) ?? []),
       /* Do we need this in options?
         ...(currentAccess?.viewGroups?.map(group => ({
           name: group.name,
@@ -122,7 +122,7 @@ export default function ConfigureAccess({
                 paddingLeft: 'calc(14px + .5rem)', // Width of radio button + gap (aligns with above text)
                 gridTemplateColumns: 'auto 1fr',
                 gridTemplateRows: 'auto auto',
-                columnGap: '1rem'
+                columnGap: '1rem',
               }}
             >
               <label htmlFor="viewers">{`${t("forms:access_selector.users")}:`}</label>
@@ -146,7 +146,7 @@ export default function ConfigureAccess({
                   name: "viewer-groups",
                   placeholder: t("forms:access_selector.select_groups"),
                   disabled: visibilityType !== "custom",
-                  required: visibilityType === "custom" && !viewers
+                  required: visibilityType === "custom" && !viewers,
                 }}
                 defaultValue={viewerGroups}
                 options={selectableGroups}
@@ -199,7 +199,7 @@ export default function ConfigureAccess({
                 paddingLeft: 'calc(14px + .5rem)', // Width of radio button + gap (aligns with above text)
                 gridTemplateColumns: 'auto 1fr',
                 gridTemplateRows: 'auto auto',
-                columnGap: '1rem'
+                columnGap: '1rem',
               }}>
 
               <label htmlFor="editors" className="block width-fit-content">{`${t("forms:access_selector.users")}:`}</label>
@@ -222,7 +222,7 @@ export default function ConfigureAccess({
                   name: "editor-groups",
                   placeholder: t("forms:access_selector.select_groups"),
                   disabled: editabilityType !== "custom",
-                  required: editabilityType === "custom" && !editors
+                  required: editabilityType === "custom" && !editors,
                 }}
                 defaultValue={editorGroups}
                 options={selectableGroups}

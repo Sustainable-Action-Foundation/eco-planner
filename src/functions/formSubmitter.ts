@@ -27,7 +27,7 @@ export default function formSubmitter(
   thenReplacement?: (data: { body: JSONValue, location?: string | null }) => void,
   catchReplacement?: (err: unknown) => void,
   createToast?: (message: string, type: ToastType, hasTimeout?: boolean) => void,
-  router?: (url: string) => void /* TODO: Might make sense to accept URL here aswell */
+  router?: (url: string) => void, /* TODO: Might make sense to accept URL here aswell */
 ): void {
   fetch(target, {
     method,

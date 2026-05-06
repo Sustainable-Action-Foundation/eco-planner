@@ -89,7 +89,7 @@ export function calculatePredictedOutcome(effects: Effect[] | Goal["effects"], b
 
   const definedDates: string[] = [...new Set(effects
     .filter(effect => effect.dataSeries)
-    .flatMap(effect => effect.dataSeries?.values.map(v => new Date(v.timestamp).getUTCFullYear())))
+    .flatMap(effect => effect.dataSeries?.values.map(v => new Date(v.timestamp).getUTCFullYear()))),
   ]
     .sort()
     .map(yyyy => `${yyyy}-01-01T00:00:00Z`);

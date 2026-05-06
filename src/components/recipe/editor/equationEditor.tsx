@@ -61,7 +61,7 @@ export function EquationEditor() {
         style={{
           border: '0',
           borderRadius: '0',
-          resize: 'none'
+          resize: 'none',
         }}
         value={recipe.equation}
         onChange={handleUpdatedEq}

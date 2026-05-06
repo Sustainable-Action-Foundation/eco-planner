@@ -32,7 +32,7 @@ export function ManualGoalForm({
   const indicatorParameters = useMemo(() => {
     return [...new Set(parameterOptions)].map(option => ({
       name: option,
-      value: option
+      value: option,
     }));
   }, []);
 
@@ -47,7 +47,7 @@ export function ManualGoalForm({
           name: "indicatorParameter",
           placeholder: t("forms:combobox.default_autocomplete_placeholder"),
           className: "margin-top-25 margin-bottom-100",
-          defaultValue: currentGoal?.indicatorParameter ?? undefined
+          defaultValue: currentGoal?.indicatorParameter ?? undefined,
         }}
         options={indicatorParameters}
         fuseOptions={{
@@ -66,7 +66,7 @@ export function ManualGoalForm({
           name: "dataUnit",
           placeholder: t("forms:combobox.default_autocomplete_placeholder"),
           className: "margin-top-25",
-          defaultValue: currentGoal?.dataSeries?.unit ?? undefined
+          defaultValue: currentGoal?.dataSeries?.unit ?? undefined,
         }}
         options={allOurUnits.map(u => ({ name: u, value: u }))}
         onChange={(unit) => {

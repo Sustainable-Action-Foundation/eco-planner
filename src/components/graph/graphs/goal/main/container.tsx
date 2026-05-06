@@ -24,7 +24,7 @@ export const GraphType = {
   Relative: "RELATIVE",
   Delta: "DELTA",
   Children: "CHILDREN",
-  Siblings: "SIBLINGS"
+  Siblings: "SIBLINGS",
 } as const;
 export type GraphType = (typeof GraphType)[keyof typeof GraphType];
 
@@ -38,7 +38,7 @@ export default function GraphGraph({
   historicalData,
   effects,
   session,
-  roadmapOptions
+  roadmapOptions,
 }: {
   goal: Goal,
   secondaryGoal: Goal | null,

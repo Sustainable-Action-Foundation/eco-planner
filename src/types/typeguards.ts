@@ -252,7 +252,7 @@ export function isGoalCreate(goal: unknown): goal is GoalCreateInput {
       && goal.links.every(link =>
         isStandardObject(link)
         && "url" in link && typeof link.url === 'string'
-        && (!("description" in link) || typeof link.description === 'string' || link.description === null)
+        && (!("description" in link) || typeof link.description === 'string' || link.description === null),
       )
     )
   )) {
@@ -454,7 +454,7 @@ export function isGoalUpdate(goal: unknown): goal is GoalUpdateInput {
       && goal.links.every(link =>
         isStandardObject(link)
         && "url" in link && typeof link.url === 'string'
-        && (!("description" in link) || typeof link.description === 'string' || link.description === null)
+        && (!("description" in link) || typeof link.description === 'string' || link.description === null),
       )
     )
   )) {

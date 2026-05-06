@@ -14,7 +14,7 @@ import { getMetaRoadmaps, getRoadmaps, getUserInfo } from "@/fetchers";
 export async function generateMetadata(props: {
   params: Promise<{ user: string }>,
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}
+},
 ) {
   const params = await props.params
   let username = params.user;
@@ -27,7 +27,7 @@ export async function generateMetadata(props: {
     title: `@${username}`,
     description: undefined, // TODO: Should be like a bio or something
     og_url: `/user/${username}`,
-    og_image_url: undefined
+    og_image_url: undefined,
   })
 }
 
@@ -35,12 +35,12 @@ export default async function Page(
   props: {
     params: Promise<{ user: string }>,
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-  }
+  },
 ) {
   const [t, params, searchParams] = await Promise.all([
     serveTea(["pages", "common"]),
     props.params,
-    props.searchParams
+    props.searchParams,
   ]);
 
   let username = params.user;
@@ -64,7 +64,7 @@ export default async function Page(
   // If user is on their own page, also get all roadmaps/metaRoadmaps they have edit access to
   const [roadmaps, metaRoadmaps] = await Promise.all([
     (session.user?.username === username) ? getRoadmaps() : [],
-    (session.user?.username === username) ? getMetaRoadmaps() : []
+    (session.user?.username === username) ? getMetaRoadmaps() : [],
   ]);
 
   const editableMetaRoadmaps = metaRoadmaps.filter(metaRoadmap => hasEditAccess(accessChecker(metaRoadmap, session.user)));
@@ -162,7 +162,7 @@ export default async function Page(
                         <ControlsMenu object={metaRoadmap} />
                       </div>
                     </div>
-                  </li>
+                  </li>,
                 )}
               </ul>
             </section>
@@ -183,7 +183,7 @@ export default async function Page(
                         <ControlsMenu object={roadmap} />
                       </div>
                     </div>
-                  </li>
+                  </li>,
                 )}
               </ul>
             </section>

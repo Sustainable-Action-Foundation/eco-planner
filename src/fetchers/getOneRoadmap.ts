@@ -36,7 +36,7 @@ async function getCachedRoadmap(id: string, user: LoginData['user']) {
     try {
       roadmap = await prisma.roadmap.findUnique({
         where: { id },
-        include: roadmapInclusionSelection
+        include: roadmapInclusionSelection,
       }) satisfies Roadmap | null;
     } catch (error) {
       console.error(`Error fetching admin roadmap with ID ${id}:`, error);
@@ -60,10 +60,10 @@ async function getCachedRoadmap(id: string, user: LoginData['user']) {
             { viewers: { some: { id: user.id } } },
             { editGroups: { some: { users: { some: { id: user.id } } } } },
             { viewGroups: { some: { users: { some: { id: user.id } } } } },
-            { isPublic: true }
-          ]
+            { isPublic: true },
+          ],
         },
-        include: roadmapInclusionSelection
+        include: roadmapInclusionSelection,
       }) satisfies Roadmap | null;
     } catch (error) {
       console.error(`Error fetching roadmap with ID ${id} for user ${user.id}:`, error);
@@ -82,7 +82,7 @@ async function getCachedRoadmap(id: string, user: LoginData['user']) {
         id,
         isPublic: true,
       },
-      include: roadmapInclusionSelection
+      include: roadmapInclusionSelection,
     }) satisfies Roadmap | null;
   } catch (error) {
     console.error(`Error fetching public roadmap with ID ${id}:`, error);

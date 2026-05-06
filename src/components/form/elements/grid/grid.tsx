@@ -12,7 +12,7 @@ function setFocusOnGridcell(
   if (!grid) return
 
   const cell = grid.querySelector<HTMLElement>(
-    `[data-row="${focusedCell.row}"][data-column="${focusedCell.column}"]`
+    `[data-row="${focusedCell.row}"][data-column="${focusedCell.column}"]`,
   )
   if (!cell) return
 
@@ -27,12 +27,12 @@ function setFocusInGridcell(
   if (!grid) return
 
   const cell = grid.querySelector<HTMLElement>(
-    `[data-row="${focusedCell.row}"][data-column="${focusedCell.column}"]`
+    `[data-row="${focusedCell.row}"][data-column="${focusedCell.column}"]`,
   )
   if (!cell) return
 
   const focusable = cell.querySelector<HTMLElement>(
-    'input, textarea, select, button, [tabindex]:not([tabindex="-1"])'
+    'input, textarea, select, button, [tabindex]:not([tabindex="-1"])',
   )
   focusable?.focus()
 }
@@ -53,7 +53,7 @@ const GridCell = React.forwardRef<HTMLTableCellElement, GridCell>(
     >
       {children}
     </td>
-  )
+  ),
 )
 GridCell.displayName = "GridCell"
 
@@ -66,7 +66,7 @@ const GridRow = React.forwardRef<HTMLTableRowElement, GridRow>(
     >
       {children}
     </tr>
-  )
+  ),
 )
 GridRow.displayName = "GridRow"
 
@@ -80,7 +80,7 @@ const RowHeader = React.forwardRef<HTMLTableCellElement, GridRowHeader>(
     >
       {children}
     </th>
-  )
+  ),
 )
 RowHeader.displayName = "RowHeader"
 
@@ -94,19 +94,19 @@ const ColumnHeader = React.forwardRef<HTMLTableCellElement, GridColumnHeader>(
     >
       {children}
     </th>
-  )
+  ),
 )
 ColumnHeader.displayName = "ColumnHeader"
 
 
 function isGridRow(
-  child: React.ReactNode
+  child: React.ReactNode,
 ): child is React.ReactElement<GridRow> {
   return React.isValidElement(child) && child.type === GridRow
 }
 
 function isGridCell(
-  child: React.ReactNode
+  child: React.ReactNode,
 ): child is React.ReactElement<
   React.ComponentProps<typeof GridCell>
 > {
@@ -128,7 +128,7 @@ export default function Grid({
   insertRowBottom,
   insertRowAbove,
   deleteCurrentRow,
-  deleteCurrentGridCellContents
+  deleteCurrentGridCellContents,
 }: {
   ariaLabelledBy: string;
   props: GridElement;
@@ -158,7 +158,7 @@ export default function Grid({
   const columnHeaders = childrenArray.filter(
     (child) =>
       React.isValidElement(child) &&
-      child.type === Grid.ColumnHeader
+      child.type === Grid.ColumnHeader,
   )
 
   const bodyRows = childrenArray.filter(isGridRow)
@@ -179,7 +179,7 @@ export default function Grid({
       <thead className="display-contents">
         <tr className="display-contents">
           {columnHeaders.map((child) =>
-            React.isValidElement(child) ? React.cloneElement(child) : child
+            React.isValidElement(child) ? React.cloneElement(child) : child,
           )}
         </tr>
       </thead>
@@ -212,7 +212,7 @@ export default function Grid({
                       insertRowBottom,
                       insertRowAbove,
                       deleteCurrentRow,
-                      deleteCurrentGridCellContents
+                      deleteCurrentGridCellContents,
                     }),
                   onClick: () => {
                     if (!focusedCell) {
@@ -230,7 +230,7 @@ export default function Grid({
                   },
                   onDoubleClick: () => {
                     setEditMode(true) // Enter edit mode when double clicking a cell
-                  }
+                  },
                 })
               })}
             </tr>

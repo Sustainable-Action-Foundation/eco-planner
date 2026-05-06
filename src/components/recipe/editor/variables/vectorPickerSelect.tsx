@@ -35,7 +35,7 @@ export function VectorPickerSelect({ permissions: incomingPermissions, variableI
 
         const variableWithNewPick = {
           ...variable,
-          pick: e.target.value as VectorIndexPickerOptions
+          pick: e.target.value as VectorIndexPickerOptions,
         };
 
         upsertVariable(variableId, variableWithNewPick);

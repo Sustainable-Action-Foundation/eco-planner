@@ -15,7 +15,7 @@ export async function generateMetadata(
       goalId?: string | string[] | undefined,
       [key: string]: string | string[] | undefined
     }>,
-  }
+  },
 ) {
   const searchParams = await props.searchParams;
   const [t, session] = await Promise.all([
@@ -48,7 +48,7 @@ export async function generateMetadata(
       title: t("metadata:login.title"),
       description: t("metadata:login.title"),
       og_url: ownUrl,
-      og_image_url: '/images/og_wind.png'
+      og_image_url: '/images/og_wind.png',
     })
   }
 
@@ -56,7 +56,7 @@ export async function generateMetadata(
     title: t("metadata:effect_edit.title"),
     description: undefined,
     og_url: ownUrl,
-    og_image_url: undefined
+    og_image_url: undefined,
   })
 }
 
@@ -68,7 +68,7 @@ export default async function Page(
       goalId?: string | string[] | undefined,
       [key: string]: string | string[] | undefined
     }>,
-  }
+  },
 ) {
   const searchParams = await props.searchParams;
   const [t, session, effect, roadmaps] = await Promise.all([

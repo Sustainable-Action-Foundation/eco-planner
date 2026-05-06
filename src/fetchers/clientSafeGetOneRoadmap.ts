@@ -32,7 +32,7 @@ async function getCachedClientSafeRoadmap(id: string, user: LoginData['user']): 
     try {
       roadmap = await prisma.roadmap.findUnique({
         where: { id },
-        select: clientSafeRoadmapSelection
+        select: clientSafeRoadmapSelection,
       }) satisfies ClientRoadmap | null;
     } catch (error) {
       console.log(error);
@@ -59,10 +59,10 @@ async function getCachedClientSafeRoadmap(id: string, user: LoginData['user']): 
             { viewers: { some: { id: user.id } } },
             { editGroups: { some: { users: { some: { id: user.id } } } } },
             { viewGroups: { some: { users: { some: { id: user.id } } } } },
-            { isPublic: true }
-          ]
+            { isPublic: true },
+          ],
         },
-        select: clientSafeRoadmapSelection
+        select: clientSafeRoadmapSelection,
       }) satisfies ClientRoadmap | null;
     } catch (error) {
       console.log(error);
@@ -81,9 +81,9 @@ async function getCachedClientSafeRoadmap(id: string, user: LoginData['user']): 
     roadmap = await prisma.roadmap.findUnique({
       where: {
         id,
-        isPublic: true
+        isPublic: true,
       },
-      select: clientSafeRoadmapSelection
+      select: clientSafeRoadmapSelection,
     }) satisfies ClientRoadmap | null;
   } catch (error) {
     console.log(error);

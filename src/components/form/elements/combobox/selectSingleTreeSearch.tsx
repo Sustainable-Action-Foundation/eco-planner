@@ -33,7 +33,7 @@ function flattenTree(items: Array<TreeItem>) {
 function updateNodeInTree(
   items: Array<TreeItem>,
   targetValue: string,
-  updater: (node: TreeItem) => TreeItem
+  updater: (node: TreeItem) => TreeItem,
 ): Array<TreeItem> {
   return items.map(item => {
     if (item.value === targetValue) {
@@ -102,7 +102,7 @@ export default function SelectSingleTreeSearch({
       searchRef.current,
       setSearchValue,
       menuOpen,
-      setFocusedIndex
+      setFocusedIndex,
     )
   }, [menuOpen]);
 
@@ -151,7 +151,7 @@ export default function SelectSingleTreeSearch({
   function TreeNode({
     item,
     onUpdate,
-    depth = 0
+    depth = 0,
   }: {
     item: TreeItem,
     onUpdate: (value: string, updater: (n: TreeItem) => TreeItem) => void,
@@ -209,7 +209,7 @@ export default function SelectSingleTreeSearch({
               borderLeft: '1px dashed var(--gray)',
               marginInlineStart: 'calc(12px + 0.25rem)',
               paddingInlineStart: '.5rem',
-              marginBlock: '1px'
+              marginBlock: '1px',
             }}
             className="margin-0 padding-inline-start-75"
           >
@@ -305,7 +305,7 @@ export default function SelectSingleTreeSearch({
                   }
                 },
                 menuOpen,
-                setMenuOpen
+                setMenuOpen,
               )
             }}
             role="combobox"

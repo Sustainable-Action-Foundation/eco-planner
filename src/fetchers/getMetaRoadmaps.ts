@@ -60,7 +60,7 @@ async function getCachedMetaRoadmaps(user: LoginData['user']) {
             { editGroups: { some: { users: { some: { id: user.id } } } } },
             { viewGroups: { some: { users: { some: { id: user.id } } } } },
             { isPublic: true },
-          ]
+          ],
         },
         include: {
           ...metaRoadmapInclusionSelection,
@@ -73,7 +73,7 @@ async function getCachedMetaRoadmaps(user: LoginData['user']) {
                 { editGroups: { some: { users: { some: { id: user.id } } } } },
                 { viewGroups: { some: { users: { some: { id: user.id } } } } },
                 { isPublic: true },
-              ]
+              ],
             },
             include: metaRoadmapInclusionSelection.roadmapVersions.include,
           },
@@ -95,13 +95,13 @@ async function getCachedMetaRoadmaps(user: LoginData['user']) {
   try {
     metaRoadmaps = await prisma.metaRoadmap.findMany({
       where: {
-        isPublic: true
+        isPublic: true,
       },
       include: {
         ...metaRoadmapInclusionSelection,
         roadmapVersions: {
           where: {
-            isPublic: true
+            isPublic: true,
           },
           include: metaRoadmapInclusionSelection.roadmapVersions.include,
         },

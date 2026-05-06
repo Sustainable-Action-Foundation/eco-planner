@@ -36,7 +36,7 @@ export default function SelectMultipleSearch({
 
   const fuse = useMemo(() => new Fuse(options, {
     keys: ['name'],
-    ...(fuseOptions ?? {})
+    ...(fuseOptions ?? {}),
   }), [options, fuseOptions]);
 
   const searchResults = useMemo(() => {
@@ -65,7 +65,7 @@ export default function SelectMultipleSearch({
       searchRef.current,
       setSearchValue,
       menuOpen,
-      setFocusedListboxOption
+      setFocusedListboxOption,
     )
   }, [menuOpen]);
 
@@ -154,7 +154,7 @@ export default function SelectMultipleSearch({
                     setSelectionMade(true);
                     if (onChange) onChange(newValue);
                   }
-                }
+                },
               )
             }}
             role="combobox"

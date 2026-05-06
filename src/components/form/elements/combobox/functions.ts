@@ -97,7 +97,7 @@ export const handleKeyDownEditableCombobox = (
   listboxOptions: Array<{ name: string, value: string }>,
   focusedListboxOptionIndex: number | null,
   setFocusedListboxOptionIndex: React.Dispatch<React.SetStateAction<number | null>>,
-  onEnter: (selectedOption: { name: string, value: string } | null, index: number | null) => void // TODO: Do we even need index?
+  onEnter: (selectedOption: { name: string, value: string } | null, index: number | null) => void, // TODO: Do we even need index?
 ) => {
 
   // 1. Stops focusing any listbox item
@@ -217,7 +217,7 @@ export function clearEditableCombobox(
 
 export function scrollOptionIntoView(
   listboxOptionElements: Array<HTMLLIElement | null>,
-  focusedListboxOptionIndex: number | null
+  focusedListboxOptionIndex: number | null,
 ) {
   if (focusedListboxOptionIndex !== null && listboxOptionElements) {
     listboxOptionElements[focusedListboxOptionIndex]?.scrollIntoView({

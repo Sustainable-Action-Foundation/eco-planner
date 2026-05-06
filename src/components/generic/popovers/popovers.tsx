@@ -35,7 +35,7 @@ export function PopoverButton({
       type='button'
       id={id}
       className={`${styles['anchor-name']} ${className}`}
-      style={{ '--anchor-name': anchorName, ...style, } as React.CSSProperties}
+      style={{ '--anchor-name': anchorName, ...style } as React.CSSProperties}
       popoverTarget={popoverTarget}
       {...props}
     >
@@ -58,7 +58,7 @@ export function Popover({
   popoverDirection,
   positionTryFallbacks,
   indicator,
-  margin
+  margin,
 }: {
   id: string,
   className?: string,

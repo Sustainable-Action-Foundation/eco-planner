@@ -793,7 +793,7 @@ test.describe("Sanity checks", () => {
     const warnings: string[] = [];
 
     const longSeries = Object.fromEntries(
-      Array.from({ length: 60 }, (_, i) => [isoYear(2000 + i), i])
+      Array.from({ length: 60 }, (_, i) => [isoYear(2000 + i), i]),
     ) satisfies DateValues;
 
     sanityCheckDataSeries([
@@ -825,7 +825,7 @@ test.describe("Sanity checks", () => {
   test("sanityCheckExternalDatasets warns for anomalies", () => {
     const warnings: string[] = [];
     const extLongDateValues = Object.fromEntries(
-      Array.from({ length: 51 }, (_, i) => [isoYear(2000 + i), i])
+      Array.from({ length: 51 }, (_, i) => [isoYear(2000 + i), i]),
     ) satisfies DateValues;
 
     sanityCheckExternalDatasets([

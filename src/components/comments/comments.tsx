@@ -37,7 +37,7 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
           console.error('Unexpected error:', err);
           alert(t("common:error.generic_with_details", { details: 'See console for details' }));
         }
-      }
+      },
     )
   }
 
@@ -93,7 +93,7 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
                 {t("components:comments.relative_time", { date: new Date(comment.createdAt) })}
               </span>
             </div>
-            <p className="margin-0" style={{ wordBreak: 'break-word', }}>
+            <p className="margin-0" style={{ wordBreak: 'break-word' }}>
               {expandedComments.includes(comment.id) ? comment.commentText : comment.commentText.length > 300 ? `${comment.commentText.substring(0, 300)}${t("common:tsx.ellipsis")}` : comment.commentText}
             </p>
             {comment.commentText.length > 300 ?

@@ -71,7 +71,7 @@ export const Underline = Extension.create<UnderlineOptions>({
           : chain()
             .setMark('textStyle', { textDecoration: 'underline' })
             .run()
-      }
+      },
     }
   },
 

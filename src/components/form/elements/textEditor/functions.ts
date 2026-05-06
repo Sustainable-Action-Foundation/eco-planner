@@ -56,7 +56,7 @@ export const handleKeyDownPopUpMenu = (
   focusedMenuItemIndex: number | null,
   setFocusedMenuItemIndex: React.Dispatch<React.SetStateAction<number | null>>,
   setMenuOpen: React.Dispatch<React.SetStateAction<boolean>>,
-  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>
+  setFocusedMenubarItem: React.Dispatch<React.SetStateAction<number | null>>,
 ) => {
 
   if (e.key === 'ArrowDown') {

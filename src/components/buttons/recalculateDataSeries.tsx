@@ -20,7 +20,7 @@ export default function RecalculateDataSeriesButton({
     <button
       type="button"
       className="transparent padding-inline-100 font-weight-500 smooth seagreen color-purewhite"
-      onClick={() => formSubmitter('/api/recalculate', JSON.stringify({ dataSeriesId, }), "POST", t)}
+      onClick={() => formSubmitter('/api/recalculate', JSON.stringify({ dataSeriesId }), "POST", t)}
     >
       {label}
     </button>

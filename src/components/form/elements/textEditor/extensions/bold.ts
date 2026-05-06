@@ -71,7 +71,7 @@ export const Bold = Extension.create<boldOptions>({
           : chain()
             .setMark('textStyle', { fontWeight: 'bold' })
             .run()
-      }
+      },
     }
   },
 

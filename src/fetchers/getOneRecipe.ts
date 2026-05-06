@@ -118,29 +118,29 @@ async function getCachedRecipe(id: string, user: LoginData['user']): Promise<DBR
               {
                 dependentGoals: {
                   some: {
-                    roadmap: { isPublic: true }
-                  }
-                }
+                    roadmap: { isPublic: true },
+                  },
+                },
               },
               {
                 dependentEffects: {
                   some: {
                     goal: {
-                      roadmap: { isPublic: true }
-                    }
-                  }
-                }
+                      roadmap: { isPublic: true },
+                    },
+                  },
+                },
               },
               {
                 dependentBaselines: {
                   some: {
-                    roadmap: { isPublic: true }
-                  }
-                }
-              }
-            ]
-          }
-        }
+                    roadmap: { isPublic: true },
+                  },
+                },
+              },
+            ],
+          },
+        },
       },
     });
     if (!recipe) {

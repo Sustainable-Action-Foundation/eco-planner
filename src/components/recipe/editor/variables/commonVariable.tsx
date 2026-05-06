@@ -63,7 +63,7 @@ export function CommonVariable({
                 name: `variable-unit-${variableId}`,
                 defaultValue: variable.unit || "",
                 placeholder: " ",
-                style: { gridRow: '1', gridColumn: '2', width: '125px' }
+                style: { gridRow: '1', gridColumn: '2', width: '125px' },
               }}
               options={allOurUnits.map(unit => ({ name: unit, value: unit }))}
             />

@@ -55,7 +55,7 @@ export function SuggestedRecipeApplier({
 
             if (!hasPullableData) return null;
             return roadmap;
-          })
+          }),
         );
 
         setAvailableDataSeries(
@@ -63,8 +63,8 @@ export function SuggestedRecipeApplier({
             .filter((roadmap): roadmap is NonNullable<typeof roadmap> => !!roadmap)
             .map((roadmap) => ({
               id: roadmap.id,
-              name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version })
-            }))
+              name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version }),
+            })),
         );
       }
       catch (e) {

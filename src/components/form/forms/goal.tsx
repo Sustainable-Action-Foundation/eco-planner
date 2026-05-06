@@ -76,7 +76,7 @@ export default function GoalForm({
   const parentRoadmaps = useMemo(() => {
     return (roadmapAlternatives ?? []).map(roadmap => ({
       name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version }),
-      value: roadmap.id
+      value: roadmap.id,
     }));
   }, [roadmapAlternatives, t]);
 

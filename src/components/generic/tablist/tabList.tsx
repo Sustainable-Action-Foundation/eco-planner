@@ -63,7 +63,7 @@ export default function TabList({ props, styling, defaultIndex, children, menuIt
             style={{ textTransform: "capitalize" }}
           >
             {tabName}
-          </button>
+          </button>,
         )}
         {menuItems ? 
           <div onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {e.stopPropagation()}} className="inline-block margin-left-50 padding-left-50" style={{borderLeft: '1px solid var(--gray-80)'}}>{menuItems}</div>

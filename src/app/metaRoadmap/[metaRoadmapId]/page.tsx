@@ -25,7 +25,7 @@ export async function generateMetadata(props: { params: Promise<{ metaRoadmapId:
       title: t("metadata:login.title"),
       description: t("metadata:login.title"),
       og_url: `/metaRoadmap/${params.metaRoadmapId}`,
-      og_image_url: '/images/og_wind.png'
+      og_image_url: '/images/og_wind.png',
     })
   }
 
@@ -33,7 +33,7 @@ export async function generateMetadata(props: { params: Promise<{ metaRoadmapId:
     title: metaRoadmap?.name,
     description: metaRoadmap?.description,
     og_url: `/metaRoadmap/${params.metaRoadmapId}`,
-    og_image_url: undefined
+    og_image_url: undefined,
   })
 }
 
@@ -81,7 +81,7 @@ export default async function Page(props: { params: Promise<{ metaRoadmapId: str
                 {metaRoadmap.links.map((link: { url: string, description: string | null }, index: number) =>
                   <li className="margin-block-25" key={index}>
                     <a href={link.url} target="_blank">{link.description}</a>
-                  </li>
+                  </li>,
                 )}
               </ul>
             </>

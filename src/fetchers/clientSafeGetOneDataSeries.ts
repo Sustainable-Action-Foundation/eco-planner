@@ -26,7 +26,7 @@ async function clientSafeGetCachedDataSeries(id: string, user: LoginData['user']
         { viewers: { some: { id: user?.id } } },
         { editGroups: { some: { users: { some: { id: user?.id } } } } },
         { viewGroups: { some: { users: { some: { id: user?.id } } } } },
-        { isPublic: true }
+        { isPublic: true },
       ],
     },
   };
@@ -99,7 +99,7 @@ async function clientSafeGetCachedDataSeries(id: string, user: LoginData['user']
             },
           ],
         },
-        select: clientSafeDataSeriesSelection
+        select: clientSafeDataSeriesSelection,
       }) satisfies DataSeries | null;
     } catch (error) {
       console.log(error);
@@ -116,9 +116,9 @@ async function clientSafeGetCachedDataSeries(id: string, user: LoginData['user']
         id,
         OR: [
           // In public goal
-          { dependentGoals: { some: { roadmap: { isPublic: true, }, }, }, },
+          { dependentGoals: { some: { roadmap: { isPublic: true } } } },
           // In public action
-          { dependentBaselines: { some: { roadmap: { isPublic: true, }, }, }, },
+          { dependentBaselines: { some: { roadmap: { isPublic: true } } } },
           // In public effect
           {
             dependentEffects: {

@@ -24,8 +24,8 @@ export default function ActionGraph({
       x: action.name,
       y: [
         new Date((action.startYear ?? 2020).toString()).getTime(),
-        new Date((action.endYear ?? 2050).toString()).getTime()
-      ]
+        new Date((action.endYear ?? 2050).toString()).getTime(),
+      ],
     })
   }
 
@@ -50,8 +50,8 @@ export default function ActionGraph({
       animations: {
         enabled: false,
         dynamicAnimation: {
-          enabled: false
-        }
+          enabled: false,
+        },
       },
       toolbar: {
         show: false,
@@ -59,19 +59,19 @@ export default function ActionGraph({
     },
     fill: {
       type: 'solid',
-      colors: ['var(--blue-40)']
+      colors: ['var(--blue-40)'],
     },
     states: {
       active: {
-        filter: { type: 'none' }
-      }
+        filter: { type: 'none' },
+      },
     },
     dataLabels: {
       enabled: true,
       textAnchor: 'start',
       style: {
         fontWeight: 'normal',
-        colors: ['white']
+        colors: ['white'],
       },
       formatter: function (val, opts?: { dataPointIndex: number, w: { globals: { labels: string[] } } }) {
         if (!opts || !("w" in opts) || !("globals" in opts.w) || !("labels" in opts.w.globals) || !("dataPointIndex" in opts) || typeof opts.dataPointIndex !== 'number' || !Array.isArray(opts.w.globals.labels) || opts.w.globals.labels.some(label => typeof label !== 'string')) return val;
@@ -89,12 +89,12 @@ export default function ActionGraph({
         horizontal: true,
         barHeight: '32px',
         borderRadius: 2,
-        borderRadiusApplication: 'end'
+        borderRadiusApplication: 'end',
       },
     },
     grid: {
       xaxis: { lines: { show: true } },
-      yaxis: { lines: { show: false } }
+      yaxis: { lines: { show: false } },
     },
     annotations: {
       xaxis: [
@@ -115,7 +115,7 @@ export default function ActionGraph({
             text: new Date().toLocaleDateString('en-GB', { /* TODO: i18n */
               day: 'numeric',
               month: 'short',
-              year: 'numeric'
+              year: 'numeric',
             }),
           },
           strokeDashArray: 0,
@@ -133,7 +133,7 @@ export default function ActionGraph({
         style: {
           fontSize: '14px',
           fontFamily: 'system-ui',
-          colors: 'black'
+          colors: 'black',
         },
       },
       axisBorder: { /* TODO: add colors for this and grid */
@@ -146,7 +146,7 @@ export default function ActionGraph({
       show: false,
     },
     tooltip: {
-      x: { format: 'yyyy' }
+      x: { format: 'yyyy' },
     },
   }
 

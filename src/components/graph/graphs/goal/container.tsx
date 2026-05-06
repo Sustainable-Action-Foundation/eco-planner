@@ -23,7 +23,7 @@ export default function GoalGraph({
   secondaryGoal,
   effects,
   session,
-  roadmapOptions
+  roadmapOptions,
 }: {
   goal: Goal,
   parentGoal: Goal | null,

@@ -16,7 +16,7 @@ type ThumbnailGoal = Pick<
 
 export default async function ThumbnailGraph({
   goal,
-  historicalData
+  historicalData,
 }: {
   goal: ThumbnailGoal,
   historicalData?: boolean,
@@ -90,7 +90,7 @@ export default async function ThumbnailGraph({
     fill: {
       type: 'solid',
       colors: colors,
-      opacity: opacities
+      opacity: opacities,
     },
     tooltip: { enabled: false },
     stroke: { curve: 'straight', width: 1.5 },
@@ -105,11 +105,11 @@ export default async function ThumbnailGraph({
           : {}),
       ...(sortedMainEntries[sortedMainEntries.length - 1]
         ? { max: new Date(sortedMainEntries[sortedMainEntries.length - 1][0]).getTime() }
-        : {})
+        : {}),
     },
     yaxis: {
-      show: false
-    }
+      show: false,
+    },
   }
 
   return (

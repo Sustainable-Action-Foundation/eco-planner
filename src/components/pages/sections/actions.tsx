@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 
 export default function Actions({
   actions,
-  searchParamsProp
+  searchParamsProp,
 }: {
   actions: Action[] | null,
   searchParamsProp: { [key: string]: string | string[] | undefined }
@@ -65,8 +65,8 @@ export default function Actions({
       [action.name, action.description].some(
         (value) =>
           typeof value === "string" &&
-          value.toLowerCase().includes(searchFilter.toLowerCase())
-      )
+          value.toLowerCase().includes(searchFilter.toLowerCase()),
+      ),
     );
   }, [actions, searchFilter]);
 

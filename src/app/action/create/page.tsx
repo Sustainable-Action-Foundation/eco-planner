@@ -17,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: t("metadata:action_create.title"),
     description: t("metadata:action_create.description"),
     og_url: `/action/create`,
-    og_image_url: undefined
+    og_image_url: undefined,
   })
 }
 
@@ -28,7 +28,7 @@ export default async function Page(
       goalId?: string | string[] | undefined,
       [key: string]: string | string[] | undefined
     }>
-  }
+  },
 ) {
   const searchParams = await props.searchParams;
   const [t, session, goal, roadmap, roadmapList] = await Promise.all([
@@ -54,7 +54,7 @@ export default async function Page(
       viewers: goal.roadmap.viewers,
       editGroups: goal.roadmap.editGroups,
       viewGroups: goal.roadmap.viewGroups,
-      isPublic: goal.roadmap.isPublic
+      isPublic: goal.roadmap.isPublic,
     }
   }
 
@@ -70,7 +70,7 @@ export default async function Page(
 
   // The roadmaps the user can choose to add the action to (the ones they have edit access to)
   const availableRoadmaps = roadmapList.filter((roadmap) =>
-    hasEditAccess(accessChecker(roadmap, session.user))
+    hasEditAccess(accessChecker(roadmap, session.user)),
   );
 
   return (

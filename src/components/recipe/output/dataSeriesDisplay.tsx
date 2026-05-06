@@ -34,7 +34,7 @@ export function OutputDataSeries() {
           scrollbarWidth: 'thin',
           contain: 'inline-size',
           columnGap: '1rem',
-          fontSize: '14px'
+          fontSize: '14px',
         }}
       >
         {Object.keys(resultingDataSeries).map((year, i) => (

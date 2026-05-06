@@ -18,7 +18,7 @@ export function RecipeEditor() {
             resize: 'vertical',
             overflow: 'auto',
             border: '1px solid var(--gray)',
-            borderRadius: '0 .25rem 0 0'
+            borderRadius: '0 .25rem 0 0',
           }}
         >
           <EquationEditor />

@@ -19,7 +19,7 @@ export default async function scbPopulationQuery(areaCode: string, parentAreaCod
 
   return {
     population,
-    parentPopulation
+    parentPopulation,
   };
 }
 
@@ -37,7 +37,7 @@ async function getCachedQuery(areaCode: string) {
     // Magic string for population data per month
     { variableCode: "ContentsCode", valueCodes: ["000007SF"] },
     // Use the latest time period
-    { variableCode: "Tid", valueCodes: ["TOP(1)"] }
+    { variableCode: "Tid", valueCodes: ["TOP(1)"] },
   ];
 
   const result = await getPxWebTableContent("TAB6471", "SCB", selection, "sv");

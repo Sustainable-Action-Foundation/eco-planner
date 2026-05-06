@@ -195,7 +195,7 @@ export default function RoadmapForm({
   const metaRoadmaps = useMemo(() => {
     return (metaRoadmapAlternatives ?? []).map(metaRoadmap => ({
       name: metaRoadmap.name,
-      value: metaRoadmap.id
+      value: metaRoadmap.id,
     }));
   }, [metaRoadmapAlternatives]);
 
@@ -321,7 +321,7 @@ export default function RoadmapForm({
           positionIndex={positionIndex}
           legends={{
             viewers: t("forms:roadmap.legend_visibility"),
-            editors: t("forms:roadmap.legend_editability")
+            editors: t("forms:roadmap.legend_editability"),
           }}
         />
 

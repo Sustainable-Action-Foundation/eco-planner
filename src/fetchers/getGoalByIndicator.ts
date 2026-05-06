@@ -47,7 +47,7 @@ async function getCachedGoal(roadmapId: string, indicatorParameter: string, unit
           ...(unit !== undefined ? { dataSeries: { unit: unit } } : {}),
           roadmap: { id: roadmapId },
         },
-        include: goalInclusionSelection
+        include: goalInclusionSelection,
       });
     } catch (error) {
       console.log(error);
@@ -75,11 +75,11 @@ async function getCachedGoal(roadmapId: string, indicatorParameter: string, unit
               { viewers: { some: { id: user.id } } },
               { editGroups: { some: { users: { some: { id: user.id } } } } },
               { viewGroups: { some: { users: { some: { id: user.id } } } } },
-              { isPublic: true }
-            ]
-          }
+              { isPublic: true },
+            ],
+          },
         },
-        include: goalInclusionSelection
+        include: goalInclusionSelection,
       });
     } catch (error) {
       console.log(error);
@@ -101,9 +101,9 @@ async function getCachedGoal(roadmapId: string, indicatorParameter: string, unit
         roadmap: {
           id: roadmapId,
           isPublic: true,
-        }
+        },
       },
-      include: goalInclusionSelection
+      include: goalInclusionSelection,
     });
   } catch (error) {
     console.log(error);

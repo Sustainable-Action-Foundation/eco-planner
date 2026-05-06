@@ -105,7 +105,7 @@ export default function CopyAndScale({
       externalSelection: null,
 
       dataSeriesId: undefined,
-      dataSeries: { dateValues: resultingDataSeries, unit: resultingUnit, },
+      dataSeries: { dateValues: resultingDataSeries, unit: resultingUnit },
       dataSeriesRecipeId: undefined,
       dataSeriesRecipe: recipeUsed.serialize(),
 

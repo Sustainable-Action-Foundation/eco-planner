@@ -130,7 +130,7 @@ async function main() {
       isAdmin: true,
       isVerified: true,
       email: 'admin@admin.admin',
-    }
+    },
   });
   /** Anita is a regular user :3 */
   const anita = await prisma.user.create({
@@ -140,7 +140,7 @@ async function main() {
       isAdmin: false,
       isVerified: true,
       email: 'anita@sustainable-action.org',
-    }
+    },
   });
   /** Anton is a regular user who's been to lazy to verify themselves */
   const anton = await prisma.user.create({
@@ -150,7 +150,7 @@ async function main() {
       isAdmin: false,
       isVerified: false,
       email: 'anton@sustainable-action.org',
-    }
+    },
   });
   const users = [admin, anita, anton];
 
@@ -171,7 +171,7 @@ async function main() {
         ...(options.goalId ? { goalId: options.goalId } : {}),
         ...(options.actionId ? { actionId: options.actionId } : {}),
         ...(options.metaRoadmapId ? { metaRoadmapId: options.metaRoadmapId } : {}),
-      })
+      }),
     };
   }
 
@@ -192,7 +192,7 @@ async function main() {
       comments: {
         createMany: {
           data: Array(40).fill(null).map(() => makeRandomComment()),
-        }
+        },
       },
       createdAt,
       updatedAt,
@@ -210,7 +210,7 @@ async function main() {
       comments: {
         createMany: {
           data: Array(30).fill(null).map(() => makeRandomComment()),
-        }
+        },
       },
       // TODO - is this correct? 
       editors: {
@@ -235,7 +235,7 @@ async function main() {
       comments: {
         createMany: {
           data: Array(30).fill(null).map(() => makeRandomComment()),
-        }
+        },
       },
       // TODO - is this correct?
       editors: {
@@ -263,7 +263,7 @@ async function main() {
       comments: {
         createMany: {
           data: Array(20).fill(null).map(() => makeRandomComment()),
-        }
+        },
       },
       createdAt,
       updatedAt,
@@ -279,7 +279,7 @@ async function main() {
       comments: {
         createMany: {
           data: Array(10).fill(null).map(() => makeRandomComment()),
-        }
+        },
       },
       // TODO - is this correct?
       editors: {
@@ -303,7 +303,7 @@ async function main() {
       comments: {
         createMany: {
           data: Array(10).fill(null).map(() => makeRandomComment()),
-        }
+        },
       },
       // TODO - is this correct?
       editors: {
@@ -347,7 +347,7 @@ async function main() {
             tableId: 'TAB6420',
             selection: [
               // Selected area
-              { variableCode: 'Region', valueCodes: ["00"], },
+              { variableCode: 'Region', valueCodes: ["00"] },
               // Specifically land areas, not including water
               { variableCode: "ArealTyp", valueCodes: ["01"] },
               // Magic string to get area sizes in square kilometers (as opposed to hectares with "000007E1")
@@ -401,7 +401,7 @@ async function main() {
             tableId: 'BE0101N1',
             selection: [
               // Selected area
-              { variableCode: 'Region', valueCodes: ["00"], },
+              { variableCode: 'Region', valueCodes: ["00"] },
               // Magic string to get population numbers
               { variableCode: "ContentsCode", valueCodes: ["000007E1"] },
             ],
@@ -474,9 +474,9 @@ async function main() {
           updatedAt,
           unit: getRandomUnit(),
           values: { createMany: { data: dateValuesToDBDateRecord(dateValues) } },
-        }
+        },
       });
-    })
+    }),
   );
   const nationalV1Recipes = await prisma.$transaction(
     nationalDataSeriesV1.map((dataSeries, index) => {
@@ -524,7 +524,7 @@ async function main() {
           },
         },
       });
-    })
+    }),
   );
 
   // National goals v2 - inherit with recipes from v1
@@ -553,10 +553,10 @@ async function main() {
           dataSeriesId: dataSeries.id,
           recipeSuggestions: {
             connect: [{ id: recipe.id }],
-          }
+          },
         },
       });
-    })
+    }),
   ));
 }
 

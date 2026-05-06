@@ -180,7 +180,7 @@ function getAllJSONFlattened(): Record<string, Record<string, string>> {
     }
     const flattened = flattenTree(nsData);
     const prefixed = Object.fromEntries(Object.entries(flattened)
-      .map(([key, value]) => [`${namespace}:${key}`, value])
+      .map(([key, value]) => [`${namespace}:${key}`, value]),
     );
     perLocale[locale] = { ...perLocale[locale], ...prefixed };
   })

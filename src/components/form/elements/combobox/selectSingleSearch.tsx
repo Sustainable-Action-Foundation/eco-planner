@@ -67,7 +67,7 @@ export default function SelectSingleSearch({
 
   const fuse = useMemo(() => new Fuse(options, {
     keys: ['name'],
-    ...(fuseOptions ?? {})
+    ...(fuseOptions ?? {}),
   }), [options, fuseOptions]);
 
   const searchResults = useMemo(() => {
@@ -96,7 +96,7 @@ export default function SelectSingleSearch({
       searchRef.current,
       setSearchValue,
       menuOpen,
-      setFocusedListboxOption
+      setFocusedListboxOption,
     )
   }, [menuOpen]);
 
@@ -175,7 +175,7 @@ export default function SelectSingleSearch({
                   setMenuOpen(false);
                   toggleRef.current?.focus();
                   if (onChange) onChange(selectedOption?.value !== value?.value ? selectedOption : null);
-                }
+                },
               )
             }}
             role="combobox"

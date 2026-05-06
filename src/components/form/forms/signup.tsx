@@ -19,7 +19,7 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction) {
     username: form.username.value,
     email: form.email?.value,
     password: form.password?.value,
-    remember: (form.remember as HTMLInputElement | null)?.checked
+    remember: (form.remember as HTMLInputElement | null)?.checked,
   })
 
   // Try to signup, redirect to page informing user to verify email if successful.

@@ -12,7 +12,7 @@ export default function DataSeriesInputManual({
   initialDateValues = { unit: undefined, dateValues: {} },
   outputFormElement,
   label,
-  id
+  id,
 }: {
   initialDateValues?: DateValuesWithUnit | undefined;
   outputFormElement?: React.ReactElement<HTMLInputElement> | undefined;
@@ -29,7 +29,7 @@ export default function DataSeriesInputManual({
     return Object.entries(initialDateValues.dateValues).map(([date, value]) => ({
       id: crypto.randomUUID(),
       year: new Date(date).getFullYear(),
-      data: value ?? null
+      data: value ?? null,
     }));
   })
 
@@ -41,8 +41,8 @@ export default function DataSeriesInputManual({
       prev.map((item, i) =>
         i === index
           ? { ...item, year: newValue === '' ? null : Number(newValue) }
-          : item
-      )
+          : item,
+      ),
     );
   };
 
@@ -51,8 +51,8 @@ export default function DataSeriesInputManual({
       prev.map((item, i) =>
         i === index
           ? { ...item, data: newValue === '' ? null : Number(newValue) }
-          : item
-      )
+          : item,
+      ),
     );
   };
 
@@ -69,7 +69,7 @@ export default function DataSeriesInputManual({
   function handlePaste(
     e: React.ClipboardEvent<HTMLInputElement>,
     startIndex: number,
-    targetColumn: string
+    targetColumn: string,
   ) {
     e.preventDefault();
 
@@ -125,7 +125,7 @@ export default function DataSeriesInputManual({
     setValue(prev => [
       ...prev.slice(0, focusedCell.row),
       { id: crypto.randomUUID(), year: null, data: null },
-      ...prev.slice(focusedCell.row)
+      ...prev.slice(focusedCell.row),
     ])
   }
 
@@ -162,7 +162,7 @@ export default function DataSeriesInputManual({
         }
 
         return item;
-      })
+      }),
     );
   }
 
@@ -176,8 +176,8 @@ export default function DataSeriesInputManual({
     <>
       <div className="margin-bottom-25" id={`table-${label}`}>{label}</div>
       {/* TODO: Might make sense to make an actual, keyboard navigable menu component */}
-      <menu 
-        className={`flex gap-25 margin-0 gray-95 align-items-center justify-content-space-between ${styles['grid-menu']}`} 
+      <menu
+        className={`flex gap-25 margin-0 gray-95 align-items-center justify-content-space-between ${styles['grid-menu']}`}
         style={{ borderRadius: '.25rem .25rem 0 0', padding: '2px', borderTop: '1px solid var(--gray-80)', borderInline: '1px solid var(--gray-80)' }}
       >
         <div className="flex gap-25 align-items-center">
@@ -238,15 +238,15 @@ export default function DataSeriesInputManual({
           dateValues: value.every(({ year, data }) => !year && !data) // If all values are completely empty, we return an empty object
             ? {}
             : Object.fromEntries(
-              value.map(({ year, data }) => [`${year}-01-01T00:00:00.000Z`, data]) // Otherwise we return the year + data (frontend just requires year, backend handles more specific validation)
-            )
+              value.map(({ year, data }) => [`${year}-01-01T00:00:00.000Z`, data]), // Otherwise we return the year + data (frontend just requires year, backend handles more specific validation)
+            ),
         }),
         type: "hidden",
         hidden: true,
         readOnly: true,
       })}
 
-      <Grid 
+      <Grid
         ariaLabelledBy={`table-${label}`}
         focusedCell={focusedCell}
         setFocusedCell={setFocusedCell}
@@ -257,7 +257,7 @@ export default function DataSeriesInputManual({
         props={{
           id: id,
           className: `grid width-100 align-items-center ${styles['grid']}`,
-          style: { gridTemplateColumns: 'auto auto 1fr', height: gridExpanded ? 'auto' : '0', borderBottom: gridExpanded ? '1px solid var(--gray-80)' : '0'  }
+          style: { gridTemplateColumns: 'auto auto 1fr', height: gridExpanded ? 'auto' : '0', borderBottom: gridExpanded ? '1px solid var(--gray-80)' : '0' },
         }}
       >
         <Grid.ColumnHeader className="text-align-left">#</Grid.ColumnHeader>
@@ -310,7 +310,7 @@ export default function DataSeriesInputManual({
                   }}
                 />
               </Grid.Cell>
-            </Grid.Row>
+            </Grid.Row>,
           ]
         })}
       </Grid>

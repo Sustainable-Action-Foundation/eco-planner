@@ -71,7 +71,7 @@ export const LineThrough = Extension.create<LineThroughOptions>({
           : chain()
             .setMark('textStyle', { textDecoration: 'line-through' })
             .run()
-      }
+      },
     }
   },
 

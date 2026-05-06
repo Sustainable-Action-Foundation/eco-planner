@@ -65,7 +65,7 @@ export default function MainGraph({
     fill: {
       type: 'solid',
       colors: colors,
-      opacity: opacities
+      opacity: opacities,
     },
     stroke: { curve: stroke.curve, width: stroke.width },
     markers: { size: marker.size },
@@ -86,8 +86,8 @@ export default function MainGraph({
           t("graphs:common.expected_outcome"),
           (secondaryGoal?.dataSeries?.unit === goal.dataSeries.unit) ? (secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0] : "",
           historicalData ? `${historicalData.metadata[0]?.label} (${t("common:historical_data")})` : "",
-        ]
-      }
+        ],
+      },
     ],
     tooltip: {
       x: { format: 'yyyy' },

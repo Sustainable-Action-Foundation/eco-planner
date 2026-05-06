@@ -42,7 +42,7 @@ export default function MainDeltaGraph({
     fill: {
       type: 'solid',
       colors: colors,
-      opacity: opacities
+      opacity: opacities,
     },
     stroke: { curve: stroke.curve, width: stroke.width },
     markers: { size: marker.size },
@@ -51,7 +51,7 @@ export default function MainDeltaGraph({
       labels: { format: 'yyyy' },
       tooltip: { enabled: false },
       min: new Date("2020-01-01T00:00:00Z").getTime(),
-      max: new Date("2050-01-01T00:00:00Z").getTime()
+      max: new Date("2050-01-01T00:00:00Z").getTime(),
     },
     yaxis: [{
       title: {
@@ -61,8 +61,8 @@ export default function MainDeltaGraph({
             : goal.dataSeries.unit === null
               ? t("common:tsx.unitless")
               : goal.dataSeries.unit
-              || t("common:tsx.unit_missing")
-        })
+              || t("common:tsx.unit_missing"),
+        }),
       },
       labels: { formatter: graphNumberFormatter },
       seriesName: [
@@ -235,7 +235,7 @@ export default function MainDeltaGraph({
     if (secondaryGoal.dataSeries.unit !== goal.dataSeries.unit) {
       (chartOptions.yaxis as ApexYAxis[]).push({
         title: {
-          text: t("graphs:main_delta_graph.annual_change", { unit: secondaryGoal.dataSeries.unit?.toLowerCase() === 'procent' ? t("graphs:main_delta_graph.percentage_points") : secondaryGoal.dataSeries.unit === null ? t("common:tsx.unitless") : secondaryGoal.dataSeries.unit || t("common:tsx.unit_missing") })
+          text: t("graphs:main_delta_graph.annual_change", { unit: secondaryGoal.dataSeries.unit?.toLowerCase() === 'procent' ? t("graphs:main_delta_graph.percentage_points") : secondaryGoal.dataSeries.unit === null ? t("common:tsx.unitless") : secondaryGoal.dataSeries.unit || t("common:tsx.unit_missing") }),
         },
         labels: { formatter: graphNumberFormatter },
         seriesName: secondaryGoal.name || secondaryGoal.indicatorParameter,

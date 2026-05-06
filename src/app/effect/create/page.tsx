@@ -1,5 +1,5 @@
 import EffectForm from "@/components/form/forms/effect"
-import { getOneAction, getOneGoal, getRoadmaps, } from "@/fetchers";
+import { getOneAction, getOneGoal, getRoadmaps } from "@/fetchers";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
@@ -16,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: t("metadata:effect_create.title"),
     description: t("metadata:effect_create.description"),
     og_url: `/effect/create`,
-    og_image_url: undefined
+    og_image_url: undefined,
   })
 }
 
@@ -27,7 +27,7 @@ export default async function Page(
       goalId?: string | string[] | undefined,
       [key: string]: string | string[] | undefined
     }>,
-  }
+  },
 ) {
   const searchParams = await props.searchParams;
   const [t, session, action, goal, roadmaps] = await Promise.all([

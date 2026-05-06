@@ -68,7 +68,7 @@ export default function RecipeQueryBuilder({
   const renderedTables = tables
     ? tables.slice(
       shouldRenderAllTables ? 0 : offset,
-      shouldRenderAllTables ? tables.length : offset + renderedTablesListMaxLength
+      shouldRenderAllTables ? tables.length : offset + renderedTablesListMaxLength,
     )
     : null;
 
@@ -431,7 +431,7 @@ export default function RecipeQueryBuilder({
         tableId: tableDetails?.id ?? formData.get("externalTableId") as string ?? prev.tableId,
         selection: query,
       }
-      : prev
+      : prev,
     );
     closeModal(modalRef)
   }
@@ -527,7 +527,7 @@ export default function RecipeQueryBuilder({
                               handleTableSelect((e.target as HTMLInputElement).value);
                               upsertVariable(variableId, prev => prev.type === RecipeDataTypes.External
                                 ? { ...prev, tableId: e.target.value }
-                                : prev
+                                : prev,
                               );
                             }}
                           />

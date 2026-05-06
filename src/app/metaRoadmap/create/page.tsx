@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: t("metadata:roadmap_series_create.title"),
     description: t("metadata:roadmap_series_create.description"),
     og_url: `/metaRoadmap/create`,
-    og_image_url: undefined
+    og_image_url: undefined,
   })
 }
 

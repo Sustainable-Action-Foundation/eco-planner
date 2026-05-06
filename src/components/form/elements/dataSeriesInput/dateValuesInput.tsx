@@ -60,13 +60,13 @@ export default function DateValuesInput({
     () =>
       isStartISOValid
       && (!isEndISOValid || Number(visualStartYear) < Number(visualEndYear)),
-    [isStartISOValid, isEndISOValid, visualStartYear, visualEndYear]
+    [isStartISOValid, isEndISOValid, visualStartYear, visualEndYear],
   );
   const isEndDateValid = useMemo(
     () =>
       isEndISOValid
       && (!isStartISOValid || Number(visualEndYear) > Number(visualStartYear)),
-    [isEndISOValid, isStartISOValid, visualEndYear, visualStartYear]
+    [isEndISOValid, isStartISOValid, visualEndYear, visualStartYear],
   );
 
   useEffect(() => setVisualStartYear(String(new Date(startDate).getUTCFullYear())), [startDate]);

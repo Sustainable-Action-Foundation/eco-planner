@@ -24,7 +24,7 @@ function arraysEqual(a: number[] | undefined, b: number[]): boolean {
 
 export default function TextEditorMenu({
   editor,
-  editorId
+  editorId,
 }: {
   editor: Editor,
   editorId: string
@@ -88,14 +88,14 @@ export default function TextEditorMenu({
     </li>,
     <li role='presentation' data-menu-group={5} key="numberedlist" >
       <NumberedList editor={editor} setFocusedMenubarItem={setFocusedMenubarItem} t={t} menuGroup={5} />
-    </li>
+    </li>,
   ], [editor, editorId, t]);
 
   // Get a ref of all menu items in our menubar
   useEffect(() => {
     if (menubarRef.current) {
       menuItemsRef.current = menubarRef.current.querySelectorAll(
-        "div > [role='menubar'] > li > [role='menuitem'], div > [role='menubar'] > li > [role='menuitemcheckbox'], div > [role='menubar'] > li > [role='menuitemradio']"
+        "div > [role='menubar'] > li > [role='menuitem'], div > [role='menubar'] > li > [role='menuitemcheckbox'], div > [role='menubar'] > li > [role='menuitemradio']",
       );
     }
   }, [menuBarWidth, visibleGroups, hiddenGroups])
@@ -115,7 +115,7 @@ export default function TextEditorMenu({
   useEffect(() => {
     if (submenuRef.current) {
       submenuItemsRef.current = submenuRef.current.querySelectorAll(
-        "li > [role='menuitem'], li > [role='menuitemcheckbox'], li > [role='menuitemradio']"
+        "li > [role='menuitem'], li > [role='menuitemcheckbox'], li > [role='menuitemradio']",
       );
     }
   }, [submenuVisible])
@@ -169,7 +169,7 @@ export default function TextEditorMenu({
       setMenuBarWidth(
         menubarRef.current.clientWidth -
         parseInt(getComputedStyle(menubarRef.current).paddingInline) -
-        48 // Width of menu element (multiplied by 2 to allow for some breathing space)
+        48, // Width of menu element (multiplied by 2 to allow for some breathing space)
       );
     }
 
@@ -225,14 +225,14 @@ export default function TextEditorMenu({
             e,
             menuItemsRef.current,
             focusedMenubarItem,
-            setFocusedMenubarItem
+            setFocusedMenubarItem,
           )
         }}
         role='menubar'
       >
         {menuItemsList
           .filter((menuItem) =>
-            !visibleGroups || visibleGroups.includes(Number(menuItem.props["data-menu-group"]))
+            !visibleGroups || visibleGroups.includes(Number(menuItem.props["data-menu-group"])),
           )
           .map((menuItem) => menuItem)
         }
@@ -241,7 +241,7 @@ export default function TextEditorMenu({
           style={{
             float: 'right',
             position: 'relative',
-            display: hiddenGroups && hiddenGroups.length > 0 ? 'inline-block' : 'none'
+            display: hiddenGroups && hiddenGroups.length > 0 ? 'inline-block' : 'none',
           }}>
           <span
             ref={submenuButtonRef}
@@ -291,7 +291,7 @@ export default function TextEditorMenu({
               position: 'absolute',
               top: 'calc(100% + 9px)',
               right: '.25rem',
-              boxShadow: "rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px"
+              boxShadow: "rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px",
             }}
             ref={submenuRef}
             onKeyDown={(e: React.KeyboardEvent<HTMLUListElement>) => {
@@ -313,14 +313,14 @@ export default function TextEditorMenu({
                 e,
                 submenuItemsRef.current,
                 focusedSubmenuItem,
-                setFocusedSubmenuItem
+                setFocusedSubmenuItem,
               )
             }}
             role="menubar" // TODO: See if we want this to be role="toolbar"
           >
             {submenuVisible && menuItemsList
               .filter((menuItem) =>
-                !hiddenGroups || hiddenGroups.includes(Number(menuItem.props["data-menu-group"]))
+                !hiddenGroups || hiddenGroups.includes(Number(menuItem.props["data-menu-group"])),
               )
               .map((menuItem) => menuItem)
             }

@@ -82,7 +82,7 @@ export default function ChildGraphContainer({
               {index !== childGoals.length - 1 ?
                 <hr aria-orientation="vertical" className="padding-0 margin-block-25" /> /* TODO: Need to add orientation aria to other HR */
                 : null}
-            </span>
+            </span>,
           )}
         </nav>
       </footer>

@@ -127,7 +127,7 @@ export function VariableCreator({
               defaultValue: providedUnit,
             }}
             theme={{
-              style: { backgroundColor: 'var(--gray-95)' }
+              style: { backgroundColor: 'var(--gray-95)' },
             }}
             options={allOurUnits.map(unit => ({ name: unit, value: unit }))}
             maxOptions={3}

@@ -5,7 +5,7 @@ import crypto from 'crypto';
 export default async function getUserHash(userEmail: string): Promise<string> {
   const user = await prisma.user.findUnique({
     where: {
-      email: userEmail
+      email: userEmail,
     },
     // Select many fields to ensure that the hash changes if any of these fields change, acts as a soft timelimit on using the hash.
     // The initial use case for the hash is as verification of the user's email when signing up or changing password (we send the hash as a query parameter in the email link),
@@ -18,8 +18,8 @@ export default async function getUserHash(userEmail: string): Promise<string> {
       userGroups: {
         select: {
           id: true,
-          name: true
-        }
+          name: true,
+        },
       },
       authoredActions: { select: { id: true } },
       authoredComments: { select: { id: true } },
@@ -30,7 +30,7 @@ export default async function getUserHash(userEmail: string): Promise<string> {
       authoredNotes: { select: { id: true } },
       isAdmin: true,
       isVerified: true,
-    }
+    },
   })
   if (!user) {
     return Promise.reject(new Error('User not found'));

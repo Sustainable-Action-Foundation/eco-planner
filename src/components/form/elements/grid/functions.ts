@@ -11,7 +11,7 @@ export function handleKeyDownGrid({
   insertRowBottom,
   insertRowAbove,
   deleteCurrentRow,
-  deleteCurrentGridCellContents
+  deleteCurrentGridCellContents,
 }: {
   e: React.KeyboardEvent<HTMLTableCellElement>,
   amountColumns: number,

@@ -137,7 +137,7 @@ export default function HistoricalData({
       goal.externalTableId,
       goal.externalDataset,
       parseExternalSelection(goal.externalSelection),
-      lang
+      lang,
     ).then(setTableDetails);
   }, [goal.externalTableId, goal.externalDataset, goal.externalSelection, lang]);
 
@@ -451,7 +451,7 @@ export default function HistoricalData({
                     name: 'externalTableId',
                     placeholder: !dataSource ? 'Välj datakälla för att se tabeller' : 'Välj tabell', // TODO i18n
                     required: true,
-                    disabled: !dataSource ? true : false
+                    disabled: !dataSource ? true : false,
                   }}
                   defaultValue={table ? { name: table.label, value: table.tableId } : false}
                   options={

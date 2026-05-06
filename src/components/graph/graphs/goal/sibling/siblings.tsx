@@ -59,7 +59,7 @@ export default function SiblingGraph({
     },
     fill: {
       type: 'solid',
-      opacity: 0.3
+      opacity: 0.3,
     },
     stroke: { curve: stroke.curve, width: stroke.width },
     markers: { size: isStacked ? 0 : marker.size },
@@ -133,7 +133,7 @@ export default function SiblingGraph({
               {index !== siblings.length - 1 ?
                 <hr aria-orientation="vertical" className="padding-0 margin-block-25" /> /* TODO: Need to add orientation aria to other HR */
                 : null}
-            </span>
+            </span>,
           )}
         </nav>
       </footer>

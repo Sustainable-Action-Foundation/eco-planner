@@ -49,7 +49,7 @@ export default async function getTrafaTableContent(tableId: string, selection: {
       metadata: [{
         label: trafaTableContent.Name ?? "",
         source: "Trafa",
-      }]
+      }],
     }
 
     const timeColumns = trafaTableContent.Header.Column.filter(column => column.DataType === "Time");
@@ -86,7 +86,7 @@ export default async function getTrafaTableContent(tableId: string, selection: {
           if (yearValue !== undefined && monthValue !== undefined && dataValue !== undefined) {
             result.values.push({
               period: `${yearValue}M${monthValue}`,
-              value: dataValue
+              value: dataValue,
             })
           } else {
             console.warn("Missing year or month value in Trafa table content with multiple time columns");
@@ -101,7 +101,7 @@ export default async function getTrafaTableContent(tableId: string, selection: {
           if (yearValue !== undefined && quarterValue !== undefined && dataValue !== undefined) {
             result.values.push({
               period: `${yearValue}K${quarterValue}`,
-              value: dataValue
+              value: dataValue,
             });
           } else {
             console.warn("Missing year or quarter value in Trafa table content with multiple time columns");
@@ -119,7 +119,7 @@ export default async function getTrafaTableContent(tableId: string, selection: {
         if (timeValue !== undefined && dataValue !== undefined) {
           result.values.push({
             period: timeValue,
-            value: dataValue
+            value: dataValue,
           });
         } else {
           console.warn("Missing time or data value in Trafa table content with single time column");

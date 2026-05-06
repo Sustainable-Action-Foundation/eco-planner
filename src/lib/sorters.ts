@@ -166,11 +166,11 @@ export function goalSorterInterest<T extends { dataSeries: { values: { timestamp
     // Higher interest gets sorted first
     const aInterest = dataSeriesInterest({
       ...a.dataSeries,
-      values: a.dataSeries.values.map(v => ({ ...v, dataSeriesId: "" }))
+      values: a.dataSeries.values.map(v => ({ ...v, dataSeriesId: "" })),
     });
     const bInterest = dataSeriesInterest({
       ...b.dataSeries,
-      values: b.dataSeries.values.map(v => ({ ...v, dataSeriesId: "" }))
+      values: b.dataSeries.values.map(v => ({ ...v, dataSeriesId: "" })),
     });
     return bInterest - aInterest;
   }

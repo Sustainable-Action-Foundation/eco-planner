@@ -70,7 +70,7 @@ export default function QueryBuilder({
             ?
             tables.length
             : /* Otherwise, only show the first (100) tables. */
-            renderedTablesListMaxLength
+            renderedTablesListMaxLength,
         ));
       setOffset(0);
     } else {

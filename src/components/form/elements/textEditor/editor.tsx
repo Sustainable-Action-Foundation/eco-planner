@@ -17,7 +17,7 @@ const TextEditor = ({
   content,
   editable,
   defaultStyles = true,
-  onChange
+  onChange,
 }: {
   className?: string
   style?: React.CSSProperties

@@ -127,7 +127,7 @@ export function transformDateValuesToVector(
   maxTimeSpan: number,
 ): MaskedVector {
 
-  const { dateValues: timeline, unit, } = dateValues;
+  const { dateValues: timeline, unit } = dateValues;
 
   const vector: Unit[] = [];
   const mask: Record<string, boolean> = {};
@@ -145,7 +145,7 @@ export function transformDateValuesToVector(
       vector.push(
         unit
           ? mathjs.unit(value, unit)
-          : mathjs.unit(value)
+          : mathjs.unit(value),
       );
       mask[isoYearString] = false; // Defined value
     }
@@ -153,7 +153,7 @@ export function transformDateValuesToVector(
       vector.push(
         unit
           ? mathjs.unit(0, unit)
-          : mathjs.unit(0)
+          : mathjs.unit(0),
       );
       mask[isoYearString] = true; // Masked, non defined value
     }
@@ -272,7 +272,7 @@ export function dataSeriesToDateValues(dataSeries: DataSeries | Goal["dataSeries
     dataSeries.values.map(v => ([
       new Date(v.timestamp).toISOString(),
       v.value,
-    ]))
+    ])),
   );
   if (Object.keys(dateValues).some(k => !isISOIshDate(k))) {
     throw new RecipeError(`Data series contains invalid ISOIshDate keys.`);

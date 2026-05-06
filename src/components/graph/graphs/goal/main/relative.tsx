@@ -91,7 +91,7 @@ export default function MainRelativeGraph({
     fill: {
       type: 'solid',
       colors: colors,
-      opacity: opacities
+      opacity: opacities,
     },
     stroke: { curve: stroke.curve, width: stroke.width },
     markers: { size: marker.size },

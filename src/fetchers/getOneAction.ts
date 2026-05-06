@@ -59,9 +59,9 @@ async function getCachedAction(id: string, user: LoginData['user']): Promise<Act
               { viewers: { some: { id: user.id } } },
               { editGroups: { some: { users: { some: { id: user.id } } } } },
               { viewGroups: { some: { users: { some: { id: user.id } } } } },
-              { isPublic: true }
-            ]
-          }
+              { isPublic: true },
+            ],
+          },
         },
         include: actionInclusionSelection,
       }) satisfies Action | null;
@@ -79,7 +79,7 @@ async function getCachedAction(id: string, user: LoginData['user']): Promise<Act
     action = await prisma.action.findUnique({
       where: {
         id,
-        roadmap: { isPublic: true }
+        roadmap: { isPublic: true },
       },
       include: actionInclusionSelection,
     }) satisfies Action | null;

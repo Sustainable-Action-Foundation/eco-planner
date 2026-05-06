@@ -9,7 +9,7 @@ import { ToastContext } from '@/components/generic/toast/toastContext';
 import ToastList from '@/components/generic/toast/toastList';
 
 export default async function RootLayout(
-  { children, }: { children: React.ReactNode, }
+  { children }: { children: React.ReactNode, },
 ) {
   const [cookieContent, headerContent] = await Promise.all([
     cookies(),

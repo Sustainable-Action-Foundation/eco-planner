@@ -35,7 +35,7 @@ export default function TextSingleAutocomplete({
 
   const fuse = useMemo(() => new Fuse(options, { 
     keys: ['name'], 
-    ...(fuseOptions ?? {}) 
+    ...(fuseOptions ?? {}), 
   }), [options, fuseOptions]);
 
   const searchResults = useMemo(() => {
@@ -93,7 +93,7 @@ export default function TextSingleAutocomplete({
                     setSelectionMade(true); 
                     setFocusedListBoxItem(null); 
                     setDisplayListBox(false);
-                  }
+                  },
                 )
               },
               onFocus: () => setDisplayListBox(true),
@@ -103,7 +103,7 @@ export default function TextSingleAutocomplete({
               "aria-haspopup": "listbox",
               "aria-controls": displayListBox ? `${props.id}-listbox` : undefined,
               "aria-activedescendant": focusedListBoxItem != null ? `${props.id}-listbox-${focusedListBoxItem}` : undefined,
-              "aria-autocomplete": "list" /* TODO input_updates: Implement features to enable this to have a value of "both" (tab to autocomplete inline)  */
+              "aria-autocomplete": "list", /* TODO input_updates: Implement features to enable this to have a value of "both" (tab to autocomplete inline)  */
             }
             : {})}
         />
@@ -136,7 +136,7 @@ export default function TextSingleAutocomplete({
           }
           style={{
             ...(theme?.style),
-            maxHeight: maxOptions ? `${(maxOptions * 33) + 6}px` : '300px' // TODO: Implement for select comboboxes as well
+            maxHeight: maxOptions ? `${(maxOptions * 33) + 6}px` : '300px', // TODO: Implement for select comboboxes as well
           }}
           // TODO: Onblur does not seem to actually setFocusedListBoxItem, figure out why...
           onBlur={(e) => { if (e.relatedTarget?.id !== props.id) { setFocusedListBoxItem(null); setDisplayListBox(false); } }} // TODO: See if we can deal with blur the same way for all comboboxes
@@ -159,7 +159,7 @@ export default function TextSingleAutocomplete({
               aria-selected={option.name === value}
             >
               {option.name}
-            </li>
+            </li>,
           )}
         </ul>
         : null}

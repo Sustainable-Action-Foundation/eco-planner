@@ -38,7 +38,7 @@ async function getCachedRoadmap(metaId: string, version: number, user: LoginData
     try {
       roadmap = await prisma.roadmap.findUnique({
         where: { meta_version: { metaRoadmapId: metaId, version } },
-        include: roadmapInclusionSelection
+        include: roadmapInclusionSelection,
       });
     } catch (error) {
       console.log(error);
@@ -63,10 +63,10 @@ async function getCachedRoadmap(metaId: string, version: number, user: LoginData
             { viewers: { some: { id: user.id } } },
             { editGroups: { some: { users: { some: { id: user.id } } } } },
             { viewGroups: { some: { users: { some: { id: user.id } } } } },
-            { isPublic: true }
-          ]
+            { isPublic: true },
+          ],
         },
-        include: roadmapInclusionSelection
+        include: roadmapInclusionSelection,
       });
     } catch (error) {
       console.log(error);
@@ -86,7 +86,7 @@ async function getCachedRoadmap(metaId: string, version: number, user: LoginData
         meta_version: { metaRoadmapId: metaId, version },
         isPublic: true,
       },
-      include: roadmapInclusionSelection
+      include: roadmapInclusionSelection,
     });
   } catch (error) {
     console.log(error);

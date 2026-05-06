@@ -8,6 +8,6 @@ export async function POST() {
   session.destroy();
 
   return Response.json({ message: 'Logged out' },
-    { status: 200 }
+    { status: 200 },
   );
 }

@@ -53,7 +53,7 @@ function isRoadmapCreate(roadmap: JSONValue): roadmap is RoadmapCreateInput {
         // check if array of GoalCreateInput
         Array.isArray(roadmap.goals) &&
         roadmap.goals.every((goal) =>
-          isGoalCreate(goal)
+          isGoalCreate(goal),
         )
       )
     ) &&
@@ -150,7 +150,7 @@ function isRoadmapUpdate(roadmap: JSONValue): roadmap is RoadmapUpdateInput {
         // check if array of GoalCreateInput
         Array.isArray(roadmap.goals) &&
         roadmap.goals.every((goal) =>
-          isGoalCreate(goal)
+          isGoalCreate(goal),
         )
       )
     ) &&
@@ -213,13 +213,13 @@ export async function POST(request: NextRequest) {
   // Validate session
   if (!session.user?.id) {
     return Response.json({ message: t('api:common.unauthorized') },
-      { status: 401, headers: { 'Location': '/login' } }
+      { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
   if (!isRoadmapCreate(roadmap)) {
     return Response.json({ message: t('api:common.invalid_request_body') },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -230,7 +230,7 @@ export async function POST(request: NextRequest) {
     const [user, metaRoadmap] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true }
+        select: { id: true, username: true, isAdmin: true, userGroups: true },
       }),
       prisma.metaRoadmap.findUnique({
         where: { id: roadmap.metaRoadmapId },
@@ -240,8 +240,8 @@ export async function POST(request: NextRequest) {
           viewers: { select: { id: true, username: true } },
           editGroups: { include: { users: { select: { id: true, username: true } } } },
           viewGroups: { include: { users: { select: { id: true, username: true } } } },
-        }
-      })
+        },
+      }),
     ]);
     // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
     if (!user || (session.user.isAdmin && !user.isAdmin)) {
@@ -271,17 +271,17 @@ export async function POST(request: NextRequest) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
-          { status: 400, headers: { 'Location': '/login' } }
+          { status: 400, headers: { 'Location': '/login' } },
         );
       }
       return Response.json({ message: ClientError.IllegalParent },
-        { status: 403 }
+        { status: 403 },
       );
     } else {
       // If non-error is thrown, log it and return a generic error message
       console.log(error);
       return Response.json({ message: t('api:common.unknown_server_error') },
-        { status: 500 }
+        { status: 500 },
       );
     }
   }
@@ -313,7 +313,7 @@ export async function POST(request: NextRequest) {
     }))._max.version ?? 0;
   } catch {
     return Response.json({ message: t('api:roadmap.failed_fetch_latest') },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -362,25 +362,25 @@ export async function POST(request: NextRequest) {
     revalidateTag('roadmap', 'max');
     // Return the new roadmap's ID if successful
     return Response.json({ message: t('api:roadmap.roadmap_created'), id: newRoadmap.id },
-      { status: 201, headers: { 'Location': `/roadmap/${newRoadmap.id}` } }
+      { status: 201, headers: { 'Location': `/roadmap/${newRoadmap.id}` } },
     );
   } catch (error) {
     // Custom error if there are errors in the nested goal creation
     if (error instanceof Error) {
       if (error.cause === 'nestedGoalCreation') {
         return Response.json({ message: error.message },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
       return Response.json({ message: t('api:roadmap.failed_record_connection') },
-        { status: 400 }
+        { status: 400 },
       );
     }
     console.log(error);
     return Response.json({ message: t('api:common.server_error') },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -399,14 +399,14 @@ export async function PUT(request: NextRequest) {
   // Validate session
   if (!session.user?.id) {
     return Response.json({ message: t('api:common.unauthorized') },
-      { status: 401, headers: { 'Location': '/login' } }
+      { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
   // Validate request body
   if (!isRoadmapUpdate(roadmap)) {
     return Response.json({ message: t('api:common.invalid_request_body') },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -415,7 +415,7 @@ export async function PUT(request: NextRequest) {
     const [user, currentRoadmap] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true }
+        select: { id: true, username: true, isAdmin: true, userGroups: true },
       }),
       prisma.roadmap.findUnique({
         where: { id: roadmap.roadmapId },
@@ -427,8 +427,8 @@ export async function PUT(request: NextRequest) {
           editGroups: { include: { users: { select: { id: true, username: true } } } },
           viewGroups: { include: { users: { select: { id: true, username: true } } } },
           isPublic: true,
-        }
-      })
+        },
+      }),
     ]);
     // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
     if (!user || (session.user.isAdmin && !user.isAdmin)) {
@@ -451,22 +451,22 @@ export async function PUT(request: NextRequest) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
-          { status: 400, headers: { 'Location': '/login' } }
+          { status: 400, headers: { 'Location': '/login' } },
         );
       }
       if (error.message === ClientError.StaleData) {
         return Response.json({ message: ClientError.StaleData },
-          { status: 409 }
+          { status: 409 },
         );
       }
       return Response.json({ message: ClientError.AccessDenied },
-        { status: 403 }
+        { status: 403 },
       );
     } else {
       // If non-error is thrown, log it and return a generic error message
       console.log(error);
       return Response.json({ message: "Unknown internal server error" },
-        { status: 500 }
+        { status: 500 },
       );
     }
   }
@@ -507,7 +507,7 @@ export async function PUT(request: NextRequest) {
         isPublic: roadmap.isPublic,
         goals: {
           create: roadmapGoalCreator(roadmap, session.user.id),
-        }
+        },
       },
       select: { id: true },
     });
@@ -517,7 +517,7 @@ export async function PUT(request: NextRequest) {
     revalidateTag('roadmap', { expire: 0 });
     // Return the new roadmap's ID if successful
     return Response.json({ message: t('api:roadmap.roadmap_updated'), id: updatedRoadmap.id },
-      { status: 200, headers: { 'Location': `/roadmap/${updatedRoadmap.id}` } }
+      { status: 200, headers: { 'Location': `/roadmap/${updatedRoadmap.id}` } },
     );
   } catch (error) {
     console.log(error);
@@ -525,17 +525,17 @@ export async function PUT(request: NextRequest) {
     if (error instanceof Error) {
       if (error.cause === 'nestedGoalCreation') {
         return Response.json({ message: error.message },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
       return Response.json({ message: t('api:roadmap.failed_record_connection') },
-        { status: 400 }
+        { status: 400 },
       );
     }
     return Response.json({ message: t('api:common.server_error') },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -546,21 +546,21 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const [session, roadmap] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<{ id: string }>
+    request.json() as Promise<{ id: string }>,
   ]);
   const t = await serveTea("api")
 
   // Validate request body
   if (!roadmap.id) {
     return Response.json({ message: t('api:common.missing_input') },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   // Validate session
   if (!session.user?.id) {
     return Response.json({ message: t('api:common.unauthorized') },
-      { status: 401, headers: { 'Location': '/login' } }
+      { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
@@ -568,7 +568,7 @@ export async function DELETE(request: NextRequest) {
     const [user, currentRoadmap] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true }
+        select: { id: true, username: true, isAdmin: true, userGroups: true },
       }),
       prisma.roadmap.findUnique({
         where: {
@@ -577,8 +577,8 @@ export async function DELETE(request: NextRequest) {
             OR: [
               { authorId: session.user.id },
               { metaRoadmap: { authorId: session.user.id } },
-            ]
-          })
+            ],
+          }),
         },
       }),
     ]);
@@ -598,16 +598,16 @@ export async function DELETE(request: NextRequest) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
-          { status: 400, headers: { 'Location': '/login' } }
+          { status: 400, headers: { 'Location': '/login' } },
         );
       }
       return Response.json({ message: ClientError.AccessDenied },
-        { status: 403 }
+        { status: 403 },
       );
     } else {
       console.log(error);
       return Response.json({ message: t('api:common.unknown_server_error') },
-        { status: 500 }
+        { status: 500 },
       );
     }
   }
@@ -616,12 +616,12 @@ export async function DELETE(request: NextRequest) {
   try {
     const deletedRoadmap = await prisma.roadmap.delete({
       where: {
-        id: roadmap.id
+        id: roadmap.id,
       },
       select: {
         id: true,
         metaRoadmapId: true,
-      }
+      },
     });
     // Prune any orphaned links and comments
     await pruneOrphans();
@@ -629,12 +629,12 @@ export async function DELETE(request: NextRequest) {
     revalidateTag('roadmap', 'max');
     return Response.json({ message: t('api:roadmap.roadmap_deleted'), id: deletedRoadmap.id },
       // Redirect to the parent meta roadmap
-      { status: 200, headers: { 'Location': `/metaRoadmap/${deletedRoadmap.metaRoadmapId}` } }
+      { status: 200, headers: { 'Location': `/metaRoadmap/${deletedRoadmap.metaRoadmapId}` } },
     );
   } catch (error) {
     console.log(error);
     return Response.json({ message: t('api:common.server_error') },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

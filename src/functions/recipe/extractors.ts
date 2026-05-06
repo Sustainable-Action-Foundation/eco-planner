@@ -87,7 +87,7 @@ export async function extractDataSeries(
       dbDataSeries.values.map(v => ([
         new Date(v.timestamp).toISOString(),
         v.value,
-      ]))
+      ])),
     );
 
     if (Object.keys(dateValues).some(k => !isISOIshDate(k))) {

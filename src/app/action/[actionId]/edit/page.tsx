@@ -15,7 +15,7 @@ export async function generateMetadata(props: { params: Promise<{ actionId: stri
   const [t, session, action] = await Promise.all([
     serveTea("metadata"),
     getSession(await cookies()),
-    getOneAction(params.actionId)
+    getOneAction(params.actionId),
   ]);
 
   if (!session.user?.isLoggedIn) {
@@ -23,7 +23,7 @@ export async function generateMetadata(props: { params: Promise<{ actionId: stri
       title: t("metadata:login.title"),
       description: t("metadata:login.title"),
       og_url: `/goal/${params.actionId}/edit`,
-      og_image_url: '/images/og_wind.png'
+      og_image_url: '/images/og_wind.png',
     })
   }
 
@@ -31,20 +31,20 @@ export async function generateMetadata(props: { params: Promise<{ actionId: stri
     title: `${t("metadata:action_edit.title")} ${action?.name}`,
     description: action?.description,
     og_url: `/goal/${params.actionId}/edit`,
-    og_image_url: undefined
+    og_image_url: undefined,
   })
 }
 
 export default async function Page(
   props: {
     params: Promise<{ actionId: string }>,
-  }
+  },
 ) {
   const params = await props.params;
   const [t, session, action] = await Promise.all([
     serveTea("pages"),
     getSession(await cookies()),
-    getOneAction(params.actionId)
+    getOneAction(params.actionId),
   ]);
 
   let actionAccessData: AccessControlled | null = null;
@@ -55,7 +55,7 @@ export default async function Page(
       viewers: action.roadmap.viewers,
       editGroups: action.roadmap.editGroups,
       viewGroups: action.roadmap.viewGroups,
-      isPublic: action.roadmap.isPublic
+      isPublic: action.roadmap.isPublic,
     }
   }
 
@@ -73,7 +73,7 @@ export default async function Page(
           {t("pages:action_edit.title", {
             actionName: action.name,
             roadmapName: action.roadmap.metaRoadmap.name,
-            version: action.roadmap.version
+            version: action.roadmap.version,
           })}
         </h1>
         <ActionForm roadmapId={action.roadmapId} currentAction={action} roadmaps={[]} />

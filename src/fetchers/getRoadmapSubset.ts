@@ -47,7 +47,7 @@ async function getCachedRoadmapSubset(user: LoginData['user'], actor?: string) {
         where: {
           metaRoadmap: { actor: actor ?? undefined },
         },
-        include: roadmapSubsetSelect
+        include: roadmapSubsetSelect,
       });
     } catch (error) {
       console.log(error);
@@ -74,9 +74,9 @@ async function getCachedRoadmapSubset(user: LoginData['user'], actor?: string) {
             { editGroups: { some: { users: { some: { id: user.id } } } } },
             { viewGroups: { some: { users: { some: { id: user.id } } } } },
             { isPublic: true },
-          ]
+          ],
         },
-        include: roadmapSubsetSelect
+        include: roadmapSubsetSelect,
       });
     } catch (error) {
       console.log(error);
@@ -97,7 +97,7 @@ async function getCachedRoadmapSubset(user: LoginData['user'], actor?: string) {
         metaRoadmap: { actor: actor ?? undefined },
         isPublic: true,
       },
-      include: roadmapSubsetSelect
+      include: roadmapSubsetSelect,
     });
   } catch (error) {
     console.log(error);

@@ -94,7 +94,7 @@ export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void
         dateValues: Object.fromEntries(definedYears.map(yyyy => (
           [yyyy, dateValues[definedYears[0] as ISOIshDate]]
         ))),
-        unit: null
+        unit: null,
       },
       baselineRecipeId: undefined,
       baselineRecipe: undefined,

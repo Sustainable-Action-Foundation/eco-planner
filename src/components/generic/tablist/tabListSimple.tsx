@@ -18,7 +18,7 @@ const Tab = React.forwardRef<HTMLButtonElement, TabProps>(
     >
       {children}
     </button>
-  )
+  ),
 )
 Tab.displayName = "Tab"
 
@@ -33,14 +33,14 @@ const TabPanel = React.forwardRef<HTMLDivElement, TabPanelProps>(
     >
       {children}
     </div>
-  )
+  ),
 )
 TabPanel.displayName = "TabPanel"
 
 /** Type guard */
 function isForwardRefWithDisplayName<P>(
   element: React.ReactNode,
-  displayName: string
+  displayName: string,
 ): element is React.ReactElement<P> {
   if (!React.isValidElement(element)) return false
 
@@ -60,12 +60,12 @@ function TabList({ props, children }: { props?: GenericElement, children: React.
 
   const tabs = childrenArray.filter(
     (child): child is React.ReactElement<TabProps> =>
-      isForwardRefWithDisplayName<TabProps>(child, "Tab")
+      isForwardRefWithDisplayName<TabProps>(child, "Tab"),
   )
 
   const panels = childrenArray.filter(
     (child): child is React.ReactElement<TabPanelProps> =>
-      isForwardRefWithDisplayName<TabPanelProps>(child, "TabPanel")
+      isForwardRefWithDisplayName<TabPanelProps>(child, "TabPanel"),
   )
   const tabListRef = useRef<HTMLDivElement | null>(null)
 
@@ -128,7 +128,7 @@ function TabList({ props, children }: { props?: GenericElement, children: React.
                 : false,
             onClick: () => setActiveIndex(index),
             key: index,
-          })
+          }),
         )}
       </div>
       <div>
@@ -136,7 +136,7 @@ function TabList({ props, children }: { props?: GenericElement, children: React.
           React.cloneElement(panel, {
             hidden: activeIndex === null ? index !== 0 : index !== activeIndex,
             key: index,
-          })
+          }),
         )}
       </div>
     </div>

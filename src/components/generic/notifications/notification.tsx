@@ -19,7 +19,7 @@ export default async function Notifications({ amount }: { amount: number }) {
           position: 'absolute',
           top: '0',
           left: '50%',
-          transform: 'translate(0, 0)'
+          transform: 'translate(0, 0)',
         }}>
           <div
             style={{ 

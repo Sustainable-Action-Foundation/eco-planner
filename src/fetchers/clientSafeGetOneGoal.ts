@@ -55,9 +55,9 @@ async function clientSafeGetCachedGoal(id: string, user: LoginData['user']): Pro
               { viewers: { some: { id: user.id } } },
               { editGroups: { some: { users: { some: { id: user.id } } } } },
               { viewGroups: { some: { users: { some: { id: user.id } } } } },
-              { isPublic: true }
-            ]
-          }
+              { isPublic: true },
+            ],
+          },
         },
         select: clientSafeGoalSelection,
       }) satisfies ClientGoal | null;
@@ -75,7 +75,7 @@ async function clientSafeGetCachedGoal(id: string, user: LoginData['user']): Pro
     goal = await prisma.goal.findUnique({
       where: {
         id,
-        roadmap: { isPublic: true }
+        roadmap: { isPublic: true },
       },
       select: clientSafeGoalSelection,
     }) satisfies ClientGoal | null;
