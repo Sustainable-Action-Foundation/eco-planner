@@ -3046,6 +3046,7 @@ __metadata:
     "@tiptap/extension-superscript": "npm:^3.22.5"
     "@tiptap/extension-text-style": "npm:^3.22.5"
     "@tiptap/extension-underline": "npm:^3.22.5"
+    "@tiptap/extensions": "npm:^3.22.5"
     "@tiptap/react": "npm:^3.22.5"
     "@tiptap/starter-kit": "npm:^3.22.5"
     "@types/node": "npm:^25.6.0"
