@@ -38,7 +38,7 @@ const tsCommonRules: Config["rules"] = {
   "@typescript-eslint/consistent-type-exports": "warn",
   "@typescript-eslint/consistent-type-definitions": ["warn", "type"],
   "@typescript-eslint/ban-ts-comment": "error",
-  "@typescript-eslint/prefer-nullish-coalescing": ["warn", { ignorePrimitives: { string: true, boolean: true, }, },],
+  "@typescript-eslint/prefer-nullish-coalescing": ["warn", { ignorePrimitives: { string: true, boolean: true, } }],
   "@typescript-eslint/prefer-optional-chain": "warn",
   "@typescript-eslint/restrict-template-expressions": "warn",
   "@typescript-eslint/no-base-to-string": "warn",
@@ -47,6 +47,7 @@ const tsCommonRules: Config["rules"] = {
   "@typescript-eslint/no-for-in-array": "error",
   "@/no-useless-assignment": "warn",
   "eqeqeq": ["error", "smart"],
+  "no-duplicate-imports": ["error", { allowSeparateTypeImports: true, includeExports: true }],
   // "semi": ["error", "always"],
   // "comma-dangle": ["error", "always-multiline",], // Would be nice but not tweakable enough
   // "quotes": ["error", "double", { avoidEscape: true }], // Authoritarian option :))
@@ -61,8 +62,8 @@ export default defineConfig([
       ...nextVitals,
     ],
     rules: {
-      "react-hooks/set-state-in-effect": "warn",
-      "react-hooks/set-state-in-render": "warn",
+      "react-hooks/set-state-in-effect": "off",
+      "react-hooks/set-state-in-render": "off",
       "react-hooks/immutability": "error",
       ...tsCommonRules,
     },
