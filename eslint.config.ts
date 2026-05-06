@@ -14,7 +14,7 @@ const commonRules: Config["rules"] = {
   "prefer-const": "error",
   "comma-dangle": ["error", "always-multiline"], // Would be nice but not tweakable enough
   // "quotes": ["error", "double", { avoidEscape: true }], // Authoritarian option :))
-  // "semi": ["error", "always"],
+  "semi": ["error", "always"],
   "@typescript-eslint/no-unused-vars": [
     "error",
     {
