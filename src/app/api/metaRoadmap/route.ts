@@ -3,7 +3,7 @@ import { getSession } from "@/lib/session";
 import { AccessLevel, ClientError, isMetaRoadmapCreate, isMetaRoadmapUpdate } from "@/types";
 import type { AccessControlled, JSONValue } from "@/types";
 import { prisma, RoadmapType } from "@/lib/prisma";
-import { Prisma } from "@/lib/prisma/namespace";
+import { Prisma } from "@/lib/prisma/generated";
 import { revalidateTag } from "next/cache";
 import accessChecker from "@/lib/accessChecker";
 import pruneOrphans from "@/functions/pruneOrphans";
