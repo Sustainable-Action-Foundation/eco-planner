@@ -80,6 +80,9 @@
     "breadcrumb": "$t(common:edit.goal)",
     "title": "$t(common:edit.goal): {{goalName}}"
   },
+  "historical_data": {
+    "breadcrumb": "Edit historical data"
+  },
   "home": {
     "create_roadmap": "$t(common:new.roadmap_series)",
     "filter": "Filter",

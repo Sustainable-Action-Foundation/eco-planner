@@ -23,27 +23,31 @@ export async function generateMetadata(
     getSession(await cookies()),
   ]);
 
-  const ownUrl = new URL('/effect/edit');
+  const params = new URLSearchParams();
+
   if (Array.isArray(searchParams.actionId)) {
     for (const action of searchParams.actionId) {
-      ownUrl.searchParams.append('actionId', action);
+      params.append('actionId', action);
     }
   } else if (typeof searchParams.actionId === 'string') {
-    ownUrl.searchParams.set('actionId', searchParams.actionId);
+    params.set('actionId', searchParams.actionId);
   }
+
   if (Array.isArray(searchParams.goalId)) {
     for (const goal of searchParams.goalId) {
-      ownUrl.searchParams.append('goalId', goal);
+      params.append('goalId', goal);
     }
   } else if (typeof searchParams.goalId === 'string') {
-    ownUrl.searchParams.set('goalId', searchParams.goalId);
+    params.set('goalId', searchParams.goalId);
   }
+
+  const ownUrl = `/effect/edit?${params.toString()}`;
 
   if (!session.user?.isLoggedIn) {
     return buildMetadata({
       title: t("metadata:login.title"),
       description: t("metadata:login.title"),
-      og_url: `${ownUrl.pathname}${ownUrl.search}`,
+      og_url: ownUrl,
       og_image_url: '/images/og_wind.png'
     })
   }
@@ -51,7 +55,7 @@ export async function generateMetadata(
   return buildMetadata({
     title: t("metadata:effect_edit.title"),
     description: undefined,
-    og_url: `${ownUrl.pathname}${ownUrl.search}`,
+    og_url: ownUrl,
     og_image_url: undefined
   })
 }

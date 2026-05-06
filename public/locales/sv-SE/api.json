@@ -17,7 +17,7 @@
     "invalid_data_series": "Felaktig dataserie"
   },
   "goal": {
-    "goal_created": "Målbana skapat",
+    "goal_created": "Målbana skapad",
     "goal_updated": "Målbana uppdaterad",
     "goal_deleted": "Målbana raderad",
     "roadmap_not_found": "Misslyckades att koppla poster. Angiven målbana kanske inte existerar"

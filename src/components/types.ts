@@ -34,19 +34,21 @@ export type TreeItem = {
   onExpand?: () => Array<TreeItem> | Promise<Array<TreeItem>>
 }
 
-export type Position = {
-  row: number,
-  column: number
+export type GridElement = Theme & {
+  id: string,
 }
 
-export type GridElement = GenericElement & {
-  position?: Position,
+export type GridCell = GenericElement & {
+  position?: {row: number, column: number},
   tabIndex?: 0 | -1,
   children?: React.ReactNode,
-  onKeyDown?: React.KeyboardEventHandler<HTMLDivElement>, // Note: we assume a gridcell is a div for now.
-  onClick?: React.MouseEventHandler<HTMLDivElement>
+  onKeyDown?: React.KeyboardEventHandler<HTMLTableCellElement>, 
+  onClick?: React.MouseEventHandler<HTMLTableCellElement>,
+  onDoubleClick?: React.MouseEventHandler<HTMLTableCellElement>
 }
-
+export type GridRow = GenericElement & { children?: React.ReactNode }
+export type GridColumnHeader = GenericElement & { children?: React.ReactNode }
+export type GridRowHeader = GenericElement & { children?: React.ReactNode }
 
 export type TabElement = GenericElement & {
   children?: React.ReactNode
