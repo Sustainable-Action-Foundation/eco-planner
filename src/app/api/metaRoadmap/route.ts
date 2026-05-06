@@ -4,7 +4,7 @@ import { AccessLevel, ClientError, isMetaRoadmapCreate, isMetaRoadmapUpdate } fr
 import type { AccessControlled, JSONValue } from "@/types";
 import { prisma } from "@/lib/prisma";
 import { RoadmapType } from "@/lib/prisma/generated";
-import { Prisma } from "@/lib/prisma/generated";
+import { Prisma } from "../../../../prisma/generated/client";
 import { revalidateTag } from "next/cache";
 import accessChecker from "@/lib/accessChecker";
 import pruneOrphans from "@/functions/pruneOrphans";

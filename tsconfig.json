@@ -30,6 +30,9 @@
       "@/*": [
         "./src/*",
       ],
+      "@prisma/do-not-use": [
+        "./prisma/generated/client",
+      ],
     },
   },
   "include": [
