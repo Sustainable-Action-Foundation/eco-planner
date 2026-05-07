@@ -178,14 +178,14 @@ test("Are nested keys defined", () => {
         value, nested: Array.from(value.matchAll(nestedTRegex)) // Find all nested t() calls
       }]);
 
-    (translations as [string, { value: string, nested: [RegExpMatchArray, string][] }][]).forEach(([key, values]) => {
+    (translations as [string, { value: string, nested: [RegExpMatchArray, `${string}:${string}`][] }][]).forEach(([key, values]) => {
       values.nested.forEach(([match, nestedKey]) => {
 
         // Is defined?
         if (allJSON[locale][nestedKey]) return;
 
         // Is it a valid namespace?
-        const nestedNS = /[^:]+:/.exec(nestedKey)?.[0];
+        const nestedNS = /(^[^:]+):/gm.exec(nestedKey)?.[0];
         if (!nestedNS) {
           if (!perLocale[locale]) perLocale[locale] = [];
           perLocale[locale].push(`[Missing namespace] > '${key}': '${values.value}'`);
@@ -193,7 +193,7 @@ test("Are nested keys defined", () => {
         }
 
         // Does it have arguments?
-        const hasArgs = nestedKey.includes(",");
+        const hasArgs = nestedKey.includes(",") && nestedKey.includes("{") && nestedKey.includes("}");
         if (hasArgs) {
           // Find and escape the arguments
           const args = nestedKey
@@ -217,6 +217,13 @@ test("Are nested keys defined", () => {
             if (!perLocale[locale]) perLocale[locale] = [];
             perLocale[locale].push(`[Missing plural key] > '${key}': '${values.value}'`);
           }
+        }
+
+        // Handle formatters, added after formatters moved into t parentheses
+        const hasFormatter = /(.*?:.*?,\s*)\w+$/gm.test(nestedKey);
+        if (hasFormatter) {
+          const noFormat = nestedKey.replace(/,\s?\w+$/gm, ""); // Remove the formatter part
+          if (allJSON[locale][noFormat]) return; // Valid key without formatter
         }
 
         if (!perLocale[locale]) perLocale[locale] = [];

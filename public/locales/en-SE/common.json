@@ -42,6 +42,10 @@
   "goal_definite_other": "the goals",
   "goal_one": "goal",
   "goal_other": "goals",
+  "baseline_definite_one": "the baseline",
+  "baseline_definite_other": "the baselines",
+  "baseline_one": "baseline",
+  "baseline_other": "baselines",
   "historical_data": "historical data",
   "layout": {
     "app_name": "Eco - Planner",

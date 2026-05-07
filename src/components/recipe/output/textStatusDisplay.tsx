@@ -20,7 +20,7 @@ export function TextStatus({
   if (recipe.isTemplate()) {
     out.push(
       <div lang={Locales.enSE} key="template" className="flex align-items-flex-start gap-50 margin-block-50" style={{ color: 'blue', fontSize: '14px' }}>
-        <IconInfoCircle width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="blue" aria-label={t("components:recipe_editor.status.template_recipe_icon_aria_label")} />
+        <IconInfoCircle width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="blue" aria-label={t("components:recipe_editor.status.template_recipe")} />
         {t("components:recipe_editor.status.template_recipe")}
       </div>
     );
@@ -65,7 +65,7 @@ export function TextStatus({
   if (showAllGood && warnings.length === 0 && !error) {
     out.push(
       <div lang={Locales.enSE} key={"all-good"} className="flex align-items-flex-start gap-50 margin-block-50" style={{ fontSize: '14px' }} >
-        <IconInfoCircle width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="var(--gray-70)" aria-label={t("components:recipe_editor.status.no_issues_icon_aria_label")} />
+        <IconInfoCircle width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="var(--gray-70)" aria-label={t("components:recipe_editor.no_warnings")} />
         {t("components:recipe_editor.no_warnings")}
       </div>
     );

@@ -80,13 +80,13 @@
   "login": {
     "create_account": "Create account",
     "forgot_password": "Forgot password?",
+    "invalid_credentials": "Login failed. Please check your credentials and that your email is verified.",
     "login_failed": "Login failed. Please try again.",
     "no_account": "Don't have an account?",
     "password": "Password",
     "remember_me": "Remember me",
     "username": "Username",
-    "verify_account": "Verify my account",
-    "invalid_credentials": "Login failed. Please check your credentials and that your email is verified."
+    "verify_account": "Verify my account"
   },
   "logout_button": {
     "failed": "Logout failed"
@@ -102,10 +102,10 @@
     "add_external_data": "Select data from external sources",
     "add_historical_data": "Add historical data",
     "adjust_data_manually": "Adjust data manually",
-    "edit_historical_data": "Edit historical data",
     "data_source": "Data source",
     "does_this_look_correct_one": "Does this look correct? (showing max {{count}} value)",
     "does_this_look_correct_other": "Does this look correct? (showing max {{count}} values)",
+    "edit_historical_data": "Edit historical data",
     "language_support_warning": "{{dataSource}} does not support your current language. A fallback language will be used.",
     "loading": "Loading...",
     "no_result_found": "No readable result found. Please update your selections.",
@@ -155,6 +155,7 @@
     "external_data": "External data",
     "goal_or_effect": "Goal or effect",
     "graph": "Graph",
+    "insert_variable": "Insert variable",
     "missing_resulting_data_series": "No resulting data series to display",
     "missing_resulting_graph": "No resulting graph to display",
     "no_errors": "Recipe is valid",
@@ -182,6 +183,7 @@
     "suggested_recipe_label": "Suggested methods",
     "table": "Table",
     "toggle_suggested_recipe": "<option1 /><span> – or – </span><option2 />",
+    "unable_to_generate_variable_id": "Unable to generate variable id: internal failure. Please try again",
     "unit_label": "Unit",
     "unit_placeholder": "Unit",
     "unknown_variable_type": "Unknown variable type",
@@ -267,6 +269,11 @@
     "table": "Table",
     "tree": "Tree"
   },
+  "toasts": {
+    "error": "Something went wrong!",
+    "success": "Success!",
+    "warning": "Warning!"
+  },
   "update_goal_button": {
     "update": "Update $t(common:goal_one)"
   },
@@ -276,10 +283,5 @@
     "posts": "Posts",
     "roadmap_series": "$t(common:roadmap_series_one, titleCase)",
     "roadmap_versions": "$t(common:roadmap_version_other, titleCase)"
-  },
-  "toasts": {
-    "success": "Success!",
-    "warning": "Warning!",
-    "error": "Something went wrong!"
   }
 }

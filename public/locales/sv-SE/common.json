@@ -42,6 +42,10 @@
   "goal_definite_other": "målbanorna",
   "goal_one": "målbana",
   "goal_other": "målbanor",
+  "baseline_definite_one": "baslinjen",
+  "baseline_definite_other": "baslinjerna",
+  "baseline_one": "baslinje",
+  "baseline_other": "baslinjer",
   "historical_data": "historisk data",
   "layout": {
     "app_name": "Eco - Planner",

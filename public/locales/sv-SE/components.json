@@ -80,13 +80,13 @@
   "login": {
     "create_account": "Skapa konto",
     "forgot_password": "Glömt lösenordet?",
+    "invalid_credentials": "Inloggningen misslyckades. Kontrollera dina uppgifter och att din e-post är verifierad.",
     "login_failed": "Inloggningen misslyckades. Kontrollera dina uppgifter och försök igen.",
     "no_account": "Har du inget konto?",
     "password": "Lösenord",
     "remember_me": "Kom ihåg mig",
     "username": "Användarnamn",
-    "verify_account": "Verifiera mitt konto",
-    "invalid_credentials": "Inloggningen misslyckades. Kontrollera dina uppgifter och att din e-post är verifierad."
+    "verify_account": "Verifiera mitt konto"
   },
   "logout_button": {
     "failed": "Utloggningen misslyckades"
@@ -102,10 +102,10 @@
     "add_external_data": "Välj data från externa datakällor",
     "add_historical_data": "Lägg till historisk data",
     "adjust_data_manually": "Justera data manuellt",
-    "edit_historical_data": "Redigera historisk data",
     "data_source": "Datakälla",
     "does_this_look_correct_one": "Ser detta rimligt ut? (visar max {{count}} värde)",
     "does_this_look_correct_other": "Ser detta rimligt ut? (visar max {{count}} värden)",
+    "edit_historical_data": "Redigera historisk data",
     "language_support_warning": "{{dataSource}} stödjer inte ditt valda språk. Ett tillgängligt språk kommer att användas istället.",
     "loading": "Laddar...",
     "no_result_found": "Inget läsbart resultat hittades. Vänligen uppdatera dina val.",
@@ -155,6 +155,7 @@
     "external_data": "Extern data",
     "goal_or_effect": "Målbana eller effekt",
     "graph": "Graf",
+    "insert_variable": "Lägg in variabel",
     "missing_resulting_data_series": "Resulterande dataserie saknas",
     "missing_resulting_graph": "Resulterande graf saknas",
     "no_errors": "Receptet är giltigt",
@@ -182,6 +183,7 @@
     "suggested_recipe_label": "Föreslagna metoder",
     "table": "Tabell",
     "toggle_suggested_recipe": "<option1 /><span> – eller – </span><option2 />",
+    "unable_to_generate_variable_id": "Misslyckades generara variabel-id: intern error. Försök igen",
     "unit_label": "Enhet",
     "unit_placeholder": "Enhet",
     "unknown_variable_type": "Okänd variabeltyp",
@@ -267,6 +269,11 @@
     "table": "Tabell",
     "tree": "Träd"
   },
+  "toasts": {
+    "error": "Något gick fel!",
+    "success": "Lyckades!",
+    "warning": "Varning!"
+  },
   "update_goal_button": {
     "update": "Uppdatera $t(common:goal_one)"
   },
@@ -276,10 +283,5 @@
     "posts": "Inlägg",
     "roadmap_series": "$t(common:roadmap_series_other, titleCase)",
     "roadmap_versions": "$t(common:roadmap_version_other, titleCase)"
-  },
-  "toasts": {
-    "success": "Lyckades!",
-    "warning": "Varning!",
-    "error": "Något gick fel!"
   }
 }
