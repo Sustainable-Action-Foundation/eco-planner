@@ -85,7 +85,7 @@ jobs:
           COMMIT_SHA: ${{ github.sha }}
           BUILDX_EXPERIMENTAL: 1
         run: |
-          yarn playwright test
+          yarn test
 
       - name: Upload test artifacts
         if: ${{ !cancelled() && steps.run-tests.outcome != 'skipped' }}
