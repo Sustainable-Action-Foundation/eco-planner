@@ -5,7 +5,7 @@ const CI = process.env.CI ? true : false;
 
 export default defineConfig({
   testDir: "unit",
-  workers: 2,
+  workers: "80%",
   retries: 0,
   timeout: 60 * 1000,
   expect: {
