@@ -70,7 +70,7 @@ COPY src/math.ts ./src/math.ts
 COPY --from=deps /app/node_modules ./node_modules
 
 # Prisma schema and config files and generated
-COPY prisma/ ./prisma/
+COPY --from=prisma prisma/ ./prisma/
 COPY prisma.config.ts tsconfig.json ./
 
 ENTRYPOINT ["dumb-init", "--"]
