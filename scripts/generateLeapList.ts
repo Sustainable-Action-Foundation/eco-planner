@@ -64,5 +64,4 @@ generateLeapList()
   .finally(() => prisma.$disconnect())
   .catch((err: unknown) => {
     console.error("Error generating LEAP list:", err);
-    process.exit(1);
   });

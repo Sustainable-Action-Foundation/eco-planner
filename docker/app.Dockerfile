@@ -48,7 +48,10 @@ RUN rm -rf /tmp/* /var/tmp/*
 # ============================================================================
 FROM deps AS prisma
 
+# Prisma schema and config files
 COPY prisma/ ./prisma/
+COPY prisma.config.ts tsconfig.json ./
+
 RUN yarn prisma generate
 
 

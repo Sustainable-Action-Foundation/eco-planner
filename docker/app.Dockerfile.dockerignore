@@ -7,3 +7,4 @@ playwright.screenshot.config.ts
 .github/workflows/
 .vscode/
 test-results/
+prisma/generated/
