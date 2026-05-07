@@ -44,7 +44,7 @@ See image, or refer to [schema.prisma](/prisma/schema.prisma) for the full, up-t
 ![Database Schema](/public/images/eco-planner.png "Database Schema")
 
 ## Playwright unit tests
-### Outdated instructions, currently the tests start a set of dockers to test against when running `yarn playwright test`
+### Outdated instructions, currently the tests start a set of dockers to test against when running `yarn test`
 This project uses [Playwright](https://playwright.dev/) for testing the web application. The tests can be run locally using:
 ```bash
 # Please follow project setup instructions above first so the tests have the necessary environment variables and database to run against.
