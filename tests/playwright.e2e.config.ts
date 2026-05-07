@@ -24,7 +24,7 @@ export default defineConfig({
 
   // Reporter to use
   reporter: (() => {
-    const reporters: ReporterDescription[] = [["html", { open: "never" }]];
+    const reporters: ReporterDescription[] = [["html", { outputFolder: "playwright-report-e2e",  open: "never" }]];
     if (CI)
       reporters.push(["github"]);
     else
@@ -34,7 +34,7 @@ export default defineConfig({
   })(),
 
   // Stop docker containers after tests are done
-  globalTeardown: "tests/global.teardown.ts",
+  globalTeardown: "global.teardown.ts",
 
   // Global use
   use: {

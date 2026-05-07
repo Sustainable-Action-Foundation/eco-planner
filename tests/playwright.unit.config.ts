@@ -1,4 +1,7 @@
+import type { ReporterDescription } from "playwright/test";
 import { defineConfig } from "playwright/test";
+
+const CI = process.env.CI ? true : false;
 
 export default defineConfig({
   testDir: "unit",
@@ -8,7 +11,16 @@ export default defineConfig({
   expect: {
     timeout: 10 * 1000,
   },
-  reporter: [["dot"], ["html", { outputFolder: "playwright-report-unit", open: "never" }]],
+  // Reporter to use
+  reporter: (() => {
+    const reporters: ReporterDescription[] = [["html", { outputFolder: "playwright-report-unit", open: "never" }]];
+    if (CI)
+      reporters.push(["github"]);
+    else
+      reporters.push(["dot"]);
+
+    return reporters;
+  })(),
   use: {
     locale: "cimode",
     timezoneId: "Europe/Stockholm",

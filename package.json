@@ -14,7 +14,7 @@
     "build": "yarn pre-build && yarn next build",
     "start": "next start",
     "lint": "tsc --noEmit -p ./tsconfig.json && eslint -c ./eslint.config.ts --cache --concurrency auto && echo '✔️ Lint passed'",
-    "test": "yarn test:e2e && yarn test:unit",
+    "test": "yarn test:unit & yarn test:e2e",
     "test:e2e": "playwright test -c tests/playwright.e2e.config.ts",
     "test:unit": "playwright test -c tests/playwright.unit.config.ts",
     "test:screenshot": "playwright test -c tests/playwright.screenshot.config.ts",
