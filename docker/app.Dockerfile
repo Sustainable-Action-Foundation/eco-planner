@@ -81,8 +81,7 @@ ENV CI=true
 ENV COMMIT_SHA=${COMMIT_SHA}
 
 # Build with cache mount for Next.js
-RUN --mount=type=cache,target=/app/.next/cache \
-  yarn run build
+RUN yarn run build
 
 
 # ============================================================================

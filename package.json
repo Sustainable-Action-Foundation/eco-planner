@@ -10,7 +10,7 @@
   "scripts": {
     "preinstall": "git update-index --skip-worktree src/lib/LEAPList.json &",
     "dev": "yarn lint & yarn next dev",
-    "pre-build": "tsx ./scripts/generateLeapList.ts && yarn lint",
+    "pre-build": "yarn lint",
     "build": "yarn pre-build && yarn next build",
     "start": "next start",
     "lint": "tsc --noEmit -p ./tsconfig.json && eslint -c ./eslint.config.ts --cache --concurrency auto && echo '✔️ Lint passed'",
