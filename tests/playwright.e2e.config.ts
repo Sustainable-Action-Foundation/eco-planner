@@ -1,5 +1,6 @@
 import "dotenv/config";
-import { defineConfig, devices, ReporterDescription } from "playwright/test";
+import type { ReporterDescription } from "playwright/test";
+import { defineConfig, devices } from "playwright/test";
 
 // Allow overriding the webserver URL via environment variable, defaulting to a local port opened by testing docker compose.
 export const webserverURL = process.env.BASE_URL || "http://localhost:8081";
@@ -8,8 +9,6 @@ const CI = process.env.CI ? true : false;
 
 export default defineConfig({
   testDir: "tests/e2e",
-
-  testIgnore: "screenshot-tests.spec.ts",
 
   // fullyParallel: true,
   workers: "80%",
