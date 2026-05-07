@@ -67,7 +67,9 @@ export default defineConfig({
       : {
         webServer: {
           timeout: 60 * 1000,
-          command: "yarn build && yarn start",
+          command: typeof process.env.SKIP_BUILD === "undefined" || process.env.SKIP_BUILD !== "true"
+            ? "yarn build && yarn start"
+            : "yarn start",
           url: webserverURL,
           reuseExistingServer: true,
         },
