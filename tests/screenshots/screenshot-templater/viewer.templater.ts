@@ -1,7 +1,8 @@
 import fs from "node:fs";
 
-const viewerOutput = "tests/screenshots/index.html";
+const viewerOutput = "tests/out/index.html";
 const screenshotOutputDir = "tests/out/screenshots";
+const distRelOutput = "./screenshots";
 const workingDir = "tests/screenshots";
 const layoutPath = `${workingDir}/screenshot-templater/viewer.layout.html`;
 const imgPath = `${workingDir}/screenshot-templater/components/img.html`;
@@ -34,7 +35,7 @@ function createViewPage() {
     const imgs = page.map(img =>
       imgTemplate
         .replace("{{PROJECT}}", img)
-        .replace("{{SRC}}", `../../${screenshotOutputDir}/${catName}/${img}`)
+        .replace("{{SRC}}", `${distRelOutput}/${catName}/${img}`)
         .replace("{{ALT}}", img),
     ).join("");
     const card = imgGroupTemplate
