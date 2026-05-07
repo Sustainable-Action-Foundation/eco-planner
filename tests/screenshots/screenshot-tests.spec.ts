@@ -1,24 +1,19 @@
 import { expect, test } from "playwright/test";
 import type { Page } from "playwright/test";
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
-const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
-const __dirname = path.dirname(__filename); // get the name of the directory
-
-const adminFile = path.join(__dirname, '../.auth/admin.json');
+const outputDir = "tests/out/screenshots";
+const adminFile = "tests/.auth/admin.json";
 
 let sendPageName = ""; // Denotes what a screenshot is of
 
-/**
+/*
   To run screenshot tests locally you must run: yarn screenshot
 */
-
 async function takeScreenshot(pageName: string, page: Page, worker: string) {
   await isSidebarOpen(page, true);
 
-  await page.screenshot({ path: `./tests/screenshots/${pageName}/${worker}.jpeg`, fullPage: false, animations: "disabled" });
-  await page.screenshot({ path: `./tests/screenshots/${pageName}-fullPage/${worker}.jpeg`, fullPage: true, animations: "disabled" });
+  await page.screenshot({ path: `${outputDir}/${pageName}/${worker}.jpeg`, fullPage: false, animations: "disabled" });
+  await page.screenshot({ path: `${outputDir}/${pageName}-fullPage/${worker}.jpeg`, fullPage: true, animations: "disabled" });
 }
 
 async function isSidebarOpen(page: Page, wantedClosed: boolean) { // Checks if the sidebar is open
@@ -48,8 +43,8 @@ test.describe('Screenshot tests', () => {
     sendPageName = "mainPage"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
     await isSidebarOpen(page, false);
-    await page.screenshot({ path: `./tests/screenshots/mainPage/${metadata.project.name}-sidebar.jpeg`, fullPage: false, animations: "disabled" });
-    await page.screenshot({ path: `./tests/screenshots/mainPage-fullPage/${metadata.project.name}-sidebar.jpeg`, fullPage: true, animations: "disabled" });
+    await page.screenshot({ path: `${outputDir}/mainPage/${metadata.project.name}-sidebar.jpeg`, fullPage: false, animations: "disabled" });
+    await page.screenshot({ path: `${outputDir}/mainPage-fullPage/${metadata.project.name}-sidebar.jpeg`, fullPage: true, animations: "disabled" });
   });
 
   async function sidebarTest(page: Page, openState: string, worker: string) {
@@ -57,22 +52,22 @@ test.describe('Screenshot tests', () => {
     await page.getByTestId('create-button').click();
     await expect.soft(page.getByTestId('create-roadmap-series')).toBeVisible();
 
-    await page.screenshot({ path: `./tests/screenshots/createMenuPopped/${openState}-${worker}.jpeg`, fullPage: false, animations: "disabled" });
-    await page.screenshot({ path: `./tests/screenshots/createMenuPopped-fullPage/${openState}-${worker}.jpeg`, fullPage: true, animations: "disabled" });
+    await page.screenshot({ path: `${outputDir}/createMenuPopped/${openState}-${worker}.jpeg`, fullPage: false, animations: "disabled" });
+    await page.screenshot({ path: `${outputDir}/createMenuPopped-fullPage/${openState}-${worker}.jpeg`, fullPage: true, animations: "disabled" });
     await page.keyboard.press('Escape');
 
     // Language popover
     await page.getByTestId('language-switcher-dialog-button').click();
     await expect.soft(page.getByTestId('language-switcher-option-English')).toBeVisible();
-    await page.screenshot({ path: `./tests/screenshots/languageMenuPopped/${openState}-${worker}.jpeg`, fullPage: false, animations: "disabled" });
-    await page.screenshot({ path: `./tests/screenshots/languageMenuPopped-fullPage/${openState}-${worker}.jpeg`, fullPage: true, animations: "disabled" });
+    await page.screenshot({ path: `${outputDir}/languageMenuPopped/${openState}-${worker}.jpeg`, fullPage: false, animations: "disabled" });
+    await page.screenshot({ path: `${outputDir}/languageMenuPopped-fullPage/${openState}-${worker}.jpeg`, fullPage: true, animations: "disabled" });
     await page.keyboard.press('Escape');
 
     // Settings popover
     await page.getByTestId('settings-button').click();
     await expect.soft(page.locator('#allowStorage')).toBeVisible();
-    await page.screenshot({ path: `./tests/screenshots/settingsMenuPopped/${openState}-${worker}.jpeg`, fullPage: false, animations: "disabled" });
-    await page.screenshot({ path: `./tests/screenshots/settingsMenuPopped-fullPage/${openState}-${worker}.jpeg`, fullPage: true, animations: "disabled" });
+    await page.screenshot({ path: `${outputDir}/settingsMenuPopped/${openState}-${worker}.jpeg`, fullPage: false, animations: "disabled" });
+    await page.screenshot({ path: `${outputDir}/settingsMenuPopped-fullPage/${openState}-${worker}.jpeg`, fullPage: true, animations: "disabled" });
     await page.keyboard.press('Escape');
   }
 
@@ -129,8 +124,8 @@ test.describe('Screenshots Admin', () => {
     await isSidebarOpen(page, false);
 
     // Wanted the sidebar to be open, so couldn't use the takeScreenshot function
-    await page.screenshot({ path: `./tests/screenshots/loggedIn/${metadata.project.name}.jpeg`, fullPage: false, animations: "disabled" });
-    await page.screenshot({ path: `./tests/screenshots/loggedIn-fullPage/${metadata.project.name}.jpeg`, fullPage: true, animations: "disabled" });
+    await page.screenshot({ path: `${outputDir}/loggedIn/${metadata.project.name}.jpeg`, fullPage: false, animations: "disabled" });
+    await page.screenshot({ path: `${outputDir}/loggedIn-fullPage/${metadata.project.name}.jpeg`, fullPage: true, animations: "disabled" });
   });
 
   test('My account pics', async ({ page }, metadata) => {

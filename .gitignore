@@ -152,6 +152,7 @@ playwright-results.json/
 # Transpiled tests
 tests/.auth/
 tests/report.json
+tests/screenshots/index.html
 
 # Prisma generated client
 src/prisma/generated/

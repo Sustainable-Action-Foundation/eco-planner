@@ -34,7 +34,7 @@ export default defineConfig({
   })(),
 
   // Stop docker containers after tests are done
-  globalTeardown: "./tests/global.teardown.ts",
+  globalTeardown: "tests/global.teardown.ts",
 
   // Global use
   use: {
