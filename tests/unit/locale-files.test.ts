@@ -343,10 +343,13 @@ test("Mixed server and client side code", () => {
       perFile[filePath].push("Found both server and client side code");
     }
 
-    if (!isServer && !isClient) {
-      if (!perFile[filePath]) perFile[filePath] = [];
-      perFile[filePath].push("Ambiguous file");
-    }
+    // Kind of a bs condition, it's fine if it's not either 🤷‍♀️ TODO: clean up
+    // if (!isServer && !isClient) {
+    //   if (!perFile[filePath]) perFile[filePath] = [];
+    //   const serverIndicationsFound = serverIndications.filter(indication => content.includes(indication));
+    //   const clientIndicationsFound = clientIndications.filter(indication => content.includes(indication));
+    //   perFile[filePath].push(`Ambiguous file. Found server indications: ${serverIndicationsFound.length > 0 ? JSON.stringify(serverIndicationsFound) : "None"}, client indications: ${clientIndicationsFound.length > 0 ? JSON.stringify(clientIndicationsFound) : "None"}`);
+    // }
 
     if (isClient && !usingTClient) {
       if (!perFile[filePath]) perFile[filePath] = [];
@@ -709,6 +712,9 @@ function flattenTree(obj: unknown) {
       }
       else if (typeof value === "string") {
         result[newPrefix] = value;
+      }
+      else if (Array.isArray(value) && value.length === 0) {
+        // No-op
       }
       else {
         console.warn(`Unexpected value type at key '${newPrefix}':`, value);

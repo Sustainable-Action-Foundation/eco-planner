@@ -102,6 +102,7 @@
     "add_external_data": "Välj data från externa datakällor",
     "add_historical_data": "Lägg till historisk data",
     "adjust_data_manually": "Justera data manuellt",
+    "change_historical_data": "Ändra historisk data",
     "data_source": "Datakälla",
     "does_this_look_correct_one": "Ser detta rimligt ut? (visar max {{count}} värde)",
     "does_this_look_correct_other": "Ser detta rimligt ut? (visar max {{count}} värden)",
