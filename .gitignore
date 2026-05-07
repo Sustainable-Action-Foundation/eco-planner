@@ -148,8 +148,6 @@ test-results/
 blob-report/
 playwright-report*/
 playwright-results.json/
-tests/screenshots/
-tests/screenshotViewer/index.html
 
 # Transpiled tests
 tests/.auth/
