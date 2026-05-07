@@ -54,8 +54,8 @@ export default function SelectSingleSearch({
         setValue(defaultValue);
       }
     }
-  }, [defaultValue, options, value]);
 
+  }, [defaultValue, options]);
 
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const [focusedListboxOption, setFocusedListboxOption] = useState<number | null>(null);
