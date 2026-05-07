@@ -151,6 +151,7 @@ test.describe('Screenshots Admin', () => {
     await page.goto('/');
     await page.waitForLoadState("networkidle");
 
+    await page.getByRole('link', { name: "Rikets färdplan" }).scrollIntoViewIfNeeded();
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
 
@@ -182,6 +183,7 @@ test.describe('Screenshots Admin', () => {
     await page.goto('/');
     await page.waitForLoadState("networkidle");
 
+    await page.getByRole('link', { name: "Rikets färdplan" }).scrollIntoViewIfNeeded();
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
 
     await expect.soft(page.getByRole('heading', { name: "Rikets färdplan" })).toBeVisible();
@@ -209,6 +211,7 @@ test.describe('Screenshots Admin', () => {
     await page.goto('/');
     await page.waitForLoadState("networkidle");
 
+    await page.getByRole('link', { name: "Rikets färdplan" }).scrollIntoViewIfNeeded();
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
 
