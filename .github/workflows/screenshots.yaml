@@ -71,13 +71,13 @@ jobs:
 
       - name: Build screenshot page
         if: ${{ !cancelled() }}
-        run: yarn tsx tests/screenshotViewer/screenshotViewer.ts
+        run: yarn tsx tests/screenshots/screenshot-templater/viewer.templater.ts
 
       - name: Upload test artifacts
         if: ${{ !cancelled() }}
         uses: actions/upload-pages-artifact@v4
         with:
-          path: ./tests/screenshots/
+          path: ./tests/screenshots/out/
 
   deploy:
     if: ${{ !cancelled() && !inputs.skip_deployment }}

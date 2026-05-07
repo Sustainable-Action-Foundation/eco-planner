@@ -1,4 +1,5 @@
 import "dotenv/config";
+import type { ReporterDescription } from "playwright/test";
 import { defineConfig, devices } from "playwright/test";
 
 // Allow overriding the webserver URL via environment variable, defaulting to a local port opened by testing docker compose.
@@ -11,10 +12,10 @@ const CI = process.env.CI ? true : false;
 */
 
 export default defineConfig({
-  testDir: "tests/",
+  testDir: "tests/screenshots",
 
   // fullyParallel: true,
-  workers: "50%",
+  workers: "80%",
 
   // One retry in case of flaky tests
   retries: 1,
@@ -26,23 +27,18 @@ export default defineConfig({
   },
 
   // Reporter to use
-  reporter: [
-    ...(CI ?
-      [["github"]]
-      :
-      [
-        ["dot"],
-        ["html", { open: "never" }],
-        // ["list"],
-      ]
-    ) as [string, object][],
+  reporter: (() => {
+    const reporters: ReporterDescription[] = [["html", { outputFolder: "../playwright-report-screenshots", open: "never" }]];
+    if (CI)
+      reporters.push(["github"]);
+    else
+      reporters.push(["dot"]);
 
-    // ["json", { outputFile: "tests/report.json" }],
-  ],
-  // reporter: "list",
+    return reporters;
+  })(),
 
   // Stop docker containers after tests are done
-  globalTeardown: "./tests/global.teardown.ts",
+  globalTeardown: "global.teardown.ts",
 
   // Global use
   use: {
@@ -296,13 +292,27 @@ export default defineConfig({
 
   ],
 
-  webServer: {
-    timeout: 20 * 60 * 1000, // 20 minutes; both seeding image and app image may need to be built, which might take a while with bad cache, especially on runners.
-    command: "docker compose -f docker/compose.testing.yaml up --remove-orphans",
-    gracefulShutdown: { signal: "SIGTERM", timeout: 5000 }, // SIGTERM for graceful shutdown of docker compose on linux
-    url: webserverURL,
-    reuseExistingServer: !CI,
-  },
+  ...(
+    typeof process.env.LOCAL_TESTS === "undefined"
+      || process.env.LOCAL_TESTS !== "true"
+      ? {
+        webServer: {
+          timeout: 20 * 60 * 1000, // 20 minutes; both seeding image and app image may need to be built, which might take a while with bad cache, especially on runners.
+          command: "docker compose -f docker/compose.testing.yaml up --remove-orphans",
+          gracefulShutdown: { signal: "SIGTERM", timeout: 5000 }, // SIGTERM for graceful shutdown of docker compose on linux
+          url: webserverURL,
+          reuseExistingServer: !CI,
+        },
+      }
+      : {
+        webServer: {
+          timeout: 60 * 1000,
+          command: "yarn build && yarn start",
+          url: webserverURL,
+          reuseExistingServer: true,
+        },
+      }
+  ),
 
   // Fail the build on CI if you accidentally left test.only in the source code.
   forbidOnly: CI,

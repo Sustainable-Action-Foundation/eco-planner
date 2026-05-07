@@ -17,8 +17,7 @@
     "test": "yarn test:e2e && yarn test:unit",
     "test:e2e": "playwright test -c tests/playwright.e2e.config.ts",
     "test:unit": "playwright test -c tests/playwright.unit.config.ts",
-    "screenshot": "playwright test -c tests/playwright.screenshot.config.ts",
-    "screenshot:clean": "rm -rf tests/screenshots",
+    "test:screenshot": "playwright test -c tests/playwright.screenshot.config.ts",
     "docker:up": "docker compose -f docker/compose.staging.yaml --env-file docker/.env.local up -d --build",
     "docker:down": "docker compose -f docker/compose.staging.yaml --env-file docker/.env.local down"
   },
