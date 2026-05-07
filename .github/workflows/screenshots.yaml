@@ -67,7 +67,7 @@ jobs:
           COMMIT_SHA: ${{ github.sha }}
           BUILDX_EXPERIMENTAL: 1
         run: |
-          yarn screenshot
+          yarn test:screenshot
 
       - name: Build screenshot page
         if: ${{ !cancelled() }}
