@@ -366,7 +366,7 @@ export default function GoalForm({
           </fieldset>
 
           {/* Suggested */}
-          <div className={`margin-top-100 ${dataSeriesType !== DataSeriesType.Suggested ? "display-none" : ""}`}>
+          <fieldset className={`margin-top-100 ${dataSeriesType !== DataSeriesType.Suggested ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Suggested}>
             <RecipeContextProvider>
               <SuggestedRecipeApplier />
               <FormIntegration
@@ -374,10 +374,10 @@ export default function GoalForm({
                 DateValuesFormElement={<input name="resultingDateValues" />}
               />
             </RecipeContextProvider>
-          </div>
+          </fieldset>
 
           {/* Recipe */}
-          <div className={`margin-top-100 ${dataSeriesType !== DataSeriesType.Custom ? "display-none" : ""}`}>
+          <fieldset className={`margin-top-100 ${dataSeriesType !== DataSeriesType.Custom ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Custom}>
             <RecipeContextProvider>
               <RecipeEditor />
               <FormIntegration
@@ -385,15 +385,15 @@ export default function GoalForm({
                 DateValuesFormElement={<input name="resultingDateValues" />}
               />
             </RecipeContextProvider>
-          </div>
+          </fieldset>
 
           {/* Manual */}
-          <div className={`${dataSeriesType === DataSeriesType.Manual ? "" : "display-none"}`}>
+          <fieldset className={`${dataSeriesType === DataSeriesType.Manual ? "" : "display-none"}`} disabled={dataSeriesType !== DataSeriesType.Manual}>
             <ManualGoalForm
               currentGoal={currentGoal}
               outputFormElement={<input name="data-series" />}
             />
-          </div>
+          </fieldset>
         </fieldset>
 
         {/* Baseline selection section */}
