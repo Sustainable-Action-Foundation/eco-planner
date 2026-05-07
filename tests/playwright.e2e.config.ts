@@ -8,7 +8,7 @@ export const webserverURL = process.env.BASE_URL || "http://localhost:8081";
 const CI = process.env.CI ? true : false;
 
 export default defineConfig({
-  testDir: "tests/",
+  testDir: "tests/e2e",
 
   testIgnore: ["screenshot-tests.spec.ts", "**\/unit/**"],
 
