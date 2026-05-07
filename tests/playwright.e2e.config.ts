@@ -24,7 +24,7 @@ export default defineConfig({
 
   // Reporter to use
   reporter: (() => {
-    const reporters: ReporterDescription[] = [["html", { outputFolder: "playwright-report-e2e",  open: "never" }]];
+    const reporters: ReporterDescription[] = [["html", { outputFolder: "../playwright-report-e2e",  open: "never" }]];
     if (CI)
       reporters.push(["github"]);
     else

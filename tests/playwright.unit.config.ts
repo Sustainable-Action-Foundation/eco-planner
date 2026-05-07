@@ -5,7 +5,7 @@ const CI = process.env.CI ? true : false;
 
 export default defineConfig({
   testDir: "unit",
-  workers: 1,
+  workers: 2,
   retries: 0,
   timeout: 60 * 1000,
   expect: {
@@ -13,7 +13,7 @@ export default defineConfig({
   },
   // Reporter to use
   reporter: (() => {
-    const reporters: ReporterDescription[] = [["html", { outputFolder: "playwright-report-unit", open: "never" }]];
+    const reporters: ReporterDescription[] = [["html", { outputFolder: "../playwright-report-unit", open: "never" }]];
     if (CI)
       reporters.push(["github"]);
     else
