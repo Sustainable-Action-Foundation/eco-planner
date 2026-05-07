@@ -12,7 +12,7 @@ const CI = process.env.CI ? true : false;
 */
 
 export default defineConfig({
-  testDir: "tests/screenshots",
+  testDir: "screenshots",
 
   // fullyParallel: true,
   workers: "80%",
@@ -55,28 +55,53 @@ export default defineConfig({
     actionTimeout: 5 * 1000, // Timeout for click, fill etc.
   },
 
+  // Web server
+  ...(
+    typeof process.env.LOCAL_TESTS === "undefined"
+      || process.env.LOCAL_TESTS !== "true"
+      ? {
+        webServer: {
+          timeout: 20 * 60 * 1000, // 20 minutes; both seeding image and app image may need to be built, which might take a while with bad cache, especially on runners.
+          command: "docker compose -f docker/compose.testing.yaml up --remove-orphans",
+          gracefulShutdown: { signal: "SIGTERM", timeout: 5000 }, // SIGTERM for graceful shutdown of docker compose on linux
+          url: webserverURL,
+          reuseExistingServer: !CI,
+        },
+      }
+      : {
+        webServer: {
+          timeout: 60 * 1000,
+          command: typeof process.env.SKIP_BUILD === "undefined" || process.env.SKIP_BUILD !== "true"
+            ? "yarn build && yarn start"
+            : "yarn start",
+          url: webserverURL,
+          reuseExistingServer: true,
+        },
+      }
+  ),
+
+  // Fail the build on CI if you accidentally left test.only in the source code.
+  forbidOnly: CI,
+
   // Configure projects for major browsers.
   projects: [
     {
       name: 'setup',
-      testMatch: /.*\.setup\.ts/
+      testMatch: "../**/*.setup.ts",
     },
     {
       name: "chromium 1080p",
       use: { ...devices["Desktop Chrome"], viewport: { width: 1920, height: 1080 }, channel: "chromium" },
-      testMatch: ["**/screenshot-tests.spec.ts"],
       dependencies: ["setup"],
     },
     {
       name: "firefox 1080p",
       use: { ...devices["Desktop Firefox"], viewport: { width: 1920, height: 1080 } },
-      testMatch: ["**/screenshot-tests.spec.ts"],
       dependencies: ["setup"],
     },
     {
       name: "webkit 1080p",
       use: { ...devices["Desktop Safari"], viewport: { width: 1920, height: 1080 } },
-      testMatch: ["**/screenshot-tests.spec.ts"],
       dependencies: ["setup"],
     },
     // Formats for screenshot tests
@@ -84,38 +109,32 @@ export default defineConfig({
     {
       name: "chromium 720p",
       use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 720 }, channel: "chromium" },
-      testMatch: ["**/screenshot-tests.spec.ts"],
       dependencies: ["setup"],
     },
     {
       name: "firefox 720p",
       use: { ...devices["Desktop Firefox"], viewport: { width: 1280, height: 720 } },
-      testMatch: ["**/screenshot-tests.spec.ts"],
       dependencies: ["setup"],
     },
     {
       name: "webkit 720p",
       use: { ...devices["Desktop Safari"], viewport: { width: 1280, height: 720 } },
-      testMatch: ["**/screenshot-tests.spec.ts"],
       dependencies: ["setup"],
     },
     // 1080p-vert
     {
       name: "chromium 1080p-vert",
       use: { ...devices["Desktop Chrome"], viewport: { width: 1080, height: 1920 }, channel: "chromium" },
-      testMatch: ["**/screenshot-tests.spec.ts"],
       dependencies: ["setup"],
     },
     {
       name: "firefox 1080p-vert",
       use: { ...devices["Desktop Firefox"], viewport: { width: 1080, height: 1920 } },
-      testMatch: ["**/screenshot-tests.spec.ts"],
       dependencies: ["setup"],
     },
     {
       name: "webkit 1080p-vert",
       use: { ...devices["Desktop Safari"], viewport: { width: 1080, height: 1920 } },
-      testMatch: ["**/screenshot-tests.spec.ts"],
       dependencies: ["setup"],
     },
     // // 1440p
@@ -291,29 +310,4 @@ export default defineConfig({
     // },
 
   ],
-
-  ...(
-    typeof process.env.LOCAL_TESTS === "undefined"
-      || process.env.LOCAL_TESTS !== "true"
-      ? {
-        webServer: {
-          timeout: 20 * 60 * 1000, // 20 minutes; both seeding image and app image may need to be built, which might take a while with bad cache, especially on runners.
-          command: "docker compose -f docker/compose.testing.yaml up --remove-orphans",
-          gracefulShutdown: { signal: "SIGTERM", timeout: 5000 }, // SIGTERM for graceful shutdown of docker compose on linux
-          url: webserverURL,
-          reuseExistingServer: !CI,
-        },
-      }
-      : {
-        webServer: {
-          timeout: 60 * 1000,
-          command: "yarn build && yarn start",
-          url: webserverURL,
-          reuseExistingServer: true,
-        },
-      }
-  ),
-
-  // Fail the build on CI if you accidentally left test.only in the source code.
-  forbidOnly: CI,
 });

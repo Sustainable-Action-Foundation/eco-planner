@@ -24,34 +24,23 @@ if (
 const htmlLayout = fs.readFileSync(layoutPath, "utf-8");
 const imgTemplate = fs.readFileSync(imgPath, "utf-8");
 const imgGroupTemplate = fs.readFileSync(imgGroupPath, "utf-8");
-const screenshotCategories = fs.globSync(`${screenshotOutputDir}/*`).filter(path => fs.statSync(path).isDirectory());
+const screenshotCategories = fs.globSync(`${screenshotOutputDir}/*`).filter(path => fs.statSync(path).isDirectory()).map(path => path.split("/").pop() || "");
 
 function createViewPage() {
   const cards: string[] = [];
 
-  // screenshotCategories.forEach(catName => {
-  //   // const imgs: string[] = [];
-  //   // let card = "";
-  //   // let img = "";
-  //   // let imgCard = "";
-
-  //   // const thisDir = fs.readdirSync("tests/screenshots/" + catName);
-  //   // thisDir.forEach(capture => {
-  //   //   card = imgGroupComp.replace("{{HEADER}}", catName);
-
-  //   //   img = imgComp.replace("{{PROJECT}}", capture);
-  //   //   img = img.replace("{{SRC}}", "./" + catName + "/" + capture);
-  //   //   imgCard = img.replace("{{ALT}}", capture);
-  //   //   imgs.push(imgCard);
-  //   // });
-  //   // card = card.replace("{{IMGS}}", imgs.toString());
-
-  //   // cards.push(card);
-  // });
-  console.log({ imgTemplate, imgGroupTemplate });
-
   for (const catName of screenshotCategories) {
-    console.log({ catName });
+    const page = fs.globSync(`${screenshotOutputDir}/${catName}/*`).filter(path => fs.statSync(path).isFile()).map(path => path.split("/").pop() || "");
+    const imgs = page.map(img =>
+      imgTemplate
+        .replace("{{PROJECT}}", img)
+        .replace("{{SRC}}", `../../${screenshotOutputDir}/${catName}/${img}`)
+        .replace("{{ALT}}", img),
+    ).join("");
+    const card = imgGroupTemplate
+      .replace("{{HEADER}}", catName)
+      .replace("{{IMGS}}", imgs);
+    cards.push(card);
   }
 
   const page = htmlLayout.replace("{{BODY}}", cards.join(""));

@@ -8,7 +8,7 @@ export const webserverURL = process.env.BASE_URL || "http://localhost:8081";
 const CI = process.env.CI ? true : false;
 
 export default defineConfig({
-  testDir: "tests/e2e",
+  testDir: "e2e",
 
   // fullyParallel: true,
   workers: "80%",
@@ -51,29 +51,7 @@ export default defineConfig({
     actionTimeout: 5 * 1000, // Timeout for click, fill etc.
   },
 
-  // Configure projects for major browsers.
-  projects: [
-    {
-      name: 'setup',
-      testMatch: /.*\.setup\.ts/
-    },
-    {
-      name: "chromium 1080p",
-      use: { ...devices["Desktop Chrome"], viewport: { width: 1920, height: 1080 }, channel: "chromium" },
-      dependencies: ["setup"],
-    },
-    {
-      name: "firefox 1080p",
-      use: { ...devices["Desktop Firefox"], viewport: { width: 1920, height: 1080 } },
-      dependencies: ["setup"],
-    },
-    {
-      name: "webkit 1080p",
-      use: { ...devices["Desktop Safari"], viewport: { width: 1920, height: 1080 } },
-      dependencies: ["setup"],
-    },
-  ],
-
+  // Web server
   ...(
     typeof process.env.LOCAL_TESTS === "undefined"
       || process.env.LOCAL_TESTS !== "true"
@@ -98,4 +76,27 @@ export default defineConfig({
 
   // Fail the build on CI if you accidentally left test.only in the source code.
   forbidOnly: CI,
+
+  // Configure projects for major browsers.
+  projects: [
+    {
+      name: 'setup',
+      testMatch: "../**/*.setup.ts",
+    },
+    {
+      name: "chromium 1080p",
+      use: { ...devices["Desktop Chrome"], viewport: { width: 1920, height: 1080 }, channel: "chromium" },
+      dependencies: ["setup"],
+    },
+    {
+      name: "firefox 1080p",
+      use: { ...devices["Desktop Firefox"], viewport: { width: 1920, height: 1080 } },
+      dependencies: ["setup"],
+    },
+    {
+      name: "webkit 1080p",
+      use: { ...devices["Desktop Safari"], viewport: { width: 1920, height: 1080 } },
+      dependencies: ["setup"],
+    },
+  ],
 });
