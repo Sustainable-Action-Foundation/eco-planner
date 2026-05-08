@@ -20,7 +20,10 @@ export function getLocale(
   else if (acceptLanguageHeader) localeContender = acceptLanguage.get(acceptLanguageHeader) ?? Locales.default;
   else {
     // Note: When running tests with playwright, this will be thrown on tests without a defined browser environment since the server tries to translate in the prerendering phase.
-    console.warn(`No user locale found. Using default locale (${Locales.default}). If this is is a browserless test, ignore this.`);
+    const userAgent = typeof navigator !== "undefined" ? navigator.userAgent : "unknown";
+    if (!userAgent.includes("Node.js")) { // When user agent is node it's just testing, otherwise getting this log would be more interesting
+      console.warn(`No user locale found. Using default locale (${Locales.default}). If this is is a browserless test, ignore this.`, { userAgent });
+    }
   }
 
   // Sanitize the locale

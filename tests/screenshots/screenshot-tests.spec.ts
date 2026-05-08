@@ -152,7 +152,7 @@ test.describe('Screenshots Admin', () => {
     await page.waitForLoadState("networkidle");
 
     await page.getByRole('link', { name: "Rikets färdplan" }).scrollIntoViewIfNeeded();
-    await page.getByRole('link', { name: "Rikets färdplan" }).click();
+    await page.getByRole('link', { name: "Rikets färdplan" }).click(metadata.project.name.includes("Galaxy") ? { force: true } : undefined);
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
 
     await page.getByTestId('show-roadmap-series').click();
@@ -183,8 +183,10 @@ test.describe('Screenshots Admin', () => {
     await page.goto('/');
     await page.waitForLoadState("networkidle");
 
+    await isSidebarOpen(page, false);
+
     await page.getByRole('link', { name: "Rikets färdplan" }).scrollIntoViewIfNeeded();
-    await page.getByRole('link', { name: "Rikets färdplan" }).click();
+    await page.getByRole('link', { name: "Rikets färdplan" }).click(metadata.project.name.includes("Galaxy") ? { force: true } : undefined);
 
     await expect.soft(page.getByRole('heading', { name: "Rikets färdplan" })).toBeVisible();
     sendPageName = "roadmap"; // What the screenshot is of
@@ -212,7 +214,7 @@ test.describe('Screenshots Admin', () => {
     await page.waitForLoadState("networkidle");
 
     await page.getByRole('link', { name: "Rikets färdplan" }).scrollIntoViewIfNeeded();
-    await page.getByRole('link', { name: "Rikets färdplan" }).click();
+    await page.getByRole('link', { name: "Rikets färdplan" }).click(metadata.project.name.includes("Galaxy") ? { force: true } : undefined);
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
 
     const URL = page.url();

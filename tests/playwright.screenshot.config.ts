@@ -8,9 +8,8 @@ export const webserverURL = process.env.BASE_URL || "http://localhost:8081";
 const CI = process.env.CI ? true : false;
 
 /**
-  To run screenshot tests locally you must run: yarn screenshot
+  To run screenshot tests locally you must run: yarn test:screenshot
 */
-
 export default defineConfig({
   testDir: "screenshots",
 
