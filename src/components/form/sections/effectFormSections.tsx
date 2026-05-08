@@ -33,15 +33,15 @@ export function ActionSelector({
     <>
       <label>
         {t("forms:effect.select_roadmap_version_for_action")}
-        <select name="selectedActionRoadmap" className="block margin-top-25 margin-bottom-100 width-100" required disabled={!!action}
+        <select name="selectedActionRoadmap" className="block margin-top-25 margin-bottom-100 width-100" required
           value={selectedRoadmap}
           onChange={event => { setSelectedRoadmap(event.target.value); setSelectedAction(""); }}
         >
           <option value="" disabled>{t("forms:effect.select_roadmap_version")}</option>
-          {roadmaps.map(roadmap => (
+          {roadmaps.map(roadmapOption => (
             // Disable selecting a different roadmap if a goal is preselected (for example when goalId is specified in the URL query)
-            <option key={`action-selector${roadmap.id}`} value={roadmap.id}>
-              {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("common:count.action", { count: roadmap._count.actions })}`}
+            <option key={`action-selector${roadmapOption.id}`} value={roadmapOption.id} disabled={!!action && roadmapOption.id !== action.roadmapId}>
+              {`${roadmapOption.metaRoadmap.name} (v${roadmapOption.version}): ${t("common:count.action", { count: roadmapOption._count.actions })}`}
             </option>
           ))}
         </select>
@@ -50,14 +50,14 @@ export function ActionSelector({
       {selectedRoadmap &&
         <label>
           {t("forms:effect.select_action_for_effect")}
-          <select name="actionId" id="actionId" className="block margin-top-25 margin-bottom-100 width-100" required disabled={!!action}
+          <select name="actionId" id="actionId" className="block margin-top-25 margin-bottom-100 width-100" required
             value={action?.id || selectedAction}
             onChange={event => setSelectedAction(event.target.value)}
           >
             <option value="" disabled>{t("forms:effect.select_action")}</option>
-            {roadmapData?.actions.map(action => (
-              <option key={`action-selector${action.id}`} value={action.id}>
-                {`${action.name}; ${t("forms:effect.existing_effects", { count: action._count.effects })}`}
+            {roadmapData?.actions.map(actionOption => (
+              <option key={`action-selector${actionOption.id}`} value={actionOption.id} disabled={!!action && actionOption.id !== action.id}>
+                {`${actionOption.name}; ${t("forms:effect.existing_effects", { count: actionOption._count.effects })}`}
               </option>
             ))}
           </select>
@@ -94,15 +94,15 @@ export function GoalSelector({
     <>
       <label>
         {t("forms:effect.select_roadmap_version_for_goal")}
-        <select name="selectedGoalRoadmap" className="block margin-top-25 margin-bottom-100 width-100" required disabled={!!goal}
+        <select name="selectedGoalRoadmap" className="block margin-top-25 margin-bottom-100 width-100" required
           value={selectedRoadmap ?? ""}
           onChange={event => { setSelectedRoadmap(event.target.value); setSelectedGoal(""); }}
         >
           <option value="" disabled>{t("forms:effect.select_roadmap_version")}</option>
-          {roadmaps.map(roadmap => (
+          {roadmaps.map(roadmapOption => (
             // Disable selecting a different roadmap if a goal is preselected (for example when goalId is specified in the URL query)
-            <option key={`goal-selector${roadmap.id}`} value={roadmap.id}>
-              {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("common:count.goal", { count: roadmap._count.goals })}`}
+            <option key={`goal-selector${roadmapOption.id}`} value={roadmapOption.id} disabled={!!goal && roadmapOption.id !== goal.roadmapId}>
+              {`${roadmapOption.metaRoadmap.name} (v${roadmapOption.version}): ${t("common:count.goal", { count: roadmapOption._count.goals })}`}
             </option>
           ))}
         </select>
@@ -111,14 +111,14 @@ export function GoalSelector({
       {selectedRoadmap &&
         <label>
           {t("forms:effect.select_goal_to_affect")}
-          <select name="goalId" id="goalId" className="block margin-top-25 margin-bottom-100 width-100" required disabled={!!goal}
+          <select name="goalId" id="goalId" className="block margin-top-25 margin-bottom-100 width-100" required
             value={goal?.id ?? selectedGoal ?? ""}
             onChange={event => setSelectedGoal(event.target.value)}
           >
             <option value="" disabled>{t("forms:effect.select_goal")}</option>
-            {roadmapData?.goals.map(goal => (
-              <option key={`goal-selector${goal.id}`} value={goal.id}>
-                {`${goal.name ?? t("forms:effect.unnamed_goal")}: ${goal.indicatorParameter} (${goal.dataSeries?.unit === null ? t("common:tsx.unitless") : goal.dataSeries?.unit || t("common:tsx.unit_missing")})`}
+            {roadmapData?.goals.map(goalOption => (
+              <option key={`goal-selector${goalOption.id}`} value={goalOption.id} disabled={!!goal && goalOption.id !== goal.id}>
+                {`${goalOption.name ?? t("forms:effect.unnamed_goal")}: ${goalOption.indicatorParameter} (${goalOption.dataSeries?.unit === null ? t("common:tsx.unitless") : goalOption.dataSeries?.unit || t("common:tsx.unit_missing")})`}
               </option>
             ))}
           </select>
