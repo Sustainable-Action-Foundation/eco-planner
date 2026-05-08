@@ -1,7 +1,8 @@
 import type { ReporterDescription } from "playwright/test";
 import { defineConfig } from "playwright/test";
+import { boolEnv } from "./lib/env";
 
-const CI = process.env.CI ? true : false;
+const CI = boolEnv("CI", false);
 
 export default defineConfig({
   testDir: "unit",

@@ -1,11 +1,12 @@
 import "dotenv/config";
 import type { ReporterDescription } from "playwright/test";
 import { defineConfig, devices } from "playwright/test";
+import { boolEnv } from "./lib/env";
 
 // Allow overriding the webserver URL via environment variable, defaulting to a local port opened by testing docker compose.
 export const webserverURL = process.env.BASE_URL || "http://localhost:8081";
 
-const CI = process.env.CI ? true : false;
+const CI = boolEnv("CI", false);
 
 export default defineConfig({
   testDir: "e2e",
@@ -24,7 +25,7 @@ export default defineConfig({
 
   // Reporter to use
   reporter: (() => {
-    const reporters: ReporterDescription[] = [["html", { outputFolder: "../playwright-report-e2e",  open: "never" }]];
+    const reporters: ReporterDescription[] = [["html", { outputFolder: "../playwright-report-e2e", open: "never" }]];
     if (CI)
       reporters.push(["github"]);
     else
@@ -53,8 +54,7 @@ export default defineConfig({
 
   // Web server
   ...(
-    typeof process.env.LOCAL_TESTS === "undefined"
-      || process.env.LOCAL_TESTS !== "true"
+    boolEnv("LOCAL_TESTS")
       ? {
         webServer: {
           timeout: 20 * 60 * 1000, // 20 minutes; both seeding image and app image may need to be built, which might take a while with bad cache, especially on runners.
@@ -67,7 +67,7 @@ export default defineConfig({
       : {
         webServer: {
           timeout: 60 * 1000,
-          command: typeof process.env.SKIP_BUILD === "undefined" || process.env.SKIP_BUILD !== "true"
+          command: boolEnv("SKIP_BUILD")
             ? "yarn build && yarn start"
             : "yarn start",
           url: webserverURL,
