@@ -70,7 +70,7 @@ export default defineConfig({
       : {
         webServer: {
           timeout: 60 * 1000,
-          command: boolEnv("SKIP_BUILD")
+          command: !boolEnv("SKIP_BUILD")
             ? "yarn build && yarn start"
             : "yarn start",
           url: webserverURL,
