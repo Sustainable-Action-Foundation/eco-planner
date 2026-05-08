@@ -1,12 +1,9 @@
 import { expect, test } from "playwright/test";
 import type { Page } from "playwright/test";
 import path from "node:path";
-import { fileURLToPath } from "url";
+import { cwd } from "node:process";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const adminFile = path.join(__dirname, "../.auth/admin.json");
+const adminFile = path.join(cwd(), "tests/.auth/admin.json");
 
 async function expectToast(page: Page, translationKey: string) {
   await expect(page.getByTestId("toast-list").filter({ hasText: translationKey })).toBeVisible();

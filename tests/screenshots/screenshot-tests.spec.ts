@@ -1,8 +1,10 @@
 import { expect, test } from "playwright/test";
 import type { Page } from "playwright/test";
+import path from "node:path";
+import { cwd } from "node:process";
 
-const outputDir = "tests/out/screenshots";
-const adminFile = "tests/.auth/admin.json";
+const outputDir = path.join(cwd(), "tests/out/screenshots");
+const adminFile = path.join(cwd(), "tests/.auth/admin.json");
 
 let sendPageName = ""; // Denotes what a screenshot is of
 

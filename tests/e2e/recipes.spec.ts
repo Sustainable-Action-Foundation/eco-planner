@@ -1,11 +1,8 @@
 import { expect, test } from "playwright/test";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { cwd } from "node:process";
 
-const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
-const __dirname = path.dirname(__filename); // get the name of the directory
-
-const adminFile = path.join(__dirname, "../.auth/admin.json");
+const adminFile = path.join(cwd(), "tests/.auth/admin.json");
 
 test.describe("Goals tests", () => {
   test.use({ storageState: adminFile });
