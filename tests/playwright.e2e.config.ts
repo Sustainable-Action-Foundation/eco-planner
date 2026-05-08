@@ -54,7 +54,7 @@ export default defineConfig({
 
   // Web server
   ...(
-    boolEnv("LOCAL_TESTS")
+    !boolEnv("LOCAL_TESTS")
       ? {
         webServer: {
           timeout: 20 * 60 * 1000, // 20 minutes; both seeding image and app image may need to be built, which might take a while with bad cache, especially on runners.

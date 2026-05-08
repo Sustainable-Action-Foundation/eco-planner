@@ -1,6 +1,6 @@
 export function boolEnv(envName: string, defaultValue: boolean = false): boolean {
   const value = process.env[envName];
-  if (value === undefined) return defaultValue;
+  if (typeof value === "undefined") return defaultValue;
   if (value.length === 0) return defaultValue;
   if (value.toLowerCase() === "true") return true;
   if (value.toLowerCase() === "false") return false;
