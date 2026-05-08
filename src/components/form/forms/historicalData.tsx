@@ -152,7 +152,7 @@ export default function HistoricalData({
     // setIsLoading(true);
 
     // TODO: Undefined here is query, we likely want to remove it once this is all set ut and queryBuilder.tsx is removed
-    void getTables(dataSource, undefined, lang).then(result => { 
+    void getTables(dataSource, undefined, lang).then(result => {
       setTables(result);
       // setIsLoading(false);
     });
@@ -167,7 +167,7 @@ export default function HistoricalData({
     setTableContent(null);
     setTableDetails(null);
 
-    void getTableDetails(tableId, dataSource, undefined, lang).then(result => { 
+    void getTableDetails(tableId, dataSource, undefined, lang).then(result => {
       setTableDetails(result);
       // setIsLoading(false);
     });
@@ -187,7 +187,7 @@ export default function HistoricalData({
       // The idea here is basically to we see which variables exist, and moving them to an array separately from metric as that value is already set. 
       // We then check if the variable which we render is in our list and get the default value from there.
       // This isnt very optimal as each render of a variable will trigger a loop of a new list, there is likely a better way to achieve this. 
-      if (!goal.externalSelection) return // TODO: Very hacky, temp fix. TODO: Also need to do this for time also
+      // if (!goal.externalSelection) return // TODO: Very hacky, temp fix. TODO: Also need to do this for time also
       const externalSelection = parseExternalSelection(goal.externalSelection);
       const variables = externalSelection.filter((selectionVariable) => selectionVariable.variableCode !== "metric");
 
@@ -205,7 +205,7 @@ export default function HistoricalData({
             required={!variable.optional}
             name={variable.name}
             id={variable.name}
-            value={selectedValue}
+            defaultValue={selectedValue}
             onChange={() => tryGetResult()}
           >
             { // If only one value is available, don't show a placeholder option
@@ -349,7 +349,7 @@ export default function HistoricalData({
         </fieldset>
         : visibleForm === 'external' ? (
       */}
-          {/* TODO: A bunch of i18n
+      {/* TODO: A bunch of i18n
             TODO: We should likely not be adding a blur to the backdrop if our dialog can be light dismissed, i.e closedby=any
             TODO: dialog loading state (for the remove button)
             {goal.externalDataset && goal.externalTableId ?
@@ -402,158 +402,191 @@ export default function HistoricalData({
               : null}
             */}
 
-            <form 
-              ref={setFormRef} 
-              onSubmit={handleSubmit}
-              className="flex flex-direction-column flex-grow-1" 
-              style={{ minHeight: '0' }}
-            >
-              {/* Hidden disabled submit button to prevent accidental submission */}
-              <button type="submit" className="display-none" disabled></button>
+      <form
+        ref={setFormRef}
+        onSubmit={handleSubmit}
+        className="flex flex-direction-column flex-grow-1"
+        style={{ minHeight: '0' }}
+      >
+        {/* Hidden disabled submit button to prevent accidental submission */}
+        <button type="submit" className="display-none" disabled></button>
 
-              <fieldset 
-                // disabled={goal.externalDataset && goal.externalTableId ? true : false} 
-                className={`${styles.timeLineFieldset} width-100`} // margin-top-200
-              >
-                <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}> {/* TODO: i18n */}
-                  Välj datakälla
-                </legend>
-                <label className="margin-block-75 font-weight-500">
-                  {t("components:query_builder.data_source")}
-                  {/* Display warning message if the selected language is not supported by the api */}
-                  {((ExternalDataset.getDatasetByAlternateName(dataSource)) && !(ExternalDataset.getDatasetByAlternateName(dataSource)?.supportedLanguages.includes(lang))) ?
-                    <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</small>
-                    : null}
-                  <select
-                    defaultValue={!!goal.externalDataset ? goal.externalDataset : ''}
-                    className="block margin-top-25 margin-bottom-100 width-100"
-                    required
-                    name="externalDataset"
-                    id="externalDataset"
-                    onChange={e => {
-                      setDataSource(e.target.value);
-                      setTable(null);
-                      setMetric(null);
-                      setTableContent(null);
-                      setTableDetails(null);
-                    }}>
-                    <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_source")}</option>
-                    {ExternalDataset.knownDatasetKeys.map((name) => (
-                      <option key={name} value={name}>{ExternalDataset[name]?.fullName}</option>
-                    ))}
-                  </select>
-                </label>
-                <label htmlFor="externalTableId">Tabell</label> {/* TODO: i18n */}
-                <SelectSingleSearch // TODO: Deal with width
-                  props={{
-                    className: 'margin-top-25 margin-bottom-100',
-                    id: 'externalTableId',
-                    name: 'externalTableId',
-                    placeholder: !dataSource ? 'Välj datakälla för att se tabeller' : 'Välj tabell', // TODO i18n
-                    required: true,
-                    disabled: !dataSource ? true : false
-                  }}
-                  defaultValue={table ? { name: table.label, value: table.tableId } : false}
-                  options={
-                    tables
-                      ? tables.map(({ tableId, label }) => ({
-                        name: label,
-                        value: tableId,
-                      }))
-                      : []
-                  }
-                  onChange={(value) => value?.value ? setTable({ tableId: value.value, label: value.name }) : setTable(null)}
-                />
-              </fieldset>
+        <fieldset
+          // disabled={goal.externalDataset && goal.externalTableId ? true : false} 
+          className={`${styles.timeLineFieldset} width-100`} // margin-top-200
+        >
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}> {/* TODO: i18n */}
+            Välj datakälla
+          </legend>
+          <label className="margin-block-75 font-weight-500">
+            {t("components:query_builder.data_source")}
+            {/* Display warning message if the selected language is not supported by the api */}
+            {((ExternalDataset.getDatasetByAlternateName(dataSource)) && !(ExternalDataset.getDatasetByAlternateName(dataSource)?.supportedLanguages.includes(lang))) ?
+              <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</small>
+              : null}
+            <select
+              defaultValue={!!goal.externalDataset ? goal.externalDataset : ''}
+              className="block margin-top-25 margin-bottom-100 width-100"
+              required
+              name="externalDataset"
+              id="externalDataset"
+              onChange={e => {
+                setDataSource(e.target.value);
+                setTable(null);
+                setMetric(null);
+                setTableContent(null);
+                setTableDetails(null);
+              }}>
+              <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_source")}</option>
+              {ExternalDataset.knownDatasetKeys.map((name) => (
+                <option key={name} value={name}>{ExternalDataset[name]?.fullName}</option>
+              ))}
+            </select>
+          </label>
+          <label htmlFor="externalTableId">Tabell</label> {/* TODO: i18n */}
+          <SelectSingleSearch // TODO: Deal with width
+            props={{
+              className: 'margin-top-25 margin-bottom-100',
+              id: 'externalTableId',
+              name: 'externalTableId',
+              placeholder: !dataSource ? 'Välj datakälla för att se tabeller' : 'Välj tabell', // TODO i18n
+              required: true,
+              disabled: !dataSource ? true : false
+            }}
+            defaultValue={table ? { name: table.label, value: table.tableId } : false}
+            options={
+              tables
+                ? tables.map(({ tableId, label }) => ({
+                  name: label,
+                  value: tableId,
+                }))
+                : []
+            }
+            onChange={(value) => value?.value ? setTable({ tableId: value.value, label: value.name }) : setTable(null)}
+          />
+        </fieldset>
 
-              {/* TODO - which inputs should be optional? */}
-              <fieldset 
-                // disabled={goal.externalDataset && goal.externalTableId ? true : false} 
-                className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-                <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
+        {/* TODO - which inputs should be optional? */}
+        <fieldset
+          // disabled={goal.externalDataset && goal.externalTableId ? true : false} 
+          className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
+          >
+            {t("components:query_builder.select_metric_for_table")}
+          </legend>
+          {table && tableDetails ? (
+            <label key={`metric-${tableDetails.id}`}>
+              Välj mätvärde {/* TODO: I18n */}
+              <select className={`block margin-top-25 margin-bottom-100 metric`}
+                required={true}
+                name="metric"
+                id="metric"
+                value={!!metric ? metric : ''}
+                onChange={(e) => setMetric(e.target.value)}
               >
-                  {t("components:query_builder.select_metric_for_table")}
-                </legend>
-                {table && tableDetails ? (
-                  <label key={`metric-${tableDetails.id}`}>
-                    Välj mätvärde {/* TODO: I18n */}
-                    <select className={`block margin-top-25 margin-bottom-100 metric`}
-                      required={true}
-                      name="metric"
-                      id="metric"
-                      value={!!metric ? metric : ''}
-                      onChange={(e) => setMetric(e.target.value)}
-                    >
-                      <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_metric")}</option>
-                      {tableDetails.metrics?.map(metric => (
-                        <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
-                      ))}
-                    </select>
-                  </label>
-                ) : (
-                  <p>Välj en datakälla först</p> /* TODO: I18n */
-                )}
-              </fieldset>
-              <fieldset 
-                // disabled={goal.externalDataset && goal.externalTableId && goal.externalSelection ? true : false}
-                name="variableSelectionFieldset" 
-                className={`${styles.timeLineFieldset} width-100 margin-top-200`}
-              > {/* Figure out disabled for this form */}
-                <legend
-                  // Technically incrementing here is unused but if you add a another entry after this one it will be correct
-                  // eslint-disable-next-line @/no-useless-assignment
-                  data-position={positionIndex++}
-                  className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
-                >
-                  {t("components:query_builder.select_values_for_table")}
-                </legend>
-                {tableDetails?.variables && metric ? (
-                  (tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || // TODO: Figure out why this is structured as is? Only the first if statement makes sense to me
-                    (
-                      !(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") &&
-                      tableDetails.variables.some(variable => variable.option)
-                    ) ||
-                    tableDetails.times.length > 1 ? (
-                    <div>
-                      {tableDetails.times &&
-                        timeVariableSelectionHelper(tableDetails.times, tableDetails.language)
-                      }
-                      {tableDetails.variables.map(variable => {
-                        return variableSelectionHelper(variable, tableDetails);
-                      })}
-                      {tableDetails.hierarchies?.map(hierarchy => {
-                        if (hierarchy.children?.some(variable => variable.option)) return (
-                          <div key={hierarchy.name}>
-                            <div className="font-weight-bold">{hierarchy.label}</div>
-                            <div className="block margin-block-75 margin-left-75">
-                              {hierarchy.children?.map(variable => {
-                                return variableSelectionHelper(variable, tableDetails);
-                              })}
-                            </div>
-                          </div>
-                        )
-                      })}
+                <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_metric")}</option>
+                {tableDetails.metrics?.map(metric => (
+                  <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
+                ))}
+              </select>
+            </label>
+          ) : (
+            <p>Välj en datakälla först</p> /* TODO: I18n */
+          )}
+        </fieldset>
+        <fieldset
+          // disabled={goal.externalDataset && goal.externalTableId && goal.externalSelection ? true : false}
+          name="variableSelectionFieldset"
+          className={`${styles.timeLineFieldset} width-100 margin-top-200`}
+        > {/* Figure out disabled for this form */}
+          <legend
+            // Technically incrementing here is unused but if you add a another entry after this one it will be correct
+            // eslint-disable-next-line @/no-useless-assignment
+            data-position={positionIndex++}
+            className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
+          >
+            {t("components:query_builder.select_values_for_table")}
+          </legend>
+          {tableDetails?.variables && metric ? (
+            (tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || // TODO: Figure out why this is structured as is? Only the first if statement makes sense to me
+              (
+                !(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") &&
+                tableDetails.variables.some(variable => variable.option)
+              ) ||
+              tableDetails.times.length > 1 ? (
+              <div>
+                {tableDetails.times &&
+                  timeVariableSelectionHelper(tableDetails.times, tableDetails.language)
+                }
+                {tableDetails.variables.map(variable => {
+                  return variableSelectionHelper(variable, tableDetails);
+                })}
+                {tableDetails.hierarchies?.map(hierarchy => {
+                  if (hierarchy.children?.some(variable => variable.option)) return (
+                    <div key={hierarchy.name}>
+                      <div className="font-weight-bold">{hierarchy.label}</div>
+                      <div className="block margin-block-75 margin-left-75">
+                        {hierarchy.children?.map(variable => {
+                          return variableSelectionHelper(variable, tableDetails);
+                        })}
+                      </div>
                     </div>
-                  ) : (
-                    <p className={`font-style-italic color-gray`}>{t("components:query_builder.no_variables_found")}</p> /* TODO: Text should be made clearer, e.g "no variables exist for this table..."" */
                   )
-                ) : (
-                  <p>Välj ett mätvärde först</p> /* TODO: I18n */
-                )}
-              </fieldset>
-              <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: "1px solid var(--gray-80)" }}>
-                <button
-                  id="submit-button"
-                  type="submit"
-                  className="text-align-center seagreen color-purewhite width-100"
-                  style={{ fontSize: "14px", transform: "none" }}
-                  disabled={!tableDetails || !tableContent || !dataSource}
-                >
-                  {t("common:tsx.save_changes")}
-                </button>
+                })}
               </div>
-            </form>
-        {/*) : null}  */}
+            ) : (
+              <p className={`font-style-italic color-gray`}>{t("components:query_builder.no_variables_found")}</p> /* TODO: Text should be made clearer, e.g "no variables exist for this table..."" */
+            )
+          ) : (
+            <p>Välj ett mätvärde först</p> /* TODO: I18n */
+          )}
+        </fieldset>
+        <output className="block padding-bottom-100">
+          {/* TODO: style this better */}
+          {tableContent && tableContent.values.length > 0 ? (
+            <div>
+              <p>{t("components:query_builder.does_this_look_correct", { count: 5 })}</p>
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">{t("components:query_builder.period")}</th>
+                    <th scope="col">{t("components:query_builder.value")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {
+                    tableContent.values.map(({ period, value }, rowIndex) => {
+                      return (
+                        rowIndex < 5 &&
+                        <tr key={period}>
+                          <td>{period}</td>
+                          <td>{value}</td>
+                        </tr>
+                      )
+                    })
+                  }
+                </tbody>
+              </table>
+            </div>
+          ) :
+            (
+              <p className="padding-100">{t("components:query_builder.no_result_found")}</p>
+            )
+          }
+        </output>
+        <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: "1px solid var(--gray-80)" }}>
+          <button
+            id="submit-button"
+            type="submit"
+            className="text-align-center seagreen color-purewhite width-100"
+            style={{ fontSize: "14px", transform: "none" }}
+            disabled={!tableDetails || !tableContent || !dataSource}
+          >
+            {t("common:tsx.save_changes")}
+          </button>
+        </div>
+      </form>
+      {/*) : null}  */}
     </div>
   )
 }
