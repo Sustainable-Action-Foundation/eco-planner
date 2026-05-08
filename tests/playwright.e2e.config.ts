@@ -9,7 +9,8 @@ export const webserverURL = process.env.BASE_URL || "http://localhost:8081";
 const CI = boolEnv("CI", false);
 
 export default defineConfig({
-  testDir: "e2e",
+  testDir: "./",
+  testIgnore: ["./**/", "!./e2e/", "!./lib/"],
 
   // fullyParallel: true,
   workers: "80%",
@@ -83,7 +84,7 @@ export default defineConfig({
   projects: [
     {
       name: "setup",
-      testMatch: "../*.setup.ts",
+      testMatch: "*.setup.ts",
     },
     {
       name: "chromium 1080p",

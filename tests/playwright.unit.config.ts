@@ -5,7 +5,8 @@ import { boolEnv } from "./lib/env";
 const CI = boolEnv("CI", false);
 
 export default defineConfig({
-  testDir: "unit",
+  testDir: "./",
+  testIgnore: ["./**/", "!./unit/", "!./lib/"],
   workers: "80%",
   retries: 0,
   timeout: 60 * 1000,
@@ -30,13 +31,13 @@ export default defineConfig({
   projects: [
     {
       name: "Locale files validation",
-      testMatch: ["**/locale-files.test.ts"],
+      testMatch: ["unit/locale-files.test.ts"],
       retries: 0, // File reading can't be flaky, so no retries needed.
       use: {},
     },
     {
       name: "Recipe unit tests",
-      testMatch: ["**/recipe-unit.test.ts"],
+      testMatch: ["unit/recipe-unit.test.ts"],
       retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
       use: {},
     }
