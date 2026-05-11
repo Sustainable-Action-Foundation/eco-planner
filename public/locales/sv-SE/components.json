@@ -118,13 +118,17 @@
     "search_for_table": "Sök efter tabell",
     "select_metric": "Välj mätvärde",
     "select_metric_for_table": "Välj mätvärde för tabell",
-    "select_source": "Välj en källa",
+    "select_source": "Välj datakälla",
+    "select_source_for_table": "Välj en datakälla för att se tabeller",
+    "select_source_for_metric": "Välj en datakälla för att se mätvärden",
     "select_starting_period": "Välj startperiod",
+    "select_table": "Välj tabell",
     "select_time_interval": "Välj tidsintervall",
     "select_time_period": "Välj tidsperiod",
     "select_value": "Välj ett värde",
     "select_values_for_table": "Välj värden för tabell",
     "selected_table": "<strong>Vald tabell:</strong> <small><i>{{table}}</i></small>",
+    "table": "Tabell",
     "value": "Värde"
   },
   "recipe_editor": {

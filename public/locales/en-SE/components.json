@@ -118,13 +118,17 @@
     "search_for_table": "Search for table",
     "select_metric": "Select metric",
     "select_metric_for_table": "Select metric for table",
-    "select_source": "Select a source",
+    "select_source": "Select datasource",
+    "select_source_for_table": "Select a datasource to view tables",
+    "select_source_for_metric": "Select a datasource to view metrics",
     "select_starting_period": "Select starting period",
+    "select_table": "Select table",
     "select_time_interval": "Select time interval",
     "select_time_period": "Select time period",
     "select_value": "Select value",
     "select_values_for_table": "Select values for table",
     "selected_table": "<strong>Selected table:</strong> <small><i>{{table}}</i></small>",
+    "table": "Table",
     "value": "Value"
   },
   "recipe_editor": {

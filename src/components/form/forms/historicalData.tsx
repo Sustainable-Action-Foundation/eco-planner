@@ -295,12 +295,17 @@ export default function HistoricalData({
   }
   */}
 
+  function shouldVariableFieldsetBeVisible(tableDetails: ApiTableDetails, dataSource: string) {
+    const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1);
+    return returnBool;
+  }
+
   // Index for data-position attribute in legend elements (for accessibility)
   let positionIndex = 1;
 
   {/* TODO: Must make sure to limit the width of selects, some variables are stupidly long */ }
   return (
-    <div className={`${styles['dialog-body']}`}> {/* TODO: Dialog-body does not make sense here now... */}
+    <div>
       {/* <p className="padding-inline-100">{t("components:query_builder.add_data_to_goal", { goalName: goal.name ?? goal.indicatorParameter })}</p> */}
 
       {/* TODO: It might be sensible if these are tabs instead. Additionally that we warn users that data will be deleted given that you switch between them 
@@ -415,8 +420,8 @@ export default function HistoricalData({
           // disabled={goal.externalDataset && goal.externalTableId ? true : false} 
           className={`${styles.timeLineFieldset} width-100`} // margin-top-200
         >
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}> {/* TODO: i18n */}
-            Välj datakälla
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>
+            {t("components:query_builder.data_source")}
           </legend>
           <label className="margin-block-75 font-weight-500">
             {t("components:query_builder.data_source")}
@@ -443,13 +448,13 @@ export default function HistoricalData({
               ))}
             </select>
           </label>
-          <label htmlFor="externalTableId">Tabell</label> {/* TODO: i18n */}
+          <label htmlFor="externalTableId">{t("components:query_builder.table")}</label>
           <SelectSingleSearch // TODO: Deal with width
             props={{
               className: 'margin-top-25 margin-bottom-100',
               id: 'externalTableId',
               name: 'externalTableId',
-              placeholder: !dataSource ? 'Välj datakälla för att se tabeller' : 'Välj tabell', // TODO i18n
+              placeholder: !dataSource ? t("components:query_builder.select_source_for_table") : t("components:query_builder.select_table"),
               required: true,
               disabled: !dataSource ? true : false
             }}
@@ -476,7 +481,7 @@ export default function HistoricalData({
           </legend>
           {table && tableDetails ? (
             <label key={`metric-${tableDetails.id}`}>
-              Välj mätvärde {/* TODO: I18n */}
+              {t("components:query_builder.select_metric")}
               <select className={`block margin-top-25 margin-bottom-100 metric`}
                 required={true}
                 name="metric"
@@ -491,9 +496,10 @@ export default function HistoricalData({
               </select>
             </label>
           ) : (
-            <p>Välj en datakälla först</p> /* TODO: I18n */
+            <p>{t("components:query_builder.select_source_for_metric")}</p>
           )}
         </fieldset>
+
         <fieldset
           // disabled={goal.externalDataset && goal.externalTableId && goal.externalSelection ? true : false}
           name="variableSelectionFieldset"
@@ -507,13 +513,8 @@ export default function HistoricalData({
           >
             {t("components:query_builder.select_values_for_table")}
           </legend>
-          {tableDetails?.variables && metric ? (
-            (tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || // TODO: Figure out why this is structured as is? Only the first if statement makes sense to me
-              (
-                !(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") &&
-                tableDetails.variables.some(variable => variable.option)
-              ) ||
-              tableDetails.times.length > 1 ? (
+          {tableDetails &&
+            shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? (
               <div>
                 {tableDetails.times &&
                   timeVariableSelectionHelper(tableDetails.times, tableDetails.language)
@@ -536,10 +537,11 @@ export default function HistoricalData({
               </div>
             ) : (
               <p className={`font-style-italic color-gray`}>{t("components:query_builder.no_variables_found")}</p> /* TODO: Text should be made clearer, e.g "no variables exist for this table..."" */
-            )
-          ) : (
-            <p>Välj ett mätvärde först</p> /* TODO: I18n */
-          )}
+            )}
+
+          { /* : (
+            <p>Välj ett mätvärde först</p>  
+          )}*/}
         </fieldset>
         <output className="block padding-bottom-100">
           {/* TODO: style this better */}
