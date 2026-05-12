@@ -197,10 +197,12 @@ export class Recipe {
 
       const newNameBase = nameNormalizer(variableId);
       let newName = newNameBase;
-      let suffix = 1;
-      while (usedScopeNames.has(newName)) {
+      for (let suffix = 1; suffix < 1000; suffix++) {
+        if (!usedScopeNames.has(newName)) break;
         newName = `${newNameBase}_${suffix}`;
-        suffix += 1;
+        if (suffix >= 999) {
+          throw new RecipeError(`Too many variables with colliding names derived from variable id "${variableId}". Consider renaming the variable to have a more unique name.`);
+        }
       }
       usedScopeNames.add(newName);
 
