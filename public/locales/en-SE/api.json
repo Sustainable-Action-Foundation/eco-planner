@@ -4,6 +4,7 @@
     "missing_input": "Missing required input parameters",
     "invalid_request_body": "Invalid request body",
     "server_error": "Internal server error",
+    "stale_data": "Potentially stale data. Please refresh and try again.",
     "unknown_error": "Unknown error",
     "unknown_server_error": "Unknown internal server error"
   },
@@ -13,7 +14,6 @@
     "action_deleted": "Action deleted",
     "goal_not_found": "Failed to connect records. Given goal might not exist",
     "missing_parent": "Missing parent. Please report this problem unless you are sending custom requests.",
-    "stale_data": "Potentially stale data. Please refresh and try again.",
     "invalid_data_series": "Bad data series"
   },
   "goal": {
