@@ -44,90 +44,6 @@ export default function RoadmapForm({
 
   const { addToast } = useToastContext();
 
-  async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!metaRoadmapId && !currentRoadmap) { return; }
-
-    setIsLoading(true);
-
-    const form = event.target.elements;
-    const description = (form.namedItem("description") as HTMLInputElement | null)?.value ?? null;
-    const visibility = (form.namedItem("visibility") as RadioNodeList)?.value;
-    const editability = (form.namedItem("editability") as RadioNodeList)?.value;
-
-    let goals: GoalCreateInput[] = [];
-    if (currentFile) {
-      try {
-        goals = csvToGoalList(parseCsv(await currentFile.arrayBuffer().then((buffer) => { return buffer; })), () => addToast(t("forms:roadmap.scale_deprecated"), "warning"));
-      }
-      catch (error) {
-        setIsLoading(false);
-        addToast(t("forms:roadmap.roadmap_version_creation_error", { error: error instanceof Error ? error.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }), "error");
-        return;
-      }
-    }
-
-    /** 
-     * ## DEPRECATED - use recipes instead
-     * TODO: Migrate to recipes before deployment
-     */
-    const inheritGoalIds: string[] = [];
-    (form.namedItem('inherit-goals') as RadioNodeList | null)?.forEach((checkbox) => {
-      if (checkbox.checked) {
-        inheritGoalIds.push(checkbox.value);
-      }
-    });
-
-    let formData: RoadmapCreateInput | RoadmapUpdateInput;
-    if (currentRoadmap) {
-      // Updating existing roadmap
-      formData = {
-        roadmapId: currentRoadmap.id,
-        timestamp: timestamp,
-
-        description: description ?? undefined,
-        targetVersion: parseInt((form.namedItem('target-version') as HTMLSelectElement)?.value) || null,
-        isPublic: visibility === "public",
-
-        metaRoadmapId: undefined, // Can't change the metaRoadmap after creation
-        goals: goals,
-
-        editors: editability === "custom" ? (form.namedItem("editors") as HTMLInputElement)?.value.split(',').map(string => string.trim()).filter(Boolean) : [],
-        viewers: visibility === "custom" ? (form.namedItem("viewers") as HTMLInputElement)?.value.split(",").map(s => s.trim()).filter(Boolean) : [],
-        editGroups: editability === "custom" ? (form.namedItem("editor-groups") as HTMLButtonElement)?.value.split(',').filter(Boolean) : [],
-        viewGroups: visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
-
-        // DEPRECATED - moved to description
-        links: undefined,
-      };
-    } else {
-      // Creating new roadmap
-      formData = {
-        roadmapId: undefined,
-        timestamp: undefined,
-
-        description: description ?? null,
-        targetVersion: parseInt((form.namedItem('target-version') as HTMLSelectElement)?.value) || null,
-        isPublic: visibility === "public",
-
-        metaRoadmapId: metaRoadmapId,
-        goals: goals,
-
-        editors: editability === "custom" ? (form.namedItem("editors") as HTMLInputElement)?.value.split(',').map(string => string.trim()).filter(Boolean) : [],
-        viewers: visibility === "custom" ? (form.namedItem("viewers") as HTMLInputElement)?.value.split(",").map(s => s.trim()).filter(Boolean) : [],
-        editGroups: editability === "custom" ? (form.namedItem("editor-groups") as HTMLButtonElement)?.value.split(',').filter(Boolean) : [],
-        viewGroups: visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
-
-        // DEPRECATED - moved to description
-        links: undefined,
-      };
-    }
-
-    const formJSON = JSON.stringify(formData);
-
-    formSubmitter('/api/roadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading, undefined, undefined, undefined, addToast, router.push);
-  }
-
   const [currentFile, setCurrentFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [timestamp] = useState<number>(() => Date.now());
@@ -188,6 +104,89 @@ export default function RoadmapForm({
     }
   }, [addToast, currentFile, t]);
 
+  async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!metaRoadmapId && !currentRoadmap) { return; }
+
+    setIsLoading(true);
+
+    const form = event.target.elements;
+    const description = (form.namedItem("description") as HTMLInputElement | null)?.value ?? null;
+    const visibility = (form.namedItem("visibility") as RadioNodeList)?.value;
+    const editability = (form.namedItem("editability") as RadioNodeList)?.value;
+
+    let goals: GoalCreateInput[] = [];
+    if (currentFile) {
+      try {
+        goals = csvToGoalList(parseCsv(await currentFile.arrayBuffer().then((buffer) => { return buffer; })), () => addToast(t("forms:roadmap.scale_deprecated"), "warning"));
+      }
+      catch (error) {
+        setIsLoading(false);
+        addToast(t("forms:roadmap.roadmap_version_creation_error", { error: error instanceof Error ? error.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }), "error");
+        return;
+      }
+    }
+
+    /** 
+     * ## DEPRECATED - use recipes instead
+     * TODO: Migrate to recipes before deployment
+     */
+    const inheritGoalIds: string[] = [];
+    (form.namedItem('inherit-goals') as RadioNodeList | null)?.forEach((checkbox) => {
+      if (checkbox.checked) {
+        inheritGoalIds.push(checkbox.value);
+      }
+    });
+
+    let formData: RoadmapCreateInput | RoadmapUpdateInput;
+    if (currentRoadmap) {
+      // Updating existing roadmap
+      formData = {
+        roadmapId: currentRoadmap.id,
+        timestamp: timestamp,
+
+        description: description ?? undefined,
+        targetVersion: parseInt((form.namedItem('target-version') as HTMLSelectElement)?.value, 10) || null,
+        isPublic: visibility === "public",
+
+        metaRoadmapId: undefined, // Can't change the metaRoadmap after creation
+        goals: goals,
+
+        editors: editability === "custom" ? (form.namedItem("editors") as HTMLInputElement)?.value.split(',').map(string => string.trim()).filter(Boolean) : [],
+        viewers: visibility === "custom" ? (form.namedItem("viewers") as HTMLInputElement)?.value.split(",").map(s => s.trim()).filter(Boolean) : [],
+        editGroups: editability === "custom" ? (form.namedItem("editor-groups") as HTMLButtonElement)?.value.split(',').filter(Boolean) : [],
+        viewGroups: visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
+
+        // DEPRECATED - moved to description
+        links: undefined,
+      };
+    } else {
+      // Creating new roadmap
+      formData = {
+        roadmapId: undefined,
+        timestamp: undefined,
+
+        description: description ?? null,
+        targetVersion: parseInt((form.namedItem('target-version') as HTMLSelectElement)?.value, 10) || null,
+        isPublic: visibility === "public",
+
+        metaRoadmapId: metaRoadmapId,
+        goals: goals,
+
+        editors: editability === "custom" ? (form.namedItem("editors") as HTMLInputElement)?.value.split(',').map(string => string.trim()).filter(Boolean) : [],
+        viewers: visibility === "custom" ? (form.namedItem("viewers") as HTMLInputElement)?.value.split(",").map(s => s.trim()).filter(Boolean) : [],
+        editGroups: editability === "custom" ? (form.namedItem("editor-groups") as HTMLButtonElement)?.value.split(',').filter(Boolean) : [],
+        viewGroups: visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
+
+        // DEPRECATED - moved to description
+        links: undefined,
+      };
+    }
+
+    const formJSON = JSON.stringify(formData);
+
+    formSubmitter('/api/roadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading, undefined, undefined, undefined, addToast, router.push);
+  }
 
   // Indexes for the data-position attribute in the legend elements
   let positionIndex = 1;
@@ -235,7 +234,7 @@ export default function RoadmapForm({
             {metaRoadmapTarget?.roadmapVersions.length && (
               <label>
                 {t("forms:roadmap.roadmap_target_label", { targetName: metaRoadmapTarget.name })}
-                <select className="block margin-top-25 margin-bottom-100 width-100" name="target-version" id="target-version" required defaultValue={currentRoadmap?.targetVersion ?? ""} onChange={(e) => setTargetVersion(parseInt(e.target.value) || null)}>
+                <select className="block margin-top-25 margin-bottom-100 width-100" name="target-version" id="target-version" required defaultValue={currentRoadmap?.targetVersion ?? ""} onChange={(e) => setTargetVersion(parseInt(e.target.value, 10) || null)}>
                   <option value="">{t("forms:roadmap.roadmap_target_no_chosen")}</option>
                   <option value={0}>{t("forms:roadmap.roadmap_target_always_latest")}</option>
                   {metaRoadmapTarget.roadmapVersions.map((version) => {
@@ -262,7 +261,7 @@ export default function RoadmapForm({
             content={currentRoadmap ? currentRoadmap.description : ""}
             onChange={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
           />
-          <input ref={descriptionRef} type="hidden" name="description" />
+          <input ref={descriptionRef} type="hidden" name="description" defaultValue={currentRoadmap?.description ?? ""} />
 
         </fieldset>
 

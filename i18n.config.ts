@@ -49,7 +49,7 @@ export function initTemplate(): InitOptions {
 
 export function titleCase<T>(value: T, lng: string | undefined): string | T {
   if (typeof value !== "string") {
-    console.warn(`Value passed to titleCase formatter is not a string. Received: ${JSON.stringify({ value })}, type: ${typeof value}. Returning value as is.`);
+    console.warn(`Value passed to titleCase formatter is not a string. Received: ${JSON.stringify(value)}, type: ${typeof value}. Returning value as is.`);
     return value;
   }
 
@@ -85,7 +85,7 @@ export function titleCase<T>(value: T, lng: string | undefined): string | T {
 
 export function possessive<T>(value: T, lng: string | undefined): string | T {
   if (typeof value !== "string") {
-    console.warn(`Value passed to possessive formatter is not a string. Received: ${JSON.stringify({ value })}, type: ${typeof value}. Returning value as is.`);
+    console.warn(`Value passed to possessive formatter is not a string. Received: ${JSON.stringify(value)}, type: ${typeof value}. Returning value as is.`);
     return value;
   }
 
@@ -129,7 +129,7 @@ export function relativeTime<T>(value: T, lng: string | undefined, date: Date | 
   }
 
   if (isNaN(date.getTime())) {
-    console.warn(`Invalid date provided for relative time formatter. Received: ${JSON.stringify({ value })}, type: ${typeof value}. Returning value as is.`);
+    console.warn(`Invalid date provided for relative time formatter. Received: ${JSON.stringify(value)}, type: ${typeof value}. Returning value as is.`);
     return value;
   }
 
@@ -141,7 +141,7 @@ export function relativeTime<T>(value: T, lng: string | undefined, date: Date | 
   const secondDelta = Math.round((date.getTime() - Date.now()) / (1_000));
 
   if (isNaN(dayDelta) || isNaN(hourDelta) || isNaN(minuteDelta) || isNaN(secondDelta)) {
-    console.error(`Invalid date provided for relative time calculations. Received: ${JSON.stringify({ value })}, type: ${typeof value}. Returning value as is.`);
+    console.error(`Invalid date provided for relative time calculations. Received: ${JSON.stringify(value)}, type: ${typeof value}. Returning value as is.`);
     return value;
   }
 

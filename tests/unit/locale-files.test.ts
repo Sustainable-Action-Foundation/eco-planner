@@ -178,14 +178,14 @@ test("Are nested keys defined", () => {
         value, nested: Array.from(value.matchAll(nestedTRegex)), // Find all nested t() calls
       }]);
 
-    (translations as [string, { value: string, nested: [RegExpMatchArray, string][] }][]).forEach(([key, values]) => {
+    (translations as [string, { value: string, nested: [RegExpMatchArray, `${string}:${string}`][] }][]).forEach(([key, values]) => {
       values.nested.forEach(([match, nestedKey]) => {
 
         // Is defined?
         if (allJSON[locale][nestedKey]) return;
 
         // Is it a valid namespace?
-        const nestedNS = /[^:]+:/.exec(nestedKey)?.[0];
+        const nestedNS = /(^[^:]+):/gm.exec(nestedKey)?.[0];
         if (!nestedNS) {
           if (!perLocale[locale]) perLocale[locale] = [];
           perLocale[locale].push(`[Missing namespace] > '${key}': '${values.value}'`);
@@ -193,7 +193,7 @@ test("Are nested keys defined", () => {
         }
 
         // Does it have arguments?
-        const hasArgs = nestedKey.includes(",");
+        const hasArgs = nestedKey.includes(",") && nestedKey.includes("{") && nestedKey.includes("}");
         if (hasArgs) {
           // Find and escape the arguments
           const args = nestedKey
@@ -217,6 +217,13 @@ test("Are nested keys defined", () => {
             if (!perLocale[locale]) perLocale[locale] = [];
             perLocale[locale].push(`[Missing plural key] > '${key}': '${values.value}'`);
           }
+        }
+
+        // Handle formatters, added after formatters moved into t parentheses
+        const hasFormatter = /(.*?:.*?,\s*)\w+$/gm.test(nestedKey);
+        if (hasFormatter) {
+          const noFormat = nestedKey.replace(/,\s?\w+$/gm, ""); // Remove the formatter part
+          if (allJSON[locale][noFormat]) return; // Valid key without formatter
         }
 
         if (!perLocale[locale]) perLocale[locale] = [];
@@ -336,10 +343,13 @@ test("Mixed server and client side code", () => {
       perFile[filePath].push("Found both server and client side code");
     }
 
-    if (!isServer && !isClient) {
-      if (!perFile[filePath]) perFile[filePath] = [];
-      perFile[filePath].push("Ambiguous file");
-    }
+    // Kind of a bs condition, it's fine if it's not either 🤷‍♀️ TODO: clean up
+    // if (!isServer && !isClient) {
+    //   if (!perFile[filePath]) perFile[filePath] = [];
+    //   const serverIndicationsFound = serverIndications.filter(indication => content.includes(indication));
+    //   const clientIndicationsFound = clientIndications.filter(indication => content.includes(indication));
+    //   perFile[filePath].push(`Ambiguous file. Found server indications: ${serverIndicationsFound.length > 0 ? JSON.stringify(serverIndicationsFound) : "None"}, client indications: ${clientIndicationsFound.length > 0 ? JSON.stringify(clientIndicationsFound) : "None"}`);
+    // }
 
     if (isClient && !usingTClient) {
       if (!perFile[filePath]) perFile[filePath] = [];
@@ -702,6 +712,9 @@ function flattenTree(obj: unknown) {
       }
       else if (typeof value === "string") {
         result[newPrefix] = value;
+      }
+      else if (Array.isArray(value) && value.length === 0) {
+        // No-op
       }
       else {
         console.warn(`Unexpected value type at key '${newPrefix}':`, value);

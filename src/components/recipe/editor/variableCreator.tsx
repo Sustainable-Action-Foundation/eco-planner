@@ -43,10 +43,10 @@ export function VariableCreator({
     }
 
     const usedIDs = recipe.variables.map(variable => variable.id);
-    let newID = crypto.randomUUID();
+    let newID = window.crypto.randomUUID();
     for (let i = 20; i > 0; i--) {
       if (!usedIDs.includes(newID)) break;
-      newID = crypto.randomUUID();
+      newID = window.crypto.randomUUID();
 
       if (i <= 1) {
         console.error(`Failed to generate unique ID for new variable after 20 attempts. Compared against IDs: ${usedIDs.join(", ")}`);

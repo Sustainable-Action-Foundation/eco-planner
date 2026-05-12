@@ -36,21 +36,21 @@ export default function formSubmitter(
   }).then(async (res) => {
     if (res.ok) {
       return { body: await (res.json() as Promise<JSONValue>), location: res.headers.get('Location') };
-    } else {
-      if (res.status >= 400) {
-        const data = await (res.json() as Promise<JSONValue>);
-        // Throw the message and any location provided by the API
-        if (isStandardObject(data) && 'message' in data && typeof data.message === 'string') {
-          // eslint-disable-next-line @typescript-eslint/only-throw-error
-          throw { message: data.message, location: res.headers.get('Location') };
-        } else {
-          // If the response is not a standard object, throw a generic error
-          console.error('Unexpected non-ok response: ', res);
-          throw new Error(t("common:errors.something_went_wrong_with_details", { details: `Unexpected non-ok response, see terminal for more information. Status: ${res.status}, Status Text: ${res.statusText}` }));
-        }
-      } else {
-        throw new Error(t("common:errors.something_went_wrong"));
+    } else if (res.status >= 400) {
+      const data = await (res.json() as Promise<JSONValue>);
+      // Throw the message and any location provided by the API
+      if (isStandardObject(data) && 'message' in data && typeof data.message === 'string') {
+        // TODO: don't throw non-error plz :pleading_face:
+        // eslint-disable-next-line @typescript-eslint/only-throw-error, no-throw-literal
+        throw { message: data.message, location: res.headers.get('Location') };
       }
+      else {
+        // If the response is not a standard object, throw a generic error
+        console.error('Unexpected non-ok response: ', res);
+        throw new Error(t("common:errors.something_went_wrong_with_details", { details: `Unexpected non-ok response, see terminal for more information. Status: ${res.status}, Status Text: ${res.statusText}` }));
+      }
+    } else {
+      throw new Error(t("common:errors.something_went_wrong"));
     }
   }).then(data => {
     if (thenReplacement) {

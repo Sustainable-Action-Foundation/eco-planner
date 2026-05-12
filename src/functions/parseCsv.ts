@@ -29,7 +29,7 @@ export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void
     "indicatorParameter": "Branch Path",
     "dataUnit": "Units",
   };
-  const definedYears = headers.filter(h => h.length === 4 && Number.isFinite(parseInt(h)));
+  const definedYears = headers.filter(h => h.length === 4 && Number.isFinite(parseInt(h, 10)));
 
   // Unsupported header which might be present in the CSV
   const scaleHeaderName = "Scale";

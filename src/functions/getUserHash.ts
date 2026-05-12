@@ -1,6 +1,6 @@
 import "server-only";
 import { prisma } from '@/lib/prisma';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 export default async function getUserHash(userEmail: string): Promise<string> {
   const user = await prisma.user.findUnique({

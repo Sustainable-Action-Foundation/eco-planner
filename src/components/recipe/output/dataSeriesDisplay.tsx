@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { Locales } from "@/../i18n.config";
+import { isISOIshDate } from "@/types";
 
 // TODO: Does this take historical data into account? Do we need to account for it?
 export function OutputDataSeries() {
@@ -39,11 +40,11 @@ export function OutputDataSeries() {
       >
         {Object.keys(resultingDataSeries).map((year, i) => (
           <div
-            key={i + "resulting-data-series-header" + year}
+            key={i + "-resulting-data-series-header-" + year}
             className={`font-weight-600 text-align-center ${i === 0 ? "" : "padding-left-100"}`}
             style={{ gridRow: 1, borderLeft: i === 0 ? 'none' : '1px solid var(--gray-70)' }}
           >
-            {year.replace("val", "")}
+            {isISOIshDate(year) ? new Date(year).getUTCFullYear() : year}
           </div>
         ))}
         {Object.values(resultingDataSeries).map((value, i) => (

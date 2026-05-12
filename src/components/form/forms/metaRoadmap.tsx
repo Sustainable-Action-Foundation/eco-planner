@@ -30,7 +30,7 @@ export default function MetaRoadmapForm({
   const { t } = useTranslation(["forms", "common"]);
   const descriptionRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [roadmapType, setRoadmapType] = useState<string>("");
+  const [roadmapType, setRoadmapType] = useState<string>(currentRoadmap?.type ?? "");
   const { addToast } = useToastContext();
   const router = useRouter();
 
@@ -132,7 +132,7 @@ export default function MetaRoadmapForm({
             content={currentRoadmap ? currentRoadmap.description : ""}
             onChange={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
           />
-          <input required ref={descriptionRef} type="hidden" name="description" />
+          <input required ref={descriptionRef} type="hidden" name="description" defaultValue={currentRoadmap?.description ?? ""} />
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>

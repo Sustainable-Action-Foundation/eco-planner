@@ -42,15 +42,16 @@ export function roadmapSorter<T extends { metaRoadmap: { type: RoadmapType, name
   // Negative return values means a is placed before b in the sorted array
   if (aIndex > bIndex) {
     return -1;
-  } else if (aIndex < bIndex) {
+  }
+  else if (aIndex < bIndex) {
     return 1;
-  } else {
-    if (collator.compare(a.metaRoadmap.name, b.metaRoadmap.name) === 0) {
-      // If the roadmaps have the same name, sort by version (higher version first)
-      return b.version - a.version;
-    } else {
-      return collator.compare(a.metaRoadmap.name, b.metaRoadmap.name);
-    }
+  }
+  else if (collator.compare(a.metaRoadmap.name, b.metaRoadmap.name) === 0) {
+    // If the roadmaps have the same name, sort by version (higher version first)
+    return b.version - a.version;
+  }
+  else {
+    return collator.compare(a.metaRoadmap.name, b.metaRoadmap.name);
   }
 }
 
@@ -198,18 +199,20 @@ export function actionGraphSorter<T extends { x: string, y: number[] }>(a: T, b:
   // Start year
   if ((a.y[0] || 0) < (b.y[0] || 0)) {
     return -1;
-  } else if ((a.y[0] || 0) > (b.y[0] || 0)) {
+  }
+  else if ((a.y[0] || 0) > (b.y[0] || 0)) {
     return 1;
-  } else {
-    // End year
-    if ((a.y[1] || 0) < (b.y[1] || 0)) {
-      return -1;
-    } else if ((a.y[1] || 0) > (b.y[1] || 0)) {
-      return 1;
-    } else {
-      // Name
-      return collator.compare(a.x, b.x);
-    }
+  }
+  // End year
+  else if ((a.y[1] || 0) < (b.y[1] || 0)) {
+    return -1;
+  }
+  else if ((a.y[1] || 0) > (b.y[1] || 0)) {
+    return 1;
+  }
+  else {
+    // Name
+    return collator.compare(a.x, b.x);
   }
 }
 
@@ -220,18 +223,20 @@ export function effectGraphSorter<T extends { action: { name: string, startYear:
   // Start year
   if (a.action.startYear < b.action.startYear) {
     return -1;
-  } else if (a.action.startYear > b.action.startYear) {
+  }
+  else if (a.action.startYear > b.action.startYear) {
     return 1;
-  } else {
-    // End year
-    if (a.action.endYear < b.action.endYear) {
-      return -1;
-    } else if (a.action.endYear > b.action.endYear) {
-      return 1;
-    } else {
-      // Name
-      return collator.compare(a.action.name, b.action.name);
-    }
+  }
+  // End year
+  else if (a.action.endYear < b.action.endYear) {
+    return -1;
+  }
+  else if (a.action.endYear > b.action.endYear) {
+    return 1;
+  }
+  else {
+    // Name
+    return collator.compare(a.action.name, b.action.name);
   }
 }
 

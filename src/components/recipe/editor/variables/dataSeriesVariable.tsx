@@ -37,7 +37,7 @@ function useRoadmapTreeItems(availableRoadmaps: AvailableRoadmapOption[]) {
 
           if (goal.baseline) {
             goalChildren.push({
-              name: `${goalDisplayName} ${t("components:recipe_editor.baseline")}`,
+              name: `${goalDisplayName} - ${t("common:baseline_one")}`,
               value: goal.baseline.id,
               expanded: null,
             });
@@ -46,7 +46,7 @@ function useRoadmapTreeItems(availableRoadmaps: AvailableRoadmapOption[]) {
           for (const effect of goal.effects) {
             if (!effect.dataSeries) continue;
             goalChildren.push({
-              name: `${goalDisplayName} ${t("components:recipe_editor.effect")}`,
+              name: `${goalDisplayName} - ${t("common:effect_one")}`,
               value: effect.dataSeries.id,
               expanded: null,
             });

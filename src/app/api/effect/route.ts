@@ -181,33 +181,15 @@ export async function PUT(request: NextRequest) {
   ]);
   const t = await serveTea("api");
 
-  // Typeguard and check if the request body is valid
-  function isEffect(effect: JSONValue): effect is EffectInput & { timestamp: number } {
-    return (
-      // effect should be an object
-      (typeof effect === 'object' &&
-        effect != null &&
-        !(effect instanceof Array) &&
-        // actionId and goalId should be strings
-        typeof effect.actionId === 'string' &&
-        typeof effect.goalId === 'string' &&
-        // dataSeries should be either undefined or an array of strings
-        (
-          effect.dataSeries === undefined ||
-          (
-            effect.dataSeries instanceof Array &&
-            effect.dataSeries.every((value) => typeof value === 'string')
-          )
-        ) &&
-        // impactType may be included, and should in that case be one of the values in ActionImpactType
-        (effect.impactType === undefined || Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType)) && // timestamp should be a number
-        typeof effect.timestamp === 'number')
-    );
-  }
-
   if (!isEffect(effect)) {
     return Response.json({ message: t('api:common.invalid_request_body') },
       { status: 400 },
+    );
+  }
+
+  if (!effect.timestamp) {
+    return Response.json({ message: t('api:common.stale_data') },
+      { status: 409 },
     );
   }
 

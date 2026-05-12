@@ -11,19 +11,23 @@ export class Recipe {
   public name: string;
   public equation: string;
   public variables: RecipeVariable[];
+  private meta?: Record<string, JSONValue>;
 
   public constructor({
     name,
     equation,
     variables,
+    meta,
   }: {
     name: string;
     equation: string;
     variables: RecipeVariable[];
+    meta?: Record<string, JSONValue>;
   }) {
     this.name = name;
     this.equation = equation;
     this.variables = variables;
+    this.meta = meta;
   }
 
   public get variableMap(): Record<string, RecipeVariable> {
@@ -102,6 +106,10 @@ export class Recipe {
       throw new RecipeError("Invalid recipe format");
     }
 
+    if (this.equation.trim() === "") {
+      throw new RecipeError("Equation is empty, no evaluation performed.");
+    }
+
     const scalarVars = extractScalars(this.variables, warnings);
     const [dataSeriesVars, externalVars] = await Promise.all([
       extractDataSeries(this.variables, warnings, options?.dataSeriesGetter),
@@ -162,11 +170,6 @@ export class Recipe {
     const scope: Record<string, number | number[] | Unit | Unit[]> = {};
     let equation = this.equation;
 
-    if (equation.trim() === "") {
-      console.info("Equation is empty. Early return.");
-      return null;
-    }
-
     const nameNormalizer = (name: string) => {
       const collapsedWhitespace = name.trim().replace(/\s+/g, "_");
       const identifierSafe = collapsedWhitespace.replace(/[^A-Za-z0-9_]/g, "_");
@@ -194,10 +197,12 @@ export class Recipe {
 
       const newNameBase = nameNormalizer(variableId);
       let newName = newNameBase;
-      let suffix = 1;
-      while (usedScopeNames.has(newName)) {
+      for (let suffix = 1; suffix < 1000; suffix++) {
+        if (!usedScopeNames.has(newName)) break;
         newName = `${newNameBase}_${suffix}`;
-        suffix += 1;
+        if (suffix >= 999) {
+          throw new RecipeError(`Too many variables with colliding names derived from variable id "${variableId}". Consider renaming the variable to have a more unique name.`);
+        }
       }
       usedScopeNames.add(newName);
 
@@ -309,8 +314,11 @@ export class Recipe {
    * ### This is not the serialization method!
    * 
    * Uses JSON to format the recipe in a readable way.
+   * 
+   * @deprecated
    */
   public toString(): string {
+    console.warn("Recipe.toString() is not meant for serialization, but for human-readable formatting. For serialization, use Recipe.serialize().");
     return JSON.stringify(JSON.parse(this.serialize()), null, 2);
   }
 
@@ -382,6 +390,7 @@ export class Recipe {
       name: normalized.name,
       equation: normalized.equation,
       variables: normalized.variables,
+      meta: normalized.meta,
     });
   }
 
@@ -415,6 +424,29 @@ export class Recipe {
   }
 
   /** 
+   * To query whether a recipe has practically been touched, not a perfect metric, but a simple heuristic to check if the recipe is essentially empty or not.
+   */
+  public isEmpty(): boolean {
+    if (Recipe.areRecipesEqual(this, Recipe.getEmpty())) {
+      return true;
+    }
+
+    if (!this.name || this.name.trim() === "" || this.name === Recipe.getEmpty().name) {
+      return true;
+    }
+
+    if (this.equation.trim() !== "") {
+      return false;
+    }
+
+    if (this.variables.length > 0) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /** 
    * Selective compare if two variables are the same
    */
   public static isVariableEqual(var1: RecipeVariable, var2: RecipeVariable): boolean {
@@ -426,7 +458,7 @@ export class Recipe {
   /** 
    * Selective compare if two variable sets are the same
    */
-  public static isVariablesEqual(vars1: Recipe["variables"], vars2: Recipe["variables"]): boolean {
+  public static areVariablesEqual(vars1: Recipe["variables"], vars2: Recipe["variables"]): boolean {
     if (vars1.length !== vars2.length) {
       return false;
     }
@@ -437,6 +469,22 @@ export class Recipe {
       if (!Recipe.isVariableEqual(vars1[i], vars2[i])) {
         return false;
       }
+    }
+
+    return true;
+  }
+
+  public static areRecipesEqual(recipe1: Recipe, recipe2: Recipe): boolean {
+    if (recipe1.name !== recipe2.name) {
+      return false;
+    }
+
+    if (recipe1.equation !== recipe2.equation) {
+      return false;
+    }
+
+    if (!Recipe.areVariablesEqual(recipe1.variables, recipe2.variables)) {
+      return false;
     }
 
     return true;

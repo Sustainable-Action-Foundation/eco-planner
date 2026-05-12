@@ -69,8 +69,10 @@ export default function EffectTable({
                 <span>
                   {
                     action?.name
-                    ?? goal?.name
-                    ?? goal?.indicatorParameter
+                    ?? (
+                      goal?.name
+                      || goal?.indicatorParameter
+                    )
                     ?? t("components:effects_table.effect_missing_name")
                   }
                 </span>

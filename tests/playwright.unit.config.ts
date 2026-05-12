@@ -1,14 +1,28 @@
+import type { ReporterDescription } from "playwright/test";
 import { defineConfig } from "playwright/test";
+import { boolEnv } from "./lib/env";
+
+const CI = boolEnv("CI", false);
 
 export default defineConfig({
-  testDir: "tests/unit",
-  workers: 1,
+  testDir: "./",
+  testIgnore: ["./**/", "!./unit/", "!./lib/"],
+  workers: "80%",
   retries: 0,
   timeout: 60 * 1000,
   expect: {
     timeout: 10 * 1000,
   },
-  reporter: [["dot"], ["html", { outputFolder: "playwright-report-unit", open: "never" }]],
+  // Reporter to use
+  reporter: (() => {
+    const reporters: ReporterDescription[] = [["html", { outputFolder: "../playwright-report-unit", open: "never" }]];
+    if (CI)
+      reporters.push(["github"]);
+    else
+      reporters.push(["dot"]);
+
+    return reporters;
+  })(),
   use: {
     locale: "cimode",
     timezoneId: "Europe/Stockholm",
@@ -17,13 +31,13 @@ export default defineConfig({
   projects: [
     {
       name: "Locale files validation",
-      testMatch: ["**/locale-files.test.ts"],
+      testMatch: ["unit/locale-files.test.ts"],
       retries: 0, // File reading can't be flaky, so no retries needed.
       use: {},
     },
     {
       name: "Recipe unit tests",
-      testMatch: ["**/recipe-unit.test.ts"],
+      testMatch: ["unit/recipe-unit.test.ts"],
       retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
       use: {},
     },

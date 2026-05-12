@@ -1,3 +1,4 @@
+/* eslint-disable no-template-curly-in-string */
 import { expect, test } from "playwright/test";
 
 import mathjs from "../../src/math";
@@ -197,15 +198,14 @@ test.describe("Recipe evaluator and factories", () => {
     expect(validity.error).toBeUndefined();
   });
 
-  test("evaluate returns null on empty equation", async () => {
+  test("evaluate throws on empty equation", async () => {
     const recipe = new Recipe({
       name: "Empty",
       equation: "   ",
       variables: [scalarVariable("x", "X", 1)],
     });
 
-    const { result } = await evaluateWithWarnings(recipe, { dataSeriesGetter: () => new Promise(() => null) });
-    expect(result).toBeNull();
+    await expect(recipe.evaluate([], { dataSeriesGetter: () => new Promise(() => null) })).rejects.toThrow("Recipe equation is empty");
   });
 
   test("evaluate scalar equation broadcasts across default years", async () => {
@@ -478,7 +478,7 @@ test.describe("Recipe evaluator and factories", () => {
     const vars1 = [scalarVariable("a", "A", 1), scalarVariable("b", "B", 2)];
     const vars2 = [scalarVariable("b", "B", 2), scalarVariable("a", "A", 1)];
 
-    expect(Recipe.isVariablesEqual(vars1, vars2)).toBe(false);
+    expect(Recipe.areVariablesEqual(vars1, vars2)).toBe(false);
   });
 });
 

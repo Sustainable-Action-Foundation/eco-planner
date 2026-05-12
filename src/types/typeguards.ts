@@ -47,7 +47,7 @@ export function isISOIshDate(dateString: string): dateString is ISOIshDate {
   return /^\d{4}-\d{2}-\d{2}T00:00:00\.000Z$/.test(dateString);
 }
 
-export function isDateValuesWithUnit(dateValues: JSONValue): dateValues is Partial<DateValuesWithUnit> {
+export function isDateValuesWithUnit(dateValues: JSONValue): dateValues is DateValuesWithUnit {
   return (
     isStandardObject(dateValues)
     && 'dateValues' in dateValues

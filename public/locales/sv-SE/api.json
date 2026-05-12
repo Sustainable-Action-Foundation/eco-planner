@@ -4,6 +4,7 @@
     "missing_input": "Saknar nödvändiga inmatningsparametrar",
     "invalid_request_body": "Ogiltigt innehåll i förfrågan",
     "server_error": "Internt serverfel",
+    "stale_data": "Potentiellt föråldrad data. Vänligen uppdatera och försök igen.",
     "unknown_error": "Okänt fel",
     "unknown_server_error": "Okänt internt serverfel"
   },
@@ -13,7 +14,6 @@
     "action_deleted": "Åtgärd raderad",
     "goal_not_found": "Misslyckades att koppla poster. Angivet mål kanske inte existerar",
     "missing_parent": "Saknar förälder. Vänligen rapportera detta problem om du inte skickar anpassade förfrågningar.",
-    "stale_data": "Potentiellt föråldrad data. Vänligen uppdatera och försök igen.",
     "invalid_data_series": "Felaktig dataserie"
   },
   "goal": {

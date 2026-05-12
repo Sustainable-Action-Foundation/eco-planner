@@ -63,4 +63,4 @@ export type SerializedRecipeShape = {
     [key: string]: JSONValue;
   };
 };
-export type SerializedRecipe = string;
+export type SerializedRecipe = string & {};

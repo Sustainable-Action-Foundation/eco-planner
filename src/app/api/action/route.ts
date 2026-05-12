@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message === t(ClientError.BadSession)) {
+      if (error.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: t(ClientError.StaleData) },

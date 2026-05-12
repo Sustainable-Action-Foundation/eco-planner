@@ -45,7 +45,7 @@ export function FormIntegration({
       readOnly: true,
     })}
     {RecipeFormElement && React.cloneElement(RecipeFormElement, {
-      defaultValue: JSON.stringify(recipe),
+      defaultValue: recipe.serialize(),
       type: "hidden",
       hidden: true,
       readOnly: true,

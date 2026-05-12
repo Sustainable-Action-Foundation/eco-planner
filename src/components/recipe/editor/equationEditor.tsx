@@ -2,37 +2,23 @@
 
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { IconPlus } from "@tabler/icons-react";
 
 export function EquationEditor() {
   const { t } = useTranslation("components");
   const { recipe, updateEquation } = useRecipe();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const pendingSelectionRef = useRef<{ start: number, end: number } | null>(null);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const textarea = textareaRef.current;
-    const selection = pendingSelectionRef.current;
-    if (!textarea || !selection) return;
+    if (!textarea) return;
 
-    if (document.activeElement === textarea) {
-      textarea.setSelectionRange(selection.start, selection.end);
+    if (document.activeElement !== textarea && textarea.value !== recipe.equation) {
+      textarea.value = recipe.equation;
     }
-
-    pendingSelectionRef.current = null;
   }, [recipe.equation]);
-
-  const handleUpdatedEq = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    pendingSelectionRef.current = {
-      start: e.target.selectionStart,
-      end: e.target.selectionEnd,
-    };
-
-    const equation = e.target.value;
-    updateEquation(equation);
-  };
 
   const handleInsertVariable = (key: string) => {
     const textarea = textareaRef.current;
@@ -44,10 +30,7 @@ export function EquationEditor() {
 
     // Replace the selection with the variable key
     textarea.setRangeText("${" + key + "}", start, end, "end");
-
-    // Fire onChange manually so your state stays in sync
-    const event = new Event("input", { bubbles: true });
-    textarea.dispatchEvent(event);
+    updateEquation(textarea.value);
 
     textarea.focus();
   };
@@ -63,8 +46,8 @@ export function EquationEditor() {
           borderRadius: '0',
           resize: 'none',
         }}
-        value={recipe.equation}
-        onChange={handleUpdatedEq}
+        defaultValue={recipe.equation}
+        onInput={(e) => updateEquation(e.currentTarget.value)}
       />
       <ul
         role="menu"
@@ -74,7 +57,6 @@ export function EquationEditor() {
         aria-activedescendant={focusedIndex !== null ? `variable-menu-menuitem-${focusedIndex}` : ''}
         onKeyDown={(e: React.KeyboardEvent<HTMLUListElement>) => { // TODO: This is not working, try and structure stuff before tackling this. That way we can probably abstract the combobox functions and reuse some stuff
           if (e.key === "arrowDown") {
-            console.log(focusedIndex);
             if (focusedIndex !== null) {
               setFocusedIndex(focusedIndex + 1);
             } else {

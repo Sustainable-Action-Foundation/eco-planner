@@ -1,8 +1,10 @@
 import { expect, test } from "playwright/test";
 import type { Page } from "playwright/test";
+import path from "node:path";
+import { cwd } from "node:process";
 
-const outputDir = "tests/out/screenshots";
-const adminFile = "tests/.auth/admin.json";
+const outputDir = path.join(cwd(), "tests/out/screenshots");
+const adminFile = path.join(cwd(), "tests/.auth/admin.json");
 
 let sendPageName = ""; // Denotes what a screenshot is of
 
@@ -10,25 +12,49 @@ let sendPageName = ""; // Denotes what a screenshot is of
   To run screenshot tests locally you must run: yarn screenshot
 */
 async function takeScreenshot(pageName: string, page: Page, worker: string) {
+  await ensureToastPassthrough(page);
   await isSidebarOpen(page, true);
 
   await page.screenshot({ path: `${outputDir}/${pageName}/${worker}.jpeg`, fullPage: false, animations: "disabled" });
   await page.screenshot({ path: `${outputDir}/${pageName}-fullPage/${worker}.jpeg`, fullPage: true, animations: "disabled" });
 }
 
+async function ensureToastPassthrough(page: Page) {
+  if (page.isClosed()) {
+    return;
+  }
+
+  await page.addStyleTag({
+    content: "aside[data-testid='toast-list']{pointer-events:none !important;}",
+  });
+}
+
+async function safePressEscape(page: Page) {
+  if (page.isClosed()) {
+    return;
+  }
+
+  try {
+    await page.keyboard.press("Escape");
+  } catch {
+    // Best effort; page may have navigated or closed.
+  }
+}
+
 async function isSidebarOpen(page: Page, wantedClosed: boolean) { // Checks if the sidebar is open
+  await ensureToastPassthrough(page);
   const isSidebarOpen = await page.getByTestId('language-switcher-dialog-button').boundingBox();
   if (wantedClosed) {
-    if (isSidebarOpen === null) { }
+    if (isSidebarOpen === null) { /* empty */ }
     else if (isSidebarOpen.width > 100) {
-      await page.getByRole('checkbox').first().click();
+      await page.getByRole('checkbox').first().click({ force: true });
     }
-  } else {
-    if (isSidebarOpen === null) {
-      await page.getByRole("checkbox").first().click();
-    } else if (isSidebarOpen.width < 100) {
-      await page.getByRole("checkbox").first().click();
-    }
+  }
+  else if (isSidebarOpen === null) {
+    await page.getByRole("checkbox").first().click({ force: true });
+  }
+  else if (isSidebarOpen.width < 100) {
+    await page.getByRole("checkbox").first().click({ force: true });
   }
 }
 
@@ -37,6 +63,7 @@ test.describe('Screenshot tests', () => {
   test('Main page pics', async ({ page }, metadata) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
+    await ensureToastPassthrough(page);
 
     // Main page
     await expect.soft(page.getByTestId('home-title')).toBeVisible();
@@ -48,32 +75,35 @@ test.describe('Screenshot tests', () => {
   });
 
   async function sidebarTest(page: Page, openState: string, worker: string) {
+    await ensureToastPassthrough(page);
     // Create menu popover
     await page.getByTestId('create-button').click();
     await expect.soft(page.getByTestId('create-roadmap-series')).toBeVisible();
 
     await page.screenshot({ path: `${outputDir}/createMenuPopped/${openState}-${worker}.jpeg`, fullPage: false, animations: "disabled" });
     await page.screenshot({ path: `${outputDir}/createMenuPopped-fullPage/${openState}-${worker}.jpeg`, fullPage: true, animations: "disabled" });
-    await page.keyboard.press('Escape');
+    await safePressEscape(page);
 
     // Language popover
     await page.getByTestId('language-switcher-dialog-button').click();
     await expect.soft(page.getByTestId('language-switcher-option-English')).toBeVisible();
     await page.screenshot({ path: `${outputDir}/languageMenuPopped/${openState}-${worker}.jpeg`, fullPage: false, animations: "disabled" });
     await page.screenshot({ path: `${outputDir}/languageMenuPopped-fullPage/${openState}-${worker}.jpeg`, fullPage: true, animations: "disabled" });
-    await page.keyboard.press('Escape');
+    await safePressEscape(page);
 
     // Settings popover
-    await page.getByTestId('settings-button').click();
+    await expect.soft(page.getByTestId('settings-button')).toBeVisible();
+    await page.getByTestId('settings-button').click({ force: true });
     await expect.soft(page.locator('#allowStorage')).toBeVisible();
     await page.screenshot({ path: `${outputDir}/settingsMenuPopped/${openState}-${worker}.jpeg`, fullPage: false, animations: "disabled" });
     await page.screenshot({ path: `${outputDir}/settingsMenuPopped-fullPage/${openState}-${worker}.jpeg`, fullPage: true, animations: "disabled" });
-    await page.keyboard.press('Escape');
+    await safePressEscape(page);
   }
 
   test('Sidebar pics', async ({ page }, metadata) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
+    await ensureToastPassthrough(page);
 
     let tooSmallScreen = false;
 
@@ -96,6 +126,7 @@ test.describe('Screenshot tests', () => {
     // Create account page
     await page.goto('/signup');
     await page.waitForLoadState('networkidle');
+    await ensureToastPassthrough(page);
 
     await expect.soft(page.locator('#submit-button')).toBeVisible();
     sendPageName = "createAccount"; // What the screenshot is of
@@ -104,6 +135,7 @@ test.describe('Screenshot tests', () => {
     // Log in page
     await page.goto('/login');
     await page.waitForLoadState('networkidle');
+    await ensureToastPassthrough(page);
 
     await expect.soft(page.locator('#remember')).toBeVisible();
     sendPageName = "logIn"; // What the screenshot is of
@@ -118,6 +150,7 @@ test.describe('Screenshots Admin', () => {
   test('Logged in sidebar pics', async ({ page }, metadata) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
+    await ensureToastPassthrough(page);
 
     await expect.soft(page.getByTestId('home-title')).toBeVisible();
 
@@ -132,6 +165,7 @@ test.describe('Screenshots Admin', () => {
     // My account page
     await page.goto('/@admin');
     await page.waitForLoadState('networkidle');
+    await ensureToastPassthrough(page);
 
     await expect.soft(page.getByRole('heading', { name: 'admin' })).toBeVisible();
     sendPageName = "myAccount"; // What the screenshot is of
@@ -142,6 +176,7 @@ test.describe('Screenshots Admin', () => {
     // Roadmap Series create
     await page.goto('/metaRoadmap/create');
     await page.waitForLoadState('networkidle');
+    await ensureToastPassthrough(page);
 
     await expect.soft(page.locator('#submit-button')).toBeVisible();
     sendPageName = "createSeries"; // What the screenshot is of
@@ -150,8 +185,10 @@ test.describe('Screenshots Admin', () => {
     // Roadmap Series 
     await page.goto('/');
     await page.waitForLoadState("networkidle");
+    await ensureToastPassthrough(page);
 
-    await page.getByRole('link', { name: "Rikets färdplan" }).click();
+    await page.getByRole('link', { name: "Rikets färdplan" }).scrollIntoViewIfNeeded();
+    await page.getByRole('link', { name: "Rikets färdplan" }).click(metadata.project.name.includes("Galaxy") ? { force: true } : undefined);
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
 
     await page.getByTestId('show-roadmap-series').click();
@@ -173,6 +210,7 @@ test.describe('Screenshots Admin', () => {
     // Roadmap create
     await page.goto('/roadmap/create');
     await page.waitForLoadState('networkidle');
+    await ensureToastPassthrough(page);
 
     await expect.soft(page.locator('#submit-button')).toBeVisible();
     sendPageName = "createRoadmap"; // What the screenshot is of
@@ -181,8 +219,12 @@ test.describe('Screenshots Admin', () => {
     // Roadmap
     await page.goto('/');
     await page.waitForLoadState("networkidle");
+    await ensureToastPassthrough(page);
 
-    await page.getByRole('link', { name: "Rikets färdplan" }).click();
+    await isSidebarOpen(page, false);
+
+    await page.getByRole('link', { name: "Rikets färdplan" }).scrollIntoViewIfNeeded();
+    await page.getByRole('link', { name: "Rikets färdplan" }).click(metadata.project.name.includes("Galaxy") ? { force: true } : undefined);
 
     await expect.soft(page.getByRole('heading', { name: "Rikets färdplan" })).toBeVisible();
     sendPageName = "roadmap"; // What the screenshot is of
@@ -200,6 +242,7 @@ test.describe('Screenshots Admin', () => {
   test('Goal pics', async ({ page }, metadata) => {
     // Create
     await page.goto('/goal/create');
+    await ensureToastPassthrough(page);
 
     await expect.soft(page.locator('#submit-button')).toBeVisible();
     sendPageName = "createGoal"; // What the screenshot is of
@@ -208,8 +251,10 @@ test.describe('Screenshots Admin', () => {
     // Goal
     await page.goto('/');
     await page.waitForLoadState("networkidle");
+    await ensureToastPassthrough(page);
 
-    await page.getByRole('link', { name: "Rikets färdplan" }).click();
+    await page.getByRole('link', { name: "Rikets färdplan" }).scrollIntoViewIfNeeded();
+    await page.getByRole('link', { name: "Rikets färdplan" }).click(metadata.project.name.includes("Galaxy") ? { force: true } : undefined);
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
 
     const URL = page.url();
@@ -245,6 +290,7 @@ test.describe('Screenshots Admin', () => {
     // Create
     await page.goto('/action/create');
     await page.waitForLoadState('networkidle');
+    await ensureToastPassthrough(page);
 
     await expect.soft(page.locator('#submit-button')).toBeVisible();
     sendPageName = "createAction"; // What the screenshot is of
@@ -252,6 +298,7 @@ test.describe('Screenshots Admin', () => {
 
     await page.goto('/actions');
     await page.waitForLoadState('networkidle');
+    await ensureToastPassthrough(page);
 
     await expect.soft(page.getByRole('heading').first()).toBeVisible();
     sendPageName = "actionsPage"; // What the screenshot is of
@@ -262,6 +309,7 @@ test.describe('Screenshots Admin', () => {
     // Create
     await page.goto('/effect/create');
     await page.waitForLoadState('networkidle');
+    await ensureToastPassthrough(page);
 
     await expect.soft(page.locator('#submit-button')).toBeVisible();
     sendPageName = "createEffect"; // What the screenshot is of

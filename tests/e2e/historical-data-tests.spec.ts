@@ -1,11 +1,8 @@
 import { test } from "playwright/test";
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from "node:path";
+import { cwd } from "node:process";
 
-const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
-const __dirname = path.dirname(__filename); // get the name of the directory
-
-const adminFile = path.join(__dirname, '../.auth/admin.json');
+const adminFile = path.join(cwd(), "tests/.auth/admin.json");
 
 test.describe("Historical Data Tests", () => {
   test.use({ storageState: adminFile });
@@ -30,20 +27,22 @@ test.describe("Historical Data Tests", () => {
     ];
 
     // Create all rows first
+    const insertRowButton = page.getByRole('button', { name: /Insert row to bottom|Infoga rad underst/ });
     for (let i = 1; i < dataRows.length; i++) {
-      await page.getByTestId('add-row-button').click();
+      await insertRowButton.click();
     }
 
     // Fill all rows (starting at row 1)
-    for (let rowNum = 1; rowNum <= dataRows.length; rowNum++) {
-      for (let col = 0; col < dataRows[rowNum - 1].length; col++) {
-        await page.locator(`[data-row="${rowNum}"][data-column="${col}"] input`)
-          .fill(dataRows[rowNum - 1][col].toString());
-      }
+    for (let row = 0; row < dataRows.length; row++) {
+      await page.locator(`[data-row="${row}"][data-column="1"] input`).fill(dataRows[row][0].toString());
+      await page.locator(`[data-row="${row}"][data-column="2"] input`).fill(dataRows[row][1].toString());
     }
+
+    await page.locator('[data-row="0"][data-column="1"]').click();
     // Delete 5 rows
+    const deleteRowButton = page.getByRole('button', { name: /Delete selected row|Radera vald rad/ });
     for (let i = 0; i < 5; i++) {
-      await page.getByTestId('delete-row-button').last().click();
+      await deleteRowButton.last().click();
       // or use .last() if deleting from bottom to top
     }
   });
@@ -59,7 +58,7 @@ test.describe("Historical Data Tests", () => {
     await page.getByTestId('featured-goals').first().click();
     await page.getByTestId('historical-data-link').click();
 
-    await page.getByRole('radio', { name: "visible-form" }).click();
+    await page.locator('input[name="visible-form"][value="external"]').check();
     const option = page.locator('#externalDataset').filter({ hasText: 'Statiska centralbyrån' });
 
     const value = await option.getAttribute('value');

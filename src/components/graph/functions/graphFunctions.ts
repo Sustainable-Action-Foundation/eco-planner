@@ -150,7 +150,8 @@ export function calculatePredictedOutcome(effects: Effect[] | Goal["effects"], b
 
         switch (effect.impactType) {
           case ActionImpactType.DELTA: break; // Delta is handled separately above to account for cases where the current delta is null but some previous deltas are not
-          case ActionImpactType.PERCENT:
+          case ActionImpactType.PERCENT: {
+
             const previousDate = definedDates[definedDates.indexOf(date) - 1];
             if (!previousDate) break;
 
@@ -162,12 +163,13 @@ export function calculatePredictedOutcome(effects: Effect[] | Goal["effects"], b
             totalEffect[date] += (prevBaseline + prevEffect) * multiplier;
 
             break;
-
+          }
           case ActionImpactType.ABSOLUTE:
-          default:
+          default: {
             // Add current value
             totalEffect[date] += dataSeries.dateValues[date];
             break;
+          }
         }
       }
     }
