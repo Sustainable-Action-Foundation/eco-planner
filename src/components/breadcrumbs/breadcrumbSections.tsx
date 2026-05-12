@@ -4,11 +4,12 @@ import styles from './breadcrumbs.module.css' with { type: "css" };
 import Link from 'next/link';
 import { useTranslation } from "react-i18next";
 import { IconChevronRight } from '@tabler/icons-react';
+import type { Action, Goal, MetaRoadmap, Roadmap } from "@/types";
 
 export function BreadcrumbChevron() {
   return (
     <IconChevronRight strokeWidth='2px' stroke='gray' aria-hidden="true"  height={16} width={16} />
-  )
+  );
 }
 
 export function BaseSection() {
@@ -19,7 +20,7 @@ export function BaseSection() {
         {t("components:breadcrumbs_sections.home")}
       </Link>
     </span>
-  )
+  );
 }
 
 export function CustomSection({
@@ -37,24 +38,21 @@ export function CustomSection({
       <BreadcrumbChevron />
 
       <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
-        {title ? title : null}
+        {title || null}
         {link ? (
           <Link href={link} className={styles.breadCrumb}>
-            {linkText || link}
+            {linkText || link || null}
           </Link>
         ) : null}
       </span>
     </>
-  )
+  );
 }
 
 export function MetaRoadmapSection({
   metaRoadmap,
 }: {
-  metaRoadmap: {
-    id: string,
-    name: string,
-  }
+  metaRoadmap: Pick<MetaRoadmap, "id" | "name">
 }) {
   const { t } = useTranslation("components");
   return (
@@ -64,16 +62,13 @@ export function MetaRoadmapSection({
         {metaRoadmap.name}
       </Link>
     </span>
-  )
+  );
 }
 
 export function RoadmapSection({
   roadmap,
 }: {
-  roadmap: {
-    id: string,
-    version: number,
-  }
+  roadmap: Pick<Roadmap, "id" | "version">
 }) {
   const { t } = useTranslation("components");
   return (
@@ -83,17 +78,13 @@ export function RoadmapSection({
         {t("components:breadcrumbs_sections.version", { version: roadmap.version })}
       </Link>
     </span>
-  )
+  );
 }
 
 export function GoalSection({
   goal,
 }: {
-  goal: {
-    id: string,
-    name?: string | null,
-    indicatorParameter: string,
-  }
+  goal: Pick<Goal, "id" | "indicatorParameter"> & { name?: string | null }
 }) {
   const { t } = useTranslation("components");
   return (
@@ -103,16 +94,13 @@ export function GoalSection({
         {goal.name || goal.indicatorParameter}
       </Link>
     </span>
-  )
+  );
 }
 
 export function ActionSection({
   action,
 }: {
-  action: {
-    id: string,
-    name: string,
-  }
+  action: Pick<Action, "id" | "name">
 }) {
   const { t } = useTranslation("components");
   return (
@@ -122,5 +110,5 @@ export function ActionSection({
         {action.name}
       </Link>
     </span>
-  )
+  );
 }

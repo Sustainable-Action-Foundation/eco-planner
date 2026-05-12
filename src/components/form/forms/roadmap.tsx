@@ -1,22 +1,24 @@
-'use client'
+'use client';
 
 import formSubmitter from "@/functions/formSubmitter";
 import parseCsv, { csvToGoalList } from "@/functions/parseCsv";
-import { LoginData } from "@/lib/session";
-import { AccessControlled, GoalCreateInput, JSONValue, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
-import { MetaRoadmap, Roadmap } from "@prisma/client";
-import { useEffect, useMemo, useState } from "react";
+import type { LoginData } from "@/lib/session";
+import type { AccessControlled, GoalCreateInput, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
+import type { MetaRoadmap, Roadmap } from "@prisma/client";
+import { useEffect, useMemo, useRef, useState } from "react";
 import styles from '../forms.module.css';
-import { TFunction } from "i18next";
+import type { TFunction } from "i18next";
 import { Trans, useTranslation } from "react-i18next";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import TextEditor from "../elements/textEditor/editor";
 import { IconUpload } from "@tabler/icons-react";
 import ConfigureAccess from "../sections/access";
+import { useToastContext } from "@/components/generic/toast/toastContext";
+import { useRouter } from "next/navigation";
 
-function checkForBadDecoding(csv: string[][], t: TFunction) {
+function checkForBadDecoding(csv: string[][], t: TFunction, addToast: (text: string, type: 'success' | 'error' | 'warning') => void) {
   if (csv.some((row) => row.some((cell) => cell.includes("�")))) {
-    alert(t("forms:roadmap.bad_decoding"));
+    addToast(t("forms:roadmap.bad_decoding"), "warning");
   }
 }
 
@@ -37,113 +39,23 @@ export default function RoadmapForm({
   defaultMetaRoadmap?: string,
 }) {
   const { t } = useTranslation(["forms", "common"]);
+  const descriptionRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
-  const [editorContent, setEditorContent] = useState<JSONValue>(() => {
-    if (!currentRoadmap?.description) return null;
+  const { addToast } = useToastContext();
 
-    try {
-      return JSON.parse(currentRoadmap.description) as JSONValue;
-    } catch {
-      return currentRoadmap.description;
-    }
-  });
-
-  async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
-    event.preventDefault()
-    if (!metaRoadmapId && !currentRoadmap) { return; }
-
-    setIsLoading(true)
-
-    const form = event.target.elements
-    const visibility = (form.namedItem("visibility") as RadioNodeList)?.value;
-    const editability = (form.namedItem("editability") as RadioNodeList)?.value;
-
-    let goals: GoalCreateInput[] = [];
-    if (currentFile) {
-      try {
-        goals = csvToGoalList(parseCsv(await currentFile.arrayBuffer().then((buffer) => { return buffer })), () => alert(t("forms:roadmap.scale_deprecated")));
-      }
-      catch (error) {
-        setIsLoading(false)
-        alert(t("forms:roadmap.roadmap_version_creation_error", { error: error instanceof Error ? error.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }))
-        return
-      }
-    }
-
-    /** 
-     * ## DEPRECATED - use recipes instead
-     * TODO: Migrate to recipes before deployment
-     */
-    const inheritGoalIds: string[] = [];
-    (form.namedItem('inherit-goals') as RadioNodeList | null)?.forEach((checkbox) => {
-      if (checkbox.checked) {
-        inheritGoalIds.push(checkbox.value)
-      }
-    })
-
-    let formData: RoadmapCreateInput | RoadmapUpdateInput;
-    if (currentRoadmap) {
-      // Updating existing roadmap
-      formData = {
-        roadmapId: currentRoadmap.id,
-        timestamp: timestamp,
-
-        // TODO: Decide how description should be sent to API, should it really be stringified JSON?
-        description: JSON.stringify(editorContent),
-        targetVersion: parseInt((form.namedItem('target-version') as HTMLSelectElement)?.value) || null,
-        isPublic: visibility === "public",
-
-        metaRoadmapId: undefined, // Can't change the metaRoadmap after creation
-        goals: goals,
-
-        editors: editability === "custom" ? (form.namedItem("editors") as HTMLInputElement)?.value.split(',').map(string => string.trim()).filter(Boolean) : [],
-        viewers: visibility === "custom" ? (form.namedItem("viewers") as HTMLInputElement)?.value.split(",").map(s => s.trim()).filter(Boolean) : [],
-        editGroups: editability === "custom" ? (form.namedItem("editor-groups") as HTMLButtonElement)?.value.split(',').filter(Boolean) : [],
-        viewGroups: visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
-
-        // DEPRECATED - moved to description
-        links: undefined,
-      }
-    } else {
-      // Creating new roadmap
-      formData = {
-        roadmapId: undefined,
-        timestamp: undefined,
-
-        // TODO: Decide how description should be sent to API, should it really be stringified JSON?
-        description: JSON.stringify(editorContent),
-        targetVersion: parseInt((form.namedItem('target-version') as HTMLSelectElement)?.value) || null,
-        isPublic: visibility === "public",
-
-        metaRoadmapId: metaRoadmapId,
-        goals: goals,
-
-        editors: editability === "custom" ? (form.namedItem("editors") as HTMLInputElement)?.value.split(',').map(string => string.trim()).filter(Boolean) : [],
-        viewers: visibility === "custom" ? (form.namedItem("viewers") as HTMLInputElement)?.value.split(",").map(s => s.trim()).filter(Boolean) : [],
-        editGroups: editability === "custom" ? (form.namedItem("editor-groups") as HTMLButtonElement)?.value.split(',').filter(Boolean) : [],
-        viewGroups: visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
-
-        // DEPRECATED - moved to description
-        links: undefined,
-      }
-    }
-
-    const formJSON = JSON.stringify(formData)
-
-    formSubmitter('/api/roadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading);
-  }
-
-  const [currentFile, setCurrentFile] = useState<File | null>(null)
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  const timestamp = Date.now()
-  const [metaRoadmapId, setMetaRoadmapId] = useState<string>(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap || "")
-  const [targetVersion, setTargetVersion] = useState<number | null>(0)
+  const [currentFile, setCurrentFile] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [timestamp] = useState<number>(() => Date.now());
+  const [metaRoadmapId, setMetaRoadmapId] = useState<string>(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap || "");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [targetVersion, setTargetVersion] = useState<number | null>(0);
   // Temporarily disabled
   // const [inheritableGoals, setInheritableGoals] = useState<{ id: string, name: string | null, indicatorParameter: string }[]>([])
   const metaRoadmapTarget = useMemo(() => {
     // The meta roadmap that the parent meta roadmap works towards, if any
-    return metaRoadmapAlternatives?.find((parentRoadmap) => parentRoadmap.id === metaRoadmapAlternatives?.find((roadmap) => roadmap.id === metaRoadmapId)?.parentRoadmapId)
-  }, [metaRoadmapId, metaRoadmapAlternatives])
+    return metaRoadmapAlternatives?.find((parentRoadmap) => parentRoadmap.id === metaRoadmapAlternatives?.find((roadmap) => roadmap.id === metaRoadmapId)?.parentRoadmapId);
+  }, [metaRoadmapId, metaRoadmapAlternatives]);
 
   // Fetch inheritable goals when the target version changes
   // Temporarily disabled
@@ -171,27 +83,110 @@ export default function RoadmapForm({
   useEffect(() => {
     if (!currentFile) return;
     if (currentFile) {
-      setIsLoading(true)
+      setIsLoading(true);
       try {
         currentFile.arrayBuffer()
           .then((buffer) => parseCsv(buffer))
           .then((csv) => {
-            checkForBadDecoding(csv, t);
-            return csvToGoalList(csv, () => alert(t("forms:roadmap.scale_deprecated_extended")));
+            checkForBadDecoding(csv, t, addToast);
+            return csvToGoalList(csv, () => addToast(t("forms:roadmap.scale_deprecated_extended"), "warning"));
           })
           .then(() => setIsLoading(false))
-          .catch((error) => {
-            throw error;
+          .catch((e: unknown) => {
+            throw new Error(t("forms:roadmap.file_read_error", { error: e instanceof Error ? e.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }));
           });
       }
       catch (error) {
-        alert(t("forms:roadmap.file_read_error", { error: error instanceof Error ? error.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }))
+        addToast(t("forms:roadmap.file_read_error", { error: error instanceof Error ? error.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }), "error");
         setIsLoading(false);
         return;
       }
     }
-  }, [currentFile, t])
+  }, [addToast, currentFile, t]);
 
+  async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!metaRoadmapId && !currentRoadmap) { return; }
+
+    setIsLoading(true);
+
+    const form = event.target.elements;
+    const description = (form.namedItem("description") as HTMLInputElement | null)?.value ?? null;
+    const visibility = (form.namedItem("visibility") as RadioNodeList)?.value;
+    const editability = (form.namedItem("editability") as RadioNodeList)?.value;
+
+    let goals: GoalCreateInput[] = [];
+    if (currentFile) {
+      try {
+        goals = csvToGoalList(parseCsv(await currentFile.arrayBuffer().then((buffer) => { return buffer; })), () => addToast(t("forms:roadmap.scale_deprecated"), "warning"));
+      }
+      catch (error) {
+        setIsLoading(false);
+        addToast(t("forms:roadmap.roadmap_version_creation_error", { error: error instanceof Error ? error.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }), "error");
+        return;
+      }
+    }
+
+    /** 
+     * ## DEPRECATED - use recipes instead
+     * TODO: Migrate to recipes before deployment
+     */
+    const inheritGoalIds: string[] = [];
+    (form.namedItem('inherit-goals') as RadioNodeList | null)?.forEach((checkbox) => {
+      if (checkbox.checked) {
+        inheritGoalIds.push(checkbox.value);
+      }
+    });
+
+    let formData: RoadmapCreateInput | RoadmapUpdateInput;
+    if (currentRoadmap) {
+      // Updating existing roadmap
+      formData = {
+        roadmapId: currentRoadmap.id,
+        timestamp: timestamp,
+
+        description: description ?? undefined,
+        targetVersion: parseInt((form.namedItem('target-version') as HTMLSelectElement)?.value, 10) || null,
+        isPublic: visibility === "public",
+
+        metaRoadmapId: undefined, // Can't change the metaRoadmap after creation
+        goals: goals,
+
+        editors: editability === "custom" ? (form.namedItem("editors") as HTMLInputElement)?.value.split(',').map(string => string.trim()).filter(Boolean) : [],
+        viewers: visibility === "custom" ? (form.namedItem("viewers") as HTMLInputElement)?.value.split(",").map(s => s.trim()).filter(Boolean) : [],
+        editGroups: editability === "custom" ? (form.namedItem("editor-groups") as HTMLButtonElement)?.value.split(',').filter(Boolean) : [],
+        viewGroups: visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
+
+        // DEPRECATED - moved to description
+        links: undefined,
+      };
+    } else {
+      // Creating new roadmap
+      formData = {
+        roadmapId: undefined,
+        timestamp: undefined,
+
+        description: description ?? null,
+        targetVersion: parseInt((form.namedItem('target-version') as HTMLSelectElement)?.value, 10) || null,
+        isPublic: visibility === "public",
+
+        metaRoadmapId: metaRoadmapId,
+        goals: goals,
+
+        editors: editability === "custom" ? (form.namedItem("editors") as HTMLInputElement)?.value.split(',').map(string => string.trim()).filter(Boolean) : [],
+        viewers: visibility === "custom" ? (form.namedItem("viewers") as HTMLInputElement)?.value.split(",").map(s => s.trim()).filter(Boolean) : [],
+        editGroups: editability === "custom" ? (form.namedItem("editor-groups") as HTMLButtonElement)?.value.split(',').filter(Boolean) : [],
+        viewGroups: visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
+
+        // DEPRECATED - moved to description
+        links: undefined,
+      };
+    }
+
+    const formJSON = JSON.stringify(formData);
+
+    formSubmitter('/api/roadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading, undefined, undefined, undefined, addToast, router.push);
+  }
 
   // Indexes for the data-position attribute in the legend elements
   let positionIndex = 1;
@@ -199,7 +194,7 @@ export default function RoadmapForm({
   const metaRoadmaps = useMemo(() => {
     return (metaRoadmapAlternatives ?? []).map(metaRoadmap => ({
       name: metaRoadmap.name,
-      value: metaRoadmap.id
+      value: metaRoadmap.id,
     }));
   }, [metaRoadmapAlternatives]);
 
@@ -239,13 +234,13 @@ export default function RoadmapForm({
             {metaRoadmapTarget?.roadmapVersions.length && (
               <label>
                 {t("forms:roadmap.roadmap_target_label", { targetName: metaRoadmapTarget.name })}
-                <select className="block margin-top-25 margin-bottom-100 width-100" name="target-version" id="target-version" required defaultValue={currentRoadmap?.targetVersion || ""} onChange={(e) => setTargetVersion(parseInt(e.target.value) || null)}>
+                <select className="block margin-top-25 margin-bottom-100 width-100" name="target-version" id="target-version" required defaultValue={currentRoadmap?.targetVersion ?? ""} onChange={(e) => setTargetVersion(parseInt(e.target.value, 10) || null)}>
                   <option value="">{t("forms:roadmap.roadmap_target_no_chosen")}</option>
                   <option value={0}>{t("forms:roadmap.roadmap_target_always_latest")}</option>
                   {metaRoadmapTarget.roadmapVersions.map((version) => {
                     return (
                       <option key={version.version} value={version.version}>{`Version ${version.version}`}</option>
-                    )
+                    );
                   })}
                 </select>
               </label>
@@ -264,8 +259,9 @@ export default function RoadmapForm({
             placeholder={t("forms:text_editor_menu.default_placeholder")}
             editable={true}
             content={currentRoadmap ? currentRoadmap.description : ""}
-            onChange={(json) => setEditorContent(json)}
+            onChange={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
           />
+          <input ref={descriptionRef} type="hidden" name="description" defaultValue={currentRoadmap?.description ?? ""} />
 
         </fieldset>
 
@@ -324,7 +320,7 @@ export default function RoadmapForm({
           positionIndex={positionIndex}
           legends={{
             viewers: t("forms:roadmap.legend_visibility"),
-            editors: t("forms:roadmap.legend_editability")
+            editors: t("forms:roadmap.legend_editability"),
           }}
         />
 
@@ -339,8 +335,7 @@ export default function RoadmapForm({
             {currentRoadmap ? t("common:tsx.save") : t("forms:roadmap.create")}
           </button>
         </div>
-
       </form >
     </>
-  )
+  );
 }

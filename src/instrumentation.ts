@@ -10,11 +10,10 @@ export async function register() {
         if (options.password.length === 0) {
           console.error("IronSession password is not set.");
           errorCount++;
-        } else {
-          if (options.password.some(pass => !(typeof pass !== 'string') || (pass as string).length < 32)) {
-            console.error("At least one IronSession password is misconfigured.");
-            errorCount++;
-          }
+        }
+        else if (options.password.some(pass => !(typeof pass !== 'string') || (pass as string).length < 32)) {
+          console.error("At least one IronSession password is misconfigured.");
+          errorCount++;
         }
       } else if (typeof options.password !== 'string' || options.password.length < 32) {
         console.error("IronSession password is misconfigured.");
@@ -25,8 +24,9 @@ export async function register() {
       // Self-test email functionality
       const mailClient = await import('@/mailClient').then(module => module.default);
 
-      await mailClient.verify().catch(error => {
-        console.error("Mail client is not configured correctly: " + error);
+      await mailClient.verify().catch((e: unknown) => {
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        console.error("Mail client is not configured correctly: " + errorMessage);
         console.warn("Check that the email-related environment variables (`MAIL_HOST`, `MAIL_USER`, `MAIL_PASSWORD`) are set correctly.");
         errorCount++;
       });
@@ -34,8 +34,9 @@ export async function register() {
       // Self-test database connection
       const prisma = await import('@/prismaClient').then(module => module.default);
 
-      await prisma.$executeRaw`SELECT 1;`.catch(error => {
-        console.error("Database connection failed: " + error);
+      await prisma.$executeRaw`SELECT 1;`.catch((e: unknown) => {
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        console.error("Database connection failed: " + errorMessage);
         console.warn("Check that the `DATABASE_URL` environment variable is set correctly.");
         errorCount++;
       });

@@ -1,5 +1,5 @@
 .spreadsheet-label {
-  border-width: 1px 1px 0 1px; 
+  border-width: 1px 1px 0 1px;
   border-color: var(--gray);
   border-style: solid;
   font-size: .8rem;
@@ -7,7 +7,7 @@
 }
 
 fieldset .spreadsheet-label:last-child {
-  border-width: 1px 0 1px 1px; 
+  border-width: 1px 0 1px 1px;
   border-color: var(--gray);
   border-style: solid;
 }
@@ -33,4 +33,125 @@ fieldset .spreadsheet-label:last-child {
 .spreadsheet-input::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+/* TODO: Can probably remove the above once we are done here */
+
+.grid {
+  /*
+    TODO: Hidden overflow isnt ideal here as it hides the outline for focused elements on the edges of
+    our grid. I however have no solutions in mind currently so this is fine for now.
+  */
+  overflow: hidden; 
+  border: 1px solid var(--gray-80);
+  height: auto;
+  transition: height .3s ease-out;
+  interpolate-size: allow-keywords;
+  border-bottom-right-radius: .25rem;
+  border-bottom-left-radius: .25rem;
+}
+
+.grid td,
+.grid th {
+  padding: 0;
+}
+
+.grid tbody tr td {
+  border-top: 1px solid var(--gray-90);
+}
+
+.grid tbody tr:first-of-type td {
+  border-color: var(--gray-80);
+  /* The columnheaders have a darker border colour on all sides */
+}
+
+.grid [role="columnheader"],
+.grid [role="rowheader"] {
+  padding-block: .25rem;
+  padding-inline: 1rem;
+  background-color: var(--tertiary-neutral);
+  height: 100%;
+  font-weight: normal;
+  font-size: 14px;
+}
+
+.grid [role="columnheader"]:not(:last-of-type),
+.grid [role="rowheader"] {
+  border-right: 1px solid var(--gray-80);
+}
+
+.grid [role="rowheader"] {
+  border-top: 1px solid var(--gray-80);
+}
+
+
+.grid [role="gridcell"] {
+  height: 100%;
+  background-color: var(--secondary-neutral);
+}
+
+.grid tbody tr [role="gridcell"]:not(:last-of-type) {
+  border-right: 1px solid var(--gray-90);
+}
+
+.grid [role="gridcell"] :is(input, textarea, select, button) {
+  border: 0;
+  background-color: transparent;
+  padding: .25rem;
+  pointer-events: none;
+  /* TODO: Remember to disable this when in edit mode*/
+}
+
+.grid [role="gridcell"]:has(:is(input, textarea, select, button):focus) {
+  z-index: 1;
+  outline-offset: -1px;
+  outline: 1px solid var(--blue-40);
+  box-shadow: 0 0 0 2px var(--blue-80);
+}
+
+.grid [role="gridcell"]:has(:is(input, textarea, select, button):focus) :is(input, textarea, select, button) {
+  pointer-events: unset;
+}
+
+.grid [role="gridcell"]:focus {
+  z-index: 1;
+  outline-offset: -1px;
+  outline: 1px solid var(--blue-40);
+}
+
+/* TODO: Only want to darken this element once you are entirely out of the component. I.e you do not want to do this when we are still in the menu */
+.grid .active-header {
+  background-color: hsl(206, 100%, 90%, .5);
+}
+
+
+.grid:has([role="gridcell"]:focus-within) .active-header {
+  background-color: hsl(206, 100%, 90%, 1);
+}
+
+/* Menu item tooltips */
+@media (pointer: fine) {
+
+  .grid-menu button {
+    position: relative;
+  } 
+
+  /* Unlike the tiptap editor, in this case we always force a specified tooltip */
+  /* This styling should be united with that of the tiptap editor */
+  .grid-menu button[data-tooltip]:hover::after,
+  .grid-menu:not(:has(button:hover)) button[data-tooltip]:focus-visible::after {
+    content: attr(data-tooltip) / '';
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgb(25, 25, 25, .85);
+    backdrop-filter: blur(1px);
+    z-index: calc(infinity * 1); /* For whatever reason this gets covered by a gridcell when the gridcell is focused... */
+    color: white;
+    padding: .25rem;
+    border-radius: .25rem;
+    text-transform: capitalize;
+    text-align: left;
+  }
 }

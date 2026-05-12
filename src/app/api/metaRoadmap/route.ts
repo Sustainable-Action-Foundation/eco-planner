@@ -1,235 +1,13 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { getSession } from "@/lib/session";
-import { AccessControlled, AccessLevel, ClientError, JSONValue, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
-import { Prisma, RoadmapType } from "@prisma/client";
-import prisma from "@/prismaClient";
+import { AccessLevel, ClientError, isMetaRoadmapCreate, isMetaRoadmapUpdate } from "@/types";
+import type { AccessControlled, JSONValue } from "@/types";
+import prisma, { Prisma, RoadmapType } from "@/prismaClient";
 import { revalidateTag } from "next/cache";
 import accessChecker from "@/lib/accessChecker";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { cookies } from "next/headers";
-
-function isMetaRoadmapCreate(metaRoadmap: JSONValue): metaRoadmap is MetaRoadmapCreateInput {
-  return (
-    (
-      typeof metaRoadmap === 'object' &&
-      metaRoadmap !== null &&
-      !Array.isArray(metaRoadmap)
-    ) &&
-
-    // name: string;
-    (
-      typeof metaRoadmap.name === 'string'
-    ) &&
-
-    // description: string;
-    (
-      typeof metaRoadmap.description === 'string'
-    ) &&
-
-    // type: RoadmapType | undefined;
-    // We cast an unchecked string to RoadmapType, so it has to be validated later
-    (
-      typeof metaRoadmap.type === 'string' ||
-      metaRoadmap.type === undefined
-    ) &&
-
-    // actor: string | null | undefined;
-    (
-      typeof metaRoadmap.actor === 'string' ||
-      metaRoadmap.actor === null ||
-      metaRoadmap.actor === undefined
-    ) &&
-
-    // isPublic: boolean | undefined;
-    (
-      typeof metaRoadmap.isPublic === 'boolean' ||
-      metaRoadmap.isPublic === undefined
-    ) &&
-
-    // editors: string[] | null | undefined;
-    (
-      metaRoadmap.editors === null ||
-      metaRoadmap.editors === undefined ||
-      (
-        Array.isArray(metaRoadmap.editors) &&
-        metaRoadmap.editors.every(name => typeof name === 'string')
-      )
-    ) &&
-
-    // viewers: string[] | null | undefined;
-    (
-      metaRoadmap.viewers === null ||
-      metaRoadmap.viewers === undefined ||
-      (
-        Array.isArray(metaRoadmap.viewers) &&
-        metaRoadmap.viewers.every(name => typeof name === 'string')
-      )
-    ) &&
-
-    // editGroups: string[] | null | undefined;
-
-    (
-      metaRoadmap.editGroups === null ||
-      metaRoadmap.editGroups === undefined ||
-      (
-        Array.isArray(metaRoadmap.editGroups) &&
-        metaRoadmap.editGroups.every(group => typeof group === 'string')
-      )
-    ) &&
-
-    // viewGroups: string[] | null | undefined;
-    (
-      metaRoadmap.viewGroups === null ||
-      metaRoadmap.viewGroups === undefined ||
-      (
-        Array.isArray(metaRoadmap.viewGroups) &&
-        metaRoadmap.viewGroups.every(group => typeof group === 'string')
-      )
-    ) &&
-
-    // parentRoadmapId: string | null | undefined;
-    (
-      typeof metaRoadmap.parentRoadmapId === 'string' ||
-      metaRoadmap.parentRoadmapId === null ||
-      metaRoadmap.parentRoadmapId === undefined
-    ) &&
-
-    // TODO: Deprecated - will be moved to description
-    // links: { url: string, description?: string | null }[] | null | undefined;
-    (
-      metaRoadmap.links === undefined ||
-      metaRoadmap.links === null ||
-      (
-        Array.isArray(metaRoadmap.links) &&
-        metaRoadmap.links.every((entry: JSONValue) => (
-          (
-            typeof entry === 'object' &&
-            entry !== null &&
-            !Array.isArray(entry)
-          ) &&
-
-          typeof entry.url === 'string' &&
-          (
-            typeof entry.description === 'string' ||
-            entry.description === undefined ||
-            entry.description === null
-          )
-        ))
-      )
-    )
-  )
-}
-
-function isMetaRoadmapUpdate(metaRoadmap: JSONValue): metaRoadmap is MetaRoadmapUpdateInput {
-  return (
-    (
-      typeof metaRoadmap === 'object' &&
-      metaRoadmap !== null &&
-      !Array.isArray(metaRoadmap)
-    ) &&
-
-    // id: string;
-    (
-      typeof metaRoadmap.id === 'string'
-    ) &&
-
-    // name: string | undefined;
-    (
-      typeof metaRoadmap.name === 'string' ||
-      metaRoadmap.name === undefined
-    ) &&
-
-    // description: string | undefined;
-    (
-      typeof metaRoadmap.description === 'string' ||
-      metaRoadmap.description === undefined
-    ) &&
-
-    // type: RoadmapType | undefined;
-    // We cast an unchecked string to RoadmapType, so it has to be validated later
-    (
-      typeof metaRoadmap.type === 'string' ||
-      metaRoadmap.type === undefined
-    ) &&
-
-    // actor: string | null | undefined;
-    (
-      typeof metaRoadmap.actor === 'string' ||
-      metaRoadmap.actor === null ||
-      metaRoadmap.actor === undefined
-    ) &&
-
-    // isPublic: boolean | undefined;
-    (
-      typeof metaRoadmap.isPublic === 'boolean' ||
-      metaRoadmap.isPublic === undefined
-    ) &&
-
-    // editors: string[] | null | undefined;
-    (
-      metaRoadmap.editors === null ||
-      metaRoadmap.editors === undefined ||
-      (
-        Array.isArray(metaRoadmap.editors) &&
-        metaRoadmap.editors.every(name => typeof name === 'string')
-      )
-    ) &&
-
-    // viewers: string[] | null | undefined;
-    (
-      metaRoadmap.viewers === null ||
-      metaRoadmap.viewers === undefined ||
-      (
-        Array.isArray(metaRoadmap.viewers) &&
-        metaRoadmap.viewers.every(name => typeof name === 'string')
-      )
-    ) &&
-
-    // editGroups: string[] | null | undefined;
-    (
-      metaRoadmap.editGroups === null ||
-      metaRoadmap.editGroups === undefined ||
-      (
-        Array.isArray(metaRoadmap.editGroups) &&
-        metaRoadmap.editGroups.every(group => typeof group === 'string')
-      )
-    ) &&
-
-    // viewGroups: string[] | null | undefined;
-    (
-      metaRoadmap.viewGroups === null ||
-      metaRoadmap.viewGroups === undefined ||
-      (
-        Array.isArray(metaRoadmap.viewGroups) &&
-        metaRoadmap.viewGroups.every(group => typeof group === 'string')
-      )
-    ) &&
-
-    // TODO: Deprecated - will be moved to description
-    // links: { url: string, description?: string | null }[] | null | undefined;
-    (
-      metaRoadmap.links === undefined ||
-      metaRoadmap.links === null ||
-      (
-        Array.isArray(metaRoadmap.links) &&
-        metaRoadmap.links.every((entry: JSONValue) => (
-          (
-            typeof entry === 'object' &&
-            entry !== null &&
-            !Array.isArray(entry)
-          ) &&
-
-          typeof entry.url === 'string' &&
-          (
-            typeof entry.description === 'string' ||
-            entry.description === undefined ||
-            entry.description === null
-          )
-        ))
-      )
-    )
-  )
-}
+import serveTea from "@/lib/i18nServer";
 
 /**
  * Handles POST requests to the metaRoadmap API
@@ -239,18 +17,19 @@ export async function POST(request: NextRequest) {
     getSession(await cookies()),
     request.json() as Promise<JSONValue>,
   ]);
+  const t = await serveTea("api");
 
   // Validate session
   if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
-      { status: 401, headers: { 'Location': '/login' } }
+    return Response.json({ message: t('api:common.unauthorized') },
+      { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
   // Validate request body
   if (!isMetaRoadmapCreate(metaRoadmap)) {
-    return Response.json({ message: 'Missing required input parameters' },
-      { status: 400 }
+    return Response.json({ message: t('api:common.missing_input') },
+      { status: 400 },
     );
   }
 
@@ -265,7 +44,7 @@ export async function POST(request: NextRequest) {
     const [user, targetRoadmap] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true }
+        select: { id: true, username: true, isAdmin: true, userGroups: true },
       }),
       ...(
         metaRoadmap.parentRoadmapId ?
@@ -278,11 +57,11 @@ export async function POST(request: NextRequest) {
                 viewers: { select: { id: true, username: true } },
                 editGroups: { include: { users: { select: { id: true, username: true } } } },
                 viewGroups: { include: { users: { select: { id: true, username: true } } } },
-              }
-            })
+              },
+            }),
           ] :
           []
-      )
+      ),
     ]);
     // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
     if (!user || (session.user.isAdmin && !user.isAdmin)) {
@@ -302,8 +81,8 @@ export async function POST(request: NextRequest) {
         editGroups: targetRoadmap.editGroups,
         viewGroups: targetRoadmap.viewGroups,
         isPublic: targetRoadmap.isPublic,
-      }
-      const accessLevel = accessChecker(accessFields, session.user)
+      };
+      const accessLevel = accessChecker(accessFields, session.user);
       // For now, being able to view a meta roadmap is enough to create a new one working towards it.
       if (accessLevel === AccessLevel.None) {
         throw new Error(ClientError.IllegalParent, { cause: 'meta roadmap' });
@@ -311,50 +90,50 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message == ClientError.BadSession) {
+      if (error.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
-          { status: 400, headers: { 'Location': '/login' } }
+          { status: 400, headers: { 'Location': '/login' } },
         );
       }
       return Response.json({ message: ClientError.IllegalParent },
-        { status: 403 }
+        { status: 403 },
       );
     } else {
       // If non-error is thrown, log it and return a generic error message
       console.log(error);
-      return Response.json({ message: "Unknown internal server error" },
-        { status: 500 }
+      return Response.json({ message: t('api:common.unknown_server_error') },
+        { status: 500 },
       );
     }
   }
 
   // Only allow admins to create national roadmaps
-  if (metaRoadmap.type == RoadmapType.NATIONAL && !session.user.isAdmin) {
-    return Response.json({ message: 'Forbidden; only admins may create national roadmaps. Feel free to send an email to kontakt@sustainable-action.org if you think we should add another.' },
-      { status: 403 }
+  if (metaRoadmap.type === RoadmapType.NATIONAL && !session.user.isAdmin) {
+    return Response.json({ message: t('api:metaRoadmap.national_roadmap_forbidden') },
+      { status: 403 },
     );
   }
 
   // Create lists of names for linking
   const editors: { username: string }[] = [];
-  for (const name of metaRoadmap.editors || []) {
+  for (const name of metaRoadmap.editors ?? []) {
     editors.push({ username: name });
   }
 
   const viewers: { username: string }[] = [];
-  for (const name of metaRoadmap.viewers || []) {
+  for (const name of metaRoadmap.viewers ?? []) {
     viewers.push({ username: name });
   }
 
   const editGroups: { name: string }[] = [];
-  for (const name of metaRoadmap.editGroups || []) {
+  for (const name of metaRoadmap.editGroups ?? []) {
     editGroups.push({ name: name });
   }
 
   const viewGroups: { name: string }[] = [];
-  for (const name of metaRoadmap.viewGroups || []) {
+  for (const name of metaRoadmap.viewGroups ?? []) {
     viewGroups.push({ name: name });
   }
 
@@ -373,8 +152,8 @@ export async function POST(request: NextRequest) {
             return {
               url: link.url,
               description: link.description || undefined,
-            }
-          })
+            };
+          }),
         },
         author: { connect: { id: session.user.id } },
         editors: { connect: editors },
@@ -383,24 +162,24 @@ export async function POST(request: NextRequest) {
         viewGroups: { connect: viewGroups },
         isPublic: metaRoadmap.isPublic,
       },
-      select: { id: true }
+      select: { id: true },
     });
     // Invalidate old cache
-    revalidateTag('roadmap');
-    revalidateTag('metaRoadmap');
+    revalidateTag('roadmap', 'max');
+    revalidateTag('metaRoadmap', { expire: 0 });
     // Return the new meta roadmap's ID if successful
-    return Response.json({ message: "Roadmap metadata created. \n You will now be sent to another form to add goals and other details for the first version of this roadmap", id: newMetaRoadmap.id },
-      { status: 201, headers: { 'Location': `/roadmap/create?metaRoadmapId=${newMetaRoadmap.id}` } }
+    return Response.json({ message: t('api:metaRoadmap.meta_roadmap_created'), id: newMetaRoadmap.id },
+      { status: 201, headers: { 'Location': `/roadmap/create?metaRoadmapId=${newMetaRoadmap.id}` } },
     );
   } catch (error) {
     console.log(error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code == 'P2025') {
-      return Response.json({ message: 'Failed to connect records. Probably invalid editor, viewer, editGroup, and/or viewGroup name(s)' },
-        { status: 400 }
-      )
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return Response.json({ message: t('api:metaRoadmap.failed_record_connection') },
+        { status: 400 },
+      );
     }
-    return Response.json({ message: 'Failed to create roadmap metadata' },
-      { status: 500 }
+    return Response.json({ message: t('api:metaRoadmap.failed_roadmap_creation') },
+      { status: 500 },
     );
   }
 }
@@ -413,19 +192,20 @@ export async function PUT(request: NextRequest) {
     getSession(await cookies()),
     request.json() as Promise<JSONValue>,
   ]);
+  const t = await serveTea("api");
 
   // Validate session
   if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
-      { status: 401, headers: { 'Location': '/login' } }
+    return Response.json({ message: t('api:common.unauthorized') },
+      { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
   // Validate request body
   if (!isMetaRoadmapUpdate(metaRoadmap)) {
     return new Response(
-      JSON.stringify({ message: 'Missing required input parameters' }),
-      { status: 400 }
+      JSON.stringify({ message: t('api:common.missing_input') }),
+      { status: 400 },
     );
   }
 
@@ -442,7 +222,7 @@ export async function PUT(request: NextRequest) {
     const [user, currentRoadmap, targetRoadmap] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true }
+        select: { id: true, username: true, isAdmin: true, userGroups: true },
       }),
       prisma.metaRoadmap.findUnique({
         where: { id: metaRoadmap.id },
@@ -452,7 +232,7 @@ export async function PUT(request: NextRequest) {
           viewers: { select: { id: true, username: true } },
           editGroups: { include: { users: { select: { id: true, username: true } } } },
           viewGroups: { include: { users: { select: { id: true, username: true } } } },
-        }
+        },
       }),
       ...(
         metaRoadmap.parentRoadmapId ?
@@ -465,11 +245,11 @@ export async function PUT(request: NextRequest) {
                 viewers: { select: { id: true, username: true } },
                 editGroups: { include: { users: { select: { id: true, username: true } } } },
                 viewGroups: { include: { users: { select: { id: true, username: true } } } },
-              }
-            })
+              },
+            }),
           ] :
           []
-      )
+      ),
     ]);
     // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
     if (!user || (session.user.isAdmin && !user.isAdmin)) {
@@ -477,81 +257,81 @@ export async function PUT(request: NextRequest) {
     }
 
     // Check if the user has access to the current meta roadmap (returns AccessLevel.None if no current roadmap is found)
-    const currentAccess = accessChecker(currentRoadmap, session.user)
+    const currentAccess = accessChecker(currentRoadmap, session.user);
     if (currentAccess === AccessLevel.None || currentAccess === AccessLevel.View) {
       throw new Error(ClientError.AccessDenied, { cause: 'meta roadmap' });
     }
 
     if (metaRoadmap.parentRoadmapId) {
       // If the user is trying to set a parent roadmap, check if they have al least viewing access to it
-      const targetAccess = accessChecker(targetRoadmap, session.user)
+      const targetAccess = accessChecker(targetRoadmap, session.user);
       if (targetAccess === AccessLevel.None) {
         throw new Error(ClientError.IllegalParent, { cause: 'meta roadmap' });
       }
     }
 
     // Check if the client's data is stale
-    if (!metaRoadmap.timestamp || (currentRoadmap?.updatedAt?.getTime() || 0) > metaRoadmap.timestamp) {
+    if (!metaRoadmap.timestamp || (currentRoadmap?.updatedAt?.getTime() ?? 0) > metaRoadmap.timestamp) {
       throw new Error(ClientError.StaleData, { cause: 'meta roadmap' });
     }
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message == ClientError.BadSession) {
+      if (error.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
-          { status: 400, headers: { 'Location': '/login' } }
+          { status: 400, headers: { 'Location': '/login' } },
         );
       }
-      if (error.message == ClientError.StaleData) {
+      if (error.message === ClientError.StaleData) {
         return Response.json({ message: ClientError.StaleData },
-          { status: 409 }
+          { status: 409 },
         );
       }
-      if (error.message == ClientError.IllegalParent) {
+      if (error.message === ClientError.IllegalParent) {
         return Response.json({ message: ClientError.IllegalParent },
-          { status: 403 }
+          { status: 403 },
         );
       }
       return Response.json({ message: ClientError.AccessDenied },
-        { status: 403 }
+        { status: 403 },
       );
     }
     // If non-error is thrown, log it and return a generic error message
     else {
       console.log(error);
-      return Response.json({ message: "Unknown internal server error" },
-        { status: 500 }
+      return Response.json({ message: t('api:common.unknown_server_error') },
+        { status: 500 },
       );
     }
   }
 
   // Only allow admins to create national roadmaps
-  if (metaRoadmap.type == RoadmapType.NATIONAL && !session.user?.isAdmin) {
+  if (metaRoadmap.type === RoadmapType.NATIONAL && !session.user?.isAdmin) {
     return new Response(
-      JSON.stringify({ message: 'Forbidden; only admins can create national roadmaps' }),
-      { status: 403 }
+      JSON.stringify({ message: t('api:metaRoadmap.national_roadmap_forbidden') }),
+      { status: 403 },
     );
   }
 
   // Create lists of names for linking
   const editors: { username: string }[] = [];
-  for (const name of metaRoadmap.editors || []) {
+  for (const name of metaRoadmap.editors ?? []) {
     editors.push({ username: name });
   }
 
   const viewers: { username: string }[] = [];
-  for (const name of metaRoadmap.viewers || []) {
+  for (const name of metaRoadmap.viewers ?? []) {
     viewers.push({ username: name });
   }
 
   const editGroups: { name: string }[] = [];
-  for (const name of metaRoadmap.editGroups || []) {
+  for (const name of metaRoadmap.editGroups ?? []) {
     editGroups.push({ name: name });
   }
 
   const viewGroups: { name: string }[] = [];
-  for (const name of metaRoadmap.viewGroups || []) {
+  for (const name of metaRoadmap.viewGroups ?? []) {
     viewGroups.push({ name: name });
   }
 
@@ -572,34 +352,34 @@ export async function PUT(request: NextRequest) {
             return {
               url: link.url,
               description: link.description || undefined,
-            }
-          })
+            };
+          }),
         }),
         editors: { set: editors },
         viewers: { set: viewers },
         editGroups: { set: editGroups },
         viewGroups: { set: viewGroups },
       },
-      select: { id: true }
+      select: { id: true },
     });
     // Prune any orphaned links and comments
     await pruneOrphans();
     // Invalidate old cache
-    revalidateTag('roadmap');
-    revalidateTag('metaRoadmap');
+    revalidateTag('roadmap', 'max');
+    revalidateTag('metaRoadmap', { expire: 0 });
     // Return the updated meta roadmap's ID if successful
-    return Response.json({ message: "Roadmap metadata updated", id: updatedMetaRoadmap.id },
-      { status: 200, headers: { 'Location': `/metaRoadmap/${updatedMetaRoadmap.id}` } }
+    return Response.json({ message: t('api:metaRoadmap.meta_roadmap_updated'), id: updatedMetaRoadmap.id },
+      { status: 200, headers: { 'Location': `/metaRoadmap/${updatedMetaRoadmap.id}` } },
     );
   } catch (error) {
     console.log(error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code == 'P2025') {
-      return Response.json({ message: 'Failed to connect records. Probably invalid editor, viewer, editGroup, and/or viewGroup name(s)' },
-        { status: 400 }
-      )
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return Response.json({ message: t('api:metaRoadmap.failed_record_connection') },
+        { status: 400 },
+      );
     }
-    return Response.json({ message: 'Internal server error' },
-      { status: 500 }
+    return Response.json({ message: t('api:common.server_error') },
+      { status: 500 },
     );
   }
 }
@@ -610,20 +390,21 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const [session, metaRoadmap] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<{ id: string }>
+    request.json() as Promise<{ id: string }>,
   ]);
+  const t = await serveTea("api");
 
   // Validate request body
   if (!metaRoadmap.id) {
-    return Response.json({ message: 'Missing required input parameters' },
-      { status: 400 }
+    return Response.json({ message: t('api:common.missing_input') },
+      { status: 400 },
     );
   }
 
   // Validate session
   if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
-      { status: 401, headers: { 'Location': '/login' } }
+    return Response.json({ message: t('api:common.unauthorized') },
+      { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
@@ -631,13 +412,13 @@ export async function DELETE(request: NextRequest) {
     const [user, currentMetaRoadmap] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true }
+        select: { id: true, username: true, isAdmin: true, userGroups: true },
       }),
       prisma.metaRoadmap.findUnique({
         where: {
           id: metaRoadmap.id,
           // The user must be admin, or have authored the meta roadmap
-          ...(session.user.isAdmin ? {} : { authorId: session.user.id })
+          ...(session.user.isAdmin ? {} : { authorId: session.user.id }),
         },
       }),
     ]);
@@ -647,26 +428,26 @@ export async function DELETE(request: NextRequest) {
       throw new Error(ClientError.BadSession, { cause: 'meta roadmap' });
     }
 
-    // If the meta roadmap is not found it eiter does not exist or the user has no access to it
+    // If the meta roadmap is not found it either does not exist or the user has no access to it
     if (!currentMetaRoadmap) {
       throw new Error(ClientError.AccessDenied, { cause: 'meta roadmap' });
     }
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message == ClientError.BadSession) {
+      if (error.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
-          { status: 400, headers: { 'Location': '/login' } }
+          { status: 400, headers: { 'Location': '/login' } },
         );
       }
       return Response.json({ message: ClientError.AccessDenied },
-        { status: 403 }
+        { status: 403 },
       );
     } else {
       console.log(error);
-      return Response.json({ message: "Unknown internal server error" },
-        { status: 500 }
+      return Response.json({ message: t('api:common.unknown_server_error') },
+        { status: 500 },
       );
     }
   }
@@ -675,24 +456,24 @@ export async function DELETE(request: NextRequest) {
   try {
     const deletedMetaRoadmap = await prisma.metaRoadmap.delete({
       where: {
-        id: metaRoadmap.id
+        id: metaRoadmap.id,
       },
       select: {
         id: true,
-      }
+      },
     });
     // Prune any orphaned links and comments
     await pruneOrphans();
     // Invalidate old cache
-    revalidateTag('roadmap');
-    revalidateTag('metaRoadmap');
-    return Response.json({ message: 'Meta roadmap deleted', id: deletedMetaRoadmap.id },
-      { status: 200, headers: { 'Location': `/` } }
+    revalidateTag('roadmap', 'max');
+    revalidateTag('metaRoadmap', 'max');
+    return Response.json({ message: t('api:metaRoadmap.meta_roadmap_deleted'), id: deletedMetaRoadmap.id },
+      { status: 200, headers: { 'Location': `/` } },
     );
   } catch (error) {
     console.log(error);
-    return Response.json({ message: "Internal server error" },
-      { status: 500 }
+    return Response.json({ message: t('api:common.server_error') },
+      { status: 500 },
     );
   }
 }

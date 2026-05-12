@@ -1,11 +1,12 @@
-"use client"
+"use client";
 
-import { useEffect, useState, useRef, useMemo } from "react"
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import styles from './comboBox.module.css' with { type: "css" }
-import { InputElement, Option } from "@/components/types";
+import styles from './comboBox.module.css' with { type: "css" };
+import type { InputElement, Option } from "@/components/types";
 import { clearEditableCombobox, handleKeyDownEditableCombobox, preventInvalidFormSubmission, scrollOptionIntoView } from "./functions";
-import Fuse, { IFuseOptions } from "fuse.js";
+import type { IFuseOptions } from "fuse.js";
+import Fuse from "fuse.js";
 import { IconSearch, IconSelector } from "@tabler/icons-react";
 
 // TODO: Should allow for options with same values? Or we should check that they are unique?
@@ -25,16 +26,40 @@ export default function SelectSingleSearch({
 }) {
   const { t } = useTranslation(["forms"]);
 
-  const [value, setValue] = useState<Option | null>( // TODO: We probably need a check that default value exists in our options
-    typeof defaultValue === "object" && defaultValue !== null
-      ? defaultValue
-      : defaultValue === true
-        ? options[0]
-        : null
-  )
-  const [menuOpen, setMenuOpen] = useState<boolean>(false)
+  // TODO: We probably need a check that default value exists in our options
+  const [value, setValue] = useState<Option | null>(null);
+
+  // Syncs default value to value
+  // NOTE: Might want to explore if we can make this a controlled component (i.e Move state ownership to its parent) (would mean treating value and defaultvalue as any other standard input does)
+  useEffect(() => {
+    // Auto-select first option
+    if (defaultValue === true && options.length > 0) {
+      if (value?.value !== options[0].value) {
+        setValue(options[0]);
+      }
+      return;
+    }
+
+    // If we explicitely state that we do not want a default value
+    if (defaultValue === false) {
+      if (value !== null) {
+        setValue(null);
+      }
+      return;
+    }
+
+    // If we define an explicit default value 
+    if (typeof defaultValue === "object" && defaultValue !== null) {
+      if (value?.value !== defaultValue.value) {
+        setValue(defaultValue);
+      }
+    }
+
+  }, [defaultValue, options]);
+
+  const [menuOpen, setMenuOpen] = useState<boolean>(false);
   const [focusedListboxOption, setFocusedListboxOption] = useState<number | null>(null);
-  const [searchValue, setSearchValue] = useState<string>('')
+  const [searchValue, setSearchValue] = useState<string>('');
   const [selectionMade, setSelectionMade] = useState(false); // TODO: Rename to something better
   const toggleRef = useRef<HTMLButtonElement>(null); // TODO: Rename?
   const searchRef = useRef<HTMLInputElement>(null);
@@ -42,18 +67,18 @@ export default function SelectSingleSearch({
 
   const fuse = useMemo(() => new Fuse(options, {
     keys: ['name'],
-    ...(fuseOptions ?? {})
+    ...(fuseOptions ?? {}),
   }), [options, fuseOptions]);
 
   const searchResults = useMemo(() => {
     if (selectionMade) {
       setSelectionMade(false);
-      return options; // Prevent fuse from unnecesserily running when selecting an item
+      return options; // Prevent fuse from unnecessarily running when selecting an item
     }
     return searchValue ? fuse.search(searchValue).map(result => result.item) : options;
   }, [searchValue, fuse, options, selectionMade]);
 
-  // Disables form subbmision if value is invalid 
+  // Disables form submission if value is invalid 
   // Define what an invalid value is (missing value or empty string). We only need this defined if the field is requied
   const valueIsValid = useMemo(() => {
     if ((!value || value.value === "") && props.required) return false;
@@ -61,22 +86,22 @@ export default function SelectSingleSearch({
   }, [value, props.required]);
 
   useEffect(() => {
-    if (!toggleRef.current) return
-    return preventInvalidFormSubmission(toggleRef.current, valueIsValid)
+    if (!toggleRef.current) return;
+    return preventInvalidFormSubmission(toggleRef.current, valueIsValid);
   }, [valueIsValid]);
 
   useEffect(() => {
-    if (!searchRef.current) return
+    if (!searchRef.current) return;
     clearEditableCombobox(
       searchRef.current,
       setSearchValue,
       menuOpen,
-      setFocusedListboxOption
-    )
+      setFocusedListboxOption,
+    );
   }, [menuOpen]);
 
   useEffect(() => {
-    scrollOptionIntoView(optionRefs.current, focusedListboxOption)
+    scrollOptionIntoView(optionRefs.current, focusedListboxOption);
   }, [focusedListboxOption]);
 
   return (
@@ -92,13 +117,13 @@ export default function SelectSingleSearch({
         name={props.name}
         disabled={props.disabled}
         ref={toggleRef}
-        onClick={() => { setMenuOpen(!menuOpen) }}
+        onClick={() => { setMenuOpen(!menuOpen); }}
         role="combobox"
         type="button"
         aria-controls={menuOpen ? `${props.id}-dialog` : undefined}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
-        aria-required={props.required ? props.required : false}
+        aria-required={!!props.required ? props.required : false}
         aria-invalid={!valueIsValid}
       >
         <span className={`${styles['selected-value-text']}`} >
@@ -114,8 +139,8 @@ export default function SelectSingleSearch({
           margin-inline-0`
         }
         onBlur={(e) => {
-          if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget?.id != props.id) {
-            setFocusedListboxOption(null)
+          if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget?.id !== props.id) {
+            setFocusedListboxOption(null);
             setMenuOpen(false);
           }
         }}
@@ -150,8 +175,8 @@ export default function SelectSingleSearch({
                   setMenuOpen(false);
                   toggleRef.current?.focus();
                   if (onChange) onChange(selectedOption?.value !== value?.value ? selectedOption : null);
-                }
-              )
+                },
+              );
             }}
             role="combobox"
             aria-controls={`${props.id}-dialog-listbox`}
@@ -174,7 +199,7 @@ export default function SelectSingleSearch({
                 key={option.value}
                 id={`${props.id}-dialog-listbox-${index}`}
                 className={index === focusedListboxOption ? styles['focused-option'] : ''}
-                ref={(el) => { optionRefs.current[index] = el }}
+                ref={(el) => { optionRefs.current[index] = el; }}
                 onClick={() => {
                   setValue(option.value !== value?.value ? option : null);
                   setSelectionMade(true);
@@ -195,5 +220,5 @@ export default function SelectSingleSearch({
         </ul>
       </div>
     </div>
-  )
+  );
 }

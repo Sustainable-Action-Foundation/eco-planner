@@ -1,57 +1,74 @@
-import { evaluateRecipe, cleanRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
-import { RecipeError } from "@/functions/recipe-parser/types";
+import { getOneRecipe } from "@/fetchers";
+import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
+import { Recipe } from "@/functions/recipe/recipe";
+import { RecipeError } from "@/functions/recipe/types";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
-import { AccessControlled, ClientError, isFullDataSeriesValueFields, Years } from "@/types";
+import { ClientError, isDateValues } from "@/types";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
   const [session, requestJson] = await Promise.all([
     getSession(await cookies()),
-    (request.json() as Promise<{ id: string }>).catch(() => null)
+    (request.json() as Promise<{ dataSeriesId: string }>).catch(() => null),
   ]);
 
   // Validate request
-  if (!requestJson || !requestJson.id) {
+  if (!requestJson?.dataSeriesId) {
     return Response.json({ message: 'Missing required input parameters' },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   // Validate session
   if (!session.user?.id) {
     return Response.json({ message: 'Unauthorized' },
-      { status: 401, headers: { 'Location': '/login' } }
+      { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
   try {
-    // Get user and goal
-    const [user, goal] = await Promise.all([
+    const roadmapAccessSelect = {
+      author: { select: { id: true, username: true } },
+      editors: { select: { id: true, username: true } },
+      viewers: { select: { id: true, username: true } },
+      editGroups: { include: { users: { select: { id: true, username: true } } } },
+      viewGroups: { include: { users: { select: { id: true, username: true } } } },
+      isPublic: true,
+    };
+
+    // Get user and data series
+    const [user, dataSeries] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true }
+        select: { id: true, username: true, isAdmin: true, userGroups: true },
       }),
-      prisma.goal.findUnique({
-        where: {
-          id: requestJson.id,
-        },
+      prisma.dataSeries.findUnique({
+        where: { id: requestJson.dataSeriesId },
         select: {
-          recipeUsed: true,
-          roadmap: {
+          id: true,
+          authorId: true,
+          recipeUsedId: true,
+          dependentGoals: {
             select: {
-              author: { select: { id: true, username: true } },
-              editors: { select: { id: true, username: true } },
-              viewers: { select: { id: true, username: true } },
-              editGroups: { include: { users: { select: { id: true, username: true } } } },
-              viewGroups: { include: { users: { select: { id: true, username: true } } } },
-              isPublic: true,
-            }
+              roadmap: { select: roadmapAccessSelect },
+            },
           },
-        }
+          dependentBaselines: {
+            select: {
+              roadmap: { select: roadmapAccessSelect },
+            },
+          },
+          dependentEffects: {
+            select: {
+              action: { select: { roadmap: { select: roadmapAccessSelect } } },
+              goal: { select: { roadmap: { select: roadmapAccessSelect } } },
+            },
+          },
+        },
       }),
     ]);
 
@@ -60,105 +77,123 @@ export async function POST(request: NextRequest) {
       throw new Error(ClientError.BadSession, { cause: 'goal' });
     }
 
-    // If no goal is found or if user does not have access, return 403
-    // It's fine if the user doesn't have access to the related goals, since a user with access to them created this goal in the first place.
-    if (!goal) {
-      throw new Error(ClientError.AccessDenied)
+    if (!dataSeries) {
+      throw new Error(ClientError.AccessDenied);
     }
-    const accessFields: AccessControlled = {
-      author: goal.roadmap.author,
-      editors: goal.roadmap.editors,
-      viewers: goal.roadmap.viewers,
-      editGroups: goal.roadmap.editGroups,
-      viewGroups: goal.roadmap.viewGroups,
-      isPublic: goal.roadmap.isPublic,
-    }
-    const accessLevel = accessChecker(accessFields, session.user);
-    if (!hasEditAccess(accessLevel)) {
-      throw new Error(ClientError.AccessDenied)
+
+    const hasEditRoadmapAccess = (roadmap: typeof dataSeries.dependentGoals[number]['roadmap']) => {
+      const accessLevel = accessChecker(roadmap, session.user);
+      return hasEditAccess(accessLevel);
+    };
+
+    const hasEditAccessToDataSeries =
+      user.isAdmin ||
+      dataSeries.authorId === user.id ||
+      dataSeries.dependentGoals.some((goal) => hasEditRoadmapAccess(goal.roadmap)) ||
+      dataSeries.dependentBaselines.some((goal) => hasEditRoadmapAccess(goal.roadmap)) ||
+      dataSeries.dependentEffects.some((effect) =>
+        hasEditRoadmapAccess(effect.action.roadmap) && hasEditRoadmapAccess(effect.goal.roadmap),
+      );
+
+    if (!hasEditAccessToDataSeries) {
+      throw new Error(ClientError.AccessDenied);
     }
 
     // Nothing beside the recipe has the information needed to recalculate the goal's data series now after the great recipe implementation.
-    if (!goal.recipeUsed) {
-      return Response.json({ message: "Goal has no recipe to recalculate" },
-        { status: 400 }
+    if (!dataSeries.recipeUsedId) {
+      return Response.json({ message: "Data series has no recipe to recalculate from" },
+        { status: 400 },
+      );
+    }
+
+    // Fetch recipe
+    const dbRecipe = await getOneRecipe(dataSeries.recipeUsedId);
+    if (!dbRecipe) {
+      return Response.json({ message: "Recipe was not found." },
+        { status: 404 },
       );
     }
 
     // Try to recalculate the data series
-    const cleanedRecipe = cleanRecipe(recipeFromUnknown(goal.recipeUsed.recipe));
+    const recipe = Recipe.from(dbRecipe.recipe);
     const warnings: string[] = [];
-    const { dataSeries, unit } = await evaluateRecipe(cleanedRecipe, warnings) ?? { dataSeries: null, unit: null };
-    if (!dataSeries) {
-      return Response.json({ message: "Recipe evaluation was canceled" },
-        { status: 500 }
+    const evaluationResult = await recipe.evaluate(warnings)
+      .catch((e: unknown) => {
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        console.log(`Error evaluating recipe ${dbRecipe.id} for data series ${requestJson.dataSeriesId}:`, e);
+        if (e instanceof Error) {
+          throw new RecipeError(`Failed to evaluate recipe: ${errorMessage}`);
+        }
+        else {
+          throw new RecipeError('Failed to evaluate recipe due to an unknown error.');
+        }
+      });
+
+    if (!evaluationResult) {
+      return Response.json({ message: "Recipe evaluation failed." },
+        { status: 500 },
       );
     }
-    if (warnings.length > 0) {
-      // If there are warnings, log them
-      console.warn(`Recalculate goal ${requestJson.id} with recipe ${goal.recipeUsed.hash} (${JSON.stringify(cleanedRecipe, null, 2)})\nproduced warnings:\n${warnings.join('\n')}`);
+
+    if (!evaluationResult.dateValues) {
+      return Response.json({ message: "Recipe evaluation did not return any data." },
+        { status: 500 },
+      );
     }
 
-    // Ensure all years are defined in the data series to prevent partial updates
-    for (const year of Years) {
-      if (dataSeries[year] === undefined) {
-        dataSeries[year] = null;
-      }
+    if (warnings.length > 0) {
+      // If there are warnings, log them
+      console.warn(`Recalculate data series ${requestJson.dataSeriesId} with recipe "${recipe.name}" (${dbRecipe.id}) (${JSON.stringify(recipe)})\nproduced warnings:\n${warnings.join('\n')}`);
     }
-    // Type guard it to make it harder to mess up with prisma
-    if (!isFullDataSeriesValueFields(dataSeries)) {
-      return Response.json({ message: "Failed to update goal. The recipe used may have caused the issue." },
-        { status: 500 }
+
+    if (!isDateValues(evaluationResult.dateValues)) {
+      return Response.json({ message: "Failed to update data series. The recipe used may have caused the issue." },
+        { status: 500 },
       );
     };
 
-    // Try to update the goal with the new data series
-    const updatedGoal = await prisma.goal.update({
-      where: {
-        id: requestJson.id,
-      },
+    const updatedDataSeries = await prisma.dataSeries.update({
+      where: { id: requestJson.dataSeriesId },
       data: {
-        dataSeries: {
-          update: {
-            ...dataSeries,
-            ...unit ? { unit } : {},
-          }
-        }
+        values: { createMany: { data: dateValuesToDBDateRecord(evaluationResult.dateValues) } },
+        // Unit === null -> remove unit
+        // Unit === undefined -> omit (keep current unit)
+        // Unit === string -> update unit
+        ...(evaluationResult.unit === null
+          ? { unit: null }
+          : typeof evaluationResult.unit === "undefined"
+            ? {}
+            : { unit: evaluationResult.unit }
+        ),
       },
-      select: {
-        id: true,
-        roadmap: {
-          select: { id: true }
-        },
-      }
-    })
+    });
+
     // Invalidate old cache
-    revalidateTag('dataSeries');
-    // Return the edited goal's ID if successful
-    return Response.json({ message: "Data series updated", id: updatedGoal.id },
-      { status: 200, headers: { 'Location': `/goal/${updatedGoal.id}` } }
+    revalidateTag('dataSeries', 'max');
+    return Response.json({ message: "Data series updated", id: updatedDataSeries.id },
+      { status: 200 },
     );
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message == ClientError.BadSession) {
+      if (error.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
-          { status: 400, headers: { 'Location': '/login' } }
+          { status: 400, headers: { 'Location': '/login' } },
         );
-      } else if (error.message == ClientError.AccessDenied) {
+      } else if (error.message === ClientError.AccessDenied) {
         return Response.json({ message: ClientError.AccessDenied },
-          { status: 403 }
+          { status: 403 },
         );
       } else if (error instanceof RecipeError) {
         return Response.json({ message: error.message },
-          { status: 500 }
+          { status: 500 },
         );
       }
     }
     console.log(error);
     return Response.json({ message: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

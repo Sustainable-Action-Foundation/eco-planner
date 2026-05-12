@@ -1,5 +1,7 @@
 import { isStandardObject } from "@/types";
-import { ApiTableContent } from "./apiTypes";
+import type { ApiTableContent } from "./apiTypes";
+
+// TODO: Refactor file
 
 export type DatasetKeys = "SCB" | "Trafa" | "SSB";
 export type DatasetData = {
@@ -10,6 +12,10 @@ export type DatasetData = {
   fullName?: string,
   alternateNames?: string[]
 };
+
+export function isDataSetKeys(value: unknown): value is DatasetKeys {
+  return typeof value === "string" && ExternalDataset.knownDatasetKeys.includes(value as DatasetKeys);
+}
 
 /**
  * # **DOCSTRING OUTDATED**
@@ -32,7 +38,7 @@ export class ExternalDataset {
     supportedLanguages: ["sv", "en"],
     api: "PxWeb",
     fullName: "Statistiska centralbyrån",
-    alternateNames: ["scb", "statistics sweden"]
+    alternateNames: ["scb", "statistics sweden"],
   };
   static scb = this.SCB;
 
@@ -43,7 +49,7 @@ export class ExternalDataset {
     supportedLanguages: ["no", "en"],
     api: "PxWeb",
     fullName: "Statistisk sentralbyrå",
-    alternateNames: ["statistisk sentralbyrå", "statistics norway"]
+    alternateNames: ["statistisk sentralbyrå", "statistics norway"],
   };
   static ssb = this.SSB;
 
@@ -56,7 +62,7 @@ export class ExternalDataset {
     supportedLanguages: ["sv"],
     api: "Trafa",
     fullName: "Trafikanalys",
-    alternateNames: ["trafa"]
+    alternateNames: ["trafa"],
   };
   static trafa = this.Trafa;
 
@@ -124,7 +130,7 @@ export class ExternalDataset {
         })(value)) {
           return undefined; // Skip if value is not a DatasetData object
         }
-        return [key.toLowerCase(), [key, value.fullName, ...(value.alternateNames || [])].map(alias => alias?.toLowerCase())];
+        return [key.toLowerCase(), [key, value.fullName, ...(value.alternateNames ?? [])].map(alias => alias?.toLowerCase())];
       })
       .filter(Boolean) as [string, string[]][];
 
@@ -155,8 +161,8 @@ export function parsePeriod(period: string): Date {
   if (hasQuarterDivider) {
     const parts = period.split(hasQuarterDivider);
     return new Date(Date.UTC(
-      parseInt(parts[0]), // Year
-      (parseInt(parts[1]) - 1) * 3) // Month (0-indexed, so subtract 1 and multiply by 3 to align to quarters)
+      parseInt(parts[0], 10), // Year
+      (parseInt(parts[1], 10) - 1) * 3), // Month (0-indexed, so subtract 1 and multiply by 3 to align to quarters)
     );
   }
 
@@ -165,8 +171,8 @@ export function parsePeriod(period: string): Date {
   if (hasMonthDivider) {
     const parts = period.split(hasMonthDivider);
     return new Date(Date.UTC(
-      parseInt(parts[0]), // Year
-      parseInt(parts[1]) - 1) // Month (0-indexed, so subtract 1)
+      parseInt(parts[0], 10), // Year
+      parseInt(parts[1], 10) - 1), // Month (0-indexed, so subtract 1)
     );
   }
 
@@ -175,8 +181,8 @@ export function parsePeriod(period: string): Date {
   if (hasWeekDivider) {
     const parts = period.split(hasWeekDivider);
 
-    const year = parseInt(parts[0]);
-    const week = parseInt(parts[1]);
+    const year = parseInt(parts[0], 10);
+    const week = parseInt(parts[1], 10);
 
     // The first week of the year always contains the 4th of January
     // This allows us to calculate an offset between the first day of the year and the first day of the first week
@@ -192,9 +198,12 @@ export function parsePeriod(period: string): Date {
   // If none of the above match, assume it's a year and try to parse it as such (might return an invalid date)
   // TODO: do explicit throwing or return null on invalid date? this seems like a recipe for downstream bugs
   console.warn(`parsePeriod: assuming period "${period}" is a year.`);
-  return new Date(Date.UTC(parseInt(period), 0));
+  return new Date(Date.UTC(parseInt(period, 10), 0));
 }
 
+/** 
+ * Since there can be multiple readings a year, this picks the first reading for each year, no more.
+ */
 export function filterToInitialYearlyRecords(periodValuePairs: ApiTableContent["values"]): ApiTableContent["values"] {
   const filteredValues: ApiTableContent["values"] = [];
   const seenYears: Set<number> = new Set();

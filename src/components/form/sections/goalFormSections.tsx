@@ -1,53 +1,40 @@
 "use client";
 
-import clientSafeGetOneGoal from "@/fetchers/clientSafeGetOneGoal";
-import clientSafeGetOneRoadmap from "@/fetchers/clientSafeGetOneRoadmap";
-import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
 import mathjs, { allOurUnits } from "@/math";
-import { Years } from "@/types";
-import { DataSeries, Goal } from "@prisma/client";
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput";
 import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
+import type { ClientGoal, ClientMultiRoadmapInstance, ClientRoadmap, Goal, UnitString } from "@/types";
+import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
+import { clientSafeGetRoadmaps, clientSafeGetOneRoadmap, clientSafeGetOneGoal } from "@/fetchers/client";
+import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
 
 export function ManualGoalForm({
   currentGoal,
-  dataSeriesString,
+  outputFormElement,
 }: {
-  currentGoal?: Goal & {
-    dataSeries: DataSeries | null,
-    author: { id: string, username: string },
-    links?: { url: string, description: string | null }[],
-    roadmap: { id: string },
-  },
-  dataSeriesString?: string,
+  currentGoal?: Goal;
+  outputFormElement: React.ReactElement<HTMLInputElement>;
 }) {
   const { t } = useTranslation("forms");
-  const [parsedUnit, setParsedUnit] = useState<string | null>("");
-
-  useEffect(() => {
+  const [parsedUnit, setParsedUnit] = useState<UnitString>(() => {
     if (currentGoal?.dataSeries?.unit) {
       try {
-        setParsedUnit(mathjs.unit(currentGoal.dataSeries.unit).toString());
+        return mathjs.unit(currentGoal.dataSeries.unit).toString();
       } catch {
-        setParsedUnit(null)
+        return null;
       }
     }
-  }, [currentGoal]);
+    return null;
+  });
 
   const indicatorParameters = useMemo(() => {
     return [...new Set(parameterOptions)].map(option => ({
       name: option,
-      value: option
+      value: option,
     }));
   }, []);
-
-  const units = useMemo(
-    () => allOurUnits.map(unit => ({ name: unit, value: unit })),
-    []
-  );
 
   return (
     <>
@@ -60,7 +47,7 @@ export function ManualGoalForm({
           name: "indicatorParameter",
           placeholder: t("forms:combobox.default_autocomplete_placeholder"),
           className: "margin-top-25 margin-bottom-100",
-          defaultValue: currentGoal?.indicatorParameter ?? undefined
+          defaultValue: currentGoal?.indicatorParameter ?? undefined,
         }}
         options={indicatorParameters}
         fuseOptions={{
@@ -79,12 +66,12 @@ export function ManualGoalForm({
           name: "dataUnit",
           placeholder: t("forms:combobox.default_autocomplete_placeholder"),
           className: "margin-top-25",
-          defaultValue: currentGoal?.dataSeries?.unit ?? undefined
+          defaultValue: currentGoal?.dataSeries?.unit ?? undefined,
         }}
-        options={units}
+        options={allOurUnits.map(u => ({ name: u, value: u }))}
         onChange={(unit) => {
           try {
-            setParsedUnit(mathjs.unit(unit).toString())
+            setParsedUnit(mathjs.unit(unit).toString());
           } catch {
             setParsedUnit(null);
           }
@@ -100,61 +87,74 @@ export function ManualGoalForm({
         )}
       </small>
 
-      <DataSeriesInput
-        dataSeriesString={dataSeriesString}
-        inputName="dataSeries"
-        inputId="dataSeries"
-        labelKey="forms:data_series_input.data_series"
+      <DataSeriesInputManual
+        id="goal-dataseries"
+        label={t("forms:data_series_input.data_series")}
+        {...currentGoal?.dataSeries
+          ? { initialDateValues: dataSeriesToDateValues(currentGoal.dataSeries) }
+          : {}
+        }
+        outputFormElement={outputFormElement}
       />
     </>
-  )
+  );
 }
 
-/** 
- * TODO: Update to use recipe editor and such fancy new stuff
- */
-export function InheritingBaseline() {
+export function InheritingBaseline({
+  outputFormElement,
+}: {
+  outputFormElement: React.ReactElement<HTMLInputElement>;
+}) {
   const { t } = useTranslation(["forms", "common"]);
-  const [roadmapList, setRoadmapList] = useState<Awaited<ReturnType<typeof clientSafeGetRoadmaps>>>([]);
+  const [roadmapList, setRoadmapList] = useState<ClientMultiRoadmapInstance[]>([]);
   const [selectedRoadmap, setSelectedRoadmap] = useState<string | undefined>(undefined);
-  const [roadmapData, setRoadmapData] = useState<Awaited<ReturnType<typeof clientSafeGetOneRoadmap>>>(null);
+  const [roadmapData, setRoadmapData] = useState<ClientRoadmap | null>(null);
   const [selectedGoal, setSelectedGoal] = useState<string | undefined>(undefined);
-  const [goalData, setGoalData] = useState<Awaited<ReturnType<typeof clientSafeGetOneGoal>>>(null);
+  const [goalData, setGoalData] = useState<ClientGoal | null>(null);
 
   useEffect(() => {
-    clientSafeGetRoadmaps().then(setRoadmapList).catch(() => {
-      setRoadmapList([]);
-    });
+    clientSafeGetRoadmaps()
+      .then(setRoadmapList)
+      .catch(() => {
+        setRoadmapList([]);
+      });
   }, []);
 
   useEffect(() => {
-    clientSafeGetOneRoadmap(selectedRoadmap ?? "").then(setRoadmapData).catch(() => {
+    if (!selectedRoadmap) {
       setRoadmapData(null);
-    });
+      setSelectedGoal(undefined);
+      console.warn("No roadmap selected, skipping fetch.");
+      return;
+    }
+    clientSafeGetOneRoadmap(selectedRoadmap)
+      .then(setRoadmapData)
+      .catch(() => {
+        setRoadmapData(null);
+      });
   }, [selectedRoadmap]);
 
   useEffect(() => {
-    clientSafeGetOneGoal(selectedGoal ?? "").then(setGoalData).catch(() => {
+    if (!selectedGoal) {
       setGoalData(null);
-    });
-  }, [selectedGoal]);
-
-  // If there is a data series, convert it to an array of numbers and then a string to use for the form
-  const dataArray: (number | null)[] = []
-  if (goalData?.dataSeries) {
-    for (const i of Years) {
-      dataArray.push(goalData.dataSeries[i])
+      console.warn("No goal selected, skipping fetch.");
+      return;
     }
-  }
-  const dataSeriesString = dataArray.join(';')
+    clientSafeGetOneGoal(selectedGoal)
+      .then(setGoalData)
+      .catch(() => {
+        setGoalData(null);
+      });
+  }, [selectedGoal]);
 
   return (
     <>
+      {/* Roadmap select */}
       <label className="block margin-block-75">
         {t("forms:goal.select_roadmap_version")}
         <select name="selectedRoadmap" id="selectedRoadmap" className="margin-inline-25" required
           value={selectedRoadmap}
-          onChange={(e) => { setSelectedRoadmap(e.target.value); setSelectedGoal(undefined) }}
+          onChange={(e) => { setSelectedRoadmap(e.target.value); setSelectedGoal(undefined); }}
         >
           <option value="">{t("forms:goal.select_roadmap_version")}</option>
           {roadmapList.map((roadmap) => (
@@ -165,6 +165,7 @@ export function InheritingBaseline() {
         </select>
       </label>
 
+      {/* Goal select */}
       {roadmapData &&
         <label className="block margin-block-75">
           {t("forms:goal.select_goal_as_baseline")}
@@ -185,9 +186,14 @@ export function InheritingBaseline() {
       {goalData &&
         <label className="block margin-block-75">
           {t("forms:goal.baseline_copied")}
-          <input name="baselineDataSeries" id="baselineDataSeries" type="text" readOnly value={dataSeriesString} />
+          {React.cloneElement(outputFormElement, {
+            value: goalData.baseline?.id ?? goalData.dataSeries?.id ?? "",
+            type: "hidden",
+            hidden: true,
+            readOnly: true,
+          })}
         </label>
       }
     </>
-  )
+  );
 }

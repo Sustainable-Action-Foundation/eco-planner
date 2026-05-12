@@ -5,10 +5,13 @@
 // As such this should only be used within the sidebar until-
 // greater browser support. 
 
-"use client"
+// Anchor is supported on all major browsers as of January 2026. However, overall 
+// browser support is still quite low (~80%) and we keep fallbacks for now.
 
-import styles from './popovers.module.css' with { type: "css" }
-import React, { HTMLProps } from "react";
+"use client";
+
+import styles from './popovers.module.css' with { type: "css" };
+import React from "react";
 
 export function PopoverButton({
   id,
@@ -25,20 +28,20 @@ export function PopoverButton({
   children?: React.ReactNode,
   anchorName: string,
   popoverTarget: string
-  props?: HTMLProps<HTMLButtonElement>
+  props?: React.HTMLProps<HTMLButtonElement>
 }) {
   return (
     <button
       type='button'
       id={id}
       className={`${styles['anchor-name']} ${className}`}
-      style={{ '--anchor-name': anchorName, ...style, } as React.CSSProperties}
+      style={{ '--anchor-name': anchorName, ...style } as React.CSSProperties}
       popoverTarget={popoverTarget}
       {...props}
     >
       {children}
     </button>
-  )
+  );
 }
 
 // TODO: A horizontal popover direction should only be 
@@ -53,9 +56,9 @@ export function Popover({
   positionAnchor,
   anchorInlinePosition,
   popoverDirection,
-  positionTryFallbacks = "none",
+  positionTryFallbacks,
   indicator,
-  margin
+  margin,
 }: {
   id: string,
   className?: string,
@@ -69,7 +72,7 @@ export function Popover({
     vertical: 'up' | 'vertical' | 'down',
     horizontal?: 'left' | 'right'
   } | 'up' | 'vertical' | 'down',
-  positionTryFallbacks?: string, // TODO: String should be a comma seperated string with suggestions on allowed fallback values. (or an array?) 
+  positionTryFallbacks?: string, // TODO: String should be a comma separated string with suggestions on allowed fallback values. (or an array?) 
   /* 
     As of now, an indicator can only be given assuming a positionTryFallbacks of none. 
     It is likely that future browsers will support some css selector for checking fallback values,
@@ -81,8 +84,8 @@ export function Popover({
 }) {
 
   // TODO: Probably prevent passing none in our types if positionTryFallbacks != "none"?
-  if (positionTryFallbacks != "none") {
-    indicator = undefined
+  if (positionTryFallbacks !== "none") {
+    indicator = undefined;
   }
 
   // Normalize vertical direction for consistent access
@@ -145,5 +148,5 @@ export function Popover({
         {children}
       </div>
     </>
-  )
+  );
 }

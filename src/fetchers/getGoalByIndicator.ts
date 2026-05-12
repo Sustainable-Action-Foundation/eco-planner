@@ -1,11 +1,12 @@
 import "server-only";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
-import { getSession, LoginData } from "@/lib/session"
+import type { LoginData } from "@/lib/session";
+import { getSession } from "@/lib/session";
 import { effectSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
-import { Prisma } from "@prisma/client";
-import { unstable_cache } from "next/cache";
+import { cacheTag } from "next/cache";
 import { cookies } from "next/headers";
+import type { Goal } from "@/types";
 
 // TODO: Check if we need to include data series unit as a key to make sure we don't get the wrong goal
 
@@ -18,9 +19,9 @@ import { cookies } from "next/headers";
  * @param unit If not undefined, the goal must have this unit in its data series (even if unit is null)
  * @returns Goal object with actions
  */
-export default async function getGoalByIndicator(roadmapId: string, indicatorParameter: string, unit?: string | null) {
+export async function getGoalByIndicator(roadmapId: string, indicatorParameter: string, unit?: string | null) {
   const session = await getSession(await cookies());
-  return getCachedGoal(roadmapId, indicatorParameter, unit, session.user)
+  return getCachedGoal(roadmapId, indicatorParameter, unit, session.user);
 }
 
 /**
@@ -30,68 +31,37 @@ export default async function getGoalByIndicator(roadmapId: string, indicatorPar
  * @param indicatorParameter Indicator parameter of the goal to cache
  * @param user Data from user's session cookie.
  */
-const getCachedGoal = unstable_cache(
-  async (roadmapId: string, indicatorParameter: string, unit: string | undefined | null, user: LoginData["user"]) => {
-    let goal: Prisma.GoalGetPayload<{
-      include: typeof goalInclusionSelection
-    }> | null = null;
+async function getCachedGoal(roadmapId: string, indicatorParameter: string, unit: string | undefined | null, user: LoginData["user"]) {
+  'use cache';
+  cacheTag('database', 'goal', 'action', 'dataSeries');
 
-    // If user is admin, always get the goal
-    if (user?.isAdmin) {
-      try {
-        goal = await prisma.goal.findFirst({
-          where: {
-            indicatorParameter: indicatorParameter,
-            // If unit is specified, get a goal with the specified unit
-            ...(unit !== undefined ? { dataSeries: { unit: unit } } : {}),
-            roadmap: { id: roadmapId },
-          },
-          include: goalInclusionSelection
-        });
-      } catch (error) {
-        console.log(error);
-        console.log('Error fetching admin goal');
-        return null
-      }
+  let goal: Goal | null;
 
-      goal?.effects.sort(effectSorter);
-
-      return goal;
+  // If user is admin, always get the goal
+  if (user?.isAdmin) {
+    try {
+      goal = await prisma.goal.findFirst({
+        where: {
+          indicatorParameter: indicatorParameter,
+          // If unit is specified, get a goal with the specified unit
+          ...(unit !== undefined ? { dataSeries: { unit: unit } } : {}),
+          roadmap: { id: roadmapId },
+        },
+        include: goalInclusionSelection,
+      });
+    } catch (error) {
+      console.log(error);
+      console.log('Error fetching admin goal');
+      return null;
     }
 
-    // If user is logged in, get the goal if they have access to it
-    if (user?.isLoggedIn) {
-      try {
-        goal = await prisma.goal.findFirst({
-          where: {
-            indicatorParameter: indicatorParameter,
-            ...(unit !== undefined ? { dataSeries: { unit: unit } } : {}),
-            roadmap: {
-              id: roadmapId,
-              OR: [
-                { authorId: user.id },
-                { editors: { some: { id: user.id } } },
-                { viewers: { some: { id: user.id } } },
-                { editGroups: { some: { users: { some: { id: user.id } } } } },
-                { viewGroups: { some: { users: { some: { id: user.id } } } } },
-                { isPublic: true }
-              ]
-            }
-          },
-          include: goalInclusionSelection
-        });
-      } catch (error) {
-        console.log(error);
-        console.log('Error fetching user goal');
-        return null
-      }
+    goal?.effects.sort(effectSorter);
 
-      goal?.effects.sort(effectSorter);
+    return goal;
+  }
 
-      return goal;
-    }
-
-    // If user is not logged in, get the goal if it is public
+  // If user is logged in, get the goal if they have access to it
+  if (user?.isLoggedIn) {
     try {
       goal = await prisma.goal.findFirst({
         where: {
@@ -99,21 +69,49 @@ const getCachedGoal = unstable_cache(
           ...(unit !== undefined ? { dataSeries: { unit: unit } } : {}),
           roadmap: {
             id: roadmapId,
-            isPublic: true,
-          }
+            OR: [
+              { authorId: user.id },
+              { editors: { some: { id: user.id } } },
+              { viewers: { some: { id: user.id } } },
+              { editGroups: { some: { users: { some: { id: user.id } } } } },
+              { viewGroups: { some: { users: { some: { id: user.id } } } } },
+              { isPublic: true },
+            ],
+          },
         },
-        include: goalInclusionSelection
+        include: goalInclusionSelection,
       });
     } catch (error) {
       console.log(error);
-      console.log('Error fetching public goal');
-      return null
+      console.log('Error fetching user goal');
+      return null;
     }
 
     goal?.effects.sort(effectSorter);
 
     return goal;
-  },
-  ['goalByIndicator'],
-  { revalidate: 600, tags: ['database', 'goal', 'action', 'dataSeries'] }
-);
+  }
+
+  // If user is not logged in, get the goal if it is public
+  try {
+    goal = await prisma.goal.findFirst({
+      where: {
+        indicatorParameter: indicatorParameter,
+        ...(unit !== undefined ? { dataSeries: { unit: unit } } : {}),
+        roadmap: {
+          id: roadmapId,
+          isPublic: true,
+        },
+      },
+      include: goalInclusionSelection,
+    });
+  } catch (error) {
+    console.log(error);
+    console.log('Error fetching public goal');
+    return null;
+  }
+
+  goal?.effects.sort(effectSorter);
+
+  return goal;
+};

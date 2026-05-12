@@ -1,23 +1,22 @@
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import GoalForm from "@/components/form/forms/goal";
-import getOneRoadmap from "@/fetchers/getOneRoadmap";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
-import getRoadmaps from "@/fetchers/getRoadmaps.ts";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconInfoCircle } from "@tabler/icons-react";
+import { getOneRoadmap, getRoadmaps } from "@/fetchers";
 
 export async function generateMetadata() {
-  const t = await serveTea("metadata")
+  const t = await serveTea("metadata");
 
   return buildMetadata({
     title: t("metadata:goal_create.title"),
     description: t("metadata:goal_create.title"),
     og_url: `/goal/create`,
     og_image_url: undefined,
-  })
+  });
 }
 
 export default async function Page(
@@ -26,7 +25,7 @@ export default async function Page(
       roadmapId?: string | string[] | undefined,
       [key: string]: string | string[] | undefined
     }>
-  }
+  },
 ) {
   const searchParams = await props.searchParams;
   const [t, session, roadmap, roadmapList] = await Promise.all([
@@ -46,7 +45,7 @@ export default async function Page(
 
   return (
     <>
-      <Breadcrumb object={roadmap || undefined} customSections={[t("pages:goal_create.breadcrumb")]} />
+      <Breadcrumb object={roadmap ?? undefined} customSections={[t("pages:goal_create.breadcrumb")]} />
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-top-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
           {t("pages:goal_create.title")}
@@ -60,5 +59,5 @@ export default async function Page(
         <GoalForm roadmapId={badRoadmap ? undefined : searchParams.roadmapId as string} roadmapAlternatives={filteredRoadmaps} />
       </div>
     </>
-  )
+  );
 }

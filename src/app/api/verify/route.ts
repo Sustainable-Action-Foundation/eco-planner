@@ -1,7 +1,7 @@
 import getUserHash from "@/functions/getUserHash";
 import prisma from "@/prismaClient";
-import { JSONValue } from "@/types";
-import { NextRequest } from "next/server";
+import type { JSONValue } from "@/types";
+import type { NextRequest } from "next/server";
 
 export async function PATCH(request: NextRequest) {
   const body = await (request.json() as Promise<JSONValue>);
@@ -21,11 +21,11 @@ export async function PATCH(request: NextRequest) {
   try {
     await prisma.user.update({
       where: {
-        email: email
+        email: email,
       },
       data: {
-        isVerified: true
-      }
+        isVerified: true,
+      },
     });
   } catch {
     return Response.json({ message: 'Internal server error' }, { status: 500 });

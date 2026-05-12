@@ -1,7 +1,7 @@
 "use server";
 
 import { ExternalDataset } from "../api/utility";
-import { StructureItem, TrafaDataResponse } from "./trafaTypes";
+import type { StructureItem, TrafaDataResponse } from "./trafaTypes";
 
 export default async function getTrafaTables(query?: string | null, language?: string) {
   const url = new URL('./structure', ExternalDataset.Trafa.baseUrl);
@@ -13,10 +13,11 @@ export default async function getTrafaTables(query?: string | null, language?: s
     url.searchParams.append('lang', language);
   }
 
-  let data: TrafaDataResponse | null = null;
   const tables: { tableId: string, label: string }[] = [];
 
   try {
+    let data: TrafaDataResponse | null = null;
+
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -24,37 +25,41 @@ export default async function getTrafaTables(query?: string | null, language?: s
         'Accept': 'application/json',
       },
     });
+
     if (response.ok) {
       data = await response.json() as TrafaDataResponse;
-    } else {
-      console.log("bad response", response);
+    }
+    else {
+      console.error("bad response", response);
       return null;
     }
-  } catch (error) {
+
+    if (!data) {
+      console.warn("No data received from Trafa structure endpoint");
+      return null;
+    }
+
+    data.StructureItems.forEach((item: StructureItem) => {
+      // TODO - item.Label needs to be manually translated here when internationalization is implemented
+      const pushItem: { tableId: string, label: string } = {
+        tableId: item.Name,
+        label: `${item.Label} (${item.Name})`,
+      };
+
+      tables.push(pushItem);
+    });
+
+    if (query) {
+      const regex = new RegExp(query, "i");
+      return tables?.filter(table => regex.test(table.label)) ?? null;
+    }
+
+    return tables;
+  }
+  catch (error) {
     console.log(error);
     return null;
   }
-
-  if (!data) {
-    return null;
-  }
-  data.StructureItems.forEach((item: StructureItem) => {
-    // TODO - item.Label needs to be manually translated here when internationalization is implemented
-    const pushItem: { tableId: string, label: string } = {
-      tableId: item.Name,
-      label: `${item.Label} (${item.Name})`,
-    };
-
-    tables.push(pushItem);
-  });
-
-  if (query) {
-    const regex = new RegExp(query, "i");
-    return tables?.filter(table => regex.test(table.label)) ?? null;
-  }
-
-  return tables;
-
 };
 
 /* DataTypes

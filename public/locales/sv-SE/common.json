@@ -13,6 +13,7 @@
     "action": "{{count}} $t(common:action, {\"count\":{{count}}})",
     "effect": "{{count}} $t(common:effect, {\"count\":{{count}}})",
     "goal": "{{count}} $t(common:goal, {\"count\":{{count}}})",
+    "roadmap": "{{count}} $t(common:roadmap_series, {\"count\":{{count}}})",
     "roadmap_series": "{{count}} $t(common:roadmap_series, {\"count\":{{count}}})",
     "roadmap_version": "{{count}} $t(common:roadmap_version, {\"count\":{{count}}})"
   },
@@ -41,6 +42,11 @@
   "goal_definite_other": "målbanorna",
   "goal_one": "målbana",
   "goal_other": "målbanor",
+  "baseline_definite_one": "baslinjen",
+  "baseline_definite_other": "baslinjerna",
+  "baseline_one": "baslinje",
+  "baseline_other": "baslinjer",
+  "historical_data": "historisk data",
   "layout": {
     "app_name": "Eco - Planner",
     "app_name_compact": "Eco Planner",
@@ -109,6 +115,7 @@
     "options": "Alternativ",
     "or": "eller",
     "save": "Spara",
+    "save_changes": "Spara förändringar",
     "search": "Sök",
     "select": "Välj",
     "show": "Visa",
@@ -118,6 +125,7 @@
     "suggestions": "Förslag",
     "unit_missing": "enhet saknas",
     "unitless": "enhetslös",
-    "write": "Skriv något"
+    "write": "Skriv något",
+    "menu": "Meny"
   }
 }

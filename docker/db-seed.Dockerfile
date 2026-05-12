@@ -2,7 +2,7 @@
 # Dockerfile for Prisma database seeding
 
 # Build arguments
-ARG NODE_VERSION="20"
+ARG NODE_VERSION="24"
 
 
 # =============================================================================
@@ -17,23 +17,22 @@ RUN apk update && apk upgrade && \
   dumb-init \
   && rm -rf /var/cache/apk/*
 
-COPY package.json ./
+WORKDIR /app
+
+COPY package.json yarn.lock .yarnrc.yml ./
 # Enable corepack for modern package manager support
 RUN corepack enable
 # Preinstall yarn to ensure it's available for seeding stage
-RUN corepack install
+RUN corepack prepare --activate
 
-WORKDIR /app
 
 # =============================================================================
 # Dependencies stage - Install and cache dependencies
 # =============================================================================
 FROM base AS deps
 
-COPY package.json tsconfig.json yarn.lock* ./
-
 # Install dependencies (GHA cache handled by buildx)
-RUN yarn install --frozen-lockfile
+RUN yarn install --immutable
 
 # Clean up temporary files to reduce image size
 RUN rm -rf /tmp/* /var/tmp/*
@@ -49,7 +48,7 @@ COPY --from=deps /app/node_modules ./node_modules
 
 # Prisma schema and config files
 COPY prisma/ ./prisma/
-COPY prisma.config.ts package.json tsconfig.json ./
+COPY prisma.config.ts tsconfig.json ./
 
 RUN yarn prisma generate
 
@@ -60,20 +59,22 @@ RUN yarn prisma generate
 FROM base AS seed
 
 # Various files used by the seeding script
-COPY src/scripts/lib ./src/scripts/lib
+COPY scripts/lib ./scripts/lib
+COPY scripts/prisma ./scripts/prisma
 COPY src/functions ./src/functions
 COPY src/lib ./src/lib
-COPY src/types.ts ./src/types.ts
+COPY src/types ./src/types
 COPY src/math.ts ./src/math.ts
 
 # Dependencies
 COPY --from=deps /app/node_modules ./node_modules
+
 # Prisma client and generated files
-COPY --from=prisma /app/src/prisma ./src/prisma
+COPY --from=prisma /app/.prisma ./.prisma
 
 # Prisma schema and config files
 COPY prisma/ ./prisma/
-COPY prisma.config.ts package.json tsconfig.json ./
+COPY prisma.config.ts tsconfig.json ./
 
 ENTRYPOINT ["dumb-init", "--"]
 CMD ["sh", "-c", "yarn prisma migrate reset --force --skip-generate"]

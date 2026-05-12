@@ -1,12 +1,12 @@
 import styles from "./localesTest.module.css" with {type: "css"};
 import serveTea from "@/lib/i18nServer";
-import { uniqueLocales, Locales, allNamespaces } from "i18n.config";
+import { uniqueLocales, Locales, allNamespaces } from "@/../i18n.config";
 import fs from "node:fs";
 import path from "node:path";
 import { ServerSideT } from "./serverSide";
 import { ClientSideT } from "./clientSide";
 import { Stats } from "./stats";
-import { JSONValue } from "@/types";
+import type { JSONValue } from "@/types";
 import { allowedProtocols } from "@/components/form/elements/textEditor/config/config";
 
 export default async function LocaleTestPage() {
@@ -17,6 +17,7 @@ export default async function LocaleTestPage() {
     date: new Date("2025-04-23T18:23:31.501Z"),
     fileTypes: [".txt", ".pdf", ".docx"],
     encodings: ["utf-8", "utf-16", "ascii"],
+    name: "martin",
     allowedProtocols: allowedProtocols,
   };
 
@@ -99,8 +100,8 @@ export default async function LocaleTestPage() {
                   const [formattedInput, formatterVar, formatterType] = interpolationCall;
 
                   const formattedOutput = t(formattedInput, defaultArgs);
-                  const isEmpty = formattedOutput == "";
-                  const isMissing = formattedOutput == formattedInput;
+                  const isEmpty = formattedOutput === "";
+                  const isMissing = formattedOutput === formattedInput;
                   const output = isEmpty ? "[EMPTY]" : isMissing ? "[MISSING]" : formattedOutput;
 
                   const resolvedVar = t(formatterVar, defaultArgs);
@@ -171,6 +172,7 @@ function getAllJSONFlattened(): Record<string, Record<string, string>> {
   const allPermutations = uniqueLocales.flatMap(locale => allNamespaces.map(namespace => [locale, namespace]));
 
   allPermutations.map(([locale, namespace]) => {
+    if (locale === Locales.test) return; // Skip test locale as it is not guaranteed to be a valid JSON
     const nsData = JSON.parse(fs.readFileSync(path.join("public/locales", locale, `${namespace}.json`), "utf-8")) as JSONValue;
     if (typeof nsData !== "object" || nsData === null || Array.isArray(nsData)) {
       console.warn(`Skipping invalid JSON for locale "${locale}" and namespace "${namespace}":`, nsData);
@@ -178,10 +180,10 @@ function getAllJSONFlattened(): Record<string, Record<string, string>> {
     }
     const flattened = flattenTree(nsData);
     const prefixed = Object.fromEntries(Object.entries(flattened)
-      .map(([key, value]) => [`${namespace}:${key}`, value])
+      .map(([key, value]) => [`${namespace}:${key}`, value]),
     );
     perLocale[locale] = { ...perLocale[locale], ...prefixed };
-  })
+  });
   return perLocale;
 }
 function flattenTree(obj: Partial<{ [key: string]: JSONValue; }>) {

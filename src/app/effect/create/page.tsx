@@ -1,9 +1,7 @@
-import EffectForm from "@/components/form/forms/effect"
-import getOneAction from "@/fetchers/getOneAction.ts";
-import getOneGoal from "@/fetchers/getOneGoal.ts";
-import getRoadmaps from "@/fetchers/getRoadmaps.ts";
-import accessChecker, { hasEditAccess } from "@/lib/accessChecker.ts";
-import { getSession } from "@/lib/session.ts";
+import EffectForm from "@/components/form/forms/effect";
+import { getOneAction, getOneGoal, getRoadmaps } from "@/fetchers";
+import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
+import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
@@ -11,14 +9,14 @@ import { buildMetadata } from "@/functions/buildMetadata";
 import { IconInfoCircle } from "@tabler/icons-react";
 
 export async function generateMetadata() {
-  const t = await serveTea("metadata")
+  const t = await serveTea("metadata");
 
   return buildMetadata({
     title: t("metadata:effect_create.title"),
     description: t("metadata:effect_create.description"),
     og_url: `/effect/create`,
-    og_image_url: undefined
-  })
+    og_image_url: undefined,
+  });
 }
 
 export default async function Page(
@@ -28,32 +26,32 @@ export default async function Page(
       goalId?: string | string[] | undefined,
       [key: string]: string | string[] | undefined
     }>,
-  }
+  },
 ) {
   const searchParams = await props.searchParams;
   const [t, session, action, goal, roadmaps] = await Promise.all([
     serveTea("pages"),
     getSession(await cookies()),
-    getOneAction(typeof searchParams.actionId == 'string' ? searchParams.actionId : ''),
-    getOneGoal(typeof searchParams.goalId == 'string' ? searchParams.goalId : ''),
+    getOneAction(typeof searchParams.actionId === 'string' ? searchParams.actionId : ''),
+    getOneGoal(typeof searchParams.goalId === 'string' ? searchParams.goalId : ''),
     getRoadmaps(),
   ]);
 
   const badAction = (
-    (!action && typeof searchParams.actionId == 'string') ||
-    (action && !hasEditAccess(accessChecker(action.roadmap, session.user)))
+    (!action && typeof searchParams.actionId === 'string')
+    || (action && !hasEditAccess(accessChecker(action.roadmap, session.user)))
   );
 
   const badGoal = (
-    (!goal && typeof searchParams.goalId == 'string') ||
-    (goal && !hasEditAccess(accessChecker(goal.roadmap, session.user)))
+    (!goal && typeof searchParams.goalId === 'string')
+    || (goal && !hasEditAccess(accessChecker(goal.roadmap, session.user)))
   );
 
   const roadmapList = roadmaps.filter((roadmap) => hasEditAccess(accessChecker(roadmap, session.user)));
 
   return (
     <>
-      <Breadcrumb object={action || goal || undefined} customSections={[t("pages:effect_create.breadcrumb")]} />
+      <Breadcrumb object={action ?? goal ?? undefined} customSections={[t("pages:effect_create.breadcrumb")]} />
 
       <div className="container-text margin-inline-auto">
         <h1 className='margin-top-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
@@ -71,8 +69,12 @@ export default async function Page(
             {t("pages:effect_create.bad_goal")}
           </p>
         }
-        <EffectForm action={badAction ? null : action} goal={badGoal ? null : goal} roadmapAlternatives={roadmapList} />
+        <EffectForm
+          action={action}
+          goal={goal}
+          roadmaps={roadmapList}
+        />
       </div>
     </>
-  )
+  );
 }

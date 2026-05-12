@@ -1,13 +1,12 @@
 import EffectForm from "@/components/form/forms/effect";
-import getOneEffect from "@/fetchers/getOneEffect.ts";
-import getRoadmaps from "@/fetchers/getRoadmaps.ts";
-import accessChecker, { hasEditAccess } from "@/lib/accessChecker.ts";
-import { getSession } from "@/lib/session.ts";
+import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
+import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconInfoCircle } from "@tabler/icons-react";
+import { getOneEffect, getRoadmaps } from "@/fetchers";
 
 export async function generateMetadata(
   props: {
@@ -16,7 +15,7 @@ export async function generateMetadata(
       goalId?: string | string[] | undefined,
       [key: string]: string | string[] | undefined
     }>,
-  }
+  },
 ) {
   const searchParams = await props.searchParams;
   const [t, session] = await Promise.all([
@@ -24,37 +23,41 @@ export async function generateMetadata(
     getSession(await cookies()),
   ]);
 
-  const ownUrl = new URL('/effect/edit');
+  const params = new URLSearchParams();
+
   if (Array.isArray(searchParams.actionId)) {
     for (const action of searchParams.actionId) {
-      ownUrl.searchParams.append('actionId', action);
+      params.append('actionId', action);
     }
   } else if (typeof searchParams.actionId === 'string') {
-    ownUrl.searchParams.set('actionId', searchParams.actionId);
+    params.set('actionId', searchParams.actionId);
   }
+
   if (Array.isArray(searchParams.goalId)) {
     for (const goal of searchParams.goalId) {
-      ownUrl.searchParams.append('goalId', goal);
+      params.append('goalId', goal);
     }
   } else if (typeof searchParams.goalId === 'string') {
-    ownUrl.searchParams.set('goalId', searchParams.goalId);
+    params.set('goalId', searchParams.goalId);
   }
+
+  const ownUrl = `/effect/edit?${params.toString()}`;
 
   if (!session.user?.isLoggedIn) {
     return buildMetadata({
       title: t("metadata:login.title"),
       description: t("metadata:login.title"),
-      og_url: `${ownUrl.pathname}${ownUrl.search}`,
-      og_image_url: '/images/og_wind.png'
-    })
+      og_url: ownUrl,
+      og_image_url: '/images/og_wind.png',
+    });
   }
 
   return buildMetadata({
     title: t("metadata:effect_edit.title"),
     description: undefined,
-    og_url: `${ownUrl.pathname}${ownUrl.search}`,
-    og_image_url: undefined
-  })
+    og_url: ownUrl,
+    og_image_url: undefined,
+  });
 }
 
 
@@ -65,7 +68,7 @@ export default async function Page(
       goalId?: string | string[] | undefined,
       [key: string]: string | string[] | undefined
     }>,
-  }
+  },
 ) {
   const searchParams = await props.searchParams;
   const [t, session, effect, roadmaps] = await Promise.all([
@@ -75,7 +78,11 @@ export default async function Page(
     getRoadmaps(),
   ]);
 
-  if (effect == undefined || !hasEditAccess(accessChecker(effect.action.roadmap, session.user)) || !hasEditAccess(accessChecker(effect.goal.roadmap, session.user))) {
+  if (
+    !effect
+    || !hasEditAccess(accessChecker(effect.action.roadmap, session.user))
+    || !hasEditAccess(accessChecker(effect.goal.roadmap, session.user))
+  ) {
     return (
       <div className="container-text margin-inline-auto">
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
@@ -86,9 +93,10 @@ export default async function Page(
           {t("pages:effect_edit.no_access")}
         </p>
       </div>
-    )
+    );
   }
 
+  /** TODO: redundant? the getRoadmaps function already does checks? */
   const roadmapList = roadmaps.filter((roadmap) => hasEditAccess(accessChecker(roadmap, session.user)));
 
   return (
@@ -99,8 +107,11 @@ export default async function Page(
         <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
           {t("pages:effect_edit.title")}
         </h1>
-        <EffectForm action={effect.action} goal={effect.goal} roadmapAlternatives={roadmapList} currentEffect={effect} />
+        <EffectForm
+          currentEffect={effect}
+          roadmaps={roadmapList}
+        />
       </div>
     </>
-  )
+  );
 }

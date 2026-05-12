@@ -31,6 +31,7 @@
   --blue-70: hsl(206, 100%, 70%);
   --blue-80: hsl(206, 100%, 80%);
   --blue-90: hsl(206, 100%, 90%);
+  --blue-95: hsl(206, 100%, 95%);
 
   --brown: hsl(28, 40%, 83%);
   --brown-10: hsl(28, 40%, 10%);
@@ -46,7 +47,7 @@
   --gray: hsl(207, 21%, 82%);
   --gray-10: hsl(207, 21%, 10%);
   --gray-20: hsl(207, 21%, 20%);
-  --gray-30: hsl(207, 21%, 70%);
+  --gray-30: hsl(207, 21%, 30%);
   --gray-40: hsl(207, 21%, 40%);
   --gray-50: hsl(207, 21%, 50%);
   --gray-60: hsl(207, 21%, 60%);
@@ -65,6 +66,18 @@
   --white-70: hsl(42, 33%, 70%);
   --white-80: hsl(42, 33%, 80%);
   --white-90: hsl(42, 33%, 90%);
+
+  --primary-neutral: #f6f6f6;
+  --secondary-neutral: #fefefe;
+  --tertiary-neutral: #f9f9f9;
+}
+
+.neutral-background {
+  background-color: var(--primary-neutral);
+}
+
+.secondary-neutral-background {
+  background-color: var(--secondary-neutral);
 }
 
 /* Background color */
@@ -192,6 +205,10 @@
   background-color: var(--blue-90);
 }
 
+.blue-95 {
+  background-color: var(--blue-95);
+}
+
 .brown {
   background-color: var(--brown);
 }
@@ -317,7 +334,7 @@
 }
 
 .red {
-  background-color: #e83535;
+  background-color: #f03b3b;
 }
 
 .purewhite {

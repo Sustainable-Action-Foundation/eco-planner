@@ -1,18 +1,20 @@
-'use client'
+'use client';
 
-import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" with { type: "json" }
-import { LoginData } from "@/lib/session";
-import { AccessControlled, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
-import { MetaRoadmap, RoadmapType } from "@prisma/client";
-import { useState } from "react";
+import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" with { type: "json" };
+import type { LoginData } from "@/lib/session";
+import type { AccessControlled, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
+import type { MetaRoadmap } from "@prisma/client";
+import { RoadmapType } from "@prisma/client";
+import { useRef, useState } from "react";
 import formSubmitter from "@/functions/formSubmitter";
-import styles from '../forms.module.css'
+import styles from '../forms.module.css';
 import { useTranslation } from "react-i18next";
-import TextEditor from "@/components/form/elements/textEditor/editor.tsx";
+import TextEditor from "@/components/form/elements/textEditor/editor";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
-import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete.tsx";
-import ConfigureAccess from "../sections/access.tsx";
-import { Content } from "@tiptap/core";
+import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
+import ConfigureAccess from "../sections/access";
+import { useToastContext } from "@/components/generic/toast/toastContext";
+import { useRouter } from "next/navigation";
 
 export default function MetaRoadmapForm({
   user,
@@ -26,20 +28,13 @@ export default function MetaRoadmapForm({
   currentRoadmap?: MetaRoadmap & AccessControlled,
 }) {
   const { t } = useTranslation(["forms", "common"]);
+  const descriptionRef = useRef<HTMLInputElement>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [roadmapType, setRoadmapType] = useState<string>(currentRoadmap?.type ?? "");
+  const { addToast } = useToastContext();
+  const router = useRouter();
 
-  const [editorContent, setEditorContent] = useState<Content>(() => {
-    if (!currentRoadmap?.description) return null;
-
-    try {
-      return JSON.parse(currentRoadmap.description) as Content;
-    } catch {
-      return currentRoadmap.description;
-    }
-  });
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [roadmapType, setRoadmapType] = useState<string>("");
-
-  const timestamp = Date.now()
+  const [timestamp] = useState(() => Date.now());
 
   const customRoadmapTypes = {
     [RoadmapType.NATIONAL]: t("common:scope.national"),
@@ -48,7 +43,7 @@ export default function MetaRoadmapForm({
     [RoadmapType.LOCAL]: t("common:scope.local"),
     [RoadmapType.ORGANIZATIONAL]: t("common:scope.organizational"),
     [RoadmapType.OTHER]: t("common:scope.other"),
-  }
+  };
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     // Mostly the usual submit handler stuff.
@@ -63,25 +58,52 @@ export default function MetaRoadmapForm({
     const visibility = (form.namedItem("visibility") as RadioNodeList)?.value;
     const editability = (form.namedItem("editability") as RadioNodeList)?.value;
 
-    const formData: MetaRoadmapCreateInput | MetaRoadmapUpdateInput = {
-      name: (form.namedItem("name") as HTMLInputElement)?.value,
-      description: JSON.stringify(editorContent),
-      type: ((form.namedItem("type") as HTMLSelectElement)?.value as RoadmapType) || null,
-      actor: (form.namedItem("actor") as HTMLInputElement)?.value || null,
-      editors: editability === "custom" ? (form.namedItem("editors") as HTMLInputElement)?.value.split(',').map(string => string.trim()).filter(Boolean) : [],
-      viewers: visibility === "custom" ? (form.namedItem("viewers") as HTMLInputElement)?.value.split(",").map(string => string.trim()).filter(Boolean) : [],
-      editGroups: editability === "custom" ? (form.namedItem("editor-groups") as HTMLButtonElement)?.value.split(',').filter(Boolean) : [],
-      viewGroups: visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
-      isPublic: (form.namedItem("visibility") as RadioNodeList)?.value === "public",
-      links: undefined, // TODO: Links in DB should be migrated to description
-      parentRoadmapId: (form.namedItem("parent-roadmap") as HTMLButtonElement)?.value || undefined,
-      id: currentRoadmap?.id || undefined,
-      timestamp,
-    };
+    const description = form.namedItem("description") as HTMLInputElement | null;
+    if (!description?.value && !currentRoadmap) {
+      event.target.reportValidity();
+      setIsLoading(false);
+      addToast(t("forms:meta_roadmap.description_required"), "warning");
+      return;
+    }
+
+    let formData: MetaRoadmapCreateInput | MetaRoadmapUpdateInput;
+    if (!currentRoadmap) {
+      // Create
+      formData = {
+        name: (form.namedItem("name") as HTMLInputElement)?.value,
+        description: (form.namedItem("description") as HTMLInputElement | null)?.value || "", // Should always have a value due to the check above, but just in case
+        type: ((form.namedItem("type") as HTMLSelectElement)?.value as RoadmapType) || null,
+        actor: (form.namedItem("actor") as HTMLInputElement)?.value || null,
+        editors: editability === "custom" ? (form.namedItem("editors") as HTMLInputElement)?.value.split(',').map(string => string.trim()).filter(Boolean) : [],
+        viewers: visibility === "custom" ? (form.namedItem("viewers") as HTMLInputElement)?.value.split(",").map(string => string.trim()).filter(Boolean) : [],
+        editGroups: editability === "custom" ? (form.namedItem("editor-groups") as HTMLInputElement)?.value.split(',').filter(Boolean) : [],
+        viewGroups: visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
+        isPublic: (form.namedItem("visibility") as RadioNodeList)?.value === "public",
+        links: undefined, // TODO: Links in DB should be migrated to description
+        parentRoadmapId: (form.namedItem("parent-roadmap") as HTMLButtonElement)?.value || undefined,
+      } satisfies MetaRoadmapCreateInput;
+    } else {
+      // Update
+      formData = {
+        name: (form.namedItem("name") as HTMLInputElement)?.value,
+        description: (form.namedItem("description") as HTMLInputElement | null)?.value,
+        type: ((form.namedItem("type") as HTMLSelectElement)?.value as RoadmapType) || undefined,
+        actor: (form.namedItem("actor") as HTMLInputElement)?.value ?? undefined,
+        editors: editability === "custom" ? (form.namedItem("editors") as HTMLInputElement)?.value.split(',').map(string => string.trim()).filter(Boolean) : [],
+        viewers: visibility === "custom" ? (form.namedItem("viewers") as HTMLInputElement)?.value.split(",").map(string => string.trim()).filter(Boolean) : [],
+        editGroups: editability === "custom" ? (form.namedItem("editor-groups") as HTMLButtonElement)?.value.split(',').filter(Boolean) : [],
+        viewGroups: visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
+        isPublic: (form.namedItem("visibility") as RadioNodeList)?.value === "public",
+        links: undefined, // TODO: Links in DB should be migrated to description
+        parentRoadmapId: (form.namedItem("parent-roadmap") as HTMLButtonElement)?.value || undefined,
+        id: currentRoadmap.id,
+        timestamp,
+      } satisfies MetaRoadmapUpdateInput;
+    }
 
     const formJSON = JSON.stringify(formData);
 
-    formSubmitter('/api/metaRoadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading);
+    formSubmitter('/api/metaRoadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading, undefined, undefined, undefined, undefined, router.push); // addToast
   }
 
   // Indexes for the data-position attribute in the legend elements
@@ -108,8 +130,9 @@ export default function MetaRoadmapForm({
             placeholder={t("forms:text_editor_menu.default_placeholder")}
             editable={true}
             content={currentRoadmap ? currentRoadmap.description : ""}
-            onChange={(json) => setEditorContent(json)}
+            onChange={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
           />
+          <input required ref={descriptionRef} type="hidden" name="description" defaultValue={currentRoadmap?.description ?? ""} />
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
@@ -127,10 +150,10 @@ export default function MetaRoadmapForm({
               <option value="" disabled>{t("forms:meta_roadmap.no_chosen_roadmap_scope")}</option>
               {
                 Object.values(RoadmapType).map((value) => {
-                  if (value == RoadmapType.NATIONAL && !user?.isAdmin) return null;
+                  if (value === RoadmapType.NATIONAL && !user?.isAdmin) return null;
                   return (
                     <option key={value} value={value}>{value in customRoadmapTypes ? customRoadmapTypes[value] : value}</option>
-                  )
+                  );
                 })
               }
             </select>
@@ -164,12 +187,18 @@ export default function MetaRoadmapForm({
           positionIndex={positionIndex}
           legends={{
             viewers: t("forms:meta_roadmap.legend_visibility"),
-            editors: t("forms:meta_roadmap.legend_editability")
+            editors: t("forms:meta_roadmap.legend_editability"),
           }}
         />
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:meta_roadmap.relationship_legend")}</legend>
+          <legend
+            // Technically incrementing here is unused but if you add a another entry after this one it will be correct
+            // eslint-disable-next-line no-useless-assignment
+            data-position={positionIndex++}
+            className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}
+          >
+            {t("forms:meta_roadmap.relationship_legend")}</legend>
           <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:meta_roadmap.relationship_label")}</label>
           {parentRoadmapOptions ? ( // TODO: This might not make sense? // TODO: Memoize this? 
             <SelectSingleSearch
@@ -178,14 +207,14 @@ export default function MetaRoadmapForm({
                 id: "parent-roadmap",
                 name: "parent-roadmap",
                 placeholder: t("forms:combobox.select_or_leave"),
-                disabled: !parentRoadmapOptions
+                disabled: !parentRoadmapOptions,
               }}
               defaultValue={ // TODO: Might be a better way to do this
                 currentRoadmap
                   ? currentRoadmap.parentRoadmapId
                     ? (() => {
                       const selected = parentRoadmapOptions.find(
-                        (roadmap) => roadmap.id === currentRoadmap.parentRoadmapId
+                        (roadmap) => roadmap.id === currentRoadmap.parentRoadmapId,
                       );
                       return selected ? { name: selected.name, value: selected.id } : false;
                     })()
@@ -196,8 +225,8 @@ export default function MetaRoadmapForm({
                 { name: t("forms:meta_roadmap.relationship_no_chosen"), value: "" },
                 ...parentRoadmapOptions.map((metaRoadmap) => ({
                   name: metaRoadmap.name,
-                  value: metaRoadmap.id
-                }))
+                  value: metaRoadmap.id,
+                })),
               ]}
             />
           ) : null}
@@ -216,5 +245,5 @@ export default function MetaRoadmapForm({
         </div>
       </form>
     </>
-  )
+  );
 }

@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
 import { useTranslation } from "react-i18next";
-import React, { useState } from "react"
-import styles from "./forms.module.css"
+import React, { useState } from "react";
+import styles from "./forms.module.css";
 import { IconArrowLeft, IconArrowRight } from "@tabler/icons-react";
 
 export default function FormWrapper({
@@ -15,7 +15,7 @@ export default function FormWrapper({
   function iterateIndicators(currentTransformIndex: number) {
     const currentIndicator = document?.getElementById("current-indicator");
     const indicatorsParent = document?.getElementById("indicators");
-    const indicators = Array.from(indicatorsParent?.children || []);
+    const indicators = Array.from(indicatorsParent?.children ?? []);
 
     // TODO - maybe more than index should be used to check if the sections are complete? A section can be complete even if it is still in view
     // Turn indicators green if they are complete
@@ -65,13 +65,13 @@ export default function FormWrapper({
 
   // Hide the "next" button when at the final slide
   let nextButtonHiddenClass = "";
-  if (transformIndex == sections.length - 1) {
+  if (transformIndex === sections.length - 1) {
     nextButtonHiddenClass = "hidden";
   }
 
   // Hide the "back" button when at the first slide
   let backButtonHiddenClass = "";
-  if (transformIndex == 0) {
+  if (transformIndex === 0) {
     backButtonHiddenClass = "hidden";
   }
 
@@ -85,7 +85,7 @@ export default function FormWrapper({
         ))}
       </div>
 
-      <div className={`margin-block-start-100 padding-inline-100 gap-50 grid ${styles.indicatorLayout}`}>
+      <div className={`margin-block-start-100 gap-50 grid ${styles.indicatorLayout}`}>
         <button type="button" id="backButton" className={`flex align-items-center transparent round gap-25 ${backButtonHiddenClass} ${styles.indicatorButton}`} onClick={() => iterateSections({ reverse: true })}>
           <IconArrowLeft style={{ minWidth: '24px' }} aria-hidden="true" />
           {t("common:back")}
@@ -107,5 +107,5 @@ export default function FormWrapper({
       </div>
 
     </>
-  )
+  );
 }

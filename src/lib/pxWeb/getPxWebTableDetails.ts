@@ -1,10 +1,10 @@
-import { ApiTableDetails } from "../api/apiTypes";
+import type { ApiTableDetails } from "../api/apiTypes";
 import { ExternalDataset } from "../api/utility";
-import { PxWebApiV2MetricDimension, PxWebApiV2TableDetails, PxWebMetric, PxWebTimeVariable, PxWebVariable, PxWebVariableValue } from "./pxWebApiV2Types";
+import type { PxWebApiV2MetricDimension, PxWebApiV2TableDetails, PxWebMetric, PxWebTimeVariable, PxWebVariable, PxWebVariableValue } from "./pxWebApiV2Types";
 
 export default async function getPxWebTableDetails(tableId: string, externalDataset: string, language?: string) {
   // Get the base URL for the external dataset, defaulting to SCB
-  const dataset = ExternalDataset.getDatasetByAlternateName(externalDataset) || ExternalDataset.SCB;
+  const dataset = ExternalDataset.getDatasetByAlternateName(externalDataset) ?? ExternalDataset.SCB;
   const url = new URL(`./tables/${tableId}/metadata`, dataset.baseUrl);
 
   if (!language || !dataset.supportedLanguages.includes(language)) {
@@ -21,7 +21,7 @@ export default async function getPxWebTableDetails(tableId: string, externalData
     const response = await fetch(url, { method: 'GET' });
     if (response.ok) {
       data = await response.json() as PxWebApiV2TableDetails;
-    } else if (response.status == 429) {
+    } else if (response.status === 429) {
       // Wait 10 seconds and try again
       await new Promise(resolve => setTimeout(resolve, 10000));
       return await getPxWebTableDetails(tableId, externalDataset, language);
@@ -57,7 +57,7 @@ export default async function getPxWebTableDetails(tableId: string, externalData
   }
 
   // Find all time periods for the table and add to tableDetails
-  const timeCategory = data.dimension.Tid.category
+  const timeCategory = data.dimension.Tid.category;
   for (const timeVariableName in timeCategory.index) {
     const pxWebItem = data.dimension.Tid;
     const pxWebTimeVariable: PxWebTimeVariable = {
@@ -75,7 +75,7 @@ export default async function getPxWebTableDetails(tableId: string, externalData
 
   // Find all variables for the table and add to tableDetails
   for (const variableName of data.extension.px.stub) {
-    const pxWebItem = data.dimension[variableName]
+    const pxWebItem = data.dimension[variableName];
     const pxWebVariable: PxWebVariable = {
       type: "variable",
       id: variableName,

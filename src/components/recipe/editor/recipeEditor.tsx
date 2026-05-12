@@ -1,21 +1,16 @@
+import "client-only";
 import TabList from "@/components/generic/tablist/tabList";
-import OutputGraph from "./output/graphDisplay";
-import OutputDataSeries from "./output/dataSeriesDisplay";
-import OutputStatus from "./output/statusDisplay";
-import RecipeEquationEditor from "@/components/recipe/editor/equationEditor";
-import VariableCreator from "./variables/variableCreator";
-import VariableEditor from "@/components/recipe/editor/variables/variableEditor";
 import { useTranslation } from "react-i18next";
-import FormIntegration from "./output/formIntegration";
+import { VariableCreator, EquationEditor, VariablesEditor, TextStatus, OutputDataSeries, OutputGraph, FormIntegration } from "@/components/recipe";
 
-export default function RecipeEditor() {
+export function RecipeEditor() {
   const { t } = useTranslation(["components"]);
 
   return (
     <>
       <TabList
         defaultIndex={0}
-        menuItems={<VariableCreator allowAddVariables={true} />}
+        menuItems={<VariableCreator />}
       >
         <div
           data-tabname={t("components:recipe_editor.recipe")}
@@ -23,25 +18,17 @@ export default function RecipeEditor() {
             resize: 'vertical',
             overflow: 'auto',
             border: '1px solid var(--gray)',
-            borderRadius: '0 .25rem 0 0'
+            borderRadius: '0 .25rem 0 0',
           }}
         >
-          <RecipeEquationEditor />
+          <EquationEditor />
         </div>
         <div
           data-tabname={t("components:recipe_editor.variables")}
           className="purewhite padding-25 flex flex-direction-column"
           style={{ border: '1px solid var(--gray)', borderRadius: '.25rem .25rem 0 0', minHeight: '225px', resize: 'vertical', overflow: 'auto', backgroundColor: 'white' }}
         >
-          <VariableEditor
-            permissions={{
-              allowAddVariables: true,
-              allowDeleteVariables: true,
-              allowNameEditing: true,
-              allowTypeEditing: true,
-              allowValueEditing: true,
-            }}
-          />
+          <VariablesEditor />
         </div>
       </TabList>
 
@@ -49,7 +36,7 @@ export default function RecipeEditor() {
         className="padding-50"
         style={{ backgroundColor: 'var(--gray-95)', border: '1px solid var(--gray)', borderTop: '0', borderRadius: '0 0 .25rem .25rem' }}
       >
-        <OutputStatus />
+        <TextStatus />
 
         <TabList
           defaultIndex={0}
@@ -77,5 +64,5 @@ export default function RecipeEditor() {
         RecipeFormElement={<input name="resultingRecipe" />}
       />
     </>
-  )
+  );
 }

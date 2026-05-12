@@ -1,9 +1,10 @@
 'use client';
 
 import { commentSorter } from "@/lib/sorters";
-import { Comment } from "@prisma/client";
-import styles from './comments.module.css'
-import { ChangeEvent, useRef, useState } from "react";
+import type { Comment } from "@prisma/client";
+import styles from './comments.module.css';
+import type { FocusEventHandler, InputEventHandler } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Link from "next/link";
 import formSubmitter from "@/functions/formSubmitter";
@@ -12,14 +13,14 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
   const { t } = useTranslation(["components", "common"]);
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
-    event.preventDefault()
-    const form = event.target.elements
-    const comment = (form.namedItem("comment") as HTMLInputElement)?.value
+    event.preventDefault();
+    const form = event.target.elements;
+    const comment = (form.namedItem("comment") as HTMLInputElement)?.value;
     const formJSON = JSON.stringify({
       commentText: comment,
       objectId,
-    })
-    void formSubmitter(
+    });
+    formSubmitter(
       '/api/comment',
       formJSON,
       'POST',
@@ -36,7 +37,7 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
           console.error('Unexpected error:', err);
           alert(t("common:error.generic_with_details", { details: 'See console for details' }));
         }
-      }
+      },
     );
   }
 
@@ -45,17 +46,21 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
 
   /* Handle input from span */
   const [editedContent, setEditedContent] = useState('');
-  const handleInput = (event: ChangeEvent<HTMLSpanElement>) => {
-    setEditedContent(event.target.innerText);
+  const handleInput: InputEventHandler<HTMLSpanElement> = (event) => {
+    setEditedContent(event.currentTarget.innerText);
+  };
+
+  const handleBlur: FocusEventHandler<HTMLSpanElement> = (event) => {
+    setEditedContent(event.currentTarget.innerText);
   };
 
   const spanRef = useRef<HTMLSpanElement>(null);
   const removeText = () => {
     if (spanRef.current) {
-      spanRef.current.innerHTML = ''
+      spanRef.current.innerHTML = '';
     }
-    setEditedContent('')
-  }
+    setEditedContent('');
+  };
 
   const [expandedComments, setExpandedComments] = useState<string[]>([]);
   const expandComment = (commentId: string) => {
@@ -71,9 +76,9 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
   return (
     <>
       <div className="container-text">
-        <h2>{t("components:comments.comment_count", { count: comments?.length || 0 })}</h2>
+        <h2>{t("components:comments.comment_count", { count: comments?.length ?? 0 })}</h2>
         <form onSubmit={handleSubmit}>
-          <span className={styles.textarea} role="textbox" id="comment-text" contentEditable aria-label={t("components:comments.add_comment")} aria-placeholder={t("components:comments.add_comment")} onInput={handleInput} onBlur={handleInput} ref={spanRef}></span>
+          <span className={styles.textarea} role="textbox" id="comment-text" contentEditable aria-label={t("components:comments.add_comment")} aria-placeholder={t("components:comments.add_comment")} onInput={handleInput} onBlur={handleBlur} ref={spanRef}></span>
           <input type="hidden" name="comment" id="comment" value={editedContent} />
           <div className="display-flex justify-content-flex-end gap-50 padding-block-50">
             <button type="button" disabled={!editedContent} className={`${styles.button} ${styles.cancel}`} onClick={removeText}>{t("common:tsx.cancel")}</button>
@@ -88,7 +93,7 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
                 {t("components:comments.relative_time", { date: new Date(comment.createdAt) })}
               </span>
             </div>
-            <p className="margin-0" style={{ wordBreak: 'break-word', }}>
+            <p className="margin-0" style={{ wordBreak: 'break-word' }}>
               {expandedComments.includes(comment.id) ? comment.commentText : comment.commentText.length > 300 ? `${comment.commentText.substring(0, 300)}${t("common:tsx.ellipsis")}` : comment.commentText}
             </p>
             {comment.commentText.length > 300 ?
@@ -100,5 +105,5 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
         ))}
       </div>
     </>
-  )
+  );
 }

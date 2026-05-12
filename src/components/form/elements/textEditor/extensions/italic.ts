@@ -1,5 +1,5 @@
-import '@tiptap/extension-text-style'
-import { Extension } from '@tiptap/core'
+import '@tiptap/extension-text-style';
+import { Extension } from '@tiptap/core';
 
 export type italicOptions = {
   /**
@@ -10,6 +10,7 @@ export type italicOptions = {
 }
 
 declare module '@tiptap/core' {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Commands<ReturnType> {
     italic: {
       /**
@@ -27,7 +28,7 @@ export const Italic = Extension.create<italicOptions>({
   addOptions() {
     return {
       types: ['textStyle'],
-    }
+    };
   },
 
   addGlobalAttributes() {
@@ -38,29 +39,29 @@ export const Italic = Extension.create<italicOptions>({
           fontStyle: {
             default: null,
             parseHTML: element => {
-              const fontStyle = element.style.fontStyle?.replace(/['"]+/g, '')
-              return fontStyle === 'italic' ? 'italic' : null
+              const fontStyle = element.style.fontStyle?.replace(/['"]+/g, '');
+              return fontStyle === 'italic' ? 'italic' : null;
             },
             renderHTML: attributes => {
               if (attributes.fontStyle !== 'italic') {
-                return {}
+                return {};
               }
 
               return {
                 style: 'font-style: italic',
-              }
+              };
             },
           },
         },
       },
-    ]
+    ];
   },
 
   addCommands() {
     return {
       toggleItalic: () => ({ chain }) => {
         const attrs = this.editor.getAttributes('textStyle');
-        const isItalic = attrs.fontStyle === 'italic'
+        const isItalic = attrs.fontStyle === 'italic';
 
         return isItalic
           ? chain()
@@ -69,16 +70,16 @@ export const Italic = Extension.create<italicOptions>({
             .run()
           : chain()
             .setMark('textStyle', { fontStyle: 'italic' })
-            .run()
-      }
-    }
+            .run();
+      },
+    };
   },
 
   addKeyboardShortcuts() {
     return {
       'Mod-i': () => this.editor.commands.toggleItalic(),
       'Mod-I': () => this.editor.commands.toggleItalic(),
-    }
+    };
   },
 
-})
+});

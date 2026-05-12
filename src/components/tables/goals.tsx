@@ -1,24 +1,22 @@
-"use client"
+"use client";
 
-import { AccessLevel } from '@/types'
-import GoalTable from "./goalTables/goalTable"
-import TableSelector from './tableSelector/tableSelector'
-import LinkTree from './goalTables/linkTree'
-import ActionTable from "./actions"
-import { useEffect, useState } from "react"
-import { getStoredGoalSortBy, getStoredViewMode, setStoredGoalSortBy } from "./functions/tableFunctions"
-import Link from "next/link"
-import Image from "next/image"
-import styles from './tables.module.css'
-import type getOneRoadmap from "@/fetchers/getOneRoadmap.ts"
-import { useTranslation } from "react-i18next"
-import { IconSearch } from '@tabler/icons-react'
+import { AccessLevel } from '@/types';
+import GoalTable from "./goalTables/goalTable";
+import TableSelector from './tableSelector/tableSelector';
+import LinkTree from './goalTables/linkTree';
+import { useState } from "react";
+import { getStoredGoalSortBy, getStoredViewMode, setStoredGoalSortBy } from "./functions/tableFunctions";
+import Link from "next/link";
+import Image from "next/image";
+import styles from './tables.module.css';
+import type { getOneRoadmap } from "@/fetchers";
+import { useTranslation } from "react-i18next";
+import { IconSearch } from '@tabler/icons-react';
 
 /** Object containing the different view modes for the goal table. */
 export const ViewMode = {
   Table: "TABLE",
   Tree: "TREE",
-  Actions: "ACTIONS",
 } as const;
 export type ViewMode = (typeof ViewMode)[keyof typeof ViewMode];
 
@@ -41,14 +39,10 @@ export default function Goals({
 }) {
   const { t } = useTranslation("components");
 
-  const [viewMode, setViewMode] = useState<ViewMode | ''>('');
-  const [sortBy, setSortBy] = useState<GoalSortBy>(GoalSortBy.Default);
+  const [viewMode, setViewMode] = useState<ViewMode | ''>(getStoredViewMode(roadmap.id));
+  const [sortBy, setSortBy] = useState<GoalSortBy>(getStoredGoalSortBy() || GoalSortBy.Default);
   const [searchFilter, setSearchFilter] = useState<string>('');
-
-  useEffect(() => {
-    setViewMode(getStoredViewMode(roadmap.id));
-    setSortBy(getStoredGoalSortBy());
-  }, [roadmap.id]);
+  const [recipeOnly, setRecipeOnly] = useState<boolean>(false);
 
   let filteredRoadmap = roadmap;
   if (searchFilter) {
@@ -61,7 +55,20 @@ export default function Goals({
           return true;
         }
       }),
-    }
+    };
+  }
+
+  if (recipeOnly) {
+    filteredRoadmap = {
+      ...roadmap,
+      goals: roadmap.goals.filter(goal => {
+        if (goal.dataSeries?.recipeUsedId) {
+          return true;
+        } else {
+          return false;
+        }
+      }),
+    };
   }
 
   return (
@@ -74,13 +81,17 @@ export default function Goals({
             <input type="search" className="padding-0 margin-inline-50" onChange={(e) => setSearchFilter(e.target.value)} />
           </div>
         </label>
-        {viewMode == ViewMode.Table && (
+        <label className='flex align-items-center gap-50'>
+          Visa enbart målbanor med recept
+          <input checked={recipeOnly} onChange={() => setRecipeOnly(!recipeOnly)} type='checkbox' />
+        </label>
+        {viewMode === ViewMode.Table && (
           <label className="font-weight-bold">
             {t("components:goals.sort_by")}
             <select
               className="font-weight-500 margin-top-25 block"
               style={{ fontSize: '1rem', minHeight: 'calc(24px + 1rem)' }}
-              onChange={(e) => { setSortBy(e.target.value as GoalSortBy); setStoredGoalSortBy(e.target.value as GoalSortBy) }} defaultValue={sortBy}
+              onChange={(e) => { setSortBy(e.target.value as GoalSortBy); setStoredGoalSortBy(e.target.value as GoalSortBy); }} defaultValue={sortBy}
             >
               <option value={GoalSortBy.Default}>{t("components:goals.sort_default")}</option>
               <option value={GoalSortBy.Alpha}>{t("components:goals.sort_name_descending")}</option>
@@ -100,12 +111,10 @@ export default function Goals({
 
       {/* TODO: Probably not correct to handle loading as a default state? */}
       {/* TODO: Probably use a skeleton for the loading state */}
-      {viewMode == ViewMode.Tree ? (
+      {viewMode === ViewMode.Tree ? (
         <LinkTree roadmap={filteredRoadmap} />
-      ) : viewMode == ViewMode.Table ? (
+      ) : viewMode === ViewMode.Table ? (
         <GoalTable roadmap={filteredRoadmap} sortBy={sortBy} />
-      ) : viewMode == ViewMode.Actions ? (
-        <ActionTable actions={filteredRoadmap.actions} accessLevel={accessLevel} roadmapId={roadmap.id} />
       ) :
         <Image
           src='/loaders/3-dots-scale.svg'
@@ -118,5 +127,5 @@ export default function Goals({
 
 
     </>
-  )
+  );
 }

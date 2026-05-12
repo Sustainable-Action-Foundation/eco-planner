@@ -2,8 +2,8 @@ import getUserHash from "@/functions/getUserHash";
 import { baseUrl } from "@/lib/baseUrl";
 import serveTea from "@/lib/i18nServer";
 import mailClient from "@/mailClient";
-import { JSONValue } from "@/types";
-import { NextRequest } from "next/server";
+import type { JSONValue } from "@/types";
+import type { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
   const t = await serveTea("email");

@@ -1,0 +1,46 @@
+{
+  "common": {
+    "unauthorized": "Obehörig",
+    "missing_input": "Saknar nödvändiga inmatningsparametrar",
+    "invalid_request_body": "Ogiltigt innehåll i förfrågan",
+    "server_error": "Internt serverfel",
+    "stale_data": "Potentiellt föråldrad data. Vänligen uppdatera och försök igen.",
+    "unknown_error": "Okänt fel",
+    "unknown_server_error": "Okänt internt serverfel"
+  },
+  "action": {
+    "action_created": "Åtgärd skapad",
+    "action_updated": "Åtgärd uppdaterad",
+    "action_deleted": "Åtgärd raderad",
+    "goal_not_found": "Misslyckades att koppla poster. Angivet mål kanske inte existerar",
+    "missing_parent": "Saknar förälder. Vänligen rapportera detta problem om du inte skickar anpassade förfrågningar.",
+    "invalid_data_series": "Felaktig dataserie"
+  },
+  "goal": {
+    "goal_created": "Målbana skapad",
+    "goal_updated": "Målbana uppdaterad",
+    "goal_deleted": "Målbana raderad",
+    "roadmap_not_found": "Misslyckades att koppla poster. Angiven målbana kanske inte existerar"
+  },
+  "effect": {
+    "effect_created": "Effekt skapad",
+    "effect_updated": "Effekt uppdaterad",
+    "effect_deleted": "Effekt raderad",
+    "effect_already_exists": "Effekt finns redan, prova redigeringssidan om du vill ändra värden"
+  },
+  "metaRoadmap": {
+    "meta_roadmap_created": "Metadata för färdplan skapad",
+    "meta_roadmap_updated": "Metadata för färdplan uppdaterad",
+    "meta_roadmap_deleted": "Metadata för färdplan raderad",
+    "national_roadmap_forbidden": "Förbjudet; endast administratörer kan skapa nationella målbanor. Skicka gärna ett e-postmeddelande till kontakt@sustainable-action.org om du tycker att vi bör lägga till en till.",
+    "failed_record_connection": "Misslyckades att koppla poster. Förmodligen ogiltiga editor, viewer, editGroup och/eller viewGroup namn",
+    "failed_roadmap_creation": "Misslyckades att skapa metadata för färdplan"
+  },
+  "roadmap": {
+    "roadmap_created": "Färdplan skapad",
+    "roadmap_updated": "Färdplan uppdaterad",
+    "roadmap_deleted": "Färdplan raderad",
+    "failed_fetch_latest": "Misslyckades att hämta senaste versionen av färdplan",
+    "failed_record_connection": "Misslyckades att koppla poster. Förmodligen ogiltiga editor, viewer, editGroup och/eller viewGroup namn"
+  }
+}

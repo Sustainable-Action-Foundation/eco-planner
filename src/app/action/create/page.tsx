@@ -2,24 +2,22 @@ import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import ActionForm from "@/components/form/forms/action";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
-import getOneGoal from "@/fetchers/getOneGoal";
-import { AccessControlled } from "@/types";
-import getOneRoadmap from "@/fetchers/getOneRoadmap";
-import getRoadmaps from "@/fetchers/getRoadmaps.ts";
+import type { AccessControlled } from "@/types";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconInfoCircle } from "@tabler/icons-react";
+import { getOneGoal, getOneRoadmap, getRoadmaps } from "@/fetchers";
 
 export async function generateMetadata() {
-  const t = await serveTea("metadata")
+  const t = await serveTea("metadata");
 
   return buildMetadata({
     title: t("metadata:action_create.title"),
     description: t("metadata:action_create.description"),
     og_url: `/action/create`,
-    og_image_url: undefined
-  })
+    og_image_url: undefined,
+  });
 }
 
 export default async function Page(
@@ -29,16 +27,23 @@ export default async function Page(
       goalId?: string | string[] | undefined,
       [key: string]: string | string[] | undefined
     }>
-  }
+  },
 ) {
   const searchParams = await props.searchParams;
   const [t, session, goal, roadmap, roadmapList] = await Promise.all([
     serveTea("pages"),
     getSession(await cookies()),
-    getOneGoal(typeof searchParams.goalId == 'string' ? searchParams.goalId : ''),
-    getOneRoadmap(typeof searchParams.roadmapId == 'string' ? searchParams.roadmapId : ''),
+    getOneGoal(typeof searchParams.goalId === 'string' ? searchParams.goalId : ''),
+    getOneRoadmap(typeof searchParams.roadmapId === 'string' ? searchParams.roadmapId : ''),
     getRoadmaps(),
   ]);
+
+  if (
+    Array.isArray(searchParams.goalId)
+    || Array.isArray(searchParams.roadmapId)
+  ) {
+    throw new Error("Invalid parameters"); // TODO: Should this be a throw?
+  }
 
   let goalAccessData: AccessControlled | null = null;
   if (goal) {
@@ -48,34 +53,35 @@ export default async function Page(
       viewers: goal.roadmap.viewers,
       editGroups: goal.roadmap.editGroups,
       viewGroups: goal.roadmap.viewGroups,
-      isPublic: goal.roadmap.isPublic
-    }
+      isPublic: goal.roadmap.isPublic,
+    };
   }
 
   // Ignore the goal or roadmap (and inform user) if they are not found or the user does not have edit access
   const badGoal = (
-    (!goal && typeof searchParams.goalId == 'string') ||
-    (goal && !hasEditAccess(accessChecker(goalAccessData, session.user)))
+    (!goal && typeof searchParams.goalId === 'string')
+    || (goal && !hasEditAccess(accessChecker(goalAccessData, session.user)))
   );
   const badRoadmap = (
-    (!roadmap && typeof searchParams.roadmapId == 'string') ||
-    (roadmap && !hasEditAccess(accessChecker(roadmap, session.user)))
+    (!roadmap && typeof searchParams.roadmapId === 'string')
+    || (roadmap && !hasEditAccess(accessChecker(roadmap, session.user)))
   );
 
   // The roadmaps the user can choose to add the action to (the ones they have edit access to)
-  const availableRoadmaps = roadmapList.filter((roadmap) => hasEditAccess(accessChecker(roadmap, session.user)));
+  const availableRoadmaps = roadmapList.filter((roadmap) =>
+    hasEditAccess(accessChecker(roadmap, session.user)),
+  );
 
   return (
     <>
-      <Breadcrumb object={goal || roadmap || undefined} customSections={[t("pages:action_create.breadcrumb")]} />
+      <Breadcrumb object={goal ?? roadmap ?? undefined} customSections={[t("pages:action_create.breadcrumb")]} />
 
       <div className="container-text margin-inline-auto">
-        {goal ?
-          <h1 className='margin-top-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
+        {goal
+          ? <h1 className='margin-top-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
             {t("pages:action_create.title_with_goal", { goalName: goal?.name || goal?.indicatorParameter })}
           </h1>
-          :
-          <h1 className='margin-top-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
+          : <h1 className='margin-top-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
             {t("pages:action_create.title")}
           </h1>
         }
@@ -92,11 +98,11 @@ export default async function Page(
           </p>
         }
         <ActionForm
-          goalId={badGoal ? undefined : searchParams.goalId as string | undefined}
-          roadmapId={badRoadmap ? undefined : searchParams.roadmapId as string | undefined}
-          roadmapAlternatives={availableRoadmaps}
+          goalId={badGoal ? undefined : searchParams.goalId}
+          roadmapId={badRoadmap ? undefined : searchParams.roadmapId}
+          roadmaps={availableRoadmaps}
         />
       </div>
     </>
-  )
+  );
 }

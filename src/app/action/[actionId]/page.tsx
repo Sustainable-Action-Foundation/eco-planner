@@ -1,24 +1,25 @@
-import getOneAction from "@/fetchers/getOneAction";
+import { getOneAction }from "@/fetchers";
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AccessControlled, AccessLevel } from "@/types";
+import { AccessLevel } from "@/types";
+import type { AccessControlled } from "@/types";
 import accessChecker from "@/lib/accessChecker";
 import Comments from "@/components/comments/comments";
-import EffectTable from "@/components/tables/effects.tsx";
+import EffectTable from "@/components/tables/effects";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
-import { IconEdit } from "@tabler/icons-react";
 import TextEditor from "@/components/form/elements/textEditor/editor";
+import { AdminPanel } from "@/components/elements/controls/controls";
 
 export async function generateMetadata(props: { params: Promise<{ actionId: string }> }) {
-  const params = await props.params
+  const params = await props.params;
   const [t, session, action] = await Promise.all([
     serveTea("metadata"),
     getSession(await cookies()),
-    getOneAction(params.actionId)
+    getOneAction(params.actionId),
   ]);
 
   if (!session.user?.isLoggedIn) {
@@ -26,16 +27,16 @@ export async function generateMetadata(props: { params: Promise<{ actionId: stri
       title: t("metadata:login.title"),
       description: t("metadata:login.title"),
       og_url: `/action/${params.actionId}`,
-      og_image_url: '/images/og_wind.png'
-    })
+      og_image_url: '/images/og_wind.png',
+    });
   }
 
   return buildMetadata({
     title: action?.name,
     description: action?.description,
     og_url: `/action/${params.actionId}`,
-    og_image_url: undefined
-  })
+    og_image_url: undefined,
+  });
 
 }
 
@@ -44,7 +45,7 @@ export default async function Page(props: { params: Promise<{ actionId: string }
   const [t, session, action] = await Promise.all([
     serveTea("pages"),
     getSession(await cookies()),
-    getOneAction(params.actionId)
+    getOneAction(params.actionId),
   ]);
 
   let accessLevel: AccessLevel = AccessLevel.None;
@@ -55,8 +56,8 @@ export default async function Page(props: { params: Promise<{ actionId: string }
       viewers: action.roadmap.viewers,
       editGroups: action.roadmap.editGroups,
       viewGroups: action.roadmap.viewGroups,
-      isPublic: action.roadmap.isPublic
-    }
+      isPublic: action.roadmap.isPublic,
+    };
     accessLevel = accessChecker(actionAccessData, session.user);
   }
 
@@ -68,34 +69,23 @@ export default async function Page(props: { params: Promise<{ actionId: string }
   return (
     <>
       <Breadcrumb object={action} />
+      {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
+        <AdminPanel accessLevel={accessLevel} object={action} />
+      }
 
       <main>
         <section className="margin-block-300 container">
-          <div className="flex flex-wrap-wrap">
-            <div className="flex-grow-100">
-              <span style={{ color: 'gray' }}>{t("pages:action.action_label")}</span>
-              <h1 className="margin-0">{action.name}</h1>
-              <p className="margin-top-0 margin-bottom-100">{action.startYear} - {action.endYear}</p>
-              {action.description ?
-                <TextEditor
-                  id="rich-description"
-                  editable={false}
-                  defaultStyles={false}
-                  content={action.description}
-                />
-                : null}
-            </div>
-            {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
-              <Link
-                href={`/action/${params.actionId}/edit`}
-                className="flex align-items-center gap-50 padding-block-50 padding-inline-100 round button transparent font-weight-500"
-                style={{ width: 'fit-content', height: 'fit-content' }}
-              >
-                {t("pages:action.edit_action")}
-                <IconEdit style={{ minWidth: '24px' }} aria-hidden="true" />
-              </Link>
-              : null}
-          </div>
+          <span style={{ color: 'gray' }}>{t("pages:action.action_label")}</span>
+          <h1 className="margin-0">{action.name}</h1>
+          <p className="margin-top-0 margin-bottom-100">{action.startYear} - {action.endYear}</p>
+          {action.description ?
+            <TextEditor
+              id="rich-description"
+              editable={false}
+              defaultStyles={false}
+              content={action.description}
+            />
+            : null}
         </section>
 
         <section className="margin-block-300">
@@ -114,7 +104,7 @@ export default async function Page(props: { params: Promise<{ actionId: string }
           }
 
           <h2 className="margin-top-300">{t("pages:action.project_manager")}</h2>
-          {(action.projectManager && (accessLevel == AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel == AccessLevel.Admin)) ?
+          {(action.projectManager && (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin)) ?
             <p>{action.projectManager}</p>
             :
             <p>{t("pages:action.no_project_manager")}</p>
@@ -153,5 +143,5 @@ export default async function Page(props: { params: Promise<{ actionId: string }
         <Comments comments={action.comments} objectId={action.id} />
       </section>
     </>
-  )
+  );
 }

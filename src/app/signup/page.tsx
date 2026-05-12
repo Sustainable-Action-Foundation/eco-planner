@@ -13,7 +13,7 @@ export async function generateMetadata() {
     description: t("metadata:signup.description"),
     og_url: `/signup`,
     og_image_url: '/images/og_hydro.png',
-  })
+  });
 }
 
 export default async function Page() {
@@ -38,5 +38,5 @@ export default async function Page() {
         </div>
       </main>
     </>
-  )
+  );
 }

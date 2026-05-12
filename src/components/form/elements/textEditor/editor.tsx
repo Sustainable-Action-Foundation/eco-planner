@@ -1,13 +1,13 @@
-'use client'
+'use client';
 
 // TODO: Remove duplicate extension names
-import { Content, Editor, EditorContent, useEditor } from '@tiptap/react'
-import TextEditorMenu from './menu'
+import type { Content, Editor} from '@tiptap/react';
+import { EditorContent, useEditor } from '@tiptap/react';
+import TextEditorMenu from './menu';
 import { defaultExtensions, nodeSizeLimit } from './config/config';
 import { useMemo } from 'react';
-import { useDebouncedCallback } from 'use-debounce';
 
-{/* TODO: Update typing for content */ }
+{/* TODO: Update typing for content */}
 const TextEditor = ({
   className,
   style,
@@ -17,7 +17,7 @@ const TextEditor = ({
   content,
   editable,
   defaultStyles = true,
-  onChange
+  onChange,
 }: {
   className?: string
   style?: React.CSSProperties
@@ -38,27 +38,23 @@ const TextEditor = ({
       return content;
     }
   }, [content]);
- 
-  const debouncedOnChange  = useDebouncedCallback((editor: Editor) => {
-    if (onChange) onChange(editor.getJSON());
-  }, 200); 
 
   const editor = useEditor({
     immediatelyRender: true,
     shouldRerenderOnTransaction: true,
     editable,
     onUpdate: ({ editor }) => {
-      debouncedOnChange(editor)
+      if (onChange) onChange(editor.getJSON());
     },
     content: parsedContent,
     extensions: defaultExtensions(placeholder),
-  })
+  });
 
   if (!editor) {
-    return null
+    return null;
   }
 
-  const percentage = editor ? Math.round((100 / nodeSizeLimit) * editor.storage.characterCount.characters({ mode: 'nodeSize' })) : 0
+  const percentage = editor ? Math.round((100 / nodeSizeLimit) * editor.storage.characterCount.characters({ mode: 'nodeSize' })) : 0;
   const circumference = 2 * Math.PI * 5; // r = 5
   const dash = (percentage / 100) * circumference;
 
@@ -90,7 +86,7 @@ const TextEditor = ({
         </div>
         : null}
     </div>
-  )
-}
+  );
+};
 
-export default TextEditor
+export default TextEditor;

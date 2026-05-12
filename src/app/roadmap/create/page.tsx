@@ -2,23 +2,22 @@ import { getSession } from '@/lib/session';
 import RoadmapForm from '@/components/form/forms/roadmap';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
-import getMetaRoadmaps from '@/fetchers/getMetaRoadmaps';
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
 import accessChecker, { hasEditAccess } from '@/lib/accessChecker';
-import getOneMetaRoadmap from '@/fetchers/getOneMetaRoadmap';
 import serveTea from "@/lib/i18nServer";;
 import { buildMetadata } from '@/functions/buildMetadata';
 import { IconInfoCircle } from '@tabler/icons-react';
+import { getOneMetaRoadmap, getMetaRoadmaps } from "@/fetchers";
 
 export async function generateMetadata() {
-  const t = await serveTea("metadata")
+  const t = await serveTea("metadata");
 
   return buildMetadata({
     title: t("metadata:roadmap_create.title"),
     description: t('metadata:roadmap_create.description'),
     og_url: `/roadmap/create`,
-    og_image_url: undefined
-  })
+    og_image_url: undefined,
+  });
 }
 
 export default async function Page(
@@ -27,7 +26,7 @@ export default async function Page(
       metaRoadmapId?: string | string[] | undefined,
       [key: string]: string | string[] | undefined
     }>
-  }
+  },
 ) {
   const searchParams = await props.searchParams;
   const [t, session, parent, metaRoadmapAlternatives] = await Promise.all([
@@ -43,19 +42,19 @@ export default async function Page(
   }
 
   const badMetaRoadmap = (
-    searchParams.metaRoadmapId instanceof Array ||
-    (!parent && typeof searchParams.metaRoadmapId == 'string') ||
-    (parent && !hasEditAccess(accessChecker(parent, session.user)))
+    searchParams.metaRoadmapId instanceof Array
+    || (!parent && typeof searchParams.metaRoadmapId == 'string')
+    || (parent && !hasEditAccess(accessChecker(parent, session.user)))
   );
 
   // The meta roadmaps the user can create the new roadmap under (the ones they have edit access to)
   const filteredAlternatives = metaRoadmapAlternatives.filter(metaRoadmap =>
-    hasEditAccess(accessChecker(metaRoadmap, session.user))
+    hasEditAccess(accessChecker(metaRoadmap, session.user)),
   );
 
   return (
     <>
-      <Breadcrumb object={parent || undefined} customSections={[t("pages:roadmap_create.breadcrumb")]} />
+      <Breadcrumb object={parent ?? undefined} customSections={[t("pages:roadmap_create.breadcrumb")]} />
 
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-top-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
@@ -76,5 +75,5 @@ export default async function Page(
         />
       </div>
     </>
-  )
+  );
 }

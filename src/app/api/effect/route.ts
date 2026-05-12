@@ -1,12 +1,34 @@
-import dataSeriesPrep from "@/app/api/goal/dataSeriesPrep";
+import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
-import prisma from "@/prismaClient";
-import { ClientError, DataSeriesValueFields, EffectInput, JSONValue } from "@/types";
-import { ActionImpactType, Prisma } from "@prisma/client";
+import prisma, { Prisma, ActionImpactType } from "@/prismaClient";
+import { ClientError, isDateValuesWithUnit } from "@/types";
+import type { EffectInput, JSONValue } from "@/types";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
+import serveTea from "@/lib/i18nServer";
+
+// Typeguard and check if the request body is valid
+function isEffect(effect: JSONValue): effect is EffectInput {
+  return (
+    typeof effect === 'object'
+    && effect != null
+    && !(effect instanceof Array)
+
+    && typeof effect.actionId === 'string'
+    && typeof effect.goalId === 'string'
+
+    && "dataSeries" in effect
+    && effect.dataSeries !== undefined
+    && isDateValuesWithUnit(effect.dataSeries)
+
+    && (
+      effect.impactType === undefined
+      || Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType)
+    )
+  );
+}
 
 /**
  * Handles POST requests to the effect API
@@ -16,33 +38,17 @@ export async function POST(request: NextRequest) {
     getSession(await cookies()),
     request.json() as Promise<JSONValue>,
   ]);
-
-  // Typeguard and check if the request body is valid
-  function isEffect(effect: JSONValue): effect is EffectInput {
-    return (
-      // effect should be an object
-      (// impactType may be included, and should in that case be one of the values in ActionImpactType
-        typeof effect === 'object' &&
-        effect != null &&
-        !(effect instanceof Array) &&
-        // actionId and goalId should be strings
-        typeof effect.actionId === 'string' &&
-        typeof effect.goalId === 'string' &&
-        // dataSeries should be an array of strings
-        effect.dataSeries instanceof Array &&
-        effect.dataSeries.every((value) => typeof value === 'string') && (effect.impactType === undefined || Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType)))
-    );
-  }
+  const t = await serveTea("api");
 
   if (!isEffect(effect)) {
-    return Response.json({ message: 'Invalid request body' },
-      { status: 400 }
+    return Response.json({ message: t('api:common.invalid_request_body') },
+      { status: 400 },
     );
   }
 
   if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
-      { status: 401, headers: { 'Location': '/login' } }
+    return Response.json({ message: t('api:common.unauthorized') },
+      { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
@@ -51,7 +57,7 @@ export async function POST(request: NextRequest) {
     const [user, action, goal] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true }
+        select: { id: true, username: true, isAdmin: true, userGroups: true },
       }),
       prisma.action.findUnique({
         where: { id: effect.actionId },
@@ -64,9 +70,9 @@ export async function POST(request: NextRequest) {
               editGroups: { include: { users: { select: { id: true, username: true } } } },
               viewGroups: { include: { users: { select: { id: true, username: true } } } },
               isPublic: true,
-            }
-          }
-        }
+            },
+          },
+        },
       }),
       prisma.goal.findUnique({
         where: { id: effect.goalId },
@@ -79,10 +85,10 @@ export async function POST(request: NextRequest) {
               editGroups: { include: { users: { select: { id: true, username: true } } } },
               viewGroups: { include: { users: { select: { id: true, username: true } } } },
               isPublic: true,
-            }
-          }
-        }
-      })
+            },
+          },
+        },
+      }),
     ]);
 
     // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
@@ -107,67 +113,58 @@ export async function POST(request: NextRequest) {
         case ClientError.BadSession:
           session.destroy();
           return Response.json({ message: ClientError.BadSession },
-            { status: 400, headers: { 'Location': '/login' } }
+            { status: 400, headers: { 'Location': '/login' } },
           );
         case ClientError.IllegalParent:
           return Response.json({ message: ClientError.IllegalParent },
-            { status: 403 }
+            { status: 403 },
           );
         default:
-          return Response.json({ message: 'Unknown error' },
-            { status: 500 }
+          return Response.json({ message: t('api:common.unknown_error') },
+            { status: 500 },
           );
       }
     } else {
       console.log(error);
-      return Response.json({ message: 'Unknown error' },
-        { status: 500 }
+      return Response.json({ message: t('api:common.unknown_error') },
+        { status: 500 },
       );
     }
-  }
-
-  // Prepare effect data series
-  let dataSeries: Partial<DataSeriesValueFields> | null = null;
-  dataSeries = dataSeriesPrep(effect.dataSeries ?? []);
-  if (dataSeries == null) {
-    return Response.json({ message: 'Bad data series' },
-      { status: 400 }
-    );
   }
 
   // Create the effect
   try {
     const newEffect = await prisma.effect.create({
       data: {
-        actionId: effect.actionId,
-        goalId: effect.goalId,
+        action: { connect: { id: effect.actionId } },
+        goal: { connect: { id: effect.goalId } },
         impactType: effect.impactType,
         dataSeries: {
           create: {
-            ...dataSeries,
-            unit: null,
-            authorId: session.user.id
-          }
+            values: { createMany: { data: dateValuesToDBDateRecord(effect.dataSeries.dateValues) } },
+            unit: effect.dataSeries.unit,
+            authorId: session.user.id,
+          },
         },
       },
     });
     // Invalidate old cache
-    revalidateTag('action');
-    revalidateTag('goal');
+    revalidateTag('action', 'max');
+    revalidateTag('goal', 'max');
     // Return success
-    return Response.json({ message: 'Effect created', actionId: newEffect.actionId, goalId: newEffect.goalId },
-      { status: 201 }
+    return Response.json({ message: t('api:effect.effect_created'), actionId: newEffect.actionId, goalId: newEffect.goalId },
+      { status: 201 },
     );
   } catch (error) {
     // Unique constraint error
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-      return Response.json({ message: 'Effect already exists, try edit page if you want to change values' },
-        { status: 409 }
+      return Response.json({ message: t('api:effect.effect_already_exists') },
+        { status: 409 },
       );
     }
     console.log(error);
-    return Response.json({ message: 'Internal server error' },
-      { status: 500 }
+    return Response.json({ message: t('api:common.server_error') },
+      { status: 500 },
     );
   }
 }
@@ -180,40 +177,23 @@ export async function PUT(request: NextRequest) {
     getSession(await cookies()),
     request.json() as Promise<JSONValue>,
   ]);
+  const t = await serveTea("api");
 
-  // Typeguard and check if the request body is valid
-  function isEffect(effect: JSONValue): effect is EffectInput & { timestamp: number } {
-    return (
-      // effect should be an object
-      (typeof effect === 'object' &&
-        effect != null &&
-        !(effect instanceof Array) &&
-        // actionId and goalId should be strings
-        typeof effect.actionId === 'string' &&
-        typeof effect.goalId === 'string' &&
-        // dataSeries should be either undefined or an array of strings
-        (
-          effect.dataSeries === undefined ||
-          (
-            effect.dataSeries instanceof Array &&
-            effect.dataSeries.every((value) => typeof value === 'string')
-          )
-        ) &&
-        // impactType may be included, and should in that case be one of the values in ActionImpactType
-        (effect.impactType === undefined || Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType)) && // timestamp should be a number
-        typeof effect.timestamp === 'number')
+  if (!isEffect(effect)) {
+    return Response.json({ message: t('api:common.invalid_request_body') },
+      { status: 400 },
     );
   }
 
-  if (!isEffect(effect)) {
-    return Response.json({ message: 'Invalid request body' },
-      { status: 400 }
+  if (!effect.timestamp) {
+    return Response.json({ message: t('api:common.stale_data') },
+      { status: 409 },
     );
   }
 
   if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
-      { status: 401, headers: { 'Location': '/login' } }
+    return Response.json({ message: t('api:common.unauthorized') },
+      { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
@@ -222,7 +202,7 @@ export async function PUT(request: NextRequest) {
     const [user, currentEffect] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true }
+        select: { id: true, username: true, isAdmin: true, userGroups: true },
       }),
       prisma.effect.findUnique({
         where: { id: { actionId: effect.actionId, goalId: effect.goalId } },
@@ -238,9 +218,9 @@ export async function PUT(request: NextRequest) {
                   editGroups: { include: { users: { select: { id: true, username: true } } } },
                   viewGroups: { include: { users: { select: { id: true, username: true } } } },
                   isPublic: true,
-                }
-              }
-            }
+                },
+              },
+            },
           },
           action: {
             select: {
@@ -252,11 +232,11 @@ export async function PUT(request: NextRequest) {
                   editGroups: { include: { users: { select: { id: true, username: true } } } },
                   viewGroups: { include: { users: { select: { id: true, username: true } } } },
                   isPublic: true,
-                }
-              }
-            }
-          }
-        }
+                },
+              },
+            },
+          },
+        },
       }),
     ]);
 
@@ -287,38 +267,27 @@ export async function PUT(request: NextRequest) {
         case ClientError.BadSession:
           session.destroy();
           return Response.json({ message: ClientError.BadSession },
-            { status: 400, headers: { 'Location': '/login' } }
+            { status: 400, headers: { 'Location': '/login' } },
           );
         case ClientError.AccessDenied:
           return Response.json({ message: ClientError.AccessDenied },
-            { status: 403 }
+            { status: 403 },
           );
         case ClientError.StaleData:
           return Response.json({ message: ClientError.StaleData },
-            { status: 409 }
+            { status: 409 },
           );
         default:
-          return Response.json({ message: 'Unknown error' },
-            { status: 500 }
+          return Response.json({ message: t('api:common.unknown_error') },
+            { status: 500 },
           );
       }
     } else {
       console.log(error);
-      return Response.json({ message: 'Unknown error' },
-        { status: 500 }
+      return Response.json({ message: t('api:common.unknown_error') },
+        { status: 500 },
       );
     }
-  }
-
-  // Prepare effect data series
-  let dataSeries: Partial<DataSeriesValueFields> | undefined | null = undefined;
-  if (effect.dataSeries) {
-    dataSeries = dataSeriesPrep(effect.dataSeries);
-  }
-  if (dataSeries === null) {
-    return Response.json({ message: 'Bad data series' },
-      { status: 400 }
-    );
   }
 
   // Update the effect
@@ -327,31 +296,35 @@ export async function PUT(request: NextRequest) {
       where: { id: { actionId: effect.actionId, goalId: effect.goalId } },
       data: {
         impactType: effect.impactType,
-        dataSeries: dataSeries ? {
+        dataSeries: {
           upsert: {
             create: {
-              ...dataSeries,
-              unit: null,
-              authorId: session.user.id
+              values: { createMany: { data: dateValuesToDBDateRecord(effect.dataSeries.dateValues) } },
+              unit: effect.dataSeries.unit,
+              authorId: session.user.id,
             },
             update: {
-              ...dataSeries,
-            }
-          }
-        } : undefined,
+              values: {
+                deleteMany: {},
+                createMany: { data: dateValuesToDBDateRecord(effect.dataSeries.dateValues) },
+              },
+              unit: effect.dataSeries.unit,
+            },
+          },
+        },
       },
     });
     // Invalidate old cache
-    revalidateTag('action');
-    revalidateTag('goal');
+    revalidateTag('action', 'max');
+    revalidateTag('goal', 'max');
     // Return success
-    return Response.json({ message: 'Effect updated', actionId: updatedEffect.actionId, goalId: updatedEffect.goalId },
-      { status: 200 }
+    return Response.json({ message: t('api:effect.effect_updated'), actionId: updatedEffect.actionId, goalId: updatedEffect.goalId },
+      { status: 200 },
     );
   } catch (error) {
     console.log(error);
-    return Response.json({ message: 'Internal server error' },
-      { status: 500 }
+    return Response.json({ message: t('api:common.server_error') },
+      { status: 500 },
     );
   }
 }
@@ -364,6 +337,7 @@ export async function DELETE(request: NextRequest) {
     getSession(await cookies()),
     request.json() as Promise<JSONValue>,
   ]);
+  const t = await serveTea("api");
 
   // Typeguard and check if the request body is valid
   // For delete, only expect actionId and goalId (but allow other fields)
@@ -379,14 +353,14 @@ export async function DELETE(request: NextRequest) {
   }
 
   if (!isEffect(effect)) {
-    return Response.json({ message: 'Invalid request body' },
-      { status: 400 }
+    return Response.json({ message: t('api:common.invalid_request_body') },
+      { status: 400 },
     );
   }
 
   if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
-      { status: 401, headers: { 'Location': '/login' } }
+    return Response.json({ message: t('api:common.unauthorized') },
+      { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
@@ -395,7 +369,7 @@ export async function DELETE(request: NextRequest) {
     const [user, currentEffect] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true }
+        select: { id: true, username: true, isAdmin: true },
       }),
       prisma.effect.findUnique({
         where: {
@@ -409,8 +383,8 @@ export async function DELETE(request: NextRequest) {
               { action: { authorId: session.user.id } },
               { action: { roadmap: { authorId: session.user.id } } },
               { action: { roadmap: { metaRoadmap: { authorId: session.user.id } } } },
-            ]
-          })
+            ],
+          }),
         },
       }),
     ]);
@@ -430,21 +404,21 @@ export async function DELETE(request: NextRequest) {
         case ClientError.BadSession:
           session.destroy();
           return Response.json({ message: ClientError.BadSession },
-            { status: 400, headers: { 'Location': '/login' } }
+            { status: 400, headers: { 'Location': '/login' } },
           );
         case ClientError.AccessDenied:
           return Response.json({ message: ClientError.AccessDenied },
-            { status: 403 }
+            { status: 403 },
           );
         default:
-          return Response.json({ message: 'Unknown error' },
-            { status: 500 }
+          return Response.json({ message: t('api:common.unknown_error') },
+            { status: 500 },
           );
       }
     } else {
       console.log(error);
-      return Response.json({ message: 'Unknown error' },
-        { status: 500 }
+      return Response.json({ message: t('api:common.unknown_error') },
+        { status: 500 },
       );
     }
   }
@@ -455,16 +429,16 @@ export async function DELETE(request: NextRequest) {
       where: { id: { actionId: effect.actionId, goalId: effect.goalId } },
     });
     // Invalidate old cache
-    revalidateTag('action');
-    revalidateTag('goal');
+    revalidateTag('action', 'max');
+    revalidateTag('goal', 'max');
     // Return success
-    return Response.json({ message: 'Effect deleted', actionId: deletedEffect.actionId, goalId: deletedEffect.goalId },
-      { status: 200 }
+    return Response.json({ message: t('api:effect.effect_deleted'), actionId: deletedEffect.actionId, goalId: deletedEffect.goalId },
+      { status: 200 },
     );
   } catch (error) {
     console.log(error);
-    return Response.json({ message: 'Internal server error' },
-      { status: 500 }
+    return Response.json({ message: t('api:common.server_error') },
+      { status: 500 },
     );
   }
 }

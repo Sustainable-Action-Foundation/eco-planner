@@ -1,28 +1,40 @@
 "use client";
 
-import { initTemplate, Locales } from "i18n.config";
-import i18nClient, { t } from "i18next";
+import { initTemplate, Locales, possessive, relativeTime, titleCase } from "@/../i18n.config";
+import i18nClient from "i18next";
 import { I18nextProvider, initReactI18next } from "react-i18next";
 import Backend from "i18next-http-backend";
 import { useEffect, useState, createContext } from "react";
+import { patchI18nT } from "@/lib/informativeCimodeT";
 
 i18nClient
   .use(Backend)
   .use(initReactI18next)
   .init({
-    ...initTemplate(t),
+    ...initTemplate(),
     backend: {
       loadPath: "/api/locales?lng={{lng}}&ns={{ns}}",
     },
-  }).catch((error) => {
-    console.error("i18nClient initialization failed:", error);
+  }).catch((e: unknown) => {
+    const errorMessage = e instanceof Error ? e.message : String(e);
+    console.error("i18nClient initialization failed:", errorMessage);
   });
 
+patchI18nT(i18nClient);
+
+if (!i18nClient.services.formatter) {
+  console.warn("i18nServer formatter is not available. Custom formatters will not be added.");
+}
+
+i18nClient.services.formatter?.add("titleCase", titleCase);
+i18nClient.services.formatter?.add("possessive", possessive);
+i18nClient.services.formatter?.add("timeAgo", relativeTime);
+
 export const LocaleContext = createContext<Locales>(Locales.default);
-export const LocaleSetterContext = createContext<React.Dispatch<React.SetStateAction<Locales>>>(() => { });
+export const LocaleSetterContext = createContext<React.Dispatch<React.SetStateAction<Locales>>>(() => { /* empty */ });
 
 export default function I18nProvider(
-  { children, lng }: { children: React.ReactNode, lng: Locales }
+  { children, lng }: { children: React.ReactNode, lng: Locales },
 ) {
   // This initialize state prevents the app from rendering (and rerendering forever) before the language is set
   const [isInitialized, setInitialized] = useState(false);

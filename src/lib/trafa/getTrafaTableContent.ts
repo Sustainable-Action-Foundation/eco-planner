@@ -1,9 +1,9 @@
 "use server";
 
-import { ApiTableContent } from "../api/apiTypes.ts";
-import { ExternalDataset } from "../api/utility.ts";
-import { TrafaDataResponse } from "./trafaTypes.ts";
-import { getTrafaSearchQueryString } from "./trafaUtility.ts";
+import type { ApiTableContent } from "../api/apiTypes";
+import { ExternalDataset } from "../api/utility";
+import type { TrafaDataResponse } from "./trafaTypes";
+import { getTrafaSearchQueryString } from "./trafaUtility";
 
 // Trafa is a Swedish transport data provider. As such, their data is only relevant for usage in Sweden.
 // This means that everything here in the `trafa` folder is somewhat useless for international implementations,
@@ -21,7 +21,7 @@ export default async function getTrafaTableContent(tableId: string, selection: {
     url.searchParams.append('lang', language);
   }
 
-  let data: TrafaDataResponse | null = null;
+  let data: TrafaDataResponse | null;
 
   try {
     const response = await fetch(url, {
@@ -49,8 +49,8 @@ export default async function getTrafaTableContent(tableId: string, selection: {
       metadata: [{
         label: trafaTableContent.Name ?? "",
         source: "Trafa",
-      }]
-    }
+      }],
+    };
 
     const timeColumns = trafaTableContent.Header.Column.filter(column => column.DataType === "Time");
     const dataColumns = trafaTableContent.Header.Column.filter(column => column.Type === "M");
@@ -63,7 +63,7 @@ export default async function getTrafaTableContent(tableId: string, selection: {
       return null;
     }
 
-    if (timeColumns.length == 0) {
+    if (timeColumns.length === 0) {
       console.warn("No time columns found in Trafa table content");
       return null;
     } else if (timeColumns.length > 1) {
@@ -83,11 +83,11 @@ export default async function getTrafaTableContent(tableId: string, selection: {
           const yearValue = data.Cell.find(cell => cell.Column === "ar")?.Value;
           const monthValue = data.Cell.find(cell => cell.Column === "manad")?.Value;
           const dataValue = data.Cell.find(cell => cell.IsMeasure)?.Value;
-          if (yearValue != undefined && monthValue != undefined && dataValue != undefined) {
+          if (yearValue !== undefined && monthValue !== undefined && dataValue !== undefined) {
             result.values.push({
               period: `${yearValue}M${monthValue}`,
-              value: dataValue
-            })
+              value: dataValue,
+            });
           } else {
             console.warn("Missing year or month value in Trafa table content with multiple time columns");
             return null;
@@ -98,10 +98,10 @@ export default async function getTrafaTableContent(tableId: string, selection: {
           const yearValue = data.Cell.find(cell => cell.Column === "ar")?.Value;
           const quarterValue = data.Cell.find(cell => cell.Column === "kvartal")?.Value;
           const dataValue = data.Cell.find(cell => cell.IsMeasure)?.Value;
-          if (yearValue != undefined && quarterValue != undefined && dataValue != undefined) {
+          if (yearValue !== undefined && quarterValue !== undefined && dataValue !== undefined) {
             result.values.push({
               period: `${yearValue}K${quarterValue}`,
-              value: dataValue
+              value: dataValue,
             });
           } else {
             console.warn("Missing year or quarter value in Trafa table content with multiple time columns");
@@ -112,14 +112,14 @@ export default async function getTrafaTableContent(tableId: string, selection: {
         console.warn("No month or quarter column found in Trafa table content with multiple time columns. Found columns follow: ", timeColumns.map(column => column.Name));
         return null;
       }
-    } else if (timeColumns.length == 1) {
+    } else if (timeColumns.length === 1) {
       for (const data of trafaTableContent.Rows) {
         const timeValue = data.Cell.find(cell => cell.Column === timeColumns[0].Name)?.Value;
         const dataValue = data.Cell.find(cell => cell.IsMeasure)?.Value;
-        if (timeValue != undefined && dataValue != undefined) {
+        if (timeValue !== undefined && dataValue !== undefined) {
           result.values.push({
             period: timeValue,
-            value: dataValue
+            value: dataValue,
           });
         } else {
           console.warn("Missing time or data value in Trafa table content with single time column");

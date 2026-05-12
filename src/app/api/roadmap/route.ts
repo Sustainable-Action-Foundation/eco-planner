@@ -1,16 +1,14 @@
-import { NextRequest } from "next/server";
-import { getSession } from "@/lib/session"
-import prisma from "@/prismaClient";
-import { AccessControlled, AccessLevel, ClientError, JSONValue, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
+import type { NextRequest } from "next/server";
+import { getSession } from "@/lib/session";
+import prisma, { Prisma } from "@/prismaClient";
+import { AccessLevel, ClientError, isGoalCreate } from "@/types";
+import type { AccessControlled, JSONValue, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
 import roadmapGoalCreator from "./roadmapGoalCreator";
 import accessChecker from "@/lib/accessChecker";
 import { revalidateTag } from "next/cache";
-// import goalInputFromGoalArray from "@/functions/goalInputFromGoalArray";
-// import getOneGoal from "@/fetchers/getOneGoal";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { cookies } from "next/headers";
-import { Prisma } from "@prisma/client";
-import { isGoalCreate } from "../goal/route";
+import serveTea from "@/lib/i18nServer";
 
 // Type guards
 function isRoadmapCreate(roadmap: JSONValue): roadmap is RoadmapCreateInput {
@@ -54,7 +52,7 @@ function isRoadmapCreate(roadmap: JSONValue): roadmap is RoadmapCreateInput {
         // check if array of GoalCreateInput
         Array.isArray(roadmap.goals) &&
         roadmap.goals.every((goal) =>
-          isGoalCreate(goal)
+          isGoalCreate(goal),
         )
       )
     ) &&
@@ -101,7 +99,7 @@ function isRoadmapCreate(roadmap: JSONValue): roadmap is RoadmapCreateInput {
     )
 
     // links are deprecated and not checked
-  )
+  );
 }
 
 function isRoadmapUpdate(roadmap: JSONValue): roadmap is RoadmapUpdateInput {
@@ -151,7 +149,7 @@ function isRoadmapUpdate(roadmap: JSONValue): roadmap is RoadmapUpdateInput {
         // check if array of GoalCreateInput
         Array.isArray(roadmap.goals) &&
         roadmap.goals.every((goal) =>
-          isGoalCreate(goal)
+          isGoalCreate(goal),
         )
       )
     ) &&
@@ -198,7 +196,7 @@ function isRoadmapUpdate(roadmap: JSONValue): roadmap is RoadmapUpdateInput {
     )
 
     // links are deprecated and not checked
-  )
+  );
 }
 
 /**
@@ -209,17 +207,18 @@ export async function POST(request: NextRequest) {
     getSession(await cookies()),
     request.json() as Promise<JSONValue>,
   ]);
+  const t = await serveTea("api");
 
   // Validate session
   if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
-      { status: 401, headers: { 'Location': '/login' } }
+    return Response.json({ message: t('api:common.unauthorized') },
+      { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
   if (!isRoadmapCreate(roadmap)) {
-    return Response.json({ message: 'Invalid request body' },
-      { status: 400 }
+    return Response.json({ message: t('api:common.invalid_request_body') },
+      { status: 400 },
     );
   }
 
@@ -230,7 +229,7 @@ export async function POST(request: NextRequest) {
     const [user, metaRoadmap] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true }
+        select: { id: true, username: true, isAdmin: true, userGroups: true },
       }),
       prisma.metaRoadmap.findUnique({
         where: { id: roadmap.metaRoadmapId },
@@ -240,8 +239,8 @@ export async function POST(request: NextRequest) {
           viewers: { select: { id: true, username: true } },
           editGroups: { include: { users: { select: { id: true, username: true } } } },
           viewGroups: { include: { users: { select: { id: true, username: true } } } },
-        }
-      })
+        },
+      }),
     ]);
     // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
     if (!user || (session.user.isAdmin && !user.isAdmin)) {
@@ -260,28 +259,28 @@ export async function POST(request: NextRequest) {
       editGroups: metaRoadmap.editGroups,
       viewGroups: metaRoadmap.viewGroups,
       isPublic: metaRoadmap.isPublic,
-    }
+    };
     const accessLevel = accessChecker(accessFields, session.user);
     if (accessLevel === AccessLevel.None || accessLevel === AccessLevel.View) {
       throw new Error(ClientError.IllegalParent, { cause: 'roadmap' });
     }
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message == ClientError.BadSession) {
+      if (error.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
-          { status: 400, headers: { 'Location': '/login' } }
+          { status: 400, headers: { 'Location': '/login' } },
         );
       }
       return Response.json({ message: ClientError.IllegalParent },
-        { status: 403 }
+        { status: 403 },
       );
     } else {
       // If non-error is thrown, log it and return a generic error message
       console.log(error);
-      return Response.json({ message: "Unknown internal server error" },
-        { status: 500 }
+      return Response.json({ message: t('api:common.unknown_server_error') },
+        { status: 500 },
       );
     }
   }
@@ -310,31 +309,31 @@ export async function POST(request: NextRequest) {
     latestVersion = (await prisma.roadmap.aggregate({
       where: { metaRoadmapId: roadmap.metaRoadmapId },
       _max: { version: true },
-    }))._max.version || 0;
+    }))._max.version ?? 0;
   } catch {
-    return Response.json({ message: 'Failed to fetch latest roadmap version' },
-      { status: 500 }
+    return Response.json({ message: t('api:roadmap.failed_fetch_latest') },
+      { status: 500 },
     );
   }
 
   // Create lists of names for linking
   const editors: { username: string }[] = [];
-  for (const name of [...(roadmap.editors || []), originalAuthor.username]) {
+  for (const name of [...(roadmap.editors ?? []), originalAuthor.username]) {
     editors.push({ username: name });
   }
 
   const viewers: { username: string }[] = [];
-  for (const name of roadmap.viewers || []) {
+  for (const name of roadmap.viewers ?? []) {
     viewers.push({ username: name });
   }
 
   const editGroups: { name: string }[] = [];
-  for (const name of roadmap.editGroups || []) {
+  for (const name of roadmap.editGroups ?? []) {
     editGroups.push({ name: name });
   }
 
   const viewGroups: { name: string }[] = [];
-  for (const name of roadmap.viewGroups || []) {
+  for (const name of roadmap.viewGroups ?? []) {
     viewGroups.push({ name: name });
   }
 
@@ -359,28 +358,28 @@ export async function POST(request: NextRequest) {
       select: { id: true },
     });
     // Invalidate old cache
-    revalidateTag('roadmap');
+    revalidateTag('roadmap', 'max');
     // Return the new roadmap's ID if successful
-    return Response.json({ message: "Roadmap created", id: newRoadmap.id },
-      { status: 201, headers: { 'Location': `/roadmap/${newRoadmap.id}` } }
+    return Response.json({ message: t('api:roadmap.roadmap_created'), id: newRoadmap.id },
+      { status: 201, headers: { 'Location': `/roadmap/${newRoadmap.id}` } },
     );
   } catch (error) {
     // Custom error if there are errors in the nested goal creation
     if (error instanceof Error) {
-      if (error.cause == 'nestedGoalCreation') {
+      if (error.cause === 'nestedGoalCreation') {
         return Response.json({ message: error.message },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code == 'P2025') {
-      return Response.json({ message: 'Failed to connect records. Probably invalid editor, viewer, editGroup, and/or viewGroup name(s)' },
-        { status: 400 }
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return Response.json({ message: t('api:roadmap.failed_record_connection') },
+        { status: 400 },
       );
     }
     console.log(error);
-    return Response.json({ message: "Internal server error" },
-      { status: 500 }
+    return Response.json({ message: t('api:common.server_error') },
+      { status: 500 },
     );
   }
 }
@@ -394,18 +393,19 @@ export async function PUT(request: NextRequest) {
     // The version number is not allowed to be changed
     request.json() as Promise<JSONValue>,
   ]);
+  const t = await serveTea("api");
 
   // Validate session
   if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
-      { status: 401, headers: { 'Location': '/login' } }
+    return Response.json({ message: t('api:common.unauthorized') },
+      { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
   // Validate request body
   if (!isRoadmapUpdate(roadmap)) {
-    return Response.json({ message: 'Invalid request body' },
-      { status: 400 }
+    return Response.json({ message: t('api:common.invalid_request_body') },
+      { status: 400 },
     );
   }
 
@@ -414,7 +414,7 @@ export async function PUT(request: NextRequest) {
     const [user, currentRoadmap] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true }
+        select: { id: true, username: true, isAdmin: true, userGroups: true },
       }),
       prisma.roadmap.findUnique({
         where: { id: roadmap.roadmapId },
@@ -426,8 +426,8 @@ export async function PUT(request: NextRequest) {
           editGroups: { include: { users: { select: { id: true, username: true } } } },
           viewGroups: { include: { users: { select: { id: true, username: true } } } },
           isPublic: true,
-        }
-      })
+        },
+      }),
     ]);
     // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
     if (!user || (session.user.isAdmin && !user.isAdmin)) {
@@ -435,59 +435,59 @@ export async function PUT(request: NextRequest) {
     }
 
     // Check if the roadmap exists and the user has access to it
-    const access = accessChecker(currentRoadmap, session.user)
+    const access = accessChecker(currentRoadmap, session.user);
     if (access === AccessLevel.None || access === AccessLevel.View) {
       throw new Error(ClientError.AccessDenied, { cause: 'roadmap' });
     }
 
     // Check if the client's data is stale
-    if (!roadmap.timestamp || (currentRoadmap?.updatedAt?.getTime() || 0) > roadmap.timestamp) {
+    if (!roadmap.timestamp || (currentRoadmap?.updatedAt?.getTime() ?? 0) > roadmap.timestamp) {
       throw new Error(ClientError.StaleData, { cause: 'roadmap' });
     }
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message == ClientError.BadSession) {
+      if (error.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
-          { status: 400, headers: { 'Location': '/login' } }
+          { status: 400, headers: { 'Location': '/login' } },
         );
       }
-      if (error.message == ClientError.StaleData) {
+      if (error.message === ClientError.StaleData) {
         return Response.json({ message: ClientError.StaleData },
-          { status: 409 }
+          { status: 409 },
         );
       }
       return Response.json({ message: ClientError.AccessDenied },
-        { status: 403 }
+        { status: 403 },
       );
     } else {
       // If non-error is thrown, log it and return a generic error message
       console.log(error);
       return Response.json({ message: "Unknown internal server error" },
-        { status: 500 }
+        { status: 500 },
       );
     }
   }
 
   // Create lists of names for linking
   const editors: { username: string }[] = [];
-  for (const name of roadmap.editors || []) {
+  for (const name of roadmap.editors ?? []) {
     editors.push({ username: name });
   }
 
   const viewers: { username: string }[] = [];
-  for (const name of roadmap.viewers || []) {
+  for (const name of roadmap.viewers ?? []) {
     viewers.push({ username: name });
   }
 
   const editGroups: { name: string }[] = [];
-  for (const name of roadmap.editGroups || []) {
+  for (const name of roadmap.editGroups ?? []) {
     editGroups.push({ name: name });
   }
 
   const viewGroups: { name: string }[] = [];
-  for (const name of roadmap.viewGroups || []) {
+  for (const name of roadmap.viewGroups ?? []) {
     viewGroups.push({ name: name });
   }
 
@@ -506,35 +506,35 @@ export async function PUT(request: NextRequest) {
         isPublic: roadmap.isPublic,
         goals: {
           create: roadmapGoalCreator(roadmap, session.user.id),
-        }
+        },
       },
       select: { id: true },
     });
     // Prune any orphaned links and comments
     await pruneOrphans();
     // Invalidate old cache
-    revalidateTag('roadmap');
+    revalidateTag('roadmap', { expire: 0});
     // Return the new roadmap's ID if successful
-    return Response.json({ message: "Roadmap updated", id: updatedRoadmap.id },
-      { status: 200, headers: { 'Location': `/roadmap/${updatedRoadmap.id}` } }
+    return Response.json({ message: t('api:roadmap.roadmap_updated'), id: updatedRoadmap.id },
+      { status: 200, headers: { 'Location': `/roadmap/${updatedRoadmap.id}` } },
     );
   } catch (error) {
     console.log(error);
     // Custom error if there are errors in the nested goal creation
     if (error instanceof Error) {
-      if (error.cause == 'nestedGoalCreation') {
+      if (error.cause === 'nestedGoalCreation') {
         return Response.json({ message: error.message },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code == 'P2025') {
-      return Response.json({ message: 'Failed to connect records. Probably invalid editor, viewer, editGroup, and/or viewGroup name(s)' },
-        { status: 400 }
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return Response.json({ message: t('api:roadmap.failed_record_connection') },
+        { status: 400 },
       );
     }
-    return Response.json({ message: "Internal server error" },
-      { status: 500 }
+    return Response.json({ message: t('api:common.server_error') },
+      { status: 500 },
     );
   }
 }
@@ -545,20 +545,21 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const [session, roadmap] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<{ id: string }>
+    request.json() as Promise<{ id: string }>,
   ]);
+  const t = await serveTea("api");
 
   // Validate request body
   if (!roadmap.id) {
-    return Response.json({ message: 'Missing required input parameters' },
-      { status: 400 }
+    return Response.json({ message: t('api:common.missing_input') },
+      { status: 400 },
     );
   }
 
   // Validate session
   if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
-      { status: 401, headers: { 'Location': '/login' } }
+    return Response.json({ message: t('api:common.unauthorized') },
+      { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
@@ -566,7 +567,7 @@ export async function DELETE(request: NextRequest) {
     const [user, currentRoadmap] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true }
+        select: { id: true, username: true, isAdmin: true, userGroups: true },
       }),
       prisma.roadmap.findUnique({
         where: {
@@ -575,8 +576,8 @@ export async function DELETE(request: NextRequest) {
             OR: [
               { authorId: session.user.id },
               { metaRoadmap: { authorId: session.user.id } },
-            ]
-          })
+            ],
+          }),
         },
       }),
     ]);
@@ -586,26 +587,26 @@ export async function DELETE(request: NextRequest) {
       throw new Error(ClientError.BadSession, { cause: 'roadmap' });
     }
 
-    // If the roadmap is not found it eiter does not exist or the user has no access to it
+    // If the roadmap is not found it either does not exist or the user has no access to it
     if (!currentRoadmap) {
       throw new Error(ClientError.AccessDenied, { cause: 'roadmap' });
     }
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message == ClientError.BadSession) {
+      if (error.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
-          { status: 400, headers: { 'Location': '/login' } }
+          { status: 400, headers: { 'Location': '/login' } },
         );
       }
       return Response.json({ message: ClientError.AccessDenied },
-        { status: 403 }
+        { status: 403 },
       );
     } else {
       console.log(error);
-      return Response.json({ message: "Unknown internal server error" },
-        { status: 500 }
+      return Response.json({ message: t('api:common.unknown_server_error') },
+        { status: 500 },
       );
     }
   }
@@ -614,25 +615,25 @@ export async function DELETE(request: NextRequest) {
   try {
     const deletedRoadmap = await prisma.roadmap.delete({
       where: {
-        id: roadmap.id
+        id: roadmap.id,
       },
       select: {
         id: true,
         metaRoadmapId: true,
-      }
+      },
     });
     // Prune any orphaned links and comments
     await pruneOrphans();
     // Invalidate old cache
-    revalidateTag('roadmap');
-    return Response.json({ message: 'Roadmap deleted', id: deletedRoadmap.id },
+    revalidateTag('roadmap', 'max');
+    return Response.json({ message: t('api:roadmap.roadmap_deleted'), id: deletedRoadmap.id },
       // Redirect to the parent meta roadmap
-      { status: 200, headers: { 'Location': `/metaRoadmap/${deletedRoadmap.metaRoadmapId}` } }
+      { status: 200, headers: { 'Location': `/metaRoadmap/${deletedRoadmap.metaRoadmapId}` } },
     );
   } catch (error) {
     console.log(error);
-    return Response.json({ message: "Internal server error" },
-      { status: 500 }
+    return Response.json({ message: t('api:common.server_error') },
+      { status: 500 },
     );
   }
 }

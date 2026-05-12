@@ -1,19 +1,18 @@
 import "server-only";
 import styles from "@/components/tables/tables.module.css" with { type: "css" };
-import { TableMenu } from "@/components/tables/tableMenu/tableMenu.tsx";
-import accessChecker from "@/lib/accessChecker.ts";
-import { LoginData } from "@/lib/session.ts";
-import { AccessControlled } from "@/types.ts";
-import { MetaRoadmap, Roadmap } from "@prisma/client";
+import { ControlsMenu } from "@/components/elements/controls/controls";
+import accessChecker from "@/lib/accessChecker";
+import type { LoginData } from "@/lib/session";
 import Link from "next/link";
 import { Fragment } from "react";
 import serveTea from "@/lib/i18nServer";
-import { IconCaretRightFilled } from "@tabler/icons-react";
+import { IconCaretRightFilled, IconZoomQuestion } from "@tabler/icons-react";
+import type { MultiRoadmapInstance } from "@/types";
 
 type RoadmapTreeProps = {
-  user: LoginData['user'],
-  roadmaps: (Roadmap & AccessControlled & { _count: { goals: number }, metaRoadmap: MetaRoadmap & { childRoadmaps: { id: string }[] } })[],
-}
+  user: LoginData['user'];
+  roadmaps: MultiRoadmapInstance[];
+};
 
 /**
  * Renders given roadmaps in a tree structure. Roadmaps belonging to a MetaRoadmap without a(n accessible) parent are placed at the top level.
@@ -27,7 +26,12 @@ export default async function RoadmapTree({
 }: RoadmapTreeProps) {
   const t = await serveTea("components");
   if (!roadmaps.length) {
-    return <p>{t("components:roadmap_tree.no_roadmap_series_ones")}</p>;
+    return (
+      <div className="grid place-items-center">
+        <IconZoomQuestion width={128} height={128} strokeWidth={1.25} />
+        <p style={{width: 'min(60ch, 100%)', fontWeight: '500', textAlign: 'center'}}>{t("components:roadmap_tree.no_roadmap_series_ones")}</p> {/* TODO: I want to set font-size: 1.25rem; here but that causes the parent flexbox to wrap?? */}
+      </div>
+    );
   }
 
   const accessibleMetaRoadmaps = roadmaps.map(roadmap => roadmap.metaRoadmapId);
@@ -38,10 +42,14 @@ export default async function RoadmapTree({
   return (
     <nav>
       <ul className={`${styles['roadmap-nav-ul']}`} style={{ paddingInlineStart: '0' }}>
-        <NestedRoadmapRenderer allRoadmaps={roadmaps} childRoadmaps={topLevelRoadmaps} user={user} />
+        <NestedRoadmapRenderer
+          allRoadmaps={roadmaps}
+          childRoadmaps={topLevelRoadmaps}
+          user={user}
+        />
       </ul>
     </nav>
-  )
+  );
 }
 
 /**
@@ -74,25 +82,25 @@ async function NestedRoadmapRenderer({
           {newChildRoadmaps.length > 0 ?
             <li>
               <details>
-                {/* TODO: In accesibility tree, this shows as the link being labeled under "visa underliggande färdplaner" */}
+                {/* TODO: In accessibility tree, this shows as the link being labeled under "visa underliggande färdplaner" */}
                 <summary className="flex justify-content-space-between" aria-label={t("components:roadmap_tree.show_source_alt")}>
-                  <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}> {/* TODO: Do i need this key here?  */}
+                  <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}>
                     <IconCaretRightFilled aria-hidden="true" className="round padding-25 margin-inline-25" />
-                    <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth' style={{ lineHeight: '1' }}>
+                    <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth font-size-125' style={{ lineHeight: '1.1' }}>
                       {/* Name, version */}
                       <div>
                         {t("components:roadmap_tree.title", { name: roadmap.metaRoadmap.name, version: roadmap.version })}
                       </div>
                       {/* Type, goal count */}
-                      <div className={styles["roadmap-information"]}>
+                      <div className="color-gray font-size-14px text-transform-lowercase font-weight-normal">
                         {typeAlias}
-                        {" • "}
+                        &nbsp;&middot;&nbsp;
                         {t("common:count.goal", { count: roadmap._count.goals })}
                       </div>
                     </Link>
                   </div>
                   <span className="flex align-items-center padding-inline-25">
-                    <TableMenu
+                    <ControlsMenu
                       accessLevel={accessLevel}
                       object={roadmap}
                     />
@@ -100,7 +108,11 @@ async function NestedRoadmapRenderer({
                 </summary>
 
                 <ul className={styles['roadmap-nav-ul']}>
-                  <NestedRoadmapRenderer allRoadmaps={allRoadmaps} childRoadmaps={newChildRoadmaps} user={user} />
+                  <NestedRoadmapRenderer
+                    allRoadmaps={allRoadmaps}
+                    childRoadmaps={newChildRoadmaps}
+                    user={user}
+                  />
                 </ul>
               </details>
             </li>
@@ -108,21 +120,21 @@ async function NestedRoadmapRenderer({
             <li className="inline-flex align-items-center flex-grow-100 width-100">
               <div className='inline-flex align-items-center flex-grow-100' key={roadmap.id}>
                 <IconCaretRightFilled aria-hidden="true" color="lightgray" className="round padding-25 margin-inline-25" />
-                <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth' style={{ lineHeight: '1' }}>
+                <Link href={`/roadmap/${roadmap.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth font-size-125' style={{ lineHeight: '1.1' }}>
                   {/* Name, version */}
                   <div>
                     {t("components:roadmap_tree.title", { name: roadmap.metaRoadmap.name, version: roadmap.version })}
                   </div>
                   {/* Type, goal count */}
-                  <div className={styles["roadmap-information"]}>
+                  <div className="color-gray font-size-14px text-transform-lowercase font-weight-normal">
                     {typeAlias}
-                    {" • "}
+                    &nbsp;&middot;&nbsp;
                     {t("common:count.goal", { count: roadmap._count.goals })}
                   </div>
                 </Link>
               </div>
               <span className="flex align-items-center padding-inline-25">
-                <TableMenu
+                <ControlsMenu
                   accessLevel={accessLevel}
                   object={roadmap}
                 />
@@ -130,7 +142,7 @@ async function NestedRoadmapRenderer({
             </li>
           }
         </Fragment>
-      )
+      );
     })}
-  </>
+  </>;
 }

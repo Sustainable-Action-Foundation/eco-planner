@@ -1,13 +1,13 @@
 import "server-only";
-import styles from './header.module.css' with { type: "css" }
-import LogoutButton from '@/components/buttons/logoutButton'
-import { getSession } from '@/lib/session'
-import { cookies } from 'next/headers'
-import Link from 'next/link'
-import { LanguageSwitcher } from "@/components/languageSwitcher"
+import styles from './header.module.css' with { type: "css" };
+import LogoutButton from '@/components/buttons/logoutButton';
+import { getSession } from '@/lib/session';
+import { cookies } from 'next/headers';
+import Link from 'next/link';
+import { LanguageSwitcher } from "@/components/languageSwitcher";
 import serveTea from "@/lib/i18nServer";
 import { PopoverButton, Popover } from '@/components/generic/popovers/popovers';
-import { IconCirclePlus, IconHome, IconInfoCircle, IconLogin2, IconLogout2, IconMenu2, IconPlus, IconSettings, IconUser, IconUserPlus, IconWorld, IconX } from '@tabler/icons-react'
+import { IconCirclePlus, IconHome, IconInfoCircle, IconList, IconLogin2, IconLogout2, IconMenu2, IconPlus, IconSettings, IconUser, IconUserPlus, IconWorld, IconX } from '@tabler/icons-react';
 import GraphCookie from '@/components/cookies/graphCookie';
 
 export default async function Sidebar() {
@@ -17,7 +17,7 @@ export default async function Sidebar() {
   ]);
 
   return <>
-    <aside className={`${styles["sidebar"]} inline-flex flex-direction-column`} style={{backgroundColor: '#fefefe'}}>
+    <aside className={`${styles["sidebar"]} inline-flex flex-direction-column secondary-neutral-background`}>
       {/* Consider using js + button instead of checkbox (or on top of using a checkbox) for accesability purposes */}
       {/* Consider adding infobubbles to items in the navbar */}
       <header>
@@ -45,11 +45,16 @@ export default async function Sidebar() {
             <IconHome aria-hidden='true' />
             {t("components:sidebar.home")}
           </Link>
+          <Link href="/actions" className='color-pureblack rounded margin-bottom-300'>
+            <IconList aria-hidden='true' />
+            {t("common:action_other")}
+          </Link>
           <PopoverButton
             anchorName='--create-popover-button'
             popoverTarget='create-popover'
             className='transparent rounded'
             style={{ fontSize: '1rem' }}
+            data-testid='create-button'
           >
             <IconCirclePlus aria-hidden="true" />
             {t("components:sidebar.create")}
@@ -74,7 +79,7 @@ export default async function Sidebar() {
               </header>
               <ul className='padding-0 margin-0' style={{ listStyle: 'none' }}>
                 <li>
-                  <Link href='/metaRoadmap/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none'>
+                  <Link href='/metaRoadmap/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none' data-testid="create-roadmap-series">
                     {t("common:roadmap_series_one")}
                     <IconPlus width={16} height={16} />
                   </Link>
@@ -86,19 +91,19 @@ export default async function Sidebar() {
                   </Link>
                 </li>
                 <li>
-                  <Link href='/goal/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none'>
+                  <Link href='/goal/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none' data-testid="create-goal">
                     {t("common:goal_one")}
                     <IconPlus width={16} height={16} />
                   </Link>
                 </li>
                 <li>
-                  <Link href='/action/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none'>
+                  <Link href='/action/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none' data-testid="create-action">
                     {t("common:action_one")}
                     <IconPlus width={16} height={16} />
                   </Link>
                 </li>
                 <li>
-                  <Link href='/effect/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none'>
+                  <Link href='/effect/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none' data-testid="create-effect">
                     {t("common:effect_one")}
                     <IconPlus width={16} height={16} />
                   </Link>
@@ -116,7 +121,7 @@ export default async function Sidebar() {
             anchorName='--select-language-popover-button'
             popoverTarget='select-language-popover'
             className='transparent rounded'
-            data-testid="language-switcher-dialog-button"
+            data-testid='language-switcher-dialog-button'
           >
             <IconWorld aria-hidden="true" />
             {t("components:sidebar.language")}
@@ -146,6 +151,7 @@ export default async function Sidebar() {
             anchorName='--settings-popover-button'
             popoverTarget='settings-popover'
             className='transparent rounded'
+            data-testid='settings-button'
           >
             <IconSettings aria-hidden="true" />
             {t("components:sidebar.settings")}
@@ -191,5 +197,5 @@ export default async function Sidebar() {
         </div>
       </div>
     </aside>
-  </>
+  </>;
 }

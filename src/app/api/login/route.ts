@@ -1,15 +1,15 @@
-import { NextRequest } from "next/server";
-import { getSession, options } from "@/lib/session"
+import type { NextRequest } from "next/server";
+import { getSession, options } from "@/lib/session";
 import prisma from "@/prismaClient";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
-import { JSONValue } from "@/types";
+import type { JSONValue } from "@/types";
 
 export async function POST(request: NextRequest) {
   const data = await request.json() as JSONValue;
   if (!data || typeof data !== 'object' || Array.isArray(data)) {
     return Response.json({ message: 'Invalid request body' },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
   const { username, password, remember } = data;
   if (!username || !password || typeof username !== 'string' || typeof password !== 'string') {
     return Response.json({ message: 'Username and password are required and must be strings' },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     cookieOptions: {
       ...options.cookieOptions,
       maxAge: 365 * 24 * 60 * 60, // Standard year in seconds
-    }
+    },
   } : options);
 
   // Validate credentials
@@ -47,14 +47,14 @@ export async function POST(request: NextRequest) {
         userGroups: {
           select: {
             name: true,
-          }
+          },
         },
-      }
+      },
     });
   } catch (e) {
     console.log(e);
     return Response.json({ message: 'User not found or has not verified their email' },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
 
   if (!passwordMatches) {
     return Response.json({ message: 'Incorrect password' },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -91,6 +91,6 @@ export async function POST(request: NextRequest) {
   // }
 
   return Response.json({ message: 'Login successful' },
-    { status: 200 }
+    { status: 200 },
   );
 }

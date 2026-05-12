@@ -5,3 +5,5 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export default prisma;
+// eslint-disable-next-line no-duplicate-imports
+export { Prisma, RoadmapType, ActionImpactType } from "@prisma/client";

@@ -1,5 +1,5 @@
 import { baseUrl } from "@/lib/baseUrl";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import truncateText from "./truncateText";
 import serveTea from "@/lib/i18nServer";
 import { getLocale } from "./getLocale";
@@ -28,7 +28,7 @@ export async function buildMetadata(
     headerContent.get("accept-language"),
   );
 
-  const t = await serveTea('metadata')
+  const t = await serveTea('metadata');
 
   // Truncates metadata text to fit commonly used lengths (60 for title, 150 for description)
   title = truncateText(title, 60 - t("metadata:default.title").length);
@@ -40,18 +40,18 @@ export async function buildMetadata(
     icons: "/favicon/favicon.svg",
     metadataBase: new URL(baseUrl),
     alternates: {
-      canonical: og_url || '/'
+      canonical: og_url || '/',
     },
     openGraph: {
       title: `${title ? `${title} | ${t("metadata:default.title")}` : t("metadata:default.title")}`,
       description: description ?? t("metadata:default.description"),
       images: [{
-        url: og_image_url || '/images/og_solar.png'
+        url: og_image_url || '/images/og_solar.png',
       }],
       type: "website",
       url: og_url || '/',
       siteName: "Eco - Planner",
-      locale: locale 
-    }
+      locale: locale, 
+    },
   };
 }

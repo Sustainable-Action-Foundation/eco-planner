@@ -1,5 +1,7 @@
 import dataSeriesInterest from "@/functions/weightedAverageDelta";
-import { Action, Comment, DataSeries, Goal, MetaRoadmap, RoadmapType } from "@prisma/client";
+import type { Comment } from "@prisma/client";
+import { RoadmapType } from "@prisma/client";
+import type { Action, Goal, MetaRoadmap, MultiRoadmapInstance } from "@/types";
 
 // Used for alphabetical sorting, we use Swedish locale and ignore case, but it can be changed here
 const collator = new Intl.Collator('sv', { numeric: true, sensitivity: 'accent', caseFirst: 'upper' });
@@ -40,35 +42,36 @@ export function roadmapSorter<T extends { metaRoadmap: { type: RoadmapType, name
   // Negative return values means a is placed before b in the sorted array
   if (aIndex > bIndex) {
     return -1;
-  } else if (aIndex < bIndex) {
+  }
+  else if (aIndex < bIndex) {
     return 1;
-  } else {
-    if (collator.compare(a.metaRoadmap.name, b.metaRoadmap.name) == 0) {
-      // If the roadmaps have the same name, sort by version (higher version first)
-      return b.version - a.version;
-    } else {
-      return collator.compare(a.metaRoadmap.name, b.metaRoadmap.name);
-    }
+  }
+  else if (collator.compare(a.metaRoadmap.name, b.metaRoadmap.name) === 0) {
+    // If the roadmaps have the same name, sort by version (higher version first)
+    return b.version - a.version;
+  }
+  else {
+    return collator.compare(a.metaRoadmap.name, b.metaRoadmap.name);
   }
 }
 
 /**
  * Sorts roadmaps alphabetically by name, A-Z
  */
-export function roadmapSorterAZ<T extends { metaRoadmap: MetaRoadmap }>(a: T, b: T) {
+export function roadmapSorterAZ<T extends { metaRoadmap: MetaRoadmap | MultiRoadmapInstance["metaRoadmap"] }>(a: T, b: T) {
   return collator.compare(a.metaRoadmap.name, b.metaRoadmap.name);
 }
 
 /**
  * Sorts roadmaps by their number of goals (more goals first), with name as a tiebreaker
  */
-export function roadmapSorterGoalAmount<T extends { metaRoadmap: MetaRoadmap, _count: { goals: number } }>(a: T, b: T) {
+export function roadmapSorterGoalAmount<T extends { metaRoadmap: MetaRoadmap | MultiRoadmapInstance["metaRoadmap"], _count: { goals: number } }>(a: T, b: T) {
   if (a._count.goals > b._count.goals) {
     return -1;
   } else if (a._count.goals < b._count.goals) {
     return 1;
   } else {
-    return collator.compare(a.metaRoadmap.name, b.metaRoadmap.name)
+    return collator.compare(a.metaRoadmap.name, b.metaRoadmap.name);
   }
 }
 
@@ -129,7 +132,7 @@ export function goalSorterActionAmount<T extends { _count: { effects: number } }
   } else if (a._count.effects < b._count.effects) {
     return 1;
   } else {
-    return 0
+    return 0;
   }
 }
 
@@ -142,14 +145,14 @@ export function goalSorterActionAmountReverse<T extends { _count: { effects: num
   } else if (a._count.effects > b._count.effects) {
     return 1;
   } else {
-    return 0
+    return 0;
   }
 }
 
 /**
  * Sorts goals by how "interesting" their data series are
  */
-export function goalSorterInterest<T extends { dataSeries: DataSeries | null }>(a: T, b: T) {
+export function goalSorterInterest<T extends { dataSeries: { values: { timestamp: Date; value: number; dataSeriesId?: string; }[], unit: string | null; id: string; } | null }>(a: T, b: T) {
   if (a.dataSeries == null && b.dataSeries == null) {
     return 0;
   } else if (a.dataSeries != null && b.dataSeries == null) {
@@ -162,7 +165,15 @@ export function goalSorterInterest<T extends { dataSeries: DataSeries | null }>(
       return 0;
     }
     // Higher interest gets sorted first
-    return (dataSeriesInterest(b.dataSeries) - dataSeriesInterest(a.dataSeries))
+    const aInterest = dataSeriesInterest({
+      ...a.dataSeries,
+      values: a.dataSeries.values.map(v => ({ ...v, dataSeriesId: "" })),
+    });
+    const bInterest = dataSeriesInterest({
+      ...b.dataSeries,
+      values: b.dataSeries.values.map(v => ({ ...v, dataSeriesId: "" })),
+    });
+    return bInterest - aInterest;
   }
 }
 
@@ -188,18 +199,20 @@ export function actionGraphSorter<T extends { x: string, y: number[] }>(a: T, b:
   // Start year
   if ((a.y[0] || 0) < (b.y[0] || 0)) {
     return -1;
-  } else if ((a.y[0] || 0) > (b.y[0] || 0)) {
+  }
+  else if ((a.y[0] || 0) > (b.y[0] || 0)) {
     return 1;
-  } else {
-    // End year
-    if ((a.y[1] || 0) < (b.y[1] || 0)) {
-      return -1;
-    } else if ((a.y[1] || 0) > (b.y[1] || 0)) {
-      return 1;
-    } else {
-      // Name
-      return collator.compare(a.x, b.x);
-    }
+  }
+  // End year
+  else if ((a.y[1] || 0) < (b.y[1] || 0)) {
+    return -1;
+  }
+  else if ((a.y[1] || 0) > (b.y[1] || 0)) {
+    return 1;
+  }
+  else {
+    // Name
+    return collator.compare(a.x, b.x);
   }
 }
 
@@ -210,18 +223,20 @@ export function effectGraphSorter<T extends { action: { name: string, startYear:
   // Start year
   if (a.action.startYear < b.action.startYear) {
     return -1;
-  } else if (a.action.startYear > b.action.startYear) {
+  }
+  else if (a.action.startYear > b.action.startYear) {
     return 1;
-  } else {
-    // End year
-    if (a.action.endYear < b.action.endYear) {
-      return -1;
-    } else if (a.action.endYear > b.action.endYear) {
-      return 1;
-    } else {
-      // Name
-      return collator.compare(a.action.name, b.action.name);
-    }
+  }
+  // End year
+  else if (a.action.endYear < b.action.endYear) {
+    return -1;
+  }
+  else if (a.action.endYear > b.action.endYear) {
+    return 1;
+  }
+  else {
+    // Name
+    return collator.compare(a.action.name, b.action.name);
   }
 }
 

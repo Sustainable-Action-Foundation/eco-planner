@@ -2,7 +2,7 @@
 # Production-optimized Dockerfile for Next.js application
 
 # Build arguments
-ARG NODE_VERSION="20"
+ARG NODE_VERSION="24"
 
 # ============================================================================
 # Base stage - Common dependencies and setup
@@ -17,11 +17,14 @@ RUN apk update && apk upgrade && \
   curl \
   && rm -rf /var/cache/apk/*
 
-# Enable corepack for modern package manager support
-RUN corepack enable
 
 # Set working directory
 WORKDIR /app
+
+COPY package.json yarn.lock .yarnrc.yml ./
+
+# Enable corepack for modern package manager support
+RUN corepack enable
 
 # Create non-root user for security (no shell)
 RUN addgroup --system --gid 1001 nodejs && \
@@ -33,11 +36,8 @@ RUN addgroup --system --gid 1001 nodejs && \
 # ============================================================================
 FROM base AS deps
 
-# Copy package manager files for dependency installation
-COPY package.json yarn.lock* ./
-
 # Install dependencies (GHA cache handled by buildx)
-RUN yarn install --frozen-lockfile
+RUN yarn install --immutable
 
 # Clean up temporary files to reduce image size
 RUN rm -rf /tmp/* /var/tmp/*
@@ -57,24 +57,33 @@ RUN yarn prisma generate
 # ============================================================================
 FROM base AS builder
 
+ARG COMMIT_SHA
+ARG BUILD_ID
+
 # Copy dependencies
 COPY --from=deps /app/node_modules ./node_modules
+# Copy yarn from corepack cache, to avoid downloading it again
+COPY --from=deps /root/.cache/node/corepack /root/.cache/node/corepack
 
 # Copy source code (using .dockerignore)
 COPY . .
 
 # Copy Prisma clients generated files from the prisma stage
-COPY --from=prisma /app/src/prisma/generated/ ./src/prisma/generated/
+COPY --from=prisma /app/.prisma/generated/ ./.prisma/generated/
 
 # Set build environment variables
 ENV NODE_ENV=production
 # Next.js collects completely anonymous telemetry data about general usage. Learn more here: https://nextjs.org/telemetry
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV CI=true
+ENV COMMIT_SHA=${COMMIT_SHA}
+
+# Force Next config re-evaluation per commit without busting deps.
+RUN printf "// BUILD_COMMIT: %s\n" "${COMMIT_SHA}" >> next.config.ts
 
 # Build with cache mount for Next.js
 RUN --mount=type=cache,target=/app/.next/cache \
-  yarn run build
+  sh -c "echo BUILD_ID=${BUILD_ID} > /tmp/build-id && yarn run build"
 
 
 # ============================================================================
@@ -82,12 +91,10 @@ RUN --mount=type=cache,target=/app/.next/cache \
 # ============================================================================
 FROM base AS runner
 
-ARG GIT_LONG_HASH
-ARG GIT_SHORT_HASH
+ARG COMMIT_SHA
 
 # Build arguments for git information (for debugging/monitoring)
-ENV GIT_LONG_HASH=${GIT_LONG_HASH}
-ENV GIT_SHORT_HASH=${GIT_SHORT_HASH}
+ENV COMMIT_SHA=${COMMIT_SHA}
 
 # Set production environment variables
 ENV NODE_ENV=production

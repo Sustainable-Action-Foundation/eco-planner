@@ -1,38 +1,77 @@
 .dialog {
-  width: min(75ch, 100%);
+  width: min(90ch, 100%);
   overflow: unset;
-  height: calc(100vh - 2rem);
+  height: calc(70vh - 2rem);
   border: 0; 
   box-shadow: 0 0 .5rem -.25rem rgba(0,0,0,.25);
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--gray) rgba(0,0,0,0);
+  background-color: rgba(246, 246, 246); /* Same as background*/
 }
 
-/* TODO: Do we want this class? Or do we want to scroll the entire dialog? */
-.temporary {
-  overflow-y: auto;
-  padding-right: .25rem;
-  scrollbar-width: thin;
-  scrollbar-color: var(--gray) rgba(0,0,0,0);
+.dialog::backdrop {
+  backdrop-filter: blur(1px);
 }
 
-.dialog fieldset button:active {
+.dialog-content {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100%;
+}
+
+.dialog-header {
+  background-color: white;
+  border-bottom: 1px solid var(--gray-80);
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-radius: .5rem .5rem 0 0; /* Same as dialog */
+}
+
+.dialog-header > h1 {
+  font-size: 1.75rem;
+}
+
+.dialog-body {
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray) rgba(0,0,0,0);
+  padding: 1rem;
+} 
+ 
+
+.dialog fieldset button:active { /* TODO: Remove? */
   transform: scale(.995);
 }
 
 /* For selecting tables when choosing a specific data source */
+/* TODO: Classnames makes no sense here */
+.tableList { 
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray) rgba(0,0,0,0);
+}
+
 .tableSelect {
   position: relative;
   padding: .5rem;
   border-radius: .25rem;
   transition: background-color .1s ease;
-  font-weight: 500;
+  font-size: small;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .tableSelect:has(input[type="radio"]:checked) {
-  background-color: var(--blue-20);
-  color: white;
+  background-color: rgba(153, 211, 255, .5);
+}
+
+.tableSelect:has(input[type="radio"]:checked)::after {
+  content: url('data:image/svg+xml;utf8,<svg  xmlns="http://www.w3.org/2000/svg"  width="14"  height="14"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>') / "";
+  height: 14px;
 }
 
 .tableSelect:not(:has(input[type="radio"]:checked)):hover {

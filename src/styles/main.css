@@ -1,5 +1,9 @@
 /* custom (not yet added to semantic style sheets= */
 
+.user-select-none {
+  user-select: none;
+}
+
 .list-style-none {
   list-style: none;
 }
@@ -28,7 +32,7 @@
   background-color: transparent;
   border: none;
   border-radius: 0;
-}
+} 
 
 /* Input with a floating label input */
 .floating-label {
@@ -74,6 +78,7 @@
 }
 
 /* Select multiple (alternative to simple radiobuttons */
+/* TODO: Naming makes no sense here, i think this is refering to having multiple options? */
 .radio-select-multiple {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
@@ -116,6 +121,7 @@
 }
 
 /* Select two (alternative to simple radiobuttons */
+/* TODO: Naming makes no sense here, shoudl be select either? */
 .radio-select-two {
   /* TODO: Need some sort of hover/focus state here */
   font-size: small;
@@ -151,8 +157,24 @@
   font-size: smaller;
 }
 
+.font-size-14px {
+  font-size: 14px;
+}
+
+.font-size-75 {
+  font-size: .75rem;
+}
+
 .font-size-100 {
   font-size: 1rem;
+}
+
+.font-size-125 {
+  font-size: 1.25rem;
+}
+
+.font-size-150 {
+  font-size: 1.5rem;
 }
 
 .opacity-0 {
@@ -161,6 +183,10 @@
 
 .text-transform-capitalize {
   text-transform: capitalize;
+}
+
+.text-transform-lowercase {
+  text-transform: lowercase;
 }
 
 .place-items-center {
@@ -233,6 +259,10 @@
 
 .flex-direction-column-reverse {
   flex-direction: column-reverse;
+}
+
+.border-radius-0 {
+  border-radius: 0;
 }
 
 .smooth {
@@ -313,6 +343,10 @@
 
 .width-100 {
   width: 100%;
+}
+
+.max-width-100 {
+  max-width: 100%;
 }
 
 .height-0 {
@@ -551,6 +585,14 @@ container-text {
 .container-text {
   display: block;
   width: min(90ch, 100%);
+}
+
+.white-space-nowrap {
+  white-space: nowrap;
+}
+
+.text-overflow-ellipsis {
+  text-overflow: ellipsis;
 }
 
 .margin-0 {
@@ -993,6 +1035,10 @@ container-text {
   margin-top: 1rem;
 }
 
+.margin-top-150 {
+  margin-top: 1.5rem;
+}
+
 .margin-top-200 {
   margin-top: 2rem;
 }
@@ -1051,6 +1097,10 @@ container-text {
 
 .margin-right-100 {
   margin-right: 1rem;
+}
+
+.margin-right-150 {
+  margin-right: 1.5rem;
 }
 
 .margin-right-200 {
@@ -2193,6 +2243,10 @@ container-text {
   flex-grow: 5;
 }
 
+.flex-grow-infinity {
+  flex-grow: calc(infinity * 1);
+}
+
 .flex-grow-inherit {
   flex-grow: inherit;
 }
@@ -2211,6 +2265,66 @@ container-text {
 
 .flex-grow-unset {
   flex-grow: unset;
+}
+
+.flex-shrink-0 {
+  flex-shrink: 0;
+}
+
+.flex-shrink-25 {
+  flex-shrink: 0.25;
+}
+
+.flex-shrink-50 {
+  flex-shrink: 0.5;
+}
+
+.flex-shrink-75 {
+  flex-shrink: 0.75;
+}
+
+.flex-shrink-100 {
+  flex-shrink: 1;
+}
+
+.flex-shrink-200 {
+  flex-shrink: 2;
+}
+
+.flex-shrink-300 {
+  flex-shrink: 3;
+}
+
+.flex-shrink-400 {
+  flex-shrink: 4;
+}
+
+.flex-shrink-500 {
+  flex-shrink: 5;
+}
+
+.flex-shrink-infinity {
+  flex-shrink: calc(infinity * 1);
+}
+
+.flex-shrink-inherit {
+  flex-shrink: inherit;
+}
+
+.flex-shrink-initial {
+  flex-shrink: initial;
+}
+
+.flex-shrink-revert {
+  flex-shrink: revert;
+}
+
+.flex-shrink-revert-layer {
+  flex-shrink: revert-layer;
+}
+
+.flex-shrink-unset {
+  flex-shrink: unset;
 }
 
 .flex-wrap-nowrap {
@@ -2324,6 +2438,55 @@ container-text {
 .align-items-unset {
   align-items: unset;
 }
+
+.align-self-normal {
+  align-self: normal;
+}
+
+.align-self-stretch {
+  align-self: stretch;
+}
+
+.align-self-center {
+  align-self: center;
+}
+
+.align-self-start {
+  align-self: start;
+}
+
+.align-self-end {
+  align-self: end;
+}
+
+.align-self-flex-start {
+  align-self: flex-start;
+}
+
+.align-self-flex-end {
+  align-self: flex-end;
+}
+
+.align-self-inherit {
+  align-self: inherit;
+}
+
+.align-self-initial {
+  align-self: initial;
+}
+
+.align-self-revert {
+  align-self: revert;
+}
+
+.align-self-revert-layer {
+  align-self: revert-layer;
+}
+
+.align-self-unset {
+  align-self: unset;
+}
+
 
 .justify-content-center {
   justify-content: center;
@@ -2599,6 +2762,14 @@ container-text {
 
 .position-unset {
   position: unset;
+}
+
+.line-height-100 {
+  line-height: 1;
+}
+
+.line-height-150 {
+  line-height: 1.5;
 }
 
 /*# sourceMappingURL=main.css.map */

@@ -73,6 +73,7 @@
 /* New styles as of: 2024-02-20 */
 
 .roadmapLink {
+  line-height: 1;
   border-radius: .5rem;
   padding: .5rem;
   display: block;
@@ -99,7 +100,9 @@
 }
 
 .actionLinkInfo {
+  font-size: 12px;
   margin: 0;
+  line-height: 1;
   width: min(50ch, 100%);
   overflow: hidden;
   display: -webkit-box;
@@ -174,10 +177,4 @@
 .roadmap-nav-ul li>details a:hover {
   background-color: var(--gray-90);
 }
-
-.roadmap-nav-ul li>div a .roadmap-information,
-.roadmap-nav-ul li>details a .roadmap-information {
-  color: gray;
-  font-size: 12px;
-  text-transform: lowercase;
-}
+ 

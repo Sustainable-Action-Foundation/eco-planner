@@ -1,0 +1,137 @@
+.tablist {
+    padding-top: 3px; /* 3px instead of 4px (.25rem) to compensate for the 1px offset on the tabs */
+    grid-template-columns: repeat(3, 175px);
+    background-color: var(--gray-90);
+    border-radius: .5rem .5rem 0 0;
+    border: 1px solid var(--gray-80);
+}
+
+.tablist:has(.graph-tab:focus-visible) {
+  border-bottom-color: var(--blue-40);
+}
+
+
+.tab {
+    transform: scale(1);
+    border-radius: .25rem .25rem 0 0;
+    background-color: transparent;
+    border-top: 1px solid transparent;
+}
+
+.tab:focus-visible {
+    outline: 0;
+    border-color: var(--blue-40) !important;
+}
+
+.tab:hover {
+    box-shadow: none;
+    text-decoration: underline;
+}
+
+.tab[aria-selected="true"] {
+    transform: scale(1) translateY(1px);
+    padding-bottom: 5px;
+    /* Add an additional pixel to compensate for y offset */
+    border: 1px solid var(--gray-80);
+    border-bottom: 0;
+    background-color: var(--gray-95);
+}
+
+/* 
+    NOTE: Since we only render the tablist if there are tabs, we must ensure 
+    that border radius is adjusted as the tablist becomes the outermost element.
+    hence the two following classes:
+*/
+.tablist ~ :has(.tab-panel) .tab-panel {
+    border-top: 0; 
+    border-radius: 0 0 .25rem .25rem;
+}
+
+.tablist ~ :has(.tab-panel) .menu {
+    border-radius: 0;
+}
+
+.tab-panel {
+    background-color: white;
+    border: 1px solid var(--gray-80); 
+    border-radius: .25rem;
+}
+
+.menu {
+    border-radius: .25rem .25rem 0 0; /* TODO: This results in a very small whitespace as the border is set on the parentelement. We will live with this for now ): */
+    display: flex;
+    align-items: flex-end;
+    gap: .25rem;
+    margin: 0;
+    padding: .25rem;
+    flex-wrap: wrap;
+    padding-top: .5rem;
+    background-color: var(--gray-95);
+    border-bottom: 1px solid var(--gray-80);
+}   
+
+.heading {
+    text-align: center;
+    display: block;
+    font-weight: 500;
+    margin-top: 2rem;
+    margin-bottom: .5rem;
+    font-size: 1.5rem;
+} 
+
+.body {
+    height: 500px;
+    padding-bottom: .5rem;
+    padding-inline: .25rem;
+}
+
+.footer {
+    font-size: 14px;
+    text-align: center;
+    padding: .5rem;
+    border-top: 1px solid var(--gray-80);
+    background-color: var(--tertiary-neutral);
+    border-radius: 0 0 .25rem .25rem;
+}
+
+/* NOTE: Arbitrary width value */
+@media (width < 600px) {
+    .tablist {
+        overflow: hidden;
+        overflow-x: overlay; /* TODO: Should be auto i think (overlay is a legacy keyword according to mdn) */
+        scroll-snap-type: x mandatory;
+        direction: ltr;
+        scrollbar-width: thin;
+        scrollbar-color: var(--gray-70) var(--gray-90);
+        grid-template-columns: repeat(3, 200px);
+        gap: .25rem;
+        scroll-padding-inline: .25rem;
+        padding-top: .25rem;
+        padding-bottom: .5rem;
+    }
+    .tab {
+        padding: .5rem;
+        scroll-snap-align: start;
+        border: 1px solid var(--gray-80);
+        border-radius: .25rem;
+        background-color: var(--primary-neutral);
+    }
+
+    .tab[aria-selected="true"] {
+        background-color: rgba(153, 211, 255, .25);
+        border-color: var(--blue-40);
+        border-bottom: 1px solid var(--blue-40);
+        transform: initial;
+        padding-bottom: .5rem;
+    }
+
+    .menu {
+        padding: .75rem .5rem;
+        gap: .5rem;
+    }
+
+    .body {
+        height: 35vh;
+    }
+
+}

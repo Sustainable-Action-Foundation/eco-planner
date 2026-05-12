@@ -1,4 +1,4 @@
-import Login from "@/components/form/forms/login.tsx";
+import Login from "@/components/form/forms/login";
 import styles from "./page.module.css" with { type: "css" };
 import AttributedImage, { AttributeText } from "@/components/generic/images/attributedImage";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
@@ -13,7 +13,7 @@ export async function generateMetadata() {
     description: t("metadata:login.description"),
     og_url: `/login`,
     og_image_url: '/images/og_wind.png',
-  })
+  });
 }
 
 export default async function Page() {
@@ -38,5 +38,5 @@ export default async function Page() {
         </div>
       </main>
     </>
-  )
+  );
 }

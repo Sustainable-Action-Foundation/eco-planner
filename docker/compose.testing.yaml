@@ -1,31 +1,6 @@
 name: eco-planner-test-suite
 
 services:
-  tests:
-    image: eco-planner-testing:test
-    pull_policy: build
-    build: 
-      context: ..
-      dockerfile: docker/testing.Dockerfile
-      cache_from:
-        - eco-planner-testing:test
-        - type=gha
-      cache_to:
-        - type=gha,mode=max
-    restart: "no"
-    depends_on:
-      app:
-        condition: service_healthy
-      db:
-        condition: service_healthy
-    networks:
-      - default
-      - testing_network
-    volumes:
-      - test-folder:/testing/tests
-    environment:
-      - TEST_BASE_URL=${TEST_BASE_URL:-http://app:8081}
-
   db:
     image: mariadb:lts
     restart: always
@@ -37,7 +12,7 @@ services:
     # ports:
     #   - "3366:3306"
     volumes:
-      - testing_data:/mariadb
+      - testing_data:/var/lib/mysql
     environment:
       - MARIADB_DATABASE=${TEST_MARIADB_DATABASE:-eco-planner}
       - MARIADB_ROOT_PASSWORD=${TEST_MARIADB_ROOT_PASSWORD:-admin}
@@ -56,7 +31,6 @@ services:
       context: ..
       dockerfile: docker/db-seed.Dockerfile
       cache_from:
-        - eco-planner-db-seed:test
         - type=gha
       cache_to:
         - type=gha,mode=max
@@ -75,8 +49,9 @@ services:
     build:
       context: ..
       dockerfile: docker/app.Dockerfile
+      args:
+        COMMIT_SHA: ${COMMIT_SHA}
       cache_from:
-        - eco-planner-app:test
         - type=gha
       cache_to:
         - type=gha,mode=max
@@ -92,6 +67,8 @@ services:
     ports:
       - "8081:8081"
     environment:
+      # TEST_ENVIRONMENT should affect as little as possible, currently only for setting secure cookie flag to false in session cookies since webkit doesn't exclude localhost from https-requirement for secure cookies, and suppressing a console log in health route.
+      - TEST_ENVIRONMENT=testing
       # Database connection string
       - DATABASE_URL=${TEST_DATABASE_URL:-mysql://root:admin@db:3306/eco-planner}
       # Iron session cookie encryption password
@@ -102,21 +79,7 @@ services:
       - MAIL_PASSWORD=${TEST_MAIL_PASSWORD}
       # Used for links in emails and as canonical url in meta tags
       - BASE_URL=${TEST_BASE_URL:-http://app:8081}
-
-  # Shuts down the stack after tests are completed
-  cleanup:
-    image: docker:cli
-    restart: "no"
-    depends_on:
-      tests:
-        condition: service_completed_successfully
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: >
-      sh -c "
-        echo 'Tests completed, shutting down stack...' &&
-        docker compose -p eco-planner-test-suite kill -s SIGTERM app db
-      "
+      - COMMIT_SHA=${COMMIT_SHA}
 
 networks:
   testing_network:
@@ -124,6 +87,4 @@ networks:
 
 volumes:
   testing_data:
-    driver: local
-  test-folder:
     driver: local

@@ -1,7 +1,7 @@
 'use server';
 
 import getPxWebTableContent from "./pxWeb/getPxWebTableContent";
-import { unstable_cacheTag as cacheTag, unstable_cacheLife as cacheLife } from 'next/cache';
+import { cacheTag, cacheLife } from 'next/cache';
 
 /**
  * Queries SCB for area data.
@@ -18,7 +18,7 @@ export default async function scbAreaQuery(areaCode: string, parentAreaCode?: st
 
   return {
     area,
-    parentArea
+    parentArea,
   };
 }
 
@@ -35,7 +35,7 @@ async function getCachedQuery(areaCode: string) {
     // Magic string to get area sizes in square kilometers (as opposed to hectares with "000007E1")
     { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
     // Use the latest time period
-    { variableCode: "Tid", valueCodes: ["TOP(1)"] }
+    { variableCode: "Tid", valueCodes: ["TOP(1)"] },
   ];
 
   const result = await getPxWebTableContent("TAB6420", "SCB", selection, undefined);

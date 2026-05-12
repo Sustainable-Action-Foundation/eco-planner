@@ -1,4 +1,4 @@
-import { PxWebApiV2TableArray } from "@/lib/pxWeb/pxWebApiV2Types";
+import type { PxWebApiV2TableArray } from "@/lib/pxWeb/pxWebApiV2Types";
 import { ExternalDataset } from "../api/utility";
 
 /**
@@ -9,7 +9,7 @@ import { ExternalDataset } from "../api/utility";
  */
 export default async function getPxWebTables(externalDataset: string, searchQuery?: string, language?: string, pageSize: number = 9999) {
   // Get the base URL for the external dataset, defaulting to SCB
-  const dataset = ExternalDataset.getDatasetByAlternateName(externalDataset) || ExternalDataset.SCB;
+  const dataset = ExternalDataset.getDatasetByAlternateName(externalDataset) ?? ExternalDataset.SCB;
   const url = new URL('./tables', dataset.baseUrl);
 
   if (searchQuery) url.searchParams.append('query', searchQuery);
@@ -31,12 +31,12 @@ export default async function getPxWebTables(externalDataset: string, searchQuer
       if (data?.page?.totalElements > data?.page?.pageSize) {
         return await getPxWebTables(externalDataset, searchQuery, language, data.page.totalElements);
       }
-    } else if (response.status == 429) {
+    } else if (response.status === 429) {
       // Wait 10 seconds and try again
       await new Promise(resolve => setTimeout(resolve, 10000));
       return await getPxWebTables(externalDataset, searchQuery, language, pageSize);
     } else {
-      console.log("bad response", response)
+      console.log("bad response", response);
       return null;
     }
   } catch (error) {

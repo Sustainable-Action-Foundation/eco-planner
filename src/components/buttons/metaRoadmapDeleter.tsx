@@ -1,6 +1,6 @@
 'use client';
 
-import type getOneMetaRoadmap from "@/fetchers/getOneMetaRoadmap";
+import type { getOneMetaRoadmap } from "@/fetchers";
 import { useRef } from "react";
 import ConfirmDelete from "../modals/confirmDelete";
 import { openModal } from "../modals/modalFunctions";
@@ -14,5 +14,5 @@ export default function MetaRoadmapDeleter({ metaRoadmap }: { metaRoadmap: NonNu
       <button type="button" className="red color-purewhite" onClick={() => openModal(deletionRef)}>{t("components:roadmap_series_one_deleter.remove_metadata")}</button>
       <ConfirmDelete modalRef={deletionRef} targetUrl={`/api/metaRoadmap`} targetName={metaRoadmap.name} targetId={metaRoadmap.id} />
     </>
-  )
+  );
 }

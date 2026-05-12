@@ -1,10 +1,12 @@
-import { goalSorterTree } from "@/lib/sorters.ts";
-import type { DataSeries, Goal } from "@prisma/client";
+import { goalSorterTree } from "@/lib/sorters";
+import type { Goal } from "@/types";
 import type { TFunction } from "i18next";
 
-export type GoalTree = { [key: string]: GoalTree | (Goal & { dataSeries: DataSeries | null } & { roadmap: { id: string, metaRoadmap: { name: string, id: string } } }) };
+export type GoalTreeEntry = Pick<Goal, "id" | "name" | "indicatorParameter" | "dataSeries">;
 
-export default function goalsToTree(goals: ((Goal & { dataSeries: DataSeries | null } & { roadmap: { id: string, metaRoadmap: { name: string, id: string } } }) | null)[], t: TFunction) {
+export type GoalTree = { [key: string]: GoalTree | GoalTreeEntry };
+
+export default function goalsToTree(goals: Array<GoalTreeEntry | null>, t: TFunction) {
   const filteredGoals = goals.filter(goal => goal != null);
   const sortedGoals = filteredGoals.sort(goalSorterTree);
   const tree: GoalTree = {};
@@ -13,7 +15,7 @@ export default function goalsToTree(goals: ((Goal & { dataSeries: DataSeries | n
     const parameters = goal.indicatorParameter.split('\\');
 
     // "key" and "demand" are currently the first subsection in the parameters of our data exported from LEAP, but they are mainly metadata and not relevant for the tree structure
-    if (parameters[0].toLowerCase() == 'key' || parameters[0].toLowerCase() == 'demand') {
+    if (parameters[0].toLowerCase() === 'key' || parameters[0].toLowerCase() === 'demand') {
       parameters.shift();
     }
 
@@ -31,7 +33,11 @@ export default function goalsToTree(goals: ((Goal & { dataSeries: DataSeries | n
     // Includes a zero width non-joiner to decrease risk of colliding with user input
     // Otherwise, a param subsection could theoretically collide with a goal name/parameter and prevent the rendering of either the goal link or the param subsection <details> element
     // Example: Nameless goal with parameter "test" and unit "kg" would collide with a goal with parameter "test (kg)\\whatever"
-    current[`${goal.name || goal.indicatorParameter.split('\\').slice(-1)[0]} (\u200c${goal.dataSeries?.unit === null ? t("common:tsx.unitless") : goal.dataSeries?.unit || t("common:tsx.unit_missing")})`] = goal;
+    const indicatorName = goal.name ?? goal.indicatorParameter.split('\\').at(-1);
+    const unit = goal.dataSeries?.unit === null
+      ? t("common:tsx.unitless")
+      : goal.dataSeries?.unit ?? t("common:tsx.unit_missing");
+    current[`${indicatorName} (\u200c${unit})`] = goal;
   }
 
   return tree;

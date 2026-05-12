@@ -1,140 +1,159 @@
-'use client'
+'use client';
 
-import { isRecipe, Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe-parser/types";
+import { isRecipe, RecipeDataTypes } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
-import { recipeFromUnknown } from "@/functions/parseRecipe";
-import { VariableTypeScalarSimple } from "../editor/variables/variableTypes/scalarVariable";
-import { VariableTypeDataSeriesSimple } from "../editor/variables/variableTypes/dataSeriesVariable";
-import { VariableTypeExternalSimple } from "../editor/variables/variableTypes/externalDatasetVariable";
+import { VariableTypeScalarSimple } from "../editor/variables/scalarVariable";
+import { DataSeriesVariableSimpleEditor } from "../editor/variables/dataSeriesVariable";
+import { VariableTypeExternalSimple } from "../editor/variables/externalVariable";
 import { Fragment, useEffect, useMemo, useState } from "react";
-import clientSafeGetRoadmaps from "@/fetchers/clientSafeGetRoadmaps";
-import TabList from "../../generic/tablist/tabList";
-import OutputDataSeries from "../editor/output/dataSeriesDisplay";
-import OutputGraph from "../editor/output/graphDisplay";
-import OutputStatus from "../editor/output/statusDisplay";
-import { testIfValidUnit } from "@/functions/recipe-parser/extractors";
+import { clientSafeGetOneRoadmap, clientSafeGetRoadmaps } from "@/fetchers/client";
+import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";
 import { IconAlertTriangleFilled } from "@tabler/icons-react";
-import { RecipeEditorPermissions } from "../editor/variables/variableTypes/recipeEditorPermissions";
+import { RecipeEditorPermissions } from "../editor/recipeEditorPermissions";
+import type { DBRecipe } from "@/types";
+import { Recipe } from "@/functions/recipe/recipe";
+import { CombinedStatusDisplay, getDefaultSuggestedRecipes, TextStatus } from "@/components/recipe";
+import styles from "../recipe.module.css" with {type: "css"};
 
 export function SuggestedRecipeApplier({
   autoInsertDefaultSuggestions = true,
-  suggestedRecipes: suggestedRecipesInput = [],
+  suggestedRecipes: providedSuggestedRecipes = [],
   permissions = RecipeEditorPermissions,
-
-  DEPRECATED_recipeOverrideFunctions,
 }: {
   autoInsertDefaultSuggestions?: boolean;
-  suggestedRecipes?: { hash: string, recipe: Recipe }[];
+  suggestedRecipes?: DBRecipe[];
   permissions?: RecipeEditorPermissions;
-
-  /** 
-   * ## WARNING!
-   * 
-   * This is scary. This is a patch before smart recipes are implemented, 
-   *  it will allow for very flexible overriding from outside. 
-   * It will be used now for the copyAndScale component and should probably 
-   *  not be used elsewhere and removed once smart recipes are in place.
-   */
-  DEPRECATED_recipeOverrideFunctions?: Array<(recipe: Recipe) => Recipe>;
 }) {
   const { t } = useTranslation("components");
-  const { recipe, setRecipe } = useRecipe();
+  const defaultSuggestionRecipes = useMemo(() => getDefaultSuggestedRecipes(t), [t]);
+  const { recipe, applyRecipeUpdate, clearRecipe } = useRecipe();
 
-  const [availableRoadmaps, setAvailableRoadmaps] = useState<{ id: string; name: string; }[]>([]);
-  const [selectedHash, setSelectedHash] = useState<string>("");
+  const [availableDataSeries, setAvailableDataSeries] = useState<{ id: string; name: string; }[]>([]);
+  const [selectedRecipeId, setSelectedRecipeId] = useState<string>("");
   const suggestedRecipes = useMemo(() => autoInsertDefaultSuggestions
-    ? [...defaultSuggestedRecipes, ...suggestedRecipesInput]
-    : suggestedRecipesInput,
-    [autoInsertDefaultSuggestions, suggestedRecipesInput]);
+    ? [...defaultSuggestionRecipes, ...providedSuggestedRecipes]
+    : [...providedSuggestedRecipes],
+    [autoInsertDefaultSuggestions, providedSuggestedRecipes, defaultSuggestionRecipes]);
 
   // On mount, fetch all roadmaps user has access to
-  // TODO: This is reused from editor/variable/editor.tsx, can probably abstract this somehow
+  // TODO: This is reused from editor/variable/editor.tsx, can probably extract this somehow
   useEffect(() => {
     async function fetchRoadmaps() {
       try {
         const roadmaps = await clientSafeGetRoadmaps();
-        setAvailableRoadmaps(roadmaps.map(roadmap => ({ id: roadmap.id, name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version }) })));
+
+        const roadmapsWithData = await Promise.all(
+          roadmaps.map(async (roadmap) => {
+            const fullRoadmap = await clientSafeGetOneRoadmap(roadmap.id);
+            if (!fullRoadmap) return null;
+
+            const hasPullableData = fullRoadmap.goals.some((goal) => {
+              if (goal.dataSeries || goal.baseline) return true;
+              return goal.effects.some((effect) => !!effect.dataSeries);
+            });
+
+            if (!hasPullableData) return null;
+            return roadmap;
+          }),
+        );
+
+        setAvailableDataSeries(
+          roadmapsWithData
+            .filter((roadmap): roadmap is NonNullable<typeof roadmap> => !!roadmap)
+            .map((roadmap) => ({
+              id: roadmap.id,
+              name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version }),
+            })),
+        );
       }
       catch (e) {
         console.error("Failed to fetch roadmaps", e);
       }
     }
 
-    fetchRoadmaps().catch(e => { throw e; });
+    fetchRoadmaps()
+      .catch((e: unknown) => {
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        console.error("Failed to fetch roadmaps", errorMessage);
+      });
   }, [t]);
 
-  // Validate suggested recipes
+  // Validate suggested recipe structures
   useEffect(() => {
-    for (const recipe of suggestedRecipes) {
-      if (!isRecipe(recipe.recipe)) {
-        console.warn("Invalid recipe in suggestions", recipe);
+    for (const dbRecipe of suggestedRecipes) {
+      const recipe = Recipe.from(dbRecipe.recipe);
+      if (!isRecipe(recipe.serialize())) {
+        console.warn("Invalid recipe type in suggestions", dbRecipe);
         return;
       }
     }
-    if (suggestedRecipes.some(r => !isRecipe(r.recipe))) {
-      console.warn("Some suggested recipes are not valid. Please check the data.");
-      return;
-    }
+    // TODO - validate with recipe.isValid() here as well when the API calls are removed from stored recipes
   }, [suggestedRecipes]);
 
   // On change set the context state to the selected recipe
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const hash = e.target.value;
-    setSelectedHash(hash);
+    const recipeId = e.target.value;
+    setSelectedRecipeId(recipeId);
 
-    const selectedSuggestion = suggestedRecipes.find(r => r.hash === hash);
-    if (selectedSuggestion) {
-      try {
-        let foundRecipe = recipeFromUnknown(selectedSuggestion.recipe);
-
-        // TODO remove override stuff
-        if (DEPRECATED_recipeOverrideFunctions) {
-          DEPRECATED_recipeOverrideFunctions.forEach(overrideFunction => {
-            foundRecipe = overrideFunction(foundRecipe);
-          });
-        };
-
-        setRecipe(foundRecipe);
-      }
-      catch (e) {
-        console.error("Failed to parse suggested recipe", e);
-        setRecipe(null);
-      }
-    } else {
-      setRecipe(null);
+    const selectedSuggestion = suggestedRecipes.find(r => r.id === recipeId);
+    if (!selectedSuggestion) {
+      console.error("Selected suggested recipe not found", recipeId);
+      clearRecipe();
+      return;
     }
+
+    const parsedRecipe = Recipe.from(selectedSuggestion.recipe);
+
+    if (!isRecipe(parsedRecipe.serialize())) {
+      console.error("Selected suggested recipe is not a valid Recipe", selectedSuggestion);
+      clearRecipe();
+      return;
+    }
+
+    applyRecipeUpdate(parsedRecipe)
+      .catch((e: unknown) => {
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        console.error("Failed to set recipe from suggestion", errorMessage);
+        clearRecipe();
+      });
   };
 
   return (<>
     {/* Select which suggested recipe to use */}
+    {/* TODO: Might be reasonable if this is a fieldset where this label is the legend? */}
     <label className="flex gap-50 margin-bottom-100 margin-top-25 align-items-center">
-      {t("components:recipe_editor.recipe")}:
+      {t("components:recipe_editor.suggested_recipe_label")}:
       <select
         id="select-preset"
-        value={selectedHash}
+        value={selectedRecipeId}
         onChange={handleChange}
       >
         <option disabled value={""}>{t("common:tsx.generic_select")}</option>
         {suggestedRecipes.map((suggestedRecipe, index) => (
-          <option key={index} value={suggestedRecipe.hash}> {/* TODO: The selected value needs to be preselected */}
-            {suggestedRecipe.recipe.name ?? t("components:copy_and_scale.unnamed_suggestion")}
+          <option key={index} value={suggestedRecipe.id}> {/* TODO: The selected value needs to be preselected */}
+            {Recipe.from(suggestedRecipe.recipe).name ?? t("components:copy_and_scale.unnamed_suggestion")}
           </option>
         ))}
       </select>
     </label>
 
-    <div
-      className="grid gap-50 padding-left-100"
+
+    {/* TODO: Look into using an ordered list for this. */}
+
+    {/* Select of available recipes */}
+    <ul
+      className="grid gap-50 padding-left-100 align-items-center"
       style={{
-        gridTemplateColumns: 'auto 1fr',
+        gridTemplateColumns: 'auto auto 1fr',
         gridTemplateRows: 'auto auto',
-        columnGap: '1rem'
       }}
     >
-      {Object.entries(recipe?.variables ?? {}).map(([variableName, variable], i) => {
+      {(recipe?.variables ?? []).map((variable, i) => {
+        const variableId = variable.id;
+        const variableDisplayName = variable.name;
         const unitIsProvided = typeof variable.unit !== "undefined" && variable.unit !== null;
-        const isValidUnit = unitIsProvided ? testIfValidUnit(variable.unit as string) : false;
+        const isValidUnit = unitIsProvided ? isMathjsUnit(variable.unit as string) : false;
         const unitDisplay = isValidUnit
           ? ` [${variable.unit}]`
           : unitIsProvided && variable.unit !== ''
@@ -154,188 +173,66 @@ export function SuggestedRecipeApplier({
         switch (variable.type) {
           case RecipeDataTypes.Scalar: {/* TODO: Fix these labels */ }
             return (
-              <Fragment key={variableName}>
-                <label htmlFor={`scalar-${variableName}`} className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
-                  <span>{variableName}{unitDisplay}:</span>
+              <li key={variableId} className={`${styles["variable"]} ${!variable.template ? styles["variable-selected"] : ""}`}>
+                <label className="margin-right-150 margin-left-25">
+                  {variableDisplayName}{unitDisplay}:
                 </label>
                 <VariableTypeScalarSimple
                   key={"recipeVariable" + i}
-                  variableName={variableName}
+                  variableId={variableId}
                   permissions={permissions}
                   props={{
                     defaultValue: variable.value,
-                    id: `scalar-${variableName}`
                   }}
                 />
-              </Fragment>
+              </li>
             );
 
           case RecipeDataTypes.DataSeries:
             return (
-              <Fragment key={variableName}>
-                <label htmlFor={"recipeVariable" + i} className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
-                  <span>{variableName}{unitDisplay}:</span>
+              <li key={variableId} className={`${styles["variable"]} ${!variable.template ? styles["variable-selected"] : ""}`}>
+                <label className="margin-right-150 margin-left-25">
+                  {variableDisplayName}{unitDisplay}:
                 </label>
-                <VariableTypeDataSeriesSimple
-                  props={{
-                    id: "recipeVariable" + i,
-                    name: "recipeVariable" + i,
-                    placeholder: t("components:recipe_editor.select_data_series"),
-                    required: true,
-                    disabled: variable.disabled || false,
-                  }}
+                <DataSeriesVariableSimpleEditor
                   key={"recipeVariable" + i}
-                  variableName={variableName}
-                  availableRoadmaps={availableRoadmaps}
+                  variableId={variableId}
+                  availableDataSeries={availableDataSeries}
+                  permissions={{ ...permissions }}
                 />
-              </Fragment>
+              </li>
             );
 
           case RecipeDataTypes.External:
             return (
-              <Fragment key={variableName}>
-                <label htmlFor={`query-builder-${variableName}`} className="flex align-items-center gap-100 width-fit-content margin-bottom-50">
-                  <span>{variableName}{unitDisplay}:</span>
+              <li key={variableId} className={`${styles["variable"]} ${!variable.template ? styles["variable-selected"] : ""}`}>
+                <label className="margin-right-150 margin-left-25">
+                  {variableDisplayName}{unitDisplay}:
                 </label>
                 <VariableTypeExternalSimple
                   key={"recipeVariable" + i}
-                  variableName={variableName}
+                  variableId={variableId}
+                  permissions={permissions}
                 />
-              </Fragment>
+              </li>
             );
 
           default:
-            console.warn("Unknown variable type for variable", variableName);
+            console.warn("Unknown variable type for variable", { variable });
             return (
-              <p key={variableName}>
-                {variableName}: {t("components:recipe_editor.unknown_variable_type")}
+              <p key={variableId}>
+                {variableDisplayName}: {t("components:recipe_editor.unknown_variable_type")}
               </p>
             );
         }
       })}
-    </div>
+    </ul>
 
-    <OutputStatus
-      hideWhenNoRecipe={true}
-    />
+    {selectedRecipeId && <>
+      <TextStatus showAllGood={false} />
 
-    {selectedHash &&
-      <TabList
-        defaultIndex={0}
-        styling="simple"
-        props={{
-          className: "margin-top-200",
-        }}
-      >
-        <div
-          data-tabname={t("components:recipe_editor.data_series")}
-          className="padding-top-50 margin-bottom-100"
-        >
-          <OutputDataSeries />
-        </div>
-        <div
-          data-tabname={t("components:recipe_editor.graph")}
-          className="padding-top-50 margin-bottom-100"
-        >
-          <OutputGraph />
-        </div>
-        <div
-          data-tabname={t("components:recipe_editor.equation")}
-          className="padding-top-50 margin-bottom-100"
-        >
-          <p className="margin-0">{recipe?.eq}</p>
-        </div>
-      </TabList>
-    }
+      <CombinedStatusDisplay />
+    </>}
   </>
   );
 }
-
-// TODO: Should dynamically render a list of inputs corresponding to RecipeDataTypes.DataSeries.
-// We already do this in the recipe editor but we also want a simplified view outside of the editor
-// TODO: Placed this here temporarily to remove clutter from goal form. 
-// Should probably be moved back once these are created dynamically? 
-export const defaultSuggestedRecipes: { hash: string, recipe: Recipe }[] = [
-  // TODO: actually create proper hashes
-  // TODO: Localize the variable names
-  // TODO: Create these in seed and get them from the database
-  { // Default scaling recipe
-    hash: "recipe_with_scaling",
-    recipe: {
-      name: 'Skala serie', // Deal with this later t("forms:goal.default_scaling_recipe"), 
-      eq: "${serie} * ${skalär}",
-      variables: {
-        "serie": {
-          type: RecipeDataTypes.DataSeries,
-          link: null,
-          pick: VectorIndexPickerOptions.Default,
-          unit: undefined, // No unit specified
-        },
-        "skalär": {
-          type: RecipeDataTypes.Scalar,
-          value: 1,
-          unit: null, // Unitless
-        }
-      }
-    },
-  },
-  { // Default combination recipe
-    hash: "recipe_with_combination",
-    recipe:
-    {
-      name: 'Kombinera serier', // Deal with this later t("forms:goal.default_combination_recipe"),
-      eq: "${serie1} * ${skalär1} + ${serie2} * ${skalär2}",
-      variables: {
-        "serie1": {
-          type: RecipeDataTypes.DataSeries,
-          link: null,
-          pick: VectorIndexPickerOptions.Default,
-          unit: undefined, // No unit specified
-        },
-        "skalär1": {
-          type: RecipeDataTypes.Scalar,
-          value: 1,
-          unit: null, // Unitless
-        },
-        "serie2": {
-          type: RecipeDataTypes.DataSeries,
-          link: null,
-          pick: VectorIndexPickerOptions.Default,
-          unit: undefined, // No unit specified
-        },
-        "skalär2": {
-          type: RecipeDataTypes.Scalar,
-          value: 1,
-          unit: null, // Unitless
-        },
-      }
-    }
-  },
-  // { // Testing recipe with external data
-  //   hash: "recipe_with_external",
-  //   recipe:
-  //   {
-  //     name: "Recipe with external data",
-  //     eq: "${extern}",
-  //     variables: {
-  //       "extern": {
-  //         type: RecipeDataTypes.External,
-  //         dataset: "SCB",
-  //         tableId: "TAB6420",
-  //         selection: [
-  //           // Selected area
-  //           { variableCode: "Region", valueCodes: ["00"] },
-  //           // Specifically land areas, not including water
-  //           { variableCode: "ArealTyp", valueCodes: ["01"] },
-  //           // Magic string to get area sizes in square kilometers (as opposed to hectares with "000007E1")
-  //           { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
-  //           // // Use the latest time period
-  //           // { variableCode: "Tid", valueCodes: ["TOP(1)"] }
-  //         ],
-  //         pick: VectorIndexPickerOptions.Last,
-  //         unit: undefined,
-  //       }
-  //     }
-  //   }
-  // }
-]

@@ -18,6 +18,7 @@ div:has(>.select-toggle) {
     align-items: center;
     justify-content: space-between;
     text-align: left;
+    font-size: 14px;
 }
 
 .select-toggle[value=""] .selected-value-text { /* Assume we show our placeholder (which should be gray) given that no value is selected*/

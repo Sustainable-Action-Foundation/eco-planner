@@ -5,10 +5,10 @@
     "wanna_create_action": "Vill du skapa en?"
   },
   "breadcrumbs_sections": {
-    "action": "{{$t(common:action_one), titleCase}}:",
-    "goal": "{{$t(common:goal_one), titleCase}}:",
+    "action": "$t(common:action_one, titleCase):",
+    "goal": "$t(common:goal_one, titleCase):",
     "home": "$t(common:tsx.home)",
-    "roadmap_series": "{{$t(common:roadmap_series_one), titleCase}}:",
+    "roadmap_series": "$t(common:roadmap_series_one, titleCase):",
     "version": "Version {{version}}",
     "version_label": "Version:"
   },
@@ -80,6 +80,7 @@
   "login": {
     "create_account": "Skapa konto",
     "forgot_password": "Glömt lösenordet?",
+    "invalid_credentials": "Inloggningen misslyckades. Kontrollera dina uppgifter och att din e-post är verifierad.",
     "login_failed": "Inloggningen misslyckades. Kontrollera dina uppgifter och försök igen.",
     "no_account": "Har du inget konto?",
     "password": "Lösenord",
@@ -94,14 +95,18 @@
     "icon_aria_label": "notiser"
   },
   "query_builder": {
+    "add_data_manually": "Lägg till data manuellt",
     "add_data_source": "Lägg till datakälla",
     "add_data_source_button": "Lägg till datakälla",
     "add_data_to_goal": "Lägg till en historisk dataserie i {{goalName}}",
+    "add_external_data": "Välj data från externa datakällor",
     "add_historical_data": "Lägg till historisk data",
+    "adjust_data_manually": "Justera data manuellt",
     "change_historical_data": "Ändra historisk data",
     "data_source": "Datakälla",
     "does_this_look_correct_one": "Ser detta rimligt ut? (visar max {{count}} värde)",
     "does_this_look_correct_other": "Ser detta rimligt ut? (visar max {{count}} värden)",
+    "edit_historical_data": "Redigera historisk data",
     "language_support_warning": "{{dataSource}} stödjer inte ditt valda språk. Ett tillgängligt språk kommer att användas istället.",
     "loading": "Laddar...",
     "no_result_found": "Inget läsbart resultat hittades. Vänligen uppdatera dina val.",
@@ -113,26 +118,49 @@
     "search_for_table": "Sök efter tabell",
     "select_metric": "Välj mätvärde",
     "select_metric_for_table": "Välj mätvärde för tabell",
-    "select_source": "Välj en källa",
+    "select_source": "Välj datakälla",
+    "select_source_for_table": "Välj en datakälla för att se tabeller",
+    "select_source_for_metric": "Välj en datakälla för att se mätvärden",
     "select_starting_period": "Välj startperiod",
+    "select_table": "Välj tabell",
     "select_time_interval": "Välj tidsintervall",
     "select_time_period": "Välj tidsperiod",
     "select_value": "Välj ett värde",
     "select_values_for_table": "Välj värden för tabell",
     "selected_table": "<strong>Vald tabell:</strong> <small><i>{{table}}</i></small>",
+    "table": "Tabell",
     "value": "Värde"
   },
   "recipe_editor": {
+    "add_external_data": "Hitta historisk data",
+    "create_recipe": "Skapa ett nytt recept",
     "create_variable": "Skapa variabel",
     "data_series": "Dataserie",
     "dataset": "Dataset",
+    "default_area_recipe": {
+      "child_area": "Arvtagares yta",
+      "name": "Skala utifrån yta",
+      "parent_area": "Förälders yta",
+      "parent_value": "Förälder"
+    },
+    "default_population_recipe": {
+      "child_population": "Arvtageres befolkning",
+      "name": "Skala utifrån befolkning",
+      "parent_population": "Förälders befolkning",
+      "parent_value": "Förälder"
+    },
+    "default_scalar_recipe": {
+      "name": "Skala utifrån fast värde",
+      "parent_value": "Förälder",
+      "scalar": "Skalär"
+    },
     "delete_variable": "Radera variabel:",
     "edit_variable": "Redigera variabel",
     "equation": "Ekvation",
     "external_data": "Extern data",
-    "add_external_data": "Data",
     "goal_or_effect": "Målbana eller effekt",
     "graph": "Graf",
+    "insert_variable": "Lägg in variabel",
     "missing_resulting_data_series": "Resulterande dataserie saknas",
     "missing_resulting_graph": "Resulterande graf saknas",
     "no_errors": "Receptet är giltigt",
@@ -150,13 +178,17 @@
     "scalar": "Skalär",
     "select_data_series": "Välj målbana eller effekt",
     "select_dataset": "Välj dataset",
+    "select_recipe": "Välj ett befintligt recept",
     "select_roadmap": "Välj färdplan",
     "selection": "Urval",
-    "status": "Status",
+    "status": {
+      "no_issues_icon_aria_label": "Inga problem",
+      "template_recipe": "Redigerar en mall, ange alla fält"
+    },
+    "suggested_recipe_label": "Föreslagna metoder",
     "table": "Tabell",
-    "select_recipe": "Välj ett befintligt recept",
-    "create_recipe": "Skapa ett nytt recept",
     "toggle_suggested_recipe": "<option1 /><span> – eller – </span><option2 />",
+    "unable_to_generate_variable_id": "Misslyckades generara variabel-id: intern error. Försök igen",
     "unit_label": "Enhet",
     "unit_placeholder": "Enhet",
     "unknown_variable_type": "Okänd variabeltyp",
@@ -174,8 +206,9 @@
     "goal_count_descending": "Antal $t(common:goal_other) (fallande)",
     "name_ascending": "Namn (Ö-A)",
     "name_descending": "Namn (A-Ö)",
+    "roadmap_type": "Typ av färdplansserie",
     "search_roadmaps": "Sök bland $t(common:roadmap_series_other)",
-    "sort_by": "Sortera utifrån:"
+    "sort_by": "Sortera utifrån"
   },
   "roadmap_series_one_deleter": {
     "remove_metadata": "Ta bort metadata"
@@ -214,26 +247,37 @@
     "username": "Användarnamn"
   },
   "table_menu": {
-    "add_effect_from_existing_action": "Lägg till $t(common:effect_one) från befintlig $t(common:action_one)",
+    "add_effect_from_existing_action": "Lägg till $t(common:effect_one)",
+    "admin_panel_info": "Enbart användare med administrations- eller redigeringsbehörighet kan se denna panel. Vilka åtgärder som är tillgängliga för en användare beror på deras behörighetsnivå.",
+    "admin_panel_title": "Administrationspanel",
     "button_aria": "Meny för {{component}}",
     "button_aria_alt": "namn saknas",
     "delete": "Radera inlägg",
     "delete_missing_name": "Namn saknas",
     "edit": "Redigera",
-    "effect_from_action": "{{$t(common:effect_one), titleCase}} från {{source}}",
+    "effect_from_action": "$t(common:effect_one, titleCase) från {{source}}",
     "effect_missing_name": "Namn saknas",
+    "feature_goal": "Lyft fram $t(common:goal_one)",
+    "feature_goal_stop": "Sluta lyfta fram $t(common:goal_one)",
     "go_to_goal": "Gå till $t(common:goal_one)",
     "go_to_series": "Gå till $t(common:roadmap_series_one)",
     "go_to_version": "Gå till $t(common:roadmap_version_one)",
+    "historical_data": "Justera historisk data",
     "new_action": "Ny $t(common:action_one)",
     "new_effect": "Ny $t(common:effect_one)",
     "new_goal": "Ny $t(common:goal_one)",
-    "new_roadmap_version": "Ny $t(common:roadmap_version_one)"
+    "new_roadmap_version": "Ny $t(common:roadmap_version_one)",
+    "no_available_actions": "Inga tillgängliga åtgärder"
   },
   "table_selector": {
-    "actions": "{{$t(common:action_other), titleCase}}",
+    "actions": "$t(common:action_other, titleCase)",
     "table": "Tabell",
     "tree": "Träd"
+  },
+  "toasts": {
+    "error": "Något gick fel!",
+    "success": "Lyckades!",
+    "warning": "Varning!"
   },
   "update_goal_button": {
     "update": "Uppdatera $t(common:goal_one)"
@@ -242,7 +286,7 @@
     "access_level": "Behörighet",
     "editing_access": "Redigeringsbehörighet",
     "posts": "Inlägg",
-    "roadmap_series": "{{$t(common:roadmap_series_other), titleCase}}",
-    "roadmap_versions": "{{$t(common:roadmap_version_other), titleCase}}"
+    "roadmap_series": "$t(common:roadmap_series_other, titleCase)",
+    "roadmap_versions": "$t(common:roadmap_version_other, titleCase)"
   }
 }

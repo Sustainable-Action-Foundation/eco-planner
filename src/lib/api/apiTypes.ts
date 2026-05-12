@@ -1,5 +1,5 @@
-import { PxWebMetric, PxWebTimeVariable, PxWebVariable } from "../pxWeb/pxWebApiV2Types"
-import { TrafaHierarchy, TrafaMetric, TrafaVariable } from "../trafa/trafaTypes"
+import type { PxWebMetric, PxWebTimeVariable, PxWebVariable } from "../pxWeb/pxWebApiV2Types";
+import type { TrafaHierarchy, TrafaMetric, TrafaVariable } from "../trafa/trafaTypes";
 
 // TODO: See if we can include any unit returned by external APIs
 export type ApiTableContent = {

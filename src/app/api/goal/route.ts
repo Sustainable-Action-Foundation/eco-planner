@@ -1,314 +1,16 @@
-import { NextRequest } from "next/server";
-import prisma from "@/prismaClient";
+import type { NextRequest } from "next/server";
+import prisma, { Prisma } from "@/prismaClient";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/session";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
-import { AccessControlled, ClientError, GoalCreateInput, GoalUpdateInput, JSONValue, DataSeriesValueFields, isPartialDataSeriesValueFields, isFullDataSeriesValueFields } from "@/types";
+import { ClientError, isGoalCreate, isGoalUpdate } from "@/types";
+import type { AccessControlled, JSONValue } from "@/types";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
-import { Prisma } from "@prisma/client";
-import crypto from 'crypto';
-import dataSeriesPrep from "./dataSeriesPrep";
 import pruneOrphans from "@/functions/pruneOrphans";
-import { cleanRecipe, evaluateRecipe } from "@/functions/parseRecipe";
-import { hashRecipe } from "@/functions/recipe-parser/getRecipeHash";
+import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
+import serveTea from "@/lib/i18nServer";
 
-// Type guards
-export function isGoalCreate(goal: JSONValue): goal is GoalCreateInput {
-  return (
-    (
-      typeof goal === "object" &&
-      goal !== null &&
-      !Array.isArray(goal)
-    ) &&
-
-    // name: string | null | undefined;
-    (
-      typeof goal.name === 'string' ||
-      goal.name === null ||
-      goal.description === undefined
-    ) &&
-
-    // description: string | null | undefined;
-    (
-      typeof goal.description === 'string' ||
-      goal.description === null ||
-      goal.description === undefined
-    ) &&
-
-    // indicatorParameter: string;
-    (
-      typeof goal.indicatorParameter === 'string'
-    ) &&
-
-    // isFeatured: boolean | undefined;
-    (
-      typeof goal.isFeatured === 'boolean' ||
-      goal.isFeatured === undefined
-    ) &&
-
-    // externalDataset: string | null | undefined;
-    (
-      typeof goal.externalDataset === 'string' ||
-      goal.externalDataset === undefined ||
-      goal.externalDataset === null
-    ) &&
-
-    // externalTableId: string | null | undefined;
-    (
-      typeof goal.externalTableId === 'string' ||
-      goal.externalTableId === undefined ||
-      goal.externalTableId === null
-    ) &&
-
-    // externalSelection: string | null | undefined;
-    (
-      typeof goal.externalSelection === 'string' ||
-      goal.externalSelection === undefined ||
-      goal.externalSelection === null
-    ) &&
-
-    // recipeUsed: Recipe | null | undefined;
-    (
-      typeof goal.recipe === 'string' ||
-      goal.recipe === undefined ||
-      goal.recipe === null
-    ) &&
-
-    // rawDataSeries: DataSeriesValueFields | string[] | undefined;
-    (
-      goal.rawDataSeries === undefined ||
-      isPartialDataSeriesValueFields(goal.rawDataSeries) ||
-      (
-        Array.isArray(goal.rawDataSeries) &&
-        goal.rawDataSeries.every((entry: JSONValue) => (
-          typeof entry === 'string'
-        ))
-      )
-    ) &&
-
-    // rawDataSeriesUnit: string | null | undefined;
-    (
-      typeof goal.rawDataSeriesUnit === 'string' ||
-      goal.rawDataSeriesUnit === undefined ||
-      goal.rawDataSeriesUnit === null
-    ) &&
-
-    // rawBaselineDataSeries: DataSeriesValueFields | string[] | undefined;
-    (
-      goal.rawBaselineDataSeries === undefined ||
-      isPartialDataSeriesValueFields(goal.rawBaselineDataSeries) ||
-      (
-        Array.isArray(goal.rawBaselineDataSeries) &&
-        goal.rawBaselineDataSeries.every((entry: JSONValue) => (
-          typeof entry === 'string'
-        ))
-      )
-    ) &&
-
-    // rawBaselineDataSeriesUnit: string | null | undefined;
-    (
-      typeof goal.rawBaselineDataSeriesUnit === 'string' ||
-      goal.rawBaselineDataSeriesUnit === undefined ||
-      goal.rawBaselineDataSeriesUnit === null
-    ) &&
-
-    // roadmapId: string;
-    (
-      typeof goal.roadmapId === 'string'
-    ) &&
-
-    // rawTags: string[] | null | undefined;
-    (
-      goal.rawTags === undefined ||
-      goal.rawTags === null ||
-      (
-        Array.isArray(goal.rawTags) &&
-        goal.rawTags.every((entry: JSONValue) => (
-          typeof entry === 'string'
-        ))
-      )
-    ) &&
-
-    // TODO: Deprecated - will be moved to description
-    // links: { url: string, description?: string | null }[] | null | undefined;
-    (
-      goal.links === undefined ||
-      goal.links === null ||
-      (
-        Array.isArray(goal.links) &&
-        goal.links.every((entry: JSONValue) => (
-          (
-            typeof entry === 'object' &&
-            entry !== null &&
-            !Array.isArray(entry)
-          ) &&
-
-          typeof entry.url === 'string' &&
-          (
-            typeof entry.description === 'string' ||
-            entry.description === undefined ||
-            entry.description === null
-          )
-        ))
-      )
-    )
-  );
-}
-
-function isGoalUpdate(goal: JSONValue): goal is GoalUpdateInput {
-  return (
-    (
-      typeof goal === "object" &&
-      goal !== null &&
-      !Array.isArray(goal)
-    ) &&
-
-    // goalId: string;
-    (
-      typeof goal.goalId === 'string'
-    ) &&
-
-    // timestamp: number;
-    (
-      typeof goal.timestamp === 'number'
-    ) &&
-
-    // name: string | null | undefined;
-    (
-      typeof goal.name === 'string' ||
-      goal.name === null ||
-      goal.description === undefined
-    ) &&
-
-    // description: string | null | undefined;
-    (
-      typeof goal.description === 'string' ||
-      goal.description === null ||
-      goal.description === undefined
-    ) &&
-
-    // indicatorParameter: string | undefined;
-    (
-      typeof goal.indicatorParameter === 'string' ||
-      goal.indicatorParameter === undefined
-    ) &&
-
-    // isFeatured: boolean | undefined;
-    (
-      typeof goal.isFeatured === 'boolean' ||
-      goal.isFeatured === undefined
-    ) &&
-
-    // externalDataset: string | null | undefined;
-    (
-      typeof goal.externalDataset === 'string' ||
-      goal.externalDataset === undefined ||
-      goal.externalDataset === null
-    ) &&
-
-    // externalTableId: string | null | undefined;
-    (
-      typeof goal.externalTableId === 'string' ||
-      goal.externalTableId === undefined ||
-      goal.externalTableId === null
-    ) &&
-
-    // externalSelection: string | null | undefined;
-    (
-      typeof goal.externalSelection === 'string' ||
-      goal.externalSelection === undefined ||
-      goal.externalSelection === null
-    ) &&
-
-    // recipeUsed: Recipe | null | undefined;
-    (
-      typeof goal.recipe === 'string' ||
-      goal.recipe === undefined ||
-      goal.recipe === null
-    ) &&
-
-    // rawDataSeries: DataSeriesValueFields | string[] | undefined;
-    (
-      goal.rawDataSeries === undefined ||
-      isPartialDataSeriesValueFields(goal.rawDataSeries) ||
-      (
-        Array.isArray(goal.rawDataSeries) &&
-        goal.rawDataSeries.every((entry: JSONValue) => (
-          typeof entry === 'string'
-        ))
-      )
-    ) &&
-
-    // rawDataSeriesUnit: string | null | undefined;
-    (
-      typeof goal.rawDataSeriesUnit === 'string' ||
-      goal.rawDataSeriesUnit === undefined ||
-      goal.rawDataSeriesUnit === null
-    ) &&
-
-    // rawBaselineDataSeries: DataSeriesValueFields | string[] | undefined;
-    (
-      goal.rawBaselineDataSeries === undefined ||
-      isPartialDataSeriesValueFields(goal.rawBaselineDataSeries) ||
-      (
-        Array.isArray(goal.rawBaselineDataSeries) &&
-        goal.rawBaselineDataSeries.every((entry: JSONValue) => (
-          typeof entry === 'string'
-        ))
-      )
-    ) &&
-
-    // rawBaselineDataSeriesUnit: string | null | undefined;
-    (
-      typeof goal.rawBaselineDataSeriesUnit === 'string' ||
-      goal.rawBaselineDataSeriesUnit === undefined ||
-      goal.rawBaselineDataSeriesUnit === null
-    ) &&
-
-    // roadmapId?: never;
-    (
-      goal.roadmapId === undefined
-    ) &&
-
-    // rawTags: string[] | null | undefined;
-    (
-      goal.rawTags === undefined ||
-      goal.rawTags === null ||
-      (
-        Array.isArray(goal.rawTags) &&
-        goal.rawTags.every((entry: JSONValue) => (
-          typeof entry === 'string'
-        ))
-      )
-    ) &&
-
-    // TODO: Deprecated - will be moved to description
-    // links: { url: string, description?: string | null }[] | null | undefined;
-    (
-      goal.links === undefined ||
-      goal.links === null ||
-      (
-        Array.isArray(goal.links) &&
-        goal.links.every((entry: JSONValue) => (
-          (
-            typeof entry === 'object' &&
-            entry !== null &&
-            !Array.isArray(entry)
-          ) &&
-
-          typeof entry.url === 'string' &&
-          (
-            typeof entry.description === 'string' ||
-            entry.description === undefined ||
-            entry.description === null
-          )
-        ))
-      )
-    )
-
-  );
-}
 
 /**
  * Handles POST requests to the goal API
@@ -318,28 +20,29 @@ export async function POST(request: NextRequest) {
     getSession(await cookies()),
     request.json() as Promise<JSONValue>,
   ]);
+  const t = await serveTea("api");
 
   // Validate session
   if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
-      { status: 401, headers: { 'Location': '/login' } }
+    return Response.json({ message: t('api:common.unauthorized') },
+      { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
   // Validate form data type
   if (!isGoalCreate(formData)) {
     console.log("formData failed validation");
-    return Response.json({ message: 'Invalid request body' },
-      { status: 400 }
+    return Response.json({ message: t('api:common.invalid_request_body') },
+      { status: 400 },
     );
   }
 
-  // Get user, roadmap
+  // Auth control
   try {
     const [user, roadmap] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true }
+        select: { id: true, username: true, isAdmin: true, userGroups: true },
       }),
       prisma.roadmap.findUnique({
         where: { id: formData.roadmapId },
@@ -350,7 +53,7 @@ export async function POST(request: NextRequest) {
           editGroups: { include: { users: { select: { id: true, username: true } } } },
           viewGroups: { include: { users: { select: { id: true, username: true } } } },
           isPublic: true,
-        }
+        },
       }),
     ]);
 
@@ -370,7 +73,7 @@ export async function POST(request: NextRequest) {
       editGroups: roadmap.editGroups,
       viewGroups: roadmap.viewGroups,
       isPublic: roadmap.isPublic,
-    }
+    };
     const accessLevel = accessChecker(accessFields, session.user);
     if (!hasEditAccess(accessLevel)) {
       throw new Error(ClientError.IllegalParent, { cause: 'goal' });
@@ -379,165 +82,158 @@ export async function POST(request: NextRequest) {
   }
   catch (error) {
     if (error instanceof Error) {
-      if (error.message == ClientError.BadSession) {
+      if (error.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
-          { status: 400, headers: { 'Location': '/login' } }
+          { status: 400, headers: { 'Location': '/login' } },
         );
       }
-      if (error.message == ClientError.IllegalParent) {
+      if (error.message === ClientError.IllegalParent) {
         return Response.json({ message: ClientError.IllegalParent },
-          { status: 403 }
+          { status: 403 },
         );
       }
     }
     // If no matching error is thrown, log the error and return a generic error message
     console.log(error);
-    return Response.json({ message: "Internal server error" },
-      { status: 500 }
+    return Response.json({ message: t('api:common.server_error') },
+      { status: 500 },
     );
   }
 
+  let goalId: string | undefined = undefined;
+
+  // Parse form data
   try {
-    // Data series parsing
-    let parsedDataSeries: Partial<DataSeriesValueFields> | undefined | null = undefined;
-    let parsedDataSeriesUnit: string | null = null;
-    if (formData.recipeUsed) {
-      // TODO: If the recipe is invalid, return an error UNLESS explicitly marked as incomplete somehow (needs to be added to form and here), in which case dataValues should be set to undefined
-
-      const warnings: string[] = [];
-      const resolvedRecipe = await evaluateRecipe(cleanRecipe(formData.recipeUsed), warnings);
-      if (!resolvedRecipe) {
-        return Response.json({ message: 'Recipe evaluation canceled' }, { status: 400 }); // TODO: canceled eval indicates a bad recipe so therefor I think 400 is appropriate but I'm not sure
+    await prisma.$transaction(async (prisma) => {
+      // Create recipes first
+      // New recipe data + existing recipe ID = update
+      if (formData.dataSeriesRecipe && formData.dataSeriesRecipeId) {
+        await prisma.recipe.update({
+          where: { id: formData.dataSeriesRecipeId },
+          data: { recipe: formData.dataSeriesRecipe },
+        });
       }
-      const { dataSeries, unit } = resolvedRecipe;
-
-      if (warnings.length) {
-        console.warn("Warnings while evaluating recipe for new goal:");
-        for (const warning of warnings) {
-          console.warn(warning);
+      // New recipe data + no existing recipe ID = create
+      else if (formData.dataSeriesRecipe) {
+        formData.dataSeriesRecipeId = (await prisma.recipe.create({
+          data: { recipe: formData.dataSeriesRecipe },
+          select: { id: true },
+        })).id;
+      }
+      // No new recipe data + existing recipe ID = link (if exists)
+      else if (!formData.dataSeriesRecipe && formData.dataSeriesRecipeId) {
+        const existingRecipe = await prisma.recipe.findUnique({
+          where: { id: formData.dataSeriesRecipeId },
+          select: { id: true },
+        });
+        if (!existingRecipe) {
+          console.warn(`Goal creation: tried linking goal with a data series recipe (${formData.dataSeriesRecipeId}) but not found, unlinking...`);
+          formData.dataSeriesRecipeId = null;
+        }
+      }
+      // Baseline recipe
+      // New recipe data + existing recipe ID = update
+      if (formData.baselineRecipe && formData.baselineRecipeId) {
+        await prisma.recipe.update({
+          where: { id: formData.baselineRecipeId },
+          data: { recipe: formData.baselineRecipe },
+        });
+      }
+      // New recipe data + no existing recipe ID = create
+      else if (formData.baselineRecipe) {
+        formData.baselineRecipeId = (await prisma.recipe.create({
+          data: { recipe: formData.baselineRecipe },
+          select: { id: true },
+        })).id;
+      }
+      // No new recipe data + existing recipe ID = link (if exists)
+      else if (!formData.baselineRecipe && formData.baselineRecipeId) {
+        const existingRecipe = await prisma.recipe.findUnique({
+          where: { id: formData.baselineRecipeId },
+          select: { id: true },
+        });
+        if (!existingRecipe) {
+          console.warn(`Goal creation: tried linking goal with a baseline recipe (${formData.baselineRecipeId}) but not found, unlinking...`);
+          formData.baselineRecipeId = null;
         }
       }
 
-      parsedDataSeries = dataSeries;
-      parsedDataSeriesUnit = unit !== undefined ? unit : '';
-    }
-    // TODO: DEPRECATE - raw data series should be made into data series before posting to the API and use 1:1 recipes instead 
-    else if (formData.rawDataSeries) {
-      parsedDataSeries = dataSeriesPrep(formData.rawDataSeries);
-      parsedDataSeriesUnit = formData.rawDataSeriesUnit !== undefined ? formData.rawDataSeriesUnit : '';
-    }
-
-    // Non full data series is an error
-    if (parsedDataSeries && !isFullDataSeriesValueFields(parsedDataSeries)) {
-      parsedDataSeries = null;
-    }
-
-    // If the data series is invalid, return an error
-    if (parsedDataSeries === null) {
-      return Response.json({ message: 'Bad data series' },
-        { status: 400 }
-      );
-    }
-
-    // Baseline data series parsing
-    let parsedBaselineDataSeries: Partial<DataSeriesValueFields> | undefined | null = undefined;
-    let parsedBaselineDataSeriesUnit: string | null = null;
-    if (formData.rawBaselineDataSeries) {
-      parsedBaselineDataSeries = dataSeriesPrep(formData.rawBaselineDataSeries);
-    }
-
-    // Non full data series is an error
-    if (parsedBaselineDataSeries && !isFullDataSeriesValueFields(parsedBaselineDataSeries)) {
-      parsedBaselineDataSeries = null;
-    }
-
-    // If the baseline data series is invalid, return an error
-    if (parsedBaselineDataSeries === null) {
-      return Response.json({ message: 'Bad baseline data series' },
-        { status: 400 }
-      );
-    }
-
-    // TODO: formData.rawBaselineDataSeriesUnit may never be set or read from the form. Is it even settable in the form?
-    // If null, set to null
-    if (formData.rawBaselineDataSeriesUnit === null) {
-      parsedBaselineDataSeriesUnit = null;
-    }
-    // If a non empty string is provided, use it
-    else if (typeof formData.rawBaselineDataSeriesUnit === 'string' && formData.rawBaselineDataSeriesUnit.trim().length) {
-      parsedBaselineDataSeriesUnit = formData.rawBaselineDataSeriesUnit.trim();
-    }
-    // Fall back to data series unit no matter its value
-    else {
-      parsedBaselineDataSeriesUnit = parsedDataSeriesUnit;
-    }
-
-    const recipeHash = formData.recipeUsed ? crypto.createHash('sha256').update(JSON.stringify(formData.recipeUsed)).digest('hex') : undefined;
-
-    const newGoal = await prisma.goal.create({
-      data: {
-        name: formData.name,
-        description: formData.description,
-        indicatorParameter: formData.indicatorParameter,
-        isFeatured: formData.isFeatured,
-        externalDataset: formData.externalDataset,
-        externalTableId: formData.externalTableId,
-        externalSelection: formData.externalSelection,
-        author: {
-          connect: { id: session.user.id },
-        },
-        roadmap: {
-          connect: { id: formData.roadmapId },
-        },
-        dataSeries: parsedDataSeries ? {
-          create: {
-            ...parsedDataSeries,
-            unit: parsedDataSeriesUnit,
-            authorId: session.user.id,
+      // Create goal
+      goalId = (await prisma.goal.create({
+        data: {
+          name: formData.name,
+          description: formData.description,
+          indicatorParameter: formData.indicatorParameter,
+          isFeatured: formData.isFeatured,
+          externalDataset: formData.externalDataset,
+          externalTableId: formData.externalTableId,
+          externalSelection: formData.externalSelection,
+          author: {
+            connect: { id: session.user?.id },
           },
-        } : undefined,
-        baselineDataSeries: parsedBaselineDataSeries ? {
-          create: {
-            ...parsedBaselineDataSeries,
-            unit: parsedBaselineDataSeriesUnit,
-            authorId: session.user.id,
-          }
-        } : undefined,
-        recipeUsed: formData.recipeUsed ? {
-          create: {
-            hash: recipeHash as string,
-            recipe: formData.recipeUsed,
-          }
-        } : undefined,
-        links: {
-          create: formData.links?.map(link => ({
-            url: link.url,
-            description: link.description,
-          }))
+          roadmap: {
+            connect: { id: formData.roadmapId },
+          },
+          dataSeries: {
+            create: {
+              author: { connect: { id: session.user?.id } },
+              recipeUsed: typeof formData.dataSeriesRecipeId === 'string'
+                ? { connect: { id: formData.dataSeriesRecipeId } }
+                : undefined,
+              values: { createMany: { data: dateValuesToDBDateRecord(formData.dataSeries.dateValues) } },
+              unit: formData.dataSeries.unit,
+            },
+          },
+          baseline: formData.baseline
+            ? {
+              connectOrCreate: {
+                where: { id: formData.baselineId ?? "" },
+                create: {
+                  author: { connect: { id: session.user?.id } },
+                  recipeUsed: typeof formData.baselineRecipeId === 'string'
+                    ? { connect: { id: formData.baselineRecipeId } }
+                    : undefined,
+                  values: { createMany: { data: dateValuesToDBDateRecord(formData.baseline.dateValues) } },
+                  unit: formData.baseline.unit,
+                },
+              },
+            }
+            : formData.baselineId
+              ? {
+                connect: { id: formData.baselineId },
+              }
+              : undefined,
+          links: {
+            create: formData.links?.map(link => ({
+              url: link.url,
+              description: link.description,
+            })),
+          },
+        } satisfies Prisma.GoalCreateInput,
+        select: {
+          id: true,
         },
-      },
-      select: {
-        id: true,
-      }
+      })).id;
     });
+
     // Invalidate old cache
-    revalidateTag('goal');
+    revalidateTag('goal', 'max');
     // Return the new goal's ID if successful
-    return Response.json({ message: "Goal created", id: newGoal.id },
-      { status: 201, headers: { 'Location': `/goal/${newGoal.id}` } }
+    return Response.json({ message: t('api:goal.goal_created'), id: goalId },
+      { status: 201, headers: { 'Location': `/goal/${goalId}` } },
     );
   }
   catch (error) {
     console.log(error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code == 'P2025') {
-      return Response.json({ message: 'Failed to connect records. Given roadmap might not exist' },
-        { status: 400 }
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return Response.json({ message: t('api:goal.roadmap_not_found') },
+        { status: 400 },
       );
     }
-    return Response.json({ message: "Internal server error" },
-      { status: 500 }
+    return Response.json({ message: t('api:common.server_error') },
+      { status: 500 },
     );
   }
 }
@@ -550,18 +246,19 @@ export async function PUT(request: NextRequest) {
     getSession(await cookies()),
     request.json() as Promise<JSONValue>,
   ]);
+  const t = await serveTea("api");
 
   // Validate session
   if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
-      { status: 401, headers: { 'Location': '/login' } }
+    return Response.json({ message: t('api:common.unauthorized') },
+      { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
   // Validate input
   if (!isGoalUpdate(goal)) {
-    return Response.json({ message: 'Invalid request body' },
-      { status: 400 }
+    return Response.json({ message: t('api:common.invalid_request_body') },
+      { status: 400 },
     );
   }
 
@@ -570,7 +267,7 @@ export async function PUT(request: NextRequest) {
     const [user, currentGoal] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true }
+        select: { id: true, username: true, isAdmin: true, userGroups: true },
       }),
       prisma.goal.findUnique({
         where: { id: goal.goalId },
@@ -600,220 +297,170 @@ export async function PUT(request: NextRequest) {
     }
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message == ClientError.BadSession) {
+      if (error.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
-          { status: 400, headers: { 'Location': '/login' } }
+          { status: 400, headers: { 'Location': '/login' } },
         );
       }
-      if (error.message == ClientError.StaleData) {
+      if (error.message === ClientError.StaleData) {
         return Response.json({ message: ClientError.StaleData },
-          { status: 409 }
+          { status: 409 },
         );
       }
-      if (error.message == ClientError.IllegalParent) {
+      if (error.message === ClientError.IllegalParent) {
         return Response.json({ message: ClientError.IllegalParent },
-          { status: 403 }
+          { status: 403 },
         );
       }
-      if (error.message == ClientError.AccessDenied) {
+      if (error.message === ClientError.AccessDenied) {
         return Response.json({ message: ClientError.AccessDenied },
-          { status: 403 }
+          { status: 403 },
         );
       }
     }
     // If no matching error is thrown, log the error and return a generic error message
     console.log(error);
-    return Response.json({ message: "Internal server error" },
-      { status: 500 }
+    return Response.json({ message: t('api:common.server_error') },
+      { status: 500 },
     );
   }
 
   // Edit goal
+  let goalId: string | undefined = undefined;
   try {
-    // Data series parsing
-    let parsedDataSeries: Partial<DataSeriesValueFields> | undefined | null = undefined;
-    let parsedDataSeriesUnit: string | null = null;
-    if (goal.recipeUsed) {
-      // TODO: If the recipe is invalid, return an error UNLESS explicitly marked as incomplete somehow (needs to be added to form and here), in which case dataValues should be set to undefined
-
-      const warnings: string[] = [];
-      const resolvedRecipe = await evaluateRecipe(cleanRecipe(goal.recipeUsed), warnings);
-      if (!resolvedRecipe) {
-        return Response.json({ message: 'Recipe evaluation canceled' }, { status: 400 }); // TODO: canceled eval indicates a bad recipe so therefor I think 400 is appropriate but I'm not sure
+    await prisma.$transaction(async (prisma) => {
+      // Do recipes before goal update
+      // New recipe data + existing recipe ID = update
+      if (goal.dataSeriesRecipe && goal.dataSeriesRecipeId) {
+        await prisma.recipe.update({
+          where: { id: goal.dataSeriesRecipeId },
+          data: { recipe: goal.dataSeriesRecipe },
+        });
       }
-
-      const { dataSeries, unit } = resolvedRecipe;
-
-      if (warnings.length) {
-        console.warn("Warnings while evaluating recipe for new goal:");
-        for (const warning of warnings) {
-          console.warn(warning);
+      // New recipe data + no existing recipe ID = create
+      else if (goal.dataSeriesRecipe) {
+        goal.dataSeriesRecipeId = (await prisma.recipe.create({
+          data: { recipe: goal.dataSeriesRecipe },
+          select: { id: true },
+        })).id;
+      }
+      // No new recipe data + existing recipe ID = link (if exists)
+      else if (!goal.dataSeriesRecipe && goal.dataSeriesRecipeId) {
+        const existingRecipe = await prisma.recipe.findUnique({
+          where: { id: goal.dataSeriesRecipeId },
+          select: { id: true },
+        });
+        if (!existingRecipe) {
+          console.warn(`Goal update: tried updating goal with a data series recipe (${goal.dataSeriesRecipeId}) but not found, unlinking...`);
+          goal.dataSeriesRecipeId = null;
+        }
+      }
+      // Baseline recipe
+      // New recipe data + existing recipe ID = update
+      if (goal.baselineRecipe && goal.baselineRecipeId) {
+        await prisma.recipe.update({
+          where: { id: goal.baselineRecipeId },
+          data: { recipe: goal.baselineRecipe },
+        });
+      }
+      // New recipe data + no existing recipe ID = create
+      else if (goal.baselineRecipe) {
+        goal.baselineRecipeId = (await prisma.recipe.create({
+          data: { recipe: goal.baselineRecipe },
+          select: { id: true },
+        })).id;
+      }
+      // No new recipe data + existing recipe ID = link (if exists)
+      else if (!goal.baselineRecipe && goal.baselineRecipeId) {
+        const existingRecipe = await prisma.recipe.findUnique({
+          where: { id: goal.baselineRecipeId },
+          select: { id: true },
+        });
+        if (!existingRecipe) {
+          console.warn(`Goal update: tried updating goal with a baseline recipe (${goal.baselineRecipeId}) but not found, unlinking...`);
+          goal.baselineRecipeId = null;
         }
       }
 
-      parsedDataSeries = dataSeries;
-      parsedDataSeriesUnit = unit !== undefined ? unit : '';
-    }
-    // TODO: DEPRECATE - raw data series should be made into data series before posting to the API and use 1:1 recipes instead 
-    else if (goal.rawDataSeries) {
-      parsedDataSeries = dataSeriesPrep(goal.rawDataSeries);
-      parsedDataSeriesUnit = goal.rawDataSeriesUnit !== undefined ? goal.rawDataSeriesUnit : '';
-    }
-
-    // Non full data series is an error
-    if (parsedDataSeries && !isFullDataSeriesValueFields(parsedDataSeries)) {
-      parsedDataSeries = null;
-    }
-
-    // If the data series is invalid, return an error
-    if (parsedDataSeries === null) {
-      return Response.json({ message: 'Bad data series' },
-        { status: 400 }
-      );
-    }
-
-    // Baseline data series parsing
-    const shouldRemoveBaseline = goal.rawBaselineDataSeries === null;
-    let parsedBaselineDataSeries: Partial<DataSeriesValueFields> | undefined | null = undefined;
-    let parsedBaselineDataSeriesUnit: string | null = null;
-
-    if (shouldRemoveBaseline) {
-      parsedBaselineDataSeries = null;
-    }
-    // Calculate new baseline
-    else {
-      if (goal.rawBaselineDataSeries) {
-        parsedBaselineDataSeries = dataSeriesPrep(goal.rawBaselineDataSeries);
-      }
-
-      // Non full data series is an error
-      if (parsedBaselineDataSeries && !isFullDataSeriesValueFields(parsedBaselineDataSeries)) {
-        parsedBaselineDataSeries = null;
-      }
-      // Note: May be null to indicate deletion of baseline
-
-      // TODO: formData.rawBaselineDataSeriesUnit may never be set or read from the form. Is it even settable in the form?
-      // If null, set to null
-      if (goal.rawBaselineDataSeriesUnit === null) {
-        parsedBaselineDataSeriesUnit = null;
-      }
-      // If a non empty string is provided, use it
-      else if (typeof goal.rawBaselineDataSeriesUnit === 'string' && goal.rawBaselineDataSeriesUnit.trim().length) {
-        parsedBaselineDataSeriesUnit = goal.rawBaselineDataSeriesUnit.trim();
-      }
-      // Fall back to data series unit no matter its value
-      else {
-        parsedBaselineDataSeriesUnit = parsedDataSeriesUnit;
-      }
-
-      if (parsedBaselineDataSeries === null) {
-        return Response.json({ message: 'Bad baseline data series' },
-          { status: 400 }
-        );
-      }
-    }
-
-    const recipeHash = goal.recipeUsed
-      ? hashRecipe(goal.recipeUsed)
-      : undefined;
-
-    const editedGoal = await prisma.goal.update({
-      where: { id: goal.goalId },
-      data: {
-        name: goal.name,
-        description: goal.description,
-        indicatorParameter: goal.indicatorParameter,
-        isFeatured: goal.isFeatured,
-        externalDataset: goal.externalDataset,
-        externalTableId: goal.externalTableId,
-        externalSelection: goal.externalSelection,
-        // Only update the data series if it is not undefined (undefined means no change)
-        ...(
-          parsedDataSeries === undefined ? {} : parsedDataSeries ? {
-            dataSeries: {
-              upsert: {
-                create: {
-                  ...parsedDataSeries,
-                  unit: parsedDataSeriesUnit,
-                  authorId: session.user.id,
-                },
-                update: {
-                  ...parsedDataSeries,
-                  unit: parsedDataSeriesUnit,
-                }
-              }
-            }
-          } : {}
-        ),
-        ...(
-          parsedBaselineDataSeries === undefined ? {} : shouldRemoveBaseline ? {
-            // Remove baseline case
-            baselineDataSeries: {
-              delete: true,
-            }
-          } : {
-            // Updated baseline case
-            baselineDataSeries: {
-              upsert: {
-                create: {
-                  ...parsedBaselineDataSeries,
-                  unit: parsedBaselineDataSeriesUnit,
-                  authorId: session.user.id,
-                },
-                update: {
-                  ...parsedBaselineDataSeries,
-                  unit: parsedBaselineDataSeriesUnit,
-                }
-              }
-            }
-          }
-        ),
-        // Connect, disconnect, or create recipe
-        ...(goal.recipeUsed ? {
-          recipeUsed: {
-            connectOrCreate: {
-              where: {
-                hash: recipeHash as string,
-              },
+      // Update goal
+      goalId = (await prisma.goal.update({
+        where: { id: goal.goalId },
+        data: {
+          name: goal.name,
+          description: goal.description,
+          indicatorParameter: goal.indicatorParameter,
+          isFeatured: goal.isFeatured,
+          externalDataset: goal.externalDataset,
+          externalTableId: goal.externalTableId,
+          externalSelection: goal.externalSelection,
+          dataSeries: goal.dataSeries ? {
+            upsert: {
               create: {
-                hash: recipeHash as string,
-                recipe: goal.recipeUsed,
-              }
-            }
-          }
-        } : goal.recipeUsed === null ? {
-          recipeUsed: {
-            disconnect: true
-          }
-        } : {}),
-        links: {
-          deleteMany: {},
-          create: goal.links?.map(link => {
-            return {
+                author: { connect: { id: session.user?.id } },
+                recipeUsed: typeof goal.dataSeriesRecipeId === 'string'
+                  ? { connect: { id: goal.dataSeriesRecipeId } }
+                  : undefined,
+                values: { createMany: { data: dateValuesToDBDateRecord(goal.dataSeries.dateValues) } },
+                ...(goal.dataSeries.unit == null ? {} : { unit: goal.dataSeries.unit }),
+              },
+              update: {
+                recipeUsed: goal.dataSeriesRecipeId === undefined
+                  ? undefined
+                  : typeof goal.dataSeriesRecipeId === 'string'
+                    ? { connect: { id: goal.dataSeriesRecipeId } }
+                    : { disconnect: true },
+                values: {
+                  deleteMany: {},
+                  createMany: { data: dateValuesToDBDateRecord(goal.dataSeries.dateValues) },
+                },
+                unit: goal.dataSeries.unit,
+              },
+            },
+          } : goal.dataSeriesId ? {
+            connect: { id: goal.dataSeriesId },
+          } : undefined,
+          baseline: goal.baseline
+            ? {
+              disconnect: {},
+              create: {
+                author: { connect: { id: session.user?.id } },
+                recipeUsed: typeof goal.baselineRecipeId === 'string'
+                  ? { connect: { id: goal.baselineRecipeId } }
+                  : undefined,
+                values: { createMany: { data: dateValuesToDBDateRecord(goal.baseline.dateValues) } },
+                unit: goal.baseline.unit,
+              },
+            } : goal.baselineId ? {
+              connect: { id: goal.baselineId },
+            } : undefined,
+          links: {
+            deleteMany: {},
+            create: goal.links?.map(link => ({
               url: link.url,
-              description: link.description || undefined,
-            }
-          })
+              description: link.description,
+            })),
+          },
         },
-      },
-      select: {
-        id: true,
-      }
+        select: {
+          id: true,
+        },
+      })).id;
     });
+
     // Prune any orphaned links and comments
     void pruneOrphans();
     // Invalidate old cache
-    revalidateTag('goal');
+    revalidateTag('goal', 'max');
     // Return the edited goal's ID if successful
-    return Response.json({ message: "Goal updated", id: editedGoal.id },
-      { status: 200, headers: { 'Location': `/goal/${editedGoal.id}` } }
+    return Response.json({ message: t('api:goal.goal_updated'), id: goalId },
+      { status: 200, headers: { 'Location': `/goal/${goalId}` } },
     );
   } catch (error) {
     console.log(error);
-    return Response.json({ message: "Internal server error" },
-      { status: 500 }
+    return Response.json({ message: t('api:common.server_error') },
+      { status: 500 },
     );
   }
 }
@@ -824,20 +471,21 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const [session, goal] = await Promise.all([
     getSession(await cookies()),
-    request.json() as Promise<JSONValue>
+    request.json() as Promise<JSONValue>,
   ]);
+  const t = await serveTea("api");
 
   // Validate session
   if (!session.user?.id) {
-    return Response.json({ message: 'Unauthorized' },
-      { status: 401, headers: { 'Location': '/login' } }
+    return Response.json({ message: t('api:common.unauthorized') },
+      { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
   // Validate request body
   if (!goal || !(typeof goal === 'object') || Array.isArray(goal) || typeof goal.id !== 'string' || goal.id.length === 0) {
-    return Response.json({ message: 'Missing required input parameters' },
-      { status: 400 }
+    return Response.json({ message: t('api:common.missing_input') },
+      { status: 400 },
     );
   }
 
@@ -845,7 +493,7 @@ export async function DELETE(request: NextRequest) {
     const [user, currentGoal] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true }
+        select: { id: true, username: true, isAdmin: true, userGroups: true },
       }),
       prisma.goal.findUnique({
         where: {
@@ -857,8 +505,8 @@ export async function DELETE(request: NextRequest) {
               { authorId: session.user.id },
               { roadmap: { authorId: session.user.id } },
               { roadmap: { metaRoadmap: { authorId: session.user.id } } },
-            ]
-          })
+            ],
+          }),
         },
       }),
     ]);
@@ -874,23 +522,23 @@ export async function DELETE(request: NextRequest) {
     }
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message == ClientError.BadSession) {
+      if (error.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
-          { status: 400, headers: { 'Location': '/login' } }
+          { status: 400, headers: { 'Location': '/login' } },
         );
       }
-      if (error.message == ClientError.AccessDenied) {
+      if (error.message === ClientError.AccessDenied) {
         return Response.json({ message: ClientError.AccessDenied },
-          { status: 403 }
+          { status: 403 },
         );
       }
     }
     // If no matching error is thrown, log the error and return a generic error message
     console.log(error);
-    return Response.json({ message: "Internal server error" },
-      { status: 500 }
+    return Response.json({ message: t('api:common.server_error') },
+      { status: 500 },
     );
   }
 
@@ -898,27 +546,27 @@ export async function DELETE(request: NextRequest) {
   try {
     const deletedGoal = await prisma.goal.delete({
       where: {
-        id: goal.id
+        id: goal.id,
       },
       select: {
         id: true,
         roadmap: {
           select: {
             id: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
     // Invalidate old cache
-    revalidateTag('goal');
-    return Response.json({ message: 'Goal deleted', id: deletedGoal.id },
+    revalidateTag('goal', 'max');
+    return Response.json({ message: t('api:goal.goal_deleted'), id: deletedGoal.id },
       // Redirect to the parent roadmap
-      { status: 200, headers: { 'Location': `/roadmap/${deletedGoal.roadmap.id}` } }
+      { status: 200, headers: { 'Location': `/roadmap/${deletedGoal.roadmap.id}` } },
     );
   } catch (error) {
     console.log(error);
-    return Response.json({ message: "Internal server error" },
-      { status: 500 }
+    return Response.json({ message: t('api:common.server_error') },
+      { status: 500 },
     );
   }
 }

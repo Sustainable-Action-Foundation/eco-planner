@@ -1,10 +1,11 @@
-import { uniqueLocales } from "../i18nTestVariables";
+import { uniqueLocales } from "../../i18n.config";
 import { expect, type Page } from "playwright/test";
 
 export async function switchLanguage(page: Page, languageAlias: string) {
   // Open dialog
   const dialogButton = page.getByTestId("language-switcher-dialog-button");
   await expect(dialogButton, "Language switcher dialog button is not visible").toBeVisible();
+  const oldText = await dialogButton.textContent();
   await dialogButton.click();
 
   // Wait for the language options
@@ -19,9 +20,12 @@ export async function switchLanguage(page: Page, languageAlias: string) {
   // Select the language option
   const option = page.getByTestId(`language-switcher-option-${languageAlias}`);
   await expect(option, `Language switcher option for ${languageAlias} is not visible`).toBeVisible();
+  const currentlyChecked = await option.getAttribute("data-checked");
   await option.click();
 
-  // TODO - Remove this and just fix the darned rerendering 
-  // Extra little wait to ensure the page has time to reload 
-  await page.waitForTimeout(1000);
+  // Wait for new language to be applied if it was changed
+  // TODO: Find a better check; this will break if two languages have the same text for the button
+  if (currentlyChecked !== "true") {
+    await expect(dialogButton, "Language switcher keeps old language after selection").not.toHaveText(oldText ?? "", { timeout: 5000 });
+  }
 }

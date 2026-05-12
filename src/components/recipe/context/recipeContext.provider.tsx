@@ -1,261 +1,280 @@
 "use client";
 
-import { emptyRecipe, Recipe } from "@/functions/recipe-parser/types";
-import type { DataSeriesValueFields } from "@/types";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { evaluateRecipe, cleanRecipe, recipeFromUnknown } from "@/functions/parseRecipe";
-import { Locales } from "i18n.config";
+import { RecipeError } from "@/functions/recipe/types";
+import type { RecipeDataTypes, RecipeVariable, SerializedRecipe } from "@/functions/recipe/types";
+import type { DateValues, UnitString } from "@/types";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Recipe } from "@/functions/recipe/recipe";
+import type { SetStateAction } from "./recipeContext.internal";
 import { RecipeContext } from "./recipeContext.internal";
+import { useSearchParams } from "next/navigation";
+import { useDebounce } from "use-debounce";
 
 export function RecipeContextProvider({
   initialRecipe,
   children,
 }: {
-  initialRecipe?: Recipe;
+  initialRecipe?: SerializedRecipe;
   children: React.ReactNode;
 }) {
-  const [warnings, setWarnings] = useState<string[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const isDebug = useMemo(() => searchParams.get("debug") === "true", [searchParams]);
 
-  const [recipe, setRecipeState] = useState<Recipe | null>(initialRecipe ?? null);
-  const setRecipe: React.Dispatch<React.SetStateAction<Recipe | null>> = useCallback((action) => {
-    if (typeof action === "function") {
-      setRecipeState((prev) => {
-        try {
-          return action(prev);
-        }
-        catch (e) {
-          setError(e instanceof Error ? e.message : String(e));
-          return prev;
-        }
-      });
-    }
-    else {
-      try {
-        setRecipeState(action);
-      }
-      catch (e) {
-        setError(e instanceof Error ? e.message : String(e));
-      }
-    }
+  const [error, setError] = useState<string | null>(null);
+  const [warnings, setWarnings] = useState<string[]>([]);
+
+  const [resultingDataSeries, setResultingDataSeries] = useState<DateValues | null>(null);
+  const [resultingUnit, setResultingUnit] = useState<UnitString | null>(null);
+
+  /** 
+   * Canonical recipe for this context
+   */
+  const canonicalRecipeRef = useRef<Recipe>(initialRecipe
+    ? Recipe.from(initialRecipe)
+    : Recipe.getEmpty(),
+  );
+
+  /** 
+   * Update to push to UI
+   */
+  const [publishedRecipe, setPublishedRecipe] = useState<Recipe>(initialRecipe
+    ? Recipe.from(initialRecipe)
+    : Recipe.getEmpty());
+
+  const equation = useMemo(() => publishedRecipe.equation, [publishedRecipe]);
+  const variables = useMemo(() => publishedRecipe.variables, [publishedRecipe]);
+  const getVariable = useCallback((
+    variableId: string,
+    expectedType?: RecipeDataTypes,
+  ) => {
+    const variable = publishedRecipe.variableMap[variableId];
+    if (!variable) return undefined;
+    if (expectedType && variable.type !== expectedType) return undefined;
+    return variable;
+  }, [publishedRecipe]);
+
+  const clearRecipe = useCallback(() => {
+    canonicalRecipeRef.current = Recipe.getEmpty();
+    setPublishedRecipe(Recipe.getEmpty());
   }, []);
 
-  const [resultingDataSeries, setResultingDataSeries] = useState<Partial<DataSeriesValueFields> | null>(null);
-  const [resultingUnit, setResultingUnit] = useState<string | null | undefined>(null);
+  const applyRecipeUpdate = useCallback(async (recipeUpdate: SetStateAction<Recipe>): Promise<void> => {
+    const baseRecipe = canonicalRecipeRef.current;
 
-  const [lastEvalDuration, setLastEvalDuration] = useState<number | null>(null);
-  const [lastEvalTimestamp, setLastEvalTimestamp] = useState<string | null>(null);
+    const candidateRecipe = typeof recipeUpdate === "function"
+      ? recipeUpdate(baseRecipe.copy())
+      : recipeUpdate;
 
-  useEffect(() => {
-    if (!recipe) {
-      setRecipe({ ...emptyRecipe });
-      setResultingDataSeries(null);
-      setResultingUnit(null);
-      setError(null);
-      setWarnings([]);
-      return;
+    let validatedRecipe: Recipe;
+
+    if (!candidateRecipe) {
+      console.warn("Deprecation warning: you should not delete recipes by setting them to null. This is not allowed type-wise so please check your typing.");
+      validatedRecipe = Recipe.getEmpty();
+    }
+    else {
+      validatedRecipe = Recipe.from(candidateRecipe);
     }
 
-    const startTime = performance.now();
-    setLastEvalDuration(null);
-    async function calculate() {
-      try {
-        const currentWarnings: string[] = [];
-        const evaluatedRecipe = await evaluateRecipe(cleanRecipe(recipe), currentWarnings);
-        if (!evaluatedRecipe) {
-          console.warn("Recipe evaluation was canceled.");
-          setResultingDataSeries(null);
-          setResultingUnit(null);
-          setWarnings([]);
-          setError(null);
-          return;
-        }
-        setResultingDataSeries(evaluatedRecipe.dataSeries);
-        setResultingUnit(evaluatedRecipe.unit)
-        setWarnings(currentWarnings);
-        setError(null);
-      }
-      catch (e: unknown) {
-        setResultingDataSeries(null);
-        setError((e as Error)?.message);
-        setWarnings([]);
-      }
+    // Validate
+    const validity = await validatedRecipe.checkValidity();
+    if (!validity.good) {
+      if (validity.warnings?.length)
+        console.warn("Warning produced after validity check in applyRecipeUpdate:", validity.warnings);
+      setWarnings(validity.warnings ?? []);
+      setError(validity.error || "Recipe is invalid");
     }
-    calculate()
-      .catch(e => { throw e; })
-      .finally(() => {
-        const endTime = performance.now();
-        setLastEvalDuration(endTime - startTime);
-        setLastEvalTimestamp(new Date().toLocaleString());
+
+    canonicalRecipeRef.current = validatedRecipe;
+    setPublishedRecipe(validatedRecipe);
+  }, []);
+
+  const updateEquation = useCallback((equationUpdate: SetStateAction<Recipe["equation"]>) => {
+    const baseRecipe = canonicalRecipeRef.current;
+    const nextEquation = typeof equationUpdate === "function"
+      ? equationUpdate(baseRecipe.equation)
+      : equationUpdate;
+
+    applyRecipeUpdate((current) => {
+      const recipeWithUpdatedEquation = current.copy();
+      recipeWithUpdatedEquation.equation = nextEquation;
+      return recipeWithUpdatedEquation;
+    })
+      .catch((e: unknown) => {
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        console.error("Failed to update equation:", errorMessage);
+        setError(errorMessage);
       });
-  }, [recipe, setRecipe]);
+  }, [applyRecipeUpdate]);
 
-  // Register debug key bind alt+shift+d (hold to open), Escape to close
-  const [showDebug, setShowDebug] = useState(false);
-  const debugKeyTimerRef = useRef<number | null>(null);
+  const upsertVariable = useCallback((variableId: string, variableUpdate: SetStateAction<RecipeVariable> | null): void => {
+    applyRecipeUpdate((current) => {
+      const candidateRecipe = current.copy();
+      const existingVariable = candidateRecipe.variableMap[variableId];
+
+      if (variableUpdate === null) {
+        if (!existingVariable) {
+          console.info(`Variable "${variableId}" not deleted because it does not exist.`);
+          return current;
+        }
+        candidateRecipe.variables = candidateRecipe.variables.filter(variable => variable.id !== variableId);
+        return candidateRecipe;
+      }
+
+      const nextVariable = typeof variableUpdate === "function"
+        ? variableUpdate(candidateRecipe.variableMap[variableId])
+        : variableUpdate;
+
+      if (!nextVariable) {
+        throw new RecipeError(`upsertVariable was called with null or undefined variableUpdate for variable "${variableId}". To delete a variable, set variableUpdate to null explicitly.`);
+      }
+
+      // Avoid updating on no change
+      if (Recipe.isVariableEqual(existingVariable, nextVariable)) {
+        console.info(`Variable "${variableId}" not updated because the new value is the same as the old value.`);
+        return current;
+      }
+
+      candidateRecipe.variables = candidateRecipe.variableMap[variableId]
+        // Update existing variable
+        ? candidateRecipe.variables.map(v => v.id === variableId
+          ? { ...nextVariable, template: false }
+          : v,
+        )
+        // Or append new variable
+        : [...candidateRecipe.variables, { ...nextVariable, template: false }];
+      return candidateRecipe;
+    })
+      .catch((e: unknown) => {
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        console.error(`Failed to upsert variable "${variableId}":`, errorMessage);
+        setError(errorMessage);
+      });
+  }, [applyRecipeUpdate]);
+
+  const replaceVariables = useCallback((variablesUpdate: SetStateAction<RecipeVariable[]>) => {
+    applyRecipeUpdate((current) => {
+      const candidateRecipe = current.copy();
+      const oldVars = candidateRecipe.variables;
+      const nextVars = typeof variablesUpdate === "function"
+        ? variablesUpdate(oldVars)
+        : variablesUpdate;
+
+      if (Recipe.areVariablesEqual(oldVars, nextVars)) {
+        console.info(`Variables not updated because the new value is the same as the old value.`);
+        return current;
+      }
+
+      candidateRecipe.variables = nextVars.map(v => ({ ...v, template: false }));
+      return candidateRecipe;
+    })
+      .catch((e: unknown) => {
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        console.error("Failed to replace variables:", errorMessage);
+        setError(errorMessage);
+      });
+  }, [applyRecipeUpdate]);
+
+  const debouncedRecipe = useDebounce(publishedRecipe, 500)[0];
+
+  // Evaluate recipe and update resulting data and unit, whenever recipe changes
   useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      // Check for escape key to close
-      if (event.key === "Escape" && showDebug) {
-        event.preventDefault();
-        setShowDebug(false);
-      }
+    let isEffectActive = true;
 
-      const isDebugCombo = event.altKey && event.shiftKey && event.key === "D";
-
-      if (!isDebugCombo || showDebug) return;
-      if (debugKeyTimerRef.current !== null) return;
-
-      debugKeyTimerRef.current = window.setTimeout(() => {
-        setShowDebug(true);
-        debugKeyTimerRef.current = null;
-      }, 500);
+    if (debouncedRecipe.isTemplate()) {
+      return () => {
+        setResultingDataSeries(null);
+        setResultingUnit(null);
+        setWarnings([]);
+        setError(null);
+      };
     }
 
-    function handleKeyUp(event: KeyboardEvent) {
-      const isRelevantKey = ["Alt", "Shift", "D"].includes(event.key);
-      if (!isRelevantKey && !(event.altKey && event.shiftKey && event.key === "D")) {
-        return;
-      }
+    const warnings: string[] = [];
+    debouncedRecipe.evaluate(warnings)
+      .then(result => {
+        if (!isEffectActive) return;
 
-      if (debugKeyTimerRef.current !== null) {
-        clearTimeout(debugKeyTimerRef.current);
-        debugKeyTimerRef.current = null;
-      }
-    }
+        setResultingDataSeries(result?.dateValues ?? null);
+        setResultingUnit(result?.unit ?? null);
+        setWarnings(warnings);
+        setError(null);
+      })
+      .catch((e: unknown) => {
+        if (!isEffectActive) return;
 
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        console.warn("Failed to evaluate recipe:", errorMessage);
+
+        setResultingDataSeries(null);
+        setResultingUnit(null);
+        setWarnings(warnings);
+        setError(errorMessage);
+      });
+
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
+      isEffectActive = false;
     };
-  }, [showDebug]);
+  }, [debouncedRecipe]);
 
-  // TODO: style this
   return (
     <RecipeContext.Provider value={{
-      recipe,
-      setRecipe,
-      warnings,
-      error,
+      recipe: publishedRecipe,
+      clearRecipe,
+      applyRecipeUpdate,
       resultingDataSeries,
       resultingUnit,
+      equation,
+      updateEquation,
+      getVariable,
+      upsertVariable,
+      variables,
+      replaceVariables,
+      warnings,
+      error,
     }}>
-      {showDebug &&
+      {isDebug && (
         <div
           style={{
-            position: "relative",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0,0,0,0.8)",
             display: "flex",
-            flexFlow: "column nowrap",
-            justifyContent: "start",
-            alignItems: "start",
-            rowGap: "1rem",
-            padding: "1rem",
+            flexDirection: "column-reverse",
+            alignItems: "flex-end",
+            position: "fixed",
+            right: 24,
+            bottom: 24,
             zIndex: 9999,
-            color: "white",
+            pointerEvents: "none",
           }}
-          lang={Locales.enSE}
         >
-          {/* Scrollable wall of debug info */}
-          <div style={{
-            overflow: "scroll",
-            width: "100%",
-          }}>
-            <pre style={{ width: "100%", }}>
-              Recipe context debug info: <br />
-              {JSON.stringify({
-                "eval time": lastEvalDuration + " ms",
-                "eval timestamp": lastEvalTimestamp,
-                warnings,
-                error,
-                resultingUnit,
-                resultingDataSeries,
-              }, null, 2)}
-            </pre>
-
-            <pre style={{ width: "100%", }}>
-              Current Recipe: <br />
-              {JSON.stringify(recipe, null, 2)}
-            </pre>
-          </div>
-
-          {/* Buttons container */}
-          <div className="flex gap-100">
-            <button
-              type="button"
-              onClick={() => setShowDebug(false)}
-            >
-              Close Debug
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                const toBeCopied = { recipe, resultingDataSeries, resultingUnit, warnings, error, lastEvalDuration, lastEvalTimestamp };
-                navigator.clipboard.writeText(JSON.stringify(toBeCopied, null, 2))
-                  .catch((e) => {
-                    console.error(e);
-                  });
-              }}
-            >
-              Copy to Clipboard
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setRecipe(prev => prev ? { ...prev } : null);
-              }}
-            >
-              Force Re-evaluation
-            </button>
-
-            <input
-              type="text"
-              placeholder="Paste recipe here to load"
-              className="width-auto"
-              onChange={(e) => {
-                const pastedText = e.target.value;
-
-                // If the clipboard content is from the copy button above we test if the parsed object has recipe field
-                try {
-                  const parsedClipboard: unknown = JSON.parse(pastedText);
-                  if (
-                    parsedClipboard
-                    && typeof parsedClipboard === "object"
-                    && "recipe" in parsedClipboard
-                    && parsedClipboard.recipe
-                  ) {
-                    const parsedRecipe = recipeFromUnknown(parsedClipboard.recipe);
-                    setRecipe(parsedRecipe);
-                    e.target.value = "";
-                    return;
-                  }
-                }
-                catch {
-                  // Not JSON or invalid, ignore
-                }
-
-                // Actual recipes
-                try {
-                  const parsedRecipe = recipeFromUnknown(pastedText);
-                  setRecipe(parsedRecipe);
-                  e.target.value = "";
-                }
-                catch (err) {
-                  console.error("Failed to parse pasted recipe:", err);
-                }
-              }}
-            />
-          </div>
+          <pre
+            style={{
+              position: "relative",
+              background: "white",
+              padding: "1rem",
+              border: "1px solid #bbb",
+              borderRadius: 10,
+              boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+              maxWidth: 420,
+              maxHeight: "40vh",
+              overflow: "auto",
+              fontSize: "0.95em",
+              fontFamily: "monospace",
+              opacity: 0.97,
+              marginBottom: 12,
+              pointerEvents: "auto",
+            }}
+          >
+            {JSON.stringify({
+              equation,
+              variables,
+              resultingUnit,
+              resultingDataSeries,
+              error,
+              warnings,
+            }, null, 2)}
+          </pre>
         </div>
-      }
+      )}
+
       {children}
     </RecipeContext.Provider>
   );

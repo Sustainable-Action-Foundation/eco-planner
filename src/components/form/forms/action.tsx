@@ -1,78 +1,92 @@
-"use client"
+"use client";
 
-import type getRoadmaps from "@/fetchers/getRoadmaps"
-import formSubmitter from "@/functions/formSubmitter"
-import { ActionInput } from "@/types"
-import { Action, ActionImpactType, DataSeries, Effect } from "@prisma/client"
-import { useTranslation } from "react-i18next"
-import DataSeriesInput from "../elements/dataSeriesInput/dataSeriesInput"
-import { getDataSeries } from "../elements/dataSeriesInput/utils"
-import styles from '../forms.module.css'
-import TextEditor from "../elements/textEditor/editor"
-import { useState } from "react"
-import { Content } from "@tiptap/core"
+import formSubmitter from "@/functions/formSubmitter";
+import { isDateValuesWithUnit, type Action, type ActionInput, type DateValuesWithUnit, type MultiRoadmapInstance } from "@/types";
+import { ActionImpactType } from "@prisma/client";
+import { useTranslation } from "react-i18next";
+import styles from '../forms.module.css';
+import TextEditor from "../elements/textEditor/editor";
+import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
+import { useState, useRef } from "react";
+import { useToastContext } from "@/components/generic/toast/toastContext";
+import { useRouter } from "next/navigation";
 
 export default function ActionForm({
-  roadmapId,
-  roadmapAlternatives,
   goalId,
+  roadmapId,
   currentAction,
+  roadmaps,
 }: {
-  roadmapId?: string,
-  roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
   goalId?: string,
-  currentAction?: Action & {
-    effects: (Effect & {
-      dataSeries?: DataSeries | null,
-    })[],
-  },
+  roadmapId?: string,
+  currentAction?: Action,
+  roadmaps: MultiRoadmapInstance[],
 }) {
   const { t } = useTranslation(["forms", "common"]);
-  const [editorContent, setEditorContent] = useState<Content>(() => {
-    if (!currentAction?.description) return null;
+  const [timestamp] = useState(() => Date.now());
+  const descriptionRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
-    try {
-      return JSON.parse(currentAction.description) as Content;
-    } catch {
-      return currentAction.description;
-    }
-  });
+  const { addToast } = useToastContext();
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
-    event.preventDefault()
+    event.preventDefault();
 
-    const form = event.target.elements
+    // TODO: Use formData instead of DOM traversal
+    const form = event.target.elements;
 
-    // Get the data series as an array of numbers, the actual parsing is done by the API
-    const dataSeries = getDataSeries(form);
+    let startYear: number | undefined = parseInt((form.namedItem("startYear") as HTMLInputElement).value, 10);
+    let endYear: number | undefined = parseInt((form.namedItem("endYear") as HTMLInputElement).value, 10);
 
-    const formContent: ActionInput & { actionId: string | undefined, timestamp: number } = {
-      name: (form.namedItem("actionName") as HTMLInputElement)?.value,
-      description: JSON.stringify(editorContent),
-      costEfficiency: (form.namedItem("costEfficiency") as HTMLInputElement)?.value,
-      expectedOutcome: (form.namedItem("expectedOutcome") as HTMLInputElement)?.value,
-      impactType: (form.namedItem("impactType") as HTMLSelectElement)?.value as ActionImpactType | undefined,
-      dataSeries: dataSeries,
-      startYear: (form.namedItem("startYear") as HTMLInputElement)?.value ? parseInt((form.namedItem("startYear") as HTMLInputElement)?.value) : undefined,
-      endYear: (form.namedItem("endYear") as HTMLInputElement)?.value ? parseInt((form.namedItem("endYear") as HTMLInputElement)?.value) : undefined,
-      projectManager: (form.namedItem("projectManager") as HTMLInputElement)?.value,
-      relevantActors: (form.namedItem("relevantActors") as HTMLInputElement)?.value,
-      isSufficiency: (form.namedItem("isSufficiency") as HTMLInputElement)?.checked,
-      isEfficiency: (form.namedItem("isEfficiency") as HTMLInputElement)?.checked,
-      isRenewables: (form.namedItem("isRenewables") as HTMLInputElement)?.checked,
-      roadmapId: (form.namedItem("roadmapId") as HTMLInputElement)?.value || roadmapId,
-      goalId: goalId,
-      actionId: currentAction?.id || undefined,
-      links: undefined, // TODO: Links in DB should be migrated to description
-      timestamp,
+    if (!Number.isFinite(startYear)) {
+      startYear = undefined;
     }
+    if (!Number.isFinite(endYear)) {
+      endYear = undefined;
+    }
+
+    let dataSeries: DateValuesWithUnit | undefined;
+    try {
+      const rawDataSeries = JSON.parse((form.namedItem("data-series") as HTMLInputElement)?.value) as unknown;
+      if (rawDataSeries && isDateValuesWithUnit(rawDataSeries)) {
+        dataSeries = rawDataSeries;
+      }
+    } catch {
+      event.target.reportValidity();
+      addToast(t("common:errors.something_went_wrong"), "error");
+      console.error("Failed to parse data series, invalid JSON or incorrect format.");
+      return;
+    }
+
+    const formContent: ActionInput = {
+      actionId: currentAction ? currentAction.id : undefined,
+      roadmapId: roadmapId ?? (form.namedItem("roadmapId") as HTMLInputElement)?.value ?? undefined,
+      goalId: goalId ?? undefined,
+      description: (form.namedItem("description") as HTMLInputElement | null)?.value ?? undefined,
+      name: (form.namedItem("actionName") as HTMLInputElement)?.value ?? "",
+      startYear,
+      endYear,
+      costEfficiency: (form.namedItem("costEfficiency") as HTMLInputElement)?.value ?? undefined,
+      expectedOutcome: (form.namedItem("expectedOutcome") as HTMLInputElement)?.value ?? undefined,
+      projectManager: (form.namedItem("projectManager") as HTMLInputElement)?.value ?? undefined,
+      relevantActors: (form.namedItem("relevantActors") as HTMLInputElement)?.value ?? undefined,
+      isSufficiency: (form.namedItem("isSufficiency") as HTMLInputElement)?.checked ?? false,
+      isEfficiency: (form.namedItem("isEfficiency") as HTMLInputElement)?.checked ?? false,
+      isRenewables: (form.namedItem("isRenewables") as HTMLInputElement)?.checked ?? false,
+      parentAction: currentAction ?? undefined,
+      childActions: undefined,
+      dataSeries,
+      impactType: goalId && !currentAction
+        ? (form.namedItem("impactType") as HTMLInputElement)?.value as ActionImpactType
+        : undefined,
+      links: undefined,
+      timestamp,
+    };
 
     const formJSON = JSON.stringify(formContent);
 
-    formSubmitter('/api/action', formJSON, currentAction ? 'PUT' : 'POST', t);
+    formSubmitter('/api/action', formJSON, currentAction ? 'PUT' : 'POST', t, undefined, undefined, undefined, undefined, addToast, router.push);
   }
-
-  const timestamp = Date.now();
 
   // Indexes for the data-position attribute in the legend elements
   let positionIndex = 1;
@@ -90,7 +104,7 @@ export default function ActionForm({
               {t("forms:action.relationship_label")}
               <select name="roadmapId" id="roadmapId" required className="block margin-top-25 margin-bottom-100 width-100" defaultValue={""}>
                 <option value="" disabled>{t("forms:action.relationship_no_chosen")}</option>
-                {roadmapAlternatives.map(roadmap => (
+                {roadmaps.map(roadmap => (
                   <option key={roadmap.id} value={roadmap.id}>
                     {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("common:count.action", { count: roadmap._count.actions })}`}
                   </option>
@@ -110,14 +124,15 @@ export default function ActionForm({
 
           <label id="description-label">{t("forms:action.action_description")}</label>
           <TextEditor
-            className="margin-top-25 margin-bottom-100" // TODO: Need label for texteditormenu
+            className="margin-top-25 margin-bottom-100" // TODO: Need label for textEditorMenu
             id="description"
             ariaLabelledBy="description-label"
             placeholder={t("forms:text_editor_menu.default_placeholder")}
             editable={true}
             content={currentAction ? currentAction.description : ""}
-            onChange={(json) => setEditorContent(json)}
+            onChange={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
           />
+          <input ref={descriptionRef} type="hidden" name="description" defaultValue={currentAction?.description ?? ""} />
 
           <label>
             {t("forms:action.cost_efficiency")}
@@ -143,11 +158,10 @@ export default function ActionForm({
               </select>
             </label>
 
-            <DataSeriesInput
-              inputName="dataSeries"
-              inputId="dataSeries"
-              // TODO: Take in any string and use that as the label instead of a key to alleviate testing
-              labelKey="forms:data_series_input.data_series"
+            <DataSeriesInputManual
+              id="action-dataseries"
+              label={t("forms:data_series_input.data_series")}
+              outputFormElement={<input name="data-series" />}
             />
           </fieldset>
           : null
@@ -180,7 +194,14 @@ export default function ActionForm({
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:action.categories_legend")}</legend>
+          <legend
+            // Technically incrementing here is unused but if you add a another entry after this one it will be correct
+            // eslint-disable-next-line no-useless-assignment
+            data-position={positionIndex++}
+            className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
+          >
+            {t("forms:action.categories_legend")}
+          </legend>
           <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50" htmlFor="isSufficiency">
             <input type="checkbox" name="isSufficiency" id="isSufficiency" defaultChecked={currentAction?.isSufficiency} />
             {t("forms:action.category_sufficiency")}
@@ -209,5 +230,5 @@ export default function ActionForm({
         </div>
       </form>
     </>
-  )
+  );
 }

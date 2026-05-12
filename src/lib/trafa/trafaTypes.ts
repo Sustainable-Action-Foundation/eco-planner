@@ -1,4 +1,4 @@
-import { ApiDetailItemBase } from "../api/apiTypes"
+import type { ApiDetailItemBase } from "../api/apiTypes";
 
 export type TrafaDataResponse = {
   Header: {

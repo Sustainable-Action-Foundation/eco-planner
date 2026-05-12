@@ -1,13 +1,13 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { allowedDomains } from "@/lib/allowedDomains";
-import prisma from "@/prismaClient"
+import prisma from "@/prismaClient";
 import bcrypt from "bcryptjs";
 import mailClient from "@/mailClient";
 import getUserHash from "@/functions/getUserHash";
 import { baseUrl } from "@/lib/baseUrl";
 import serveTea from "@/lib/i18nServer";
-import Mail from "nodemailer/lib/mailer";
-import { JSONValue } from "@/types";
+import type Mail from "nodemailer/lib/mailer";
+import type { JSONValue } from "@/types";
 
 export async function POST(request: NextRequest) {
   const t = await serveTea("email");
@@ -24,24 +24,24 @@ export async function POST(request: NextRequest) {
   const usernameExists = await prisma.user.findUnique({
     where: {
       username: username,
-    }
+    },
   });
 
   if (usernameExists) {
     return Response.json({ message: 'Username "' + username + '" is already taken' },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   const emailExists = await prisma.user.findUnique({
     where: {
       email: lowercaseEmail,
-    }
+    },
   });
 
   if (emailExists) {
     return Response.json({ message: 'Email "' + lowercaseEmail + '" is already in use' },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -52,14 +52,14 @@ export async function POST(request: NextRequest) {
   const domainRegex = /^[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?)*$/;
   if (!domainRegex.test(domain ?? '')) {
     return Response.json({ message: `Failed to parse domain '${domain}'.` },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   // Check if the domain ends with any of the allowed domains (to allow subdomains)
   if (!allowedDomains.some((allowedDomain) => (domain === allowedDomain) || (domain ?? '').endsWith('.' + allowedDomain))) {
     return Response.json({ message: `Email domain '${domain}' is not allowed` },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -69,11 +69,12 @@ export async function POST(request: NextRequest) {
 
   // If mailClient does not verify, don't try to create the user since something on the server is misconfigured. If only the sendVerificationEmail function fails, the user can try requesting a new verification email later.
   try {
-    await mailClient.verify().catch(error => { console.log(error); throw error; });
-  } catch (error) {
+    await mailClient.verify().catch((e: unknown) => { throw e; });
+  }
+  catch (error) {
     console.log(error);
     return Response.json({ message: 'Problem connecting to email service; User not created since server is misconfigured. Please try again later' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -97,9 +98,9 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return Response.json({ message: 'Error creating user' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -118,23 +119,23 @@ export async function POST(request: NextRequest) {
       text: t("email:signup.body", { baseUrl: baseUrl, email: lowercaseEmail, userHash: userHash }),
     };
 
-    await mailClient.sendMail(mailContent).catch((error) => {
-      console.log(error);
+    await mailClient.sendMail(mailContent).catch((e: unknown) => {
+      console.error(e);
       throw new Error('Error sending verification email');
     });
   } catch {
     return Response.json({ message: 'User created, but failed to send verification email' },
       {
         status: 200,
-        headers: { 'Location': '/verify' }
-      }
+        headers: { 'Location': '/verify' },
+      },
     );
   }
 
   return Response.json({ message: 'User created' },
     {
       status: 200,
-      headers: { 'Location': '/verify' }
-    }
-  )
+      headers: { 'Location': '/verify' },
+    },
+  );
 }

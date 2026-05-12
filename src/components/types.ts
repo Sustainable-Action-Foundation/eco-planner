@@ -1,4 +1,5 @@
 // TODO: Use set for tree items and map for options?
+import "@/types/tiptap-commands";
 
 export type Theme = {
   className?: string;
@@ -10,12 +11,12 @@ export type GenericElement = Theme & {
 };
 
 export type InputElement = GenericElement & {
-  id: string; 
-  name: string,
-  required?: boolean,
-  disabled?: boolean,
-  placeholder?: string,
-  defaultValue?: string,
+  id: string;
+  name: string;
+  required?: boolean;
+  disabled?: boolean;
+  placeholder?: string;
+  defaultValue?: string;
 };
 
 // TODO: DO not use name (reserved keyword)
@@ -24,19 +25,41 @@ export type Option = {
   value: string,
 }
 
-export type TreeItem = { 
+export type TreeItem = {
   name: string,
   value: string,
-  expanded: boolean | null,  
+  expanded: boolean | null,
   loading?: boolean;
-  childNodes?: Array<TreeItem>,
-  onExpand?: () => Array<TreeItem> | Promise<Array<TreeItem>>
+  childNodes?: TreeItem[],
+  onExpand?: () => TreeItem[] | Promise<TreeItem[]>
 }
 
-import '@tiptap/extension-link'
+export type GridElement = Theme & {
+  id: string,
+}
 
-declare module '@tiptap/extension-link' {
-  interface LinkOptions {
-    onOpenLinkModal?: () => void
-  }
+export type GridCell = GenericElement & {
+  position?: {row: number, column: number},
+  tabIndex?: 0 | -1,
+  children?: React.ReactNode,
+  onKeyDown?: React.KeyboardEventHandler<HTMLTableCellElement>, 
+  onClick?: React.MouseEventHandler<HTMLTableCellElement>,
+  onDoubleClick?: React.MouseEventHandler<HTMLTableCellElement>
+}
+export type GridRow = GenericElement & { children?: React.ReactNode }
+export type GridColumnHeader = GenericElement & { children?: React.ReactNode }
+export type GridRowHeader = GenericElement & { children?: React.ReactNode }
+
+export type TabElement = GenericElement & {
+  children?: React.ReactNode
+}
+
+export type TabProps = TabElement & {
+  tabIndex?: 0 | -1,
+  selected?: boolean,
+  onClick?: () => void
+}
+
+export type TabPanelProps = TabElement & {
+  hidden?: boolean
 }
