@@ -30,7 +30,7 @@ export default function MetaRoadmapForm({
   const { t } = useTranslation(["forms", "common"]);
   const descriptionRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [roadmapType, setRoadmapType] = useState<string>("");
+  const [roadmapType, setRoadmapType] = useState<string>(currentRoadmap?.type ?? "");
   const { addToast } = useToastContext();
   const router = useRouter();
 
