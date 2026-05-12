@@ -309,8 +309,11 @@ export class Recipe {
    * ### This is not the serialization method!
    * 
    * Uses JSON to format the recipe in a readable way.
+   * 
+   * @deprecated
    */
   public toString(): string {
+    console.warn("Recipe.toString() is not meant for serialization, but for human-readable formatting. For serialization, use Recipe.serialize().");
     return JSON.stringify(JSON.parse(this.serialize()), null, 2);
   }
 
