@@ -10,10 +10,16 @@ const nextBaseConfig = [...nextTS, ...nextVitals];
 const commonRules: Config["rules"] = {
   "eqeqeq": ["error", "smart"],
   "no-duplicate-imports": ["error", { allowSeparateTypeImports: true, includeExports: true }],
+  "no-self-compare": "error",
+  "no-template-curly-in-string": "warn",
+  "no-unmodified-loop-condition": "error",
+  "no-unreachable-loop": "error",
+  "no-use-before-define": ["error", { functions: false, classes: false }],
   "no-useless-assignment": "warn",
   "prefer-const": "error",
   // "comma-dangle": ["error", "always-multiline"], // Would be nice but not tweakable enough
   // "quotes": ["error", "double", { avoidEscape: true, allowTemplateLiterals: true }], // Authoritarian option :))
+  // "require-atomic-updates": "error", // TODO consider this rule
   // "semi": ["error", "always"],
   "@typescript-eslint/no-unused-vars": [
     "error",
@@ -62,8 +68,8 @@ export default defineConfig([
       ...nextBaseConfig,
     ],
     rules: {
-      "react-hooks/set-state-in-effect": "warn",
-      "react-hooks/set-state-in-render": "warn",
+      "react-hooks/set-state-in-effect": "off", // TODO: get a grip and understand react
+      "react-hooks/set-state-in-render": "off", // TODO: get a grip and understand react
       "react-hooks/immutability": "error",
       ...commonRules,
     },

@@ -44,6 +44,66 @@ export default function RoadmapForm({
 
   const { addToast } = useToastContext();
 
+  const [currentFile, setCurrentFile] = useState<File | null>(null)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [timestamp] = useState<number>(() => Date.now());
+  const [metaRoadmapId, setMetaRoadmapId] = useState<string>(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap || "")
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [targetVersion, setTargetVersion] = useState<number | null>(0)
+  // Temporarily disabled
+  // const [inheritableGoals, setInheritableGoals] = useState<{ id: string, name: string | null, indicatorParameter: string }[]>([])
+  const metaRoadmapTarget = useMemo(() => {
+    // The meta roadmap that the parent meta roadmap works towards, if any
+    return metaRoadmapAlternatives?.find((parentRoadmap) => parentRoadmap.id === metaRoadmapAlternatives?.find((roadmap) => roadmap.id === metaRoadmapId)?.parentRoadmapId)
+  }, [metaRoadmapId, metaRoadmapAlternatives])
+
+  // Fetch inheritable goals when the target version changes
+  // Temporarily disabled
+  // useEffect(() => {
+  //   setIsLoading(true)
+  //   clientSafeGetOneRoadmap(metaRoadmapTarget?.roadmapVersions.find((version) => version.version === targetVersion)?.id || "")
+  //     .then((roadmap) => {
+  //       if (!roadmap) {
+  //         setInheritableGoals([]);
+  //         setIsLoading(false);
+  //         return;
+  //       }
+  //       setInheritableGoals(roadmap.goals);
+  //       setIsLoading(false);
+  //       return;
+  //     })
+  //     .catch(() => {
+  //       setInheritableGoals([]);
+  //       setIsLoading(false);
+  //       return;
+  //     })
+  // }, [metaRoadmapTarget, targetVersion])
+
+  // Validate file when it changes
+  useEffect(() => {
+    if (!currentFile) return;
+    if (currentFile) {
+      setIsLoading(true)
+      try {
+        currentFile.arrayBuffer()
+          .then((buffer) => parseCsv(buffer))
+          .then((csv) => {
+            checkForBadDecoding(csv, t, addToast);
+            return csvToGoalList(csv, () => addToast(t("forms:roadmap.scale_deprecated_extended"), "warning"));
+          })
+          .then(() => setIsLoading(false))
+          .catch((e: unknown) => {
+            throw new Error(t("forms:roadmap.file_read_error", { error: e instanceof Error ? e.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }));
+          });
+      }
+      catch (error) {
+        addToast(t("forms:roadmap.file_read_error", { error: error instanceof Error ? error.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }), "error");
+        setIsLoading(false);
+        return;
+      }
+    }
+  }, [addToast, currentFile, t])
+
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!metaRoadmapId && !currentRoadmap) { return; }
@@ -127,67 +187,6 @@ export default function RoadmapForm({
 
     formSubmitter('/api/roadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading, undefined, undefined, undefined, addToast, router.push);
   }
-
-  const [currentFile, setCurrentFile] = useState<File | null>(null)
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [timestamp] = useState<number>(() => Date.now());
-  const [metaRoadmapId, setMetaRoadmapId] = useState<string>(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap || "")
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [targetVersion, setTargetVersion] = useState<number | null>(0)
-  // Temporarily disabled
-  // const [inheritableGoals, setInheritableGoals] = useState<{ id: string, name: string | null, indicatorParameter: string }[]>([])
-  const metaRoadmapTarget = useMemo(() => {
-    // The meta roadmap that the parent meta roadmap works towards, if any
-    return metaRoadmapAlternatives?.find((parentRoadmap) => parentRoadmap.id === metaRoadmapAlternatives?.find((roadmap) => roadmap.id === metaRoadmapId)?.parentRoadmapId)
-  }, [metaRoadmapId, metaRoadmapAlternatives])
-
-  // Fetch inheritable goals when the target version changes
-  // Temporarily disabled
-  // useEffect(() => {
-  //   setIsLoading(true)
-  //   clientSafeGetOneRoadmap(metaRoadmapTarget?.roadmapVersions.find((version) => version.version === targetVersion)?.id || "")
-  //     .then((roadmap) => {
-  //       if (!roadmap) {
-  //         setInheritableGoals([]);
-  //         setIsLoading(false);
-  //         return;
-  //       }
-  //       setInheritableGoals(roadmap.goals);
-  //       setIsLoading(false);
-  //       return;
-  //     })
-  //     .catch(() => {
-  //       setInheritableGoals([]);
-  //       setIsLoading(false);
-  //       return;
-  //     })
-  // }, [metaRoadmapTarget, targetVersion])
-
-  // Validate file when it changes
-  useEffect(() => {
-    if (!currentFile) return;
-    if (currentFile) {
-      setIsLoading(true)
-      try {
-        currentFile.arrayBuffer()
-          .then((buffer) => parseCsv(buffer))
-          .then((csv) => {
-            checkForBadDecoding(csv, t, addToast);
-            return csvToGoalList(csv, () => addToast(t("forms:roadmap.scale_deprecated_extended"), "warning"));
-          })
-          .then(() => setIsLoading(false))
-          .catch((e: unknown) => {
-            throw new Error(t("forms:roadmap.file_read_error", { error: e instanceof Error ? e.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }));
-          });
-      }
-      catch (error) {
-        addToast(t("forms:roadmap.file_read_error", { error: error instanceof Error ? error.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }), "error");
-        setIsLoading(false);
-        return;
-      }
-    }
-  }, [addToast, currentFile, t])
-
 
   // Indexes for the data-position attribute in the legend elements
   let positionIndex = 1;

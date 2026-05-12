@@ -1,3 +1,4 @@
+/* eslint-disable no-template-curly-in-string */
 // DO NOT SEED PRODUCTION DATABASE
 
 import { colors } from "../lib/colors.ts";

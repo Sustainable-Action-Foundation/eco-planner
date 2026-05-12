@@ -1,3 +1,4 @@
+/* eslint-disable no-template-curly-in-string */
 import { expect, test } from "playwright/test";
 
 import mathjs from "../../src/math";
