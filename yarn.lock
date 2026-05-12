@@ -2,7 +2,7 @@
 # Manual changes might be lost - proceed with caution!
 
 __metadata:
-  version: 8
+  version: 9
   cacheKey: 10c0
 
 "@babel/code-frame@npm:^7.28.6, @babel/code-frame@npm:^7.29.0":
@@ -3047,6 +3047,7 @@ __metadata:
     "@tiptap/extension-text-style": "npm:^3.22.5"
     "@tiptap/extension-underline": "npm:^3.22.5"
     "@tiptap/extensions": "npm:^3.22.5"
+    "@tiptap/pm": "npm:^3.22.5"
     "@tiptap/react": "npm:^3.22.5"
     "@tiptap/starter-kit": "npm:^3.22.5"
     "@types/node": "npm:^25.6.0"

@@ -77,6 +77,7 @@
     "@tiptap/extension-text-style": "^3.22.5",
     "@tiptap/extension-underline": "^3.22.5",
     "@tiptap/extensions": "^3.22.5",
+    "@tiptap/pm": "^3.22.5",
     "@tiptap/react": "^3.22.5",
     "@tiptap/starter-kit": "^3.22.5",
     "accept-language": "^3.0.20",
