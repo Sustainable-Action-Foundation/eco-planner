@@ -4,9 +4,9 @@
   "license": "AGPL-3.0-only",
   "private": true,
   "description": "A tool intended to help planning actions to achieve local environmental goals",
-  "homepage": "https://github.com/Sustainable-Action-Foundation/eco-planner",
-  "bugs": "https://github.com/Sustainable-Action-Foundation/eco-planner/issues",
-  "repository": "github:Sustainable-Action-Foundation/eco-planner",
+  "homepage": "https://github.com/Sustainable-Action-Foundation/eco-planner/",
+  "bugs": "https://github.com/Sustainable-Action-Foundation/eco-planner/issues/",
+  "repository": "github:Sustainable-Action-Foundation/eco-planner/",
   "scripts": {
     "preinstall": "git update-index --skip-worktree src/lib/LEAPList.json &",
     "dev": "yarn lint & yarn next dev",
