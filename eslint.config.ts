@@ -14,40 +14,40 @@ const commonRules: Config["rules"] = {
   "eqeqeq": ["error", "smart"],
   "no-array-constructor": "error",
   "no-case-declarations": "error",
+  "no-cond-assign": ["error", "always"],
   "no-duplicate-imports": ["error", { allowSeparateTypeImports: true, includeExports: true }],
+  "no-empty-function": "warn",
+  "no-empty": "warn",
+  "no-eval": "error",
+  "no-implied-eval": "error",
+  "no-lonely-if": "warn",
+  "no-multi-assign": "error",
+  "no-multi-str": "error",
+  "no-restricted-globals": "error",
+  "no-restricted-imports": ["error", "fs", "path", "crypto", "child_process", "os", "http"],
   "no-self-compare": "error",
+  "no-sequences": "error",
   "no-template-curly-in-string": "warn",
+  "no-throw-literal": "error",
   "no-unmodified-loop-condition": "error",
   "no-unreachable-loop": "error",
   "no-use-before-define": ["error", { functions: false, classes: false }],
   "no-useless-assignment": "warn",
-  "prefer-const": "error",
-  "no-empty": "warn",
-  "no-empty-function": "warn",
-  "no-eval": "error",
-  "no-implied-eval": "error",
-  "no-lonely-if": "warn",
-  "no-multi-str": "error",
-  "no-multi-assign": "error",
-  "no-restricted-globals": "error",
-  "no-restricted-imports": ["error", "fs", "path", "crypto", "child_process", "os", "http"],
-  "no-sequences": "error",
-  "no-throw-literal": "error",
   "no-useless-rename": "error",
   "no-var": "error",
   "no-with": "error",
+  "prefer-const": "error",
   "radix": "error",
-  "no-cond-assign": ["error", "always"],
-  // "sort-imports": "warn", // Large touch of code base to implement
-  // "no-warning-comments": "warn", // TODO: implement hihi
-  // "no-return-assign": "error", // I don't wanna deal with the 4 arrow functions using this right now
+  // "comma-dangle": ["error", "always-multiline"],
+  // "no-alert": "warn", // TODO: cleanse this repo
   // "no-magic-numbers": "error", // TODO: cry
   // "no-param-reassign": "error", // TODO: implement
-  // "comma-dangle": ["error", "always-multiline"], // Would be nice but not tweakable enough
-  // "no-alert": "warn", // TODO: cleanse this repo 
+  // "no-return-assign": "error", // I don't wanna deal with the 4 arrow functions using this right now
+  // "no-warning-comments": "warn", // TODO: implement hihi
   // "quotes": ["error", "double", { avoidEscape: true, allowTemplateLiterals: true }], // Authoritarian option :))
   // "require-atomic-updates": "error", // TODO consider this rule
   // "semi": ["error", "always"],
+  // "sort-imports": "warn", // Large touch of code base to implement, also does not auto fix most cases which is sad. Probably will never use.
   "@typescript-eslint/no-unused-vars": [
     "error",
     {
