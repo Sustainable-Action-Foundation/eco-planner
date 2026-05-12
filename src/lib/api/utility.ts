@@ -38,7 +38,7 @@ export class ExternalDataset {
     supportedLanguages: ["sv", "en"],
     api: "PxWeb",
     fullName: "Statistiska centralbyrån",
-    alternateNames: ["scb", "statistics sweden"]
+    alternateNames: ["scb", "statistics sweden"],
   };
   static scb = this.SCB;
 
@@ -49,7 +49,7 @@ export class ExternalDataset {
     supportedLanguages: ["no", "en"],
     api: "PxWeb",
     fullName: "Statistisk sentralbyrå",
-    alternateNames: ["statistisk sentralbyrå", "statistics norway"]
+    alternateNames: ["statistisk sentralbyrå", "statistics norway"],
   };
   static ssb = this.SSB;
 
@@ -62,7 +62,7 @@ export class ExternalDataset {
     supportedLanguages: ["sv"],
     api: "Trafa",
     fullName: "Trafikanalys",
-    alternateNames: ["trafa"]
+    alternateNames: ["trafa"],
   };
   static trafa = this.Trafa;
 
@@ -162,7 +162,7 @@ export function parsePeriod(period: string): Date {
     const parts = period.split(hasQuarterDivider);
     return new Date(Date.UTC(
       parseInt(parts[0], 10), // Year
-      (parseInt(parts[1], 10) - 1) * 3) // Month (0-indexed, so subtract 1 and multiply by 3 to align to quarters)
+      (parseInt(parts[1], 10) - 1) * 3), // Month (0-indexed, so subtract 1 and multiply by 3 to align to quarters)
     );
   }
 
@@ -172,7 +172,7 @@ export function parsePeriod(period: string): Date {
     const parts = period.split(hasMonthDivider);
     return new Date(Date.UTC(
       parseInt(parts[0], 10), // Year
-      parseInt(parts[1], 10) - 1) // Month (0-indexed, so subtract 1)
+      parseInt(parts[1], 10) - 1), // Month (0-indexed, so subtract 1)
     );
   }
 

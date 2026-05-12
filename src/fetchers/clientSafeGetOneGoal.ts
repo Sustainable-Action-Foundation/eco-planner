@@ -2,10 +2,10 @@
 
 import { clientSafeGoalSelection } from "@/fetchers/inclusionSelectors";
 import type { LoginData } from "@/lib/session";
-import { getSession } from "@/lib/session"
+import { getSession } from "@/lib/session";
 import prisma from "@/prismaClient";
 import { cookies } from "next/headers";
-import { cacheTag } from 'next/cache'
+import { cacheTag } from 'next/cache';
 import type { ClientGoal } from "@/types";
 
 /**
@@ -17,7 +17,7 @@ import type { ClientGoal } from "@/types";
  */
 export async function clientSafeGetOneGoal(id: string): Promise<ClientGoal | null> {
   const session = await getSession(await cookies());
-  return clientSafeGetCachedGoal(id, session.user)
+  return clientSafeGetCachedGoal(id, session.user);
 }
 
 async function clientSafeGetCachedGoal(id: string, user: LoginData['user']): Promise<ClientGoal | null> {
@@ -55,16 +55,16 @@ async function clientSafeGetCachedGoal(id: string, user: LoginData['user']): Pro
               { viewers: { some: { id: user.id } } },
               { editGroups: { some: { users: { some: { id: user.id } } } } },
               { viewGroups: { some: { users: { some: { id: user.id } } } } },
-              { isPublic: true }
-            ]
-          }
+              { isPublic: true },
+            ],
+          },
         },
         select: clientSafeGoalSelection,
       }) satisfies ClientGoal | null;
     } catch (error) {
       console.log(error);
       console.log('Error fetching user goal');
-      return null
+      return null;
     }
 
     return goal;
@@ -75,14 +75,14 @@ async function clientSafeGetCachedGoal(id: string, user: LoginData['user']): Pro
     goal = await prisma.goal.findUnique({
       where: {
         id,
-        roadmap: { isPublic: true }
+        roadmap: { isPublic: true },
       },
       select: clientSafeGoalSelection,
     }) satisfies ClientGoal | null;
   } catch (error) {
     console.log(error);
     console.log('Error fetching public goal');
-    return null
+    return null;
   }
 
   return goal;

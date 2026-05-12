@@ -42,13 +42,13 @@ export async function POST(request: NextRequest) {
 
   if (!isEffect(effect)) {
     return Response.json({ message: t('api:common.invalid_request_body') },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   if (!session.user?.id) {
     return Response.json({ message: t('api:common.unauthorized') },
-      { status: 401, headers: { 'Location': '/login' } }
+      { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     const [user, action, goal] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true }
+        select: { id: true, username: true, isAdmin: true, userGroups: true },
       }),
       prisma.action.findUnique({
         where: { id: effect.actionId },
@@ -70,9 +70,9 @@ export async function POST(request: NextRequest) {
               editGroups: { include: { users: { select: { id: true, username: true } } } },
               viewGroups: { include: { users: { select: { id: true, username: true } } } },
               isPublic: true,
-            }
-          }
-        }
+            },
+          },
+        },
       }),
       prisma.goal.findUnique({
         where: { id: effect.goalId },
@@ -85,10 +85,10 @@ export async function POST(request: NextRequest) {
               editGroups: { include: { users: { select: { id: true, username: true } } } },
               viewGroups: { include: { users: { select: { id: true, username: true } } } },
               isPublic: true,
-            }
-          }
-        }
-      })
+            },
+          },
+        },
+      }),
     ]);
 
     // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
@@ -113,21 +113,21 @@ export async function POST(request: NextRequest) {
         case ClientError.BadSession:
           session.destroy();
           return Response.json({ message: ClientError.BadSession },
-            { status: 400, headers: { 'Location': '/login' } }
+            { status: 400, headers: { 'Location': '/login' } },
           );
         case ClientError.IllegalParent:
           return Response.json({ message: ClientError.IllegalParent },
-            { status: 403 }
+            { status: 403 },
           );
         default:
           return Response.json({ message: t('api:common.unknown_error') },
-            { status: 500 }
+            { status: 500 },
           );
       }
     } else {
       console.log(error);
       return Response.json({ message: t('api:common.unknown_error') },
-        { status: 500 }
+        { status: 500 },
       );
     }
   }
@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
         impactType: effect.impactType,
         dataSeries: {
           create: {
-            values: { createMany: { data: dateValuesToDBDateRecord(effect.dataSeries.dateValues) }, },
+            values: { createMany: { data: dateValuesToDBDateRecord(effect.dataSeries.dateValues) } },
             unit: effect.dataSeries.unit,
             authorId: session.user.id,
           },
@@ -153,18 +153,18 @@ export async function POST(request: NextRequest) {
     revalidateTag('goal', 'max');
     // Return success
     return Response.json({ message: t('api:effect.effect_created'), actionId: newEffect.actionId, goalId: newEffect.goalId },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     // Unique constraint error
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
       return Response.json({ message: t('api:effect.effect_already_exists') },
-        { status: 409 }
+        { status: 409 },
       );
     }
     console.log(error);
     return Response.json({ message: t('api:common.server_error') },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -181,19 +181,19 @@ export async function PUT(request: NextRequest) {
 
   if (!isEffect(effect)) {
     return Response.json({ message: t('api:common.invalid_request_body') },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   if (!effect.timestamp) {
     return Response.json({ message: t('api:common.stale_data') },
-      { status: 409 }
+      { status: 409 },
     );
   }
 
   if (!session.user?.id) {
     return Response.json({ message: t('api:common.unauthorized') },
-      { status: 401, headers: { 'Location': '/login' } }
+      { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
@@ -202,7 +202,7 @@ export async function PUT(request: NextRequest) {
     const [user, currentEffect] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true }
+        select: { id: true, username: true, isAdmin: true, userGroups: true },
       }),
       prisma.effect.findUnique({
         where: { id: { actionId: effect.actionId, goalId: effect.goalId } },
@@ -218,9 +218,9 @@ export async function PUT(request: NextRequest) {
                   editGroups: { include: { users: { select: { id: true, username: true } } } },
                   viewGroups: { include: { users: { select: { id: true, username: true } } } },
                   isPublic: true,
-                }
-              }
-            }
+                },
+              },
+            },
           },
           action: {
             select: {
@@ -232,11 +232,11 @@ export async function PUT(request: NextRequest) {
                   editGroups: { include: { users: { select: { id: true, username: true } } } },
                   viewGroups: { include: { users: { select: { id: true, username: true } } } },
                   isPublic: true,
-                }
-              }
-            }
-          }
-        }
+                },
+              },
+            },
+          },
+        },
       }),
     ]);
 
@@ -267,25 +267,25 @@ export async function PUT(request: NextRequest) {
         case ClientError.BadSession:
           session.destroy();
           return Response.json({ message: ClientError.BadSession },
-            { status: 400, headers: { 'Location': '/login' } }
+            { status: 400, headers: { 'Location': '/login' } },
           );
         case ClientError.AccessDenied:
           return Response.json({ message: ClientError.AccessDenied },
-            { status: 403 }
+            { status: 403 },
           );
         case ClientError.StaleData:
           return Response.json({ message: ClientError.StaleData },
-            { status: 409 }
+            { status: 409 },
           );
         default:
           return Response.json({ message: t('api:common.unknown_error') },
-            { status: 500 }
+            { status: 500 },
           );
       }
     } else {
       console.log(error);
       return Response.json({ message: t('api:common.unknown_error') },
-        { status: 500 }
+        { status: 500 },
       );
     }
   }
@@ -299,19 +299,19 @@ export async function PUT(request: NextRequest) {
         dataSeries: {
           upsert: {
             create: {
-              values: { createMany: { data: dateValuesToDBDateRecord(effect.dataSeries.dateValues) }, },
+              values: { createMany: { data: dateValuesToDBDateRecord(effect.dataSeries.dateValues) } },
               unit: effect.dataSeries.unit,
               authorId: session.user.id,
             },
             update: {
               values: {
                 deleteMany: {},
-                createMany: { data: dateValuesToDBDateRecord(effect.dataSeries.dateValues) }
+                createMany: { data: dateValuesToDBDateRecord(effect.dataSeries.dateValues) },
               },
               unit: effect.dataSeries.unit,
-            }
-          }
-        }
+            },
+          },
+        },
       },
     });
     // Invalidate old cache
@@ -319,12 +319,12 @@ export async function PUT(request: NextRequest) {
     revalidateTag('goal', 'max');
     // Return success
     return Response.json({ message: t('api:effect.effect_updated'), actionId: updatedEffect.actionId, goalId: updatedEffect.goalId },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.log(error);
     return Response.json({ message: t('api:common.server_error') },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -354,13 +354,13 @@ export async function DELETE(request: NextRequest) {
 
   if (!isEffect(effect)) {
     return Response.json({ message: t('api:common.invalid_request_body') },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   if (!session.user?.id) {
     return Response.json({ message: t('api:common.unauthorized') },
-      { status: 401, headers: { 'Location': '/login' } }
+      { status: 401, headers: { 'Location': '/login' } },
     );
   }
 
@@ -369,7 +369,7 @@ export async function DELETE(request: NextRequest) {
     const [user, currentEffect] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true }
+        select: { id: true, username: true, isAdmin: true },
       }),
       prisma.effect.findUnique({
         where: {
@@ -383,8 +383,8 @@ export async function DELETE(request: NextRequest) {
               { action: { authorId: session.user.id } },
               { action: { roadmap: { authorId: session.user.id } } },
               { action: { roadmap: { metaRoadmap: { authorId: session.user.id } } } },
-            ]
-          })
+            ],
+          }),
         },
       }),
     ]);
@@ -404,21 +404,21 @@ export async function DELETE(request: NextRequest) {
         case ClientError.BadSession:
           session.destroy();
           return Response.json({ message: ClientError.BadSession },
-            { status: 400, headers: { 'Location': '/login' } }
+            { status: 400, headers: { 'Location': '/login' } },
           );
         case ClientError.AccessDenied:
           return Response.json({ message: ClientError.AccessDenied },
-            { status: 403 }
+            { status: 403 },
           );
         default:
           return Response.json({ message: t('api:common.unknown_error') },
-            { status: 500 }
+            { status: 500 },
           );
       }
     } else {
       console.log(error);
       return Response.json({ message: t('api:common.unknown_error') },
-        { status: 500 }
+        { status: 500 },
       );
     }
   }
@@ -433,12 +433,12 @@ export async function DELETE(request: NextRequest) {
     revalidateTag('goal', 'max');
     // Return success
     return Response.json({ message: t('api:effect.effect_deleted'), actionId: deletedEffect.actionId, goalId: deletedEffect.goalId },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.log(error);
     return Response.json({ message: t('api:common.server_error') },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

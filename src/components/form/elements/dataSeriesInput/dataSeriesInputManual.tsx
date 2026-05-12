@@ -12,7 +12,7 @@ export default function DataSeriesInputManual({
   initialDateValues = { unit: undefined, dateValues: {} },
   outputFormElement,
   label,
-  id
+  id,
 }: {
   initialDateValues?: DateValuesWithUnit | undefined;
   outputFormElement?: React.ReactElement<HTMLInputElement> | undefined;
@@ -29,9 +29,9 @@ export default function DataSeriesInputManual({
     return Object.entries(initialDateValues.dateValues).map(([date, value]) => ({
       id: window.crypto.randomUUID(),
       year: new Date(date).getFullYear(),
-      data: value ?? null
+      data: value ?? null,
     }));
-  })
+  });
 
   const [focusedCell, setFocusedCell] = useState<{ row: number, column: number } | null>(null);
   const [gridExpanded, setGridExpanded] = useState<boolean>(true);
@@ -41,8 +41,8 @@ export default function DataSeriesInputManual({
       prev.map((item, i) =>
         i === index
           ? { ...item, year: newValue === '' ? null : Number(newValue) }
-          : item
-      )
+          : item,
+      ),
     );
   };
 
@@ -51,8 +51,8 @@ export default function DataSeriesInputManual({
       prev.map((item, i) =>
         i === index
           ? { ...item, data: newValue === '' ? null : Number(newValue) }
-          : item
-      )
+          : item,
+      ),
     );
   };
 
@@ -69,7 +69,7 @@ export default function DataSeriesInputManual({
   function handlePaste(
     e: React.ClipboardEvent<HTMLInputElement>,
     startIndex: number,
-    targetColumn: string
+    targetColumn: string,
   ) {
     e.preventDefault();
 
@@ -93,13 +93,13 @@ export default function DataSeriesInputManual({
             id: next[rowIndex].id,
             year: next[rowIndex].year,
             data: cols[0] ? Number(cols[0]) : null,
-          }
+          };
         } else {
           next[rowIndex] = {
             id: next[rowIndex].id,
             year: cols[0] ? Number(cols[0]) : null,
             data: cols[1] ? Number(cols[1]) : null,
-          }
+          };
         }
 
       });
@@ -120,17 +120,17 @@ export default function DataSeriesInputManual({
   }
 
   function insertRowAbove() {
-    if (!focusedCell) return
+    if (!focusedCell) return;
 
     setValue(prev => [
       ...prev.slice(0, focusedCell.row),
       { id: window.crypto.randomUUID(), year: null, data: null },
-      ...prev.slice(focusedCell.row)
-    ])
+      ...prev.slice(focusedCell.row),
+    ]);
   }
 
   function deleteCurrentRow() {
-    if (!focusedCell) return
+    if (!focusedCell) return;
 
     setValue(prev => {
       if (prev.length === 0) return prev;
@@ -147,7 +147,7 @@ export default function DataSeriesInputManual({
   }
 
   function deleteCurrentGridCellContents() {
-    if (!focusedCell) return
+    if (!focusedCell) return;
 
     setValue(prev =>
       prev.map((item, index) => {
@@ -162,7 +162,7 @@ export default function DataSeriesInputManual({
         }
 
         return item;
-      })
+      }),
     );
   }
 
@@ -238,8 +238,8 @@ export default function DataSeriesInputManual({
           dateValues: value.every(({ year, data }) => !year && !data) // If all values are completely empty, we return an empty object
             ? {}
             : Object.fromEntries(
-              value.map(({ year, data }) => [`${year}-01-01T00:00:00.000Z`, data]) // Otherwise we return the year + data (frontend just requires year, backend handles more specific validation)
-            )
+              value.map(({ year, data }) => [`${year}-01-01T00:00:00.000Z`, data]), // Otherwise we return the year + data (frontend just requires year, backend handles more specific validation)
+            ),
         }),
         type: "hidden",
         hidden: true,
@@ -257,7 +257,7 @@ export default function DataSeriesInputManual({
         props={{
           id: id,
           className: `grid width-100 align-items-center ${styles['grid']}`,
-          style: { gridTemplateColumns: 'auto auto 1fr', height: gridExpanded ? 'auto' : '0', borderBottom: gridExpanded ? '1px solid var(--gray-80)' : '0' }
+          style: { gridTemplateColumns: 'auto auto 1fr', height: gridExpanded ? 'auto' : '0', borderBottom: gridExpanded ? '1px solid var(--gray-80)' : '0' },
         }}
       >
         <Grid.ColumnHeader className="text-align-left">#</Grid.ColumnHeader>
@@ -286,7 +286,7 @@ export default function DataSeriesInputManual({
                     if (!isValidPastedInput(pasted)) {
                       e.preventDefault();
                     } else {
-                      handlePaste(e, index, 'year')
+                      handlePaste(e, index, 'year');
                     }
                   }}
                 />
@@ -310,10 +310,10 @@ export default function DataSeriesInputManual({
                   }}
                 />
               </Grid.Cell>
-            </Grid.Row>
-          ]
+            </Grid.Row>,
+          ];
         })}
       </Grid>
     </>
-  )
+  );
 }

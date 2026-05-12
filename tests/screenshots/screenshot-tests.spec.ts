@@ -25,7 +25,7 @@ async function ensureToastPassthrough(page: Page) {
   }
 
   await page.addStyleTag({
-    content: "aside[data-testid='toast-list']{pointer-events:none !important;}"
+    content: "aside[data-testid='toast-list']{pointer-events:none !important;}",
   });
 }
 

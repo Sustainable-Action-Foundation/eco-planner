@@ -1,8 +1,8 @@
-'use client'
+'use client';
 
-import dynamic from 'next/dynamic'
+import dynamic from 'next/dynamic';
 
-const Chart = dynamic(() => import('react-apexcharts'), { ssr: false })
+const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 /**
  * A wrapper for ApexCharts that only renders the chart on the client.
@@ -49,7 +49,7 @@ export default function WrappedChart({
         {...props}
       />
     </>
-  )
+  );
 }
 
 /**
@@ -58,8 +58,8 @@ export default function WrappedChart({
  */
 export function graphNumberFormatter(value: number) {
   if (value < 100) {
-    return value?.toLocaleString('sv-SE', { maximumSignificantDigits: 3 })
+    return value?.toLocaleString('sv-SE', { maximumSignificantDigits: 3 });
   } else {
-    return value?.toLocaleString('sv-SE', { maximumFractionDigits: 0 })
+    return value?.toLocaleString('sv-SE', { maximumFractionDigits: 0 });
   }
 }

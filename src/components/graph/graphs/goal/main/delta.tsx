@@ -26,7 +26,7 @@ export default function MainDeltaGraph({
   const { t } = useTranslation("graphs");
 
   if (!goal.dataSeries) {
-    return null
+    return null;
   }
 
   const colors: Array<string> = [color_palette.data.color];
@@ -42,7 +42,7 @@ export default function MainDeltaGraph({
     fill: {
       type: 'solid',
       colors: colors,
-      opacity: opacities
+      opacity: opacities,
     },
     stroke: { curve: stroke.curve, width: stroke.width },
     markers: { size: marker.size },
@@ -51,7 +51,7 @@ export default function MainDeltaGraph({
       labels: { format: 'yyyy' },
       tooltip: { enabled: false },
       min: new Date("2020-01-01T00:00:00Z").getTime(),
-      max: new Date("2050-01-01T00:00:00Z").getTime()
+      max: new Date("2050-01-01T00:00:00Z").getTime(),
     },
     yaxis: [{
       title: {
@@ -61,8 +61,8 @@ export default function MainDeltaGraph({
             : goal.dataSeries.unit === null
               ? t("common:tsx.unitless")
               : goal.dataSeries.unit
-              || t("common:tsx.unit_missing")
-        })
+              || t("common:tsx.unit_missing"),
+        }),
       },
       labels: { formatter: graphNumberFormatter },
       seriesName: [
@@ -76,7 +76,7 @@ export default function MainDeltaGraph({
     tooltip: {
       x: { format: 'yyyy' },
     },
-  }
+  };
 
   const chart: ApexAxisChartSeries = [];
 
@@ -159,11 +159,11 @@ export default function MainDeltaGraph({
       });
 
       colors.push(color_palette.expected.color);
-      opacities.push(color_palette.expected.fillOpacity)
+      opacities.push(color_palette.expected.fillOpacity);
     }
 
     colors.push(color_palette.baseline.color);
-    opacities.push(color_palette.baseline.fillOpacity)
+    opacities.push(color_palette.baseline.fillOpacity);
   } else if (effects.length > 0) {
     // If no baseline is set, use the first non-null value as baseline
     const firstNonNullEntry = goal.dataSeries.values.find(v => Number.isFinite(v.value));
@@ -196,9 +196,9 @@ export default function MainDeltaGraph({
         });
 
         colors.push(color_palette.baseline.color);
-        opacities.push(color_palette.baseline.fillOpacity)
+        opacities.push(color_palette.baseline.fillOpacity);
         colors.push(color_palette.expected.color);
-        opacities.push(color_palette.expected.fillOpacity)
+        opacities.push(color_palette.expected.fillOpacity);
       }
     }
   }
@@ -235,7 +235,7 @@ export default function MainDeltaGraph({
     if (secondaryGoal.dataSeries.unit !== goal.dataSeries.unit) {
       (chartOptions.yaxis as ApexYAxis[]).push({
         title: {
-          text: t("graphs:main_delta_graph.annual_change", { unit: secondaryGoal.dataSeries.unit?.toLowerCase() === 'procent' ? t("graphs:main_delta_graph.percentage_points") : secondaryGoal.dataSeries.unit === null ? t("common:tsx.unitless") : secondaryGoal.dataSeries.unit || t("common:tsx.unit_missing") })
+          text: t("graphs:main_delta_graph.annual_change", { unit: secondaryGoal.dataSeries.unit?.toLowerCase() === 'procent' ? t("graphs:main_delta_graph.percentage_points") : secondaryGoal.dataSeries.unit === null ? t("common:tsx.unitless") : secondaryGoal.dataSeries.unit || t("common:tsx.unit_missing") }),
         },
         labels: { formatter: graphNumberFormatter },
         seriesName: secondaryGoal.name || secondaryGoal.indicatorParameter,
@@ -244,12 +244,12 @@ export default function MainDeltaGraph({
     }
 
     colors.push(color_palette.secondaryGoal.color);
-    opacities.push(color_palette.secondaryGoal.fillOpacity)
+    opacities.push(color_palette.secondaryGoal.fillOpacity);
   }
 
   // National goal
   if (parentGoal?.dataSeries) {
-    const parentSeries = []
+    const parentSeries = [];
     const parentDataSeries = dataSeriesToDateValues(parentGoal.dataSeries);
     const dates = Object.keys(parentDataSeries.dateValues).sort();
     if (!dates.every(d => isISOIshDate(d))) {
@@ -276,7 +276,7 @@ export default function MainDeltaGraph({
     });
 
     colors.push(color_palette.parentGoal.color);
-    opacities.push(color_palette.parentGoal.fillOpacity)
+    opacities.push(color_palette.parentGoal.fillOpacity);
   }
 
   return (

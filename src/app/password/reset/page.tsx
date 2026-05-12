@@ -9,8 +9,8 @@ export async function generateMetadata() {
     title: t('pages:password_reset.title'),
     description: t('metadata:password_reset.description'),
     og_url: `/password/reset`,
-    og_image_url: undefined
-  })
+    og_image_url: undefined,
+  });
 }
 
 export default async function Page() {
@@ -27,5 +27,5 @@ export default async function Page() {
         </div>
       </main>
     </>
-  )
+  );
 }

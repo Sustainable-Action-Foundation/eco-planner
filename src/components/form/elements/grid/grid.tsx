@@ -1,40 +1,40 @@
-"use client"
+"use client";
 
-import type { GridCell, GridColumnHeader, GridRowHeader, GridRow, GridElement } from "@/components/types"
-import React, { useEffect, useState } from "react"
-import { handleKeyDownGrid } from "./functions"
+import type { GridCell, GridColumnHeader, GridRowHeader, GridRow, GridElement } from "@/components/types";
+import React, { useEffect, useState } from "react";
+import { handleKeyDownGrid } from "./functions";
 
 function setFocusOnGridcell(
   id: string,
   focusedCell: { row: number, column: number },
 ) {
-  const grid = document.getElementById(id)
-  if (!grid) return
+  const grid = document.getElementById(id);
+  if (!grid) return;
 
   const cell = grid.querySelector<HTMLElement>(
-    `[data-row="${focusedCell.row}"][data-column="${focusedCell.column}"]`
-  )
-  if (!cell) return
+    `[data-row="${focusedCell.row}"][data-column="${focusedCell.column}"]`,
+  );
+  if (!cell) return;
 
-  cell.focus()
+  cell.focus();
 }
 
 function setFocusInGridcell(
   id: string,
   focusedCell: { row: number; column: number },
 ) {
-  const grid = document.getElementById(id)
-  if (!grid) return
+  const grid = document.getElementById(id);
+  if (!grid) return;
 
   const cell = grid.querySelector<HTMLElement>(
-    `[data-row="${focusedCell.row}"][data-column="${focusedCell.column}"]`
-  )
-  if (!cell) return
+    `[data-row="${focusedCell.row}"][data-column="${focusedCell.column}"]`,
+  );
+  if (!cell) return;
 
   const focusable = cell.querySelector<HTMLElement>(
-    'input, textarea, select, button, [tabindex]:not([tabindex="-1"])'
-  )
-  focusable?.focus()
+    'input, textarea, select, button, [tabindex]:not([tabindex="-1"])',
+  );
+  focusable?.focus();
 }
 
 const GridCell = React.forwardRef<HTMLTableCellElement, GridCell>(
@@ -53,9 +53,9 @@ const GridCell = React.forwardRef<HTMLTableCellElement, GridCell>(
     >
       {children}
     </td>
-  )
-)
-GridCell.displayName = "GridCell"
+  ),
+);
+GridCell.displayName = "GridCell";
 
 const GridRow = React.forwardRef<HTMLTableRowElement, GridRow>(
   ({ className, style, children }, ref) => (
@@ -66,9 +66,9 @@ const GridRow = React.forwardRef<HTMLTableRowElement, GridRow>(
     >
       {children}
     </tr>
-  )
-)
-GridRow.displayName = "GridRow"
+  ),
+);
+GridRow.displayName = "GridRow";
 
 const RowHeader = React.forwardRef<HTMLTableCellElement, GridRowHeader>(
   ({ className, style, children }, ref) => (
@@ -80,9 +80,9 @@ const RowHeader = React.forwardRef<HTMLTableCellElement, GridRowHeader>(
     >
       {children}
     </th>
-  )
-)
-RowHeader.displayName = "RowHeader"
+  ),
+);
+RowHeader.displayName = "RowHeader";
 
 const ColumnHeader = React.forwardRef<HTMLTableCellElement, GridColumnHeader>(
   ({ className, style, children }, ref) => (
@@ -94,26 +94,26 @@ const ColumnHeader = React.forwardRef<HTMLTableCellElement, GridColumnHeader>(
     >
       {children}
     </th>
-  )
-)
-ColumnHeader.displayName = "ColumnHeader"
+  ),
+);
+ColumnHeader.displayName = "ColumnHeader";
 
 
 function isGridRow(
-  child: React.ReactNode
+  child: React.ReactNode,
 ): child is React.ReactElement<GridRow> {
-  return React.isValidElement(child) && child.type === GridRow
+  return React.isValidElement(child) && child.type === GridRow;
 }
 
 function isGridCell(
-  child: React.ReactNode
+  child: React.ReactNode,
 ): child is React.ReactElement<
   React.ComponentProps<typeof GridCell>
 > {
   return (
     React.isValidElement(child) &&
     (child.type === GridCell || child.type === RowHeader)
-  )
+  );
 }
 
 /***
@@ -128,7 +128,7 @@ export default function Grid({
   insertRowBottom,
   insertRowAbove,
   deleteCurrentRow,
-  deleteCurrentGridCellContents
+  deleteCurrentGridCellContents,
 }: {
   ariaLabelledBy: string;
   props: GridElement;
@@ -141,27 +141,27 @@ export default function Grid({
   deleteCurrentGridCellContents: (cell: { row: number; column: number }) => void;
 }) {
 
-  const [editMode, setEditMode] = useState<boolean>(false)
+  const [editMode, setEditMode] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!focusedCell) return
+    if (!focusedCell) return;
 
-    setFocusOnGridcell(props.id, { row: focusedCell.row, column: focusedCell.column })
+    setFocusOnGridcell(props.id, { row: focusedCell.row, column: focusedCell.column });
 
     if (editMode) {
-      setFocusInGridcell(props.id, { row: focusedCell.row, column: focusedCell.column })
+      setFocusInGridcell(props.id, { row: focusedCell.row, column: focusedCell.column });
     }
-  }, [props.id, focusedCell, editMode])
+  }, [props.id, focusedCell, editMode]);
 
-  const childrenArray = React.Children.toArray(children)
+  const childrenArray = React.Children.toArray(children);
 
   const columnHeaders = childrenArray.filter(
     (child) =>
       React.isValidElement(child) &&
-      child.type === Grid.ColumnHeader
-  )
+      child.type === Grid.ColumnHeader,
+  );
 
-  const bodyRows = childrenArray.filter(isGridRow)
+  const bodyRows = childrenArray.filter(isGridRow);
 
   return (
     <table
@@ -172,26 +172,26 @@ export default function Grid({
       aria-labelledby={ariaLabelledBy}
       onFocusCapture={() => {
         if (!focusedCell) {
-          setFocusedCell({row: 0, column: 1}) // Column 0 are unfocusable rowheaders
+          setFocusedCell({row: 0, column: 1}); // Column 0 are unfocusable rowheaders
         }  
       }}
     >
       <thead className="display-contents">
         <tr className="display-contents">
           {columnHeaders.map((child) =>
-            React.isValidElement(child) ? React.cloneElement(child) : child
+            React.isValidElement(child) ? React.cloneElement(child) : child,
           )}
         </tr>
       </thead>
 
       <tbody className="display-contents">
         {bodyRows.map((rowElement, rowIndex) => {
-          const rowChildren = React.Children.toArray(rowElement.props.children)
+          const rowChildren = React.Children.toArray(rowElement.props.children);
 
           return (
             <tr key={rowIndex} className="display-contents">
               {rowChildren.map((child, columnIndex) => {
-                if (!isGridCell(child)) return child
+                if (!isGridCell(child)) return child;
 
                 const isFocusable = focusedCell
                   ? focusedCell.row === rowIndex && focusedCell.column === columnIndex
@@ -212,44 +212,44 @@ export default function Grid({
                       insertRowBottom,
                       insertRowAbove,
                       deleteCurrentRow,
-                      deleteCurrentGridCellContents
+                      deleteCurrentGridCellContents,
                     }),
                   onClick: () => {
                     if (!focusedCell) {
-                      setFocusedCell({ row: 0, column: 1 }) // Column 0 are unfocusable rowheaders
+                      setFocusedCell({ row: 0, column: 1 }); // Column 0 are unfocusable rowheaders
                     }
 
                     if (focusedCell && (focusedCell.row !== rowIndex || focusedCell.column !== columnIndex)) {
-                      setEditMode(false)  // Exit edit mode (only) when pressing another cell
+                      setEditMode(false);  // Exit edit mode (only) when pressing another cell
                     }
 
                     setFocusedCell({
                       row: rowIndex,
                       column: columnIndex,
-                    })
+                    });
                   },
                   onDoubleClick: () => {
-                    setEditMode(true) // Enter edit mode when double clicking a cell
-                  }
-                })
+                    setEditMode(true); // Enter edit mode when double clicking a cell
+                  },
+                });
               })}
             </tr>
-          )
+          );
         })}
       </tbody>
     </table>
-  )
+  );
 }
 
 /***
 *  Remember to set tabindex -1 for children if they are focusable, i.e inputs
 */
-Grid.Cell = GridCell
+Grid.Cell = GridCell;
 /***
 *  Remember to set tabindex -1 for children if they are focusable, i.e inputs
 */
-Grid.RowHeader = RowHeader
-Grid.Row = GridRow
-Grid.ColumnHeader = ColumnHeader
+Grid.RowHeader = RowHeader;
+Grid.Row = GridRow;
+Grid.ColumnHeader = ColumnHeader;
 
 

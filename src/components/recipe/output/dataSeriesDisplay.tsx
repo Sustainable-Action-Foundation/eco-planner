@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
@@ -35,7 +35,7 @@ export function OutputDataSeries() {
           scrollbarWidth: 'thin',
           contain: 'inline-size',
           columnGap: '1rem',
-          fontSize: '14px'
+          fontSize: '14px',
         }}
       >
         {Object.keys(resultingDataSeries).map((year, i) => (
@@ -58,5 +58,5 @@ export function OutputDataSeries() {
         ))}
       </div>
     </>
-  )
+  );
 }

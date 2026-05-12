@@ -21,7 +21,7 @@ export default function roadmapGoalCreator(
     const dataSeries = goal.dataSeries;
     // If the data series is invalid, throw an error
     if (!dataSeries || !isDateValuesWithUnit(dataSeries)) {
-      throw new Error(`Invalid nested data series at index ${goalIndex}`, { cause: 'nestedGoalCreation' })
+      throw new Error(`Invalid nested data series at index ${goalIndex}`, { cause: 'nestedGoalCreation' });
     }
 
     // Format and add to output
@@ -40,11 +40,11 @@ export default function roadmapGoalCreator(
 
       // TODO: handle providing a DateValuesWithUnit baseline
       ...!goal.baselineId ? {} : {
-        baseline: { connect: { id: goal.baselineId, }, },
+        baseline: { connect: { id: goal.baselineId } },
       },
 
       author: { connect: { id: author } },
-    })
+    });
   });
 
   return output;

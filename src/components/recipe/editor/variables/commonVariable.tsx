@@ -4,7 +4,7 @@ import { RecipeError } from "@/functions/recipe/types";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions, useRecipe } from "@/components/recipe";
-import styles from "../../recipe.module.css" with { type: "css" }
+import styles from "../../recipe.module.css" with { type: "css" };
 import { IconTrashXFilled } from "@tabler/icons-react";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { allOurUnits } from "@/math";
@@ -63,7 +63,7 @@ export function CommonVariable({
                 name: `variable-unit-${variableId}`,
                 defaultValue: variable.unit || "",
                 placeholder: " ",
-                style: { gridRow: '1', gridColumn: '2', width: '125px' }
+                style: { gridRow: '1', gridColumn: '2', width: '125px' },
               }}
               options={allOurUnits.map(unit => ({ name: unit, value: unit }))}
             />
@@ -89,5 +89,5 @@ export function CommonVariable({
         </button>
       }
     </fieldset >
-  )
+  );
 }

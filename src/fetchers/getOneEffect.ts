@@ -25,7 +25,7 @@ export async function getOneEffect(actionId: string, goalId: string): Promise<Ef
  * Caches the specified effect as well as its action and goal.
  */
 async function getCachedEffect(actionId: string, goalId: string, user: LoginData['user']): Promise<Effect | null> {
-  'use cache'
+  'use cache';
   cacheTag('database', 'action', 'goal', 'effect');
 
   let effect: Effect | null;
@@ -60,9 +60,9 @@ async function getCachedEffect(actionId: string, goalId: string, user: LoginData
                 { viewers: { some: { id: user.id } } },
                 { editGroups: { some: { users: { some: { id: user.id } } } } },
                 { viewGroups: { some: { users: { some: { id: user.id } } } } },
-                { isPublic: true }
-              ]
-            }
+                { isPublic: true },
+              ],
+            },
           },
           goal: {
             roadmap: {
@@ -72,10 +72,10 @@ async function getCachedEffect(actionId: string, goalId: string, user: LoginData
                 { viewers: { some: { id: user.id } } },
                 { editGroups: { some: { users: { some: { id: user.id } } } } },
                 { viewGroups: { some: { users: { some: { id: user.id } } } } },
-                { isPublic: true }
-              ]
-            }
-          }
+                { isPublic: true },
+              ],
+            },
+          },
         },
         include: effectInclusionSelection,
       }) satisfies Effect | null;
@@ -94,7 +94,7 @@ async function getCachedEffect(actionId: string, goalId: string, user: LoginData
       where: {
         id: { actionId, goalId },
         action: { roadmap: { isPublic: true } },
-        goal: { roadmap: { isPublic: true } }
+        goal: { roadmap: { isPublic: true } },
       },
       include: effectInclusionSelection,
     }) satisfies Effect | null;

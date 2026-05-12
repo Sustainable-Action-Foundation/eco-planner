@@ -24,7 +24,7 @@ export async function getNames() {
  * @param user Data from user's session cookie.
  */
 async function getCachedNames(user: LoginData['user']) {
-  'use cache'
+  'use cache';
   cacheTag('database', 'roadmap', 'goal', 'action');
 
   let names: NameObject[];
@@ -63,7 +63,7 @@ async function getCachedNames(user: LoginData['user']) {
             { roadmapVersions: { some: { editGroups: { some: { users: { some: { id: user.id } } } } } } },
             { roadmapVersions: { some: { viewGroups: { some: { users: { some: { id: user.id } } } } } } },
             { roadmapVersions: { some: { isPublic: true } } },
-          ]
+          ],
         },
         select: nameSelector,
       });
@@ -83,7 +83,7 @@ async function getCachedNames(user: LoginData['user']) {
         OR: [
           { isPublic: true },
           { roadmapVersions: { some: { isPublic: true } } },
-        ]
+        ],
       },
       select: nameSelector,
     });

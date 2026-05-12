@@ -48,7 +48,7 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
     variables: [],
     times: [],
     language: language,
-  }
+  };
 
   function logNotSupportedDataType(itemType: string, structureItem: StructureItem) {
     console.warn(`This is a ${itemType} with a data type that is not supported ${structureItem.DataType}.\n${itemType}: ${structureItem.DataType} (${tableId} - ${structureItem.Label})`);

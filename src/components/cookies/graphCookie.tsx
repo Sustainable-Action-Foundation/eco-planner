@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { storageConsent, allowStorage, clearStorage } from "@/functions/localStorage";
 import { useState } from "react";
@@ -15,7 +15,7 @@ export default function GraphCookie({
 }) {
   const { t } = useTranslation("graphs");
 
-  const [storageAllowed, setStorageAllowed] = useState(storageConsent())
+  const [storageAllowed, setStorageAllowed] = useState(storageConsent());
 
   return (
     <label
@@ -34,5 +34,5 @@ export default function GraphCookie({
       }} />
       {t("graphs:graph_cookie.save_preferences")}
     </label>
-  )
+  );
 }

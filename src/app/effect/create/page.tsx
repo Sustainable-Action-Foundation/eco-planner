@@ -1,5 +1,5 @@
-import EffectForm from "@/components/form/forms/effect"
-import { getOneAction, getOneGoal, getRoadmaps, } from "@/fetchers";
+import EffectForm from "@/components/form/forms/effect";
+import { getOneAction, getOneGoal, getRoadmaps } from "@/fetchers";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
@@ -9,14 +9,14 @@ import { buildMetadata } from "@/functions/buildMetadata";
 import { IconInfoCircle } from "@tabler/icons-react";
 
 export async function generateMetadata() {
-  const t = await serveTea("metadata")
+  const t = await serveTea("metadata");
 
   return buildMetadata({
     title: t("metadata:effect_create.title"),
     description: t("metadata:effect_create.description"),
     og_url: `/effect/create`,
-    og_image_url: undefined
-  })
+    og_image_url: undefined,
+  });
 }
 
 export default async function Page(
@@ -26,7 +26,7 @@ export default async function Page(
       goalId?: string | string[] | undefined,
       [key: string]: string | string[] | undefined
     }>,
-  }
+  },
 ) {
   const searchParams = await props.searchParams;
   const [t, session, action, goal, roadmaps] = await Promise.all([
@@ -76,5 +76,5 @@ export default async function Page(
         />
       </div>
     </>
-  )
+  );
 }

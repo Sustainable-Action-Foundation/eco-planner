@@ -1,7 +1,7 @@
 import "server-only";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import type { LoginData } from "@/lib/session";
-import { getSession } from "@/lib/session"
+import { getSession } from "@/lib/session";
 import { effectSorter } from "@/lib/sorters";
 import prisma from "@/prismaClient";
 import { cacheTag } from "next/cache";
@@ -17,7 +17,7 @@ import type { Goal } from "@/types";
  */
 export async function getOneGoal(id: string): Promise<Goal | null> {
   const session = await getSession(await cookies());
-  return getCachedGoal(id, session.user)
+  return getCachedGoal(id, session.user);
 }
 
 /**
@@ -27,7 +27,7 @@ export async function getOneGoal(id: string): Promise<Goal | null> {
  * @param user Data from user's session cookie.
  */
 async function getCachedGoal(id: string, user: LoginData['user']): Promise<Goal | null> {
-  'use cache'
+  'use cache';
   cacheTag('database', 'goal', 'action', 'dataSeries');
 
   let goal: Goal | null;
@@ -42,7 +42,7 @@ async function getCachedGoal(id: string, user: LoginData['user']): Promise<Goal 
     } catch (error) {
       console.log(error);
       console.log('Error fetching admin goal');
-      return null
+      return null;
     }
 
     goal?.effects.sort(effectSorter);
@@ -63,16 +63,16 @@ async function getCachedGoal(id: string, user: LoginData['user']): Promise<Goal 
               { viewers: { some: { id: user.id } } },
               { editGroups: { some: { users: { some: { id: user.id } } } } },
               { viewGroups: { some: { users: { some: { id: user.id } } } } },
-              { isPublic: true }
-            ]
-          }
+              { isPublic: true },
+            ],
+          },
         },
         include: goalInclusionSelection,
       }) satisfies Goal | null;
     } catch (error) {
       console.log(error);
       console.log('Error fetching user goal');
-      return null
+      return null;
     }
 
     goal?.effects.sort(effectSorter);
@@ -85,14 +85,14 @@ async function getCachedGoal(id: string, user: LoginData['user']): Promise<Goal 
     goal = await prisma.goal.findUnique({
       where: {
         id,
-        roadmap: { isPublic: true }
+        roadmap: { isPublic: true },
       },
       include: goalInclusionSelection,
     }) satisfies Goal | null;
   } catch (error) {
     console.log(error);
     console.log('Error fetching public goal');
-    return null
+    return null;
   }
 
   goal?.effects.sort(effectSorter);

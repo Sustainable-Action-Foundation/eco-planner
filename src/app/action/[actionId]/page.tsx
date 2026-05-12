@@ -15,11 +15,11 @@ import TextEditor from "@/components/form/elements/textEditor/editor";
 import { AdminPanel } from "@/components/elements/controls/controls";
 
 export async function generateMetadata(props: { params: Promise<{ actionId: string }> }) {
-  const params = await props.params
+  const params = await props.params;
   const [t, session, action] = await Promise.all([
     serveTea("metadata"),
     getSession(await cookies()),
-    getOneAction(params.actionId)
+    getOneAction(params.actionId),
   ]);
 
   if (!session.user?.isLoggedIn) {
@@ -27,16 +27,16 @@ export async function generateMetadata(props: { params: Promise<{ actionId: stri
       title: t("metadata:login.title"),
       description: t("metadata:login.title"),
       og_url: `/action/${params.actionId}`,
-      og_image_url: '/images/og_wind.png'
-    })
+      og_image_url: '/images/og_wind.png',
+    });
   }
 
   return buildMetadata({
     title: action?.name,
     description: action?.description,
     og_url: `/action/${params.actionId}`,
-    og_image_url: undefined
-  })
+    og_image_url: undefined,
+  });
 
 }
 
@@ -45,7 +45,7 @@ export default async function Page(props: { params: Promise<{ actionId: string }
   const [t, session, action] = await Promise.all([
     serveTea("pages"),
     getSession(await cookies()),
-    getOneAction(params.actionId)
+    getOneAction(params.actionId),
   ]);
 
   let accessLevel: AccessLevel = AccessLevel.None;
@@ -56,8 +56,8 @@ export default async function Page(props: { params: Promise<{ actionId: string }
       viewers: action.roadmap.viewers,
       editGroups: action.roadmap.editGroups,
       viewGroups: action.roadmap.viewGroups,
-      isPublic: action.roadmap.isPublic
-    }
+      isPublic: action.roadmap.isPublic,
+    };
     accessLevel = accessChecker(actionAccessData, session.user);
   }
 
@@ -143,5 +143,5 @@ export default async function Page(props: { params: Promise<{ actionId: string }
         <Comments comments={action.comments} objectId={action.id} />
       </section>
     </>
-  )
+  );
 }

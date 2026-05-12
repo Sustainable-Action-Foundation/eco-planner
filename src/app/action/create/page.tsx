@@ -10,14 +10,14 @@ import { IconInfoCircle } from "@tabler/icons-react";
 import { getOneGoal, getOneRoadmap, getRoadmaps } from "@/fetchers";
 
 export async function generateMetadata() {
-  const t = await serveTea("metadata")
+  const t = await serveTea("metadata");
 
   return buildMetadata({
     title: t("metadata:action_create.title"),
     description: t("metadata:action_create.description"),
     og_url: `/action/create`,
-    og_image_url: undefined
-  })
+    og_image_url: undefined,
+  });
 }
 
 export default async function Page(
@@ -27,7 +27,7 @@ export default async function Page(
       goalId?: string | string[] | undefined,
       [key: string]: string | string[] | undefined
     }>
-  }
+  },
 ) {
   const searchParams = await props.searchParams;
   const [t, session, goal, roadmap, roadmapList] = await Promise.all([
@@ -53,8 +53,8 @@ export default async function Page(
       viewers: goal.roadmap.viewers,
       editGroups: goal.roadmap.editGroups,
       viewGroups: goal.roadmap.viewGroups,
-      isPublic: goal.roadmap.isPublic
-    }
+      isPublic: goal.roadmap.isPublic,
+    };
   }
 
   // Ignore the goal or roadmap (and inform user) if they are not found or the user does not have edit access
@@ -69,7 +69,7 @@ export default async function Page(
 
   // The roadmaps the user can choose to add the action to (the ones they have edit access to)
   const availableRoadmaps = roadmapList.filter((roadmap) =>
-    hasEditAccess(accessChecker(roadmap, session.user))
+    hasEditAccess(accessChecker(roadmap, session.user)),
   );
 
   return (
@@ -104,5 +104,5 @@ export default async function Page(
         />
       </div>
     </>
-  )
+  );
 }

@@ -40,6 +40,6 @@ export default defineConfig({
       testMatch: ["unit/recipe-unit.test.ts"],
       retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
       use: {},
-    }
-  ]
+    },
+  ],
 });

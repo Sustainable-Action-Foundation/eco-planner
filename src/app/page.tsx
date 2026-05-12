@@ -13,7 +13,7 @@ import { buildMetadata } from "@/functions/buildMetadata";
 import { getMetaRoadmaps, getRoadmaps } from "@/fetchers";
 import SearchRoadmaps from "@/components/form/filters/searchRoadmaps";
 import SortRoadmaps from "@/components/form/filters/sortRoadmaps";
-import styles from "./page.module.css"
+import styles from "./page.module.css";
 
 export async function generateMetadata() {
   return await buildMetadata({
@@ -21,11 +21,11 @@ export async function generateMetadata() {
     description: undefined,
     og_url: undefined,
     og_image_url: undefined,
-  })
+  });
 }
 
 export default async function Page(
-  props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }
+  props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> },
 ) {
   const [t, searchParams, session, metaRoadmaps] = await Promise.all([
     serveTea("pages"),
@@ -45,7 +45,7 @@ export default async function Page(
     }
 
     const latestRoadmap = metaRoadmap.roadmapVersions.reduce((current, candidate) =>
-      candidate.version > current.version ? candidate : current
+      candidate.version > current.version ? candidate : current,
     );
 
     return latestRoadmap.id ? [latestRoadmap.id] : [];
@@ -64,7 +64,7 @@ export default async function Page(
       } else {
         return false;
       }
-    })
+    });
   }
 
   // Filter by searchFilter
@@ -72,7 +72,7 @@ export default async function Page(
     roadmaps = roadmaps.filter((roadmap) => {
       if (Object.values(roadmap).some((value) => {
         if (typeof value === 'string') {
-          return value.toLowerCase().includes(searchFilter.toLowerCase())
+          return value.toLowerCase().includes(searchFilter.toLowerCase());
         } else {
           return false;
         }
@@ -80,7 +80,7 @@ export default async function Page(
         return true;
       } else if (Object.values(roadmap.metaRoadmap).some((value) => {
         if (typeof value === 'string') {
-          return value.toLowerCase().includes(searchFilter.toLowerCase())
+          return value.toLowerCase().includes(searchFilter.toLowerCase());
         } else {
           return false;
         }
@@ -102,15 +102,15 @@ export default async function Page(
       roadmaps.reverse();
       break;
     case RoadmapSortBy.GoalsFalling:
-      roadmaps.sort(roadmapSorterGoalAmount)
+      roadmaps.sort(roadmapSorterGoalAmount);
       break;
     case RoadmapSortBy.GoalsRising:
-      roadmaps.sort(roadmapSorterGoalAmount)
-      roadmaps.reverse()
+      roadmaps.sort(roadmapSorterGoalAmount);
+      roadmaps.reverse();
       break;
     case RoadmapSortBy.Default:
     default:
-      roadmaps.sort(roadmapSorter)
+      roadmaps.sort(roadmapSorter);
       break;
   }
 
@@ -153,7 +153,7 @@ export default async function Page(
             <small className="font-size-100" aria-live="polite"> {/* TODO: Pretty sure this should have an aria-live but double check against a screenreader */}
               {t("pages:home.shown_results", {
                 shown: roadmaps.length,
-                total: metaRoadmaps.filter((metaRoadmap) => metaRoadmap.roadmapVersions.length > 0).length
+                total: metaRoadmaps.filter((metaRoadmap) => metaRoadmap.roadmapVersions.length > 0).length,
               })}
             </small>
             <SortRoadmaps />
@@ -180,5 +180,5 @@ export default async function Page(
         />
       </section>  */}
     </main>
-  </>
+  </>;
 }

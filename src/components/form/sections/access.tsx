@@ -1,11 +1,11 @@
-'use client'
+'use client';
 
 import { useMemo, useRef, useState } from "react";
-import SelectMultipleSearch from "../elements/combobox/selectMultipleSearch"
+import SelectMultipleSearch from "../elements/combobox/selectMultipleSearch";
 import type { AccessControlled } from "@/types";
 import type { MetaRoadmap, Roadmap } from "@prisma/client";
 import type { LoginData } from "@/lib/session";
-import styles from '../forms.module.css'
+import styles from '../forms.module.css';
 import { useTranslation } from "react-i18next";
 
 export default function ConfigureAccess({
@@ -34,13 +34,13 @@ export default function ConfigureAccess({
       editGroups: currentRoadmap.editGroups,
       viewGroups: currentRoadmap.viewGroups,
       isPublic: currentRoadmap.isPublic,
-    }
+    };
   }
 
-  const [viewers, setViewers] = useState<string>(currentAccess ? currentAccess.viewers.map((viewer) => viewer.username).join(', ') : '') // TODO: This has NOT been tested with multiple usernames, ensure it gives back exactly what the user initially wrote
-  const [viewerGroups, setViewerGroups] = useState<Array<{ name: string, value: string }>>(currentAccess ? currentAccess?.viewGroups.map((group) => { return { name: group.name, value: group.name } }) : [])
-  const [editors, setEditors] = useState<string>(currentAccess ? currentAccess?.editors.map((editor) => editor.username).join(', ') : '') // TODO: This has NOT been tested with multiple usernames, ensure it gives back exactly what the user initially wrote
-  const [editorGroups, setEditorGroups] = useState<Array<{ name: string, value: string }>>(currentAccess ? currentAccess?.editGroups.map((group) => { return { name: group.name, value: group.name } }) : [])
+  const [viewers, setViewers] = useState<string>(currentAccess ? currentAccess.viewers.map((viewer) => viewer.username).join(', ') : ''); // TODO: This has NOT been tested with multiple usernames, ensure it gives back exactly what the user initially wrote
+  const [viewerGroups, setViewerGroups] = useState<Array<{ name: string, value: string }>>(currentAccess ? currentAccess?.viewGroups.map((group) => { return { name: group.name, value: group.name }; }) : []);
+  const [editors, setEditors] = useState<string>(currentAccess ? currentAccess?.editors.map((editor) => editor.username).join(', ') : ''); // TODO: This has NOT been tested with multiple usernames, ensure it gives back exactly what the user initially wrote
+  const [editorGroups, setEditorGroups] = useState<Array<{ name: string, value: string }>>(currentAccess ? currentAccess?.editGroups.map((group) => { return { name: group.name, value: group.name }; }) : []);
 
   const [visibilityType, setVisibilityType] = useState<"private" | "public" | "custom" | undefined>(
     currentAccess
@@ -49,19 +49,19 @@ export default function ConfigureAccess({
         : (currentAccess.viewers.length > 0 || currentAccess.viewGroups.length > 0
           ? "custom"
           : "private"))
-      : undefined
+      : undefined,
   );
 
   const [editabilityType, setEditabilityType] = useState<"private" | "custom" | undefined>(
-    currentAccess ? (currentAccess.editors.length > 0 || currentAccess.editGroups.length > 0 ? "custom" : "private") : undefined
+    currentAccess ? (currentAccess.editors.length > 0 || currentAccess.editGroups.length > 0 ? "custom" : "private") : undefined,
   );
 
   const selectableGroups = useMemo(() => {
     return [
       ...(userGroups?.map(group => ({
         name: group,
-        value: group
-      })) ?? [])
+        value: group,
+      })) ?? []),
       /* Do we need this in options?
         ...(currentAccess?.viewGroups?.map(group => ({
           name: group.name,
@@ -122,7 +122,7 @@ export default function ConfigureAccess({
                 paddingLeft: 'calc(14px + .5rem)', // Width of radio button + gap (aligns with above text)
                 gridTemplateColumns: 'auto 1fr',
                 gridTemplateRows: 'auto auto',
-                columnGap: '1rem'
+                columnGap: '1rem',
               }}
             >
               <label htmlFor="viewers">{`${t("forms:access_selector.users")}:`}</label>
@@ -146,7 +146,7 @@ export default function ConfigureAccess({
                   name: "viewer-groups",
                   placeholder: t("forms:access_selector.select_groups"),
                   disabled: visibilityType !== "custom",
-                  required: visibilityType === "custom" && !viewers
+                  required: visibilityType === "custom" && !viewers,
                 }}
                 defaultValue={viewerGroups}
                 options={selectableGroups}
@@ -199,7 +199,7 @@ export default function ConfigureAccess({
                 paddingLeft: 'calc(14px + .5rem)', // Width of radio button + gap (aligns with above text)
                 gridTemplateColumns: 'auto 1fr',
                 gridTemplateRows: 'auto auto',
-                columnGap: '1rem'
+                columnGap: '1rem',
               }}>
 
               <label htmlFor="editors" className="block width-fit-content">{`${t("forms:access_selector.users")}:`}</label>
@@ -222,7 +222,7 @@ export default function ConfigureAccess({
                   name: "editor-groups",
                   placeholder: t("forms:access_selector.select_groups"),
                   disabled: editabilityType !== "custom",
-                  required: editabilityType === "custom" && !editors
+                  required: editabilityType === "custom" && !editors,
                 }}
                 defaultValue={editorGroups}
                 options={selectableGroups}
@@ -232,5 +232,5 @@ export default function ConfigureAccess({
         </fieldset>
       }
     </div>
-  )
+  );
 }

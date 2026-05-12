@@ -9,14 +9,14 @@ import { IconInfoCircle } from "@tabler/icons-react";
 import { getOneRoadmap, getRoadmaps } from "@/fetchers";
 
 export async function generateMetadata() {
-  const t = await serveTea("metadata")
+  const t = await serveTea("metadata");
 
   return buildMetadata({
     title: t("metadata:goal_create.title"),
     description: t("metadata:goal_create.title"),
     og_url: `/goal/create`,
     og_image_url: undefined,
-  })
+  });
 }
 
 export default async function Page(
@@ -25,7 +25,7 @@ export default async function Page(
       roadmapId?: string | string[] | undefined,
       [key: string]: string | string[] | undefined
     }>
-  }
+  },
 ) {
   const searchParams = await props.searchParams;
   const [t, session, roadmap, roadmapList] = await Promise.all([
@@ -59,5 +59,5 @@ export default async function Page(
         <GoalForm roadmapId={badRoadmap ? undefined : searchParams.roadmapId as string} roadmapAlternatives={filteredRoadmaps} />
       </div>
     </>
-  )
+  );
 }

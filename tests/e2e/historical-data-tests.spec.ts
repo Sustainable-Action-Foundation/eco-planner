@@ -23,7 +23,7 @@ test.describe("Historical Data Tests", () => {
       [2026, 250],
       [2027, 275],
       [2028, 300],
-      [2029, 325]
+      [2029, 325],
     ];
 
     // Create all rows first

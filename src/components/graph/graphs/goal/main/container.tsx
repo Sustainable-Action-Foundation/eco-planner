@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import type { ApiTableContent } from "@/lib/api/apiTypes";
 import type { DatasetData } from "@/lib/api/utility";
@@ -17,14 +17,14 @@ import SiblingGraph from "../sibling/siblings";
 import findSiblings from "@/functions/findSiblings";
 import CopyAndScale from "@/components/modals/copyAndScale";
 import type { LoginData } from "@/lib/session";
-import styles from '../goal.module.css'
+import styles from '../goal.module.css';
 
 export const GraphType = {
   Main: "MAIN",
   Relative: "RELATIVE",
   Delta: "DELTA",
   Children: "CHILDREN",
-  Siblings: "SIBLINGS"
+  Siblings: "SIBLINGS",
 } as const;
 export type GraphType = (typeof GraphType)[keyof typeof GraphType];
 
@@ -38,7 +38,7 @@ export default function GraphGraph({
   historicalData,
   effects,
   session,
-  roadmapOptions
+  roadmapOptions,
 }: {
   goal: Goal,
   secondaryGoal: Goal | null,
@@ -63,15 +63,15 @@ export default function GraphGraph({
   function graphSwitch(graphType: GraphType) {
     switch (graphType) {
       case GraphType.Main:
-        return <MainGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} historicalData={historicalData} secondaryGoal={secondaryGoal} effects={effects} />
+        return <MainGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} historicalData={historicalData} secondaryGoal={secondaryGoal} effects={effects} />;
       case GraphType.Relative:
-        return <MainRelativeGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} secondaryGoal={secondaryGoal} />
+        return <MainRelativeGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} secondaryGoal={secondaryGoal} />;
       case GraphType.Delta:
-        return <MainDeltaGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} secondaryGoal={secondaryGoal} effects={effects} />
+        return <MainDeltaGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} secondaryGoal={secondaryGoal} effects={effects} />;
       case GraphType.Children:
-        return <ChildGraphContainer goal={goal} childGoals={childGoals} />
+        return <ChildGraphContainer goal={goal} childGoals={childGoals} />;
       case GraphType.Siblings:
-        return <>{findSiblings(roadmap, goal).length > 1 ? <SiblingGraph roadmap={roadmap} goal={goal} /> : null}</> // TODO: Does findsbilings make sense here?
+        return <>{findSiblings(roadmap, goal).length > 1 ? <SiblingGraph roadmap={roadmap} goal={goal} /> : null}</>; // TODO: Does findsbilings make sense here?
       default:
         return graphSwitch(GraphType.Main);
     }

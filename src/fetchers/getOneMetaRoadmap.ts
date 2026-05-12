@@ -25,7 +25,7 @@ export async function getOneMetaRoadmap(id: string): Promise<MetaRoadmap | null>
  * @param user Data from user's session cookie.
  */
 async function getCachedMetaRoadmap(id: string, user: LoginData['user']) {
-  'use cache'
+  'use cache';
   cacheTag('database', 'metaRoadmap', 'roadmap');
   let metaRoadmap: MetaRoadmap | null;
 
@@ -60,8 +60,8 @@ async function getCachedMetaRoadmap(id: string, user: LoginData['user']) {
             { viewers: { some: { id: user.id } } },
             { editGroups: { some: { users: { some: { id: user.id } } } } },
             { viewGroups: { some: { users: { some: { id: user.id } } } } },
-            { isPublic: true }
-          ]
+            { isPublic: true },
+          ],
         },
         include: {
           ...metaRoadmapInclusionSelection,
@@ -73,8 +73,8 @@ async function getCachedMetaRoadmap(id: string, user: LoginData['user']) {
                 { viewers: { some: { id: user.id } } },
                 { editGroups: { some: { users: { some: { id: user.id } } } } },
                 { viewGroups: { some: { users: { some: { id: user.id } } } } },
-                { isPublic: true }
-              ]
+                { isPublic: true },
+              ],
             },
             include: metaRoadmapInclusionSelection.roadmapVersions.include,
           },
@@ -97,13 +97,13 @@ async function getCachedMetaRoadmap(id: string, user: LoginData['user']) {
     metaRoadmap = await prisma.metaRoadmap.findUnique({
       where: {
         id,
-        isPublic: true
+        isPublic: true,
       },
       include: {
         ...metaRoadmapInclusionSelection,
         roadmapVersions: {
           where: {
-            isPublic: true
+            isPublic: true,
           },
           include: metaRoadmapInclusionSelection.roadmapVersions.include,
         },

@@ -10,14 +10,14 @@ import { IconInfoCircle } from '@tabler/icons-react';
 import { getOneMetaRoadmap, getMetaRoadmaps } from "@/fetchers";
 
 export async function generateMetadata() {
-  const t = await serveTea("metadata")
+  const t = await serveTea("metadata");
 
   return buildMetadata({
     title: t("metadata:roadmap_create.title"),
     description: t('metadata:roadmap_create.description'),
     og_url: `/roadmap/create`,
-    og_image_url: undefined
-  })
+    og_image_url: undefined,
+  });
 }
 
 export default async function Page(
@@ -26,7 +26,7 @@ export default async function Page(
       metaRoadmapId?: string | string[] | undefined,
       [key: string]: string | string[] | undefined
     }>
-  }
+  },
 ) {
   const searchParams = await props.searchParams;
   const [t, session, parent, metaRoadmapAlternatives] = await Promise.all([
@@ -49,7 +49,7 @@ export default async function Page(
 
   // The meta roadmaps the user can create the new roadmap under (the ones they have edit access to)
   const filteredAlternatives = metaRoadmapAlternatives.filter(metaRoadmap =>
-    hasEditAccess(accessChecker(metaRoadmap, session.user))
+    hasEditAccess(accessChecker(metaRoadmap, session.user)),
   );
 
   return (
@@ -75,5 +75,5 @@ export default async function Page(
         />
       </div>
     </>
-  )
+  );
 }

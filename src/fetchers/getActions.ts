@@ -56,9 +56,9 @@ async function getCachedActions(user: LoginData['user']) {
               { viewers: { some: { id: user.id } } },
               { editGroups: { some: { users: { some: { id: user.id } } } } },
               { viewGroups: { some: { users: { some: { id: user.id } } } } },
-              { isPublic: true }
-            ]
-          }
+              { isPublic: true },
+            ],
+          },
         },
         include: actionInclusionSelection,
       });
@@ -75,7 +75,7 @@ async function getCachedActions(user: LoginData['user']) {
   try {
     actions = await prisma.action.findMany({
       where: {
-        roadmap: { isPublic: true }
+        roadmap: { isPublic: true },
       },
       include: actionInclusionSelection,
     });

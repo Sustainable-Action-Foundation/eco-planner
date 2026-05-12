@@ -9,7 +9,7 @@ async function expectToast(page: Page, type: "warning" | "success" | "error") {
   const labelMap = {
     warning: /Warning!|Varning!/, 
     success: /Success!|Lyckades!/, 
-    error: /Something went wrong!|Något gick fel!/
+    error: /Something went wrong!|Något gick fel!/,
   } as const;
 
   const role = type === "error" ? "alert" : "status";

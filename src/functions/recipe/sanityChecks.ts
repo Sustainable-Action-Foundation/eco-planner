@@ -53,7 +53,7 @@ function warnForSeries(prefix: string, series: NumericSeries[], warnings: string
   if (series.length === 0) return;
 
   const hugeValues = series.filter(variable =>
-    variable.values.some(v => Number.isFinite(v) && Math.abs(v) > HUGE_THRESHOLD)
+    variable.values.some(v => Number.isFinite(v) && Math.abs(v) > HUGE_THRESHOLD),
   );
   if (hugeValues.length > 0) {
     warnings.push(`${prefix} contains data series with huge values: ${hugeValues.map(ds => ds.displayName).join(", ")}, which may lead to performance issues or overflow errors.`);

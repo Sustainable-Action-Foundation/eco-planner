@@ -27,7 +27,7 @@ export default function formSubmitter(
   thenReplacement?: (data: { body: JSONValue, location?: string | null }) => void,
   catchReplacement?: (err: unknown) => void,
   createToast?: (message: string, type: ToastType, hasTimeout?: boolean) => void,
-  router?: (url: string) => void /* TODO: Might make sense to accept URL here aswell */
+  router?: (url: string) => void, /* TODO: Might make sense to accept URL here aswell */
 ): void {
   fetch(target, {
     method,
@@ -74,12 +74,12 @@ export default function formSubmitter(
           }
         }
       }
-      router(targetPath)
+      router(targetPath);
     } else {
       // Redirect to the location provided by the API, or, if missing, to nearest valid parent
       // POST is on pages such as /goal/create, which should default to / if no location is provided
       // PUT is on pages such as /goal/[id]/edit, which should default to /goal/[id] if no location is provided
-      window.location.href = targetPath
+      window.location.href = targetPath;
     }
   }).catch((err: unknown) => {
     if (catchReplacement) {
@@ -94,7 +94,7 @@ export default function formSubmitter(
       if (createToast) {
         createToast(err.message, "error", false);
       } else {
-        alert(`${t("common:errors.something_went_wrong_with_details", { details: err.message })}`)
+        alert(`${t("common:errors.something_went_wrong_with_details", { details: err.message })}`);
       };
     } else if (isStandardObject(err) && 'message' in err && typeof err.message === 'string') {
       alert(`${t("common:errors.something_went_wrong_with_details", { details: err.message })}`);

@@ -13,7 +13,7 @@ export async function generateMetadata() {
     description: t("metadata:login.description"),
     og_url: `/login`,
     og_image_url: '/images/og_wind.png',
-  })
+  });
 }
 
 export default async function Page() {
@@ -38,5 +38,5 @@ export default async function Page() {
         </div>
       </main>
     </>
-  )
+  );
 }

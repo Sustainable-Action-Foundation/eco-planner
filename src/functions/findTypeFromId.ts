@@ -4,18 +4,18 @@ export default async function findTypeFromId(id: string): Promise<"action" | "go
   const [action, goal, roadmap] = await Promise.all([
     prisma.action.findUnique({
       where: {
-        id: id
-      }
+        id: id,
+      },
     }),
     prisma.goal.findUnique({
       where: {
-        id: id
-      }
+        id: id,
+      },
     }),
     prisma.roadmap.findUnique({
       where: {
-        id: id
-      }
+        id: id,
+      },
     }),
   ]);
   if (action) return "action";

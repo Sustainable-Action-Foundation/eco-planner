@@ -1,16 +1,16 @@
-'use client'
+'use client';
 
 import Link from "next/link";
 import { useState } from "react";
-import styles from '../forms.module.css'
+import styles from '../forms.module.css';
 import { useTranslation } from "react-i18next";
 import { IconExclamationCircle, IconEye, IconEyeOff, IconLock, IconUser } from "@tabler/icons-react";
 import type { TFunction } from "i18next";
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction, setErrorMessage: React.Dispatch<React.SetStateAction<string | null>>, setErrorKey: React.Dispatch<React.SetStateAction<number>>) {
-  event.preventDefault()
+  event.preventDefault();
 
-  const form = event.target
+  const form = event.target;
   if (!(form.username instanceof HTMLInputElement) || !(form.password instanceof HTMLInputElement)) {
     return;
   }
@@ -18,7 +18,7 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction, s
     username: form.username.value,
     password: form.password.value,
     remember: (form.remember as HTMLInputElement | null)?.checked,
-  })
+  });
 
   // Try to login, redirect away if successful.
   fetch('/api/login', {
@@ -28,29 +28,29 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction, s
   }).then((res) => {
     if (res.ok) {
       // Redirect to the page the user came from, or to the home page.
-      const from = new URLSearchParams(window.location.search).get('from')
+      const from = new URLSearchParams(window.location.search).get('from');
       if (from) {
-        window.location.href = from
+        window.location.href = from;
       } else {
-        window.location.href = '/'
+        window.location.href = '/';
       }
     } else {
-      setErrorKey(prevKey => prevKey + 1)
+      setErrorKey(prevKey => prevKey + 1);
       setErrorMessage(t("components:login.invalid_credentials"));
     }
   }).catch(() => {
-    setErrorKey(prevKey => prevKey + 1)
+    setErrorKey(prevKey => prevKey + 1);
     setErrorMessage(t("components:login.login_failed"));
-  })
+  });
 }
 
 export default function Login() {
   const { t } = useTranslation(["components", "common"]);
 
-  const [showPassword, setShowPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [errorKey, setErrorKey] = useState<number>(0)
+  const [errorKey, setErrorKey] = useState<number>(0);
 
 
   return (
@@ -117,5 +117,5 @@ export default function Login() {
         </div>
       </form>
     </>
-  )
+  );
 }

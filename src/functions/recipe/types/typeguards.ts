@@ -398,7 +398,7 @@ export function isRecipe(recipe: JSONValue): recipe is SerializedRecipeShape {
 
 export function isEvalTimeVariable(
   variable: unknown,
-  options: { silent?: boolean } = {}
+  options: { silent?: boolean } = {},
 ): variable is EvalTimeVariable {
   const warn = (...args: unknown[]) => !!options.silent ? undefined : console.warn(...args);
 

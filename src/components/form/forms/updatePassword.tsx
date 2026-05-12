@@ -1,8 +1,8 @@
 'use client';
 
-import formSubmitter from "@/functions/formSubmitter"
-import { useTranslation } from "react-i18next"
-import { useState } from "react"
+import formSubmitter from "@/functions/formSubmitter";
+import { useTranslation } from "react-i18next";
+import { useState } from "react";
 import styles from "@/components/form/forms.module.css";
 import { IconEye, IconEyeOff, IconLock } from "@tabler/icons-react";
 
@@ -25,7 +25,7 @@ export default function UpdatePassword() {
     formSubmitter('/api/resetPassword', JSON.stringify({ email, hash, newPassword }), 'PATCH', t);
   }
 
-  const [showPassword, setShowPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <form onSubmit={handleSubmit}>
@@ -46,5 +46,5 @@ export default function UpdatePassword() {
       </label>
       <button type="submit" className="block margin-left-auto">{t("pages:password_reset.submit")}</button>
     </form>
-  )
+  );
 }

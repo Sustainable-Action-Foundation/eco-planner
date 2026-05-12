@@ -7,7 +7,7 @@ import { ExternalDataset } from "../api/utility";
 import getPxWebTableDetails from "./getPxWebTableDetails";
 import type { PxWebApiV2TableContent } from "./pxWebApiV2Types";
 
-export default async function getPxWebTableContent(tableId: string, externalDataset: string, selection: { variableCode: string, valueCodes: string[] }[], language?: string,) {
+export default async function getPxWebTableContent(tableId: string, externalDataset: string, selection: { variableCode: string, valueCodes: string[] }[], language?: string) {
   // Get the base URL for the external dataset, defaulting to SCB
   const dataset = ExternalDataset.getDatasetByAlternateName(externalDataset) ?? ExternalDataset.SCB;
   const url = new URL(`./tables/${tableId}/data`, dataset.baseUrl);
@@ -47,7 +47,7 @@ export default async function getPxWebTableContent(tableId: string, externalData
       const timeSelectionItem = {
         variableCode: item.variableCode,
         valueCodes: item.valueCodes,
-      }
+      };
       payload.selection.push(timeSelectionItem);
     }
   });
@@ -55,7 +55,7 @@ export default async function getPxWebTableContent(tableId: string, externalData
   const timeSelectionItemInPayload = payload.selection.filter(item => item.variableCode === "Tid" || item.variableCode === "Time")[0];
   if (!timeSelectionItemInPayload) {
     // Get all time periods that are available for this table and add them to payload
-    const timeSelectionItem = { variableCode: "Tid", valueCodes: [] as string[], };
+    const timeSelectionItem = { variableCode: "Tid", valueCodes: [] as string[] };
     const times = await getPxWebTableDetails(tableId, externalDataset).then(result => result ? result.times : undefined);
     if (!times) return null;
     timeSelectionItem.valueCodes.push(`from(${times[0].id})`);
@@ -97,7 +97,7 @@ export default async function getPxWebTableContent(tableId: string, externalData
       metadata: [{
         label: pxWebTableContent.metadata[0].label,
         source: pxWebTableContent.metadata[0].source,
-      }]
+      }],
     };
 
     // Columns

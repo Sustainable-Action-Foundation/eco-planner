@@ -36,7 +36,7 @@ export default async function getPxWebTables(externalDataset: string, searchQuer
       await new Promise(resolve => setTimeout(resolve, 10000));
       return await getPxWebTables(externalDataset, searchQuery, language, pageSize);
     } else {
-      console.log("bad response", response)
+      console.log("bad response", response);
       return null;
     }
   } catch (error) {

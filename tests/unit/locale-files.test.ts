@@ -27,16 +27,16 @@ const allJSON = getAllJSONFlattened();
 const allTSX = getAllTSXFiles();
 
 /** When validating pluralized translations, use these to determine if a base key isa valid. */
-const validPluralSuffixes = ["_one", "_two", "_few", "_many", "_other", "_zero",];
+const validPluralSuffixes = ["_one", "_two", "_few", "_many", "_other", "_zero"];
 
 /** Since the translation system uses client and server side instances of i18next, we test for mismatches. */
-const tServerUsageIndications = ["@/lib/i18nServer", "serveTea(",];
+const tServerUsageIndications = ["@/lib/i18nServer", "serveTea("];
 const tClientUsageIndications = ["useTranslation"];
 const serverIndications = ["server-only", "use server", "next/server", "next/headers", "export default async function", "export async function"];
-const clientIndications = ["client-only", "use client", "useEffect", "useMemo", "useState", "useRef",];
-const serverSideFilesOverride = ["page.tsx", "layout.tsx",].map(file => file && path.join(...file.split("/")));
+const clientIndications = ["client-only", "use client", "useEffect", "useMemo", "useState", "useRef"];
+const serverSideFilesOverride = ["page.tsx", "layout.tsx"].map(file => file && path.join(...file.split("/")));
 const clientSideFilesOverride: string[] = ([] as string[]).map(file => file && path.join(...file.split("/")));
-const exemptedMixedUseFiles = ["src/app/localesTest/page.tsx",].map(file => file && path.join(...file.split("/")));
+const exemptedMixedUseFiles = ["src/app/localesTest/page.tsx"].map(file => file && path.join(...file.split("/")));
 
 /** When checking for mixed use of spaces these are allowed in any file */
 const keysAllowedDirectlyInApp = ["common:tsx.", "common:placeholder.", "common:scope.", "common:layout.", "common:count.", "common:new.", "common:edit", "common:scaling_methods", "common:css.", "common:404."];
@@ -50,13 +50,13 @@ const swedishRegex = /(?<!\/\/|\*|\/\*|\/\*\*|^\s*\*\s*)(?:\w*[åäöÅÄÖ]+\w*
  */
 
 /** Almost always prefer having nested $t() calls to common in namespaces over using duplicate values. Exceptions to that need to be here. */
-const exemptedCommonKeysRef = ["common:tsx.", "common:placeholder.",]; // Things that shouldn't always be referenced
+const exemptedCommonKeysRef = ["common:tsx.", "common:placeholder."]; // Things that shouldn't always be referenced
 /** When checking if a value may be a duplicate of a common value, values starting with any of these strings will be skipped.  */
 const exemptedCommonValuesRef: string[] = []; // More fine grained option to the above one (useful for language specific exemptions)
 /** To prevent recurring false positives, exempt these keys */
-const exemptedKeysUsingCommonValues = ["pages:info.info_body", "components:confirm_delete.confirmation",];
+const exemptedKeysUsingCommonValues = ["pages:info.info_body", "components:confirm_delete.confirmation"];
 /** Orphaned keys in root levels of namespaces are discouraged, except in these namespaces */
-const exemptedOrphanNS = ["common",];
+const exemptedOrphanNS = ["common"];
 const exemptedOrphanKeys: string[] = [];
 /** A test checks if any keys defined go unused. These keys are exempted from that test. _ is for descriptions. */
 const exemptedUnusedKeys: string[] = ["_", "common:"];
@@ -71,7 +71,7 @@ const exemptedUnusedKeys: string[] = ["_", "common:"];
 test.describe("Namespace files exist", () => {
   // Track missing and extra namespaces per locale
   const perLocale = Object.fromEntries(filteredLocales.map(locale =>
-    [locale as Locales, { missing: [] as string[], extra: [] as string[], empty: [] as string[] }]
+    [locale as Locales, { missing: [] as string[], extra: [] as string[], empty: [] as string[] }],
   ));
 
   filteredLocales.forEach(locale => {
@@ -136,17 +136,17 @@ test.skip("Common values not referenced", () => {
 
   filteredLocales.forEach((locale) => {
     const commonTranslations = Object.fromEntries(Object.entries(allJSON[locale])
-      .filter(([key,]) => key.startsWith("common:"))
-      .filter(([key,]) => !exemptedCommonKeysRef.some(exemptedKey => key.startsWith(exemptedKey)))
+      .filter(([key]) => key.startsWith("common:"))
+      .filter(([key]) => !exemptedCommonKeysRef.some(exemptedKey => key.startsWith(exemptedKey)))
       .filter(([, value]) => !exemptedCommonValuesRef.some(exemptedValue => value.startsWith(exemptedValue)))
-      .map(([key, value]) => [key, { key, value, pattern: wordPatterns.map(pattern => new RegExp(pattern(escapeRegExp(value)), "gm")) }])
+      .map(([key, value]) => [key, { key, value, pattern: wordPatterns.map(pattern => new RegExp(pattern(escapeRegExp(value)), "gm")) }]),
     );
 
     const namespacesToCheck = allNamespaces.filter(ns => ns !== "common");
 
     const everyOtherTranslation = Object.fromEntries(Object.entries(allJSON[locale])
-      .filter(([key,]) => namespacesToCheck.some(ns => key.startsWith(ns)))
-      .filter(([key,]) => !exemptedKeysUsingCommonValues.some(exemptedKey => key.startsWith(exemptedKey)))
+      .filter(([key]) => namespacesToCheck.some(ns => key.startsWith(ns)))
+      .filter(([key]) => !exemptedKeysUsingCommonValues.some(exemptedKey => key.startsWith(exemptedKey))),
     );
 
     Object.entries(everyOtherTranslation).forEach(([key, value]) => {
@@ -175,7 +175,7 @@ test("Are nested keys defined", () => {
   filteredLocales.forEach(locale => {
     const translations = Object.entries(allJSON[locale])
       .map(([key, value]) => [key, {
-        value, nested: Array.from(value.matchAll(nestedTRegex)) // Find all nested t() calls
+        value, nested: Array.from(value.matchAll(nestedTRegex)), // Find all nested t() calls
       }]);
 
     (translations as [string, { value: string, nested: [RegExpMatchArray, `${string}:${string}`][] }][]).forEach(([key, values]) => {
@@ -635,7 +635,7 @@ function getAllJSONFlattened(): Record<string, Record<string, string>> {
       }
       const flattened = flattenTree(nsData);
       const prefixed = Object.fromEntries(Object.entries(flattened)
-        .map(([key, value]) => [`${namespace}:${key}`, value])
+        .map(([key, value]) => [`${namespace}:${key}`, value]),
       );
       perLocale[locale] = { ...perLocale[locale], ...prefixed };
     }

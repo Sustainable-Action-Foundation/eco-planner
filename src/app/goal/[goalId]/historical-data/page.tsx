@@ -27,8 +27,8 @@ export async function generateMetadata(props: {
       title: t("metadata:login.title"),
       description: t("metadata:login.title"),
       og_url: `/goal/${params.goalId}`,
-      og_image_url: '/images/og_wind.png'
-    })
+      og_image_url: '/images/og_wind.png',
+    });
   }
 
   return buildMetadata({
@@ -36,7 +36,7 @@ export async function generateMetadata(props: {
     description: goal?.description,
     og_url: `/goal/${params.goalId}`,
     og_image_url: undefined, // TODO: Use graph api here once ready 
-  })
+  });
 }
 
 export default async function page(
@@ -46,7 +46,7 @@ export default async function page(
       secondaryGoal?: string | string[] | undefined,
       [key: string]: string | string[] | undefined
     }>,
-  }
+  },
 ) {
   const [params] = await Promise.all([
     props.params,
@@ -55,7 +55,7 @@ export default async function page(
 
   const [t, goal] = await Promise.all([
     serveTea(["pages", "components"]),
-    getOneGoal(params.goalId)
+    getOneGoal(params.goalId),
   ]);
 
   if (!goal) {
@@ -72,5 +72,5 @@ export default async function page(
           <HistoricalData goal={goal} />
         </main>
     </>
-  )
+  );
 }

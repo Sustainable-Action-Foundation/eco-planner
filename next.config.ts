@@ -28,7 +28,7 @@ function getCommitHash(): { sha: string, dirty: boolean } {
     }
   }
   catch (err: unknown) {
-    console.warn("Failed to get commit hashes", { err })
+    console.warn("Failed to get commit hashes", { err });
   }
 
   if (!hashInfo.sha) {
@@ -51,15 +51,15 @@ const buildTimeEnv: GlobalEnv = {
 
 const nextConfig: NextConfig = {
   devIndicators: {
-    position: 'bottom-right'
+    position: 'bottom-right',
   },
   env: buildTimeEnv,
   ...(process.env.NODE_ENV === "production" ? {
     compiler: {
       removeConsole: {
-        exclude: ['info', 'error', 'warn']
+        exclude: ['info', 'error', 'warn'],
       },
-    }
+    },
   } : {}),
   output: process.env.CI ? 'standalone' : undefined,
   experimental: {

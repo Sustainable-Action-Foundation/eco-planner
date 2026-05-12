@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import { useRecipe } from "../context/recipeContext.use";
@@ -39,16 +39,16 @@ export function OutputGraph() {
       animations: { enabled: false },
       type: "line",
       zoom: { enabled: false },
-      toolbar: { show: false }
+      toolbar: { show: false },
     },
     xaxis: {
       categories: years,
     },
     yaxis: {
       labels: {
-        formatter: graphNumberFormatter
-      }
-    }
+        formatter: graphNumberFormatter,
+      },
+    },
   };
 
   return (

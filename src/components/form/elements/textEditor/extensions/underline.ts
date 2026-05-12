@@ -1,5 +1,5 @@
-import '@tiptap/extension-text-style'
-import { Extension } from '@tiptap/core'
+import '@tiptap/extension-text-style';
+import { Extension } from '@tiptap/core';
 
 export type UnderlineOptions = {
   /**
@@ -28,7 +28,7 @@ export const Underline = Extension.create<UnderlineOptions>({
   addOptions() {
     return {
       types: ['textStyle'],
-    }
+    };
   },
 
   addGlobalAttributes() {
@@ -39,29 +39,29 @@ export const Underline = Extension.create<UnderlineOptions>({
           textDecoration: {
             default: null,
             parseHTML: element => {
-              const textDecoration = element.style.textDecoration?.replace(/['"]+/g, '')
-              return textDecoration === 'underline' ? 'underline' : null
+              const textDecoration = element.style.textDecoration?.replace(/['"]+/g, '');
+              return textDecoration === 'underline' ? 'underline' : null;
             },
             renderHTML: attributes => {
               if (attributes.textDecoration !== 'underline') {
-                return {}
+                return {};
               }
 
               return {
                 style: 'text-decoration: underline',
-              }
+              };
             },
           },
         },
       },
-    ]
+    ];
   },
 
   addCommands() {
     return {
       toggleUnderline: () => ({ chain }) => {
         const attrs = this.editor.getAttributes('textStyle');
-        const isUnderlined = attrs.textDecoration === 'underline'
+        const isUnderlined = attrs.textDecoration === 'underline';
 
         return isUnderlined
           ? chain()
@@ -70,16 +70,16 @@ export const Underline = Extension.create<UnderlineOptions>({
             .run()
           : chain()
             .setMark('textStyle', { textDecoration: 'underline' })
-            .run()
-      }
-    }
+            .run();
+      },
+    };
   },
 
   addKeyboardShortcuts() {
     return {
       'Mod-u': () => this.editor.commands.toggleUnderline(),
       'Mod-U': () => this.editor.commands.toggleUnderline(),
-    }
+    };
   },
 
-})
+});

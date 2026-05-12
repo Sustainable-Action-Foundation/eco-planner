@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
 import type { Goal, Roadmap } from "@/types";
 import { stroke, marker } from "../../../config";
-import styles from '../goal.module.css'
+import styles from '../goal.module.css';
 import type { ApexAxisChartSeries } from "apexcharts";
 
 // TODO: Do we want to showcase the goal itself here or only its siblings? If we do want to showcase the goal, 
@@ -44,7 +44,7 @@ export default function SiblingGraph({
         name: (entry.name || entry.indicatorParameter).split('\\').at(-1),
         data: mainSeries,
         type: isStacked ? 'area' : 'line',
-      })
+      });
     }
   }
 
@@ -59,7 +59,7 @@ export default function SiblingGraph({
     },
     fill: {
       type: 'solid',
-      opacity: 0.3
+      opacity: 0.3,
     },
     stroke: { curve: stroke.curve, width: stroke.width },
     markers: { size: isStacked ? 0 : marker.size },
@@ -79,7 +79,7 @@ export default function SiblingGraph({
       inverseOrder: isStacked,
     },
     dataLabels: { enabled: false },
-  }
+  };
 
   // TODO: Show this information to the user again. See commit c403159 for the original implementation. https://github.com/Sustainable-Action-Foundation/eco-planner/commit/c403159
   /*
@@ -133,10 +133,10 @@ export default function SiblingGraph({
               {index !== siblings.length - 1 ?
                 <hr aria-orientation="vertical" className="padding-0 margin-block-25" /> /* TODO: Need to add orientation aria to other HR */
                 : null}
-            </span>
+            </span>,
           )}
         </nav>
       </footer>
     </div>
-  )
+  );
 }

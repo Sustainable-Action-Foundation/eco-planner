@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 import { RecipeDataTypes, RecipeError } from "@/functions/recipe/types";
@@ -34,7 +34,7 @@ export function VariableTypeScalar({
           defaultValue={variable.value}
           onChange={(e) => upsertVariable(variableId, prev => prev.type === RecipeDataTypes.Scalar
             ? { ...prev, value: Number(e.target.value) }
-            : prev
+            : prev,
           )}
           type="number"
           placeholder=" "
@@ -43,7 +43,7 @@ export function VariableTypeScalar({
         />
       </div>
     </CommonVariable>
-  )
+  );
 }
 
 export function VariableTypeScalarSimple({
@@ -68,7 +68,7 @@ export function VariableTypeScalarSimple({
       defaultValue={variable.value}
       onChange={(e) => upsertVariable(variableId, prev => prev.type === RecipeDataTypes.Scalar
         ? { ...prev, value: Number(e.target.value) }
-        : prev
+        : prev,
       )}
       type="number"
       placeholder={t("components:recipe_editor.scalar")}
@@ -76,5 +76,5 @@ export function VariableTypeScalarSimple({
       readOnly={!permissions.allowValueEditing}
       {...props}
     />
-  )
+  );
 }

@@ -15,7 +15,7 @@ export default function RoadmapFilters() {
   const [_isPending, startTransition] = useTransition();
 
   const [selectedFilterTypes, setSelectedFiltersTypes] = useState<Array<string>>(
-    searchParams.getAll('typeFilter')
+    searchParams.getAll('typeFilter'),
   );
 
   // Need this useffect to sync local state if URL changes via links or backbuttons
@@ -66,5 +66,5 @@ export default function RoadmapFilters() {
         ))}
       </fieldset>
     </menu >
-  </>
+  </>;
 }

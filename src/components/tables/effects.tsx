@@ -89,7 +89,7 @@ export default function EffectTable({
               />
             </div>
           </li>
-        )
+        );
       })}
     </ul>
   );

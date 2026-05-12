@@ -13,7 +13,7 @@ import Link from "next/link";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 
 export async function generateMetadata(props: { params: Promise<{ metaRoadmapId: string }> }) {
-  const params = await props.params
+  const params = await props.params;
   const [t, session, metaRoadmap] = await Promise.all([
     serveTea("pages"),
     getSession(await cookies()),
@@ -25,16 +25,16 @@ export async function generateMetadata(props: { params: Promise<{ metaRoadmapId:
       title: t("metadata:login.title"),
       description: t("metadata:login.title"),
       og_url: `/metaRoadmap/${params.metaRoadmapId}`,
-      og_image_url: '/images/og_wind.png'
-    })
+      og_image_url: '/images/og_wind.png',
+    });
   }
 
   return buildMetadata({
     title: metaRoadmap?.name,
     description: metaRoadmap?.description,
     og_url: `/metaRoadmap/${params.metaRoadmapId}`,
-    og_image_url: undefined
-  })
+    og_image_url: undefined,
+  });
 }
 
 
@@ -81,7 +81,7 @@ export default async function Page(props: { params: Promise<{ metaRoadmapId: str
                 {metaRoadmap.links.map((link: { url: string, description: string | null }, index: number) =>
                   <li className="margin-block-25" key={index}>
                     <a href={link.url} target="_blank">{link.description}</a>
-                  </li>
+                  </li>,
                 )}
               </ul>
             </>
@@ -101,5 +101,5 @@ export default async function Page(props: { params: Promise<{ metaRoadmapId: str
         </section>
       </main>
     </>
-  )
+  );
 }

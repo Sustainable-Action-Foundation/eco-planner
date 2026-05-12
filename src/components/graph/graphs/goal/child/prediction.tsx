@@ -33,7 +33,7 @@ export default function PredictionChildGraph({
     ...goal.dataSeries.values.map(e => new Date(e.timestamp).getUTCFullYear().toString()),
     ...childGoals
       .filter(child => child.dataSeries)
-      .flatMap(child => child.dataSeries?.values.map(e => new Date(e.timestamp).getUTCFullYear().toString()))
+      .flatMap(child => child.dataSeries?.values.map(e => new Date(e.timestamp).getUTCFullYear().toString())),
   )]
     .sort()
     .map(yyyy => `${yyyy}-01-01T00:00:00Z`);
@@ -83,7 +83,7 @@ export default function PredictionChildGraph({
   if (dataPoints.length < 2) {
     return <b className="flex justify-content-center align-items-center font-weight-500 padding-inline-100" style={{ width: '100%', height: '100%' }}>
       {t("graphs:prediction_child_graph.no_child_roadmaps")}
-    </b>
+    </b>;
   }
 
   // If childSeries are lines, make them dashed

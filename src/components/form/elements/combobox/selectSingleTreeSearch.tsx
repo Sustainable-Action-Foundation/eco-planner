@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import type { InputElement, TreeItem } from "@/components/types"
-import { IconCaretRightFilled, IconSearch, IconSelector } from "@tabler/icons-react"
-import { useEffect, useMemo, useRef, useState } from "react"
+import type { InputElement, TreeItem } from "@/components/types";
+import { IconCaretRightFilled, IconSearch, IconSelector } from "@tabler/icons-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { clearEditableCombobox, handleKeyDownTreeCombobox, preventInvalidFormSubmission } from "./functions";
-import styles from './comboBox.module.css' with { type: "css" }
+import styles from './comboBox.module.css' with { type: "css" };
 import { useTranslation } from "react-i18next";
-import Image from "next/image"
+import Image from "next/image";
 
 // TODO: Aria-setsize (How do we deal with this given async functions)
 // TODO: Aria-posinset (How do we deal with this given async functions)
@@ -33,7 +33,7 @@ function flattenTree(items: Array<TreeItem>) {
 function updateNodeInTree(
   items: Array<TreeItem>,
   targetValue: string,
-  updater: (node: TreeItem) => TreeItem
+  updater: (node: TreeItem) => TreeItem,
 ): Array<TreeItem> {
   return items.map(item => {
     if (item.value === targetValue) {
@@ -62,48 +62,48 @@ export default function SelectSingleTreeSearch({
 }) {
   const { t } = useTranslation(["forms"]);
 
-  const [value, setValue] = useState<TreeItem | null>(defaultValue ?? null)
-  const [menuOpen, setMenuOpen] = useState<boolean>(false)
+  const [value, setValue] = useState<TreeItem | null>(defaultValue ?? null);
+  const [menuOpen, setMenuOpen] = useState<boolean>(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [searchValue, setSearchValue] = useState<string>('')
+  const [searchValue, setSearchValue] = useState<string>('');
 
-  const [items, setItems] = useState<Array<TreeItem>>(treeItems)
-  const [flattenedItems, setFlattenedItems] = useState<Array<TreeItem>>(flattenTree(treeItems))
-  const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
+  const [items, setItems] = useState<Array<TreeItem>>(treeItems);
+  const [flattenedItems, setFlattenedItems] = useState<Array<TreeItem>>(flattenTree(treeItems));
+  const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const toggleRef = useRef<HTMLButtonElement>(null); // TODO: Rename?
   const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!onChange) return
-    onChange(value)
-  }, [value, onChange])
+    if (!onChange) return;
+    onChange(value);
+  }, [value, onChange]);
 
   useEffect(() => {
-    if (items.length === 0) return
-    setFlattenedItems(flattenTree(items))
-  }, [items])
+    if (items.length === 0) return;
+    setFlattenedItems(flattenTree(items));
+  }, [items]);
 
   useEffect(() => {
-    if (focusedIndex == null || flattenedItems.length === 0) return
-    const selectedItem = flattenedItems[focusedIndex]
-    const selectedItemElement = document.getElementById(`${props.id}-dialog-tree-${selectedItem.name.replace(' ', '-')}`)
-    if (!selectedItemElement) return
+    if (focusedIndex == null || flattenedItems.length === 0) return;
+    const selectedItem = flattenedItems[focusedIndex];
+    const selectedItemElement = document.getElementById(`${props.id}-dialog-tree-${selectedItem.name.replace(' ', '-')}`);
+    if (!selectedItemElement) return;
 
-    const selectedItemElementText = selectedItemElement.querySelector<HTMLDivElement>(':scope > div')
-    if (!selectedItemElementText) return
+    const selectedItemElementText = selectedItemElement.querySelector<HTMLDivElement>(':scope > div');
+    if (!selectedItemElementText) return;
 
-    selectedItemElementText.style.backgroundColor = "var(--gray-90)" // TODO: See if we can replace this using the focused-option class
+    selectedItemElementText.style.backgroundColor = "var(--gray-90)"; // TODO: See if we can replace this using the focused-option class
 
-  }, [focusedIndex, flattenedItems, props.id])
+  }, [focusedIndex, flattenedItems, props.id]);
 
   useEffect(() => {
-    if (!searchRef.current) return
+    if (!searchRef.current) return;
     clearEditableCombobox(
       searchRef.current,
       setSearchValue,
       menuOpen,
-      setFocusedIndex
-    )
+      setFocusedIndex,
+    );
   }, [menuOpen]);
 
   // Disables form submission if value is invalid 
@@ -114,8 +114,8 @@ export default function SelectSingleTreeSearch({
   }, [value, props.required]);
 
   useEffect(() => {
-    if (!toggleRef.current) return
-    return preventInvalidFormSubmission(toggleRef.current, valueIsValid)
+    if (!toggleRef.current) return;
+    return preventInvalidFormSubmission(toggleRef.current, valueIsValid);
   }, [valueIsValid]);
 
   useEffect(() => {
@@ -129,7 +129,7 @@ export default function SelectSingleTreeSearch({
 
   async function toggleNode(item: TreeItem) {
     const index = flattenedItems.findIndex(el => el.value === item.value);
-    setFocusedIndex(index)
+    setFocusedIndex(index);
     handleUpdateNode(item.value, node => ({ ...node, loading: true }));
     if (item.onExpand && !item.childNodes) {
       const children = await item.onExpand();
@@ -151,7 +151,7 @@ export default function SelectSingleTreeSearch({
   function TreeNode({
     item,
     onUpdate,
-    depth = 0
+    depth = 0,
   }: {
     item: TreeItem,
     onUpdate: (value: string, updater: (n: TreeItem) => TreeItem) => void,
@@ -172,8 +172,8 @@ export default function SelectSingleTreeSearch({
           className={`flex gap-25 align-items-center justify-content-space-between`}
           onClick={
             item.expanded !== null || item.onExpand !== undefined
-              ? () => { void toggleNode(item); searchRef.current?.focus() }
-              : () => { setValue(item?.value !== value?.value ? item : null); setMenuOpen(false) }
+              ? () => { void toggleNode(item); searchRef.current?.focus(); }
+              : () => { setValue(item?.value !== value?.value ? item : null); setMenuOpen(false); }
           }
         >
           {(item.onExpand || (item.childNodes && item.childNodes.length > 0))
@@ -209,7 +209,7 @@ export default function SelectSingleTreeSearch({
               borderLeft: '1px dashed var(--gray)',
               marginInlineStart: 'calc(12px + 0.25rem)',
               paddingInlineStart: '.5rem',
-              marginBlock: '1px'
+              marginBlock: '1px',
             }}
             className="margin-0 padding-inline-start-75"
           >
@@ -236,7 +236,7 @@ export default function SelectSingleTreeSearch({
         name={props.name}
         disabled={props.disabled}
         ref={toggleRef}
-        onClick={() => { setMenuOpen(!menuOpen) }}
+        onClick={() => { setMenuOpen(!menuOpen); }}
         role="combobox"
         type="button"
         aria-controls={menuOpen ? `${props.id}-dialog` : undefined}
@@ -260,7 +260,7 @@ export default function SelectSingleTreeSearch({
         }
         onBlur={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget?.id !== props.id) {
-            setFocusedIndex(null)
+            setFocusedIndex(null);
             setMenuOpen(false);
           }
         }}
@@ -295,9 +295,9 @@ export default function SelectSingleTreeSearch({
                   }
                 },
                 (selectedTreeItem) => {
-                  if (!selectedTreeItem) return
+                  if (!selectedTreeItem) return;
                   if (selectedTreeItem.expanded !== null || selectedTreeItem.onExpand !== undefined) {
-                    void toggleNode(selectedTreeItem)
+                    void toggleNode(selectedTreeItem);
                   } else {
                     setValue(selectedTreeItem?.value !== value?.value ? selectedTreeItem : null); // TODO: Abstract this to use in onclick     
                     setMenuOpen(false);
@@ -305,8 +305,8 @@ export default function SelectSingleTreeSearch({
                   }
                 },
                 menuOpen,
-                setMenuOpen
-              )
+                setMenuOpen,
+              );
             }}
             role="combobox"
             aria-controls={`${props.id}-dialog-tree`}
@@ -335,5 +335,5 @@ export default function SelectSingleTreeSearch({
         </ul>
       </div>
     </div>
-  )
+  );
 }

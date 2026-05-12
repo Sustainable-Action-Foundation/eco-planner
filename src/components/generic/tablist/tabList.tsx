@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import styles from './tablist.module.css' with { type: "css" }
+import styles from './tablist.module.css' with { type: "css" };
 import type { GenericElement } from "@/components/types";
 
 type TabChild = React.ReactElement<{ "data-tabname": string, "id": string }>;
@@ -23,8 +23,8 @@ export default function TabList({ props, styling, defaultIndex, children, menuIt
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   useEffect(() => {
-    tabRefs.current[activeIndex]?.focus()
-  }, [activeIndex, tabRefs])
+    tabRefs.current[activeIndex]?.focus();
+  }, [activeIndex, tabRefs]);
 
   return (
     <>
@@ -34,18 +34,18 @@ export default function TabList({ props, styling, defaultIndex, children, menuIt
         role="tablist"
         onKeyDown={(e) => {
           if (e.key === "ArrowRight") {
-            setActiveIndex(activeIndex !== tabNames.length - 1 ? activeIndex + 1 : 0)
+            setActiveIndex(activeIndex !== tabNames.length - 1 ? activeIndex + 1 : 0);
           }
           if (e.key === "ArrowLeft") {
-            setActiveIndex(activeIndex !== 0 ? activeIndex - 1 : tabNames.length - 1)
+            setActiveIndex(activeIndex !== 0 ? activeIndex - 1 : tabNames.length - 1);
           }
           if (e.key === "Home") {
-            e.preventDefault()
-            setActiveIndex(0)
+            e.preventDefault();
+            setActiveIndex(0);
           }
           if (e.key === "End") {
-            e.preventDefault()
-            setActiveIndex(tabNames.length - 1)
+            e.preventDefault();
+            setActiveIndex(tabNames.length - 1);
           }
         }}
       >
@@ -55,7 +55,7 @@ export default function TabList({ props, styling, defaultIndex, children, menuIt
             type="button"
             key={tabName}
             id={`${tabName}-tab`}
-            ref={(el) => { tabRefs.current[index] = el }}
+            ref={(el) => { tabRefs.current[index] = el; }}
             onClick={() => setActiveIndex(index)}
             tabIndex={index === activeIndex ? 0 : -1}
             aria-selected={index === activeIndex}
@@ -63,10 +63,10 @@ export default function TabList({ props, styling, defaultIndex, children, menuIt
             style={{ textTransform: "capitalize" }}
           >
             {tabName}
-          </button>
+          </button>,
         )}
         {menuItems ? 
-          <div onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {e.stopPropagation()}} className="inline-block margin-left-50 padding-left-50" style={{borderLeft: '1px solid var(--gray-80)'}}>{menuItems}</div>
+          <div onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {e.stopPropagation();}} className="inline-block margin-left-50 padding-left-50" style={{borderLeft: '1px solid var(--gray-80)'}}>{menuItems}</div>
         : null }
       </div>
       {childrenArray.map((child, index) => (

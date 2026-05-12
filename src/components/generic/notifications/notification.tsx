@@ -1,6 +1,6 @@
-import styles from './notification.module.css'
-import Link from "next/link"
-import { IconBell } from '@tabler/icons-react'
+import styles from './notification.module.css';
+import Link from "next/link";
+import { IconBell } from '@tabler/icons-react';
 import serveTea from "@/lib/i18nServer";
 
 export default async function Notifications({ amount }: { amount: number }) {
@@ -19,7 +19,7 @@ export default async function Notifications({ amount }: { amount: number }) {
           position: 'absolute',
           top: '0',
           left: '50%',
-          transform: 'translate(0, 0)'
+          transform: 'translate(0, 0)',
         }}>
           <div
             style={{ 
@@ -36,5 +36,5 @@ export default async function Notifications({ amount }: { amount: number }) {
         </div>
       </div>
     </Link>
-  )
+  );
 } 

@@ -21,11 +21,11 @@ export async function PATCH(request: NextRequest) {
   try {
     await prisma.user.update({
       where: {
-        email: email
+        email: email,
       },
       data: {
-        isVerified: true
-      }
+        isVerified: true,
+      },
     });
   } catch {
     return Response.json({ message: 'Internal server error' }, { status: 500 });

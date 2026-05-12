@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import formSubmitter from "@/functions/formSubmitter"
-import { isDateValuesWithUnit, type Action, type ActionInput, type DateValuesWithUnit, type MultiRoadmapInstance } from "@/types"
-import { ActionImpactType } from "@prisma/client"
-import { useTranslation } from "react-i18next"
-import styles from '../forms.module.css'
-import TextEditor from "../elements/textEditor/editor"
-import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual"
-import { useState, useRef } from "react"
-import { useToastContext } from "@/components/generic/toast/toastContext"
-import { useRouter } from "next/navigation"
+import formSubmitter from "@/functions/formSubmitter";
+import { isDateValuesWithUnit, type Action, type ActionInput, type DateValuesWithUnit, type MultiRoadmapInstance } from "@/types";
+import { ActionImpactType } from "@prisma/client";
+import { useTranslation } from "react-i18next";
+import styles from '../forms.module.css';
+import TextEditor from "../elements/textEditor/editor";
+import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
+import { useState, useRef } from "react";
+import { useToastContext } from "@/components/generic/toast/toastContext";
+import { useRouter } from "next/navigation";
 
 export default function ActionForm({
   goalId,
@@ -25,15 +25,15 @@ export default function ActionForm({
   const { t } = useTranslation(["forms", "common"]);
   const [timestamp] = useState(() => Date.now());
   const descriptionRef = useRef<HTMLInputElement>(null);
-  const router = useRouter()
+  const router = useRouter();
 
   const { addToast } = useToastContext();
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
-    event.preventDefault()
+    event.preventDefault();
 
     // TODO: Use formData instead of DOM traversal
-    const form = event.target.elements
+    const form = event.target.elements;
 
     let startYear: number | undefined = parseInt((form.namedItem("startYear") as HTMLInputElement).value, 10);
     let endYear: number | undefined = parseInt((form.namedItem("endYear") as HTMLInputElement).value, 10);
@@ -47,7 +47,7 @@ export default function ActionForm({
 
     let dataSeries: DateValuesWithUnit | undefined;
     try {
-      const rawDataSeries = JSON.parse((form.namedItem("data-series") as HTMLInputElement)?.value) as unknown
+      const rawDataSeries = JSON.parse((form.namedItem("data-series") as HTMLInputElement)?.value) as unknown;
       if (rawDataSeries && isDateValuesWithUnit(rawDataSeries)) {
         dataSeries = rawDataSeries;
       }
@@ -230,5 +230,5 @@ export default function ActionForm({
         </div>
       </form>
     </>
-  )
+  );
 }

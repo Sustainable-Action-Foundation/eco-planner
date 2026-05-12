@@ -55,7 +55,7 @@ export function getStoredChildGraphType(goalId?: string): ChildGraphType {
 /** Stores the graph type for a goal in storage. */
 export function setStoredGraphType(graphType: string, goalId?: string) {
   if (goalId) {
-    setSessionStorage(goalId + "_graphType", graphType)
+    setSessionStorage(goalId + "_graphType", graphType);
   };
   setLocalStorage("graphType", graphType);
 }
@@ -63,7 +63,7 @@ export function setStoredGraphType(graphType: string, goalId?: string) {
 /** Stores the graph type for child graphs for a goal in storage. */
 export function setStoredChildGraphType(graphType: ChildGraphType, goalId?: string) {
   if (goalId) {
-    setSessionStorage(goalId + "_childGraphType", graphType)
+    setSessionStorage(goalId + "_childGraphType", graphType);
   };
   setLocalStorage("childGraphType", graphType);
 }
@@ -89,7 +89,7 @@ export function calculatePredictedOutcome(effects: Effect[] | Goal["effects"], b
 
   const definedDates: string[] = [...new Set(effects
     .filter(effect => effect.dataSeries)
-    .flatMap(effect => effect.dataSeries?.values.map(v => new Date(v.timestamp).getUTCFullYear())))
+    .flatMap(effect => effect.dataSeries?.values.map(v => new Date(v.timestamp).getUTCFullYear()))),
   ]
     .sort()
     .map(yyyy => `${yyyy}-01-01T00:00:00Z`);

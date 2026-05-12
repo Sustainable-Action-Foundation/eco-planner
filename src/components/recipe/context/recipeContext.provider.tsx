@@ -31,7 +31,7 @@ export function RecipeContextProvider({
    */
   const canonicalRecipeRef = useRef<Recipe>(initialRecipe
     ? Recipe.from(initialRecipe)
-    : Recipe.getEmpty()
+    : Recipe.getEmpty(),
   );
 
   /** 
@@ -138,7 +138,7 @@ export function RecipeContextProvider({
         // Update existing variable
         ? candidateRecipe.variables.map(v => v.id === variableId
           ? { ...nextVariable, template: false }
-          : v
+          : v,
         )
         // Or append new variable
         : [...candidateRecipe.variables, { ...nextVariable, template: false }];

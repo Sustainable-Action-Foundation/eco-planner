@@ -1,6 +1,6 @@
 export default function truncateText(
   string: string | null | undefined, 
-  maxLength: number
+  maxLength: number,
 ): string | undefined {
   if (!string) return;
   if (string.length <= maxLength) return string;

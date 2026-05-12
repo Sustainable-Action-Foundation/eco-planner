@@ -2,7 +2,7 @@
 
 import { commentSorter } from "@/lib/sorters";
 import type { Comment } from "@prisma/client";
-import styles from './comments.module.css'
+import styles from './comments.module.css';
 import type { FocusEventHandler, InputEventHandler } from "react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -13,9 +13,9 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
   const { t } = useTranslation(["components", "common"]);
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
-    event.preventDefault()
-    const form = event.target.elements
-    const comment = (form.namedItem("comment") as HTMLInputElement)?.value
+    event.preventDefault();
+    const form = event.target.elements;
+    const comment = (form.namedItem("comment") as HTMLInputElement)?.value;
     const formJSON = JSON.stringify({
       commentText: comment,
       objectId,
@@ -37,8 +37,8 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
           console.error('Unexpected error:', err);
           alert(t("common:error.generic_with_details", { details: 'See console for details' }));
         }
-      }
-    )
+      },
+    );
   }
 
   // Sort comments by date
@@ -52,15 +52,15 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
 
   const handleBlur: FocusEventHandler<HTMLSpanElement> = (event) => {
     setEditedContent(event.currentTarget.innerText);
-  }
+  };
 
   const spanRef = useRef<HTMLSpanElement>(null);
   const removeText = () => {
     if (spanRef.current) {
-      spanRef.current.innerHTML = ''
+      spanRef.current.innerHTML = '';
     }
-    setEditedContent('')
-  }
+    setEditedContent('');
+  };
 
   const [expandedComments, setExpandedComments] = useState<string[]>([]);
   const expandComment = (commentId: string) => {
@@ -93,7 +93,7 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
                 {t("components:comments.relative_time", { date: new Date(comment.createdAt) })}
               </span>
             </div>
-            <p className="margin-0" style={{ wordBreak: 'break-word', }}>
+            <p className="margin-0" style={{ wordBreak: 'break-word' }}>
               {expandedComments.includes(comment.id) ? comment.commentText : comment.commentText.length > 300 ? `${comment.commentText.substring(0, 300)}${t("common:tsx.ellipsis")}` : comment.commentText}
             </p>
             {comment.commentText.length > 300 ?
@@ -105,5 +105,5 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
         ))}
       </div>
     </>
-  )
+  );
 }

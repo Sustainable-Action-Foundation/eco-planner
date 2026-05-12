@@ -1,8 +1,8 @@
-'use client'
+'use client';
 import { createContext, useContext, useState, useRef } from "react";
 import type { Toast, ToastContextType, ToastType } from '@/components/generic/toast/types.ts';
 
-const toasts = createContext<ToastContextType | undefined>(undefined)
+const toasts = createContext<ToastContextType | undefined>(undefined);
 
 export function ToastContext({ children }: { children: React.ReactNode }) {
   const [messages, setMessages] = useState<Array<Toast>>([]);
@@ -20,7 +20,7 @@ export function ToastContext({ children }: { children: React.ReactNode }) {
     <toasts.Provider value={{ messages, addToast, removeToast }}>
       {children}
     </toasts.Provider>
-  )
+  );
 }
 
 export function useToastContext() {

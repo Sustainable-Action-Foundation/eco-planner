@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
@@ -9,7 +9,7 @@ export function EquationEditor() {
   const { t } = useTranslation("components");
   const { recipe, updateEquation } = useRecipe();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
+  const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const textarea = textareaRef.current;
@@ -44,7 +44,7 @@ export function EquationEditor() {
         style={{
           border: '0',
           borderRadius: '0',
-          resize: 'none'
+          resize: 'none',
         }}
         defaultValue={recipe.equation}
         onInput={(e) => updateEquation(e.currentTarget.value)}
@@ -58,12 +58,12 @@ export function EquationEditor() {
         onKeyDown={(e: React.KeyboardEvent<HTMLUListElement>) => { // TODO: This is not working, try and structure stuff before tackling this. That way we can probably abstract the combobox functions and reuse some stuff
           if (e.key === "arrowDown") {
             if (focusedIndex !== null) {
-              setFocusedIndex(focusedIndex + 1)
+              setFocusedIndex(focusedIndex + 1);
             } else {
-              setFocusedIndex(0)
+              setFocusedIndex(0);
             }
 
-            e.preventDefault()
+            e.preventDefault();
           }
         }}
       >
@@ -90,5 +90,5 @@ export function EquationEditor() {
           : null}
       </ul>
     </div>
-  )
+  );
 }
