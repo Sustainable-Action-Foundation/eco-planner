@@ -115,6 +115,9 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Bump next.config to bust Docker cache
+        run: 'echo "// BUILD_COMMIT: ${{ github.sha }}" >> next.config.ts'
+
       - name: Build and push
         uses: docker/build-push-action@v7
         with:
