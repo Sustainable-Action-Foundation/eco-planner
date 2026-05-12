@@ -132,7 +132,7 @@ export default function MetaRoadmapForm({
             content={currentRoadmap ? currentRoadmap.description : ""}
             onChange={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
           />
-          <input required ref={descriptionRef} type="hidden" name="description" />
+          <input required ref={descriptionRef} type="hidden" name="description" defaultValue={currentRoadmap?.description ?? ""} />
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>

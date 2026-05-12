@@ -261,7 +261,7 @@ export default function RoadmapForm({
             content={currentRoadmap ? currentRoadmap.description : ""}
             onChange={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
           />
-          <input ref={descriptionRef} type="hidden" name="description" />
+          <input ref={descriptionRef} type="hidden" name="description" defaultValue={currentRoadmap?.description ?? ""} />
 
         </fieldset>
 
