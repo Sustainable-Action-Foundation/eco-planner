@@ -58,6 +58,7 @@ RUN yarn prisma generate
 FROM base AS builder
 
 ARG COMMIT_SHA
+ARG BUILD_ID
 
 # Copy dependencies
 COPY --from=deps /app/node_modules ./node_modules
@@ -82,7 +83,7 @@ RUN printf "// BUILD_COMMIT: %s\n" "${COMMIT_SHA}" >> next.config.ts
 
 # Build with cache mount for Next.js
 RUN --mount=type=cache,target=/app/.next/cache \
-  yarn run build
+  sh -c "echo BUILD_ID=${BUILD_ID} > /tmp/build-id && yarn run build"
 
 
 # ============================================================================
