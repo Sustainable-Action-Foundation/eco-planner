@@ -64,7 +64,6 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
       if (structureItem.DataType === "Time" || structureItem.DataType === "Region") {
         logNotSupportedDataType(returnItem.type, structureItem);
       }
-      else if (structureItem.DataType === "String") { }
     } else if (tableDetailType === "H") {
       (returnItem as TrafaHierarchy).children = [];
       returnItem.type = "hierarchy";

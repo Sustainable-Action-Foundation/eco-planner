@@ -35,8 +35,8 @@ export default function ActionForm({
     // TODO: Use formData instead of DOM traversal
     const form = event.target.elements
 
-    let startYear: number | undefined = parseInt((form.namedItem("startYear") as HTMLInputElement).value);
-    let endYear: number | undefined = parseInt((form.namedItem("endYear") as HTMLInputElement).value);
+    let startYear: number | undefined = parseInt((form.namedItem("startYear") as HTMLInputElement).value, 10);
+    let endYear: number | undefined = parseInt((form.namedItem("endYear") as HTMLInputElement).value, 10);
 
     if (!Number.isFinite(startYear)) {
       startYear = undefined;

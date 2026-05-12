@@ -10,11 +10,10 @@ export async function register() {
         if (options.password.length === 0) {
           console.error("IronSession password is not set.");
           errorCount++;
-        } else {
-          if (options.password.some(pass => !(typeof pass !== 'string') || (pass as string).length < 32)) {
-            console.error("At least one IronSession password is misconfigured.");
-            errorCount++;
-          }
+        }
+        else if (options.password.some(pass => !(typeof pass !== 'string') || (pass as string).length < 32)) {
+          console.error("At least one IronSession password is misconfigured.");
+          errorCount++;
         }
       } else if (typeof options.password !== 'string' || options.password.length < 32) {
         console.error("IronSession password is misconfigured.");

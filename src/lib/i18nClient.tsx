@@ -31,7 +31,7 @@ i18nClient.services.formatter?.add("possessive", possessive);
 i18nClient.services.formatter?.add("timeAgo", relativeTime);
 
 export const LocaleContext = createContext<Locales>(Locales.default);
-export const LocaleSetterContext = createContext<React.Dispatch<React.SetStateAction<Locales>>>(() => { });
+export const LocaleSetterContext = createContext<React.Dispatch<React.SetStateAction<Locales>>>(() => { /* empty */ });
 
 export default function I18nProvider(
   { children, lng }: { children: React.ReactNode, lng: Locales }

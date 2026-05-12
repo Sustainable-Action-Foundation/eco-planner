@@ -146,7 +146,7 @@ export default function RoadmapForm({
         timestamp: timestamp,
 
         description: description ?? undefined,
-        targetVersion: parseInt((form.namedItem('target-version') as HTMLSelectElement)?.value) || null,
+        targetVersion: parseInt((form.namedItem('target-version') as HTMLSelectElement)?.value, 10) || null,
         isPublic: visibility === "public",
 
         metaRoadmapId: undefined, // Can't change the metaRoadmap after creation
@@ -167,7 +167,7 @@ export default function RoadmapForm({
         timestamp: undefined,
 
         description: description ?? null,
-        targetVersion: parseInt((form.namedItem('target-version') as HTMLSelectElement)?.value) || null,
+        targetVersion: parseInt((form.namedItem('target-version') as HTMLSelectElement)?.value, 10) || null,
         isPublic: visibility === "public",
 
         metaRoadmapId: metaRoadmapId,
@@ -234,7 +234,7 @@ export default function RoadmapForm({
             {metaRoadmapTarget?.roadmapVersions.length && (
               <label>
                 {t("forms:roadmap.roadmap_target_label", { targetName: metaRoadmapTarget.name })}
-                <select className="block margin-top-25 margin-bottom-100 width-100" name="target-version" id="target-version" required defaultValue={currentRoadmap?.targetVersion ?? ""} onChange={(e) => setTargetVersion(parseInt(e.target.value) || null)}>
+                <select className="block margin-top-25 margin-bottom-100 width-100" name="target-version" id="target-version" required defaultValue={currentRoadmap?.targetVersion ?? ""} onChange={(e) => setTargetVersion(parseInt(e.target.value, 10) || null)}>
                   <option value="">{t("forms:roadmap.roadmap_target_no_chosen")}</option>
                   <option value={0}>{t("forms:roadmap.roadmap_target_always_latest")}</option>
                   {metaRoadmapTarget.roadmapVersions.map((version) => {

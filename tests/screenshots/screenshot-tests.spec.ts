@@ -45,16 +45,16 @@ async function isSidebarOpen(page: Page, wantedClosed: boolean) { // Checks if t
   await ensureToastPassthrough(page);
   const isSidebarOpen = await page.getByTestId('language-switcher-dialog-button').boundingBox();
   if (wantedClosed) {
-    if (isSidebarOpen === null) { }
+    if (isSidebarOpen === null) { /* empty */ }
     else if (isSidebarOpen.width > 100) {
       await page.getByRole('checkbox').first().click({ force: true });
     }
-  } else {
-    if (isSidebarOpen === null) {
-      await page.getByRole("checkbox").first().click({ force: true });
-    } else if (isSidebarOpen.width < 100) {
-      await page.getByRole("checkbox").first().click({ force: true });
-    }
+  }
+  else if (isSidebarOpen === null) {
+    await page.getByRole("checkbox").first().click({ force: true });
+  }
+  else if (isSidebarOpen.width < 100) {
+    await page.getByRole("checkbox").first().click({ force: true });
   }
 }
 

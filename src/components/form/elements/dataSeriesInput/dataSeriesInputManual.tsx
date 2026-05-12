@@ -23,11 +23,11 @@ export default function DataSeriesInputManual({
   const { t } = useTranslation("forms");
   const [value, setValue] = useState<Array<{ id: string; year: number | null; data: number | null }>>(() => {
     if (Object.keys(initialDateValues.dateValues).length === 0) {
-      return [{ id: crypto.randomUUID(), year: null, data: null }];
+      return [{ id: window.crypto.randomUUID(), year: null, data: null }];
     }
 
     return Object.entries(initialDateValues.dateValues).map(([date, value]) => ({
-      id: crypto.randomUUID(),
+      id: window.crypto.randomUUID(),
       year: new Date(date).getFullYear(),
       data: value ?? null
     }));
@@ -83,7 +83,7 @@ export default function DataSeriesInputManual({
         const rowIndex = startIndex + rowOffset;
 
         if (!next[rowIndex]) {
-          next[rowIndex] = { id: crypto.randomUUID(), year: null, data: null };
+          next[rowIndex] = { id: window.crypto.randomUUID(), year: null, data: null };
         }
 
         // If we paste into data, we do not want any new data in the previous column (i.e years)
@@ -112,7 +112,7 @@ export default function DataSeriesInputManual({
     setValue((prev) => [
       ...prev,
       {
-        id: crypto.randomUUID(),
+        id: window.crypto.randomUUID(),
         year: null,
         data: null,
       },
@@ -124,7 +124,7 @@ export default function DataSeriesInputManual({
 
     setValue(prev => [
       ...prev.slice(0, focusedCell.row),
-      { id: crypto.randomUUID(), year: null, data: null },
+      { id: window.crypto.randomUUID(), year: null, data: null },
       ...prev.slice(focusedCell.row)
     ])
   }
@@ -139,7 +139,7 @@ export default function DataSeriesInputManual({
 
       // Ensure at least one row exists
       if (next.length === 0) {
-        return [{ id: crypto.randomUUID(), year: null, data: null }];
+        return [{ id: window.crypto.randomUUID(), year: null, data: null }];
       }
 
       return next;

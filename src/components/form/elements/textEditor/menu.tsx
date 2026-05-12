@@ -143,7 +143,7 @@ export default function TextEditorMenu({
 
       const width =
         menuItemParent.offsetWidth +
-        parseInt(getComputedStyle(menuItemParent).marginRight);
+        parseInt(getComputedStyle(menuItemParent).marginRight, 10);
       groupWidths[menuItemGroup] =
         (groupWidths[menuItemGroup] ?? 0) +
         width;
@@ -168,8 +168,8 @@ export default function TextEditorMenu({
 
       setMenuBarWidth(
         menubarRef.current.clientWidth -
-        parseInt(getComputedStyle(menubarRef.current).paddingInline) -
-        48 // Width of menu element (multiplied by 2 to allow for some breathing space)
+        parseInt(getComputedStyle(menubarRef.current).paddingInline, 10)
+        - 48 // Width of menu element (multiplied by 2 to allow for some breathing space)
       );
     }
 
@@ -190,10 +190,9 @@ export default function TextEditorMenu({
         if (!calculatedHiddenGroups.includes(menuItem.props["data-menu-group"])) {
           calculatedHiddenGroups.push(menuItem.props["data-menu-group"])
         }
-      } else {
-        if (!calculatedVisibleGroups.includes(menuItem.props["data-menu-group"])) {
-          calculatedVisibleGroups.push(menuItem.props["data-menu-group"])
-        }
+      }
+      else if (!calculatedVisibleGroups.includes(menuItem.props["data-menu-group"])) {
+        calculatedVisibleGroups.push(menuItem.props["data-menu-group"])
       }
     })
 
