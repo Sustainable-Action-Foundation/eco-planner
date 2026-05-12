@@ -7,7 +7,6 @@ import mathjs from "@/math";
 
 import { RecipeDataTypes } from "./consts";
 import { VectorIndexPickerOptions } from "./consts";
-import type { Recipe } from "@/functions/recipe/recipe";
 import type {
   EvalTimeVariable,
   DataSeriesVariable,
@@ -397,15 +396,6 @@ export function isRecipe(recipe: JSONValue): recipe is SerializedRecipeShape {
   }
 
   return true;
-}
-
-export function isEmptyRecipe(recipe: Recipe): boolean {
-  // Falsy name, empty and no variables
-  return (
-    !!recipe.name
-    && !!recipe.equation.trim()
-    && recipe.variables.length === 0
-  );
 }
 
 export function isEvalTimeVariable(

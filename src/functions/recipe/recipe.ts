@@ -107,9 +107,7 @@ export class Recipe {
     }
 
     if (this.equation.trim() === "") {
-      console.info("Equation is empty. Early return.");
-      warnings.push("Equation is empty, no evaluation performed.");
-      return null;
+      throw new RecipeError("Equation is empty, no evaluation performed.");
     }
 
     const scalarVars = extractScalars(this.variables, warnings);
@@ -424,6 +422,29 @@ export class Recipe {
   }
 
   /** 
+   * To query whether a recipe has practically been touched, not a perfect metric, but a simple heuristic to check if the recipe is essentially empty or not.
+   */
+  public isEmpty(): boolean {
+    if (Recipe.areRecipesEqual(this, Recipe.getEmpty())) {
+      return true;
+    }
+
+    if (!this.name || this.name.trim() === "" || this.name === Recipe.getEmpty().name) {
+      return true;
+    }
+
+    if (this.equation.trim() !== "") {
+      return false;
+    }
+
+    if (this.variables.length > 0) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /** 
    * Selective compare if two variables are the same
    */
   public static isVariableEqual(var1: RecipeVariable, var2: RecipeVariable): boolean {
@@ -446,6 +467,22 @@ export class Recipe {
       if (!Recipe.isVariableEqual(vars1[i], vars2[i])) {
         return false;
       }
+    }
+
+    return true;
+  }
+
+  public static areRecipesEqual(recipe1: Recipe, recipe2: Recipe): boolean {
+    if (recipe1.name !== recipe2.name) {
+      return false;
+    }
+
+    if (recipe1.equation !== recipe2.equation) {
+      return false;
+    }
+
+    if (!Recipe.areVariablesEqual(recipe1.variables, recipe2.variables)) {
+      return false;
     }
 
     return true;
