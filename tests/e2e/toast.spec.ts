@@ -5,8 +5,15 @@ import { cwd } from "node:process";
 
 const adminFile = path.join(cwd(), "tests/.auth/admin.json");
 
-async function expectToast(page: Page, translationKey: string) {
-  await expect(page.getByTestId("toast-list").filter({ hasText: translationKey })).toBeVisible();
+async function expectToast(page: Page, type: "warning" | "success" | "error") {
+  const labelMap = {
+    warning: /Warning!|Varning!/, 
+    success: /Success!|Lyckades!/, 
+    error: /Something went wrong!|Något gick fel!/
+  } as const;
+
+  const role = type === "error" ? "alert" : "status";
+  await expect(page.getByRole(role).filter({ hasText: labelMap[type] })).toBeVisible();
 }
 
 async function selectRiketsRoadmap(page: Page) {
@@ -26,13 +33,18 @@ async function selectParentRiketsRoadmap(page: Page) {
 }
 
 async function fillGoalSeries(page: Page) {
-  await page.getByRole('radio', { name: 'goal.derive_data_series_manually' }).click();
+  await page.locator('input[name="dataSeriesType"][value="MANUAL"]').check();
   await page.locator('#indicatorParameter').fill('Goal Toast');
   await page.locator('#dataUnit').fill('yard');
-  await page.getByLabel('data_series_input.end_year').fill('2030');
+
+  const insertRowButton = page.getByRole("button", { name: /Insert row to bottom|Infoga rad underst/ });
+  for (let i = 1; i < 10; i++) {
+    await insertRowButton.click();
+  }
 
   for (let i = 0; i < 10; i++) {
-    await page.getByRole('spinbutton').nth(2 + i).fill('1');
+    await page.locator(`[data-row="${i}"][data-column="1"] input`).fill(String(2020 + i));
+    await page.locator(`[data-row="${i}"][data-column="2"] input`).fill('1');
   }
 }
 
@@ -55,20 +67,20 @@ test.describe('Toast', () => {
     await page.getByTestId('create-action').click();
 
     await page.locator('#submit-button').click();
-    await expectToast(page, 'toasts.warning');
+    await expectToast(page, 'warning');
 
     await selectRiketsRoadmap(page);
     await page.locator('#actionName').fill('Test Toast');
 
     await page.locator('#submit-button').click();
-    await expectToast(page, 'toasts.success');
+    await expectToast(page, 'success');
   });
 
   test('Metaroadmap shows warning and success toast', async ({ page }) => {
     await page.goto('/metaRoadmap/create');
 
     await page.locator('#submit-button').click();
-    await expectToast(page, 'toasts.warning');
+    await expectToast(page, 'warning');
 
     await page.locator('#name').fill('MetaRoadmap Toast');
     await page.locator('#type').selectOption('LOCAL');
@@ -77,22 +89,22 @@ test.describe('Toast', () => {
     await page.locator('#editability-private').check();
 
     await page.locator('#submit-button').click();
-    await expectToast(page, 'toasts.warning');
+    await expectToast(page, 'warning');
 
     await page.locator('.tiptap').first().fill('Toast');
     await page.locator('#submit-button').click();
 
-    await expectToast(page, 'toasts.success');
+    await expectToast(page, 'success');
     await expect(page).toHaveURL(/\/roadmap\/create/);
 
     await page.locator('#submit-button').click();
-    await expectToast(page, 'toasts.warning');
+    await expectToast(page, 'warning');
 
     await page.locator('#visibility-private').check();
     await page.locator('#editability-private').check();
     await page.locator('#submit-button').click();
 
-    await expectToast(page, 'toasts.success');
+    await expectToast(page, 'success');
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+/);
     await expect(page.getByRole('heading', { name: 'Toast' })).toBeVisible();
   });
@@ -106,12 +118,12 @@ test.describe('Toast', () => {
     await page.waitForLoadState('networkidle');
 
     await page.locator('#submit-button').click();
-    await expectToast(page, 'toasts.warning');
+    await expectToast(page, 'warning');
 
     await selectParentRiketsRoadmap(page);
     await fillGoalSeries(page);
 
     await page.locator('#submit-button').click();
-    await expectToast(page, 'toasts.success');
+    await expectToast(page, 'success');
   });
 });

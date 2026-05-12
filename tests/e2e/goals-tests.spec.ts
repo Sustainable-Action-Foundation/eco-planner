@@ -1,8 +1,23 @@
 import { expect, test } from "playwright/test";
+import type { Page } from "playwright/test";
 import path from "node:path";
 import { cwd } from "node:process";
 
 const adminFile = path.join(cwd(), "tests/.auth/admin.json");
+
+async function fillManualDataSeries(page: Page, rows: Array<[number, number]>) {
+  const insertRowButton = page.getByRole("button", { name: /Insert row to bottom|Infoga rad underst/ });
+
+  for (let i = 1; i < rows.length; i++) {
+    await insertRowButton.click();
+  }
+
+  for (let row = 0; row < rows.length; row++) {
+    const [year, value] = rows[row];
+    await page.locator(`[data-row="${row}"][data-column="1"] input`).fill(String(year));
+    await page.locator(`[data-row="${row}"][data-column="2"] input`).fill(String(value));
+  }
+}
 
 test.describe("Goals tests", () => {
   test.use({ storageState: adminFile });
@@ -34,14 +49,11 @@ test.describe("Goals tests", () => {
 
     // Form Part 3
     // Might be switched out for a pre-written recipe when they are fixed
-    await page.getByRole('radio', { name: "goal.derive_data_series_manually" }).click();
+    await page.locator('input[name="dataSeriesType"][value="MANUAL"]').check();
     await page.locator('#indicatorParameter').fill(indicatorRequiredOnly);
     await page.locator('#dataUnit').fill(unitRequiredOnly);
 
-    await page.getByLabel("data_series_input.end_year").fill('2030');
-    for (let i = 0; i < 10; i++) {
-      await page.getByRole('spinbutton').nth(2 + i).fill('1');
-    }
+    await fillManualDataSeries(page, Array.from({ length: 10 }, (_, i) => [2020 + i, 1]));
 
     // Form Submit
     await page.locator('#submit-button').click();
@@ -76,19 +88,16 @@ test.describe("Goals tests", () => {
     await expect.soft(page.locator('#description')).toBeEmpty();
 
     // Expect the form to remember that we chose manual input, even though this is not the default choice
-    await expect.soft(page.getByRole('radio', { name: "goal.derive_data_series_manually" })).toBeChecked();
+    await expect.soft(page.locator('input[name="dataSeriesType"][value="MANUAL"]')).toBeChecked();
 
     // Set to manual input in case it isn't, to see if the values are saved correctly at least
-    await page.getByRole('radio', { name: "goal.derive_data_series_manually" }).click();
+    await page.locator('input[name="dataSeriesType"][value="MANUAL"]').check();
     await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorRequiredOnly);
     await expect.soft(page.locator('#dataUnit')).toHaveValue(unitRequiredOnly);
 
-    await expect.soft(page.getByLabel("data_series_input.start_year").first()).toHaveValue('2020');
-    await expect.soft(page.getByLabel("data_series_input.end_year").first()).toHaveValue('2050');
-    // await expect.soft(page.getByPlaceholder('2020').first()).toHaveValue('2020');
-    // await expect.soft(page.getByPlaceholder('2050').first()).toHaveValue('2030'); // Not 100% sure if this works as we hope it does, might need changing when the thing is checking for is fixed
     for (let i = 0; i < 10; i++) {
-      await expect.soft(page.getByRole('spinbutton').nth(2 + i)).toHaveValue('1');
+      await expect.soft(page.locator(`[data-row="${i}"][data-column="1"] input`)).toHaveValue(String(2020 + i));
+      await expect.soft(page.locator(`[data-row="${i}"][data-column="2"] input`)).toHaveValue('1');
     }
 
     await expect.soft(page.locator('#baselineSelector')).toHaveValue('CUSTOM');
@@ -109,10 +118,9 @@ test.describe("Goals tests", () => {
 
     await page.waitForLoadState("networkidle");
 
-    await page.getByLabel("data_series_input.start_year").fill('2025');
-    await page.getByLabel("data_series_input.end_year").fill('2045');
-    for (let i = 0; i < 20; i++) {
-      await page.getByRole('spinbutton').nth(2 + i).fill('4');
+    for (let i = 0; i < 10; i++) {
+      await page.locator(`[data-row="${i}"][data-column="1"] input`).fill(String(2025 + i));
+      await page.locator(`[data-row="${i}"][data-column="2"] input`).fill('4');
     }
 
     await page.locator('#baselineSelector').selectOption("INITIAL_NON_ZERO");
@@ -131,10 +139,9 @@ test.describe("Goals tests", () => {
     await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorRequiredUpdated);
     await expect.soft(page.locator('#dataUnit')).toHaveValue(unitRequiredUpdated); // Might need to be changed when the thing that checks for changes is fixed, currently it doesn't recognize the change of data unit as a change so it doesn't update the value in the form
 
-    await expect.soft(page.getByLabel("data_series_input.start_year").first()).toHaveValue('2025');
-    await expect.soft(page.getByLabel("data_series_input.end_year").first()).toHaveValue('2045');
-    for (let i = 0; i < 20; i++) {
-      await expect.soft(page.getByRole('spinbutton').nth(2 + i)).toHaveValue('4');
+    for (let i = 0; i < 10; i++) {
+      await expect.soft(page.locator(`[data-row="${i}"][data-column="1"] input`)).toHaveValue(String(2025 + i));
+      await expect.soft(page.locator(`[data-row="${i}"][data-column="2"] input`)).toHaveValue('4');
     }
 
     await expect.soft(page.locator('#baselineSelector')).toHaveValue('INITIAL_NON_ZERO');
@@ -166,15 +173,11 @@ test.describe("Goals tests", () => {
 
     // Form Part 3
     // Might be switch out for a pre-written recipe when they are fixed
-    await page.getByRole('radio', { name: "goal.derive_data_series_manually" }).click();
+    await page.locator('input[name="dataSeriesType"][value="MANUAL"]').check();
     await page.locator('#indicatorParameter').fill(indicatorAll);
     await page.locator('#dataUnit').fill(unitAll);
-    await page.getByLabel("data_series_input.start_year").fill('2020');
-    await page.getByLabel("data_series_input.end_year").fill('2050');
 
-    for (let i = 0; i < 30; i++) {
-      await page.getByRole('spinbutton').nth(2 + i).fill(String(i));
-    }
+    await fillManualDataSeries(page, Array.from({ length: 30 }, (_, i) => [2020 + i, i]));
 
     // Form part 4
     await page.locator('#baselineSelector').selectOption({ value: "INITIAL_NON_ZERO" });
@@ -219,17 +222,16 @@ test.describe("Goals tests", () => {
     await expect.soft(page.locator('#description')).toHaveText(descriptionAll);
 
     // Expect the form to remember that we chose manual input, even though this is not the default choice
-    await expect.soft(page.getByRole('radio', { name: "goal.derive_data_series_manually" })).toBeChecked();
+    await expect.soft(page.locator('input[name="dataSeriesType"][value="MANUAL"]')).toBeChecked();
 
     // Set to manual input in case it isn't, to see if the values are saved correctly at least
-    await page.getByRole('radio', { name: "goal.derive_data_series_manually" }).click();
+    await page.locator('input[name="dataSeriesType"][value="MANUAL"]').check();
 
     await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorAll);
     await expect.soft(page.locator('#dataUnit')).toHaveText(unitAll);
-    await expect.soft(page.getByLabel("data_series_input.start_year").first()).toHaveValue('2020');
-    await expect.soft(page.getByLabel("data_series_input.end_year").first()).toHaveValue('2050'); // Not 100% sure if this works as we hope it does, might need changing when the thing is checking for is fixed
     for (let i = 0; i < 30; i++) {
-      await expect.soft(page.getByRole('spinbutton').nth(2 + i)).toHaveValue(String(i));
+      await expect.soft(page.locator(`[data-row="${i}"][data-column="1"] input`)).toHaveValue(String(2020 + i));
+      await expect.soft(page.locator(`[data-row="${i}"][data-column="2"] input`)).toHaveValue(String(i));
     }
 
     await expect.soft(page.locator('#baselineSelector')).toHaveValue('INITIAL_NON_ZERO');
