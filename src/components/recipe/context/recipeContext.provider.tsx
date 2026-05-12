@@ -159,7 +159,7 @@ export function RecipeContextProvider({
         ? variablesUpdate(oldVars)
         : variablesUpdate;
 
-      if (Recipe.isVariablesEqual(oldVars, nextVars)) {
+      if (Recipe.areVariablesEqual(oldVars, nextVars)) {
         console.info(`Variables not updated because the new value is the same as the old value.`);
         return current;
       }

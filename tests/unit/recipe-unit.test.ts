@@ -478,7 +478,7 @@ test.describe("Recipe evaluator and factories", () => {
     const vars1 = [scalarVariable("a", "A", 1), scalarVariable("b", "B", 2)];
     const vars2 = [scalarVariable("b", "B", 2), scalarVariable("a", "A", 1)];
 
-    expect(Recipe.isVariablesEqual(vars1, vars2)).toBe(false);
+    expect(Recipe.areVariablesEqual(vars1, vars2)).toBe(false);
   });
 });
 

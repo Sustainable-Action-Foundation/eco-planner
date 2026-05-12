@@ -11,19 +11,23 @@ export class Recipe {
   public name: string;
   public equation: string;
   public variables: RecipeVariable[];
+  private meta?: Record<string, JSONValue>;
 
   public constructor({
     name,
     equation,
     variables,
+    meta,
   }: {
     name: string;
     equation: string;
     variables: RecipeVariable[];
+    meta?: Record<string, JSONValue>;
   }) {
     this.name = name;
     this.equation = equation;
     this.variables = variables;
+    this.meta = meta;
   }
 
   public get variableMap(): Record<string, RecipeVariable> {
@@ -102,6 +106,12 @@ export class Recipe {
       throw new RecipeError("Invalid recipe format");
     }
 
+    if (this.equation.trim() === "") {
+      console.info("Equation is empty. Early return.");
+      warnings.push("Equation is empty, no evaluation performed.");
+      return null;
+    }
+
     const scalarVars = extractScalars(this.variables, warnings);
     const [dataSeriesVars, externalVars] = await Promise.all([
       extractDataSeries(this.variables, warnings, options?.dataSeriesGetter),
@@ -161,11 +171,6 @@ export class Recipe {
 
     const scope: Record<string, number | number[] | Unit | Unit[]> = {};
     let equation = this.equation;
-
-    if (equation.trim() === "") {
-      console.info("Equation is empty. Early return.");
-      return null;
-    }
 
     const nameNormalizer = (name: string) => {
       const collapsedWhitespace = name.trim().replace(/\s+/g, "_");
@@ -385,6 +390,7 @@ export class Recipe {
       name: normalized.name,
       equation: normalized.equation,
       variables: normalized.variables,
+      meta: normalized.meta,
     });
   }
 
@@ -429,7 +435,7 @@ export class Recipe {
   /** 
    * Selective compare if two variable sets are the same
    */
-  public static isVariablesEqual(vars1: Recipe["variables"], vars2: Recipe["variables"]): boolean {
+  public static areVariablesEqual(vars1: Recipe["variables"], vars2: Recipe["variables"]): boolean {
     if (vars1.length !== vars2.length) {
       return false;
     }
