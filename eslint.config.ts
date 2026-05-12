@@ -8,6 +8,7 @@ const tsBaseConfig = tseslint.configs.recommendedTypeChecked;
 const nextBaseConfig = [...nextTS, ...nextVitals];
 
 const commonRules: Config["rules"] = {
+  "comma-dangle": ["error", "always-multiline"],
   "default-case-last": "error",
   "default-case": "error",
   "eqeqeq": ["error", "smart"],
@@ -32,7 +33,7 @@ const commonRules: Config["rules"] = {
   "no-with": "error",
   "prefer-const": "error",
   "radix": "error",
-  // "comma-dangle": ["error", "always-multiline"],
+  "semi": ["error", "always"],
   // "no-alert": "warn", // TODO: cleanse this repo
   // "no-magic-numbers": "error", // TODO: cry
   // "no-param-reassign": "error", // TODO: implement
@@ -40,7 +41,6 @@ const commonRules: Config["rules"] = {
   // "no-warning-comments": "warn", // TODO: implement hihi
   // "quotes": ["error", "double", { avoidEscape: true, allowTemplateLiterals: true }], // Authoritarian option :))
   // "require-atomic-updates": "error", // TODO consider this rule
-  // "semi": ["error", "always"],
   // "sort-imports": "warn", // Large touch of code base to implement, also does not auto fix most cases which is sad. Probably will never use.
   "@typescript-eslint/no-unused-vars": [
     "error",

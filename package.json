@@ -13,7 +13,7 @@
     "pre-build": "tsx ./scripts/generateLeapList.ts && yarn lint",
     "build": "yarn pre-build && yarn next build",
     "start": "next start",
-    "lint": "tsc --noEmit -p ./tsconfig.json && eslint -c ./eslint.config.ts --cache --concurrency auto && echo '✔️ Lint passed'",
+    "lint": "tsc --noEmit -p ./tsconfig.json && eslint -c ./eslint.config.ts --cache --concurrency auto",
     "test": "yarn test:unit & yarn test:e2e",
     "test:e2e": "playwright test -c tests/playwright.e2e.config.ts",
     "test:unit": "playwright test -c tests/playwright.unit.config.ts",
