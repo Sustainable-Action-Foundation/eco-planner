@@ -245,7 +245,7 @@ export default function HistoricalData({
       return (
         <label key="Tid">
           {heading}{optionalTag(dataSource, variableIsOptional)}
-          <select className='block margin-top-25 margin-bottom-100'
+          <select className='block margin-top-25 margin-bottom-100 TimeVariable'
             required={false}
             name="time"
             id="time"
@@ -487,7 +487,7 @@ export default function HistoricalData({
                 name="metric"
                 id="metric"
                 value={!!metric ? metric : ''}
-                onChange={(e) => setMetric(e.target.value)}
+                onChange={(e) => { setMetric(e.target.value); setTimeout(() => tryGetResult(e), 0) }}
               >
                 <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_metric")}</option>
                 {tableDetails.metrics?.map(metric => (
@@ -515,29 +515,29 @@ export default function HistoricalData({
           </legend>
           {tableDetails &&
             shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? (
-              <div>
-                {tableDetails.times &&
-                  timeVariableSelectionHelper(tableDetails.times, tableDetails.language)
-                }
-                {tableDetails.variables.map(variable => {
-                  return variableSelectionHelper(variable, tableDetails);
-                })}
-                {tableDetails.hierarchies?.map(hierarchy => {
-                  if (hierarchy.children?.some(variable => variable.option)) return (
-                    <div key={hierarchy.name}>
-                      <div className="font-weight-bold">{hierarchy.label}</div>
-                      <div className="block margin-block-75 margin-left-75">
-                        {hierarchy.children?.map(variable => {
-                          return variableSelectionHelper(variable, tableDetails);
-                        })}
-                      </div>
+            <div>
+              {tableDetails.times &&
+                timeVariableSelectionHelper(tableDetails.times, tableDetails.language)
+              }
+              {tableDetails.variables.map(variable => {
+                return variableSelectionHelper(variable, tableDetails);
+              })}
+              {tableDetails.hierarchies?.map(hierarchy => {
+                if (hierarchy.children?.some(variable => variable.option)) return (
+                  <div key={hierarchy.name}>
+                    <div className="font-weight-bold">{hierarchy.label}</div>
+                    <div className="block margin-block-75 margin-left-75">
+                      {hierarchy.children?.map(variable => {
+                        return variableSelectionHelper(variable, tableDetails);
+                      })}
                     </div>
-                  )
-                })}
-              </div>
-            ) : (
-              <p className={`font-style-italic color-gray`}>{t("components:query_builder.no_variables_found")}</p> /* TODO: Text should be made clearer, e.g "no variables exist for this table..."" */
-            )}
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            <p className={`font-style-italic color-gray`}>{t("components:query_builder.no_variables_found")}</p> /* TODO: Text should be made clearer, e.g "no variables exist for this table..."" */
+          )}
 
           { /* : (
             <p>Välj ett mätvärde först</p>  
