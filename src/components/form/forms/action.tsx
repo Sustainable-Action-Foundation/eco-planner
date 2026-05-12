@@ -1,7 +1,7 @@
 "use client"
 
 import formSubmitter from "@/functions/formSubmitter"
-import type { Action, ActionInput, DateValuesWithUnit, MultiRoadmapInstance } from "@/types"
+import { isDateValuesWithUnit, type Action, type ActionInput, type DateValuesWithUnit, type MultiRoadmapInstance } from "@/types"
 import { ActionImpactType } from "@prisma/client"
 import { useTranslation } from "react-i18next"
 import styles from '../forms.module.css'
@@ -32,7 +32,31 @@ export default function ActionForm({
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault()
 
+    // TODO: Use formData instead of DOM traversal
     const form = event.target.elements
+
+    let startYear: number | undefined = parseInt((form.namedItem("startYear") as HTMLInputElement).value);
+    let endYear: number | undefined = parseInt((form.namedItem("endYear") as HTMLInputElement).value);
+
+    if (!Number.isFinite(startYear)) {
+      startYear = undefined;
+    }
+    if (!Number.isFinite(endYear)) {
+      endYear = undefined;
+    }
+
+    let dataSeries: DateValuesWithUnit | undefined;
+    try {
+      const rawDataSeries = JSON.parse((form.namedItem("data-series") as HTMLInputElement)?.value) as unknown
+      if (rawDataSeries && isDateValuesWithUnit(rawDataSeries)) {
+        dataSeries = rawDataSeries;
+      }
+    } catch {
+      event.target.reportValidity();
+      addToast(t("common:errors.something_went_wrong"), "error");
+      console.error("Failed to parse data series, invalid JSON or incorrect format.");
+      return;
+    }
 
     const formContent: ActionInput = {
       actionId: currentAction ? currentAction.id : undefined,
@@ -40,8 +64,8 @@ export default function ActionForm({
       goalId: goalId ?? undefined,
       description: (form.namedItem("description") as HTMLInputElement | null)?.value ?? undefined,
       name: (form.namedItem("actionName") as HTMLInputElement)?.value ?? "",
-      startYear: form.namedItem("startYear") ? parseInt((form.namedItem("startYear") as HTMLInputElement).value) : undefined,
-      endYear: form.namedItem("endYear") ? parseInt((form.namedItem("endYear") as HTMLInputElement).value) : undefined,
+      startYear,
+      endYear,
       costEfficiency: (form.namedItem("costEfficiency") as HTMLInputElement)?.value ?? undefined,
       expectedOutcome: (form.namedItem("expectedOutcome") as HTMLInputElement)?.value ?? undefined,
       projectManager: (form.namedItem("projectManager") as HTMLInputElement)?.value ?? undefined,
@@ -51,7 +75,7 @@ export default function ActionForm({
       isRenewables: (form.namedItem("isRenewables") as HTMLInputElement)?.checked ?? false,
       parentAction: currentAction ?? undefined,
       childActions: undefined,
-      dataSeries: (form.namedItem("data-series") as HTMLInputElement)?.value ? JSON.parse((form.namedItem("data-series") as HTMLInputElement)?.value) as DateValuesWithUnit : undefined,
+      dataSeries,
       impactType: goalId && !currentAction
         ? (form.namedItem("impactType") as HTMLInputElement)?.value as ActionImpactType
         : undefined,
@@ -108,7 +132,7 @@ export default function ActionForm({
             content={currentAction ? currentAction.description : ""}
             onChange={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
           />
-          <input ref={descriptionRef} type="hidden" name="description" />
+          <input ref={descriptionRef} type="hidden" name="description" defaultValue={currentAction?.description ?? ""} />
 
           <label>
             {t("forms:action.cost_efficiency")}
@@ -134,7 +158,7 @@ export default function ActionForm({
               </select>
             </label>
 
-            <DataSeriesInputManual 
+            <DataSeriesInputManual
               id="action-dataseries"
               label={t("forms:data_series_input.data_series")}
               outputFormElement={<input name="data-series" />}

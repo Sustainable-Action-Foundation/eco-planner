@@ -110,14 +110,14 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message === t(ClientError.BadSession)) {
+      if (error.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
-        return Response.json({ message: t(ClientError.StaleData) },
+        return Response.json({ message: ClientError.StaleData },
           { status: 400, headers: { 'Location': '/login' } }
         );
       }
-      return Response.json({ message: t(ClientError.IllegalParent) },
+      return Response.json({ message: ClientError.IllegalParent },
         { status: 403 }
       );
     } else {
@@ -336,7 +336,7 @@ export async function PUT(request: NextRequest) {
     // Prune any orphaned links and comments
     await pruneOrphans();
     // Invalidate old cache
-    revalidateTag('action', {expire: 0});
+    revalidateTag('action', { expire: 0 });
     // Return the new action's ID if successful
     return Response.json({ message: t('api:action.action_created'), id: updatedActionId },
       { status: 200, headers: { 'Location': `/action/${updatedActionId}` } }
