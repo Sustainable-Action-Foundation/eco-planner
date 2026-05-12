@@ -30,8 +30,8 @@ export type TreeItem = {
   value: string,
   expanded: boolean | null,
   loading?: boolean;
-  childNodes?: Array<TreeItem>,
-  onExpand?: () => Array<TreeItem> | Promise<Array<TreeItem>>
+  childNodes?: TreeItem[],
+  onExpand?: () => TreeItem[] | Promise<TreeItem[]>
 }
 
 export type GridElement = Theme & {

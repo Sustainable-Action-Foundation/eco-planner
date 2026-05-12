@@ -64,9 +64,11 @@ const commonRules: Config["rules"] = {
   "@typescript-eslint/no-base-to-string": "warn",
   "@typescript-eslint/no-confusing-non-null-assertion": "error",
   "@typescript-eslint/no-empty-function": "warn",
+  "@typescript-eslint/no-explicit-any": "error",
   "@typescript-eslint/no-floating-promises": "warn",
   "@typescript-eslint/no-for-in-array": "error",
   "@typescript-eslint/no-implied-eval": "error",
+  "@typescript-eslint/no-import-type-side-effects": "error",
   "@typescript-eslint/no-misused-promises": "warn",
   "@typescript-eslint/no-non-null-assertion": "warn",
   "@typescript-eslint/no-restricted-imports": ["error", "fs", "path", "crypto", "child_process", "os", "http"],
@@ -85,6 +87,7 @@ const commonRules: Config["rules"] = {
   "@typescript-eslint/restrict-template-expressions": "warn",
   "@typescript-eslint/switch-exhaustiveness-check": "warn",
   "@typescript-eslint/use-unknown-in-catch-callback-variable": "error",
+  // "@typescript-eslint/array-type": ["error", { default: "array", readonly: "generic" }], // could be nice but cannot be bother to manually fix all occurrences
 };
 
 export default defineConfig([

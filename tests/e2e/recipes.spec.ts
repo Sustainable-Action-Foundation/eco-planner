@@ -5,7 +5,7 @@ import { cwd } from "node:process";
 
 const adminFile = path.join(cwd(), "tests/.auth/admin.json");
 
-async function fillManualDataSeries(page: Page, rows: Array<[number, number]>) {
+async function fillManualDataSeries(page: Page, rows: [number, number][]) {
   const insertRowButton = page.getByRole("button", { name: /Insert row to bottom|Infoga rad underst/ });
 
   for (let i = 1; i < rows.length; i++) {
