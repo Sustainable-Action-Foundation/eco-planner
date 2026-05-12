@@ -114,11 +114,11 @@ export async function POST(request: NextRequest) {
       if (error.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
-        return Response.json({ message: t(ClientError.StaleData) },
+        return Response.json({ message: ClientError.StaleData },
           { status: 400, headers: { 'Location': '/login' } },
         );
       }
-      return Response.json({ message: t(ClientError.IllegalParent) },
+      return Response.json({ message: ClientError.IllegalParent },
         { status: 403 },
       );
     } else {

@@ -1,8 +1,9 @@
 "use client";
 
 import formSubmitter from "@/functions/formSubmitter";
-import { isDateValuesWithUnit, type Action, type ActionInput, type DateValuesWithUnit, type MultiRoadmapInstance } from "@/types";
-import { ActionImpactType } from "@prisma/client";
+import type { Action, ActionInput, DateValuesWithUnit, MultiRoadmapInstance } from "@/types";
+import { isDateValuesWithUnit } from "@/types";
+import { ActionImpactType } from "@/lib/prisma/generated";
 import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
 import TextEditor from "../elements/textEditor/editor";
