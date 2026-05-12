@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./dataSeriesInput.module.css";
 import { isValidPastedInput } from "./utils";
 import Grid from "../grid/grid";
-import React from "react";
 import type { DateValuesWithUnit } from "@/types";
 import { IconArrowsMaximize, IconArrowsMinimize, IconPlus, IconRowInsertTop, IconTrashXFilled } from "@tabler/icons-react";
 
@@ -177,8 +176,8 @@ export default function DataSeriesInputManual({
     <>
       <div className="margin-bottom-25" id={`table-${label}`}>{label}</div>
       {/* TODO: Might make sense to make an actual, keyboard navigable menu component */}
-      <menu 
-        className={`flex gap-25 margin-0 gray-95 align-items-center justify-content-space-between ${styles['grid-menu']}`} 
+      <menu
+        className={`flex gap-25 margin-0 gray-95 align-items-center justify-content-space-between ${styles['grid-menu']}`}
         style={{ borderRadius: '.25rem .25rem 0 0', padding: '2px', borderTop: '1px solid var(--gray-80)', borderInline: '1px solid var(--gray-80)' }}
       >
         <div className="flex gap-25 align-items-center">
@@ -247,7 +246,7 @@ export default function DataSeriesInputManual({
         readOnly: true,
       })}
 
-      <Grid 
+      <Grid
         ariaLabelledBy={`table-${label}`}
         focusedCell={focusedCell}
         setFocusedCell={setFocusedCell}
@@ -258,7 +257,7 @@ export default function DataSeriesInputManual({
         props={{
           id: id,
           className: `grid width-100 align-items-center ${styles['grid']}`,
-          style: { gridTemplateColumns: 'auto auto 1fr', height: gridExpanded ? 'auto' : '0', borderBottom: gridExpanded ? '1px solid var(--gray-80)' : '0'  }
+          style: { gridTemplateColumns: 'auto auto 1fr', height: gridExpanded ? 'auto' : '0', borderBottom: gridExpanded ? '1px solid var(--gray-80)' : '0' }
         }}
       >
         <Grid.ColumnHeader className="text-align-left">#</Grid.ColumnHeader>

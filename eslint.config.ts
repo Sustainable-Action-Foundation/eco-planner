@@ -62,8 +62,8 @@ export default defineConfig([
       ...nextBaseConfig,
     ],
     rules: {
-      "react-hooks/set-state-in-effect": "off",
-      "react-hooks/set-state-in-render": "off",
+      "react-hooks/set-state-in-effect": "warn",
+      "react-hooks/set-state-in-render": "warn",
       "react-hooks/immutability": "error",
       ...commonRules,
     },

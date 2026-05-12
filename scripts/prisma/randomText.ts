@@ -5,8 +5,8 @@ const sourceText = rawText
   .filter(t => {
     // Counts
     const charCount = t.length;
-    const digitCount = (t.match(/\d/g) || []).length;
-    const nonCharCount = (t.match(/[^a-zA-Z\s]/g) || []).length;
+    const digitCount = (t.match(/\d/g) ?? []).length;
+    const nonCharCount = (t.match(/[^a-zA-Z\s]/g) ?? []).length;
 
     // Filter out texts with more than 10% digits
     if (digitCount / charCount > 0.1) return false;
@@ -47,7 +47,7 @@ const allWords: string[] = [];
 for (const item of sourceText) {
   const words = item.split(/\s+/).map(t => t.trim());
   for (const word of words) {
-    const digitCount = (word.match(/\d/g) || []).length;
+    const digitCount = (word.match(/\d/g) ?? []).length;
     if (
       word.length > 0
       &&

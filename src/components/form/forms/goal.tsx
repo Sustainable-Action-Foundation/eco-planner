@@ -438,7 +438,7 @@ export default function GoalForm({
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend
             // Technically incrementing here is unused but if you add a another entry after this one it will be correct
-            // eslint-disable-next-line @/no-useless-assignment
+            // eslint-disable-next-line no-useless-assignment
             data-position={positionIndex++}
             className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
           >

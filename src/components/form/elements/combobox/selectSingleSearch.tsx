@@ -73,12 +73,12 @@ export default function SelectSingleSearch({
   const searchResults = useMemo(() => {
     if (selectionMade) {
       setSelectionMade(false);
-      return options; // Prevent fuse from unnecesserily running when selecting an item
+      return options; // Prevent fuse from unnecessarily running when selecting an item
     }
     return searchValue ? fuse.search(searchValue).map(result => result.item) : options;
   }, [searchValue, fuse, options, selectionMade]);
 
-  // Disables form subbmision if value is invalid 
+  // Disables form submission if value is invalid 
   // Define what an invalid value is (missing value or empty string). We only need this defined if the field is requied
   const valueIsValid = useMemo(() => {
     if ((!value || value.value === "") && props.required) return false;
