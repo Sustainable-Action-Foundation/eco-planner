@@ -6,7 +6,7 @@ const CI = boolEnv("CI", false);
 
 export default defineConfig({
   testDir: "./",
-  testIgnore: ["./**/", "!./unit/", "!./lib/"],
+  testMatch: "unit/**/*.test.ts",
   workers: "80%",
   retries: 0,
   timeout: 60 * 1000,

@@ -10,7 +10,7 @@ const CI = boolEnv("CI", false);
 
 export default defineConfig({
   testDir: "./",
-  testIgnore: ["./**/", "!./e2e/", "!./lib/"],
+  testMatch: "e2e/**/*.spec.ts",
 
   // fullyParallel: true,
   workers: "80%",
