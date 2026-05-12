@@ -77,6 +77,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV CI=true
 ENV COMMIT_SHA=${COMMIT_SHA}
 
+# Force Next config re-evaluation per commit without busting deps.
+RUN printf "// BUILD_COMMIT: %s\n" "${COMMIT_SHA}" >> next.config.ts
+
 # Build with cache mount for Next.js
 RUN --mount=type=cache,target=/app/.next/cache \
   yarn run build
