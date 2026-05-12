@@ -13,7 +13,7 @@
     "pre-build": "yarn lint",
     "build": "yarn pre-build && yarn next build",
     "start": "next start",
-    "lint": "tsc --noEmit -p ./tsconfig.json && eslint -c ./eslint.config.ts --cache --concurrency auto && echo '✔️ Lint passed'",
+    "lint": "tsc --noEmit -p ./tsconfig.json && eslint -c ./eslint.config.ts --cache && echo '✔️ Lint passed'",
     "test": "yarn test:e2e && yarn test:unit",
     "test:e2e": "playwright test -c tests/playwright.e2e.config.ts",
     "test:unit": "playwright test -c tests/playwright.unit.config.ts",
@@ -129,7 +129,7 @@
   "engines": {
     "node": "^24.13.0"
   },
-  "packageManager": "yarn@4.13.0",
+  "packageManager": "yarn@4.14.1",
   "resolutions": {
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3"
