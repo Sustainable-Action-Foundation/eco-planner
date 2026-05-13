@@ -17,7 +17,7 @@ test.describe.serial("Action & Effect tests", () => {
     actionNameAllFields = `Test Action All Fields  ${testInfo.project.name}`;
 
     if (testInfo.retry > 0) {
-      console.log(`Retrying tests, Cleaning up any existing action with name ${actionNameAllFields} before retrying.`);
+      console.info(`Retrying tests, Cleaning up any existing action with name ${actionNameAllFields} before retrying.`);
 
       const context = await browser.newContext({ storageState: adminFile });
       const page = await context.newPage();

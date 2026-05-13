@@ -106,6 +106,5 @@ export default async function getPxWebTableDetails(tableId: string, externalData
     tableDetails.variables.push(pxWebVariable);
   }
 
-  /* console.timeEnd("pxWebTableDetails"); */
   return tableDetails;
 }

@@ -22,7 +22,7 @@ export default function ChildGraphSelector({
       setStoredChildGraphType(event.target.value as ChildGraphType, goal.id);
       setter(event.target.value as ChildGraphType);
     } else {
-      console.log("Invalid graph type");
+      console.warn("Invalid graph type");
       // Don't update local storage if the selection is invalid
       setter(ChildGraphType.Target);
     }

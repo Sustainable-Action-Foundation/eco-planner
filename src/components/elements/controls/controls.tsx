@@ -147,7 +147,7 @@ function buildLinks(
   }
 
   else {
-    console.log("ControlsMenu/AdminPanel: Object type not recognized", object);
+    console.error("ControlsMenu/AdminPanel: Object type not recognized", object);
     return null;
   }
 

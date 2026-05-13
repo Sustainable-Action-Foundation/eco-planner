@@ -221,7 +221,6 @@ export default function QueryBuilder({
     const changedElementIsTableSearch = event.target instanceof HTMLInputElement && event.target.name === "tableSearch";
     const changedElementIsTable = event.target instanceof HTMLInputElement && event.target.name === "externalTableId";
 
-    /* console.log(tableDetails); */
     if (!changedElementIsExternalDataset && !changedElementIsTableSearch && !changedElementIsTable && tables && tableDetails) {
       tryGetResult(event);
     }
@@ -303,7 +302,6 @@ export default function QueryBuilder({
         }
       });
     } else {
-      /* console.log("no variable selection fieldset found"); */
       setIsLoading(false);
     }
   }

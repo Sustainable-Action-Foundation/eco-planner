@@ -30,7 +30,7 @@ export default function GraphSelector({
       setter(event.target.value as GraphType);
     }
     else {
-      console.log("Invalid graph type");
+      console.warn("Invalid graph type");
       setter("");
     }
   };

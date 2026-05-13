@@ -15,7 +15,7 @@ export function getStoredViewMode(id?: string) {
   // Default to tree view if no valid view mode is found
   if (!Object.values(ViewMode).includes(viewMode as ViewMode) || !viewMode) {
     if (viewMode != null) {
-      console.log("Invalid view mode in storage, defaulting to tree view.");
+      console.warn("Invalid view mode in storage, defaulting to tree view.");
     }
     setLocalStorage("viewMode", ViewMode.Tree);
     viewMode = ViewMode.Tree;
@@ -38,7 +38,7 @@ export function getStoredGoalSortBy() {
   // Use default sorting if no saved sort is found
   if (!Object.values(GoalSortBy).includes(sortBy as GoalSortBy) || !sortBy) {
     if (sortBy != null) {
-      console.log("Invalid sorting method in storage, using default sorting method");
+      console.warn("Invalid sorting method in storage, using default sorting method");
     }
 
     setLocalStorage("goalSortBy", GoalSortBy.Default);

@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
 
   // Validate form data type
   if (!isGoalCreate(formData)) {
-    console.log("formData failed validation");
+    console.error("formData failed validation");
     return Response.json({ message: t('api:common.invalid_request_body') },
       { status: 400 },
     );
