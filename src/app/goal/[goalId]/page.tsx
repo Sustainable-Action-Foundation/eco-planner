@@ -144,7 +144,7 @@ export default async function Page(
       }
     } catch (error) {
       parentGoal = null;
-      console.log(error);
+      console.error(error);
     }
   }
 

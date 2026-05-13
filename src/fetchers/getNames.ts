@@ -35,9 +35,9 @@ async function getCachedNames(user: LoginData['user']) {
       names = await prisma.metaRoadmap.findMany({
         select: nameSelector,
       });
-    } catch (error) {
-      console.log(error);
-      console.log('Error fetching admin names');
+    }
+    catch (error) {
+      console.error(`Error fetching names for admin user ${user.id}`, { error });
       return [];
     }
 
@@ -67,9 +67,9 @@ async function getCachedNames(user: LoginData['user']) {
         },
         select: nameSelector,
       });
-    } catch (error) {
-      console.log(error);
-      console.log('Error fetching user names');
+    }
+    catch (error) {
+      console.error(`Error fetching names for user ${user.id}`, { error });
       return [];
     }
 
@@ -87,9 +87,9 @@ async function getCachedNames(user: LoginData['user']) {
       },
       select: nameSelector,
     });
-  } catch (error) {
-    console.log(error);
-    console.log('Error fetching public names');
+  }
+   catch (error) {
+    console.error("Error fetching names for public user", { error });
     return [];
   }
 

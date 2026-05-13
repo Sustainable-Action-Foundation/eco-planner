@@ -57,7 +57,7 @@ export default async function getTrafaTables(query?: string | null, language?: s
     return tables;
   }
   catch (error) {
-    console.log(error);
+    console.error("Error fetching tables from Trafa API", { error });
     return null;
   }
 };

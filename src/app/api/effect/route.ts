@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
           );
       }
     } else {
-      console.log(error);
+      console.error(error);
       return Response.json({ message: t('api:common.unknown_error') },
         { status: 500 },
       );
@@ -162,7 +162,7 @@ export async function POST(request: NextRequest) {
         { status: 409 },
       );
     }
-    console.log(error);
+    console.error(error);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );
@@ -283,7 +283,7 @@ export async function PUT(request: NextRequest) {
           );
       }
     } else {
-      console.log(error);
+      console.error(error);
       return Response.json({ message: t('api:common.unknown_error') },
         { status: 500 },
       );
@@ -322,7 +322,7 @@ export async function PUT(request: NextRequest) {
       { status: 200 },
     );
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );
@@ -416,7 +416,7 @@ export async function DELETE(request: NextRequest) {
           );
       }
     } else {
-      console.log(error);
+      console.error(error);
       return Response.json({ message: t('api:common.unknown_error') },
         { status: 500 },
       );
@@ -436,7 +436,7 @@ export async function DELETE(request: NextRequest) {
       { status: 200 },
     );
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );

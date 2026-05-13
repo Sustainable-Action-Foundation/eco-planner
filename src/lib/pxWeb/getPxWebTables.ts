@@ -39,8 +39,9 @@ export default async function getPxWebTables(externalDataset: string, searchQuer
       console.log("bad response", response);
       return null;
     }
-  } catch (error) {
-    console.log(error);
+  }
+  catch (error) {
+    console.error("Error fetching tables from PxWeb API", { error });
     return null;
   }
 

@@ -39,8 +39,7 @@ async function clientSafeGetCachedDataSeries(id: string, user: LoginData['user']
         select: clientSafeDataSeriesSelection,
       }) satisfies DataSeries | null;
     } catch (error) {
-      console.log(error);
-      console.log('Error fetching admin data series');
+      console.error("Error fetching admin data series", { error });
       return null;
     }
 
@@ -101,9 +100,9 @@ async function clientSafeGetCachedDataSeries(id: string, user: LoginData['user']
         },
         select: clientSafeDataSeriesSelection,
       }) satisfies DataSeries | null;
-    } catch (error) {
-      console.log(error);
-      console.log('Error fetching user data series');
+    }
+    catch (error) {
+      console.error("Error fetching user data series", { error });
       return null;
     }
     return dataSeries;
@@ -133,8 +132,7 @@ async function clientSafeGetCachedDataSeries(id: string, user: LoginData['user']
       select: clientSafeDataSeriesSelection,
     }) satisfies DataSeries | null;
   } catch (error) {
-    console.log(error);
-    console.log('Error fetching public data series');
+    console.error("Error fetching public data series", { error });
     return null;
   }
 

@@ -278,7 +278,7 @@ export async function POST(request: NextRequest) {
       );
     } else {
       // If non-error is thrown, log it and return a generic error message
-      console.log(error);
+      console.error(error);
       return Response.json({ message: t('api:common.unknown_server_error') },
         { status: 500 },
       );
@@ -296,7 +296,7 @@ export async function POST(request: NextRequest) {
   //       roadmap.goals = [...(roadmap.goals || []), ...goalInputFromGoalArray(goalArray, roadmap.metaRoadmapId)];
   //     }
   //   } catch (error) {
-  //     console.log(error);
+  //     console.error(error);
   //     return Response.json({ message: 'Failed to fetch roadmap to inherit from' },
   //       { status: 400 }
   //     );
@@ -377,7 +377,7 @@ export async function POST(request: NextRequest) {
         { status: 400 },
       );
     }
-    console.log(error);
+    console.error(error);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );
@@ -463,7 +463,7 @@ export async function PUT(request: NextRequest) {
       );
     } else {
       // If non-error is thrown, log it and return a generic error message
-      console.log(error);
+      console.error(error);
       return Response.json({ message: "Unknown internal server error" },
         { status: 500 },
       );
@@ -519,7 +519,7 @@ export async function PUT(request: NextRequest) {
       { status: 200, headers: { 'Location': `/roadmap/${updatedRoadmap.id}` } },
     );
   } catch (error) {
-    console.log(error);
+    console.error(error);
     // Custom error if there are errors in the nested goal creation
     if (error instanceof Error) {
       if (error.cause === 'nestedGoalCreation') {
@@ -604,7 +604,7 @@ export async function DELETE(request: NextRequest) {
         { status: 403 },
       );
     } else {
-      console.log(error);
+      console.error(error);
       return Response.json({ message: t('api:common.unknown_server_error') },
         { status: 500 },
       );
@@ -631,7 +631,7 @@ export async function DELETE(request: NextRequest) {
       { status: 200, headers: { 'Location': `/metaRoadmap/${deletedRoadmap.metaRoadmapId}` } },
     );
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );

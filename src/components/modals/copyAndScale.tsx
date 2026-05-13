@@ -48,7 +48,7 @@ export default function CopyAndScale({
     }
     catch (error) {
       setIsLoading(false);
-      console.error("Failed to parse resulting data series:", error);
+      console.error("Failed to parse resulting data series:", { error });
       return;
     }
 
@@ -66,7 +66,7 @@ export default function CopyAndScale({
     }
     catch (error) {
       setIsLoading(false);
-      console.error("Failed to parse resulting data series unit:", error);
+      console.error("Failed to parse resulting data series unit:", { error });
       return;
     }
 
@@ -87,7 +87,7 @@ export default function CopyAndScale({
     }
     catch (error) {
       setIsLoading(false);
-      console.error("Failed to parse recipe:", error);
+      console.error("Failed to parse recipe:", { error });
       return;
     }
 

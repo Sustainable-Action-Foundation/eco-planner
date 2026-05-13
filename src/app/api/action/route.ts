@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
       );
     } else {
       // If non-error is thrown, log it and return a generic error message
-      console.log(error);
+      console.error(error);
       return Response.json({ message: t('api:common.unknown_server_error') },
         { status: 500 },
       );
@@ -189,7 +189,7 @@ export async function POST(request: NextRequest) {
       { status: 201, headers: { 'Location': `/action/${newActionId}` } },
     );
   } catch (error) {
-    console.log(error);
+    console.error(error);
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
       return Response.json({ message: t('api:action.goal_not_found') },
         { status: 400 },
@@ -298,7 +298,7 @@ export async function PUT(request: NextRequest) {
         { status: 403 },
       );
     } else {
-      console.log(error);
+      console.error(error);
       return Response.json({ message: t('api:common.unknown_server_error') },
         { status: 500 },
       );
@@ -342,7 +342,7 @@ export async function PUT(request: NextRequest) {
       { status: 200, headers: { 'Location': `/action/${updatedActionId}` } },
     );
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );
@@ -416,7 +416,7 @@ export async function DELETE(request: NextRequest) {
         { status: 403 },
       );
     } else {
-      console.log(error);
+      console.error(error);
       return Response.json({ message: t('api:common.unknown_server_error') },
         { status: 500 },
       );
@@ -447,7 +447,7 @@ export async function DELETE(request: NextRequest) {
       { status: 200, headers: { 'Location': `/roadmap/${deletedAction.roadmap.id}` } },
     );
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );

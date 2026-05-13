@@ -37,8 +37,9 @@ export default async function getTrafaTableContent(tableId: string, selection: {
       console.log("bad response", response);
       return null;
     }
-  } catch (error) {
-    console.log(error);
+  }
+  catch (error) {
+    console.error("Error fetching table content from Trafa API", { error });
     return null;
   }
 
