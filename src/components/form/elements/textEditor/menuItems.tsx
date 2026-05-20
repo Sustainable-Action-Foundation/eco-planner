@@ -46,8 +46,14 @@ export function Undo(props: MenubarButtonProps) {
   const canUndo = useEditorState({
     editor,
     selector: ctx => {
+      let canUndo;
+      try {
+        canUndo = ctx.editor.can().undo();
+      } catch {
+        canUndo = false;
+      }
       return {
-        canUndo: ctx.editor.can().undo(),
+        canUndo,
       };
     },
   });
@@ -80,8 +86,14 @@ export function Redo(props: MenubarButtonProps) {
   const canRedo = useEditorState({
     editor,
     selector: ctx => {
+      let canRedo;
+      try {
+        canRedo = ctx.editor.can().redo();
+      } catch {
+        canRedo = false;
+      }
       return {
-        canRedo: ctx.editor.can().redo(),
+        canRedo,
       };
     },
   });
