@@ -1,6 +1,6 @@
 {
   "name": "eco-planner",
-  "version": "0.16.0",
+  "version": "0.16.1",
   "license": "AGPL-3.0-only",
   "private": true,
   "description": "A tool intended to help planning actions to achieve local environmental goals",
@@ -92,7 +92,7 @@
     "fuse.js": "^7.3.0",
     "i18next": "^26.2.0",
     "i18next-fs-backend": "^2.6.5",
-    "i18next-http-backend": "^3.0.6",
+    "i18next-http-backend": "^4.0.0",
     "iron-session": "^8.0.4",
     "mathjs": "^15.2.0",
     "next": "^16.2.6",
