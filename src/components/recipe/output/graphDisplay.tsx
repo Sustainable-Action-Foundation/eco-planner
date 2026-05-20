@@ -24,7 +24,7 @@ export function OutputGraph() {
   const entries = Object.entries(resultingDataSeries)
     .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime()); // Ensure chronological order
 
-  const years = entries.filter(([key]) => isISOIshDate(key)).map(([key]) => key);
+  const years = entries.filter(([key]) => isISOIshDate(key)).map(([key]) => new Date(key).getFullYear().toString());
   const values = entries.map(([, value]) => value);
 
   const chartSeries = [
