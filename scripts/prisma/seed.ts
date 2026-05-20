@@ -1,16 +1,15 @@
 /* eslint-disable no-template-curly-in-string */
 // DO NOT SEED PRODUCTION DATABASE
 
-import { colors } from "../lib/colors.ts";
-import bcrypt from "bcryptjs";
-import { RandomTextSE } from "./randomText";
-import { RecipeDataTypes, VectorIndexPickerOptions } from "../../src/functions/recipe/types";
-import { Recipe } from "../../src/functions/recipe/recipe";
-import { isISOIshDate } from "../../src/types";
 import type { DateValues } from "../../src/types";
-import { dateValuesToDBDateRecord } from "../../src/functions/recipe/vectorAndMaskUtils";
+import bcrypt from "bcryptjs";
+import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "../../src/functions/recipe";
+import { RandomTextSE } from "./randomText";
+import { RoadmapType } from "@/lib/prisma/generated";
 import { prisma } from "@/lib/prisma";
-import { RoadmapType } from "../../prisma/generated/enums";
+import { isISOIshDate } from "../../src/types";
+import { dateValuesToDBDateRecord } from "../../src/functions/recipe/vectorAndMaskUtils";
+import { colors } from "../lib/colors.ts";
 
 /** 
  * The seed goal

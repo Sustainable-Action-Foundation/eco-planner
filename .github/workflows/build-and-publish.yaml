@@ -71,7 +71,7 @@ jobs:
           yarn playwright install --with-deps
 
       - name: Raw build, no container
-        run: yarn build
+        run: yarn prisma generate && yarn build
         env:
           COMMIT_SHA: ${{ github.sha }}
           DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
