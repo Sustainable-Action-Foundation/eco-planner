@@ -36,7 +36,7 @@ const serverIndications = ["server-only", "use server", "next/server", "next/hea
 const clientIndications = ["client-only", "use client", "useEffect", "useMemo", "useState", "useRef"];
 const serverSideFilesOverride = ["page.tsx", "layout.tsx"].map(file => file && path.join(...file.split("/")));
 const clientSideFilesOverride: string[] = ([] as string[]).map(file => file && path.join(...file.split("/")));
-const exemptedMixedUseFiles = ["src/app/localesTest/page.tsx"].map(file => file && path.join(...file.split("/")));
+const exemptedMixedUseFiles = ["src/app/tests/locale/page.tsx"].map(file => file && path.join(...file.split("/")));
 
 /** When checking for mixed use of spaces these are allowed in any file */
 const keysAllowedDirectlyInApp = ["common:tsx.", "common:placeholder.", "common:scope.", "common:layout.", "common:count.", "common:new.", "common:edit", "common:scaling_methods", "common:css.", "common:404."];
