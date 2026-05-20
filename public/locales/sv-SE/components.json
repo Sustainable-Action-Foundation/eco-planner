@@ -119,8 +119,8 @@
     "select_metric": "Välj mätvärde",
     "select_metric_for_table": "Välj mätvärde för tabell",
     "select_source": "Välj datakälla",
-    "select_source_for_table": "Välj en datakälla för att se tabeller",
     "select_source_for_metric": "Välj en datakälla för att se mätvärden",
+    "select_source_for_table": "Välj en datakälla för att se tabeller",
     "select_starting_period": "Välj startperiod",
     "select_table": "Välj tabell",
     "select_time_interval": "Välj tidsintervall",
@@ -224,6 +224,7 @@
   },
   "sidebar": {
     "about": "Om",
+    "actions_database": "$t(common:action_other, titleCase)",
     "close_menu_create": "Stäng meny: Skapa",
     "close_menu_language": "Stäng meny: Välj språk",
     "close_menu_settings": "Stäng meny: Inställningar",

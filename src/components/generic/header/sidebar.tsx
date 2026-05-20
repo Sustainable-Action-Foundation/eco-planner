@@ -47,7 +47,7 @@ export default async function Sidebar() {
           </Link>
           <Link href="/actions" className='color-pureblack rounded margin-bottom-300'>
             <IconList aria-hidden='true' />
-            {t("common:action_other")}
+            {t("components:sidebar.actions_database")}
           </Link>
           <PopoverButton
             anchorName='--create-popover-button'
