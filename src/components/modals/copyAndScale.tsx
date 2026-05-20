@@ -141,10 +141,10 @@ export default function CopyAndScale({
       </button>
 
       {/* Modal */}
-      <dialog ref={modalRef} aria-modal className={`rounded padding-inline-0 padding-block-0 ${styles.dialog}`}>
+      <dialog ref={modalRef} aria-modal={true} className={`rounded padding-inline-0 padding-block-0 ${styles.dialog}`}>
         <div className={`${styles['dialog-content']}`}>
           <div className={`${styles['dialog-header']}`}>
-            <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
+            <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus={true} aria-label={t("common:tsx.close")} >
               <IconX aria-hidden="true" width={28} height={28} strokeWidth={3} style={{ minWidth: '28px' }} />
             </button>
             <h2 className="margin-0">{t("components:copy_and_scale.title", { goalName: goal.name })}</h2>
@@ -156,7 +156,7 @@ export default function CopyAndScale({
               {/* Roadmap version select */}
               <label className="block margin-block-100">
                 {t("components:copy_and_scale.select_roadmap_version")}
-                <select className="block margin-block-25 width-100" required name="copyTo" id="copyTo">
+                <select className="block margin-block-25 width-100" required={true} name="copyTo" id="copyTo">
                   <option value="">{t("components:copy_and_scale.select_roadmap_version_option")}</option>
                   {roadmapOptions.map(roadmap => (
                     <option key={roadmap.id} value={roadmap.id}>

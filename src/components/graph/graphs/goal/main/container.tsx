@@ -96,10 +96,9 @@ export default function GraphGraph({
         <h2 className={`${styles['heading']}`}>
           {!!goal.name ? goal.name : goal.indicatorParameter}
         </h2>
-        {secondaryGoal &&
-          <p className="margin-block-0 margin-inline-auto text-align-center">
+        {secondaryGoal ? <p className="margin-block-0 margin-inline-auto text-align-center">
             {t("graphs:graph_graph.compare_with_goal", { goalName: secondaryGoal.name || secondaryGoal.indicatorParameter })}
-          </p>
+          </p> : null
         }
       </header>
 
@@ -111,7 +110,7 @@ export default function GraphGraph({
         <footer className={`${styles['footer']}`} >
           <Trans
             i18nKey="graphs:graph_graph.historical_data_source"
-            components={{ a: <a href={dataset?.userFacingUrl} target="_blank" /> }}
+            components={{ a: <a href={dataset?.userFacingUrl} target="_blank" rel="noreferrer" /> }}
             tOptions={{ source: dataset?.fullName ?? historicalData.metadata[0]?.source }}
           />
         </footer>

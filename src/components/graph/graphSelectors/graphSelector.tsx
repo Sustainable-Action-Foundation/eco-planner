@@ -53,8 +53,8 @@ export default function GraphSelector({
           !percentAndFraction.includes(goal.dataSeries?.unit?.toLowerCase() ?? "") &&
           <option value={GraphType.Relative}>{t("graphs:graph_selector.percentage_change")}</option>
         }
-        {childGoals && <option value={GraphType.Children}>{t("pages:goal.goals_working_towards", { goalName: !!goal.name ? goal.name : goal.indicatorParameter })}</option>}
-        {siblings && <option value={GraphType.Siblings}>{t("pages:goal.related_goals")}</option>}
+        {childGoals ? <option value={GraphType.Children}>{t("pages:goal.goals_working_towards", { goalName: !!goal.name ? goal.name : goal.indicatorParameter })}</option> : null}
+        {siblings ? <option value={GraphType.Siblings}>{t("pages:goal.related_goals")}</option> : null}
       </select>
     </div>
   );

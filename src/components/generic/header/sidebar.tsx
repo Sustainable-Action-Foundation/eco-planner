@@ -16,13 +16,12 @@ export default async function Sidebar() {
     getSession(await cookies()),
   ]);
 
-  return <>
-    <aside className={`${styles["sidebar"]} inline-flex flex-direction-column secondary-neutral-background`}>
+  return <aside className={`${styles["sidebar"]} inline-flex flex-direction-column secondary-neutral-background`}>
       {/* Consider using js + button instead of checkbox (or on top of using a checkbox) for accesability purposes */}
       {/* Consider adding infobubbles to items in the navbar */}
       <header>
         <label className='inline-grid round position-relative' aria-label={t("components:sidebar.toggle_menu_alt")}>
-          <input type="checkbox" className={`${styles['sidebar-toggle']} position-absolute opacity-0`} defaultChecked />
+          <input type="checkbox" className={`${styles['sidebar-toggle']} position-absolute opacity-0`} defaultChecked={true} />
           <IconMenu2 aria-hidden="true" />
         </label>
       </header>
@@ -196,6 +195,5 @@ export default async function Sidebar() {
           }
         </div>
       </div>
-    </aside>
-  </>;
+    </aside>;
 }

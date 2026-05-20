@@ -80,11 +80,9 @@ export function ManualGoalForm({
       <small className="block margin-top-25 margin-bottom-100 font-style-italic" style={{ height: '20px' }}>
         {parsedUnit === null && t("forms:goal.unit_not_interpreted")}
 
-        {parsedUnit && (
-          <>
+        {parsedUnit ? <>
             {t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong>
-          </>
-        )}
+          </> : null}
       </small>
 
       <DataSeriesInputManual
@@ -152,7 +150,7 @@ export function InheritingBaseline({
       {/* Roadmap select */}
       <label className="block margin-block-75">
         {t("forms:goal.select_roadmap_version")}
-        <select name="selectedRoadmap" id="selectedRoadmap" className="margin-inline-25" required
+        <select name="selectedRoadmap" id="selectedRoadmap" className="margin-inline-25" required={true}
           value={selectedRoadmap}
           onChange={(e) => { setSelectedRoadmap(e.target.value); setSelectedGoal(undefined); }}
         >
@@ -166,10 +164,9 @@ export function InheritingBaseline({
       </label>
 
       {/* Goal select */}
-      {roadmapData &&
-        <label className="block margin-block-75">
+      {roadmapData ? <label className="block margin-block-75">
           {t("forms:goal.select_goal_as_baseline")}
-          <select name="inheritFrom" id="inheritFrom" className="margin-inline-25" required
+          <select name="inheritFrom" id="inheritFrom" className="margin-inline-25" required={true}
             value={selectedGoal}
             onChange={(e) => setSelectedGoal(e.target.value)}
           >
@@ -180,11 +177,10 @@ export function InheritingBaseline({
               </option>
             ))}
           </select>
-        </label>
+        </label> : null
       }
 
-      {goalData &&
-        <label className="block margin-block-75">
+      {goalData ? <label className="block margin-block-75">
           {t("forms:goal.baseline_copied")}
           {React.cloneElement(outputFormElement, {
             value: goalData.baseline?.id ?? goalData.dataSeries?.id ?? "",
@@ -192,7 +188,7 @@ export function InheritingBaseline({
             hidden: true,
             readOnly: true,
           })}
-        </label>
+        </label> : null
       }
     </>
   );

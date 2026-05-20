@@ -102,14 +102,13 @@ export default function Toast({ children, id, type, hasTimeout = true }: { child
         className={`margin-0 margin-bottom-75 ${type === "error" && errorLong ? (isOpen ? styles["toast-open"] : styles["toast-closed"]) : ""}`} style={{ paddingInline: "1.25rem" }} >
         {children}
       </p>
-      {type === 'error' && errorLong &&
-        <button className={"margin-0 padding-25 width-100"}
+      {type === 'error' && errorLong ? <button className={"margin-0 padding-25 width-100"}
           onClick={() => setIsOpen((prev) => !prev)} style={{ backgroundColor: color.extends, transform: "scale(1)" }}>
           <span className="flex align-items-flex-end font-weight-600" >
             <IconArrowUp className="margin-left-25 margin-right-50" width={16} height={16} style={{ transform: `${isOpen ? '' : 'rotate(180deg)'}` }} />
             {isOpen ? 'Show less' : 'Show more'}
           </span>
-        </button>
+        </button> : null
       }
       <progress className={`${hasTimeout ? "" : "none"}`} value={hasTimeout ? timer : 0} max={totalTime} aria-hidden="true" style={{ '--progress-color': color.accent, '--progress-background-color': color.background } as React.CSSProperties} />
     </dialog>

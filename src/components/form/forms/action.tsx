@@ -92,8 +92,7 @@ export default function ActionForm({
   let positionIndex = 1;
 
   return (
-    <>
-      <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit}>
         {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when adding new entries in AccessSelector (for example, when pressing enter to add someone to the list of editors) */}
         <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
@@ -102,8 +101,8 @@ export default function ActionForm({
             <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:action.choose_relationship")}</legend>
             <label>
               {t("forms:action.relationship_label")}
-              <select name="roadmapId" id="roadmapId" required className="block margin-top-25 margin-bottom-100 width-100" defaultValue={""}>
-                <option value="" disabled>{t("forms:action.relationship_no_chosen")}</option>
+              <select name="roadmapId" id="roadmapId" required={true} className="block margin-top-25 margin-bottom-100 width-100" defaultValue={""}>
+                <option value="" disabled={true}>{t("forms:action.relationship_no_chosen")}</option>
                 {roadmaps.map(roadmap => (
                   <option key={roadmap.id} value={roadmap.id}>
                     {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("common:count.action", { count: roadmap._count.actions })}`}
@@ -119,7 +118,7 @@ export default function ActionForm({
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:action.action_description_legend")}</legend>
           <label>
             {t("forms:action.action_name")}
-            <input className="margin-top-25 margin-bottom-100" type="text" name="actionName" required id="actionName" defaultValue={currentAction?.name} />
+            <input className="margin-top-25 margin-bottom-100" type="text" name="actionName" required={true} id="actionName" defaultValue={currentAction?.name} />
           </label>
 
           <label id="description-label">{t("forms:action.action_description")}</label>
@@ -229,6 +228,5 @@ export default function ActionForm({
           </button>
         </div>
       </form>
-    </>
   );
 }

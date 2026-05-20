@@ -201,8 +201,7 @@ export default function SelectSingleTreeSearch({
           }
 
         </div>
-        {item.expanded && item.childNodes && (
-          <ul
+        {item.expanded && item.childNodes ? <ul
             role="group"
             style={{
               listStyle: 'none',
@@ -216,8 +215,7 @@ export default function SelectSingleTreeSearch({
             {item.childNodes.map((child, index) => (
               <TreeNode key={index} item={child} onUpdate={onUpdate} depth={depth + 1} />
             ))}
-          </ul>
-        )}
+          </ul> : null}
       </li>
     );
   }

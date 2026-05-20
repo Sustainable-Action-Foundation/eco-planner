@@ -86,12 +86,12 @@ export default function DateValuesInput({
 
   return (
     <>
-      {outputFormElement && React.cloneElement(outputFormElement, {
+      {outputFormElement ? React.cloneElement(outputFormElement, {
         value: JSON.stringify({ dateValues: effectiveDateValues.dateValues, unit: effectiveDateValues.unit } satisfies DateValuesWithUnit),
         type: "hidden",
         hidden: true,
         readOnly: true,
-      })}
+      }) : null}
 
       <fieldset className="block fieldset-unset-pseudo-class">
         {/* Label and expand button */}
@@ -176,8 +176,7 @@ export default function DateValuesInput({
           <span className="padding-50 padding-left-100" style={{ borderLeft: '1px solid var(--gray)' }}>{t("forms:data_series_input.value")}</span>
         </label>
         {/* Table */}
-        {tableIsVisible && (
-          <>
+        {tableIsVisible ? <>
             {dates.map(date => (
               <label
                 key={`date-values-input-row-${date}`}
@@ -226,8 +225,7 @@ export default function DateValuesInput({
                 />
               </label>
             ))}
-          </>
-        )}
+          </> : null}
       </fieldset>
     </>
   );

@@ -291,8 +291,7 @@ export default function RecipeQueryBuilder({
               )
             }>
             { // If only one value is available, don't show a placeholder option
-              ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && variable.values && variable.values.length > 1 &&
-              <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option>
+              ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && variable.values && variable.values.length > 1 ? <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option> : null
             }
             {
               !(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") &&
@@ -451,8 +450,7 @@ export default function RecipeQueryBuilder({
             : t("components:recipe_editor.add_external_data")
           }
         </span>
-        {dataSource && tableDetails?.id && (
-          <span
+        {dataSource && tableDetails?.id ? <span
             className="flex-grow-100 align-self-flex-end text-align-left white-space-nowrap width-0 text-overflow-ellipsis overflow-hidden" // I can never figure out flex, honestly not sure why width-0 works here... 
             style={{ borderBottom: tableContent?.metadata[0].label ? '' : '1px solid gray' }} // TODO: Should just be if any label, not specifically [0]...
           >
@@ -462,15 +460,14 @@ export default function RecipeQueryBuilder({
                 .filter(Boolean)
                 .join(", ")
               : ""}
-          </span>
-        )}
+          </span> : null}
         <IconDatabaseSearch strokeWidth={1.75} width={20} height={20} color='black' style={{ minWidth: '20' }} aria-hidden="true" />
       </button>
 
-      <dialog className={`rounded padding-inline-0 padding-block-0 ${styles.dialog}`} ref={modalRef} aria-modal style={{ backgroundColor: 'rgb(246, 246, 246)' }}>
+      <dialog className={`rounded padding-inline-0 padding-block-0 ${styles.dialog}`} ref={modalRef} aria-modal={true} style={{ backgroundColor: 'rgb(246, 246, 246)' }}>
         <div className={`${styles['dialog-content']}`}>
           <div className={`${styles['dialog-header']}`}>
-            <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
+            <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus={true} aria-label={t("common:tsx.close")} >
               <IconX strokeWidth={3} width={28} height={28} style={{ minWidth: '28px' }} aria-hidden="true" />
             </button>
             <h2 className="margin-0">{t("components:query_builder.add_data_source")}</h2>
@@ -485,7 +482,7 @@ export default function RecipeQueryBuilder({
                   {((ExternalDataset.getDatasetByAlternateName(dataSource)) && !(ExternalDataset.getDatasetByAlternateName(dataSource)?.supportedLanguages.includes(lang))) ?
                     <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</small>
                     : null}
-                  <select className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" value={dataSource} onChange={(e) => { handleDataSourceSelect(e.target.value); }}>
+                  <select className="block margin-block-25 width-100" required={true} name="externalDataset" id="externalDataset" value={dataSource} onChange={(e) => { handleDataSourceSelect(e.target.value); }}>
                     <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_source")}</option>
                     {ExternalDataset.knownDatasetKeys.map((name) => (
                       <option key={name} value={name}>{ExternalDataset[name]?.fullName}</option>
@@ -539,9 +536,7 @@ export default function RecipeQueryBuilder({
 
               </fieldset>
 
-              {tableDetails && (
-                // TODO - which inputs should be optional?
-                <div ref={selectorMenuRef}>
+              {tableDetails ? <div ref={selectorMenuRef}>
                   <label className="block margin-block-75">
                     <Trans
                       i18nKey={"components:query_builder.selected_table"}
@@ -578,8 +573,7 @@ export default function RecipeQueryBuilder({
                           <b>{t("components:query_builder.select_values_for_table")}</b>
                         </legend>
                         <div className={`${styles.temporary}`} style={{ maxHeight: "282px", boxSizing: "content-box", padding: ".25rem", paddingRight: ".375rem" }}>
-                          {tableDetails.times &&
-                            timeVariableSelectionHelper(tableDetails.times, tableDetails.language)
+                          {tableDetails.times ? timeVariableSelectionHelper(tableDetails.times, tableDetails.language) : null
                           }
                           {tableDetails.variables.map(variable => {
                             return variableSelectionHelper(variable, tableDetails);
@@ -598,8 +592,7 @@ export default function RecipeQueryBuilder({
                       </>) : (<p className={`font-style-italic color-gray`}>{t("components:query_builder.no_variables_found")}</p>)}
                   </fieldset>
 
-                </div>
-              )}
+                </div> : null}
             </FormWrapper>
             <output className="block padding-bottom-100">
               {/* TODO: style this better */}

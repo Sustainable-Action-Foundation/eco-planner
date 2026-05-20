@@ -33,7 +33,7 @@ export default function UpdatePassword() {
         {t("pages:password_reset.password")}
         <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
           <IconLock style={{ minWidth: '24px' }} aria-hidden="true" />
-          <input className="padding-0 margin-inline-50 transparent" type={showPassword ? 'text' : 'password'} placeholder={t("common:placeholder.password")} name="password" required id="password" autoComplete="current-password" />
+          <input className="padding-0 margin-inline-50 transparent" type={showPassword ? 'text' : 'password'} placeholder={t("common:placeholder.password")} name="password" required={true} id="password" autoComplete="current-password" />
           <button
             type="button"
             className={`${styles.showPasswordButton} grid padding-0 transparent`}
