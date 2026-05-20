@@ -61,6 +61,7 @@ RUN yarn prisma generate
 FROM base AS builder
 
 ARG COMMIT_SHA
+ARG BUILD_ID
 
 # Copy dependencies
 COPY --from=deps /app/node_modules ./node_modules
@@ -80,8 +81,12 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV CI=true
 ENV COMMIT_SHA=${COMMIT_SHA}
 
+# Force Next config re-evaluation per commit without busting deps.
+RUN printf "// BUILD_COMMIT: %s\n" "${COMMIT_SHA}" >> next.config.ts
+
 # Build with cache mount for Next.js
-RUN yarn run build
+RUN --mount=type=cache,target=/app/.next/cache \
+  sh -c "echo BUILD_ID=${BUILD_ID} > /tmp/build-id && yarn run build"
 
 
 # ============================================================================
