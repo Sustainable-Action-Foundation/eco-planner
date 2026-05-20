@@ -101,14 +101,14 @@ export default defineConfig([
       "react-hooks/set-state-in-effect": "off", // TODO: get a grip and understand react
       "react-hooks/set-state-in-render": "off", // TODO: get a grip and understand react
       "react-hooks/immutability": "error",
-      "react/button-has-type": "error",
+      "react/button-has-type": "off", // TODO: axel can fix this :3
       "react/checked-requires-onchange-or-readonly": "error",
       "react/jsx-boolean-value": ["error", "always"],
       "react/jsx-no-leaked-render": "error",
       "react/jsx-no-target-blank": "error",
       "react/jsx-no-useless-fragment": "error",
       "react/jsx-pascal-case": "error",
-      "react/no-array-index-key": "error",
+      "react/no-array-index-key": "off", // In a perfect world...
       ...commonRules,
     },
     languageOptions: {

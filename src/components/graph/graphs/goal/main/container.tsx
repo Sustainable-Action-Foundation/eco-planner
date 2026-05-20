@@ -62,8 +62,6 @@ export default function GraphGraph({
 
   function graphSwitch(graphType: GraphType) {
     switch (graphType) {
-      case GraphType.Main:
-        return <MainGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} historicalData={historicalData} secondaryGoal={secondaryGoal} effects={effects} />;
       case GraphType.Relative:
         return <MainRelativeGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} secondaryGoal={secondaryGoal} />;
       case GraphType.Delta:
@@ -71,9 +69,10 @@ export default function GraphGraph({
       case GraphType.Children:
         return <ChildGraphContainer goal={goal} childGoals={childGoals} />;
       case GraphType.Siblings:
-        return <>{findSiblings(roadmap, goal).length > 1 ? <SiblingGraph roadmap={roadmap} goal={goal} /> : null}</>; // TODO: Does findsbilings make sense here?
+        return findSiblings(roadmap, goal).length > 1 && <SiblingGraph roadmap={roadmap} goal={goal} />; // TODO: Does findSiblings make sense here?
+      case GraphType.Main:
       default:
-        return graphSwitch(GraphType.Main);
+        return <MainGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} historicalData={historicalData} secondaryGoal={secondaryGoal} effects={effects} />;
     }
   };
 
@@ -87,7 +86,7 @@ export default function GraphGraph({
       {/* TODO: Use role="toolbar" (or menubar) for this */}
       <header>
         <menu className={`${styles['menu']}`}>
-          <GraphSelector goal={goal} childGoals={false} siblings={false} currentSelection={graphType} setter={setGraphType} /> {/* NOTE: Set childgoals and siblings to false until the feature is fully implemented */}
+          <GraphSelector goal={goal} childGoals={false} siblings={false} currentSelection={graphType} setter={setGraphType} /> {/* NOTE: Set childGoals and siblings to false until the feature is fully implemented */}
           <SecondaryGoalSelector />
           {(goal.dataSeries?.id && session.user) ?
             <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
@@ -97,8 +96,8 @@ export default function GraphGraph({
           {!!goal.name ? goal.name : goal.indicatorParameter}
         </h2>
         {secondaryGoal ? <p className="margin-block-0 margin-inline-auto text-align-center">
-            {t("graphs:graph_graph.compare_with_goal", { goalName: secondaryGoal.name || secondaryGoal.indicatorParameter })}
-          </p> : null
+          {t("graphs:graph_graph.compare_with_goal", { goalName: secondaryGoal.name || secondaryGoal.indicatorParameter })}
+        </p> : null
         }
       </header>
 
