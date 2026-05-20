@@ -59,7 +59,7 @@ export default function ConfirmDelete({
       <div className={`${styles['dialog-content']}`}>
         <div className={`${styles['dialog-header']}`}>
           {/* Close button */}
-          <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus={true} aria-label={t("common:tsx.close")} >
+          <button type="button" className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus={true} aria-label={t("common:tsx.close")} >
             <IconX aria-hidden="true" width={28} height={28} strokeWidth={3} style={{ minWidth: '28px' }} />
           </button>
 

@@ -101,7 +101,7 @@ export default defineConfig([
       "react-hooks/set-state-in-effect": "off", // TODO: get a grip and understand react
       "react-hooks/set-state-in-render": "off", // TODO: get a grip and understand react
       "react-hooks/immutability": "error",
-      "react/button-has-type": "off", // TODO: axel can fix this :3
+      "react/button-has-type": "error",
       "react/checked-requires-onchange-or-readonly": "error",
       "react/jsx-boolean-value": ["error", "always"],
       "react/jsx-no-leaked-render": "error",

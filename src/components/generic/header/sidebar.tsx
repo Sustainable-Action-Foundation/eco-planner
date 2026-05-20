@@ -72,7 +72,7 @@ export default async function Sidebar() {
                 style={{ borderBottom: '1px solid var(--gray)' }}
               >
                 <h2 className='font-weight-600 margin-0' style={{ fontSize: 'inherit' }}>{t("components:sidebar.create")}</h2>
-                <button popoverTarget='create-popover' aria-label={t("components:sidebar.close_menu_create")} className='transparent grid padding-25 round'>
+                <button type="button" popoverTarget='create-popover' aria-label={t("components:sidebar.close_menu_create")} className='transparent grid padding-25 round'>
                   <IconX aria-hidden='true' width={16} height={16} />
                 </button>
               </header>
@@ -139,7 +139,7 @@ export default async function Sidebar() {
                 className='padding-bottom-50 margin-bottom-25 margin-inline-25 flex gap-300 justify-content-space-between align-items-center'
                 style={{ borderBottom: '1px solid var(--gray)' }}>
                 <legend className='font-weight-600'>{t("components:sidebar.language_alt")}</legend>
-                <button popoverTarget='select-language-popover' aria-label={t("components:sidebar.close_menu_language")} className='transparent grid padding-25 round'>
+                <button type="button" popoverTarget='select-language-popover' aria-label={t("components:sidebar.close_menu_language")} className='transparent grid padding-25 round'>
                   <IconX aria-hidden='true' width={16} height={16} />
                 </button>
               </div>
@@ -168,7 +168,7 @@ export default async function Sidebar() {
                 className='padding-bottom-50 margin-bottom-25 margin-inline-25 flex gap-300 justify-content-space-between align-items-center'
                 style={{ borderBottom: '1px solid var(--gray)' }}>
                 <legend className='font-weight-600'>{t("components:sidebar.settings")}</legend>
-                <button popoverTarget='settings-popover' aria-label={t("components:sidebar.close_menu_settings")} className='transparent grid padding-25 round'>
+                <button type="button" popoverTarget='settings-popover' aria-label={t("components:sidebar.close_menu_settings")} className='transparent grid padding-25 round'>
                   <IconX aria-hidden='true' width={16} height={16} />
                 </button>
               </div>

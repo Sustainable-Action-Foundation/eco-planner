@@ -40,6 +40,7 @@ export function LanguageSwitcher() {
           .map((locale) => (
             <li key={locale} className="margin-top-25" hidden={locale === Locales.test}>
               <button
+                type="button"
                 key={locale}
                 onClick={() => setLocale(locale)}
                 style={{ fontSize: '14px' }}

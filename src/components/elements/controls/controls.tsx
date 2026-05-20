@@ -355,6 +355,7 @@ export function AdminPanel(
             {hasEditAccess(accessLevel ?? AccessLevel.None) ? (
               <>
                 {links.featureGoal ? <button
+                  type="button"
                     className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`}
                     style={{ boxShadow: 'none', cursor: 'pointer', fontSize: '14px', transform: 'none' }}
                     onClick={() => {

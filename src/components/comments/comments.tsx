@@ -96,7 +96,7 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
               {expandedComments.includes(comment.id) ? comment.commentText : comment.commentText.length > 300 ? `${comment.commentText.substring(0, 300)}${t("common:tsx.ellipsis")}` : comment.commentText}
             </p>
             {comment.commentText.length > 300 ?
-              <button className={`margin-block-25 ${styles.readMoreButton}`} onClick={() => expandComment(comment.id)}>
+              <button type="button" className={`margin-block-25 ${styles.readMoreButton}`} onClick={() => expandComment(comment.id)}>
                 {expandedComments.includes(comment.id) ? t("common:tsx.show_less") : t("common:tsx.show_more")}
               </button>
               : null}

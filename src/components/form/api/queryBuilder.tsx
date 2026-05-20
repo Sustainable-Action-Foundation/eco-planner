@@ -449,7 +449,7 @@ export default function QueryBuilder({
       <dialog className={`rounded padding-inline-0 padding-block-0 ${styles.dialog}`} ref={modalRef} aria-modal={true}>
         <div className={`${styles['dialog-content']}`}>
           <div className={`${styles['dialog-header']}`}>
-            <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus={true} aria-label={t("common:tsx.close")} >
+            <button type="button" className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus={true} aria-label={t("common:tsx.close")} >
               <IconX strokeWidth={3} width={28} height={28} style={{ minWidth: '28px' }} aria-hidden="true" />
             </button>
             <h2 className="margin-0">{t("components:query_builder.add_data_source")}</h2> {/* Title needs to change to as we are not necessarily adding a data source here now */}
@@ -496,7 +496,7 @@ export default function QueryBuilder({
                 <DataSeriesInputManual id="dataseries" label={t("forms:data_series_input.data_series")} />
               </div>
               : visibleForm === 'external' ?
-                <form ref={formRef} onChange={formChange} onSubmit={handleSubmit} className="flex flex-direction-column flex-grow-1" style={{ minHeight: '0' }}>
+              <form ref={formRef} onChange={formChange} onSubmit={handleSubmit} className="flex flex-direction-column flex-grow-1" style={{ minHeight: '0' }}>
                   {/* Hidden disabled submit button to prevent accidental submission */}
                   <button type="submit" className="display-none" disabled={true}></button>
                   <strong

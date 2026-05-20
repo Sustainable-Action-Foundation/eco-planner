@@ -94,7 +94,7 @@ export default function Toast({ children, id, type, hasTimeout = true }: { child
               ? t("components:toasts.warning")
               : t("components:toasts.error")
         }</span>
-        <button onClick={() => removeToast(id)} className="round padding-25 transparent margin-left-auto grid" aria-label="Close toast">
+        <button type="button" onClick={() => removeToast(id)} className="round padding-25 transparent margin-left-auto grid" aria-label="Close toast">
           <IconX aria-hidden="true" width={22} height={22} strokeWidth={3} color={color.accent} />
         </button>
       </header>
@@ -102,7 +102,7 @@ export default function Toast({ children, id, type, hasTimeout = true }: { child
         className={`margin-0 margin-bottom-75 ${type === "error" && errorLong ? (isOpen ? styles["toast-open"] : styles["toast-closed"]) : ""}`} style={{ paddingInline: "1.25rem" }} >
         {children}
       </p>
-      {type === 'error' && errorLong ? <button className={"margin-0 padding-25 width-100"}
+        {type === 'error' && errorLong ? <button type="button" className={"margin-0 padding-25 width-100"}
           onClick={() => setIsOpen((prev) => !prev)} style={{ backgroundColor: color.extends, transform: "scale(1)" }}>
           <span className="flex align-items-flex-end font-weight-600" >
             <IconArrowUp className="margin-left-25 margin-right-50" width={16} height={16} style={{ transform: `${isOpen ? '' : 'rotate(180deg)'}` }} />
