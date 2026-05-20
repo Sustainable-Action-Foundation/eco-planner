@@ -52,10 +52,15 @@ export default function ActionForm({
         dataSeries = rawDataSeries;
       }
     } catch {
-      event.target.reportValidity();
-      addToast(t("common:errors.something_went_wrong"), "error");
-      console.error("Failed to parse data series, invalid JSON or incorrect format.");
-      return;
+      if (!goalId) {
+        // If there is no goalId, no data series should be submitted.
+        dataSeries = undefined;
+      } else {
+        event.target.reportValidity();
+        addToast(t("common:errors.something_went_wrong"), "error");
+        console.error("Failed to parse data series, invalid JSON or incorrect format.");
+        return;
+      }
     }
 
     const formContent: ActionInput = {

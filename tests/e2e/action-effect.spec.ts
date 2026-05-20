@@ -57,7 +57,7 @@ test.describe.serial("Action & Effect tests", () => {
     await page.getByTestId("create-button").click();
     await page.getByTestId("create-action").click();
 
-    const option = page.locator('#roadmapId option').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: '2' }); // Checks for Rikets färdplan to be contained in an option, with version 2 to avoid selecting the wrong roadmap
+    const option = page.locator('#roadmapId option').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: 'v2' }); // Checks for Rikets färdplan to be contained in an option, with version 2 to avoid selecting the wrong roadmap
 
     const value = await option.getAttribute('value');
 
@@ -141,7 +141,7 @@ test.describe.serial("Action & Effect tests", () => {
     await page.getByTestId("create-button").click();
     await page.getByTestId("create-action").click();
 
-    const option = page.locator('#roadmapId option').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: '2' }); // Checks for Rikets färdplan to be contained in an option, with version 2 to avoid selecting the wrong roadmap
+    const option = page.locator('#roadmapId option').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: 'v2' }); // Checks for Rikets färdplan to be contained in an option, with version 2 to avoid selecting the wrong roadmap
 
     const value = await option.getAttribute('value');
 
