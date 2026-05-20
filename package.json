@@ -63,7 +63,6 @@
   ],
   "type": "module",
   "dependencies": {
-    "@floating-ui/dom": "^1.7.6",
     "@formatjs/intl-localematcher": "^0.8.8",
     "@prisma/client": "^6.19.3",
     "@tabler/icons-react": "^3.44.0",
@@ -110,12 +109,10 @@
     "@types/nodemailer": "^8.0.0",
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",
-    "@types/regexp.escape": "^2.0.0",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.6",
     "playwright": "^1.60.0",
     "prisma": "^6.19.3",
-    "regexp.escape": "^2.0.1",
     "tsx": "^4.22.3",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.59.4"
