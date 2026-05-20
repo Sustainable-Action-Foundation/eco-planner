@@ -101,6 +101,14 @@ export default defineConfig([
       "react-hooks/set-state-in-effect": "off", // TODO: get a grip and understand react
       "react-hooks/set-state-in-render": "off", // TODO: get a grip and understand react
       "react-hooks/immutability": "error",
+      "react/button-has-type": "error",
+      "react/checked-requires-onchange-or-readonly": "error",
+      "react/jsx-boolean-value": ["error", "always"],
+      "react/jsx-no-leaked-render": "error",
+      "react/jsx-no-target-blank": "error",
+      "react/jsx-no-useless-fragment": "error",
+      "react/jsx-pascal-case": "error",
+      "react/no-array-index-key": "error",
       ...commonRules,
     },
     languageOptions: {
