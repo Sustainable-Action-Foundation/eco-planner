@@ -2476,13 +2476,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^9.3.0":
-  version: 9.5.0
-  resolution: "commander@npm:9.5.0"
-  checksum: 10c0/5f7784fbda2aaec39e89eb46f06a999e00224b3763dc65976e05929ec486e174fe9aac2655f03ba6a5e83875bd173be5283dc19309b7c65954701c02025b3c1d
-  languageName: node
-  linkType: hard
-
 "complex.js@npm:^2.2.5":
   version: 2.4.3
   resolution: "complex.js@npm:2.4.3"
@@ -2773,7 +2766,6 @@ __metadata:
     i18next-fs-backend: "npm:^2.6.5"
     i18next-http-backend: "npm:^3.0.6"
     iron-session: "npm:^8.0.4"
-    lorem-ipsum: "npm:^2.0.10"
     mathjs: "npm:^15.2.0"
     next: "npm:^16.2.6"
     nodemailer: "npm:^8.0.7"
@@ -4396,17 +4388,6 @@ __metadata:
   bin:
     loose-envify: cli.js
   checksum: 10c0/655d110220983c1a4b9c0c679a2e8016d4b67f6e9c7b5435ff5979ecdb20d0813f4dec0a08674fcbdd4846a3f07edbb50a36811fd37930b94aaa0d9daceb017e
-  languageName: node
-  linkType: hard
-
-"lorem-ipsum@npm:^2.0.10":
-  version: 2.0.10
-  resolution: "lorem-ipsum@npm:2.0.10"
-  dependencies:
-    commander: "npm:^9.3.0"
-  bin:
-    lorem-ipsum: dist/bin/lorem-ipsum.bin.js
-  checksum: 10c0/5f7f97a8cc4377be8fcf36dd40d0e19f5ac7a889337ced06a46977d1351f0213bbb66d1ca7d2408feac46fffefa5f9d16548e5c24972ab6a0ae06cbca14146e6
   languageName: node
   linkType: hard
 

@@ -113,7 +113,6 @@
     "@types/regexp.escape": "^2.0.0",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.6",
-    "lorem-ipsum": "^2.0.10",
     "playwright": "^1.60.0",
     "prisma": "^6.19.3",
     "regexp.escape": "^2.0.1",
