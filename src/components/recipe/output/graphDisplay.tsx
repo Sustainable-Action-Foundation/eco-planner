@@ -6,6 +6,7 @@ import type { ApexOptions } from "apexcharts";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { Locales } from "@/../i18n.config";
 import { useTranslation } from "react-i18next";
+import { isISOIshDate } from "@/types";
 
 // TODO: Does this take historical data into account? Do we need to account for it?
 // TODO: We should have a visible title for our graph
@@ -21,15 +22,14 @@ export function OutputGraph() {
   }
 
   const entries = Object.entries(resultingDataSeries)
-    .filter(([key]) => key.startsWith("val"))
-    .sort(([a], [b]) => a.localeCompare(b)); // Ensure chronological order
+    .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime()); // Ensure chronological order
 
-  const years = entries.map(([key]) => key.replace("val", ""));
+  const years = entries.filter(([key]) => isISOIshDate(key)).map(([key]) => key);
   const values = entries.map(([, value]) => value);
 
   const chartSeries = [
     {
-      name: "Data",
+      name: t("components:recipe_editor.resulting_graph_series_name"),
       data: values,
     },
   ];

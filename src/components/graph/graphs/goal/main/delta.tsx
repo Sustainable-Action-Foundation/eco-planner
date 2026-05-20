@@ -265,7 +265,7 @@ export default function MainDeltaGraph({
 
       const value = currentValue - previousValue;
       parentSeries.push({
-        x: new Date(currentField.replace('val', '')).getTime(),
+        x: new Date(currentField).getTime(),
         y: Number.isFinite(value) ? value : null,
       });
     }

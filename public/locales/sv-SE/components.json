@@ -175,6 +175,7 @@
     "provide_variable_type": "Ange en typ",
     "recipe": "Recept",
     "result_tab": "Resultat",
+    "resulting_graph_series_name": "Resulterade serie",
     "scalar": "Skalär",
     "select_data_series": "Välj målbana eller effekt",
     "select_dataset": "Välj dataset",

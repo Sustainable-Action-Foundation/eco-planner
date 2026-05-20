@@ -175,6 +175,7 @@
     "provide_variable_type": "Please provide a type",
     "recipe": "Recipe",
     "result_tab": "Result",
+    "resulting_graph_series_name": "Resulting series",
     "scalar": "Scalar",
     "select_data_series": "Choose goal or effect",
     "select_dataset": "Select dataset",
