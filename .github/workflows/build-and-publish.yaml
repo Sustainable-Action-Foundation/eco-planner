@@ -70,17 +70,6 @@ jobs:
           # Playwright browsers
           yarn playwright install --with-deps
 
-      - name: Raw build, no container
-        run: yarn prisma generate && yarn build
-        env:
-          COMMIT_SHA: ${{ github.sha }}
-          DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
-          IRON_SESSION_PASSWORD: ${{ secrets.TEST_IRON_SESSION_PASSWORD }}
-          MAIL_HOST: ${{ secrets.TEST_MAIL_HOST }}
-          MAIL_USER: ${{ secrets.TEST_MAIL_USER }}
-          MAIL_PASSWORD: ${{ secrets.TEST_MAIL_PASSWORD }}
-          BASE_URL: ${{ secrets.TEST_BASE_URL }}
-
       - name: Run tests
         id: run-tests
         if: ${{ !inputs.skip_tests }}
