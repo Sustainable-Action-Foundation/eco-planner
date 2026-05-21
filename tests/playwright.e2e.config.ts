@@ -59,7 +59,7 @@ export default defineConfig({
       ? {
         webServer: {
           timeout: 20 * 60 * 1000, // 20 minutes; both seeding image and app image may need to be built, which might take a while with bad cache, especially on runners.
-          command: "docker compose --verbose -f ../docker/compose.testing.yaml up --remove-orphans",
+          command: "docker compose --verbose -f ../docker/compose.testing.yaml up --remove-orphans --build",
           gracefulShutdown: { signal: "SIGTERM", timeout: 5000 }, // SIGTERM for graceful shutdown of docker compose on linux
           url: webserverURL,
           reuseExistingServer: !CI,
