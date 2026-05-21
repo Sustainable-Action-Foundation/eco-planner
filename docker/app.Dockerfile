@@ -63,6 +63,7 @@ FROM base AS builder
 
 ARG COMMIT_SHA
 ARG BUILD_ID
+ARG DATABASE_URL
 
 # Copy dependencies
 COPY --from=deps /app/node_modules ./node_modules
