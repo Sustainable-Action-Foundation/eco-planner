@@ -87,7 +87,7 @@ RUN printf "// BUILD_COMMIT: %s\n" "${COMMIT_SHA}" >> next.config.ts
 
 # Build with cache mount for Next.js
 RUN --mount=type=cache,target=/app/.next/cache \
-  sh -c "echo BUILD_ID=${BUILD_ID} > /tmp/build-id && yarn run build"
+  sh -euxc "node -v && yarn -v && echo BUILD_ID=${BUILD_ID} > /tmp/build-id && yarn run build"
 
 
 # ============================================================================
