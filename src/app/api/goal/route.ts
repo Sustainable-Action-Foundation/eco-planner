@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
 
   // Validate form data type
   if (!isGoalCreate(formData)) {
-    console.log("formData failed validation");
+    console.error("formData failed validation");
     return Response.json({ message: t('api:common.invalid_request_body') },
       { status: 400 },
     );
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
       }
     }
     // If no matching error is thrown, log the error and return a generic error message
-    console.log(error);
+    console.error(error);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );
@@ -212,7 +212,7 @@ export async function POST(request: NextRequest) {
               description: link.description,
             })),
           },
-        } satisfies Prisma.GoalCreateInput,
+        },
         select: {
           id: true,
         },
@@ -227,7 +227,7 @@ export async function POST(request: NextRequest) {
     );
   }
   catch (error) {
-    console.log(error);
+    console.error(error);
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
       return Response.json({ message: t('api:goal.roadmap_not_found') },
         { status: 400 },
@@ -322,7 +322,7 @@ export async function PUT(request: NextRequest) {
       }
     }
     // If no matching error is thrown, log the error and return a generic error message
-    console.log(error);
+    console.error(error);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );
@@ -459,7 +459,7 @@ export async function PUT(request: NextRequest) {
       { status: 200, headers: { 'Location': `/goal/${goalId}` } },
     );
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );
@@ -537,7 +537,7 @@ export async function DELETE(request: NextRequest) {
       }
     }
     // If no matching error is thrown, log the error and return a generic error message
-    console.log(error);
+    console.error(error);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );
@@ -565,7 +565,7 @@ export async function DELETE(request: NextRequest) {
       { status: 200, headers: { 'Location': `/roadmap/${deletedGoal.roadmap.id}` } },
     );
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );

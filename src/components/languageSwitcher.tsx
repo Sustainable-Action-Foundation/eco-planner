@@ -34,13 +34,13 @@ export function LanguageSwitcher() {
     as they are only buttons for performance reasons?
   */}
   return (
-    <>
-      <ul className="margin-0 padding-0" style={{ listStyle: 'none' }} data-testid="language-switcher-options">
+    <ul className="margin-0 padding-0" style={{ listStyle: 'none' }} data-testid="language-switcher-options">
         {uniqueLocales
           .sort((a, b) => localeAliases[a].localeCompare(localeAliases[b]))
           .map((locale) => (
             <li key={locale} className="margin-top-25" hidden={locale === Locales.test}>
               <button
+                type="button"
                 key={locale}
                 onClick={() => setLocale(locale)}
                 style={{ fontSize: '14px' }}
@@ -61,7 +61,6 @@ export function LanguageSwitcher() {
             </li>
           ))}
       </ul>
-    </>
 
   );
 }

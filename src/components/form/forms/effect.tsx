@@ -107,8 +107,7 @@ export default function EffectForm({
   }
 
   return (
-    <>
-      <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit}>
         <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
         <ActionSelector
@@ -170,7 +169,7 @@ export default function EffectForm({
         {/* TODO: Show preview of how it would affect the goal */}
         <label>
           {t("forms:effect.impact_type_label")}
-          <select className="block margin-top-25 margin-bottom-100 width-100" name="impactType" id="impactType" required
+          <select className="block margin-top-25 margin-bottom-100 width-100" name="impactType" id="impactType" required={true}
             value={selectedImpactType}
             onChange={(event) => setSelectedImpactType(event.target.value as ActionImpactType)}
           >
@@ -195,6 +194,5 @@ export default function EffectForm({
         </div>
 
       </form>
-    </>
   );
 }

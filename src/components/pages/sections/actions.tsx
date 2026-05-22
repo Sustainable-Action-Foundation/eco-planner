@@ -120,7 +120,7 @@ export default function Actions({
                 debouncedUpdateStringParam('search', e.target.value);
               }}
             />
-            {isLoading && <Image src={'/loaders/3-dots-move.svg'} width={16} height={16} alt='' aria-live="polite" />}
+            {isLoading ? <Image src={'/loaders/3-dots-move.svg'} width={16} height={16} alt='' aria-live="polite" /> : null}
           </div>
 
           <hr style={{ alignSelf: 'stretch', borderStyle: 'solid', color: 'var(--gray-80)', borderRight: '0' }} />

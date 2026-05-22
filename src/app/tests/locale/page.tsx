@@ -1,4 +1,4 @@
-import styles from "./localesTest.module.css" with {type: "css"};
+import styles from "./locales.module.css" with {type: "css"};
 import serveTea from "@/lib/i18nServer";
 import { uniqueLocales, Locales, allNamespaces } from "@/../i18n.config";
 import fs from "node:fs";

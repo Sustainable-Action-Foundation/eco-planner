@@ -54,7 +54,7 @@ async function generateLeapList() {
   try {
     fs.writeFileSync('src/lib/LEAPList.json', JSON.stringify(uniqueLeapList));
     console.info('LEAP list updated');
-  } 
+  }
   catch (err: unknown) {
     console.warn('Failed to write LEAP list file', { err });
   }

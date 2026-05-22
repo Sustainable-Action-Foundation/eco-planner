@@ -29,7 +29,7 @@ export default function SendResetMail() {
         {t("pages:password.input_label")}
         <div className="margin-block-50 padding-50 flex align-items-center gray-90 smooth focusable">
           <IconMail />
-          <input className="padding-0 margin-inline-50" type="email" placeholder={t("common:placeholder.email")} name="email" required id="email" autoComplete="email" />
+          <input className="padding-0 margin-inline-50" type="email" placeholder={t("common:placeholder.email")} name="email" required={true} id="email" autoComplete="email" />
         </div>
       </label>
       <button className="margin-left-auto block" type="submit">{t("pages:password.submit")}</button>

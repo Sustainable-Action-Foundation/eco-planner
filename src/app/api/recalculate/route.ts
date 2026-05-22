@@ -118,10 +118,10 @@ export async function POST(request: NextRequest) {
     const recipe = Recipe.from(dbRecipe.recipe);
     const warnings: string[] = [];
     const evaluationResult = await recipe.evaluate(warnings)
-      .catch((e: unknown) => {
-        const errorMessage = e instanceof Error ? e.message : String(e);
-        console.log(`Error evaluating recipe ${dbRecipe.id} for data series ${requestJson.dataSeriesId}:`, e);
-        if (e instanceof Error) {
+      .catch((err: unknown) => {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        console.error(`Error evaluating recipe ${dbRecipe.id} for data series ${requestJson.dataSeriesId}:`, { err });
+        if (err instanceof Error) {
           throw new RecipeError(`Failed to evaluate recipe: ${errorMessage}`);
         }
         else {
@@ -191,7 +191,7 @@ export async function POST(request: NextRequest) {
         );
       }
     }
-    console.log(error);
+    console.error(error);
     return Response.json({ message: "Internal server error" },
       { status: 500 },
     );

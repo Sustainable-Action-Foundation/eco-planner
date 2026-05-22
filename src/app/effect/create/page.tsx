@@ -58,17 +58,15 @@ export default async function Page(
         <h1 className='margin-top-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
           {t("pages:effect_create.title")}
         </h1>
-        {badAction &&
-          <p style={{ color: 'red' }}>
+        {badAction ? <p style={{ color: 'red' }}>
             <IconInfoCircle role="img" aria-label={t("pages:effect_create.information_icon_aria")} />
             {t("pages:effect_create.bad_action")}
-          </p>
+          </p> : null
         }
-        {badGoal &&
-          <p style={{ color: 'red' }}>
+        {badGoal ? <p style={{ color: 'red' }}>
             <IconInfoCircle role="img" aria-label={t("pages:effect_create.information_icon_aria")} />
             {t("pages:effect_create.bad_goal")}
-          </p>
+          </p> : null
         }
         <EffectForm
           action={action}

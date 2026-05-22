@@ -36,9 +36,9 @@ async function getCachedMetaRoadmaps(user: LoginData['user']) {
       metaRoadmaps = await prisma.metaRoadmap.findMany({
         include: metaRoadmapInclusionSelection,
       });
-    } catch (error) {
-      console.log(error);
-      console.log('Error fetching admin meta roadmaps');
+    }
+    catch (error) {
+      console.error("Error fetching meta roadmaps for admin user", { error });
       return [];
     }
 
@@ -79,9 +79,9 @@ async function getCachedMetaRoadmaps(user: LoginData['user']) {
           },
         },
       });
-    } catch (error) {
-      console.log(error);
-      console.log('Error fetching meta roadmaps');
+    }
+    catch (error) {
+      console.error(`Error fetching meta roadmaps for user ${user.id}`, { error });
       return [];
     }
 
@@ -107,9 +107,9 @@ async function getCachedMetaRoadmaps(user: LoginData['user']) {
         },
       },
     });
-  } catch (error) {
-    console.log(error);
-    console.log('Error fetching public meta roadmaps');
+  }
+  catch (error) {
+    console.error("Error fetching public meta roadmaps", { error });
     return [];
   }
 

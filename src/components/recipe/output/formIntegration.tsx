@@ -32,25 +32,25 @@ export function FormIntegration({
   }, [resultingDataSeries, resultingUnit]);
 
   return (<>
-    {DataSeriesFormElement && React.cloneElement(DataSeriesFormElement, {
+    {!!DataSeriesFormElement && React.cloneElement(DataSeriesFormElement, {
       defaultValue: JSON.stringify(resultingDataSeries),
       type: "hidden",
       hidden: true,
       readOnly: true,
     })}
-    {UnitFormElement && React.cloneElement(UnitFormElement, {
+    {!!UnitFormElement && React.cloneElement(UnitFormElement, {
       defaultValue: resultingUnit ?? "",
       type: "hidden",
       hidden: true,
       readOnly: true,
     })}
-    {RecipeFormElement && React.cloneElement(RecipeFormElement, {
+    {!!RecipeFormElement && React.cloneElement(RecipeFormElement, {
       defaultValue: recipe.serialize(),
       type: "hidden",
       hidden: true,
       readOnly: true,
     })}
-    {DateValuesFormElement && React.cloneElement(DateValuesFormElement, {
+    {!!DateValuesFormElement && React.cloneElement(DateValuesFormElement, {
       defaultValue: JSON.stringify(dateValues),
       type: "hidden",
       hidden: true,

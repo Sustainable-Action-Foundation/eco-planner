@@ -103,15 +103,14 @@ export default function MetaRoadmapForm({
 
     const formJSON = JSON.stringify(formData);
 
-    formSubmitter('/api/metaRoadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading, undefined, undefined, undefined, undefined, router.push); // addToast
+    formSubmitter('/api/metaRoadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading, undefined, undefined, undefined, addToast, router.push);
   }
 
   // Indexes for the data-position attribute in the legend elements
   let positionIndex = 1;
 
   return (
-    <>
-      <form onSubmit={handleSubmit} >
+    <form onSubmit={handleSubmit} >
         {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when adding new entries in AccessSelector (for example, when pressing enter to add someone to the list of editors) */}
         <input type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
@@ -119,7 +118,7 @@ export default function MetaRoadmapForm({
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:meta_roadmap.description_legend")}</legend>
           <label>
             {t("forms:meta_roadmap.name")}
-            <input id="name" name="name" className="margin-top-25 margin-bottom-100" type="text" defaultValue={currentRoadmap?.name ?? undefined} autoComplete="off" required />
+            <input id="name" name="name" className="margin-top-25 margin-bottom-100" type="text" defaultValue={currentRoadmap?.name ?? undefined} autoComplete="off" required={true} />
           </label>
 
           <label id="description-label">{t("forms:meta_roadmap.description")}</label>
@@ -132,7 +131,7 @@ export default function MetaRoadmapForm({
             content={currentRoadmap ? currentRoadmap.description : ""}
             onChange={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
           />
-          <input required ref={descriptionRef} type="hidden" name="description" defaultValue={currentRoadmap?.description ?? ""} />
+          <input required={true} ref={descriptionRef} type="hidden" name="description" defaultValue={currentRoadmap?.description ?? ""} />
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
@@ -144,10 +143,10 @@ export default function MetaRoadmapForm({
               name="type"
               id="type"
               defaultValue={currentRoadmap?.type ?? ""}
-              required
+              required={true}
               onChange={(e) => setRoadmapType((e.target as HTMLSelectElement).value)}
             >
-              <option value="" disabled>{t("forms:meta_roadmap.no_chosen_roadmap_scope")}</option>
+              <option value="" disabled={true}>{t("forms:meta_roadmap.no_chosen_roadmap_scope")}</option>
               {
                 Object.values(RoadmapType).map((value) => {
                   if (value === RoadmapType.NATIONAL && !user?.isAdmin) return null;
@@ -244,6 +243,5 @@ export default function MetaRoadmapForm({
           </button>
         </div>
       </form>
-    </>
   );
 }

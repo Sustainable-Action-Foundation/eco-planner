@@ -221,7 +221,6 @@ export default function QueryBuilder({
     const changedElementIsTableSearch = event.target instanceof HTMLInputElement && event.target.name === "tableSearch";
     const changedElementIsTable = event.target instanceof HTMLInputElement && event.target.name === "externalTableId";
 
-    /* console.log(tableDetails); */
     if (!changedElementIsExternalDataset && !changedElementIsTableSearch && !changedElementIsTable && tables && tableDetails) {
       tryGetResult(event);
     }
@@ -303,7 +302,6 @@ export default function QueryBuilder({
         }
       });
     } else {
-      /* console.log("no variable selection fieldset found"); */
       setIsLoading(false);
     }
   }
@@ -368,8 +366,7 @@ export default function QueryBuilder({
               undefined
             }>
             { // If only one value is available, don't show a placeholder option
-              ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && variable.values && variable.values.length > 1 &&
-              <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option>
+              ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && variable.values && variable.values.length > 1 ? <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option> : null
             }
             {
               !(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") &&
@@ -449,10 +446,10 @@ export default function QueryBuilder({
         </button>
       }
 
-      <dialog className={`rounded padding-inline-0 padding-block-0 ${styles.dialog}`} ref={modalRef} aria-modal>
+      <dialog className={`rounded padding-inline-0 padding-block-0 ${styles.dialog}`} ref={modalRef} aria-modal={true}>
         <div className={`${styles['dialog-content']}`}>
           <div className={`${styles['dialog-header']}`}>
-            <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
+            <button type="button" className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus={true} aria-label={t("common:tsx.close")} >
               <IconX strokeWidth={3} width={28} height={28} style={{ minWidth: '28px' }} aria-hidden="true" />
             </button>
             <h2 className="margin-0">{t("components:query_builder.add_data_source")}</h2> {/* Title needs to change to as we are not necessarily adding a data source here now */}
@@ -499,9 +496,9 @@ export default function QueryBuilder({
                 <DataSeriesInputManual id="dataseries" label={t("forms:data_series_input.data_series")} />
               </div>
               : visibleForm === 'external' ?
-                <form ref={formRef} onChange={formChange} onSubmit={handleSubmit} className="flex flex-direction-column flex-grow-1" style={{ minHeight: '0' }}>
+              <form ref={formRef} onChange={formChange} onSubmit={handleSubmit} className="flex flex-direction-column flex-grow-1" style={{ minHeight: '0' }}>
                   {/* Hidden disabled submit button to prevent accidental submission */}
-                  <button type="submit" className="display-none" disabled></button>
+                  <button type="submit" className="display-none" disabled={true}></button>
                   <strong
                     id="loader"
                     className={`position-absolute gray-80 padding-block-100 smooth ${!isLoading && "hidden"}`}
@@ -517,7 +514,7 @@ export default function QueryBuilder({
                         {((ExternalDataset.getDatasetByAlternateName(dataSource)) && !(ExternalDataset.getDatasetByAlternateName(dataSource)?.supportedLanguages.includes(lang))) ?
                           <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</small>
                           : null}
-                        <select className="block margin-block-25 width-100" required name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value); }}>
+                        <select className="block margin-block-25 width-100" required={true} name="externalDataset" id="externalDataset" onChange={e => { handleDataSourceSelect(e.target.value); }}>
                           <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_source")}</option>
                           {ExternalDataset.knownDatasetKeys.map((name) => (
                             <option key={name} value={name}>{ExternalDataset[name]?.fullName}</option>
@@ -564,9 +561,7 @@ export default function QueryBuilder({
 
                     </fieldset>
 
-                    {tableDetails && (
-                      // TODO - which inputs should be optional?
-                      <>
+                    {tableDetails ? <>
                         <label className="block margin-block-75">
                           <Trans
                             i18nKey={"components:query_builder.selected_table"}
@@ -602,8 +597,7 @@ export default function QueryBuilder({
                                 <b>{t("components:query_builder.select_values_for_table")}</b>
                               </legend>
                               <div className={`${styles.temporary}`} style={{ maxHeight: "282px", boxSizing: "content-box", padding: ".25rem", paddingRight: ".375rem" }}>
-                                {tableDetails.times &&
-                                  timeVariableSelectionHelper(tableDetails.times, tableDetails.language)
+                                {tableDetails.times ? timeVariableSelectionHelper(tableDetails.times, tableDetails.language) : null
                                 }
                                 {tableDetails.variables.map(variable => {
                                   return variableSelectionHelper(variable, tableDetails);
@@ -622,8 +616,7 @@ export default function QueryBuilder({
                             </>) : (<p className={`font-style-italic color-gray`}>{t("components:query_builder.no_variables_found")}</p>)}
                         </fieldset>
 
-                      </>
-                    )}
+                      </> : null}
                   </FormWrapper>
                   <output className="block padding-bottom-100">
                     {/* TODO: style this better */}

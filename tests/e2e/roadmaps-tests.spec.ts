@@ -20,7 +20,7 @@ test.describe.serial("Roadmaps tests", () => {
     metaRoadmapNameAllFields = `Test All Fields  ${testInfo.project.name}`;
 
     if (testInfo.retry > 0) {
-      console.log(`Retrying tests, Cleaning up any existing metaRoadmap with name ${metaRoadmapNameAllFields} before retrying.`);
+      console.info(`Retrying tests, Cleaning up any existing metaRoadmap with name ${metaRoadmapNameAllFields} before retrying.`);
 
       // Page cannot be used in beforeAll so a new context and page here is needed.
       const context = await browser.newContext({ storageState: adminFile });

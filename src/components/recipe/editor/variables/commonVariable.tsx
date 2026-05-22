@@ -77,8 +77,7 @@ export function CommonVariable({
       </fieldset>
 
       {/* Delete */}
-      {permissions.allowDeleteVariables &&
-        <button
+      {permissions.allowDeleteVariables ? <button
           className="padding-25 round transparent margin-left-50"
           style={{ verticalAlign: 'middle' }}
           type="button"
@@ -86,7 +85,7 @@ export function CommonVariable({
           onClick={() => upsertVariable(variableId, null)}
         >
           <IconTrashXFilled width={20} height={20} className="grid" />
-        </button>
+        </button> : null
       }
     </fieldset >
   );

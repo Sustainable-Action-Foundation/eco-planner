@@ -129,9 +129,9 @@ export function SuggestedRecipeApplier({
         value={selectedRecipeId}
         onChange={handleChange}
       >
-        <option disabled value={""}>{t("common:tsx.generic_select")}</option>
-        {suggestedRecipes.map((suggestedRecipe, index) => (
-          <option key={index} value={suggestedRecipe.id}> {/* TODO: The selected value needs to be preselected */}
+        <option disabled={true} value={""}>{t("common:tsx.generic_select")}</option>
+        {suggestedRecipes.map(suggestedRecipe => (
+          <option key={suggestedRecipe.id} value={suggestedRecipe.id}> {/* TODO: The selected value needs to be preselected */}
             {Recipe.from(suggestedRecipe.recipe).name ?? t("components:copy_and_scale.unnamed_suggestion")}
           </option>
         ))}
@@ -149,7 +149,7 @@ export function SuggestedRecipeApplier({
         gridTemplateRows: 'auto auto',
       }}
     >
-      {(recipe?.variables ?? []).map((variable, i) => {
+      {(recipe?.variables ?? []).map(variable => {
         const variableId = variable.id;
         const variableDisplayName = variable.name;
         const unitIsProvided = typeof variable.unit !== "undefined" && variable.unit !== null;
@@ -178,7 +178,6 @@ export function SuggestedRecipeApplier({
                   {variableDisplayName}{unitDisplay}:
                 </label>
                 <VariableTypeScalarSimple
-                  key={"recipeVariable" + i}
                   variableId={variableId}
                   permissions={permissions}
                   props={{
@@ -195,7 +194,6 @@ export function SuggestedRecipeApplier({
                   {variableDisplayName}{unitDisplay}:
                 </label>
                 <DataSeriesVariableSimpleEditor
-                  key={"recipeVariable" + i}
                   variableId={variableId}
                   availableDataSeries={availableDataSeries}
                   permissions={{ ...permissions }}
@@ -210,7 +208,6 @@ export function SuggestedRecipeApplier({
                   {variableDisplayName}{unitDisplay}:
                 </label>
                 <VariableTypeExternalSimple
-                  key={"recipeVariable" + i}
                   variableId={variableId}
                   permissions={permissions}
                 />
@@ -228,7 +225,7 @@ export function SuggestedRecipeApplier({
       })}
     </ul>
 
-    {selectedRecipeId && <>
+    {!!selectedRecipeId && <>
       <TextStatus showAllGood={false} />
 
       <CombinedStatusDisplay />

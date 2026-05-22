@@ -101,9 +101,7 @@ export default function LinkTree({
   const data = goalsToTree(goals, t);
 
   return (
-    <>
-      <NestedKeysRenderer data={data} />
-    </>
+    <NestedKeysRenderer data={data} />
   );
 
 }

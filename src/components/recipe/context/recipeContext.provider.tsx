@@ -232,8 +232,7 @@ export function RecipeContextProvider({
       warnings,
       error,
     }}>
-      {isDebug && (
-        <div
+      {isDebug ? <div
           style={{
             display: "flex",
             flexDirection: "column-reverse",
@@ -272,8 +271,7 @@ export function RecipeContextProvider({
               warnings,
             }, null, 2)}
           </pre>
-        </div>
-      )}
+        </div> : null}
 
       {children}
     </RecipeContext.Provider>

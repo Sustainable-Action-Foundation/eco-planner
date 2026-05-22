@@ -51,8 +51,8 @@ export async function POST(request: NextRequest) {
         },
       },
     });
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    console.error(error);
     return Response.json({ message: 'User not found or has not verified their email' },
       { status: 400 },
     );

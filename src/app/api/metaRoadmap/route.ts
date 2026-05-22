@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
       );
     } else {
       // If non-error is thrown, log it and return a generic error message
-      console.log(error);
+      console.error(error);
       return Response.json({ message: t('api:common.unknown_server_error') },
         { status: 500 },
       );
@@ -173,7 +173,8 @@ export async function POST(request: NextRequest) {
     return Response.json({ message: t('api:metaRoadmap.meta_roadmap_created'), id: newMetaRoadmap.id },
       { status: 201, headers: { 'Location': `/roadmap/create?metaRoadmapId=${newMetaRoadmap.id}` } },
     );
-  } catch (err: unknown) {
+  }
+  catch (err: unknown) {
     console.log(err);
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
       return Response.json({ message: t('api:metaRoadmap.failed_record_connection') },
@@ -301,7 +302,7 @@ export async function PUT(request: NextRequest) {
     }
     // If non-error is thrown, log it and return a generic error message
     else {
-      console.log(error);
+      console.error(error);
       return Response.json({ message: t('api:common.unknown_server_error') },
         { status: 500 },
       );
@@ -374,7 +375,7 @@ export async function PUT(request: NextRequest) {
       { status: 200, headers: { 'Location': `/metaRoadmap/${updatedMetaRoadmap.id}` } },
     );
   } catch (error) {
-    console.log(error);
+    console.error(error);
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
       return Response.json({ message: t('api:metaRoadmap.failed_record_connection') },
         { status: 400 },
@@ -447,7 +448,7 @@ export async function DELETE(request: NextRequest) {
         { status: 403 },
       );
     } else {
-      console.log(error);
+      console.error(error);
       return Response.json({ message: t('api:common.unknown_server_error') },
         { status: 500 },
       );
@@ -473,7 +474,7 @@ export async function DELETE(request: NextRequest) {
       { status: 200, headers: { 'Location': `/` } },
     );
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );

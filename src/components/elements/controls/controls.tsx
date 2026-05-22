@@ -147,7 +147,7 @@ function buildLinks(
   }
 
   else {
-    console.log("ControlsMenu/AdminPanel: Object type not recognized", object);
+    console.error("ControlsMenu/AdminPanel: Object type not recognized", object);
     return null;
   }
 
@@ -228,8 +228,7 @@ export function ControlsMenu(
   };
 
   return (
-    <>
-      <div className={`${styles.actionButton} display-flex`}>
+    <div className={`${styles.actionButton} display-flex`}>
         <button type="button" onClick={openMenu} className={styles.button} aria-label={t("components:table_menu.button_aria", { component: objectName || metaRoadmapName || t("components:table_menu.button_aria_alt") })}> {/* TODO: Remove this aria if we pass buttontext */}
           {buttonText || null}
           <IconDotsVertical aria-hidden="true" width={width} height={height} />
@@ -237,7 +236,7 @@ export function ControlsMenu(
         <dialog className={styles.menu} id={`${typeof object.id === "string" ? object.id : object.id?.actionId + "-" + object.id?.goalId}-menu`} onBlur={closeMenu} ref={menu} onKeyUp={closeMenu}>
           <div className={`display-flex flex-direction-row-reverse align-items-center justify-content-space-between ${styles.menuHeading}`}>
             {/* Button to close menu */}
-            <button type="button" aria-label={t("common:tsx.close")} onClick={closeMenu} className={styles.button} autoFocus >
+            <button type="button" aria-label={t("common:tsx.close")} onClick={closeMenu} className={styles.button} autoFocus={true} >
               <IconX aria-hidden="true" width={18} height={18} strokeWidth={3} style={{ minWidth: '18px' }} />
             </button>
             {/* Link to the object */}
@@ -247,47 +246,41 @@ export function ControlsMenu(
           </div>
           {links ? (
             <>
-              {links.parentLink &&
-                <Link href={links.parentLink} className={styles.menuAction}>
+              {links.parentLink ? <Link href={links.parentLink} className={styles.menuAction}>
                   <span>{links.parentDescription || links.parentLink}</span>
                   <IconArrowBackUp aria-hidden="true" style={{ minWidth: '24px' }} /> {/* TODO: Probably dont want this anymore, should however make it available elsewhere before removing */}
-                </Link>
+                </Link> : null
               }
               {hasEditAccess(accessLevel ?? AccessLevel.None) ?
                 <>
-                  {links.creationLink &&
-                    <Link href={links.creationLink} className={styles.menuAction}>
+                  {links.creationLink ? <Link href={links.creationLink} className={styles.menuAction}>
                       <span>{links.creationDescription}</span>
                       <IconPlus aria-hidden="true" style={{ minWidth: '24px' }} />
-                    </Link>
+                    </Link> : null
                   }
-                  {links.creationLink2 &&
-                    <Link href={links.creationLink2} className={styles.menuAction}>
+                  {links.creationLink2 ? <Link href={links.creationLink2} className={styles.menuAction}>
                       <span>{links.creationDescription2 || links.creationLink2}</span>
                       <IconPlus aria-hidden="true" style={{ minWidth: '24px' }} />
-                    </Link>
+                    </Link> : null
                   }
-                  {links.editLink &&
-                    <Link href={links.editLink} className={styles.menuAction}>
+                  {links.editLink ? <Link href={links.editLink} className={styles.menuAction}>
                       <span>{t("components:table_menu.edit")}</span>
                       <IconEdit aria-hidden="true" style={{ minWidth: '24px' }} />
-                    </Link>
+                    </Link> : null
                   }
-                  {links.historicalDataLink &&
-                    <Link href={links.historicalDataLink} className={styles.menuAction}>
+                  {links.historicalDataLink ? <Link href={links.historicalDataLink} className={styles.menuAction}>
                       <span>{t("components:table_menu.edit")}</span> {/* TODO: Switch text here */}
                       <IconChartHistogram aria-hidden="true" style={{ minWidth: '24px' }} />
-                    </Link>
+                    </Link> : null
                   }
                   { // Admins and authors can delete items
-                    (accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) && links.deleteLink &&
-                    <>
+                    (accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) && links.deleteLink ? <>
                       <button type="button" className="width-100 transparent display-flex align-items-center justify-content-space-between padding-50" style={{ fontSize: '1rem' }} data-testid="delete-post" onClick={() => openModal(deletionRef)}>
                         {t("components:table_menu.delete")}
                         <IconTrashXFilled aria-hidden="true" fill="red" style={{ minWidth: '24px' }} />
                       </button>
                       <ConfirmDelete modalRef={deletionRef} targetUrl={links.deleteLink} targetName={objectName || metaRoadmapName || t("components:table_menu.delete_missing_name")} targetId={object.id} />
-                    </>
+                    </> : null
                   }
                 </>
                 : null
@@ -298,7 +291,6 @@ export function ControlsMenu(
           )}
         </dialog>
       </div>
-    </>
   );
 }
 
@@ -362,8 +354,8 @@ export function AdminPanel(
           <>
             {hasEditAccess(accessLevel ?? AccessLevel.None) ? (
               <>
-                {links.featureGoal && (
-                  <button
+                {links.featureGoal ? <button
+                  type="button"
                     className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`}
                     style={{ boxShadow: 'none', cursor: 'pointer', fontSize: '14px', transform: 'none' }}
                     onClick={() => {
@@ -386,46 +378,40 @@ export function AdminPanel(
                         <IconStar aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                       </>
                     )}
-                  </button>
-                )}
+                  </button> : null}
                 <nav className="display-contents">
-                  {links.historicalDataLink &&
-                    <Link href={links.historicalDataLink} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`} data-testid="historical-data-link">
+                  {links.historicalDataLink ? <Link href={links.historicalDataLink} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`} data-testid="historical-data-link">
                       <span>{t("components:table_menu.historical_data")}</span>
                       <IconChartHistogram aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
-                    </Link>
+                    </Link> : null
                   }
-                  {links.creationLink &&
-                    <Link href={links.creationLink} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`}>
+                  {links.creationLink ? <Link href={links.creationLink} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`}>
                       <span>{links.creationDescription}</span>
                       <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
-                    </Link>
+                    </Link> : null
                   }
-                  {links.creationLink2 &&
-                    <Link href={links.creationLink2} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`} data-testid="admin-panel-new-action">
+                  {links.creationLink2 ? <Link href={links.creationLink2} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`} data-testid="admin-panel-new-action">
                       <span>{links.creationDescription2 || links.creationLink2}</span>
                       <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
-                    </Link>
+                    </Link> : null
                   }
-                  {links.editLink &&
-                    <Link href={links.editLink} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`} data-testid="admin-panel-edit">
+                  {links.editLink ? <Link href={links.editLink} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`} data-testid="admin-panel-edit">
                       <span>{t("components:table_menu.edit")}</span>
                       <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
-                    </Link>
+                    </Link> : null
                   }
                 </nav>
               </>
             ) : null
             }
             {/* Admins and authors can delete items */}
-            {(accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) && links.deleteLink &&
-              <>
+            {(accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) && links.deleteLink ? <>
                 <button type="button" className={`flex gap-50 justify-content-space-between align-items-center button smooth  ${styles['object-menu-button']}`} style={{ textShadow: 'none', color: 'white', backgroundColor: "#f03b3b", border: '0' }} onClick={() => openModal(deletionRef)}>
                   {t("components:table_menu.delete")}
                   <IconTrashXFilled aria-hidden="true" width={20} height={20} fill="white" style={{ minWidth: '20px' }} />
                 </button>
                 <ConfirmDelete modalRef={deletionRef} targetUrl={links.deleteLink} targetName={objectName || metaRoadmapName || t("components:table_menu.delete_missing_name")} targetId={object.id} />
-              </>
+              </> : null
             }
           </>
         ) : null}

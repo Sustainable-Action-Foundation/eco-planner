@@ -43,13 +43,13 @@ export async function AttributeText(
     <p className={`margin-0 ${className}`}>
       {t("components:image_attribute.by")}
       {" "}
-      <a className="color-purewhite" href={authorLink} target="_blank">
+      <a className="color-purewhite" href={authorLink} target="_blank" rel="noreferrer">
         {author}
       </a>
       {" "}
       {t("components:image_attribute.on")}
       {" "}
-      <a className="color-purewhite" href={sourceLink} target="_blank">
+      <a className="color-purewhite" href={sourceLink} target="_blank" rel="noreferrer">
         {source}
       </a>
     </p>

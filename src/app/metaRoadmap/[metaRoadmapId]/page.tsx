@@ -80,7 +80,7 @@ export default async function Page(props: { params: Promise<{ metaRoadmapId: str
               <ul>
                 {metaRoadmap.links.map((link: { url: string, description: string | null }, index: number) =>
                   <li className="margin-block-25" key={index}>
-                    <a href={link.url} target="_blank">{link.description}</a>
+                    <a href={link.url} target="_blank" rel="noreferrer">{link.description}</a>
                   </li>,
                 )}
               </ul>

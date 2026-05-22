@@ -131,10 +131,9 @@ export default async function Page(
                 sourceLink="https://unsplash.com/photos/white-and-blue-solar-panels-pwFr_1SUXRo?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" />
             </div>
             { // Link to create roadmap form if logged in
-              session.user &&
-              <>
-                <Link href="/metaRoadmap/create" className="button purewhite round block">{t("pages:home.create_roadmap")}</Link>
-              </>
+              session.user
+                ? <Link href="/metaRoadmap/create" className="button purewhite round block">{t("pages:home.create_roadmap")}</Link>
+                : null
             }
           </div>
         </AttributedImage>

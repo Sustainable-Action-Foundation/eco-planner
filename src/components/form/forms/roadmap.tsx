@@ -199,8 +199,7 @@ export default function RoadmapForm({
   }, [metaRoadmapAlternatives]);
 
   return (
-    <>
-      <form onSubmit={(e: React.ChangeEvent<HTMLFormElement>) => {
+    <form onSubmit={(e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
         void handleSubmit(e);
       }}>
@@ -231,10 +230,9 @@ export default function RoadmapForm({
               : null
             }
 
-            {metaRoadmapTarget?.roadmapVersions.length && (
-              <label>
+            {metaRoadmapTarget?.roadmapVersions.length ? <label>
                 {t("forms:roadmap.roadmap_target_label", { targetName: metaRoadmapTarget.name })}
-                <select className="block margin-top-25 margin-bottom-100 width-100" name="target-version" id="target-version" required defaultValue={currentRoadmap?.targetVersion ?? ""} onChange={(e) => setTargetVersion(parseInt(e.target.value, 10) || null)}>
+                <select className="block margin-top-25 margin-bottom-100 width-100" name="target-version" id="target-version" required={true} defaultValue={currentRoadmap?.targetVersion ?? ""} onChange={(e) => setTargetVersion(parseInt(e.target.value, 10) || null)}>
                   <option value="">{t("forms:roadmap.roadmap_target_no_chosen")}</option>
                   <option value={0}>{t("forms:roadmap.roadmap_target_always_latest")}</option>
                   {metaRoadmapTarget.roadmapVersions.map((version) => {
@@ -243,8 +241,7 @@ export default function RoadmapForm({
                     );
                   })}
                 </select>
-              </label>
-            )}
+              </label> : null}
           </fieldset>
           : null
         }
@@ -336,6 +333,5 @@ export default function RoadmapForm({
           </button>
         </div>
       </form >
-    </>
   );
 }

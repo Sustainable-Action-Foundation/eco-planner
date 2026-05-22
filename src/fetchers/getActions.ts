@@ -35,9 +35,9 @@ async function getCachedActions(user: LoginData['user']) {
       actions = await prisma.action.findMany({
         include: actionInclusionSelection,
       });
-    } catch (error) {
-      console.log(error);
-      console.log('Error fetching admin actions');
+    }
+    catch (error) {
+      console.error("Error fetching admin actions", { error });
       return null;
     }
 
@@ -62,9 +62,9 @@ async function getCachedActions(user: LoginData['user']) {
         },
         include: actionInclusionSelection,
       });
-    } catch (error) {
-      console.log(error);
-      console.log('Error fetching actions');
+    }
+    catch (error) {
+      console.error("Error fetching user actions", { error });
       return null;
     }
 
@@ -79,9 +79,9 @@ async function getCachedActions(user: LoginData['user']) {
       },
       include: actionInclusionSelection,
     });
-  } catch (error) {
-    console.log(error);
-    console.log('Error fetching public actions');
+  }
+  catch (error) {
+    console.error("Error fetching public actions", { error });
     return null;
   }
 

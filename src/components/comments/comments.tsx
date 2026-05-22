@@ -74,11 +74,10 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
   };
 
   return (
-    <>
-      <div className="container-text">
+    <div className="container-text">
         <h2>{t("components:comments.comment_count", { count: comments?.length ?? 0 })}</h2>
         <form onSubmit={handleSubmit}>
-          <span className={styles.textarea} role="textbox" id="comment-text" contentEditable aria-label={t("components:comments.add_comment")} aria-placeholder={t("components:comments.add_comment")} onInput={handleInput} onBlur={handleBlur} ref={spanRef}></span>
+          <span className={styles.textarea} role="textbox" id="comment-text" contentEditable={true} aria-label={t("components:comments.add_comment")} aria-placeholder={t("components:comments.add_comment")} onInput={handleInput} onBlur={handleBlur} ref={spanRef}></span>
           <input type="hidden" name="comment" id="comment" value={editedContent} />
           <div className="display-flex justify-content-flex-end gap-50 padding-block-50">
             <button type="button" disabled={!editedContent} className={`${styles.button} ${styles.cancel}`} onClick={removeText}>{t("common:tsx.cancel")}</button>
@@ -97,13 +96,12 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
               {expandedComments.includes(comment.id) ? comment.commentText : comment.commentText.length > 300 ? `${comment.commentText.substring(0, 300)}${t("common:tsx.ellipsis")}` : comment.commentText}
             </p>
             {comment.commentText.length > 300 ?
-              <button className={`margin-block-25 ${styles.readMoreButton}`} onClick={() => expandComment(comment.id)}>
+              <button type="button" className={`margin-block-25 ${styles.readMoreButton}`} onClick={() => expandComment(comment.id)}>
                 {expandedComments.includes(comment.id) ? t("common:tsx.show_less") : t("common:tsx.show_more")}
               </button>
               : null}
           </div>
         ))}
       </div>
-    </>
   );
 }
