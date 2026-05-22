@@ -169,10 +169,7 @@ export function handleKeyDownGrid({
 
     case "F2" : {
       e.preventDefault();
-
-      if (editMode === true) return;
-
-      setEditMode(true);
+      setEditMode(!editMode);
       break;
     }
 

@@ -166,15 +166,12 @@ export default function DataSeriesInputManual({
     );
   }
 
-  // TODO: Double check i18n
-  // TODO: Ensure proper validation when copypasting text
   // TODO: Cleanup code by checking semantics, css and js for this component and for the grid component
   // TODO: Remove old component
-  // TODO: Check proper aria (aria-selected etc...), i don't think we currently indicate a highlighted/focused cell
 
   return (
     <>
-      <div className="margin-bottom-25" id={`table-${label}`}>{label}</div>
+      <div className="margin-bottom-25" id={`table-${label.toLowerCase().replace(' ', '-')}`}>{label}</div>
       {/* TODO: Might make sense to make an actual, keyboard navigable menu component */}
       <menu
         className={`flex gap-25 margin-0 gray-95 align-items-center justify-content-space-between ${styles['grid-menu']}`}
@@ -247,7 +244,7 @@ export default function DataSeriesInputManual({
       }) : null}
 
       <Grid
-        ariaLabelledBy={`table-${label}`}
+        ariaLabelledBy={`table-${label.toLowerCase().replace(' ', '-')}`}
         focusedCell={focusedCell}
         setFocusedCell={setFocusedCell}
         insertRowBottom={insertRowBottom}

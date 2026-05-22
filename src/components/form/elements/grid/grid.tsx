@@ -48,13 +48,14 @@ function setFocusInGridcell(
 }
 
 const GridCell = React.forwardRef<HTMLTableCellElement, GridCell>(
-  ({ className, style, children, position, tabIndex, onKeyDown, onClick, onDoubleClick }, ref) => (
+  ({ className, style, children, tabIndex, ariaSelected, position, onKeyDown, onClick, onDoubleClick }, ref) => (
     <td
       className={`${className ? `${className} ` : ''}`}
       style={{ ...(style ?? {}) }}
       ref={ref}
       role="gridcell"
       tabIndex={tabIndex}
+      aria-selected={ariaSelected}
       data-row={position?.row}
       data-column={position?.column}
       onKeyDown={onKeyDown}
@@ -209,8 +210,9 @@ export default function Grid({
                 if (!isGridCell(child)) return child;
 
                 return React.cloneElement(child, {
-                  position: { row: rowIndex, column: columnIndex },
                   tabIndex: -1,
+                  ariaSelected: (focusedCell?.row === rowIndex && focusedCell.column === columnIndex) ? true : false, 
+                  position: { row: rowIndex, column: columnIndex },
                   onKeyDown: (event) =>
                     handleKeyDownGrid({
                       e: event,
