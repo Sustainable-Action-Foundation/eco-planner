@@ -16,8 +16,8 @@ export function handleKeyDownGrid({
   e: React.KeyboardEvent<HTMLTableCellElement>,
   amountColumns: number,
   amountRows: number,
-  focusedCell: { row: number, column: number } | null, // TODO: RENAME --> FocusedCell
-  setFocusedCell: React.Dispatch<React.SetStateAction<{ row: number, column: number } | null>>,  // TODO: RENAME --> SetFocusedCell
+  focusedCell: { row: number, column: number } | null,
+  setFocusedCell: React.Dispatch<React.SetStateAction<{ row: number, column: number } | null>>,
   editMode: boolean,
   setEditMode: React.Dispatch<React.SetStateAction<boolean>>,
   insertRowBottom: () => void;

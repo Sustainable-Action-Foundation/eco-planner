@@ -349,6 +349,10 @@
   max-width: 100%;
 }
 
+.height-fit-content {
+  height: fit-content;
+}
+
 .height-0 {
   height: 0;
 }
