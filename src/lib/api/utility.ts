@@ -3,7 +3,7 @@ import type { ApiTableContent } from "./apiTypes";
 
 // TODO: Refactor file
 
-export type DatasetKeys = "SCB" | "Trafa" | "SSB";
+export type DatasetKeys = "SCB" | "Trafa" | "SSB" | "STEM";
 export type DatasetData = {
   baseUrl: string,
   userFacingUrl: string,
@@ -53,6 +53,17 @@ export class ExternalDataset {
   };
   static ssb = this.SSB;
 
+  /** An API provided by Swedish Energimyndigheten, using th PxWeb API v2 */
+  static STEM: DatasetData = {
+    baseUrl: "https://api.pxexternal2.energimyndigheten.se/",
+    userFacingUrl: "https://pxexternal.energimyndigheten.se/pxweb/",
+    supportedLanguages: ["sv"/*, "en"*/], // English support is currently (2026-05-22) very spotty from their side, so we won't list it as supported until it's more reliable
+    api: "PxWeb",
+    fullName: "Energimyndigheten",
+    alternateNames: ["energimyndigheten", "swedish energy agency", "statens energimyndighet"],
+  };
+  static stem = this.STEM;
+
 
   // Trafa-based APIs
   /** An API provided by Swedish Trafikanalys, with their own data format */
@@ -69,7 +80,7 @@ export class ExternalDataset {
 
   // Utility methods and properties
   /** A list of dataset keys with "canonical" casing. Should match the main keys of the class and be safe to use everywhere */
-  static knownDatasetKeys: DatasetKeys[] = ["SCB", "SSB", "Trafa"];
+  static knownDatasetKeys: DatasetKeys[] = ["SCB", "SSB", "Trafa", "STEM"];
 
   /**
    * Returns a list of datasets using the specified API(s).

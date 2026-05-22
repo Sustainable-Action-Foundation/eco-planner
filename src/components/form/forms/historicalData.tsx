@@ -483,7 +483,7 @@ export default function HistoricalData({
               {t("components:query_builder.select_metric")}
               <select className={`block margin-top-25 margin-bottom-100 metric`}
                 required={true}
-                name="metric"
+                name={tableDetails.metrics.length === 1 ? tableDetails.metrics[0].name : "metric"}
                 id="metric"
                 value={!!metric ? metric : ''}
                 onChange={(e) => { setMetric(e.target.value); setTimeout(() => tryGetResult(e), 0); }}

@@ -2,7 +2,7 @@ import type { ApiTableDetails } from "../api/apiTypes";
 import { ExternalDataset } from "../api/utility";
 import type { PxWebApiV2MetricDimension, PxWebApiV2TableDetails, PxWebMetric, PxWebTimeVariable, PxWebVariable, PxWebVariableValue } from "./pxWebApiV2Types";
 
-export default async function getPxWebTableDetails(tableId: string, externalDataset: string, language?: string) {
+export default async function getPxWebTableDetails(tableId: string, externalDataset: string, language?: string): Promise<ApiTableDetails | null> {
   // Get the base URL for the external dataset, defaulting to SCB
   const dataset = ExternalDataset.getDatasetByAlternateName(externalDataset) ?? ExternalDataset.SCB;
   const url = new URL(`./tables/${tableId}/metadata`, dataset.baseUrl);
@@ -25,12 +25,15 @@ export default async function getPxWebTableDetails(tableId: string, externalData
       // Wait 10 seconds and try again
       await new Promise(resolve => setTimeout(resolve, 10000));
       return await getPxWebTableDetails(tableId, externalDataset, language);
+    } else if (response.status === 404) {
+      console.error(`No metadata found for table ${tableId} in dataset ${externalDataset}`, { url, response });
+      return null;
     } else {
       return null;
     }
   }
   catch (error) {
-    console.error("Error fetching table details from PxWeb API", { error });
+    console.error("Error fetching table details from PxWeb API", { error }, `Query URL: ${url}`);
     return null;
   }
 
@@ -43,8 +46,17 @@ export default async function getPxWebTableDetails(tableId: string, externalData
     language: language,
   };
 
+  const metricName = data.role.metric[0]; // The variable name for the metric is usually "ContentsCode", but we will get it from the response just to be sure (Energimyndigheten seems to use "CONTENTS" instead)
+  if (!metricName) {
+    console.error("No metric variable found in table details response", { data });
+    return null;
+  }else if (!data.dimension[metricName]) {
+    console.error(`Metric variable "${metricName}" not found in table details response`, { data });
+    return null;
+  }
+
   // Get all metrics for the table and add to tableDetails
-  const metricsCategory = (data.dimension.ContentsCode as PxWebApiV2MetricDimension).category;
+  const metricsCategory = (data.dimension[metricName] as PxWebApiV2MetricDimension).category;
   for (const key in metricsCategory.index) {
     const pxWebMetric: PxWebMetric = {
       type: "metric",
@@ -106,5 +118,6 @@ export default async function getPxWebTableDetails(tableId: string, externalData
     tableDetails.variables.push(pxWebVariable);
   }
 
+  console.log("Fetched table details from PxWeb API", { tableDetails });
   return tableDetails;
 }
