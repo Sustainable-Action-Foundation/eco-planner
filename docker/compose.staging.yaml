@@ -41,8 +41,6 @@ services:
     build:
       context: ..
       dockerfile: docker/app.Dockerfile
-      args:
-        - DATABASE_URL=${DATABASE_URL}
     restart: always
     depends_on:
       db:
