@@ -55,5 +55,6 @@
     "out",
     "dist",
     "build",
+    "ignore",
   ],
 }
