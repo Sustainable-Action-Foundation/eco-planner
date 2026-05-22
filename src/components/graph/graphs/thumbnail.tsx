@@ -113,8 +113,7 @@ export default async function ThumbnailGraph({
   };
 
   return (
-    <>
-      <div className={`${styles['thumbnail-graph']}`}>
+    <div className={`${styles['thumbnail-graph']}`}>
         <h3 className="font-weight-500 margin-0 padding-top-75 padding-inline-75 overflow-hidden white-space-nowrap text-align-center text-overflow-ellipsis">
           {!!goal.name ? goal.name : goal.indicatorParameter}
         </h3>
@@ -127,6 +126,5 @@ export default async function ThumbnailGraph({
           />
         </div>
       </div>
-    </>
   );
 }

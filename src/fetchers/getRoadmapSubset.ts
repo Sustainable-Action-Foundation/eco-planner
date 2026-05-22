@@ -3,8 +3,8 @@ import { multiRoadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session";
 import { roadmapSorter } from "@/lib/sorters";
-import type { Prisma } from "@/prismaClient";
-import prisma from "@/prismaClient";
+import type { Prisma } from "@/lib/prisma/generated";
+import { prisma } from "@/lib/prisma";
 import { cacheTag } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -49,9 +49,9 @@ async function getCachedRoadmapSubset(user: LoginData['user'], actor?: string) {
         },
         include: roadmapSubsetSelect,
       });
-    } catch (error) {
-      console.log(error);
-      console.log('Error fetching admin roadmaps');
+    }
+    catch (error) {
+      console.error("Error fetching admin roadmaps", { error });
       return [];
     }
 
@@ -78,9 +78,9 @@ async function getCachedRoadmapSubset(user: LoginData['user'], actor?: string) {
         },
         include: roadmapSubsetSelect,
       });
-    } catch (error) {
-      console.log(error);
-      console.log('Error fetching user roadmaps');
+    }
+    catch (error) {
+      console.error("Error fetching user roadmaps", { error });
       return [];
     }
 
@@ -99,9 +99,9 @@ async function getCachedRoadmapSubset(user: LoginData['user'], actor?: string) {
       },
       include: roadmapSubsetSelect,
     });
-  } catch (error) {
-    console.log(error);
-    console.log('Error fetching public roadmaps');
+  }
+  catch (error) {
+    console.error("Error fetching public roadmaps", { error });
     return [];
   }
 

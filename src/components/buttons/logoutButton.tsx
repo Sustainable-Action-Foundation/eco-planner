@@ -16,6 +16,7 @@ export default function LogoutButton({
   const { t } = useTranslation(["common", "components"]);
   return (
     <button
+      type="button"
       id={id}
       className={`${className}`}
       style={{ ...style }}

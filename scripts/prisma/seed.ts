@@ -1,15 +1,15 @@
 /* eslint-disable no-template-curly-in-string */
 // DO NOT SEED PRODUCTION DATABASE
 
-import { colors } from "../lib/colors.ts";
-import { PrismaClient, RoadmapType } from '../../.prisma/generated';
-import bcrypt from "bcryptjs";
-import { RandomTextSE } from "./randomText";
-import { RecipeDataTypes, VectorIndexPickerOptions } from "../../src/functions/recipe/types";
-import { Recipe } from "../../src/functions/recipe/recipe";
-import { isISOIshDate } from "../../src/types";
 import type { DateValues } from "../../src/types";
+import bcrypt from "bcryptjs";
+import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "../../src/functions/recipe";
+import { RandomTextSE } from "./randomText";
+import { RoadmapType } from "@/lib/prisma/generated";
+import { prisma } from "@/lib/prisma";
+import { isISOIshDate } from "../../src/types";
 import { dateValuesToDBDateRecord } from "../../src/functions/recipe/vectorAndMaskUtils";
+import { colors } from "../lib/colors.ts";
 
 /** 
  * The seed goal
@@ -22,7 +22,6 @@ import { dateValuesToDBDateRecord } from "../../src/functions/recipe/vectorAndMa
  * A lot of effects.
  */
 
-const prisma = new PrismaClient();
 prisma.$connect().catch((e: unknown) => {
   console.error(colors.yellow(`
     Could not connect to the database. Ensure DATABASE_URL is set correctly in the .env file.

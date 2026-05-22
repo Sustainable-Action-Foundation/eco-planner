@@ -205,7 +205,7 @@ test.describe("Recipe evaluator and factories", () => {
       variables: [scalarVariable("x", "X", 1)],
     });
 
-    await expect(recipe.evaluate([], { dataSeriesGetter: () => new Promise(() => null) })).rejects.toThrow("Recipe equation is empty");
+    await expect(recipe.evaluate([], { dataSeriesGetter: () => new Promise(() => null) })).rejects.toThrow("Equation is empty, no evaluation performed");
   });
 
   test("evaluate scalar equation broadcasts across default years", async () => {

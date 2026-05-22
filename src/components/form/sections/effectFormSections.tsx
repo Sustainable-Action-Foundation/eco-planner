@@ -33,11 +33,11 @@ export function ActionSelector({
     <>
       <label>
         {t("forms:effect.select_roadmap_version_for_action")}
-        <select name="selectedActionRoadmap" className="block margin-top-25 margin-bottom-100 width-100" required
+        <select name="selectedActionRoadmap" className="block margin-top-25 margin-bottom-100 width-100" required={true}
           value={selectedRoadmap}
           onChange={event => { setSelectedRoadmap(event.target.value); setSelectedAction(""); }}
         >
-          <option value="" disabled>{t("forms:effect.select_roadmap_version")}</option>
+          <option value="" disabled={true}>{t("forms:effect.select_roadmap_version")}</option>
           {roadmaps.map(roadmapOption => (
             // Disable selecting a different roadmap if a goal is preselected (for example when goalId is specified in the URL query)
             <option key={`action-selector${roadmapOption.id}`} value={roadmapOption.id} disabled={!!action && roadmapOption.id !== action.roadmapId}>
@@ -47,21 +47,20 @@ export function ActionSelector({
         </select>
       </label>
 
-      {selectedRoadmap &&
-        <label>
+      {selectedRoadmap ? <label>
           {t("forms:effect.select_action_for_effect")}
-          <select name="actionId" id="actionId" className="block margin-top-25 margin-bottom-100 width-100" required
+          <select name="actionId" id="actionId" className="block margin-top-25 margin-bottom-100 width-100" required={true}
             value={action?.id || selectedAction}
             onChange={event => setSelectedAction(event.target.value)}
           >
-            <option value="" disabled>{t("forms:effect.select_action")}</option>
+            <option value="" disabled={true}>{t("forms:effect.select_action")}</option>
             {roadmapData?.actions.map(actionOption => (
               <option key={`action-selector${actionOption.id}`} value={actionOption.id} disabled={!!action && actionOption.id !== action.id}>
                 {`${actionOption.name}; ${t("forms:effect.existing_effects", { count: actionOption._count.effects })}`}
               </option>
             ))}
           </select>
-        </label>
+        </label> : null
       }
     </>
   );
@@ -94,11 +93,11 @@ export function GoalSelector({
     <>
       <label>
         {t("forms:effect.select_roadmap_version_for_goal")}
-        <select name="selectedGoalRoadmap" className="block margin-top-25 margin-bottom-100 width-100" required
+        <select name="selectedGoalRoadmap" className="block margin-top-25 margin-bottom-100 width-100" required={true}
           value={selectedRoadmap ?? ""}
           onChange={event => { setSelectedRoadmap(event.target.value); setSelectedGoal(""); }}
         >
-          <option value="" disabled>{t("forms:effect.select_roadmap_version")}</option>
+          <option value="" disabled={true}>{t("forms:effect.select_roadmap_version")}</option>
           {roadmaps.map(roadmapOption => (
             // Disable selecting a different roadmap if a goal is preselected (for example when goalId is specified in the URL query)
             <option key={`goal-selector${roadmapOption.id}`} value={roadmapOption.id} disabled={!!goal && roadmapOption.id !== goal.roadmapId}>
@@ -108,21 +107,20 @@ export function GoalSelector({
         </select>
       </label>
 
-      {selectedRoadmap &&
-        <label>
+      {selectedRoadmap ? <label>
           {t("forms:effect.select_goal_to_affect")}
-          <select name="goalId" id="goalId" className="block margin-top-25 margin-bottom-100 width-100" required
+          <select name="goalId" id="goalId" className="block margin-top-25 margin-bottom-100 width-100" required={true}
             value={goal?.id ?? selectedGoal ?? ""}
             onChange={event => setSelectedGoal(event.target.value)}
           >
-            <option value="" disabled>{t("forms:effect.select_goal")}</option>
+            <option value="" disabled={true}>{t("forms:effect.select_goal")}</option>
             {roadmapData?.goals.map(goalOption => (
               <option key={`goal-selector${goalOption.id}`} value={goalOption.id} disabled={!!goal && goalOption.id !== goal.id}>
                 {`${goalOption.name ?? t("forms:effect.unnamed_goal")}: ${goalOption.indicatorParameter} (${goalOption.dataSeries?.unit === null ? t("common:tsx.unitless") : goalOption.dataSeries?.unit || t("common:tsx.unit_missing")})`}
               </option>
             ))}
           </select>
-        </label>
+        </label> : null
       }
     </>
   );

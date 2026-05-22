@@ -1,6 +1,6 @@
 "use server";
 
-import prisma from "@/prismaClient";
+import { prisma } from "@/lib/prisma";
 import { clientSafeMultiRoadmapSelection } from "@/fetchers/inclusionSelectors";
 import { cookies } from "next/headers";
 import type { LoginData } from "@/lib/session";
@@ -32,9 +32,9 @@ async function getCachedClientSafeRoadmaps(user: LoginData['user']): Promise<Cli
       roadmaps = await prisma.roadmap.findMany({
         select: clientSafeMultiRoadmapSelection,
       }) satisfies ClientMultiRoadmapInstance[];
-    } catch (error) {
-      console.log(error);
-      console.log('Error fetching admin roadmaps');
+    }
+    catch (error) {
+      console.error("Error fetching admin roadmaps", { error });
       return [];
     }
 
@@ -61,9 +61,9 @@ async function getCachedClientSafeRoadmaps(user: LoginData['user']): Promise<Cli
         },
         select: clientSafeMultiRoadmapSelection,
       }) satisfies ClientMultiRoadmapInstance[];
-    } catch (error) {
-      console.log(error);
-      console.log('Error fetching user roadmaps');
+    }
+    catch (error) {
+      console.error("Error fetching user roadmaps", { error });
       return [];
     }
 
@@ -81,9 +81,9 @@ async function getCachedClientSafeRoadmaps(user: LoginData['user']): Promise<Cli
       },
       select: clientSafeMultiRoadmapSelection,
     }) satisfies ClientMultiRoadmapInstance[];
-  } catch (error) {
-    console.log(error);
-    console.log('Error fetching public roadmaps');
+  }
+  catch (error) {
+    console.error("Error fetching public roadmaps", { error });
     return [];
   }
 

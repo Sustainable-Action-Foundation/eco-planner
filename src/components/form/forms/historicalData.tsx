@@ -9,7 +9,7 @@ import { ExternalDataset } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
 import type { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
 import type { TrafaVariable } from "@/lib/trafa/trafaTypes";
-import type { Goal } from "@prisma/client";
+import type { Goal } from "@/lib/prisma/generated";
 import type { SubmitEvent } from "react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -210,8 +210,7 @@ export default function HistoricalData({
           >
             { // If only one value is available, don't show a placeholder option
               (ExternalDataset.getDatasetByAlternateName(dataSource)?.api !== "PxWeb" ||
-                (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && variable.values && variable.values.length > 1)) &&
-              <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option>
+                (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && variable.values && variable.values.length > 1)) ? <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option> : null
             }
             {variable.values?.map(value => (
               <option key={`${variable.name}-${value.name}`} value={value.name} lang={tableDetails.language}>{value.label}</option>
@@ -414,7 +413,7 @@ export default function HistoricalData({
         style={{ minHeight: '0' }}
       >
         {/* Hidden disabled submit button to prevent accidental submission */}
-        <button type="submit" className="display-none" disabled></button>
+        <button type="submit" className="display-none" disabled={true}></button>
 
         <fieldset
           // disabled={goal.externalDataset && goal.externalTableId ? true : false} 
@@ -432,7 +431,7 @@ export default function HistoricalData({
             <select
               defaultValue={!!goal.externalDataset ? goal.externalDataset : ''}
               className="block margin-top-25 margin-bottom-100 width-100"
-              required
+              required={true}
               name="externalDataset"
               id="externalDataset"
               onChange={e => {
@@ -516,8 +515,7 @@ export default function HistoricalData({
           {tableDetails &&
             shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? (
             <div>
-              {tableDetails.times &&
-                timeVariableSelectionHelper(tableDetails.times, tableDetails.language)
+              {tableDetails.times ? timeVariableSelectionHelper(tableDetails.times, tableDetails.language) : null
               }
               {tableDetails.variables.map(variable => {
                 return variableSelectionHelper(variable, tableDetails);

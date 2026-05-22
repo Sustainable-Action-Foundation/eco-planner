@@ -1,6 +1,6 @@
 'use client';
 
-import { RoadmapType } from "@prisma/client";
+import { RoadmapType } from "@/lib/prisma/generated";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Fragment, useEffect, useState, useTransition } from "react";
 import { useTranslation } from "react-i18next";
@@ -47,8 +47,7 @@ export default function RoadmapFilters() {
     debouncedUrlSync(nextState);
   };
 
-  return <>
-    <menu className="margin-0 padding-0">
+  return <menu className="margin-0 padding-0">
       <fieldset id="roadmapFilters" className="padding-0 fieldset-unset-pseudo-class smooth margin-top-150 flex flex-wrap-wrap gap-50" style={{ border: '0' }}>
         <legend className="margin-bottom-100" style={{textShadow: '0 0 black'}}>{`${t("components:roadmap_filters.roadmap_type")}`}</legend>
         {Object.values(RoadmapType).map((filterType, key) => (
@@ -65,6 +64,5 @@ export default function RoadmapFilters() {
           </Fragment>
         ))}
       </fieldset>
-    </menu >
-  </>;
+    </menu >;
 }

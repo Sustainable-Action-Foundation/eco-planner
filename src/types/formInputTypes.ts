@@ -1,5 +1,5 @@
 import type { SerializedRecipe } from "@/functions/recipe";
-import type { ActionImpactType, Prisma, RoadmapType } from "@/prismaClient";
+import type { ActionImpactType, Prisma, RoadmapType } from "@/lib/prisma/generated";
 import type { Action, DateValuesWithUnit } from "@/types";
 
 /** The format of data needed to create a new roadmap series */

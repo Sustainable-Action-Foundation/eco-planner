@@ -1,7 +1,9 @@
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
-import prisma, { Prisma, ActionImpactType } from "@/prismaClient";
+import { prisma } from "@/lib/prisma";
+import { Prisma } from "@PRISMA-NAMESPACE-ONLY";
+import { ActionImpactType } from "@/lib/prisma/generated";
 import { ClientError, isDateValuesWithUnit } from "@/types";
 import type { EffectInput, JSONValue } from "@/types";
 import { revalidateTag } from "next/cache";
@@ -125,7 +127,7 @@ export async function POST(request: NextRequest) {
           );
       }
     } else {
-      console.log(error);
+      console.error(error);
       return Response.json({ message: t('api:common.unknown_error') },
         { status: 500 },
       );
@@ -162,7 +164,7 @@ export async function POST(request: NextRequest) {
         { status: 409 },
       );
     }
-    console.log(error);
+    console.error(error);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );
@@ -283,7 +285,7 @@ export async function PUT(request: NextRequest) {
           );
       }
     } else {
-      console.log(error);
+      console.error(error);
       return Response.json({ message: t('api:common.unknown_error') },
         { status: 500 },
       );
@@ -322,7 +324,7 @@ export async function PUT(request: NextRequest) {
       { status: 200 },
     );
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );
@@ -416,7 +418,7 @@ export async function DELETE(request: NextRequest) {
           );
       }
     } else {
-      console.log(error);
+      console.error(error);
       return Response.json({ message: t('api:common.unknown_error') },
         { status: 500 },
       );
@@ -436,7 +438,7 @@ export async function DELETE(request: NextRequest) {
       { status: 200 },
     );
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );

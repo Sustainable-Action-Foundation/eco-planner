@@ -3,7 +3,7 @@
 import { clientSafeGoalSelection } from "@/fetchers/inclusionSelectors";
 import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session";
-import prisma from "@/prismaClient";
+import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { cacheTag } from 'next/cache';
 import type { ClientGoal } from "@/types";
@@ -33,9 +33,9 @@ async function clientSafeGetCachedGoal(id: string, user: LoginData['user']): Pro
         where: { id },
         select: clientSafeGoalSelection,
       }) satisfies ClientGoal | null;
-    } catch (error) {
-      console.log(error);
-      console.log('Error fetching admin goal');
+    }
+    catch (error) {
+      console.error("Error fetching admin goal", { error });
       return null;
     }
 
@@ -61,9 +61,9 @@ async function clientSafeGetCachedGoal(id: string, user: LoginData['user']): Pro
         },
         select: clientSafeGoalSelection,
       }) satisfies ClientGoal | null;
-    } catch (error) {
-      console.log(error);
-      console.log('Error fetching user goal');
+    }
+    catch (error) {
+      console.error("Error fetching user goal", { error });
       return null;
     }
 
@@ -80,8 +80,7 @@ async function clientSafeGetCachedGoal(id: string, user: LoginData['user']): Pro
       select: clientSafeGoalSelection,
     }) satisfies ClientGoal | null;
   } catch (error) {
-    console.log(error);
-    console.log('Error fetching public goal');
+    console.error("Error fetching public goal", { error });
     return null;
   }
 

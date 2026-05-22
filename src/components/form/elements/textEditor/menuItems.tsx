@@ -46,8 +46,14 @@ export function Undo(props: MenubarButtonProps) {
   const canUndo = useEditorState({
     editor,
     selector: ctx => {
+      let canUndo;
+      try {
+        canUndo = ctx.editor.can().undo();
+      } catch {
+        canUndo = false;
+      }
       return {
-        canUndo: ctx.editor.can().undo(),
+        canUndo,
       };
     },
   });
@@ -80,8 +86,14 @@ export function Redo(props: MenubarButtonProps) {
   const canRedo = useEditorState({
     editor,
     selector: ctx => {
+      let canRedo;
+      try {
+        canRedo = ctx.editor.can().redo();
+      } catch {
+        canRedo = false;
+      }
       return {
-        canRedo: ctx.editor.can().redo(),
+        canRedo,
       };
     },
   });
@@ -462,8 +474,7 @@ export function Link(props: MenubarButtonProps) {
           </button>
         </div>
       </dialog>
-      {editor &&
-        <BubbleMenu
+      {editor ? <BubbleMenu
           editor={editor}
           shouldShow={({ editor }) => editor.isActive('link')}
           options={{
@@ -475,7 +486,7 @@ export function Link(props: MenubarButtonProps) {
             <a
               href={(editor.getAttributes('link') as { href?: string | null }).href ?? ''}
               target="_blank"
-              style={{ width: 'min(175px, auto)', fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              style={{ width: 'min(175px, auto)', fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} rel="noreferrer">
               {editor.getAttributes('link').href}
             </a>
             <span className="margin-left-75 padding-left-25" style={{ borderLeft: '1px solid var(--gray)' }}>
@@ -491,7 +502,7 @@ export function Link(props: MenubarButtonProps) {
               </button>
             </span>
           </div>
-        </BubbleMenu>
+        </BubbleMenu> : null
       }
     </>
   );
@@ -550,8 +561,7 @@ export function FontSize(props: FontSizeProps) {
   }, [fontSizeMenuOpen, editor]);
 
   return (
-    <>
-      <span
+    <span
         data-menu-group={menuGroup}
         onClick={() => setFontSizeMenuOpen(!fontSizeMenuOpen)}
         onKeyDown={(e: React.KeyboardEvent) => {
@@ -658,6 +668,5 @@ export function FontSize(props: FontSizeProps) {
           </li>
         </ul>
       </span>
-    </>
   );
 }

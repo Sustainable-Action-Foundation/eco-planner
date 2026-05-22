@@ -233,7 +233,7 @@ export default function DataSeriesInputManual({
         </div>
       </menu>
 
-      {outputFormElement && React.cloneElement(outputFormElement, {
+      {outputFormElement ? React.cloneElement(outputFormElement, {
         value: JSON.stringify({
           dateValues: value.every(({ year, data }) => !year && !data) // If all values are completely empty, we return an empty object
             ? {}
@@ -244,7 +244,7 @@ export default function DataSeriesInputManual({
         type: "hidden",
         hidden: true,
         readOnly: true,
-      })}
+      }) : null}
 
       <Grid
         ariaLabelledBy={`table-${label}`}
@@ -276,7 +276,7 @@ export default function DataSeriesInputManual({
               >
                 <input
                   type="number"
-                  required
+                  required={true}
                   tabIndex={-1}
                   value={item.year === null ? '' : String(item.year)}
                   onChange={(e) => handleYearChange(index, e.target.value)}

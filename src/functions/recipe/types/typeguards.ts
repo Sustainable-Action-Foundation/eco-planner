@@ -1,10 +1,10 @@
 import type { DatasetKeys } from "@/lib/api/utility";
 import { ExternalDataset } from "@/lib/api/utility";
-import { isDateValuesWithUnit, isStandardObject,isDateValues, isISOIshDate, uuidRegex } from "@/types";
+import { isDateValuesWithUnit, isStandardObject, isDateValues, isISOIshDate, uuidRegex } from "@/types";
 import type { JSONValue } from "@/types";
 import mathjs from "@/math";
 
-import { RecipeDataTypes,VectorIndexPickerOptions } from "./consts";
+import { RecipeDataTypes, VectorIndexPickerOptions } from "./consts";
 import type {
   EvalTimeVariable,
   DataSeriesVariable,

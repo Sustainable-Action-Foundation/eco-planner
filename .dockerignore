@@ -1,3 +1,6 @@
+# Prisma generated client
+prisma/generated/
+
 docker/
 
 # Dependencies
@@ -14,9 +17,9 @@ build/
 # Testing
 coverage/
 .nyc_output/
+json-report/
 test-results/
 playwright-report/
-json-report/
 
 # Environment variables (security)
 .env*

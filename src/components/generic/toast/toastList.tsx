@@ -1,7 +1,7 @@
 "use client";
 import { useToastContext } from "@/components/generic/toast/toastContext";
 import Toast from "./toast";
-import styles from "./toast.module.css";
+import styles from './toast.module.css';
 
 export default function ToastList() {
   const { messages } = useToastContext();

@@ -90,8 +90,7 @@ export default function GoalTable({
       break;
   }
 
-  return <>
-    <div className="overflow-x-scroll smooth">
+  return <div className="overflow-x-scroll smooth">
       <table id="goalTable" className={styles.table}>
         <thead>
           <tr>
@@ -112,6 +111,5 @@ export default function GoalTable({
           ))}
         </tbody>
       </table>
-    </div>
-  </>;
+    </div>;
 }

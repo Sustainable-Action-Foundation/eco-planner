@@ -46,9 +46,13 @@ RUN rm -rf /tmp/* /var/tmp/*
 # ============================================================================
 # Prisma stage - Generate Prisma client
 # ============================================================================
-FROM deps AS prisma
+FROM base AS prisma
 
+# Prisma schema and config files
+COPY --from=deps /app/node_modules ./node_modules
 COPY prisma/ ./prisma/
+COPY prisma.config.ts tsconfig.json ./
+
 RUN yarn prisma generate
 
 
@@ -69,7 +73,7 @@ COPY --from=deps /root/.cache/node/corepack /root/.cache/node/corepack
 COPY . .
 
 # Copy Prisma clients generated files from the prisma stage
-COPY --from=prisma /app/.prisma/generated/ ./.prisma/generated/
+COPY --from=prisma /app/prisma/generated ./prisma/generated
 
 # Set build environment variables
 ENV NODE_ENV=production
@@ -104,14 +108,14 @@ ENV PORT=8081
 ENV HOSTNAME=0.0.0.0
 
 # Copy public assets
-COPY --from=builder /app/public ./public
+COPY ./public ./public
 
 # Copy built application with proper ownership
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 # Ensure proper permissions
-RUN mkdir -p .next && chown -R nextjs:nodejs .next
+RUN chown -R nextjs:nodejs .next
 
 # App has an API endpoint which always returns 200 OK
 HEALTHCHECK --interval=3s --timeout=10s --start-period=3s --retries=10 \

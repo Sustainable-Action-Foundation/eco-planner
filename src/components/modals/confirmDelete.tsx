@@ -52,14 +52,14 @@ export default function ConfirmDelete({
     <dialog 
       closedby="any"
       ref={modalRef} 
-      aria-modal 
+      aria-modal={true} 
       className={`rounded padding-inline-0 padding-block-0 ${styles['dialog']}`}
       style={{width: 'min(75ch, 100%)', height: 'calc(-2rem + 50vh)', fontSize: 'initial'}}
     >
       <div className={`${styles['dialog-content']}`}>
         <div className={`${styles['dialog-header']}`}>
           {/* Close button */}
-          <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus aria-label={t("common:tsx.close")} >
+          <button type="button" className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus={true} aria-label={t("common:tsx.close")} >
             <IconX aria-hidden="true" width={28} height={28} strokeWidth={3} style={{ minWidth: '28px' }} />
           </button>
 
@@ -81,7 +81,7 @@ export default function ConfirmDelete({
                 values={{ targetName: targetName }}
                 components={{ strong: <strong /> }}
               />
-              <input className="margin-block-25" type="text" placeholder={targetName} id={`delete-name-input-${elementId}`} required pattern={targetName} />
+              <input className="margin-block-25" type="text" placeholder={targetName} id={`delete-name-input-${elementId}`} required={true} pattern={targetName} />
             </label>
           </div>
           <div className="flex gap-25">

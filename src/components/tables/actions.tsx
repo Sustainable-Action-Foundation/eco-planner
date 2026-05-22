@@ -28,18 +28,19 @@ export default function ActionTable({
 
   // If no actions are found, return a message
   if (!actions?.length) return (
-    <>
-      <p>{t("components:action_table.no_actions")}
-        { // Only show the button if the user has edit access and a roadmapId is provided
-          (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) && roadmapId &&
+    <p>{t("components:action_table.no_actions")}
+      { // Only show the button if the user has edit access and a roadmapId is provided
+        (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin)
+        && !!roadmapId
+        && (
           <span> {t("components:action_table.wanna_create_action")}&nbsp;
             <Link href={`/action/create?roadmapId=${roadmapId}`}>
               {t("components:action_table.create_action")}
             </Link>
           </span>
-        }
-      </p>
-    </>
+        )
+      }
+    </p>
   );
 
   return <>

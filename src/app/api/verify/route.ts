@@ -1,5 +1,5 @@
 import getUserHash from "@/functions/getUserHash";
-import prisma from "@/prismaClient";
+import { prisma } from "@/lib/prisma";
 import type { JSONValue } from "@/types";
 import type { NextRequest } from "next/server";
 

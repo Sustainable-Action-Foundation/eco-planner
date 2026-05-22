@@ -280,8 +280,7 @@ export default function GoalForm({
   let positionIndex = 1;
 
   return (
-    <>
-      <form onSubmit={handleSubmit} name="goalForm">
+    <form onSubmit={handleSubmit} name="goalForm">
         {/* This hidden submit button prevents submitting by pressing enter, to avoid accidental submission */}
         <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
@@ -462,6 +461,5 @@ export default function GoalForm({
           </button>
         </div>
       </form >
-    </>
   );
 }

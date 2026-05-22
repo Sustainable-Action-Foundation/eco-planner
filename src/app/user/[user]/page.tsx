@@ -119,20 +119,17 @@ export default async function Page(
 
   toggleRoadmaps();
 
-  return <>
-    <main>
+  return <main>
       <section className='margin-block-300'>
         <h1 className='margin-bottom-0'>{userdata.username}</h1>
         <small style={{ color: 'var(--gray-50)' }}>@{userdata.username}</small>
       </section>
 
       {session.user?.username === username ?
-        <>
-          <section className='margin-block-300'>
+        <section className='margin-block-300'>
             <h2>{t("pages:profile.handle_data")}</h2>
             <GraphCookie />
           </section>
-        </>
         : null}
 
       <section className='margin-block-300'>
@@ -192,6 +189,5 @@ export default async function Page(
         </nav>
       </section>
 
-    </main>
-  </>;
+    </main>;
 }

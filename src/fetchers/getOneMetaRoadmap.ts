@@ -3,7 +3,7 @@ import { metaRoadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session";
 import { roadmapSorter } from "@/lib/sorters";
-import prisma from "@/prismaClient";
+import { prisma } from "@/lib/prisma";
 import { cacheTag } from "next/cache";
 import { cookies } from "next/headers";
 import type { MetaRoadmap } from "@/types";
@@ -36,9 +36,9 @@ async function getCachedMetaRoadmap(id: string, user: LoginData['user']) {
         where: { id },
         include: metaRoadmapInclusionSelection,
       }) satisfies MetaRoadmap | null;
-    } catch (error) {
-      console.log(error);
-      console.log('Error fetching admin meta roadmaps');
+    }
+    catch (error) {
+      console.error("Error fetching admin meta roadmap:", { error });
       return null;
     }
 
@@ -80,9 +80,9 @@ async function getCachedMetaRoadmap(id: string, user: LoginData['user']) {
           },
         },
       }) satisfies MetaRoadmap | null;
-    } catch (error) {
-      console.log(error);
-      console.log('Error fetching meta roadmaps');
+    }
+    catch (error) {
+      console.error("Error fetching user meta roadmap:", { error });
       return null;
     }
 
@@ -109,9 +109,9 @@ async function getCachedMetaRoadmap(id: string, user: LoginData['user']) {
         },
       },
     }) satisfies MetaRoadmap | null;
-  } catch (error) {
-    console.log(error);
-    console.log('Error fetching public meta roadmaps');
+  }
+  catch (error) {
+    console.error("Error fetching public meta roadmap:", { error });
     return null;
   }
 
