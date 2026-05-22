@@ -1,7 +1,7 @@
 import type React from "react";
 
 export function handleKeyDownGrid({
-  e,// TODO: rename --> event
+  e,
   amountColumns,
   amountRows,
   focusedCell,
@@ -152,24 +152,34 @@ export function handleKeyDownGrid({
     case "Enter": {
       e.preventDefault();
 
-      if (editMode === false) {
-        setEditMode(true);
-      } else if (editMode === true && focusedCell.row === amountRows - 1) {
-        setEditMode(false);
+      if (editMode === true) setEditMode(false);
+
+      if (focusedCell.row === amountRows - 1) {
         insertRowBottom();
         setFocusedCell({ row: amountRows, column: 1 });
       } else {
-        setEditMode(false);
         setFocusedCell({ row: focusedCell.row + 1, column: focusedCell.column });
       }
 
       break;
     }
 
+    case "F2" : {
+      e.preventDefault();
+
+      if (editMode === true) return;
+
+      setEditMode(true);
+      break;
+    }
+
     case "Escape": {
       e.preventDefault();
 
-      if (editMode === false) return;
+      if (editMode === false) {
+        setFocusedCell(null);
+        return;
+      }
 
       setEditMode(false);
       break;
@@ -196,8 +206,6 @@ export function handleKeyDownGrid({
     }
 
     case "Tab": {
-      if (!editMode) return; // Default tab behavior if not editing
-
       e.preventDefault();
       setEditMode(false);
 

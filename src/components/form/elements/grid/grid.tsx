@@ -4,6 +4,16 @@ import type { GridCell, GridColumnHeader, GridRowHeader, GridRow, GridElement } 
 import React, { useEffect, useState } from "react";
 import { handleKeyDownGrid } from "./functions";
 
+
+function setFocusOnGrid(
+  id: string,
+) {
+  const grid = document.getElementById(id);
+  if (!grid) return;
+
+  grid.focus();
+}
+
 function setFocusOnGridcell(
   id: string,
   focusedCell: { row: number, column: number },
@@ -15,7 +25,7 @@ function setFocusOnGridcell(
     `[data-row="${focusedCell.row}"][data-column="${focusedCell.column}"]`,
   );
   if (!cell) return;
-
+  
   cell.focus();
 }
 
@@ -144,7 +154,10 @@ export default function Grid({
   const [editMode, setEditMode] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!focusedCell) return;
+    if (!focusedCell) { 
+      setFocusOnGrid(props.id);
+      return;
+    }
 
     setFocusOnGridcell(props.id, { row: focusedCell.row, column: focusedCell.column });
 
@@ -165,15 +178,17 @@ export default function Grid({
 
   return (
     <table
+      tabIndex={0}
       id={props.id}
       className={`${props.className ? `${props.className} ` : ''}`}
       style={{ ...props.style }}
       role="grid"
       aria-labelledby={ariaLabelledBy}
-      onFocusCapture={() => {
-        if (!focusedCell) {
-          setFocusedCell({row: 0, column: 1}); // Column 0 are unfocusable rowheaders
-        }  
+      onKeyDown={(e: React.KeyboardEvent<HTMLTableElement>) => {
+        if (e.key === "Enter" && !focusedCell) {
+          e.stopPropagation();
+          setFocusedCell({row: 0, column: 1});
+        }
       }}
     >
       <thead className="display-contents">
@@ -193,13 +208,9 @@ export default function Grid({
               {rowChildren.map((child, columnIndex) => {
                 if (!isGridCell(child)) return child;
 
-                const isFocusable = focusedCell
-                  ? focusedCell.row === rowIndex && focusedCell.column === columnIndex
-                  : rowIndex === 0 && columnIndex === 1; // Column index 1 as headerrows count as column 0 
-
                 return React.cloneElement(child, {
                   position: { row: rowIndex, column: columnIndex },
-                  tabIndex: isFocusable ? 0 : -1,
+                  tabIndex: -1,
                   onKeyDown: (event) =>
                     handleKeyDownGrid({
                       e: event,
