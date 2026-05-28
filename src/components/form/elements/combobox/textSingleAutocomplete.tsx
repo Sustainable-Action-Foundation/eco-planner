@@ -26,6 +26,8 @@ export default function TextSingleAutocomplete({
 }) {
   const { t } = useTranslation(["forms", "common"]);
 
+  // TODO: list of other suggestions that dont match exactly what you write.
+
   const [value, setValue] = useState<string>(!!props.defaultValue ? props.defaultValue : '');
   const [displayListBox, setDisplayListBox] = useState<boolean>(false);
   const [focusedListBoxItem, setFocusedListBoxItem] = useState<number | null>(null); // TODO: Rename -> focusedListBoxOption
@@ -53,18 +55,19 @@ export default function TextSingleAutocomplete({
   useEffect(() => {
     if (!onChange) return;
     onChange(value);
-  }, [value, onChange]);
-
+  }, [value, onChange]); 
+   
   return (
     <div
       className={`${props.className ? `${props.className} ` : ''}position-relative`}
       style={{ ...props.style }}
     >
       <div
-        className={`${theme ? `${theme.className} ` : ''}flex align-items-center focusable`}
+        className={`${theme ? `${theme.className} ` : ''}flex align-items-center focusable cursor-text padding-25`} /* TODO: Need to reduce size of icon, padding-25 is a temp fix not in line with the rest of our inptus */
         style={theme?.style ?? {}}
-      >
-        <input
+      >  
+        <input /* TODO: Need this input to be reduced to the size of what is being written. (field-sizing: content seems to work... but not on firefox) */
+          style={{fieldSizing: 'content', width: 'auto', padding: '0'}}
           type="text"
           placeholder={!!props.placeholder ? props.placeholder : undefined}
           name={props.name}
@@ -78,8 +81,15 @@ export default function TextSingleAutocomplete({
             ? {
               ref: comboboxRef,
               onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => {
+
                 e.stopPropagation();
                 if (!comboboxRef.current) return;
+                if (e.key === "Tab") { // Move this into the keydown function
+                  e.preventDefault(); // Only do this if we actually have a suggestion
+                  setValue(searchResults[0].value);
+                  // setDisplayListBox(false); TODO: probably want this but then we want to reopen when we start typing more or refocus the element
+                }
+                
                 handleKeyDownEditableCombobox(
                   e,
                   comboboxRef.current,
@@ -103,15 +113,22 @@ export default function TextSingleAutocomplete({
               "aria-haspopup": "listbox",
               "aria-controls": displayListBox ? `${props.id}-listbox` : undefined,
               "aria-activedescendant": focusedListBoxItem != null ? `${props.id}-listbox-${focusedListBoxItem}` : undefined,
-              "aria-autocomplete": "list", /* TODO input_updates: Implement features to enable this to have a value of "both" (tab to autocomplete inline)  */
+              "aria-autocomplete": "both",
             }
             : {})}
         />
+        {searchResults.length > 0 && value ? 
+          <span style={{color: 'gray', fontSize: 'smaller', anchorName: '--value-anchor'}}> {/* Might want the anchor on the input? Also rename it. */}
+            {searchResults[0].name.toLowerCase().startsWith(value)
+              ? searchResults[0].name.slice(value.length)
+              : ''}
+          </span>
+        : null}
         {options.length > 0 ?
           <button
             id={`${props.id}-button`}
             className="round grid margin-right-25 transparent"
-            style={{ padding: '2px' }}
+            style={{ padding: '2px', marginLeft: 'auto' }}
             disabled={props.disabled}
             onClick={() => { comboboxRef.current?.focus(); setDisplayListBox(!displayListBox); }}
             type="button"
@@ -137,6 +154,11 @@ export default function TextSingleAutocomplete({
           style={{
             ...(theme?.style),
             maxHeight: maxOptions ? `${(maxOptions * 33) + 6}px` : '300px', // TODO: Implement for select comboboxes as well
+            width: 'fit-content',
+            position: 'absolute',
+            positionAnchor: '--value-anchor',
+            top: 'anchor(bottom)',
+            left: 'anchor(right)',
           }}
           // TODO: Onblur does not seem to actually setFocusedListBoxItem, figure out why...
           onBlur={(e) => { if (e.relatedTarget?.id !== props.id) { setFocusedListBoxItem(null); setDisplayListBox(false); } }} // TODO: See if we can deal with blur the same way for all comboboxes
