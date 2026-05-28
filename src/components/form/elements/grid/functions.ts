@@ -220,11 +220,12 @@ export function handleKeyDownGrid({
 
     // If we match what is expected from a number input, and we arent in editmode, we may type it
     // IT should be noted that the below is probably not the exact same as what a number input allows
+    // THIS CAPTURES TOO MUCH, WE DONT WANT TO DO THIS WHEN PRESSING ANY OF THE EXTRA KEYS LIKE SHIFT ETC... (OR ANY OF THE ALREADY USED KEYS BUT THATS ALREADY HANDLED!)
     default:
-      if ((!Number.isNaN(Number(key))) && !editMode) {
+      if (!editMode) {
         deleteCurrentGridCellContents({ row: focusedCell.row, column: focusedCell.column }); // TODO: Unsure if this function should run here or if it should be inside a useEffect to sync state
-        setEditMode(true);
       }
+      setEditMode(true);
       break;
   }
 }

@@ -210,6 +210,8 @@ export default function Grid({
                 if (!isGridCell(child)) return child;
 
                 return React.cloneElement(child, {
+                  /* Might want to revert to previous way of handling tabindex (set tabindex to 0 for focused cell and then disable tab navigation in grid, 
+                  this will retain tabindex when tabbing out and we won't have to deal with resetting it when handling onclick stuff) */
                   tabIndex: -1,
                   ariaSelected: (focusedCell?.row === rowIndex && focusedCell.column === columnIndex) ? true : false, 
                   position: { row: rowIndex, column: columnIndex },

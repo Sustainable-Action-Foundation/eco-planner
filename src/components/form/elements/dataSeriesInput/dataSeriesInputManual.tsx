@@ -21,15 +21,15 @@ export default function DataSeriesInputManual({
 }) {
 
   const { t } = useTranslation("forms");
-  const [value, setValue] = useState<Array<{ id: string; year: number | null; data: number | null }>>(() => {
+  const [value, setValue] = useState<Array<{ id: string; year: string; data: string }>>(() => {
     if (Object.keys(initialDateValues.dateValues).length === 0) {
-      return [{ id: window.crypto.randomUUID(), year: null, data: null }];
+      return [{ id: window.crypto.randomUUID(), year: "", data: "" }];
     }
 
     return Object.entries(initialDateValues.dateValues).map(([date, value]) => ({
       id: window.crypto.randomUUID(),
-      year: new Date(date).getFullYear(),
-      data: value ?? null,
+      year: String(new Date(date).getFullYear()),
+      data: value === null || value === undefined ? "" : String(value),
     }));
   });
 
@@ -39,9 +39,7 @@ export default function DataSeriesInputManual({
   const handleYearChange = (index: number, newValue: string) => {
     setValue(prev =>
       prev.map((item, i) =>
-        i === index
-          ? { ...item, year: newValue === '' ? null : Number(newValue) }
-          : item,
+        i === index ? { ...item, year: newValue } : item,
       ),
     );
   };
@@ -49,9 +47,7 @@ export default function DataSeriesInputManual({
   const handleDataChange = (index: number, newValue: string) => {
     setValue(prev =>
       prev.map((item, i) =>
-        i === index
-          ? { ...item, data: newValue === '' ? null : Number(newValue) }
-          : item,
+        i === index ? { ...item, data: newValue } : item,
       ),
     );
   };
@@ -66,6 +62,8 @@ export default function DataSeriesInputManual({
   // TODO: Ensure normal ctrl+z behavior
   // TODO: We can currently paste as long as we hold ctrl+v, might want to prevent so people dont accidently click another field while pasting (see previous implementation of "isPasting")
   // TODO: Previous versions contained some type of validation here, check it out
+  // TODO: escape should remove any newly written contents?
+
   function handlePaste(
     e: React.ClipboardEvent<HTMLInputElement>,
     startIndex: number,
@@ -83,7 +81,7 @@ export default function DataSeriesInputManual({
         const rowIndex = startIndex + rowOffset;
 
         if (!next[rowIndex]) {
-          next[rowIndex] = { id: window.crypto.randomUUID(), year: null, data: null };
+          next[rowIndex] = { id: window.crypto.randomUUID(), year: "", data: "" };
         }
 
         // If we paste into data, we do not want any new data in the previous column (i.e years)
@@ -92,13 +90,13 @@ export default function DataSeriesInputManual({
           next[rowIndex] = {
             id: next[rowIndex].id,
             year: next[rowIndex].year,
-            data: cols[0] ? Number(cols[0]) : null,
+            data: cols[0] ? cols[0] : "",
           };
         } else {
           next[rowIndex] = {
             id: next[rowIndex].id,
-            year: cols[0] ? Number(cols[0]) : null,
-            data: cols[1] ? Number(cols[1]) : null,
+            year: cols[0] ? cols[0] : "",
+            data: cols[1] ? cols[1] : "",
           };
         }
 
@@ -113,8 +111,8 @@ export default function DataSeriesInputManual({
       ...prev,
       {
         id: window.crypto.randomUUID(),
-        year: null,
-        data: null,
+        year: "",
+        data: "",
       },
     ]);
   }
@@ -124,7 +122,7 @@ export default function DataSeriesInputManual({
 
     setValue(prev => [
       ...prev.slice(0, focusedCell.row),
-      { id: window.crypto.randomUUID(), year: null, data: null },
+      { id: window.crypto.randomUUID(), year: "", data: "" },
       ...prev.slice(focusedCell.row),
     ]);
   }
@@ -139,7 +137,7 @@ export default function DataSeriesInputManual({
 
       // Ensure at least one row exists
       if (next.length === 0) {
-        return [{ id: window.crypto.randomUUID(), year: null, data: null }];
+        return [{ id: window.crypto.randomUUID(), year: "", data: "" }];
       }
 
       return next;
@@ -154,11 +152,11 @@ export default function DataSeriesInputManual({
         if (index !== focusedCell.row) return item;
 
         if (focusedCell.column === 1) { // Delete the year
-          return { ...item, year: null };
+          return { ...item, year: "" };
         }
 
         if (focusedCell.column === 2) { // Delete the data
-          return { ...item, data: null };
+          return { ...item, data: "" };
         }
 
         return item;
@@ -184,7 +182,7 @@ export default function DataSeriesInputManual({
             type="button"
             onClick={insertRowBottom}
             aria-keyshortcuts="control+insert control+shift+plus"
-            data-tooltip="control+insert, control+shift+plus" // TODO: I18n
+            data-tooltip="control+insert, control+shift+plus"
             data-testid="add-row-button">
             {t("forms:data_series_input.insert_row_bottom")}
             <IconPlus width={18} height={18} style={{ minWidth: '18px' }} aria-hidden="true" />
@@ -195,7 +193,7 @@ export default function DataSeriesInputManual({
             type="button"
             onClick={insertRowAbove}
             aria-keyshortcuts="insert control+plus"
-            data-tooltip="insert, control+plus" // TODO: I18n
+            data-tooltip="insert, control+plus"
             data-testid="add-row-above-button">
             {t("forms:data_series_input.insert_row_above")}
             <IconRowInsertTop width={18} height={18} style={{ minWidth: '18px' }} aria-hidden="true" />
@@ -209,7 +207,7 @@ export default function DataSeriesInputManual({
               type="button"
               onClick={deleteCurrentRow}
               aria-keyshortcuts="control+- control+delete"
-              data-tooltip="control+-, control+delete" // TODO: I18n
+              data-tooltip="control+-, control+delete"
               data-testid="delete-row-button">
               {t("forms:data_series_input.delete_selected_row")}
               <IconTrashXFilled width={18} height={18} fill="#CB3C3C" style={{ minWidth: '18px' }} aria-hidden="true" />
@@ -232,11 +230,14 @@ export default function DataSeriesInputManual({
 
       {outputFormElement ? React.cloneElement(outputFormElement, {
         value: JSON.stringify({
-          dateValues: value.every(({ year, data }) => !year && !data) // If all values are completely empty, we return an empty object
+          dateValues: value.every(({ year, data }) => !year && !data)
             ? {}
             : Object.fromEntries(
-              value.map(({ year, data }) => [`${year}-01-01T00:00:00.000Z`, data]), // Otherwise we return the year + data (frontend just requires year, backend handles more specific validation)
-            ),
+                value.map(({ year, data }) => [
+                  `${year}-01-01T00:00:00.000Z`,
+                  data === "" ? null : Number(data),
+                ]),
+              ),
         }),
         type: "hidden",
         hidden: true,
@@ -272,7 +273,9 @@ export default function DataSeriesInputManual({
                 style={{ minWidth: '100%', width: '0' }}
               >
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   required={true}
                   tabIndex={-1}
                   value={item.year === null ? '' : String(item.year)}
@@ -290,7 +293,9 @@ export default function DataSeriesInputManual({
               </Grid.Cell>
               <Grid.Cell>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="decimal"
+                  pattern="/[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?/" // TODO: Figure this pattern out... (This seemingly works but stackoverflow calls it questionable?) (replace \. with [.,] to allow commas)
                   tabIndex={-1}
                   value={item.data === null ? '' : String(item.data)}
                   onChange={(e) => {
