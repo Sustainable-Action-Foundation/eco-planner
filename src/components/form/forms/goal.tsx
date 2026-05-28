@@ -120,6 +120,7 @@ export default function GoalForm({
       return;
     }
 
+    /* TODO: Maybe broke this validation in commit "Replace input type number with input type text" */
     let dataSeries: DateValuesWithUnit | undefined = undefined;
     try {
       dataSeries = JSON.parse(resultingDateValuesString) as DateValuesWithUnit;

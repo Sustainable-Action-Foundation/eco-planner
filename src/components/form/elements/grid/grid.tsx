@@ -176,19 +176,17 @@ export default function Grid({
   );
 
   const bodyRows = childrenArray.filter(isGridRow);
-
+  
   return (
     <table
-      tabIndex={0}
       id={props.id}
       className={`${props.className ? `${props.className} ` : ''}`}
       style={{ ...props.style }}
       role="grid"
       aria-labelledby={ariaLabelledBy}
-      onKeyDown={(e: React.KeyboardEvent<HTMLTableElement>) => {
-        if (e.key === "Enter" && !focusedCell) {
-          e.stopPropagation();
-          setFocusedCell({row: 0, column: 1});
+      onFocusCapture={() => {
+        if (!focusedCell) {
+          setFocusedCell({row: 0, column: 1}); // Column 0 are unfocusable rowheaders
         }
       }}
     >
@@ -208,11 +206,15 @@ export default function Grid({
             <tr key={rowIndex} className="display-contents">
               {rowChildren.map((child, columnIndex) => {
                 if (!isGridCell(child)) return child;
+                
+                const isFocusable = focusedCell
+                  ? focusedCell.row === rowIndex && focusedCell.column === columnIndex
+                  : rowIndex === 0 && columnIndex === 1; // Column index 1 as headerrows count as column 0 
 
                 return React.cloneElement(child, {
                   /* Might want to revert to previous way of handling tabindex (set tabindex to 0 for focused cell and then disable tab navigation in grid, 
                   this will retain tabindex when tabbing out and we won't have to deal with resetting it when handling onclick stuff) */
-                  tabIndex: -1,
+                  tabIndex: isFocusable ? 0 : -1,
                   ariaSelected: (focusedCell?.row === rowIndex && focusedCell.column === columnIndex) ? true : false, 
                   position: { row: rowIndex, column: columnIndex },
                   onKeyDown: (event) =>

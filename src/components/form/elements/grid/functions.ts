@@ -175,12 +175,6 @@ export function handleKeyDownGrid({
 
     case "Escape": {
       e.preventDefault();
-
-      if (editMode === false) {
-        setFocusedCell(null);
-        return;
-      }
-
       setEditMode(false);
       break;
     }
@@ -205,23 +199,40 @@ export function handleKeyDownGrid({
     }
 
     case "Tab": {
+      if (!editMode) return; // Default tab behavior if not editing
+
       e.preventDefault();
       setEditMode(false);
 
       if (e.shiftKey) {
-        if (focusedCell.column === 1) return; // Do nothing on first cell 
-        setFocusedCell({ row: focusedCell.row, column: focusedCell.column - 1 });
-       } else {
-        if (focusedCell.column === amountColumns - 1) return; // Do nothing on last cell
-        setFocusedCell({ row: focusedCell.row, column: focusedCell.column + 1 });
-       }
 
+        if (focusedCell.row === 0 && focusedCell.column === 1) return; // Do nothing on first cell
+
+        // If on first column, move up a row. Otherwise move to previous column. 
+        if (focusedCell.column === 1) {
+          setFocusedCell({ row: focusedCell.row - 1, column: amountColumns - 1 });
+        } else {
+          setFocusedCell({ row: focusedCell.row, column: focusedCell.column - 1 });
+        }
+      } else {
+
+        if (focusedCell.row === amountRows - 1 && focusedCell.column === amountColumns - 1) return; // Do nothing on last cell
+
+        // If on last column, go down a row. Otherwise move to next column. 
+        if (focusedCell.column === amountColumns - 1) {
+          setFocusedCell({ row: focusedCell.row + 1, column: 1 });
+        } else {
+          setFocusedCell({ row: focusedCell.row, column: focusedCell.column + 1 });
+        }
+      }
+      break;
     }
 
     // If we match what is expected from a number input, and we arent in editmode, we may type it
     // IT should be noted that the below is probably not the exact same as what a number input allows
-    // THIS CAPTURES TOO MUCH, WE DONT WANT TO DO THIS WHEN PRESSING ANY OF THE EXTRA KEYS LIKE SHIFT ETC... (OR ANY OF THE ALREADY USED KEYS BUT THATS ALREADY HANDLED!)
     default:
+      if (e.key.length > 1) break; // TODO: (hacky?) fix to prevent special keys (ex. shift, ctrl, f4 etc...) from doing things here. Might not function on certain asian keyboards.
+
       if (!editMode) {
         deleteCurrentGridCellContents({ row: focusedCell.row, column: focusedCell.column }); // TODO: Unsure if this function should run here or if it should be inside a useEffect to sync state
       }

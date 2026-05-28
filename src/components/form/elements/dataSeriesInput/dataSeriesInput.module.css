@@ -51,11 +51,6 @@ fieldset .spreadsheet-label:last-child {
   border-bottom-left-radius: .25rem;
 }
 
-.grid:focus {
-  border-color: black !important;
-  outline: 0; 
-}
-
 .grid td,
 .grid th {
   padding: 0;
