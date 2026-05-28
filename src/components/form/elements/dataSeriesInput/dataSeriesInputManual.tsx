@@ -55,13 +55,12 @@ export default function DataSeriesInputManual({
   function parsePastedText(text: string) {
     return text
       .trim()
-      .split(/\r?\n/) // TODO: Might want some more splitting
-      .map(row => row.split("\t")); // TODO: Might want some more splitting
+      .split(/\r?\n/)
+      .map(row => row.split(/\t|;/)); 
   }
 
   // TODO: Ensure normal ctrl+z behavior
   // TODO: We can currently paste as long as we hold ctrl+v, might want to prevent so people dont accidently click another field while pasting (see previous implementation of "isPasting")
-  // TODO: Previous versions contained some type of validation here, check it out
   // TODO: escape should remove any newly written contents?
 
   function handlePaste(
