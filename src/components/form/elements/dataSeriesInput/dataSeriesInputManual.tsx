@@ -139,6 +139,13 @@ export default function DataSeriesInputManual({
         return [{ id: window.crypto.randomUUID(), year: "", data: "" }];
       }
 
+      /* When deleting an item, if we are on the last row, move up. Otherwise stay on the same row. */
+      if (focusedCell.row !== value.length - 1) {
+        setFocusedCell({row: focusedCell.row, column: focusedCell.column});
+      } else {
+        setFocusedCell({row: focusedCell.row - 1, column: focusedCell.column});
+      }
+
       return next;
     });
   }

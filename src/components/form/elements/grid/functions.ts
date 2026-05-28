@@ -146,8 +146,6 @@ export function handleKeyDownGrid({
       break;
     }
 
-    // Enter edit mode if we aren't already in it
-    // If we are in edit mode, we want to move down to the next row when pressing enter
     // If we are on the last row when moving down to the next row, we create a new row
     case "Enter": {
       e.preventDefault();
@@ -184,15 +182,9 @@ export function handleKeyDownGrid({
 
       e.preventDefault();
       if (e.ctrlKey) {
-        const nextRow =
-          amountRows <= 1
-            ? 0
-            : Math.min(focusedCell.row, amountRows - 2);
-
         deleteCurrentRow();
-        setFocusedCell({ row: nextRow, column: focusedCell.column });
-      } else {
-        deleteCurrentGridCellContents({ row: focusedCell.row, column: focusedCell.column }); // TODO: Unsure if this function should run here or if it should be inside a useEffect to sync state
+       } else {
+        deleteCurrentGridCellContents({ row: focusedCell.row, column: focusedCell.column });
       }
 
       break;
@@ -228,13 +220,11 @@ export function handleKeyDownGrid({
       break;
     }
 
-    // If we match what is expected from a number input, and we arent in editmode, we may type it
-    // IT should be noted that the below is probably not the exact same as what a number input allows
     default:
       if (e.key.length > 1) break; // TODO: (hacky?) fix to prevent special keys (ex. shift, ctrl, f4 etc...) from doing things here. Might not function on certain asian keyboards.
 
       if (!editMode) {
-        deleteCurrentGridCellContents({ row: focusedCell.row, column: focusedCell.column }); // TODO: Unsure if this function should run here or if it should be inside a useEffect to sync state
+        deleteCurrentGridCellContents({ row: focusedCell.row, column: focusedCell.column }); 
       }
       setEditMode(true);
       break;
