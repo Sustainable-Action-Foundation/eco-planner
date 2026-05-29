@@ -240,7 +240,7 @@ export default function DataSeriesInputManual({
             ? {}
             : Object.fromEntries(
                 value.map(({ year, data }) => [
-                  `${year}-01-01T00:00:00.000Z`,
+                  `${year}-01-01T00:00:00.000Z`, 
                   data === "" ? null : Number(data),
                 ]),
               ),
@@ -281,7 +281,7 @@ export default function DataSeriesInputManual({
                 <input
                   type="text"
                   inputMode="numeric"
-                  pattern="[0-9]*"
+                  pattern="[0-9]*" // Matches any number which is considered a year. Might make sense to validate as a date in the future.
                   required={true}
                   tabIndex={-1}
                   value={item.year === null ? '' : String(item.year)}
