@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 import type { InputElement, Option, Theme } from "@/components/types";
 import { handleKeyDownEditableCombobox, scrollOptionIntoView } from "./functions";
 
-// TODO: Bug where tabbing into the element doesnt focus the combobox
+// TODO: Bug where tabbing into the element doesnt focus the combobox (only happens if value === firstoption, also happens on mouse click i think...)
 // TODO: This breaks the recipe editor
 // TODO: Evaluate how we higlight, it doesnt look as good for example for leap params...
 // TODO: Check tab completion against w3c implementation (and other keyboard functions + aria-states for that part...)
