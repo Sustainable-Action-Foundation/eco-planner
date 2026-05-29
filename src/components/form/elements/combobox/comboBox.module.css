@@ -45,8 +45,8 @@ div:has(>.select-toggle) {
 .listbox,
 .tree {
     list-style: none;
-    border: 1px solid var(--gray);
-    background-color: white;
+    border: 1px solid var(--gray-80);
+    background-color: var(--secondary-neutral);
     margin-block: .25rem;
     border-radius: .25rem;
     padding: 3px;
@@ -121,7 +121,7 @@ div:has(>.select-toggle) {
 .listbox li[aria-selected="true"]::after,
 .tree li[aria-selected="true"] div::after {
     height: 14px;
-    content: url('data:image/svg+xml;utf8,<svg  xmlns="http://www.w3.org/2000/svg"  width="14"  height="14"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>') / "";
+    content: url('data:image/svg+xml;utf8,<svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="hsl(206, 100%, 40%)"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>') / "";
 }
 
 .listbox [aria-multiselectable] li:not([data-no-results-tooltip])[aria-selected="true"]::after {
@@ -143,5 +143,23 @@ div:has(>.select-toggle) {
 }
 
 .focused-option {
-    background-color: var(--gray-90);
+    background-color: var(--gray-90) !important;
+}
+
+/* TODO: Might be sensible to harmonize this with our other listboxes or it might not... */
+.suggestive-text li { 
+    border-radius: 0;
+    padding: .25rem;
+    min-width: 200px;
+    font-size: 14px;
+    color: #191919;
+}
+
+.suggestive-text li[aria-selected="true"] {
+    background-color: rgba(153, 211, 255, 0.5);
+}
+
+
+.suggestive-text .focused-option {
+    background-color: rgba(153, 211, 255, 0.5) !important;
 }
