@@ -7,6 +7,7 @@ import { isValidPastedInput } from "./utils";
 import Grid from "../grid/grid";
 import type { DateValuesWithUnit } from "@/types";
 import { IconArrowsMaximize, IconArrowsMinimize, IconPlus, IconRowInsertTop, IconTrashXFilled } from "@tabler/icons-react";
+import { useToastContext } from "@/components/generic/toast/toastContext";
 
 export default function DataSeriesInputManual({
   initialDateValues = { unit: undefined, dateValues: {} },
@@ -24,6 +25,8 @@ export default function DataSeriesInputManual({
   // TODO: escape should remove any newly written contents?
 
   const { t } = useTranslation("forms");
+  const { addToast } = useToastContext();
+  
   const [value, setValue] = useState<Array<{ id: string; year: string; data: string }>>(() => {
     if (Object.keys(initialDateValues.dateValues).length === 0) {
       return [{ id: window.crypto.randomUUID(), year: "", data: "" }];
@@ -134,7 +137,10 @@ export default function DataSeriesInputManual({
     targetColumn: string,
   ) {
     e.preventDefault();
-    if (!isValidPastedInput(text)) return; // TODO: Probably want to create a toast here to notify of invalid value
+    if (!isValidPastedInput(text)) {
+      addToast("Invalid value pasted to spreadsheet. Make sure that you are pasting properly formated text.", "error", false); // TODO: what is this text format exactly? (As i should probably recomend one), TODO: Do we want this to timeout?
+      return;
+    }; // TODO: Probably want to create a toast here to notify of invalid value
     const rows = parsePastedText(text);
  
     setValue(prev => {
@@ -145,7 +151,7 @@ export default function DataSeriesInputManual({
 
         // Create new rows the paste contains more rowns than currently exist.
         if (!next[rowIndex]) {
-          next[rowIndex] = { id: window.crypto.randomUUID(), year: "", data: "" };
+          next[rowIndex] = { id: window.crypto.randomUUID(), year: "", data: "" }; // TODO: I dislike using randomuuid here
         }
 
         // If we paste into data, we do not want any new data in the previous column (i.e years)
