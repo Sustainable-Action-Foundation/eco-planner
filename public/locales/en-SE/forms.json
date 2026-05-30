@@ -59,6 +59,7 @@
     "hide_table": "Minimize table",
     "invalid_end_year": "Invalid end year",
     "invalid_start_year": "Invalid start year",
+    "invalid_paste": "Invalid value pasted to spreadsheet. Please ensure that the pasted text does not contain any letters.",
     "insert_row_bottom": "Insert row to bottom",
     "insert_row_above": "Insert row above",
     "show_table": "Expand table",

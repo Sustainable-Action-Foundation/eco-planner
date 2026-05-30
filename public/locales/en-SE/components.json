@@ -279,7 +279,9 @@
   "toasts": {
     "error": "Something went wrong!",
     "success": "Success!",
-    "warning": "Warning!"
+    "warning": "Warning!",
+    "show_more": "Show more",
+    "show_less": "Show less"
   },
   "update_goal_button": {
     "update": "Update $t(common:goal_one)"

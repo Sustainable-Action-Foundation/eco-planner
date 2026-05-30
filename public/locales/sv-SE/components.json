@@ -279,7 +279,9 @@
   "toasts": {
     "error": "Något gick fel!",
     "success": "Lyckades!",
-    "warning": "Varning!"
+    "warning": "Varning!",
+    "show_more": "Visa mer",
+    "show_less": "Visa mindre"
   },
   "update_goal_button": {
     "update": "Uppdatera $t(common:goal_one)"

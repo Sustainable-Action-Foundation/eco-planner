@@ -138,9 +138,9 @@ export default function DataSeriesInputManual({
   ) {
     e.preventDefault();
     if (!isValidPastedInput(text)) {
-      addToast("Invalid value pasted to spreadsheet. Make sure that you are pasting properly formated text.", "error", false); // TODO: what is this text format exactly? (As i should probably recomend one), TODO: Do we want this to timeout?
+      addToast(t("forms:data_series_input.invalid_paste"), "error", false);
       return;
-    }; // TODO: Probably want to create a toast here to notify of invalid value
+    };
     const rows = parsePastedText(text);
  
     setValue(prev => {

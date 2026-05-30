@@ -109,7 +109,7 @@ export default function Toast({ children, id, type, hasTimeout = true }: { child
         >
         <span className="flex align-items-flex-end font-weight-600" >
           <IconArrowUp className="margin-left-25 margin-right-50" width={16} height={16} style={{ transform: `${isOpen ? '' : 'rotate(180deg)'}` }} />
-          {isOpen ? 'Show less' : 'Show more'} {/* TODO: I18n */}
+          {isOpen ? t("components:toasts.show_less") : t("components:toasts.show_more")}
         </span>
       </button> : null
       }
