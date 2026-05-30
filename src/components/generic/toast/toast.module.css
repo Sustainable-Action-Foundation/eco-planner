@@ -1,10 +1,26 @@
 .toast-list {
+  height: 100dvh;
   width: min(42ch, 100%);
   top: 0px;
   right: 0px;
   z-index: calc(infinity * 1);
   padding-block: 1rem;
   padding-inline: 1rem;
+  overflow-y: scroll;
+}
+
+.toast-list button {
+  line-height: 1;
+  transform: scale(1);
+  background-color: transparent;
+}
+
+.toast-list button:hover {
+  box-shadow: none;
+}
+
+.toast-list button:hover div:has(svg) {
+  background-color: rgba(248, 131, 131, 0.25);
 }
 
 .toast {
@@ -13,6 +29,7 @@
   border: none;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   overflow: hidden;
+  margin-bottom: 1rem; /* Need to use instead of gap to handle animations correctly */
 }
 
 .toast p {
@@ -46,18 +63,22 @@
 }
 
 .toast-closing {
-  animation: toast-slide-out 0.3s ease;
+  animation: toast-slide-out 0.15s ease forwards;
 }
 
 @keyframes toast-slide-out {
   from {
     opacity: 1;
     transform: translateX(0);
+    max-height: 150px; /* Arbitrary value */
+    margin-bottom: 1rem;
   }
 
   to {
     opacity: 0;
     transform: translateX(30px);
+    max-height: 0; /* Arbitrary value */
+    margin-bottom: 0;
   }
 }
 

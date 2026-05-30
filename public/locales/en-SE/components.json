@@ -277,11 +277,12 @@
     "tree": "Tree"
   },
   "toasts": {
+    "clear_toasts": "Clear all messages",
     "error": "Something went wrong!",
     "success": "Success!",
-    "warning": "Warning!",
+    "show_less": "Show less",
     "show_more": "Show more",
-    "show_less": "Show less"
+    "warning": "Warning!"
   },
   "update_goal_button": {
     "update": "Update $t(common:goal_one)"

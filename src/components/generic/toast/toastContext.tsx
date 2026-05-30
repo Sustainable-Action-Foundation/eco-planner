@@ -16,8 +16,12 @@ export function ToastContext({ children }: { children: React.ReactNode }) {
     setMessages((prevMessages) => prevMessages.filter((toast) => toast.id !== id));
   };
 
+  const clearToasts = () => {
+    setMessages([]);
+  };
+
   return (
-    <toasts.Provider value={{ messages, addToast, removeToast }}>
+    <toasts.Provider value={{ messages, addToast, removeToast, clearToasts }}>
       {children}
     </toasts.Provider>
   );

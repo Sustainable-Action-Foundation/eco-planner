@@ -277,11 +277,12 @@
     "tree": "Träd"
   },
   "toasts": {
+    "clear_toasts": "Rensa alla meddelanden",
     "error": "Något gick fel!",
     "success": "Lyckades!",
-    "warning": "Varning!",
+    "show_less": "Visa mindre",
     "show_more": "Visa mer",
-    "show_less": "Visa mindre"
+    "warning": "Varning!"
   },
   "update_goal_button": {
     "update": "Uppdatera $t(common:goal_one)"

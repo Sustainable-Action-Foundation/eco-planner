@@ -70,9 +70,9 @@ export default function Toast({ children, id, type, hasTimeout = true }: { child
 
     return () => clearInterval(interval);
 
-  }, [timer, hasTimeout, id, removeToast]);
+  }, [hasTimeout, id, removeToast]);
 
-  return (
+  return (  
     <dialog
       className={`${styles.toast} flex flex-direction-column rounded position-relative padding-0 width-100 rounded"} ${closeToast ? " " + styles["toast-closing"] : ""}`}
       role={type === "error" ? "alert" : "status"}
@@ -94,7 +94,14 @@ export default function Toast({ children, id, type, hasTimeout = true }: { child
               ? t("components:toasts.warning")
               : t("components:toasts.error")
         }</span>
-        <button type="button" onClick={() => removeToast(id)} className="round padding-25 transparent margin-left-auto grid" aria-label="Close toast">
+        <button 
+          type="button"   
+          onClick={() => {
+            setCloseToast(true);
+            setTimeout(() => removeToast(id), 300);
+          }}
+         className="round padding-25 transparent margin-left-auto grid" aria-label="Close toast"
+        >
           <IconX aria-hidden="true" width={22} height={22} strokeWidth={3} color={color.accent} />
         </button>
       </header>
