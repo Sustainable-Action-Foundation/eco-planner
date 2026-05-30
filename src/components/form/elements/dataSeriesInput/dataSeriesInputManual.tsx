@@ -312,7 +312,7 @@ export default function DataSeriesInputManual({
                 <input
                   type="text"
                   inputMode="decimal"
-                  pattern="/[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?/" // TODO: Figure this pattern out... (This seemingly works but stackoverflow calls it questionable?) (replace \. with [.,] to allow commas), this is seemningly broken
+                  pattern="[+\-]?[0-9]*[.,]?[0-9]+([eE][+\-]?[0-9]+)?"
                   tabIndex={-1}
                   value={item.data === null ? '' : String(item.data)}
                   onChange={(e) => {
