@@ -16,18 +16,18 @@ import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputMa
 import { useToastContext } from "@/components/generic/toast/toastContext";
 import { useRouter } from "next/navigation";
 
-const DataSeriesType = {
+const DataSeriesType = { /* TODO: I personally want theese to be lowercase :) */
   Manual: "MANUAL",
   Suggested: "SUGGESTED",
   Custom: "CUSTOM",
 } as const;
 type DataSeriesType = (typeof DataSeriesType)[keyof typeof DataSeriesType];
 
-const BaselineType = {
-  Initial: "Initial",
-  InitialNonZero: "InitialNonZero",
-  Custom: "Custom",
-  Inherited: "Inherit",
+const BaselineType = { /* TODO: I personally want theese to be lowercase :) */
+  Initial: "INITIAL",
+  InitialNonZero: "INITIAL_NON_ZERO",
+  Custom: "CUSTOM",
+  Inherited: "INHERIT",
 } as const;
 type BaselineType = (typeof BaselineType)[keyof typeof BaselineType];
 
@@ -313,7 +313,7 @@ export default function GoalForm({
             <input className="margin-top-25 margin-bottom-100" type="text" name="goalName" id="goalName" defaultValue={currentGoal?.name ?? undefined} />
           </label>
 
-          <label id="description-label">{t("forms:goal.goal_description")}</label>
+          <label id="description-label">{t("forms:goal.goal_description")}</label> {/* TODO: This is not actually labeling anything. I am however unsure how labels work outside of inputs so check that. */}
           <TextEditor
             className="margin-top-25 margin-bottom-100" // TODO: Need label for textEditorMenu
             id="description"
