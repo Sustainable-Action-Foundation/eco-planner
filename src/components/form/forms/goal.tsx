@@ -81,7 +81,9 @@ export default function GoalForm({
   }, [roadmapAlternatives, t]);
 
   const [timestamp] = useState(() => Date.now());
-
+  
+  // TODO: Error messages were translated directly from English to Swedish when switching to toasts.
+  // They can likely be translated better.
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -93,7 +95,7 @@ export default function GoalForm({
     // Basic validation to ensure no unexpected File objects are present
     // Allows us to safely cast all formData values to (string | null) later
     if (formData.entries().some(([key, value]) => value instanceof File && !fileInputKeys.includes(key))) {
-      console.error("Form data contains an unexpected File object.");
+      addToast(t("forms:goal.errors.unexpected_file_object"), "error", false);
       event.target.reportValidity();
       return;
     }
@@ -106,7 +108,7 @@ export default function GoalForm({
         dataSeriesRecipe = Recipe.deserialize(resultingRecipeString);
       }
       catch (e) {
-        console.error("Failed to parse resulting recipe from form:", e);
+        addToast(`${t("forms:goal.errors.failed_parse_recipe")} ${e instanceof Error ? e.message : String(e)}`, "error", false);
         event.target.reportValidity();
         return;
       }
@@ -115,27 +117,27 @@ export default function GoalForm({
     // Parse date values (required)
     const resultingDateValuesString = formData.get("resultingDateValues") as string | null || formData.get("data-series") as string | null; // Fallback for manual data series input
     if (!resultingDateValuesString) {
-      console.error("No resulting date values provided in form.");
+      addToast(t("forms:goal.errors.missing_date_values"), "error", false);
       event.target.reportValidity();
       return;
     }
 
-    /* TODO: Maybe broke this validation in commit "Replace input type number with input type text" */
     let dataSeries: DateValuesWithUnit | undefined = undefined;
     try {
       dataSeries = JSON.parse(resultingDateValuesString) as DateValuesWithUnit;
       dataSeries.unit = formData.get("dataUnit") as string | null;
     } catch (e) {
-      console.error("Failed to parse resulting date values from form:", e);
+      addToast(`${t("forms:goal.errors.failed_parse_date_values")} ${e instanceof Error ? e.message : String(e)}`, "error", false);
       event.target.reportValidity();
       return;
     }
+
     // Validate parsed date values
     if (
       !dataSeries
       || !isDateValuesWithUnit(dataSeries)
     ) {
-      console.error("Parsed date values from form are invalid:", dataSeries);
+      addToast(`${t("forms:goal.errors.invalid_date_values")} ${String(dataSeries)}`, "error", false); // Im not sure about String(dataSeries)?
       event.target.reportValidity();
       return;
     }
@@ -148,7 +150,7 @@ export default function GoalForm({
         try {
           baseline = JSON.parse(baselineString) as DateValuesWithUnit;
         } catch (e) {
-          console.error("Failed to parse baseline date values from form:", e);
+          addToast(`${t("forms:goal.errors.failed_parse_baseline")} ${e instanceof Error ? e.message : String(e)}`, "error", false);
           event.target.reportValidity();
           return;
         }
@@ -162,7 +164,7 @@ export default function GoalForm({
       const dates = Object.keys(dataSeries.dateValues).sort();
       if (!dates.every(isISOIshDate)) throw new Error("Dates in data series are not in a valid ISO-ish format.");
       if (dates.length === 0) {
-        console.error("Cannot use initial baseline when data series is empty.");
+        addToast(t("forms:goal.errors.initial_baseline_error"), "error", false);
         event.target.reportValidity();
         return;
       }
@@ -186,14 +188,14 @@ export default function GoalForm({
         baselineId = inheritedBaselineId;
       }
       else {
-        console.error("No inherited baseline ID provided in form.");
+        addToast(t("forms:goal.errors.missing_baseline_id"), "error", false);
         event.target.reportValidity();
         return;
       }
     }
     // Throw if baseline is missing on create
     if (!currentGoal && !baseline && !baselineId) {
-      console.error("No baseline provided for new goal.");
+      addToast(t("forms:goal.errors.missing_baseline"), "error", false);
       event.target.reportValidity();
       return;
     }

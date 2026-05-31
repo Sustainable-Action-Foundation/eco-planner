@@ -111,6 +111,17 @@
     "default_scaling_recipe": "Default scaling recipe",
     "derive_data_series_manually": "Input manually",
     "derive_data_series_recipe": "Derive from recipe",
+    "errors": {
+      "unexpected_file_object": "Form data contains an unexpected File object.",
+      "failed_parse_recipe": "Failed to parse resulting recipe from form:",
+      "missing_date_values": "No resulting date values provided in form.",
+      "failed_parse_date_values": "Failed to parse resulting date values from form:",
+      "invalid_date_values": "Parsed date values from form are invalid:",
+      "failed_parse_baseline": "Failed to parse baseline date values from form:",
+      "initial_baseline_error": "Cannot use initial baseline when data series is empty.",
+      "missing_baseline_id": "No inherited baseline ID provided in form.",
+      "missing_baseline": "No baseline provided for new goal."
+    },
     "feature_goal": "Yes, feature this $t(common:goal_one).",
     "feature_this_goal": "Do you want to feature this $t(common:goal_one) in your $t(common:roadmap_version_one)?",
     "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
