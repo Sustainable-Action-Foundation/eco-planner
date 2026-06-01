@@ -1,6 +1,6 @@
 import type { ApiTableDetails } from "../api/apiTypes";
 import { ExternalDataset } from "../api/utility";
-import type { PxWebApiV2MetricDimension, PxWebApiV2TableDetails, PxWebMetric, PxWebTimeVariable, PxWebVariable, PxWebVariableValue } from "./pxWebApiV2Types";
+import type { PxWebApiV2MetricDimension, PxWebApiV2StandardDimension, PxWebApiV2TableDetails, PxWebMetric, PxWebTimeVariable, PxWebVariable, PxWebVariableValue } from "./pxWebApiV2Types";
 
 export default async function getPxWebTableDetails(tableId: string, externalDataset: string, language?: string): Promise<ApiTableDetails | null> {
   // Get the base URL for the external dataset, defaulting to SCB
@@ -26,9 +26,10 @@ export default async function getPxWebTableDetails(tableId: string, externalData
       await new Promise(resolve => setTimeout(resolve, 10000));
       return await getPxWebTableDetails(tableId, externalDataset, language);
     } else if (response.status === 404) {
-      console.error(`No metadata found for table ${tableId} in dataset ${externalDataset}`, { url, response });
+      console.error(`${response.status}; No metadata found for table ${tableId} in dataset ${externalDataset}`, { url, response });
       return null;
     } else {
+      console.error(`Unusual status ${response.status}; No metadata found for table ${tableId} in dataset ${externalDataset}`, { url, response });
       return null;
     }
   }
@@ -50,8 +51,17 @@ export default async function getPxWebTableDetails(tableId: string, externalData
   if (!metricName) {
     console.error("No metric variable found in table details response", { data });
     return null;
-  }else if (!data.dimension[metricName]) {
+  } else if (!data.dimension[metricName]) {
     console.error(`Metric variable "${metricName}" not found in table details response`, { data });
+    return null;
+  }
+
+  const timeVariableName = data.role.time[0]; // The variable name for time is usually "Tid" or "Time", but we will get it from the response just to be sure
+  if (!timeVariableName) {
+    console.error("No time variable found in table details response", { data });
+    return null;
+  } else if (!data.dimension[timeVariableName]) {
+    console.error(`Time variable "${timeVariableName}" not found in table details response`, { data });
     return null;
   }
 
@@ -70,13 +80,13 @@ export default async function getPxWebTableDetails(tableId: string, externalData
   }
 
   // Find all time periods for the table and add to tableDetails
-  const timeCategory = data.dimension.Tid.category;
-  for (const timeVariableName in timeCategory.index) {
-    const pxWebItem = data.dimension.Tid;
+  const timeCategory = (data.dimension[timeVariableName] as PxWebApiV2StandardDimension).category;
+  for (const key in timeCategory.index) {
+    const pxWebItem: PxWebApiV2StandardDimension = data.dimension[timeVariableName];
     const pxWebTimeVariable: PxWebTimeVariable = {
       type: "time",
-      id: timeVariableName,
-      name: timeVariableName,
+      id: key,
+      name: key,
       label: pxWebItem.label,
       optional: true,
       elimination: pxWebItem.extension.elimination,
