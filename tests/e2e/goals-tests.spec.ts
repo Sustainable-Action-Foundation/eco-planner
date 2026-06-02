@@ -12,6 +12,10 @@ async function fillManualDataSeries(page: Page, rows: Array<[number, number]>) {
     await insertRowButton.click();
   }
 
+  // Set focus inside table to ensure the first cell gets filled properly;
+  // without this the test will fail on Firefox and Webkit (but not Chromium) because the first attempt to input data into a cell only sets focus into the table, without successfully filling the cell.
+  await page.locator(`#goal-dataseries [data-row="0"][data-column="1"] input`).focus();
+
   for (let row = 0; row < rows.length; row++) {
     const [year, value] = rows[row];
     await page.locator(`#goal-dataseries [data-row="${row}"][data-column="1"] input`).fill(String(year));
@@ -21,6 +25,8 @@ async function fillManualDataSeries(page: Page, rows: Array<[number, number]>) {
 
 test.describe("Goals tests", () => {
   test.use({ storageState: adminFile });
+  // TODO: Add information about current project to names, to ensure tests for different browsers do not interfere with each other
+  // Example solution in file://./action-effect.spec.ts
   const indicatorRequiredOnly = "Required\\only";
   const indicatorRequiredUpdated = "Required\\updated\\only";
   const unitRequiredOnly = "meter";
@@ -112,6 +118,8 @@ test.describe("Goals tests", () => {
     await page.getByTestId("admin-panel-edit").click();
     await page.waitForLoadState("networkidle");
     //await expect(page.locator('#comment-text')).toBeEmpty(); TODO: There is placeholder content here so this will never be empty. Should probably check that the placeholder exists, but that should be done in another test...  
+
+    // TODO: Should check same things again to ensure that values are not changed when submitting without changes
 
     // Editing fields
     await page.locator('#indicatorParameter').fill(indicatorRequiredUpdated);
@@ -229,13 +237,19 @@ test.describe("Goals tests", () => {
     await page.locator('input[name="dataSeriesType"][value="MANUAL"]').check();
 
     await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorAll);
-    await expect.soft(page.locator('#dataUnit')).toHaveText(unitAll);
+    await expect.soft(page.locator('#dataUnit')).toHaveValue(unitAll);
     for (let i = 0; i < 30; i++) {
-      await expect.soft(page.locator(`[data-row="${i}"][data-column="1"] input`)).toHaveValue(String(2020 + i));
-      await expect.soft(page.locator(`[data-row="${i}"][data-column="2"] input`)).toHaveValue(String(i));
+      await expect.soft(page.locator(`#goal-dataseries [data-row="${i}"][data-column="1"] input`)).toHaveValue(String(2020 + i));
+      await expect.soft(page.locator(`#goal-dataseries [data-row="${i}"][data-column="2"] input`)).toHaveValue(String(i));
     }
 
-    await expect.soft(page.locator('#baselineSelector')).toHaveValue('INITIAL_NON_ZERO');
+    await expect.soft(page.locator('#baselineSelector')).toHaveValue('CUSTOM');
+    for (let i = 0; i < 30; i++) {
+      await expect.soft(page.locator(`#baseline-dataseries [data-row="${i}"][data-column="1"] input`)).toHaveValue(String(2020 + i));
+      // Since the baseline was created as type initial non zero, the baseline value should be the first non zero value of the data series, which is 1, for all years
+      await expect.soft(page.locator(`#baseline-dataseries [data-row="${i}"][data-column="2"] input`)).toHaveValue(String(1));
+    }
+
     await expect.soft(page.locator('#isFeatured')).toBeChecked();
 
     // Submit

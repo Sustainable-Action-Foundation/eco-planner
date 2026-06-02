@@ -123,7 +123,7 @@ export default function GoalForm({
       return;
     }
 
-    let dataSeries: DateValuesWithUnit | undefined = undefined;
+    let dataSeries: DateValuesWithUnit | undefined;
     try {
       dataSeries = JSON.parse(resultingDateValuesString) as DateValuesWithUnit;
       dataSeries.unit = formData.get("dataUnit") as string | null;
@@ -162,9 +162,9 @@ export default function GoalForm({
       || baselineType === BaselineType.InitialNonZero
     ) {
       // Use the first value of the data series as the baseline
-      const dates = Object.keys(dataSeries.dateValues).sort();
-      if (!dates.every(isISOIshDate)) throw new Error("Dates in data series are not in a valid ISO-ish format.");
-      if (dates.length === 0) {
+      const dateValues = Object.entries(dataSeries.dateValues).sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime());
+      if (!dateValues.every(dateValue => isISOIshDate(dateValue[0]))) throw new Error("Dates in data series are not in a valid ISO-ish format.");
+      if (dateValues.length === 0) {
         addToast(t("forms:goal.errors.initial_baseline_error"), "error", false);
         event.target.reportValidity();
         return;
@@ -176,11 +176,11 @@ export default function GoalForm({
       } satisfies DateValuesWithUnit;
 
       const firstDateValue = baselineType === BaselineType.InitialNonZero
-        ? dataSeries.dateValues[dates.find(date => dataSeries.dateValues[date] !== 0) || dates[0]]
-        : dataSeries.dateValues[dates[0]];
+        ? dataSeries.dateValues[dateValues.find(dateValue => dateValue[1] !== 0)?.[0] as keyof typeof dataSeries.dateValues] ?? dateValues[0][1]
+        : dateValues[0][1];
 
-      for (const date of dates) {
-        baseline.dateValues[date] = firstDateValue;
+      for (const dateValue of dateValues) {
+        baseline.dateValues[dateValue[0] as keyof typeof dataSeries.dateValues] = firstDateValue;
       }
     }
     else if (baselineType === BaselineType.Inherited) {

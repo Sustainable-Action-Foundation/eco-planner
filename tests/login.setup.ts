@@ -14,7 +14,7 @@ async function loginHelper(page: Page, username: string, password: string) {
   await page.locator("#submit-button").click();
 
   // Logout button replaces the login button in the sidebar when logged in
-  await expect(page.getByTestId("logout-button")).toBeVisible();
+  await expect(page.getByTestId("logout-button")).toBeVisible({ timeout: 2500});
 }
 
 setup('authenticate as admin', async ({ page }) => {
