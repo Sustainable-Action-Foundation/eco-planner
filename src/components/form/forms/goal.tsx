@@ -15,6 +15,7 @@ import { FormIntegration, RecipeContextProvider, RecipeEditor, SuggestedRecipeAp
 import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
 import { useToastContext } from "@/components/generic/toast/toastContext";
 import { useRouter } from "next/navigation";
+import { dataSeriesToDateValues } from "@/functions/recipe";
 
 const DataSeriesType = { /* TODO: I personally want theese to be lowercase :) */
   Manual: "MANUAL",
@@ -417,14 +418,18 @@ export default function GoalForm({
           </select>
         </label>
 
-          {/* Custom baseline input */}
-          {baselineType === BaselineType.Custom &&
-            <DataSeriesInputManual
-              id="baseline-dataseries"
-              label={t("forms:data_series_input.data_series")}
-              outputFormElement={<input name="baseline-data-series" />}
-            />
-          }
+        {/* Custom baseline input */}
+        {baselineType === BaselineType.Custom &&
+          <DataSeriesInputManual
+            id="baseline-dataseries"
+            label={t("forms:data_series_input.data_series")}
+            {...currentGoal?.dataSeries
+              ? { initialDateValues: dataSeriesToDateValues(currentGoal.dataSeries) }
+              : {}
+            }
+            outputFormElement={<input name="baseline-data-series" />}
+          />
+        }
 
         {/* Inherited baseline input */}
         {baselineType === BaselineType.Inherited &&
