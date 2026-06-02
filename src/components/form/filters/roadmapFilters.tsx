@@ -1,6 +1,6 @@
 'use client';
 
-import { RoadmapType } from "@prisma/client";
+import { RoadmapType } from "@/lib/prisma/generated";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Fragment, useEffect, useState, useTransition } from "react";
 import { useTranslation } from "react-i18next";

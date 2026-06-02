@@ -1,6 +1,6 @@
 import type { actionInclusionSelection, clientSafeDataSeriesSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapSelection, effectInclusionSelection, goalInclusionSelection, metaRoadmapInclusionSelection, multiRoadmapInclusionSelection, nameSelector, recipeSelector, roadmapInclusionSelection, userInfoSelector } from "@/fetchers/inclusionSelectors";
 import type { Unit } from "mathjs";
-import type { Prisma } from "@prisma/client";
+import type { Prisma } from "@/lib/prisma/generated";
 
 /** An object that implements the AccessControlled interface can be checked with the accessChecker function. */
 export type AccessControlled = {

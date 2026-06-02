@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { getSession, options } from "@/lib/session";
-import prisma from "@/prismaClient";
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import type { JSONValue } from "@/types";

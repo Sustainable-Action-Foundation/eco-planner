@@ -29,8 +29,8 @@
     "title": "Edit roadmap series:"
   },
   "roadmap_series_create": {
-    "title": "Create roadmapseries",
-    "description": "Create a new roadmapseries"
+    "title": "Create roadmap series",
+    "description": "Create a new roadmap series"
   },
   "goal_edit": {
     "title": "Edit goal:"

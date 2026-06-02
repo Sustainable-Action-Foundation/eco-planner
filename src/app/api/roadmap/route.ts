@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { getSession } from "@/lib/session";
-import prisma, { Prisma } from "@/prismaClient";
+import { prisma } from "@/lib/prisma";
+import { Prisma } from "@PRISMA-NAMESPACE-ONLY";
 import { AccessLevel, ClientError, isGoalCreate } from "@/types";
 import type { AccessControlled, JSONValue, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
 import roadmapGoalCreator from "./roadmapGoalCreator";
@@ -513,7 +514,7 @@ export async function PUT(request: NextRequest) {
     // Prune any orphaned links and comments
     await pruneOrphans();
     // Invalidate old cache
-    revalidateTag('roadmap', { expire: 0});
+    revalidateTag('roadmap', { expire: 0 });
     // Return the new roadmap's ID if successful
     return Response.json({ message: t('api:roadmap.roadmap_updated'), id: updatedRoadmap.id },
       { status: 200, headers: { 'Location': `/roadmap/${updatedRoadmap.id}` } },

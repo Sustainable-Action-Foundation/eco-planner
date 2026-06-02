@@ -39,9 +39,10 @@ export type GridElement = Theme & {
 }
 
 export type GridCell = GenericElement & {
-  position?: {row: number, column: number},
-  tabIndex?: 0 | -1,
   children?: React.ReactNode,
+  tabIndex?: 0 | -1,
+  ariaSelected?: boolean, 
+  position?: {row: number, column: number},
   onKeyDown?: React.KeyboardEventHandler<HTMLTableCellElement>, 
   onClick?: React.MouseEventHandler<HTMLTableCellElement>,
   onDoubleClick?: React.MouseEventHandler<HTMLTableCellElement>

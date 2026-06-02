@@ -241,6 +241,14 @@
   text-align: left;
 }
 
+.overflow-y-auto {
+  overflow-y: auto;
+}
+
+.overflow-y-scroll {
+  overflow-y: scroll;
+}
+
 .overflow-hidden {
   overflow: hidden;
 }
@@ -347,6 +355,10 @@
 
 .max-width-100 {
   max-width: 100%;
+}
+
+.height-fit-content {
+  height: fit-content;
 }
 
 .height-0 {

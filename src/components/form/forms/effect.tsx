@@ -1,8 +1,9 @@
 'use client';
 
 import formSubmitter from "@/functions/formSubmitter";
-import { isDateValuesWithUnit, type Action, type DateValuesWithUnit, type Effect, type EffectInput, type Goal, type MultiRoadmapInstance } from "@/types";
-import { ActionImpactType } from "@prisma/client";
+import type { Action, DateValuesWithUnit, Effect, EffectInput, Goal, MultiRoadmapInstance } from "@/types";
+import { isDateValuesWithUnit } from "@/types";
+import { ActionImpactType } from "@/lib/prisma/generated";
 import { useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { absoluteToDelta, ActionSelector, deltaToAbsolute, GoalSelector } from "../sections/effectFormSections";
@@ -32,7 +33,7 @@ export default function EffectForm({
   const [dateValues, setDateValues] = useState<DateValuesWithUnit>(currentEffect?.dataSeries
     ? dataSeriesToDateValues(currentEffect.dataSeries)
     : { unit: undefined, dateValues: {} },
-  ); 
+  );
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -117,14 +118,14 @@ export default function EffectForm({
           goal={goal ?? currentEffect?.goal ?? null}
           roadmaps={roadmaps}
         />
-  
+
         <DataSeriesInputManual
           id="effect-dataseries"
           label={t("forms:data_series_input.data_series")}
           initialDateValues={dateValues}
           outputFormElement={<input name="data-series" />}
         />
- 
+
         {(
           selectedImpactType === ActionImpactType.ABSOLUTE
           || selectedImpactType === ActionImpactType.DELTA

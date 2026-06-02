@@ -277,8 +277,11 @@
     "tree": "Tree"
   },
   "toasts": {
+    "clear_toasts": "Clear all messages",
     "error": "Something went wrong!",
     "success": "Success!",
+    "show_less": "Show less",
+    "show_more": "Show more",
     "warning": "Warning!"
   },
   "update_goal_button": {

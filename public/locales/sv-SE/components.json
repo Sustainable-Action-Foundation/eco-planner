@@ -277,8 +277,11 @@
     "tree": "Träd"
   },
   "toasts": {
+    "clear_toasts": "Rensa alla meddelanden",
     "error": "Något gick fel!",
     "success": "Lyckades!",
+    "show_less": "Visa mindre",
+    "show_more": "Visa mer",
     "warning": "Varning!"
   },
   "update_goal_button": {

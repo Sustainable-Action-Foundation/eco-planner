@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import SelectMultipleSearch from "../elements/combobox/selectMultipleSearch";
 import type { AccessControlled } from "@/types";
-import type { MetaRoadmap, Roadmap } from "@prisma/client";
+import type { MetaRoadmap, Roadmap } from "@/lib/prisma/generated";
 import type { LoginData } from "@/lib/session";
 import styles from '../forms.module.css';
 import { useTranslation } from "react-i18next";

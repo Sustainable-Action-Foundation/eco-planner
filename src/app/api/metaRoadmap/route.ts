@@ -2,7 +2,9 @@ import type { NextRequest } from "next/server";
 import { getSession } from "@/lib/session";
 import { AccessLevel, ClientError, isMetaRoadmapCreate, isMetaRoadmapUpdate } from "@/types";
 import type { AccessControlled, JSONValue } from "@/types";
-import prisma, { Prisma, RoadmapType } from "@/prismaClient";
+import { prisma } from "@/lib/prisma";
+import { RoadmapType } from "@/lib/prisma/generated";
+import { Prisma } from "../../../../prisma/generated/client";
 import { revalidateTag } from "next/cache";
 import accessChecker from "@/lib/accessChecker";
 import pruneOrphans from "@/functions/pruneOrphans";
@@ -172,9 +174,9 @@ export async function POST(request: NextRequest) {
       { status: 201, headers: { 'Location': `/roadmap/create?metaRoadmapId=${newMetaRoadmap.id}` } },
     );
   }
-  catch (error) {
-    console.error(error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+  catch (err: unknown) {
+    console.log(err);
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
       return Response.json({ message: t('api:metaRoadmap.failed_record_connection') },
         { status: 400 },
       );

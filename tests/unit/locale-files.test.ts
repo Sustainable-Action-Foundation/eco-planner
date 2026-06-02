@@ -649,7 +649,7 @@ function getAllJSONFlattened(): Record<string, Record<string, string>> {
 
 /** Get every file where t might be implemented as an array of objects storing the file path and their content as text */
 function getAllTSXFiles() {
-  const allTSXPaths = fs.globSync(["src/**/*.{tsx,ts}", "!scripts/**/*", "!src/prisma/generated/**/*", "!.prisma/**/*"]);
+  const allTSXPaths = fs.globSync(["src/**/*.{tsx,ts}", "!scripts/**/*", "!src/prisma/generated/**/*", "!.prisma/**/*", "!src/.prisma/**/*", "!prisma/generated/**/*"]);
 
   return allTSXPaths.map(filePath => {
     const contentRaw = fs.readFileSync(filePath, "utf-8");

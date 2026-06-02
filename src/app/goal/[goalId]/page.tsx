@@ -9,7 +9,7 @@ import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import type { ApiTableContent } from "@/lib/api/apiTypes";
 import { getSession } from "@/lib/session";
 import serveTea from "@/lib/i18nServer";
-import prisma from "@/prismaClient";
+import { prisma } from "@/lib/prisma";
 import { AccessLevel } from "@/types";
 import type { AccessControlled, Goal, MultiRoadmapInstance, Roadmap } from "@/types";
 import { cookies } from "next/headers";
@@ -22,6 +22,7 @@ import type { TFunction } from "i18next";
 import i18nServer from "i18next";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 import GoalGraph from "@/components/graph/graphs/goal/container";
+import type { Metadata } from "next";
 
 export async function generateMetadata(props: {
   params: Promise<{ goalId: string }>,
@@ -29,7 +30,7 @@ export async function generateMetadata(props: {
     secondaryGoal?: string | string[] | undefined,
     [key: string]: string | string[] | undefined
   }>,
-}) {
+}): Promise<Metadata> {
   const params = await props.params;
 
   const [t, session, goal] = await Promise.all([

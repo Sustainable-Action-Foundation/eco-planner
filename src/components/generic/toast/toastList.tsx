@@ -1,19 +1,35 @@
 "use client";
+
 import { useToastContext } from "@/components/generic/toast/toastContext";
 import Toast from "./toast";
-import styles from "./toast.module.css";
+import styles from './toast.module.css';
+import { IconX } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 
 export default function ToastList() {
-  const { messages } = useToastContext();
+
+  const { t } = useTranslation("components");
+  const { messages, clearToasts } = useToastContext();
+  
   return (
-    <aside data-testid="toast-list">
-      <output className={`${styles["toast-list"]} position-fixed flex flex-direction-column-reverse gap-50`} aria-live="polite">
+    <aside className={`${styles["toast-list"]} flex flex-direction-column position-fixed `} data-testid="toast-list">
+      {messages.length > 0 ?
+        <button onClick={clearToasts} className="flex gap-25 align-items-center margin-left-auto" type="button">
+          {t("components:toasts.clear_toasts")}
+          <div className="round padding-25 grid">
+            <IconX width={16} height={16} aria-hidden="true" />
+          </div>  
+        </button>
+      : null }
+      <ul className={`flex flex-direction-column-reverse justify-content-flex-end flex-grow-100 list-style-none`} aria-live="polite">
         {messages.map((message) => (
-          <Toast key={message.id} id={message.id} type={message.type} hasTimeout={message.hasTimeout}>
-            {message.text}
-          </Toast>
+          <li key={message.id}>
+            <Toast id={message.id} type={message.type} hasTimeout={message.hasTimeout}>
+              {message.text}
+            </Toast>
+          </li>
         ))}
-      </output>
+      </ul>
     </aside>
   );
 }

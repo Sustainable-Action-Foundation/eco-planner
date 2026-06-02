@@ -13,6 +13,7 @@ let sendPageName = ""; // Denotes what a screenshot is of
 */
 async function takeScreenshot(pageName: string, page: Page, worker: string) {
   await ensureToastPassthrough(page);
+  
   await isSidebarOpen(page, true);
 
   await page.screenshot({ path: `${outputDir}/${pageName}/${worker}.jpeg`, fullPage: false, animations: "disabled" });

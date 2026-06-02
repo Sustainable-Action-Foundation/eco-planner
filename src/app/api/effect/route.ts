@@ -1,7 +1,9 @@
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
-import prisma, { Prisma, ActionImpactType } from "@/prismaClient";
+import { prisma } from "@/lib/prisma";
+import { Prisma } from "@PRISMA-NAMESPACE-ONLY";
+import { ActionImpactType } from "@/lib/prisma/generated";
 import { ClientError, isDateValuesWithUnit } from "@/types";
 import type { EffectInput, JSONValue } from "@/types";
 import { revalidateTag } from "next/cache";

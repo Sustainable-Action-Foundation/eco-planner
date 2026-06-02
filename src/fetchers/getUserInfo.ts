@@ -3,7 +3,7 @@ import { userInfoSelector } from "@/fetchers/inclusionSelectors";
 import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session";
 import { metaRoadmapSorter, roadmapSorter } from "@/lib/sorters";
-import prisma from "@/prismaClient";
+import { prisma } from "@/lib/prisma";
 import { cacheTag } from "next/cache";
 import { cookies } from "next/headers";
 
