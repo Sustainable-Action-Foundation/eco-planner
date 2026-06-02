@@ -81,7 +81,7 @@ export default function GoalForm({
   }, [roadmapAlternatives, t]);
 
   const [timestamp] = useState(() => Date.now());
-  
+
   // TODO: Error messages were translated directly from English to Swedish when switching to toasts.
   // They can likely be translated better.
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
@@ -284,138 +284,138 @@ export default function GoalForm({
 
   return (
     <form onSubmit={handleSubmit} name="goalForm">
-        {/* This hidden submit button prevents submitting by pressing enter, to avoid accidental submission */}
-        <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
+      {/* This hidden submit button prevents submitting by pressing enter, to avoid accidental submission */}
+      <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
-        {/* Allow user to select parent roadmap if not already selected */}
-        {!(roadmapId || currentGoal?.roadmapId) ?
-          <fieldset className={`${styles.timeLineFieldset} width-100`}>
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_relationship")}</legend>
-            <label htmlFor="parent-roadmap">{t("forms:goal.relationship_label")}</label>
-            <SelectSingleSearch
-              props={{
-                required: true,
-                className: "margin-top-25 margin-bottom-100",
-                id: "parent-roadmap",
-                name: "parent-roadmap",
-                placeholder: `${t("common:tsx.select")}  ${t("common:roadmap_series_one")}`,
-              }}
-              onChange={(value) => value?.value ? setParentRoadmapId(value.value) : setParentRoadmapId("")}
-              options={parentRoadmaps}
-            />
-          </fieldset>
-          : null
-        }
-
-        {/* Goal name and description */}
-        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.goal_description_legend")}</legend>
-          <label>
-            {t("forms:goal.goal_name")}
-            <input className="margin-top-25 margin-bottom-100" type="text" name="goalName" id="goalName" defaultValue={currentGoal?.name ?? undefined} />
-          </label>
-
-          <label id="description-label">{t("forms:goal.goal_description")}</label> {/* TODO: This is not actually labeling anything. I am however unsure how labels work outside of inputs so check that. */}
-          <TextEditor
-            className="margin-top-25 margin-bottom-100" // TODO: Need label for textEditorMenu
-            id="description"
-            ariaLabelledBy="description-label"
-            placeholder={t("forms:text_editor_menu.default_placeholder")}
-            editable={true}
-            content={currentGoal ? currentGoal.description : ""}
-            onChange={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
+      {/* Allow user to select parent roadmap if not already selected */}
+      {!(roadmapId || currentGoal?.roadmapId) ?
+        <fieldset className={`${styles.timeLineFieldset} width-100`}>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_relationship")}</legend>
+          <label htmlFor="parent-roadmap">{t("forms:goal.relationship_label")}</label>
+          <SelectSingleSearch
+            props={{
+              required: true,
+              className: "margin-top-25 margin-bottom-100",
+              id: "parent-roadmap",
+              name: "parent-roadmap",
+              placeholder: `${t("common:tsx.select")}  ${t("common:roadmap_series_one")}`,
+            }}
+            onChange={(value) => value?.value ? setParentRoadmapId(value.value) : setParentRoadmapId("")}
+            options={parentRoadmaps}
           />
-          {/* hidden input containing the text editor output */}
-          <input ref={descriptionRef} type="hidden" name="description" defaultValue={currentGoal?.description ?? ""} />
         </fieldset>
+        : null
+      }
 
-        {/* Data series input section */}
-        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_goal_data_series")}</legend>
+      {/* Goal name and description */}
+      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.goal_description_legend")}</legend>
+        <label>
+          {t("forms:goal.goal_name")}
+          <input className="margin-top-25 margin-bottom-100" type="text" name="goalName" id="goalName" defaultValue={currentGoal?.name ?? undefined} />
+        </label>
 
-          {/* Radio group */}
-          <fieldset className="border-none padding-0 margin-0 margin-bottom-100" role="radiogroup" aria-label={t("forms:goal.choose_goal_data_series")}>
-            <label className="flex align-items-center gap-50 margin-bottom-50">
-              <input
-                type="radio"
-                name="dataSeriesType"
-                value={DataSeriesType.Suggested}
-                checked={dataSeriesType === DataSeriesType.Suggested}
-                onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
-              />
-              {t("forms:goal.suggested_inheritance")}
-            </label>
-            <label className="flex align-items-center gap-50 margin-bottom-50">
-              <input
-                type="radio"
-                name="dataSeriesType"
-                value={DataSeriesType.Custom}
-                checked={dataSeriesType === DataSeriesType.Custom}
-                onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
-              />
-              {t("forms:goal.custom_recipe")}
-            </label>
-            <label className="flex align-items-center gap-50 margin-bottom-50">
-              <input
-                type="radio"
-                name="dataSeriesType"
-                value={DataSeriesType.Manual}
-                checked={dataSeriesType === DataSeriesType.Manual}
-                onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
-              />
-              {t("forms:goal.static_data_series")}
-            </label>
-          </fieldset>
+        <label id="description-label">{t("forms:goal.goal_description")}</label> {/* TODO: This is not actually labeling anything. I am however unsure how labels work outside of inputs so check that. */}
+        <TextEditor
+          className="margin-top-25 margin-bottom-100" // TODO: Need label for textEditorMenu
+          id="description"
+          ariaLabelledBy="description-label"
+          placeholder={t("forms:text_editor_menu.default_placeholder")}
+          editable={true}
+          content={currentGoal ? currentGoal.description : ""}
+          onChange={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
+        />
+        {/* hidden input containing the text editor output */}
+        <input ref={descriptionRef} type="hidden" name="description" />
+      </fieldset>
 
-          {/* Suggested */}
-          <fieldset className={`margin-top-100 ${dataSeriesType !== DataSeriesType.Suggested ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Suggested}>
-            <RecipeContextProvider>
-              <SuggestedRecipeApplier />
-              <FormIntegration
-                RecipeFormElement={<input name="resultingRecipe" />}
-                DateValuesFormElement={<input name="resultingDateValues" />}
-              />
-            </RecipeContextProvider>
-          </fieldset>
+      {/* Data series input section */}
+      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_goal_data_series")}</legend>
 
-          {/* Recipe */}
-          <fieldset className={`margin-top-100 ${dataSeriesType !== DataSeriesType.Custom ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Custom}>
-            <RecipeContextProvider>
-              <RecipeEditor />
-              <FormIntegration
-                RecipeFormElement={<input name="resultingRecipe" />}
-                DateValuesFormElement={<input name="resultingDateValues" />}
-              />
-            </RecipeContextProvider>
-          </fieldset>
-
-          {/* Manual */}
-          <fieldset className={`${dataSeriesType === DataSeriesType.Manual ? "" : "display-none"}`} disabled={dataSeriesType !== DataSeriesType.Manual}>
-            <ManualGoalForm
-              currentGoal={currentGoal}
-              outputFormElement={<input name="data-series" />}
+        {/* Radio group */}
+        <fieldset className="border-none padding-0 margin-0 margin-bottom-100" role="radiogroup" aria-label={t("forms:goal.choose_goal_data_series")}>
+          <label className="flex align-items-center gap-50 margin-bottom-50">
+            <input
+              type="radio"
+              name="dataSeriesType"
+              value={DataSeriesType.Suggested}
+              checked={dataSeriesType === DataSeriesType.Suggested}
+              onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
             />
-          </fieldset>
+            {t("forms:goal.suggested_inheritance")}
+          </label>
+          <label className="flex align-items-center gap-50 margin-bottom-50">
+            <input
+              type="radio"
+              name="dataSeriesType"
+              value={DataSeriesType.Custom}
+              checked={dataSeriesType === DataSeriesType.Custom}
+              onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
+            />
+            {t("forms:goal.custom_recipe")}
+          </label>
+          <label className="flex align-items-center gap-50 margin-bottom-50">
+            <input
+              type="radio"
+              name="dataSeriesType"
+              value={DataSeriesType.Manual}
+              checked={dataSeriesType === DataSeriesType.Manual}
+              onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
+            />
+            {t("forms:goal.static_data_series")}
+          </label>
         </fieldset>
 
-        {/* Baseline selection section */}
-        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend
-            data-position={positionIndex++}
-            className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
-          >
-            {t("forms:goal.choose_baseline_for_actions")}
-          </legend>
+        {/* Suggested */}
+        <fieldset className={`margin-top-100 ${dataSeriesType !== DataSeriesType.Suggested ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Suggested}>
+          <RecipeContextProvider>
+            <SuggestedRecipeApplier />
+            <FormIntegration
+              RecipeFormElement={<input name="resultingRecipe" />}
+              DateValuesFormElement={<input name="resultingDateValues" />}
+            />
+          </RecipeContextProvider>
+        </fieldset>
 
-          <label>
-            {t("forms:goal.baseline_label")}
-            <select className="block margin-top-25 margin-bottom-100" name="baselineSelector" id="baselineSelector" value={baselineType} onChange={(e) => setBaselineType(e.target.value as BaselineType)}>
-              <option value={BaselineType.Initial}>{t("forms:goal.baseline_types.initial")}</option>
-              <option value={BaselineType.InitialNonZero}>{t("forms:goal.baseline_types.initial_non_zero")}</option>
-              <option value={BaselineType.Custom}>{t("forms:goal.baseline_types.custom")}</option>
-              <option value={BaselineType.Inherited}>{t("forms:goal.baseline_types.inherited")}</option>
-            </select>
-          </label>
+        {/* Recipe */}
+        <fieldset className={`margin-top-100 ${dataSeriesType !== DataSeriesType.Custom ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Custom}>
+          <RecipeContextProvider>
+            <RecipeEditor />
+            <FormIntegration
+              RecipeFormElement={<input name="resultingRecipe" />}
+              DateValuesFormElement={<input name="resultingDateValues" />}
+            />
+          </RecipeContextProvider>
+        </fieldset>
+
+        {/* Manual */}
+        <fieldset className={`${dataSeriesType === DataSeriesType.Manual ? "" : "display-none"}`} disabled={dataSeriesType !== DataSeriesType.Manual}>
+          <ManualGoalForm
+            currentGoal={currentGoal}
+            outputFormElement={<input name="data-series" />}
+          />
+        </fieldset>
+      </fieldset>
+
+      {/* Baseline selection section */}
+      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+        <legend
+          data-position={positionIndex++}
+          className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
+        >
+          {t("forms:goal.choose_baseline_for_actions")}
+        </legend>
+
+        <label>
+          {t("forms:goal.baseline_label")}
+          <select className="block margin-top-25 margin-bottom-100" name="baselineSelector" id="baselineSelector" value={baselineType} onChange={(e) => setBaselineType(e.target.value as BaselineType)}>
+            <option value={BaselineType.Initial}>{t("forms:goal.baseline_types.initial")}</option>
+            <option value={BaselineType.InitialNonZero}>{t("forms:goal.baseline_types.initial_non_zero")}</option>
+            <option value={BaselineType.Custom}>{t("forms:goal.baseline_types.custom")}</option>
+            <option value={BaselineType.Inherited}>{t("forms:goal.baseline_types.inherited")}</option>
+          </select>
+        </label>
 
           {/* Custom baseline input */}
           {baselineType === BaselineType.Custom &&
@@ -426,43 +426,43 @@ export default function GoalForm({
             />
           }
 
-          {/* Inherited baseline input */}
-          {baselineType === BaselineType.Inherited &&
-            <InheritingBaseline
-              outputFormElement={<input name="inherited-baseline-id" />}
-            />
-          }
-        </fieldset>
+        {/* Inherited baseline input */}
+        {baselineType === BaselineType.Inherited &&
+          <InheritingBaseline
+            outputFormElement={<input name="inherited-baseline-id" />}
+          />
+        }
+      </fieldset>
 
-        {/* TODO suggested recipes to inherit with */}
+      {/* TODO suggested recipes to inherit with */}
 
-        {/* External links section */}
-        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend
-            // Technically incrementing here is unused but if you add a another entry after this one it will be correct
-            // eslint-disable-next-line no-useless-assignment
-            data-position={positionIndex++}
-            className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
-          >
-            {t("forms:goal.feature_this_goal")}
-          </legend>
-          <label className="flex align-items-center gap-50 margin-bottom-100">
-            <input type="checkbox" name="isFeatured" id="isFeatured" defaultChecked={currentGoal?.isFeatured} />
-            {t("forms:goal.feature_goal")}
-          </label>
-        </fieldset >
+      {/* External links section */}
+      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+        <legend
+          // Technically incrementing here is unused but if you add a another entry after this one it will be correct
+          // eslint-disable-next-line no-useless-assignment
+          data-position={positionIndex++}
+          className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
+        >
+          {t("forms:goal.feature_this_goal")}
+        </legend>
+        <label className="flex align-items-center gap-50 margin-bottom-100">
+          <input type="checkbox" name="isFeatured" id="isFeatured" defaultChecked={currentGoal?.isFeatured} />
+          {t("forms:goal.feature_goal")}
+        </label>
+      </fieldset >
 
-        {/* Submit button */}
-        <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
-          <button
-            className="text-align-center seagreen color-purewhite width-100"
-            style={{ fontSize: '14px', transform: 'none' }}
-            type="submit"
-            id="submit-button"
-          >
-            {currentGoal ? t("common:tsx.save") : t("forms:goal.create")}
-          </button>
-        </div>
-      </form >
+      {/* Submit button */}
+      <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
+        <button
+          className="text-align-center seagreen color-purewhite width-100"
+          style={{ fontSize: '14px', transform: 'none' }}
+          type="submit"
+          id="submit-button"
+        >
+          {currentGoal ? t("common:tsx.save") : t("forms:goal.create")}
+        </button>
+      </div>
+    </form >
   );
 }

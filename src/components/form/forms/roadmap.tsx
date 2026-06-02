@@ -200,99 +200,99 @@ export default function RoadmapForm({
 
   return (
     <form onSubmit={(e: React.ChangeEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        void handleSubmit(e);
-      }}>
-        {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when adding new entries in AccessSelector (for example, when pressing enter to add someone to the list of editors) */}
-        <input type="submit" disabled={true} className="display-none" aria-hidden={true} />
+      e.preventDefault();
+      void handleSubmit(e);
+    }}>
+      {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when adding new entries in AccessSelector (for example, when pressing enter to add someone to the list of editors) */}
+      <input type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
-        {(!(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap) || metaRoadmapTarget?.roadmapVersions.length) ?
+      {(!(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap) || metaRoadmapTarget?.roadmapVersions.length) ?
 
-          <fieldset className={`${styles.timeLineFieldset} width-100`}>
-            <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:roadmap.relationship_legend")}</legend>
-            {/* Allow user to select parent metaRoadmap if not already selected */}
-            {!(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap) ?
-              <>
-                <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:roadmap.relationship_label")}</label> {/* TODO: Not capitalized properly due to issues in english translation */}
-                <SelectSingleSearch
-                  props={{
-                    required: true,
-                    className: "margin-top-25 margin-bottom-100",
-                    id: "parent-roadmap",
-                    name: "parent-roadmap",
-                    placeholder: `${t("common:tsx.select")}  ${t("common:roadmap_series_one")}`,
-                  }}
-                  onChange={(value) => value?.value ? setMetaRoadmapId(value.value) : setMetaRoadmapId("")}
-                  options={metaRoadmaps}
-                />
-
-              </>
-              : null
-            }
-
-            {metaRoadmapTarget?.roadmapVersions.length ? <label>
-                {t("forms:roadmap.roadmap_target_label", { targetName: metaRoadmapTarget.name })}
-                <select className="block margin-top-25 margin-bottom-100 width-100" name="target-version" id="target-version" required={true} defaultValue={currentRoadmap?.targetVersion ?? ""} onChange={(e) => setTargetVersion(parseInt(e.target.value, 10) || null)}>
-                  <option value="">{t("forms:roadmap.roadmap_target_no_chosen")}</option>
-                  <option value={0}>{t("forms:roadmap.roadmap_target_always_latest")}</option>
-                  {metaRoadmapTarget.roadmapVersions.map((version) => {
-                    return (
-                      <option key={version.version} value={version.version}>{`Version ${version.version}`}</option>
-                    );
-                  })}
-                </select>
-              </label> : null}
-          </fieldset>
-          : null
-        }
-
-        <fieldset className={`${styles.timeLineFieldset} width-100 ${positionIndex > 1 ? "margin-top-200" : ""}`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:roadmap.roadmap_version_legend")}</legend>
-          <label id="description-label">{t("forms:roadmap.roadmap_description")}</label>
-          <TextEditor
-            className="margin-top-25 margin-bottom-100" // TODO: Need label for texteditormenu
-            id="description"
-            ariaLabelledBy="description-label"
-            placeholder={t("forms:text_editor_menu.default_placeholder")}
-            editable={true}
-            content={currentRoadmap ? currentRoadmap.description : ""}
-            onChange={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
-          />
-          <input ref={descriptionRef} type="hidden" name="description" defaultValue={currentRoadmap?.description ?? ""} />
-
-        </fieldset>
-
-        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:roadmap.upload_goals")}</legend>
-          <label>
-            <Trans
-              i18nKey={"forms:roadmap.goal_accepted_formats"}
-              tOptions={{ fileTypes: [".csv"], encodings: ["UTF-8"], type: "unit" }}
-              components={{ small: <small /> }}
-            />
-            <div className="focusable flex width-fit-content align-items-center gap-50 margin-top-25 margin-bottom-100">
-              <div className="gray-90 padding-block-50 padding-inline-75" style={{ borderRadius: '.25rem 0 0 .25rem' }}>
-                <IconUpload width={20} height={20} aria-hidden={true} className="grid" />
-              </div>
-              <input
-                type="file"
-                name="csv-upload"
-                id="csv-upload"
-                accept=".csv"
-                onChange={(e) => e.target.files ? setCurrentFile(e.target.files[0]) : setCurrentFile(null)}
+        <fieldset className={`${styles.timeLineFieldset} width-100`}>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:roadmap.relationship_legend")}</legend>
+          {/* Allow user to select parent metaRoadmap if not already selected */}
+          {!(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap) ?
+            <>
+              <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:roadmap.relationship_label")}</label> {/* TODO: Not capitalized properly due to issues in english translation */}
+              <SelectSingleSearch
+                props={{
+                  required: true,
+                  className: "margin-top-25 margin-bottom-100",
+                  id: "parent-roadmap",
+                  name: "parent-roadmap",
+                  placeholder: `${t("common:tsx.select")}  ${t("common:roadmap_series_one")}`,
+                }}
+                onChange={(value) => value?.value ? setMetaRoadmapId(value.value) : setMetaRoadmapId("")}
+                options={metaRoadmaps}
               />
-            </div>
-          </label>
+
+            </>
+            : null
+          }
+
+          {metaRoadmapTarget?.roadmapVersions.length ? <label>
+            {t("forms:roadmap.roadmap_target_label", { targetName: metaRoadmapTarget.name })}
+            <select className="block margin-top-25 margin-bottom-100 width-100" name="target-version" id="target-version" required={true} defaultValue={currentRoadmap?.targetVersion ?? ""} onChange={(e) => setTargetVersion(parseInt(e.target.value, 10) || null)}>
+              <option value="">{t("forms:roadmap.roadmap_target_no_chosen")}</option>
+              <option value={0}>{t("forms:roadmap.roadmap_target_always_latest")}</option>
+              {metaRoadmapTarget.roadmapVersions.map((version) => {
+                return (
+                  <option key={version.version} value={version.version}>{`Version ${version.version}`}</option>
+                );
+              })}
+            </select>
+          </label> : null}
         </fieldset>
+        : null
+      }
+
+      <fieldset className={`${styles.timeLineFieldset} width-100 ${positionIndex > 1 ? "margin-top-200" : ""}`}>
+        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:roadmap.roadmap_version_legend")}</legend>
+        <label id="description-label">{t("forms:roadmap.roadmap_description")}</label>
+        <TextEditor
+          className="margin-top-25 margin-bottom-100" // TODO: Need label for texteditormenu
+          id="description"
+          ariaLabelledBy="description-label"
+          placeholder={t("forms:text_editor_menu.default_placeholder")}
+          editable={true}
+          content={currentRoadmap ? currentRoadmap.description : ""}
+          onChange={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
+        />
+        <input ref={descriptionRef} type="hidden" name="description" />
+
+      </fieldset>
+
+      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:roadmap.upload_goals")}</legend>
+        <label>
+          <Trans
+            i18nKey={"forms:roadmap.goal_accepted_formats"}
+            tOptions={{ fileTypes: [".csv"], encodings: ["UTF-8"], type: "unit" }}
+            components={{ small: <small /> }}
+          />
+          <div className="focusable flex width-fit-content align-items-center gap-50 margin-top-25 margin-bottom-100">
+            <div className="gray-90 padding-block-50 padding-inline-75" style={{ borderRadius: '.25rem 0 0 .25rem' }}>
+              <IconUpload width={20} height={20} aria-hidden={true} className="grid" />
+            </div>
+            <input
+              type="file"
+              name="csv-upload"
+              id="csv-upload"
+              accept=".csv"
+              onChange={(e) => e.target.files ? setCurrentFile(e.target.files[0]) : setCurrentFile(null)}
+            />
+          </div>
+        </label>
+      </fieldset>
 
 
-        {/* TODO: Use recipes */}
-        {/* TODO: Add option to inherit some/all goals from previous versions of same roadmap */}
-        {/* TODO: Add checkboxes for inheriting some/all goals from another roadmap (not the target) with `inheritFromID` */}
-        {/* TODO: Allow choosing which roadmap to inherit from, might be different from target */}
-        {/* Temporarily disabled */}
-        {/* RE-ENABLE WHEN UPDATED */}
-        {/*
+      {/* TODO: Use recipes */}
+      {/* TODO: Add option to inherit some/all goals from previous versions of same roadmap */}
+      {/* TODO: Add checkboxes for inheriting some/all goals from another roadmap (not the target) with `inheritFromID` */}
+      {/* TODO: Allow choosing which roadmap to inherit from, might be different from target */}
+      {/* Temporarily disabled */}
+      {/* RE-ENABLE WHEN UPDATED */}
+      {/*
           inheritableGoals.length > 0 && (
             <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
               <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:roadmap.inherit_goal_legend")}</legend>
@@ -310,28 +310,28 @@ export default function RoadmapForm({
           )
         */}
 
-        <ConfigureAccess
-          user={user}
-          userGroups={userGroups}
-          currentRoadmap={currentRoadmap}
-          positionIndex={positionIndex}
-          legends={{
-            viewers: t("forms:roadmap.legend_visibility"),
-            editors: t("forms:roadmap.legend_editability"),
-          }}
-        />
+      <ConfigureAccess
+        user={user}
+        userGroups={userGroups}
+        currentRoadmap={currentRoadmap}
+        positionIndex={positionIndex}
+        legends={{
+          viewers: t("forms:roadmap.legend_visibility"),
+          editors: t("forms:roadmap.legend_editability"),
+        }}
+      />
 
-        <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
-          <button
-            className="text-align-center seagreen color-purewhite width-100"
-            style={{ fontSize: '14px', transform: 'none' }}
-            type="submit"
-            id="submit-button"
-            disabled={isLoading}
-          >
-            {currentRoadmap ? t("common:tsx.save") : t("forms:roadmap.create")}
-          </button>
-        </div>
-      </form >
+      <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
+        <button
+          className="text-align-center seagreen color-purewhite width-100"
+          style={{ fontSize: '14px', transform: 'none' }}
+          type="submit"
+          id="submit-button"
+          disabled={isLoading}
+        >
+          {currentRoadmap ? t("common:tsx.save") : t("forms:roadmap.create")}
+        </button>
+      </div>
+    </form >
   );
 }

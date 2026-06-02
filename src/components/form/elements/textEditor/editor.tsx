@@ -1,13 +1,13 @@
 'use client';
 
 // TODO: Remove duplicate extension names
-import type { Content, Editor} from '@tiptap/react';
+import type { Content, Editor } from '@tiptap/react';
 import { EditorContent, useEditor } from '@tiptap/react';
 import TextEditorMenu from './menu';
 import { defaultExtensions, nodeSizeLimit } from './config/config';
 import { useMemo } from 'react';
 
-{/* TODO: Update typing for content */}
+{ /* TODO: Update typing for content */ }
 const TextEditor = ({
   className,
   style,
@@ -44,6 +44,10 @@ const TextEditor = ({
     shouldRerenderOnTransaction: true,
     editable,
     onUpdate: ({ editor }) => {
+      if (onChange) onChange(editor.getJSON());
+    },
+    onMount: ({ editor }) => {
+      // Ensure onChange is called with initial content on mount
       if (onChange) onChange(editor.getJSON());
     },
     content: parsedContent,
