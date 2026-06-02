@@ -3,6 +3,11 @@ import { ExternalDataset } from "../api/utility";
 import type { PxWebApiV2MetricDimension, PxWebApiV2StandardDimension, PxWebApiV2TableDetails, PxWebMetric, PxWebTimeVariable, PxWebVariable, PxWebVariableValue } from "./pxWebApiV2Types";
 
 export default async function getPxWebTableDetails(tableId: string, externalDataset: string, language?: string): Promise<ApiTableDetails | null> {
+  if (!tableId || !externalDataset) {
+    console.debug("getPxWebTableDetails called without required parameters, returning early", { tableId, externalDataset, language });
+    return null;
+  }
+
   // Get the base URL for the external dataset, defaulting to SCB
   const dataset = ExternalDataset.getDatasetByAlternateName(externalDataset) ?? ExternalDataset.SCB;
   const url = new URL(`./tables/${tableId}/metadata`, dataset.baseUrl);
@@ -23,6 +28,7 @@ export default async function getPxWebTableDetails(tableId: string, externalData
       data = await response.json() as PxWebApiV2TableDetails;
     } else if (response.status === 429) {
       // Wait 10 seconds and try again
+      console.debug(`Received 429 status, retrying in 10 seconds...`, { url, response });
       await new Promise(resolve => setTimeout(resolve, 10000));
       return await getPxWebTableDetails(tableId, externalDataset, language);
     } else if (response.status === 404) {
@@ -48,6 +54,7 @@ export default async function getPxWebTableDetails(tableId: string, externalData
   };
 
   const metricName = data.role.metric[0]; // The variable name for the metric is usually "ContentsCode", but we will get it from the response just to be sure (Energimyndigheten seems to use "CONTENTS" instead)
+  console.debug("metricName: ", metricName);
   if (!metricName) {
     console.error("No metric variable found in table details response", { data });
     return null;
@@ -71,7 +78,7 @@ export default async function getPxWebTableDetails(tableId: string, externalData
     const pxWebMetric: PxWebMetric = {
       type: "metric",
       id: key,
-      name: key,
+      name: metricsCategory.label[key],
       index: metricsCategory.index[key],
       label: metricsCategory.label[key],
       unit: metricsCategory.unit?.[key],
@@ -86,7 +93,7 @@ export default async function getPxWebTableDetails(tableId: string, externalData
     const pxWebTimeVariable: PxWebTimeVariable = {
       type: "time",
       id: key,
-      name: key,
+      name: pxWebItem.category.label[key],
       label: pxWebItem.label,
       optional: true,
       elimination: pxWebItem.extension.elimination,

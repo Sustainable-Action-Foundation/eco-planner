@@ -203,12 +203,12 @@ export type PxWebApiV2GeographicalVariable = PxWebApiV2VariableBase & {
 export type PxWebApiV2TableDetails = {
   version: string; // Version of the API
   class: string; // "dataset"
-  href: string; // links back to itself
+  href?: string; // links back to itself
   label: string;
   source: string;
   updated: string | null; // ISO 8601 date string
-  link: {
-    [key: string]: PxWebApiV2Link[];
+  link?: {
+    [key: string]: PxWebApiV2Link[]; // Typically links to itself in different languages
   };
   note?: string[];
   role: {
@@ -223,14 +223,14 @@ export type PxWebApiV2TableDetails = {
   extension: {
     noteMandatory?: boolean[];
     contact?: [{
-      name: string;
-      organization: string;
-      phone: string;
-      mail: string;
+      name?: string;
+      organization?: string;
+      phone?: string;
+      mail?: string;
       raw: string;
     }];
     px: {
-      [key: string]: JSONValue; // This is probably not relevant, so I can't be bothered to write a type for it
+      [key: string]: JSONValue; // This is probably not relevant for us, so I can't be bothered to write a type for it
       stub: string[];
     };
   }
