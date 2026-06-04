@@ -25,18 +25,28 @@ async function fillManualDataSeries(page: Page, rows: Array<[number, number]>) {
 
 test.describe("Goals tests", () => {
   test.use({ storageState: adminFile });
-  // TODO: Add information about current project to names, to ensure tests for different browsers do not interfere with each other
-  // Example solution in file://./action-effect.spec.ts
-  const indicatorRequiredOnly = "Required\\only";
-  const indicatorRequiredUpdated = "Required\\updated\\only";
+
+  let indicatorRequiredOnly = "Required\\only";
+  let indicatorRequiredUpdated = "Required\\updated\\only";
   const unitRequiredOnly = "meter";
   const unitRequiredUpdated = "yard";
-  const nameAll = "Test goal";
+  let nameAll = "Test goal";
+  let nameAllUpdated = "Test updated goal";
   const descriptionAll = "This is a test goal";
-  const indicatorAll = "All\\fields";
-  const indicatorAllUpdated = "All\\updated\\fields";
+  const descriptionAllUpdated = "This is an updated test goal";
+  let indicatorAll = "All\\fields";
+  let indicatorAllUpdated = "All\\updated\\fields";
   const unitAll = "tonnes";
   const unitAllUpdated = "grams";
+
+  test.beforeAll("Differentiate between browsers", ({ }, { project }) => {
+    indicatorRequiredOnly += `\\${project.name}`;
+    indicatorRequiredUpdated += `\\${project.name}`;
+    nameAll += ` ${project.name}`;
+    nameAllUpdated += ` ${project.name}`;
+    indicatorAll += `\\${project.name}`;
+    indicatorAllUpdated += `\\${project.name}`;
+  });
 
   test('Create goal required only', async ({ page }) => {
     // Opening the form
@@ -59,7 +69,7 @@ test.describe("Goals tests", () => {
     await page.locator('#indicatorParameter').fill(indicatorRequiredOnly);
     await page.locator('#dataUnit').fill(unitRequiredOnly);
     await page.locator('#dataUnit').blur(); // Need to blur this so dropdown menu doesnt block items below
-    
+
     await fillManualDataSeries(page, Array.from({ length: 10 }, (_, i) => [2020 + i, 1]));
 
     // Form Submit
@@ -84,7 +94,7 @@ test.describe("Goals tests", () => {
     await page.getByRole('radio', { name: "table_selector.table" }).click();
     await page.getByRole('link', { name: indicatorRequiredOnly }).first().click();
     // Wait for page to load
-    await page.getByRole('heading', { name: indicatorRequiredOnly }).first().hover();
+    await page.locator('h1').filter({ hasText: indicatorRequiredOnly }).hover();
 
     // Enter edit form
     await page.getByRole('link', { name: "table_menu.edit" }).click();
@@ -104,10 +114,16 @@ test.describe("Goals tests", () => {
 
     for (let i = 0; i < 10; i++) {
       await expect.soft(page.locator(`#goal-dataseries [data-row="${i}"][data-column="1"] input`)).toHaveValue(String(2020 + i));
-      await expect.soft(page.locator(`#goal-dataseries [data-row="${i}"][data-column="2"] input`)).toHaveValue('1');
+      await expect.soft(page.locator(`#goal-dataseries [data-row="${i}"][data-column="2"] input`)).toHaveValue(String(1));
     }
 
     await expect.soft(page.locator('#baselineSelector')).toHaveValue('CUSTOM');
+    for (let i = 0; i < 10; i++) {
+      await expect.soft(page.locator(`#baseline-dataseries [data-row="${i}"][data-column="1"] input`)).toHaveValue(String(2020 + i));
+      // Since the baseline was created as type initial (the default value), the baseline value should be the first value of the data series, which is 1, for all years
+      await expect.soft(page.locator(`#baseline-dataseries [data-row="${i}"][data-column="2"] input`)).toHaveValue(String(1));
+    }
+
     await expect.soft(page.locator('#isFeatured')).not.toBeChecked();
 
     // Submit
@@ -125,11 +141,11 @@ test.describe("Goals tests", () => {
     await page.locator('#indicatorParameter').fill(indicatorRequiredUpdated);
     await page.locator('#dataUnit').fill(unitRequiredUpdated);
 
-    await page.waitForLoadState("networkidle");
-
+    // Need to focus this cell to ensure the value is filled properly, otherwise the test will fail on Firefox and Webkit because the first attempt to input data into a cell only sets focus into the table, without successfully filling the cell.
+    await page.locator(`#goal-dataseries [data-row="0"][data-column="1"] input`).focus();
     for (let i = 0; i < 10; i++) {
       await page.locator(`#goal-dataseries [data-row="${i}"][data-column="1"] input`).fill(String(2025 + i));
-      await page.locator(`#goal-dataseries [data-row="${i}"][data-column="2"] input`).fill('4');
+      await page.locator(`#goal-dataseries [data-row="${i}"][data-column="2"] input`).fill(i ? String(4) : String(0)); // set all values except first to 4, to test that the initial non zero baseline type works correctly
     }
 
     await page.locator('#baselineSelector').selectOption("INITIAL_NON_ZERO");
@@ -150,10 +166,15 @@ test.describe("Goals tests", () => {
 
     for (let i = 0; i < 10; i++) {
       await expect.soft(page.locator(`#goal-dataseries [data-row="${i}"][data-column="1"] input`)).toHaveValue(String(2025 + i));
-      await expect.soft(page.locator(`#goal-dataseries [data-row="${i}"][data-column="2"] input`)).toHaveValue('4');
+      await expect.soft(page.locator(`#goal-dataseries [data-row="${i}"][data-column="2"] input`)).toHaveValue(i ? String(4) : String(0));
     }
 
-    await expect.soft(page.locator('#baselineSelector')).toHaveValue('INITIAL_NON_ZERO');
+    await expect.soft(page.locator('#baselineSelector')).toHaveValue('CUSTOM');
+    for (let i = 0; i < 10; i++) {
+      await expect.soft(page.locator(`#baseline-dataseries [data-row="${i}"][data-column="1"] input`)).toHaveValue(String(2025 + i));
+      // Since the baseline was created as type initial non zero, the baseline value should be the first non zero value of the data series, which is 4, for all years
+      await expect.soft(page.locator(`#baseline-dataseries [data-row="${i}"][data-column="2"] input`)).toHaveValue(String(4));
+    }
     await expect(page.locator('#isFeatured')).toBeChecked();
 
     // Submit without changes to see that the form is not broken
@@ -220,7 +241,8 @@ test.describe("Goals tests", () => {
     // Navigate to goal
     await page.getByRole('radio', { name: "table_selector.table" }).click();
     await page.getByRole('link', { name: nameAll }).first().click();
-    await page.waitForLoadState("networkidle");
+    // Wait for page to load
+    await page.locator('h1').filter({ hasText: nameAll }).hover();
 
     // Enter edit form
     await page.getByRole('link', { name: "table_menu.edit" }).click();
@@ -262,13 +284,15 @@ test.describe("Goals tests", () => {
     await page.waitForLoadState("networkidle");
 
     // Editing form
-    await page.locator('#goalName').fill("Edited Test");
-    await page.locator('#description').fill("Edited test description"); // Does not work, needs a different action to fill
+    await page.locator('#goalName').fill(nameAllUpdated);
+    await page.getByRole('textbox').nth(1).fill(descriptionAllUpdated);
 
     await page.locator('#indicatorParameter').fill(indicatorAllUpdated);
     await page.locator('#dataUnit').fill(unitAllUpdated);
 
+    // TODO: Update to use new method of going to recipe editor (`getByRole('radio', { name: 'goal.custom_recipe' })`?)
     await page.getByRole('tab').nth(1).click();
+
     await page.locator('#recipeVariable0-dialog').click();
     await page.locator('#recipeVariable0-dialog-tree-Rikets-färdplan (v1)').click();
     await page.getByRole('treeitem').first().click();
@@ -287,16 +311,24 @@ test.describe("Goals tests", () => {
     await page.waitForLoadState("networkidle");
 
     // Check that edits have saved
-    await expect.soft(page.locator('#goalName')).toHaveValue("Edited Test");
-    await expect.soft(page.locator('#description')).toHaveText("Edited test description");
+    await expect.soft(page.locator('#goalName')).toHaveValue(nameAllUpdated);
+    await expect.soft(page.locator('#description')).toHaveText(descriptionAllUpdated);
 
     await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorAllUpdated);
     await expect.soft(page.locator('#dataUnit')).toHaveValue(unitAllUpdated); // Might need to be changed when the thing that checks for changes is fixed, currently it doesn't recognize the change of data unit as a change so it doesn't update the value in the form 
 
+    // TODO: Update to use new method of going to recipe editor (`getByRole('radio', { name: 'goal.custom_recipe' })`?)
     await page.getByRole('tab').nth(1).click();
+
     await expect.soft(page.locator('#recipeVariable0')).not.toBeEmpty();
     await expect.soft(page.locator('#scalar-skalär')).toHaveValue('48');
-    await expect.soft(page.locator('#baselineSelector')).toHaveValue('INITIAL');
+
+    await expect.soft(page.locator('#baselineSelector')).toHaveValue('CUSTOM');
+    for (let i = 0; i < 30; i++) {
+      await expect.soft(page.locator(`#baseline-dataseries [data-row="${i}"][data-column="1"] input`)).toHaveValue(String(2020 + i));
+      // Since the baseline was changed to type initial, the baseline value should be the first value of the data series, which is 48, for all years
+      await expect.soft(page.locator(`#baseline-dataseries [data-row="${i}"][data-column="2"] input`)).toHaveValue(String(48));
+    }
 
     await expect(page.locator('#isFeatured')).not.toBeChecked();
   });
