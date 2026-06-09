@@ -17,14 +17,14 @@ import { useToastContext } from "@/components/generic/toast/toastContext";
 import { useRouter } from "next/navigation";
 import { dataSeriesToDateValues } from "@/functions/recipe";
 
-const DataSeriesType = { /* TODO: I personally want these to be lowercase :) */
+const DataSeriesType = {
   Manual: "MANUAL",
   Suggested: "SUGGESTED",
   Custom: "CUSTOM",
 } as const;
 type DataSeriesType = (typeof DataSeriesType)[keyof typeof DataSeriesType];
 
-const BaselineType = { /* TODO: I personally want these to be lowercase :) */
+const BaselineType = {
   Initial: "INITIAL",
   InitialNonZero: "INITIAL_NON_ZERO",
   Custom: "CUSTOM",
@@ -32,18 +32,29 @@ const BaselineType = { /* TODO: I personally want these to be lowercase :) */
 } as const;
 type BaselineType = (typeof BaselineType)[keyof typeof BaselineType];
 
-function dataSeriesTypeFromGoal(goal?: Goal): DataSeriesType {
-  // Default to suggested recipes for new goals
+function resolveDataSeriesType(goal?: Goal): DataSeriesType {
+  // Somehow missing
   if (!goal?.dataSeries) return DataSeriesType.Suggested;
 
-  if (!goal.dataSeries.recipeUsedId) {
-    return DataSeriesType.Manual;
-  } else {
-    return DataSeriesType.Custom;
+  // Defined recipe
+  if (!!goal.dataSeries.recipeUsed) {
+    const recipe = Recipe.from(goal.dataSeries.recipeUsed.recipe);
+
+    // Suggested recipe
+    if (recipe.isSuggestedRecipe()) {
+      return DataSeriesType.Suggested;
+    }
+    // Custom recipe
+    else {
+      return DataSeriesType.Custom;
+    }
   }
+
+  // IDK, fall back to manual input :woman_shrugging:
+  return DataSeriesType.Manual;
 }
 
-function baselineTypeFromGoal(goal?: Goal): BaselineType {
+function resolveBaselineType(goal?: Goal): BaselineType {
   // Default to first value for new goals
   if (!goal?.baseline) return BaselineType.Initial;
 
@@ -66,8 +77,8 @@ export default function GoalForm({
   currentGoal?: Goal;
 }) {
   const { t } = useTranslation(["forms", "common"]);
-  const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(dataSeriesTypeFromGoal(currentGoal));
-  const [baselineType, setBaselineType] = useState<BaselineType>(baselineTypeFromGoal(currentGoal));
+  const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(resolveDataSeriesType(currentGoal));
+  const [baselineType, setBaselineType] = useState<BaselineType>(resolveBaselineType(currentGoal));
   const [parentRoadmapId, setParentRoadmapId] = useState<string>(roadmapId || "");
   const descriptionRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
@@ -368,9 +379,14 @@ export default function GoalForm({
           </label>
         </fieldset>
 
+        {/**
+          ## NOTE:
+
+          The following fieldsets are intentionally hidden and not unmounted to preserve state.
+        */}
         {/* Suggested */}
         <fieldset className={`margin-top-100 ${dataSeriesType !== DataSeriesType.Suggested ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Suggested}>
-          <RecipeContextProvider>
+          <RecipeContextProvider initialRecipe={currentGoal?.dataSeries?.recipeUsed?.recipe ? Recipe.from(currentGoal.dataSeries.recipeUsed.recipe).serialize() : undefined}>
             <SuggestedRecipeApplier />
             <FormIntegration
               RecipeFormElement={<input name="resultingRecipe" />}
@@ -381,7 +397,7 @@ export default function GoalForm({
 
         {/* Recipe */}
         <fieldset className={`margin-top-100 ${dataSeriesType !== DataSeriesType.Custom ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Custom}>
-          <RecipeContextProvider>
+          <RecipeContextProvider initialRecipe={currentGoal?.dataSeries?.recipeUsed?.recipe ? Recipe.from(currentGoal.dataSeries.recipeUsed.recipe).serialize() : undefined}>
             <RecipeEditor />
             <FormIntegration
               RecipeFormElement={<input name="resultingRecipe" />}
