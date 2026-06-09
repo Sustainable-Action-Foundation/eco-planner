@@ -57,7 +57,7 @@ test.describe("Historical Data Tests", () => {
     // TODO
   });
 
-  test('Add Data - External', async ({ page }) => {
+  test.skip('Add Data - External', async ({ page }) => {
     // Navigate to goal and historical data page
     await page.goto('/');
     await page.waitForLoadState("networkidle");

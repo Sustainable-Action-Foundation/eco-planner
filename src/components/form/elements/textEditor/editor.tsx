@@ -50,6 +50,10 @@ const TextEditor = ({
       // Ensure onChange is called with initial content on mount
       if (onChange) onChange(editor.getJSON());
     },
+    onCreate: ({ editor }) => {
+      // Ensure onChange is called with initial content on create
+      if (onChange) onChange(editor.getJSON());
+    },
     content: parsedContent,
     extensions: defaultExtensions(placeholder),
   });

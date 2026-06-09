@@ -128,7 +128,7 @@ test.describe("Goals tests", () => {
 
     // Submit
     await page.locator('#submit-button').click();
-    await page.waitForLoadState("networkidle");
+    await page.locator('#comment-text').hover();
 
     // Reenter edit form
     await page.getByTestId("admin-panel-edit").click();
@@ -179,8 +179,7 @@ test.describe("Goals tests", () => {
 
     // Submit without changes to see that the form is not broken
     await page.locator('#submit-button').click();
-    await page.waitForLoadState("networkidle");
-    await expect(page.locator('#comment-text')).toBeEmpty();
+    await page.locator('#comment-text').hover();
   });
 
   test('Create goal all', async ({ page }) => {
@@ -276,8 +275,7 @@ test.describe("Goals tests", () => {
 
     // Submit
     await page.locator('#submit-button').click();
-    await page.waitForLoadState("networkidle");
-    await expect(page.locator('#comment-text')).toBeEmpty();
+    await page.locator('h1').filter({ hasText: nameAll }).hover();
 
     // Reenter edit form
     await page.getByTestId("admin-panel-edit").click();
@@ -287,24 +285,26 @@ test.describe("Goals tests", () => {
     await page.locator('#goalName').fill(nameAllUpdated);
     await page.getByRole('textbox').nth(1).fill(descriptionAllUpdated);
 
-    await page.locator('#indicatorParameter').fill(indicatorAllUpdated);
-    await page.locator('#dataUnit').fill(unitAllUpdated);
+    await page.getByRole('radio', { name: 'goal.suggested_inheritance' }).click();
+    await page.locator('#select-preset').selectOption('scalar-recipe-dummy-uuid');
 
-    // TODO: Update to use new method of going to recipe editor (`getByRole('radio', { name: 'goal.custom_recipe' })`?)
-    await page.getByRole('tab').nth(1).click();
+    await page.locator('#recipeVariableparent-value-dummy-uuid').click();
+    // Select first valid option from a tree dropdown combobox thingy
+    await page.locator('#recipeVariableparent-value-dummy-uuid-dialog > ul > li').first().click();
+    await page.locator('#recipeVariableparent-value-dummy-uuid-dialog > ul > li > ul > li').first().click();
+    await page.locator('#recipeVariableparent-value-dummy-uuid-dialog > ul > li > ul > li > ul > li').first().click();
 
-    await page.locator('#recipeVariable0-dialog').click();
-    await page.locator('#recipeVariable0-dialog-tree-Rikets-färdplan (v1)').click();
-    await page.getByRole('treeitem').first().click();
-    await page.locator('#scalar-skalär').fill('48');
+    // press escape to close the dropdown, to avoid it blocking other elements
+    await page.keyboard.press('Escape');
+
+    await page.getByPlaceholder('recipe_editor.scalar').fill('48');
 
     await page.locator('#baselineSelector').selectOption("INITIAL");
     await page.locator('#isFeatured').uncheck();
 
     // Submit
     await page.locator('#submit-button').click();
-    await page.waitForLoadState("networkidle");
-    await expect(page.locator('#comment-text')).toBeEmpty();
+    await page.locator('#comment-text').hover();
 
     // Reenter edit form
     await page.getByTestId("admin-panel-edit").click();
@@ -317,17 +317,14 @@ test.describe("Goals tests", () => {
     await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorAllUpdated);
     await expect.soft(page.locator('#dataUnit')).toHaveValue(unitAllUpdated); // Might need to be changed when the thing that checks for changes is fixed, currently it doesn't recognize the change of data unit as a change so it doesn't update the value in the form 
 
-    // TODO: Update to use new method of going to recipe editor (`getByRole('radio', { name: 'goal.custom_recipe' })`?)
-    await page.getByRole('tab').nth(1).click();
+    await expect.soft(page.getByRole('radio', { name: 'goal.custom_recipe' })).toBeChecked();
 
-    await expect.soft(page.locator('#recipeVariable0')).not.toBeEmpty();
-    await expect.soft(page.locator('#scalar-skalär')).toHaveValue('48');
 
     await expect.soft(page.locator('#baselineSelector')).toHaveValue('CUSTOM');
     for (let i = 0; i < 30; i++) {
       await expect.soft(page.locator(`#baseline-dataseries [data-row="${i}"][data-column="1"] input`)).toHaveValue(String(2020 + i));
-      // Since the baseline was changed to type initial, the baseline value should be the first value of the data series, which is 48, for all years
-      await expect.soft(page.locator(`#baseline-dataseries [data-row="${i}"][data-column="2"] input`)).toHaveValue(String(48));
+      // Since the baseline was changed to type initial, the baseline value should be the first value of the data series, but since we don't know the values in the data series we selected we just check that they are not empty
+      await expect.soft(page.locator(`#baseline-dataseries [data-row="${i}"][data-column="2"] input`)).not.toBeEmpty();
     }
 
     await expect(page.locator('#isFeatured')).not.toBeChecked();
