@@ -17,14 +17,14 @@ import { useToastContext } from "@/components/generic/toast/toastContext";
 import { useRouter } from "next/navigation";
 import { dataSeriesToDateValues } from "@/functions/recipe";
 
-const DataSeriesType = { /* TODO: I personally want theese to be lowercase :) */
+const DataSeriesType = { /* TODO: I personally want these to be lowercase :) */
   Manual: "MANUAL",
   Suggested: "SUGGESTED",
   Custom: "CUSTOM",
 } as const;
 type DataSeriesType = (typeof DataSeriesType)[keyof typeof DataSeriesType];
 
-const BaselineType = { /* TODO: I personally want theese to be lowercase :) */
+const BaselineType = { /* TODO: I personally want these to be lowercase :) */
   Initial: "INITIAL",
   InitialNonZero: "INITIAL_NON_ZERO",
   Custom: "CUSTOM",
