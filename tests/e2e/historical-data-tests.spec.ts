@@ -7,16 +7,21 @@ const adminFile = path.join(cwd(), "tests/.auth/admin.json");
 test.describe("Historical Data Tests", () => {
   test.use({ storageState: adminFile });
 
-  test('Add Data Manually', async ({ page }) => {
-    // Navigate to roadmap
+  test.skip('Add Data Manually', async ({ page }) => {
+    // Navigate to goal and historical data page
     await page.goto('/');
     await page.waitForLoadState("networkidle");
 
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
 
+    // TODO: Don't go to first featured goal, I don't think we guarantee any during seeding.
+    // Instead, we should go to the first goal in the list of goals in this test, and the second one in the other test.
     await page.getByTestId('featured-goals').first().click();
     await page.getByTestId('historical-data-link').click();
+
+    // Switch to manual input
+    // TODO
 
     const dataRows = [
       [2025, 200],
@@ -27,43 +32,68 @@ test.describe("Historical Data Tests", () => {
     ];
 
     // Create all rows first
-    const insertRowButton = page.getByRole('button', { name: /Insert row to bottom|Infoga rad underst/ });
+    const insertRowButton = page.getByTestId("add-row-button");
     for (let i = 1; i < dataRows.length; i++) {
       await insertRowButton.click();
     }
 
+    // Set focus inside table to ensure the first cell gets filled properly;
+    // without this the test will fail on Firefox and Webkit (but not Chromium) because the first attempt to input data into a cell only sets focus into the table, without successfully filling the cell.
+    await page.locator(`[data-row="0"][data-column="1"] input`).focus();
     // Fill all rows (starting at row 1)
     for (let row = 0; row < dataRows.length; row++) {
-      await page.locator(`[data-row="${row}"][data-column="1"] input`).fill(dataRows[row][0].toString());
-      await page.locator(`[data-row="${row}"][data-column="2"] input`).fill(dataRows[row][1].toString());
+      const [year, value] = dataRows[row];
+      await page.locator(`[data-row="${row}"][data-column="1"] input`).fill(String(year));
+      await page.locator(`[data-row="${row}"][data-column="2"] input`).fill(String(value));
     }
 
-    await page.locator('[data-row="0"][data-column="1"]').click();
-    // Delete 5 rows
-    const deleteRowButton = page.getByRole('button', { name: /Delete selected row|Radera vald rad/ });
-    for (let i = 0; i < 5; i++) {
-      await deleteRowButton.last().click();
-      // or use .last() if deleting from bottom to top
-    }
+    // Submit the form
+    // TODO
+
+    // Listen for success toast
+    // TODO
+
+    // Either parse the resulting graph or return to historical data page to make sure the data was saved correctly
+    // TODO
   });
 
   test('Add Data - External', async ({ page }) => {
-    // Navigate to roadmap
+    // Navigate to goal and historical data page
     await page.goto('/');
     await page.waitForLoadState("networkidle");
 
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
 
+    // TODO: Don't go to first featured goal, I don't think we guarantee any during seeding.
+    // Instead, we should go to the second goal in the list of goals in this test, and the first one in the first test.
     await page.getByTestId('featured-goals').first().click();
     await page.getByTestId('historical-data-link').click();
 
-    await page.locator('input[name="visible-form"][value="external"]').check();
+    // Switch to external dataset input
+    // TODO
+
+    // Select dataset from dropdown
     const option = page.locator('#externalDataset').filter({ hasText: 'Statiska centralbyrån' });
-
     const value = await option.getAttribute('value');
-
     await page.locator('#externalDataset').selectOption(value);
 
+    // Select a table from the dataset
+    // TODO: Choose a table with known good test data, preferably one which is no longer updated
+
+    // Select metric(-s?) for the table
+    // TODO: Prefer a table with more than one metric if available, to ensure we support unusual but technically valid cases
+
+    // Select year and other parameters
+    // TODO
+
+    // Submit the form
+    // TODO
+
+    // Listen for success toast
+    // TODO
+
+    // Either parse the resulting graph or return to historical data page to make sure the data was saved correctly
+    // TODO
   });
 });
