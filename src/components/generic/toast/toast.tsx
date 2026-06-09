@@ -74,7 +74,7 @@ export default function Toast({ children, id, type, hasTimeout = true }: { child
 
   return (  
     <dialog
-      className={`${styles.toast} flex flex-direction-column rounded position-relative padding-0 width-100 rounded"} ${closeToast ? " " + styles["toast-closing"] : ""}`}
+      className={`${styles.toast} flex flex-direction-column rounded position-relative padding-0 width-100 rounded pointer-events-initial ${closeToast ? " " + styles["toast-closing"] : ""}`}
       role={type === "error" ? "alert" : "status"}
       style={{ backgroundColor: color.background, borderLeft: `4px solid ${color.accent}` }}
     >

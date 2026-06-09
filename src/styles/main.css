@@ -2371,6 +2371,18 @@ container-text {
   flex-wrap: unset;
 }
 
+.pointer-events-initial {
+  pointer-events: initial;
+}
+
+.pointer-events-auto {
+  pointer-events: auto;
+}
+
+.pointer-events-none {
+  pointer-events: none;
+}
+
 .align-items-normal {
   align-items: normal;
 }
