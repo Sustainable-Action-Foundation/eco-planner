@@ -248,7 +248,7 @@ export default function HistoricalData({
             required={false}
             name="time"
             id="time"
-            defaultValue={times?.length === 1 ? times[0].label : undefined}
+            value={times?.length === 1 ? times[0].label : undefined}
             onChange={() => tryGetResult()}
           >
             <option value="" className={`font-style-italic color-gray`}>{defaultValue}</option>
