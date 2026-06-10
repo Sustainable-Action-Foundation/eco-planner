@@ -114,6 +114,14 @@ export function DataSeriesVariableEditor({
     throw new RecipeError(`Variable "${variableId}" is not a valid DataSeriesVariable`);
   }
 
+  const defaultTreeValue = variable.dataSeriesId
+    ? {
+      name: variable.dataSeriesId,
+      value: variable.dataSeriesId,
+      expanded: null,
+    }
+    : undefined;
+
   const permissions = { ...RecipeEditorPermissions, ...incomingPermissions };
 
   return (
@@ -133,6 +141,7 @@ export function DataSeriesVariableEditor({
             placeholder: t("components:recipe_editor.select_data_series"),
             required: false,
           }}
+          defaultValue={defaultTreeValue}
           treeItems={treeItems}
           onChange={handleDataSeriesChange}
         />
@@ -175,6 +184,14 @@ export function DataSeriesVariableSimpleEditor({
     return null;
   }
 
+  const defaultTreeValue = variable.dataSeriesId
+    ? {
+      name: variable.dataSeriesId,
+      value: variable.dataSeriesId,
+      expanded: null,
+    }
+    : undefined;
+
   return (
     <SelectSingleTreeSearch
       props={{
@@ -184,6 +201,7 @@ export function DataSeriesVariableSimpleEditor({
         required: true,
         disabled: !permissions.allowValueEditing,
       }}
+      defaultValue={defaultTreeValue}
       treeItems={treeItems}
       onChange={handleDataSeriesChange}
     />
