@@ -195,10 +195,12 @@ export function parsePeriod(period: string): Date {
     return date;
   }
 
-  // If none of the above match, assume it's a year and try to parse it as such (might return an invalid date)
-  // TODO: do explicit throwing or return null on invalid date? this seems like a recipe for downstream bugs
-  console.warn(`parsePeriod: assuming period "${period}" is a year.`);
-  return new Date(Date.UTC(parseInt(period, 10), 0));
+  const yearPattern = /^\d{4}$/;
+  if (yearPattern.test(period.trim())) {
+    return new Date(Date.UTC(parseInt(period.trim(), 10), 0));
+  }
+
+  throw new Error(`Unrecognized period format: ${period}`);
 }
 
 /** 
