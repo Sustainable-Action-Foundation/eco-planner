@@ -385,10 +385,12 @@ export async function PUT(request: NextRequest) {
         }
       }
 
+      const hasNonEmptyBaselinePayload = !!goal.baseline && Object.keys(goal.baseline.dateValues).length > 0;
+
       // If the goal is updating its baseline, we need to disconnect it from the current one and create a new one
       // to avoid updating or deleting a baseline which actually is just a reference to another goal's data series
       // This cannot for some reason be done in the main query before the connectOrCreate, so instead it's done here in a separate query beforehand
-      if (goal.baseline) {
+      if (hasNonEmptyBaselinePayload) {
         await prisma.goal.update({
           where: { id: goal.goalId },
           data: {
@@ -436,7 +438,7 @@ export async function PUT(request: NextRequest) {
           } : goal.dataSeriesId ? {
             connect: { id: goal.dataSeriesId },
           } : undefined,
-          baseline: goal.baseline
+          baseline: hasNonEmptyBaselinePayload && goal.baseline
             ? {
               connectOrCreate: {
                 where: { id: goal.baselineId ?? "" },

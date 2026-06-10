@@ -439,7 +439,7 @@ export default function GoalForm({
           <DataSeriesInputManual
             id="baseline-dataseries"
             label={t("forms:data_series_input.data_series")}
-            {...currentGoal?.dataSeries
+            {...currentGoal?.baseline
               ? { initialDateValues: dataSeriesToDateValues(currentGoal.baseline) }
               : {}
             }
