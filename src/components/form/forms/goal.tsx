@@ -338,7 +338,7 @@ export default function GoalForm({
           onChange={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
         />
         {/* hidden input containing the text editor output */}
-        <input ref={descriptionRef} type="hidden" name="description" />
+        <input defaultValue={currentGoal?.description || undefined} ref={descriptionRef} type="hidden" name="description" />
       </fieldset>
 
       {/* Data series input section */}

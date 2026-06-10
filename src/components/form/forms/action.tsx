@@ -137,7 +137,7 @@ export default function ActionForm({
           content={currentAction ? currentAction.description : ""}
           onChange={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
         />
-        <input ref={descriptionRef} type="hidden" name="description" />
+        <input defaultValue={currentAction?.description || undefined} ref={descriptionRef} type="hidden" name="description" />
 
         <label>
           {t("forms:action.cost_efficiency")}
