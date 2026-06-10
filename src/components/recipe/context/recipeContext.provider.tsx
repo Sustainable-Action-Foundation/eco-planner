@@ -66,7 +66,7 @@ export function RecipeContextProvider({
   const applyRecipeUpdate = useCallback((recipeUpdate: SetStateAction<Recipe>): Promise<void> => {
     const generationAtSchedule = recipeUpdateGenerationRef.current;
 
-    const queuedUpdate = async (): Promise<void> => {
+    const queuedUpdate = (): void => {
       if (generationAtSchedule !== recipeUpdateGenerationRef.current) return;
 
       const baseRecipe = canonicalRecipeRef.current;
@@ -84,22 +84,15 @@ export function RecipeContextProvider({
         validatedRecipe = Recipe.from(candidateRecipe);
       }
 
-      // Validate
-      const validity = await validatedRecipe.checkValidity();
-      if (generationAtSchedule !== recipeUpdateGenerationRef.current) return;
-
-      if (!validity.good) {
-        if (validity.warnings?.length)
-          console.warn("Warning produced after validity check in applyRecipeUpdate:", validity.warnings);
-        setWarnings(validity.warnings ?? []);
-        setError(validity.error || "Recipe is invalid");
+      if (Recipe.areRecipesEqual(baseRecipe, validatedRecipe)) {
+        return;
       }
 
       canonicalRecipeRef.current = validatedRecipe;
       setPublishedRecipe(validatedRecipe);
     };
 
-    const nextQueuedUpdate = recipeUpdateQueueRef.current.then(queuedUpdate);
+    const nextQueuedUpdate = recipeUpdateQueueRef.current.then(() => queuedUpdate());
     recipeUpdateQueueRef.current = nextQueuedUpdate.catch(() => undefined);
     return nextQueuedUpdate;
   }, []);
@@ -127,7 +120,6 @@ export function RecipeContextProvider({
 
       if (variableUpdate === null) {
         if (!existingVariable) {
-          console.info(`Variable "${variableId}" not deleted because it does not exist.`);
           return current;
         }
         candidateRecipe.variables = candidateRecipe.variables.filter(variable => variable.id !== variableId);
@@ -144,7 +136,6 @@ export function RecipeContextProvider({
 
       // Avoid updating on no change
       if (Recipe.isVariableEqual(existingVariable, nextVariable)) {
-        console.info(`Variable "${variableId}" not updated because the new value is the same as the old value.`);
         return current;
       }
 
@@ -174,7 +165,6 @@ export function RecipeContextProvider({
         : variablesUpdate;
 
       if (Recipe.areVariablesEqual(oldVars, nextVars)) {
-        console.info(`Variables not updated because the new value is the same as the old value.`);
         return current;
       }
 
