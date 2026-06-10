@@ -8,10 +8,14 @@ import SelectSingleTreeSearch from "@/components/form/elements/combobox/selectSi
 import { clientSafeGetOneRoadmap } from "@/fetchers/client";
 import { RecipeEditorPermissions, CommonVariable, useRecipe, VectorPickerSelect } from "@/components/recipe";
 import type { RecipeContextType } from "@/components/recipe";
+import type { ClientRoadmap } from "@/types";
 
 type AvailableRoadmapOption = { id: string; name: string; };
 
-function useRoadmapTreeItems(availableRoadmaps: AvailableRoadmapOption[]) {
+function useRoadmapTreeItems(
+  availableRoadmaps: AvailableRoadmapOption[],
+  roadmapLookup: Record<string, ClientRoadmap>,
+) {
   const { t } = useTranslation("components");
 
   return useMemo(() => {
@@ -20,7 +24,7 @@ function useRoadmapTreeItems(availableRoadmaps: AvailableRoadmapOption[]) {
       name: roadmap.name,
       value: `roadmap:${roadmap.id}`,
       onExpand: async () => {
-        const data = await clientSafeGetOneRoadmap(roadmap.id);
+        const data = roadmapLookup[roadmap.id] ?? await clientSafeGetOneRoadmap(roadmap.id);
         if (!data) return [];
 
         return data.goals.map((goal): TreeItem => {
@@ -61,7 +65,7 @@ function useRoadmapTreeItems(availableRoadmaps: AvailableRoadmapOption[]) {
         });
       },
     }));
-  }, [availableRoadmaps, t]);
+  }, [availableRoadmaps, roadmapLookup, t]);
 }
 
 function useHandleDataSeriesChange(
@@ -92,18 +96,20 @@ export function DataSeriesVariableEditor({
   permissions: incomingPermissions,
   availableDataSeries = [],
   dataSeriesNamesById = {},
+  roadmapLookup = {},
 }: {
   variableId: string;
   permissions?: RecipeEditorPermissions;
   availableDataSeries?: AvailableDataSeries;
   dataSeriesNamesById?: Record<string, string>;
+  roadmapLookup?: Record<string, ClientRoadmap>;
 }) {
   const { t } = useTranslation("components");
   const { recipe, upsertVariable, getVariable } = useRecipe();
   const variable = getVariable(variableId);
   const fieldIdBase = `recipe-data-series-${variableId.replace(/[^A-Za-z0-9_-]/g, "-")}`;
 
-  const treeItems = useRoadmapTreeItems(availableDataSeries);
+  const treeItems = useRoadmapTreeItems(availableDataSeries, roadmapLookup);
   const handleDataSeriesChange = useHandleDataSeriesChange(variableId, upsertVariable);
 
   if (!variable) {
@@ -164,17 +170,19 @@ export function DataSeriesVariableSimpleEditor({
   availableDataSeries = [],
   permissions: incomingPermissions,
   dataSeriesNamesById = {},
+  roadmapLookup = {},
 }: {
   variableId: string;
   availableDataSeries?: AvailableRoadmapOption[];
   permissions?: RecipeEditorPermissions;
   dataSeriesNamesById?: Record<string, string>;
+  roadmapLookup?: Record<string, ClientRoadmap>;
 }) {
   const { t } = useTranslation("components");
   const { recipe, upsertVariable, getVariable } = useRecipe();
   const variable = getVariable(variableId);
 
-  const treeItems = useRoadmapTreeItems(availableDataSeries);
+  const treeItems = useRoadmapTreeItems(availableDataSeries, roadmapLookup);
   const handleDataSeriesChange = useHandleDataSeriesChange(variableId, upsertVariable);
 
   const permissions = { ...RecipeEditorPermissions, ...incomingPermissions };

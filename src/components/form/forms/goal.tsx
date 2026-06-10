@@ -4,7 +4,7 @@ import type { getRoadmaps } from "@/fetchers";
 import formSubmitter from "@/functions/formSubmitter";
 import { isDateValuesWithUnit, isISOIshDate } from "@/types";
 import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput } from "@/types";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
 import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections";
@@ -78,6 +78,8 @@ export default function GoalForm({
 }) {
   const { t } = useTranslation(["forms", "common"]);
   const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(resolveDataSeriesType(currentGoal));
+  const [hasInitializedSuggested, setHasInitializedSuggested] = useState<boolean>(() => resolveDataSeriesType(currentGoal) === DataSeriesType.Suggested);
+  const [hasInitializedCustom, setHasInitializedCustom] = useState<boolean>(() => resolveDataSeriesType(currentGoal) === DataSeriesType.Custom);
   const [baselineType, setBaselineType] = useState<BaselineType>(resolveBaselineType(currentGoal));
   const [parentRoadmapId, setParentRoadmapId] = useState<string>(roadmapId || "");
   const descriptionRef = useRef<HTMLInputElement>(null);
@@ -93,6 +95,16 @@ export default function GoalForm({
   }, [roadmapAlternatives, t]);
 
   const [timestamp] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (dataSeriesType === DataSeriesType.Suggested) {
+      setHasInitializedSuggested(true);
+    }
+
+    if (dataSeriesType === DataSeriesType.Custom) {
+      setHasInitializedCustom(true);
+    }
+  }, [dataSeriesType]);
 
   // TODO: Error messages were translated directly from English to Swedish when switching to toasts.
   // They can likely be translated better.
@@ -385,26 +397,32 @@ export default function GoalForm({
           The following fieldsets are intentionally hidden and not unmounted to preserve state.
         */}
         {/* Suggested */}
-        <fieldset className={`margin-top-100 ${dataSeriesType !== DataSeriesType.Suggested ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Suggested}>
-          <RecipeContextProvider initialRecipe={currentGoal?.dataSeries?.recipeUsed?.recipe ? Recipe.from(currentGoal.dataSeries.recipeUsed.recipe).serialize() : undefined}>
-            <SuggestedRecipeApplier />
-            <FormIntegration
-              RecipeFormElement={<input name="resultingRecipe" />}
-              DateValuesFormElement={<input name="resultingDateValues" />}
-            />
-          </RecipeContextProvider>
-        </fieldset>
+        {hasInitializedSuggested ?
+          <fieldset className={`margin-top-100 ${dataSeriesType !== DataSeriesType.Suggested ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Suggested}>
+            <RecipeContextProvider initialRecipe={currentGoal?.dataSeries?.recipeUsed?.recipe ? Recipe.from(currentGoal.dataSeries.recipeUsed.recipe).serialize() : undefined}>
+              <SuggestedRecipeApplier />
+              <FormIntegration
+                RecipeFormElement={<input name="resultingRecipe" />}
+                DateValuesFormElement={<input name="resultingDateValues" />}
+              />
+            </RecipeContextProvider>
+          </fieldset>
+          : null
+        }
 
         {/* Recipe */}
-        <fieldset className={`margin-top-100 ${dataSeriesType !== DataSeriesType.Custom ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Custom}>
-          <RecipeContextProvider initialRecipe={currentGoal?.dataSeries?.recipeUsed?.recipe ? Recipe.from(currentGoal.dataSeries.recipeUsed.recipe).serialize() : undefined}>
-            <RecipeEditor />
-            <FormIntegration
-              RecipeFormElement={<input name="resultingRecipe" />}
-              DateValuesFormElement={<input name="resultingDateValues" />}
-            />
-          </RecipeContextProvider>
-        </fieldset>
+        {hasInitializedCustom ?
+          <fieldset className={`margin-top-100 ${dataSeriesType !== DataSeriesType.Custom ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Custom}>
+            <RecipeContextProvider initialRecipe={currentGoal?.dataSeries?.recipeUsed?.recipe ? Recipe.from(currentGoal.dataSeries.recipeUsed.recipe).serialize() : undefined}>
+              <RecipeEditor />
+              <FormIntegration
+                RecipeFormElement={<input name="resultingRecipe" />}
+                DateValuesFormElement={<input name="resultingDateValues" />}
+              />
+            </RecipeContextProvider>
+          </fieldset>
+          : null
+        }
 
         {/* Manual */}
         <fieldset className={`${dataSeriesType === DataSeriesType.Manual ? "" : "display-none"}`} disabled={dataSeriesType !== DataSeriesType.Manual}>

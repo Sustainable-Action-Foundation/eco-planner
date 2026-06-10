@@ -6,15 +6,15 @@ import { useRecipe } from "../context/recipeContext.use";
 import { VariableTypeScalarSimple } from "../editor/variables/scalarVariable";
 import { DataSeriesVariableSimpleEditor } from "../editor/variables/dataSeriesVariable";
 import { VariableTypeExternalSimple } from "../editor/variables/externalVariable";
-import { Fragment, useEffect, useMemo, useState } from "react";
-import { clientSafeGetOneRoadmap, clientSafeGetRoadmaps } from "@/fetchers/client";
+import { useEffect, useMemo, useState } from "react";
 import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";
 import { IconAlertTriangleFilled } from "@tabler/icons-react";
 import { RecipeEditorPermissions } from "../editor/recipeEditorPermissions";
-import type { DBRecipe } from "@/types";
+import type { ClientRoadmap, DBRecipe } from "@/types";
 import { Recipe } from "@/functions/recipe/recipe";
 import { CombinedStatusDisplay, getDefaultSuggestedRecipes, TextStatus } from "@/components/recipe";
 import styles from "../recipe.module.css" with {type: "css"};
+import { getRecipeRoadmapData } from "../context/roadmapDataCache";
 
 export function SuggestedRecipeApplier({
   autoInsertDefaultSuggestions = true,
@@ -30,6 +30,7 @@ export function SuggestedRecipeApplier({
   const { recipe, applyRecipeUpdate, clearRecipe } = useRecipe();
 
   const [availableDataSeries, setAvailableDataSeries] = useState<{ id: string; name: string; }[]>([]);
+  const [roadmapLookup, setRoadmapLookup] = useState<Record<string, ClientRoadmap>>({});
   const [dataSeriesNamesById, setDataSeriesNamesById] = useState<Record<string, string>>({});
   const [selectedRecipeId, setSelectedRecipeId] = useState<string>("");
   const suggestedRecipes = useMemo(() => autoInsertDefaultSuggestions
@@ -38,25 +39,23 @@ export function SuggestedRecipeApplier({
     [autoInsertDefaultSuggestions, providedSuggestedRecipes, defaultSuggestionRecipes]);
 
   // On mount, fetch all roadmaps user has access to
-  // TODO: This is reused from editor/variable/editor.tsx, can probably extract this somehow
   useEffect(() => {
     async function fetchRoadmaps() {
       try {
-        const roadmaps = await clientSafeGetRoadmaps();
+        const { roadmaps, roadmapLookup } = await getRecipeRoadmapData();
 
-        const roadmapsWithData = await Promise.all(
-          roadmaps.map(async (roadmap) => {
-            const fullRoadmap = await clientSafeGetOneRoadmap(roadmap.id);
-            if (!fullRoadmap) return null;
+        setAvailableDataSeries(
+          roadmaps.map((roadmap) => ({
+            id: roadmap.id,
+            name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version }),
+          })),
+        );
 
-            const hasPullableData = fullRoadmap.goals.some((goal) => {
-              if (goal.dataSeries || goal.baseline) return true;
-              return goal.effects.some((effect) => !!effect.dataSeries);
-            });
+        setRoadmapLookup(roadmapLookup);
 
-            if (!hasPullableData) return null;
-
-            const namesByDataSeriesId = fullRoadmap.goals.reduce((acc, goal) => {
+        setDataSeriesNamesById(
+          Object.values(roadmapLookup).reduce((acc, roadmap) => {
+            for (const goal of roadmap.goals) {
               const goalDisplayName = goal.name || goal.indicatorParameter;
 
               if (goal.dataSeries) {
@@ -71,29 +70,10 @@ export function SuggestedRecipeApplier({
                 if (!effect.dataSeries) continue;
                 acc[effect.dataSeries.id] = `${goalDisplayName} - ${t("common:effect_one")}`;
               }
+            }
 
-              return acc;
-            }, {} as Record<string, string>);
-
-            return {
-              roadmap,
-              namesByDataSeriesId,
-            };
-          }),
-        );
-
-        const resolvedRoadmaps = roadmapsWithData
-          .filter((entry): entry is NonNullable<typeof entry> => !!entry);
-
-        setAvailableDataSeries(
-          resolvedRoadmaps.map(({ roadmap }) => ({
-            id: roadmap.id,
-            name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version }),
-          })),
-        );
-
-        setDataSeriesNamesById(
-          resolvedRoadmaps.reduce((acc, { namesByDataSeriesId }) => ({ ...acc, ...namesByDataSeriesId }), {} as Record<string, string>),
+            return acc;
+          }, {} as Record<string, string>),
         );
       }
       catch (e) {
@@ -225,6 +205,7 @@ export function SuggestedRecipeApplier({
                 <DataSeriesVariableSimpleEditor
                   variableId={variableId}
                   availableDataSeries={availableDataSeries}
+                  roadmapLookup={roadmapLookup}
                   dataSeriesNamesById={dataSeriesNamesById}
                   permissions={{ ...permissions }}
                 />
