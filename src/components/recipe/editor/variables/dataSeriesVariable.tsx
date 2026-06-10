@@ -91,10 +91,12 @@ export function DataSeriesVariableEditor({
   variableId,
   permissions: incomingPermissions,
   availableDataSeries = [],
+  dataSeriesNamesById = {},
 }: {
   variableId: string;
   permissions?: RecipeEditorPermissions;
   availableDataSeries?: AvailableDataSeries;
+  dataSeriesNamesById?: Record<string, string>;
 }) {
   const { t } = useTranslation("components");
   const { recipe, upsertVariable, getVariable } = useRecipe();
@@ -116,7 +118,7 @@ export function DataSeriesVariableEditor({
 
   const defaultTreeValue = variable.dataSeriesId
     ? {
-      name: variable.dataSeriesId,
+      name: dataSeriesNamesById[variable.dataSeriesId] || variable.dataSeriesId,
       value: variable.dataSeriesId,
       expanded: null,
     }
@@ -135,6 +137,7 @@ export function DataSeriesVariableEditor({
           {t("components:recipe_editor.select_data_series")}
         </label>
         <SelectSingleTreeSearch
+          key={`${fieldIdBase}-${defaultTreeValue?.value ?? "none"}-${defaultTreeValue?.name ?? ""}`}
           props={{
             id: fieldIdBase,
             name: fieldIdBase,
@@ -160,10 +163,12 @@ export function DataSeriesVariableSimpleEditor({
   variableId,
   availableDataSeries = [],
   permissions: incomingPermissions,
+  dataSeriesNamesById = {},
 }: {
   variableId: string;
   availableDataSeries?: AvailableRoadmapOption[];
   permissions?: RecipeEditorPermissions;
+  dataSeriesNamesById?: Record<string, string>;
 }) {
   const { t } = useTranslation("components");
   const { recipe, upsertVariable, getVariable } = useRecipe();
@@ -186,7 +191,7 @@ export function DataSeriesVariableSimpleEditor({
 
   const defaultTreeValue = variable.dataSeriesId
     ? {
-      name: variable.dataSeriesId,
+      name: dataSeriesNamesById[variable.dataSeriesId] || variable.dataSeriesId,
       value: variable.dataSeriesId,
       expanded: null,
     }
@@ -194,6 +199,7 @@ export function DataSeriesVariableSimpleEditor({
 
   return (
     <SelectSingleTreeSearch
+      key={`recipeVariable-${variableId}-${defaultTreeValue?.value ?? "none"}-${defaultTreeValue?.name ?? ""}`}
       props={{
         id: "recipeVariable" + variableId,
         name: "recipeVariable" + variableId,
