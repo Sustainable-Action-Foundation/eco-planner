@@ -135,7 +135,7 @@ export default function ActionForm({
           placeholder={t("forms:text_editor_menu.default_placeholder")}
           editable={true}
           content={currentAction ? currentAction.description : ""}
-          onChange={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
+          updater={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
         />
         <input ref={descriptionRef} type="hidden" name="description" />
 

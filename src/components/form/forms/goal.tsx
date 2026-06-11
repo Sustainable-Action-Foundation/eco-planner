@@ -347,7 +347,7 @@ export default function GoalForm({
           placeholder={t("forms:text_editor_menu.default_placeholder")}
           editable={true}
           content={currentGoal ? currentGoal.description : ""}
-          onChange={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
+          updater={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
         />
         {/* hidden input containing the text editor output */}
         <input ref={descriptionRef} type="hidden" name="description" />

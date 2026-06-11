@@ -129,7 +129,7 @@ export default function MetaRoadmapForm({
           placeholder={t("forms:text_editor_menu.default_placeholder")}
           editable={true}
           content={currentRoadmap ? currentRoadmap.description : ""}
-          onChange={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
+          updater={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
         />
         <input required={true} ref={descriptionRef} type="hidden" name="description" />
       </fieldset>

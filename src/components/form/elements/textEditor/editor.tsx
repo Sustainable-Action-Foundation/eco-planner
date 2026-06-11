@@ -17,7 +17,7 @@ const TextEditor = ({
   content,
   editable,
   defaultStyles = true,
-  onChange,
+  updater,
 }: {
   className?: string
   style?: React.CSSProperties
@@ -27,7 +27,7 @@ const TextEditor = ({
   content?: Content,
   editable: boolean,
   defaultStyles?: boolean,
-  onChange?: (json: ReturnType<Editor['getJSON']>) => void
+  updater?: (json: ReturnType<Editor['getJSON']>) => void,
 }) => {
 
   const parsedContent = useMemo(() => {
@@ -44,15 +44,15 @@ const TextEditor = ({
     shouldRerenderOnTransaction: true,
     editable,
     onUpdate: ({ editor }) => {
-      if (onChange) onChange(editor.getJSON());
+      if (updater) updater(editor.getJSON());
     },
     onMount: ({ editor }) => {
       // Ensure onChange is called with initial content on mount
-      if (onChange) onChange(editor.getJSON());
+      if (updater) updater(editor.getJSON());
     },
     onCreate: ({ editor }) => {
       // Ensure onChange is called with initial content on create
-      if (onChange) onChange(editor.getJSON());
+      if (updater) updater(editor.getJSON());
     },
     content: parsedContent,
     extensions: defaultExtensions(placeholder),
