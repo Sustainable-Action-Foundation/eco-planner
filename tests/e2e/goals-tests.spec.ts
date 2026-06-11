@@ -288,11 +288,11 @@ test.describe("Goals tests", () => {
     await page.getByRole('radio', { name: 'goal.suggested_inheritance' }).click();
     await page.locator('#select-preset').selectOption('scalar-recipe-dummy-uuid');
 
-    await page.locator('#recipeVariableparent-value-dummy-uuid').click();
+    await page.locator('#recipeVariable-parent-value-dummy-uuid').click();
     // Select first valid option from a tree dropdown combobox thingy
-    await page.locator('#recipeVariableparent-value-dummy-uuid-dialog > ul > li').first().click();
-    await page.locator('#recipeVariableparent-value-dummy-uuid-dialog > ul > li > ul > li').first().click();
-    await page.locator('#recipeVariableparent-value-dummy-uuid-dialog > ul > li > ul > li > ul > li').first().click();
+    await page.locator('#recipeVariable-parent-value-dummy-uuid-dialog > ul > li').first().click();
+    await page.locator('#recipeVariable-parent-value-dummy-uuid-dialog > ul > li > ul > li').first().click();
+    await page.locator('#recipeVariable-parent-value-dummy-uuid-dialog > ul > li > ul > li > ul > li').first().click();
 
     // press escape to close the dropdown, to avoid it blocking other elements
     await page.keyboard.press('Escape');

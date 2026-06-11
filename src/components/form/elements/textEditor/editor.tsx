@@ -47,12 +47,12 @@ const TextEditor = ({
       if (updater) updater(editor.getJSON());
     },
     onMount: ({ editor }) => {
-      // Ensure onChange is called with initial content on mount
-      if (updater) updater(editor.getJSON());
+      // Ensure updater is called with initial content (if any) on mount
+      if (updater && !!editor.getText()) updater(editor.getJSON());
     },
     onCreate: ({ editor }) => {
-      // Ensure onChange is called with initial content on create
-      if (updater) updater(editor.getJSON());
+      // Ensure updater is called with initial content (if any) on create
+      if (updater && !!editor.getText()) updater(editor.getJSON());
     },
     content: parsedContent,
     extensions: defaultExtensions(placeholder),

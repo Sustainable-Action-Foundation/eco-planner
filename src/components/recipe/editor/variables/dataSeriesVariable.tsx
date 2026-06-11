@@ -209,8 +209,8 @@ export function DataSeriesVariableSimpleEditor({
     <SelectSingleTreeSearch
       key={`recipeVariable-${variableId}-${defaultTreeValue?.value ?? "none"}-${defaultTreeValue?.name ?? ""}`}
       props={{
-        id: "recipeVariable" + variableId,
-        name: "recipeVariable" + variableId,
+        id: `recipeVariable-${variableId}`,
+        name: `recipeVariable-${variableId}`,
         placeholder: t("components:recipe_editor.select_data_series"),
         required: true,
         disabled: !permissions.allowValueEditing,
