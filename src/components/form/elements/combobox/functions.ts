@@ -104,7 +104,7 @@ export const handleKeyDownEditableCombobox = (
   // 2. Closes listbox if it can be, and is, expanded
   // 3. Focuses the element which made the listbox visible
   if (e.key === "Escape") {
-    if (listboxDisplayed) { 
+    if (listboxDisplayed) {
       e.preventDefault();
     }
     setFocusedListboxOptionIndex(null);
@@ -191,12 +191,14 @@ export const handleKeyDownEditableCombobox = (
   // Listbox removes itself when blur occurs with the exception of when blur targets its combobox element
   // Therefore we explicitly define backwards tab behavior as prevent a sticky menu 
   // We could also solve this by defining blur on the combobox element itself but this seems like a more elegant solution
-  if (e.key === 'Tab' && e.shiftKey && listboxDisplayed && setListboxDisplayed) {
+  if (e.key === 'Tab' && e.shiftKey && listboxDisplayed && setListboxDisplayed) { // TODO: This is not relevant for text suggestions
     e.preventDefault();
     setListboxDisplayed(false);
     setFocusedListboxOptionIndex(null);
     comboboxElement.focus();
   }
+
+  // TODO: FOR SUGGESTIVE TEXT, ON BACKSPACE WE SHOULD REMOVE THE LISTBOX IF THERE IS NO TEXT!
 };
 
 // Clears any value and set focus to combobox

@@ -57,6 +57,10 @@ export default function TextSingleAutocomplete({
   }, [value, fuse, options, selectionMade]);
 
   useEffect(() => {
+    if (value) {
+      setDisplayListBox(true);
+    }
+
     scrollOptionIntoView(optionRefs.current, focusedListBoxItem);
   }, [focusedListBoxItem, value]);
 
@@ -111,13 +115,11 @@ export default function TextSingleAutocomplete({
             ? {
               ref: comboboxRef,
               onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => {
-                if (displayListBox === false || e.shiftKey || searchResults.length > 0 && value === searchResults[0].item.value) return;
-                e.stopPropagation();
                 if (!comboboxRef.current) return;
+
                 if (e.key === "Tab") { // Move this into the keydown function
-                  e.preventDefault(); // Only do this if we actually have a suggestion
+                  if (displayListBox === false || e.shiftKey || searchResults.length > 0 && value === searchResults[0].item.value || !value) return; // Only tab complete if we have written something
                   setValue(searchResults[0].item.value);
-                  // setDisplayListBox(false); TODO: probably want this but then we want to reopen when we start typing more or refocus the element
                 }
                 
                 handleKeyDownEditableCombobox(
@@ -136,7 +138,7 @@ export default function TextSingleAutocomplete({
                   },
                 );
               },
-              onFocus: () => setDisplayListBox(true),
+              onFocus: () => { if (value) {setDisplayListBox(true); }},
               onBlur: (e) => { if (e.relatedTarget?.id !== `${props.id}-listbox` && e.relatedTarget?.id !== `${props.id}-button`) { setDisplayListBox(false); } },
               "role": "combobox",
               "aria-expanded": displayListBox,

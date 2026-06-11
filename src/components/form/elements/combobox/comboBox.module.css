@@ -153,6 +153,8 @@ div:has(>.select-toggle) {
     min-width: 200px;
     font-size: 14px;
     color: #191919;
+    position: relative;
+    padding-left: .5rem;
 }
 
 .suggestive-text li[aria-selected="true"] {
@@ -160,6 +162,14 @@ div:has(>.select-toggle) {
 }
 
 
-.suggestive-text .focused-option {
-    background-color: rgba(153, 211, 255, 0.5) !important;
+.suggestive-text .focused-option::before {
+    content: "" / "";
+    width: 2px;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 0 1px 1px 0;
+    background-color: var(--blue-40);
 }
