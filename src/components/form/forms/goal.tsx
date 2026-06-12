@@ -399,7 +399,7 @@ export default function GoalForm({
           setter={setIndicatorParameter}
         />
 
-        {/* Unit */}
+        {/* Unit, TODO: MOVE BELOW RECIPE STUFF! */}
         <label htmlFor="dataUnit">
           {t("forms:goal.data_unit")}
         </label>

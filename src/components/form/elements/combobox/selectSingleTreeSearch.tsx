@@ -1,9 +1,9 @@
 "use client";
 
 import type { InputElement, TreeItem } from "@/components/types";
-import { IconCaretRightFilled, IconSearch, IconSelector } from "@tabler/icons-react";
+import { IconCaretRightFilled, IconSelector } from "@tabler/icons-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { clearEditableCombobox, handleKeyDownTreeCombobox, preventInvalidFormSubmission } from "./functions";
+import { handleKeyDownTreeCombobox, preventInvalidFormSubmission } from "./functions";
 import styles from './comboBox.module.css' with { type: "css" };
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
@@ -11,6 +11,7 @@ import Image from "next/image";
 // TODO: Aria-setsize (How do we deal with this given async functions)
 // TODO: Aria-posinset (How do we deal with this given async functions)
 // TODO: Should allow for options with same values? Or we should check that they are unique?
+// TODO: We should look into keeping state, i.e opening and selecting the thing you had already selected before closing (maybe if it is not annoying...)
 
 /**
  * Flattens an array of treeItems so children appear right after their parent.
@@ -64,14 +65,11 @@ export default function SelectSingleTreeSearch({
 
   const [value, setValue] = useState<TreeItem | null>(defaultValue ?? null);
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [searchValue, setSearchValue] = useState<string>('');
 
   const [items, setItems] = useState<Array<TreeItem>>(treeItems);
   const [flattenedItems, setFlattenedItems] = useState<Array<TreeItem>>(flattenTree(treeItems));
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const toggleRef = useRef<HTMLButtonElement>(null); // TODO: Rename?
-  const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!onChange) return;
@@ -86,7 +84,8 @@ export default function SelectSingleTreeSearch({
   useEffect(() => {
     if (focusedIndex == null || flattenedItems.length === 0) return;
     const selectedItem = flattenedItems[focusedIndex];
-    const selectedItemElement = document.getElementById(`${props.id}-dialog-tree-${selectedItem.name.replace(' ', '-')}`);
+    const selectedItemElement = document.getElementById(`${selectedItem.value}`);
+ 
     if (!selectedItemElement) return;
 
     const selectedItemElementText = selectedItemElement.querySelector<HTMLDivElement>(':scope > div');
@@ -95,16 +94,6 @@ export default function SelectSingleTreeSearch({
     selectedItemElementText.style.backgroundColor = "var(--gray-90)"; // TODO: See if we can replace this using the focused-option class
 
   }, [focusedIndex, flattenedItems, props.id]);
-
-  useEffect(() => {
-    if (!searchRef.current) return;
-    clearEditableCombobox(
-      searchRef.current,
-      setSearchValue,
-      menuOpen,
-      setFocusedIndex,
-    );
-  }, [menuOpen]);
 
   // Disables form submission if value is invalid 
   // Define what an invalid value is (missing value or empty string). We only need this defined if the field is required
@@ -160,7 +149,7 @@ export default function SelectSingleTreeSearch({
     return (
       <li
         role="treeitem"
-        id={`${props.id}-dialog-tree-${item.name.replace(' ', '-')}`}
+        id={`${item.value}`}
         aria-level={depth + 1}
         aria-selected={(item.expanded === null || item.onExpand === undefined) && item.value === value?.value}
         aria-expanded={
@@ -172,8 +161,8 @@ export default function SelectSingleTreeSearch({
           className={`flex gap-25 align-items-center justify-content-space-between`}
           onClick={
             item.expanded !== null || item.onExpand !== undefined
-              ? () => { void toggleNode(item); searchRef.current?.focus(); }
-              : () => { setValue(item?.value !== value?.value ? item : null); setMenuOpen(false); }
+              ? () => { void toggleNode(item); console.log('this ran'); }
+              : () => { setValue(item?.value !== value?.value ? item : null); setMenuOpen(false); console.log('no, this ran!!!');}
           }
         >
           {(item.onExpand || (item.childNodes && item.childNodes.length > 0))
@@ -202,20 +191,20 @@ export default function SelectSingleTreeSearch({
 
         </div>
         {item.expanded && item.childNodes ? <ul
-            role="group"
-            style={{
-              listStyle: 'none',
-              borderLeft: '1px dashed var(--gray)',
-              marginInlineStart: 'calc(12px + 0.25rem)',
-              paddingInlineStart: '.5rem',
-              marginBlock: '1px',
-            }}
-            className="margin-0 padding-inline-start-75"
-          >
-            {item.childNodes.map((child, index) => (
-              <TreeNode key={index} item={child} onUpdate={onUpdate} depth={depth + 1} />
-            ))}
-          </ul> : null}
+          role="group"
+          style={{
+            listStyle: 'none',
+            borderLeft: '1px dashed var(--gray)',
+            marginInlineStart: 'calc(12px + 0.25rem)',
+            paddingInlineStart: '.5rem',
+            marginBlock: '1px',
+          }}
+          className="margin-0 padding-inline-start-75"
+        >
+          {item.childNodes.map((child, index) => (
+            <TreeNode key={index} item={child} onUpdate={onUpdate} depth={depth + 1} />
+          ))}
+        </ul> : null}
       </li>
     );
   }
@@ -225,11 +214,11 @@ export default function SelectSingleTreeSearch({
       className={`${props.className ? `${props.className} ` : ''}position-relative`}
       style={{ ...props.style, userSelect: 'none' }}
     >
-      <button // TODO: Should this and select inptus be an input with type button? Might make floating labels easier? 
+      <button
         title={value?.name}
         id={props.id}
         className={`${styles['select-toggle']}`}
-        style={{ ...props.style, borderColor: menuOpen ? '#191919' : '' }} // TODO: Not sure style should be set here, do it temporarily to prevent layout shifting in recipevariableeditor for now
+        style={{ ...props.style, borderColor: menuOpen ? '#191919' : '' }}
         value={value ? value.value : ''}
         name={props.name}
         disabled={props.disabled}
@@ -237,11 +226,49 @@ export default function SelectSingleTreeSearch({
         onClick={() => { setMenuOpen(!menuOpen); }}
         role="combobox"
         type="button"
-        aria-controls={menuOpen ? `${props.id}-dialog` : undefined}
+        aria-controls={menuOpen ? `${props.id}-dialog-tree` : undefined} // TODO: Also controls ${props.id}-dialog?
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
         aria-required={!!props.required ? props.required : false}
-        aria-invalid={!valueIsValid}
+        aria-invalid={!valueIsValid} 
+        // TODO: Need to have aria-activedescendent
+        onBlur={(e) => {
+          if (e.relatedTarget?.id !== `${props.id}-dialog`) {
+            setFocusedIndex(null);
+            setMenuOpen(false);
+          }
+        }}
+ 
+        onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => {
+          if (!toggleRef.current) return;
+          handleKeyDownTreeCombobox(
+            e,
+            focusedIndex,
+            setFocusedIndex,
+            flattenedItems,
+            toggleRef.current,
+            (item, direction) => {
+              if (direction === "right" && !item.expanded) {
+                void toggleNode(item);
+              }
+              if (direction === "left" && item.expanded) {
+                void toggleNode(item);
+              }
+            },
+            (selectedTreeItem) => {
+              if (!selectedTreeItem) return;
+              if (selectedTreeItem.expanded !== null || selectedTreeItem.onExpand !== undefined) { // TODO: Figure out whats happening here
+                void toggleNode(selectedTreeItem);
+              } else {
+                setValue(selectedTreeItem?.value !== value?.value ? selectedTreeItem : null); // TODO: Abstract this to use in onclick     
+                setMenuOpen(false);
+                toggleRef.current?.focus(); // TODO: This doesnt seem to work?
+              }
+            },
+            menuOpen,
+            setMenuOpen,
+          );
+        }}
       >
         <span className={`${styles['selected-value-text']}`}>
           {!value ? props.placeholder : value.name}
@@ -256,65 +283,10 @@ export default function SelectSingleTreeSearch({
           ${menuOpen ? styles['visible'] : ''} 
           margin-inline-0`
         }
-        onBlur={(e) => {
-          if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget?.id !== props.id) {
-            setFocusedIndex(null);
-            setMenuOpen(false);
-          }
-        }}
         tabIndex={-1}
         role="dialog"
         aria-label={t("forms:combobox.select_single_option")}
-      >
-        <label
-          className="focusable flex align-items-center gap-25 padding-block-50 padding-inline-25"
-          style={{ border: 'none', borderBottom: '1px solid var(--gray-80)', borderRadius: '0', marginBottom: '3px' }}
-          aria-label={t("forms:combobox.search_options")}
-        >
-          <IconSearch width={16} height={16} style={{ minWidth: '16px' }} />
-          <input
-            type="text"
-            style={{ padding: '0', margin: '0', fontSize: 'revert' }}
-            ref={searchRef}
-            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-              if (!toggleRef.current) return;
-              handleKeyDownTreeCombobox(
-                e,
-                focusedIndex,
-                setFocusedIndex,
-                flattenedItems,
-                toggleRef.current,
-                (item, direction) => {
-                  if (direction === "right" && !item.expanded) {
-                    void toggleNode(item);
-                  }
-                  if (direction === "left" && item.expanded) {
-                    void toggleNode(item);
-                  }
-                },
-                (selectedTreeItem) => {
-                  if (!selectedTreeItem) return;
-                  if (selectedTreeItem.expanded !== null || selectedTreeItem.onExpand !== undefined) {
-                    void toggleNode(selectedTreeItem);
-                  } else {
-                    setValue(selectedTreeItem?.value !== value?.value ? selectedTreeItem : null); // TODO: Abstract this to use in onclick     
-                    setMenuOpen(false);
-                    toggleRef.current?.focus();
-                  }
-                },
-                menuOpen,
-                setMenuOpen,
-              );
-            }}
-            role="combobox"
-            aria-controls={`${props.id}-dialog-tree`}
-            // aria-activedescendant={focusedListboxOption != null ? `${props.id}-dialog-listbox-${focusedListboxOption}` : undefined}
-            aria-expanded="true"
-            // aria-autocomplete="list"
-            autoComplete="off"
-            placeholder={t("forms:combobox.default_search_placeholder")}
-          />
-        </label>
+      > 
         <ul
           id={`${props.id}-dialog-tree`}
           className="margin-0 padding-0"
@@ -326,7 +298,7 @@ export default function SelectSingleTreeSearch({
               <TreeNode key={index} item={treeItem} onUpdate={handleUpdateNode} />
             ))
           ) : (
-            <li className={`${styles['no-results']} font-weight-600`} style={{padding: '.5rem'}}> {/* TODO: For whatever reason i need to set padding here but not for the selectsingleserach no results <li>. They are seemingly implemented the same way so probably figure out why this is. */}
+            <li className={`${styles['no-results']} font-weight-600`} style={{ padding: '.5rem' }}> {/* TODO: For whatever reason i need to set padding here but not for the selectsingleserach no results <li>. They are seemingly implemented the same way so probably figure out why this is. */}
               {t("common:tsx.no_results")}
             </li>
           )}
