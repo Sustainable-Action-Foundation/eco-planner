@@ -285,6 +285,8 @@ test.describe("Goals tests", () => {
     await page.locator('#goalName').fill(nameAllUpdated);
     await page.getByRole('textbox').nth(1).fill(descriptionAllUpdated);
 
+    await page.locator('#indicatorParameter').fill(indicatorAllUpdated);
+
     await page.getByRole('radio', { name: 'goal.suggested_inheritance' }).click();
     await page.locator('#select-preset').selectOption('scalar-recipe-dummy-uuid');
 
@@ -298,6 +300,7 @@ test.describe("Goals tests", () => {
     await page.keyboard.press('Escape');
 
     await page.getByPlaceholder('recipe_editor.scalar').fill('48');
+    await page.locator('#dataUnit').fill(unitAllUpdated);
 
     await page.locator('#baselineSelector').selectOption("INITIAL");
     await page.locator('#isFeatured').uncheck();
@@ -324,10 +327,20 @@ test.describe("Goals tests", () => {
     // TODO: some checks on the recipe to ensure it matches expectations?
 
     await expect.soft(page.locator('#baselineSelector')).toHaveValue('CUSTOM');
-    for (let i = 0; i < 30; i++) {
-      await expect.soft(page.locator(`#baseline-dataseries [data-row="${i}"][data-column="1"] input`)).toHaveValue(String(2020 + i));
-      // Since the baseline was changed to type initial, the baseline value should be the first value of the data series, but since we don't know the values in the data series we selected we just check that they are not empty
-      await expect.soft(page.locator(`#baseline-dataseries [data-row="${i}"][data-column="2"] input`)).not.toBeEmpty();
+
+    // Since the baseline was changed to type initial, we expect all values of the baseline to be the same, and all of them to have years, but since we don't know the values in the data series we selected we just check that they seem valid
+    const years = page.locator('#baseline-dataseries [data-column="1"] input');
+    const values = page.locator('#baseline-dataseries [data-column="2"] input');
+    const firstValue = await values.first().inputValue();
+    const yearList = await years.all();
+    const valueList = await values.all();
+
+    for (const year of yearList) {
+      await expect.soft(year).not.toBeEmpty();
+    }
+
+    for (const value of valueList) {
+      await expect.soft(value).toHaveValue(firstValue);
     }
 
     await expect(page.locator('#isFeatured')).not.toBeChecked();

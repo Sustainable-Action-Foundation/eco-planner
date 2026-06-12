@@ -16,6 +16,8 @@ export default function TextSingleAutocomplete({
   maxOptions, // TODO: Rename (also not a big fan of this)
   fuseOptions,
   onChange,
+  value,
+  setter,
 }: {
   props: InputElement
   theme?: Theme
@@ -23,10 +25,11 @@ export default function TextSingleAutocomplete({
   maxOptions?: number
   fuseOptions?: IFuseOptions<Option> // TODO: Implement for selects as well
   onChange?: (value: string) => void
+  value: string
+  setter: React.Dispatch<React.SetStateAction<string>>
 }) {
   const { t } = useTranslation(["forms", "common"]);
 
-  const [value, setValue] = useState<string>(!!props.defaultValue ? props.defaultValue : '');
   const [displayListBox, setDisplayListBox] = useState<boolean>(false);
   const [focusedListBoxItem, setFocusedListBoxItem] = useState<number | null>(null); // TODO: Rename -> focusedListBoxOption
   const [selectionMade, setSelectionMade] = useState(false); // TODO: Rename to something better
@@ -73,7 +76,7 @@ export default function TextSingleAutocomplete({
           disabled={props.disabled}
           value={value}
           autoComplete="off"
-          onChange={(e) => { setValue(e.target.value); setFocusedListBoxItem(0); }} // TODO: Enter seems to select values even if nothing is selected
+          onChange={(e) => { setter(e.target.value); setFocusedListBoxItem(0); }} // TODO: Enter seems to select values even if nothing is selected
           {...(options.length > 0
             ? {
               ref: comboboxRef,
@@ -89,7 +92,7 @@ export default function TextSingleAutocomplete({
                   focusedListBoxItem,
                   setFocusedListBoxItem,
                   (selectedOption) => {
-                    setValue(selectedOption ? selectedOption.name : ""); // TODO: Should be .value?
+                    setter(selectedOption ? selectedOption.name : ""); // TODO: Should be .value?
                     setSelectionMade(true); 
                     setFocusedListBoxItem(null); 
                     setDisplayListBox(false);
@@ -151,7 +154,7 @@ export default function TextSingleAutocomplete({
               className={index === focusedListBoxItem ? styles['focused-option'] : ''}
               ref={(el) => { optionRefs.current[index] = el; }}
               onClick={() => { 
-                setValue(option.name); // TODO: Should be .value?
+                setter(option.name); // TODO: Should be .value?
                 setSelectionMade(true); 
                 setDisplayListBox(false);
               }}

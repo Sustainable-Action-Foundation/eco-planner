@@ -1,7 +1,7 @@
 "use client";
 
 import { RecipeError } from "@/functions/recipe/types";
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { RecipeEditorPermissions, useRecipe } from "@/components/recipe";
 import styles from "../../recipe.module.css" with { type: "css" };
@@ -22,6 +22,7 @@ export function CommonVariable({
   const { t } = useTranslation(["common", "components"]);
 
   const { upsertVariable, getVariable } = useRecipe();
+  const [unit, setUnit] = useState<string>("");
   const variable = getVariable(variableId);
   if (!variable) throw new RecipeError(`Variable with id "${variableId}" not found in recipe context.`);
 
@@ -66,6 +67,8 @@ export function CommonVariable({
                 style: { gridRow: '1', gridColumn: '2', width: '125px' },
               }}
               options={allOurUnits.map(unit => ({ name: unit, value: unit }))}
+              value={unit}
+              setter={setUnit}
             />
           </div>
         </div>
