@@ -19,6 +19,8 @@ import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputMa
 import { useToastContext } from "@/components/generic/toast/toastContext";
 import { useRouter } from "next/navigation";
 import { dataSeriesToDateValues } from "@/functions/recipe";
+import UnitSync from "@/components/recipe/output/unitSyncer";
+import ParameterSync from "@/components/recipe/output/parameterSyncer";
 
 const DataSeriesType = {
   Manual: "MANUAL",
@@ -481,6 +483,12 @@ export default function GoalForm({
                 RecipeFormElement={<input name="resultingRecipe" />}
                 DateValuesFormElement={<input name="resultingDateValues" />}
               />
+              <UnitSync
+                setter={setUnit}
+              />
+              <ParameterSync
+                setter={setIndicatorParameter}
+              />
             </RecipeContextProvider>
           </fieldset>
           : null
@@ -494,6 +502,12 @@ export default function GoalForm({
               <FormIntegration
                 RecipeFormElement={<input name="resultingRecipe" />}
                 DateValuesFormElement={<input name="resultingDateValues" />}
+              />
+              <UnitSync
+                setter={setUnit}
+              />
+              <ParameterSync
+                setter={setIndicatorParameter}
               />
             </RecipeContextProvider>
           </fieldset>
