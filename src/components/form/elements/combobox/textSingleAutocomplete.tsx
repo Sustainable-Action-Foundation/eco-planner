@@ -7,7 +7,7 @@ import type { IFuseOptions } from "fuse.js";
 import Fuse, { type FuseResult } from 'fuse.js';
 import { useTranslation } from "react-i18next";
 import type { InputElement, Option, Theme } from "@/components/types";
-import { handleKeyDownEditableCombobox, scrollOptionIntoView } from "./functions";
+import { handleKeyDownTextAutocomplete, scrollOptionIntoView } from "./functions";
 
 // TODO: Bug where tabbing into the element doesnt focus the combobox (only happens if value === firstoption, also happens on mouse click i think...)
 // TODO: This breaks the recipe editor
@@ -122,7 +122,7 @@ export default function TextSingleAutocomplete({
                   setValue(searchResults[0].item.value);
                 }
                 
-                handleKeyDownEditableCombobox(
+                handleKeyDownTextAutocomplete(
                   e,
                   comboboxRef.current,
                   displayListBox,
@@ -157,7 +157,7 @@ export default function TextSingleAutocomplete({
           </span>
         : null}
         {options.length > 0 ?
-          <button
+          <button // Icon makes the input element too large...
             id={`${props.id}-button`}
             className="padding-0 round grid transparent"
             style={{ marginLeft: 'auto' }}

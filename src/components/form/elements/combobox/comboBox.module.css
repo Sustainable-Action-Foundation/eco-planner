@@ -147,6 +147,10 @@ div:has(>.select-toggle) {
 }
 
 /* TODO: Might be sensible to harmonize this with our other listboxes or it might not... */
+.suggestive-text {
+    scroll-padding-block: 2px;
+}
+
 .suggestive-text li { 
     border-radius: 0;
     padding: .25rem;
@@ -155,6 +159,21 @@ div:has(>.select-toggle) {
     color: #191919;
     position: relative;
     padding-left: .5rem;
+    margin-inline: 2px;
+    border-radius: 2px;
+}
+
+.suggestive-text li:first-child {
+    margin-top: 2px;
+}
+
+.suggestive-text li:last-child {
+    margin-bottom: 2px;
+}
+
+.suggestive-text li.focused-option{
+    margin-inline-start: 4px;
+    background-color: var(--gray-95) !important;
 }
 
 .suggestive-text li[aria-selected="true"] {
@@ -169,7 +188,7 @@ div:has(>.select-toggle) {
     position: absolute;
     left: 0;
     top: 50%;
-    transform: translateY(-50%);
-    border-radius: 0 1px 1px 0;
+    transform: translate(-4px, -50%);
+    border-radius: 0 2px 2px 0;
     background-color: var(--blue-40);
 }
