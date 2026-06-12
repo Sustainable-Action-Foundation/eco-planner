@@ -302,6 +302,9 @@ test.describe("Goals tests", () => {
     await page.locator('#baselineSelector').selectOption("INITIAL");
     await page.locator('#isFeatured').uncheck();
 
+    // right before submitting, wait for the recipe to finish calculating by expecting there to be no issues with it
+    await expect(page.getByText('recipe_editor.no_errors')).toBeVisible();
+
     // Submit
     await page.locator('#submit-button').click();
     await page.locator('#comment-text').hover();
@@ -317,8 +320,8 @@ test.describe("Goals tests", () => {
     await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorAllUpdated);
     await expect.soft(page.locator('#dataUnit')).toHaveValue(unitAllUpdated); // Might need to be changed when the thing that checks for changes is fixed, currently it doesn't recognize the change of data unit as a change so it doesn't update the value in the form 
 
-    await expect.soft(page.getByRole('radio', { name: 'goal.custom_recipe' })).toBeChecked();
-
+    await expect.soft(page.getByRole('radio', { name: 'goal.suggested_inheritance' })).toBeChecked();
+    // TODO: some checks on the recipe to ensure it matches expectations?
 
     await expect.soft(page.locator('#baselineSelector')).toHaveValue('CUSTOM');
     for (let i = 0; i < 30; i++) {
