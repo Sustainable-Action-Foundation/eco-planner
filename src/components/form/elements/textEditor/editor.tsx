@@ -41,7 +41,6 @@ const TextEditor = ({
 
   const editor = useEditor({
     immediatelyRender: true,
-    shouldRerenderOnTransaction: true,
     editable,
     onUpdate: ({ editor }) => {
       if (updater) updater(editor.getJSON());
