@@ -84,6 +84,8 @@ export default function GoalForm({
   const [hasInitializedSuggested, setHasInitializedSuggested] = useState<boolean>(() => resolveDataSeriesType(currentGoal) === DataSeriesType.Suggested);
   const [hasInitializedCustom, setHasInitializedCustom] = useState<boolean>(() => resolveDataSeriesType(currentGoal) === DataSeriesType.Custom);
   const [baselineType, setBaselineType] = useState<BaselineType>(resolveBaselineType(currentGoal));
+  const [unit, setUnit] = useState<string>(currentGoal?.dataSeries?.unit ?? "");
+  const [indicatorParameter, setIndicatorParameter] = useState<string>(currentGoal?.indicatorParameter ?? "");
   const [parentRoadmapId, setParentRoadmapId] = useState<string>(roadmapId || "");
   const descriptionRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
@@ -391,6 +393,8 @@ export default function GoalForm({
             ignoreLocation: true,
             minMatchCharLength: 2,
           }}
+          value={indicatorParameter}
+          setter={setIndicatorParameter}
         />
 
         {/* Unit */}
@@ -413,6 +417,8 @@ export default function GoalForm({
               setParsedUnit(null);
             }
           }}
+          value={unit}
+          setter={setUnit}
         />
         <small className="block margin-top-25 margin-bottom-100 font-style-italic" style={{ height: '20px' }}>
           {parsedUnit === null && t("forms:goal.unit_not_interpreted")}

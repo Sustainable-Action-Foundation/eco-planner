@@ -31,6 +31,7 @@ export default function MetaRoadmapForm({
   const descriptionRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [roadmapType, setRoadmapType] = useState<string>(currentRoadmap?.type ?? "");
+  const [actor, setActor] = useState<string>(currentRoadmap?.actor ?? "");
   const { addToast } = useToastContext();
   const router = useRouter();
 
@@ -176,6 +177,8 @@ export default function MetaRoadmapForm({
                 ? Object.values(countiesAndMunicipalities).flat().map(item => ({ name: item, value: item }))
                 : []
           }
+          value={actor}
+          setter={setActor}
         />
       </fieldset>
 
