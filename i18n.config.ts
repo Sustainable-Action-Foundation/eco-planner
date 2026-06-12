@@ -117,38 +117,30 @@ export function possessive<T>(value: T, lng: string | undefined): string | T {
 
   return result;
 }
-
-export function relativeTime<T>(value: T, lng: string | undefined, date: Date | undefined): string | T {
+export function relativeTime<T>(value: T, lng: string | undefined): string | T {
   if (!lng) {
     console.warn("Relative time formatter requires a locale to be set. Returning value as is.");
     return value;
   }
-  if (!date) {
-    console.warn("Relative time formatter requires a date to be set. Returning value as is.");
+  if (!(value instanceof Date)) {
+    console.warn(`Relative time formatter requires a Date value. Received: ${JSON.stringify(value)}, type: ${typeof value}. Returning value as is.`);
     return value;
   }
-
-  if (isNaN(date.getTime())) {
-    console.warn(`Invalid date provided for relative time formatter. Received: ${JSON.stringify(value)}, type: ${typeof value}. Returning value as is.`);
+  if (isNaN(value.getTime())) {
+    console.warn(`Invalid date provided for relative time formatter. Received: ${JSON.stringify(value)}. Returning value as is.`);
     return value;
   }
 
   const relativeTime = new Intl.RelativeTimeFormat(lng);
+  const now = Date.now();
 
-  const dayDelta = Math.round((date.getTime() - Date.now()) / (86_400_000));
-  const hourDelta = Math.round((date.getTime() - Date.now()) / (3_600_000));
-  const minuteDelta = Math.round((date.getTime() - Date.now()) / (60_000));
-  const secondDelta = Math.round((date.getTime() - Date.now()) / (1_000));
-
-  if (isNaN(dayDelta) || isNaN(hourDelta) || isNaN(minuteDelta) || isNaN(secondDelta)) {
-    console.error(`Invalid date provided for relative time calculations. Received: ${JSON.stringify(value)}, type: ${typeof value}. Returning value as is.`);
-    return value;
-  }
+  const dayDelta = Math.round((value.getTime() - now) / 86_400_000);
+  const hourDelta = Math.round((value.getTime() - now) / 3_600_000);
+  const minuteDelta = Math.round((value.getTime() - now) / 60_000);
+  const secondDelta = Math.round((value.getTime() - now) / 1_000);
 
   if (Math.abs(dayDelta) > 0) return relativeTime.format(dayDelta, "days");
   if (Math.abs(hourDelta) > 0) return relativeTime.format(hourDelta, "hours");
   if (Math.abs(minuteDelta) > 0) return relativeTime.format(minuteDelta, "minutes");
-  if (Math.abs(secondDelta) > 0) return relativeTime.format(secondDelta, "seconds");
-
   return relativeTime.format(secondDelta, "seconds");
 }
