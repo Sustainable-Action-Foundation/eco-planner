@@ -33,7 +33,7 @@ export default function TextSingleAutocomplete({
 }) {
   const { t } = useTranslation(["forms", "common"]);
 
-  // TODO: list of other suggestions that dont match exactly what you write.
+  // TODO: list of other suggestions that don't match exactly what you write.
 
   const [value, setValue] = useState<string>(!!props.defaultValue ? props.defaultValue : '');
   const [displayListBox, setDisplayListBox] = useState<boolean>(false);
@@ -42,12 +42,12 @@ export default function TextSingleAutocomplete({
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
   const comboboxRef = useRef<HTMLInputElement>(null);
 
-  const fuse = useMemo(() => new Fuse(options, { 
-    keys: ['name'], 
+  const fuse = useMemo(() => new Fuse(options, {
+    keys: ['name'],
     includeMatches: true,
-    ...(fuseOptions ?? {}), 
+    ...(fuseOptions ?? {}),
   }), [options, fuseOptions]);
- 
+
   const searchResults = useMemo((): FuseResult<Option>[] => {
     if (selectionMade) {
       setSelectionMade(false);
@@ -59,15 +59,14 @@ export default function TextSingleAutocomplete({
   useEffect(() => {
     if (value) {
       setDisplayListBox(true);
-    }
-
+    } 
     scrollOptionIntoView(optionRefs.current, focusedListBoxItem);
   }, [focusedListBoxItem, value]);
 
   useEffect(() => {
     if (!onChange) return;
     onChange(value);
-  }, [value, onChange]);  
+  }, [value, onChange]);
 
   const highlightMatch = (text: string, indices?: readonly [number, number][]) => {
     if (!indices || indices.length === 0) return text;
@@ -78,7 +77,7 @@ export default function TextSingleAutocomplete({
     indices.forEach(([start, end]) => {
       if (start > lastIndex) parts.push(text.slice(lastIndex, start));
       parts.push(
-        <strong key={start} className="font-weight-normal" style={{ color: 'hsl(206, 100%, 30%)', textShadow: '0 0 hsl(206, 100%, 50%)'}}>
+        <strong key={start} className="font-weight-normal" style={{ color: 'hsl(206, 100%, 30%)', textShadow: '0 0 hsl(206, 100%, 50%)' }}>
           {text.slice(start, end + 1)}
         </strong>,
       );
@@ -99,9 +98,9 @@ export default function TextSingleAutocomplete({
       <div
         className={`${theme ? `${theme.className} ` : ''}flex align-items-center focusable cursor-text padding-50`}
         style={theme?.style ?? {}}
-      >  
+      >
         <input /* TODO: Need this input to be reduced to the size of what is being written. (field-sizing: content seems to work... but not on firefox) */
-          style={{fieldSizing: options.length > 0 ? 'content' : 'initial', width: options.length > 0 ? 'auto' : '100%', padding: '0', anchorName: '--value-anchor'}}
+          style={{ fieldSizing: options.length > 0 ? 'content' : 'initial', width: options.length > 0 ? 'auto' : '100%', padding: '0', anchorName: '--value-anchor' }}
           type="text"
           placeholder={!!props.placeholder ? props.placeholder : undefined}
           name={props.name}
@@ -110,18 +109,16 @@ export default function TextSingleAutocomplete({
           disabled={props.disabled}
           value={value}
           autoComplete="off"
-          onChange={(e) => { setValue(e.target.value); setFocusedListBoxItem(0); }} // TODO: Enter seems to select values even if nothing is selected
+          onChange={(e) => { 
+            setValue(e.target.value); 
+            setFocusedListBoxItem(0);
+          }} // TODO: Enter seems to select values even if nothing is selected
           {...(options.length > 0
             ? {
               ref: comboboxRef,
               onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => {
                 if (!comboboxRef.current) return;
 
-                if (e.key === "Tab") { // Move this into the keydown function
-                  if (displayListBox === false || e.shiftKey || searchResults.length > 0 && value === searchResults[0].item.value || !value) return; // Only tab complete if we have written something
-                  setValue(searchResults[0].item.value);
-                }
-                
                 handleKeyDownTextAutocomplete(
                   e,
                   comboboxRef.current,
@@ -133,13 +130,36 @@ export default function TextSingleAutocomplete({
                   (selectedOption) => {
                     setValue(selectedOption ? selectedOption.name : ""); // TODO: Should be .value?
                     setSelectionMade(true);
-                    setFocusedListBoxItem(null); 
+                    setFocusedListBoxItem(null);
                     setDisplayListBox(false);
+                  },
+                  () => {
+                    if (
+                      displayListBox === false ||
+                      e.shiftKey ||
+                      !value ||
+                      searchResults.length === 0 ||
+                      !searchResults[0].item.value.toLowerCase().startsWith(value.toLowerCase())
+                    ) return;
+                    setValue(searchResults[0].item.value);
                   },
                 );
               },
-              onFocus: () => { if (value) {setDisplayListBox(true); }},
-              onBlur: (e) => { if (e.relatedTarget?.id !== `${props.id}-listbox` && e.relatedTarget?.id !== `${props.id}-button`) { setDisplayListBox(false); } },
+              onKeyUp: (e: React.KeyboardEvent<HTMLInputElement>) => {
+                if (e.key === 'Backspace' && value.length === 0) {
+                  setDisplayListBox(false);
+                }
+              },
+              onFocus: () => { 
+                if (value) { 
+                  setDisplayListBox(true); 
+                };
+               },
+              onBlur: (e) => { 
+                if (e.relatedTarget?.id !== `${props.id}-listbox` && e.relatedTarget?.id !== `${props.id}-button`) {
+                  setDisplayListBox(false); 
+                };
+              },
               "role": "combobox",
               "aria-expanded": displayListBox,
               "aria-haspopup": "listbox",
@@ -149,13 +169,13 @@ export default function TextSingleAutocomplete({
             }
             : {})}
         />
-        {searchResults.length > 0 && value ? 
-          <span style={{color: 'gray', fontSize: 'smaller'}}> {/* Might want the anchor on the input? Also rename it. */}
-            {searchResults[0].item.name.toLowerCase().startsWith(value)
+        {searchResults.length > 0 && value && displayListBox ?
+          <span style={{ color: 'gray', fontSize: 'smaller' }}> {/* Might want the anchor on the input? Also rename it. */}
+            {searchResults[0].item.name.toLowerCase().startsWith(value.toLowerCase())
               ? searchResults[0].item.name.slice(value.length)
               : ''}
           </span>
-        : null}
+          : null}
         {options.length > 0 ?
           <button // Icon makes the input element too large...
             id={`${props.id}-button`}
@@ -205,25 +225,25 @@ export default function TextSingleAutocomplete({
         >
           {searchResults.map((option, index) => {
             const matchIndices = option.matches?.find(m => m.key === 'name')?.indices;
-            
+
             return (
               <li
                 key={option.item.value}
                 id={`${props.id}-listbox-${index}`}
                 className={index === focusedListBoxItem ? `${styles['focused-option']}` : ''}
                 ref={(el) => { optionRefs.current[index] = el; }}
-                onClick={() => { 
+                onClick={() => {
                   setValue(option.item.name); // TODO: Should be .value?
-                  setSelectionMade(true); 
+                  setSelectionMade(true);
                   setDisplayListBox(false);
                 }}
                 role="option"
                 aria-selected={option.item.name === value}
-              > 
+              >
                 {highlightMatch(option.item.name, matchIndices)}
               </li>
-              );
-            })}
+            );
+          })}
         </ul>
         : null}
     </div>

@@ -211,6 +211,7 @@ export const handleKeyDownTextAutocomplete = (
   focusedListboxOptionIndex: number | null,
   setFocusedListboxOptionIndex: React.Dispatch<React.SetStateAction<number | null>>,
   onEnter: (selectedOption: { name: string, value: string } | null, index: number | null) => void, // TODO: Do we even need index?
+  onTab: () => void,
 ) => {
 
   const key = e.key;
@@ -251,7 +252,7 @@ export const handleKeyDownTextAutocomplete = (
     //    2.2. Move focus to the first option  
     // 3. If the menu is open and no option is focused we messed up somewhere, panic ensues and we set focus to the first option
     case "ArrowDown": {
-      if (e.ctrlKey && e.shiftKey && e.altKey && e.metaKey) return;
+      if (e.ctrlKey || e.shiftKey || e.altKey || e.metaKey) return;
 
       e.preventDefault();
 
@@ -280,7 +281,7 @@ export const handleKeyDownTextAutocomplete = (
     //    2.2. Move focus to the last option  
     // 3. If the menu is open and no option is focused we messed up somewhere, panic ensues and we set focus to the first option
     case "ArrowUp": {
-      if (e.ctrlKey && e.shiftKey && e.altKey && e.metaKey) return;
+      if (e.ctrlKey || e.shiftKey || e.altKey || e.metaKey) return;
 
       e.preventDefault();
 
@@ -311,20 +312,14 @@ export const handleKeyDownTextAutocomplete = (
     }
 
     case "Tab": {
-      if (!e.shiftKey && !listboxDisplayed && !setListboxDisplayed) return;
-      
-      e.preventDefault();
-      setListboxDisplayed?.(false);
-      setFocusedListboxOptionIndex(null);
-      comboboxElement.focus();
+      onTab();
       break;
     }
 
     default: {
       break;
     }
-  } 
-  // TODO: FOR SUGGESTIVE TEXT, ON BACKSPACE WE SHOULD REMOVE THE LISTBOX IF THERE IS NO TEXT!
+  }
 };
 
 // Clears any value and set focus to combobox
