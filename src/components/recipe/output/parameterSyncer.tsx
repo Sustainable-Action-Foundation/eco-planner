@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
 import { getRecipeRoadmapData } from "../context/roadmapDataCache";
 import { useEffect, useState } from "react";
-import { ClientRoadmap } from "@/types";
+import type { ClientRoadmap } from "@/types";
 
 export default function ParameterSync({
   setter,
@@ -20,12 +20,14 @@ export default function ParameterSync({
         const { roadmapLookup } = await getRecipeRoadmapData();
         setRoadmapData(roadmapLookup);
       }
-      catch (e) {
+      catch (e: unknown) {
         console.error("Failed to fetch roadmap data for parameter sync:", e);
       }
     }
 
-    fetchRoadmapData();
+    fetchRoadmapData().catch((e: unknown) => {
+      console.error("Unexpected error fetching roadmap data for parameter sync:", e);
+    });
   }, []);
 
   if (!roadmapData) return null;
