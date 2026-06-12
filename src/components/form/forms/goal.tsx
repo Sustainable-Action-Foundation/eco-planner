@@ -2,11 +2,14 @@
 
 import type { getRoadmaps } from "@/fetchers";
 import formSubmitter from "@/functions/formSubmitter";
+import mathjs, { allOurUnits } from "@/math";
 import { isDateValuesWithUnit, isISOIshDate } from "@/types";
-import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput } from "@/types";
+import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput, UnitString } from "@/types";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
+import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
+import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
 import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections";
 import TextEditor from "../elements/textEditor/editor";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
@@ -95,6 +98,24 @@ export default function GoalForm({
   }, [roadmapAlternatives, t]);
 
   const [timestamp] = useState(() => Date.now());
+
+  const [parsedUnit, setParsedUnit] = useState<UnitString>(() => {
+    if (currentGoal?.dataSeries?.unit) {
+      try {
+        return mathjs.unit(currentGoal.dataSeries.unit).toString();
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  });
+
+  const indicatorParameters = useMemo(() => {
+    return [...new Set(parameterOptions)].map(option => ({
+      name: option,
+      value: option,
+    }));
+  }, []);
 
   useEffect(() => {
     if (dataSeriesType === DataSeriesType.Suggested) {
@@ -351,6 +372,55 @@ export default function GoalForm({
         />
         {/* hidden input containing the text editor output */}
         <input ref={descriptionRef} type="hidden" name="description" />
+
+        {/* Indicator parameter / LEAP parameter */}
+        <label htmlFor="indicatorParameter">
+          {t("forms:goal.leap_parameter")}
+        </label>
+        <TextSingleAutocomplete
+          props={{
+            id: "indicatorParameter",
+            name: "indicatorParameter",
+            placeholder: t("forms:combobox.default_autocomplete_placeholder"),
+            className: "margin-top-25 margin-bottom-100",
+            defaultValue: currentGoal?.indicatorParameter ?? undefined,
+          }}
+          options={indicatorParameters}
+          fuseOptions={{
+            threshold: 0.3,
+            ignoreLocation: true,
+            minMatchCharLength: 2,
+          }}
+        />
+
+        {/* Unit */}
+        <label htmlFor="dataUnit">
+          {t("forms:goal.data_unit")}
+        </label>
+        <TextSingleAutocomplete
+          props={{
+            id: "dataUnit",
+            name: "dataUnit",
+            placeholder: t("forms:combobox.default_autocomplete_placeholder"),
+            className: "margin-top-25",
+            defaultValue: currentGoal?.dataSeries?.unit ?? undefined,
+          }}
+          options={allOurUnits.map(u => ({ name: u, value: u }))}
+          onChange={(unit) => {
+            try {
+              setParsedUnit(mathjs.unit(unit).toString());
+            } catch {
+              setParsedUnit(null);
+            }
+          }}
+        />
+        <small className="block margin-top-25 margin-bottom-100 font-style-italic" style={{ height: '20px' }}>
+          {parsedUnit === null && t("forms:goal.unit_not_interpreted")}
+
+          {parsedUnit ? <>
+            {t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong>
+          </> : null}
+        </small>
       </fieldset>
 
       {/* Data series input section */}
