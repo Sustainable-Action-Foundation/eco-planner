@@ -15,8 +15,7 @@ import type { DataSeriesVariable, ExternalSource, RecipeVariable, SerializedReci
 import serveTea from "@/lib/i18nServer";
 
 /**
- * Per external variable, either freshly fetched data (selection is new or
- * changed) or a reference to the already-stored series (selection unchanged).
+ * Per external variable, either freshly fetched data (selection is new or changed) or a reference to the already-stored series (selection unchanged).
  */
 type ResolvedExternals = Map<string, { source: ExternalSource } & (
   | { data: DateValuesWithUnit, reuseDataSeriesId?: undefined }
@@ -119,7 +118,8 @@ async function materializeRecipeExternals(
         },
         select: { id: true },
       })).id;
-    } else {
+    }
+    else {
       dataSeriesId = resolvedVariable.reuseDataSeriesId;
     }
     dataSeriesIdsByVariable[variable.id] = dataSeriesId;

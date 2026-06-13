@@ -1,6 +1,7 @@
 import WrappedChart from "@/lib/chartWrapper";
 import styles from '../graph.module.css';
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
+import { getHistoricalDataset } from "@/functions/getHistoricalDataset";
 import type { Goal } from "@/types";
 import { color_palette } from "../config";
 import type { ApexAxisChartSeries } from "apexcharts";
@@ -54,7 +55,7 @@ export default function ThumbnailGraph({
       y: Number.isFinite(value) ? value : null,
     }));
     mainChart.push({
-      name: (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
+      name: getHistoricalDataset(goal).label || `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]}`,
       data: historicalSeries,
       type: 'area',
     });

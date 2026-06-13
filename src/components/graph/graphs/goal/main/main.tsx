@@ -31,7 +31,10 @@ export default function MainGraph({
     return null;
   }
 
-  const historicalLabel = `${getHistoricalDataset(goal).label || t("common:historical_data")} (${t("common:historical_data")})`;
+  const historicalDatasetLabel = getHistoricalDataset(goal).label;
+  const historicalLabel = historicalDatasetLabel
+    ? `${historicalDatasetLabel} (${t("common:historical_data")})`
+    : t("common:historical_data");
 
   const sortDateEntries = (entries: Array<[string, number]>) =>
     entries.sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime());
