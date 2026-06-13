@@ -3,7 +3,7 @@ import { isISOIshDate } from "@/types";
 import mathjs from "@/math";
 import type { Unit } from "mathjs";
 import type { ApiTableContent } from "@/lib/api/apiTypes";
-import type { ExternalVariable, RecipeExtractionOutput, RecipeVariable, SerializedRecipe, SerializedRecipeShape } from "@/functions/recipe";
+import type { ExternalVariable, RecipeExtractionOutput, RecipeVariable, SerializedRecipe, RecipeShape } from "@/functions/recipe";
 import { isEvalTimeVariable, isRecipe, MathjsError, RecipeError, parseDateValuesFromVector, transformDateValuesToVector, ANDMasks, extractDataSeries, extractExternalDatasets, extractScalars, isEvalTimeSeries, RecipeDataTypes } from "@/functions/recipe";
 import { sanityCheckDataSeries, sanityCheckExternalDatasets, sanityCheckScalars } from "@/functions/recipe/sanityChecks";
 
@@ -11,7 +11,7 @@ export class Recipe {
   public name: string;
   public equation: string;
   public variables: RecipeVariable[];
-  private meta?: SerializedRecipeShape["meta"];
+  private meta?: RecipeShape["meta"];
 
   public constructor({
     name,
@@ -22,7 +22,7 @@ export class Recipe {
     name: string;
     equation: string;
     variables: RecipeVariable[];
-    meta?: SerializedRecipeShape["meta"];
+    meta?: RecipeShape["meta"];
   }) {
     this.name = name;
     this.equation = equation;
@@ -367,7 +367,7 @@ export class Recipe {
         v: 1,
         isSuggestedRecipe: this.meta?.isSuggestedRecipe ?? false,
       },
-    } satisfies SerializedRecipeShape);
+    } satisfies RecipeShape) as SerializedRecipe;
   }
 
   /**
@@ -408,7 +408,7 @@ export class Recipe {
   /**
    * Typed entry point for serialized recipes. Equivalent to {@link Recipe.from}.
    */
-  public static deserialize(serializedRecipe: SerializedRecipe): Recipe {
+  public static deserialize(serializedRecipe: string): Recipe {
     return Recipe.from(serializedRecipe);
   }
 

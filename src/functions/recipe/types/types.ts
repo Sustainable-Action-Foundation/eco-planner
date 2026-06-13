@@ -1,15 +1,24 @@
 import type { Unit } from "mathjs";
 import type { DatasetKeys } from "@/lib/api/utility";
-import type { DateValues, DateValuesWithUnit, ISOIshDate, JSONValue, UnitString } from "@/types";
+import type { DateValues, DateValuesWithUnit, ISOIshDate, UnitString } from "@/types";
 import type { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/consts";
 
 type BaseVariable = {
   id: string;
   name: string;
-  type: RecipeDataTypes;
   unit: UnitString;
   template?: boolean | undefined;
 };
+
+/** Which index/value to pick out of a series-valued variable. */
+export type PickOption = VectorIndexPickerOptions | number | ISOIshDate;
+
+/** A single external API selection constraint. */
+export type ExternalSelectionItem = {
+  variableCode: string;
+  valueCodes: string[];
+};
+export type ExternalSelection = ExternalSelectionItem[];
 
 export type ScalarVariable = BaseVariable & {
   type: typeof RecipeDataTypes.Scalar;
@@ -25,15 +34,12 @@ export type ScalarVariable = BaseVariable & {
 export type ExternalSource = {
   dataset: DatasetKeys | null;
   tableId: string | null;
-  selection: {
-    variableCode: string,
-    valueCodes: string[]
-  }[];
+  selection: ExternalSelection;
 };
 
 export type DataSeriesVariable = BaseVariable & {
   type: typeof RecipeDataTypes.DataSeries;
-  pick: VectorIndexPickerOptions | number | ISOIshDate;
+  pick: PickOption;
 
   dataSeriesId: string | null | undefined;
   value: DateValues | null | undefined;
@@ -43,16 +49,8 @@ export type DataSeriesVariable = BaseVariable & {
 };
 export type ExternalVariable = BaseVariable & {
   type: typeof RecipeDataTypes.External;
-  pick: VectorIndexPickerOptions | number | ISOIshDate;
-
-  // API stuff
-  dataset: DatasetKeys | null;
-  tableId: string | null;
-  selection: {
-    variableCode: string,
-    valueCodes: string[]
-  }[];
-};
+  pick: PickOption;
+} & ExternalSource;
 export type RecipeVariable = ScalarVariable | DataSeriesVariable | ExternalVariable;
 
 /*
@@ -70,20 +68,24 @@ export type EvalTimeSeries = {
 }
 export type RecipeExtractionOutput = (EvalTimeVariable | EvalTimeSeries)[];
 
-/** 
+/**
  * # Notice
- * Do not use to type variables, only use for type checking when serializing/deserializing recipes
+ * The in-memory (parsed) shape of a recipe. Do not use to type variables, only
+ * use for type checking when serializing/deserializing recipes.
  */
-export type SerializedRecipeShape = {
+export type RecipeShape = {
   name: string;
   equation: string;
   variables: RecipeVariable[];
   meta: {
-    v?: number; // Version of recipe format
+    v?: 1; // Version of recipe format (current: 1)
     isSuggestedRecipe?: boolean; // If it was derived from a suggested recipe, needed when e.g. loading a goal form and knowing which method was used.
-  }
-  & {
-    [key: string]: JSONValue;
   };
 };
-export type SerializedRecipe = string & {};
+
+declare const serializedRecipeBrand: unique symbol;
+/**
+ * A string produced by {@link Recipe.serialize}. Branded so arbitrary strings
+ * are not assignable to it — pass recipes through `Recipe.serialize()` to obtain one.
+ */
+export type SerializedRecipe = string & { readonly [serializedRecipeBrand]: true };

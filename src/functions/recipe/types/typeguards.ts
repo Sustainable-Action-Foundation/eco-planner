@@ -10,7 +10,7 @@ import type {
   DataSeriesVariable,
   ExternalVariable,
   ScalarVariable,
-  SerializedRecipeShape,
+  RecipeShape,
   EvalTimeSeries,
   RecipeExtractionOutput,
 } from "@/functions/recipe/types";
@@ -320,7 +320,7 @@ export function isExternalSelection(selection: JSONValue): selection is External
   return true;
 }
 
-export function isRecipe(recipe: JSONValue): recipe is SerializedRecipeShape {
+export function isRecipe(recipe: JSONValue): recipe is RecipeShape {
   const allowedProps = ["name", "equation", "variables", "meta"];
 
   // Passed as serialized string, try to parse it first
