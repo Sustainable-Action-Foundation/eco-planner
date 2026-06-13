@@ -14,6 +14,7 @@ type ThumbnailGoal = Pick<
   "id" | "name" | "indicatorParameter" | "dataSeries" | "externalDataset" | "externalTableId" | "externalSelection"
 >;
 
+
 export default async function ThumbnailGraph({
   goal,
   historicalData,
@@ -73,7 +74,12 @@ export default async function ThumbnailGraph({
 
     colors.push(color_palette.historical.color);
     opacities.push(color_palette.historical.fillOpacity);
-  }
+  }  
+
+  const lastMainEntry = sortedMainEntries.at(-1);
+  const lastExternalValue = externalData?.values.at(-1);
+
+  if (!lastMainEntry) throw new Error("sortedMainEntries is empty");
 
   const mainChartOptions: ApexCharts.ApexOptions = {
     chart: {
@@ -98,14 +104,10 @@ export default async function ThumbnailGraph({
       type: 'datetime',
       labels: { format: 'yyyy' },
       tooltip: { enabled: false },
-      ...(externalData?.values?.[0]?.period
-        ? { min: Date.UTC(Number(externalData.values[0].period), 0, 1) }
-        : sortedMainEntries[0]
-          ? { min: new Date(sortedMainEntries[0][0]).getTime() }
-          : {}),
-      ...(sortedMainEntries[sortedMainEntries.length - 1]
-        ? { max: new Date(sortedMainEntries[sortedMainEntries.length - 1][0]).getTime() }
-        : {}),
+      // If we have external data, we set the start year to whatever starts first. Otherwise we just use the main data series.
+      min: externalData ? Math.min(new Date(sortedMainEntries[0][0]).getTime(), parsePeriod(externalData.values[0].period).getTime()) : new Date(sortedMainEntries[0][0]).getTime(), 
+      // If we have external data, we set the end year to whatever starts first. Otherwise we just use the main data series.
+      max: externalData && lastExternalValue ? Math.max(new Date(lastMainEntry[0]).getTime(), Date.UTC(Number(lastExternalValue.period), 0, 1)) : new Date(lastMainEntry[0]).getTime(),
     },
     yaxis: {
       show: false,

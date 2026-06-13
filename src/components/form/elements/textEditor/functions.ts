@@ -1,5 +1,3 @@
-// TODO: Move all key handlers to shared file
-
 import type { Editor } from "@tiptap/core";
 
 export const handleKeyDownMenuBar = (
@@ -11,7 +9,7 @@ export const handleKeyDownMenuBar = (
   if (e.key === 'ArrowRight') {
     e.stopPropagation();
     if (focusedMenuBarItemIndex !== menuBarItems.length - 1) {
-      setFocusedMenuBarItemIndex(focusedMenuBarItemIndex === null ? 1 : focusedMenuBarItemIndex + 1);
+      setFocusedMenuBarItemIndex(focusedMenuBarItemIndex === null ? 0 : focusedMenuBarItemIndex + 1);
     } else {
       setFocusedMenuBarItemIndex(0);
     }

@@ -162,3 +162,8 @@ prisma/generated/
 
 .vscode/*
 !.vscode/extensions.json
+
+# Local config files
+tests/playwright.e2e.config-local.ts
+
+.claude/

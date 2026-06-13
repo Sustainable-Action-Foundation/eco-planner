@@ -9,8 +9,9 @@ import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { getOneGoal, getRoadmaps } from "@/fetchers";
+import type { Metadata } from "next";
 
-export async function generateMetadata(props: { params: Promise<{ goalId: string }> }) {
+export async function generateMetadata(props: { params: Promise<{ goalId: string }> }): Promise<Metadata> {
   const params = await props.params;
   const [t, session, currentGoal] = await Promise.all([
     serveTea("metadata"),
@@ -72,7 +73,11 @@ export default async function Page(props: { params: Promise<{ goalId: string }> 
             goalName: !!currentGoal.name ? currentGoal.name : currentGoal.indicatorParameter,
           })}
         </h1>
-        <GoalForm roadmapId={currentGoal.roadmapId} currentGoal={currentGoal} roadmapAlternatives={roadmapList} />
+        <GoalForm
+          roadmapId={currentGoal.roadmapId}
+          currentGoal={currentGoal}
+          roadmapAlternatives={roadmapList}
+        />
       </div>
     </>
   );

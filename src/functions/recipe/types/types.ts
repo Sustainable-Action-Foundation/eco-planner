@@ -60,6 +60,10 @@ export type SerializedRecipeShape = {
   equation: string;
   variables: RecipeVariable[];
   meta: {
+    v?: number; // Version of recipe format
+    isSuggestedRecipe?: boolean; // If it was derived from a suggested recipe, needed when e.g. loading a goal form and knowing which method was used.
+  }
+  & {
     [key: string]: JSONValue;
   };
 };

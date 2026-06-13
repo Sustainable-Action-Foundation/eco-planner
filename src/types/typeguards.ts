@@ -663,12 +663,9 @@ export function isMetaRoadmapUpdate(metaRoadmap: JSONValue): metaRoadmap is Meta
 
     // parentRoadmapId: string | null | undefined;
     (
-      ("parentRoadmapId" in metaRoadmap) &&
-      (
-        typeof metaRoadmap.parentRoadmapId === 'string' ||
-        metaRoadmap.parentRoadmapId === null ||
-        metaRoadmap.parentRoadmapId === undefined
-      )
+      typeof metaRoadmap.parentRoadmapId === 'string' ||
+      metaRoadmap.parentRoadmapId === null ||
+      metaRoadmap.parentRoadmapId === undefined
     ) &&
 
     // timestamp: number;

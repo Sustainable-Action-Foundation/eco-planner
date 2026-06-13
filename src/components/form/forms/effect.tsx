@@ -9,7 +9,7 @@ import { Trans, useTranslation } from "react-i18next";
 import { absoluteToDelta, ActionSelector, deltaToAbsolute, GoalSelector } from "../sections/effectFormSections";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
-import { useToastContext } from "@/components/generic/toast/toastContext";
+import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 
 export default function EffectForm({
@@ -27,7 +27,7 @@ export default function EffectForm({
   const [timestamp] = useState(() => Date.now());
   const router = useRouter();
 
-  const { addToast } = useToastContext();
+  const { addToast } = useToast();
 
   const [selectedImpactType, setSelectedImpactType] = useState<ActionImpactType>(currentEffect?.impactType ?? ActionImpactType.ABSOLUTE);
   const [dateValues, setDateValues] = useState<DateValuesWithUnit>(currentEffect?.dataSeries

@@ -4,6 +4,16 @@ import type { GridCell, GridColumnHeader, GridRowHeader, GridRow, GridElement } 
 import React, { useEffect, useState } from "react";
 import { handleKeyDownGrid } from "./functions";
 
+
+function setFocusOnGrid(
+  id: string,
+) {
+  const grid = document.getElementById(id);
+  if (!grid) return;
+
+  grid.focus();
+}
+
 function setFocusOnGridcell(
   id: string,
   focusedCell: { row: number, column: number },
@@ -15,7 +25,7 @@ function setFocusOnGridcell(
     `[data-row="${focusedCell.row}"][data-column="${focusedCell.column}"]`,
   );
   if (!cell) return;
-
+  
   cell.focus();
 }
 
@@ -38,13 +48,14 @@ function setFocusInGridcell(
 }
 
 const GridCell = React.forwardRef<HTMLTableCellElement, GridCell>(
-  ({ className, style, children, position, tabIndex, onKeyDown, onClick, onDoubleClick }, ref) => (
+  ({ className, style, children, tabIndex, ariaSelected, position, onKeyDown, onClick, onDoubleClick }, ref) => (
     <td
       className={`${className ? `${className} ` : ''}`}
       style={{ ...(style ?? {}) }}
       ref={ref}
       role="gridcell"
       tabIndex={tabIndex}
+      aria-selected={ariaSelected}
       data-row={position?.row}
       data-column={position?.column}
       onKeyDown={onKeyDown}
@@ -144,7 +155,10 @@ export default function Grid({
   const [editMode, setEditMode] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!focusedCell) return;
+    if (!focusedCell) { 
+      setFocusOnGrid(props.id);
+      return;
+    }
 
     setFocusOnGridcell(props.id, { row: focusedCell.row, column: focusedCell.column });
 
@@ -162,7 +176,7 @@ export default function Grid({
   );
 
   const bodyRows = childrenArray.filter(isGridRow);
-
+  
   return (
     <table
       id={props.id}
@@ -173,7 +187,7 @@ export default function Grid({
       onFocusCapture={() => {
         if (!focusedCell) {
           setFocusedCell({row: 0, column: 1}); // Column 0 are unfocusable rowheaders
-        }  
+        }
       }}
     >
       <thead className="display-contents">
@@ -192,14 +206,17 @@ export default function Grid({
             <tr key={rowIndex} className="display-contents">
               {rowChildren.map((child, columnIndex) => {
                 if (!isGridCell(child)) return child;
-
+                
                 const isFocusable = focusedCell
                   ? focusedCell.row === rowIndex && focusedCell.column === columnIndex
                   : rowIndex === 0 && columnIndex === 1; // Column index 1 as headerrows count as column 0 
 
                 return React.cloneElement(child, {
-                  position: { row: rowIndex, column: columnIndex },
+                  /* Might want to revert to previous way of handling tabindex (set tabindex to 0 for focused cell and then disable tab navigation in grid, 
+                  this will retain tabindex when tabbing out and we won't have to deal with resetting it when handling onclick stuff) */
                   tabIndex: isFocusable ? 0 : -1,
+                  ariaSelected: (focusedCell?.row === rowIndex && focusedCell.column === columnIndex) ? true : false, 
+                  position: { row: rowIndex, column: columnIndex },
                   onKeyDown: (event) =>
                     handleKeyDownGrid({
                       e: event,

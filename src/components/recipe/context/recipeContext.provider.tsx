@@ -25,6 +25,9 @@ export function RecipeContextProvider({
 
   const [resultingDataSeries, setResultingDataSeries] = useState<DateValues | null>(null);
   const [resultingUnit, setResultingUnit] = useState<UnitString | null>(null);
+  // Serialize async recipe updates so rapid edits cannot overwrite each other.
+  const recipeUpdateQueueRef = useRef<Promise<void>>(Promise.resolve());
+  const recipeUpdateGenerationRef = useRef<number>(0);
 
   /** 
    * Canonical recipe for this context
@@ -54,47 +57,51 @@ export function RecipeContextProvider({
   }, [publishedRecipe]);
 
   const clearRecipe = useCallback(() => {
+    recipeUpdateGenerationRef.current += 1;
+    recipeUpdateQueueRef.current = Promise.resolve();
     canonicalRecipeRef.current = Recipe.getEmpty();
     setPublishedRecipe(Recipe.getEmpty());
   }, []);
 
-  const applyRecipeUpdate = useCallback(async (recipeUpdate: SetStateAction<Recipe>): Promise<void> => {
-    const baseRecipe = canonicalRecipeRef.current;
+  const applyRecipeUpdate = useCallback((recipeUpdate: SetStateAction<Recipe>): Promise<void> => {
+    const generationAtSchedule = recipeUpdateGenerationRef.current;
 
-    const candidateRecipe = typeof recipeUpdate === "function"
-      ? recipeUpdate(baseRecipe.copy())
-      : recipeUpdate;
+    const queuedUpdate = (): void => {
+      if (generationAtSchedule !== recipeUpdateGenerationRef.current) return;
 
-    let validatedRecipe: Recipe;
+      const baseRecipe = canonicalRecipeRef.current;
+      const candidateRecipe = typeof recipeUpdate === "function"
+        ? recipeUpdate(baseRecipe.copy())
+        : recipeUpdate;
 
-    if (!candidateRecipe) {
-      console.warn("Deprecation warning: you should not delete recipes by setting them to null. This is not allowed type-wise so please check your typing.");
-      validatedRecipe = Recipe.getEmpty();
-    }
-    else {
-      validatedRecipe = Recipe.from(candidateRecipe);
-    }
+      let validatedRecipe: Recipe;
 
-    // Validate
-    const validity = await validatedRecipe.checkValidity();
-    if (!validity.good) {
-      if (validity.warnings?.length)
-        console.warn("Warning produced after validity check in applyRecipeUpdate:", validity.warnings);
-      setWarnings(validity.warnings ?? []);
-      setError(validity.error || "Recipe is invalid");
-    }
+      if (!candidateRecipe) {
+        console.warn("Deprecation warning: you should not delete recipes by setting them to null. This is not allowed type-wise so please check your typing.");
+        validatedRecipe = Recipe.getEmpty();
+      }
+      else {
+        validatedRecipe = Recipe.from(candidateRecipe);
+      }
 
-    canonicalRecipeRef.current = validatedRecipe;
-    setPublishedRecipe(validatedRecipe);
+      if (Recipe.areRecipesEqual(baseRecipe, validatedRecipe)) {
+        return;
+      }
+
+      canonicalRecipeRef.current = validatedRecipe;
+      setPublishedRecipe(validatedRecipe);
+    };
+
+    const nextQueuedUpdate = recipeUpdateQueueRef.current.then(() => queuedUpdate());
+    recipeUpdateQueueRef.current = nextQueuedUpdate.catch(() => undefined);
+    return nextQueuedUpdate;
   }, []);
 
   const updateEquation = useCallback((equationUpdate: SetStateAction<Recipe["equation"]>) => {
-    const baseRecipe = canonicalRecipeRef.current;
-    const nextEquation = typeof equationUpdate === "function"
-      ? equationUpdate(baseRecipe.equation)
-      : equationUpdate;
-
     applyRecipeUpdate((current) => {
+      const nextEquation = typeof equationUpdate === "function"
+        ? equationUpdate(current.equation)
+        : equationUpdate;
       const recipeWithUpdatedEquation = current.copy();
       recipeWithUpdatedEquation.equation = nextEquation;
       return recipeWithUpdatedEquation;
@@ -113,7 +120,6 @@ export function RecipeContextProvider({
 
       if (variableUpdate === null) {
         if (!existingVariable) {
-          console.info(`Variable "${variableId}" not deleted because it does not exist.`);
           return current;
         }
         candidateRecipe.variables = candidateRecipe.variables.filter(variable => variable.id !== variableId);
@@ -130,7 +136,6 @@ export function RecipeContextProvider({
 
       // Avoid updating on no change
       if (Recipe.isVariableEqual(existingVariable, nextVariable)) {
-        console.info(`Variable "${variableId}" not updated because the new value is the same as the old value.`);
         return current;
       }
 
@@ -160,7 +165,6 @@ export function RecipeContextProvider({
         : variablesUpdate;
 
       if (Recipe.areVariablesEqual(oldVars, nextVars)) {
-        console.info(`Variables not updated because the new value is the same as the old value.`);
         return current;
       }
 

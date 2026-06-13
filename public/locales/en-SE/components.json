@@ -133,6 +133,8 @@
   },
   "recipe_editor": {
     "add_external_data": "Find external data",
+    "apply_parameter": "Copy used indicator parameter to form",
+    "apply_unit": "Copy resulting unit to form",
     "create_recipe": "Create a new recipe",
     "create_variable": "Create variable",
     "data_series": "Data series",
@@ -277,7 +279,10 @@
     "tree": "Tree"
   },
   "toasts": {
+    "clear_toasts": "Clear all messages",
     "error": "Something went wrong!",
+    "show_less": "Show less",
+    "show_more": "Show more",
     "success": "Success!",
     "warning": "Warning!"
   },

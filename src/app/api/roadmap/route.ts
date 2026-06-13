@@ -359,7 +359,7 @@ export async function POST(request: NextRequest) {
       select: { id: true },
     });
     // Invalidate old cache
-    revalidateTag('roadmap', 'max');
+    revalidateTag('roadmap', { expire: 0 });
     // Return the new roadmap's ID if successful
     return Response.json({ message: t('api:roadmap.roadmap_created'), id: newRoadmap.id },
       { status: 201, headers: { 'Location': `/roadmap/${newRoadmap.id}` } },
