@@ -165,3 +165,5 @@ prisma/generated/
 
 # Local config files
 tests/playwright.e2e.config-local.ts
+
+.claude/

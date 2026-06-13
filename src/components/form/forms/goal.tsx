@@ -16,7 +16,7 @@ import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import { Recipe } from "@/functions/recipe/recipe";
 import { FormIntegration, RecipeContextProvider, RecipeEditor, SuggestedRecipeApplier } from "@/components/recipe";
 import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
-import { useToastContext } from "@/components/generic/toast/toastContext";
+import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 import { dataSeriesToDateValues } from "@/functions/recipe";
 import UnitSync from "@/components/recipe/output/unitSyncer";
@@ -92,7 +92,7 @@ export default function GoalForm({
   const descriptionRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  const { addToast } = useToastContext();
+  const { addToast } = useToast();
 
   const parentRoadmaps = useMemo(() => {
     return (roadmapAlternatives ?? []).map(roadmap => ({

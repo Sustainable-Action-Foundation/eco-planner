@@ -7,7 +7,7 @@ import { isValidPastedInput } from "./utils";
 import Grid from "../grid/grid";
 import type { DateValuesWithUnit } from "@/types";
 import { IconArrowsMaximize, IconArrowsMinimize, IconPlus, IconRowInsertTop, IconTrashXFilled } from "@tabler/icons-react";
-import { useToastContext } from "@/components/generic/toast/toastContext";
+import { useToast } from "@/components/generic/toast/toastContext.use";
 
 export default function DataSeriesInputManual({
   initialDateValues = { unit: undefined, dateValues: {} },
@@ -25,7 +25,7 @@ export default function DataSeriesInputManual({
   // TODO: escape should remove any newly written contents?
 
   const { t } = useTranslation("forms");
-  const { addToast } = useToastContext();
+  const { addToast } = useToast();
   
   const [value, setValue] = useState<Array<{ id: string; year: string; data: string }>>(() => {
     if (Object.keys(initialDateValues.dateValues).length === 0) {

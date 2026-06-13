@@ -9,7 +9,7 @@ import styles from '../forms.module.css';
 import TextEditor from "../elements/textEditor/editor";
 import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
 import { useState, useRef } from "react";
-import { useToastContext } from "@/components/generic/toast/toastContext";
+import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 
 export default function ActionForm({
@@ -28,7 +28,7 @@ export default function ActionForm({
   const descriptionRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  const { addToast } = useToastContext();
+  const { addToast } = useToast();
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();

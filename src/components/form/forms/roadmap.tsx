@@ -13,7 +13,7 @@ import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import TextEditor from "../elements/textEditor/editor";
 import { IconUpload } from "@tabler/icons-react";
 import ConfigureAccess from "../sections/access";
-import { useToastContext } from "@/components/generic/toast/toastContext";
+import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 
 function checkForBadDecoding(csv: string[][], t: TFunction, addToast: (text: string, type: 'success' | 'error' | 'warning') => void) {
@@ -42,7 +42,7 @@ export default function RoadmapForm({
   const descriptionRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  const { addToast } = useToastContext();
+  const { addToast } = useToast();
 
   const [currentFile, setCurrentFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);

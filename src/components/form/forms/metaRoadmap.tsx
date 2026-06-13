@@ -13,7 +13,7 @@ import TextEditor from "@/components/form/elements/textEditor/editor";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
 import ConfigureAccess from "../sections/access";
-import { useToastContext } from "@/components/generic/toast/toastContext";
+import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 
 export default function MetaRoadmapForm({
@@ -32,7 +32,7 @@ export default function MetaRoadmapForm({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [roadmapType, setRoadmapType] = useState<string>(currentRoadmap?.type ?? "");
   const [actor, setActor] = useState<string>(currentRoadmap?.actor ?? "");
-  const { addToast } = useToastContext();
+  const { addToast } = useToast();
   const router = useRouter();
 
   const [timestamp] = useState(() => Date.now());
