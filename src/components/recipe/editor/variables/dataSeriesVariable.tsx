@@ -143,7 +143,7 @@ export function DataSeriesVariableEditor({
           {t("components:recipe_editor.select_data_series")}
         </label>
         <SelectSingleTreeSearch
-          key={`${fieldIdBase}-${defaultTreeValue?.value ?? "none"}-${defaultTreeValue?.name ?? ""}`}
+          key={`recipeVariable-${fieldIdBase}`}
           props={{
             id: fieldIdBase,
             name: fieldIdBase,
@@ -204,10 +204,10 @@ export function DataSeriesVariableSimpleEditor({
       expanded: null,
     }
     : undefined;
-
+    
   return (
     <SelectSingleTreeSearch
-      key={`recipeVariable-${variableId}-${defaultTreeValue?.value ?? "none"}-${defaultTreeValue?.name ?? ""}`}
+      key={`recipeVariable-${variableId}`}
       props={{
         id: `recipeVariable-${variableId}`,
         name: `recipeVariable-${variableId}`,

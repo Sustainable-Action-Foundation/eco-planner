@@ -85,7 +85,7 @@ export default function SelectSingleTreeSearch({
     if (focusedIndex == null || flattenedItems.length === 0) return;
     const selectedItem = flattenedItems[focusedIndex];
     const selectedItemElement = document.getElementById(`${selectedItem.value}`);
- 
+
     if (!selectedItemElement) return;
 
     const selectedItemElementText = selectedItemElement.querySelector<HTMLDivElement>(':scope > div');
@@ -161,8 +161,8 @@ export default function SelectSingleTreeSearch({
           className={`flex gap-25 align-items-center justify-content-space-between`}
           onClick={
             item.expanded !== null || item.onExpand !== undefined
-              ? () => { void toggleNode(item); console.log('this ran'); }
-              : () => { setValue(item?.value !== value?.value ? item : null); setMenuOpen(false); console.log('no, this ran!!!');}
+              ? () => { void toggleNode(item); }
+              : () => { setValue(item?.value !== value?.value ? item : null); setMenuOpen(false); }
           }
         >
           {(item.onExpand || (item.childNodes && item.childNodes.length > 0))
@@ -230,15 +230,15 @@ export default function SelectSingleTreeSearch({
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
         aria-required={!!props.required ? props.required : false}
-        aria-invalid={!valueIsValid} 
+        aria-invalid={!valueIsValid}
         // TODO: Need to have aria-activedescendent
         onBlur={(e) => {
-          if (e.relatedTarget?.id !== `${props.id}-dialog`) {
+          if (e.relatedTarget?.id !== `${props.id}-dialog` && e.relatedTarget?.id !== props.id) {
             setFocusedIndex(null);
             setMenuOpen(false);
           }
         }}
- 
+
         onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => {
           if (!toggleRef.current) return;
           handleKeyDownTreeCombobox(
@@ -257,12 +257,12 @@ export default function SelectSingleTreeSearch({
             },
             (selectedTreeItem) => {
               if (!selectedTreeItem) return;
-              if (selectedTreeItem.expanded !== null || selectedTreeItem.onExpand !== undefined) { // TODO: Figure out whats happening here
+              // If the node can be expanded and if it has an onExpand function, we toggle the node,
+              if (selectedTreeItem.expanded !== null || selectedTreeItem.onExpand !== undefined) {
                 void toggleNode(selectedTreeItem);
               } else {
-                setValue(selectedTreeItem?.value !== value?.value ? selectedTreeItem : null); // TODO: Abstract this to use in onclick     
+                setValue(selectedTreeItem?.value !== value?.value ? selectedTreeItem : null);
                 setMenuOpen(false);
-                toggleRef.current?.focus(); // TODO: This doesnt seem to work?
               }
             },
             menuOpen,
@@ -286,7 +286,7 @@ export default function SelectSingleTreeSearch({
         tabIndex={-1}
         role="dialog"
         aria-label={t("forms:combobox.select_single_option")}
-      > 
+      >
         <ul
           id={`${props.id}-dialog-tree`}
           className="margin-0 padding-0"
