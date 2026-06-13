@@ -370,37 +370,20 @@ export class Recipe {
     } satisfies SerializedRecipeShape);
   }
 
-  /** 
-   * Recipe factory, takes serialized recipe and returns a new recipe instance.
-   */
-  public static deserialize(serializedRecipe: SerializedRecipe): Recipe {
-    let objectForm: JSONValue;
-
-    try {
-      objectForm = JSON.parse(serializedRecipe) as JSONValue;
-    }
-    catch {
-      throw new RecipeError("Invalid serialized recipe format, not a valid JSON string");
-    }
-
-    if (!isRecipe(objectForm)) {
-      throw new RecipeError("Invalid serialized recipe format, not a valid Recipe object");
-    }
-
-    return Recipe.fromObject(objectForm);
-  }
-
-  /** 
-   * Recipe factory, takes either a serialized recipe, a plain object recipe or an existing Recipe and returns a new recipe instance.
+  /**
+   * Universal Recipe factory. Normalizes any supported input to a validated
+   * recipe instance.
    *
-   * Can take in various shapes:
-   * 
+   * Accepts:
+   *
    * ### 1. Serialized recipe string:
    * ```ts
    * "{ ... }"
    * ```
-   * 
-   * ### 2. Plain recipe object:
+   *
+   * ### 2. Existing Recipe instance (returns a clone)
+   *
+   * ### 3. Plain recipe object:
    * ```ts
    * {
    *   name: string;
@@ -408,75 +391,42 @@ export class Recipe {
    *   ...
    * }
    * ```
-   * 
-   * ### 3. DB-shaped object:
+   *
+   * ### 4. DB-shaped object (serialized or deserialized `recipe` field):
    * ```ts
-   * {
-   *   id: string;
-   *   recipe: string;
-   * }
-   * ```
-   * 
-   * ### 4. DB-shaped object with deserialized recipe:
-   * ```ts
-   * {
-   *   id: string;
-   *   recipe: {
-   *     name: string;
-   *     equation: string;
-   *     ...
-   *   }
-   * }
+   * { id: string, recipe: string }
+   * { id: string, recipe: { name: string, equation: string, ... } }
    * ```
    */
   public static from(input: string | Recipe | JSONValue): Recipe {
-    if (typeof input === "string") {
-      return Recipe.deserialize(input);
+    if (input instanceof Recipe) return input.copy();
+
+    const obj: JSONValue = typeof input === "string" ? Recipe.parseJson(input) : input;
+    return Recipe.fromObject(obj);
+  }
+
+  /**
+   * Typed entry point for serialized recipes. Equivalent to {@link Recipe.from}.
+   */
+  public static deserialize(serializedRecipe: SerializedRecipe): Recipe {
+    return Recipe.from(serializedRecipe);
+  }
+
+  /**
+   * Parses a serialized recipe string into its object form.
+   */
+  private static parseJson(serialized: string): JSONValue {
+    try {
+      return JSON.parse(serialized) as JSONValue;
     }
-    else if (input instanceof Recipe) {
-      return Recipe.deserialize(input.serialize());
-    }
-    else if (typeof input === "object" && input !== null) {
-      return Recipe.fromObject(input);
-    }
-    else {
-      throw new RecipeError("Unsupported input type for Recipe.from. Expected string, Recipe instance, or object. Received: " + String(input));
+    catch {
+      throw new RecipeError("Invalid serialized recipe format, not a valid JSON string");
     }
   }
 
-  /** 
-   * Recipe factory, takes recipe object and returns a new recipe instance if valid.
-   * 
-   * ## Takes:
-   * 
-   * ### 1. Plain recipe object:
-   * ```ts
-   * {
-   *   name: string;
-   *   equation: string;
-   *   ...
-   * }
-   * ```
-   * 
-   * ### 2. DB-shaped object:
-   * ```ts
-   * {
-   *   id: string;
-   *   recipe: string;
-   * }
-   * ```
-   * 
-   * ### 3. DB-shaped object with deserialized recipe:
-   * ```ts
-   * {
-   *   id: string;
-   *   recipe: {
-   *     name: string;
-   *     equation: string;
-   *     ...
-   *   }
-   * }
-   * ```
+  /**
+   * Recipe factory, takes a plain or DB-shaped recipe object and returns a new
+   * recipe instance if valid. Use {@link Recipe.from} for the polymorphic entry.
    */
   private static fromObject(obj: JSONValue): Recipe {
     const normalized = Recipe.normalizeRecipeObject(obj);
