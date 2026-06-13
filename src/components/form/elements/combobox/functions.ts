@@ -238,10 +238,11 @@ export function clearEditableCombobox(
 export function scrollOptionIntoView(
   listboxOptionElements: Array<HTMLLIElement | null>,
   focusedListboxOptionIndex: number | null,
+  scrollOptions?: "start" | "center" | "end" | "nearest", 
 ) {
   if (focusedListboxOptionIndex !== null && listboxOptionElements) {
     listboxOptionElements[focusedListboxOptionIndex]?.scrollIntoView({
-      block: "nearest",
+      block: scrollOptions ? scrollOptions : "nearest",
     });
   }
 }
