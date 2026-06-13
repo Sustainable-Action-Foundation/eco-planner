@@ -50,7 +50,7 @@ function updateNodeInTree(
   });
 }
 
-export default function SelectSingleTreeSearch({
+export default function SelectSingleTree({
   treeItems,
   props,
   defaultValue,
@@ -69,7 +69,7 @@ export default function SelectSingleTreeSearch({
   const [items, setItems] = useState<Array<TreeItem>>(treeItems);
   const [flattenedItems, setFlattenedItems] = useState<Array<TreeItem>>(flattenTree(treeItems));
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
-  const toggleRef = useRef<HTMLButtonElement>(null); // TODO: Rename?
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!onChange) return;
@@ -160,9 +160,15 @@ export default function SelectSingleTreeSearch({
         <div
           className={`flex gap-25 align-items-center justify-content-space-between`}
           onClick={
-            item.expanded !== null || item.onExpand !== undefined // TODO: This seems buggy with setting keyboard controls...
-              ? () => { void toggleNode(item); } 
-              : () => { setValue(item?.value !== value?.value ? item : null); setMenuOpen(false); }
+            item.expanded !== null || item.onExpand !== undefined
+              ? () => { 
+                void toggleNode(item);
+                toggleRef.current?.focus();
+              } 
+              : () => { 
+                setValue(item?.value !== value?.value ? item : null);
+                setMenuOpen(false);
+              }
           }
         >
           {(item.onExpand || (item.childNodes && item.childNodes.length > 0))
