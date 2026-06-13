@@ -60,6 +60,9 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
         template: true,
       } satisfies ExternalVariable,
     ],
+    meta: {
+      isSuggestedRecipe: true,
+    },
   });
 
   const populationRecipe = new Recipe({
@@ -111,6 +114,9 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
         template: true,
       } satisfies ExternalVariable,
     ],
+    meta: {
+      isSuggestedRecipe: true,
+    },
   });
 
   const scalarRecipe = new Recipe({
@@ -136,6 +142,9 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
         unit: null,
       } satisfies ScalarVariable,
     ],
+    meta: {
+      isSuggestedRecipe: true,
+    },
   });
 
   return [

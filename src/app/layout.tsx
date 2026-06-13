@@ -5,7 +5,7 @@ import I18nProvider from "@/lib/i18nClient";
 import serveTea from "@/lib/i18nServer";
 import { cookies, headers } from "next/headers";
 import { getLocale } from "@/functions/getLocale";
-import { ToastContext } from '@/components/generic/toast/toastContext';
+import { ToastContextProvider } from '@/components/generic/toast/toastContext.provider';
 import ToastList from '@/components/generic/toast/toastList';
 
 export default async function RootLayout(
@@ -36,7 +36,7 @@ export default async function RootLayout(
       </head>
       <body className='neutral-background'>
         <I18nProvider lng={locale}>
-          <ToastContext>
+          <ToastContextProvider>
             <div className={`${styles.layout}`}>
               <Sidebar />
               <div className='padding-100' style={{ minWidth: '0' }}>
@@ -59,7 +59,7 @@ export default async function RootLayout(
               </div>
               <ToastList />
             </div>
-          </ToastContext>
+          </ToastContextProvider>
         </I18nProvider>
       </body>
     </html >

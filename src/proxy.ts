@@ -22,10 +22,10 @@ export async function proxy(req: NextRequest) {
 
   /**
    * Matches creation and editing pages, with or without trailing slashes.
-   * For example, "/metaRoadmap/create" or "/action/edit/"
-   * TODO: This no longer works as /createMetaRoadmap now looks like metaRoadmap/create
+   * For example, "/metaRoadmap/create" or "/action/[actionId]/edit/"
+   * Also matches the new page for editing historical data for goals; "/goal/[goalId]/historical-data/"
    */
-  const createOrEditRegEx = /\/(create|edit)\/?$/;
+  const createOrEditRegEx = /\/(create|edit|historical\-data)\/?$/;
   // Redirect away from creation and editing pages if not logged in
   if (req.nextUrl.pathname.match(createOrEditRegEx)) {
     if (!session.user?.isLoggedIn) {

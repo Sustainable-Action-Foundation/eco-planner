@@ -7,6 +7,7 @@ import { isValidPastedInput } from "./utils";
 import Grid from "../grid/grid";
 import type { DateValuesWithUnit } from "@/types";
 import { IconArrowsMaximize, IconArrowsMinimize, IconPlus, IconRowInsertTop, IconTrashXFilled } from "@tabler/icons-react";
+import { useToast } from "@/components/generic/toast/toastContext.use";
 
 export default function DataSeriesInputManual({
   initialDateValues = { unit: undefined, dateValues: {} },
@@ -20,7 +21,12 @@ export default function DataSeriesInputManual({
   id: string;
 }) {
 
+  // TODO: Ensure normal ctrl+z behavior
+  // TODO: escape should remove any newly written contents?
+
   const { t } = useTranslation("forms");
+  const { addToast } = useToast();
+  
   const [value, setValue] = useState<Array<{ id: string; year: string; data: string }>>(() => {
     if (Object.keys(initialDateValues.dateValues).length === 0) {
       return [{ id: window.crypto.randomUUID(), year: "", data: "" }];
@@ -35,75 +41,6 @@ export default function DataSeriesInputManual({
 
   const [focusedCell, setFocusedCell] = useState<{ row: number, column: number } | null>(null);
   const [gridExpanded, setGridExpanded] = useState<boolean>(true);
-
-  const handleYearChange = (index: number, newValue: string) => {
-    setValue(prev =>
-      prev.map((item, i) =>
-        i === index ? { ...item, year: newValue } : item,
-      ),
-    );
-  };
-
-  const handleDataChange = (index: number, newValue: string) => {
-    setValue(prev =>
-      prev.map((item, i) =>
-        i === index ? { ...item, data: newValue } : item,
-      ),
-    );
-  };
-
-  function parsePastedText(text: string) {
-    return text
-      .trim()
-      .split(/\r?\n/)
-      .map(row => row.split(/\t|;/)); 
-  }
-
-  // TODO: Ensure normal ctrl+z behavior
-  // TODO: We can currently paste as long as we hold ctrl+v, might want to prevent so people dont accidently click another field while pasting (see previous implementation of "isPasting")
-  // TODO: escape should remove any newly written contents?
-
-  function handlePaste(
-    e: React.ClipboardEvent<HTMLInputElement>,
-    startIndex: number,
-    targetColumn: string,
-  ) {
-    e.preventDefault();
-
-    const pastedText = e.clipboardData.getData("text");
-    const rows = parsePastedText(pastedText);
-
-    setValue(prev => {
-      const next = [...prev];
-
-      rows.forEach((cols, rowOffset) => {
-        const rowIndex = startIndex + rowOffset;
-
-        if (!next[rowIndex]) {
-          next[rowIndex] = { id: window.crypto.randomUUID(), year: "", data: "" };
-        }
-
-        // If we paste into data, we do not want any new data in the previous column (i.e years)
-        // If we paste into year, we expect both the year and data column to be filled out data exists
-        if (targetColumn === 'data') {
-          next[rowIndex] = {
-            id: next[rowIndex].id,
-            year: next[rowIndex].year,
-            data: cols[0] ? cols[0] : "",
-          };
-        } else {
-          next[rowIndex] = {
-            id: next[rowIndex].id,
-            year: cols[0] ? cols[0] : "",
-            data: cols[1] ? cols[1] : "",
-          };
-        }
-
-      });
-
-      return next;
-    });
-  }
 
   function insertRowBottom() {
     setValue((prev) => [
@@ -170,8 +107,74 @@ export default function DataSeriesInputManual({
     );
   }
 
-  // TODO: Cleanup code by checking semantics, css and js for this component and for the grid component
-  // TODO: Remove old component
+  const handleYearChange = (index: number, newValue: string) => {
+    setValue(prev =>
+      prev.map((item, i) =>
+        i === index ? { ...item, year: newValue } : item,
+      ),
+    );
+  };
+
+  const handleDataChange = (index: number, newValue: string) => {
+    setValue(prev =>
+      prev.map((item, i) =>
+        i === index ? { ...item, data: newValue } : item,
+      ),
+    );
+  };
+
+  function parsePastedText(text: string) {
+    return text
+      .trim()
+      .split(/\r?\n/)
+      .map(row => row.split(/\t|;/)); 
+  }
+
+  function handlePaste(
+    e: React.ClipboardEvent<HTMLInputElement>,
+    text: string,
+    startIndex: number,
+    targetColumn: string,
+  ) {
+    e.preventDefault();
+    if (!isValidPastedInput(text)) {
+      addToast(t("forms:data_series_input.invalid_paste"), "error", false);
+      return;
+    };
+    const rows = parsePastedText(text);
+ 
+    setValue(prev => {
+      const next = [...prev];
+
+      rows.forEach((columns, index) => {
+        const rowIndex = startIndex + index;
+
+        // Create new rows the paste contains more rowns than currently exist.
+        if (!next[rowIndex]) {
+          next[rowIndex] = { id: window.crypto.randomUUID(), year: "", data: "" }; // TODO: I dislike using randomuuid here
+        }
+
+        // If we paste into data, we do not want any new data in the previous column (i.e years)
+        // If we paste into year, we expect both the year and data column to be filled out data exists
+        if (targetColumn === 'data') {
+          next[rowIndex] = {
+            id: next[rowIndex].id,
+            year: next[rowIndex].year,
+            data: columns[0] ? columns[0] : "",
+          };
+        } else {
+          next[rowIndex] = {
+            id: next[rowIndex].id,
+            year: columns[0] ? columns[0] : "",
+            data: columns[1] ? columns[1] : "",
+          };
+        }
+
+      });
+
+      return next;
+    });
+  }
 
   return (
     <>
@@ -240,7 +243,7 @@ export default function DataSeriesInputManual({
             ? {}
             : Object.fromEntries(
                 value.map(({ year, data }) => [
-                  `${year}-01-01T00:00:00.000Z`,
+                  `${year}-01-01T00:00:00.000Z`, 
                   data === "" ? null : Number(data),
                 ]),
               ),
@@ -261,12 +264,25 @@ export default function DataSeriesInputManual({
         props={{
           id: id,
           className: `grid width-100 align-items-center ${styles['grid']}`,
-          style: { gridTemplateColumns: 'auto auto 1fr', height: gridExpanded ? 'auto' : '0', borderBottom: gridExpanded ? '1px solid var(--gray-80)' : '0' },
+          style: { 
+            gridTemplateColumns: 'auto auto 1fr',
+            height: gridExpanded ? 'auto' : '0',
+            borderBottom: gridExpanded ? '1px solid var(--gray-80)' : '0',
+          },
         }}
       >
         <Grid.ColumnHeader className="text-align-left">#</Grid.ColumnHeader>
-        <Grid.ColumnHeader className={`text-align-left overflow-hidden ${focusedCell?.column === 1 ? styles['active-header'] : ''} `} style={{ resize: 'horizontal', minWidth: 'fit-content', width: '100px' }}>{t("forms:data_series_input.year")}</Grid.ColumnHeader>
-        <Grid.ColumnHeader className={`text-align-left ${focusedCell?.column === 2 ? styles['active-header'] : ''} `}>{t("forms:data_series_input.value")}</Grid.ColumnHeader>
+        <Grid.ColumnHeader 
+          className={`text-align-left overflow-hidden ${focusedCell?.column === 1 ? styles['active-header'] : ''} `}
+          style={{ resize: 'horizontal', minWidth: 'fit-content', width: '100px' }}
+        >
+            {t("forms:data_series_input.year")}
+        </Grid.ColumnHeader>
+        <Grid.ColumnHeader 
+          className={`text-align-left ${focusedCell?.column === 2 ? styles['active-header'] : ''} `}
+        >
+            {t("forms:data_series_input.value")}
+        </Grid.ColumnHeader>
         {value.flatMap((item, index) => {
           return [
             <Grid.Row key={item.id}>
@@ -281,19 +297,14 @@ export default function DataSeriesInputManual({
                 <input
                   type="text"
                   inputMode="numeric"
-                  pattern="[0-9]*"
+                  pattern="[0-9]*" // Matches any number which is considered a year. Might make sense to validate as a date in the future.
                   required={true}
                   tabIndex={-1}
                   value={item.year === null ? '' : String(item.year)}
                   onChange={(e) => handleYearChange(index, e.target.value)}
                   onPaste={(e) => {
-                    // Make sure the pasted input is valid before handling paste
                     const pasted = e.clipboardData.getData("text");
-                    if (!isValidPastedInput(pasted)) {
-                      e.preventDefault();
-                    } else {
-                      handlePaste(e, index, 'year');
-                    }
+                    handlePaste(e, pasted, index, 'year');
                   }}
                 />
               </Grid.Cell>
@@ -301,20 +312,15 @@ export default function DataSeriesInputManual({
                 <input
                   type="text"
                   inputMode="decimal"
-                  pattern="/[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?/" // TODO: Figure this pattern out... (This seemingly works but stackoverflow calls it questionable?) (replace \. with [.,] to allow commas)
+                  pattern="[+\-]?[0-9]*[.,]?[0-9]+([eE][+\-]?[0-9]+)?"
                   tabIndex={-1}
                   value={item.data === null ? '' : String(item.data)}
                   onChange={(e) => {
                     handleDataChange(index, e.target.value);
                   }}
                   onPaste={(e) => {
-                    // Make sure the pasted input is valid before handling paste
                     const pasted = e.clipboardData.getData("text");
-                    if (!isValidPastedInput(pasted)) {
-                      e.preventDefault();
-                    } else {
-                      handlePaste(e, index, "data");
-                    }
+                    handlePaste(e, pasted, index, "data");
                   }}
                 />
               </Grid.Cell>

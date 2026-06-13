@@ -1,7 +1,8 @@
 import type { TreeItem } from "@/components/types";
 
+// TODO: Enter should refocus our combobox
 export const handleKeyDownTreeCombobox = (
-  e: React.KeyboardEvent<HTMLInputElement>,
+  e: React.KeyboardEvent<HTMLInputElement | HTMLButtonElement>,
   focusedTreeOptionIndex: number | null,
   setFocusedTreeOptionIndex: React.Dispatch<React.SetStateAction<number | null>>,
   treeOptions: Array<TreeItem>, // TODO: rename
@@ -13,79 +14,98 @@ export const handleKeyDownTreeCombobox = (
   // setExpanded?: React.Dispatch<React.SetStateAction<Set<string>>>, 
 ) => {
 
+  const key = e.key;
+
   // 1. Stops focusing any listbox item
   // 2. Closes listbox if it can be, and is, expanded
   // 3. Focuses the element which made the listbox visible
-  if (e.key === "Escape") {
-    if (treeDisplayed) {
+
+  /* TODO: Some further aria integrations are needed in regards to keyboard controls, see :
+    https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
+  */
+  switch (key) {
+    case "Escape": {
       e.preventDefault();
-    }
-    setFocusedTreeOptionIndex(null);
-    if (treeDisplayed && setTreeDisplayed) {
-      setTreeDisplayed(false);
-      comboboxElement.focus();
-    }
-  }
-
-  if (e.key === "Enter") {
-    e.preventDefault();
-    const selectedTreeItem = focusedTreeOptionIndex != null ? treeOptions[focusedTreeOptionIndex] : null;
-    if (onEnter) {
-      onEnter(selectedTreeItem, focusedTreeOptionIndex);
-    }
-
-  }
-
-  if ((e.key === "ArrowRight" || e.key === "ArrowLeft")
-    && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
-    e.preventDefault();
-
-    if (focusedTreeOptionIndex != null) {
-      const item = treeOptions[focusedTreeOptionIndex];
-      if (onArrowAction) {
-        onArrowAction(item, e.key === "ArrowRight" ? "right" : "left");
+      setFocusedTreeOptionIndex(null);
+      if (treeDisplayed && setTreeDisplayed) {
+        setTreeDisplayed(false);
+        comboboxElement.focus();
       }
+      break;
     }
-  }
 
-  if (e.key === "ArrowUp" && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
-    e.preventDefault();
+    case "Enter": { /* TODO: Enter should probably open this aswell as the search comboboxes! */
+      e.preventDefault();
+      if (!treeDisplayed) return;
 
-    if (focusedTreeOptionIndex != null) {
-      if (focusedTreeOptionIndex !== 0) {
-        setFocusedTreeOptionIndex(focusedTreeOptionIndex - 1);
-      } else {
-        setFocusedTreeOptionIndex(treeOptions.length - 1);
+      const selectedTreeItem = focusedTreeOptionIndex != null ? treeOptions[focusedTreeOptionIndex] : null;
+      if (onEnter) {
+        onEnter(selectedTreeItem, focusedTreeOptionIndex);
       }
-    } else {
-      setFocusedTreeOptionIndex(0);
+      break;
     }
-  }
 
-  if (e.key === "ArrowDown" && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
-    e.preventDefault();
+    case "ArrowLeft":
+    case "ArrowRight": {
+      e.preventDefault();
 
-    if (focusedTreeOptionIndex != null) {
-      if (focusedTreeOptionIndex !== treeOptions.length - 1) {
-        setFocusedTreeOptionIndex(focusedTreeOptionIndex + 1);
+      if (focusedTreeOptionIndex != null) {
+        const item = treeOptions[focusedTreeOptionIndex];
+        if (onArrowAction) {
+          onArrowAction(item, e.key === "ArrowRight" ? "right" : "left");
+        }
+      }
+      break;
+    }
+
+    case "ArrowUp": {
+      e.preventDefault();
+      if (!treeDisplayed && setTreeDisplayed) setTreeDisplayed(true);
+
+      if (focusedTreeOptionIndex != null) {
+        if (focusedTreeOptionIndex !== 0) {
+          setFocusedTreeOptionIndex(focusedTreeOptionIndex - 1);
+        } else {
+          setFocusedTreeOptionIndex(treeOptions.length - 1);
+        }
       } else {
         setFocusedTreeOptionIndex(0);
       }
-    } else {
+      break;
+    }
+
+    case "ArrowDown": {
+      e.preventDefault();
+      if (!treeDisplayed && setTreeDisplayed) setTreeDisplayed(true);
+
+      if (focusedTreeOptionIndex != null) {
+        if (focusedTreeOptionIndex !== treeOptions.length - 1) {
+          setFocusedTreeOptionIndex(focusedTreeOptionIndex + 1);
+        } else {
+          setFocusedTreeOptionIndex(0);
+        }
+      } else {
+        setFocusedTreeOptionIndex(0);
+      }
+      break;
+    }
+
+    case "Home": {
+      e.preventDefault();
       setFocusedTreeOptionIndex(0);
+      break;
+    }
+
+    case "End": {
+      e.preventDefault();
+      setFocusedTreeOptionIndex(treeOptions.length - 1);
+      break;
+    }
+
+    default: {
+      break;
     }
   }
-
-  if (e.key === 'Home') {
-    e.preventDefault();
-    setFocusedTreeOptionIndex(0);
-  }
-
-  if (e.key === 'End') {
-    e.preventDefault();
-    setFocusedTreeOptionIndex(treeOptions.length - 1);
-  }
-
 };
 
 // TODO: Replace {name: string, value: string} with option type
@@ -341,10 +361,11 @@ export function clearEditableCombobox(
 export function scrollOptionIntoView(
   listboxOptionElements: Array<HTMLLIElement | null>,
   focusedListboxOptionIndex: number | null,
+  scrollOptions?: "start" | "center" | "end" | "nearest", 
 ) {
   if (focusedListboxOptionIndex !== null && listboxOptionElements) {
     listboxOptionElements[focusedListboxOptionIndex]?.scrollIntoView({
-      block: "nearest",
+      block: scrollOptions ? scrollOptions : "nearest",
     });
   }
 }

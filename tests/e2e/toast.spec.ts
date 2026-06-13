@@ -42,22 +42,27 @@ async function selectRiketsRoadmap(page: Page) {
 
 async function selectParentRiketsRoadmap(page: Page) {
   await page.locator('#parent-roadmap').click();
-  await page.locator('#parent-roadmap-dialog-listbox li').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: 'v2' }).click();
+  await page.locator('#parent-roadmap-dialog-listbox li').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: '2' }).click(); // This place shows it as `"version": 2` rather than `v2`, so we just look for a "2"
 }
 
 async function fillGoalSeries(page: Page) {
   await page.locator('input[name="dataSeriesType"][value="MANUAL"]').check();
   await page.locator('#indicatorParameter').fill('Goal Toast');
   await page.locator('#dataUnit').fill('yard');
+  await page.locator('#dataUnit').blur(); // Blur to avoid covering anything else
 
-  const insertRowButton = page.getByRole("button", { name: /Insert row to bottom|Infoga rad underst/ });
+  const insertRowButton = page.getByTestId("add-row-button");
   for (let i = 1; i < 10; i++) {
     await insertRowButton.click();
   }
 
+  // Set focus inside table to ensure the first cell gets filled properly;
+  // without this the test will fail on Firefox and Webkit (but not Chromium) because the first attempt to input data into a cell only sets focus into the table, without successfully filling the cell.
+  await page.locator(`#goal-dataseries [data-row="0"][data-column="1"] input`).focus();
+
   for (let i = 0; i < 10; i++) {
-    await page.locator(`[data-row="${i}"][data-column="1"] input`).fill(String(2020 + i));
-    await page.locator(`[data-row="${i}"][data-column="2"] input`).fill('1');
+    await page.locator(`#goal-dataseries [data-row="${i}"][data-column="1"] input`).fill(String(2020 + i));
+    await page.locator(`#goal-dataseries [data-row="${i}"][data-column="2"] input`).fill(String(1));
   }
 }
 
@@ -131,10 +136,11 @@ test.describe('Toast', () => {
     await page.getByTestId('create-goal').click();
     await page.waitForLoadState('networkidle');
 
-    await page.locator('#submit-button').click();
-    await expectToast(page, 'warning', 'goal');
-
     await selectParentRiketsRoadmap(page);
+
+    await page.locator('#submit-button').click();
+    await expectToast(page, 'error', 'goal');
+
     await fillGoalSeries(page);
 
     await page.locator('#submit-button').click();

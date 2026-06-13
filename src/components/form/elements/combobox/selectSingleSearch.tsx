@@ -181,7 +181,7 @@ export default function SelectSingleSearch({
             role="combobox"
             aria-controls={`${props.id}-dialog-listbox`}
             aria-activedescendant={focusedListboxOption != null ? `${props.id}-dialog-listbox-${focusedListboxOption}` : undefined}
-            aria-expanded="true"
+            aria-expanded={menuOpen}
             aria-autocomplete="list"
             autoComplete="off"
             placeholder={t("forms:combobox.default_search_placeholder")}

@@ -220,7 +220,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Invalidate old cache
-    revalidateTag('goal', 'max');
+    revalidateTag('goal', { expire: 0 });
     // Return the new goal's ID if successful
     return Response.json({ message: t('api:goal.goal_created'), id: goalId },
       { status: 201, headers: { 'Location': `/goal/${goalId}` } },
@@ -385,6 +385,22 @@ export async function PUT(request: NextRequest) {
         }
       }
 
+      const hasNonEmptyBaselinePayload = !!goal.baseline && Object.keys(goal.baseline.dateValues).length > 0;
+
+      // If the goal is updating its baseline, we need to disconnect it from the current one and create a new one
+      // to avoid updating or deleting a baseline which actually is just a reference to another goal's data series
+      // This cannot for some reason be done in the main query before the connectOrCreate, so instead it's done here in a separate query beforehand
+      if (hasNonEmptyBaselinePayload) {
+        await prisma.goal.update({
+          where: { id: goal.goalId },
+          data: {
+            baseline: {
+              disconnect: true,
+            },
+          },
+        });
+      }
+
       // Update goal
       goalId = (await prisma.goal.update({
         where: { id: goal.goalId },
@@ -422,16 +438,18 @@ export async function PUT(request: NextRequest) {
           } : goal.dataSeriesId ? {
             connect: { id: goal.dataSeriesId },
           } : undefined,
-          baseline: goal.baseline
+          baseline: hasNonEmptyBaselinePayload && goal.baseline
             ? {
-              disconnect: {},
-              create: {
-                author: { connect: { id: session.user?.id } },
-                recipeUsed: typeof goal.baselineRecipeId === 'string'
-                  ? { connect: { id: goal.baselineRecipeId } }
-                  : undefined,
-                values: { createMany: { data: dateValuesToDBDateRecord(goal.baseline.dateValues) } },
-                unit: goal.baseline.unit,
+              connectOrCreate: {
+                where: { id: goal.baselineId ?? "" },
+                create: {
+                  author: { connect: { id: session.user?.id } },
+                  recipeUsed: typeof goal.baselineRecipeId === 'string'
+                    ? { connect: { id: goal.baselineRecipeId } }
+                    : undefined,
+                  values: { createMany: { data: dateValuesToDBDateRecord(goal.baseline.dateValues) } },
+                  unit: goal.baseline.unit,
+                },
               },
             } : goal.baselineId ? {
               connect: { id: goal.baselineId },
@@ -453,7 +471,7 @@ export async function PUT(request: NextRequest) {
     // Prune any orphaned links and comments
     void pruneOrphans();
     // Invalidate old cache
-    revalidateTag('goal', 'max');
+    revalidateTag('goal', { expire: 0 });
     // Return the edited goal's ID if successful
     return Response.json({ message: t('api:goal.goal_updated'), id: goalId },
       { status: 200, headers: { 'Location': `/goal/${goalId}` } },

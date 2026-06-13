@@ -157,14 +157,11 @@ export default async function Page(
               })}
             </small>
             <SortRoadmaps />
-
           </div>
-          <output>
-            <RoadmapTree
-              user={session.user ?? undefined}
-              roadmaps={roadmaps}
-            />
-          </output>
+          <RoadmapTree
+            user={session.user ?? undefined}
+            roadmaps={roadmaps}
+          />
         </div>
       </search>
       {/*

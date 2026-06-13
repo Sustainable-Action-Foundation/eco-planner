@@ -123,6 +123,12 @@ export function Redo(props: MenubarButtonProps) {
 export function GreyText(props: MenubarButtonProps) {
   const { t, editor, menuGroup, setFocusedMenubarItem } = props;
 
+  const isActive = useEditorState({
+    editor,
+    selector: ({ editor: e }) =>
+      e.getAttributes('textStyle').color === 'grey',
+  });
+
   return (
     <span
       data-menu-group={menuGroup}
@@ -140,7 +146,7 @@ export function GreyText(props: MenubarButtonProps) {
       aria-label={t("forms:text_editor_menu.grey_text")}
       aria-keyshortcuts='control+shift+g'
       role='menuitemcheckbox'
-      aria-checked={editor.getAttributes('textStyle').color === 'grey'}
+      aria-checked={isActive}
     >
       <svg className='grid' aria-hidden='true' xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -155,6 +161,12 @@ export function GreyText(props: MenubarButtonProps) {
 export function Italic(props: MenubarButtonProps) {
   const { t, editor, menuGroup, setFocusedMenubarItem } = props;
 
+  const isActive = useEditorState({
+    editor,
+    selector: ({ editor: e }) =>
+      e.getAttributes('textStyle').fontStyle === 'italic',
+  });
+
   return (
     <span
       data-menu-group={menuGroup}
@@ -164,7 +176,7 @@ export function Italic(props: MenubarButtonProps) {
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.italic")}
       aria-keyshortcuts='control+i'
-      aria-checked={editor.getAttributes('textStyle').fontStyle === 'italic'}
+      aria-checked={isActive}
     >
       <IconItalic className="grid" width={16} height={16} aria-hidden="true" />
     </span>
@@ -173,6 +185,12 @@ export function Italic(props: MenubarButtonProps) {
 
 export function Bold(props: MenubarButtonProps) {
   const { t, editor, menuGroup, setFocusedMenubarItem } = props;
+
+  const isActive = useEditorState({
+    editor,
+    selector: ({ editor: e }) =>
+      e.getAttributes('textStyle').fontWeight === 'bold',
+  });
 
   return (
     <span
@@ -183,7 +201,7 @@ export function Bold(props: MenubarButtonProps) {
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.bold")}
       aria-keyshortcuts='control+b'
-      aria-checked={editor.getAttributes('textStyle').fontWeight === 'bold'}
+      aria-checked={isActive}
     >
       <IconBold className="grid" width={16} height={16} aria-hidden="true" />
     </span>
@@ -192,6 +210,12 @@ export function Bold(props: MenubarButtonProps) {
 
 export function StrikeThrough(props: MenubarButtonProps) {
   const { t, editor, menuGroup, setFocusedMenubarItem } = props;
+
+  const isActive = useEditorState({
+    editor,
+    selector: ({ editor: e }) =>
+      e.getAttributes('textStyle').textDecoration === 'line-through',
+  });
 
   const strikeThroughAction = (chain: ReturnType<Editor['chain']>) => (
     editor.getAttributes('textStyle').textDecoration === 'line-through'
@@ -208,7 +232,7 @@ export function StrikeThrough(props: MenubarButtonProps) {
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.strike_through")}
       aria-keyshortcuts='control+shift+s'
-      aria-checked={editor.getAttributes('textStyle').textDecoration === 'line-through'}
+      aria-checked={isActive}
     >
       <IconStrikethrough className="grid" width={16} height={16} aria-hidden="true" />
     </span>
@@ -217,6 +241,12 @@ export function StrikeThrough(props: MenubarButtonProps) {
 
 export function Underline(props: MenubarButtonProps) {
   const { t, editor, menuGroup, setFocusedMenubarItem } = props;
+
+  const isActive = useEditorState({
+    editor,
+    selector: ({ editor: e }) =>
+      e.getAttributes('textStyle').textDecoration === 'underline',
+  });
 
   return (
     <span
@@ -227,7 +257,7 @@ export function Underline(props: MenubarButtonProps) {
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.underline")}
       aria-keyshortcuts='control+u'
-      aria-checked={editor.getAttributes('textStyle').textDecoration === 'underline'}
+      aria-checked={isActive}
     >
       <IconUnderline className="grid" width={16} height={16} aria-hidden="true" />
     </span>
@@ -236,6 +266,12 @@ export function Underline(props: MenubarButtonProps) {
 
 export function Superscript(props: MenubarButtonProps) {
   const { t, editor, menuGroup, setFocusedMenubarItem } = props;
+
+  const isActive = useEditorState({
+    editor,
+    selector: ({ editor: e }) =>
+      e.isActive('superscript'),
+  });
 
   return (
     <span
@@ -246,7 +282,7 @@ export function Superscript(props: MenubarButtonProps) {
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.superscript")}
       aria-keyshortcuts='control+.'
-      aria-checked={editor.isActive('superscript')}
+      aria-checked={isActive}
     >
       <IconSuperscript className="grid" width={16} height={16} aria-hidden="true" />
     </span>
@@ -255,6 +291,12 @@ export function Superscript(props: MenubarButtonProps) {
 
 export function Subscript(props: MenubarButtonProps) {
   const { t, editor, menuGroup, setFocusedMenubarItem } = props;
+
+  const isActive = useEditorState({
+    editor,
+    selector: ({ editor: e }) =>
+      e.isActive('subscript'),
+  });
 
   return (
     <span
@@ -265,7 +307,7 @@ export function Subscript(props: MenubarButtonProps) {
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.subscript")}
       aria-keyshortcuts='control+,'
-      aria-checked={editor.isActive('subscript')}
+      aria-checked={isActive}
     >
       <IconSubscript className="grid" width={16} height={16} aria-hidden="true" />
     </span>
@@ -274,6 +316,12 @@ export function Subscript(props: MenubarButtonProps) {
 
 export function Highlight(props: MenubarButtonProps) {
   const { t, editor, menuGroup, setFocusedMenubarItem } = props;
+ 
+  const isActive = useEditorState({
+    editor,
+    selector: ({ editor: e }) =>
+      e.isActive('highlight'),
+  });
 
   return (
     <span
@@ -284,7 +332,7 @@ export function Highlight(props: MenubarButtonProps) {
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.highlight")}
       aria-keyshortcuts='control+shift+h'
-      aria-checked={editor.isActive('highlight')}
+      aria-checked={isActive}
     >
       <IconHighlight className="grid" width={16} height={16} aria-hidden="true" />
     </span>
@@ -293,6 +341,12 @@ export function Highlight(props: MenubarButtonProps) {
 
 export function BulletList(props: MenubarButtonProps) {
   const { t, editor, menuGroup, setFocusedMenubarItem } = props;
+
+  const isActive = useEditorState({
+    editor,
+    selector: ({ editor: e }) =>
+      e.isActive('bulletList'),
+  });
 
   return (
     <span
@@ -303,7 +357,7 @@ export function BulletList(props: MenubarButtonProps) {
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.bullet_list")}
       aria-keyshortcuts='control+shift+8'
-      aria-checked={editor.isActive('bulletList')}
+      aria-checked={isActive}
     >
       <IconList width={16} height={16} className="grid" aria-hidden='true' />
     </span>
@@ -312,6 +366,12 @@ export function BulletList(props: MenubarButtonProps) {
 
 export function NumberedList(props: MenubarButtonProps) {
   const { t, editor, menuGroup, setFocusedMenubarItem } = props;
+
+  const isActive = useEditorState({
+    editor,
+    selector: ({ editor: e }) =>
+      e.isActive('orderedList'),
+  });
 
   return (
     <span
@@ -322,7 +382,7 @@ export function NumberedList(props: MenubarButtonProps) {
       role='menuitemcheckbox'
       aria-label={t("forms:text_editor_menu.numbered_list")}
       aria-keyshortcuts='control+shift+7'
-      aria-checked={editor.isActive('orderedList')}
+      aria-checked={isActive}
     >
       <IconListNumbers width={16} height={16} className="grid" aria-hidden='true' />
     </span>
@@ -332,6 +392,12 @@ export function NumberedList(props: MenubarButtonProps) {
 // TODO: Export this as something else to avoid confusion with nextjs Link component?
 export function Link(props: MenubarButtonProps) {
   const { t, editor, menuGroup } = props;
+
+  const isActive = useEditorState({
+    editor,
+    selector: ({ editor: e }) =>
+      e.isActive('link'),
+  });
 
   const [textValue, setTextValue] = useState("");
   const [hrefValue, setHrefValue] = useState("");
@@ -367,24 +433,21 @@ export function Link(props: MenubarButtonProps) {
       return;
     }
 
-    editor
-      .chain()
-      .focus()
-      .insertContent({
-        type: 'text',
-        text,
-        marks: [
-          {
-            type: 'link',
-            attrs: { href: parsedUrl.href },
-          },
-        ],
-      })
-      .command(({ tr }: { tr: Transaction }) => {
-        tr.setStoredMarks([]);
-        return true;
-      })
-      .run();
+    editor.chain().focus().insertContent({
+      type: 'text',
+      text,
+      marks: [
+        {
+          type: 'link',
+          attrs: { href: parsedUrl.href },
+        },
+      ],
+    })
+    .command(({ tr }: { tr: Transaction }) => {
+      tr.setStoredMarks([]);
+      return true;
+    })
+    .run();
 
   }
 
@@ -395,7 +458,7 @@ export function Link(props: MenubarButtonProps) {
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            if (editor.isActive('link')) {
+            if (isActive) {
               editor.chain().focus().unsetLink().run();
             } else {
               dialogRef.current?.showModal();
@@ -403,7 +466,7 @@ export function Link(props: MenubarButtonProps) {
           }
         }}
         onClick={() => {
-          if (editor.isActive('link')) {
+          if (isActive) {
             editor.chain().focus().unsetLink().run();
           } else {
             dialogRef.current?.showModal();
@@ -412,7 +475,7 @@ export function Link(props: MenubarButtonProps) {
         tabIndex={-1}
         role='menuitemcheckbox'
         aria-label={t("forms:text_editor_menu.link.insert_link")}
-        aria-checked={editor.isActive('link')}
+        aria-checked={isActive}
         data-tooltip={t("forms:text_editor_menu.link.insert_link")}
         // TODO: We want ctrl+k to open the dialog but we remove this for now due to complications
         // aria-keyshortcuts='control+k'
@@ -475,34 +538,34 @@ export function Link(props: MenubarButtonProps) {
         </div>
       </dialog>
       {editor ? <BubbleMenu
-          editor={editor}
-          shouldShow={({ editor }) => editor.isActive('link')}
-          options={{
-            placement: 'bottom',
-            offset: 8,
-          }}
-        >
-          <div className="padding-50 smooth gray-95 flex align-items-center" style={{ boxShadow: 'rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px' }}>
-            <a
-              href={(editor.getAttributes('link') as { href?: string | null }).href ?? ''}
-              target="_blank"
-              style={{ width: 'min(175px, auto)', fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} rel="noreferrer">
-              {editor.getAttributes('link').href}
-            </a>
-            <span className="margin-left-75 padding-left-25" style={{ borderLeft: '1px solid var(--gray)' }}>
-              <button
-                type="button"
-                className={`padding-25 transparent rounded flex align-items-center ${styles.tooltip}`}
-                style={{ transform: 'scale(1)' }}
-                aria-label={t('forms:text_editor_menu.link.remove_link')}
-                data-tooltip={t('forms:text_editor_menu.link.remove_link')}
-                onClick={() => { editor.chain().focus().unsetLink().run(); }}
-              >
-                <IconLinkOff height={18} width={18} aria-hidden={true} />
-              </button>
-            </span>
-          </div>
-        </BubbleMenu> : null
+        editor={editor}
+        shouldShow={() => isActive}
+        options={{
+          placement: 'bottom',
+          offset: 8,
+        }}
+      >
+        <div className="padding-50 smooth gray-95 flex align-items-center" style={{ boxShadow: 'rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px' }}>
+          <a
+            href={(editor.getAttributes('link') as { href?: string | null }).href ?? ''}
+            target="_blank"
+            style={{ width: 'min(175px, auto)', fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} rel="noreferrer">
+            {editor.getAttributes('link').href}
+          </a>
+          <span className="margin-left-75 padding-left-25" style={{ borderLeft: '1px solid var(--gray)' }}>
+            <button
+              type="button"
+              className={`padding-25 transparent rounded flex align-items-center ${styles.tooltip}`}
+              style={{ transform: 'scale(1)' }}
+              aria-label={t('forms:text_editor_menu.link.remove_link')}
+              data-tooltip={t('forms:text_editor_menu.link.remove_link')}
+              onClick={() => { editor.chain().focus().unsetLink().run(); }}
+            >
+              <IconLinkOff height={18} width={18} aria-hidden={true} />
+            </button>
+          </span>
+        </div>
+      </BubbleMenu> : null
       }
     </>
   );
@@ -562,111 +625,111 @@ export function FontSize(props: FontSizeProps) {
 
   return (
     <span
-        data-menu-group={menuGroup}
-        onClick={() => setFontSizeMenuOpen(!fontSizeMenuOpen)}
-        onKeyDown={(e: React.KeyboardEvent) => {
-          if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-            e.preventDefault();
-            setFontSizeMenuOpen(true);
-            setFocusedFontSizeMenuItem(0);
-          }
-        }}
-        ref={fontSizeMenuButtonRef}
-        tabIndex={-1}
-        role='menuitem'
-        aria-haspopup='menu'
-        aria-expanded={fontSizeMenuOpen}
-        aria-label={t("forms:text_editor_menu.font_size.caption")}
-        data-tooltip={t("forms:text_editor_menu.font_size.caption")}
-        className='flex-important align-items-center justify-content-space-between position-relative'
-        style={{ width: '100px', lineHeight: '1' }}
-      >
-        {!editor.getAttributes('textStyle').fontSize ?
-          t("forms:text_editor_menu.font_size.normal")
-          : editor.getAttributes('textStyle').fontSize === '1.25rem' ?
-            t("forms:text_editor_menu.font_size.large")
-            : editor.getAttributes('textStyle').fontSize === '0.75rem' ?
-              t("forms:text_editor_menu.font_size.small")
-              : ''
+      data-menu-group={menuGroup}
+      onClick={() => setFontSizeMenuOpen(!fontSizeMenuOpen)}
+      onKeyDown={(e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          setFontSizeMenuOpen(true);
+          setFocusedFontSizeMenuItem(0);
         }
-        <IconChevronDown width={16} height={16} aria-hidden="true" />
-        <ul
-          id={`${editorId}-font-size-menu`}
-          ref={fontSizeMenuRef}
-          aria-label={t("forms:text_editor_menu.font_size.caption")}
-          role='menu'
-          className={`
+      }}
+      ref={fontSizeMenuButtonRef}
+      tabIndex={-1}
+      role='menuitem'
+      aria-haspopup='menu'
+      aria-expanded={fontSizeMenuOpen}
+      aria-label={t("forms:text_editor_menu.font_size.caption")}
+      data-tooltip={t("forms:text_editor_menu.font_size.caption")}
+      className='flex-important align-items-center justify-content-space-between position-relative'
+      style={{ width: '100px', lineHeight: '1' }}
+    >
+      {!editor.getAttributes('textStyle').fontSize ?
+        t("forms:text_editor_menu.font_size.normal")
+        : editor.getAttributes('textStyle').fontSize === '1.25rem' ?
+          t("forms:text_editor_menu.font_size.large")
+          : editor.getAttributes('textStyle').fontSize === '0.75rem' ?
+            t("forms:text_editor_menu.font_size.small")
+            : ''
+      }
+      <IconChevronDown width={16} height={16} aria-hidden="true" />
+      <ul
+        id={`${editorId}-font-size-menu`}
+        ref={fontSizeMenuRef}
+        aria-label={t("forms:text_editor_menu.font_size.caption")}
+        role='menu'
+        className={`
               ${styles["animated-menu"]} 
               ${fontSizeMenuOpen ? styles['visible'] : ''} 
               margin-0 padding-0 gray-95 smooth`
-          }
-          style={{
-            boxShadow: 'rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px',
-            fontSize: '1rem',
-          }}
-          onKeyDown={(e: React.KeyboardEvent<HTMLUListElement>) => {
-            if (!fontSizeMenuButtonRef.current || !fontSizeMenuItemsRef.current || !fontSizeMenuOpen) return;
+        }
+        style={{
+          boxShadow: 'rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px',
+          fontSize: '1rem',
+        }}
+        onKeyDown={(e: React.KeyboardEvent<HTMLUListElement>) => {
+          if (!fontSizeMenuButtonRef.current || !fontSizeMenuItemsRef.current || !fontSizeMenuOpen) return;
 
-            handleKeyDownPopUpMenu(
-              e,
-              editor,
-              fontSizeMenuButtonRef.current,
-              fontSizeMenuItemsRef.current,
-              focusedFontSizeMenuItem,
-              setFocusedFontSizeMenuItem,
-              setFontSizeMenuOpen,
-              setFocusedMenubarItem,
-            );
-          }}
-        >
-          <li role='presentation' style={{ borderBottom: '1px solid var(--gray)', paddingBottom: '2px' }}>
-            <div
-              onClick={() => { editor.chain().focus().setFontSize('1.25rem').run(); setFontSizeMenuOpen(false); }}
-              // onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => {chain.setFontSize('1.25rem'); setFontSizeMenuOpen(false)})}
-              data-size="1.25rem"
-              className='smooth font-size-smaller width-100'
-              style={{ padding: '.5rem', whiteSpace: 'nowrap' }}
-              role='menuitemradio'
-              aria-label={t("forms:text_editor_menu.font_size.large")}
-              aria-keyshortcuts='control+shift+1'
-              aria-checked={editor.getAttributes('textStyle').fontSize === '1.25rem'}
-              tabIndex={-1}>
-              {t("forms:text_editor_menu.font_size.large")}
-            </div>
-          </li>
-          <li role='presentation' style={{ borderBottom: '1px solid var(--gray)', paddingBlock: '2px' }}>
-            <div
-              onClick={() => { editor.chain().focus().unsetFontSize().run(); setFontSizeMenuOpen(false); }}
-              // onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => {chain.unsetFontSize(); setFontSizeMenuOpen(false)})}
-              data-size="unset"
-              className='smooth font-size-smaller width-100'
-              style={{ padding: '.5rem', whiteSpace: 'nowrap' }}
-              role='menuitemradio'
-              aria-label={t("forms:text_editor_menu.font_size.normal")}
-              aria-keyshortcuts='control+shift+2'
-              aria-checked={!editor.getAttributes('textStyle').fontSize}
-              tabIndex={-1}
-            >
-              {t("forms:text_editor_menu.font_size.normal")}
-            </div>
-          </li>
-          <li role='presentation' style={{ paddingTop: '2px' }}>
-            <div
-              onClick={() => { editor.chain().focus().setFontSize('0.75rem').run(); setFontSizeMenuOpen(false); }}
-              // onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => {chain.setFontSize('0.75rem'); setFontSizeMenuOpen(false)})}
-              data-size="0.75rem"
-              className='smooth font-size-smaller width-100'
-              style={{ padding: '.5rem', whiteSpace: 'nowrap' }}
-              role='menuitemradio'
-              aria-label={t("forms:text_editor_menu.font_size.small")}
-              aria-keyshortcuts='control+shift+3'
-              aria-checked={editor.getAttributes('textStyle').fontSize === '0.75rem'}
-              tabIndex={-1}
-            >
-              {t("forms:text_editor_menu.font_size.small")}
-            </div>
-          </li>
-        </ul>
-      </span>
+          handleKeyDownPopUpMenu(
+            e,
+            editor,
+            fontSizeMenuButtonRef.current,
+            fontSizeMenuItemsRef.current,
+            focusedFontSizeMenuItem,
+            setFocusedFontSizeMenuItem,
+            setFontSizeMenuOpen,
+            setFocusedMenubarItem,
+          );
+        }}
+      >
+        <li role='presentation' style={{ borderBottom: '1px solid var(--gray)', paddingBottom: '2px' }}>
+          <div
+            onClick={() => { editor.chain().focus().setFontSize('1.25rem').run(); setFontSizeMenuOpen(false); }}
+            // onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => {chain.setFontSize('1.25rem'); setFontSizeMenuOpen(false)})}
+            data-size="1.25rem"
+            className='smooth font-size-smaller width-100'
+            style={{ padding: '.5rem', whiteSpace: 'nowrap' }}
+            role='menuitemradio'
+            aria-label={t("forms:text_editor_menu.font_size.large")}
+            aria-keyshortcuts='control+shift+1'
+            aria-checked={editor.getAttributes('textStyle').fontSize === '1.25rem'}
+            tabIndex={-1}>
+            {t("forms:text_editor_menu.font_size.large")}
+          </div>
+        </li>
+        <li role='presentation' style={{ borderBottom: '1px solid var(--gray)', paddingBlock: '2px' }}>
+          <div
+            onClick={() => { editor.chain().focus().unsetFontSize().run(); setFontSizeMenuOpen(false); }}
+            // onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => {chain.unsetFontSize(); setFontSizeMenuOpen(false)})}
+            data-size="unset"
+            className='smooth font-size-smaller width-100'
+            style={{ padding: '.5rem', whiteSpace: 'nowrap' }}
+            role='menuitemradio'
+            aria-label={t("forms:text_editor_menu.font_size.normal")}
+            aria-keyshortcuts='control+shift+2'
+            aria-checked={!editor.getAttributes('textStyle').fontSize}
+            tabIndex={-1}
+          >
+            {t("forms:text_editor_menu.font_size.normal")}
+          </div>
+        </li>
+        <li role='presentation' style={{ paddingTop: '2px' }}>
+          <div
+            onClick={() => { editor.chain().focus().setFontSize('0.75rem').run(); setFontSizeMenuOpen(false); }}
+            // onKeyDown={handleKeyDownMenuItem(editor, setFocusedMenubarItem, (chain) => {chain.setFontSize('0.75rem'); setFontSizeMenuOpen(false)})}
+            data-size="0.75rem"
+            className='smooth font-size-smaller width-100'
+            style={{ padding: '.5rem', whiteSpace: 'nowrap' }}
+            role='menuitemradio'
+            aria-label={t("forms:text_editor_menu.font_size.small")}
+            aria-keyshortcuts='control+shift+3'
+            aria-checked={editor.getAttributes('textStyle').fontSize === '0.75rem'}
+            tabIndex={-1}
+          >
+            {t("forms:text_editor_menu.font_size.small")}
+          </div>
+        </li>
+      </ul>
+    </span>
   );
 }
