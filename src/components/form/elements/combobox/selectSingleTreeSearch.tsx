@@ -160,8 +160,8 @@ export default function SelectSingleTreeSearch({
         <div
           className={`flex gap-25 align-items-center justify-content-space-between`}
           onClick={
-            item.expanded !== null || item.onExpand !== undefined
-              ? () => { void toggleNode(item); }
+            item.expanded !== null || item.onExpand !== undefined // TODO: This seems buggy with setting keyboard controls...
+              ? () => { void toggleNode(item); } 
               : () => { setValue(item?.value !== value?.value ? item : null); setMenuOpen(false); }
           }
         >
@@ -226,14 +226,14 @@ export default function SelectSingleTreeSearch({
         onClick={() => { setMenuOpen(!menuOpen); }}
         role="combobox"
         type="button"
-        aria-controls={menuOpen ? `${props.id}-dialog-tree` : undefined} // TODO: Also controls ${props.id}-dialog?
+        aria-controls={menuOpen ? `${props.id}-dialog-tree` : undefined}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
         aria-required={!!props.required ? props.required : false}
         aria-invalid={!valueIsValid}
-        // TODO: Need to have aria-activedescendent
+        aria-activedescendant={focusedIndex ? flattenedItems[focusedIndex].value : undefined}
         onBlur={(e) => {
-          if (e.relatedTarget?.id !== `${props.id}-dialog` && e.relatedTarget?.id !== props.id) {
+          if (e.relatedTarget?.id !== `${props.id}-dialog-tree` && e.relatedTarget?.id !== props.id) {
             setFocusedIndex(null);
             setMenuOpen(false);
           }
@@ -276,34 +276,28 @@ export default function SelectSingleTreeSearch({
         <IconSelector height={20} width={20} style={{ minWidth: '20px' }} aria-hidden={true} />
       </button>
 
-      <div
-        id={`${props.id}-dialog`}
-        className={`              
-          ${styles['tree']} 
-          ${menuOpen ? styles['visible'] : ''} 
-          margin-inline-0`
-        }
+      <ul
+        id={`${props.id}-dialog-tree`}
         tabIndex={-1}
-        role="dialog"
+        className={`              
+            ${styles['tree']} 
+            ${menuOpen ? styles['visible'] : ''} 
+            padding-0
+            margin-inline-0
+          `}
+        role="tree"
         aria-label={t("forms:combobox.select_single_option")}
       >
-        <ul
-          id={`${props.id}-dialog-tree`}
-          className="margin-0 padding-0"
-          role="tree"
-          aria-label={t("common:tsx.options")}
-        >
-          {items.length > 0 ? (
-            items.map((treeItem, index) => (
-              <TreeNode key={index} item={treeItem} onUpdate={handleUpdateNode} />
-            ))
-          ) : (
-            <li className={`${styles['no-results']} font-weight-600`} style={{ padding: '.5rem' }}> {/* TODO: For whatever reason i need to set padding here but not for the selectsingleserach no results <li>. They are seemingly implemented the same way so probably figure out why this is. */}
-              {t("common:tsx.no_results")}
-            </li>
-          )}
-        </ul>
-      </div>
+        {items.length > 0 ? (
+          items.map((treeItem, index) => (
+            <TreeNode key={index} item={treeItem} onUpdate={handleUpdateNode} />
+          ))
+        ) : (
+          <li className={`${styles['no-results']} font-weight-600`} style={{ padding: '.5rem' }}> {/* TODO: For whatever reason i need to set padding here but not for the selectsingleserach no results <li>. They are seemingly implemented the same way so probably figure out why this is. */}
+            {t("common:tsx.no_results")}
+          </li>
+        )}
+      </ul>
     </div>
   );
 }

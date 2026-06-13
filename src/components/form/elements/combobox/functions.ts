@@ -19,11 +19,13 @@ export const handleKeyDownTreeCombobox = (
   // 1. Stops focusing any listbox item
   // 2. Closes listbox if it can be, and is, expanded
   // 3. Focuses the element which made the listbox visible
+
+  /* TODO: Some further aria integrations are needed in regards to keyboard controls, see :
+    https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
+  */
   switch (key) {
     case "Escape": {
-      if (treeDisplayed) {
-        e.preventDefault();
-      }
+      e.preventDefault();
       setFocusedTreeOptionIndex(null);
       if (treeDisplayed && setTreeDisplayed) {
         setTreeDisplayed(false);
@@ -32,8 +34,10 @@ export const handleKeyDownTreeCombobox = (
       break;
     }
 
-    case "Enter": {
+    case "Enter": { /* TODO: Enter should probably open this aswell as the search comboboxes! */
       e.preventDefault();
+      if (!treeDisplayed) return;
+
       const selectedTreeItem = focusedTreeOptionIndex != null ? treeOptions[focusedTreeOptionIndex] : null;
       if (onEnter) {
         onEnter(selectedTreeItem, focusedTreeOptionIndex);
