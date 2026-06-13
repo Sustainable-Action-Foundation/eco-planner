@@ -305,6 +305,7 @@ test.describe("Goals tests", () => {
     await page.getByPlaceholder('recipe_editor.scalar').fill('48');
     await page.locator('#dataUnit').fill(unitAllUpdated);
     await page.locator('#dataUnit').blur();
+    await page.keyboard.press('Escape');
 
     await page.locator('#baselineSelector').selectOption("INITIAL");
     await page.locator('#isFeatured').uncheck();
