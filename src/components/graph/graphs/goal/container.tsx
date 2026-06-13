@@ -5,7 +5,6 @@ import ChildGraphContainer from "./child/container";
 import SiblingGraph from "./sibling/siblings";
 import findSiblings from "@/functions/findSiblings";
 import type { Effect, Goal, Roadmap } from "@/types";
-import type { ApiTableContent } from "@/lib/api/apiTypes";
 import GraphGraph from "./main/container";
 import styles from './goal.module.css';
 import { useTranslation } from "react-i18next";
@@ -19,7 +18,6 @@ export default function GoalGraph({
   childGoals,
   roadmap,
   parentGoalRoadmap,
-  externalData,
   secondaryGoal,
   effects,
   session,
@@ -30,7 +28,6 @@ export default function GoalGraph({
   childGoals: Goal[],
   roadmap: Roadmap,
   parentGoalRoadmap: Roadmap | null,
-  externalData?: ApiTableContent | null,
   secondaryGoal: Goal | null,
   effects: Effect[] | Goal["effects"],
   session: LoginData,
@@ -55,7 +52,6 @@ export default function GoalGraph({
           childGoals={childGoals}
           roadmap={roadmap}
           parentGoalRoadmap={parentGoalRoadmap}
-          historicalData={externalData}
           secondaryGoal={secondaryGoal}
           effects={effects}
           session={session}
@@ -100,7 +96,6 @@ export default function GoalGraph({
             childGoals={childGoals}
             roadmap={roadmap}
             parentGoalRoadmap={parentGoalRoadmap}
-            historicalData={externalData}
             secondaryGoal={secondaryGoal}
             effects={effects}
             session={session}

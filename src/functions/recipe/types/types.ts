@@ -15,12 +15,31 @@ export type ScalarVariable = BaseVariable & {
   type: typeof RecipeDataTypes.Scalar;
   value: number;
 };
+/**
+ * Describes the external dataset a data series was derived from.
+ *
+ * `External` variables are edit-time only; on save they are fetched, stored as a
+ * `DataSeries`, and rewritten into a `DataSeriesVariable` that keeps this meta so
+ * the source can be re-fetched or edited later.
+ */
+export type ExternalSource = {
+  dataset: DatasetKeys | null;
+  tableId: string | null;
+  selection: {
+    variableCode: string,
+    valueCodes: string[]
+  }[];
+};
+
 export type DataSeriesVariable = BaseVariable & {
   type: typeof RecipeDataTypes.DataSeries;
   pick: VectorIndexPickerOptions | number | ISOIshDate;
 
   dataSeriesId: string | null | undefined;
   value: DateValues | null | undefined;
+
+  // If derived from an external dataset (see ExternalSource), keep the original selection so it can be re-fetched or edited.
+  externalSource?: ExternalSource | null;
 };
 export type ExternalVariable = BaseVariable & {
   type: typeof RecipeDataTypes.External;

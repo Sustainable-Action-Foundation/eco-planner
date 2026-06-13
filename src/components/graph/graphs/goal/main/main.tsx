@@ -2,11 +2,10 @@
 
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import type { Goal, Roadmap } from "@/types";
-import { parsePeriod } from "@/lib/api/utility";
 import { calculatePredictedOutcome } from "@/components/graph/functions/graphFunctions";
-import type { ApiTableContent } from "@/lib/api/apiTypes";
 import { useTranslation } from "react-i18next";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
+import { getHistoricalDataset } from "@/functions/getHistoricalDataset";
 import { color_palette, stroke, marker } from "../../../config";
 import type { ApexAxisChartSeries, ApexYAxis } from "apexcharts";
 
@@ -18,14 +17,12 @@ export default function MainGraph({
   secondaryGoal,
   parentGoal,
   parentGoalRoadmap,
-  historicalData,
   effects,
 }: {
   goal: Goal,
   secondaryGoal: Goal | null,
   parentGoal: Goal | null,
   parentGoalRoadmap: Roadmap | null,
-  historicalData?: ApiTableContent | null,
   effects: Goal["effects"],
 }) {
   const { t } = useTranslation("graphs");
@@ -33,6 +30,8 @@ export default function MainGraph({
   if (!goal.dataSeries) {
     return null;
   }
+
+  const historicalLabel = `${getHistoricalDataset(goal).label || t("common:historical_data")} (${t("common:historical_data")})`;
 
   const sortDateEntries = (entries: Array<[string, number]>) =>
     entries.sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime());
@@ -85,7 +84,7 @@ export default function MainGraph({
           t("graphs:common.baseline_scenario"),
           t("graphs:common.expected_outcome"),
           (secondaryGoal?.dataSeries?.unit === goal.dataSeries.unit) ? (secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0] : "",
-          historicalData ? `${historicalData.metadata[0]?.label} (${t("common:historical_data")})` : "",
+          goal.historical ? historicalLabel : "",
         ],
       },
     ],
@@ -106,25 +105,15 @@ export default function MainGraph({
   });
 
 
-  if (historicalData) {
-    const historicalSeries = [];
+  if (goal.historical) {
+    const historicalSeries = seriesFromDateValues(dataSeriesToDateValues(goal.historical).dateValues);
 
-    if (historicalData.values.length >= 0) {
-      for (const { period, value } of historicalData.values) {
-        const parsedValue = parseFloat(value);
-
-        historicalSeries.push({
-          x: parsePeriod(period).getTime(),
-          y: Number.isFinite(parsedValue) ? parsedValue : null,
-        });
-      }
-      mainChart.push({
-        name: `${historicalData.metadata[0]?.label} (${t("common:historical_data")})`,
-        data: historicalSeries,
-        type: 'area',
-        color: '#2e8a56',
-      });
-    }
+    mainChart.push({
+      name: historicalLabel,
+      data: historicalSeries,
+      type: 'area',
+      color: '#2e8a56',
+    });
 
     colors.push(color_palette.historical.color);
     opacities.push(color_palette.historical.fillOpacity);

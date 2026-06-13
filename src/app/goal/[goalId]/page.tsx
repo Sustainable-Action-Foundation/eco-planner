@@ -6,7 +6,6 @@ import EffectTable from "@/components/tables/effects";
 import { AdminPanel } from "@/components/elements/controls/controls";
 import { getGoalByIndicator, getOneGoal, getOneRoadmap, getRoadmapByVersion, getRoadmaps } from "@/fetchers";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
-import type { ApiTableContent } from "@/lib/api/apiTypes";
 import { getSession } from "@/lib/session";
 import serveTea from "@/lib/i18nServer";
 import { prisma } from "@/lib/prisma";
@@ -15,11 +14,9 @@ import type { AccessControlled, Goal, MultiRoadmapInstance, Roadmap } from "@/ty
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import getTableContent from "@/lib/api/getTableContent";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconAlertTriangle, IconArrowNarrowRight, IconBuildings } from "@tabler/icons-react";
 import type { TFunction } from "i18next";
-import i18nServer from "i18next";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 import GoalGraph from "@/components/graph/graphs/goal/container";
 import type { Metadata } from "next";
@@ -90,8 +87,6 @@ export default async function Page(
     MultiRoadmapInstance[],
   ];
 
-  const locale = new Intl.Locale(i18nServer.language).language;
-
   let accessLevel: AccessLevel = AccessLevel.None;
   if (goal) {
     const goalAccessData: AccessControlled = {
@@ -118,13 +113,6 @@ export default async function Page(
     if (roadmap.editGroups.some(editGroup => session.user?.userGroups.some(userGroup => userGroup === editGroup.name))) return true;
     return false;
   }).map(roadmap => ({ id: roadmap.id, name: roadmap.metaRoadmap.name, version: roadmap.version, actor: roadmap.metaRoadmap.actor }));
-
-  // TODO: remove when moving external to data series + recipe
-  // Fetch external data
-  let externalData: ApiTableContent | null = null;
-  if (goal.externalDataset && goal.externalTableId && goal.externalSelection) {
-    externalData = await getTableContent(goal.externalTableId, goal.externalDataset, goal.externalSelection, locale);
-  }
 
   // Fetch parent goal
   let parentGoal: Goal | null = null;
@@ -257,7 +245,6 @@ export default async function Page(
             childGoals={childGoals}
             roadmap={roadmap}
             parentGoalRoadmap={parentGoalRoadmap}
-            externalData={externalData}
             secondaryGoal={secondaryGoal}
             effects={goal.effects}
             session={{ user: session.user }}

@@ -89,7 +89,7 @@ export function isScalarVariable(variable: JSONValue): variable is ScalarVariabl
 }
 
 export function isDataSeriesVariable(variable: JSONValue): variable is DataSeriesVariable {
-  const allowedProps = ["id", "name", "type", "unit", "template", "pick", "dataSeriesId", "value"];
+  const allowedProps = ["id", "name", "type", "unit", "template", "pick", "dataSeriesId", "value", "externalSource"];
   if (!isStandardObject(variable)) {
     console.warn("Type guard: data series variable should be an object", variable);
     return false;
@@ -135,6 +135,31 @@ export function isDataSeriesVariable(variable: JSONValue): variable is DataSerie
   if (dataSeries.value !== undefined && dataSeries.value !== null && !isDateValues(dataSeries.value)) {
     console.warn("Type guard: 'value' in data series variable", variable);
     return false;
+  }
+
+  // .externalSource: ExternalSource | null | undefined
+  const externalSource = dataSeries.externalSource;
+  if (externalSource !== undefined && externalSource !== null) {
+    if (!isStandardObject(externalSource)) {
+      console.warn("Type guard: 'externalSource' in data series variable should be an object", variable);
+      return false;
+    }
+    const source = externalSource as Record<string, unknown>;
+    if (
+      source.dataset !== null
+      && (typeof source.dataset !== "string" || !ExternalDataset.knownDatasetKeys.includes(source.dataset as DatasetKeys))
+    ) {
+      console.warn("Type guard: 'externalSource.dataset' in data series variable", variable);
+      return false;
+    }
+    if (source.tableId !== null && (typeof source.tableId !== "string" || source.tableId.trim() === "")) {
+      console.warn("Type guard: 'externalSource.tableId' in data series variable", variable);
+      return false;
+    }
+    if (!isExternalSelection(source.selection as JSONValue)) {
+      console.warn("Type guard: 'externalSource.selection' in data series variable", variable);
+      return false;
+    }
   }
 
   // .name: non-empty string

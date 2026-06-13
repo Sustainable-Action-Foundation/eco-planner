@@ -321,10 +321,6 @@ export function AdminPanel(
     isFeatured: undefined,
     recipeSuggestions: undefined,
 
-    externalDataset: undefined,
-    externalTableId: undefined,
-    externalSelection: undefined,
-
     dataSeriesId: undefined,
     dataSeries: undefined,
     dataSeriesRecipeId: undefined,
@@ -334,6 +330,11 @@ export function AdminPanel(
     baseline: undefined,
     baselineRecipeId: undefined,
     baselineRecipe: undefined,
+
+    historicalId: undefined,
+    historical: undefined,
+    historicalRecipeId: undefined,
+    historicalRecipe: undefined,
 
     roadmapId: undefined, // Can't reassign the roadmap of an existing goal
     rawTags: undefined, // TODO: add tags input

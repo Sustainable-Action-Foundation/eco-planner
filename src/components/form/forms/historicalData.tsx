@@ -5,11 +5,14 @@ import type { ApiTableContent, ApiTableDetails } from "@/lib/api/apiTypes";
 import getTableContent from "@/lib/api/getTableContent";
 import getTableDetails from "@/lib/api/getTableDetails";
 import getTables from "@/lib/api/getTables";
-import { ExternalDataset } from "@/lib/api/utility";
+import { ExternalDataset, isDataSetKeys } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
 import type { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
 import type { TrafaVariable } from "@/lib/trafa/trafaTypes";
-import type { Goal } from "@/lib/prisma/generated";
+import type { Goal } from "@/types";
+import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe";
+import type { ExternalVariable } from "@/functions/recipe";
+import { getHistoricalSource } from "@/functions/getHistoricalDataset";
 import type { SubmitEvent } from "react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -19,26 +22,6 @@ import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 // import { IconEdit, IconTrashXFilled, IconX } from "@tabler/icons-react";
 
 type ExternalSelection = NonNullable<Parameters<typeof getTableDetails>[2]>;
-type ExternalSelectionItem = ExternalSelection[number];
-
-const parseExternalSelection = (selection: string | null): ExternalSelectionItem[] => {
-  if (!selection) return [];
-  try {
-    const parsed: unknown = JSON.parse(selection);
-    if (!Array.isArray(parsed)) return [];
-
-    return parsed.filter((item): item is ExternalSelectionItem => {
-      if (!item || typeof item !== "object") return false;
-
-      const maybeItem = item as { variableCode?: unknown, valueCodes?: unknown };
-      return typeof maybeItem.variableCode === "string"
-        && Array.isArray(maybeItem.valueCodes)
-        && maybeItem.valueCodes.every((value): value is string => typeof value === "string");
-    });
-  } catch {
-    return [];
-  }
-};
 
 // TODO: Stuff is re-rendering like a bajillion times, fix this.
 {/* TODO: Metadata */ }
@@ -52,13 +35,18 @@ export default function HistoricalData({
   // Locale has the format language-REGION, e.g. "sv-SE" or "en-US", we only need the language part
   const lang = new Intl.Locale(useContext(LocaleContext)).language;
 
+  // The external API selection is stored in the goal's historical recipe; the
+  // fetched values live in the `historical` DataSeries.
+  const historicalSource = getHistoricalSource(goal);
+  const historicalSelection: ExternalSelection = historicalSource?.selection ?? [];
+
   // const [isLoading, setIsLoading] = useState(false);
   // const [visibleForm, setVisibleForm] = useState('manual')
 
-  const [dataSource, setDataSource] = useState<string>(!!goal.externalDataset ? goal.externalDataset : "");
+  const [dataSource, setDataSource] = useState<string>(historicalSource?.dataset ?? "");
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
-  const [table, setTable] = useState<{ tableId: string, label: string } | null>(goal.externalTableId ? { label: tables?.find(t => t.tableId === goal.externalTableId)?.label ?? goal.externalTableId, tableId: goal.externalTableId } : null);
-  const [metric, setMetric] = useState<string | null>(() => parseExternalSelection(goal.externalSelection)[0]?.valueCodes?.[0] ?? null);
+  const [table, setTable] = useState<{ tableId: string, label: string } | null>(historicalSource?.tableId ? { label: tables?.find(t => t.tableId === historicalSource.tableId)?.label ?? historicalSource.tableId, tableId: historicalSource.tableId } : null);
+  const [metric, setMetric] = useState<string | null>(() => historicalSelection[0]?.valueCodes?.[0] ?? null);
 
   const [tableDetails, setTableDetails] = useState<ApiTableDetails | null>(null);
   const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
@@ -130,16 +118,20 @@ export default function HistoricalData({
   }, [tryGetResult]);
 
   // 1. Fetch table details
+  const initialTableId = historicalSource?.tableId ?? null;
+  const initialDataset = historicalSource?.dataset ?? null;
   useEffect(() => {
-    if (!goal.externalTableId || !goal.externalDataset || !goal.externalSelection) return;
+    if (!initialTableId || !initialDataset) return;
 
     void getTableDetails(
-      goal.externalTableId,
-      goal.externalDataset,
-      parseExternalSelection(goal.externalSelection),
+      initialTableId,
+      initialDataset,
+      historicalSelection,
       lang,
     ).then(setTableDetails);
-  }, [goal.externalTableId, goal.externalDataset, goal.externalSelection, lang]);
+    // historicalSelection is derived from the same recipe as initialTableId/initialDataset
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialTableId, initialDataset, lang]);
 
   // 2. Fetch table content
   useEffect(() => {
@@ -187,9 +179,7 @@ export default function HistoricalData({
       // The idea here is basically to we see which variables exist, and moving them to an array separately from metric as that value is already set. 
       // We then check if the variable which we render is in our list and get the default value from there.
       // This isnt very optimal as each render of a variable will trigger a loop of a new list, there is likely a better way to achieve this. 
-      // if (!goal.externalSelection) return // TODO: Very hacky, temp fix. TODO: Also need to do this for time also
-      const externalSelection = parseExternalSelection(goal.externalSelection);
-      const variables = externalSelection.filter((selectionVariable) => selectionVariable.variableCode !== "metric");
+      const variables = historicalSelection.filter((selectionVariable) => selectionVariable.variableCode !== "metric");
 
       const selectedVariable = variables.find(v => v.variableCode === variable.name);
       const selectedValue = selectedVariable ? selectedVariable.valueCodes[0] : '';
@@ -270,14 +260,36 @@ export default function HistoricalData({
     if (!(event.target instanceof HTMLFormElement)) return;
 
     if (!(event.target.checkValidity())) return;
+    if (!isDataSetKeys(dataSource)) return;
     const formData = new FormData(event.target);
     const query = buildQuery(formData);
-    // Update the goal with the new data
+
+    // Reuse the existing external variable's id (if any) so the recipe equation
+    // stays stable across edits.
+    const variableId = historicalSource?.id ?? crypto.randomUUID();
+    const externalVariable: ExternalVariable = {
+      id: variableId,
+      name: table?.label || dataSource,
+      type: RecipeDataTypes.External,
+      pick: VectorIndexPickerOptions.Default,
+      unit: undefined,
+      dataset: dataSource,
+      tableId: table?.tableId ?? null,
+      selection: query,
+    };
+    const recipe = new Recipe({
+      name: table?.label || dataSource,
+      equation: `\${${variableId}}`,
+      variables: [externalVariable],
+    });
+
+    // Update the goal with the new historical recipe. The server fetches the
+    // external data into the goal's `historical` DataSeries, keeping the
+    // selection editable.
     formSubmitter("/api/goal", JSON.stringify({
       goalId: goal.id,
-      externalDataset: dataSource,
-      externalTableId: table?.tableId,
-      externalSelection: JSON.stringify(query),
+      historicalRecipe: recipe.serialize(),
+      historicalRecipeId: goal.historical?.recipeUsed?.id ?? undefined,
       timestamp: Date.now(),
     }), "PUT", t); // TODO: add setIsLoading when we reintroduce it
   }
@@ -429,7 +441,7 @@ export default function HistoricalData({
               <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</small>
               : null}
             <select
-              defaultValue={!!goal.externalDataset ? goal.externalDataset : ''}
+              defaultValue={historicalSource?.dataset ?? ''}
               className="block margin-top-25 margin-bottom-100 width-100"
               required={true}
               name="externalDataset"

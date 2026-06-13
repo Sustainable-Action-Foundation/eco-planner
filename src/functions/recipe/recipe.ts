@@ -3,8 +3,8 @@ import { isISOIshDate } from "@/types";
 import mathjs from "@/math";
 import type { Unit } from "mathjs";
 import type { ApiTableContent } from "@/lib/api/apiTypes";
-import type { RecipeExtractionOutput, RecipeVariable, SerializedRecipe, SerializedRecipeShape } from "@/functions/recipe";
-import { isEvalTimeVariable, isRecipe, MathjsError, RecipeError, parseDateValuesFromVector, transformDateValuesToVector, ANDMasks, extractDataSeries, extractExternalDatasets, extractScalars, isEvalTimeSeries } from "@/functions/recipe";
+import type { ExternalVariable, RecipeExtractionOutput, RecipeVariable, SerializedRecipe, SerializedRecipeShape } from "@/functions/recipe";
+import { isEvalTimeVariable, isRecipe, MathjsError, RecipeError, parseDateValuesFromVector, transformDateValuesToVector, ANDMasks, extractDataSeries, extractExternalDatasets, extractScalars, isEvalTimeSeries, RecipeDataTypes } from "@/functions/recipe";
 import { sanityCheckDataSeries, sanityCheckExternalDatasets, sanityCheckScalars } from "@/functions/recipe/sanityChecks";
 
 export class Recipe {
@@ -306,7 +306,36 @@ export class Recipe {
     );
   }
 
-  /** 
+  /**
+   * Returns a copy of this recipe with any externally-derived data series
+   * variables rehydrated back into `External` variables for editing.
+   *
+   * Stored recipes never contain `External` variables (they are materialized
+   * into `DataSeries` on save), but the recipe editor works with `External`
+   * variables. This reverses that conversion using the `externalSource` meta so
+   * the editor and the rest of the recipe machinery stay unchanged.
+   */
+  public withEditableExternals(): Recipe {
+    const copy = this.copy();
+    copy.variables = copy.variables.map(variable => {
+      if (variable.type !== RecipeDataTypes.DataSeries || !variable.externalSource) return variable;
+      const editable: ExternalVariable = {
+        id: variable.id,
+        name: variable.name,
+        type: RecipeDataTypes.External,
+        unit: variable.unit,
+        template: variable.template,
+        pick: variable.pick,
+        dataset: variable.externalSource.dataset,
+        tableId: variable.externalSource.tableId,
+        selection: variable.externalSource.selection,
+      };
+      return editable;
+    });
+    return copy;
+  }
+
+  /**
    * Clones this instance of Recipe.
    */
   public copy(): Recipe {

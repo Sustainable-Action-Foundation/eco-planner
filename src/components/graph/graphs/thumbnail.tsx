@@ -1,9 +1,5 @@
 import WrappedChart from "@/lib/chartWrapper";
 import styles from '../graph.module.css';
-import type { ApiTableContent } from "@/lib/api/apiTypes";
-import { parsePeriod } from "@/lib/api/utility";
-import getTableContent from "@/lib/api/getTableContent";
-import i18nServer from "i18next";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import type { Goal } from "@/types";
 import { color_palette } from "../config";
@@ -11,11 +7,11 @@ import type { ApexAxisChartSeries } from "apexcharts";
 
 type ThumbnailGoal = Pick<
   Goal,
-  "id" | "name" | "indicatorParameter" | "dataSeries" | "externalDataset" | "externalTableId" | "externalSelection"
+  "id" | "name" | "indicatorParameter" | "dataSeries" | "historical"
 >;
 
 
-export default async function ThumbnailGraph({
+export default function ThumbnailGraph({
   goal,
   historicalData,
 }: {
@@ -26,14 +22,8 @@ export default async function ThumbnailGraph({
     return null;
   }
 
-  const locale = new Intl.Locale(i18nServer.language).language;
-  let externalData: ApiTableContent | null = null;
-  if (historicalData) {
-    // Fetch external data
-    if (goal.externalDataset && goal.externalTableId && goal.externalSelection) {
-      externalData = await getTableContent(goal.externalTableId, goal.externalDataset, goal.externalSelection, locale);
-    }
-  }
+  // Historical data is stored as a DataSeries on the goal.
+  const historical = historicalData && goal.historical ? goal.historical : null;
 
   const mainDateValues = dataSeriesToDateValues(goal.dataSeries);
   const sortedMainEntries = Object.entries(mainDateValues.dateValues)
@@ -53,31 +43,29 @@ export default async function ThumbnailGraph({
     type: 'line',
   });
 
-  if (externalData) {
-    const historicalSeries = [];
+  const historicalEntries = historical
+    ? Object.entries(dataSeriesToDateValues(historical).dateValues)
+      .sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime())
+    : [];
 
-    if (externalData.values.length >= 0) {
-      for (const { period, value } of externalData.values) {
-        const parsedValue = parseFloat(value);
-
-        historicalSeries.push({
-          x: parsePeriod(period).getTime(),
-          y: Number.isFinite(parsedValue) ? parsedValue : null,
-        });
-      }
-      mainChart.push({
-        name: `${externalData.metadata[0]?.label}`,
-        data: historicalSeries,
-        type: 'area',
-      });
-    }
+  if (historicalEntries.length > 0) {
+    const historicalSeries = historicalEntries.map(([isoDate, value]) => ({
+      x: new Date(isoDate).getTime(),
+      y: Number.isFinite(value) ? value : null,
+    }));
+    mainChart.push({
+      name: (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],
+      data: historicalSeries,
+      type: 'area',
+    });
 
     colors.push(color_palette.historical.color);
     opacities.push(color_palette.historical.fillOpacity);
-  }  
+  }
 
   const lastMainEntry = sortedMainEntries.at(-1);
-  const lastExternalValue = externalData?.values.at(-1);
+  const firstHistoricalEntry = historicalEntries.at(0);
+  const lastHistoricalEntry = historicalEntries.at(-1);
 
   if (!lastMainEntry) throw new Error("sortedMainEntries is empty");
 
@@ -104,10 +92,10 @@ export default async function ThumbnailGraph({
       type: 'datetime',
       labels: { format: 'yyyy' },
       tooltip: { enabled: false },
-      // If we have external data, we set the start year to whatever starts first. Otherwise we just use the main data series.
-      min: externalData ? Math.min(new Date(sortedMainEntries[0][0]).getTime(), parsePeriod(externalData.values[0].period).getTime()) : new Date(sortedMainEntries[0][0]).getTime(), 
-      // If we have external data, we set the end year to whatever starts first. Otherwise we just use the main data series.
-      max: externalData && lastExternalValue ? Math.max(new Date(lastMainEntry[0]).getTime(), Date.UTC(Number(lastExternalValue.period), 0, 1)) : new Date(lastMainEntry[0]).getTime(),
+      // If we have historical data, we set the start year to whatever starts first. Otherwise we just use the main data series.
+      min: firstHistoricalEntry ? Math.min(new Date(sortedMainEntries[0][0]).getTime(), new Date(firstHistoricalEntry[0]).getTime()) : new Date(sortedMainEntries[0][0]).getTime(),
+      // If we have historical data, we set the end year to whatever ends last. Otherwise we just use the main data series.
+      max: lastHistoricalEntry ? Math.max(new Date(lastMainEntry[0]).getTime(), new Date(lastHistoricalEntry[0]).getTime()) : new Date(lastMainEntry[0]).getTime(),
     },
     yaxis: {
       show: false,

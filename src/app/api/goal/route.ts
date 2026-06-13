@@ -6,11 +6,180 @@ import { cookies } from "next/headers";
 import { getSession } from "@/lib/session";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { ClientError, isGoalCreate, isGoalUpdate } from "@/types";
-import type { AccessControlled, JSONValue } from "@/types";
+import type { AccessControlled, DateValuesWithUnit, JSONValue } from "@/types";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
+import { Recipe, RecipeDataTypes, fetchExternalVariableData } from "@/functions/recipe";
+import type { DataSeriesVariable, ExternalSource, RecipeVariable, SerializedRecipe } from "@/functions/recipe";
 import serveTea from "@/lib/i18nServer";
+
+/**
+ * Per external variable, either freshly fetched data (selection is new or
+ * changed) or a reference to the already-stored series (selection unchanged).
+ */
+type ResolvedExternals = Map<string, { source: ExternalSource } & (
+  | { data: DateValuesWithUnit, reuseDataSeriesId?: undefined }
+  | { reuseDataSeriesId: string, data?: undefined }
+)>;
+
+/** True if two external selections are equivalent (order-insensitive). */
+function sameExternalSource(a: ExternalSource, b: ExternalSource): boolean {
+  if (a.dataset !== b.dataset || a.tableId !== b.tableId) return false;
+  const normalize = (selection: ExternalSource["selection"]) => JSON.stringify(
+    [...selection]
+      .map(item => ({ variableCode: item.variableCode, valueCodes: [...item.valueCodes].sort() }))
+      .sort((x, y) => x.variableCode.localeCompare(y.variableCode)),
+  );
+  return normalize(a.selection) === normalize(b.selection);
+}
+
+/**
+ * Decides, for every edit-time `External` variable in a recipe, whether its data
+ * must be fetched. Selections that are unchanged from the currently-stored recipe
+ * reuse the existing `DataSeries` (external data is only re-fetched when the
+ * selection actually changes).
+ *
+ * Run BEFORE opening the DB transaction, since fetching performs network calls.
+ */
+async function resolveRecipeExternals(
+  serializedRecipe: SerializedRecipe,
+  existingRecipeId: string | null | undefined,
+): Promise<ResolvedExternals> {
+  const resolved: ResolvedExternals = new Map();
+  const warnings: string[] = [];
+
+  // Map the currently-stored materialized externals by variable id, to detect unchanged selections.
+  const storedByVariable = new Map<string, { dataSeriesId: string, source: ExternalSource }>();
+  if (existingRecipeId) {
+    const existing = await prisma.recipe.findUnique({ where: { id: existingRecipeId }, select: { recipe: true } });
+    if (existing) {
+      for (const variable of Recipe.from(existing.recipe).variables) {
+        if (variable.type === RecipeDataTypes.DataSeries && variable.externalSource && variable.dataSeriesId) {
+          storedByVariable.set(variable.id, { dataSeriesId: variable.dataSeriesId, source: variable.externalSource });
+        }
+      }
+    }
+  }
+
+  await Promise.all(
+    Recipe.from(serializedRecipe).variables.map(async (variable) => {
+      if (variable.type !== RecipeDataTypes.External) return;
+      const source: ExternalSource = { dataset: variable.dataset, tableId: variable.tableId, selection: variable.selection };
+
+      // Selection unchanged from what is already stored: keep the existing series, don't re-fetch.
+      const stored = storedByVariable.get(variable.id);
+      if (stored && sameExternalSource(stored.source, source)) {
+        resolved.set(variable.id, { reuseDataSeriesId: stored.dataSeriesId, source });
+        return;
+      }
+
+      const data = await fetchExternalVariableData(variable, warnings);
+      resolved.set(variable.id, { data, source });
+    }),
+  );
+
+  if (warnings.length) console.warn("Warnings while resolving external variables:", warnings);
+  return resolved;
+}
+
+/**
+ * Within a transaction, rewrites each `External` variable into a
+ * `DataSeriesVariable` that keeps the original selection as `externalSource` meta,
+ * creating a `DataSeries` for freshly-fetched data or reusing the existing one
+ * for unchanged selections. Stored recipes therefore contain no `External`
+ * variables (so evaluate/recalculate read the stored series rather than
+ * re-fetching), while staying re-editable via the meta.
+ */
+async function materializeRecipeExternals(
+  tx: Prisma.TransactionClient,
+  serializedRecipe: SerializedRecipe,
+  authorId: string,
+  resolved: ResolvedExternals,
+): Promise<{ serializedRecipe: SerializedRecipe, dataSeriesIdsByVariable: Record<string, string> }> {
+  const recipe = Recipe.from(serializedRecipe);
+  const dataSeriesIdsByVariable: Record<string, string> = {};
+  const newVariables: RecipeVariable[] = [];
+
+  for (const variable of recipe.variables) {
+    const resolvedVariable = variable.type === RecipeDataTypes.External ? resolved.get(variable.id) : undefined;
+    if (variable.type !== RecipeDataTypes.External || !resolvedVariable) {
+      newVariables.push(variable);
+      continue;
+    }
+
+    let dataSeriesId: string;
+    if (resolvedVariable.data) {
+      const fetched = resolvedVariable.data;
+      dataSeriesId = (await tx.dataSeries.create({
+        data: {
+          author: { connect: { id: authorId } },
+          values: { createMany: { data: dateValuesToDBDateRecord(fetched.dateValues) } },
+          ...(fetched.unit == null ? {} : { unit: fetched.unit }),
+        },
+        select: { id: true },
+      })).id;
+    } else {
+      dataSeriesId = resolvedVariable.reuseDataSeriesId;
+    }
+    dataSeriesIdsByVariable[variable.id] = dataSeriesId;
+
+    const materialized: DataSeriesVariable = {
+      id: variable.id,
+      name: variable.name,
+      type: RecipeDataTypes.DataSeries,
+      unit: variable.unit,
+      template: variable.template,
+      pick: variable.pick,
+      dataSeriesId,
+      value: undefined,
+      externalSource: resolvedVariable.source,
+    };
+    newVariables.push(materialized);
+  }
+
+  recipe.variables = newVariables;
+  return { serializedRecipe: recipe.serialize(), dataSeriesIdsByVariable };
+}
+
+/**
+ * Handles the create/update/link lifecycle for one of a goal's recipes
+ * (dataSeries, baseline or historical), materializing any external variables it
+ * contains. Must be called inside the transaction.
+ */
+async function upsertGoalRecipe(
+  tx: Prisma.TransactionClient,
+  authorId: string,
+  label: string,
+  input: { recipe: SerializedRecipe | null | undefined, recipeId: string | null | undefined, resolved: ResolvedExternals | null },
+): Promise<{ recipeId: string | null | undefined, dataSeriesIdsByVariable: Record<string, string> }> {
+  let recipe = input.recipe;
+  let recipeId = input.recipeId;
+  let dataSeriesIdsByVariable: Record<string, string> = {};
+
+  // New recipe data: materialize its externals, then create or update
+  if (recipe) {
+    const materialized = await materializeRecipeExternals(tx, recipe, authorId, input.resolved ?? new Map() as ResolvedExternals);
+    recipe = materialized.serializedRecipe;
+    dataSeriesIdsByVariable = materialized.dataSeriesIdsByVariable;
+
+    if (recipeId) {
+      await tx.recipe.update({ where: { id: recipeId }, data: { recipe } });
+    } else {
+      recipeId = (await tx.recipe.create({ data: { recipe }, select: { id: true } })).id;
+    }
+  }
+  // No new recipe data + existing recipe ID = link (if it still exists)
+  else if (recipeId) {
+    const existingRecipe = await tx.recipe.findUnique({ where: { id: recipeId }, select: { id: true } });
+    if (!existingRecipe) {
+      console.warn(`Goal save: tried linking goal with a ${label} recipe (${recipeId}) but not found, unlinking...`);
+      recipeId = null;
+    }
+  }
+
+  return { recipeId, dataSeriesIdsByVariable };
+}
 
 
 /**
@@ -29,6 +198,7 @@ export async function POST(request: NextRequest) {
       { status: 401, headers: { 'Location': '/login' } },
     );
   }
+  const authorId = session.user.id;
 
   // Validate form data type
   if (!isGoalCreate(formData)) {
@@ -105,60 +275,47 @@ export async function POST(request: NextRequest) {
 
   let goalId: string | undefined = undefined;
 
+  // Fetch external variable data for all recipes before opening the transaction,
+  // since fetching performs network calls. They are persisted as DataSeries
+  // (and the external variables rewritten) when the recipes are saved below.
+  let dataSeriesExternals: ResolvedExternals | null = null;
+  let baselineExternals: ResolvedExternals | null = null;
+  let historicalExternals: ResolvedExternals | null = null;
+  try {
+    [dataSeriesExternals, baselineExternals, historicalExternals] = await Promise.all([
+      formData.dataSeriesRecipe ? resolveRecipeExternals(formData.dataSeriesRecipe, formData.dataSeriesRecipeId) : Promise.resolve(null),
+      formData.baselineRecipe ? resolveRecipeExternals(formData.baselineRecipe, formData.baselineRecipeId) : Promise.resolve(null),
+      formData.historicalRecipe ? resolveRecipeExternals(formData.historicalRecipe, formData.historicalRecipeId) : Promise.resolve(null),
+    ]);
+  } catch (error) {
+    console.error(error);
+    return Response.json({ message: t('api:common.server_error') },
+      { status: 500 },
+    );
+  }
+
   // Parse form data
   try {
     await prisma.$transaction(async (prisma) => {
-      // Create recipes first
-      // New recipe data + existing recipe ID = update
-      if (formData.dataSeriesRecipe && formData.dataSeriesRecipeId) {
-        await prisma.recipe.update({
-          where: { id: formData.dataSeriesRecipeId },
-          data: { recipe: formData.dataSeriesRecipe },
+      // Create/update recipes first, materializing any external variables into DataSeries
+      formData.dataSeriesRecipeId = (await upsertGoalRecipe(prisma, authorId, "data series", {
+        recipe: formData.dataSeriesRecipe, recipeId: formData.dataSeriesRecipeId, resolved: dataSeriesExternals,
+      })).recipeId;
+      formData.baselineRecipeId = (await upsertGoalRecipe(prisma, authorId, "baseline", {
+        recipe: formData.baselineRecipe, recipeId: formData.baselineRecipeId, resolved: baselineExternals,
+      })).recipeId;
+      const historicalResult = await upsertGoalRecipe(prisma, authorId, "historical", {
+        recipe: formData.historicalRecipe, recipeId: formData.historicalRecipeId, resolved: historicalExternals,
+      });
+      formData.historicalRecipeId = historicalResult.recipeId;
+      // The historical recipe's single external variable becomes the goal's historical DataSeries
+      const historicalDataSeriesId = Object.values(historicalResult.dataSeriesIdsByVariable)[0] ?? formData.historicalId ?? null;
+      // Link the historical recipe to its resulting series so the source stays discoverable
+      if (historicalDataSeriesId && typeof formData.historicalRecipeId === 'string') {
+        await prisma.dataSeries.update({
+          where: { id: historicalDataSeriesId },
+          data: { recipeUsed: { connect: { id: formData.historicalRecipeId } } },
         });
-      }
-      // New recipe data + no existing recipe ID = create
-      else if (formData.dataSeriesRecipe) {
-        formData.dataSeriesRecipeId = (await prisma.recipe.create({
-          data: { recipe: formData.dataSeriesRecipe },
-          select: { id: true },
-        })).id;
-      }
-      // No new recipe data + existing recipe ID = link (if exists)
-      else if (!formData.dataSeriesRecipe && formData.dataSeriesRecipeId) {
-        const existingRecipe = await prisma.recipe.findUnique({
-          where: { id: formData.dataSeriesRecipeId },
-          select: { id: true },
-        });
-        if (!existingRecipe) {
-          console.warn(`Goal creation: tried linking goal with a data series recipe (${formData.dataSeriesRecipeId}) but not found, unlinking...`);
-          formData.dataSeriesRecipeId = null;
-        }
-      }
-      // Baseline recipe
-      // New recipe data + existing recipe ID = update
-      if (formData.baselineRecipe && formData.baselineRecipeId) {
-        await prisma.recipe.update({
-          where: { id: formData.baselineRecipeId },
-          data: { recipe: formData.baselineRecipe },
-        });
-      }
-      // New recipe data + no existing recipe ID = create
-      else if (formData.baselineRecipe) {
-        formData.baselineRecipeId = (await prisma.recipe.create({
-          data: { recipe: formData.baselineRecipe },
-          select: { id: true },
-        })).id;
-      }
-      // No new recipe data + existing recipe ID = link (if exists)
-      else if (!formData.baselineRecipe && formData.baselineRecipeId) {
-        const existingRecipe = await prisma.recipe.findUnique({
-          where: { id: formData.baselineRecipeId },
-          select: { id: true },
-        });
-        if (!existingRecipe) {
-          console.warn(`Goal creation: tried linking goal with a baseline recipe (${formData.baselineRecipeId}) but not found, unlinking...`);
-          formData.baselineRecipeId = null;
-        }
       }
 
       // Create goal
@@ -168,9 +325,6 @@ export async function POST(request: NextRequest) {
           description: formData.description,
           indicatorParameter: formData.indicatorParameter,
           isFeatured: formData.isFeatured,
-          externalDataset: formData.externalDataset,
-          externalTableId: formData.externalTableId,
-          externalSelection: formData.externalSelection,
           author: {
             connect: { id: session.user?.id },
           },
@@ -206,6 +360,9 @@ export async function POST(request: NextRequest) {
                 connect: { id: formData.baselineId },
               }
               : undefined,
+          historical: historicalDataSeriesId
+            ? { connect: { id: historicalDataSeriesId } }
+            : undefined,
           links: {
             create: formData.links?.map(link => ({
               url: link.url,
@@ -255,6 +412,7 @@ export async function PUT(request: NextRequest) {
       { status: 401, headers: { 'Location': '/login' } },
     );
   }
+  const authorId = session.user.id;
 
   // Validate input
   if (!isGoalUpdate(goal)) {
@@ -330,59 +488,49 @@ export async function PUT(request: NextRequest) {
 
   // Edit goal
   let goalId: string | undefined = undefined;
+
+  // Fetch external variable data for all recipes before opening the transaction,
+  // since fetching performs network calls. They are persisted as DataSeries
+  // (and the external variables rewritten) when the recipes are saved below.
+  let dataSeriesExternals: ResolvedExternals | null = null;
+  let baselineExternals: ResolvedExternals | null = null;
+  let historicalExternals: ResolvedExternals | null = null;
   try {
+    [dataSeriesExternals, baselineExternals, historicalExternals] = await Promise.all([
+      goal.dataSeriesRecipe ? resolveRecipeExternals(goal.dataSeriesRecipe, goal.dataSeriesRecipeId) : Promise.resolve(null),
+      goal.baselineRecipe ? resolveRecipeExternals(goal.baselineRecipe, goal.baselineRecipeId) : Promise.resolve(null),
+      goal.historicalRecipe ? resolveRecipeExternals(goal.historicalRecipe, goal.historicalRecipeId) : Promise.resolve(null),
+    ]);
+  } catch (error) {
+    console.error(error);
+    return Response.json({ message: t('api:common.server_error') },
+      { status: 500 },
+    );
+  }
+
+  try {
+    let historicalDataSeriesId: string | null = null;
     await prisma.$transaction(async (prisma) => {
-      // Do recipes before goal update
-      // New recipe data + existing recipe ID = update
-      if (goal.dataSeriesRecipe && goal.dataSeriesRecipeId) {
-        await prisma.recipe.update({
-          where: { id: goal.dataSeriesRecipeId },
-          data: { recipe: goal.dataSeriesRecipe },
+      // Do recipes before goal update, materializing any external variables into DataSeries
+      goal.dataSeriesRecipeId = (await upsertGoalRecipe(prisma, authorId, "data series", {
+        recipe: goal.dataSeriesRecipe, recipeId: goal.dataSeriesRecipeId, resolved: dataSeriesExternals,
+      })).recipeId;
+      goal.baselineRecipeId = (await upsertGoalRecipe(prisma, authorId, "baseline", {
+        recipe: goal.baselineRecipe, recipeId: goal.baselineRecipeId, resolved: baselineExternals,
+      })).recipeId;
+      const historicalResult = await upsertGoalRecipe(prisma, authorId, "historical", {
+        recipe: goal.historicalRecipe, recipeId: goal.historicalRecipeId, resolved: historicalExternals,
+      });
+      goal.historicalRecipeId = historicalResult.recipeId;
+      // The historical recipe's single external variable becomes the goal's historical DataSeries
+      const resolvedHistoricalId = Object.values(historicalResult.dataSeriesIdsByVariable)[0] ?? null;
+      historicalDataSeriesId = resolvedHistoricalId ?? goal.historicalId ?? null;
+      // Link the historical recipe to its resulting series so the source stays discoverable
+      if (resolvedHistoricalId && typeof goal.historicalRecipeId === 'string') {
+        await prisma.dataSeries.update({
+          where: { id: resolvedHistoricalId },
+          data: { recipeUsed: { connect: { id: goal.historicalRecipeId } } },
         });
-      }
-      // New recipe data + no existing recipe ID = create
-      else if (goal.dataSeriesRecipe) {
-        goal.dataSeriesRecipeId = (await prisma.recipe.create({
-          data: { recipe: goal.dataSeriesRecipe },
-          select: { id: true },
-        })).id;
-      }
-      // No new recipe data + existing recipe ID = link (if exists)
-      else if (!goal.dataSeriesRecipe && goal.dataSeriesRecipeId) {
-        const existingRecipe = await prisma.recipe.findUnique({
-          where: { id: goal.dataSeriesRecipeId },
-          select: { id: true },
-        });
-        if (!existingRecipe) {
-          console.warn(`Goal update: tried updating goal with a data series recipe (${goal.dataSeriesRecipeId}) but not found, unlinking...`);
-          goal.dataSeriesRecipeId = null;
-        }
-      }
-      // Baseline recipe
-      // New recipe data + existing recipe ID = update
-      if (goal.baselineRecipe && goal.baselineRecipeId) {
-        await prisma.recipe.update({
-          where: { id: goal.baselineRecipeId },
-          data: { recipe: goal.baselineRecipe },
-        });
-      }
-      // New recipe data + no existing recipe ID = create
-      else if (goal.baselineRecipe) {
-        goal.baselineRecipeId = (await prisma.recipe.create({
-          data: { recipe: goal.baselineRecipe },
-          select: { id: true },
-        })).id;
-      }
-      // No new recipe data + existing recipe ID = link (if exists)
-      else if (!goal.baselineRecipe && goal.baselineRecipeId) {
-        const existingRecipe = await prisma.recipe.findUnique({
-          where: { id: goal.baselineRecipeId },
-          select: { id: true },
-        });
-        if (!existingRecipe) {
-          console.warn(`Goal update: tried updating goal with a baseline recipe (${goal.baselineRecipeId}) but not found, unlinking...`);
-          goal.baselineRecipeId = null;
-        }
       }
 
       const hasNonEmptyBaselinePayload = !!goal.baseline && Object.keys(goal.baseline.dateValues).length > 0;
@@ -409,9 +557,6 @@ export async function PUT(request: NextRequest) {
           description: goal.description,
           indicatorParameter: goal.indicatorParameter,
           isFeatured: goal.isFeatured,
-          externalDataset: goal.externalDataset,
-          externalTableId: goal.externalTableId,
-          externalSelection: goal.externalSelection,
           dataSeries: goal.dataSeries ? {
             upsert: {
               create: {
@@ -454,6 +599,9 @@ export async function PUT(request: NextRequest) {
             } : goal.baselineId ? {
               connect: { id: goal.baselineId },
             } : undefined,
+          historical: historicalDataSeriesId
+            ? { connect: { id: historicalDataSeriesId } }
+            : undefined,
           links: {
             deleteMany: {},
             create: goal.links?.map(link => ({

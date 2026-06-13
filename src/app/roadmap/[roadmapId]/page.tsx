@@ -56,9 +56,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
       name: goal.name,
       indicatorParameter: goal.indicatorParameter,
       dataSeries: goal.dataSeries,
-      externalDataset: goal.externalDataset,
-      externalTableId: goal.externalTableId,
-      externalSelection: goal.externalSelection,
+      historical: goal.historical,
     }));
 
   let accessLevel: AccessLevel = AccessLevel.None;
@@ -135,7 +133,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
             )}
           </div>
           {featuredGoals.some(
-            goal => goal?.externalDataset && goal?.externalTableId,
+            goal => goal?.historical,
           ) && (
               <div className="display-flex align-items-center gap-100 margin-top-100 font-weight-500">
                 <span style={{ color: 'var(--gray-20)' }}><IconCircleFilled width={12} height={12} fill="#0090ff" aria-hidden="true" className="margin-right-25" />{t("common:goal_one")}</span>

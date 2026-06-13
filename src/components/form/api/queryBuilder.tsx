@@ -425,7 +425,7 @@ export default function QueryBuilder({
 
   return (
     <>
-      {goal.externalDataset && goal.externalTableId
+      {goal.historicalId
         ?
         <>
           <button type="button" className="gray-90 flex align-items-center gap-25 font-weight-500" style={{ fontSize: ".75rem", padding: ".3rem .6rem", lineHeight: '1.5' }} onClick={() => openModal(modalRef)}>

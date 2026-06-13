@@ -78,9 +78,6 @@ export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void
       description: undefined,
       indicatorParameter: csv[i][headerIndex["indicatorParameter"] ?? NaN],
       isFeatured: undefined,
-      externalDataset: undefined,
-      externalTableId: undefined,
-      externalSelection: undefined,
       recipeSuggestions: undefined,
       dataSeriesId: undefined,
       dataSeries: {
@@ -98,6 +95,10 @@ export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void
       },
       baselineRecipeId: undefined,
       baselineRecipe: undefined,
+      historicalId: undefined,
+      historical: undefined,
+      historicalRecipeId: undefined,
+      historicalRecipe: undefined,
       rawTags: undefined,
       links: undefined,
       roadmapId: "", // Will be assigned later :O

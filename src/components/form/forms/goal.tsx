@@ -263,11 +263,6 @@ export default function GoalForm({
         isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked || false,
         recipeSuggestions: undefined, // TODO: add recipe suggestions input
 
-        // Goals are currently created without historical data (external data), but the API can handle it if we change this later
-        externalDataset: null,
-        externalTableId: null,
-        externalSelection: null,
-
         dataSeriesId: null,
         dataSeries: dataSeries,
         dataSeriesRecipeId: null,
@@ -277,6 +272,12 @@ export default function GoalForm({
         baseline: baseline,
         baselineRecipeId: null,
         baselineRecipe: null,
+
+        // Goals are currently created without historical data; it's set later via the historical data form
+        historicalId: null,
+        historical: null,
+        historicalRecipeId: null,
+        historicalRecipe: null,
 
         roadmapId: roadmapId || parentRoadmapId,
         rawTags: undefined, // TODO: add tags input
@@ -297,10 +298,6 @@ export default function GoalForm({
         isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked ?? undefined,
         recipeSuggestions: undefined, // TODO: add recipe suggestions input
 
-        externalDataset: undefined,
-        externalTableId: undefined,
-        externalSelection: undefined,
-
         dataSeriesId: undefined,
         dataSeries: dataSeries,
         dataSeriesRecipeId: undefined,
@@ -310,6 +307,12 @@ export default function GoalForm({
         baseline: baseline,
         baselineRecipeId: undefined,
         baselineRecipe: undefined,
+
+        // Historical data is edited via the dedicated historical data form; leave unchanged here
+        historicalId: undefined,
+        historical: undefined,
+        historicalRecipeId: undefined,
+        historicalRecipe: undefined,
 
         roadmapId: undefined, // Can't reassign the roadmap of an existing goal
         rawTags: undefined, // TODO: add tags input
@@ -477,7 +480,7 @@ export default function GoalForm({
         {/* Suggested */}
         {hasInitializedSuggested ?
           <fieldset className={`margin-top-100 ${dataSeriesType !== DataSeriesType.Suggested ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Suggested}>
-            <RecipeContextProvider initialRecipe={currentGoal?.dataSeries?.recipeUsed?.recipe ? Recipe.from(currentGoal.dataSeries.recipeUsed.recipe).serialize() : undefined}>
+            <RecipeContextProvider initialRecipe={currentGoal?.dataSeries?.recipeUsed?.recipe ? Recipe.from(currentGoal.dataSeries.recipeUsed.recipe).withEditableExternals().serialize() : undefined}>
               <SuggestedRecipeApplier />
               <FormIntegration
                 RecipeFormElement={<input name="resultingRecipe" />}
@@ -497,7 +500,7 @@ export default function GoalForm({
         {/* Recipe */}
         {hasInitializedCustom ?
           <fieldset className={`margin-top-100 ${dataSeriesType !== DataSeriesType.Custom ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Custom}>
-            <RecipeContextProvider initialRecipe={currentGoal?.dataSeries?.recipeUsed?.recipe ? Recipe.from(currentGoal.dataSeries.recipeUsed.recipe).serialize() : undefined}>
+            <RecipeContextProvider initialRecipe={currentGoal?.dataSeries?.recipeUsed?.recipe ? Recipe.from(currentGoal.dataSeries.recipeUsed.recipe).withEditableExternals().serialize() : undefined}>
               <RecipeEditor />
               <FormIntegration
                 RecipeFormElement={<input name="resultingRecipe" />}

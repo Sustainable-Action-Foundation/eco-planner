@@ -220,11 +220,6 @@ export type GoalCreateInput = {
   indicatorParameter: string;
   isFeatured: boolean | undefined;
 
-  // External data source
-  externalDataset: string | null | undefined;
-  externalTableId: string | null | undefined;
-  externalSelection: string | null | undefined;
-
   recipeSuggestions: SerializedRecipe[] | null | undefined;
 
   dataSeriesId: string | null | undefined;
@@ -236,6 +231,13 @@ export type GoalCreateInput = {
   baseline: DateValuesWithUnit | null | undefined;
   baselineRecipeId: string | null | undefined;
   baselineRecipe: SerializedRecipe | null | undefined;
+
+  // Historical data. The external API selection lives in the recipe; the server
+  // fetches it into the `historical` DataSeries on save.
+  historicalId: string | null | undefined;
+  historical: DateValuesWithUnit | null | undefined;
+  historicalRecipeId: string | null | undefined;
+  historicalRecipe: SerializedRecipe | null | undefined;
 
   // Relations
   // authorId: string; // Derived from session in the API
@@ -272,11 +274,6 @@ export type GoalUpdateInput = {
   indicatorParameter: string | undefined;
   isFeatured: boolean | undefined;
 
-  // External data source
-  externalDataset: string | null | undefined;
-  externalTableId: string | null | undefined;
-  externalSelection: string | null | undefined;
-
   dataSeriesId: string | null | undefined;
   dataSeries: DateValuesWithUnit | null | undefined;
   dataSeriesRecipeId: string | null | undefined;
@@ -286,6 +283,13 @@ export type GoalUpdateInput = {
   baseline: DateValuesWithUnit | null | undefined;
   baselineRecipeId: string | null | undefined;
   baselineRecipe: SerializedRecipe | null | undefined;
+
+  // Historical data. The external API selection lives in the recipe; the server
+  // fetches it into the `historical` DataSeries on save.
+  historicalId: string | null | undefined;
+  historical: DateValuesWithUnit | null | undefined;
+  historicalRecipeId: string | null | undefined;
+  historicalRecipe: SerializedRecipe | null | undefined;
 
   recipeSuggestions: SerializedRecipe[] | null | undefined;
 

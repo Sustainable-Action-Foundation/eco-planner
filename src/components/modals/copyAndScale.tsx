@@ -100,10 +100,6 @@ export default function CopyAndScale({
       indicatorParameter: goal.indicatorParameter,
       isFeatured: undefined,
 
-      externalDataset: null,
-      externalTableId: null,
-      externalSelection: null,
-
       dataSeriesId: undefined,
       dataSeries: { dateValues: resultingDataSeries, unit: resultingUnit },
       dataSeriesRecipeId: undefined,
@@ -116,6 +112,12 @@ export default function CopyAndScale({
       baselineId: undefined,
       baselineRecipeId: undefined,
       baselineRecipe: undefined,
+
+      // TODO: copy historical data?
+      historicalId: undefined,
+      historical: undefined,
+      historicalRecipeId: undefined,
+      historicalRecipe: undefined,
 
       roadmapId: copyToId as string ?? "",
       // TODO: copy tags?

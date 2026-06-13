@@ -107,24 +107,6 @@ export function isGoalCreate(goal: unknown): goal is GoalCreateInput {
     return false;
   }
 
-  // externalDataset: string | null | undefined;
-  if ("externalDataset" in goal && !(typeof goal.externalDataset === 'string' || goal.externalDataset === null || goal.externalDataset === undefined)) {
-    console.debug(`optional goal parameter "externalDataset" has wrong type: ${typeof goal.externalDataset}`);
-    return false;
-  }
-
-  // externalTableId: string | null | undefined;
-  if ("externalTableId" in goal && !(typeof goal.externalTableId === 'string' || goal.externalTableId === null || goal.externalTableId === undefined)) {
-    console.debug(`optional goal parameter "externalTableId" has wrong type: ${typeof goal.externalTableId}`);
-    return false;
-  }
-
-  // externalSelection: string | null | undefined;
-  if ("externalSelection" in goal && !(typeof goal.externalSelection === 'string' || goal.externalSelection === null || goal.externalSelection === undefined)) {
-    console.debug(`optional goal parameter "externalSelection" has wrong type: ${typeof goal.externalSelection}`);
-    return false;
-  }
-
   // recipeSuggestions: SerializedRecipe[] | null | undefined;
   if ("recipeSuggestions" in goal && !(
     (
@@ -228,6 +210,30 @@ export function isGoalCreate(goal: unknown): goal is GoalCreateInput {
     return false;
   }
 
+  // historicalId: string | null | undefined;
+  if ("historicalId" in goal && !(typeof goal.historicalId === 'string' || goal.historicalId === null || goal.historicalId === undefined)) {
+    console.debug(`optional goal parameter "historicalId" has wrong type: ${typeof goal.historicalId}`);
+    return false;
+  }
+
+  // historicalRecipe: SerializedRecipe | null | undefined;
+  if ("historicalRecipe" in goal) {
+    if (!(
+      goal.historicalRecipe === null
+      || goal.historicalRecipe === undefined
+      || typeof goal.historicalRecipe === "string"
+    )) {
+      console.debug(`optional goal parameter "historicalRecipe" is neither nullish nor a serialized recipe string`);
+      return false;
+    }
+  }
+
+  // historicalRecipeId: string | null | undefined;
+  if ("historicalRecipeId" in goal && !(typeof goal.historicalRecipeId === 'string' || goal.historicalRecipeId === null || goal.historicalRecipeId === undefined)) {
+    console.debug(`optional goal parameter "historicalRecipeId" has wrong type: ${typeof goal.historicalRecipeId}`);
+    return false;
+  }
+
   // rawTags: string[] | null | undefined;
   if ("rawTags" in goal && !(
     goal.rawTags === null
@@ -308,24 +314,6 @@ export function isGoalUpdate(goal: unknown): goal is GoalUpdateInput {
   // isFeatured: boolean | undefined;
   if ("isFeatured" in goal && !(typeof goal.isFeatured === 'boolean' || goal.isFeatured === undefined)) {
     console.debug(`optional goal parameter "isFeatured" has wrong type: ${typeof goal.isFeatured}`);
-    return false;
-  }
-
-  // externalDataset: string | null | undefined;
-  if ("externalDataset" in goal && !(typeof goal.externalDataset === 'string' || goal.externalDataset === null || goal.externalDataset === undefined)) {
-    console.debug(`optional goal parameter "externalDataset" has wrong type: ${typeof goal.externalDataset}`);
-    return false;
-  }
-
-  // externalTableId: string | null | undefined;
-  if ("externalTableId" in goal && !(typeof goal.externalTableId === 'string' || goal.externalTableId === null || goal.externalTableId === undefined)) {
-    console.debug(`optional goal parameter "externalTableId" has wrong type: ${typeof goal.externalTableId}`);
-    return false;
-  }
-
-  // externalSelection: string | null | undefined;
-  if ("externalSelection" in goal && !(typeof goal.externalSelection === 'string' || goal.externalSelection === null || goal.externalSelection === undefined)) {
-    console.debug(`optional goal parameter "externalSelection" has wrong type: ${typeof goal.externalSelection}`);
     return false;
   }
 
@@ -427,6 +415,30 @@ export function isGoalUpdate(goal: unknown): goal is GoalUpdateInput {
   // baselineRecipeId: string | null | undefined;
   if ("baselineRecipeId" in goal && !(typeof goal.baselineRecipeId === 'string' || goal.baselineRecipeId === null || goal.baselineRecipeId === undefined)) {
     console.debug(`optional goal parameter "baselineRecipeId" has wrong type: ${typeof goal.baselineRecipeId}`);
+    return false;
+  }
+
+  // historicalId: string | null | undefined;
+  if ("historicalId" in goal && !(typeof goal.historicalId === 'string' || goal.historicalId === null || goal.historicalId === undefined)) {
+    console.debug(`optional goal parameter "historicalId" has wrong type: ${typeof goal.historicalId}`);
+    return false;
+  }
+
+  // historicalRecipe: SerializedRecipe | null | undefined;
+  if ("historicalRecipe" in goal) {
+    if (!(
+      goal.historicalRecipe === null
+      || goal.historicalRecipe === undefined
+      || typeof goal.historicalRecipe === "string"
+    )) {
+      console.debug(`optional goal parameter "historicalRecipe" is neither nullish nor a serialized recipe string`);
+      return false;
+    }
+  }
+
+  // historicalRecipeId: string | null | undefined;
+  if ("historicalRecipeId" in goal && !(typeof goal.historicalRecipeId === 'string' || goal.historicalRecipeId === null || goal.historicalRecipeId === undefined)) {
+    console.debug(`optional goal parameter "historicalRecipeId" has wrong type: ${typeof goal.historicalRecipeId}`);
     return false;
   }
 

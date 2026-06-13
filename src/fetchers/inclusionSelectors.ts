@@ -84,6 +84,7 @@ export const roadmapInclusionSelection = {
     include: {
       _count: { select: { effects: true } },
       dataSeries: { include: dataSeriesInclusionSelection },
+      historical: { include: dataSeriesInclusionSelection },
       author: { select: { id: true, username: true } },
       recipeSuggestions: true,
     },
@@ -131,12 +132,10 @@ export const clientSafeRoadmapSelection = {
       description: true,
       indicatorParameter: true,
       isFeatured: true,
-      externalDataset: true,
-      externalTableId: true,
-      externalSelection: true,
       _count: { select: { effects: true } },
       dataSeries: { include: dataSeriesInclusionSelection },
       baseline: { include: dataSeriesInclusionSelection },
+      historical: { include: dataSeriesInclusionSelection },
       effects: {
         select: {
           actionId: true,
@@ -226,6 +225,7 @@ export const goalInclusionSelection = {
   recipeSuggestions: true,
   dataSeries: { include: dataSeriesInclusionSelection },
   baseline: { include: dataSeriesInclusionSelection },
+  historical: { include: dataSeriesInclusionSelection },
   effects: {
     include: {
       dataSeries: { include: dataSeriesInclusionSelection },
@@ -269,12 +269,10 @@ export const clientSafeGoalSelection = {
   description: true,
   indicatorParameter: true,
   isFeatured: true,
-  externalDataset: true,
-  externalTableId: true,
-  externalSelection: true,
   roadmapId: true,
   dataSeries: { include: dataSeriesInclusionSelection },
   baseline: { include: dataSeriesInclusionSelection },
+  historical: { include: dataSeriesInclusionSelection },
   _count: { select: { effects: true } },
 } satisfies Prisma.GoalSelect;
 

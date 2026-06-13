@@ -1,12 +1,60 @@
 import { isDataSeriesVariable, isExternalSelection, isScalarVariable, RecipeDataTypes, RecipeError } from "@/functions/recipe/types";
-import type { RecipeExtractionOutput, RecipeVariable, EvalTimeVariable } from "@/functions/recipe/types";
+import type { ExternalVariable, RecipeExtractionOutput, RecipeVariable, EvalTimeVariable } from "@/functions/recipe/types";
 import getTableContent from "@/lib/api/getTableContent";
 import type { ApiTableContent } from "@/lib/api/apiTypes";
 import mathjs from "@/math";
 import { isISOIshDate } from "@/types";
-import type { DataSeries, DateValues } from "@/types";
+import type { DataSeries, DateValues, DateValuesWithUnit } from "@/types";
 import { filterToInitialYearlyRecords, parsePeriod } from "@/lib/api/utility";
 import { getPrevailingUnit, isMathjsUnit, pickDateValues } from "@/functions/recipe/vectorAndMaskUtils";
+
+/**
+ * Fetches the data for a single external variable and parses it into a
+ * {@link DateValuesWithUnit} (the full fetched series, before any `pick`).
+ *
+ * Used both during evaluation (edit-time preview) and when materializing an
+ * external variable into a stored `DataSeries` on save.
+ */
+export async function fetchExternalVariableData(
+  variable: ExternalVariable,
+  warnings: string[] = [],
+  externalTableContentGetter: (tableId: string, dataset: string, selection: { variableCode: string, valueCodes: string[] }[]) => Promise<ApiTableContent | null> = getTableContent,
+): Promise<DateValuesWithUnit> {
+  const { dataset, tableId, selection } = variable;
+
+  if (!dataset || !tableId || !isExternalSelection(selection)) { // These props may all be null
+    throw new RecipeError(`External dataset variable '${variable.name}' (id: '${variable.id}') is missing 'dataset', 'tableId' and/or 'selection' properties.`);
+  }
+
+  const data = await externalTableContentGetter(tableId, dataset, selection);
+
+  if (!data) {
+    throw new RecipeError(`External dataset variable '${variable.name}' (id: '${variable.id}') has no data for tableId '${tableId}' and dataset '${dataset}' and selection '${JSON.stringify(selection)}'.`);
+  }
+  if (data.values.length === 0) {
+    throw new RecipeError(`External dataset variable '${variable.name}' (id: '${variable.id}') has no values. Expected an array of values with 'period' and 'value' properties.`);
+  }
+
+  const timeline: DateValues = {};
+
+  const fetchedValues = filterToInitialYearlyRecords(data.values);
+  for (const valuePeriod of fetchedValues) {
+    const parsedDate = parsePeriod(valuePeriod.period);
+    const isoDateString = new Date(`${parsedDate.getUTCFullYear()}-01-01T00:00:00Z`).toISOString();
+    if (!isISOIshDate(isoDateString)) {
+      throw new RecipeError(`External dataset variable "${variable.name}" contains invalid ISOIshDate keys after parsing period "${valuePeriod.period}".`);
+    }
+    timeline[isoDateString] = parseFloat(valuePeriod.value); // TODO: what is the preferred way to parse these values?
+  }
+
+  // TODO: how should units be derived here? I can't find anything in the API response that indicates units.
+  const bestUnit = getPrevailingUnit(undefined, variable.unit);
+  const isValidUnit = isMathjsUnit(bestUnit);
+  if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variable.name}" has an invalid unit "${bestUnit}". Treating as unitless.`);
+  const unit = isValidUnit ? bestUnit : undefined;
+
+  return { dateValues: timeline, unit };
+}
 
 export function extractScalars(
   variables: RecipeVariable[],
@@ -127,41 +175,10 @@ export async function extractExternalDatasets(
   for (const variable of variables) {
     if (variable.type !== RecipeDataTypes.External) continue;
 
-    const { dataset, tableId, selection } = variable;
-
-    if (!dataset || !tableId || !isExternalSelection(selection)) { // These props may all be null
-      throw new RecipeError(`External dataset variable '${variable.name}' (id: '${variable.id}') is missing 'dataset', 'tableId' and/or 'selection' properties.`);
-    }
-
     fetchers.push(async () => {
-      const data = await externalTableContentGetter(tableId, dataset, selection);
+      const fetched = await fetchExternalVariableData(variable, warnings, externalTableContentGetter);
 
-      if (!data) {
-        throw new RecipeError(`External dataset variable '${variable.name}' (id: '${variable.id}') has no data for tableId '${tableId}' and dataset '${dataset}' and selection '${JSON.stringify(selection)}'.`);
-      }
-      if (data.values.length === 0) {
-        throw new RecipeError(`External dataset variable '${variable.name}' (id: '${variable.id}') has no values. Expected an array of values with 'period' and 'value' properties.`);
-      }
-
-      const timeline: DateValues = {};
-
-      const fetchedValues = filterToInitialYearlyRecords(data.values);
-      for (const valuePeriod of fetchedValues) {
-        const parsedDate = parsePeriod(valuePeriod.period);
-        const isoDateString = new Date(`${parsedDate.getUTCFullYear()}-01-01T00:00:00Z`).toISOString();
-        if (!isISOIshDate(isoDateString)) {
-          throw new RecipeError(`External dataset variable "${variable.name}" contains invalid ISOIshDate keys after parsing period "${valuePeriod.period}".`);
-        }
-        timeline[isoDateString] = parseFloat(valuePeriod.value); // TODO: what is the preferred way to parse these values?
-      }
-
-      // TODO: how should units be derived here? I can't find anything in the API response that indicates units.
-      const bestUnit = getPrevailingUnit(undefined, variable.unit);
-      const isValidUnit = isMathjsUnit(bestUnit);
-      if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variable.name}" has an invalid unit "${bestUnit}". Treating as unitless.`);
-      const unit = isValidUnit ? bestUnit : undefined;
-
-      const picked = pickDateValues({ dateValues: timeline, unit }, variable.pick);
+      const picked = pickDateValues(fetched, variable.pick);
 
       if (picked instanceof mathjs.Unit) {
         externalDatasets.push({

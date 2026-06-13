@@ -1,8 +1,6 @@
 "use client";
 
-import type { ApiTableContent } from "@/lib/api/apiTypes";
-import type { DatasetData } from "@/lib/api/utility";
-import { ExternalDataset } from "@/lib/api/utility";
+import { getHistoricalDataset } from "@/functions/getHistoricalDataset";
 import { useState } from "react";
 import { getStoredGraphType } from "../../../functions/graphFunctions";
 import GraphSelector from "../../../graphSelectors/graphSelector";
@@ -35,7 +33,6 @@ export default function GraphGraph({
   childGoals,
   roadmap,
   parentGoalRoadmap,
-  historicalData,
   effects,
   session,
   roadmapOptions,
@@ -46,7 +43,6 @@ export default function GraphGraph({
   childGoals: Goal[], // TODO: Should be optional
   roadmap: Roadmap,
   parentGoalRoadmap: Roadmap | null,
-  historicalData?: ApiTableContent | null,
   effects: Effect[] | Goal["effects"],
   session: LoginData,
   roadmapOptions: {
@@ -72,14 +68,11 @@ export default function GraphGraph({
         return findSiblings(roadmap, goal).length > 1 && <SiblingGraph roadmap={roadmap} goal={goal} />; // TODO: Does findSiblings make sense here?
       case GraphType.Main:
       default:
-        return <MainGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} historicalData={historicalData} secondaryGoal={secondaryGoal} effects={effects} />;
+        return <MainGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} secondaryGoal={secondaryGoal} effects={effects} />;
     }
   };
 
-  let dataset: DatasetData | null = null;
-  if (historicalData?.metadata[0]?.source) {
-    dataset = ExternalDataset.getDatasetByAlternateName(historicalData.metadata[0].source);
-  }
+  const { dataset } = getHistoricalDataset(goal);
 
   return (
     <div className={`${styles['tab-panel']}`}>
@@ -105,12 +98,12 @@ export default function GraphGraph({
         {graphSwitch(graphType || GraphType.Main)}
       </div>
 
-      {historicalData ?
+      {goal.historical && dataset ?
         <footer className={`${styles['footer']}`} >
           <Trans
             i18nKey="graphs:graph_graph.historical_data_source"
-            components={{ a: <a href={dataset?.userFacingUrl} target="_blank" rel="noreferrer" /> }}
-            tOptions={{ source: dataset?.fullName ?? historicalData.metadata[0]?.source }}
+            components={{ a: <a href={dataset.userFacingUrl} target="_blank" rel="noreferrer" /> }}
+            tOptions={{ source: dataset.fullName ?? dataset.userFacingUrl }}
           />
         </footer>
         : null}
