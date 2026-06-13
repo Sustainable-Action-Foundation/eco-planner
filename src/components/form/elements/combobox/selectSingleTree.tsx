@@ -3,7 +3,7 @@
 import type { InputElement, TreeItem } from "@/components/types";
 import { IconCaretRightFilled, IconSelector } from "@tabler/icons-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { handleKeyDownTreeCombobox, preventInvalidFormSubmission } from "./functions";
+import { handleKeyDownTreeCombobox, preventInvalidFormSubmission, scrollOptionIntoView } from "./functions";
 import styles from './comboBox.module.css' with { type: "css" };
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
@@ -50,7 +50,7 @@ function updateNodeInTree(
   });
 }
 
-export default function SelectSingleTreeSearch({
+export default function SelectSingleTree({
   treeItems,
   props,
   defaultValue,
@@ -69,7 +69,8 @@ export default function SelectSingleTreeSearch({
   const [items, setItems] = useState<Array<TreeItem>>(treeItems);
   const [flattenedItems, setFlattenedItems] = useState<Array<TreeItem>>(flattenTree(treeItems));
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
-  const toggleRef = useRef<HTMLButtonElement>(null); // TODO: Rename?
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const treeItemsRef = useRef<(HTMLLIElement | null)[]>([]);
 
   useEffect(() => {
     if (!onChange) return;
@@ -112,6 +113,14 @@ export default function SelectSingleTreeSearch({
     setFlattenedItems(flattenTree(treeItems));
   }, [treeItems]);
 
+  useEffect(() => {
+    // Very janky, ideally want to get just "nearest to function as intended..."
+    scrollOptionIntoView(
+      treeItemsRef.current,
+      focusedIndex, 
+      focusedIndex === 0 ? "start" : "nearest",
+  ); }, [focusedIndex]);
+
   const handleUpdateNode = (value: string, updater: (n: TreeItem) => TreeItem) => {
     setItems(prev => updateNodeInTree(prev, value, updater));
   };
@@ -146,10 +155,13 @@ export default function SelectSingleTreeSearch({
     onUpdate: (value: string, updater: (n: TreeItem) => TreeItem) => void,
     depth?: number
   }) {
+    const index = flattenedItems.findIndex(i => i.value === item.value);
+
     return (
       <li
         role="treeitem"
         id={`${item.value}`}
+        ref={(el) => { treeItemsRef.current[index] = el; }}
         aria-level={depth + 1}
         aria-selected={(item.expanded === null || item.onExpand === undefined) && item.value === value?.value}
         aria-expanded={
@@ -160,9 +172,15 @@ export default function SelectSingleTreeSearch({
         <div
           className={`flex gap-25 align-items-center justify-content-space-between`}
           onClick={
-            item.expanded !== null || item.onExpand !== undefined // TODO: This seems buggy with setting keyboard controls...
-              ? () => { void toggleNode(item); } 
-              : () => { setValue(item?.value !== value?.value ? item : null); setMenuOpen(false); }
+            item.expanded !== null || item.onExpand !== undefined
+              ? () => { 
+                void toggleNode(item);
+                toggleRef.current?.focus();
+              } 
+              : () => { 
+                setValue(item?.value !== value?.value ? item : null);
+                setMenuOpen(false);
+              }
           }
         >
           {(item.onExpand || (item.childNodes && item.childNodes.length > 0))
@@ -279,6 +297,7 @@ export default function SelectSingleTreeSearch({
       <ul
         id={`${props.id}-dialog-tree`}
         tabIndex={-1}
+        style={{scrollPadding: '45%'}}
         className={`              
             ${styles['tree']} 
             ${menuOpen ? styles['visible'] : ''} 

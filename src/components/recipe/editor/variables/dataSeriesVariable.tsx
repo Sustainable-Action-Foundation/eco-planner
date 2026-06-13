@@ -4,7 +4,7 @@ import { isDataSeriesVariable, RecipeError } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import React, { useCallback, useMemo } from "react";
 import type { TreeItem } from "@/components/types";
-import SelectSingleTreeSearch from "@/components/form/elements/combobox/selectSingleTreeSearch";
+import SelectSingleTree from "@/components/form/elements/combobox/selectSingleTree";
 import { clientSafeGetOneRoadmap } from "@/fetchers/client";
 import { RecipeEditorPermissions, CommonVariable, useRecipe, VectorPickerSelect } from "@/components/recipe";
 import type { RecipeContextType } from "@/components/recipe";
@@ -142,7 +142,7 @@ export function DataSeriesVariableEditor({
         <label htmlFor={fieldIdBase}>
           {t("components:recipe_editor.select_data_series")}
         </label>
-        <SelectSingleTreeSearch
+        <SelectSingleTree
           key={`recipeVariable-${fieldIdBase}`}
           props={{
             id: fieldIdBase,
@@ -206,7 +206,7 @@ export function DataSeriesVariableSimpleEditor({
     : undefined;
     
   return (
-    <SelectSingleTreeSearch
+    <SelectSingleTree
       key={`recipeVariable-${variableId}`}
       props={{
         id: `recipeVariable-${variableId}`,

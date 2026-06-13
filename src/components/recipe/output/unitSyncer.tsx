@@ -14,6 +14,7 @@ export default function UnitSync({
   return (
     <button
       type="button"
+      className="margin-right-50"
       onClick={() => {
         setter(resultingUnit);
       }}

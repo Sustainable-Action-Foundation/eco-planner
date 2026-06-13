@@ -401,37 +401,6 @@ export default function GoalForm({
           value={indicatorParameter}
           setter={setIndicatorParameter}
         />
-
-        {/* Unit, TODO: MOVE BELOW RECIPE STUFF! */}
-        <label htmlFor="dataUnit">
-          {t("forms:goal.data_unit")}
-        </label>
-        <TextSingleAutocomplete
-          props={{
-            id: "dataUnit",
-            name: "dataUnit",
-            placeholder: t("forms:combobox.default_autocomplete_placeholder"),
-            className: "margin-top-25",
-            defaultValue: currentGoal?.dataSeries?.unit ?? undefined,
-          }}
-          options={allOurUnits.map(u => ({ name: u, value: u }))}
-          onChange={(unit) => {
-            try {
-              setParsedUnit(mathjs.unit(unit).toString());
-            } catch {
-              setParsedUnit(null);
-            }
-          }}
-          value={unit}
-          setter={setUnit}
-        />
-        <small className="block margin-top-25 margin-bottom-100 font-style-italic" style={{ height: '20px' }}>
-          {parsedUnit === null && t("forms:goal.unit_not_interpreted")}
-
-          {parsedUnit ? <>
-            {t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong>
-          </> : null}
-        </small>
       </fieldset>
 
       {/* Data series input section */}
@@ -479,7 +448,7 @@ export default function GoalForm({
         */}
         {/* Suggested */}
         {hasInitializedSuggested ?
-          <fieldset className={`margin-top-100 ${dataSeriesType !== DataSeriesType.Suggested ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Suggested}>
+          <fieldset className={`margin-bottom-100 ${dataSeriesType !== DataSeriesType.Suggested ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Suggested}>
             <RecipeContextProvider initialRecipe={currentGoal?.dataSeries?.recipeUsed?.recipe ? Recipe.from(currentGoal.dataSeries.recipeUsed.recipe).withEditableExternals().serialize() : undefined}>
               <SuggestedRecipeApplier />
               <FormIntegration
@@ -499,7 +468,7 @@ export default function GoalForm({
 
         {/* Recipe */}
         {hasInitializedCustom ?
-          <fieldset className={`margin-top-100 ${dataSeriesType !== DataSeriesType.Custom ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Custom}>
+          <fieldset className={`margin-bottom-100 ${dataSeriesType !== DataSeriesType.Custom ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Custom}>
             <RecipeContextProvider initialRecipe={currentGoal?.dataSeries?.recipeUsed?.recipe ? Recipe.from(currentGoal.dataSeries.recipeUsed.recipe).withEditableExternals().serialize() : undefined}>
               <RecipeEditor />
               <FormIntegration
@@ -518,12 +487,45 @@ export default function GoalForm({
         }
 
         {/* Manual */}
-        <fieldset className={`${dataSeriesType === DataSeriesType.Manual ? "" : "display-none"}`} disabled={dataSeriesType !== DataSeriesType.Manual}>
+        <fieldset className={`margin-bottom-100 ${dataSeriesType === DataSeriesType.Manual ? "" : "display-none"}`} disabled={dataSeriesType !== DataSeriesType.Manual}>
           <ManualGoalForm
             currentGoal={currentGoal}
             outputFormElement={<input name="data-series" />}
           />
         </fieldset>
+
+        {/* Unit */}
+        <label htmlFor="dataUnit">
+          {t("forms:goal.data_unit")}
+        </label>
+        <TextSingleAutocomplete
+          props={{
+            id: "dataUnit",
+            name: "dataUnit",
+            placeholder: t("forms:combobox.default_autocomplete_placeholder"),
+            className: "margin-top-25",
+            defaultValue: currentGoal?.dataSeries?.unit ?? undefined,
+          }}
+          options={allOurUnits.map(u => ({ name: u, value: u }))}
+          onChange={(unit) => {
+            try {
+              setParsedUnit(mathjs.unit(unit).toString());
+            } catch {
+              setParsedUnit(null);
+            }
+          }}
+          value={unit}
+          setter={setUnit}
+        />
+        <small className="block margin-top-25 margin-bottom-100 font-style-italic" style={{ height: '20px' }}>
+          {parsedUnit === null && t("forms:goal.unit_not_interpreted")}
+
+          {parsedUnit ? <>
+            {t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong>
+          </> : null}
+        </small>
+
+
       </fieldset>
 
       {/* Baseline selection section */}
