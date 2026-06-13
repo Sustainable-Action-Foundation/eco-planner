@@ -69,6 +69,7 @@ test.describe("Goals tests", () => {
     await page.locator('#indicatorParameter').fill(indicatorRequiredOnly);
     await page.locator('#dataUnit').fill(unitRequiredOnly);
     await page.locator('#dataUnit').blur(); // Need to blur this so dropdown menu doesnt block items below
+    await page.keyboard.press('Escape'); // If blur doesnt work this should
 
     await fillManualDataSeries(page, Array.from({ length: 10 }, (_, i) => [2020 + i, 1]));
 
@@ -126,7 +127,7 @@ test.describe("Goals tests", () => {
 
     await expect.soft(page.locator('#isFeatured')).not.toBeChecked();
 
-    // Submit
+    // Submit 
     await page.locator('#submit-button').click();
     await page.locator('#comment-text').hover();
 
@@ -139,7 +140,8 @@ test.describe("Goals tests", () => {
 
     // Editing fields
     await page.locator('#indicatorParameter').fill(indicatorRequiredUpdated);
-    await page.locator('#indicatorParameter').blur();
+    await page.locator('#indicatorParameter').blur(); // Blurring or escaping should close the window?
+    await page.keyboard.press('Escape');
 
     // Need to focus this cell to ensure the value is filled properly, otherwise the test will fail on Firefox and Webkit because the first attempt to input data into a cell only sets focus into the table, without successfully filling the cell.
     await page.locator(`#goal-dataseries [data-row="0"][data-column="1"] input`).focus();
@@ -149,7 +151,8 @@ test.describe("Goals tests", () => {
     }
 
     await page.locator('#dataUnit').fill(unitRequiredUpdated);
-    await page.locator('#dataUnit').blur();
+    await page.locator('#dataUnit').blur(); // Blurring or escaping should close the window?
+    await page.keyboard.press('Escape');
 
     await page.locator('#baselineSelector').selectOption("INITIAL_NON_ZERO");
     await page.locator('#isFeatured').check();
@@ -208,6 +211,7 @@ test.describe("Goals tests", () => {
     await page.locator('#indicatorParameter').fill(indicatorAll);
     await page.locator('#dataUnit').fill(unitAll);
     await page.locator('#dataUnit').blur(); // Need to blur this so dropdown menu doesnt block items below
+    await page.keyboard.press('Escape');
 
     await fillManualDataSeries(page, Array.from({ length: 30 }, (_, i) => [2020 + i, i]));
 
