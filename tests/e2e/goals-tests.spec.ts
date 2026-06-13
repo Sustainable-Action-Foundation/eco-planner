@@ -139,7 +139,7 @@ test.describe("Goals tests", () => {
 
     // Editing fields
     await page.locator('#indicatorParameter').fill(indicatorRequiredUpdated);
-    await page.locator('#dataUnit').fill(unitRequiredUpdated);
+    await page.locator('#indicatorParameter').blur();
 
     // Need to focus this cell to ensure the value is filled properly, otherwise the test will fail on Firefox and Webkit because the first attempt to input data into a cell only sets focus into the table, without successfully filling the cell.
     await page.locator(`#goal-dataseries [data-row="0"][data-column="1"] input`).focus();
@@ -147,6 +147,9 @@ test.describe("Goals tests", () => {
       await page.locator(`#goal-dataseries [data-row="${i}"][data-column="1"] input`).fill(String(2025 + i));
       await page.locator(`#goal-dataseries [data-row="${i}"][data-column="2"] input`).fill(i ? String(4) : String(0)); // set all values except first to 4, to test that the initial non zero baseline type works correctly
     }
+
+    await page.locator('#dataUnit').fill(unitRequiredUpdated);
+    await page.locator('#dataUnit').blur();
 
     await page.locator('#baselineSelector').selectOption("INITIAL_NON_ZERO");
     await page.locator('#isFeatured').check();
@@ -301,6 +304,7 @@ test.describe("Goals tests", () => {
 
     await page.getByPlaceholder('recipe_editor.scalar').fill('48');
     await page.locator('#dataUnit').fill(unitAllUpdated);
+
 
     await page.locator('#baselineSelector').selectOption("INITIAL");
     await page.locator('#isFeatured').uncheck();
