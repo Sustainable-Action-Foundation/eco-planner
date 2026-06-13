@@ -15,6 +15,9 @@ import { handleKeyDownTextAutocomplete, scrollOptionIntoView } from "./functions
 // TODO: Check tab completion against w3c implementation (and other keyboard functions + aria-states for that part...)
 // TODO: Little annoying to select text when search field doesnt occupy the whole thing. 
 // TODO: Tabbing should probably select and then move focus? I.e no prevent default?
+// TODO: No suggestions if we have a perfect match?
+// TODO: Fuzzy search is probably a little bit to sensitive
+// TODO: Cant seem to select text?
 
 export default function TextSingleAutocomplete({
   props,
@@ -210,13 +213,13 @@ export default function TextSingleAutocomplete({
           }
           style={{
             ...(theme?.style),
-            maxHeight: 'calc((33px * 7) + 6px)',
+            maxHeight: 'calc((24px * 6) + 6px)',
             // maxHeight: maxOptions ? `${(maxOptions * 33) + 6}px` : '300px',  TODO: Implement for select comboboxes as well
             width: 'auto',
             position: 'absolute',
-            positionAnchor: '--value-anchor',
+            positionAnchor: '--value-anchor', // TODO: Need fallback
             top: 'anchor(bottom)',
-            left: 'anchor(right)',
+            left: value.length === 0 ? 'anchor(left)' : 'anchor(right)',
             padding: '0',
             marginTop: '1rem',
           }}
