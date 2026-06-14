@@ -1,6 +1,5 @@
 import type { TreeItem } from "@/components/types";
 
-// TODO: Enter should refocus our combobox
 export const handleKeyDownTreeCombobox = (
   e: React.KeyboardEvent<HTMLInputElement | HTMLButtonElement>,
   focusedTreeOptionIndex: number | null,
@@ -120,105 +119,126 @@ export const handleKeyDownEditableCombobox = (
   onEnter: (selectedOption: { name: string, value: string } | null, index: number | null) => void, // TODO: Do we even need index?
 ) => {
 
-  // 1. Stops focusing any listbox item
-  // 2. Closes listbox if it can be, and is, expanded
-  // 3. Focuses the element which made the listbox visible
-  if (e.key === "Escape") {
-    if (listboxDisplayed) {
+  const key = e.key;
+
+  switch (key) {
+    // 1. Stops focusing any listbox item
+    // 2. Closes listbox if it can be, and is, expanded
+    // 3. Focuses the element which made the listbox visible
+    case "Escape": {
+      if (listboxDisplayed) {
+        e.preventDefault();
+      }
+      setFocusedListboxOptionIndex(null);
+      if (listboxDisplayed && setListboxDisplayed) {
+        setListboxDisplayed(false);
+        comboboxElement.focus();
+      }
+
+      break;
+    }
+
+    case "Home": {
       e.preventDefault();
-    }
-    setFocusedListboxOptionIndex(null);
-    if (listboxDisplayed && setListboxDisplayed) {
-      setListboxDisplayed(false);
-      comboboxElement.focus();
-    }
-  }
+      if (listboxDisplayed) {
+        setFocusedListboxOptionIndex(0);
+      }
 
-  if (e.key === 'Home') {
-    e.preventDefault();
-    if (listboxDisplayed) {
-      setFocusedListboxOptionIndex(0);
-    }
-  }
-
-  if (e.key === 'End') {
-    e.preventDefault();
-    if (listboxDisplayed) {
-      setFocusedListboxOptionIndex(listboxOptions.length - 1);
-    }
-  }
-
-  // 1. Opens listbox if it can be, and is, closed
-  // 2. Sets Focus to the first option in the listbox 
-  //    Spec tells us the focus should be placed on the option which was already focused, if it exists. We ignore this.
-  // 2. If the listbox contains a focused option and do one of two things:
-  //    2.1. If focus is not on the last option, move focus to the the next option  
-  //    2.2. Move focus to the first option  
-  // 3. If the menu is open and no option is focused we messed up somewhere, panic ensues and we set focus to the first option
-  if (e.key === 'ArrowDown' && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
-    e.preventDefault();
-
-    if (!listboxDisplayed && setListboxDisplayed) {
-      setListboxDisplayed(true);
-      setFocusedListboxOptionIndex(0);
+      break;
     }
 
-    if (focusedListboxOptionIndex != null) {
-      if (focusedListboxOptionIndex !== listboxOptions.length - 1) {
-        setFocusedListboxOptionIndex(focusedListboxOptionIndex + 1);
+    case "End": {
+      e.preventDefault();
+      if (listboxDisplayed) {
+        setFocusedListboxOptionIndex(listboxOptions.length - 1);
+      }
+
+      break;
+    }
+
+
+    // 1. Opens listbox if it can be, and is, closed
+    // 2. Sets Focus to the first option in the listbox 
+    //    Spec tells us the focus should be placed on the option which was already focused, if it exists. We ignore this.
+    // 2. If the listbox contains a focused option and do one of two things:
+    //    2.1. If focus is not on the last option, move focus to the the next option  
+    //    2.2. Move focus to the first option  
+    // 3. If the menu is open and no option is focused we messed up somewhere, panic ensues and we set focus to the first option
+    case "ArrowDown": {
+      if (e.ctrlKey && e.shiftKey && e.altKey && e.metaKey) return;
+      e.preventDefault();
+
+      if (!listboxDisplayed && setListboxDisplayed) {
+        setListboxDisplayed(true);
+        setFocusedListboxOptionIndex(0);
+      }
+
+      if (focusedListboxOptionIndex != null) {
+        if (focusedListboxOptionIndex !== listboxOptions.length - 1) {
+          setFocusedListboxOptionIndex(focusedListboxOptionIndex + 1);
+        } else {
+          setFocusedListboxOptionIndex(0);
+        }
       } else {
         setFocusedListboxOptionIndex(0);
       }
-    } else {
-      setFocusedListboxOptionIndex(0);
-    }
-  }
 
-  // 1. Opens listbox if it can be, and is, closed
-  // 2. Sets Focus to the first option in the listbox (TODO: Spec tells ut should be last?)
-  //    Spec tells us the focus should be placed on the option which was already focused, if it exists. We ignore this.
-  // 2. If the listbox contains a focused option and do one of two things:
-  //    2.1. If focus is not on the first option, move focus to the the previous option  
-  //    2.2. Move focus to the last option  
-  // 3. If the menu is open and no option is focused we messed up somewhere, panic ensues and we set focus to the first option
-  if (e.key === 'ArrowUp' && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
-    e.preventDefault();
-
-    if (!listboxDisplayed && setListboxDisplayed) {
-      setListboxDisplayed(true);
-      setFocusedListboxOptionIndex(0);
+      break;
     }
 
-    if (focusedListboxOptionIndex != null) {
-      if (focusedListboxOptionIndex !== 0) {
-        setFocusedListboxOptionIndex(focusedListboxOptionIndex - 1);
-      } else {
-        setFocusedListboxOptionIndex(listboxOptions.length - 1);
+    // 1. Opens listbox if it can be, and is, closed
+    // 2. Sets Focus to the first option in the listbox (TODO: Spec tells ut should be last?)
+    //    Spec tells us the focus should be placed on the option which was already focused, if it exists. We ignore this.
+    // 2. If the listbox contains a focused option and do one of two things:
+    //    2.1. If focus is not on the first option, move focus to the the previous option  
+    //    2.2. Move focus to the last option  
+    // 3. If the menu is open and no option is focused we messed up somewhere, panic ensues and we set focus to the first option
+    case "ArrowUp": {
+      if (e.ctrlKey && e.shiftKey && e.altKey && e.metaKey) return;
+
+      e.preventDefault();
+
+      if (!listboxDisplayed && setListboxDisplayed) {
+        setListboxDisplayed(true);
+        setFocusedListboxOptionIndex(0);
       }
-    } else {
-      setFocusedListboxOptionIndex(0);
+
+      if (focusedListboxOptionIndex != null) {
+        if (focusedListboxOptionIndex !== 0) {
+          setFocusedListboxOptionIndex(focusedListboxOptionIndex - 1);
+        } else {
+          setFocusedListboxOptionIndex(listboxOptions.length - 1);
+        }
+      } else {
+        setFocusedListboxOptionIndex(0);
+      }
+
+      break;
+    }
+
+    // 1. If a listboxOption is focused, select it. Otherwise, select null. 
+    // 2. Pass this value through the `onEnter` callback  
+    case "Enter": {
+      e.preventDefault();
+      const selectedListboxOption = focusedListboxOptionIndex != null ? listboxOptions[focusedListboxOptionIndex] : null;
+      onEnter(selectedListboxOption, focusedListboxOptionIndex);
+      break;
+    }
+
+    case "Tab": {
+      if (e.shiftKey && listboxDisplayed && setListboxDisplayed) {
+        e.preventDefault();
+        setListboxDisplayed(false);
+        setFocusedListboxOptionIndex(null);
+        comboboxElement.focus();
+      };
+      break;
+    }
+
+    default: {
+      break;
     }
   }
-
-  // 1. If a listboxOption is focused, select it. Otherwise, select null. 
-  // 2. Pass this value through the `onEnter` callback  
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    const selectedListboxOption = focusedListboxOptionIndex != null ? listboxOptions[focusedListboxOptionIndex] : null;
-    onEnter(selectedListboxOption, focusedListboxOptionIndex);
-  }
-
-  // Listbox removes itself when blur occurs with the exception of when blur targets its combobox element
-  // Therefore we explicitly define backwards tab behavior as prevent a sticky menu 
-  // We could also solve this by defining blur on the combobox element itself but this seems like a more elegant solution
-  if (e.key === 'Tab' && e.shiftKey && listboxDisplayed && setListboxDisplayed) { // TODO: This is not relevant for text suggestions
-    e.preventDefault();
-    setListboxDisplayed(false);
-    setFocusedListboxOptionIndex(null);
-    comboboxElement.focus();
-  }
-
-  // TODO: FOR SUGGESTIVE TEXT, ON BACKSPACE WE SHOULD REMOVE THE LISTBOX IF THERE IS NO TEXT!
 };
 
 // TODO: Replace {name: string, value: string} with option type
@@ -330,7 +350,7 @@ export const handleKeyDownTextAutocomplete = (
       onEnter(selectedListboxOption, focusedListboxOptionIndex);
       break;
     }
- 
+
     default: {
       if (e.key.length > 1) break; // TODO: (hacky?) fix to prevent special keys (ex. shift, ctrl, f4 etc...) from doing things here. Might not function on certain asian keyboards.
       if (!setListboxDisplayed) return;
@@ -359,7 +379,7 @@ export function clearEditableCombobox(
 export function scrollOptionIntoView(
   listboxOptionElements: Array<HTMLLIElement | null>,
   focusedListboxOptionIndex: number | null,
-  scrollOptions?: "start" | "center" | "end" | "nearest", 
+  scrollOptions?: "start" | "center" | "end" | "nearest",
 ) {
   if (focusedListboxOptionIndex !== null && listboxOptionElements) {
     listboxOptionElements[focusedListboxOptionIndex]?.scrollIntoView({
@@ -368,6 +388,7 @@ export function scrollOptionIntoView(
   }
 }
 
+/* TODO: Want to remove this when we stop using buttons! */
 export function preventInvalidFormSubmission(
   formElement: HTMLInputElement | HTMLButtonElement | HTMLTextAreaElement | HTMLSelectElement,
   valid: boolean,
