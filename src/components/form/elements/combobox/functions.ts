@@ -231,7 +231,6 @@ export const handleKeyDownTextAutocomplete = (
   focusedListboxOptionIndex: number | null,
   setFocusedListboxOptionIndex: React.Dispatch<React.SetStateAction<number | null>>,
   onEnter: (selectedOption: { name: string, value: string } | null, index: number | null) => void, // TODO: Do we even need index?
-  onTab: () => void,
 ) => {
 
   const key = e.key;
@@ -326,17 +325,16 @@ export const handleKeyDownTextAutocomplete = (
     // 2. Pass this value through the `onEnter` callback  
     case "Enter": {
       e.preventDefault();
-      const selectedListboxOption = focusedListboxOptionIndex != null ? listboxOptions[focusedListboxOptionIndex] : null;
+      if (focusedListboxOptionIndex === null) return;
+      const selectedListboxOption = listboxOptions[focusedListboxOptionIndex];
       onEnter(selectedListboxOption, focusedListboxOptionIndex);
       break;
     }
-
-    case "Tab": {
-      onTab();
-      break;
-    }
-
+ 
     default: {
+      if (e.key.length > 1) break; // TODO: (hacky?) fix to prevent special keys (ex. shift, ctrl, f4 etc...) from doing things here. Might not function on certain asian keyboards.
+      if (!setListboxDisplayed) return;
+      if (!listboxDisplayed) setListboxDisplayed(true);
       break;
     }
   }

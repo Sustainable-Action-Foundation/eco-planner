@@ -16,7 +16,6 @@ export default function TextSingleAutocomplete({
   props,
   theme, // TODO: Not a fan of this implementation
   options,
-  // maxOptions, // TODO: Rename (also not a big fan of this)
   fuseOptions,
   onChange,
   value,
@@ -54,12 +53,9 @@ export default function TextSingleAutocomplete({
     return value ? fuse.search(value) : options.map(option => ({ item: option, matches: [], score: 1, refIndex: 0 }));
   }, [value, fuse, options, selectionMade]);
 
-  useEffect(() => {
-    if (value) {
-      setDisplayListBox(true);
-    } 
+  useEffect(() => { 
     scrollOptionIntoView(optionRefs.current, focusedListBoxItem);
-  }, [focusedListBoxItem, value]);
+  }, [focusedListBoxItem]);
 
   useEffect(() => {
     if (!onChange) return;
@@ -105,8 +101,8 @@ export default function TextSingleAutocomplete({
       ? focusedListBoxItem
       : 0;
 
-  const activeResult = searchResults[activeIndex];
-
+  const activeResult = searchResults[activeIndex]; 
+  
   return (
     <div
       className={`${props.className ? `${props.className} ` : ''}position-relative`}
@@ -152,16 +148,6 @@ export default function TextSingleAutocomplete({
                     setFocusedListBoxItem(null); 
                     setDisplayListBox(false);
                   },
-                  () => {
-                    if (
-                      displayListBox === false ||
-                      e.shiftKey ||
-                      !value ||
-                      /* Tab completion only works if we have a perfect match! */
-                      !activeResult.item.value.toLowerCase().startsWith(value.toLowerCase())
-                    ) return;
-                    setter(activeResult.item.value);
-                  },
                 );
               },
               onKeyUp: (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -177,6 +163,7 @@ export default function TextSingleAutocomplete({
               onBlur: (e) => { 
                 if (e.relatedTarget?.id !== `${props.id}-listbox` && e.relatedTarget?.id !== `${props.id}-button`) {
                   setDisplayListBox(false); 
+                  if (value) setter(activeResult?.item?.value ?? e.target.value);
                 };
               },
               "role": "combobox",
@@ -184,7 +171,7 @@ export default function TextSingleAutocomplete({
               "aria-haspopup": "listbox",
               "aria-controls": displayListBox ? `${props.id}-listbox` : undefined,
               "aria-activedescendant": focusedListBoxItem != null ? `${props.id}-listbox-${focusedListBoxItem}` : undefined,
-              "aria-autocomplete": "both",
+              "aria-autocomplete": "both", // TODO: This is only both if we look at just perfect matches (i.e threshold == 0)
             }
             : {})}
         />
@@ -211,10 +198,9 @@ export default function TextSingleAutocomplete({
           style={{
             ...(theme?.style),
             maxHeight: 'calc((24px * 6) + 6px)',
-            // maxHeight: maxOptions ? `${(maxOptions * 33) + 6}px` : '300px',  TODO: Implement for select comboboxes as well
             width: 'auto',
             position: 'absolute',
-            positionAnchor: '--value-anchor', // TODO: Need fallback
+            positionAnchor: '--value-anchor',
             top: 'anchor(bottom)',
             left: value.length === 0 ? 'anchor(left)' : 'anchor(right)',
             padding: '0',
