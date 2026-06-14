@@ -149,10 +149,7 @@ div:has(>.select-toggle) {
 
 /* TODO: Might be sensible to harmonize this with our other listboxes or it might not... */
 .suggestive-text {
-    /* box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px; */
-    /* box-shadow: rgba(14, 63, 126, 0.04) 0px 0px 0px 1px, rgba(42, 51, 69, 0.04) 0px 1px 1px -0.5px, rgba(42, 51, 70, 0.04) 0px 3px 3px -1.5px, rgba(42, 51, 70, 0.04) 0px 6px 6px -3px, rgba(14, 63, 126, 0.04) 0px 12px 12px -6px, rgba(14, 63, 126, 0.04) 0px 24px 24px -12px;*/
-    /* box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 0px; */
-    box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
     scroll-padding-block: 2px;
     border: 0 !important;
 }
@@ -165,7 +162,7 @@ div:has(>.select-toggle) {
     position: relative;
     padding-left: .5rem;
     margin-inline: 2px;
-    border-radius: .25rem;
+    border-radius: calc(.5rem - 2px);
     transition: margin-inline-start .1s ease-out;
 }
 

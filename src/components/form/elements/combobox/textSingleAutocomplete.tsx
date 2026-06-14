@@ -1,6 +1,5 @@
 "use client";
 
-import { IconChevronDown } from "@tabler/icons-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import styles from './comboBox.module.css' with { type: "css" };
 import type { IFuseOptions } from "fuse.js";
@@ -9,15 +8,9 @@ import { useTranslation } from "react-i18next";
 import type { InputElement, Option, Theme } from "@/components/types";
 import { handleKeyDownTextAutocomplete, scrollOptionIntoView } from "./functions";
 
-// TODO: Bug where tabbing into the element doesnt focus the combobox (only happens if value === firstoption, also happens on mouse click i think...)
 // TODO: This breaks the recipe editor
-// TODO: Evaluate how we higlight, it doesnt look as good for example for leap params...
 // TODO: Check tab completion against w3c implementation (and other keyboard functions + aria-states for that part...)
 // TODO: Little annoying to select text when search field doesnt occupy the whole thing. 
-// TODO: Tabbing should probably select and then move focus? I.e no prevent default?
-// TODO: No suggestions if we have a perfect match?
-// TODO: Fuzzy search is probably a little bit to sensitive
-// TODO: Cant seem to select text?
 
 export default function TextSingleAutocomplete({
   props,
@@ -40,8 +33,6 @@ export default function TextSingleAutocomplete({
 }) {
   const { t } = useTranslation(["forms", "common"]);
 
-  // TODO: list of other suggestions that don't match exactly what you write.
-
   const [displayListBox, setDisplayListBox] = useState<boolean>(false);
   const [focusedListBoxItem, setFocusedListBoxItem] = useState<number | null>(null); // TODO: Rename -> focusedListBoxOption
   const [selectionMade, setSelectionMade] = useState(false); // TODO: Rename to something better
@@ -51,6 +42,7 @@ export default function TextSingleAutocomplete({
   const fuse = useMemo(() => new Fuse(options, {
     keys: ['name'],
     includeMatches: true,
+    threshold: 0.0,
     ...(fuseOptions ?? {}),
   }), [options, fuseOptions]);
 
@@ -95,6 +87,26 @@ export default function TextSingleAutocomplete({
     return <span>{parts}</span>;
   };
 
+  useEffect(() => {
+    if (
+      focusedListBoxItem != null &&
+      focusedListBoxItem >= searchResults.length
+    ) {
+      setFocusedListBoxItem(
+        searchResults.length > 0 ? searchResults.length - 1 : null,
+      );
+    }
+  }, [searchResults.length, focusedListBoxItem]);
+
+  const activeIndex =
+    focusedListBoxItem != null &&
+    focusedListBoxItem >= 0 &&
+    focusedListBoxItem < searchResults.length
+      ? focusedListBoxItem
+      : 0;
+
+  const activeResult = searchResults[activeIndex];
+
   return (
     <div
       className={`${props.className ? `${props.className} ` : ''}position-relative`}
@@ -105,7 +117,7 @@ export default function TextSingleAutocomplete({
         className={`${theme ? `${theme.className} ` : ''}flex align-items-center focusable cursor-text padding-50`}
         style={theme?.style ?? {}}
       >
-        <input /* TODO: Need this input to be reduced to the size of what is being written. (field-sizing: content seems to work... but not on firefox) */
+        <input
           style={{ fieldSizing: options.length > 0 ? 'content' : 'initial', width: options.length > 0 ? 'auto' : '100%', padding: '0', anchorName: '--value-anchor' }}
           type="text"
           placeholder={!!props.placeholder ? props.placeholder : undefined}
@@ -118,7 +130,7 @@ export default function TextSingleAutocomplete({
           onChange={(e) => { 
             setter(e.target.value); 
             setFocusedListBoxItem(0);
-          }} // TODO: Enter seems to select values even if nothing is selected
+          }}
           {...(options.length > 0
             ? {
               ref: comboboxRef,
@@ -134,6 +146,7 @@ export default function TextSingleAutocomplete({
                   focusedListBoxItem,
                   setFocusedListBoxItem,
                   (selectedOption) => {
+                    if (!displayListBox) return;
                     setter(selectedOption ? selectedOption.name : ""); // TODO: Should be .value?
                     setSelectionMade(true); 
                     setFocusedListBoxItem(null); 
@@ -144,10 +157,10 @@ export default function TextSingleAutocomplete({
                       displayListBox === false ||
                       e.shiftKey ||
                       !value ||
-                      searchResults.length === 0 ||
-                      !searchResults[0].item.value.toLowerCase().startsWith(value.toLowerCase())
+                      /* Tab completion only works if we have a perfect match! */
+                      !activeResult.item.value.toLowerCase().startsWith(value.toLowerCase())
                     ) return;
-                    setter(searchResults[0].item.value);
+                    setter(activeResult.item.value);
                   },
                 );
               },
@@ -176,27 +189,11 @@ export default function TextSingleAutocomplete({
             : {})}
         />
         {searchResults.length > 0 && value && displayListBox ?
-          <span style={{ color: 'gray', fontSize: 'smaller' }}> {/* Might want the anchor on the input? Also rename it. */}
-            {searchResults[0].item.name.toLowerCase().startsWith(value.toLowerCase())
-              ? searchResults[0].item.name.slice(value.length)
+          <span style={{ color: 'gray', fontSize: 'smaller' }}>
+            {activeResult?.item.name.toLowerCase().startsWith(value.toLowerCase())
+              ? activeResult?.item.name.slice(value.length)
               : ''}
           </span>
-          : null}
-        {options.length > 0 ?
-          <button // Icon makes the input element too large...
-            id={`${props.id}-button`}
-            className="padding-0 round grid transparent"
-            style={{ marginLeft: 'auto' }}
-            disabled={props.disabled}
-            onClick={() => { comboboxRef.current?.focus(); setDisplayListBox(!displayListBox); }}
-            type="button"
-            tabIndex={-1}
-            aria-pressed={displayListBox}
-            aria-label={t("forms:combobox.show_suggestions")}
-            title={t("forms:combobox.show_suggestions")}
-          >
-            <IconChevronDown aria-hidden="true" width={18} height={18} style={{ minWidth: '18px' }} />
-          </button>
           : null}
       </div>
 
