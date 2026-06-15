@@ -16,6 +16,9 @@ div:has(>.select-toggle) {
     --padding: .5rem;
     --icon-size: 20px;
 
+    border-radius: .25rem;
+    caret-color: transparent;
+    cursor: pointer;
     padding: var(--padding) calc(var(--padding) * 2 + var(--icon-size)) var(--padding) var(--padding);
     width: 100%;
     background-color: white;

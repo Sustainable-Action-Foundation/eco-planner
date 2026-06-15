@@ -63,7 +63,7 @@ export default function SelectSingleSearch({
   const [focusedListboxOption, setFocusedListboxOption] = useState<number | null>(null);
   const [searchValue, setSearchValue] = useState<string>('');
   const [selectionMade, setSelectionMade] = useState(false); // TODO: Rename to something better
-  const toggleRef = useRef<HTMLButtonElement>(null); // TODO: Rename?
+  const toggleRef = useRef<HTMLInputElement>(null); // TODO: Rename?
   const searchRef = useRef<HTMLInputElement>(null);
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
 
@@ -111,7 +111,9 @@ export default function SelectSingleSearch({
       className={`${props.className ? `${props.className} ` : ''}position-relative`}
       style={{ ...props.style, userSelect: 'none' }}
     >
-      <button
+      <input
+        placeholder={props.placeholder}
+        readOnly={true}
         id={props.id}
         className={`${styles['select-toggle']}`}
         style={{ borderColor: menuOpen ? '#191919' : '', anchorName: '--listbox-test-anchor' }}
@@ -121,17 +123,13 @@ export default function SelectSingleSearch({
         ref={toggleRef}
         onClick={() => { setMenuOpen(!menuOpen); }}
         role="combobox"
-        type="button"
-        aria-controls={menuOpen ? `${props.id}-dialog` : undefined}
+        aria-controls={`${props.id}-dialog`}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
         aria-required={!!props.required ? props.required : false}
         aria-invalid={!valueIsValid}
-      >
-        <span className={`${styles['selected-value-text']}`} >
-          {!value ? props.placeholder : value.name}
-        </span>
-      </button>
+        // TODO: ADD ON KEY DOWN FUNCTIONS HERE!
+      />
       <div
         id={`${props.id}-dialog`}
         className={`              
@@ -162,7 +160,7 @@ export default function SelectSingleSearch({
           style={{ border: 'none', borderBottom: '1px solid var(--gray-80)', marginBottom: '2px', borderRadius: '0' }}
           aria-label={t("forms:combobox.search_options")}
         >
-          <IconSearch width={16} height={16} style={{ minWidth: '16px' }} />
+          <IconSearch width={16} height={16} style={{ minWidth: '16px' }} aria-hidden="true" />
           <input
             type="text"
             style={{ padding: '0', margin: '0', fontSize: 'revert' }}

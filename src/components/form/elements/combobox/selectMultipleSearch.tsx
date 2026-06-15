@@ -30,7 +30,7 @@ export default function SelectMultipleSearch({
   const [focusedListboxOption, setFocusedListboxOption] = useState<number | null>(null);
   const [searchValue, setSearchValue] = useState<string>('');
   const [selectionMade, setSelectionMade] = useState(false); // TODO: Rename to something better
-  const toggleRef = useRef<HTMLButtonElement>(null); // TODO: Rename?
+  const toggleRef = useRef<HTMLInputElement>(null); // TODO: Rename?
   const searchRef = useRef<HTMLInputElement>(null);
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
 
@@ -78,8 +78,9 @@ export default function SelectMultipleSearch({
       className={`${props.className ? `${props.className} ` : ''}position-relative`}
       style={{ ...props.style }}
     >
-      <button
-        type="button"
+      <input
+        placeholder={props.placeholder}
+        readOnly={true}
         id={props.id}
         className={`${styles['select-toggle']}`}
         style={{ borderColor: menuOpen ? '#191919' : '', anchorName: '--select-multiple-test-anchor' }}
@@ -89,19 +90,13 @@ export default function SelectMultipleSearch({
         ref={toggleRef}
         onClick={() => { setMenuOpen(!menuOpen); }}
         role="combobox"
-        aria-controls={menuOpen ? `${props.id}-dialog` : undefined}
+        aria-controls={`${props.id}-dialog`}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
         aria-required={!!props.required ? props.required : false}
         aria-invalid={!valueIsValid}
-      >
-        <span className={`${styles['selected-value-text']}`}>
-          {value.length > 0
-            ? value.map((value) => value.name).join(", ")
-            : props.placeholder
-          }
-        </span>
-      </button>
+        // TODO: ADD ON KEY DOWN FUNCTIONS HERE!
+      />
       <div
         id={`${props.id}-dialog`}
         className={`              

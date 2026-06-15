@@ -69,7 +69,7 @@ export default function SelectSingleTree({
   const [items, setItems] = useState<Array<TreeItem>>(treeItems);
   const [flattenedItems, setFlattenedItems] = useState<Array<TreeItem>>(flattenTree(treeItems));
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
-  const toggleRef = useRef<HTMLButtonElement>(null);
+  const toggleRef = useRef<HTMLInputElement>(null);
   const treeItemsRef = useRef<(HTMLLIElement | null)[]>([]);
 
   useEffect(() => {
@@ -240,7 +240,9 @@ export default function SelectSingleTree({
       className={`${props.className ? `${props.className} ` : ''}position-relative`}
       style={{ ...props.style, userSelect: 'none' }}
     >
-      <button
+      <input
+        readOnly={true}
+        placeholder={props.placeholder}
         title={value?.name}
         id={props.id}
         className={`${styles['select-toggle']}`}
@@ -251,7 +253,6 @@ export default function SelectSingleTree({
         ref={toggleRef}
         onClick={() => { setMenuOpen(!menuOpen); }}
         role="combobox"
-        type="button"
         aria-controls={menuOpen ? `${props.id}-dialog-tree` : undefined}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
@@ -265,7 +266,7 @@ export default function SelectSingleTree({
           }
         }}
 
-        onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => {
+        onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
           if (!toggleRef.current) return;
           handleKeyDownTreeCombobox(
             e,
@@ -295,11 +296,8 @@ export default function SelectSingleTree({
             setMenuOpen,
           );
         }}
-      >
-        <span className={`${styles['selected-value-text']}`}>
-          {!value ? props.placeholder : value.name}
-        </span>
-      </button>
+        // TODO: ADD ON KEY DOWN FUNCTIONS HERE (kinda we already have some because this is the tree combobox) !
+      />
 
       <ul
         id={`${props.id}-dialog-tree`}
