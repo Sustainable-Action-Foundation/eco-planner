@@ -185,7 +185,6 @@ export class Recipe {
       return counts;
     }, {} as Record<string, number>);
     const usedScopeNames = new Set<string>();
-    const loggedLegacyDisplayNameInfo = new Set<string>();
 
     for (const variable of evalTimeVars) {
       if (!variable.value) {
@@ -194,10 +193,6 @@ export class Recipe {
 
       const variableId = variable.id;
       const recipeVariable = this.variableMap[variableId];
-      const legacyDisplayNamePlaceholder = recipeVariable
-        ? inlineEqEscapeFormat(recipeVariable.name)
-        : null;
-      const hasLegacyDisplayNamePlaceholder = !!legacyDisplayNamePlaceholder && equation.includes(legacyDisplayNamePlaceholder);
 
       const newNameBase = nameNormalizer(variableId);
       let newName = newNameBase;
@@ -215,15 +210,7 @@ export class Recipe {
 
       // Backward compatibility for legacy formulas that still reference display names.
       if (recipeVariable && displayNameCounts[recipeVariable.name] === 1) {
-        if (hasLegacyDisplayNamePlaceholder && !loggedLegacyDisplayNameInfo.has(recipeVariable.name)) {
-          console.info(`Recipe.evaluate: replacing deprecated display-name placeholder "${legacyDisplayNamePlaceholder}" with id-based placeholder for variable id "${variableId}".`);
-          loggedLegacyDisplayNameInfo.add(recipeVariable.name);
-        }
         equation = equation.replaceAll(inlineEqEscapeFormat(recipeVariable.name), newName);
-      }
-      else if (recipeVariable && hasLegacyDisplayNamePlaceholder && !loggedLegacyDisplayNameInfo.has(recipeVariable.name)) {
-        console.info(`Recipe.evaluate: found deprecated display-name placeholder "${legacyDisplayNamePlaceholder}" but skipped auto-replacement because display name "${recipeVariable.name}" is ambiguous.`);
-        loggedLegacyDisplayNameInfo.add(recipeVariable.name);
       }
 
       scope[newName] = variable.value;
