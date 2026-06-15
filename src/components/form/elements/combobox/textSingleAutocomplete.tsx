@@ -207,8 +207,8 @@ export default function TextSingleAutocomplete({
             positionTryFallbacks: 'flip-block',
             padding: '0',
             marginTop: '1rem',
+            transformOrigin: 'top left',
           }}
-          // TODO: Onblur does not seem to actually setFocusedListBoxItem, figure out why...
           onBlur={(e) => { if (e.relatedTarget?.id !== props.id) { setFocusedListBoxItem(null); setDisplayListBox(false); } }} // TODO: See if we can deal with blur the same way for all comboboxes
           role="listbox"
           tabIndex={-1}
@@ -230,6 +230,10 @@ export default function TextSingleAutocomplete({
                 }}
                 role="option"
                 aria-selected={option.item.name === value}
+                style={{
+                  padding: '.25rem',
+                  paddingLeft: '.5rem',
+                }}
               >
                 {highlightMatch(option.item.name, matchIndices)}
               </li>

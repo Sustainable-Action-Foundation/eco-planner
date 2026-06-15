@@ -130,7 +130,7 @@ export default function SelectMultipleSearch({
       >
         <label
           className="focusable flex align-items-center gap-25 padding-50 padding-inline-25 margin-25"
-          style={{ border: 'none', borderBottom: '1px solid var(--gray-80)', marginBottom: '2px', borderRadius: '0' }}
+          style={{ border: 'none', borderBottom: '1px solid var(--gray-80)', borderRadius: '0' }}
           aria-label={t("forms:combobox.search_options")}
         >
           <IconSearch width={16} height={16} style={{ minWidth: '16px' }} />

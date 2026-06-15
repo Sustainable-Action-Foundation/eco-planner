@@ -1,24 +1,17 @@
 /* TODO: Implement anchor + fallbacks here! */
-
-.selected-value-text {
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-    min-width: 0;
-    margin-right: .25rem;
-}
-
 .select-toggle {
     --padding: .5rem;
     --icon-size: 20px;
 
-    caret-color: transparent;
-    cursor: pointer;
     padding: var(--padding) calc(var(--padding) * 2 + var(--icon-size)) var(--padding) var(--padding);
     background: url('data:image/svg+xml,<svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-selector"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 9l4 -4l4 4" /><path d="M16 15l-4 4l-4 -4" /></svg>') no-repeat calc(100% - var(--padding)) center white;
     background-size: var(--icon-size);
+    cursor: pointer;
+    user-select: none;
+    text-overflow: ellipsis; /* Note: this kinda works on google but seemingly nowhere else ¯\_(ツ)_/¯ */
+    caret-color: transparent;
+    /* TODO: Figure out how to prevent user selection (no highlighting and copying text!!) */
 }
-
 
 .listbox,
 .tree {
@@ -63,68 +56,21 @@
         }
     }
 }
- 
-.listbox li[aria-selected="true"] + li[aria-selected="true"] {
-    border-top-right-radius: 0;
-    border-top-left-radius: 0;
-}
 
-.listbox li[aria-selected="true"]:has(+ li[aria-selected="true"]) {
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 0;
-}
- 
-.listbox li {
-    transition: border-radius .2s cubic-bezier(.33,-0.03,.15,1.01), 
-                margin-inline-start .1s ease-out;
-    border-radius: .25rem;
+/* List elements */
+.listbox li,
+.tree li div  {
+    position: relative;
     padding: .5rem;
-    user-select: none;
-    font-size: smaller;
+    margin-inline: 2px;
+    border-radius: calc(.5rem - 2px);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-inline: 2px;
-    border-radius: calc(.5rem - 2px);
-    position: relative;
-}
- 
-.listbox li:first-child {
-    margin-top: .25rem;
-}
-
-.listbox li:last-child {
-    margin-bottom: 2px;
-} 
-
-.listbox li[aria-selected="true"] {
-    background-color: rgba(153, 211, 255, 0.5);
-}
-
-.listbox li.focused-option::before {
-    content: "" / "";
-    width: 2px;
-    height: 60%;
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translate(-4px, -50%);
-    border-radius: 0 2px 2px 0;
-    background-color: var(--blue-40);
-}
-
-.listbox li[aria-selected="true"] {
-    color: rgb(0, 87, 153);
-    text-shadow: rgb(0, 145, 255) 0px 0px;
-}
-  
-
-.tree li:first-child {
-    margin-top: 2px;
-}
-
-.tree li:last-child {
-    margin-bottom: 2px;
+    font-size: smaller;
+    user-select: none;
+    transition: border-radius .2s cubic-bezier(.33,-0.03,.15,1.01), 
+                margin-inline-start .1s ease-out;
 }
 
 .tree li {
@@ -132,23 +78,37 @@
 }
 
 .tree li div {
-    user-select: none;
-    border-radius: calc(.5rem - 2px);
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem;
-    font-size: smaller;
-    display: flex;
-    position: relative;
-    transition: margin-inline-start .1s ease-out;
+    margin-inline: 0;
+}
+
+.listbox li:first-child,
+.tree li:first-child {
+    margin-top: 2px;
+}
+
+.listbox li:last-child,
+.tree li:last-child {
+    margin-bottom: 2px;
+} 
+
+/* Hover states */
+.listbox li:hover:not(.no-results),
+.tree li div:hover:not(.no-results) {
+    background-color: var(--gray-90) !important; 
+}
+
+/* Focus states */
+.listbox li.focused-option {
+    margin-inline-start: 4px;
+    background-color: var(--gray-95) !important;
 }
 
 .tree li div.focused-option {
     background-color: var(--gray-95) !important;
-    margin-inline-start: 2px;
-}
+} 
 
-.tree li div.focused-option::before {
+.listbox li.focused-option::before,
+.tree li div.focused-option::before  {
     content: "" / "";
     width: 2px;
     height: 60%;
@@ -156,87 +116,40 @@
     left: 0;
     top: 50%;
     transform: translate(-4px, -50%);
+    border-radius: 2px;
     background-color: var(--blue-40);
-}
+} 
 
-.listbox li:hover,
-.tree li div:hover {
-    background-color: var(--gray-90);
-}
-
+/* Selected states */
 .listbox li[aria-selected="true"],
-.tree li[aria-selected="true"] div {
+.tree li[aria-selected="true"] div  {
     background-color: rgba(153, 211, 255, 0.5);
+    color: rgb(0, 87, 153);
+    text-shadow: rgb(0, 145, 255) 0px 0px;
 }
 
 .listbox li[aria-selected="true"]::after,
 .tree li[aria-selected="true"] div::after {
-    height: 14px;
     content: url('data:image/svg+xml;utf8,<svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="hsl(206, 100%, 40%)"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>') / "";
-}
-
-.listbox [aria-multiselectable] li:not([data-no-results-tooltip])[aria-selected="true"]::after {
-    height: 16px;
-    content: url('data:image/svg+xml;utf8,<svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="hsl(206, 100%, 40%)"  class="icon icon-tabler icons-tabler-filled icon-tabler-square-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18.333 2c1.96 0 3.56 1.537 3.662 3.472l.005 .195v12.666c0 1.96 -1.537 3.56 -3.472 3.662l-.195 .005h-12.666a3.667 3.667 0 0 1 -3.662 -3.472l-.005 -.195v-12.666c0 -1.96 1.537 -3.56 3.472 -3.662l.195 -.005h12.666zm-2.626 7.293a1 1 0 0 0 -1.414 0l-3.293 3.292l-1.293 -1.292l-.094 -.083a1 1 0 0 0 -1.32 1.497l2 2l.094 .083a1 1 0 0 0 1.32 -.083l4 -4l.083 -.094a1 1 0 0 0 -.083 -1.32z" /></svg>') / "";
+    height: 14px;
 }
 
 .listbox [aria-multiselectable] li:not([data-no-results-tooltip])::after {
-    height: 16px;
     content: url('data:image/svg+xml;utf8,<svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-square"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" /></svg>') / "";
+    height: 16px;
 }
 
-.listbox .no-results {
-    background-color: transparent !important;
+.listbox [aria-multiselectable] li:not([data-no-results-tooltip])[aria-selected="true"]::after {
+    content: url('data:image/svg+xml;utf8,<svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="hsl(206, 100%, 40%)"  class="icon icon-tabler icons-tabler-filled icon-tabler-square-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18.333 2c1.96 0 3.56 1.537 3.662 3.472l.005 .195v12.666c0 1.96 -1.537 3.56 -3.472 3.662l-.195 .005h-12.666a3.667 3.667 0 0 1 -3.662 -3.472l-.005 -.195v-12.666c0 -1.96 1.537 -3.56 3.472 -3.662l.195 -.005h12.666zm-2.626 7.293a1 1 0 0 0 -1.414 0l-3.293 3.292l-1.293 -1.292l-.094 -.083a1 1 0 0 0 -1.32 1.497l2 2l.094 .083a1 1 0 0 0 1.32 -.083l4 -4l.083 -.094a1 1 0 0 0 -.083 -1.32z" /></svg>') / "";
+    height: 16px;
 }
 
-.listbox .no-results::after {
-    content: none !important;
+.listbox [aria-multiselectable] li[aria-selected="true"] + li[aria-selected="true"] {
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
 }
 
-.listbox li.focused-option,
-.suggestive-text li.focused-option {
-    margin-inline-start: 4px;
-    background-color: var(--gray-95) !important;
+.listbox [aria-multiselectable] li[aria-selected="true"]:has(+ li[aria-selected="true"]) {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
 }
-
-/* TODO: Might be sensible to harmonize this with our other listboxes or it might not... */
-.suggestive-text {
-    transform-origin: top left !important;
-}
-
-.suggestive-text li { 
-    border-radius: 0;
-    padding: .25rem;
-    font-size: 14px;
-    color: #191919;
-    position: relative;
-    padding-left: .5rem;
-    margin-inline: 2px;
-    border-radius: calc(.5rem - 2px);
-    transition: margin-inline-start .1s ease-out;
-}
-
-.suggestive-text li:first-child {
-    margin-top: 2px;
-}
-
-.suggestive-text li:last-child {
-    margin-bottom: 2px;
-} 
- 
-.suggestive-text li[aria-selected="true"] {
-    background-color: rgba(153, 211, 255, 0.5);
-}
-
-.suggestive-text .focused-option::before {
-    content: "" / "";
-    width: 2px;
-    height: 100%;
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translate(-4px, -50%);
-    border-radius: 0 2px 2px 0;
-    background-color: var(--blue-40);
-}
- 
