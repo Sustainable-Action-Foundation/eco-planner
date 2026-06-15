@@ -68,7 +68,7 @@ test.describe("Goals tests", () => {
     await page.locator('input[name="dataSeriesType"][value="MANUAL"]').check();
     await page.locator('#indicatorParameter').fill(indicatorRequiredOnly);
     await page.locator('#dataUnit').fill(unitRequiredOnly);
-    await page.locator('#dataUnit').blur(); // Need to blur this so dropdown menu doesnt block items below
+    await page.locator('#dataUnit').blur();
 
     await fillManualDataSeries(page, Array.from({ length: 10 }, (_, i) => [2020 + i, 1]));
 
@@ -126,7 +126,7 @@ test.describe("Goals tests", () => {
 
     await expect.soft(page.locator('#isFeatured')).not.toBeChecked();
 
-    // Submit
+    // Submit 
     await page.locator('#submit-button').click();
     await page.locator('#comment-text').hover();
 
@@ -304,7 +304,8 @@ test.describe("Goals tests", () => {
 
     await page.getByPlaceholder('recipe_editor.scalar').fill('48');
     await page.locator('#dataUnit').fill(unitAllUpdated);
-
+    await page.locator('#dataUnit').blur();
+    await page.keyboard.press('Escape');
 
     await page.locator('#baselineSelector').selectOption("INITIAL");
     await page.locator('#isFeatured').uncheck();
