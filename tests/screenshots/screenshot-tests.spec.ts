@@ -222,7 +222,7 @@ test.describe('Screenshots Admin', () => {
     await page.waitForLoadState("networkidle");
     await ensureToastPassthrough(page);
 
-    await isSidebarOpen(page, false);
+    await isSidebarOpen(page, true);
 
     await page.getByRole('link', { name: "Rikets färdplan" }).scrollIntoViewIfNeeded();
     await page.getByRole('link', { name: "Rikets färdplan" }).click(metadata.project.name.includes("Galaxy") ? { force: true } : undefined);
