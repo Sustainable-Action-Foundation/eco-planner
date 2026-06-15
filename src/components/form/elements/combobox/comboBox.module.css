@@ -91,30 +91,7 @@ div:has(>.select-toggle) {
         }
     }
 }
-
-/* EXPERIMENTAL FOCUS STUFF!!! */
-
-.listbox li[aria-selected="true"]:has(+ .focused-option) {
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-}
-
-.listbox li[aria-selected="true"] + li.focused-option  {
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-}
-
-.listbox li.focused-option + li[aria-selected="true"] {
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-}
-
-.listbox li.focused-option:has(+ li[aria-selected="true"]) {
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-}
-
-/* Above is focus for handling focused element, below is for multiple select elements */
+ 
 .listbox li[aria-selected="true"] + li[aria-selected="true"] {
     border-top-right-radius: 0;
     border-top-left-radius: 0;
@@ -125,10 +102,8 @@ div:has(>.select-toggle) {
     border-bottom-left-radius: 0;
 }
  
-
-/* Back to normal stuff */
 .listbox li {
-    transition: border-radius .2s cubic-bezier(.33,-0.03,.15,1.01);
+    transition: border-radius .2s cubic-bezier(.33,-0.03,.15,1.01), margin-inline-start .1s ease-out;
     border-radius: .25rem;
     padding: .5rem;
     user-select: none;
@@ -136,8 +111,8 @@ div:has(>.select-toggle) {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-inline: .25rem;
-    border-radius: .25rem;
+    margin-inline: 2px;
+    border-radius: calc(.5rem - 2px);
     position: relative;
 }
 
@@ -146,10 +121,11 @@ div:has(>.select-toggle) {
 }
 
 .listbox li:last-child {
-    margin-bottom: .25rem;
+    margin-bottom: 2px;
 } 
 
 .listbox li.focused-option {
+    margin-inline-start: 4px;
     background-color: var(--gray-95) !important;
 }
 
@@ -160,7 +136,7 @@ div:has(>.select-toggle) {
 .listbox li.focused-option::before {
     content: "" / "";
     width: 2px;
-    height: 80%;
+    height: 60%;
     position: absolute;
     left: 0;
     top: 50%;
@@ -175,18 +151,44 @@ div:has(>.select-toggle) {
 }
   
 
-.tree li div {
-    user-select: none;
-    border-radius: 0.25rem;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem;
-    font-size: 13px;
-    display: flex;
+.tree li:first-child {
+    margin-top: 2px;
 }
 
 .tree li:last-child {
-    padding-bottom: 0;
+    margin-bottom: 2px;
+}
+
+.tree li {
+    margin-inline: 2px;
+}
+
+.tree li div {
+    user-select: none;
+    border-radius: calc(.5rem - 2px);
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    font-size: smaller;
+    display: flex;
+    position: relative;
+    transition: margin-inline-start .1s ease-out;
+}
+
+.tree li div.focused-option {
+    background-color: var(--gray-95) !important;
+    margin-inline-start: 2px;
+}
+
+.tree li div.focused-option::before {
+    content: "" / "";
+    width: 2px;
+    height: 60%;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translate(-4px, -50%);
+    background-color: var(--blue-40);
 }
 
 .listbox li:hover,

@@ -68,6 +68,43 @@ export default function Page() {
               },
             ],
           },
+          {
+            name: 'Item 2',
+            value: 'Item 2',
+            expanded: false,
+            childNodes: [
+              {
+                name: 'Item 2.1',
+                value: 'Item 2.1',
+                expanded: false,
+                childNodes: [
+                  {
+                    name: 'Item 2.1.1',
+                    value: 'Item 2.1.1',
+                    expanded: null,
+                  }, {
+                    name: 'Item 2.1.2',
+                    value: 'Item 2.1.2',
+                    expanded: null,
+                  }, {
+                    name: 'Item 2.1.3',
+                    value: 'Item 2.1.3',
+                    expanded: null,
+                  },
+                ],
+              },
+              {
+                name: 'Item 2.2',
+                value: 'Item 2.2',
+                expanded: null,
+              },
+              {
+                name: 'Item 2.3',
+                value: 'Item 2.3',
+                expanded: null,
+              },
+            ],
+          },
         ]}
       />
       <TextSingleAutocomplete

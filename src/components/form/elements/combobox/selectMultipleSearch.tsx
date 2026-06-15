@@ -7,7 +7,7 @@ import type { InputElement, Option } from "@/components/types";
 import { clearEditableCombobox, handleKeyDownEditableCombobox, preventInvalidFormSubmission, scrollOptionIntoView } from "./functions";
 import type { IFuseOptions } from "fuse.js";
 import Fuse from "fuse.js";
-import { IconSearch, IconSelector } from "@tabler/icons-react";
+import { IconSearch } from "@tabler/icons-react";
 
 // TODO: Should allow for options with same values? Or we should check that they are unique?
 
@@ -101,7 +101,6 @@ export default function SelectMultipleSearch({
             : props.placeholder
           }
         </span>
-        <IconSelector height={20} width={20} style={{ minWidth: '20px' }} aria-hidden={true} />
       </button>
       <div
         id={`${props.id}-dialog`}
@@ -121,8 +120,8 @@ export default function SelectMultipleSearch({
         aria-label={t("forms:combobox.select_multiple_options")}
       >
         <label
-          className="focusable flex align-items-center gap-25 padding-block-50 padding-inline-25"
-          style={{ border: 'none', borderBottom: '1px solid var(--gray-80)', borderRadius: '0', marginBottom: '3px' }}
+          className="focusable flex align-items-center gap-25 padding-50 padding-inline-25 margin-25"
+          style={{ border: 'none', borderBottom: '1px solid var(--gray-80)', marginBottom: '2px', borderRadius: '0' }}
           aria-label={t("forms:combobox.search_options")}
         >
           <IconSearch width={16} height={16} style={{ minWidth: '16px' }} />

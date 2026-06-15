@@ -1,7 +1,7 @@
 "use client";
 
 import type { InputElement, TreeItem } from "@/components/types";
-import { IconCaretRightFilled, IconSelector } from "@tabler/icons-react";
+import { IconCaretRightFilled } from "@tabler/icons-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { handleKeyDownTreeCombobox, preventInvalidFormSubmission, scrollOptionIntoView } from "./functions";
 import styles from './comboBox.module.css' with { type: "css" };
@@ -86,15 +86,22 @@ export default function SelectSingleTree({
     if (focusedIndex == null || flattenedItems.length === 0) return;
     const selectedItem = flattenedItems[focusedIndex];
     const selectedItemElement = document.getElementById(`${selectedItem.value}`);
-
     if (!selectedItemElement) return;
 
     const selectedItemElementText = selectedItemElement.querySelector<HTMLDivElement>(':scope > div');
     if (!selectedItemElementText) return;
 
-    selectedItemElementText.style.backgroundColor = "var(--gray-90)"; // TODO: See if we can replace this using the focused-option class
+    // Remove from all other focused divs first
+    document.querySelectorAll<HTMLDivElement>(`.${styles['focused-option']}`)
+      .forEach(el => el.classList.remove(styles['focused-option']));
 
-  }, [focusedIndex, flattenedItems, props.id]);
+    // Let the browser paint the "before" state, then add the class
+    const raf = requestAnimationFrame(() => {
+      selectedItemElementText.classList.add(styles['focused-option']);
+    });
+
+    return () => cancelAnimationFrame(raf);
+  }, [focusedIndex, flattenedItems]);
 
   // Disables form submission if value is invalid 
   // Define what an invalid value is (missing value or empty string). We only need this defined if the field is required
@@ -117,9 +124,10 @@ export default function SelectSingleTree({
     // Very janky, ideally want to get just "nearest to function as intended..."
     scrollOptionIntoView(
       treeItemsRef.current,
-      focusedIndex, 
+      focusedIndex,
       focusedIndex === 0 ? "start" : "nearest",
-  ); }, [focusedIndex]);
+    );
+  }, [focusedIndex]);
 
   const handleUpdateNode = (value: string, updater: (n: TreeItem) => TreeItem) => {
     setItems(prev => updateNodeInTree(prev, value, updater));
@@ -173,11 +181,11 @@ export default function SelectSingleTree({
           className={`flex gap-25 align-items-center justify-content-space-between`}
           onClick={
             item.expanded !== null || item.onExpand !== undefined
-              ? () => { 
+              ? () => {
                 void toggleNode(item);
                 toggleRef.current?.focus();
-              } 
-              : () => { 
+              }
+              : () => {
                 setValue(item?.value !== value?.value ? item : null);
                 setMenuOpen(false);
               }
@@ -291,13 +299,12 @@ export default function SelectSingleTree({
         <span className={`${styles['selected-value-text']}`}>
           {!value ? props.placeholder : value.name}
         </span>
-        <IconSelector height={20} width={20} style={{ minWidth: '20px' }} aria-hidden={true} />
       </button>
 
       <ul
         id={`${props.id}-dialog-tree`}
         tabIndex={-1}
-        style={{scrollPadding: '45%'}}
+        style={{ scrollPadding: '45%' }}
         className={`              
             ${styles['tree']} 
             ${menuOpen ? styles['visible'] : ''} 
