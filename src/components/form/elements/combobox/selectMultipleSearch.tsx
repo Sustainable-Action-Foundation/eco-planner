@@ -69,7 +69,6 @@ export default function SelectMultipleSearch({
       <input
         type="text"
         placeholder={props.placeholder}
-        readOnly={true}
         id={props.id}
         className={`${styles['select-toggle']}`}
         style={{ borderColor: menuOpen ? '#191919' : '', anchorName: '--select-multiple-test-anchor' }}
@@ -84,8 +83,8 @@ export default function SelectMultipleSearch({
         }}
         onPaste={(e) => e.preventDefault()} // Prevent pasting
         onDrop={(e) => e.preventDefault()} // Prevent copying
-        required={!!props.required ? props.required : false}
-        role="combobox"
+        role="combobox"        
+        required={props.required ? props.required : false}
         aria-controls={`${props.id}-dialog`}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"

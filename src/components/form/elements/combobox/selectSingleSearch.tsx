@@ -117,7 +117,7 @@ export default function SelectSingleSearch({
         onPaste={(e) => e.preventDefault()} // Prevent pasting
         onDrop={(e) => e.preventDefault()} // Prevent copying
         role="combobox"
-        required={!!props.required ? props.required : false}
+        required={props.required ? props.required : false}
         aria-controls={`${props.id}-dialog`}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"

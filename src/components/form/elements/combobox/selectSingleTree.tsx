@@ -13,6 +13,9 @@ import Image from "next/image";
 // TODO: Should allow for options with same values? Or we should check that they are unique?
 // TODO: We should look into keeping state, i.e opening and selecting the thing you had already selected before closing (maybe if it is not annoying...)
 
+// TODO: FIX ANCHOR STUFF IN CSS
+// TODO: Abstract out onclick function!!
+
 /**
  * Flattens an array of treeItems so children appear right after their parent.
  */
@@ -242,10 +245,10 @@ export default function SelectSingleTree({
         onChange={() => {}}
         onClick={() => { setMenuOpen(!menuOpen); }}
         role="combobox"
+        required={props.required ? props.required : false}
         aria-controls={menuOpen ? `${props.id}-dialog-tree` : undefined}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
-        aria-required={!!props.required ? props.required : false}
         aria-activedescendant={focusedIndex ? flattenedItems[focusedIndex].value : undefined}
         onBlur={(e) => {
           if (e.relatedTarget?.id !== `${props.id}-dialog-tree` && e.relatedTarget?.id !== props.id) {
