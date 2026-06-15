@@ -449,7 +449,10 @@ export default function GoalForm({
         {/* Suggested */}
         {hasInitializedSuggested ?
           <fieldset className={`margin-bottom-100 ${dataSeriesType !== DataSeriesType.Suggested ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Suggested}>
-            <RecipeContextProvider initialRecipe={currentGoal?.dataSeries?.recipeUsed?.recipe ? Recipe.from(currentGoal.dataSeries.recipeUsed.recipe).withEditableExternals().serialize() : undefined}>
+            <RecipeContextProvider
+              initialRecipe={currentGoal?.dataSeries?.recipeUsed?.recipe ? Recipe.from(currentGoal.dataSeries.recipeUsed.recipe).withEditableExternals().serialize() : undefined}
+              availableDataSeries={currentGoal?.dataSeries?.recipeUsed?.sourceDataSeries}
+            >
               <SuggestedRecipeApplier />
               <FormIntegration
                 RecipeFormElement={<input name="resultingRecipe" />}
@@ -469,7 +472,10 @@ export default function GoalForm({
         {/* Recipe */}
         {hasInitializedCustom ?
           <fieldset className={`margin-bottom-100 ${dataSeriesType !== DataSeriesType.Custom ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Custom}>
-            <RecipeContextProvider initialRecipe={currentGoal?.dataSeries?.recipeUsed?.recipe ? Recipe.from(currentGoal.dataSeries.recipeUsed.recipe).withEditableExternals().serialize() : undefined}>
+            <RecipeContextProvider
+              initialRecipe={currentGoal?.dataSeries?.recipeUsed?.recipe ? Recipe.from(currentGoal.dataSeries.recipeUsed.recipe).withEditableExternals().serialize() : undefined}
+              availableDataSeries={currentGoal?.dataSeries?.recipeUsed?.sourceDataSeries}
+            >
               <RecipeEditor />
               <FormIntegration
                 RecipeFormElement={<input name="resultingRecipe" />}

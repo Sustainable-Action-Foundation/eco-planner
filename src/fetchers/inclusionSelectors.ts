@@ -31,7 +31,15 @@ export const nameSelector = {
 } satisfies Prisma.MetaRoadmapSelect;
 
 const dataSeriesInclusionSelection = {
-  recipeUsed: true,
+  recipeUsed: {
+    select: {
+      id: true,
+      recipe: true,
+      // The recipe's source data series (incl. materialized external data) so the
+      // editor can read them as canon instead of re-fetching upstream APIs.
+      sourceDataSeries: { select: { id: true, unit: true, values: true } },
+    },
+  },
   values: {
     select: { timestamp: true, value: true },
   },

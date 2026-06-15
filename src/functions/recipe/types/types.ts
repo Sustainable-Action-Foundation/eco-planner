@@ -50,6 +50,12 @@ export type DataSeriesVariable = BaseVariable & {
 export type ExternalVariable = BaseVariable & {
   type: typeof RecipeDataTypes.External;
   pick: PickOption;
+
+  // The materialized DataSeries for the current selection (set when an
+  // already-saved external variable is loaded for editing). While present and the
+  // selection is unchanged, this series is canon and is read instead of fetching
+  // the upstream API; it is cleared when the selection is explicitly modified.
+  dataSeriesId?: string | null;
 } & ExternalSource;
 export type RecipeVariable = ScalarVariable | DataSeriesVariable | ExternalVariable;
 

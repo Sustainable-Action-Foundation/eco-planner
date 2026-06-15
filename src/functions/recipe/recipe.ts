@@ -117,7 +117,7 @@ export class Recipe {
     const scalarVars = extractScalars(this.variables, warnings);
     const [dataSeriesVars, externalVars] = await Promise.all([
       extractDataSeries(this.variables, warnings, options?.dataSeriesGetter),
-      extractExternalDatasets(this.variables, warnings, options?.externalTableContentGetter),
+      extractExternalDatasets(this.variables, warnings, options?.externalTableContentGetter, options?.dataSeriesGetter),
     ]);
     const allVars: RecipeExtractionOutput = [
       ...scalarVars,
@@ -313,6 +313,9 @@ export class Recipe {
         unit: variable.unit,
         template: variable.template,
         pick: variable.pick,
+        // Keep the materialized series as canon for the editor; only cleared when
+        // the selection is explicitly changed.
+        dataSeriesId: variable.dataSeriesId,
         dataset: variable.externalSource.dataset,
         tableId: variable.externalSource.tableId,
         selection: variable.externalSource.selection,

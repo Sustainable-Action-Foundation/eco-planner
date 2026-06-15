@@ -10,7 +10,7 @@ import type { AccessControlled, DateValuesWithUnit, JSONValue } from "@/types";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
-import { Recipe, RecipeDataTypes, fetchExternalVariableData } from "@/functions/recipe";
+import { Recipe, RecipeDataTypes, fetchExternalVariableData, externalSelectionKey } from "@/functions/recipe";
 import type { DataSeriesVariable, ExternalSource, RecipeVariable, SerializedRecipe } from "@/functions/recipe";
 import serveTea from "@/lib/i18nServer";
 
@@ -24,13 +24,7 @@ type ResolvedExternals = Map<string, { source: ExternalSource } & (
 
 /** True if two external selections are equivalent (order-insensitive). */
 function sameExternalSource(a: ExternalSource, b: ExternalSource): boolean {
-  if (a.dataset !== b.dataset || a.tableId !== b.tableId) return false;
-  const normalize = (selection: ExternalSource["selection"]) => JSON.stringify(
-    [...selection]
-      .map(item => ({ variableCode: item.variableCode, valueCodes: [...item.valueCodes].sort() }))
-      .sort((x, y) => x.variableCode.localeCompare(y.variableCode)),
-  );
-  return normalize(a.selection) === normalize(b.selection);
+  return externalSelectionKey(a.dataset, a.tableId, a.selection) === externalSelectionKey(b.dataset, b.tableId, b.selection);
 }
 
 /**
@@ -163,10 +157,18 @@ async function upsertGoalRecipe(
     recipe = materialized.serializedRecipe;
     dataSeriesIdsByVariable = materialized.dataSeriesIdsByVariable;
 
+    // Every DataSeries the recipe's variables reference (the just-materialized
+    // external ones plus any pre-existing references) is a source dependency.
+    const sourceConnect = [...new Set(
+      Recipe.from(recipe).variables
+        .filter(variable => variable.type === RecipeDataTypes.DataSeries && !!variable.dataSeriesId)
+        .map(variable => (variable as { dataSeriesId: string }).dataSeriesId),
+    )].map(id => ({ id }));
+
     if (recipeId) {
-      await tx.recipe.update({ where: { id: recipeId }, data: { recipe } });
+      await tx.recipe.update({ where: { id: recipeId }, data: { recipe, sourceDataSeries: { set: sourceConnect } } });
     } else {
-      recipeId = (await tx.recipe.create({ data: { recipe }, select: { id: true } })).id;
+      recipeId = (await tx.recipe.create({ data: { recipe, sourceDataSeries: { connect: sourceConnect } }, select: { id: true } })).id;
     }
   }
   // No new recipe data + existing recipe ID = link (if it still exists)

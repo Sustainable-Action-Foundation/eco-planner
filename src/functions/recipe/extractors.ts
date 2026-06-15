@@ -1,5 +1,5 @@
 import { isDataSeriesVariable, isExternalSelection, isScalarVariable, RecipeDataTypes, RecipeError } from "@/functions/recipe/types";
-import type { ExternalVariable, RecipeExtractionOutput, RecipeVariable, EvalTimeVariable } from "@/functions/recipe/types";
+import type { DataSeriesVariable, EvalTimeSeries, ExternalVariable, RecipeExtractionOutput, RecipeVariable, EvalTimeVariable } from "@/functions/recipe/types";
 import getTableContent from "@/lib/api/getTableContent";
 import type { ApiTableContent } from "@/lib/api/apiTypes";
 import mathjs from "@/math";
@@ -7,6 +7,22 @@ import { isISOIshDate } from "@/types";
 import type { DataSeries, DateValues, DateValuesWithUnit } from "@/types";
 import { filterToInitialYearlyRecords, parsePeriod } from "@/lib/api/utility";
 import { getPrevailingUnit, isMathjsUnit, pickDateValues } from "@/functions/recipe/vectorAndMaskUtils";
+
+/**
+ * Produces a stable, order-insensitive key identifying an external selection
+ * (dataset + table + selection). Two selections that fetch the same data produce
+ * the same key, so it can be used to dedupe/cache fetches or compare selections.
+ */
+export function externalSelectionKey(
+  dataset: string | null,
+  tableId: string | null,
+  selection: { variableCode: string, valueCodes: string[] }[],
+): string {
+  const normalizedSelection = [...selection]
+    .map(item => ({ variableCode: item.variableCode, valueCodes: [...item.valueCodes].sort() }))
+    .sort((a, b) => a.variableCode.localeCompare(b.variableCode));
+  return JSON.stringify([dataset, tableId, normalizedSelection]);
+}
 
 /**
  * Fetches the data for a single external variable and parses it into a
@@ -126,47 +142,50 @@ export async function extractDataSeries(
       throw new RecipeError(`VariableExtractor: Failed to fetch data series for variable "${variable.name}" with link "${variable.dataSeriesId}".`);
     }
 
-    const bestUnit = getPrevailingUnit(dbDataSeries.unit, variable.unit);
-    const isValidUnit = isMathjsUnit(bestUnit);
-    if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variable.name}" has an invalid unit "${bestUnit}". Treating as unitless during evaluation.`);
-    const unit = isValidUnit ? bestUnit : undefined;
-
-    const dateValues: DateValues = Object.fromEntries(
-      dbDataSeries.values.map(v => ([
-        new Date(v.timestamp).toISOString(),
-        v.value,
-      ])),
-    );
-
-    if (Object.keys(dateValues).some(k => !isISOIshDate(k))) {
-      throw new RecipeError(`Data series variable "${variable.name}" contains invalid ISOIshDate keys.`);
-    }
-
-    const picked = pickDateValues({ dateValues, unit }, variable.pick);
-
-    if (picked instanceof mathjs.Unit) {
-      dataSeries.push({
-        id: variable.id,
-        displayName: variable.name,
-        value: picked,
-      });
-    }
-    else {
-      dataSeries.push({
-        id: variable.id,
-        displayName: variable.name,
-        series: picked,
-      });
-    }
+    dataSeries.push(dbDataSeriesToExtraction(dbDataSeries, variable, warnings));
   }
 
   return dataSeries;
+}
+
+/**
+ * Builds the evaluation output for a variable backed by a stored `DataSeries`
+ * (unit resolution, date-value mapping, and `pick`). Shared by data-series
+ * variables and external variables that have been materialized into a series.
+ */
+function dbDataSeriesToExtraction(
+  dbDataSeries: DataSeries,
+  variable: DataSeriesVariable | ExternalVariable,
+  warnings: string[],
+): EvalTimeVariable | EvalTimeSeries {
+  const bestUnit = getPrevailingUnit(dbDataSeries.unit, variable.unit);
+  const isValidUnit = isMathjsUnit(bestUnit);
+  if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variable.name}" has an invalid unit "${bestUnit}". Treating as unitless during evaluation.`);
+  const unit = isValidUnit ? bestUnit : undefined;
+
+  const dateValues: DateValues = Object.fromEntries(
+    dbDataSeries.values.map(v => ([
+      new Date(v.timestamp).toISOString(),
+      v.value,
+    ])),
+  );
+
+  if (Object.keys(dateValues).some(k => !isISOIshDate(k))) {
+    throw new RecipeError(`Data series variable "${variable.name}" contains invalid ISOIshDate keys.`);
+  }
+
+  const picked = pickDateValues({ dateValues, unit }, variable.pick);
+
+  return picked instanceof mathjs.Unit
+    ? { id: variable.id, displayName: variable.name, value: picked }
+    : { id: variable.id, displayName: variable.name, series: picked };
 }
 
 export async function extractExternalDatasets(
   variables: RecipeVariable[],
   warnings: string[] = [],
   externalTableContentGetter: (tableId: string, dataset: string, selection: { variableCode: string, valueCodes: string[] }[]) => Promise<ApiTableContent | null> = getTableContent,
+  overrideDataSeriesGetter?: (dataSeriesId: string) => Promise<DataSeries | null>,
 ): Promise<RecipeExtractionOutput> {
 
   const externalDatasets: RecipeExtractionOutput = [];
@@ -176,6 +195,27 @@ export async function extractExternalDatasets(
     if (variable.type !== RecipeDataTypes.External) continue;
 
     fetchers.push(async () => {
+      // Canon: if the variable points at a materialized DataSeries, read it from
+      // the DB instead of re-fetching the upstream API. Only fetch when there is
+      // no materialized series (a brand-new or just-changed selection).
+      if (variable.dataSeriesId) {
+        const dataSeriesGetter = overrideDataSeriesGetter
+          ?? (await import("@/fetchers/client")).clientSafeGetOneDataSeries;
+
+        const dbDataSeries = await dataSeriesGetter(variable.dataSeriesId)
+          .catch((e: unknown) => {
+            const errorMessage = e instanceof Error ? e.message : String(e);
+            throw new RecipeError(`VariableExtractor: Error fetching data series for external variable "${variable.name}" with link "${variable.dataSeriesId}": ${errorMessage}`);
+          });
+
+        if (dbDataSeries) {
+          externalDatasets.push(dbDataSeriesToExtraction(dbDataSeries, variable, warnings));
+          return;
+        }
+        // Materialized series missing — fall back to fetching from the API.
+        warnings.push(`External variable "${variable.name}" references missing data series "${variable.dataSeriesId}"; falling back to a live fetch.`);
+      }
+
       const fetched = await fetchExternalVariableData(variable, warnings, externalTableContentGetter);
 
       const picked = pickDateValues(fetched, variable.pick);

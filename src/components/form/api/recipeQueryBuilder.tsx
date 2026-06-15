@@ -15,7 +15,7 @@ import styles from "./queryBuilder.module.css";
 import { IconDatabaseSearch, IconSearch, IconX } from "@tabler/icons-react";
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 import getTableContent from "@/lib/api/getTableContent";
-import { RecipeDataTypes } from "@/functions/recipe";
+import { RecipeDataTypes, externalSelectionKey } from "@/functions/recipe";
 
 export default function RecipeQueryBuilder({
   variableId,
@@ -423,15 +423,26 @@ export default function RecipeQueryBuilder({
 
     const query = buildQuery(formData);
 
-    upsertVariable(variableId, prev => prev.type === RecipeDataTypes.External
-      ? {
+    upsertVariable(variableId, prev => {
+      if (prev.type !== RecipeDataTypes.External) return prev;
+
+      const nextDataset = isDataSetKeys(dataSource) ? dataSource : prev.dataset;
+      const nextTableId = tableDetails?.id ?? formData.get("externalTableId") as string ?? prev.tableId;
+
+      // If the selection actually changed, invalidate the materialized series so it
+      // is re-fetched; otherwise keep it as canon (no refetch).
+      const newSelectionKey = externalSelectionKey(nextDataset, nextTableId, query);
+      const prevSelectionKey = externalSelectionKey(prev.dataset, prev.tableId, prev.selection);
+      const selectionChanged = newSelectionKey !== prevSelectionKey;
+
+      return {
         ...prev,
-        dataset: isDataSetKeys(dataSource) ? dataSource : prev.dataset,
-        tableId: tableDetails?.id ?? formData.get("externalTableId") as string ?? prev.tableId,
+        dataset: nextDataset,
+        tableId: nextTableId,
         selection: query,
-      }
-      : prev,
-    );
+        dataSeriesId: selectionChanged ? null : prev.dataSeriesId,
+      };
+    });
     closeModal(modalRef);
   }
 

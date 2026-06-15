@@ -2,7 +2,11 @@
 
 import { RecipeError } from "@/functions/recipe/types";
 import type { RecipeDataTypes, RecipeVariable, SerializedRecipe } from "@/functions/recipe/types";
-import type { DateValues, UnitString } from "@/types";
+import { externalSelectionKey } from "@/functions/recipe/extractors";
+import getTableContent from "@/lib/api/getTableContent";
+import type { ApiTableContent } from "@/lib/api/apiTypes";
+import { clientSafeGetOneDataSeries } from "@/fetchers/client";
+import type { DataSeries, DateValues, UnitString } from "@/types";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Recipe } from "@/functions/recipe/recipe";
 import type { SetStateAction } from "./recipeContext.internal";
@@ -12,9 +16,13 @@ import { useDebounce } from "use-debounce";
 
 export function RecipeContextProvider({
   initialRecipe,
+  availableDataSeries,
   children,
 }: {
   initialRecipe?: SerializedRecipe;
+  /** Source data series already loaded with the recipe (its `sourceDataSeries`),
+   * used as canon so evaluation reads them instead of re-fetching. */
+  availableDataSeries?: DataSeries[];
   children: React.ReactNode;
 }) {
   const searchParams = useSearchParams();
@@ -28,6 +36,42 @@ export function RecipeContextProvider({
   // Serialize async recipe updates so rapid edits cannot overwrite each other.
   const recipeUpdateQueueRef = useRef<Promise<void>>(Promise.resolve());
   const recipeUpdateGenerationRef = useRef<number>(0);
+
+  // Cache external dataset fetches for this editing session, keyed on the
+  // selection. Unrelated edits (equation, other variables) reuse the cached data;
+  // an external variable is only re-fetched when its own selection changes.
+  const externalContentCacheRef = useRef<Map<string, Promise<ApiTableContent | null>>>(new Map());
+  const getCachedExternalContent = useCallback(
+    (tableId: string, dataset: string, selection: { variableCode: string, valueCodes: string[] }[]) => {
+      const key = externalSelectionKey(dataset, tableId, selection);
+      const cache = externalContentCacheRef.current;
+      const cached = cache.get(key);
+      if (cached) return cached;
+
+      const request = getTableContent(tableId, dataset, selection).catch((error: unknown) => {
+        cache.delete(key); // Don't cache failures, so a later attempt can retry.
+        throw error;
+      });
+      cache.set(key, request);
+      return request;
+    },
+    [],
+  );
+
+  // Resolve data series (and materialized external data) from those loaded with
+  // the recipe; fall back to a DB read only if one is missing.
+  const availableDataSeriesMap = useMemo(
+    () => new Map((availableDataSeries ?? []).map(dataSeries => [dataSeries.id, dataSeries])),
+    [availableDataSeries],
+  );
+  const getDataSeries = useCallback(
+    (dataSeriesId: string): Promise<DataSeries | null> => {
+      const available = availableDataSeriesMap.get(dataSeriesId);
+      if (available) return Promise.resolve(available);
+      return clientSafeGetOneDataSeries(dataSeriesId);
+    },
+    [availableDataSeriesMap],
+  );
 
   /** 
    * Canonical recipe for this context
@@ -194,7 +238,7 @@ export function RecipeContextProvider({
     }
 
     const warnings: string[] = [];
-    debouncedRecipe.evaluate(warnings)
+    debouncedRecipe.evaluate(warnings, { externalTableContentGetter: getCachedExternalContent, dataSeriesGetter: getDataSeries })
       .then(result => {
         if (!isEffectActive) return;
 
@@ -218,7 +262,7 @@ export function RecipeContextProvider({
     return () => {
       isEffectActive = false;
     };
-  }, [debouncedRecipe]);
+  }, [debouncedRecipe, getCachedExternalContent, getDataSeries]);
 
   return (
     <RecipeContext.Provider value={{

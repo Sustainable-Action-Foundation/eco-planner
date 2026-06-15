@@ -184,7 +184,7 @@ export function isDataSeriesVariable(variable: JSONValue): variable is DataSerie
 }
 
 export function isExternalVariable(variable: JSONValue): variable is ExternalVariable {
-  const allowedProps = ["id", "name", "type", "unit", "template", "dataset", "tableId", "selection", "pick"];
+  const allowedProps = ["id", "name", "type", "unit", "template", "dataset", "tableId", "selection", "pick", "dataSeriesId"];
   if (!isStandardObject(variable)) {
     console.warn("Type guard: external dataset variable should be an object", variable);
     return false;
@@ -194,6 +194,16 @@ export function isExternalVariable(variable: JSONValue): variable is ExternalVar
   // .type: RecipeDataTypes.External
   if (external.type !== RecipeDataTypes.External) {
     console.warn("Type guard: 'type' in external dataset variable", variable);
+    return false;
+  }
+
+  // .dataSeriesId: UUID string | null | undefined
+  if (
+    external.dataSeriesId !== null
+    && external.dataSeriesId !== undefined
+    && (typeof external.dataSeriesId !== "string" || !uuidRegex.test(external.dataSeriesId))
+  ) {
+    console.warn("Type guard: 'dataSeriesId' in external dataset variable", variable);
     return false;
   }
 
