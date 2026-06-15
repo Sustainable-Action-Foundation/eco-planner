@@ -7,9 +7,11 @@ import type { InputElement, Option } from "@/components/types";
 import { clearEditableCombobox, handleKeyDownEditableCombobox, preventInvalidFormSubmission, scrollOptionIntoView } from "./functions";
 import type { IFuseOptions } from "fuse.js";
 import Fuse from "fuse.js";
-import { IconSearch, IconSelector } from "@tabler/icons-react";
+import { IconSearch } from "@tabler/icons-react";
 
 // TODO: Should allow for options with same values? Or we should check that they are unique?
+// TODO: Show selected value inside the button, same goes for selectMultiple
+// TODO: Fix anchor stuff for tree select and multiselect
 
 export default function SelectSingleSearch({
   props,
@@ -112,7 +114,7 @@ export default function SelectSingleSearch({
       <button
         id={props.id}
         className={`${styles['select-toggle']}`}
-        style={{ borderColor: menuOpen ? '#191919' : '' }}
+        style={{ borderColor: menuOpen ? '#191919' : '', anchorName: '--listbox-test-anchor' }}
         value={value ? value.value : ''}
         name={props.name}
         disabled={props.disabled}
@@ -129,7 +131,6 @@ export default function SelectSingleSearch({
         <span className={`${styles['selected-value-text']}`} >
           {!value ? props.placeholder : value.name}
         </span>
-        <IconSelector height={20} width={20} style={{ minWidth: '20px' }} aria-hidden={true} />
       </button>
       <div
         id={`${props.id}-dialog`}
@@ -138,6 +139,14 @@ export default function SelectSingleSearch({
           ${menuOpen ? styles['visible'] : ''} 
           margin-inline-0`
         }
+        style={{
+          positionAnchor: '--listbox-test-anchor',
+          top: 'anchor(bottom)',
+          left: 'anchor(left)',
+          positionTryFallbacks: 'flip-block',
+          position: 'fixed',
+          width: 'anchor-size(width)',
+        }}
         onBlur={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget?.id !== props.id) {
             setFocusedListboxOption(null);
@@ -149,8 +158,8 @@ export default function SelectSingleSearch({
         aria-label={t("forms:combobox.select_single_option")}
       >
         <label
-          className="focusable flex align-items-center gap-25 padding-block-50 padding-inline-25"
-          style={{ border: 'none', borderBottom: '1px solid var(--gray-80)', borderRadius: '0', marginBottom: '3px' }}
+          className="focusable flex align-items-center gap-25 padding-50 padding-inline-25 margin-25"
+          style={{ border: 'none', borderBottom: '1px solid var(--gray-80)', marginBottom: '2px', borderRadius: '0' }}
           aria-label={t("forms:combobox.search_options")}
         >
           <IconSearch width={16} height={16} style={{ minWidth: '16px' }} />
@@ -213,7 +222,7 @@ export default function SelectSingleSearch({
               </li>
             ))
           ) : (
-            <li className={`${styles['no-results']} font-weight-600`} >
+            <li className={`${styles['no-results']}`} >
               {t("common:tsx.no_results")}
             </li>
           )}

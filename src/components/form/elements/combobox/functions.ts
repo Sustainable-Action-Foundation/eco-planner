@@ -282,7 +282,7 @@ export const handleKeyDownTextAutocomplete = (
       }
       break;
     }
-
+    // TODO: ARROW DOWN AND UP SHOULD NOT MOVE FOCUS IF LISTBOX IS CLOSED! 
     // 1. Opens listbox if it can be, and is, closed
     // 2. Sets Focus to the first option in the listbox 
     //    Spec tells us the focus should be placed on the option which was already focused, if it exists. We ignore this.

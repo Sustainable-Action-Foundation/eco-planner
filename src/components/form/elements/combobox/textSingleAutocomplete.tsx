@@ -11,6 +11,7 @@ import { handleKeyDownTextAutocomplete, scrollOptionIntoView } from "./functions
 // TODO: This breaks the recipe editor
 // TODO: Check tab completion against w3c implementation (and other keyboard functions + aria-states for that part...)
 // TODO: Little annoying to select text when search field doesnt occupy the whole thing. 
+// TODO: On double click should select
 
 export default function TextSingleAutocomplete({
   props,
@@ -200,7 +201,7 @@ export default function TextSingleAutocomplete({
             maxHeight: 'calc((24px * 6) + 6px)',
             width: 'auto',
             position: 'absolute',
-            positionAnchor: '--value-anchor',
+            positionAnchor: '--value-anchor', // TODO: Need this to be dynamic
             top: 'anchor(bottom)',
             left: value.length === 0 ? 'anchor(left)' : 'anchor(right)',
             padding: '0',

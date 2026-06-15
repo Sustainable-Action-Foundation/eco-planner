@@ -11,6 +11,10 @@ div:has(>.select-toggle) {
 }
 
 .select-toggle {
+    --padding: .5rem;
+    --icon-size: 20px;
+
+    padding: var(--padding) calc(var(--padding) * 2 + var(--icon-size)) var(--padding) var(--padding);
     width: 100%;
     background-color: white;
     border: 1px solid var(--gray-80);
@@ -18,7 +22,9 @@ div:has(>.select-toggle) {
     align-items: center;
     justify-content: space-between;
     text-align: left;
-    font-size: 14px;
+    background: url('data:image/svg+xml,<svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-selector"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 9l4 -4l4 4" /><path d="M16 15l-4 4l-4 -4" /></svg>') no-repeat calc(100% - var(--padding)) center white;
+    background-size: var(--icon-size);
+
 }
 
 .select-toggle[value=""] .selected-value-text { /* Assume we show our placeholder (which should be gray) given that no value is selected*/
@@ -45,11 +51,11 @@ div:has(>.select-toggle) {
 .listbox,
 .tree {
     list-style: none;
-    border: 1px solid var(--gray-80);
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
     background-color: var(--secondary-neutral);
     margin-block: .25rem;
     border-radius: .5rem;
-    padding: 3px;
+    padding: 0;
     position: absolute;
     z-index: 9;
     width: 100%;
@@ -62,13 +68,14 @@ div:has(>.select-toggle) {
 
     display: none;
     transform: scale(.95);
-    transform-origin: top left;
+    transform-origin: top right;
     opacity: 0;
 
     transition-property: display, opacity, transform;
-    transition-duration: .15s;
+    transition-duration: .1s;
     transition-behavior: allow-discrete;
-
+	transition-timing-function: cubic-bezier(.33,-0.03,.15,1.01);
+    
     @media (prefers-reduced-motion: reduce) {
         transition: none;
     }
@@ -85,7 +92,43 @@ div:has(>.select-toggle) {
     }
 }
 
+/* EXPERIMENTAL FOCUS STUFF!!! */
+
+.listbox li[aria-selected="true"]:has(+ .focused-option) {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.listbox li[aria-selected="true"] + li.focused-option  {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.listbox li.focused-option + li[aria-selected="true"] {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.listbox li.focused-option:has(+ li[aria-selected="true"]) {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+/* Above is focus for handling focused element, below is for multiple select elements */
+.listbox li[aria-selected="true"] + li[aria-selected="true"] {
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+}
+
+.listbox li[aria-selected="true"]:has(+ li[aria-selected="true"]) {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+ 
+
+/* Back to normal stuff */
 .listbox li {
+    transition: border-radius .2s cubic-bezier(.33,-0.03,.15,1.01);
     border-radius: .25rem;
     padding: .5rem;
     user-select: none;
@@ -93,7 +136,44 @@ div:has(>.select-toggle) {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-inline: .25rem;
+    border-radius: .25rem;
+    position: relative;
 }
+
+.listbox li:first-child {
+    margin-top: .25rem;
+}
+
+.listbox li:last-child {
+    margin-bottom: .25rem;
+} 
+
+.listbox li.focused-option {
+    background-color: var(--gray-95) !important;
+}
+
+.listbox li[aria-selected="true"] {
+    background-color: rgba(153, 211, 255, 0.5);
+}
+
+.listbox li.focused-option::before {
+    content: "" / "";
+    width: 2px;
+    height: 80%;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translate(-4px, -50%);
+    border-radius: 0 2px 2px 0;
+    background-color: var(--blue-40);
+}
+
+.listbox li[aria-selected="true"] {
+    color: rgb(0, 87, 153);
+    text-shadow: rgb(0, 145, 255) 0px 0px;
+}
+  
 
 .tree li div {
     user-select: none;
@@ -152,6 +232,7 @@ div:has(>.select-toggle) {
     box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
     scroll-padding-block: 2px;
     border: 0 !important;
+    transform-origin: top left !important;
 }
 
 .suggestive-text li { 
