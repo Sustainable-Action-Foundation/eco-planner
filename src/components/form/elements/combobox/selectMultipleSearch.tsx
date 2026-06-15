@@ -82,7 +82,7 @@ export default function SelectMultipleSearch({
         type="button"
         id={props.id}
         className={`${styles['select-toggle']}`}
-        style={{ borderColor: menuOpen ? '#191919' : '' }}
+        style={{ borderColor: menuOpen ? '#191919' : '', anchorName: '--select-multiple-test-anchor' }}
         name={props.name}
         disabled={props.disabled}
         value={value.map((value) => value.value).toString()}
@@ -109,6 +109,14 @@ export default function SelectMultipleSearch({
           ${menuOpen ? styles['visible'] : ''} 
           margin-inline-0`
         }
+        style={{
+          positionAnchor: '--select-multiple-test-anchor',
+          top: 'anchor(bottom)',
+          left: 'anchor(left)',
+          positionTryFallbacks: 'flip-block',
+          position: 'fixed',
+          width: 'anchor-size(width)',
+        }}
         onBlur={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget?.id !== props.id) {
             setFocusedListboxOption(null);
@@ -201,7 +209,7 @@ export default function SelectMultipleSearch({
               );
             })
           ) : (
-            <li className={`${styles['no-results']} font-weight-600`} >
+            <li className={`${styles['no-results']}`} >
               {t("common:tsx.no_results")}
             </li>
           )}

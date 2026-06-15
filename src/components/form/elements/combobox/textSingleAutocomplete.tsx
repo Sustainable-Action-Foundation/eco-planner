@@ -162,7 +162,7 @@ export default function TextSingleAutocomplete({
                 };
                },
               onBlur: (e) => { 
-                if (e.relatedTarget?.id !== `${props.id}-listbox` && e.relatedTarget?.id !== `${props.id}-button`) {
+                if (e.relatedTarget?.id !== `${props.id}-listbox` && e.relatedTarget?.id !== `${props.id}-button` && displayListBox) {
                   setDisplayListBox(false); 
                   if (value) setter(activeResult?.item?.value ?? e.target.value);
                 };
@@ -200,10 +200,11 @@ export default function TextSingleAutocomplete({
             ...(theme?.style),
             maxHeight: 'calc((24px * 6) + 6px)',
             width: 'auto',
-            position: 'absolute',
+            position: 'fixed',
             positionAnchor: '--value-anchor', // TODO: Need this to be dynamic
             top: 'anchor(bottom)',
             left: value.length === 0 ? 'anchor(left)' : 'anchor(right)',
+            positionTryFallbacks: 'flip-block',
             padding: '0',
             marginTop: '1rem',
           }}
