@@ -50,7 +50,7 @@ test.describe('Screenshot tests', () => {
 
   test('Main page pics', async ({ page }, metadata) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.getByTestId('home-title').hover();
 
     // Main page
     await expect.soft(page.getByTestId('home-title')).toBeVisible();
@@ -88,7 +88,7 @@ test.describe('Screenshot tests', () => {
 
   test('Sidebar pics', async ({ page }, metadata) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.getByTestId('home-title').hover();
 
     let tooSmallScreen = false;
 
@@ -110,7 +110,7 @@ test.describe('Screenshot tests', () => {
   test('Account pics', async ({ page }, metadata) => {
     // Create account page
     await page.goto('/signup');
-    await page.waitForLoadState('networkidle');
+    await page.getByRole('heading', { name: 'signup.create_account' }).hover();
 
     await expect.soft(page.locator('#submit-button')).toBeVisible();
     sendPageName = "createAccount"; // What the screenshot is of
@@ -118,7 +118,7 @@ test.describe('Screenshot tests', () => {
 
     // Log in page
     await page.goto('/login');
-    await page.waitForLoadState('networkidle');
+    await page.getByRole('heading', { name: 'tsx.login' }).hover();
 
     await expect.soft(page.locator('#remember')).toBeVisible();
     sendPageName = "logIn"; // What the screenshot is of
@@ -132,7 +132,7 @@ test.describe('Screenshots Admin', () => {
 
   test('Logged in sidebar pics', async ({ page }, metadata) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.getByTestId('home-title').hover();
 
     await expect.soft(page.getByTestId('home-title')).toBeVisible();
 
@@ -146,7 +146,7 @@ test.describe('Screenshots Admin', () => {
   test('My account pics', async ({ page }, metadata) => {
     // My account page
     await page.goto('/@admin');
-    await page.waitForLoadState('networkidle');
+    await page.getByRole('heading', { name: 'profile.handle_data' }).hover();
 
     await expect.soft(page.getByRole('heading', { name: 'admin' })).toBeVisible();
     sendPageName = "myAccount"; // What the screenshot is of
@@ -156,7 +156,7 @@ test.describe('Screenshots Admin', () => {
   test('Roadmap Series pics', async ({ page }, metadata) => {
     // Roadmap Series create
     await page.goto('/metaRoadmap/create');
-    await page.waitForLoadState('networkidle');
+    await page.getByRole('heading', { name: 'roadmap_series_one_create.title' }).hover();
 
     await expect.soft(page.locator('#submit-button')).toBeVisible();
     sendPageName = "createSeries"; // What the screenshot is of
@@ -164,17 +164,15 @@ test.describe('Screenshots Admin', () => {
 
     // Roadmap Series 
     await page.goto('/');
-    await page.waitForLoadState("networkidle");
+    await page.getByTestId('home-title').hover();
 
     await page.getByRole('link', { name: "Rikets färdplan" }).scrollIntoViewIfNeeded();
     await page.getByRole('link', { name: "Rikets färdplan" }).click(metadata.project.name.includes("Galaxy") ? { force: true } : undefined);
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
 
     await page.getByTestId('show-roadmap-series').click();
-    await page.waitForLoadState('networkidle');
+    await page.getByRole('heading', { name: 'roadmap_versions' }).hover();
 
-    // await page.getByRole('heading', { name: 'roadmap_versions' }).hover();
-    await expect.soft(page.getByRole('heading', { name: 'roadmap_versions' })).toBeVisible();
     sendPageName = "roadmapSeries"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
 
@@ -188,7 +186,7 @@ test.describe('Screenshots Admin', () => {
   test('Roadmap pics', async ({ page }, metadata) => {
     // Roadmap create
     await page.goto('/roadmap/create');
-    await page.waitForLoadState('networkidle');
+    await page.getByRole('heading', { name: 'roadmap_create.title' }).hover();
 
     await expect.soft(page.locator('#submit-button')).toBeVisible();
     sendPageName = "createRoadmap"; // What the screenshot is of
@@ -196,7 +194,7 @@ test.describe('Screenshots Admin', () => {
 
     // Roadmap
     await page.goto('/');
-    await page.waitForLoadState("networkidle");
+    await page.getByTestId('home-title').hover();
 
     await isSidebarOpen(page, true);
 
@@ -226,7 +224,7 @@ test.describe('Screenshots Admin', () => {
 
     // Goal
     await page.goto('/');
-    await page.waitForLoadState("networkidle");
+    await page.getByTestId('home-title').hover();
 
     await page.getByRole('link', { name: "Rikets färdplan" }).scrollIntoViewIfNeeded();
     await page.getByRole('link', { name: "Rikets färdplan" }).click(metadata.project.name.includes("Galaxy") ? { force: true } : undefined);
@@ -264,14 +262,14 @@ test.describe('Screenshots Admin', () => {
   test('Action pics', async ({ page }, metadata) => {
     // Create
     await page.goto('/action/create');
-    await page.waitForLoadState('networkidle');
+    await page.getByRole('heading', { name: 'action_create.title' }).hover();
 
     await expect.soft(page.locator('#submit-button')).toBeVisible();
     sendPageName = "createAction"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
 
     await page.goto('/actions');
-    await page.waitForLoadState('networkidle');
+    await page.getByRole('heading', { name: 'actions.actions' }).hover();
 
     await expect.soft(page.getByRole('heading').first()).toBeVisible();
     sendPageName = "actionsPage"; // What the screenshot is of
@@ -281,7 +279,7 @@ test.describe('Screenshots Admin', () => {
   test('Effect', async ({ page }, metadata) => {
     // Create
     await page.goto('/effect/create');
-    await page.waitForLoadState('networkidle');
+    await page.getByRole('heading', { name: 'effect_create.title' }).hover();
 
     await expect.soft(page.locator('#submit-button')).toBeVisible();
     sendPageName = "createEffect"; // What the screenshot is of
