@@ -102,6 +102,7 @@ export const handleKeyDownTreeCombobox = (
     }
 
     default: {
+      if (e.key !== 'Tab') e.preventDefault();
       break;
     }
   }

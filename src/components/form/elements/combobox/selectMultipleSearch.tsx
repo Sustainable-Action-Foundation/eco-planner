@@ -79,6 +79,7 @@ export default function SelectMultipleSearch({
       style={{ ...props.style }}
     >
       <input
+        type="text"
         placeholder={props.placeholder}
         readOnly={true}
         id={props.id}
@@ -88,14 +89,19 @@ export default function SelectMultipleSearch({
         disabled={props.disabled}
         value={value.map((value) => value.value).toString()}
         ref={toggleRef}
+        onChange={() => {}}
         onClick={() => { setMenuOpen(!menuOpen); }}
+        onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+          if (e.key !== 'Tab') e.preventDefault(); // Prevent typing
+        }}
+        onPaste={(e) => e.preventDefault()} // Prevent pasting
+        onDrop={(e) => e.preventDefault()} // Prevent copying
+        required={!!props.required ? props.required : false}
         role="combobox"
         aria-controls={`${props.id}-dialog`}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
-        aria-required={!!props.required ? props.required : false}
         aria-invalid={!valueIsValid}
-        // TODO: ADD ON KEY DOWN FUNCTIONS HERE!
       />
       <div
         id={`${props.id}-dialog`}

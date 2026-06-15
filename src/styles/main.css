@@ -480,7 +480,8 @@
   border-radius: 4px;
 }
 
-:where(input[type=text],
+:where(
+  input[type=text],
   input[type=email],
   input[type=password],
   input[type=search],

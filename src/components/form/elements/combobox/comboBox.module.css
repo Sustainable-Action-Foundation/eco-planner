@@ -1,9 +1,5 @@
 /* TODO: Implement anchor + fallbacks here! */
 
-div:has(>.select-toggle) {
-    user-select: none;
-}
-
 .selected-value-text {
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -16,42 +12,13 @@ div:has(>.select-toggle) {
     --padding: .5rem;
     --icon-size: 20px;
 
-    border-radius: .25rem;
     caret-color: transparent;
     cursor: pointer;
     padding: var(--padding) calc(var(--padding) * 2 + var(--icon-size)) var(--padding) var(--padding);
-    width: 100%;
-    background-color: white;
-    border: 1px solid var(--gray-80);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    text-align: left;
     background: url('data:image/svg+xml,<svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-selector"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 9l4 -4l4 4" /><path d="M16 15l-4 4l-4 -4" /></svg>') no-repeat calc(100% - var(--padding)) center white;
     background-size: var(--icon-size);
-
 }
 
-.select-toggle[value=""] .selected-value-text { /* Assume we show our placeholder (which should be gray) given that no value is selected*/
-    color: gray; /* TODO: Revert to inline styles like we did before, there may be occasions where the user can select a blank value*/
-}
-
-.select-toggle:disabled .selected-value-text{
-    opacity: 0.6
-}
-
-.select-toggle:hover {
-    box-shadow: none;
-}
-
-.select-toggle:active {
-    transform: none;
-}
-
-.select-toggle:focus {
-    border-color: #191919;
-    outline: 0;
-}
 
 .listbox,
 .tree {
@@ -69,7 +36,7 @@ div:has(>.select-toggle) {
     overflow-y: auto;
     scrollbar-width: thin;
     max-height: 300px;
-    scroll-padding-block: 3px;
+    scroll-padding-block: 2px;
 
     display: none;
     transform: scale(.95);
@@ -108,7 +75,8 @@ div:has(>.select-toggle) {
 }
  
 .listbox li {
-    transition: border-radius .2s cubic-bezier(.33,-0.03,.15,1.01), margin-inline-start .1s ease-out;
+    transition: border-radius .2s cubic-bezier(.33,-0.03,.15,1.01), 
+                margin-inline-start .1s ease-out;
     border-radius: .25rem;
     padding: .5rem;
     user-select: none;
@@ -120,7 +88,7 @@ div:has(>.select-toggle) {
     border-radius: calc(.5rem - 2px);
     position: relative;
 }
-
+ 
 .listbox li:first-child {
     margin-top: .25rem;
 }
@@ -128,11 +96,6 @@ div:has(>.select-toggle) {
 .listbox li:last-child {
     margin-bottom: 2px;
 } 
-
-.listbox li.focused-option {
-    margin-inline-start: 4px;
-    background-color: var(--gray-95) !important;
-}
 
 .listbox li[aria-selected="true"] {
     background-color: rgba(153, 211, 255, 0.5);
@@ -230,15 +193,14 @@ div:has(>.select-toggle) {
     content: none !important;
 }
 
-.focused-option {
-    background-color: var(--gray-90) !important;
+.listbox li.focused-option,
+.suggestive-text li.focused-option {
+    margin-inline-start: 4px;
+    background-color: var(--gray-95) !important;
 }
 
 /* TODO: Might be sensible to harmonize this with our other listboxes or it might not... */
 .suggestive-text {
-    box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
-    scroll-padding-block: 2px;
-    border: 0 !important;
     transform-origin: top left !important;
 }
 
@@ -261,12 +223,7 @@ div:has(>.select-toggle) {
 .suggestive-text li:last-child {
     margin-bottom: 2px;
 } 
-
-.suggestive-text li.focused-option{
-    margin-inline-start: 4px;
-    background-color: var(--gray-95) !important;
-}
-
+ 
 .suggestive-text li[aria-selected="true"] {
     background-color: rgba(153, 211, 255, 0.5);
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useMemo } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import styles from './comboBox.module.css' with { type: "css" };
 import type { InputElement, Option } from "@/components/types";
@@ -112,8 +112,8 @@ export default function SelectSingleSearch({
       style={{ ...props.style, userSelect: 'none' }}
     >
       <input
+        type="text"
         placeholder={props.placeholder}
-        readOnly={true}
         id={props.id}
         className={`${styles['select-toggle']}`}
         style={{ borderColor: menuOpen ? '#191919' : '', anchorName: '--listbox-test-anchor' }}
@@ -121,14 +121,19 @@ export default function SelectSingleSearch({
         name={props.name}
         disabled={props.disabled}
         ref={toggleRef}
+        onChange={() => {}}
         onClick={() => { setMenuOpen(!menuOpen); }}
+        onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+          if (e.key !== 'Tab') e.preventDefault(); // Prevent typing
+        }}
+        onPaste={(e) => e.preventDefault()} // Prevent pasting
+        onDrop={(e) => e.preventDefault()} // Prevent copying
         role="combobox"
+        required={!!props.required ? props.required : false}
         aria-controls={`${props.id}-dialog`}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
-        aria-required={!!props.required ? props.required : false}
         aria-invalid={!valueIsValid}
-        // TODO: ADD ON KEY DOWN FUNCTIONS HERE!
       />
       <div
         id={`${props.id}-dialog`}

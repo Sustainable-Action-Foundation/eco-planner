@@ -241,7 +241,7 @@ export default function SelectSingleTree({
       style={{ ...props.style, userSelect: 'none' }}
     >
       <input
-        readOnly={true}
+        type="text"
         placeholder={props.placeholder}
         title={value?.name}
         id={props.id}
@@ -251,6 +251,7 @@ export default function SelectSingleTree({
         name={props.name}
         disabled={props.disabled}
         ref={toggleRef}
+        onChange={() => {}}
         onClick={() => { setMenuOpen(!menuOpen); }}
         role="combobox"
         aria-controls={menuOpen ? `${props.id}-dialog-tree` : undefined}
@@ -296,7 +297,8 @@ export default function SelectSingleTree({
             setMenuOpen,
           );
         }}
-        // TODO: ADD ON KEY DOWN FUNCTIONS HERE (kinda we already have some because this is the tree combobox) !
+        onPaste={(e) => e.preventDefault()} // Prevent pasting
+        onDrop={(e) => e.preventDefault()} // Prevent copying
       />
 
       <ul
