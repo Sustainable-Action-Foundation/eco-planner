@@ -54,7 +54,7 @@ export default function TextSingleAutocomplete({
     return value ? fuse.search(value) : options.map(option => ({ item: option, matches: [], score: 1, refIndex: 0 }));
   }, [value, fuse, options, selectionMade]);
 
-  useEffect(() => { 
+  useEffect(() => {
     scrollOptionIntoView(optionRefs.current, focusedListBoxItem);
   }, [focusedListBoxItem]);
 
@@ -97,17 +97,20 @@ export default function TextSingleAutocomplete({
 
   const activeIndex =
     focusedListBoxItem != null &&
-    focusedListBoxItem >= 0 &&
-    focusedListBoxItem < searchResults.length
+      focusedListBoxItem >= 0 &&
+      focusedListBoxItem < searchResults.length
       ? focusedListBoxItem
       : 0;
 
-  const activeResult = searchResults[activeIndex]; 
-  
+  const activeResult = searchResults[activeIndex];
+
   return (
     <div
       className={`${props.className ? `${props.className} ` : ''}position-relative`}
-      style={{ ...props.style }}
+      style={{
+        ...props.style,
+        '--anchor-name': `--${props.id}-anchor`, // TODO: we want this to be an attribute once thats supported...  
+      } as React.CSSProperties}
       onClick={() => comboboxRef.current?.focus()}
     >
       <div
@@ -115,12 +118,11 @@ export default function TextSingleAutocomplete({
         style={theme?.style ?? {}}
       >
         <input
-          style={{ 
-            fieldSizing: options.length > 0 ? 'content' : 'initial', 
+          style={{
+            fieldSizing: options.length > 0 ? 'content' : 'initial',
             width: options.length > 0 ? 'auto' : '100%',
-            padding: '0',
-            anchorName: `--${props.id}-anchor`,
           }}
+          className={`${styles['text-suggestion-input']} padding-0`}
           type="text"
           placeholder={!!props.placeholder ? props.placeholder : undefined}
           name={props.name}
@@ -129,8 +131,8 @@ export default function TextSingleAutocomplete({
           disabled={props.disabled}
           value={value}
           autoComplete="off"
-          onChange={(e) => { 
-            setter(e.target.value); 
+          onChange={(e) => {
+            setter(e.target.value);
             setFocusedListBoxItem(0);
           }}
           {...(options.length > 0
@@ -150,8 +152,8 @@ export default function TextSingleAutocomplete({
                   (selectedOption) => {
                     if (!displayListBox) return;
                     setter(selectedOption ? selectedOption.name : ""); // TODO: Should be .value?
-                    setSelectionMade(true); 
-                    setFocusedListBoxItem(null); 
+                    setSelectionMade(true);
+                    setFocusedListBoxItem(null);
                     setDisplayListBox(false);
                   },
                 );
@@ -161,14 +163,14 @@ export default function TextSingleAutocomplete({
                   setDisplayListBox(false);
                 }
               },
-              onFocus: () => { 
-                if (value) { 
-                  setDisplayListBox(true); 
+              onFocus: () => {
+                if (value) {
+                  setDisplayListBox(true);
                 };
-               },
-              onBlur: (e) => { 
+              },
+              onBlur: (e) => {
                 if (e.relatedTarget?.id !== `${props.id}-listbox` && e.relatedTarget?.id !== `${props.id}-button` && displayListBox) {
-                  setDisplayListBox(false); 
+                  setDisplayListBox(false);
                   if (value) setter(activeResult?.item?.value ?? e.target.value);
                 };
               },
@@ -205,11 +207,7 @@ export default function TextSingleAutocomplete({
             ...(theme?.style),
             maxHeight: 'calc((24px * 6) + 6px)',
             width: 'auto',
-            position: 'fixed',
-            positionAnchor: `--${props.id}-anchor`,
-            top: 'anchor(bottom)',
             left: value.length === 0 ? 'anchor(left)' : 'anchor(right)',
-            positionTryFallbacks: 'flip-block',
             padding: '0',
             marginTop: '1rem',
             transformOrigin: 'top left',

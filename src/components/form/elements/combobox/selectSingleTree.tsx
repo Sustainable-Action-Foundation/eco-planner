@@ -229,7 +229,10 @@ export default function SelectSingleTree({
   return (
     <div
       className={`${props.className ? `${props.className} ` : ''}position-relative`}
-      style={{ ...props.style, userSelect: 'none' }}
+      style={{
+        ...props.style,
+        '--anchor-name': `--${props.id}-anchor`, // TODO: we want this to be an attribute once thats supported...  
+      } as React.CSSProperties}
     >
       <input
         type="text"
@@ -237,7 +240,7 @@ export default function SelectSingleTree({
         title={value?.name}
         id={props.id}
         className={`${styles['select-toggle']}`}
-        style={{ ...props.style, borderColor: menuOpen ? '#191919' : '', anchorName: `--${props.id}-anchor` }}
+        style={{ ...props.style, borderColor: menuOpen ? '#191919' : '' }}
         value={value ? value.value : ''}
         name={props.name}
         disabled={props.disabled}
@@ -300,15 +303,7 @@ export default function SelectSingleTree({
             padding-0
             margin-inline-0
           `}
-        style={{
-          scrollPadding: '45%',
-          positionAnchor: `--${props.id}-anchor`,
-          top: 'anchor(bottom)',
-          left: 'anchor(left)',
-          positionTryFallbacks: 'flip-block',
-          position: 'fixed',
-          width: 'anchor-size(width)',
-        }}  
+        style={{ scrollPadding: '45%' }}
         role="tree"
         aria-label={t("forms:combobox.select_single_option")}
       >

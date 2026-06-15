@@ -64,14 +64,17 @@ export default function SelectMultipleSearch({
   return (
     <div
       className={`${props.className ? `${props.className} ` : ''}position-relative`}
-      style={{ ...props.style }}
+      style={{
+        ...props.style,
+        '--anchor-name': `--${props.id}-anchor`, // TODO: we want this to be an attribute once thats supported...  
+      } as React.CSSProperties}
     >
       <input
         type="text"
         placeholder={props.placeholder}
         id={props.id}
         className={`${styles['select-toggle']}`}
-        style={{ borderColor: menuOpen ? '#191919' : '', anchorName: `--${props.id}-anchor` }}
+        style={{ borderColor: menuOpen ? '#191919' : '' }}
         name={props.name}
         disabled={props.disabled}
         value={value.map((value) => value.value).toString()}
@@ -83,7 +86,7 @@ export default function SelectMultipleSearch({
         }}
         onPaste={(e) => e.preventDefault()} // Prevent pasting
         onDrop={(e) => e.preventDefault()} // Prevent copying
-        role="combobox"        
+        role="combobox"
         required={props.required ? props.required : false}
         aria-controls={`${props.id}-dialog`}
         aria-expanded={menuOpen}
@@ -96,14 +99,6 @@ export default function SelectMultipleSearch({
           ${menuOpen ? styles['visible'] : ''} 
           margin-inline-0`
         }
-        style={{
-          positionAnchor: `--${props.id}-anchor`,
-          top: 'anchor(bottom)',
-          left: 'anchor(left)',
-          positionTryFallbacks: 'flip-block',
-          position: 'fixed',
-          width: 'anchor-size(width)',
-        }}
         onBlur={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget?.id !== props.id) {
             setFocusedListboxOption(null);

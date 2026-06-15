@@ -97,14 +97,17 @@ export default function SelectSingleSearch({
   return (
     <div
       className={`${props.className ? `${props.className} ` : ''}position-relative`}
-      style={{ ...props.style, userSelect: 'none' }}
+      style={{ 
+        ...props.style,
+        '--anchor-name': `--${props.id}-anchor`, // TODO: we want this to be an attribute once thats supported...  
+      } as React.CSSProperties}
     >
       <input
         type="text"
         placeholder={props.placeholder}
         id={props.id}
         className={`${styles['select-toggle']}`}
-        style={{ borderColor: menuOpen ? '#191919' : '', anchorName: `--${props.id}-anchor` }}
+        style={{ borderColor: menuOpen ? '#191919' : '' }}
         value={value ? value.value : ''}
         name={props.name}
         disabled={props.disabled}
@@ -129,14 +132,6 @@ export default function SelectSingleSearch({
           ${menuOpen ? styles['visible'] : ''} 
           margin-inline-0`
         }
-        style={{
-          positionAnchor: `--${props.id}-anchor`,
-          top: 'anchor(bottom)',
-          left: 'anchor(left)',
-          positionTryFallbacks: 'flip-block',
-          position: 'fixed',
-          width: 'anchor-size(width)',
-        }}
         onBlur={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget?.id !== props.id) {
             setFocusedListboxOption(null);
