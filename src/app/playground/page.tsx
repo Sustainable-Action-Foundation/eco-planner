@@ -23,12 +23,13 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function Page() {
   const [suggestion, setSuggestion] = useState<string>('');
   return (
-    <div className="grid gap-200 margin-top-500 padding-top-500" style={{ gridTemplateColumns: '1fr 1fr', marginTop: '20%' }}>
+    <form className="grid gap-200 margin-top-500 padding-top-500" style={{ gridTemplateColumns: '1fr 1fr', marginTop: '20%' }}>
       <SelectSingleTree
         props={{
           id: 'select-tree',
           name: 'select-tree',
           placeholder: 'treeitem',
+          required: true,
         }}
         treeItems={[
           {
@@ -112,6 +113,7 @@ export default function Page() {
           id: 'suggestions',
           name: 'suggestions',
           placeholder: 'Text suggestions',
+          required: true,
         }}
         options={[
           { name: 'option 1', value: 'option 1' },
@@ -128,6 +130,7 @@ export default function Page() {
           id: 'select-multiple',
           name: 'select-multiple',
           placeholder: 'Select multiple',
+          required: true,
         }}
         options={[
           { name: 'option 1', value: 'option 1' },
@@ -142,6 +145,7 @@ export default function Page() {
           id: 'select-single',
           name: 'select-single',
           placeholder: 'Select single',
+          required: true,
         }}
         options={[
           { name: 'option 1', value: 'option 1' },
@@ -151,6 +155,7 @@ export default function Page() {
           { name: 'option 5', value: 'option 5' },
         ]}
       />
-    </div>
+      <input type="submit" value={"Submit form!"}/>
+    </form>
   );
 }

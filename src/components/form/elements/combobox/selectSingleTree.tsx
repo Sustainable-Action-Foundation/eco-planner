@@ -2,8 +2,8 @@
 
 import type { InputElement, TreeItem } from "@/components/types";
 import { IconCaretRightFilled } from "@tabler/icons-react";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { handleKeyDownTreeCombobox, preventInvalidFormSubmission, scrollOptionIntoView } from "./functions";
+import { useEffect, useRef, useState } from "react";
+import { handleKeyDownTreeCombobox, scrollOptionIntoView } from "./functions";
 import styles from './comboBox.module.css' with { type: "css" };
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
@@ -102,18 +102,6 @@ export default function SelectSingleTree({
 
     return () => cancelAnimationFrame(raf);
   }, [focusedIndex, flattenedItems]);
-
-  // Disables form submission if value is invalid 
-  // Define what an invalid value is (missing value or empty string). We only need this defined if the field is required
-  const valueIsValid = useMemo(() => {
-    if ((!value || value.value === "") && props.required) return false;
-    return true;
-  }, [value, props.required]);
-
-  useEffect(() => {
-    if (!toggleRef.current) return;
-    return preventInvalidFormSubmission(toggleRef.current, valueIsValid);
-  }, [valueIsValid]);
 
   useEffect(() => {
     setItems(treeItems);
@@ -258,7 +246,6 @@ export default function SelectSingleTree({
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
         aria-required={!!props.required ? props.required : false}
-        aria-invalid={!valueIsValid}
         aria-activedescendant={focusedIndex ? flattenedItems[focusedIndex].value : undefined}
         onBlur={(e) => {
           if (e.relatedTarget?.id !== `${props.id}-dialog-tree` && e.relatedTarget?.id !== props.id) {

@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import styles from './comboBox.module.css' with { type: "css" };
 import type { InputElement, Option } from "@/components/types";
-import { clearEditableCombobox, handleKeyDownEditableCombobox, preventInvalidFormSubmission, scrollOptionIntoView } from "./functions";
+import { clearEditableCombobox, handleKeyDownEditableCombobox, scrollOptionIntoView } from "./functions";
 import type { IFuseOptions } from "fuse.js";
 import Fuse from "fuse.js";
 import { IconSearch } from "@tabler/icons-react";
@@ -46,18 +46,6 @@ export default function SelectMultipleSearch({
     }
     return searchValue ? fuse.search(searchValue).map(result => result.item) : options;
   }, [searchValue, fuse, options, selectionMade]);
-
-  // Disables form submission if value is invalid 
-  // Define what an invalid value is (missing value or empty array). We only need this defined if the field is requied
-  const valueIsValid = useMemo(() => {
-    if ((!value || value.length === 0) && props.required) return false;
-    return true;
-  }, [value, props.required]);
-
-  useEffect(() => {
-    if (!toggleRef.current) return;
-    return preventInvalidFormSubmission(toggleRef.current, valueIsValid);
-  }, [valueIsValid]);
 
   useEffect(() => {
     if (!searchRef.current) return;
@@ -101,7 +89,6 @@ export default function SelectMultipleSearch({
         aria-controls={`${props.id}-dialog`}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
-        aria-invalid={!valueIsValid}
       />
       <div
         id={`${props.id}-dialog`}

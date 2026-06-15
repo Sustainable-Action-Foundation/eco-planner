@@ -387,22 +387,4 @@ export function scrollOptionIntoView(
       block: scrollOptions ? scrollOptions : "nearest",
     });
   }
-}
-
-/* TODO: Want to remove this when we stop using buttons! */
-export function preventInvalidFormSubmission(
-  formElement: HTMLInputElement | HTMLButtonElement | HTMLTextAreaElement | HTMLSelectElement,
-  valid: boolean,
-) {
-  const form = formElement.closest("form");
-  if (!form) return;
-  const handleSubmit = (e: Event) => {
-    if (!valid) {
-      e.preventDefault();
-      e.stopPropagation();
-      formElement.focus();
-    }
-  };
-  form.addEventListener("submit", handleSubmit);
-  return () => form.removeEventListener("submit", handleSubmit);
 } 
