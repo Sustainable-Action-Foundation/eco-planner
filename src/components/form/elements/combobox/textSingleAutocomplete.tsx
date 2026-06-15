@@ -115,7 +115,12 @@ export default function TextSingleAutocomplete({
         style={theme?.style ?? {}}
       >
         <input
-          style={{ fieldSizing: options.length > 0 ? 'content' : 'initial', width: options.length > 0 ? 'auto' : '100%', padding: '0', anchorName: '--value-anchor' }}
+          style={{ 
+            fieldSizing: options.length > 0 ? 'content' : 'initial', 
+            width: options.length > 0 ? 'auto' : '100%',
+            padding: '0',
+            anchorName: `--${props.id}-anchor`,
+          }}
           type="text"
           placeholder={!!props.placeholder ? props.placeholder : undefined}
           name={props.name}
@@ -201,7 +206,7 @@ export default function TextSingleAutocomplete({
             maxHeight: 'calc((24px * 6) + 6px)',
             width: 'auto',
             position: 'fixed',
-            positionAnchor: '--value-anchor', // TODO: Need this to be dynamic
+            positionAnchor: `--${props.id}-anchor`,
             top: 'anchor(bottom)',
             left: value.length === 0 ? 'anchor(left)' : 'anchor(right)',
             positionTryFallbacks: 'flip-block',

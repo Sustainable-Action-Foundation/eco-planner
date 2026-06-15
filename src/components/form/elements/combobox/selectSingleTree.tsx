@@ -13,8 +13,8 @@ import Image from "next/image";
 // TODO: Should allow for options with same values? Or we should check that they are unique?
 // TODO: We should look into keeping state, i.e opening and selecting the thing you had already selected before closing (maybe if it is not annoying...)
 
-// TODO: FIX ANCHOR STUFF IN CSS
-// TODO: Abstract out onclick function!!
+// TODO: Separate combobox function (dialog) from combobox function (search)!!
+// TODO: For all select elements, value is displayed instead of the name of what was chosen ):
 
 /**
  * Flattens an array of treeItems so children appear right after their parent.
@@ -237,7 +237,7 @@ export default function SelectSingleTree({
         title={value?.name}
         id={props.id}
         className={`${styles['select-toggle']}`}
-        style={{ ...props.style, borderColor: menuOpen ? '#191919' : '', anchorName: '--tree-test-anchor' }}
+        style={{ ...props.style, borderColor: menuOpen ? '#191919' : '', anchorName: `--${props.id}-anchor` }}
         value={value ? value.value : ''}
         name={props.name}
         disabled={props.disabled}
@@ -302,7 +302,7 @@ export default function SelectSingleTree({
           `}
         style={{
           scrollPadding: '45%',
-          positionAnchor: '--tree-test-anchor',
+          positionAnchor: `--${props.id}-anchor`,
           top: 'anchor(bottom)',
           left: 'anchor(left)',
           positionTryFallbacks: 'flip-block',
@@ -317,7 +317,7 @@ export default function SelectSingleTree({
             <TreeNode key={index} item={treeItem} onUpdate={handleUpdateNode} />
           ))
         ) : (
-          <li className={`${styles['no-results']}`} style={{ padding: '.5rem' }}> {/* TODO: For whatever reason i need to set padding here but not for the selectsingleserach no results <li>. They are seemingly implemented the same way so probably figure out why this is. */}
+          <li className={`${styles['no-results']}`} >
             {t("common:tsx.no_results")}
           </li>
         )}

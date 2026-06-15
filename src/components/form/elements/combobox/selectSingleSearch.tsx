@@ -104,7 +104,7 @@ export default function SelectSingleSearch({
         placeholder={props.placeholder}
         id={props.id}
         className={`${styles['select-toggle']}`}
-        style={{ borderColor: menuOpen ? '#191919' : '', anchorName: '--listbox-test-anchor' }}
+        style={{ borderColor: menuOpen ? '#191919' : '', anchorName: `--${props.id}-anchor` }}
         value={value ? value.value : ''}
         name={props.name}
         disabled={props.disabled}
@@ -130,7 +130,7 @@ export default function SelectSingleSearch({
           margin-inline-0`
         }
         style={{
-          positionAnchor: '--listbox-test-anchor',
+          positionAnchor: `--${props.id}-anchor`,
           top: 'anchor(bottom)',
           left: 'anchor(left)',
           positionTryFallbacks: 'flip-block',

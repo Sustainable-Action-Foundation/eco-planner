@@ -71,7 +71,7 @@ export default function SelectMultipleSearch({
         placeholder={props.placeholder}
         id={props.id}
         className={`${styles['select-toggle']}`}
-        style={{ borderColor: menuOpen ? '#191919' : '', anchorName: '--select-multiple-test-anchor' }}
+        style={{ borderColor: menuOpen ? '#191919' : '', anchorName: `--${props.id}-anchor` }}
         name={props.name}
         disabled={props.disabled}
         value={value.map((value) => value.value).toString()}
@@ -97,7 +97,7 @@ export default function SelectMultipleSearch({
           margin-inline-0`
         }
         style={{
-          positionAnchor: '--select-multiple-test-anchor',
+          positionAnchor: `--${props.id}-anchor`,
           top: 'anchor(bottom)',
           left: 'anchor(left)',
           positionTryFallbacks: 'flip-block',
