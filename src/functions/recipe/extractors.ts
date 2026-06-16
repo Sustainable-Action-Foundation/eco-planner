@@ -60,7 +60,12 @@ export async function fetchExternalVariableData(
     if (!isISOIshDate(isoDateString)) {
       throw new RecipeError(`External dataset variable "${variable.name}" contains invalid ISOIshDate keys after parsing period "${valuePeriod.period}".`);
     }
-    timeline[isoDateString] = parseFloat(valuePeriod.value); // TODO: what is the preferred way to parse these values?
+    const parsedValue = parseFloat(valuePeriod.value); // TODO: what is the preferred way to parse these values?
+    if (!Number.isFinite(parsedValue)) {
+      warnings.push(`External dataset variable "${variable.name}" has a non-numeric value "${valuePeriod.value}" for period "${valuePeriod.period}"; skipping it.`);
+      continue;
+    }
+    timeline[isoDateString] = parsedValue;
   }
 
   // TODO: how should units be derived here? I can't find anything in the API response that indicates units.
