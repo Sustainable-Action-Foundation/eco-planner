@@ -11,7 +11,7 @@ export class Recipe {
   public name: string;
   public equation: string;
   public variables: RecipeVariable[];
-  private meta?: Record<string, JSONValue>;
+  private meta?: SerializedRecipeShape["meta"];
 
   public constructor({
     name,
@@ -22,7 +22,7 @@ export class Recipe {
     name: string;
     equation: string;
     variables: RecipeVariable[];
-    meta?: Record<string, JSONValue>;
+    meta?: SerializedRecipeShape["meta"];
   }) {
     this.name = name;
     this.equation = equation;
@@ -36,6 +36,10 @@ export class Recipe {
 
   public isTemplate(): boolean {
     return Object.values(this.variables).some(v => v.template);
+  }
+
+  public isSuggestedRecipe(): boolean {
+    return this.meta?.isSuggestedRecipe ?? false;
   }
 
   /** 
@@ -332,6 +336,7 @@ export class Recipe {
       variables: this.variables,
       meta: {
         v: 1,
+        isSuggestedRecipe: this.meta?.isSuggestedRecipe ?? false,
       },
     } satisfies SerializedRecipeShape);
   }
@@ -358,6 +363,42 @@ export class Recipe {
 
   /** 
    * Recipe factory, takes either a serialized recipe, a plain object recipe or an existing Recipe and returns a new recipe instance.
+   *
+   * Can take in various shapes:
+   * 
+   * ### 1. Serialized recipe string:
+   * ```ts
+   * "{ ... }"
+   * ```
+   * 
+   * ### 2. Plain recipe object:
+   * ```ts
+   * {
+   *   name: string;
+   *   equation: string;
+   *   ...
+   * }
+   * ```
+   * 
+   * ### 3. DB-shaped object:
+   * ```ts
+   * {
+   *   id: string;
+   *   recipe: string;
+   * }
+   * ```
+   * 
+   * ### 4. DB-shaped object with deserialized recipe:
+   * ```ts
+   * {
+   *   id: string;
+   *   recipe: {
+   *     name: string;
+   *     equation: string;
+   *     ...
+   *   }
+   * }
+   * ```
    */
   public static from(input: string | Recipe | JSONValue): Recipe {
     if (typeof input === "string") {
@@ -366,20 +407,49 @@ export class Recipe {
     else if (input instanceof Recipe) {
       return Recipe.deserialize(input.serialize());
     }
-    else {
+    else if (typeof input === "object" && input !== null) {
       return Recipe.fromObject(input);
+    }
+    else {
+      throw new RecipeError("Unsupported input type for Recipe.from. Expected string, Recipe instance, or object. Received: " + String(input));
     }
   }
 
   /** 
    * Recipe factory, takes recipe object and returns a new recipe instance if valid.
+   * 
+   * ## Takes:
+   * 
+   * ### 1. Plain recipe object:
+   * ```ts
+   * {
+   *   name: string;
+   *   equation: string;
+   *   ...
+   * }
+   * ```
+   * 
+   * ### 2. DB-shaped object:
+   * ```ts
+   * {
+   *   id: string;
+   *   recipe: string;
+   * }
+   * ```
+   * 
+   * ### 3. DB-shaped object with deserialized recipe:
+   * ```ts
+   * {
+   *   id: string;
+   *   recipe: {
+   *     name: string;
+   *     equation: string;
+   *     ...
+   *   }
+   * }
+   * ```
    */
   private static fromObject(obj: JSONValue): Recipe {
-    if (typeof obj === "string") {
-      console.info("Parsing recipe from string input, attempting to parse as serialized recipe.");
-      return Recipe.deserialize(obj);
-    }
-
     const normalized = Recipe.normalizeRecipeObject(obj);
 
     if (!isRecipe(normalized)) {
@@ -401,12 +471,24 @@ export class Recipe {
     if (typeof obj !== "object" || obj === null) {
       throw new RecipeError("Invalid object format for recipe, expected an object");
     }
-
+    // If it's DB shaped it will have {id:string, recipe: JSONValue}
     if ("recipe" in obj) {
-      if (typeof obj.recipe !== "object" || obj.recipe === null) {
-        throw new RecipeError("Invalid object format for recipe, 'recipe' field is not an object");
+      const recipeField = obj.recipe;
+
+      if (typeof recipeField !== "object" && typeof recipeField !== "string") {
+        throw new RecipeError("Invalid object format for recipe, 'recipe' field is not an object or string");
       }
-      return obj.recipe as JSONValue;
+
+      if (typeof recipeField === "string") {
+        try {
+          return JSON.parse(recipeField) as JSONValue;
+        }
+        catch {
+          throw new RecipeError("Invalid object format for recipe, 'recipe' field is a string but not a valid JSON string");
+        }
+      }
+
+      return recipeField;
     }
 
     return obj;

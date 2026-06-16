@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { getSession } from "@/lib/session";
-import prisma, { Prisma } from "@/prismaClient";
+import { prisma } from "@/lib/prisma";
+import { Prisma } from "@PRISMA-NAMESPACE-ONLY";
 import { AccessLevel, ClientError, isDateValuesWithUnit } from "@/types";
 import type { AccessControlled, ActionInput } from "@/types";
 import accessChecker from "@/lib/accessChecker";
@@ -122,7 +123,7 @@ export async function POST(request: NextRequest) {
       );
     } else {
       // If non-error is thrown, log it and return a generic error message
-      console.log(error);
+      console.error(error);
       return Response.json({ message: t('api:common.unknown_server_error') },
         { status: 500 },
       );
@@ -183,13 +184,13 @@ export async function POST(request: NextRequest) {
     })).id;
 
     // Invalidate old cache
-    revalidateTag('action', 'max');
+    revalidateTag('action', { expire: 0 });
     // Return the new action's ID if successful
     return Response.json({ message: t('api:action.action_created'), id: newActionId },
       { status: 201, headers: { 'Location': `/action/${newActionId}` } },
     );
   } catch (error) {
-    console.log(error);
+    console.error(error);
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
       return Response.json({ message: t('api:action.goal_not_found') },
         { status: 400 },
@@ -298,7 +299,7 @@ export async function PUT(request: NextRequest) {
         { status: 403 },
       );
     } else {
-      console.log(error);
+      console.error(error);
       return Response.json({ message: t('api:common.unknown_server_error') },
         { status: 500 },
       );
@@ -342,7 +343,7 @@ export async function PUT(request: NextRequest) {
       { status: 200, headers: { 'Location': `/action/${updatedActionId}` } },
     );
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );
@@ -416,7 +417,7 @@ export async function DELETE(request: NextRequest) {
         { status: 403 },
       );
     } else {
-      console.log(error);
+      console.error(error);
       return Response.json({ message: t('api:common.unknown_server_error') },
         { status: 500 },
       );
@@ -447,7 +448,7 @@ export async function DELETE(request: NextRequest) {
       { status: 200, headers: { 'Location': `/roadmap/${deletedAction.roadmap.id}` } },
     );
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );

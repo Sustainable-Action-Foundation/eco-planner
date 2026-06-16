@@ -28,8 +28,9 @@ export default async function getPxWebTableDetails(tableId: string, externalData
     } else {
       return null;
     }
-  } catch (error) {
-    console.log(error);
+  }
+  catch (error) {
+    console.error("Error fetching table details from PxWeb API", { error });
     return null;
   }
 
@@ -105,6 +106,5 @@ export default async function getPxWebTableDetails(tableId: string, externalData
     tableDetails.variables.push(pxWebVariable);
   }
 
-  /* console.timeEnd("pxWebTableDetails"); */
   return tableDetails;
 }

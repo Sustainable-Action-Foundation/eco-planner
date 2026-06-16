@@ -1,7 +1,6 @@
-import fs from 'node:fs';
-import { PrismaClient, RoadmapType } from "../.prisma/generated";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
+import { RoadmapType } from "@/lib/prisma/generated";
+import fs from "node:fs";
 
 /**
  * This script generates a json file containing all indicator parameters from public, national roadmaps.
@@ -26,13 +25,14 @@ async function generateLeapList() {
         },
       },
     });
-  } catch {
-    console.log('Failed to fetch roadmaps for LEAP list generation.');
+  }
+  catch (err: unknown) {
+    console.error('Failed to fetch roadmaps for LEAP list generation.', { err });
     return;
   }
 
   if (rawData.length === 0) {
-    console.log("No public, national roadmaps found; LEAP list not touched.");
+    console.info("No public, national roadmaps found; LEAP list not touched.");
     return;
   }
 
@@ -53,10 +53,16 @@ async function generateLeapList() {
   // Write to file
   try {
     fs.writeFileSync('src/lib/LEAPList.json', JSON.stringify(uniqueLeapList));
-    console.log('LEAP list updated');
-  } catch {
-    console.log('Failed to update LEAP list');
+    console.info('LEAP list updated');
+  }
+  catch (err: unknown) {
+    console.warn('Failed to write LEAP list file', { err });
   }
 }
 
-void generateLeapList();
+generateLeapList()
+  .finally(() => prisma.$disconnect())
+  .catch((err: unknown) => {
+    console.warn("Error generating LEAP list:", err);
+    process.exitCode = 0; // Set exit code to 0 to prevent CI failure, as this is a non-critical operation
+  });

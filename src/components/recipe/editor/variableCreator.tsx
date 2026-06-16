@@ -131,7 +131,8 @@ export function VariableCreator({
             }}
             options={allOurUnits.map(unit => ({ name: unit, value: unit }))}
             maxOptions={3}
-            onChange={(unit) => setProvidedUnit(unit ?? '')}
+            value={providedUnit}
+            setter={setProvidedUnit}
           />
           <div className="margin-top-100">
             <label className="block margin-left-25">

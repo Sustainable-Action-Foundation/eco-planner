@@ -1,7 +1,7 @@
 import type React from "react";
 
 export function handleKeyDownGrid({
-  e,// TODO: rename --> event
+  e,
   amountColumns,
   amountRows,
   focusedCell,
@@ -16,8 +16,8 @@ export function handleKeyDownGrid({
   e: React.KeyboardEvent<HTMLTableCellElement>,
   amountColumns: number,
   amountRows: number,
-  focusedCell: { row: number, column: number } | null, // TODO: RENAME --> FocusedCell
-  setFocusedCell: React.Dispatch<React.SetStateAction<{ row: number, column: number } | null>>,  // TODO: RENAME --> SetFocusedCell
+  focusedCell: { row: number, column: number } | null,
+  setFocusedCell: React.Dispatch<React.SetStateAction<{ row: number, column: number } | null>>,
   editMode: boolean,
   setEditMode: React.Dispatch<React.SetStateAction<boolean>>,
   insertRowBottom: () => void;
@@ -146,50 +146,45 @@ export function handleKeyDownGrid({
       break;
     }
 
-    // Enter edit mode if we aren't already in it
-    // If we are in edit mode, we want to move down to the next row when pressing enter
     // If we are on the last row when moving down to the next row, we create a new row
     case "Enter": {
       e.preventDefault();
 
-      if (editMode === false) {
-        setEditMode(true);
-      } else if (editMode === true && focusedCell.row === amountRows - 1) {
-        setEditMode(false);
+      if (editMode === true) setEditMode(false);
+ 
+      if (e.shiftKey) {
+        if (focusedCell.row === 0) return;
+        setFocusedCell({ row: focusedCell.row - 1, column: focusedCell.column });
+      } else if (focusedCell.row === amountRows - 1) {
         insertRowBottom();
-        setFocusedCell({ row: amountRows, column: 1 });
+        setFocusedCell({ row: amountRows, column: focusedCell.column });
       } else {
-        setEditMode(false);
         setFocusedCell({ row: focusedCell.row + 1, column: focusedCell.column });
       }
 
       break;
     }
 
+    case "F2" : {
+      e.preventDefault();
+      setEditMode(!editMode);
+      break;
+    }
+
     case "Escape": {
       e.preventDefault();
-
-      if (editMode === false) return;
-
       setEditMode(false);
       break;
     }
 
     case "Delete": {
-
       if (editMode) return;
 
       e.preventDefault();
       if (e.ctrlKey) {
-        const nextRow =
-          amountRows <= 1
-            ? 0
-            : Math.min(focusedCell.row, amountRows - 2);
-
         deleteCurrentRow();
-        setFocusedCell({ row: nextRow, column: focusedCell.column });
-      } else {
-        deleteCurrentGridCellContents({ row: focusedCell.row, column: focusedCell.column }); // TODO: Unsure if this function should run here or if it should be inside a useEffect to sync state
+       } else {
+        deleteCurrentGridCellContents({ row: focusedCell.row, column: focusedCell.column });
       }
 
       break;
@@ -222,16 +217,16 @@ export function handleKeyDownGrid({
           setFocusedCell({ row: focusedCell.row, column: focusedCell.column + 1 });
         }
       }
-
+      break;
     }
 
-    // If we match what is expected from a number input, and we arent in editmode, we may type it
-    // IT should be noted that the below is probably not the exact same as what a number input allows
     default:
-      if ((!Number.isNaN(Number(key))) && !editMode) {
-        deleteCurrentGridCellContents({ row: focusedCell.row, column: focusedCell.column }); // TODO: Unsure if this function should run here or if it should be inside a useEffect to sync state
-        setEditMode(true);
+      if (e.key.length > 1) break; // TODO: (hacky?) fix to prevent special keys (ex. shift, ctrl, f4 etc...) from doing things here. Might not function on certain asian keyboards.
+
+      if (!editMode) {
+        deleteCurrentGridCellContents({ row: focusedCell.row, column: focusedCell.column }); 
       }
+      setEditMode(true);
       break;
   }
 }

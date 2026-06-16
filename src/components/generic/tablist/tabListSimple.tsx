@@ -8,6 +8,7 @@ import React, { useEffect, useRef, useState } from "react";
 const Tab = React.forwardRef<HTMLButtonElement, TabProps>(
   ({ className, style, tabIndex, selected, children, onClick }, ref) => (
     <button
+      type="button"
       className={className}
       style={style}
       ref={ref}

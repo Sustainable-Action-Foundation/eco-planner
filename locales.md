@@ -74,4 +74,4 @@ The config file for the translations is located at [`/i18n.config.ts`](/i18n.con
 The `initTemplate()` function is also located in the [`/i18n.config.ts`](/i18n.config.ts) file. It is the shared config between the client and server instances. Specific configs can be made in their respective files, [`/src/lib/i18nClient.tsx`](/src/lib/i18nClient.tsx) and [`/src/lib/i18nServer.ts`](/src/lib/i18nServer.ts).
 
 ### Manual testing
-There's a page on the site [`http://localhost:3000/localesTest`](http://localhost:3000/localesTest) that shows every key, translated both on the server and client and displays some stats and help text.
+There's a page on the site [`http://localhost:3000/tests/locale`](http://localhost:3000/tests/locale) that shows every key, translated both on the server and client and displays some stats and help text.

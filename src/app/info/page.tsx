@@ -36,7 +36,7 @@ export default async function Page() {
         <Trans
           i18nKey="pages:info.known_remote"
           components={{
-            a: <a href={env.REMOTE_REPO_URL} target="_blank" />,
+            a: <a href={env.REMOTE_REPO_URL} target="_blank" rel="noreferrer" />,
           }}
           tOptions={{
             remote: env.REMOTE_REPO_URL,
@@ -53,7 +53,7 @@ export default async function Page() {
         {env.COMMIT_URL
           ? <Trans
             i18nKey="pages:info.commit_with_link"
-            components={{ a: <a href={env.COMMIT_URL} target="_blank" /> }}
+            components={{ a: <a href={env.COMMIT_URL} target="_blank" rel="noreferrer" /> }}
             tOptions={{ commit: env.COMMIT_SHA }}
             i18n={i18next}
           />

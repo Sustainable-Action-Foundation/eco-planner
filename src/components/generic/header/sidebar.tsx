@@ -16,13 +16,12 @@ export default async function Sidebar() {
     getSession(await cookies()),
   ]);
 
-  return <>
-    <aside className={`${styles["sidebar"]} inline-flex flex-direction-column secondary-neutral-background`}>
+  return <aside className={`${styles["sidebar"]} inline-flex flex-direction-column secondary-neutral-background`}>
       {/* Consider using js + button instead of checkbox (or on top of using a checkbox) for accesability purposes */}
       {/* Consider adding infobubbles to items in the navbar */}
       <header>
         <label className='inline-grid round position-relative' aria-label={t("components:sidebar.toggle_menu_alt")}>
-          <input type="checkbox" className={`${styles['sidebar-toggle']} position-absolute opacity-0`} defaultChecked />
+          <input type="checkbox" className={`${styles['sidebar-toggle']} position-absolute opacity-0`} defaultChecked={true} />
           <IconMenu2 aria-hidden="true" />
         </label>
       </header>
@@ -47,7 +46,7 @@ export default async function Sidebar() {
           </Link>
           <Link href="/actions" className='color-pureblack rounded margin-bottom-300'>
             <IconList aria-hidden='true' />
-            {t("common:action_other")}
+            {t("components:sidebar.actions_database")}
           </Link>
           <PopoverButton
             anchorName='--create-popover-button'
@@ -73,7 +72,7 @@ export default async function Sidebar() {
                 style={{ borderBottom: '1px solid var(--gray)' }}
               >
                 <h2 className='font-weight-600 margin-0' style={{ fontSize: 'inherit' }}>{t("components:sidebar.create")}</h2>
-                <button popoverTarget='create-popover' aria-label={t("components:sidebar.close_menu_create")} className='transparent grid padding-25 round'>
+                <button type="button" popoverTarget='create-popover' aria-label={t("components:sidebar.close_menu_create")} className='transparent grid padding-25 round'>
                   <IconX aria-hidden='true' width={16} height={16} />
                 </button>
               </header>
@@ -140,7 +139,7 @@ export default async function Sidebar() {
                 className='padding-bottom-50 margin-bottom-25 margin-inline-25 flex gap-300 justify-content-space-between align-items-center'
                 style={{ borderBottom: '1px solid var(--gray)' }}>
                 <legend className='font-weight-600'>{t("components:sidebar.language_alt")}</legend>
-                <button popoverTarget='select-language-popover' aria-label={t("components:sidebar.close_menu_language")} className='transparent grid padding-25 round'>
+                <button type="button" popoverTarget='select-language-popover' aria-label={t("components:sidebar.close_menu_language")} className='transparent grid padding-25 round'>
                   <IconX aria-hidden='true' width={16} height={16} />
                 </button>
               </div>
@@ -169,7 +168,7 @@ export default async function Sidebar() {
                 className='padding-bottom-50 margin-bottom-25 margin-inline-25 flex gap-300 justify-content-space-between align-items-center'
                 style={{ borderBottom: '1px solid var(--gray)' }}>
                 <legend className='font-weight-600'>{t("components:sidebar.settings")}</legend>
-                <button popoverTarget='settings-popover' aria-label={t("components:sidebar.close_menu_settings")} className='transparent grid padding-25 round'>
+                <button type="button" popoverTarget='settings-popover' aria-label={t("components:sidebar.close_menu_settings")} className='transparent grid padding-25 round'>
                   <IconX aria-hidden='true' width={16} height={16} />
                 </button>
               </div>
@@ -196,6 +195,5 @@ export default async function Sidebar() {
           }
         </div>
       </div>
-    </aside>
-  </>;
+    </aside>;
 }

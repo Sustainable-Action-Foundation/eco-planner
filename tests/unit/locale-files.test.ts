@@ -36,7 +36,7 @@ const serverIndications = ["server-only", "use server", "next/server", "next/hea
 const clientIndications = ["client-only", "use client", "useEffect", "useMemo", "useState", "useRef"];
 const serverSideFilesOverride = ["page.tsx", "layout.tsx"].map(file => file && path.join(...file.split("/")));
 const clientSideFilesOverride: string[] = ([] as string[]).map(file => file && path.join(...file.split("/")));
-const exemptedMixedUseFiles = ["src/app/localesTest/page.tsx"].map(file => file && path.join(...file.split("/")));
+const exemptedMixedUseFiles = ["src/app/tests/locale/page.tsx"].map(file => file && path.join(...file.split("/")));
 
 /** When checking for mixed use of spaces these are allowed in any file */
 const keysAllowedDirectlyInApp = ["common:tsx.", "common:placeholder.", "common:scope.", "common:layout.", "common:count.", "common:new.", "common:edit", "common:scaling_methods", "common:css.", "common:404."];
@@ -649,7 +649,7 @@ function getAllJSONFlattened(): Record<string, Record<string, string>> {
 
 /** Get every file where t might be implemented as an array of objects storing the file path and their content as text */
 function getAllTSXFiles() {
-  const allTSXPaths = fs.globSync(["src/**/*.{tsx,ts}", "!scripts/**/*", "!src/prisma/generated/**/*", "!.prisma/**/*"]);
+  const allTSXPaths = fs.globSync(["src/**/*.{tsx,ts}", "!scripts/**/*", "!src/prisma/generated/**/*", "!.prisma/**/*", "!src/.prisma/**/*", "!prisma/generated/**/*"]);
 
   return allTSXPaths.map(filePath => {
     const contentRaw = fs.readFileSync(filePath, "utf-8");

@@ -57,7 +57,7 @@ export default defineConfig({
 
   // Web server
   ...(
-    !boolEnv("LOCAL_TESTS")
+    !boolEnv("SAF_LOCAL_TESTS")
       ? {
         webServer: {
           timeout: 20 * 60 * 1000, // 20 minutes; both seeding image and app image may need to be built, which might take a while with bad cache, especially on runners.
@@ -70,7 +70,7 @@ export default defineConfig({
       : {
         webServer: {
           timeout: 60 * 1000,
-          command: !boolEnv("SKIP_BUILD")
+          command: !boolEnv("SAF_SKIP_BUILD")
             ? "yarn build && yarn start"
             : "yarn start",
           url: webserverURL,
@@ -165,7 +165,7 @@ export default defineConfig({
     },
     {
       name: "webkit 4k",
-      use: { ...devices["Desktop Safari"], viewport: { width: 3840, height: 2160 } },
+      use: { ...devices["Desktop Safari"], viewport: { width: 3840, height: 2160 }, deviceScaleFactor: 1 },
       dependencies: ["setup"],
     },
     // // older office (4:3)

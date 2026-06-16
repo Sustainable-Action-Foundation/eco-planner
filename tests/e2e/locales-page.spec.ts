@@ -9,7 +9,7 @@ test.describe("Locales Test page", () => {
   const missingMessage = "[MISSING]";
 
   test("Formatters", async ({ page }) => {
-    await page.goto("/localesTest");
+    await page.goto("/tests/locale");
     await page.waitForLoadState("networkidle");
 
     const table = page.getByTestId("formatter-table");
@@ -25,7 +25,7 @@ test.describe("Locales Test page", () => {
   });
 
   test("Key count", async ({ page }) => {
-    await page.goto("/localesTest");
+    await page.goto("/tests/locale");
     await page.waitForLoadState("networkidle");
     // Ensures the page is rendered before checking the table, which reduces flakiness
     await expect(page.getByRole("heading", { name: "Test page for translations" })).toBeVisible();
@@ -59,7 +59,7 @@ test.describe("Locales Test page", () => {
   });
 
   test("Empty or missing translations", async ({ page }) => {
-    await page.goto("/localesTest");
+    await page.goto("/tests/locale");
     await page.waitForLoadState("networkidle");
 
     const checkEmptyAndMissing = async () => {

@@ -1,6 +1,5 @@
 import 'client-only';
 import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
-import React from 'react';
 import RadioImage from './radioImage';
 import { ViewMode } from '../goals';
 import { setStoredViewMode } from '../functions/tableFunctions';
@@ -16,7 +15,7 @@ export default function TableSelector({ id, current, setter }: { id: string, cur
       setter(event.target.value as ViewMode);
     }
     else {
-      console.log("Invalid view mode");
+      console.warn("Invalid view mode");
       setter("");
     }
   };

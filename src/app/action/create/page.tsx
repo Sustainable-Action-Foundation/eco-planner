@@ -8,8 +8,9 @@ import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { getOneGoal, getOneRoadmap, getRoadmaps } from "@/fetchers";
+import type { Metadata } from "next";
 
-export async function generateMetadata() {
+export async function generateMetadata(): Promise<Metadata> {
   const t = await serveTea("metadata");
 
   return buildMetadata({
@@ -85,17 +86,15 @@ export default async function Page(
             {t("pages:action_create.title")}
           </h1>
         }
-        {badGoal &&
-          <p style={{ color: 'red' }}>
+        {badGoal ? <p style={{ color: 'red' }}>
             <IconInfoCircle role="img" aria-label={t("pages:action_create.information_icon_aria")} />
             {t("pages:action_create.bad_goal")}
-          </p>
+          </p> : null
         }
-        {badRoadmap &&
-          <p style={{ color: 'red' }}>
+        {badRoadmap ? <p style={{ color: 'red' }}>
             <IconInfoCircle role="img" ria-label={t("pages:action_create.information_icon_aria")} />
             {t("pages:action_create.bad_roadmap")}
-          </p>
+          </p> : null
         }
         <ActionForm
           goalId={badGoal ? undefined : searchParams.goalId}

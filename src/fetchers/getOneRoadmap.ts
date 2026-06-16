@@ -3,7 +3,7 @@ import { roadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session";
 import { goalSorter } from "@/lib/sorters";
-import prisma from "@/prismaClient";
+import { prisma } from "@/lib/prisma";
 import { cacheTag } from "next/cache";
 import { cookies } from "next/headers";
 import type { Roadmap } from "@/types";
@@ -39,7 +39,7 @@ async function getCachedRoadmap(id: string, user: LoginData['user']) {
         include: roadmapInclusionSelection,
       }) satisfies Roadmap | null;
     } catch (error) {
-      console.error(`Error fetching admin roadmap with ID ${id}:`, error);
+      console.error(`Error fetching admin roadmap with ID ${id}:`, { error });
       return null;
     }
 
@@ -66,7 +66,7 @@ async function getCachedRoadmap(id: string, user: LoginData['user']) {
         include: roadmapInclusionSelection,
       }) satisfies Roadmap | null;
     } catch (error) {
-      console.error(`Error fetching roadmap with ID ${id} for user ${user.id}:`, error);
+      console.error(`Error fetching roadmap with ID ${id} for user ${user.id}:`, { error });
       return null;
     }
 
@@ -85,7 +85,7 @@ async function getCachedRoadmap(id: string, user: LoginData['user']) {
       include: roadmapInclusionSelection,
     }) satisfies Roadmap | null;
   } catch (error) {
-    console.error(`Error fetching public roadmap with ID ${id}:`, error);
+    console.error(`Error fetching public roadmap with ID ${id}:`, { error });
     return null;
   }
 

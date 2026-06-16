@@ -2,8 +2,9 @@ import "server-only";
 import VerifyForm from "@/components/form/forms/verify";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
+import type { Metadata } from "next";
 
-export async function generateMetadata() {
+export async function generateMetadata(): Promise<Metadata> {
   const t = await serveTea("pages");
 
   return await buildMetadata({

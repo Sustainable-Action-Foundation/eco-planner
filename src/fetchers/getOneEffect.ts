@@ -4,7 +4,7 @@ import { getSession } from "@/lib/session";
 import { cacheTag } from "next/cache";
 import { cookies } from "next/headers";
 import { effectInclusionSelection } from "@/fetchers/inclusionSelectors";
-import prisma from "@/prismaClient";
+import { prisma } from "@/lib/prisma";
 import type { Effect } from "@/types";
 
 /**
@@ -37,9 +37,9 @@ async function getCachedEffect(actionId: string, goalId: string, user: LoginData
         where: { id: { actionId, goalId } },
         include: effectInclusionSelection,
       }) satisfies Effect | null;
-    } catch (error) {
-      console.log(error);
-      console.log('Error fetching admin effect');
+    }
+    catch (error) {
+      console.error(`Error fetching effect with actionId ${actionId} and goalId ${goalId} for admin user ${user.id}:`, { error });
       return null;
     }
 
@@ -79,9 +79,9 @@ async function getCachedEffect(actionId: string, goalId: string, user: LoginData
         },
         include: effectInclusionSelection,
       }) satisfies Effect | null;
-    } catch (error) {
-      console.log(error);
-      console.log('Error fetching user effect');
+    }
+    catch (error) {
+      console.error(`Error fetching effect with actionId ${actionId} and goalId ${goalId} for user ${user.id}:`, { error });
       return null;
     }
 
@@ -98,9 +98,9 @@ async function getCachedEffect(actionId: string, goalId: string, user: LoginData
       },
       include: effectInclusionSelection,
     }) satisfies Effect | null;
-  } catch (error) {
-    console.log(error);
-    console.log('Error fetching public effect');
+  }
+  catch (error) {
+    console.error(`Error fetching effect with actionId ${actionId} and goalId ${goalId} for public user:`, { error });
     return null;
   }
 

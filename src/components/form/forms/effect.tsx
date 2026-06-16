@@ -1,14 +1,15 @@
 'use client';
 
 import formSubmitter from "@/functions/formSubmitter";
-import { isDateValuesWithUnit, type Action, type DateValuesWithUnit, type Effect, type EffectInput, type Goal, type MultiRoadmapInstance } from "@/types";
-import { ActionImpactType } from "@prisma/client";
+import type { Action, DateValuesWithUnit, Effect, EffectInput, Goal, MultiRoadmapInstance } from "@/types";
+import { isDateValuesWithUnit } from "@/types";
+import { ActionImpactType } from "@/lib/prisma/generated";
 import { useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { absoluteToDelta, ActionSelector, deltaToAbsolute, GoalSelector } from "../sections/effectFormSections";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
-import { useToastContext } from "@/components/generic/toast/toastContext";
+import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 
 export default function EffectForm({
@@ -26,13 +27,13 @@ export default function EffectForm({
   const [timestamp] = useState(() => Date.now());
   const router = useRouter();
 
-  const { addToast } = useToastContext();
+  const { addToast } = useToast();
 
   const [selectedImpactType, setSelectedImpactType] = useState<ActionImpactType>(currentEffect?.impactType ?? ActionImpactType.ABSOLUTE);
   const [dateValues, setDateValues] = useState<DateValuesWithUnit>(currentEffect?.dataSeries
     ? dataSeriesToDateValues(currentEffect.dataSeries)
     : { unit: undefined, dateValues: {} },
-  ); 
+  );
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -106,8 +107,7 @@ export default function EffectForm({
   }
 
   return (
-    <>
-      <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit}>
         <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
         <ActionSelector
@@ -118,14 +118,14 @@ export default function EffectForm({
           goal={goal ?? currentEffect?.goal ?? null}
           roadmaps={roadmaps}
         />
-  
+
         <DataSeriesInputManual
           id="effect-dataseries"
           label={t("forms:data_series_input.data_series")}
           initialDateValues={dateValues}
           outputFormElement={<input name="data-series" />}
         />
- 
+
         {(
           selectedImpactType === ActionImpactType.ABSOLUTE
           || selectedImpactType === ActionImpactType.DELTA
@@ -169,7 +169,7 @@ export default function EffectForm({
         {/* TODO: Show preview of how it would affect the goal */}
         <label>
           {t("forms:effect.impact_type_label")}
-          <select className="block margin-top-25 margin-bottom-100 width-100" name="impactType" id="impactType" required
+          <select className="block margin-top-25 margin-bottom-100 width-100" name="impactType" id="impactType" required={true}
             value={selectedImpactType}
             onChange={(event) => setSelectedImpactType(event.target.value as ActionImpactType)}
           >
@@ -194,6 +194,5 @@ export default function EffectForm({
         </div>
 
       </form>
-    </>
   );
 }

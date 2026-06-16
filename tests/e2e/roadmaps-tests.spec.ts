@@ -14,42 +14,42 @@ test.describe.serial("Roadmaps tests", () => {
   let metaRoadmapNameRequiredFieldsUpdated = "";
 
   // Cleanup function to delete any created metaRoadmaps so after a retry there are no duplicates. 
-  test.beforeAll(async ({ browser }, testInfo) => {
+  test.beforeAll(/* async */({ /* browser */ }, testInfo) => {
     // Define the metaRoadmap name here so it can be accessed in all later tests.
     // Needs to be unique for each worker so different browsers running tests in parallel don't interfere with each other.
-    metaRoadmapNameAllFields = `Test All Fields  ${testInfo.project.name}`;
+    metaRoadmapNameAllFields = `Test All Fields ${testInfo.retry} ${testInfo.project.name}`;
 
-    if (testInfo.retry > 0) {
-      console.log(`Retrying tests, Cleaning up any existing metaRoadmap with name ${metaRoadmapNameAllFields} before retrying.`);
+    // if (testInfo.retry > 0) {
+    //   console.info(`Retrying tests, Cleaning up any existing metaRoadmap with name ${metaRoadmapNameAllFields} before retrying.`);
 
-      // Page cannot be used in beforeAll so a new context and page here is needed.
-      const context = await browser.newContext({ storageState: adminFile });
-      const page = await context.newPage();
+    //   // Page cannot be used in beforeAll so a new context and page here is needed.
+    //   const context = await browser.newContext({ storageState: adminFile });
+    //   const page = await context.newPage();
 
-      await page.goto('/');
-      await page.waitForLoadState('networkidle');
+    //   await page.goto('/');
+    //   await page.waitForLoadState('networkidle');
 
-      // Count how many matching items exist
-      const matchingItems = page.locator('li').filter({ hasText: metaRoadmapNameAllFields });
-      const count = await matchingItems.count();
+    //   // Count how many matching items exist
+    //   const matchingItems = page.locator('li').filter({ hasText: metaRoadmapNameAllFields });
+    //   const count = await matchingItems.count();
 
-      // Delete all matching items
-      for (let i = 0; i < count; i++) {
-        // firstMatch is the row that all the actions need to be performed on since after each deletion the next item will move up to take its place.
-        const firstMatch = matchingItems.first();
+    //   // Delete all matching items
+    //   for (let i = 0; i < count; i++) {
+    //     // firstMatch is the row that all the actions need to be performed on since after each deletion the next item will move up to take its place.
+    //     const firstMatch = matchingItems.first();
 
-        // All of these actions need to be performed on the correct row so they are using firstMatch as the base locator.
-        await firstMatch.locator('svg').nth(1).click();
-        await firstMatch.getByTestId('delete-post').click();
-        await firstMatch.locator('input[placeholder]').fill(metaRoadmapNameAllFields);
-        await firstMatch.locator('[type="submit"]').click();
+    //     // All of these actions need to be performed on the correct row so they are using firstMatch as the base locator.
+    //     await firstMatch.locator('svg').nth(1).click();
+    //     await firstMatch.getByTestId('delete-post').click();
+    //     await firstMatch.locator('input[placeholder]').fill(metaRoadmapNameAllFields);
+    //     await firstMatch.locator('[type="submit"]').click();
 
-        await page.waitForLoadState('networkidle');
-      }
+    //     await page.waitForLoadState('networkidle');
+    //   }
 
-      // Verify all are gone
-      await expect(matchingItems).toHaveCount(0);
-    }
+    //   // Verify all are gone
+    //   await expect(matchingItems).toHaveCount(0);
+    // }
   });
 
   test("Create MetaRoadmap and Roadmap - All Fields", async ({ page }) => {
@@ -244,7 +244,7 @@ test.describe.serial("Roadmaps tests", () => {
 
   test("Edit MetaRoadmap, updated fields - All Fields", async ({ page }, testInfo) => {
 
-    metaRoadmapNameAllFieldsUpdated = `Test Updated All Fields  ${testInfo.project.name}`;
+    metaRoadmapNameAllFieldsUpdated = `Test Updated All Fields ${testInfo.retry} ${testInfo.project.name}`;
 
     await page.goto('/');
 
@@ -328,7 +328,7 @@ test.describe.serial("Roadmaps tests", () => {
 
   test("Create MetaRoadmap and Roadmap - Required Fields", async ({ page }, testInfo) => {
 
-    metaRoadmapNameRequiredFields = `Test Required  ${testInfo.project.name}`;
+    metaRoadmapNameRequiredFields = `Test Required ${testInfo.retry} ${testInfo.project.name}`;
     // Navigate to create metaRoadmap page
     await page.goto('/metaRoadmap/create');
 
@@ -502,7 +502,7 @@ test.describe.serial("Roadmaps tests", () => {
 
   test("Edit MetaRoadmap, updated fields - Required Fields", async ({ page }, testInfo) => {
 
-    metaRoadmapNameRequiredFieldsUpdated = `Test Updated Required Fields  ${testInfo.project.name}`;
+    metaRoadmapNameRequiredFieldsUpdated = `Test Updated Required Fields ${testInfo.retry} ${testInfo.project.name}`;
     await page.goto('/');
 
     await page.getByRole('link', { name: `${metaRoadmapNameRequiredFields}` }).first().click();

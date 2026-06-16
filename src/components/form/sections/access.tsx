@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import SelectMultipleSearch from "../elements/combobox/selectMultipleSearch";
 import type { AccessControlled } from "@/types";
-import type { MetaRoadmap, Roadmap } from "@prisma/client";
+import type { MetaRoadmap, Roadmap } from "@/lib/prisma/generated";
 import type { LoginData } from "@/lib/session";
 import styles from '../forms.module.css';
 import { useTranslation } from "react-i18next";
@@ -73,15 +73,13 @@ export default function ConfigureAccess({
 
   return (
     <div ref={accessSectionRef}>
-      {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) && // TODO: Check that this is correct or if we need another one for metaroadmap
-        // TODO: Disabled / placeholder need to be more discernable 
-        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+      {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) ? <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>
             {legends.viewers}
           </legend>
           <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50">
             <input
-              required
+              required={true}
               type="radio"
               name="visibility"
               id="visibility-private"
@@ -153,11 +151,10 @@ export default function ConfigureAccess({
               />
             </div>
           </fieldset>
-        </fieldset>
+        </fieldset> : null
       }
 
-      {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) && // TODO: Check that this is correct or if we need another one for metaroadmap
-        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+      {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) ? <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
           <legend
             // Technically incrementing here is unused but if you add a another entry after this one it will be correct
             // eslint-disable-next-line no-useless-assignment
@@ -167,7 +164,7 @@ export default function ConfigureAccess({
           </legend>
           <label className="flex width-fit-content  align-items-center gap-50  margin-bottom-75">
             <input
-              required
+              required={true}
               type="radio"
               name="editability"
               id="editability-private"
@@ -229,7 +226,7 @@ export default function ConfigureAccess({
               />
             </div>
           </fieldset>
-        </fieldset>
+        </fieldset> : null
       }
     </div>
   );

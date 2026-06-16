@@ -119,8 +119,8 @@
     "select_metric": "Select metric",
     "select_metric_for_table": "Select metric for table",
     "select_source": "Select datasource",
-    "select_source_for_table": "Select a datasource to view tables",
     "select_source_for_metric": "Select a datasource to view metrics",
+    "select_source_for_table": "Select a datasource to view tables",
     "select_starting_period": "Select starting period",
     "select_table": "Select table",
     "select_time_interval": "Select time interval",
@@ -133,6 +133,8 @@
   },
   "recipe_editor": {
     "add_external_data": "Find external data",
+    "apply_parameter": "Copy used indicator parameter to form",
+    "apply_unit": "Copy resulting unit to form",
     "create_recipe": "Create a new recipe",
     "create_variable": "Create variable",
     "data_series": "Data series",
@@ -175,6 +177,7 @@
     "provide_variable_type": "Please provide a type",
     "recipe": "Recipe",
     "result_tab": "Result",
+    "resulting_graph_series_name": "Resulting series",
     "scalar": "Scalar",
     "select_data_series": "Choose goal or effect",
     "select_dataset": "Select dataset",
@@ -224,6 +227,7 @@
   },
   "sidebar": {
     "about": "About",
+    "actions_database": "$t(common:action_other, titleCase)",
     "close_menu_create": "Close menu: Create",
     "close_menu_language": "Close menu: Select language",
     "close_menu_settings": "Close menu: Settings",
@@ -275,7 +279,10 @@
     "tree": "Tree"
   },
   "toasts": {
+    "clear_toasts": "Clear all messages",
     "error": "Something went wrong!",
+    "show_less": "Show less",
+    "show_more": "Show more",
     "success": "Success!",
     "warning": "Warning!"
   },

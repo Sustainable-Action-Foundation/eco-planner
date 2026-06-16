@@ -6,15 +6,15 @@ import { useRecipe } from "../context/recipeContext.use";
 import { VariableTypeScalarSimple } from "../editor/variables/scalarVariable";
 import { DataSeriesVariableSimpleEditor } from "../editor/variables/dataSeriesVariable";
 import { VariableTypeExternalSimple } from "../editor/variables/externalVariable";
-import { Fragment, useEffect, useMemo, useState } from "react";
-import { clientSafeGetOneRoadmap, clientSafeGetRoadmaps } from "@/fetchers/client";
+import { useEffect, useMemo, useState } from "react";
 import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";
 import { IconAlertTriangleFilled } from "@tabler/icons-react";
 import { RecipeEditorPermissions } from "../editor/recipeEditorPermissions";
-import type { DBRecipe } from "@/types";
+import type { ClientRoadmap, DBRecipe } from "@/types";
 import { Recipe } from "@/functions/recipe/recipe";
 import { CombinedStatusDisplay, getDefaultSuggestedRecipes, TextStatus } from "@/components/recipe";
 import styles from "../recipe.module.css" with {type: "css"};
+import { getRecipeRoadmapData } from "../context/roadmapDataCache";
 
 export function SuggestedRecipeApplier({
   autoInsertDefaultSuggestions = true,
@@ -30,6 +30,8 @@ export function SuggestedRecipeApplier({
   const { recipe, applyRecipeUpdate, clearRecipe } = useRecipe();
 
   const [availableDataSeries, setAvailableDataSeries] = useState<{ id: string; name: string; }[]>([]);
+  const [roadmapLookup, setRoadmapLookup] = useState<Record<string, ClientRoadmap>>({});
+  const [dataSeriesNamesById, setDataSeriesNamesById] = useState<Record<string, string>>({});
   const [selectedRecipeId, setSelectedRecipeId] = useState<string>("");
   const suggestedRecipes = useMemo(() => autoInsertDefaultSuggestions
     ? [...defaultSuggestionRecipes, ...providedSuggestedRecipes]
@@ -37,34 +39,41 @@ export function SuggestedRecipeApplier({
     [autoInsertDefaultSuggestions, providedSuggestedRecipes, defaultSuggestionRecipes]);
 
   // On mount, fetch all roadmaps user has access to
-  // TODO: This is reused from editor/variable/editor.tsx, can probably extract this somehow
   useEffect(() => {
     async function fetchRoadmaps() {
       try {
-        const roadmaps = await clientSafeGetRoadmaps();
-
-        const roadmapsWithData = await Promise.all(
-          roadmaps.map(async (roadmap) => {
-            const fullRoadmap = await clientSafeGetOneRoadmap(roadmap.id);
-            if (!fullRoadmap) return null;
-
-            const hasPullableData = fullRoadmap.goals.some((goal) => {
-              if (goal.dataSeries || goal.baseline) return true;
-              return goal.effects.some((effect) => !!effect.dataSeries);
-            });
-
-            if (!hasPullableData) return null;
-            return roadmap;
-          }),
-        );
+        const { roadmaps, roadmapLookup } = await getRecipeRoadmapData();
 
         setAvailableDataSeries(
-          roadmapsWithData
-            .filter((roadmap): roadmap is NonNullable<typeof roadmap> => !!roadmap)
-            .map((roadmap) => ({
-              id: roadmap.id,
-              name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version }),
-            })),
+          roadmaps.map((roadmap) => ({
+            id: roadmap.id,
+            name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version }),
+          })),
+        );
+
+        setRoadmapLookup(roadmapLookup);
+
+        setDataSeriesNamesById(
+          Object.values(roadmapLookup).reduce((acc, roadmap) => {
+            for (const goal of roadmap.goals) {
+              const goalDisplayName = goal.name || goal.indicatorParameter;
+
+              if (goal.dataSeries) {
+                acc[goal.dataSeries.id] = goalDisplayName;
+              }
+
+              if (goal.baseline) {
+                acc[goal.baseline.id] = `${goalDisplayName} - ${t("common:baseline_one")}`;
+              }
+
+              for (const effect of goal.effects) {
+                if (!effect.dataSeries) continue;
+                acc[effect.dataSeries.id] = `${goalDisplayName} - ${t("common:effect_one")}`;
+              }
+            }
+
+            return acc;
+          }, {} as Record<string, string>),
         );
       }
       catch (e) {
@@ -129,9 +138,9 @@ export function SuggestedRecipeApplier({
         value={selectedRecipeId}
         onChange={handleChange}
       >
-        <option disabled value={""}>{t("common:tsx.generic_select")}</option>
-        {suggestedRecipes.map((suggestedRecipe, index) => (
-          <option key={index} value={suggestedRecipe.id}> {/* TODO: The selected value needs to be preselected */}
+        <option disabled={true} value={""}>{t("common:tsx.generic_select")}</option>
+        {suggestedRecipes.map(suggestedRecipe => (
+          <option key={suggestedRecipe.id} value={suggestedRecipe.id}> {/* TODO: The selected value needs to be preselected */}
             {Recipe.from(suggestedRecipe.recipe).name ?? t("components:copy_and_scale.unnamed_suggestion")}
           </option>
         ))}
@@ -149,7 +158,7 @@ export function SuggestedRecipeApplier({
         gridTemplateRows: 'auto auto',
       }}
     >
-      {(recipe?.variables ?? []).map((variable, i) => {
+      {(recipe?.variables ?? []).map(variable => {
         const variableId = variable.id;
         const variableDisplayName = variable.name;
         const unitIsProvided = typeof variable.unit !== "undefined" && variable.unit !== null;
@@ -178,7 +187,6 @@ export function SuggestedRecipeApplier({
                   {variableDisplayName}{unitDisplay}:
                 </label>
                 <VariableTypeScalarSimple
-                  key={"recipeVariable" + i}
                   variableId={variableId}
                   permissions={permissions}
                   props={{
@@ -195,9 +203,10 @@ export function SuggestedRecipeApplier({
                   {variableDisplayName}{unitDisplay}:
                 </label>
                 <DataSeriesVariableSimpleEditor
-                  key={"recipeVariable" + i}
                   variableId={variableId}
                   availableDataSeries={availableDataSeries}
+                  roadmapLookup={roadmapLookup}
+                  dataSeriesNamesById={dataSeriesNamesById}
                   permissions={{ ...permissions }}
                 />
               </li>
@@ -210,7 +219,6 @@ export function SuggestedRecipeApplier({
                   {variableDisplayName}{unitDisplay}:
                 </label>
                 <VariableTypeExternalSimple
-                  key={"recipeVariable" + i}
                   variableId={variableId}
                   permissions={permissions}
                 />
@@ -228,7 +236,7 @@ export function SuggestedRecipeApplier({
       })}
     </ul>
 
-    {selectedRecipeId && <>
+    {!!selectedRecipeId && <>
       <TextStatus showAllGood={false} />
 
       <CombinedStatusDisplay />

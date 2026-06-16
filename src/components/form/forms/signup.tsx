@@ -50,28 +50,27 @@ export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <>
-      <form onSubmit={(event: React.ChangeEvent<HTMLFormElement>) => handleSubmit(event, t)} className={`${styles.padding}`}>
+    <form onSubmit={(event: React.ChangeEvent<HTMLFormElement>) => handleSubmit(event, t)} className={`${styles.padding}`}>
         <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid silver' }}>{t("components:signup.create_account")}</h1>
         <label>
           {t("components:signup.username")}
           <div className="margin-top-50 margin-bottom-100 padding-50 flex align-items-center smooth focusable">
             <IconUser style={{ minWidth: '24px' }} aria-hidden="true" />
-            <input className="padding-0 margin-inline-50 font-size-100" type="text" placeholder={t("common:placeholder.name")} name="username" required id="username" autoComplete="username" />
+            <input className="padding-0 margin-inline-50 font-size-100" type="text" placeholder={t("common:placeholder.name")} name="username" required={true} id="username" autoComplete="username" />
           </div>
         </label>
         <label>
           {t("components:signup.email")}
           <div className="margin-top-50 margin-bottom-100 padding-50 flex align-items-center smooth focusable">
             <IconMail style={{ minWidth: '24px' }} aria-hidden="true" />
-            <input className="padding-0 margin-inline-50 font-size-100" type="email" placeholder={t("common:placeholder.email")} name="email" required id="email" autoComplete="email" />
+            <input className="padding-0 margin-inline-50 font-size-100" type="email" placeholder={t("common:placeholder.email")} name="email" required={true} id="email" autoComplete="email" />
           </div>
         </label>
         <label>
           {t("components:signup.password")}
           <div className="margin-top-50 margin-bottom-100 padding-50 flex align-items-center smooth focusable">
             <IconLock style={{ minWidth: '24px' }} aria-hidden="true" />
-            <input className="padding-0 margin-inline-50 transparent font-size-100" type={showPassword ? 'text' : 'password'} placeholder={t("common:placeholder.password")} name="password" required id="password" autoComplete="new-password" />
+            <input className="padding-0 margin-inline-50 transparent font-size-100" type={showPassword ? 'text' : 'password'} placeholder={t("common:placeholder.password")} name="password" required={true} id="password" autoComplete="new-password" />
             <button
               type="button"
               className={`${styles.showPasswordButton} grid padding-0 transparent`}
@@ -100,6 +99,5 @@ export default function Signup() {
         </p>
 
       </form>
-    </>
   );
 }

@@ -2,7 +2,7 @@
 
 import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
 import React from 'react';
-import type { DataSeries, Goal } from "@prisma/client";
+import type { DataSeries, Goal } from "@/lib/prisma/generated";
 import { GraphType } from "../graphs/goal/main/container";
 import { setStoredGraphType } from '../functions/graphFunctions';
 import { useTranslation } from "react-i18next";
@@ -30,7 +30,7 @@ export default function GraphSelector({
       setter(event.target.value as GraphType);
     }
     else {
-      console.log("Invalid graph type");
+      console.warn("Invalid graph type");
       setter("");
     }
   };
@@ -53,8 +53,8 @@ export default function GraphSelector({
           !percentAndFraction.includes(goal.dataSeries?.unit?.toLowerCase() ?? "") &&
           <option value={GraphType.Relative}>{t("graphs:graph_selector.percentage_change")}</option>
         }
-        {childGoals && <option value={GraphType.Children}>{t("pages:goal.goals_working_towards", { goalName: !!goal.name ? goal.name : goal.indicatorParameter })}</option>}
-        {siblings && <option value={GraphType.Siblings}>{t("pages:goal.related_goals")}</option>}
+        {childGoals ? <option value={GraphType.Children}>{t("pages:goal.goals_working_towards", { goalName: !!goal.name ? goal.name : goal.indicatorParameter })}</option> : null}
+        {siblings ? <option value={GraphType.Siblings}>{t("pages:goal.related_goals")}</option> : null}
       </select>
     </div>
   );

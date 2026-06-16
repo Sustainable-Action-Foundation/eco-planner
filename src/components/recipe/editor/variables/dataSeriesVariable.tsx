@@ -4,14 +4,18 @@ import { isDataSeriesVariable, RecipeError } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import React, { useCallback, useMemo } from "react";
 import type { TreeItem } from "@/components/types";
-import SelectSingleTreeSearch from "@/components/form/elements/combobox/selectSingleTreeSearch";
+import SelectSingleTree from "@/components/form/elements/combobox/selectSingleTree";
 import { clientSafeGetOneRoadmap } from "@/fetchers/client";
 import { RecipeEditorPermissions, CommonVariable, useRecipe, VectorPickerSelect } from "@/components/recipe";
 import type { RecipeContextType } from "@/components/recipe";
+import type { ClientRoadmap } from "@/types";
 
 type AvailableRoadmapOption = { id: string; name: string; };
 
-function useRoadmapTreeItems(availableRoadmaps: AvailableRoadmapOption[]) {
+function useRoadmapTreeItems(
+  availableRoadmaps: AvailableRoadmapOption[],
+  roadmapLookup: Record<string, ClientRoadmap>,
+) {
   const { t } = useTranslation("components");
 
   return useMemo(() => {
@@ -20,7 +24,7 @@ function useRoadmapTreeItems(availableRoadmaps: AvailableRoadmapOption[]) {
       name: roadmap.name,
       value: `roadmap:${roadmap.id}`,
       onExpand: async () => {
-        const data = await clientSafeGetOneRoadmap(roadmap.id);
+        const data = roadmapLookup[roadmap.id] ?? await clientSafeGetOneRoadmap(roadmap.id);
         if (!data) return [];
 
         return data.goals.map((goal): TreeItem => {
@@ -61,7 +65,7 @@ function useRoadmapTreeItems(availableRoadmaps: AvailableRoadmapOption[]) {
         });
       },
     }));
-  }, [availableRoadmaps, t]);
+  }, [availableRoadmaps, roadmapLookup, t]);
 }
 
 function useHandleDataSeriesChange(
@@ -91,17 +95,21 @@ export function DataSeriesVariableEditor({
   variableId,
   permissions: incomingPermissions,
   availableDataSeries = [],
+  dataSeriesNamesById = {},
+  roadmapLookup = {},
 }: {
   variableId: string;
   permissions?: RecipeEditorPermissions;
   availableDataSeries?: AvailableDataSeries;
+  dataSeriesNamesById?: Record<string, string>;
+  roadmapLookup?: Record<string, ClientRoadmap>;
 }) {
   const { t } = useTranslation("components");
   const { recipe, upsertVariable, getVariable } = useRecipe();
   const variable = getVariable(variableId);
   const fieldIdBase = `recipe-data-series-${variableId.replace(/[^A-Za-z0-9_-]/g, "-")}`;
 
-  const treeItems = useRoadmapTreeItems(availableDataSeries);
+  const treeItems = useRoadmapTreeItems(availableDataSeries, roadmapLookup);
   const handleDataSeriesChange = useHandleDataSeriesChange(variableId, upsertVariable);
 
   if (!variable) {
@@ -113,6 +121,14 @@ export function DataSeriesVariableEditor({
     console.error(`Variable "${variableId}" is not a valid DataSeriesVariable`, variable);
     throw new RecipeError(`Variable "${variableId}" is not a valid DataSeriesVariable`);
   }
+
+  const defaultTreeValue = variable.dataSeriesId
+    ? {
+      name: dataSeriesNamesById[variable.dataSeriesId] || variable.dataSeriesId,
+      value: variable.dataSeriesId,
+      expanded: null,
+    }
+    : undefined;
 
   const permissions = { ...RecipeEditorPermissions, ...incomingPermissions };
 
@@ -126,13 +142,15 @@ export function DataSeriesVariableEditor({
         <label htmlFor={fieldIdBase}>
           {t("components:recipe_editor.select_data_series")}
         </label>
-        <SelectSingleTreeSearch
+        <SelectSingleTree
+          key={`recipeVariable-${fieldIdBase}`}
           props={{
             id: fieldIdBase,
             name: fieldIdBase,
             placeholder: t("components:recipe_editor.select_data_series"),
             required: false,
           }}
+          defaultValue={defaultTreeValue}
           treeItems={treeItems}
           onChange={handleDataSeriesChange}
         />
@@ -151,16 +169,20 @@ export function DataSeriesVariableSimpleEditor({
   variableId,
   availableDataSeries = [],
   permissions: incomingPermissions,
+  dataSeriesNamesById = {},
+  roadmapLookup = {},
 }: {
   variableId: string;
   availableDataSeries?: AvailableRoadmapOption[];
   permissions?: RecipeEditorPermissions;
+  dataSeriesNamesById?: Record<string, string>;
+  roadmapLookup?: Record<string, ClientRoadmap>;
 }) {
   const { t } = useTranslation("components");
   const { recipe, upsertVariable, getVariable } = useRecipe();
   const variable = getVariable(variableId);
 
-  const treeItems = useRoadmapTreeItems(availableDataSeries);
+  const treeItems = useRoadmapTreeItems(availableDataSeries, roadmapLookup);
   const handleDataSeriesChange = useHandleDataSeriesChange(variableId, upsertVariable);
 
   const permissions = { ...RecipeEditorPermissions, ...incomingPermissions };
@@ -175,15 +197,25 @@ export function DataSeriesVariableSimpleEditor({
     return null;
   }
 
+  const defaultTreeValue = variable.dataSeriesId
+    ? {
+      name: dataSeriesNamesById[variable.dataSeriesId] || variable.dataSeriesId,
+      value: variable.dataSeriesId,
+      expanded: null,
+    }
+    : undefined;
+    
   return (
-    <SelectSingleTreeSearch
+    <SelectSingleTree
+      key={`recipeVariable-${variableId}`}
       props={{
-        id: "recipeVariable" + variableId,
-        name: "recipeVariable" + variableId,
+        id: `recipeVariable-${variableId}`,
+        name: `recipeVariable-${variableId}`,
         placeholder: t("components:recipe_editor.select_data_series"),
         required: true,
         disabled: !permissions.allowValueEditing,
       }}
+      defaultValue={defaultTreeValue}
       treeItems={treeItems}
       onChange={handleDataSeriesChange}
     />

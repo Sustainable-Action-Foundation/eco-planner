@@ -8,8 +8,17 @@
     display: initial;
   }
 }
+ 
+.layout-roadmaps {
+  margin-top: 2rem;
+  display: grid;
+  grid-template-columns: 25ch 1fr;
+  gap: 3rem;
+}
 
-.filters {
-  height: fit-content; 
-  flex-basis: 28ch;
-} 
+@media (max-width: 800px) {
+  .layout-roadmaps {
+    grid-template-columns: 1fr;
+  }
+}
+ 

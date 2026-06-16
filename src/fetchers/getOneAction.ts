@@ -2,7 +2,7 @@ import "server-only";
 import { actionInclusionSelection } from "@/fetchers/inclusionSelectors";
 import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session";
-import prisma from "@/prismaClient";
+import { prisma } from "@/lib/prisma";
 import { cacheTag } from "next/cache";
 import { cookies } from "next/headers";
 import type { Action } from "@/types";
@@ -37,9 +37,9 @@ async function getCachedAction(id: string, user: LoginData['user']): Promise<Act
         where: { id },
         include: actionInclusionSelection,
       }) satisfies Action | null;
-    } catch (error) {
-      console.log(error);
-      console.log('Error fetching admin action');
+    }
+    catch (error) {
+      console.error(`Error fetching action with id ${id} for admin user`, { error });
       return null;
     }
 
@@ -65,9 +65,9 @@ async function getCachedAction(id: string, user: LoginData['user']): Promise<Act
         },
         include: actionInclusionSelection,
       }) satisfies Action | null;
-    } catch (error) {
-      console.log(error);
-      console.log('Error fetching action');
+    }
+    catch (error) {
+      console.error(`Error fetching action with id ${id} for user ${user.id}`, { error });
       return null;
     }
 
@@ -83,9 +83,9 @@ async function getCachedAction(id: string, user: LoginData['user']): Promise<Act
       },
       include: actionInclusionSelection,
     }) satisfies Action | null;
-  } catch (error) {
-    console.log(error);
-    console.log('Error fetching public action');
+  }
+  catch (error) {
+    console.error(`Error fetching action with id ${id} for public user`, { error });
     return null;
   }
 

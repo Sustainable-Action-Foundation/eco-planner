@@ -3,7 +3,7 @@ import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session";
 import { effectSorter } from "@/lib/sorters";
-import prisma from "@/prismaClient";
+import { prisma } from "@/lib/prisma";
 import { cacheTag } from "next/cache";
 import { cookies } from "next/headers";
 import type { Goal } from "@/types";
@@ -39,9 +39,9 @@ async function getCachedGoal(id: string, user: LoginData['user']): Promise<Goal 
         where: { id },
         include: goalInclusionSelection,
       }) satisfies Goal | null;
-    } catch (error) {
-      console.log(error);
-      console.log('Error fetching admin goal');
+    }
+    catch (error) {
+      console.error("Error fetching admin goal:", { error });
       return null;
     }
 
@@ -69,9 +69,9 @@ async function getCachedGoal(id: string, user: LoginData['user']): Promise<Goal 
         },
         include: goalInclusionSelection,
       }) satisfies Goal | null;
-    } catch (error) {
-      console.log(error);
-      console.log('Error fetching user goal');
+    }
+    catch (error) {
+      console.error("Error fetching user goal:", { error });
       return null;
     }
 
@@ -89,9 +89,9 @@ async function getCachedGoal(id: string, user: LoginData['user']): Promise<Goal 
       },
       include: goalInclusionSelection,
     }) satisfies Goal | null;
-  } catch (error) {
-    console.log(error);
-    console.log('Error fetching public goal');
+  }
+  catch (error) {
+    console.error("Error fetching public goal:", { error });
     return null;
   }
 

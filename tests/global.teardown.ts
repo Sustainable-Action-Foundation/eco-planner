@@ -10,6 +10,6 @@ export default function teardown() {
       console.error(`Stderr during global teardown: ${stderr}`);
       return;
     }
-    console.log(`Stdout during global teardown: ${stdout}`);
+    console.info(`Stdout during global teardown: ${stdout}`);
   });
 }

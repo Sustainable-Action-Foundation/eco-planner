@@ -1,4 +1,4 @@
-import type { Prisma } from "@prisma/client";
+import type { Prisma } from "@/lib/prisma/generated";
 
 export const nameSelector = {
   name: true,
@@ -30,7 +30,12 @@ export const nameSelector = {
   },
 } satisfies Prisma.MetaRoadmapSelect;
 
-const dataSeriesInclusionSelection = { values: { select: { timestamp: true, value: true } } } satisfies Prisma.DataSeriesSelect;
+const dataSeriesInclusionSelection = {
+  recipeUsed: true,
+  values: {
+    select: { timestamp: true, value: true },
+  },
+} satisfies Prisma.DataSeriesSelect;
 
 export const metaRoadmapInclusionSelection = {
   roadmapVersions: {

@@ -317,11 +317,11 @@ export default function TextEditorMenu({
             }}
             role="menubar" // TODO: See if we want this to be role="toolbar"
           >
-            {submenuVisible && menuItemsList
+            {submenuVisible ? menuItemsList
               .filter((menuItem) =>
                 !hiddenGroups || hiddenGroups.includes(Number(menuItem.props["data-menu-group"])),
               )
-              .map((menuItem) => menuItem)
+              .map((menuItem) => menuItem) : null
             }
           </ul>
         </li>

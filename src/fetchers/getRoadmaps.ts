@@ -1,7 +1,7 @@
 import "server-only";
 import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session";
-import prisma from "@/prismaClient";
+import { prisma } from "@/lib/prisma";
 import { roadmapSorter } from "@/lib/sorters";
 import { cacheTag } from "next/cache";
 import { cookies } from "next/headers";
@@ -36,9 +36,9 @@ async function getCachedRoadmaps(user: LoginData['user'], roadmapIds?: string[])
         ...(roadmapIds ? { where: { id: { in: roadmapIds } } } : {}), // If roadmapIds is provided, filter by it
         include: multiRoadmapInclusionSelection,
       }) satisfies MultiRoadmapInstance[];
-    } catch (error) {
-      console.log(error);
-      console.log('Error fetching admin roadmaps');
+    }
+    catch (error) {
+      console.error("Error fetching admin roadmaps", { error });
       return [];
     }
 
@@ -66,9 +66,9 @@ async function getCachedRoadmaps(user: LoginData['user'], roadmapIds?: string[])
         },
         include: multiRoadmapInclusionSelection,
       }) satisfies MultiRoadmapInstance[];
-    } catch (error) {
-      console.log(error);
-      console.log('Error fetching user roadmaps');
+    }
+    catch (error) {
+      console.error("Error fetching user roadmaps", { error });
       return [];
     }
 
@@ -87,9 +87,9 @@ async function getCachedRoadmaps(user: LoginData['user'], roadmapIds?: string[])
       },
       include: multiRoadmapInclusionSelection,
     }) satisfies MultiRoadmapInstance[];
-  } catch (error) {
-    console.log(error);
-    console.log('Error fetching public roadmaps');
+  }
+  catch (error) {
+    console.error("Error fetching public roadmaps", { error });
     return [];
   }
 

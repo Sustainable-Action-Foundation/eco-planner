@@ -39,16 +39,14 @@ export default function WrappedChart({
   options?: ApexCharts.ApexOptions
 }) {
   return (
-    <>
-      <Chart
-        type={type}
-        series={series}
-        width={width}
-        height={height}
-        options={options}
-        {...props}
-      />
-    </>
+    <Chart
+      type={type}
+      series={series}
+      width={width}
+      height={height}
+      options={options}
+      {...props}
+    />
   );
 }
 

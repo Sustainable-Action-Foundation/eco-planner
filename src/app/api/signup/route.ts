@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { allowedDomains } from "@/lib/allowedDomains";
-import prisma from "@/prismaClient";
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import mailClient from "@/mailClient";
 import getUserHash from "@/functions/getUserHash";
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
     await mailClient.verify().catch((e: unknown) => { throw e; });
   }
   catch (error) {
-    console.log(error);
+    console.error(error);
     return Response.json({ message: 'Problem connecting to email service; User not created since server is misconfigured. Please try again later' },
       { status: 500 },
     );

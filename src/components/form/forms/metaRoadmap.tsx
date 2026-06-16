@@ -3,8 +3,8 @@
 import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" with { type: "json" };
 import type { LoginData } from "@/lib/session";
 import type { AccessControlled, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
-import type { MetaRoadmap } from "@prisma/client";
-import { RoadmapType } from "@prisma/client";
+import type { MetaRoadmap } from "@/lib/prisma/generated";
+import { RoadmapType } from "@/lib/prisma/generated";
 import { useRef, useState } from "react";
 import formSubmitter from "@/functions/formSubmitter";
 import styles from '../forms.module.css';
@@ -13,7 +13,7 @@ import TextEditor from "@/components/form/elements/textEditor/editor";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
 import ConfigureAccess from "../sections/access";
-import { useToastContext } from "@/components/generic/toast/toastContext";
+import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 
 export default function MetaRoadmapForm({
@@ -31,7 +31,8 @@ export default function MetaRoadmapForm({
   const descriptionRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [roadmapType, setRoadmapType] = useState<string>(currentRoadmap?.type ?? "");
-  const { addToast } = useToastContext();
+  const [actor, setActor] = useState<string>(currentRoadmap?.actor ?? "");
+  const { addToast } = useToast();
   const router = useRouter();
 
   const [timestamp] = useState(() => Date.now());
@@ -103,147 +104,147 @@ export default function MetaRoadmapForm({
 
     const formJSON = JSON.stringify(formData);
 
-    formSubmitter('/api/metaRoadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading, undefined, undefined, undefined, undefined, router.push); // addToast
+    formSubmitter('/api/metaRoadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading, undefined, undefined, undefined, addToast, router.push);
   }
 
   // Indexes for the data-position attribute in the legend elements
   let positionIndex = 1;
 
   return (
-    <>
-      <form onSubmit={handleSubmit} >
-        {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when adding new entries in AccessSelector (for example, when pressing enter to add someone to the list of editors) */}
-        <input type="submit" disabled={true} className="display-none" aria-hidden={true} />
+    <form onSubmit={handleSubmit} >
+      {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when adding new entries in AccessSelector (for example, when pressing enter to add someone to the list of editors) */}
+      <input type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
-        <fieldset className={`${styles.timeLineFieldset} width-100`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:meta_roadmap.description_legend")}</legend>
-          <label>
-            {t("forms:meta_roadmap.name")}
-            <input id="name" name="name" className="margin-top-25 margin-bottom-100" type="text" defaultValue={currentRoadmap?.name ?? undefined} autoComplete="off" required />
-          </label>
+      <fieldset className={`${styles.timeLineFieldset} width-100`}>
+        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:meta_roadmap.description_legend")}</legend>
+        <label>
+          {t("forms:meta_roadmap.name")}
+          <input id="name" name="name" className="margin-top-25 margin-bottom-100" type="text" defaultValue={currentRoadmap?.name ?? undefined} autoComplete="off" required={true} />
+        </label>
 
-          <label id="description-label">{t("forms:meta_roadmap.description")}</label>
-          <TextEditor
-            className="margin-top-25 margin-bottom-100" // TODO: Need label for texteditormenu
-            id="description"
-            ariaLabelledBy="description-label"
-            placeholder={t("forms:text_editor_menu.default_placeholder")}
-            editable={true}
-            content={currentRoadmap ? currentRoadmap.description : ""}
-            onChange={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
-          />
-          <input required ref={descriptionRef} type="hidden" name="description" defaultValue={currentRoadmap?.description ?? ""} />
-        </fieldset>
-
-        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:meta_roadmap.actor_legend")}</legend>
-          <label>
-            {t("forms:meta_roadmap.type")}
-            <select
-              className="block margin-top-25 margin-bottom-100 width-100"
-              name="type"
-              id="type"
-              defaultValue={currentRoadmap?.type ?? ""}
-              required
-              onChange={(e) => setRoadmapType((e.target as HTMLSelectElement).value)}
-            >
-              <option value="" disabled>{t("forms:meta_roadmap.no_chosen_roadmap_scope")}</option>
-              {
-                Object.values(RoadmapType).map((value) => {
-                  if (value === RoadmapType.NATIONAL && !user?.isAdmin) return null;
-                  return (
-                    <option key={value} value={value}>{value in customRoadmapTypes ? customRoadmapTypes[value] : value}</option>
-                  );
-                })
-              }
-            </select>
-          </label>
-
-          <label htmlFor="actor">{t("forms:meta_roadmap.actor")}</label>
-          <TextSingleAutocomplete
-            props={{
-              className: "margin-top-25 margin-bottom-100",
-              id: "actor",
-              name: "actor",
-              required: true,
-              defaultValue: currentRoadmap?.actor ?? undefined,
-              placeholder: roadmapType === "REGIONAL" || roadmapType === "MUNICIPAL" ? t("forms:combobox.default_autocomplete_placeholder") : t("forms:meta_roadmap.actor"),
-            }}
-            // L10N: the current implementation uses only Swedish counties and municipalities; should probably be adapted for international use in the future
-            options={
-              roadmapType === "REGIONAL"
-                ? Object.keys(countiesAndMunicipalities).map(item => ({ name: item, value: item }))
-                : roadmapType === "MUNICIPAL"
-                  ? Object.values(countiesAndMunicipalities).flat().map(item => ({ name: item, value: item }))
-                  : []
-            }
-          />
-        </fieldset>
-
-        <ConfigureAccess
-          user={user}
-          userGroups={userGroups}
-          currentRoadmap={currentRoadmap}
-          positionIndex={positionIndex}
-          legends={{
-            viewers: t("forms:meta_roadmap.legend_visibility"),
-            editors: t("forms:meta_roadmap.legend_editability"),
-          }}
+        <label id="description-label">{t("forms:meta_roadmap.description")}</label>
+        <TextEditor
+          className="margin-top-25 margin-bottom-100" // TODO: Need label for texteditormenu
+          id="description"
+          ariaLabelledBy="description-label"
+          placeholder={t("forms:text_editor_menu.default_placeholder")}
+          editable={true}
+          content={currentRoadmap ? currentRoadmap.description : ""}
+          updater={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
         />
+        <input required={true} ref={descriptionRef} type="hidden" name="description" />
+      </fieldset>
 
-        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend
-            // Technically incrementing here is unused but if you add a another entry after this one it will be correct
-            // eslint-disable-next-line no-useless-assignment
-            data-position={positionIndex++}
-            className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}
+      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:meta_roadmap.actor_legend")}</legend>
+        <label>
+          {t("forms:meta_roadmap.type")}
+          <select
+            className="block margin-top-25 margin-bottom-100 width-100"
+            name="type"
+            id="type"
+            defaultValue={currentRoadmap?.type ?? ""}
+            required={true}
+            onChange={(e) => setRoadmapType((e.target as HTMLSelectElement).value)}
           >
-            {t("forms:meta_roadmap.relationship_legend")}</legend>
-          <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:meta_roadmap.relationship_label")}</label>
-          {parentRoadmapOptions ? ( // TODO: This might not make sense? // TODO: Memoize this? 
-            <SelectSingleSearch
-              props={{
-                className: "margin-top-25",
-                id: "parent-roadmap",
-                name: "parent-roadmap",
-                placeholder: t("forms:combobox.select_or_leave"),
-                disabled: !parentRoadmapOptions,
-              }}
-              defaultValue={ // TODO: Might be a better way to do this
-                currentRoadmap
-                  ? currentRoadmap.parentRoadmapId
-                    ? (() => {
-                      const selected = parentRoadmapOptions.find(
-                        (roadmap) => roadmap.id === currentRoadmap.parentRoadmapId,
-                      );
-                      return selected ? { name: selected.name, value: selected.id } : false;
-                    })()
-                    : { name: t("forms:meta_roadmap.relationship_no_chosen"), value: "" }
-                  : false
-              }
-              options={[
-                { name: t("forms:meta_roadmap.relationship_no_chosen"), value: "" },
-                ...parentRoadmapOptions.map((metaRoadmap) => ({
-                  name: metaRoadmap.name,
-                  value: metaRoadmap.id,
-                })),
-              ]}
-            />
-          ) : null}
-        </fieldset>
+            <option value="" disabled={true}>{t("forms:meta_roadmap.no_chosen_roadmap_scope")}</option>
+            {
+              Object.values(RoadmapType).map((value) => {
+                if (value === RoadmapType.NATIONAL && !user?.isAdmin) return null;
+                return (
+                  <option key={value} value={value}>{value in customRoadmapTypes ? customRoadmapTypes[value] : value}</option>
+                );
+              })
+            }
+          </select>
+        </label>
 
-        <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
-          <button
-            className="text-align-center seagreen color-purewhite width-100"
-            style={{ fontSize: '14px', transform: 'none' }}
-            type="submit"
-            id="submit-button"
-            disabled={isLoading}
-          >
-            {currentRoadmap ? t("common:tsx.save") : t("forms:meta_roadmap.create")}
-          </button>
-        </div>
-      </form>
-    </>
+        <label htmlFor="actor">{t("forms:meta_roadmap.actor")}</label>
+        <TextSingleAutocomplete
+          props={{
+            className: "margin-top-25 margin-bottom-100",
+            id: "actor",
+            name: "actor",
+            required: true,
+            defaultValue: currentRoadmap?.actor ?? undefined,
+            placeholder: roadmapType === "REGIONAL" || roadmapType === "MUNICIPAL" ? t("forms:combobox.default_autocomplete_placeholder") : t("forms:meta_roadmap.actor"),
+          }}
+          // L10N: the current implementation uses only Swedish counties and municipalities; should probably be adapted for international use in the future
+          options={
+            roadmapType === "REGIONAL"
+              ? Object.keys(countiesAndMunicipalities).map(item => ({ name: item, value: item }))
+              : roadmapType === "MUNICIPAL"
+                ? Object.values(countiesAndMunicipalities).flat().map(item => ({ name: item, value: item }))
+                : []
+          }
+          value={actor}
+          setter={setActor}
+        />
+      </fieldset>
+
+      <ConfigureAccess
+        user={user}
+        userGroups={userGroups}
+        currentRoadmap={currentRoadmap}
+        positionIndex={positionIndex}
+        legends={{
+          viewers: t("forms:meta_roadmap.legend_visibility"),
+          editors: t("forms:meta_roadmap.legend_editability"),
+        }}
+      />
+
+      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+        <legend
+          // Technically incrementing here is unused but if you add a another entry after this one it will be correct
+          // eslint-disable-next-line no-useless-assignment
+          data-position={positionIndex++}
+          className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}
+        >
+          {t("forms:meta_roadmap.relationship_legend")}</legend>
+        <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:meta_roadmap.relationship_label")}</label>
+        {parentRoadmapOptions ? ( // TODO: This might not make sense? // TODO: Memoize this? 
+          <SelectSingleSearch
+            props={{
+              className: "margin-top-25",
+              id: "parent-roadmap",
+              name: "parent-roadmap",
+              placeholder: t("forms:combobox.select_or_leave"),
+              disabled: !parentRoadmapOptions,
+            }}
+            defaultValue={ // TODO: Might be a better way to do this
+              currentRoadmap
+                ? currentRoadmap.parentRoadmapId
+                  ? (() => {
+                    const selected = parentRoadmapOptions.find(
+                      (roadmap) => roadmap.id === currentRoadmap.parentRoadmapId,
+                    );
+                    return selected ? { name: selected.name, value: selected.id } : false;
+                  })()
+                  : { name: t("forms:meta_roadmap.relationship_no_chosen"), value: "" }
+                : false
+            }
+            options={[
+              { name: t("forms:meta_roadmap.relationship_no_chosen"), value: "" },
+              ...parentRoadmapOptions.map((metaRoadmap) => ({
+                name: metaRoadmap.name,
+                value: metaRoadmap.id,
+              })),
+            ]}
+          />
+        ) : null}
+      </fieldset>
+
+      <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
+        <button
+          className="text-align-center seagreen color-purewhite width-100"
+          style={{ fontSize: '14px', transform: 'none' }}
+          type="submit"
+          id="submit-button"
+          disabled={isLoading}
+        >
+          {currentRoadmap ? t("common:tsx.save") : t("forms:meta_roadmap.create")}
+        </button>
+      </div>
+    </form>
   );
 }

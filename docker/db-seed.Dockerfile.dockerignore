@@ -1,6 +1,7 @@
 **/*
 
 !prisma/
+prisma/generated/
 # seeding script + types.ts reference a few files in src/
 !src/fetchers/
 !src/functions/

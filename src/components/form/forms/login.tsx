@@ -54,15 +54,14 @@ export default function Login() {
 
 
   return (
-    <>
-      <form onSubmit={(event: React.ChangeEvent<HTMLFormElement>) => handleSubmit(event, t, setErrorMessage, setErrorKey)} className={`${styles.padding}`}>
+    <form onSubmit={(event: React.ChangeEvent<HTMLFormElement>) => handleSubmit(event, t, setErrorMessage, setErrorKey)} className={`${styles.padding}`}>
         <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid silver' }}>{t("common:tsx.login")}</h1>
 
         <label>
           {t("components:login.username")}
           <div className="margin-top-50 margin-bottom-100 padding-50 flex align-items-center smooth focusable">
             <IconUser style={{ minWidth: '24px' }} aria-hidden="true" />
-            <input className="padding-0 margin-inline-50 font-size-100" type="text" placeholder={t("common:placeholder.name")} name="username" required id="username" autoComplete="username" />
+            <input className="padding-0 margin-inline-50 font-size-100" type="text" placeholder={t("common:placeholder.name")} name="username" required={true} id="username" autoComplete="username" />
           </div>
         </label>
 
@@ -71,7 +70,7 @@ export default function Login() {
           {t("components:login.password")}
           <div className="margin-top-50 margin-bottom-100 padding-50 flex align-items-center smooth focusable">
             <IconLock style={{ minWidth: '24px' }} aria-hidden="true" />
-            <input className="padding-0 margin-inline-50 transparent font-size-100" type={showPassword ? 'text' : 'password'} placeholder={t("common:placeholder.password")} name="password" required id="password" autoComplete="current-password" />
+            <input className="padding-0 margin-inline-50 transparent font-size-100" type={showPassword ? 'text' : 'password'} placeholder={t("common:placeholder.password")} name="password" required={true} id="password" autoComplete="current-password" />
             <button
               type="button"
               className={`${styles.showPasswordButton} grid padding-0 transparent`}
@@ -116,6 +115,5 @@ export default function Login() {
           <Link href='/verify'>{t("components:login.verify_account")}</Link>
         </div>
       </form>
-    </>
   );
 }

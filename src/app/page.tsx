@@ -2,7 +2,7 @@ import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import AttributedImage, { AttributeText } from "@/components/generic/images/attributedImage";
 import { roadmapSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
-import { RoadmapType } from "@prisma/client";
+import { RoadmapType } from "@/lib/prisma/generated";
 import RoadmapFilters from "@/components/form/filters/roadmapFilters";
 import { RoadmapSortBy } from "@/types";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
@@ -14,8 +14,9 @@ import { getMetaRoadmaps, getRoadmaps } from "@/fetchers";
 import SearchRoadmaps from "@/components/form/filters/searchRoadmaps";
 import SortRoadmaps from "@/components/form/filters/sortRoadmaps";
 import styles from "./page.module.css";
+import type { Metadata } from "next";
 
-export async function generateMetadata() {
+export async function generateMetadata(): Promise<Metadata> {
   return await buildMetadata({
     title: undefined,
     description: undefined,
@@ -130,17 +131,16 @@ export default async function Page(
                 sourceLink="https://unsplash.com/photos/white-and-blue-solar-panels-pwFr_1SUXRo?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" />
             </div>
             { // Link to create roadmap form if logged in
-              session.user &&
-              <>
-                <Link href="/metaRoadmap/create" className="button purewhite round block">{t("pages:home.create_roadmap")}</Link>
-              </>
+              session.user
+                ? <Link href="/metaRoadmap/create" className="button purewhite round block">{t("pages:home.create_roadmap")}</Link>
+                : null
             }
           </div>
         </AttributedImage>
       </div>
- 
-      <search className="flex flex-wrap-wrap gap-300 margin-top-300"> {/* TODO: Some flex stuff is causing the netire page to shift when switching languages, look into this */}
-        <aside className={`flex-grow-100 ${styles['filters']}`} tabIndex={-1} id="roadmap-filters">
+
+      <search className={`${styles['layout-roadmaps']}`}>  
+        <aside className='height-fit-content' tabIndex={-1} id="roadmap-filters">
           <h2 className="font-size-125 margin-top-50 font-weight-600 padding-bottom-50 margin-bottom-100" style={{ borderBottom: '1px solid var(--gray-80)' }}>
             {t("pages:home.filter")}
           </h2>
@@ -157,14 +157,11 @@ export default async function Page(
               })}
             </small>
             <SortRoadmaps />
-
           </div>
-          <output>
-            <RoadmapTree
-              user={session.user ?? undefined}
-              roadmaps={roadmaps}
-            />
-          </output>
+          <RoadmapTree
+            user={session.user ?? undefined}
+            roadmaps={roadmaps}
+          />
         </div>
       </search>
       {/*

@@ -1,6 +1,6 @@
 import { getLocalStorage, getSessionStorage, setLocalStorage, setSessionStorage } from "@/functions/localStorage";
 import { GraphType } from "@/components/graph/graphs/goal/main/container";
-import { ActionImpactType } from "@prisma/client";
+import { ActionImpactType } from "@/lib/prisma/generated";
 import { ChildGraphType } from "@/components/graph/graphs/goal/child/container";
 import { isISOIshDate } from "@/types";
 import type { DateValues, DataSeries, Effect, Goal } from "@/types";
@@ -20,7 +20,7 @@ export function getStoredGraphType(goalId?: string) {
   // Default to main graph if no valid graph type is found
   if (!Object.values(GraphType).includes(graphType as GraphType) || !graphType) {
     if (graphType != null) {
-      console.log("Invalid graph type in storage, defaulting to main graph.");
+      console.warn("Invalid graph type in storage, defaulting to main graph.");
     }
 
     setLocalStorage("graphType", GraphType.Main);
@@ -43,7 +43,7 @@ export function getStoredChildGraphType(goalId?: string): ChildGraphType {
   // Default to target graph if no valid graph type is found
   if (!graphType || !Object.values(ChildGraphType).includes(graphType as ChildGraphType)) {
     if (graphType != null) {
-      console.log("Invalid graph type in storage, defaulting to target graph.");
+      console.warn("Invalid graph type in storage, defaulting to target graph.");
     }
 
     setLocalStorage("childGraphType", ChildGraphType.Target);

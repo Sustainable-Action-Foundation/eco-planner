@@ -85,8 +85,9 @@ export default async function getPxWebTableContent(tableId: string, externalData
         throw new Error(`Unsupported content type: ${contentType}`);
       }
     }
-  } catch (error) {
-    console.log(error);
+  }
+  catch (error) {
+    console.error("Error fetching table content from PxWeb API", { error });
     return null;
   }
 

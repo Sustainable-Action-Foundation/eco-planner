@@ -24,7 +24,40 @@ on:
         type: boolean
 
 jobs:
+  de-duplication:
+    runs-on: ubuntu-latest
+    outputs:
+      should_skip: ${{ steps.decision.outputs.should_skip }}
+      reason: ${{ steps.decision.outputs.reason }}
+    steps:
+      - name: Decide whether this run is a duplicate PR run
+        id: decision
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_REF: ${{ github.head_ref }}
+          IS_FORK_PR: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
+        # If more branches are added to `on.push.branches`, the logic in this run step should be updated to also check if $HEAD_REF matches one of those branches
+        run: |
+          SHOULD_SKIP="false"
+          REASON="not duplicate"
+
+          if [[ "$EVENT_NAME" == "pull_request" \
+              && "$IS_FORK_PR" == "false" \
+              && ( \
+                "$HEAD_REF" == "main" \
+                || "$HEAD_REF" == "dev" \
+              ) ]]; then
+            SHOULD_SKIP="true"
+            REASON="pr from on.push branch"
+          fi
+
+          echo "should_skip=$SHOULD_SKIP" >> "$GITHUB_OUTPUT"
+          echo "reason=$REASON" >> "$GITHUB_OUTPUT"
+          echo "de-duplication: should_skip=$SHOULD_SKIP reason=$REASON"
+
   screenshot-tests:
+    needs: de-duplication
+    if: ${{ needs.de-duplication.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -80,9 +113,10 @@ jobs:
           path: ./tests/out
 
   deploy:
-    if: ${{ !cancelled() && !inputs.skip_deployment }}
-
-    needs: screenshot-tests
+    needs:
+      - de-duplication
+      - screenshot-tests
+    if: ${{ needs.de-duplication.outputs.should_skip != 'true' && !cancelled() && !inputs.skip_deployment }}
 
     permissions:
       pages: write

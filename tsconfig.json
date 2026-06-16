@@ -30,8 +30,8 @@
       "@/*": [
         "./src/*",
       ],
-      "@prisma/client": [
-        "./.prisma/generated",
+      "@PRISMA-NAMESPACE-ONLY": [
+        "./prisma/generated/client",
       ],
     },
   },
@@ -47,11 +47,14 @@
   "exclude": [
     ".prisma/**/*",
     "src/prisma/generated/**/*",
+    "src/.prisma/**/*",
+    ".prisma/**/*",
+    "prisma/generated/**/*",
     "node_modules",
-    "prisma",
     ".next",
     "out",
     "dist",
     "build",
+    "ignore",
   ],
 }

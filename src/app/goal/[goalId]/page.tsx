@@ -9,7 +9,7 @@ import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import type { ApiTableContent } from "@/lib/api/apiTypes";
 import { getSession } from "@/lib/session";
 import serveTea from "@/lib/i18nServer";
-import prisma from "@/prismaClient";
+import { prisma } from "@/lib/prisma";
 import { AccessLevel } from "@/types";
 import type { AccessControlled, Goal, MultiRoadmapInstance, Roadmap } from "@/types";
 import { cookies } from "next/headers";
@@ -22,6 +22,7 @@ import type { TFunction } from "i18next";
 import i18nServer from "i18next";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 import GoalGraph from "@/components/graph/graphs/goal/container";
+import type { Metadata } from "next";
 
 export async function generateMetadata(props: {
   params: Promise<{ goalId: string }>,
@@ -29,7 +30,7 @@ export async function generateMetadata(props: {
     secondaryGoal?: string | string[] | undefined,
     [key: string]: string | string[] | undefined
   }>,
-}) {
+}): Promise<Metadata> {
   const params = await props.params;
 
   const [t, session, goal] = await Promise.all([
@@ -144,7 +145,7 @@ export default async function Page(
       }
     } catch (error) {
       parentGoal = null;
-      console.log(error);
+      console.error(error);
     }
   }
 
@@ -207,8 +208,7 @@ export default async function Page(
         </header>
 
         {/* TODO: Incorrect semantics, sections missing a header (not sure if the aria-label is proper). Make this something else? */}
-        {shouldUpdate && goal.dataSeries && // Redundant additional check to satisfy type engine
-          <section
+        {shouldUpdate && goal.dataSeries ? <section
             aria-label={t("pages:goal.update_needed_attention_message")}
             className="flex justify-content-space-between align-items-center margin-block-300 padding-25 rounded"
             style={{ border: '1px solid gold', backgroundColor: 'rgba(255, 255, 0, .35)' }}
@@ -221,7 +221,7 @@ export default async function Page(
               label={t("components:update_goal_button.update")}
               dataSeriesId={goal.dataSeries.id}
             />
-          </section>
+          </section> : null
         }
 
         <header>
@@ -240,15 +240,13 @@ export default async function Page(
         </header>
 
         {goal.description ?
-          <>
-            <TextEditor
+          <TextEditor
               className="margin-top-50"
               id="rich-description"
               editable={false}
               defaultStyles={false}
               content={goal.description}
             />
-          </>
           : null}
 
         {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
