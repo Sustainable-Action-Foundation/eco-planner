@@ -22,9 +22,9 @@ export function CommonVariable({
   const { t } = useTranslation(["common", "components"]);
 
   const { upsertVariable, getVariable } = useRecipe();
-  const [unit, setUnit] = useState<string>("");
   const variable = getVariable(variableId);
   if (!variable) throw new RecipeError(`Variable with id "${variableId}" not found in recipe context.`);
+  const [unit, setUnit] = useState<string>(variable.unit ?? "");
 
   const permissions = { ...RecipeEditorPermissions, ...incomingPermissions };
 
@@ -62,13 +62,16 @@ export function CommonVariable({
                 disabled: !permissions.allowValueEditing,
                 id: `variable-unit-${variableId}`,
                 name: `variable-unit-${variableId}`,
-                defaultValue: variable.unit || "",
                 placeholder: " ",
                 style: { gridRow: '1', gridColumn: '2', width: '125px' },
               }}
               options={allOurUnits.map(unit => ({ name: unit, value: unit }))}
               value={unit}
-              setter={setUnit}
+              setter={(next) => {
+                const value = typeof next === "function" ? next(unit) : next;
+                setUnit(value);
+                upsertVariable(variableId, v => ({ ...v, unit: value.trim() === "" ? undefined : value }));
+              }}
             />
           </div>
         </div>

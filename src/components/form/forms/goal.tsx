@@ -174,7 +174,8 @@ export default function GoalForm({
     let dataSeries: DateValuesWithUnit | undefined;
     try {
       dataSeries = JSON.parse(resultingDateValuesString) as DateValuesWithUnit;
-      dataSeries.unit = formData.get("dataUnit") as string | null;
+      // Prefer the explicit unit field, but keep the recipe's evaluated unit when it's empty.
+      dataSeries.unit = (formData.get("dataUnit") as string | null) || dataSeries.unit;
     } catch (e) {
       addToast(`${t("forms:goal.errors.failed_parse_date_values")} ${e instanceof Error ? e.message : String(e)}`, "error", false);
       event.target.reportValidity();
