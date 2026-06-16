@@ -538,6 +538,13 @@ test.describe("Recipe evaluator and factories", () => {
     expect(Recipe.isVariableEqual(withTemplate, withoutTemplate)).toBe(true);
   });
 
+  test("isVariableEqual ignores key order", () => {
+    const ordered: ScalarVariable = { id: "x", name: "X", type: RecipeDataTypes.Scalar, value: 1, unit: "kg" };
+    const reordered = { unit: "kg", value: 1, type: RecipeDataTypes.Scalar, name: "X", id: "x" } as ScalarVariable;
+
+    expect(Recipe.isVariableEqual(ordered, reordered)).toBe(true);
+  });
+
   test("isVariablesEqual respects order", () => {
     const vars1 = [scalarVariable("a", "A", 1), scalarVariable("b", "B", 2)];
     const vars2 = [scalarVariable("b", "B", 2), scalarVariable("a", "A", 1)];
