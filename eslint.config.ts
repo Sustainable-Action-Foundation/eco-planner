@@ -98,8 +98,8 @@ export default defineConfig([
       ...nextBaseConfig,
     ],
     rules: {
-      "react-hooks/set-state-in-effect": "off", // TODO: get a grip and understand react
-      "react-hooks/set-state-in-render": "off", // TODO: get a grip and understand react
+      "react-hooks/set-state-in-effect": "warn", // TODO: get a grip and understand react
+      "react-hooks/set-state-in-render": "warn", // TODO: get a grip and understand react
       "react-hooks/immutability": "error",
       "react/button-has-type": "error",
       "react/checked-requires-onchange-or-readonly": "error",
