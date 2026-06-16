@@ -1,25 +1,22 @@
-import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
 import { useRecipe } from "../context/recipeContext.use";
 
+/**
+ * Auto-syncs the recipe's evaluated unit into the parent form's unit field.
+ * Fires only when `resultingUnit` actually changes, so a user's later manual
+ * edit isn't clobbered on every re-render. Renders nothing.
+ */
 export default function UnitSync({
   setter,
 }: {
   setter: React.Dispatch<React.SetStateAction<string>>
 }) {
   const { resultingUnit } = useRecipe();
-  const { t } = useTranslation("components");
 
-  if (!resultingUnit) return null;
+  useEffect(() => {
+    if (!resultingUnit) return;
+    setter(resultingUnit);
+  }, [resultingUnit, setter]);
 
-  return (
-    <button
-      type="button"
-      className="margin-right-50"
-      onClick={() => {
-        setter(resultingUnit);
-      }}
-    >
-      {t("components:recipe_editor.apply_unit")}
-    </button>
-  );
+  return null;
 }
