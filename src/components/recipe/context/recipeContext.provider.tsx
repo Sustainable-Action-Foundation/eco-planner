@@ -115,15 +115,17 @@ export function RecipeContextProvider({
 
   const equation = useMemo(() => publishedRecipe.equation, [publishedRecipe]);
   const variables = useMemo(() => publishedRecipe.variables, [publishedRecipe]);
+  // Build the variable map once per published recipe; the getter rebuilds it on every access.
+  const variableMap = useMemo(() => publishedRecipe.variableMap, [publishedRecipe]);
   const getVariable = useCallback((
     variableId: string,
     expectedType?: RecipeDataTypes,
   ) => {
-    const variable = publishedRecipe.variableMap[variableId];
+    const variable = variableMap[variableId];
     if (!variable) return undefined;
     if (expectedType && variable.type !== expectedType) return undefined;
     return variable;
-  }, [publishedRecipe]);
+  }, [variableMap]);
 
   const clearRecipe = useCallback(() => {
     recipeUpdateGenerationRef.current += 1;
@@ -196,7 +198,7 @@ export function RecipeContextProvider({
       }
 
       const nextVariable = typeof variableUpdate === "function"
-        ? variableUpdate(candidateRecipe.variableMap[variableId])
+        ? variableUpdate(existingVariable)
         : variableUpdate;
 
       if (!nextVariable) {
@@ -208,7 +210,7 @@ export function RecipeContextProvider({
         return current;
       }
 
-      candidateRecipe.variables = candidateRecipe.variableMap[variableId]
+      candidateRecipe.variables = existingVariable
         // Update existing variable
         ? candidateRecipe.variables.map(v => v.id === variableId
           ? { ...nextVariable, template: false }
