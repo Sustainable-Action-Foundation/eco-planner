@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import styles from './comboBox.module.css' with { type: "css" };
 import type { InputElement, Option } from "@/components/types";
-import { clearEditableCombobox, handleKeyDownEditableCombobox, scrollOptionIntoView } from "./functions";
+import { clearEditableCombobox, handleKeyDownCombobox, handleKeyDownEditableCombobox, scrollOptionIntoView } from "./functions";
 import type { IFuseOptions } from "fuse.js";
 import Fuse from "fuse.js";
 import { IconSearch } from "@tabler/icons-react";
@@ -86,14 +86,13 @@ export default function SelectSingleSearch({
       searchRef.current,
       setSearchValue,
       menuOpen,
-      setFocusedListboxOption,
     );
   }, [menuOpen]);
 
   useEffect(() => {
     scrollOptionIntoView(optionRefs.current, focusedListboxOption);
   }, [focusedListboxOption]);
-
+ 
   return (
     <div
       className={`${props.className ? `${props.className} ` : ''}position-relative`}
@@ -115,7 +114,15 @@ export default function SelectSingleSearch({
         onChange={() => {}}
         onClick={() => { setMenuOpen(!menuOpen); }}
         onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-          if (e.key !== 'Tab') e.preventDefault(); // Prevent typing
+          if (!toggleRef.current) return;
+          handleKeyDownCombobox(
+            e,
+            searchResults,
+            menuOpen,
+            setMenuOpen,
+            focusedListboxOption,
+            setFocusedListboxOption,
+          );
         }}
         onPaste={(e) => e.preventDefault()} // Prevent pasting
         onDrop={(e) => e.preventDefault()} // Prevent copying
@@ -134,7 +141,6 @@ export default function SelectSingleSearch({
         }
         onBlur={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget) && e.relatedTarget?.id !== props.id) {
-            setFocusedListboxOption(null);
             setMenuOpen(false);
           }
         }}

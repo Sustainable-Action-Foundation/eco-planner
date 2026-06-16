@@ -10,6 +10,7 @@ import Fuse from "fuse.js";
 import { IconSearch } from "@tabler/icons-react";
 
 // TODO: Should allow for options with same values? Or we should check that they are unique?
+// TODO: Make sure we focus the searchref through a useeffect when we open the popup
 
 export default function SelectMultipleSearch({
   props,
@@ -53,7 +54,6 @@ export default function SelectMultipleSearch({
       searchRef.current,
       setSearchValue,
       menuOpen,
-      setFocusedListboxOption,
     );
   }, [menuOpen]);
 

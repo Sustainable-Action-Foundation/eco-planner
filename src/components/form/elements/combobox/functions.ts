@@ -1,4 +1,95 @@
-import type { TreeItem } from "@/components/types";
+import type { Option, TreeItem } from "@/components/types";
+
+/**
+See for implementation details:
+- https://www.w3.org/WAI/ARIA/apg/patterns/combobox/,
+- https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/.
+**/
+export const handleKeyDownCombobox = (
+  event: React.KeyboardEvent<HTMLInputElement>,
+  options: Array<Option | TreeItem>,
+  popupElementDisplayed: boolean,
+  setPopupElementDisplayed: React.Dispatch<React.SetStateAction<boolean>>,
+  focusedIndex: number | null,
+  setFocusedIndex: React.Dispatch<React.SetStateAction<number | null>>,
+) => {
+  const key = event.key;
+  // TODO: If we have a value, alt + down should auto select that value,
+  // TODO: If we have a value, down should go down one from that value
+  // TODO: If we don't have a value, we focus the top option
+  // TODO: The same should go for arrowUp 
+  switch (key) {
+    case "ArrowDown": {
+      event.preventDefault();
+
+      if (event.altKey) {
+        setPopupElementDisplayed(true);
+        return;
+      }
+
+      if (!popupElementDisplayed) {
+        setPopupElementDisplayed(true);
+
+        if (focusedIndex === null) {
+          setFocusedIndex(0);
+        } else {
+          setFocusedIndex(
+            focusedIndex === options.length - 1
+              ? 0
+              : focusedIndex + 1,
+          );
+        }
+      }
+
+      break;
+    }
+
+    case "ArrowUp": {
+      event.preventDefault();
+
+      if (!popupElementDisplayed) {
+        setPopupElementDisplayed(true);
+        setFocusedIndex(options.length - 1);
+      }
+
+      break;
+    }
+
+    case "Enter":
+    case " ": {
+      event.preventDefault();
+      setPopupElementDisplayed(!popupElementDisplayed);
+
+      break;
+    }
+
+    case "Home": {
+      event.preventDefault();
+      if (!popupElementDisplayed) {
+        setPopupElementDisplayed(true);
+        setFocusedIndex(0);
+      }
+
+      break;
+    }
+
+    case "End": {
+      event.preventDefault();
+      if (!popupElementDisplayed) {
+        setPopupElementDisplayed(true);
+        setFocusedIndex(options.length - 1);
+      }
+
+      break;
+    }
+
+    default: {
+      if (event.key !== 'Tab') event.preventDefault(); // Prevent typing in the field
+      // If the combobox is not editable, optionally moves focus to a value that starts with the typed characters.    
+      break;
+    }
+  }
+};
 
 export const handleKeyDownTreeCombobox = (
   e: React.KeyboardEvent<HTMLInputElement | HTMLButtonElement>,
@@ -130,7 +221,6 @@ export const handleKeyDownEditableCombobox = (
       if (listboxDisplayed) {
         e.preventDefault();
       }
-      setFocusedListboxOptionIndex(null);
       if (listboxDisplayed && setListboxDisplayed) {
         setListboxDisplayed(false);
         comboboxElement.focus();
@@ -230,7 +320,6 @@ export const handleKeyDownEditableCombobox = (
       if (e.shiftKey && listboxDisplayed && setListboxDisplayed) {
         e.preventDefault();
         setListboxDisplayed(false);
-        setFocusedListboxOptionIndex(null);
         comboboxElement.focus();
       };
       break;
@@ -367,14 +456,12 @@ export function clearEditableCombobox(
   comboboxElement: HTMLInputElement, //  Only input or button elements may contain the combobox role and only input can be editable 
   setComboboxValue: React.Dispatch<React.SetStateAction<string>>,
   popupElementDisplayed: boolean | undefined, // Wether or not the listbox is displayed/not displayed, or if it is uncontrolled (always open or always closed)  
-  setFocusedOptionIndex: React.Dispatch<React.SetStateAction<number | null>>,
 ) {
   comboboxElement.value = '';
   setComboboxValue('');
   if (popupElementDisplayed) {
     comboboxElement.focus();
   }
-  setFocusedOptionIndex(null);
 }
 
 export function scrollOptionIntoView(
