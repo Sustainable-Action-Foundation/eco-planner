@@ -99,7 +99,6 @@
   line-height: 1;
   display: grid;
   place-items: center;
-  z-index: 999;
 }
 
 .timeLineFieldset[data-info] .timeLineLegend::before {
@@ -180,4 +179,26 @@
   100% {
     transform: translateX(0);
   }
+}
+
+/* Historical data */ 
+.preview-table {
+  width: 100%;
+}
+
+.preview-table thead {
+  text-align: left;
+}
+
+.preview-table thead th {
+  padding: .25rem;
+  border-bottom: 1px solid var(--gray-80);
+}
+
+.preview-table tbody tr:nth-child(odd) {
+  background-color: var(--gray-95);
+}
+
+.preview-table td {
+  padding: .25rem;
 }
