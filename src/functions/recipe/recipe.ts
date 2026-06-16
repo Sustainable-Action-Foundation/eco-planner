@@ -45,7 +45,7 @@ export class Recipe {
   /** 
    * Runs evaluator on recipe and catch anything wrong
    */
-  public async checkValidity(): Promise<{ good: boolean, error: string | undefined, warnings: string[] | undefined }> {
+  public async checkValidity(options?: Parameters<Recipe["evaluate"]>[1]): Promise<{ good: boolean, error: string | undefined, warnings: string[] | undefined }> {
     if (this.isTemplate()) {
       console.info("Recipe contains template variables, skipping validity check.");
       return { good: true, error: undefined, warnings: undefined };
@@ -53,7 +53,7 @@ export class Recipe {
 
     const warnings: string[] = [];
     try {
-      const _ = await this.evaluate(warnings);
+      const _ = await this.evaluate(warnings, options);
       if (warnings.length) {
         console.warn("Warnings encountered during recipe validity check:", warnings);
       }
@@ -88,8 +88,8 @@ export class Recipe {
   /** 
    * Runs evaluator and simply returns a bool if it ran through or not
    */
-  public async isValid(): Promise<boolean> {
-    return (await this.checkValidity()).good;
+  public async isValid(options?: Parameters<Recipe["evaluate"]>[1]): Promise<boolean> {
+    return (await this.checkValidity(options)).good;
   }
 
   /** 

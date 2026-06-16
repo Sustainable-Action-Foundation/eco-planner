@@ -102,7 +102,7 @@ export function extractScalars(
 export async function extractDataSeries(
   variables: RecipeVariable[],
   warnings: string[] = [],
-  overrideDataSeriesGetter?: (dataSeriesId: string) => Promise<DataSeries | null>,
+  dataSeriesGetter?: (dataSeriesId: string) => Promise<DataSeries | null>,
 ): Promise<RecipeExtractionOutput> {
   const dataSeries: RecipeExtractionOutput = [];
 
@@ -112,8 +112,9 @@ export async function extractDataSeries(
 
     let dbDataSeries: DataSeries | null;
     if (variable.dataSeriesId) {
-      const dataSeriesGetter = overrideDataSeriesGetter
-        ?? (await import("@/fetchers/client")).clientSafeGetOneDataSeries;
+      if (!dataSeriesGetter) {
+        throw new RecipeError(`VariableExtractor: no data series getter provided to resolve "${variable.dataSeriesId}" for variable "${variable.name}".`);
+      }
 
       dbDataSeries = await dataSeriesGetter(variable.dataSeriesId)
         .catch((e: unknown) => {
@@ -185,7 +186,7 @@ export async function extractExternalDatasets(
   variables: RecipeVariable[],
   warnings: string[] = [],
   externalTableContentGetter: (tableId: string, dataset: string, selection: { variableCode: string, valueCodes: string[] }[]) => Promise<ApiTableContent | null> = getTableContent,
-  overrideDataSeriesGetter?: (dataSeriesId: string) => Promise<DataSeries | null>,
+  dataSeriesGetter?: (dataSeriesId: string) => Promise<DataSeries | null>,
 ): Promise<RecipeExtractionOutput> {
 
   const externalDatasets: RecipeExtractionOutput = [];
@@ -199,8 +200,9 @@ export async function extractExternalDatasets(
       // the DB instead of re-fetching the upstream API. Only fetch when there is
       // no materialized series (a brand-new or just-changed selection).
       if (variable.dataSeriesId) {
-        const dataSeriesGetter = overrideDataSeriesGetter
-          ?? (await import("@/fetchers/client")).clientSafeGetOneDataSeries;
+        if (!dataSeriesGetter) {
+          throw new RecipeError(`VariableExtractor: no data series getter provided to resolve "${variable.dataSeriesId}" for external variable "${variable.name}".`);
+        }
 
         const dbDataSeries = await dataSeriesGetter(variable.dataSeriesId)
           .catch((e: unknown) => {

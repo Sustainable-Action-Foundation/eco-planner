@@ -1,4 +1,5 @@
 import { getOneRecipe } from "@/fetchers";
+import { clientSafeGetOneDataSeries } from "@/fetchers/client";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 import { Recipe } from "@/functions/recipe/recipe";
 import { RecipeError } from "@/functions/recipe/types";
@@ -117,7 +118,7 @@ export async function POST(request: NextRequest) {
     // Try to recalculate the data series
     const recipe = Recipe.from(dbRecipe.recipe);
     const warnings: string[] = [];
-    const evaluationResult = await recipe.evaluate(warnings)
+    const evaluationResult = await recipe.evaluate(warnings, { dataSeriesGetter: clientSafeGetOneDataSeries })
       .catch((err: unknown) => {
         const errorMessage = err instanceof Error ? err.message : String(err);
         console.error(`Error evaluating recipe ${dbRecipe.id} for data series ${requestJson.dataSeriesId}:`, { err });
