@@ -7,6 +7,22 @@ import type { ExternalVariable, RecipeExtractionOutput, RecipeVariable, Serializ
 import { isEvalTimeVariable, isRecipe, MathjsError, RecipeError, parseDateValuesFromVector, transformDateValuesToVector, ANDMasks, extractDataSeries, extractExternalDatasets, extractScalars, isEvalTimeSeries, RecipeDataTypes } from "@/functions/recipe";
 import { sanityCheckDataSeries, sanityCheckExternalDatasets, sanityCheckScalars } from "@/functions/recipe/sanityChecks";
 
+/**
+ * Deterministic JSON serialization: object keys are sorted recursively so that
+ * two structurally-equal values produce identical strings regardless of key
+ * insertion order. Array order is preserved (it is significant).
+ */
+function canonicalStringify(value: unknown): string {
+  return JSON.stringify(value, (_key, val: unknown) => {
+    if (val && typeof val === "object" && !Array.isArray(val)) {
+      return Object.fromEntries(
+        Object.entries(val as Record<string, unknown>).sort(([a], [b]) => a.localeCompare(b)),
+      );
+    }
+    return val;
+  });
+}
+
 export class Recipe {
   public name: string;
   public equation: string;
@@ -190,13 +206,16 @@ export class Recipe {
     }, {} as Record<string, number>);
     const usedScopeNames = new Set<string>();
 
+    // Build the variable map once; the getter rebuilds it on every access.
+    const variableMap = this.variableMap;
+
     for (const variable of evalTimeVars) {
       if (!variable.value) {
         throw new RecipeError(`Variable "${variable.displayName}" (id: "${variable.id}") has no values.`);
       }
 
       const variableId = variable.id;
-      const recipeVariable = this.variableMap[variableId];
+      const recipeVariable = variableMap[variableId];
 
       const newNameBase = nameNormalizer(variableId);
       let newName = newNameBase;
@@ -500,7 +519,8 @@ export class Recipe {
     const ignoredFields: (keyof RecipeVariable)[] = ["template"];
     const var1Stripped = Object.fromEntries(Object.entries(var1).filter(([key]) => !ignoredFields.includes(key as keyof RecipeVariable)));
     const var2Stripped = Object.fromEntries(Object.entries(var2).filter(([key]) => !ignoredFields.includes(key as keyof RecipeVariable)));
-    return JSON.stringify(var1Stripped) === JSON.stringify(var2Stripped);
+    // Canonical (key-order-insensitive) compare so reordered fields aren't treated as changes.
+    return canonicalStringify(var1Stripped) === canonicalStringify(var2Stripped);
   }
   /** 
    * Selective compare if two variable sets are the same
