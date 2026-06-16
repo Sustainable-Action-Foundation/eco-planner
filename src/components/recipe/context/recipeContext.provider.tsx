@@ -11,8 +11,23 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Recipe } from "@/functions/recipe/recipe";
 import type { SetStateAction } from "./recipeContext.internal";
 import { RecipeContext } from "./recipeContext.internal";
-import { useSearchParams } from "next/navigation";
 import { useDebounce } from "use-debounce";
+
+/** Compact summary of a recipe in a given state, for the debug panel. */
+function summarizeRecipe(recipe: Recipe) {
+  const variableTypeCounts = recipe.variables.reduce<Record<string, number>>((counts, variable) => {
+    counts[variable.type] = (counts[variable.type] ?? 0) + 1;
+    return counts;
+  }, {});
+  return {
+    name: recipe.name,
+    equation: recipe.equation,
+    variableCount: recipe.variables.length,
+    variableTypeCounts,
+    isTemplate: recipe.isTemplate(),
+    isSuggested: recipe.isSuggestedRecipe(),
+  };
+}
 
 export function RecipeContextProvider({
   initialRecipe,
@@ -25,8 +40,18 @@ export function RecipeContextProvider({
   availableDataSeries?: DataSeries[];
   children: React.ReactNode;
 }) {
-  const searchParams = useSearchParams();
-  const isDebug = useMemo(() => searchParams.get("debug") === "true", [searchParams]);
+  // Debug panel: toggled with Alt+D (no search param, so editor state is preserved).
+  const [isDebug, setIsDebug] = useState(false);
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.altKey && (event.code === "KeyD" || event.key.toLowerCase() === "d")) {
+        event.preventDefault();
+        setIsDebug(previous => !previous);
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const [error, setError] = useState<string | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
@@ -280,46 +305,100 @@ export function RecipeContextProvider({
       warnings,
       error,
     }}>
-      {isDebug ? <div
-          style={{
-            display: "flex",
-            flexDirection: "column-reverse",
-            alignItems: "flex-end",
-            position: "fixed",
-            right: 24,
-            bottom: 24,
-            zIndex: 9999,
-            pointerEvents: "none",
-          }}
-        >
-          <pre
+      {isDebug ? (() => {
+        // Live view uses published (UI) + debounced (evaluated) state only; the
+        // canonical ref is read in the dump handler (refs must not be read in render).
+        const debugInfo = {
+          pendingEvaluation: !Recipe.areRecipesEqual(publishedRecipe, debouncedRecipe),
+          states: {
+            published: summarizeRecipe(publishedRecipe),
+            debounced: summarizeRecipe(debouncedRecipe),
+          },
+          availableDataSeries: {
+            count: availableDataSeries?.length ?? 0,
+            ids: (availableDataSeries ?? []).map(dataSeries => dataSeries.id),
+          },
+          evaluation: { resultingUnit, error, warnings, resultingDataSeries },
+          variables,
+        };
+
+        const dump = () => {
+          const serializeSafe = (recipe: Recipe) => {
+            try { return recipe.serialize(); }
+            catch (e) { return `<<serialize error: ${e instanceof Error ? e.message : String(e)}>>`; }
+          };
+          // Read the canonical ref here (event handler) and include it in the dump.
+          const canonical = canonicalRecipeRef.current;
+          const fullDump = {
+            ...debugInfo,
+            canonicalEqualsPublished: Recipe.areRecipesEqual(canonical, publishedRecipe),
+            states: { canonical: summarizeRecipe(canonical), ...debugInfo.states },
+            serialized: {
+              canonical: serializeSafe(canonical),
+              published: serializeSafe(publishedRecipe),
+              debounced: serializeSafe(debouncedRecipe),
+            },
+          };
+          console.log("[Recipe debug] dump", fullDump);
+          void navigator.clipboard?.writeText(JSON.stringify(fullDump, null, 2)).catch(() => undefined);
+        };
+
+        return (
+          <div
             style={{
-              position: "relative",
+              position: "fixed",
+              right: 24,
+              bottom: 24,
+              zIndex: 9999,
+              width: 440,
+              maxWidth: "calc(100vw - 48px)",
+              display: "flex",
+              flexDirection: "column",
               background: "white",
-              padding: "1rem",
               border: "1px solid #bbb",
               borderRadius: 10,
               boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
-              maxWidth: 420,
-              maxHeight: "40vh",
-              overflow: "auto",
-              fontSize: "0.95em",
-              fontFamily: "monospace",
               opacity: 0.97,
-              marginBottom: 12,
-              pointerEvents: "auto",
+              overflow: "hidden",
             }}
           >
-            {JSON.stringify({
-              equation,
-              variables,
-              resultingUnit,
-              resultingDataSeries,
-              error,
-              warnings,
-            }, null, 2)}
-          </pre>
-        </div> : null}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "0.5rem 0.75rem",
+                borderBottom: "1px solid #ddd",
+                fontFamily: "monospace",
+                fontSize: "0.85em",
+              }}
+            >
+              <strong style={{ flexGrow: 1 }}>
+                Recipe debug
+                {debugInfo.pendingEvaluation ? " · evaluating…" : ""}
+              </strong>
+              <button type="button" onClick={dump} style={{ transform: "none", padding: "0.2rem 0.5rem", fontSize: "0.85em" }}>
+                Dump (log + copy)
+              </button>
+              <button type="button" onClick={() => setIsDebug(false)} aria-label="Close debug panel" style={{ transform: "none", padding: "0.2rem 0.5rem", fontSize: "0.85em" }}>
+                ✕
+              </button>
+            </div>
+            <pre
+              style={{
+                margin: 0,
+                padding: "0.75rem",
+                maxHeight: "45vh",
+                overflow: "auto",
+                fontSize: "0.8em",
+                fontFamily: "monospace",
+              }}
+            >
+              {JSON.stringify(debugInfo, null, 2)}
+            </pre>
+          </div>
+        );
+      })() : null}
 
       {children}
     </RecipeContext.Provider>
