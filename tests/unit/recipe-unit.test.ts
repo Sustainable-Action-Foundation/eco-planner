@@ -417,6 +417,70 @@ test.describe("Recipe evaluator and factories", () => {
     expect(result.dateValues[isoYear(2021)]).toBe(39);
   });
 
+  test("evaluate normalizes non-Jan-1 data series timestamps to the year", async () => {
+    const recipe = new Recipe({
+      name: "Mid-year timestamps",
+      equation: "${ds}",
+      variables: [{
+        id: "ds",
+        name: "Data series",
+        type: RecipeDataTypes.DataSeries,
+        pick: VectorIndexPickerOptions.Whole,
+        dataSeriesId: dataSeriesIds.main,
+        value: undefined,
+        unit: "kg",
+      }],
+    });
+
+    // Timestamps fall mid-year; without normalization they would be masked out.
+    // eslint-disable-next-line @typescript-eslint/require-await
+    const dataSeriesGetter = async (): Promise<DataSeries> => ({
+      id: dataSeriesIds.main,
+      unit: "kg",
+      values: [
+        { dataSeriesId: dataSeriesIds.main, timestamp: new Date("2020-06-15T00:00:00.000Z"), value: 7 },
+        { dataSeriesId: dataSeriesIds.main, timestamp: new Date("2021-09-30T00:00:00.000Z"), value: 9 },
+      ],
+    });
+
+    const { result } = await evaluateWithWarnings(recipe, { dataSeriesGetter });
+    if (!result) {
+      throw new Error("Expected a non-null evaluation result");
+    }
+    expect(result.dateValues[isoYear(2020)]).toBe(7);
+    expect(result.dateValues[isoYear(2021)]).toBe(9);
+  });
+
+  test("evaluate throws a clear error when data series have no overlapping years", async () => {
+    const recipe = new Recipe({
+      name: "No overlap",
+      equation: "${a} + ${b}",
+      variables: [
+        inlineDataSeriesVariable({ id: "a", name: "A", values: { [isoYear(2000)]: 1, [isoYear(2001)]: 2 }, unit: "kg" }),
+        inlineDataSeriesVariable({ id: "b", name: "B", values: { [isoYear(2030)]: 3, [isoYear(2031)]: 4 }, unit: "kg" }),
+      ],
+    });
+
+    const warnings: string[] = [];
+    await expect(recipe.evaluate(warnings)).rejects.toThrow("no overlapping years");
+  });
+
+  test("isEmpty reflects content and ignores the recipe name", () => {
+    expect(Recipe.getEmpty().isEmpty()).toBe(true);
+
+    // Default name but real content -> not empty.
+    const populated = new Recipe({
+      name: Recipe.getEmpty().name,
+      equation: "${a} + 1",
+      variables: [scalarVariable("a", "A", 2)],
+    });
+    expect(populated.isEmpty()).toBe(false);
+
+    // Custom name but no content -> empty.
+    const named = new Recipe({ name: "My recipe", equation: "  ", variables: [] });
+    expect(named.isEmpty()).toBe(true);
+  });
+
   test("evaluate fails when custom getter cannot find linked data series", async () => {
     const recipe = new Recipe({
       name: "Missing linked",
