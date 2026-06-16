@@ -48,7 +48,7 @@ jobs:
         # If more branches are added to `on.push.branches`, the logic in this run step should be updated to also check if $HEAD_REF matches one of those branches
         run: |
           SHOULD_SKIP="false"
-          REASON="not-duplicate"
+          REASON="not duplicate"
 
           if [[ "$EVENT_NAME" == "pull_request" \
               && "$IS_FORK_PR" == "false" \
@@ -57,7 +57,7 @@ jobs:
                 || "$HEAD_REF" == "dev" \
               ) ]]; then
             SHOULD_SKIP="true"
-            REASON="pr-between-push-and-pr-branches"
+            REASON="pr from on.push branch"
           fi
 
           echo "should_skip=$SHOULD_SKIP" >> "$GITHUB_OUTPUT"
