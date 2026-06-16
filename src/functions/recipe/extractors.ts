@@ -164,9 +164,12 @@ function dbDataSeriesToExtraction(
   if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variable.name}" has an invalid unit "${bestUnit}". Treating as unitless during evaluation.`);
   const unit = isValidUnit ? bestUnit : undefined;
 
+  // Normalize each value to its year boundary so keys align with the year-indexed
+  // vector built in transformDateValuesToVector (which only looks up `${year}-01-01`).
+  // Non-Jan-1 timestamps would otherwise be silently masked out of evaluation.
   const dateValues: DateValues = Object.fromEntries(
     dbDataSeries.values.map(v => ([
-      new Date(v.timestamp).toISOString(),
+      new Date(`${new Date(v.timestamp).getUTCFullYear()}-01-01T00:00:00Z`).toISOString(),
       v.value,
     ])),
   );
