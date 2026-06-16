@@ -152,6 +152,10 @@ export class Recipe {
     // +1 since the diff would miss one fence post year
     const maxTimeSpan = commonEndDate.getUTCFullYear() - commonStartDate.getUTCFullYear() + 1;
 
+    if (maxTimeSpan <= 0) {
+      throw new RecipeError("The selected data series have no overlapping years; cannot evaluate. Adjust their date ranges or picks.");
+    }
+
     const masks: Mask[] = [];
     for (const ds of seriesVariables) {
       const { mask, vector } = transformDateValuesToVector(
