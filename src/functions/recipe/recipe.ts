@@ -482,14 +482,6 @@ export class Recipe {
    * To query whether a recipe has practically been touched, not a perfect metric, but a simple heuristic to check if the recipe is essentially empty or not.
    */
   public isEmpty(): boolean {
-    if (Recipe.areRecipesEqual(this, Recipe.getEmpty())) {
-      return true;
-    }
-
-    if (!this.name || this.name.trim() === "" || this.name === Recipe.getEmpty().name) {
-      return true;
-    }
-
     if (this.equation.trim() !== "") {
       return false;
     }
