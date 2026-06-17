@@ -337,6 +337,10 @@
   border-radius: 100%;
 }
 
+.min-width-0 {
+  min-width: 0;
+}
+
 .width-0 {
   width: 0;
 }

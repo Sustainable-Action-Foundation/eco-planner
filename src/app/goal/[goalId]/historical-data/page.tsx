@@ -66,7 +66,7 @@ export default async function page(
     <>
       <Breadcrumb object={goal} customSections={[t("pages:historical_data.breadcrumb")]} />
         <main className="container-text margin-inline-auto">
-          <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}> {/* TODO: would like this to also say which goal i am editing for */}
+          <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}> {/* TODO: would like this to also say which goal i am editing for */}
             {t("components:query_builder.edit_historical_data")}
           </h1>
           <HistoricalData goal={goal} />

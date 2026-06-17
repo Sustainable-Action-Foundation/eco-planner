@@ -14,19 +14,19 @@ import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/r
 import type { ExternalVariable } from "@/functions/recipe";
 import { getHistoricalSource } from "@/functions/getHistoricalDataset";
 import type { SubmitEvent } from "react";
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
-// import dialogStyles from '../api/queryBuilder.module.css' /* TODO: This seems a bit janky */
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
-import HistoricalDataGraph from "@/components/graph/graphs/historical";
 import TabList from "@/components/generic/tablist/tabList";
-import { IconDragDrop, IconQueuePopIn, IconQueuePopOut } from "@tabler/icons-react";
-// import { IconEdit, IconTrashXFilled, IconX } from "@tabler/icons-react";
+import HistoricalDataGraph from "@/components/graph/graphs/historical";
+
 
 type ExternalSelection = NonNullable<Parameters<typeof getTableDetails>[2]>;
 
 // TODO: Stuff is re-rendering like a bajillion times, fix this.
+// TODO: Editing data shows table code not name when autofilling
+
 {/* TODO: Metadata */ }
 export default function HistoricalData({
   goal,
@@ -314,89 +314,9 @@ export default function HistoricalData({
     return returnBool;
   }
 
-  const [isDraggable, setIsDraggable] = useState(false);
-  const positionRef = useRef({ x: 100, y: 100 });
-  const offset = useRef({ x: 0, y: 0 });
-  const isDragging = useRef(false);
-  const rafId = useRef<number | null>(null);
-  const handleRef = useRef<HTMLDivElement>(null);
-
-  const handlePointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDraggable) return;
-    e.currentTarget.setPointerCapture(e.pointerId);
-    isDragging.current = true;
-    offset.current = {
-      x: e.clientX - positionRef.current.x,
-      y: e.clientY - positionRef.current.y,
-    };
-  }, [isDraggable]);
-
-  const handlePointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDragging.current || !isDraggable) return;
-
-    positionRef.current = {
-      x: e.clientX - offset.current.x,
-      y: e.clientY - offset.current.y,
-    };
-
-    if (rafId.current === null) {
-      rafId.current = requestAnimationFrame(() => {
-        if (handleRef.current) {
-          handleRef.current.style.left = `${positionRef.current.x}px`;
-          handleRef.current.style.top = `${positionRef.current.y}px`;
-        }
-        rafId.current = null;
-      });
-    }
-  }, [isDraggable]);
-
-  const handlePointerUp = useCallback(() => {
-    isDragging.current = false;
-    if (rafId.current !== null) {
-      cancelAnimationFrame(rafId.current);
-      rafId.current = null;
-    }
-  }, []);
-
-  const handleRelease = useCallback(() => {
-    setIsDraggable(prev => {
-      if (prev) {
-        // Snapping back — reset the DOM position too
-        if (handleRef.current) {
-          handleRef.current.style.left = '';
-          handleRef.current.style.top = '';
-          handleRef.current.style.position = '';
-        }
-        positionRef.current = { x: 100, y: 100 };
-      }
-      return !prev;
-    });
-  }, []);
-
-  const tableBody = useMemo(() => (
-    tableContent?.values.map(({ period, value }) => (
-      <tr key={period}>
-        <td>{period}</td>
-        <td>{value}</td>
-      </tr>
-    ))
-  ), [tableContent]);
-
-  const chart = useMemo(() => (
-    <HistoricalDataGraph
-      goal={goal}
-      historicalData={tableContent?.values ?? []}
-      secondaryGoal={null}
-      parentGoal={null}
-      parentGoalRoadmap={null}
-      effects={goal.effects}
-    />
-  ), [goal, tableContent]);
-
   // Index for data-position attribute in legend elements (for accessibility)
   let positionIndex = 1;
 
-  {/* TODO: Must make sure to limit the width of selects, some variables are stupidly long */ }
   return (
     <div>
       {/* <p className="padding-inline-100">{t("components:query_builder.add_data_to_goal", { goalName: goal.name ?? goal.indicatorParameter })}</p> */}
@@ -503,15 +423,14 @@ export default function HistoricalData({
       <form
         ref={setFormRef}
         onSubmit={handleSubmit}
-        className="flex flex-direction-column flex-grow-1"
-        style={{ minHeight: '0' }}
+        className={`${styles['historical-data']}`}
       >
         {/* Hidden disabled submit button to prevent accidental submission */}
         <button type="submit" className="display-none" disabled={true}></button>
 
         <fieldset
           // disabled={goal.externalDataset && goal.externalTableId ? true : false} 
-          className={`${styles.timeLineFieldset} width-100`} // margin-top-200
+          className={`${styles.timeLineFieldset} width-100 min-width-0`}
         >
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>
             {t("components:query_builder.data_source")}
@@ -567,7 +486,7 @@ export default function HistoricalData({
         {/* TODO - which inputs should be optional? */}
         <fieldset
           // disabled={goal.externalDataset && goal.externalTableId ? true : false} 
-          className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+          className={`${styles.timeLineFieldset} width-100 margin-top-200 min-width-0`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
           >
             {t("components:query_builder.select_metric_for_table")}
@@ -596,7 +515,7 @@ export default function HistoricalData({
         <fieldset
           // disabled={goal.externalDataset && goal.externalTableId && goal.externalSelection ? true : false}
           name="variableSelectionFieldset"
-          className={`${styles.timeLineFieldset} width-100 margin-top-200`}
+          className={`${styles.timeLineFieldset} width-100 margin-top-200 min-width-0`}
         > {/* Figure out disabled for this form */}
           <legend
             // Technically incrementing here is unused but if you add a another entry after this one it will be correct
@@ -630,89 +549,69 @@ export default function HistoricalData({
           ) : (
             <p className={`font-style-italic color-gray`}>{t("components:query_builder.no_variables_found")}</p> /* TODO: Text should be made clearer, e.g "no variables exist for this table..."" */
           )}
-
-          { /* : (
-            <p>Välj ett mätvärde först</p>  
-          )}*/}
         </fieldset>
-        <section className="block padding-bottom-100 position-relative" style={{ height: '500px', border: '1px solid' }}>
-          <button type="button" className="block" onClick={handleRelease}>
-            {isDraggable ? (
-              <>
-                <IconQueuePopIn />
-                Lock position
-              </>
-            ) : (
-              <>
-                <IconQueuePopOut />
-                Release me
-              </>
-            )}
-          </button>
-          <div
-            ref={handleRef}
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            style={{
-              ...(isDraggable && {
-                position: "absolute",
-                left: 100,
-                top: 100,
-                float: 'unset',
-              }),
-              textAlign: 'right',
-              cursor: isDraggable ? "grab" : "default",
-              touchAction: "none",
-              userSelect: "none",
-              anchorName: '--draggable-anchor',
-            }}
-          >
-            <IconDragDrop />
-          </div>
-          <div
-            style={{
-              position: isDraggable ? 'absolute' : 'relative',
-              ...(isDraggable && {
-                positionAnchor: '--draggable-anchor',
-                top: 'anchor(bottom)',
-                right: 'anchor(right)',
-                resize: 'both',
-                overflow: 'hidden ',
-              }),
-              width: '100%',
-              backgroundColor: 'white',
-              border: '1px solid',
-            }}
-          >
-            <h2>{t("components:query_builder.preview")}</h2>
-            {tableContent && tableContent.values.length > 0 ? (
-              <TabList
-                defaultIndex={0}
+
+        <section className="block padding-bottom-100 position-relative min-width-0">
+          <h2>{t("components:query_builder.preview_values")}</h2>
+          {tableContent && tableContent.values.length > 0 ? (
+            <TabList
+              defaultIndex={0}
+            >
+              <div
+                data-tabname="table-preview"
+                className="padding-50 smooth"
+                style={{
+                  backgroundColor: 'white',
+                  border: '1px solid var(--gray-80)',
+                }}
               >
-                <div data-tabname={'TAB1'}>
-                  <table className={`${styles['preview-table']}`}>
-                    <thead>
-                      <tr>
-                        <th scope="col">{t("components:query_builder.period")}</th>
-                        <th scope="col">{t("components:query_builder.value")}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {tableBody}
-                    </tbody>
-                  </table>
-                </div>
-                <div data-tabname={'TAB2'} style={{ height: '500px' }}>
-                  {chart}
-                </div>
-              </TabList>
-            ) : (
-              <p className="padding-100">{t("components:query_builder.no_result_found")}</p>
-            )}
-          </div>
+                <table className={`${styles['preview-table']}`}>
+                  <thead>
+                    <tr>
+                      <th scope="col">{t("components:query_builder.period")}</th>
+                      <th scope="col">{t("components:query_builder.value")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {
+                      tableContent.values.map(({ period, value }) => {
+                        return (
+                           <tr key={period}>
+                            <td>{period}</td>
+                            <td>{value}</td>
+                          </tr>
+                        );
+                      })
+                    }
+                  </tbody>
+                </table>
+              </div>
+              <div
+                data-tabname="graph-preview"
+                className="padding-50 smooth"
+                style={{
+                  backgroundColor: 'white',
+                  height: '450px',
+                  border: '1px solid var(--gray-80)',
+                }}
+              >
+                <HistoricalDataGraph
+                  goal={goal}
+                  historicalData={tableContent?.values ?? []}
+                  secondaryGoal={null}
+                  parentGoal={null}
+                  parentGoalRoadmap={null}
+                  effects={goal.effects}
+                />
+
+              </div>
+            </TabList>
+          ) : (
+            <p className="padding-100">{t("components:query_builder.no_result_found")}</p>
+          )}
         </section>
-        <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: "1px solid var(--gray-80)" }}>
+
+        <div className="margin-top-400 padding-top-100 margin-bottom-100 min-width-0" style={{ borderTop: "1px solid var(--gray-80)" }}>
           <button
             id="submit-button"
             type="submit"
@@ -723,8 +622,9 @@ export default function HistoricalData({
             {t("common:tsx.save_changes")}
           </button>
         </div>
+
+
       </form>
-      {/*) : null}  */}
     </div>
   );
-}
+};

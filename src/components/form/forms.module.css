@@ -182,8 +182,14 @@
 }
 
 /* Historical data */ 
+.historical-data select {
+  width: 100%;
+  max-width: 100%;
+}
+
 .preview-table {
   width: 100%;
+  border-spacing: 0;
 }
 
 .preview-table thead {
