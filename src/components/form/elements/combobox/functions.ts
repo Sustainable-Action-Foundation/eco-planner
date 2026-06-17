@@ -24,7 +24,7 @@ export const handleKeyDownCombobox = (
 
       if (event.altKey) {
         setPopupElementDisplayed(true);
-        return;
+        break;
       }
 
       if (!popupElementDisplayed) {
@@ -46,10 +46,18 @@ export const handleKeyDownCombobox = (
 
     case "ArrowUp": {
       event.preventDefault();
-
+ 
       if (!popupElementDisplayed) {
         setPopupElementDisplayed(true);
-        setFocusedIndex(options.length - 1);
+        if (focusedIndex === null) {
+          setFocusedIndex(options.length - 1);
+        } else {
+          setFocusedIndex(
+            focusedIndex === 0
+              ? options.length - 1
+              : focusedIndex + 1,
+          );
+        }
       }
 
       break;

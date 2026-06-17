@@ -79,7 +79,7 @@ export default function SelectSingleSearch({
     }
     return searchValue ? fuse.search(searchValue).map(result => result.item) : options;
   }, [searchValue, fuse, options, selectionMade]);
- 
+
   useEffect(() => {
     if (!searchRef.current) return;
     clearEditableCombobox(
@@ -87,16 +87,23 @@ export default function SelectSingleSearch({
       setSearchValue,
       menuOpen,
     );
-  }, [menuOpen]);
+
+    if (!menuOpen) { // Reset focus to selected value when closing menu
+      const selectedIndex = value
+        ? options.findIndex(opt => opt.value === value.value)
+        : -1;
+      setFocusedListboxOption(selectedIndex !== -1 ? selectedIndex : null);
+    }
+  }, [menuOpen, value, options]);
 
   useEffect(() => {
     scrollOptionIntoView(optionRefs.current, focusedListboxOption);
   }, [focusedListboxOption]);
- 
+
   return (
     <div
       className={`${props.className ? `${props.className} ` : ''}position-relative`}
-      style={{ 
+      style={{
         ...props.style,
         '--anchor-name': `--${props.id}-anchor`, // TODO: we want this to be an attribute once thats supported...  
       } as React.CSSProperties}
@@ -111,7 +118,7 @@ export default function SelectSingleSearch({
         name={props.name}
         disabled={props.disabled}
         ref={toggleRef}
-        onChange={() => {}}
+        onChange={() => { }}
         onClick={() => { setMenuOpen(!menuOpen); }}
         onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
           if (!toggleRef.current) return;
@@ -170,7 +177,7 @@ export default function SelectSingleSearch({
                 focusedListboxOption,
                 setFocusedListboxOption,
                 (selectedOption) => {
-                  setValue(selectedOption?.value !== value?.value ? selectedOption : null); // TODO: Abstract this to use in onclick     
+                  setValue(selectedOption?.value !== value?.value ? selectedOption : null);
                   setSelectionMade(true);
                   setMenuOpen(false);
                   toggleRef.current?.focus();
