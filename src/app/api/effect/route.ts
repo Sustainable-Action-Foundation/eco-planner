@@ -151,8 +151,8 @@ export async function POST(request: NextRequest) {
       },
     });
     // Invalidate old cache
-    revalidateTag('action', 'max');
-    revalidateTag('goal', 'max');
+    revalidateTag('action', { expire: 0 });
+    revalidateTag('goal', { expire: 0 });
     // Return success
     return Response.json({ message: t('api:effect.effect_created'), actionId: newEffect.actionId, goalId: newEffect.goalId },
       { status: 201 },
@@ -317,8 +317,8 @@ export async function PUT(request: NextRequest) {
       },
     });
     // Invalidate old cache
-    revalidateTag('action', 'max');
-    revalidateTag('goal', 'max');
+    revalidateTag('action', { expire: 0 });
+    revalidateTag('goal', { expire: 0 });
     // Return success
     return Response.json({ message: t('api:effect.effect_updated'), actionId: updatedEffect.actionId, goalId: updatedEffect.goalId },
       { status: 200 },

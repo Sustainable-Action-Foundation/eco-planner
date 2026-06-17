@@ -1,13 +1,13 @@
 'use client';
 
 // TODO: Remove duplicate extension names
-import type { Content, Editor} from '@tiptap/react';
+import type { Content, Editor } from '@tiptap/react';
 import { EditorContent, useEditor } from '@tiptap/react';
 import TextEditorMenu from './menu';
 import { defaultExtensions, nodeSizeLimit } from './config/config';
 import { useMemo } from 'react';
 
-{/* TODO: Update typing for content */}
+{ /* TODO: Update typing for content */ }
 const TextEditor = ({
   className,
   style,
@@ -17,7 +17,7 @@ const TextEditor = ({
   content,
   editable,
   defaultStyles = true,
-  onChange,
+  updater,
 }: {
   className?: string
   style?: React.CSSProperties
@@ -27,7 +27,7 @@ const TextEditor = ({
   content?: Content,
   editable: boolean,
   defaultStyles?: boolean,
-  onChange?: (json: ReturnType<Editor['getJSON']>) => void
+  updater?: (json: ReturnType<Editor['getJSON']>) => void,
 }) => {
 
   const parsedContent = useMemo(() => {
@@ -41,10 +41,17 @@ const TextEditor = ({
 
   const editor = useEditor({
     immediatelyRender: true,
-    shouldRerenderOnTransaction: true,
     editable,
     onUpdate: ({ editor }) => {
-      if (onChange) onChange(editor.getJSON());
+      if (updater) updater(editor.getJSON());
+    },
+    onMount: ({ editor }) => {
+      // Ensure updater is called with initial content (if any) on mount
+      if (updater && !!editor.getText()) updater(editor.getJSON());
+    },
+    onCreate: ({ editor }) => {
+      // Ensure updater is called with initial content (if any) on create
+      if (updater && !!editor.getText()) updater(editor.getJSON());
     },
     content: parsedContent,
     extensions: defaultExtensions(placeholder),

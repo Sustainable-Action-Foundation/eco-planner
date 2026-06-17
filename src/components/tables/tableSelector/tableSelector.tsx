@@ -1,6 +1,5 @@
 import 'client-only';
 import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
-import React from 'react';
 import RadioImage from './radioImage';
 import { ViewMode } from '../goals';
 import { setStoredViewMode } from '../functions/tableFunctions';

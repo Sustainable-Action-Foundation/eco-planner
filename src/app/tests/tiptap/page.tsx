@@ -158,7 +158,7 @@ export default function TipTapPage() {
               content={contentString}
               editable={editable}
               defaultStyles={showMenu}
-              onChange={setLastUpdate}
+              updater={setLastUpdate}
             />
           </div>
         </div>

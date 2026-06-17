@@ -3,10 +3,11 @@
 import { RecipeDataTypes } from "@/functions/recipe/types";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { clientSafeGetOneRoadmap, clientSafeGetRoadmaps } from "@/fetchers/client";
 import { useRecipe } from "../context/recipeContext.use";
 import styles from '../recipe.module.css' with { type: "css" };
 import { RecipeEditorPermissions, VariableCreator, DataSeriesVariableEditor, VariableTypeExternal, VariableTypeScalar } from "@/components/recipe";
+import { getRecipeRoadmapData } from "../context/roadmapDataCache";
+import type { ClientRoadmap } from "@/types";
 
 export function VariablesEditor({
   permissions: incomingPermissions,
@@ -17,37 +18,46 @@ export function VariablesEditor({
   const { recipe } = useRecipe();
 
   const [availableRoadmaps, setAvailableRoadmaps] = useState<{ id: string; name: string; }[]>([]);
+  const [roadmapLookup, setRoadmapLookup] = useState<Record<string, ClientRoadmap>>({});
+  const [dataSeriesNamesById, setDataSeriesNamesById] = useState<Record<string, string>>({});
 
   const permissions = { ...RecipeEditorPermissions, ...incomingPermissions };
 
-  // On mount, fetch all roadmaps user has access to
   useEffect(() => {
     async function fetchRoadmaps() {
       try {
-        const roadmaps = await clientSafeGetRoadmaps();
-
-        const roadmapsWithData = await Promise.all(
-          roadmaps.map(async (roadmap) => {
-            const fullRoadmap = await clientSafeGetOneRoadmap(roadmap.id);
-            if (!fullRoadmap) return null;
-
-            const hasInterestingChildren = fullRoadmap.goals.some((goal) => {
-              if (goal.dataSeries || goal.baseline) return true;
-              return goal.effects.some((effect) => !!effect.dataSeries);
-            });
-
-            if (!hasInterestingChildren) return null;
-            return roadmap;
-          }),
-        );
+        const { roadmaps, roadmapLookup } = await getRecipeRoadmapData();
 
         setAvailableRoadmaps(
-          roadmapsWithData
-            .filter((roadmap): roadmap is NonNullable<typeof roadmap> => !!roadmap)
-            .map((roadmap) => ({
-              id: roadmap.id,
-              name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version }),
-            })),
+          roadmaps.map((roadmap) => ({
+            id: roadmap.id,
+            name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version }),
+          })),
+        );
+
+        setRoadmapLookup(roadmapLookup);
+
+        setDataSeriesNamesById(
+          Object.values(roadmapLookup).reduce((acc, roadmap) => {
+            for (const goal of roadmap.goals) {
+              const goalDisplayName = goal.name || goal.indicatorParameter;
+
+              if (goal.dataSeries) {
+                acc[goal.dataSeries.id] = goalDisplayName;
+              }
+
+              if (goal.baseline) {
+                acc[goal.baseline.id] = `${goalDisplayName} - ${t("common:baseline_one")}`;
+              }
+
+              for (const effect of goal.effects) {
+                if (!effect.dataSeries) continue;
+                acc[effect.dataSeries.id] = `${goalDisplayName} - ${t("common:effect_one")}`;
+              }
+            }
+
+            return acc;
+          }, {} as Record<string, string>),
         );
       }
       catch (e) {
@@ -93,6 +103,8 @@ export function VariablesEditor({
               variableId={variableId}
               permissions={{ ...permissions }}
               availableDataSeries={availableRoadmaps}
+              roadmapLookup={roadmapLookup}
+              dataSeriesNamesById={dataSeriesNamesById}
             />
           </li>
         );

@@ -165,7 +165,7 @@ export default defineConfig({
     },
     {
       name: "webkit 4k",
-      use: { ...devices["Desktop Safari"], viewport: { width: 3840, height: 2160 } },
+      use: { ...devices["Desktop Safari"], viewport: { width: 3840, height: 2160 }, deviceScaleFactor: 1 },
       dependencies: ["setup"],
     },
     // // older office (4:3)

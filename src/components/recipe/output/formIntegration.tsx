@@ -33,25 +33,25 @@ export function FormIntegration({
 
   return (<>
     {!!DataSeriesFormElement && React.cloneElement(DataSeriesFormElement, {
-      defaultValue: JSON.stringify(resultingDataSeries),
+      value: JSON.stringify(resultingDataSeries) || "",
       type: "hidden",
       hidden: true,
       readOnly: true,
     })}
     {!!UnitFormElement && React.cloneElement(UnitFormElement, {
-      defaultValue: resultingUnit ?? "",
+      value: resultingUnit ?? "",
       type: "hidden",
       hidden: true,
       readOnly: true,
     })}
     {!!RecipeFormElement && React.cloneElement(RecipeFormElement, {
-      defaultValue: recipe.serialize(),
+      value: recipe.serialize() || "",
       type: "hidden",
       hidden: true,
       readOnly: true,
     })}
     {!!DateValuesFormElement && React.cloneElement(DateValuesFormElement, {
-      defaultValue: JSON.stringify(dateValues),
+      value: JSON.stringify(dateValues) || "",
       type: "hidden",
       hidden: true,
       readOnly: true,

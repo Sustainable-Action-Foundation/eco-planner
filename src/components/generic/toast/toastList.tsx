@@ -1,6 +1,6 @@
 "use client";
 
-import { useToastContext } from "@/components/generic/toast/toastContext";
+import { useToast } from "@/components/generic/toast/toastContext.use";
 import Toast from "./toast";
 import styles from './toast.module.css';
 import { IconX } from "@tabler/icons-react";
@@ -9,12 +9,12 @@ import { useTranslation } from "react-i18next";
 export default function ToastList() {
 
   const { t } = useTranslation("components");
-  const { messages, clearToasts } = useToastContext();
+  const { messages, clearToasts } = useToast();
   
   return (
-    <aside className={`${styles["toast-list"]} flex flex-direction-column position-fixed `} data-testid="toast-list">
+    <aside className={`${styles["toast-list"]} flex flex-direction-column position-fixed pointer-events-none`} data-testid="toast-list">
       {messages.length > 0 ?
-        <button onClick={clearToasts} className="flex gap-25 align-items-center margin-left-auto" type="button">
+        <button onClick={clearToasts} className="flex gap-25 align-items-center margin-left-auto pointer-events-initial" type="button">
           {t("components:toasts.clear_toasts")}
           <div className="round padding-25 grid">
             <IconX width={16} height={16} aria-hidden="true" />

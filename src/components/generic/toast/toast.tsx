@@ -3,13 +3,13 @@ import type { ReactNode } from "react";
 import type { ToastType } from '@/components/generic/toast/types.ts';
 import styles from './toast.module.css';
 import { useEffect, useState } from "react";
-import { useToastContext } from "@/components/generic/toast/toastContext";
+import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useTranslation } from "react-i18next";
 
 export default function Toast({ children, id, type, hasTimeout = true }: { children?: ReactNode; id: number; type: ToastType; hasTimeout?: boolean }) {
 
   const { t } = useTranslation(["components"]);
-  const { removeToast } = useToastContext();
+  const { removeToast } = useToast();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [closeToast, setCloseToast] = useState<boolean>(false);
 
@@ -74,7 +74,7 @@ export default function Toast({ children, id, type, hasTimeout = true }: { child
 
   return (  
     <dialog
-      className={`${styles.toast} flex flex-direction-column rounded position-relative padding-0 width-100 rounded"} ${closeToast ? " " + styles["toast-closing"] : ""}`}
+      className={`${styles.toast} flex flex-direction-column rounded position-relative padding-0 width-100 rounded pointer-events-initial ${closeToast ? " " + styles["toast-closing"] : ""}`}
       role={type === "error" ? "alert" : "status"}
       style={{ backgroundColor: color.background, borderLeft: `4px solid ${color.accent}` }}
     >

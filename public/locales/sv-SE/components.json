@@ -133,6 +133,8 @@
   },
   "recipe_editor": {
     "add_external_data": "Hitta historisk data",
+    "apply_parameter": "Kopiera använd indikatorparameter till formuläret",
+    "apply_unit": "Kopiera resulterande enhet till formuläret",
     "create_recipe": "Skapa ett nytt recept",
     "create_variable": "Skapa variabel",
     "data_series": "Dataserie",
@@ -279,9 +281,9 @@
   "toasts": {
     "clear_toasts": "Rensa alla meddelanden",
     "error": "Något gick fel!",
-    "success": "Lyckades!",
     "show_less": "Visa mindre",
     "show_more": "Visa mer",
+    "success": "Lyckades!",
     "warning": "Varning!"
   },
   "update_goal_button": {
