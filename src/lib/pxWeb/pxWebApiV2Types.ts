@@ -1,6 +1,6 @@
 // This file contains a number of types outlining the structure of the PxWeb API v2 responses.
 // Based on actual responses from SCB's implementation of PxWeb API v2 at https://api.scb.se/ov0104/v2beta/api/v2/navigation,
-// and the documentation at  https://github.com/PxTools/PxApiSpecs/blob/master/PxAPI-2.yml.
+// and the documentation at https://github.com/PxTools/PxApiSpecs/blob/master/PxAPI-2.yml.
 // Our types might not reflect the full range of possible responses, or the actual types in pxWeb's implementation as they sometimes update their API.
 
 // TODO: Check these types once PxWebAPIv2 gets a stable release; we unsafely cast responses from PxWeb to these types, which should be safe-ish as long as we keep our type defs up to date.
@@ -28,26 +28,34 @@ export type PxWebApiV2TableContent = {
   }[];
 };
 
-// USED BY GETPXWEBTABLES BUT WHY?
+// USED BY GETPXWEBTABLES
 export type PxWebApiV2TableArray = {
-  language: string; // Two-letter language code
+  language: string; // ISO 639 language code
   tables: [
     {
       type: "Table";
       id: string;
-      label: string;
+      label: string | null;
       description?: string | null;
       sortCode?: string;
       tags?: string[];
       updated: string | null; // ISO 8601 date string
-      // Year as string, possibly followed by month or quarter; e.g. "2024", "2024M01", "2024K1" respectively
+      /** Possible format examples: "2024" | "2024K2" | "2024M5" | "2025W18" */
       firstPeriod: string | null;
-      // Year as string, possibly followed by month or quarter; e.g. "2024", "2024M01", "2024K1" respectively
+      /** Possible format examples: "2024" | "2024K2" | "2024M5" | "2025W18" */
       lastPeriod: string | null;
-      category?: "internal" | "public" | "private" | "section";
+      category?: "public" | "internal" | "private" | "section";
       variableNames: string[];
       discontinued?: boolean | null;
-      links: PxWebApiV2Link[] | null;
+      source?: string;
+      subjectCode?: string;
+      timeUnit?: "Annual" | "Quarterly" | "Monthly" | "Weekly" | "Other";
+      paths?: [{
+        id: string;
+        label: string;
+        sortCode?: string;
+      }];
+      links: PxWebApiV2BasicLink[] | null;
     }
   ];
   page: {
@@ -55,79 +63,96 @@ export type PxWebApiV2TableArray = {
     pageSize: number;
     totalElements: number;
     totalPages: number;
-    links?: PxWebApiV2Link[];
+    links?: PxWebApiV2BasicLink[];
   };
-  links?: PxWebApiV2Link[];
+  links?: PxWebApiV2BasicLink[];
 };
 
 export type PxWebDetailItemBase = ApiDetailItemBase & {
-  // Add additional properties for scb (maybe it should be called pxweb) here if necessary
+  // Add additional properties for PxWeb here if necessary
 }
 
 export type PxWebMetric = PxWebDetailItemBase & {
-  index: number,
-  unit: { base: string, decimals: number },
+  index: number;
+  unit: { base: string; decimals: number };
 }
 
 export type PxWebVariable = PxWebDetailItemBase & {
-  optional: boolean,
-  option: boolean,
-  elimination: boolean, // This is whether the variable is optional or not
-  show: "value", // TODO - What is this and what are the other possible values?
-  categoryNoteMandatory?: { [variableValueId: string]: boolean[] }, // TODO - What is this for?
-  values: PxWebVariableValue[],
+  optional: boolean;
+  option: boolean;
+  elimination: boolean; // This is whether the variable is optional or not
+  show: "value"; // TODO - What is this and what are the other possible values?
+  categoryNoteMandatory?: { [variableValueId: string]: boolean[] }; // TODO - What is this for?
+  values: PxWebVariableValue[];
 }
 
 export type PxWebVariableValue = PxWebDetailItemBase & {
-  index: number,
-  note?: string[],
+  index: number;
+  note?: string[];
 }
 
 export type PxWebTimeVariable = PxWebDetailItemBase & {
-  optional: boolean,
-  elimination: boolean, // This is whether the variable is optional or not
-  show: "value", // TODO - What is this and what are the other possible values?
+  optional: boolean;
+  elimination: boolean; // This is whether the variable is optional or not
+  show: "value"; // TODO - What is this and what are the other possible values?
 }
 
-// These types are not used in the current implementation, but are included for completeness and documentation purposes
+export type PxWebApiV2Unit = {
+  decimals?: number;
+  base?: string;
 
-// NOT USED
+  // following are defined in json-stat 2 spec, but not PxWeb 2 spec, so probably not relevant
+  label?: string;
+  symbol?: string;
+  position?: "end" | "start";
+}
+
 export type PxWebApiV2Note = {
   mandatory?: boolean;
   text: string;
   conditions?: [{ variable: string; value: string; }];
 };
 
-// NOT USED
-export type PxWebApiV2Link = {
-  rel?: string;
-  hreflang?: string;
+export type PxWebApiV2BasicLink = {
+  rel: string;
+  hreflang: string;
   href: string;
 };
 
-// NOT USED
+export type PxWebApiV2AdvancedLink = {
+  related: [{
+    extension: {
+      relation: string;
+      category?: string | null;
+      metaid: string;
+    };
+    href: string;
+    label: string;
+    type: string;
+  }];
+};;
+
 export type PxWebApiV2VariableBase = {
   id: string;
   label: string;
   notes?: PxWebApiV2Note[];
-  links?: PxWebApiV2Link[];
+  links?: PxWebApiV2BasicLink[];
 };
 
-// NOT USED
 export type PxWebApiV2TimeVariable = PxWebApiV2VariableBase & {
   type: "TimeVariable";
   elimination: undefined;
-  timeUnit?: "Annual" | "HalfYear" | "Quarterly" | "Monthly" | "Weekly" | "Other";
-  /** Possible format examples: 2024 | 2024K2 | 2024M5 | 2025W18 (And possibly another for HalfYear?) */
+  timeUnit?: "Annual" | "Quarterly" | "Monthly" | "Weekly" | "Other";
+  /** Possible format examples: "2024" | "2024K2" | "2024M5" | "2025W18" */
   firstPeriod?: string;
-  /** Possible format examples: 2024 | 2024K2 | 2024M5 | 2025W18 (And possibly another for HalfYear?) */
+  /** Possible format examples: "2024" | "2024K2" | "2024M5" | "2025W18" */
   lastPeriod?: string;
   values: [
     {
       code: string;
       label: string;
       notes?: PxWebApiV2Note[];
-      links?: PxWebApiV2Link[];
+      links?: PxWebApiV2BasicLink[];
     }
   ];
 };
@@ -148,7 +173,7 @@ export type PxWebApiV2ContentsVariable = PxWebApiV2VariableBase & {
       preferedNumberOfDecimals?: number;
       priceType?: "Undefined" | "Current" | "Fixed";
       notes?: PxWebApiV2Note[];
-      links?: PxWebApiV2Link[];
+      links?: PxWebApiV2BasicLink[];
     }
   ];
 };
@@ -163,7 +188,7 @@ export type PxWebApiV2RegularVariable = PxWebApiV2VariableBase & {
       code: string;
       label: string;
       notes?: PxWebApiV2Note[];
-      links?: PxWebApiV2Link[];
+      links?: PxWebApiV2BasicLink[];
     }
   ];
   codeLists?: [
@@ -171,7 +196,7 @@ export type PxWebApiV2RegularVariable = PxWebApiV2VariableBase & {
       id: string;
       label: string;
       type: "Aggregation" | "Valueset";
-      links: PxWebApiV2Link[];
+      links: PxWebApiV2BasicLink[];
     }
   ];
 };
@@ -187,7 +212,7 @@ export type PxWebApiV2GeographicalVariable = PxWebApiV2VariableBase & {
       code: string;
       label: string;
       notes?: PxWebApiV2Note[];
-      links?: PxWebApiV2Link[];
+      links?: PxWebApiV2BasicLink[];
     }
   ];
   codeLists?: [
@@ -195,33 +220,40 @@ export type PxWebApiV2GeographicalVariable = PxWebApiV2VariableBase & {
       id: string;
       label: string;
       type: "Aggregation" | "Valueset";
-      links: PxWebApiV2Link[];
+      links: PxWebApiV2BasicLink[];
     }
   ];
 };
 
 export type PxWebApiV2TableDetails = {
-  version: string; // Version of the API
-  class: string; // "dataset"
+  version: "2.0"; // Version of the API
+  class: "dataset"; // "dataset"
   href?: string; // links back to itself
-  label: string;
-  source: string;
-  updated: string | null; // ISO 8601 date string
-  link?: {
-    [key: string]: PxWebApiV2Link[]; // Typically links to itself in different languages
-  };
+  label?: string;
+  source?: string;
+  updated?: string; // ISO 8601 date string
+  link?: PxWebApiV2AdvancedLink;
   note?: string[];
   role: {
-    time: string[];
-    metric: string[];
+    time?: string[];
+    geo?: string[];
+    metric?: string[];
   };
-  id: string[]; // Names for all dimensions (variableName below)
+  id: string[]; // Names/IDs for all dimensions (dimensionName below)
   size: number[]; // Number of entries for each variable named in id
   dimension: {
-    [variableName: string]: PxWebApiV2StandardDimension | PxWebApiV2MetricDimension;
+    [dimensionName: string]: PxWebApiV2StandardDimension | PxWebApiV2MetricDimension | PxWebApiV2TimeDimension | PxWebApiV2GeoDimension;
   };
   extension: {
     noteMandatory?: boolean[];
+    px: {
+      [key: string]: JSONValue; // This is probably not relevant for us, so I can't be bothered to write a type for it
+      stub: string[];
+    };
+    firstPeriod?: string;
+    lastPeriod?: string;
+    tags?: string[];
+    discontinued?: boolean | null;
     contact?: [{
       name?: string;
       organization?: string;
@@ -229,70 +261,61 @@ export type PxWebApiV2TableDetails = {
       mail?: string;
       raw: string;
     }];
-    px: {
-      [key: string]: JSONValue; // This is probably not relevant for us, so I can't be bothered to write a type for it
-      stub: string[];
-    };
   }
+  value: number[] | null;
+  status?: { [key: string]: string; }
 }
 
 export type PxWebApiV2StandardDimension = {
-  label: string;
+  label?: string;
+  note?: string[];
   category: {
-    index: { [valueCode: string]: number };
-    label: { [valueCode: string]: string };
+    // Index is required for any dimension with more than 1 value.
+    // Dimensions with only 1 value MAY omit either the index or the label, but MUST contain at least one of them.
+    index?: { [valueCode: string]: number };
+    // If label is omitted, the valueCode for each index SHOULD be used as the label instead.
+    label?: { [valueCode: string]: string };
     note?: { [valueCode: string]: string[] }; // Optional
+    child: unknown; // It does stuff according to spec, but I can't be bothered to type or implement it yet
   };
   extension: {
     elimination: boolean; // Whether the variable is optional or not (true means it is optional)
-    show: "value";
-    codeLists: [
+    eliminationValueCode?: string; // Value code used as default when the variable is unset/eliminated. Never required.
+    noteMandatory?: { [key: number]: boolean };
+    categoryNoteMandatory?: { [variableValueId: string]: { [key: number]: boolean } };
+    refperiod?: { [valueCode: string]: string; }; // A string describing the reference period for each value code. Cannot be reliably parsed into a date.
+    show?: string; // "Information about how variables are presented" - according to spec
+    codeLists?: [
       {
         id: string;
         label: string;
         type: "Aggregation" | "Valueset";
-        links: PxWebApiV2Link[];
+        links: PxWebApiV2BasicLink[];
       }
     ];
-    categoryNoteMandatory?: { [variableValueId: string]: boolean[] },
+    alternativeText?: { [valueCode: string]: string };
   };
+  link?: PxWebApiV2AdvancedLink;
+}
+
+export type PxWebApiV2TimeDimension = PxWebApiV2StandardDimension & {
+  // Same as standard dimension
 }
 
 export type PxWebApiV2MetricDimension = PxWebApiV2StandardDimension & {
   category: {
-    unit: { [valueCode: string]: { base: string, decimals: number } };
+    unit: { [valueCode: string]: PxWebApiV2Unit };
   };
   extension: {
-    refperiod?: { [valueCode: string]: string; }; // Can not be reliably parsed into a date
     measuringType?: { [valueCode: string]: "Stock" | "Flow" | "Average" | "Other"; };
     priceType?: { [valueCode: string]: "NotApplicable" | "Current" | "Fixed"; };
     adjustment?: { [valueCode: string]: "None" | "SesOnly" | "WorkOnly" | "WorkAndSes"; };
+    basePeriod?: { [valueCode: string]: string; };
   }
 }
-// NOT USED
-// export type PxWebApiV2TableDetails = {
-//   language: string; // Language code (ISO 639)
-//   id: string;
-//   label: string;
-//   description?: string;
-//   aggregationAllowed?: boolean;
-//   officialStatistics?: boolean;
-//   subjectCode?: string;
-//   subjectLabel?: string;
-//   source?: string;
-//   license?: string;
-//   tags?: string[];
-//   updated?: string | null; // ISO 8601 date string
-//   discontinued?: boolean | null;
-//   variables: (PxWebApiV2RegularVariable | PxWebApiV2ContentsVariable | PxWebApiV2GeographicalVariable | PxWebApiV2TimeVariable)[];
-//   contacts?: [
-//     {
-//       name: string;
-//       phone: string;
-//       mail: string;
-//       raw: string;
-//     }
-//   ];
-//   links: PxWebApiV2Link[];
-//   notes?: PxWebApiV2Note[];
-// };
+
+export type PxWebApiV2GeoDimension = PxWebApiV2StandardDimension & {
+  coordinates?: {
+    [valueCode: string]: [number, number]; // Longitude, Latitude
+  }
+}
