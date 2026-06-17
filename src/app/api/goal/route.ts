@@ -603,7 +603,9 @@ export async function PUT(request: NextRequest) {
             } : undefined,
           historical: historicalDataSeriesId
             ? { connect: { id: historicalDataSeriesId } }
-            : undefined,
+            : historicalDataSeriesId === null 
+              ? { disconnect: true } 
+              : undefined,
           links: {
             deleteMany: {},
             create: goal.links?.map(link => ({
