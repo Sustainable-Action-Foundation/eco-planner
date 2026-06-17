@@ -297,18 +297,6 @@ export default function HistoricalData({
     }), "PUT", t); // TODO: add setIsLoading when we reintroduce it
   }
 
-  {/* TODO: Temprorarily removed as we won't have manual historical data on release. This should still exist though, so re add
-  function deleteHistoricalData() {
-    formSubmitter("/api/goal", JSON.stringify({
-      goalId: goal.id,
-      externalDataset: null,
-      externalTableId: null,
-      externalSelection: null,
-      timestamp: Date.now(),
-    }), "PUT", t, setIsLoading);
-  }
-  */}
-
   function shouldVariableFieldsetBeVisible(tableDetails: ApiTableDetails, dataSource: string) {
     const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1);
     return returnBool;
@@ -367,59 +355,7 @@ export default function HistoricalData({
         </fieldset>
         : visibleForm === 'external' ? (
       */}
-      {/* TODO: A bunch of i18n
-            TODO: We should likely not be adding a blur to the backdrop if our dialog can be light dismissed, i.e closedby=any
-            TODO: dialog loading state (for the remove button)
-            {goal.externalDataset && goal.externalTableId ?
-              <>
-                <fieldset data-info className={`${styles.timeLineFieldset} fieldset-unset-pseudo-class width-100 margin-top-200`}>
-                  <legend className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>
-                    Information 
-                  </legend>
-                  <p className="margin-0 font-weight-500">
-                    Denna målbana har redan en extern datakälla. Du kan antingen justera din historiska data manuellt eller ta bort den externa datakällan och lägga till en ny 
-                  </p> 
-                  <div className="flex gap-25 margin-top-100">
-                    <button
-                      className="flex-grow-100 flex align-items-center justify-content-space-between gap-25 font-weight-500"
-                      style={{ transform: 'scale(1)' }}
-                      onClick={() => setVisibleForm("manual")}
-                    >
-                      Justera manuellt
-                      <IconEdit width={18} height={18} style={{ minWidth: '18px' }} aria-hidden="true" />
-                    </button>
-                    <button type="button" className="red color-purewhite flex align-items-center justify-content-space-between gap-100 font-weight-500" style={{ transform: 'scale(1)' }} onClick={() => deleteDataRef.current?.showModal()}>
-                      Ta bort extern datakälla
-                      <IconTrashXFilled fill='white' width={16} height={16} style={{ minWidth: '16px' }} aria-hidden="true" />
-                    </button>
-                  </div>
-                </fieldset>
-
-                <dialog closedby="any" style={{ width: 'min(75ch, 100%)', height: 'calc(50vh - 2rem)' }} className={`rounded padding-inline-0 padding-block-0 ${dialogStyles.dialog}`} aria-modal ref={deleteDataRef}>
-                  <div className={`${dialogStyles['dialog-content']}`}>
-                    <div className={`${dialogStyles['dialog-header']}`}>
-                      <button className="grid round padding-50 transparent" disabled={isLoading} onClick={() => deleteDataRef.current?.close()} autoFocus aria-label={t("common:tsx.close")} >
-                        <IconX strokeWidth={3} width={28} height={28} style={{ minWidth: '28px' }} aria-hidden="true" />
-                      </button>
-                      <h2 className="margin-0">Ta bort extern datakälla</h2> 
-                    </div>
-                    <div className="padding-100 flex flex-direction-column">
-                      <p className="margin-0 flex-grow-100">Är du säker på att du vill ta bort extern datakälla: <span style={{ fontStyle: 'italic' }}>{tables?.find(t => t.tableId === goal.externalTableId)?.label ?? goal.externalTableId}({goal.externalDataset})</span> från målbana: <span className="font-weight-600">{goal.name}</span>?</p>
-                      <div className="flex gap-25">
-                        <button className="flex-grow-100 font-weight-500" onClick={() => deleteDataRef.current?.close()}>
-                          Avbryt
-                        </button>
-                        <button type="button" className="color-purewhite red font-weight-500" onClick={deleteHistoricalData}> 
-                          Ta bort extern datakälla
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </dialog>
-              </>
-              : null}
-            */}
-
+ 
       <form
         ref={setFormRef}
         onSubmit={handleSubmit}
@@ -598,9 +534,6 @@ export default function HistoricalData({
                 <HistoricalDataGraph
                   goal={goal}
                   historicalData={tableContent?.values ?? []}
-                  secondaryGoal={null}
-                  parentGoal={null}
-                  parentGoalRoadmap={null}
                   effects={goal.effects}
                 />
 

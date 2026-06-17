@@ -315,7 +315,7 @@ export function AdminPanel(
 
   const formContent = {
     goalId: (object as Goal).id,
-    timestamp: timestamp, // Only needed for edits
+    timestamp: timestamp, // Only needed for edits 
 
     name: undefined,
     description: undefined,
@@ -384,7 +384,7 @@ export function AdminPanel(
                 </button>
                   : null}
                 <nav className="display-contents">
-                  {links.historicalDataLink ?
+                  {links.historicalDataLink ? // TODO: Clean up css and translations below
                     <>
                       <button
                         type="button"
@@ -395,7 +395,7 @@ export function AdminPanel(
                         <span>{t("components:table_menu.historical_data")}</span>
                         <IconChartHistogram aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                       </button>
-
+                    
                       <div
                         popover='auto'
                         id='historical-data-popover'
@@ -456,7 +456,7 @@ export function AdminPanel(
                                   className='dialog-body'
                                   onSubmit={(e: React.SubmitEvent) => {
                                     e.preventDefault();
-                                    
+
                                     const updatedForm = {
                                       ...formContent,
                                       historicalId: null,

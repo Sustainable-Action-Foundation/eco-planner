@@ -1,12 +1,12 @@
 "use client";
 
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
-import type { Goal, Roadmap } from "@/types";
+import type { Goal } from "@/types";
 import { calculatePredictedOutcome } from "@/components/graph/functions/graphFunctions";
 import { useTranslation } from "react-i18next";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import { color_palette, stroke, marker } from "../config";
-import type { ApexAxisChartSeries, ApexYAxis } from "apexcharts";
+import type { ApexAxisChartSeries } from "apexcharts";
 
 // TODO: IT seems we want translations in our name, e.g (${t("common:goal_one")}), to be specifically in the label instead if possible. 
 // This would make dealing with y-axis "series name" more sensible
@@ -14,16 +14,10 @@ import type { ApexAxisChartSeries, ApexYAxis } from "apexcharts";
 export default function HistoricalDataGraph({
   goal,
   historicalData,
-  secondaryGoal,
-  parentGoal,
-  parentGoalRoadmap,
   effects,
 }: {
   goal: Goal,
   historicalData: { period: string; value: string; }[],
-  secondaryGoal: Goal | null,
-  parentGoal: Goal | null,
-  parentGoalRoadmap: Roadmap | null,
   effects: Goal["effects"],
 }) {
   const { t } = useTranslation("graphs");
@@ -52,8 +46,9 @@ export default function HistoricalDataGraph({
     .sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime());
 
   const historicalEntries = historicalData
-    ? Object.entries( historicalData.map(({ period, value }) => ({ date: period, value })),
-     ).sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime())
+    ? historicalData
+      .map(({ period, value }) => [new Date(period).getTime(), Number(value)] as [number, number])
+      .sort((a, b) => a[0] - b[0])
     : [];
 
   const lastMainEntry = sortedMainEntries.at(-1);
@@ -95,7 +90,6 @@ export default function HistoricalDataGraph({
           `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
           t("graphs:common.baseline_scenario"),
           t("graphs:common.expected_outcome"),
-          (secondaryGoal?.dataSeries?.unit === goal.dataSeries.unit) ? (secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0] : "",
         ],
       },
     ],
@@ -115,10 +109,10 @@ export default function HistoricalDataGraph({
     type: 'line',
   });
 
-  const historicalSeries = historicalData.map((dataPoint) => ({
-    x: dataPoint.period,
-    y: dataPoint.value,
-  }));;
+  const historicalSeries = historicalEntries.map(([timestamp, value]) => ({
+    x: timestamp,
+    y: value,
+  }));
 
   mainChart.push({
     name: 'TRANSLATION HERE !!!!!',
@@ -191,48 +185,6 @@ export default function HistoricalDataGraph({
         opacities.push(color_palette.expected.fillOpacity);
       }
     }
-  }
-
-  if (secondaryGoal?.dataSeries) {
-    const secondaryDateValues = dataSeriesToDateValues(secondaryGoal.dataSeries);
-    const secondarySeries = seriesFromDateValues(secondaryDateValues.dateValues);
-    mainChart.push({
-      name: secondaryGoal.name || secondaryGoal.indicatorParameter,
-      data: secondarySeries,
-      type: 'line',
-    });
-    // Place secondary and main series on different scales if they don't share the same unit
-    // TODO: Use mathjs to see if the units are the same, rather than just comparing strings
-    if (secondaryGoal.dataSeries.unit !== goal.dataSeries.unit) {
-      (mainChartOptions.yaxis as ApexYAxis[]).push({
-        title: { text: `${t("graphs:main_graph.secondary_goal", { unit: secondaryGoal.dataSeries.unit })}` },
-        labels: { formatter: graphNumberFormatter },
-        seriesName: [(secondaryGoal.name || secondaryGoal.indicatorParameter).split('\\').slice(-1)[0]],
-        opposite: true,
-      });
-    }
-
-    colors.push(color_palette.secondaryGoal.color);
-    opacities.push(color_palette.secondaryGoal.fillOpacity);
-  }
-
-  if (parentGoal?.dataSeries) {
-    const parentDateValues = dataSeriesToDateValues(parentGoal.dataSeries);
-    const nationalSeries = seriesFromDateValues(parentDateValues.dateValues);
-    mainChart.push({
-      name: t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name || "" }),
-      data: nationalSeries,
-      type: 'line',
-    });
-    (mainChartOptions.yaxis as ApexYAxis[]).push({
-      title: { text: t("graphs:main_graph.national_goal") },
-      labels: { formatter: graphNumberFormatter },
-      seriesName: [t("graphs:common.parent_counterpart", { parent: parentGoalRoadmap?.metaRoadmap.name || "" })],
-      opposite: true,
-    });
-
-    colors.push(color_palette.parentGoal.color);
-    opacities.push(color_palette.parentGoal.fillOpacity);
   }
 
   return (
