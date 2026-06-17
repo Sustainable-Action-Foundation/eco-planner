@@ -329,7 +329,7 @@ export const actionInclusionSelection = {
 export const effectInclusionSelection = {
   dataSeries: { include: dataSeriesInclusionSelection },
   action: {
-    include: actionInclusionSelection,
+    include: actionInclusionSelection, // TODO: make select instead to not leak stuff hihi
   },
   goal: {
     include: goalInclusionSelection,
