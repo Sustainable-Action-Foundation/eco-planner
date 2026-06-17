@@ -118,6 +118,7 @@
     "search_for_table": "Sök efter tabell",
     "select_metric": "Välj mätvärde",
     "select_metric_for_table": "Välj mätvärde för tabell",
+    "select_metric_for_values": "Välj ett mätvärde för att se värden",
     "select_source": "Välj datakälla",
     "select_source_for_metric": "Välj en datakälla för att se mätvärden",
     "select_source_for_table": "Välj en datakälla för att se tabeller",

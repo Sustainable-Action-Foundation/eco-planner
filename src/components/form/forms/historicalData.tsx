@@ -50,6 +50,7 @@ export default function HistoricalData({
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
   const [table, setTable] = useState<{ tableId: string, label: string } | null>(historicalSource?.tableId ? { label: tables?.find(t => t.tableId === historicalSource.tableId)?.label ?? historicalSource.tableId, tableId: historicalSource.tableId } : null);
   const [metric, setMetric] = useState<string | null>(() => historicalSelection[0]?.valueCodes?.[0] ?? null);
+  const [startPeriod, setStartPeriod] = useState<string | undefined>(undefined);
 
   const [tableDetails, setTableDetails] = useState<ApiTableDetails | null>(null);
   const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
@@ -216,6 +217,7 @@ export default function HistoricalData({
     }
   }
 
+  // TODO: this does not change table content values. Should it ?
   function timeVariableSelectionHelper(times: (TrafaVariable | PxWebTimeVariable)[], language?: string) {
     if (
       (dataSource === "Trafa" && !(times.length === 1 && times[0].name === "ar")) ||
@@ -242,7 +244,10 @@ export default function HistoricalData({
             name="time"
             id="time"
             value={times?.length === 1 ? times[0].label : undefined}
-            onChange={() => tryGetResult()}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+              tryGetResult();
+              setStartPeriod(e.target.value);
+            }}
           >
             <option value="" className={`font-style-italic color-gray`}>{defaultValue}</option>
             {times.map(time => (
@@ -355,7 +360,7 @@ export default function HistoricalData({
         </fieldset>
         : visibleForm === 'external' ? (
       */}
- 
+
       <form
         ref={setFormRef}
         onSubmit={handleSubmit}
@@ -397,7 +402,7 @@ export default function HistoricalData({
             </select>
           </label>
           <label htmlFor="externalTableId">{t("components:query_builder.table")}</label>
-          <SelectSingleSearch // TODO: Deal with width
+          <SelectSingleSearch 
             props={{
               className: 'margin-top-25 margin-bottom-100',
               id: 'externalTableId',
@@ -421,7 +426,6 @@ export default function HistoricalData({
 
         {/* TODO - which inputs should be optional? */}
         <fieldset
-          // disabled={goal.externalDataset && goal.externalTableId ? true : false} 
           className={`${styles.timeLineFieldset} width-100 margin-top-200 min-width-0`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
           >
@@ -444,51 +448,63 @@ export default function HistoricalData({
               </select>
             </label>
           ) : (
-            <p>{t("components:query_builder.select_source_for_metric")}</p>
+            <p className="margin-0 margin-bottom-100">
+              {t("components:query_builder.select_source_for_metric")}
+            </p>
           )}
         </fieldset>
 
         <fieldset
-          // disabled={goal.externalDataset && goal.externalTableId && goal.externalSelection ? true : false}
           name="variableSelectionFieldset"
           className={`${styles.timeLineFieldset} width-100 margin-top-200 min-width-0`}
-        > {/* Figure out disabled for this form */}
+        >
           <legend
-            // Technically incrementing here is unused but if you add a another entry after this one it will be correct
             // eslint-disable-next-line no-useless-assignment
             data-position={positionIndex++}
             className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
           >
             {t("components:query_builder.select_values_for_table")}
           </legend>
-          {tableDetails &&
+
+          {tableDetails && metric ? (
             shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? (
-            <div>
-              {tableDetails.times ? timeVariableSelectionHelper(tableDetails.times, tableDetails.language) : null
-              }
-              {tableDetails.variables.map(variable => {
-                return variableSelectionHelper(variable, tableDetails);
-              })}
-              {tableDetails.hierarchies?.map(hierarchy => {
-                if (hierarchy.children?.some(variable => variable.option)) return (
-                  <div key={hierarchy.name}>
-                    <div className="font-weight-bold">{hierarchy.label}</div>
-                    <div className="block margin-block-75 margin-left-75">
-                      {hierarchy.children?.map(variable => {
-                        return variableSelectionHelper(variable, tableDetails);
-                      })}
+              <div>
+                {tableDetails.times
+                  ? timeVariableSelectionHelper(tableDetails.times, tableDetails.language)
+                  : null}
+
+                {tableDetails.variables.map(variable =>
+                  variableSelectionHelper(variable, tableDetails),
+                )}
+
+                {tableDetails.hierarchies?.map(hierarchy => {
+                  if (!hierarchy.children?.some(variable => variable.option)) return null;
+                  return (
+                    <div key={hierarchy.name}>
+                      <div className="font-weight-bold">{hierarchy.label}</div>
+                      <div className="block margin-block-75 margin-left-75">
+                        {hierarchy.children?.map(variable =>
+                          variableSelectionHelper(variable, tableDetails),
+                        )}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="font-style-italic color-gray margin-0 margin-bottom-100">
+                {t("components:query_builder.no_variables_found")}
+              </p>
+            )
           ) : (
-            <p className={`font-style-italic color-gray`}>{t("components:query_builder.no_variables_found")}</p> /* TODO: Text should be made clearer, e.g "no variables exist for this table..."" */
+            <p className="margin-0 margin-bottom-100">
+              {t("components:query_builder.select_metric_for_values")}
+            </p>
           )}
         </fieldset>
 
-        <section className="block padding-bottom-100 position-relative min-width-0">
-          <h2>{t("components:query_builder.preview_values")}</h2>
+        <section className="block padding-bottom-100 position-relative min-width-0 margin-top-200">
+          <h2 className="padding-block-125">{t("components:query_builder.preview_values")}</h2>
           {tableContent && tableContent.values.length > 0 ? (
             <TabList
               defaultIndex={0}
@@ -510,14 +526,14 @@ export default function HistoricalData({
                   </thead>
                   <tbody>
                     {
-                      tableContent.values.map(({ period, value }) => {
-                        return (
-                           <tr key={period}>
+                      tableContent.values
+                        .filter(({ period }) => !startPeriod || period >= startPeriod)
+                        .map(({ period, value }) => (
+                          <tr key={period}>
                             <td>{period}</td>
                             <td>{value}</td>
                           </tr>
-                        );
-                      })
+                        ))
                     }
                   </tbody>
                 </table>
@@ -533,7 +549,7 @@ export default function HistoricalData({
               >
                 <HistoricalDataGraph
                   goal={goal}
-                  historicalData={tableContent?.values ?? []}
+                  historicalData={tableContent?.values.filter(({ period }) => !startPeriod || period >= startPeriod) ?? []}
                   effects={goal.effects}
                 />
 
