@@ -4,14 +4,13 @@ import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import styles from './comboBox.module.css' with { type: "css" };
 import type { InputElement, Option } from "@/components/types";
-import { clearEditableCombobox, handleKeyDownCombobox, handleKeyDownEditableCombobox, scrollOptionIntoView } from "./functions";
+import { clearEditableCombobox, handleKeyDownCombobox, navigateSingleSelectListbox, scrollOptionIntoView } from "./functions";
 import type { IFuseOptions } from "fuse.js";
 import Fuse from "fuse.js";
 import { IconSearch } from "@tabler/icons-react";
 
 // TODO: Should allow for options with same values? Or we should check that they are unique?
 // TODO: Show selected value inside the button, same goes for selectMultiple
-// TODO: Fix anchor stuff for tree select and multiselect
 
 export default function SelectSingleSearch({
   props,
@@ -30,6 +29,13 @@ export default function SelectSingleSearch({
 
   // TODO: We probably need a check that default value exists in our options
   const [value, setValue] = useState<Option | null>(null);
+  const [menuOpen, setMenuOpen] = useState<boolean>(false);
+  const [focusedListboxOption, setFocusedListboxOption] = useState<number | null>(null);
+  const [searchValue, setSearchValue] = useState<string>('');
+  const [selectionMade, setSelectionMade] = useState(false); // TODO: Rename to something better
+  const toggleRef = useRef<HTMLInputElement>(null); // TODO: Rename?
+  const searchRef = useRef<HTMLInputElement>(null);
+  const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
 
   // Syncs default value to value
   // NOTE: Might want to explore if we can make this a controlled component (i.e Move state ownership to its parent) (would mean treating value and defaultvalue as any other standard input does)
@@ -59,14 +65,6 @@ export default function SelectSingleSearch({
 
   }, [defaultValue, options]);
 
-  const [menuOpen, setMenuOpen] = useState<boolean>(false);
-  const [focusedListboxOption, setFocusedListboxOption] = useState<number | null>(null);
-  const [searchValue, setSearchValue] = useState<string>('');
-  const [selectionMade, setSelectionMade] = useState(false); // TODO: Rename to something better
-  const toggleRef = useRef<HTMLInputElement>(null); // TODO: Rename?
-  const searchRef = useRef<HTMLInputElement>(null);
-  const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
-
   const fuse = useMemo(() => new Fuse(options, {
     keys: ['name'],
     ...(fuseOptions ?? {}),
@@ -88,13 +86,18 @@ export default function SelectSingleSearch({
       menuOpen,
     );
 
-    if (!menuOpen) { // Reset focus to selected value when closing menu
+    // Set focus to first element if there is no other focus when opening the menu
+    if (menuOpen && focusedListboxOption === null) {
+      setFocusedListboxOption(0);
+    }
+
+    if (!menuOpen) { // Resets focus to selected value when closing menu
       const selectedIndex = value
-        ? options.findIndex(opt => opt.value === value.value)
+        ? options.findIndex(option => option.value === value.value)
         : -1;
       setFocusedListboxOption(selectedIndex !== -1 ? selectedIndex : null);
     }
-  }, [menuOpen, value, options]);
+  }, [menuOpen, value, options, focusedListboxOption]);
 
   useEffect(() => {
     scrollOptionIntoView(optionRefs.current, focusedListboxOption);
@@ -125,7 +128,6 @@ export default function SelectSingleSearch({
           handleKeyDownCombobox(
             e,
             searchResults,
-            menuOpen,
             setMenuOpen,
             focusedListboxOption,
             setFocusedListboxOption,
@@ -168,18 +170,17 @@ export default function SelectSingleSearch({
             onChange={(e) => setSearchValue(e.target.value)}
             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
               if (!toggleRef.current) return;
-              handleKeyDownEditableCombobox(
-                e,
+              navigateSingleSelectListbox(
                 toggleRef.current,
-                menuOpen,
-                setMenuOpen,
+                e,
                 searchResults,
                 focusedListboxOption,
                 setFocusedListboxOption,
+                menuOpen,
+                setMenuOpen,
                 (selectedOption) => {
                   setValue(selectedOption?.value !== value?.value ? selectedOption : null);
                   setSelectionMade(true);
-                  setMenuOpen(false);
                   toggleRef.current?.focus();
                   if (onChange) onChange(selectedOption?.value !== value?.value ? selectedOption : null);
                 },

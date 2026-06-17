@@ -1,5 +1,6 @@
 import type { Option, TreeItem } from "@/components/types";
-
+// TODO: Blurring should select focused element
+// TODO: For whatever reason you cannot refresh the page when focusing the comboboxes (except for the editable one)? 
 /**
 See for implementation details:
 - https://www.w3.org/WAI/ARIA/apg/patterns/combobox/,
@@ -8,96 +9,142 @@ See for implementation details:
 export const handleKeyDownCombobox = (
   event: React.KeyboardEvent<HTMLInputElement>,
   options: Array<Option | TreeItem>,
-  popupElementDisplayed: boolean,
   setPopupElementDisplayed: React.Dispatch<React.SetStateAction<boolean>>,
   focusedIndex: number | null,
   setFocusedIndex: React.Dispatch<React.SetStateAction<number | null>>,
 ) => {
   const key = event.key;
-  // TODO: If we have a value, alt + down should auto select that value,
-  // TODO: If we have a value, down should go down one from that value
-  // TODO: If we don't have a value, we focus the top option
-  // TODO: The same should go for arrowUp 
+
+  if (["ArrowDown", "ArrowUp", "Enter", " ", "Home", "End"].includes(event.key)) {
+    event.preventDefault();
+    setPopupElementDisplayed(true);
+  }
+
   switch (key) {
     case "ArrowDown": {
-      event.preventDefault();
-
-      if (event.altKey) {
-        setPopupElementDisplayed(true);
-        break;
-      }
-
-      if (!popupElementDisplayed) {
-        setPopupElementDisplayed(true);
-
-        if (focusedIndex === null) {
-          setFocusedIndex(0);
-        } else {
-          setFocusedIndex(
-            focusedIndex === options.length - 1
-              ? 0
-              : focusedIndex + 1,
-          );
-        }
-      }
-
+      if (focusedIndex === null || event.altKey) return;
+      setFocusedIndex(
+        focusedIndex === options.length - 1
+          ? 0
+          : focusedIndex + 1,
+      );
       break;
     }
 
     case "ArrowUp": {
-      event.preventDefault();
- 
-      if (!popupElementDisplayed) {
-        setPopupElementDisplayed(true);
-        if (focusedIndex === null) {
-          setFocusedIndex(options.length - 1);
-        } else {
-          setFocusedIndex(
-            focusedIndex === 0
-              ? options.length - 1
-              : focusedIndex + 1,
-          );
-        }
-      }
-
+      if (focusedIndex === null) return;
+      setFocusedIndex(
+        focusedIndex === 0
+          ? options.length - 1
+          : focusedIndex - 1,
+      );
       break;
     }
 
     case "Enter":
     case " ": {
-      event.preventDefault();
-      setPopupElementDisplayed(!popupElementDisplayed);
-
       break;
     }
 
     case "Home": {
-      event.preventDefault();
-      if (!popupElementDisplayed) {
-        setPopupElementDisplayed(true);
-        setFocusedIndex(0);
-      }
-
+      setFocusedIndex(0);
       break;
     }
 
     case "End": {
-      event.preventDefault();
-      if (!popupElementDisplayed) {
-        setPopupElementDisplayed(true);
-        setFocusedIndex(options.length - 1);
-      }
-
+      setFocusedIndex(options.length - 1);
       break;
     }
 
+    case "Tab": {
+      break; // Normal behaviour
+    }
+
     default: {
-      if (event.key !== 'Tab') event.preventDefault(); // Prevent typing in the field
+      event.preventDefault(); // Prevent typing in the field
       // If the combobox is not editable, optionally moves focus to a value that starts with the typed characters.    
       break;
     }
   }
 };
+
+
+/*
+- Enter: Accepts the focused option in the listbox by closing the popup, placing the accepted value in the combobox, and if the combobox is editable, placing the input cursor at the end of the value.
+✓ Escape: Closes the popup and returns focus to the combobox. Optionally, if the combobox is editable, clears the contents of the combobox.
+✓ Down Arrow: Moves focus to and selects the next option. If focus is on the last option, either returns focus to the combobox or does nothing.
+✓ Up Arrow: Moves focus to and selects the previous option. If focus is on the first option, either returns focus to the combobox or does nothing.
+✓ Right Arrow: If the combobox is editable, returns focus to the combobox without closing the popup and moves the input cursor one character to the right. If the input cursor is on the right-most character, the cursor does not move.
+✓ Left Arrow: If the combobox is editable, returns focus to the combobox without closing the popup and moves the input cursor one character to the left. If the input cursor is on the left-most character, the cursor does not move.
+✓ Home (Optional): Either moves focus to and selects the first option or, if the combobox is editable, returns focus to the combobox and places the cursor on the first character.
+✓ End (Optional): Either moves focus to the last option or, if the combobox is editable, returns focus to the combobox and places the cursor after the last character.
+
+*/
+
+export const navigateSingleSelectListbox = (
+  combobox: HTMLInputElement,
+  event: React.KeyboardEvent<HTMLInputElement>,
+  options: Array<Option | TreeItem>,
+  focusedIndex: number | null,
+  setFocusedIndex: React.Dispatch<React.SetStateAction<number | null>>,
+  popupElementDisplayed: boolean,
+  setPopupElementDisplayed: React.Dispatch<React.SetStateAction<boolean>>,
+  onEnter: (selectedOption: { name: string, value: string } | null, index: number | null) => void,
+) => {
+  // For now we assume all listboxes are in popups triggered by the previous `handleKeyDownCombobox` function 
+  if (!popupElementDisplayed || focusedIndex === null || !setPopupElementDisplayed) return;
+
+  const key = event.key;
+
+  switch (key) {
+
+    case "Enter": { // TODO: Maybe make a separate function for "selectSingleSelectListbox" and then another for multiselect?
+      event.preventDefault();
+      const selectedOption = options[focusedIndex];
+      onEnter(selectedOption, focusedIndex);
+      setPopupElementDisplayed(false);
+      break;
+    }
+
+    case "Escape": {
+      event.preventDefault();
+      combobox.focus();
+      setPopupElementDisplayed(false);
+      break;
+    }
+
+    case "ArrowDown": {
+      event.preventDefault();
+      if (focusedIndex === options.length - 1) break;
+      setFocusedIndex(focusedIndex + 1);
+      break;
+    }
+
+    case "ArrowUp": {
+      event.preventDefault();
+      if (focusedIndex === 0) break;
+      setFocusedIndex(focusedIndex - 1);
+      break;
+    }
+
+    case "Home": {
+      event.preventDefault();
+      setFocusedIndex(0);
+      break;
+    }
+
+    case "End": {
+      event.preventDefault();
+      setFocusedIndex(options.length - 1);
+      break;
+    }
+
+    default: {
+      break;
+    }
+  }
+};
+
 
 export const handleKeyDownTreeCombobox = (
   e: React.KeyboardEvent<HTMLInputElement | HTMLButtonElement>,

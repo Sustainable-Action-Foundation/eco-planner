@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import styles from './comboBox.module.css' with { type: "css" };
 import type { InputElement, Option } from "@/components/types";
-import { clearEditableCombobox, handleKeyDownEditableCombobox, scrollOptionIntoView } from "./functions";
+import { clearEditableCombobox, handleKeyDownCombobox, handleKeyDownEditableCombobox, scrollOptionIntoView } from "./functions";
 import type { IFuseOptions } from "fuse.js";
 import Fuse from "fuse.js";
 import { IconSearch } from "@tabler/icons-react";
@@ -79,10 +79,17 @@ export default function SelectMultipleSearch({
         disabled={props.disabled}
         value={value.map((value) => value.value).toString()}
         ref={toggleRef}
-        onChange={() => {}}
+        onChange={() => { }}
         onClick={() => { setMenuOpen(!menuOpen); }}
         onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-          if (e.key !== 'Tab') e.preventDefault(); // Prevent typing
+          if (!toggleRef.current) return;
+          handleKeyDownCombobox(
+            e,
+            searchResults,
+            setMenuOpen,
+            focusedListboxOption,
+            setFocusedListboxOption,
+          );
         }}
         onPaste={(e) => e.preventDefault()} // Prevent pasting
         onDrop={(e) => e.preventDefault()} // Prevent copying
