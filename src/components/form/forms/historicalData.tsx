@@ -291,10 +291,7 @@ export default function HistoricalData({
       variables: [externalVariable],
     });
 
-    // Update the goal with the new historical recipe. The server fetches the
-    // external data into the goal's `historical` DataSeries, keeping the
-    // selection editable.
-    formSubmitter("/api/goal", JSON.stringify({
+    formSubmitter("/api/goal/historical", JSON.stringify({
       goalId: goal.id,
       historicalRecipe: recipe.serialize(),
       historicalRecipeId: goal.historical?.recipeUsed?.id ?? undefined,

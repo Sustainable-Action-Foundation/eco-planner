@@ -304,6 +304,31 @@ export type GoalUpdateInput = {
   links: { url: string, description?: string | null }[] | null | undefined;
 };
 
+/**
+ * The data needed to write (create or update) a goal's historical data through
+ * the dedicated `/api/goal/historical` endpoint. The external API selection
+ * lives in the recipe; the server fetches it into the goal's `historical`
+ * DataSeries on save.
+ */
+export type HistoricalUpdateInput = {
+  // Required to find the goal whose historical data is being written
+  goalId: string;
+  // Stale data check; from Date.now() i.e. milliseconds since epoch
+  timestamp: number;
+
+  historicalRecipe: SerializedRecipe;
+  // Existing historical recipe id, reused so the equation stays stable across edits
+  historicalRecipeId: string | null | undefined;
+};
+
+/** The data needed to clear a goal's historical data through `/api/goal/historical`. */
+export type HistoricalDeleteInput = {
+  // Required to find the goal whose historical data is being cleared
+  goalId: string;
+  // Stale data check; from Date.now() i.e. milliseconds since epoch
+  timestamp: number;
+};
+
 /** The format of the data needed to create a new action. */
 export type ActionInput = {
   actionId: string | null | undefined;
