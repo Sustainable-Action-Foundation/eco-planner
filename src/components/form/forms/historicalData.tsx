@@ -93,8 +93,8 @@ export default function HistoricalData({
       getTableContent(table ? table.tableId : "", dataSource, query, lang).then(result => {
         setTableContent(result);
         // setIsLoading(false);
-      }).catch((e: unknown) => {
-        const errorMessage = e instanceof Error ? e.message : String(e);
+      }).catch((err: unknown) => {
+        const errorMessage = err instanceof Error ? err.message : String(err);
         console.error("Error fetching table content:", errorMessage);
         setTableContent(null);
         // setIsLoading(false);

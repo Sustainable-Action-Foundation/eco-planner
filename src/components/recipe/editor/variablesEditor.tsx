@@ -65,8 +65,8 @@ export function VariablesEditor({
       }
     }
 
-    fetchRoadmaps().catch((e: unknown) => {
-      const errorMessage = e instanceof Error ? e.message : String(e);
+    fetchRoadmaps().catch((err: unknown) => {
+      const errorMessage = err instanceof Error ? err.message : String(err);
       console.error("Failed to fetch roadmaps", errorMessage);
     });
   }, [t]);

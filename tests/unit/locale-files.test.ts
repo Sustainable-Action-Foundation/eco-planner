@@ -292,7 +292,7 @@ test("Orphan keys in root of namespace files", () => {
         throw new Error("Not an object");
       }
     }
-    catch (err: unknown) {
+    catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       perLocale[locale] ??= [];
       perLocale[locale].push(`[Invalid JSON] > '${namespace}.json': ${errorMessage}`);
@@ -639,7 +639,7 @@ function getAllJSONFlattened(): Record<string, Record<string, string>> {
       );
       perLocale[locale] = { ...perLocale[locale], ...prefixed };
     }
-    catch (err: unknown) {
+    catch (err) {
       console.warn(`Failed to read or parse JSON file for locale '${locale}' and namespace '${namespace}':`, err);
       throw err;
     }

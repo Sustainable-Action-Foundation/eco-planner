@@ -156,8 +156,8 @@ export default function GoalForm({
       try {
         dataSeriesRecipe = Recipe.deserialize(resultingRecipeString);
       }
-      catch (e) {
-        addToast(`${t("forms:goal.errors.failed_parse_recipe")} ${e instanceof Error ? e.message : String(e)}`, "error", false);
+      catch (err) {
+        addToast(`${t("forms:goal.errors.failed_parse_recipe")} ${err instanceof Error ? err.message : String(err)}`, "error", false);
         event.target.reportValidity();
         return;
       }
@@ -176,8 +176,8 @@ export default function GoalForm({
       dataSeries = JSON.parse(resultingDateValuesString) as DateValuesWithUnit;
       // Prefer the explicit unit field, but keep the recipe's evaluated unit when it's empty.
       dataSeries.unit = (formData.get("dataUnit") as string | null) || dataSeries.unit;
-    } catch (e) {
-      addToast(`${t("forms:goal.errors.failed_parse_date_values")} ${e instanceof Error ? e.message : String(e)}`, "error", false);
+    } catch (err) {
+      addToast(`${t("forms:goal.errors.failed_parse_date_values")} ${err instanceof Error ? err.message : String(err)}`, "error", false);
       event.target.reportValidity();
       return;
     }
@@ -199,8 +199,9 @@ export default function GoalForm({
       if (baselineString) {
         try {
           baseline = JSON.parse(baselineString) as DateValuesWithUnit;
-        } catch (e) {
-          addToast(`${t("forms:goal.errors.failed_parse_baseline")} ${e instanceof Error ? e.message : String(e)}`, "error", false);
+        }
+        catch (err) {
+          addToast(`${t("forms:goal.errors.failed_parse_baseline")} ${err instanceof Error ? err.message : String(err)}`, "error", false);
           event.target.reportValidity();
           return;
         }

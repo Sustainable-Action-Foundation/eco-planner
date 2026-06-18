@@ -73,9 +73,9 @@ export function RecipeContextProvider({
       const cached = cache.get(key);
       if (cached) return cached;
 
-      const request = getTableContent(tableId, dataset, selection).catch((error: unknown) => {
+      const request = getTableContent(tableId, dataset, selection).catch((err: unknown) => {
         cache.delete(key); // Don't cache failures, so a later attempt can retry.
-        throw error;
+        throw err;
       });
       cache.set(key, request);
       return request;
@@ -177,8 +177,8 @@ export function RecipeContextProvider({
       recipeWithUpdatedEquation.equation = nextEquation;
       return recipeWithUpdatedEquation;
     })
-      .catch((e: unknown) => {
-        const errorMessage = e instanceof Error ? e.message : String(e);
+      .catch((err: unknown) => {
+        const errorMessage = err instanceof Error ? err.message : String(err);
         console.error("Failed to update equation:", errorMessage);
         setError(errorMessage);
       });
@@ -220,8 +220,8 @@ export function RecipeContextProvider({
         : [...candidateRecipe.variables, { ...nextVariable, template: false }];
       return candidateRecipe;
     })
-      .catch((e: unknown) => {
-        const errorMessage = e instanceof Error ? e.message : String(e);
+      .catch((err: unknown) => {
+        const errorMessage = err instanceof Error ? err.message : String(err);
         console.error(`Failed to upsert variable "${variableId}":`, errorMessage);
         setError(errorMessage);
       });
@@ -242,8 +242,8 @@ export function RecipeContextProvider({
       candidateRecipe.variables = nextVars.map(v => ({ ...v, template: false }));
       return candidateRecipe;
     })
-      .catch((e: unknown) => {
-        const errorMessage = e instanceof Error ? e.message : String(e);
+      .catch((err: unknown) => {
+        const errorMessage = err instanceof Error ? err.message : String(err);
         console.error("Failed to replace variables:", errorMessage);
         setError(errorMessage);
       });
@@ -274,10 +274,10 @@ export function RecipeContextProvider({
         setWarnings(warnings);
         setError(null);
       })
-      .catch((e: unknown) => {
+      .catch((err: unknown) => {
         if (!isEffectActive) return;
 
-        const errorMessage = e instanceof Error ? e.message : String(e);
+        const errorMessage = err instanceof Error ? err.message : String(err);
         console.warn("Failed to evaluate recipe:", errorMessage);
 
         setResultingDataSeries(null);

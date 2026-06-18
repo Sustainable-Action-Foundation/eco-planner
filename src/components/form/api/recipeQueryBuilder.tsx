@@ -80,8 +80,8 @@ export default function RecipeQueryBuilder({
 
     getTables(dataSource, query, lang)
       .then(result => { setTables(result); setOffset(0); })
-      .catch((e: unknown) => {
-        const errorMessage = e instanceof Error ? e.message : String(e);
+      .catch((err: unknown) => {
+        const errorMessage = err instanceof Error ? err.message : String(err);
         console.error("Error fetching tables:", errorMessage);
         setTables(null);
       })
@@ -97,8 +97,8 @@ export default function RecipeQueryBuilder({
     hasAppliedInitialTableSelectionRef.current = true;
     getTableDetails(initialTableId, dataSource, undefined, lang)
       .then(result => { setTableDetails(result); })
-      .catch((e: unknown) => {
-        const errorMessage = e instanceof Error ? e.message : String(e);
+      .catch((err: unknown) => {
+        const errorMessage = err instanceof Error ? err.message : String(err);
         console.error("Error fetching initial table details:", errorMessage);
         setTableDetails(null);
       })
@@ -149,8 +149,8 @@ export default function RecipeQueryBuilder({
     setIsLoading(true);
     getTables(dataSource, query, lang)
       .then(result => { setTables(result); setOffset(0); })
-      .catch((e: unknown) => {
-        const errorMessage = e instanceof Error ? e.message : String(e);
+      .catch((err: unknown) => {
+        const errorMessage = err instanceof Error ? err.message : String(err);
         console.error("Error fetching tables:", errorMessage);
         setTables(null);
       })
@@ -185,8 +185,8 @@ export default function RecipeQueryBuilder({
 
     getTableDetails(tableId, dataSource, undefined, lang)
       .then(result => { setTableDetails(result); })
-      .catch((e: unknown) => {
-        const errorMessage = e instanceof Error ? e.message : String(e);
+      .catch((err: unknown) => {
+        const errorMessage = err instanceof Error ? err.message : String(err);
         console.error("Error fetching table details:", errorMessage);
         setTableDetails(null);
       })
@@ -215,8 +215,8 @@ export default function RecipeQueryBuilder({
           if (dataSource === "Trafa") {
             getTableDetails(tableDetails?.id ?? "", dataSource, undefined, lang)
               .then(result => { setTableDetails(result); })
-              .catch((e: unknown) => {
-                const errorMessage = e instanceof Error ? e.message : String(e);
+              .catch((err: unknown) => {
+                const errorMessage = err instanceof Error ? err.message : String(err);
                 console.error("Error resetting table details:", errorMessage);
               })
               .finally(() => setIsLoading(false));
@@ -390,8 +390,8 @@ export default function RecipeQueryBuilder({
     getTableContent(tableId, dataSource, query, lang).then(result => {
       setTableContent(result);
       setIsLoading(false);
-    }).catch((e: unknown) => {
-      const errorMessage = e instanceof Error ? e.message : String(e);
+    }).catch((err: unknown) => {
+      const errorMessage = err instanceof Error ? err.message : String(err);
       console.error("Error fetching table content:", errorMessage);
       setTableContent(null);
       setIsLoading(false);
@@ -401,8 +401,8 @@ export default function RecipeQueryBuilder({
       if (event?.target instanceof HTMLSelectElement && event.target.name === "metric") {
         getTableDetails(tableId, dataSource, query.filter(q => q.variableCode === "metric"), lang)
           .then(result => { setTableDetails(result); })
-          .catch((e: unknown) => {
-            const errorMessage = e instanceof Error ? e.message : String(e);
+          .catch((err: unknown) => {
+            const errorMessage = err instanceof Error ? err.message : String(err);
             console.error("Error fetching metric-filtered table details:", errorMessage);
           });
       }

@@ -174,7 +174,7 @@ export async function POST(request: NextRequest) {
       { status: 201, headers: { 'Location': `/roadmap/create?metaRoadmapId=${newMetaRoadmap.id}` } },
     );
   }
-  catch (err: unknown) {
+  catch (err) {
     console.log(err);
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
       return Response.json({ message: t('api:metaRoadmap.failed_record_connection') },

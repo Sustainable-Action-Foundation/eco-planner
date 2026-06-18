@@ -14,7 +14,7 @@ async function loginHelper(page: Page, username: string, password: string) {
   await page.locator("#submit-button").click();
 
   // Logout button replaces the login button in the sidebar when logged in
-  await expect(page.getByTestId("logout-button")).toBeVisible({ timeout: 2500});
+  await expect(page.getByTestId("logout-button")).toBeVisible({ timeout: 2500 });
 }
 
 setup('authenticate as admin', async ({ page }) => {
@@ -28,7 +28,8 @@ setup('authenticate as admin', async ({ page }) => {
     if (existsSync(adminFile)) {
       console.info('admin.json size=', readFileSync(adminFile, 'utf8').length);
     }
-  } catch (err: unknown) {
+  }
+  catch (err) {
     console.error('Failed to save admin storageState:', err);
     throw err;
   }
@@ -45,7 +46,7 @@ setup('authenticate as verified user', async ({ page }) => {
     if (existsSync(verifiedFile)) {
       console.info('verified.json size=', readFileSync(verifiedFile, 'utf8').length);
     }
-  } catch (err: unknown) {
+  } catch (err) {
     console.error('Failed to save verified storageState:', err);
     throw err;
   }

@@ -58,8 +58,9 @@ export default function EffectForm({
       dataSeries = JSON.parse(resultingDateValuesString) as DateValuesWithUnit;
       dataSeries.unit = undefined;
       // dataSeries.unit = formData.get("dataUnit") as string | null;
-    } catch (e) {
-      console.error("Failed to parse resulting date values from form:", e);
+    }
+    catch (err) {
+      console.error("Failed to parse resulting date values from form:", err);
       event.target.reportValidity();
       return;
     }
@@ -108,91 +109,91 @@ export default function EffectForm({
 
   return (
     <form onSubmit={handleSubmit}>
-        <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
+      <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
-        <ActionSelector
-          action={action ?? currentEffect?.action ?? null}
-          roadmaps={roadmaps}
-        />
-        <GoalSelector
-          goal={goal ?? currentEffect?.goal ?? null}
-          roadmaps={roadmaps}
-        />
+      <ActionSelector
+        action={action ?? currentEffect?.action ?? null}
+        roadmaps={roadmaps}
+      />
+      <GoalSelector
+        goal={goal ?? currentEffect?.goal ?? null}
+        roadmaps={roadmaps}
+      />
 
-        <DataSeriesInputManual
-          id="effect-dataseries"
-          label={t("forms:data_series_input.data_series")}
-          initialDateValues={dateValues}
-          outputFormElement={<input name="data-series" />}
-        />
+      <DataSeriesInputManual
+        id="effect-dataseries"
+        label={t("forms:data_series_input.data_series")}
+        initialDateValues={dateValues}
+        outputFormElement={<input name="data-series" />}
+      />
 
-        {(
-          selectedImpactType === ActionImpactType.ABSOLUTE
-          || selectedImpactType === ActionImpactType.DELTA
+      {(
+        selectedImpactType === ActionImpactType.ABSOLUTE
+        || selectedImpactType === ActionImpactType.DELTA
+      )
+        && (
+          <div className="margin-block-100">
+            <button
+              type="button"
+              onClick={() => {
+                if (selectedImpactType === ActionImpactType.ABSOLUTE) {
+                  setSelectedImpactType(ActionImpactType.DELTA);
+                  setDateValues(prev => absoluteToDelta(prev));
+                } else {
+                  setSelectedImpactType(ActionImpactType.ABSOLUTE);
+                  setDateValues(prev => deltaToAbsolute(prev));
+                }
+              }}
+            >
+              {selectedImpactType === ActionImpactType.ABSOLUTE
+                ? t("forms:effect.to_year_by_year")
+                : t("forms:effect.to_absolute")
+              }
+            </button>
+            <br />
+            <small>
+              {selectedImpactType === ActionImpactType.ABSOLUTE
+                ? <Trans
+                  i18nKey="forms:effect.to_year_by_year_info"
+                  components={{ strong: <strong /> }}
+                />
+                : <Trans
+                  i18nKey="forms:effect.to_absolute_info"
+                  components={{ strong: <strong /> }}
+                />
+              }
+            </small>
+          </div>
         )
-          && (
-            <div className="margin-block-100">
-              <button
-                type="button"
-                onClick={() => {
-                  if (selectedImpactType === ActionImpactType.ABSOLUTE) {
-                    setSelectedImpactType(ActionImpactType.DELTA);
-                    setDateValues(prev => absoluteToDelta(prev));
-                  } else {
-                    setSelectedImpactType(ActionImpactType.ABSOLUTE);
-                    setDateValues(prev => deltaToAbsolute(prev));
-                  }
-                }}
-              >
-                {selectedImpactType === ActionImpactType.ABSOLUTE
-                  ? t("forms:effect.to_year_by_year")
-                  : t("forms:effect.to_absolute")
-                }
-              </button>
-              <br />
-              <small>
-                {selectedImpactType === ActionImpactType.ABSOLUTE
-                  ? <Trans
-                    i18nKey="forms:effect.to_year_by_year_info"
-                    components={{ strong: <strong /> }}
-                  />
-                  : <Trans
-                    i18nKey="forms:effect.to_absolute_info"
-                    components={{ strong: <strong /> }}
-                  />
-                }
-              </small>
-            </div>
-          )
-        }
+      }
 
-        {/* TODO: Show preview of how it would affect the goal */}
-        <label>
-          {t("forms:effect.impact_type_label")}
-          <select className="block margin-top-25 margin-bottom-100 width-100" name="impactType" id="impactType" required={true}
-            value={selectedImpactType}
-            onChange={(event) => setSelectedImpactType(event.target.value as ActionImpactType)}
-          >
-            <option value={ActionImpactType.ABSOLUTE}>{t("forms:effect.impact_types.absolute")}</option>
-            <option value={ActionImpactType.DELTA}>{t("forms:effect.impact_types.delta")}</option>
-            <option value={ActionImpactType.PERCENT}>{t("forms:effect.impact_types.percent")}</option>
-          </select>
-        </label>
+      {/* TODO: Show preview of how it would affect the goal */}
+      <label>
+        {t("forms:effect.impact_type_label")}
+        <select className="block margin-top-25 margin-bottom-100 width-100" name="impactType" id="impactType" required={true}
+          value={selectedImpactType}
+          onChange={(event) => setSelectedImpactType(event.target.value as ActionImpactType)}
+        >
+          <option value={ActionImpactType.ABSOLUTE}>{t("forms:effect.impact_types.absolute")}</option>
+          <option value={ActionImpactType.DELTA}>{t("forms:effect.impact_types.delta")}</option>
+          <option value={ActionImpactType.PERCENT}>{t("forms:effect.impact_types.percent")}</option>
+        </select>
+      </label>
 
-        <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
-          <button
-            className="text-align-center seagreen color-purewhite width-100"
-            style={{ fontSize: '14px', transform: 'none' }}
-            type="submit"
-            id="submit-button"
-          >
-            {currentEffect
-              ? t("common:tsx.save")
-              : t("forms:effect.create")
-            }
-          </button>
-        </div>
+      <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
+        <button
+          className="text-align-center seagreen color-purewhite width-100"
+          style={{ fontSize: '14px', transform: 'none' }}
+          type="submit"
+          id="submit-button"
+        >
+          {currentEffect
+            ? t("common:tsx.save")
+            : t("forms:effect.create")
+          }
+        </button>
+      </div>
 
-      </form>
+    </form>
   );
 }

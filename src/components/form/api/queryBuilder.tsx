@@ -193,8 +193,8 @@ export default function QueryBuilder({
           disableSubmitButton();
         }
         setIsLoading(false);
-      }).catch((e: unknown) => {
-        console.error("Error fetching table content:", e);
+      }).catch((err: unknown) => {
+        console.error("Error fetching table content:", err);
         setTableContent(null);
         disableSubmitButton();
         setIsLoading(false);

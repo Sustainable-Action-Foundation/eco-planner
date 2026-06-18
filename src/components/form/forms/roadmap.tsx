@@ -92,8 +92,8 @@ export default function RoadmapForm({
             return csvToGoalList(csv, () => addToast(t("forms:roadmap.scale_deprecated_extended"), "warning"));
           })
           .then(() => setIsLoading(false))
-          .catch((e: unknown) => {
-            throw new Error(t("forms:roadmap.file_read_error", { error: e instanceof Error ? e.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }));
+          .catch((err: unknown) => {
+            throw new Error(t("forms:roadmap.file_read_error", { error: err instanceof Error ? err.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }));
           });
       }
       catch (error) {

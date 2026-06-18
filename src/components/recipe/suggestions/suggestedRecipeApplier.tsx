@@ -82,8 +82,8 @@ export function SuggestedRecipeApplier({
     }
 
     fetchRoadmaps()
-      .catch((e: unknown) => {
-        const errorMessage = e instanceof Error ? e.message : String(e);
+      .catch((err: unknown) => {
+        const errorMessage = err instanceof Error ? err.message : String(err);
         console.error("Failed to fetch roadmaps", errorMessage);
       });
   }, [t]);
@@ -121,8 +121,8 @@ export function SuggestedRecipeApplier({
     }
 
     applyRecipeUpdate(parsedRecipe)
-      .catch((e: unknown) => {
-        const errorMessage = e instanceof Error ? e.message : String(e);
+      .catch((err: unknown) => {
+        const errorMessage = err instanceof Error ? err.message : String(err);
         console.error("Failed to set recipe from suggestion", errorMessage);
         clearRecipe();
       });

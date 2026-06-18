@@ -20,13 +20,13 @@ export default function ParameterSync({
         const { roadmapLookup } = await getRecipeRoadmapData();
         setRoadmapData(roadmapLookup);
       }
-      catch (e: unknown) {
-        console.error("Failed to fetch roadmap data for parameter sync:", e);
+      catch (err) {
+        console.error("Failed to fetch roadmap data for parameter sync:", err);
       }
     }
 
-    fetchRoadmapData().catch((e: unknown) => {
-      console.error("Unexpected error fetching roadmap data for parameter sync:", e);
+    fetchRoadmapData().catch((err: unknown) => {
+      console.error("Unexpected error fetching roadmap data for parameter sync:", err);
     });
   }, []);
 

@@ -26,7 +26,7 @@ async function generateLeapList() {
       },
     });
   }
-  catch (err: unknown) {
+  catch (err) {
     console.error('Failed to fetch roadmaps for LEAP list generation.', { err });
     return;
   }
@@ -55,7 +55,7 @@ async function generateLeapList() {
     fs.writeFileSync('src/lib/LEAPList.json', JSON.stringify(uniqueLeapList));
     console.info('LEAP list updated');
   }
-  catch (err: unknown) {
+  catch (err) {
     console.warn('Failed to write LEAP list file', { err });
   }
 }

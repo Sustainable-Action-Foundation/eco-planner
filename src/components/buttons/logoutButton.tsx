@@ -31,8 +31,8 @@ export default function LogoutButton({
           } else {
             alert(t("components:logout_button.failed"));
           }
-        }).catch((e: unknown) => {
-          console.error("Logout failed:", e);
+        }).catch((err: unknown) => {
+          console.error("Logout failed:", err);
           alert(t("components:logout_button.failed"));
         });
       }}>
