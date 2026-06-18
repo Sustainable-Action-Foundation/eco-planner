@@ -37,8 +37,8 @@ async function getCachedMetaRoadmaps(user: LoginData['user']) {
         include: metaRoadmapInclusionSelection,
       });
     }
-    catch (error) {
-      console.error("Error fetching meta roadmaps for admin user", { error });
+    catch (err) {
+      console.error("Error fetching meta roadmaps for admin user", { err });
       return [];
     }
 
@@ -80,8 +80,8 @@ async function getCachedMetaRoadmaps(user: LoginData['user']) {
         },
       });
     }
-    catch (error) {
-      console.error(`Error fetching meta roadmaps for user ${user.id}`, { error });
+    catch (err) {
+      console.error(`Error fetching meta roadmaps for user ${user.id}`, { err });
       return [];
     }
 
@@ -108,8 +108,8 @@ async function getCachedMetaRoadmaps(user: LoginData['user']) {
       },
     });
   }
-  catch (error) {
-    console.error("Error fetching public meta roadmaps", { error });
+  catch (err) {
+    console.error("Error fetching public meta roadmaps", { err });
     return [];
   }
 

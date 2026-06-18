@@ -50,8 +50,8 @@ async function getCachedGoal(roadmapId: string, indicatorParameter: string, unit
         include: goalInclusionSelection,
       });
     }
-    catch (error) {
-      console.error(`Error fetching goal with indicatorParameter ${indicatorParameter} and unit ${unit} for roadmap ${roadmapId}`, { error });
+    catch (err) {
+      console.error(`Error fetching goal with indicatorParameter ${indicatorParameter} and unit ${unit} for roadmap ${roadmapId}`, { err });
       return null;
     }
 
@@ -82,8 +82,8 @@ async function getCachedGoal(roadmapId: string, indicatorParameter: string, unit
         include: goalInclusionSelection,
       });
     }
-    catch (error) {
-      console.error(`Error fetching goal with indicatorParameter ${indicatorParameter} and unit ${unit} for roadmap ${roadmapId} and user ${user.id}`, { error });
+    catch (err) {
+      console.error(`Error fetching goal with indicatorParameter ${indicatorParameter} and unit ${unit} for roadmap ${roadmapId} and user ${user.id}`, { err });
       return null;
     }
 
@@ -105,9 +105,9 @@ async function getCachedGoal(roadmapId: string, indicatorParameter: string, unit
       },
       include: goalInclusionSelection,
     });
-  } 
-  catch (error) {
-    console.error(`Error fetching goal with indicatorParameter ${indicatorParameter} and unit ${unit} for roadmap ${roadmapId} for public user`, { error });
+  }
+  catch (err) {
+    console.error(`Error fetching goal with indicatorParameter ${indicatorParameter} and unit ${unit} for roadmap ${roadmapId} for public user`, { err });
     return null;
   }
 

@@ -36,8 +36,8 @@ async function getCachedNames(user: LoginData['user']) {
         select: nameSelector,
       });
     }
-    catch (error) {
-      console.error(`Error fetching names for admin user ${user.id}`, { error });
+    catch (err) {
+      console.error(`Error fetching names for admin user ${user.id}`, { err });
       return [];
     }
 
@@ -68,8 +68,8 @@ async function getCachedNames(user: LoginData['user']) {
         select: nameSelector,
       });
     }
-    catch (error) {
-      console.error(`Error fetching names for user ${user.id}`, { error });
+    catch (err) {
+      console.error(`Error fetching names for user ${user.id}`, { err });
       return [];
     }
 
@@ -88,8 +88,8 @@ async function getCachedNames(user: LoginData['user']) {
       select: nameSelector,
     });
   }
-   catch (error) {
-    console.error("Error fetching names for public user", { error });
+  catch (err) {
+    console.error("Error fetching names for public user", { err });
     return [];
   }
 

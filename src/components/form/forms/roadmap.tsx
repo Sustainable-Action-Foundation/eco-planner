@@ -96,8 +96,8 @@ export default function RoadmapForm({
             throw new Error(t("forms:roadmap.file_read_error", { error: err instanceof Error ? err.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }));
           });
       }
-      catch (error) {
-        addToast(t("forms:roadmap.file_read_error", { error: error instanceof Error ? error.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }), "error");
+      catch (err) {
+        addToast(t("forms:roadmap.file_read_error", { error: err instanceof Error ? err.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }), "error");
         setIsLoading(false);
         return;
       }
@@ -120,9 +120,9 @@ export default function RoadmapForm({
       try {
         goals = csvToGoalList(parseCsv(await currentFile.arrayBuffer().then((buffer) => { return buffer; })), () => addToast(t("forms:roadmap.scale_deprecated"), "warning"));
       }
-      catch (error) {
+      catch (err) {
         setIsLoading(false);
-        addToast(t("forms:roadmap.roadmap_version_creation_error", { error: error instanceof Error ? error.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }), "error");
+        addToast(t("forms:roadmap.roadmap_version_creation_error", { error: err instanceof Error ? err.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }), "error");
         return;
       }
     }

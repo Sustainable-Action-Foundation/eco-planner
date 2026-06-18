@@ -34,8 +34,8 @@ async function clientSafeGetCachedGoal(id: string, user: LoginData['user']): Pro
         select: clientSafeGoalSelection,
       }) satisfies ClientGoal | null;
     }
-    catch (error) {
-      console.error("Error fetching admin goal", { error });
+    catch (err) {
+      console.error("Error fetching admin goal", { error: err });
       return null;
     }
 
@@ -62,8 +62,8 @@ async function clientSafeGetCachedGoal(id: string, user: LoginData['user']): Pro
         select: clientSafeGoalSelection,
       }) satisfies ClientGoal | null;
     }
-    catch (error) {
-      console.error("Error fetching user goal", { error });
+    catch (err) {
+      console.error("Error fetching user goal", { error: err });
       return null;
     }
 
@@ -79,8 +79,9 @@ async function clientSafeGetCachedGoal(id: string, user: LoginData['user']): Pro
       },
       select: clientSafeGoalSelection,
     }) satisfies ClientGoal | null;
-  } catch (error) {
-    console.error("Error fetching public goal", { error });
+  }
+  catch (err) {
+    console.error("Error fetching public goal", { error: err });
     return null;
   }
 

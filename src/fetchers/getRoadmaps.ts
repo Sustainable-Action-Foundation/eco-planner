@@ -37,8 +37,8 @@ async function getCachedRoadmaps(user: LoginData['user'], roadmapIds?: string[])
         include: multiRoadmapInclusionSelection,
       }) satisfies MultiRoadmapInstance[];
     }
-    catch (error) {
-      console.error("Error fetching admin roadmaps", { error });
+    catch (err) {
+      console.error("Error fetching admin roadmaps", { err });
       return [];
     }
 
@@ -67,8 +67,8 @@ async function getCachedRoadmaps(user: LoginData['user'], roadmapIds?: string[])
         include: multiRoadmapInclusionSelection,
       }) satisfies MultiRoadmapInstance[];
     }
-    catch (error) {
-      console.error("Error fetching user roadmaps", { error });
+    catch (err) {
+      console.error("Error fetching user roadmaps", { err });
       return [];
     }
 
@@ -88,8 +88,8 @@ async function getCachedRoadmaps(user: LoginData['user'], roadmapIds?: string[])
       include: multiRoadmapInclusionSelection,
     }) satisfies MultiRoadmapInstance[];
   }
-  catch (error) {
-    console.error("Error fetching public roadmaps", { error });
+  catch (err) {
+    console.error("Error fetching public roadmaps", { err });
     return [];
   }
 

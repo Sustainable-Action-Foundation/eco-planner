@@ -41,8 +41,8 @@ async function getCachedRecipe(id: string, user: LoginData['user']): Promise<DBR
         return null;
       }
     }
-    catch (error) {
-      console.error("Error fetching recipe as admin", { error });
+    catch (err) {
+      console.error("Error fetching recipe as admin", { err });
       return null;
     }
 
@@ -97,8 +97,8 @@ async function getCachedRecipe(id: string, user: LoginData['user']): Promise<DBR
         return null;
       }
     }
-    catch (error) {
-      console.error("Error fetching recipe as user", { error });
+    catch (err) {
+      console.error("Error fetching recipe as user", { err });
       return null;
     }
 
@@ -145,8 +145,8 @@ async function getCachedRecipe(id: string, user: LoginData['user']): Promise<DBR
       return null;
     }
   }
-  catch (error) {
-    console.error("Error fetching public recipe", { error });
+  catch (err) {
+    console.error("Error fetching public recipe", { err });
     return null;
   }
 

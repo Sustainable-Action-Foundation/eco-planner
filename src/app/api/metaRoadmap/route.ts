@@ -90,9 +90,10 @@ export async function POST(request: NextRequest) {
         throw new Error(ClientError.IllegalParent, { cause: 'meta roadmap' });
       }
     }
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === ClientError.BadSession) {
+  }
+  catch (err) {
+    if (err instanceof Error) {
+      if (err.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
@@ -104,7 +105,7 @@ export async function POST(request: NextRequest) {
       );
     } else {
       // If non-error is thrown, log it and return a generic error message
-      console.error(error);
+      console.error(err);
       return Response.json({ message: t('api:common.unknown_server_error') },
         { status: 500 },
       );
@@ -277,21 +278,22 @@ export async function PUT(request: NextRequest) {
     if (!metaRoadmap.timestamp || (currentRoadmap?.updatedAt?.getTime() ?? 0) > metaRoadmap.timestamp) {
       throw new Error(ClientError.StaleData, { cause: 'meta roadmap' });
     }
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === ClientError.BadSession) {
+  }
+  catch (err) {
+    if (err instanceof Error) {
+      if (err.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } },
         );
       }
-      if (error.message === ClientError.StaleData) {
+      if (err.message === ClientError.StaleData) {
         return Response.json({ message: ClientError.StaleData },
           { status: 409 },
         );
       }
-      if (error.message === ClientError.IllegalParent) {
+      if (err.message === ClientError.IllegalParent) {
         return Response.json({ message: ClientError.IllegalParent },
           { status: 403 },
         );
@@ -302,7 +304,7 @@ export async function PUT(request: NextRequest) {
     }
     // If non-error is thrown, log it and return a generic error message
     else {
-      console.error(error);
+      console.error(err);
       return Response.json({ message: t('api:common.unknown_server_error') },
         { status: 500 },
       );
@@ -374,9 +376,10 @@ export async function PUT(request: NextRequest) {
     return Response.json({ message: t('api:metaRoadmap.meta_roadmap_updated'), id: updatedMetaRoadmap.id },
       { status: 200, headers: { 'Location': `/metaRoadmap/${updatedMetaRoadmap.id}` } },
     );
-  } catch (error) {
-    console.error(error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+  }
+  catch (err) {
+    console.error(err);
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
       return Response.json({ message: t('api:metaRoadmap.failed_record_connection') },
         { status: 400 },
       );
@@ -435,9 +438,10 @@ export async function DELETE(request: NextRequest) {
     if (!currentMetaRoadmap) {
       throw new Error(ClientError.AccessDenied, { cause: 'meta roadmap' });
     }
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === ClientError.BadSession) {
+  }
+  catch (err) {
+    if (err instanceof Error) {
+      if (err.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
@@ -448,7 +452,7 @@ export async function DELETE(request: NextRequest) {
         { status: 403 },
       );
     } else {
-      console.error(error);
+      console.error(err);
       return Response.json({ message: t('api:common.unknown_server_error') },
         { status: 500 },
       );
@@ -473,8 +477,9 @@ export async function DELETE(request: NextRequest) {
     return Response.json({ message: t('api:metaRoadmap.meta_roadmap_deleted'), id: deletedMetaRoadmap.id },
       { status: 200, headers: { 'Location': `/` } },
     );
-  } catch (error) {
-    console.error(error);
+  }
+  catch (err) {
+    console.error(err);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );

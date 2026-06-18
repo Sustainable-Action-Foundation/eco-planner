@@ -38,8 +38,9 @@ async function getCachedRoadmap(id: string, user: LoginData['user']) {
         where: { id },
         include: roadmapInclusionSelection,
       }) satisfies Roadmap | null;
-    } catch (error) {
-      console.error(`Error fetching admin roadmap with ID ${id}:`, { error });
+    }
+    catch (err) {
+      console.error(`Error fetching admin roadmap with ID ${id}:`, { err });
       return null;
     }
 
@@ -65,8 +66,9 @@ async function getCachedRoadmap(id: string, user: LoginData['user']) {
         },
         include: roadmapInclusionSelection,
       }) satisfies Roadmap | null;
-    } catch (error) {
-      console.error(`Error fetching roadmap with ID ${id} for user ${user.id}:`, { error });
+    }
+    catch (err) {
+      console.error(`Error fetching roadmap with ID ${id} for user ${user.id}:`, { err });
       return null;
     }
 
@@ -84,8 +86,9 @@ async function getCachedRoadmap(id: string, user: LoginData['user']) {
       },
       include: roadmapInclusionSelection,
     }) satisfies Roadmap | null;
-  } catch (error) {
-    console.error(`Error fetching public roadmap with ID ${id}:`, { error });
+  }
+  catch (err) {
+    console.error(`Error fetching public roadmap with ID ${id}:`, { err });
     return null;
   }
 

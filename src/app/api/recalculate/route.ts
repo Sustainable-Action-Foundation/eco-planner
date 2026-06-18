@@ -174,25 +174,26 @@ export async function POST(request: NextRequest) {
     return Response.json({ message: "Data series updated", id: updatedDataSeries.id },
       { status: 200 },
     );
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === ClientError.BadSession) {
+  }
+  catch (err) {
+    if (err instanceof Error) {
+      if (err.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } },
         );
-      } else if (error.message === ClientError.AccessDenied) {
+      } else if (err.message === ClientError.AccessDenied) {
         return Response.json({ message: ClientError.AccessDenied },
           { status: 403 },
         );
-      } else if (error instanceof RecipeError) {
-        return Response.json({ message: error.message },
+      } else if (err instanceof RecipeError) {
+        return Response.json({ message: err.message },
           { status: 500 },
         );
       }
     }
-    console.error(error);
+    console.error(err);
     return Response.json({ message: "Internal server error" },
       { status: 500 },
     );

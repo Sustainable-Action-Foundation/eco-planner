@@ -71,8 +71,8 @@ export async function POST(request: NextRequest) {
   try {
     await mailClient.verify();
   }
-  catch (error) {
-    console.error(error);
+  catch (err) {
+    console.error(err);
     return Response.json({ message: 'Problem connecting to email service; User not created since server is misconfigured. Please try again later' },
       { status: 500 },
     );
@@ -97,8 +97,9 @@ export async function POST(request: NextRequest) {
         },
       },
     });
-  } catch (error) {
-    console.error(error);
+  }
+  catch (err) {
+    console.error(err);
     return Response.json({ message: 'Error creating user' },
       { status: 500 },
     );

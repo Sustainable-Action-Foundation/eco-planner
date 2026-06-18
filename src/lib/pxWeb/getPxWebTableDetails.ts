@@ -29,8 +29,8 @@ export default async function getPxWebTableDetails(tableId: string, externalData
       return null;
     }
   }
-  catch (error) {
-    console.error("Error fetching table details from PxWeb API", { error });
+  catch (err) {
+    console.error("Error fetching table details from PxWeb API", { err });
     return null;
   }
 

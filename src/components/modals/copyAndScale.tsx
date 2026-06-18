@@ -46,9 +46,9 @@ export default function CopyAndScale({
 
       resultingDataSeries = parsedDataSeries;
     }
-    catch (error) {
+    catch (err) {
       setIsLoading(false);
-      console.error("Failed to parse resulting data series:", { error });
+      console.error("Failed to parse resulting data series:", { error: err });
       return;
     }
 
@@ -64,9 +64,9 @@ export default function CopyAndScale({
         throw new Error("Parsed data series unit is not a string or null");
       }
     }
-    catch (error) {
+    catch (err) {
       setIsLoading(false);
-      console.error("Failed to parse resulting data series unit:", { error });
+      console.error("Failed to parse resulting data series unit:", { error: err });
       return;
     }
 
@@ -85,9 +85,9 @@ export default function CopyAndScale({
         throw new Error("Failed to parse recipe from form data");
       }
     }
-    catch (error) {
+    catch (err) {
       setIsLoading(false);
-      console.error("Failed to parse recipe:", { error });
+      console.error("Failed to parse recipe:", { error: err });
       return;
     }
 

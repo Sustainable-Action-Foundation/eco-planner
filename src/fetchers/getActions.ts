@@ -36,8 +36,8 @@ async function getCachedActions(user: LoginData['user']) {
         include: actionInclusionSelection,
       });
     }
-    catch (error) {
-      console.error("Error fetching admin actions", { error });
+    catch (err) {
+      console.error("Error fetching admin actions", { err });
       return null;
     }
 
@@ -63,8 +63,8 @@ async function getCachedActions(user: LoginData['user']) {
         include: actionInclusionSelection,
       });
     }
-    catch (error) {
-      console.error("Error fetching user actions", { error });
+    catch (err) {
+      console.error("Error fetching user actions", { err });
       return null;
     }
 
@@ -80,8 +80,8 @@ async function getCachedActions(user: LoginData['user']) {
       include: actionInclusionSelection,
     });
   }
-  catch (error) {
-    console.error("Error fetching public actions", { error });
+  catch (err) {
+    console.error("Error fetching public actions", { err });
     return null;
   }
 

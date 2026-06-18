@@ -38,8 +38,8 @@ async function getCachedAction(id: string, user: LoginData['user']): Promise<Act
         include: actionInclusionSelection,
       }) satisfies Action | null;
     }
-    catch (error) {
-      console.error(`Error fetching action with id ${id} for admin user`, { error });
+    catch (err) {
+      console.error(`Error fetching action with id ${id} for admin user`, { err });
       return null;
     }
 
@@ -66,8 +66,8 @@ async function getCachedAction(id: string, user: LoginData['user']): Promise<Act
         include: actionInclusionSelection,
       }) satisfies Action | null;
     }
-    catch (error) {
-      console.error(`Error fetching action with id ${id} for user ${user.id}`, { error });
+    catch (err) {
+      console.error(`Error fetching action with id ${id} for user ${user.id}`, { err });
       return null;
     }
 
@@ -84,8 +84,8 @@ async function getCachedAction(id: string, user: LoginData['user']): Promise<Act
       include: actionInclusionSelection,
     }) satisfies Action | null;
   }
-  catch (error) {
-    console.error(`Error fetching action with id ${id} for public user`, { error });
+  catch (err) {
+    console.error(`Error fetching action with id ${id} for public user`, { err });
     return null;
   }
 

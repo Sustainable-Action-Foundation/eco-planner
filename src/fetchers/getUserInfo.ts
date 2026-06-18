@@ -42,8 +42,8 @@ async function getCachedUserInfo(username: string, activeUser: LoginData['user']
 
       return fetchedUser;
     }
-    catch (error) {
-      console.error("Error fetching user info for admin", { error });
+    catch (err) {
+      console.error("Error fetching user info for admin", { err });
       return null;
     }
   }
@@ -105,8 +105,8 @@ async function getCachedUserInfo(username: string, activeUser: LoginData['user']
 
       return fetchedUser;
     }
-    catch (error) {
-      console.error("Error fetching user info for logged in user", { error });
+    catch (err) {
+      console.error("Error fetching user info for logged in user", { err });
       return null;
     }
   }
@@ -146,8 +146,8 @@ async function getCachedUserInfo(username: string, activeUser: LoginData['user']
 
     return fetchedUser;
   }
-  catch (error) {
-    console.error("Error fetching user info for public user", { error });
+  catch (err) {
+    console.error("Error fetching user info for public user", { err });
     return null;
   }
 };

@@ -32,8 +32,8 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
       return null;
     }
   }
-  catch (error) {
-    console.error("Error fetching table structure from Trafa API", { error });
+  catch (err) {
+    console.error("Error fetching table structure from Trafa API", { err });
     return null;
   }
 
@@ -107,8 +107,8 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
           try {
             returnItem.children.push(structureItemToTrafaTableDetailItem(item, item.Type) as TrafaVariable);
           }
-          catch (error) {
-            console.warn(`This hierarchy has a child that is not a variable, which is not supported.\nChild type: ${item.Type}\nHierarchy: ${returnItem.label} (${tableId} - ${structureItem.Label})`, { error });
+          catch (err) {
+            console.warn(`This hierarchy has a child that is not a variable, which is not supported.\nChild type: ${item.Type}\nHierarchy: ${returnItem.label} (${tableId} - ${structureItem.Label})`, { err });
           }
         }
       });
@@ -119,8 +119,8 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
           try {
             returnItem.values.push((structureItemToTrafaTableDetailItem(item, item.Type) as TrafaVariable | TrafaVariableValue | TrafaFilter));
           }
-          catch (error) {
-            console.warn(`This variable has a child that is not a variable value or filter, which is not supported.\nChild type: ${item.Type}\nVariable: ${returnItem.label} (${tableId} - ${structureItem.Label})`, { error });
+          catch (err) {
+            console.warn(`This variable has a child that is not a variable value or filter, which is not supported.\nChild type: ${item.Type}\nVariable: ${returnItem.label} (${tableId} - ${structureItem.Label})`, { err });
           }
         }
       });
@@ -150,8 +150,8 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
         tableDetails.times.push((pushItem as TrafaVariable));
       }
     }
-    catch (error) {
-      console.warn(`This structure item has a type that is not supported and will be skipped.\nItem type: ${item.Type}\nItem data type: ${item.DataType}\nItem label: ${item.Label}\nTable ID: ${tableId}`, { error });
+    catch (err) {
+      console.warn(`This structure item has a type that is not supported and will be skipped.\nItem type: ${item.Type}\nItem data type: ${item.DataType}\nItem label: ${item.Label}\nTable ID: ${tableId}`, { err });
     }
   });
 

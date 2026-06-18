@@ -38,8 +38,8 @@ async function getCachedEffect(actionId: string, goalId: string, user: LoginData
         include: effectInclusionSelection,
       }) satisfies Effect | null;
     }
-    catch (error) {
-      console.error(`Error fetching effect with actionId ${actionId} and goalId ${goalId} for admin user ${user.id}:`, { error });
+    catch (err) {
+      console.error(`Error fetching effect with actionId ${actionId} and goalId ${goalId} for admin user ${user.id}:`, { err });
       return null;
     }
 
@@ -80,8 +80,8 @@ async function getCachedEffect(actionId: string, goalId: string, user: LoginData
         include: effectInclusionSelection,
       }) satisfies Effect | null;
     }
-    catch (error) {
-      console.error(`Error fetching effect with actionId ${actionId} and goalId ${goalId} for user ${user.id}:`, { error });
+    catch (err) {
+      console.error(`Error fetching effect with actionId ${actionId} and goalId ${goalId} for user ${user.id}:`, { err });
       return null;
     }
 
@@ -99,8 +99,8 @@ async function getCachedEffect(actionId: string, goalId: string, user: LoginData
       include: effectInclusionSelection,
     }) satisfies Effect | null;
   }
-  catch (error) {
-    console.error(`Error fetching effect with actionId ${actionId} and goalId ${goalId} for public user:`, { error });
+  catch (err) {
+    console.error(`Error fetching effect with actionId ${actionId} and goalId ${goalId} for public user:`, { err });
     return null;
   }
 

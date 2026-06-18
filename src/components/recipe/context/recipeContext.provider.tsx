@@ -327,7 +327,7 @@ export function RecipeContextProvider({
         const dump = () => {
           const serializeSafe = (recipe: Recipe) => {
             try { return recipe.serialize(); }
-            catch (e) { return `<<serialize error: ${e instanceof Error ? e.message : String(e)}>>`; }
+            catch (err) { return `<<serialize error: ${err instanceof Error ? err.message : String(err)}>>`; }
           };
           // Read the canonical ref here (event handler) and include it in the dump.
           const canonical = canonicalRecipeRef.current;

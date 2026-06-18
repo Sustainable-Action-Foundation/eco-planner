@@ -33,8 +33,8 @@ async function getCachedClientSafeRoadmaps(user: LoginData['user']): Promise<Cli
         select: clientSafeMultiRoadmapSelection,
       }) satisfies ClientMultiRoadmapInstance[];
     }
-    catch (error) {
-      console.error("Error fetching admin roadmaps", { error });
+    catch (err) {
+      console.error("Error fetching admin roadmaps", { err });
       return [];
     }
 
@@ -62,8 +62,8 @@ async function getCachedClientSafeRoadmaps(user: LoginData['user']): Promise<Cli
         select: clientSafeMultiRoadmapSelection,
       }) satisfies ClientMultiRoadmapInstance[];
     }
-    catch (error) {
-      console.error("Error fetching user roadmaps", { error });
+    catch (err) {
+      console.error("Error fetching user roadmaps", { err });
       return [];
     }
 
@@ -82,8 +82,8 @@ async function getCachedClientSafeRoadmaps(user: LoginData['user']): Promise<Cli
       select: clientSafeMultiRoadmapSelection,
     }) satisfies ClientMultiRoadmapInstance[];
   }
-  catch (error) {
-    console.error("Error fetching public roadmaps", { error });
+  catch (err) {
+    console.error("Error fetching public roadmaps", { err });
     return [];
   }
 

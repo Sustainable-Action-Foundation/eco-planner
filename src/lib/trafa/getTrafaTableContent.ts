@@ -38,8 +38,8 @@ export default async function getTrafaTableContent(tableId: string, selection: {
       return null;
     }
   }
-  catch (error) {
-    console.error("Error fetching table content from Trafa API", { error });
+  catch (err) {
+    console.error("Error fetching table content from Trafa API", { err });
     return null;
   }
 

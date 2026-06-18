@@ -83,23 +83,23 @@ export async function POST(request: NextRequest) {
     }
     // TODO: Access checks for goals used in recipe
   }
-  catch (error) {
-    if (error instanceof Error) {
-      if (error.message === ClientError.BadSession) {
+  catch (err) {
+    if (err instanceof Error) {
+      if (err.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } },
         );
       }
-      if (error.message === ClientError.IllegalParent) {
+      if (err.message === ClientError.IllegalParent) {
         return Response.json({ message: ClientError.IllegalParent },
           { status: 403 },
         );
       }
     }
     // If no matching error is thrown, log the error and return a generic error message
-    console.error(error);
+    console.error(err);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );
@@ -119,8 +119,9 @@ export async function POST(request: NextRequest) {
       formData.baselineRecipe ? resolveRecipeExternals(formData.baselineRecipe, formData.baselineRecipeId) : Promise.resolve(null),
       formData.historicalRecipe ? resolveRecipeExternals(formData.historicalRecipe, formData.historicalRecipeId) : Promise.resolve(null),
     ]);
-  } catch (error) {
-    console.error(error);
+  }
+  catch (err) {
+    console.error(err);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );
@@ -215,9 +216,9 @@ export async function POST(request: NextRequest) {
       { status: 201, headers: { 'Location': `/goal/${goalId}` } },
     );
   }
-  catch (error) {
-    console.error(error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+  catch (err) {
+    console.error(err);
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
       return Response.json({ message: t('api:goal.roadmap_not_found') },
         { status: 400 },
       );
@@ -286,33 +287,34 @@ export async function PUT(request: NextRequest) {
     if (!goal.timestamp || currentGoal.updatedAt.getTime() > goal.timestamp) {
       throw new Error(ClientError.StaleData, { cause: 'goal' });
     }
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === ClientError.BadSession) {
+  }
+  catch (err) {
+    if (err instanceof Error) {
+      if (err.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } },
         );
       }
-      if (error.message === ClientError.StaleData) {
+      if (err.message === ClientError.StaleData) {
         return Response.json({ message: ClientError.StaleData },
           { status: 409 },
         );
       }
-      if (error.message === ClientError.IllegalParent) {
+      if (err.message === ClientError.IllegalParent) {
         return Response.json({ message: ClientError.IllegalParent },
           { status: 403 },
         );
       }
-      if (error.message === ClientError.AccessDenied) {
+      if (err.message === ClientError.AccessDenied) {
         return Response.json({ message: ClientError.AccessDenied },
           { status: 403 },
         );
       }
     }
     // If no matching error is thrown, log the error and return a generic error message
-    console.error(error);
+    console.error(err);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );
@@ -333,8 +335,9 @@ export async function PUT(request: NextRequest) {
       goal.baselineRecipe ? resolveRecipeExternals(goal.baselineRecipe, goal.baselineRecipeId) : Promise.resolve(null),
       goal.historicalRecipe ? resolveRecipeExternals(goal.historicalRecipe, goal.historicalRecipeId) : Promise.resolve(null),
     ]);
-  } catch (error) {
-    console.error(error);
+  }
+  catch (err) {
+    console.error(err);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );
@@ -458,8 +461,9 @@ export async function PUT(request: NextRequest) {
     return Response.json({ message: t('api:goal.goal_updated'), id: goalId },
       { status: 200, headers: { 'Location': `/goal/${goalId}` } },
     );
-  } catch (error) {
-    console.error(error);
+  }
+  catch (err) {
+    console.error(err);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );
@@ -521,23 +525,24 @@ export async function DELETE(request: NextRequest) {
     if (!currentGoal) {
       throw new Error(ClientError.AccessDenied, { cause: 'goal' });
     }
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === ClientError.BadSession) {
+  }
+  catch (err) {
+    if (err instanceof Error) {
+      if (err.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } },
         );
       }
-      if (error.message === ClientError.AccessDenied) {
+      if (err.message === ClientError.AccessDenied) {
         return Response.json({ message: ClientError.AccessDenied },
           { status: 403 },
         );
       }
     }
     // If no matching error is thrown, log the error and return a generic error message
-    console.error(error);
+    console.error(err);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );
@@ -564,8 +569,9 @@ export async function DELETE(request: NextRequest) {
       // Redirect to the parent roadmap
       { status: 200, headers: { 'Location': `/roadmap/${deletedGoal.roadmap.id}` } },
     );
-  } catch (error) {
-    console.error(error);
+  }
+  catch (err) {
+    console.error(err);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );

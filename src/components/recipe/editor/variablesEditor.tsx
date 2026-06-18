@@ -60,8 +60,8 @@ export function VariablesEditor({
           }, {} as Record<string, string>),
         );
       }
-      catch (e) {
-        console.error("Failed to fetch roadmaps", e);
+      catch (err) {
+        console.error("Failed to fetch roadmaps", err);
       }
     }
 

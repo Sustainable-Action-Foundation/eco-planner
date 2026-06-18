@@ -40,8 +40,8 @@ async function getCachedGoal(id: string, user: LoginData['user']): Promise<Goal 
         include: goalInclusionSelection,
       }) satisfies Goal | null;
     }
-    catch (error) {
-      console.error("Error fetching admin goal:", { error });
+    catch (err) {
+      console.error("Error fetching admin goal:", { err });
       return null;
     }
 
@@ -70,8 +70,8 @@ async function getCachedGoal(id: string, user: LoginData['user']): Promise<Goal 
         include: goalInclusionSelection,
       }) satisfies Goal | null;
     }
-    catch (error) {
-      console.error("Error fetching user goal:", { error });
+    catch (err) {
+      console.error("Error fetching user goal:", { err });
       return null;
     }
 
@@ -90,8 +90,8 @@ async function getCachedGoal(id: string, user: LoginData['user']): Promise<Goal 
       include: goalInclusionSelection,
     }) satisfies Goal | null;
   }
-  catch (error) {
-    console.error("Error fetching public goal:", { error });
+  catch (err) {
+    console.error("Error fetching public goal:", { err });
     return null;
   }
 

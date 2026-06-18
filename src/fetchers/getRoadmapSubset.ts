@@ -50,8 +50,8 @@ async function getCachedRoadmapSubset(user: LoginData['user'], actor?: string) {
         include: roadmapSubsetSelect,
       });
     }
-    catch (error) {
-      console.error("Error fetching admin roadmaps", { error });
+    catch (err) {
+      console.error("Error fetching admin roadmaps", { err });
       return [];
     }
 
@@ -79,8 +79,8 @@ async function getCachedRoadmapSubset(user: LoginData['user'], actor?: string) {
         include: roadmapSubsetSelect,
       });
     }
-    catch (error) {
-      console.error("Error fetching user roadmaps", { error });
+    catch (err) {
+      console.error("Error fetching user roadmaps", { err });
       return [];
     }
 
@@ -100,8 +100,8 @@ async function getCachedRoadmapSubset(user: LoginData['user'], actor?: string) {
       include: roadmapSubsetSelect,
     });
   }
-  catch (error) {
-    console.error("Error fetching public roadmaps", { error });
+  catch (err) {
+    console.error("Error fetching public roadmaps", { err });
     return [];
   }
 

@@ -131,9 +131,10 @@ export default async function Page(
       if (parentGoalRoadmap) {
         parentGoal = await getGoalByIndicator(parentGoalRoadmap.id, goal.indicatorParameter, goal.dataSeries?.unit);
       }
-    } catch (error) {
+    }
+    catch (err) {
       parentGoal = null;
-      console.error(error);
+      console.error(err);
     }
   }
 
@@ -197,19 +198,19 @@ export default async function Page(
 
         {/* TODO: Incorrect semantics, sections missing a header (not sure if the aria-label is proper). Make this something else? */}
         {shouldUpdate && goal.dataSeries ? <section
-            aria-label={t("pages:goal.update_needed_attention_message")}
-            className="flex justify-content-space-between align-items-center margin-block-300 padding-25 rounded"
-            style={{ border: '1px solid gold', backgroundColor: 'rgba(255, 255, 0, .35)' }}
-          >
-            <div className="flex align-items-center gap-100 margin-left-100">
-              <IconAlertTriangle style={{ minWidth: '24px' }} aria-hidden="true" />
-              <strong className="font-weight-500">{t("pages:goal.update_needed")}</strong>
-            </div>
-            <RecalculateDataSeriesButton
-              label={t("components:update_goal_button.update")}
-              dataSeriesId={goal.dataSeries.id}
-            />
-          </section> : null
+          aria-label={t("pages:goal.update_needed_attention_message")}
+          className="flex justify-content-space-between align-items-center margin-block-300 padding-25 rounded"
+          style={{ border: '1px solid gold', backgroundColor: 'rgba(255, 255, 0, .35)' }}
+        >
+          <div className="flex align-items-center gap-100 margin-left-100">
+            <IconAlertTriangle style={{ minWidth: '24px' }} aria-hidden="true" />
+            <strong className="font-weight-500">{t("pages:goal.update_needed")}</strong>
+          </div>
+          <RecalculateDataSeriesButton
+            label={t("components:update_goal_button.update")}
+            dataSeriesId={goal.dataSeries.id}
+          />
+        </section> : null
         }
 
         <header>
@@ -229,12 +230,12 @@ export default async function Page(
 
         {goal.description ?
           <TextEditor
-              className="margin-top-50"
-              id="rich-description"
-              editable={false}
-              defaultStyles={false}
-              content={goal.description}
-            />
+            className="margin-top-50"
+            id="rich-description"
+            editable={false}
+            defaultStyles={false}
+            content={goal.description}
+          />
           : null}
 
         {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}

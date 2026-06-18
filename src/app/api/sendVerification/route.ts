@@ -31,8 +31,9 @@ export async function POST(request: NextRequest) {
   try {
     // Send verification message
     await mailClient.sendMail(mailContent);
-  } catch (error) {
-    console.error(error);
+  }
+  catch (err) {
+    console.error(err);
     return Response.json({ message: 'Internal server error' }, { status: 500 });
   }
 

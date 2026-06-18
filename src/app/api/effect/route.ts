@@ -109,9 +109,10 @@ export async function POST(request: NextRequest) {
     if (!hasEditAccess(actionAccess) || !hasEditAccess(goalAccess)) {
       throw new Error(ClientError.IllegalParent, { cause: 'effect' });
     }
-  } catch (error) {
-    if (error instanceof Error) {
-      switch (error.message) {
+  }
+  catch (err) {
+    if (err instanceof Error) {
+      switch (err.message) {
         case ClientError.BadSession:
           session.destroy();
           return Response.json({ message: ClientError.BadSession },
@@ -127,7 +128,7 @@ export async function POST(request: NextRequest) {
           );
       }
     } else {
-      console.error(error);
+      console.error(err);
       return Response.json({ message: t('api:common.unknown_error') },
         { status: 500 },
       );
@@ -157,14 +158,15 @@ export async function POST(request: NextRequest) {
     return Response.json({ message: t('api:effect.effect_created'), actionId: newEffect.actionId, goalId: newEffect.goalId },
       { status: 201 },
     );
-  } catch (error) {
+  }
+  catch (err) {
     // Unique constraint error
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
       return Response.json({ message: t('api:effect.effect_already_exists') },
         { status: 409 },
       );
     }
-    console.error(error);
+    console.error(err);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );
@@ -263,9 +265,10 @@ export async function PUT(request: NextRequest) {
     if (currentEffect.updatedAt.getTime() > effect.timestamp) {
       throw new Error(ClientError.StaleData, { cause: 'effect' });
     }
-  } catch (error) {
-    if (error instanceof Error) {
-      switch (error.message) {
+  }
+  catch (err) {
+    if (err instanceof Error) {
+      switch (err.message) {
         case ClientError.BadSession:
           session.destroy();
           return Response.json({ message: ClientError.BadSession },
@@ -285,7 +288,7 @@ export async function PUT(request: NextRequest) {
           );
       }
     } else {
-      console.error(error);
+      console.error(err);
       return Response.json({ message: t('api:common.unknown_error') },
         { status: 500 },
       );
@@ -323,8 +326,9 @@ export async function PUT(request: NextRequest) {
     return Response.json({ message: t('api:effect.effect_updated'), actionId: updatedEffect.actionId, goalId: updatedEffect.goalId },
       { status: 200 },
     );
-  } catch (error) {
-    console.error(error);
+  }
+  catch (err) {
+    console.error(err);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );
@@ -400,9 +404,10 @@ export async function DELETE(request: NextRequest) {
     if (!currentEffect) {
       throw new Error(ClientError.AccessDenied, { cause: 'effect' });
     }
-  } catch (error) {
-    if (error instanceof Error) {
-      switch (error.message) {
+  }
+  catch (err) {
+    if (err instanceof Error) {
+      switch (err.message) {
         case ClientError.BadSession:
           session.destroy();
           return Response.json({ message: ClientError.BadSession },
@@ -418,7 +423,7 @@ export async function DELETE(request: NextRequest) {
           );
       }
     } else {
-      console.error(error);
+      console.error(err);
       return Response.json({ message: t('api:common.unknown_error') },
         { status: 500 },
       );
@@ -437,8 +442,9 @@ export async function DELETE(request: NextRequest) {
     return Response.json({ message: t('api:effect.effect_deleted'), actionId: deletedEffect.actionId, goalId: deletedEffect.goalId },
       { status: 200 },
     );
-  } catch (error) {
-    console.error(error);
+  }
+  catch (err) {
+    console.error(err);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );
