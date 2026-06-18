@@ -5,7 +5,7 @@ import type { JSONValue } from "@/types";
 import type { ApiTableContent } from "../api/apiTypes";
 import { ExternalDataset } from "../api/utility";
 import getPxWebTableDetails from "./getPxWebTableDetails";
-import type { PxWebApiV2TableContent } from "./pxWebApiV2Types";
+import type { PxWebApiV2TableContentJsonPx } from "./pxWebApiV2Types";
 
 export default async function getPxWebTableContent(tableId: string, externalDataset: string, selection: { variableCode: string, valueCodes: string[] }[], language?: string) {
   // Get the base URL for the external dataset, defaulting to SCB
@@ -91,7 +91,7 @@ export default async function getPxWebTableContent(tableId: string, externalData
     return null;
   }
 
-  function pxWebTableContentToApiTableContent(pxWebTableContent: PxWebApiV2TableContent): ApiTableContent | null {
+  function pxWebTableContentToApiTableContent(pxWebTableContent: PxWebApiV2TableContentJsonPx): ApiTableContent | null {
     const resultTable: ApiTableContent = {
       id: tableId,
       values: [],
@@ -144,7 +144,7 @@ export default async function getPxWebTableContent(tableId: string, externalData
   }
 
   if (data instanceof Object && "columns" in data && "data" in data && "metadata" in data) {
-    return pxWebTableContentToApiTableContent(data as PxWebApiV2TableContent);
+    return pxWebTableContentToApiTableContent(data as PxWebApiV2TableContentJsonPx);
   } else {
     return null;
   }

@@ -8,56 +8,58 @@
 import type { JSONValue } from "@/types";
 import type { ApiDetailItemBase } from "../api/apiTypes";
 
+// export type PxWebApiV2TableContentJsonStat2 = {
+
+// };
+
 // USED BY GETPXWEBTABLECONTENT
-export type PxWebApiV2TableContent = {
-  columns: {
-    code: string;
-    text: string;
-    type: "c" | "t" | "d";
-  }[];
+export type PxWebApiV2TableContentJsonPx = {
+  columns: [{
+    code: string; // Variable/dimension name/id
+    text: string; // Label from the dimension/category
+    type: "c" | "t" | "d" | "g"; // "d" for generic dimension, "t" for time dimension, "c" for metric dimension, probably "g" for geo dimension, but no examples found so far
+  }];
   comments: unknown[];
-  data: {
+  data: [{
     key: string[];
     values: string[];
-  }[];
-  metadata: {
-    infofile: string;
+  }];
+  metadata: [{
+    infofile?: string;
     updated: string; // ISO 8601 date string
     label: string;
     source: string;
-  }[];
+  }];
 };
 
 // USED BY GETPXWEBTABLES
 export type PxWebApiV2TableArray = {
   language: string; // ISO 639 language code
-  tables: [
-    {
-      type: "Table";
+  tables: [{
+    type: "Table";
+    id: string;
+    label: string | null;
+    description?: string | null;
+    sortCode?: string;
+    tags?: string[];
+    updated: string | null; // ISO 8601 date string
+    /** Possible format examples: "2024" | "2024K2" | "2024M5" | "2025W18" */
+    firstPeriod: string | null;
+    /** Possible format examples: "2024" | "2024K2" | "2024M5" | "2025W18" */
+    lastPeriod: string | null;
+    category?: "public" | "internal" | "private" | "section";
+    variableNames: string[];
+    discontinued?: boolean | null;
+    source?: string;
+    subjectCode?: string;
+    timeUnit?: "Annual" | "Quarterly" | "Monthly" | "Weekly" | "Other";
+    paths?: [{
       id: string;
-      label: string | null;
-      description?: string | null;
+      label: string;
       sortCode?: string;
-      tags?: string[];
-      updated: string | null; // ISO 8601 date string
-      /** Possible format examples: "2024" | "2024K2" | "2024M5" | "2025W18" */
-      firstPeriod: string | null;
-      /** Possible format examples: "2024" | "2024K2" | "2024M5" | "2025W18" */
-      lastPeriod: string | null;
-      category?: "public" | "internal" | "private" | "section";
-      variableNames: string[];
-      discontinued?: boolean | null;
-      source?: string;
-      subjectCode?: string;
-      timeUnit?: "Annual" | "Quarterly" | "Monthly" | "Weekly" | "Other";
-      paths?: [{
-        id: string;
-        label: string;
-        sortCode?: string;
-      }];
-      links: PxWebApiV2BasicLink[] | null;
-    }
-  ];
+    }];
+    links: PxWebApiV2BasicLink[] | null;
+  }];
   page: {
     pageNumber: number;
     pageSize: number;
@@ -224,6 +226,14 @@ export type PxWebApiV2GeographicalVariable = PxWebApiV2VariableBase & {
     }
   ];
 };
+
+export type PxWebApiV2ErrorResponse = {
+  type?: string;
+  title?: string;
+  status?: number; // HTTP status code, 100 <= status < 600
+  detail?: string;
+  instance?: string;
+}
 
 export type PxWebApiV2TableDetails = {
   version: "2.0"; // Version of the API
