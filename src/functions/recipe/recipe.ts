@@ -3,8 +3,9 @@ import { isISOIshDate } from "@/types";
 import mathjs from "@/math";
 import type { Unit } from "mathjs";
 import type { ApiTableContent } from "@/lib/api/apiTypes";
-import type { ExternalVariable, RecipeExtractionOutput, RecipeVariable, SerializedRecipe, RecipeShape } from "@/functions/recipe";
-import { isEvalTimeVariable, isRecipe, MathjsError, RecipeError, parseDateValuesFromVector, transformDateValuesToVector, ANDMasks, extractDataSeries, extractExternalDatasets, extractScalars, isEvalTimeSeries, RecipeDataTypes } from "@/functions/recipe";
+import type { ExternalSelection, ExternalVariable, RecipeExtractionOutput, RecipeVariable, SerializedRecipe, RecipeShape } from "@/functions/recipe";
+import { isEvalTimeVariable, isRecipe, MathjsError, RecipeError, parseDateValuesFromVector, transformDateValuesToVector, ANDMasks, extractDataSeries, extractExternalDatasets, extractScalars, isEvalTimeSeries, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe";
+import type { DatasetKeys } from "@/lib/api/utility";
 import { sanityCheckDataSeries, sanityCheckExternalDatasets, sanityCheckScalars } from "@/functions/recipe/sanityChecks";
 
 /**
@@ -486,14 +487,53 @@ export class Recipe {
     return obj;
   }
 
-  /** 
+  /**
    * Recipe factory, returns an empty recipe instance.
    */
   public static getEmpty(): Recipe {
     return new Recipe({
-      name: "Empty Recipe",
+      name: "Empty Recipe", // TODO: i18n
       equation: "",
       variables: [],
+    });
+  }
+
+  /**
+   * Recipe factory for an external API data source: a recipe whose single
+   * `External` variable holds the upstream API selection, with an equation that
+   * just reads that variable. On save the server fetches it into a `DataSeries`
+   * (e.g. a goal's `historical` series via `/api/goal/historical`).
+   *
+   * Pass `variableId` (the existing source's variable id) when editing so the
+   * equation stays stable across edits; otherwise a fresh id is generated.
+   */
+  public static fromExternalSource({
+    name,
+    dataset,
+    tableId,
+    selection,
+    variableId = crypto.randomUUID(),
+  }: {
+    name: string;
+    dataset: DatasetKeys | null;
+    tableId: string | null;
+    selection: ExternalSelection;
+    variableId?: string;
+  }): Recipe {
+    const externalVariable: ExternalVariable = {
+      id: variableId,
+      name,
+      type: RecipeDataTypes.External,
+      pick: VectorIndexPickerOptions.Default,
+      unit: undefined,
+      dataset,
+      tableId,
+      selection,
+    };
+    return new Recipe({
+      name,
+      equation: `\${${variableId}}`,
+      variables: [externalVariable],
     });
   }
 

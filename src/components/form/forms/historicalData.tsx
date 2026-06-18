@@ -10,8 +10,7 @@ import { LocaleContext } from "@/lib/i18nClient";
 import type { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
 import type { TrafaVariable } from "@/lib/trafa/trafaTypes";
 import type { Goal } from "@/types";
-import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe";
-import type { ExternalVariable } from "@/functions/recipe";
+import { Recipe } from "@/functions/recipe";
 import { getHistoricalSource } from "@/functions/getHistoricalDataset";
 import type { SubmitEvent } from "react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
@@ -272,23 +271,12 @@ export default function HistoricalData({
     const formData = new FormData(event.target);
     const query = buildQuery(formData);
 
-    // Reuse the existing external variable's id (if any) so the recipe equation
-    // stays stable across edits.
-    const variableId = historicalSource?.id ?? crypto.randomUUID();
-    const externalVariable: ExternalVariable = {
-      id: variableId,
+    const recipe = Recipe.fromExternalSource({
       name: table?.label || dataSource,
-      type: RecipeDataTypes.External,
-      pick: VectorIndexPickerOptions.Default,
-      unit: undefined,
       dataset: dataSource,
       tableId: table?.tableId ?? null,
       selection: query,
-    };
-    const recipe = new Recipe({
-      name: table?.label || dataSource,
-      equation: `\${${variableId}}`,
-      variables: [externalVariable],
+      variableId: historicalSource?.id,
     });
 
     formSubmitter("/api/goal/historical", JSON.stringify({
