@@ -122,8 +122,8 @@ export async function extractDataSeries(
       }
 
       dbDataSeries = await dataSeriesGetter(variable.dataSeriesId)
-        .catch((e: unknown) => {
-          const errorMessage = e instanceof Error ? e.message : String(e);
+        .catch((err: unknown) => {
+          const errorMessage = err instanceof Error ? err.message : String(err);
           throw new RecipeError(`VariableExtractor: Error fetching data series for variable "${variable.name}" with link "${variable.dataSeriesId}": ${errorMessage}`);
         });
     }
@@ -213,8 +213,8 @@ export async function extractExternalDatasets(
         }
 
         const dbDataSeries = await dataSeriesGetter(variable.dataSeriesId)
-          .catch((e: unknown) => {
-            const errorMessage = e instanceof Error ? e.message : String(e);
+          .catch((err: unknown) => {
+            const errorMessage = err instanceof Error ? err.message : String(err);
             throw new RecipeError(`VariableExtractor: Error fetching data series for external variable "${variable.name}" with link "${variable.dataSeriesId}": ${errorMessage}`);
           });
 

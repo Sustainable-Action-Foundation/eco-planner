@@ -25,12 +25,12 @@ export const localeAliases: Record<Locales, string> = {
 export const allNamespaces = ["common", "forms", "components", "graphs", "pages", "email", "metadata", "api"];
 
 const i18nFormatter = createInstance();
-i18nFormatter.init({}).catch((e: unknown) => {
-  if (e instanceof Error) {
-    throw new Error(`i18nFormatter initialization failed: ${e}`);
+i18nFormatter.init({}).catch((err: unknown) => {
+  if (err instanceof Error) {
+    throw new Error(`i18nFormatter initialization failed: ${err}`);
   } else {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    throw new Error(`i18nFormatter initialization failed with non-error-typed error: ${e}`);
+    throw new Error(`i18nFormatter initialization failed with non-error-typed error: ${err}`);
   }
 });
 

@@ -80,7 +80,7 @@ export class Recipe {
         warnings: warnings.length ? warnings : undefined,
       };
     }
-    catch (e) {
+    catch (err) {
       if (warnings.length) {
         console.warn("Warnings encountered during recipe validity check:", warnings);
       }
@@ -92,7 +92,7 @@ export class Recipe {
           "Cannot add a unit to a unitless number.",
       };
 
-      const errorMessage = e instanceof Error ? e.message : String(e);
+      const errorMessage = err instanceof Error ? err.message : String(err);
       const friendlyMessage = errorAliases[errorMessage as keyof typeof errorAliases] ?? errorMessage;
 
       return {
@@ -282,8 +282,8 @@ export class Recipe {
 
       result = normalizeResult(rawResult);
     }
-    catch (e) {
-      throw new MathjsError("Error evaluating recipe equation: " + (e as Error).message);
+    catch (err) {
+      throw new MathjsError("Error evaluating recipe equation: " + (err as Error).message);
     }
 
     if (result instanceof mathjs.Unit) {

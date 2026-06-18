@@ -22,12 +22,12 @@ import { colors } from "../lib/colors.ts";
  * A lot of effects.
  */
 
-prisma.$connect().catch((e: unknown) => {
+prisma.$connect().catch((err: unknown) => {
   console.error(colors.yellow(`
     Could not connect to the database. Ensure DATABASE_URL is set correctly in the .env file.
 
     Error thrown:
-    `), e);
+    `), err);
   process.exit(1);
 });
 
@@ -562,7 +562,7 @@ async function main() {
 
 main().then(async () => {
   await prisma.$disconnect();
-}).catch(async (e: unknown) => {
+}).catch(async (err: unknown) => {
   console.error(colors.yellow(`
     Error found while seeding.
 
@@ -572,7 +572,7 @@ main().then(async () => {
     This seed script must run against an empty database.
 
     Error thrown:
-    `), e);
+    `), err);
   await prisma.$disconnect();
   process.exit(1);
 });

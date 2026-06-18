@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
 
   // If mailClient does not verify, don't try to create the user since something on the server is misconfigured. If only the sendVerificationEmail function fails, the user can try requesting a new verification email later.
   try {
-    await mailClient.verify().catch((e: unknown) => { throw e; });
+    await mailClient.verify();
   }
   catch (error) {
     console.error(error);
@@ -119,8 +119,8 @@ export async function POST(request: NextRequest) {
       text: t("email:signup.body", { baseUrl: baseUrl, email: lowercaseEmail, userHash: userHash }),
     };
 
-    await mailClient.sendMail(mailContent).catch((e: unknown) => {
-      console.error(e);
+    await mailClient.sendMail(mailContent).catch((err: unknown) => {
+      console.error(err);
       throw new Error('Error sending verification email');
     });
   } catch {

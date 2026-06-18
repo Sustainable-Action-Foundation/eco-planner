@@ -32,8 +32,9 @@ export async function GET(request: Request) {
   try {
     const data = fs.readFileSync(filePath, "utf-8");
     return NextResponse.json(JSON.parse(data));
-  } catch (e) {
-    console.error(e);
+  }
+  catch (err) {
+    console.error(err);
     return NextResponse.json({ error: "Failed to parse JSON file" }, { status: 500 });
   }
 }
