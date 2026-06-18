@@ -88,6 +88,15 @@ const commonRules: Config["rules"] = {
   "@typescript-eslint/switch-exhaustiveness-check": "warn",
   "@typescript-eslint/use-unknown-in-catch-callback-variable": "error",
   // "@typescript-eslint/array-type": ["error", { default: "array", readonly: "generic" }], // could be nice but cannot be bother to manually fix all occurrences
+
+  // Switch cases must be scoped
+  "no-restricted-syntax": ["error",
+    {
+      "selector": "SwitchCase > *.consequent[type!='BlockStatement']",
+      "message": "Switch cases without blocks are disallowed.",
+    },
+  ],
+
 };
 
 export default defineConfig([
