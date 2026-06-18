@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import styles from './comboBox.module.css' with { type: "css" };
 import type { InputElement, Option } from "@/components/types";
-import { clearEditableCombobox, handleKeyDownCombobox, handleKeyDownEditableCombobox, scrollOptionIntoView } from "./functions";
+import { clearEditableCombobox, handleKeyDownCombobox, navigateListbox, scrollOptionIntoView, selectRange } from "./functions";
 import type { IFuseOptions } from "fuse.js";
 import Fuse from "fuse.js";
 import { IconSearch } from "@tabler/icons-react";
@@ -31,6 +31,7 @@ export default function SelectMultipleSearch({
   const [focusedListboxOption, setFocusedListboxOption] = useState<number | null>(null);
   const [searchValue, setSearchValue] = useState<string>('');
   const [selectionMade, setSelectionMade] = useState(false); // TODO: Rename to something better
+  const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(null);
   const toggleRef = useRef<HTMLInputElement>(null); // TODO: Rename?
   const searchRef = useRef<HTMLInputElement>(null);
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
@@ -55,6 +56,11 @@ export default function SelectMultipleSearch({
       setSearchValue,
       menuOpen,
     );
+
+    // Set focus to first element if there is no other focus when opening the menu
+    if (menuOpen && focusedListboxOption === null) {
+      setFocusedListboxOption(0);
+    }
   }, [menuOpen]);
 
   useEffect(() => {
@@ -129,27 +135,46 @@ export default function SelectMultipleSearch({
             onChange={(e) => setSearchValue(e.target.value)}
             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
               if (!toggleRef.current) return;
-              handleKeyDownEditableCombobox(
-                e,
+              navigateListbox(
                 toggleRef.current,
-                menuOpen,
-                setMenuOpen,
+                e,
                 searchResults,
                 focusedListboxOption,
                 setFocusedListboxOption,
-                (selectedOption) => {
+                menuOpen,
+                setMenuOpen,
+                (selectedOption, index) => { /* TODO: Clean this function up */
                   e.stopPropagation();
                   if (menuOpen && selectedOption) {
-                    const optionPreviouslySelected = value.some(value => value.value === selectedOption.value); // TODO: Abstract this to use in onclick   
+                    const optionPreviouslySelected = value.some(value => value.value === selectedOption.value);
 
                     const newValue = optionPreviouslySelected
                       ? value.filter(option => option.value !== selectedOption.value)
                       : [...value, selectedOption];
 
                     setValue(newValue);
+                    setLastSelectedIndex(index);  // This is buggy with shift-select (selects one before the actual selection aswell  ): )
                     setSelectionMade(true);
                     if (onChange) onChange(newValue);
                   }
+                },                
+                lastSelectedIndex,               
+                true,
+                () => {
+                  e.stopPropagation();
+                  const allSelected = searchResults.every(option =>
+                    value.some(value => value.value === option.value), // TODO: look over variable names here.
+                  );
+                  const newValue = allSelected ? [] : searchResults;
+                  setValue(newValue);
+                  if (onChange) onChange(newValue);
+                },
+                (from, to) => {                   
+                  e.stopPropagation();
+                  const newValue = selectRange(searchResults, value, from, to);
+                  setValue(newValue);
+                  setLastSelectedIndex(to);
+                  if (onChange) onChange(newValue);
                 },
               );
             }}
@@ -169,6 +194,7 @@ export default function SelectMultipleSearch({
           aria-label={t("common:tsx.options")}
           aria-multiselectable={true}
         >
+          {/* TODO: Add button to select all */}
           {searchResults.length > 0 ? (
             searchResults.map((option, index) => {
               return (
@@ -186,7 +212,7 @@ export default function SelectMultipleSearch({
 
                     setValue(newValue);
                     setSelectionMade(true);
-
+                    setLastSelectedIndex(index);
                     if (onChange) onChange(newValue);
                     searchRef.current?.focus(); // TODO: Might be a more clean way to do this
                   }}

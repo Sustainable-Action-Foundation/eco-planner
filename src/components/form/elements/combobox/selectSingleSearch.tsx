@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import styles from './comboBox.module.css' with { type: "css" };
 import type { InputElement, Option } from "@/components/types";
-import { clearEditableCombobox, handleKeyDownCombobox, navigateSingleSelectListbox, scrollOptionIntoView } from "./functions";
+import { clearEditableCombobox, handleKeyDownCombobox, navigateListbox, scrollOptionIntoView } from "./functions";
 import type { IFuseOptions } from "fuse.js";
 import Fuse from "fuse.js";
 import { IconSearch } from "@tabler/icons-react";
@@ -34,6 +34,7 @@ export default function SelectSingleSearch({
   const [searchValue, setSearchValue] = useState<string>('');
   const [selectionMade, setSelectionMade] = useState(false); // TODO: Rename to something better
   const toggleRef = useRef<HTMLInputElement>(null); // TODO: Rename?
+  const dialogRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
 
@@ -135,6 +136,11 @@ export default function SelectSingleSearch({
         }}
         onPaste={(e) => e.preventDefault()} // Prevent pasting
         onDrop={(e) => e.preventDefault()} // Prevent copying
+        onBlur={(e) => {
+          if (!dialogRef.current?.contains(e.relatedTarget) && e.relatedTarget?.id !== props.id) {
+            setMenuOpen(false);
+          }
+        }}
         role="combobox"
         required={props.required ? props.required : false}
         aria-controls={`${props.id}-dialog`}
@@ -156,6 +162,7 @@ export default function SelectSingleSearch({
         tabIndex={-1}
         role="dialog"
         aria-label={t("forms:combobox.select_single_option")}
+        ref={dialogRef}
       >
         <label
           className="focusable flex align-items-center gap-25 padding-50 padding-inline-25 margin-25"
@@ -170,7 +177,7 @@ export default function SelectSingleSearch({
             onChange={(e) => setSearchValue(e.target.value)}
             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
               if (!toggleRef.current) return;
-              navigateSingleSelectListbox(
+              navigateListbox(
                 toggleRef.current,
                 e,
                 searchResults,
@@ -181,6 +188,7 @@ export default function SelectSingleSearch({
                 (selectedOption) => {
                   setValue(selectedOption?.value !== value?.value ? selectedOption : null);
                   setSelectionMade(true);
+                  setMenuOpen(false);
                   toggleRef.current?.focus();
                   if (onChange) onChange(selectedOption?.value !== value?.value ? selectedOption : null);
                 },
