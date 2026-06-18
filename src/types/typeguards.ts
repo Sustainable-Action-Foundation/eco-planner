@@ -1,4 +1,4 @@
-import type { DateValues, DateValuesWithUnit, ISOIshDate, JSONValue, UnitString, GoalCreateInput, GoalUpdateInput, HistoricalUpdateInput, HistoricalDeleteInput, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
+import type { DateValues, DateValuesWithUnit, ISOIshDate, JSONValue, UnitString, GoalCreateInput, GoalUpdateInput, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
 
 /**
  * A utility function for helping with finding where something fails in a typeguard chain.
@@ -471,56 +471,6 @@ export function isGoalUpdate(goal: unknown): goal is GoalUpdateInput {
     )
   )) {
     console.debug(`optional goal parameter "links" has wrong type`);
-    return false;
-  }
-
-  return true;
-}
-
-/** Validates the body of a write to `/api/goal/historical` (PUT). */
-export function isHistoricalUpdate(input: unknown): input is HistoricalUpdateInput {
-  if (!isStandardObject(input)) return false;
-
-  // goalId: string;
-  if (!("goalId" in input) || typeof input.goalId !== 'string') {
-    console.debug(`historical input missing required parameter "goalId" or "goalId" is not a string`);
-    return false;
-  }
-
-  // timestamp: number;
-  if (!("timestamp" in input) || typeof input.timestamp !== 'number') {
-    console.debug(`historical input missing required parameter "timestamp" or "timestamp" is not a number`);
-    return false;
-  }
-
-  // historicalRecipe: SerializedRecipe;
-  if (!("historicalRecipe" in input) || typeof input.historicalRecipe !== 'string') {
-    console.debug(`historical input missing required parameter "historicalRecipe" or it is not a serialized recipe string`);
-    return false;
-  }
-
-  // historicalRecipeId: string | null | undefined;
-  if ("historicalRecipeId" in input && !(typeof input.historicalRecipeId === 'string' || input.historicalRecipeId === null || input.historicalRecipeId === undefined)) {
-    console.debug(`optional historical parameter "historicalRecipeId" has wrong type: ${typeof input.historicalRecipeId}`);
-    return false;
-  }
-
-  return true;
-}
-
-/** Validates the body of a clear of `/api/goal/historical` (DELETE). */
-export function isHistoricalDelete(input: unknown): input is HistoricalDeleteInput {
-  if (!isStandardObject(input)) return false;
-
-  // goalId: string;
-  if (!("goalId" in input) || typeof input.goalId !== 'string') {
-    console.debug(`historical input missing required parameter "goalId" or "goalId" is not a string`);
-    return false;
-  }
-
-  // timestamp: number;
-  if (!("timestamp" in input) || typeof input.timestamp !== 'number') {
-    console.debug(`historical input missing required parameter "timestamp" or "timestamp" is not a number`);
     return false;
   }
 

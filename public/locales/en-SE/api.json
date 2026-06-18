@@ -20,8 +20,6 @@
     "goal_created": "Goal created",
     "goal_updated": "Goal updated",
     "goal_deleted": "Goal deleted",
-    "historical_saved": "Historical data saved",
-    "historical_deleted": "Historical data deleted",
     "roadmap_not_found": "Failed to connect records. Given roadmap might not exist"
   },
   "effect": {

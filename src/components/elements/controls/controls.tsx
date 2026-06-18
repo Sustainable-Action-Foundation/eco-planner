@@ -457,10 +457,15 @@ export function AdminPanel(
                                   onSubmit={(e: React.SubmitEvent) => {
                                     e.preventDefault();
 
-                                    formSubmitter('/api/goal/historical', JSON.stringify({
-                                      goalId: (object as Goal).id,
-                                      timestamp: timestamp,
-                                    }), 'DELETE', t);
+                                    const updatedForm = {
+                                      ...formContent,
+                                      historicalId: null,
+                                      historical: null,
+                                      historicalRecipeId: null,
+                                      historicalRecipe: null,
+                                    };
+
+                                    formSubmitter('/api/goal', JSON.stringify(updatedForm), 'PUT', t);
                                   }}
                                 >
                                 <div className="flex-grow-100">

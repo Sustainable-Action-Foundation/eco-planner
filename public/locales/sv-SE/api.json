@@ -20,8 +20,6 @@
     "goal_created": "Målbana skapad",
     "goal_updated": "Målbana uppdaterad",
     "goal_deleted": "Målbana raderad",
-    "historical_saved": "Historisk data sparad",
-    "historical_deleted": "Historisk data raderad",
     "roadmap_not_found": "Misslyckades att koppla poster. Angiven målbana kanske inte existerar"
   },
   "effect": {

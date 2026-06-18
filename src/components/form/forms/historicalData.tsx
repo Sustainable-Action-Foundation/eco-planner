@@ -279,7 +279,7 @@ export default function HistoricalData({
       variableId: historicalSource?.id,
     });
 
-    formSubmitter("/api/goal/historical", JSON.stringify({
+    formSubmitter("/api/goal", JSON.stringify({
       goalId: goal.id,
       historicalRecipe: recipe.serialize(),
       historicalRecipeId: goal.historical?.recipeUsed?.id ?? undefined,
