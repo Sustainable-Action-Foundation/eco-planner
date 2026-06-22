@@ -1,8 +1,8 @@
-import type { ApiTableDetails } from "../apiTypes";
+import type { ApiTableMetadata } from "../apiTypes";
 import { ExternalDataset } from "../utility";
-import type { PxWebApiV2MetricDimension, PxWebApiV2StandardDimension, PxWebApiV2TableDetails, PxWebMetric, PxWebTimeVariable, PxWebVariable, PxWebVariableValue } from "./pxWebApiV2Types";
+import type { PxWebMetricDimension, PxWebStandardDimension, PxWebTableMetadata, PxWebCompatMetricDimension, PxWebCompatTimeDimension, PxWebCompatRegularDimension, PxWebCompatDimensionValue } from "./pxWebApiV2Types";
 
-export default async function getPxWebTableDetails(tableId: string, externalDataset: string, language?: string): Promise<ApiTableDetails | null> {
+export default async function getPxWebTableDetails(tableId: string, externalDataset: string, language?: string): Promise<ApiTableMetadata | null> {
   if (!tableId || !externalDataset) {
     console.debug("getPxWebTableDetails called without required parameters, returning early", { tableId, externalDataset, language });
     return null;
@@ -21,11 +21,11 @@ export default async function getPxWebTableDetails(tableId: string, externalData
 
   // Data is used to store the response when fetching
   // I can't be bothered to typeguard this right now, just assume it has the right type
-  let data: PxWebApiV2TableDetails;
+  let data: PxWebTableMetadata;
   try {
     const response = await fetch(url, { method: 'GET' });
     if (response.ok) {
-      data = await response.json() as PxWebApiV2TableDetails;
+      data = await response.json() as PxWebTableMetadata;
     } else if (response.status === 429) {
       // Wait 10 seconds and try again
       console.debug(`Received 429 status, retrying in 10 seconds...`, { url, response });
@@ -45,7 +45,7 @@ export default async function getPxWebTableDetails(tableId: string, externalData
   }
 
   // Declare the variable that will be returned by the function
-  const tableDetails: ApiTableDetails = {
+  const tableDetails: ApiTableMetadata = {
     id: tableId,
     metrics: [],
     variables: [],
@@ -73,9 +73,9 @@ export default async function getPxWebTableDetails(tableId: string, externalData
   }
 
   // Get all metrics for the table and add to tableDetails
-  const metricsCategory = (data.dimension[metricName] as PxWebApiV2MetricDimension).category;
+  const metricsCategory = (data.dimension[metricName] as PxWebMetricDimension).category;
   for (const key in metricsCategory.index) {
-    const pxWebMetric: PxWebMetric = {
+    const pxWebMetric: PxWebCompatMetricDimension = {
       type: "metric",
       id: key,
       name: metricsCategory.label[key],
@@ -87,10 +87,10 @@ export default async function getPxWebTableDetails(tableId: string, externalData
   }
 
   // Find all time periods for the table and add to tableDetails
-  const timeCategory = (data.dimension[timeVariableName] as PxWebApiV2StandardDimension).category;
+  const timeCategory = (data.dimension[timeVariableName] as PxWebStandardDimension).category;
   for (const key in timeCategory.index) {
-    const pxWebItem: PxWebApiV2StandardDimension = data.dimension[timeVariableName];
-    const pxWebTimeVariable: PxWebTimeVariable = {
+    const pxWebItem: PxWebStandardDimension = data.dimension[timeVariableName];
+    const pxWebTimeVariable: PxWebCompatTimeDimension = {
       type: "time",
       id: key,
       name: pxWebItem.category.label[key],
@@ -106,7 +106,7 @@ export default async function getPxWebTableDetails(tableId: string, externalData
   // Find all variables for the table and add to tableDetails
   for (const variableName of data.extension.px.stub) {
     const pxWebItem = data.dimension[variableName];
-    const pxWebVariable: PxWebVariable = {
+    const pxWebVariable: PxWebCompatRegularDimension = {
       type: "variable",
       id: variableName,
       name: variableName,
@@ -121,7 +121,7 @@ export default async function getPxWebTableDetails(tableId: string, externalData
 
     // Find all values for the variable and add them to the variable object
     for (const key in pxWebItem.category.index) {
-      const pxWebVariableValue: PxWebVariableValue = {
+      const pxWebVariableValue: PxWebCompatDimensionValue = {
         type: "variableValue",
         id: key,
         name: key,

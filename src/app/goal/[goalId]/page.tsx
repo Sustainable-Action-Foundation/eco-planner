@@ -6,7 +6,7 @@ import EffectTable from "@/components/tables/effects";
 import { AdminPanel } from "@/components/elements/controls/controls";
 import { getGoalByIndicator, getOneGoal, getOneRoadmap, getRoadmapByVersion, getRoadmaps } from "@/fetchers";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
-import type { ApiTableContent } from "@/lib/api/apiTypes";
+import type { ApiTableData } from "@/lib/api/apiTypes";
 import { getSession } from "@/lib/session";
 import serveTea from "@/lib/i18nServer";
 import { prisma } from "@/lib/prisma";
@@ -121,7 +121,7 @@ export default async function Page(
 
   // TODO: remove when moving external to data series + recipe
   // Fetch external data
-  let externalData: ApiTableContent | null = null;
+  let externalData: ApiTableData | null = null;
   if (goal.externalDataset && goal.externalTableId && goal.externalSelection) {
     externalData = await getTableContent(goal.externalTableId, goal.externalDataset, goal.externalSelection, locale);
   }

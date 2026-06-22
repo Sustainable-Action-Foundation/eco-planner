@@ -6,36 +6,79 @@
 // TODO: Check these types once PxWebAPIv2 gets a stable release; we unsafely cast responses from PxWeb to these types, which should be safe-ish as long as we keep our type defs up to date.
 
 import type { JSONValue } from "@/types";
-import type { ApiDetailItemBase } from "../apiTypes";
+import type { ApiMetadataDimensionBase } from "../apiTypes";
 
-// export type PxWebApiV2TableContentJsonStat2 = {
+// Compatibility types, compare to the types in trafaTypes.ts
 
-// };
+export type PxWebCompatMetadataDimensionBase = ApiMetadataDimensionBase & {
+  // Add additional properties for PxWeb here if necessary
+}
+
+export type PxWebCompatMetricDimension = PxWebCompatMetadataDimensionBase & {
+  index: number;
+  unit: { base: string; decimals: number };
+}
+
+export type PxWebCompatRegularDimension = PxWebCompatMetadataDimensionBase & {
+  optional: boolean;
+  option: boolean;
+  elimination: boolean; // This is whether the variable is optional or not (true means it is optional)
+  values: PxWebCompatDimensionValue[];
+}
+
+export type PxWebCompatDimensionValue = PxWebCompatMetadataDimensionBase & {
+  index: number;
+  note?: string[];
+}
+
+export type PxWebCompatTimeDimension = PxWebCompatMetadataDimensionBase & {
+  optional: boolean;
+  elimination: boolean; // This is whether the variable is optional or not
+}
+
+
+// Response from `/tables/{tableId}/data/`-endpoint, with outputFormat=json-stat2
+export type PxWebTableDataJsonStat2 = PxWebTableMetadata & {
+  /**
+   * The size array contains the number of entries for each variable named in the `id` array.
+   * We expect only one variable to have more than one entry in "valid" cases for our usage,
+   * so we need to enforce this in code, asking the user to make a more specific selection if this is not the case.
+   */
+  size: (1 | Omit<number, 1>)[];
+  /**
+   * Specifically when fetching data from the `/data/`-endpoint we expect the value array to NOT be empty,
+   * as it should be a flattened array of all values in the table.
+   * 
+   * This value is ordered in row-major order, though we want it to essentially be "flat" from the start,
+   * with only one dimension containing more than one value.
+   */
+  value: number[];
+};
 
 // USED BY GETPXWEBTABLECONTENT
-export type PxWebApiV2TableContentJsonPx = {
-  columns: [{
+export type PxWebTableDataJsonPx = {
+  columns: {
     code: string; // Variable/dimension name/id
     text: string; // Label from the dimension/category
     type: "c" | "t" | "d" | "g"; // "d" for generic dimension, "t" for time dimension, "c" for metric dimension, probably "g" for geo dimension, but no examples found so far
-  }];
+  }[];
   comments: unknown[];
-  data: [{
+  data: {
     key: string[];
     values: string[];
-  }];
-  metadata: [{
+  }[];
+  metadata: {
     infofile?: string;
     updated: string; // ISO 8601 date string
     label: string;
     source: string;
-  }];
+  }[];
 };
 
-// USED BY GETPXWEBTABLES
-export type PxWebApiV2TableArray = {
+// Response from `/tables/`-endpoint
+export type PxWebTableArray = {
   language: string; // ISO 639 language code
-  tables: [{
+  tables: {
     type: "Table";
     id: string;
     label: string | null;
@@ -53,196 +96,32 @@ export type PxWebApiV2TableArray = {
     source?: string;
     subjectCode?: string;
     timeUnit?: "Annual" | "Quarterly" | "Monthly" | "Weekly" | "Other";
-    paths?: [{
+    paths?: {
       id: string;
       label: string;
       sortCode?: string;
-    }];
-    links: PxWebApiV2BasicLink[] | null;
-  }];
+    }[];
+    links: PxWebBasicLink[] | null;
+  }[];
   page: {
     pageNumber: number;
     pageSize: number;
     totalElements: number;
     totalPages: number;
-    links?: PxWebApiV2BasicLink[];
+    links?: PxWebBasicLink[];
   };
-  links?: PxWebApiV2BasicLink[];
+  links?: PxWebBasicLink[];
 };
 
-export type PxWebDetailItemBase = ApiDetailItemBase & {
-  // Add additional properties for PxWeb here if necessary
-}
-
-export type PxWebMetric = PxWebDetailItemBase & {
-  index: number;
-  unit: { base: string; decimals: number };
-}
-
-export type PxWebVariable = PxWebDetailItemBase & {
-  optional: boolean;
-  option: boolean;
-  elimination: boolean; // This is whether the variable is optional or not
-  show: "value"; // TODO - What is this and what are the other possible values?
-  categoryNoteMandatory?: { [variableValueId: string]: boolean[] }; // TODO - What is this for?
-  values: PxWebVariableValue[];
-}
-
-export type PxWebVariableValue = PxWebDetailItemBase & {
-  index: number;
-  note?: string[];
-}
-
-export type PxWebTimeVariable = PxWebDetailItemBase & {
-  optional: boolean;
-  elimination: boolean; // This is whether the variable is optional or not
-  show: "value"; // TODO - What is this and what are the other possible values?
-}
-
-export type PxWebApiV2Unit = {
-  decimals?: number;
-  base?: string;
-
-  // following are defined in json-stat 2 spec, but not PxWeb 2 spec, so probably not relevant
-  label?: string;
-  symbol?: string;
-  position?: "end" | "start";
-}
-
-export type PxWebApiV2Note = {
-  mandatory?: boolean;
-  text: string;
-  conditions?: [{ variable: string; value: string; }];
-};
-
-export type PxWebApiV2BasicLink = {
-  rel: string;
-  hreflang: string;
-  href: string;
-};
-
-export type PxWebApiV2AdvancedLink = {
-  related: [{
-    extension: {
-      relation: string;
-      category?: string | null;
-      metaid: string;
-    };
-    href: string;
-    label: string;
-    type: string;
-  }];
-};;
-
-export type PxWebApiV2VariableBase = {
-  id: string;
-  label: string;
-  notes?: PxWebApiV2Note[];
-  links?: PxWebApiV2BasicLink[];
-};
-
-export type PxWebApiV2TimeVariable = PxWebApiV2VariableBase & {
-  type: "TimeVariable";
-  elimination: undefined;
-  timeUnit?: "Annual" | "Quarterly" | "Monthly" | "Weekly" | "Other";
-  /** Possible format examples: "2024" | "2024K2" | "2024M5" | "2025W18" */
-  firstPeriod?: string;
-  /** Possible format examples: "2024" | "2024K2" | "2024M5" | "2025W18" */
-  lastPeriod?: string;
-  values: [
-    {
-      code: string;
-      label: string;
-      notes?: PxWebApiV2Note[];
-      links?: PxWebApiV2BasicLink[];
-    }
-  ];
-};
-
-// NOT USED
-export type PxWebApiV2ContentsVariable = PxWebApiV2VariableBase & {
-  type: "ContentsVariable";
-  elimination: undefined;
-  values: [
-    {
-      code: string;
-      label: string;
-      unit: string;
-      baseperiod?: string | null;
-      adjustment?: "None" | "SesOnly" | "WorkOnly" | "WorkAndSes";
-      measuringType?: "Stock" | "Flow" | "Average" | "Other";
-      referencePeriod?: string;
-      preferedNumberOfDecimals?: number;
-      priceType?: "Undefined" | "Current" | "Fixed";
-      notes?: PxWebApiV2Note[];
-      links?: PxWebApiV2BasicLink[];
-    }
-  ];
-};
-
-// NOT USED
-export type PxWebApiV2RegularVariable = PxWebApiV2VariableBase & {
-  type: "RegularVariable";
-  elimination?: boolean;
-  eliminationValueCode?: string;
-  values: [
-    {
-      code: string;
-      label: string;
-      notes?: PxWebApiV2Note[];
-      links?: PxWebApiV2BasicLink[];
-    }
-  ];
-  codeLists?: [
-    {
-      id: string;
-      label: string;
-      type: "Aggregation" | "Valueset";
-      links: PxWebApiV2BasicLink[];
-    }
-  ];
-};
-
-// NOT USED
-export type PxWebApiV2GeographicalVariable = PxWebApiV2VariableBase & {
-  type: "GeographicalVariable";
-  elimination?: boolean;
-  eliminationValueCode?: string;
-  map?: string;
-  values: [
-    {
-      code: string;
-      label: string;
-      notes?: PxWebApiV2Note[];
-      links?: PxWebApiV2BasicLink[];
-    }
-  ];
-  codeLists?: [
-    {
-      id: string;
-      label: string;
-      type: "Aggregation" | "Valueset";
-      links: PxWebApiV2BasicLink[];
-    }
-  ];
-};
-
-export type PxWebApiV2ErrorResponse = {
-  type?: string;
-  title?: string;
-  status?: number; // HTTP status code, 100 <= status < 600
-  detail?: string;
-  instance?: string;
-}
-
-export type PxWebApiV2TableDetails = {
+// Response from `/tables/{tableId}/metadata`-endpoint
+export type PxWebTableMetadata = {
   version: "2.0"; // Version of the API
   class: "dataset"; // "dataset"
   href?: string; // links back to itself
   label?: string;
   source?: string;
   updated?: string; // ISO 8601 date string
-  link?: PxWebApiV2AdvancedLink;
+  link?: PxWebAdvancedLink;
   note?: string[];
   role: {
     time?: string[];
@@ -252,31 +131,77 @@ export type PxWebApiV2TableDetails = {
   id: string[]; // Names/IDs for all dimensions (dimensionName below)
   size: number[]; // Number of entries for each variable named in id
   dimension: {
-    [dimensionName: string]: PxWebApiV2StandardDimension | PxWebApiV2MetricDimension | PxWebApiV2TimeDimension | PxWebApiV2GeoDimension;
+    [dimensionName: string]: PxWebStandardDimension | PxWebMetricDimension | PxWebTimeDimension | PxWebGeoDimension;
   };
   extension: {
     noteMandatory?: boolean[];
     px: {
       [key: string]: JSONValue; // This is probably not relevant for us, so I can't be bothered to write a type for it
-      stub: string[];
     };
     firstPeriod?: string;
     lastPeriod?: string;
     tags?: string[];
     discontinued?: boolean | null;
-    contact?: [{
+    contact?: {
       name?: string;
       organization?: string;
       phone?: string;
       mail?: string;
       raw: string;
-    }];
+    }[];
   }
-  value: number[] | null;
+  /** Technically we expect this to return an empty number array, but this is basically the same ¯\_(ツ)_/¯ */
+  value: never[];
   status?: { [key: string]: string; }
 }
 
-export type PxWebApiV2StandardDimension = {
+// Error response from most endpoints
+export type PxWebErrorResponse = {
+  type?: string;
+  title?: string;
+  status?: number; // HTTP status code, 100 <= status < 600
+  detail?: string;
+  instance?: string;
+}
+
+// Misc. utility types
+
+export type PxWebUnit = {
+  decimals?: number;
+  base?: string;
+
+  // following are defined in json-stat 2 spec, but not PxWeb 2 spec, so probably not relevant
+  label?: string;
+  symbol?: string;
+  position?: "end" | "start";
+}
+
+export type PxWebNote = {
+  mandatory?: boolean;
+  text: string;
+  conditions?: { variable: string; value: string; }[];
+};
+
+export type PxWebBasicLink = {
+  rel: string;
+  hreflang: string;
+  href: string;
+};
+
+export type PxWebAdvancedLink = {
+  related: {
+    extension: {
+      relation: string;
+      category?: string | null;
+      metaid: string;
+    };
+    href: string;
+    label: string;
+    type: string;
+  }[];
+};
+
+export type PxWebStandardDimension = {
   label?: string;
   note?: string[];
   category: {
@@ -295,26 +220,24 @@ export type PxWebApiV2StandardDimension = {
     categoryNoteMandatory?: { [variableValueId: string]: { [key: number]: boolean } };
     refperiod?: { [valueCode: string]: string; }; // A string describing the reference period for each value code. Cannot be reliably parsed into a date.
     show?: string; // "Information about how variables are presented" - according to spec
-    codeLists?: [
-      {
-        id: string;
-        label: string;
-        type: "Aggregation" | "Valueset";
-        links: PxWebApiV2BasicLink[];
-      }
-    ];
+    codeLists?: {
+      id: string;
+      label: string;
+      type: "Aggregation" | "Valueset";
+      links: PxWebBasicLink[];
+    }[];
     alternativeText?: { [valueCode: string]: string };
   };
-  link?: PxWebApiV2AdvancedLink;
+  link?: PxWebAdvancedLink;
 }
 
-export type PxWebApiV2TimeDimension = PxWebApiV2StandardDimension & {
+export type PxWebTimeDimension = PxWebStandardDimension & {
   // Same as standard dimension
 }
 
-export type PxWebApiV2MetricDimension = PxWebApiV2StandardDimension & {
+export type PxWebMetricDimension = PxWebStandardDimension & {
   category: {
-    unit: { [valueCode: string]: PxWebApiV2Unit };
+    unit: { [valueCode: string]: PxWebUnit };
   };
   extension: {
     measuringType?: { [valueCode: string]: "Stock" | "Flow" | "Average" | "Other"; };
@@ -324,7 +247,7 @@ export type PxWebApiV2MetricDimension = PxWebApiV2StandardDimension & {
   }
 }
 
-export type PxWebApiV2GeoDimension = PxWebApiV2StandardDimension & {
+export type PxWebGeoDimension = PxWebStandardDimension & {
   coordinates?: {
     [valueCode: string]: [number, number]; // Longitude, Latitude
   }

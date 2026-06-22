@@ -1,6 +1,6 @@
 "use client";
 
-import type { ApiTableContent } from "@/lib/api/apiTypes";
+import type { ApiTableData } from "@/lib/api/apiTypes";
 import type { DatasetData } from "@/lib/api/utility";
 import { ExternalDataset } from "@/lib/api/utility";
 import { useState } from "react";
@@ -46,7 +46,7 @@ export default function GraphGraph({
   childGoals: Goal[], // TODO: Should be optional
   roadmap: Roadmap,
   parentGoalRoadmap: Roadmap | null,
-  historicalData?: ApiTableContent | null,
+  historicalData?: ApiTableData | null,
   effects: Effect[] | Goal["effects"],
   session: LoginData,
   roadmapOptions: {

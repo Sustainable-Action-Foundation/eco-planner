@@ -1,14 +1,14 @@
 "use client";
 
 import formSubmitter from "@/functions/formSubmitter";
-import type { ApiTableContent, ApiTableDetails } from "@/lib/api/apiTypes";
+import type { ApiTableData, ApiTableMetadata } from "@/lib/api/apiTypes";
 import getTableContent from "@/lib/api/getTableContent";
 import getTableDetails from "@/lib/api/getTableDetails";
 import getTables from "@/lib/api/getTables";
 import { ExternalDataset } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
-import type { PxWebTimeVariable, PxWebVariable } from "@/lib/api/pxWeb/pxWebApiV2Types";
-import type { TrafaVariable } from "@/lib/api/trafa/trafaTypes";
+import type { PxWebCompatTimeDimension, PxWebCompatRegularDimension } from "@/lib/api/pxWeb/pxWebApiV2Types";
+import type { TrafaCompatDimension } from "@/lib/api/trafa/trafaTypes";
 import type { Goal } from "@/lib/prisma/generated";
 import type { SubmitEvent } from "react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
@@ -60,8 +60,8 @@ export default function HistoricalData({
   const [table, setTable] = useState<{ tableId: string, label: string } | null>(goal.externalTableId ? { label: tables?.find(t => t.tableId === goal.externalTableId)?.label ?? goal.externalTableId, tableId: goal.externalTableId } : null);
   const [metric, setMetric] = useState<string | null>(() => parseExternalSelection(goal.externalSelection)[0]?.valueCodes?.[0] ?? null);
 
-  const [tableDetails, setTableDetails] = useState<ApiTableDetails | null>(null);
-  const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
+  const [tableDetails, setTableDetails] = useState<ApiTableMetadata | null>(null);
+  const [tableContent, setTableContent] = useState<ApiTableData | null>(null);
 
   const formRef = useRef<HTMLFormElement | null>(null);
   // const deleteDataRef = useRef<HTMLDialogElement>(null)
@@ -182,7 +182,7 @@ export default function HistoricalData({
     if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && variableIsOptional) return <span className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</span>;
   }
 
-  function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails) {
+  function variableSelectionHelper(variable: TrafaCompatDimension | PxWebCompatRegularDimension, tableDetails: ApiTableMetadata) {
     if (variable.option) {
       // The idea here is basically to we see which variables exist, and moving them to an array separately from metric as that value is already set. 
       // We then check if the variable which we render is in our list and get the default value from there.
@@ -218,12 +218,12 @@ export default function HistoricalData({
           </select>
         </label>
       );
-    } else if (dataSource === "Trafa" && !variable.option && (variable as TrafaVariable).selected) {
+    } else if (dataSource === "Trafa" && !variable.option && (variable as TrafaCompatDimension).selected) {
       console.warn("The variable is selected while it is not an option. This should not happen.");
     }
   }
 
-  function timeVariableSelectionHelper(times: (TrafaVariable | PxWebTimeVariable)[], language?: string) {
+  function timeVariableSelectionHelper(times: (TrafaCompatDimension | PxWebCompatTimeDimension)[], language?: string) {
     if (
       (dataSource === "Trafa" && !(times.length === 1 && times[0].name === "ar")) ||
       (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && times.length > 1)
@@ -294,7 +294,7 @@ export default function HistoricalData({
   }
   */}
 
-  function shouldVariableFieldsetBeVisible(tableDetails: ApiTableDetails, dataSource: string) {
+  function shouldVariableFieldsetBeVisible(tableDetails: ApiTableMetadata, dataSource: string) {
     const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1);
     return returnBool;
   }

@@ -1,5 +1,5 @@
 import { isStandardObject } from "@/types";
-import type { ApiTableContent } from "./apiTypes";
+import type { ApiTableData } from "./apiTypes";
 
 // TODO: Refactor file
 
@@ -217,8 +217,8 @@ export function parsePeriod(period: string): Date {
 /** 
  * Since there can be multiple readings a year, this picks the first reading for each year, no more.
  */
-export function filterToInitialYearlyRecords(periodValuePairs: ApiTableContent["values"]): ApiTableContent["values"] {
-  const filteredValues: ApiTableContent["values"] = [];
+export function filterToInitialYearlyRecords(periodValuePairs: ApiTableData["values"]): ApiTableData["values"] {
+  const filteredValues: ApiTableData["values"] = [];
   const seenYears: Set<number> = new Set();
 
   for (const entry of periodValuePairs) {

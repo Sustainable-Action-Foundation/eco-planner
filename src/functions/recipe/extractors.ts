@@ -1,7 +1,7 @@
 import { isDataSeriesVariable, isExternalSelection, isScalarVariable, RecipeDataTypes, RecipeError } from "@/functions/recipe/types";
 import type { RecipeExtractionOutput, RecipeVariable, EvalTimeVariable } from "@/functions/recipe/types";
 import getTableContent from "@/lib/api/getTableContent";
-import type { ApiTableContent } from "@/lib/api/apiTypes";
+import type { ApiTableData } from "@/lib/api/apiTypes";
 import mathjs from "@/math";
 import { isISOIshDate } from "@/types";
 import type { DataSeries, DateValues } from "@/types";
@@ -118,7 +118,7 @@ export async function extractDataSeries(
 export async function extractExternalDatasets(
   variables: RecipeVariable[],
   warnings: string[] = [],
-  externalTableContentGetter: (tableId: string, dataset: string, selection: { variableCode: string, valueCodes: string[] }[]) => Promise<ApiTableContent | null> = getTableContent,
+  externalTableContentGetter: (tableId: string, dataset: string, selection: { variableCode: string, valueCodes: string[] }[]) => Promise<ApiTableData | null> = getTableContent,
 ): Promise<RecipeExtractionOutput> {
 
   const externalDatasets: RecipeExtractionOutput = [];

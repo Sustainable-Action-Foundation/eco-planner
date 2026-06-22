@@ -2,14 +2,14 @@
 
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
 import formSubmitter from "@/functions/formSubmitter";
-import type { ApiTableContent, ApiTableDetails } from "@/lib/api/apiTypes";
+import type { ApiTableData, ApiTableMetadata } from "@/lib/api/apiTypes";
 import getTableContent from "@/lib/api/getTableContent";
 import getTableDetails from "@/lib/api/getTableDetails";
 import getTables from "@/lib/api/getTables";
 import { ExternalDataset } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
-import type { PxWebTimeVariable, PxWebVariable } from "@/lib/api/pxWeb/pxWebApiV2Types";
-import type { TrafaVariable } from "@/lib/api/trafa/trafaTypes";
+import type { PxWebCompatTimeDimension, PxWebCompatRegularDimension } from "@/lib/api/pxWeb/pxWebApiV2Types";
+import type { TrafaCompatDimension } from "@/lib/api/trafa/trafaTypes";
 import type { Goal } from "@/lib/prisma/generated";
 import type { ChangeEventHandler, SubmitEvent } from "react";
 import { useContext, useEffect, useRef, useState } from "react";
@@ -34,8 +34,8 @@ export default function QueryBuilder({
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
   const [renderedTables, setRenderedTables] = useState<{ tableId: string, label: string }[] | null>(null);
   const [offset, setOffset] = useState(0);
-  const [tableDetails, setTableDetails] = useState<ApiTableDetails | null>(null);
-  const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
+  const [tableDetails, setTableDetails] = useState<ApiTableMetadata | null>(null);
+  const [tableContent, setTableContent] = useState<ApiTableData | null>(null);
   const [defaultMetricSelected, setDefaultMetricSelected] = useState(true);
   const [isFormValid, setIsFormValid] = useState(false);
 
@@ -347,7 +347,7 @@ export default function QueryBuilder({
   type VariableSelectionHelperOptions = {
     classNames?: string[],
   }
-  function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails, options?: VariableSelectionHelperOptions) {
+  function variableSelectionHelper(variable: TrafaCompatDimension | PxWebCompatRegularDimension, tableDetails: ApiTableMetadata, options?: VariableSelectionHelperOptions) {
     if (variable.option) {
       return (
         <label key={variable.name} className={`block margin-block-75 ${options?.classNames?.map((className: string) => className).join(" ")}`}>
@@ -378,12 +378,12 @@ export default function QueryBuilder({
           </select>
         </label>
       );
-    } else if (dataSource === "Trafa" && !variable.option && (variable as TrafaVariable).selected) {
+    } else if (dataSource === "Trafa" && !variable.option && (variable as TrafaCompatDimension).selected) {
       console.warn("The variable is selected while it is not an option. This should not happen.");
     }
   }
 
-  function timeVariableSelectionHelper(times: (TrafaVariable | PxWebTimeVariable)[], language?: string) {
+  function timeVariableSelectionHelper(times: (TrafaCompatDimension | PxWebCompatTimeDimension)[], language?: string) {
     if ((dataSource === "Trafa" && !(times.length === 1 && times[0].name === "ar")) || (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && times.length > 1)) {
       let heading = "";
       let defaultValue = "";
@@ -418,7 +418,7 @@ export default function QueryBuilder({
     }
   }
 
-  function shouldVariableFieldsetBeVisible(tableDetails: ApiTableDetails, dataSource: string) {
+  function shouldVariableFieldsetBeVisible(tableDetails: ApiTableMetadata, dataSource: string) {
     const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1);
     return returnBool;
   }

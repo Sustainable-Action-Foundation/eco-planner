@@ -1,4 +1,4 @@
-import type { PxWebApiV2TableArray } from "@/lib/api/pxWeb/pxWebApiV2Types";
+import type { PxWebTableArray } from "@/lib/api/pxWeb/pxWebApiV2Types";
 import { ExternalDataset } from "../utility";
 
 /**
@@ -21,12 +21,12 @@ export default async function getPxWebTables(externalDataset: string, searchQuer
   }
   if (pageSize) url.searchParams.append('pageSize', pageSize.toString());
 
-  let data: PxWebApiV2TableArray;
+  let data: PxWebTableArray;
 
   try {
     const response = await fetch(url, { method: 'GET' });
     if (response.ok) {
-      data = await response.json() as PxWebApiV2TableArray;
+      data = await response.json() as PxWebTableArray;
       // If we didn't get all tables, try again with the correct page size
       if (data?.page?.totalElements > data?.page?.pageSize) {
         return await getPxWebTables(externalDataset, searchQuery, language, data.page.totalElements);

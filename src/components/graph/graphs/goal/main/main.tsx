@@ -4,7 +4,7 @@ import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import type { Goal, Roadmap } from "@/types";
 import { parsePeriod } from "@/lib/api/utility";
 import { calculatePredictedOutcome } from "@/components/graph/functions/graphFunctions";
-import type { ApiTableContent } from "@/lib/api/apiTypes";
+import type { ApiTableData } from "@/lib/api/apiTypes";
 import { useTranslation } from "react-i18next";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import { color_palette, stroke, marker } from "../../../config";
@@ -25,7 +25,7 @@ export default function MainGraph({
   secondaryGoal: Goal | null,
   parentGoal: Goal | null,
   parentGoalRoadmap: Roadmap | null,
-  historicalData?: ApiTableContent | null,
+  historicalData?: ApiTableData | null,
   effects: Goal["effects"],
 }) {
   const { t } = useTranslation("graphs");

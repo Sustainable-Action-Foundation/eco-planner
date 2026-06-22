@@ -1,4 +1,4 @@
-import type { ApiDetailItemBase } from "../apiTypes";
+import type { ApiMetadataDimensionBase } from "../apiTypes";
 
 export type TrafaDataResponse = {
   Header: {
@@ -20,7 +20,7 @@ export type TrafaDataResponse = {
       IsMeasure: boolean,
       Description: string,
       Column: string,
-      /** When `isMeasure == true` this is usually either a stringified number or "-" */
+      /** When `IsMeasure == true` this is usually either a stringified number or "-" */
       Value: string,
       FormattedValue: string,
       Level: string,
@@ -60,10 +60,10 @@ export type StructureItem = {
   /**
    * P: Tables; has an empty array for `StructureItems`.
    * M: Measure; has an empty array for `StructureItems`.
-   * H: Contains multiple dimensions (`Type: "D"`) in `StructureItems`.
+   * H: Hierarchy; Contains multiple dimensions (`Type: "D"`) in `StructureItems`.
    * D: Dimension; has a filled array for `StructureItems`.
-   * F: Probably dynamic item in a dimension, so far only seen under parents with `DataType: "Time"`. Has an empty array for `StructureItems`.
-   * DV: A specific value in a dimension, used as a filter. Has an empty array for `StructureItems`.
+   * F: Filter; Probably dynamic item in a dimension, so far only seen under parents with `DataType: "Time"`. Has an empty array for `StructureItems`.
+   * DV: Dimension Value; A specific value in a dimension, used as a filter. Has an empty array for `StructureItems`.
    */
   Type: "P" | "D" | "M" | "F" | "H" | "DV",
   Selected: boolean,
@@ -75,7 +75,7 @@ export type StructureItem = {
 }
 
 // TODO - which types actually use description?
-export type TrafaDetailItemBase = ApiDetailItemBase & {
+export type TrafaCompatMetadataDimensionBase = ApiMetadataDimensionBase & {
   trafaId: number,
   parentName: string | null,
   selected: boolean, // TODO - What is this for?
@@ -83,25 +83,25 @@ export type TrafaDetailItemBase = ApiDetailItemBase & {
   description: string,
 }
 
-export type TrafaMetric = TrafaDetailItemBase & { // Marked as "M"
+export type TrafaCompatMetricDimension = TrafaCompatMetadataDimensionBase & { // Marked as "M"
   dataType: "String",
 }
 
-export type TrafaHierarchy = TrafaDetailItemBase & { // Marked as "H"
+export type TrafaCompatHierarchy = TrafaCompatMetadataDimensionBase & { // Marked as "H"
   dataType: "String" | "Region",
-  children?: TrafaVariable[],
+  children?: TrafaCompatDimension[],
 }
 
-export type TrafaVariable = TrafaDetailItemBase & { // Marked as "D"
+export type TrafaCompatDimension = TrafaCompatMetadataDimensionBase & { // Marked as "D"
   dataType: "String" | "Time" | "Region",
   optional: boolean,
-  values?: (TrafaVariable | TrafaVariableValue | TrafaFilter)[], // "Variable" children are not found in structure items array, they are found by marking another "Variable" as parent. This is not always the case when there are multiple variables under a hierarchy, but sometimes. Does not seem connected to how many variables are under a hierarchy.
+  values?: (TrafaCompatDimension | TrafaCompatDimensionValue | TrafaCompatFilter)[], // "Variable" children are not found in structure items array, they are found by marking another "Variable" as parent. This is not always the case when there are multiple variables under a hierarchy, but sometimes. Does not seem connected to how many variables are under a hierarchy.
 }
 
-export type TrafaVariableValue = TrafaDetailItemBase & { // Marked as "DV"
+export type TrafaCompatDimensionValue = TrafaCompatMetadataDimensionBase & { // Marked as "DV"
   dataType: "String",
 }
 
-export type TrafaFilter = TrafaDetailItemBase & { // Marked as "F"
+export type TrafaCompatFilter = TrafaCompatMetadataDimensionBase & { // Marked as "F"
   dataType: "String",
 }

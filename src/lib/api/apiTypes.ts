@@ -1,8 +1,8 @@
-import type { PxWebMetric, PxWebTimeVariable, PxWebVariable } from "./pxWeb/pxWebApiV2Types";
-import type { TrafaHierarchy, TrafaMetric, TrafaVariable } from "./trafa/trafaTypes";
+import type { PxWebCompatMetricDimension, PxWebCompatTimeDimension, PxWebCompatRegularDimension } from "./pxWeb/pxWebApiV2Types";
+import type { TrafaCompatHierarchy, TrafaCompatMetricDimension, TrafaCompatDimension } from "./trafa/trafaTypes";
 
 // TODO: See if we can include any unit returned by external APIs
-export type ApiTableContent = {
+export type ApiTableData = {
   id: string,
   values: {
     period: string,
@@ -14,16 +14,16 @@ export type ApiTableContent = {
   }[]
 }
 
-export type ApiTableDetails = {
+export type ApiTableMetadata = {
   id: string,
-  metrics: (TrafaMetric | PxWebMetric)[],
-  hierarchies?: (TrafaHierarchy)[],
-  variables: (TrafaVariable | PxWebVariable)[],
-  times: (TrafaVariable | PxWebTimeVariable)[],
+  metrics: (TrafaCompatMetricDimension | PxWebCompatMetricDimension)[],
+  hierarchies?: (TrafaCompatHierarchy)[],
+  times: (TrafaCompatDimension | PxWebCompatTimeDimension)[],
+  variables: (TrafaCompatDimension | PxWebCompatRegularDimension)[],
   language?: string,
 }
 
-export type ApiDetailItemBase = {
+export type ApiMetadataDimensionBase = {
   type: string,
   id: string,
   name: string,

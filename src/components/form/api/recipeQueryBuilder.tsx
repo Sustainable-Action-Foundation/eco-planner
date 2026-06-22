@@ -1,13 +1,13 @@
 "use client";
 
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
-import type { ApiTableContent, ApiTableDetails } from "@/lib/api/apiTypes";
+import type { ApiTableData, ApiTableMetadata } from "@/lib/api/apiTypes";
 import getTableDetails from "@/lib/api/getTableDetails";
 import getTables from "@/lib/api/getTables";
 import { ExternalDataset, isDataSetKeys } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
-import type { PxWebTimeVariable, PxWebVariable } from "@/lib/api/pxWeb/pxWebApiV2Types";
-import type { TrafaVariable } from "@/lib/api/trafa/trafaTypes";
+import type { PxWebCompatTimeDimension, PxWebCompatRegularDimension } from "@/lib/api/pxWeb/pxWebApiV2Types";
+import type { TrafaCompatDimension } from "@/lib/api/trafa/trafaTypes";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import FormWrapper from "../formWrapper";
@@ -46,8 +46,8 @@ export default function RecipeQueryBuilder({
   const [selectedTableId, setSelectedTableId] = useState<string>(initialTableId ?? "");
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
   const [offset, setOffset] = useState(0);
-  const [tableDetails, setTableDetails] = useState<ApiTableDetails | null>(null);
-  const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
+  const [tableDetails, setTableDetails] = useState<ApiTableMetadata | null>(null);
+  const [tableContent, setTableContent] = useState<ApiTableData | null>(null);
   const [defaultMetricSelected, setDefaultMetricSelected] = useState(true);
   const hasAppliedInitialTableSelectionRef = useRef(false);
   const hasAppliedInitialSelectionRef = useRef(false);
@@ -266,7 +266,7 @@ export default function RecipeQueryBuilder({
     }
   }
 
-  function variableSelectionHelper(variable: TrafaVariable | PxWebVariable, tableDetails: ApiTableDetails, options?: { classNames?: string[], }) {
+  function variableSelectionHelper(variable: TrafaCompatDimension | PxWebCompatRegularDimension, tableDetails: ApiTableMetadata, options?: { classNames?: string[], }) {
     if (variable.option) {
       return (
         <label key={variable.name} className={`block margin-block-75 ${options?.classNames?.map((className: string) => className).join(" ")}`}>
@@ -303,12 +303,12 @@ export default function RecipeQueryBuilder({
           </select>
         </label>
       );
-    } else if (dataSource === "Trafa" && !variable.option && (variable as TrafaVariable).selected) {
+    } else if (dataSource === "Trafa" && !variable.option && (variable as TrafaCompatDimension).selected) {
       console.warn("The variable is selected while it is not an option. This should not happen.");
     }
   }
 
-  function timeVariableSelectionHelper(times: (TrafaVariable | PxWebTimeVariable)[], language?: string) {
+  function timeVariableSelectionHelper(times: (TrafaCompatDimension | PxWebCompatTimeDimension)[], language?: string) {
     if ((dataSource === "Trafa" && !(times.length === 1 && times[0].name === "ar")) || (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && times.length > 1)) {
       let heading = "";
       let defaultValue = "";
@@ -345,7 +345,7 @@ export default function RecipeQueryBuilder({
     }
   }
 
-  function shouldVariableFieldsetBeVisible(tableDetails: ApiTableDetails, dataSource: string) {
+  function shouldVariableFieldsetBeVisible(tableDetails: ApiTableMetadata, dataSource: string) {
     const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1);
     return returnBool;
   }
