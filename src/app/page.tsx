@@ -95,24 +95,29 @@ export default async function Page(
 
   // Sort
   switch (sortBy) {
-    case RoadmapSortBy.Alpha:
+    case RoadmapSortBy.Alpha: {
       roadmaps.sort(roadmapSorterAZ);
       break;
-    case RoadmapSortBy.AlphaReverse:
+    }
+    case RoadmapSortBy.AlphaReverse: {
       roadmaps.sort(roadmapSorterAZ);
       roadmaps.reverse();
       break;
-    case RoadmapSortBy.GoalsFalling:
+    }
+    case RoadmapSortBy.GoalsFalling: {
       roadmaps.sort(roadmapSorterGoalAmount);
       break;
-    case RoadmapSortBy.GoalsRising:
+    }
+    case RoadmapSortBy.GoalsRising: {
       roadmaps.sort(roadmapSorterGoalAmount);
       roadmaps.reverse();
       break;
+    }
     case RoadmapSortBy.Default:
-    default:
+    default: {
       roadmaps.sort(roadmapSorter);
       break;
+    }
   }
 
   return <>
@@ -139,7 +144,7 @@ export default async function Page(
         </AttributedImage>
       </div>
 
-      <search className={`${styles['layout-roadmaps']}`}>  
+      <search className={`${styles['layout-roadmaps']}`}>
         <aside className='height-fit-content' tabIndex={-1} id="roadmap-filters">
           <h2 className="font-size-125 margin-top-50 font-weight-600 padding-bottom-50 margin-bottom-100" style={{ borderBottom: '1px solid var(--gray-80)' }}>
             {t("pages:home.filter")}

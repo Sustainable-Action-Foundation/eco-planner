@@ -68,48 +68,54 @@ export default function GoalTable({
   </p>;
 
   switch (sortBy) {
-    case GoalSortBy.Alpha:
+    case GoalSortBy.Alpha: {
       parsedGoals.sort(goalSorter);
       break;
-    case GoalSortBy.AlphaReverse:
+    }
+    case GoalSortBy.AlphaReverse: {
       parsedGoals.sort(goalSorterReverse);
       break;
-    case GoalSortBy.ActionsFalling:
+    }
+    case GoalSortBy.ActionsFalling: {
       parsedGoals.sort(goalSorterActionAmount);
       break;
-    case GoalSortBy.ActionsRising:
+    }
+    case GoalSortBy.ActionsRising: {
       parsedGoals.sort(goalSorterActionAmountReverse);
       break;
-    case GoalSortBy.Interesting:
+    }
+    case GoalSortBy.Interesting: {
       parsedGoals.sort(goalSorterInterest);
       break;
+    }
     case GoalSortBy.Default:
     case undefined:
-    default:
+    default: {
       parsedGoals.sort(goalSorter);
       break;
+    }
   }
 
   return <div className="overflow-x-scroll smooth">
-      <table id="goalTable" className={styles.table}>
-        <thead>
-          <tr>
-            <th>{t("components:goal_table.goal_name")}</th>
-            <th>{t("components:goal_table.leap_parameter")}</th>
-            <th>{t("components:goal_table.unit")}</th>
-            <th>{t("components:goal_table.action_count")}</th>
+    <table id="goalTable" className={styles.table}>
+      <thead>
+        <tr>
+          <th>{t("components:goal_table.goal_name")}</th>
+          <th>{t("components:goal_table.leap_parameter")}</th>
+          <th>{t("components:goal_table.unit")}</th>
+          <th>{t("components:goal_table.action_count")}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {parsedGoals.map(goal => (goal &&
+          <tr key={goal.id}>
+            <td><Link href={`/goal/${goal.id}`}>{goal.name || goal.indicatorParameter}</Link></td>
+            <td>{goal.indicatorParameter}</td>
+            <td>{goal.dataSeries?.unit === null ? t("common:tsx.unitless") : goal.dataSeries?.unit || t("common:tsx.unit_missing")}</td>
+            <td>{goal._count.effects}</td>
           </tr>
-        </thead>
-        <tbody>
-          {parsedGoals.map(goal => (goal &&
-            <tr key={goal.id}>
-              <td><Link href={`/goal/${goal.id}`}>{goal.name || goal.indicatorParameter}</Link></td>
-              <td>{goal.indicatorParameter}</td>
-              <td>{goal.dataSeries?.unit === null ? t("common:tsx.unitless") : goal.dataSeries?.unit || t("common:tsx.unit_missing")}</td>
-              <td>{goal._count.effects}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>;
+        ))}
+      </tbody>
+    </table>
+  </div>;
 }

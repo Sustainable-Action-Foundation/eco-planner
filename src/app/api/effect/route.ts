@@ -113,19 +113,22 @@ export async function POST(request: NextRequest) {
   catch (err) {
     if (err instanceof Error) {
       switch (err.message) {
-        case ClientError.BadSession:
+        case ClientError.BadSession: {
           session.destroy();
           return Response.json({ message: ClientError.BadSession },
             { status: 400, headers: { 'Location': '/login' } },
           );
-        case ClientError.IllegalParent:
+        }
+        case ClientError.IllegalParent: {
           return Response.json({ message: ClientError.IllegalParent },
             { status: 403 },
           );
-        default:
+        }
+        default: {
           return Response.json({ message: t('api:common.unknown_error') },
             { status: 500 },
           );
+        }
       }
     } else {
       console.error(err);
@@ -269,23 +272,27 @@ export async function PUT(request: NextRequest) {
   catch (err) {
     if (err instanceof Error) {
       switch (err.message) {
-        case ClientError.BadSession:
+        case ClientError.BadSession: {
           session.destroy();
           return Response.json({ message: ClientError.BadSession },
             { status: 400, headers: { 'Location': '/login' } },
           );
-        case ClientError.AccessDenied:
+        }
+        case ClientError.AccessDenied: {
           return Response.json({ message: ClientError.AccessDenied },
             { status: 403 },
           );
-        case ClientError.StaleData:
+        }
+        case ClientError.StaleData: {
           return Response.json({ message: ClientError.StaleData },
             { status: 409 },
           );
-        default:
+        }
+        default: {
           return Response.json({ message: t('api:common.unknown_error') },
             { status: 500 },
           );
+        }
       }
     } else {
       console.error(err);
@@ -408,19 +415,22 @@ export async function DELETE(request: NextRequest) {
   catch (err) {
     if (err instanceof Error) {
       switch (err.message) {
-        case ClientError.BadSession:
+        case ClientError.BadSession: {
           session.destroy();
           return Response.json({ message: ClientError.BadSession },
             { status: 400, headers: { 'Location': '/login' } },
           );
-        case ClientError.AccessDenied:
+        }
+        case ClientError.AccessDenied: {
           return Response.json({ message: ClientError.AccessDenied },
             { status: 403 },
           );
-        default:
+        }
+        default: {
           return Response.json({ message: t('api:common.unknown_error') },
             { status: 500 },
           );
+        }
       }
     } else {
       console.error(err);

@@ -180,7 +180,7 @@ export function SuggestedRecipeApplier({
             : '';
 
         switch (variable.type) {
-          case RecipeDataTypes.Scalar: {/* TODO: Fix these labels */ }
+          case RecipeDataTypes.Scalar: {// TODO: Fix these labels
             return (
               <li key={variableId} className={`${styles["variable"]} ${!variable.template ? styles["variable-selected"] : ""}`}>
                 <label className="margin-right-150 margin-left-25">
@@ -195,8 +195,8 @@ export function SuggestedRecipeApplier({
                 />
               </li>
             );
-
-          case RecipeDataTypes.DataSeries:
+          }
+          case RecipeDataTypes.DataSeries: {
             return (
               <li key={variableId} className={`${styles["variable"]} ${!variable.template ? styles["variable-selected"] : ""}`}>
                 <label className="margin-right-150 margin-left-25">
@@ -211,8 +211,8 @@ export function SuggestedRecipeApplier({
                 />
               </li>
             );
-
-          case RecipeDataTypes.External:
+          }
+          case RecipeDataTypes.External: {
             return (
               <li key={variableId} className={`${styles["variable"]} ${!variable.template ? styles["variable-selected"] : ""}`}>
                 <label className="margin-right-150 margin-left-25">
@@ -224,14 +224,15 @@ export function SuggestedRecipeApplier({
                 />
               </li>
             );
-
-          default:
+          }
+          default: {
             console.warn("Unknown variable type for variable", { variable });
             return (
               <p key={variableId}>
                 {variableDisplayName}: {t("components:recipe_editor.unknown_variable_type")}
               </p>
             );
+          }
         }
       })}
     </ul>
