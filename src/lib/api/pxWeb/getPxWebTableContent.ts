@@ -4,7 +4,7 @@
 import type { JSONValue } from "@/types";
 import type { ApiTableData } from "../apiTypes";
 import { ExternalDataset } from "../utility";
-import getPxWebTableDetails from "./getPxWebTableDetails";
+import getPxWebTableMetadata from "./getPxWebTableDetails";
 import type { PxWebTableDataJsonPx } from "./pxWebApiV2Types";
 
 export default async function getPxWebTableContent(tableId: string, externalDataset: string, selection: { variableCode: string, valueCodes: string[] }[], language?: string) {
@@ -56,7 +56,7 @@ export default async function getPxWebTableContent(tableId: string, externalData
   if (!timeSelectionItemInPayload) {
     // Get all time periods that are available for this table and add them to payload
     const timeSelectionItem = { variableCode: "Tid", valueCodes: [] as string[] };
-    const times = await getPxWebTableDetails(tableId, externalDataset).then(result => result ? result.times : undefined);
+    const times = await getPxWebTableMetadata(tableId, externalDataset).then(result => result ? result.timeDimensions : undefined);
     if (!times) return null;
     timeSelectionItem.valueCodes.push(`from(${times[0].id})`);
     payload.selection.push(timeSelectionItem);

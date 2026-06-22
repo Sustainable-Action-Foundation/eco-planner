@@ -184,7 +184,7 @@ export default function QueryBuilder({
     if (formRef.current.checkValidity()) {
       const formData = new FormData(formRef.current);
       const query = buildQuery(formData);
-      const tableId = tableDetails?.id ?? formData.get("externalTableId") as string ?? "";
+      const tableId = tableDetails?.tableId ?? formData.get("externalTableId") as string ?? "";
       getTableContent(tableId, dataSource, query, lang).then(result => {
         setTableContent(result);
         if ((result?.values.length ?? 0) > 0) {
@@ -294,7 +294,7 @@ export default function QueryBuilder({
           variableSelectionFieldset.setAttribute("disabled", "true");
           // Reset all the table details when disabling the form so all options are displayed when re-enabling
           if (dataSource === "Trafa") {
-            void getTableDetails(tableDetails?.id ?? "", dataSource, undefined, lang).then(result => { setTableDetails(result); setIsLoading(false); });
+            void getTableDetails(tableDetails?.tableId ?? "", dataSource, undefined, lang).then(result => { setTableDetails(result); setIsLoading(false); });
           }
           else {
             setIsLoading(false);
@@ -419,7 +419,7 @@ export default function QueryBuilder({
   }
 
   function shouldVariableFieldsetBeVisible(tableDetails: ApiTableMetadata, dataSource: string) {
-    const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1);
+    const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") && tableDetails.regularDimensions.some(variable => variable.option)) || tableDetails.timeDimensions.length > 1);
     return returnBool;
   }
 
@@ -565,7 +565,7 @@ export default function QueryBuilder({
                         <label className="block margin-block-75">
                           <Trans
                             i18nKey={"components:query_builder.selected_table"}
-                            values={{ table: document.getElementById(`table${tableDetails.id}`)?.innerText }}
+                            values={{ table: document.getElementById(`table${tableDetails.tableId}`)?.innerText }}
                             components={{ strong: <strong />, small: <small />, i: <i /> }}
                           />
                           {/* {t("components:query_builder.selected_table", { table: document.getElementById(`table${tableDetails.id}`)?.innerText })} */}
@@ -575,7 +575,7 @@ export default function QueryBuilder({
                             <b>{t("components:query_builder.select_metric_for_table")}</b>
                           </legend>
                           <div>
-                            <label key={`metric-${tableDetails.id}`} className="block margin-block-75">
+                            <label key={`metric-${tableDetails.tableId}`} className="block margin-block-75">
                               <select className={`block margin-block-25 metric`}
                                 required={true}
                                 name="metric"
@@ -583,7 +583,7 @@ export default function QueryBuilder({
                                 defaultValue={undefined}
                                 onChange={handleMetricSelect}>
                                 <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_metric")}</option>
-                                {tableDetails.metrics?.map(metric => (
+                                {tableDetails.metricDimensions?.map(metric => (
                                   <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
                                 ))}
                               </select>
@@ -597,9 +597,9 @@ export default function QueryBuilder({
                                 <b>{t("components:query_builder.select_values_for_table")}</b>
                               </legend>
                               <div className={`${styles.temporary}`} style={{ maxHeight: "282px", boxSizing: "content-box", padding: ".25rem", paddingRight: ".375rem" }}>
-                                {tableDetails.times ? timeVariableSelectionHelper(tableDetails.times, tableDetails.language) : null
+                                {tableDetails.timeDimensions ? timeVariableSelectionHelper(tableDetails.timeDimensions, tableDetails.language) : null
                                 }
-                                {tableDetails.variables.map(variable => {
+                                {tableDetails.regularDimensions.map(variable => {
                                   return variableSelectionHelper(variable, tableDetails);
                                 })}
                                 {tableDetails.hierarchies?.map(hierarchy => {

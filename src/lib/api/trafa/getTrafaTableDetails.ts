@@ -43,11 +43,11 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
 
   // Declare the variable that will be returned by this function
   const tableDetails: ApiTableMetadata = {
-    id: tableId,
-    metrics: [],
+    tableId: tableId,
+    metricDimensions: [],
     hierarchies: [],
-    variables: [],
-    times: [],
+    regularDimensions: [],
+    timeDimensions: [],
     language: language,
   };
 
@@ -138,16 +138,16 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
 
     try {
       if (item.Type === "M") {
-        tableDetails.metrics.push((pushItem as TrafaCompatMetricDimension));
+        tableDetails.metricDimensions.push((pushItem as TrafaCompatMetricDimension));
       }
       if (item.Type === "H") {
         tableDetails.hierarchies?.push((pushItem as TrafaCompatHierarchy));
       }
       if (item.Type === "D" && item.DataType !== "Time") {
-        tableDetails.variables.push((pushItem as TrafaCompatDimension));
+        tableDetails.regularDimensions.push((pushItem as TrafaCompatDimension));
       }
       if (item.Type === "D" && item.DataType === "Time") {
-        tableDetails.times.push((pushItem as TrafaCompatDimension));
+        tableDetails.timeDimensions.push((pushItem as TrafaCompatDimension));
       }
     }
     catch (error) {

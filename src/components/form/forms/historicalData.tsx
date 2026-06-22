@@ -295,7 +295,7 @@ export default function HistoricalData({
   */}
 
   function shouldVariableFieldsetBeVisible(tableDetails: ApiTableMetadata, dataSource: string) {
-    const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1);
+    const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") && tableDetails.regularDimensions.some(variable => variable.option)) || tableDetails.timeDimensions.length > 1);
     return returnBool;
   }
 
@@ -479,17 +479,17 @@ export default function HistoricalData({
             {t("components:query_builder.select_metric_for_table")}
           </legend>
           {table && tableDetails ? (
-            <label key={`metric-${tableDetails.id}`}>
+            <label key={`metric-${tableDetails.tableId}`}>
               {t("components:query_builder.select_metric")}
               <select className={`block margin-top-25 margin-bottom-100 metric`}
                 required={true}
-                name={tableDetails.metrics.length === 1 ? tableDetails.metrics[0].name : "metric"}
+                name={tableDetails.metricDimensions.length === 1 ? tableDetails.metricDimensions[0].name : "metric"}
                 id="metric"
                 value={!!metric ? metric : ''}
                 onChange={(e) => { setMetric(e.target.value); setTimeout(() => tryGetResult(e), 0); }}
               >
                 <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_metric")}</option>
-                {tableDetails.metrics?.map(metric => (
+                {tableDetails.metricDimensions?.map(metric => (
                   <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
                 ))}
               </select>
@@ -515,9 +515,9 @@ export default function HistoricalData({
           {tableDetails &&
             shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? (
             <div>
-              {tableDetails.times ? timeVariableSelectionHelper(tableDetails.times, tableDetails.language) : null
+              {tableDetails.timeDimensions ? timeVariableSelectionHelper(tableDetails.timeDimensions, tableDetails.language) : null
               }
-              {tableDetails.variables.map(variable => {
+              {tableDetails.regularDimensions.map(variable => {
                 return variableSelectionHelper(variable, tableDetails);
               })}
               {tableDetails.hierarchies?.map(hierarchy => {

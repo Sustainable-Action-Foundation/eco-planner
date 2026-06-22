@@ -3,29 +3,36 @@ import type { TrafaCompatHierarchy, TrafaCompatMetricDimension, TrafaCompatDimen
 
 // TODO: See if we can include any unit returned by external APIs
 export type ApiTableData = {
-  id: string,
+  id: string;
   values: {
-    period: string,
-    value: string,
-  }[],
+    period: string;
+    value: string;
+  }[];
   metadata: {
-    label: string,
-    source: string,
-  }[]
+    label: string;
+    source: string;
+  }[];
 }
 
 export type ApiTableMetadata = {
-  id: string,
-  metrics: (TrafaCompatMetricDimension | PxWebCompatMetricDimension)[],
-  hierarchies?: (TrafaCompatHierarchy)[],
-  times: (TrafaCompatDimension | PxWebCompatTimeDimension)[],
-  variables: (TrafaCompatDimension | PxWebCompatRegularDimension)[],
-  language?: string,
+  tableId: string;
+  metricDimensions: (TrafaCompatMetricDimension | PxWebCompatMetricDimension)[];
+  timeDimensions: (TrafaCompatDimension | PxWebCompatTimeDimension)[];
+  // Any geo dimensions are bundled together with regular dimensions
+  regularDimensions: (TrafaCompatDimension | PxWebCompatRegularDimension)[];
+  hierarchies?: (TrafaCompatHierarchy)[];
+  language?: string;
 }
 
 export type ApiMetadataDimensionBase = {
-  type: string,
-  id: string,
-  name: string,
-  label: string,
+  type: string;
+  id: string;
+  name: string;
+  label: string;
+  options: ApiSelectOptionBase[];
+}
+
+export type ApiSelectOptionBase = {
+  label: string;
+  value: string;
 }

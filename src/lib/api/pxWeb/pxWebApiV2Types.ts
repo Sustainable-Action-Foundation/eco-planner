@@ -16,7 +16,7 @@ export type PxWebCompatMetadataDimensionBase = ApiMetadataDimensionBase & {
 
 export type PxWebCompatMetricDimension = PxWebCompatMetadataDimensionBase & {
   index: number;
-  unit: { base: string; decimals: number };
+  unit?: { base?: string; decimals?: number };
 }
 
 export type PxWebCompatRegularDimension = PxWebCompatMetadataDimensionBase & {

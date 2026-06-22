@@ -213,7 +213,7 @@ export default function RecipeQueryBuilder({
           variableSelectionFieldset.setAttribute("disabled", "true");
           // Reset all the table details when disabling the form so all options are displayed when re-enabling
           if (dataSource === "Trafa") {
-            getTableDetails(tableDetails?.id ?? "", dataSource, undefined, lang)
+            getTableDetails(tableDetails?.tableId ?? "", dataSource, undefined, lang)
               .then(result => { setTableDetails(result); })
               .catch((e: unknown) => {
                 const errorMessage = e instanceof Error ? e.message : String(e);
@@ -346,7 +346,7 @@ export default function RecipeQueryBuilder({
   }
 
   function shouldVariableFieldsetBeVisible(tableDetails: ApiTableMetadata, dataSource: string) {
-    const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") && tableDetails.variables.some(variable => variable.option)) || tableDetails.times.length > 1);
+    const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") && tableDetails.regularDimensions.some(variable => variable.option)) || tableDetails.timeDimensions.length > 1);
     return returnBool;
   }
 
@@ -386,7 +386,7 @@ export default function RecipeQueryBuilder({
     });
 
     const query = buildQuery(formData);
-    const tableId = tableDetails?.id ?? formData.get("externalTableId") as string ?? "";
+    const tableId = tableDetails?.tableId ?? formData.get("externalTableId") as string ?? "";
     getTableContent(tableId, dataSource, query, lang).then(result => {
       setTableContent(result);
       setIsLoading(false);
@@ -427,7 +427,7 @@ export default function RecipeQueryBuilder({
       ? {
         ...prev,
         dataset: isDataSetKeys(dataSource) ? dataSource : prev.dataset,
-        tableId: tableDetails?.id ?? formData.get("externalTableId") as string ?? prev.tableId,
+        tableId: tableDetails?.tableId ?? formData.get("externalTableId") as string ?? prev.tableId,
         selection: query,
       }
       : prev,
@@ -440,17 +440,17 @@ export default function RecipeQueryBuilder({
       <button
         type="button"
         className="purewhite flex justify-content-space-between align-items-center gap-25 padding-50 font-size-14px width-100"
-        style={{ border: '1px solid var(--gray-80)', transform: 'scale(1)', color: dataSource && tableDetails?.id && tableContent?.metadata[0].label ? 'black' : 'gray' }}
+        style={{ border: '1px solid var(--gray-80)', transform: 'scale(1)', color: dataSource && tableDetails?.tableId && tableContent?.metadata[0].label ? 'black' : 'gray' }}
         onClick={() => openModal(modalRef)}
       // TODO: This needs a title in case of overflow...
       >
         <span className="white-space-nowrap">
-          {dataSource && tableDetails?.id
-            ? `${dataSource}(${tableDetails.id}) - `
+          {dataSource && tableDetails?.tableId
+            ? `${dataSource}(${tableDetails.tableId}) - `
             : t("components:recipe_editor.add_external_data")
           }
         </span>
-        {dataSource && tableDetails?.id ? <span
+        {dataSource && tableDetails?.tableId ? <span
             className="flex-grow-100 align-self-flex-end text-align-left white-space-nowrap width-0 text-overflow-ellipsis overflow-hidden" // I can never figure out flex, honestly not sure why width-0 works here... 
             style={{ borderBottom: tableContent?.metadata[0].label ? '' : '1px solid gray' }} // TODO: Should just be if any label, not specifically [0]...
           >
@@ -540,7 +540,7 @@ export default function RecipeQueryBuilder({
                   <label className="block margin-block-75">
                     <Trans
                       i18nKey={"components:query_builder.selected_table"}
-                      values={{ table: document.getElementById(`table${tableDetails.id}`)?.innerText }}
+                      values={{ table: document.getElementById(`table${tableDetails.tableId}`)?.innerText }}
                       components={{ strong: <strong />, small: <small />, i: <i /> }}
                     />
                     {/* {t("components:query_builder.selected_table", { table: document.getElementById(`table${tableDetails.id}`)?.innerText })} */}
@@ -550,7 +550,7 @@ export default function RecipeQueryBuilder({
                       <b>{t("components:query_builder.select_metric_for_table")}</b>
                     </legend>
                     <div>
-                      <label key={`metric-${tableDetails.id}`} className="block margin-block-75">
+                      <label key={`metric-${tableDetails.tableId}`} className="block margin-block-75">
                         <select
                           className={`block margin-block-25 metric`}
                           required={true}
@@ -559,7 +559,7 @@ export default function RecipeQueryBuilder({
                           defaultValue={getInitialSelectionValue("metric")}
                           onChange={handleMetricSelect}>
                           <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_metric")}</option>
-                          {tableDetails.metrics?.map(metric => (
+                          {tableDetails.metricDimensions?.map(metric => (
                             <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
                           ))}
                         </select>
@@ -573,9 +573,9 @@ export default function RecipeQueryBuilder({
                           <b>{t("components:query_builder.select_values_for_table")}</b>
                         </legend>
                         <div className={`${styles.temporary}`} style={{ maxHeight: "282px", boxSizing: "content-box", padding: ".25rem", paddingRight: ".375rem" }}>
-                          {tableDetails.times ? timeVariableSelectionHelper(tableDetails.times, tableDetails.language) : null
+                          {tableDetails.timeDimensions ? timeVariableSelectionHelper(tableDetails.timeDimensions, tableDetails.language) : null
                           }
-                          {tableDetails.variables.map(variable => {
+                          {tableDetails.regularDimensions.map(variable => {
                             return variableSelectionHelper(variable, tableDetails);
                           })}
                           {tableDetails.hierarchies?.map(hierarchy => {

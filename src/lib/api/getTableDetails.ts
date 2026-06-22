@@ -1,4 +1,4 @@
-import getPxWebTableDetails from "./pxWeb/getPxWebTableDetails";
+import getPxWebTableMetadata from "./pxWeb/getPxWebTableDetails";
 import getTrafaTableDetails from "./trafa/getTrafaTableDetails";
 import { ExternalDataset } from "./utility";
 
@@ -8,7 +8,7 @@ export default async function getTableDetails(tableId: string, externalDataset: 
   const dataset = ExternalDataset.getDatasetByAlternateName(externalDataset);
 
   if (dataset?.api === "PxWeb") {
-    return getPxWebTableDetails(tableId, externalDataset, language);
+    return getPxWebTableMetadata(tableId, externalDataset, language);
   } else if (dataset?.api === "Trafa") {
     return getTrafaTableDetails(tableId, selection, language);
   } else {
