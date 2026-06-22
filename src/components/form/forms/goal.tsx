@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 import { dataSeriesToDateValues } from "@/functions/recipe";
 import UnitSync from "@/components/recipe/output/unitSyncer";
 import ParameterSync from "@/components/recipe/output/parameterSyncer";
+import HistoricalDataSection from "../sections/historical";
 
 const DataSeriesType = {
   Manual: "MANUAL",
@@ -251,6 +252,22 @@ export default function GoalForm({
       return;
     }
 
+    let historicalDataSeries: DateValuesWithUnit | undefined = undefined;
+    const historicalId: string | undefined = undefined;
+    const historicalDataSeriesString = formData.get("historical-data-series") as string | null;
+    if (historicalDataSeriesString) {
+      try {
+        historicalDataSeries = JSON.parse(historicalDataSeriesString) as DateValuesWithUnit;
+        console.log(historicalDataSeries);
+      }
+      catch (err) {
+        addToast(`${t("forms:goal.errors.failed_parse_historical_data")} ${err instanceof Error ? err.message : String(err)}`, "error", false);
+        event.target.reportValidity();
+        return;
+      }
+    }
+
+
     // Build the JSON payload for the API
     let formContent: GoalCreateInput | GoalUpdateInput;
     if (!currentGoal && (baseline || baselineId)) {
@@ -276,9 +293,8 @@ export default function GoalForm({
         baselineRecipeId: null,
         baselineRecipe: null,
 
-        // Goals are currently created without historical data; it's set later via the historical data form
-        historicalId: null,
-        historical: null,
+        historicalId: historicalId,
+        historical: historicalDataSeries,
         historicalRecipeId: null,
         historicalRecipe: null,
 
@@ -312,9 +328,8 @@ export default function GoalForm({
         baselineRecipeId: undefined,
         baselineRecipe: undefined,
 
-        // Historical data is edited via the dedicated historical data form; leave unchanged here
-        historicalId: undefined,
-        historical: undefined,
+        historicalId: historicalId,
+        historical: historicalDataSeries,
         historicalRecipeId: undefined,
         historicalRecipe: undefined,
 
@@ -329,6 +344,7 @@ export default function GoalForm({
       throw new Error("Missing data to create or update goal.");
     }
 
+    console.log(formContent);
     const formJSON = JSON.stringify(formContent);
 
     // Submit the form to the API (POST for new, PUT for edit)
@@ -405,6 +421,15 @@ export default function GoalForm({
           value={indicatorParameter}
           setter={setIndicatorParameter}
         />
+        <fieldset>
+          <legend>
+            {t("forms:goal.feature_this_goal")}
+          </legend>
+          <label className="flex align-items-center gap-50 margin-top-50 margin-bottom-100">
+            <input type="checkbox" name="isFeatured" id="isFeatured" defaultChecked={currentGoal?.isFeatured} />
+            {t("forms:goal.feature_goal")}
+          </label>
+        </fieldset >
       </fieldset>
 
       {/* Data series input section */}
@@ -544,7 +569,7 @@ export default function GoalForm({
           data-position={positionIndex++}
           className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
         >
-          {t("forms:goal.choose_baseline_for_actions")}
+          {t("forms:goal.create_baseline_for_actions")}
         </legend>
 
         <label>
@@ -578,23 +603,20 @@ export default function GoalForm({
         }
       </fieldset>
 
-      {/* TODO suggested recipes to inherit with */}
-
-      {/* External links section */}
+      {/* Historical data selection section */}
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
         <legend
-          // Technically incrementing here is unused but if you add a another entry after this one it will be correct
           // eslint-disable-next-line no-useless-assignment
           data-position={positionIndex++}
           className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
         >
-          {t("forms:goal.feature_this_goal")}
+          {t("forms:goal.input_historical_data")}
         </legend>
-        <label className="flex align-items-center gap-50 margin-bottom-100">
-          <input type="checkbox" name="isFeatured" id="isFeatured" defaultChecked={currentGoal?.isFeatured} />
-          {t("forms:goal.feature_goal")}
-        </label>
-      </fieldset >
+
+        <HistoricalDataSection />
+      </fieldset>
+
+      {/* TODO suggested recipes to inherit with */}
 
       {/* Submit button */}
       <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>

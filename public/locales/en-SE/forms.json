@@ -99,10 +99,10 @@
       "initial": "First year value",
       "initial_non_zero": "First defined year"
     },
-    "choose_baseline_for_actions": "Select a baseline for calculating $t(common:action_other, possessive) $t(common:effect_other) on this $t(common:goal_one)",
     "choose_goal_data_series": "Input a data series for this $t(common:goal_one)",
     "choose_relationship": "Which $t(common:roadmap_series_one) does your $t(common:goal_one) belong to?",
     "create": "Create $t(common:goal_one)",
+    "create_baseline_for_actions": "Create a baseline for calculating $t(common:action_other, possessive) $t(common:effect_other) on this $t(common:goal_one)",
     "custom_recipe": "Recipe",
     "data_missing": "DATA MISSING; ",
     "data_series_type_legend": "Choose type of data series for your $t(common:goal_one)",

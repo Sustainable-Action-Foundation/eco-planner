@@ -110,6 +110,8 @@
     "home": "Hem",
     "login": "Logga in",
     "logout": "Logga ut",
+    "menu": "Meny",
+    "no": "Nej",
     "no_results": "Inga resultat",
     "no_suggestions": "Inga förslag",
     "options": "Alternativ",
@@ -126,6 +128,6 @@
     "unit_missing": "enhet saknas",
     "unitless": "enhetslös",
     "write": "Skriv något",
-    "menu": "Meny"
+    "yes": "Ja"
   }
 }

@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { LanguageSwitcher } from "@/components/languageSwitcher";
 import serveTea from "@/lib/i18nServer";
 import { PopoverButton, Popover } from '@/components/generic/popovers/popovers';
-import { IconCirclePlus, IconHome, IconInfoCircle, IconList, IconLogin2, IconLogout2, IconMenu2, IconPlus, IconSettings, IconUser, IconUserPlus, IconWorld, IconX } from '@tabler/icons-react';
+import { IconBrush, IconHome, IconInfoCircle, IconList, IconLogin2, IconLogout2, IconMenu2, IconPlus, IconSettings, IconUser, IconUserPlus, IconWorld, IconX } from '@tabler/icons-react';
 import GraphCookie from '@/components/cookies/graphCookie';
 
 export default async function Sidebar() {
@@ -55,7 +55,7 @@ export default async function Sidebar() {
             style={{ fontSize: '1rem' }}
             data-testid='create-button'
           >
-            <IconCirclePlus aria-hidden="true" />
+            <IconBrush aria-hidden="true" />
             {t("components:sidebar.create")}
           </PopoverButton>
           <Popover

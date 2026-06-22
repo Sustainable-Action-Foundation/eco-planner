@@ -99,10 +99,10 @@
       "initial": "Första årets värde",
       "initial_non_zero": "Första värdet"
     },
-    "choose_baseline_for_actions": "Välj en baslinje för beräkning av åtgärders effekt på denna $t(common:goal_one)",
     "choose_goal_data_series": "Ange en dataserie för denna $t(common:goal_one)",
     "choose_relationship": "Vilken $t(common:roadmap_series_one) tillhör din $t(common:goal_one)?",
     "create": "Skapa $t(common:goal_one)",
+    "create_baseline_for_actions": "Skapa en baslinje för beräkning av åtgärders effekt på denna $t(common:goal_one)",
     "custom_recipe": "Recept",
     "data_missing": "DATA SAKNAS; ",
     "data_series_type_legend": "Välj typ av dataserie för din $t(common:goal_one)",

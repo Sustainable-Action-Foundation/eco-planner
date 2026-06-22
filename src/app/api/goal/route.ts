@@ -429,6 +429,7 @@ async function updateFullGoal(session: IronSession<LoginData>, authorId: string,
       }
 
       const hasNonEmptyBaselinePayload = !!goal.baseline && Object.keys(goal.baseline.dateValues).length > 0;
+      const hasNonEmptyHistoricalPayload = !!goal.historical && Object.keys(goal.historical.dateValues).length > 0;
 
       // Disconnect the baseline first so we create a fresh one rather than mutating a
       // baseline that may just be a reference to another goal's data series.
@@ -436,6 +437,13 @@ async function updateFullGoal(session: IronSession<LoginData>, authorId: string,
         await prisma.goal.update({
           where: { id: goal.goalId },
           data: { baseline: { disconnect: true } },
+        });
+      }
+
+      if (hasNonEmptyHistoricalPayload) {
+        await prisma.goal.update({
+          where: { id: goal.goalId },
+          data: { historical: { disconnect: true } },
         });
       }
 
@@ -489,11 +497,29 @@ async function updateFullGoal(session: IronSession<LoginData>, authorId: string,
             } : goal.baselineId ? {
               connect: { id: goal.baselineId },
             } : undefined,
-          historical: historicalDataSeriesId
-            ? { connect: { id: historicalDataSeriesId } }
-            : historicalDataSeriesId === null
-              ? { disconnect: true }
-              : undefined,
+          historical: hasNonEmptyHistoricalPayload && goal.historical
+            ? {
+              connectOrCreate: {
+                where: { id: historicalDataSeriesId ?? "" },
+                create: {
+                  author: { connect: { id: authorId } },
+                  recipeUsed: typeof goal.historicalRecipeId === 'string'
+                    ? { connect: { id: goal.historicalRecipeId } }
+                    : undefined,
+                  values: { createMany: { data: dateValuesToDBDateRecord(goal.historical.dateValues) } },
+                  unit: goal.historical.unit,
+                },
+              },
+            }
+            : historicalDataSeriesId
+              ? {
+                connect: { id: historicalDataSeriesId },
+              }
+              : historicalDataSeriesId === null
+                ? {
+                  disconnect: true,
+                }
+                : undefined,
           links: {
             deleteMany: {},
             create: goal.links?.map(link => ({
