@@ -1,5 +1,5 @@
-import type { ApiTableDetails } from "../api/apiTypes";
-import { ExternalDataset } from "../api/utility";
+import type { ApiTableDetails } from "../apiTypes";
+import { ExternalDataset } from "../utility";
 import type { PxWebApiV2MetricDimension, PxWebApiV2StandardDimension, PxWebApiV2TableDetails, PxWebMetric, PxWebTimeVariable, PxWebVariable, PxWebVariableValue } from "./pxWebApiV2Types";
 
 export default async function getPxWebTableDetails(tableId: string, externalDataset: string, language?: string): Promise<ApiTableDetails | null> {

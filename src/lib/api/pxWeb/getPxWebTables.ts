@@ -1,5 +1,5 @@
-import type { PxWebApiV2TableArray } from "@/lib/pxWeb/pxWebApiV2Types";
-import { ExternalDataset } from "../api/utility";
+import type { PxWebApiV2TableArray } from "@/lib/api/pxWeb/pxWebApiV2Types";
+import { ExternalDataset } from "../utility";
 
 /**
  * Returns a list of tables from PxWeb's API. Returns null on error.

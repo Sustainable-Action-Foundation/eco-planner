@@ -1,6 +1,6 @@
 'use server';
 
-import getPxWebTableContent from "./pxWeb/getPxWebTableContent";
+import getPxWebTableContent from "./api/pxWeb/getPxWebTableContent";
 import { cacheTag, cacheLife } from 'next/cache';
 
 /**

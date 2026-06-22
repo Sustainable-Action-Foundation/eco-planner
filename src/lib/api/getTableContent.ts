@@ -1,6 +1,6 @@
 import type { JSONValue } from "@/types";
-import getPxWebTableContent from "../pxWeb/getPxWebTableContent";
-import getTrafaTableContent from "../trafa/getTrafaTableContent";
+import getPxWebTableContent from "./pxWeb/getPxWebTableContent";
+import getTrafaTableContent from "./trafa/getTrafaTableContent";
 import { ExternalDataset } from "./utility";
 
 export default async function getTableContent(tableId: string, externalDataset: string | undefined, selection: { variableCode: string, valueCodes: string[] }[] | string = [], language?: string) {

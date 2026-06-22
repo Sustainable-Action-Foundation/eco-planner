@@ -6,7 +6,7 @@
 // TODO: Check these types once PxWebAPIv2 gets a stable release; we unsafely cast responses from PxWeb to these types, which should be safe-ish as long as we keep our type defs up to date.
 
 import type { JSONValue } from "@/types";
-import type { ApiDetailItemBase } from "../api/apiTypes";
+import type { ApiDetailItemBase } from "../apiTypes";
 
 // export type PxWebApiV2TableContentJsonStat2 = {
 

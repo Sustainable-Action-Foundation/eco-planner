@@ -2,8 +2,8 @@
 "use server";
 
 import type { JSONValue } from "@/types";
-import type { ApiTableContent } from "../api/apiTypes";
-import { ExternalDataset } from "../api/utility";
+import type { ApiTableContent } from "../apiTypes";
+import { ExternalDataset } from "../utility";
 import getPxWebTableDetails from "./getPxWebTableDetails";
 import type { PxWebApiV2TableContentJsonPx } from "./pxWebApiV2Types";
 

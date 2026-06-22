@@ -1,6 +1,6 @@
 "use server";
 
-import { ExternalDataset } from "../api/utility";
+import { ExternalDataset } from "../utility";
 import type { StructureItem, TrafaDataResponse } from "./trafaTypes";
 
 export default async function getTrafaTables(query?: string | null, language?: string) {

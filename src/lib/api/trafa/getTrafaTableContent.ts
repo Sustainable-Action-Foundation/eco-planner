@@ -1,7 +1,7 @@
 "use server";
 
-import type { ApiTableContent } from "../api/apiTypes";
-import { ExternalDataset } from "../api/utility";
+import type { ApiTableContent } from "../apiTypes";
+import { ExternalDataset } from "../utility";
 import type { TrafaDataResponse } from "./trafaTypes";
 import { getTrafaSearchQueryString } from "./trafaUtility";
 

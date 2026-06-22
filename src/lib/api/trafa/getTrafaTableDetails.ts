@@ -1,5 +1,5 @@
-import type { ApiTableDetails } from "../api/apiTypes";
-import { ExternalDataset } from "../api/utility";
+import type { ApiTableDetails } from "../apiTypes";
+import { ExternalDataset } from "../utility";
 import getTrafaTables from "./getTrafaTables";
 import type { StructureItem, TrafaFilter, TrafaHierarchy, TrafaMetric, TrafaVariable, TrafaVariableValue } from "./trafaTypes";
 import { getTrafaSearchQueryString } from "./trafaUtility";
