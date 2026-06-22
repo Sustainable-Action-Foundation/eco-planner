@@ -92,8 +92,12 @@ const commonRules: Config["rules"] = {
   // Switch cases must be scoped
   "no-restricted-syntax": ["error",
     {
-      "selector": "SwitchCase > *.consequent[type!='BlockStatement']",
+      "selector": "SwitchCase > *.consequent:not(ReturnStatement):not(BreakStatement):not(BlockStatement)",
       "message": "Switch cases without blocks are disallowed.",
+    },
+    {
+      "selector": "SwitchStatement:has(SwitchCase > *.consequent:not(ReturnStatement)):has(SwitchCase > ReturnStatement.consequent)",
+      "message": "Switch cases must be consistent: do not mix direct returns with other case body styles.",
     },
   ],
 
