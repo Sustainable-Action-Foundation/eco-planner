@@ -31,7 +31,6 @@ export default function SelectMultipleSearch({
   const [focusedListboxOption, setFocusedListboxOption] = useState<number | null>(null);
   const [searchValue, setSearchValue] = useState<string>('');
   const [selectionMade, setSelectionMade] = useState(false); // TODO: Rename to something better
-  const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(null);
   const toggleRef = useRef<HTMLInputElement>(null); // TODO: Rename?
   const searchRef = useRef<HTMLInputElement>(null);
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
@@ -143,7 +142,7 @@ export default function SelectMultipleSearch({
                 setFocusedListboxOption,
                 menuOpen,
                 setMenuOpen,
-                (selectedOption, index) => { /* TODO: Clean this function up */
+                (selectedOption) => { /* TODO: Clean this function up */
                   e.stopPropagation();
                   if (menuOpen && selectedOption) {
                     const optionPreviouslySelected = value.some(value => value.value === selectedOption.value);
@@ -153,12 +152,10 @@ export default function SelectMultipleSearch({
                       : [...value, selectedOption];
 
                     setValue(newValue);
-                    setLastSelectedIndex(index);  // This is buggy with shift-select (selects one before the actual selection aswell  ): )
                     setSelectionMade(true);
                     if (onChange) onChange(newValue);
                   }
-                },                
-                lastSelectedIndex,               
+                },
                 true,
                 () => {
                   e.stopPropagation();
@@ -169,11 +166,10 @@ export default function SelectMultipleSearch({
                   setValue(newValue);
                   if (onChange) onChange(newValue);
                 },
-                (from, to) => {                   
+                (from, to) => {
                   e.stopPropagation();
                   const newValue = selectRange(searchResults, value, from, to);
                   setValue(newValue);
-                  setLastSelectedIndex(to);
                   if (onChange) onChange(newValue);
                 },
               );
@@ -212,7 +208,6 @@ export default function SelectMultipleSearch({
 
                     setValue(newValue);
                     setSelectionMade(true);
-                    setLastSelectedIndex(index);
                     if (onChange) onChange(newValue);
                     searchRef.current?.focus(); // TODO: Might be a more clean way to do this
                   }}

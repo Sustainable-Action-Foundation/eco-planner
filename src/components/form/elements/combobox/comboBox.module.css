@@ -113,12 +113,18 @@
 /* Focus states */
 .listbox li.focused-option {
     margin-inline-start: 4px;
-    background-color: var(--gray-95) !important;
+    background-color: var(--gray-95);
 }
 
 .tree li div.focused-option {
-    background-color: var(--gray-95) !important;
+    background-color: var(--gray-95);
 } 
+
+.listbox li[aria-selected="true"].focused-option,
+.tree li[aria-selected="true"] div.focused-option {
+    filter: brightness(1.1);
+    background-color: rgba(153, 211, 255, 0.5);
+}
 
 .listbox li.focused-option::before,
 .tree li div.focused-option::before  {
@@ -165,4 +171,10 @@
 .listbox [aria-multiselectable] li[aria-selected="true"]:has(+ li[aria-selected="true"]) {
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
+}
+
+.no-results {
+    padding: .5rem;
+    font-size: smaller;
+    margin-inline: 2px;
 }

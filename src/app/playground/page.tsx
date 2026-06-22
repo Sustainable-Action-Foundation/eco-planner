@@ -138,6 +138,8 @@ export default function Page() {
           { name: 'option 3', value: 'option 3' },
           { name: 'option 4', value: 'option 4' },
           { name: 'option 5', value: 'option 5' },
+          { name: 'option 6', value: 'option 6' },
+          { name: 'option 7', value: 'option 7' },
         ]}
       />
       <SelectSingleSearch
@@ -153,6 +155,8 @@ export default function Page() {
           { name: 'option 3', value: 'option 3' },
           { name: 'option 4', value: 'option 4' },
           { name: 'option 5', value: 'option 5' },
+          { name: 'option 6', value: 'option 6' },
+          { name: 'option 7', value: 'option 7' },
         ]}
       />
       <input type="submit" value={"Submit form!"}/>

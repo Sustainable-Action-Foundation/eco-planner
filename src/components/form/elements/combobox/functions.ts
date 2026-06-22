@@ -64,22 +64,11 @@ export const handleKeyDownCombobox = (
 
 /*
 When a multi-select listbox receives focus:
-
     If none of the options are selected before the listbox receives focus, focus is set on the first option and there is no automatic change in the selection state.
     If one or more options are selected before the listbox receives focus, focus is set on the first option in the list that is selected.
 
     Recommended selection model -- holding modifier keys is not necessary:
-
-    ✓ Space: changes the selection state of the focused option.
-    ✓ Shift + Down Arrow (Optional): Moves focus to and toggles the selected state of the next option.
-    ✓ Shift + Up Arrow (Optional): Moves focus to and toggles the selected state of the previous option.
-    ✓ Control + Space Changes the selection state of the focused option.
-    Shift + Space (Optional): Selects contiguous items from the most recently selected item to the focused item.
-    ✓ Control + Shift + Home (Optional): Selects the focused option and all options up to the first option. Optionally, moves focus to the first option.
-    ✓ Control + Shift + End (Optional): Selects the focused option and all options down to the last option. Optionally, moves focus to the last option.
-    ✓ Control + A (Optional): Selects all options in the list. Optionally, if all options are selected, it may also unselect all options.
-
-
+    TODO: Shift + Space (Optional): Selects contiguous items from the most recently selected item to the focused item.
 */
 
 // TODO: Maybe pass an object for the multiple selection key stuff so we can see if we want the controls at all.
@@ -92,7 +81,6 @@ export const navigateListbox = (
   popupElementDisplayed: boolean,
   setPopupElementDisplayed: React.Dispatch<React.SetStateAction<boolean>>,
   onSelect: (selectedOption: { name: string, value: string } | null, index: number | null) => void,
-  lastSelectedIndex: number | null = null,
   multipleSelectionAllowed?: boolean,
   onSelectAll?: () => void,
   onSelectRange?: (from: number, to: number) => void,
@@ -140,10 +128,6 @@ export const navigateListbox = (
     case " ": {
       if (event.ctrlKey) {
         onSelect(options[focusedIndex], focusedIndex);
-      }
-      if (event.shiftKey && multipleSelectionAllowed && lastSelectedIndex !== null) {
-        event.preventDefault();
-        onSelectRange?.(lastSelectedIndex, focusedIndex);
       }
       break;
     }
@@ -576,7 +560,7 @@ export function scrollOptionIntoView(
       block: scrollOptions ? scrollOptions : "nearest",
     });
   }
-} 
+}
 
 export const selectRange = (
   options: Array<Option | TreeItem>,
