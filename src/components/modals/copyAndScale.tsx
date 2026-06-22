@@ -2,7 +2,7 @@
 
 import { closeModal, openModal } from "./modalFunctions";
 import { useRef, useState } from "react";
-import { isDateValues } from "@/types";
+import { GoalDataTarget, isDateValues } from "@/types";
 import type { GoalCreateInput, Goal, DateValues, JSONValue } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
@@ -92,6 +92,7 @@ export default function CopyAndScale({
     }
 
     const formData: GoalCreateInput = {
+      target: GoalDataTarget.Full,
       goalId: undefined,
       timestamp: undefined,
 

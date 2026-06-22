@@ -1,5 +1,5 @@
-import { isISOIshDate } from "@/types";
-import type { DateValues, GoalCreateInput, ISOIshDate } from "@/types";
+import { GoalDataTarget, isISOIshDate } from "@/types";
+import type { DateValues, GoalCreateFull, ISOIshDate } from "@/types";
 
 export default function parseCsv(csv: ArrayBuffer): string[][] {
   // Despite Windows-1252 being more common than UTF-8 in a Windows/Microsoft environment (such as when exporting CSV files from Excel),
@@ -15,7 +15,7 @@ export default function parseCsv(csv: ArrayBuffer): string[][] {
  * @param csv A 2D array of strings
  * @param scaleWarningCallback A function to call if the CSV contains a column for the deprecated "Scale" header
  */
-export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void): GoalCreateInput[] {
+export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void): GoalCreateFull[] {
   // Remove first two rows if the second row is empty (as it should be, with first row containing metadata and third row containing headers)
   if (!csv[1][0]) {
     csv = csv.slice(2);
@@ -38,7 +38,7 @@ export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void
   }
 
   const headerIndex: Record<string, number | undefined> = {};
-  const output: GoalCreateInput[] = [];
+  const output: GoalCreateFull[] = [];
 
   // Check that all headers are present and get their indices
   for (const headerName of Object.keys(nonNumericHeaders)) {
@@ -74,6 +74,7 @@ export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void
     }
 
     output.push({
+      target: GoalDataTarget.Full,
       name: undefined,
       description: undefined,
       indicatorParameter: csv[i][headerIndex["indicatorParameter"] ?? NaN],

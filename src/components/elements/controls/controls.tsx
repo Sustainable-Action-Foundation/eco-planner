@@ -3,7 +3,7 @@
 import styles from './controls.module.css' with { type: "css" };
 import Link from "next/link";
 import React, { useRef, useState } from "react";
-import { AccessLevel } from "@/types";
+import { AccessLevel, GoalDataTarget } from "@/types";
 import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
 import { useTranslation } from "react-i18next";
@@ -314,8 +314,9 @@ export function AdminPanel(
   const [timestamp] = useState(() => Date.now());
 
   const formContent = {
+    target: GoalDataTarget.Full,
     goalId: (object as Goal).id,
-    timestamp: timestamp, // Only needed for edits 
+    timestamp: timestamp, // Only needed for edits
 
     name: undefined,
     description: undefined,
@@ -457,15 +458,16 @@ export function AdminPanel(
                                   onSubmit={(e: React.SubmitEvent) => {
                                     e.preventDefault();
 
-                                    const updatedForm = {
-                                      ...formContent,
+                                    // Clear only the historical section, leaving the rest of the goal untouched.
+                                    formSubmitter('/api/goal', JSON.stringify({
+                                      target: GoalDataTarget.Historical,
+                                      goalId: (object as Goal).id,
+                                      timestamp: timestamp,
                                       historicalId: null,
                                       historical: null,
                                       historicalRecipeId: null,
                                       historicalRecipe: null,
-                                    };
-
-                                    formSubmitter('/api/goal', JSON.stringify(updatedForm), 'PUT', t);
+                                    } satisfies GoalUpdateInput), 'PUT', t);
                                   }}
                                 >
                                 <div className="flex-grow-100">

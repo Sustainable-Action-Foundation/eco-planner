@@ -1,6 +1,9 @@
 import type { SerializedRecipe } from "@/functions/recipe";
 import type { ActionImpactType, Prisma, RoadmapType } from "@/lib/prisma/generated";
 import type { Action, DateValuesWithUnit } from "@/types";
+// Imported as a value (not `import type`) because it's used in `typeof GoalDataTarget.*` queries below.
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { GoalDataTarget } from "@/types/consts";
 
 /** The format of data needed to create a new roadmap series */
 export type MetaRoadmapCreateInput = {
@@ -144,7 +147,8 @@ export type RoadmapCreateInput = {
   metaRoadmapId: string;
   // comments: Prisma.CommentCreateNestedManyWithoutRoadmapInput; // Cannot be created with a new roadmap
   // goals: Prisma.GoalCreateNestedManyWithoutRoadmapInput;
-  goals: GoalCreateInput[] | null | undefined;
+  // Nested goals are always created in full (a new goal needs its data series etc.)
+  goals: GoalCreateFull[] | null | undefined;
   // actions: Prisma.ActionCreateNestedManyWithoutRoadmapInput; // Cannot be created with a new roadmap
 
   // Access control
@@ -185,7 +189,8 @@ export type RoadmapUpdateInput = {
   metaRoadmapId?: never; // Can't reassign the meta roadmap of an existing roadmap. IT WOULD BE MAYHEM.
   // comments: Prisma.CommentUpdateManyWithoutRoadmapNestedInput; // Cannot be updated from the roadmap
   // goals: Prisma.GoalUpdateManyWithoutRoadmapNestedInput;
-  goals: GoalCreateInput[] | null | undefined;
+  // Nested goals are always created in full (a new goal needs its data series etc.)
+  goals: GoalCreateFull[] | null | undefined;
   // actions: Prisma.ActionUpdateManyWithoutRoadmapNestedInput; // Cannot be updated from the roadmap
 
   // Access control
@@ -200,109 +205,99 @@ export type RoadmapUpdateInput = {
 };
 
 /**
- * The format of the data needed to create a new goal.
- * 
- * This type is derived from @type {Prisma.GoalCreateInput} but with some fields omitted in clear text for better intellisense readability and maintainability.
- * 
- * That being said, if the schema changes, this type will need to be updated manually.
+ * ## Goal request field groups
+ *
+ * The goal API body is a discriminated union (see GoalCreateInput / GoalUpdateInput),
+ * tagged by `target` (a GoalDataTarget). These reusable groups describe each
+ * section's fields; the variants below compose them. Derived from
+ * @type {Prisma.GoalCreateInput} / @type {Prisma.GoalUpdateInput} — if the schema
+ * changes, these must be updated manually.
  */
-export type GoalCreateInput = {
-  goalId?: never; // Ignored when creating
-  timestamp?: never; // Ignored when creating
 
-  // id: string | undefined; // Gets created automatically // Created by the API
-  // createdAt: string | Date | undefined; // Gets set automatically // Created by the API
-  // updatedAt: string | Date | undefined; // Gets set automatically // Created by the API
-
-  // Basic meta
-  name: string | null | undefined;
-  description: string | null | undefined;
-  indicatorParameter: string;
-  isFeatured: boolean | undefined;
-
-  recipeSuggestions: SerializedRecipe[] | null | undefined;
-
-  dataSeriesId: string | null | undefined;
-  dataSeries: DateValuesWithUnit;
-  dataSeriesRecipeId: string | null | undefined;
-  dataSeriesRecipe: SerializedRecipe | null | undefined;
-
-  baselineId: string | null | undefined;
-  baseline: DateValuesWithUnit | null | undefined;
-  baselineRecipeId: string | null | undefined;
-  baselineRecipe: SerializedRecipe | null | undefined;
-
-  // Historical data. The external API selection lives in the recipe; the server
-  // fetches it into the `historical` DataSeries on save.
-  historicalId: string | null | undefined;
-  historical: DateValuesWithUnit | null | undefined;
-  historicalRecipeId: string | null | undefined;
-  historicalRecipe: SerializedRecipe | null | undefined;
-
-  // Relations
-  // authorId: string; // Derived from session in the API
-  // effects: Prisma.EffectCreateNestedManyWithoutGoalInput; // Cannot be created with a new goal
-  roadmapId: string;
-  // comments: Prisma.CommentCreateNestedManyWithoutGoalInput; // Cannot be created with a new goal
-  rawTags: string[] | null | undefined; // Transform into tags relation in the server side API
-
-  // TODO: Deprecated - will be moved to description
-  links: { url: string, description?: string | null }[] | null | undefined;
-};
-
-/**
- * The format of the data allowed to update an existing goal.
- * 
- * This type is derived from @type {Prisma.GoalUpdateInput} but with some fields omitted in clear text for better intellisense readability and maintainability.
- * 
- * That being said, if the schema changes, this type will need to be updated manually.
- */
-export type GoalUpdateInput = {
-  // Required to find this goal
-  goalId: string;
-
-  // Stale data check
-  timestamp: number; // From Date.now() i.e. milliseconds since epoch
-
-  // id: string | undefined; // Gets created automatically
-  // createdAt: string | Date | undefined; // Gets set automatically
-  // updatedAt: string | Date | undefined; // Gets set automatically
-
-  // Basic meta
+/** Basic goal metadata, plus the deprecated `links`. */
+type GoalMetaFields = {
   name: string | null | undefined;
   description: string | null | undefined;
   indicatorParameter: string | undefined;
   isFeatured: boolean | undefined;
-
-  dataSeriesId: string | null | undefined;
-  dataSeries: DateValuesWithUnit | null | undefined;
-  dataSeriesRecipeId: string | null | undefined;
-  dataSeriesRecipe: SerializedRecipe | null | undefined;
-
-  baselineId: string | null | undefined;
-  baseline: DateValuesWithUnit | null | undefined;
-  baselineRecipeId: string | null | undefined;
-  baselineRecipe: SerializedRecipe | null | undefined;
-
-  // Historical data. The external API selection lives in the recipe; the server
-  // fetches it into the `historical` DataSeries on save.
-  historicalId: string | null | undefined;
-  historical: DateValuesWithUnit | null | undefined;
-  historicalRecipeId: string | null | undefined;
-  historicalRecipe: SerializedRecipe | null | undefined;
-
   recipeSuggestions: SerializedRecipe[] | null | undefined;
-
-  // Relations
-  // authorId: string; // Derived from session in the API
-  // effects: Prisma.EffectCreateNestedManyWithoutGoalInput; // Cannot be updated from the goal
-  roadmapId?: never; // Ignored when updating; Can't reassign the roadmap of an existing goal
-  // comments: Prisma.CommentCreateNestedManyWithoutGoalInput; // Cannot be updated from the goal
   rawTags: string[] | null | undefined; // Transform into tags relation in the server side API
-
   // TODO: Deprecated - will be moved to description
   links: { url: string, description?: string | null }[] | null | undefined;
 };
+
+// Section fields are key-optional: a sectional request only needs to send the
+// fields it actually sets (e.g. clearing historical sends just the nulls it wants).
+/** The main data series section. */
+export type DataSeriesFields = {
+  dataSeriesId?: string | null | undefined;
+  dataSeries?: DateValuesWithUnit | null | undefined;
+  dataSeriesRecipeId?: string | null | undefined;
+  dataSeriesRecipe?: SerializedRecipe | null | undefined;
+};
+
+/** The baseline section. */
+export type BaselineFields = {
+  baselineId?: string | null | undefined;
+  baseline?: DateValuesWithUnit | null | undefined;
+  baselineRecipeId?: string | null | undefined;
+  baselineRecipe?: SerializedRecipe | null | undefined;
+};
+
+/**
+ * The historical section. The external API selection lives in the recipe; the
+ * server fetches it into the `historical` DataSeries on save.
+ */
+export type HistoricalFields = {
+  historicalId?: string | null | undefined;
+  historical?: DateValuesWithUnit | null | undefined;
+  historicalRecipeId?: string | null | undefined;
+  historicalRecipe?: SerializedRecipe | null | undefined;
+};
+
+/** Identity for a request that writes a single section of an existing goal. */
+type GoalSectionIdentity = {
+  goalId: string; // The existing goal being written to
+  timestamp: number; // Stale data check; from Date.now() i.e. milliseconds since epoch
+  roadmapId?: never; // Sectional requests can't (re)assign a roadmap
+};
+
+// The three sectional variants are structurally identical between create and
+// update (create = "add this section", update = "replace this section"); the
+// distinction is the HTTP method, handled in the route.
+type GoalDataSeriesSection = { target: typeof GoalDataTarget.DataSeries } & GoalSectionIdentity & DataSeriesFields;
+type GoalBaselineSection = { target: typeof GoalDataTarget.Baseline } & GoalSectionIdentity & BaselineFields;
+type GoalHistoricalSection = { target: typeof GoalDataTarget.Historical } & GoalSectionIdentity & HistoricalFields;
+
+/** Create a brand-new goal with all sections at once. `dataSeries` and `indicatorParameter` are required. */
+export type GoalCreateFull = {
+  target: typeof GoalDataTarget.Full;
+  goalId?: never; // Ignored when creating
+  timestamp?: never; // Ignored when creating
+  roadmapId: string;
+  indicatorParameter: string; // Required on create
+  dataSeries: DateValuesWithUnit; // Required on create
+} & GoalMetaFields & DataSeriesFields & BaselineFields & HistoricalFields;
+
+/** Update every section of an existing goal at once. */
+export type GoalUpdateFull = {
+  target: typeof GoalDataTarget.Full;
+  goalId: string;
+  timestamp: number; // Stale data check; from Date.now() i.e. milliseconds since epoch
+  roadmapId?: never; // Can't reassign the roadmap of an existing goal
+} & GoalMetaFields & DataSeriesFields & BaselineFields & HistoricalFields;
+
+/**
+ * The body accepted by `POST /api/goal`: either a full new goal, or one section
+ * added to an existing goal. Discriminated by `target`.
+ */
+export type GoalCreateInput = GoalCreateFull | GoalDataSeriesSection | GoalBaselineSection | GoalHistoricalSection;
+
+/**
+ * The body accepted by `PUT /api/goal`: either a full goal update, or one section
+ * replaced on an existing goal. Discriminated by `target`.
+ */
+export type GoalUpdateInput = GoalUpdateFull | GoalDataSeriesSection | GoalBaselineSection | GoalHistoricalSection;
 
 /** The format of the data needed to create a new action. */
 export type ActionInput = {

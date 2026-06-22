@@ -3,7 +3,7 @@
 import formSubmitter from "@/functions/formSubmitter";
 import parseCsv, { csvToGoalList } from "@/functions/parseCsv";
 import type { LoginData } from "@/lib/session";
-import type { AccessControlled, GoalCreateInput, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
+import type { AccessControlled, GoalCreateFull, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
 import type { MetaRoadmap, Roadmap } from "@/lib/prisma/generated";
 import { useEffect, useMemo, useRef, useState } from "react";
 import styles from '../forms.module.css';
@@ -115,7 +115,7 @@ export default function RoadmapForm({
     const visibility = (form.namedItem("visibility") as RadioNodeList)?.value;
     const editability = (form.namedItem("editability") as RadioNodeList)?.value;
 
-    let goals: GoalCreateInput[] = [];
+    let goals: GoalCreateFull[] = [];
     if (currentFile) {
       try {
         goals = csvToGoalList(parseCsv(await currentFile.arrayBuffer().then((buffer) => { return buffer; })), () => addToast(t("forms:roadmap.scale_deprecated"), "warning"));

@@ -16,6 +16,19 @@ export const ClientError = {
 } as const;
 export type ClientError = (typeof ClientError)[keyof typeof ClientError];
 
+/**
+ * Which part of a goal a create/update request targets. Sent by the client to
+ * discriminate the request body so the goal API can validate and handle a single
+ * focused shape instead of a bag of optionals.
+ */
+export const GoalDataTarget = {
+  Full: "FULL",
+  DataSeries: "DATA_SERIES",
+  Baseline: "BASELINE",
+  Historical: "HISTORICAL",
+} as const;
+export type GoalDataTarget = (typeof GoalDataTarget)[keyof typeof GoalDataTarget];
+
 /** Object and type with the different types of sorting available for roadmaps */
 export const RoadmapSortBy = {
   Default: "",

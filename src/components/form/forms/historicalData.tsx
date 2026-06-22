@@ -9,7 +9,8 @@ import { ExternalDataset, isDataSetKeys } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
 import type { PxWebTimeVariable, PxWebVariable } from "@/lib/pxWeb/pxWebApiV2Types";
 import type { TrafaVariable } from "@/lib/trafa/trafaTypes";
-import type { Goal } from "@/types";
+import { GoalDataTarget } from "@/types";
+import type { Goal, GoalUpdateInput } from "@/types";
 import { Recipe } from "@/functions/recipe";
 import { getHistoricalSource } from "@/functions/getHistoricalDataset";
 import type { SubmitEvent } from "react";
@@ -280,11 +281,12 @@ export default function HistoricalData({
     });
 
     formSubmitter("/api/goal", JSON.stringify({
+      target: GoalDataTarget.Historical,
       goalId: goal.id,
       historicalRecipe: recipe.serialize(),
       historicalRecipeId: goal.historical?.recipeUsed?.id ?? undefined,
       timestamp: Date.now(),
-    }), "PUT", t); // TODO: add setIsLoading when we reintroduce it
+    } satisfies GoalUpdateInput), "PUT", t); // TODO: add setIsLoading when we reintroduce it
   }
 
   function shouldVariableFieldsetBeVisible(tableDetails: ApiTableDetails, dataSource: string) {

@@ -3,48 +3,236 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from "@PRISMA-NAMESPACE-ONLY";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
+import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
-import { ClientError, isGoalCreate, isGoalUpdate } from "@/types";
-import type { AccessControlled, JSONValue } from "@/types";
-import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
+import { ClientError, GoalDataTarget, isGoalCreate, isGoalUpdate } from "@/types";
+import type { AccessControlled, BaselineFields, DataSeriesFields, GoalCreateFull, GoalUpdateFull, HistoricalFields, JSONValue } from "@/types";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 import { resolveRecipeExternals, upsertRecipe } from "@/functions/recipe/persistence";
 import type { ResolvedExternals } from "@/functions/recipe/persistence";
+import type { SerializedRecipe } from "@/functions/recipe";
+import type { TFunction } from "i18next";
 import serveTea from "@/lib/i18nServer";
+import type { IronSession } from "iron-session";
 
 /**
- * Handles POST requests to the goal API
+ * Authorizes a write to an existing goal (used by Full update and all sectional
+ * create/update branches): validates the session, that the goal exists and the
+ * user has edit access to its roadmap, and that the provided timestamp isn't stale.
+ * Returns an error `Response` to return immediately, or `{ ok: true }`.
  */
-export async function POST(request: NextRequest) {
-  const [session, formData] = await Promise.all([
-    getSession(await cookies()),
-    request.json() as Promise<JSONValue>,
-  ]);
-  const t = await serveTea("api");
-
-  // Validate session
+async function authorizeGoalWrite(session: IronSession<LoginData>, goalId: string, timestamp: number, t: TFunction): Promise<{ error: Response } | { ok: true }> {
   if (!session.user?.id) {
-    return Response.json({ message: t('api:common.unauthorized') },
-      { status: 401, headers: { 'Location': '/login' } },
-    );
-  }
-  const authorId = session.user.id;
-
-  // Validate form data type
-  if (!isGoalCreate(formData)) {
-    console.error("formData failed validation");
-    return Response.json({ message: t('api:common.invalid_request_body') },
-      { status: 400 },
-    );
+    return { error: Response.json({ message: t('api:common.unauthorized') }, { status: 401, headers: { 'Location': '/login' } }) };
   }
 
-  // Auth control
+  try {
+    const [user, currentGoal] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { id: true, username: true, isAdmin: true, userGroups: true },
+      }),
+      prisma.goal.findUnique({
+        where: { id: goalId },
+        select: {
+          updatedAt: true,
+          roadmap: {
+            select: {
+              author: { select: { id: true, username: true } },
+              editors: { select: { id: true, username: true } },
+              viewers: { select: { id: true, username: true } },
+              editGroups: { select: { id: true, name: true, users: { select: { id: true, username: true } } } },
+              viewGroups: { select: { id: true, name: true, users: { select: { id: true, username: true } } } },
+              isPublic: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    // Bad session cookie (no user, or falsely claims admin) -> log out
+    if (!user || (session.user.isAdmin && !user.isAdmin)) {
+      throw new Error(ClientError.BadSession, { cause: 'goal' });
+    }
+    // No goal or no access -> AccessDenied
+    if (!currentGoal) {
+      throw new Error(ClientError.AccessDenied, { cause: 'goal' });
+    }
+    const access = accessChecker(currentGoal.roadmap as AccessControlled, session.user);
+    if (!hasEditAccess(access)) {
+      throw new Error(ClientError.AccessDenied, { cause: 'goal' });
+    }
+    // Stale data check
+    if (!timestamp || new Date(currentGoal.updatedAt).getTime() > timestamp) {
+      throw new Error(ClientError.StaleData, { cause: 'goal' });
+    }
+
+    return { ok: true };
+  }
+  catch (err) {
+    if (err instanceof Error) {
+      if (err.message === ClientError.BadSession) {
+        session.destroy();
+        return { error: Response.json({ message: ClientError.BadSession }, { status: 400, headers: { 'Location': '/login' } }) };
+      }
+      if (err.message === ClientError.StaleData) {
+        return { error: Response.json({ message: ClientError.StaleData }, { status: 409 }) };
+      }
+      if (err.message === ClientError.AccessDenied) {
+        return { error: Response.json({ message: ClientError.AccessDenied }, { status: 403 }) };
+      }
+    }
+    console.error(err);
+    return { error: Response.json({ message: t('api:common.server_error') }, { status: 500 }) };
+  }
+}
+
+/** Resolves a recipe's external variables before a transaction, or null when there's no recipe. */
+function resolveSectionExternals(recipe: SerializedRecipe | null | undefined, recipeId: string | null | undefined): Promise<ResolvedExternals | null> {
+  return recipe
+    ? resolveRecipeExternals(recipe, recipeId)
+    : Promise.resolve(null);
+}
+
+/**
+ * ## Per-section writers
+ *
+ * Shared by sectional POST (create the section) and PUT (replace the section);
+ * both apply one section to an already-authorized, existing goal. Each returns
+ * the Response to send. Section field shapes come from @type {DataSeriesFields | BaselineFields | HistoricalFields}.
+ */
+
+async function writeDataSeriesSection(authorId: string, goalId: string, section: DataSeriesFields, t: TFunction): Promise<Response> {
+  let externals: ResolvedExternals | null;
+  try { externals = await resolveSectionExternals(section.dataSeriesRecipe, section.dataSeriesRecipeId); }
+  catch (err) { console.error(err); return Response.json({ message: t('api:common.server_error') }, { status: 500 }); }
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      const { recipeId } = await upsertRecipe(tx, authorId, "data series", {
+        recipe: section.dataSeriesRecipe, recipeId: section.dataSeriesRecipeId, resolved: externals,
+      });
+      await tx.goal.update({
+        where: { id: goalId },
+        data: {
+          dataSeries: section.dataSeries ? {
+            upsert: {
+              create: {
+                author: { connect: { id: authorId } },
+                recipeUsed: typeof recipeId === 'string' ? { connect: { id: recipeId } } : undefined,
+                values: { createMany: { data: dateValuesToDBDateRecord(section.dataSeries.dateValues) } },
+                ...(section.dataSeries.unit == null ? {} : { unit: section.dataSeries.unit }),
+              },
+              update: {
+                recipeUsed: recipeId === undefined
+                  ? undefined
+                  : typeof recipeId === 'string'
+                    ? { connect: { id: recipeId } }
+                    : { disconnect: true },
+                values: { deleteMany: {}, createMany: { data: dateValuesToDBDateRecord(section.dataSeries.dateValues) } },
+                unit: section.dataSeries.unit,
+              },
+            },
+          } : section.dataSeriesId ? {
+            connect: { id: section.dataSeriesId },
+          } : undefined,
+        },
+      });
+    });
+    revalidateTag('goal', { expire: 0 });
+    return Response.json({ message: t('api:goal.goal_updated'), id: goalId }, { status: 200, headers: { 'Location': `/goal/${goalId}` } });
+  }
+  catch (err) { console.error(err); return Response.json({ message: t('api:common.server_error') }, { status: 500 }); }
+}
+
+async function writeBaselineSection(authorId: string, goalId: string, section: BaselineFields, t: TFunction): Promise<Response> {
+  let externals: ResolvedExternals | null;
+  try { externals = await resolveSectionExternals(section.baselineRecipe, section.baselineRecipeId); }
+  catch (err) { console.error(err); return Response.json({ message: t('api:common.server_error') }, { status: 500 }); }
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      const { recipeId } = await upsertRecipe(tx, authorId, "baseline", {
+        recipe: section.baselineRecipe, recipeId: section.baselineRecipeId, resolved: externals,
+      });
+
+      const hasNonEmptyBaselinePayload = !!section.baseline && Object.keys(section.baseline.dateValues).length > 0;
+      // Disconnect first so we create a fresh baseline rather than mutating one that
+      // may just be a reference to another goal's data series.
+      if (hasNonEmptyBaselinePayload) {
+        await tx.goal.update({ where: { id: goalId }, data: { baseline: { disconnect: true } } });
+      }
+
+      await tx.goal.update({
+        where: { id: goalId },
+        data: {
+          baseline: hasNonEmptyBaselinePayload && section.baseline ? {
+            connectOrCreate: {
+              where: { id: section.baselineId ?? "" },
+              create: {
+                author: { connect: { id: authorId } },
+                recipeUsed: typeof recipeId === 'string' ? { connect: { id: recipeId } } : undefined,
+                values: { createMany: { data: dateValuesToDBDateRecord(section.baseline.dateValues) } },
+                unit: section.baseline.unit,
+              },
+            },
+          } : section.baselineId ? {
+            connect: { id: section.baselineId },
+          } : undefined,
+        },
+      });
+    });
+    revalidateTag('goal', { expire: 0 });
+    return Response.json({ message: t('api:goal.goal_updated'), id: goalId }, { status: 200, headers: { 'Location': `/goal/${goalId}` } });
+  }
+  catch (err) { console.error(err); return Response.json({ message: t('api:common.server_error') }, { status: 500 }); }
+}
+
+async function writeHistoricalSection(authorId: string, goalId: string, section: HistoricalFields, t: TFunction): Promise<Response> {
+  let externals: ResolvedExternals | null;
+  try { externals = await resolveSectionExternals(section.historicalRecipe, section.historicalRecipeId); }
+  catch (err) { console.error(err); return Response.json({ message: t('api:common.server_error') }, { status: 500 }); }
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      const result = await upsertRecipe(tx, authorId, "historical", {
+        recipe: section.historicalRecipe, recipeId: section.historicalRecipeId, resolved: externals,
+      });
+      // The historical recipe's single external variable becomes the goal's historical DataSeries
+      const resolvedHistoricalId = Object.values(result.dataSeriesIdsByVariable)[0] ?? null;
+      const historicalDataSeriesId = resolvedHistoricalId ?? section.historicalId ?? null;
+      // Link the historical recipe to its resulting series so the source stays discoverable
+      if (resolvedHistoricalId && typeof result.recipeId === 'string') {
+        await tx.dataSeries.update({
+          where: { id: resolvedHistoricalId },
+          data: { recipeUsed: { connect: { id: result.recipeId } } },
+        });
+      }
+      await tx.goal.update({
+        where: { id: goalId },
+        data: {
+          historical: historicalDataSeriesId ? { connect: { id: historicalDataSeriesId } } : { disconnect: true },
+        },
+      });
+    });
+    revalidateTag('goal', { expire: 0 });
+    return Response.json({ message: t('api:goal.goal_updated'), id: goalId }, { status: 200, headers: { 'Location': `/goal/${goalId}` } });
+  }
+  catch (err) { console.error(err); return Response.json({ message: t('api:common.server_error') }, { status: 500 }); }
+}
+
+/**
+ * Creates a brand-new goal (Full POST): authorizes against the target roadmap,
+ * then creates the goal with all of its sections in one transaction.
+ */
+async function createFullGoal(session: IronSession<LoginData>, authorId: string, formData: GoalCreateFull, t: TFunction): Promise<Response> {
+  // Auth control (access to the parent roadmap)
   try {
     const [user, roadmap] = await Promise.all([
       prisma.user.findUnique({
-        where: { id: session.user.id },
+        where: { id: authorId },
         select: { id: true, username: true, isAdmin: true, userGroups: true },
       }),
       prisma.roadmap.findUnique({
@@ -60,12 +248,9 @@ export async function POST(request: NextRequest) {
       }),
     ]);
 
-    // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
-    if (!user || (session.user.isAdmin && !user.isAdmin)) {
+    if (!user || (session.user?.isAdmin && !user.isAdmin)) {
       throw new Error(ClientError.BadSession, { cause: 'goal' });
     }
-
-    // If no roadmap is found or the user has no access to it, return IllegalParent
     if (!roadmap) {
       throw new Error(ClientError.IllegalParent, { cause: 'goal' });
     }
@@ -77,8 +262,7 @@ export async function POST(request: NextRequest) {
       viewGroups: roadmap.viewGroups,
       isPublic: roadmap.isPublic,
     };
-    const accessLevel = accessChecker(accessFields, session.user);
-    if (!hasEditAccess(accessLevel)) {
+    if (!hasEditAccess(accessChecker(accessFields, session.user))) {
       throw new Error(ClientError.IllegalParent, { cause: 'goal' });
     }
     // TODO: Access checks for goals used in recipe
@@ -86,48 +270,32 @@ export async function POST(request: NextRequest) {
   catch (err) {
     if (err instanceof Error) {
       if (err.message === ClientError.BadSession) {
-        // Remove session to log out. The client should redirect to login page.
         session.destroy();
-        return Response.json({ message: ClientError.BadSession },
-          { status: 400, headers: { 'Location': '/login' } },
-        );
+        return Response.json({ message: ClientError.BadSession }, { status: 400, headers: { 'Location': '/login' } });
       }
       if (err.message === ClientError.IllegalParent) {
-        return Response.json({ message: ClientError.IllegalParent },
-          { status: 403 },
-        );
+        return Response.json({ message: ClientError.IllegalParent }, { status: 403 });
       }
     }
-    // If no matching error is thrown, log the error and return a generic error message
     console.error(err);
-    return Response.json({ message: t('api:common.server_error') },
-      { status: 500 },
-    );
+    return Response.json({ message: t('api:common.server_error') }, { status: 500 });
   }
 
   let goalId: string | undefined = undefined;
 
-  // Fetch external variable data for all recipes before opening the transaction,
-  // since fetching performs network calls. They are persisted as DataSeries
-  // (and the external variables rewritten) when the recipes are saved below.
+  // Fetch external variable data for all recipes before opening the transaction (network calls).
   let dataSeriesExternals: ResolvedExternals | null = null;
   let baselineExternals: ResolvedExternals | null = null;
   let historicalExternals: ResolvedExternals | null = null;
   try {
     [dataSeriesExternals, baselineExternals, historicalExternals] = await Promise.all([
-      formData.dataSeriesRecipe ? resolveRecipeExternals(formData.dataSeriesRecipe, formData.dataSeriesRecipeId) : Promise.resolve(null),
-      formData.baselineRecipe ? resolveRecipeExternals(formData.baselineRecipe, formData.baselineRecipeId) : Promise.resolve(null),
-      formData.historicalRecipe ? resolveRecipeExternals(formData.historicalRecipe, formData.historicalRecipeId) : Promise.resolve(null),
+      resolveSectionExternals(formData.dataSeriesRecipe, formData.dataSeriesRecipeId),
+      resolveSectionExternals(formData.baselineRecipe, formData.baselineRecipeId),
+      resolveSectionExternals(formData.historicalRecipe, formData.historicalRecipeId),
     ]);
   }
-  catch (err) {
-    console.error(err);
-    return Response.json({ message: t('api:common.server_error') },
-      { status: 500 },
-    );
-  }
+  catch (err) { console.error(err); return Response.json({ message: t('api:common.server_error') }, { status: 500 }); }
 
-  // Parse form data
   try {
     await prisma.$transaction(async (prisma) => {
       // Create/update recipes first, materializing any external variables into DataSeries
@@ -158,15 +326,11 @@ export async function POST(request: NextRequest) {
           description: formData.description,
           indicatorParameter: formData.indicatorParameter,
           isFeatured: formData.isFeatured,
-          author: {
-            connect: { id: session.user?.id },
-          },
-          roadmap: {
-            connect: { id: formData.roadmapId },
-          },
+          author: { connect: { id: authorId } },
+          roadmap: { connect: { id: formData.roadmapId } },
           dataSeries: {
             create: {
-              author: { connect: { id: session.user?.id } },
+              author: { connect: { id: authorId } },
               recipeUsed: typeof formData.dataSeriesRecipeId === 'string'
                 ? { connect: { id: formData.dataSeriesRecipeId } }
                 : undefined,
@@ -179,7 +343,7 @@ export async function POST(request: NextRequest) {
               connectOrCreate: {
                 where: { id: formData.baselineId ?? "" },
                 create: {
-                  author: { connect: { id: session.user?.id } },
+                  author: { connect: { id: authorId } },
                   recipeUsed: typeof formData.baselineRecipeId === 'string'
                     ? { connect: { id: formData.baselineRecipeId } }
                     : undefined,
@@ -189,9 +353,7 @@ export async function POST(request: NextRequest) {
               },
             }
             : formData.baselineId
-              ? {
-                connect: { id: formData.baselineId },
-              }
+              ? { connect: { id: formData.baselineId } }
               : undefined,
           historical: historicalDataSeriesId
             ? { connect: { id: historicalDataSeriesId } }
@@ -203,15 +365,11 @@ export async function POST(request: NextRequest) {
             })),
           },
         },
-        select: {
-          id: true,
-        },
+        select: { id: true },
       })).id;
     });
 
-    // Invalidate old cache
     revalidateTag('goal', { expire: 0 });
-    // Return the new goal's ID if successful
     return Response.json({ message: t('api:goal.goal_created'), id: goalId },
       { status: 201, headers: { 'Location': `/goal/${goalId}` } },
     );
@@ -219,129 +377,33 @@ export async function POST(request: NextRequest) {
   catch (err) {
     console.error(err);
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
-      return Response.json({ message: t('api:goal.roadmap_not_found') },
-        { status: 400 },
-      );
+      return Response.json({ message: t('api:goal.roadmap_not_found') }, { status: 400 });
     }
-    return Response.json({ message: t('api:common.server_error') },
-      { status: 500 },
-    );
+    return Response.json({ message: t('api:common.server_error') }, { status: 500 });
   }
 }
 
 /**
- * Handles PUT requests to the goal API
+ * Updates every section of an existing goal at once (Full PUT).
  */
-export async function PUT(request: NextRequest) {
-  const [session, goal] = await Promise.all([
-    getSession(await cookies()),
-    request.json() as Promise<JSONValue>,
-  ]);
-  const t = await serveTea("api");
+async function updateFullGoal(session: IronSession<LoginData>, authorId: string, goal: GoalUpdateFull, t: TFunction): Promise<Response> {
+  const auth = await authorizeGoalWrite(session, goal.goalId, goal.timestamp, t);
+  if ("error" in auth) return auth.error;
 
-  // Validate session
-  if (!session.user?.id) {
-    return Response.json({ message: t('api:common.unauthorized') },
-      { status: 401, headers: { 'Location': '/login' } },
-    );
-  }
-  const authorId = session.user.id;
-
-  // Validate input
-  if (!isGoalUpdate(goal)) {
-    return Response.json({ message: t('api:common.invalid_request_body') },
-      { status: 400 },
-    );
-  }
-
-  // Get user, current goal
-  try {
-    const [user, currentGoal] = await Promise.all([
-      prisma.user.findUnique({
-        where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true },
-      }),
-      prisma.goal.findUnique({
-        where: { id: goal.goalId },
-        include: goalInclusionSelection,
-      }),
-    ]);
-
-    // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
-    if (!user || (session.user.isAdmin && !user.isAdmin)) {
-      throw new Error(ClientError.BadSession, { cause: 'goal' });
-    }
-
-    // If no goal is found or the user has no access to it, return AccessDenied
-    if (!currentGoal) {
-      throw new Error(ClientError.AccessDenied, { cause: 'goal' });
-    }
-
-    // Check if the user has the right to edit the goal
-    const access = accessChecker(currentGoal.roadmap, session.user);
-    if (!hasEditAccess(access)) {
-      throw new Error(ClientError.AccessDenied, { cause: 'goal' });
-    }
-
-    // If the provided timestamp is not up-to-date, return StaleData
-    if (!goal.timestamp || currentGoal.updatedAt.getTime() > goal.timestamp) {
-      throw new Error(ClientError.StaleData, { cause: 'goal' });
-    }
-  }
-  catch (err) {
-    if (err instanceof Error) {
-      if (err.message === ClientError.BadSession) {
-        // Remove session to log out. The client should redirect to login page.
-        session.destroy();
-        return Response.json({ message: ClientError.BadSession },
-          { status: 400, headers: { 'Location': '/login' } },
-        );
-      }
-      if (err.message === ClientError.StaleData) {
-        return Response.json({ message: ClientError.StaleData },
-          { status: 409 },
-        );
-      }
-      if (err.message === ClientError.IllegalParent) {
-        return Response.json({ message: ClientError.IllegalParent },
-          { status: 403 },
-        );
-      }
-      if (err.message === ClientError.AccessDenied) {
-        return Response.json({ message: ClientError.AccessDenied },
-          { status: 403 },
-        );
-      }
-    }
-    // If no matching error is thrown, log the error and return a generic error message
-    console.error(err);
-    return Response.json({ message: t('api:common.server_error') },
-      { status: 500 },
-    );
-  }
-
-  // Edit goal
   let goalId: string | undefined = undefined;
 
-  // Fetch external variable data for all recipes before opening the transaction,
-  // since fetching performs network calls. They are persisted as DataSeries
-  // (and the external variables rewritten) when the recipes are saved below.
+  // Fetch external variable data for all recipes before opening the transaction (network calls).
   let dataSeriesExternals: ResolvedExternals | null = null;
   let baselineExternals: ResolvedExternals | null = null;
   let historicalExternals: ResolvedExternals | null = null;
   try {
     [dataSeriesExternals, baselineExternals, historicalExternals] = await Promise.all([
-      goal.dataSeriesRecipe ? resolveRecipeExternals(goal.dataSeriesRecipe, goal.dataSeriesRecipeId) : Promise.resolve(null),
-      goal.baselineRecipe ? resolveRecipeExternals(goal.baselineRecipe, goal.baselineRecipeId) : Promise.resolve(null),
-      goal.historicalRecipe ? resolveRecipeExternals(goal.historicalRecipe, goal.historicalRecipeId) : Promise.resolve(null),
+      resolveSectionExternals(goal.dataSeriesRecipe, goal.dataSeriesRecipeId),
+      resolveSectionExternals(goal.baselineRecipe, goal.baselineRecipeId),
+      resolveSectionExternals(goal.historicalRecipe, goal.historicalRecipeId),
     ]);
   }
-  catch (err) {
-    console.error(err);
-    return Response.json({ message: t('api:common.server_error') },
-      { status: 500 },
-    );
-  }
+  catch (err) { console.error(err); return Response.json({ message: t('api:common.server_error') }, { status: 500 }); }
 
   try {
     let historicalDataSeriesId: string | null = null;
@@ -357,10 +419,8 @@ export async function PUT(request: NextRequest) {
         recipe: goal.historicalRecipe, recipeId: goal.historicalRecipeId, resolved: historicalExternals,
       });
       goal.historicalRecipeId = historicalResult.recipeId;
-      // The historical recipe's single external variable becomes the goal's historical DataSeries
       const resolvedHistoricalId = Object.values(historicalResult.dataSeriesIdsByVariable)[0] ?? null;
       historicalDataSeriesId = resolvedHistoricalId ?? goal.historicalId ?? null;
-      // Link the historical recipe to its resulting series so the source stays discoverable
       if (resolvedHistoricalId && typeof goal.historicalRecipeId === 'string') {
         await prisma.dataSeries.update({
           where: { id: resolvedHistoricalId },
@@ -370,17 +430,12 @@ export async function PUT(request: NextRequest) {
 
       const hasNonEmptyBaselinePayload = !!goal.baseline && Object.keys(goal.baseline.dateValues).length > 0;
 
-      // If the goal is updating its baseline, we need to disconnect it from the current one and create a new one
-      // to avoid updating or deleting a baseline which actually is just a reference to another goal's data series
-      // This cannot for some reason be done in the main query before the connectOrCreate, so instead it's done here in a separate query beforehand
+      // Disconnect the baseline first so we create a fresh one rather than mutating a
+      // baseline that may just be a reference to another goal's data series.
       if (hasNonEmptyBaselinePayload) {
         await prisma.goal.update({
           where: { id: goal.goalId },
-          data: {
-            baseline: {
-              disconnect: true,
-            },
-          },
+          data: { baseline: { disconnect: true } },
         });
       }
 
@@ -395,7 +450,7 @@ export async function PUT(request: NextRequest) {
           dataSeries: goal.dataSeries ? {
             upsert: {
               create: {
-                author: { connect: { id: session.user?.id } },
+                author: { connect: { id: authorId } },
                 recipeUsed: typeof goal.dataSeriesRecipeId === 'string'
                   ? { connect: { id: goal.dataSeriesRecipeId } }
                   : undefined,
@@ -423,7 +478,7 @@ export async function PUT(request: NextRequest) {
               connectOrCreate: {
                 where: { id: goal.baselineId ?? "" },
                 create: {
-                  author: { connect: { id: session.user?.id } },
+                  author: { connect: { id: authorId } },
                   recipeUsed: typeof goal.baselineRecipeId === 'string'
                     ? { connect: { id: goal.baselineRecipeId } }
                     : undefined,
@@ -447,26 +502,114 @@ export async function PUT(request: NextRequest) {
             })),
           },
         },
-        select: {
-          id: true,
-        },
+        select: { id: true },
       })).id;
     });
 
     // Prune any orphaned links and comments
     void pruneOrphans();
-    // Invalidate old cache
     revalidateTag('goal', { expire: 0 });
-    // Return the edited goal's ID if successful
     return Response.json({ message: t('api:goal.goal_updated'), id: goalId },
       { status: 200, headers: { 'Location': `/goal/${goalId}` } },
     );
   }
-  catch (err) {
-    console.error(err);
-    return Response.json({ message: t('api:common.server_error') },
-      { status: 500 },
-    );
+  catch (err) { console.error(err); return Response.json({ message: t('api:common.server_error') }, { status: 500 }); }
+}
+
+/**
+ * Handles POST requests to the goal API. The body is a discriminated union
+ * (see {@link GoalCreateInput}): `Full` creates a new goal, while the sectional
+ * targets add one section to an existing goal.
+ */
+export async function POST(request: NextRequest) {
+  const [session, formData] = await Promise.all([
+    getSession(await cookies()),
+    request.json() as Promise<JSONValue>,
+  ]);
+  const t = await serveTea("api");
+
+  if (!session.user?.id) {
+    return Response.json({ message: t('api:common.unauthorized') }, { status: 401, headers: { 'Location': '/login' } });
+  }
+  const authorId = session.user.id;
+
+  if (!isGoalCreate(formData)) {
+    console.error("formData failed validation");
+    return Response.json({ message: t('api:common.invalid_request_body') }, { status: 400 });
+  }
+
+  switch (formData.target) {
+    case GoalDataTarget.Full: {
+      return createFullGoal(session, authorId, formData, t);
+    }
+    case GoalDataTarget.DataSeries: {
+      const auth = await authorizeGoalWrite(session, formData.goalId, formData.timestamp, t);
+      if ("error" in auth) return auth.error;
+      return writeDataSeriesSection(authorId, formData.goalId, formData, t);
+    }
+    case GoalDataTarget.Baseline: {
+      const auth = await authorizeGoalWrite(session, formData.goalId, formData.timestamp, t);
+      if ("error" in auth) return auth.error;
+      return writeBaselineSection(authorId, formData.goalId, formData, t);
+    }
+    case GoalDataTarget.Historical: {
+      const auth = await authorizeGoalWrite(session, formData.goalId, formData.timestamp, t);
+      if ("error" in auth) return auth.error;
+      return writeHistoricalSection(authorId, formData.goalId, formData, t);
+    }
+    default: {
+      const exhaustive: never = formData; // Never used to cause type error if the switch isn't exhaustive.
+      console.error("Received goal create with unrecognized target:", exhaustive);
+      throw new Error(`Unhandled goal create target. Now switch case for this target: "${String(exhaustive["target"])}"`);
+    }
+  }
+}
+
+/**
+ * Handles PUT requests to the goal API. The body is a discriminated union
+ * (see {@link GoalUpdateInput}): `Full` updates the whole goal, while the
+ * sectional targets replace one section of an existing goal.
+ */
+export async function PUT(request: NextRequest) {
+  const [session, goal] = await Promise.all([
+    getSession(await cookies()),
+    request.json() as Promise<JSONValue>,
+  ]);
+  const t = await serveTea("api");
+
+  if (!session.user?.id) {
+    return Response.json({ message: t('api:common.unauthorized') }, { status: 401, headers: { 'Location': '/login' } });
+  }
+  const authorId = session.user.id;
+
+  if (!isGoalUpdate(goal)) {
+    return Response.json({ message: t('api:common.invalid_request_body') }, { status: 400 });
+  }
+
+  switch (goal.target) {
+    case GoalDataTarget.Full: {
+      return updateFullGoal(session, authorId, goal, t);
+    }
+    case GoalDataTarget.DataSeries: {
+      const auth = await authorizeGoalWrite(session, goal.goalId, goal.timestamp, t);
+      if ("error" in auth) return auth.error;
+      return writeDataSeriesSection(authorId, goal.goalId, goal, t);
+    }
+    case GoalDataTarget.Baseline: {
+      const auth = await authorizeGoalWrite(session, goal.goalId, goal.timestamp, t);
+      if ("error" in auth) return auth.error;
+      return writeBaselineSection(authorId, goal.goalId, goal, t);
+    }
+    case GoalDataTarget.Historical: {
+      const auth = await authorizeGoalWrite(session, goal.goalId, goal.timestamp, t);
+      if ("error" in auth) return auth.error;
+      return writeHistoricalSection(authorId, goal.goalId, goal, t);
+    }
+    default: {
+      const exhaustive: never = goal; // Never used to cause type error if the switch isn't exhaustive.
+      console.error("Received goal update with unrecognized target:", exhaustive);
+      throw new Error(`Unhandled goal update target. Now switch case for this target: "${String(exhaustive["target"])}"`);
+    }
   }
 }
 

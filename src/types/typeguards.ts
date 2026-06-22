@@ -1,4 +1,5 @@
 import type { DateValues, DateValuesWithUnit, ISOIshDate, JSONValue, UnitString, GoalCreateInput, GoalUpdateInput, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
+import { GoalDataTarget } from "./consts";
 
 /**
  * A utility function for helping with finding where something fails in a typeguard chain.
@@ -61,195 +62,84 @@ export function isDateValuesWithUnit(dateValues: JSONValue): dateValues is DateV
 /** 
  * WARNING! also mutates and deserializes the input goal object!
  */
-export function isGoalCreate(goal: unknown): goal is GoalCreateInput {
-  if (!isStandardObject(goal)) return false;
+// ── Goal request validators ──────────────────────────────────────────────────
+// The goal API body is a discriminated union tagged by `target`. We trust the
+// tag only to decide which validation to run — each validator still checks every
+// field of its section. Validators mutate `goal` in place (JSON-parsing the
+// DateValuesWithUnit fields), matching the legacy behaviour the route relies on.
 
-  // goalId?: never;
-  if ("goalId" in goal && goal.goalId !== undefined) {
-    console.debug(`goal tries to define its own "goalId" during creation`);
+/** True for `string | null | undefined`. */
+function isStringOrNullish(value: unknown): boolean {
+  return typeof value === 'string' || value === null || value === undefined;
+}
+
+/** True for `string[] | null | undefined`. */
+function isStringArrayOrNullish(value: unknown): boolean {
+  return value === null || value === undefined || (Array.isArray(value) && value.every(item => typeof item === "string"));
+}
+
+/** Validates an optional serialized-recipe field (`string | null | undefined`). */
+function validateRecipeField(goal: Record<string, unknown>, key: string): boolean {
+  if (key in goal && !isStringOrNullish(goal[key])) {
+    console.debug(`optional goal parameter "${key}" is neither nullish nor a serialized recipe string`);
     return false;
   }
+  return true;
+}
 
-  // timestamp?: never;
-  // Should probably allow timestamps and silently drop them instead
-  if ("timestamp" in goal && goal.timestamp !== undefined) {
-    console.debug(`goal sends "timestamp" during creation`);
+/** Validates and JSON-parses (mutating `goal[key]`) a DateValuesWithUnit field. */
+function validateDateValuesField(goal: Record<string, unknown>, key: string, required: boolean): boolean {
+  if (!(key in goal)) {
+    if (required) {
+      console.debug(`goal missing required parameter "${key}"`);
+      return false;
+    }
+    return true;
+  }
+  const parsed = tryParseJSON(goal[key]);
+  if (!parsed.ok) {
+    console.debug(`failed to parse goal parameter "${key}" as JSON`);
     return false;
   }
-
-  // roadmapId: string;
-  if (!("roadmapId" in goal) || typeof goal.roadmapId !== 'string') {
-    console.debug(`goal missing required parameter "roadmapId" or "roadmapId" is not a string`);
+  goal[key] = parsed.value;
+  const value = goal[key];
+  if (value === null || value === undefined) {
+    if (required) {
+      console.debug(`goal parameter "${key}" is required and cannot be null`);
+      return false;
+    }
+    return true;
+  }
+  if (!(isStandardObject(value) && isDateValuesWithUnit(value as JSONValue))) {
+    console.debug(`goal parameter "${key}" is not a valid DateValuesWithUnit`);
     return false;
   }
+  return true;
+}
 
-  // indicatorParameter: string;
-  if (!("indicatorParameter" in goal) || typeof goal.indicatorParameter !== 'string') {
-    console.debug(`goal missing required parameter "indicatorParameter" or "indicatorParameter" is not a string`);
-    return false;
-  }
-
-  // name: string | null | undefined;
-  if ("name" in goal && !(typeof goal.name === 'string' || goal.name === null || goal.name === undefined)) {
+/** Validates the shared goal metadata (all optional; `indicatorParameter` is validated per-variant). */
+function validateGoalMetaFields(goal: Record<string, unknown>): boolean {
+  if ("name" in goal && !isStringOrNullish(goal.name)) {
     console.debug(`optional goal parameter "name" has wrong type: ${typeof goal.name}`);
     return false;
   }
-
-  // description: string | null | undefined;
-  if ("description" in goal && !(typeof goal.description === 'string' || goal.description === null || goal.description === undefined)) {
+  if ("description" in goal && !isStringOrNullish(goal.description)) {
     console.debug(`optional goal parameter "description" has wrong type: ${typeof goal.description}`);
     return false;
   }
-
-  // isFeatured: boolean | undefined;
   if ("isFeatured" in goal && !(typeof goal.isFeatured === 'boolean' || goal.isFeatured === undefined)) {
     console.debug(`optional goal parameter "isFeatured" has wrong type: ${typeof goal.isFeatured}`);
     return false;
   }
-
-  // recipeSuggestions: SerializedRecipe[] | null | undefined;
-  if ("recipeSuggestions" in goal && !(
-    (
-      Array.isArray(goal.recipeSuggestions)
-      && goal.recipeSuggestions.every(recipe => typeof recipe === "string")
-    )
-    || goal.recipeSuggestions === null
-    || goal.recipeSuggestions === undefined
-  )) {
+  if ("recipeSuggestions" in goal && !isStringArrayOrNullish(goal.recipeSuggestions)) {
     console.debug(`optional goal parameter "recipeSuggestions" has wrong type: ${typeof goal.recipeSuggestions}`);
     return false;
   }
-
-  // dataSeries: DateValuesWithUnit;
-  if (!("dataSeries" in goal)) {
-    console.debug(`goal missing required parameter "dataSeries"`);
-    return false;
-  }
-  {
-    const parsed = tryParseJSON(goal.dataSeries);
-    if (!parsed.ok) {
-      console.debug(`failed to parse goal parameter "dataSeries" as JSON`);
-      return false;
-    }
-    goal.dataSeries = parsed.value as GoalCreateInput["dataSeries"];
-  }
-  if (!(
-    isStandardObject(goal.dataSeries)
-    && isDateValuesWithUnit(goal.dataSeries)
-  )) {
-    console.debug(`goal parameter "dataSeries" is not a valid DateValuesWithUnit`);
-    return false;
-  }
-
-  // dataSeriesId: string | null | undefined;
-  if ("dataSeriesId" in goal && !(typeof goal.dataSeriesId === 'string' || goal.dataSeriesId === null || goal.dataSeriesId === undefined)) {
-    console.debug(`optional goal parameter "dataSeriesId" has wrong type`);
-    return false;
-  }
-
-  // dataSeriesRecipe: SerializedRecipe | null | undefined;
-  if ("dataSeriesRecipe" in goal) {
-    if (!(
-      goal.dataSeriesRecipe === null
-      || goal.dataSeriesRecipe === undefined
-      || typeof goal.dataSeriesRecipe === "string"
-    )) {
-      console.debug(`optional goal parameter "dataSeriesRecipe" is neither nullish nor a serialized recipe string`);
-      return false;
-    }
-  }
-
-  // dataSeriesRecipeId: string | null | undefined;
-  if ("dataSeriesRecipeId" in goal && !(typeof goal.dataSeriesRecipeId === 'string' || goal.dataSeriesRecipeId === null || goal.dataSeriesRecipeId === undefined)) {
-    console.debug(`optional goal parameter "dataSeriesRecipeId" has wrong type: ${typeof goal.dataSeriesRecipeId}`);
-    return false;
-  }
-
-  // baseline: DateValuesWithUnit | null | undefined;
-  if ("baseline" in goal) {
-    {
-      const parsed = tryParseJSON(goal.baseline);
-      if (!parsed.ok) {
-        console.debug(`failed to parse goal parameter "baseline" as JSON`);
-        return false;
-      }
-      goal.baseline = parsed.value as GoalCreateInput["baseline"];
-    }
-    if (!(
-      goal.baseline === null
-      || goal.baseline === undefined
-      || isStandardObject(goal.baseline)
-      && isDateValuesWithUnit(goal.baseline)
-    )) {
-      console.debug(`optional goal parameter "baseline" is neither nullish nor a valid DateValuesWithUnit`);
-      return false;
-    }
-  }
-
-  // baselineId: string | null | undefined;
-  if ("baselineId" in goal && !(typeof goal.baselineId === 'string' || goal.baselineId === null || goal.baselineId === undefined)) {
-    console.debug(`optional goal parameter "baselineId" has wrong type: ${typeof goal.baselineId}`);
-    return false;
-  }
-
-  // baselineRecipe: SerializedRecipe | null | undefined;
-  if ("baselineRecipe" in goal) {
-    if (!(
-      goal.baselineRecipe === null
-      || goal.baselineRecipe === undefined
-      || typeof goal.baselineRecipe === "string"
-    )) {
-      console.debug(`optional goal parameter "baselineRecipe" is neither nullish nor a serialized recipe string`);
-      return false;
-    }
-  }
-
-  // baselineRecipeId: string | null | undefined;
-  if ("baselineRecipeId" in goal && !(typeof goal.baselineRecipeId === 'string' || goal.baselineRecipeId === null || goal.baselineRecipeId === undefined)) {
-    console.debug(`optional goal parameter "baselineRecipeId" has wrong type: ${typeof goal.baselineRecipeId}`);
-    return false;
-  }
-
-  // historicalId: string | null | undefined;
-  if ("historicalId" in goal && !(typeof goal.historicalId === 'string' || goal.historicalId === null || goal.historicalId === undefined)) {
-    console.debug(`optional goal parameter "historicalId" has wrong type: ${typeof goal.historicalId}`);
-    return false;
-  }
-
-  // historicalRecipe: SerializedRecipe | null | undefined;
-  if ("historicalRecipe" in goal) {
-    if (!(
-      goal.historicalRecipe === null
-      || goal.historicalRecipe === undefined
-      || typeof goal.historicalRecipe === "string"
-    )) {
-      console.debug(`optional goal parameter "historicalRecipe" is neither nullish nor a serialized recipe string`);
-      return false;
-    }
-  }
-
-  // historicalRecipeId: string | null | undefined;
-  if ("historicalRecipeId" in goal && !(typeof goal.historicalRecipeId === 'string' || goal.historicalRecipeId === null || goal.historicalRecipeId === undefined)) {
-    console.debug(`optional goal parameter "historicalRecipeId" has wrong type: ${typeof goal.historicalRecipeId}`);
-    return false;
-  }
-
-  // rawTags: string[] | null | undefined;
-  if ("rawTags" in goal && !(
-    goal.rawTags === null
-    || goal.rawTags === undefined
-    || (
-      Array.isArray(goal.rawTags)
-      && goal.rawTags.every(tag => typeof tag === "string")
-    )
-  )) {
+  if ("rawTags" in goal && !isStringArrayOrNullish(goal.rawTags)) {
     console.debug(`optional goal parameter "rawTags" has wrong type: ${typeof goal.rawTags}`);
     return false;
   }
-
-  // links: { url: string, description?: string | null }[] | null | undefined;
-  // deprecated
-  // TODO: remove
+  // links: { url: string, description?: string | null }[] | null | undefined; (deprecated, TODO remove)
   if ("links" in goal && !(
     goal.links === undefined
     || goal.links === null
@@ -265,8 +155,129 @@ export function isGoalCreate(goal: unknown): goal is GoalCreateInput {
     console.debug(`optional goal parameter "links" has wrong type`);
     return false;
   }
-
   return true;
+}
+
+/** Validates the data series section. `dataSeries` is required only on full create. */
+function validateDataSeriesFields(goal: Record<string, unknown>, dataSeriesRequired: boolean): boolean {
+  if (!validateDateValuesField(goal, "dataSeries", dataSeriesRequired)) return false;
+  if ("dataSeriesId" in goal && !isStringOrNullish(goal.dataSeriesId)) {
+    console.debug(`optional goal parameter "dataSeriesId" has wrong type`);
+    return false;
+  }
+  if (!validateRecipeField(goal, "dataSeriesRecipe")) return false;
+  if ("dataSeriesRecipeId" in goal && !isStringOrNullish(goal.dataSeriesRecipeId)) {
+    console.debug(`optional goal parameter "dataSeriesRecipeId" has wrong type`);
+    return false;
+  }
+  return true;
+}
+
+/** Validates the baseline section. */
+function validateBaselineFields(goal: Record<string, unknown>): boolean {
+  if (!validateDateValuesField(goal, "baseline", false)) return false;
+  if ("baselineId" in goal && !isStringOrNullish(goal.baselineId)) {
+    console.debug(`optional goal parameter "baselineId" has wrong type`);
+    return false;
+  }
+  if (!validateRecipeField(goal, "baselineRecipe")) return false;
+  if ("baselineRecipeId" in goal && !isStringOrNullish(goal.baselineRecipeId)) {
+    console.debug(`optional goal parameter "baselineRecipeId" has wrong type`);
+    return false;
+  }
+  return true;
+}
+
+/** Validates the historical section. */
+function validateHistoricalFields(goal: Record<string, unknown>): boolean {
+  if (!validateDateValuesField(goal, "historical", false)) return false;
+  if ("historicalId" in goal && !isStringOrNullish(goal.historicalId)) {
+    console.debug(`optional goal parameter "historicalId" has wrong type`);
+    return false;
+  }
+  if (!validateRecipeField(goal, "historicalRecipe")) return false;
+  if ("historicalRecipeId" in goal && !isStringOrNullish(goal.historicalRecipeId)) {
+    console.debug(`optional goal parameter "historicalRecipeId" has wrong type`);
+    return false;
+  }
+  return true;
+}
+
+/** Identity for a request targeting a single section of an existing goal. */
+function validateSectionIdentity(goal: Record<string, unknown>): boolean {
+  if (typeof goal.goalId !== 'string') {
+    console.debug(`goal section request missing required "goalId" or it is not a string`);
+    return false;
+  }
+  if (typeof goal.timestamp !== 'number') {
+    console.debug(`goal section request missing required "timestamp" or it is not a number`);
+    return false;
+  }
+  if ("roadmapId" in goal && goal.roadmapId !== undefined) {
+    console.debug(`goal section request tries to set "roadmapId", which is not allowed`);
+    return false;
+  }
+  return true;
+}
+
+/** True if `value` is one of the GoalDataTarget discriminator values. */
+function isGoalDataTarget(value: unknown): value is GoalDataTarget {
+  return typeof value === 'string' && (Object.values(GoalDataTarget) as string[]).includes(value);
+}
+
+/**
+ * WARNING! Also mutates and deserializes the input goal object (JSON-parses the
+ * DateValuesWithUnit fields in place).
+ */
+export function isGoalCreate(goal: unknown): goal is GoalCreateInput {
+  if (!isStandardObject(goal)) return false;
+  const g = goal as Record<string, unknown>;
+
+  if (!isGoalDataTarget(g.target)) {
+    console.debug(`goal create missing/invalid discriminator "target"`);
+    return false;
+  }
+
+  switch (g.target) {
+    case GoalDataTarget.Full: {
+      // goalId?: never; timestamp?: never;
+      if ("goalId" in g && g.goalId !== undefined) {
+        console.debug(`goal tries to define its own "goalId" during creation`);
+        return false;
+      }
+      if ("timestamp" in g && g.timestamp !== undefined) {
+        console.debug(`goal sends "timestamp" during creation`);
+        return false;
+      }
+      // roadmapId: string;
+      if (typeof g.roadmapId !== 'string') {
+        console.debug(`goal missing required parameter "roadmapId" or it is not a string`);
+        return false;
+      }
+      // indicatorParameter: string; (required on create)
+      if (typeof g.indicatorParameter !== 'string') {
+        console.debug(`goal missing required parameter "indicatorParameter" or it is not a string`);
+        return false;
+      }
+      return validateGoalMetaFields(g)
+        && validateDataSeriesFields(g, true)
+        && validateBaselineFields(g)
+        && validateHistoricalFields(g);
+    }
+    case GoalDataTarget.DataSeries: {
+      return validateSectionIdentity(g) && validateDataSeriesFields(g, false);
+    }
+    case GoalDataTarget.Baseline: {
+      return validateSectionIdentity(g) && validateBaselineFields(g);
+    }
+    case GoalDataTarget.Historical: {
+      return validateSectionIdentity(g) && validateHistoricalFields(g);
+    }
+    default: {
+      const _exhaustive: never = g.target;
+      return _exhaustive;
+    }
+  }
 }
 
 /** 
@@ -274,207 +285,41 @@ export function isGoalCreate(goal: unknown): goal is GoalCreateInput {
  */
 export function isGoalUpdate(goal: unknown): goal is GoalUpdateInput {
   if (!isStandardObject(goal)) return false;
+  const g = goal as Record<string, unknown>;
 
-  // goalId: string;
-  if (!("goalId" in goal) || typeof goal.goalId !== 'string') {
-    console.debug(`goal missing required parameter "goalId" or "goalId" is not a string`);
+  if (!isGoalDataTarget(g.target)) {
+    console.debug(`goal update missing/invalid discriminator "target"`);
     return false;
   }
 
-  // timestamp: number;
-  if (!("timestamp" in goal) || typeof goal.timestamp !== 'number') {
-    console.debug(`goal missing required parameter "timestamp" or "timestamp" is not a number`);
-    return false;
-  }
-
-  // roadmapId?: never;
-  if ("roadmapId" in goal && goal.roadmapId !== undefined) {
-    console.debug(`goal tries to update "roadmapId", which is not allowed`);
-    return false;
-  }
-
-  // indicatorParameter: string | undefined;
-  if ("indicatorParameter" in goal && !(typeof goal.indicatorParameter === 'string' || goal.indicatorParameter === undefined)) {
-    console.debug(`goal parameter "indicatorParameter" has wrong type: ${typeof goal.indicatorParameter}`);
-    return false;
-  }
-
-  // name: string | null | undefined;
-  if ("name" in goal && !(typeof goal.name === 'string' || goal.name === null || goal.name === undefined)) {
-    console.debug(`optional goal parameter "name" has wrong type: ${typeof goal.name}`);
-    return false;
-  }
-
-  // description: string | null | undefined;
-  if ("description" in goal && !(typeof goal.description === 'string' || goal.description === null || goal.description === undefined)) {
-    console.debug(`optional goal parameter "description" has wrong type: ${typeof goal.description}`);
-    return false;
-  }
-
-  // isFeatured: boolean | undefined;
-  if ("isFeatured" in goal && !(typeof goal.isFeatured === 'boolean' || goal.isFeatured === undefined)) {
-    console.debug(`optional goal parameter "isFeatured" has wrong type: ${typeof goal.isFeatured}`);
-    return false;
-  }
-
-  // recipeSuggestions: SerializedRecipe[] | null | undefined;
-  if ("recipeSuggestions" in goal && !(
-    (
-      Array.isArray(goal.recipeSuggestions)
-      && goal.recipeSuggestions.every(recipe => typeof recipe === "string")
-    )
-    || goal.recipeSuggestions === null
-    || goal.recipeSuggestions === undefined
-  )) {
-    console.debug(`optional goal parameter "recipeSuggestions" has wrong type: ${typeof goal.recipeSuggestions}`);
-    return false;
-  }
-
-  // dataSeries: DateValuesWithUnit | null | undefined;
-  if ("dataSeries" in goal) {
-    const parsed = tryParseJSON(goal.dataSeries);
-    if (!parsed.ok) {
-      console.debug(`failed to parse goal parameter "dataSeries" as JSON`);
-      return false;
-    }
-    goal.dataSeries = parsed.value as GoalUpdateInput["dataSeries"];
-    if (!(
-      goal.dataSeries === null
-      || goal.dataSeries === undefined
-      || isStandardObject(goal.dataSeries)
-      && isDateValuesWithUnit(goal.dataSeries)
-    )) {
-      console.debug(`optional goal update parameter "dataSeries" is neither nullish nor a valid DateValuesWithUnit`);
-      return false;
-    }
-  }
-
-  // dataSeriesId: string | null | undefined;
-  if ("dataSeriesId" in goal && !(typeof goal.dataSeriesId === 'string' || goal.dataSeriesId === null || goal.dataSeriesId === undefined)) {
-    console.debug(`optional goal update parameter "dataSeriesId" has wrong type: ${typeof goal.dataSeriesId}`);
-    return false;
-  }
-
-  // dataSeriesRecipe: SerializedRecipe | null | undefined;
-  if ("dataSeriesRecipe" in goal) {
-    if (!(
-      goal.dataSeriesRecipe === null
-      || goal.dataSeriesRecipe === undefined
-      || typeof goal.dataSeriesRecipe === "string"
-    )) {
-      console.debug(`optional goal parameter "dataSeriesRecipe" is neither nullish nor a serialized recipe string`);
-      return false;
-    }
-  }
-
-  // dataSeriesRecipeId: string | null | undefined;
-  if ("dataSeriesRecipeId" in goal && !(typeof goal.dataSeriesRecipeId === 'string' || goal.dataSeriesRecipeId === null || goal.dataSeriesRecipeId === undefined)) {
-    console.debug(`optional goal parameter "dataSeriesRecipeId" has wrong type: ${typeof goal.dataSeriesRecipeId}`);
-    return false;
-  }
-
-  // baseline: DateValuesWithUnit | null | undefined;
-  if ("baseline" in goal) {
-    {
-      const parsed = tryParseJSON(goal.baseline);
-      if (!parsed.ok) {
-        console.debug(`failed to parse goal parameter "baseline" as JSON`);
+  switch (g.target) {
+    case GoalDataTarget.Full: {
+      // goalId + timestamp + no roadmapId
+      if (!validateSectionIdentity(g)) return false;
+      // indicatorParameter: string | undefined;
+      if ("indicatorParameter" in g && !(typeof g.indicatorParameter === 'string' || g.indicatorParameter === undefined)) {
+        console.debug(`goal parameter "indicatorParameter" has wrong type: ${typeof g.indicatorParameter}`);
         return false;
       }
-      goal.baseline = parsed.value as GoalUpdateInput["baseline"];
+      return validateGoalMetaFields(g)
+        && validateDataSeriesFields(g, false)
+        && validateBaselineFields(g)
+        && validateHistoricalFields(g);
     }
-    if (!(
-      goal.baseline === null
-      || goal.baseline === undefined
-      || isStandardObject(goal.baseline)
-      && isDateValuesWithUnit(goal.baseline)
-    )) {
-      console.debug(`optional goal parameter "baseline" is neither nullish nor a valid DateValuesWithUnit`);
-      return false;
+    case GoalDataTarget.DataSeries: {
+      return validateSectionIdentity(g) && validateDataSeriesFields(g, false);
     }
-  }
-
-  // baselineId: string | null | undefined;
-  if ("baselineId" in goal && !(typeof goal.baselineId === 'string' || goal.baselineId === null || goal.baselineId === undefined)) {
-    console.debug(`optional goal parameter "baselineId" has wrong type: ${typeof goal.baselineId}`);
-    return false;
-  }
-
-  // baselineRecipe: SerializedRecipe | null | undefined;
-  if ("baselineRecipe" in goal) {
-    if (!(
-      goal.baselineRecipe === null
-      || goal.baselineRecipe === undefined
-      || typeof goal.baselineRecipe === "string"
-    )) {
-      console.debug(`optional goal parameter "baselineRecipe" is neither nullish nor a serialized recipe string`);
-      return false;
+    case GoalDataTarget.Baseline: {
+      return validateSectionIdentity(g) && validateBaselineFields(g);
+    }
+    case GoalDataTarget.Historical: {
+      return validateSectionIdentity(g) && validateHistoricalFields(g);
+    }
+    default: {
+      const _exhaustive: never = g.target;
+      return _exhaustive;
     }
   }
-
-  // baselineRecipeId: string | null | undefined;
-  if ("baselineRecipeId" in goal && !(typeof goal.baselineRecipeId === 'string' || goal.baselineRecipeId === null || goal.baselineRecipeId === undefined)) {
-    console.debug(`optional goal parameter "baselineRecipeId" has wrong type: ${typeof goal.baselineRecipeId}`);
-    return false;
-  }
-
-  // historicalId: string | null | undefined;
-  if ("historicalId" in goal && !(typeof goal.historicalId === 'string' || goal.historicalId === null || goal.historicalId === undefined)) {
-    console.debug(`optional goal parameter "historicalId" has wrong type: ${typeof goal.historicalId}`);
-    return false;
-  }
-
-  // historicalRecipe: SerializedRecipe | null | undefined;
-  if ("historicalRecipe" in goal) {
-    if (!(
-      goal.historicalRecipe === null
-      || goal.historicalRecipe === undefined
-      || typeof goal.historicalRecipe === "string"
-    )) {
-      console.debug(`optional goal parameter "historicalRecipe" is neither nullish nor a serialized recipe string`);
-      return false;
-    }
-  }
-
-  // historicalRecipeId: string | null | undefined;
-  if ("historicalRecipeId" in goal && !(typeof goal.historicalRecipeId === 'string' || goal.historicalRecipeId === null || goal.historicalRecipeId === undefined)) {
-    console.debug(`optional goal parameter "historicalRecipeId" has wrong type: ${typeof goal.historicalRecipeId}`);
-    return false;
-  }
-
-  // rawTags: string[] | null | undefined;
-  if ("rawTags" in goal && !(
-    goal.rawTags === null
-    || goal.rawTags === undefined
-    || (
-      Array.isArray(goal.rawTags)
-      && goal.rawTags.every(tag => typeof tag === "string")
-    )
-  )) {
-    console.debug(`optional goal parameter "rawTags" has wrong type: ${typeof goal.rawTags}`);
-    return false;
-  }
-
-  // links: { url: string, description?: string | null }[] | null | undefined;
-  // deprecated
-  // TODO: remove
-  if ("links" in goal && !(
-    goal.links === undefined
-    || goal.links === null
-    || (
-      Array.isArray(goal.links)
-      && goal.links.every(link =>
-        isStandardObject(link)
-        && "url" in link && typeof link.url === 'string'
-        && (!("description" in link) || typeof link.description === 'string' || link.description === null),
-      )
-    )
-  )) {
-    console.debug(`optional goal parameter "links" has wrong type`);
-    return false;
-  }
-
-  return true;
 }
 
 export function isMetaRoadmapCreate(metaRoadmap: JSONValue): metaRoadmap is MetaRoadmapCreateInput {

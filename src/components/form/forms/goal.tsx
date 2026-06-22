@@ -3,7 +3,7 @@
 import type { getRoadmaps } from "@/fetchers";
 import formSubmitter from "@/functions/formSubmitter";
 import mathjs, { allOurUnits } from "@/math";
-import { isDateValuesWithUnit, isISOIshDate } from "@/types";
+import { GoalDataTarget, isDateValuesWithUnit, isISOIshDate } from "@/types";
 import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput, UnitString } from "@/types";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -256,6 +256,7 @@ export default function GoalForm({
     if (!currentGoal && (baseline || baselineId)) {
       // Create
       formContent = {
+        target: GoalDataTarget.Full,
         goalId: undefined, // Ignored when creating
         timestamp: undefined, // Ignored when creating
 
@@ -291,6 +292,7 @@ export default function GoalForm({
     else if (currentGoal) {
       // Update
       formContent = {
+        target: GoalDataTarget.Full,
         goalId: currentGoal.id,
         timestamp: timestamp, // Only needed for edits
 
