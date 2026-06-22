@@ -1,3 +1,4 @@
+import "server-only";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@PRISMA-NAMESPACE-ONLY";
 import { Recipe, RecipeDataTypes, fetchExternalVariableData, externalSelectionKey } from "@/functions/recipe";

@@ -1,3 +1,4 @@
+import "server-only";
 import "dotenv/config";
 import { makeMariaDBAdapter } from "@/lib/prisma/mariadb-adapter";
 import { PrismaClient } from "../../../prisma/generated/client";
