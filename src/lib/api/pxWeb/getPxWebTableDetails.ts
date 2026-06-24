@@ -1,4 +1,4 @@
-import type { ApiTableMetadata } from "../apiTypes";
+import type { ApiTableMetadata, PxWebCompatTableMetadata } from "../apiTypes";
 import { ExternalDataset } from "../utility";
 import type { PxWebMetricDimension, PxWebStandardDimension, PxWebTableMetadata, PxWebCompatMetricDimension, PxWebCompatTimeDimension, PxWebCompatRegularDimension, PxWebCompatDimensionValue } from "./pxWebApiV2Types";
 
@@ -45,11 +45,11 @@ export default async function getPxWebTableMetadata(tableId: string, externalDat
   }
 
   // Declare the variable that will be returned by the function
-  const tableDetails: ApiTableMetadata = {
+  const tableDetails: PxWebCompatTableMetadata = {
     tableId: tableId,
     metricDimensions: [],
-    regularDimensions: [],
     timeDimensions: [],
+    regularDimensions: [],
     language: language,
   };
 
@@ -61,15 +61,6 @@ export default async function getPxWebTableMetadata(tableId: string, externalDat
     console.error("Some metric dimensions not found in table details response", { data });
     return null;
   }
-  // const metricName = data.role.metric[0]; // The variable name for the metric is usually "ContentsCode", but we will get it from the response just to be sure (Energimyndigheten seems to use "CONTENTS" instead)
-  // console.debug("metricName: ", metricName);
-  // if (!metricName) {
-  //   console.error("No metric variable found in table details response", { data });
-  //   return null;
-  // } else if (!data.dimension[metricName]) {
-  //   console.error(`Metric variable "${metricName}" not found in table details response`, { data });
-  //   return null;
-  // }
 
   const timeNames = data.role.time;
   if (!timeNames || timeNames.length === 0) {
@@ -79,87 +70,72 @@ export default async function getPxWebTableMetadata(tableId: string, externalDat
     console.error("Some time dimensions not found in table details response", { data });
     return null;
   }
-  const timeVariableName = data.role.time[0]; // The variable name for time is usually "Tid" or "Time", but we will get it from the response just to be sure
-  if (!timeVariableName) {
-    console.error("No time variable found in table details response", { data });
-    return null;
-  } else if (!data.dimension[timeVariableName]) {
-    console.error(`Time variable "${timeVariableName}" not found in table details response`, { data });
-    return null;
-  }
 
-  // Get all metrics for the table and add to tableDetails, but better and in proper format
-  for (const metricName of metricNames) {
-    const metricDimension: PxWebCompatMetricDimension = {
-      type: "metric",
-      id: metricName,
-      label: data.dimension[metricName].label,
+  // Get all dimensions for the table and add to correct array in tableDetails
+  for (const dimensionName in data.dimension) {
+    let outputDimension: PxWebCompatMetricDimension | PxWebCompatTimeDimension | PxWebCompatRegularDimension;
+    if (dimensionName in metricNames) {
+      outputDimension = {
+        type: "metric",
+        id: dimensionName,
+        name: dimensionName,
+        label: data.dimension[dimensionName].label,
+        options: [],
+      } satisfies PxWebCompatMetricDimension;
+    } else if (dimensionName in timeNames) {
+      outputDimension = {
+        type: "time",
+        id: dimensionName,
+        name: dimensionName,
+        label: data.dimension[dimensionName].label,
+        optional: (data.dimension[dimensionName] as PxWebStandardDimension).extension.elimination ?? false,
+        options: [],
+      } satisfies PxWebCompatTimeDimension;
+    } else {
+      outputDimension = {
+        type: "dimension",
+        id: dimensionName,
+        name: dimensionName,
+        label: data.dimension[dimensionName].label,
+        optional: (data.dimension[dimensionName] as PxWebStandardDimension).extension.elimination ?? false,
+        options: [],
+      } satisfies PxWebCompatRegularDimension;
     }
-  }
 
-  // Get all metrics for the table and add to tableDetails
-  const metricsCategory = (data.dimension[metricName] as PxWebMetricDimension).category;
-  for (const key in metricsCategory.index) {
-    const pxWebMetric: PxWebCompatMetricDimension = {
-      type: "metric",
-      id: key,
-      name: metricsCategory.label[key],
-      index: metricsCategory.index[key],
-      label: metricsCategory.label[key],
-      unit: metricsCategory.unit?.[key],
-    };
-    tableDetails.metricDimensions.push(pxWebMetric);
-  }
-
-  // Find all time periods for the table and add to tableDetails
-  const timeCategory = (data.dimension[timeVariableName] as PxWebStandardDimension).category;
-  for (const key in timeCategory.index) {
-    const pxWebItem: PxWebStandardDimension = data.dimension[timeVariableName];
-    const pxWebTimeVariable: PxWebCompatTimeDimension = {
-      type: "time",
-      id: key,
-      name: pxWebItem.category.label[key],
-      label: pxWebItem.label,
-      optional: true,
-      elimination: pxWebItem.extension.elimination,
-      show: pxWebItem.extension.show,
-    };
-
-    tableDetails.timeDimensions.push(pxWebTimeVariable);
-  }
-
-  // Find all variables for the table and add to tableDetails
-  for (const variableName of data.extension.px.stub) {
-    const pxWebItem = data.dimension[variableName];
-    const pxWebVariable: PxWebCompatRegularDimension = {
-      type: "variable",
-      id: variableName,
-      name: variableName,
-      label: pxWebItem.label,
-      optional: pxWebItem.extension.elimination,
-      option: true,
-      elimination: pxWebItem.extension.elimination,
-      show: pxWebItem.extension.show,
-      categoryNoteMandatory: pxWebItem.extension.categoryNoteMandatory,
-      values: [],
-    };
-
-    // Find all values for the variable and add them to the variable object
-    for (const key in pxWebItem.category.index) {
-      const pxWebVariableValue: PxWebCompatDimensionValue = {
-        type: "variableValue",
-        id: key,
-        name: key,
-        index: pxWebItem.category.index[key],
-        label: pxWebItem.category.label[key],
-        note: pxWebItem.category.note?.[key],
+    // Add all values for the dimension as options
+    if (data.dimension[dimensionName].category.index) {
+      for (const valueCode in (data.dimension[dimensionName] as PxWebMetricDimension).category.index) {
+        const metricOption: PxWebCompatDimensionValue = {
+          type: "dimensionValue",
+          value: valueCode,
+          index: data.dimension[dimensionName].category.index[valueCode],
+          label: data.dimension[dimensionName].category.label?.[valueCode],
+        };
+        outputDimension.options.push(metricOption);
+      }
+    } else if (data.dimension[dimensionName].category.label && Object.entries(data.dimension[dimensionName].category.label).length === 1) {
+      // Unique case where index may be skipped in favor of only label if there is exactly one value in the dimension
+      const metricOption: PxWebCompatDimensionValue = {
+        type: "dimensionValue",
+        value: Object.keys(data.dimension[dimensionName].category.label)[0],
+        index: 0,
+        label: data.dimension[dimensionName].category.label[Object.keys(data.dimension[dimensionName].category.label)[0]],
       };
-      pxWebVariable.values.push(pxWebVariableValue);
+      outputDimension.options.push(metricOption);
+    } else {
+      console.error(`Dimension "${dimensionName}" has no label with exactly one value AND no index in table details response, which is not allowed`, { data });
+      return null;
     }
 
-    tableDetails.regularDimensions.push(pxWebVariable);
+    if (outputDimension.type === "metric") {
+      tableDetails.metricDimensions.push(outputDimension);
+    } else if (outputDimension.type === "time") {
+      tableDetails.timeDimensions.push(outputDimension);
+    } else {
+      tableDetails.regularDimensions.push(outputDimension);
+    }
   }
 
-  console.log("Fetched table details from PxWeb API", { tableDetails });
+  console.debug("Fetched table details from PxWeb API", { tableDetails });
   return tableDetails;
 }

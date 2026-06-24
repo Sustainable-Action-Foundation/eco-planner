@@ -1,7 +1,7 @@
-import type { ApiTableMetadata } from "../apiTypes";
+import type { TrafaCompatTableMetadata } from "../apiTypes";
 import { ExternalDataset } from "../utility";
 import getTrafaTables from "./getTrafaTables";
-import type { StructureItem, TrafaCompatFilter, TrafaCompatHierarchy, TrafaCompatMetricDimension, TrafaCompatDimension, TrafaCompatDimensionValue } from "./trafaTypes";
+import type { StructureItem, TrafaCompatFilter, TrafaCompatHierarchy, TrafaCompatMetricDimension, TrafaCompatDimension, TrafaCompatDimensionValue, TrafaCompatMetadataDimensionBase, TrafaCompatTimeDimension } from "./trafaTypes";
 import { getTrafaSearchQueryString } from "./trafaUtility";
 
 export default async function getTrafaTableDetails(tableId: string, selection: { variableCode: string, valueCodes: string[] }[] = [], language?: string) {
@@ -42,12 +42,12 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
   data.StructureItems = data.StructureItems.filter(structureItem => !allTrafaTableNames?.includes(structureItem.Name));
 
   // Declare the variable that will be returned by this function
-  const tableDetails: ApiTableMetadata = {
+  const tableDetails: TrafaCompatTableMetadata = {
     tableId: tableId,
     metricDimensions: [],
-    hierarchies: [],
-    regularDimensions: [],
     timeDimensions: [],
+    regularDimensions: [],
+    hierarchies: [],
     language: language,
   };
 
@@ -56,102 +56,116 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
   }
 
   // Helper function for converting structure items from trafa to items that can be used with a more universal structure
-  function structureItemToTrafaTableDetailItem(structureItem: StructureItem, tableDetailType: string): TrafaCompatMetricDimension | TrafaCompatHierarchy | TrafaCompatDimension | TrafaCompatDimensionValue | TrafaCompatFilter {
-    const returnItem: TrafaCompatMetricDimension | TrafaCompatHierarchy | TrafaCompatDimension | TrafaCompatDimensionValue | TrafaCompatFilter = {} as TrafaCompatMetricDimension | TrafaCompatHierarchy | TrafaCompatDimension | TrafaCompatDimensionValue | TrafaCompatFilter;
+  function structureItemToTrafaTableDetailItem(structureItem: StructureItem): TrafaCompatMetricDimension | TrafaCompatTimeDimension | TrafaCompatDimension | TrafaCompatHierarchy | TrafaCompatDimensionValue | TrafaCompatFilter {
+    // let returnItem: TrafaCompatMetricDimension | TrafaCompatHierarchy | TrafaCompatDimension | TrafaCompatDimensionValue | TrafaCompatFilter;
 
-    // Assign values depending on item type
-    if (tableDetailType === "M") {
-      returnItem.type = "metric";
-      if (structureItem.DataType === "Time" || structureItem.DataType === "Region") {
-        logNotSupportedDataType(returnItem.type, structureItem);
+    // dimension items
+    if (structureItem.Type in ["M", "D"]) {
+      const returnItem: TrafaCompatMetadataDimensionBase | TrafaCompatMetricDimension | TrafaCompatHierarchy | TrafaCompatDimension = {
+        id: structureItem.Id,
+        type: "dimension",
+        dataType: structureItem.DataType,
+        label: structureItem.Label,
+        name: structureItem.Name,
+        description: structureItem.Description,
+        options: [],
+      };
+
+      // Specify dimension type
+      if (structureItem.Type === "M") {
+        returnItem.type = "metric";
+        if (structureItem.DataType === "Time" || structureItem.DataType === "Region") {
+          logNotSupportedDataType(returnItem.type, structureItem);
+        }
+      } else if (structureItem.DataType === "Time") {
+        returnItem.type = "time";
+      } else {
+        returnItem.type = "dimension";
       }
-    } else if (tableDetailType === "H") {
-      (returnItem as TrafaCompatHierarchy).children = [];
-      returnItem.type = "hierarchy";
+
+      // Add children to item
+      structureItem.StructureItems.forEach((item) => {
+        const childItem = structureItemToTrafaTableDetailItem(item);
+        if (childItem.type === "dimensionValue" || childItem.type === "filter") {
+          returnItem.options.push(childItem);
+        } else {
+          console.warn(`This dimension has a child that is not a dimension value or filter, which is not supported.\nChild type: ${item.Type}\ndimension: ${returnItem.label} (${tableId} - ${structureItem.Label})`);
+        }
+      });
+
+      return (returnItem as TrafaCompatMetricDimension | TrafaCompatTimeDimension | TrafaCompatDimension);
+    } else if (structureItem.Type === "H") {
+      const returnItem: TrafaCompatHierarchy = {
+        id: structureItem.Id,
+        type: "hierarchy",
+        dataType: structureItem.DataType as "String" | "Region",
+        label: structureItem.Label,
+        name: structureItem.Name,
+        description: structureItem.Description,
+        children: [],
+      };
+
       if (structureItem.DataType === "Time") {
         logNotSupportedDataType(returnItem.type, structureItem);
       }
-    } else if (tableDetailType === "D" && structureItem.DataType !== "Time") {
-      (returnItem as TrafaCompatDimension).values = [];
-      (returnItem as TrafaCompatDimension).optional = true;
-      returnItem.type = "variable";
-    } else if (tableDetailType === "D" && structureItem.DataType === "Time") {
-      returnItem.type = "time";
-    } else if (tableDetailType === "DV") {
-      returnItem.type = "variableValue";
-      if (structureItem.DataType === "Time" || structureItem.DataType === "Region") {
-        logNotSupportedDataType(returnItem.type, structureItem);
-      }
-    } else if (tableDetailType === "F") {
-      returnItem.type = "filter";
-      if (structureItem.DataType === "Time" || structureItem.DataType === "Region") {
-        logNotSupportedDataType(returnItem.type, structureItem);
-      }
-    }
 
-    // Assign common values
-    returnItem.trafaId = structureItem.Id;
-    returnItem.id = structureItem.Name;
-    returnItem.dataType = structureItem.DataType;
-    returnItem.label = structureItem.Label; // TODO - This label needs to be manually translated when internationalization is implemented
-    returnItem.name = structureItem.Name;
-    returnItem.parentName = structureItem.ParentName;
-    returnItem.selected = structureItem.Selected;
-    returnItem.option = structureItem.Option;
-    returnItem.description = structureItem.Description;
-
-    // Push children to item depending on item type
-    if ('children' in returnItem && returnItem.children) {
+      // Add children to item
       structureItem.StructureItems.forEach((item) => {
-        if (returnItem.children) {
-          try {
-            returnItem.children.push(structureItemToTrafaTableDetailItem(item, item.Type) as TrafaCompatDimension);
-          }
-          catch (error) {
-            console.warn(`This hierarchy has a child that is not a variable, which is not supported.\nChild type: ${item.Type}\nHierarchy: ${returnItem.label} (${tableId} - ${structureItem.Label})`, { error });
-          }
-        }
-      });
-    }
-    if ('values' in returnItem && returnItem.values) {
-      structureItem.StructureItems.forEach((item) => {
-        if (returnItem.values) {
-          try {
-            returnItem.values.push((structureItemToTrafaTableDetailItem(item, item.Type) as TrafaCompatDimension | TrafaCompatDimensionValue | TrafaCompatFilter));
-          }
-          catch (error) {
-            console.warn(`This variable has a child that is not a variable value or filter, which is not supported.\nChild type: ${item.Type}\nVariable: ${returnItem.label} (${tableId} - ${structureItem.Label})`, { error });
-          }
+        const childItem = structureItemToTrafaTableDetailItem(item);
+        if (childItem.type === "dimension" || childItem.type === "time") {
+          returnItem.children.push(childItem);
+        } else {
+          console.warn(`This hierarchy has a child that is not a dimension, which is not supported.\nChild type: ${item.Type}\nHierarchy: ${returnItem.label} (${tableId} - ${structureItem.Label})`);
         }
       });
 
-      if (returnItem.values.length <= 1) {
-        console.warn("This variable only has one value, which is not expected.\nVariable: " + returnItem.label);
-      }
-    }
+      return returnItem;
+    } else if (structureItem.Type === "DV" || structureItem.Type === "F") {
+      const returnItem: TrafaCompatDimensionValue | TrafaCompatFilter = {
+        type: structureItem.Type === "DV" ? "dimensionValue" : "filter",
+        value: structureItem.Name,
+        label: structureItem.Label,
+        dataType: structureItem.DataType as "String",
+      };
 
-    return returnItem;
+      if (structureItem.DataType === "Time" || structureItem.DataType === "Region") {
+        logNotSupportedDataType(returnItem.type, structureItem);
+      }
+
+      return returnItem;
+    } else {
+      console.warn(`This structure item has a type that is not supported and will be skipped.\nItem type: ${structureItem.Type}\nItem data type: ${structureItem.DataType}\nItem label: ${structureItem.Label}\nTable ID: ${tableId}`);
+      throw new Error(`Unsupported structure item type: ${structureItem.Type}`);
+    }
   }
 
   data.StructureItems.map(item => {
-    const pushItem = structureItemToTrafaTableDetailItem(item, item.Type);
+    const pushItem = structureItemToTrafaTableDetailItem(item);
 
-    try {
-      if (item.Type === "M") {
-        tableDetails.metricDimensions.push((pushItem as TrafaCompatMetricDimension));
+    switch (pushItem.type) {
+      case "metric": {
+        tableDetails.metricDimensions.push(pushItem);
+        break;
       }
-      if (item.Type === "H") {
-        tableDetails.hierarchies?.push((pushItem as TrafaCompatHierarchy));
+      case "time": {
+        tableDetails.timeDimensions.push(pushItem);
+        break;
       }
-      if (item.Type === "D" && item.DataType !== "Time") {
-        tableDetails.regularDimensions.push((pushItem as TrafaCompatDimension));
+      case "dimension": {
+        tableDetails.regularDimensions.push(pushItem);
+        break;
       }
-      if (item.Type === "D" && item.DataType === "Time") {
-        tableDetails.timeDimensions.push((pushItem as TrafaCompatDimension));
+      case "hierarchy": {
+        tableDetails.hierarchies.push(pushItem);
+        break;
       }
-    }
-    catch (error) {
-      console.warn(`This structure item has a type that is not supported and will be skipped.\nItem type: ${item.Type}\nItem data type: ${item.DataType}\nItem label: ${item.Label}\nTable ID: ${tableId}`, { error });
+      case "dimensionValue":
+      case "filter":
+      default: {
+        console.debug(`Reached an unexpected case regarding trafa StructureItems`);
+        // No-op, these types are not top-level dimensions and should not be added to the table details directly
+        break;
+      }
     }
   });
 
@@ -159,7 +173,7 @@ export default async function getTrafaTableDetails(tableId: string, selection: {
 }
 
 /**
- * Variables that only have one value
+ * dimensions that only have one value
  * t10036 - Fordonsslag underkategori
  * t10036 - Klimatbonusbil
  */

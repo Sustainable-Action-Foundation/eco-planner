@@ -1,5 +1,5 @@
 import type { PxWebCompatMetricDimension, PxWebCompatTimeDimension, PxWebCompatRegularDimension } from "./pxWeb/pxWebApiV2Types";
-import type { TrafaCompatHierarchy, TrafaCompatMetricDimension, TrafaCompatDimension } from "./trafa/trafaTypes";
+import type { TrafaCompatHierarchy, TrafaCompatMetricDimension, TrafaCompatDimension, TrafaCompatTimeDimension } from "./trafa/trafaTypes";
 
 // TODO: See if we can include any unit returned by external APIs
 export type ApiTableData = {
@@ -14,25 +14,49 @@ export type ApiTableData = {
   }[];
 }
 
-export type ApiTableMetadata = {
+export type TrafaCompatTableMetadata = {
   tableId: string;
-  metricDimensions: (TrafaCompatMetricDimension | PxWebCompatMetricDimension)[];
-  timeDimensions: (TrafaCompatDimension | PxWebCompatTimeDimension)[];
-  // Any geo dimensions are bundled together with regular dimensions
-  regularDimensions: (TrafaCompatDimension | PxWebCompatRegularDimension)[];
-  hierarchies?: (TrafaCompatHierarchy)[];
-  language?: string;
+  metricDimensions: TrafaCompatMetricDimension[];
+  timeDimensions: TrafaCompatTimeDimension[];
+  regularDimensions: TrafaCompatDimension[];
+  hierarchies: TrafaCompatHierarchy[];
+  language: string;
 }
 
+export type PxWebCompatTableMetadata = {
+  tableId: string;
+  metricDimensions: PxWebCompatMetricDimension[];
+  timeDimensions: PxWebCompatTimeDimension[];
+  // Any PxWeb geo dimensions are bundled together with regular dimensions for now.
+  // Consider updating if we see a need for it, as well as proof of their existence :)
+  regularDimensions: PxWebCompatRegularDimension[];
+  hierarchies?: never;
+  language: string;
+}
+
+export type ApiTableMetadata = TrafaCompatTableMetadata | PxWebCompatTableMetadata;
+
 export type ApiMetadataDimensionBase = {
-  type: string;
-  id: string;
+  type: "metric" | "time" | "dimension";
+  /** PxWeb uses string-based IDs, trafa uses numeric IDs */
+  id: string | number;
+  /** `name` is usually an internal, non-localized name used by the external API; if present, prefer using `label` for user-facing text */
   name: string;
-  label: string;
+  /** usually a localized string used as display name; prefer this for any user-facing text, but fall back to `name` if not present */
+  label?: string;
   options: ApiSelectOptionBase[];
 }
 
+export type ApiHierarchyBase = {
+  type: "hierarchy";
+  id: string | number;
+  name: string;
+  label?: string;
+  children: ApiMetadataDimensionBase[];
+}
+
 export type ApiSelectOptionBase = {
-  label: string;
+  type: "dimensionValue" | "filter";
+  label?: string;
   value: string;
 }

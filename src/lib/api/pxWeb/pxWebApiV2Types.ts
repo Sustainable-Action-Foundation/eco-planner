@@ -6,34 +6,33 @@
 // TODO: Check these types once PxWebAPIv2 gets a stable release; we unsafely cast responses from PxWeb to these types, which should be safe-ish as long as we keep our type defs up to date.
 
 import type { JSONValue } from "@/types";
-import type { ApiMetadataDimensionBase } from "../apiTypes";
+import type { ApiMetadataDimensionBase, ApiSelectOptionBase } from "../apiTypes";
 
 // Compatibility types, compare to the types in trafaTypes.ts
 
 export type PxWebCompatMetadataDimensionBase = ApiMetadataDimensionBase & {
-  // Add additional properties for PxWeb here if necessary
+  id: string;
 }
 
 export type PxWebCompatMetricDimension = PxWebCompatMetadataDimensionBase & {
-  index: number;
-  unit?: { base?: string; decimals?: number };
-}
-
-export type PxWebCompatRegularDimension = PxWebCompatMetadataDimensionBase & {
-  optional: boolean;
-  option: boolean;
-  elimination: boolean; // This is whether the variable is optional or not (true means it is optional)
-  values: PxWebCompatDimensionValue[];
-}
-
-export type PxWebCompatDimensionValue = PxWebCompatMetadataDimensionBase & {
-  index: number;
-  note?: string[];
+  type: "metric";
 }
 
 export type PxWebCompatTimeDimension = PxWebCompatMetadataDimensionBase & {
+  type: "time";
   optional: boolean;
-  elimination: boolean; // This is whether the variable is optional or not
+}
+
+export type PxWebCompatRegularDimension = PxWebCompatMetadataDimensionBase & {
+  type: "dimension";
+  optional: boolean;
+}
+
+export type PxWebCompatDimensionValue = ApiSelectOptionBase & {
+  type: "dimensionValue";
+  index: number;
+  note?: string[];
+  unit?: { base?: string; decimals?: number };
 }
 
 
@@ -214,7 +213,7 @@ export type PxWebStandardDimension = {
     child: unknown; // It does stuff according to spec, but I can't be bothered to type or implement it yet
   };
   extension: {
-    elimination: boolean; // Whether the variable is optional or not (true means it is optional)
+    elimination: boolean | null; // Whether the variable is optional or not (true means it is optional)
     eliminationValueCode?: string; // Value code used as default when the variable is unset/eliminated. Never required.
     noteMandatory?: { [key: number]: boolean };
     categoryNoteMandatory?: { [variableValueId: string]: { [key: number]: boolean } };

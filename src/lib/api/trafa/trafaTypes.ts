@@ -1,4 +1,4 @@
-import type { ApiMetadataDimensionBase } from "../apiTypes";
+import type { ApiHierarchyBase, ApiMetadataDimensionBase, ApiSelectOptionBase } from "../apiTypes";
 
 export type TrafaDataResponse = {
   Header: {
@@ -59,7 +59,7 @@ export type StructureItem = {
   FullName: null, // Is it always null?
   /**
    * P: Tables; has an empty array for `StructureItems`.
-   * M: Measure; has an empty array for `StructureItems`.
+   * M: Measure; has an empty array for `StructureItems`. Similar role to PxWeb metric dimensions.
    * H: Hierarchy; Contains multiple dimensions (`Type: "D"`) in `StructureItems`.
    * D: Dimension; has a filled array for `StructureItems`.
    * F: Filter; Probably dynamic item in a dimension, so far only seen under parents with `DataType: "Time"`. Has an empty array for `StructureItems`.
@@ -68,7 +68,7 @@ export type StructureItem = {
   Type: "P" | "D" | "M" | "F" | "H" | "DV",
   Selected: boolean,
   Option: boolean,
-  Description: string,
+  Description?: string | null,
   UniqueId: string,
   ActiveFrom: string, // ISO 8601 date string
   StructureItems: StructureItem[],
@@ -76,32 +76,45 @@ export type StructureItem = {
 
 // TODO - which types actually use description?
 export type TrafaCompatMetadataDimensionBase = ApiMetadataDimensionBase & {
-  trafaId: number,
-  parentName: string | null,
-  selected: boolean, // TODO - What is this for?
-  option: boolean, // This indicates whether the item should be displayed or not
-  description: string,
+  id: number,
+  dataType: "String" | "Time" | "Region",
+  description?: string | null,
+  options: (TrafaCompatDimensionValue | TrafaCompatFilter)[]
 }
 
 export type TrafaCompatMetricDimension = TrafaCompatMetadataDimensionBase & { // Marked as "M"
+  type: "metric";
   dataType: "String",
 }
 
-export type TrafaCompatHierarchy = TrafaCompatMetadataDimensionBase & { // Marked as "H"
+export type TrafaCompatTimeDimension = TrafaCompatMetadataDimensionBase & { // Marked as "D" with DataType "Time"
+  type: "time";
+  dataType: "Time",
+}
+
+export type TrafaCompatDimension = TrafaCompatMetadataDimensionBase & { // Marked as "D" with DataType other than "Time"
+  type: "dimension";
   dataType: "String" | "Region",
-  children?: TrafaCompatDimension[],
 }
 
-export type TrafaCompatDimension = TrafaCompatMetadataDimensionBase & { // Marked as "D"
-  dataType: "String" | "Time" | "Region",
-  optional: boolean,
-  values?: (TrafaCompatDimension | TrafaCompatDimensionValue | TrafaCompatFilter)[], // "Variable" children are not found in structure items array, they are found by marking another "Variable" as parent. This is not always the case when there are multiple variables under a hierarchy, but sometimes. Does not seem connected to how many variables are under a hierarchy.
+export type TrafaCompatHierarchy = ApiHierarchyBase & { // Marked as "H"
+  type: "hierarchy";
+  dataType: "String" | "Region",
+  description?: string | null,
+  children: TrafaCompatDimension[],
 }
 
-export type TrafaCompatDimensionValue = TrafaCompatMetadataDimensionBase & { // Marked as "DV"
+
+export type TrafaCompatSelectOptionBase = ApiSelectOptionBase & {
+  type: "dimensionValue" | "filter";
+}
+
+export type TrafaCompatDimensionValue = TrafaCompatSelectOptionBase & { // Marked as "DV"
+  type: "dimensionValue";
   dataType: "String",
 }
 
-export type TrafaCompatFilter = TrafaCompatMetadataDimensionBase & { // Marked as "F"
+export type TrafaCompatFilter = TrafaCompatSelectOptionBase & { // Marked as "F"
+  type: "filter";
   dataType: "String",
 }
