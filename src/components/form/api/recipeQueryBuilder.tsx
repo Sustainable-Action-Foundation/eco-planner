@@ -6,8 +6,8 @@ import getTableMetadata from "@/lib/api/getTableMetadata";
 import getTables from "@/lib/api/getTables";
 import { ExternalDataset, formQueryHelper, isDataSetKeys } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
-import type { PxWebCompatTimeDimension, PxWebCompatRegularDimension } from "@/lib/api/pxWeb/pxWebApiV2Types";
-import type { TrafaCompatRegularDimension } from "@/lib/api/trafa/trafaTypes";
+import type { PxWebCompatTimeDimension } from "@/lib/api/pxWeb/pxWebApiV2Types";
+import type { TrafaCompatTimeDimension } from "@/lib/api/trafa/trafaTypes";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import FormWrapper from "../formWrapper";
@@ -286,69 +286,66 @@ export default function RecipeQueryBuilder({
               ??
               (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" ?
                 (// If only one value is available, pre-select it
-                  dimension.values?.length === 1 ? dimension.values[0].name : undefined
+                  dimension.options?.length === 1 ? dimension.options[0].value : undefined
                 )
                 :
                 undefined
               )
             }>
             { // If only one value is available, don't show a placeholder option
-              ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && dimension.values && dimension.values.length > 1 ? <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option> : null
+              // Why is this only done for PxWeb?
+              ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && dimension.options.length > 1 ? <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option> : null
             }
             {
               !(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") &&
               <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option>
             }
-            {dimension.values?.map(value => (
-              <option key={`${dimension.name}-${value.name}`} value={value.name} lang={tableDetails.language}>{value.label}</option>
+            {dimension.options?.map(({ label, value }) => (
+              <option key={`${dimension.name}-${value}`} value={value} lang={tableDetails.language}>{label ?? value}</option>
             ))}
           </select>
         </label>
       );
-    } else if (dataSource === "Trafa" && !dimension.option && (dimension as TrafaCompatRegularDimension).selected) {
-      console.warn("The variable is selected while it is not an option. This should not happen.");
     }
   }
 
-  function timeVariableSelectionHelper(times: (TrafaCompatRegularDimension | PxWebCompatTimeDimension)[], language?: string) {
-    if ((dataSource === "Trafa" && !(times.length === 1 && times[0].name === "ar")) || (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && times.length > 1)) {
+  function timeVariableSelectionHelper(times: (TrafaCompatTimeDimension | PxWebCompatTimeDimension)[], language?: string) {
+    return times.map((time, i) => {
       let heading = "";
       let defaultValue = "";
-      let displayValueKey: keyof typeof times[0]/* "label" | "id" | "name" | "type" */ = "id";
-      const variableIsOptional = times[0].optional;
       if (dataSource === "Trafa") {
         // heading = "Välj tidsintervall";
         heading = t("components:query_builder.select_time_interval");
         // defaultValue = "Välj tidsintervall";
         defaultValue = t("components:query_builder.select_time_interval");
-        displayValueKey = "label";
       } else if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") {
         // heading = "Välj startperiod";
         heading = t("components:query_builder.select_starting_period");
         // defaultValue = "Välj tidsperiod";
         defaultValue = t("components:query_builder.select_time_period");
-        displayValueKey = "id";
       }
-      return (<label key="Tid" className="block margin-block-75">
-        {heading}{optionalTag(dataSource, variableIsOptional)}
-        <select
-          onChange={tryGetResult}
-          className={`block margin-block-25 TimeVariable`}
-          required={false}
-          name="Tid"
-          id="Tid"
-          defaultValue={getInitialSelectionValue("Tid") ?? (times?.length === 1 ? times[0].name : undefined)}>
-          <option value="" className={`font-style-italic color-gray`}>{defaultValue}</option>
-          {times.map(time => (
-            <option key={time.name} value={time.name} lang={language}>{time[displayValueKey]}</option>
-          ))}
-        </select>
-      </label>);
-    }
+      return (
+        <label key={`Tid-${i}`} className="block margin-block-75">
+          {heading}{optionalTag(dataSource, time.optional ?? false)}
+          <select
+            onChange={tryGetResult}
+            className={`block margin-block-25 TimeVariable`}
+            required={!time.optional}
+            name={time.id}
+            id={time.id}
+            defaultValue={getInitialSelectionValue(time.id) ?? (time.options.length === 1 ? times[0].name : "")}>
+            <option value="" className={`font-style-italic color-gray`}>{defaultValue}</option>
+            {time.options.map(({ value, label }) => (
+              <option key={`Tid-${i}-${label ?? value}`} value={value} lang={language}>{label ?? value}</option>
+            ))}
+          </select>
+        </label>
+      );
+    });
   }
 
   function shouldVariableFieldsetBeVisible(tableDetails: ApiTableMetadata, dataSource: string) {
-    const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") && tableDetails.regularDimensions.some(variable => variable.option)) || tableDetails.timeDimensions.length > 1);
+    const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb")) || tableDetails.timeDimensions.length > 1);
     return returnBool;
   }
 
@@ -559,7 +556,7 @@ export default function RecipeQueryBuilder({
                           return variableSelectionHelper(variable, tableDetails);
                         })}
                         {tableDetails.hierarchies?.map(hierarchy => {
-                          if (hierarchy.children?.some(variable => variable.option)) return (
+                          return (
                             <label key={hierarchy.name} className="block margin-block-75">
                               <b>{hierarchy.label}</b>
                               {hierarchy.children?.map(variable => {
