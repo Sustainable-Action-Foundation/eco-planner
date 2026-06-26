@@ -1,8 +1,8 @@
-import type { ApiTableMetadata, PxWebCompatTableMetadata } from "../apiTypes";
+import type { PxWebCompatTableMetadata } from "../apiTypes";
 import { ExternalDataset } from "../utility";
 import type { PxWebMetricDimension, PxWebStandardDimension, PxWebTableMetadata, PxWebCompatMetricDimension, PxWebCompatTimeDimension, PxWebCompatRegularDimension, PxWebCompatDimensionValue } from "./pxWebApiV2Types";
 
-export default async function getPxWebTableMetadata(tableId: string, externalDataset: string, language?: string): Promise<ApiTableMetadata | null> {
+export default async function getPxWebTableMetadata(tableId: string, externalDataset: string, language?: string): Promise<PxWebCompatTableMetadata | null> {
   if (!tableId || !externalDataset) {
     console.debug("getPxWebTableDetails called without required parameters, returning early", { tableId, externalDataset, language });
     return null;

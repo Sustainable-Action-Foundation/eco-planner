@@ -1,8 +1,9 @@
+import type { ApiTableMetadata } from "./apiTypes";
 import getPxWebTableMetadata from "./pxWeb/getPxWebTableMetadata";
 import getTrafaTableMetadata from "./trafa/getTrafaTableMetadata";
 import { ExternalDataset } from "./utility";
 
-export default async function getTableMetadata(tableId: string, externalDataset: string | undefined, selection: { variableCode: string, valueCodes: string[] }[] = [], language: string) {
+export default async function getTableMetadata(tableId: string, externalDataset: string | undefined, selection: { variableCode: string, valueCodes: string[] }[] = [], language: string): Promise<ApiTableMetadata | null> {
   if (!externalDataset) { return null; }
 
   const dataset = ExternalDataset.getDatasetByAlternateName(externalDataset);
@@ -15,9 +16,3 @@ export default async function getTableMetadata(tableId: string, externalDataset:
     return null; // Unsupported dataset API
   }
 }
-
-
-/** TODO - if only one metric is available, select it by default (more relevant to queryBuilder)
- * Tables with only one metric:
- * Trafa t0401
- */
