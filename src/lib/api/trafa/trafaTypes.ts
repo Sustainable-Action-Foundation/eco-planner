@@ -75,46 +75,47 @@ export type StructureItem = {
 }
 
 // TODO - which types actually use description?
-export type TrafaCompatMetadataDimensionBase = ApiMetadataDimensionBase & {
+export type TrafaCompatMetadataDimensionBase = Omit<ApiMetadataDimensionBase, "id" | "options"> & {
   id: number,
   dataType: "String" | "Time" | "Region",
   description?: string | null,
   options: (TrafaCompatDimensionValue | TrafaCompatFilter)[]
 }
 
-export type TrafaCompatMetricDimension = TrafaCompatMetadataDimensionBase & { // Marked as "M"
+export type TrafaCompatMetricDimension = Omit<TrafaCompatMetadataDimensionBase, "type" | "dataType"> & { // Marked as "M"
   type: "metric";
   dataType: "String",
 }
 
-export type TrafaCompatTimeDimension = TrafaCompatMetadataDimensionBase & { // Marked as "D" with DataType "Time"
+export type TrafaCompatTimeDimension = Omit<TrafaCompatMetadataDimensionBase, "type" | "dataType"> & { // Marked as "D" with DataType "Time"
   type: "time";
   dataType: "Time",
 }
 
-export type TrafaCompatDimension = TrafaCompatMetadataDimensionBase & { // Marked as "D" with DataType other than "Time"
+export type TrafaCompatDimension = Omit<TrafaCompatMetadataDimensionBase, "type" | "dataType"> & { // Marked as "D" with DataType other than "Time"
   type: "dimension";
   dataType: "String" | "Region",
 }
 
-export type TrafaCompatHierarchy = ApiHierarchyBase & { // Marked as "H"
+export type TrafaCompatHierarchy = Omit<ApiHierarchyBase, "id" | "children"> & { // Marked as "H"
+  id: number,
   type: "hierarchy";
   dataType: "String" | "Region",
   description?: string | null,
-  children: TrafaCompatDimension[],
+  children: (TrafaCompatDimension | TrafaCompatTimeDimension)[],
 }
 
 
-export type TrafaCompatSelectOptionBase = ApiSelectOptionBase & {
+export type TrafaCompatSelectOptionBase = Omit<ApiSelectOptionBase, "type"> & {
   type: "dimensionValue" | "filter";
 }
 
-export type TrafaCompatDimensionValue = TrafaCompatSelectOptionBase & { // Marked as "DV"
+export type TrafaCompatDimensionValue = Omit<TrafaCompatSelectOptionBase, "type"> & { // Marked as "DV"
   type: "dimensionValue";
   dataType: "String",
 }
 
-export type TrafaCompatFilter = TrafaCompatSelectOptionBase & { // Marked as "F"
+export type TrafaCompatFilter = Omit<TrafaCompatSelectOptionBase, "type"> & { // Marked as "F"
   type: "filter";
   dataType: "String",
 }

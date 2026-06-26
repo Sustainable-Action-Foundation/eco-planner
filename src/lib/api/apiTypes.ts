@@ -9,9 +9,15 @@ export type ApiTableData = {
     value: string;
   }[];
   metadata: {
-    label: string;
-    source: string;
+    label?: string;
+    source?: string;
   }[];
+}
+
+/** Might require processing before being sent to some external APIs, but works for PxWeb-based APIs as-is */
+export type ApiSelectionItem = {
+  variableCode: string;
+  valueCodes: string[];
 }
 
 export type TrafaCompatTableMetadata = {

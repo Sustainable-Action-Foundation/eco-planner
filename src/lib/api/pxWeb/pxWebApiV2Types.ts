@@ -10,25 +10,25 @@ import type { ApiMetadataDimensionBase, ApiSelectOptionBase } from "../apiTypes"
 
 // Compatibility types, compare to the types in trafaTypes.ts
 
-export type PxWebCompatMetadataDimensionBase = ApiMetadataDimensionBase & {
+export type PxWebCompatMetadataDimensionBase = Omit<ApiMetadataDimensionBase, "id"> & {
   id: string;
 }
 
-export type PxWebCompatMetricDimension = PxWebCompatMetadataDimensionBase & {
+export type PxWebCompatMetricDimension = Omit<PxWebCompatMetadataDimensionBase, "type"> & {
   type: "metric";
 }
 
-export type PxWebCompatTimeDimension = PxWebCompatMetadataDimensionBase & {
+export type PxWebCompatTimeDimension = Omit<PxWebCompatMetadataDimensionBase, "type"> & {
   type: "time";
   optional: boolean;
 }
 
-export type PxWebCompatRegularDimension = PxWebCompatMetadataDimensionBase & {
+export type PxWebCompatRegularDimension = Omit<PxWebCompatMetadataDimensionBase, "type"> & {
   type: "dimension";
   optional: boolean;
 }
 
-export type PxWebCompatDimensionValue = ApiSelectOptionBase & {
+export type PxWebCompatDimensionValue = Omit<ApiSelectOptionBase, "type"> & {
   type: "dimensionValue";
   index: number;
   note?: string[];
@@ -37,7 +37,7 @@ export type PxWebCompatDimensionValue = ApiSelectOptionBase & {
 
 
 // Response from `/tables/{tableId}/data/`-endpoint, with outputFormat=json-stat2
-export type PxWebTableDataJsonStat2 = PxWebTableMetadata & {
+export type PxWebTableDataJsonStat2 = Omit<PxWebTableMetadata, "size" | "value"> & {
   /**
    * The size array contains the number of entries for each variable named in the `id` array.
    * We expect only one variable to have more than one entry in "valid" cases for our usage,
@@ -207,7 +207,7 @@ export type PxWebStandardDimension = {
     // Index is required for any dimension with more than 1 value.
     // Dimensions with only 1 value MAY omit either the index or the label, but MUST contain at least one of them.
     index?: { [valueCode: string]: number };
-    // If label is omitted, the valueCode for each index SHOULD be used as the label instead.
+    // If label is omitted, the valueCode/key for each index SHOULD be used as the label instead.
     label?: { [valueCode: string]: string };
     note?: { [valueCode: string]: string[] }; // Optional
     child: unknown; // It does stuff according to spec, but I can't be bothered to type or implement it yet
