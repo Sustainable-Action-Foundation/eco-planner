@@ -1,7 +1,7 @@
 "use client";
 
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
-import type { ApiTableData, ApiTableMetadata } from "@/lib/api/apiTypes";
+import type { ApiTableContent, ApiTableMetadata } from "@/lib/api/apiTypes";
 import getTableMetadata from "@/lib/api/getTableMetadata";
 import getTables from "@/lib/api/getTables";
 import { ExternalDataset, isDataSetKeys } from "@/lib/api/utility";
@@ -47,7 +47,7 @@ export default function RecipeQueryBuilder({
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
   const [offset, setOffset] = useState(0);
   const [tableDetails, setTableDetails] = useState<ApiTableMetadata | null>(null);
-  const [tableContent, setTableContent] = useState<ApiTableData | null>(null);
+  const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
   const [defaultMetricSelected, setDefaultMetricSelected] = useState(true);
   const hasAppliedInitialTableSelectionRef = useRef(false);
   const hasAppliedInitialSelectionRef = useRef(false);

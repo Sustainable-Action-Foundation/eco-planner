@@ -2,7 +2,7 @@
 
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
 import formSubmitter from "@/functions/formSubmitter";
-import type { ApiTableData, ApiTableMetadata } from "@/lib/api/apiTypes";
+import type { ApiTableContent, ApiTableMetadata } from "@/lib/api/apiTypes";
 import getTableContent from "@/lib/api/getTableContent";
 import getTableMetadata from "@/lib/api/getTableMetadata";
 import getTables from "@/lib/api/getTables";
@@ -35,7 +35,7 @@ export default function QueryBuilder({
   const [renderedTables, setRenderedTables] = useState<{ tableId: string, label: string }[] | null>(null);
   const [offset, setOffset] = useState(0);
   const [tableDetails, setTableDetails] = useState<ApiTableMetadata | null>(null);
-  const [tableContent, setTableContent] = useState<ApiTableData | null>(null);
+  const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
   const [defaultMetricSelected, setDefaultMetricSelected] = useState(true);
   const [isFormValid, setIsFormValid] = useState(false);
 

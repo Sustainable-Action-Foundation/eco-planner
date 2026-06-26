@@ -37,13 +37,13 @@ export type PxWebCompatDimensionValue = Omit<ApiSelectOptionBase, "type"> & {
 
 
 // Response from `/tables/{tableId}/data/`-endpoint, with outputFormat=json-stat2
-export type PxWebTableDataJsonStat2 = Omit<PxWebTableMetadata, "size" | "value"> & {
+export type PxWebTableContent = Omit<PxWebTableMetadata, "value"> & {
   /**
    * The size array contains the number of entries for each variable named in the `id` array.
    * We expect only one variable to have more than one entry in "valid" cases for our usage,
    * so we need to enforce this in code, asking the user to make a more specific selection if this is not the case.
    */
-  size: (1 | Omit<number, 1>)[];
+  size: number[];
   /**
    * Specifically when fetching data from the `/data/`-endpoint we expect the value array to NOT be empty,
    * as it should be a flattened array of all values in the table.
@@ -51,27 +51,7 @@ export type PxWebTableDataJsonStat2 = Omit<PxWebTableMetadata, "size" | "value">
    * This value is ordered in row-major order, though we want it to essentially be "flat" from the start,
    * with only one dimension containing more than one value.
    */
-  value: number[];
-};
-
-// USED BY GETPXWEBTABLECONTENT
-export type PxWebTableDataJsonPx = {
-  columns: {
-    code: string; // Variable/dimension name/id
-    text: string; // Label from the dimension/category
-    type: "c" | "t" | "d" | "g"; // "d" for generic dimension, "t" for time dimension, "c" for metric dimension, probably "g" for geo dimension, but no examples found so far
-  }[];
-  comments: unknown[];
-  data: {
-    key: string[];
-    values: string[];
-  }[];
-  metadata: {
-    infofile?: string;
-    updated: string; // ISO 8601 date string
-    label: string;
-    source: string;
-  }[];
+  value: (number | null)[];
 };
 
 // Response from `/tables/`-endpoint

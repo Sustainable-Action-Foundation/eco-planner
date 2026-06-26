@@ -2,7 +2,7 @@ import type { PxWebCompatMetricDimension, PxWebCompatTimeDimension, PxWebCompatR
 import type { TrafaCompatHierarchy, TrafaCompatMetricDimension, TrafaCompatDimension, TrafaCompatTimeDimension } from "./trafa/trafaTypes";
 
 // TODO: See if we can include any unit returned by external APIs
-export type ApiTableData = {
+export type ApiTableContent = {
   id: string;
   values: {
     period: string;
@@ -12,6 +12,10 @@ export type ApiTableData = {
     label?: string;
     source?: string;
   }[];
+  unit?: {
+    base?: string;
+    decimals?: number;
+  }
 }
 
 /** Might require processing before being sent to some external APIs, but works for PxWeb-based APIs as-is */

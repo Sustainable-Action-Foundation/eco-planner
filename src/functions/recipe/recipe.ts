@@ -2,7 +2,7 @@ import type { DataSeries, DateValuesWithUnit, JSONValue, Mask } from "@/types";
 import { isISOIshDate } from "@/types";
 import mathjs from "@/math";
 import type { Unit } from "mathjs";
-import type { ApiTableData } from "@/lib/api/apiTypes";
+import type { ApiTableContent } from "@/lib/api/apiTypes";
 import type { RecipeExtractionOutput, RecipeVariable, SerializedRecipe, SerializedRecipeShape } from "@/functions/recipe";
 import { isEvalTimeVariable, isRecipe, MathjsError, RecipeError, parseDateValuesFromVector, transformDateValuesToVector, ANDMasks, extractDataSeries, extractExternalDatasets, extractScalars, isEvalTimeSeries } from "@/functions/recipe";
 import { sanityCheckDataSeries, sanityCheckExternalDatasets, sanityCheckScalars } from "@/functions/recipe/sanityChecks";
@@ -101,7 +101,7 @@ export class Recipe {
     warnings: string[] = [],
     options?: {
       dataSeriesGetter?: (dataSeriesId: string) => Promise<DataSeries | null>;
-      externalTableContentGetter?: (tableId: string, dataset: string, selection: { variableCode: string, valueCodes: string[] }[]) => Promise<ApiTableData | null>;
+      externalTableContentGetter?: (tableId: string, dataset: string, selection: { variableCode: string, valueCodes: string[] }[]) => Promise<ApiTableContent | null>;
     },
   ): Promise<DateValuesWithUnit | null> {
     const serialized = this.serialize();

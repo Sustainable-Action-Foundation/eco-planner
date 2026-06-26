@@ -1,7 +1,7 @@
 "use client";
 
 import formSubmitter from "@/functions/formSubmitter";
-import type { ApiTableData, ApiTableMetadata } from "@/lib/api/apiTypes";
+import type { ApiTableContent, ApiTableMetadata } from "@/lib/api/apiTypes";
 import getTableContent from "@/lib/api/getTableContent";
 import getTableMetadata from "@/lib/api/getTableMetadata";
 import getTables from "@/lib/api/getTables";
@@ -61,7 +61,7 @@ export default function HistoricalData({
   const [metric, setMetric] = useState<string | null>(() => parseExternalSelection(goal.externalSelection)[0]?.valueCodes?.[0] ?? null);
 
   const [tableDetails, setTableDetails] = useState<ApiTableMetadata | null>(null);
-  const [tableContent, setTableContent] = useState<ApiTableData | null>(null);
+  const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
 
   const formRef = useRef<HTMLFormElement | null>(null);
   // const deleteDataRef = useRef<HTMLDialogElement>(null)
@@ -282,7 +282,7 @@ export default function HistoricalData({
     }), "PUT", t); // TODO: add setIsLoading when we reintroduce it
   }
 
-  {/* TODO: Temprorarily removed as we won't have manual historical data on release. This should still exist though, so re add
+  {/* TODO: Temporarily removed as we won't have manual historical data on release. This should still exist though, so re-add later
   function deleteHistoricalData() {
     formSubmitter("/api/goal", JSON.stringify({
       goalId: goal.id,

@@ -1,6 +1,6 @@
 "use server";
 
-import type { ApiTableData } from "../apiTypes";
+import type { ApiTableContent } from "../apiTypes";
 import { ExternalDataset } from "../utility";
 import type { TrafaDataResponse } from "./trafaTypes";
 import { getTrafaSearchQueryString } from "./trafaUtility";
@@ -43,8 +43,8 @@ export default async function getTrafaTableContent(tableId: string, selection: {
     return null;
   }
 
-  function trafaTableContentToApiTableContent(trafaTableContent: TrafaDataResponse): ApiTableData | null {
-    const result: ApiTableData | null = {
+  function trafaTableContentToApiTableContent(trafaTableContent: TrafaDataResponse): ApiTableContent | null {
+    const result: ApiTableContent | null = {
       id: tableId,
       values: [],
       metadata: [{

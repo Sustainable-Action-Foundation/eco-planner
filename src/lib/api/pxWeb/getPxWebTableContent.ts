@@ -1,13 +1,13 @@
 // Use server in order to circumvent CORS issues
 "use server";
 
-import type { JSONValue } from "@/types";
-import type { ApiTableData } from "../apiTypes";
+import { isStandardObject, type JSONValue } from "@/types";
+import type { ApiTableContent, ApiSelectionItem } from "../apiTypes";
 import { ExternalDataset } from "../utility";
 import getPxWebTableMetadata from "./getPxWebTableMetadata";
-import type { PxWebTableDataJsonPx } from "./pxWebApiV2Types";
+import type { PxWebTableContent } from "./pxWebApiV2Types";
 
-export default async function getPxWebTableContent(tableId: string, externalDataset: string, selection: { variableCode: string, valueCodes: string[] }[], language?: string) {
+export default async function getPxWebTableContent(tableId: string, externalDataset: string, selection: ApiSelectionItem[], language?: string) {
   // Get the base URL for the external dataset, defaulting to SCB
   const dataset = ExternalDataset.getDatasetByAlternateName(externalDataset) ?? ExternalDataset.SCB;
   const url = new URL(`./tables/${tableId}/data`, dataset.baseUrl);
@@ -18,47 +18,24 @@ export default async function getPxWebTableContent(tableId: string, externalData
   if (language) {
     url.searchParams.append('lang', language);
   }
-  url.searchParams.append('outputformat', 'json-px'); // Decide preferred format of the response. Available formats are "csv", "px", "json-px", "json-stat2", "html", "parquet" and "xlsx"
+  // Decide preferred format of the response. Available formats are "json-stat2" (application/json), "json-px" (application/json), "csv" (text/csv), "px" (application/octet-stream), "xlsx" (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet), and "html" (text/html)
+  url.searchParams.append('outputFormat', 'json-stat2');
 
-  const payload = {
-    selection: [] as { variableCode: string, valueCodes: string[] }[],
-    response: {
-      format: "json-px",
-    },
+  const payload: { selection: ApiSelectionItem[] } = {
+    selection: selection,
   };
 
-  // Add all selection items to payload
-  selection.forEach(item => {
-    if (item.variableCode === "metrics" || item.variableCode === "metric") {
-      const selectionItem = {
-        variableCode: "ContentsCode",
-        valueCodes: item.valueCodes,
-      };
-      payload.selection.push(selectionItem);
-    }
-    else if (item.variableCode !== "Tid" && item.variableCode !== "Time") {
-      const selectionItem = {
-        variableCode: item.variableCode,
-        valueCodes: item.valueCodes,
-      };
-      payload.selection.push(selectionItem);
-    }
-    else {
-      const timeSelectionItem = {
-        variableCode: item.variableCode,
-        valueCodes: item.valueCodes,
-      };
-      payload.selection.push(timeSelectionItem);
-    }
-  });
-
-  const timeSelectionItemInPayload = payload.selection.filter(item => item.variableCode === "Tid" || item.variableCode === "Time")[0];
-  if (!timeSelectionItemInPayload) {
-    // Get all time periods that are available for this table and add them to payload
-    const timeSelectionItem = { variableCode: "Tid", valueCodes: [] as string[] };
-    const times = await getPxWebTableMetadata(tableId, externalDataset).then(result => result ? result.timeDimensions : undefined);
-    if (!times) return null;
-    timeSelectionItem.valueCodes.push(`from(${times[0].id})`);
+  // If no time selection is provided, try to add a default time selection to the payload
+  const times = await getPxWebTableMetadata(tableId, externalDataset).then(result => result ? result.timeDimensions : undefined);
+  if (times && times.length !== 1 && !times.every(time => payload.selection.some(item => item.variableCode === time.id))) {
+    console.debug(`Too many time dimensions (${times.length}) to automatically select one to include all periods for; please ensure all time dimensions have defined selections. tableId: ${tableId}; dataset: ${externalDataset}`);
+    return null;
+  } else if (times?.length === 1 && !payload.selection.some(item => item.variableCode === times[0].id)) {
+    // If there is only one time dimension, and it is not already included in the selection, add it to the selection with all available periods
+    const timeSelectionItem = {
+      variableCode: times[0].id,
+      valueCodes: [`from(${times[0].options[0].value})`],
+    };
     payload.selection.push(timeSelectionItem);
   }
 
@@ -77,7 +54,7 @@ export default async function getPxWebTableContent(tableId: string, externalData
     if (response.ok) {
       const contentType = response.headers.get("Content-Type");
 
-      // Make sure content type is application/json (actually json-px, but it's basically just json)
+      // Make sure content type is application/json (actually json-stat2, but it's basically just fancy json)
       if (contentType?.includes("application/json")) {
         const responseJson = await response.json() as JSONValue;
         data = responseJson;
@@ -91,60 +68,81 @@ export default async function getPxWebTableContent(tableId: string, externalData
     return null;
   }
 
-  function pxWebTableContentToApiTableContent(pxWebTableContent: PxWebTableDataJsonPx): ApiTableData | null {
-    const resultTable: ApiTableData = {
+  function pxWebTableContentToApiTableContent(tableContent: PxWebTableContent): ApiTableContent | null {
+    const resultTable: ApiTableContent = {
       id: tableId,
       values: [],
       metadata: [{
-        label: pxWebTableContent.metadata[0].label,
-        source: pxWebTableContent.metadata[0].source,
+        label: tableContent.label,
+        source: tableContent.source,
       }],
     };
 
-    // Columns
-    // We're only interested in the time column (type "t") and data columns (type "c").
-    // We don't really care about dimension columns (type "d"), but it's worth noting that they cause years to be repeated if multiple values are allowed for any dimension,
-    // in which case we will discard the data altogether and request the user to update their selection.
-    const timeColumnIndex = pxWebTableContent.columns.findIndex(column => column.type === "t");
+    // Try to extract unit
+    if (tableContent.role.metric?.length === 1) {
+      const metricDimensionName = tableContent.role.metric[0];
+      const metricDimension = tableContent.dimension[metricDimensionName];
+      if ("unit" in metricDimension.category) {
+        resultTable.unit = metricDimension.category.unit[Object.keys(metricDimension.category.unit)[0]];
+      }
+    }
 
-    if (timeColumnIndex === -1) {
-      console.error("No time column found in pxWeb table content.");
+    // Ensure the value array is neither empty, nor a flattened multidimensional array (which would indicate that multiple dimensions have more than one value, which we don't support)
+    if (!tableContent.value || tableContent.value.length === 0) {
+      console.error("No values found in PxWeb table content.");
+      return null;
+    } else if (tableContent.size.filter(size => size > 1).length > 1) {
+      console.error("Multiple dimensions with more than one value found in PxWeb table content. Please update your selection to only include one option per dimension except the main time dimension.");
       return null;
     }
 
-    // Ensure no year is repeated in the time column
-    const timeValues = new Set<string>();
-    for (const data of pxWebTableContent.data) {
-      const timeValue = data.key[timeColumnIndex];
-      if (timeValues.has(timeValue)) {
-        console.error("Multiple occurences found of a single time period. Please update your selection to only include one option per dimension.");
+    // Find the index of the relevant dimension (probably a time dimension, but not necessarily) with more than one value
+    const mainDimensionIndex = tableContent.size.findIndex(size => size > 1);
+    if (mainDimensionIndex === -1) {
+      if (times?.length === 1) {
+        console.debug(`No dimension with more than one value found in PxWeb table content. This is supported, but may result in the wrong dimension being used as "main" dimension for reading years.`);
+        const keys = Object.keys(tableContent.dimension[times[0].id].category.index ?? tableContent.dimension[times[0].id].category.label ?? {});
+        if (keys.length === 0) {
+          console.error("No values found in main dimension of PxWeb table content.");
+          return null;
+        }
+        resultTable.values.push({
+          // Index is guaranteed to exist if label does not
+          period: tableContent.dimension[times[0].id].category.label?.[keys[0]] ?? keys[0],
+          // Value should have a length of 1 if no dimension has more than one value, so we can safely access it by index 0
+          value: String(tableContent.value[0] ?? ""),
+        });
+      } else {
+        console.error("No dimension with more than one value found in PxWeb table content, and we were unable to automatically determine which dimension to use as the main dimension.");
         return null;
       }
-      timeValues.add(timeValue);
-    }
-
-    const dataColumns = pxWebTableContent.columns.filter(column => column.type === "c");
-    if (dataColumns.length === 0) {
-      console.error("No data columns found in PxWeb table content.");
-      return null;
-    } else if (dataColumns.length > 1) {
-      console.error("Multiple data columns found in PxWeb table content. Please select only one data column.");
-      return null;
-    }
-    // Data
-    // Create all data rows that will be returned by the function
-    for (const data of pxWebTableContent.data) {
-      resultTable.values.push({
-        period: data.key[timeColumnIndex],
-        value: data.values[0], // We expect exactly one value per row, so we can safely access it by index 0
+    } else {
+      // Get the name of the main dimension (probably a time dimension, but not necessarily)
+      const mainDimensionName = tableContent.id[mainDimensionIndex];
+      if (!mainDimensionName || !tableContent.dimension[mainDimensionName]) {
+        console.error("Main dimension not found in PxWeb table content.", { mainDimensionName, tableContent });
+        return null;
+      }
+      tableContent.value.forEach((value, index) => {
+        const keys = Object.keys(tableContent.dimension[mainDimensionName].category.index ?? tableContent.dimension[mainDimensionName].category.label ?? {});
+        if (index >= keys.length) {
+          console.error("Index out of bounds for main dimension values in PxWeb table content.", { index, keys });
+          return null;
+        }
+        resultTable.values.push({
+          // Index is guaranteed to exist if label does not
+          period: tableContent.dimension[mainDimensionName].category.label?.[keys[index]] ?? keys[index],
+          value: String(value ?? ""),
+        });
       });
-    };
+    }
 
     return resultTable;
   }
 
-  if (data instanceof Object && "columns" in data && "data" in data && "metadata" in data) {
-    return pxWebTableContentToApiTableContent(data as PxWebTableDataJsonPx);
+  // Basic-ass type guard
+  if (isStandardObject(data) && "value" in data && Array.isArray(data.value) && "dimension" in data && isStandardObject(data.dimension)) {
+    return pxWebTableContentToApiTableContent(data as PxWebTableContent);
   } else {
     return null;
   }

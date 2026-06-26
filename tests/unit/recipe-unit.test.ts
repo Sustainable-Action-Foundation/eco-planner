@@ -23,7 +23,7 @@ import {
   transformDateValuesToVector,
 } from "../../src/functions/recipe";
 import type { DataSeriesVariable, ExternalVariable, ScalarVariable } from "../../src/functions/recipe/types";
-import type { ApiTableData } from "../../src/lib/api/apiTypes";
+import type { ApiTableContent } from "../../src/lib/api/apiTypes";
 import type { DataSeries, DateValues, DateValuesWithUnit, ISOIshDate } from "../../src/types";
 
 const isoYear = (year: number): ISOIshDate => `${year}-01-01T00:00:00.000Z`;
@@ -134,9 +134,9 @@ function externalVariable({
   };
 }
 
-function makeExternalTableContentGetter(seed: Record<string, ApiTableData>) {
+function makeExternalTableContentGetter(seed: Record<string, ApiTableContent>) {
   // eslint-disable-next-line @typescript-eslint/require-await
-  return async (tableId: string): Promise<ApiTableData | null> => seed[tableId] ?? null;
+  return async (tableId: string): Promise<ApiTableContent | null> => seed[tableId] ?? null;
 }
 
 const dataSeriesIds = {

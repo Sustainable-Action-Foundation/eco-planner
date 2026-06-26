@@ -1,6 +1,6 @@
 import WrappedChart from "@/lib/chartWrapper";
 import styles from '../graph.module.css';
-import type { ApiTableData } from "@/lib/api/apiTypes";
+import type { ApiTableContent } from "@/lib/api/apiTypes";
 import { parsePeriod } from "@/lib/api/utility";
 import getTableContent from "@/lib/api/getTableContent";
 import i18nServer from "i18next";
@@ -27,7 +27,7 @@ export default async function ThumbnailGraph({
   }
 
   const locale = new Intl.Locale(i18nServer.language).language;
-  let externalData: ApiTableData | null = null;
+  let externalData: ApiTableContent | null = null;
   if (historicalData) {
     // Fetch external data
     if (goal.externalDataset && goal.externalTableId && goal.externalSelection) {
