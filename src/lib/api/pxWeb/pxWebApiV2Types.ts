@@ -10,8 +10,8 @@ import type { ApiMetadataDimensionBase, ApiSelectOptionBase } from "../apiTypes"
 
 // Compatibility types, compare to the types in trafaTypes.ts
 
-export type PxWebCompatMetadataDimensionBase = Omit<ApiMetadataDimensionBase, "id"> & {
-  id: string;
+export type PxWebCompatMetadataDimensionBase = ApiMetadataDimensionBase & {
+  // Any additional or modified properties should be added here as necessary
 }
 
 export type PxWebCompatMetricDimension = Omit<PxWebCompatMetadataDimensionBase, "type"> & {

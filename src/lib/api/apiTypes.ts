@@ -1,5 +1,5 @@
 import type { PxWebCompatMetricDimension, PxWebCompatTimeDimension, PxWebCompatRegularDimension } from "./pxWeb/pxWebApiV2Types";
-import type { TrafaCompatHierarchy, TrafaCompatMetricDimension, TrafaCompatDimension, TrafaCompatTimeDimension } from "./trafa/trafaTypes";
+import type { TrafaCompatHierarchy, TrafaCompatMetricDimension, TrafaCompatRegularDimension, TrafaCompatTimeDimension } from "./trafa/trafaTypes";
 
 // TODO: See if we can include any unit returned by external APIs
 export type ApiTableContent = {
@@ -28,7 +28,7 @@ export type TrafaCompatTableMetadata = {
   tableId: string;
   metricDimensions: TrafaCompatMetricDimension[];
   timeDimensions: TrafaCompatTimeDimension[];
-  regularDimensions: TrafaCompatDimension[];
+  regularDimensions: TrafaCompatRegularDimension[];
   hierarchies: TrafaCompatHierarchy[];
   language: string;
 }
@@ -48,12 +48,13 @@ export type ApiTableMetadata = TrafaCompatTableMetadata | PxWebCompatTableMetada
 
 export type ApiMetadataDimensionBase = {
   type: "metric" | "time" | "dimension";
-  /** PxWeb uses string-based IDs, trafa uses numeric IDs */
-  id: string | number;
+  /** The value used to refer to a dimension when querying an API. Not necessarily the `id` property of the dimension i question; both trafa and PxWeb use a name-like property for this. */
+  id: string;
   /** `name` is usually an internal, non-localized name used by the external API; if present, prefer using `label` for user-facing text */
   name: string;
   /** usually a localized string used as display name; prefer this for any user-facing text, but fall back to `name` if not present */
   label?: string;
+  optional?: boolean | null;
   options: ApiSelectOptionBase[];
 }
 

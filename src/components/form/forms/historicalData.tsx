@@ -5,10 +5,10 @@ import type { ApiTableContent, ApiTableMetadata } from "@/lib/api/apiTypes";
 import getTableContent from "@/lib/api/getTableContent";
 import getTableMetadata from "@/lib/api/getTableMetadata";
 import getTables from "@/lib/api/getTables";
-import { ExternalDataset } from "@/lib/api/utility";
+import { ExternalDataset, formQueryHelper } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
 import type { PxWebCompatTimeDimension, PxWebCompatRegularDimension } from "@/lib/api/pxWeb/pxWebApiV2Types";
-import type { TrafaCompatDimension } from "@/lib/api/trafa/trafaTypes";
+import type { TrafaCompatRegularDimension } from "@/lib/api/trafa/trafaTypes";
 import type { Goal } from "@/lib/prisma/generated";
 import type { SubmitEvent } from "react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
@@ -66,28 +66,6 @@ export default function HistoricalData({
   const formRef = useRef<HTMLFormElement | null>(null);
   // const deleteDataRef = useRef<HTMLDialogElement>(null)
 
-  // Gets relevant info from variable inputs
-  const buildQuery = useCallback((formData: FormData) => {
-    const queryObject: ExternalSelection = [];
-    formData.forEach((value, key) => {
-      // Skip empty values
-      // Skip File inputs
-      // Skip externalDataset and externalTableId, they are not part of the query
-      if (!value) return;
-      if (value instanceof File) return;
-      if (key === "externalDataset") return;
-      if (key === "externalTableId") return;
-
-      // The PxWeb time variable is special, as we want to fetch every period after (and including) the selected one
-      if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && key === formRef.current?.getElementsByClassName("TimeVariable")[0]?.id) {
-        queryObject.push({ variableCode: key, valueCodes: [`FROM(${value})`] });
-        return;
-      }
-      queryObject.push({ variableCode: key, valueCodes: [value] });
-    });
-    return queryObject;
-  }, [dataSource]);
-
   const tryGetResult = useCallback((event?: React.ChangeEvent<HTMLSelectElement> | SubmitEvent<HTMLFormElement> | Event) => {
     // null check
     if (!(formRef.current instanceof HTMLFormElement)) return;
@@ -97,7 +75,7 @@ export default function HistoricalData({
     // Get a result if the form is valid
     if (formRef.current.checkValidity()) {
       const formData = new FormData(formRef.current);
-      const query = buildQuery(formData);
+      const query = formQueryHelper(formData, [] /* TODO: include any PxWeb main time variable */ );
 
       getTableContent(table ? table.tableId : "", dataSource, query, lang).then(result => {
         setTableContent(result);
@@ -120,7 +98,7 @@ export default function HistoricalData({
       setTableContent(null);
       // setIsLoading(false);
     }
-  }, [buildQuery, table, dataSource, lang]);
+  }, [table, dataSource, lang]);
 
   const setFormRef = useCallback((node: HTMLFormElement | null) => {
     if (node) {
@@ -182,7 +160,7 @@ export default function HistoricalData({
     if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && variableIsOptional) return <span className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</span>;
   }
 
-  function variableSelectionHelper(variable: TrafaCompatDimension | PxWebCompatRegularDimension, tableDetails: ApiTableMetadata) {
+  function variableSelectionHelper(variable: TrafaCompatRegularDimension | PxWebCompatRegularDimension, tableDetails: ApiTableMetadata) {
     if (variable.option) {
       // The idea here is basically to we see which variables exist, and moving them to an array separately from metric as that value is already set. 
       // We then check if the variable which we render is in our list and get the default value from there.
@@ -218,12 +196,12 @@ export default function HistoricalData({
           </select>
         </label>
       );
-    } else if (dataSource === "Trafa" && !variable.option && (variable as TrafaCompatDimension).selected) {
+    } else if (dataSource === "Trafa" && !variable.option && (variable as TrafaCompatRegularDimension).selected) {
       console.warn("The variable is selected while it is not an option. This should not happen.");
     }
   }
 
-  function timeVariableSelectionHelper(times: (TrafaCompatDimension | PxWebCompatTimeDimension)[], language?: string) {
+  function timeVariableSelectionHelper(times: (TrafaCompatRegularDimension | PxWebCompatTimeDimension)[], language?: string) {
     if (
       (dataSource === "Trafa" && !(times.length === 1 && times[0].name === "ar")) ||
       (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && times.length > 1)
@@ -271,7 +249,7 @@ export default function HistoricalData({
 
     if (!(event.target.checkValidity())) return;
     const formData = new FormData(event.target);
-    const query = buildQuery(formData);
+    const query = formQueryHelper(formData, [] /* TODO: include any PxWeb main time variable */ );
     // Update the goal with the new data
     formSubmitter("/api/goal", JSON.stringify({
       goalId: goal.id,

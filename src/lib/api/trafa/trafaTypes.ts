@@ -75,8 +75,7 @@ export type StructureItem = {
 }
 
 // TODO - which types actually use description?
-export type TrafaCompatMetadataDimensionBase = Omit<ApiMetadataDimensionBase, "id" | "options"> & {
-  id: number,
+export type TrafaCompatMetadataDimensionBase = Omit<ApiMetadataDimensionBase, "options"> & {
   dataType: "String" | "Time" | "Region",
   description?: string | null,
   options: (TrafaCompatDimensionValue | TrafaCompatFilter)[]
@@ -92,7 +91,7 @@ export type TrafaCompatTimeDimension = Omit<TrafaCompatMetadataDimensionBase, "t
   dataType: "Time",
 }
 
-export type TrafaCompatDimension = Omit<TrafaCompatMetadataDimensionBase, "type" | "dataType"> & { // Marked as "D" with DataType other than "Time"
+export type TrafaCompatRegularDimension = Omit<TrafaCompatMetadataDimensionBase, "type" | "dataType"> & { // Marked as "D" with DataType other than "Time"
   type: "dimension";
   dataType: "String" | "Region",
 }
@@ -102,7 +101,7 @@ export type TrafaCompatHierarchy = Omit<ApiHierarchyBase, "id" | "children"> & {
   type: "hierarchy";
   dataType: "String" | "Region",
   description?: string | null,
-  children: (TrafaCompatDimension | TrafaCompatTimeDimension)[],
+  children: (TrafaCompatRegularDimension | TrafaCompatTimeDimension)[],
 }
 
 

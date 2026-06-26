@@ -1,7 +1,7 @@
 import type { TrafaCompatTableMetadata } from "../apiTypes";
 import { ExternalDataset } from "../utility";
 import getTrafaTables from "./getTrafaTables";
-import type { StructureItem, TrafaCompatFilter, TrafaCompatHierarchy, TrafaCompatMetricDimension, TrafaCompatDimension, TrafaCompatDimensionValue, TrafaCompatMetadataDimensionBase, TrafaCompatTimeDimension } from "./trafaTypes";
+import type { StructureItem, TrafaCompatFilter, TrafaCompatHierarchy, TrafaCompatMetricDimension, TrafaCompatRegularDimension, TrafaCompatDimensionValue, TrafaCompatMetadataDimensionBase, TrafaCompatTimeDimension } from "./trafaTypes";
 import { getTrafaSearchQueryString } from "./trafaUtility";
 
 export default async function getTrafaTableMetadata(tableId: string, selection: { variableCode: string, valueCodes: string[] }[] = [], language?: string): Promise<TrafaCompatTableMetadata | null> {
@@ -56,13 +56,13 @@ export default async function getTrafaTableMetadata(tableId: string, selection: 
   }
 
   // Helper function for converting structure items from trafa to items that can be used with a more universal structure
-  function structureItemToTrafaTableDetailItem(structureItem: StructureItem): TrafaCompatMetricDimension | TrafaCompatTimeDimension | TrafaCompatDimension | TrafaCompatHierarchy | TrafaCompatDimensionValue | TrafaCompatFilter {
+  function structureItemToTrafaTableDetailItem(structureItem: StructureItem): TrafaCompatMetricDimension | TrafaCompatTimeDimension | TrafaCompatRegularDimension | TrafaCompatHierarchy | TrafaCompatDimensionValue | TrafaCompatFilter {
     // let returnItem: TrafaCompatMetricDimension | TrafaCompatHierarchy | TrafaCompatDimension | TrafaCompatDimensionValue | TrafaCompatFilter;
 
     // dimension items
     if (structureItem.Type in ["M", "D"]) {
-      const returnItem: TrafaCompatMetadataDimensionBase | TrafaCompatMetricDimension | TrafaCompatHierarchy | TrafaCompatDimension = {
-        id: structureItem.Id,
+      const returnItem: TrafaCompatMetadataDimensionBase | TrafaCompatMetricDimension | TrafaCompatHierarchy | TrafaCompatRegularDimension = {
+        id: structureItem.Name,
         type: "dimension",
         dataType: structureItem.DataType,
         label: structureItem.Label,
@@ -93,7 +93,7 @@ export default async function getTrafaTableMetadata(tableId: string, selection: 
         }
       });
 
-      return (returnItem as TrafaCompatMetricDimension | TrafaCompatTimeDimension | TrafaCompatDimension);
+      return (returnItem as TrafaCompatMetricDimension | TrafaCompatTimeDimension | TrafaCompatRegularDimension);
     } else if (structureItem.Type === "H") {
       const returnItem: TrafaCompatHierarchy = {
         id: structureItem.Id,

@@ -1,5 +1,5 @@
 import { isStandardObject } from "@/types";
-import type { ApiTableContent } from "./apiTypes";
+import type { ApiSelectionItem, ApiTableContent } from "./apiTypes";
 
 // TODO: Refactor file
 
@@ -232,4 +232,34 @@ export function filterToInitialYearlyRecords(periodValuePairs: ApiTableContent["
   }
 
   return filteredValues;
+}
+
+/**
+ * A utility function to parse a FormData object into an array of ApiSelectionItem objects,
+ * made to be shared by all query building components.
+ * @param formData A `FormData` object to parse into `ApiSelectionItem[]` format
+ * @param ignoreKeys Additional keys from the `FormData` object to ignore when parsing. The keys "externalDataset" and "externalTableId" are always ignored.
+ * @param mainPxWebTimeVariableKey The key of the main PxWeb time variable, if any. If provided, the value for this key will be wrapped in a `FROM()` function in order to also include all subsequent values in the dimension.
+ */
+export function formQueryHelper(formData: FormData, ignoreKeys?: string[], mainPxWebTimeVariableKey?: string | null): ApiSelectionItem[] {
+  const selection: ApiSelectionItem[] = [];
+
+  const keysToIgnore = new Set<string>(["externalDataset", "externalTableId", ...(ignoreKeys ?? [])]);
+
+  for (const [key, value] of formData.entries()) {
+    if (keysToIgnore.has(key)) {
+      continue;
+    }
+
+    if (typeof value === "string" && value.trim() !== "") {
+      if (mainPxWebTimeVariableKey && key === mainPxWebTimeVariableKey) {
+        // If the key is the main PxWeb time variable, we need to wrap the value in a FROM() function
+        selection.push({ variableCode: key, valueCodes: [`FROM(${value})`] });
+      } else {
+        selection.push({ variableCode: key, valueCodes: [value] });
+      }
+    }
+  }
+
+  return selection;
 }

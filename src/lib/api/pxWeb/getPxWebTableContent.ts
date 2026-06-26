@@ -113,6 +113,7 @@ export default async function getPxWebTableContent(tableId: string, externalData
           value: String(tableContent.value[0] ?? ""),
         });
       } else {
+        // TODO: Try to determine main dimension by extracting the variableCode of any ApiSelectionItem with a valueCode matching the regex /^FROM\(.+\)$/i
         console.error("No dimension with more than one value found in PxWeb table content, and we were unable to automatically determine which dimension to use as the main dimension.");
         return null;
       }
