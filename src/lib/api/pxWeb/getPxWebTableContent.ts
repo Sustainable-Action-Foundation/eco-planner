@@ -4,7 +4,7 @@
 import type { JSONValue } from "@/types";
 import type { ApiTableData } from "../apiTypes";
 import { ExternalDataset } from "../utility";
-import getPxWebTableMetadata from "./getPxWebTableDetails";
+import getPxWebTableMetadata from "./getPxWebTableMetadata";
 import type { PxWebTableDataJsonPx } from "./pxWebApiV2Types";
 
 export default async function getPxWebTableContent(tableId: string, externalDataset: string, selection: { variableCode: string, valueCodes: string[] }[], language?: string) {

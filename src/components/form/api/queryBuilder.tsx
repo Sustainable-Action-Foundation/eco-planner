@@ -4,7 +4,7 @@ import { closeModal, openModal } from "@/components/modals/modalFunctions";
 import formSubmitter from "@/functions/formSubmitter";
 import type { ApiTableData, ApiTableMetadata } from "@/lib/api/apiTypes";
 import getTableContent from "@/lib/api/getTableContent";
-import getTableDetails from "@/lib/api/getTableDetails";
+import getTableMetadata from "@/lib/api/getTableMetadata";
 import getTables from "@/lib/api/getTables";
 import { ExternalDataset } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
@@ -202,7 +202,7 @@ export default function QueryBuilder({
       if (dataSource === "Trafa") {
         // If metric was changed, send the metric as a query to the API to get filtered table details
         if (event?.target instanceof HTMLSelectElement && event.target.name === "metric") {
-          void getTableDetails(tableId, dataSource, query.filter(q => q.variableCode === "metric"), lang).then(result => { setTableDetails(result); });
+          void getTableMetadata(tableId, dataSource, query.filter(q => q.variableCode === "metric"), lang).then(result => { setTableDetails(result); });
         }
       }
     }
@@ -272,7 +272,7 @@ export default function QueryBuilder({
     clearTableDetails();
     disableSubmitButton();
 
-    void getTableDetails(tableId, dataSource, undefined, lang).then(result => { setTableDetails(result); setIsLoading(false); });
+    void getTableMetadata(tableId, dataSource, undefined, lang).then(result => { setTableDetails(result); setIsLoading(false); });
   }
 
   function handleMetricSelect(event: React.ChangeEvent<HTMLSelectElement>) {
@@ -294,7 +294,7 @@ export default function QueryBuilder({
           variableSelectionFieldset.setAttribute("disabled", "true");
           // Reset all the table details when disabling the form so all options are displayed when re-enabling
           if (dataSource === "Trafa") {
-            void getTableDetails(tableDetails?.tableId ?? "", dataSource, undefined, lang).then(result => { setTableDetails(result); setIsLoading(false); });
+            void getTableMetadata(tableDetails?.tableId ?? "", dataSource, undefined, lang).then(result => { setTableDetails(result); setIsLoading(false); });
           }
           else {
             setIsLoading(false);

@@ -2,7 +2,7 @@
 
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
 import type { ApiTableData, ApiTableMetadata } from "@/lib/api/apiTypes";
-import getTableDetails from "@/lib/api/getTableDetails";
+import getTableMetadata from "@/lib/api/getTableMetadata";
 import getTables from "@/lib/api/getTables";
 import { ExternalDataset, isDataSetKeys } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
@@ -95,7 +95,7 @@ export default function RecipeQueryBuilder({
     if (!ExternalDataset.getDatasetByAlternateName(dataSource)?.baseUrl) return;
 
     hasAppliedInitialTableSelectionRef.current = true;
-    getTableDetails(initialTableId, dataSource, undefined, lang)
+    getTableMetadata(initialTableId, dataSource, undefined, lang)
       .then(result => { setTableDetails(result); })
       .catch((e: unknown) => {
         const errorMessage = e instanceof Error ? e.message : String(e);
@@ -183,7 +183,7 @@ export default function RecipeQueryBuilder({
     setTableContent(null);
     setTableDetails(null);
 
-    getTableDetails(tableId, dataSource, undefined, lang)
+    getTableMetadata(tableId, dataSource, undefined, lang)
       .then(result => { setTableDetails(result); })
       .catch((e: unknown) => {
         const errorMessage = e instanceof Error ? e.message : String(e);
@@ -213,7 +213,7 @@ export default function RecipeQueryBuilder({
           variableSelectionFieldset.setAttribute("disabled", "true");
           // Reset all the table details when disabling the form so all options are displayed when re-enabling
           if (dataSource === "Trafa") {
-            getTableDetails(tableDetails?.tableId ?? "", dataSource, undefined, lang)
+            getTableMetadata(tableDetails?.tableId ?? "", dataSource, undefined, lang)
               .then(result => { setTableDetails(result); })
               .catch((e: unknown) => {
                 const errorMessage = e instanceof Error ? e.message : String(e);
@@ -399,7 +399,7 @@ export default function RecipeQueryBuilder({
     if (dataSource === "Trafa") {
       // If metric was changed, send the metric as a query to the API to get filtered table details
       if (event?.target instanceof HTMLSelectElement && event.target.name === "metric") {
-        getTableDetails(tableId, dataSource, query.filter(q => q.variableCode === "metric"), lang)
+        getTableMetadata(tableId, dataSource, query.filter(q => q.variableCode === "metric"), lang)
           .then(result => { setTableDetails(result); })
           .catch((e: unknown) => {
             const errorMessage = e instanceof Error ? e.message : String(e);

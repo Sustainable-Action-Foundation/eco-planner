@@ -1,8 +1,8 @@
-import getPxWebTableMetadata from "./pxWeb/getPxWebTableDetails";
-import getTrafaTableDetails from "./trafa/getTrafaTableDetails";
+import getPxWebTableMetadata from "./pxWeb/getPxWebTableMetadata";
+import getTrafaTableMetadata from "./trafa/getTrafaTableMetadata";
 import { ExternalDataset } from "./utility";
 
-export default async function getTableDetails(tableId: string, externalDataset: string | undefined, selection: { variableCode: string, valueCodes: string[] }[] = [], language: string) {
+export default async function getTableMetadata(tableId: string, externalDataset: string | undefined, selection: { variableCode: string, valueCodes: string[] }[] = [], language: string) {
   if (!externalDataset) { return null; }
 
   const dataset = ExternalDataset.getDatasetByAlternateName(externalDataset);
@@ -10,7 +10,7 @@ export default async function getTableDetails(tableId: string, externalDataset: 
   if (dataset?.api === "PxWeb") {
     return getPxWebTableMetadata(tableId, externalDataset, language);
   } else if (dataset?.api === "Trafa") {
-    return getTrafaTableDetails(tableId, selection, language);
+    return getTrafaTableMetadata(tableId, selection, language);
   } else {
     return null; // Unsupported dataset API
   }

@@ -4,7 +4,7 @@ import getTrafaTables from "./getTrafaTables";
 import type { StructureItem, TrafaCompatFilter, TrafaCompatHierarchy, TrafaCompatMetricDimension, TrafaCompatDimension, TrafaCompatDimensionValue, TrafaCompatMetadataDimensionBase, TrafaCompatTimeDimension } from "./trafaTypes";
 import { getTrafaSearchQueryString } from "./trafaUtility";
 
-export default async function getTrafaTableDetails(tableId: string, selection: { variableCode: string, valueCodes: string[] }[] = [], language?: string) {
+export default async function getTrafaTableMetadata(tableId: string, selection: { variableCode: string, valueCodes: string[] }[] = [], language?: string) {
   const searchQuery = getTrafaSearchQueryString(selection);
 
   const url = new URL('./structure', ExternalDataset.Trafa.baseUrl);

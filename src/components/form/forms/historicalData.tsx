@@ -3,7 +3,7 @@
 import formSubmitter from "@/functions/formSubmitter";
 import type { ApiTableData, ApiTableMetadata } from "@/lib/api/apiTypes";
 import getTableContent from "@/lib/api/getTableContent";
-import getTableDetails from "@/lib/api/getTableDetails";
+import getTableMetadata from "@/lib/api/getTableMetadata";
 import getTables from "@/lib/api/getTables";
 import { ExternalDataset } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
@@ -18,7 +18,7 @@ import styles from '../forms.module.css';
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 // import { IconEdit, IconTrashXFilled, IconX } from "@tabler/icons-react";
 
-type ExternalSelection = NonNullable<Parameters<typeof getTableDetails>[2]>;
+type ExternalSelection = NonNullable<Parameters<typeof getTableMetadata>[2]>;
 type ExternalSelectionItem = ExternalSelection[number];
 
 const parseExternalSelection = (selection: string | null): ExternalSelectionItem[] => {
@@ -112,7 +112,7 @@ export default function HistoricalData({
       if (dataSource === "Trafa") {
         // If metric was changed, send the metric as a query to the API to get filtered table details
         if (event?.target instanceof HTMLSelectElement && event.target.name === "metric") {
-          void getTableDetails(table ? table.tableId : "", dataSource, query.filter(q => q.variableCode === "metric"), lang).then(result => { setTableDetails(result); });
+          void getTableMetadata(table ? table.tableId : "", dataSource, query.filter(q => q.variableCode === "metric"), lang).then(result => { setTableDetails(result); });
         }
       }
 
@@ -133,7 +133,7 @@ export default function HistoricalData({
   useEffect(() => {
     if (!goal.externalTableId || !goal.externalDataset || !goal.externalSelection) return;
 
-    void getTableDetails(
+    void getTableMetadata(
       goal.externalTableId,
       goal.externalDataset,
       parseExternalSelection(goal.externalSelection),
@@ -167,7 +167,7 @@ export default function HistoricalData({
     setTableContent(null);
     setTableDetails(null);
 
-    void getTableDetails(tableId, dataSource, undefined, lang).then(result => {
+    void getTableMetadata(tableId, dataSource, undefined, lang).then(result => {
       setTableDetails(result);
       // setIsLoading(false);
     });
