@@ -1,14 +1,14 @@
 "use client";
 
 import formSubmitter from "@/functions/formSubmitter";
-import type { ApiTableContent, ApiTableMetadata } from "@/lib/api/apiTypes";
+import type { ApiMetadataDimensionBase, ApiTableContent, ApiTableMetadata } from "@/lib/api/apiTypes";
 import getTableContent from "@/lib/api/getTableContent";
 import getTableMetadata from "@/lib/api/getTableMetadata";
 import getTables from "@/lib/api/getTables";
 import { ExternalDataset, formQueryHelper } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
-import type { PxWebCompatTimeDimension, PxWebCompatRegularDimension } from "@/lib/api/pxWeb/pxWebApiV2Types";
-import type { TrafaCompatRegularDimension } from "@/lib/api/trafa/trafaTypes";
+import type { PxWebCompatTimeDimension } from "@/lib/api/pxWeb/pxWebApiV2Types";
+import type { TrafaCompatTimeDimension } from "@/lib/api/trafa/trafaTypes";
 import type { Goal } from "@/lib/prisma/generated";
 import type { SubmitEvent } from "react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
@@ -156,12 +156,12 @@ export default function HistoricalData({
   }, [table, handleTableSelect]);
 
   // TODO: should probably use a pseudo class (::after) instead of a span here.
-  function optionalTag(dataSource: string, variableIsOptional: boolean) {
+  function optionalTag(dataSource: string, variableIsOptional: boolean | null | undefined) {
     if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && variableIsOptional) return <span className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</span>;
   }
 
-  function variableSelectionHelper(variable: TrafaCompatRegularDimension | PxWebCompatRegularDimension, tableDetails: ApiTableMetadata) {
-    if (variable.option) {
+  function variableSelectionHelper(dimension: ApiMetadataDimensionBase, tableDetails: ApiTableMetadata) {
+    if (dimension.options) {
       // The idea here is basically to we see which variables exist, and moving them to an array separately from metric as that value is already set. 
       // We then check if the variable which we render is in our list and get the default value from there.
       // This isnt very optimal as each render of a variable will trigger a loop of a new list, there is likely a better way to achieve this. 
@@ -169,74 +169,67 @@ export default function HistoricalData({
       const externalSelection = parseExternalSelection(goal.externalSelection);
       const variables = externalSelection.filter((selectionVariable) => selectionVariable.variableCode !== "metric");
 
-      const selectedVariable = variables.find(v => v.variableCode === variable.name);
+      const selectedVariable = variables.find(v => v.variableCode === dimension.name);
       const selectedValue = selectedVariable ? selectedVariable.valueCodes[0] : '';
 
       return (
-        <label key={variable.name}>
+        <label key={dimension.name}>
           {/* Only display "optional" tags if the data source provides this information */}
-          {variable.label}{optionalTag(dataSource, variable.optional)}
+          <span style={{ textTransform: "capitalize" }}>
+            {dimension.label ?? dimension.name}{optionalTag(dataSource, dimension.optional)}
+          </span>
           {
           /* TODO: Use CSS to set proper capitalization of labels; something like `label::first-letter { text-transform: capitalize; }` */}
           <select
             className='block margin-top-25 margin-bottom-100'
-            required={!variable.optional}
-            name={variable.name}
-            id={variable.name}
+            required={!dimension.optional}
+            name={dimension.name}
+            id={dimension.name}
             defaultValue={selectedValue}
             onChange={() => tryGetResult()}
           >
             { // If only one value is available, don't show a placeholder option
               (ExternalDataset.getDatasetByAlternateName(dataSource)?.api !== "PxWeb" ||
-                (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && variable.values && variable.values.length > 1)) ? <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option> : null
+                (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && dimension.options.length > 1)) ? <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option> : null
             }
-            {variable.values?.map(value => (
-              <option key={`${variable.name}-${value.name}`} value={value.name} lang={tableDetails.language}>{value.label}</option>
+            {dimension.options?.map(({ label, value }) => (
+              <option key={`${dimension.name}-${value}`} value={value} lang={tableDetails.language}>{label ?? value}</option>
             ))}
           </select>
         </label>
       );
-    } else if (dataSource === "Trafa" && !variable.option && (variable as TrafaCompatRegularDimension).selected) {
-      console.warn("The variable is selected while it is not an option. This should not happen.");
     }
   }
 
-  function timeVariableSelectionHelper(times: (TrafaCompatRegularDimension | PxWebCompatTimeDimension)[], language?: string) {
-    if (
-      (dataSource === "Trafa" && !(times.length === 1 && times[0].name === "ar")) ||
-      (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && times.length > 1)
-    ) {
+  function timeVariableSelectionHelper(times: (TrafaCompatTimeDimension | PxWebCompatTimeDimension)[], language?: string) {
+    return times.map((time, i) => {
       let heading = "";
       let defaultValue = "";
-      let displayValueKey: keyof typeof times[0]/* "label" | "id" | "name" | "type" */ = "id";
-      const variableIsOptional = times[0].optional;
       if (dataSource === "Trafa") {
         heading = t("components:query_builder.select_time_interval");
         defaultValue = t("components:query_builder.select_time_interval");
-        displayValueKey = "label";
       } else if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") {
         heading = t("components:query_builder.select_starting_period");
         defaultValue = t("components:query_builder.select_time_period");
-        displayValueKey = "id";
       }
       return (
-        <label key="Tid">
-          {heading}{optionalTag(dataSource, variableIsOptional)}
+        <label key={`Tid-${i}`}>
+          {heading}{optionalTag(dataSource, time.optional ?? false)}
           <select className='block margin-top-25 margin-bottom-100 TimeVariable'
-            required={false}
-            name="time"
-            id="time"
-            value={times?.length === 1 ? times[0].label : undefined}
+            required={!time.optional}
+            name={time.id}
+            id={time.id}
+            defaultValue={time.options.length === 1 ? time.options[0].value : ""}
             onChange={() => tryGetResult()}
           >
             <option value="" className={`font-style-italic color-gray`}>{defaultValue}</option>
-            {times.map(time => (
-              <option key={time.name} value={time.name} lang={language}>{time[displayValueKey]}</option>
+            {time.options.map(({ value, label }) => (
+              <option key={`Tid-${i}-${label ?? value}`} value={value} lang={language}>{label ?? value}</option>
             ))}
           </select>
         </label>
       );
-    }
+    });
   }
 
   function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
@@ -273,7 +266,7 @@ export default function HistoricalData({
   */}
 
   function shouldVariableFieldsetBeVisible(tableDetails: ApiTableMetadata, dataSource: string) {
-    const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") && tableDetails.regularDimensions.some(variable => variable.option)) || tableDetails.timeDimensions.length > 1);
+    const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") && tableDetails.regularDimensions.some(variable => variable.options.length > 0)) || tableDetails.timeDimensions.length > 1);
     return returnBool;
   }
 
@@ -499,7 +492,7 @@ export default function HistoricalData({
                 return variableSelectionHelper(variable, tableDetails);
               })}
               {tableDetails.hierarchies?.map(hierarchy => {
-                if (hierarchy.children?.some(variable => variable.option)) return (
+                if (hierarchy.children?.some(variable => variable.options.length > 0)) return (
                   <div key={hierarchy.name}>
                     <div className="font-weight-bold">{hierarchy.label}</div>
                     <div className="block margin-block-75 margin-left-75">
