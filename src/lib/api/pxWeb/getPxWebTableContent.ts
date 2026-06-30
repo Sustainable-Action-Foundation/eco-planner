@@ -112,8 +112,26 @@ export default async function getPxWebTableContent(tableId: string, externalData
           // Value should have a length of 1 if no dimension has more than one value, so we can safely access it by index 0
           value: String(tableContent.value[0] ?? ""),
         });
+      } else if (selection.some(item => item.valueCodes.some(valueCode => /^FROM\(.+\)$/i.test(valueCode)))) {
+        // Try to determine main dimension by extracting the variableCode of any ApiSelectionItem with a valueCode matching the regex /^FROM\(.+\)$/i
+        const mainDimensionVariableCode = selection.find(item => item.valueCodes.some(valueCode => /^FROM\(.+\)$/i.test(valueCode)))?.variableCode;
+        if (mainDimensionVariableCode && tableContent.id.includes(mainDimensionVariableCode)) {
+          const mainDimensionName = mainDimensionVariableCode;
+
+          tableContent.value.forEach((value, index) => {
+            const keys = Object.keys(tableContent.dimension[mainDimensionName].category.index ?? tableContent.dimension[mainDimensionName].category.label ?? {});
+            if (index >= keys.length) {
+              console.error("Index out of bounds for main dimension values in PxWeb table content.", { index, keys });
+              return null;
+            }
+            resultTable.values.push({
+              // Index is guaranteed to exist if label does not
+              period: tableContent.dimension[mainDimensionName].category.label?.[keys[index]] ?? keys[index],
+              value: String(value ?? ""),
+            });
+          });
+        }
       } else {
-        // TODO: Try to determine main dimension by extracting the variableCode of any ApiSelectionItem with a valueCode matching the regex /^FROM\(.+\)$/i
         console.error("No dimension with more than one value found in PxWeb table content, and we were unable to automatically determine which dimension to use as the main dimension.");
         return null;
       }
