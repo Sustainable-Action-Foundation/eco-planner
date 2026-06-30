@@ -92,7 +92,7 @@ export default async function getPxWebTableContent(tableId: string, externalData
       console.error("No values found in PxWeb table content.");
       return null;
     } else if (tableContent.size.filter(size => size > 1).length > 1) {
-      console.error("Multiple dimensions with more than one value found in PxWeb table content. Please update your selection to only include one option per dimension except the main time dimension.");
+      console.debug("Multiple dimensions with more than one value found in PxWeb table content. Please update your selection to only include one option per dimension except the main time dimension.");
       return null;
     }
 
@@ -100,7 +100,7 @@ export default async function getPxWebTableContent(tableId: string, externalData
     const mainDimensionIndex = tableContent.size.findIndex(size => size > 1);
     if (mainDimensionIndex === -1) {
       if (times?.length === 1) {
-        console.debug(`No dimension with more than one value found in PxWeb table content. This is supported, but may result in the wrong dimension being used as "main" dimension for reading years.`);
+        console.warn(`No dimension with more than one value found in PxWeb table content. This is supported, but may result in the wrong dimension being used as "main" dimension for reading years.`);
         const keys = Object.keys(tableContent.dimension[times[0].id].category.index ?? tableContent.dimension[times[0].id].category.label ?? {});
         if (keys.length === 0) {
           console.error("No values found in main dimension of PxWeb table content.");

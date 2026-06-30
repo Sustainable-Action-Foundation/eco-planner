@@ -4,7 +4,7 @@ import type { PxWebMetricDimension, PxWebStandardDimension, PxWebTableMetadata, 
 
 export default async function getPxWebTableMetadata(tableId: string, externalDataset: string, language?: string): Promise<PxWebCompatTableMetadata | null> {
   if (!tableId || !externalDataset) {
-    console.debug("getPxWebTableDetails called without required parameters, returning early", { tableId, externalDataset, language });
+    console.debug("getPxWebTableMetadata called without required parameters, returning early", { tableId, externalDataset, language });
     return null;
   }
 
@@ -40,12 +40,12 @@ export default async function getPxWebTableMetadata(tableId: string, externalDat
     }
   }
   catch (error) {
-    console.error("Error fetching table details from PxWeb API", { error }, `Query URL: ${url}`);
+    console.error("Error fetching table metadata from PxWeb API", { error }, `Query URL: ${url}`);
     return null;
   }
 
   // Declare the variable that will be returned by the function
-  const tableDetails: PxWebCompatTableMetadata = {
+  const tableMetadata: PxWebCompatTableMetadata = {
     tableId: tableId,
     metricDimensions: [],
     timeDimensions: [],
@@ -53,28 +53,14 @@ export default async function getPxWebTableMetadata(tableId: string, externalDat
     language: language,
   };
 
-  const metricNames = data.role.metric;
-  if (!metricNames || metricNames.length === 0) {
-    console.error("No metrics in table details response", { data });
-    return null;
-  } else if (metricNames.some(metricName => !data.dimension[metricName])) {
-    console.error("Some metric dimensions not found in table details response", { data });
-    return null;
-  }
+  const metricNames = data.role.metric ?? [];
 
-  const timeNames = data.role.time;
-  if (!timeNames || timeNames.length === 0) {
-    console.error("No time dimensions in table details response", { data });
-    return null;
-  } else if (timeNames.some(timeName => !data.dimension[timeName])) {
-    console.error("Some time dimensions not found in table details response", { data });
-    return null;
-  }
+  const timeNames = data.role.time ?? [];
 
   // Get all dimensions for the table and add to correct array in tableDetails
   for (const dimensionName in data.dimension) {
     let outputDimension: PxWebCompatMetricDimension | PxWebCompatTimeDimension | PxWebCompatRegularDimension;
-    if (dimensionName in metricNames) {
+    if (metricNames.includes(dimensionName)) {
       outputDimension = {
         type: "metric",
         id: dimensionName,
@@ -82,7 +68,7 @@ export default async function getPxWebTableMetadata(tableId: string, externalDat
         label: data.dimension[dimensionName].label,
         options: [],
       } satisfies PxWebCompatMetricDimension;
-    } else if (dimensionName in timeNames) {
+    } else if (timeNames.includes(dimensionName)) {
       outputDimension = {
         type: "time",
         id: dimensionName,
@@ -128,14 +114,14 @@ export default async function getPxWebTableMetadata(tableId: string, externalDat
     }
 
     if (outputDimension.type === "metric") {
-      tableDetails.metricDimensions.push(outputDimension);
+      tableMetadata.metricDimensions.push(outputDimension);
     } else if (outputDimension.type === "time") {
-      tableDetails.timeDimensions.push(outputDimension);
+      tableMetadata.timeDimensions.push(outputDimension);
     } else {
-      tableDetails.regularDimensions.push(outputDimension);
+      tableMetadata.regularDimensions.push(outputDimension);
     }
   }
 
-  console.debug("Fetched table details from PxWeb API", { tableDetails });
-  return tableDetails;
+  console.debug("Fetched table Metadata from PxWeb API", { tableMetadata });
+  return tableMetadata;
 }
