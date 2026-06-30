@@ -22,6 +22,7 @@ import { dataSeriesToDateValues } from "@/functions/recipe";
 import UnitSync from "@/components/recipe/output/unitSyncer";
 import ParameterSync from "@/components/recipe/output/parameterSyncer";
 import HistoricalDataSection from "../sections/historical/historical";
+import { SuggestedRecipesList } from "@/components/recipe/suggestions/suggestedRecipeList";
 
 const DataSeriesType = {
   Manual: "MANUAL",
@@ -606,7 +607,6 @@ export default function GoalForm({
       {/* Historical data selection section */}
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200 min-width-0`}>
         <legend
-          // eslint-disable-next-line no-useless-assignment
           data-position={positionIndex++}
           className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
         >
@@ -616,7 +616,24 @@ export default function GoalForm({
         <HistoricalDataSection />
       </fieldset>
 
-      {/* TODO suggested recipes to inherit with */}
+      {/* Suggested recipes section */}
+      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+        <legend
+          // eslint-disable-next-line no-useless-assignment
+          data-position={positionIndex++}
+          className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
+        >
+          {t("forms:goal.suggested_recipes")}
+        </legend>
+
+        <p className="margin-top-25 margin-bottom-100">
+          {t("forms:goal.suggested_recipes_description")}
+        </p>
+
+        <SuggestedRecipesList
+          existingSuggestedRecipes={currentGoal?.recipeSuggestions ?? []}
+        />
+      </fieldset>
 
       {/* Submit button */}
       <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
