@@ -299,8 +299,15 @@ export default function HistoricalData({
   */}
 
   function shouldVariableFieldsetBeVisible(tableMetadata: ApiTableMetadata, dataSource: string) {
-    const returnBool = ((tableMetadata.hierarchies && tableMetadata.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") && tableMetadata.regularDimensions.some(variable => variable.options.length > 0)) || tableMetadata.timeDimensions.length > 1);
-    return returnBool;
+    // Show if there are hierarchies
+    if (tableMetadata.hierarchies && tableMetadata.hierarchies.length > 0) return true;
+    // Show if there is a selection to be made for any regular dimension
+    if (tableMetadata.regularDimensions.some(variable => variable.options.length > 1)) return true;
+    // If the data source is not PxWeb, we do not set default value on selects with only one option (why?), so we show the fieldset if any regular dimension has options
+    if (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") && tableMetadata.regularDimensions.some(variable => variable.options.length > 0)) return true;
+    // Show if any time dimension has more than one option
+    if (tableMetadata.timeDimensions.some(time => time.options.length > 1)) return true;
+    return false;
   }
 
   // Index for data-position attribute in legend elements (for accessibility)
