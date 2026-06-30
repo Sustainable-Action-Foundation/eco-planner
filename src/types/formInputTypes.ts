@@ -220,10 +220,19 @@ type GoalMetaFields = {
   description: string | null | undefined;
   indicatorParameter: string | undefined;
   isFeatured: boolean | undefined;
-  recipeSuggestions: SerializedRecipe[] | null | undefined;
   rawTags: string[] | null | undefined; // Transform into tags relation in the server side API
   // TODO: Deprecated - will be moved to description
   links: { url: string, description?: string | null }[] | null | undefined;
+};
+
+/**
+ * The recipe-suggestions section: recipes offered when inheriting from this goal
+ * (the goal's `recipeSuggestions` relation). Accepts any serialized recipe, but is
+ * mainly intended to carry template recipes. A full set replacing the current one;
+ * `null`/`[]` clears it, `undefined` leaves it unchanged.
+ */
+export type RecipeSuggestionsFields = {
+  recipeSuggestions?: SerializedRecipe[] | null | undefined;
 };
 
 // Section fields are key-optional: a sectional request only needs to send the
@@ -268,6 +277,7 @@ type GoalSectionIdentity = {
 type GoalDataSeriesSection = { target: typeof GoalDataTarget.DataSeries } & GoalSectionIdentity & DataSeriesFields;
 type GoalBaselineSection = { target: typeof GoalDataTarget.Baseline } & GoalSectionIdentity & BaselineFields;
 type GoalHistoricalSection = { target: typeof GoalDataTarget.Historical } & GoalSectionIdentity & HistoricalFields;
+type GoalRecipeSuggestionsSection = { target: typeof GoalDataTarget.RecipeSuggestions } & GoalSectionIdentity & RecipeSuggestionsFields;
 
 /** Create a brand-new goal with all sections at once. `dataSeries` and `indicatorParameter` are required. */
 export type GoalCreateFull = {
@@ -277,7 +287,7 @@ export type GoalCreateFull = {
   roadmapId: string;
   indicatorParameter: string; // Required on create
   dataSeries: DateValuesWithUnit; // Required on create
-} & GoalMetaFields & DataSeriesFields & BaselineFields & HistoricalFields;
+} & GoalMetaFields & DataSeriesFields & BaselineFields & HistoricalFields & RecipeSuggestionsFields;
 
 /** Update every section of an existing goal at once. */
 export type GoalUpdateFull = {
@@ -285,19 +295,19 @@ export type GoalUpdateFull = {
   goalId: string;
   timestamp: number; // Stale data check; from Date.now() i.e. milliseconds since epoch
   roadmapId?: never; // Can't reassign the roadmap of an existing goal
-} & GoalMetaFields & DataSeriesFields & BaselineFields & HistoricalFields;
+} & GoalMetaFields & DataSeriesFields & BaselineFields & HistoricalFields & RecipeSuggestionsFields;
 
 /**
  * The body accepted by `POST /api/goal`: either a full new goal, or one section
  * added to an existing goal. Discriminated by `target`.
  */
-export type GoalCreateInput = GoalCreateFull | GoalDataSeriesSection | GoalBaselineSection | GoalHistoricalSection;
+export type GoalCreateInput = GoalCreateFull | GoalDataSeriesSection | GoalBaselineSection | GoalHistoricalSection | GoalRecipeSuggestionsSection;
 
 /**
  * The body accepted by `PUT /api/goal`: either a full goal update, or one section
  * replaced on an existing goal. Discriminated by `target`.
  */
-export type GoalUpdateInput = GoalUpdateFull | GoalDataSeriesSection | GoalBaselineSection | GoalHistoricalSection;
+export type GoalUpdateInput = GoalUpdateFull | GoalDataSeriesSection | GoalBaselineSection | GoalHistoricalSection | GoalRecipeSuggestionsSection;
 
 /** The format of the data needed to create a new action. */
 export type ActionInput = {

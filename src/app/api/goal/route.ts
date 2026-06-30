@@ -7,7 +7,7 @@ import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { ClientError, GoalDataTarget, isGoalCreate, isGoalUpdate } from "@/types";
-import type { AccessControlled, BaselineFields, DataSeriesFields, DateValuesWithUnit, GoalCreateFull, GoalUpdateFull, HistoricalFields, JSONValue } from "@/types";
+import type { AccessControlled, BaselineFields, DataSeriesFields, DateValuesWithUnit, GoalCreateFull, GoalUpdateFull, HistoricalFields, JSONValue, RecipeSuggestionsFields } from "@/types";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 import { resolveRecipeExternals, upsertRecipe } from "@/functions/recipe/persistence";
@@ -94,6 +94,15 @@ function resolveSectionExternals(recipe: SerializedRecipe | null | undefined, re
   return recipe
     ? resolveRecipeExternals(recipe, recipeId)
     : Promise.resolve(null);
+}
+
+/**
+ * Resolves the external variables of every suggested recipe before a transaction.
+ * Suggestions are always created fresh (no existing recipe id), so each is resolved
+ * against `null`. The result is index-aligned with `recipes`.
+ */
+function resolveSuggestionExternals(recipes: SerializedRecipe[] | null | undefined): Promise<ResolvedExternals[]> {
+  return Promise.all((recipes ?? []).map(recipe => resolveRecipeExternals(recipe, null)));
 }
 
 /** Maps a thrown `ClientError.IllegalParent` to a 403; anything else is logged and returned as a 500. */
@@ -212,6 +221,46 @@ async function applyHistoricalSection(tx: Prisma.TransactionClient, authorId: st
 }
 
 /**
+ * Applies the recipe-suggestions section: replaces the goal's suggested recipes
+ * with a freshly-created set. `undefined` leaves them untouched; `null`/`[]` clears
+ * them. Any recipe is accepted (templates are the main use); externals are
+ * materialized like any other recipe. Previously-suggested recipes left fully
+ * orphaned by the replace are deleted.
+ */
+async function applyRecipeSuggestionsSection(tx: Prisma.TransactionClient, authorId: string, goalId: string, recipes: SerializedRecipe[] | null | undefined, resolvedList: ResolvedExternals[]): Promise<void> {
+  if (recipes === undefined) return; // Field omitted: leave suggestions unchanged.
+  const list = recipes ?? [];
+
+  const before = (await tx.goal.findUniqueOrThrow({
+    where: { id: goalId },
+    select: { recipeSuggestions: { select: { id: true } } },
+  })).recipeSuggestions.map(r => r.id);
+
+  // Create each suggested recipe (materializing its externals) and collect the new ids.
+  const newIds: string[] = [];
+  for (let i = 0; i < list.length; i++) {
+    const { recipeId } = await upsertRecipe(tx, authorId, "recipe suggestion", {
+      recipe: list[i], recipeId: null, resolved: resolvedList[i] ?? null,
+    });
+    if (recipeId) newIds.push(recipeId);
+  }
+
+  // Point the goal at exactly the new set, disconnecting the old ones.
+  await tx.goal.update({ where: { id: goalId }, data: { recipeSuggestions: { set: newIds.map(id => ({ id })) } } });
+
+  // Delete previously-suggested recipes the replace left with no remaining references.
+  for (const oldId of before) {
+    const counts = (await tx.recipe.findUnique({
+      where: { id: oldId },
+      select: { _count: { select: { suggestedByGoals: true, derivedDataSeries: true, sourceDataSeries: true } } },
+    }))?._count;
+    if (counts?.suggestedByGoals === 0 && counts.derivedDataSeries === 0 && counts.sourceDataSeries === 0) {
+      await tx.recipe.delete({ where: { id: oldId } });
+    }
+  }
+}
+
+/**
  * ## Per-section writers
  *
  * Shared by sectional POST (create the section) and PUT (replace the section);
@@ -252,6 +301,25 @@ function writeBaselineSection(authorId: string, goalId: string, section: Baselin
 function writeHistoricalSection(authorId: string, goalId: string, section: HistoricalFields, t: TFunction): Promise<Response> {
   return writeSection(goalId, section.historicalRecipe, section.historicalRecipeId,
     (tx, externals) => applyHistoricalSection(tx, authorId, goalId, section, externals), t);
+}
+
+/**
+ * Writes the recipe-suggestions section. Unlike the other sections it carries an
+ * array of recipes, so it resolves a list of externals (one per recipe) before its
+ * own transaction rather than going through {@link writeSection}.
+ */
+async function writeRecipeSuggestionsSection(authorId: string, goalId: string, section: RecipeSuggestionsFields, t: TFunction): Promise<Response> {
+  let resolvedList: ResolvedExternals[];
+  try { resolvedList = await resolveSuggestionExternals(section.recipeSuggestions); }
+  catch (err) { return clientErrorResponse(err, t); }
+
+  try {
+    await prisma.$transaction((tx) => applyRecipeSuggestionsSection(tx, authorId, goalId, section.recipeSuggestions, resolvedList));
+    void pruneOrphans();
+    revalidateTag('goal', { expire: 0 });
+    return Response.json({ message: t('api:goal.goal_updated'), id: goalId }, { status: 200, headers: { 'Location': `/goal/${goalId}` } });
+  }
+  catch (err) { return clientErrorResponse(err, t); }
 }
 
 /**
@@ -318,11 +386,13 @@ async function createFullGoal(session: IronSession<LoginData>, authorId: string,
   let dataSeriesExternals: ResolvedExternals | null = null;
   let baselineExternals: ResolvedExternals | null = null;
   let historicalExternals: ResolvedExternals | null = null;
+  let suggestionExternals: ResolvedExternals[] = [];
   try {
-    [dataSeriesExternals, baselineExternals, historicalExternals] = await Promise.all([
+    [dataSeriesExternals, baselineExternals, historicalExternals, suggestionExternals] = await Promise.all([
       resolveSectionExternals(formData.dataSeriesRecipe, formData.dataSeriesRecipeId),
       resolveSectionExternals(formData.baselineRecipe, formData.baselineRecipeId),
       resolveSectionExternals(formData.historicalRecipe, formData.historicalRecipeId),
+      resolveSuggestionExternals(formData.recipeSuggestions),
     ]);
   }
   catch (err) { console.error(err); return Response.json({ message: t('api:common.server_error') }, { status: 500 }); }
@@ -365,7 +435,7 @@ async function createFullGoal(session: IronSession<LoginData>, authorId: string,
       if (historicalDataSeriesId && !resolvedHistoricalId) await assertDataSeriesExists(tx, historicalDataSeriesId);
 
       // Create goal, connecting the (just-created/verified) section series by id
-      goalId = (await tx.goal.create({
+      const createdId = (await tx.goal.create({
         data: {
           name: formData.name,
           description: formData.description,
@@ -385,6 +455,10 @@ async function createFullGoal(session: IronSession<LoginData>, authorId: string,
         },
         select: { id: true },
       })).id;
+      goalId = createdId;
+
+      // Create and connect any suggested recipes now that the goal exists.
+      await applyRecipeSuggestionsSection(tx, authorId, createdId, formData.recipeSuggestions, suggestionExternals);
     });
 
     revalidateTag('goal', { expire: 0 });
@@ -414,11 +488,13 @@ async function updateFullGoal(session: IronSession<LoginData>, authorId: string,
   let dataSeriesExternals: ResolvedExternals | null = null;
   let baselineExternals: ResolvedExternals | null = null;
   let historicalExternals: ResolvedExternals | null = null;
+  let suggestionExternals: ResolvedExternals[] = [];
   try {
-    [dataSeriesExternals, baselineExternals, historicalExternals] = await Promise.all([
+    [dataSeriesExternals, baselineExternals, historicalExternals, suggestionExternals] = await Promise.all([
       resolveSectionExternals(goal.dataSeriesRecipe, goal.dataSeriesRecipeId),
       resolveSectionExternals(goal.baselineRecipe, goal.baselineRecipeId),
       resolveSectionExternals(goal.historicalRecipe, goal.historicalRecipeId),
+      resolveSuggestionExternals(goal.recipeSuggestions),
     ]);
   }
   catch (err) { console.error(err); return Response.json({ message: t('api:common.server_error') }, { status: 500 }); }
@@ -449,6 +525,7 @@ async function updateFullGoal(session: IronSession<LoginData>, authorId: string,
       await applyDataSeriesSection(tx, authorId, goal.goalId, goal, dataSeriesExternals);
       await applyBaselineSection(tx, authorId, goal.goalId, goal, baselineExternals);
       await applyHistoricalSection(tx, authorId, goal.goalId, goal, historicalExternals);
+      await applyRecipeSuggestionsSection(tx, authorId, goal.goalId, goal.recipeSuggestions, suggestionExternals);
     });
 
     // Prune any orphaned links and comments
@@ -502,6 +579,11 @@ export async function POST(request: NextRequest) {
       if ("error" in auth) return auth.error;
       return writeHistoricalSection(authorId, formData.goalId, formData, t);
     }
+    case GoalDataTarget.RecipeSuggestions: {
+      const auth = await authorizeGoalWrite(session, formData.goalId, formData.timestamp, t);
+      if ("error" in auth) return auth.error;
+      return writeRecipeSuggestionsSection(authorId, formData.goalId, formData, t);
+    }
     default: {
       const exhaustive: never = formData; // Never used to cause type error if the switch isn't exhaustive.
       console.error("Received goal create with unrecognized target:", exhaustive);
@@ -549,6 +631,11 @@ export async function PUT(request: NextRequest) {
       const auth = await authorizeGoalWrite(session, goal.goalId, goal.timestamp, t);
       if ("error" in auth) return auth.error;
       return writeHistoricalSection(authorId, goal.goalId, goal, t);
+    }
+    case GoalDataTarget.RecipeSuggestions: {
+      const auth = await authorizeGoalWrite(session, goal.goalId, goal.timestamp, t);
+      if ("error" in auth) return auth.error;
+      return writeRecipeSuggestionsSection(authorId, goal.goalId, goal, t);
     }
     default: {
       const exhaustive: never = goal; // Never used to cause type error if the switch isn't exhaustive.

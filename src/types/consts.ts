@@ -26,6 +26,7 @@ export const GoalDataTarget = {
   DataSeries: "DATA_SERIES",
   Baseline: "BASELINE",
   Historical: "HISTORICAL",
+  RecipeSuggestions: "RECIPE_SUGGESTIONS",
 } as const;
 export type GoalDataTarget = (typeof GoalDataTarget)[keyof typeof GoalDataTarget];
 

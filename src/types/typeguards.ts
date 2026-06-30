@@ -131,10 +131,6 @@ function validateGoalMetaFields(goal: Record<string, unknown>): boolean {
     console.debug(`optional goal parameter "isFeatured" has wrong type: ${typeof goal.isFeatured}`);
     return false;
   }
-  if ("recipeSuggestions" in goal && !isStringArrayOrNullish(goal.recipeSuggestions)) {
-    console.debug(`optional goal parameter "recipeSuggestions" has wrong type: ${typeof goal.recipeSuggestions}`);
-    return false;
-  }
   if ("rawTags" in goal && !isStringArrayOrNullish(goal.rawTags)) {
     console.debug(`optional goal parameter "rawTags" has wrong type: ${typeof goal.rawTags}`);
     return false;
@@ -203,6 +199,15 @@ function validateHistoricalFields(goal: Record<string, unknown>): boolean {
   return true;
 }
 
+/** Validates the recipe-suggestions section (an array of serialized recipe strings). */
+function validateRecipeSuggestionsFields(goal: Record<string, unknown>): boolean {
+  if ("recipeSuggestions" in goal && !isStringArrayOrNullish(goal.recipeSuggestions)) {
+    console.debug(`optional goal parameter "recipeSuggestions" has wrong type: ${typeof goal.recipeSuggestions}`);
+    return false;
+  }
+  return true;
+}
+
 /** Identity for a request targeting a single section of an existing goal. */
 function validateSectionIdentity(goal: Record<string, unknown>): boolean {
   if (typeof goal.goalId !== 'string') {
@@ -262,7 +267,8 @@ export function isGoalCreate(goal: unknown): goal is GoalCreateInput {
       return validateGoalMetaFields(g)
         && validateDataSeriesFields(g, true)
         && validateBaselineFields(g)
-        && validateHistoricalFields(g);
+        && validateHistoricalFields(g)
+        && validateRecipeSuggestionsFields(g);
     }
     case GoalDataTarget.DataSeries: {
       return validateSectionIdentity(g) && validateDataSeriesFields(g, false);
@@ -272,6 +278,9 @@ export function isGoalCreate(goal: unknown): goal is GoalCreateInput {
     }
     case GoalDataTarget.Historical: {
       return validateSectionIdentity(g) && validateHistoricalFields(g);
+    }
+    case GoalDataTarget.RecipeSuggestions: {
+      return validateSectionIdentity(g) && validateRecipeSuggestionsFields(g);
     }
     default: {
       const _exhaustive: never = g.target;
@@ -304,7 +313,8 @@ export function isGoalUpdate(goal: unknown): goal is GoalUpdateInput {
       return validateGoalMetaFields(g)
         && validateDataSeriesFields(g, false)
         && validateBaselineFields(g)
-        && validateHistoricalFields(g);
+        && validateHistoricalFields(g)
+        && validateRecipeSuggestionsFields(g);
     }
     case GoalDataTarget.DataSeries: {
       return validateSectionIdentity(g) && validateDataSeriesFields(g, false);
@@ -314,6 +324,9 @@ export function isGoalUpdate(goal: unknown): goal is GoalUpdateInput {
     }
     case GoalDataTarget.Historical: {
       return validateSectionIdentity(g) && validateHistoricalFields(g);
+    }
+    case GoalDataTarget.RecipeSuggestions: {
+      return validateSectionIdentity(g) && validateRecipeSuggestionsFields(g);
     }
     default: {
       const _exhaustive: never = g.target;
