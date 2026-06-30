@@ -1,9 +1,10 @@
 import type { JSONValue } from "@/types";
-import getPxWebTableContent from "../pxWeb/getPxWebTableContent";
-import getTrafaTableContent from "../trafa/getTrafaTableContent";
+import getPxWebTableContent from "./pxWeb/getPxWebTableContent";
+import getTrafaTableContent from "./trafa/getTrafaTableContent";
 import { ExternalDataset } from "./utility";
+import type { ApiTableContent } from "./apiTypes";
 
-export default async function getTableContent(tableId: string, externalDataset: string | undefined, selection: { variableCode: string, valueCodes: string[] }[] | string = [], language?: string) {
+export default async function getTableContent(tableId: string, externalDataset: string | undefined, selection: { variableCode: string, valueCodes: string[] }[] | string = [], language?: string): Promise<ApiTableContent | null> {
   if (!externalDataset) { return null; }
  
   // The selection may be a stringified version of the expected selection array

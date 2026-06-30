@@ -1,5 +1,5 @@
-import getPxWebTables from "../pxWeb/getPxWebTables";
-import getTrafaTables from "../trafa/getTrafaTables";
+import getPxWebTables from "./pxWeb/getPxWebTables";
+import getTrafaTables from "./trafa/getTrafaTables";
 import { ExternalDataset } from "./utility";
 
 export default async function getTables(externalDataset: string | undefined, query: string | null | undefined, locale: string) {
