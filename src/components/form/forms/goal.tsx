@@ -14,6 +14,7 @@ import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections
 import TextEditor from "../elements/textEditor/editor";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import { Recipe } from "@/functions/recipe/recipe";
+import type { SerializedRecipe } from "@/functions/recipe";
 import { FormIntegration, RecipeContextProvider, RecipeEditor, SuggestedRecipeApplier } from "@/components/recipe";
 import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
 import { useToast } from "@/components/generic/toast/toastContext.use";
@@ -38,6 +39,7 @@ const BaselineType = {
   Inherited: "INHERIT",
 } as const;
 type BaselineType = (typeof BaselineType)[keyof typeof BaselineType];
+
 
 function resolveDataSeriesType(goal?: Goal): DataSeriesType {
   // Somehow missing
@@ -268,6 +270,19 @@ export default function GoalForm({
       }
     }
 
+    let recipeSuggestions: SerializedRecipe[] | undefined = undefined;
+    const recipeSuggestionsString = formData.get("recipe-suggestions") as string | null;
+    if (recipeSuggestionsString) {
+      try {
+        recipeSuggestions = JSON.parse(recipeSuggestionsString) as SerializedRecipe[];
+      }
+      catch (err) {
+        addToast(`${t("forms:goal.errors.failed_parse_recipe_suggestions")} ${err instanceof Error ? err.message : String(err)}`, "error", false);
+        event.target.reportValidity();
+        return;
+      }
+    }
+
 
     // Build the JSON payload for the API
     let formContent: GoalCreateInput | GoalUpdateInput;
@@ -282,7 +297,7 @@ export default function GoalForm({
         description: formData.get("description") as string | null ?? null, // Use the hidden input for the description, which contains the latest editor content
         indicatorParameter: formData.get("indicatorParameter") as string | null ?? (event.target.reportValidity(), ""),
         isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked || false,
-        recipeSuggestions: undefined, // TODO: add recipe suggestions input
+        recipeSuggestions: recipeSuggestions,
 
         dataSeriesId: null,
         dataSeries: dataSeries,
@@ -317,7 +332,7 @@ export default function GoalForm({
         description: formData.get("description") as string | null ?? undefined, // Use the hidden input for the description, which contains the latest editor content
         indicatorParameter: formData.get("indicatorParameter") as string | null ?? undefined,
         isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked ?? undefined,
-        recipeSuggestions: undefined, // TODO: add recipe suggestions input
+        recipeSuggestions: recipeSuggestions,
 
         dataSeriesId: undefined,
         dataSeries: dataSeries,

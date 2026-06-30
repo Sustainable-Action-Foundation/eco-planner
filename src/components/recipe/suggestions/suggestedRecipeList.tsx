@@ -2,9 +2,10 @@ import { getDefaultSuggestedRecipes } from "@/components/recipe/suggestions/defa
 import { RecipePreview } from "@/components/recipe";
 import { Recipe } from "@/functions/recipe";
 import type { DBRecipe } from "@/types";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-/** 
+/**
  * ## Note
  * Not to be used inside a recipe context. It won't break it necessarily but this works at a higher scope than a single recipe.
  */
@@ -15,18 +16,48 @@ export function SuggestedRecipesList({
 }): React.ReactElement {
   const { t } = useTranslation("components");
 
-  const suggestedRecipesWithDbId: { id: string, recipe: Recipe }[] = [
+  const [includeDefaults, setIncludeDefaults] = useState<boolean>(true);
+  // Ids the user has removed from the list (covers both existing and default recipes).
+  const [deletedIds, setDeletedIds] = useState<Set<string>>(() => new Set());
+
+  const suggestedRecipesWithDbId: { id: string, recipe: Recipe }[] = useMemo(() => [
     ...existingSuggestedRecipes.map((recipe) => ({
       id: recipe.id,
       recipe: Recipe.from(recipe),
     })),
-    ...getDefaultSuggestedRecipes(t).map((recipe) => ({
+    ...(includeDefaults ? getDefaultSuggestedRecipes(t) : []).map((recipe) => ({
       id: recipe.id,
       recipe: Recipe.from(recipe),
     })),
-  ];
+  ].filter((db) => !deletedIds.has(db.id)), [existingSuggestedRecipes, includeDefaults, deletedIds, t]);
 
-  return (<>
+  // Serialized payload consumed by the goal form (read via the hidden input below).
+  const serializedSuggestions = useMemo(
+    () => JSON.stringify(suggestedRecipesWithDbId.map((db) => db.recipe.serialize())),
+    [suggestedRecipesWithDbId],
+  );
+
+  function deleteRecipe(id: string) {
+    setDeletedIds((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+  }
+
+  return (<section>
+    <input type="hidden" name="recipe-suggestions" value={serializedSuggestions} />
+
+    <label className="margin-block-100">
+      {/* Include default suggested */}
+      {t("components:recipe_editor.include_default_suggested_recipes")}
+      <input
+        type="checkbox"
+        checked={includeDefaults}
+        onChange={(event) => setIncludeDefaults(event.target.checked)}
+      />
+    </label>
+
     <ul
       style={{
         listStyle: "none",
@@ -65,6 +96,7 @@ export function SuggestedRecipesList({
               {/* Delete */}
               <button
                 type="button"
+                onClick={() => deleteRecipe(db.id)}
               >
                 🗑️
               </button>
@@ -93,8 +125,6 @@ export function SuggestedRecipesList({
       )}
     </ul>
 
-    <div>
 
-    </div>
-  </>);
+  </section>);
 };

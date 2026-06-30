@@ -114,6 +114,7 @@
     "errors": {
       "unexpected_file_object": "Formulärdata innehåller ett oväntat filobjekt.",
       "failed_parse_recipe": "Det gick inte att tolka det resulterande receptet från formuläret:",
+      "failed_parse_recipe_suggestions": "Det gick inte att tolka receptförslagen från formuläret:",
       "missing_date_values": "Inga resulterande datumvärden angivna i formuläret.",
       "failed_parse_date_values": "Det gick inte att tolka de resulterande datumvärdena från formuläret:",
       "invalid_date_values": "Tolkade datumvärden från formuläret är ogiltiga:",

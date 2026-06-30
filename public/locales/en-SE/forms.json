@@ -114,6 +114,7 @@
     "errors": {
       "unexpected_file_object": "Form data contains an unexpected File object.",
       "failed_parse_recipe": "Failed to parse resulting recipe from form:",
+      "failed_parse_recipe_suggestions": "Failed to parse recipe suggestions from form:",
       "missing_date_values": "No resulting date values provided in form.",
       "failed_parse_date_values": "Failed to parse resulting date values from form:",
       "invalid_date_values": "Parsed date values from form are invalid:",
