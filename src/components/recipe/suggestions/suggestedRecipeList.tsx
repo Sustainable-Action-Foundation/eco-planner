@@ -1,9 +1,11 @@
 import { getDefaultSuggestedRecipes } from "@/components/recipe/suggestions/defaultSuggestedRecipes";
-import { RecipePreview } from "@/components/recipe";
+import { RecipeContextProvider, RecipePreview, TemplateEditor } from "@/components/recipe";
+import type { SerializedRecipe } from "@/functions/recipe";
 import { Recipe } from "@/functions/recipe";
 import type { DBRecipe } from "@/types";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { NonFormIntegration } from "@/components/recipe/output/nonFormIntegration";
 
 /**
  * ## Note
@@ -19,6 +21,8 @@ export function SuggestedRecipesList({
   const [includeDefaults, setIncludeDefaults] = useState<boolean>(true);
   // Ids the user has removed from the list (covers both existing and default recipes).
   const [deletedIds, setDeletedIds] = useState<Set<string>>(() => new Set());
+  // Id of the recipe currently loaded into the editor, if any.
+  const [editingId, setEditingId] = useState<string | undefined>(undefined);
 
   const suggestedRecipesWithDbId: { id: string, recipe: Recipe }[] = useMemo(() => [
     ...existingSuggestedRecipes.map((recipe) => ({
@@ -37,12 +41,24 @@ export function SuggestedRecipesList({
     [suggestedRecipesWithDbId],
   );
 
+  // The recipe loaded into the editor context, derived from the selected id.
+  const editingRecipe = useMemo<SerializedRecipe | undefined>(
+    () => suggestedRecipesWithDbId.find((db) => db.id === editingId)?.recipe.serialize(),
+    [suggestedRecipesWithDbId, editingId],
+  );
+
   function deleteRecipe(id: string) {
     setDeletedIds((prev) => {
       const next = new Set(prev);
       next.add(id);
       return next;
     });
+  }
+
+  /** 
+   * Gets called in the recipe context and updates the current editing recipe to this.
+   */
+  function recipeSetter(recipe: SerializedRecipe) {
   }
 
   return (<section>
@@ -104,6 +120,7 @@ export function SuggestedRecipesList({
               {/* Edit */}
               <button
                 type="button"
+                onClick={() => setEditingId(db.id)}
               >
                 ✏️
               </button>
@@ -125,6 +142,21 @@ export function SuggestedRecipesList({
       )}
     </ul>
 
-
+    {!!editingId ? (<>
+      <p className="font-size-125">
+        {t("components:recipe_editor.editing_recipe_named", { name: !!editingRecipe ? Recipe.from(editingRecipe).name : "" })}
+      </p>
+      <RecipeContextProvider
+        // Remount on id change so the editor re-initializes with the selected recipe.
+        key={editingId}
+        initialRecipe={editingRecipe}
+      >
+        <NonFormIntegration
+          RecipeSetter={ }
+        />
+        <TemplateEditor />
+      </RecipeContextProvider>
+    </>
+    ) : null}
   </section>);
 };
