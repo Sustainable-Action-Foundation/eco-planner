@@ -21,26 +21,6 @@ import HistoricalDataGraph from "@/components/graph/graphs/historical";
 
 
 type ExternalSelection = NonNullable<Parameters<typeof getTableMetadata>[2]>;
-type ExternalSelectionItem = ExternalSelection[number];
-
-const parseExternalSelection = (selection: string | null): ExternalSelectionItem[] => {
-  if (!selection) return [];
-  try {
-    const parsed: unknown = JSON.parse(selection);
-    if (!Array.isArray(parsed)) return [];
-
-    return parsed.filter((item): item is ExternalSelectionItem => {
-      if (!item || typeof item !== "object") return false;
-
-      const maybeItem = item as { variableCode?: unknown, valueCodes?: unknown };
-      return typeof maybeItem.variableCode === "string"
-        && Array.isArray(maybeItem.valueCodes)
-        && maybeItem.valueCodes.every((value): value is string => typeof value === "string");
-    });
-  } catch {
-    return [];
-  }
-};
 
 // TODO: Stuff is re-rendering like a bajillion times, fix this.
 // TODO: Editing data shows table code not name when autofilling
