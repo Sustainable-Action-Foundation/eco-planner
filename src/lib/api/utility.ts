@@ -1,5 +1,5 @@
 import { isStandardObject } from "@/types";
-import type { ApiSelectionItem, ApiTableContent } from "./apiTypes";
+import type { ApiSelectionItem, ApiTableContent, ApiTableMetadata } from "./apiTypes";
 
 // TODO: Refactor file
 
@@ -241,22 +241,27 @@ export function filterToInitialYearlyRecords(periodValuePairs: ApiTableContent["
  * @param ignoreKeys Additional keys from the `FormData` object to ignore when parsing. The keys "externalDataset" and "externalTableId" are always ignored.
  * @param mainPxWebTimeVariableKey The key of the main PxWeb time variable, if any. If provided, the value for this key will be wrapped in a `FROM()` function in order to also include all subsequent values in the dimension.
  */
-export function formQueryHelper(formData: FormData, ignoreKeys?: string[], mainPxWebTimeVariableKey?: string | null): ApiSelectionItem[] {
+export function formQueryHelper(formData: FormData, tableMetadata: ApiTableMetadata | null, mainPxWebTimeVariableKey?: string | null): ApiSelectionItem[] {
+  if (!tableMetadata) return [];
+
   const selection: ApiSelectionItem[] = [];
 
-  const keysToIgnore = new Set<string>(["externalDataset", "externalTableId", ...(ignoreKeys ?? [])]);
+  const keysToSelect = new Set<string>();
+  tableMetadata.metricDimensions.forEach(dimension => keysToSelect.add(dimension.id));
+  tableMetadata.timeDimensions.forEach(dimension => keysToSelect.add(dimension.id));
+  tableMetadata.regularDimensions.forEach(dimension => keysToSelect.add(dimension.id));
+  tableMetadata.hierarchies?.forEach(hierarchy => hierarchy.children.forEach(child => keysToSelect.add(child.id)));
 
-  for (const [key, value] of formData.entries()) {
-    if (keysToIgnore.has(key)) {
-      continue;
-    }
-
-    if (typeof value === "string" && value.trim() !== "") {
-      if (mainPxWebTimeVariableKey && key === mainPxWebTimeVariableKey) {
-        // If the key is the main PxWeb time variable, we need to wrap the value in a FROM() function
-        selection.push({ variableCode: key, valueCodes: [`FROM(${value})`] });
-      } else {
-        selection.push({ variableCode: key, valueCodes: [value] });
+  for (const key of keysToSelect) {
+    if (formData.has(key)) {
+      const value = formData.get(key);
+      if (typeof value === "string" && value.trim() !== "") {
+        if (mainPxWebTimeVariableKey && key === mainPxWebTimeVariableKey) {
+          // If the key is the main PxWeb time variable, we need to wrap the value in a FROM() function
+          selection.push({ variableCode: key, valueCodes: [`FROM(${value})`] });
+        } else {
+          selection.push({ variableCode: key, valueCodes: [value] });
+        }
       }
     }
   }

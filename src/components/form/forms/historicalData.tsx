@@ -93,7 +93,7 @@ export default function HistoricalData({
     // Get a result if the form is valid
     if (formRef.current.checkValidity()) {
       const formData = new FormData(formRef.current);
-      const query = formQueryHelper(formData, [], mainTimeDimensionId /* TODO: include any PxWeb main time variable */);
+      const query = formQueryHelper(formData, tableMetadata, mainTimeDimensionId /* TODO: include any PxWeb main time variable */);
 
       getTableContent(table ? table.tableId : "", dataSource, query, lang).then(result => {
         setTableContent(result);
@@ -294,7 +294,7 @@ export default function HistoricalData({
     if (!(event.target.checkValidity())) return;
     if (!isDataSetKeys(dataSource)) return;
     const formData = new FormData(event.target);
-    const query = formQueryHelper(formData, [], mainTimeDimensionId);
+    const query = formQueryHelper(formData, tableMetadata, mainTimeDimensionId);
 
     const recipe = Recipe.fromExternalSource({
       name: table?.label || dataSource,

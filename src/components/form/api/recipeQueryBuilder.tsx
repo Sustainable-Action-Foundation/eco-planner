@@ -423,7 +423,7 @@ export default function RecipeQueryBuilder({
       formData.append(element.name, element.value);
     });
 
-    const query = formQueryHelper(formData, [tableSearchInputName], mainTimeDimensionId);
+    const query = formQueryHelper(formData, tableMetadata, mainTimeDimensionId);
     const tableId = tableMetadata?.tableId ?? formData.get("externalTableId") as string ?? "";
     getTableContent(tableId, dataSource, query, lang).then(result => {
       setTableContent(result);
@@ -464,7 +464,7 @@ export default function RecipeQueryBuilder({
       formData.append(element.name, element.value);
     });
 
-    const query = formQueryHelper(formData, [tableSearchInputName], mainTimeDimensionId);
+    const query = formQueryHelper(formData, tableMetadata, mainTimeDimensionId);
 
     upsertVariable(variableId, prev => {
       if (prev.type !== RecipeDataTypes.External) return prev;
