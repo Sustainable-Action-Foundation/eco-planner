@@ -424,120 +424,17 @@ async function updateFullGoal(session: IronSession<LoginData>, authorId: string,
   catch (err) { console.error(err); return Response.json({ message: t('api:common.server_error') }, { status: 500 }); }
 
   try {
-    let historicalDataSeriesId: string | null = null;
-    await prisma.$transaction(async (prisma) => {
-      // Do recipes before goal update, materializing any external variables into DataSeries
-      goal.dataSeriesRecipeId = (await upsertRecipe(prisma, authorId, "data series", {
-        recipe: goal.dataSeriesRecipe, recipeId: goal.dataSeriesRecipeId, resolved: dataSeriesExternals,
-      })).recipeId;
-      goal.baselineRecipeId = (await upsertRecipe(prisma, authorId, "baseline", {
-        recipe: goal.baselineRecipe, recipeId: goal.baselineRecipeId, resolved: baselineExternals,
-      })).recipeId;
-      const historicalResult = await upsertRecipe(prisma, authorId, "historical", {
-        recipe: goal.historicalRecipe, recipeId: goal.historicalRecipeId, resolved: historicalExternals,
-      });
-      goal.historicalRecipeId = historicalResult.recipeId;
-      const resolvedHistoricalId = Object.values(historicalResult.dataSeriesIdsByVariable)[0] ?? null;
-      historicalDataSeriesId = resolvedHistoricalId ?? goal.historicalId ?? null;
-      if (resolvedHistoricalId && typeof goal.historicalRecipeId === 'string') {
-        await prisma.dataSeries.update({
-          where: { id: resolvedHistoricalId },
-          data: { recipeUsed: { connect: { id: goal.historicalRecipeId } } },
-        });
-      }
-
-      const hasNonEmptyBaselinePayload = !!goal.baseline && Object.keys(goal.baseline.dateValues).length > 0;
-      const hasNonEmptyHistoricalPayload = !!goal.historical && Object.keys(goal.historical.dateValues).length > 0;
-
-      // Disconnect the baseline first so we create a fresh one rather than mutating a
-      // baseline that may just be a reference to another goal's data series.
-      if (hasNonEmptyBaselinePayload) {
-        await prisma.goal.update({
-          where: { id: goal.goalId },
-          data: { baseline: { disconnect: true } },
-        });
-      }
-
-      if (hasNonEmptyHistoricalPayload) {
-        await prisma.goal.update({
-          where: { id: goal.goalId },
-          data: { historical: { disconnect: true } },
-        });
-      }
-
-      // Update goal
-      goalId = (await prisma.goal.update({
+    await prisma.$transaction(async (tx) => {
+      // Update the goal's own fields and links; the section relations are applied
+      // below by the same per-section appliers the sectional writers use, keeping
+      // every connect/disconnect a flat statement (no nested connect/disconnect).
+      goalId = (await tx.goal.update({
         where: { id: goal.goalId },
         data: {
           name: goal.name,
           description: goal.description,
           indicatorParameter: goal.indicatorParameter,
           isFeatured: goal.isFeatured,
-          dataSeries: goal.dataSeries ? {
-            upsert: {
-              create: {
-                author: { connect: { id: authorId } },
-                recipeUsed: typeof goal.dataSeriesRecipeId === 'string'
-                  ? { connect: { id: goal.dataSeriesRecipeId } }
-                  : undefined,
-                values: { createMany: { data: dateValuesToDBDateRecord(goal.dataSeries.dateValues) } },
-                ...(goal.dataSeries.unit == null ? {} : { unit: goal.dataSeries.unit }),
-              },
-              update: {
-                recipeUsed: goal.dataSeriesRecipeId === undefined
-                  ? undefined
-                  : typeof goal.dataSeriesRecipeId === 'string'
-                    ? { connect: { id: goal.dataSeriesRecipeId } }
-                    : { disconnect: true },
-                values: {
-                  deleteMany: {},
-                  createMany: { data: dateValuesToDBDateRecord(goal.dataSeries.dateValues) },
-                },
-                unit: goal.dataSeries.unit,
-              },
-            },
-          } : goal.dataSeriesId ? {
-            connect: { id: goal.dataSeriesId },
-          } : undefined,
-          baseline: hasNonEmptyBaselinePayload && goal.baseline
-            ? {
-              connectOrCreate: {
-                where: { id: goal.baselineId ?? "" },
-                create: {
-                  author: { connect: { id: authorId } },
-                  recipeUsed: typeof goal.baselineRecipeId === 'string'
-                    ? { connect: { id: goal.baselineRecipeId } }
-                    : undefined,
-                  values: { createMany: { data: dateValuesToDBDateRecord(goal.baseline.dateValues) } },
-                  unit: goal.baseline.unit,
-                },
-              },
-            } : goal.baselineId ? {
-              connect: { id: goal.baselineId },
-            } : undefined,
-          historical: hasNonEmptyHistoricalPayload && goal.historical
-            ? {
-              connectOrCreate: {
-                where: { id: historicalDataSeriesId ?? "" },
-                create: {
-                  author: { connect: { id: authorId } },
-                  recipeUsed: typeof goal.historicalRecipeId === 'string'
-                    ? { connect: { id: goal.historicalRecipeId } }
-                    : undefined,
-                  values: { createMany: { data: dateValuesToDBDateRecord(goal.historical.dateValues) } },
-                  unit: goal.historical.unit,
-                },
-              },
-            }
-            : historicalDataSeriesId
-              ? {
-                connect: { id: historicalDataSeriesId },
-              }
-              : historicalDataSeriesId === null
-                ? {
-                  disconnect: true,
-                }
-                : undefined,
           links: {
             deleteMany: {},
             create: goal.links?.map(link => ({
@@ -548,6 +445,10 @@ async function updateFullGoal(session: IronSession<LoginData>, authorId: string,
         },
         select: { id: true },
       })).id;
+
+      await applyDataSeriesSection(tx, authorId, goal.goalId, goal, dataSeriesExternals);
+      await applyBaselineSection(tx, authorId, goal.goalId, goal, baselineExternals);
+      await applyHistoricalSection(tx, authorId, goal.goalId, goal, historicalExternals);
     });
 
     // Prune any orphaned links and comments
