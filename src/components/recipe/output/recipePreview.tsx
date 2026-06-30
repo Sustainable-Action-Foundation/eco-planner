@@ -11,6 +11,15 @@ import React from "react";
 const placeholderSplitRegex = /(\$\{[^}]+\})/g;
 const placeholderTokenRegex = /^\$\{([^}]+)\}$/;
 
+/** Outlined "chip" look shared by equation placeholders and the variable list, so a name reads the same in both. */
+const variableChipStyle: React.CSSProperties = {
+  backgroundColor: "var(--gray-95)",
+  border: "1px solid var(--gray-80)",
+  borderRadius: "4px",
+  padding: "0.1rem 0.35rem",
+  whiteSpace: "nowrap",
+};
+
 /** One-line, human-readable summary of where a variable's value comes from. */
 function variableSummary(variable: RecipeVariable): string {
   switch (variable.type) {
@@ -60,17 +69,7 @@ export function RecipePreview({
             const token = placeholderTokenRegex.exec(segment);
             if (token) {
               return (
-                <span
-                  key={index}
-                  style={{
-                    backgroundColor: "var(--gray-95)",
-                    border: "1px solid var(--gray-80)",
-                    borderRadius: "4px",
-                    padding: "0.1rem 0.35rem",
-                    margin: "0 0.1rem",
-                    whiteSpace: "nowrap",
-                  }}
-                >
+                <span key={index} style={{ ...variableChipStyle, margin: "0 0.1rem" }}>
                   {resolveName(token[1])}
                 </span>
               );
@@ -84,9 +83,19 @@ export function RecipePreview({
       {recipe.variables.length > 0 && (
         <ul className="margin-0 padding-0 list-style-none flex flex-direction-column gap-25">
           {recipe.variables.map(variable => (
-            <li key={variable.id} className="flex gap-50 justify-content-space-between align-items-baseline">
-              <span>{variable.name}</span>
-              <span style={{ color: "var(--gray-50)", textAlign: "right" }}>
+            <li key={variable.id} className="flex gap-50 align-items-baseline">
+              <span style={variableChipStyle}>{variable.name}</span>
+              {/* Dotted leader connecting the name to its summary across the gap. */}
+              <span
+                aria-hidden
+                style={{
+                  flex: "1 1 auto",
+                  minWidth: "1rem",
+                  alignSelf: "center",
+                  borderBottom: "1px dotted var(--gray-80)",
+                }}
+              />
+              <span style={{ color: "var(--gray-50)", whiteSpace: "nowrap", textAlign: "right" }}>
                 {variableSummary(variable)}
               </span>
             </li>
