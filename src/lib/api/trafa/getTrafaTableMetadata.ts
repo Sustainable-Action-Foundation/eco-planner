@@ -60,7 +60,7 @@ export default async function getTrafaTableMetadata(tableId: string, selection: 
     // let returnItem: TrafaCompatMetricDimension | TrafaCompatHierarchy | TrafaCompatDimension | TrafaCompatDimensionValue | TrafaCompatFilter;
 
     // dimension items
-    if (structureItem.Type in ["M", "D"]) {
+    if (["M", "D"].includes(structureItem.Type)) {
       const returnItem: TrafaCompatMetadataDimensionBase | TrafaCompatMetricDimension | TrafaCompatHierarchy | TrafaCompatRegularDimension = {
         id: structureItem.Name,
         type: "dimension",
