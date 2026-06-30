@@ -102,10 +102,12 @@ export default async function getPxWebTableContent(tableId: string, externalData
       if (times?.length === 1) {
         console.warn(`No dimension with more than one value found in PxWeb table content. This is supported, but may result in the wrong dimension being used as "main" dimension for reading years.`);
         const keys = Object.keys(tableContent.dimension[times[0].id].category.index ?? tableContent.dimension[times[0].id].category.label ?? {});
+
         if (keys.length === 0) {
           console.error("No values found in main dimension of PxWeb table content.");
           return null;
         }
+
         resultTable.values.push({
           // Index is guaranteed to exist if label does not
           period: tableContent.dimension[times[0].id].category.label?.[keys[0]] ?? keys[0],
@@ -117,18 +119,18 @@ export default async function getPxWebTableContent(tableId: string, externalData
         const mainDimensionVariableCode = selection.find(item => item.valueCodes.some(valueCode => /^FROM\(.+\)$/i.test(valueCode)))?.variableCode;
         if (mainDimensionVariableCode && tableContent.id.includes(mainDimensionVariableCode)) {
           const mainDimensionName = mainDimensionVariableCode;
+          const keys = Object.keys(tableContent.dimension[mainDimensionName].category.index ?? tableContent.dimension[mainDimensionName].category.label ?? {});
 
-          tableContent.value.forEach((value, index) => {
-            const keys = Object.keys(tableContent.dimension[mainDimensionName].category.index ?? tableContent.dimension[mainDimensionName].category.label ?? {});
-            if (index >= keys.length) {
-              console.error("Index out of bounds for main dimension values in PxWeb table content.", { index, keys });
-              return null;
-            }
-            resultTable.values.push({
-              // Index is guaranteed to exist if label does not
-              period: tableContent.dimension[mainDimensionName].category.label?.[keys[index]] ?? keys[index],
-              value: String(value ?? ""),
-            });
+          if (keys.length === 0) {
+            console.error("No values found in main dimension of PxWeb table content.");
+            return null;
+          }
+
+          resultTable.values.push({
+            // Index is guaranteed to exist if label does not
+            period: tableContent.dimension[mainDimensionName].category.label?.[keys[0]] ?? keys[0],
+            // Value should have a length of 1 if no dimension has more than one value, so we can safely access it by index 0
+            value: String(tableContent.value[0] ?? ""),
           });
         }
       } else {
