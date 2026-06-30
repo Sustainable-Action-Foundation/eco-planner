@@ -57,8 +57,10 @@ export default function HistoricalData({
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
   const [table, setTable] = useState<{ tableId: string, label: string } | null>(goal.externalTableId ? { label: tables?.find(t => t.tableId === goal.externalTableId)?.label ?? goal.externalTableId, tableId: goal.externalTableId } : null);
 
-  const [tableMetadata, setTableMetadata] = useState<ApiTableMetadata | null>(null);
+  const [tableMetadata, _setTableMetadata] = useState<ApiTableMetadata | null>(null);
   const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
+
+  const [mainTimeDimensionId, setMainTimeDimensionId] = useState<string | null>(null);
 
   const formRef = useRef<HTMLFormElement | null>(null);
   // const deleteDataRef = useRef<HTMLDialogElement>(null)
@@ -71,6 +73,25 @@ export default function HistoricalData({
     return fromMatch?.[1] ?? valueCode;
   }
 
+  const setTableMetadata = useCallback((tableMetadata: ApiTableMetadata | null) => {
+    _setTableMetadata(prev => {
+      if (!tableMetadata) {
+        // if no metadata, reset the main time dimension id to null
+        setMainTimeDimensionId(null);
+      } else if (prev?.tableId !== tableMetadata.tableId || prev?.timeDimensions !== tableMetadata.timeDimensions) {
+        // when changing table (or updating ), update the main time dimension
+        if (tableMetadata.timeDimensions.length === 1) {
+          // if there is only one time dimension, set it as the main time dimension
+          setMainTimeDimensionId(tableMetadata.timeDimensions[0].id);
+        } else {
+          // if there are multiple or no time dimensions, set the main time dimension to null to allow the user to select one
+          setMainTimeDimensionId(null);
+        }
+      }
+      return tableMetadata;
+    });
+  }, [_setTableMetadata]);
+
   const tryGetResult = useCallback((event?: React.ChangeEvent<HTMLSelectElement> | SubmitEvent<HTMLFormElement> | Event) => {
     // null check
     if (!(formRef.current instanceof HTMLFormElement)) return;
@@ -80,7 +101,7 @@ export default function HistoricalData({
     // Get a result if the form is valid
     if (formRef.current.checkValidity()) {
       const formData = new FormData(formRef.current);
-      const query = formQueryHelper(formData, [] /* TODO: include any PxWeb main time variable */);
+      const query = formQueryHelper(formData, [], mainTimeDimensionId /* TODO: include any PxWeb main time variable */);
 
       getTableContent(table ? table.tableId : "", dataSource, query, lang).then(result => {
         setTableContent(result);
@@ -108,7 +129,7 @@ export default function HistoricalData({
       setTableContent(null);
       // setIsLoading(false);
     }
-  }, [table, dataSource, lang, tableMetadata]);
+  }, [dataSource, lang, mainTimeDimensionId, setTableMetadata, table, tableMetadata]);
 
   const setFormRef = useCallback((node: HTMLFormElement | null) => {
     if (node) {
@@ -127,7 +148,7 @@ export default function HistoricalData({
       parseExternalSelection(goal.externalSelection),
       lang,
     ).then(setTableMetadata);
-  }, [goal.externalTableId, goal.externalDataset, goal.externalSelection, lang]);
+  }, [goal.externalTableId, goal.externalDataset, goal.externalSelection, lang, setTableMetadata]);
 
   // 2. Fetch table content
   useEffect(() => {
@@ -159,7 +180,7 @@ export default function HistoricalData({
       setTableMetadata(result);
       // setIsLoading(false);
     });
-  }, [dataSource, lang]);
+  }, [dataSource, lang, setTableMetadata]);
 
   useEffect(() => {
     handleTableSelect(!!table?.tableId ? table.tableId : null);
@@ -275,7 +296,7 @@ export default function HistoricalData({
 
     if (!(event.target.checkValidity())) return;
     const formData = new FormData(event.target);
-    const query = formQueryHelper(formData, [] /* TODO: include any PxWeb main time variable */);
+    const query = formQueryHelper(formData, [], mainTimeDimensionId);
     // Update the goal with the new data
     formSubmitter("/api/goal", JSON.stringify({
       goalId: goal.id,

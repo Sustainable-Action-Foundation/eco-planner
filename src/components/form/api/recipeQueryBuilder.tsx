@@ -6,7 +6,7 @@ import getTableMetadata from "@/lib/api/getTableMetadata";
 import getTables from "@/lib/api/getTables";
 import { ExternalDataset, formQueryHelper, isDataSetKeys } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
@@ -44,8 +44,9 @@ export default function RecipeQueryBuilder({
   const [selectedTableId, setSelectedTableId] = useState<string>(initialTableId ?? "");
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
   const [offset, setOffset] = useState(0);
-  const [tableMetadata, setTableMetadata] = useState<ApiTableMetadata | null>(null);
+  const [tableMetadata, _setTableMetadata] = useState<ApiTableMetadata | null>(null);
   const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
+  const [mainTimeDimensionId, setMainTimeDimensionId] = useState<string | null>(null);
   const [defaultMetricSelected, setDefaultMetricSelected] = useState(true);
   const hasAppliedInitialTableSelectionRef = useRef(false);
   const hasAppliedInitialSelectionRef = useRef(false);
@@ -69,6 +70,23 @@ export default function RecipeQueryBuilder({
       shouldRenderAllTables ? tables.length : offset + renderedTablesListMaxLength,
     )
     : null;
+
+  const setTableMetadata = useCallback((nextTableMetadata: ApiTableMetadata | null) => {
+    _setTableMetadata(prev => {
+      if (!nextTableMetadata) {
+        // If no metadata is available, clear the selected main time dimension.
+        setMainTimeDimensionId(null);
+      } else if (prev?.tableId !== nextTableMetadata.tableId || prev?.timeDimensions !== nextTableMetadata.timeDimensions) {
+        // For one time dimension, use it as the main dimension; otherwise let the user choose.
+        if (nextTableMetadata.timeDimensions.length === 1) {
+          setMainTimeDimensionId(nextTableMetadata.timeDimensions[0].id);
+        } else {
+          setMainTimeDimensionId(null);
+        }
+      }
+      return nextTableMetadata;
+    });
+  }, []);
 
   // Get tables when source or language changes.
   useEffect(() => {
@@ -101,7 +119,7 @@ export default function RecipeQueryBuilder({
         setTableMetadata(null);
       })
       .finally(() => setIsLoading(false));
-  }, [dataSource, initialTableId, lang, tables]);
+  }, [dataSource, initialTableId, lang, setTableMetadata, tables]);
 
   // Run one first query when initial values are set.
   useEffect(() => {
@@ -198,8 +216,8 @@ export default function RecipeQueryBuilder({
       .finally(() => setIsLoading(false));
   }
 
-  function handleMetricSelect(_event: React.ChangeEvent<HTMLSelectElement>) {
-    tryGetResult();
+  function handleMetricSelect(event: React.ChangeEvent<HTMLSelectElement>) {
+    tryGetResult(event);
     setIsLoading(true);
     const metricSelectElements = selectorMenuRef.current?.querySelectorAll("select.metric") ?? [];
     const hasUnselectedMetric = Array.from(metricSelectElements).some((select) => {
@@ -381,8 +399,15 @@ export default function RecipeQueryBuilder({
   }
 
   function shouldVariableFieldsetBeVisible(tableMetadata: ApiTableMetadata, dataSource: string) {
-    const returnBool = ((tableMetadata.hierarchies && tableMetadata.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb")) || tableMetadata.timeDimensions.length > 1);
-    return returnBool;
+    // Show if there are hierarchies.
+    if (tableMetadata.hierarchies && tableMetadata.hierarchies.length > 0) return true;
+    // Show if there is a selection to be made for any regular dimension.
+    if (tableMetadata.regularDimensions.some(variable => variable.options.length > 1)) return true;
+    // For non-PxWeb, single-option dimensions are not auto-selected, so any available option should be shown.
+    if (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") && tableMetadata.regularDimensions.some(variable => variable.options.length > 0)) return true;
+    // Show if any time dimension has more than one option.
+    if (tableMetadata.timeDimensions.some(time => time.options.length > 1)) return true;
+    return false;
   }
 
   function tryGetResult(event?: React.ChangeEvent<HTMLSelectElement> | Event) {
@@ -398,7 +423,7 @@ export default function RecipeQueryBuilder({
       formData.append(element.name, element.value);
     });
 
-    const query = formQueryHelper(formData, [tableSearchInputName] /* TODO: include any PxWeb main time variable */);
+    const query = formQueryHelper(formData, [tableSearchInputName], mainTimeDimensionId);
     const tableId = tableMetadata?.tableId ?? formData.get("externalTableId") as string ?? "";
     getTableContent(tableId, dataSource, query, lang).then(result => {
       setTableContent(result);
@@ -439,7 +464,7 @@ export default function RecipeQueryBuilder({
       formData.append(element.name, element.value);
     });
 
-    const query = formQueryHelper(formData, [tableSearchInputName] /* TODO: include any PxWeb main time variable */);
+    const query = formQueryHelper(formData, [tableSearchInputName], mainTimeDimensionId);
 
     upsertVariable(variableId, prev => prev.type === RecipeDataTypes.External
       ? {
