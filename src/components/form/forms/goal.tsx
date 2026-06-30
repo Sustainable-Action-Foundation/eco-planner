@@ -21,7 +21,7 @@ import { useRouter } from "next/navigation";
 import { dataSeriesToDateValues } from "@/functions/recipe";
 import UnitSync from "@/components/recipe/output/unitSyncer";
 import ParameterSync from "@/components/recipe/output/parameterSyncer";
-import HistoricalDataSection from "../sections/historical";
+import HistoricalDataSection from "../sections/historical/historical";
 
 const DataSeriesType = {
   Manual: "MANUAL",
@@ -604,7 +604,7 @@ export default function GoalForm({
       </fieldset>
 
       {/* Historical data selection section */}
-      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200 min-width-0`}>
         <legend
           // eslint-disable-next-line no-useless-assignment
           data-position={positionIndex++}
