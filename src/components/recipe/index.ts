@@ -12,6 +12,7 @@ export * from "./output/formIntegration";
 export * from "./output/dataSeriesDisplay";
 export * from "./output/graphDisplay";
 export * from "./output/textStatusDisplay";
+export * from "./output/recipePreview";
 export * from "./output/tabListDisplay";
 
 export * from "./editor/variableCreator";

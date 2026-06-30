@@ -357,28 +357,91 @@ export class Recipe {
   }
 
   /** 
+   * @deprecated
+   * 
    * ## Notice
    * ### This is not the serialization method!
    * 
-   * Uses JSON or {@link Recipe.toPrettyString} to format the recipe in a readable way.
-   * 
-   * @deprecated
+   * Uses JSON or {@linkcode Recipe.toPrettyString} to format the recipe in a readable way.
    */
   public toString(): string {
     console.warn("Recipe.toString() is not meant for serialization, but for human-readable formatting. For serialization, use Recipe.serialize().");
     return JSON.stringify(JSON.parse(this.serialize()), null, 2);
   }
 
-  /** 
+  /**
+   * Matches a `${token}` placeholder in an equation, capturing the inner token.
+   * The token is usually a variable id, but legacy/suggested recipes reference
+   * the variable's display name instead (see {@link Recipe.evaluate}).
+   */
+  private static readonly placeholderRegex = /\$\{([^}]+)\}/g;
+
+  /**
+   * Resolves a placeholder token (variable id or display name) to its variable.
+   */
+  private resolveVariableToken(token: string): RecipeVariable | undefined {
+    return this.variableMap[token] ?? this.variables.find(v => v.name === token);
+  }
+
+  /**
+   * The equation with every `${token}` placeholder replaced by the matching
+   * variable's display name. Tokens that don't resolve are left as bare text.
+   * For human-readable display only — not for evaluation or serialization.
+   */
+  public displayEquation(): string {
+    return this.equation.replace(
+      Recipe.placeholderRegex,
+      (_match, token: string) => this.resolveVariableToken(token)?.name ?? token,
+    );
+  }
+
+  /**
+   * A one-line, human-readable summary of a single variable's source.
+   */
+  private static prettyVariableSummary(variable: RecipeVariable): string {
+    switch (variable.type) {
+      case RecipeDataTypes.Scalar: {
+        return variable.unit ? `${variable.value} ${variable.unit}` : `${variable.value}`;
+      }
+      case RecipeDataTypes.DataSeries: {
+        const source = variable.externalSource
+          ? `${variable.externalSource.dataset ?? "external"}/${variable.externalSource.tableId ?? "?"}`
+          : "data series";
+        return `${source} · pick: ${String(variable.pick)}`;
+      }
+      case RecipeDataTypes.External: {
+        const source = `${variable.dataset ?? "external"}/${variable.tableId ?? "?"}`;
+        return `${source} · pick: ${String(variable.pick)}`;
+      }
+      default: {
+        return (variable as RecipeVariable).type;
+      }
+    }
+  }
+
+  /**
    * ## Notice
    * ### This is not the serialization method!
+   *
+   * Builds a readable, multi-line summary of the recipe: its name, the equation
+   * with placeholders unwrapped to variable names, and a line per variable
+   * describing where it comes from. For display/logging only.
    */
   public toPrettyString(): string {
-    let out = "";
+    const lines: string[] = [this.name];
 
-    
+    if (this.equation.trim() !== "") {
+      lines.push(this.displayEquation());
+    }
 
-    return out;
+    if (this.variables.length > 0) {
+      lines.push("");
+      for (const variable of this.variables) {
+        lines.push(`${variable.name} — ${Recipe.prettyVariableSummary(variable)}`);
+      }
+    }
+
+    return lines.join("\n");
   }
 
   /** 

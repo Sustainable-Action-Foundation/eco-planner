@@ -1,4 +1,5 @@
 import { getDefaultSuggestedRecipes } from "@/components/recipe/suggestions/defaultSuggestedRecipes";
+import { RecipePreview } from "@/components/recipe";
 import { Recipe } from "@/functions/recipe";
 import type { DBRecipe } from "@/types";
 import { useTranslation } from "react-i18next";
@@ -81,7 +82,7 @@ export function SuggestedRecipesList({
 
           {/* Body - Recipe preview */}
           <div>
-            {db.recipe}
+            <RecipePreview recipe={db.recipe} />
           </div>
         </li>
       ))}
