@@ -7,7 +7,7 @@ import type { LoginData } from "@/lib/session";
 import { getSession } from "@/lib/session";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { ClientError, GoalDataTarget, isGoalCreate, isGoalUpdate } from "@/types";
-import type { AccessControlled, BaselineFields, DataSeriesFields, GoalCreateFull, GoalUpdateFull, HistoricalFields, JSONValue } from "@/types";
+import type { AccessControlled, BaselineFields, DataSeriesFields, DateValuesWithUnit, GoalCreateFull, GoalUpdateFull, HistoricalFields, JSONValue } from "@/types";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 import { resolveRecipeExternals, upsertRecipe } from "@/functions/recipe/persistence";
@@ -96,6 +96,121 @@ function resolveSectionExternals(recipe: SerializedRecipe | null | undefined, re
     : Promise.resolve(null);
 }
 
+/** Maps a thrown `ClientError.IllegalParent` to a 403; anything else is logged and returned as a 500. */
+function clientErrorResponse(err: unknown, t: TFunction): Response {
+  if (err instanceof Error && err.message === ClientError.IllegalParent) {
+    return Response.json({ message: ClientError.IllegalParent }, { status: 403 });
+  }
+  console.error(err);
+  return Response.json({ message: t('api:common.server_error') }, { status: 500 });
+}
+
+/** Throws `IllegalParent` if a client-supplied DataSeries id doesn't exist, so we connect only to real records. */
+async function assertDataSeriesExists(tx: Prisma.TransactionClient, id: string): Promise<void> {
+  const found = await tx.dataSeries.findUnique({ where: { id }, select: { id: true } });
+  if (!found) throw new Error(ClientError.IllegalParent, { cause: 'goal' });
+}
+
+/** Creates a DataSeries row (values + optional unit + optional recipe link) and returns its id. */
+async function createDataSeries(tx: Prisma.TransactionClient, authorId: string, data: DateValuesWithUnit, recipeId: string | null | undefined): Promise<string> {
+  return (await tx.dataSeries.create({
+    data: {
+      author: { connect: { id: authorId } },
+      recipeUsed: typeof recipeId === 'string' ? { connect: { id: recipeId } } : undefined,
+      values: { createMany: { data: dateValuesToDBDateRecord(data.dateValues) } },
+      ...(data.unit == null ? {} : { unit: data.unit }),
+    },
+    select: { id: true },
+  })).id;
+}
+
+// ── Per-section appliers ─────────────────────────────────────────────────────
+// Each applies one section to an existing goal as flat statements within the
+// caller's transaction (no nested connect/disconnect). Shared by the sectional
+// writers and updateFullGoal. Connects to client-supplied ids are existence-checked.
+
+/** Applies the data series section: updates the goal's series in place, or connects a verified existing one. */
+async function applyDataSeriesSection(tx: Prisma.TransactionClient, authorId: string, goalId: string, section: DataSeriesFields, externals: ResolvedExternals | null): Promise<void> {
+  const { recipeId } = await upsertRecipe(tx, authorId, "data series", {
+    recipe: section.dataSeriesRecipe, recipeId: section.dataSeriesRecipeId, resolved: externals,
+  });
+
+  if (section.dataSeries) {
+    const { dataSeriesId } = await tx.goal.findUniqueOrThrow({ where: { id: goalId }, select: { dataSeriesId: true } });
+    if (dataSeriesId) {
+      // Update the goal's existing series in place
+      await tx.dataSeries.update({
+        where: { id: dataSeriesId },
+        data: {
+          recipeUsed: recipeId === undefined
+            ? undefined
+            : typeof recipeId === 'string'
+              ? { connect: { id: recipeId } }
+              : { disconnect: true },
+          values: { deleteMany: {}, createMany: { data: dateValuesToDBDateRecord(section.dataSeries.dateValues) } },
+          unit: section.dataSeries.unit,
+        },
+      });
+    } else {
+      // Goal has no series yet: create one and connect it
+      const id = await createDataSeries(tx, authorId, section.dataSeries, recipeId);
+      await tx.goal.update({ where: { id: goalId }, data: { dataSeries: { connect: { id } } } });
+    }
+  } else if (section.dataSeriesId) {
+    await assertDataSeriesExists(tx, section.dataSeriesId);
+    await tx.goal.update({ where: { id: goalId }, data: { dataSeries: { connect: { id: section.dataSeriesId } } } });
+  }
+}
+
+/** Applies the baseline section: a payload becomes a fresh series (disconnect-then-create), else connect a verified id. */
+async function applyBaselineSection(tx: Prisma.TransactionClient, authorId: string, goalId: string, section: BaselineFields, externals: ResolvedExternals | null): Promise<void> {
+  const { recipeId } = await upsertRecipe(tx, authorId, "baseline", {
+    recipe: section.baselineRecipe, recipeId: section.baselineRecipeId, resolved: externals,
+  });
+
+  const hasPayload = !!section.baseline && Object.keys(section.baseline.dateValues).length > 0;
+  if (hasPayload && section.baseline) {
+    // Disconnect first so we create a fresh baseline rather than mutating one that
+    // may just be a reference to another goal's data series.
+    await tx.goal.update({ where: { id: goalId }, data: { baseline: { disconnect: true } } });
+    const id = await createDataSeries(tx, authorId, section.baseline, recipeId);
+    await tx.goal.update({ where: { id: goalId }, data: { baseline: { connect: { id } } } });
+  } else if (section.baselineId) {
+    await assertDataSeriesExists(tx, section.baselineId);
+    await tx.goal.update({ where: { id: goalId }, data: { baseline: { connect: { id: section.baselineId } } } });
+  }
+}
+
+/** Applies the historical section: connects the recipe-materialized series, a payload-created series, or a verified id; else disconnects. */
+async function applyHistoricalSection(tx: Prisma.TransactionClient, authorId: string, goalId: string, section: HistoricalFields, externals: ResolvedExternals | null): Promise<void> {
+  const result = await upsertRecipe(tx, authorId, "historical", {
+    recipe: section.historicalRecipe, recipeId: section.historicalRecipeId, resolved: externals,
+  });
+  // The historical recipe's single external variable becomes the goal's historical DataSeries
+  const resolvedHistoricalId = Object.values(result.dataSeriesIdsByVariable)[0] ?? null;
+  // Link the historical recipe to its resulting series so the source stays discoverable
+  if (resolvedHistoricalId && typeof result.recipeId === 'string') {
+    await tx.dataSeries.update({ where: { id: resolvedHistoricalId }, data: { recipeUsed: { connect: { id: result.recipeId } } } });
+  }
+
+  const hasPayload = !!section.historical && Object.keys(section.historical.dateValues).length > 0;
+  if (hasPayload && section.historical) {
+    await tx.goal.update({ where: { id: goalId }, data: { historical: { disconnect: true } } });
+    const id = await createDataSeries(tx, authorId, section.historical, result.recipeId);
+    await tx.goal.update({ where: { id: goalId }, data: { historical: { connect: { id } } } });
+    return;
+  }
+
+  const historicalDataSeriesId = resolvedHistoricalId ?? section.historicalId ?? null;
+  if (historicalDataSeriesId) {
+    // Verify only client-supplied ids; a recipe-materialized id provably exists.
+    if (!resolvedHistoricalId) await assertDataSeriesExists(tx, historicalDataSeriesId);
+    await tx.goal.update({ where: { id: goalId }, data: { historical: { connect: { id: historicalDataSeriesId } } } });
+  } else {
+    await tx.goal.update({ where: { id: goalId }, data: { historical: { disconnect: true } } });
+  }
+}
+
 /**
  * ## Per-section writers
  *
@@ -104,123 +219,39 @@ function resolveSectionExternals(recipe: SerializedRecipe | null | undefined, re
  * the Response to send. Section field shapes come from @type {DataSeriesFields | BaselineFields | HistoricalFields}.
  */
 
-async function writeDataSeriesSection(authorId: string, goalId: string, section: DataSeriesFields, t: TFunction): Promise<Response> {
+/** Wraps a single-section apply in its own transaction and standard success/error responses. */
+async function writeSection(
+  goalId: string,
+  recipe: SerializedRecipe | null | undefined,
+  recipeId: string | null | undefined,
+  apply: (tx: Prisma.TransactionClient, externals: ResolvedExternals | null) => Promise<void>,
+  t: TFunction,
+): Promise<Response> {
   let externals: ResolvedExternals | null;
-  try { externals = await resolveSectionExternals(section.dataSeriesRecipe, section.dataSeriesRecipeId); }
-  catch (err) { console.error(err); return Response.json({ message: t('api:common.server_error') }, { status: 500 }); }
+  try { externals = await resolveSectionExternals(recipe, recipeId); }
+  catch (err) { return clientErrorResponse(err, t); }
 
   try {
-    await prisma.$transaction(async (tx) => {
-      const { recipeId } = await upsertRecipe(tx, authorId, "data series", {
-        recipe: section.dataSeriesRecipe, recipeId: section.dataSeriesRecipeId, resolved: externals,
-      });
-      await tx.goal.update({
-        where: { id: goalId },
-        data: {
-          dataSeries: section.dataSeries ? {
-            upsert: {
-              create: {
-                author: { connect: { id: authorId } },
-                recipeUsed: typeof recipeId === 'string' ? { connect: { id: recipeId } } : undefined,
-                values: { createMany: { data: dateValuesToDBDateRecord(section.dataSeries.dateValues) } },
-                ...(section.dataSeries.unit == null ? {} : { unit: section.dataSeries.unit }),
-              },
-              update: {
-                recipeUsed: recipeId === undefined
-                  ? undefined
-                  : typeof recipeId === 'string'
-                    ? { connect: { id: recipeId } }
-                    : { disconnect: true },
-                values: { deleteMany: {}, createMany: { data: dateValuesToDBDateRecord(section.dataSeries.dateValues) } },
-                unit: section.dataSeries.unit,
-              },
-            },
-          } : section.dataSeriesId ? {
-            connect: { id: section.dataSeriesId },
-          } : undefined,
-        },
-      });
-    });
+    await prisma.$transaction((tx) => apply(tx, externals));
     revalidateTag('goal', { expire: 0 });
     return Response.json({ message: t('api:goal.goal_updated'), id: goalId }, { status: 200, headers: { 'Location': `/goal/${goalId}` } });
   }
-  catch (err) { console.error(err); return Response.json({ message: t('api:common.server_error') }, { status: 500 }); }
+  catch (err) { return clientErrorResponse(err, t); }
 }
 
-async function writeBaselineSection(authorId: string, goalId: string, section: BaselineFields, t: TFunction): Promise<Response> {
-  let externals: ResolvedExternals | null;
-  try { externals = await resolveSectionExternals(section.baselineRecipe, section.baselineRecipeId); }
-  catch (err) { console.error(err); return Response.json({ message: t('api:common.server_error') }, { status: 500 }); }
-
-  try {
-    await prisma.$transaction(async (tx) => {
-      const { recipeId } = await upsertRecipe(tx, authorId, "baseline", {
-        recipe: section.baselineRecipe, recipeId: section.baselineRecipeId, resolved: externals,
-      });
-
-      const hasNonEmptyBaselinePayload = !!section.baseline && Object.keys(section.baseline.dateValues).length > 0;
-      // Disconnect first so we create a fresh baseline rather than mutating one that
-      // may just be a reference to another goal's data series.
-      if (hasNonEmptyBaselinePayload) {
-        await tx.goal.update({ where: { id: goalId }, data: { baseline: { disconnect: true } } });
-      }
-
-      await tx.goal.update({
-        where: { id: goalId },
-        data: {
-          baseline: hasNonEmptyBaselinePayload && section.baseline ? {
-            connectOrCreate: {
-              where: { id: section.baselineId ?? "" },
-              create: {
-                author: { connect: { id: authorId } },
-                recipeUsed: typeof recipeId === 'string' ? { connect: { id: recipeId } } : undefined,
-                values: { createMany: { data: dateValuesToDBDateRecord(section.baseline.dateValues) } },
-                unit: section.baseline.unit,
-              },
-            },
-          } : section.baselineId ? {
-            connect: { id: section.baselineId },
-          } : undefined,
-        },
-      });
-    });
-    revalidateTag('goal', { expire: 0 });
-    return Response.json({ message: t('api:goal.goal_updated'), id: goalId }, { status: 200, headers: { 'Location': `/goal/${goalId}` } });
-  }
-  catch (err) { console.error(err); return Response.json({ message: t('api:common.server_error') }, { status: 500 }); }
+function writeDataSeriesSection(authorId: string, goalId: string, section: DataSeriesFields, t: TFunction): Promise<Response> {
+  return writeSection(goalId, section.dataSeriesRecipe, section.dataSeriesRecipeId,
+    (tx, externals) => applyDataSeriesSection(tx, authorId, goalId, section, externals), t);
 }
 
-async function writeHistoricalSection(authorId: string, goalId: string, section: HistoricalFields, t: TFunction): Promise<Response> {
-  let externals: ResolvedExternals | null;
-  try { externals = await resolveSectionExternals(section.historicalRecipe, section.historicalRecipeId); }
-  catch (err) { console.error(err); return Response.json({ message: t('api:common.server_error') }, { status: 500 }); }
+function writeBaselineSection(authorId: string, goalId: string, section: BaselineFields, t: TFunction): Promise<Response> {
+  return writeSection(goalId, section.baselineRecipe, section.baselineRecipeId,
+    (tx, externals) => applyBaselineSection(tx, authorId, goalId, section, externals), t);
+}
 
-  try {
-    await prisma.$transaction(async (tx) => {
-      const result = await upsertRecipe(tx, authorId, "historical", {
-        recipe: section.historicalRecipe, recipeId: section.historicalRecipeId, resolved: externals,
-      });
-      // The historical recipe's single external variable becomes the goal's historical DataSeries
-      const resolvedHistoricalId = Object.values(result.dataSeriesIdsByVariable)[0] ?? null;
-      const historicalDataSeriesId = resolvedHistoricalId ?? section.historicalId ?? null;
-      // Link the historical recipe to its resulting series so the source stays discoverable
-      if (resolvedHistoricalId && typeof result.recipeId === 'string') {
-        await tx.dataSeries.update({
-          where: { id: resolvedHistoricalId },
-          data: { recipeUsed: { connect: { id: result.recipeId } } },
-        });
-      }
-      await tx.goal.update({
-        where: { id: goalId },
-        data: {
-          historical: historicalDataSeriesId ? { connect: { id: historicalDataSeriesId } } : { disconnect: true },
-        },
-      });
-    });
-    revalidateTag('goal', { expire: 0 });
-    return Response.json({ message: t('api:goal.goal_updated'), id: goalId }, { status: 200, headers: { 'Location': `/goal/${goalId}` } });
-  }
-  catch (err) { console.error(err); return Response.json({ message: t('api:common.server_error') }, { status: 500 }); }
+function writeHistoricalSection(authorId: string, goalId: string, section: HistoricalFields, t: TFunction): Promise<Response> {
+  return writeSection(goalId, section.historicalRecipe, section.historicalRecipeId,
+    (tx, externals) => applyHistoricalSection(tx, authorId, goalId, section, externals), t);
 }
 
 /**
@@ -297,30 +328,44 @@ async function createFullGoal(session: IronSession<LoginData>, authorId: string,
   catch (err) { console.error(err); return Response.json({ message: t('api:common.server_error') }, { status: 500 }); }
 
   try {
-    await prisma.$transaction(async (prisma) => {
+    await prisma.$transaction(async (tx) => {
       // Create/update recipes first, materializing any external variables into DataSeries
-      formData.dataSeriesRecipeId = (await upsertRecipe(prisma, authorId, "data series", {
+      formData.dataSeriesRecipeId = (await upsertRecipe(tx, authorId, "data series", {
         recipe: formData.dataSeriesRecipe, recipeId: formData.dataSeriesRecipeId, resolved: dataSeriesExternals,
       })).recipeId;
-      formData.baselineRecipeId = (await upsertRecipe(prisma, authorId, "baseline", {
+      formData.baselineRecipeId = (await upsertRecipe(tx, authorId, "baseline", {
         recipe: formData.baselineRecipe, recipeId: formData.baselineRecipeId, resolved: baselineExternals,
       })).recipeId;
-      const historicalResult = await upsertRecipe(prisma, authorId, "historical", {
+      const historicalResult = await upsertRecipe(tx, authorId, "historical", {
         recipe: formData.historicalRecipe, recipeId: formData.historicalRecipeId, resolved: historicalExternals,
       });
       formData.historicalRecipeId = historicalResult.recipeId;
+
+      // Create each section's DataSeries as its own statement, then connect by id.
+      const dataSeriesId = await createDataSeries(tx, authorId, formData.dataSeries, formData.dataSeriesRecipeId);
+
+      let baselineId: string | null = null;
+      if (formData.baseline) {
+        baselineId = await createDataSeries(tx, authorId, formData.baseline, formData.baselineRecipeId);
+      } else if (formData.baselineId) {
+        await assertDataSeriesExists(tx, formData.baselineId);
+        baselineId = formData.baselineId;
+      }
+
       // The historical recipe's single external variable becomes the goal's historical DataSeries
-      const historicalDataSeriesId = Object.values(historicalResult.dataSeriesIdsByVariable)[0] ?? formData.historicalId ?? null;
+      const resolvedHistoricalId = Object.values(historicalResult.dataSeriesIdsByVariable)[0] ?? null;
+      const historicalDataSeriesId = resolvedHistoricalId ?? formData.historicalId ?? null;
       // Link the historical recipe to its resulting series so the source stays discoverable
-      if (historicalDataSeriesId && typeof formData.historicalRecipeId === 'string') {
-        await prisma.dataSeries.update({
-          where: { id: historicalDataSeriesId },
+      if (resolvedHistoricalId && typeof formData.historicalRecipeId === 'string') {
+        await tx.dataSeries.update({
+          where: { id: resolvedHistoricalId },
           data: { recipeUsed: { connect: { id: formData.historicalRecipeId } } },
         });
       }
+      if (historicalDataSeriesId && !resolvedHistoricalId) await assertDataSeriesExists(tx, historicalDataSeriesId);
 
-      // Create goal
-      goalId = (await prisma.goal.create({
+      // Create goal, connecting the (just-created/verified) section series by id
+      goalId = (await tx.goal.create({
         data: {
           name: formData.name,
           description: formData.description,
@@ -328,36 +373,9 @@ async function createFullGoal(session: IronSession<LoginData>, authorId: string,
           isFeatured: formData.isFeatured,
           author: { connect: { id: authorId } },
           roadmap: { connect: { id: formData.roadmapId } },
-          dataSeries: {
-            create: {
-              author: { connect: { id: authorId } },
-              recipeUsed: typeof formData.dataSeriesRecipeId === 'string'
-                ? { connect: { id: formData.dataSeriesRecipeId } }
-                : undefined,
-              values: { createMany: { data: dateValuesToDBDateRecord(formData.dataSeries.dateValues) } },
-              unit: formData.dataSeries.unit,
-            },
-          },
-          baseline: formData.baseline
-            ? {
-              connectOrCreate: {
-                where: { id: formData.baselineId ?? "" },
-                create: {
-                  author: { connect: { id: authorId } },
-                  recipeUsed: typeof formData.baselineRecipeId === 'string'
-                    ? { connect: { id: formData.baselineRecipeId } }
-                    : undefined,
-                  values: { createMany: { data: dateValuesToDBDateRecord(formData.baseline.dateValues) } },
-                  unit: formData.baseline.unit,
-                },
-              },
-            }
-            : formData.baselineId
-              ? { connect: { id: formData.baselineId } }
-              : undefined,
-          historical: historicalDataSeriesId
-            ? { connect: { id: historicalDataSeriesId } }
-            : undefined,
+          dataSeries: { connect: { id: dataSeriesId } },
+          baseline: baselineId ? { connect: { id: baselineId } } : undefined,
+          historical: historicalDataSeriesId ? { connect: { id: historicalDataSeriesId } } : undefined,
           links: {
             create: formData.links?.map(link => ({
               url: link.url,
