@@ -48,7 +48,7 @@ export type ApiTableMetadata = TrafaCompatTableMetadata | PxWebCompatTableMetada
 
 export type ApiMetadataDimensionBase = {
   type: "metric" | "time" | "dimension";
-  /** The value used to refer to a dimension when querying an API. Not necessarily the `id` property of the dimension i question; both trafa and PxWeb use a name-like property for this. */
+  /** The value used to refer to a dimension when querying an API. Not necessarily the `id` property of the dimension in question; both trafa and PxWeb use a name-like property for this. */
   id: string;
   /** `name` is usually an internal, non-localized name used by the external API; if present, prefer using `label` for user-facing text */
   name: string;
@@ -60,7 +60,7 @@ export type ApiMetadataDimensionBase = {
 
 export type ApiHierarchyBase = {
   type: "hierarchy";
-  id: string | number;
+  id: string;
   name: string;
   label?: string;
   children: ApiMetadataDimensionBase[];

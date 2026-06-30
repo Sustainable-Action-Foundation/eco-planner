@@ -7,8 +7,6 @@ import getTableMetadata from "@/lib/api/getTableMetadata";
 import getTables from "@/lib/api/getTables";
 import { ExternalDataset, formQueryHelper } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
-import type { PxWebCompatTimeDimension } from "@/lib/api/pxWeb/pxWebApiV2Types";
-import type { TrafaCompatTimeDimension } from "@/lib/api/trafa/trafaTypes";
 import type { Goal } from "@/lib/prisma/generated";
 import type { SubmitEvent } from "react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
@@ -58,13 +56,20 @@ export default function HistoricalData({
   const [dataSource, setDataSource] = useState<string>(!!goal.externalDataset ? goal.externalDataset : "");
   const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
   const [table, setTable] = useState<{ tableId: string, label: string } | null>(goal.externalTableId ? { label: tables?.find(t => t.tableId === goal.externalTableId)?.label ?? goal.externalTableId, tableId: goal.externalTableId } : null);
-  const [metric, setMetric] = useState<string | null>(() => parseExternalSelection(goal.externalSelection)[0]?.valueCodes?.[0] ?? null);
 
-  const [tableDetails, setTableDetails] = useState<ApiTableMetadata | null>(null);
+  const [tableMetadata, setTableMetadata] = useState<ApiTableMetadata | null>(null);
   const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
 
   const formRef = useRef<HTMLFormElement | null>(null);
   // const deleteDataRef = useRef<HTMLDialogElement>(null)
+
+  function getInitialSelectionValue(variableCode: string) {
+    const valueCode = parseExternalSelection(goal.externalSelection).find(selection => selection.variableCode === variableCode)?.valueCodes?.[0];
+    if (!valueCode) return undefined;
+
+    const fromMatch = /^FROM\((.+)\)$/i.exec(valueCode);
+    return fromMatch?.[1] ?? valueCode;
+  }
 
   const tryGetResult = useCallback((event?: React.ChangeEvent<HTMLSelectElement> | SubmitEvent<HTMLFormElement> | Event) => {
     // null check
@@ -75,7 +80,7 @@ export default function HistoricalData({
     // Get a result if the form is valid
     if (formRef.current.checkValidity()) {
       const formData = new FormData(formRef.current);
-      const query = formQueryHelper(formData, [] /* TODO: include any PxWeb main time variable */ );
+      const query = formQueryHelper(formData, [] /* TODO: include any PxWeb main time variable */);
 
       getTableContent(table ? table.tableId : "", dataSource, query, lang).then(result => {
         setTableContent(result);
@@ -88,9 +93,14 @@ export default function HistoricalData({
       });
 
       if (dataSource === "Trafa") {
-        // If metric was changed, send the metric as a query to the API to get filtered table details
-        if (event?.target instanceof HTMLSelectElement && event.target.name === "metric") {
-          void getTableMetadata(table ? table.tableId : "", dataSource, query.filter(q => q.variableCode === "metric"), lang).then(result => { setTableDetails(result); });
+        const changedSelect = event?.target instanceof HTMLSelectElement ? event.target : null;
+        // If metric was changed, send the metric as a query to the API to get filtered table metadata
+        if (
+          changedSelect
+          && tableMetadata?.metricDimensions.some(metricDimension => metricDimension.id === changedSelect.name)
+        ) {
+          const metricVariableCodes = tableMetadata.metricDimensions.map(metricDimension => metricDimension.id);
+          void getTableMetadata(table ? table.tableId : "", dataSource, query.filter(q => metricVariableCodes.includes(q.variableCode)), lang).then(result => { setTableMetadata(result); });
         }
       }
 
@@ -98,7 +108,7 @@ export default function HistoricalData({
       setTableContent(null);
       // setIsLoading(false);
     }
-  }, [table, dataSource, lang]);
+  }, [table, dataSource, lang, tableMetadata]);
 
   const setFormRef = useCallback((node: HTMLFormElement | null) => {
     if (node) {
@@ -107,7 +117,7 @@ export default function HistoricalData({
     }
   }, [tryGetResult]);
 
-  // 1. Fetch table details
+  // 1. Fetch table metadata
   useEffect(() => {
     if (!goal.externalTableId || !goal.externalDataset || !goal.externalSelection) return;
 
@@ -116,14 +126,14 @@ export default function HistoricalData({
       goal.externalDataset,
       parseExternalSelection(goal.externalSelection),
       lang,
-    ).then(setTableDetails);
+    ).then(setTableMetadata);
   }, [goal.externalTableId, goal.externalDataset, goal.externalSelection, lang]);
 
   // 2. Fetch table content
   useEffect(() => {
-    if (!formRef.current || !tableDetails) return;
+    if (!formRef.current || !tableMetadata) return;
     tryGetResult();
-  }, [tableDetails, tryGetResult]);
+  }, [tableMetadata, tryGetResult]);
 
   useEffect(() => {
     if (!dataSource) return;
@@ -143,10 +153,10 @@ export default function HistoricalData({
     // setIsLoading(true);
 
     setTableContent(null);
-    setTableDetails(null);
+    setTableMetadata(null);
 
     void getTableMetadata(tableId, dataSource, undefined, lang).then(result => {
-      setTableDetails(result);
+      setTableMetadata(result);
       // setIsLoading(false);
     });
   }, [dataSource, lang]);
@@ -160,31 +170,56 @@ export default function HistoricalData({
     if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && variableIsOptional) return <span className={`font-style-italic color-gray`}> - ({t("components:query_builder.optional")})</span>;
   }
 
-  function variableSelectionHelper(dimension: ApiMetadataDimensionBase, tableDetails: ApiTableMetadata) {
+  function metricSelectionHelper(metricDimension: ApiMetadataDimensionBase, tableMetadata: ApiTableMetadata) {
+    if (metricDimension.options) {
+      return (
+        <label key={`metric-${tableMetadata.tableId}-${metricDimension.id}`}>
+          {metricDimension.label || metricDimension.name}
+          <select className="block margin-top-25 margin-bottom-100 metric"
+            required={true}
+            name={metricDimension.id}
+            id={metricDimension.id}
+            defaultValue={getInitialSelectionValue(metricDimension.id) ?? (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && metricDimension.options.length === 1 ? metricDimension.options[0].value : undefined)}
+            onChange={(e) => { setTimeout(() => tryGetResult(e), 0); }}
+          >
+            {((ExternalDataset.getDatasetByAlternateName(dataSource)?.api !== "PxWeb") || metricDimension.options.length > 1)
+              ? <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_metric")}</option>
+              : null}
+            {metricDimension.options.map(({ label, value }) => (
+              <option key={`${metricDimension.id}-${value}`} value={value} lang={tableMetadata.language}>{label || value}</option>
+            ))}
+          </select>
+        </label>
+      );
+    }
+  }
+
+  function variableSelectionHelper(dimension: ApiMetadataDimensionBase, tableMetadata: ApiTableMetadata) {
     if (dimension.options) {
       // The idea here is basically to we see which variables exist, and moving them to an array separately from metric as that value is already set. 
       // We then check if the variable which we render is in our list and get the default value from there.
       // This isnt very optimal as each render of a variable will trigger a loop of a new list, there is likely a better way to achieve this. 
       // if (!goal.externalSelection) return // TODO: Very hacky, temp fix. TODO: Also need to do this for time also
       const externalSelection = parseExternalSelection(goal.externalSelection);
-      const variables = externalSelection.filter((selectionVariable) => selectionVariable.variableCode !== "metric");
+      const metricVariableCodes = tableMetadata.metricDimensions.map(metricDimension => metricDimension.id);
+      const variables = externalSelection.filter((selectionVariable) => !metricVariableCodes.includes(selectionVariable.variableCode));
 
-      const selectedVariable = variables.find(v => v.variableCode === dimension.name);
+      const selectedVariable = variables.find(v => v.variableCode === dimension.id);
       const selectedValue = selectedVariable ? selectedVariable.valueCodes[0] : '';
 
       return (
-        <label key={dimension.name}>
+        <label key={dimension.id}>
           {/* Only display "optional" tags if the data source provides this information */}
           <span style={{ textTransform: "capitalize" }}>
-            {dimension.label ?? dimension.name}{optionalTag(dataSource, dimension.optional)}
+            {dimension.label || dimension.name}{optionalTag(dataSource, dimension.optional)}
           </span>
           {
           /* TODO: Use CSS to set proper capitalization of labels; something like `label::first-letter { text-transform: capitalize; }` */}
           <select
             className='block margin-top-25 margin-bottom-100'
             required={!dimension.optional}
-            name={dimension.name}
-            id={dimension.name}
+            name={dimension.id}
+            id={dimension.id}
             defaultValue={selectedValue}
             onChange={() => tryGetResult()}
           >
@@ -193,7 +228,7 @@ export default function HistoricalData({
                 (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && dimension.options.length > 1)) ? <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option> : null
             }
             {dimension.options?.map(({ label, value }) => (
-              <option key={`${dimension.name}-${value}`} value={value} lang={tableDetails.language}>{label ?? value}</option>
+              <option key={`${dimension.id}-${value}`} value={value} lang={tableMetadata.language}>{label || value}</option>
             ))}
           </select>
         </label>
@@ -201,35 +236,33 @@ export default function HistoricalData({
     }
   }
 
-  function timeVariableSelectionHelper(times: (TrafaCompatTimeDimension | PxWebCompatTimeDimension)[], language?: string) {
-    return times.map((time, i) => {
-      let heading = "";
-      let defaultValue = "";
-      if (dataSource === "Trafa") {
-        heading = t("components:query_builder.select_time_interval");
-        defaultValue = t("components:query_builder.select_time_interval");
-      } else if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") {
-        heading = t("components:query_builder.select_starting_period");
-        defaultValue = t("components:query_builder.select_time_period");
-      }
-      return (
-        <label key={`Tid-${i}`}>
-          {heading}{optionalTag(dataSource, time.optional ?? false)}
-          <select className='block margin-top-25 margin-bottom-100 TimeVariable'
-            required={!time.optional}
-            name={time.id}
-            id={time.id}
-            defaultValue={time.options.length === 1 ? time.options[0].value : ""}
-            onChange={() => tryGetResult()}
-          >
-            <option value="" className={`font-style-italic color-gray`}>{defaultValue}</option>
-            {time.options.map(({ value, label }) => (
-              <option key={`Tid-${i}-${label ?? value}`} value={value} lang={language}>{label ?? value}</option>
-            ))}
-          </select>
-        </label>
-      );
-    });
+  function timeVariableSelectionHelper(time: ApiMetadataDimensionBase, language?: string) {
+    let heading = "";
+    let defaultValue = "";
+    if (dataSource === "Trafa") {
+      heading = t("components:query_builder.select_time_interval");
+      defaultValue = t("components:query_builder.select_time_interval");
+    } else if (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") {
+      heading = t("components:query_builder.select_starting_period");
+      defaultValue = t("components:query_builder.select_time_period");
+    }
+    return (
+      <label key={`${time.id}`}>
+        {heading}{optionalTag(dataSource, time.optional ?? false)}
+        <select className='block margin-top-25 margin-bottom-100 TimeVariable'
+          required={!time.optional}
+          name={time.id}
+          id={time.id}
+          defaultValue={getInitialSelectionValue(time.id) ?? (time.options.length === 1 ? time.options[0].value : "")}
+          onChange={() => tryGetResult()}
+        >
+          <option value="" className={`font-style-italic color-gray`}>{defaultValue}</option>
+          {time.options.map(({ value, label }) => (
+            <option key={`${time.id}-${label || value}`} value={value} lang={language}>{label || value}</option>
+          ))}
+        </select>
+      </label>
+    );
   }
 
   function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
@@ -242,7 +275,7 @@ export default function HistoricalData({
 
     if (!(event.target.checkValidity())) return;
     const formData = new FormData(event.target);
-    const query = formQueryHelper(formData, [] /* TODO: include any PxWeb main time variable */ );
+    const query = formQueryHelper(formData, [] /* TODO: include any PxWeb main time variable */);
     // Update the goal with the new data
     formSubmitter("/api/goal", JSON.stringify({
       goalId: goal.id,
@@ -265,8 +298,8 @@ export default function HistoricalData({
   }
   */}
 
-  function shouldVariableFieldsetBeVisible(tableDetails: ApiTableMetadata, dataSource: string) {
-    const returnBool = ((tableDetails.hierarchies && tableDetails.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") && tableDetails.regularDimensions.some(variable => variable.options.length > 0)) || tableDetails.timeDimensions.length > 1);
+  function shouldVariableFieldsetBeVisible(tableMetadata: ApiTableMetadata, dataSource: string) {
+    const returnBool = ((tableMetadata.hierarchies && tableMetadata.hierarchies.length > 0) || (!(ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb") && tableMetadata.regularDimensions.some(variable => variable.options.length > 0)) || tableMetadata.timeDimensions.length > 1);
     return returnBool;
   }
 
@@ -408,9 +441,8 @@ export default function HistoricalData({
               onChange={e => {
                 setDataSource(e.target.value);
                 setTable(null);
-                setMetric(null);
                 setTableContent(null);
-                setTableDetails(null);
+                setTableMetadata(null);
               }}>
               <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_source")}</option>
               {ExternalDataset.knownDatasetKeys.map((name) => (
@@ -449,22 +481,10 @@ export default function HistoricalData({
           >
             {t("components:query_builder.select_metric_for_table")}
           </legend>
-          {table && tableDetails ? (
-            <label key={`metric-${tableDetails.tableId}`}>
-              {t("components:query_builder.select_metric")}
-              <select className={`block margin-top-25 margin-bottom-100 metric`}
-                required={true}
-                name={tableDetails.metricDimensions.length === 1 ? tableDetails.metricDimensions[0].name : "metric"}
-                id="metric"
-                value={!!metric ? metric : ''}
-                onChange={(e) => { setMetric(e.target.value); setTimeout(() => tryGetResult(e), 0); }}
-              >
-                <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_metric")}</option>
-                {tableDetails.metricDimensions?.map(metric => (
-                  <option key={metric.name} value={metric.name} lang={tableDetails.language}>{metric.label}</option>
-                ))}
-              </select>
-            </label>
+          {table && tableMetadata ? (
+            tableMetadata.metricDimensions?.map((metricDimension) => (
+              metricSelectionHelper(metricDimension, tableMetadata)
+            ))
           ) : (
             <p>{t("components:query_builder.select_source_for_metric")}</p>
           )}
@@ -483,21 +503,22 @@ export default function HistoricalData({
           >
             {t("components:query_builder.select_values_for_table")}
           </legend>
-          {tableDetails &&
-            shouldVariableFieldsetBeVisible(tableDetails, dataSource) ? (
+          {tableMetadata &&
+            shouldVariableFieldsetBeVisible(tableMetadata, dataSource) ? (
             <div>
-              {tableDetails.timeDimensions ? timeVariableSelectionHelper(tableDetails.timeDimensions, tableDetails.language) : null
-              }
-              {tableDetails.regularDimensions.map(variable => {
-                return variableSelectionHelper(variable, tableDetails);
+              {tableMetadata.timeDimensions?.map(time => {
+                return timeVariableSelectionHelper(time, tableMetadata.language);
               })}
-              {tableDetails.hierarchies?.map(hierarchy => {
+              {tableMetadata.regularDimensions.map(variable => {
+                return variableSelectionHelper(variable, tableMetadata);
+              })}
+              {tableMetadata.hierarchies?.map(hierarchy => {
                 if (hierarchy.children?.some(variable => variable.options.length > 0)) return (
                   <div key={hierarchy.name}>
                     <div className="font-weight-bold">{hierarchy.label}</div>
                     <div className="block margin-block-75 margin-left-75">
                       {hierarchy.children?.map(variable => {
-                        return variableSelectionHelper(variable, tableDetails);
+                        return variableSelectionHelper(variable, tableMetadata);
                       })}
                     </div>
                   </div>
@@ -551,7 +572,7 @@ export default function HistoricalData({
             type="submit"
             className="text-align-center seagreen color-purewhite width-100"
             style={{ fontSize: "14px", transform: "none" }}
-            disabled={!tableDetails || !tableContent || !dataSource}
+            disabled={!tableMetadata || !tableContent || !dataSource}
           >
             {t("common:tsx.save_changes")}
           </button>

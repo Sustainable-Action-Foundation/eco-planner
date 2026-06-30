@@ -96,8 +96,7 @@ export type TrafaCompatRegularDimension = Omit<TrafaCompatMetadataDimensionBase,
   dataType: "String" | "Region",
 }
 
-export type TrafaCompatHierarchy = Omit<ApiHierarchyBase, "id" | "children"> & { // Marked as "H"
-  id: number,
+export type TrafaCompatHierarchy = Omit<ApiHierarchyBase, "children"> & { // Marked as "H"
   type: "hierarchy";
   dataType: "String" | "Region",
   description?: string | null,

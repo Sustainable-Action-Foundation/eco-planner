@@ -96,7 +96,7 @@ export default async function getTrafaTableMetadata(tableId: string, selection: 
       return (returnItem as TrafaCompatMetricDimension | TrafaCompatTimeDimension | TrafaCompatRegularDimension);
     } else if (structureItem.Type === "H") {
       const returnItem: TrafaCompatHierarchy = {
-        id: structureItem.Id,
+        id: structureItem.Name,
         type: "hierarchy",
         dataType: structureItem.DataType as "String" | "Region",
         label: structureItem.Label,
