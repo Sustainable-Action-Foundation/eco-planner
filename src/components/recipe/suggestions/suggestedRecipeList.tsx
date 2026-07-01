@@ -1,8 +1,8 @@
 import { getDefaultSuggestedRecipes } from "@/components/recipe/suggestions/defaultSuggestedRecipes";
-import { RecipeContextProvider, RecipePreview, TemplateEditor } from "@/components/recipe";
+import { EquationEditor, RecipeContextProvider, RecipePreview } from "@/components/recipe";
 import type { SerializedRecipe } from "@/functions/recipe";
 import { Recipe } from "@/functions/recipe";
-import type { DBRecipe } from "@/types";
+import type { DBRecipe, Goal } from "@/types";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { NonFormIntegration } from "@/components/recipe/output/nonFormIntegration";
@@ -12,8 +12,10 @@ import { NonFormIntegration } from "@/components/recipe/output/nonFormIntegratio
  * Not to be used inside a recipe context. It won't break it necessarily but this works at a higher scope than a single recipe.
  */
 export function SuggestedRecipesList({
+  currentGoal,
   existingSuggestedRecipes = [],
 }: {
+  currentGoal: Goal | undefined;
   existingSuggestedRecipes?: DBRecipe[];
 }): React.ReactElement {
   const { t } = useTranslation("components");
@@ -22,7 +24,11 @@ export function SuggestedRecipesList({
   // Ids the user has removed from the list (covers both existing and default recipes).
   const [deletedIds, setDeletedIds] = useState<Set<string>>(() => new Set());
   // Id of the recipe currently loaded into the editor, if any.
-  const [editingId, setEditingId] = useState<string | undefined>(undefined);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  // Current recipe reported by the editor, if any. Updates on every change in the editor.
+  const [editingRecipe, setEditingRecipe] = useState<SerializedRecipe | null>(null);
+  // Before posting/putting, this is the array of the created recipes that will be sent
+  const [newSuggestedRecipes, setNewSuggestedRecipes] = useState<{ id: string, recipe: Recipe }[]>([]);
 
   const suggestedRecipesWithDbId: { id: string, recipe: Recipe }[] = useMemo(() => [
     ...existingSuggestedRecipes.map((recipe) => ({
@@ -33,7 +39,11 @@ export function SuggestedRecipesList({
       id: recipe.id,
       recipe: Recipe.from(recipe),
     })),
-  ].filter((db) => !deletedIds.has(db.id)), [existingSuggestedRecipes, includeDefaults, deletedIds, t]);
+    ...newSuggestedRecipes.map((recipe) => ({
+      id: recipe.id,
+      recipe: recipe.recipe,
+    })),
+  ].filter((db) => !deletedIds.has(db.id)), [existingSuggestedRecipes, includeDefaults, t, newSuggestedRecipes, deletedIds]);
 
   // Serialized payload consumed by the goal form (read via the hidden input below).
   const serializedSuggestions = useMemo(
@@ -42,7 +52,7 @@ export function SuggestedRecipesList({
   );
 
   // The recipe loaded into the editor context, derived from the selected id.
-  const editingRecipe = useMemo<SerializedRecipe | undefined>(
+  const initialEditingRecipe = useMemo<SerializedRecipe | undefined>(
     () => suggestedRecipesWithDbId.find((db) => db.id === editingId)?.recipe.serialize(),
     [suggestedRecipesWithDbId, editingId],
   );
@@ -55,10 +65,19 @@ export function SuggestedRecipesList({
     });
   }
 
-  /** 
-   * Gets called in the recipe context and updates the current editing recipe to this.
-   */
-  function recipeSetter(recipe: SerializedRecipe) {
+  function commitEditingRecipe() {
+    if (!editingId || !editingRecipe) return;
+    setEditingId(null);
+    setEditingRecipe(null);
+
+    setNewSuggestedRecipes((prev) => {
+      const next = [...prev];
+      const index = next.findIndex((db) => db.id === editingId);
+      if (index !== -1) {
+        next[index] = { id: editingId, recipe: Recipe.from(editingRecipe) };
+      }
+      return next;
+    });
   }
 
   return (<section>
@@ -140,22 +159,49 @@ export function SuggestedRecipesList({
           {t("components:recipe_editor.no_suggested_recipes")}
         </li>
       )}
+      <li className="width-100 text-align-center">
+        <button
+          type="button"
+          onClick={() => {
+            const newId = `new-${newSuggestedRecipes.length}`;
+            setNewSuggestedRecipes((prev) => [...prev, {
+              id: newId,
+              recipe: Recipe.fromDataSeries({
+                recipeName: t("components:recipe_editor.new_recipe"),
+                dataSeriesName: t("components:recipe_editor.this_data_series"),
+                unit: currentGoal?.dataSeries?.unit ?? undefined,
+              }),
+            }]);
+            setEditingId(newId);
+          }}
+        >
+          {t("components:recipe_editor.add_new_recipe")}
+          💅
+        </button>
+      </li>
     </ul>
 
     {!!editingId ? (<>
       <p className="font-size-125">
-        {t("components:recipe_editor.editing_recipe_named", { name: !!editingRecipe ? Recipe.from(editingRecipe).name : "" })}
+        {t("components:recipe_editor.editing_recipe_named", { name: !!initialEditingRecipe ? Recipe.from(initialEditingRecipe).name : "" })}
       </p>
       <RecipeContextProvider
         // Remount on id change so the editor re-initializes with the selected recipe.
         key={editingId}
-        initialRecipe={editingRecipe}
+        initialRecipe={initialEditingRecipe}
       >
         <NonFormIntegration
-          RecipeSetter={ }
+          RecipeSetter={setEditingRecipe}
         />
-        <TemplateEditor />
+        <EquationEditor />
       </RecipeContextProvider>
+
+      <button
+        type="button"
+        onClick={commitEditingRecipe}
+      >
+        {t("components:recipe_editor.commit_editing_recipe")}
+      </button>
     </>
     ) : null}
   </section>);

@@ -1,9 +1,9 @@
-import type { DataSeries, DateValuesWithUnit, JSONValue, Mask } from "@/types";
+import type { DataSeries, DateValuesWithUnit, JSONValue, Mask, UnitString } from "@/types";
 import { isISOIshDate } from "@/types";
 import mathjs from "@/math";
 import type { Unit } from "mathjs";
 import type { ApiTableContent } from "@/lib/api/apiTypes";
-import type { ExternalSelection, ExternalVariable, RecipeExtractionOutput, RecipeVariable, SerializedRecipe, RecipeShape } from "@/functions/recipe";
+import type { ExternalSelection, ExternalVariable, RecipeExtractionOutput, RecipeVariable, SerializedRecipe, RecipeShape, DataSeriesVariable } from "@/functions/recipe";
 import { isEvalTimeVariable, isRecipe, MathjsError, RecipeError, parseDateValuesFromVector, transformDateValuesToVector, ANDMasks, extractDataSeries, extractExternalDatasets, extractScalars, isEvalTimeSeries, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe";
 import type { DatasetKeys } from "@/lib/api/utility";
 import { sanityCheckDataSeries, sanityCheckExternalDatasets, sanityCheckScalars } from "@/functions/recipe/sanityChecks";
@@ -609,6 +609,34 @@ export class Recipe {
       name,
       equation: `\${${variableId}}`,
       variables: [externalVariable],
+    });
+  }
+
+  /** 
+   * Recipe factory for a data series: a recipe whose single `DataSeries` variable.
+   */
+  public static fromDataSeries({
+    recipeName,
+    dataSeriesName,
+    unit = undefined,
+  }: {
+    recipeName: string;
+    dataSeriesName: string;
+    unit: UnitString;
+  }): Recipe {
+    const dataSeriesVariable: DataSeriesVariable = {
+      id: crypto.randomUUID(),
+      name: dataSeriesName,
+      type: RecipeDataTypes.DataSeries,
+      pick: VectorIndexPickerOptions.Default,
+      unit,
+      dataSeriesId: null,
+      value: null,
+    };
+    return new Recipe({
+      name: recipeName,
+      equation: `\${${dataSeriesVariable.name}}`,
+      variables: [dataSeriesVariable],
     });
   }
 

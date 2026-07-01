@@ -64,7 +64,12 @@ export function RecipePreview({
     <div className="flex flex-direction-column gap-50" style={{ fontSize: "14px" }}>
       {/* Equation with placeholders as chips */}
       {recipe.equation.trim() !== "" && (
-        <p className="margin-0" style={{ lineHeight: "1.8" }}>
+        <p className="margin-0" style={{
+          lineHeight: "1.8",
+          backgroundColor: "var(--gray-95)",
+          padding: "0.5rem 0.75rem",
+          borderRadius: "4px",
+        }}>
           {segments.map((segment, index) => {
             const token = placeholderTokenRegex.exec(segment);
             if (token) {
@@ -87,7 +92,7 @@ export function RecipePreview({
               <span style={variableChipStyle}>{variable.name}</span>
               {/* Dotted leader connecting the name to its summary across the gap. */}
               <span
-                aria-hidden
+                aria-hidden="true"
                 style={{
                   flex: "1 1 auto",
                   minWidth: "1rem",

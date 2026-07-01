@@ -6,7 +6,6 @@ export * from "./suggestions/defaultSuggestedRecipes";
 export * from "./suggestions/suggestedRecipeApplier";
 
 export * from "./editor/recipeEditor";
-export * from "./editor/templateEditor";
 export * from "./editor/equationEditor";
 
 export * from "./output/formIntegration";
