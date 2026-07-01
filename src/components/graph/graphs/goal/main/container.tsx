@@ -10,9 +10,6 @@ import MainRelativeGraph from "./relative";
 import SecondaryGoalSelector from "../../../graphSelectors/secondaryGoalSelector";
 import { Trans, useTranslation } from "react-i18next";
 import type { DateValues, Goal, Roadmap } from "@/types";
-import ChildGraphContainer from "../child/container";
-import SiblingGraph from "../sibling/siblings";
-import findSiblings from "@/functions/findSiblings";
 import CopyAndScale from "@/components/modals/copyAndScale";
 import type { LoginData } from "@/lib/session";
 import styles from '../goal.module.css';
@@ -21,9 +18,7 @@ import PreviewGraph from "../../previewGraph";
 export const GraphType = {
   Main: "MAIN",
   Relative: "RELATIVE",
-  Delta: "DELTA",
-  Children: "CHILDREN",
-  Siblings: "SIBLINGS",
+  Delta: "DELTA", 
 } as const;
 export type GraphType = (typeof GraphType)[keyof typeof GraphType];
 
@@ -31,8 +26,6 @@ export default function GraphGraph({
   goal,
   secondaryGoal,
   parentGoal,
-  childGoals,
-  roadmap,
   parentGoalRoadmap,
   // effects,
   session,
@@ -64,6 +57,7 @@ export default function GraphGraph({
 
   function graphSwitch(graphType: GraphType) {
     switch (graphType) {
+
       case GraphType.Delta: {
         // TODO: Is timestamp the time the value was created or the time it represents?
         const sortedValues = [...(goal.dataSeries?.values ?? [])].sort(
@@ -82,7 +76,7 @@ export default function GraphGraph({
         }
 
         return (
-          <PreviewGraph
+          <PreviewGraph // TODO: We probably want to include the annual change of all other dataseries (e.g historical, baseline...) aswell
             series={{
               main: goal.dataSeries && {
                 name: `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
@@ -97,14 +91,6 @@ export default function GraphGraph({
 
       case GraphType.Relative: {
         return <MainRelativeGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} secondaryGoal={secondaryGoal} />;
-      }
-
-      case GraphType.Children: {
-        return <ChildGraphContainer goal={goal} childGoals={childGoals} />;
-      }
-
-      case GraphType.Siblings: {
-        return findSiblings(roadmap, goal).length > 1 && <SiblingGraph roadmap={roadmap} goal={goal} />; // TODO: Does findSiblings make sense here?
       }
 
       case GraphType.Main:
