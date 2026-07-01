@@ -29,6 +29,9 @@ export function SuggestedRecipesList({
   const [editingRecipe, setEditingRecipe] = useState<SerializedRecipe | null>(null);
   // Editable name of the recipe currently in the editor. Applied on commit.
   const [editingName, setEditingName] = useState<string>("");
+  // Whether the recipe in the editor is a freshly-added draft. If so, cancelling
+  // removes it entirely rather than just closing the editor.
+  const [editingIsNew, setEditingIsNew] = useState<boolean>(false);
   // Before posting/putting, this is the array of the created recipes that will be sent
   const [newSuggestedRecipes, setNewSuggestedRecipes] = useState<{ id: string, recipe: Recipe }[]>([]);
 
@@ -104,11 +107,20 @@ export function SuggestedRecipesList({
    * Any in-progress edit of another recipe is committed first so switching
    * between recipes never discards changes.
    */
-  function startEditing(id: string, name: string) {
+  function startEditing(id: string, name: string, isNew = false) {
     if (editingId === id) return; // Already editing this one.
     if (editingId && editingRecipe) commitEditingRecipe();
     setEditingId(id);
     setEditingName(name);
+    setEditingIsNew(isNew);
+  }
+
+  /** Close the editor and clear the editing state, without committing. */
+  function closeEditor() {
+    setEditingId(null);
+    setEditingRecipe(null);
+    setEditingName("");
+    setEditingIsNew(false);
   }
 
   function commitEditingRecipe() {
@@ -116,9 +128,20 @@ export function SuggestedRecipesList({
     const recipe = Recipe.from(editingRecipe);
     recipe.name = editingName;
     upsertEditedRecipe(editingId, recipe);
-    setEditingId(null);
-    setEditingRecipe(null);
-    setEditingName("");
+    closeEditor();
+  }
+
+  /**
+   * Discard the in-progress edit. Existing/default recipes are only mutated on
+   * commit, so cancelling just closes the editor; a freshly-added draft never
+   * committed is removed from the list entirely.
+   */
+  function cancelEditingRecipe() {
+    if (editingIsNew && editingId) {
+      const draftId = editingId;
+      setNewSuggestedRecipes((prev) => prev.filter((db) => db.id !== draftId));
+    }
+    closeEditor();
   }
 
   return (<section>
@@ -209,11 +232,11 @@ export function SuggestedRecipesList({
             const newId = window.crypto.randomUUID();
             const newRecipe = Recipe.fromDataSeries({
               recipeName: t("components:recipe_editor.new_recipe"),
-              dataSeriesName: t("components:recipe_editor.this_data_series"),
+              dataSeriesName: currentGoal?.name || t("components:recipe_editor.this_data_series"),
               unit: currentGoal?.dataSeries?.unit ?? undefined,
             });
             setNewSuggestedRecipes((prev) => [...prev, { id: newId, recipe: newRecipe }]);
-            startEditing(newId, newRecipe.name);
+            startEditing(newId, newRecipe.name, true);
           }}
         >
           {t("components:recipe_editor.add_new_recipe")}
@@ -248,11 +271,20 @@ export function SuggestedRecipesList({
         <EquationEditor />
       </RecipeContextProvider>
 
+      {/* Commit */}
       <button
         type="button"
         onClick={commitEditingRecipe}
       >
         {t("components:recipe_editor.commit_editing_recipe")}
+      </button>
+
+      {/* Cancel */}
+      <button
+        type="button"
+        onClick={cancelEditingRecipe}
+      >
+        {t("components:recipe_editor.cancel_editing_recipe")}
       </button>
     </>
     ) : null}
