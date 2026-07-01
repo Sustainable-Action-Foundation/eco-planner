@@ -256,8 +256,8 @@ export function formQueryHelper(formData: FormData, tableMetadata: ApiTableMetad
     if (formData.has(key)) {
       const value = formData.get(key);
       if (typeof value === "string" && value.trim() !== "") {
-        if (mainPxWebTimeVariableKey && key === mainPxWebTimeVariableKey) {
-          // If the key is the main PxWeb time variable, we need to wrap the value in a FROM() function
+        if (mainPxWebTimeVariableKey && key === mainPxWebTimeVariableKey && tableMetadata.api === "PxWeb") {
+          // If the key is the main PxWeb time variable, we need to wrap the value in a FROM() function, but only for PxWeb datasets
           selection.push({ variableCode: key, valueCodes: [`FROM(${value})`] });
         } else {
           selection.push({ variableCode: key, valueCodes: [value] });

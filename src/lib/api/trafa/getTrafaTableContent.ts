@@ -1,6 +1,6 @@
 "use server";
 
-import type { ApiTableContent } from "../apiTypes";
+import type { ApiSelectionItem, ApiTableContent } from "../apiTypes";
 import { ExternalDataset } from "../utility";
 import type { TrafaDataResponse } from "./trafaTypes";
 import { getTrafaSearchQueryString } from "./trafaUtility";
@@ -9,7 +9,7 @@ import { getTrafaSearchQueryString } from "./trafaUtility";
 // This means that everything here in the `trafa` folder is somewhat useless for international implementations,
 // but can be useful to show how to implement a new data provider which doesn't follow the pxWebV2 standard.
 
-export default async function getTrafaTableContent(tableId: string, selection: { variableCode: string, valueCodes: string[] }[], language?: string) {
+export default async function getTrafaTableContent(tableId: string, selection: ApiSelectionItem[], language?: string) {
   const searchQuery = getTrafaSearchQueryString(selection);
 
   const url = new URL('./data', ExternalDataset.Trafa.baseUrl);

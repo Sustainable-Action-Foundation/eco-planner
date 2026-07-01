@@ -51,6 +51,7 @@ export default async function getPxWebTableMetadata(tableId: string, externalDat
     timeDimensions: [],
     regularDimensions: [],
     language: language,
+    api: "PxWeb",
   };
 
   const metricNames = data.role.metric ?? [];

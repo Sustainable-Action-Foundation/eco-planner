@@ -67,8 +67,9 @@ export default function HistoricalData({
 
   const setTableMetadata = useCallback((tableMetadata: ApiTableMetadata | null) => {
     _setTableMetadata(prev => {
-      if (!tableMetadata) {
+      if (!tableMetadata || !(tableMetadata.api === "PxWeb")) {
         // if no metadata, reset the main time dimension id to null
+        // Also don't set the main time dimension id if the metadata is not from PxWeb, as only PxWeb should wrap its time variable in a FROM() function
         setMainTimeDimensionId(null);
       } else if (prev?.tableId !== tableMetadata.tableId || prev?.timeDimensions !== tableMetadata.timeDimensions) {
         // when changing table (or updating ), update the main time dimension
@@ -89,12 +90,25 @@ export default function HistoricalData({
     if (!(formRef.current instanceof HTMLFormElement)) return;
 
     // setIsLoading(true);
+    const formData = new FormData(formRef.current);
+    const query = formQueryHelper(formData, tableMetadata, mainTimeDimensionId);
+
+    // try to update available selection for trafa metadata
+    if (dataSource === "Trafa" && !!table) {
+      const changedSelect = event?.target instanceof HTMLSelectElement ? event.target : null;
+      // if a select relevant to the current table's dimensions or hierarchy children changed, try to fetch updated metadata for the current table with the new selection
+      if (changedSelect && (
+        tableMetadata?.metricDimensions.some(metricDimension => metricDimension.id === changedSelect.name)
+        || tableMetadata?.regularDimensions.some(variable => variable.id === changedSelect.name)
+        || tableMetadata?.timeDimensions.some(variable => variable.id === changedSelect.name)
+        || tableMetadata?.hierarchies?.some(hierarchy => hierarchy.children.some(child => child.id === changedSelect.name))
+      )) {
+        void getTableMetadata(table.tableId, dataSource, query, lang).then(result => { setTableMetadata(result); });
+      }
+    }
 
     // Get a result if the form is valid
     if (formRef.current.checkValidity()) {
-      const formData = new FormData(formRef.current);
-      const query = formQueryHelper(formData, tableMetadata, mainTimeDimensionId /* TODO: include any PxWeb main time variable */);
-
       getTableContent(table ? table.tableId : "", dataSource, query, lang).then(result => {
         setTableContent(result);
         // setIsLoading(false);
@@ -104,19 +118,6 @@ export default function HistoricalData({
         setTableContent(null);
         // setIsLoading(false);
       });
-
-      if (dataSource === "Trafa") {
-        const changedSelect = event?.target instanceof HTMLSelectElement ? event.target : null;
-        // If metric was changed, send the metric as a query to the API to get filtered table metadata
-        if (
-          changedSelect
-          && tableMetadata?.metricDimensions.some(metricDimension => metricDimension.id === changedSelect.name)
-        ) {
-          const metricVariableCodes = tableMetadata.metricDimensions.map(metricDimension => metricDimension.id);
-          void getTableMetadata(table ? table.tableId : "", dataSource, query.filter(q => metricVariableCodes.includes(q.variableCode)), lang).then(result => { setTableMetadata(result); });
-        }
-      }
-
     } else {
       setTableContent(null);
       // setIsLoading(false);
@@ -197,7 +198,7 @@ export default function HistoricalData({
             name={metricDimension.id}
             id={metricDimension.id}
             defaultValue={getInitialSelectionValue(metricDimension.id) ?? (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && metricDimension.options.length === 1 ? metricDimension.options[0].value : undefined)}
-            onChange={(e) => { setTimeout(() => tryGetResult(e), 0); }}
+            onChange={(e) => tryGetResult(e)}
           >
             {((ExternalDataset.getDatasetByAlternateName(dataSource)?.api !== "PxWeb") || metricDimension.options.length > 1)
               ? <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_metric")}</option>
@@ -236,7 +237,7 @@ export default function HistoricalData({
             name={dimension.id}
             id={dimension.id}
             defaultValue={selectedValue}
-            onChange={() => tryGetResult()}
+            onChange={(e) => tryGetResult(e)}
           >
             { // If only one value is available, don't show a placeholder option
               (ExternalDataset.getDatasetByAlternateName(dataSource)?.api !== "PxWeb" ||
@@ -270,7 +271,7 @@ export default function HistoricalData({
           id={time.id}
           defaultValue={getInitialSelectionValue(time.id) ?? (time.options.length === 1 ? time.options[0].value : "")}
           onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-            tryGetResult();
+            tryGetResult(e);
             setStartPeriod(e.target.value);
           }}
         >

@@ -1,3 +1,4 @@
+"use server";
 import type { TrafaCompatTableMetadata } from "../apiTypes";
 import { ExternalDataset } from "../utility";
 import getTrafaTables from "./getTrafaTables";
@@ -44,11 +45,20 @@ export default async function getTrafaTableMetadata(tableId: string, selection: 
   // Declare the variable that will be returned by this function
   const tableDetails: TrafaCompatTableMetadata = {
     tableId: tableId,
-    metricDimensions: [],
+    metricDimensions: [{
+      id: "metric",
+      type: "metric",
+      dataType: "String",
+      // TODO: Proper i18n for label
+      label: language === "sv" ? "Mått" : "Metric",
+      name: "metric",
+      options: [],
+    }],
     timeDimensions: [],
     regularDimensions: [],
     hierarchies: [],
     language: language,
+    api: "Trafa",
   };
 
   function logNotSupportedDataType(itemType: string, structureItem: StructureItem) {
@@ -60,24 +70,21 @@ export default async function getTrafaTableMetadata(tableId: string, selection: 
     // let returnItem: TrafaCompatMetricDimension | TrafaCompatHierarchy | TrafaCompatDimension | TrafaCompatDimensionValue | TrafaCompatFilter;
 
     // dimension items
-    if (["M", "D"].includes(structureItem.Type)) {
-      const returnItem: TrafaCompatMetadataDimensionBase | TrafaCompatMetricDimension | TrafaCompatHierarchy | TrafaCompatRegularDimension = {
+    // if (["M", "D"].includes(structureItem.Type)) {
+    if (structureItem.Type === "D") {
+      const returnItem: TrafaCompatMetadataDimensionBase | TrafaCompatMetricDimension | TrafaCompatRegularDimension = {
         id: structureItem.Name,
         type: "dimension",
         dataType: structureItem.DataType,
         label: structureItem.Label,
         name: structureItem.Name,
+        optional: true,
         description: structureItem.Description,
         options: [],
       };
 
       // Specify dimension type
-      if (structureItem.Type === "M") {
-        returnItem.type = "metric";
-        if (structureItem.DataType === "Time" || structureItem.DataType === "Region") {
-          logNotSupportedDataType(returnItem.type, structureItem);
-        }
-      } else if (structureItem.DataType === "Time") {
+      if (structureItem.DataType === "Time") {
         returnItem.type = "time";
       } else {
         returnItem.type = "dimension";
@@ -94,6 +101,14 @@ export default async function getTrafaTableMetadata(tableId: string, selection: 
       });
 
       return (returnItem as TrafaCompatMetricDimension | TrafaCompatTimeDimension | TrafaCompatRegularDimension);
+    } else if (structureItem.Type === "M") {
+      tableDetails.metricDimensions[0].options.push({
+        type: "dimensionValue",
+        value: structureItem.Name,
+        label: structureItem.Label,
+        dataType: structureItem.DataType as "String",
+      });
+      return tableDetails.metricDimensions[0];
     } else if (structureItem.Type === "H") {
       const returnItem: TrafaCompatHierarchy = {
         id: structureItem.Name,
@@ -142,9 +157,9 @@ export default async function getTrafaTableMetadata(tableId: string, selection: 
   data.StructureItems.map(item => {
     const pushItem = structureItemToTrafaTableDetailItem(item);
 
-    switch (pushItem.type) {
+    switch (pushItem?.type) {
       case "metric": {
-        tableDetails.metricDimensions.push(pushItem);
+        // No-op; metric values are added directly as metric dimension options in the structureItemToTrafaTableDetailItem function
         break;
       }
       case "time": {

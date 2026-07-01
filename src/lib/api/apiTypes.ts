@@ -31,6 +31,7 @@ export type TrafaCompatTableMetadata = {
   regularDimensions: TrafaCompatRegularDimension[];
   hierarchies: TrafaCompatHierarchy[];
   language: string;
+  api: "Trafa";
 }
 
 export type PxWebCompatTableMetadata = {
@@ -42,6 +43,7 @@ export type PxWebCompatTableMetadata = {
   regularDimensions: PxWebCompatRegularDimension[];
   hierarchies?: never;
   language: string;
+  api: "PxWeb";
 }
 
 export type ApiTableMetadata = TrafaCompatTableMetadata | PxWebCompatTableMetadata;
