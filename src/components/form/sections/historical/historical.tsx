@@ -17,6 +17,8 @@ import { Recipe } from "@/functions/recipe/recipe";
 import { timeVariableSelectionHelper, variableSelectionHelper } from "./helpers";
 import getTableMetadata from "@/lib/api/getTableMetadata";
 
+// TODO: Historical data should not be required in a goal form
+
 export type ExternalSelection = NonNullable<Parameters<typeof getTableMetadata>[2]>;
 
 const HistoricalDataType = {

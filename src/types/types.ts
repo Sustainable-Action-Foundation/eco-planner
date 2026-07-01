@@ -101,7 +101,7 @@ export type DBRecipe = Prisma.RecipeGetPayload<{
 }>;
 
 export type UnitString = string | null | undefined;
-export type ISOIshDate = `${number}-${number}-${number}T00:00:00.000Z`;
+export type ISOIshDate = `${number}-${number}-${number}T00:00:00${`.000` | ``}Z`;
 /** True: missing value, False: defined value. It masks/"covers" the undefined values */
 export type Mask = Record<ISOIshDate, boolean>;
 export type DateValues = Record<ISOIshDate, number>;

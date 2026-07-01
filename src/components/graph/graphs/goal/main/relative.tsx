@@ -24,8 +24,8 @@ export default function MainRelativeGraph({
   }
 
   const chart: ApexAxisChartSeries = [];
-  const colors: Array<string> = [color_palette.data.color];
-  const opacities: Array<number> = [color_palette.data.fillOpacity];
+  const colors: Array<string> = [color_palette.main.color];
+  const opacities: Array<number> = [color_palette.main.fillOpacity];
 
   // Local goal
   const mainSeries = [];
@@ -57,8 +57,8 @@ export default function MainRelativeGraph({
       data: secondarySeries,
       type: 'line',
     });
-    colors.push(color_palette.secondaryGoal.color);
-    opacities.push(color_palette.secondaryGoal.fillOpacity);
+    colors.push(color_palette.comparison.color);
+    opacities.push(color_palette.comparison.fillOpacity);
   }
 
   // National goal

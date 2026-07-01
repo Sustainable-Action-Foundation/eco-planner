@@ -24,6 +24,8 @@ import UnitSync from "@/components/recipe/output/unitSyncer";
 import ParameterSync from "@/components/recipe/output/parameterSyncer";
 import HistoricalDataSection from "../sections/historical/historical";
 import { SuggestedRecipesList } from "@/components/recipe/suggestions/suggestedRecipeList";
+import PreviewGraph from "@/components/graph/graphs/previewGraph";
+import { NonFormIntegration } from "@/components/recipe/output/nonFormIntegration";
 
 const DataSeriesType = {
   Manual: "MANUAL",
@@ -97,6 +99,7 @@ export default function GoalForm({
   const [unit, setUnit] = useState<string>(currentGoal?.dataSeries?.unit ?? "");
   const [indicatorParameter, setIndicatorParameter] = useState<string>(currentGoal?.indicatorParameter ?? "");
   const [parentRoadmapId, setParentRoadmapId] = useState<string>(roadmapId || "");
+  const [previewDataSerie, setPreviewDataSerie] = useState<DateValuesWithUnit | null>(null);
   const descriptionRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
@@ -533,6 +536,9 @@ export default function GoalForm({
               <UnitSync
                 setter={setUnit}
               />
+              <NonFormIntegration
+                DateValuesSetter={setPreviewDataSerie}
+              />
               <ParameterSync
                 setter={setIndicatorParameter}
               />
@@ -659,6 +665,18 @@ export default function GoalForm({
           existingSuggestedRecipes={currentGoal?.recipeSuggestions ?? []}
         />
       </fieldset>
+
+      <div style={{
+        height: '400px',
+      }}>
+        {previewDataSerie?.dateValues ? (
+          <PreviewGraph
+            series={{
+              main: { ...previewDataSerie, dateValues: previewDataSerie.dateValues, name: 'placeholder name' },
+            }}
+          />
+        ) : null}
+      </div>
 
       {/* Submit button */}
       <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>

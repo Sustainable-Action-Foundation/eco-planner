@@ -3,7 +3,7 @@ import { GraphType } from "@/components/graph/graphs/goal/main/container";
 import { ActionImpactType } from "@/lib/prisma/generated";
 import { ChildGraphType } from "@/components/graph/graphs/goal/child/container";
 import { isISOIshDate } from "@/types";
-import type { DateValues, DataSeries, Effect, Goal } from "@/types";
+import type { DateValues, DataSeries, Effect, Goal, ISOIshDate } from "@/types";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 
 /** Retrieves the graph type for a goal from storage. */
@@ -76,12 +76,10 @@ export function setStoredChildGraphType(graphType: ChildGraphType, goalId?: stri
  * To get delta y-values, subtract the previous y-value from all y-values, preferably back to front to avoid needing a copy of the array.
  */
 export function calculatePredictedOutcome(effects: Effect[] | Goal["effects"], baselineValue: DataSeries | number | Goal["baseline"]) {
-  // Early return if no effects and no custom baseline
-  if (effects.length < 1 && typeof baselineValue === 'number') {
+  if (effects.length < 1) {
     return [];
   }
 
-  // Typecheck and validate baseline
   if (typeof baselineValue === 'number' && !Number.isFinite(baselineValue)) {
     console.warn("Invalid baseline number provided to calculatePredictedOutcome.");
     return [];
@@ -114,37 +112,41 @@ export function calculatePredictedOutcome(effects: Effect[] | Goal["effects"], b
   }
 
   // Calculate total impact of actions/effects
-  const totalEffect: DateValues = {};
+  const totalEffect: DateValues = {};;
 
   for (const date of definedDates) {
+    const normalizedDate = date.replace(/(:00)Z$/, '$1.000Z') as ISOIshDate;
+
     for (const effect of effects) {
       const dataSeries = effect.dataSeries
         ? dataSeriesToDateValues(effect.dataSeries)
         : { dateValues: {}, unit: undefined };
 
       if (
-        dataSeries.dateValues[date]
+        dataSeries.dateValues[normalizedDate]
         && effect.impactType === ActionImpactType.DELTA
       ) {
+
         totalEffect[date] ??= 0;
 
         // Add sum of all deltas up to this point for the current action
         let totalDelta = 0;
 
         for (const previousDate of definedDates.filter(d => new Date(d) <= new Date(date))) {
+          const normalizedPreviousDate = previousDate.replace(/(:00)Z$/, '$1.000Z') as ISOIshDate;
           if (
-            dataSeries.dateValues[previousDate]
-            && Number.isFinite(dataSeries.dateValues[previousDate])
+            dataSeries.dateValues[normalizedPreviousDate]
+            && Number.isFinite(dataSeries.dateValues[normalizedPreviousDate])
           ) {
-            totalDelta += dataSeries.dateValues[previousDate];
+            totalDelta += dataSeries.dateValues[normalizedPreviousDate]; 
           }
         }
 
         totalEffect[date] += totalDelta;
       }
       else if (
-        dataSeries.dateValues[date]
-        && Number.isFinite(dataSeries.dateValues[date])
+        dataSeries.dateValues[normalizedDate]
+        && Number.isFinite(dataSeries.dateValues[normalizedDate])
       ) {
         totalEffect[date] ??= 0;
 
@@ -159,7 +161,7 @@ export function calculatePredictedOutcome(effects: Effect[] | Goal["effects"], b
             // Substitute with 0 if any value is missing
             const prevBaseline = baseline[previousDate] || 0;
             const prevEffect = totalEffect[previousDate] || 0;
-            const multiplier = dataSeries.dateValues[date] / 100;
+            const multiplier = dataSeries.dateValues[normalizedDate] / 100;
             totalEffect[date] += (prevBaseline + prevEffect) * multiplier;
 
             break;
@@ -167,7 +169,7 @@ export function calculatePredictedOutcome(effects: Effect[] | Goal["effects"], b
           case ActionImpactType.ABSOLUTE:
           default: {
             // Add current value
-            totalEffect[date] += dataSeries.dateValues[date];
+            totalEffect[date] += dataSeries.dateValues[normalizedDate];
             break;
           }
         }

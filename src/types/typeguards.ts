@@ -45,7 +45,7 @@ export function isUnitString(unit: JSONValue | undefined): unit is UnitString {
 
 /** This is not compliant with ISO-8601, it's a vary narrow format that's a subset of that standard */
 export function isISOIshDate(dateString: string): dateString is ISOIshDate {
-  return /^\d{4}-\d{2}-\d{2}T00:00:00\.000Z$/.test(dateString);
+  return /^\d{4}-\d{2}-\d{2}T00:00:00(?:\.000)?Z$/.test(dateString);
 }
 
 export function isDateValuesWithUnit(dateValues: JSONValue): dateValues is DateValuesWithUnit {

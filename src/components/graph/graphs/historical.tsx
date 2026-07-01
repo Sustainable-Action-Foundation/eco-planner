@@ -57,8 +57,8 @@ export default function HistoricalDataGraph({
 
   if (!lastMainEntry) throw new Error("sortedMainEntries is empty");
 
-  const colors: Array<string> = [color_palette.data.color];
-  const opacities: Array<number> = [color_palette.data.fillOpacity];
+  const colors: Array<string> = [color_palette.main.color];
+  const opacities: Array<number> = [color_palette.main.fillOpacity];
 
   const mainChartOptions: ApexCharts.ApexOptions = {
     chart: {
@@ -146,8 +146,8 @@ export default function HistoricalDataGraph({
         });
       }
 
-      colors.push(color_palette.expected.color);
-      opacities.push(color_palette.expected.fillOpacity);
+      colors.push(color_palette.predictedOutcome.color);
+      opacities.push(color_palette.predictedOutcome.fillOpacity);
     }
 
     colors.push(color_palette.baseline.color);
@@ -181,8 +181,8 @@ export default function HistoricalDataGraph({
 
         colors.push(color_palette.baseline.color);
         opacities.push(color_palette.baseline.fillOpacity);
-        colors.push(color_palette.expected.color);
-        opacities.push(color_palette.expected.fillOpacity);
+        colors.push(color_palette.predictedOutcome.color);
+        opacities.push(color_palette.predictedOutcome.fillOpacity);
       }
     }
   }

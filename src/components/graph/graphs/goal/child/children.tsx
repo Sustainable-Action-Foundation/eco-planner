@@ -54,7 +54,7 @@ export default function GoalChildGraph({
     // Main series is always a line
     type: 'line',
     zIndex: 999,
-    color: color_palette.data.color,
+    color: color_palette.main.color,
   });
 
   for (const child of childGoals) {

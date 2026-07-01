@@ -29,8 +29,8 @@ export default function MainDeltaGraph({
     return null;
   }
 
-  const colors: Array<string> = [color_palette.data.color];
-  const opacities: Array<number> = [color_palette.data.fillOpacity];
+  const colors: Array<string> = [color_palette.main.color];
+  const opacities: Array<number> = [color_palette.main.fillOpacity];
 
   const chartOptions: ApexCharts.ApexOptions = {
     chart: {
@@ -158,8 +158,8 @@ export default function MainDeltaGraph({
         type: 'line',
       });
 
-      colors.push(color_palette.expected.color);
-      opacities.push(color_palette.expected.fillOpacity);
+      colors.push(color_palette.predictedOutcome.color);
+      opacities.push(color_palette.predictedOutcome.fillOpacity);
     }
 
     colors.push(color_palette.baseline.color);
@@ -197,8 +197,8 @@ export default function MainDeltaGraph({
 
         colors.push(color_palette.baseline.color);
         opacities.push(color_palette.baseline.fillOpacity);
-        colors.push(color_palette.expected.color);
-        opacities.push(color_palette.expected.fillOpacity);
+        colors.push(color_palette.predictedOutcome.color);
+        opacities.push(color_palette.predictedOutcome.fillOpacity);
       }
     }
   }
@@ -243,8 +243,8 @@ export default function MainDeltaGraph({
       });
     }
 
-    colors.push(color_palette.secondaryGoal.color);
-    opacities.push(color_palette.secondaryGoal.fillOpacity);
+    colors.push(color_palette.comparison.color);
+    opacities.push(color_palette.comparison.fillOpacity);
   }
 
   // National goal

@@ -35,8 +35,8 @@ export default function ThumbnailGraph({
   }));
 
   const mainChart: ApexAxisChartSeries = [];
-  const colors: Array<string> = [color_palette.data.color];
-  const opacities: Array<number> = [color_palette.data.fillOpacity];
+  const colors: Array<string> = [color_palette.main.color];
+  const opacities: Array<number> = [color_palette.main.fillOpacity];
 
   mainChart.push({
     name: (goal.name || goal.indicatorParameter).split('\\').slice(-1)[0],

@@ -251,6 +251,7 @@ export default async function Page(
             session={{ user: session.user }}
             roadmapOptions={roadmapOptions}
           />
+          
         </section>
 
         <section className="margin-block-300">

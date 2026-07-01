@@ -19,7 +19,7 @@
     "save_preferences": "Spara framtida vyändringar mellan sessioner och sidnavigeringar"
   },
   "graph_graph": {
-    "compare_with_goal": "Jämför $t(common:goal_one) med {{goalName}}",
+    "compare_with_goal": "Jämfört mot $t(common:goal_one) {{goalName}}",
     "historical_data_source": "Den historiska datan i grafen är hämtad från <a>{{source}}</a>"
   },
   "graph_selector": {
