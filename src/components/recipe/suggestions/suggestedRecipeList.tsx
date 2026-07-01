@@ -125,7 +125,18 @@ export function SuggestedRecipesList({
               alignItems: "center",
             }}
           >
-            {db.recipe.name}
+            <label>
+              <input
+                type="text"
+                defaultValue={db.recipe.name}
+                style={{
+                  fontSize: "inherit",
+                  fontWeight: "bold",
+                  border: "none",
+                  width: "100%",
+                }}
+              />
+            </label>
 
             <div>
               {/* Delete */}
