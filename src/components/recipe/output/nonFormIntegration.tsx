@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useRecipe } from "../context/recipeContext.use";
 import type { DateValuesWithUnit } from "@/types";
 import type { SerializedRecipe } from "@/functions/recipe";
@@ -28,7 +28,9 @@ export function NonFormIntegration({
     return { unit: resultingUnit, dateValues: resultingDataSeries };
   }, [resultingDataSeries, resultingUnit]);
 
-  useMemo(() => {
+  // Report context data upwards as a side effect (not during render) so parent
+  // setState calls don't fire mid-render of this component.
+  useEffect(() => {
     if (UnitSetter && resultingUnit) {
       UnitSetter(resultingUnit);
     }
