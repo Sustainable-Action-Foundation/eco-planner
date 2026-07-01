@@ -646,6 +646,7 @@ export default function GoalForm({
         </p>
 
         <SuggestedRecipesList
+          currentGoal={currentGoal}
           existingSuggestedRecipes={currentGoal?.recipeSuggestions ?? []}
         />
       </fieldset>

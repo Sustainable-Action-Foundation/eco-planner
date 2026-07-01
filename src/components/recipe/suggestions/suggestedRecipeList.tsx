@@ -65,19 +65,55 @@ export function SuggestedRecipesList({
     });
   }
 
-  function commitEditingRecipe() {
-    if (!editingId || !editingRecipe) return;
-    setEditingId(null);
-    setEditingRecipe(null);
+  /**
+   * Commit an edited recipe into the outgoing list, always with a freshly
+   * rerolled id. Editing a default or existing (DB) recipe stores the edit as a
+   * new local recipe and hides the original; editing an already-local recipe
+   * replaces it in place. Returns the rerolled id.
+   */
+  function upsertEditedRecipe(sourceId: string, recipe: Recipe): string {
+    const rerolledId = window.crypto.randomUUID();
+    const wasLocal = newSuggestedRecipes.some((db) => db.id === sourceId);
 
     setNewSuggestedRecipes((prev) => {
-      const next = [...prev];
-      const index = next.findIndex((db) => db.id === editingId);
+      const index = prev.findIndex((db) => db.id === sourceId);
       if (index !== -1) {
-        next[index] = { id: editingId, recipe: Recipe.from(editingRecipe) };
+        const next = [...prev];
+        next[index] = { id: rerolledId, recipe };
+        return next;
       }
-      return next;
+      return [...prev, { id: rerolledId, recipe }];
     });
+
+    // A default/existing recipe is replaced by its edited copy, so hide the original.
+    if (!wasLocal) {
+      setDeletedIds((prev) => {
+        const next = new Set(prev);
+        next.add(sourceId);
+        return next;
+      });
+    }
+
+    return rerolledId;
+  }
+
+  function commitEditingRecipe() {
+    if (!editingId || !editingRecipe) return;
+    upsertEditedRecipe(editingId, Recipe.from(editingRecipe));
+    setEditingId(null);
+    setEditingRecipe(null);
+  }
+
+  function renameRecipe(sourceId: string, name: string) {
+    const source = suggestedRecipesWithDbId.find((db) => db.id === sourceId);
+    if (!source || source.recipe.name === name) return;
+
+    const renamed = Recipe.from(source.recipe);
+    renamed.name = name;
+    const rerolledId = upsertEditedRecipe(sourceId, renamed);
+
+    // Keep the editor pointed at this recipe if it happened to be open.
+    setEditingId((current) => (current === sourceId ? rerolledId : current));
   }
 
   return (<section>
@@ -129,6 +165,7 @@ export function SuggestedRecipesList({
               <input
                 type="text"
                 defaultValue={db.recipe.name}
+                onBlur={(event) => renameRecipe(db.id, event.target.value)}
                 style={{
                   fontSize: "inherit",
                   fontWeight: "bold",
@@ -174,7 +211,7 @@ export function SuggestedRecipesList({
         <button
           type="button"
           onClick={() => {
-            const newId = `new-${newSuggestedRecipes.length}`;
+            const newId = window.crypto.randomUUID();
             setNewSuggestedRecipes((prev) => [...prev, {
               id: newId,
               recipe: Recipe.fromDataSeries({
