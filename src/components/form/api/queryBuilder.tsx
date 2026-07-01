@@ -122,7 +122,7 @@ export default function QueryBuilder({
 
     if (!(event.target.checkValidity())) return;
     const formData = new FormData(event.target);
-    const query = formQueryHelper(formData, [tableSearchInputName] /* TODO: include any PxWeb main time variable */);
+    const query = formQueryHelper(formData, tableMetadata /* TODO: include any PxWeb main time variable */);
 
     // Update the goal with the new data
     formSubmitter("/api/goal", JSON.stringify({
@@ -163,7 +163,7 @@ export default function QueryBuilder({
     // Get a result if the form is valid
     if (formRef.current.checkValidity()) {
       const formData = new FormData(formRef.current);
-      const query = formQueryHelper(formData, [tableSearchInputName] /* TODO: include any PxWeb main time variable */);
+      const query = formQueryHelper(formData, tableMetadata /* TODO: include any PxWeb main time variable */);
       const tableId = tableMetadata?.tableId ?? formData.get("externalTableId") as string ?? "";
       getTableContent(tableId, dataSource, query, lang).then(result => {
         setTableContent(result);

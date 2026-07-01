@@ -76,7 +76,7 @@ export default function HistoricalDataSection({
 
     const fromMatch = /^FROM\((.+)\)$/i.exec(valueCode);
     return fromMatch?.[1] ?? valueCode;
-  } 
+  }
 
   const tryGetResult = useCallback((event?: React.ChangeEvent<HTMLSelectElement> | SubmitEvent<HTMLFormElement> | Event) => {
     if (!sectionRef.current) return;
@@ -88,9 +88,9 @@ export default function HistoricalDataSection({
     elements.forEach(el => {
       if (el.name) nativeFormData.append(el.name, el.value);
     });
-    
+
     if (isValid) {
-      const query = formQueryHelper(nativeFormData, [], mainTimeDimensionId /* TODO: include any PxWeb main time variable */);
+      const query = formQueryHelper(nativeFormData, tableMetadata, mainTimeDimensionId /* TODO: include any PxWeb main time variable */);
 
 
       getTableContent(table ? table.tableId : "", dataSource, query, lang).then(result => {
@@ -109,7 +109,7 @@ export default function HistoricalDataSection({
     } else {
       setTableContent(null);
     }
-  }, [mainTimeDimensionId, table, dataSource, lang, setTableMetadata]);
+  }, [tableMetadata, mainTimeDimensionId, table, dataSource, lang, setTableMetadata]);
 
 
   // 1. Fetch table details
