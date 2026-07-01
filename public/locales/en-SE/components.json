@@ -202,7 +202,9 @@
     "variable_type_label": "Type",
     "variables": "Variables",
     "vector_index_picker_label": "Value(s)",
-    "recipe_name": "Recipe name"
+    "recipe_name": "Recipe name",
+    "new_recipe": "New recipe",
+    "this_data_series": "This data series"
   },
   "roadmap_filters": {
     "default": "Default",

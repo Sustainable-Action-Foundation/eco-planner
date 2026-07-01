@@ -202,7 +202,9 @@
     "variable_type_label": "Typ",
     "variables": "Variabler",
     "vector_index_picker_label": "Värde(n)",
-    "recipe_name": "Receptnamn"
+    "recipe_name": "Receptnamn",
+    "new_recipe": "Nytt recept",
+    "this_data_series": "Denna dataserie"
   },
   "roadmap_filters": {
     "default": "Standard",
