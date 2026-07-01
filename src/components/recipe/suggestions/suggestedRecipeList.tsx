@@ -99,8 +99,14 @@ export function SuggestedRecipesList({
     return rerolledId;
   }
 
-  /** Open the editor for a recipe, seeding the editable name field from it. */
+  /**
+   * Open the editor for a recipe, seeding the editable name field from it.
+   * Any in-progress edit of another recipe is committed first so switching
+   * between recipes never discards changes.
+   */
   function startEditing(id: string, name: string) {
+    if (editingId === id) return; // Already editing this one.
+    if (editingId && editingRecipe) commitEditingRecipe();
     setEditingId(id);
     setEditingName(name);
   }
