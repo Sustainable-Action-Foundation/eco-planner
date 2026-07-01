@@ -6,7 +6,9 @@ export default defineConfig({
 
   migrations: {
     path: "prisma/migrations",
-    seed: "tsx scripts/prisma/seed.ts",
+    // The prisma client (and its recipe helpers) import "server-only"; the
+    // react-server condition resolves that to a no-op so the seed can run under tsx.
+    seed: "tsx --conditions=react-server scripts/prisma/seed.ts",
   },
   datasource: {
     url: process.env.DATABASE_URL,
