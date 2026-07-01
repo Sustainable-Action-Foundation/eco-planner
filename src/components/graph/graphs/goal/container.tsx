@@ -19,7 +19,6 @@ export default function GoalGraph({
   roadmap,
   parentGoalRoadmap,
   secondaryGoal,
-  effects,
   session,
   roadmapOptions,
 }: {
@@ -53,7 +52,6 @@ export default function GoalGraph({
           roadmap={roadmap}
           parentGoalRoadmap={parentGoalRoadmap}
           secondaryGoal={secondaryGoal}
-          effects={effects}
           session={session}
           roadmapOptions={roadmapOptions}
         />
@@ -97,7 +95,6 @@ export default function GoalGraph({
             roadmap={roadmap}
             parentGoalRoadmap={parentGoalRoadmap}
             secondaryGoal={secondaryGoal}
-            effects={effects}
             session={session}
             roadmapOptions={roadmapOptions}
           />

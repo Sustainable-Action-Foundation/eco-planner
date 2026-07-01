@@ -11,14 +11,10 @@ export const percentAndFraction = ['procent', 'percent', '%', 'andel', 'fraction
 
 export default function GraphSelector({
   goal,
-  childGoals,
-  siblings,
   currentSelection,
   setter,
 }: {
   goal: Goal & { dataSeries: DataSeries | null },
-  childGoals: boolean,
-  siblings: boolean,
   currentSelection: GraphType | "",
   setter: Dispatch<SetStateAction<GraphType | "">>
 }) {
@@ -52,9 +48,7 @@ export default function GraphSelector({
         { // Don't allow relative graph if the main graph is already percent or fraction
           !percentAndFraction.includes(goal.dataSeries?.unit?.toLowerCase() ?? "") &&
           <option value={GraphType.Relative}>{t("graphs:graph_selector.percentage_change")}</option>
-        }
-        {childGoals ? <option value={GraphType.Children}>{t("pages:goal.goals_working_towards", { goalName: !!goal.name ? goal.name : goal.indicatorParameter })}</option> : null}
-        {siblings ? <option value={GraphType.Siblings}>{t("pages:goal.related_goals")}</option> : null}
+        } 
       </select>
     </div>
   );

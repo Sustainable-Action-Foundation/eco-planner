@@ -4,12 +4,12 @@ import { getHistoricalDataset } from "@/functions/getHistoricalDataset";
 import { useState } from "react";
 import { calculatePredictedOutcome, getStoredGraphType } from "../../../functions/graphFunctions";
 import GraphSelector from "../../../graphSelectors/graphSelector";
-import MainDeltaGraph from "./delta";
+// import MainDeltaGraph from "./delta";
 // import MainGraph from "./main";
 import MainRelativeGraph from "./relative";
 import SecondaryGoalSelector from "../../../graphSelectors/secondaryGoalSelector";
 import { Trans, useTranslation } from "react-i18next";
-import type { Effect, Goal, Roadmap } from "@/types";
+import type { DateValues, Goal, Roadmap } from "@/types";
 import ChildGraphContainer from "../child/container";
 import SiblingGraph from "../sibling/siblings";
 import findSiblings from "@/functions/findSiblings";
@@ -34,7 +34,7 @@ export default function GraphGraph({
   childGoals,
   roadmap,
   parentGoalRoadmap,
-  effects,
+  // effects,
   session,
   roadmapOptions,
 }: {
@@ -44,7 +44,7 @@ export default function GraphGraph({
   childGoals: Goal[], // TODO: Should be optional
   roadmap: Roadmap,
   parentGoalRoadmap: Roadmap | null,
-  effects: Effect[] | Goal["effects"],
+  // effects: Effect[] | Goal["effects"],
   session: LoginData,
   roadmapOptions: {
     id: string;
@@ -60,20 +60,55 @@ export default function GraphGraph({
   const historicalDatasetLabel = getHistoricalDataset(goal).label;
   const historicalLabel = historicalDatasetLabel
     ? `${historicalDatasetLabel} (${t("common:historical_data")})`
-    : t("common:historical_data"); 
+    : t("common:historical_data");
 
   function graphSwitch(graphType: GraphType) {
     switch (graphType) {
-      case GraphType.Relative:
+      case GraphType.Delta: {
+        // TODO: Is timestamp the time the value was created or the time it represents?
+        const sortedValues = [...(goal.dataSeries?.values ?? [])].sort(
+          (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+        );
+
+        const deltaValues: DateValues = {};
+        for (let i = 1; i < sortedValues.length; i++) {
+          const current = sortedValues[i];
+          const previous = sortedValues[i - 1];
+          const delta = current.value - previous.value;
+          if (Number.isFinite(delta)) {
+            const dateKey = current.timestamp.toISOString().slice(0, 10) + 'T00:00:00Z';
+            deltaValues[dateKey as `${number}-${number}-${number}T00:00:00Z`] = delta;
+          }
+        }
+
+        return (
+          <PreviewGraph
+            series={{
+              main: goal.dataSeries && {
+                name: `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
+                unit: goal.dataSeries.unit,
+                dateValues: deltaValues,
+              },
+            }}
+          />
+        );
+        // return <MainDeltaGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} secondaryGoal={secondaryGoal} effects={effects} />;
+      }
+
+      case GraphType.Relative: {
         return <MainRelativeGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} secondaryGoal={secondaryGoal} />;
-      case GraphType.Delta:
-        return <MainDeltaGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} secondaryGoal={secondaryGoal} effects={effects} />;
-      case GraphType.Children:
+      }
+
+      case GraphType.Children: {
         return <ChildGraphContainer goal={goal} childGoals={childGoals} />;
-      case GraphType.Siblings:
+      }
+
+      case GraphType.Siblings: {
         return findSiblings(roadmap, goal).length > 1 && <SiblingGraph roadmap={roadmap} goal={goal} />; // TODO: Does findSiblings make sense here?
+      }
+
       case GraphType.Main:
-      default:
+      default: {
         return <PreviewGraph
           series={{
             main: goal.dataSeries && {
@@ -112,7 +147,7 @@ export default function GraphGraph({
                 // TODO: Not good if there are multiple different units for different effects.
                 // We likely want some conversion or warning, this includes units that differ between
                 // historical, baseline and main dataseries aswell!
-                unit: goal.effects[0].dataSeries?.unit, 
+                unit: goal.effects[0].dataSeries?.unit,
                 dateValues: Object.fromEntries(
                   calculatePredictedOutcome(goal.effects, goal.baseline)
                     .filter((point): point is { x: number; y: number } => point.y !== null)
@@ -132,6 +167,7 @@ export default function GraphGraph({
             },
           }}
         />;
+      }
       // return <MainGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} secondaryGoal={secondaryGoal} effects={effects} />;
     }
   };
@@ -143,7 +179,7 @@ export default function GraphGraph({
       {/* TODO: Use role="toolbar" (or menubar) for this */}
       <header>
         <menu className={`${styles['menu']}`}>
-          <GraphSelector goal={goal} childGoals={false} siblings={false} currentSelection={graphType} setter={setGraphType} /> {/* NOTE: Set childGoals and siblings to false until the feature is fully implemented */}
+          <GraphSelector goal={goal} currentSelection={graphType} setter={setGraphType} />
           <SecondaryGoalSelector />
           {(goal.dataSeries?.id && session.user) ?
             <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />

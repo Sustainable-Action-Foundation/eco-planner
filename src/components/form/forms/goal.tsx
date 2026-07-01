@@ -22,7 +22,7 @@ import { useRouter } from "next/navigation";
 import { dataSeriesToDateValues } from "@/functions/recipe";
 import UnitSync from "@/components/recipe/output/unitSyncer";
 import ParameterSync from "@/components/recipe/output/parameterSyncer";
-import HistoricalDataSection from "../sections/historical/historical";
+// import HistoricalDataSection from "../sections/historical/historical";
 import { SuggestedRecipesList } from "@/components/recipe/suggestions/suggestedRecipeList";
 import PreviewGraph from "@/components/graph/graphs/previewGraph";
 import { NonFormIntegration } from "@/components/recipe/output/nonFormIntegration";
@@ -634,7 +634,7 @@ export default function GoalForm({
         }
       </fieldset>
 
-      {/* Historical data selection section */}
+      {/* Historical data selection section 
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200 min-width-0`}>
         <legend
           data-position={positionIndex++}
@@ -644,7 +644,7 @@ export default function GoalForm({
         </legend>
 
         <HistoricalDataSection />
-      </fieldset>
+      </fieldset> */}
 
       {/* Suggested recipes section */}
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
