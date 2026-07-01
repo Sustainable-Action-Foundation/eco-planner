@@ -1,10 +1,10 @@
 "use client";
 
 import { useCallback, useRef } from "react";
-import { useRecipe } from "@/components/recipe";
+import { useRecipe } from "../context/recipeContext.use";
 import { Recipe } from "@/functions/recipe/recipe";
 import type { DateValuesWithUnit } from "@/types";
-import DataSeriesInputManual from "./dataSeriesInputManual";
+import DataSeriesGrid from "./dataSeriesGrid";
 
 /**
  * The manual ("static") data series input wired into the recipe context: as the

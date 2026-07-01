@@ -2,14 +2,14 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import styles from "./dataSeriesInput.module.css";
+import styles from "./dataSeriesGrid.module.css";
 import { isValidPastedInput } from "./utils";
-import Grid from "../grid/grid";
+import Grid from "@/components/form/elements/grid/grid";
 import type { DateValues, DateValuesWithUnit } from "@/types";
 import { IconArrowsMaximize, IconArrowsMinimize, IconPlus, IconRowInsertTop, IconTrashXFilled } from "@tabler/icons-react";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 
-export default function DataSeriesInputManual({
+export default function DataSeriesGrid({
   initialDateValues = { unit: undefined, dateValues: {} },
   outputFormElement,
   onDateValuesChange,
