@@ -11,7 +11,7 @@ import type { SubmitEvent } from "react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import SelectSingleSearch from "../../elements/combobox/selectSingleSearch";
-import { ManualDataSeriesInput } from "../../elements/dataSeriesInput/manualDataSeriesInput";
+import { ManualDataSeriesInput } from "@/components/recipe/input/manualDataSeriesInput";
 import { FormIntegration, RecipeContextProvider } from "@/components/recipe";
 import { Recipe } from "@/functions/recipe/recipe";
 import { timeVariableSelectionHelper, variableSelectionHelper } from "./helpers";

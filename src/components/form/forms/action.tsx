@@ -7,7 +7,7 @@ import { ActionImpactType } from "@/lib/prisma/generated";
 import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
 import TextEditor from "../elements/textEditor/editor";
-import { ManualDataSeriesInput } from "../elements/dataSeriesInput/manualDataSeriesInput";
+import { ManualDataSeriesInput } from "@/components/recipe/input/manualDataSeriesInput"; 
 import { FormIntegration, RecipeContextProvider } from "@/components/recipe";
 import { Recipe } from "@/functions/recipe/recipe";
 import { useState, useRef } from "react";

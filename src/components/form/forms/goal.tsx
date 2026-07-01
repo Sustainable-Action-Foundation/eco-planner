@@ -16,7 +16,7 @@ import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import { Recipe } from "@/functions/recipe/recipe";
 import type { SerializedRecipe } from "@/functions/recipe";
 import { FormIntegration, RecipeContextProvider, RecipeEditor, SuggestedRecipeApplier } from "@/components/recipe";
-import { ManualDataSeriesInput } from "../elements/dataSeriesInput/manualDataSeriesInput";
+import { ManualDataSeriesInput } from "@/components/recipe/input/manualDataSeriesInput";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 import { dataSeriesToDateValues } from "@/functions/recipe";

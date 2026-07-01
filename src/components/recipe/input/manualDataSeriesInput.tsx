@@ -38,7 +38,7 @@ export function ManualDataSeriesInput({
   }, [applyRecipeUpdate]);
 
   return (
-    <DataSeriesInputManual
+    <DataSeriesGrid
       id={id}
       label={label}
       initialDateValues={initialDateValues}
