@@ -201,7 +201,8 @@
     "variable_name_placeholder": "Name",
     "variable_type_label": "Type",
     "variables": "Variables",
-    "vector_index_picker_label": "Value(s)"
+    "vector_index_picker_label": "Value(s)",
+    "recipe_name": "Recipe name"
   },
   "roadmap_filters": {
     "default": "Default",

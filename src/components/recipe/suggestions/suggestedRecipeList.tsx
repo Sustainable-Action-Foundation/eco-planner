@@ -27,6 +27,8 @@ export function SuggestedRecipesList({
   const [editingId, setEditingId] = useState<string | null>(null);
   // Current recipe reported by the editor, if any. Updates on every change in the editor.
   const [editingRecipe, setEditingRecipe] = useState<SerializedRecipe | null>(null);
+  // Editable name of the recipe currently in the editor. Applied on commit.
+  const [editingName, setEditingName] = useState<string>("");
   // Before posting/putting, this is the array of the created recipes that will be sent
   const [newSuggestedRecipes, setNewSuggestedRecipes] = useState<{ id: string, recipe: Recipe }[]>([]);
 
@@ -97,23 +99,20 @@ export function SuggestedRecipesList({
     return rerolledId;
   }
 
-  function commitEditingRecipe() {
-    if (!editingId || !editingRecipe) return;
-    upsertEditedRecipe(editingId, Recipe.from(editingRecipe));
-    setEditingId(null);
-    setEditingRecipe(null);
+  /** Open the editor for a recipe, seeding the editable name field from it. */
+  function startEditing(id: string, name: string) {
+    setEditingId(id);
+    setEditingName(name);
   }
 
-  function renameRecipe(sourceId: string, name: string) {
-    const source = suggestedRecipesWithDbId.find((db) => db.id === sourceId);
-    if (!source || source.recipe.name === name) return;
-
-    const renamed = Recipe.from(source.recipe);
-    renamed.name = name;
-    const rerolledId = upsertEditedRecipe(sourceId, renamed);
-
-    // Keep the editor pointed at this recipe if it happened to be open.
-    setEditingId((current) => (current === sourceId ? rerolledId : current));
+  function commitEditingRecipe() {
+    if (!editingId || !editingRecipe) return;
+    const recipe = Recipe.from(editingRecipe);
+    recipe.name = editingName;
+    upsertEditedRecipe(editingId, recipe);
+    setEditingId(null);
+    setEditingRecipe(null);
+    setEditingName("");
   }
 
   return (<section>
@@ -161,19 +160,9 @@ export function SuggestedRecipesList({
               alignItems: "center",
             }}
           >
-            <label>
-              <input
-                type="text"
-                defaultValue={db.recipe.name}
-                onBlur={(event) => renameRecipe(db.id, event.target.value)}
-                style={{
-                  fontSize: "inherit",
-                  fontWeight: "bold",
-                  border: "none",
-                  width: "100%",
-                }}
-              />
-            </label>
+            <span style={{ fontWeight: "bold" }}>
+              {db.recipe.name}
+            </span>
 
             <div>
               {/* Delete */}
@@ -187,7 +176,7 @@ export function SuggestedRecipesList({
               {/* Edit */}
               <button
                 type="button"
-                onClick={() => setEditingId(db.id)}
+                onClick={() => startEditing(db.id, db.recipe.name)}
               >
                 ✏️
               </button>
@@ -212,15 +201,13 @@ export function SuggestedRecipesList({
           type="button"
           onClick={() => {
             const newId = window.crypto.randomUUID();
-            setNewSuggestedRecipes((prev) => [...prev, {
-              id: newId,
-              recipe: Recipe.fromDataSeries({
-                recipeName: t("components:recipe_editor.new_recipe"),
-                dataSeriesName: t("components:recipe_editor.this_data_series"),
-                unit: currentGoal?.dataSeries?.unit ?? undefined,
-              }),
-            }]);
-            setEditingId(newId);
+            const newRecipe = Recipe.fromDataSeries({
+              recipeName: t("components:recipe_editor.new_recipe"),
+              dataSeriesName: t("components:recipe_editor.this_data_series"),
+              unit: currentGoal?.dataSeries?.unit ?? undefined,
+            });
+            setNewSuggestedRecipes((prev) => [...prev, { id: newId, recipe: newRecipe }]);
+            startEditing(newId, newRecipe.name);
           }}
         >
           {t("components:recipe_editor.add_new_recipe")}
@@ -233,6 +220,17 @@ export function SuggestedRecipesList({
       <p className="font-size-125">
         {t("components:recipe_editor.editing_recipe_named", { name: !!initialEditingRecipe ? Recipe.from(initialEditingRecipe).name : "" })}
       </p>
+
+      <label className="margin-block-100 display-flex flex-direction-column">
+        {t("components:recipe_editor.recipe_name")}
+        <input
+          type="text"
+          value={editingName}
+          onChange={(event) => setEditingName(event.target.value)}
+          style={{ fontWeight: "bold" }}
+        />
+      </label>
+
       <RecipeContextProvider
         // Remount on id change so the editor re-initializes with the selected recipe.
         key={editingId}
