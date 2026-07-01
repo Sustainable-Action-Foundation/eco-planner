@@ -16,7 +16,7 @@ import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import { Recipe } from "@/functions/recipe/recipe";
 import type { SerializedRecipe } from "@/functions/recipe";
 import { FormIntegration, RecipeContextProvider, RecipeEditor, SuggestedRecipeApplier } from "@/components/recipe";
-import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
+import { ManualDataSeriesInput } from "../elements/dataSeriesInput/manualDataSeriesInput";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 import { dataSeriesToDateValues } from "@/functions/recipe";
@@ -49,8 +49,12 @@ function resolveDataSeriesType(goal?: Goal): DataSeriesType {
   if (!!goal.dataSeries.recipeUsed) {
     const recipe = Recipe.from(goal.dataSeries.recipeUsed.recipe);
 
+    // Manual entry stored as an inline data series recipe
+    if (recipe.isManual()) {
+      return DataSeriesType.Manual;
+    }
     // Suggested recipe
-    if (recipe.isSuggestedRecipe()) {
+    else if (recipe.isSuggestedRecipe()) {
       return DataSeriesType.Suggested;
     }
     // Custom recipe
@@ -541,7 +545,6 @@ export default function GoalForm({
         <fieldset className={`margin-bottom-100 ${dataSeriesType === DataSeriesType.Manual ? "" : "display-none"}`} disabled={dataSeriesType !== DataSeriesType.Manual}>
           <ManualGoalForm
             currentGoal={currentGoal}
-            outputFormElement={<input name="data-series" />}
           />
         </fieldset>
 
@@ -600,15 +603,21 @@ export default function GoalForm({
 
         {/* Custom baseline input */}
         {baselineType === BaselineType.Custom &&
-          <DataSeriesInputManual
-            id="baseline-dataseries"
-            label={t("forms:data_series_input.data_series")}
-            {...currentGoal?.baseline
-              ? { initialDateValues: dataSeriesToDateValues(currentGoal.baseline) }
-              : {}
-            }
-            outputFormElement={<input name="baseline-data-series" />}
-          />
+          <RecipeContextProvider
+            initialRecipe={Recipe.fromManualDateValues(
+              currentGoal?.baseline ? dataSeriesToDateValues(currentGoal.baseline) : { unit: undefined, dateValues: {} },
+            ).serialize()}
+          >
+            <ManualDataSeriesInput
+              id="baseline-dataseries"
+              label={t("forms:data_series_input.data_series")}
+              {...currentGoal?.baseline
+                ? { initialDateValues: dataSeriesToDateValues(currentGoal.baseline) }
+                : {}
+              }
+            />
+            <FormIntegration DateValuesFormElement={<input name="baseline-data-series" />} />
+          </RecipeContextProvider>
         }
 
         {/* Inherited baseline input */}

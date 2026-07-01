@@ -59,6 +59,15 @@ export class Recipe {
     return this.meta?.isSuggestedRecipe ?? false;
   }
 
+  /**
+   * Whether this recipe just wraps a single hand-entered ("manual"/"static")
+   * data series. Such recipes are produced by {@link Recipe.fromManualDateValues}
+   * and let forms tell a manual entry apart from a real, composed recipe.
+   */
+  public isManual(): boolean {
+    return this.meta?.isManual ?? false;
+  }
+
   /** 
    * Runs evaluator on recipe and catch anything wrong
    */
@@ -455,6 +464,7 @@ export class Recipe {
       meta: {
         v: 1,
         isSuggestedRecipe: this.meta?.isSuggestedRecipe ?? false,
+        isManual: this.meta?.isManual ?? false,
       },
     } satisfies RecipeShape) as SerializedRecipe;
   }
@@ -570,6 +580,38 @@ export class Recipe {
       name: "Empty Recipe", // TODO: i18n
       equation: "",
       variables: [],
+    });
+  }
+
+  /**
+   * Recipe factory for a hand-entered ("manual"/"static") data series: a recipe
+   * whose single inline `DataSeries` variable holds the entered values, with an
+   * equation that just reads that variable. Evaluating it returns those values
+   * unchanged, so a manual entry flows through the recipe context exactly like
+   * any other data series input (see the manual data series input).
+   *
+   * Pass `variableId` to keep the variable id stable across edits; otherwise a
+   * fresh id is generated. The recipe is tagged `meta.isManual` so forms can tell
+   * it apart from a real, composed recipe (see {@link Recipe.isManual}).
+   */
+  public static fromManualDateValues(
+    dateValues: DateValuesWithUnit,
+    variableId: string = crypto.randomUUID(),
+  ): Recipe {
+    const inlineVariable: DataSeriesVariable = {
+      id: variableId,
+      name: "Manual data series", // TODO: i18n
+      type: RecipeDataTypes.DataSeries,
+      pick: VectorIndexPickerOptions.Default,
+      unit: dateValues.unit ?? undefined,
+      dataSeriesId: null,
+      value: dateValues.dateValues,
+    };
+    return new Recipe({
+      name: "Manual data series", // TODO: i18n
+      equation: `\${${variableId}}`,
+      variables: [inlineVariable],
+      meta: { isManual: true },
     });
   }
 

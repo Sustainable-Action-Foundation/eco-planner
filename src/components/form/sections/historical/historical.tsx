@@ -11,7 +11,9 @@ import type { SubmitEvent } from "react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import SelectSingleSearch from "../../elements/combobox/selectSingleSearch";
-import DataSeriesInputManual from "../../elements/dataSeriesInput/dataSeriesInputManual";
+import { ManualDataSeriesInput } from "../../elements/dataSeriesInput/manualDataSeriesInput";
+import { FormIntegration, RecipeContextProvider } from "@/components/recipe";
+import { Recipe } from "@/functions/recipe/recipe";
 import { timeVariableSelectionHelper, variableSelectionHelper } from "./helpers";
 import getTableMetadata from "@/lib/api/getTableMetadata";
 
@@ -359,11 +361,15 @@ export default function HistoricalDataSection({
           </fieldset>
         </>
       ) :
-        <DataSeriesInputManual
-          id="historical-data-series"
-          label={t("forms:data_series_input.data_series")}
-          outputFormElement={<input name="historical-data-series" />}
-        />
+        <RecipeContextProvider
+          initialRecipe={Recipe.fromManualDateValues({ unit: undefined, dateValues: {} }).serialize()}
+        >
+          <ManualDataSeriesInput
+            id="historical-data-series"
+            label={t("forms:data_series_input.data_series")}
+          />
+          <FormIntegration DateValuesFormElement={<input name="historical-data-series" />} />
+        </RecipeContextProvider>
       }
     </div>
   );

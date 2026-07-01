@@ -8,7 +8,9 @@ import { useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { absoluteToDelta, ActionSelector, deltaToAbsolute, GoalSelector } from "../sections/effectFormSections";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
-import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
+import { ManualDataSeriesInput } from "../elements/dataSeriesInput/manualDataSeriesInput";
+import { FormIntegration, RecipeContextProvider } from "@/components/recipe";
+import { Recipe } from "@/functions/recipe/recipe";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 
@@ -120,12 +122,16 @@ export default function EffectForm({
         roadmaps={roadmaps}
       />
 
-      <DataSeriesInputManual
-        id="effect-dataseries"
-        label={t("forms:data_series_input.data_series")}
-        initialDateValues={dateValues}
-        outputFormElement={<input name="data-series" />}
-      />
+      <RecipeContextProvider
+        initialRecipe={Recipe.fromManualDateValues(dateValues).serialize()}
+      >
+        <ManualDataSeriesInput
+          id="effect-dataseries"
+          label={t("forms:data_series_input.data_series")}
+          initialDateValues={dateValues}
+        />
+        <FormIntegration DateValuesFormElement={<input name="resultingDateValues" />} />
+      </RecipeContextProvider>
 
       {(
         selectedImpactType === ActionImpactType.ABSOLUTE

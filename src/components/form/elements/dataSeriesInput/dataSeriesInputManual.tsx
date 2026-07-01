@@ -1,22 +1,26 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./dataSeriesInput.module.css";
 import { isValidPastedInput } from "./utils";
 import Grid from "../grid/grid";
-import type { DateValuesWithUnit } from "@/types";
+import type { DateValues, DateValuesWithUnit } from "@/types";
 import { IconArrowsMaximize, IconArrowsMinimize, IconPlus, IconRowInsertTop, IconTrashXFilled } from "@tabler/icons-react";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 
 export default function DataSeriesInputManual({
   initialDateValues = { unit: undefined, dateValues: {} },
   outputFormElement,
+  onDateValuesChange,
   label,
   id,
 }: {
   initialDateValues?: DateValuesWithUnit | undefined;
   outputFormElement?: React.ReactElement<HTMLInputElement> | undefined;
+  /** Called with the grid's current values whenever they change. Used to feed the
+   * recipe context so the manual input reads like every other data series input. */
+  onDateValuesChange?: ((dateValues: DateValuesWithUnit) => void) | undefined;
   label: string;
   id: string;
 }) {
@@ -41,6 +45,22 @@ export default function DataSeriesInputManual({
 
   const [focusedCell, setFocusedCell] = useState<{ row: number, column: number } | null>(null);
   const [gridExpanded, setGridExpanded] = useState<boolean>(true);
+
+  // The grid's current values as a DateValuesWithUnit. The grid itself has no
+  // unit input; unit is resolved elsewhere (e.g. the goal form's unit field).
+  // Rows without a year or without a value are skipped (empty cells aren't data).
+  const dateValuesWithUnit: DateValuesWithUnit = useMemo(() => {
+    const dateValues: Record<string, number> = {};
+    for (const { year, data } of value) {
+      if (!year || data === "") continue;
+      dateValues[`${year}-01-01T00:00:00.000Z`] = Number(data);
+    }
+    return { unit: undefined, dateValues: dateValues as DateValues };
+  }, [value]);
+
+  useEffect(() => {
+    onDateValuesChange?.(dateValuesWithUnit);
+  }, [dateValuesWithUnit, onDateValuesChange]);
 
   function insertRowBottom() {
     setValue((prev) => [
@@ -238,16 +258,7 @@ export default function DataSeriesInputManual({
       </menu>
 
       {outputFormElement ? React.cloneElement(outputFormElement, {
-        value: JSON.stringify({
-          dateValues: value.every(({ year, data }) => !year && !data)
-            ? {}
-            : Object.fromEntries(
-                value.map(({ year, data }) => [
-                  `${year}-01-01T00:00:00.000Z`, 
-                  data === "" ? null : Number(data),
-                ]),
-              ),
-        }),
+        value: JSON.stringify({ dateValues: dateValuesWithUnit.dateValues }),
         type: "hidden",
         hidden: true,
         readOnly: true,

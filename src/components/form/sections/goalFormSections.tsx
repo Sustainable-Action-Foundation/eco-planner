@@ -5,28 +5,36 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { ClientGoal, ClientMultiRoadmapInstance, ClientRoadmap, Goal } from "@/types";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
+import { Recipe } from "@/functions/recipe/recipe";
 import { clientSafeGetRoadmaps, clientSafeGetOneRoadmap, clientSafeGetOneGoal } from "@/fetchers/client";
-import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
+import { ManualDataSeriesInput } from "../elements/dataSeriesInput/manualDataSeriesInput";
+import { FormIntegration, RecipeContextProvider } from "@/components/recipe";
 
 export function ManualGoalForm({
   currentGoal,
-  outputFormElement,
 }: {
   currentGoal?: Goal;
-  outputFormElement: React.ReactElement<HTMLInputElement>;
 }) {
   const { t } = useTranslation("forms");
 
+  const initialDateValues = currentGoal?.dataSeries
+    ? dataSeriesToDateValues(currentGoal.dataSeries)
+    : undefined;
+
   return (
-    <DataSeriesInputManual
-      id="goal-dataseries"
-      label={t("forms:data_series_input.data_series")}
-      {...currentGoal?.dataSeries
-        ? { initialDateValues: dataSeriesToDateValues(currentGoal.dataSeries) }
-        : {}
-      }
-      outputFormElement={outputFormElement}
-    />
+    <RecipeContextProvider
+      initialRecipe={Recipe.fromManualDateValues(initialDateValues ?? { unit: undefined, dateValues: {} }).serialize()}
+    >
+      <ManualDataSeriesInput
+        id="goal-dataseries"
+        label={t("forms:data_series_input.data_series")}
+        initialDateValues={initialDateValues}
+      />
+      <FormIntegration
+        RecipeFormElement={<input name="resultingRecipe" />}
+        DateValuesFormElement={<input name="resultingDateValues" />}
+      />
+    </RecipeContextProvider>
   );
 }
 

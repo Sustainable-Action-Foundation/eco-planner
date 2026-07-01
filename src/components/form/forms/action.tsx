@@ -7,7 +7,9 @@ import { ActionImpactType } from "@/lib/prisma/generated";
 import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
 import TextEditor from "../elements/textEditor/editor";
-import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
+import { ManualDataSeriesInput } from "../elements/dataSeriesInput/manualDataSeriesInput";
+import { FormIntegration, RecipeContextProvider } from "@/components/recipe";
+import { Recipe } from "@/functions/recipe/recipe";
 import { useState, useRef } from "react";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
@@ -48,7 +50,7 @@ export default function ActionForm({
 
     let dataSeries: DateValuesWithUnit | undefined;
     try {
-      const rawDataSeries = JSON.parse((form.namedItem("data-series") as HTMLInputElement)?.value) as unknown;
+      const rawDataSeries = JSON.parse((form.namedItem("resultingDateValues") as HTMLInputElement)?.value) as unknown;
       if (rawDataSeries && isDateValuesWithUnit(rawDataSeries)) {
         dataSeries = rawDataSeries;
       }
@@ -163,11 +165,15 @@ export default function ActionForm({
             </select>
           </label>
 
-          <DataSeriesInputManual
-            id="action-dataseries"
-            label={t("forms:data_series_input.data_series")}
-            outputFormElement={<input name="data-series" />}
-          />
+          <RecipeContextProvider
+            initialRecipe={Recipe.fromManualDateValues({ unit: undefined, dateValues: {} }).serialize()}
+          >
+            <ManualDataSeriesInput
+              id="action-dataseries"
+              label={t("forms:data_series_input.data_series")}
+            />
+            <FormIntegration DateValuesFormElement={<input name="resultingDateValues" />} />
+          </RecipeContextProvider>
         </fieldset>
         : null
       }
