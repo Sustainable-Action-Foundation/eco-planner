@@ -1,8 +1,47 @@
 import type { TFunction } from "i18next";
-import type { Dispatch, JSX, SetStateAction } from "react";
+import type { Dispatch, JSX, SetStateAction, SubmitEvent } from "react";
 import type { ExternalSelection } from "./historical";
 import { ExternalDataset } from "@/lib/api/utility";
 import type { ApiMetadataDimensionBase, ApiTableMetadata } from "@/lib/api/apiTypes";
+
+
+export function metricSelectionHelper({
+  t,
+  metricDimension, 
+  tableMetadata,
+  dataSource,
+  tryGetResult,
+  getInitialSelectionValue,
+}: {
+  t: TFunction;
+  metricDimension: ApiMetadataDimensionBase;
+  tableMetadata: ApiTableMetadata;
+  dataSource: string;
+  tryGetResult: (event?: React.ChangeEvent<HTMLSelectElement> | SubmitEvent<HTMLFormElement> | Event) => void;
+  getInitialSelectionValue: (variableCode: string) => string | undefined;
+}) {
+  if (metricDimension.options) {
+    return (
+      <label key={`metric-${tableMetadata.tableId}-${metricDimension.id}`}>
+        {metricDimension.label || metricDimension.name}
+        <select className="block margin-top-25 margin-bottom-100 metric"
+          required={true}
+          name={metricDimension.id}
+          id={metricDimension.id}
+          defaultValue={getInitialSelectionValue(metricDimension.id) ?? (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && metricDimension.options.length === 1 ? metricDimension.options[0].value : undefined)}
+          onChange={(e) => tryGetResult(e)}
+        >
+          {((ExternalDataset.getDatasetByAlternateName(dataSource)?.api !== "PxWeb") || metricDimension.options.length > 1)
+            ? <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_metric")}</option>
+            : null}
+          {metricDimension.options.map(({ label, value }) => (
+            <option key={`${metricDimension.id}-${value}`} value={value} lang={tableMetadata.language}>{label || value}</option>
+          ))}
+        </select>
+      </label>
+    );
+  }
+}
 
 export function timeVariableSelectionHelper({
   t,
@@ -19,7 +58,7 @@ export function timeVariableSelectionHelper({
   time: ApiMetadataDimensionBase;
   dataSource: string;
   optionalTag: (dataSource: string, variableIsOptional: boolean) => JSX.Element | undefined;
-  tryGetResult: () => void;
+  tryGetResult: (event?: React.ChangeEvent<HTMLSelectElement> | SubmitEvent<HTMLFormElement> | Event) => void;
   setStartPeriod: Dispatch<SetStateAction<string | undefined>>;
   getInitialSelectionValue: (variableCode: string) => string | undefined;
 }) {
@@ -43,7 +82,7 @@ export function timeVariableSelectionHelper({
         id={time.id}
         defaultValue={getInitialSelectionValue(time.id) ?? (time.options.length === 1 ? time.options[0].value : "")}
         onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-          tryGetResult();
+          tryGetResult(e);
           setStartPeriod(e.target.value);
         }}
       >
@@ -72,7 +111,7 @@ export function variableSelectionHelper({
   historicalSelection: ExternalSelection;
   dataSource: string;
   optionalTag: (dataSource: string, variableIsOptional: boolean | null | undefined) => JSX.Element | undefined;
-  tryGetResult: () => void;
+  tryGetResult: (event?: React.ChangeEvent<HTMLSelectElement> | SubmitEvent<HTMLFormElement> | Event) => void;
 }) {
   if (dimension.options) {
     // The idea here is basically to we see which variables exist, and moving them to an array separately from metric as that value is already set. 
@@ -94,7 +133,7 @@ export function variableSelectionHelper({
           name={dimension.id}
           id={dimension.id}
           defaultValue={selectedValue}
-          onChange={() => tryGetResult()}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => tryGetResult(e)}
         >
           { // If only one value is available, don't show a placeholder option
             (ExternalDataset.getDatasetByAlternateName(dataSource)?.api !== "PxWeb" ||
