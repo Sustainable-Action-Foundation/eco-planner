@@ -26,8 +26,8 @@ type TimestampedValue = { timestamp: Date; value: number };
 export default function GraphGraph({
   goal,
   secondaryGoal,
-  parentGoal,
-  parentGoalRoadmap,
+  // parentGoal,
+  // parentGoalRoadmap,
   // effects,
   session,
   roadmapOptions,

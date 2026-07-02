@@ -2,6 +2,7 @@
 
 import { closeModal, openModal } from "./modalFunctions";
 import { useRef, useState } from "react";
+import type { SubmitEvent } from "react";
 import { GoalDataTarget, isDateValues } from "@/types";
 import type { GoalCreateInput, Goal, DateValues, JSONValue } from "@/types";
 import formSubmitter from "@/functions/formSubmitter";
@@ -24,7 +25,8 @@ export default function CopyAndScale({
 
   const modalRef = useRef<HTMLDialogElement | null>(null);
 
-  function formSubmission(form: FormData) {
+  function formSubmission(form: FormData, e: SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
     setIsLoading(true);
 
     // Id of the roadmap to copy the goal to
@@ -54,14 +56,20 @@ export default function CopyAndScale({
 
     let resultingUnit: string | null;
     try {
-      const parsedUnit = JSON.parse(form.get("resultingDataSeriesUnit") as string) as JSONValue;
+      const rawUnit = form.get("resultingDataSeriesUnit");
 
-      if (typeof parsedUnit === "string") {
-        resultingUnit = parsedUnit;
-      } else if (parsedUnit === null) {
+      if (rawUnit === "") {
         resultingUnit = null;
       } else {
-        throw new Error("Parsed data series unit is not a string or null");
+        const parsedUnit = JSON.parse(rawUnit as string) as JSONValue;
+
+        if (typeof parsedUnit === "string") {
+          resultingUnit = parsedUnit;
+        } else if (parsedUnit === null) {
+          resultingUnit = null;
+        } else {
+          throw new Error("Parsed data series unit is not a string or null");
+        }
       }
     }
     catch (err) {
@@ -127,8 +135,10 @@ export default function CopyAndScale({
     };
 
     const formJSON = JSON.stringify(formData);
+    console.log(formJSON, formData);
 
     formSubmitter('/api/goal', formJSON, 'POST', t, setIsLoading);
+
   }
 
   return (
@@ -154,8 +164,7 @@ export default function CopyAndScale({
           </div>
 
           <div className={`${styles['dialog-body']}`}>
-            <form action={formSubmission} name="copyAndScale">
-
+            <form onSubmit={(e) => formSubmission(new FormData(e.currentTarget), e)} name="copyAndScale">
               {/* Roadmap version select */}
               <label className="block margin-block-100">
                 {t("components:copy_and_scale.select_roadmap_version")}
