@@ -8,16 +8,17 @@ import getTables from "@/lib/api/getTables";
 import { ExternalDataset, formQueryHelper, isDataSetKeys } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
 import { GoalDataTarget } from "@/types";
-import type { Goal, GoalUpdateInput } from "@/types";
+import type { DateValues, Goal, GoalUpdateInput } from "@/types";
 import { Recipe } from "@/functions/recipe";
-import { getHistoricalSource } from "@/functions/getHistoricalDataset";
+import { getHistoricalDataset, getHistoricalSource } from "@/functions/getHistoricalDataset";
 import type { SubmitEvent } from "react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import TabList from "@/components/generic/tablist/tabList";
-import HistoricalDataGraph from "@/components/graph/graphs/historical";
+import PreviewGraph from "@/components/graph/graphs/previewGraph";
+import { calculatePredictedOutcome } from "@/components/graph/functions/graphFunctions";
 
 
 type ExternalSelection = NonNullable<Parameters<typeof getTableMetadata>[2]>;
@@ -56,6 +57,11 @@ export default function HistoricalData({
 
   const formRef = useRef<HTMLFormElement | null>(null);
   // const deleteDataRef = useRef<HTMLDialogElement>(null)
+
+  const historicalDatasetLabel = getHistoricalDataset(goal).label;
+  const historicalLabel = historicalDatasetLabel
+    ? `${historicalDatasetLabel} (${t("common:historical_data")})`
+    : t("common:historical_data");
 
   function getInitialSelectionValue(variableCode: string) {
     const valueCode = historicalSelection.find(selection => selection.variableCode === variableCode)?.valueCodes?.[0];
@@ -329,6 +335,18 @@ export default function HistoricalData({
   // Index for data-position attribute in legend elements (for accessibility)
   let positionIndex = 1;
 
+  const values = tableContent?.values.filter(({ period }) => !startPeriod || period >= startPeriod) ?? [];
+  const historicalEntries = values
+    .map(({ period, value }) => [new Date(period), Number(value)] as [Date, number])
+    .sort((a, b) => a[0].getTime() - b[0].getTime());
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const historicalSeries: DateValues = Object.fromEntries(
+    historicalEntries.map(([date, value]) => [
+      `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}T00:00:00Z`,
+      value,
+    ]),
+  ) as DateValues;
+
   return (
     <div>
       {/* <p className="padding-inline-100">{t("components:query_builder.add_data_to_goal", { goalName: goal.name ?? goal.indicatorParameter })}</p> */}
@@ -547,12 +565,49 @@ export default function HistoricalData({
                   border: '1px solid var(--gray-80)',
                 }}
               >
-                <HistoricalDataGraph
-                  goal={goal}
-                  historicalData={tableContent?.values.filter(({ period }) => !startPeriod || period >= startPeriod) ?? []}
-                  effects={goal.effects}
+                <PreviewGraph
+                  series={{
+                    main: goal.dataSeries && {
+                      name: `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
+                      unit: goal.dataSeries.unit,
+                      dateValues: Object.fromEntries(
+                        goal.dataSeries.values.map((value) => [
+                          value.timestamp.toISOString(),
+                          value.value,
+                        ]),
+                      ),
+                    },
+                    baseline: goal.baseline && {
+                      name: t("graphs:common.baseline_scenario"),
+                      unit: goal.baseline.unit,
+                      dateValues: Object.fromEntries(
+                        goal.baseline.values.map((value) => [
+                          value.timestamp.toISOString(),
+                          value.value,
+                        ]),
+                      ),
+                    },
+                    historical: historicalSeries && {
+                      name: goal.historical ? historicalLabel : "",
+                      unit: goal.historical?.unit ?? "", // TODO: This and name should be conditional on if goal has historical data or if it should be taken from this form! (or it could possibly always be taken from this form as stuff is filled in if the data exists in the goal?)
+                      dateValues: historicalSeries,
+                    },
+                    predictedOutcome: goal.effects.length > 0
+                      ? {
+                        name: t("graphs:common.expected_outcome"),
+                        // TODO: Not good if there are multiple different units for different effects.
+                        // We likely want some conversion or warning, this includes units that differ between
+                        // historical, baseline and main dataseries aswell!
+                        unit: goal.effects[0].dataSeries?.unit,
+                        dateValues: Object.fromEntries(
+                          calculatePredictedOutcome(goal.effects, goal.baseline)
+                            .filter((point): point is { x: number; y: number } => point.y !== null)
+                            .map((point) => [new Date(point.x).toISOString(), point.y]),
+                        ),
+                      }
+                      : null,
+                  }}
                 />
-
               </div>
             </TabList>
           ) : (

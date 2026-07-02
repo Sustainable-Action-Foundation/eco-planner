@@ -175,8 +175,6 @@ export default function GraphGraph({
       }
 
       case GraphType.Relative: {
-        if (!secondaryGoal?.dataSeries) return;
-        console.log(toPercentOfFirstDateValues(secondaryGoal.dataSeries.values), secondaryGoal.dataSeries.values);
         return <PreviewGraph
           series={{
             main: goal.dataSeries && {
