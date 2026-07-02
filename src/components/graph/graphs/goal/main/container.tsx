@@ -18,9 +18,10 @@ import PreviewGraph from "../../previewGraph";
 export const GraphType = {
   Main: "MAIN",
   Relative: "RELATIVE",
-  Delta: "DELTA", 
+  Delta: "DELTA",
 } as const;
 export type GraphType = (typeof GraphType)[keyof typeof GraphType];
+type TimestampedValue = { timestamp: Date; value: number };
 
 export default function GraphGraph({
   goal,
@@ -55,6 +56,36 @@ export default function GraphGraph({
     ? `${historicalDatasetLabel} (${t("common:historical_data")})`
     : t("common:historical_data");
 
+
+  function toDeltaSeries(values: TimestampedValue[]): TimestampedValue[] {
+    const sorted = [...values].sort(
+      (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+    );
+
+    const deltas: TimestampedValue[] = [];
+    for (let i = 1; i < sorted.length; i++) {
+      const delta = sorted[i].value - sorted[i - 1].value;
+      if (Number.isFinite(delta)) {
+        deltas.push({ timestamp: sorted[i].timestamp, value: delta });
+      }
+    }
+    return deltas;
+  }
+
+  function toDateValues(values: TimestampedValue[]): DateValues {
+    const dateValues: DateValues = {};
+    for (const { timestamp, value } of values) {
+      const dateKey = (timestamp.toISOString().slice(0, 10) +
+        "T00:00:00Z") as `${number}-${number}-${number}T00:00:00Z`;
+      dateValues[dateKey] = value;
+    }
+    return dateValues;
+  }
+
+  function toDeltaDateValues(values: TimestampedValue[]): DateValues {
+    return toDateValues(toDeltaSeries(values));
+  }
+
   function graphSwitch(graphType: GraphType) {
     switch (graphType) {
 
@@ -76,14 +107,42 @@ export default function GraphGraph({
         }
 
         return (
-          <PreviewGraph // TODO: We probably want to include the annual change of all other dataseries (e.g historical, baseline...) aswell
+          <PreviewGraph
             series={{
               main: goal.dataSeries && {
                 name: `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
                 unit: goal.dataSeries.unit,
-                dateValues: deltaValues,
+                dateValues: toDeltaDateValues(goal.dataSeries?.values ?? []),
               },
-            }}
+              baseline: goal.baseline && {
+                name: t("graphs:common.baseline_scenario"),
+                unit: goal.baseline.unit,
+                dateValues: toDeltaDateValues(goal.baseline.values),
+              },
+              historical: goal.historical && {
+                name: goal.historical ? historicalLabel : "",
+                unit: goal.historical.unit,
+                dateValues: toDeltaDateValues(goal.historical.values),
+              },
+              predictedOutcome:
+                goal.effects.length > 0
+                  ? {
+                    name: t("graphs:common.expected_outcome"),
+                    unit: goal.effects[0].dataSeries?.unit,
+                    dateValues: toDeltaDateValues(
+                      calculatePredictedOutcome(goal.effects, goal.baseline)
+                        .filter((p): p is { x: number; y: number } => p.y !== null)
+                        .map((p) => ({ timestamp: new Date(p.x), value: p.y })),
+                    ),
+                  }
+                  : null,
+              comparison: secondaryGoal?.dataSeries && {
+                name: secondaryGoal.name || secondaryGoal.indicatorParameter.split('\\').slice(-1)[0],
+                unit: secondaryGoal.dataSeries.unit,
+                dateValues: toDeltaDateValues(secondaryGoal.dataSeries.values),
+              },
+            }
+            }
           />
         );
         // return <MainDeltaGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} secondaryGoal={secondaryGoal} effects={effects} />;
