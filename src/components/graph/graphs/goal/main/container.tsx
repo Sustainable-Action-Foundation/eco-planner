@@ -6,7 +6,7 @@ import { calculatePredictedOutcome, getStoredGraphType } from "../../../function
 import GraphSelector from "../../../graphSelectors/graphSelector";
 // import MainDeltaGraph from "./delta";
 // import MainGraph from "./main";
-import MainRelativeGraph from "./relative";
+// import MainRelativeGraph from "./relative";
 import SecondaryGoalSelector from "../../../graphSelectors/secondaryGoalSelector";
 import { Trans, useTranslation } from "react-i18next";
 import type { DateValues, Goal, Roadmap } from "@/types";
@@ -72,9 +72,12 @@ export default function GraphGraph({
     return deltas;
   }
 
-  function toDateValues(values: TimestampedValue[]): DateValues {
+  function toDateValues(
+    values: { timestamp: Date; value: number | null }[],
+  ): DateValues {
     const dateValues: DateValues = {};
     for (const { timestamp, value } of values) {
+      if (value === null) continue;
       const dateKey = (timestamp.toISOString().slice(0, 10) +
         "T00:00:00Z") as `${number}-${number}-${number}T00:00:00Z`;
       dateValues[dateKey] = value;
@@ -82,8 +85,31 @@ export default function GraphGraph({
     return dateValues;
   }
 
+
   function toDeltaDateValues(values: TimestampedValue[]): DateValues {
     return toDateValues(toDeltaSeries(values));
+  }
+
+  function toPercentOfFirstSeries(
+    values: TimestampedValue[],
+  ): { timestamp: Date; value: number | null }[] {
+    const sorted = [...values].sort(
+      (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+    );
+
+    const base = sorted.find((v) => Number.isFinite(v.value) && v.value !== 0);
+    const baseValue = base?.value ?? NaN;
+    const baseIsUsable = Number.isFinite(baseValue) && baseValue !== 0;
+
+    return sorted.map(({ timestamp, value }) => ({
+      timestamp,
+      value: baseIsUsable ? (value / baseValue) * 100 : null,
+    }));
+  }
+
+  /** Convenience: sort, normalize to % of first value, and format in one call. */
+  function toPercentOfFirstDateValues(values: TimestampedValue[]): DateValues {
+    return toDateValues(toPercentOfFirstSeries(values));
   }
 
   function graphSwitch(graphType: GraphType) {
@@ -149,7 +175,47 @@ export default function GraphGraph({
       }
 
       case GraphType.Relative: {
-        return <MainRelativeGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} secondaryGoal={secondaryGoal} />;
+        if (!secondaryGoal?.dataSeries) return;
+        console.log(toPercentOfFirstDateValues(secondaryGoal.dataSeries.values), secondaryGoal.dataSeries.values);
+        return <PreviewGraph
+          series={{
+            main: goal.dataSeries && {
+              name: `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
+              unit: goal.dataSeries.unit,
+              dateValues: toPercentOfFirstDateValues(goal.dataSeries.values),
+            },
+            baseline: goal.baseline && {
+              name: t("graphs:common.baseline_scenario"),
+              unit: goal.baseline.unit,
+              dateValues: toPercentOfFirstDateValues(goal.baseline.values),
+            },
+            historical: goal.historical && {
+              name: goal.historical ? historicalLabel : "",
+              unit: goal.historical.unit,
+              dateValues: toPercentOfFirstDateValues(goal.historical.values),
+            },
+            predictedOutcome: goal.effects.length > 0
+              ? {
+                name: t("graphs:common.expected_outcome"),
+                // TODO: Not good if there are multiple different units for different effects.
+                // We likely want some conversion or warning, this includes units that differ between
+                // historical, baseline and main dataseries aswell!
+                unit: goal.effects[0].dataSeries?.unit,
+                dateValues: toPercentOfFirstDateValues(
+                  calculatePredictedOutcome(goal.effects, goal.baseline)
+                    .filter((point): point is { x: number; y: number } => point.y !== null)
+                    .map((p) => ({ timestamp: new Date(p.x), value: p.y })),
+                ),
+              }
+              : null,
+            comparison: secondaryGoal?.dataSeries && {
+              name: secondaryGoal.name || secondaryGoal.indicatorParameter.split('\\').slice(-1)[0],
+              unit: secondaryGoal.dataSeries.unit,
+              dateValues: toPercentOfFirstDateValues(secondaryGoal.dataSeries.values),
+            },
+          }}
+        />;
+        // return <MainRelativeGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} secondaryGoal={secondaryGoal} />;
       }
 
       case GraphType.Main:
