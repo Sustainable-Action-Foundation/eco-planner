@@ -22,8 +22,8 @@ import { useRouter } from "next/navigation";
 import { dataSeriesToDateValues } from "@/functions/recipe";
 import UnitSync from "@/components/recipe/output/unitSyncer";
 import ParameterSync from "@/components/recipe/output/parameterSyncer";
-// import HistoricalDataSection from "../sections/historical/historical";
-import { SuggestedRecipesList } from "@/components/recipe/suggestions/suggestedRecipeList";
+import HistoricalDataSection from "../sections/historical/historical";
+// import { SuggestedRecipesList } from "@/components/recipe/suggestions/suggestedRecipeList";
 import PreviewGraph from "@/components/graph/graphs/previewGraph";
 import { NonFormIntegration } from "@/components/recipe/output/nonFormIntegration";
 
@@ -634,7 +634,7 @@ export default function GoalForm({
         }
       </fieldset>
 
-      {/* Historical data selection section 
+
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200 min-width-0`}>
         <legend
           data-position={positionIndex++}
@@ -644,9 +644,9 @@ export default function GoalForm({
         </legend>
 
         <HistoricalDataSection />
-      </fieldset> */}
+      </fieldset>
 
-      {/* Suggested recipes section */}
+      {/* Suggested recipes section 
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
         <legend
           // eslint-disable-next-line no-useless-assignment
@@ -665,18 +665,30 @@ export default function GoalForm({
           existingSuggestedRecipes={currentGoal?.recipeSuggestions ?? []}
         />
       </fieldset>
+      */}
 
-      <div style={{
-        height: '400px',
-      }}>
+      <div
+        className="margin-top-200 min-width-0"
+        style={{
+          height: '400px',
+        }}
+      >
+        <h2 className="text-align-center margin-0 padding-block-125">goal.preview</h2>
         {previewDataSerie?.dateValues ? (
           <PreviewGraph
             series={{
-              main: { ...previewDataSerie, dateValues: previewDataSerie.dateValues, name: 'placeholder name' },
+              main: {
+                name: 'placeholder name',
+                unit: previewDataSerie.unit,
+                dateValues: previewDataSerie.dateValues,
+              },
             }}
           />
-        ) : null}
+        ) :
+          <strong className="grid height-100" style={{ placeContent: 'center' }}>goal.no_preview</strong>
+        }
       </div>
+
 
       {/* Submit button */}
       <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
