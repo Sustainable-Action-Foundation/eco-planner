@@ -7,8 +7,7 @@ import type { ClientGoal, ClientMultiRoadmapInstance, ClientRoadmap, Goal } from
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import { Recipe } from "@/functions/recipe/recipe";
 import { clientSafeGetRoadmaps, clientSafeGetOneRoadmap, clientSafeGetOneGoal } from "@/fetchers/client";
-import { ManualDataSeriesInput } from "@/components/recipe/input/manualDataSeriesInput";
-import { FormIntegration, RecipeContextProvider } from "@/components/recipe";
+import { FormIntegration, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
 
 export function ManualGoalForm({
   currentGoal,

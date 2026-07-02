@@ -15,7 +15,7 @@ import { Trans, useTranslation } from "react-i18next";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
 import { IconChartHistogram, IconSearch, IconTrashXFilled, IconX } from "@tabler/icons-react";
-import { ManualDataSeriesInput } from "@/components/recipe/input/manualDataSeriesInput";
+import DataSeriesGrid from "@/components/recipe/input/dataSeriesGrid";
 
 export default function QueryBuilder({
   goal,
@@ -499,7 +499,7 @@ export default function QueryBuilder({
 
             {visibleForm === 'manual' ?
               <div>
-                <ManualDataSeriesInput id="dataseries" label={t("forms:data_series_input.data_series")} />
+                <DataSeriesGrid id="dataseries" label={t("forms:data_series_input.data_series")} />
               </div>
               : visibleForm === 'external' ?
                 <form ref={formRef} onChange={formChange} onSubmit={handleSubmit} className="flex flex-direction-column flex-grow-1" style={{ minHeight: '0' }}>

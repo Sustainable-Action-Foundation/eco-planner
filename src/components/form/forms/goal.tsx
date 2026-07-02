@@ -15,8 +15,7 @@ import TextEditor from "../elements/textEditor/editor";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import { Recipe } from "@/functions/recipe/recipe";
 import type { SerializedRecipe } from "@/functions/recipe";
-import { FormIntegration, RecipeContextProvider, RecipeEditor, SuggestedRecipeApplier } from "@/components/recipe";
-import { ManualDataSeriesInput } from "@/components/recipe/input/manualDataSeriesInput";
+import { FormIntegration, ManualDataSeriesInput, RecipeContextProvider, RecipeEditor, SuggestedRecipeApplier } from "@/components/recipe";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 import { dataSeriesToDateValues } from "@/functions/recipe";
@@ -637,6 +636,7 @@ export default function GoalForm({
 
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200 min-width-0`}>
         <legend
+          // eslint-disable-next-line no-useless-assignment
           data-position={positionIndex++}
           className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
         >

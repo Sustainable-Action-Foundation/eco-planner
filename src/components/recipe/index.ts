@@ -8,6 +8,8 @@ export * from "./suggestions/suggestedRecipeApplier";
 export * from "./editor/recipeEditor";
 export * from "./editor/equationEditor";
 
+export * from "./input/manualDataSeriesInput";
+
 export * from "./output/formIntegration";
 export * from "./output/dataSeriesDisplay";
 export * from "./output/graphDisplay";
