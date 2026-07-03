@@ -4,12 +4,9 @@ import { getHistoricalDataset } from "@/functions/getHistoricalDataset";
 import { useState } from "react";
 import { calculatePredictedOutcome, getStoredGraphType } from "../../../functions/graphFunctions";
 import GraphSelector from "../../../graphSelectors/graphSelector";
-// import MainDeltaGraph from "./delta";
-// import MainGraph from "./main";
-// import MainRelativeGraph from "./relative";
 import SecondaryGoalSelector from "../../../graphSelectors/secondaryGoalSelector";
 import { Trans, useTranslation } from "react-i18next";
-import type { DateValues, Goal, Roadmap } from "@/types";
+import type { DateValues, Goal } from "@/types";
 import CopyAndScale from "@/components/modals/copyAndScale";
 import type { LoginData } from "@/lib/session";
 import styles from '../goal.module.css';
@@ -27,18 +24,12 @@ export default function GraphGraph({
   goal,
   secondaryGoal,
   parentGoal,
-  // parentGoalRoadmap,
-  // effects,
   session,
   roadmapOptions,
 }: {
   goal: Goal,
   secondaryGoal: Goal | null,
   parentGoal: Goal | null,
-  childGoals: Goal[], // TODO: Should be optional
-  roadmap: Roadmap,
-  parentGoalRoadmap: Roadmap | null,
-  // effects: Effect[] | Goal["effects"],
   session: LoginData,
   roadmapOptions: {
     id: string;
@@ -175,7 +166,6 @@ export default function GraphGraph({
             }}
           />
         );
-        // return <MainDeltaGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} secondaryGoal={secondaryGoal} effects={effects} />;
       }
 
       case GraphType.Relative: {
@@ -222,7 +212,6 @@ export default function GraphGraph({
             },
           }}
         />;
-        // return <MainRelativeGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} secondaryGoal={secondaryGoal} />;
       }
 
       case GraphType.Main:
@@ -296,7 +285,6 @@ export default function GraphGraph({
           }}
         />;
       }
-      // return <MainGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} secondaryGoal={secondaryGoal} effects={effects} />;
     }
   };
 
