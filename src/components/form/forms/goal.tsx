@@ -19,13 +19,11 @@ import { FormIntegration, ManualDataSeriesInput, RecipeContextProvider, RecipeEd
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 import { dataSeriesToDateValues } from "@/functions/recipe";
-import UnitSync from "@/components/recipe/output/unitSyncer";
 import ParameterSync from "@/components/recipe/output/parameterSyncer";
-import RecipeErrorSync from "@/components/recipe/output/recipeErrorSync";
+import { RecipeSync } from "@/components/recipe/output/recipeSync";
 import HistoricalDataSection from "../sections/historical/historical";
 // import { SuggestedRecipesList } from "@/components/recipe/suggestions/suggestedRecipeList";
 import PreviewGraph from "@/components/graph/graphs/previewGraph";
-import { NonFormIntegration } from "@/components/recipe/output/nonFormIntegration";
 
 const DataSeriesType = {
   Manual: "MANUAL",
@@ -526,14 +524,12 @@ export default function GoalForm({
                 RecipeFormElement={<input name="resultingRecipe" />}
                 DateValuesFormElement={<input name="resultingDateValues" />}
               />
-              <UnitSync
-                setter={setUnit}
-              />
               <ParameterSync
                 setter={setIndicatorParameter}
               />
-              <RecipeErrorSync
-                setter={setDataSeriesRecipeError}
+              <RecipeSync
+                onUnit={setUnit}
+                onError={setDataSeriesRecipeError}
                 active={dataSeriesType === DataSeriesType.Suggested}
               />
             </RecipeContextProvider>
@@ -553,17 +549,13 @@ export default function GoalForm({
                 RecipeFormElement={<input name="resultingRecipe" />}
                 DateValuesFormElement={<input name="resultingDateValues" />}
               />
-              <UnitSync
-                setter={setUnit}
-              />
-              <NonFormIntegration
-                DateValuesSetter={setPreviewDataSerie}
-              />
               <ParameterSync
                 setter={setIndicatorParameter}
               />
-              <RecipeErrorSync
-                setter={setDataSeriesRecipeError}
+              <RecipeSync
+                onUnit={setUnit}
+                onDateValues={setPreviewDataSerie}
+                onError={setDataSeriesRecipeError}
                 active={dataSeriesType === DataSeriesType.Custom}
               />
             </RecipeContextProvider>

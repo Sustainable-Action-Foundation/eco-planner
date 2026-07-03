@@ -5,7 +5,7 @@ import { Recipe } from "@/functions/recipe";
 import type { DBRecipe, Goal } from "@/types";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { NonFormIntegration } from "@/components/recipe/output/nonFormIntegration";
+import { RecipeSync } from "@/components/recipe/output/recipeSync";
 
 /**
  * ## Note
@@ -265,8 +265,8 @@ export function SuggestedRecipesList({
         key={editingId}
         initialRecipe={initialEditingRecipe}
       >
-        <NonFormIntegration
-          RecipeSetter={setEditingRecipe}
+        <RecipeSync
+          onRecipe={setEditingRecipe}
         />
         <EquationEditor />
       </RecipeContextProvider>
