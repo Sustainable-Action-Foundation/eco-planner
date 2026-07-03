@@ -6,7 +6,7 @@ import { calculatePredictedOutcome, getStoredGraphType } from "../../functions/g
 import GraphSelector from "../../graphSelectors/graphSelector";
 import SecondaryGoalSelector from "../../graphSelectors/secondaryGoalSelector";
 import { Trans, useTranslation } from "react-i18next";
-import type { DateValues, Goal, Roadmap } from "@/types";
+import type { DataSeries, DateValues, DateValuesWithUnit, Goal, Roadmap } from "@/types";
 import CopyAndScale from "@/components/modals/copyAndScale";
 import type { LoginData } from "@/lib/session";
 import styles from './goal.module.css';
@@ -14,7 +14,8 @@ import GoalGraph from "./main";
 import TabListSimple from "@/components/generic/tablist/tabListSimple";
 import findSiblings from "@/functions/findSiblings";
 import ChildGraphContainer from "./child/container";
-import SiblingGraph from "./sibling/siblings";
+import { IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
+// import SiblingGraph from "./sibling/siblings";
 
 export const GraphType = {
   Main: "MAIN",
@@ -49,6 +50,7 @@ export default function GoalGraphContainer({
   const { t } = useTranslation("graphs");
 
   const [graphType, setGraphType] = useState<GraphType | "">(getStoredGraphType(goal.id));
+  const [isStacked, setIsStacked] = useState<boolean>(true);
 
   const historicalDatasetLabel = getHistoricalDataset(goal).label;
   const historicalLabel = historicalDatasetLabel
@@ -56,7 +58,23 @@ export default function GoalGraphContainer({
     : t("common:historical_data");
 
   const siblings = findSiblings(roadmap, goal);
+  const siblingsSeries: Array<(DataSeries | DateValuesWithUnit) & { name: string }> = findSiblings(roadmap, goal)
+    .filter(
+      (sibling): sibling is typeof sibling & { name: string; dataSeries: NonNullable<typeof sibling.dataSeries> } =>
+        sibling.name != null && sibling.dataSeries != null,
+    )
+    .map((sibling) => {
+      const dateValues: DateValues = Object.fromEntries(
+        sibling.dataSeries.values.map((value) => [value.timestamp.toISOString(), value.value]),
+      );
 
+      return {
+        name: sibling.name,
+        unit: sibling.dataSeries.unit,
+        dateValues,
+      };
+    });
+ 
   function toDeltaSeries(values: TimestampedValue[]): TimestampedValue[] {
     const sorted = [...values].sort(
       (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
@@ -411,9 +429,64 @@ export default function GoalGraphContainer({
             <ChildGraphContainer goal={goal} childGoals={childGoals} />
           </TabListSimple.TabPanel>
           : null}
-        {siblings.length > 1 ?
+        {siblings.length > 0 ?
           <TabListSimple.TabPanel>
-            <SiblingGraph roadmap={roadmap} goal={goal} />
+            <div className={`${styles['tab-panel']}`}>
+
+              <header>
+                <menu className={`${styles['menu']}`}>
+                  <button
+                    className="flex align-items-center gap-50 transparent font-weight-500 gray-90 fit-content font-size-75 line-height-150"
+                    style={{ padding: '.3rem .6rem' }}
+                    type="button"
+                    onClick={() => setIsStacked(!isStacked)}
+                  >
+                    {t("graphs:common.change_graph_type")}
+                    <IconChartAreaLineFilled aria-hidden="true" width={16} height={16} />
+                  </button>
+                </menu>
+                <h2 className={`${styles['heading']}`}>
+                  {t("graphs:sibling_graph.related_goals")}
+                </h2>
+              </header>
+
+              <div className={`${styles['body']}`}>
+                <GoalGraph
+                  chartType="siblings"
+                  chartOptionsType={isStacked ? 'area' : 'line'}
+                  series={{
+                    main: goal.dataSeries && {
+                      name: `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
+                      unit: goal.dataSeries.unit,
+                      dateValues: Object.fromEntries(
+                        goal.dataSeries.values.map((value) => [
+                          value.timestamp.toISOString(),
+                          value.value,
+                        ]),
+                      ),
+                    },
+                    siblings: siblingsSeries,
+                  }}
+                />
+              </div>
+
+              <footer className={`${styles['footer']}`} >
+                <nav className="flex gap-75 flex-wrap-wrap justify-content-center">
+                  {siblings.map((sibling, index) =>
+                    <span key={sibling.id} className="flex gap-50 line-height-100">
+                      <a href={`/goal/${sibling.id}`} className="flex gap-25 align-items-center">
+                        <IconLink width={14} height={14} strokeWidth={1.5} />
+                        {sibling.name ? sibling.name : sibling.indicatorParameter.split('\\').at(-1)}
+                      </a>
+                      {index !== siblings.length - 1 ?
+                        <hr aria-orientation="vertical" className="padding-0 margin-block-25" /> /* TODO: Need to add orientation aria to other HR */
+                        : null}
+                    </span>,
+                  )}
+                </nav>
+              </footer>
+            </div>
+            {/* <SiblingGraph roadmap={roadmap} goal={goal} />*/}
           </TabListSimple.TabPanel>
           : null}
       </TabListSimple>

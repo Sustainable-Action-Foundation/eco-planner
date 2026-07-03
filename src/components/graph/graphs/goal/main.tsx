@@ -38,7 +38,59 @@ function toChartSeries(
   return { name, data, type, color };
 }
 
+// Converts a hex color to HSL components
+function hexToHsl(hex: string): { h: number; s: number; l: number } {
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+
+  let h = 0;
+  let s = 0;
+
+  if (max !== min) {
+    const delta = max - min;
+    s = l > 0.5 ? delta / (2 - max - min) : delta / (max + min);
+
+    switch (max) {
+      case r: {
+        h = ((g - b) / delta + (g < b ? 6 : 0)) * 60;
+        break;
+      }
+      case g: {
+        h = ((b - r) / delta + 2) * 60;
+        break;
+      }
+      case b: {
+        h = ((r - g) / delta + 4) * 60;
+        break;
+      }
+      default:
+        break;
+    }
+  }
+
+  return { h, s: s * 100, l: l * 100 };
+}
+
+function getSiblingColor(index: number, total: number, baseHex: string): string {
+  const base = hexToHsl(baseHex);
+
+  // Spread hues within a narrow band around the base hue (e.g. +/- 60deg)
+  const hueRange = 80; // total spread in degrees
+  const hueStart = base.h - hueRange / 2;
+  const hue = total > 1 ? hueStart + (index * hueRange) / (total - 1) : base.h;
+ 
+
+  return `hsl(${hue}, ${base.s}%, 50%)`;
+}
+
 export default function GoalGraph({
+  chartType, // TODO: TURN INTO PROPER TYPE!
+  chartOptionsType,
   series: {
     main = null,
     baseline = null,
@@ -46,9 +98,11 @@ export default function GoalGraph({
     predictedOutcome = null,
     comparison = null,
     parent = null,
+    siblings = null,
   } = {},
-  chartType, // TODO: TURN INTO PROPER TYPE!
 }: {
+  chartType: "main" | "thumbnail" | "siblings" // TODO: This should be a type if i do it this way...  (also dislike this generally, probably want to pass options for each graph instead of doing it like this)
+  chartOptionsType?: "line" | "area" | "bar" | "pie" | "donut" | "radialBar" | "scatter" | "bubble" | "heatmap" | "candlestick" | "boxPlot" | "radar" | "polarArea" | "rangeBar" | "rangeArea" | "treemap" | "funnel" | "pyramid" | "gauge" | undefined;
   series?: {
     main?: ((DataSeries | DateValuesWithUnit) & { name: string }) | null;
     baseline?: ((DataSeries | DateValuesWithUnit) & { name: string }) | null;
@@ -56,8 +110,8 @@ export default function GoalGraph({
     predictedOutcome?: ((DataSeries | DateValuesWithUnit) & { name: string }) | null;
     comparison?: ((DataSeries | DateValuesWithUnit) & { name: string }) | null;
     parent?: ((DataSeries | DateValuesWithUnit) & { name: string }) | null;
+    siblings?: Array<((DataSeries | DateValuesWithUnit) & { name: string })> | null;
   };
-  chartType: "main" | "thumbnail"
 }) {
   const { t } = useTranslation("graphs");
 
@@ -69,6 +123,7 @@ export default function GoalGraph({
     colors: colors,
     opacities: opacities,
     yAxisTitle: main?.unit === null ? t("common:tsx.unitless") : main?.unit || t("common:tsx.unit_missing"),
+    chartOptionsType: chartOptionsType ?? 'line',
   });
 
   const mainYAxis =
@@ -76,11 +131,12 @@ export default function GoalGraph({
       ? ((options.yaxis as ApexYAxis[])[0].seriesName as string[])
       : undefined;
 
-  if (main) {
-    chart.push(toChartSeries(main, main.name, "line", color_palette.main.color));
+  // TODO: Need to add z-index so this is always on top! (probably want to handle typing so its easier to accept correct things for each dataseries)
+  if (main) { // TODO: i dislike the way i handle area types here, figure out a better way ... 
+    chart.push(toChartSeries(main, main.name, chartOptionsType ?? 'line', color_palette.main.color));
     mainYAxis?.push(main.name);
     colors.push(color_palette.main.color);
-    opacities.push(color_palette.main.fillOpacity);
+    opacities.push(chartOptionsType === "area" ? 0.3 : 1); // TODO: Weird stuff is happening with opacities...
   }
 
   if (baseline) {
@@ -123,6 +179,17 @@ export default function GoalGraph({
     mainYAxis?.push(parent.name);
     colors.push(color_palette.parentGoal.color);
     opacities.push(color_palette.parentGoal.fillOpacity);
+  }
+
+  if (siblings) {
+    siblings.forEach((sibling, index) => {
+      const siblingColor = getSiblingColor(index, siblings.length + 1, color_palette.main.color);
+      chart.push(toChartSeries(sibling, sibling.name, chartOptionsType ?? 'line', siblingColor));
+      mainYAxis?.push(sibling.name);
+      colors.push(siblingColor);
+      opacities.push(chartOptionsType === "area" ? 0.3 : 1); // TODO: Weird stuff is happening with opacities...
+    });
+     
   }
 
   return <WrappedChart

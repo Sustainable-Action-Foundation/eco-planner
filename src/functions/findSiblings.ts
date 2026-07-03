@@ -13,6 +13,11 @@ export default function findSiblings(
   }
 
   for (const sibling of roadmap.goals) {
+    // We do not include the goal itself among it's sibings
+    if (sibling.id === goal.id) {
+      continue;
+    }
+
     const siblingParameters = sibling.indicatorParameter.split("\\");
     // Goals can be siblings despite one of them having a "Key" and the other a "Demand" parameter
     if (siblingParameters[0] === "Key" || siblingParameters[0] === "Demand") {

@@ -23,19 +23,54 @@ export const stroke: ApexStroke = {
   width: 3,
 };
 
+// TODO: Don't really like this ):
 export function generateApexChartOptions({
   chartType,
   colors,
   opacities,
   yAxisTitle,
+  chartOptionsType,
 }: {
-  chartType: "main" | "thumbnail";
+  chartType: "main" | "thumbnail" | "siblings";
   colors: Array<string>;
   opacities: Array<number>;
   yAxisTitle?: string;
+  chartOptionsType?: "line" | "area" | "bar" | "pie" | "donut" | "radialBar" | "scatter" | "bubble" | "heatmap" | "candlestick" | "boxPlot" | "radar" | "polarArea" | "rangeBar" | "rangeArea" | "treemap" | "funnel" | "pyramid" | "gauge" | undefined;
 }): ApexCharts.ApexOptions {
-
   switch (chartType) {
+    case "siblings": {
+      const options: ApexCharts.ApexOptions = {
+        chart: {
+          type: chartOptionsType ?? 'line',
+          animations: { enabled: false, dynamicAnimation: { enabled: false } },
+          zoom: { allowMouseWheelZoom: false },
+        },
+        fill: {
+          type: 'solid',
+          opacity: 0.3,
+        },
+        stroke: { curve: stroke.curve, width: stroke.width },
+        markers: { size: marker.size },
+        xaxis: {
+          type: 'datetime',
+          labels: { format: 'yyyy' },
+          tooltip: { enabled: false },
+        },
+        yaxis: [
+          {
+            title: { text: yAxisTitle ?? "" },
+            labels: { formatter: graphNumberFormatter },
+            seriesName: [],
+          },
+        ],
+        tooltip: {
+          x: { format: 'yyyy' },
+          shared: true,
+        },
+      };
+      return options;
+    }
+
     case "thumbnail": {
       const options: ApexCharts.ApexOptions = {
         chart: {
