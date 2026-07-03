@@ -125,6 +125,7 @@ export default function GraphGraph({
 
         return (
           <PreviewGraph
+            chartType="main"
             series={{
               main: goal.dataSeries && {
                 name: `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
@@ -170,6 +171,7 @@ export default function GraphGraph({
 
       case GraphType.Relative: {
         return <PreviewGraph
+          chartType="main"
           series={{
             main: goal.dataSeries && {
               name: `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
@@ -217,6 +219,7 @@ export default function GraphGraph({
       case GraphType.Main:
       default: {
         return <PreviewGraph
+          chartType="main"
           series={{
             main: goal.dataSeries && {
               name: `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,

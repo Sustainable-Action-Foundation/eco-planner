@@ -1,8 +1,10 @@
+"use client"; // TODO: dont like this but whatever
+
 import { dataSeriesToDateValues } from "@/functions/recipe";
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import type { DataSeries, DateValuesWithUnit } from "@/types";
 import type { ApexAxisChartSeries, ApexYAxis } from "apexcharts";
-import { color_palette, stroke, marker } from "../config";
+import { color_palette, generateApexChartOptions } from "../config";
 import { useTranslation } from "react-i18next";
 
 // Checks if we have a dataSeries or DateValuesWithUnit
@@ -45,6 +47,7 @@ export default function PreviewGraph({
     comparison = null,
     parent = null,
   } = {},
+  chartType, // TODO: TURN INTO PROPER TYPE!
 }: {
   series?: {
     main?: ((DataSeries | DateValuesWithUnit) & { name: string }) | null;
@@ -54,72 +57,49 @@ export default function PreviewGraph({
     comparison?: ((DataSeries | DateValuesWithUnit) & { name: string }) | null;
     parent?: ((DataSeries | DateValuesWithUnit) & { name: string }) | null;
   };
+  chartType: "main" | "thumbnail"
 }) {
   const { t } = useTranslation("graphs");
 
   const chart: ApexAxisChartSeries = [];
   const colors: Array<string> = [];
   const opacities: Array<number> = [];
+  const options = generateApexChartOptions({
+    chartType: chartType,
+    colors: colors,
+    opacities: opacities,
+    yAxisTitle: main?.unit === null ? t("common:tsx.unitless") : main?.unit || t("common:tsx.unit_missing"),
+  });
 
-  const mainChartOptions: ApexCharts.ApexOptions = {
-    chart: {
-      type: 'line',
-      animations: { enabled: false, dynamicAnimation: { enabled: false } },
-      zoom: { allowMouseWheelZoom: false },
-    },
-    fill: {
-      type: 'solid',
-      colors: colors,
-      opacity: opacities,
-    },
-    stroke: { curve: stroke.curve, width: stroke.width },
-    markers: { size: marker.size },
-    xaxis: {
-      type: 'datetime',
-      labels: { format: 'yyyy' },
-      tooltip: { enabled: false },
-    },
-    yaxis: [
-      {
-        title: { text: main?.unit === null ? t("common:tsx.unitless") : main?.unit || t("common:tsx.unit_missing") },
-        labels: { formatter: graphNumberFormatter },
-        seriesName: [],
-      },
-    ],
-    tooltip: {
-      x: { format: 'yyyy' },
-      shared: true,
-    },
-  };
-
-  const mainYAxis = (
-    (mainChartOptions.yaxis as ApexYAxis[])[0].seriesName as string[]
-  );
+  const mainYAxis =
+    chartType === "main" // TODO: Might be relevant with more stuff here later
+      ? ((options.yaxis as ApexYAxis[])[0].seriesName as string[])
+      : undefined;
 
   if (main) {
     chart.push(toChartSeries(main, main.name, "line", color_palette.main.color));
-    mainYAxis.push(main.name);
+    mainYAxis?.push(main.name);
     colors.push(color_palette.main.color);
     opacities.push(color_palette.main.fillOpacity);
   }
 
   if (baseline) {
     chart.push(toChartSeries(baseline, baseline.name, "line", color_palette.baseline.color));
-    mainYAxis.push(baseline.name);
+    mainYAxis?.push(baseline.name);
     colors.push(color_palette.baseline.color);
     opacities.push(color_palette.baseline.fillOpacity);
   }
 
   if (historical) {
     chart.push(toChartSeries(historical, historical.name, "area", color_palette.historical.color));
-    mainYAxis.push(historical.name);
+    mainYAxis?.push(historical.name);
     colors.push(color_palette.historical.color);
     opacities.push(color_palette.historical.fillOpacity);
   }
 
   if (predictedOutcome) {
     chart.push(toChartSeries(predictedOutcome, predictedOutcome.name, "line", color_palette.predictedOutcome.color));
-    mainYAxis.push(predictedOutcome.name);
+    mainYAxis?.push(predictedOutcome.name);
     colors.push(color_palette.predictedOutcome.color);
     opacities.push(color_palette.predictedOutcome.fillOpacity);
   }
@@ -127,7 +107,7 @@ export default function PreviewGraph({
   if (comparison) {
     chart.push(toChartSeries(comparison, comparison.name, "line", color_palette.comparison.color));
 
-    (mainChartOptions.yaxis as ApexYAxis[]).push({
+    (options.yaxis as ApexYAxis[]).push({
       title: { text: `${t("graphs:main_graph.secondary_goal", { unit: comparison.unit })}` },
       labels: { formatter: graphNumberFormatter },
       seriesName: comparison.name,
@@ -140,10 +120,15 @@ export default function PreviewGraph({
 
   if (parent) {
     chart.push(toChartSeries(parent, parent.name, "line", color_palette.parentGoal.color)); // TODO: Rename parentGoal --> parent
-    mainYAxis.push(parent.name);
+    mainYAxis?.push(parent.name);
     colors.push(color_palette.parentGoal.color);
     opacities.push(color_palette.parentGoal.fillOpacity);
   }
 
-  return <WrappedChart height={"100%"} width={"100%"} options={mainChartOptions} series={chart} />;
+  return <WrappedChart
+    height={"100%"}
+    width={"100%"}
+    options={options}
+    series={chart}
+  />;
 }

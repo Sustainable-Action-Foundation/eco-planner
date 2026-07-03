@@ -4,7 +4,7 @@ import TabListSimple from "@/components/generic/tablist/tabListSimple";
 import ChildGraphContainer from "./child/container";
 import SiblingGraph from "./sibling/siblings";
 import findSiblings from "@/functions/findSiblings";
-import type { Effect, Goal, Roadmap } from "@/types";
+import type { Goal, Roadmap } from "@/types";
 import GraphGraph from "./main/container";
 import styles from './goal.module.css';
 import { useTranslation } from "react-i18next";
@@ -17,7 +17,6 @@ export default function GoalGraph({
   parentGoal,
   childGoals,
   roadmap,
-  parentGoalRoadmap,
   secondaryGoal,
   session,
   roadmapOptions,
@@ -26,9 +25,7 @@ export default function GoalGraph({
   parentGoal: Goal | null,
   childGoals: Goal[],
   roadmap: Roadmap,
-  parentGoalRoadmap: Roadmap | null,
   secondaryGoal: Goal | null,
-  effects: Effect[] | Goal["effects"],
   session: LoginData,
   roadmapOptions: {
     id: string;
@@ -48,9 +45,6 @@ export default function GoalGraph({
         <GraphGraph
           goal={goal}
           parentGoal={parentGoal}
-          childGoals={childGoals}
-          roadmap={roadmap}
-          parentGoalRoadmap={parentGoalRoadmap}
           secondaryGoal={secondaryGoal}
           session={session}
           roadmapOptions={roadmapOptions}
@@ -91,9 +85,6 @@ export default function GoalGraph({
           <GraphGraph
             goal={goal}
             parentGoal={parentGoal}
-            childGoals={childGoals}
-            roadmap={roadmap}
-            parentGoalRoadmap={parentGoalRoadmap}
             secondaryGoal={secondaryGoal}
             session={session}
             roadmapOptions={roadmapOptions}

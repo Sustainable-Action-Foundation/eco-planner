@@ -503,6 +503,7 @@ export default function HistoricalData({
                 }}
               >
                 <PreviewGraph // TODO: Include parentgoal?
+                  chartType="main"
                   series={{
                     main: goal.dataSeries && {
                       name: `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,

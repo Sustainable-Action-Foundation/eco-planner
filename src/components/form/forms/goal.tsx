@@ -693,6 +693,7 @@ export default function GoalForm({
         <h2 className="text-align-center margin-0 padding-block-125">goal.preview</h2>
         {previewDataSerie?.dateValues ? (
           <PreviewGraph
+            chartType="main"
             series={{
               main: {
                 name: 'placeholder name',

@@ -6,7 +6,6 @@ import accessChecker from "@/lib/accessChecker";
 import Goals from "@/components/tables/goals";
 import Comments from "@/components/comments/comments";
 import { AccessLevel } from "@/types";
-import ThumbnailGraph from "@/components/graph/graphs/thumbnail";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
@@ -15,6 +14,9 @@ import Link from "next/link";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 import { AdminPanel } from "@/components/elements/controls/controls";
 import ActionTable from "@/components/tables/actions";
+import PreviewGraph from "@/components/graph/graphs/previewGraph";
+import graphStyles from "@/components/graph/graph.module.css";
+import { getHistoricalDataset } from "@/functions/getHistoricalDataset";
 
 export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }) {
   const params = await props.params;
@@ -68,7 +70,6 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
   if (!roadmap || !accessLevel) {
     return notFound();
   }
-
 
   return <>
 
@@ -124,13 +125,49 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
         <section className="margin-block-300">
           <h2>{t("pages:roadmap.featured_goals")}</h2>
           <div className="flex flex-wrap-nowrap gap-100 overflow-x-scroll padding-bottom-100" style={{ scrollbarWidth: 'thin', scrollbarColor: 'var(--gray) rgba(0,0,0,0)', scrollSnapType: 'x mandatory', direction: 'ltr' }}>
-            {featuredGoals.map((goal, key) =>
-              goal && (
+            {featuredGoals.map((goal, key) => {
+              if (!goal) return null;
+              const historicalDataset = goal.historical && getHistoricalDataset(goal);
+              
+              return (
                 <Link key={key} href={`/goal/${goal.id}`} className="color-pureblack text-decoration-none" style={{ width: '300px', minWidth: '300px', height: '250px', scrollSnapAlign: 'start' }} data-testid="featured-goals">
-                  <ThumbnailGraph goal={goal} historicalData={true} />
+                  <div className={`${graphStyles['thumbnail-graph']}`}>
+                    <h3 className="font-weight-500 margin-0 padding-top-75 padding-inline-75 overflow-hidden white-space-nowrap text-align-center text-overflow-ellipsis">
+                      {!!goal.name ? goal.name : goal.indicatorParameter}
+                    </h3>
+                    <div className="flex-grow-100">
+                      <PreviewGraph
+                        chartType="thumbnail"
+                        series={{
+                          main: goal?.dataSeries && {
+                            name: `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
+                            unit: goal.dataSeries.unit,
+                            dateValues: Object.fromEntries(
+                              goal.dataSeries.values.map((value) => [
+                                value.timestamp.toISOString(),
+                                value.value,
+                              ]),
+                            ),
+                          },
+                          historical: goal?.historical && {
+                            name: historicalDataset?.label
+                              ? `${historicalDataset.label} (${t("common:historical_data")})`
+                              : t("common:historical_data"),
+                            unit: goal.historical.unit,
+                            dateValues: Object.fromEntries(
+                              goal.historical.values.map((value) => [
+                                value.timestamp.toISOString(),
+                                value.value,
+                              ]),
+                            ),
+                          },
+                        }}
+                      />
+                    </div>
+                  </div>
                 </Link>
-              ),
-            )}
+              );
+            })}
           </div>
           {featuredGoals.some(
             goal => goal?.historical,
