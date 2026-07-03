@@ -10,7 +10,7 @@ import type { DateValues, Goal, Roadmap } from "@/types";
 import CopyAndScale from "@/components/modals/copyAndScale";
 import type { LoginData } from "@/lib/session";
 import styles from './goal.module.css';
-import PreviewGraph from "./main";
+import GoalGraph from "./main";
 import TabListSimple from "@/components/generic/tablist/tabListSimple";
 import findSiblings from "@/functions/findSiblings";
 import ChildGraphContainer from "./child/container";
@@ -24,7 +24,7 @@ export const GraphType = {
 export type GraphType = (typeof GraphType)[keyof typeof GraphType];
 type TimestampedValue = { timestamp: Date; value: number };
 
-export default function GraphGraph({
+export default function GoalGraphContainer({
   goal,
   secondaryGoal,
   childGoals,
@@ -133,7 +133,7 @@ export default function GraphGraph({
         }
 
         return (
-          <PreviewGraph
+          <GoalGraph
             chartType="main"
             series={{
               main: goal.dataSeries && {
@@ -179,7 +179,7 @@ export default function GraphGraph({
       }
 
       case GraphType.Relative: {
-        return <PreviewGraph
+        return <GoalGraph
           chartType="main"
           series={{
             main: goal.dataSeries && {
@@ -227,7 +227,7 @@ export default function GraphGraph({
 
       case GraphType.Main:
       default: {
-        return <PreviewGraph
+        return <GoalGraph
           chartType="main"
           series={{
             main: goal.dataSeries && {

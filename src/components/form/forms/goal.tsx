@@ -24,7 +24,7 @@ import { RecipeSync } from "@/components/recipe/output/recipeSync";
 import HistoricalDataSection from "../sections/historical/historical";
 import { GoalFormName } from "../formNames";
 // import { SuggestedRecipesList } from "@/components/recipe/suggestions/suggestedRecipeList";
-import PreviewGraph from "@/components/graph/graphs/goal/main";
+import GoalGraph from "@/components/graph/graphs/goal/main";
 
 const DataSeriesType = {
   Manual: "MANUAL",
@@ -692,7 +692,7 @@ export default function GoalForm({
       >
         <h2 className="text-align-center margin-0 padding-block-125">goal.preview</h2>
         {previewDataSerie?.dateValues ? (
-          <PreviewGraph
+          <GoalGraph
             chartType="main"
             series={{
               main: {

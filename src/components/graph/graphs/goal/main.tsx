@@ -38,7 +38,7 @@ function toChartSeries(
   return { name, data, type, color };
 }
 
-export default function PreviewGraph({
+export default function GoalGraph({
   series: {
     main = null,
     baseline = null,

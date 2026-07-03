@@ -17,7 +17,7 @@ import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import TabList from "@/components/generic/tablist/tabList";
-import PreviewGraph from "@/components/graph/graphs/goal/main";
+import GoalGraph from "@/components/graph/graphs/goal/main";
 import { calculatePredictedOutcome } from "@/components/graph/functions/graphFunctions";
 import { metricSelectionHelper, timeVariableSelectionHelper, variableSelectionHelper } from "../sections/historical/helpers";
 
@@ -502,7 +502,7 @@ export default function HistoricalData({
                   border: '1px solid var(--gray-80)',
                 }}
               >
-                <PreviewGraph // TODO: Include parentgoal?
+                <GoalGraph // TODO: Include parentgoal?
                   chartType="main"
                   series={{
                     main: goal.dataSeries && {

@@ -14,8 +14,8 @@ import Link from "next/link";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 import { AdminPanel } from "@/components/elements/controls/controls";
 import ActionTable from "@/components/tables/actions";
-import PreviewGraph from "@/components/graph/graphs/goal/main";
-import graphStyles from "@/components/graph/graph.module.css";
+import GoalGraph from "@/components/graph/graphs/goal/main";
+import graphStyles from "@/components/graph/graphs/goal/goal.module.css";
 import { getHistoricalDataset } from "@/functions/getHistoricalDataset";
 
 export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }) {
@@ -136,7 +136,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
                       {!!goal.name ? goal.name : goal.indicatorParameter}
                     </h3>
                     <div className="flex-grow-100">
-                      <PreviewGraph
+                      <GoalGraph
                         chartType="thumbnail"
                         series={{
                           main: goal?.dataSeries && {

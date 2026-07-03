@@ -19,7 +19,7 @@ import { IconAlertTriangle, IconArrowNarrowRight, IconBuildings } from "@tabler/
 import type { TFunction } from "i18next";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 import type { Metadata } from "next";
-import GraphGraph from "@/components/graph/graphs/goal/container";
+import GoalGraphContainer from "@/components/graph/graphs/goal/container";
 
 export async function generateMetadata(props: {
   params: Promise<{ goalId: string }>,
@@ -240,7 +240,7 @@ export default async function Page(
 
         {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
         <section className="margin-top-300">
-          <GraphGraph
+          <GoalGraphContainer
             goal={goal}
             parentGoal={parentGoal}
             childGoals={childGoals}
