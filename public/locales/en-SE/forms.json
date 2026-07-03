@@ -121,7 +121,8 @@
       "failed_parse_baseline": "Failed to parse baseline date values from form:",
       "initial_baseline_error": "Cannot use initial baseline when data series is empty.",
       "missing_baseline_id": "No inherited baseline ID provided in form.",
-      "missing_baseline": "No baseline provided for new goal."
+      "missing_baseline": "No baseline provided for new goal.",
+      "recipe_has_error": "This data series can't be saved because its recipe has an error. Please fix it before saving:"
     },
     "feature_goal": "Yes, feature this $t(common:goal_one).",
     "feature_this_goal": "Do you want to feature this $t(common:goal_one) in your $t(common:roadmap_version_one)?",

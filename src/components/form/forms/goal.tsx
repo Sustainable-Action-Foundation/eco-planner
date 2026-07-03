@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 import { dataSeriesToDateValues } from "@/functions/recipe";
 import UnitSync from "@/components/recipe/output/unitSyncer";
 import ParameterSync from "@/components/recipe/output/parameterSyncer";
+import RecipeErrorSync from "@/components/recipe/output/recipeErrorSync";
 import HistoricalDataSection from "../sections/historical/historical";
 // import { SuggestedRecipesList } from "@/components/recipe/suggestions/suggestedRecipeList";
 import PreviewGraph from "@/components/graph/graphs/previewGraph";
@@ -99,6 +100,10 @@ export default function GoalForm({
   const [indicatorParameter, setIndicatorParameter] = useState<string>(currentGoal?.indicatorParameter ?? "");
   const [parentRoadmapId, setParentRoadmapId] = useState<string>(roadmapId || "");
   const [previewDataSerie, setPreviewDataSerie] = useState<DateValuesWithUnit | null>(null);
+  // Evaluation error of the currently-selected recipe input (Suggested/Custom),
+  // lifted out of the recipe context so submission can be blocked when it fails
+  // to evaluate (e.g. an external variable with an incomplete selection).
+  const [dataSeriesRecipeError, setDataSeriesRecipeError] = useState<string | null>(null);
   const descriptionRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
@@ -155,6 +160,18 @@ export default function GoalForm({
     // Allows us to safely cast all formData values to (string | null) later
     if (formData.entries().some(([key, value]) => value instanceof File && !fileInputKeys.includes(key))) {
       addToast(t("forms:goal.errors.unexpected_file_object"), "error", false);
+      event.target.reportValidity();
+      return;
+    }
+
+    // Block submission when the selected recipe input failed to evaluate (e.g. an
+    // external dataset variable with an incomplete selection). Without this the
+    // recipe is sent and only fails server-side while materializing externals (500).
+    if (
+      (dataSeriesType === DataSeriesType.Suggested || dataSeriesType === DataSeriesType.Custom)
+      && dataSeriesRecipeError
+    ) {
+      addToast(`${t("forms:goal.errors.recipe_has_error")} ${dataSeriesRecipeError}`, "error", false);
       event.target.reportValidity();
       return;
     }
@@ -515,6 +532,10 @@ export default function GoalForm({
               <ParameterSync
                 setter={setIndicatorParameter}
               />
+              <RecipeErrorSync
+                setter={setDataSeriesRecipeError}
+                active={dataSeriesType === DataSeriesType.Suggested}
+              />
             </RecipeContextProvider>
           </fieldset>
           : null
@@ -540,6 +561,10 @@ export default function GoalForm({
               />
               <ParameterSync
                 setter={setIndicatorParameter}
+              />
+              <RecipeErrorSync
+                setter={setDataSeriesRecipeError}
+                active={dataSeriesType === DataSeriesType.Custom}
               />
             </RecipeContextProvider>
           </fieldset>

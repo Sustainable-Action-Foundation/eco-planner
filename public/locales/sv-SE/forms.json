@@ -121,7 +121,8 @@
       "failed_parse_baseline": "Det gick inte att tolka baslinjens datumvärden från formuläret:",
       "initial_baseline_error": "Det går inte att använda den initiala baslinjen när dataserien är tom.",
       "missing_baseline_id": "Inget ärvt baslinje-ID angivet i formuläret.",
-      "missing_baseline": "Ingen baslinje angiven för det nya målet."
+      "missing_baseline": "Ingen baslinje angiven för det nya målet.",
+      "recipe_has_error": "Den här dataserien kan inte sparas eftersom dess recept har ett fel. Åtgärda det innan du sparar:"
     },
     "feature_goal": "Ja, lyft fram $t(common:goal_definite_one).",
     "feature_this_goal": "Vill du lyfta fram den här $t(common:goal_definite_one) under din $t(common:roadmap_version_one)?",
