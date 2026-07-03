@@ -10,6 +10,7 @@ import { absoluteToDelta, ActionSelector, deltaToAbsolute, GoalSelector } from "
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import { FormIntegration, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
 import { Recipe } from "@/functions/recipe/recipe";
+import { EffectFormName } from "../formNames";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 
@@ -41,12 +42,12 @@ export default function EffectForm({
 
     const formData = new FormData(event.target);
 
-    const selectedAction = currentEffect?.actionId ?? formData.get("actionId");
-    const selectedGoal = currentEffect?.goalId ?? formData.get("goalId");
-    const impactType = formData.get("impactType");
+    const selectedAction = currentEffect?.actionId ?? formData.get(EffectFormName.ActionId);
+    const selectedGoal = currentEffect?.goalId ?? formData.get(EffectFormName.GoalId);
+    const impactType = formData.get(EffectFormName.ImpactType);
 
     // Parse date values (required)
-    const resultingDateValuesString = formData.get("resultingDateValues") as string | null || formData.get("data-series") as string | null; // Fallback for manual data series input
+    const resultingDateValuesString = formData.get(EffectFormName.ResultingDateValues) as string | null;
     if (!resultingDateValuesString) {
       console.error("No resulting date values provided in form.");
       event.target.reportValidity();
@@ -129,7 +130,7 @@ export default function EffectForm({
           label={t("forms:data_series_input.data_series")}
           initialDateValues={dateValues}
         />
-        <FormIntegration DateValuesFormElement={<input name="resultingDateValues" />} />
+        <FormIntegration DateValuesFormElement={<input name={EffectFormName.ResultingDateValues} />} />
       </RecipeContextProvider>
 
       {(
@@ -175,7 +176,7 @@ export default function EffectForm({
       {/* TODO: Show preview of how it would affect the goal */}
       <label>
         {t("forms:effect.impact_type_label")}
-        <select className="block margin-top-25 margin-bottom-100 width-100" name="impactType" id="impactType" required={true}
+        <select className="block margin-top-25 margin-bottom-100 width-100" name={EffectFormName.ImpactType} id="impactType" required={true}
           value={selectedImpactType}
           onChange={(event) => setSelectedImpactType(event.target.value as ActionImpactType)}
         >

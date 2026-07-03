@@ -9,6 +9,7 @@ import styles from '../forms.module.css';
 import TextEditor from "../elements/textEditor/editor";
 import { FormIntegration, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
 import { Recipe } from "@/functions/recipe/recipe";
+import { ActionFormName } from "../formNames";
 import { useState, useRef } from "react";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
@@ -37,8 +38,8 @@ export default function ActionForm({
     // TODO: Use formData instead of DOM traversal
     const form = event.target.elements;
 
-    let startYear: number | undefined = parseInt((form.namedItem("startYear") as HTMLInputElement).value, 10);
-    let endYear: number | undefined = parseInt((form.namedItem("endYear") as HTMLInputElement).value, 10);
+    let startYear: number | undefined = parseInt((form.namedItem(ActionFormName.StartYear) as HTMLInputElement).value, 10);
+    let endYear: number | undefined = parseInt((form.namedItem(ActionFormName.EndYear) as HTMLInputElement).value, 10);
 
     if (!Number.isFinite(startYear)) {
       startYear = undefined;
@@ -49,7 +50,7 @@ export default function ActionForm({
 
     let dataSeries: DateValuesWithUnit | undefined;
     try {
-      const rawDataSeries = JSON.parse((form.namedItem("resultingDateValues") as HTMLInputElement)?.value) as unknown;
+      const rawDataSeries = JSON.parse((form.namedItem(ActionFormName.ResultingDateValues) as HTMLInputElement)?.value) as unknown;
       if (rawDataSeries && isDateValuesWithUnit(rawDataSeries)) {
         dataSeries = rawDataSeries;
       }
@@ -67,24 +68,24 @@ export default function ActionForm({
 
     const formContent: ActionInput = {
       actionId: currentAction ? currentAction.id : undefined,
-      roadmapId: roadmapId ?? (form.namedItem("roadmapId") as HTMLInputElement)?.value ?? undefined,
+      roadmapId: roadmapId ?? (form.namedItem(ActionFormName.RoadmapId) as HTMLInputElement)?.value ?? undefined,
       goalId: goalId ?? undefined,
-      description: (form.namedItem("description") as HTMLInputElement | null)?.value ?? undefined,
-      name: (form.namedItem("actionName") as HTMLInputElement)?.value ?? "",
+      description: (form.namedItem(ActionFormName.Description) as HTMLInputElement | null)?.value ?? undefined,
+      name: (form.namedItem(ActionFormName.ActionName) as HTMLInputElement)?.value ?? "",
       startYear,
       endYear,
-      costEfficiency: (form.namedItem("costEfficiency") as HTMLInputElement)?.value ?? undefined,
-      expectedOutcome: (form.namedItem("expectedOutcome") as HTMLInputElement)?.value ?? undefined,
-      projectManager: (form.namedItem("projectManager") as HTMLInputElement)?.value ?? undefined,
-      relevantActors: (form.namedItem("relevantActors") as HTMLInputElement)?.value ?? undefined,
-      isSufficiency: (form.namedItem("isSufficiency") as HTMLInputElement)?.checked ?? false,
-      isEfficiency: (form.namedItem("isEfficiency") as HTMLInputElement)?.checked ?? false,
-      isRenewables: (form.namedItem("isRenewables") as HTMLInputElement)?.checked ?? false,
+      costEfficiency: (form.namedItem(ActionFormName.CostEfficiency) as HTMLInputElement)?.value ?? undefined,
+      expectedOutcome: (form.namedItem(ActionFormName.ExpectedOutcome) as HTMLInputElement)?.value ?? undefined,
+      projectManager: (form.namedItem(ActionFormName.ProjectManager) as HTMLInputElement)?.value ?? undefined,
+      relevantActors: (form.namedItem(ActionFormName.RelevantActors) as HTMLInputElement)?.value ?? undefined,
+      isSufficiency: (form.namedItem(ActionFormName.IsSufficiency) as HTMLInputElement)?.checked ?? false,
+      isEfficiency: (form.namedItem(ActionFormName.IsEfficiency) as HTMLInputElement)?.checked ?? false,
+      isRenewables: (form.namedItem(ActionFormName.IsRenewables) as HTMLInputElement)?.checked ?? false,
       parentAction: currentAction ?? undefined,
       childActions: undefined,
       dataSeries,
       impactType: goalId && !currentAction
-        ? (form.namedItem("impactType") as HTMLInputElement)?.value as ActionImpactType
+        ? (form.namedItem(ActionFormName.ImpactType) as HTMLInputElement)?.value as ActionImpactType
         : undefined,
       links: undefined,
       timestamp,
@@ -108,7 +109,7 @@ export default function ActionForm({
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:action.choose_relationship")}</legend>
           <label>
             {t("forms:action.relationship_label")}
-            <select name="roadmapId" id="roadmapId" required={true} className="block margin-top-25 margin-bottom-100 width-100" defaultValue={""}>
+            <select name={ActionFormName.RoadmapId} id="roadmapId" required={true} className="block margin-top-25 margin-bottom-100 width-100" defaultValue={""}>
               <option value="" disabled={true}>{t("forms:action.relationship_no_chosen")}</option>
               {roadmaps.map(roadmap => (
                 <option key={roadmap.id} value={roadmap.id}>
@@ -125,7 +126,7 @@ export default function ActionForm({
         <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:action.action_description_legend")}</legend>
         <label>
           {t("forms:action.action_name")}
-          <input className="margin-top-25 margin-bottom-100" type="text" name="actionName" required={true} id="actionName" defaultValue={currentAction?.name} />
+          <input className="margin-top-25 margin-bottom-100" type="text" name={ActionFormName.ActionName} required={true} id="actionName" defaultValue={currentAction?.name} />
         </label>
 
         <label id="description-label">{t("forms:action.action_description")}</label>
@@ -138,16 +139,16 @@ export default function ActionForm({
           content={currentAction ? currentAction.description : ""}
           updater={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
         />
-        <input ref={descriptionRef} type="hidden" name="description" />
+        <input ref={descriptionRef} type="hidden" name={ActionFormName.Description} />
 
         <label>
           {t("forms:action.cost_efficiency")}
-          <input className="margin-top-25 margin-bottom-100" type="text" name="costEfficiency" id="costEfficiency" defaultValue={currentAction?.costEfficiency ?? undefined} />
+          <input className="margin-top-25 margin-bottom-100" type="text" name={ActionFormName.CostEfficiency} id="costEfficiency" defaultValue={currentAction?.costEfficiency ?? undefined} />
         </label>
 
         <label>
           {t("forms:action.expected_outcome")}
-          <textarea className="margin-top-25 margin-bottom-100" name="expectedOutcome" id="expectedOutcome" defaultValue={currentAction?.expectedOutcome ?? undefined} />
+          <textarea className="margin-top-25 margin-bottom-100" name={ActionFormName.ExpectedOutcome} id="expectedOutcome" defaultValue={currentAction?.expectedOutcome ?? undefined} />
         </label>
       </fieldset>
 
@@ -157,7 +158,7 @@ export default function ActionForm({
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:action.expected_effect_legend")}</legend>
           <label>
             {t("forms:action.impact_type_label")}
-            <select name="impactType" id="impactType" className="block margin-top-25 margin-bottom-100 width-100" /* defaultValue={actionImpactType} onChange={e => setActionImpactType(e.target.value as ActionImpactType)} */ >
+            <select name={ActionFormName.ImpactType} id="impactType" className="block margin-top-25 margin-bottom-100 width-100" /* defaultValue={actionImpactType} onChange={e => setActionImpactType(e.target.value as ActionImpactType)} */ >
               <option value={ActionImpactType.ABSOLUTE}>{t("forms:action.impact_types.absolute")}</option>
               <option value={ActionImpactType.DELTA}>{t("forms:action.impact_types.delta")}</option>
               <option value={ActionImpactType.PERCENT}>{t("forms:action.impact_types.percent")}</option>
@@ -171,7 +172,7 @@ export default function ActionForm({
               id="action-dataseries"
               label={t("forms:data_series_input.data_series")}
             />
-            <FormIntegration DateValuesFormElement={<input name="resultingDateValues" />} />
+            <FormIntegration DateValuesFormElement={<input name={ActionFormName.ResultingDateValues} />} />
           </RecipeContextProvider>
         </fieldset>
         : null
@@ -181,12 +182,12 @@ export default function ActionForm({
         <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:action.action_years_legend")}</legend>
         <label>
           {t("forms:action.start_year")}
-          <input className="margin-top-25 margin-bottom-100" type="number" name="startYear" id="startYear" defaultValue={currentAction?.startYear ?? undefined} min={2000} />
+          <input className="margin-top-25 margin-bottom-100" type="number" name={ActionFormName.StartYear} id="startYear" defaultValue={currentAction?.startYear ?? undefined} min={2000} />
         </label>
 
         <label>
           {t("forms:action.end_year")}
-          <input className="margin-top-25 margin-bottom-100" type="number" name="endYear" id="endYear" defaultValue={currentAction?.endYear ?? undefined} min={2000} />
+          <input className="margin-top-25 margin-bottom-100" type="number" name={ActionFormName.EndYear} id="endYear" defaultValue={currentAction?.endYear ?? undefined} min={2000} />
         </label>
       </fieldset>
 
@@ -194,12 +195,12 @@ export default function ActionForm({
         <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:action.describe_actors_legend")}</legend>
         <label className="block margin-bottom-100">
           {t("forms:action.project_manager")}
-          <input className="margin-top-25 margin-bottom-100" type="text" name="projectManager" id="projectManager" defaultValue={currentAction?.projectManager ?? undefined} />
+          <input className="margin-top-25 margin-bottom-100" type="text" name={ActionFormName.ProjectManager} id="projectManager" defaultValue={currentAction?.projectManager ?? undefined} />
         </label>
 
         <label className="block margin-block-100">
           {t("forms:action.relevant_actors")}
-          <input className="margin-top-25 margin-bottom-100" type="text" name="relevantActors" id="relevantActors" defaultValue={currentAction?.relevantActors ?? undefined} />
+          <input className="margin-top-25 margin-bottom-100" type="text" name={ActionFormName.RelevantActors} id="relevantActors" defaultValue={currentAction?.relevantActors ?? undefined} />
         </label>
       </fieldset>
 
@@ -213,17 +214,17 @@ export default function ActionForm({
           {t("forms:action.categories_legend")}
         </legend>
         <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50" htmlFor="isSufficiency">
-          <input type="checkbox" name="isSufficiency" id="isSufficiency" defaultChecked={currentAction?.isSufficiency} />
+          <input type="checkbox" name={ActionFormName.IsSufficiency} id="isSufficiency" defaultChecked={currentAction?.isSufficiency} />
           {t("forms:action.category_sufficiency")}
         </label>
 
         <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50" htmlFor="isEfficiency">
-          <input type="checkbox" name="isEfficiency" id="isEfficiency" defaultChecked={currentAction?.isEfficiency} />
+          <input type="checkbox" name={ActionFormName.IsEfficiency} id="isEfficiency" defaultChecked={currentAction?.isEfficiency} />
           {t("forms:action.category_efficiency")}
         </label>
 
         <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50" htmlFor="isRenewables">
-          <input type="checkbox" name="isRenewables" id="isRenewables" defaultChecked={currentAction?.isRenewables} />
+          <input type="checkbox" name={ActionFormName.IsRenewables} id="isRenewables" defaultChecked={currentAction?.isRenewables} />
           {t("forms:action.category_renewables")}
         </label>
       </fieldset>

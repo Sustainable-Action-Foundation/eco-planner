@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { isISOIshDate } from "@/types";
 import type { Action, ClientRoadmap, DateValuesWithUnit, Goal, MultiRoadmapInstance } from "@/types";
+import { EffectFormName } from "../formNames";
 
 export function ActionSelector({
   action,
@@ -49,7 +50,7 @@ export function ActionSelector({
 
       {selectedRoadmap ? <label>
           {t("forms:effect.select_action_for_effect")}
-          <select name="actionId" id="actionId" className="block margin-top-25 margin-bottom-100 width-100" required={true}
+          <select name={EffectFormName.ActionId} id="actionId" className="block margin-top-25 margin-bottom-100 width-100" required={true}
             value={action?.id || selectedAction}
             onChange={event => setSelectedAction(event.target.value)}
           >
@@ -109,7 +110,7 @@ export function GoalSelector({
 
       {selectedRoadmap ? <label>
           {t("forms:effect.select_goal_to_affect")}
-          <select name="goalId" id="goalId" className="block margin-top-25 margin-bottom-100 width-100" required={true}
+          <select name={EffectFormName.GoalId} id="goalId" className="block margin-top-25 margin-bottom-100 width-100" required={true}
             value={goal?.id ?? selectedGoal ?? ""}
             onChange={event => setSelectedGoal(event.target.value)}
           >

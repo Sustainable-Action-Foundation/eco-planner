@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import SelectSingleSearch from "../../elements/combobox/selectSingleSearch";
 import { FormIntegration, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
 import { Recipe } from "@/functions/recipe/recipe";
+import { GoalFormName } from "../../formNames";
 import { timeVariableSelectionHelper, variableSelectionHelper } from "./helpers";
 import getTableMetadata from "@/lib/api/getTableMetadata";
 
@@ -369,7 +370,7 @@ export default function HistoricalDataSection({
             id="historical-data-series"
             label={t("forms:data_series_input.data_series")}
           />
-          <FormIntegration DateValuesFormElement={<input name="historical-data-series" />} />
+          <FormIntegration DateValuesFormElement={<input name={GoalFormName.HistoricalDataSeries} />} />
         </RecipeContextProvider>
       }
     </div>

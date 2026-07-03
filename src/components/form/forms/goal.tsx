@@ -22,6 +22,7 @@ import { dataSeriesToDateValues } from "@/functions/recipe";
 import ParameterSync from "@/components/recipe/output/parameterSyncer";
 import { RecipeSync } from "@/components/recipe/output/recipeSync";
 import HistoricalDataSection from "../sections/historical/historical";
+import { GoalFormName } from "../formNames";
 // import { SuggestedRecipesList } from "@/components/recipe/suggestions/suggestedRecipeList";
 import PreviewGraph from "@/components/graph/graphs/previewGraph";
 
@@ -39,7 +40,6 @@ const BaselineType = {
   Inherited: "INHERIT",
 } as const;
 type BaselineType = (typeof BaselineType)[keyof typeof BaselineType];
-
 
 function resolveDataSeriesType(goal?: Goal): DataSeriesType {
   // Somehow missing
@@ -176,7 +176,7 @@ export default function GoalForm({
 
     // Parse recipe (optional)
     let dataSeriesRecipe: Recipe | undefined = undefined;
-    const resultingRecipeString = formData.get("resultingRecipe") as string | null;
+    const resultingRecipeString = formData.get(GoalFormName.ResultingRecipe) as string | null;
     if (resultingRecipeString) {
       try {
         dataSeriesRecipe = Recipe.deserialize(resultingRecipeString);
@@ -189,7 +189,7 @@ export default function GoalForm({
     }
 
     // Parse date values (required)
-    const resultingDateValuesString = formData.get("resultingDateValues") as string | null || formData.get("data-series") as string | null; // Fallback for manual data series input
+    const resultingDateValuesString = formData.get(GoalFormName.ResultingDateValues) as string | null;
     if (!resultingDateValuesString) {
       addToast(t("forms:goal.errors.missing_date_values"), "error", false);
       event.target.reportValidity();
@@ -200,7 +200,7 @@ export default function GoalForm({
     try {
       dataSeries = JSON.parse(resultingDateValuesString) as DateValuesWithUnit;
       // Prefer the explicit unit field, but keep the recipe's evaluated unit when it's empty.
-      dataSeries.unit = (formData.get("dataUnit") as string | null) || dataSeries.unit;
+      dataSeries.unit = (formData.get(GoalFormName.DataUnit) as string | null) || dataSeries.unit;
     } catch (err) {
       addToast(`${t("forms:goal.errors.failed_parse_date_values")} ${err instanceof Error ? err.message : String(err)}`, "error", false);
       event.target.reportValidity();
@@ -220,7 +220,7 @@ export default function GoalForm({
     let baseline: DateValuesWithUnit | undefined = undefined;
     let baselineId: string | undefined = undefined;
     if (baselineType === BaselineType.Custom) {
-      const baselineString = formData.get("baseline-data-series") as string | null;
+      const baselineString = formData.get(GoalFormName.BaselineDataSeries) as string | null;
       if (baselineString) {
         try {
           baseline = JSON.parse(baselineString) as DateValuesWithUnit;
@@ -259,7 +259,7 @@ export default function GoalForm({
       }
     }
     else if (baselineType === BaselineType.Inherited) {
-      const inheritedBaselineId = formData.get("inherited-baseline-id") as string | null;
+      const inheritedBaselineId = formData.get(GoalFormName.InheritedBaselineId) as string | null;
       if (inheritedBaselineId) {
         baselineId = inheritedBaselineId;
       }
@@ -278,7 +278,7 @@ export default function GoalForm({
 
     let historicalDataSeries: DateValuesWithUnit | undefined = undefined;
     const historicalId: string | undefined = undefined;
-    const historicalDataSeriesString = formData.get("historical-data-series") as string | null;
+    const historicalDataSeriesString = formData.get(GoalFormName.HistoricalDataSeries) as string | null;
     if (historicalDataSeriesString) {
       try {
         historicalDataSeries = JSON.parse(historicalDataSeriesString) as DateValuesWithUnit;
@@ -292,7 +292,7 @@ export default function GoalForm({
     }
 
     let recipeSuggestions: SerializedRecipe[] | undefined = undefined;
-    const recipeSuggestionsString = formData.get("recipe-suggestions") as string | null;
+    const recipeSuggestionsString = formData.get(GoalFormName.RecipeSuggestions) as string | null;
     if (recipeSuggestionsString) {
       try {
         recipeSuggestions = JSON.parse(recipeSuggestionsString) as SerializedRecipe[];
@@ -314,10 +314,10 @@ export default function GoalForm({
         goalId: undefined, // Ignored when creating
         timestamp: undefined, // Ignored when creating
 
-        name: formData.get("goalName") as string | null ?? null,
-        description: formData.get("description") as string | null ?? null, // Use the hidden input for the description, which contains the latest editor content
-        indicatorParameter: formData.get("indicatorParameter") as string | null ?? (event.target.reportValidity(), ""),
-        isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked || false,
+        name: formData.get(GoalFormName.GoalName) as string | null ?? null,
+        description: formData.get(GoalFormName.Description) as string | null ?? null, // Use the hidden input for the description, which contains the latest editor content
+        indicatorParameter: formData.get(GoalFormName.IndicatorParameter) as string | null ?? (event.target.reportValidity(), ""),
+        isFeatured: (form.namedItem(GoalFormName.IsFeatured) as HTMLInputElement)?.checked || false,
         recipeSuggestions: recipeSuggestions,
 
         dataSeriesId: null,
@@ -349,10 +349,10 @@ export default function GoalForm({
         goalId: currentGoal.id,
         timestamp: timestamp, // Only needed for edits
 
-        name: formData.get("goalName") as string | null ?? undefined,
-        description: formData.get("description") as string | null ?? undefined, // Use the hidden input for the description, which contains the latest editor content
-        indicatorParameter: formData.get("indicatorParameter") as string | null ?? undefined,
-        isFeatured: (form.namedItem('isFeatured') as HTMLInputElement)?.checked ?? undefined,
+        name: formData.get(GoalFormName.GoalName) as string | null ?? undefined,
+        description: formData.get(GoalFormName.Description) as string | null ?? undefined, // Use the hidden input for the description, which contains the latest editor content
+        indicatorParameter: formData.get(GoalFormName.IndicatorParameter) as string | null ?? undefined,
+        isFeatured: (form.namedItem(GoalFormName.IsFeatured) as HTMLInputElement)?.checked ?? undefined,
         recipeSuggestions: recipeSuggestions,
 
         dataSeriesId: undefined,
@@ -421,7 +421,7 @@ export default function GoalForm({
         <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.goal_description_legend")}</legend>
         <label>
           {t("forms:goal.goal_name")}
-          <input className="margin-top-25 margin-bottom-100" type="text" name="goalName" id="goalName" defaultValue={currentGoal?.name ?? undefined} />
+          <input className="margin-top-25 margin-bottom-100" type="text" name={GoalFormName.GoalName} id="goalName" defaultValue={currentGoal?.name ?? undefined} />
         </label>
 
         <label id="description-label">{t("forms:goal.goal_description")}</label> {/* TODO: This is not actually labeling anything. I am however unsure how labels work outside of inputs so check that. */}
@@ -435,7 +435,7 @@ export default function GoalForm({
           updater={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
         />
         {/* hidden input containing the text editor output */}
-        <input ref={descriptionRef} type="hidden" name="description" />
+        <input ref={descriptionRef} type="hidden" name={GoalFormName.Description} />
 
         {/* Indicator parameter / LEAP parameter */}
         <label htmlFor="indicatorParameter">
@@ -444,7 +444,7 @@ export default function GoalForm({
         <TextSingleAutocomplete
           props={{
             id: "indicatorParameter",
-            name: "indicatorParameter",
+            name: GoalFormName.IndicatorParameter,
             placeholder: t("forms:combobox.default_autocomplete_placeholder"),
             className: "margin-top-25 margin-bottom-100",
             defaultValue: currentGoal?.indicatorParameter ?? undefined,
@@ -463,7 +463,7 @@ export default function GoalForm({
             {t("forms:goal.feature_this_goal")}
           </legend>
           <label className="flex align-items-center gap-50 margin-top-50 margin-bottom-100">
-            <input type="checkbox" name="isFeatured" id="isFeatured" defaultChecked={currentGoal?.isFeatured} />
+            <input type="checkbox" name={GoalFormName.IsFeatured} id="isFeatured" defaultChecked={currentGoal?.isFeatured} />
             {t("forms:goal.feature_goal")}
           </label>
         </fieldset >
@@ -478,7 +478,7 @@ export default function GoalForm({
           <label className="flex align-items-center gap-50 margin-bottom-50">
             <input
               type="radio"
-              name="dataSeriesType"
+              name={GoalFormName.DataSeriesType}
               value={DataSeriesType.Suggested}
               checked={dataSeriesType === DataSeriesType.Suggested}
               onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
@@ -488,7 +488,7 @@ export default function GoalForm({
           <label className="flex align-items-center gap-50 margin-bottom-50">
             <input
               type="radio"
-              name="dataSeriesType"
+              name={GoalFormName.DataSeriesType}
               value={DataSeriesType.Custom}
               checked={dataSeriesType === DataSeriesType.Custom}
               onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
@@ -498,7 +498,7 @@ export default function GoalForm({
           <label className="flex align-items-center gap-50 margin-bottom-50">
             <input
               type="radio"
-              name="dataSeriesType"
+              name={GoalFormName.DataSeriesType}
               value={DataSeriesType.Manual}
               checked={dataSeriesType === DataSeriesType.Manual}
               onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
@@ -521,8 +521,8 @@ export default function GoalForm({
             >
               <SuggestedRecipeApplier />
               <FormIntegration
-                RecipeFormElement={<input name="resultingRecipe" />}
-                DateValuesFormElement={<input name="resultingDateValues" />}
+                RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
+                DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
               />
               <ParameterSync
                 setter={setIndicatorParameter}
@@ -546,8 +546,8 @@ export default function GoalForm({
             >
               <RecipeEditor />
               <FormIntegration
-                RecipeFormElement={<input name="resultingRecipe" />}
-                DateValuesFormElement={<input name="resultingDateValues" />}
+                RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
+                DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
               />
               <ParameterSync
                 setter={setIndicatorParameter}
@@ -577,7 +577,7 @@ export default function GoalForm({
         <TextSingleAutocomplete
           props={{
             id: "dataUnit",
-            name: "dataUnit",
+            name: GoalFormName.DataUnit,
             placeholder: t("forms:combobox.default_autocomplete_placeholder"),
             className: "margin-top-25",
             defaultValue: currentGoal?.dataSeries?.unit ?? undefined,
@@ -615,7 +615,7 @@ export default function GoalForm({
 
         <label>
           {t("forms:goal.baseline_label")}
-          <select className="block margin-top-25 margin-bottom-100" name="baselineSelector" id="baselineSelector" value={baselineType} onChange={(e) => setBaselineType(e.target.value as BaselineType)}>
+          <select className="block margin-top-25 margin-bottom-100" name={GoalFormName.BaselineType} id="baselineSelector" value={baselineType} onChange={(e) => setBaselineType(e.target.value as BaselineType)}>
             <option value={BaselineType.Initial}>{t("forms:goal.baseline_types.initial")}</option>
             <option value={BaselineType.InitialNonZero}>{t("forms:goal.baseline_types.initial_non_zero")}</option>
             <option value={BaselineType.Custom}>{t("forms:goal.baseline_types.custom")}</option>
@@ -638,14 +638,14 @@ export default function GoalForm({
                 : {}
               }
             />
-            <FormIntegration DateValuesFormElement={<input name="baseline-data-series" />} />
+            <FormIntegration DateValuesFormElement={<input name={GoalFormName.BaselineDataSeries} />} />
           </RecipeContextProvider>
         }
 
         {/* Inherited baseline input */}
         {baselineType === BaselineType.Inherited &&
           <InheritingBaseline
-            outputFormElement={<input name="inherited-baseline-id" />}
+            outputFormElement={<input name={GoalFormName.InheritedBaselineId} />}
           />
         }
       </fieldset>

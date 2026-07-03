@@ -6,6 +6,7 @@ import type { DBRecipe, Goal } from "@/types";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { RecipeSync } from "@/components/recipe/output/recipeSync";
+import { GoalFormName } from "@/components/form/formNames";
 
 /**
  * ## Note
@@ -145,7 +146,7 @@ export function SuggestedRecipesList({
   }
 
   return (<section>
-    <input type="hidden" name="recipe-suggestions" value={serializedSuggestions} />
+    <input type="hidden" name={GoalFormName.RecipeSuggestions} value={serializedSuggestions} />
 
     <label className="margin-block-100">
       {/* Include default suggested */}

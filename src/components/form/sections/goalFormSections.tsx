@@ -8,6 +8,7 @@ import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import { Recipe } from "@/functions/recipe/recipe";
 import { clientSafeGetRoadmaps, clientSafeGetOneRoadmap, clientSafeGetOneGoal } from "@/fetchers/client";
 import { FormIntegration, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
+import { GoalFormName } from "../formNames";
 
 export function ManualGoalForm({
   currentGoal,
@@ -30,8 +31,8 @@ export function ManualGoalForm({
         initialDateValues={initialDateValues}
       />
       <FormIntegration
-        RecipeFormElement={<input name="resultingRecipe" />}
-        DateValuesFormElement={<input name="resultingDateValues" />}
+        RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
+        DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
       />
     </RecipeContextProvider>
   );
