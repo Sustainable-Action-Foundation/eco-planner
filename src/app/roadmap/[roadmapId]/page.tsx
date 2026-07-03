@@ -14,7 +14,7 @@ import Link from "next/link";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 import { AdminPanel } from "@/components/elements/controls/controls";
 import ActionTable from "@/components/tables/actions";
-import PreviewGraph from "@/components/graph/graphs/previewGraph";
+import PreviewGraph from "@/components/graph/graphs/goal/main";
 import graphStyles from "@/components/graph/graph.module.css";
 import { getHistoricalDataset } from "@/functions/getHistoricalDataset";
 

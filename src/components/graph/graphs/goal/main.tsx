@@ -4,7 +4,7 @@ import { dataSeriesToDateValues } from "@/functions/recipe";
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import type { DataSeries, DateValuesWithUnit } from "@/types";
 import type { ApexAxisChartSeries, ApexYAxis } from "apexcharts";
-import { color_palette, generateApexChartOptions } from "../config";
+import { color_palette, generateApexChartOptions } from "../../config";
 import { useTranslation } from "react-i18next";
 
 // Checks if we have a dataSeries or DateValuesWithUnit
