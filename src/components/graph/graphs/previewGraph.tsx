@@ -43,6 +43,7 @@ export default function PreviewGraph({
     historical = null,
     predictedOutcome = null,
     comparison = null,
+    parent = null,
   } = {},
 }: {
   series?: {
@@ -51,6 +52,7 @@ export default function PreviewGraph({
     historical?: ((DataSeries | DateValuesWithUnit) & { name: string }) | null;
     predictedOutcome?: ((DataSeries | DateValuesWithUnit) & { name: string }) | null;
     comparison?: ((DataSeries | DateValuesWithUnit) & { name: string }) | null;
+    parent?: ((DataSeries | DateValuesWithUnit) & { name: string }) | null;
   };
 }) {
   const { t } = useTranslation("graphs");
@@ -136,7 +138,12 @@ export default function PreviewGraph({
     opacities.push(color_palette.comparison.fillOpacity);
   }
 
-  // TODO: Add parent graph!
+  if (parent) {
+    chart.push(toChartSeries(parent, parent.name, "line", color_palette.parentGoal.color)); // TODO: Rename parentGoal --> parent
+    mainYAxis.push(parent.name);
+    colors.push(color_palette.parentGoal.color);
+    opacities.push(color_palette.parentGoal.fillOpacity);
+  }
 
   return <WrappedChart height={"100%"} width={"100%"} options={mainChartOptions} series={chart} />;
 }

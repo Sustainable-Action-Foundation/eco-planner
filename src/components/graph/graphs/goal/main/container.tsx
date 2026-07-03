@@ -26,7 +26,7 @@ type TimestampedValue = { timestamp: Date; value: number };
 export default function GraphGraph({
   goal,
   secondaryGoal,
-  // parentGoal,
+  parentGoal,
   // parentGoalRoadmap,
   // effects,
   session,
@@ -167,8 +167,12 @@ export default function GraphGraph({
                 unit: secondaryGoal.dataSeries.unit,
                 dateValues: toDeltaDateValues(secondaryGoal.dataSeries.values),
               },
-            }
-            }
+              parent: parentGoal?.dataSeries && {
+                name: t("graphs:common.parent_counterpart", { parent: (parentGoal?.name || parentGoal?.indicatorParameter || "").split('\\').slice(-1)[0] }),
+                unit: parentGoal.dataSeries.unit,
+                dateValues: toDeltaDateValues(goal.dataSeries?.values ?? []),
+              },
+            }}
           />
         );
         // return <MainDeltaGraph goal={goal} parentGoal={parentGoal} parentGoalRoadmap={parentGoalRoadmap} secondaryGoal={secondaryGoal} effects={effects} />;
@@ -210,6 +214,11 @@ export default function GraphGraph({
               name: secondaryGoal.name || secondaryGoal.indicatorParameter.split('\\').slice(-1)[0],
               unit: secondaryGoal.dataSeries.unit,
               dateValues: toPercentOfFirstDateValues(secondaryGoal.dataSeries.values),
+            },
+            parent: parentGoal?.dataSeries && {
+              name: t("graphs:common.parent_counterpart", { parent: (parentGoal?.name || parentGoal?.indicatorParameter || "").split('\\').slice(-1)[0] }),
+              unit: parentGoal.dataSeries.unit,
+              dateValues: toPercentOfFirstDateValues(parentGoal.dataSeries.values),
             },
           }}
         />;
@@ -269,6 +278,16 @@ export default function GraphGraph({
               unit: secondaryGoal.dataSeries.unit,
               dateValues: Object.fromEntries(
                 secondaryGoal.dataSeries.values.map((value) => [
+                  value.timestamp.toISOString(),
+                  value.value,
+                ]),
+              ),
+            },
+            parent: parentGoal?.dataSeries && {
+              name: t("graphs:common.parent_counterpart", { parent: (parentGoal?.name || parentGoal?.indicatorParameter || "").split('\\').slice(-1)[0] }),
+              unit: parentGoal.dataSeries.unit,
+              dateValues: Object.fromEntries(
+                parentGoal.dataSeries.values.map((value) => [
                   value.timestamp.toISOString(),
                   value.value,
                 ]),

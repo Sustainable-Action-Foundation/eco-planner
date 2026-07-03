@@ -39,6 +39,7 @@ export default function CopyAndScale({
     // Try parsing the data series object from the recipe editor
     let resultingDataSeries: DateValues;
     try {
+      console.log(form.get("resultingDataSeries"));
       const parsedDataSeries = JSON.parse(form.get("resultingDataSeries") as string) as JSONValue;
 
       // At first expect the data series to be partial
