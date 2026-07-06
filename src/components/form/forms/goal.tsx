@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
 import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
-import { InheritingBaseline, ManualGoalForm } from "../sections/goalFormSections";
+import { InheritingBaseline } from "../sections/goalFormSections";
 import TextEditor from "../elements/textEditor/editor";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import { Recipe } from "@/functions/recipe/recipe";
@@ -387,6 +387,10 @@ export default function GoalForm({
     formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST', t, undefined, undefined, undefined, undefined, addToast, router.push);
   }
 
+  const manualInitialDateValues = currentGoal?.dataSeries
+    ? dataSeriesToDateValues(currentGoal.dataSeries)
+    : undefined;
+
   // Index for data-position attribute in legend elements (for accessibility)
   let positionIndex = 1;
 
@@ -564,9 +568,19 @@ export default function GoalForm({
 
         {/* Manual */}
         <fieldset className={`margin-bottom-100 ${dataSeriesType === DataSeriesType.Manual ? "" : "display-none"}`} disabled={dataSeriesType !== DataSeriesType.Manual}>
-          <ManualGoalForm
-            currentGoal={currentGoal}
-          />
+          <RecipeContextProvider
+            initialRecipe={Recipe.fromManualDateValues(manualInitialDateValues ?? { unit: undefined, dateValues: {} }).serialize()}
+          >
+            <ManualDataSeriesInput
+              id="goal-dataseries"
+              label={t("forms:data_series_input.data_series")}
+              initialDateValues={manualInitialDateValues}
+            />
+            <FormIntegration
+              RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
+              DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
+            />
+          </RecipeContextProvider>
         </fieldset>
 
         {/* Unit */}

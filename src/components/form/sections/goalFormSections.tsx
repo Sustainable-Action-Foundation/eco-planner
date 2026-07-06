@@ -3,40 +3,8 @@
 
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { ClientGoal, ClientMultiRoadmapInstance, ClientRoadmap, Goal } from "@/types";
-import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
-import { Recipe } from "@/functions/recipe/recipe";
+import type { ClientGoal, ClientMultiRoadmapInstance, ClientRoadmap } from "@/types";
 import { clientSafeGetRoadmaps, clientSafeGetOneRoadmap, clientSafeGetOneGoal } from "@/fetchers/client";
-import { FormIntegration, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
-import { GoalFormName } from "../formNames";
-
-export function ManualGoalForm({
-  currentGoal,
-}: {
-  currentGoal?: Goal;
-}) {
-  const { t } = useTranslation("forms");
-
-  const initialDateValues = currentGoal?.dataSeries
-    ? dataSeriesToDateValues(currentGoal.dataSeries)
-    : undefined;
-
-  return (
-    <RecipeContextProvider
-      initialRecipe={Recipe.fromManualDateValues(initialDateValues ?? { unit: undefined, dateValues: {} }).serialize()}
-    >
-      <ManualDataSeriesInput
-        id="goal-dataseries"
-        label={t("forms:data_series_input.data_series")}
-        initialDateValues={initialDateValues}
-      />
-      <FormIntegration
-        RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
-        DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
-      />
-    </RecipeContextProvider>
-  );
-}
 
 export function InheritingBaseline({
   outputFormElement,
