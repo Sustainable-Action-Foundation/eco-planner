@@ -331,7 +331,7 @@ export function isExternalSelection(selection: JSONValue): selection is External
 }
 
 export function isRecipe(recipe: JSONValue): recipe is RecipeShape {
-  const allowedProps = ["name", "equation", "variables", "meta"];
+  const allowedProps = ["name", "equation", "variables", "unit", "meta"];
 
   // Passed as serialized string, try to parse it first
   if (typeof recipe === "string") {
@@ -379,6 +379,17 @@ export function isRecipe(recipe: JSONValue): recipe is RecipeShape {
     || !Array.isArray(recipe.variables)
   ) {
     console.warn("Type guard: 'variables' in recipe should be an array", recipe);
+    return false;
+  }
+
+  // .unit: string | null | undefined
+  if (
+    "unit" in recipe
+    && recipe.unit !== undefined
+    && typeof recipe.unit !== "string"
+    && recipe.unit !== null
+  ) {
+    console.warn("Type guard: 'unit' in recipe", recipe);
     return false;
   }
 

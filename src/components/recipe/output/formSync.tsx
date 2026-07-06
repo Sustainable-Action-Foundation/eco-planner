@@ -26,6 +26,11 @@ export function FormSync({
     resultingUnit,
   } = useRecipe();
 
+  const effectiveUnit = useMemo(() => {
+    if (recipe.unit !== undefined) return recipe.unit;
+    return resultingUnit;
+  }, [recipe.unit, resultingUnit]);
+
   const dateValues: DateValuesWithUnit | undefined = useMemo(() => {
     if (!resultingDataSeries) return undefined;
     return { unit: resultingUnit, dateValues: resultingDataSeries };
@@ -39,7 +44,7 @@ export function FormSync({
       readOnly: true,
     })}
     {!!UnitFormElement && React.cloneElement(UnitFormElement, {
-      value: resultingUnit ?? "",
+      value: effectiveUnit ?? "",
       type: "hidden",
       hidden: true,
       readOnly: true,

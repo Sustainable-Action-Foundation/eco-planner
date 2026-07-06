@@ -1,26 +1,20 @@
 'use client';
 
 import { useTranslation } from "react-i18next";
-import TextSingleAutocomplete from "../../elements/combobox/textSingleAutocomplete";
 import { GoalFormName } from "../../formNames";
-import type { DateValuesWithUnit, Goal, UnitString } from "@/types";
-import mathjs, { allOurUnits } from "@/math";
+import type { DateValuesWithUnit, Goal } from "@/types";
 import { DataSeriesType } from "../../forms/goal";
 import { IconCheck } from "@tabler/icons-react";
-import { FormSync, ManualDataSeriesInput, RecipeContextProvider, RecipeEditor, type SetStateAction, SuggestedRecipeApplier } from "@/components/recipe";
+import { FormSync, ManualDataSeriesInput, RecipeContextProvider, RecipeEditor, type SetStateAction, SuggestedRecipeApplier, UnitInput } from "@/components/recipe";
 import { dataSeriesToDateValues, Recipe } from "@/functions/recipe";
 import ParameterSync from "@/components/recipe/output/parameterSyncer";
 import { RecipeSync } from "@/components/recipe/output/recipeSync";
-import type { Dispatch } from "react";
+import { useMemo, type Dispatch } from "react";
 
 type DataSeriesType = (typeof DataSeriesType)[keyof typeof DataSeriesType];
 
 export default function GoalSeriesSection({
   goal,
-  unit,
-  setUnit,
-  parsedUnit,
-  setParsedUnit,
   dataSeriesType,
   setDataSeriesType,
   setIndicatorParameter,
@@ -30,10 +24,6 @@ export default function GoalSeriesSection({
   hasInitializedCustom,
 }: {
   goal: Goal | undefined;
-  unit: string;
-  setUnit: Dispatch<SetStateAction<string>>;
-  parsedUnit: UnitString;
-  setParsedUnit: Dispatch<SetStateAction<UnitString>>;
   dataSeriesType: DataSeriesType;
   setDataSeriesType: Dispatch<SetStateAction<DataSeriesType>>;
   setIndicatorParameter: Dispatch<SetStateAction<string>>;
@@ -48,40 +38,17 @@ export default function GoalSeriesSection({
     ? dataSeriesToDateValues(goal.dataSeries)
     : undefined;
 
+  const initialLoadedRecipe = useMemo(() => {
+    const base = goal?.dataSeries?.recipeUsed?.recipe;
+    if (!base) return undefined;
+
+    const recipe = Recipe.from(base).withEditableExternals();
+    recipe.unit = goal?.dataSeries?.unit;
+    return recipe.serialize();
+  }, [goal?.dataSeries?.recipeUsed?.recipe, goal?.dataSeries?.unit]);
+
   return (
     <>
-      <label htmlFor="dataUnit">
-        {t("forms:goal.data_series.unit")}
-      </label>
-      <TextSingleAutocomplete
-        props={{
-          id: "dataUnit",
-          name: GoalFormName.DataUnit,
-          placeholder: t("forms:combobox.default_autocomplete_placeholder"),
-          className: "margin-top-25",
-          defaultValue: goal?.dataSeries?.unit ?? undefined,
-        }}
-        options={allOurUnits.map(u => ({ name: u, value: u }))}
-        onChange={(unit) => {
-          try {
-            setParsedUnit(mathjs.unit(unit).toString());
-          } catch {
-            setParsedUnit(null);
-          }
-        }}
-        value={unit}
-        setter={setUnit}
-      />
-      <small className="block margin-top-25 font-style-italic margin-bottom-100">
-        {parsedUnit === null ? (
-          t("forms:goal.unit_not_interpreted")
-        ) : (
-          <>
-            {t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong>
-          </>
-        )}
-      </small>
-
       {/* Radio group */}
       <fieldset className="border-none padding-0 margin-0 radio-group fieldset-unset-pseudo-class" role="radiogroup" aria-label={t("forms:goal.choose_goal_data_series")}>
         <legend className="margin-bottom-25">{t("forms:goal.data_series.goal.type")}</legend>
@@ -154,19 +121,19 @@ export default function GoalSeriesSection({
         {hasInitializedSuggested ?
           <fieldset className={`${dataSeriesType !== DataSeriesType.Suggested ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Suggested}>
             <RecipeContextProvider
-              initialRecipe={goal?.dataSeries?.recipeUsed?.recipe ? Recipe.from(goal.dataSeries.recipeUsed.recipe).withEditableExternals().serialize() : undefined}
+              initialRecipe={initialLoadedRecipe}
               availableDataSeries={goal?.dataSeries?.recipeUsed?.sourceDataSeries}
             >
               <SuggestedRecipeApplier />
               <FormSync
                 RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
+                UnitFormElement={<input name={GoalFormName.DataUnit} />}
                 DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
               />
               <ParameterSync
                 setter={setIndicatorParameter}
               />
               <RecipeSync
-                onUnit={setUnit}
                 onError={setDataSeriesRecipeError}
                 active={dataSeriesType === DataSeriesType.Suggested}
               />
@@ -187,7 +154,11 @@ export default function GoalSeriesSection({
             />
             <FormSync
               RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
+              UnitFormElement={<input name={GoalFormName.DataUnit} />}
               DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
+            />
+            <UnitInput
+              savedUnit={goal?.dataSeries?.unit}
             />
           </RecipeContextProvider>
         </fieldset>
@@ -196,19 +167,22 @@ export default function GoalSeriesSection({
         {hasInitializedCustom ?
           <fieldset className={`${dataSeriesType !== DataSeriesType.Custom ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Custom}>
             <RecipeContextProvider
-              initialRecipe={goal?.dataSeries?.recipeUsed?.recipe ? Recipe.from(goal.dataSeries.recipeUsed.recipe).withEditableExternals().serialize() : undefined}
+              initialRecipe={initialLoadedRecipe}
               availableDataSeries={goal?.dataSeries?.recipeUsed?.sourceDataSeries}
             >
               <RecipeEditor />
               <FormSync
                 RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
+                UnitFormElement={<input name={GoalFormName.DataUnit} />}
                 DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
+              />
+              <UnitInput
+                savedUnit={goal?.dataSeries?.unit}
               />
               <ParameterSync
                 setter={setIndicatorParameter}
               />
               <RecipeSync
-                onUnit={setUnit}
                 onDateValues={setPreviewDataSerie}
                 onError={setDataSeriesRecipeError}
                 active={dataSeriesType === DataSeriesType.Custom}

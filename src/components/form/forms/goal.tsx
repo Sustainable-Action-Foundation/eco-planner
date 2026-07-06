@@ -2,9 +2,8 @@
 
 import type { getRoadmaps } from "@/fetchers";
 import formSubmitter from "@/functions/formSubmitter";
-import mathjs from "@/math";
 import { GoalDataTarget, isDateValuesWithUnit, isISOIshDate } from "@/types";
-import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput, UnitString } from "@/types";
+import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput } from "@/types";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
@@ -17,7 +16,6 @@ import type { SerializedRecipe } from "@/functions/recipe";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 import { GoalFormName } from "../formNames";
-// import { SuggestedRecipesList } from "@/components/recipe/suggestions/suggestedRecipeList";
 import GoalGraph from "@/components/graph/graphs/goal/main";
 import HistoricalSeriesSection from "../sections/dataseries/historical";
 import BaselineSeriesSection from "../sections/dataseries/baseline";
@@ -91,7 +89,6 @@ export default function GoalForm({
   const [hasInitializedSuggested, setHasInitializedSuggested] = useState<boolean>(() => resolveDataSeriesType(currentGoal) === DataSeriesType.Suggested);
   const [hasInitializedCustom, setHasInitializedCustom] = useState<boolean>(() => resolveDataSeriesType(currentGoal) === DataSeriesType.Custom);
   const [baselineType, setBaselineType] = useState<BaselineType>(resolveBaselineType(currentGoal));
-  const [unit, setUnit] = useState<string>(currentGoal?.dataSeries?.unit ?? "");
   const [indicatorParameter, setIndicatorParameter] = useState<string>(currentGoal?.indicatorParameter ?? "");
   const [parentRoadmapId, setParentRoadmapId] = useState<string>(roadmapId || "");
   const [previewDataSerie, setPreviewDataSerie] = useState<DateValuesWithUnit | null>(null);
@@ -112,17 +109,6 @@ export default function GoalForm({
   }, [roadmapAlternatives, t]);
 
   const [timestamp] = useState(() => Date.now());
-
-  const [parsedUnit, setParsedUnit] = useState<UnitString>(() => {
-    if (currentGoal?.dataSeries?.unit) {
-      try {
-        return mathjs.unit(currentGoal.dataSeries.unit).toString();
-      } catch {
-        return null;
-      }
-    }
-    return null;
-  });
 
   const indicatorParameters = useMemo(() => {
     return [...new Set(parameterOptions)].map(option => ({
@@ -196,8 +182,9 @@ export default function GoalForm({
     let dataSeries: DateValuesWithUnit | undefined;
     try {
       dataSeries = JSON.parse(resultingDateValuesString) as DateValuesWithUnit;
-      // Prefer the explicit unit field, but keep the recipe's evaluated unit when it's empty.
-      dataSeries.unit = (formData.get(GoalFormName.DataUnit) as string | null) || dataSeries.unit;
+      // Prefer explicit overrides, but keep the recipe/manual unit when override is empty.
+      const dataUnitOverride = (formData.get(GoalFormName.DataUnit) as string | null)?.trim();
+      dataSeries.unit = dataUnitOverride || dataSeries.unit;
     } catch (err) {
       addToast(`${t("forms:goal.errors.failed_parse_date_values")} ${err instanceof Error ? err.message : String(err)}`, "error", false);
       event.target.reportValidity();
@@ -472,10 +459,6 @@ export default function GoalForm({
 
           <GoalSeriesSection
             goal={currentGoal}
-            unit={unit}
-            setUnit={setUnit}
-            parsedUnit={parsedUnit}
-            setParsedUnit={setParsedUnit}
             dataSeriesType={dataSeriesType}
             setDataSeriesType={setDataSeriesType}
             setIndicatorParameter={setIndicatorParameter}

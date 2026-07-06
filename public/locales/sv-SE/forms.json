@@ -52,6 +52,7 @@
     "advanced": "Avancerade alternativ",
     "custom_baseline": "Anpassad baslinje",
     "data_series": "Dataserie",
+    "data_unit": "Överskrid enhet",
     "data_series_advanced_info": "Detta fält tar emot en serie med värden som är separerade med semikolon eller tab. Detta innebär att du kan klistra in en serie med värden från extern programvara såsom Microsoft Excel eller Google Sheets. Det första värdet representerar år 2020 och fortsätter därefter till år 2050 (totalt 31 värden). Om värden saknas för ett år kan du lämna det tomt, exempelvis anger \";1;;;;5\" värdena 1 och 5 för år 2021 respektive 2025. Decimaltal kan antingen skrivas med punkt eller kommatecken.<br /><br /> <strong>Viktigt: Värden får inte vara separerade med kommatecken (\",\").</strong>",
     "data_series_tooltip": "Använd numeriska värden separerade med semikolon eller tab. Decimaltal kan antingen skrivas med punkt eller kommatecken.",
     "delete_selected_row": "Radera vald rad",
@@ -64,6 +65,16 @@
     "insert_row_bottom": "Infoga rad underst",
     "show_table": "Expandera tabell",
     "start_year": "Startår",
+    "unit_interpreted_as": "Enheten tolkas som:",
+    "unit_not_interpreted": "Enheten kunde inte tolkas. Du kan fortfarande spara, men viss funktionalitet kan saknas.",
+    "unit_override_status": {
+      "overriding": "Skriver över beräknad/sparad enhet \"{{suggestedUnit}}\" med \"{{overrideUnit}}\".",
+      "using": "Använder beräknad/sparad enhet \"{{suggestedUnit}}\"."
+    },
+    "unit_input": {
+      "difference_notice": "Beräknad enhet \"{{resolvedUnit}}\" skiljer sig från förväntad enhet \"{{expectedUnit}}\".",
+      "override_toggle": "Skriv över beräknad enhet med förväntad enhet"
+    },
     "value": "Värde",
     "year": "År"
   },

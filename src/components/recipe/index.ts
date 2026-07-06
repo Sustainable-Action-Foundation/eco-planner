@@ -9,8 +9,9 @@ export * from "./editor/recipeEditor";
 export * from "./editor/equationEditor";
 
 export * from "./input/manualDataSeriesInput";
+export * from "./input/unitInput";
 
-export * from "./output/formIntegration";
+export * from "./output/formSync";
 export * from "./output/dataSeriesDisplay";
 export * from "./output/graphDisplay";
 export * from "./output/textStatusDisplay";

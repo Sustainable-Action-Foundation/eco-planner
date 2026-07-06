@@ -28,22 +28,26 @@ export class Recipe {
   public name: string;
   public equation: string;
   public variables: RecipeVariable[];
+  public unit: UnitString;
   private meta?: RecipeShape["meta"];
 
   public constructor({
     name,
     equation,
     variables,
+    unit,
     meta,
   }: {
     name: string;
     equation: string;
     variables: RecipeVariable[];
+    unit?: UnitString;
     meta?: RecipeShape["meta"];
   }) {
     this.name = name;
     this.equation = equation;
     this.variables = variables;
+    this.unit = unit ?? undefined;
     this.meta = meta;
   }
 
@@ -461,6 +465,7 @@ export class Recipe {
       name: this.name,
       equation: this.equation,
       variables: this.variables,
+      unit: this.unit,
       meta: {
         v: 1,
         isSuggestedRecipe: this.meta?.isSuggestedRecipe ?? false,
@@ -538,6 +543,7 @@ export class Recipe {
       name: normalized.name,
       equation: normalized.equation,
       variables: normalized.variables,
+      unit: normalized.unit,
       meta: normalized.meta,
     });
   }
@@ -580,6 +586,7 @@ export class Recipe {
       name: "Empty Recipe", // TODO: i18n
       equation: "",
       variables: [],
+      unit: undefined,
     });
   }
 
@@ -611,6 +618,7 @@ export class Recipe {
       name: "Manual data series", // TODO: i18n
       equation: `\${${variableId}}`,
       variables: [inlineVariable],
+      unit: dateValues.unit,
       meta: { isManual: true },
     });
   }
@@ -651,6 +659,7 @@ export class Recipe {
       name,
       equation: `\${${variableId}}`,
       variables: [externalVariable],
+      unit: undefined,
     });
   }
 
@@ -679,6 +688,7 @@ export class Recipe {
       name: recipeName,
       equation: `\${${dataSeriesVariable.name}}`,
       variables: [dataSeriesVariable],
+      unit,
     });
   }
 
@@ -732,6 +742,10 @@ export class Recipe {
     }
 
     if (recipe1.equation !== recipe2.equation) {
+      return false;
+    }
+
+    if (recipe1.unit !== recipe2.unit) {
       return false;
     }
 
