@@ -97,4 +97,4 @@ if (!isGreater(head, base)) {
   );
 }
 
-console.log(`✅ version bumped: ${baseRaw} -> ${headRaw}`);
+console.info(`✅ version bumped: ${baseRaw} -> ${headRaw}`);

@@ -80,7 +80,6 @@ export async function POST(request: NextRequest) {
   await session.save();
 
   // if (remember) {
-  //   console.log(typeof session.updateConfig);
   //   session.updateConfig({
   //     ...options,
   //     cookieOptions: {

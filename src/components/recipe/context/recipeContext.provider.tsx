@@ -341,7 +341,7 @@ export function RecipeContextProvider({
               debounced: serializeSafe(debouncedRecipe),
             },
           };
-          console.log("[Recipe debug] dump", fullDump);
+          console.debug("[Recipe debug] dump", fullDump);
           void navigator.clipboard?.writeText(JSON.stringify(fullDump, null, 2)).catch(() => undefined);
         };
 

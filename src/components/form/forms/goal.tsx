@@ -282,7 +282,6 @@ export default function GoalForm({
     if (historicalDataSeriesString) {
       try {
         historicalDataSeries = JSON.parse(historicalDataSeriesString) as DateValuesWithUnit;
-        console.log(historicalDataSeries);
       }
       catch (err) {
         addToast(`${t("forms:goal.errors.failed_parse_historical_data")} ${err instanceof Error ? err.message : String(err)}`, "error", false);
