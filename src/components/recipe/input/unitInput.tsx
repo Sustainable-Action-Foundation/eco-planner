@@ -59,7 +59,7 @@ export function UnitInput({
   const setRecipeUnitAction = useCallback((nextUnit: UnitString) => {
     void applyRecipeUpdate((current) => {
       const normalizedNextUnit: UnitString = typeof nextUnit === "string"
-        ? (nextUnit.trim() === "" ? undefined : nextUnit.trim())
+        ? nextUnit.trim()
         : nextUnit;
 
       if (current.unit === normalizedNextUnit) {
@@ -81,32 +81,44 @@ export function UnitInput({
     }
   }, [effectiveUnit]);
 
+  const inputDisabled = allowOverrideSelection && !hasOverride;
+
   return (
-    <div className="width-100 min-width-0">
+    <div className="width-100 min-width-0 margin-top-50">
+      {t("forms:data_series_input.data_unit")}
+
       <label className="block">
-        {t("forms:data_series_input.data_unit")}
+        {/* Mathjs report */}
+        <small className="block margin-top-25  font-style-italic" style={{ minHeight: "20px", overflowWrap: "anywhere" }}>
+          {(hasOverride && expectedUnit === null)
+            ? <>{t("forms:data_series_input.unit_interpreted_as")} <strong>{t("common:tsx.unitless")}</strong></>
+            : effectiveUnit.length === 0
+              ? <>{t("forms:data_series_input.unit_interpreted_as")} <strong>{t("common:tsx.unit_missing")}</strong></>
+              : parsedEffectiveUnit
+                ? <>{t("forms:data_series_input.unit_interpreted_as")} <strong>{parsedEffectiveUnit}</strong></>
+                : t("forms:data_series_input.unit_not_interpreted")
+          }
+        </small>
+
+        {/* Unit text input */}
         <input
           type="text"
           className="block margin-top-25 width-100"
+          disabled={inputDisabled}
           value={hasOverride ? expectedUnitInput : suggestedUnitInput}
-          placeholder={suggestedUnitInput}
+          placeholder={suggestedUnitInput || t("common:tsx.unit_missing")}
           onChange={(event) => {
             const nextValue = event.target.value;
-            const normalizedNextValue = nextValue.trim();
-            const normalizedSuggestedUnit = suggestedUnitInput.trim();
-
-            if (!normalizedNextValue || normalizedNextValue === normalizedSuggestedUnit) {
-              setRecipeUnitAction(undefined);
-              return;
-            }
-
             setRecipeUnitAction(nextValue);
+          }}
+          style={{
+            ...inputDisabled ? { backgroundColor: "var(--gray-95)" } : {},
           }}
         />
       </label>
 
       {allowOverrideSelection && unitsDiffer ? (
-        <small className="block margin-top-25 font-style-italic" style={{ overflowWrap: "anywhere" }}>
+        <small className="block margin-top-25" style={{ overflowWrap: "anywhere" }}>
           {t("forms:data_series_input.unit_input.difference_notice", {
             expectedUnit: expectedDisplay,
             resolvedUnit: resolvedDisplay,
@@ -114,8 +126,9 @@ export function UnitInput({
         </small>
       ) : null}
 
-      {allowOverrideSelection && unitsDiffer ? (
-        <label className="flex align-items-center gap-50 margin-top-25 font-style-italic">
+
+      {allowOverrideSelection ? (
+        <label className="flex align-items-center gap-50 margin-top-25">
           <input
             type="checkbox"
             checked={hasOverride}
@@ -125,7 +138,8 @@ export function UnitInput({
                 return;
               }
 
-              setRecipeUnitAction(expectedUnit ?? resultingUnit ?? undefined);
+              const seededUnit = expectedUnit ?? resultingUnit;
+              setRecipeUnitAction(seededUnit === undefined ? "" : seededUnit);
             }}
           />
           {t("forms:data_series_input.unit_input.override_toggle")}
@@ -143,22 +157,6 @@ export function UnitInput({
           })
         }
       </small>
-
-      <small className="block margin-top-25 margin-bottom-100 font-style-italic" style={{ minHeight: "20px", overflowWrap: "anywhere" }}>
-        {(hasOverride && expectedUnit === null)
-          ? t("common:tsx.unitless")
-          : effectiveUnit.length === 0
-            ? t("common:tsx.unit_missing")
-          : parsedEffectiveUnit
-            ? <>
-              {t("forms:data_series_input.unit_interpreted_as")} <strong>{parsedEffectiveUnit}</strong>
-            </>
-            : t("forms:data_series_input.unit_not_interpreted")
-        }
-      </small>
     </div>
   );
 }
-
-// Backward compatibility alias.
-export const UnitOverrideInput = UnitInput;
