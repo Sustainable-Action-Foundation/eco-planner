@@ -8,7 +8,7 @@ import { useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { absoluteToDelta, ActionSelector, deltaToAbsolute, GoalSelector } from "../sections/effectFormSections";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
-import { FormIntegration, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
+import { FormSync, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
 import { Recipe } from "@/functions/recipe/recipe";
 import { EffectFormName } from "../formNames";
 import { useToast } from "@/components/generic/toast/toastContext.use";
@@ -130,7 +130,7 @@ export default function EffectForm({
           label={t("forms:data_series_input.data_series")}
           initialDateValues={dateValues}
         />
-        <FormIntegration DateValuesFormElement={<input name={EffectFormName.ResultingDateValues} />} />
+        <FormSync DateValuesFormElement={<input name={EffectFormName.ResultingDateValues} />} />
       </RecipeContextProvider>
 
       {(

@@ -7,7 +7,7 @@ import { ActionImpactType } from "@/lib/prisma/generated";
 import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
 import TextEditor from "../elements/textEditor/editor";
-import { FormIntegration, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
+import { FormSync, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
 import { Recipe } from "@/functions/recipe/recipe";
 import { ActionFormName } from "../formNames";
 import { useState, useRef } from "react";
@@ -172,7 +172,7 @@ export default function ActionForm({
               id="action-dataseries"
               label={t("forms:data_series_input.data_series")}
             />
-            <FormIntegration DateValuesFormElement={<input name={ActionFormName.ResultingDateValues} />} />
+            <FormSync DateValuesFormElement={<input name={ActionFormName.ResultingDateValues} />} />
           </RecipeContextProvider>
         </fieldset>
         : null

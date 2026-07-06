@@ -1,7 +1,7 @@
 import "client-only";
 import TabList from "@/components/generic/tablist/tabList";
 import { useTranslation } from "react-i18next";
-import { VariableCreator, EquationEditor, VariablesEditor, TextStatus, OutputDataSeries, OutputGraph, FormIntegration } from "@/components/recipe";
+import { VariableCreator, EquationEditor, VariablesEditor, TextStatus, OutputDataSeries, OutputGraph, FormSync } from "@/components/recipe";
 
 export function RecipeEditor() {
   const { t } = useTranslation(["components"]);
@@ -60,7 +60,7 @@ export function RecipeEditor() {
         </TabList>
       </div>
 
-      <FormIntegration
+      <FormSync
         RecipeFormElement={<input name="resultingRecipe" />}
       />
     </>

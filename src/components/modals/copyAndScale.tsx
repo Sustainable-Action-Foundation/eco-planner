@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
 import styles from "../form/api/queryBuilder.module.css";
 import { Recipe } from "@/functions/recipe";
-import { FormIntegration, RecipeContextProvider, SuggestedRecipeApplier } from "@/components/recipe";
+import { FormSync, RecipeContextProvider, SuggestedRecipeApplier } from "@/components/recipe";
 
 
 export default function CopyAndScale({
@@ -186,7 +186,7 @@ export default function CopyAndScale({
                   }}
                 />
 
-                <FormIntegration
+                <FormSync
                   DataSeriesFormElement={<input name="resultingDataSeries" />}
                   UnitFormElement={<input name="resultingDataSeriesUnit" />}
                   RecipeFormElement={<input name="resultingRecipe" />}

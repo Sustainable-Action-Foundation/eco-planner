@@ -15,7 +15,7 @@ import TextEditor from "../elements/textEditor/editor";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import { Recipe } from "@/functions/recipe/recipe";
 import type { SerializedRecipe } from "@/functions/recipe";
-import { FormIntegration, ManualDataSeriesInput, RecipeContextProvider, RecipeEditor, SuggestedRecipeApplier } from "@/components/recipe";
+import { FormSync, ManualDataSeriesInput, RecipeContextProvider, RecipeEditor, SuggestedRecipeApplier } from "@/components/recipe";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 import { dataSeriesToDateValues } from "@/functions/recipe";
@@ -523,7 +523,7 @@ export default function GoalForm({
               availableDataSeries={currentGoal?.dataSeries?.recipeUsed?.sourceDataSeries}
             >
               <SuggestedRecipeApplier />
-              <FormIntegration
+              <FormSync
                 RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
                 DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
               />
@@ -548,7 +548,7 @@ export default function GoalForm({
               availableDataSeries={currentGoal?.dataSeries?.recipeUsed?.sourceDataSeries}
             >
               <RecipeEditor />
-              <FormIntegration
+              <FormSync
                 RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
                 DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
               />
@@ -576,7 +576,7 @@ export default function GoalForm({
               label={t("forms:data_series_input.data_series")}
               initialDateValues={manualInitialDateValues}
             />
-            <FormIntegration
+            <FormSync
               RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
               DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
             />
@@ -651,7 +651,7 @@ export default function GoalForm({
                 : {}
               }
             />
-            <FormIntegration DateValuesFormElement={<input name={GoalFormName.BaselineDataSeries} />} />
+            <FormSync DateValuesFormElement={<input name={GoalFormName.BaselineDataSeries} />} />
           </RecipeContextProvider>
         }
 
