@@ -1,5 +1,5 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import HistoricalForm from "@/components/form/forms/historicalData";
+import HistoricalForm from "@/components/form/forms/historical";
 import { getOneGoal } from "@/fetchers";
 import { buildMetadata } from "@/functions/buildMetadata";
 import serveTea from "@/lib/i18nServer";

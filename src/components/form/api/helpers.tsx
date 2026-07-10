@@ -5,6 +5,7 @@ import { ExternalDataset } from "@/lib/api/utility";
 import type { ApiMetadataDimensionBase, ApiTableMetadata } from "@/lib/api/apiTypes";
 
 // TODO: Look over naming now that this is in the /api folder
+// TODO: Actually should probably not be in the api folders
 
 export function metricSelectionHelper({
   t,
