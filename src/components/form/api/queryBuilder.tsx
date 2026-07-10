@@ -17,6 +17,8 @@ import styles from "./queryBuilder.module.css";
 import { IconChartHistogram, IconSearch, IconTrashXFilled, IconX } from "@tabler/icons-react";
 import DataSeriesGrid from "@/components/recipe/input/dataSeriesGrid";
 
+// TODO move-history-v3: REMOVE THIS COMPONENT ONCE WE ARE DONE 
+
 export default function QueryBuilder({
   goal,
 }: {

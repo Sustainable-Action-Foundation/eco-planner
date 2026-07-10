@@ -1,5 +1,5 @@
 import type { TFunction } from "i18next";
-import type { Dispatch, JSX, SetStateAction, SubmitEvent } from "react";
+import type { JSX, SubmitEvent } from "react";
 import type { ExternalSelection } from "../sections/historical/section";
 import { ExternalDataset } from "@/lib/api/utility";
 import type { ApiMetadataDimensionBase, ApiTableMetadata } from "@/lib/api/apiTypes";
@@ -8,7 +8,7 @@ import type { ApiMetadataDimensionBase, ApiTableMetadata } from "@/lib/api/apiTy
 
 export function metricSelectionHelper({
   t,
-  metricDimension, 
+  metricDimension,
   tableMetadata,
   dataSource,
   tryGetResult,
@@ -25,7 +25,7 @@ export function metricSelectionHelper({
     return (
       <label key={`metric-${tableMetadata.tableId}-${metricDimension.id}`}>
         {metricDimension.label || metricDimension.name}
-        <select className="block margin-top-25 margin-bottom-100 metric width-100"
+        <select className="block margin-top-25 margin-bottom-100 width-100 metric"
           required={true}
           name={metricDimension.id}
           id={metricDimension.id}
@@ -51,7 +51,6 @@ export function timeVariableSelectionHelper({
   dataSource,
   optionalTag,
   tryGetResult,
-  setStartPeriod,
   getInitialSelectionValue,
 }: {
   t: TFunction;
@@ -60,7 +59,6 @@ export function timeVariableSelectionHelper({
   dataSource: string;
   optionalTag: (dataSource: string, variableIsOptional: boolean) => JSX.Element | undefined;
   tryGetResult: (event?: React.ChangeEvent<HTMLSelectElement> | SubmitEvent<HTMLFormElement> | Event) => void;
-  setStartPeriod: Dispatch<SetStateAction<string | undefined>>;
   getInitialSelectionValue: (variableCode: string) => string | undefined;
 }) {
 
@@ -84,7 +82,6 @@ export function timeVariableSelectionHelper({
         defaultValue={getInitialSelectionValue(time.id) ?? (time.options.length === 1 ? time.options[0].value : "")}
         onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
           tryGetResult(e);
-          setStartPeriod(e.target.value);
         }}
       >
         <option value="" className={`font-style-italic color-gray`}>{defaultValue}</option>

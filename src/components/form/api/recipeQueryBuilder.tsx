@@ -15,6 +15,8 @@ import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 import getTableContent from "@/lib/api/getTableContent";
 import { RecipeDataTypes, externalSelectionKey } from "@/functions/recipe";
 
+// TODO: move-history-v3: replace this with external data component once we are done!
+
 export default function RecipeQueryBuilder({
   variableId,
   initialDataSource,

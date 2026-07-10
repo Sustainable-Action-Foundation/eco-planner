@@ -380,7 +380,6 @@ export default function GoalForm({
       throw new Error("Missing data to create or update goal.");
     }
 
-    console.log(formContent);
     const formJSON = JSON.stringify(formContent);
 
     // Submit the form to the API (POST for new, PUT for edit)
@@ -673,7 +672,7 @@ export default function GoalForm({
           {t("forms:goal.input_historical_data")}
         </legend>
 
-        <HistoricalDataSection />
+        <HistoricalDataSection goal={currentGoal} />
       </fieldset>
 
       {/* Suggested recipes section 
