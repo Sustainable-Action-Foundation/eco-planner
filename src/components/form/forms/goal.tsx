@@ -21,7 +21,7 @@ import { useRouter } from "next/navigation";
 import { dataSeriesToDateValues } from "@/functions/recipe";
 import ParameterSync from "@/components/recipe/output/parameterSyncer";
 import { RecipeSync } from "@/components/recipe/output/recipeSync";
-import HistoricalDataSection from "../sections/historical/historical";
+import HistoricalDataSection from "../sections/historical/section";
 import { GoalFormName } from "../formNames";
 // import { SuggestedRecipesList } from "@/components/recipe/suggestions/suggestedRecipeList";
 import GoalGraph from "@/components/graph/graphs/goal/main";

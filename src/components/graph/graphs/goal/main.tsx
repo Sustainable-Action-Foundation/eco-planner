@@ -123,7 +123,6 @@ export default function GoalGraph({
     colors: colors,
     opacities: opacities,
     yAxisTitle: main?.unit === null ? t("common:tsx.unitless") : main?.unit || t("common:tsx.unit_missing"),
-    chartOptionsType: chartOptionsType ?? 'line',
   });
 
   const mainYAxis =
@@ -184,10 +183,10 @@ export default function GoalGraph({
   if (siblings) {
     siblings.forEach((sibling, index) => {
       const siblingColor = getSiblingColor(index, siblings.length + 1, color_palette.main.color);
-      chart.push(toChartSeries(sibling, sibling.name, chartOptionsType ?? 'line', siblingColor));
+      chart.push(toChartSeries(sibling, sibling.name, 'area', siblingColor));
       mainYAxis?.push(sibling.name);
       colors.push(siblingColor);
-      opacities.push(chartOptionsType === "area" ? 0.3 : 1); // TODO: Weird stuff is happening with opacities...
+      opacities.push(0.3); // TODO: Weird stuff is happening with opacities...
     });
      
   }

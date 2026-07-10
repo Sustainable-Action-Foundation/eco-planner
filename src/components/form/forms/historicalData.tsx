@@ -19,7 +19,7 @@ import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import TabList from "@/components/generic/tablist/tabList";
 import GoalGraph from "@/components/graph/graphs/goal/main";
 import { calculatePredictedOutcome } from "@/components/graph/functions/graphFunctions";
-import { metricSelectionHelper, timeVariableSelectionHelper, variableSelectionHelper } from "../sections/historical/helpers";
+import { metricSelectionHelper, timeVariableSelectionHelper, variableSelectionHelper } from "../api/helpers";
 
 
 type ExternalSelection = NonNullable<Parameters<typeof getTableMetadata>[2]>;

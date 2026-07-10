@@ -29,25 +29,24 @@ export function generateApexChartOptions({
   colors,
   opacities,
   yAxisTitle,
-  chartOptionsType,
-}: {
+ }: {
   chartType: "main" | "thumbnail" | "siblings";
   colors: Array<string>;
   opacities: Array<number>;
   yAxisTitle?: string;
-  chartOptionsType?: "line" | "area" | "bar" | "pie" | "donut" | "radialBar" | "scatter" | "bubble" | "heatmap" | "candlestick" | "boxPlot" | "radar" | "polarArea" | "rangeBar" | "rangeArea" | "treemap" | "funnel" | "pyramid" | "gauge" | undefined;
 }): ApexCharts.ApexOptions {
   switch (chartType) {
     case "siblings": {
       const options: ApexCharts.ApexOptions = {
         chart: {
-          type: chartOptionsType ?? 'line',
+          type: 'line',
           animations: { enabled: false, dynamicAnimation: { enabled: false } },
           zoom: { allowMouseWheelZoom: false },
         },
         fill: {
           type: 'solid',
-          opacity: 0.3,
+          colors: colors,
+          opacity: opacities,
         },
         stroke: { curve: stroke.curve, width: stroke.width },
         markers: { size: marker.size },

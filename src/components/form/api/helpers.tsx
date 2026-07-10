@@ -1,9 +1,10 @@
 import type { TFunction } from "i18next";
 import type { Dispatch, JSX, SetStateAction, SubmitEvent } from "react";
-import type { ExternalSelection } from "./historical";
+import type { ExternalSelection } from "../sections/historical/section";
 import { ExternalDataset } from "@/lib/api/utility";
 import type { ApiMetadataDimensionBase, ApiTableMetadata } from "@/lib/api/apiTypes";
 
+// TODO: Look over naming now that this is in the /api folder
 
 export function metricSelectionHelper({
   t,
@@ -24,7 +25,7 @@ export function metricSelectionHelper({
     return (
       <label key={`metric-${tableMetadata.tableId}-${metricDimension.id}`}>
         {metricDimension.label || metricDimension.name}
-        <select className="block margin-top-25 margin-bottom-100 metric"
+        <select className="block margin-top-25 margin-bottom-100 metric width-100"
           required={true}
           name={metricDimension.id}
           id={metricDimension.id}
