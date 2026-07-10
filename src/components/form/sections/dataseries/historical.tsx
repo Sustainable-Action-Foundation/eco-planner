@@ -11,6 +11,7 @@ import ExternalData from "../../api/externalData";
 import type { ApiTableMetadata, ApiTableContent } from "@/lib/api/apiTypes";
 
 // TODO: Historical data should not be required in a goal form
+// TODO: Check if selecting metric actually changes selectable values
 
 export type ExternalSelection = NonNullable<Parameters<typeof getTableMetadata>[2]>;
 

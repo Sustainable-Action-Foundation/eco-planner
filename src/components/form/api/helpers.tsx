@@ -1,6 +1,6 @@
 import type { TFunction } from "i18next";
 import type { JSX, SubmitEvent } from "react";
-import type { ExternalSelection } from "../sections/historical/section";
+import type { ExternalSelection } from "../sections/dataseries/historical";
 import { ExternalDataset } from "@/lib/api/utility";
 import type { ApiMetadataDimensionBase, ApiTableMetadata } from "@/lib/api/apiTypes";
 

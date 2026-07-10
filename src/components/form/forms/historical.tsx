@@ -1,6 +1,6 @@
 "use client";
 
-import HistoricalDataSection from "@/components/form/sections/historical/section";
+import HistoricalDataSection from "@/components/form/sections/dataseries/historical";
 import formSubmitter from "@/functions/formSubmitter";
 import { getHistoricalSource } from "@/functions/getHistoricalDataset";
 import { Recipe } from "@/functions/recipe";
