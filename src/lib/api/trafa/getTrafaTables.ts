@@ -3,9 +3,9 @@
 import { ExternalDataset } from "../utility";
 import type { StructureItem, TrafaDataResponse } from "./trafaTypes";
 
-export default async function getTrafaTables(query?: string | null, language?: string) {
+export default async function getTrafaTables(language?: string) {
   const url = new URL('./structure', ExternalDataset.Trafa.baseUrl);
-  url.searchParams.append('query', ``);
+
   if (!language || !ExternalDataset.Trafa.supportedLanguages.includes(language)) {
     language = ExternalDataset.Trafa.supportedLanguages[0];
   }
@@ -48,12 +48,7 @@ export default async function getTrafaTables(query?: string | null, language?: s
 
       tables.push(pushItem);
     });
-
-    if (query) {
-      const regex = new RegExp(query, "i");
-      return tables?.filter(table => regex.test(table.label)) ?? null;
-    }
-
+ 
     return tables;
   }
   catch (err) {

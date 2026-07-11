@@ -94,9 +94,7 @@ export default function RecipeQueryBuilder({
   useEffect(() => {
     if (!dataSource) return;
 
-    const query = (fieldsetRef.current?.elements.namedItem(tableSearchInputName) as HTMLInputElement | null)?.value;
-
-    getTables(dataSource, query, lang)
+    getTables(dataSource, lang)
       .then(result => { setTables(result); setOffset(0); })
       .catch((err: unknown) => {
         const errorMessage = err instanceof Error ? err.message : String(err);
@@ -159,28 +157,9 @@ export default function RecipeQueryBuilder({
     if (event.key === "Enter") {
       event.preventDefault();
       event.stopPropagation();
-      handleSearch((event.target as HTMLInputElement).value);
     }
   }
-
-  function searchWithButton() {
-    const query = (fieldsetRef.current?.elements.namedItem(tableSearchInputName) as HTMLInputElement | null)?.value;
-    handleSearch(query);
-  }
-
-  function handleSearch(query?: string) {
-    if (!dataSource || !ExternalDataset.getDatasetByAlternateName(dataSource)?.baseUrl) return;
-
-    setIsLoading(true);
-    getTables(dataSource, query, lang)
-      .then(result => { setTables(result); setOffset(0); })
-      .catch((err: unknown) => {
-        const errorMessage = err instanceof Error ? err.message : String(err);
-        console.error("Error fetching tables:", errorMessage);
-        setTables(null);
-      })
-      .finally(() => setIsLoading(false));
-  }
+  
 
   function handleDataSourceSelect(dataSource: string) {
     setIsLoading(true);
@@ -555,7 +534,7 @@ export default function RecipeQueryBuilder({
                         <div className="focusable purewhite flex align-items-center margin-top-25 padding-left-50 smooth">
                           <IconSearch strokeWidth={1.5} style={{ minWidth: '24px' }} aria-hidden="true" />
                           <input name={tableSearchInputName} type="search" className="padding-0 margin-inline-50 flex-grow-100" onKeyDown={searchOnEnter} style={{ backgroundColor: "transparent" }} />
-                          <button type="button" onClick={searchWithButton} className="padding-block-50 padding-inline-100 transparent font-weight-500">{t("components:query_builder.search")}</button> {/* TODO: this does not work */}
+                          <button type="button" className="padding-block-50 padding-inline-100 transparent font-weight-500">{t("components:query_builder.search")}</button> {/* TODO: this does not work */}
                         </div>
                       </label>
                     </div>
