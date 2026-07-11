@@ -2,7 +2,8 @@ import type { TFunction } from "i18next";
 import type { JSX, SubmitEvent } from "react";
 import type { ExternalSelection } from "../sections/dataseries/historical";
 import { type DatasetData, ExternalDataset } from "@/lib/api/utility";
-import type { ApiMetadataDimensionBase, ApiTableContent, ApiTableMetadata } from "@/lib/api/apiTypes";
+import type { ApiMetadataDimensionBase, ApiTableMetadata } from "@/lib/api/apiTypes";
+import type { ExternalData, ExternalDataAction } from "@/components/types";
 
 // TODO: Look over naming now that this is in the /api folder
 // TODO: Actually should probably not be in the api folders
@@ -185,28 +186,14 @@ export function getInitialSelectionValue(variableCode: string, historicalSelecti
   return fromMatch?.[1] ?? valueCode;
 }
 
-type ExternalDataState = {
-  dataSource: string;
-  table: { tableId: string; label: string } | null;
-  tableMetadata: ApiTableMetadata | null;
-  tableContent: ApiTableContent | null;
-  mainTimeDimensionId: string | null;
-};
-
-type ExternalDataAction =
-  | { type: "SELECT_DATASET"; dataSource: string }
-  | { type: "SELECT_TABLE"; table: ExternalDataState["table"] }
-  | { type: "UPDATE_TABLE_LABEL"; label: string }
-  | { type: "SET_METADATA"; metadata: ApiTableMetadata | null }
-  | { type: "SET_CONTENT"; content: ApiTableContent | null };
-
-export function externalDataReducer(state: ExternalDataState, action: ExternalDataAction): ExternalDataState {
+export function externalDataReducer(state: ExternalData, action: ExternalDataAction): ExternalData {
   switch (action.type) {
     case "SELECT_DATASET": {
       // Changing data source invalidates everything downstream.
       return {
         dataSource: action.dataSource,
         table: null,
+        tables: null,
         tableMetadata: null,
         tableContent: null,
         mainTimeDimensionId: null,
@@ -224,6 +211,20 @@ export function externalDataReducer(state: ExternalDataState, action: ExternalDa
       };
     }
 
+    case "SET_TABLES": {
+      // The freshly fetched list may contain a nicer label for the currently-selected table
+      const match = state.table
+        ? action.tables?.find(t => t.tableId === state.table!.tableId)
+        : null;
+
+      const table = match && match.label !== state.table?.label
+        ? { ...state.table!, label: match.label }
+        : state.table;
+
+      return { ...state, tables: action.tables, table };
+    }
+
+
     case "UPDATE_TABLE_LABEL": {
       // Only fires when the `tables` list resolves a nicer label for the
       // already-selected table; doesn't touch anything else.
@@ -237,10 +238,7 @@ export function externalDataReducer(state: ExternalDataState, action: ExternalDa
         return { ...state, tableMetadata: null, mainTimeDimensionId: null };
       }
 
-      // Preserve the original behavior: only recompute mainTimeDimensionId
-      // when the table or its time dimensions actually changed (e.g. a
-      // Trafa metadata refresh for the same table shouldn't clobber a
-      // user's existing time-dimension choice).
+      // Recompute mainTimeDimensionId When the table or its time dimensions change
       const isSameTableShape =
         state.tableMetadata?.tableId === action.metadata.tableId
         && state.tableMetadata?.timeDimensions === action.metadata.timeDimensions;
@@ -254,11 +252,19 @@ export function externalDataReducer(state: ExternalDataState, action: ExternalDa
           ? action.metadata.timeDimensions[0].id
           : null;
 
-      return { ...state, tableMetadata: action.metadata, mainTimeDimensionId };
+      return { 
+        ...state,
+        tableMetadata:
+        action.metadata,
+        mainTimeDimensionId,
+      };
     }
 
     case "SET_CONTENT": {
-      return { ...state, tableContent: action.content };
+      return { 
+        ...state,
+        tableContent: action.content,
+      };
     }
 
     default: {

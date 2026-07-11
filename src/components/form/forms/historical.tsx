@@ -1,24 +1,16 @@
 "use client";
 
 import HistoricalDataSection from "@/components/form/sections/dataseries/historical";
+import type { ExternalDataState } from "@/components/types";
 import formSubmitter from "@/functions/formSubmitter";
 import { getHistoricalSource } from "@/functions/getHistoricalDataset";
 import { Recipe } from "@/functions/recipe";
-import type { ApiTableMetadata, ApiTableContent } from "@/lib/api/apiTypes";
 import { formQueryHelper, isDataSetKeys } from "@/lib/api/utility";
 import type { GoalUpdateInput } from "@/types";
 import { GoalDataTarget, type Goal } from "@/types";
 import { useCallback, useState, type SubmitEvent } from "react";
 import { useTranslation } from "react-i18next";
-
-type ExternalDataState = {
-  dataSource: string;
-  table: { tableId: string; label: string } | null;
-  tableMetadata: ApiTableMetadata | null;
-  tableContent: ApiTableContent | null;
-  mainTimeDimensionId: string | null;
-} | null;
-
+ 
 export default function HistoricalForm({
   goal,
 }: {

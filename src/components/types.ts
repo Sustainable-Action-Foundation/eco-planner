@@ -1,6 +1,27 @@
-// TODO: Use set for tree items and map for options?
+import type { ApiTableMetadata, ApiTableContent } from "@/lib/api/apiTypes";
 import "@/types/tiptap-commands";
 
+// External data
+export type ExternalData = {
+  dataSource: string;
+  table: { tableId: string; label: string } | null;
+  tables: { tableId: string; label: string }[] | null;
+  tableMetadata: ApiTableMetadata | null;
+  tableContent: ApiTableContent | null;
+  mainTimeDimensionId: string | null;
+};
+
+export type ExternalDataState = ExternalData | null
+
+export type ExternalDataAction =
+  | { type: "SELECT_DATASET"; dataSource: string }
+  | { type: "SELECT_TABLE"; table: ExternalData["table"] }
+  | { type: "SET_TABLES"; tables: ExternalData["tables"] }
+  | { type: "UPDATE_TABLE_LABEL"; label: string }
+  | { type: "SET_METADATA"; metadata: ApiTableMetadata | null }
+  | { type: "SET_CONTENT"; content: ApiTableContent | null };
+
+// TODO: Use set for tree items and map for options?
 export type Theme = {
   className?: string;
   style?: React.CSSProperties;

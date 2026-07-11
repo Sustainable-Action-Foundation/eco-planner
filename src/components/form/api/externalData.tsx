@@ -1,85 +1,68 @@
 import { getHistoricalSource } from "@/functions/getHistoricalDataset";
-import type { ApiTableMetadata, ApiTableContent } from "@/lib/api/apiTypes";
 import getTableContent from "@/lib/api/getTableContent";
 import getTableMetadata from "@/lib/api/getTableMetadata";
 import getTables from "@/lib/api/getTables";
 import { formQueryHelper, ExternalDataset } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
 import type { Goal } from "@/types";
-import { useContext, useState, useCallback, useRef, useEffect, useMemo, useReducer } from "react";
+import { useContext, useCallback, useRef, useEffect, useMemo, useReducer } from "react";
 import type { SubmitEvent } from "react";
 import { useTranslation } from "react-i18next";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import { getInitialSelectionValue, shouldVariableFieldsetBeVisible, metricSelectionHelper, optionalTag, timeVariableSelectionHelper, variableSelectionHelper, externalDataReducer } from "./helpers";
+import type { ExternalData, ExternalDataState } from "@/components/types";
 
 // TODO: Maybe this should not be in /api
 // TODO: Take in required as a prop?
 
 export type ExternalSelection = NonNullable<Parameters<typeof getTableMetadata>[2]>;
 
-type ExternalDataState = {
-  dataSource: string;
-  table: { tableId: string; label: string } | null;
-  tableMetadata: ApiTableMetadata | null;
-  tableContent: ApiTableContent | null;
-  mainTimeDimensionId: string | null;
-};
-
 export default function ExternalData({
   goal,
   onChange,
 }: {
   goal: Goal | undefined,
-  onChange?: (data: {
-    dataSource: string;
-    table: { tableId: string; label: string } | null;
-    tableMetadata: ApiTableMetadata | null;
-    tableContent: ApiTableContent | null;
-    mainTimeDimensionId: string | null;
-  }) => void;
+  onChange?: (data: ExternalDataState) => void;
 }) {
 
   const { t } = useTranslation("components");
   // Locale has the format language-REGION, e.g. "sv-SE" or "en-US", we only need the language part
   const lang = new Intl.Locale(useContext(LocaleContext)).language;
 
-  // The external API selection is stored in the goal's historical recipe; the
-  // fetched values live in the `historical` DataSeries.
-
   const historicalSource = useMemo(
     () => (goal ? getHistoricalSource(goal) : null),
     [goal],
   );
-
   const historicalSelection: ExternalSelection = useMemo(
     () => historicalSource?.selection ?? [],
     [historicalSource],
   );
 
-  const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null); // TODO: Rename to something like: AvailableTables, or the below to something like: selected table, to avoid confusion
-
-  const initialState: ExternalDataState = {
+  const initialState: ExternalData = {
     dataSource: historicalSource?.dataset ?? "",
     table: historicalSource?.tableId
       ? { label: historicalSource.tableId, tableId: historicalSource.tableId }
       : null,
+    tables: null,
     tableMetadata: null,
     tableContent: null,
     mainTimeDimensionId: null,
   };
 
   const [state, dispatch] = useReducer(externalDataReducer, initialState);
-  const { dataSource, table, tableMetadata, tableContent, mainTimeDimensionId } = state;
-
-  const sectionRef = useRef<HTMLDivElement | null>(null);
-
+  const { dataSource, table, tables, tableMetadata, tableContent, mainTimeDimensionId } = state;
   const datasetInfo = useMemo(
     () => ExternalDataset.getDatasetByAlternateName(dataSource),
     [dataSource],
   );
+  const sectionRef = useRef<HTMLDivElement | null>(null);
+  const onChangeRef = useRef(onChange);
+  // eslint-disable-next-line react-hooks/refs
+  onChangeRef.current = onChange;
+  const didInitialLoadRef = useRef(false);
 
   // Reads the current form state out of the DOM and turns it into a query,
-  // plus whether the form is currently valid.
+  // Also checks if the form is currently valid.
   const buildQuery = useCallback(() => {
     if (!sectionRef.current) return null;
 
@@ -148,40 +131,31 @@ export default function ExternalData({
     fetchContent(query, isValid);
   }, [buildQuery, refreshTrafaMetadata, fetchContent]);
 
-
   useEffect(() => {
-    if (!tables || !table) return;
-    const match = tables.find(t => t.tableId === table.tableId);
-    if (match && match.label !== table.label) {
-      dispatch({ type: "UPDATE_TABLE_LABEL", label: match.label });
-    }
-  }, [tables, table]);
+    onChangeRef.current?.({ dataSource, table, tables, tableMetadata, tableContent, mainTimeDimensionId });
+  }, [dataSource, table, tables, tableMetadata, tableContent, mainTimeDimensionId]);
 
-  const onChangeRef = useRef(onChange);
-  useEffect(() => {
-    onChangeRef.current = onChange;
-  });
-
-  useEffect(() => {
-    onChangeRef.current?.({ dataSource, table, tableMetadata, tableContent, mainTimeDimensionId });
-  }, [dataSource, table, tableMetadata, tableContent, mainTimeDimensionId]);
-
-  // 1. Fetch table details
   const initialTableId = historicalSource?.tableId ?? null;
-  const initialDataset = historicalSource?.dataset ?? null;
   useEffect(() => {
-    if (!initialTableId || !initialDataset) return;
+    if (!table || !dataSource || !datasetInfo?.baseUrl) return;
 
+    const isInitialLoad = !didInitialLoadRef.current && table.tableId === initialTableId;
+    didInitialLoadRef.current = true;
+
+    let cancelled = false;
     void getTableMetadata(
-      initialTableId,
-      initialDataset,
-      historicalSelection,
+      table.tableId,
+      dataSource,
+      isInitialLoad ? historicalSelection : undefined,
       lang,
-    ).then(metadata => dispatch({ type: "SET_METADATA", metadata }));
-    // historicalSelection is derived from the same recipe as initialTableId/initialDataset
-  }, [initialTableId, initialDataset, lang, historicalSelection]);
+    ).then(metadata => {
+      if (!cancelled) dispatch({ type: "SET_METADATA", metadata });
+    });
 
-  // 2. Fetch table content
+    return () => { cancelled = true; };
+
+  }, [table, table?.tableId, dataSource, datasetInfo?.baseUrl, lang, initialTableId, historicalSelection]);
+
   useEffect(() => {
     if (!sectionRef.current || !tableMetadata) return;
     tryGetResult();
@@ -190,25 +164,10 @@ export default function ExternalData({
   useEffect(() => {
     if (!dataSource) return;
 
-    // TODO: Undefined here is query, we likely want to remove it once this is all set ut and queryBuilder.tsx is removed
     void getTables(dataSource, lang).then(result => {
-      setTables(result);
+      dispatch({ type: "SET_TABLES", tables: result });
     });
   }, [dataSource, lang]);
-
-  const handleTableSelect = useCallback((tableId: string | null) => {
-    if (!datasetInfo?.baseUrl) return;
-    if (!tableId) return;
-
-    void getTableMetadata(tableId, dataSource, undefined, lang).then(metadata => {
-      dispatch({ type: "SET_METADATA", metadata });
-    });
-  }, [datasetInfo?.baseUrl, dataSource, lang]);
-
-  useEffect(() => {
-    handleTableSelect(!!table?.tableId ? table.tableId : null);
-  }, [table, handleTableSelect]);
-
 
   return (
     <div ref={sectionRef}>
@@ -222,7 +181,9 @@ export default function ExternalData({
           {t("components:query_builder.data_source")}
           {/* Display warning message if the selected language is not supported by the api */}
           {(datasetInfo && !(datasetInfo?.supportedLanguages.includes(lang))) ?
-            <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>{t("components:query_builder.language_support_warning", { dataSource: dataSource })}</small>
+            <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>
+              {t("components:query_builder.language_support_warning", { dataSource: dataSource })}
+            </small>
             : null}
           <select
             defaultValue={historicalSource?.dataset ?? ''}
@@ -294,7 +255,6 @@ export default function ExternalData({
         {tableMetadata &&
           shouldVariableFieldsetBeVisible(tableMetadata, datasetInfo) ? (
           <div>
-
             {/* eslint-disable-next-line react-hooks/refs */}
             {tableMetadata.timeDimensions?.map(time => {
               return timeVariableSelectionHelper({

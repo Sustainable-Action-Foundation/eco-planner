@@ -8,7 +8,7 @@ import { Recipe } from "@/functions/recipe/recipe";
 import { GoalFormName } from "../../formNames";
 import type getTableMetadata from "@/lib/api/getTableMetadata";
 import ExternalData from "../../api/externalData";
-import type { ApiTableMetadata, ApiTableContent } from "@/lib/api/apiTypes";
+import type { ExternalDataState } from "@/components/types";
 
 // TODO: Historical data should not be required in a goal form
 // TODO: Check if selecting metric actually changes selectable values
@@ -20,15 +20,7 @@ const HistoricalDataType = {
   Custom: "CUSTOM",
 } as const;
 type HistoricalDataType = (typeof HistoricalDataType)[keyof typeof HistoricalDataType];
-
-type ExternalDataState = {
-  dataSource: string;
-  table: { tableId: string; label: string } | null;
-  tableMetadata: ApiTableMetadata | null;
-  tableContent: ApiTableContent | null;
-  mainTimeDimensionId: string | null;
-} | null;
-
+ 
 
 export default function HistoricalDataSection({
   goal,
