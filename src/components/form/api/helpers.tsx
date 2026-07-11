@@ -213,13 +213,15 @@ export function externalDataReducer(state: ExternalData, action: ExternalDataAct
 
     case "SET_TABLES": {
       // The freshly fetched list may contain a nicer label for the currently-selected table
-      const match = state.table
-        ? action.tables?.find(t => t.tableId === state.table!.tableId)
-        : null;
+      const currentTable = state.table;
+      const match = currentTable
+        ? action.tables?.find(t => t.tableId === currentTable.tableId)
+        : undefined;
 
-      const table = match && match.label !== state.table?.label
-        ? { ...state.table!, label: match.label }
-        : state.table;
+      const table =
+        currentTable && match && match.label !== currentTable.label
+          ? { ...currentTable, label: match.label }
+          : state.table;
 
       return { ...state, tables: action.tables, table };
     }
@@ -252,16 +254,15 @@ export function externalDataReducer(state: ExternalData, action: ExternalDataAct
           ? action.metadata.timeDimensions[0].id
           : null;
 
-      return { 
+      return {
         ...state,
-        tableMetadata:
-        action.metadata,
+        tableMetadata: action.metadata,
         mainTimeDimensionId,
       };
     }
 
     case "SET_CONTENT": {
-      return { 
+      return {
         ...state,
         tableContent: action.content,
       };
