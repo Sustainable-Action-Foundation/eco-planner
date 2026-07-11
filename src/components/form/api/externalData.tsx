@@ -21,7 +21,7 @@ export default function ExternalData({
   goal,
   onChange,
 }: {
-  goal: Goal,
+  goal: Goal | undefined,
   onChange?: (data: {
     dataSource: string;
     table: { tableId: string; label: string } | null;

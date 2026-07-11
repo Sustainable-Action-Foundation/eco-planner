@@ -36,7 +36,6 @@ export default function HistoricalDataSection({
 }: {
   goal: Goal | undefined
   onChange?: (data: ExternalDataState) => void;
-
 }) {
   const { t } = useTranslation("components");
 
@@ -52,8 +51,7 @@ export default function HistoricalDataSection({
     setExternalData(data);
   }, []);
   
-  if (!goal) return; // TODO: temp hack fix, we probably should show some error hear or make sure there always is a goal?
-
+ 
   return (
     <>
       <label>

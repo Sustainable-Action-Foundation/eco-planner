@@ -120,7 +120,7 @@
     "select_metric_for_table": "Välj mätvärde för tabell",
     "select_metric_for_values": "Välj ett mätvärde för att se värden",
     "select_source": "Välj datakälla",
-    "select_source_for_metric": "Välj en datakälla för att se mätvärden",
+    "select_source_for_metric": "Välj en datakälla och en tabell för att se mätvärden",
     "select_source_for_table": "Välj en datakälla för att se tabeller",
     "select_starting_period": "Välj startperiod",
     "select_table": "Välj tabell",

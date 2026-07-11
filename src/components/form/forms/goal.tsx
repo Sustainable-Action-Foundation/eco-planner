@@ -671,7 +671,7 @@ export default function GoalForm({
         >
           {t("forms:goal.input_historical_data")}
         </legend>
-
+        {/* TODO: Need to be able to switch between external data and manual data here, not sure why im not able to? */}
         <HistoricalDataSection goal={currentGoal} />
       </fieldset>
 

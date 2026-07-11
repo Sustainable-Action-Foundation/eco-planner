@@ -120,7 +120,7 @@
     "select_metric_for_table": "Select metric for table",
     "select_metric_for_values": "Select a metric to view values",
     "select_source": "Select datasource",
-    "select_source_for_metric": "Select a datasource to view metrics",
+    "select_source_for_metric": "Select a datasource and a table to view metrics",
     "select_source_for_table": "Select a datasource to view tables",
     "select_starting_period": "Select starting period",
     "select_table": "Select table",
