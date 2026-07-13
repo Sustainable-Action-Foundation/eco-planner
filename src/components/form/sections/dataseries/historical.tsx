@@ -9,6 +9,7 @@ import { GoalFormName } from "../../formNames";
 import type getTableMetadata from "@/lib/api/getTableMetadata";
 import ExternalData from "../../api/externalData";
 import type { ExternalDataState } from "@/components/types";
+import { IconCheck } from "@tabler/icons-react";
 
 // TODO: Historical data should not be required in a goal form
 // TODO: Check if selecting metric actually changes selectable values
@@ -20,7 +21,7 @@ const HistoricalDataType = {
   Custom: "CUSTOM",
 } as const;
 type HistoricalDataType = (typeof HistoricalDataType)[keyof typeof HistoricalDataType];
- 
+
 
 export default function HistoricalDataSection({
   goal,
@@ -42,34 +43,75 @@ export default function HistoricalDataSection({
   const handleExternalDataChange = useCallback((data: ExternalDataState) => {
     setExternalData(data);
   }, []);
-  
- 
+
+
   return (
     <>
-      <label>
-        {t("forms:goal.historical_label")}
-        <select className="block margin-top-25 margin-bottom-100 width-100" name="baselineSelector" id="baselineSelector" value={historicalDataType} onChange={(e) => setHistoricalDataType(e.target.value as HistoricalDataType)}>
-          <option value={HistoricalDataType.External}>{t("forms:goal.historical_data.external")}</option>
-          <option value={HistoricalDataType.Custom}>{t("forms:goal.historical_data.custom")}</option>
-        </select>
-      </label>
+      <fieldset className="margin-top-25 fieldset-unset-pseudo-class">
+        <legend className="padding-block-125 font-weight-bold">{t("forms:goal.historical_label")}</legend>
+        <div className="width-100 radio-group">
+          <label className="flex align-items-center gap-50 margin-bottom-50">
+            <input
+              type="radio"
+              name="historical-data-type"
+              value={HistoricalDataType.External}
+              checked={historicalDataType === HistoricalDataType.External}
+              onChange={(e) => setHistoricalDataType(e.target.value as HistoricalDataType)}
+            />
+            {t("forms:goal.historical_data.external")}
+          </label>
+          <label className="flex align-items-center gap-50 margin-bottom-50">
+            <input
+              type="radio"
+              name="historical-data-type"
+              value={HistoricalDataType.Custom}
+              checked={historicalDataType === HistoricalDataType.Custom}
+              onChange={(e) => setHistoricalDataType(e.target.value as HistoricalDataType)}
+            />
+            {t("forms:goal.historical_data.custom")}
+          </label>
+        </div>
+      </fieldset>
 
-      {historicalDataType === HistoricalDataType.External ? (
-        <ExternalData
-          goal={goal}
-          onChange={handleExternalDataChange}
-        />
-      ) :
-        <RecipeContextProvider
-          initialRecipe={Recipe.fromManualDateValues({ unit: undefined, dateValues: {} }).serialize()}
-        >
-          <ManualDataSeriesInput
-            id="historical-data-series"
-            label={t("forms:data_series_input.data_series")}
-          />
-          <FormSync DateValuesFormElement={<input name={GoalFormName.HistoricalDataSeries} />} />
-        </RecipeContextProvider>
-      }
+      <div
+        className="padding-100 smooth"
+        style={{ border: '1px dashed var(--gray-60)' }}
+      >
+        {historicalDataType === HistoricalDataType.External ? (
+          <>
+            <p className="margin-top-0 font-size-125 font-weight-500 flex gap-50 align-items-center" style={{ color: 'var(--blue)' }}>
+              <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
+              <span>
+                {t("forms:goal.using")}
+                <span className="text-transform-lowercase"> {t("forms:goal.historical_data.external")}</span>
+              </span>
+            </p> {/* TODO: Should be a legend? */}
+            <ExternalData
+              goal={goal}
+              onChange={handleExternalDataChange}
+            />
+          </>
+        ) :
+          <>
+            <p className="margin-top-0 font-size-125 font-weight-500 flex gap-50 align-items-center" style={{ color: 'var(--blue)' }}>
+              <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
+              <span>
+                {t("forms:goal.using")}
+                <span className="text-transform-lowercase"> {t("forms:goal.historical_data.custom")}</span>
+              </span>
+            </p> {/* TODO: Should be a legend? */}
+            <RecipeContextProvider
+              initialRecipe={Recipe.fromManualDateValues({ unit: undefined, dateValues: {} }).serialize()}
+            >
+              <ManualDataSeriesInput
+                id="historical-data-series"
+                label={t("forms:data_series_input.data_series")}
+              />
+              <FormSync DateValuesFormElement={<input name={GoalFormName.HistoricalDataSeries} />} />
+            </RecipeContextProvider>
+          </>
+        }
+      </div>
     </>
   );
 };

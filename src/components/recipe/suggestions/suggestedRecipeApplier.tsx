@@ -130,10 +130,10 @@ export function SuggestedRecipeApplier({
 
   return (<>
     {/* Select which suggested recipe to use */}
-    {/* TODO: Might be reasonable if this is a fieldset where this label is the legend? */}
-    <label className="flex gap-50 margin-bottom-100 margin-top-25 align-items-center">
-      {t("components:recipe_editor.suggested_recipe_label")}:
+    <label>
+      {t("components:recipe_editor.suggested_recipe_label")}
       <select
+        className="block margin-top-25 margin-bottom-100 width-100"
         id="select-preset"
         value={selectedRecipeId}
         onChange={handleChange}
@@ -151,91 +151,93 @@ export function SuggestedRecipeApplier({
     {/* TODO: Look into using an ordered list for this. */}
 
     {/* Select of available recipes */}
-    <ul
-      className="grid gap-50 padding-left-100 align-items-center"
-      style={{
-        gridTemplateColumns: 'auto auto 1fr',
-        gridTemplateRows: 'auto auto',
-      }}
-    >
-      {(recipe?.variables ?? []).map(variable => {
-        const variableId = variable.id;
-        const variableDisplayName = variable.name;
-        const unitIsProvided = typeof variable.unit !== "undefined" && variable.unit !== null;
-        const isValidUnit = unitIsProvided ? isMathjsUnit(variable.unit as string) : false;
-        const unitDisplay = isValidUnit
-          ? ` [${variable.unit}]`
-          : unitIsProvided && variable.unit !== ''
-            ? <span className="inline">
-              {" ["}
-              {variable.unit}
-              <IconAlertTriangleFilled
-                width={16} height={16}
-                style={{ minWidth: '16px', marginBottom: '-3px', marginLeft: '1px' }}
-                color="darkorange"
-                aria-label={t("components:copy_and_scale.evaluation_warning_title")} // TODO: Check this translation
-              />
-              {"]"}
-            </span>
-            : '';
+    {recipe?.variables.length > 0 &&
+      <ul
+        className="grid gap-50 padding-left-100 align-items-center"
+        style={{
+          gridTemplateColumns: 'auto auto 1fr',
+          gridTemplateRows: 'auto auto',
+        }}
+      >
+        {(recipe?.variables ?? []).map(variable => {
+          const variableId = variable.id;
+          const variableDisplayName = variable.name;
+          const unitIsProvided = typeof variable.unit !== "undefined" && variable.unit !== null;
+          const isValidUnit = unitIsProvided ? isMathjsUnit(variable.unit as string) : false;
+          const unitDisplay = isValidUnit
+            ? ` [${variable.unit}]`
+            : unitIsProvided && variable.unit !== ''
+              ? <span className="inline">
+                {" ["}
+                {variable.unit}
+                <IconAlertTriangleFilled
+                  width={16} height={16}
+                  style={{ minWidth: '16px', marginBottom: '-3px', marginLeft: '1px' }}
+                  color="darkorange"
+                  aria-label={t("components:copy_and_scale.evaluation_warning_title")} // TODO: Check this translation
+                />
+                {"]"}
+              </span>
+              : '';
 
-        switch (variable.type) {
-          case RecipeDataTypes.Scalar: {// TODO: Fix these labels
-            return (
-              <li key={variableId} className={`${styles["variable"]} ${!variable.template ? styles["variable-selected"] : ""}`}>
-                <label className="margin-right-150 margin-left-25">
-                  {variableDisplayName}{unitDisplay}:
-                </label>
-                <VariableTypeScalarSimple
-                  variableId={variableId}
-                  permissions={permissions}
-                  props={{
-                    defaultValue: variable.value,
-                  }}
-                />
-              </li>
-            );
+          switch (variable.type) {
+            case RecipeDataTypes.Scalar: {// TODO: Fix these labels
+              return (
+                <li key={variableId} className={`${styles["variable"]} ${!variable.template ? styles["variable-selected"] : ""}`}>
+                  <label className="margin-right-150 margin-left-25">
+                    {variableDisplayName}{unitDisplay}:
+                  </label>
+                  <VariableTypeScalarSimple
+                    variableId={variableId}
+                    permissions={permissions}
+                    props={{
+                      defaultValue: variable.value,
+                    }}
+                  />
+                </li>
+              );
+            }
+            case RecipeDataTypes.DataSeries: {
+              return (
+                <li key={variableId} className={`${styles["variable"]} ${!variable.template ? styles["variable-selected"] : ""}`}>
+                  <label className="margin-right-150 margin-left-25">
+                    {variableDisplayName}{unitDisplay}:
+                  </label>
+                  <DataSeriesVariableSimpleEditor
+                    variableId={variableId}
+                    availableDataSeries={availableDataSeries}
+                    roadmapLookup={roadmapLookup}
+                    dataSeriesNamesById={dataSeriesNamesById}
+                    permissions={{ ...permissions }}
+                  />
+                </li>
+              );
+            }
+            case RecipeDataTypes.External: {
+              return (
+                <li key={variableId} className={`${styles["variable"]} ${!variable.template ? styles["variable-selected"] : ""}`}>
+                  <label className="margin-right-150 margin-left-25">
+                    {variableDisplayName}{unitDisplay}:
+                  </label>
+                  <VariableTypeExternalSimple
+                    variableId={variableId}
+                    permissions={permissions}
+                  />
+                </li>
+              );
+            }
+            default: {
+              console.warn("Unknown variable type for variable", { variable });
+              return (
+                <p key={variableId}>
+                  {variableDisplayName}: {t("components:recipe_editor.unknown_variable_type")}
+                </p>
+              );
+            }
           }
-          case RecipeDataTypes.DataSeries: {
-            return (
-              <li key={variableId} className={`${styles["variable"]} ${!variable.template ? styles["variable-selected"] : ""}`}>
-                <label className="margin-right-150 margin-left-25">
-                  {variableDisplayName}{unitDisplay}:
-                </label>
-                <DataSeriesVariableSimpleEditor
-                  variableId={variableId}
-                  availableDataSeries={availableDataSeries}
-                  roadmapLookup={roadmapLookup}
-                  dataSeriesNamesById={dataSeriesNamesById}
-                  permissions={{ ...permissions }}
-                />
-              </li>
-            );
-          }
-          case RecipeDataTypes.External: {
-            return (
-              <li key={variableId} className={`${styles["variable"]} ${!variable.template ? styles["variable-selected"] : ""}`}>
-                <label className="margin-right-150 margin-left-25">
-                  {variableDisplayName}{unitDisplay}:
-                </label>
-                <VariableTypeExternalSimple
-                  variableId={variableId}
-                  permissions={permissions}
-                />
-              </li>
-            );
-          }
-          default: {
-            console.warn("Unknown variable type for variable", { variable });
-            return (
-              <p key={variableId}>
-                {variableDisplayName}: {t("components:recipe_editor.unknown_variable_type")}
-              </p>
-            );
-          }
-        }
-      })}
-    </ul>
+        })}
+      </ul>
+    }
 
     {!!selectedRecipeId && <>
       <TextStatus showAllGood={false} />

@@ -56,9 +56,9 @@ export function InheritingBaseline({
   return (
     <>
       {/* Roadmap select */}
-      <label className="block margin-block-75">
+      <label>
         {t("forms:goal.select_roadmap_version")}
-        <select name="selectedRoadmap" id="selectedRoadmap" className="margin-inline-25" required={true}
+        <select name="selectedRoadmap" id="selectedRoadmap" className="block margin-top-25 margin-bottom-100 width-100" required={true}
           value={selectedRoadmap}
           onChange={(e) => { setSelectedRoadmap(e.target.value); setSelectedGoal(undefined); }}
         >
@@ -72,9 +72,9 @@ export function InheritingBaseline({
       </label>
 
       {/* Goal select */}
-      {roadmapData ? <label className="block margin-block-75">
+      {roadmapData ? <label>
         {t("forms:goal.select_goal_as_baseline")}
-        <select name="inheritFrom" id="inheritFrom" className="margin-inline-25" required={true}
+        <select name="inheritFrom" id="inheritFrom" className="block margin-top-25 margin-bottom-100 width-100" required={true}
           value={selectedGoal}
           onChange={(e) => setSelectedGoal(e.target.value)}
         >

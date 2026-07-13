@@ -290,3 +290,18 @@ button[type="submit"]:disabled {
     padding: .75rem;
   }
 }
+
+/* Radio group */
+
+.radio-group label:has(input[type="radio"]) {
+  padding: .5rem;
+  border-radius: .25rem;
+  border: 1px solid var(--gray-80);
+  font-size: smaller;
+  background-color: var(--secondary-neutral);
+}
+
+.radio-group label:has(input[type="radio"]:checked) {
+  border-color: var(--blue-50);
+  background-color: rgba(153, 211, 255, .25);
+}

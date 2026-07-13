@@ -25,6 +25,7 @@ import HistoricalDataSection from "../sections/dataseries/historical";
 import { GoalFormName } from "../formNames";
 // import { SuggestedRecipesList } from "@/components/recipe/suggestions/suggestedRecipeList";
 import GoalGraph from "@/components/graph/graphs/goal/main";
+import { IconCheck } from "@tabler/icons-react";
 
 const DataSeriesType = {
   Manual: "MANUAL",
@@ -472,208 +473,341 @@ export default function GoalForm({
       </fieldset>
 
       {/* Data series input section */}
-      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_goal_data_series")}</legend>
+      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200 padding-left-200`}>
+        <legend data-position={positionIndex} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.input_dataseries")}</legend>
+        <fieldset className={`${styles.timeLineFieldset} margin-top-200 margin-left-400`}>
+          <legend data-position={positionIndex + 0.1} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_goal_data_series")}</legend>
 
-        {/* Radio group */}
-        <fieldset className="border-none padding-0 margin-0 margin-bottom-100" role="radiogroup" aria-label={t("forms:goal.choose_goal_data_series")}>
-          <label className="flex align-items-center gap-50 margin-bottom-50">
-            <input
-              type="radio"
-              name={GoalFormName.DataSeriesType}
-              value={DataSeriesType.Suggested}
-              checked={dataSeriesType === DataSeriesType.Suggested}
-              onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
-            />
-            {t("forms:goal.suggested_inheritance")}
+          {/* Unit */}
+          <label htmlFor="dataUnit">
+            {t("forms:goal.data_unit")}
           </label>
-          <label className="flex align-items-center gap-50 margin-bottom-50">
-            <input
-              type="radio"
-              name={GoalFormName.DataSeriesType}
-              value={DataSeriesType.Custom}
-              checked={dataSeriesType === DataSeriesType.Custom}
-              onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
-            />
-            {t("forms:goal.custom_recipe")}
-          </label>
-          <label className="flex align-items-center gap-50 margin-bottom-50">
-            <input
-              type="radio"
-              name={GoalFormName.DataSeriesType}
-              value={DataSeriesType.Manual}
-              checked={dataSeriesType === DataSeriesType.Manual}
-              onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
-            />
-            {t("forms:goal.static_data_series")}
-          </label>
-        </fieldset>
-
-        {/**
-          ## NOTE:
-
-          The following fieldsets are intentionally hidden and not unmounted to preserve state.
-        */}
-        {/* Suggested */}
-        {hasInitializedSuggested ?
-          <fieldset className={`margin-bottom-100 ${dataSeriesType !== DataSeriesType.Suggested ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Suggested}>
-            <RecipeContextProvider
-              initialRecipe={currentGoal?.dataSeries?.recipeUsed?.recipe ? Recipe.from(currentGoal.dataSeries.recipeUsed.recipe).withEditableExternals().serialize() : undefined}
-              availableDataSeries={currentGoal?.dataSeries?.recipeUsed?.sourceDataSeries}
-            >
-              <SuggestedRecipeApplier />
-              <FormSync
-                RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
-                DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
-              />
-              <ParameterSync
-                setter={setIndicatorParameter}
-              />
-              <RecipeSync
-                onUnit={setUnit}
-                onError={setDataSeriesRecipeError}
-                active={dataSeriesType === DataSeriesType.Suggested}
-              />
-            </RecipeContextProvider>
-          </fieldset>
-          : null
-        }
-
-        {/* Recipe */}
-        {hasInitializedCustom ?
-          <fieldset className={`margin-bottom-100 ${dataSeriesType !== DataSeriesType.Custom ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Custom}>
-            <RecipeContextProvider
-              initialRecipe={currentGoal?.dataSeries?.recipeUsed?.recipe ? Recipe.from(currentGoal.dataSeries.recipeUsed.recipe).withEditableExternals().serialize() : undefined}
-              availableDataSeries={currentGoal?.dataSeries?.recipeUsed?.sourceDataSeries}
-            >
-              <RecipeEditor />
-              <FormSync
-                RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
-                DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
-              />
-              <ParameterSync
-                setter={setIndicatorParameter}
-              />
-              <RecipeSync
-                onUnit={setUnit}
-                onDateValues={setPreviewDataSerie}
-                onError={setDataSeriesRecipeError}
-                active={dataSeriesType === DataSeriesType.Custom}
-              />
-            </RecipeContextProvider>
-          </fieldset>
-          : null
-        }
-
-        {/* Manual */}
-        <fieldset className={`margin-bottom-100 ${dataSeriesType === DataSeriesType.Manual ? "" : "display-none"}`} disabled={dataSeriesType !== DataSeriesType.Manual}>
-          <RecipeContextProvider
-            initialRecipe={Recipe.fromManualDateValues(manualInitialDateValues ?? { unit: undefined, dateValues: {} }).serialize()}
-          >
-            <ManualDataSeriesInput
-              id="goal-dataseries"
-              label={t("forms:data_series_input.data_series")}
-              initialDateValues={manualInitialDateValues}
-            />
-            <FormSync
-              RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
-              DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
-            />
-          </RecipeContextProvider>
-        </fieldset>
-
-        {/* Unit */}
-        <label htmlFor="dataUnit">
-          {t("forms:goal.data_unit")}
-        </label>
-        <TextSingleAutocomplete
-          props={{
-            id: "dataUnit",
-            name: GoalFormName.DataUnit,
-            placeholder: t("forms:combobox.default_autocomplete_placeholder"),
-            className: "margin-top-25",
-            defaultValue: currentGoal?.dataSeries?.unit ?? undefined,
-          }}
-          options={allOurUnits.map(u => ({ name: u, value: u }))}
-          onChange={(unit) => {
-            try {
-              setParsedUnit(mathjs.unit(unit).toString());
-            } catch {
-              setParsedUnit(null);
-            }
-          }}
-          value={unit}
-          setter={setUnit}
-        />
-        <small className="block margin-top-25 margin-bottom-100 font-style-italic" style={{ height: '20px' }}>
-          {parsedUnit === null && t("forms:goal.unit_not_interpreted")}
-
-          {parsedUnit ? <>
-            {t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong>
-          </> : null}
-        </small>
-
-
-      </fieldset>
-
-      {/* Baseline selection section */}
-      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-        <legend
-          data-position={positionIndex++}
-          className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
-        >
-          {t("forms:goal.create_baseline_for_actions")}
-        </legend>
-
-        <label>
-          {t("forms:goal.baseline_label")}
-          <select className="block margin-top-25 margin-bottom-100" name={GoalFormName.BaselineType} id="baselineSelector" value={baselineType} onChange={(e) => setBaselineType(e.target.value as BaselineType)}>
-            <option value={BaselineType.Initial}>{t("forms:goal.baseline_types.initial")}</option>
-            <option value={BaselineType.InitialNonZero}>{t("forms:goal.baseline_types.initial_non_zero")}</option>
-            <option value={BaselineType.Custom}>{t("forms:goal.baseline_types.custom")}</option>
-            <option value={BaselineType.Inherited}>{t("forms:goal.baseline_types.inherited")}</option>
-          </select>
-        </label>
-
-        {/* Custom baseline input */}
-        {baselineType === BaselineType.Custom &&
-          <RecipeContextProvider
-            initialRecipe={Recipe.fromManualDateValues(
-              currentGoal?.baseline ? dataSeriesToDateValues(currentGoal.baseline) : { unit: undefined, dateValues: {} },
-            ).serialize()}
-          >
-            <ManualDataSeriesInput
-              id="baseline-dataseries"
-              label={t("forms:data_series_input.data_series")}
-              {...currentGoal?.baseline
-                ? { initialDateValues: dataSeriesToDateValues(currentGoal.baseline) }
-                : {}
+          <TextSingleAutocomplete
+            props={{
+              id: "dataUnit",
+              name: GoalFormName.DataUnit,
+              placeholder: t("forms:combobox.default_autocomplete_placeholder"),
+              className: "margin-top-25",
+              defaultValue: currentGoal?.dataSeries?.unit ?? undefined,
+            }}
+            options={allOurUnits.map(u => ({ name: u, value: u }))}
+            onChange={(unit) => {
+              try {
+                setParsedUnit(mathjs.unit(unit).toString());
+              } catch {
+                setParsedUnit(null);
               }
-            />
-            <FormSync DateValuesFormElement={<input name={GoalFormName.BaselineDataSeries} />} />
-          </RecipeContextProvider>
-        }
-
-        {/* Inherited baseline input */}
-        {baselineType === BaselineType.Inherited &&
-          <InheritingBaseline
-            outputFormElement={<input name={GoalFormName.InheritedBaselineId} />}
+            }}
+            value={unit}
+            setter={setUnit}
           />
-        }
-      </fieldset>
+          <small className="block margin-top-25 margin-bottom-100 font-style-italic" style={{ height: '20px' }}>
+            {parsedUnit === null && t("forms:goal.unit_not_interpreted")}
 
+            {parsedUnit ? <>
+              {t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong>
+            </> : null}
+          </small>
 
-      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200 min-width-0`}>
-        <legend
-          // eslint-disable-next-line no-useless-assignment
-          data-position={positionIndex++}
-          className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
+          {/* Radio group */}
+          <fieldset className="border-none padding-0 margin-0 radio-group" role="radiogroup" aria-label={t("forms:goal.choose_goal_data_series")}>
+            <legend className="padding-block-125 font-weight-bold">{t("forms:goal.goal_label")}</legend>
+            <label className="flex align-items-center gap-50 margin-bottom-50">
+              <input
+                type="radio"
+                name={GoalFormName.DataSeriesType}
+                value={DataSeriesType.Suggested}
+                checked={dataSeriesType === DataSeriesType.Suggested}
+                onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
+              />
+              {t("forms:goal.suggested_inheritance")}
+            </label>
+            <label className="flex align-items-center gap-50 margin-bottom-50">
+              <input
+                type="radio"
+                name={GoalFormName.DataSeriesType}
+                value={DataSeriesType.Manual}
+                checked={dataSeriesType === DataSeriesType.Manual}
+                onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
+              />
+              {t("forms:goal.static_data_series")}
+            </label>
+            <label className="flex align-items-center gap-50 margin-bottom-50">
+              <input
+                type="radio"
+                name={GoalFormName.DataSeriesType}
+                value={DataSeriesType.Custom}
+                checked={dataSeriesType === DataSeriesType.Custom}
+                onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
+              />
+              {t("forms:goal.custom_recipe")}
+            </label>
+          </fieldset>
+
+          {/**
+            ## NOTE:
+
+            The following fieldsets are intentionally hidden and not unmounted to preserve state.
+          */}
+          {/* Suggested */}
+          <div
+            className="padding-100 smooth margin-bottom-100"
+            style={{ border: '1px dashed var(--gray-60)' }}
+          >
+            {hasInitializedSuggested ?
+              <fieldset className={`${dataSeriesType !== DataSeriesType.Suggested ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Suggested}>
+                <p className="margin-top-0 font-size-125 font-weight-500 flex gap-50 align-items-center" style={{ color: 'var(--blue)' }}>
+                  <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
+                  <span>
+                    {t("forms:goal.using")}
+                    <span className="text-transform-lowercase"> {t("forms:goal.suggested_inheritance")}</span>
+                  </span>
+                </p> {/* TODO: Should be a legend? */}
+                <RecipeContextProvider
+                  initialRecipe={currentGoal?.dataSeries?.recipeUsed?.recipe ? Recipe.from(currentGoal.dataSeries.recipeUsed.recipe).withEditableExternals().serialize() : undefined}
+                  availableDataSeries={currentGoal?.dataSeries?.recipeUsed?.sourceDataSeries}
+                >
+                  <SuggestedRecipeApplier />
+                  <FormSync
+                    RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
+                    DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
+                  />
+                  <ParameterSync
+                    setter={setIndicatorParameter}
+                  />
+                  <RecipeSync
+                    onUnit={setUnit}
+                    onError={setDataSeriesRecipeError}
+                    active={dataSeriesType === DataSeriesType.Suggested}
+                  />
+                </RecipeContextProvider>
+              </fieldset>
+              : null
+            }
+
+            {/* Manual */}
+            <fieldset className={`${dataSeriesType === DataSeriesType.Manual ? "" : "display-none"}`} disabled={dataSeriesType !== DataSeriesType.Manual}>
+              <p className="margin-top-0 font-size-125 font-weight-500 flex gap-50 align-items-center" style={{ color: 'var(--blue)' }}>
+                <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
+                <span>
+                  {t("forms:goal.using")}
+                  <span className="text-transform-lowercase"> {t("forms:goal.static_data_series")}</span>
+                </span>
+              </p> {/* TODO: Should be a legend? */}
+              <RecipeContextProvider
+                initialRecipe={Recipe.fromManualDateValues(manualInitialDateValues ?? { unit: undefined, dateValues: {} }).serialize()}
+              >
+                <ManualDataSeriesInput
+                  id="goal-dataseries"
+                  label={t("forms:data_series_input.data_series")}
+                  initialDateValues={manualInitialDateValues}
+                />
+                <FormSync
+                  RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
+                  DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
+                />
+              </RecipeContextProvider>
+            </fieldset>
+
+            {/* Recipe */}
+            {hasInitializedCustom ?
+              <fieldset className={`${dataSeriesType !== DataSeriesType.Custom ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Custom}>
+                <p className="margin-top-0 font-size-125 font-weight-500 flex gap-50 align-items-center" style={{ color: 'var(--blue)' }}>
+                  <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
+                  <span>
+                    {t("forms:goal.using")}
+                    <span className="text-transform-lowercase"> {t("forms:goal.custom_recipe")}</span>
+                  </span>
+                </p> {/* TODO: Should be a legend? */}
+                <RecipeContextProvider
+                  initialRecipe={currentGoal?.dataSeries?.recipeUsed?.recipe ? Recipe.from(currentGoal.dataSeries.recipeUsed.recipe).withEditableExternals().serialize() : undefined}
+                  availableDataSeries={currentGoal?.dataSeries?.recipeUsed?.sourceDataSeries}
+                >
+                  <RecipeEditor />
+                  <FormSync
+                    RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
+                    DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
+                  />
+                  <ParameterSync
+                    setter={setIndicatorParameter}
+                  />
+                  <RecipeSync
+                    onUnit={setUnit}
+                    onDateValues={setPreviewDataSerie}
+                    onError={setDataSeriesRecipeError}
+                    active={dataSeriesType === DataSeriesType.Custom}
+                  />
+                </RecipeContextProvider>
+              </fieldset>
+              : null
+            }
+          </div>
+        </fieldset>
+
+        {/* Baseline selection section */}
+        <fieldset className={`${styles.timeLineFieldset} margin-top-200 margin-left-400`}>
+          <legend
+            data-position={positionIndex + 0.2}
+            className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
+          >
+            {t("forms:goal.create_baseline_for_actions")}
+          </legend>
+
+          <fieldset className="margin-top-25 fieldset-unset-pseudo-class">
+            <legend className="padding-block-125 font-weight-bold">{t("forms:goal.baseline_label")}</legend>
+            <div className="width-100 radio-group">
+              <label className="flex align-items-center gap-50 margin-bottom-50">
+                <input
+                  type="radio"
+                  name={GoalFormName.BaselineType}
+                  value={BaselineType.Initial}
+                  checked={baselineType === BaselineType.Initial}
+                  onChange={(e) => setBaselineType(e.target.value as BaselineType)}
+                />
+                {t("forms:goal.baseline_types.initial")}
+              </label>
+              <label className="flex align-items-center gap-50 margin-bottom-50">
+                <input
+                  type="radio"
+                  name={GoalFormName.BaselineType}
+                  value={BaselineType.InitialNonZero}
+                  checked={baselineType === BaselineType.InitialNonZero}
+                  onChange={(e) => setBaselineType(e.target.value as BaselineType)}
+                />
+                {t("forms:goal.baseline_types.initial_non_zero")}
+              </label>
+              <label className="flex align-items-center gap-50 margin-bottom-50">
+                <input
+                  type="radio"
+                  name={GoalFormName.BaselineType}
+                  value={BaselineType.Custom}
+                  checked={baselineType === BaselineType.Custom}
+                  onChange={(e) => setBaselineType(e.target.value as BaselineType)}
+                />
+                {t("forms:goal.baseline_types.custom")}
+              </label>
+              <label className="flex align-items-center gap-50 margin-bottom-50">
+                <input
+                  type="radio"
+                  name={GoalFormName.BaselineType}
+                  value={BaselineType.Inherited}
+                  checked={baselineType === BaselineType.Inherited}
+                  onChange={(e) => setBaselineType(e.target.value as BaselineType)}
+                />
+                {t("forms:goal.baseline_types.inherited")}
+              </label>
+            </div>
+          </fieldset>
+
+          <div
+            className="padding-100 smooth"
+            style={{ border: '1px dashed var(--gray-60)' }}
+          >
+
+            {/* First value baseline */}
+            {baselineType === BaselineType.Initial &&
+              <>
+                <p className="margin-0 font-size-125 font-weight-500 flex gap-50 align-items-center" style={{ color: 'var(--blue)' }}>
+                  <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
+                  <span>
+                    {t("forms:goal.using")}
+                    <span className="text-transform-lowercase"> {t("forms:goal.baseline_types.initial")}</span>
+                  </span>
+                </p> {/* TODO: Should be a legend? */}
+              </>
+            }
+
+            {/* First non-zero value baseline */}
+            {baselineType === BaselineType.InitialNonZero &&
+              <>
+                <p className="margin-0 font-size-125 font-weight-500 flex gap-50 align-items-center" style={{ color: 'var(--blue)' }}>
+                  <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
+                  <span>
+                    {t("forms:goal.using")}
+                    <span className="text-transform-lowercase"> {t("forms:goal.baseline_types.initial_non_zero")}</span>
+                  </span>
+                </p> {/* TODO: Should be a legend? */}
+              </>
+            }
+
+            {/* Custom baseline input */}
+            {baselineType === BaselineType.Custom &&
+              <>
+                <p className="margin-top-0 font-size-125 font-weight-500 flex gap-50 align-items-center" style={{ color: 'var(--blue)' }}>
+                  <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
+                  <span>
+                    {t("forms:goal.using")}
+                    <span className="text-transform-lowercase"> {t("forms:goal.baseline_types.custom")}</span>
+                  </span>
+                </p> {/* TODO: Should be a legend? */}
+                <RecipeContextProvider
+                  initialRecipe={Recipe.fromManualDateValues(
+                    currentGoal?.baseline ? dataSeriesToDateValues(currentGoal.baseline) : { unit: undefined, dateValues: {} },
+                  ).serialize()}
+                >
+                  <ManualDataSeriesInput
+                    id="baseline-dataseries"
+                    label={t("forms:data_series_input.data_series")}
+                    {...currentGoal?.baseline
+                      ? { initialDateValues: dataSeriesToDateValues(currentGoal.baseline) }
+                      : {}
+                    }
+                  />
+                  <FormSync DateValuesFormElement={<input name={GoalFormName.BaselineDataSeries} />} />
+                </RecipeContextProvider>
+              </>
+            }
+
+            {/* Inherited baseline input */}
+            {baselineType === BaselineType.Inherited &&
+              <>
+                <p className="margin-top-0 font-size-125 font-weight-500 flex gap-50 align-items-center" style={{ color: 'var(--blue)' }}>
+                  <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
+                  <span>
+                    {t("forms:goal.using")}
+                    <span className="text-transform-lowercase"> {t("forms:goal.baseline_types.inherited")}</span>
+                  </span>
+                </p> {/* TODO: Should be a legend? */}
+                <InheritingBaseline
+                  outputFormElement={<input name={GoalFormName.InheritedBaselineId} />}
+                />
+              </>
+            }
+          </div>
+        </fieldset>
+
+        <fieldset className={`${styles.timeLineFieldset} margin-top-200 min-width-0 margin-left-400`}>
+          <legend
+            // eslint-disable-next-line no-useless-assignment
+            data-position={positionIndex + 0.3}
+            className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
+          >
+            {t("forms:goal.input_historical_data")}
+          </legend>
+          <HistoricalDataSection goal={currentGoal} />
+        </fieldset>
+
+        <div
+          className="margin-top-200 min-width-0 margin-left-400"
         >
-          {t("forms:goal.input_historical_data")}
-        </legend>
-        {/* TODO: Need to be able to switch between external data and manual data here, not sure why im not able to? */}
-        <HistoricalDataSection goal={currentGoal} />
+          <h2 className="text-align-center margin-0 padding-block-125">goal.preview</h2>
+          {previewDataSerie?.dateValues ? (
+            <GoalGraph
+              chartType="main"
+              series={{
+                main: {
+                  name: 'placeholder name',
+                  unit: previewDataSerie.unit,
+                  dateValues: previewDataSerie.dateValues, // TODO: Needs to be updated if we remove stuff
+                },
+              }}
+            />
+          ) :
+            <strong className="grid height-100" style={{ placeContent: 'center' }}>goal.no_preview</strong>
+          }
+        </div>
       </fieldset>
+
 
       {/* Suggested recipes section 
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
@@ -695,30 +829,6 @@ export default function GoalForm({
         />
       </fieldset>
       */}
-
-      <div
-        className="margin-top-200 min-width-0"
-        style={{
-          height: '400px',
-        }}
-      >
-        <h2 className="text-align-center margin-0 padding-block-125">goal.preview</h2>
-        {previewDataSerie?.dateValues ? (
-          <GoalGraph
-            chartType="main"
-            series={{
-              main: {
-                name: 'placeholder name',
-                unit: previewDataSerie.unit,
-                dateValues: previewDataSerie.dateValues,
-              },
-            }}
-          />
-        ) :
-          <strong className="grid height-100" style={{ placeContent: 'center' }}>goal.no_preview</strong>
-        }
-      </div>
-
 
       {/* Submit button */}
       <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
