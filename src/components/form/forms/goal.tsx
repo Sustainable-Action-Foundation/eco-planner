@@ -10,7 +10,6 @@ import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
 import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
-import { InheritingBaseline } from "../sections/goalFormSections";
 import TextEditor from "../elements/textEditor/editor";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import { Recipe } from "@/functions/recipe/recipe";
@@ -26,6 +25,7 @@ import { GoalFormName } from "../formNames";
 // import { SuggestedRecipesList } from "@/components/recipe/suggestions/suggestedRecipeList";
 import GoalGraph from "@/components/graph/graphs/goal/main";
 import { IconCheck } from "@tabler/icons-react";
+import BaselineSection from "../sections/dataseries/baseline";
 
 const DataSeriesType = {
   Manual: "MANUAL",
@@ -653,127 +653,11 @@ export default function GoalForm({
             {t("forms:goal.create_baseline_for_actions")}
           </legend>
 
-          <fieldset className="margin-top-25 fieldset-unset-pseudo-class">
-            <legend className="padding-block-125 font-weight-bold">{t("forms:goal.baseline_label")}</legend>
-            <div className="width-100 radio-group">
-              <label className="flex align-items-center gap-50 margin-bottom-50">
-                <input
-                  type="radio"
-                  name={GoalFormName.BaselineType}
-                  value={BaselineType.Initial}
-                  checked={baselineType === BaselineType.Initial}
-                  onChange={(e) => setBaselineType(e.target.value as BaselineType)}
-                />
-                {t("forms:goal.baseline_types.initial")}
-              </label>
-              <label className="flex align-items-center gap-50 margin-bottom-50">
-                <input
-                  type="radio"
-                  name={GoalFormName.BaselineType}
-                  value={BaselineType.InitialNonZero}
-                  checked={baselineType === BaselineType.InitialNonZero}
-                  onChange={(e) => setBaselineType(e.target.value as BaselineType)}
-                />
-                {t("forms:goal.baseline_types.initial_non_zero")}
-              </label>
-              <label className="flex align-items-center gap-50 margin-bottom-50">
-                <input
-                  type="radio"
-                  name={GoalFormName.BaselineType}
-                  value={BaselineType.Custom}
-                  checked={baselineType === BaselineType.Custom}
-                  onChange={(e) => setBaselineType(e.target.value as BaselineType)}
-                />
-                {t("forms:goal.baseline_types.custom")}
-              </label>
-              <label className="flex align-items-center gap-50 margin-bottom-50">
-                <input
-                  type="radio"
-                  name={GoalFormName.BaselineType}
-                  value={BaselineType.Inherited}
-                  checked={baselineType === BaselineType.Inherited}
-                  onChange={(e) => setBaselineType(e.target.value as BaselineType)}
-                />
-                {t("forms:goal.baseline_types.inherited")}
-              </label>
-            </div>
-          </fieldset>
-
-          <div
-            className="padding-100 smooth"
-            style={{ border: '1px dashed var(--gray-60)' }}
-          >
-
-            {/* First value baseline */}
-            {baselineType === BaselineType.Initial &&
-              <>
-                <p className="margin-0 font-size-125 font-weight-500 flex gap-50 align-items-center" style={{ color: 'var(--blue)' }}>
-                  <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
-                  <span>
-                    {t("forms:goal.using")}
-                    <span className="text-transform-lowercase"> {t("forms:goal.baseline_types.initial")}</span>
-                  </span>
-                </p> {/* TODO: Should be a legend? */}
-              </>
-            }
-
-            {/* First non-zero value baseline */}
-            {baselineType === BaselineType.InitialNonZero &&
-              <>
-                <p className="margin-0 font-size-125 font-weight-500 flex gap-50 align-items-center" style={{ color: 'var(--blue)' }}>
-                  <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
-                  <span>
-                    {t("forms:goal.using")}
-                    <span className="text-transform-lowercase"> {t("forms:goal.baseline_types.initial_non_zero")}</span>
-                  </span>
-                </p> {/* TODO: Should be a legend? */}
-              </>
-            }
-
-            {/* Custom baseline input */}
-            {baselineType === BaselineType.Custom &&
-              <>
-                <p className="margin-top-0 font-size-125 font-weight-500 flex gap-50 align-items-center" style={{ color: 'var(--blue)' }}>
-                  <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
-                  <span>
-                    {t("forms:goal.using")}
-                    <span className="text-transform-lowercase"> {t("forms:goal.baseline_types.custom")}</span>
-                  </span>
-                </p> {/* TODO: Should be a legend? */}
-                <RecipeContextProvider
-                  initialRecipe={Recipe.fromManualDateValues(
-                    currentGoal?.baseline ? dataSeriesToDateValues(currentGoal.baseline) : { unit: undefined, dateValues: {} },
-                  ).serialize()}
-                >
-                  <ManualDataSeriesInput
-                    id="baseline-dataseries"
-                    label={t("forms:data_series_input.data_series")}
-                    {...currentGoal?.baseline
-                      ? { initialDateValues: dataSeriesToDateValues(currentGoal.baseline) }
-                      : {}
-                    }
-                  />
-                  <FormSync DateValuesFormElement={<input name={GoalFormName.BaselineDataSeries} />} />
-                </RecipeContextProvider>
-              </>
-            }
-
-            {/* Inherited baseline input */}
-            {baselineType === BaselineType.Inherited &&
-              <>
-                <p className="margin-top-0 font-size-125 font-weight-500 flex gap-50 align-items-center" style={{ color: 'var(--blue)' }}>
-                  <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
-                  <span>
-                    {t("forms:goal.using")}
-                    <span className="text-transform-lowercase"> {t("forms:goal.baseline_types.inherited")}</span>
-                  </span>
-                </p> {/* TODO: Should be a legend? */}
-                <InheritingBaseline
-                  outputFormElement={<input name={GoalFormName.InheritedBaselineId} />}
-                />
-              </>
-            }
-          </div>
+          <BaselineSection 
+            goal={currentGoal}
+            baselineType={baselineType}
+            setBaselineType={setBaselineType}  
+          />
         </fieldset>
 
         <fieldset className={`${styles.timeLineFieldset} margin-top-200 min-width-0 margin-left-400`}>
