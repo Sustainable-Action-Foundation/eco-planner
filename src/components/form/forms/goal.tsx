@@ -2,7 +2,7 @@
 
 import type { getRoadmaps } from "@/fetchers";
 import formSubmitter from "@/functions/formSubmitter";
-import mathjs, { allOurUnits } from "@/math";
+import mathjs from "@/math";
 import { GoalDataTarget, isDateValuesWithUnit, isISOIshDate } from "@/types";
 import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput, UnitString } from "@/types";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -14,27 +14,23 @@ import TextEditor from "../elements/textEditor/editor";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import { Recipe } from "@/functions/recipe/recipe";
 import type { SerializedRecipe } from "@/functions/recipe";
-import { FormSync, ManualDataSeriesInput, RecipeContextProvider, RecipeEditor, SuggestedRecipeApplier } from "@/components/recipe";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
-import { dataSeriesToDateValues } from "@/functions/recipe";
-import ParameterSync from "@/components/recipe/output/parameterSyncer";
-import { RecipeSync } from "@/components/recipe/output/recipeSync";
-import HistoricalDataSection from "../sections/dataseries/historical";
 import { GoalFormName } from "../formNames";
 // import { SuggestedRecipesList } from "@/components/recipe/suggestions/suggestedRecipeList";
 import GoalGraph from "@/components/graph/graphs/goal/main";
-import { IconCheck } from "@tabler/icons-react";
-import BaselineSection from "../sections/dataseries/baseline";
+import HistoricalSeriesSection from "../sections/dataseries/historical";
+import BaselineSeriesSection from "../sections/dataseries/baseline";
+import GoalSeriesSection from "../sections/dataseries/goal";
 
-const DataSeriesType = {
+export const DataSeriesType = {
   Manual: "MANUAL",
   Suggested: "SUGGESTED",
   Custom: "CUSTOM",
 } as const;
 type DataSeriesType = (typeof DataSeriesType)[keyof typeof DataSeriesType];
 
-const BaselineType = {
+export const BaselineType = {
   Initial: "INITIAL",
   InitialNonZero: "INITIAL_NON_ZERO",
   Custom: "CUSTOM",
@@ -387,10 +383,6 @@ export default function GoalForm({
     formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST', t, undefined, undefined, undefined, undefined, addToast, router.push);
   }
 
-  const manualInitialDateValues = currentGoal?.dataSeries
-    ? dataSeriesToDateValues(currentGoal.dataSeries)
-    : undefined;
-
   // Index for data-position attribute in legend elements (for accessibility)
   let positionIndex = 1;
 
@@ -472,179 +464,29 @@ export default function GoalForm({
         </fieldset >
       </fieldset>
 
-      {/* Data series input section */}
+      {/* Goal series input section */}
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200 padding-left-200`}>
         <legend data-position={positionIndex} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.input_dataseries")}</legend>
         <fieldset className={`${styles.timeLineFieldset} margin-top-200 margin-left-400`}>
           <legend data-position={positionIndex + 0.1} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_goal_data_series")}</legend>
 
-          {/* Unit */}
-          <label htmlFor="dataUnit">
-            {t("forms:goal.data_unit")}
-          </label>
-          <TextSingleAutocomplete
-            props={{
-              id: "dataUnit",
-              name: GoalFormName.DataUnit,
-              placeholder: t("forms:combobox.default_autocomplete_placeholder"),
-              className: "margin-top-25",
-              defaultValue: currentGoal?.dataSeries?.unit ?? undefined,
-            }}
-            options={allOurUnits.map(u => ({ name: u, value: u }))}
-            onChange={(unit) => {
-              try {
-                setParsedUnit(mathjs.unit(unit).toString());
-              } catch {
-                setParsedUnit(null);
-              }
-            }}
-            value={unit}
-            setter={setUnit}
+          <GoalSeriesSection
+            goal={currentGoal}
+            unit={unit}
+            setUnit={setUnit}
+            parsedUnit={parsedUnit}
+            setParsedUnit={setParsedUnit}
+            dataSeriesType={dataSeriesType}
+            setDataSeriesType={setDataSeriesType}
+            setIndicatorParameter={setIndicatorParameter}
+            setPreviewDataSerie={setPreviewDataSerie}
+            setDataSeriesRecipeError={setDataSeriesRecipeError}
+            hasInitializedSuggested={hasInitializedSuggested}
+            hasInitializedCustom={hasInitializedCustom}
           />
-          <small className="block margin-top-25 margin-bottom-100 font-style-italic" style={{ height: '20px' }}>
-            {parsedUnit === null && t("forms:goal.unit_not_interpreted")}
-
-            {parsedUnit ? <>
-              {t("forms:goal.unit_interpreted_as")} <strong>{parsedUnit}</strong>
-            </> : null}
-          </small>
-
-          {/* Radio group */}
-          <fieldset className="border-none padding-0 margin-0 radio-group" role="radiogroup" aria-label={t("forms:goal.choose_goal_data_series")}>
-            <legend className="padding-block-125 font-weight-bold">{t("forms:goal.goal_label")}</legend>
-            <label className="flex align-items-center gap-50 margin-bottom-50">
-              <input
-                type="radio"
-                name={GoalFormName.DataSeriesType}
-                value={DataSeriesType.Suggested}
-                checked={dataSeriesType === DataSeriesType.Suggested}
-                onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
-              />
-              {t("forms:goal.suggested_inheritance")}
-            </label>
-            <label className="flex align-items-center gap-50 margin-bottom-50">
-              <input
-                type="radio"
-                name={GoalFormName.DataSeriesType}
-                value={DataSeriesType.Manual}
-                checked={dataSeriesType === DataSeriesType.Manual}
-                onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
-              />
-              {t("forms:goal.static_data_series")}
-            </label>
-            <label className="flex align-items-center gap-50 margin-bottom-50">
-              <input
-                type="radio"
-                name={GoalFormName.DataSeriesType}
-                value={DataSeriesType.Custom}
-                checked={dataSeriesType === DataSeriesType.Custom}
-                onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
-              />
-              {t("forms:goal.custom_recipe")}
-            </label>
-          </fieldset>
-
-          {/**
-            ## NOTE:
-
-            The following fieldsets are intentionally hidden and not unmounted to preserve state.
-          */}
-          {/* Suggested */}
-          <div
-            className="padding-100 smooth margin-bottom-100"
-            style={{ border: '1px dashed var(--gray-60)' }}
-          >
-            {hasInitializedSuggested ?
-              <fieldset className={`${dataSeriesType !== DataSeriesType.Suggested ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Suggested}>
-                <p className="margin-top-0 font-size-125 font-weight-500 flex gap-50 align-items-center" style={{ color: 'var(--blue)' }}>
-                  <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
-                  <span>
-                    {t("forms:goal.using")}
-                    <span className="text-transform-lowercase"> {t("forms:goal.suggested_inheritance")}</span>
-                  </span>
-                </p> {/* TODO: Should be a legend? */}
-                <RecipeContextProvider
-                  initialRecipe={currentGoal?.dataSeries?.recipeUsed?.recipe ? Recipe.from(currentGoal.dataSeries.recipeUsed.recipe).withEditableExternals().serialize() : undefined}
-                  availableDataSeries={currentGoal?.dataSeries?.recipeUsed?.sourceDataSeries}
-                >
-                  <SuggestedRecipeApplier />
-                  <FormSync
-                    RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
-                    DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
-                  />
-                  <ParameterSync
-                    setter={setIndicatorParameter}
-                  />
-                  <RecipeSync
-                    onUnit={setUnit}
-                    onError={setDataSeriesRecipeError}
-                    active={dataSeriesType === DataSeriesType.Suggested}
-                  />
-                </RecipeContextProvider>
-              </fieldset>
-              : null
-            }
-
-            {/* Manual */}
-            <fieldset className={`${dataSeriesType === DataSeriesType.Manual ? "" : "display-none"}`} disabled={dataSeriesType !== DataSeriesType.Manual}>
-              <p className="margin-top-0 font-size-125 font-weight-500 flex gap-50 align-items-center" style={{ color: 'var(--blue)' }}>
-                <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
-                <span>
-                  {t("forms:goal.using")}
-                  <span className="text-transform-lowercase"> {t("forms:goal.static_data_series")}</span>
-                </span>
-              </p> {/* TODO: Should be a legend? */}
-              <RecipeContextProvider
-                initialRecipe={Recipe.fromManualDateValues(manualInitialDateValues ?? { unit: undefined, dateValues: {} }).serialize()}
-              >
-                <ManualDataSeriesInput
-                  id="goal-dataseries"
-                  label={t("forms:data_series_input.data_series")}
-                  initialDateValues={manualInitialDateValues}
-                />
-                <FormSync
-                  RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
-                  DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
-                />
-              </RecipeContextProvider>
-            </fieldset>
-
-            {/* Recipe */}
-            {hasInitializedCustom ?
-              <fieldset className={`${dataSeriesType !== DataSeriesType.Custom ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Custom}>
-                <p className="margin-top-0 font-size-125 font-weight-500 flex gap-50 align-items-center" style={{ color: 'var(--blue)' }}>
-                  <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
-                  <span>
-                    {t("forms:goal.using")}
-                    <span className="text-transform-lowercase"> {t("forms:goal.custom_recipe")}</span>
-                  </span>
-                </p> {/* TODO: Should be a legend? */}
-                <RecipeContextProvider
-                  initialRecipe={currentGoal?.dataSeries?.recipeUsed?.recipe ? Recipe.from(currentGoal.dataSeries.recipeUsed.recipe).withEditableExternals().serialize() : undefined}
-                  availableDataSeries={currentGoal?.dataSeries?.recipeUsed?.sourceDataSeries}
-                >
-                  <RecipeEditor />
-                  <FormSync
-                    RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
-                    DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
-                  />
-                  <ParameterSync
-                    setter={setIndicatorParameter}
-                  />
-                  <RecipeSync
-                    onUnit={setUnit}
-                    onDateValues={setPreviewDataSerie}
-                    onError={setDataSeriesRecipeError}
-                    active={dataSeriesType === DataSeriesType.Custom}
-                  />
-                </RecipeContextProvider>
-              </fieldset>
-              : null
-            }
-          </div>
         </fieldset>
 
-        {/* Baseline selection section */}
+        {/* Baseline series input section */}
         <fieldset className={`${styles.timeLineFieldset} margin-top-200 margin-left-400`}>
           <legend
             data-position={positionIndex + 0.2}
@@ -653,22 +495,22 @@ export default function GoalForm({
             {t("forms:goal.create_baseline_for_actions")}
           </legend>
 
-          <BaselineSection 
+          <BaselineSeriesSection 
             goal={currentGoal}
             baselineType={baselineType}
             setBaselineType={setBaselineType}  
           />
         </fieldset>
 
+        {/* Historical series input section */}
         <fieldset className={`${styles.timeLineFieldset} margin-top-200 min-width-0 margin-left-400`}>
           <legend
-            // eslint-disable-next-line no-useless-assignment
             data-position={positionIndex + 0.3}
             className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
           >
             {t("forms:goal.input_historical_data")}
           </legend>
-          <HistoricalDataSection goal={currentGoal} />
+          <HistoricalSeriesSection goal={currentGoal} />
         </fieldset>
 
         <div

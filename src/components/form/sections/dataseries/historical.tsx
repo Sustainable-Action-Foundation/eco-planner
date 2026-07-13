@@ -23,7 +23,7 @@ const HistoricalDataType = {
 type HistoricalDataType = (typeof HistoricalDataType)[keyof typeof HistoricalDataType];
 
 
-export default function HistoricalDataSection({
+export default function HistoricalSeriesSection({
   goal,
   onChange,
 }: {
@@ -50,7 +50,7 @@ export default function HistoricalDataSection({
       <fieldset className="margin-top-25 fieldset-unset-pseudo-class">
         <legend className="padding-block-125 font-weight-bold">{t("forms:goal.historical_label")}</legend>
         <div className="width-100 radio-group">
-          <label className="flex align-items-center gap-50 margin-bottom-50">
+          <label className="flex align-items-center gap-50 margin-bottom-25">
             <input
               type="radio"
               name="historical-data-type"
@@ -60,7 +60,7 @@ export default function HistoricalDataSection({
             />
             {t("forms:goal.historical_data.external")}
           </label>
-          <label className="flex align-items-center gap-50 margin-bottom-50">
+          <label className="flex align-items-center gap-50 margin-bottom-25">
             <input
               type="radio"
               name="historical-data-type"

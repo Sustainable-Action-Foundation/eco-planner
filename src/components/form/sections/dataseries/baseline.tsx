@@ -9,16 +9,11 @@ import { IconCheck } from "@tabler/icons-react";
 import { InheritingBaseline } from "../goalFormSections";
 import { dataSeriesToDateValues } from "@/functions/recipe";
 import { Recipe } from "@/functions/recipe/recipe";
-
-const BaselineType = {
-  Initial: "INITIAL",
-  InitialNonZero: "INITIAL_NON_ZERO",
-  Custom: "CUSTOM",
-  Inherited: "INHERIT",
-} as const;
+import { BaselineType } from "../../forms/goal";
+ 
 type BaselineType = (typeof BaselineType)[keyof typeof BaselineType];
 
-export default function BaselineSection({
+export default function BaselineSeriesSection({
   goal,
   baselineType,
   setBaselineType,
@@ -34,7 +29,7 @@ export default function BaselineSection({
       <fieldset className="margin-top-25 fieldset-unset-pseudo-class">
         <legend className="padding-block-125 font-weight-bold">{t("forms:goal.baseline_label")}</legend>
         <div className="width-100 radio-group">
-          <label className="flex align-items-center gap-50 margin-bottom-50">
+          <label className="flex align-items-center gap-50 margin-bottom-25">
             <input
               type="radio"
               name={GoalFormName.BaselineType}
@@ -44,7 +39,7 @@ export default function BaselineSection({
             />
             {t("forms:goal.baseline_types.initial")}
           </label>
-          <label className="flex align-items-center gap-50 margin-bottom-50">
+          <label className="flex align-items-center gap-50 margin-bottom-25">
             <input
               type="radio"
               name={GoalFormName.BaselineType}
@@ -54,7 +49,7 @@ export default function BaselineSection({
             />
             {t("forms:goal.baseline_types.initial_non_zero")}
           </label>
-          <label className="flex align-items-center gap-50 margin-bottom-50">
+          <label className="flex align-items-center gap-50 margin-bottom-25">
             <input
               type="radio"
               name={GoalFormName.BaselineType}
@@ -64,7 +59,7 @@ export default function BaselineSection({
             />
             {t("forms:goal.baseline_types.custom")}
           </label>
-          <label className="flex align-items-center gap-50 margin-bottom-50">
+          <label className="flex align-items-center gap-50 margin-bottom-25">
             <input
               type="radio"
               name={GoalFormName.BaselineType}
