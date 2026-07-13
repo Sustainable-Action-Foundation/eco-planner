@@ -81,7 +81,7 @@ export default function GoalSeriesSection({
       </small>
 
       {/* Radio group */}
-      <fieldset className="border-none padding-0 margin-0 radio-group" role="radiogroup" aria-label={t("forms:goal.choose_goal_data_series")}>
+      <fieldset className="border-none padding-0 margin-0 radio-group fieldset-unset-pseudo-class" role="radiogroup" aria-label={t("forms:goal.choose_goal_data_series")}>
         <legend className="padding-block-125 font-weight-bold">{t("forms:goal.goal_label")}</legend>
         <label className="flex align-items-center gap-50 margin-bottom-25">
           <input
@@ -123,14 +123,14 @@ export default function GoalSeriesSection({
       {/* Suggested */}
       <div
         className="padding-100 smooth margin-bottom-100"
-        style={{ border: '1px dashed var(--gray-60)' }}
+        style={{ border: '1px dashed var(--blue)' }}
       >
         {hasInitializedSuggested ?
           <fieldset className={`${dataSeriesType !== DataSeriesType.Suggested ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Suggested}>
-            <p className="margin-top-0 font-size-125 font-weight-500 flex gap-50 align-items-center" style={{ color: 'var(--blue)' }}>
+            <p className="margin-top-0 flex gap-50 align-items-center" style={{ color: 'var(--blue)', textShadow: '0 0 var(--blue)' }}>
               <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
               <span>
-                {t("forms:goal.using")}
+                <span className="text-transform-capitalize">{t("common:tsx.using")}:</span>
                 <span className="text-transform-lowercase"> {t("forms:goal.suggested_inheritance")}</span>
               </span>
             </p> {/* TODO: Should be a legend? */}
@@ -158,10 +158,10 @@ export default function GoalSeriesSection({
 
         {/* Manual */}
         <fieldset className={`${dataSeriesType === DataSeriesType.Manual ? "" : "display-none"}`} disabled={dataSeriesType !== DataSeriesType.Manual}>
-          <p className="margin-top-0 font-size-125 font-weight-500 flex gap-50 align-items-center" style={{ color: 'var(--blue)' }}>
+          <p className="margin-top-0 flex gap-50 align-items-center" style={{ color: 'var(--blue)', textShadow: '0 0 var(--blue)' }}>
             <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
             <span>
-              {t("forms:goal.using")}
+                <span className="text-transform-capitalize">{t("common:tsx.using")}:</span>
               <span className="text-transform-lowercase"> {t("forms:goal.static_data_series")}</span>
             </span>
           </p> {/* TODO: Should be a legend? */}
@@ -183,10 +183,10 @@ export default function GoalSeriesSection({
         {/* Recipe */}
         {hasInitializedCustom ?
           <fieldset className={`${dataSeriesType !== DataSeriesType.Custom ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Custom}>
-            <p className="margin-top-0 font-size-125 font-weight-500 flex gap-50 align-items-center" style={{ color: 'var(--blue)' }}>
+            <p className="margin-top-0 flex gap-50 align-items-center" style={{ color: 'var(--blue)', textShadow: '0 0 var(--blue)' }}>
               <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
               <span>
-                {t("forms:goal.using")}
+                <span className="text-transform-capitalize">{t("common:tsx.using")}:</span>
                 <span className="text-transform-lowercase"> {t("forms:goal.custom_recipe")}</span>
               </span>
             </p> {/* TODO: Should be a legend? */}

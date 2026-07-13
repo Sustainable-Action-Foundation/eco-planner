@@ -95,7 +95,7 @@
     "baseline_label": "Baseline",
     "baseline_types": {
       "custom": "Custom baseline",
-      "inherited": "Use another $t(common:goal_one) as baseline",
+      "inherited": "Another $t(common:goal_one) as baseline",
       "initial": "First year value",
       "initial_non_zero": "First defined year"
     },

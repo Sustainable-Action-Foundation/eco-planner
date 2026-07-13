@@ -95,7 +95,7 @@
     "baseline_label": "Baslinje",
     "baseline_types": {
       "custom": "Anpassad baslinje",
-      "inherited": "Använd en annan $t(common:goal_one) som baslinje",
+      "inherited": "Annan $t(common:goal_one) som baslinje",
       "initial": "Första årets värde",
       "initial_non_zero": "Första värdet"
     },

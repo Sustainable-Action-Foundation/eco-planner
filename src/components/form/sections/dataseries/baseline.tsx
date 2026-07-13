@@ -26,6 +26,7 @@ export default function BaselineSeriesSection({
  
   return (
     <>
+      {/* Radio group */}
       <fieldset className="margin-top-25 fieldset-unset-pseudo-class">
         <legend className="padding-block-125 font-weight-bold">{t("forms:goal.baseline_label")}</legend>
         <div className="width-100 radio-group">
@@ -74,16 +75,16 @@ export default function BaselineSeriesSection({
 
       <div
         className="padding-100 smooth"
-        style={{ border: '1px dashed var(--gray-60)' }}
+        style={{ border: '1px dashed var(--blue)' }}
       >
 
         {/* First value baseline */}
         {baselineType === BaselineType.Initial &&
           <>
-            <p className="margin-0 font-size-125 font-weight-500 flex gap-50 align-items-center" style={{ color: 'var(--blue)' }}>
+            <p className="margin-0 flex gap-50 align-items-center" style={{ color: 'var(--blue)', textShadow: '0 0 var(--blue)' }}>
               <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
               <span>
-                {t("forms:goal.using")}
+                <span className="text-transform-capitalize">{t("common:tsx.using")}:</span>
                 <span className="text-transform-lowercase"> {t("forms:goal.baseline_types.initial")}</span>
               </span>
             </p> {/* TODO: Should be a legend? */}
@@ -93,10 +94,10 @@ export default function BaselineSeriesSection({
         {/* First non-zero value baseline */}
         {baselineType === BaselineType.InitialNonZero &&
           <>
-            <p className="margin-0 font-size-125 font-weight-500 flex gap-50 align-items-center" style={{ color: 'var(--blue)' }}>
+            <p className="margin-0 flex gap-50 align-items-center" style={{ color: 'var(--blue)', textShadow: '0 0 var(--blue)' }}>
               <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
               <span>
-                {t("forms:goal.using")}
+                <span className="text-transform-capitalize">{t("common:tsx.using")}:</span>
                 <span className="text-transform-lowercase"> {t("forms:goal.baseline_types.initial_non_zero")}</span>
               </span>
             </p> {/* TODO: Should be a legend? */}
@@ -106,10 +107,10 @@ export default function BaselineSeriesSection({
         {/* Custom baseline input */}
         {baselineType === BaselineType.Custom &&
           <>
-            <p className="margin-top-0 font-size-125 font-weight-500 flex gap-50 align-items-center" style={{ color: 'var(--blue)' }}>
+            <p className="margin-top-0 flex gap-50 align-items-center" style={{ color: 'var(--blue)', textShadow: '0 0 var(--blue)' }}>
               <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
               <span>
-                {t("forms:goal.using")}
+                <span className="text-transform-capitalize">{t("common:tsx.using")}:</span>
                 <span className="text-transform-lowercase"> {t("forms:goal.baseline_types.custom")}</span>
               </span>
             </p> {/* TODO: Should be a legend? */}
@@ -134,10 +135,10 @@ export default function BaselineSeriesSection({
         {/* Inherited baseline input */}
         {baselineType === BaselineType.Inherited &&
           <>
-            <p className="margin-top-0 font-size-125 font-weight-500 flex gap-50 align-items-center" style={{ color: 'var(--blue)' }}>
+            <p className="margin-top-0 flex gap-50 align-items-center" style={{ color: 'var(--blue)', textShadow: '0 0 var(--blue)' }}>
               <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
               <span>
-                {t("forms:goal.using")}
+                <span className="text-transform-capitalize">{t("common:tsx.using")}:</span>
                 <span className="text-transform-lowercase"> {t("forms:goal.baseline_types.inherited")}</span>
               </span>
             </p> {/* TODO: Should be a legend? */}

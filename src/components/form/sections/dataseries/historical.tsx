@@ -47,6 +47,7 @@ export default function HistoricalSeriesSection({
 
   return (
     <>
+      {/* Radio group */}
       <fieldset className="margin-top-25 fieldset-unset-pseudo-class">
         <legend className="padding-block-125 font-weight-bold">{t("forms:goal.historical_label")}</legend>
         <div className="width-100 radio-group">
@@ -75,14 +76,14 @@ export default function HistoricalSeriesSection({
 
       <div
         className="padding-100 smooth"
-        style={{ border: '1px dashed var(--gray-60)' }}
+        style={{ border: '1px dashed var(--blue)' }}
       >
         {historicalDataType === HistoricalDataType.External ? (
           <>
-            <p className="margin-top-0 font-size-125 font-weight-500 flex gap-50 align-items-center" style={{ color: 'var(--blue)' }}>
+            <p className="margin-top-0 flex gap-50 align-items-center" style={{ color: 'var(--blue)', textShadow: '0 0 var(--blue)' }}>
               <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
               <span>
-                {t("forms:goal.using")}
+                <span className="text-transform-capitalize">{t("common:tsx.using")}:</span>
                 <span className="text-transform-lowercase"> {t("forms:goal.historical_data.external")}</span>
               </span>
             </p> {/* TODO: Should be a legend? */}
@@ -93,10 +94,10 @@ export default function HistoricalSeriesSection({
           </>
         ) :
           <>
-            <p className="margin-top-0 font-size-125 font-weight-500 flex gap-50 align-items-center" style={{ color: 'var(--blue)' }}>
+            <p className="margin-top-0 flex gap-50 align-items-center" style={{ color: 'var(--blue)', textShadow: '0 0 var(--blue)' }}>
               <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
               <span>
-                {t("forms:goal.using")}
+                <span className="text-transform-capitalize">{t("common:tsx.using")}:</span>
                 <span className="text-transform-lowercase"> {t("forms:goal.historical_data.custom")}</span>
               </span>
             </p> {/* TODO: Should be a legend? */}
