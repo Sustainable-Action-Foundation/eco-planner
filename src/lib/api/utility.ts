@@ -1,4 +1,4 @@
-import { isStandardObject } from "@/types";
+import { isStandardObject } from "@/types/typeguards";
 import type { ApiSelectionItem, ApiTableContent, ApiTableMetadata, DatasetData, DatasetKeys } from "./apiTypes";
 
 // TODO: Refactor file

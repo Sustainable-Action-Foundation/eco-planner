@@ -3,10 +3,10 @@ import { EquationEditor, RecipeContextProvider, RecipePreview } from "@/componen
 import type { SerializedRecipe } from "@/functions/recipe";
 import { Recipe } from "@/functions/recipe";
 import type { DBRecipe, Goal } from "@/types";
+import { GoalFormName } from "@/types/form-names";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { RecipeSync } from "@/components/recipe/output/recipeSync";
-import { GoalFormName } from "@/types";
 
 /**
  * ## Note

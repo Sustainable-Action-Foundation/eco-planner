@@ -9,7 +9,7 @@ import { prisma } from "@/lib/prisma";
 import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 import type { DateValues } from "@/types";
-import { isISOIshDate } from "@/types";
+import { isISOIshDate } from "@/types/typeguards";
 import type { User, UserGroup } from "@/lib/prisma/generated";
 import { RandomTextSE } from "../randomText";
 

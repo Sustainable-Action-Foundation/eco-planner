@@ -1,7 +1,7 @@
 'use client';
 
-import { AccessLevel } from "@/types";
 import type { Action, Effect, Goal } from "@/types";
+import { AccessLevel } from "@/types/enums";
 import Link from "next/link";
 import { ControlsMenu } from "../elements/controls/controls";
 import { useTranslation } from "react-i18next";

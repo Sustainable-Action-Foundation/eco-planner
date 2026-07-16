@@ -1,11 +1,11 @@
 "use client";
 
 import { goalSorter, goalSorterActionAmount, goalSorterActionAmountReverse, goalSorterInterest, goalSorterReverse } from '@/lib/sorters';
-import { GoalSortBy } from "@/types";
+import type { Goal, Roadmap } from "@/types";
+import { GoalSortBy } from "@/types/enums";
 import styles from '../tables.module.css' with { type: "css" };
 import { useTranslation } from "react-i18next";
 import Link from 'next/link';
-import type { Goal, Roadmap } from "@/types";
 import type { ReactNode } from "react";
 
 type GoalTableCommonProps = {

@@ -3,8 +3,9 @@
 import HistoricalDataSection from "@/components/form/sections/dataseries/historical";
 import formSubmitter from "@/functions/formSubmitter";
 import { Recipe } from "@/functions/recipe";
-import type { DateValuesWithUnit, GoalUpdateInput } from "@/types";
-import { GoalDataTarget, GoalFormName, type Goal } from "@/types";
+import type { DateValuesWithUnit, Goal, GoalUpdateInput } from "@/types";
+import { GoalDataTarget } from "@/types/enums";
+import { GoalFormName } from "@/types/form-names";
 import type { SubmitEvent } from "react";
 import { useTranslation } from "react-i18next";
 

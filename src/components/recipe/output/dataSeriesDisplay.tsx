@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { Locales } from "@/../i18n.config";
-import { isISOIshDate } from "@/types";
+import { isISOIshDate } from "@/types/typeguards";
 
 // TODO: Does this take historical data into account? Do we need to account for it?
 export function OutputDataSeries() {

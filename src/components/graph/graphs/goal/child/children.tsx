@@ -2,8 +2,8 @@
 
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
-import { isISOIshDate } from "@/types";
 import type { Goal } from "@/types";
+import { isISOIshDate } from "@/types/typeguards";
 import { useTranslation } from "react-i18next";
 import { color_palette, stroke, marker } from "../../../config";
 import type { ApexAxisChartSeries } from "apexcharts";

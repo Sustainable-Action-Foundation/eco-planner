@@ -4,13 +4,14 @@ import ActionForm from "@/components/form/forms/action";
 import { notFound } from "next/navigation";
 import accessChecker from "@/lib/accessChecker";
 import { getOneAction } from "@/fetchers";
-import { AccessLevel } from "@/types";
 import type { AccessControlled } from "@/types";
+import { AccessLevel } from "@/types/enums";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
+import type { Metadata } from "next";
 
-export async function generateMetadata(props: { params: Promise<{ actionId: string }> }) {
+export async function generateMetadata(props: { params: Promise<{ actionId: string }> }): Promise<Metadata> {
   const params = await props.params;
   const [t, session, action] = await Promise.all([
     serveTea("metadata"),

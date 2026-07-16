@@ -7,8 +7,8 @@ import type { RecipeContextType, TreeItem } from "@/components/types";
 import SelectSingleTree from "@/components/form/elements/combobox/selectSingleTree";
 import { clientSafeGetOneRoadmap } from "@/fetchers/client";
 import { CommonVariable, useRecipe, VectorPickerSelect } from "@/components/recipe";
-import { RecipeEditorPermissions } from "@/types";
 import type { ClientRoadmap } from "@/types";
+import { RecipeEditorPermissions } from "@/types/enums";
 
 type AvailableRoadmapOption = { id: string; name: string; };
 

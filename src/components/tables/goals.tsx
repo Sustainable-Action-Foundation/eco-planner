@@ -1,6 +1,6 @@
 "use client";
 
-import { AccessLevel, GoalSortBy, ViewMode } from '@/types';
+import { AccessLevel, GoalSortBy, ViewMode } from "@/types/enums";
 import GoalTable from "./goalTables/goalTable";
 import TableSelector from './tableSelector/tableSelector';
 import LinkTree from './goalTables/linkTree';

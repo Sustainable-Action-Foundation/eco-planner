@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { startTransition } from "react";
-import { RoadmapSortBy } from "@/types";
+import { RoadmapSortBy } from "@/types/enums";
 import { useTranslation } from "react-i18next";
 
 export default function SortRoadmaps() {

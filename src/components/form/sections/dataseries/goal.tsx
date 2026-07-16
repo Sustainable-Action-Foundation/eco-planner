@@ -1,7 +1,9 @@
 'use client';
 
 import { useTranslation } from "react-i18next";
-import { DataSeriesType, GoalFormName, type DateValuesWithUnit, type Goal } from "@/types";
+import type { DateValuesWithUnit, Goal } from "@/types";
+import { DataSeriesType } from "@/types/enums";
+import { GoalFormName } from "@/types/form-names";
 import { IconCheck } from "@tabler/icons-react";
 import { FormSync, ManualDataSeriesInput, RecipeContextProvider, RecipeEditor, SuggestedRecipeApplier, UnitInput } from "@/components/recipe";
 import { dataSeriesToDateValues, Recipe } from "@/functions/recipe";

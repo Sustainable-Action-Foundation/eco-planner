@@ -1,7 +1,8 @@
 // Use server in order to circumvent CORS issues
 "use server";
 
-import { isStandardObject, type JSONValue } from "@/types";
+import type { JSONValue } from "@/types";
+import { isStandardObject } from "@/types/typeguards";
 import type { ApiTableContent, ApiSelectionItem } from "../apiTypes";
 import { ExternalDataset } from "../utility";
 import getPxWebTableMetadata from "./getPxWebTableMetadata";

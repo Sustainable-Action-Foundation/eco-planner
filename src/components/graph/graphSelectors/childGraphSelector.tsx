@@ -1,7 +1,7 @@
 "use client";
 
 import type { DataSeries, Goal } from "@/lib/prisma/generated";
-import { ChildGraphType } from "@/types";
+import { ChildGraphType } from "@/types/enums";
 import type { ChangeEvent, Dispatch, SetStateAction } from "react";
 import { setStoredChildGraphType } from "../functions/graphFunctions";
 import { useTranslation } from "react-i18next";

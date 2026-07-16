@@ -1,5 +1,5 @@
-import { AccessLevel } from "@/types";
 import type { AccessControlled, LoginData } from "@/types";
+import { AccessLevel } from "@/types/enums";
 
 /**
  * Checks if the user has access to an item and returns their access level. An empty string means no access.

@@ -3,8 +3,8 @@ import type { DataSeriesVariable, EvalTimeSeries, ExternalVariable, RecipeExtrac
 import getTableContent from "@/lib/api/getTableContent";
 import type { ApiSelectionItem, ApiTableContent } from "@/lib/api/apiTypes";
 import mathjs from "@/math";
-import { isISOIshDate } from "@/types";
 import type { DataSeries, DateValues, DateValuesWithUnit } from "@/types";
+import { isISOIshDate } from "@/types/typeguards";
 import { filterToInitialYearlyRecords, parsePeriod } from "@/lib/api/utility";
 import { getPrevailingUnit, isMathjsUnit, pickDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 

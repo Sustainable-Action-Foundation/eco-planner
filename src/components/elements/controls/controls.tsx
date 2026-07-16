@@ -3,14 +3,14 @@
 import styles from './controls.module.css' with { type: "css" };
 import Link from "next/link";
 import React, { useRef, useState } from "react";
-import { AccessLevel, GoalDataTarget } from "@/types";
+import type { Action, Effect, Goal, GoalUpdateInput, MetaRoadmap, Roadmap } from "@/types";
+import { AccessLevel, GoalDataTarget } from "@/types/enums";
 import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
 import { useTranslation } from "react-i18next";
 import { IconArrowBackUp, IconChartHistogram, IconDotsVertical, IconEdit, IconPlus, IconStar, IconStarFilled, IconTrashXFilled, IconX } from "@tabler/icons-react";
 import { hasEditAccess } from '@/lib/accessChecker';
 import type { TFunction } from 'i18next';
-import type { Action, Effect, Goal, GoalUpdateInput, MetaRoadmap, Roadmap } from "@/types";
 import formSubmitter from '@/functions/formSubmitter';
 
 /*

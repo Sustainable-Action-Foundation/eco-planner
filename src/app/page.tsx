@@ -4,7 +4,7 @@ import AttributedImage, { AttributeText } from "@/components/generic/images/attr
 import { roadmapSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
 import { RoadmapType } from "@/lib/prisma/generated";
 import RoadmapFilters from "@/components/form/filters/roadmapFilters";
-import { RoadmapSortBy } from "@/types";
+import { RoadmapSortBy } from "@/types/enums";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import RoadmapTree from "@/components/tables/roadmapTables/roadmapTree";
 import serveTea from "@/lib/i18nServer";

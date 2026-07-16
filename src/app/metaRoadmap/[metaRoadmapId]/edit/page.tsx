@@ -3,7 +3,7 @@ import MetaRoadmapForm from '@/components/form/forms/metaRoadmap';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import accessChecker from '@/lib/accessChecker';
-import { AccessLevel } from '@/types';
+import { AccessLevel } from "@/types/enums";
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from '@/functions/buildMetadata';

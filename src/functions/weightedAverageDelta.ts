@@ -1,5 +1,5 @@
-import { isISOIshDate } from "@/types";
 import type { DataSeries, DateValues } from "@/types";
+import { isISOIshDate } from "@/types/typeguards";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 
 const YEARLY_INTEREST_DECAY = 0.1;

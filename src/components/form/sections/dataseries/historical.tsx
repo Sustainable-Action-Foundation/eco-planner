@@ -1,11 +1,11 @@
 "use client";
 
 import type { Goal } from "@/types";
+import { GoalFormName } from "@/types/form-names";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ExternalDataSeriesInput, FormSync, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
 import { dataSeriesToDateValues, Recipe } from "@/functions/recipe";
-import { GoalFormName } from "@/types";
 import { IconCheck } from "@tabler/icons-react";
 
 // TODO: Historical data should not be required in a goal form

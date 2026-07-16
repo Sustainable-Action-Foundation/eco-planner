@@ -1,8 +1,9 @@
 import { getLocalStorage, getSessionStorage, setLocalStorage, setSessionStorage } from "@/functions/localStorage";
-import { ChildGraphType, GraphType, isISOIshDate } from "@/types";
+import type { DataSeries, DateValues, Effect, Goal, ISOIshDate } from "@/types";
+import { ChildGraphType, GraphType } from "@/types/enums";
+import { isISOIshDate } from "@/types/typeguards";
 import { ActionImpactType } from "@/lib/prisma/generated";
 
-import type { DateValues, DataSeries, Effect, Goal, ISOIshDate } from "@/types";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 
 /** Retrieves the graph type for a goal from storage. */

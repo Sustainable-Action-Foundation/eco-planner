@@ -1,5 +1,6 @@
-import { GoalDataTarget, isISOIshDate } from "@/types";
 import type { DateValues, GoalCreateFull, ISOIshDate } from "@/types";
+import { GoalDataTarget } from "@/types/enums";
+import { isISOIshDate } from "@/types/typeguards";
 
 export default function parseCsv(csv: ArrayBuffer): string[][] {
   // Despite Windows-1252 being more common than UTF-8 in a Windows/Microsoft environment (such as when exporting CSV files from Excel),

@@ -1,7 +1,8 @@
 import type { NextRequest } from "next/server";
 import { getSession } from "@/lib/session";
-import { AccessLevel, ClientError, isMetaRoadmapCreate, isMetaRoadmapUpdate } from "@/types";
 import type { AccessControlled, JSONValue } from "@/types";
+import { AccessLevel, ClientError } from "@/types/enums";
+import { isMetaRoadmapCreate, isMetaRoadmapUpdate } from "@/types/typeguards";
 import { prisma } from "@/lib/prisma";
 import { RoadmapType } from "@/lib/prisma/generated";
 import { Prisma } from "../../../../prisma/generated/client";

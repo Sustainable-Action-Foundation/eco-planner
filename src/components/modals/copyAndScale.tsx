@@ -3,8 +3,9 @@
 import { closeModal, openModal } from "./modalFunctions";
 import { useRef, useState } from "react";
 import type { SubmitEvent } from "react";
-import { GoalDataTarget, isDateValues } from "@/types";
-import type { GoalCreateInput, Goal, DateValues, JSONValue } from "@/types";
+import type { DateValues, Goal, GoalCreateInput, JSONValue } from "@/types";
+import { GoalDataTarget } from "@/types/enums";
+import { isDateValues } from "@/types/typeguards";
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";

@@ -2,8 +2,8 @@
 
 // TODO: Move to actions.tsx
 import styles from './tables.module.css' with { type: "css" };
-import { AccessLevel } from '@/types';
-import type { Action, Roadmap } from '@/types';
+import type { Action, Roadmap } from "@/types";
+import { AccessLevel } from "@/types/enums";
 import Link from 'next/link';
 import { ControlsMenu } from '../elements/controls/controls';
 import { useTranslation } from "react-i18next";

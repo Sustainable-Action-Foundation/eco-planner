@@ -1,7 +1,7 @@
 import { getOneMetaRoadmap } from "@/fetchers";
 import accessChecker from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
-import { AccessLevel } from "@/types";
+import { AccessLevel } from "@/types/enums";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import RoadmapTable from "@/components/tables/roadmapTables/roadmapTable";

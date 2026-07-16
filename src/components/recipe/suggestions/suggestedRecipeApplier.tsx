@@ -9,8 +9,8 @@ import { VariableTypeExternalSimple } from "../editor/variables/externalVariable
 import { useEffect, useMemo, useState } from "react";
 import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";
 import { IconAlertTriangleFilled } from "@tabler/icons-react";
-import { RecipeEditorPermissions } from "@/types";
 import type { ClientRoadmap, DBRecipe } from "@/types";
+import { RecipeEditorPermissions } from "@/types/enums";
 import { Recipe } from "@/functions/recipe/recipe";
 import { CombinedStatusDisplay, getDefaultSuggestedRecipes, TextStatus } from "@/components/recipe";
 import styles from "../recipe.module.css" with {type: "css"};

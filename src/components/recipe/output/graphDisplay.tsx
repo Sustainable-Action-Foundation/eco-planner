@@ -6,7 +6,7 @@ import type { ApexOptions } from "apexcharts";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { Locales } from "@/../i18n.config";
 import { useTranslation } from "react-i18next";
-import { isISOIshDate } from "@/types";
+import { isISOIshDate } from "@/types/typeguards";
 
 // TODO: Does this take historical data into account? Do we need to account for it?
 // TODO: We should have a visible title for our graph

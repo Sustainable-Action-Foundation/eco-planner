@@ -6,8 +6,8 @@ import { calculatePredictedOutcome, getStoredGraphType } from "../../functions/g
 import GraphSelector from "../../graphSelectors/graphSelector";
 import SecondaryGoalSelector from "../../graphSelectors/secondaryGoalSelector";
 import { Trans, useTranslation } from "react-i18next";
-import { GraphType } from "@/types";
 import type { DataSeries, DateValues, DateValuesWithUnit, Goal, LoginData, Roadmap } from "@/types";
+import { GraphType } from "@/types/enums";
 import CopyAndScale from "@/components/modals/copyAndScale";
 import styles from './goal.module.css';
 import GoalGraph from "./main";

@@ -6,9 +6,9 @@ import { useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
 import styles from '../recipe.module.css' with { type: "css" };
 import { VariableCreator, DataSeriesVariableEditor, VariableTypeExternal, VariableTypeScalar } from "@/components/recipe";
-import { RecipeEditorPermissions } from "@/types";
-import { getRecipeRoadmapData } from "../context/roadmapDataCache";
 import type { ClientRoadmap } from "@/types";
+import { RecipeEditorPermissions } from "@/types/enums";
+import { getRecipeRoadmapData } from "../context/roadmapDataCache";
 
 export function VariablesEditor({
   permissions: incomingPermissions,

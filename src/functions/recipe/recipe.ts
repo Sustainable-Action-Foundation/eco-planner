@@ -1,5 +1,5 @@
 import type { DataSeries, DateValuesWithUnit, JSONValue, Mask, UnitString } from "@/types";
-import { isISOIshDate } from "@/types";
+import { isISOIshDate } from "@/types/typeguards";
 import mathjs from "@/math";
 import type { Unit } from "mathjs";
 import type { ApiSelectionItem, ApiTableContent, DatasetKeys } from "@/lib/api/apiTypes";

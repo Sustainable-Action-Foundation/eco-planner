@@ -1,5 +1,5 @@
 import type { DataSeries, DateValues, DateValuesWithUnit, Goal, ISOIshDate, Mask, MaskedVector, UnitString } from "@/types";
-import { isISOIshDate } from "@/types";
+import { isISOIshDate } from "@/types/typeguards";
 import { RecipeError, VectorIndexPickerOptions } from "@/functions/recipe/types";
 import type { Unit } from "mathjs";
 import mathjs from "@/math";

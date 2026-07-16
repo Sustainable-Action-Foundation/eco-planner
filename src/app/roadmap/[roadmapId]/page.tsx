@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import accessChecker from "@/lib/accessChecker";
 import Goals from "@/components/tables/goals";
 import Comments from "@/components/comments/comments";
-import { AccessLevel } from "@/types";
+import { AccessLevel } from "@/types/enums";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";

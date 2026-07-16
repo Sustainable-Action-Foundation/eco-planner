@@ -2,8 +2,10 @@
 
 import type { getRoadmaps } from "@/fetchers";
 import formSubmitter from "@/functions/formSubmitter";
-import { BaselineType, DataSeriesType, GoalDataTarget, GoalFormName, isDateValuesWithUnit } from "@/types";
 import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput } from "@/types";
+import { BaselineType, DataSeriesType, GoalDataTarget } from "@/types/enums";
+import { GoalFormName } from "@/types/form-names";
+import { isDateValuesWithUnit } from "@/types/typeguards";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';

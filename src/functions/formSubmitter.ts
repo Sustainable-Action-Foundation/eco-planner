@@ -1,8 +1,8 @@
 'use client';
 
 import type { TFunction } from "i18next";
-import { isStandardObject } from "@/types";
 import type { JSONValue } from "@/types";
+import { isStandardObject } from "@/types/typeguards";
 import type { SetStateAction } from "react";
 import type { ToastType } from '@/components/generic/toast/types.ts';
 
