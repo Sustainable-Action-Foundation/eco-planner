@@ -1,5 +1,5 @@
 import type { DateValues, DateValuesWithUnit, ISOIshDate, JSONValue, UnitString, GoalCreateInput, GoalUpdateInput, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
-import { GoalDataTarget } from "./consts";
+import { GoalDataTarget } from "./enums";
 
 /**
  * A utility function for helping with finding where something fails in a typeguard chain.

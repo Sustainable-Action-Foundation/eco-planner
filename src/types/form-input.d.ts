@@ -3,7 +3,7 @@ import type { ActionImpactType, Prisma, RoadmapType } from "@/lib/prisma/generat
 import type { Action, DateValuesWithUnit } from "@/types";
 // Imported as a value (not `import type`) because it's used in `typeof GoalDataTarget.*` queries below.
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-import { GoalDataTarget } from "@/types/consts";
+import { GoalDataTarget } from "@/types/enums";
 
 /** The format of data needed to create a new roadmap series */
 export type MetaRoadmapCreateInput = {
