@@ -51,13 +51,14 @@ function resolveBaselineType(goal?: Goal): BaselineType {
   // Default to first value for new goals
   if (!goal?.baseline) return BaselineType.Initial;
 
-  if (!goal.baseline.recipeUsedId) {
-    // Manual value input
-    return BaselineType.Custom;
-  } else {
-    // Recipe-based
-    return BaselineType.Inherited;
-  }
+  // No recipe: manual value input (or a legacy/derived baseline; both edit as custom values)
+  if (!goal.baseline.recipeUsed) return BaselineType.Custom;
+
+  // Recipe-based: manual entry stored as an inline data series recipe is custom;
+  // anything else (e.g. a recipe linking another goal's series) is inherited.
+  return Recipe.from(goal.baseline.recipeUsed.recipe).isManual()
+    ? BaselineType.Custom
+    : BaselineType.Inherited;
 }
 
 export default function GoalForm({
@@ -189,6 +190,9 @@ export default function GoalForm({
     let baseline: DateValuesWithUnit | undefined = undefined;
     let baselineRecipe: Recipe | undefined = undefined;
     if (baselineType === BaselineType.Custom || baselineType === BaselineType.Inherited) {
+      // Both flow through a recipe context: the recipe is a manual entry
+      // (Custom) or links the inherited series (Inherited), and the baseline
+      // date values are its evaluation result.
       const baselineString = formData.get(GoalFormName.BaselineDataSeries) as string | null;
       if (baselineString) {
         try {
@@ -196,6 +200,18 @@ export default function GoalForm({
         }
         catch (err) {
           addToast(`${t("forms:goal.errors.failed_parse_baseline")} ${err instanceof Error ? err.message : String(err)}`, "error", false);
+          event.target.reportValidity();
+          return;
+        }
+      }
+
+      const baselineRecipeString = formData.get(GoalFormName.BaselineRecipe) as string | null;
+      if (baselineRecipeString) {
+        try {
+          baselineRecipe = Recipe.deserialize(baselineRecipeString);
+        }
+        catch (err) {
+          addToast(`${t("forms:goal.errors.failed_parse_recipe")} ${err instanceof Error ? err.message : String(err)}`, "error", false);
           event.target.reportValidity();
           return;
         }
@@ -227,26 +243,10 @@ export default function GoalForm({
         baseline.dateValues[dateValue[0] as keyof typeof dataSeries.dateValues] = firstDateValue;
       }
     }
-    if (baselineType === BaselineType.Inherited) {
-      // The inherited baseline flows through a recipe context, like the other
-      // data series inputs: the recipe links the inherited series and the
-      // baseline date values are its evaluation result.
-      const baselineRecipeString = formData.get(GoalFormName.BaselineRecipe) as string | null;
-      if (baselineRecipeString) {
-        try {
-          baselineRecipe = Recipe.deserialize(baselineRecipeString);
-        }
-        catch (err) {
-          addToast(`${t("forms:goal.errors.failed_parse_recipe")} ${err instanceof Error ? err.message : String(err)}`, "error", false);
-          event.target.reportValidity();
-          return;
-        }
-      }
-      if (!baselineRecipe || !baseline) {
-        addToast(t("forms:goal.errors.missing_inherited_baseline"), "error", false);
-        event.target.reportValidity();
-        return;
-      }
+    if (baselineType === BaselineType.Inherited && (!baselineRecipe || !baseline)) {
+      addToast(t("forms:goal.errors.missing_inherited_baseline"), "error", false);
+      event.target.reportValidity();
+      return;
     }
     // Throw if baseline is missing on create
     if (!currentGoal && !baseline) {

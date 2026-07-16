@@ -122,7 +122,10 @@ export default function BaselineSeriesSection({
                 : {}
               }
             />
-            <FormSync DateValuesFormElement={<input name={GoalFormName.BaselineDataSeries} />} />
+            <FormSync
+              RecipeFormElement={<input name={GoalFormName.BaselineRecipe} />}
+              DateValuesFormElement={<input name={GoalFormName.BaselineDataSeries} />}
+            />
           </RecipeContextProvider>
         }
 
