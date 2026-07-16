@@ -34,7 +34,13 @@ export function ManualDataSeriesInput({
   const variableIdRef = useRef<string>(recipe.variables[0]?.id ?? crypto.randomUUID());
 
   const handleDateValuesChange = useCallback((dateValues: DateValuesWithUnit) => {
-    void applyRecipeUpdate(() => Recipe.fromManualDateValues(dateValues, variableIdRef.current));
+    void applyRecipeUpdate((current) => {
+      // The grid has no unit input (it always emits `unit: undefined`), so keep the
+      // recipe's current unit (e.g. a `UnitInput` override) across grid edits.
+      const next = Recipe.fromManualDateValues(dateValues, variableIdRef.current);
+      next.unit = dateValues.unit ?? current.unit;
+      return next;
+    });
   }, [applyRecipeUpdate]);
 
   return (

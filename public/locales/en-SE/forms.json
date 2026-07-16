@@ -65,15 +65,14 @@
     "insert_row_above": "Insert row above",
     "show_table": "Expand table",
     "start_year": "Start year",
-    "unit_interpreted_as": "Unit interpreted as:",
+    "unit_interpreted_as": "Unit interpreted as: <a>{{unit}}</a>",
     "unit_not_interpreted": "The unit could not be interpreted. You can still save, but some functionality may be missing.",
     "unit_override_status": {
-      "overriding": "Overriding calculated/saved unit \"{{suggestedUnit}}\" with \"{{overrideUnit}}\".",
-      "using": "Using calculated/saved unit \"{{suggestedUnit}}\"."
+      "overriding": "Overriding calculated unit <a>{{resolvedUnit}}</a> with <a>{{overrideUnit}}</a>.",
+      "using": "Using unit <a>{{unit}}</a>"
     },
     "unit_input": {
-      "difference_notice": "Resolved unit \"{{resolvedUnit}}\" differs from expected unit \"{{expectedUnit}}\".",
-      "override_toggle": "Override resolved unit with expected unit"
+      "override_toggle": "Override resolved unit"
     },
     "value": "Value",
     "year": "Year"

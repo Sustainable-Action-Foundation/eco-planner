@@ -42,10 +42,8 @@ export default function GoalSeriesSection({
     const base = goal?.dataSeries?.recipeUsed?.recipe;
     if (!base) return undefined;
 
-    const recipe = Recipe.from(base).withEditableExternals();
-    recipe.unit = goal?.dataSeries?.unit;
-    return recipe.serialize();
-  }, [goal?.dataSeries?.recipeUsed?.recipe, goal?.dataSeries?.unit]);
+    return Recipe.from(base).withEditableExternals().serialize();
+  }, [goal?.dataSeries?.recipeUsed?.recipe]);
 
   return (
     <>
@@ -152,13 +150,13 @@ export default function GoalSeriesSection({
               label={t("forms:data_series_input.data_series")}
               initialDateValues={manualInitialDateValues}
             />
+            <UnitInput
+              staticProvidedUnit={goal?.dataSeries?.unit}
+            />
             <FormSync
               RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
               UnitFormElement={<input name={GoalFormName.DataUnit} />}
               DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
-            />
-            <UnitInput
-              savedUnit={goal?.dataSeries?.unit}
             />
           </RecipeContextProvider>
         </fieldset>
@@ -171,13 +169,13 @@ export default function GoalSeriesSection({
               availableDataSeries={goal?.dataSeries?.recipeUsed?.sourceDataSeries}
             >
               <RecipeEditor />
+              <UnitInput
+                staticProvidedUnit={goal?.dataSeries?.unit}
+              />
               <FormSync
                 RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
                 UnitFormElement={<input name={GoalFormName.DataUnit} />}
                 DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
-              />
-              <UnitInput
-                savedUnit={goal?.dataSeries?.unit}
               />
               <ParameterSync
                 setter={setIndicatorParameter}

@@ -65,15 +65,14 @@
     "insert_row_bottom": "Infoga rad underst",
     "show_table": "Expandera tabell",
     "start_year": "Startår",
-    "unit_interpreted_as": "Enheten tolkas som:",
+    "unit_interpreted_as": "Enheten tolkas som: <a>{{unit}}</a>",
     "unit_not_interpreted": "Enheten kunde inte tolkas. Du kan fortfarande spara, men viss funktionalitet kan saknas.",
     "unit_override_status": {
-      "overriding": "Skriver över beräknad/sparad enhet \"{{suggestedUnit}}\" med \"{{overrideUnit}}\".",
-      "using": "Använder beräknad/sparad enhet \"{{suggestedUnit}}\"."
+      "overriding": "Skriver över beräknad enhet <a>{{resolvedUnit}}</a> med <a>{{overrideUnit}}</a>.",
+      "using": "Använder enhet <a>{{unit}}</a>"
     },
     "unit_input": {
-      "difference_notice": "Beräknad enhet \"{{resolvedUnit}}\" skiljer sig från förväntad enhet \"{{expectedUnit}}\".",
-      "override_toggle": "Skriv över beräknad enhet med förväntad enhet"
+      "override_toggle": "Skriv över beräknad enhet"
     },
     "value": "Värde",
     "year": "År"

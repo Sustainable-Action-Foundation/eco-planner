@@ -2,8 +2,8 @@
 
 import mathjs from "@/math";
 import type { UnitString } from "@/types";
-import { useCallback, useMemo } from "react";
-import { useTranslation } from "react-i18next";
+import { useCallback, useMemo, useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
 
 /**
@@ -15,48 +15,42 @@ import { useRecipe } from "../context/recipeContext.use";
  * 3) optional saved fallback unit.
  */
 export function UnitInput({
-  savedUnit,
+  staticProvidedUnit,
   allowOverrideSelection = true,
 }: {
-  savedUnit?: string | null;
+  staticProvidedUnit?: string | null;
   allowOverrideSelection?: boolean;
 }) {
   const { t } = useTranslation(["forms", "common"]);
   const { recipe, resultingUnit, applyRecipeUpdate } = useRecipe();
 
-  const expectedUnit: UnitString = recipe.unit ?? savedUnit;
-  const suggestedUnitInput = typeof (resultingUnit ?? savedUnit) === "string"
-    ? ((resultingUnit ?? savedUnit) as string)
-    : "";
-  const expectedUnitInput = typeof expectedUnit === "string"
-    ? expectedUnit
-    : "";
+  const [isOverrideToggled, setIsOverrideToggled] = useState<boolean>(recipe.unit !== undefined);
+  const [overrideUnitInput, setOverrideUnitInput] = useState<string>(recipe.unit ?? "");
 
-  const hasOverride = recipe.unit !== undefined;
-  const effectiveUnit = hasOverride
-    ? expectedUnitInput.trim()
-    : suggestedUnitInput.trim();
-
-  const comparableExpected = expectedUnit === null
-    ? "__UNITLESS__"
-    : expectedUnitInput.trim();
-  const comparableResolved = resultingUnit === null
-    ? "__UNITLESS__"
-    : typeof resultingUnit === "string"
-      ? resultingUnit.trim()
-      : "";
-  const unitsDiffer = comparableExpected !== ""
-    && comparableResolved !== ""
-    && comparableExpected !== comparableResolved;
-
-  const expectedDisplay = expectedUnit === null
+  const resolvedUnit: string | null = resultingUnit ?? staticProvidedUnit ?? null;
+  const resolvedDisplay = resolvedUnit === null
     ? t("common:tsx.unitless")
-    : expectedUnitInput.trim() || t("common:tsx.unit_missing");
-  const resolvedDisplay = resultingUnit === null
-    ? t("common:tsx.unitless")
-    : (typeof resultingUnit === "string" ? resultingUnit.trim() : "") || t("common:tsx.unit_missing");
+    : resolvedUnit.trim() || t("common:tsx.unit_missing");
 
-  const setRecipeUnitAction = useCallback((nextUnit: UnitString) => {
+  const effectiveUnit: string | null = isOverrideToggled ? overrideUnitInput : resolvedUnit;
+
+  // Normalized mathjs interpretation of the effective unit; null when it cannot be parsed.
+  const parsedEffectiveUnit = useMemo(() => {
+    if (typeof effectiveUnit !== "string" || effectiveUnit.trim() === "") return null;
+    try {
+      return mathjs.unit(effectiveUnit.trim()).toString();
+    } catch {
+      return null;
+    }
+  }, [effectiveUnit]);
+
+  const interpretedDisplay = effectiveUnit === null
+    ? t("common:tsx.unitless")
+    : effectiveUnit.trim() === ""
+      ? t("common:tsx.unit_missing")
+      : parsedEffectiveUnit;
+
+  const setRecipeUnit = useCallback((nextUnit: UnitString) => {
     void applyRecipeUpdate((current) => {
       const normalizedNextUnit: UnitString = typeof nextUnit === "string"
         ? nextUnit.trim()
@@ -72,91 +66,81 @@ export function UnitInput({
     });
   }, [applyRecipeUpdate]);
 
-  const parsedEffectiveUnit = useMemo(() => {
-    if (!effectiveUnit) return null;
-    try {
-      return mathjs.unit(effectiveUnit).toString();
-    } catch {
-      return null;
-    }
-  }, [effectiveUnit]);
+  const handleOverrideToggle = useCallback((checked: boolean) => {
+    setIsOverrideToggled(checked);
 
-  const inputDisabled = allowOverrideSelection && !hasOverride;
+    if (!checked) {
+      setRecipeUnit(undefined);
+      return;
+    }
+
+    // Seed the override from the unit currently in effect, so toggling it on is a no-op until edited.
+    const seededUnit = overrideUnitInput || (resolvedUnit ?? "");
+    setOverrideUnitInput(seededUnit);
+    setRecipeUnit(seededUnit);
+  }, [overrideUnitInput, resolvedUnit, setRecipeUnit]);
 
   return (
     <div className="width-100 min-width-0 margin-top-50">
-      {t("forms:data_series_input.data_unit")}
+      <p className="font-weight-bold margin-bottom-25">
+        {t("forms:data_series_input.data_unit")}
+      </p>
 
-      <label className="block">
-        {/* Mathjs report */}
-        <small className="block margin-top-25  font-style-italic" style={{ minHeight: "20px", overflowWrap: "anywhere" }}>
-          {(hasOverride && expectedUnit === null)
-            ? <>{t("forms:data_series_input.unit_interpreted_as")} <strong>{t("common:tsx.unitless")}</strong></>
-            : effectiveUnit.length === 0
-              ? <>{t("forms:data_series_input.unit_interpreted_as")} <strong>{t("common:tsx.unit_missing")}</strong></>
-              : parsedEffectiveUnit
-                ? <>{t("forms:data_series_input.unit_interpreted_as")} <strong>{parsedEffectiveUnit}</strong></>
-                : t("forms:data_series_input.unit_not_interpreted")
-          }
-        </small>
+      {/* Mathjs interpretation of the effective unit */}
+      <p className="margin-bottom-25">
+        {interpretedDisplay !== null
+          ? <Trans
+            i18nKey="forms:data_series_input.unit_interpreted_as"
+            values={{ unit: interpretedDisplay }}
+            components={{ a: <strong /> }}
+          />
+          : t("forms:data_series_input.unit_not_interpreted")}
+      </p>
 
-        {/* Unit text input */}
-        <input
-          type="text"
-          className="block margin-top-25 width-100"
-          disabled={inputDisabled}
-          value={hasOverride ? expectedUnitInput : suggestedUnitInput}
-          placeholder={suggestedUnitInput || t("common:tsx.unit_missing")}
-          onChange={(event) => {
-            const nextValue = event.target.value;
-            setRecipeUnitAction(nextValue);
-          }}
-          style={{
-            ...inputDisabled ? { backgroundColor: "var(--gray-95)" } : {},
-          }}
-        />
-      </label>
-
-      {allowOverrideSelection && unitsDiffer ? (
-        <small className="block margin-top-25" style={{ overflowWrap: "anywhere" }}>
-          {t("forms:data_series_input.unit_input.difference_notice", {
-            expectedUnit: expectedDisplay,
-            resolvedUnit: resolvedDisplay,
-          })}
-        </small>
-      ) : null}
-
-
-      {allowOverrideSelection ? (
-        <label className="flex align-items-center gap-50 margin-top-25">
+      {/* Toggle override */}
+      {!!allowOverrideSelection && <>
+        <label>
           <input
             type="checkbox"
-            checked={hasOverride}
-            onChange={(event) => {
-              if (!event.target.checked) {
-                setRecipeUnitAction(undefined);
-                return;
-              }
-
-              const seededUnit = expectedUnit ?? resultingUnit;
-              setRecipeUnitAction(seededUnit === undefined ? "" : seededUnit);
-            }}
+            onChange={(e) => { handleOverrideToggle(e.target.checked); }}
+            checked={isOverrideToggled}
+            className="margin-right-25"
           />
           {t("forms:data_series_input.unit_input.override_toggle")}
         </label>
-      ) : null}
+        {isOverrideToggled ?
+          <label className="block margin-top-25">
+            <input
+              type="text"
+              className="margin-inline-25"
+              placeholder={resolvedDisplay}
+              value={overrideUnitInput}
+              onChange={(e) => {
+                setOverrideUnitInput(e.target.value);
+                setRecipeUnit(e.target.value);
+              }}
+            />
+          </label> : null}
+      </>}
 
-      <small className="block margin-top-25 font-style-italic" style={{ overflowWrap: "anywhere" }}>
-        {hasOverride
-          ? t("forms:data_series_input.unit_override_status.overriding", {
-            suggestedUnit: suggestedUnitInput.trim() || t("common:tsx.unit_missing"),
-            overrideUnit: expectedDisplay,
-          })
-          : t("forms:data_series_input.unit_override_status.using", {
-            suggestedUnit: suggestedUnitInput.trim() || t("common:tsx.unit_missing"),
-          })
+      {/* Final "using" */}
+      <p>
+        {isOverrideToggled
+          ? <Trans
+            i18nKey={"forms:data_series_input.unit_override_status.overriding"}
+            values={{
+              resolvedUnit: resolvedDisplay,
+              overrideUnit: overrideUnitInput.trim() || t("common:tsx.unit_missing"),
+            }}
+            components={{ a: <strong /> }}
+          />
+          : <Trans
+            i18nKey={"forms:data_series_input.unit_override_status.using"}
+            values={{ unit: resolvedDisplay }}
+            components={{ a: <strong /> }}
+          />
         }
-      </small>
+      </p>
     </div>
   );
 }
