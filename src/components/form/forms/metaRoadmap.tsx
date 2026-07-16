@@ -1,8 +1,7 @@
 'use client';
 
 import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" with { type: "json" };
-import type { LoginData } from "@/lib/session";
-import type { AccessControlled, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
+import type { AccessControlled, LoginData, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
 import type { MetaRoadmap } from "@/lib/prisma/generated";
 import { RoadmapType } from "@/lib/prisma/generated";
 import { useRef, useState } from "react";

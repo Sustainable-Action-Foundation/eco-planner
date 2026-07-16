@@ -1,7 +1,7 @@
 import 'client-only';
 import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
 import RadioImage from './radioImage';
-import { ViewMode } from '../goals';
+import { ViewMode } from '@/types';
 import { setStoredViewMode } from '../functions/tableFunctions';
 import { useTranslation } from 'react-i18next';
 import { IconListTree, IconTableFilled } from '@tabler/icons-react';

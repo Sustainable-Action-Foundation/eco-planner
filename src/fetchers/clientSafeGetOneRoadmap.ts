@@ -3,11 +3,10 @@
 import { prisma } from "@/lib/prisma";
 import { clientSafeRoadmapSelection } from "@/fetchers/inclusionSelectors";
 import { cookies } from "next/headers";
-import type { LoginData } from "@/lib/session";
+import type { ClientRoadmap, LoginData } from "@/types";
 import { getSession } from "@/lib/session";
 import { goalSorter } from "@/lib/sorters";
 import { cacheTag } from 'next/cache';
-import type { ClientRoadmap } from "@/types";
 
 /**
  * A function similar to `getOneRoadmap`, but excluding potentially sensitive data.

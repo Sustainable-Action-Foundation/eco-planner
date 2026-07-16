@@ -1,6 +1,6 @@
 "use client";
 
-import { AccessLevel } from '@/types';
+import { AccessLevel, GoalSortBy, ViewMode } from '@/types';
 import GoalTable from "./goalTables/goalTable";
 import TableSelector from './tableSelector/tableSelector';
 import LinkTree from './goalTables/linkTree';
@@ -12,23 +12,6 @@ import styles from './tables.module.css';
 import type { getOneRoadmap } from "@/fetchers";
 import { useTranslation } from "react-i18next";
 import { IconSearch } from '@tabler/icons-react';
-
-/** Object containing the different view modes for the goal table. */
-export const ViewMode = {
-  Table: "TABLE",
-  Tree: "TREE",
-} as const;
-export type ViewMode = (typeof ViewMode)[keyof typeof ViewMode];
-
-export const GoalSortBy = {
-  Default: "",
-  Alpha: "ALPHA",
-  AlphaReverse: "ALPHA REVERSE",
-  ActionsFalling: "HIGH FIRST",
-  ActionsRising: "LOW FIRST",
-  Interesting: "INTEREST",
-} as const;
-export type GoalSortBy = (typeof GoalSortBy)[keyof typeof GoalSortBy];
 
 export default function Goals({
   roadmap,

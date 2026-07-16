@@ -2,8 +2,7 @@
 
 import formSubmitter from "@/functions/formSubmitter";
 import parseCsv, { csvToGoalList } from "@/functions/parseCsv";
-import type { LoginData } from "@/lib/session";
-import type { AccessControlled, GoalCreateFull, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
+import type { AccessControlled, GoalCreateFull, LoginData, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
 import type { MetaRoadmap, Roadmap } from "@/lib/prisma/generated";
 import { useEffect, useMemo, useRef, useState } from "react";
 import styles from '../forms.module.css';

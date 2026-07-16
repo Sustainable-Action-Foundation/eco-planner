@@ -1,5 +1,5 @@
 import type { Unit } from "mathjs";
-import type { DatasetKeys } from "@/lib/api/utility";
+import type { ApiSelectionItem, DatasetKeys } from "@/lib/api/apiTypes";
 import type { BaselineType, DateValues, DateValuesWithUnit, ISOIshDate, UnitString } from "@/types";
 import type { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/consts";
 
@@ -12,13 +12,6 @@ type BaseVariable = {
 
 /** Which index/value to pick out of a series-valued variable. */
 export type PickOption = VectorIndexPickerOptions | number | ISOIshDate;
-
-/** A single external API selection constraint. */
-export type ExternalSelectionItem = {
-  variableCode: string;
-  valueCodes: string[];
-};
-export type ExternalSelection = ExternalSelectionItem[];
 
 export type ScalarVariable = BaseVariable & {
   type: typeof RecipeDataTypes.Scalar;
@@ -34,7 +27,7 @@ export type ScalarVariable = BaseVariable & {
 export type ExternalSource = {
   dataset: DatasetKeys | null;
   tableId: string | null;
-  selection: ExternalSelection;
+  selection: ApiSelectionItem[];
 };
 
 export type DataSeriesVariable = BaseVariable & {
@@ -73,6 +66,14 @@ export type EvalTimeSeries = {
   series: DateValuesWithUnit;
 }
 export type RecipeExtractionOutput = (EvalTimeVariable | EvalTimeSeries)[];
+
+/**
+ * Per external variable, either freshly fetched data (selection is new or changed) or a reference to the already-stored series (selection unchanged).
+ */
+export type ResolvedExternals = Map<string, { source: ExternalSource } & (
+  | { data: DateValuesWithUnit, reuseDataSeriesId?: undefined }
+  | { reuseDataSeriesId: string, data?: undefined }
+)>;
 
 /**
  * # Notice

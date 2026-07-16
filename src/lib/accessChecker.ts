@@ -1,6 +1,5 @@
 import { AccessLevel } from "@/types";
-import type { AccessControlled } from "@/types";
-import type { LoginData } from "./session";
+import type { AccessControlled, LoginData } from "@/types";
 
 /**
  * Checks if the user has access to an item and returns their access level. An empty string means no access.

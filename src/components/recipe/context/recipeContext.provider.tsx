@@ -4,12 +4,12 @@ import { RecipeError } from "@/functions/recipe/types";
 import type { RecipeDataTypes, RecipeVariable, SerializedRecipe } from "@/functions/recipe/types";
 import { externalSelectionKey } from "@/functions/recipe/extractors";
 import getTableContent from "@/lib/api/getTableContent";
-import type { ApiTableContent } from "@/lib/api/apiTypes";
+import type { ApiSelectionItem, ApiTableContent } from "@/lib/api/apiTypes";
 import { clientSafeGetOneDataSeries } from "@/fetchers/client";
 import type { DataSeries, DateValues, UnitString } from "@/types";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { SetStateAction } from "react";
 import { Recipe } from "@/functions/recipe/recipe";
-import type { SetStateAction } from "./recipeContext.internal";
 import { RecipeContext } from "./recipeContext.internal";
 import { useDebounce } from "use-debounce";
 
@@ -67,7 +67,7 @@ export function RecipeContextProvider({
   // an external variable is only re-fetched when its own selection changes.
   const externalContentCacheRef = useRef<Map<string, Promise<ApiTableContent | null>>>(new Map());
   const getCachedExternalContent = useCallback(
-    (tableId: string, dataset: string, selection: { variableCode: string, valueCodes: string[] }[]) => {
+    (tableId: string, dataset: string, selection: ApiSelectionItem[]) => {
       const key = externalSelectionKey(dataset, tableId, selection);
       const cache = externalContentCacheRef.current;
       const cached = cache.get(key);

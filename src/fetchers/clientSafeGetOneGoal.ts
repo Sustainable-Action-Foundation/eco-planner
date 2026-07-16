@@ -1,12 +1,11 @@
 'use server';
 
 import { clientSafeGoalSelection } from "@/fetchers/inclusionSelectors";
-import type { LoginData } from "@/lib/session";
+import type { ClientGoal, LoginData } from "@/types";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { cacheTag } from 'next/cache';
-import type { ClientGoal } from "@/types";
 
 /**
  * A function similar to `getOneGoal`, but excluding potentially sensitive data.

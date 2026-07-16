@@ -1,9 +1,8 @@
 'use client';
 
 import type { Dispatch, SetStateAction } from "react";
-import { GoalFormName } from "../../formNames";
+import { BaselineType, GoalFormName } from "@/types";
 import type { ClientGoal, Goal } from "@/types";
-import { BaselineType } from "@/types";
 import { useTranslation } from "react-i18next";
 import { FormSync, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";

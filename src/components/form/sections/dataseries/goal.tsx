@@ -1,14 +1,13 @@
 'use client';
 
 import { useTranslation } from "react-i18next";
-import { GoalFormName } from "../../formNames";
-import { DataSeriesType, type DateValuesWithUnit, type Goal } from "@/types";
+import { DataSeriesType, GoalFormName, type DateValuesWithUnit, type Goal } from "@/types";
 import { IconCheck } from "@tabler/icons-react";
-import { FormSync, ManualDataSeriesInput, RecipeContextProvider, RecipeEditor, type SetStateAction, SuggestedRecipeApplier, UnitInput } from "@/components/recipe";
+import { FormSync, ManualDataSeriesInput, RecipeContextProvider, RecipeEditor, SuggestedRecipeApplier, UnitInput } from "@/components/recipe";
 import { dataSeriesToDateValues, Recipe } from "@/functions/recipe";
 import ParameterSync from "@/components/recipe/output/parameterSyncer";
 import { RecipeSync } from "@/components/recipe/output/recipeSync";
-import { useMemo, type Dispatch } from "react";
+import { useMemo, type Dispatch, type SetStateAction } from "react";
 
 export default function GoalSeriesSection({
   goal,

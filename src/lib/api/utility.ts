@@ -1,17 +1,7 @@
 import { isStandardObject } from "@/types";
-import type { ApiSelectionItem, ApiTableContent, ApiTableMetadata } from "./apiTypes";
+import type { ApiSelectionItem, ApiTableContent, ApiTableMetadata, DatasetData, DatasetKeys } from "./apiTypes";
 
 // TODO: Refactor file
-
-export type DatasetKeys = "SCB" | "Trafa" | "SSB" | "STEM";
-export type DatasetData = {
-  baseUrl: string,
-  userFacingUrl: string,
-  supportedLanguages: string[],
-  api: "PxWeb" | "Trafa",
-  fullName?: string,
-  alternateNames?: string[]
-};
 
 export function isDataSetKeys(value: unknown): value is DatasetKeys {
   return typeof value === "string" && ExternalDataset.knownDatasetKeys.includes(value as DatasetKeys);

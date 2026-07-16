@@ -1,6 +1,6 @@
 import "server-only";
 import { multiRoadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
-import type { LoginData } from "@/lib/session";
+import type { LoginData } from "@/types";
 import { getSession } from "@/lib/session";
 import { roadmapSorter } from "@/lib/sorters";
 import type { Prisma } from "@/lib/prisma/generated";

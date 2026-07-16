@@ -9,7 +9,7 @@ import { VariableTypeExternalSimple } from "../editor/variables/externalVariable
 import { useEffect, useMemo, useState } from "react";
 import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";
 import { IconAlertTriangleFilled } from "@tabler/icons-react";
-import { RecipeEditorPermissions } from "../editor/recipeEditorPermissions";
+import { RecipeEditorPermissions } from "@/types";
 import type { ClientRoadmap, DBRecipe } from "@/types";
 import { Recipe } from "@/functions/recipe/recipe";
 import { CombinedStatusDisplay, getDefaultSuggestedRecipes, TextStatus } from "@/components/recipe";

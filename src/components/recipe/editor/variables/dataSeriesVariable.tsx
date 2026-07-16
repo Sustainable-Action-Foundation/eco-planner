@@ -3,11 +3,11 @@
 import { isDataSeriesVariable, RecipeError } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
 import React, { useCallback, useMemo } from "react";
-import type { TreeItem } from "@/components/types";
+import type { RecipeContextType, TreeItem } from "@/components/types";
 import SelectSingleTree from "@/components/form/elements/combobox/selectSingleTree";
 import { clientSafeGetOneRoadmap } from "@/fetchers/client";
-import { RecipeEditorPermissions, CommonVariable, useRecipe, VectorPickerSelect } from "@/components/recipe";
-import type { RecipeContextType } from "@/components/recipe";
+import { CommonVariable, useRecipe, VectorPickerSelect } from "@/components/recipe";
+import { RecipeEditorPermissions } from "@/types";
 import type { ClientRoadmap } from "@/types";
 
 type AvailableRoadmapOption = { id: string; name: string; };

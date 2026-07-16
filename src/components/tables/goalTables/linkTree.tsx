@@ -1,14 +1,13 @@
 "use client";
 
 import styles from '../tables.module.css' with { type: "css" };
-import type { GoalTree, GoalTreeEntry } from '@/functions/goalsToTree';
+import type { GoalTree, GoalTreeEntry, Roadmap } from "@/types";
 import goalsToTree from '@/functions/goalsToTree';
 import type { SyntheticEvent } from 'react';
 import { getSessionStorage, setSessionStorage } from '@/functions/localStorage';
 import { useTranslation } from "react-i18next";
 import { IconCaretRightFilled, IconLink } from '@tabler/icons-react';
 import Link from 'next/link';
-import type { Roadmap } from "@/types";
 
 // interface LinkTreeCommonProps {}
 

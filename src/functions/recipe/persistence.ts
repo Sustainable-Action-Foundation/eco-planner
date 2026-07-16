@@ -2,17 +2,8 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@PRISMA-NAMESPACE-ONLY";
 import { Recipe, RecipeDataTypes, fetchExternalVariableData, externalSelectionKey } from "@/functions/recipe";
-import type { DataSeriesVariable, ExternalSource, RecipeVariable, SerializedRecipe } from "@/functions/recipe";
+import type { DataSeriesVariable, ExternalSource, RecipeVariable, ResolvedExternals, SerializedRecipe } from "@/functions/recipe";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
-import type { DateValuesWithUnit } from "@/types";
-
-/**
- * Per external variable, either freshly fetched data (selection is new or changed) or a reference to the already-stored series (selection unchanged).
- */
-export type ResolvedExternals = Map<string, { source: ExternalSource } & (
-  | { data: DateValuesWithUnit, reuseDataSeriesId?: undefined }
-  | { reuseDataSeriesId: string, data?: undefined }
-)>;
 
 /** True if two external selections are equivalent (order-insensitive). */
 function sameExternalSource(a: ExternalSource, b: ExternalSource): boolean {

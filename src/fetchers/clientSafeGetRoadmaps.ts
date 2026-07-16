@@ -3,11 +3,10 @@
 import { prisma } from "@/lib/prisma";
 import { clientSafeMultiRoadmapSelection } from "@/fetchers/inclusionSelectors";
 import { cookies } from "next/headers";
-import type { LoginData } from "@/lib/session";
+import type { ClientMultiRoadmapInstance, LoginData } from "@/types";
 import { getSession } from "@/lib/session";
 import { roadmapSorter } from "@/lib/sorters";
 import { cacheTag } from 'next/cache';
-import type { ClientMultiRoadmapInstance } from "@/types";
 
 /**
  * A function similar to `getRoadmaps`, but excluding potentially sensitive data.

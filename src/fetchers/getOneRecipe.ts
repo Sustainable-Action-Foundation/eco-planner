@@ -1,9 +1,8 @@
 import "server-only";
-import type { LoginData } from "@/lib/session";
+import type { DBRecipe, LoginData } from "@/types";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
-import type { DBRecipe } from "@/types";
 import { recipeSelector } from "@/fetchers/inclusionSelectors";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 

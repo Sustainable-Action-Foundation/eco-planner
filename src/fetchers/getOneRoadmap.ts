@@ -1,12 +1,11 @@
 import "server-only";
 import { roadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
-import type { LoginData } from "@/lib/session";
+import type { LoginData, Roadmap } from "@/types";
 import { getSession } from "@/lib/session";
 import { goalSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
 import { cacheTag } from "next/cache";
 import { cookies } from "next/headers";
-import type { Roadmap } from "@/types";
 
 /**
  * Gets specified roadmap and all goals for that roadmap.

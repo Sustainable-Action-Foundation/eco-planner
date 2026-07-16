@@ -1,6 +1,6 @@
 import "server-only";
 import { userInfoSelector } from "@/fetchers/inclusionSelectors";
-import type { LoginData } from "@/lib/session";
+import type { LoginData } from "@/types";
 import { getSession } from "@/lib/session";
 import { metaRoadmapSorter, roadmapSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";

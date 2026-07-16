@@ -7,7 +7,7 @@ import { emptyRecipesByDataType, RecipeDataTypes } from "@/functions/recipe/type
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { useTranslation } from "react-i18next";
 import { allOurUnits } from "@/math";
-import { RecipeEditorPermissions } from "@/components/recipe/editor/recipeEditorPermissions";
+import { RecipeEditorPermissions } from "@/types";
 
 export function VariableCreator({
   permissions: incomingPermissions,

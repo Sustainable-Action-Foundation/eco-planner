@@ -1,12 +1,11 @@
 import "server-only";
 import { metaRoadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
-import type { LoginData } from "@/lib/session";
+import type { LoginData, MetaRoadmap } from "@/types";
 import { getSession } from "@/lib/session";
 import { metaRoadmapSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
 import { cacheTag } from "next/cache";
 import { cookies } from "next/headers";
-import type { MetaRoadmap } from "@/types";
 
 /**
  * Get all meta roadmaps the user has access to, as well as the different versions the user has access to.

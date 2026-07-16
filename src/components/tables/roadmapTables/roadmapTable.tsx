@@ -1,8 +1,7 @@
 import "server-only";
-import type { LoginData } from '@/lib/session';
+import type { LoginData, MetaRoadmap, Roadmap } from "@/types";
 import styles from '@/components/tables/tables.module.css' with { type: "css" };
 import { ControlsMenu } from '@/components/elements/controls/controls';
-import type { MetaRoadmap, Roadmap } from '@/types';
 import accessChecker from '@/lib/accessChecker';
 import serveTea from "@/lib/i18nServer";
 import Link from 'next/link';

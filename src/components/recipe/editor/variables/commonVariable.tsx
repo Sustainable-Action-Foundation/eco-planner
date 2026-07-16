@@ -3,7 +3,8 @@
 import { RecipeError } from "@/functions/recipe/types";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { RecipeEditorPermissions, useRecipe } from "@/components/recipe";
+import { useRecipe } from "@/components/recipe";
+import { RecipeEditorPermissions } from "@/types";
 import styles from "../../recipe.module.css" with { type: "css" };
 import { IconTrashXFilled } from "@tabler/icons-react";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";

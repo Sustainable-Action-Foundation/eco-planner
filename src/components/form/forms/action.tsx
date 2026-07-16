@@ -2,14 +2,13 @@
 
 import formSubmitter from "@/functions/formSubmitter";
 import type { Action, ActionInput, DateValuesWithUnit, MultiRoadmapInstance } from "@/types";
-import { isDateValuesWithUnit } from "@/types";
+import { ActionFormName, isDateValuesWithUnit } from "@/types";
 import { ActionImpactType } from "@/lib/prisma/generated";
 import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
 import TextEditor from "../elements/textEditor/editor";
 import { FormSync, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
 import { Recipe } from "@/functions/recipe/recipe";
-import { ActionFormName } from "../formNames";
 import { useState, useRef } from "react";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";

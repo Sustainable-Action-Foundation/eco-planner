@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslation } from "react-i18next";
-import { RecipeEditorPermissions } from "../recipeEditorPermissions";
+import { RecipeEditorPermissions } from "@/types";
 import { ExternalDataset, isDataSetKeys } from "@/lib/api/utility";
 import RecipeQueryBuilder from "@/components/form/api/recipeQueryBuilder";
 import type { ExternalVariable } from "@/functions/recipe/types";

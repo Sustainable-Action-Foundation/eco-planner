@@ -1,7 +1,7 @@
 "use client";
 
 import { goalSorter, goalSorterActionAmount, goalSorterActionAmountReverse, goalSorterInterest, goalSorterReverse } from '@/lib/sorters';
-import { GoalSortBy } from '../goals';
+import { GoalSortBy } from "@/types";
 import styles from '../tables.module.css' with { type: "css" };
 import { useTranslation } from "react-i18next";
 import Link from 'next/link';

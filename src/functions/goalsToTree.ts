@@ -1,10 +1,6 @@
 import { goalSorterTree } from "@/lib/sorters";
-import type { Goal } from "@/types";
+import type { GoalTree, GoalTreeEntry } from "@/types";
 import type { TFunction } from "i18next";
-
-export type GoalTreeEntry = Pick<Goal, "id" | "name" | "indicatorParameter" | "dataSeries">;
-
-export type GoalTree = { [key: string]: GoalTree | GoalTreeEntry };
 
 export default function goalsToTree(goals: Array<GoalTreeEntry | null>, t: TFunction) {
   const filteredGoals = goals.filter(goal => goal != null);

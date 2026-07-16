@@ -1,12 +1,11 @@
 import "server-only";
-import type { LoginData } from "@/lib/session";
+import type { LoginData, MultiRoadmapInstance } from "@/types";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { roadmapSorter } from "@/lib/sorters";
 import { cacheTag } from "next/cache";
 import { cookies } from "next/headers";
 import { multiRoadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
-import type { MultiRoadmapInstance } from "@/types";
 
 /**
  * Gets all roadmaps the user has access to, as well as the count of goals for each roadmap.

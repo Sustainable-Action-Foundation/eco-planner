@@ -1,12 +1,11 @@
 import "server-only";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
-import type { LoginData } from "@/lib/session";
+import type { Goal, LoginData } from "@/types";
 import { getSession } from "@/lib/session";
 import { effectSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
 import { cacheTag } from "next/cache";
 import { cookies } from "next/headers";
-import type { Goal } from "@/types";
 
 // TODO: Check if we need to include data series unit as a key to make sure we don't get the wrong goal
 

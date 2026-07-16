@@ -1,6 +1,19 @@
 import type { PxWebCompatMetricDimension, PxWebCompatTimeDimension, PxWebCompatRegularDimension } from "./pxWeb/pxWebApiV2Types";
 import type { TrafaCompatHierarchy, TrafaCompatMetricDimension, TrafaCompatRegularDimension, TrafaCompatTimeDimension } from "./trafa/trafaTypes";
 
+/** The external datasets we know how to talk to. */
+export type DatasetKeys = "SCB" | "Trafa" | "SSB" | "STEM";
+
+/** How to reach a single external dataset; see `ExternalDataset` in `./utility` for the instances. */
+export type DatasetData = {
+  baseUrl: string,
+  userFacingUrl: string,
+  supportedLanguages: string[],
+  api: "PxWeb" | "Trafa",
+  fullName?: string,
+  alternateNames?: string[]
+};
+
 // TODO: See if we can include any unit returned by external APIs
 export type ApiTableContent = {
   id: string;

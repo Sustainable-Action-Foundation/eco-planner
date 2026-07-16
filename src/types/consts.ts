@@ -30,6 +30,24 @@ export const GoalDataTarget = {
 } as const;
 export type GoalDataTarget = (typeof GoalDataTarget)[keyof typeof GoalDataTarget];
 
+/** Object containing the different view modes for the goal table. */
+export const ViewMode = {
+  Table: "TABLE",
+  Tree: "TREE",
+} as const;
+export type ViewMode = (typeof ViewMode)[keyof typeof ViewMode];
+
+/** Object and type with the different types of sorting available for goals */
+export const GoalSortBy = {
+  Default: "",
+  Alpha: "ALPHA",
+  AlphaReverse: "ALPHA REVERSE",
+  ActionsFalling: "HIGH FIRST",
+  ActionsRising: "LOW FIRST",
+  Interesting: "INTEREST",
+} as const;
+export type GoalSortBy = (typeof GoalSortBy)[keyof typeof GoalSortBy];
+
 /** Object and type with the different types of sorting available for roadmaps */
 export const RoadmapSortBy = {
   Default: "",
@@ -60,6 +78,30 @@ export const BaselineType = {
   Inherited: "INHERIT",
 } as const;
 export type BaselineType = (typeof BaselineType)[keyof typeof BaselineType];
+
+/** What a recipe editor lets the user do. The object doubles as the permissive default that callers spread over. */
+export const RecipeEditorPermissions = {
+  allowAddVariables: true,
+  allowDeleteVariables: true,
+  allowNameEditing: true,
+  allowValueEditing: true,
+} as const;
+export type RecipeEditorPermissions = Partial<Record<keyof typeof RecipeEditorPermissions, boolean>>;
+
+/** The graphs available for a goal. */
+export const GraphType = {
+  Main: "MAIN",
+  Relative: "RELATIVE",
+  Delta: "DELTA",
+} as const;
+export type GraphType = (typeof GraphType)[keyof typeof GraphType];
+
+/** The graphs available for a goal's child goals. */
+export const ChildGraphType = {
+  Target: "TARGET",
+  Prediction: "PREDICTION",
+} as const;
+export type ChildGraphType = (typeof ChildGraphType)[keyof typeof ChildGraphType];
 
 /** A regex to match UUIDs. Allows all UUIDs of all versions and variants, even non-standard ones, as specified by RFC 9562 */
 export const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;

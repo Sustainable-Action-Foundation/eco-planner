@@ -1,10 +1,10 @@
 import { Recipe, RecipeDataTypes } from "@/functions/recipe";
 import type { ExternalSource } from "@/functions/recipe";
 import { ExternalDataset } from "@/lib/api/utility";
-import type { DatasetData, DatasetKeys } from "@/lib/api/utility";
+import type { DatasetData, DatasetKeys } from "@/lib/api/apiTypes";
 import type { Goal } from "@/types";
 
-export type HistoricalSource = {
+type HistoricalSource = {
   /** The recipe variable id, reused so the equation stays stable across edits. */
   id: string;
   name: string;

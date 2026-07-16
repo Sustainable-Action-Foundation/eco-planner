@@ -1,7 +1,7 @@
 import { isDataSeriesVariable, isExternalSelection, isScalarVariable, RecipeDataTypes, RecipeError } from "@/functions/recipe/types";
 import type { DataSeriesVariable, EvalTimeSeries, ExternalVariable, RecipeExtractionOutput, RecipeVariable, EvalTimeVariable } from "@/functions/recipe/types";
 import getTableContent from "@/lib/api/getTableContent";
-import type { ApiTableContent } from "@/lib/api/apiTypes";
+import type { ApiSelectionItem, ApiTableContent } from "@/lib/api/apiTypes";
 import mathjs from "@/math";
 import { isISOIshDate } from "@/types";
 import type { DataSeries, DateValues, DateValuesWithUnit } from "@/types";
@@ -16,7 +16,7 @@ import { getPrevailingUnit, isMathjsUnit, pickDateValues } from "@/functions/rec
 export function externalSelectionKey(
   dataset: string | null,
   tableId: string | null,
-  selection: { variableCode: string, valueCodes: string[] }[],
+  selection: ApiSelectionItem[],
 ): string {
   const normalizedSelection = [...selection]
     .map(item => ({ variableCode: item.variableCode, valueCodes: [...item.valueCodes].sort() }))
@@ -34,7 +34,7 @@ export function externalSelectionKey(
 export async function fetchExternalVariableData(
   variable: ExternalVariable,
   warnings: string[] = [],
-  externalTableContentGetter: (tableId: string, dataset: string, selection: { variableCode: string, valueCodes: string[] }[]) => Promise<ApiTableContent | null> = getTableContent,
+  externalTableContentGetter: (tableId: string, dataset: string, selection: ApiSelectionItem[]) => Promise<ApiTableContent | null> = getTableContent,
 ): Promise<DateValuesWithUnit> {
   const { dataset, tableId, selection } = variable;
 
@@ -193,7 +193,7 @@ function dbDataSeriesToExtraction(
 export async function extractExternalDatasets(
   variables: RecipeVariable[],
   warnings: string[] = [],
-  externalTableContentGetter: (tableId: string, dataset: string, selection: { variableCode: string, valueCodes: string[] }[]) => Promise<ApiTableContent | null> = getTableContent,
+  externalTableContentGetter: (tableId: string, dataset: string, selection: ApiSelectionItem[]) => Promise<ApiTableContent | null> = getTableContent,
   dataSeriesGetter?: (dataSeriesId: string) => Promise<DataSeries | null>,
 ): Promise<RecipeExtractionOutput> {
 

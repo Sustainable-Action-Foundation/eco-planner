@@ -1,11 +1,10 @@
 import "server-only";
 import { nameSelector } from "@/fetchers/inclusionSelectors";
-import type { LoginData } from "@/lib/session";
+import type { LoginData, NameObject } from "@/types";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { cacheTag } from "next/cache";
 import { cookies } from "next/headers";
-import type { NameObject } from "@/types";
 
 /**
  * Gets names and ids of all meta roadmaps, roadmaps, goals, and actions. Mainly intended for breadcrumbs, but could be useful for other things too.

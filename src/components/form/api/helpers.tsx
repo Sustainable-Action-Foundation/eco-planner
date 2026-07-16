@@ -1,8 +1,8 @@
 import type { TFunction } from "i18next";
 import type { JSX, SubmitEvent } from "react";
-import { type DatasetData, ExternalDataset } from "@/lib/api/utility";
-import type { ApiMetadataDimensionBase, ApiTableMetadata } from "@/lib/api/apiTypes";
-import type { ExternalData, ExternalDataAction, ExternalSelection } from "@/components/types";
+import { ExternalDataset } from "@/lib/api/utility";
+import type { ApiMetadataDimensionBase, ApiSelectionItem, ApiTableMetadata, DatasetData } from "@/lib/api/apiTypes";
+import type { ExternalData, ExternalDataAction } from "@/components/types";
 
 // TODO: Look over naming now that this is in the /api folder
 // TODO: Actually should probably not be in the api folders
@@ -20,9 +20,9 @@ export function metricSelectionHelper({
   metricDimension: ApiMetadataDimensionBase;
   tableMetadata: ApiTableMetadata;
   dataSource: string;
-  historicalSelection: ExternalSelection;
+  historicalSelection: ApiSelectionItem[];
   tryGetResult: (event?: React.ChangeEvent<HTMLSelectElement> | SubmitEvent<HTMLFormElement> | Event) => void;
-  getInitialSelectionValue: (variableCode: string, historicalSelection: ExternalSelection) => string | undefined;
+  getInitialSelectionValue: (variableCode: string, historicalSelection: ApiSelectionItem[]) => string | undefined;
 }) {
   if (metricDimension.options) {
     return (
@@ -63,10 +63,10 @@ export function timeVariableSelectionHelper({
   time: ApiMetadataDimensionBase;
   dataSource: string;
   datasetInfo: DatasetData | null;
-  historicalSelection: ExternalSelection;
+  historicalSelection: ApiSelectionItem[];
   optionalTag: (t: TFunction, variableIsOptional: boolean | null | undefined, datasetInfo: DatasetData | null) => JSX.Element | undefined;
   tryGetResult: (event?: React.ChangeEvent<HTMLSelectElement> | SubmitEvent<HTMLFormElement> | Event) => void;
-  getInitialSelectionValue: (variableCode: string, historicalSelection: ExternalSelection) => string | undefined;
+  getInitialSelectionValue: (variableCode: string, historicalSelection: ApiSelectionItem[]) => string | undefined;
 }) {
 
   let heading = "";
@@ -114,7 +114,7 @@ export function variableSelectionHelper({
   t: TFunction;
   dimension: ApiMetadataDimensionBase;
   tableMetadata: ApiTableMetadata;
-  historicalSelection: ExternalSelection;
+  historicalSelection: ApiSelectionItem[];
   dataSource: string;
   datasetInfo: DatasetData | null;
   optionalTag: (t: TFunction, variableIsOptional: boolean | null | undefined, datasetInfo: DatasetData | null) => JSX.Element | undefined;
@@ -177,7 +177,7 @@ export function shouldVariableFieldsetBeVisible(tableMetadata: ApiTableMetadata,
   return false;
 }
 
-export function getInitialSelectionValue(variableCode: string, historicalSelection: ExternalSelection) {
+export function getInitialSelectionValue(variableCode: string, historicalSelection: ApiSelectionItem[]) {
   const valueCode = historicalSelection.find(selection => selection.variableCode === variableCode)?.valueCodes?.[0];
   if (!valueCode) return undefined;
 

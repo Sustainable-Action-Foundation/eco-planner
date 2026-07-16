@@ -2,10 +2,9 @@ import type { DataSeries, DateValuesWithUnit, JSONValue, Mask, UnitString } from
 import { isISOIshDate } from "@/types";
 import mathjs from "@/math";
 import type { Unit } from "mathjs";
-import type { ApiTableContent } from "@/lib/api/apiTypes";
-import type { ExternalSelection, ExternalVariable, RecipeExtractionOutput, RecipeVariable, SerializedRecipe, RecipeShape, DataSeriesVariable } from "@/functions/recipe";
+import type { ApiSelectionItem, ApiTableContent, DatasetKeys } from "@/lib/api/apiTypes";
+import type { ExternalVariable, RecipeExtractionOutput, RecipeVariable, SerializedRecipe, RecipeShape, DataSeriesVariable } from "@/functions/recipe";
 import { isEvalTimeVariable, isRecipe, MathjsError, RecipeError, parseDateValuesFromVector, transformDateValuesToVector, ANDMasks, extractDataSeries, extractExternalDatasets, extractScalars, isEvalTimeSeries, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe";
-import type { DatasetKeys } from "@/lib/api/utility";
 import { sanityCheckDataSeries, sanityCheckExternalDatasets, sanityCheckScalars } from "@/functions/recipe/sanityChecks";
 
 /**
@@ -139,7 +138,7 @@ export class Recipe {
     warnings: string[] = [],
     options?: {
       dataSeriesGetter?: (dataSeriesId: string) => Promise<DataSeries | null>;
-      externalTableContentGetter?: (tableId: string, dataset: string, selection: { variableCode: string, valueCodes: string[] }[]) => Promise<ApiTableContent | null>;
+      externalTableContentGetter?: (tableId: string, dataset: string, selection: ApiSelectionItem[]) => Promise<ApiTableContent | null>;
     },
   ): Promise<DateValuesWithUnit | null> {
     const serialized = this.serialize();
@@ -690,7 +689,7 @@ export class Recipe {
     name: string;
     dataset: DatasetKeys | null;
     tableId: string | null;
-    selection: ExternalSelection;
+    selection: ApiSelectionItem[];
     variableId?: string;
   }): Recipe {
     const externalVariable: ExternalVariable = {

@@ -10,12 +10,11 @@ import type { SubmitEvent } from "react";
 import { useTranslation } from "react-i18next";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import { getInitialSelectionValue, shouldVariableFieldsetBeVisible, metricSelectionHelper, optionalTag, timeVariableSelectionHelper, variableSelectionHelper, externalDataReducer } from "./helpers";
-import type { ExternalData, ExternalDataState, ExternalSelection } from "@/components/types";
+import type { ExternalData, ExternalDataState } from "@/components/types";
+import type { ApiSelectionItem } from "@/lib/api/apiTypes";
 
 // TODO: Maybe this should not be in /api
 // TODO: Take in required as a prop?
-
-export type { ExternalSelection };
 
 export default function ExternalData({
   goal,
@@ -33,7 +32,7 @@ export default function ExternalData({
     () => (goal ? getHistoricalSource(goal) : null),
     [goal],
   );
-  const historicalSelection: ExternalSelection = useMemo(
+  const historicalSelection: ApiSelectionItem[] = useMemo(
     () => historicalSource?.selection ?? [],
     [historicalSource],
   );

@@ -6,9 +6,9 @@ import { calculatePredictedOutcome, getStoredGraphType } from "../../functions/g
 import GraphSelector from "../../graphSelectors/graphSelector";
 import SecondaryGoalSelector from "../../graphSelectors/secondaryGoalSelector";
 import { Trans, useTranslation } from "react-i18next";
-import type { DataSeries, DateValues, DateValuesWithUnit, Goal, Roadmap } from "@/types";
+import { GraphType } from "@/types";
+import type { DataSeries, DateValues, DateValuesWithUnit, Goal, LoginData, Roadmap } from "@/types";
 import CopyAndScale from "@/components/modals/copyAndScale";
-import type { LoginData } from "@/lib/session";
 import styles from './goal.module.css';
 import GoalGraph from "./main";
 import TabListSimple from "@/components/generic/tablist/tabListSimple";
@@ -17,12 +17,6 @@ import ChildGraphContainer from "./child/container";
 import { IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
 // import SiblingGraph from "./sibling/siblings";
 
-export const GraphType = {
-  Main: "MAIN",
-  Relative: "RELATIVE",
-  Delta: "DELTA",
-} as const;
-export type GraphType = (typeof GraphType)[keyof typeof GraphType];
 type TimestampedValue = { timestamp: Date; value: number };
 
 export default function GoalGraphContainer({

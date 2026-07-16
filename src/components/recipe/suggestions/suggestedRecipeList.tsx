@@ -6,7 +6,7 @@ import type { DBRecipe, Goal } from "@/types";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { RecipeSync } from "@/components/recipe/output/recipeSync";
-import { GoalFormName } from "@/components/form/formNames";
+import { GoalFormName } from "@/types";
 
 /**
  * ## Note

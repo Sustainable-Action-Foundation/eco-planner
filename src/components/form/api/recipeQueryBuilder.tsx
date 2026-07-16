@@ -1,7 +1,7 @@
 "use client";
 
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
-import type { ApiMetadataDimensionBase, ApiTableContent, ApiTableMetadata } from "@/lib/api/apiTypes";
+import type { ApiMetadataDimensionBase, ApiSelectionItem, ApiTableContent, ApiTableMetadata } from "@/lib/api/apiTypes";
 import getTableMetadata from "@/lib/api/getTableMetadata";
 import getTables from "@/lib/api/getTables";
 import { ExternalDataset, formQueryHelper, isDataSetKeys } from "@/lib/api/utility";
@@ -26,7 +26,7 @@ export default function RecipeQueryBuilder({
   variableId: string;
   initialDataSource?: string;
   initialTableId?: string;
-  initialSelection?: { variableCode: string, valueCodes: string[] }[];
+  initialSelection?: ApiSelectionItem[];
 }) {
   const { t } = useTranslation("components");
   // Locale has the format language-REGION, e.g. "sv-SE" or "en-US", we only need the language part

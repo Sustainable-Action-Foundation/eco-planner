@@ -100,6 +100,23 @@ export type DBRecipe = Prisma.RecipeGetPayload<{
   select: typeof recipeSelector,
 }>;
 
+/** The goal fields `goalsToTree` needs, and that its consumers render. */
+export type GoalTreeEntry = Pick<Goal, "id" | "name" | "indicatorParameter" | "dataSeries">;
+
+/** A nested tree of goals keyed by the segments of their indicator parameters. */
+export type GoalTree = { [key: string]: GoalTree | GoalTreeEntry };
+
+/** The information we store in our session cookie. */
+export type LoginData = {
+  user?: {
+    id: string;
+    username: string;
+    isLoggedIn?: boolean;
+    isAdmin?: boolean;
+    userGroups: string[];
+  };
+};
+
 export type UnitString = string | null | undefined;
 export type ISOIshDate = `${number}-${number}-${number}T00:00:00${`.000` | ``}Z`;
 /** True: missing value, False: defined value. It masks/"covers" the undefined values */

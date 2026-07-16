@@ -1,11 +1,10 @@
 import "server-only";
-import type { LoginData } from "@/lib/session";
+import type { Effect, LoginData } from "@/types";
 import { getSession } from "@/lib/session";
 import { cacheTag } from "next/cache";
 import { cookies } from "next/headers";
 import { effectInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { prisma } from "@/lib/prisma";
-import type { Effect } from "@/types";
 
 /**
  * Gets specified effect as well as its action and goal.

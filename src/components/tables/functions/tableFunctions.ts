@@ -1,5 +1,5 @@
 import { getLocalStorage, getSessionStorage, setLocalStorage, setSessionStorage } from "@/functions/localStorage";
-import { GoalSortBy, ViewMode } from "../goals";
+import { GoalSortBy, ViewMode } from "@/types";
 
 /** Retrieves the view mode for a roadmap from storage. */
 export function getStoredViewMode(id?: string) {

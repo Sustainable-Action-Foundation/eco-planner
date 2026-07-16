@@ -2,7 +2,7 @@
 
 import formSubmitter from "@/functions/formSubmitter";
 import type { Action, DateValuesWithUnit, Effect, EffectInput, Goal, MultiRoadmapInstance } from "@/types";
-import { isDateValuesWithUnit } from "@/types";
+import { EffectFormName, isDateValuesWithUnit } from "@/types";
 import { ActionImpactType } from "@/lib/prisma/generated";
 import { useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
@@ -10,7 +10,6 @@ import { absoluteToDelta, ActionSelector, deltaToAbsolute, GoalSelector } from "
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import { FormSync, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
 import { Recipe } from "@/functions/recipe/recipe";
-import { EffectFormName } from "../formNames";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 
