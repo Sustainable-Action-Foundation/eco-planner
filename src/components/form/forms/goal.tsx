@@ -478,10 +478,10 @@ export default function GoalForm({
             {t("forms:goal.data_series.baseline.title")}
           </legend>
 
-          <BaselineSeriesSection 
+          <BaselineSeriesSection
             goal={currentGoal}
             baselineType={baselineType}
-            setBaselineType={setBaselineType}  
+            setBaselineType={setBaselineType}
           />
         </fieldset>
 

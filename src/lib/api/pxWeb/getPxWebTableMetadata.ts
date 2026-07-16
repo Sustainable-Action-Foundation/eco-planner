@@ -123,6 +123,5 @@ export default async function getPxWebTableMetadata(tableId: string, externalDat
     }
   }
 
-  console.debug("Fetched table Metadata from PxWeb API", { tableMetadata });
   return tableMetadata;
 }
