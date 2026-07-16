@@ -466,9 +466,9 @@ export default function GoalForm({
 
       {/* Goal series input section */}
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200 padding-left-200`}>
-        <legend data-position={positionIndex} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.input_dataseries")}</legend>
+        <legend data-position={positionIndex} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.data_series.create")}</legend>
         <fieldset className={`${styles.timeLineFieldset} margin-top-200 margin-left-400`}>
-          <legend data-position={positionIndex + 0.1} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_goal_data_series")}</legend>
+          <legend data-position={positionIndex + 0.1} className={`  ${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.data_series.goal.title")}</legend>
 
           <GoalSeriesSection
             goal={currentGoal}
@@ -492,7 +492,7 @@ export default function GoalForm({
             data-position={positionIndex + 0.2}
             className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
           >
-            {t("forms:goal.create_baseline_for_actions")}
+            {t("forms:goal.data_series.baseline.title")}
           </legend>
 
           <BaselineSeriesSection 
@@ -508,7 +508,7 @@ export default function GoalForm({
             data-position={positionIndex + 0.3}
             className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
           >
-            {t("forms:goal.input_historical_data")}
+            {t("forms:goal.data_series.historical.title")}
           </legend>
           <HistoricalSeriesSection goal={currentGoal} />
         </fieldset>

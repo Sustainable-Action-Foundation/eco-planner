@@ -48,28 +48,36 @@ export default function HistoricalSeriesSection({
   return (
     <>
       {/* Radio group */}
-      <fieldset className="margin-top-25 fieldset-unset-pseudo-class">
-        <legend className="padding-block-125 font-weight-bold">{t("forms:goal.historical_label")}</legend>
+      <fieldset className="fieldset-unset-pseudo-class">
+        <legend className="margin-bottom-25">{t("forms:goal.data_series.historical.type")}</legend>
         <div className="width-100 radio-group">
-          <label className="flex align-items-center gap-50 margin-bottom-25">
+          <label className="flex align-items-start gap-50 margin-bottom-25">
             <input
+              required={true}
               type="radio"
               name="historical-data-type"
               value={HistoricalDataType.External}
               checked={historicalDataType === HistoricalDataType.External}
               onChange={(e) => setHistoricalDataType(e.target.value as HistoricalDataType)}
             />
-            {t("forms:goal.historical_data.external")}
+            <span>
+              <span className="block" style={{textShadow: '0 0'}}>{t("forms:goal.data_series.historical.external_title")}</span>
+              <span style={{ color: '#292929' }}>{t("forms:goal.data_series.historical.external")}</span>
+            </span>
           </label>
-          <label className="flex align-items-center gap-50 margin-bottom-25">
+          <label className="flex align-items-start gap-50 margin-bottom-25">
             <input
+              required={true}
               type="radio"
               name="historical-data-type"
               value={HistoricalDataType.Custom}
               checked={historicalDataType === HistoricalDataType.Custom}
               onChange={(e) => setHistoricalDataType(e.target.value as HistoricalDataType)}
             />
-            {t("forms:goal.historical_data.custom")}
+            <span>
+              <span className="block" style={{textShadow: '0 0'}}>{t("forms:goal.data_series.historical.custom_title")}</span>
+              <span style={{ color: '#292929' }}>{t("forms:goal.data_series.historical.custom")}</span>
+            </span>
           </label>
         </div>
       </fieldset>
@@ -78,39 +86,28 @@ export default function HistoricalSeriesSection({
         className="padding-100 smooth"
         style={{ border: '1px dashed var(--blue)' }}
       >
+        <p className="margin-top-0 flex gap-50 align-items-center" style={{ color: 'var(--blue)', textShadow: '0 0 var(--blue)' }}>
+          <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
+          <span>
+            <span className="text-transform-capitalize">{t("common:tsx.using")}</span>
+            <span className="text-transform-lowercase">{historicalDataType === HistoricalDataType.External ? ` ${t("forms:goal.historical_data.external")}` : ` ${t("forms:goal.historical_data.custom")}`}</span>
+          </span>
+        </p> {/* TODO: Should be a legend? */}
         {historicalDataType === HistoricalDataType.External ? (
-          <>
-            <p className="margin-top-0 flex gap-50 align-items-center" style={{ color: 'var(--blue)', textShadow: '0 0 var(--blue)' }}>
-              <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
-              <span>
-                <span className="text-transform-capitalize">{t("common:tsx.using")}:</span>
-                <span className="text-transform-lowercase"> {t("forms:goal.historical_data.external")}</span>
-              </span>
-            </p> {/* TODO: Should be a legend? */}
-            <ExternalData
-              goal={goal}
-              onChange={handleExternalDataChange}
-            />
-          </>
+          <ExternalData
+            goal={goal}
+            onChange={handleExternalDataChange}
+          />
         ) :
-          <>
-            <p className="margin-top-0 flex gap-50 align-items-center" style={{ color: 'var(--blue)', textShadow: '0 0 var(--blue)' }}>
-              <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
-              <span>
-                <span className="text-transform-capitalize">{t("common:tsx.using")}:</span>
-                <span className="text-transform-lowercase"> {t("forms:goal.historical_data.custom")}</span>
-              </span>
-            </p> {/* TODO: Should be a legend? */}
-            <RecipeContextProvider
-              initialRecipe={Recipe.fromManualDateValues({ unit: undefined, dateValues: {} }).serialize()}
-            >
-              <ManualDataSeriesInput
-                id="historical-data-series"
-                label={t("forms:data_series_input.data_series")}
-              />
-              <FormSync DateValuesFormElement={<input name={GoalFormName.HistoricalDataSeries} />} />
-            </RecipeContextProvider>
-          </>
+          <RecipeContextProvider
+            initialRecipe={Recipe.fromManualDateValues({ unit: undefined, dateValues: {} }).serialize()}
+          >
+            <ManualDataSeriesInput
+              id="historical-data-series"
+              label={t("forms:data_series_input.data_series")}
+            />
+            <FormSync DateValuesFormElement={<input name={GoalFormName.HistoricalDataSeries} />} />
+          </RecipeContextProvider>
         }
       </div>
     </>

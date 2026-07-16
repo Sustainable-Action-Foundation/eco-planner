@@ -294,7 +294,7 @@ button[type="submit"]:disabled {
 /* Radio group */
 
 .radio-group label:has(input[type="radio"]) {
-  padding: .5rem;
+  padding: .75rem;
   border-radius: .25rem;
   border: 1px solid var(--gray-80);
   font-size: smaller;
@@ -304,4 +304,8 @@ button[type="submit"]:disabled {
 .radio-group label:has(input[type="radio"]:checked) {
   border-color: var(--blue-50);
   background-color: rgba(153, 211, 255, .25);
+}
+
+.radio-group input[type="radio"] {
+  margin-top: 1px;
 }

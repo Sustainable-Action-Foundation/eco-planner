@@ -94,10 +94,10 @@
     "baseline_copied": "Baseline, copied from selected $t(common:goal_one)",
     "baseline_label": "Baseline",
     "baseline_types": {
-      "custom": "Custom baseline",
-      "inherited": "Another $t(common:goal_one) as baseline",
-      "initial": "First year value",
-      "initial_non_zero": "First defined year"
+      "custom": "Manual",
+      "inherited": "Inherited",
+      "initial": "First years value",
+      "initial_non_zero": "First non-zero value"
     },
     "choose_goal_data_series": "Input a data series for this $t(common:goal_one)",
     "choose_relationship": "Which $t(common:roadmap_series_one) does your $t(common:goal_one) belong to?",
@@ -106,7 +106,33 @@
     "custom_recipe": "Recipe",
     "data_missing": "DATA MISSING; ",
     "data_series_type_legend": "Choose type of data series for your $t(common:goal_one)",
-    "data_unit": "Data series unit",
+    "data_series": {
+      "create": "Create dataseries",
+      "unit": "Unit",
+      "goal": {
+        "title": "Create a dataseries for your goal",
+        "type": "Goal type",
+        "inherit": "Create a data series by copying it from another goal and scaling it using a suggested method.",
+        "manual": "Create a data series by manually inputting years and values.",
+        "recipe": "Create a data series by defining variables and using them in a custom equation."
+      },
+      "baseline": {
+        "title": "Create a dataseries for your goals baseline",
+        "type": "Baseline type",
+        "first_year_value": "Use the value of your goals first year as a baseline.",
+        "first_defined_year": "Use the first non-zero value of your goal as a baseline.",
+        "custom": "Create a baseline by manually inputting years and values.",
+        "another_goal": "Create a baseline by copying it from another goal."
+      },
+      "historical": {
+        "title": "Create a dataseries for your goals historical data",
+        "type": "Historical data type",
+        "external_title": "External",
+        "external": "Create a historical data series with data from external sources.",
+        "custom_title": "Manual",
+        "custom": "Create a historical data series by manually inputting years and values."
+      }
+    },
     "default_combination_recipe": "Default combination recipe",
     "default_scaling_recipe": "Default scaling recipe",
     "derive_data_series_manually": "Input manually",
@@ -141,7 +167,7 @@
     "select_goals_to_combine": "Select $t(common:goal_other) in the current $t(common:roadmap_version_one) to combine",
     "select_roadmap_version": "Select a $t(common:roadmap_version_one) to inherit a $t(common:goal_one) from",
     "static_data_series": "Manual",
-    "suggested_inheritance": "Inherit",
+    "suggested_inheritance": "Inherited and scaled",
     "unit_interpreted_as": "Unit interpreted as:",
     "unit_not_interpreted": "The unit could not be interpreted. You can still save the $t(common:goal_one), but some functionality may be missing.",
     "unnamed_goal": "Unnamed $t(common:goal_one)"
