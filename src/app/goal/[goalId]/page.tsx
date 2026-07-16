@@ -116,7 +116,7 @@ export default async function Page(
 
   // Fetch parent goal
   let parentGoal: Goal | null = null;
-  let parentGoalRoadmap: Roadmap | null = null;
+  let parentGoalRoadmap: Roadmap | null;
   if (roadmap?.metaRoadmap.parentRoadmapId) {
     try {
       // Get the parent roadmap (if any)

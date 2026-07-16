@@ -2,16 +2,13 @@
 
 import { useTranslation } from "react-i18next";
 import { GoalFormName } from "../../formNames";
-import type { DateValuesWithUnit, Goal } from "@/types";
-import { DataSeriesType } from "../../forms/goal";
+import { DataSeriesType, type DateValuesWithUnit, type Goal } from "@/types";
 import { IconCheck } from "@tabler/icons-react";
 import { FormSync, ManualDataSeriesInput, RecipeContextProvider, RecipeEditor, type SetStateAction, SuggestedRecipeApplier, UnitInput } from "@/components/recipe";
 import { dataSeriesToDateValues, Recipe } from "@/functions/recipe";
 import ParameterSync from "@/components/recipe/output/parameterSyncer";
 import { RecipeSync } from "@/components/recipe/output/recipeSync";
 import { useMemo, type Dispatch } from "react";
-
-type DataSeriesType = (typeof DataSeriesType)[keyof typeof DataSeriesType];
 
 export default function GoalSeriesSection({
   goal,
@@ -61,7 +58,7 @@ export default function GoalSeriesSection({
             aria-label={`${t("forms:goal.suggested_inheritance")}: ${t("forms:goal.data_series.goal.inherit")}`}
           />
           <span>
-            <span className="block" style={{textShadow: '0 0'}}>{t("forms:goal.suggested_inheritance")}</span>
+            <span className="block" style={{ textShadow: '0 0' }}>{t("forms:goal.suggested_inheritance")}</span>
             <span style={{ color: '#292929' }}>{t("forms:goal.data_series.goal.inherit")}</span>
           </span>
         </label>
@@ -75,7 +72,7 @@ export default function GoalSeriesSection({
             onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
           />
           <span>
-            <span className="block" style={{textShadow: '0 0'}}>{t("forms:goal.static_data_series")}</span>
+            <span className="block" style={{ textShadow: '0 0' }}>{t("forms:goal.static_data_series")}</span>
             <span style={{ color: '#292929' }}>{t("forms:goal.data_series.goal.manual")}</span>
           </span>
         </label>
@@ -89,17 +86,17 @@ export default function GoalSeriesSection({
             onChange={(e) => setDataSeriesType(e.target.value as DataSeriesType)}
           />
           <span>
-            <span className="block" style={{textShadow: '0 0'}}>{t("forms:goal.custom_recipe")}</span>
+            <span className="block" style={{ textShadow: '0 0' }}>{t("forms:goal.custom_recipe")}</span>
             <span style={{ color: '#292929' }}>{t("forms:goal.data_series.goal.recipe")}</span>
           </span>
         </label>
       </fieldset>
 
       {/**
-            ## NOTE:
+        ## NOTE:
 
-            The following fieldsets are intentionally hidden and not unmounted to preserve state.
-          */}
+        The following fieldsets are intentionally hidden and not unmounted to preserve state.
+      */}
       {/* Suggested */}
       <div
         className="padding-100 smooth margin-bottom-100"

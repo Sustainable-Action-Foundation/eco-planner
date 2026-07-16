@@ -2,7 +2,7 @@
 
 import type { getRoadmaps } from "@/fetchers";
 import formSubmitter from "@/functions/formSubmitter";
-import { GoalDataTarget, isDateValuesWithUnit, isISOIshDate } from "@/types";
+import { GoalDataTarget, isDateValuesWithUnit, isISOIshDate, DataSeriesType, BaselineType } from "@/types";
 import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput } from "@/types";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -20,21 +20,6 @@ import GoalGraph from "@/components/graph/graphs/goal/main";
 import HistoricalSeriesSection from "../sections/dataseries/historical";
 import BaselineSeriesSection from "../sections/dataseries/baseline";
 import GoalSeriesSection from "../sections/dataseries/goal";
-
-export const DataSeriesType = {
-  Manual: "MANUAL",
-  Suggested: "SUGGESTED",
-  Custom: "CUSTOM",
-} as const;
-type DataSeriesType = (typeof DataSeriesType)[keyof typeof DataSeriesType];
-
-export const BaselineType = {
-  Initial: "INITIAL",
-  InitialNonZero: "INITIAL_NON_ZERO",
-  Custom: "CUSTOM",
-  Inherited: "INHERIT",
-} as const;
-type BaselineType = (typeof BaselineType)[keyof typeof BaselineType];
 
 function resolveDataSeriesType(goal?: Goal): DataSeriesType {
   // Somehow missing

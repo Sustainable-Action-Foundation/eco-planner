@@ -40,7 +40,26 @@ export const RoadmapSortBy = {
 } as const;
 export type RoadmapSortBy = (typeof RoadmapSortBy)[keyof typeof RoadmapSortBy];
 
+/** 
+ * Used by form
+ */
+export const DataSeriesType = {
+  Manual: "MANUAL",
+  Suggested: "SUGGESTED",
+  Custom: "CUSTOM",
+} as const;
+export type DataSeriesType = (typeof DataSeriesType)[keyof typeof DataSeriesType];
+
+/** 
+ * Used by form
+ */
+export const BaselineType = {
+  Initial: "INITIAL",
+  InitialNonZero: "INITIAL_NON_ZERO",
+  Custom: "CUSTOM",
+  Inherited: "INHERIT",
+} as const;
+export type BaselineType = (typeof BaselineType)[keyof typeof BaselineType];
 
 /** A regex to match UUIDs. Allows all UUIDs of all versions and variants, even non-standard ones, as specified by RFC 9562 */
 export const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
-  
