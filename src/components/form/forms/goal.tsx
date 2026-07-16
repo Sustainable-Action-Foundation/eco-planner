@@ -2,7 +2,7 @@
 
 import type { getRoadmaps } from "@/fetchers";
 import formSubmitter from "@/functions/formSubmitter";
-import { GoalDataTarget, isDateValuesWithUnit, isISOIshDate, DataSeriesType, BaselineType } from "@/types";
+import { GoalDataTarget, isDateValuesWithUnit, DataSeriesType, BaselineType } from "@/types";
 import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput } from "@/types";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -51,12 +51,20 @@ function resolveBaselineType(goal?: Goal): BaselineType {
   // Default to first value for new goals
   if (!goal?.baseline) return BaselineType.Initial;
 
-  // No recipe: manual value input (or a legacy/derived baseline; both edit as custom values)
+  // No recipe: manual value input (or a legacy baseline; both edit as custom values)
   if (!goal.baseline.recipeUsed) return BaselineType.Custom;
 
-  // Recipe-based: manual entry stored as an inline data series recipe is custom;
-  // anything else (e.g. a recipe linking another goal's series) is inherited.
-  return Recipe.from(goal.baseline.recipeUsed.recipe).isManual()
+  const recipe = Recipe.from(goal.baseline.recipeUsed.recipe);
+
+  // Derived from the goal's data series (first / first non-zero value)
+  const derivation = recipe.baselineDerivation();
+  if (derivation === BaselineType.Initial || derivation === BaselineType.InitialNonZero) {
+    return derivation;
+  }
+
+  // Manual entry stored as an inline data series recipe is custom; anything
+  // else (e.g. a recipe linking another goal's series) is inherited.
+  return recipe.isManual()
     ? BaselineType.Custom
     : BaselineType.Inherited;
 }
@@ -115,7 +123,7 @@ export default function GoalForm({
 
   // TODO: Error messages were translated directly from English to Swedish when switching to toasts.
   // They can likely be translated better.
-  function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const form = event.target.elements;
@@ -221,26 +229,30 @@ export default function GoalForm({
       baselineType === BaselineType.Initial
       || baselineType === BaselineType.InitialNonZero
     ) {
-      // Use the first value of the data series as the baseline
-      const dateValues = Object.entries(dataSeries.dateValues).sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime());
-      if (!dateValues.every(dateValue => isISOIshDate(dateValue[0]))) throw new Error("Dates in data series are not in a valid ISO-ish format.");
-      if (dateValues.length === 0) {
+      // Derive the baseline from the submitted data series through a recipe,
+      // like the other baseline types: the equation picks the first (non-zero)
+      // value and the evaluator broadcasts it across the series' years.
+      if (Object.keys(dataSeries.dateValues).length === 0) {
         addToast(t("forms:goal.errors.initial_baseline_error"), "error", false);
         event.target.reportValidity();
         return;
       }
 
-      baseline = {
-        unit: dataSeries.unit,
-        dateValues: {},
-      } satisfies DateValuesWithUnit;
-
-      const firstDateValue = baselineType === BaselineType.InitialNonZero
-        ? dataSeries.dateValues[dateValues.find(dateValue => dateValue[1] !== 0)?.[0] as keyof typeof dataSeries.dateValues] ?? dateValues[0][1]
-        : dateValues[0][1];
-
-      for (const dateValue of dateValues) {
-        baseline.dateValues[dateValue[0] as keyof typeof dataSeries.dateValues] = firstDateValue;
+      baselineRecipe = Recipe.fromInitialDateValue(
+        { unit: dataSeries.unit, dateValues: dataSeries.dateValues },
+        { nonZero: baselineType === BaselineType.InitialNonZero },
+      );
+      try {
+        const evaluated = await baselineRecipe.evaluate();
+        if (!evaluated) throw new Error("Baseline recipe evaluation returned no result.");
+        // The recipe evaluates unitless (see Recipe.fromInitialDateValue); the
+        // baseline keeps the data series' unit verbatim.
+        baseline = { unit: dataSeries.unit, dateValues: evaluated.dateValues };
+      }
+      catch (err) {
+        addToast(`${t("forms:goal.errors.initial_baseline_error")} ${err instanceof Error ? err.message : String(err)}`, "error", false);
+        event.target.reportValidity();
+        return;
       }
     }
     if (baselineType === BaselineType.Inherited && (!baselineRecipe || !baseline)) {
@@ -369,7 +381,7 @@ export default function GoalForm({
   let positionIndex = 1;
 
   return (
-    <form onSubmit={handleSubmit} name="goalForm">
+    <form onSubmit={(event) => { void handleSubmit(event); }} name="goalForm">
       {/* This hidden submit button prevents submitting by pressing enter, to avoid accidental submission */}
       <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 

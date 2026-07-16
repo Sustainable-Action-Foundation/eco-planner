@@ -1,6 +1,6 @@
 import type { Unit } from "mathjs";
 import type { DatasetKeys } from "@/lib/api/utility";
-import type { DateValues, DateValuesWithUnit, ISOIshDate, UnitString } from "@/types";
+import type { BaselineType, DateValues, DateValuesWithUnit, ISOIshDate, UnitString } from "@/types";
 import type { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/consts";
 
 type BaseVariable = {
@@ -88,6 +88,7 @@ export type RecipeShape = {
     v?: 1; // Version of recipe format (current: 1)
     isSuggestedRecipe?: boolean; // If it was derived from a suggested recipe, needed when e.g. loading a goal form and knowing which method was used.
     isManual?: boolean; // If it wraps a single inline data series entered by hand (the "manual"/"static" data series input), so forms can tell it apart from real recipes.
+    baselineDerivation?: typeof BaselineType.Initial | typeof BaselineType.InitialNonZero; // If it derives a baseline from a goal's data series (first or first non-zero value), so forms can restore the selected baseline type. Values match `BaselineType` in `@/types`.
   };
 };
 

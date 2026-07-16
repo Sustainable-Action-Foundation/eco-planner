@@ -72,6 +72,14 @@ export class Recipe {
     return this.meta?.isManual ?? false;
   }
 
+  /**
+   * Which baseline derivation produced this recipe, if any
+   * (see {@link Recipe.fromInitialDateValue}).
+   */
+  public baselineDerivation(): RecipeShape["meta"]["baselineDerivation"] {
+    return this.meta?.baselineDerivation;
+  }
+
   /** 
    * Runs evaluator on recipe and catch anything wrong
    */
@@ -470,6 +478,7 @@ export class Recipe {
         v: 1,
         isSuggestedRecipe: this.meta?.isSuggestedRecipe ?? false,
         isManual: this.meta?.isManual ?? false,
+        ...(this.meta?.baselineDerivation ? { baselineDerivation: this.meta.baselineDerivation } : {}),
       },
     } satisfies RecipeShape) as SerializedRecipe;
   }
@@ -620,6 +629,45 @@ export class Recipe {
       variables: [inlineVariable],
       unit: dateValues.unit,
       meta: { isManual: true },
+    });
+  }
+
+  /**
+   * Recipe factory for a baseline derived from a goal's data series: the
+   * series' values are inlined like a manual recipe, and the equation picks the
+   * first value (`${var}[1]`; mathjs vectors are 1-indexed) or the first
+   * non-zero value (`firstNonZero(${var})`, a custom function imported in
+   * `src/math.ts`). Evaluating it returns a scalar, which the evaluator
+   * broadcasts across the series' defined years — the "initial value" baseline.
+   *
+   * The inline variable is kept unitless so evaluation never has to parse the
+   * (possibly user-overridden, non-mathjs) unit; like the manual input, the
+   * unit is declared on `recipe.unit` instead. The recipe is tagged
+   * `meta.baselineDerivation` so forms can restore the selected baseline type
+   * (see {@link Recipe.baselineDerivation}).
+   */
+  public static fromInitialDateValue(
+    dateValues: DateValuesWithUnit,
+    options?: { nonZero?: boolean },
+    variableId: string = crypto.randomUUID(),
+  ): Recipe {
+    const inlineVariable: DataSeriesVariable = {
+      id: variableId,
+      name: "Initial value baseline", // TODO: i18n
+      type: RecipeDataTypes.DataSeries,
+      pick: VectorIndexPickerOptions.Default,
+      unit: undefined,
+      dataSeriesId: null,
+      value: dateValues.dateValues,
+    };
+    return new Recipe({
+      name: "Initial value baseline", // TODO: i18n
+      equation: options?.nonZero
+        ? `firstNonZero(\${${variableId}})`
+        : `\${${variableId}}[1]`,
+      variables: [inlineVariable],
+      unit: dateValues.unit,
+      meta: { baselineDerivation: options?.nonZero ? "INITIAL_NON_ZERO" : "INITIAL" },
     });
   }
 
