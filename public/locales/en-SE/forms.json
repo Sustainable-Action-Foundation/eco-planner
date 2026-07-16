@@ -156,7 +156,7 @@
       "invalid_date_values": "Parsed date values from form are invalid:",
       "failed_parse_baseline": "Failed to parse baseline date values from form:",
       "initial_baseline_error": "Cannot use initial baseline when data series is empty.",
-      "missing_baseline_id": "No inherited baseline ID provided in form.",
+      "missing_inherited_baseline": "No inherited baseline provided in form.",
       "missing_baseline": "No baseline provided for new goal.",
       "recipe_has_error": "This data series can't be saved because its recipe has an error. Please fix it before saving:"
     },

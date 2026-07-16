@@ -187,8 +187,8 @@ export default function GoalForm({
     }
 
     let baseline: DateValuesWithUnit | undefined = undefined;
-    let baselineId: string | undefined = undefined;
-    if (baselineType === BaselineType.Custom) {
+    let baselineRecipe: Recipe | undefined = undefined;
+    if (baselineType === BaselineType.Custom || baselineType === BaselineType.Inherited) {
       const baselineString = formData.get(GoalFormName.BaselineDataSeries) as string | null;
       if (baselineString) {
         try {
@@ -227,19 +227,29 @@ export default function GoalForm({
         baseline.dateValues[dateValue[0] as keyof typeof dataSeries.dateValues] = firstDateValue;
       }
     }
-    else if (baselineType === BaselineType.Inherited) {
-      const inheritedBaselineId = formData.get(GoalFormName.InheritedBaselineId) as string | null;
-      if (inheritedBaselineId) {
-        baselineId = inheritedBaselineId;
+    if (baselineType === BaselineType.Inherited) {
+      // The inherited baseline flows through a recipe context, like the other
+      // data series inputs: the recipe links the inherited series and the
+      // baseline date values are its evaluation result.
+      const baselineRecipeString = formData.get(GoalFormName.BaselineRecipe) as string | null;
+      if (baselineRecipeString) {
+        try {
+          baselineRecipe = Recipe.deserialize(baselineRecipeString);
+        }
+        catch (err) {
+          addToast(`${t("forms:goal.errors.failed_parse_recipe")} ${err instanceof Error ? err.message : String(err)}`, "error", false);
+          event.target.reportValidity();
+          return;
+        }
       }
-      else {
-        addToast(t("forms:goal.errors.missing_baseline_id"), "error", false);
+      if (!baselineRecipe || !baseline) {
+        addToast(t("forms:goal.errors.missing_inherited_baseline"), "error", false);
         event.target.reportValidity();
         return;
       }
     }
     // Throw if baseline is missing on create
-    if (!currentGoal && !baseline && !baselineId) {
+    if (!currentGoal && !baseline) {
       addToast(t("forms:goal.errors.missing_baseline"), "error", false);
       event.target.reportValidity();
       return;
@@ -275,7 +285,7 @@ export default function GoalForm({
 
     // Build the JSON payload for the API
     let formContent: GoalCreateInput | GoalUpdateInput;
-    if (!currentGoal && (baseline || baselineId)) {
+    if (!currentGoal && baseline) {
       // Create
       formContent = {
         target: GoalDataTarget.Full,
@@ -293,10 +303,10 @@ export default function GoalForm({
         dataSeriesRecipeId: null,
         dataSeriesRecipe: dataSeriesRecipe?.serialize() ?? null,
 
-        baselineId: baselineId,
+        baselineId: null,
         baseline: baseline,
         baselineRecipeId: null,
-        baselineRecipe: null,
+        baselineRecipe: baselineRecipe?.serialize() ?? null,
 
         historicalId: historicalId,
         historical: historicalDataSeries,
@@ -328,10 +338,10 @@ export default function GoalForm({
         dataSeriesRecipeId: undefined,
         dataSeriesRecipe: dataSeriesRecipe?.serialize() ?? undefined,
 
-        baselineId: baselineId,
+        baselineId: undefined,
         baseline: baseline,
         baselineRecipeId: undefined,
-        baselineRecipe: undefined,
+        baselineRecipe: baselineRecipe?.serialize() ?? undefined,
 
         historicalId: historicalId,
         historical: historicalDataSeries,

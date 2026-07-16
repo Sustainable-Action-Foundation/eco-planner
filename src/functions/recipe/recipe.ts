@@ -663,7 +663,46 @@ export class Recipe {
     });
   }
 
-  /** 
+  /**
+   * Recipe factory for linking an existing data series by id: a recipe whose
+   * single `DataSeries` variable references the stored series, with an equation
+   * that just reads that variable. Evaluating it returns the linked series'
+   * values, so an inherited series (e.g. a baseline inherited from another
+   * goal) flows through the recipe context exactly like any other data series
+   * input.
+   *
+   * Pass `variableId` (the existing variable's id) when editing so the equation
+   * stays stable across edits; otherwise a fresh id is generated.
+   */
+  public static fromLinkedDataSeries({
+    name,
+    dataSeriesId,
+    unit = undefined,
+    variableId = crypto.randomUUID(),
+  }: {
+    name: string;
+    dataSeriesId: string;
+    unit?: UnitString;
+    variableId?: string;
+  }): Recipe {
+    const linkedVariable: DataSeriesVariable = {
+      id: variableId,
+      name,
+      type: RecipeDataTypes.DataSeries,
+      pick: VectorIndexPickerOptions.Default,
+      unit,
+      dataSeriesId,
+      value: null,
+    };
+    return new Recipe({
+      name,
+      equation: `\${${variableId}}`,
+      variables: [linkedVariable],
+      unit: undefined,
+    });
+  }
+
+  /**
    * Recipe factory for a data series: a recipe whose single `DataSeries` variable.
    */
   public static fromDataSeries({

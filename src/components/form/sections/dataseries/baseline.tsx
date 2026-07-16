@@ -6,10 +6,11 @@ import type { ClientGoal, Goal } from "@/types";
 import { BaselineType } from "@/types";
 import { useTranslation } from "react-i18next";
 import { FormSync, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
+import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 import { IconCheck } from "@tabler/icons-react";
 import { dataSeriesToDateValues } from "@/functions/recipe";
 import { Recipe } from "@/functions/recipe/recipe";
-import React, { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { TreeItem } from "@/components/types";
 import { clientSafeGetRoadmaps, clientSafeGetOneRoadmap, clientSafeGetOneGoal } from "@/fetchers/client";
 import SelectSingleTree from "@/components/form/elements/combobox/selectSingleTree";
@@ -127,24 +128,62 @@ export default function BaselineSeriesSection({
 
         {/* Inherited baseline input */}
         {baselineType === BaselineType.Inherited &&
-          <InheritingBaseline
-            outputFormElement={<input name={GoalFormName.InheritedBaselineId} />}
-          />
+          <RecipeContextProvider
+            initialRecipe={goal?.baseline?.recipeUsed?.recipe
+              ? Recipe.from(goal.baseline.recipeUsed.recipe).serialize()
+              : undefined}
+            availableDataSeries={goal?.baseline?.recipeUsed?.sourceDataSeries}
+          >
+            <InheritingBaseline />
+            <FormSync
+              RecipeFormElement={<input name={GoalFormName.BaselineRecipe} />}
+              DateValuesFormElement={<input name={GoalFormName.BaselineDataSeries} />}
+            />
+          </RecipeContextProvider>
         }
       </div>
     </>
   );
 }
 
-function InheritingBaseline({
-  outputFormElement,
-}: {
-  outputFormElement: React.ReactElement<HTMLInputElement>;
-}) {
+/**
+ * Tree select for inheriting another goal's baseline (or, failing that, its
+ * data series). The selection is pushed into the surrounding
+ * {@link RecipeContextProvider} as a recipe linking the inherited series (see
+ * {@link Recipe.fromLinkedDataSeries}), so the baseline reads like every other
+ * data series input — the form reads the result via `FormSync`
+ * (`BaselineRecipe` / `BaselineDataSeries`) instead of a bespoke id field.
+ *
+ * Must be rendered inside a `RecipeContextProvider` (seed it with the saved
+ * baseline recipe when editing so the initial output and context agree).
+ */
+function InheritingBaseline() {
   const { t } = useTranslation(["forms", "common"]);
+  const { recipe, applyRecipeUpdate } = useRecipe();
   const [treeItems, setTreeItems] = useState<TreeItem[]>([]);
   const [selectedGoal, setSelectedGoal] = useState<TreeItem | null>(null);
   const [goalData, setGoalData] = useState<ClientGoal | null>(null);
+
+  // Keep the linked variable's id stable across selections so the recipe
+  // identity only changes when the inherited series actually changes.
+  const variableIdRef = useRef<string>(recipe.variables[0]?.id ?? crypto.randomUUID());
+
+  // Push the picked goal's baseline into the recipe context. A cleared
+  // selection intentionally leaves the recipe untouched: when editing, the
+  // provider is seeded with the saved recipe before anything is picked.
+  useEffect(() => {
+    if (!goalData) return;
+
+    const inheritedSeries = goalData.baseline ?? goalData.dataSeries;
+    if (!inheritedSeries?.id) return;
+
+    void applyRecipeUpdate(() => Recipe.fromLinkedDataSeries({
+      name: goalData.name ?? t("forms:goal.unnamed_goal"),
+      dataSeriesId: inheritedSeries.id,
+      unit: inheritedSeries.unit ?? undefined,
+      variableId: variableIdRef.current,
+    }));
+  }, [goalData, applyRecipeUpdate, t]);
 
   // Roadmaps are the top-level nodes; each one's goals are fetched lazily
   // the first time it's expanded, via onExpand.
@@ -209,15 +248,9 @@ function InheritingBaseline({
         onChange={setSelectedGoal}
       />
 
-      {goalData ? <label className="block margin-block-75">
+      {goalData ? <p className="block margin-block-75">
         {`${t("forms:goal.baseline_copied")}: "${goalData.name}"`}
-        {React.cloneElement(outputFormElement, {
-          value: goalData.baseline?.id ?? goalData.dataSeries?.id ?? "",
-          type: "hidden",
-          hidden: true,
-          readOnly: true,
-        })}
-      </label> : null
+      </p> : null
       }
     </>
   );

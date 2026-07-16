@@ -156,7 +156,7 @@
       "invalid_date_values": "Tolkade datumvärden från formuläret är ogiltiga:",
       "failed_parse_baseline": "Det gick inte att tolka baslinjens datumvärden från formuläret:",
       "initial_baseline_error": "Det går inte att använda den initiala baslinjen när dataserien är tom.",
-      "missing_baseline_id": "Inget ärvt baslinje-ID angivet i formuläret.",
+      "missing_inherited_baseline": "Ingen ärvd baslinje angiven i formuläret.",
       "missing_baseline": "Ingen baslinje angiven för det nya målet.",
       "recipe_has_error": "Den här dataserien kan inte sparas eftersom dess recept har ett fel. Åtgärda det innan du sparar:"
     },

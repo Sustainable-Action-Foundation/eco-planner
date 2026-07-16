@@ -21,7 +21,7 @@ export const GoalFormName = {
   ResultingRecipe: "RESULTING_RECIPE",
   ResultingDateValues: "RESULTING_DATE_VALUES",
   BaselineDataSeries: "BASELINE_DATA_SERIES",
-  InheritedBaselineId: "INHERITED_BASELINE_ID",
+  BaselineRecipe: "BASELINE_RECIPE",
   HistoricalDataSeries: "HISTORICAL_DATA_SERIES",
   RecipeSuggestions: "RECIPE_SUGGESTIONS",
 } as const;
