@@ -1,9 +1,8 @@
 import type { TFunction } from "i18next";
 import type { JSX, SubmitEvent } from "react";
-import type { ExternalSelection } from "../sections/dataseries/historical";
 import { type DatasetData, ExternalDataset } from "@/lib/api/utility";
 import type { ApiMetadataDimensionBase, ApiTableMetadata } from "@/lib/api/apiTypes";
-import type { ExternalData, ExternalDataAction } from "@/components/types";
+import type { ExternalData, ExternalDataAction, ExternalSelection } from "@/components/types";
 
 // TODO: Look over naming now that this is in the /api folder
 // TODO: Actually should probably not be in the api folders
@@ -196,6 +195,7 @@ export function externalDataReducer(state: ExternalData, action: ExternalDataAct
         tables: null,
         tableMetadata: null,
         tableContent: null,
+        selection: null,
         mainTimeDimensionId: null,
       };
     }
@@ -207,6 +207,7 @@ export function externalDataReducer(state: ExternalData, action: ExternalDataAct
         table: action.table,
         tableMetadata: null,
         tableContent: null,
+        selection: null,
         mainTimeDimensionId: null,
       };
     }
@@ -265,6 +266,7 @@ export function externalDataReducer(state: ExternalData, action: ExternalDataAct
       return {
         ...state,
         tableContent: action.content,
+        selection: action.selection,
       };
     }
 

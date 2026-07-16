@@ -10,12 +10,12 @@ import type { SubmitEvent } from "react";
 import { useTranslation } from "react-i18next";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import { getInitialSelectionValue, shouldVariableFieldsetBeVisible, metricSelectionHelper, optionalTag, timeVariableSelectionHelper, variableSelectionHelper, externalDataReducer } from "./helpers";
-import type { ExternalData, ExternalDataState } from "@/components/types";
+import type { ExternalData, ExternalDataState, ExternalSelection } from "@/components/types";
 
 // TODO: Maybe this should not be in /api
 // TODO: Take in required as a prop?
 
-export type ExternalSelection = NonNullable<Parameters<typeof getTableMetadata>[2]>;
+export type { ExternalSelection };
 
 export default function ExternalData({
   goal,
@@ -46,11 +46,12 @@ export default function ExternalData({
     tables: null,
     tableMetadata: null,
     tableContent: null,
+    selection: null,
     mainTimeDimensionId: null,
   };
 
   const [state, dispatch] = useReducer(externalDataReducer, initialState);
-  const { dataSource, table, tables, tableMetadata, tableContent, mainTimeDimensionId } = state;
+  const { dataSource, table, tables, tableMetadata, tableContent, selection, mainTimeDimensionId } = state;
   const datasetInfo = useMemo(
     () => ExternalDataset.getDatasetByAlternateName(dataSource),
     [dataSource],
@@ -106,18 +107,18 @@ export default function ExternalData({
   // isn't currently valid.
   const fetchContent = useCallback((query: ReturnType<typeof formQueryHelper>, isValid: boolean) => {
     if (!isValid) {
-      dispatch({ type: "SET_CONTENT", content: null });
+      dispatch({ type: "SET_CONTENT", content: null, selection: null });
       return;
     }
 
     getTableContent(table ? table.tableId : "", dataSource, query, lang)
       .then(result => {
-        dispatch({ type: "SET_CONTENT", content: result });
+        dispatch({ type: "SET_CONTENT", content: result, selection: query });
       })
       .catch((err: unknown) => {
         const errorMessage = err instanceof Error ? err.message : String(err);
         console.error("Error fetching table content:", errorMessage);
-        dispatch({ type: "SET_CONTENT", content: null });
+        dispatch({ type: "SET_CONTENT", content: null, selection: null });
       });
   }, [dataSource, lang, table]);
 
@@ -132,8 +133,8 @@ export default function ExternalData({
   }, [buildQuery, refreshTrafaMetadata, fetchContent]);
 
   useEffect(() => {
-    onChangeRef.current?.({ dataSource, table, tables, tableMetadata, tableContent, mainTimeDimensionId });
-  }, [dataSource, table, tables, tableMetadata, tableContent, mainTimeDimensionId]);
+    onChangeRef.current?.({ dataSource, table, tables, tableMetadata, tableContent, selection, mainTimeDimensionId });
+  }, [dataSource, table, tables, tableMetadata, tableContent, selection, mainTimeDimensionId]);
 
   const initialTableId = historicalSource?.tableId ?? null;
   useEffect(() => {

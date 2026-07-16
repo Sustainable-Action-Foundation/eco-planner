@@ -424,7 +424,6 @@ async function createFullGoal(session: IronSession<LoginData>, authorId: string,
 
       // The historical recipe's single external variable becomes the goal's historical DataSeries
       const resolvedHistoricalId = Object.values(historicalResult.dataSeriesIdsByVariable)[0] ?? null;
-      const historicalDataSeriesId = resolvedHistoricalId ?? formData.historicalId ?? null;
       // Link the historical recipe to its resulting series so the source stays discoverable
       if (resolvedHistoricalId && typeof formData.historicalRecipeId === 'string') {
         await tx.dataSeries.update({
@@ -432,7 +431,17 @@ async function createFullGoal(session: IronSession<LoginData>, authorId: string,
           data: { recipeUsed: { connect: { id: formData.historicalRecipeId } } },
         });
       }
-      if (historicalDataSeriesId && !resolvedHistoricalId) await assertDataSeriesExists(tx, historicalDataSeriesId);
+
+      // Like applyHistoricalSection: a payload becomes a fresh series, else the
+      // recipe-materialized series or a verified client-supplied id is connected.
+      const hasHistoricalPayload = !!formData.historical && Object.keys(formData.historical.dateValues).length > 0;
+      let historicalDataSeriesId: string | null;
+      if (hasHistoricalPayload && formData.historical) {
+        historicalDataSeriesId = await createDataSeries(tx, authorId, formData.historical, formData.historicalRecipeId);
+      } else {
+        historicalDataSeriesId = resolvedHistoricalId ?? formData.historicalId ?? null;
+        if (historicalDataSeriesId && !resolvedHistoricalId) await assertDataSeriesExists(tx, historicalDataSeriesId);
+      }
 
       // Create goal, connecting the (just-created/verified) section series by id
       const createdId = (await tx.goal.create({

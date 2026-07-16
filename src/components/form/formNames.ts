@@ -23,6 +23,7 @@ export const GoalFormName = {
   BaselineDataSeries: "BASELINE_DATA_SERIES",
   BaselineRecipe: "BASELINE_RECIPE",
   HistoricalDataSeries: "HISTORICAL_DATA_SERIES",
+  HistoricalRecipe: "HISTORICAL_RECIPE",
   RecipeSuggestions: "RECIPE_SUGGESTIONS",
 } as const;
 export type GoalFormName = (typeof GoalFormName)[keyof typeof GoalFormName];

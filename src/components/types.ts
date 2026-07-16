@@ -1,13 +1,18 @@
 import type { ApiTableMetadata, ApiTableContent } from "@/lib/api/apiTypes";
+import type getTableMetadata from "@/lib/api/getTableMetadata";
 import "@/types/tiptap-commands";
 
 // External data
+export type ExternalSelection = NonNullable<Parameters<typeof getTableMetadata>[2]>;
+
 export type ExternalData = {
   dataSource: string;
   table: { tableId: string; label: string } | null;
   tables: { tableId: string; label: string }[] | null;
   tableMetadata: ApiTableMetadata | null;
   tableContent: ApiTableContent | null;
+  /** The query behind `tableContent`; set together with it, so consumers (e.g. `Recipe.fromExternalSource`) always see a matching pair. */
+  selection: ExternalSelection | null;
   mainTimeDimensionId: string | null;
 };
 
@@ -19,7 +24,7 @@ export type ExternalDataAction =
   | { type: "SET_TABLES"; tables: ExternalData["tables"] }
   | { type: "UPDATE_TABLE_LABEL"; label: string }
   | { type: "SET_METADATA"; metadata: ApiTableMetadata | null }
-  | { type: "SET_CONTENT"; content: ApiTableContent | null };
+  | { type: "SET_CONTENT"; content: ApiTableContent | null; selection: ExternalSelection | null };
 
 // TODO: Use set for tree items and map for options?
 export type Theme = {

@@ -1,16 +1,14 @@
 "use client";
 
 import HistoricalDataSection from "@/components/form/sections/dataseries/historical";
-import type { ExternalDataState } from "@/components/types";
 import formSubmitter from "@/functions/formSubmitter";
-import { getHistoricalSource } from "@/functions/getHistoricalDataset";
 import { Recipe } from "@/functions/recipe";
-import { formQueryHelper, isDataSetKeys } from "@/lib/api/utility";
-import type { GoalUpdateInput } from "@/types";
+import type { DateValuesWithUnit, GoalUpdateInput } from "@/types";
 import { GoalDataTarget, type Goal } from "@/types";
-import { useCallback, useState, type SubmitEvent } from "react";
+import { GoalFormName } from "../formNames";
+import type { SubmitEvent } from "react";
 import { useTranslation } from "react-i18next";
- 
+
 export default function HistoricalForm({
   goal,
 }: {
@@ -18,52 +16,51 @@ export default function HistoricalForm({
 }) {
   const { t } = useTranslation(["common"]);
 
-  const [externalData, setExternalData] = useState<ExternalDataState>(null);
-
-  const handleHistoricalDataChange = useCallback((data: ExternalDataState) => {
-    setExternalData(data);
-  }, []);
-
-  const historicalSource = getHistoricalSource(goal);
-
+  // The section's inputs live in a recipe context; its FormSync injects the
+  // resulting recipe and date values as hidden fields, read out here on submit.
   function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!externalData) return;
-
-    // Return if insufficient selection has been madetableMetadata
-    if (!externalData.table) return;
-    // Return if properly formatted response was not found
-    if (!externalData.tableContent) return;
     if (!(event.target instanceof HTMLFormElement)) return;
-
     if (!(event.target.checkValidity())) return;
-    if (!isDataSetKeys(externalData.dataSource)) return;
 
     const formData = new FormData(event.target);
-    const query = formQueryHelper(formData, externalData.tableMetadata, externalData.mainTimeDimensionId);
 
-    const recipe = Recipe.fromExternalSource({
-      name: externalData.table?.label || externalData.dataSource,
-      dataset: externalData.dataSource,
-      tableId: externalData.table?.tableId ?? null,
-      selection: query,
-      variableId: historicalSource?.id,
-    });
+    const recipeString = formData.get(GoalFormName.HistoricalRecipe) as string | null;
+    if (!recipeString) return;
+
+    let recipe: Recipe;
+    try {
+      recipe = Recipe.deserialize(recipeString);
+    } catch {
+      return;
+    }
+    if (recipe.isEmpty()) return;
+
+    let historical: DateValuesWithUnit | undefined = undefined;
+    const historicalString = formData.get(GoalFormName.HistoricalDataSeries) as string | null;
+    if (historicalString) {
+      try {
+        historical = JSON.parse(historicalString) as DateValuesWithUnit;
+      } catch {
+        historical = undefined;
+      }
+    }
+    // A manual recipe without values carries no data
+    if (recipe.isManual() && !historical) return;
 
     formSubmitter("/api/goal", JSON.stringify({
       target: GoalDataTarget.Historical,
-      goalId: goal ? goal.id : "",
+      goalId: goal.id,
+      historical: historical,
       historicalRecipe: recipe.serialize(),
-      historicalRecipeId: goal?.historical?.recipeUsed?.id ?? undefined,
+      historicalRecipeId: goal.historical?.recipeUsed?.id ?? undefined,
       timestamp: Date.now(),
     } satisfies GoalUpdateInput), "PUT", t);
-  } 
+  }
 
-  // TODO: Cannot save manually inputted historical data but except for that this seems to work.
   return (
     <form onSubmit={handleSubmit} name="goalForm">
       <HistoricalDataSection
-        onChange={handleHistoricalDataChange}
         goal={goal}
       />
       <div className="margin-top-400 padding-top-100 margin-bottom-100 min-width-0" style={{ borderTop: "1px solid var(--gray-80)" }}>
@@ -72,7 +69,6 @@ export default function HistoricalForm({
           type="submit"
           className="text-align-center seagreen color-purewhite width-100"
           style={{ fontSize: "14px", transform: "none" }}
-          disabled={!externalData?.tableMetadata || !externalData?.tableContent || !externalData?.dataSource}
         >
           {t("common:tsx.save_changes")}
         </button>

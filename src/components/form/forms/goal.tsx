@@ -268,7 +268,6 @@ export default function GoalForm({
     }
 
     let historicalDataSeries: DateValuesWithUnit | undefined = undefined;
-    const historicalId: string | undefined = undefined;
     const historicalDataSeriesString = formData.get(GoalFormName.HistoricalDataSeries) as string | null;
     if (historicalDataSeriesString) {
       try {
@@ -276,6 +275,25 @@ export default function GoalForm({
       }
       catch (err) {
         addToast(`${t("forms:goal.errors.failed_parse_historical_data")} ${err instanceof Error ? err.message : String(err)}`, "error", false);
+        event.target.reportValidity();
+        return;
+      }
+    }
+
+    let historicalRecipe: Recipe | undefined = undefined;
+    const historicalRecipeString = formData.get(GoalFormName.HistoricalRecipe) as string | null;
+    if (historicalRecipeString) {
+      try {
+        const parsedHistoricalRecipe = Recipe.deserialize(historicalRecipeString);
+        // An empty recipe (external mode before a selection is completed) or a
+        // manual recipe whose grid produced no values carries no data; skip it
+        // rather than storing an orphaned recipe.
+        if (!parsedHistoricalRecipe.isEmpty() && !(parsedHistoricalRecipe.isManual() && !historicalDataSeries)) {
+          historicalRecipe = parsedHistoricalRecipe;
+        }
+      }
+      catch (err) {
+        addToast(`${t("forms:goal.errors.failed_parse_recipe")} ${err instanceof Error ? err.message : String(err)}`, "error", false);
         event.target.reportValidity();
         return;
       }
@@ -320,10 +338,10 @@ export default function GoalForm({
         baselineRecipeId: null,
         baselineRecipe: baselineRecipe?.serialize() ?? null,
 
-        historicalId: historicalId,
+        historicalId: null,
         historical: historicalDataSeries,
         historicalRecipeId: null,
-        historicalRecipe: null,
+        historicalRecipe: historicalRecipe?.serialize() ?? null,
 
         roadmapId: roadmapId || parentRoadmapId,
         rawTags: undefined, // TODO: add tags input
@@ -355,10 +373,10 @@ export default function GoalForm({
         baselineRecipeId: undefined,
         baselineRecipe: baselineRecipe?.serialize() ?? undefined,
 
-        historicalId: historicalId,
+        historicalId: undefined,
         historical: historicalDataSeries,
         historicalRecipeId: undefined,
-        historicalRecipe: undefined,
+        historicalRecipe: historicalRecipe?.serialize() ?? undefined,
 
         roadmapId: undefined, // Can't reassign the roadmap of an existing goal
         rawTags: undefined, // TODO: add tags input
