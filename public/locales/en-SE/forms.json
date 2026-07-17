@@ -168,6 +168,8 @@
     "goal_name": "Name",
     "invert_goal": "Invert the $t(common:goal_one) (divide by this $t(common:goal_one) rather than multiply)",
     "leap_parameter": "LEAP parameter",
+    "preview": "Is the following correct?",
+    "preview_info": "Your dataseries will appear in your goal as they are shown below.",
     "relationship_label": "$t(common:roadmap_series_one)",
     "relationship_no_chosen": "Choose $t(common:roadmap_series_one)",
     "search_tip": "Tip: use <kbd><kbd>CTRL</kbd> + <kbd>F</kbd></kbd> to find the $t(common:goal_other) you are looking for",

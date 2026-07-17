@@ -1,12 +1,13 @@
 "use client";
 
-import type { Goal } from "@/types";
+import type { DateValuesWithUnit, Goal } from "@/types";
 import { GoalFormName } from "@/types/form-names";
-import { useMemo, useState } from "react";
+import { type Dispatch, type SetStateAction, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ExternalDataSeriesInput, FormSync, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
 import { dataSeriesToDateValues, Recipe } from "@/functions/recipe";
 import { IconCheck } from "@tabler/icons-react";
+import { RecipeSync } from "@/components/recipe/output/recipeSync";
 
 // TODO: Historical data should not be required in a goal form
 // TODO: Check if selecting metric actually changes selectable values
@@ -30,8 +31,12 @@ function resolveHistoricalDataType(goal?: Goal): HistoricalDataType {
 
 export default function HistoricalSeriesSection({
   goal,
+  setPreviewHistoricalSerie,
+
 }: {
   goal: Goal | undefined
+  setPreviewHistoricalSerie: Dispatch<SetStateAction<DateValuesWithUnit | null>>;
+
 }) {
   const { t } = useTranslation("components");
 
@@ -66,7 +71,7 @@ export default function HistoricalSeriesSection({
               onChange={(e) => setHistoricalDataType(e.target.value as HistoricalDataType)}
             />
             <span>
-              <span className="block" style={{textShadow: '0 0'}}>{t("forms:goal.data_series.historical.external_title")}</span>
+              <span className="block" style={{ textShadow: '0 0' }}>{t("forms:goal.data_series.historical.external_title")}</span>
               <span style={{ color: '#292929' }}>{t("forms:goal.data_series.historical.external")}</span>
             </span>
           </label>
@@ -80,7 +85,7 @@ export default function HistoricalSeriesSection({
               onChange={(e) => setHistoricalDataType(e.target.value as HistoricalDataType)}
             />
             <span>
-              <span className="block" style={{textShadow: '0 0'}}>{t("forms:goal.data_series.historical.custom_title")}</span>
+              <span className="block" style={{ textShadow: '0 0' }}>{t("forms:goal.data_series.historical.custom_title")}</span>
               <span style={{ color: '#292929' }}>{t("forms:goal.data_series.historical.custom")}</span>
             </span>
           </label>
@@ -108,6 +113,10 @@ export default function HistoricalSeriesSection({
               RecipeFormElement={<input name={GoalFormName.HistoricalRecipe} />}
               DateValuesFormElement={<input name={GoalFormName.HistoricalDataSeries} />}
             />
+            <RecipeSync
+              onDateValues={setPreviewHistoricalSerie}
+              active={historicalDataType === HistoricalDataType.External}
+            />
           </RecipeContextProvider>
         ) :
           <RecipeContextProvider
@@ -121,6 +130,10 @@ export default function HistoricalSeriesSection({
             <FormSync
               RecipeFormElement={<input name={GoalFormName.HistoricalRecipe} />}
               DateValuesFormElement={<input name={GoalFormName.HistoricalDataSeries} />}
+            />
+            <RecipeSync
+              onDateValues={setPreviewHistoricalSerie}
+              active={historicalDataType === HistoricalDataType.Custom}
             />
           </RecipeContextProvider>
         }

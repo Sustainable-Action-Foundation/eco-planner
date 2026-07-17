@@ -87,6 +87,9 @@ export default function GoalForm({
   const [indicatorParameter, setIndicatorParameter] = useState<string>(currentGoal?.indicatorParameter ?? "");
   const [parentRoadmapId, setParentRoadmapId] = useState<string>(roadmapId || "");
   const [previewDataSerie, setPreviewDataSerie] = useState<DateValuesWithUnit | null>(null);
+  const [previewHistoricalSerie, setPreviewHistoricalSerie] = useState<DateValuesWithUnit | null>(null);
+  const [previewBaselineSerie, setPreviewBaselineSerie] = useState<DateValuesWithUnit | null>(null);
+
   // Evaluation error of the currently-selected recipe input (Suggested/Custom),
   // lifted out of the recipe context so submission can be blocked when it fails
   // to evaluate (e.g. an external variable with an incomplete selection).
@@ -313,10 +316,10 @@ export default function GoalForm({
       }
     }
 
-
     // Build the JSON payload for the API
     let formContent: GoalCreateInput | GoalUpdateInput;
     if (!currentGoal && baseline) {
+      console.log(baseline);
       // Create
       formContent = {
         target: GoalDataTarget.Full,
@@ -507,7 +510,9 @@ export default function GoalForm({
           <BaselineSeriesSection
             goal={currentGoal}
             baselineType={baselineType}
+            dataSeries={previewDataSerie}
             setBaselineType={setBaselineType}
+            setPreviewBaselineSerie={setPreviewBaselineSerie}
           />
         </fieldset>
 
@@ -519,27 +524,41 @@ export default function GoalForm({
           >
             {t("forms:goal.data_series.historical.title")}
           </legend>
-          <HistoricalSeriesSection goal={currentGoal} />
+          <HistoricalSeriesSection
+            goal={currentGoal}
+            setPreviewHistoricalSerie={setPreviewHistoricalSerie}
+          />
         </fieldset>
 
         <div
           className="margin-top-200 min-width-0 margin-left-400"
         >
-          <h2 className="text-align-center margin-0 padding-block-125">goal.preview</h2>
-          {previewDataSerie?.dateValues ? (
-            <GoalGraph
+          <strong className="block font-size-125 font-weight-bold text-align-center margin-0 padding-top-125">{t("forms:goal.preview")}</strong>
+          <p className="text-align-center margin-top-50">{t("forms:goal.preview_info")}</p>
+          <div
+            style={{ height: '400px' }}
+          >
+            <GoalGraph // TODO: This is not correctly re-rendering when updating dataseries?
               chartType="main"
               series={{
-                main: {
-                  name: 'placeholder name',
+                main: previewDataSerie?.dateValues && {
+                  name: 'placeholder name (goal)', // TODO: temp name
                   unit: previewDataSerie.unit,
                   dateValues: previewDataSerie.dateValues, // TODO: Needs to be updated if we remove stuff
                 },
+                baseline: previewBaselineSerie?.dateValues && {
+                  name: 'placeholder name (baseline)', // TODO: temp name
+                  unit: '',  // TODO: temp unit, replace with real unit later,
+                  dateValues: previewBaselineSerie.dateValues,
+                },
+                historical: previewHistoricalSerie?.dateValues && {
+                  name: 'placeholder name (historical)', // TODO: temp name
+                  unit: '',  // TODO: temp unit, replace with real unit later,
+                  dateValues: previewHistoricalSerie.dateValues,
+                },
               }}
             />
-          ) :
-            <strong className="grid height-100" style={{ placeContent: 'center' }}>goal.no_preview</strong>
-          }
+          </div>
         </div>
       </fieldset>
 

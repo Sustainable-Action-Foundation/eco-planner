@@ -168,6 +168,8 @@
     "goal_name": "Namn",
     "invert_goal": "Invertera $t(common:goal_definite_one) (dividera med denna $t(common:goal_one) istället för att multiplicera)",
     "leap_parameter": "LEAP parameter",
+    "preview": "Är följande korrekt?",
+    "preview_info": "Dina dataserier kommer att synas i din målbana såsom de visas nedan.",
     "relationship_label": "$t(common:roadmap_series_one)",
     "relationship_no_chosen": "Välj $t(common:roadmap_series_one)",
     "search_tip": "Tips: använd <kbd><kbd>CTRL</kbd> + <kbd>F</kbd></kbd> för att hitta $t(common:goal_definite_other) du letar efter",

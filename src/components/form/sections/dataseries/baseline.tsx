@@ -1,7 +1,7 @@
 'use client';
 
 import type { Dispatch, SetStateAction } from "react";
-import type { ClientGoal, Goal } from "@/types";
+import type { ClientGoal, DateValuesWithUnit, Goal } from "@/types";
 import { BaselineType } from "@/types/enums";
 import { GoalFormName } from "@/types/form-names";
 import { useTranslation } from "react-i18next";
@@ -14,21 +14,26 @@ import { useEffect, useRef, useState } from "react";
 import type { TreeItem } from "@/components/types";
 import { clientSafeGetRoadmaps, clientSafeGetOneRoadmap, clientSafeGetOneGoal } from "@/fetchers/client";
 import SelectSingleTree from "@/components/form/elements/combobox/selectSingleTree";
+import { RecipeSync } from "@/components/recipe/output/recipeSync";
 
 export default function BaselineSeriesSection({
   goal,
   baselineType,
+  dataSeries,
   setBaselineType,
+  setPreviewBaselineSerie,
 }: {
   goal: Goal | undefined;
   baselineType: BaselineType;
-  setBaselineType: Dispatch<SetStateAction<BaselineType>>
+  dataSeries: DateValuesWithUnit | null;
+  setBaselineType: Dispatch<SetStateAction<BaselineType>>;
+  setPreviewBaselineSerie: Dispatch<SetStateAction<DateValuesWithUnit | null>>;
 }) {
   const { t } = useTranslation(["forms", "common"]);
 
   return (
     <>
-      {/* Radio group */}
+      {/* Radio group, TODO: Look over aria. Use radiogroup? role?*/}
       <fieldset className="fieldset-unset-pseudo-class">
         <legend className="margin-bottom-25">{t("forms:goal.data_series.baseline.type")}</legend>
         <div className="width-100 radio-group">
@@ -107,6 +112,20 @@ export default function BaselineSeriesSection({
           </span>
         </p> {/* TODO: Should be a legend? */}
 
+        {(baselineType === BaselineType.Initial || baselineType === BaselineType.InitialNonZero) &&
+          <RecipeContextProvider>
+            <InitialBaseline
+              dataSeries={dataSeries}
+              nonZero={baselineType === BaselineType.InitialNonZero}
+            />
+            <RecipeSync
+              onDateValues={setPreviewBaselineSerie}
+              active={true}
+            />
+          </RecipeContextProvider>
+        }
+
+
         {/* Custom baseline input */}
         {baselineType === BaselineType.Custom &&
           <RecipeContextProvider
@@ -126,6 +145,10 @@ export default function BaselineSeriesSection({
               RecipeFormElement={<input name={GoalFormName.BaselineRecipe} />}
               DateValuesFormElement={<input name={GoalFormName.BaselineDataSeries} />}
             />
+            <RecipeSync
+              onDateValues={setPreviewBaselineSerie}
+              active={baselineType === BaselineType.Custom}
+            />
           </RecipeContextProvider>
         }
 
@@ -142,12 +165,40 @@ export default function BaselineSeriesSection({
               RecipeFormElement={<input name={GoalFormName.BaselineRecipe} />}
               DateValuesFormElement={<input name={GoalFormName.BaselineDataSeries} />}
             />
+            <RecipeSync
+              onDateValues={setPreviewBaselineSerie}
+              active={baselineType === BaselineType.Inherited}
+            />
           </RecipeContextProvider>
         }
       </div>
     </>
   );
 }
+
+function InitialBaseline({
+  dataSeries,
+  nonZero,
+}: {
+  dataSeries: DateValuesWithUnit | null;
+  nonZero: boolean;
+}) {
+  const { applyRecipeUpdate } = useRecipe();
+ 
+  useEffect(() => {
+    if (!dataSeries?.dateValues || Object.keys(dataSeries.dateValues).length === 0) {
+      return;
+    }
+ 
+    void applyRecipeUpdate(() => Recipe.fromInitialDateValue(
+      { unit: dataSeries.unit, dateValues: dataSeries.dateValues },
+      { nonZero },
+    ));
+  }, [dataSeries, nonZero, applyRecipeUpdate]);
+ 
+  return null;
+}
+
 
 /**
  * Tree select for inheriting another goal's baseline (or, failing that, its
