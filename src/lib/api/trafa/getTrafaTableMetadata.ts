@@ -1,11 +1,13 @@
 "use server";
 import type { ApiSelectionItem, TrafaCompatTableMetadata } from "../apiTypes";
 import { ExternalDataset } from "../utility";
+import { guardExternalApi } from "../guardExternalApi";
 import getTrafaTables from "./getTrafaTables";
 import type { StructureItem, TrafaCompatFilter, TrafaCompatHierarchy, TrafaCompatMetricDimension, TrafaCompatRegularDimension, TrafaCompatDimensionValue, TrafaCompatMetadataDimensionBase, TrafaCompatTimeDimension } from "./trafaTypes";
 import { getTrafaSearchQueryString } from "./trafaUtility";
 
 export default async function getTrafaTableMetadata(tableId: string, selection: ApiSelectionItem[] = [], language?: string): Promise<TrafaCompatTableMetadata | null> {
+  await guardExternalApi();
   const searchQuery = getTrafaSearchQueryString(selection);
 
   const url = new URL('./structure', ExternalDataset.Trafa.baseUrl);

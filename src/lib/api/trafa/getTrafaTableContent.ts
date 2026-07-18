@@ -2,6 +2,7 @@
 
 import type { ApiSelectionItem, ApiTableContent } from "../apiTypes";
 import { ExternalDataset } from "../utility";
+import { guardExternalApi } from "../guardExternalApi";
 import type { TrafaDataResponse } from "./trafaTypes";
 import { getTrafaSearchQueryString } from "./trafaUtility";
 
@@ -10,6 +11,7 @@ import { getTrafaSearchQueryString } from "./trafaUtility";
 // but can be useful to show how to implement a new data provider which doesn't follow the pxWebV2 standard.
 
 export default async function getTrafaTableContent(tableId: string, selection: ApiSelectionItem[], language?: string) {
+  await guardExternalApi();
   const searchQuery = getTrafaSearchQueryString(selection);
 
   const url = new URL('./data', ExternalDataset.Trafa.baseUrl);

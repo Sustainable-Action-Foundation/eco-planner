@@ -1,9 +1,10 @@
 'use client';
 
-import type { Action, Effect, Goal } from "@/types";
+import type { Action, Goal } from "@/types";
 import { AccessLevel } from "@/types/enums";
 import Link from "next/link";
 import { ControlsMenu } from "../elements/controls/controls";
+import type { EffectMenuEntry } from "../elements/controls/controls";
 import { useTranslation } from "react-i18next";
 import styles from "@/components/tables/tables.module.css" with { type: "css" };
 import type { ReactNode } from "@tabler/icons-react";
@@ -85,7 +86,10 @@ export default function EffectTable({
               </Link>
               <ControlsMenu
                 accessLevel={accessLevel}
-                object={effect as Effect} // TODO: Fix typing
+                // The embedded effect carries everything ControlsMenu reads at runtime,
+                // but action/goal-embedded effects each expose only their counterpart
+                // relation, so we assert the menu-entry shape directly.
+                object={effect as unknown as EffectMenuEntry}
               />
             </div>
           </li>

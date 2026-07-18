@@ -1,9 +1,11 @@
 "use server";
 
 import { ExternalDataset } from "../utility";
+import { guardExternalApi } from "../guardExternalApi";
 import type { StructureItem, TrafaDataResponse } from "./trafaTypes";
 
 export default async function getTrafaTables(language?: string) {
+  await guardExternalApi();
   const url = new URL('./structure', ExternalDataset.Trafa.baseUrl);
 
   if (!language || !ExternalDataset.Trafa.supportedLanguages.includes(language)) {

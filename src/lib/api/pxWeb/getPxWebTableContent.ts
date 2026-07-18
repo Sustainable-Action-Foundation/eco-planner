@@ -1,5 +1,9 @@
-// Use server in order to circumvent CORS issues
-"use server";
+// Cache-safe core for fetching + parsing PxWeb table content. This is intentionally
+// NOT a "use server" entry point: the public, guarded action lives in
+// ./getPxWebTableContentAction.ts (which the client reaches via getTableContent),
+// while cache-scoped callers (e.g. scbPopulationQuery's `use cache` block) call this
+// directly — safe because it does no request-scoped work (no cookies()/session).
+import "server-only";
 
 import type { JSONValue } from "@/types";
 import { isStandardObject } from "@/types/typeguards";

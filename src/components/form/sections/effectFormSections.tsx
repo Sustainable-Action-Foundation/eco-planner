@@ -11,7 +11,10 @@ export function ActionSelector({
   action,
   roadmaps,
 }: {
-  action: Action | null,
+  // Only identity fields are read here, so accept any object carrying them
+  // (a full Action, or the trimmed action on an Effect). Avoids demanding — and
+  // therefore serializing — the whole Action to the client.
+  action: Pick<Action, "id" | "roadmapId"> | null,
   roadmaps: MultiRoadmapInstance[],
 }) {
   const { t } = useTranslation("forms");
@@ -71,7 +74,9 @@ export function GoalSelector({
   goal,
   roadmaps,
 }: {
-  goal: Goal | null,
+  // Only identity fields are read here, so accept any object carrying them
+  // (a full Goal, or the trimmed goal on an Effect).
+  goal: Pick<Goal, "id" | "roadmapId"> | null,
   roadmaps: MultiRoadmapInstance[],
 }) {
   const { t } = useTranslation(["forms", "common"]);

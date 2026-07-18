@@ -38,7 +38,7 @@ type MetaRoadmapMenuEntry = Pick<MetaRoadmap, "id" | "name"> & {
   roadmapVersions: Array<Pick<Roadmap, "id" | "version"> & { _count: { goals: number } }>;
 };
 
-type EffectMenuEntry = Pick<Effect, "actionId" | "goalId"> & {
+export type EffectMenuEntry = Pick<Effect, "actionId" | "goalId"> & {
   action?: ActionMenuEntry;
   goal?: GoalMenuEntry;
   name?: string;
