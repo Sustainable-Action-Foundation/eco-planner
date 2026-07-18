@@ -32,11 +32,10 @@ function resolveHistoricalDataType(goal?: Goal): HistoricalDataType {
 export default function HistoricalSeriesSection({
   goal,
   setPreviewHistoricalSerie,
-
 }: {
   goal: Goal | undefined
-  setPreviewHistoricalSerie: Dispatch<SetStateAction<DateValuesWithUnit | null>>;
-
+  /** Receives the evaluated historical series for previewing (e.g. the goal form's graph); omit where no preview is shown. */
+  setPreviewHistoricalSerie?: Dispatch<SetStateAction<DateValuesWithUnit | null>>;
 }) {
   const { t } = useTranslation("components");
 
@@ -100,7 +99,7 @@ export default function HistoricalSeriesSection({
           <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
           <span>
             <span className="text-transform-capitalize">{t("common:tsx.using")}</span>
-            <span className="text-transform-lowercase">{historicalDataType === HistoricalDataType.External ? ` ${t("forms:goal.historical_data.external")}` : ` ${t("forms:goal.historical_data.custom")}`}</span>
+            <span className="text-transform-lowercase">{historicalDataType === HistoricalDataType.External ? ` ${t("forms:goal.data_series.historical.external_title")}` : ` ${t("forms:goal.data_series.historical.custom_title")}`}</span>
           </span>
         </p> {/* TODO: Should be a legend? */}
         {historicalDataType === HistoricalDataType.External ? (

@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@PRISMA-NAMESPACE-ONLY";
 import { Recipe, RecipeDataTypes, fetchExternalVariableData, externalSelectionKey } from "@/functions/recipe";
+import getTableContent from "@/lib/api/getTableContent";
 import type { DataSeriesVariable, ExternalSource, RecipeVariable, ResolvedExternals, SerializedRecipe } from "@/functions/recipe";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 
@@ -50,7 +51,7 @@ export async function resolveRecipeExternals(
         return;
       }
 
-      const data = await fetchExternalVariableData(variable, warnings);
+      const data = await fetchExternalVariableData(variable, warnings, getTableContent);
       resolved.set(variable.id, { data, source });
     }),
   );

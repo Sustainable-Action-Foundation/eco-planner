@@ -698,7 +698,10 @@ test.describe("Recipe extractors", () => {
     }
   });
 
-  test("extractExternalDatasets default getter path is still used when no override is passed", async () => {
+  test("extractExternalDatasets throws when no table content getter is provided", async () => {
+    // The fetcher stack is server action code the extractors must not import;
+    // each environment injects its own getter (like `dataSeriesGetter`), so
+    // fetching without one is a recipe error rather than a silent skip.
     await expect(extractExternalDatasets([
       externalVariable({
         id: "ext-default",
@@ -708,7 +711,7 @@ test.describe("Recipe extractors", () => {
         selection: [{ variableCode: "Region", valueCodes: ["00"] }],
         unit: undefined,
       }),
-    ])).rejects.toThrow("has no data");
+    ])).rejects.toThrow("no table content getter");
   });
 });
 
