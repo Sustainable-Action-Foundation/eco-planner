@@ -116,7 +116,9 @@ jobs:
     needs:
       - de-duplication
       - screenshot-tests
-    if: ${{ needs.de-duplication.outputs.should_skip != 'true' && !cancelled() && !inputs.skip_deployment }}
+    # Only publish the screenshot viewer to GitHub Pages from main; other refs
+    # (PRs, dev, tags) still run the screenshot tests but skip deployment.
+    if: ${{ needs.de-duplication.outputs.should_skip != 'true' && !cancelled() && !inputs.skip_deployment && github.ref == 'refs/heads/main' }}
 
     permissions:
       pages: write
