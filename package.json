@@ -109,7 +109,7 @@
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.7",
     "playwright": "^1.60.0",
-    "prisma": "^7.8.0",
+    "prisma": "patch:prisma@npm%3A7.8.0#~/.yarn/patches/prisma-npm-7.8.0-534d96c361.patch",
     "tsx": "^4.22.4",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.61.0"

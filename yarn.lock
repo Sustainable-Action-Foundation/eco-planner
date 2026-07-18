@@ -3029,7 +3029,7 @@ __metadata:
     next: "npm:^16.2.7"
     nodemailer: "npm:^8.0.10"
     playwright: "npm:^1.60.0"
-    prisma: "npm:^7.8.0"
+    prisma: "patch:prisma@npm%3A7.8.0#~/.yarn/patches/prisma-npm-7.8.0-534d96c361.patch"
     react: "npm:^19.2.7"
     react-apexcharts: "npm:^2.1.0"
     react-dom: "npm:^19.2.7"
@@ -5419,7 +5419,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prisma@npm:^7.8.0":
+"prisma@npm:7.8.0":
   version: 7.8.0
   resolution: "prisma@npm:7.8.0"
   dependencies:
@@ -5440,6 +5440,30 @@ __metadata:
   bin:
     prisma: build/index.js
   checksum: 10c0/144efb5e59fcd7984e7ca9c61e56439f11f856bec9c4dc582132a3b01a107eaf6454b5bc8dce78bb283788cae99273f83561390224d3c9ca0f000a6a83a95f92
+  languageName: node
+  linkType: hard
+
+"prisma@patch:prisma@npm%3A7.8.0#~/.yarn/patches/prisma-npm-7.8.0-534d96c361.patch":
+  version: 7.8.0
+  resolution: "prisma@patch:prisma@npm%3A7.8.0#~/.yarn/patches/prisma-npm-7.8.0-534d96c361.patch::version=7.8.0&hash=f24354"
+  dependencies:
+    "@prisma/config": "npm:7.8.0"
+    "@prisma/dev": "npm:0.24.3"
+    "@prisma/engines": "npm:7.8.0"
+    "@prisma/studio-core": "npm:0.27.3"
+    mysql2: "npm:3.15.3"
+    postgres: "npm:3.4.7"
+  peerDependencies:
+    better-sqlite3: ">=9.0.0"
+    typescript: ">=5.4.0"
+  peerDependenciesMeta:
+    better-sqlite3:
+      optional: true
+    typescript:
+      optional: true
+  bin:
+    prisma: build/index.js
+  checksum: 10c0/96a3197446fc36bb85379dc066adb0ab42073c7ba8515bf5108c73b1f5a84e4e713fafd29847f6398560b4a890ea85add1a3e0d3742b5af9226b03b3d75edf3d
   languageName: node
   linkType: hard
 
