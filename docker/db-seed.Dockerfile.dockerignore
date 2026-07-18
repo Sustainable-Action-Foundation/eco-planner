@@ -12,6 +12,7 @@ prisma/generated/
 
 # Configs
 !package.json
+!.yarn/patches/
 !prisma.config.ts
 !src/math.ts
 !tsconfig.json

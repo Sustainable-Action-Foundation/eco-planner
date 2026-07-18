@@ -44,7 +44,9 @@ Thumbs.db
 # Caches (stray changes here would bust the COPY layer cache)
 *.tsbuildinfo
 .eslintcache
-.yarn/
+# Exclude yarn state but keep patches, which yarn install needs
+.yarn/*
+!.yarn/patches/
 
 # Local scratch and agent worktrees
 .claude/

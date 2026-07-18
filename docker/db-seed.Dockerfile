@@ -20,6 +20,8 @@ RUN apk update && apk upgrade && \
 WORKDIR /app
 
 COPY package.json yarn.lock .yarnrc.yml ./
+# Yarn patches are part of dependency resolution (patch: protocol)
+COPY .yarn/patches/ ./.yarn/patches/
 # Enable corepack for modern package manager support
 RUN corepack enable
 # Preinstall yarn to ensure it's available for seeding stage
