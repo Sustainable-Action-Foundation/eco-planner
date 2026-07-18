@@ -250,12 +250,19 @@ export function RecipeContextProvider({
   }, [applyRecipeUpdate]);
 
   const debouncedRecipe = useDebounce(publishedRecipe, 500)[0];
+  const [isEvaluating, setIsEvaluating] = useState<boolean>(false);
+  // True while the resulting data/unit lag behind the recipe: a change is still
+  // inside the debounce window, or an evaluation is in flight. Consumers (e.g.
+  // submit handlers reading FormSync's outputs) wait for this to settle.
+  const isEvaluationPending = isEvaluating || !Recipe.areRecipesEqual(publishedRecipe, debouncedRecipe);
 
   // Evaluate recipe and update resulting data and unit, whenever recipe changes
   useEffect(() => {
     let isEffectActive = true;
 
     if (debouncedRecipe.isTemplate()) {
+      // Nothing to evaluate; also clears any in-flight flag from a superseded evaluation.
+      setIsEvaluating(false);
       return () => {
         setResultingDataSeries(null);
         setResultingUnit(null);
@@ -264,6 +271,7 @@ export function RecipeContextProvider({
       };
     }
 
+    setIsEvaluating(true);
     const warnings: string[] = [];
     debouncedRecipe.evaluate(warnings, { externalTableContentGetter: getCachedExternalContent, dataSeriesGetter: getDataSeries })
       .then(result => {
@@ -284,6 +292,10 @@ export function RecipeContextProvider({
         setResultingUnit(null);
         setWarnings(warnings);
         setError(errorMessage);
+      })
+      .finally(() => {
+        if (!isEffectActive) return;
+        setIsEvaluating(false);
       });
 
     return () => {
@@ -298,6 +310,7 @@ export function RecipeContextProvider({
       applyRecipeUpdate,
       resultingDataSeries,
       resultingUnit,
+      isEvaluationPending,
       equation,
       updateEquation,
       getVariable,

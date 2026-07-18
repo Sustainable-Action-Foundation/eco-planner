@@ -10,6 +10,14 @@
  * left as literals.
  */
 
+/**
+ * Emitted by every recipe `FormSync` (form-agnostic, hence not part of a per-form
+ * name set): "true" while the surrounding recipe context has a pending evaluation.
+ * Submit handlers wait for all enabled instances to read "false" before consuming
+ * the other FormSync outputs (see `waitForRecipeFormSyncs`).
+ */
+export const RecipeEvaluationPendingName = "RECIPE_EVALUATION_PENDING";
+
 export const GoalFormName = {
   GoalName: "GOAL_NAME",
   Description: "DESCRIPTION",

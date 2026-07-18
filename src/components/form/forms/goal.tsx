@@ -6,6 +6,7 @@ import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput } from 
 import { BaselineType, DataSeriesType, GoalDataTarget } from "@/types/enums";
 import { GoalFormName } from "@/types/form-names";
 import { isDateValuesWithUnit } from "@/types/typeguards";
+import { waitForRecipeFormSyncs } from "@/components/recipe";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
@@ -129,6 +130,10 @@ export default function GoalForm({
   // They can likely be translated better.
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    // The recipe contexts evaluate on a debounce; wait for their FormSync
+    // outputs to settle so a submit right after an edit doesn't read stale data.
+    await waitForRecipeFormSyncs(event.target);
 
     const form = event.target.elements;
     const formData = new FormData(event.target);

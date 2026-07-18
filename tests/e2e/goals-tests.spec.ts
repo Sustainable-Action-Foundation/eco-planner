@@ -21,12 +21,6 @@ async function fillManualDataSeries(page: Page, rows: Array<[number, number]>) {
     await page.locator(`#goal-dataseries [data-row="${row}"][data-column="1"] input`).fill(String(year));
     await page.locator(`#goal-dataseries [data-row="${row}"][data-column="2"] input`).fill(String(value));
   }
-
-  // The recipe context evaluates the grid on a debounce; wait for the resulting
-  // series (the enabled FormSync hidden output) to include the last typed year
-  // so a submit right after doesn't race the evaluation.
-  await expect(page.locator('input[name="RESULTING_DATE_VALUES"]:enabled'))
-    .toHaveValue(new RegExp(String(rows[rows.length - 1][0])));
 }
 
 test.describe("Goals tests", () => {
@@ -158,9 +152,6 @@ test.describe("Goals tests", () => {
 
     await page.locator('input[name="BASELINE_TYPE"][value="INITIAL_NON_ZERO"]').check();
     await page.locator('#isFeatured').check();
-
-    // Wait out the recipe context's evaluation debounce before submitting (see fillManualDataSeries)
-    await expect(page.locator('input[name="RESULTING_DATE_VALUES"]:enabled')).toHaveValue(/2034/);
 
     // Submit
     await page.locator('#submit-button').click();

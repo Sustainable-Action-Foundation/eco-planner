@@ -1,6 +1,7 @@
 "use client";
 
 import HistoricalDataSection from "@/components/form/sections/dataseries/historical";
+import { waitForRecipeFormSyncs } from "@/components/recipe";
 import formSubmitter from "@/functions/formSubmitter";
 import { Recipe } from "@/functions/recipe";
 import type { DateValuesWithUnit, Goal, GoalUpdateInput } from "@/types";
@@ -18,10 +19,14 @@ export default function HistoricalForm({
 
   // The section's inputs live in a recipe context; its FormSync injects the
   // resulting recipe and date values as hidden fields, read out here on submit.
-  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!(event.target instanceof HTMLFormElement)) return;
     if (!(event.target.checkValidity())) return;
+
+    // The recipe context evaluates on a debounce; wait for the FormSync
+    // outputs to settle so a submit right after an edit doesn't read stale data.
+    await waitForRecipeFormSyncs(event.target);
 
     const formData = new FormData(event.target);
 
@@ -59,7 +64,7 @@ export default function HistoricalForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} name="goalForm">
+    <form onSubmit={(event) => { void handleSubmit(event); }} name="goalForm">
       <HistoricalDataSection
         goal={goal}
       />

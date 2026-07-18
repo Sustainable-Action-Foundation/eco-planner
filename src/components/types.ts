@@ -39,6 +39,8 @@ export type RecipeContextType = {
   recipe: Recipe;
   resultingDataSeries: DateValues | null;
   resultingUnit: string | null | undefined;
+  /** True while `resultingDataSeries`/`resultingUnit` lag behind `recipe`: a change is still inside the evaluation debounce, or an evaluation is in flight. */
+  isEvaluationPending: boolean;
 
   warnings: string[];
   error: string | null;
