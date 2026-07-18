@@ -44,16 +44,9 @@
     "**/*.mts",
   ],
   "exclude": [
-    ".prisma/**/*",
-    "src/prisma/generated/**/*",
-    "src/.prisma/**/*",
-    ".prisma/**/*",
     "prisma/generated/**/*",
     "node_modules",
-    ".next",
-    "out",
-    "dist",
-    "build",
+    ".claude",
     "ignore",
   ],
 }

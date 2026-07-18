@@ -2,14 +2,15 @@
 
 !prisma/
 prisma/generated/
-# seeding script + types.ts reference a few files in src/
-!src/fetchers/
+
+# Seeding script + types.ts reference a few files in src/
 !src/functions/
 !src/lib/
 !src/types/
 !scripts/lib/
 !scripts/prisma/
 
+# Configs
 !package.json
 !prisma.config.ts
 !src/math.ts
