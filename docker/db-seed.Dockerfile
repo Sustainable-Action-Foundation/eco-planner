@@ -77,6 +77,10 @@ COPY --from=deps --chown=node:node /app/node_modules ./node_modules
 COPY --from=prisma --chown=node:node /app/prisma/ ./prisma/
 COPY --chown=node:node prisma.config.ts tsconfig.json ./
 
+# Yarn rewrites .yarn/install-state.gz at runtime, so the app dirs created by
+# root stages must be handed over too (non-recursive; contents are copied --chown)
+RUN chown node:node /app /app/.yarn /app/.yarn/patches
+
 # Run as the node user shipped with the base image; yarn is prepared under
 # this user so its corepack cache is usable at runtime
 USER node

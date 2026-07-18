@@ -101,7 +101,7 @@ RUN apk update && apk upgrade && \
 
 # Create non-root user for security (no shell)
 RUN addgroup --system --gid 1001 nodejs && \
-  adduser --system --uid 1001 --shell /bin/false nextjs
+  adduser --system --uid 1001 --ingroup nodejs --shell /bin/false nextjs
 
 WORKDIR /app
 
