@@ -155,6 +155,7 @@
       "failed_parse_date_values": "Failed to parse resulting date values from form:",
       "invalid_date_values": "Parsed date values from form are invalid:",
       "failed_parse_baseline": "Failed to parse baseline date values from form:",
+      "failed_parse_historical_data": "Failed to parse historical date values from form:",
       "initial_baseline_error": "Cannot use initial baseline when data series is empty.",
       "missing_inherited_baseline": "No inherited baseline provided in form.",
       "missing_baseline": "No baseline provided for new goal.",

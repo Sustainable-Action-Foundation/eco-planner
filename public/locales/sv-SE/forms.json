@@ -155,6 +155,7 @@
       "failed_parse_date_values": "Det gick inte att tolka de resulterande datumvärdena från formuläret:",
       "invalid_date_values": "Tolkade datumvärden från formuläret är ogiltiga:",
       "failed_parse_baseline": "Det gick inte att tolka baslinjens datumvärden från formuläret:",
+      "failed_parse_historical_data": "Det gick inte att tolka historiska datumvärden från formuläret:",
       "initial_baseline_error": "Det går inte att använda den initiala baslinjen när dataserien är tom.",
       "missing_inherited_baseline": "Ingen ärvd baslinje angiven i formuläret.",
       "missing_baseline": "Ingen baslinje angiven för det nya målet.",
