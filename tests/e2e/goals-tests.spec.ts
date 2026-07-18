@@ -21,6 +21,12 @@ async function fillManualDataSeries(page: Page, rows: Array<[number, number]>) {
     await page.locator(`#goal-dataseries [data-row="${row}"][data-column="1"] input`).fill(String(year));
     await page.locator(`#goal-dataseries [data-row="${row}"][data-column="2"] input`).fill(String(value));
   }
+
+  // The recipe context evaluates the grid on a debounce; wait for the resulting
+  // series (the enabled FormSync hidden output) to include the last typed year
+  // so a submit right after doesn't race the evaluation.
+  await expect(page.locator('input[name="RESULTING_DATE_VALUES"]:enabled'))
+    .toHaveValue(new RegExp(String(rows[rows.length - 1][0])));
 }
 
 test.describe("Goals tests", () => {
@@ -37,7 +43,6 @@ test.describe("Goals tests", () => {
   let indicatorAll = "All\\fields";
   let indicatorAllUpdated = "All\\updated\\fields";
   const unitAll = "tonnes";
-  const unitAllUpdated = "grams";
 
   test.beforeAll("Differentiate between browsers", ({ }, { project }) => {
     indicatorRequiredOnly += `\\${project.name}`;
@@ -65,10 +70,11 @@ test.describe("Goals tests", () => {
 
     // Form Part 3
     // Might be switched out for a pre-written recipe when they are fixed
-    await page.locator('input[name="dataSeriesType"][value="MANUAL"]').check();
+    await page.locator('input[name="DATA_SERIES_TYPE"][value="MANUAL"]').check();
     await page.locator('#indicatorParameter').fill(indicatorRequiredOnly);
-    await page.locator('#dataUnit').fill(unitRequiredOnly);
-    await page.locator('#dataUnit').blur();
+    // The unit lives in the recipe context; a manual series has none, so set it via the override input
+    await page.locator('#goal-manual-unit-toggle').check();
+    await page.locator('#goal-manual-unit').fill(unitRequiredOnly);
 
     await fillManualDataSeries(page, Array.from({ length: 10 }, (_, i) => [2020 + i, 1]));
 
@@ -105,24 +111,24 @@ test.describe("Goals tests", () => {
     await expect.soft(page.locator('#description')).toBeEmpty();
 
     // Expect the form to remember that we chose manual input, even though this is not the default choice
-    await expect.soft(page.locator('input[name="dataSeriesType"][value="MANUAL"]')).toBeChecked();
+    await expect.soft(page.locator('input[name="DATA_SERIES_TYPE"][value="MANUAL"]')).toBeChecked();
 
     // Set to manual input in case it isn't, to see if the values are saved correctly at least
-    await page.locator('input[name="dataSeriesType"][value="MANUAL"]').check();
+    await page.locator('input[name="DATA_SERIES_TYPE"][value="MANUAL"]').check();
     await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorRequiredOnly);
-    await expect.soft(page.locator('#dataUnit')).toHaveValue(unitRequiredOnly);
+    // A saved unit reopens as an active override on the manual series
+    await expect.soft(page.locator('#goal-manual-unit-toggle')).toBeChecked();
+    await expect.soft(page.locator('#goal-manual-unit')).toHaveValue(unitRequiredOnly);
 
     for (let i = 0; i < 10; i++) {
       await expect.soft(page.locator(`#goal-dataseries [data-row="${i}"][data-column="1"] input`)).toHaveValue(String(2020 + i));
       await expect.soft(page.locator(`#goal-dataseries [data-row="${i}"][data-column="2"] input`)).toHaveValue(String(1));
     }
 
-    await expect.soft(page.locator('#baselineSelector')).toHaveValue('CUSTOM');
-    for (let i = 0; i < 10; i++) {
-      await expect.soft(page.locator(`#baseline-dataseries [data-row="${i}"][data-column="1"] input`)).toHaveValue(String(2020 + i));
-      // Since the baseline was created as type initial (the default value), the baseline value should be the first value of the data series, which is 1, for all years
-      await expect.soft(page.locator(`#baseline-dataseries [data-row="${i}"][data-column="2"] input`)).toHaveValue(String(1));
-    }
+    // The baseline was created as type initial (the default value); derived baselines
+    // are stored as recipes, so the form reopens on the same baseline type instead of
+    // presenting the derived values as a custom series.
+    await expect.soft(page.locator('input[name="BASELINE_TYPE"][value="INITIAL"]')).toBeChecked();
 
     await expect.soft(page.locator('#isFeatured')).not.toBeChecked();
 
@@ -148,11 +154,13 @@ test.describe("Goals tests", () => {
       await page.locator(`#goal-dataseries [data-row="${i}"][data-column="2"] input`).fill(i ? String(4) : String(0)); // set all values except first to 4, to test that the initial non zero baseline type works correctly
     }
 
-    await page.locator('#dataUnit').fill(unitRequiredUpdated);
-    await page.locator('#dataUnit').blur();
+    await page.locator('#goal-manual-unit').fill(unitRequiredUpdated);
 
-    await page.locator('#baselineSelector').selectOption("INITIAL_NON_ZERO");
+    await page.locator('input[name="BASELINE_TYPE"][value="INITIAL_NON_ZERO"]').check();
     await page.locator('#isFeatured').check();
+
+    // Wait out the recipe context's evaluation debounce before submitting (see fillManualDataSeries)
+    await expect(page.locator('input[name="RESULTING_DATE_VALUES"]:enabled')).toHaveValue(/2034/);
 
     // Submit
     await page.locator('#submit-button').click();
@@ -165,19 +173,15 @@ test.describe("Goals tests", () => {
     await page.waitForLoadState("networkidle");
 
     await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorRequiredUpdated);
-    await expect.soft(page.locator('#dataUnit')).toHaveValue(unitRequiredUpdated); // Might need to be changed when the thing that checks for changes is fixed, currently it doesn't recognize the change of data unit as a change so it doesn't update the value in the form
+    await expect.soft(page.locator('#goal-manual-unit')).toHaveValue(unitRequiredUpdated);
 
     for (let i = 0; i < 10; i++) {
       await expect.soft(page.locator(`#goal-dataseries [data-row="${i}"][data-column="1"] input`)).toHaveValue(String(2025 + i));
       await expect.soft(page.locator(`#goal-dataseries [data-row="${i}"][data-column="2"] input`)).toHaveValue(i ? String(4) : String(0));
     }
 
-    await expect.soft(page.locator('#baselineSelector')).toHaveValue('CUSTOM');
-    for (let i = 0; i < 10; i++) {
-      await expect.soft(page.locator(`#baseline-dataseries [data-row="${i}"][data-column="1"] input`)).toHaveValue(String(2025 + i));
-      // Since the baseline was created as type initial non zero, the baseline value should be the first non zero value of the data series, which is 4, for all years
-      await expect.soft(page.locator(`#baseline-dataseries [data-row="${i}"][data-column="2"] input`)).toHaveValue(String(4));
-    }
+    // Derived baselines round-trip as their own type now, not as a custom series
+    await expect.soft(page.locator('input[name="BASELINE_TYPE"][value="INITIAL_NON_ZERO"]')).toBeChecked();
     await expect(page.locator('#isFeatured')).toBeChecked();
 
     // Submit without changes to see that the form is not broken
@@ -204,19 +208,19 @@ test.describe("Goals tests", () => {
 
     // Form Part 3
     // Might be switch out for a pre-written recipe when they are fixed
-    await page.locator('input[name="dataSeriesType"][value="MANUAL"]').check();
+    await page.locator('input[name="DATA_SERIES_TYPE"][value="MANUAL"]').check();
     await page.locator('#indicatorParameter').fill(indicatorAll);
-    await page.locator('#dataUnit').fill(unitAll);
-    await page.locator('#dataUnit').blur(); // Need to blur this so dropdown menu doesnt block items below
+    // The unit lives in the recipe context; a manual series has none, so set it via the override input
+    await page.locator('#goal-manual-unit-toggle').check();
+    await page.locator('#goal-manual-unit').fill(unitAll);
 
     await fillManualDataSeries(page, Array.from({ length: 30 }, (_, i) => [2020 + i, i]));
 
     // Form part 4
-    await page.locator('#baselineSelector').selectOption({ value: "INITIAL_NON_ZERO" });
+    await page.locator('input[name="BASELINE_TYPE"][value="INITIAL_NON_ZERO"]').check();
     /*
-      await page.locator('#baselineSelector').selectOption({ value: "INHERIT" });
-      await page.locator('#selectedRoadmap').selectOption({ index: 1 });
-      await page.locator('#inheritFrom').selectOption({ index: 1 });
+      await page.locator('input[name="BASELINE_TYPE"][value="INHERIT"]').check();
+      await page.locator('#inheritFrom').click(); // Tree select: roadmap -> goal
     */
     // Form part 5
     await page.locator('#isFeatured').check();
@@ -255,24 +259,22 @@ test.describe("Goals tests", () => {
     await expect.soft(page.locator('#description')).toHaveText(descriptionAll);
 
     // Expect the form to remember that we chose manual input, even though this is not the default choice
-    await expect.soft(page.locator('input[name="dataSeriesType"][value="MANUAL"]')).toBeChecked();
+    await expect.soft(page.locator('input[name="DATA_SERIES_TYPE"][value="MANUAL"]')).toBeChecked();
 
     // Set to manual input in case it isn't, to see if the values are saved correctly at least
-    await page.locator('input[name="dataSeriesType"][value="MANUAL"]').check();
+    await page.locator('input[name="DATA_SERIES_TYPE"][value="MANUAL"]').check();
 
     await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorAll);
-    await expect.soft(page.locator('#dataUnit')).toHaveValue(unitAll);
+    // A saved unit reopens as an active override on the manual series
+    await expect.soft(page.locator('#goal-manual-unit-toggle')).toBeChecked();
+    await expect.soft(page.locator('#goal-manual-unit')).toHaveValue(unitAll);
     for (let i = 0; i < 30; i++) {
       await expect.soft(page.locator(`#goal-dataseries [data-row="${i}"][data-column="1"] input`)).toHaveValue(String(2020 + i));
       await expect.soft(page.locator(`#goal-dataseries [data-row="${i}"][data-column="2"] input`)).toHaveValue(String(i));
     }
 
-    await expect.soft(page.locator('#baselineSelector')).toHaveValue('CUSTOM');
-    for (let i = 0; i < 30; i++) {
-      await expect.soft(page.locator(`#baseline-dataseries [data-row="${i}"][data-column="1"] input`)).toHaveValue(String(2020 + i));
-      // Since the baseline was created as type initial non zero, the baseline value should be the first non zero value of the data series, which is 1, for all years
-      await expect.soft(page.locator(`#baseline-dataseries [data-row="${i}"][data-column="2"] input`)).toHaveValue(String(1));
-    }
+    // Derived baselines round-trip as their own type now, not as a custom series
+    await expect.soft(page.locator('input[name="BASELINE_TYPE"][value="INITIAL_NON_ZERO"]')).toBeChecked();
 
     await expect.soft(page.locator('#isFeatured')).toBeChecked();
 
@@ -303,11 +305,9 @@ test.describe("Goals tests", () => {
     await page.keyboard.press('Escape');
 
     await page.getByPlaceholder('recipe_editor.scalar').fill('48');
-    await page.locator('#dataUnit').fill(unitAllUpdated);
-    await page.locator('#dataUnit').blur();
-    await page.keyboard.press('Escape');
+    // No unit input in suggested mode: the unit comes from the recipe evaluation
 
-    await page.locator('#baselineSelector').selectOption("INITIAL");
+    await page.locator('input[name="BASELINE_TYPE"][value="INITIAL"]').check();
     await page.locator('#isFeatured').uncheck();
 
     // right before submitting, wait for the recipe to finish calculating by expecting there to be no issues with it
@@ -326,27 +326,12 @@ test.describe("Goals tests", () => {
     await expect.soft(page.locator('#description')).toHaveText(descriptionAllUpdated);
 
     await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorAllUpdated);
-    await expect.soft(page.locator('#dataUnit')).toHaveValue(unitAllUpdated); // Might need to be changed when the thing that checks for changes is fixed, currently it doesn't recognize the change of data unit as a change so it doesn't update the value in the form 
 
     await expect.soft(page.getByRole('radio', { name: 'goal.suggested_inheritance' })).toBeChecked();
     // TODO: some checks on the recipe to ensure it matches expectations?
 
-    await expect.soft(page.locator('#baselineSelector')).toHaveValue('CUSTOM');
-
-    // Since the baseline was changed to type initial, we expect all values of the baseline to be the same, and all of them to have years, but since we don't know the values in the data series we selected we just check that they seem valid
-    const years = page.locator('#baseline-dataseries [data-column="1"] input');
-    const values = page.locator('#baseline-dataseries [data-column="2"] input');
-    const firstValue = await values.first().inputValue();
-    const yearList = await years.all();
-    const valueList = await values.all();
-
-    for (const year of yearList) {
-      await expect.soft(year).not.toBeEmpty();
-    }
-
-    for (const value of valueList) {
-      await expect.soft(value).toHaveValue(firstValue);
-    }
+    // Derived baselines round-trip as their own type now, not as a custom series
+    await expect.soft(page.locator('input[name="BASELINE_TYPE"][value="INITIAL"]')).toBeChecked();
 
     await expect(page.locator('#isFeatured')).not.toBeChecked();
   });

@@ -149,6 +149,7 @@ export default function GoalSeriesSection({
               initialDateValues={manualInitialDateValues}
             />
             <UnitInput
+              id="goal-manual-unit"
               staticProvidedUnit={goal?.dataSeries?.unit}
             />
             <FormSync
@@ -172,6 +173,7 @@ export default function GoalSeriesSection({
             >
               <RecipeEditor />
               <UnitInput
+                id="goal-custom-unit"
                 staticProvidedUnit={goal?.dataSeries?.unit}
               />
               <FormSync

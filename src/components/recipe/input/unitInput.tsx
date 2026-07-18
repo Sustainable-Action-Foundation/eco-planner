@@ -15,9 +15,12 @@ import { useRecipe } from "../context/recipeContext.use";
  * 3) optional saved fallback unit.
  */
 export function UnitInput({
+  id,
   staticProvidedUnit,
   allowOverrideSelection = true,
 }: {
+  /** Applied to the override text input; the toggle checkbox gets `${id}-toggle`. Needed when several UnitInputs coexist (e.g. hidden form fieldsets). */
+  id?: string;
   staticProvidedUnit?: string | null;
   allowOverrideSelection?: boolean;
 }) {
@@ -102,6 +105,7 @@ export function UnitInput({
         <label>
           <input
             type="checkbox"
+            id={id ? `${id}-toggle` : undefined}
             onChange={(e) => { handleOverrideToggle(e.target.checked); }}
             checked={isOverrideToggled}
             className="margin-right-25"
@@ -112,6 +116,7 @@ export function UnitInput({
           <label className="block margin-top-25">
             <input
               type="text"
+              id={id}
               className="margin-inline-25"
               placeholder={resolvedDisplay}
               value={overrideUnitInput}

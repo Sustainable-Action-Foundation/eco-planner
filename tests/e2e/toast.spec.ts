@@ -46,10 +46,11 @@ async function selectParentRiketsRoadmap(page: Page) {
 }
 
 async function fillGoalSeries(page: Page) {
-  await page.locator('input[name="dataSeriesType"][value="MANUAL"]').check();
+  await page.locator('input[name="DATA_SERIES_TYPE"][value="MANUAL"]').check();
   await page.locator('#indicatorParameter').fill('Goal Toast');
-  await page.locator('#dataUnit').fill('yard');
-  await page.locator('#dataUnit').blur(); // Blur to avoid covering anything else
+  // The unit lives in the recipe context; a manual series has none, so set it via the override input
+  await page.locator('#goal-manual-unit-toggle').check();
+  await page.locator('#goal-manual-unit').fill('yard');
 
   const insertRowButton = page.getByTestId("add-row-button");
   for (let i = 1; i < 10; i++) {
@@ -64,6 +65,11 @@ async function fillGoalSeries(page: Page) {
     await page.locator(`#goal-dataseries [data-row="${i}"][data-column="1"] input`).fill(String(2020 + i));
     await page.locator(`#goal-dataseries [data-row="${i}"][data-column="2"] input`).fill(String(1));
   }
+
+  // The recipe context evaluates the grid on a debounce; wait for the resulting
+  // series (the enabled FormSync hidden output) to include the last typed year
+  // so a submit right after doesn't race the evaluation.
+  await expect(page.locator('input[name="RESULTING_DATE_VALUES"]:enabled')).toHaveValue(/2029/);
 }
 
 test.describe('Toast', () => {
