@@ -5,7 +5,7 @@
 ARG NODE_VERSION="24"
 
 # ============================================================================
-# Base stage - Common dependencies and setup
+# Base stage - Common setup for the build stages
 # ============================================================================
 FROM node:${NODE_VERSION}-alpine AS base
 
@@ -13,8 +13,6 @@ FROM node:${NODE_VERSION}-alpine AS base
 RUN apk update && apk upgrade && \
   apk add --no-cache \
   libc6-compat \
-  dumb-init \
-  curl \
   && rm -rf /var/cache/apk/*
 
 
@@ -25,10 +23,8 @@ COPY package.json yarn.lock .yarnrc.yml ./
 
 # Enable corepack for modern package manager support
 RUN corepack enable
-
-# Create non-root user for security (no shell)
-RUN addgroup --system --gid 1001 nodejs && \
-  adduser --system --uid 1001 --shell /bin/false nextjs
+# Preinstall yarn (version from package.json) so later stages don't re-download it
+RUN corepack prepare --activate
 
 
 # ============================================================================
@@ -66,8 +62,6 @@ ARG BUILD_ID
 
 # Copy dependencies
 COPY --from=deps /app/node_modules ./node_modules
-# Copy yarn from corepack cache, to avoid downloading it again
-COPY --from=deps /root/.cache/node/corepack /root/.cache/node/corepack
 
 # Copy source code (using .dockerignore)
 COPY . .
@@ -91,9 +85,23 @@ RUN --mount=type=cache,target=/app/.next/cache \
 
 
 # ============================================================================
-# Production runtime stage
+# Production runtime stage - Minimal image, doesn't inherit the build base
 # ============================================================================
-FROM base AS runner
+FROM node:${NODE_VERSION}-alpine AS runner
+
+# Install security updates and runtime essentials
+RUN apk update && apk upgrade && \
+  apk add --no-cache \
+  libc6-compat \
+  dumb-init \
+  curl \
+  && rm -rf /var/cache/apk/*
+
+# Create non-root user for security (no shell)
+RUN addgroup --system --gid 1001 nodejs && \
+  adduser --system --uid 1001 --shell /bin/false nextjs
+
+WORKDIR /app
 
 ARG COMMIT_SHA
 
@@ -114,11 +122,9 @@ COPY ./public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Ensure proper permissions
-RUN chown -R nextjs:nodejs .next
-
-# App has an API endpoint which always returns 200 OK
-HEALTHCHECK --interval=3s --timeout=10s --start-period=3s --retries=10 \
+# App has an API endpoint which always returns 200 OK.
+# Probe every 3s during startup, then relax to 30s steady-state.
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --start-interval=3s --retries=3 \
   CMD curl -f http://localhost:${PORT}/api/health || exit 1
 
 # Switch to non-root user for security
