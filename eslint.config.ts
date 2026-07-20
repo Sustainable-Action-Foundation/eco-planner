@@ -1,10 +1,17 @@
+import js from "@eslint/js";
 import type { Config } from "eslint/config";
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextTS from "eslint-config-next/typescript";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import tseslint from "typescript-eslint";
 
-const tsBaseConfig = tseslint.configs.recommendedTypeChecked;
+// js.configs.recommended first, so the TS configs' compat layer can turn off
+// the core rules TypeScript itself already catches (no-undef, no-import-assign, ...)
+const tsBaseConfig = [js.configs.recommended, ...tseslint.configs.recommendedTypeChecked];
+// eslint-config-next/typescript registers its own @typescript-eslint plugin instance,
+// so tseslint configs can't be extended alongside it — merge their rules instead.
+const tsRecommendedRules = tseslint.configs.recommendedTypeChecked
+  .reduce<NonNullable<Config["rules"]>>((acc, c) => ({ ...acc, ...c.rules }), {});
 const nextBaseConfig = [...nextTS, ...nextVitals];
 
 const commonRules: Config["rules"] = {
@@ -108,9 +115,11 @@ export default defineConfig([
     name: "App src/",
     files: ["src/**/*.{ts,tsx}"],
     extends: [
+      js.configs.recommended,
       ...nextBaseConfig,
     ],
     rules: {
+      ...tsRecommendedRules,
       "react-hooks/set-state-in-effect": "off", // TODO: get a grip and understand react
       "react-hooks/set-state-in-render": "off", // TODO: get a grip and understand react
       "react-hooks/immutability": "error",
@@ -139,6 +148,8 @@ export default defineConfig([
     ],
     rules: {
       ...commonRules,
+      // Playwright fixtures require a (possibly empty) destructuring pattern as first arg
+      "no-empty-pattern": ["error", { allowObjectPatternsAsParameters: true }],
     },
     languageOptions: {
       parserOptions: {
