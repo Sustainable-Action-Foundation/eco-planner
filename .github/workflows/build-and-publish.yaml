@@ -125,7 +125,9 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: test-results-${{ github.run_number }}
-          path: /test-results/
+          # Relative to the workspace; an absolute /test-results/ never matches
+          # anything, silently uploading no failure traces.
+          path: test-results/
           retention-days: 30
           if-no-files-found: warn
 
