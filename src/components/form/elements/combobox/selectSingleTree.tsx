@@ -247,7 +247,7 @@ export default function SelectSingleTree({
         aria-controls={menuOpen ? `${props.id}-dialog-tree` : undefined}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
-        aria-required={!!props.required ? props.required : false}
+        aria-required={props.required ? props.required : false}
         aria-invalid={!valueIsValid}
         aria-activedescendant={focusedIndex ? flattenedItems[focusedIndex].value : undefined}
         onBlur={(e) => {

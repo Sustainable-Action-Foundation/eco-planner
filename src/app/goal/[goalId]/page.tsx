@@ -257,7 +257,7 @@ export default async function Page(
             className='margin-bottom-100 padding-bottom-50 flex justify-content-space-between align-items-center gap-100 flex-wrap-wrap'
             style={{ borderBottom: '1px solid var(--gray)' }}>
             <h2 className='margin-0 font-weight-600' style={{ fontSize: '1.1rem' }}>
-              {t("pages:goal.actions_for_goal", { goalName: !!goal.name ? goal.name : goal.indicatorParameter })}
+              {t("pages:goal.actions_for_goal", { goalName: goal.name ? goal.name : goal.indicatorParameter })}
             </h2>
 
             {hasEditAccess(accessLevel) &&

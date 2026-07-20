@@ -133,7 +133,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
                 <Link key={key} href={`/goal/${goal.id}`} className="color-pureblack text-decoration-none" style={{ width: '300px', minWidth: '300px', height: '250px', scrollSnapAlign: 'start' }} data-testid="featured-goals">
                   <div className={`${graphStyles['thumbnail-graph']}`}>
                     <h3 className="font-weight-500 margin-0 padding-top-75 padding-inline-75 overflow-hidden white-space-nowrap text-align-center text-overflow-ellipsis">
-                      {!!goal.name ? goal.name : goal.indicatorParameter}
+                      {goal.name ? goal.name : goal.indicatorParameter}
                     </h3>
                     <div className="flex-grow-100">
                       <GoalGraph

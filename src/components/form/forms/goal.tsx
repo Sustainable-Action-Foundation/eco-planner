@@ -28,7 +28,7 @@ function resolveDataSeriesType(goal?: Goal): DataSeriesType {
   if (!goal?.dataSeries) return DataSeriesType.Suggested;
 
   // Defined recipe
-  if (!!goal.dataSeries.recipeUsed) {
+  if (goal.dataSeries.recipeUsed) {
     const recipe = Recipe.from(goal.dataSeries.recipeUsed.recipe);
 
     // Manual entry stored as an inline data series recipe
@@ -401,7 +401,7 @@ export default function GoalForm({
     const formJSON = JSON.stringify(formContent);
 
     // Submit the form to the API (POST for new, PUT for edit)
-    formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST', t, undefined, undefined, undefined, undefined, addToast, router.push);
+    formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST', t, undefined, undefined, undefined, undefined, addToast, (url) => router.push(url));
   }
 
   // Index for data-position attribute in legend elements (for accessibility)

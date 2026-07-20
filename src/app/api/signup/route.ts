@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
   // Get the part after last '@' to support emails like `"john@doe"@example.com`, and trim any whitespace or trailing '>' character (e.g. if the email is in the format `John Doe <john.doe@example.com>`)
   const domain = lowercaseEmail.split('@').pop()?.trim().replace(/>$/, '').trim();
   /** A regex matching domain names according to RFC 1035 and RFC 1123 */
-  const domainRegex = /^[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?)*$/;
+  const domainRegex = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)*$/;
   if (!domainRegex.test(domain ?? '')) {
     return Response.json({ message: `Failed to parse domain '${domain}'.` },
       { status: 400 },

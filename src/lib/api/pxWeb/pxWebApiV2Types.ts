@@ -212,6 +212,7 @@ export type PxWebStandardDimension = {
 
 export type PxWebTimeDimension = PxWebStandardDimension & {
   // Same as standard dimension
+  readonly _pxWebRole?: "time"; // Mark as separate type for clarity.
 }
 
 export type PxWebMetricDimension = PxWebStandardDimension & {

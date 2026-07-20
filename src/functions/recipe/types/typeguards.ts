@@ -447,7 +447,7 @@ export function isEvalTimeVariable(
   variable: unknown,
   options: { silent?: boolean } = {},
 ): variable is EvalTimeVariable {
-  const warn = (...args: unknown[]) => !!options.silent ? undefined : console.warn(...args);
+  const warn = (...args: unknown[]) => options.silent ? undefined : console.warn(...args);
 
   if (
     !isStandardObject(variable)
@@ -496,7 +496,7 @@ export function isEvalTimeVariable(
 }
 
 export function isEvalTimeSeries(variable: unknown, options: { silent?: boolean } = {}): variable is EvalTimeSeries {
-  const warn = (...args: unknown[]) => !!options.silent ? undefined : console.warn(...args);
+  const warn = (...args: unknown[]) => options.silent ? undefined : console.warn(...args);
 
   if (
     !isStandardObject(variable)

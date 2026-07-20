@@ -89,7 +89,7 @@ export function calculatePredictedOutcome(effects: Effect[] | Goal["effects"], b
     .filter(effect => effect.dataSeries)
     .flatMap(effect => effect.dataSeries?.values.map(v => new Date(v.timestamp).getUTCFullYear()))),
   ]
-    .sort()
+    .sort((a, b) => (a ?? 0) - (b ?? 0))
     .map(yyyy => `${yyyy}-01-01T00:00:00Z`);
 
   if (!definedDates.every(t => isISOIshDate(t))) {

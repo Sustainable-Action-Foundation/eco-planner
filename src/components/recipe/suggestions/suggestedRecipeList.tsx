@@ -246,9 +246,9 @@ export function SuggestedRecipesList({
       </li>
     </ul>
 
-    {!!editingId ? (<>
+    {editingId ? (<>
       <p className="font-size-125">
-        {t("components:recipe_editor.editing_recipe_named", { name: !!initialEditingRecipe ? Recipe.from(initialEditingRecipe).name : "" })}
+        {t("components:recipe_editor.editing_recipe_named", { name: initialEditingRecipe ? Recipe.from(initialEditingRecipe).name : "" })}
       </p>
 
       <label className="margin-block-100 display-flex flex-direction-column">

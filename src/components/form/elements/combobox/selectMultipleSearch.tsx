@@ -92,7 +92,7 @@ export default function SelectMultipleSearch({
         aria-controls={menuOpen ? `${props.id}-dialog` : undefined}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
-        aria-required={!!props.required ? props.required : false}
+        aria-required={props.required ? props.required : false}
         aria-invalid={!valueIsValid}
       >
         <span className={`${styles['selected-value-text']}`}>

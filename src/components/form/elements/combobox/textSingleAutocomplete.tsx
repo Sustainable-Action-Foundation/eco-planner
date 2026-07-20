@@ -69,10 +69,10 @@ export default function TextSingleAutocomplete({
       >
         <input
           type="text"
-          placeholder={!!props.placeholder ? props.placeholder : undefined}
+          placeholder={props.placeholder ? props.placeholder : undefined}
           name={props.name}
           id={props.id}
-          required={!!props.required ? props.required : false}
+          required={props.required ? props.required : false}
           disabled={props.disabled}
           value={value}
           autoComplete="off"

@@ -25,7 +25,7 @@ export async function proxy(req: NextRequest) {
    * For example, "/metaRoadmap/create" or "/action/[actionId]/edit/"
    * Also matches the new page for editing historical data for goals; "/goal/[goalId]/historical-data/"
    */
-  const createOrEditRegEx = /\/(create|edit|historical\-data)\/?$/;
+  const createOrEditRegEx = /\/(create|edit|historical-data)\/?$/;
   // Redirect away from creation and editing pages if not logged in
   if (req.nextUrl.pathname.match(createOrEditRegEx)) {
     if (!session.user?.isLoggedIn) {

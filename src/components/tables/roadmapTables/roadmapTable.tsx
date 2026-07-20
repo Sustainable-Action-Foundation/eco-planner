@@ -49,7 +49,7 @@ export default async function RoadmapTable({
     parsedRoadmaps.push(...roadmaps);
   }
 
-  return !!parsedRoadmaps.length
+  return parsedRoadmaps.length
     ? parsedRoadmaps.map(roadmap => {
       let typeAlias = roadmap.metaRoadmap.type.toString();
       if (roadmap.metaRoadmap.type === "NATIONAL") typeAlias = t("common:scope.national");

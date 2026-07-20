@@ -398,24 +398,26 @@ async function createFullGoal(session: IronSession<LoginData>, authorId: string,
 
   try {
     await prisma.$transaction(async (tx) => {
-      // Create/update recipes first, materializing any external variables into DataSeries
-      formData.dataSeriesRecipeId = (await upsertRecipe(tx, authorId, "data series", {
+      // Create/update recipes first, materializing any external variables into DataSeries.
+      // Keep the resulting ids in locals — mutating formData inside the transaction would
+      // leak rolled-back ids into any retry of this callback.
+      const { recipeId: dataSeriesRecipeId } = await upsertRecipe(tx, authorId, "data series", {
         recipe: formData.dataSeriesRecipe, recipeId: formData.dataSeriesRecipeId, resolved: dataSeriesExternals,
-      })).recipeId;
-      formData.baselineRecipeId = (await upsertRecipe(tx, authorId, "baseline", {
+      });
+      const { recipeId: baselineRecipeId } = await upsertRecipe(tx, authorId, "baseline", {
         recipe: formData.baselineRecipe, recipeId: formData.baselineRecipeId, resolved: baselineExternals,
-      })).recipeId;
+      });
       const historicalResult = await upsertRecipe(tx, authorId, "historical", {
         recipe: formData.historicalRecipe, recipeId: formData.historicalRecipeId, resolved: historicalExternals,
       });
-      formData.historicalRecipeId = historicalResult.recipeId;
+      const historicalRecipeId = historicalResult.recipeId;
 
       // Create each section's DataSeries as its own statement, then connect by id.
-      const dataSeriesId = await createDataSeries(tx, authorId, formData.dataSeries, formData.dataSeriesRecipeId);
+      const dataSeriesId = await createDataSeries(tx, authorId, formData.dataSeries, dataSeriesRecipeId);
 
       let baselineId: string | null = null;
       if (formData.baseline) {
-        baselineId = await createDataSeries(tx, authorId, formData.baseline, formData.baselineRecipeId);
+        baselineId = await createDataSeries(tx, authorId, formData.baseline, baselineRecipeId);
       } else if (formData.baselineId) {
         await assertDataSeriesExists(tx, formData.baselineId);
         baselineId = formData.baselineId;
@@ -424,10 +426,10 @@ async function createFullGoal(session: IronSession<LoginData>, authorId: string,
       // The historical recipe's single external variable becomes the goal's historical DataSeries
       const resolvedHistoricalId = Object.values(historicalResult.dataSeriesIdsByVariable)[0] ?? null;
       // Link the historical recipe to its resulting series so the source stays discoverable
-      if (resolvedHistoricalId && typeof formData.historicalRecipeId === 'string') {
+      if (resolvedHistoricalId && typeof historicalRecipeId === 'string') {
         await tx.dataSeries.update({
           where: { id: resolvedHistoricalId },
-          data: { recipeUsed: { connect: { id: formData.historicalRecipeId } } },
+          data: { recipeUsed: { connect: { id: historicalRecipeId } } },
         });
       }
 
@@ -436,7 +438,7 @@ async function createFullGoal(session: IronSession<LoginData>, authorId: string,
       const hasHistoricalPayload = !!formData.historical && Object.keys(formData.historical.dateValues).length > 0;
       let historicalDataSeriesId: string | null;
       if (hasHistoricalPayload && formData.historical) {
-        historicalDataSeriesId = await createDataSeries(tx, authorId, formData.historical, formData.historicalRecipeId);
+        historicalDataSeriesId = await createDataSeries(tx, authorId, formData.historical, historicalRecipeId);
       } else {
         historicalDataSeriesId = resolvedHistoricalId ?? formData.historicalId ?? null;
         if (historicalDataSeriesId && !resolvedHistoricalId) await assertDataSeriesExists(tx, historicalDataSeriesId);

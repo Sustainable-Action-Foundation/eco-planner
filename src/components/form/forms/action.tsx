@@ -93,7 +93,7 @@ export default function ActionForm({
 
     const formJSON = JSON.stringify(formContent);
 
-    formSubmitter('/api/action', formJSON, currentAction ? 'PUT' : 'POST', t, undefined, undefined, undefined, undefined, addToast, router.push);
+    formSubmitter('/api/action', formJSON, currentAction ? 'PUT' : 'POST', t, undefined, undefined, undefined, undefined, addToast, (url) => router.push(url));
   }
 
   // Indexes for the data-position attribute in the legend elements

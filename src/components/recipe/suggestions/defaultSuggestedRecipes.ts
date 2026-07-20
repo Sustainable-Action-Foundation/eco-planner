@@ -9,7 +9,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
 
   const areaRecipe = new Recipe({
     name: t("components:recipe_editor.default_area_recipe.name"),
-    equation: `\$\{${t("components:recipe_editor.default_area_recipe.parent_value")}\} * \$\{${t("components:recipe_editor.default_area_recipe.child_area")}\} / \$\{${t("components:recipe_editor.default_area_recipe.parent_area")}\}`,
+    equation: `\${${t("components:recipe_editor.default_area_recipe.parent_value")}} * \${${t("components:recipe_editor.default_area_recipe.child_area")}} / \${${t("components:recipe_editor.default_area_recipe.parent_area")}}`,
     variables: [
       {
         id: "parent-value-dummy-uuid",
@@ -67,7 +67,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
 
   const populationRecipe = new Recipe({
     name: t("components:recipe_editor.default_population_recipe.name"),
-    equation: `\$\{${t("components:recipe_editor.default_population_recipe.parent_value")}\} * \$\{${t("components:recipe_editor.default_population_recipe.child_population")}\} / \$\{${t("components:recipe_editor.default_population_recipe.parent_population")}\}`,
+    equation: `\${${t("components:recipe_editor.default_population_recipe.parent_value")}} * \${${t("components:recipe_editor.default_population_recipe.child_population")}} / \${${t("components:recipe_editor.default_population_recipe.parent_population")}}`,
     variables: [
       {
         id: "parent-value-dummy-uuid",
@@ -121,7 +121,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
 
   const scalarRecipe = new Recipe({
     name: t("components:recipe_editor.default_scalar_recipe.name"),
-    equation: `\$\{${t("components:recipe_editor.default_scalar_recipe.parent_value")}\} * \$\{${t("components:recipe_editor.default_scalar_recipe.scalar")}\}`,
+    equation: `\${${t("components:recipe_editor.default_scalar_recipe.parent_value")}} * \${${t("components:recipe_editor.default_scalar_recipe.scalar")}}`,
     variables: [
       {
         id: "parent-value-dummy-uuid",
