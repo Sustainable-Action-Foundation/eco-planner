@@ -54,8 +54,6 @@ model MetaRoadmap {
 
   // Comments related to this meta roadmap
   comments Comment[] @relation("meta_roadmap_comment")
-  // Links related to this meta roadmap
-  links    Link[]    @relation("meta_roadmap_link")
 
   // Author of this meta roadmap
   authorId   String      @map("author_id")
@@ -98,8 +96,6 @@ model Roadmap {
 
   // Comments related to this roadmap
   comments Comment[] @relation("roadmap_comment")
-  // Links related to this meta roadmap
-  links    Link[]    @relation("roadmap_link")
   // Goals related to this roadmap
   goals    Goal[]    @relation("roadmap_goal")
   // Actions related to this roadmap
@@ -159,8 +155,6 @@ model Goal {
   // When inheriting data from this goal, these suggestions will appear for the user to choose from e.g. "Scale by area" or "Scale by population"
   recipeSuggestions Recipe[] @relation("inheritance_suggestions")
 
-  // Links related to this goal
-  links     Link[]    @relation("goal_link")
   // Comments related to this goal
   comments  Comment[] @relation("goal_comment")
   // Tags for this goal
@@ -278,10 +272,6 @@ model Action {
   parentAction   Action?  @relation("action_inheritance", fields: [parentActionId], references: [id], onDelete: SetNull)
   childActions   Action[] @relation("action_inheritance")
 
-  // Notes related to this action
-  notes    Note[]    @relation("action_notes")
-  // Links related to this action
-  links    Link[]    @relation("action_link")
   // Comments related to this action
   comments Comment[] @relation("action_comment")
   // The person who created this action
@@ -314,55 +304,6 @@ model Effect {
 
   @@id(name: "id", [actionId, goalId])
   @@map("effect")
-}
-
-model Note {
-  // UUID of the note
-  id        String   @id @default(uuid())
-  // Timestamp of when note was created
-  createdAt DateTime @default(now()) @map("created_at")
-  // Timestamp of when note was last updated
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  // The note itself
-  note     String @db.Text
-  // The action this note is related to
-  actionId String @map("action_id")
-  action   Action @relation("action_notes", fields: [actionId], references: [id], onDelete: Cascade)
-  // The user who created this note
-  authorId String @map("author_id")
-  author   User   @relation("note_author", fields: [authorId], references: [id])
-
-  @@map("note")
-}
-
-// Links are used to link to external resources, such as websites, documents, etc.
-// They are a separate model to easily allow for multiple links to be added to a single action/goal
-model Link {
-  // UUID of the link
-  id          String  @id @default(uuid())
-  // URL of the link
-  url         String
-  // Description of the link
-  description String?
-
-  // A link should be related to either an action, a goal, a roadmap, XOR a meta roadmap.
-  // Has to be enforced in the code, as prisma does not support custom constraints and many SQL implementations
-  // do not support check constraints on columns with referential actions.
-  // Any action this link is related to
-  actionId      String?      @map("action_id")
-  action        Action?      @relation("action_link", fields: [actionId], references: [id], onDelete: Cascade)
-  // Any goal this link is related to
-  goalId        String?      @map("goal_id")
-  goal          Goal?        @relation("goal_link", fields: [goalId], references: [id], onDelete: Cascade)
-  // Any roadmap this link is related to
-  roadmapId     String?      @map("roadmap_id")
-  roadmap       Roadmap?     @relation("roadmap_link", fields: [roadmapId], references: [id], onDelete: Cascade)
-  // Any meta roadmap this link is related to
-  metaRoadmapId String?      @map("meta_roadmap_id")
-  metaRoadmap   MetaRoadmap? @relation("meta_roadmap_link", fields: [metaRoadmapId], references: [id], onDelete: Cascade)
-
-  @@map("link")
 }
 
 // There is apparently a default typescript interface called "Comment", so make sure to properly import this type in the code
@@ -426,8 +367,6 @@ model User {
   authoredMetaRoadmaps MetaRoadmap[] @relation("meta_roadmap_author")
   // Data series the user created
   authoredData         DataSeries[]  @relation("data_series_author")
-  // Notes the user created
-  authoredNotes        Note[]        @relation("note_author")
   // Comments the user created
   authoredComments     Comment[]     @relation("comment_author")
 
