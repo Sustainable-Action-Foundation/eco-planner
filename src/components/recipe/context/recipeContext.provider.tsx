@@ -250,19 +250,27 @@ export function RecipeContextProvider({
   }, [applyRecipeUpdate]);
 
   const debouncedRecipe = useDebounce(publishedRecipe, 500)[0];
-  const [isEvaluating, setIsEvaluating] = useState<boolean>(false);
-  // True while the resulting data/unit lag behind the recipe: a change is still
-  // inside the debounce window, or an evaluation is in flight. Consumers (e.g.
-  // submit handlers reading FormSync's outputs) wait for this to settle.
-  const isEvaluationPending = isEvaluating || !Recipe.areRecipesEqual(publishedRecipe, debouncedRecipe);
+  // The recipe whose evaluation results currently sit in state; null until the
+  // first evaluation (or template reset) lands.
+  const [lastEvaluatedRecipe, setLastEvaluatedRecipe] = useState<Recipe | null>(null);
+  // True while the resulting data/unit lag behind the published recipe: a change
+  // is inside the debounce window, the evaluation effect hasn't run yet, or an
+  // evaluation is in flight. Consumers (e.g. submit handlers reading FormSync's
+  // outputs) wait for this to settle. Compared against the last *evaluated*
+  // recipe rather than the debounced one on purpose: the debounced state commits
+  // a render before the evaluation effect runs, and passive effects can lag far
+  // behind under load — comparing against the debounced recipe reports "settled"
+  // inside that gap while the results are still stale.
+  const isEvaluationPending = lastEvaluatedRecipe === null
+    || !Recipe.areRecipesEqual(publishedRecipe, lastEvaluatedRecipe);
 
   // Evaluate recipe and update resulting data and unit, whenever recipe changes
   useEffect(() => {
     let isEffectActive = true;
 
     if (debouncedRecipe.isTemplate()) {
-      // Nothing to evaluate; also clears any in-flight flag from a superseded evaluation.
-      setIsEvaluating(false);
+      // Nothing to evaluate: the cleared results ARE this recipe's results.
+      setLastEvaluatedRecipe(debouncedRecipe);
       return () => {
         setResultingDataSeries(null);
         setResultingUnit(null);
@@ -271,7 +279,6 @@ export function RecipeContextProvider({
       };
     }
 
-    setIsEvaluating(true);
     const warnings: string[] = [];
     debouncedRecipe.evaluate(warnings, { externalTableContentGetter: getCachedExternalContent, dataSeriesGetter: getDataSeries })
       .then(result => {
@@ -295,7 +302,9 @@ export function RecipeContextProvider({
       })
       .finally(() => {
         if (!isEffectActive) return;
-        setIsEvaluating(false);
+        // Whether it succeeded or errored, the results in state now belong to
+        // this recipe; superseded evaluations (isEffectActive false) don't count.
+        setLastEvaluatedRecipe(debouncedRecipe);
       });
 
     return () => {
