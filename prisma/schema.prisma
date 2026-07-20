@@ -232,7 +232,6 @@ model GoalTag {
   @@map("goal_tag")
 }
 
-// TODO move to recipes?
 model Action {
   // UUID of the action
   id        String   @id @default(uuid())
@@ -242,13 +241,31 @@ model Action {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Name of action, preferably a short summary
-  name            String
+  name        String
   // Longer description of action
-  description     String? @db.Text
+  description String? @db.Text
   // The year the action is planned to start
-  startYear       Int?    @map("start_year")
+  startYear   Int?    @map("start_year")
   // The year the action is planned to end
-  endYear         Int?    @map("end_year")
+  endYear     Int?    @map("end_year")
+
+  // Effects of this action
+  effects Effect[] @relation("action_effect")
+
+  // ID of the roadmap this action belongs to
+  roadmapId      String   @map("roadmap_id")
+  roadmap        Roadmap  @relation("action_roadmap", fields: [roadmapId], references: [id], onDelete: Cascade)
+  // Relations for keeping track of inheritance between actions
+  parentActionId String?  @map("parent_action_id")
+  parentAction   Action?  @relation("action_inheritance", fields: [parentActionId], references: [id], onDelete: SetNull)
+  childActions   Action[] @relation("action_inheritance")
+
+  // Comments related to this action
+  comments Comment[] @relation("action_comment")
+  // The person who created this action
+  authorId String    @map("author_id")
+  author   User      @relation("action_author", fields: [authorId], references: [id])
+
   // Cost efficiency. Not sure how it should be measured?
   costEfficiency  String? @map("cost_efficiency") @db.Text
   // Expected outcome, describe what you expect to happen
@@ -268,25 +285,8 @@ model Action {
   // Renewables generally means increasing the use of renewables
   isRenewables  Boolean @default(false) @map("is_renewables")
 
-  // Effects of this action
-  effects        Effect[] @relation("action_effect")
-  // ID of the roadmap this action belongs to
-  roadmapId      String   @map("roadmap_id")
-  roadmap        Roadmap  @relation("action_roadmap", fields: [roadmapId], references: [id], onDelete: Cascade)
-  // Relations for keeping track of inheritance between actions
-  parentActionId String?  @map("parent_action_id")
-  parentAction   Action?  @relation("action_inheritance", fields: [parentActionId], references: [id], onDelete: SetNull)
-  childActions   Action[] @relation("action_inheritance")
-
-  // Notes related to this action
-  notes    Note[]    @relation("action_notes")
   // Links related to this action
-  links    Link[]    @relation("action_link")
-  // Comments related to this action
-  comments Comment[] @relation("action_comment")
-  // The person who created this action
-  authorId String    @map("author_id")
-  author   User      @relation("action_author", fields: [authorId], references: [id])
+  links Link[] @relation("action_link")
 
   @@map("action")
 }
@@ -314,26 +314,6 @@ model Effect {
 
   @@id(name: "id", [actionId, goalId])
   @@map("effect")
-}
-
-model Note {
-  // UUID of the note
-  id        String   @id @default(uuid())
-  // Timestamp of when note was created
-  createdAt DateTime @default(now()) @map("created_at")
-  // Timestamp of when note was last updated
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  // The note itself
-  note     String @db.Text
-  // The action this note is related to
-  actionId String @map("action_id")
-  action   Action @relation("action_notes", fields: [actionId], references: [id], onDelete: Cascade)
-  // The user who created this note
-  authorId String @map("author_id")
-  author   User   @relation("note_author", fields: [authorId], references: [id])
-
-  @@map("note")
 }
 
 // Links are used to link to external resources, such as websites, documents, etc.
@@ -426,8 +406,6 @@ model User {
   authoredMetaRoadmaps MetaRoadmap[] @relation("meta_roadmap_author")
   // Data series the user created
   authoredData         DataSeries[]  @relation("data_series_author")
-  // Notes the user created
-  authoredNotes        Note[]        @relation("note_author")
   // Comments the user created
   authoredComments     Comment[]     @relation("comment_author")
 

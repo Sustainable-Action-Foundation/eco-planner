@@ -320,7 +320,6 @@ export const actionInclusionSelection = {
       },
     },
   },
-  notes: true,
   links: true,
   comments: { include: { author: { select: { id: true, username: true } } } },
   author: { select: { id: true, username: true } },
@@ -344,7 +343,7 @@ export const effectInclusionSelection = {
   dataSeries: { include: dataSeriesInclusionSelection },
   // `select` (not `include`) on action/goal: the effect edit flow only needs their
   // identity (for the selectors + breadcrumb) and their roadmap's ACL (for
-  // accessChecker). This keeps notes, links, comments, nested effects, authors,
+  // accessChecker). This keeps links, comments, nested effects, authors,
   // and every other field of the parent action/goal off the wire to the client.
   action: {
     select: {

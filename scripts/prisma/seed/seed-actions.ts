@@ -1,5 +1,5 @@
 // Seeds actions and the effects that connect them to goals. Covers action inheritance
-// (v2 actions inherit from v1), orphaned actions (no effects), notes, links and comments.
+// (v2 actions inherit from v1), orphaned actions (no effects), links and comments.
 
 import { prisma } from "@/lib/prisma";
 import { ActionImpactType } from "@/lib/prisma/generated";
@@ -52,7 +52,7 @@ export async function seedActions(
   }
 }
 
-/** Creates an action with a random spread of fields, notes, links and comments. */
+/** Creates an action with a random spread of fields, links and comments. */
 async function createAction(
   users: SeededUsers,
   roadmapId: string,
@@ -76,7 +76,6 @@ async function createAction(
       roadmap: { connect: { id: roadmapId } },
       ...(options.parentActionId ? { parentAction: { connect: { id: options.parentActionId } } } : {}),
       ...getRandomCreatedAtAndUpdatedAt(),
-      notes: { createMany: { data: makeRandomNotes(users, randomInt(0, 3)) } },
       links: { create: makeRandomLinks(randomInt(0, 2)) },
       comments: { createMany: { data: makeRandomComments(users, randomInt(0, 6)) } },
     },
@@ -109,17 +108,4 @@ async function addEffects(users: SeededUsers, actionId: string, goalPool: Seeded
       },
     });
   }
-}
-
-/** Builds note payloads for a nested createMany (scalar authorId is set directly). */
-function makeRandomNotes(users: SeededUsers, count: number) {
-  return new Array(count).fill(null).map(() => {
-    const { createdAt, updatedAt } = getRandomCreatedAtAndUpdatedAt();
-    return {
-      note: RandomTextSE.paragraph(randomInt(1, 2)),
-      authorId: randomOf(users.all).id,
-      createdAt,
-      updatedAt,
-    };
-  });
 }

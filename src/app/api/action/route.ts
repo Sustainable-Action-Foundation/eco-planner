@@ -178,7 +178,6 @@ export async function POST(request: NextRequest) {
             description: link.description || undefined,
           })),
         },
-        // TODO: Add `Note`s
         author: { connect: { id: session.user.id } },
       },
       select: { id: true },
