@@ -226,7 +226,6 @@ model GoalTag {
   @@map("goal_tag")
 }
 
-// TODO move to recipes?
 model Action {
   // UUID of the action
   id        String   @id @default(uuid())
@@ -341,67 +340,48 @@ model Comment {
   @@map("comment")
 }
 
-model User {
-  // UUID of the user
-  id String @id @default(uuid())
+model Org {
+  id     String  @id @default(uuid())
+  name   String
+  domain String?
 
-  // Username of the user
-  username   String  @unique
-  // Email of the user
-  email      String  @unique
-  // User's password in hashed form
-  // In this implementation, the password is hashed using bcrypt
-  password   String
-  // Whether or not the user is an admin
-  isAdmin    Boolean @default(false) @map("is_admin")
-  // Whether or not the user has verified their email
-  isVerified Boolean @default(false) @map("is_verified")
+  users    User[]  @relation("org_user")
+  managers User[]  @relation("org_manager")
+  groups   Group[] @relation("org_group")
 
-  // Actions the user created
-  authoredActions      Action[]      @relation("action_author")
-  // Goals the user created
-  authoredGoals        Goal[]        @relation("goal_author")
-  // Roadmap versions the user created
-  authoredRoadmaps     Roadmap[]     @relation("roadmap_author")
-  // Meta roadmaps the user created
-  authoredMetaRoadmaps MetaRoadmap[] @relation("meta_roadmap_author")
-  // Data series the user created
-  authoredData         DataSeries[]  @relation("data_series_author")
-  // Comments the user created
-  authoredComments     Comment[]     @relation("comment_author")
-
-  // Roadmap versions the user is explicitly allowed to edit
-  editRoadmaps     Roadmap[]     @relation("roadmap_editors")
-  // Roadmap versions the user is explicitly allowed to view
-  viewRoadmaps     Roadmap[]     @relation("roadmap_viewers")
-  // Meta roadmaps the user is explicitly allowed to edit
-  editMetaRoadmaps MetaRoadmap[] @relation("meta_roadmap_editors")
-  // Meta roadmaps the user is explicitly allowed to view
-  viewMetaRoadmaps MetaRoadmap[] @relation("meta_roadmap_viewers")
-
-  // Groups the user is a member of
-  userGroups UserGroup[] @relation("user_group")
-
-  @@map("user")
+  @@map("org")
 }
 
-model UserGroup {
-  // UUID of the user group
+model Group {
   id   String @id @default(uuid())
-  // Name of the user group
-  name String @unique
+  name String
 
-  // Users in the group
-  users User[] @relation("user_group")
+  orgId String @map("org_id")
+  org   Org    @relation("org_group", fields: [orgId], references: [id], onDelete: Cascade)
 
-  // Roadmap versions all users in the group are allowed to edit
-  editRoadmap     Roadmap[]     @relation("roadmap_edit_groups")
-  // Roadmap versions all users in the group are allowed to view
-  viewRoadmap     Roadmap[]     @relation("roadmap_view_groups")
-  // Meta roadmaps all users in the group are allowed to edit
-  editMetaRoadmap MetaRoadmap[] @relation("meta_roadmap_edit_groups")
-  // Meta roadmaps all users in the group are allowed to view
-  viewMetaRoadmap MetaRoadmap[] @relation("meta_roadmap_view_groups")
+  @@map("group")
+}
 
-  @@map("user_group")
+model User {
+  id           String @id @default(uuid())
+  username     String @unique
+  email        String @unique
+  passwordHash String @map("password_hash")
+
+  isVerified   Boolean @default(false) @map("is_verified")
+  isSuperAdmin Boolean @default(false) @map("is_admin")
+
+  groups  Group[] @relation("group_user")
+  orgs    Org[]   @relation("org_user")
+  manages Org[]   @relation("org_manager")
+
+  // Authorship (purely visual/cool to know, not auth)
+  authoredActions      Action[]      @relation("action_author")
+  authoredGoals        Goal[]        @relation("goal_author")
+  authoredRoadmaps     Roadmap[]     @relation("roadmap_author")
+  authoredMetaRoadmaps MetaRoadmap[] @relation("meta_roadmap_author")
+  authoredDataSeries   DataSeries[]  @relation("data_series_author")
+  authoredComments     Comment[]     @relation("comment_author")
+
+  @@map("user")
 }
