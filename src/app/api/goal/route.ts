@@ -456,12 +456,6 @@ async function createFullGoal(session: IronSession<LoginData>, authorId: string,
           dataSeries: { connect: { id: dataSeriesId } },
           baseline: baselineId ? { connect: { id: baselineId } } : undefined,
           historical: historicalDataSeriesId ? { connect: { id: historicalDataSeriesId } } : undefined,
-          links: {
-            create: formData.links?.map(link => ({
-              url: link.url,
-              description: link.description,
-            })),
-          },
         },
         select: { id: true },
       })).id;
@@ -511,7 +505,7 @@ async function updateFullGoal(session: IronSession<LoginData>, authorId: string,
 
   try {
     await prisma.$transaction(async (tx) => {
-      // Update the goal's own fields and links; the section relations are applied
+      // Update the goal's own fields; the section relations are applied
       // below by the same per-section appliers the sectional writers use, keeping
       // every connect/disconnect a flat statement (no nested connect/disconnect).
       goalId = (await tx.goal.update({
@@ -521,13 +515,6 @@ async function updateFullGoal(session: IronSession<LoginData>, authorId: string,
           description: goal.description,
           indicatorParameter: goal.indicatorParameter,
           isFeatured: goal.isFeatured,
-          links: {
-            deleteMany: {},
-            create: goal.links?.map(link => ({
-              url: link.url,
-              description: link.description,
-            })),
-          },
         },
         select: { id: true },
       })).id;
@@ -538,7 +525,7 @@ async function updateFullGoal(session: IronSession<LoginData>, authorId: string,
       await applyRecipeSuggestionsSection(tx, authorId, goal.goalId, goal.recipeSuggestions, suggestionExternals);
     });
 
-    // Prune any orphaned links and comments
+    // Prune any orphaned comments
     void pruneOrphans();
     revalidateTag('goal', { expire: 0 });
     return Response.json({ message: t('api:goal.goal_updated'), id: goalId },

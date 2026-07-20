@@ -28,7 +28,6 @@ export type MetaRoadmapCreateInput = {
   // parentRoadmap?: MetaRoadmapCreateNestedOneWithoutChildRoadmapsInput,
   // childRoadmaps?: MetaRoadmapCreateNestedManyWithoutParentRoadmapInput,
   // comments?: CommentCreateNestedManyWithoutMetaRoadmapInput,
-  // links?: LinkCreateNestedManyWithoutMetaRoadmapInput,
   // author: UserCreateNestedOneWithoutAuthoredMetaRoadmapsInput,
   // editors?: UserCreateNestedManyWithoutEditMetaRoadmapsInput,
   // editGroups?: UserGroupCreateNestedManyWithoutEditMetaRoadmapInput,
@@ -47,9 +46,6 @@ export type MetaRoadmapCreateInput = {
 
   // UUID for the parent meta roadmap (if any)
   parentRoadmapId: string | null | undefined;
-
-  // TODO - DEPRECATED - Will be migrated to description
-  links: { url: string, description?: string }[] | null | undefined;
 }
 
 /** The format of data needed to update an existing data series. When compared to MetaRoadmapCreateInput, this type allows most fields to be undefined, indicating that they should not be changed. */
@@ -75,7 +71,6 @@ export type MetaRoadmapUpdateInput = {
   // parentRoadmap?: MetaRoadmapCreateNestedOneWithoutChildRoadmapsInput,
   // childRoadmaps?: MetaRoadmapCreateNestedManyWithoutParentRoadmapInput,
   // comments?: CommentCreateNestedManyWithoutMetaRoadmapInput,
-  // links?: LinkCreateNestedManyWithoutMetaRoadmapInput,
   // author: UserCreateNestedOneWithoutAuthoredMetaRoadmapsInput,
   // editors?: UserCreateNestedManyWithoutEditMetaRoadmapsInput,
   // editGroups?: UserGroupCreateNestedManyWithoutEditMetaRoadmapInput,
@@ -97,9 +92,6 @@ export type MetaRoadmapUpdateInput = {
 
   // Timestamp to check if the user is trying to update based on stale data
   timestamp: number;
-
-  // TODO - DEPRECATED - Will be migrated to description
-  links: { url: string, description?: string }[] | null | undefined;
 }
 
 /** The format of the data needed to create a new roadmap version. */
@@ -157,12 +149,9 @@ export type RoadmapCreateInput = {
   editGroups: string[] | null | undefined;
   viewers: string[] | null | undefined;
   viewGroups: string[] | null | undefined;
-
-  // TODO - DEPRECATED - Will be migrated to description
-  links: { url: string, description?: string | null }[] | null | undefined;
 };
 
-/** 
+/**
  * The format of the data allowed to update an existing roadmap version.
  * 
  * This type is derived from @type {Prisma.RoadmapUpdateInput} but with some fields omitted in clear text for better intellisense readability and maintainability.
@@ -199,9 +188,6 @@ export type RoadmapUpdateInput = {
   editGroups: string[] | null | undefined;
   viewers: string[] | null | undefined;
   viewGroups: string[] | null | undefined;
-
-  // TODO - DEPRECATED - Will be migrated to description
-  links: { url: string, description?: string | null }[] | null | undefined;
 };
 
 /**
@@ -214,15 +200,13 @@ export type RoadmapUpdateInput = {
  * changes, these must be updated manually.
  */
 
-/** Basic goal metadata, plus the deprecated `links`. */
+/** Basic goal metadata. */
 type GoalMetaFields = {
   name: string | null | undefined;
   description: string | null | undefined;
   indicatorParameter: string | undefined;
   isFeatured: boolean | undefined;
   rawTags: string[] | null | undefined; // Transform into tags relation in the server side API
-  // TODO: Deprecated - will be moved to description
-  links: { url: string, description?: string | null }[] | null | undefined;
 };
 
 /**
@@ -335,9 +319,6 @@ export type ActionInput = {
 
   dataSeries: DateValuesWithUnit | undefined;
   impactType: ActionImpactType | undefined;
-
-  // TODO: Deprecated - will be moved to description
-  links: { url: string, description?: string | null }[] | null | undefined;
 
   timestamp: number | undefined;
 };

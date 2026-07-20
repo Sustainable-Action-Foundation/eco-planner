@@ -99,8 +99,6 @@ function isRoadmapCreate(roadmap: JSONValue): roadmap is RoadmapCreateInput {
         roadmap.viewGroups.every(group => typeof group === 'string')
       )
     )
-
-    // links are deprecated and not checked
   );
 }
 
@@ -196,8 +194,6 @@ function isRoadmapUpdate(roadmap: JSONValue): roadmap is RoadmapUpdateInput {
         roadmap.viewGroups.every(group => typeof group === 'string')
       )
     )
-
-    // links are deprecated and not checked
   );
 }
 
@@ -515,7 +511,7 @@ export async function PUT(request: NextRequest) {
       },
       select: { id: true },
     });
-    // Prune any orphaned links and comments
+    // Prune any orphaned comments
     await pruneOrphans();
     // Invalidate old cache
     revalidateTag('roadmap', { expire: 0 });
@@ -629,7 +625,7 @@ export async function DELETE(request: NextRequest) {
         metaRoadmapId: true,
       },
     });
-    // Prune any orphaned links and comments
+    // Prune any orphaned comments
     await pruneOrphans();
     // Invalidate old cache
     revalidateTag('roadmap', 'max');

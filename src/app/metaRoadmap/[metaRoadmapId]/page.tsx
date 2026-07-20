@@ -74,20 +74,6 @@ export default async function Page(props: { params: Promise<{ metaRoadmapId: str
               content={metaRoadmap.description}
             />
           </div>
-          {metaRoadmap.links.length > 0 ?
-            <>
-              <h2 className="margin-bottom-0 margin-top-200">{t("pages:common.external_resources")}</h2>
-              <ul>
-                {metaRoadmap.links.map((link: { url: string, description: string | null }, index: number) =>
-                  <li className="margin-block-25" key={index}>
-                    <a href={link.url} target="_blank" rel="noreferrer">{link.description}</a>
-                  </li>,
-                )}
-              </ul>
-            </>
-            : null
-          }
-
         </section>
 
         <section className="margin-block-300">

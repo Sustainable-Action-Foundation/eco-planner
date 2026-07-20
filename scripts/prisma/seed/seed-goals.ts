@@ -18,7 +18,6 @@ import {
   getRandomCreatedAtAndUpdatedAt,
   getRandomUnit,
   makeRandomComments,
-  makeRandomLinks,
   randomIndicatorParameter,
   randomInt,
   randomOf,
@@ -97,7 +96,7 @@ type GoalOptions = {
   recipeSuggestionIds?: string[] | undefined;
 };
 
-/** Creates a goal wired to an already-created data series, plus tags, comments and links. */
+/** Creates a goal wired to an already-created data series, plus tags and comments. */
 async function createGoal(users: SeededUsers, options: GoalOptions): Promise<SeededGoal> {
   const goal = await prisma.goal.create({
     data: {
@@ -116,7 +115,6 @@ async function createGoal(users: SeededUsers, options: GoalOptions): Promise<See
         : {}),
       tags: { connectOrCreate: pickTags() },
       comments: { createMany: { data: makeRandomComments(users, randomInt(0, 8)) } },
-      links: { create: makeRandomLinks(randomInt(0, 3)) },
     },
     select: { id: true },
   });

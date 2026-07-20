@@ -79,7 +79,6 @@ export default function MetaRoadmapForm({
         editGroups: editability === "custom" ? (form.namedItem("editor-groups") as HTMLInputElement)?.value.split(',').filter(Boolean) : [],
         viewGroups: visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
         isPublic: (form.namedItem("visibility") as RadioNodeList)?.value === "public",
-        links: undefined, // TODO: Links in DB should be migrated to description
         parentRoadmapId: (form.namedItem("parent-roadmap") as HTMLButtonElement)?.value || undefined,
       } satisfies MetaRoadmapCreateInput;
     } else {
@@ -94,7 +93,6 @@ export default function MetaRoadmapForm({
         editGroups: editability === "custom" ? (form.namedItem("editor-groups") as HTMLButtonElement)?.value.split(',').filter(Boolean) : [],
         viewGroups: visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
         isPublic: (form.namedItem("visibility") as RadioNodeList)?.value === "public",
-        links: undefined, // TODO: Links in DB should be migrated to description
         parentRoadmapId: (form.namedItem("parent-roadmap") as HTMLButtonElement)?.value || undefined,
         id: currentRoadmap.id,
         timestamp,

@@ -12,7 +12,6 @@ import {
   getRandomCreatedAtAndUpdatedAt,
   getRandomUnit,
   makeRandomComments,
-  makeRandomLinks,
   randomInt,
   randomOf,
 } from "./helpers.ts";
@@ -52,7 +51,7 @@ export async function seedActions(
   }
 }
 
-/** Creates an action with a random spread of fields, links and comments. */
+/** Creates an action with a random spread of fields and comments. */
 async function createAction(
   users: SeededUsers,
   roadmapId: string,
@@ -76,7 +75,6 @@ async function createAction(
       roadmap: { connect: { id: roadmapId } },
       ...(options.parentActionId ? { parentAction: { connect: { id: options.parentActionId } } } : {}),
       ...getRandomCreatedAtAndUpdatedAt(),
-      links: { create: makeRandomLinks(randomInt(0, 2)) },
       comments: { createMany: { data: makeRandomComments(users, randomInt(0, 6)) } },
     },
     select: { id: true },

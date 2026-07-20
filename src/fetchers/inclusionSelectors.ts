@@ -77,7 +77,6 @@ export const metaRoadmapInclusionSelection = {
       author: { select: { id: true, username: true } },
     },
   },
-  links: true,
   author: { select: { id: true, username: true } },
   editors: { select: { id: true, username: true } },
   viewers: { select: { id: true, username: true } },
@@ -261,7 +260,6 @@ export const goalInclusionSelection = {
       viewGroups: { select: { id: true, name: true, users: { select: { id: true, username: true } } } },
     },
   },
-  links: true,
   comments: {
     include: {
       author: { select: { id: true, username: true } },
@@ -320,7 +318,6 @@ export const actionInclusionSelection = {
       },
     },
   },
-  links: true,
   comments: { include: { author: { select: { id: true, username: true } } } },
   author: { select: { id: true, username: true } },
 } satisfies Prisma.ActionInclude;

@@ -87,7 +87,6 @@ export default function ActionForm({
       impactType: goalId && !currentAction
         ? (form.namedItem(ActionFormName.ImpactType) as HTMLInputElement)?.value as ActionImpactType
         : undefined,
-      links: undefined,
       timestamp,
     };
 

@@ -156,8 +156,6 @@ export default function RoadmapForm({
         editGroups: editability === "custom" ? (form.namedItem("editor-groups") as HTMLButtonElement)?.value.split(',').filter(Boolean) : [],
         viewGroups: visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
 
-        // DEPRECATED - moved to description
-        links: undefined,
       };
     } else {
       // Creating new roadmap
@@ -177,8 +175,6 @@ export default function RoadmapForm({
         editGroups: editability === "custom" ? (form.namedItem("editor-groups") as HTMLButtonElement)?.value.split(',').filter(Boolean) : [],
         viewGroups: visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
 
-        // DEPRECATED - moved to description
-        links: undefined,
       };
     }
 
