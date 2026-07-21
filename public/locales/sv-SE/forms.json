@@ -129,10 +129,10 @@
       "baseline": {
         "title": "Skapa en dataserie för din målbanas baslinje",
         "type": "Baslinjens typ",
-        "first_year_value": "Använd värdet för din målbanas första år som en baslinje.",
+        "first_year_value": "Använd din målbanas första värde som en en baslinje.",
         "first_defined_year": "Använd din målbanas första nollskilda värde som en baslinje.",
         "custom": "Skapa en baslinje manuellt genom att fylla i år och värden.",
-        "another_goal": "Skapa en baslinje genom att kopiera den från en annan målbana."
+        "another_goal": "Kopiera en annan målbana och använd den som din baslinje."
       },
       "historical": {
         "title": "Skapa en dataserie för din målbanas historiska data",

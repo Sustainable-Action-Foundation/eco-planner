@@ -14,7 +14,7 @@ import type { ExternalData, ExternalDataState } from "@/components/types";
 import type { ApiSelectionItem } from "@/lib/api/apiTypes";
 
 // TODO: Maybe this should not be in /api
-// TODO: Take in required as a prop?
+// TODO: All id's in this component must be dynamic incase it is used multiple times on the same page.
 
 export default function ExternalData({
   goal,
@@ -174,59 +174,52 @@ export default function ExternalData({
 
   return (
     <div ref={sectionRef}>
-      <fieldset
-        className="width-100 min-width-0"
-      >
-        <legend className="padding-block-125 font-weight-bold">
-          {t("components:query_builder.data_source")}
-        </legend>
-        <label className="margin-block-75 font-weight-500">
-          {t("components:query_builder.data_source")}
-          {/* Display warning message if the selected language is not supported by the api */}
-          {(datasetInfo && !(datasetInfo?.supportedLanguages.includes(lang))) ?
-            <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>
-              {t("components:query_builder.language_support_warning", { dataSource: dataSource })}
-            </small>
-            : null}
-          <select
-            defaultValue={historicalSource?.dataset ?? ''}
-            className="block margin-top-25 margin-bottom-100 width-100"
-            required={required}
-            name="externalDataset"
-            id="externalDataset"
-            onChange={e => dispatch({ type: "SELECT_DATASET", dataSource: e.target.value })}>
-            <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_source")}</option>
-            {ExternalDataset.knownDatasetKeys.map((name) => (
-              <option key={name} value={name}>{ExternalDataset[name]?.fullName}</option>
-            ))}
-          </select>
-        </label>
-        <label htmlFor="externalTableId">{t("components:query_builder.table")}</label>
-        <SelectSingleSearch
-          props={{
-            className: 'margin-top-25 margin-bottom-100',
-            id: 'externalTableId',
-            name: 'externalTableId',
-            placeholder: !dataSource ? t("components:query_builder.select_source_for_table") : t("components:query_builder.select_table"),
-            required: required,
-            disabled: !dataSource ? true : false,
-          }}
-          defaultValue={table ? { name: table.label, value: table.tableId } : false}
-          options={
-            tables
-              ? tables.map(({ tableId, label }) => ({
-                name: label,
-                value: tableId,
-              }))
-              : []
-          }
-          onChange={(value) => dispatch({
-            type: "SELECT_TABLE",
-            table: value?.value ? { tableId: value.value, label: value.name } : null,
-          })} />
-      </fieldset>
+      <label className="margin-block-75">
+        {t("components:query_builder.data_source")}
+        {/* Display warning message if the selected language is not supported by the api */}
+        {(datasetInfo && !(datasetInfo?.supportedLanguages.includes(lang))) ?
+          <small className="font-weight-normal font-style-italic margin-left-50" style={{ color: "red" }}>
+            {t("components:query_builder.language_support_warning", { dataSource: dataSource })}
+          </small>
+          : null}
+        <select
+          defaultValue={historicalSource?.dataset ?? ''}
+          className="block margin-top-25 margin-bottom-100 width-100"
+          required={required}
+          name="externalDataset"
+          id="externalDataset"
+          onChange={e => dispatch({ type: "SELECT_DATASET", dataSource: e.target.value })}>
+          <option value="" className="font-style-italic color-gray">{t("components:query_builder.select_source")}</option>
+          {ExternalDataset.knownDatasetKeys.map((name) => (
+            <option key={name} value={name}>{ExternalDataset[name]?.fullName}</option>
+          ))}
+        </select>
+      </label>
+      <label htmlFor="externalTableId">{t("components:query_builder.table")}</label>
+      <SelectSingleSearch
+        props={{
+          className: 'margin-top-25 margin-bottom-100',
+          id: 'externalTableId',
+          name: 'externalTableId',
+          placeholder: !dataSource ? t("components:query_builder.select_source_for_table") : t("components:query_builder.select_table"),
+          required: required,
+          disabled: !dataSource ? true : false,
+        }}
+        defaultValue={table ? { name: table.label, value: table.tableId } : false}
+        options={
+          tables
+            ? tables.map(({ tableId, label }) => ({
+              name: label,
+              value: tableId,
+            }))
+            : []
+        }
+        onChange={(value) => dispatch({
+          type: "SELECT_TABLE",
+          table: value?.value ? { tableId: value.value, label: value.name } : null,
+        })} />
 
-      <fieldset className="width-100 margin-top-200 min-width-0">
+      <fieldset className={`width-100 min-width-0 ${!table ? 'fieldset-unset-pseudo-class' : ''}`}>
         <legend className="padding-block-125 font-weight-bold">
           {t("components:query_builder.select_metric_for_table")}
         </legend>
@@ -244,19 +237,22 @@ export default function ExternalData({
             })
           ))
         ) : (
-          <p className="margin-0 margin-bottom-100">
+          <p className="margin-0 color-gray margin-bottom-100">
             {t("components:query_builder.select_source_for_metric")}
           </p>
         )}
       </fieldset>
 
-      <fieldset className="width-100 margin-top-200 min-width-0">
+      <fieldset className={`width-100 min-width-0 ${!table ? 'fieldset-unset-pseudo-class' : ''}`}>
         <legend className="padding-block-125 font-weight-bold">
           {t("components:query_builder.select_values_for_table")}
         </legend>
 
-        {tableMetadata &&
-          shouldVariableFieldsetBeVisible(tableMetadata, datasetInfo) ? (
+        {!table ? (
+          <p className="color-gray margin-0 margin-bottom-100">
+            {t("components:query_builder.select_source_for_values")}
+          </p>
+        ) : tableMetadata && shouldVariableFieldsetBeVisible(tableMetadata, datasetInfo) ? (
           <div>
             {/* eslint-disable-next-line react-hooks/refs */}
             {tableMetadata.timeDimensions?.map(time => {
@@ -291,9 +287,9 @@ export default function ExternalData({
             {tableMetadata.hierarchies?.map(hierarchy => {
               if (!hierarchy.children?.some(variable => variable.options.length > 0)) return null;
               return (
-                <div key={hierarchy.name}>
-                  <div className="font-weight-bold">{hierarchy.label}</div>
-                  <div className="block margin-block-75 margin-left-75">
+                <fieldset key={hierarchy.name} className="width-100 min-width-0">
+                  <legend className="padding-block-125 font-weight-bold">{hierarchy.label}</legend>
+                  <div className="block">
                     {hierarchy.children?.map(variable => {
                       return variableSelectionHelper({
                         t,
@@ -307,16 +303,15 @@ export default function ExternalData({
                       });
                     })}
                   </div>
-                </div>
+                </fieldset>
               );
             })}
           </div>
         ) : (
-          <p className="font-style-italic color-gray margin-0 margin-bottom-100">
+          <p className="color-gray margin-0 margin-bottom-100">
             {t("components:query_builder.no_variables_found")}
           </p>
-        )
-        }
+        )}
       </fieldset>
     </div>
   );

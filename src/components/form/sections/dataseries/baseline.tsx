@@ -22,12 +22,20 @@ export default function BaselineSeriesSection({
   dataSeries,
   setBaselineType,
   setPreviewBaselineSerie,
+  hasInitializedInitial,
+  hasInitializedInitialNonZero,
+  hasInitializedManual,
+  hasInitializedInherited,
 }: {
   goal: Goal | undefined;
   baselineType: BaselineType;
   dataSeries: DateValuesWithUnit | null;
   setBaselineType: Dispatch<SetStateAction<BaselineType>>;
   setPreviewBaselineSerie: Dispatch<SetStateAction<DateValuesWithUnit | null>>;
+  hasInitializedInitial: boolean;
+  hasInitializedInitialNonZero: boolean;
+  hasInitializedManual: boolean;
+  hasInitializedInherited: boolean;
 }) {
   const { t } = useTranslation(["forms", "common"]);
 
@@ -100,76 +108,87 @@ export default function BaselineSeriesSection({
         className="padding-100 smooth"
         style={{ border: '1px dashed var(--blue)' }}
       >
-        <p className={`${baselineType === BaselineType.Initial || baselineType === BaselineType.InitialNonZero ? "margin-0" : "margin-top-0"} flex gap-50 align-items-center`} style={{ color: 'var(--blue)', textShadow: '0 0 var(--blue)' }}>          <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
-          <span>
-            <span className="text-transform-capitalize">{t("common:tsx.using")}</span>
-            <span className="text-transform-lowercase">
-              {baselineType === BaselineType.Initial ? ` ${t("forms:goal.baseline_types.initial")}`
-                : baselineType === BaselineType.InitialNonZero ? ` ${t("forms:goal.baseline_types.initial_non_zero")}`
-                  : baselineType === BaselineType.Custom ? ` ${t("forms:goal.baseline_types.custom")}`
-                    : ` ${t("forms:goal.baseline_types.inherited")}`}
-            </span>
-          </span>
-        </p> {/* TODO: Should be a legend? */}
+        {hasInitializedInitial || hasInitializedInitialNonZero ?
+          <fieldset className={`${baselineType === BaselineType.Initial || baselineType === BaselineType.InitialNonZero ? "" : "display-none"}`} disabled={baselineType !== BaselineType.Initial && baselineType !== BaselineType.InitialNonZero}>
+            <p className={`${baselineType === BaselineType.Initial || baselineType === BaselineType.InitialNonZero ? "margin-0" : "margin-top-0"} flex gap-50 align-items-center`} style={{ color: 'var(--blue)', textShadow: '0 0 var(--blue)' }}>
+              <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
+              <span>
+                <span className="text-transform-capitalize">{t("common:tsx.using")}</span>
+                <span className="text-transform-lowercase">
+                  {baselineType === BaselineType.Initial ? ` ${t("forms:goal.baseline_types.initial")}`
+                    : baselineType === BaselineType.InitialNonZero ? ` ${t("forms:goal.baseline_types.initial_non_zero")}`
+                      : baselineType === BaselineType.Custom ? ` ${t("forms:goal.baseline_types.custom")}`
+                        : ` ${t("forms:goal.baseline_types.inherited")}`}
+                </span>
+              </span>
+            </p> {/* TODO: Should be a legend? */}
 
-        {(baselineType === BaselineType.Initial || baselineType === BaselineType.InitialNonZero) &&
-          <RecipeContextProvider>
-            <InitialBaseline
-              dataSeries={dataSeries}
-              nonZero={baselineType === BaselineType.InitialNonZero}
-            />
-            <RecipeSync
-              onDateValues={setPreviewBaselineSerie}
-              active={true}
-            />
-          </RecipeContextProvider>
+            <RecipeContextProvider>
+              <InitialBaseline
+                dataSeries={dataSeries}
+                nonZero={baselineType === BaselineType.InitialNonZero}
+              />
+              <RecipeSync
+                onDateValues={setPreviewBaselineSerie}
+                active={true}
+              />
+            </RecipeContextProvider>
+          </fieldset>
+          : null
         }
-
 
         {/* Custom baseline input */}
-        {baselineType === BaselineType.Custom &&
-          <RecipeContextProvider
-            initialRecipe={Recipe.fromManualDateValues(
-              goal?.baseline ? dataSeriesToDateValues(goal.baseline) : { unit: undefined, dateValues: {} },
-            ).serialize()}
-          >
-            <ManualDataSeriesInput
-              id="baseline-dataseries"
-              label={t("forms:data_series_input.data_series")}
-              {...goal?.baseline
-                ? { initialDateValues: dataSeriesToDateValues(goal.baseline) }
-                : {}
-              }
-            />
-            <FormSync
-              RecipeFormElement={<input name={GoalFormName.BaselineRecipe} />}
-              DateValuesFormElement={<input name={GoalFormName.BaselineDataSeries} />}
-            />
-            <RecipeSync
-              onDateValues={setPreviewBaselineSerie}
-              active={baselineType === BaselineType.Custom}
-            />
-          </RecipeContextProvider>
+        {hasInitializedManual ?
+          <fieldset className={`${baselineType === BaselineType.Custom ? "" : "display-none"}`} disabled={baselineType !== BaselineType.Custom}>
+            <RecipeContextProvider
+              initialRecipe={Recipe.fromManualDateValues(
+                goal?.baseline ? dataSeriesToDateValues(goal.baseline) : { unit: undefined, dateValues: {} },
+              ).serialize()}
+            >
+              <ManualDataSeriesInput
+                id="baseline-dataseries"
+                label={t("forms:data_series_input.data_series")}
+                {...goal?.baseline
+                  ? { initialDateValues: dataSeriesToDateValues(goal.baseline) }
+                  : {}
+                }
+              />
+              <FormSync
+                RecipeFormElement={<input name={GoalFormName.BaselineRecipe} />}
+                DateValuesFormElement={<input name={GoalFormName.BaselineDataSeries} />}
+              />
+              <RecipeSync
+                onDateValues={setPreviewBaselineSerie}
+                active={baselineType === BaselineType.Custom}
+              />
+            </RecipeContextProvider>
+          </fieldset>
+          : null
         }
 
+
         {/* Inherited baseline input */}
-        {baselineType === BaselineType.Inherited &&
-          <RecipeContextProvider
-            initialRecipe={goal?.baseline?.recipeUsed?.recipe
-              ? Recipe.from(goal.baseline.recipeUsed.recipe).serialize()
-              : undefined}
-            availableDataSeries={goal?.baseline?.recipeUsed?.sourceDataSeries}
-          >
-            <InheritingBaseline />
-            <FormSync
-              RecipeFormElement={<input name={GoalFormName.BaselineRecipe} />}
-              DateValuesFormElement={<input name={GoalFormName.BaselineDataSeries} />}
-            />
-            <RecipeSync
-              onDateValues={setPreviewBaselineSerie}
-              active={baselineType === BaselineType.Inherited}
-            />
-          </RecipeContextProvider>
+        {hasInitializedInherited ?
+
+          <fieldset className={`${baselineType === BaselineType.Inherited ? "" : "display-none"}`} disabled={baselineType !== BaselineType.Inherited}>
+            <RecipeContextProvider
+              initialRecipe={goal?.baseline?.recipeUsed?.recipe
+                ? Recipe.from(goal.baseline.recipeUsed.recipe).serialize()
+                : undefined}
+              availableDataSeries={goal?.baseline?.recipeUsed?.sourceDataSeries}
+            >
+              <InheritingBaseline />
+              <FormSync
+                RecipeFormElement={<input name={GoalFormName.BaselineRecipe} />}
+                DateValuesFormElement={<input name={GoalFormName.BaselineDataSeries} />}
+              />
+              <RecipeSync
+                onDateValues={setPreviewBaselineSerie}
+                active={baselineType === BaselineType.Inherited}
+              />
+            </RecipeContextProvider>
+          </fieldset>
+          : null
         }
       </div>
     </>
@@ -184,18 +203,18 @@ function InitialBaseline({
   nonZero: boolean;
 }) {
   const { applyRecipeUpdate } = useRecipe();
- 
+
   useEffect(() => {
     if (!dataSeries?.dateValues || Object.keys(dataSeries.dateValues).length === 0) {
       return;
     }
- 
+
     void applyRecipeUpdate(() => Recipe.fromInitialDateValue(
       { unit: dataSeries.unit, dateValues: dataSeries.dateValues },
       { nonZero },
     ));
   }, [dataSeries, nonZero, applyRecipeUpdate]);
- 
+
   return null;
 }
 
@@ -204,13 +223,13 @@ function InitialBaseline({
  * Tree select for inheriting another goal's baseline (or, failing that, its
  * data series). The selection is pushed into the surrounding
  * {@link RecipeContextProvider} as a recipe linking the inherited series (see
- * {@link Recipe.fromLinkedDataSeries}), so the baseline reads like every other
- * data series input — the form reads the result via `FormSync`
- * (`BaselineRecipe` / `BaselineDataSeries`) instead of a bespoke id field.
- *
- * Must be rendered inside a `RecipeContextProvider` (seed it with the saved
- * baseline recipe when editing so the initial output and context agree).
- */
+      * {@link Recipe.fromLinkedDataSeries}), so the baseline reads like every other
+      * data series input — the form reads the result via `FormSync`
+      * (`BaselineRecipe` / `BaselineDataSeries`) instead of a bespoke id field.
+      *
+      * Must be rendered inside a `RecipeContextProvider` (seed it with the saved
+      * baseline recipe when editing so the initial output and context agree).
+      */
 function InheritingBaseline() {
   const { t } = useTranslation(["forms", "common"]);
   const { recipe, applyRecipeUpdate } = useRecipe();

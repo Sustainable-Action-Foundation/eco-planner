@@ -2326,10 +2326,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apexcharts@npm:^5.16.0":
-  version: 5.16.0
-  resolution: "apexcharts@npm:5.16.0"
-  checksum: 10c0/6fb5fac65127d506afea681aa795224dc213ec998eefa4e3bb844855ec6b7445d7caa87984a9518cc09e0673c07dc9ed50ea9c0709f43a575c44f983b0d9975d
+"apexcharts@npm:^6.5.0":
+  version: 6.5.0
+  resolution: "apexcharts@npm:6.5.0"
+  checksum: 10c0/1c4ca2da81180d7987d9bd6b93014a49ae43b3474731437cb3058d9803bec7f78833d4fa698ca90b26040ab7838bf2fad7e04850594b2fcf820b7eb4a4e6296a
   languageName: node
   linkType: hard
 
@@ -3013,7 +3013,7 @@ __metadata:
     "@types/react": "npm:^19.2.17"
     "@types/react-dom": "npm:^19.2.3"
     accept-language: "npm:^3.0.20"
-    apexcharts: "npm:^5.16.0"
+    apexcharts: "npm:^6.5.0"
     bcryptjs: "npm:^3.0.3"
     client-only: "npm:^0.0.1"
     cookies-next: "npm:^6.1.1"

@@ -29,13 +29,54 @@ export function generateApexChartOptions({
   colors,
   opacities,
   yAxisTitle,
- }: {
-  chartType: "main" | "thumbnail" | "siblings";
+}: {
+  chartType: "main" | "thumbnail" | "siblings" | "preview";
   colors: Array<string>;
   opacities: Array<number>;
   yAxisTitle?: string;
 }): ApexCharts.ApexOptions {
   switch (chartType) {
+    case "preview": {
+      const options: ApexCharts.ApexOptions = {
+        chart: {
+          type: 'line',
+          animations: { 
+            enabled: true,
+            dynamicAnimation: { 
+              enabled: true,
+              speed: 200,
+              easing: [.33,-0.03,.15,1.01],
+            },
+          },
+          zoom: { allowMouseWheelZoom: false },
+        },
+        fill: {
+          type: 'solid',
+          colors: colors,
+          opacity: opacities,
+        },
+        stroke: { curve: stroke.curve, width: stroke.width },
+        markers: { size: marker.size },
+        xaxis: {
+          type: 'datetime',
+          labels: { format: 'yyyy' },
+          tooltip: { enabled: false },
+        },
+        yaxis: [
+          {
+            title: { text: yAxisTitle ?? "" },
+            labels: { formatter: graphNumberFormatter },
+            seriesName: [],
+          },
+        ],
+        tooltip: {
+          x: { format: 'yyyy' },
+          shared: true,
+        },
+      };
+      return options;
+    }
+
     case "siblings": {
       const options: ApexCharts.ApexOptions = {
         chart: {

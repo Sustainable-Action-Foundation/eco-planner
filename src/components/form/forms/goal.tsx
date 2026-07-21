@@ -3,7 +3,7 @@
 import type { getRoadmaps } from "@/fetchers";
 import formSubmitter from "@/functions/formSubmitter";
 import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput } from "@/types";
-import { BaselineType, DataSeriesType, GoalDataTarget } from "@/types/enums";
+import { BaselineType, DataSeriesType, GoalDataTarget, HistoricalDataType} from "@/types/enums";
 import { GoalFormName } from "@/types/form-names";
 import { isDateValuesWithUnit } from "@/types/typeguards";
 import { waitForRecipeFormSyncs } from "@/components/recipe";
@@ -22,6 +22,7 @@ import GoalGraph from "@/components/graph/graphs/goal/main";
 import HistoricalSeriesSection from "../sections/dataseries/historical";
 import BaselineSeriesSection from "../sections/dataseries/baseline";
 import GoalSeriesSection from "../sections/dataseries/goal";
+import { getHistoricalDatasetFromRecipe } from "@/functions/getHistoricalDataset";
 
 function resolveDataSeriesType(goal?: Goal): DataSeriesType {
   // Somehow missing
@@ -71,6 +72,18 @@ function resolveBaselineType(goal?: Goal): BaselineType {
     : BaselineType.Inherited;
 }
 
+function resolveHistoricalDataType(goal?: Goal): HistoricalDataType {
+  const recipe = goal?.historical?.recipeUsed?.recipe;
+  if (!recipe) return HistoricalDataType.External;
+
+  // Manual entry stored as an inline data series recipe; anything else (e.g. an
+  // external API selection) edits as external.
+  return Recipe.from(recipe).isManual()
+    ? HistoricalDataType.Custom
+    : HistoricalDataType.External;
+}
+
+
 export default function GoalForm({
   roadmapId,
   roadmapAlternatives,
@@ -80,18 +93,33 @@ export default function GoalForm({
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
   currentGoal?: Goal;
 }) {
-  const { t } = useTranslation(["forms", "common"]);
+  const { t } = useTranslation(["forms", "graphs", "common"]);
+
   const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(resolveDataSeriesType(currentGoal));
   const [hasInitializedSuggested, setHasInitializedSuggested] = useState<boolean>(() => resolveDataSeriesType(currentGoal) === DataSeriesType.Suggested);
+  const [hasInitializedManual, setHasInitializedManual] = useState<boolean>(() => resolveDataSeriesType(currentGoal) === DataSeriesType.Manual);
   const [hasInitializedCustom, setHasInitializedCustom] = useState<boolean>(() => resolveDataSeriesType(currentGoal) === DataSeriesType.Custom);
+
   const [baselineType, setBaselineType] = useState<BaselineType>(resolveBaselineType(currentGoal));
+  const [baselineHasInitializedhasInitializedInitial, setBaselineHasInitializedInitial] = useState<boolean>(() => resolveBaselineType(currentGoal) === BaselineType.Initial);
+  const [baselineHasInitializedhasInitializedInitialNonZero, setBaselineHasInitializedInitialZero] = useState<boolean>(() => resolveBaselineType(currentGoal) === BaselineType.InitialNonZero);
+  const [baselineHasInitializedManual, setBaselineHasInitializedManual] = useState<boolean>(() => resolveBaselineType(currentGoal) === BaselineType.Custom);
+  const [baselineHasInitializedInherited, setbBselineHasInitializedInherited] = useState<boolean>(() => resolveBaselineType(currentGoal) === BaselineType.Inherited);
+
+  const [historicalDataType, setHistoricalDataType] = useState<HistoricalDataType>(() => resolveHistoricalDataType(currentGoal));
+  const [historicalHasInitializedExternal, setHistoricalHasInitializedExternal] = useState<boolean>(() => resolveHistoricalDataType(currentGoal) === HistoricalDataType.External);
+  const [historicalHasInitializedCustom, setHistoricalHasInitializedCustom] = useState<boolean>(() => resolveHistoricalDataType(currentGoal) === HistoricalDataType.Custom);
+
   const [indicatorParameter, setIndicatorParameter] = useState<string>(currentGoal?.indicatorParameter ?? "");
+  const [goalName, setGoalName] = useState<string>(currentGoal?.name ?? "");
   const [parentRoadmapId, setParentRoadmapId] = useState<string>(roadmapId || "");
   const [previewDataSerie, setPreviewDataSerie] = useState<DateValuesWithUnit | null>(null);
   const [previewHistoricalSerie, setPreviewHistoricalSerie] = useState<DateValuesWithUnit | null>(null);
   const [previewBaselineSerie, setPreviewBaselineSerie] = useState<DateValuesWithUnit | null>(null);
+  const [previewHistoricalRecipe, setPreviewHistoricalRecipe] = useState<SerializedRecipe | null>(null);
 
-  // Evaluation error of the currently-selected recipe input (Suggested/Custom),
+
+  // Evaluation error of the currently-selected recipe input (Suggested/Custom)  setPreviewHistoricalRecipe={setPreviewHistoricalRecipe},
   // lifted out of the recipe context so submission can be blocked when it fails
   // to evaluate (e.g. an external variable with an incomplete selection).
   const [dataSeriesRecipeError, setDataSeriesRecipeError] = useState<string | null>(null);
@@ -99,6 +127,15 @@ export default function GoalForm({
   const router = useRouter();
 
   const { addToast } = useToast();
+
+  const historicalLabel = useMemo(() => {
+    if (!previewHistoricalRecipe) return "";
+    try {
+      return getHistoricalDatasetFromRecipe(Recipe.from(previewHistoricalRecipe)).label ?? "";
+    } catch {
+      return "";
+    }
+  }, [previewHistoricalRecipe]);
 
   const parentRoadmaps = useMemo(() => {
     return (roadmapAlternatives ?? []).map(roadmap => ({
@@ -121,14 +158,49 @@ export default function GoalForm({
       setHasInitializedSuggested(true);
     }
 
+    if (dataSeriesType === DataSeriesType.Manual) {
+      setHasInitializedManual(true);
+    }
+
     if (dataSeriesType === DataSeriesType.Custom) {
       setHasInitializedCustom(true);
     }
   }, [dataSeriesType]);
 
+  useEffect(() => {
+    if (baselineType === BaselineType.Initial) {
+      setBaselineHasInitializedInitial(true);
+    }
+
+    if (baselineType === BaselineType.InitialNonZero) {
+      setBaselineHasInitializedInitialZero(true);
+    }
+
+    if (baselineType === BaselineType.Custom) {
+      setBaselineHasInitializedManual(true);
+    }
+
+    if (baselineType === BaselineType.Inherited) {
+      setbBselineHasInitializedInherited(true);
+    }
+  }, [baselineType]);
+
+  useEffect(() => {
+    if (historicalDataType === HistoricalDataType.External) {
+      setHistoricalHasInitializedExternal(true);
+    }
+
+    if (historicalDataType === HistoricalDataType.Custom) {
+      setHistoricalHasInitializedCustom(true);
+    }
+  }, [historicalDataType]);
+
+
   // TODO: Error messages were translated directly from English to Swedish when switching to toasts.
   // They can likely be translated better.
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
+    console.log('this ran');
+    event.target.reportValidity();
     event.preventDefault();
 
     // The recipe contexts evaluate on a debounce; wait for their FormSync
@@ -437,7 +509,14 @@ export default function GoalForm({
         <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.goal_description_legend")}</legend>
         <label>
           {t("forms:goal.goal_name")}
-          <input className="margin-top-25 margin-bottom-100" type="text" name={GoalFormName.GoalName} id="goalName" defaultValue={currentGoal?.name ?? undefined} />
+          <input
+            className="margin-top-25 margin-bottom-100"
+            type="text"
+            name={GoalFormName.GoalName}
+            id="goalName"
+            defaultValue={currentGoal?.name ?? undefined}
+            onChange={(e) => setGoalName(e.target.value)}
+          />
         </label>
 
         <label id="description-label">{t("forms:goal.goal_description")}</label> {/* TODO: This is not actually labeling anything. I am however unsure how labels work outside of inputs so check that. */}
@@ -499,6 +578,7 @@ export default function GoalForm({
             setPreviewDataSerie={setPreviewDataSerie}
             setDataSeriesRecipeError={setDataSeriesRecipeError}
             hasInitializedSuggested={hasInitializedSuggested}
+            hasInitializedManual={hasInitializedManual}
             hasInitializedCustom={hasInitializedCustom}
           />
         </fieldset>
@@ -518,6 +598,10 @@ export default function GoalForm({
             dataSeries={previewDataSerie}
             setBaselineType={setBaselineType}
             setPreviewBaselineSerie={setPreviewBaselineSerie}
+            hasInitializedInitial={baselineHasInitializedhasInitializedInitial}
+            hasInitializedInitialNonZero={baselineHasInitializedhasInitializedInitialNonZero}
+            hasInitializedManual={baselineHasInitializedManual}
+            hasInitializedInherited={baselineHasInitializedInherited}
           />
         </fieldset>
 
@@ -531,7 +615,12 @@ export default function GoalForm({
           </legend>
           <HistoricalSeriesSection
             goal={currentGoal}
+            historicalDataType={historicalDataType}
+            setHistoricalDataType={setHistoricalDataType}
             setPreviewHistoricalSerie={setPreviewHistoricalSerie}
+            setPreviewHistoricalRecipe={setPreviewHistoricalRecipe}
+            hasInitializedExternal={historicalHasInitializedExternal}
+            hasInitializedManual={historicalHasInitializedCustom}
           />
         </fieldset>
 
@@ -544,21 +633,21 @@ export default function GoalForm({
             style={{ height: '400px' }}
           >
             <GoalGraph // TODO: This is not correctly re-rendering when updating dataseries?
-              chartType="main"
+              chartType="preview"
               series={{
                 main: previewDataSerie?.dateValues && {
-                  name: 'placeholder name (goal)', // TODO: temp name
+                  name: goalName ? `${goalName} (goal)` : 'goal', // TODO: i18n
                   unit: previewDataSerie.unit,
                   dateValues: previewDataSerie.dateValues, // TODO: Needs to be updated if we remove stuff
                 },
-                baseline: previewBaselineSerie?.dateValues && {
-                  name: 'placeholder name (baseline)', // TODO: temp name
-                  unit: '',  // TODO: temp unit, replace with real unit later,
+                baseline: (previewBaselineSerie?.dateValues && previewDataSerie) && {
+                  name: t('graphs:common.baseline_scenario'),
+                  unit: previewDataSerie.unit, // TODO: For now we lie and say that baseline and preview data series share the same unit. Should make sure that we sync properly in the future though.
                   dateValues: previewBaselineSerie.dateValues,
                 },
-                historical: previewHistoricalSerie?.dateValues && {
-                  name: 'placeholder name (historical)', // TODO: temp name
-                  unit: '',  // TODO: temp unit, replace with real unit later,
+                historical: (previewHistoricalSerie?.dateValues && previewDataSerie) && {
+                  name: historicalLabel ? `${historicalLabel} (historical)` : 'historical data', // TODO: i18n
+                  unit: previewDataSerie.unit, // TODO: For now we lie and say that historical and preview data series share the same unit. Should make sure that we sync properly in the future though.
                   dateValues: previewHistoricalSerie.dateValues,
                 },
               }}

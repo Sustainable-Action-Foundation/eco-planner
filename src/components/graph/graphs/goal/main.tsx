@@ -101,7 +101,7 @@ export default function GoalGraph({
     siblings = null,
   } = {},
 }: {
-  chartType: "main" | "thumbnail" | "siblings" // TODO: This should be a type if i do it this way...  (also dislike this generally, probably want to pass options for each graph instead of doing it like this)
+  chartType: "main" | "thumbnail" | "siblings" | "preview" // TODO: This should be a type if i do it this way...  (also dislike this generally, probably want to pass options for each graph instead of doing it like this)
   chartOptionsType?: "line" | "area" | "bar" | "pie" | "donut" | "radialBar" | "scatter" | "bubble" | "heatmap" | "candlestick" | "boxPlot" | "radar" | "polarArea" | "rangeBar" | "rangeArea" | "treemap" | "funnel" | "pyramid" | "gauge" | undefined;
   series?: {
     main?: ((DataSeries | DateValuesWithUnit) & { name: string }) | null;
