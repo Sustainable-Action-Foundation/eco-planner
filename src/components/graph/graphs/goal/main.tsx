@@ -6,6 +6,7 @@ import type { DataSeries, DateValuesWithUnit } from "@/types";
 import type { ApexAxisChartSeries, ApexYAxis } from "apexcharts";
 import { color_palette, generateApexChartOptions } from "../../config";
 import { useTranslation } from "react-i18next";
+import { memo } from "react";
 
 // Checks if we have a dataSeries or DateValuesWithUnit
 function isDataSeries(
@@ -88,7 +89,7 @@ function getSiblingColor(index: number, total: number, baseHex: string): string 
   return `hsl(${hue}, ${base.s}%, 50%)`;
 }
 
-export default function GoalGraph({
+export function GoalGraph({
   chartType, // TODO: TURN INTO PROPER TYPE!
   chartOptionsType,
   series: {
@@ -198,3 +199,5 @@ export default function GoalGraph({
     series={chart}
   />;
 }
+
+export default memo(GoalGraph);
