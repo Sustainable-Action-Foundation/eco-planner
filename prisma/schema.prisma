@@ -28,48 +28,32 @@ enum ActionImpactType {
 
 // Meta roadmaps are used for the highest level of roadmaps and reference multiple versions of the same roadmap
 model MetaRoadmap {
-  // UUID of the meta roadmap
   id          String      @id @default(uuid())
-  // Timestamp of when meta roadmap was created
-  createdAt   DateTime    @default(now()) @map("created_at")
-  // Timestamp of when meta roadmap was last updated
-  updatedAt   DateTime    @updatedAt @map("updated_at")
-  // Name of roadmap
   name        String
-  // Description of meta roadmap
   description String      @db.Text
-  // The type of roadmap, for example national, regional, or local
-  type        RoadmapType @default(OTHER)
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
   // The target of this roadmap, for example a country, region, municipality or organization
   actor       String?
+  // The type of roadmap, for example national, regional, or local
+  type        RoadmapType @default(OTHER)
 
   // The different versions of the roadmap
-  roadmapVersions Roadmap[] @relation("meta_roadmap")
-
-  // Parent meta roadmap
+  iterations      Roadmap[]     @relation("meta_roadmap")
+  // Meta roadmaps relate to each other in tree structures
   parentRoadmapId String?       @map("parent_roadmap_id")
   parentRoadmap   MetaRoadmap?  @relation("meta_roadmap_relation", fields: [parentRoadmapId], references: [id], onDelete: SetNull)
-  // Child meta roadmaps
   childRoadmaps   MetaRoadmap[] @relation("meta_roadmap_relation")
 
   // Comments related to this meta roadmap
   comments Comment[] @relation("meta_roadmap_comment")
 
-  // Author of this meta roadmap
-  authorId   String      @map("author_id")
-  author     User        @relation("meta_roadmap_author", fields: [authorId], references: [id])
-  // Editors and viewers (both individuals and groups) are inherited from here when creating a new roadmap version,
-  // but existing versions are not affected by changes to these. Meta roadmap author is added as an editor by default.
-  // Specific users who are allowed to edit this meta roadmap
-  editors    User[]      @relation("meta_roadmap_editors")
-  // Groups of users who are allowed to edit this meta roadmap
-  editGroups UserGroup[] @relation("meta_roadmap_edit_groups")
-  // Specific users who are allowed to view this meta roadmap
-  viewers    User[]      @relation("meta_roadmap_viewers")
-  // Groups of users who are allowed to view this meta roadmap
-  viewGroups UserGroup[] @relation("meta_roadmap_view_groups")
-  // Whether or not the meta roadmap is public
-  isPublic   Boolean     @default(false) @map("is_public")
+  // Author of this meta roadmap, used for visual purposes only, not for access control
+  authorId String @map("author_id")
+  author   User   @relation("meta_roadmap_author", fields: [authorId], references: [id])
+
+  accessControlId String        @map("access_control_id")
+  accessControl   AccessControl @relation(fields: [accessControlId], references: [id])
 
   @@map("meta_roadmap")
 }
@@ -94,27 +78,16 @@ model Roadmap {
   // If target version is not found in the related meta roadmap, use the latest version available instead
   targetVersion Int?        @map("target_version")
 
-  // Comments related to this roadmap
   comments Comment[] @relation("roadmap_comment")
-  // Goals related to this roadmap
   goals    Goal[]    @relation("roadmap_goal")
-  // Actions related to this roadmap
   actions  Action[]  @relation("action_roadmap")
 
-  // Anyone listed here can edit/view all goals and actions in this roadmap
-  // Author of this roadmap version
-  authorId   String      @map("author_id")
-  author     User        @relation("roadmap_author", fields: [authorId], references: [id])
-  // Specific users who are allowed to edit this roadmap
-  editors    User[]      @relation("roadmap_editors")
-  // Groups of users who are allowed to edit this roadmap
-  editGroups UserGroup[] @relation("roadmap_edit_groups")
-  // Specific users who are allowed to view this roadmap
-  viewers    User[]      @relation("roadmap_viewers")
-  // Groups of users who are allowed to view this roadmap
-  viewGroups UserGroup[] @relation("roadmap_view_groups")
-  // Whether or not the roadmap is public
-  isPublic   Boolean     @default(false) @map("is_public")
+  // Author of this roadmap, used for visual purposes only, not for access control
+  authorId String @map("author_id")
+  author   User   @relation("roadmap_author", fields: [authorId], references: [id])
+
+  accessControlId String        @map("access_control_id")
+  accessControl   AccessControl @relation(fields: [accessControlId], references: [id])
 
   // Two roadmaps may not have the same meta roadmap AND version
   // Also allows for querying a roadmap by meta roadmap and version
@@ -147,7 +120,6 @@ model Goal {
   // A series of data points serving as a "baseline" where no action is taken
   baselineId   String?     @map("baseline_id")
   baseline     DataSeries? @relation(name: "goal_baseline", fields: [baselineId], references: [id])
-
   // Goals may use historical data to plot in comparison to the planned data series
   historicalId String?     @map("historical_id")
   historical   DataSeries? @relation(name: "goal_historical", fields: [historicalId], references: [id])
@@ -156,18 +128,20 @@ model Goal {
   recipeSuggestions Recipe[] @relation("inheritance_suggestions")
 
   // Comments related to this goal
-  comments  Comment[] @relation("goal_comment")
+  comments Comment[] @relation("goal_comment")
   // Tags for this goal
   // Tags are used to categorize goals, such as "climate", "energy", "transport", etc.
-  tags      GoalTag[] @relation("goal_tag")
-  // The person who created this goal
-  authorId  String    @map("author_id")
-  author    User      @relation("goal_author", fields: [authorId], references: [id])
+  tags     GoalTag[] @relation("goal_tag")
+
+  // Author of this goal, used for visual purposes only, not for access control
+  authorId String @map("author_id")
+  author   User   @relation("goal_author", fields: [authorId], references: [id])
+
   // Effects affecting this goal
-  effects   Effect[]  @relation("goal_effect")
+  effects   Effect[] @relation("goal_effect")
   // Parent Roadmap
-  roadmapId String    @map("roadmap_id")
-  roadmap   Roadmap   @relation("roadmap_goal", fields: [roadmapId], references: [id], onDelete: Cascade)
+  roadmapId String   @map("roadmap_id")
+  roadmap   Roadmap  @relation("roadmap_goal", fields: [roadmapId], references: [id], onDelete: Cascade)
 
   @@map("goal")
 }
@@ -359,6 +333,9 @@ model Group {
   orgId String @map("org_id")
   org   Org    @relation("org_group", fields: [orgId], references: [id], onDelete: Cascade)
 
+  users  User[]          @relation("group_user")
+  access AccessControl[] @relation("access_control_group")
+
   @@map("group")
 }
 
@@ -366,7 +343,7 @@ model User {
   id           String @id @default(uuid())
   username     String @unique
   email        String @unique
-  passwordHash String @map("password_hash")
+  passwordHash String @map("password") // Rename to old column name
 
   isVerified   Boolean @default(false) @map("is_verified")
   isSuperAdmin Boolean @default(false) @map("is_admin")
@@ -384,4 +361,17 @@ model User {
   authoredComments     Comment[]     @relation("comment_author")
 
   @@map("user")
+}
+
+model AccessControl {
+  id String @id @default(uuid())
+
+  // Bypasses read access via groups
+  isPublic Boolean @default(true) @map("is_public")
+  groups   Group[] @relation("access_control_group")
+
+  metaRoadmaps MetaRoadmap[]
+  roadmaps     Roadmap[]
+
+  @@map("access_control")
 }
