@@ -73,6 +73,8 @@ export type ApiMetadataDimensionBase = {
   options: ApiSelectOptionBase[];
 }
 
+export type AnyApiMetadataDimension = TrafaCompatMetricDimension | TrafaCompatTimeDimension | TrafaCompatRegularDimension | PxWebCompatMetricDimension | PxWebCompatTimeDimension | PxWebCompatRegularDimension;
+
 export type ApiHierarchyBase = {
   type: "hierarchy";
   id: string;

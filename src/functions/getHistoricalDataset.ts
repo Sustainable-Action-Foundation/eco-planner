@@ -14,19 +14,18 @@ type HistoricalSource = {
 };
 
 /**
- * Recovers the external API selection behind a goal's historical data.
+ * Recovers the external API selection behind a historical data recipe.
  *
  * Stored historical recipes contain a `DataSeries` variable carrying
  * `externalSource` meta (the External variable having been materialized on save);
  * unsaved/edit-time recipes may still contain a raw `External` variable. Both are
  * normalized to a {@link HistoricalSource} here.
  */
-export function getHistoricalSource(goal: Pick<Goal, "historical">): HistoricalSource | null {
-  const recipeJson = goal.historical?.recipeUsed?.recipe;
-  if (!recipeJson) return null;
+export function getHistoricalSourceFromRecipe(recipe: Recipe | null | undefined): HistoricalSource | null {
+  if (!recipe) return null;
 
   try {
-    const variable = Recipe.from(recipeJson).variables.find(
+    const variable = recipe.variables.find(
       v => v.type === RecipeDataTypes.External || (v.type === RecipeDataTypes.DataSeries && !!v.externalSource),
     );
     if (!variable) return null;
@@ -42,6 +41,39 @@ export function getHistoricalSource(goal: Pick<Goal, "historical">): HistoricalS
   } catch {
     return null;
   }
+}
+
+/**
+ * Recovers the external API selection behind a goal's historical data.
+ *
+ * Thin wrapper over {@link getHistoricalSourceFromRecipe} for the persisted-goal
+ * case; deserializes the stored recipe JSON before delegating.
+ */
+export function getHistoricalSource(goal: Pick<Goal, "historical">): HistoricalSource | null {
+  const recipeJson = goal.historical?.recipeUsed?.recipe;
+  if (!recipeJson) return null;
+
+  try {
+    return getHistoricalSourceFromRecipe(Recipe.from(recipeJson));
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Derives the external data source attribution (for source links/labels) from a
+ * historical data recipe, without re-fetching anything.
+ */
+export function getHistoricalDatasetFromRecipe(
+  recipe: Recipe | null | undefined,
+): { dataset: DatasetData | null, label: string | null } {
+  const source = getHistoricalSourceFromRecipe(recipe);
+  if (!source) return { dataset: null, label: null };
+
+  return {
+    dataset: source.dataset ? ExternalDataset.getDatasetByAlternateName(source.dataset) : null,
+    label: source.name || null,
+  };
 }
 
 /**

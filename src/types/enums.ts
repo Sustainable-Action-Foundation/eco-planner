@@ -79,6 +79,16 @@ export const BaselineType = {
 } as const;
 export type BaselineType = (typeof BaselineType)[keyof typeof BaselineType];
 
+/** 
+ * Used by form
+ */
+export const HistoricalDataType = {
+  External: "EXTERNAL",
+  Custom: "CUSTOM",
+} as const;
+export type HistoricalDataType = (typeof HistoricalDataType)[keyof typeof HistoricalDataType];
+
+
 /** What a recipe editor lets the user do. The object doubles as the permissive default that callers spread over. */
 export const RecipeEditorPermissions = {
   allowAddVariables: true,

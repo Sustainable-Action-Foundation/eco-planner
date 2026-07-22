@@ -19,7 +19,9 @@ export default function GoalSeriesSection({
   setPreviewDataSerie,
   setDataSeriesRecipeError,
   hasInitializedSuggested,
+  hasInitializedManual,
   hasInitializedCustom,
+
 }: {
   goal: Goal | undefined;
   dataSeriesType: DataSeriesType;
@@ -28,6 +30,7 @@ export default function GoalSeriesSection({
   setPreviewDataSerie: Dispatch<SetStateAction<DateValuesWithUnit | null>>;
   setDataSeriesRecipeError: Dispatch<SetStateAction<string | null>>;
   hasInitializedSuggested: boolean;
+  hasInitializedManual: boolean;
   hasInitializedCustom: boolean;
 }) {
   const { t } = useTranslation(["forms", "common"]);
@@ -139,30 +142,33 @@ export default function GoalSeriesSection({
         }
 
         {/* Manual */}
-        <fieldset className={`${dataSeriesType === DataSeriesType.Manual ? "" : "display-none"}`} disabled={dataSeriesType !== DataSeriesType.Manual}>
-          <RecipeContextProvider
-            initialRecipe={Recipe.fromManualDateValues(manualInitialDateValues ?? { unit: undefined, dateValues: {} }).serialize()}
-          >
-            <ManualDataSeriesInput
-              id="goal-dataseries"
-              label={t("forms:data_series_input.data_series")}
-              initialDateValues={manualInitialDateValues}
-            />
-            <UnitInput
-              id="goal-manual-unit"
-              staticProvidedUnit={goal?.dataSeries?.unit}
-            />
-            <FormSync
-              RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
-              UnitFormElement={<input name={GoalFormName.DataUnit} />}
-              DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
-            />
-            <RecipeSync
-              onDateValues={setPreviewDataSerie}
-              active={dataSeriesType === DataSeriesType.Manual}
-            />
-          </RecipeContextProvider>
-        </fieldset>
+        {hasInitializedManual ?
+          <fieldset className={`${dataSeriesType === DataSeriesType.Manual ? "" : "display-none"}`} disabled={dataSeriesType !== DataSeriesType.Manual}>
+            <RecipeContextProvider
+              initialRecipe={Recipe.fromManualDateValues(manualInitialDateValues ?? { unit: undefined, dateValues: {} }).serialize()}
+            >
+              <ManualDataSeriesInput
+                id="goal-dataseries"
+                label={t("forms:data_series_input.data_series")}
+                initialDateValues={manualInitialDateValues}
+              />
+              <UnitInput
+                id="goal-manual-unit"
+                staticProvidedUnit={goal?.dataSeries?.unit}
+              />
+              <FormSync
+                RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
+                UnitFormElement={<input name={GoalFormName.DataUnit} />}
+                DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
+              />
+              <RecipeSync
+                onDateValues={setPreviewDataSerie}
+                active={dataSeriesType === DataSeriesType.Manual}
+              />
+            </RecipeContextProvider>
+          </fieldset>
+          : null
+        }
 
         {/* Recipe */}
         {hasInitializedCustom ?

@@ -6,6 +6,7 @@ import type { DataSeries, DateValuesWithUnit } from "@/types";
 import type { ApexAxisChartSeries, ApexYAxis } from "apexcharts";
 import { color_palette, generateApexChartOptions } from "../../config";
 import { useTranslation } from "react-i18next";
+import { memo } from "react";
 
 // Checks if we have a dataSeries or DateValuesWithUnit
 function isDataSeries(
@@ -88,7 +89,7 @@ function getSiblingColor(index: number, total: number, baseHex: string): string 
   return `hsl(${hue}, ${base.s}%, 50%)`;
 }
 
-export default function GoalGraph({
+export function GoalGraph({
   chartType, // TODO: TURN INTO PROPER TYPE!
   chartOptionsType,
   series: {
@@ -101,7 +102,7 @@ export default function GoalGraph({
     siblings = null,
   } = {},
 }: {
-  chartType: "main" | "thumbnail" | "siblings" // TODO: This should be a type if i do it this way...  (also dislike this generally, probably want to pass options for each graph instead of doing it like this)
+  chartType: "main" | "thumbnail" | "siblings" | "preview" // TODO: This should be a type if i do it this way...  (also dislike this generally, probably want to pass options for each graph instead of doing it like this)
   chartOptionsType?: "line" | "area" | "bar" | "pie" | "donut" | "radialBar" | "scatter" | "bubble" | "heatmap" | "candlestick" | "boxPlot" | "radar" | "polarArea" | "rangeBar" | "rangeArea" | "treemap" | "funnel" | "pyramid" | "gauge" | undefined;
   series?: {
     main?: ((DataSeries | DateValuesWithUnit) & { name: string }) | null;
@@ -198,3 +199,5 @@ export default function GoalGraph({
     series={chart}
   />;
 }
+
+export default memo(GoalGraph);

@@ -3,7 +3,7 @@
 import type { getRoadmaps } from "@/fetchers";
 import formSubmitter from "@/functions/formSubmitter";
 import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput } from "@/types";
-import { BaselineType, DataSeriesType, GoalDataTarget } from "@/types/enums";
+import { BaselineType, DataSeriesType, GoalDataTarget, HistoricalDataType } from "@/types/enums";
 import { GoalFormName } from "@/types/form-names";
 import { isDateValuesWithUnit } from "@/types/typeguards";
 import { waitForRecipeFormSyncs } from "@/components/recipe";
@@ -22,6 +22,7 @@ import GoalGraph from "@/components/graph/graphs/goal/main";
 import HistoricalSeriesSection from "../sections/dataseries/historical";
 import BaselineSeriesSection from "../sections/dataseries/baseline";
 import GoalSeriesSection from "../sections/dataseries/goal";
+import { getHistoricalDatasetFromRecipe } from "@/functions/getHistoricalDataset";
 
 function resolveDataSeriesType(goal?: Goal): DataSeriesType {
   // Somehow missing
@@ -71,6 +72,31 @@ function resolveBaselineType(goal?: Goal): BaselineType {
     : BaselineType.Inherited;
 }
 
+function resolveHistoricalDataType(goal?: Goal): HistoricalDataType {
+  const recipe = goal?.historical?.recipeUsed?.recipe;
+  if (!recipe) return HistoricalDataType.External;
+
+  // Manual entry stored as an inline data series recipe; anything else (e.g. an
+  // external API selection) edits as external.
+  return Recipe.from(recipe).isManual()
+    ? HistoricalDataType.Custom
+    : HistoricalDataType.External;
+}
+
+// Tracks every distinct value `current` has taken since mount, as a Set.
+// Used to keep a tab's content mounted once it's been visited, even after
+// switching away — replaces one boolean state + one useEffect per enum value.
+function useInitializedValues<T>(current: T): Set<T> {
+  const [initialized, setInitialized] = useState<Set<T>>(() => new Set([current]));
+
+  useEffect(() => {
+    setInitialized(prev => (prev.has(current) ? prev : new Set(prev).add(current)));
+  }, [current]);
+
+  return initialized;
+}
+
+
 export default function GoalForm({
   roadmapId,
   roadmapAlternatives,
@@ -80,18 +106,37 @@ export default function GoalForm({
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
   currentGoal?: Goal;
 }) {
-  const { t } = useTranslation(["forms", "common"]);
-  const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(resolveDataSeriesType(currentGoal));
-  const [hasInitializedSuggested, setHasInitializedSuggested] = useState<boolean>(() => resolveDataSeriesType(currentGoal) === DataSeriesType.Suggested);
-  const [hasInitializedCustom, setHasInitializedCustom] = useState<boolean>(() => resolveDataSeriesType(currentGoal) === DataSeriesType.Custom);
-  const [baselineType, setBaselineType] = useState<BaselineType>(resolveBaselineType(currentGoal));
+  const { t } = useTranslation(["forms", "graphs", "common"]);
+
+
+  const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(() => resolveDataSeriesType(currentGoal));
+  const initializedDataSeriesTypes = useInitializedValues(dataSeriesType);
+  const hasInitializedSuggested = initializedDataSeriesTypes.has(DataSeriesType.Suggested);
+  const hasInitializedManual = initializedDataSeriesTypes.has(DataSeriesType.Manual);
+  const hasInitializedCustom = initializedDataSeriesTypes.has(DataSeriesType.Custom);
+
+  const [baselineType, setBaselineType] = useState<BaselineType>(() => resolveBaselineType(currentGoal));
+  const initializedBaselineTypes = useInitializedValues(baselineType);
+  const baselineHasInitializedInitial = initializedBaselineTypes.has(BaselineType.Initial);
+  const baselineHasInitializedInitialNonZero = initializedBaselineTypes.has(BaselineType.InitialNonZero);
+  const baselineHasInitializedManual = initializedBaselineTypes.has(BaselineType.Custom);
+  const baselineHasInitializedInherited = initializedBaselineTypes.has(BaselineType.Inherited);
+
+  const [historicalDataType, setHistoricalDataType] = useState<HistoricalDataType>(() => resolveHistoricalDataType(currentGoal));
+  const initializedHistoricalTypes = useInitializedValues(historicalDataType);
+  const historicalHasInitializedExternal = initializedHistoricalTypes.has(HistoricalDataType.External);
+  const historicalHasInitializedCustom = initializedHistoricalTypes.has(HistoricalDataType.Custom);
+
   const [indicatorParameter, setIndicatorParameter] = useState<string>(currentGoal?.indicatorParameter ?? "");
+  // const [goalName, setGoalName] = useState<string>(currentGoal?.name ?? "");
   const [parentRoadmapId, setParentRoadmapId] = useState<string>(roadmapId || "");
   const [previewDataSerie, setPreviewDataSerie] = useState<DateValuesWithUnit | null>(null);
   const [previewHistoricalSerie, setPreviewHistoricalSerie] = useState<DateValuesWithUnit | null>(null);
   const [previewBaselineSerie, setPreviewBaselineSerie] = useState<DateValuesWithUnit | null>(null);
+  const [previewHistoricalRecipe, setPreviewHistoricalRecipe] = useState<SerializedRecipe | null>(null);
 
-  // Evaluation error of the currently-selected recipe input (Suggested/Custom),
+
+  // Evaluation error of the currently-selected recipe input (Suggested/Custom)  setPreviewHistoricalRecipe={setPreviewHistoricalRecipe},
   // lifted out of the recipe context so submission can be blocked when it fails
   // to evaluate (e.g. an external variable with an incomplete selection).
   const [dataSeriesRecipeError, setDataSeriesRecipeError] = useState<string | null>(null);
@@ -99,6 +144,35 @@ export default function GoalForm({
   const router = useRouter();
 
   const { addToast } = useToast();
+
+  const historicalLabel = useMemo(() => {
+    if (!previewHistoricalRecipe) return "";
+    try {
+      return getHistoricalDatasetFromRecipe(Recipe.from(previewHistoricalRecipe)).label ?? "";
+    } catch {
+      return "";
+    }
+  }, [previewHistoricalRecipe]);
+
+  const previewGraphSeries = useMemo(() => ({
+    main: previewDataSerie?.dateValues && {
+      //name: goalName ? `${goalName} (goal)` : 'goal', // TODO: i18n
+      name: 'goal', // TODO: Really want this implemented as is it above but this turned out to be really expensive as tracking the name will re-render the form. 
+      unit: previewDataSerie.unit,
+      dateValues: previewDataSerie.dateValues, // TODO: Needs to be updated if we remove stuff
+    },
+    baseline: (previewBaselineSerie?.dateValues && previewDataSerie) && {
+      name: t('graphs:common.baseline_scenario'),
+      unit: previewDataSerie.unit, // TODO: For now we lie and say that baseline and preview data series share the same unit. Should make sure that we sync properly in the future though.
+      dateValues: previewBaselineSerie.dateValues,
+    },
+    historical: (previewHistoricalSerie?.dateValues && previewDataSerie) && {
+      name: historicalLabel ? `${historicalLabel} (historical)` : 'historical data', // TODO: i18n
+      unit: previewDataSerie.unit, // TODO: For now we lie and say that historical and preview data series share the same unit. Should make sure that we sync properly in the future though.
+      dateValues: previewHistoricalSerie.dateValues,
+    },
+  }), [previewDataSerie, previewBaselineSerie, previewHistoricalSerie, historicalLabel, t]);
+
 
   const parentRoadmaps = useMemo(() => {
     return (roadmapAlternatives ?? []).map(roadmap => ({
@@ -116,19 +190,11 @@ export default function GoalForm({
     }));
   }, []);
 
-  useEffect(() => {
-    if (dataSeriesType === DataSeriesType.Suggested) {
-      setHasInitializedSuggested(true);
-    }
-
-    if (dataSeriesType === DataSeriesType.Custom) {
-      setHasInitializedCustom(true);
-    }
-  }, [dataSeriesType]);
-
   // TODO: Error messages were translated directly from English to Swedish when switching to toasts.
   // They can likely be translated better.
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
+    console.log('this ran');
+    event.target.reportValidity();
     event.preventDefault();
 
     // The recipe contexts evaluate on a debounce; wait for their FormSync
@@ -437,7 +503,14 @@ export default function GoalForm({
         <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.goal_description_legend")}</legend>
         <label>
           {t("forms:goal.goal_name")}
-          <input className="margin-top-25 margin-bottom-100" type="text" name={GoalFormName.GoalName} id="goalName" defaultValue={currentGoal?.name ?? undefined} />
+          <input
+            className="margin-top-25 margin-bottom-100"
+            type="text"
+            name={GoalFormName.GoalName}
+            id="goalName"
+            defaultValue={currentGoal?.name ?? undefined}
+            // onChange={(e) => setGoalName(e.target.value)}
+          />
         </label>
 
         <label id="description-label">{t("forms:goal.goal_description")}</label> {/* TODO: This is not actually labeling anything. I am however unsure how labels work outside of inputs so check that. */}
@@ -499,6 +572,7 @@ export default function GoalForm({
             setPreviewDataSerie={setPreviewDataSerie}
             setDataSeriesRecipeError={setDataSeriesRecipeError}
             hasInitializedSuggested={hasInitializedSuggested}
+            hasInitializedManual={hasInitializedManual}
             hasInitializedCustom={hasInitializedCustom}
           />
         </fieldset>
@@ -518,6 +592,10 @@ export default function GoalForm({
             dataSeries={previewDataSerie}
             setBaselineType={setBaselineType}
             setPreviewBaselineSerie={setPreviewBaselineSerie}
+            hasInitializedInitial={baselineHasInitializedInitial}
+            hasInitializedInitialNonZero={baselineHasInitializedInitialNonZero}
+            hasInitializedManual={baselineHasInitializedManual}
+            hasInitializedInherited={baselineHasInitializedInherited}
           />
         </fieldset>
 
@@ -531,7 +609,12 @@ export default function GoalForm({
           </legend>
           <HistoricalSeriesSection
             goal={currentGoal}
+            historicalDataType={historicalDataType}
+            setHistoricalDataType={setHistoricalDataType}
             setPreviewHistoricalSerie={setPreviewHistoricalSerie}
+            setPreviewHistoricalRecipe={setPreviewHistoricalRecipe}
+            hasInitializedExternal={historicalHasInitializedExternal}
+            hasInitializedManual={historicalHasInitializedCustom}
           />
         </fieldset>
 
@@ -544,24 +627,8 @@ export default function GoalForm({
             style={{ height: '400px' }}
           >
             <GoalGraph // TODO: This is not correctly re-rendering when updating dataseries?
-              chartType="main"
-              series={{
-                main: previewDataSerie?.dateValues && {
-                  name: 'placeholder name (goal)', // TODO: temp name
-                  unit: previewDataSerie.unit,
-                  dateValues: previewDataSerie.dateValues, // TODO: Needs to be updated if we remove stuff
-                },
-                baseline: previewBaselineSerie?.dateValues && {
-                  name: 'placeholder name (baseline)', // TODO: temp name
-                  unit: '',  // TODO: temp unit, replace with real unit later,
-                  dateValues: previewBaselineSerie.dateValues,
-                },
-                historical: previewHistoricalSerie?.dateValues && {
-                  name: 'placeholder name (historical)', // TODO: temp name
-                  unit: '',  // TODO: temp unit, replace with real unit later,
-                  dateValues: previewHistoricalSerie.dateValues,
-                },
-              }}
+              chartType="preview"
+              series={previewGraphSeries}
             />
           </div>
         </div>

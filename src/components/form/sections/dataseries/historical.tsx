@@ -2,44 +2,37 @@
 
 import type { DateValuesWithUnit, Goal } from "@/types";
 import { GoalFormName } from "@/types/form-names";
-import { type Dispatch, type SetStateAction, useMemo, useState } from "react";
+import { type Dispatch, type SetStateAction, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { ExternalDataSeriesInput, FormSync, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
-import { dataSeriesToDateValues, Recipe } from "@/functions/recipe";
+import { dataSeriesToDateValues, Recipe, type SerializedRecipe } from "@/functions/recipe";
 import { IconCheck } from "@tabler/icons-react";
 import { RecipeSync } from "@/components/recipe/output/recipeSync";
+import { HistoricalDataType } from "@/types/enums";
 
 // TODO: Historical data should not be required in a goal form
-// TODO: Check if selecting metric actually changes selectable values
-
-const HistoricalDataType = {
-  External: "EXTERNAL",
-  Custom: "CUSTOM",
-} as const;
-type HistoricalDataType = (typeof HistoricalDataType)[keyof typeof HistoricalDataType];
-
-function resolveHistoricalDataType(goal?: Goal): HistoricalDataType {
-  const recipe = goal?.historical?.recipeUsed?.recipe;
-  if (!recipe) return HistoricalDataType.External;
-
-  // Manual entry stored as an inline data series recipe; anything else (e.g. an
-  // external API selection) edits as external.
-  return Recipe.from(recipe).isManual()
-    ? HistoricalDataType.Custom
-    : HistoricalDataType.External;
-}
+// TODO: Should have a "no historical values selection"
+// TODO: Need to default to a 0 dataseries if no value exists? Otherwise manual data will remain even after switching to external if no external choice has been made.
 
 export default function HistoricalSeriesSection({
   goal,
+  historicalDataType,
+  setHistoricalDataType,
   setPreviewHistoricalSerie,
+  setPreviewHistoricalRecipe,
+  hasInitializedExternal,
+  hasInitializedManual,
 }: {
   goal: Goal | undefined
+  historicalDataType: HistoricalDataType;
+  setHistoricalDataType: Dispatch<SetStateAction<HistoricalDataType>>;
   /** Receives the evaluated historical series for previewing (e.g. the goal form's graph); omit where no preview is shown. */
   setPreviewHistoricalSerie?: Dispatch<SetStateAction<DateValuesWithUnit | null>>;
+  setPreviewHistoricalRecipe?: Dispatch<SetStateAction<SerializedRecipe | null>>;
+  hasInitializedExternal: boolean;
+  hasInitializedManual: boolean;
 }) {
   const { t } = useTranslation("components");
-
-  const [historicalDataType, setHistoricalDataType] = useState<HistoricalDataType>(() => resolveHistoricalDataType(goal));
 
   const savedHistoricalRecipe = goal?.historical?.recipeUsed?.recipe;
   const savedIsManual = !!savedHistoricalRecipe && Recipe.from(savedHistoricalRecipe).isManual();
@@ -102,39 +95,49 @@ export default function HistoricalSeriesSection({
             <span className="text-transform-lowercase">{historicalDataType === HistoricalDataType.External ? ` ${t("forms:goal.data_series.historical.external_title")}` : ` ${t("forms:goal.data_series.historical.custom_title")}`}</span>
           </span>
         </p> {/* TODO: Should be a legend? */}
-        {historicalDataType === HistoricalDataType.External ? (
-          <RecipeContextProvider
-            initialRecipe={externalInitialRecipe}
-            availableDataSeries={goal?.historical?.recipeUsed?.sourceDataSeries}
-          >
-            <ExternalDataSeriesInput goal={goal} />
-            <FormSync
-              RecipeFormElement={<input name={GoalFormName.HistoricalRecipe} />}
-              DateValuesFormElement={<input name={GoalFormName.HistoricalDataSeries} />}
-            />
-            <RecipeSync
-              onDateValues={setPreviewHistoricalSerie}
-              active={historicalDataType === HistoricalDataType.External}
-            />
-          </RecipeContextProvider>
-        ) :
-          <RecipeContextProvider
-            initialRecipe={Recipe.fromManualDateValues(manualInitialDateValues ?? { unit: undefined, dateValues: {} }).serialize()}
-          >
-            <ManualDataSeriesInput
-              id="historical-data-series"
-              label={t("forms:data_series_input.data_series")}
-              initialDateValues={manualInitialDateValues}
-            />
-            <FormSync
-              RecipeFormElement={<input name={GoalFormName.HistoricalRecipe} />}
-              DateValuesFormElement={<input name={GoalFormName.HistoricalDataSeries} />}
-            />
-            <RecipeSync
-              onDateValues={setPreviewHistoricalSerie}
-              active={historicalDataType === HistoricalDataType.Custom}
-            />
-          </RecipeContextProvider>
+
+        {hasInitializedExternal ?
+          <fieldset className={`${historicalDataType === HistoricalDataType.External ? "" : "display-none"}`} disabled={historicalDataType !== HistoricalDataType.External}>
+            <RecipeContextProvider
+              initialRecipe={externalInitialRecipe}
+              availableDataSeries={goal?.historical?.recipeUsed?.sourceDataSeries}
+            >
+              <ExternalDataSeriesInput goal={goal} />
+              <FormSync
+                RecipeFormElement={<input name={GoalFormName.HistoricalRecipe} />}
+                DateValuesFormElement={<input name={GoalFormName.HistoricalDataSeries} />}
+              />
+              <RecipeSync
+                onDateValues={setPreviewHistoricalSerie}
+                onRecipe={setPreviewHistoricalRecipe}
+                active={historicalDataType === HistoricalDataType.External}
+              />
+            </RecipeContextProvider>
+          </fieldset>
+          : null
+        }
+
+        {hasInitializedManual ?
+          <fieldset className={`${historicalDataType === HistoricalDataType.Custom ? "" : "display-none"}`} disabled={historicalDataType !== HistoricalDataType.Custom}>
+            <RecipeContextProvider
+              initialRecipe={Recipe.fromManualDateValues(manualInitialDateValues ?? { unit: undefined, dateValues: {} }).serialize()}
+            >
+              <ManualDataSeriesInput
+                id="historical-data-series"
+                label={t("forms:data_series_input.data_series")}
+                initialDateValues={manualInitialDateValues}
+              />
+              <FormSync
+                RecipeFormElement={<input name={GoalFormName.HistoricalRecipe} />}
+                DateValuesFormElement={<input name={GoalFormName.HistoricalDataSeries} />}
+              />
+              <RecipeSync
+                onDateValues={setPreviewHistoricalSerie}
+                active={historicalDataType === HistoricalDataType.Custom}
+              />
+            </RecipeContextProvider>
+          </fieldset>
+          : null
         }
       </div>
     </>
