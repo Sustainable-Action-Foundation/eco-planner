@@ -32,7 +32,7 @@ enum AccessLevel {
 }
 
 enum OrgRole {
-  // Guests are cross-org contributors: they do NOT get orgReadable read access, only what their groups explicitly grant (plus public content)
+  // Guests are cross-org contributors: they do NOT get org_readable read access, only what their groups explicitly grant (plus public content)
   GUEST
   MEMBER
   // Managers bypass all access grants under their org and manage its groups and sharing settings.
@@ -41,433 +41,404 @@ enum OrgRole {
   MANAGER
 }
 
-// Meta roadmaps are used for the highest level of roadmaps and reference multiple versions of the same roadmap
-model MetaRoadmap {
+// The highest level of roadmaps, referencing multiple iterations (versions) of itself
+model Roadmaps {
   id          String      @id @default(uuid())
   name        String
   description String      @db.Text
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @updatedAt @map("updated_at")
+  created_at  DateTime    @default(now())
+  updated_at  DateTime    @updatedAt
   // The target of this roadmap, for example a country, region, municipality or organization
   actor       String?
   // The type of roadmap, for example national, regional, or local
   type        RoadmapType @default(OTHER)
 
   // The different versions of the roadmap
-  iterations      Roadmap[]     @relation("meta_roadmap")
-  // Meta roadmaps relate to each other in tree structures
-  parentRoadmapId String?       @map("parent_roadmap_id")
-  parentRoadmap   MetaRoadmap?  @relation("meta_roadmap_relation", fields: [parentRoadmapId], references: [id], onDelete: SetNull)
-  childRoadmaps   MetaRoadmap[] @relation("meta_roadmap_relation")
+  iterations        RoadmapIterations[] @relation("roadmap_iterations")
+  // Roadmaps relate to each other in tree structures
+  parent_roadmap_id String?
+  parent_roadmap    Roadmaps?           @relation("roadmap_tree", fields: [parent_roadmap_id], references: [id], onDelete: SetNull)
+  child_roadmaps    Roadmaps[]          @relation("roadmap_tree")
 
-  // Comments related to this meta roadmap
-  comments Comment[] @relation("meta_roadmap_comment")
-
-  // Author of this meta roadmap, used for visual purposes only, not for access control
-  authorId String? @map("author_id")
-  author   User?   @relation("meta_roadmap_author", fields: [authorId], references: [id], onDelete: SetNull)
-
-  // Access control for this meta roadmap and all of its iterations
-  accessControlId String        @map("access_control_id")
-  accessControl   AccessControl @relation(fields: [accessControlId], references: [id])
-
-  @@map("meta_roadmap")
-}
-
-model Roadmap {
-  // UUID of the roadmap
-  id          String   @id @default(uuid())
-  // Timestamp of when roadmap was created
-  createdAt   DateTime @default(now()) @map("created_at")
-  // Timestamp of when roadmap was last updated
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  // Optional description of this specific roadmap version
-  description String?  @db.Text
-
-  // Parent meta roadmap
-  // This is the meta roadmap that this roadmap is a version of
-  metaRoadmapId String      @map("meta_roadmap_id")
-  metaRoadmap   MetaRoadmap @relation("meta_roadmap", fields: [metaRoadmapId], references: [id], onDelete: Cascade)
-  // The version of the roadmap
-  version       Int
-  // If the parent meta roadmap relates to another meta roadmap, targetVersion defines which version of the related meta roadmap this roadmap version relates to
-  // If target version is not found in the related meta roadmap, use the latest version available instead
-  targetVersion Int?        @map("target_version")
-  // When this version was published; null means draft, visible only to users with RW access (or better) via the meta roadmap's access control
-  publishedAt   DateTime?   @map("published_at")
-
-  comments Comment[] @relation("roadmap_comment")
-  goals    Goal[]    @relation("roadmap_goal")
-  actions  Action[]  @relation("action_roadmap")
+  // Comments related to this roadmap
+  comments Comments[] @relation("roadmap_comments")
 
   // Author of this roadmap, used for visual purposes only, not for access control
-  authorId String? @map("author_id")
-  author   User?   @relation("roadmap_author", fields: [authorId], references: [id], onDelete: SetNull)
+  author_id String?
+  author    Users?  @relation("roadmap_author", fields: [author_id], references: [id], onDelete: SetNull)
 
-  // Two roadmaps may not have the same meta roadmap AND version
-  // Also allows for querying a roadmap by meta roadmap and version
-  @@unique(name: "meta_version", [metaRoadmapId, version])
-  @@map("roadmap")
+  // Access control for this roadmap and all of its iterations
+  access_control_id String
+  access_control    AccessControls @relation(fields: [access_control_id], references: [id])
 }
 
-model Goal {
+model RoadmapIterations {
+  // UUID of the roadmap iteration
+  id          String   @id @default(uuid())
+  // Timestamp of when the iteration was created
+  created_at  DateTime @default(now())
+  // Timestamp of when the iteration was last updated
+  updated_at  DateTime @updatedAt
+  // Optional description of this specific iteration
+  description String?  @db.Text
+
+  // The roadmap this is an iteration of
+  roadmap_id     String
+  roadmap        Roadmaps  @relation("roadmap_iterations", fields: [roadmap_id], references: [id], onDelete: Cascade)
+  // The version of the roadmap
+  version        Int
+  // If the parent roadmap relates to another roadmap, target_version defines which version of the related roadmap this iteration relates to
+  // If target version is not found in the related roadmap, use the latest version available instead
+  target_version Int?
+  // When this iteration was published; null means draft, visible only to users with RW access (or better) via the roadmap's access control
+  published_at   DateTime?
+
+  comments Comments[] @relation("roadmap_iteration_comments")
+  goals    Goals[]    @relation("roadmap_iteration_goals")
+  actions  Actions[]  @relation("roadmap_iteration_actions")
+
+  // Author of this iteration, used for visual purposes only, not for access control
+  author_id String?
+  author    Users?  @relation("roadmap_iteration_author", fields: [author_id], references: [id], onDelete: SetNull)
+
+  // Two iterations may not have the same roadmap AND version
+  // Also allows for querying an iteration by roadmap and version
+  @@unique(name: "roadmap_version", [roadmap_id, version])
+}
+
+model Goals {
   // UUID of the goal
-  id        String   @id @default(uuid())
+  id         String   @id @default(uuid())
   // Timestamp of when goal was created
-  createdAt DateTime @default(now()) @map("created_at")
+  created_at DateTime @default(now())
   // Timestamp of when goal was last updated
-  updatedAt DateTime @updatedAt @map("updated_at")
+  updated_at DateTime @updatedAt
 
   // Name of goal
   // If no name is given, show indicator parameter instead
-  name               String?
+  name                String?
   // Longer description of goal
-  description        String? @db.Text
+  description         String? @db.Text
   // Will be something similar to "Key\Energiomvandlingsanläggningar\Insatta bränslen för elproduktion\Naturgas", as defined by LEAP
-  indicatorParameter String  @map("indicator_parameter") @db.Text
+  indicator_parameter String  @db.Text
 
   // The graphs of featured Goals' DataSeries will be shown as thumbnails on the roadmap page
-  isFeatured Boolean @default(false) @map("is_featured")
+  is_featured Boolean @default(false)
 
   // A series of data points representing the goals for each year
-  dataSeriesId String?     @unique @map("data_series_id")
-  dataSeries   DataSeries? @relation(name: "goal_data_series", fields: [dataSeriesId], references: [id])
+  data_series_id String?     @unique
+  data_series    DataSeries? @relation(name: "goal_data_series", fields: [data_series_id], references: [id])
   // A series of data points serving as a "baseline" where no action is taken
-  baselineId   String?     @unique @map("baseline_id")
-  baseline     DataSeries? @relation(name: "goal_baseline", fields: [baselineId], references: [id])
+  baseline_id    String?     @unique
+  baseline       DataSeries? @relation(name: "goal_baseline", fields: [baseline_id], references: [id])
   // Goals may use historical data to plot in comparison to the planned data series
-  historicalId String?     @unique @map("historical_id")
-  historical   DataSeries? @relation(name: "goal_historical", fields: [historicalId], references: [id])
+  historical_id  String?     @unique
+  historical     DataSeries? @relation(name: "goal_historical", fields: [historical_id], references: [id])
 
   // When inheriting data from this goal, these suggestions will appear for the user to choose from e.g. "Scale by area" or "Scale by population"
-  recipeSuggestions Recipe[] @relation("inheritance_suggestions")
+  recipe_suggestions Recipes[] @relation("inheritance_suggestions")
 
   // Comments related to this goal
-  comments Comment[] @relation("goal_comment")
+  comments Comments[] @relation("goal_comments")
   // Tags for this goal
   // Tags are used to categorize goals, such as "climate", "energy", "transport", etc.
-  tags     GoalTag[] @relation("goal_tag")
+  tags     GoalTags[] @relation("goal_tags")
 
   // Author of this goal, used for visual purposes only, not for access control
-  authorId String? @map("author_id")
-  author   User?   @relation("goal_author", fields: [authorId], references: [id], onDelete: SetNull)
+  author_id String?
+  author    Users?  @relation("goal_author", fields: [author_id], references: [id], onDelete: SetNull)
 
   // Effects affecting this goal
-  effects   Effect[] @relation("goal_effect")
-  // Parent Roadmap
-  roadmapId String   @map("roadmap_id")
-  roadmap   Roadmap  @relation("roadmap_goal", fields: [roadmapId], references: [id], onDelete: Cascade)
-
-  @@map("goal")
+  effects              Effects[]         @relation("goal_effects")
+  // Parent roadmap iteration
+  roadmap_iteration_id String
+  roadmap_iteration    RoadmapIterations @relation("roadmap_iteration_goals", fields: [roadmap_iteration_id], references: [id], onDelete: Cascade)
 }
 
 model DataSeries {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id         String   @id @default(uuid())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
-  orgId String @map("org_id")
-  org   Org    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  org_id String
+  org    Orgs   @relation(fields: [org_id], references: [id], onDelete: Cascade)
 
   // The user who created this data series, used for visual purposes only, not for access control
-  authorId String? @map("author_id")
-  author   User?   @relation("data_series_author", fields: [authorId], references: [id], onDelete: SetNull)
+  author_id String?
+  author    Users?  @relation("data_series_author", fields: [author_id], references: [id], onDelete: SetNull)
 
   // An empty string indicates a missing unit, while null indicates an intentionally unitless data series, such as an amount of electric cars
-  unit   String?      @default("")
-  values DateRecord[]
+  unit   String?       @default("")
+  values DateRecords[]
 
   // Every data series is produced by exactly one recipe; manual input uses an inline recipe (meta.isManual)
-  recipeUsedId     String   @unique @map("recipe_used_id")
-  recipeUsed       Recipe   @relation(name: "recipe_used", fields: [recipeUsedId], references: [id])
-  dependentRecipes Recipe[] @relation(name: "source_data_series")
+  recipe_used_id    String    @unique
+  recipe_used       Recipes   @relation(name: "recipe_used", fields: [recipe_used_id], references: [id])
+  dependent_recipes Recipes[] @relation(name: "source_data_series")
 
   // A data series belongs to at most one dependent slot (unique FKs on the other side).
-  // A series filling multiple slots at once (e.g. one goal's dataSeries and another goal's baseline) has to be prevented in code.
-  dependentGoal       Goal?   @relation("goal_data_series")
-  dependentBaseline   Goal?   @relation("goal_baseline")
-  dependentHistorical Goal?   @relation("goal_historical")
-  dependentEffect     Effect? @relation("effect_data_series")
-
-  @@map("data_series")
+  // A series filling multiple slots at once (e.g. one goal's data_series and another goal's baseline) has to be prevented in code.
+  dependent_goal       Goals?   @relation("goal_data_series")
+  dependent_baseline   Goals?   @relation("goal_baseline")
+  dependent_historical Goals?   @relation("goal_historical")
+  dependent_effect     Effects? @relation("effect_data_series")
 }
 
-model DateRecord {
-  timestamp    DateTime   @db.Date
-  value        Float
-  dataSeriesId String     @map("data_series_id")
-  dataSeries   DataSeries @relation(fields: [dataSeriesId], references: [id], onDelete: Cascade)
+model DateRecords {
+  timestamp      DateTime   @db.Date
+  value          Float
+  data_series_id String
+  data_series    DataSeries @relation(fields: [data_series_id], references: [id], onDelete: Cascade)
 
-  @@id([dataSeriesId, timestamp])
-  @@map("date_record")
+  @@id([data_series_id, timestamp])
 }
 
-model Recipe {
+model Recipes {
   id     String @id @default(uuid())
   recipe Json   @db.Json
 
-  orgId String @map("org_id")
-  org   Org    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  org_id String
+  org    Orgs   @relation(fields: [org_id], references: [id], onDelete: Cascade)
 
-  suggestedByGoals Goal[] @relation("inheritance_suggestions")
+  suggested_by_goals Goals[] @relation("inheritance_suggestions")
 
   // The one data series this recipe produces; null for recipes not (yet) attached to a series, e.g. inheritance suggestion templates
-  derivedDataSeries DataSeries?  @relation("recipe_used")
-  sourceDataSeries  DataSeries[] @relation("source_data_series")
-
-  @@map("recipe")
+  derived_data_series DataSeries?  @relation("recipe_used")
+  source_data_series  DataSeries[] @relation("source_data_series")
 }
 
-model GoalTag {
+model GoalTags {
   // The name of a tag is used as the ID, since it doesn't make sense to have multiple different tags with the same name
   name String @id
 
   // Goals that are tagged with this tag
-  goals Goal[] @relation("goal_tag")
-
-  @@map("goal_tag")
+  goals Goals[] @relation("goal_tags")
 }
 
-model Action {
+model Actions {
   // UUID of the action
-  id        String   @id @default(uuid())
+  id         String   @id @default(uuid())
   // Timestamp of when action was created
-  createdAt DateTime @default(now()) @map("created_at")
+  created_at DateTime @default(now())
   // Timestamp of when action was last updated
-  updatedAt DateTime @updatedAt @map("updated_at")
+  updated_at DateTime @updatedAt
 
-  orgId String @map("org_id")
-  org   Org    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  org_id String
+  org    Orgs   @relation(fields: [org_id], references: [id], onDelete: Cascade)
 
   // Name of action, preferably a short summary
-  name               String
+  name                String
   // Used to create a tree structure for actions, looks like "Some\Tree\Structure"
-  indicatorParameter String @map("indicator_parameter") @db.VarChar(1024)
+  indicator_parameter String @db.VarChar(1024)
   // The year the action is planned to start
-  startYear          Int?   @map("start_year")
+  start_year          Int?
   // The year the action is planned to end
-  endYear            Int?   @map("end_year")
+  end_year            Int?
 
   // Effects of this action
-  effects Effect[] @relation("action_effect")
+  effects Effects[] @relation("action_effects")
 
-  roadmapId String?  @map("roadmap_id")
-  roadmap   Roadmap? @relation("action_roadmap", fields: [roadmapId], references: [id], onDelete: Cascade)
+  roadmap_iteration_id String?
+  roadmap_iteration    RoadmapIterations? @relation("roadmap_iteration_actions", fields: [roadmap_iteration_id], references: [id], onDelete: Cascade)
 
   // Relations for keeping track of inheritance between actions
-  parentActionId String?  @map("parent_action_id")
-  parentAction   Action?  @relation("action_inheritance", fields: [parentActionId], references: [id], onDelete: SetNull)
-  childActions   Action[] @relation("action_inheritance")
+  parent_action_id String?
+  parent_action    Actions?  @relation("action_inheritance", fields: [parent_action_id], references: [id], onDelete: SetNull)
+  child_actions    Actions[] @relation("action_inheritance")
 
   // Comments related to this action
-  comments Comment[] @relation("action_comment")
+  comments Comments[] @relation("action_comments")
 
   // The user who created this action, used for visual purposes only, not for access control
-  authorId String? @map("author_id")
-  author   User?   @relation("action_author", fields: [authorId], references: [id], onDelete: SetNull)
+  author_id String?
+  author    Users?  @relation("action_author", fields: [author_id], references: [id], onDelete: SetNull)
 
-  fields ActionField[] @relation("action_fields")
-
-  @@map("action")
+  fields ActionFields[] @relation("action_fields")
 }
 
-model ActionField {
+model ActionFields {
   id String @id @default(uuid())
 
   // The action this field belongs to
-  actionId String @map("action_id")
-  action   Action @relation("action_fields", fields: [actionId], references: [id], onDelete: Cascade)
+  action_id String
+  action    Actions @relation("action_fields", fields: [action_id], references: [id], onDelete: Cascade)
 
   header String @db.TinyText
   value  String @db.Text
-
-  @@map("action_field")
 }
 
 // Effects are the connection between an action and a goal, showing how the action affects the goal
-model Effect {
+model Effects {
   // Timestamp of when effect was created
-  createdAt DateTime @default(now()) @map("created_at")
+  created_at DateTime @default(now())
   // Timestamp of when effect was last updated
-  updatedAt DateTime @updatedAt @map("updated_at")
+  updated_at DateTime @updatedAt
 
   // Data series representing the impact of the related action on the goal, year by year
-  dataSeriesId String?     @unique @map("data_series_id")
-  dataSeries   DataSeries? @relation(name: "effect_data_series", fields: [dataSeriesId], references: [id])
+  data_series_id String?     @unique
+  data_series    DataSeries? @relation(name: "effect_data_series", fields: [data_series_id], references: [id])
 
   // The type of impact this action has, affects how the data series is interpreted
-  impactType ActionImpactType @default(ABSOLUTE) @map("impact_type")
+  impact_type ActionImpactType @default(ABSOLUTE)
 
   // The action this effect is related to
-  actionId String @map("action_id")
-  action   Action @relation("action_effect", fields: [actionId], references: [id], onDelete: Cascade)
+  action_id String
+  action    Actions @relation("action_effects", fields: [action_id], references: [id], onDelete: Cascade)
   // The goal this effect is related to
-  goalId   String @map("goal_id")
-  goal     Goal   @relation("goal_effect", fields: [goalId], references: [id], onDelete: Cascade)
+  goal_id   String
+  goal      Goals   @relation("goal_effects", fields: [goal_id], references: [id], onDelete: Cascade)
 
-  @@id(name: "id", [actionId, goalId])
-  @@map("effect")
+  @@id(name: "id", [action_id, goal_id])
 }
 
 // There is apparently a default typescript interface called "Comment", so make sure to properly import this type in the code
-model Comment {
+model Comments {
   // UUID of the comment
-  id        String   @id @default(uuid())
+  id         String   @id @default(uuid())
   // Timestamp of when comment was created
-  createdAt DateTime @default(now()) @map("created_at")
+  created_at DateTime @default(now())
   // Timestamp of when comment was last updated
-  updatedAt DateTime @updatedAt @map("updated_at")
+  updated_at DateTime @updatedAt
 
   // The comment itself
-  commentText String @map("comment_text") @db.Text
+  comment_text String @db.Text
 
   // The user who created this comment
-  authorId String? @map("author_id")
-  author   User?   @relation("comment_author", fields: [authorId], references: [id], onDelete: SetNull)
+  author_id String?
+  author    Users?  @relation("comment_author", fields: [author_id], references: [id], onDelete: SetNull)
 
-  // A comment should be related to either an action, a goal, a roadmap, XOR a meta roadmap.
+  // A comment should be related to either an action, a goal, a roadmap iteration, XOR a roadmap.
   // Has to be enforced in the code, as prisma does not support custom constraints and many SQL implementations
   // do not support check constraints on columns with referential actions.
   // Any action this comment is related to
-  actionId      String?      @map("action_id")
-  action        Action?      @relation("action_comment", fields: [actionId], references: [id], onDelete: Cascade)
+  action_id            String?
+  action               Actions?           @relation("action_comments", fields: [action_id], references: [id], onDelete: Cascade)
   // Any goal this comment is related to
-  goalId        String?      @map("goal_id")
-  goal          Goal?        @relation("goal_comment", fields: [goalId], references: [id], onDelete: Cascade)
+  goal_id              String?
+  goal                 Goals?             @relation("goal_comments", fields: [goal_id], references: [id], onDelete: Cascade)
+  // Any roadmap iteration this comment is related to
+  roadmap_iteration_id String?
+  roadmap_iteration    RoadmapIterations? @relation("roadmap_iteration_comments", fields: [roadmap_iteration_id], references: [id], onDelete: Cascade)
   // Any roadmap this comment is related to
-  roadmapId     String?      @map("roadmap_id")
-  roadmap       Roadmap?     @relation("roadmap_comment", fields: [roadmapId], references: [id], onDelete: Cascade)
-  // Any meta roadmap this comment is related to
-  metaRoadmapId String?      @map("meta_roadmap_id")
-  metaRoadmap   MetaRoadmap? @relation("meta_roadmap_comment", fields: [metaRoadmapId], references: [id], onDelete: Cascade)
-
-  @@map("comment")
+  roadmap_id           String?
+  roadmap              Roadmaps?          @relation("roadmap_comments", fields: [roadmap_id], references: [id], onDelete: Cascade)
 }
 
-model Org {
+model Orgs {
   id     String  @id @default(uuid())
   name   String  @unique
   domain String? @unique
 
-  memberships    OrgMembership[]
-  groups         Group[]         @relation("org_group")
-  accessControls AccessControl[]
+  memberships     OrgMemberships[]
+  groups          Groups[]         @relation("org_groups")
+  access_controls AccessControls[]
 
-  dataSeries DataSeries[]
-  recipes    Recipe[]
-  actions    Action[]
-
-  @@map("org")
+  data_series DataSeries[]
+  recipes     Recipes[]
+  actions     Actions[]
 }
 
-model Group {
+model Groups {
   id   String @id @default(uuid())
   name String
 
-  orgId String @map("org_id")
-  org   Org    @relation("org_group", fields: [orgId], references: [id], onDelete: Cascade)
+  org_id String
+  org    Orgs   @relation("org_groups", fields: [org_id], references: [id], onDelete: Cascade)
 
-  memberships GroupMembership[]
-  grants      AccessGrant[]
+  memberships GroupMemberships[]
+  grants      AccessGrants[]
 
-  @@unique([orgId, name]) // Unique group names within an org
-  // Referenced by GroupMembership's composite FK to keep group and org membership in the same org
-  @@unique([id, orgId])
-  @@map("group")
+  @@unique([org_id, name]) // Unique group names within an org
+  // Referenced by GroupMemberships' composite FK to keep group and org membership in the same org
+  @@unique([id, org_id])
 }
 
 // A user's membership in an org; group memberships hang off this so they die with it
-model OrgMembership {
+model OrgMemberships {
   id String @id @default(uuid())
 
-  userId String @map("user_id")
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  orgId  String @map("org_id")
-  org    Org    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user_id String
+  user    Users  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  org_id  String
+  org     Orgs   @relation(fields: [org_id], references: [id], onDelete: Cascade)
 
   role OrgRole @default(MEMBER)
 
-  groupMemberships GroupMembership[]
+  group_memberships GroupMemberships[]
 
-  @@unique([userId, orgId]) // No dupe memberships for the same user in the same org
-  // Referenced by GroupMembership's composite FK
-  @@unique([id, orgId])
-  @@map("org_membership")
+  @@unique([user_id, org_id]) // No dupe memberships for the same user in the same org
+  // Referenced by GroupMemberships' composite FK
+  @@unique([id, org_id])
 }
 
 // Membership in a group, tied to an org membership rather than a user directly:
-// leaving the org cascades away all group memberships in it, and the shared orgId
+// leaving the org cascades away all group memberships in it, and the shared org_id
 // in both composite FKs makes cross-org group membership unrepresentable
-model GroupMembership {
-  membershipId String @map("membership_id")
-  orgId        String @map("org_id")
-  groupId      String @map("group_id")
+model GroupMemberships {
+  membership_id String
+  org_id        String
+  group_id      String
 
-  membership OrgMembership @relation(fields: [membershipId, orgId], references: [id, orgId], onDelete: Cascade)
-  group      Group         @relation(fields: [groupId, orgId], references: [id, orgId], onDelete: Cascade)
+  membership OrgMemberships @relation(fields: [membership_id, org_id], references: [id, org_id], onDelete: Cascade)
+  group      Groups         @relation(fields: [group_id, org_id], references: [id, org_id], onDelete: Cascade)
 
-  @@id([membershipId, groupId])
-  @@map("group_membership")
+  @@id([membership_id, group_id])
 }
 
-model AccessControl {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+model AccessControls {
+  id         String   @id @default(uuid())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   // The org that owns the attached items; its managers have implicit full access
-  orgId String @map("org_id")
-  org   Org    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  org_id String
+  org    Orgs   @relation(fields: [org_id], references: [id], onDelete: Cascade)
 
   // If public, it grants read access to everyone (account or not) regardless of grants
-  isPublic    Boolean @default(false) @map("is_public")
-  // If org readable, all members of the owning org get read access; disable together with isPublic for org-internal need-to-know objects
-  orgReadable Boolean @default(true) @map("org_readable")
+  is_public    Boolean @default(false)
+  // If org readable, all members of the owning org get read access; disable together with is_public for org-internal need-to-know objects
+  org_readable Boolean @default(true)
 
-  grants AccessGrant[]
+  grants AccessGrants[]
 
-  metaRoadmaps MetaRoadmap[]
+  roadmaps Roadmaps[]
 
-  // Referenced by AccessGrant's composite FK to keep grants within the owning org
-  @@unique([id, orgId])
-  @@map("access_control")
+  // Referenced by AccessGrants' composite FK to keep grants within the owning org
+  @@unique([id, org_id])
 }
 
 // Grants all members of a group an access level on the objects attached to an access control.
-// Both composite FKs carry orgId, so a grant can only pair a group and an access control from the same org;
+// Both composite FKs carry org_id, so a grant can only pair a group and an access control from the same org;
 // cross-org contributors instead get a GUEST org membership and a spot in a group of the owning org.
-model AccessGrant {
-  accessControlId String @map("access_control_id")
-  groupId         String @map("group_id")
-  orgId           String @map("org_id")
+model AccessGrants {
+  access_control_id String
+  group_id          String
+  org_id            String
 
-  accessControl AccessControl @relation(fields: [accessControlId, orgId], references: [id, orgId], onDelete: Cascade)
-  group         Group         @relation(fields: [groupId, orgId], references: [id, orgId], onDelete: Cascade)
+  access_control AccessControls @relation(fields: [access_control_id, org_id], references: [id, org_id], onDelete: Cascade)
+  group          Groups         @relation(fields: [group_id, org_id], references: [id, org_id], onDelete: Cascade)
 
-  accessLevel AccessLevel @default(RO) @map("access_level")
+  access_level AccessLevel @default(RO)
 
-  @@id([accessControlId, groupId])
-  @@map("access_grant")
+  @@id([access_control_id, group_id])
 }
 
-model User {
-  id           String  @id @default(uuid())
-  username     String  @unique
-  email        String  @unique
-  passwordHash String  @map("password") // Rename to old column name
-  isVerified   Boolean @default(false) @map("is_verified") // Has verified email
+model Users {
+  id            String  @id @default(uuid())
+  username      String  @unique
+  email         String  @unique
+  password_hash String
+  is_verified   Boolean @default(false) // Has verified email
 
-  isSuperAdmin Boolean @default(false) @map("is_admin")
+  is_super_admin Boolean @default(false)
 
-  memberships OrgMembership[]
+  memberships OrgMemberships[]
 
   // Authorship (purely visual/cool to know, not auth)
-  authoredActions      Action[]      @relation("action_author")
-  authoredGoals        Goal[]        @relation("goal_author")
-  authoredRoadmaps     Roadmap[]     @relation("roadmap_author")
-  authoredMetaRoadmaps MetaRoadmap[] @relation("meta_roadmap_author")
-  authoredDataSeries   DataSeries[]  @relation("data_series_author")
-  authoredComments     Comment[]     @relation("comment_author")
-
-  @@map("user")
+  authored_actions            Actions[]           @relation("action_author")
+  authored_goals              Goals[]             @relation("goal_author")
+  authored_roadmap_iterations RoadmapIterations[] @relation("roadmap_iteration_author")
+  authored_roadmaps           Roadmaps[]          @relation("roadmap_author")
+  authored_data_series        DataSeries[]        @relation("data_series_author")
+  authored_comments           Comments[]          @relation("comment_author")
 }
