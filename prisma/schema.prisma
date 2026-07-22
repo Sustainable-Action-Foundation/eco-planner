@@ -226,6 +226,9 @@ model Action {
   // Timestamp of when action was last updated
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  orgId String @map("org_id")
+  org   Org    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
   // Name of action, preferably a short summary
   name               String
   // Used to create a tree structure for actions, looks like "Some\Tree\Structure"
@@ -238,9 +241,9 @@ model Action {
   // Effects of this action
   effects Effect[] @relation("action_effect")
 
-  // ID of the roadmap this action belongs to (if null, the action is considered public and included in the action database page)
-  roadmapId      String?  @map("roadmap_id")
-  roadmap        Roadmap? @relation("action_roadmap", fields: [roadmapId], references: [id], onDelete: Cascade)
+  roadmapId String?  @map("roadmap_id")
+  roadmap   Roadmap? @relation("action_roadmap", fields: [roadmapId], references: [id], onDelete: Cascade)
+
   // Relations for keeping track of inheritance between actions
   parentActionId String?  @map("parent_action_id")
   parentAction   Action?  @relation("action_inheritance", fields: [parentActionId], references: [id], onDelete: SetNull)
@@ -340,8 +343,10 @@ model Org {
   managers       User[]          @relation("org_manager")
   groups         Group[]         @relation("org_group")
   accessControls AccessControl[]
-  dataSeries     DataSeries[]
-  recipes        Recipe[]
+
+  dataSeries DataSeries[]
+  recipes    Recipe[]
+  actions    Action[]
 
   @@map("org")
 }
