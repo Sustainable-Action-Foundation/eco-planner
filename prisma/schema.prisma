@@ -340,13 +340,12 @@ model Group {
   orgId String @map("org_id")
   org   Org    @relation("org_group", fields: [orgId], references: [id], onDelete: Cascade)
 
-  members           User[]        @relation("group_membership")
-  grants            AccessGrant[] @relation("access_grant_group")
   // Virtual membership: this group implicitly contains all members of its org, so membership rows are never written for it.
   // Seeded one per org and granted read access on new access grants by default (removable per grant).
-  isVirtualOrgGroup Boolean       @default(false) @map("is_virtual_org_group")
-
-  accessLevel AccessLevel @default(RO) @map("group_type")
+  isEveryone Boolean       @default(false) @map("is_virtual_org_group")
+  // Firm membership
+  members    User[]        @relation("group_membership")
+  grants     AccessGrant[] @relation("access_grant_group")
 
   @@unique([orgId, name])
   @@map("group")
@@ -361,8 +360,9 @@ model AccessGrant {
   org   Org    @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   // If public, it grants read access to everyone regardless of group grants
-  isPublic Boolean @default(false) @map("is_public")
-  groups   Group[] @relation("access_grant_group")
+  isPublic    Boolean     @default(false) @map("is_public")
+  accessLevel AccessLevel @default(RO) @map("access_level")
+  groups      Group[]     @relation("access_grant_group")
 
   metaRoadmaps MetaRoadmap[]
   roadmaps     Roadmap[]
