@@ -54,8 +54,8 @@ model MetaRoadmap {
   comments Comment[] @relation("meta_roadmap_comment")
 
   // Author of this meta roadmap, used for visual purposes only, not for access control
-  authorId String @map("author_id")
-  author   User   @relation("meta_roadmap_author", fields: [authorId], references: [id])
+  authorId String? @map("author_id")
+  author   User?   @relation("meta_roadmap_author", fields: [authorId], references: [id], onDelete: SetNull)
 
   accessControlId String        @map("access_control_id")
   accessControl   AccessControl @relation(fields: [accessControlId], references: [id])
@@ -88,8 +88,8 @@ model Roadmap {
   actions  Action[]  @relation("action_roadmap")
 
   // Author of this roadmap, used for visual purposes only, not for access control
-  authorId String @map("author_id")
-  author   User   @relation("roadmap_author", fields: [authorId], references: [id])
+  authorId String? @map("author_id")
+  author   User?   @relation("roadmap_author", fields: [authorId], references: [id], onDelete: SetNull)
 
   accessControlId String        @map("access_control_id")
   accessControl   AccessControl @relation(fields: [accessControlId], references: [id])
@@ -139,8 +139,8 @@ model Goal {
   tags     GoalTag[] @relation("goal_tag")
 
   // Author of this goal, used for visual purposes only, not for access control
-  authorId String @map("author_id")
-  author   User   @relation("goal_author", fields: [authorId], references: [id])
+  authorId String? @map("author_id")
+  author   User?   @relation("goal_author", fields: [authorId], references: [id], onDelete: SetNull)
 
   // Effects affecting this goal
   effects   Effect[] @relation("goal_effect")
@@ -160,8 +160,8 @@ model DataSeries {
   org   Org    @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   // The user who created this data series, used for visual purposes only, not for access control
-  authorId String @map("author_id")
-  author   User   @relation("data_series_author", fields: [authorId], references: [id])
+  authorId String? @map("author_id")
+  author   User?   @relation("data_series_author", fields: [authorId], references: [id], onDelete: SetNull)
 
   // An empty string indicates a missing unit, while null indicates an intentionally unitless data series, such as an amount of electric cars
   unit   String?      @default("")
@@ -253,8 +253,8 @@ model Action {
   comments Comment[] @relation("action_comment")
 
   // The user who created this action, used for visual purposes only, not for access control
-  authorId String @map("author_id")
-  author   User   @relation("action_author", fields: [authorId], references: [id])
+  authorId String? @map("author_id")
+  author   User?   @relation("action_author", fields: [authorId], references: [id], onDelete: SetNull)
 
   fields ActionField[] @relation("action_fields")
 
@@ -312,8 +312,8 @@ model Comment {
   commentText String @map("comment_text") @db.Text
 
   // The user who created this comment
-  authorId String @map("author_id")
-  author   User   @relation("comment_author", fields: [authorId], references: [id])
+  authorId String? @map("author_id")
+  author   User?   @relation("comment_author", fields: [authorId], references: [id], onDelete: SetNull)
 
   // A comment should be related to either an action, a goal, a roadmap, XOR a meta roadmap.
   // Has to be enforced in the code, as prisma does not support custom constraints and many SQL implementations
@@ -358,12 +358,8 @@ model Group {
   orgId String @map("org_id")
   org   Org    @relation("org_group", fields: [orgId], references: [id], onDelete: Cascade)
 
-  // Virtual membership: this group implicitly contains all members of its org, so membership rows are never written for it.
-  // Seeded one per org and granted read access on new access grants by default (removable per grant).
-  isEveryone Boolean       @default(false) @map("is_virtual_org_group")
-  // Firm membership
-  members    User[]        @relation("group_membership")
-  grants     AccessGrant[]
+  members User[]        @relation("group_membership")
+  grants  AccessGrant[]
 
   @@unique([orgId, name])
   @@map("group")
@@ -379,7 +375,9 @@ model AccessControl {
   org   Org    @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   // If public, it grants read access to everyone (account or not) regardless of grants
-  isPublic Boolean @default(false) @map("is_public")
+  isPublic    Boolean @default(false) @map("is_public")
+  // If org readable, all members of the owning org get read access; disable together with isPublic for org-internal need-to-know objects
+  orgReadable Boolean @default(true) @map("org_readable")
 
   grants AccessGrant[]
 
@@ -389,7 +387,7 @@ model AccessControl {
   @@map("access_control")
 }
 
-// Grants all members of a group (virtual membership included) an access level on the objects attached to an access control
+// Grants all members of a group an access level on the objects attached to an access control
 model AccessGrant {
   accessControlId String        @map("access_control_id")
   accessControl   AccessControl @relation(fields: [accessControlId], references: [id], onDelete: Cascade)
