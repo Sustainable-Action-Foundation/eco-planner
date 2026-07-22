@@ -52,8 +52,8 @@ model MetaRoadmap {
   authorId String @map("author_id")
   author   User   @relation("meta_roadmap_author", fields: [authorId], references: [id])
 
-  accessControlId String        @map("access_control_id")
-  accessControl   AccessControl @relation(fields: [accessControlId], references: [id])
+  accessControlId String      @map("access_control_id")
+  accessControl   AccessGrant @relation(fields: [accessControlId], references: [id])
 
   @@map("meta_roadmap")
 }
@@ -86,8 +86,8 @@ model Roadmap {
   authorId String @map("author_id")
   author   User   @relation("roadmap_author", fields: [authorId], references: [id])
 
-  accessControlId String        @map("access_control_id")
-  accessControl   AccessControl @relation(fields: [accessControlId], references: [id])
+  accessControlId String      @map("access_control_id")
+  accessControl   AccessGrant @relation(fields: [accessControlId], references: [id])
 
   // Two roadmaps may not have the same meta roadmap AND version
   // Also allows for querying a roadmap by meta roadmap and version
@@ -157,7 +157,7 @@ model DataSeries {
 
   // An empty string indicates a missing unit, while null indicates an intentionally unitless data series, such as an amount of electric cars
   unit   String?      @default("")
-  values DateRecord[]
+  values DateRecord[] // TODO cascade delete
 
   // Data series may be derived using a recipe so these are optional
   recipeUsedId     String?  @map("recipe_used_id")
@@ -317,8 +317,8 @@ model Comment {
 
 model Org {
   id     String  @id @default(uuid())
-  name   String
-  domain String?
+  name   String  @unique
+  domain String? @unique
 
   users    User[]  @relation("org_user")
   managers User[]  @relation("org_manager")
@@ -334,9 +334,13 @@ model Group {
   orgId String @map("org_id")
   org   Org    @relation("org_group", fields: [orgId], references: [id], onDelete: Cascade)
 
-  users  User[]          @relation("group_user")
-  access AccessControl[] @relation("access_control_group")
+  users  User[]        @relation("group_user")
+  access AccessGrant[] @relation("access_control_group")
 
+  // Read access is implied by being in a group, but write access is not
+  writeAccess Boolean @default(false) @map("write_access")
+
+  @@unique([orgId, name])
   @@map("group")
 }
 
@@ -364,11 +368,13 @@ model User {
   @@map("user")
 }
 
-model AccessControl {
-  id String @id @default(uuid())
+model AccessGrant {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  // Bypasses read access via groups
-  isPublic Boolean @default(true) @map("is_public")
+  // If public, it grants read access to everyone regardless of group grants
+  isPublic Boolean @default(false) @map("is_public")
   groups   Group[] @relation("access_control_group")
 
   metaRoadmaps MetaRoadmap[]
