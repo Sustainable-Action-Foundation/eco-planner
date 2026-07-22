@@ -157,7 +157,7 @@ model DataSeries {
 
   // An empty string indicates a missing unit, while null indicates an intentionally unitless data series, such as an amount of electric cars
   unit   String?      @default("")
-  values DateRecord[] // TODO cascade delete
+  values DateRecord[]
 
   // Data series may be derived using a recipe so these are optional
   recipeUsedId     String?  @map("recipe_used_id")
@@ -176,7 +176,7 @@ model DateRecord {
   timestamp    DateTime   @db.Date
   value        Float
   dataSeriesId String     @map("data_series_id")
-  dataSeries   DataSeries @relation(fields: [dataSeriesId], references: [id])
+  dataSeries   DataSeries @relation(fields: [dataSeriesId], references: [id], onDelete: Cascade)
 
   @@id([dataSeriesId, timestamp])
   @@map("date_record")
