@@ -150,8 +150,10 @@ model DataSeries {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-  authorId  String   @map("author_id")
-  author    User     @relation("data_series_author", fields: [authorId], references: [id])
+
+  // The user who created this data series, used for visual purposes only, not for access control
+  authorId String @map("author_id")
+  author   User   @relation("data_series_author", fields: [authorId], references: [id])
 
   // An empty string indicates a missing unit, while null indicates an intentionally unitless data series, such as an amount of electric cars
   unit   String?      @default("")
@@ -230,9 +232,10 @@ model Action {
 
   // Comments related to this action
   comments Comment[] @relation("action_comment")
-  // The person who created this action
-  authorId String    @map("author_id")
-  author   User      @relation("action_author", fields: [authorId], references: [id])
+
+  // The user who created this action, used for visual purposes only, not for access control
+  authorId String @map("author_id")
+  author   User   @relation("action_author", fields: [authorId], references: [id])
 
   fields ActionField[] @relation("action_fields")
 
