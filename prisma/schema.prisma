@@ -32,6 +32,8 @@ enum AccessLevel {
 }
 
 enum OrgRole {
+  // Guests are cross-org contributors: they do NOT get orgReadable read access, only what their groups explicitly grant (plus public content)
+  GUEST
   MEMBER
   // Managers bypass all access grants under their org and manage its groups and sharing settings.
   // For the time being managers are not a fine grained role, they have full access to everything in the org and group management.
@@ -426,15 +428,21 @@ model AccessControl {
 
   metaRoadmaps MetaRoadmap[]
 
+  // Referenced by AccessGrant's composite FK to keep grants within the owning org
+  @@unique([id, orgId])
   @@map("access_control")
 }
 
-// Grants all members of a group an access level on the objects attached to an access control
+// Grants all members of a group an access level on the objects attached to an access control.
+// Both composite FKs carry orgId, so a grant can only pair a group and an access control from the same org;
+// cross-org contributors instead get a GUEST org membership and a spot in a group of the owning org.
 model AccessGrant {
-  accessControlId String        @map("access_control_id")
-  accessControl   AccessControl @relation(fields: [accessControlId], references: [id], onDelete: Cascade)
-  groupId         String        @map("group_id")
-  group           Group         @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  accessControlId String @map("access_control_id")
+  groupId         String @map("group_id")
+  orgId           String @map("org_id")
+
+  accessControl AccessControl @relation(fields: [accessControlId, orgId], references: [id, orgId], onDelete: Cascade)
+  group         Group         @relation(fields: [groupId, orgId], references: [id, orgId], onDelete: Cascade)
 
   accessLevel AccessLevel @default(RO) @map("access_level")
 
