@@ -26,6 +26,11 @@ enum ActionImpactType {
   DELTA
 }
 
+enum AccessLevel {
+  RO // Read-Only
+  RW // Read-Write
+}
+
 // Meta roadmaps are used for the highest level of roadmaps and reference multiple versions of the same roadmap
 model MetaRoadmap {
   id          String      @id @default(uuid())
@@ -328,14 +333,6 @@ model Org {
   @@map("org")
 }
 
-enum GroupType {
-  RO // Read-Only
-  RW // Read-Write
-  // Virtual membership: this group implicitly contains all members of its org, so membership rows are never written for it.
-  // Seeded one per org and granted read access on new access grants by default (removable per grant).
-  EVERYONE
-}
-
 model Group {
   id   String @id @default(uuid())
   name String
@@ -343,10 +340,13 @@ model Group {
   orgId String @map("org_id")
   org   Org    @relation("org_group", fields: [orgId], references: [id], onDelete: Cascade)
 
-  members  User[]        @relation("group_membership")
-  grants AccessGrant[] @relation("access_grant_group")
+  members           User[]        @relation("group_membership")
+  grants            AccessGrant[] @relation("access_grant_group")
+  // Virtual membership: this group implicitly contains all members of its org, so membership rows are never written for it.
+  // Seeded one per org and granted read access on new access grants by default (removable per grant).
+  isVirtualOrgGroup Boolean       @default(false) @map("is_virtual_org_group")
 
-  type GroupType @default(RO) @map("group_type")
+  accessLevel AccessLevel @default(RO) @map("group_type")
 
   @@unique([orgId, name])
   @@map("group")
