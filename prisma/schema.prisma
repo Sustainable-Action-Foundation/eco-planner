@@ -156,6 +156,9 @@ model DataSeries {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  orgId String @map("org_id")
+  org   Org    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
   // The user who created this data series, used for visual purposes only, not for access control
   authorId String @map("author_id")
   author   User   @relation("data_series_author", fields: [authorId], references: [id])
@@ -188,9 +191,14 @@ model DateRecord {
 }
 
 model Recipe {
-  id                String       @id @default(uuid())
-  recipe            Json         @db.Json
-  suggestedByGoals  Goal[]       @relation("inheritance_suggestions")
+  id     String @id @default(uuid())
+  recipe Json   @db.Json
+
+  orgId String @map("org_id")
+  org   Org    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  suggestedByGoals Goal[] @relation("inheritance_suggestions")
+
   derivedDataSeries DataSeries[] @relation("recipe_used")
   sourceDataSeries  DataSeries[] @relation("source_data_series")
 
@@ -329,6 +337,8 @@ model Org {
   managers       User[]          @relation("org_manager")
   groups         Group[]         @relation("org_group")
   accessControls AccessControl[]
+  dataSeries     DataSeries[]
+  recipes        Recipe[]
 
   @@map("org")
 }
