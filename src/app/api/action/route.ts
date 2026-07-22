@@ -172,13 +172,6 @@ export async function POST(request: NextRequest) {
               },
             },
           },
-        links: {
-          create: actionCreate.links?.map(link => ({
-            url: link.url,
-            description: link.description || undefined,
-          })),
-        },
-        // TODO: Add `Note`s
         author: { connect: { id: session.user.id } },
       },
       select: { id: true },
@@ -327,17 +320,10 @@ export async function PUT(request: NextRequest) {
         isSufficiency: action.isSufficiency,
         isEfficiency: action.isEfficiency,
         isRenewables: action.isRenewables,
-        links: {
-          set: [],
-          create: action.links?.map(link => ({
-            url: link.url,
-            description: link.description || undefined,
-          })),
-        },
       },
       select: { id: true },
     })).id;
-    // Prune any orphaned links and comments
+    // Prune any orphaned comments
     await pruneOrphans();
     // Invalidate old cache
     revalidateTag('action', { expire: 0 });
@@ -444,7 +430,7 @@ export async function DELETE(request: NextRequest) {
         },
       },
     });
-    // Prune any orphaned links and comments
+    // Prune any orphaned comments
     await pruneOrphans();
     // Invalidate old cache
     revalidateTag('action', 'max');

@@ -209,37 +209,20 @@ model Action {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Name of action, preferably a short summary
-  name            String
-  // Longer description of action
-  description     String? @db.Text
+  name               String
+  // Used to create a tree structure for actions, looks like "Some\Tree\Structure"
+  indicatorParameter String @map("indicator_parameter") @db.VarChar(1024)
   // The year the action is planned to start
-  startYear       Int?    @map("start_year")
+  startYear          Int?   @map("start_year")
   // The year the action is planned to end
-  endYear         Int?    @map("end_year")
-  // Cost efficiency. Not sure how it should be measured?
-  costEfficiency  String? @map("cost_efficiency") @db.Text
-  // Expected outcome, describe what you expect to happen
-  expectedOutcome String? @map("expected_outcome") @db.Text
-  // The person responsible for the action
-  // ONLY show to the author, because of GDPR
-  projectManager  String? @map("project_manager")
-  // Currently a text field, but might change to a many-to-many relationship with an actor table instead
-  // Might be an organization, group, company, region, etc.
-  relevantActors  String? @map("relevant_actors") @db.Text
-
-  // Different types of actions
-  // Sufficiency generally means reducing consumption
-  isSufficiency Boolean @default(false) @map("is_sufficiency")
-  // Efficiency generally means increasing efficiency
-  isEfficiency  Boolean @default(false) @map("is_efficiency")
-  // Renewables generally means increasing the use of renewables
-  isRenewables  Boolean @default(false) @map("is_renewables")
+  endYear            Int?   @map("end_year")
 
   // Effects of this action
-  effects        Effect[] @relation("action_effect")
-  // ID of the roadmap this action belongs to
-  roadmapId      String   @map("roadmap_id")
-  roadmap        Roadmap  @relation("action_roadmap", fields: [roadmapId], references: [id], onDelete: Cascade)
+  effects Effect[] @relation("action_effect")
+
+  // ID of the roadmap this action belongs to (if null, the action is considered public and included in the action database page)
+  roadmapId      String?  @map("roadmap_id")
+  roadmap        Roadmap? @relation("action_roadmap", fields: [roadmapId], references: [id], onDelete: Cascade)
   // Relations for keeping track of inheritance between actions
   parentActionId String?  @map("parent_action_id")
   parentAction   Action?  @relation("action_inheritance", fields: [parentActionId], references: [id], onDelete: SetNull)
@@ -251,7 +234,22 @@ model Action {
   authorId String    @map("author_id")
   author   User      @relation("action_author", fields: [authorId], references: [id])
 
+  fields ActionField[] @relation("action_fields")
+
   @@map("action")
+}
+
+model ActionField {
+  id String @id @default(uuid())
+
+  // The action this field belongs to
+  actionId String @map("action_id")
+  action   Action @relation("action_fields", fields: [actionId], references: [id], onDelete: Cascade)
+
+  header String @db.TinyText
+  value  String @db.Text
+
+  @@map("action_field")
 }
 
 // Effects are the connection between an action and a goal, showing how the action affects the goal

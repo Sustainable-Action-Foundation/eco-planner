@@ -8,7 +8,7 @@ import { RoadmapType } from "@/lib/prisma/generated";
 import type { MetaRoadmap, Roadmap } from "@/lib/prisma/generated";
 import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe";
 import type { SeededUsers } from "./helpers.ts";
-import { getRandomCreatedAtAndUpdatedAt, makeRandomComments, makeRandomLinks } from "./helpers.ts";
+import { getRandomCreatedAtAndUpdatedAt, makeRandomComments } from "./helpers.ts";
 
 export type SeededRoadmaps = {
   metaRoadmaps: { national: MetaRoadmap; uppsala: MetaRoadmap };
@@ -36,7 +36,6 @@ export async function seedRoadmaps(users: SeededUsers): Promise<SeededRoadmaps> 
       editors: { connect: [{ id: admin.id }] },
       ...getRandomCreatedAtAndUpdatedAt(),
       comments: { createMany: { data: makeRandomComments(users, 40) } },
-      links: { create: makeRandomLinks(3) },
     },
   });
 
@@ -50,7 +49,6 @@ export async function seedRoadmaps(users: SeededUsers): Promise<SeededRoadmaps> 
       editors: allEditors,
       ...getRandomCreatedAtAndUpdatedAt(),
       comments: { createMany: { data: makeRandomComments(users, 30) } },
-      links: { create: makeRandomLinks(2) },
     },
   });
 
@@ -64,7 +62,6 @@ export async function seedRoadmaps(users: SeededUsers): Promise<SeededRoadmaps> 
       editors: allEditors,
       ...getRandomCreatedAtAndUpdatedAt(),
       comments: { createMany: { data: makeRandomComments(users, 30) } },
-      links: { create: makeRandomLinks(2) },
     },
   });
 
@@ -85,7 +82,6 @@ export async function seedRoadmaps(users: SeededUsers): Promise<SeededRoadmaps> 
       viewGroups: { connect: [{ id: users.group.id }] },
       ...getRandomCreatedAtAndUpdatedAt(),
       comments: { createMany: { data: makeRandomComments(users, 20) } },
-      links: { create: makeRandomLinks(1) },
     },
   });
 
@@ -100,7 +96,6 @@ export async function seedRoadmaps(users: SeededUsers): Promise<SeededRoadmaps> 
       editors: allEditors,
       ...getRandomCreatedAtAndUpdatedAt(),
       comments: { createMany: { data: makeRandomComments(users, 10) } },
-      links: { create: makeRandomLinks(1) },
     },
   });
 

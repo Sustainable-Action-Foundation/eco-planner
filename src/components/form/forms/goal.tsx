@@ -420,9 +420,6 @@ export default function GoalForm({
 
         roadmapId: roadmapId || parentRoadmapId,
         rawTags: undefined, // TODO: add tags input
-
-        // DEPRECATED - moved to description
-        links: undefined,
       } satisfies GoalCreateInput;
     }
     else if (currentGoal) {
@@ -455,9 +452,6 @@ export default function GoalForm({
 
         roadmapId: undefined, // Can't reassign the roadmap of an existing goal
         rawTags: undefined, // TODO: add tags input
-
-        // DEPRECATED - moved to description
-        links: undefined,
       } satisfies GoalUpdateInput;
     }
     else {

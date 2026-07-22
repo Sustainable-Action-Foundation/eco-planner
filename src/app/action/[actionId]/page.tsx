@@ -120,6 +120,7 @@ export default async function Page(props: { params: Promise<{ actionId: string }
           <h2 className="margin-top-300">{t("pages:action.categories")}</h2>
           {(action.isEfficiency || action.isSufficiency || action.isRenewables) ? (
             <ul>
+              {/* TODO: i18n */}
               {action.isEfficiency ? <li className="margin-block-50">Efficiency</li> : null}
               {action.isSufficiency ? <li className="margin-block-50">Sufficiency</li> : null}
               {action.isRenewables ? <li className="margin-block-50">Renewables</li> : null}

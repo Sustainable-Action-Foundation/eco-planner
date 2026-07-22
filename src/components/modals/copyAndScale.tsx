@@ -132,7 +132,6 @@ export default function CopyAndScale({
       roadmapId: copyToId as string ?? "",
       // TODO: copy tags?
       rawTags: undefined,
-      links: undefined,
     };
 
     const formJSON = JSON.stringify(formData);

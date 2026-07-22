@@ -150,15 +150,6 @@ export async function POST(request: NextRequest) {
         type: metaRoadmap.type,
         actor: metaRoadmap.actor,
         parentRoadmap: metaRoadmap.parentRoadmapId ? { connect: { id: metaRoadmap.parentRoadmapId } } : undefined,
-        // TODO: Deprecated
-        links: {
-          create: metaRoadmap.links?.map(link => {
-            return {
-              url: link.url,
-              description: link.description || undefined,
-            };
-          }),
-        },
         author: { connect: { id: session.user.id } },
         editors: { connect: editors },
         viewers: { connect: viewers },
@@ -352,15 +343,6 @@ export async function PUT(request: NextRequest) {
         actor: metaRoadmap.actor,
         isPublic: metaRoadmap.isPublic,
         parentRoadmap: metaRoadmap.parentRoadmapId ? { connect: { id: metaRoadmap.parentRoadmapId } } : undefined,
-        links: (metaRoadmap.links === undefined ? undefined : {
-          set: [],
-          create: metaRoadmap.links?.map(link => {
-            return {
-              url: link.url,
-              description: link.description || undefined,
-            };
-          }),
-        }),
         editors: { set: editors },
         viewers: { set: viewers },
         editGroups: { set: editGroups },
@@ -368,7 +350,7 @@ export async function PUT(request: NextRequest) {
       },
       select: { id: true },
     });
-    // Prune any orphaned links and comments
+    // Prune any orphaned comments
     await pruneOrphans();
     // Invalidate old cache
     revalidateTag('roadmap', 'max');
@@ -470,7 +452,7 @@ export async function DELETE(request: NextRequest) {
         id: true,
       },
     });
-    // Prune any orphaned links and comments
+    // Prune any orphaned comments
     await pruneOrphans();
     // Invalidate old cache
     revalidateTag('roadmap', 'max');

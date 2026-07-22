@@ -141,22 +141,6 @@ export function makeRandomComments(users: SeededUsers, count: number) {
   return new Array(count).fill(null).map(() => makeRandomComment(users));
 }
 
-export function makeRandomLink() {
-  return {
-    url: randomOf([
-      "https://sustainable-action.org/",
-      "https://www.scb.se/",
-      "https://www.naturvardsverket.se/",
-      "https://youtu.be/dQw4w9WgXcQ",
-    ]),
-    description: chance(0.6) ? RandomTextSE.sentence(randomInt(2, 5)) : undefined,
-  };
-}
-
-export function makeRandomLinks(count: number) {
-  return new Array(count).fill(null).map(() => makeRandomLink());
-}
-
 /*
  * DB helpers for data series and recipes
  */

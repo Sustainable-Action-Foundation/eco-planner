@@ -135,22 +135,6 @@ function validateGoalMetaFields(goal: Record<string, unknown>): boolean {
     console.debug(`optional goal parameter "rawTags" has wrong type: ${typeof goal.rawTags}`);
     return false;
   }
-  // links: { url: string, description?: string | null }[] | null | undefined; (deprecated, TODO remove)
-  if ("links" in goal && !(
-    goal.links === undefined
-    || goal.links === null
-    || (
-      Array.isArray(goal.links)
-      && goal.links.every(link =>
-        isStandardObject(link)
-        && "url" in link && typeof link.url === 'string'
-        && (!("description" in link) || typeof link.description === 'string' || link.description === null),
-      )
-    )
-  )) {
-    console.debug(`optional goal parameter "links" has wrong type`);
-    return false;
-  }
   return true;
 }
 
@@ -419,29 +403,6 @@ export function isMetaRoadmapCreate(metaRoadmap: JSONValue): metaRoadmap is Meta
       typeof metaRoadmap.parentRoadmapId === 'string' ||
       metaRoadmap.parentRoadmapId === null ||
       metaRoadmap.parentRoadmapId === undefined
-    ) &&
-
-    // TODO: Deprecated - will be moved to description
-    // links: { url: string, description?: string | null }[] | null | undefined;
-    (
-      metaRoadmap.links === undefined ||
-      metaRoadmap.links === null ||
-      (
-        Array.isArray(metaRoadmap.links) &&
-        metaRoadmap.links.every((entry: JSONValue) => (
-          (
-            typeof entry === 'object' &&
-            entry !== null &&
-            !Array.isArray(entry)
-          ) &&
-
-          typeof entry.url === 'string' &&
-          (
-            typeof entry.description === 'string' ||
-            entry.description === undefined
-          )
-        ))
-      )
     )
   );
 }
@@ -542,29 +503,6 @@ export function isMetaRoadmapUpdate(metaRoadmap: JSONValue): metaRoadmap is Meta
     (
       ("timestamp" in metaRoadmap) &&
       typeof metaRoadmap.timestamp === 'number'
-    ) &&
-
-    // TODO: Deprecated - will be moved to description
-    // links: { url: string, description?: string | null }[] | null | undefined;
-    (
-      metaRoadmap.links === undefined ||
-      metaRoadmap.links === null ||
-      (
-        Array.isArray(metaRoadmap.links) &&
-        metaRoadmap.links.every((entry: JSONValue) => (
-          (
-            typeof entry === 'object' &&
-            entry !== null &&
-            !Array.isArray(entry)
-          ) &&
-
-          typeof entry.url === 'string' &&
-          (
-            typeof entry.description === 'string' ||
-            entry.description === undefined
-          )
-        ))
-      )
     )
   );
 }

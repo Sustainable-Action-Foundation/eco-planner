@@ -102,7 +102,6 @@ export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void
       historicalRecipeId: undefined,
       historicalRecipe: undefined,
       rawTags: undefined,
-      links: undefined,
       roadmapId: "", // Will be assigned later :O
     });
   }
