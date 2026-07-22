@@ -52,7 +52,7 @@ model MetaRoadmap {
   authorId String @map("author_id")
   author   User   @relation("meta_roadmap_author", fields: [authorId], references: [id])
 
-  accessControlId String      @map("access_control_id")
+  accessControlId String      @map("access_grant_id")
   accessControl   AccessGrant @relation(fields: [accessControlId], references: [id])
 
   @@map("meta_roadmap")
@@ -86,7 +86,7 @@ model Roadmap {
   authorId String @map("author_id")
   author   User   @relation("roadmap_author", fields: [authorId], references: [id])
 
-  accessControlId String      @map("access_control_id")
+  accessControlId String      @map("access_grant_id")
   accessControl   AccessGrant @relation(fields: [accessControlId], references: [id])
 
   // Two roadmaps may not have the same meta roadmap AND version
@@ -328,6 +328,14 @@ model Org {
   @@map("org")
 }
 
+enum GroupType {
+  RO // Read-Only
+  RW // Read-Write
+  // Virtual membership: this group implicitly contains all members of its org, so membership rows are never written for it.
+  // Seeded one per org and granted read access on new access grants by default (removable per grant).
+  EVERYONE
+}
+
 model Group {
   id   String @id @default(uuid())
   name String
@@ -335,11 +343,10 @@ model Group {
   orgId String @map("org_id")
   org   Org    @relation("org_group", fields: [orgId], references: [id], onDelete: Cascade)
 
-  users  User[]        @relation("group_user")
-  grants AccessGrant[] @relation("access_control_group")
+  members  User[]        @relation("group_membership")
+  grants AccessGrant[] @relation("access_grant_group")
 
-  // Read access is implied by being in a group, but write access is not
-  writeAccess Boolean @default(false) @map("write_access")
+  type GroupType @default(RO) @map("group_type")
 
   @@unique([orgId, name])
   @@map("group")
@@ -355,12 +362,12 @@ model AccessGrant {
 
   // If public, it grants read access to everyone regardless of group grants
   isPublic Boolean @default(false) @map("is_public")
-  groups   Group[] @relation("access_control_group")
+  groups   Group[] @relation("access_grant_group")
 
   metaRoadmaps MetaRoadmap[]
   roadmaps     Roadmap[]
 
-  @@map("access_control")
+  @@map("access_grant")
 }
 
 model User {
@@ -372,7 +379,7 @@ model User {
   isVerified   Boolean @default(false) @map("is_verified")
   isSuperAdmin Boolean @default(false) @map("is_admin")
 
-  groups  Group[] @relation("group_user")
+  groups  Group[] @relation("group_membership")
   orgs    Org[]   @relation("org_user")
   manages Org[]   @relation("org_manager")
 
