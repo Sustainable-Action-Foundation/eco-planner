@@ -320,9 +320,10 @@ model Org {
   name   String  @unique
   domain String? @unique
 
-  users    User[]  @relation("org_user")
-  managers User[]  @relation("org_manager")
-  groups   Group[] @relation("org_group")
+  users        User[]        @relation("org_user")
+  managers     User[]        @relation("org_manager")
+  groups       Group[]       @relation("org_group")
+  accessGrants AccessGrant[]
 
   @@map("org")
 }
@@ -335,7 +336,7 @@ model Group {
   org   Org    @relation("org_group", fields: [orgId], references: [id], onDelete: Cascade)
 
   users  User[]        @relation("group_user")
-  access AccessGrant[] @relation("access_control_group")
+  grants AccessGrant[] @relation("access_control_group")
 
   // Read access is implied by being in a group, but write access is not
   writeAccess Boolean @default(false) @map("write_access")
@@ -348,6 +349,9 @@ model AccessGrant {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+
+  orgId String @map("org_id")
+  org   Org    @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   // If public, it grants read access to everyone regardless of group grants
   isPublic Boolean @default(false) @map("is_public")
