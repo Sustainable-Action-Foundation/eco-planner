@@ -344,6 +344,21 @@ model Group {
   @@map("group")
 }
 
+model AccessGrant {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // If public, it grants read access to everyone regardless of group grants
+  isPublic Boolean @default(false) @map("is_public")
+  groups   Group[] @relation("access_control_group")
+
+  metaRoadmaps MetaRoadmap[]
+  roadmaps     Roadmap[]
+
+  @@map("access_control")
+}
+
 model User {
   id           String @id @default(uuid())
   username     String @unique
@@ -366,19 +381,4 @@ model User {
   authoredComments     Comment[]     @relation("comment_author")
 
   @@map("user")
-}
-
-model AccessGrant {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  // If public, it grants read access to everyone regardless of group grants
-  isPublic Boolean @default(false) @map("is_public")
-  groups   Group[] @relation("access_control_group")
-
-  metaRoadmaps MetaRoadmap[]
-  roadmaps     Roadmap[]
-
-  @@map("access_control")
 }
