@@ -31,6 +31,14 @@ enum AccessLevel {
   RW // Read-Write
 }
 
+enum OrgRole {
+  MEMBER
+  // Managers bypass all access grants under their org and manage its groups and sharing settings.
+  // For the time being managers are not a fine grained role, they have full access to everything in the org and group management.
+  // This is a choice until actual usage requires more fine grained management.
+  MANAGER
+}
+
 // Meta roadmaps are used for the highest level of roadmaps and reference multiple versions of the same roadmap
 model MetaRoadmap {
   id          String      @id @default(uuid())
@@ -57,6 +65,7 @@ model MetaRoadmap {
   authorId String? @map("author_id")
   author   User?   @relation("meta_roadmap_author", fields: [authorId], references: [id], onDelete: SetNull)
 
+  // Access control for this meta roadmap and all of its iterations
   accessControlId String        @map("access_control_id")
   accessControl   AccessControl @relation(fields: [accessControlId], references: [id])
 
@@ -82,6 +91,8 @@ model Roadmap {
   // If the parent meta roadmap relates to another meta roadmap, targetVersion defines which version of the related meta roadmap this roadmap version relates to
   // If target version is not found in the related meta roadmap, use the latest version available instead
   targetVersion Int?        @map("target_version")
+  // When this version was published; null means draft, visible only to users with RW access (or better) via the meta roadmap's access control
+  publishedAt   DateTime?   @map("published_at")
 
   comments Comment[] @relation("roadmap_comment")
   goals    Goal[]    @relation("roadmap_goal")
@@ -90,9 +101,6 @@ model Roadmap {
   // Author of this roadmap, used for visual purposes only, not for access control
   authorId String? @map("author_id")
   author   User?   @relation("roadmap_author", fields: [authorId], references: [id], onDelete: SetNull)
-
-  accessControlId String        @map("access_control_id")
-  accessControl   AccessControl @relation(fields: [accessControlId], references: [id])
 
   // Two roadmaps may not have the same meta roadmap AND version
   // Also allows for querying a roadmap by meta roadmap and version
@@ -339,8 +347,7 @@ model Org {
   name   String  @unique
   domain String? @unique
 
-  users          User[]          @relation("org_user")
-  managers       User[]          @relation("org_manager")
+  memberships    OrgMembership[]
   groups         Group[]         @relation("org_group")
   accessControls AccessControl[]
 
@@ -358,11 +365,47 @@ model Group {
   orgId String @map("org_id")
   org   Org    @relation("org_group", fields: [orgId], references: [id], onDelete: Cascade)
 
-  members User[]        @relation("group_membership")
-  grants  AccessGrant[]
+  memberships GroupMembership[]
+  grants      AccessGrant[]
 
-  @@unique([orgId, name])
+  @@unique([orgId, name]) // Unique group names within an org
+  // Referenced by GroupMembership's composite FK to keep group and org membership in the same org
+  @@unique([id, orgId])
   @@map("group")
+}
+
+// A user's membership in an org; group memberships hang off this so they die with it
+model OrgMembership {
+  id String @id @default(uuid())
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orgId  String @map("org_id")
+  org    Org    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  role OrgRole @default(MEMBER)
+
+  groupMemberships GroupMembership[]
+
+  @@unique([userId, orgId]) // No dupe memberships for the same user in the same org
+  // Referenced by GroupMembership's composite FK
+  @@unique([id, orgId])
+  @@map("org_membership")
+}
+
+// Membership in a group, tied to an org membership rather than a user directly:
+// leaving the org cascades away all group memberships in it, and the shared orgId
+// in both composite FKs makes cross-org group membership unrepresentable
+model GroupMembership {
+  membershipId String @map("membership_id")
+  orgId        String @map("org_id")
+  groupId      String @map("group_id")
+
+  membership OrgMembership @relation(fields: [membershipId, orgId], references: [id, orgId], onDelete: Cascade)
+  group      Group         @relation(fields: [groupId, orgId], references: [id, orgId], onDelete: Cascade)
+
+  @@id([membershipId, groupId])
+  @@map("group_membership")
 }
 
 model AccessControl {
@@ -382,7 +425,6 @@ model AccessControl {
   grants AccessGrant[]
 
   metaRoadmaps MetaRoadmap[]
-  roadmaps     Roadmap[]
 
   @@map("access_control")
 }
@@ -401,17 +443,15 @@ model AccessGrant {
 }
 
 model User {
-  id           String @id @default(uuid())
-  username     String @unique
-  email        String @unique
-  passwordHash String @map("password") // Rename to old column name
+  id           String  @id @default(uuid())
+  username     String  @unique
+  email        String  @unique
+  passwordHash String  @map("password") // Rename to old column name
+  isVerified   Boolean @default(false) @map("is_verified") // Has verified email
 
-  isVerified   Boolean @default(false) @map("is_verified")
   isSuperAdmin Boolean @default(false) @map("is_admin")
 
-  groups  Group[] @relation("group_membership")
-  orgs    Org[]   @relation("org_user")
-  manages Org[]   @relation("org_manager")
+  memberships OrgMembership[]
 
   // Authorship (purely visual/cool to know, not auth)
   authoredActions      Action[]      @relation("action_author")
