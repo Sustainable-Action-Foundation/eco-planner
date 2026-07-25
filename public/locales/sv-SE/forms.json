@@ -66,13 +66,12 @@
     "show_table": "Expandera tabell",
     "start_year": "Startår",
     "unit_interpreted_as": "Enheten tolkas som: <a>{{unit}}</a>",
-    "unit_not_interpreted": "Enheten kunde inte tolkas. Du kan fortfarande spara, men viss funktionalitet kan saknas.",
+    "unit_not_interpreted": "Enheten kunde inte tolkas. Du kan fortfarande spara målbanan med denna enhet, men viss funktionalitet kan saknas.",
     "unit_override_status": {
-      "overriding": "Skriver över beräknad enhet <a>{{resolvedUnit}}</a> med <a>{{overrideUnit}}</a>.",
-      "using": "Använder enhet <a>{{unit}}</a>"
+      "overriding": "Den valda enheten <a>({{overrideUnit}})</a> skiljer sig från den ursprungligen beräknade enheten <a>({{resolvedUnit}})</a>."
     },
     "unit_input": {
-      "override_toggle": "Skriv över beräknad enhet"
+      "unit": "Dataseriens enhet"
     },
     "value": "Värde",
     "year": "År"

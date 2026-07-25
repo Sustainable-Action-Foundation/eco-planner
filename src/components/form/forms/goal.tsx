@@ -563,7 +563,6 @@ export default function GoalForm({
         <legend data-position={positionIndex} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.data_series.create")}</legend>
         <fieldset className={`${styles.timeLineFieldset} margin-top-200 margin-left-400`}>
           <legend data-position={positionIndex + 0.1} className={`  ${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.data_series.goal.title")}</legend>
-
           <GoalSeriesSection
             goal={currentGoal}
             dataSeriesType={dataSeriesType}
@@ -623,14 +622,16 @@ export default function GoalForm({
         >
           <strong className="block font-size-125 font-weight-bold text-align-center margin-0 padding-top-125">{t("forms:goal.preview")}</strong>
           <p className="text-align-center margin-top-50">{t("forms:goal.preview_info")}</p>
-          <div
+          <output
+            className="display-block"
             style={{ height: '400px' }}
           >
+            {/* TODO: Need preview for values aswell. Probably create a switch between graph and table then tabs in the table to view different series. */}
             <GoalGraph // TODO: This is not correctly re-rendering when updating dataseries?
               chartType="preview"
               series={previewGraphSeries}
             />
-          </div>
+          </output>
         </div>
       </fieldset>
 

@@ -1,41 +1,47 @@
 "use client";
 
-import mathjs from "@/math";
+import mathjs, { allOurUnits } from "@/math";
 import type { UnitString } from "@/types";
 import { useCallback, useMemo, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
+import { IconCheck, IconInfoCircle } from "@tabler/icons-react";
+import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 
 /**
  * Text input for overriding the unit derived from a recipe context evaluation.
  *
  * The effective unit is:
- * 1) explicit override (if provided), otherwise
+ * 1) explicit override (if the input has been typed into), otherwise
  * 2) evaluated recipe unit, otherwise
  * 3) optional saved fallback unit.
+ *
+ * Typing into the input is itself what activates the override; clearing the
+ * input back to empty reverts to the resolved unit.
  */
 export function UnitInput({
   id,
   staticProvidedUnit,
   allowOverrideSelection = true,
 }: {
-  /** Applied to the override text input; the toggle checkbox gets `${id}-toggle`. Needed when several UnitInputs coexist (e.g. hidden form fieldsets). */
-  id?: string;
+  /** Applied to the override text input. Needed when several UnitInputs coexist (e.g. hidden form fieldsets). */
+  id: string;
   staticProvidedUnit?: string | null;
   allowOverrideSelection?: boolean;
 }) {
   const { t } = useTranslation(["forms", "common"]);
   const { recipe, resultingUnit, applyRecipeUpdate } = useRecipe();
 
-  const [isOverrideToggled, setIsOverrideToggled] = useState<boolean>(recipe.unit !== undefined);
   const [overrideUnitInput, setOverrideUnitInput] = useState<string>(recipe.unit ?? "");
+
+  const isOverriding = overrideUnitInput.trim() !== "";
 
   const resolvedUnit: string | null = resultingUnit ?? staticProvidedUnit ?? null;
   const resolvedDisplay = resolvedUnit === null
     ? t("common:tsx.unitless")
     : resolvedUnit.trim() || t("common:tsx.unit_missing");
 
-  const effectiveUnit: string | null = isOverrideToggled ? overrideUnitInput : resolvedUnit;
+  const effectiveUnit: string | null = isOverriding ? overrideUnitInput : resolvedUnit;
 
   // Normalized mathjs interpretation of the effective unit; null when it cannot be parsed.
   const parsedEffectiveUnit = useMemo(() => {
@@ -47,6 +53,7 @@ export function UnitInput({
     }
   }, [effectiveUnit]);
 
+  const noInitialUnit: boolean = (effectiveUnit === null || effectiveUnit.trim() === "");
   const interpretedDisplay = effectiveUnit === null
     ? t("common:tsx.unitless")
     : effectiveUnit.trim() === ""
@@ -69,83 +76,67 @@ export function UnitInput({
     });
   }, [applyRecipeUpdate]);
 
-  const handleOverrideToggle = useCallback((checked: boolean) => {
-    setIsOverrideToggled(checked);
-
-    if (!checked) {
-      setRecipeUnit(undefined);
-      return;
-    }
-
-    // Seed the override from the unit currently in effect, so toggling it on is a no-op until edited.
-    const seededUnit = overrideUnitInput || (resolvedUnit ?? "");
-    setOverrideUnitInput(seededUnit);
-    setRecipeUnit(seededUnit);
-  }, [overrideUnitInput, resolvedUnit, setRecipeUnit]);
+  const handleOverrideInputChange = useCallback((value: string) => {
+    setOverrideUnitInput(value);
+    // An empty input means "no override" — clear it on the recipe rather than
+    // storing an empty-string unit.
+    setRecipeUnit(value.trim() === "" ? undefined : value);
+  }, [setRecipeUnit]);
 
   return (
-    <div className="width-100 min-width-0 margin-top-50">
-      <p className="font-weight-bold margin-bottom-25">
-        {t("forms:data_series_input.data_unit")}
-      </p>
+    <>
+      {/* Type to override unit */}
+      {!!allowOverrideSelection &&
+        <>
+          <label className="block margin-top-100" htmlFor={id}>
+            {t("forms:data_series_input.unit_input.unit")}
+          </label>
 
-      {/* Mathjs interpretation of the effective unit */}
-      <p className="margin-bottom-25">
-        {interpretedDisplay !== null
-          ? <Trans
+          <TextSingleAutocomplete
+            props={{
+              id: id,
+              name: id,
+              className: "margin-top-25",
+              placeholder: resolvedDisplay,
+            }}
+            options={allOurUnits.map(unit => ({ name: unit, value: unit }))}
+            value={overrideUnitInput}
+            setter={setOverrideUnitInput}
+            onChange={(value) => { handleOverrideInputChange(value); }}
+          />
+        </>
+      }
+
+      {interpretedDisplay !== null ?
+        <small className="flex align-items-center gap-25 margin-top-25 margin-bottom-0" style={{ color: "green" }}>
+          <IconCheck width={20} height={20} style={{ minWidth: '0' }} aria-hidden="true" />
+          <Trans
             i18nKey="forms:data_series_input.unit_interpreted_as"
             values={{ unit: interpretedDisplay }}
             components={{ a: <strong /> }}
           />
-          : t("forms:data_series_input.unit_not_interpreted")}
-      </p>
-
-      {/* Toggle override */}
-      {!!allowOverrideSelection && <>
-        <label>
-          <input
-            type="checkbox"
-            id={id ? `${id}-toggle` : undefined}
-            onChange={(e) => { handleOverrideToggle(e.target.checked); }}
-            checked={isOverrideToggled}
-            className="margin-right-25"
-          />
-          {t("forms:data_series_input.unit_input.override_toggle")}
-        </label>
-        {isOverrideToggled ?
-          <label className="block margin-top-25">
-            <input
-              type="text"
-              id={id}
-              className="margin-inline-25"
-              placeholder={resolvedDisplay}
-              value={overrideUnitInput}
-              onChange={(e) => {
-                setOverrideUnitInput(e.target.value);
-                setRecipeUnit(e.target.value);
+        </small>
+        :
+        <small className="flex align-items-center gap-25 margin-top-25 margin-bottom-0" style={{ color: "#dfab00" }}>
+          <IconInfoCircle width={20} height={20} style={{ minWidth: '0' }} aria-hidden="true" />
+          {t("forms:data_series_input.unit_not_interpreted")}
+        </small>
+      }
+      <small className="flex align-items-center gap-25 margin-top-25 margin-bottom-0" style={{ color: "#dfab00" }}>
+        {isOverriding && noInitialUnit ? // No need to let the user know that they are overriding "unitless", as this is not a unit
+          <>
+            <IconInfoCircle width={20} height={20} style={{ minWidth: '0' }} aria-hidden="true" />
+            <Trans
+              i18nKey={"forms:data_series_input.unit_override_status.overriding"}
+              values={{
+                resolvedUnit: resolvedDisplay,
+                overrideUnit: overrideUnitInput.trim() || t("common:tsx.unit_missing"),
               }}
+              components={{ a: <strong /> }}
             />
-          </label> : null}
-      </>}
-
-      {/* Final "using" */}
-      <p>
-        {isOverrideToggled
-          ? <Trans
-            i18nKey={"forms:data_series_input.unit_override_status.overriding"}
-            values={{
-              resolvedUnit: resolvedDisplay,
-              overrideUnit: overrideUnitInput.trim() || t("common:tsx.unit_missing"),
-            }}
-            components={{ a: <strong /> }}
-          />
-          : <Trans
-            i18nKey={"forms:data_series_input.unit_override_status.using"}
-            values={{ unit: resolvedDisplay }}
-            components={{ a: <strong /> }}
-          />
-        }
-      </p>
-    </div>
+          </>
+          : null}
+      </small>
+    </>
   );
 }

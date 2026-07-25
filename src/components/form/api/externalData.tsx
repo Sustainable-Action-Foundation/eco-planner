@@ -19,12 +19,12 @@ import type { ApiSelectionItem } from "@/lib/api/apiTypes";
 export default function ExternalData({
   goal,
   onChange,
-  required = true,
+  // required = true,
 }: {
   goal: Goal | undefined,
   onChange?: (data: ExternalDataState) => void;
   /** Whether a dataset/table selection is required for the surrounding form to submit. Off when the selection is optional (e.g. the goal form's historical section). */
-  required?: boolean;
+  // required?: boolean;
 }) {
 
   const { t } = useTranslation("components");
@@ -185,7 +185,7 @@ export default function ExternalData({
         <select
           defaultValue={historicalSource?.dataset ?? ''}
           className="block margin-top-25 margin-bottom-100 width-100"
-          required={required}
+          required={true}
           name="externalDataset"
           id="externalDataset"
           onChange={e => dispatch({ type: "SELECT_DATASET", dataSource: e.target.value })}>
@@ -202,7 +202,7 @@ export default function ExternalData({
           id: 'externalTableId',
           name: 'externalTableId',
           placeholder: !dataSource ? t("components:query_builder.select_source_for_table") : t("components:query_builder.select_table"),
-          required: required,
+          required: true,
           disabled: !dataSource ? true : false,
         }}
         defaultValue={table ? { name: table.label, value: table.tableId } : false}
@@ -220,7 +220,7 @@ export default function ExternalData({
         })} />
 
       <fieldset className={`width-100 min-width-0 ${!table ? 'fieldset-unset-pseudo-class' : ''}`}>
-        <legend className="padding-block-125 font-weight-bold">
+        <legend className="padding-top-125 padding-bottom-75 font-weight-bold">
           {t("components:query_builder.select_metric_for_table")}
         </legend>
         {table && tableMetadata ? (
@@ -244,7 +244,7 @@ export default function ExternalData({
       </fieldset>
 
       <fieldset className={`width-100 min-width-0 ${!table ? 'fieldset-unset-pseudo-class' : ''}`}>
-        <legend className="padding-block-125 font-weight-bold">
+        <legend className="padding-top-125 padding-bottom-75 font-weight-bold">
           {t("components:query_builder.select_values_for_table")}
         </legend>
 
