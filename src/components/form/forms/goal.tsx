@@ -96,7 +96,6 @@ function useInitializedValues<T>(current: T): Set<T> {
   return initialized;
 }
 
-
 export default function GoalForm({
   roadmapId,
   roadmapAlternatives,
@@ -107,7 +106,6 @@ export default function GoalForm({
   currentGoal?: Goal;
 }) {
   const { t } = useTranslation(["forms", "graphs", "common"]);
-
 
   const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(() => resolveDataSeriesType(currentGoal));
   const initializedDataSeriesTypes = useInitializedValues(dataSeriesType);
@@ -509,7 +507,7 @@ export default function GoalForm({
             name={GoalFormName.GoalName}
             id="goalName"
             defaultValue={currentGoal?.name ?? undefined}
-            // onChange={(e) => setGoalName(e.target.value)}
+          // onChange={(e) => setGoalName(e.target.value)}
           />
         </label>
 

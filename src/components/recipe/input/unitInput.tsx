@@ -109,7 +109,7 @@ export function UnitInput({
 
       {interpretedDisplay !== null ?
         <small className="flex align-items-center gap-25 margin-top-25 margin-bottom-0" style={{ color: "green" }}>
-          <IconCheck width={20} height={20} style={{ minWidth: '0' }} aria-hidden="true" />
+          <IconCheck width={20} height={20} style={{ minWidth: '20px' }} aria-hidden="true" />
           <Trans
             i18nKey="forms:data_series_input.unit_interpreted_as"
             values={{ unit: interpretedDisplay }}
@@ -118,14 +118,14 @@ export function UnitInput({
         </small>
         :
         <small className="flex align-items-center gap-25 margin-top-25 margin-bottom-0" style={{ color: "#dfab00" }}>
-          <IconInfoCircle width={20} height={20} style={{ minWidth: '0' }} aria-hidden="true" />
+          <IconInfoCircle width={20} height={20} style={{ minWidth: '20px' }} aria-hidden="true" />
           {t("forms:data_series_input.unit_not_interpreted")}
         </small>
       }
       <small className="flex align-items-center gap-25 margin-top-25 margin-bottom-0" style={{ color: "#dfab00" }}>
         {isOverriding && noInitialUnit ? // No need to let the user know that they are overriding "unitless", as this is not a unit
           <>
-            <IconInfoCircle width={20} height={20} style={{ minWidth: '0' }} aria-hidden="true" />
+            <IconInfoCircle width={20} height={20} style={{ minWidth: '20px' }} aria-hidden="true" />
             <Trans
               i18nKey={"forms:data_series_input.unit_override_status.overriding"}
               values={{
