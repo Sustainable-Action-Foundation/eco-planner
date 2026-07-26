@@ -329,12 +329,14 @@ export class Recipe {
         return generatedMask;
       })();
 
-    return parseDateValuesFromVector(
+    const evaluated = parseDateValuesFromVector(
       {
         vector: result,
         mask: outputMask,
       },
     );
+ 
+    return this.unit ? { ...evaluated, unit: this.unit } : evaluated;
   }
 
   /**

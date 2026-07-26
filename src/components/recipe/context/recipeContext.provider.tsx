@@ -267,7 +267,6 @@ export function RecipeContextProvider({
   // Evaluate recipe and update resulting data and unit, whenever recipe changes
   useEffect(() => {
     let isEffectActive = true;
-
     if (debouncedRecipe.isTemplate()) {
       // Nothing to evaluate: the cleared results ARE this recipe's results.
       setLastEvaluatedRecipe(debouncedRecipe);
