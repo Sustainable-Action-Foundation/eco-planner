@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useRef } from "react";
 import { useRecipe } from "../context/recipeContext.use";
 import { Recipe } from "@/functions/recipe/recipe";
 import type { DateValuesWithUnit } from "@/types";
@@ -27,13 +27,8 @@ export function ManualDataSeriesInput({
   label: string;
   initialDateValues?: DateValuesWithUnit | undefined;
 }) {
-  const { recipe, resultingDataSeries, resultingUnit, applyRecipeUpdate } = useRecipe();
-
-  useEffect(() => {
-    console.log(resultingDataSeries, resultingUnit);
-  }, [resultingDataSeries, resultingUnit]);
-
-
+  const { recipe, applyRecipeUpdate } = useRecipe();
+ 
   // Keep the inline variable's id stable across edits so the recipe identity
   // only changes when the values actually change.
   const variableIdRef = useRef<string>(recipe.variables[0]?.id ?? crypto.randomUUID());

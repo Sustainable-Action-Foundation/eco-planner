@@ -133,7 +133,6 @@ export default function GoalForm({
   const [previewBaselineSerie, setPreviewBaselineSerie] = useState<DateValuesWithUnit | null>(null);
   const [previewHistoricalRecipe, setPreviewHistoricalRecipe] = useState<SerializedRecipe | null>(null);
 
-
   // Evaluation error of the currently-selected recipe input (Suggested/Custom)  setPreviewHistoricalRecipe={setPreviewHistoricalRecipe},
   // lifted out of the recipe context so submission can be blocked when it fails
   // to evaluate (e.g. an external variable with an incomplete selection).
@@ -191,7 +190,6 @@ export default function GoalForm({
   // TODO: Error messages were translated directly from English to Swedish when switching to toasts.
   // They can likely be translated better.
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
-    console.log('this ran');
     event.target.reportValidity();
     event.preventDefault();
 
@@ -388,7 +386,6 @@ export default function GoalForm({
     // Build the JSON payload for the API
     let formContent: GoalCreateInput | GoalUpdateInput;
     if (!currentGoal && baseline) {
-      console.log(baseline);
       // Create
       formContent = {
         target: GoalDataTarget.Full,

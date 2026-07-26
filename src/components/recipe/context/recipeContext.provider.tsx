@@ -272,7 +272,7 @@ export function RecipeContextProvider({
       setLastEvaluatedRecipe(debouncedRecipe);
       return () => {
         setResultingDataSeries(null);
-        setResultingUnit(null);
+        setResultingUnit(debouncedRecipe.unit ?? null); // declared unit survives even if recipe cannot be evaluated
         setWarnings([]);
         setError(null);
       };
@@ -295,7 +295,7 @@ export function RecipeContextProvider({
         console.warn("Failed to evaluate recipe:", errorMessage);
 
         setResultingDataSeries(null);
-        setResultingUnit(null);
+        setResultingUnit(debouncedRecipe.unit ?? null); // declared unit survives even if recipe cannot be evaluated
         setWarnings(warnings);
         setError(errorMessage);
       })

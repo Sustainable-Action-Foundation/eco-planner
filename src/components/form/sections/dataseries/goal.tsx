@@ -125,7 +125,7 @@ export default function GoalSeriesSection({
             >
               <SuggestedRecipeApplier />
               <UnitInput
-                id="goal-manual-unit"
+                id="goal-suggested-unit"
                 staticProvidedUnit={goal?.dataSeries?.unit}
               />
               <FormSync

@@ -33,22 +33,26 @@ export function RecipeSync({
 }: {
   onUnit?: (unit: string) => void;
   onRecipe?: (recipe: SerializedRecipe) => void;
-  onDateValues?: (dateValues: DateValuesWithUnit) => void;
+  onDateValues?: (dateValues: DateValuesWithUnit | null) => void;
   onError?: (error: string | null) => void;
   active?: boolean;
 }) {
-  const { recipe, resultingDataSeries, resultingUnit, error } = useRecipe();
+  const { recipe, resultingDataSeries, resultingUnit, error, isEvaluationPending } = useRecipe();
 
-  const dateValues: DateValuesWithUnit | undefined = useMemo(() => {
-    if (!resultingDataSeries) return undefined;
-    return { unit: resultingUnit, dateValues: resultingDataSeries };
-  }, [resultingDataSeries, resultingUnit]);
+  // undefined = still catching up (debounce/in-flight eval), don't touch the parent yet.
+  // null      = evaluation settled and there's genuinely nothing — tell the parent to clear.
+  // object    = evaluation settled with data and/or a unit to show.
+  const dateValues: DateValuesWithUnit | null | undefined = useMemo(() => {
+    if (isEvaluationPending) return undefined;
+    if (!resultingDataSeries && resultingUnit === null) return null;
+    return { unit: resultingUnit, dateValues: resultingDataSeries ?? {} };
+  }, [isEvaluationPending, resultingDataSeries, resultingUnit]);
 
   useEffect(() => {
     if (!active) return;
     if (onUnit && resultingUnit) onUnit(resultingUnit);
     if (onRecipe && recipe) onRecipe(recipe.serialize());
-    if (onDateValues && dateValues) onDateValues(dateValues);
+    if (onDateValues && dateValues !== undefined) onDateValues(dateValues);
     if (onError) onError(error);
   }, [active, onUnit, resultingUnit, onRecipe, recipe, onDateValues, dateValues, onError, error]);
 
