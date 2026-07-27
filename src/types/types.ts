@@ -1,6 +1,7 @@
 import type { actionInclusionSelection, clientSafeDataSeriesSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapSelection, effectInclusionSelection, goalInclusionSelection, metaRoadmapInclusionSelection, multiRoadmapInclusionSelection, nameSelector, recipeSelector, roadmapInclusionSelection, userInfoSelector } from "@/fetchers/inclusionSelectors";
 import type { Unit as MathJSUnit } from "mathjs";
 import type { Prisma } from "@/lib/prisma/generated";
+import type { UnitFlags } from "@/types/enums";
 
 /** An object that implements the AccessControlled interface can be checked with the accessChecker function. */
 export type AccessControlled = {
@@ -117,7 +118,12 @@ export type LoginData = {
   };
 };
 
-export type UnitString = string | null | undefined;
+/** 
+ * "" -> MISSING_UNIT
+ * null -> UNITLESS
+ * string -> the string itself
+ */
+export type UnitString = string & { __unitStringBrand: never } | typeof UnitFlags[keyof typeof UnitFlags];
 export type ISOIshDate = `${number}-${number}-${number}T00:00:00${`.000` | ``}Z`;
 /** True: missing value, False: defined value. It masks/"covers" the undefined values */
 export type Mask = Record<ISOIshDate, boolean>;
