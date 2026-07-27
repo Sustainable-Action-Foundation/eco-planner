@@ -13,6 +13,7 @@ import { Recipe } from "@/functions/recipe/recipe";
 import { useState, useRef } from "react";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
+import { UnitFlags } from "@/types/enums";
 
 export default function ActionForm({
   goalId,
@@ -166,7 +167,7 @@ export default function ActionForm({
           </label>
 
           <RecipeContextProvider
-            initialRecipe={Recipe.fromManualDateValues({ unit: undefined, dateValues: {} }).serialize()}
+            initialRecipe={Recipe.fromManualDateValues({ unit: UnitFlags.Missing, dateValues: {} }).serialize()}
           >
             <ManualDataSeriesInput
               id="action-dataseries"

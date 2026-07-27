@@ -8,6 +8,7 @@ import { DataSeriesVariableSimpleEditor } from "../editor/variables/dataSeriesVa
 import { VariableTypeExternalSimple } from "../editor/variables/externalVariable";
 import { useEffect, useMemo, useState } from "react";
 import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";
+import { isUnitFlag } from "@/functions/unit";
 import { IconAlertTriangleFilled, IconInfoCircle } from "@tabler/icons-react";
 import type { ClientRoadmap, DBRecipe } from "@/types";
 import { RecipeEditorPermissions } from "@/types/enums";
@@ -168,11 +169,11 @@ export function SuggestedRecipeApplier({
         {(recipe?.variables ?? []).map(variable => {
           const variableId = variable.id;
           const variableDisplayName = variable.name;
-          const unitIsProvided = typeof variable.unit !== "undefined" && variable.unit !== null;
-          const isValidUnit = unitIsProvided ? isMathjsUnit(variable.unit as string) : false;
+          const unitIsProvided = !isUnitFlag(variable.unit);
+          const isValidUnit = unitIsProvided ? isMathjsUnit(variable.unit) : false;
           const unitDisplay = isValidUnit
             ? ` [${variable.unit}]`
-            : unitIsProvided && variable.unit !== ''
+            : unitIsProvided
               ? <span className="inline">
                 {" ["}
                 {variable.unit}

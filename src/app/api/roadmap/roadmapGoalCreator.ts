@@ -1,6 +1,7 @@
 import type { GoalCreateFull } from "@/types";
 import { isDateValuesWithUnit } from "@/types/typeguards";
 import type { Prisma } from "@/lib/prisma/generated";
+import { serializeUnit } from "@/functions/unit";
 
 type RoadmapGoalInput = {
   goals?: GoalCreateFull[] | null | undefined;
@@ -33,7 +34,7 @@ export default function roadmapGoalCreator(
       dataSeries: {
         create: {
           ...dataSeries,
-          unit: dataSeries.unit,
+          unit: serializeUnit(dataSeries.unit), // db keeps the legacy convention
           authorId: author,
         },
       },

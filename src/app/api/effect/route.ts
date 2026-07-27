@@ -11,6 +11,7 @@ import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
 import serveTea from "@/lib/i18nServer";
+import { serializeUnit } from "@/functions/unit";
 
 // Typeguard and check if the request body is valid
 function isEffect(effect: JSONValue): effect is EffectInput {
@@ -149,7 +150,7 @@ export async function POST(request: NextRequest) {
         dataSeries: {
           create: {
             values: { createMany: { data: dateValuesToDBDateRecord(effect.dataSeries.dateValues) } },
-            unit: effect.dataSeries.unit,
+            unit: serializeUnit(effect.dataSeries.unit), // db keeps the legacy convention
             authorId: session.user.id,
           },
         },
@@ -313,7 +314,7 @@ export async function PUT(request: NextRequest) {
           upsert: {
             create: {
               values: { createMany: { data: dateValuesToDBDateRecord(effect.dataSeries.dateValues) } },
-              unit: effect.dataSeries.unit,
+              unit: serializeUnit(effect.dataSeries.unit), // db keeps the legacy convention
               authorId: session.user.id,
             },
             update: {
@@ -321,7 +322,7 @@ export async function PUT(request: NextRequest) {
                 deleteMany: {},
                 createMany: { data: dateValuesToDBDateRecord(effect.dataSeries.dateValues) },
               },
-              unit: effect.dataSeries.unit,
+              unit: serializeUnit(effect.dataSeries.unit), // db keeps the legacy convention
             },
           },
         },

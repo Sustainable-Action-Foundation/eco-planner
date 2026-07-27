@@ -2,7 +2,6 @@
 
 import { useTranslation } from "react-i18next";
 import type { DateValuesWithUnit, Goal } from "@/types";
-import { DataSeriesType } from "@/types/enums";
 import { GoalFormName } from "@/types/form-names";
 import { IconCheck } from "@tabler/icons-react";
 import { FormSync, ManualDataSeriesInput, RecipeContextProvider, RecipeEditor, SuggestedRecipeApplier, UnitInput } from "@/components/recipe";
@@ -10,6 +9,8 @@ import { dataSeriesToDateValues, Recipe } from "@/functions/recipe";
 import ParameterSync from "@/components/recipe/output/parameterSyncer";
 import { RecipeSync } from "@/components/recipe/output/recipeSync";
 import { useMemo, type Dispatch, type SetStateAction } from "react";
+import { parseUnit } from "@/functions/unit";
+import { DataSeriesType, UnitFlags } from "@/types/enums";
 
 export default function GoalSeriesSection({
   goal,
@@ -126,7 +127,7 @@ export default function GoalSeriesSection({
               <SuggestedRecipeApplier />
               <UnitInput
                 id="goal-suggested-unit"
-                staticProvidedUnit={goal?.dataSeries?.unit}
+                staticProvidedUnit={parseUnit(goal?.dataSeries?.unit)}
               />
               <FormSync
                 RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
@@ -150,7 +151,7 @@ export default function GoalSeriesSection({
         {hasInitializedManual ?
           <fieldset className={`${dataSeriesType === DataSeriesType.Manual ? "" : "display-none"}`} disabled={dataSeriesType !== DataSeriesType.Manual}>
             <RecipeContextProvider
-              initialRecipe={Recipe.fromManualDateValues(manualInitialDateValues ?? { unit: undefined, dateValues: {} }).serialize()}
+              initialRecipe={Recipe.fromManualDateValues(manualInitialDateValues ?? { unit: UnitFlags.Missing, dateValues: {} }).serialize()}
             >
               <ManualDataSeriesInput
                 id="goal-dataseries"
@@ -159,7 +160,7 @@ export default function GoalSeriesSection({
               />
               <UnitInput
                 id="goal-manual-unit"
-                staticProvidedUnit={goal?.dataSeries?.unit}
+                staticProvidedUnit={parseUnit(goal?.dataSeries?.unit)}
               />
               <FormSync
                 RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
@@ -186,7 +187,7 @@ export default function GoalSeriesSection({
               <RecipeEditor />
               <UnitInput
                 id="goal-custom-unit"
-                staticProvidedUnit={goal?.dataSeries?.unit}
+                staticProvidedUnit={parseUnit(goal?.dataSeries?.unit)}
               />
               <FormSync
                 RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}

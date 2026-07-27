@@ -7,6 +7,8 @@ import type { ApexAxisChartSeries, ApexYAxis } from "apexcharts";
 import { color_palette, generateApexChartOptions } from "../../config";
 import { useTranslation } from "react-i18next";
 import { memo } from "react";
+import { UnitFlags } from "@/types/enums";
+import { parseUnit } from "@/functions/unit";
 
 // Checks if we have a dataSeries or DateValuesWithUnit
 function isDataSeries(
@@ -123,7 +125,14 @@ export function GoalGraph({
     chartType: chartType,
     colors: colors,
     opacities: opacities,
-    yAxisTitle: main?.unit === null ? t("common:tsx.unitless") : main?.unit || t("common:tsx.unit_missing"),
+    // `main` may be a raw db series (legacy unit convention) or a DateValuesWithUnit; parse either
+    yAxisTitle: (() => {
+      if (main === null || main === undefined) return t("common:tsx.unit_missing");
+      const unit = parseUnit(main.unit);
+      if (unit === UnitFlags.Missing) return t("common:tsx.unit_missing");
+      if (unit === UnitFlags.Unitless) return t("common:tsx.unitless");
+      return unit;
+    })(),
   });
 
   const mainYAxis =
@@ -164,7 +173,16 @@ export function GoalGraph({
     chart.push(toChartSeries(comparison, comparison.name, "line", color_palette.comparison.color));
 
     (options.yaxis as ApexYAxis[]).push({
-      title: { text: `${t("graphs:main_graph.secondary_goal", { unit: comparison.unit })}` },
+      title: {
+        text: `${t("graphs:main_graph.secondary_goal", {
+          unit: (() => {
+            const unit = parseUnit(comparison.unit);
+            if (unit === UnitFlags.Missing) return t("common:tsx.unit_missing");
+            if (unit === UnitFlags.Unitless) return t("common:tsx.unitless");
+            return unit;
+          })(),
+        })}`,
+      },
       labels: { formatter: graphNumberFormatter },
       seriesName: comparison.name,
       opposite: true,

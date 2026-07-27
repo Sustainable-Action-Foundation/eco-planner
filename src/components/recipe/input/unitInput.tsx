@@ -2,6 +2,8 @@
 
 import mathjs, { allOurUnits } from "@/math";
 import type { Unit } from "@/types";
+import { UnitFlags } from "@/types/enums";
+import { isUnitFlag, parseUnit } from "@/functions/unit";
 import { useCallback, useMemo, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
@@ -26,26 +28,31 @@ export function UnitInput({
 }: {
   /** Applied to the override text input. Needed when several UnitInputs coexist (e.g. hidden form fieldsets). */
   id: string;
-  staticProvidedUnit?: string | null;
+  staticProvidedUnit?: Unit;
   allowOverrideSelection?: boolean;
 }) {
   const { t } = useTranslation(["forms", "common"]);
   const { recipe, resultingUnit, applyRecipeUpdate } = useRecipe();
 
-  const [overrideUnitInput, setOverrideUnitInput] = useState<string>(recipe.unit ?? "");
+  // The input's raw text; unit flags render as an empty input.
+  const [overrideUnitInput, setOverrideUnitInput] = useState<string>(isUnitFlag(recipe.unit) ? "" : recipe.unit);
 
   const isOverriding = overrideUnitInput.trim() !== "";
 
-  const resolvedUnit: string | null = resultingUnit ?? staticProvidedUnit ?? null;
-  const resolvedDisplay = resolvedUnit === null
+  const resolvedUnit: Unit = resultingUnit === UnitFlags.Missing
+    ? (staticProvidedUnit ?? UnitFlags.Missing)
+    : resultingUnit;
+  const resolvedDisplay = resolvedUnit === UnitFlags.Unitless
     ? t("common:tsx.unitless")
-    : resolvedUnit.trim() || t("common:tsx.unit_missing");
+    : resolvedUnit === UnitFlags.Missing
+      ? t("common:tsx.unit_missing")
+      : resolvedUnit;
 
-  const effectiveUnit: string | null = isOverriding ? overrideUnitInput : resolvedUnit;
+  const effectiveUnit: Unit = isOverriding ? parseUnit(overrideUnitInput) : resolvedUnit;
 
   // Normalized mathjs interpretation of the effective unit; null when it cannot be parsed.
   const parsedEffectiveUnit = useMemo(() => {
-    if (typeof effectiveUnit !== "string" || effectiveUnit.trim() === "") return null;
+    if (isUnitFlag(effectiveUnit)) return null;
     try {
       return mathjs.unit(effectiveUnit.trim()).toString();
     } catch {
@@ -57,20 +64,19 @@ export function UnitInput({
   // unit: overriding "unitless"/"missing" needs no notice, and once the declared
   // unit has been folded into the evaluation result the two are equal anyway.
   const overrideMasksResolvedUnit = isOverriding
-    && resolvedUnit !== null
-    && resolvedUnit.trim() !== ""
+    && !isUnitFlag(resolvedUnit)
     && resolvedUnit.trim() !== overrideUnitInput.trim();
-  const interpretedDisplay = effectiveUnit === null
+  const interpretedDisplay = effectiveUnit === UnitFlags.Unitless
     ? t("common:tsx.unitless")
-    : effectiveUnit.trim() === ""
+    : effectiveUnit === UnitFlags.Missing
       ? t("common:tsx.unit_missing")
       : parsedEffectiveUnit;
 
   const setRecipeUnit = useCallback((nextUnit: Unit) => {
     void applyRecipeUpdate((current) => {
-      const normalizedNextUnit: Unit = typeof nextUnit === "string"
-        ? nextUnit.trim()
-        : nextUnit;
+      const normalizedNextUnit: Unit = isUnitFlag(nextUnit)
+        ? nextUnit
+        : parseUnit(nextUnit.trim());
 
       if (current.unit === normalizedNextUnit) {
         return current;
@@ -84,9 +90,9 @@ export function UnitInput({
 
   const handleOverrideInputChange = useCallback((value: string) => {
     setOverrideUnitInput(value);
-    // An empty input means "no override" — clear it on the recipe rather than
-    // storing an empty-string unit.
-    setRecipeUnit(value.trim() === "" ? undefined : value);
+    // An empty input parses to "missing", i.e. "no override" — the declared
+    // unit is cleared rather than stored as an empty string.
+    setRecipeUnit(parseUnit(value));
   }, [setRecipeUnit]);
 
   return (

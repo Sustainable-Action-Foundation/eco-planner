@@ -1,6 +1,7 @@
 "use client";
 
 import { getHistoricalDataset } from "@/functions/getHistoricalDataset";
+import { parseUnit } from "@/functions/unit";
 import { useState } from "react";
 import { calculatePredictedOutcome, getStoredGraphType } from "../../functions/graphFunctions";
 import GraphSelector from "../../graphSelectors/graphSelector";
@@ -64,7 +65,7 @@ export default function GoalGraphContainer({
 
       return {
         name: sibling.name,
-        unit: sibling.dataSeries.unit,
+        unit: parseUnit(sibling.dataSeries.unit),
         dateValues,
       };
     });
@@ -150,24 +151,24 @@ export default function GoalGraphContainer({
             series={{
               main: goal.dataSeries && {
                 name: `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
-                unit: goal.dataSeries.unit,
+                unit: parseUnit(goal.dataSeries.unit),
                 dateValues: toDeltaDateValues(goal.dataSeries?.values ?? []),
               },
               baseline: goal.baseline && {
                 name: t("graphs:common.baseline_scenario"),
-                unit: goal.baseline.unit,
+                unit: parseUnit(goal.baseline.unit),
                 dateValues: toDeltaDateValues(goal.baseline.values),
               },
               historical: goal.historical && {
                 name: goal.historical ? historicalLabel : "",
-                unit: goal.historical.unit,
+                unit: parseUnit(goal.historical.unit),
                 dateValues: toDeltaDateValues(goal.historical.values),
               },
               predictedOutcome:
                 goal.effects.length > 0
                   ? {
                     name: t("graphs:common.expected_outcome"),
-                    unit: goal.effects[0].dataSeries?.unit,
+                    unit: parseUnit(goal.effects[0].dataSeries?.unit),
                     dateValues: toDeltaDateValues(
                       calculatePredictedOutcome(goal.effects, goal.baseline)
                         .filter((p): p is { x: number; y: number } => p.y !== null)
@@ -177,12 +178,12 @@ export default function GoalGraphContainer({
                   : null,
               comparison: secondaryGoal?.dataSeries && {
                 name: secondaryGoal.name || secondaryGoal.indicatorParameter.split('\\').slice(-1)[0],
-                unit: secondaryGoal.dataSeries.unit,
+                unit: parseUnit(secondaryGoal.dataSeries.unit),
                 dateValues: toDeltaDateValues(secondaryGoal.dataSeries.values),
               },
               parent: parentGoal?.dataSeries && {
                 name: t("graphs:common.parent_counterpart", { parent: (parentGoal?.name || parentGoal?.indicatorParameter || "").split('\\').slice(-1)[0] }),
-                unit: parentGoal.dataSeries.unit,
+                unit: parseUnit(parentGoal.dataSeries.unit),
                 dateValues: toDeltaDateValues(goal.dataSeries?.values ?? []),
               },
             }}
@@ -196,17 +197,17 @@ export default function GoalGraphContainer({
           series={{
             main: goal.dataSeries && {
               name: `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
-              unit: goal.dataSeries.unit,
+              unit: parseUnit(goal.dataSeries.unit),
               dateValues: toPercentOfFirstDateValues(goal.dataSeries.values),
             },
             baseline: goal.baseline && {
               name: t("graphs:common.baseline_scenario"),
-              unit: goal.baseline.unit,
+              unit: parseUnit(goal.baseline.unit),
               dateValues: toPercentOfFirstDateValues(goal.baseline.values),
             },
             historical: goal.historical && {
               name: goal.historical ? historicalLabel : "",
-              unit: goal.historical.unit,
+              unit: parseUnit(goal.historical.unit),
               dateValues: toPercentOfFirstDateValues(goal.historical.values),
             },
             predictedOutcome: goal.effects.length > 0
@@ -215,7 +216,7 @@ export default function GoalGraphContainer({
                 // TODO: Not good if there are multiple different units for different effects.
                 // We likely want some conversion or warning, this includes units that differ between
                 // historical, baseline and main dataseries aswell!
-                unit: goal.effects[0].dataSeries?.unit,
+                unit: parseUnit(goal.effects[0].dataSeries?.unit),
                 dateValues: toPercentOfFirstDateValues(
                   calculatePredictedOutcome(goal.effects, goal.baseline)
                     .filter((point): point is { x: number; y: number } => point.y !== null)
@@ -225,12 +226,12 @@ export default function GoalGraphContainer({
               : null,
             comparison: secondaryGoal?.dataSeries && {
               name: secondaryGoal.name || secondaryGoal.indicatorParameter.split('\\').slice(-1)[0],
-              unit: secondaryGoal.dataSeries.unit,
+              unit: parseUnit(secondaryGoal.dataSeries.unit),
               dateValues: toPercentOfFirstDateValues(secondaryGoal.dataSeries.values),
             },
             parent: parentGoal?.dataSeries && {
               name: t("graphs:common.parent_counterpart", { parent: (parentGoal?.name || parentGoal?.indicatorParameter || "").split('\\').slice(-1)[0] }),
-              unit: parentGoal.dataSeries.unit,
+              unit: parseUnit(parentGoal.dataSeries.unit),
               dateValues: toPercentOfFirstDateValues(parentGoal.dataSeries.values),
             },
           }}
@@ -244,7 +245,7 @@ export default function GoalGraphContainer({
           series={{
             main: goal.dataSeries && {
               name: `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
-              unit: goal.dataSeries.unit,
+              unit: parseUnit(goal.dataSeries.unit),
               dateValues: Object.fromEntries(
                 goal.dataSeries.values.map((value) => [
                   value.timestamp.toISOString(),
@@ -254,7 +255,7 @@ export default function GoalGraphContainer({
             },
             baseline: goal.baseline && {
               name: t("graphs:common.baseline_scenario"),
-              unit: goal.baseline.unit,
+              unit: parseUnit(goal.baseline.unit),
               dateValues: Object.fromEntries(
                 goal.baseline.values.map((value) => [
                   value.timestamp.toISOString(),
@@ -264,7 +265,7 @@ export default function GoalGraphContainer({
             },
             historical: goal.historical && {
               name: goal.historical ? historicalLabel : "",
-              unit: goal.historical.unit,
+              unit: parseUnit(goal.historical.unit),
               dateValues: Object.fromEntries(
                 goal.historical.values.map((value) => [
                   value.timestamp.toISOString(),
@@ -278,7 +279,7 @@ export default function GoalGraphContainer({
                 // TODO: Not good if there are multiple different units for different effects.
                 // We likely want some conversion or warning, this includes units that differ between
                 // historical, baseline and main dataseries aswell!
-                unit: goal.effects[0].dataSeries?.unit,
+                unit: parseUnit(goal.effects[0].dataSeries?.unit),
                 dateValues: Object.fromEntries(
                   calculatePredictedOutcome(goal.effects, goal.baseline)
                     .filter((point): point is { x: number; y: number } => point.y !== null)
@@ -288,7 +289,7 @@ export default function GoalGraphContainer({
               : null,
             comparison: secondaryGoal?.dataSeries && {
               name: secondaryGoal.name || secondaryGoal.indicatorParameter.split('\\').slice(-1)[0],
-              unit: secondaryGoal.dataSeries.unit,
+              unit: parseUnit(secondaryGoal.dataSeries.unit),
               dateValues: Object.fromEntries(
                 secondaryGoal.dataSeries.values.map((value) => [
                   value.timestamp.toISOString(),
@@ -298,7 +299,7 @@ export default function GoalGraphContainer({
             },
             parent: parentGoal?.dataSeries && {
               name: t("graphs:common.parent_counterpart", { parent: (parentGoal?.name || parentGoal?.indicatorParameter || "").split('\\').slice(-1)[0] }),
-              unit: parentGoal.dataSeries.unit,
+              unit: parseUnit(parentGoal.dataSeries.unit),
               dateValues: Object.fromEntries(
                 parentGoal.dataSeries.values.map((value) => [
                   value.timestamp.toISOString(),
@@ -451,7 +452,7 @@ export default function GoalGraphContainer({
                   series={{
                     main: goal.dataSeries && {
                       name: `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
-                      unit: goal.dataSeries.unit,
+                      unit: parseUnit(goal.dataSeries.unit),
                       dateValues: Object.fromEntries(
                         goal.dataSeries.values.map((value) => [
                           value.timestamp.toISOString(),

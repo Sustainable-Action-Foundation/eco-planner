@@ -3,7 +3,7 @@
 import type { getRoadmaps } from "@/fetchers";
 import formSubmitter from "@/functions/formSubmitter";
 import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput } from "@/types";
-import { BaselineType, DataSeriesType, GoalDataTarget, HistoricalDataType } from "@/types/enums";
+import { BaselineType, DataSeriesType, GoalDataTarget, HistoricalDataType, UnitFlags } from "@/types/enums";
 import { GoalFormName } from "@/types/form-names";
 import { isDateValuesWithUnit } from "@/types/typeguards";
 import { waitForRecipeFormSyncs } from "@/components/recipe";
@@ -23,6 +23,7 @@ import HistoricalSeriesSection from "../sections/dataseries/historical";
 import BaselineSeriesSection from "../sections/dataseries/baseline";
 import GoalSeriesSection from "../sections/dataseries/goal";
 import { getHistoricalDatasetFromRecipe } from "@/functions/getHistoricalDataset";
+import { parseUnit } from "@/functions/unit";
 
 function resolveDataSeriesType(goal?: Goal): DataSeriesType {
   // Somehow missing
@@ -247,9 +248,10 @@ export default function GoalForm({
     let dataSeries: DateValuesWithUnit | undefined;
     try {
       dataSeries = JSON.parse(resultingDateValuesString) as DateValuesWithUnit;
-      // Prefer explicit overrides, but keep the recipe/manual unit when override is empty.
-      const dataUnitOverride = (formData.get(GoalFormName.DataUnit) as string | null)?.trim();
-      dataSeries.unit = dataUnitOverride || dataSeries.unit;
+      // The DataUnit field carries a Unit-space value (flags serialize verbatim);
+      // only a missing declaration falls back to the series' own unit.
+      const dataUnitOverride = parseUnit(formData.get(GoalFormName.DataUnit) as string | null);
+      dataSeries.unit = dataUnitOverride === UnitFlags.Missing ? dataSeries.unit : dataUnitOverride;
     } catch (err) {
       addToast(`${t("forms:goal.errors.failed_parse_date_values")} ${err instanceof Error ? err.message : String(err)}`, "error", false);
       event.target.reportValidity();

@@ -119,9 +119,9 @@ export type LoginData = {
 };
 
 /** 
- * "" -> MISSING_UNIT
- * null -> UNITLESS
- * string -> the string itself
+ * `"" -> MISSING_UNIT`
+ * `null -> UNITLESS`
+ * `string -> the string itself`
  */
 export type Unit = string & { __unitStringBrand: never } | typeof UnitFlags[keyof typeof UnitFlags];
 export type ISOIshDate = `${number}-${number}-${number}T00:00:00${`.000` | ``}Z`;

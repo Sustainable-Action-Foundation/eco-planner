@@ -2,6 +2,7 @@ import { useEffect, useMemo } from "react";
 import { useRecipe } from "../context/recipeContext.use";
 import type { DateValuesWithUnit } from "@/types";
 import type { SerializedRecipe } from "@/functions/recipe";
+import { isUnitFlag } from "@/functions/unit";
 
 /**
  * Lifts recipe context state up to a parent via optional setters. This is the one
@@ -44,13 +45,13 @@ export function RecipeSync({
   // object    = evaluation settled with data and/or a unit to show.
   const dateValues: DateValuesWithUnit | null | undefined = useMemo(() => {
     if (isEvaluationPending) return undefined;
-    if (!resultingDataSeries && resultingUnit === null) return null;
+    if (!resultingDataSeries && isUnitFlag(resultingUnit)) return null;
     return { unit: resultingUnit, dateValues: resultingDataSeries ?? {} };
   }, [isEvaluationPending, resultingDataSeries, resultingUnit]);
 
   useEffect(() => {
     if (!active) return;
-    if (onUnit && resultingUnit) onUnit(resultingUnit);
+    if (onUnit && !isUnitFlag(resultingUnit)) onUnit(resultingUnit);
     if (onRecipe && recipe) onRecipe(recipe.serialize());
     if (onDateValues && dateValues !== undefined) onDateValues(dateValues);
     if (onError) onError(error);

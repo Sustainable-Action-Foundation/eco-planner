@@ -1,6 +1,7 @@
 import type { DateValues, GoalCreateFull, ISOIshDate } from "@/types";
-import { GoalDataTarget } from "@/types/enums";
 import { isISOIshDate } from "@/types/typeguards";
+import { parseUnit } from "@/functions/unit";
+import { GoalDataTarget, UnitFlags } from "@/types/enums";
 
 export default function parseCsv(csv: ArrayBuffer): string[][] {
   // Despite Windows-1252 being more common than UTF-8 in a Windows/Microsoft environment (such as when exporting CSV files from Excel),
@@ -84,7 +85,7 @@ export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void
       dataSeriesId: undefined,
       dataSeries: {
         dateValues: dateValues,
-        unit: csv[i][headerIndex["dataUnit"] ?? NaN],
+        unit: parseUnit(csv[i][headerIndex["dataUnit"] ?? NaN]),
       },
       dataSeriesRecipeId: undefined,
       dataSeriesRecipe: undefined,
@@ -93,7 +94,7 @@ export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void
         dateValues: Object.fromEntries(definedYears.map(yyyy => (
           [yyyy, dateValues[definedYears[0] as ISOIshDate]]
         ))),
-        unit: null,
+        unit: UnitFlags.Unitless,
       },
       baselineRecipeId: undefined,
       baselineRecipe: undefined,

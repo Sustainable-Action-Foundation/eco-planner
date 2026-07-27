@@ -3,8 +3,7 @@
 import { closeModal, openModal } from "./modalFunctions";
 import { useRef, useState } from "react";
 import type { SubmitEvent } from "react";
-import type { DateValues, Goal, GoalCreateInput, JSONValue } from "@/types";
-import { GoalDataTarget } from "@/types/enums";
+import type { DateValues, Goal, GoalCreateInput, JSONValue, Unit } from "@/types";
 import { isDateValues } from "@/types/typeguards";
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
@@ -12,6 +11,8 @@ import { IconX } from "@tabler/icons-react";
 import styles from "../form/api/queryBuilder.module.css";
 import { Recipe } from "@/functions/recipe";
 import { FormSync, RecipeContextProvider, SuggestedRecipeApplier } from "@/components/recipe";
+import { parseUnit } from "@/functions/unit";
+import { GoalDataTarget, UnitFlags } from "@/types/enums";
 
 
 export default function CopyAndScale({
@@ -55,19 +56,19 @@ export default function CopyAndScale({
       return;
     }
 
-    let resultingUnit: string | null;
+    let resultingUnit: Unit;
     try {
       const rawUnit = form.get("resultingDataSeriesUnit");
 
       if (rawUnit === "") {
-        resultingUnit = null;
+        resultingUnit = UnitFlags.Unitless;
       } else {
         const parsedUnit = JSON.parse(rawUnit as string) as JSONValue;
 
         if (typeof parsedUnit === "string") {
-          resultingUnit = parsedUnit;
+          resultingUnit = parseUnit(parsedUnit);
         } else if (parsedUnit === null) {
-          resultingUnit = null;
+          resultingUnit = UnitFlags.Unitless;
         } else {
           throw new Error("Parsed data series unit is not a string or null");
         }

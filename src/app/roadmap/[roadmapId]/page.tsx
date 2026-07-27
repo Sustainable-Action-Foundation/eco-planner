@@ -17,8 +17,10 @@ import ActionTable from "@/components/tables/actions";
 import GoalGraph from "@/components/graph/graphs/goal/main";
 import graphStyles from "@/components/graph/graphs/goal/goal.module.css";
 import { getHistoricalDataset } from "@/functions/getHistoricalDataset";
+import { parseUnit } from "@/functions/unit";
+import type { Metadata } from "next";
 
-export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }) {
+export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }): Promise<Metadata> {
   const params = await props.params;
   const [t, session, roadmap] = await Promise.all([
     serveTea("metadata"),
@@ -141,7 +143,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
                         series={{
                           main: goal?.dataSeries && {
                             name: `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
-                            unit: goal.dataSeries.unit,
+                            unit: parseUnit(goal.dataSeries.unit),
                             dateValues: Object.fromEntries(
                               goal.dataSeries.values.map((value) => [
                                 value.timestamp.toISOString(),
@@ -153,7 +155,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
                             name: historicalDataset?.label
                               ? `${historicalDataset.label} (${t("common:historical_data")})`
                               : t("common:historical_data"),
-                            unit: goal.historical.unit,
+                            unit: parseUnit(goal.historical.unit),
                             dateValues: Object.fromEntries(
                               goal.historical.values.map((value) => [
                                 value.timestamp.toISOString(),

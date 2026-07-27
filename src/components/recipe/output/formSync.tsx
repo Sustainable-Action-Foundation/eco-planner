@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { useRecipe } from "../context/recipeContext.use";
 import type { DateValuesWithUnit } from "@/types";
 import { RecipeEvaluationPendingName } from "@/types/form-names";
+import { UnitFlags } from "@/types/enums";
 
 /**
  * Waits until every enabled `FormSync` in the form reports a settled evaluation
@@ -50,7 +51,9 @@ export function FormSync({
   } = useRecipe();
 
   const effectiveUnit = useMemo(() => {
-    if (recipe.unit !== undefined) return recipe.unit;
+    // A declared unit (incl. an explicit "unitless") wins; only a missing
+    // declaration falls through to the evaluated unit.
+    if (recipe.unit !== UnitFlags.Missing) return recipe.unit;
     return resultingUnit;
   }, [recipe.unit, resultingUnit]);
 
@@ -75,7 +78,7 @@ export function FormSync({
       readOnly: true,
     })}
     {!!UnitFormElement && React.cloneElement(UnitFormElement, {
-      value: effectiveUnit ?? "",
+      value: effectiveUnit,
       type: "hidden",
       hidden: true,
       readOnly: true,

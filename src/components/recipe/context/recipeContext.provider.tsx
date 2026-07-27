@@ -11,6 +11,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { SetStateAction } from "react";
 import { Recipe } from "@/functions/recipe/recipe";
 import { RecipeContext } from "./recipeContext.internal";
+import { UnitFlags } from "@/types/enums";
 import { useDebounce } from "use-debounce";
 
 /** Compact summary of a recipe in a given state, for the debug panel. */
@@ -57,7 +58,7 @@ export function RecipeContextProvider({
   const [warnings, setWarnings] = useState<string[]>([]);
 
   const [resultingDataSeries, setResultingDataSeries] = useState<DateValues | null>(null);
-  const [resultingUnit, setResultingUnit] = useState<Unit | null>(null);
+  const [resultingUnit, setResultingUnit] = useState<Unit>(UnitFlags.Missing);
   // Serialize async recipe updates so rapid edits cannot overwrite each other.
   const recipeUpdateQueueRef = useRef<Promise<void>>(Promise.resolve());
   const recipeUpdateGenerationRef = useRef<number>(0);
@@ -272,7 +273,7 @@ export function RecipeContextProvider({
       setLastEvaluatedRecipe(debouncedRecipe);
       return () => {
         setResultingDataSeries(null);
-        setResultingUnit(debouncedRecipe.unit ?? null); // declared unit survives even if recipe cannot be evaluated
+        setResultingUnit(debouncedRecipe.unit); // declared unit survives even if recipe cannot be evaluated
         setWarnings([]);
         setError(null);
       };
@@ -284,7 +285,7 @@ export function RecipeContextProvider({
         if (!isEffectActive) return;
 
         setResultingDataSeries(result?.dateValues ?? null);
-        setResultingUnit(result?.unit ?? null);
+        setResultingUnit(result?.unit ?? UnitFlags.Missing);
         setWarnings(warnings);
         setError(null);
       })
@@ -295,7 +296,7 @@ export function RecipeContextProvider({
         console.warn("Failed to evaluate recipe:", errorMessage);
 
         setResultingDataSeries(null);
-        setResultingUnit(debouncedRecipe.unit ?? null); // declared unit survives even if recipe cannot be evaluated
+        setResultingUnit(debouncedRecipe.unit); // declared unit survives even if recipe cannot be evaluated
         setWarnings(warnings);
         setError(errorMessage);
       })

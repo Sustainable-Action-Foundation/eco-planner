@@ -12,6 +12,8 @@ import type { DateValues } from "@/types";
 import { isISOIshDate } from "@/types/typeguards";
 import type { User, UserGroup } from "@/lib/prisma/generated";
 import { RandomTextSE } from "../randomText";
+import { parseUnit } from "@/functions/unit";
+import { UnitFlags } from "@/types/enums";
 
 /*
  * Shared types passed between seed modules.
@@ -215,7 +217,7 @@ export async function deriveOneToOne(authorId: string, source: SeededSeries, nam
         dataSeriesId: source.id,
         pick: VectorIndexPickerOptions.Default,
         value: null,
-        unit: source.unit ?? undefined,
+        unit: parseUnit(source.unit),
       },
     ],
   });
@@ -243,14 +245,14 @@ export async function deriveByScalar(
         dataSeriesId: source.id,
         pick: VectorIndexPickerOptions.Default,
         value: null,
-        unit: source.unit ?? undefined,
+        unit: parseUnit(source.unit),
       },
       {
         id: "skalär",
         name: "skalär",
         type: RecipeDataTypes.Scalar,
         value: scalar,
-        unit: null,
+        unit: UnitFlags.Unitless,
       },
     ],
   });
@@ -280,7 +282,7 @@ async function createDerivedSeries(
       author: { connect: { id: authorId } },
       createdAt,
       updatedAt,
-      ...(source.unit === null ? { unit: null } : { unit: source.unit }),
+      ...(source.unit === null ? { unit: UnitFlags.Unitless } : { unit: source.unit }),
       values: { createMany: { data: dateValuesToDBDateRecord(values) } },
       recipeUsed: { connect: { id: recipeRow.id } },
     },
@@ -307,7 +309,7 @@ export async function createSuggestionRecipes(source: SeededSeries): Promise<str
         dataSeriesId: source.id,
         pick: VectorIndexPickerOptions.Default,
         value: null,
-        unit: source.unit ?? undefined,
+        unit: parseUnit(source.unit),
       },
     ],
   });
@@ -323,9 +325,9 @@ export async function createSuggestionRecipes(source: SeededSeries): Promise<str
         dataSeriesId: source.id,
         pick: VectorIndexPickerOptions.Default,
         value: null,
-        unit: source.unit ?? undefined,
+        unit: parseUnit(source.unit),
       },
-      { id: "skalär", name: "skalär", type: RecipeDataTypes.Scalar, value: 1 + Math.random(), unit: null },
+      { id: "skalär", name: "skalär", type: RecipeDataTypes.Scalar, value: 1 + Math.random(), unit: UnitFlags.Unitless },
     ],
   });
 

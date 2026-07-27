@@ -39,8 +39,14 @@ export function isDateValues(dateValues: JSONValue): dateValues is DateValues {
   );
 }
 
-export function isUnitString(unit: JSONValue | undefined): unit is Unit {
-  return typeof unit === 'string' || unit === null || unit === undefined;
+/**
+ * A valid {@link Unit} on the wire is always a non-empty string: either a unit
+ * flag ("UNITLESS"/"MISSING_UNIT") or an actual unit. `null`/`""` are the
+ * DATABASE convention and must be parsed through `parseUnit` before entering
+ * typed code, never asserted directly.
+ */
+export function isUnit(unit: JSONValue | undefined): unit is Unit {
+  return typeof unit === 'string' && unit.trim() !== '';
 }
 
 /** This is not compliant with ISO-8601, it's a vary narrow format that's a subset of that standard */
@@ -55,7 +61,7 @@ export function isDateValuesWithUnit(dateValues: JSONValue): dateValues is DateV
     && typeof dateValues.dateValues === 'object'
     && !Array.isArray(dateValues)
     && isDateValues(dateValues.dateValues)
-    && isUnitString(dateValues.unit)
+    && isUnit(dateValues.unit)
   );
 }
 

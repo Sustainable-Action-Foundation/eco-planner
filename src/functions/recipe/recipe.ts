@@ -6,6 +6,8 @@ import type { ApiSelectionItem, ApiTableContent, DatasetKeys } from "@/lib/api/a
 import type { ExternalVariable, RecipeExtractionOutput, RecipeVariable, SerializedRecipe, RecipeShape, DataSeriesVariable } from "@/functions/recipe";
 import { isEvalTimeVariable, isRecipe, MathjsError, RecipeError, parseDateValuesFromVector, transformDateValuesToVector, ANDMasks, extractDataSeries, extractExternalDatasets, extractScalars, isEvalTimeSeries, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe";
 import { sanityCheckDataSeries, sanityCheckExternalDatasets, sanityCheckScalars } from "@/functions/recipe/sanityChecks";
+import { isUnitFlag, parseUnit } from "@/functions/unit";
+import { UnitFlags } from "@/types/enums";
 
 /**
  * Deterministic JSON serialization: object keys are sorted recursively so that
@@ -46,7 +48,7 @@ export class Recipe {
     this.name = name;
     this.equation = equation;
     this.variables = variables;
-    this.unit = unit ?? undefined;
+    this.unit = unit ?? UnitFlags.Missing;
     this.meta = meta;
   }
 
@@ -336,7 +338,9 @@ export class Recipe {
       },
     );
  
-    return this.unit ? { ...evaluated, unit: this.unit } : evaluated;
+    // A declared unit overrides the evaluated one. "Missing" means nothing was
+    // declared; an explicit "unitless" declaration does override.
+    return this.unit === UnitFlags.Missing ? evaluated : { ...evaluated, unit: this.unit };
   }
 
   /**
@@ -423,7 +427,7 @@ export class Recipe {
   private static prettyVariableSummary(variable: RecipeVariable): string {
     switch (variable.type) {
       case RecipeDataTypes.Scalar: {
-        return variable.unit ? `${variable.value} ${variable.unit}` : `${variable.value}`;
+        return isUnitFlag(variable.unit) ? `${variable.value}` : `${variable.value} ${variable.unit}`;
       }
       case RecipeDataTypes.DataSeries: {
         const source = variable.externalSource
@@ -552,8 +556,10 @@ export class Recipe {
     return new Recipe({
       name: normalized.name,
       equation: normalized.equation,
-      variables: normalized.variables,
-      unit: normalized.unit,
+      // Stored recipes may carry legacy unit values (null / "" / undefined);
+      // parse them into the Unit type at this deserialization boundary.
+      variables: normalized.variables.map(variable => ({ ...variable, unit: parseUnit(variable.unit) })),
+      unit: parseUnit(normalized.unit),
       meta: normalized.meta,
     });
   }
@@ -596,7 +602,7 @@ export class Recipe {
       name: "Empty Recipe", // TODO: i18n
       equation: "",
       variables: [],
-      unit: undefined,
+      unit: UnitFlags.Missing,
     });
   }
 
@@ -620,7 +626,7 @@ export class Recipe {
       name: "Manual data series", // TODO: i18n
       type: RecipeDataTypes.DataSeries,
       pick: VectorIndexPickerOptions.Default,
-      unit: dateValues.unit ?? undefined,
+      unit: dateValues.unit,
       dataSeriesId: null,
       value: dateValues.dateValues,
     };
@@ -657,7 +663,7 @@ export class Recipe {
       name: "Initial value baseline", // TODO: i18n
       type: RecipeDataTypes.DataSeries,
       pick: VectorIndexPickerOptions.Default,
-      unit: undefined,
+      unit: UnitFlags.Unitless,
       dataSeriesId: null,
       value: dateValues.dateValues,
     };
@@ -699,7 +705,7 @@ export class Recipe {
       name,
       type: RecipeDataTypes.External,
       pick: VectorIndexPickerOptions.Default,
-      unit: undefined,
+      unit: UnitFlags.Missing,
       dataset,
       tableId,
       selection,
@@ -708,7 +714,7 @@ export class Recipe {
       name,
       equation: `\${${variableId}}`,
       variables: [externalVariable],
-      unit: undefined,
+      unit: UnitFlags.Missing,
     });
   }
 
@@ -726,7 +732,7 @@ export class Recipe {
   public static fromLinkedDataSeries({
     name,
     dataSeriesId,
-    unit = undefined,
+    unit = UnitFlags.Missing,
     variableId = crypto.randomUUID(),
   }: {
     name: string;
@@ -747,7 +753,7 @@ export class Recipe {
       name,
       equation: `\${${variableId}}`,
       variables: [linkedVariable],
-      unit: undefined,
+      unit: UnitFlags.Missing,
     });
   }
 
@@ -757,7 +763,7 @@ export class Recipe {
   public static fromDataSeries({
     recipeName,
     dataSeriesName,
-    unit = undefined,
+    unit = UnitFlags.Missing,
   }: {
     recipeName: string;
     dataSeriesName: string;

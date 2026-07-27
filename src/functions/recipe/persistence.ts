@@ -5,6 +5,7 @@ import { Recipe, RecipeDataTypes, fetchExternalVariableData, externalSelectionKe
 import getTableContent from "@/lib/api/getTableContent";
 import type { DataSeriesVariable, ExternalSource, RecipeVariable, ResolvedExternals, SerializedRecipe } from "@/functions/recipe";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
+import { serializeUnit } from "@/functions/unit";
 
 /** True if two external selections are equivalent (order-insensitive). */
 function sameExternalSource(a: ExternalSource, b: ExternalSource): boolean {
@@ -92,7 +93,7 @@ export async function materializeRecipeExternals(
         data: {
           author: { connect: { id: authorId } },
           values: { createMany: { data: dateValuesToDBDateRecord(fetched.dateValues) } },
-          ...(fetched.unit == null ? {} : { unit: fetched.unit }),
+          unit: serializeUnit(fetched.unit), // db keeps the legacy convention
         },
         select: { id: true },
       })).id;

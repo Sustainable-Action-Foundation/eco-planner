@@ -1,5 +1,7 @@
 import type { DataSeries, DateValues, DateValuesWithUnit, Goal, ISOIshDate, Mask, MaskedVector, Unit } from "@/types";
+import { UnitFlags } from "@/types/enums";
 import { isISOIshDate } from "@/types/typeguards";
+import { isUnitFlag, parseUnit } from "@/functions/unit";
 import { RecipeError, VectorIndexPickerOptions } from "@/functions/recipe/types";
 import type { Unit as MathJSUnit } from "mathjs";
 import mathjs from "@/math";
@@ -23,9 +25,9 @@ export function pickDateValues(
     if (typeof valueAtPickedYear !== "number") {
       throw new RecipeError(`PickDataSeries: Data series does not contain a valid number for year ${yearString}.`);
     }
-    return dataSeries.unit
-      ? mathjs.unit(valueAtPickedYear, dataSeries.unit)
-      : mathjs.unit(valueAtPickedYear);
+    return isUnitFlag(dataSeries.unit)
+      ? mathjs.unit(valueAtPickedYear)
+      : mathjs.unit(valueAtPickedYear, dataSeries.unit);
   }
   // Try to interpret as ISOIshDate
   else if (
@@ -36,9 +38,9 @@ export function pickDateValues(
     if (typeof valueAtPickedDate !== "number") {
       throw new RecipeError(`PickDataSeries: Data series does not contain a valid number for date ${pick}.`);
     }
-    return dataSeries.unit
-      ? mathjs.unit(valueAtPickedDate, dataSeries.unit)
-      : mathjs.unit(valueAtPickedDate);
+    return isUnitFlag(dataSeries.unit)
+      ? mathjs.unit(valueAtPickedDate)
+      : mathjs.unit(valueAtPickedDate, dataSeries.unit);
   }
   // Else, must be VectorIndexPickerOptions 
 
@@ -72,9 +74,9 @@ export function pickDateValues(
       throw new RecipeError("VectorPicking: DateValues contains invalid ISOIshDate keys.");
     }
     const firstValue = dataSeries.dateValues[firstKey];
-    return dataSeries.unit
-      ? mathjs.unit(firstValue, dataSeries.unit)
-      : mathjs.unit(firstValue);
+    return isUnitFlag(dataSeries.unit)
+      ? mathjs.unit(firstValue)
+      : mathjs.unit(firstValue, dataSeries.unit);
   }
   // Last
   else if (pick === VectorIndexPickerOptions.Last) {
@@ -87,18 +89,18 @@ export function pickDateValues(
       throw new RecipeError("VectorPicking: DateValues contains invalid ISOIshDate keys.");
     }
     const lastValue = dataSeries.dateValues[lastKey];
-    return dataSeries.unit
-      ? mathjs.unit(lastValue, dataSeries.unit)
-      : mathjs.unit(lastValue);
+    return isUnitFlag(dataSeries.unit)
+      ? mathjs.unit(lastValue)
+      : mathjs.unit(lastValue, dataSeries.unit);
   }
   // Mean
   else if (pick === VectorIndexPickerOptions.Mean) {
     const values = Object.values(dataSeries.dateValues);
     const sum = values.reduce((acc, val) => acc + val, 0);
     const mean = sum / values.length;
-    return dataSeries.unit
-      ? mathjs.unit(mean, dataSeries.unit)
-      : mathjs.unit(mean);
+    return isUnitFlag(dataSeries.unit)
+      ? mathjs.unit(mean)
+      : mathjs.unit(mean, dataSeries.unit);
   }
   // Median
   else if (pick === VectorIndexPickerOptions.Median) {
@@ -113,9 +115,9 @@ export function pickDateValues(
     else {
       median = values[middleIndex];
     }
-    return dataSeries.unit
-      ? mathjs.unit(median, dataSeries.unit)
-      : mathjs.unit(median);
+    return isUnitFlag(dataSeries.unit)
+      ? mathjs.unit(median)
+      : mathjs.unit(median, dataSeries.unit);
   }
 
   throw new RecipeError(`pickDateValues: Unknown VectorIndexPickerOption '${(pick as string | number).toString()}'.`);
@@ -143,17 +145,17 @@ export function transformDateValuesToVector(
     if (isoYearString in timeline) {
       const value = timeline[isoYearString];
       vector.push(
-        unit
-          ? mathjs.unit(value, unit)
-          : mathjs.unit(value),
+        isUnitFlag(unit)
+          ? mathjs.unit(value)
+          : mathjs.unit(value, unit),
       );
       mask[isoYearString] = false; // Defined value
     }
     else {
       vector.push(
-        unit
-          ? mathjs.unit(0, unit)
-          : mathjs.unit(0),
+        isUnitFlag(unit)
+          ? mathjs.unit(0)
+          : mathjs.unit(0, unit),
       );
       mask[isoYearString] = true; // Masked, non defined value
     }
@@ -210,38 +212,32 @@ export function parseDateValuesFromVector(
     timeline[dateKey] = vector[i].toNumber();
   }
 
-  // If all units are the same, return that unit, else undefined
+  // If all values agree on one unit, that's the resulting unit; an empty
+  // formatUnits means the result is genuinely unitless.
   const units = [...new Set(vector.map(v => v.formatUnits()))];
   if (units.length === 1) {
     return {
-      unit: units[0],
+      unit: units[0].trim() === "" ? UnitFlags.Unitless : parseUnit(units[0]),
       dateValues: timeline,
     };
   }
   else {
-    console.warn(`VectorConvert: Inconsistent units in result vector: ${units.join(", ")}. Setting unit to undefined.`);
+    console.warn(`VectorConvert: Inconsistent units in result vector: ${units.join(", ")}. Marking the unit as missing.`);
     return {
-      unit: undefined,
+      unit: UnitFlags.Missing,
       dateValues: timeline,
     };
   }
 }
 
 export function getPrevailingUnit(existingUnit: Unit, newUnit: Unit): Unit {
-  // If newUnit is explicitly provided (non-undefined) and non-empty, it takes precedence.
-  if (typeof newUnit !== "undefined" && newUnit?.trim() !== "") {
-    return newUnit;
-  }
-  // If newUnit is explicitly null (meaning "unitless"), return null.
-  if (typeof newUnit !== "undefined" && newUnit === null) {
-    return null;
-  }
-  // Otherwise, keep the existing unit
-  return existingUnit;
+  // A real unit or an explicit "unitless" takes precedence; only a missing
+  // newUnit falls back to the existing one.
+  return newUnit === UnitFlags.Missing ? existingUnit : newUnit;
 }
 
 export function isMathjsUnit(unit: Unit): boolean {
-  if (!unit) return false;
+  if (isUnitFlag(unit)) return false;
   try {
     mathjs.unit(1, unit);
     return true;
@@ -279,7 +275,7 @@ export function dataSeriesToDateValues(dataSeries: DataSeries | Goal["dataSeries
   }
   return {
     dateValues,
-    unit: dataSeries.unit ?? undefined, // TODO: unit handling
+    unit: parseUnit(dataSeries.unit), // The db keeps the legacy convention; parse at this boundary
   };
 }
 

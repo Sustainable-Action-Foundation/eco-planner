@@ -1,7 +1,7 @@
 import type { ApiSelectionItem, ApiTableMetadata, ApiTableContent } from "@/lib/api/apiTypes";
 import type { Recipe } from "@/functions/recipe/recipe";
 import type { RecipeDataTypes, RecipeVariable } from "@/functions/recipe/types";
-import type { DateValues } from "@/types";
+import type { DateValues, Unit } from "@/types";
 import type { SetStateAction } from "react";
 import "@/types/tiptap-commands";
 
@@ -38,7 +38,7 @@ export type GetVariable = {
 export type RecipeContextType = {
   recipe: Recipe;
   resultingDataSeries: DateValues | null;
-  resultingUnit: string | null | undefined;
+  resultingUnit: Unit;
   /** True while `resultingDataSeries`/`resultingUnit` lag behind `recipe`: a change is still inside the evaluation debounce, or an evaluation is in flight. */
   isEvaluationPending: boolean;
 

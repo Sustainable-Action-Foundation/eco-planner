@@ -8,6 +8,7 @@ import TextSingleAutocomplete from "@/components/form/elements/combobox/textSing
 import { useTranslation } from "react-i18next";
 import { allOurUnits } from "@/math";
 import { RecipeEditorPermissions } from "@/types/enums";
+import { parseUnit } from "@/functions/unit";
 
 export function VariableCreator({
   permissions: incomingPermissions,
@@ -59,7 +60,7 @@ export function VariableCreator({
       ...prev,
       {
         ...emptyRecipesByDataType[providedType],
-        ...providedUnit ? { unit: providedUnit } : {},
+        ...providedUnit ? { unit: parseUnit(providedUnit) } : {},
         id: newID,
         name: providedName,
       },
