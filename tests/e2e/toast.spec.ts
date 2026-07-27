@@ -145,9 +145,16 @@ test.describe('Toast', () => {
     await page.locator('#submit-button').click();
     await expectNativeValidationRejection(page);
 
-    // Manual mode has no required inputs; submitting without values must be
-    // rejected by the submit handler with an error toast instead
+    // Manual mode: the grid's year cells are required, so an empty grid is
+    // also rejected natively
     await page.locator('input[name="DATA_SERIES_TYPE"][value="MANUAL"]').check();
+    await page.locator('#submit-button').click();
+    await expectNativeValidationRejection(page);
+
+    // A year without a value passes native validation but yields no usable
+    // data series, which the submit handler must reject with an error toast
+    await page.locator(`#goal-dataseries [data-row="0"][data-column="1"] input`).focus();
+    await page.locator(`#goal-dataseries [data-row="0"][data-column="1"] input`).fill('2020');
     await page.locator('#submit-button').click();
     await expectToast(page, 'error', 'goal');
 
