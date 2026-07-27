@@ -106,6 +106,11 @@ const commonRules: Config["rules"] = {
       "selector": "SwitchStatement:has(SwitchCase > *.consequent:not(ReturnStatement)):has(SwitchCase > ReturnStatement.consequent)",
       "message": "Switch cases must be consistent: do not mix direct returns with other case body styles.",
     },
+    {
+      // Only the un-aliased form is banned; `Unit as MathJSUnit` stays allowed.
+      "selector": "ImportDeclaration[source.value=\"mathjs\"] ImportSpecifier[imported.name=\"Unit\"][local.name=\"Unit\"]",
+      "message": "Importing mathjs' `Unit` un-aliased collides with the app's `Unit` type; alias it, e.g. `import { Unit as MathJSUnit } from \"mathjs\"`.",
+    },
   ],
 
 };
