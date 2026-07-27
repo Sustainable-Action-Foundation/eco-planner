@@ -53,7 +53,13 @@ export function UnitInput({
     }
   }, [effectiveUnit]);
 
-  const noInitialUnit: boolean = (effectiveUnit === null || effectiveUnit.trim() === "");
+  // Only mention the override when it actually masks a different, real resolved
+  // unit: overriding "unitless"/"missing" needs no notice, and once the declared
+  // unit has been folded into the evaluation result the two are equal anyway.
+  const overrideMasksResolvedUnit = isOverriding
+    && resolvedUnit !== null
+    && resolvedUnit.trim() !== ""
+    && resolvedUnit.trim() !== overrideUnitInput.trim();
   const interpretedDisplay = effectiveUnit === null
     ? t("common:tsx.unitless")
     : effectiveUnit.trim() === ""
@@ -122,21 +128,19 @@ export function UnitInput({
           {t("forms:data_series_input.unit_not_interpreted")}
         </small>
       }
-      <small className="flex align-items-center gap-25 margin-top-25 margin-bottom-0" style={{ color: "#dfab00" }}>
-        {isOverriding && noInitialUnit ? // No need to let the user know that they are overriding "unitless", as this is not a unit
-          <>
-            <IconInfoCircle width={20} height={20} style={{ minWidth: '20px' }} aria-hidden="true" />
-            <Trans
-              i18nKey={"forms:data_series_input.unit_override_status.overriding"}
-              values={{
-                resolvedUnit: resolvedDisplay,
-                overrideUnit: overrideUnitInput.trim() || t("common:tsx.unit_missing"),
-              }}
-              components={{ a: <strong /> }}
-            />
-          </>
-          : null}
-      </small>
+      {overrideMasksResolvedUnit ?
+        <small className="flex align-items-center gap-25 margin-top-25 margin-bottom-0" style={{ color: "#dfab00" }}>
+          <IconInfoCircle width={20} height={20} style={{ minWidth: '20px' }} aria-hidden="true" />
+          <Trans
+            i18nKey={"forms:data_series_input.unit_override_status.overriding"}
+            values={{
+              resolvedUnit: resolvedDisplay,
+              overrideUnit: overrideUnitInput.trim() || t("common:tsx.unit_missing"),
+            }}
+            components={{ a: <strong /> }}
+          />
+        </small>
+        : null}
     </>
   );
 }
