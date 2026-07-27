@@ -48,9 +48,10 @@ async function selectParentRiketsRoadmap(page: Page) {
 async function fillGoalSeries(page: Page) {
   await page.locator('input[name="DATA_SERIES_TYPE"][value="MANUAL"]').check();
   await page.locator('#indicatorParameter').fill('Goal Toast');
-  // The unit lives in the recipe context; a manual series has none, so set it via the override input
-  await page.locator('#goal-manual-unit-toggle').check();
+  // The unit lives in the recipe context; a manual series has none, so type an override.
+  // Blur afterwards so the autocomplete dropdown doesn't cover elements below.
   await page.locator('#goal-manual-unit').fill('yard');
+  await page.locator('#goal-manual-unit').blur();
 
   const insertRowButton = page.getByTestId("add-row-button");
   for (let i = 1; i < 10; i++) {
@@ -139,6 +140,14 @@ test.describe('Toast', () => {
 
     await selectParentRiketsRoadmap(page);
 
+    // The default (suggested) tab has a required preset select, so an empty
+    // submit is rejected by native validation before reaching the handler
+    await page.locator('#submit-button').click();
+    await expectNativeValidationRejection(page);
+
+    // Manual mode has no required inputs; submitting without values must be
+    // rejected by the submit handler with an error toast instead
+    await page.locator('input[name="DATA_SERIES_TYPE"][value="MANUAL"]').check();
     await page.locator('#submit-button').click();
     await expectToast(page, 'error', 'goal');
 
