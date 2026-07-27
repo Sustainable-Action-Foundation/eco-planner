@@ -1,7 +1,7 @@
 import type { DatasetKeys } from "@/lib/api/apiTypes";
 import { ExternalDataset } from "@/lib/api/utility";
 import type { JSONValue } from "@/types";
-import { uuidRegex } from "@/types/enums";
+import { uuidRegex } from "@/types/consts";
 import { isDateValues, isDateValuesWithUnit, isISOIshDate, isStandardObject } from "@/types/typeguards";
 import mathjs from "@/math";
 
