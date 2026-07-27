@@ -1,4 +1,4 @@
-import type { DataSeries, DateValuesWithUnit, JSONValue, Mask, UnitString } from "@/types";
+import type { DataSeries, DateValuesWithUnit, JSONValue, Mask, Unit } from "@/types";
 import { isISOIshDate } from "@/types/typeguards";
 import mathjs from "@/math";
 import type { Unit as MathJSUnit } from "mathjs";
@@ -27,7 +27,7 @@ export class Recipe {
   public name: string;
   public equation: string;
   public variables: RecipeVariable[];
-  public unit: UnitString;
+  public unit: Unit;
   private meta?: RecipeShape["meta"];
 
   public constructor({
@@ -40,7 +40,7 @@ export class Recipe {
     name: string;
     equation: string;
     variables: RecipeVariable[];
-    unit?: UnitString;
+    unit?: Unit;
     meta?: RecipeShape["meta"];
   }) {
     this.name = name;
@@ -731,7 +731,7 @@ export class Recipe {
   }: {
     name: string;
     dataSeriesId: string;
-    unit?: UnitString;
+    unit?: Unit;
     variableId?: string;
   }): Recipe {
     const linkedVariable: DataSeriesVariable = {
@@ -761,7 +761,7 @@ export class Recipe {
   }: {
     recipeName: string;
     dataSeriesName: string;
-    unit: UnitString;
+    unit: Unit;
   }): Recipe {
     const dataSeriesVariable: DataSeriesVariable = {
       id: crypto.randomUUID(),

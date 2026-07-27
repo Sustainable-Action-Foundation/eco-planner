@@ -1,7 +1,7 @@
 "use client";
 
 import mathjs, { allOurUnits } from "@/math";
-import type { UnitString } from "@/types";
+import type { Unit } from "@/types";
 import { useCallback, useMemo, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
@@ -66,9 +66,9 @@ export function UnitInput({
       ? t("common:tsx.unit_missing")
       : parsedEffectiveUnit;
 
-  const setRecipeUnit = useCallback((nextUnit: UnitString) => {
+  const setRecipeUnit = useCallback((nextUnit: Unit) => {
     void applyRecipeUpdate((current) => {
-      const normalizedNextUnit: UnitString = typeof nextUnit === "string"
+      const normalizedNextUnit: Unit = typeof nextUnit === "string"
         ? nextUnit.trim()
         : nextUnit;
 

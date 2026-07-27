@@ -1,4 +1,4 @@
-import type { DateValues, DateValuesWithUnit, ISOIshDate, JSONValue, UnitString, GoalCreateInput, GoalUpdateInput, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
+import type { DateValues, DateValuesWithUnit, ISOIshDate, JSONValue, Unit, GoalCreateInput, GoalUpdateInput, MetaRoadmapCreateInput, MetaRoadmapUpdateInput } from "@/types";
 import { GoalDataTarget } from "./enums";
 
 /**
@@ -39,7 +39,7 @@ export function isDateValues(dateValues: JSONValue): dateValues is DateValues {
   );
 }
 
-export function isUnitString(unit: JSONValue | undefined): unit is UnitString {
+export function isUnitString(unit: JSONValue | undefined): unit is Unit {
   return typeof unit === 'string' || unit === null || unit === undefined;
 }
 

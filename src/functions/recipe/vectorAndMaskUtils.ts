@@ -1,4 +1,4 @@
-import type { DataSeries, DateValues, DateValuesWithUnit, Goal, ISOIshDate, Mask, MaskedVector, UnitString } from "@/types";
+import type { DataSeries, DateValues, DateValuesWithUnit, Goal, ISOIshDate, Mask, MaskedVector, Unit } from "@/types";
 import { isISOIshDate } from "@/types/typeguards";
 import { RecipeError, VectorIndexPickerOptions } from "@/functions/recipe/types";
 import type { Unit as MathJSUnit } from "mathjs";
@@ -227,7 +227,7 @@ export function parseDateValuesFromVector(
   }
 }
 
-export function getPrevailingUnit(existingUnit: UnitString, newUnit: UnitString): UnitString {
+export function getPrevailingUnit(existingUnit: Unit, newUnit: Unit): Unit {
   // If newUnit is explicitly provided (non-undefined) and non-empty, it takes precedence.
   if (typeof newUnit !== "undefined" && newUnit?.trim() !== "") {
     return newUnit;
@@ -240,7 +240,7 @@ export function getPrevailingUnit(existingUnit: UnitString, newUnit: UnitString)
   return existingUnit;
 }
 
-export function isMathjsUnit(unit: UnitString): boolean {
+export function isMathjsUnit(unit: Unit): boolean {
   if (!unit) return false;
   try {
     mathjs.unit(1, unit);

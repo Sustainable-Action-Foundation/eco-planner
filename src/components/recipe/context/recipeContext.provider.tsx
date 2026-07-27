@@ -6,7 +6,7 @@ import { externalSelectionKey } from "@/functions/recipe/extractors";
 import getTableContent from "@/lib/api/getTableContent";
 import type { ApiSelectionItem, ApiTableContent } from "@/lib/api/apiTypes";
 import { clientSafeGetOneDataSeries } from "@/fetchers/client";
-import type { DataSeries, DateValues, UnitString } from "@/types";
+import type { DataSeries, DateValues, Unit } from "@/types";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { SetStateAction } from "react";
 import { Recipe } from "@/functions/recipe/recipe";
@@ -57,7 +57,7 @@ export function RecipeContextProvider({
   const [warnings, setWarnings] = useState<string[]>([]);
 
   const [resultingDataSeries, setResultingDataSeries] = useState<DateValues | null>(null);
-  const [resultingUnit, setResultingUnit] = useState<UnitString | null>(null);
+  const [resultingUnit, setResultingUnit] = useState<Unit | null>(null);
   // Serialize async recipe updates so rapid edits cannot overwrite each other.
   const recipeUpdateQueueRef = useRef<Promise<void>>(Promise.resolve());
   const recipeUpdateGenerationRef = useRef<number>(0);

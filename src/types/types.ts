@@ -123,10 +123,10 @@ export type LoginData = {
  * null -> UNITLESS
  * string -> the string itself
  */
-export type UnitString = string & { __unitStringBrand: never } | typeof UnitFlags[keyof typeof UnitFlags];
+export type Unit = string & { __unitStringBrand: never } | typeof UnitFlags[keyof typeof UnitFlags];
 export type ISOIshDate = `${number}-${number}-${number}T00:00:00${`.000` | ``}Z`;
 /** True: missing value, False: defined value. It masks/"covers" the undefined values */
 export type Mask = Record<ISOIshDate, boolean>;
 export type DateValues = Record<ISOIshDate, number>;
-export type DateValuesWithUnit = { dateValues: DateValues, unit: UnitString };
+export type DateValuesWithUnit = { dateValues: DateValues, unit: Unit };
 export type MaskedVector = { vector: MathJSUnit[], mask: Mask };

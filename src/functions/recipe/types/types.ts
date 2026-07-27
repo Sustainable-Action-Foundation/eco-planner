@@ -1,13 +1,13 @@
 import type { Unit as MathJSUnit } from "mathjs";
 import type { ApiSelectionItem, DatasetKeys } from "@/lib/api/apiTypes";
-import type { DateValues, DateValuesWithUnit, ISOIshDate, UnitString } from "@/types";
+import type { DateValues, DateValuesWithUnit, ISOIshDate, Unit } from "@/types";
 import type { BaselineType } from "@/types/enums";
 import type { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/consts";
 
 type BaseVariable = {
   id: string;
   name: string;
-  unit: UnitString;
+  unit: Unit;
   template?: boolean | undefined;
 };
 
@@ -85,7 +85,7 @@ export type RecipeShape = {
   name: string;
   equation: string;
   variables: RecipeVariable[];
-  unit: UnitString;
+  unit: Unit;
   meta: {
     v?: 1; // Version of recipe format (current: 1)
     isSuggestedRecipe?: boolean; // If it was derived from a suggested recipe, needed when e.g. loading a goal form and knowing which method was used.
