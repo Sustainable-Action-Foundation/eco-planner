@@ -111,8 +111,17 @@ const commonRules: Config["rules"] = {
       "selector": "ImportDeclaration[source.value=\"mathjs\"] ImportSpecifier[imported.name=\"Unit\"][local.name=\"Unit\"]",
       "message": "Importing mathjs' `Unit` un-aliased collides with the app's `Unit` type; alias it, e.g. `import { Unit as MathJSUnit } from \"mathjs\"`.",
     },
+    {
+      // async generateMetadata return type must be `Promise<Metadata>`
+      "selector": "FunctionDeclaration[async=true][id.name=\"generateMetadata\"]:not([returnType.typeAnnotation.typeName.name=\"Promise\"][returnType.typeAnnotation.typeArguments.params.0.typeName.name=\"Metadata\"])",
+      "message": "generateMetadata must return a Promise<Metadata>.",
+    },
+    {
+      // generateMetadata must be async
+      "selector": "FunctionDeclaration[id.name=\"generateMetadata\"]:not([async=true])",
+      "message": "generateMetadata must be async.",
+    },
   ],
-
 };
 
 export default defineConfig([

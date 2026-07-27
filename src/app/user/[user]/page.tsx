@@ -10,12 +10,13 @@ import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from '@/functions/buildMetadata';
 import Link from 'next/link';
 import { getMetaRoadmaps, getRoadmaps, getUserInfo } from "@/fetchers";
+import type { Metadata } from "next";
 
 export async function generateMetadata(props: {
   params: Promise<{ user: string }>,
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 },
-) {
+): Promise<Metadata> {
   const params = await props.params;
   let username = params.user;
   const userIndicatorRegEx = /^(@|%40)/;
