@@ -8,11 +8,12 @@ import { DataSeriesVariableSimpleEditor } from "../editor/variables/dataSeriesVa
 import { VariableTypeExternalSimple } from "../editor/variables/externalVariable";
 import { useEffect, useMemo, useState } from "react";
 import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";
-import { IconAlertTriangleFilled } from "@tabler/icons-react";
+import { isUnitFlag } from "@/functions/unit";
+import { IconAlertTriangleFilled, IconInfoCircle } from "@tabler/icons-react";
 import type { ClientRoadmap, DBRecipe } from "@/types";
 import { RecipeEditorPermissions } from "@/types/enums";
 import { Recipe } from "@/functions/recipe/recipe";
-import { CombinedStatusDisplay, getDefaultSuggestedRecipes, TextStatus } from "@/components/recipe";
+import { getDefaultSuggestedRecipes, TextStatus } from "@/components/recipe";
 import styles from "../recipe.module.css" with {type: "css"};
 import { getRecipeRoadmapData } from "../context/roadmapDataCache";
 
@@ -133,8 +134,9 @@ export function SuggestedRecipeApplier({
     <label>
       {t("components:recipe_editor.suggested_recipe_label")}
       <select
-        className="block margin-top-25 margin-bottom-100 width-100"
+        className="block margin-top-25 width-100"
         id="select-preset"
+        required={true}
         value={selectedRecipeId}
         onChange={handleChange}
       >
@@ -146,10 +148,15 @@ export function SuggestedRecipeApplier({
         ))}
       </select>
     </label>
-
+    {recipe.equation ? 
+      <small className="flex gap-25 align-items-center margin-top-25 margin-bottom-100" >
+        <IconInfoCircle width={20} height={20} style={{ minWidth: '20px' }} aria-hidden="true" />
+        {`${t("components:recipe_editor.equation")}: ${recipe.equation}`}
+      </small>
+    : null }
 
     {/* TODO: Look into using an ordered list for this. */}
-
+    {/* TODO: Everything should probably be required */}
     {/* Select of available recipes */}
     {recipe?.variables.length > 0 &&
       <ul
@@ -162,11 +169,11 @@ export function SuggestedRecipeApplier({
         {(recipe?.variables ?? []).map(variable => {
           const variableId = variable.id;
           const variableDisplayName = variable.name;
-          const unitIsProvided = typeof variable.unit !== "undefined" && variable.unit !== null;
-          const isValidUnit = unitIsProvided ? isMathjsUnit(variable.unit as string) : false;
+          const unitIsProvided = !isUnitFlag(variable.unit);
+          const isValidUnit = unitIsProvided ? isMathjsUnit(variable.unit) : false;
           const unitDisplay = isValidUnit
             ? ` [${variable.unit}]`
-            : unitIsProvided && variable.unit !== ''
+            : unitIsProvided
               ? <span className="inline">
                 {" ["}
                 {variable.unit}
@@ -239,11 +246,9 @@ export function SuggestedRecipeApplier({
       </ul>
     }
 
-    {!!selectedRecipeId && <>
+    {!!selectedRecipeId &&
       <TextStatus showAllGood={false} />
-
-      <CombinedStatusDisplay />
-    </>}
+    }
   </>
   );
 }

@@ -28,7 +28,7 @@ export function ManualDataSeriesInput({
   initialDateValues?: DateValuesWithUnit | undefined;
 }) {
   const { recipe, applyRecipeUpdate } = useRecipe();
-
+ 
   // Keep the inline variable's id stable across edits so the recipe identity
   // only changes when the values actually change.
   const variableIdRef = useRef<string>(recipe.variables[0]?.id ?? crypto.randomUUID());

@@ -13,8 +13,9 @@ import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 import { AdminPanel } from "@/components/elements/controls/controls";
+import type { Metadata } from "next";
 
-export async function generateMetadata(props: { params: Promise<{ actionId: string }> }) {
+export async function generateMetadata(props: { params: Promise<{ actionId: string }> }): Promise<Metadata> {
   const params = await props.params;
   const [t, session, action] = await Promise.all([
     serveTea("metadata"),

@@ -3,7 +3,7 @@
 import type { getRoadmaps } from "@/fetchers";
 import formSubmitter from "@/functions/formSubmitter";
 import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput } from "@/types";
-import { BaselineType, DataSeriesType, GoalDataTarget, HistoricalDataType } from "@/types/enums";
+import { BaselineType, DataSeriesType, GoalDataTarget, HistoricalDataType, UnitFlags } from "@/types/enums";
 import { GoalFormName } from "@/types/form-names";
 import { isDateValuesWithUnit } from "@/types/typeguards";
 import { waitForRecipeFormSyncs } from "@/components/recipe";
@@ -23,6 +23,7 @@ import HistoricalSeriesSection from "../sections/dataseries/historical";
 import BaselineSeriesSection from "../sections/dataseries/baseline";
 import GoalSeriesSection from "../sections/dataseries/goal";
 import { getHistoricalDatasetFromRecipe } from "@/functions/getHistoricalDataset";
+import { parseUnit } from "@/functions/unit";
 
 function resolveDataSeriesType(goal?: Goal): DataSeriesType {
   // Somehow missing
@@ -72,7 +73,7 @@ function resolveBaselineType(goal?: Goal): BaselineType {
     : BaselineType.Inherited;
 }
 
-function resolveHistoricalDataType(goal?: Goal): HistoricalDataType {
+export function resolveHistoricalDataType(goal?: Goal): HistoricalDataType {
   const recipe = goal?.historical?.recipeUsed?.recipe;
   if (!recipe) return HistoricalDataType.External;
 
@@ -86,7 +87,7 @@ function resolveHistoricalDataType(goal?: Goal): HistoricalDataType {
 // Tracks every distinct value `current` has taken since mount, as a Set.
 // Used to keep a tab's content mounted once it's been visited, even after
 // switching away — replaces one boolean state + one useEffect per enum value.
-function useInitializedValues<T>(current: T): Set<T> {
+export function useInitializedValues<T>(current: T): Set<T> {
   const [initialized, setInitialized] = useState<Set<T>>(() => new Set([current]));
 
   useEffect(() => {
@@ -95,7 +96,6 @@ function useInitializedValues<T>(current: T): Set<T> {
 
   return initialized;
 }
-
 
 export default function GoalForm({
   roadmapId,
@@ -107,7 +107,6 @@ export default function GoalForm({
   currentGoal?: Goal;
 }) {
   const { t } = useTranslation(["forms", "graphs", "common"]);
-
 
   const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(() => resolveDataSeriesType(currentGoal));
   const initializedDataSeriesTypes = useInitializedValues(dataSeriesType);
@@ -134,7 +133,6 @@ export default function GoalForm({
   const [previewHistoricalSerie, setPreviewHistoricalSerie] = useState<DateValuesWithUnit | null>(null);
   const [previewBaselineSerie, setPreviewBaselineSerie] = useState<DateValuesWithUnit | null>(null);
   const [previewHistoricalRecipe, setPreviewHistoricalRecipe] = useState<SerializedRecipe | null>(null);
-
 
   // Evaluation error of the currently-selected recipe input (Suggested/Custom)  setPreviewHistoricalRecipe={setPreviewHistoricalRecipe},
   // lifted out of the recipe context so submission can be blocked when it fails
@@ -193,7 +191,6 @@ export default function GoalForm({
   // TODO: Error messages were translated directly from English to Swedish when switching to toasts.
   // They can likely be translated better.
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
-    console.log('this ran');
     event.target.reportValidity();
     event.preventDefault();
 
@@ -251,9 +248,10 @@ export default function GoalForm({
     let dataSeries: DateValuesWithUnit | undefined;
     try {
       dataSeries = JSON.parse(resultingDateValuesString) as DateValuesWithUnit;
-      // Prefer explicit overrides, but keep the recipe/manual unit when override is empty.
-      const dataUnitOverride = (formData.get(GoalFormName.DataUnit) as string | null)?.trim();
-      dataSeries.unit = dataUnitOverride || dataSeries.unit;
+      // The DataUnit field carries a Unit-space value (flags serialize verbatim);
+      // only a missing declaration falls back to the series' own unit.
+      const dataUnitOverride = parseUnit(formData.get(GoalFormName.DataUnit) as string | null);
+      dataSeries.unit = dataUnitOverride === UnitFlags.Missing ? dataSeries.unit : dataUnitOverride;
     } catch (err) {
       addToast(`${t("forms:goal.errors.failed_parse_date_values")} ${err instanceof Error ? err.message : String(err)}`, "error", false);
       event.target.reportValidity();
@@ -390,7 +388,6 @@ export default function GoalForm({
     // Build the JSON payload for the API
     let formContent: GoalCreateInput | GoalUpdateInput;
     if (!currentGoal && baseline) {
-      console.log(baseline);
       // Create
       formContent = {
         target: GoalDataTarget.Full,
@@ -503,7 +500,7 @@ export default function GoalForm({
             name={GoalFormName.GoalName}
             id="goalName"
             defaultValue={currentGoal?.name ?? undefined}
-            // onChange={(e) => setGoalName(e.target.value)}
+          // onChange={(e) => setGoalName(e.target.value)}
           />
         </label>
 
@@ -557,7 +554,6 @@ export default function GoalForm({
         <legend data-position={positionIndex} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.data_series.create")}</legend>
         <fieldset className={`${styles.timeLineFieldset} margin-top-200 margin-left-400`}>
           <legend data-position={positionIndex + 0.1} className={`  ${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.data_series.goal.title")}</legend>
-
           <GoalSeriesSection
             goal={currentGoal}
             dataSeriesType={dataSeriesType}
@@ -617,14 +613,16 @@ export default function GoalForm({
         >
           <strong className="block font-size-125 font-weight-bold text-align-center margin-0 padding-top-125">{t("forms:goal.preview")}</strong>
           <p className="text-align-center margin-top-50">{t("forms:goal.preview_info")}</p>
-          <div
+          <output
+            className="display-block"
             style={{ height: '400px' }}
           >
+            {/* TODO: Need preview for values aswell. Probably create a switch between graph and table then tabs in the table to view different series. */}
             <GoalGraph // TODO: This is not correctly re-rendering when updating dataseries?
               chartType="preview"
               series={previewGraphSeries}
             />
-          </div>
+          </output>
         </div>
       </fieldset>
 

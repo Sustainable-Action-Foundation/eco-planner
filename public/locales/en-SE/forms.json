@@ -66,13 +66,12 @@
     "show_table": "Expand table",
     "start_year": "Start year",
     "unit_interpreted_as": "Unit interpreted as: <a>{{unit}}</a>",
-    "unit_not_interpreted": "The unit could not be interpreted. You can still save, but some functionality may be missing.",
+    "unit_not_interpreted": "The unit could not be interpreted. You can still save the goal with this unit, but some functionality may be missing.",
     "unit_override_status": {
-      "overriding": "Overriding calculated unit <a>{{resolvedUnit}}</a> with <a>{{overrideUnit}}</a>.",
-      "using": "Using unit <a>{{unit}}</a>"
+      "overriding": "The chosen unit <a>({{overrideUnit}})</a> differs from the initially resolved unit <a>({{resolvedUnit}})</a>."
     },
     "unit_input": {
-      "override_toggle": "Override resolved unit"
+      "unit": "Data series unit"
     },
     "value": "Value",
     "year": "Year"
@@ -117,17 +116,17 @@
     "data_missing": "DATA MISSING; ",
     "data_series_type_legend": "Choose type of data series for your $t(common:goal_one)",
     "data_series": {
-      "create": "Create dataseries",
+      "create": "Create data series",
       "unit": "Unit",
       "goal": {
-        "title": "Create a dataseries for your goal",
+        "title": "Create a data series for your goal",
         "type": "Goal type",
         "inherit": "Create a data series by copying it from another goal and scaling it using a suggested method.",
         "manual": "Create a data series by manually inputting years and values.",
         "recipe": "Create a data series by defining variables and using them in a custom equation."
       },
       "baseline": {
-        "title": "Create a dataseries for your goals baseline",
+        "title": "Create a data series for your goals baseline",
         "type": "Baseline type",
         "first_year_value": "Use the first value of your goal as a baseline.",
         "first_defined_year": "Use the first non-zero value of your goal as a baseline.",
@@ -135,7 +134,7 @@
         "another_goal": "Copy another goal and use it as your baseline."
       },
       "historical": {
-        "title": "Create a dataseries for your goals historical data",
+        "title": "Create a data series for your goals historical data",
         "type": "Historical data type",
         "external_title": "External",
         "external": "Create a historical data series with data from external sources.",
@@ -170,7 +169,7 @@
     "invert_goal": "Invert the $t(common:goal_one) (divide by this $t(common:goal_one) rather than multiply)",
     "leap_parameter": "LEAP parameter",
     "preview": "Is the following correct?",
-    "preview_info": "Your dataseries will appear in your goal as they are shown below.",
+    "preview_info": "Your data series will appear in your goal as they are shown below.",
     "relationship_label": "$t(common:roadmap_series_one)",
     "relationship_no_chosen": "Choose $t(common:roadmap_series_one)",
     "search_tip": "Tip: use <kbd><kbd>CTRL</kbd> + <kbd>F</kbd></kbd> to find the $t(common:goal_other) you are looking for",

@@ -6,6 +6,8 @@ import type { DataSeries, DateValues, DateValuesWithUnit } from "@/types";
 import { isISOIshDate } from "@/types/typeguards";
 import { filterToInitialYearlyRecords, parsePeriod } from "@/lib/api/utility";
 import { getPrevailingUnit, isMathjsUnit, pickDateValues } from "@/functions/recipe/vectorAndMaskUtils";
+import { isUnitFlag, parseUnit, serializeUnit } from "@/functions/unit";
+import { UnitFlags } from "@/types/enums";
 
 /**
  * Produces a stable, order-insensitive key identifying an external selection
@@ -74,10 +76,10 @@ export async function fetchExternalVariableData(
   }
 
   // TODO: how should units be derived here? I can't find anything in the API response that indicates units.
-  const bestUnit = getPrevailingUnit(undefined, variable.unit);
+  const bestUnit = variable.unit;
   const isValidUnit = isMathjsUnit(bestUnit);
-  if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variable.name}" has an invalid unit "${bestUnit}". Treating as unitless.`);
-  const unit = isValidUnit ? bestUnit : undefined;
+  if (!isUnitFlag(bestUnit) && !isValidUnit) warnings.push(`Data series variable "${variable.name}" has an invalid unit "${bestUnit}". Treating as unitless.`);
+  const unit = isValidUnit ? bestUnit : UnitFlags.Unitless;
 
   return { dateValues: timeline, unit };
 }
@@ -92,17 +94,17 @@ export function extractScalars(
     if (variable.type !== RecipeDataTypes.Scalar) continue;
     if (!isScalarVariable(variable)) continue;
 
-    const bestUnit = getPrevailingUnit(undefined, variable.unit);
+    const bestUnit = variable.unit;
     const isValidUnit = isMathjsUnit(bestUnit);
-    if (bestUnit && !isValidUnit) warnings.push(`Scalar variable "${variable.name}" has an invalid unit "${bestUnit}". Treating as unitless.`);
-    const unit = isValidUnit ? bestUnit : undefined;
+    if (!isUnitFlag(bestUnit) && !isValidUnit) warnings.push(`Scalar variable "${variable.name}" has an invalid unit "${bestUnit}". Treating as unitless.`);
+    const unit = isValidUnit ? bestUnit : UnitFlags.Unitless;
 
     scalars.push({
       id: variable.id,
       displayName: variable.name,
-      value: unit
-        ? mathjs.unit(variable.value, unit)
-        : mathjs.unit(variable.value),
+      value: isUnitFlag(unit)
+        ? mathjs.unit(variable.value)
+        : mathjs.unit(variable.value, unit),
     });
   }
 
@@ -137,7 +139,7 @@ export async function extractDataSeries(
       const inlineId = "inline-" + Math.random().toString(36).substring(2, 15); // TODO: better unique id
       dbDataSeries = {
         id: inlineId,
-        unit: variable.unit ?? null,
+        unit: serializeUnit(variable.unit),
         values: Object.entries(variable.value).map(([key, val]) => ({
           dataSeriesId: inlineId,
           timestamp: new Date(key), // TODO, fix very naive parsing
@@ -169,10 +171,10 @@ function dbDataSeriesToExtraction(
   variable: DataSeriesVariable | ExternalVariable,
   warnings: string[],
 ): EvalTimeVariable | EvalTimeSeries {
-  const bestUnit = getPrevailingUnit(dbDataSeries.unit, variable.unit);
+  const bestUnit = getPrevailingUnit(parseUnit(dbDataSeries.unit), variable.unit);
   const isValidUnit = isMathjsUnit(bestUnit);
-  if (bestUnit && !isValidUnit) warnings.push(`Data series variable "${variable.name}" has an invalid unit "${bestUnit}". Treating as unitless during evaluation.`);
-  const unit = isValidUnit ? bestUnit : undefined;
+  if (!isUnitFlag(bestUnit) && !isValidUnit) warnings.push(`Data series variable "${variable.name}" has an invalid unit "${bestUnit}". Treating as unitless during evaluation.`);
+  const unit = isValidUnit ? bestUnit : UnitFlags.Unitless;
 
   // Normalize each value to its year boundary so keys align with the year-indexed
   // vector built in transformDateValuesToVector (which only looks up `${year}-01-01`).

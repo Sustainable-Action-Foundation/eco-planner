@@ -2,7 +2,6 @@
 
 import type { Dispatch, SetStateAction } from "react";
 import type { ClientGoal, DateValuesWithUnit, Goal } from "@/types";
-import { BaselineType } from "@/types/enums";
 import { GoalFormName } from "@/types/form-names";
 import { useTranslation } from "react-i18next";
 import { FormSync, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
@@ -15,6 +14,8 @@ import type { TreeItem } from "@/components/types";
 import { clientSafeGetRoadmaps, clientSafeGetOneRoadmap, clientSafeGetOneGoal } from "@/fetchers/client";
 import SelectSingleTree from "@/components/form/elements/combobox/selectSingleTree";
 import { RecipeSync } from "@/components/recipe/output/recipeSync";
+import { parseUnit } from "@/functions/unit";
+import { BaselineType, UnitFlags } from "@/types/enums";
 
 export default function BaselineSeriesSection({
   goal,
@@ -142,7 +143,7 @@ export default function BaselineSeriesSection({
           <fieldset className={`${baselineType === BaselineType.Custom ? "" : "display-none"}`} disabled={baselineType !== BaselineType.Custom}>
             <RecipeContextProvider
               initialRecipe={Recipe.fromManualDateValues(
-                goal?.baseline ? dataSeriesToDateValues(goal.baseline) : { unit: undefined, dateValues: {} },
+                goal?.baseline ? dataSeriesToDateValues(goal.baseline) : { unit: UnitFlags.Missing, dateValues: {} },
               ).serialize()}
             >
               <ManualDataSeriesInput
@@ -253,7 +254,7 @@ function InheritingBaseline() {
     void applyRecipeUpdate(() => Recipe.fromLinkedDataSeries({
       name: goalData.name ?? t("forms:goal.unnamed_goal"),
       dataSeriesId: inheritedSeries.id,
-      unit: inheritedSeries.unit ?? undefined,
+      unit: parseUnit(inheritedSeries.unit),
       variableId: variableIdRef.current,
     }));
   }, [goalData, applyRecipeUpdate, t]);

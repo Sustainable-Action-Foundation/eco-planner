@@ -1,6 +1,6 @@
 import { getLocalStorage, getSessionStorage, setLocalStorage, setSessionStorage } from "@/functions/localStorage";
-import type { DataSeries, DateValues, Effect, Goal, ISOIshDate } from "@/types";
-import { ChildGraphType, GraphType } from "@/types/enums";
+import type { DataSeries, DateValues, DateValuesWithUnit, Effect, Goal, ISOIshDate } from "@/types";
+import { ChildGraphType, GraphType, UnitFlags } from "@/types/enums";
 import { isISOIshDate } from "@/types/typeguards";
 import { ActionImpactType } from "@/lib/prisma/generated";
 
@@ -120,7 +120,7 @@ export function calculatePredictedOutcome(effects: Effect[] | Goal["effects"], b
     for (const effect of effects) {
       const dataSeries = effect.dataSeries
         ? dataSeriesToDateValues(effect.dataSeries)
-        : { dateValues: {}, unit: undefined };
+        : { dateValues: {} as DateValues, unit: UnitFlags.Unitless } satisfies DateValuesWithUnit;
 
       if (
         dataSeries.dateValues[normalizedDate]

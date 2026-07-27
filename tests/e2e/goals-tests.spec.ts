@@ -66,9 +66,10 @@ test.describe("Goals tests", () => {
     // Might be switched out for a pre-written recipe when they are fixed
     await page.locator('input[name="DATA_SERIES_TYPE"][value="MANUAL"]').check();
     await page.locator('#indicatorParameter').fill(indicatorRequiredOnly);
-    // The unit lives in the recipe context; a manual series has none, so set it via the override input
-    await page.locator('#goal-manual-unit-toggle').check();
+    // The unit lives in the recipe context; a manual series has none, so type an override.
+    // Blur afterwards so the autocomplete dropdown doesn't cover elements below.
     await page.locator('#goal-manual-unit').fill(unitRequiredOnly);
+    await page.locator('#goal-manual-unit').blur();
 
     await fillManualDataSeries(page, Array.from({ length: 10 }, (_, i) => [2020 + i, 1]));
 
@@ -110,8 +111,7 @@ test.describe("Goals tests", () => {
     // Set to manual input in case it isn't, to see if the values are saved correctly at least
     await page.locator('input[name="DATA_SERIES_TYPE"][value="MANUAL"]').check();
     await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorRequiredOnly);
-    // A saved unit reopens as an active override on the manual series
-    await expect.soft(page.locator('#goal-manual-unit-toggle')).toBeChecked();
+    // A saved unit reopens as the override input's value
     await expect.soft(page.locator('#goal-manual-unit')).toHaveValue(unitRequiredOnly);
 
     for (let i = 0; i < 10; i++) {
@@ -149,6 +149,7 @@ test.describe("Goals tests", () => {
     }
 
     await page.locator('#goal-manual-unit').fill(unitRequiredUpdated);
+    await page.locator('#goal-manual-unit').blur();
 
     await page.locator('input[name="BASELINE_TYPE"][value="INITIAL_NON_ZERO"]').check();
     await page.locator('#isFeatured').check();
@@ -201,9 +202,10 @@ test.describe("Goals tests", () => {
     // Might be switch out for a pre-written recipe when they are fixed
     await page.locator('input[name="DATA_SERIES_TYPE"][value="MANUAL"]').check();
     await page.locator('#indicatorParameter').fill(indicatorAll);
-    // The unit lives in the recipe context; a manual series has none, so set it via the override input
-    await page.locator('#goal-manual-unit-toggle').check();
+    // The unit lives in the recipe context; a manual series has none, so type an override.
+    // Blur afterwards so the autocomplete dropdown doesn't cover elements below.
     await page.locator('#goal-manual-unit').fill(unitAll);
+    await page.locator('#goal-manual-unit').blur();
 
     await fillManualDataSeries(page, Array.from({ length: 30 }, (_, i) => [2020 + i, i]));
 
@@ -256,8 +258,7 @@ test.describe("Goals tests", () => {
     await page.locator('input[name="DATA_SERIES_TYPE"][value="MANUAL"]').check();
 
     await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorAll);
-    // A saved unit reopens as an active override on the manual series
-    await expect.soft(page.locator('#goal-manual-unit-toggle')).toBeChecked();
+    // A saved unit reopens as the override input's value
     await expect.soft(page.locator('#goal-manual-unit')).toHaveValue(unitAll);
     for (let i = 0; i < 30; i++) {
       await expect.soft(page.locator(`#goal-dataseries [data-row="${i}"][data-column="1"] input`)).toHaveValue(String(2020 + i));

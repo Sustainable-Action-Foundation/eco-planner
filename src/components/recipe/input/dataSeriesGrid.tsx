@@ -8,9 +8,10 @@ import Grid from "@/components/form/elements/grid/grid";
 import type { DateValues, DateValuesWithUnit } from "@/types";
 import { IconArrowsMaximize, IconArrowsMinimize, IconPlus, IconRowInsertTop, IconTrashXFilled } from "@tabler/icons-react";
 import { useToast } from "@/components/generic/toast/toastContext.use";
+import { UnitFlags } from "@/types/enums";
 
 export default function DataSeriesGrid({
-  initialDateValues = { unit: undefined, dateValues: {} },
+  initialDateValues = { unit: UnitFlags.Missing, dateValues: {} },
   outputFormElement,
   onDateValuesChange,
   label,
@@ -55,7 +56,7 @@ export default function DataSeriesGrid({
       if (!year || data === "") continue;
       dateValues[`${year}-01-01T00:00:00.000Z`] = Number(data);
     }
-    return { unit: undefined, dateValues: dateValues as DateValues };
+    return { unit: UnitFlags.Missing, dateValues: dateValues as DateValues };
   }, [value]);
 
   useEffect(() => {

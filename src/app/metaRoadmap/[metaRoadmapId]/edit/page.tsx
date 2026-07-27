@@ -8,8 +8,9 @@ import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from '@/functions/buildMetadata';
 import { getOneMetaRoadmap, getMetaRoadmaps } from "@/fetchers";
+import type { Metadata } from "next";
 
-export async function generateMetadata(props: { params: Promise<{ metaRoadmapId: string }> }) {
+export async function generateMetadata(props: { params: Promise<{ metaRoadmapId: string }> }): Promise<Metadata> {
   const params = await props.params;
   const [t, session, metaRoadmap] = await Promise.all([
     serveTea("metadata"),

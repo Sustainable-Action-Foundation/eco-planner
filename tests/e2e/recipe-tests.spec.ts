@@ -82,6 +82,17 @@ async function assertEvaluatedSeries(
   }
 }
 
+/**
+ * Asserts the recipe evaluated into an actual dated series in flows that no
+ * longer render the resulting-series table (e.g. suggested mode, which only
+ * shows the status line): the editor reports no errors, and the enabled
+ * FormSync hidden output has settled with at least one dated value.
+ */
+async function assertEvaluatedSeriesViaFormSync(page: Page) {
+  await expect(page.getByText("recipe_editor.no_errors")).toBeVisible();
+  await expect(page.locator('input[name="RESULTING_DATE_VALUES"]:enabled')).toHaveValue(/\d{4}-01-01/);
+}
+
 test.describe("Recipe tests", () => {
   test.use({ storageState: adminFile });
 
@@ -98,8 +109,9 @@ test.describe("Recipe tests", () => {
     // Provide the scalar factor.
     await page.getByPlaceholder("recipe_editor.scalar").fill("3");
 
-    // The recipe must have evaluated into an actual series.
-    await assertEvaluatedSeries(page);
+    // The recipe must have evaluated into an actual series. Suggested mode no
+    // longer renders the resulting-series table, so assert via the form output.
+    await assertEvaluatedSeriesViaFormSync(page);
 
     // The evaluated series should be accepted on submit (unit/parameter are synced from the recipe).
     await page.locator("#submit-button").click();

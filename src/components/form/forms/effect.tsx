@@ -13,6 +13,7 @@ import { FormSync, ManualDataSeriesInput, RecipeContextProvider } from "@/compon
 import { Recipe } from "@/functions/recipe/recipe";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
+import { UnitFlags } from "@/types/enums";
 
 export default function EffectForm({
   goal,
@@ -34,7 +35,7 @@ export default function EffectForm({
   const [selectedImpactType, setSelectedImpactType] = useState<ActionImpactType>(currentEffect?.impactType ?? ActionImpactType.ABSOLUTE);
   const [dateValues, setDateValues] = useState<DateValuesWithUnit>(currentEffect?.dataSeries
     ? dataSeriesToDateValues(currentEffect.dataSeries)
-    : { unit: undefined, dateValues: {} },
+    : { unit: UnitFlags.Missing, dateValues: {} },
   );
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
@@ -58,8 +59,8 @@ export default function EffectForm({
     // let dataSeries: DateValuesWithUnit | undefined = undefined;
     try {
       dataSeries = JSON.parse(resultingDateValuesString) as DateValuesWithUnit;
-      dataSeries.unit = undefined;
-      // dataSeries.unit = formData.get("dataUnit") as string | null;
+      // Effects share the goal's unit implicitly; stored without one (serializes to null in the db).
+      dataSeries.unit = UnitFlags.Unitless;
     }
     catch (err) {
       console.error("Failed to parse resulting date values from form:", err);

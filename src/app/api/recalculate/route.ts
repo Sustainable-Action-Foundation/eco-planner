@@ -6,7 +6,7 @@ import { RecipeError } from "@/functions/recipe/types";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { ClientError } from "@/types/enums";
+import { ClientError, UnitFlags } from "@/types/enums";
 import { isDateValues } from "@/types/typeguards";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
@@ -158,12 +158,12 @@ export async function POST(request: NextRequest) {
       where: { id: requestJson.dataSeriesId },
       data: {
         values: { createMany: { data: dateValuesToDBDateRecord(evaluationResult.dateValues) } },
-        // Unit === null -> remove unit
-        // Unit === undefined -> omit (keep current unit)
-        // Unit === string -> update unit
-        ...(evaluationResult.unit === null
+        // Unitless -> remove unit
+        // Missing -> omit (keep current unit)
+        // real unit -> update unit
+        ...(evaluationResult.unit === UnitFlags.Unitless
           ? { unit: null }
-          : typeof evaluationResult.unit === "undefined"
+          : evaluationResult.unit === UnitFlags.Missing
             ? {}
             : { unit: evaluationResult.unit }
         ),

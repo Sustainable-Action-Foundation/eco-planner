@@ -220,7 +220,7 @@ export default function ExternalData({
         })} />
 
       <fieldset className={`width-100 min-width-0 ${!table ? 'fieldset-unset-pseudo-class' : ''}`}>
-        <legend className="padding-block-125 font-weight-bold">
+        <legend className="padding-top-125 padding-bottom-75 font-weight-bold">
           {t("components:query_builder.select_metric_for_table")}
         </legend>
         {table && tableMetadata ? (
@@ -244,7 +244,7 @@ export default function ExternalData({
       </fieldset>
 
       <fieldset className={`width-100 min-width-0 ${!table ? 'fieldset-unset-pseudo-class' : ''}`}>
-        <legend className="padding-block-125 font-weight-bold">
+        <legend className="padding-top-125 padding-bottom-75 font-weight-bold">
           {t("components:query_builder.select_values_for_table")}
         </legend>
 

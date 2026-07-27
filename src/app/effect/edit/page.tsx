@@ -7,6 +7,7 @@ import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { getOneEffect, getRoadmaps } from "@/fetchers";
+import type { Metadata } from "next";
 
 export async function generateMetadata(
   props: {
@@ -16,7 +17,7 @@ export async function generateMetadata(
       [key: string]: string | string[] | undefined
     }>,
   },
-) {
+): Promise<Metadata> {
   const searchParams = await props.searchParams;
   const [t, session] = await Promise.all([
     serveTea("metadata"),

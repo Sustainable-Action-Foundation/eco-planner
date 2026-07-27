@@ -8,7 +8,7 @@ import { ExternalDataSeriesInput, FormSync, ManualDataSeriesInput, RecipeContext
 import { dataSeriesToDateValues, Recipe, type SerializedRecipe } from "@/functions/recipe";
 import { IconCheck } from "@tabler/icons-react";
 import { RecipeSync } from "@/components/recipe/output/recipeSync";
-import { HistoricalDataType } from "@/types/enums";
+import { HistoricalDataType, UnitFlags } from "@/types/enums";
 
 // TODO: Historical data should not be required in a goal form
 // TODO: Should have a "no historical values selection"
@@ -120,7 +120,7 @@ export default function HistoricalSeriesSection({
         {hasInitializedManual ?
           <fieldset className={`${historicalDataType === HistoricalDataType.Custom ? "" : "display-none"}`} disabled={historicalDataType !== HistoricalDataType.Custom}>
             <RecipeContextProvider
-              initialRecipe={Recipe.fromManualDateValues(manualInitialDateValues ?? { unit: undefined, dateValues: {} }).serialize()}
+              initialRecipe={Recipe.fromManualDateValues(manualInitialDateValues ?? { unit: UnitFlags.Missing, dateValues: {} }).serialize()}
             >
               <ManualDataSeriesInput
                 id="historical-data-series"

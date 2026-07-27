@@ -8,8 +8,9 @@ import { AccessLevel } from "@/types/enums";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
+import type { Metadata } from "next";
 
-export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }) {
+export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }): Promise<Metadata> {
   const params = await props.params;
   const [t, session, roadmap] = await Promise.all([
     serveTea("metadata"),

@@ -25,6 +25,8 @@ import {
 import type { DataSeriesVariable, ExternalVariable, ScalarVariable } from "../../src/functions/recipe/types";
 import type { ApiTableContent } from "../../src/lib/api/apiTypes";
 import type { DataSeries, DateValues, DateValuesWithUnit, ISOIshDate } from "../../src/types";
+import { parseUnit } from "../../src/functions/unit";
+import { UnitFlags } from "../../src/types/enums";
 
 const isoYear = (year: number): ISOIshDate => `${year}-01-01T00:00:00.000Z`;
 
@@ -57,7 +59,7 @@ function scalarVariable(
     name,
     type: RecipeDataTypes.Scalar,
     value,
-    unit,
+    unit: parseUnit(unit),
   };
 }
 
@@ -81,7 +83,7 @@ function inlineDataSeriesVariable({
     pick,
     dataSeriesId: undefined,
     value: values,
-    unit,
+    unit: parseUnit(unit),
   };
 }
 
@@ -130,7 +132,7 @@ function externalVariable({
     tableId,
     selection,
     pick,
-    unit,
+    unit: parseUnit(unit),
   };
 }
 
@@ -287,7 +289,7 @@ test.describe("Recipe evaluator and factories", () => {
           pick: VectorIndexPickerOptions.Whole,
           dataSeriesId: dataSeriesIds.main,
           value: undefined,
-          unit: "kg",
+          unit: parseUnit("kg"),
         },
         scalarVariable("offset", "Offset", 2, "kg"),
       ],
@@ -296,7 +298,7 @@ test.describe("Recipe evaluator and factories", () => {
     const { result } = await evaluateWithWarnings(recipe, {
       dataSeriesGetter: makeDataSeriesGetter({
         [dataSeriesIds.main]: {
-          unit: "kg",
+          unit: parseUnit("kg"),
           values: {
             [isoYear(2020)]: 5,
             [isoYear(2021)]: 7,
@@ -327,7 +329,7 @@ test.describe("Recipe evaluator and factories", () => {
           dataset: "SCB",
           tableId: "table-1",
           selection: [{ variableCode: "Region", valueCodes: ["00"] }],
-          unit: "kg",
+          unit: parseUnit("kg"),
         }),
       ],
     });
@@ -368,7 +370,7 @@ test.describe("Recipe evaluator and factories", () => {
           pick: VectorIndexPickerOptions.Whole,
           dataSeriesId: dataSeriesIds.mix,
           value: undefined,
-          unit: "kg",
+          unit: parseUnit("kg"),
         },
         externalVariable({
           id: "ext",
@@ -376,7 +378,7 @@ test.describe("Recipe evaluator and factories", () => {
           dataset: "SCB",
           tableId: "table-mix",
           selection: [{ variableCode: "Region", valueCodes: ["00"] }],
-          unit: "kg",
+          unit: parseUnit("kg"),
         }),
         scalarVariable("k", "Scalar", 1, "kg"),
       ],
@@ -385,7 +387,7 @@ test.describe("Recipe evaluator and factories", () => {
     const { result } = await evaluateWithWarnings(recipe, {
       dataSeriesGetter: makeDataSeriesGetter({
         [dataSeriesIds.mix]: {
-          unit: "kg",
+          unit: parseUnit("kg"),
           values: {
             [isoYear(2019)]: 100,
             [isoYear(2020)]: 5,
@@ -428,7 +430,7 @@ test.describe("Recipe evaluator and factories", () => {
         pick: VectorIndexPickerOptions.Whole,
         dataSeriesId: dataSeriesIds.main,
         value: undefined,
-        unit: "kg",
+        unit: parseUnit("kg"),
       }],
     });
 
@@ -436,7 +438,7 @@ test.describe("Recipe evaluator and factories", () => {
     // eslint-disable-next-line @typescript-eslint/require-await
     const dataSeriesGetter = async (): Promise<DataSeries> => ({
       id: dataSeriesIds.main,
-      unit: "kg",
+      unit: parseUnit("kg"),
       values: [
         { dataSeriesId: dataSeriesIds.main, timestamp: new Date("2020-06-15T00:00:00.000Z"), value: 7 },
         { dataSeriesId: dataSeriesIds.main, timestamp: new Date("2021-09-30T00:00:00.000Z"), value: 9 },
@@ -456,8 +458,8 @@ test.describe("Recipe evaluator and factories", () => {
       name: "No overlap",
       equation: "${a} + ${b}",
       variables: [
-        inlineDataSeriesVariable({ id: "a", name: "A", values: { [isoYear(2000)]: 1, [isoYear(2001)]: 2 }, unit: "kg" }),
-        inlineDataSeriesVariable({ id: "b", name: "B", values: { [isoYear(2030)]: 3, [isoYear(2031)]: 4 }, unit: "kg" }),
+        inlineDataSeriesVariable({ id: "a", name: "A", values: { [isoYear(2000)]: 1, [isoYear(2001)]: 2 }, unit: parseUnit("kg") }),
+        inlineDataSeriesVariable({ id: "b", name: "B", values: { [isoYear(2030)]: 3, [isoYear(2031)]: 4 }, unit: parseUnit("kg") }),
       ],
     });
 
@@ -492,7 +494,7 @@ test.describe("Recipe evaluator and factories", () => {
         pick: VectorIndexPickerOptions.Whole,
         dataSeriesId: dataSeriesIds.missing,
         value: undefined,
-        unit: null,
+        unit: parseUnit(null),
       }],
     });
 
@@ -516,7 +518,7 @@ test.describe("Recipe evaluator and factories", () => {
           dataset: "SCB",
           tableId: "missing-table",
           selection: [{ variableCode: "Region", valueCodes: ["00"] }],
-          unit: undefined,
+          unit: parseUnit(undefined),
         }),
       ],
     });
@@ -539,8 +541,8 @@ test.describe("Recipe evaluator and factories", () => {
   });
 
   test("isVariableEqual ignores key order", () => {
-    const ordered: ScalarVariable = { id: "x", name: "X", type: RecipeDataTypes.Scalar, value: 1, unit: "kg" };
-    const reordered = { unit: "kg", value: 1, type: RecipeDataTypes.Scalar, name: "X", id: "x" } as ScalarVariable;
+    const ordered: ScalarVariable = { id: "x", name: "X", type: RecipeDataTypes.Scalar, value: 1, unit: parseUnit("kg") };
+    const reordered = { unit: parseUnit("kg"), value: 1, type: RecipeDataTypes.Scalar, name: "X", id: "x" } as ScalarVariable;
 
     expect(Recipe.isVariableEqual(ordered, reordered)).toBe(true);
   });
@@ -573,7 +575,7 @@ test.describe("Recipe extractors", () => {
       inlineDataSeriesVariable({
         id: "ds",
         name: "Inline",
-        unit: "kg",
+        unit: parseUnit("kg"),
         pick: VectorIndexPickerOptions.Whole,
         values: {
           [isoYear(2020)]: 1,
@@ -619,7 +621,7 @@ test.describe("Recipe extractors", () => {
         pick: VectorIndexPickerOptions.Whole,
         dataSeriesId: undefined,
         value: undefined,
-        unit: undefined,
+        unit: parseUnit(undefined),
       },
     ], [], makeDataSeriesGetter({}))).rejects.toThrow(RecipeError);
   });
@@ -633,11 +635,11 @@ test.describe("Recipe extractors", () => {
         pick: VectorIndexPickerOptions.Whole,
         dataSeriesId: dataSeriesIds.linked,
         value: undefined,
-        unit: "kg",
+        unit: parseUnit("kg"),
       },
     ], [], makeDataSeriesGetter({
       [dataSeriesIds.linked]: {
-        unit: "kg",
+        unit: parseUnit("kg"),
         values: {
           [isoYear(2020)]: 10,
           [isoYear(2021)]: 20,
@@ -663,7 +665,7 @@ test.describe("Recipe extractors", () => {
         tableId: null,
         selection: [],
         pick: VectorIndexPickerOptions.Whole,
-        unit: undefined,
+        unit: parseUnit(undefined),
       },
     ])).rejects.toThrow(RecipeError);
   });
@@ -677,7 +679,7 @@ test.describe("Recipe extractors", () => {
         tableId: "table-year",
         selection: [{ variableCode: "Region", valueCodes: ["00"] }],
         pick: 2021,
-        unit: "kg",
+        unit: parseUnit("kg"),
       }),
     ], [], makeExternalTableContentGetter({
       "table-year": {
@@ -709,7 +711,7 @@ test.describe("Recipe extractors", () => {
         dataset: "UnknownDataset" as never,
         tableId: "table-default",
         selection: [{ variableCode: "Region", valueCodes: ["00"] }],
-        unit: undefined,
+        unit: parseUnit(undefined),
       }),
     ])).rejects.toThrow("no table content getter");
   });
@@ -717,7 +719,7 @@ test.describe("Recipe extractors", () => {
 
 test.describe("Vector and mask utilities", () => {
   const dateValues: DateValuesWithUnit = {
-    unit: "kg",
+    unit: parseUnit("kg"),
     dateValues: {
       [isoYear(2020)]: 2,
       [isoYear(2021)]: 4,
@@ -747,7 +749,7 @@ test.describe("Vector and mask utilities", () => {
 
   test("transformDateValuesToVector sets mask for missing years", () => {
     const transformed = transformDateValuesToVector({
-      unit: "kg",
+      unit: parseUnit("kg"),
       dateValues: {
         [isoYear(2020)]: 1,
         [isoYear(2022)]: 3,
@@ -771,7 +773,7 @@ test.describe("Vector and mask utilities", () => {
     })).toThrow("Vector length does not match mask length");
   });
 
-  test("parseDateValuesFromVector returns undefined unit when units differ", () => {
+  test("parseDateValuesFromVector marks the unit as missing when units differ", () => {
     const parsed = parseDateValuesFromVector({
       vector: [
         mathjs.unit(1, "kg"),
@@ -783,7 +785,7 @@ test.describe("Vector and mask utilities", () => {
       },
     });
 
-    expect(parsed.unit).toBeUndefined();
+    expect(parsed.unit).toBe(UnitFlags.Missing);
     expect(parsed.dateValues[isoYear(2020)]).toBe(1);
     expect(parsed.dateValues[isoYear(2021)]).toBe(2);
   });
@@ -805,19 +807,22 @@ test.describe("Vector and mask utilities", () => {
   });
 
   test("unit helpers: getPrevailingUnit and isMathjsUnit", () => {
-    expect(getPrevailingUnit("kg", undefined)).toBe("kg");
-    expect(getPrevailingUnit("kg", "g")).toBe("g");
-    expect(getPrevailingUnit("kg", null)).toBeNull();
+    // A missing new unit keeps the existing one; anything else (incl. an
+    // explicit "unitless") takes precedence.
+    expect(getPrevailingUnit(parseUnit("kg"), UnitFlags.Missing)).toBe("kg");
+    expect(getPrevailingUnit(parseUnit("kg"), parseUnit("g"))).toBe("g");
+    expect(getPrevailingUnit(parseUnit("kg"), UnitFlags.Unitless)).toBe(UnitFlags.Unitless);
 
-    expect(isMathjsUnit("kg")).toBe(true);
-    expect(isMathjsUnit("not-a-unit")).toBe(false);
-    expect(isMathjsUnit(undefined)).toBe(false);
+    expect(isMathjsUnit(parseUnit("kg"))).toBe(true);
+    expect(isMathjsUnit(parseUnit("not-a-unit"))).toBe(false);
+    expect(isMathjsUnit(UnitFlags.Missing)).toBe(false);
+    expect(isMathjsUnit(UnitFlags.Unitless)).toBe(false);
   });
 
   test("dataSeriesToDateValues maps db-like records", () => {
     const ds = {
       id: "id",
-      unit: "kg",
+      unit: parseUnit("kg"),
       values: [
         { timestamp: new Date("2020-01-01T00:00:00Z"), value: 1 },
         { timestamp: new Date("2021-01-01T00:00:00Z"), value: 2 },
@@ -875,17 +880,17 @@ test.describe("Sanity checks", () => {
       {
         id: "ds-long",
         displayName: "LongSeries",
-        series: { dateValues: longSeries, unit: undefined },
+        series: { dateValues: longSeries, unit: parseUnit(undefined) },
       },
       {
         id: "ds-short",
         displayName: "ShortSeries",
-        series: { dateValues: { [isoYear(2020)]: 1 }, unit: undefined },
+        series: { dateValues: { [isoYear(2020)]: 1 }, unit: parseUnit(undefined) },
       },
       {
         id: "ds-huge",
         displayName: "HugeSeriesValues",
-        series: { dateValues: { [isoYear(2020)]: 1e13, [isoYear(2021)]: 2 }, unit: undefined },
+        series: { dateValues: { [isoYear(2020)]: 1e13, [isoYear(2021)]: 2 }, unit: parseUnit(undefined) },
       },
     ], warnings);
 
@@ -909,7 +914,7 @@ test.describe("Sanity checks", () => {
         displayName: "ExternalLong",
         series: {
           dateValues: extLongDateValues,
-          unit: undefined,
+          unit: parseUnit(undefined),
         },
       },
     ], warnings);

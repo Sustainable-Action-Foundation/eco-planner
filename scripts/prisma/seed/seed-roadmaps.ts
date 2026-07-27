@@ -9,6 +9,8 @@ import type { MetaRoadmap, Roadmap } from "@/lib/prisma/generated";
 import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe";
 import type { SeededUsers } from "./helpers.ts";
 import { getRandomCreatedAtAndUpdatedAt, makeRandomComments } from "./helpers.ts";
+import { parseUnit } from "@/functions/unit";
+import { UnitFlags } from "@/types/enums";
 
 export type SeededRoadmaps = {
   metaRoadmaps: { national: MetaRoadmap; uppsala: MetaRoadmap };
@@ -131,9 +133,9 @@ async function createTemplateRecipes(): Promise<void> {
     equation: "${Riket} * ${ArvingsArea} / ${RiketsArea}",
     meta: { isSuggestedRecipe: true },
     variables: [
-      { id: "riket", name: "Riket", type: RecipeDataTypes.DataSeries, dataSeriesId: null, pick: VectorIndexPickerOptions.Default, value: null, unit: "km^2" },
+      { id: "riket", name: "Riket", type: RecipeDataTypes.DataSeries, dataSeriesId: null, pick: VectorIndexPickerOptions.Default, value: null, unit: parseUnit("km^2") },
       {
-        id: "rikets-area", name: "Rikets area", type: RecipeDataTypes.External, pick: VectorIndexPickerOptions.Default, unit: undefined,
+        id: "rikets-area", name: "Rikets area", type: RecipeDataTypes.External, pick: VectorIndexPickerOptions.Default, unit: UnitFlags.Missing,
         dataset: "SCB", tableId: "TAB6420",
         selection: [
           { variableCode: "Region", valueCodes: ["00"] },
@@ -142,7 +144,7 @@ async function createTemplateRecipes(): Promise<void> {
         ],
       },
       {
-        id: "arvings-area", name: "Arvings area", type: RecipeDataTypes.External, pick: VectorIndexPickerOptions.Default, unit: undefined,
+        id: "arvings-area", name: "Arvings area", type: RecipeDataTypes.External, pick: VectorIndexPickerOptions.Default, unit: UnitFlags.Missing,
         dataset: "SCB", tableId: "TAB6420",
         selection: [
           { variableCode: "ArealTyp", valueCodes: ["01"] },
@@ -157,9 +159,9 @@ async function createTemplateRecipes(): Promise<void> {
     equation: "${Riket} * ${ArvingsPopulation} / ${RiketsPopulation}",
     meta: { isSuggestedRecipe: true },
     variables: [
-      { id: "riket", name: "Riket", type: RecipeDataTypes.DataSeries, dataSeriesId: null, pick: VectorIndexPickerOptions.Default, value: null, unit: "capita" },
+      { id: "riket", name: "Riket", type: RecipeDataTypes.DataSeries, dataSeriesId: null, pick: VectorIndexPickerOptions.Default, value: null, unit: parseUnit("capita") },
       {
-        id: "rikets-befolkning", name: "Rikets befolkning", type: RecipeDataTypes.External, pick: VectorIndexPickerOptions.Default, unit: undefined,
+        id: "rikets-befolkning", name: "Rikets befolkning", type: RecipeDataTypes.External, pick: VectorIndexPickerOptions.Default, unit: UnitFlags.Missing,
         dataset: "SCB", tableId: "BE0101N1",
         selection: [
           { variableCode: "Region", valueCodes: ["00"] },
@@ -167,7 +169,7 @@ async function createTemplateRecipes(): Promise<void> {
         ],
       },
       {
-        id: "arvings-befolkning", name: "Arvings befolkning", type: RecipeDataTypes.External, pick: VectorIndexPickerOptions.Default, unit: undefined,
+        id: "arvings-befolkning", name: "Arvings befolkning", type: RecipeDataTypes.External, pick: VectorIndexPickerOptions.Default, unit: UnitFlags.Missing,
         dataset: "SCB", tableId: "BE0101N1",
         selection: [{ variableCode: "ContentsCode", valueCodes: ["000007E1"] }],
       },
@@ -179,8 +181,8 @@ async function createTemplateRecipes(): Promise<void> {
     equation: "${Riket} / ${skalär}",
     meta: { isSuggestedRecipe: true },
     variables: [
-      { id: "riket", name: "Riket", type: RecipeDataTypes.DataSeries, dataSeriesId: null, pick: VectorIndexPickerOptions.Default, value: null, unit: undefined },
-      { id: "skalär", name: "skalär", type: RecipeDataTypes.Scalar, value: 1 + Math.random(), unit: null },
+      { id: "riket", name: "Riket", type: RecipeDataTypes.DataSeries, dataSeriesId: null, pick: VectorIndexPickerOptions.Default, value: null, unit: UnitFlags.Missing },
+      { id: "skalär", name: "skalär", type: RecipeDataTypes.Scalar, value: 1 + Math.random(), unit: UnitFlags.Unitless },
     ],
   });
 

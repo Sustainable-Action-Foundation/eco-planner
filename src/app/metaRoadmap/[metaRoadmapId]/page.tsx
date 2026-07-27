@@ -11,8 +11,9 @@ import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import Link from "next/link";
 import TextEditor from "@/components/form/elements/textEditor/editor";
+import type { Metadata } from "next";
 
-export async function generateMetadata(props: { params: Promise<{ metaRoadmapId: string }> }) {
+export async function generateMetadata(props: { params: Promise<{ metaRoadmapId: string }> }): Promise<Metadata> {
   const params = await props.params;
   const [t, session, metaRoadmap] = await Promise.all([
     serveTea("pages"),

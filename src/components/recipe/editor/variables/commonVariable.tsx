@@ -9,6 +9,7 @@ import styles from "../../recipe.module.css" with { type: "css" };
 import { IconTrashXFilled } from "@tabler/icons-react";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { allOurUnits } from "@/math";
+import { parseUnit } from "@/functions/unit";
 
 // TODO: Fix labels
 export function CommonVariable({
@@ -71,7 +72,7 @@ export function CommonVariable({
               setter={(next) => {
                 const value = typeof next === "function" ? next(unit) : next;
                 setUnit(value);
-                upsertVariable(variableId, v => ({ ...v, unit: value.trim() === "" ? undefined : value }));
+                upsertVariable(variableId, v => ({ ...v, unit: parseUnit(value) }));
               }}
             />
           </div>

@@ -7,6 +7,7 @@ import { GoalFormName } from "@/types/form-names";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { RecipeSync } from "@/components/recipe/output/recipeSync";
+import { parseUnit } from "@/functions/unit";
 
 /**
  * ## Note
@@ -234,7 +235,7 @@ export function SuggestedRecipesList({
             const newRecipe = Recipe.fromDataSeries({
               recipeName: t("components:recipe_editor.new_recipe"),
               dataSeriesName: currentGoal?.name || t("components:recipe_editor.this_data_series"),
-              unit: currentGoal?.dataSeries?.unit ?? undefined,
+              unit: parseUnit(currentGoal?.dataSeries?.unit),
             });
             setNewSuggestedRecipes((prev) => [...prev, { id: newId, recipe: newRecipe }]);
             startEditing(newId, newRecipe.name, true);

@@ -1,4 +1,5 @@
 import type { DataSeriesVariable, ExternalVariable, ScalarVariable, RecipeVariable } from "./types";
+import { UnitFlags } from "@/types/enums";
 
 export const VectorIndexPickerOptions = {
   Default: "whole",
@@ -28,7 +29,7 @@ export const emptyRecipeScalar: ScalarVariable = {
   name: "empty-scalar",
   type: RecipeDataTypes.Scalar,
   value: 0,
-  unit: undefined,
+  unit: UnitFlags.Missing,
 } as const;
 export const emptyRecipeDataSeries: DataSeriesVariable = {
   id: "empty-data-series",
@@ -36,7 +37,7 @@ export const emptyRecipeDataSeries: DataSeriesVariable = {
   type: RecipeDataTypes.DataSeries,
   dataSeriesId: undefined,
   pick: VectorIndexPickerOptions.Default,
-  unit: undefined,
+  unit: UnitFlags.Missing,
   value: undefined,
 } as const;
 export const emptyRecipeExternal: ExternalVariable = {
@@ -47,7 +48,7 @@ export const emptyRecipeExternal: ExternalVariable = {
   tableId: null,
   selection: [],
   pick: VectorIndexPickerOptions.Default,
-  unit: undefined,
+  unit: UnitFlags.Missing,
 } as const;
 
 /**

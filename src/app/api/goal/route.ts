@@ -15,6 +15,7 @@ import type { ResolvedExternals, SerializedRecipe } from "@/functions/recipe";
 import type { TFunction } from "i18next";
 import serveTea from "@/lib/i18nServer";
 import type { IronSession } from "iron-session";
+import { serializeUnit } from "@/functions/unit";
 
 /**
  * Authorizes a write to an existing goal (used by Full update and all sectional
@@ -126,7 +127,7 @@ async function createDataSeries(tx: Prisma.TransactionClient, authorId: string, 
       author: { connect: { id: authorId } },
       recipeUsed: typeof recipeId === 'string' ? { connect: { id: recipeId } } : undefined,
       values: { createMany: { data: dateValuesToDBDateRecord(data.dateValues) } },
-      ...(data.unit == null ? {} : { unit: data.unit }),
+      unit: serializeUnit(data.unit), // db keeps the legacy convention
     },
     select: { id: true },
   })).id;
@@ -156,7 +157,7 @@ async function applyDataSeriesSection(tx: Prisma.TransactionClient, authorId: st
               ? { connect: { id: recipeId } }
               : { disconnect: true },
           values: { deleteMany: {}, createMany: { data: dateValuesToDBDateRecord(section.dataSeries.dateValues) } },
-          unit: section.dataSeries.unit,
+          unit: serializeUnit(section.dataSeries.unit), // db keeps the legacy convention
         },
       });
     } else {

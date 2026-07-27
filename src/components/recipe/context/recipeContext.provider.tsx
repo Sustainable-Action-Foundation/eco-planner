@@ -6,11 +6,12 @@ import { externalSelectionKey } from "@/functions/recipe/extractors";
 import getTableContent from "@/lib/api/getTableContent";
 import type { ApiSelectionItem, ApiTableContent } from "@/lib/api/apiTypes";
 import { clientSafeGetOneDataSeries } from "@/fetchers/client";
-import type { DataSeries, DateValues, UnitString } from "@/types";
+import type { DataSeries, DateValues, Unit } from "@/types";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { SetStateAction } from "react";
 import { Recipe } from "@/functions/recipe/recipe";
 import { RecipeContext } from "./recipeContext.internal";
+import { UnitFlags } from "@/types/enums";
 import { useDebounce } from "use-debounce";
 
 /** Compact summary of a recipe in a given state, for the debug panel. */
@@ -57,7 +58,7 @@ export function RecipeContextProvider({
   const [warnings, setWarnings] = useState<string[]>([]);
 
   const [resultingDataSeries, setResultingDataSeries] = useState<DateValues | null>(null);
-  const [resultingUnit, setResultingUnit] = useState<UnitString | null>(null);
+  const [resultingUnit, setResultingUnit] = useState<Unit>(UnitFlags.Missing);
   // Serialize async recipe updates so rapid edits cannot overwrite each other.
   const recipeUpdateQueueRef = useRef<Promise<void>>(Promise.resolve());
   const recipeUpdateGenerationRef = useRef<number>(0);
@@ -267,13 +268,12 @@ export function RecipeContextProvider({
   // Evaluate recipe and update resulting data and unit, whenever recipe changes
   useEffect(() => {
     let isEffectActive = true;
-
     if (debouncedRecipe.isTemplate()) {
       // Nothing to evaluate: the cleared results ARE this recipe's results.
       setLastEvaluatedRecipe(debouncedRecipe);
       return () => {
         setResultingDataSeries(null);
-        setResultingUnit(null);
+        setResultingUnit(debouncedRecipe.unit); // declared unit survives even if recipe cannot be evaluated
         setWarnings([]);
         setError(null);
       };
@@ -285,7 +285,7 @@ export function RecipeContextProvider({
         if (!isEffectActive) return;
 
         setResultingDataSeries(result?.dateValues ?? null);
-        setResultingUnit(result?.unit ?? null);
+        setResultingUnit(result?.unit ?? UnitFlags.Missing);
         setWarnings(warnings);
         setError(null);
       })
@@ -296,7 +296,7 @@ export function RecipeContextProvider({
         console.warn("Failed to evaluate recipe:", errorMessage);
 
         setResultingDataSeries(null);
-        setResultingUnit(null);
+        setResultingUnit(debouncedRecipe.unit); // declared unit survives even if recipe cannot be evaluated
         setWarnings(warnings);
         setError(errorMessage);
       })
