@@ -1,7 +1,7 @@
 import type { DataSeries, DateValuesWithUnit, JSONValue, Mask, UnitString } from "@/types";
 import { isISOIshDate } from "@/types/typeguards";
 import mathjs from "@/math";
-import type { Unit } from "mathjs";
+import type { Unit as MathJSUnit } from "mathjs";
 import type { ApiSelectionItem, ApiTableContent, DatasetKeys } from "@/lib/api/apiTypes";
 import type { ExternalVariable, RecipeExtractionOutput, RecipeVariable, SerializedRecipe, RecipeShape, DataSeriesVariable } from "@/functions/recipe";
 import { isEvalTimeVariable, isRecipe, MathjsError, RecipeError, parseDateValuesFromVector, transformDateValuesToVector, ANDMasks, extractDataSeries, extractExternalDatasets, extractScalars, isEvalTimeSeries, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe";
@@ -212,7 +212,7 @@ export class Recipe {
     sanityCheckDataSeries(dataSeriesVars, warnings);
     sanityCheckExternalDatasets(externalVars, warnings);
 
-    const scope: Record<string, number | number[] | Unit | Unit[]> = {};
+    const scope: Record<string, number | number[] | MathJSUnit | MathJSUnit[]> = {};
     let equation = this.equation;
 
     const nameNormalizer = (name: string) => {
@@ -260,11 +260,11 @@ export class Recipe {
       scope[newName] = variable.value;
     }
 
-    let result: Unit | Unit[];
+    let result: MathJSUnit | MathJSUnit[];
     try {
       const rawResult: unknown = mathjs.evaluate(equation, scope);
 
-      const toUnit = (value: unknown): Unit => {
+      const toUnit = (value: unknown): MathJSUnit => {
         if (mathjs.isUnit(value)) {
           return value;
         }
@@ -276,7 +276,7 @@ export class Recipe {
         throw new RecipeError(`Result contains unsupported value types. {value: ${String(value)}, type: ${typeof value}}`);
       };
 
-      const normalizeResult = (value: unknown): Unit | Unit[] => {
+      const normalizeResult = (value: unknown): MathJSUnit | MathJSUnit[] => {
         // Handle 1d matrix
         if (
           typeof value === "object"
@@ -308,7 +308,7 @@ export class Recipe {
 
     if (result instanceof mathjs.Unit) {
       warnings.push("Equation returned a scalar, applying to all fields.");
-      result = Array(maxTimeSpan).fill(result.clone()) as Unit[];
+      result = Array(maxTimeSpan).fill(result.clone()) as MathJSUnit[];
     }
 
     const outputMask: Mask = masks.length > 0

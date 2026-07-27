@@ -1,4 +1,4 @@
-import type { Unit } from "mathjs";
+import type { Unit as MathJSUnit } from "mathjs";
 import type { ApiSelectionItem, DatasetKeys } from "@/lib/api/apiTypes";
 import type { DateValues, DateValuesWithUnit, ISOIshDate, UnitString } from "@/types";
 import type { BaselineType } from "@/types/enums";
@@ -59,7 +59,7 @@ export type RecipeVariable = ScalarVariable | DataSeriesVariable | ExternalVaria
 export type EvalTimeVariable = {
   id: string;
   displayName: string;
-  value: Unit | Unit[] | number;
+  value: MathJSUnit | MathJSUnit[] | number;
 };
 export type EvalTimeSeries = {
   id: string;

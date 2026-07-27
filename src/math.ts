@@ -1,5 +1,5 @@
 import type { UnitDefinition } from 'mathjs';
-import { create, all, Unit } from 'mathjs';
+import { create, all, Unit as MathJSUnit } from 'mathjs';
 
 const mathjs = create(all);
 
@@ -47,6 +47,6 @@ mathjs.import(customFunctions);
 export default mathjs;
 
 export const allOurUnits: string[] = [
-  ...Object.keys(Unit.UNITS),
+  ...Object.keys(MathJSUnit.UNITS),
   ...Object.keys(customUnits), // This adds the custom units to the list without adding all the aliases
 ];

@@ -1,13 +1,13 @@
 import type { DataSeries, DateValues, DateValuesWithUnit, Goal, ISOIshDate, Mask, MaskedVector, UnitString } from "@/types";
 import { isISOIshDate } from "@/types/typeguards";
 import { RecipeError, VectorIndexPickerOptions } from "@/functions/recipe/types";
-import type { Unit } from "mathjs";
+import type { Unit as MathJSUnit } from "mathjs";
 import mathjs from "@/math";
 
 export function pickDateValues(
   dataSeries: DateValuesWithUnit,
   pick: VectorIndexPickerOptions | number | ISOIshDate,
-): DateValuesWithUnit | Unit {
+): DateValuesWithUnit | MathJSUnit {
   // Try to interpret as year YYYY
   if (
     typeof pick === "number"
@@ -129,7 +129,7 @@ export function transformDateValuesToVector(
 
   const { dateValues: timeline, unit } = dateValues;
 
-  const vector: Unit[] = [];
+  const vector: MathJSUnit[] = [];
   const mask: Record<string, boolean> = {};
 
   for (let i = 0; i < maxTimeSpan; i++) {
