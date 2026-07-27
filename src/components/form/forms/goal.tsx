@@ -72,7 +72,7 @@ function resolveBaselineType(goal?: Goal): BaselineType {
     : BaselineType.Inherited;
 }
 
-function resolveHistoricalDataType(goal?: Goal): HistoricalDataType {
+export function resolveHistoricalDataType(goal?: Goal): HistoricalDataType {
   const recipe = goal?.historical?.recipeUsed?.recipe;
   if (!recipe) return HistoricalDataType.External;
 
@@ -86,7 +86,7 @@ function resolveHistoricalDataType(goal?: Goal): HistoricalDataType {
 // Tracks every distinct value `current` has taken since mount, as a Set.
 // Used to keep a tab's content mounted once it's been visited, even after
 // switching away — replaces one boolean state + one useEffect per enum value.
-function useInitializedValues<T>(current: T): Set<T> {
+export function useInitializedValues<T>(current: T): Set<T> {
   const [initialized, setInitialized] = useState<Set<T>>(() => new Set([current]));
 
   useEffect(() => {

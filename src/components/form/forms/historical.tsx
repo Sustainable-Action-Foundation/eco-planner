@@ -1,13 +1,14 @@
 "use client";
 
 import HistoricalDataSection from "@/components/form/sections/dataseries/historical";
+import { resolveHistoricalDataType, useInitializedValues } from "@/components/form/forms/goal";
 import { waitForRecipeFormSyncs } from "@/components/recipe";
 import formSubmitter from "@/functions/formSubmitter";
 import { Recipe } from "@/functions/recipe";
 import type { DateValuesWithUnit, Goal, GoalUpdateInput } from "@/types";
-import { GoalDataTarget } from "@/types/enums";
+import { GoalDataTarget, HistoricalDataType } from "@/types/enums";
 import { GoalFormName } from "@/types/form-names";
-import type { SubmitEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 import { useTranslation } from "react-i18next";
 
 export default function HistoricalForm({
@@ -16,6 +17,11 @@ export default function HistoricalForm({
   goal: Goal
 }) {
   const { t } = useTranslation(["common"]);
+
+  // Same wiring as the goal form: the section renders both input types in
+  // hidden-not-unmounted fieldsets once visited, with the type lifted here.
+  const [historicalDataType, setHistoricalDataType] = useState<HistoricalDataType>(() => resolveHistoricalDataType(goal));
+  const initializedHistoricalTypes = useInitializedValues(historicalDataType);
 
   // The section's inputs live in a recipe context; its FormSync injects the
   // resulting recipe and date values as hidden fields, read out here on submit.
@@ -67,6 +73,10 @@ export default function HistoricalForm({
     <form onSubmit={(event) => { void handleSubmit(event); }} name="goalForm">
       <HistoricalDataSection
         goal={goal}
+        historicalDataType={historicalDataType}
+        setHistoricalDataType={setHistoricalDataType}
+        hasInitializedExternal={initializedHistoricalTypes.has(HistoricalDataType.External)}
+        hasInitializedManual={initializedHistoricalTypes.has(HistoricalDataType.Custom)}
       />
       <div className="margin-top-400 padding-top-100 margin-bottom-100 min-width-0" style={{ borderTop: "1px solid var(--gray-80)" }}>
         <button

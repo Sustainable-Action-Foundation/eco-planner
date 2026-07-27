@@ -40,12 +40,12 @@ export function generateApexChartOptions({
       const options: ApexCharts.ApexOptions = {
         chart: {
           type: 'line',
-          animations: { 
+          animations: {
             enabled: true,
-            dynamicAnimation: { 
+            dynamicAnimation: {
               enabled: true,
               speed: 200,
-              easing: [.33,-0.03,.15,1.01],
+              //  easing: [.33,-0.03,.15,1.01], // was dropped from the dynamicAnimation options in the bumped apexcharts typings
             },
           },
           zoom: { allowMouseWheelZoom: false },
