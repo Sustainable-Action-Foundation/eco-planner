@@ -1,13 +1,31 @@
 import type { Prisma } from "@/lib/prisma/generated";
 
+/**
+ * The access control fields accessChecker needs: ownership org, visibility flags,
+ * and the group grants. Group membership is resolved against the user's own
+ * per-request access context, so grants only need the group id.
+ */
+export const accessControlSelection = {
+  id: true,
+  org_id: true,
+  is_public: true,
+  org_readable: true,
+  grants: {
+    select: {
+      group_id: true,
+      access_level: true,
+    },
+  },
+} satisfies Prisma.AccessControlsSelect;
+
 export const nameSelector = {
   name: true,
   id: true,
-  roadmapVersions: {
+  iterations: {
     select: {
       version: true,
       id: true,
-      metaRoadmap: {
+      roadmap: {
         select: {
           name: true,
           id: true,
@@ -16,7 +34,7 @@ export const nameSelector = {
       goals: {
         select: {
           name: true,
-          indicatorParameter: true,
+          indicator_parameter: true,
           id: true,
         },
       },
@@ -28,16 +46,16 @@ export const nameSelector = {
       },
     },
   },
-} satisfies Prisma.MetaRoadmapSelect;
+} satisfies Prisma.RoadmapsSelect;
 
 const dataSeriesInclusionSelection = {
-  recipeUsed: {
+  recipe_used: {
     select: {
       id: true,
       recipe: true,
       // The recipe's source data series (incl. materialized external data) so the
       // editor can read them as canon instead of re-fetching upstream APIs.
-      sourceDataSeries: { select: { id: true, unit: true, values: true } },
+      source_data_series: { select: { id: true, unit: true, values: true } },
     },
   },
   values: {
@@ -45,28 +63,15 @@ const dataSeriesInclusionSelection = {
   },
 } satisfies Prisma.DataSeriesSelect;
 
-export const metaRoadmapInclusionSelection = {
-  roadmapVersions: {
+/** Full detail view of a top-level roadmap: its iterations, tree relations, comments, and access control. */
+export const roadmapInclusionSelection = {
+  iterations: {
     include: {
-      metaRoadmap: {
-        include: {
-          childRoadmaps: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-        },
-      },
       _count: { select: { goals: true } },
       author: { select: { id: true, username: true } },
-      editors: { select: { id: true, username: true } },
-      viewers: { select: { id: true, username: true } },
-      editGroups: { include: { users: { select: { id: true, username: true } } } },
-      viewGroups: { include: { users: { select: { id: true, username: true } } } },
     },
   },
-  childRoadmaps: {
+  child_roadmaps: {
     select: {
       id: true,
       name: true,
@@ -78,22 +83,25 @@ export const metaRoadmapInclusionSelection = {
     },
   },
   author: { select: { id: true, username: true } },
-  editors: { select: { id: true, username: true } },
-  viewers: { select: { id: true, username: true } },
-  editGroups: { include: { users: { select: { id: true, username: true } } } },
-  viewGroups: { include: { users: { select: { id: true, username: true } } } },
-} satisfies Prisma.MetaRoadmapInclude;
+  access_control: { select: accessControlSelection },
+} satisfies Prisma.RoadmapsInclude;
 
-export const roadmapInclusionSelection = {
-  metaRoadmap: true,
+/** Full detail view of a single roadmap iteration. Access control comes from the parent roadmap. */
+export const roadmapIterationInclusionSelection = {
+  roadmap: {
+    include: {
+      access_control: { select: accessControlSelection },
+      child_roadmaps: { select: { id: true, name: true } },
+    },
+  },
   _count: { select: { goals: true } },
   goals: {
     include: {
       _count: { select: { effects: true } },
-      dataSeries: { include: dataSeriesInclusionSelection },
+      data_series: { include: dataSeriesInclusionSelection },
       historical: { include: dataSeriesInclusionSelection },
       author: { select: { id: true, username: true } },
-      recipeSuggestions: true,
+      recipe_suggestions: true,
     },
   },
   actions: {
@@ -108,28 +116,24 @@ export const roadmapInclusionSelection = {
     },
   },
   author: { select: { id: true, username: true } },
-  editors: { select: { id: true, username: true } },
-  viewers: { select: { id: true, username: true } },
-  editGroups: { include: { users: { select: { id: true, username: true } } } },
-  viewGroups: { include: { users: { select: { id: true, username: true } } } },
-} satisfies Prisma.RoadmapInclude;
+} satisfies Prisma.RoadmapIterationsInclude;
 
 /** "Client safe" versions should be used with `select: ` instead of `include: ` */
-export const clientSafeRoadmapSelection = {
+export const clientSafeRoadmapIterationSelection = {
   id: true,
   description: true,
   version: true,
-  targetVersion: true,
-  isPublic: true,
-  metaRoadmap: {
+  target_version: true,
+  published_at: true,
+  roadmap: {
     select: {
       id: true,
       name: true,
       description: true,
       type: true,
       actor: true,
-      parentRoadmapId: true,
-      isPublic: true,
+      parent_roadmap_id: true,
+      access_control: { select: { is_public: true } },
     },
   },
   goals: {
@@ -137,17 +141,17 @@ export const clientSafeRoadmapSelection = {
       id: true,
       name: true,
       description: true,
-      indicatorParameter: true,
-      isFeatured: true,
+      indicator_parameter: true,
+      is_featured: true,
       _count: { select: { effects: true } },
-      dataSeries: { include: dataSeriesInclusionSelection },
+      data_series: { include: dataSeriesInclusionSelection },
       baseline: { include: dataSeriesInclusionSelection },
       historical: { include: dataSeriesInclusionSelection },
       effects: {
         select: {
-          actionId: true,
-          goalId: true,
-          dataSeries: { include: dataSeriesInclusionSelection },
+          action_id: true,
+          goal_id: true,
+          data_series: { include: dataSeriesInclusionSelection },
           action: {
             select: {
               id: true,
@@ -162,30 +166,26 @@ export const clientSafeRoadmapSelection = {
     select: {
       id: true,
       name: true,
-      description: true,
-      startYear: true,
-      endYear: true,
-      costEfficiency: true,
-      expectedOutcome: true,
-      isSufficiency: true,
-      isEfficiency: true,
-      isRenewables: true,
-      roadmapId: true,
+      indicator_parameter: true,
+      start_year: true,
+      end_year: true,
+      roadmap_iteration_id: true,
       _count: { select: { effects: true } },
     },
   },
   comments: {
     select: {
       id: true,
-      commentText: true,
-      actionId: true,
-      goalId: true,
-      roadmapId: true,
-      metaRoadmapId: true,
+      comment_text: true,
+      action_id: true,
+      goal_id: true,
+      roadmap_iteration_id: true,
+      roadmap_id: true,
     },
   },
-} satisfies Prisma.RoadmapSelect;
+} satisfies Prisma.RoadmapIterationsSelect;
 
+/** List view of roadmap iterations, e.g. on browse pages. */
 export const multiRoadmapInclusionSelection = {
   _count: {
     select: {
@@ -193,71 +193,67 @@ export const multiRoadmapInclusionSelection = {
       actions: true,
     },
   },
-  metaRoadmap: true,
+  roadmap: {
+    include: {
+      access_control: { select: accessControlSelection },
+    },
+  },
   author: { select: { id: true, username: true } },
-  editors: { select: { id: true, username: true } },
-  viewers: { select: { id: true, username: true } },
-  editGroups: { include: { users: { select: { id: true, username: true } } } },
-  viewGroups: { include: { users: { select: { id: true, username: true } } } },
-} satisfies Prisma.RoadmapInclude;
+} satisfies Prisma.RoadmapIterationsInclude;
 
 /** "Client safe" versions should be used with `select: ` instead of `include: ` */
 export const clientSafeMultiRoadmapSelection = {
   id: true,
   description: true,
   version: true,
-  targetVersion: true,
-  isPublic: true,
+  target_version: true,
+  published_at: true,
   _count: {
     select: {
       goals: true,
       actions: true,
     },
   },
-  metaRoadmap: {
+  roadmap: {
     select: {
       id: true,
       name: true,
       description: true,
       type: true,
       actor: true,
-      parentRoadmapId: true,
-      isPublic: true,
+      parent_roadmap_id: true,
+      access_control: { select: { is_public: true } },
     },
   },
-} satisfies Prisma.RoadmapSelect;
+} satisfies Prisma.RoadmapIterationsSelect;
 
 export const goalInclusionSelection = {
   _count: { select: { effects: true } },
-  recipeSuggestions: true,
-  dataSeries: { include: dataSeriesInclusionSelection },
+  recipe_suggestions: true,
+  data_series: { include: dataSeriesInclusionSelection },
   baseline: { include: dataSeriesInclusionSelection },
   historical: { include: dataSeriesInclusionSelection },
   effects: {
     include: {
-      dataSeries: { include: dataSeriesInclusionSelection },
+      data_series: { include: dataSeriesInclusionSelection },
       action: {
         include: {
-          roadmap: { select: { id: true } },
+          roadmap_iteration: { select: { id: true } },
           author: { select: { id: true, username: true } },
         },
       },
     },
   },
-  roadmap: {
+  roadmap_iteration: {
     include: {
-      metaRoadmap: {
+      roadmap: {
         select: {
           id: true,
           name: true,
-          parentRoadmapId: true,
+          parent_roadmap_id: true,
+          access_control: { select: accessControlSelection },
         },
       },
-      author: { select: { id: true, username: true } },
-      editors: { select: { id: true, username: true } },
-      viewers: { select: { id: true, username: true } },
-      editGroups: { select: { id: true, name: true, users: { select: { id: true, username: true } } } },
-      viewGroups: { select: { id: true, name: true, users: { select: { id: true, username: true } } } },
     },
   },
   comments: {
@@ -266,21 +262,21 @@ export const goalInclusionSelection = {
     },
   },
   author: { select: { id: true, username: true } },
-} satisfies Prisma.GoalInclude;
+} satisfies Prisma.GoalsInclude;
 
 /** "Client safe" versions should be used with `select: ` instead of `include: ` */
 export const clientSafeGoalSelection = {
   id: true,
   name: true,
   description: true,
-  indicatorParameter: true,
-  isFeatured: true,
-  roadmapId: true,
-  dataSeries: { include: dataSeriesInclusionSelection },
+  indicator_parameter: true,
+  is_featured: true,
+  roadmap_iteration_id: true,
+  data_series: { include: dataSeriesInclusionSelection },
   baseline: { include: dataSeriesInclusionSelection },
   historical: { include: dataSeriesInclusionSelection },
   _count: { select: { effects: true } },
-} satisfies Prisma.GoalSelect;
+} satisfies Prisma.GoalsSelect;
 
 export const clientSafeDataSeriesSelection = {
   id: true,
@@ -291,68 +287,59 @@ export const clientSafeDataSeriesSelection = {
 export const actionInclusionSelection = {
   effects: {
     include: {
-      dataSeries: { include: dataSeriesInclusionSelection },
+      data_series: { include: dataSeriesInclusionSelection },
       goal: {
         include: {
-          roadmap: { select: { id: true } },
+          roadmap_iteration: { select: { id: true } },
           author: { select: { id: true, username: true } },
         },
       },
     },
   },
-  roadmap: {
+  // Nullable: actions without an iteration live in the public action database
+  roadmap_iteration: {
     select: {
       id: true,
       version: true,
+      published_at: true,
       author: { select: { id: true, username: true } },
-      editors: { select: { id: true, username: true } },
-      viewers: { select: { id: true, username: true } },
-      editGroups: { include: { users: { select: { id: true, username: true } } } },
-      viewGroups: { include: { users: { select: { id: true, username: true } } } },
-      isPublic: true,
-      metaRoadmap: {
+      roadmap: {
         select: {
           id: true,
           name: true,
+          access_control: { select: accessControlSelection },
         },
       },
     },
   },
   comments: { include: { author: { select: { id: true, username: true } } } },
   author: { select: { id: true, username: true } },
-} satisfies Prisma.ActionInclude;
-
-/**
- * The roadmap fields required to run `accessChecker` (i.e. the `AccessControlled`
- * shape) and nothing else. Kept as a `select` so callers never leak unrelated
- * roadmap data to clients.
- */
-const accessControlledRoadmapSelect = {
-  isPublic: true,
-  author: { select: { id: true, username: true } },
-  editors: { select: { id: true, username: true } },
-  viewers: { select: { id: true, username: true } },
-  editGroups: { select: { id: true, name: true, users: { select: { id: true, username: true } } } },
-  viewGroups: { select: { id: true, name: true, users: { select: { id: true, username: true } } } },
-} satisfies Prisma.RoadmapSelect;
+  fields: true,
+} satisfies Prisma.ActionsInclude;
 
 export const effectInclusionSelection = {
-  dataSeries: { include: dataSeriesInclusionSelection },
+  data_series: { include: dataSeriesInclusionSelection },
   // `select` (not `include`) on action/goal: the effect edit flow only needs their
-  // identity (for the selectors + breadcrumb) and their roadmap's ACL (for
-  // accessChecker). This keeps links, comments, nested effects, authors,
+  // identity (for the selectors + breadcrumb) and their roadmap's access control
+  // (for accessChecker). This keeps links, comments, nested effects, authors,
   // and every other field of the parent action/goal off the wire to the client.
   action: {
     select: {
       id: true,
       name: true,
-      roadmapId: true,
-      roadmap: {
+      roadmap_iteration_id: true,
+      roadmap_iteration: {
         select: {
           id: true,
           version: true,
-          metaRoadmap: { select: { id: true, name: true } },
-          ...accessControlledRoadmapSelect,
+          published_at: true,
+          roadmap: {
+            select: {
+              id: true,
+              name: true,
+              access_control: { select: accessControlSelection },
+            },
+          },
         },
       },
     },
@@ -360,25 +347,34 @@ export const effectInclusionSelection = {
   goal: {
     select: {
       id: true,
-      roadmapId: true,
-      roadmap: { select: accessControlledRoadmapSelect },
+      roadmap_iteration_id: true,
+      roadmap_iteration: {
+        select: {
+          published_at: true,
+          roadmap: {
+            select: {
+              access_control: { select: accessControlSelection },
+            },
+          },
+        },
+      },
     },
   },
-} satisfies Prisma.EffectInclude;
+} satisfies Prisma.EffectsInclude;
 
 export const userInfoSelector = {
   id: true,
   username: true,
-  authoredMetaRoadmaps: {
+  authored_roadmaps: {
     // TODO: Select/include less data to lighten load on database
-    include: metaRoadmapInclusionSelection,
+    include: roadmapInclusionSelection,
   },
-  authoredRoadmaps: {
+  authored_roadmap_iterations: {
     include: multiRoadmapInclusionSelection,
   },
-} satisfies Prisma.UserSelect;
+} satisfies Prisma.UsersSelect;
 
 export const recipeSelector = {
   id: true,
   recipe: true,
-} satisfies Prisma.RecipeSelect;
+} satisfies Prisma.RecipesSelect;

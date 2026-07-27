@@ -94,7 +94,7 @@ INSERT INTO `Orgs` (`id`, `name`, `domain`) VALUES
     (UUID_v4(), 'SAF-ngo',    'sustainable-action.ngo'),
     (UUID_v4(), 'SAF-org',    'sustainable-action.org'),
     (UUID_v4(), 'Tranås',     'tranas.se'),
-    (UUID_v4(), 'Trosa',       'trosa.se'),
+    (UUID_v4(), 'Trosa',      'trosa.se'),
     (UUID_v4(), 'Varberg',    'varberg.se');
 
 -- ============================================================================
