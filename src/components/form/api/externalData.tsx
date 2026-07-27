@@ -19,12 +19,12 @@ import type { ApiSelectionItem } from "@/lib/api/apiTypes";
 export default function ExternalData({
   goal,
   onChange,
-  // required = true,
+  required = true,
 }: {
   goal: Goal | undefined,
   onChange?: (data: ExternalDataState) => void;
   /** Whether a dataset/table selection is required for the surrounding form to submit. Off when the selection is optional (e.g. the goal form's historical section). */
-  // required?: boolean;
+  required?: boolean;
 }) {
 
   const { t } = useTranslation("components");
@@ -185,7 +185,7 @@ export default function ExternalData({
         <select
           defaultValue={historicalSource?.dataset ?? ''}
           className="block margin-top-25 margin-bottom-100 width-100"
-          required={true}
+          required={required}
           name="externalDataset"
           id="externalDataset"
           onChange={e => dispatch({ type: "SELECT_DATASET", dataSource: e.target.value })}>
@@ -202,7 +202,7 @@ export default function ExternalData({
           id: 'externalTableId',
           name: 'externalTableId',
           placeholder: !dataSource ? t("components:query_builder.select_source_for_table") : t("components:query_builder.select_table"),
-          required: true,
+          required: required,
           disabled: !dataSource ? true : false,
         }}
         defaultValue={table ? { name: table.label, value: table.tableId } : false}
