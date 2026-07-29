@@ -21,12 +21,12 @@ export async function getRoadmapIterations(iterationIds?: string[]): Promise<Mul
 
 /**
  * Caches all roadmap iterations the user has access to.
- * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap']`, which is done in relevant API routes.
+ * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap', 'roadmapIteration']`, which is done in relevant API routes.
  * @param accessContext Requesting user's access context (null for anonymous visitors); part of the cache key.
  */
 async function getCachedRoadmapIterations(accessContext: UserAccessContext | null, iterationIds?: string[]): Promise<MultiRoadmapInstance[]> {
   'use cache';
-  cacheTag('database', 'roadmap');
+  cacheTag('database', 'roadmap', 'roadmapIteration');
 
   let iterations: MultiRoadmapInstance[];
   try {

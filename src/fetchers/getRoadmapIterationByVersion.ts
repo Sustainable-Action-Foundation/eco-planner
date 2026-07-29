@@ -22,14 +22,14 @@ export async function getRoadmapIterationByVersion(roadmapId: string, version: n
 
 /**
  * Caches the specified roadmap iteration and all goals for that iteration.
- * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap', 'goal']`, which is done in relevant API routes.
+ * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap', 'roadmapIteration', 'goal']`, which is done in relevant API routes.
  * @param roadmapId ID of the roadmap to search for a specific version of
  * @param version Version number of the iteration to cache
  * @param accessContext Requesting user's access context (null for anonymous visitors); part of the cache key.
  */
 async function getCachedRoadmapIterationByVersion(roadmapId: string, version: number, accessContext: UserAccessContext | null): Promise<RoadmapIteration | null> {
   'use cache';
-  cacheTag('database', 'roadmap', 'goal');
+  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal');
 
   let iteration: RoadmapIteration | null;
   try {

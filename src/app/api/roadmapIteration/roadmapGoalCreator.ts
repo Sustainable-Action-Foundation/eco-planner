@@ -1,21 +1,27 @@
+import { manualDataSeriesCreateData } from "@/functions/recipe/persistence";
+import type { Prisma } from "@/lib/prisma/generated";
 import type { GoalCreateFull } from "@/types";
 import { isDateValuesWithUnit } from "@/types/typeguards";
-import type { Prisma } from "@/lib/prisma/generated";
-import { serializeUnit } from "@/functions/unit";
 
 type RoadmapGoalInput = {
   goals?: GoalCreateFull[] | null | undefined;
 };
 
+/**
+ * Builds nested goal create inputs for a new/updated roadmap iteration.
+ * Each goal's data series is created as manual input: an inline recipe
+ * (`meta.isManual`) produces the series, both owned by the iteration's org.
+ */
 export default function roadmapGoalCreator(
   roadmap: RoadmapGoalInput,
-  author: string,
+  authorId: string,
+  orgId: string,
 ) {
   if (!roadmap.goals?.length) {
     return undefined;
   }
 
-  const output: Prisma.GoalCreateWithoutRoadmapInput[] = [];
+  const output: Prisma.GoalsCreateWithoutRoadmap_iterationInput[] = [];
 
   roadmap.goals.forEach((goal, goalIndex) => {
     // Create data series
@@ -29,22 +35,19 @@ export default function roadmapGoalCreator(
     output.push({
       name: goal.name,
       description: goal.description,
-      indicatorParameter: goal.indicatorParameter,
+      indicator_parameter: goal.indicatorParameter,
 
-      dataSeries: {
-        create: {
-          ...dataSeries,
-          unit: serializeUnit(dataSeries.unit), // db keeps the legacy convention
-          authorId: author,
-        },
+      data_series: {
+        create: manualDataSeriesCreateData(dataSeries, orgId, authorId),
       },
 
       // TODO: handle providing a DateValuesWithUnit baseline
+      // NOTE: the route must check the cross-slot invariant (findClaimedSeries) for these ids
       ...!goal.baselineId ? {} : {
         baseline: { connect: { id: goal.baselineId } },
       },
 
-      author: { connect: { id: author } },
+      author: { connect: { id: authorId } },
     });
   });
 

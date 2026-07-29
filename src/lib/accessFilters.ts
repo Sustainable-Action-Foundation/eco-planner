@@ -96,6 +96,50 @@ export function visibleActionsWhere(ctx: UserAccessContext | null): Prisma.Actio
 }
 
 /**
+ * Matches actions the user may edit: those under a writable roadmap, plus
+ * roadmapless actions (the public action database) for managers of the owning org.
+ */
+export function editableActionsWhere(ctx: UserAccessContext | null): Prisma.ActionsWhereInput {
+  if (!ctx) {
+    // `in: []` matches nothing: anonymous visitors can never write
+    return { org_id: { in: [] } };
+  }
+  if (ctx.isSuperAdmin) {
+    return {};
+  }
+  return {
+    OR: [
+      { roadmap_iteration: { roadmap: { access_control: writableAccessControlWhere(ctx) } } },
+      { roadmap_iteration: null, org_id: { in: managedOrgIds(ctx) } },
+    ],
+  };
+}
+
+/**
+ * Matches data series the user may edit (e.g. recalculate). Like visibility, edit
+ * access is derived from the parent goal/effect context; effects require edit access
+ * to both the action and the goal.
+ */
+export function editableDataSeriesWhere(ctx: UserAccessContext | null): Prisma.DataSeriesWhereInput {
+  const writableIteration: Prisma.RoadmapIterationsWhereInput = {
+    roadmap: { access_control: writableAccessControlWhere(ctx) },
+  };
+  return {
+    OR: [
+      { dependent_goal: { roadmap_iteration: writableIteration } },
+      { dependent_baseline: { roadmap_iteration: writableIteration } },
+      { dependent_historical: { roadmap_iteration: writableIteration } },
+      {
+        dependent_effect: {
+          action: editableActionsWhere(ctx),
+          goal: { roadmap_iteration: writableIteration },
+        },
+      },
+    ],
+  };
+}
+
+/**
  * Matches data series the user may see. Series visibility is derived from the parent
  * goal/effect context (series have no access control of their own): the series is visible
  * if any of its dependent slots sits under a visible iteration.

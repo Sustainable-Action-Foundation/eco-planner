@@ -21,13 +21,13 @@ export async function getUserInfo(username: string) {
 
 /**
  * Caches basic user information and all (accessible) roadmaps and roadmap iterations authored by the user.
- * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'user', 'roadmap', 'metaRoadmap']`, which is done in relevant API routes.
+ * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'user', 'roadmap', 'roadmapIteration']`, which is done in relevant API routes.
  * @param username Username of the user to get
  * @param accessContext Requesting user's access context (null for anonymous visitors); part of the cache key.
  */
 async function getCachedUserInfo(username: string, accessContext: UserAccessContext | null) {
   'use cache';
-  cacheTag('database', 'user', 'roadmap', 'metaRoadmap');
+  cacheTag('database', 'user', 'roadmap', 'roadmapIteration');
 
   // The filters collapse the ladder into the query: anonymous visitors only match public
   // content, superadmins match everything, everyone else matches what their memberships grant.

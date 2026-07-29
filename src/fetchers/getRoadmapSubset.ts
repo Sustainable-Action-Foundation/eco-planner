@@ -29,13 +29,13 @@ const roadmapSubsetSelect = {
 
 /**
  * Caches a subset of roadmap iterations the user has access to, based on the parameters passed to the function.
- * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap']`, which is done in relevant API routes.
+ * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap', 'roadmapIteration']`, which is done in relevant API routes.
  * @param accessContext Requesting user's access context (null for anonymous visitors); part of the cache key.
  * @param actor Actor to filter by
  */
 async function getCachedRoadmapSubset(accessContext: UserAccessContext | null, actor?: string) {
   'use cache';
-  cacheTag('database', 'roadmap');
+  cacheTag('database', 'roadmap', 'roadmapIteration');
 
   let iterations: Prisma.RoadmapIterationsGetPayload<{
     include: typeof roadmapSubsetSelect;

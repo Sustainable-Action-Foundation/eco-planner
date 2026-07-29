@@ -21,7 +21,7 @@ export async function clientSafeGetRoadmapIterations(): Promise<ClientMultiRoadm
 
 async function getCachedClientSafeRoadmapIterations(accessContext: UserAccessContext | null): Promise<ClientMultiRoadmapInstance[]> {
   'use cache';
-  cacheTag('database', 'roadmap');
+  cacheTag('database', 'roadmap', 'roadmapIteration');
 
   let iterations: ClientMultiRoadmapInstance[];
   try {

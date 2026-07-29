@@ -28,19 +28,19 @@
     "effect_deleted": "Effect deleted",
     "effect_already_exists": "Effect already exists, try edit page if you want to change values"
   },
-  "metaRoadmap": {
-    "meta_roadmap_created": "Roadmap metadata created.",
-    "meta_roadmap_updated": "Meta roadmap updated",
-    "meta_roadmap_deleted": "Meta roadmap deleted",
-    "national_roadmap_forbidden": "Forbidden; only admins may create national roadmaps. Feel free to send an email to kontakt@sustainable-action.org if you think we should add another.",
-    "failed_record_connection": "Failed to connect records. Probably invalid editor, viewer, editGroup, and/or viewGroup name(s)",
-    "failed_roadmap_creation": "Failed to create roadmap metadata"
-  },
   "roadmap": {
     "roadmap_created": "Roadmap created",
     "roadmap_updated": "Roadmap updated",
     "roadmap_deleted": "Roadmap deleted",
-    "failed_fetch_latest": "Failed to fetch latest roadmap version",
-    "failed_record_connection": "Failed to connect records. Probably invalid editor, viewer, editGroup, and/or viewGroup name(s)"
+    "national_roadmap_forbidden": "Forbidden; only admins may create national roadmaps. Feel free to send an email to kontakt@sustainable-action.org if you think we should add another.",
+    "failed_record_connection": "Failed to connect records. Probably invalid group, org, geo area, or parent roadmap reference(s)",
+    "failed_roadmap_creation": "Failed to create roadmap"
+  },
+  "roadmapIteration": {
+    "iteration_created": "Roadmap iteration created",
+    "iteration_updated": "Roadmap iteration updated",
+    "iteration_deleted": "Roadmap iteration deleted",
+    "failed_fetch_latest": "Failed to fetch latest roadmap iteration",
+    "failed_record_connection": "Failed to connect records. Probably invalid roadmap or data series reference(s)"
   }
 }

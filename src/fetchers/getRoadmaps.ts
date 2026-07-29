@@ -20,12 +20,12 @@ export async function getRoadmaps(): Promise<Roadmap[]> {
 
 /**
  * Caches all roadmaps the user has access to.
- * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'metaRoadmap', 'roadmap']`, which is done in relevant API routes.
+ * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap', 'roadmapIteration']`, which is done in relevant API routes.
  * @param accessContext Requesting user's access context (null for anonymous visitors); part of the cache key.
  */
 async function getCachedRoadmaps(accessContext: UserAccessContext | null): Promise<Roadmap[]> {
   'use cache';
-  cacheTag('database', 'metaRoadmap', 'roadmap');
+  cacheTag('database', 'roadmap', 'roadmapIteration');
 
   let roadmaps: Roadmap[];
   try {

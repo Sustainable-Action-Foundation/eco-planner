@@ -24,7 +24,7 @@ export async function getNames() {
  */
 async function getCachedNames(accessContext: UserAccessContext | null) {
   'use cache';
-  cacheTag('database', 'roadmap', 'goal', 'action');
+  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action');
 
   let names: NameObject[];
   try {
