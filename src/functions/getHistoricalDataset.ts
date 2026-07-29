@@ -50,7 +50,7 @@ export function getHistoricalSourceFromRecipe(recipe: Recipe | null | undefined)
  * case; deserializes the stored recipe JSON before delegating.
  */
 export function getHistoricalSource(goal: Pick<Goal, "historical">): HistoricalSource | null {
-  const recipeJson = goal.historical?.recipeUsed?.recipe;
+  const recipeJson = goal.historical?.recipe_used?.recipe;
   if (!recipeJson) return null;
 
   try {

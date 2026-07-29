@@ -141,7 +141,7 @@ export async function extractDataSeries(
         id: inlineId,
         unit: serializeUnit(variable.unit),
         values: Object.entries(variable.value).map(([key, val]) => ({
-          dataSeriesId: inlineId,
+          data_series_id: inlineId,
           timestamp: new Date(key), // TODO, fix very naive parsing
           value: val,
         })),

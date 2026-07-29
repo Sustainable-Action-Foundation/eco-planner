@@ -78,13 +78,13 @@ export function roadmapSorterGoalAmount<T extends { roadmap: { name: string }, _
  * Sorts goals alphabetically, with those with a set name placed before those with inferred names.
  * If no name is provided, the indicator parameter is used instead.
  */
-export function goalSorter<T extends { name: string | null, indicatorParameter: string }>(a: T, b: T) {
+export function goalSorter<T extends { name: string | null, indicator_parameter: string }>(a: T, b: T) {
   if (a.name && !b.name) {
     return -1;
   } else if (b.name && !a.name) {
     return 1;
   } else {
-    return collator.compare(a.name || a.indicatorParameter, b.name || b.indicatorParameter);
+    return collator.compare(a.name || a.indicator_parameter, b.name || b.indicator_parameter);
   }
 }
 
@@ -108,18 +108,18 @@ export function goalSorterReverse(a: Goal, b: Goal) {
  * @example "Example\\Parameter\\B" is placed before "Example\\Parameter\\A\\Test" because of length, even though "B" comes after "A" alphabetically
  * @example "Example\\Test\\A" and "Example\\Parameter\\A\\Test" are sorted alphabetically because they don't have enough common parameters at the start
  */
-export function goalSorterTree<T extends { indicatorParameter: string }>(a: T, b: T) {
-  const aLength = a.indicatorParameter.split('\\').length;
-  const bLength = b.indicatorParameter.split('\\').length;
+export function goalSorterTree<T extends { indicator_parameter: string }>(a: T, b: T) {
+  const aLength = a.indicator_parameter.split('\\').length;
+  const bLength = b.indicator_parameter.split('\\').length;
   const minLength = Math.min(aLength, bLength);
   // Truncate the strings to be one section shorter than the shortest string
-  const aTrunc = a.indicatorParameter.split('\\').slice(0, (minLength - 1 || 1)).join('\\');
-  const bTrunc = b.indicatorParameter.split('\\').slice(0, (minLength - 1 || 1)).join('\\');
+  const aTrunc = a.indicator_parameter.split('\\').slice(0, (minLength - 1 || 1)).join('\\');
+  const bTrunc = b.indicator_parameter.split('\\').slice(0, (minLength - 1 || 1)).join('\\');
   // Compare the truncated strings and sort by length if they are the same
   if (aTrunc === bTrunc) {
-    return aLength - bLength || collator.compare(a.indicatorParameter, b.indicatorParameter);
+    return aLength - bLength || collator.compare(a.indicator_parameter, b.indicator_parameter);
   }
-  return collator.compare(a.indicatorParameter, b.indicatorParameter);
+  return collator.compare(a.indicator_parameter, b.indicator_parameter);
 }
 
 /**
@@ -151,26 +151,26 @@ export function goalSorterActionAmountReverse<T extends { _count: { effects: num
 /**
  * Sorts goals by how "interesting" their data series are
  */
-export function goalSorterInterest<T extends { dataSeries: { values: { timestamp: Date; value: number; dataSeriesId?: string; }[], unit: string | null; id: string; } | null }>(a: T, b: T) {
-  if (a.dataSeries == null && b.dataSeries == null) {
+export function goalSorterInterest<T extends { data_series: { values: { timestamp: Date; value: number; }[], unit: string | null; id: string; } | null }>(a: T, b: T) {
+  if (a.data_series == null && b.data_series == null) {
     return 0;
-  } else if (a.dataSeries != null && b.dataSeries == null) {
+  } else if (a.data_series != null && b.data_series == null) {
     return -1;
-  } else if (a.dataSeries == null && b.dataSeries != null) {
+  } else if (a.data_series == null && b.data_series != null) {
     return 1;
   } else {
     // Should never be null here, but included for type safety
-    if (a.dataSeries == null || b.dataSeries == null) {
+    if (a.data_series == null || b.data_series == null) {
       return 0;
     }
     // Higher interest gets sorted first
     const aInterest = dataSeriesInterest({
-      ...a.dataSeries,
-      values: a.dataSeries.values.map(v => ({ ...v, data_series_id: "" })),
+      ...a.data_series,
+      values: a.data_series.values.map(v => ({ ...v, data_series_id: "" })),
     });
     const bInterest = dataSeriesInterest({
-      ...b.dataSeries,
-      values: b.dataSeries.values.map(v => ({ ...v, data_series_id: "" })),
+      ...b.data_series,
+      values: b.data_series.values.map(v => ({ ...v, data_series_id: "" })),
     });
     return bInterest - aInterest;
   }

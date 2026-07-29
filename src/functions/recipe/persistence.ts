@@ -30,7 +30,7 @@ export async function resolveRecipeExternals(
   // Map the currently-stored materialized externals by variable id, to detect unchanged selections.
   const storedByVariable = new Map<string, { dataSeriesId: string, source: ExternalSource }>();
   if (existingRecipeId) {
-    const existing = await prisma.recipe.findUnique({ where: { id: existingRecipeId }, select: { recipe: true } });
+    const existing = await prisma.recipes.findUnique({ where: { id: existingRecipeId }, select: { recipe: true } });
     if (existing) {
       for (const variable of Recipe.from(existing.recipe).variables) {
         if (variable.type === RecipeDataTypes.DataSeries && variable.externalSource && variable.dataSeriesId) {
@@ -89,6 +89,9 @@ export async function materializeRecipeExternals(
     let dataSeriesId: string;
     if (resolvedVariable.data) {
       const fetched = resolvedVariable.data;
+      // TODO(Phase 5): DataSeries now requires an owning org and a producing recipe
+      // (recipe_used). Decide both when the goal API rework threads the org through
+      // and settles what recipe an externally-fetched source series is "produced" by.
       dataSeriesId = (await tx.dataSeries.create({
         data: {
           author: { connect: { id: authorId } },
@@ -151,14 +154,15 @@ export async function upsertRecipe(
     )].map(id => ({ id }));
 
     if (recipeId) {
-      await tx.recipe.update({ where: { id: recipeId }, data: { recipe, sourceDataSeries: { set: sourceConnect } } });
+      await tx.recipes.update({ where: { id: recipeId }, data: { recipe, source_data_series: { set: sourceConnect } } });
     } else {
-      recipeId = (await tx.recipe.create({ data: { recipe, sourceDataSeries: { connect: sourceConnect } }, select: { id: true } })).id;
+      // TODO(Phase 5): Recipes now require an owning org; thread it through with the goal API rework.
+      recipeId = (await tx.recipes.create({ data: { recipe, source_data_series: { connect: sourceConnect } }, select: { id: true } })).id;
     }
   }
   // No new recipe data + existing recipe ID = link (if it still exists)
   else if (recipeId) {
-    const existingRecipe = await tx.recipe.findUnique({ where: { id: recipeId }, select: { id: true } });
+    const existingRecipe = await tx.recipes.findUnique({ where: { id: recipeId }, select: { id: true } });
     if (!existingRecipe) {
       console.warn(`Goal save: tried linking goal with a ${label} recipe (${recipeId}) but not found, unlinking...`);
       recipeId = null;

@@ -1,24 +1,24 @@
-import type { Goal, Roadmap } from "@/types";
+import type { Goal, RoadmapIteration } from "@/types";
 
 export default function findSiblings(
-  roadmap: Roadmap,
+  iteration: RoadmapIteration,
   goal: Goal,
-): Roadmap["goals"] {
-  const siblings: Roadmap["goals"] = [];
+): RoadmapIteration["goals"] {
+  const siblings: RoadmapIteration["goals"] = [];
 
-  const goalParameters = goal.indicatorParameter.split("\\");
+  const goalParameters = goal.indicator_parameter.split("\\");
   // Remove the "Key" or "Demand" parameter if present
   if (goalParameters[0] === "Key" || goalParameters[0] === "Demand") {
     goalParameters.shift();
   }
 
-  for (const sibling of roadmap.goals) {
+  for (const sibling of iteration.goals) {
     // We do not include the goal itself among it's sibings
     if (sibling.id === goal.id) {
       continue;
     }
 
-    const siblingParameters = sibling.indicatorParameter.split("\\");
+    const siblingParameters = sibling.indicator_parameter.split("\\");
     // Goals can be siblings despite one of them having a "Key" and the other a "Demand" parameter
     if (siblingParameters[0] === "Key" || siblingParameters[0] === "Demand") {
       siblingParameters.shift();
@@ -27,7 +27,7 @@ export default function findSiblings(
     let isSibling = true;
     // Goals with different data units are not siblings
     // TODO: Use mathjs for comparison
-    if (goal.dataSeries?.unit !== sibling.dataSeries?.unit) {
+    if (goal.data_series?.unit !== sibling.data_series?.unit) {
       isSibling = false;
     }
     // Goals on different levels are not siblings

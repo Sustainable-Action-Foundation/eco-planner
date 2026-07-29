@@ -81,3 +81,39 @@ export function visibleRoadmapIterationsWhere(ctx: UserAccessContext | null): Pr
     ],
   };
 }
+
+/**
+ * Matches actions the user may see: those under a visible iteration, plus
+ * roadmapless actions (the public action database).
+ */
+export function visibleActionsWhere(ctx: UserAccessContext | null): Prisma.ActionsWhereInput {
+  return {
+    OR: [
+      { roadmap_iteration: null },
+      { roadmap_iteration: visibleRoadmapIterationsWhere(ctx) },
+    ],
+  };
+}
+
+/**
+ * Matches data series the user may see. Series visibility is derived from the parent
+ * goal/effect context (series have no access control of their own): the series is visible
+ * if any of its dependent slots sits under a visible iteration.
+ */
+export function visibleDataSeriesWhere(ctx: UserAccessContext | null): Prisma.DataSeriesWhereInput {
+  const visibleIterations = visibleRoadmapIterationsWhere(ctx);
+  return {
+    OR: [
+      { dependent_goal: { roadmap_iteration: visibleIterations } },
+      { dependent_baseline: { roadmap_iteration: visibleIterations } },
+      { dependent_historical: { roadmap_iteration: visibleIterations } },
+      // Effects require access to both the action and the goal
+      {
+        dependent_effect: {
+          action: visibleActionsWhere(ctx),
+          goal: { roadmap_iteration: visibleIterations },
+        },
+      },
+    ],
+  };
+}

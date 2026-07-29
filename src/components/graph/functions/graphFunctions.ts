@@ -86,8 +86,8 @@ export function calculatePredictedOutcome(effects: Effect[] | Goal["effects"], b
   }
 
   const definedDates: string[] = [...new Set(effects
-    .filter(effect => effect.dataSeries)
-    .flatMap(effect => effect.dataSeries?.values.map(v => new Date(v.timestamp).getUTCFullYear()))),
+    .filter(effect => effect.data_series)
+    .flatMap(effect => effect.data_series?.values.map(v => new Date(v.timestamp).getUTCFullYear()))),
   ]
     .sort((a, b) => (a ?? 0) - (b ?? 0))
     .map(yyyy => `${yyyy}-01-01T00:00:00Z`);
@@ -118,13 +118,13 @@ export function calculatePredictedOutcome(effects: Effect[] | Goal["effects"], b
     const normalizedDate = date.replace(/(:00)Z$/, '$1.000Z') as ISOIshDate;
 
     for (const effect of effects) {
-      const dataSeries = effect.dataSeries
-        ? dataSeriesToDateValues(effect.dataSeries)
+      const dataSeries = effect.data_series
+        ? dataSeriesToDateValues(effect.data_series)
         : { dateValues: {} as DateValues, unit: UnitFlags.Unitless } satisfies DateValuesWithUnit;
 
       if (
         dataSeries.dateValues[normalizedDate]
-        && effect.impactType === ActionImpactType.DELTA
+        && effect.impact_type === ActionImpactType.DELTA
       ) {
 
         totalEffect[date] ??= 0;
@@ -150,7 +150,7 @@ export function calculatePredictedOutcome(effects: Effect[] | Goal["effects"], b
       ) {
         totalEffect[date] ??= 0;
 
-        switch (effect.impactType) {
+        switch (effect.impact_type) {
           case ActionImpactType.DELTA: break; // Delta is handled separately above to account for cases where the current delta is null but some previous deltas are not
           case ActionImpactType.PERCENT: {
 

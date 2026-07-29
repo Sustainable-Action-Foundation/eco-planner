@@ -5,13 +5,13 @@ import { prisma } from "@/lib/prisma";
 /** Deletes all comments without parents. Fails silently. */
 export default async function pruneOrphans() {
   try {
-    await prisma.comment.deleteMany({
+    await prisma.comments.deleteMany({
       where: {
         AND: [
-          { actionId: null },
-          { goalId: null },
-          { roadmapId: null },
-          { metaRoadmapId: null },
+          { action_id: null },
+          { goal_id: null },
+          { roadmap_id: null },
+          { roadmap_iteration_id: null },
         ],
       },
     });
