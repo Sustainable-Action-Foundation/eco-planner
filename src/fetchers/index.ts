@@ -13,5 +13,6 @@ export { getOneRoadmap } from "./getOneRoadmap";
 export { getRoadmapByVersion } from "./getRoadmapByVersion";
 export { getRoadmaps } from "./getRoadmaps";
 export { getRoadmapSubset } from "./getRoadmapSubset";
+export { getUserAccessContext, getAccessContextById } from "./getUserAccessContext";
 export { getUserInfo } from "./getUserInfo";
 export * from "@/fetchers/inclusionSelectors";

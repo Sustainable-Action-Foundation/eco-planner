@@ -1,15 +1,14 @@
 import dataSeriesInterest from "@/functions/weightedAverageDelta";
-import type { Comment } from "@/lib/prisma/generated";
 import { RoadmapType } from "@/lib/prisma/generated";
-import type { Action, Goal, MetaRoadmap, MultiRoadmapInstance } from "@/types";
+import type { Action, Goal } from "@/types";
 
 // Used for alphabetical sorting, we use Swedish locale and ignore case, but it can be changed here
 const collator = new Intl.Collator('sv', { numeric: true, sensitivity: 'accent', caseFirst: 'upper' });
 
 /**
- * Sorts meta roadmaps by type (national first), then alphabetically by name
+ * Sorts roadmaps by type (national first), then alphabetically by name
  */
-export function metaRoadmapSorter(a: MetaRoadmap, b: MetaRoadmap) {
+export function roadmapSorter<T extends { type: RoadmapType, name: string }>(a: T, b: T) {
   // Higher priority roadmaps are first in the values array, so we reverse it to
   // account for the fact that indexOf() returns -1 if the element is not found, which
   // should be considered lower priority than any other index
@@ -28,16 +27,16 @@ export function metaRoadmapSorter(a: MetaRoadmap, b: MetaRoadmap) {
 }
 
 /**
- * Sorts roadmaps by type (national first), then alphabetically by name
+ * Sorts roadmap iterations by their roadmap's type (national first), then alphabetically by roadmap name, then by version (higher first)
  */
-export function roadmapSorter<T extends { metaRoadmap: { type: RoadmapType, name: string }, version: number }>(a: T, b: T) {
+export function roadmapIterationSorter<T extends { roadmap: { type: RoadmapType, name: string }, version: number }>(a: T, b: T) {
   // Higher priority roadmaps are first in the values array, so we reverse it to
   // account for the fact that indexOf() returns -1 if the element is not found, which
   // should be considered lower priority than any other index
   const values = Object.values(RoadmapType);
   values.reverse();
-  const aIndex = values.indexOf(a.metaRoadmap.type);
-  const bIndex = values.indexOf(b.metaRoadmap.type);
+  const aIndex = values.indexOf(a.roadmap.type);
+  const bIndex = values.indexOf(b.roadmap.type);
   // Larger index means higher priority (closer to national level)
   // Negative return values means a is placed before b in the sorted array
   if (aIndex > bIndex) {
@@ -46,32 +45,32 @@ export function roadmapSorter<T extends { metaRoadmap: { type: RoadmapType, name
   else if (aIndex < bIndex) {
     return 1;
   }
-  else if (collator.compare(a.metaRoadmap.name, b.metaRoadmap.name) === 0) {
+  else if (collator.compare(a.roadmap.name, b.roadmap.name) === 0) {
     // If the roadmaps have the same name, sort by version (higher version first)
     return b.version - a.version;
   }
   else {
-    return collator.compare(a.metaRoadmap.name, b.metaRoadmap.name);
+    return collator.compare(a.roadmap.name, b.roadmap.name);
   }
 }
 
 /**
  * Sorts roadmaps alphabetically by name, A-Z
  */
-export function roadmapSorterAZ<T extends { metaRoadmap: MetaRoadmap | MultiRoadmapInstance["metaRoadmap"] }>(a: T, b: T) {
-  return collator.compare(a.metaRoadmap.name, b.metaRoadmap.name);
+export function roadmapSorterAZ<T extends { roadmap: { name: string } }>(a: T, b: T) {
+  return collator.compare(a.roadmap.name, b.roadmap.name);
 }
 
 /**
  * Sorts roadmaps by their number of goals (more goals first), with name as a tiebreaker
  */
-export function roadmapSorterGoalAmount<T extends { metaRoadmap: MetaRoadmap | MultiRoadmapInstance["metaRoadmap"], _count: { goals: number } }>(a: T, b: T) {
+export function roadmapSorterGoalAmount<T extends { roadmap: { name: string }, _count: { goals: number } }>(a: T, b: T) {
   if (a._count.goals > b._count.goals) {
     return -1;
   } else if (a._count.goals < b._count.goals) {
     return 1;
   } else {
-    return collator.compare(a.metaRoadmap.name, b.metaRoadmap.name);
+    return collator.compare(a.roadmap.name, b.roadmap.name);
   }
 }
 
@@ -99,7 +98,7 @@ export function goalSorterReverse(a: Goal, b: Goal) {
   } else if (b.name && !a.name) {
     return 1;
   } else {
-    return -collator.compare(a.name || a.indicatorParameter, b.name || b.indicatorParameter);
+    return -collator.compare(a.name || a.indicator_parameter, b.name || b.indicator_parameter);
   }
 }
 
@@ -167,11 +166,11 @@ export function goalSorterInterest<T extends { dataSeries: { values: { timestamp
     // Higher interest gets sorted first
     const aInterest = dataSeriesInterest({
       ...a.dataSeries,
-      values: a.dataSeries.values.map(v => ({ ...v, dataSeriesId: "" })),
+      values: a.dataSeries.values.map(v => ({ ...v, data_series_id: "" })),
     });
     const bInterest = dataSeriesInterest({
       ...b.dataSeries,
-      values: b.dataSeries.values.map(v => ({ ...v, dataSeriesId: "" })),
+      values: b.dataSeries.values.map(v => ({ ...v, data_series_id: "" })),
     });
     return bInterest - aInterest;
   }
@@ -244,8 +243,8 @@ export function effectGraphSorter<T extends { action: { name: string, startYear:
  * Sorts comments by time created, newest first.
  * Since unstable_cache returns stringified dates we need to convert them to Date objects first.
  */
-export function commentSorter(a: Comment, b: Comment) {
-  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+export function commentSorter<T extends { created_at: Date | string }>(a: T, b: T) {
+  return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
 }
 
 /**

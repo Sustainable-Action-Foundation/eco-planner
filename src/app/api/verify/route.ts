@@ -19,12 +19,12 @@ export async function PATCH(request: NextRequest) {
 
   // Verify user
   try {
-    await prisma.user.update({
+    await prisma.users.update({
       where: {
         email: email,
       },
       data: {
-        isVerified: true,
+        is_verified: true,
       },
     });
   } catch {

@@ -24,13 +24,13 @@ export async function PATCH(request: NextRequest) {
 
   // Update password. We also set isVerified to true, since the user has verified their email address by clicking the link in the email.
   try {
-    await prisma.user.update({
+    await prisma.users.update({
       where: {
         email: email,
       },
       data: {
-        password: hashedPassword,
-        isVerified: true,
+        password_hash: hashedPassword,
+        is_verified: true,
       },
     });
   } catch {

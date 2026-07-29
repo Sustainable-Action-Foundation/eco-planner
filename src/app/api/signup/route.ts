@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 import { allowedDomains } from "@/lib/allowedDomains";
+import { OrgRole } from "@/lib/prisma/generated";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import mailClient from "@/mailClient";
@@ -21,7 +22,7 @@ export async function POST(request: NextRequest) {
 
   // Check if email or username already exists; this is implicitly done by Prisma when creating a new user,
   // but we want to return a more specific error message
-  const usernameExists = await prisma.user.findUnique({
+  const usernameExists = await prisma.users.findUnique({
     where: {
       username: username,
     },
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const emailExists = await prisma.user.findUnique({
+  const emailExists = await prisma.users.findUnique({
     where: {
       email: lowercaseEmail,
     },
@@ -78,23 +79,32 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Find the org owning this email domain, if any. Matches the exact domain or a parent domain
+  // (e.g. "stadshuset.goteborg.se" joins an org with domain "goteborg.se"); prefers the most specific match.
+  // Orgs are curated, so unlike the old per-domain user groups nothing is auto-created here:
+  // users from unclaimed domains sign up without an org and can be invited into one later.
+  const domainCandidates = (domain ?? '').split('.').map((_, i, parts) => parts.slice(i).join('.'));
+  const matchingOrgs = await prisma.orgs.findMany({
+    where: { domain: { in: domainCandidates } },
+    select: { id: true, domain: true },
+  });
+  const org = matchingOrgs.sort((a, b) => (b.domain?.length ?? 0) - (a.domain?.length ?? 0)).at(0);
+
   // Create user
   try {
-    await prisma.user.create({
+    await prisma.users.create({
       data: {
         username: username,
         email: lowercaseEmail,
-        password: hashedPassword,
-        userGroups: {
-          connectOrCreate: {
-            where: {
-              name: lowercaseEmail.split('@')[1],
-            },
+        password_hash: hashedPassword,
+        ...(org ? {
+          memberships: {
             create: {
-              name: lowercaseEmail.split('@')[1],
+              org: { connect: { id: org.id } },
+              role: OrgRole.MEMBER,
             },
           },
-        },
+        } : {}),
       },
     });
   }
