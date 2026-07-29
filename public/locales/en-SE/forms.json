@@ -194,7 +194,7 @@
     "unit_not_interpreted": "The unit could not be interpreted. You can still save the $t(common:goal_one), but some functionality may be missing.",
     "unnamed_goal": "Unnamed $t(common:goal_one)"
   },
-  "meta_roadmap": {
+  "roadmap": {
     "actor": "Actor",
     "actor_legend": "Choose responsible actor",
     "create": "Create $t(common:roadmap_series_one)",
@@ -214,24 +214,7 @@
     "geo_area": "Geographic area (for statistics)",
     "no_chosen_geo_area": "No geographic area"
   },
-  "repeatable_scaling": {
-    "area": "Area:",
-    "new_area": "New area:",
-    "no_option_selected": "No option selected",
-    "original_area": "Original area:",
-    "population_count": "Population count:",
-    "relative_area": "Relative area",
-    "relative_population": "Relative population",
-    "scale_based_on": "Scale based on:",
-    "scale_factor": "Scale factor for this calculation:",
-    "select_area": "Select area",
-    "specific_value": "Specific value",
-    "specific_value_label": "With what value do you want to scale?",
-    "square_kilometers": "square kilometers",
-    "value_missing": "Value missing",
-    "weight_for_factor": "Weight for this factor (used to create a weighted average between factors)"
-  },
-  "roadmap": {
+  "roadmap_iteration": {
     "bad_decoding": "The file seems to use an unknown encoding as the interpreted text contains the character '�' which indicates that a character could not be interpreted correctly (probably Å, Ä or Ö).\nYou can still use this file, but if you are not completely sure that it *should* contain the character '�' it is recommended that you convert the file to UTF-8 encoding and try again.",
     "change_edit_access": "Adjust editing access",
     "change_read_access": "Adjust read access",

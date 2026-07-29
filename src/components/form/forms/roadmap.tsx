@@ -67,7 +67,7 @@ export default function RoadmapForm({
     if (!description?.value && !currentRoadmap) {
       event.target.reportValidity();
       setIsLoading(false);
-      addToast(t("forms:meta_roadmap.description_required"), "warning");
+      addToast(t("forms:roadmap.description_required"), "warning");
       return;
     }
 
@@ -116,13 +116,13 @@ export default function RoadmapForm({
       <input type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
       <fieldset className={`${styles.timeLineFieldset} width-100`}>
-        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:meta_roadmap.description_legend")}</legend>
+        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:roadmap.description_legend")}</legend>
         <label>
-          {t("forms:meta_roadmap.name")}
+          {t("forms:roadmap.name")}
           <input id="name" name="name" className="margin-top-25 margin-bottom-100" type="text" defaultValue={currentRoadmap?.name ?? undefined} autoComplete="off" required={true} />
         </label>
 
-        <label id="description-label">{t("forms:meta_roadmap.description")}</label>
+        <label id="description-label">{t("forms:roadmap.description")}</label>
         <TextEditor
           className="margin-top-25 margin-bottom-100" // TODO: Need label for texteditormenu
           id="description"
@@ -137,7 +137,7 @@ export default function RoadmapForm({
         {/* The owning org is chosen at creation and cannot be changed afterwards */}
         {!currentRoadmap ? (
           <label>
-            {t("forms:meta_roadmap.org")}
+            {t("forms:roadmap.org")}
             <select
               className="block margin-top-25 margin-bottom-100 width-100"
               name="org"
@@ -146,7 +146,7 @@ export default function RoadmapForm({
               required={true}
               onChange={(e) => setOrgId(e.target.value)}
             >
-              <option value="" disabled={true}>{t("forms:meta_roadmap.no_chosen_org")}</option>
+              <option value="" disabled={true}>{t("forms:roadmap.no_chosen_org")}</option>
               {orgOptions.map((org) => (
                 <option key={org.id} value={org.id}>{org.name}</option>
               ))}
@@ -156,9 +156,9 @@ export default function RoadmapForm({
       </fieldset>
 
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:meta_roadmap.actor_legend")}</legend>
+        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:roadmap.actor_legend")}</legend>
         <label>
-          {t("forms:meta_roadmap.type")}
+          {t("forms:roadmap.type")}
           <select
             className="block margin-top-25 margin-bottom-100 width-100"
             name="type"
@@ -167,7 +167,7 @@ export default function RoadmapForm({
             required={true}
             onChange={(e) => setRoadmapType((e.target as HTMLSelectElement).value)}
           >
-            <option value="" disabled={true}>{t("forms:meta_roadmap.no_chosen_roadmap_scope")}</option>
+            <option value="" disabled={true}>{t("forms:roadmap.no_chosen_roadmap_scope")}</option>
             {
               Object.values(RoadmapType).map((value) => {
                 if (value === RoadmapType.NATIONAL && !isSuperAdmin) return null;
@@ -179,7 +179,7 @@ export default function RoadmapForm({
           </select>
         </label>
 
-        <label htmlFor="actor">{t("forms:meta_roadmap.actor")}</label>
+        <label htmlFor="actor">{t("forms:roadmap.actor")}</label>
         <TextSingleAutocomplete
           props={{
             className: "margin-top-25 margin-bottom-100",
@@ -187,7 +187,7 @@ export default function RoadmapForm({
             name: "actor",
             required: true,
             defaultValue: currentRoadmap?.actor ?? undefined,
-            placeholder: roadmapType === "REGIONAL" || roadmapType === "MUNICIPAL" ? t("forms:combobox.default_autocomplete_placeholder") : t("forms:meta_roadmap.actor"),
+            placeholder: roadmapType === "REGIONAL" || roadmapType === "MUNICIPAL" ? t("forms:combobox.default_autocomplete_placeholder") : t("forms:roadmap.actor"),
           }}
           // L10N: the current implementation uses only Swedish counties and municipalities; should probably be adapted for international use in the future
           options={
@@ -202,7 +202,7 @@ export default function RoadmapForm({
         />
 
         {/* Structured geo marker (SCB region code); the actor above stays a free-text display label */}
-        <label id="geo-area-label" htmlFor="geo-area">{t("forms:meta_roadmap.geo_area")}</label>
+        <label id="geo-area-label" htmlFor="geo-area">{t("forms:roadmap.geo_area")}</label>
         <SelectSingleSearch
           props={{
             className: "margin-top-25 margin-bottom-100",
@@ -219,7 +219,7 @@ export default function RoadmapForm({
               : false
           }
           options={[
-            { name: t("forms:meta_roadmap.no_chosen_geo_area"), value: "" },
+            { name: t("forms:roadmap.no_chosen_geo_area"), value: "" },
             ...Object.entries(areaCodes)
               .sort((a, b) => areaSorter([a[0], a[1]], [b[0], b[1]]))
               .map(([name, code]) => ({ name: name, value: code })),
@@ -236,7 +236,7 @@ export default function RoadmapForm({
           mayEditPublic={mayEditPublic}
           onChange={setAccess}
           positionIndex={positionIndex++}
-          legend={t("forms:meta_roadmap.legend_visibility")}
+          legend={t("forms:roadmap.legend_visibility")}
         />
       ) : null}
 
@@ -247,8 +247,8 @@ export default function RoadmapForm({
           data-position={positionIndex++}
           className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}
         >
-          {t("forms:meta_roadmap.relationship_legend")}</legend>
-        <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:meta_roadmap.relationship_label")}</label>
+          {t("forms:roadmap.relationship_legend")}</legend>
+        <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:roadmap.relationship_label")}</label>
         {parentRoadmapOptions ? ( // TODO: This might not make sense? // TODO: Memoize this?
           <SelectSingleSearch
             props={{
@@ -267,11 +267,11 @@ export default function RoadmapForm({
                     );
                     return selected ? { name: selected.name, value: selected.id } : false;
                   })()
-                  : { name: t("forms:meta_roadmap.relationship_no_chosen"), value: "" }
+                  : { name: t("forms:roadmap.relationship_no_chosen"), value: "" }
                 : false
             }
             options={[
-              { name: t("forms:meta_roadmap.relationship_no_chosen"), value: "" },
+              { name: t("forms:roadmap.relationship_no_chosen"), value: "" },
               ...parentRoadmapOptions.map((roadmap) => ({
                 name: roadmap.name,
                 value: roadmap.id,
@@ -289,7 +289,7 @@ export default function RoadmapForm({
           id="submit-button"
           disabled={isLoading}
         >
-          {currentRoadmap ? t("common:tsx.save") : t("forms:meta_roadmap.create")}
+          {currentRoadmap ? t("common:tsx.save") : t("forms:roadmap.create")}
         </button>
       </div>
     </form>

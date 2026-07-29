@@ -15,7 +15,7 @@ import { useRouter } from "next/navigation";
 
 function checkForBadDecoding(csv: string[][], t: TFunction, addToast: (text: string, type: 'success' | 'error' | 'warning') => void) {
   if (csv.some((row) => row.some((cell) => cell.includes("�")))) {
-    addToast(t("forms:roadmap.bad_decoding"), "warning");
+    addToast(t("forms:roadmap_iteration.bad_decoding"), "warning");
   }
 }
 
@@ -59,15 +59,15 @@ export default function RoadmapIterationForm({
           .then((buffer) => parseCsv(buffer))
           .then((csv) => {
             checkForBadDecoding(csv, t, addToast);
-            return csvToGoalList(csv, () => addToast(t("forms:roadmap.scale_deprecated_extended"), "warning"));
+            return csvToGoalList(csv, () => addToast(t("forms:roadmap_iteration.scale_deprecated_extended"), "warning"));
           })
           .then(() => setIsLoading(false))
           .catch((err: unknown) => {
-            throw new Error(t("forms:roadmap.file_read_error", { error: err instanceof Error ? err.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }));
+            throw new Error(t("forms:roadmap_iteration.file_read_error", { error: err instanceof Error ? err.message || t("forms:roadmap_iteration.unknown_error") : t("forms:roadmap_iteration.unknown_error") }));
           });
       }
       catch (err) {
-        addToast(t("forms:roadmap.file_read_error", { error: err instanceof Error ? err.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }), "error");
+        addToast(t("forms:roadmap_iteration.file_read_error", { error: err instanceof Error ? err.message || t("forms:roadmap_iteration.unknown_error") : t("forms:roadmap_iteration.unknown_error") }), "error");
         setIsLoading(false);
         return;
       }
@@ -87,11 +87,11 @@ export default function RoadmapIterationForm({
     let goals: GoalCreateFull[] = [];
     if (currentFile) {
       try {
-        goals = csvToGoalList(parseCsv(await currentFile.arrayBuffer().then((buffer) => { return buffer; })), () => addToast(t("forms:roadmap.scale_deprecated"), "warning"));
+        goals = csvToGoalList(parseCsv(await currentFile.arrayBuffer().then((buffer) => { return buffer; })), () => addToast(t("forms:roadmap_iteration.scale_deprecated"), "warning"));
       }
       catch (err) {
         setIsLoading(false);
-        addToast(t("forms:roadmap.roadmap_version_creation_error", { error: err instanceof Error ? err.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }), "error");
+        addToast(t("forms:roadmap_iteration.roadmap_version_creation_error", { error: err instanceof Error ? err.message || t("forms:roadmap_iteration.unknown_error") : t("forms:roadmap_iteration.unknown_error") }), "error");
         return;
       }
     }
@@ -151,11 +151,11 @@ export default function RoadmapIterationForm({
       {(!(currentIteration?.roadmap_id || defaultRoadmapId) || roadmapTarget?.iterations.length) ?
 
         <fieldset className={`${styles.timeLineFieldset} width-100`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:roadmap.relationship_legend")}</legend>
+          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:roadmap_iteration.relationship_legend")}</legend>
           {/* Allow user to select parent roadmap if not already selected */}
           {!(currentIteration?.roadmap_id || defaultRoadmapId) ?
             <>
-              <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:roadmap.relationship_label")}</label> {/* TODO: Not capitalized properly due to issues in english translation */}
+              <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:roadmap_iteration.relationship_label")}</label> {/* TODO: Not capitalized properly due to issues in english translation */}
               <SelectSingleSearch
                 props={{
                   required: true,
@@ -173,10 +173,10 @@ export default function RoadmapIterationForm({
           }
 
           {roadmapTarget?.iterations.length ? <label>
-            {t("forms:roadmap.roadmap_target_label", { targetName: roadmapTarget.name })}
+            {t("forms:roadmap_iteration.roadmap_target_label", { targetName: roadmapTarget.name })}
             <select className="block margin-top-25 margin-bottom-100 width-100" name="target-version" id="target-version" required={true} defaultValue={currentIteration?.target_version ?? ""} onChange={(e) => setTargetVersion(parseInt(e.target.value, 10) || null)}>
-              <option value="">{t("forms:roadmap.roadmap_target_no_chosen")}</option>
-              <option value={0}>{t("forms:roadmap.roadmap_target_always_latest")}</option>
+              <option value="">{t("forms:roadmap_iteration.roadmap_target_no_chosen")}</option>
+              <option value={0}>{t("forms:roadmap_iteration.roadmap_target_always_latest")}</option>
               {roadmapTarget.iterations.map((iteration) => {
                 return (
                   <option key={iteration.version} value={iteration.version}>{`Version ${iteration.version}`}</option>
@@ -189,8 +189,8 @@ export default function RoadmapIterationForm({
       }
 
       <fieldset className={`${styles.timeLineFieldset} width-100 ${positionIndex > 1 ? "margin-top-200" : ""}`}>
-        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:roadmap.roadmap_version_legend")}</legend>
-        <label id="description-label">{t("forms:roadmap.roadmap_description")}</label>
+        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:roadmap_iteration.roadmap_version_legend")}</legend>
+        <label id="description-label">{t("forms:roadmap_iteration.roadmap_description")}</label>
         <TextEditor
           className="margin-top-25 margin-bottom-100" // TODO: Need label for texteditormenu
           id="description"
@@ -210,9 +210,9 @@ export default function RoadmapIterationForm({
             id="publish"
             defaultChecked={!!currentIteration?.published_at}
           />
-          {t("forms:roadmap.publish")}
+          {t("forms:roadmap_iteration.publish")}
         </label>
-        <small className="block margin-bottom-100">{t("forms:roadmap.publish_hint")}</small>
+        <small className="block margin-bottom-100">{t("forms:roadmap_iteration.publish_hint")}</small>
 
       </fieldset>
 
@@ -222,10 +222,10 @@ export default function RoadmapIterationForm({
           // eslint-disable-next-line no-useless-assignment
           data-position={positionIndex++}
           className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}
-        >{t("forms:roadmap.upload_goals")}</legend>
+        >{t("forms:roadmap_iteration.upload_goals")}</legend>
         <label>
           <Trans
-            i18nKey={"forms:roadmap.goal_accepted_formats"}
+            i18nKey={"forms:roadmap_iteration.goal_accepted_formats"}
             tOptions={{ fileTypes: [".csv"], encodings: ["UTF-8"], type: "unit" }}
             components={{ small: <small /> }}
           />
@@ -254,7 +254,7 @@ export default function RoadmapIterationForm({
           id="submit-button"
           disabled={isLoading}
         >
-          {currentIteration ? t("common:tsx.save") : t("forms:roadmap.create")}
+          {currentIteration ? t("common:tsx.save") : t("forms:roadmap_iteration.create")}
         </button>
       </div>
     </form >

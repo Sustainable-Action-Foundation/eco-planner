@@ -194,7 +194,7 @@
     "unit_not_interpreted": "Enheten kunde inte tolkas. Du kan fortfarande spara $t(common:goal_definite_one), men viss funktionalitet kan saknas.",
     "unnamed_goal": "Namnlös $t(common:goal_one)"
   },
-  "meta_roadmap": {
+  "roadmap": {
     "actor": "Aktör",
     "actor_legend": "Välj ansvarig aktör",
     "create": "Skapa $t(common:roadmap_series_one)",
@@ -214,24 +214,7 @@
     "geo_area": "Geografiskt område (för statistik)",
     "no_chosen_geo_area": "Inget geografiskt område"
   },
-  "repeatable_scaling": {
-    "area": "Ytarea:",
-    "new_area": "Nytt område:",
-    "no_option_selected": "Inget alternativ valt",
-    "original_area": "Ursprungligt område:",
-    "population_count": "Antal invånare:",
-    "relative_area": "Relativ yta",
-    "relative_population": "Relativt antal invånare",
-    "scale_based_on": "Skala utifrån:",
-    "scale_factor": "Skalfaktor för den här beräkningen:",
-    "select_area": "Välj område",
-    "specific_value": "Specifikt värde",
-    "specific_value_label": "Med vilket värde vill du skala?",
-    "square_kilometers": "kvadratkilometer",
-    "value_missing": "Värde saknas",
-    "weight_for_factor": "Vikt för denna faktor (används för att skapa ett viktat genomsnitt mellan faktorerna)"
-  },
-  "roadmap": {
+  "roadmap_iteration": {
     "bad_decoding": "Filen verkar använda en okänd kodning då den tolkade texten innehåller tecknet '�' som indikerar att något tecken inte kunde tolkas korrekt (antagligen Å, Ä eller Ö).\nDu kan fortfarande använda den här filen, men om du inte är helt säker på att den *ska* innehålla tecknet '�' så rekommenderas att du konverterar filen till UTF-8-kodning och försöker igen.",
     "change_edit_access": "Justera redigeringsåtkomst",
     "change_read_access": "Justera läsbehörighet",
