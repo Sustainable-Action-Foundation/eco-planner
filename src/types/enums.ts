@@ -1,9 +1,13 @@
-/** Object and type for the different access levels returned by the accessChecker function. */
+/**
+ * Object and type for the different access levels returned by the accessChecker function.
+ * Admin means managing sharing settings and org groups on top of editing content;
+ * it is reserved for super admins and managers of the owning org.
+ * (The old AUTHOR level is gone: authorship is cosmetic and never grants access.)
+ */
 export const AccessLevel = {
   None: "",
   View: "VIEW",
   Edit: "EDIT",
-  Author: "AUTHOR",
   Admin: "ADMIN",
 } as const;
 export type AccessLevel = (typeof AccessLevel)[keyof typeof AccessLevel];
