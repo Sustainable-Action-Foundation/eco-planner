@@ -4,12 +4,14 @@ import HistoricalDataSection from "@/components/form/sections/dataseries/histori
 import { resolveHistoricalDataType, useInitializedValues } from "@/components/form/forms/goal";
 import { waitForRecipeFormSyncs } from "@/components/recipe";
 import formSubmitter from "@/functions/formSubmitter";
-import { Recipe } from "@/functions/recipe";
-import type { DateValuesWithUnit, Goal, GoalUpdateInput } from "@/types";
+import { Recipe, type SerializedRecipe } from "@/functions/recipe";
+import type { DateValuesWithUnit, Goal, GoalUpdateInput, Unit } from "@/types";
 import { GoalDataTarget, HistoricalDataType } from "@/types/enums";
 import { GoalFormName } from "@/types/form-names";
-import { useState, type SubmitEvent } from "react";
+import { useEffect, useMemo, useState, type SubmitEvent } from "react";
 import { useTranslation } from "react-i18next";
+import { GoalGraph } from "@/components/graph/graphs/goal/main";
+import { getHistoricalDatasetFromRecipe } from "@/functions/getHistoricalDataset";
 
 export default function HistoricalForm({
   goal,
@@ -22,6 +24,45 @@ export default function HistoricalForm({
   // hidden-not-unmounted fieldsets once visited, with the type lifted here.
   const [historicalDataType, setHistoricalDataType] = useState<HistoricalDataType>(() => resolveHistoricalDataType(goal));
   const initializedHistoricalTypes = useInitializedValues(historicalDataType);
+  const [previewHistoricalRecipe, setPreviewHistoricalRecipe] = useState<SerializedRecipe | null>(null);
+  const [previewHistoricalSerie, setPreviewHistoricalSerie] = useState<DateValuesWithUnit | null>(null);
+
+  const historicalLabel = useMemo(() => {
+    if (!previewHistoricalRecipe) return "";
+    try {
+      return getHistoricalDatasetFromRecipe(Recipe.from(previewHistoricalRecipe)).label ?? "";
+    } catch {
+      return "";
+    }
+  }, [previewHistoricalRecipe]);
+
+  const previewGraphSeries = useMemo(() => ({
+    main: goal.dataSeries && {
+      name: goal.name ?? 'goal', // todo: use full leap param fallback + i18n
+      unit: (goal.dataSeries?.unit ?? 'MISSING_UNIT') as Unit, // TODO: Typeguard? idk?
+      dateValues: Object.fromEntries(
+        goal.dataSeries.values.map((value) => [
+          value.timestamp.toISOString(),
+          value.value,
+        ]),
+      ),
+    },
+    baseline: goal.baseline?.values && {
+      name: t('graphs:common.baseline_scenario'),
+      unit: (goal.dataSeries?.unit ?? 'MISSING_UNIT') as Unit, // TODO: Typeguard? idk? also we lie here for now and say that all dataseries share the same unit
+      dateValues: Object.fromEntries(
+        goal.baseline.values.map((value) => [
+          value.timestamp.toISOString(),
+          value.value,
+        ]),
+      ),
+    },
+    historical: (goal.dataSeries && previewHistoricalSerie?.dateValues) && {
+      name: historicalLabel ? `${historicalLabel} (historical)` : 'historical data', // TODO: I18n
+      unit: (goal.dataSeries?.unit ?? 'MISSING_UNIT') as Unit, // TODO: Typeguard? idk? also we lie here for now and say that all dataseries share the same unit
+      dateValues: previewHistoricalSerie.dateValues,
+    },
+  }), [previewHistoricalSerie, historicalLabel, t, goal.baseline?.values, goal.dataSeries, goal.name]);
 
   // The section's inputs live in a recipe context; its FormSync injects the
   // resulting recipe and date values as hidden fields, read out here on submit.
@@ -69,6 +110,10 @@ export default function HistoricalForm({
     } satisfies GoalUpdateInput), "PUT", t);
   }
 
+  useEffect(() => {
+    console.log(previewHistoricalSerie);
+  }, [previewHistoricalSerie]);
+
   return (
     <form onSubmit={(event) => { void handleSubmit(event); }} name="goalForm">
       <HistoricalDataSection
@@ -77,7 +122,25 @@ export default function HistoricalForm({
         setHistoricalDataType={setHistoricalDataType}
         hasInitializedExternal={initializedHistoricalTypes.has(HistoricalDataType.External)}
         hasInitializedManual={initializedHistoricalTypes.has(HistoricalDataType.Custom)}
+        setPreviewHistoricalSerie={setPreviewHistoricalSerie}
+        setPreviewHistoricalRecipe={setPreviewHistoricalRecipe}
       />
+      <div
+        className="margin-top-200 min-width-0 margin-left-400"
+      >
+        <strong className="block font-size-125 font-weight-bold text-align-center margin-0 padding-top-125">{t("forms:goal.preview")}</strong>
+        <p className="text-align-center margin-top-50">{t("forms:goal.preview_info")}</p>
+        <output
+          className="display-block"
+          style={{ height: '400px' }}
+        >
+          {/* TODO: Need preview for values aswell. Probably create a switch between graph and table then tabs in the table to view different series. */}
+          <GoalGraph
+            chartType="preview"
+            series={previewGraphSeries}
+          />
+        </output>
+      </div>
       <div className="margin-top-400 padding-top-100 margin-bottom-100 min-width-0" style={{ borderTop: "1px solid var(--gray-80)" }}>
         <button
           id="submit-button"
