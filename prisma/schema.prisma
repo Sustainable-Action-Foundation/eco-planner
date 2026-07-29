@@ -41,17 +41,45 @@ enum OrgRole {
   MANAGER
 }
 
+enum GeoAreaType {
+  NATION
+  COUNTY
+  MUNICIPALITY
+}
+
+// Static lookup of Swedish geo areas, keyed by SCB region code:
+// "00" = Riket, "01".."25" = counties, 4-digit codes = municipalities
+// (whose first two digits are their county's code).
+model GeoAreas {
+  code String      @id
+  // Not @unique: the db collation (utf8mb4_unicode_ci) equates å/a, so "Habo" and "Håbo" would collide
+  name String
+  type GeoAreaType
+
+  parent_code String?
+  parent      GeoAreas?  @relation("geo_tree", fields: [parent_code], references: [code])
+  children    GeoAreas[] @relation("geo_tree")
+
+  roadmaps Roadmaps[]
+  orgs     Orgs[]
+
+  @@index([name])
+}
+
 // The highest level of roadmaps, referencing multiple iterations (versions) of itself
 model Roadmaps {
-  id          String      @id @default(uuid())
-  name        String
-  description String      @db.Text
-  created_at  DateTime    @default(now())
-  updated_at  DateTime    @updatedAt
-  // The target of this roadmap, for example a country, region, municipality or organization
-  actor       String?
+  id            String      @id @default(uuid())
+  name          String
+  description   String      @db.Text
+  created_at    DateTime    @default(now())
+  updated_at    DateTime    @updatedAt
+  // The target of this roadmap as a free-text display label, for example a country, region, municipality or organization
+  actor         String?
+  // Structured geo marker for the target area; `actor` remains the display label for non-geo targets
+  geo_area_code String?
+  geo_area      GeoAreas?   @relation(fields: [geo_area_code], references: [code], onDelete: SetNull)
   // The type of roadmap, for example national, regional, or local
-  type        RoadmapType @default(OTHER)
+  type          RoadmapType @default(OTHER)
 
   // The different versions of the roadmap
   iterations        RoadmapIterations[] @relation("roadmap_iterations")
@@ -328,6 +356,10 @@ model Orgs {
   id     String  @id @default(uuid())
   name   String  @unique
   domain String? @unique
+
+  // Structured geo marker for where the org operates; null for non-geographic orgs
+  geo_area_code String?
+  geo_area      GeoAreas? @relation(fields: [geo_area_code], references: [code], onDelete: SetNull)
 
   memberships     OrgMemberships[]
   groups          Groups[]         @relation("org_groups")
