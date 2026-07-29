@@ -519,6 +519,13 @@ ALTER TABLE `_goal_tags` RENAME COLUMN `A` TO `tmp_swap`;
 ALTER TABLE `_goal_tags` RENAME COLUMN `B` TO `A`;
 ALTER TABLE `_goal_tags` RENAME COLUMN `tmp_swap` TO `B`;
 
+-- Canonicalize ActionFields headers to the app's enum-ish UPPER_SNAKE keys
+-- (migration 20260720131447 wrote them lowercase; the collation is case-insensitive
+-- so the IN matches regardless of case, but the app compares headers in JS where
+-- case matters — see src/functions/actionFields.ts). Idempotent.
+UPDATE `ActionFields` SET `header` = UPPER(`header`)
+WHERE `header` IN ('description', 'cost_efficiency', 'expected_outcome', 'project_manager', 'relevant_actors', 'tag');
+
 -- ============================================================================
 -- 11b. GEO AREAS: static SCB region lookup + geo markers on Roadmaps and Orgs
 -- ============================================================================
