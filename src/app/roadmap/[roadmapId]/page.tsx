@@ -1,7 +1,6 @@
-import { getOneMetaRoadmap } from "@/fetchers";
-import accessChecker from "@/lib/accessChecker";
+import { getOneRoadmap, getUserAccessContext } from "@/fetchers";
+import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
-import { AccessLevel } from "@/types/enums";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import RoadmapTable from "@/components/tables/roadmapTables/roadmapTable";
@@ -13,66 +12,66 @@ import Link from "next/link";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 import type { Metadata } from "next";
 
-export async function generateMetadata(props: { params: Promise<{ metaRoadmapId: string }> }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }): Promise<Metadata> {
   const params = await props.params;
-  const [t, session, metaRoadmap] = await Promise.all([
+  const [t, session, roadmap] = await Promise.all([
     serveTea("pages"),
     getSession(await cookies()),
-    getOneMetaRoadmap(params.metaRoadmapId),
+    getOneRoadmap(params.roadmapId),
   ]);
 
   if (!session.user?.isLoggedIn) {
     return buildMetadata({
       title: t("metadata:login.title"),
       description: t("metadata:login.title"),
-      og_url: `/metaRoadmap/${params.metaRoadmapId}`,
+      og_url: `/roadmap/${params.roadmapId}`,
       og_image_url: '/images/og_wind.png',
     });
   }
 
   return buildMetadata({
-    title: metaRoadmap?.name,
-    description: metaRoadmap?.description,
-    og_url: `/metaRoadmap/${params.metaRoadmapId}`,
+    title: roadmap?.name,
+    description: roadmap?.description,
+    og_url: `/roadmap/${params.roadmapId}`,
     og_image_url: undefined,
   });
 }
 
 
-export default async function Page(props: { params: Promise<{ metaRoadmapId: string }> }) {
+export default async function Page(props: { params: Promise<{ roadmapId: string }> }) {
   const params = await props.params;
-  const [t, session, metaRoadmap] = await Promise.all([
+  const [t, accessContext, roadmap] = await Promise.all([
     serveTea("pages"),
-    getSession(await cookies()),
-    getOneMetaRoadmap(params.metaRoadmapId),
+    getUserAccessContext(),
+    getOneRoadmap(params.roadmapId),
   ]);
 
-  const accessLevel = accessChecker(metaRoadmap, session.user);
+  const accessLevel = accessChecker(roadmap, accessContext);
 
-  // 404 if the meta roadmap doesn't exist or the user doesn't have access
-  if (!metaRoadmap) {
+  // 404 if the roadmap doesn't exist or the user doesn't have access
+  if (!roadmap) {
     return notFound();
   }
 
   return (
     <>
-      <Breadcrumb object={metaRoadmap} />
+      <Breadcrumb object={roadmap} />
 
-      {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-        <AdminPanel accessLevel={accessLevel} object={metaRoadmap} />
+      {hasEditAccess(accessLevel) &&
+        <AdminPanel accessLevel={accessLevel} object={roadmap} />
       }
 
       <main>
         <section className="margin-block-300">
           <span style={{ color: 'gray' }}>{t("pages:roadmap_series_one.title_legend")}</span>
-          <h1 className="margin-0">{metaRoadmap.name}</h1>
+          <h1 className="margin-0">{roadmap.name}</h1>
           <small>{t("pages:roadmap_series_one.description_legend")}</small>
           <div className="margin-block-100">
             <TextEditor
               id="rich-description"
               editable={false}
               defaultStyles={false}
-              content={metaRoadmap.description}
+              content={roadmap.description}
             />
           </div>
         </section>
@@ -80,11 +79,11 @@ export default async function Page(props: { params: Promise<{ metaRoadmapId: str
         <section className="margin-block-300">
           <h2 className="margin-block-100 padding-bottom-50" style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:roadmap_series_one.roadmap_versions")}</h2>
           <menu className="margin-0 padding-0 margin-bottom-100 flex justify-content-flex-end">
-            {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) ?
-              <Link href={`/roadmap/create?metaRoadmapId=${metaRoadmap.id}`} className="button pureblack color-purewhite round">{t("pages:roadmap_series_one.create_roadmap_version")}</Link>
+            {hasEditAccess(accessLevel) ?
+              <Link href={`/roadmapIteration/create?roadmapId=${roadmap.id}`} className="button pureblack color-purewhite round">{t("pages:roadmap_series_one.create_roadmap_version")}</Link>
               : null}
           </menu>
-          <RoadmapTable user={session.user} metaRoadmap={metaRoadmap} />
+          <RoadmapTable accessContext={accessContext} roadmap={roadmap} />
         </section>
       </main>
     </>

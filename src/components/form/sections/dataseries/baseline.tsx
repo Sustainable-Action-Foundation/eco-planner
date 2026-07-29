@@ -11,7 +11,7 @@ import { dataSeriesToDateValues } from "@/functions/recipe";
 import { Recipe } from "@/functions/recipe/recipe";
 import { useEffect, useRef, useState } from "react";
 import type { TreeItem } from "@/components/types";
-import { clientSafeGetRoadmaps, clientSafeGetOneRoadmap, clientSafeGetOneGoal } from "@/fetchers/client";
+import { clientSafeGetRoadmapIterations, clientSafeGetOneRoadmapIteration, clientSafeGetOneGoal } from "@/fetchers/client";
 import SelectSingleTree from "@/components/form/elements/combobox/selectSingleTree";
 import { RecipeSync } from "@/components/recipe/output/recipeSync";
 import { parseUnit } from "@/functions/unit";
@@ -173,10 +173,10 @@ export default function BaselineSeriesSection({
 
           <fieldset className={`${baselineType === BaselineType.Inherited ? "" : "display-none"}`} disabled={baselineType !== BaselineType.Inherited}>
             <RecipeContextProvider
-              initialRecipe={goal?.baseline?.recipeUsed?.recipe
-                ? Recipe.from(goal.baseline.recipeUsed.recipe).serialize()
+              initialRecipe={goal?.baseline?.recipe_used?.recipe
+                ? Recipe.from(goal.baseline.recipe_used.recipe).serialize()
                 : undefined}
-              availableDataSeries={goal?.baseline?.recipeUsed?.sourceDataSeries}
+              availableDataSeries={goal?.baseline?.recipe_used?.source_data_series}
             >
               <InheritingBaseline />
               <FormSync
@@ -248,7 +248,7 @@ function InheritingBaseline() {
   useEffect(() => {
     if (!goalData) return;
 
-    const inheritedSeries = goalData.baseline ?? goalData.dataSeries;
+    const inheritedSeries = goalData.baseline ?? goalData.data_series;
     if (!inheritedSeries?.id) return;
 
     void applyRecipeUpdate(() => Recipe.fromLinkedDataSeries({
@@ -259,22 +259,22 @@ function InheritingBaseline() {
     }));
   }, [goalData, applyRecipeUpdate, t]);
 
-  // Roadmaps are the top-level nodes; each one's goals are fetched lazily
-  // the first time it's expanded, via onExpand.
+  // Roadmap iterations are the top-level nodes; each one's goals are fetched
+  // lazily the first time it's expanded, via onExpand.
   useEffect(() => {
-    clientSafeGetRoadmaps()
-      .then((roadmapList) => {
+    clientSafeGetRoadmapIterations()
+      .then((iterationList) => {
         setTreeItems(
-          roadmapList.map((roadmap): TreeItem => ({
-            value: roadmap.id,
-            name: `${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("common:count.goal", { count: roadmap._count.goals })}`,
+          iterationList.map((iteration): TreeItem => ({
+            value: iteration.id,
+            name: `${iteration.roadmap.name} (v${iteration.version}): ${t("common:count.goal", { count: iteration._count.goals })}`,
             expanded: false,
             onExpand: async () => {
-              const roadmapData = await clientSafeGetOneRoadmap(roadmap.id).catch(() => null);
-              if (!roadmapData) return [];
-              return roadmapData.goals.map((goal): TreeItem => ({
+              const iterationData = await clientSafeGetOneRoadmapIteration(iteration.id).catch(() => null);
+              if (!iterationData) return [];
+              return iterationData.goals.map((goal): TreeItem => ({
                 value: goal.id,
-                name: `${(!goal.dataSeries) ? t("forms:goal.data_missing") : ""}${goal.name ?? t("forms:goal.unnamed_goal")}: ${goal.indicatorParameter} (${goal.dataSeries?.unit === null ? t("common:tsx.unitless") : goal.dataSeries?.unit || t("common:tsx.unit_missing")})`,
+                name: `${(!goal.data_series) ? t("forms:goal.data_missing") : ""}${goal.name ?? t("forms:goal.unnamed_goal")}: ${goal.indicator_parameter} (${goal.data_series?.unit === null ? t("common:tsx.unitless") : goal.data_series?.unit || t("common:tsx.unit_missing")})`,
                 expanded: null,
               }));
             },

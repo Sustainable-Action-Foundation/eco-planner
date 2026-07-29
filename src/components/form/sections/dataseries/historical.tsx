@@ -34,7 +34,7 @@ export default function HistoricalSeriesSection({
 }) {
   const { t } = useTranslation("components");
 
-  const savedHistoricalRecipe = goal?.historical?.recipeUsed?.recipe;
+  const savedHistoricalRecipe = goal?.historical?.recipe_used?.recipe;
   const savedIsManual = !!savedHistoricalRecipe && Recipe.from(savedHistoricalRecipe).isManual();
 
   // Seed each input from the saved historical recipe when it was made with the
@@ -100,7 +100,7 @@ export default function HistoricalSeriesSection({
           <fieldset className={`${historicalDataType === HistoricalDataType.External ? "" : "display-none"}`} disabled={historicalDataType !== HistoricalDataType.External}>
             <RecipeContextProvider
               initialRecipe={externalInitialRecipe}
-              availableDataSeries={goal?.historical?.recipeUsed?.sourceDataSeries}
+              availableDataSeries={goal?.historical?.recipe_used?.source_data_series}
             >
               <ExternalDataSeriesInput goal={goal} />
               <FormSync

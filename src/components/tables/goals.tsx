@@ -1,6 +1,7 @@
 "use client";
 
 import { AccessLevel, GoalSortBy, ViewMode } from "@/types/enums";
+import { hasEditAccess } from "@/lib/accessChecker";
 import GoalTable from "./goalTables/goalTable";
 import TableSelector from './tableSelector/tableSelector';
 import LinkTree from './goalTables/linkTree';
@@ -9,32 +10,32 @@ import { getStoredGoalSortBy, getStoredViewMode, setStoredGoalSortBy } from "./f
 import Link from "next/link";
 import Image from "next/image";
 import styles from './tables.module.css';
-import type { getOneRoadmap } from "@/fetchers";
+import type { getOneRoadmapIteration } from "@/fetchers";
 import { useTranslation } from "react-i18next";
 import { IconSearch } from '@tabler/icons-react';
 
 export default function Goals({
-  roadmap,
+  iteration,
   accessLevel,
 }: {
-  roadmap: NonNullable<Awaited<ReturnType<typeof getOneRoadmap>>>,
+  iteration: NonNullable<Awaited<ReturnType<typeof getOneRoadmapIteration>>>,
   accessLevel?: AccessLevel
 }) {
   const { t } = useTranslation("components");
 
-  const [viewMode, setViewMode] = useState<ViewMode | ''>(getStoredViewMode(roadmap.id));
+  const [viewMode, setViewMode] = useState<ViewMode | ''>(getStoredViewMode(iteration.id));
   const [sortBy, setSortBy] = useState<GoalSortBy>(getStoredGoalSortBy() || GoalSortBy.Default);
   const [searchFilter, setSearchFilter] = useState<string>('');
   const [recipeOnly, setRecipeOnly] = useState<boolean>(false);
 
-  let filteredRoadmap = roadmap;
+  let filteredIteration = iteration;
   if (searchFilter) {
-    filteredRoadmap = {
-      ...roadmap,
-      goals: roadmap.goals.filter(goal => {
+    filteredIteration = {
+      ...iteration,
+      goals: iteration.goals.filter(goal => {
         if (Object.values(goal).some(value => typeof value === 'string' && value.toLowerCase().includes(searchFilter.toLowerCase()))) {
           return true;
-        } else if (goal.dataSeries && Object.values(goal.dataSeries).some(value => typeof value === 'string' && value.toLowerCase().includes(searchFilter.toLowerCase()))) {
+        } else if (goal.data_series && Object.values(goal.data_series).some(value => typeof value === 'string' && value.toLowerCase().includes(searchFilter.toLowerCase()))) {
           return true;
         }
       }),
@@ -42,14 +43,18 @@ export default function Goals({
   }
 
   if (recipeOnly) {
-    filteredRoadmap = {
-      ...roadmap,
-      goals: roadmap.goals.filter(goal => {
-        if (goal.dataSeries?.recipeUsedId) {
-          return true;
-        } else {
-          return false;
-        }
+    filteredIteration = {
+      ...iteration,
+      goals: iteration.goals.filter(goal => {
+        // Every data series now has a recipe; manually entered series use an inline recipe tagged `meta.isManual`
+        const recipe = goal.data_series?.recipe_used?.recipe;
+        const isManual = (
+          typeof recipe === 'object'
+          && recipe !== null
+          && !Array.isArray(recipe)
+          && (recipe as { meta?: { isManual?: boolean } }).meta?.isManual === true
+        );
+        return !!goal.data_series?.recipe_used && !isManual;
       }),
     };
   }
@@ -85,19 +90,19 @@ export default function Goals({
             </select>
           </label>
         )}
-        <TableSelector id={roadmap.id} current={viewMode} setter={setViewMode} />
-        { // Only show the button if the user has edit access to the roadmap
-          (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-          <Link className="button round color-purewhite pureblack font-weight-500" href={`/goal/create?roadmapId=${roadmap.id}`}>{t("components:goals.new_goal")}</Link>
+        <TableSelector id={iteration.id} current={viewMode} setter={setViewMode} />
+        { // Only show the button if the user has edit access to the roadmap iteration
+          hasEditAccess(accessLevel ?? AccessLevel.None) &&
+          <Link className="button round color-purewhite pureblack font-weight-500" href={`/goal/create?iterationId=${iteration.id}`}>{t("components:goals.new_goal")}</Link>
         }
       </menu>
 
       {/* TODO: Probably not correct to handle loading as a default state? */}
       {/* TODO: Probably use a skeleton for the loading state */}
       {viewMode === ViewMode.Tree ? (
-        <LinkTree roadmap={filteredRoadmap} />
+        <LinkTree iteration={filteredIteration} />
       ) : viewMode === ViewMode.Table ? (
-        <GoalTable roadmap={filteredRoadmap} sortBy={sortBy} />
+        <GoalTable iteration={filteredIteration} sortBy={sortBy} />
       ) :
         <Image
           src='/loaders/3-dots-scale.svg'

@@ -9,6 +9,7 @@ import Image from "next/image";
 import { useDebouncedCallback } from "use-debounce";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
+import { actionFieldLabel, getActionDescription } from "@/functions/actionFields";
 
 export default function Actions({
   actions,
@@ -18,7 +19,7 @@ export default function Actions({
   searchParamsProp: { [key: string]: string | string[] | undefined }
 }) {
 
-  const { t } = useTranslation("pages");
+  const { t } = useTranslation(["pages", "forms"]);
 
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -62,7 +63,7 @@ export default function Actions({
     if (!searchFilter || !actions) return actions;
 
     return actions.filter((action) =>
-      [action.name, action.description].some(
+      [action.name, ...action.fields.flatMap((field) => [field.header, field.value])].some(
         (value) =>
           typeof value === "string" &&
           value.toLowerCase().includes(searchFilter.toLowerCase()),
@@ -102,7 +103,7 @@ export default function Actions({
         {/*<h2 className="padding-bottom-50 margin-block-100 font-weight-500" style={{ fontSize: '1.25rem', borderBottom: '1px solid var(--gray)' }}>{t('pages:actions.filter')}</h2>  */}
       </menu>
 
-      <div className="flex-grow-infinity max-width-100"> 
+      <div className="flex-grow-infinity max-width-100">
         <h2 id="search-title" className="margin-top-0 margin-bottom-50">
           {t("pages:actions.search_actions", { count: actions?.length })}
         </h2>
@@ -124,9 +125,9 @@ export default function Actions({
           </div>
 
           <hr style={{ alignSelf: 'stretch', borderStyle: 'solid', color: 'var(--gray-80)', borderRight: '0' }} />
-          
-          <Link 
-            href={'/action/create'} 
+
+          <Link
+            href={'/action/create'}
             className="flex gap-100 flex-grow-100 justify-content-space-between align-items-center smooth seagreen color-purewhite text-decoration-none padding-50 font-weight-500 button white-space-nowrap line-height-100 font-size-14px"
           >
             {t("pages:actions.create_new_action")}
@@ -139,7 +140,7 @@ export default function Actions({
             <h3 className="margin-bottom-50 margin-top-200 font-style-italic color-gray font-weight-normal font-size-100">
               {t("pages:actions.shown_results", { count: filteredActions?.length })}
             </h3>
-          : null }
+            : null}
           <ul
             className={`
             margin-0
@@ -174,23 +175,26 @@ export default function Actions({
                 className="smooth"
               >
                 <article className="flex flex-direction-column height-100">
+                  {/* TODO: render the key value pairs more pretty */}
                   <Link href={`/action/${action.id}`} className="discrete-link padding-block-75 padding-inline-50 block flex-grow-100">
-                    <div className={` color-gray font-size-14px ${styles['action-years']}`}>{action.startYear} - {action.endYear}</div>
+                    <div className={` color-gray font-size-14px ${styles['action-years']}`}>{action.start_year} - {action.end_year}</div>
                     <h2 className={`margin-0 ${styles['action-title']}`}>{action.name}</h2>
-                    <p 
-                      className={`margin-0 white-space-nowrap text-overflow-ellipsis overflow-hidden ${styles['action-description']}`} 
+                    {/* Actions no longer have a description column; prefer the description field, else summarize the rest */}
+                    <p
+                      className={`margin-0 white-space-nowrap text-overflow-ellipsis overflow-hidden ${styles['action-description']}`}
                       style={{ color: '#292929' }}
                     >
-                      {action.description}
+                      {getActionDescription(action.fields)
+                        ?? action.fields.map((field) => `${actionFieldLabel(field.header, t)}: ${field.value}`).join(' · ')}
                     </p>
                   </Link>
-                  
+
                   <hr className="margin-50 margin-top-0" style={{ color: 'var(--gray-80)', borderBottom: '0', borderStyle: 'solid' }} />
 
                   <div className="flex justify-content-space-between align-items-center padding-inline-50 padding-bottom-50">
                     <Link href={`/action/${action.id}`} className={`flex gap-25 align-items-center discrete-link font-size-14px ${styles['action-user']}`}>
                       <IconUser width={20} height={20} style={{ maxWidth: '20px' }} aria-label={`${t('pages:actions.author')}:`} />
-                      {action.author.username}
+                      {action.author?.username}
                     </Link>
                     <Link href={`/action/${action.id}`} className={`flex gap-25 align-items-center discrete-link font-size-14px ${styles['action-link']}`}>
                       {t('pages:actions.visit_action')}

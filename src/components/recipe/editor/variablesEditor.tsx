@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
 import styles from '../recipe.module.css' with { type: "css" };
 import { VariableCreator, DataSeriesVariableEditor, VariableTypeExternal, VariableTypeScalar } from "@/components/recipe";
-import type { ClientRoadmap } from "@/types";
+import type { ClientRoadmapIteration } from "@/types";
 import { RecipeEditorPermissions } from "@/types/enums";
 import { getRecipeRoadmapData } from "../context/roadmapDataCache";
 
@@ -19,7 +19,7 @@ export function VariablesEditor({
   const { recipe } = useRecipe();
 
   const [availableRoadmaps, setAvailableRoadmaps] = useState<{ id: string; name: string; }[]>([]);
-  const [roadmapLookup, setRoadmapLookup] = useState<Record<string, ClientRoadmap>>({});
+  const [roadmapLookup, setRoadmapLookup] = useState<Record<string, ClientRoadmapIteration>>({});
   const [dataSeriesNamesById, setDataSeriesNamesById] = useState<Record<string, string>>({});
 
   const permissions = { ...RecipeEditorPermissions, ...incomingPermissions };
@@ -32,7 +32,7 @@ export function VariablesEditor({
         setAvailableRoadmaps(
           roadmaps.map((roadmap) => ({
             id: roadmap.id,
-            name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version }),
+            name: t("common:roadmap_version_name", { name: roadmap.roadmap.name, version: roadmap.version }),
           })),
         );
 
@@ -41,10 +41,10 @@ export function VariablesEditor({
         setDataSeriesNamesById(
           Object.values(roadmapLookup).reduce((acc, roadmap) => {
             for (const goal of roadmap.goals) {
-              const goalDisplayName = goal.name || goal.indicatorParameter;
+              const goalDisplayName = goal.name || goal.indicator_parameter;
 
-              if (goal.dataSeries) {
-                acc[goal.dataSeries.id] = goalDisplayName;
+              if (goal.data_series) {
+                acc[goal.data_series.id] = goalDisplayName;
               }
 
               if (goal.baseline) {
@@ -52,8 +52,8 @@ export function VariablesEditor({
               }
 
               for (const effect of goal.effects) {
-                if (!effect.dataSeries) continue;
-                acc[effect.dataSeries.id] = `${goalDisplayName} - ${t("common:effect_one")}`;
+                if (!effect.data_series) continue;
+                acc[effect.data_series.id] = `${goalDisplayName} - ${t("common:effect_one")}`;
               }
             }
 

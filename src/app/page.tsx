@@ -1,7 +1,7 @@
 import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import AttributedImage, { AttributeText } from "@/components/generic/images/attributedImage";
-import { roadmapSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
+import { roadmapIterationSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
 import { RoadmapType } from "@/lib/prisma/generated";
 import RoadmapFilters from "@/components/form/filters/roadmapFilters";
 import { RoadmapSortBy } from "@/types/enums";
@@ -10,7 +10,8 @@ import RoadmapTree from "@/components/tables/roadmapTables/roadmapTree";
 import serveTea from "@/lib/i18nServer";
 import Link from "next/link";
 import { buildMetadata } from "@/functions/buildMetadata";
-import { getMetaRoadmaps, getRoadmaps } from "@/fetchers";
+import { getRoadmapIterations, getRoadmaps } from "@/fetchers";
+import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import SearchRoadmaps from "@/components/form/filters/searchRoadmaps";
 import SortRoadmaps from "@/components/form/filters/sortRoadmaps";
 import styles from "./page.module.css";
@@ -28,39 +29,40 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Page(
   props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> },
 ) {
-  const [t, searchParams, session, metaRoadmaps] = await Promise.all([
+  const [t, searchParams, session, accessContext, roadmaps] = await Promise.all([
     serveTea("pages"),
     props.searchParams,
     getSession(await cookies()),
-    getMetaRoadmaps(),
+    getUserAccessContext(),
+    getRoadmaps(),
   ]);
 
   const typeFilter = searchParams['typeFilter'] ? (Array.isArray(searchParams['typeFilter']) ? searchParams['typeFilter'] : [searchParams['typeFilter']]) : [];
   const sortBy = searchParams['sortBy'] ? (Array.isArray(searchParams['sortBy']) ? (searchParams['sortBy'][0] as RoadmapSortBy) : (searchParams['sortBy'] as RoadmapSortBy)) : RoadmapSortBy.Default;
   const searchFilter = searchParams['searchFilter'] ? (Array.isArray(searchParams['searchFilter']) ? searchParams['searchFilter'][0] : searchParams['searchFilter']) : '';
 
-  // Get the latest version ids, then fetch proper roadmaps with access and counts
-  const latestRoadmapIds = metaRoadmaps.flatMap(metaRoadmap => {
-    if (!metaRoadmap.roadmapVersions.length) {
+  // Get the latest version ids, then fetch proper iterations with access and counts
+  const latestIterationIds = roadmaps.flatMap(roadmap => {
+    if (!roadmap.iterations.length) {
       return [];
     }
 
-    const latestRoadmap = metaRoadmap.roadmapVersions.reduce((current, candidate) =>
+    const latestIteration = roadmap.iterations.reduce((current, candidate) =>
       candidate.version > current.version ? candidate : current,
     );
 
-    return latestRoadmap.id ? [latestRoadmap.id] : [];
+    return latestIteration.id ? [latestIteration.id] : [];
   });
 
-  let roadmaps = latestRoadmapIds.length ? await getRoadmaps(latestRoadmapIds) : [];
+  let iterations = latestIterationIds.length ? await getRoadmapIterations(latestIterationIds) : [];
 
   // Filter by typeFilter
   if (typeFilter.length) {
-    roadmaps = roadmaps.filter((roadmap) => {
-      if (typeFilter.includes(roadmap.metaRoadmap.type)) {
+    iterations = iterations.filter((iteration) => {
+      if (typeFilter.includes(iteration.roadmap.type)) {
         return true;
-        // If the user has selected RoadmapType.OTHER, include all roadmaps with bad values (not included in RoadmapType enum) for roadmap.metaRoadmap.type too
-      } else if (typeFilter.includes(RoadmapType.OTHER) && !Object.values(RoadmapType).includes(roadmap.metaRoadmap.type)) {
+        // If the user has selected RoadmapType.OTHER, include all iterations with bad values (not included in RoadmapType enum) for iteration.roadmap.type too
+      } else if (typeFilter.includes(RoadmapType.OTHER) && !Object.values(RoadmapType).includes(iteration.roadmap.type)) {
         return true;
       } else {
         return false;
@@ -70,8 +72,8 @@ export default async function Page(
 
   // Filter by searchFilter
   if (searchFilter) {
-    roadmaps = roadmaps.filter((roadmap) => {
-      if (Object.values(roadmap).some((value) => {
+    iterations = iterations.filter((iteration) => {
+      if (Object.values(iteration).some((value) => {
         if (typeof value === 'string') {
           return value.toLowerCase().includes(searchFilter.toLowerCase());
         } else {
@@ -79,7 +81,7 @@ export default async function Page(
         }
       })) {
         return true;
-      } else if (Object.values(roadmap.metaRoadmap).some((value) => {
+      } else if (Object.values(iteration.roadmap).some((value) => {
         if (typeof value === 'string') {
           return value.toLowerCase().includes(searchFilter.toLowerCase());
         } else {
@@ -96,26 +98,26 @@ export default async function Page(
   // Sort
   switch (sortBy) {
     case RoadmapSortBy.Alpha: {
-      roadmaps.sort(roadmapSorterAZ);
+      iterations.sort(roadmapSorterAZ);
       break;
     }
     case RoadmapSortBy.AlphaReverse: {
-      roadmaps.sort(roadmapSorterAZ);
-      roadmaps.reverse();
+      iterations.sort(roadmapSorterAZ);
+      iterations.reverse();
       break;
     }
     case RoadmapSortBy.GoalsFalling: {
-      roadmaps.sort(roadmapSorterGoalAmount);
+      iterations.sort(roadmapSorterGoalAmount);
       break;
     }
     case RoadmapSortBy.GoalsRising: {
-      roadmaps.sort(roadmapSorterGoalAmount);
-      roadmaps.reverse();
+      iterations.sort(roadmapSorterGoalAmount);
+      iterations.reverse();
       break;
     }
     case RoadmapSortBy.Default:
     default: {
-      roadmaps.sort(roadmapSorter);
+      iterations.sort(roadmapIterationSorter);
       break;
     }
   }
@@ -137,7 +139,7 @@ export default async function Page(
             </div>
             { // Link to create roadmap form if logged in
               session.user
-                ? <Link href="/metaRoadmap/create" className="button purewhite round block">{t("pages:home.create_roadmap")}</Link>
+                ? <Link href="/roadmap/create" className="button purewhite round block">{t("pages:home.create_roadmap")}</Link>
                 : null
             }
           </div>
@@ -152,20 +154,20 @@ export default async function Page(
           <RoadmapFilters />
         </aside>
         <div className="flex-grow-infinity max-width-100">
-          <h2 id="roadmap-search-title" className="margin-top-0 margin-bottom-50 font-weight-600">{t("pages:home.search_roadmaps", { count: metaRoadmaps.filter((metaRoadmap) => metaRoadmap.roadmapVersions.length > 0).length })}</h2>
+          <h2 id="roadmap-search-title" className="margin-top-0 margin-bottom-50 font-weight-600">{t("pages:home.search_roadmaps", { count: roadmaps.filter((roadmap) => roadmap.iterations.length > 0).length })}</h2>
           <SearchRoadmaps labelledBy="roadmap-search-title" />
           <div className="flex align-items-center gap-100 flex-wrap-wrap justify-content-space-between margin-bottom-200 margin-top-50">
             <small className="font-size-100" aria-live="polite"> {/* TODO: Pretty sure this should have an aria-live but double check against a screenreader */}
               {t("pages:home.shown_results", {
-                shown: roadmaps.length,
-                total: metaRoadmaps.filter((metaRoadmap) => metaRoadmap.roadmapVersions.length > 0).length,
+                shown: iterations.length,
+                total: roadmaps.filter((roadmap) => roadmap.iterations.length > 0).length,
               })}
             </small>
             <SortRoadmaps />
           </div>
           <RoadmapTree
-            user={session.user ?? undefined}
-            roadmaps={roadmaps}
+            accessContext={accessContext}
+            iterations={iterations}
           />
         </div>
       </search>
@@ -174,11 +176,11 @@ export default async function Page(
         <RoadmapFilters />
       </section>
 
-      TODO: There might be some issues with displayning public roadmaps, explore this. 
+      TODO: There might be some issues with displayning public roadmaps, explore this.
       <section className="margin-bottom-500">
         <RoadmapTree
-          user={session.user ?? undefined}
-          roadmaps={roadmaps}
+          accessContext={accessContext}
+          iterations={iterations}
         />
       </section>  */}
     </main>

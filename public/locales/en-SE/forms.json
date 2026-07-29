@@ -6,7 +6,15 @@
     "me_only": "Only me",
     "select_groups": "Select groups",
     "select_users": "Select users",
-    "users": "Users"
+    "users": "Users",
+    "visibility": "Who can see this?",
+    "granted_groups_only": "Only groups with access below",
+    "org_members": "Everyone in the organization",
+    "group_grants": "Group access",
+    "no_groups": "The organization has no groups yet. Managers can create groups.",
+    "no_access": "No access",
+    "read_only": "Read",
+    "read_write": "Read and edit"
   },
   "action": {
     "action_description": "Description",
@@ -35,7 +43,9 @@
     "relationship_label": "$t(common:roadmap_version_one)",
     "relationship_no_chosen": "Select $t(common:roadmap_version_one)",
     "relevant_actors": "Relevant actors",
-    "start_year": "Start year"
+    "start_year": "Start year",
+    "tag": "Tag",
+    "field_header": "Field label"
   },
   "combobox": {
     "default_autocomplete_placeholder": "Type to view suggestions",
@@ -198,7 +208,11 @@
     "relationship_label": "Parent",
     "relationship_legend": "Is this $t(common:roadmap_series_one) working towards another $t(common:roadmap_series_one)?",
     "relationship_no_chosen": "No parent",
-    "type": "Type"
+    "type": "Type",
+    "org": "Owning organization",
+    "no_chosen_org": "Choose an organization",
+    "geo_area": "Geographic area (for statistics)",
+    "no_chosen_geo_area": "No geographic area"
   },
   "repeatable_scaling": {
     "area": "Area:",
@@ -240,7 +254,9 @@
     "scale_deprecated": "The 'Scale' column is not supported and will be ignored.",
     "scale_deprecated_extended": "$t(forms:roadmap.scale_deprecated) If the column contains any scales, please bake them into the unit or value instead. Example: unit 'MW' rather than unit 'kW' with scale 'thousand'.",
     "unknown_error": "Unknown error",
-    "upload_goals": "Upload $t(common:goal_other)"
+    "upload_goals": "Upload $t(common:goal_other)",
+    "publish": "Publish this version",
+    "publish_hint": "Unpublished versions are drafts, visible only to people who can edit the roadmap."
   },
   "text_editor_menu": {
     "bold": "Bold",

@@ -1,5 +1,5 @@
 import "server-only";
-import type { LoginData, MetaRoadmap, Roadmap } from "@/types";
+import type { MultiRoadmapInstance, Roadmap, UserAccessContext } from "@/types";
 import styles from '@/components/tables/tables.module.css' with { type: "css" };
 import { ControlsMenu } from '@/components/elements/controls/controls';
 import accessChecker from '@/lib/accessChecker';
@@ -7,75 +7,74 @@ import serveTea from "@/lib/i18nServer";
 import Link from 'next/link';
 import type { ReactNode } from "react";
 
+/** The iteration shape this table renders; `MultiRoadmapInstance` satisfies it. */
+type TableIteration = Omit<MultiRoadmapInstance, "_count"> & { _count: { goals: number } };
+
 export default async function RoadmapTable({
-  user,
-  roadmaps,
-  metaRoadmap,
-}: { user: LoginData['user'] } & (
-  | { roadmaps: Roadmap[]; metaRoadmap?: never; }
-  | { roadmaps?: never; metaRoadmap: MetaRoadmap; }
+  accessContext,
+  iterations,
+  roadmap,
+}: { accessContext: UserAccessContext | null } & (
+  | { iterations: MultiRoadmapInstance[]; roadmap?: never; }
+  | { iterations?: never; roadmap: Roadmap; }
 )): Promise<ReactNode> {
   const t = await serveTea(["components", "common"]);
 
   // Failsafe in case wrong props are passed
   if (
-    (!roadmaps && !metaRoadmap)
-    || (roadmaps && metaRoadmap)
-  ) throw new Error('RoadmapTable: Either `roadmaps` XOR `metaRoadmap` must be provided');
+    (!iterations && !roadmap)
+    || (iterations && roadmap)
+  ) throw new Error('RoadmapTable: Either `iterations` XOR `roadmap` must be provided');
 
-  const parsedRoadmaps: Roadmap[] = [];
+  const parsedIterations: TableIteration[] = [];
 
-  if (!roadmaps && metaRoadmap) {
-    const stripRoadmapVersions = (metaRoadmap: MetaRoadmap): Roadmap["metaRoadmap"] => {
+  if (!iterations && roadmap) {
+    const stripIterations = (roadmap: Roadmap): TableIteration["roadmap"] => {
       const {
-        roadmapVersions,
+        iterations,
         ...interestingData
-      } = metaRoadmap;
-      return interestingData satisfies Roadmap["metaRoadmap"];
+      } = roadmap;
+      return interestingData satisfies TableIteration["roadmap"];
     };
 
-    for (const roadmapVersion of metaRoadmap.roadmapVersions) {
-      // The roadmap versions that come with metaRoadmap omit relations, therefor these empty arrays, sorry 
-      parsedRoadmaps.push({
-        ...roadmapVersion,
-        metaRoadmap: stripRoadmapVersions(metaRoadmap),
-        goals: [],
-        actions: [],
-        comments: [],
+    for (const iteration of roadmap.iterations) {
+      parsedIterations.push({
+        ...iteration,
+        roadmap: stripIterations(roadmap),
       });
     }
   }
   else {
-    parsedRoadmaps.push(...roadmaps);
+    parsedIterations.push(...iterations);
   }
 
-  return parsedRoadmaps.length
-    ? parsedRoadmaps.map(roadmap => {
-      let typeAlias = roadmap.metaRoadmap.type.toString();
-      if (roadmap.metaRoadmap.type === "NATIONAL") typeAlias = t("common:scope.national");
-      else if (roadmap.metaRoadmap.type === "REGIONAL") typeAlias = t("common:scope.regional");
-      else if (roadmap.metaRoadmap.type === "MUNICIPAL") typeAlias = t("common:scope.municipal");
-      else if (roadmap.metaRoadmap.type === "LOCAL") typeAlias = t("common:scope.local");
-      else if (roadmap.metaRoadmap.type === "OTHER") typeAlias = t("common:scope.other");
+  return parsedIterations.length
+    ? parsedIterations.map(iteration => {
+      let typeAlias = iteration.roadmap.type.toString();
+      if (iteration.roadmap.type === "NATIONAL") typeAlias = t("common:scope.national");
+      else if (iteration.roadmap.type === "REGIONAL") typeAlias = t("common:scope.regional");
+      else if (iteration.roadmap.type === "MUNICIPAL") typeAlias = t("common:scope.municipal");
+      else if (iteration.roadmap.type === "LOCAL") typeAlias = t("common:scope.local");
+      else if (iteration.roadmap.type === "OTHER") typeAlias = t("common:scope.other");
 
-      const accessLevel = accessChecker(roadmap, user);
+      const accessLevel = accessChecker({ access_control: iteration.roadmap.access_control, published_at: iteration.published_at }, accessContext);
       return (
-        <div className='flex gap-100 justify-content-space-between align-items-center' key={roadmap.id}>
-          <Link href={`/roadmap/${roadmap.id}`} className={`${styles.roadmapLink} flex-grow-100`}>
+        <div className='flex gap-100 justify-content-space-between align-items-center' key={iteration.id}>
+          <Link href={`/roadmapIteration/${iteration.id}`} className={`${styles.roadmapLink} flex-grow-100`}>
             {/* Name, version */}
             <span className={styles.linkTitle}>
-              {t("components:roadmap_table.title", { name: roadmap.metaRoadmap.name, version: roadmap.version })}
+              {t("components:roadmap_table.title", { name: iteration.roadmap.name, version: iteration.version })}
             </span>
             {/* Type, goal count */}
             <span className={styles.linkInfo}>
               {typeAlias}
               &nbsp;&middot;&nbsp;
-              {t("common:count.goal", { count: roadmap._count.goals })}
+              {t("common:count.goal", { count: iteration._count.goals })}
             </span>
           </Link>
           <ControlsMenu
             accessLevel={accessLevel}
-            object={roadmap}
+            object={iteration}
           />
         </div>
       );

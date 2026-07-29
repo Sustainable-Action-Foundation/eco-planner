@@ -383,8 +383,7 @@ export async function PUT(request: NextRequest) {
     revalidateTag('roadmap', 'max');
     // Return the updated roadmap's ID if successful
     return Response.json({ message: t('api:roadmap.roadmap_updated'), id: updatedRoadmap.id },
-      // TODO(Phase 6): update to the roadmap page's new path when the /metaRoadmap pages move
-      { status: 200, headers: { 'Location': `/metaRoadmap/${updatedRoadmap.id}` } },
+      { status: 200, headers: { 'Location': `/roadmap/${updatedRoadmap.id}` } },
     );
   }
   catch (err) {

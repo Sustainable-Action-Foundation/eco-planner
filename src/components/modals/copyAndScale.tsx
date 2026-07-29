@@ -108,7 +108,7 @@ export default function CopyAndScale({
 
       name: goal.name,
       description: goal.description,
-      indicatorParameter: goal.indicatorParameter,
+      indicatorParameter: goal.indicator_parameter,
       isFeatured: undefined,
 
       dataSeriesId: undefined,
@@ -130,7 +130,7 @@ export default function CopyAndScale({
       historicalRecipeId: undefined,
       historicalRecipe: undefined,
 
-      roadmapId: copyToId as string ?? "",
+      iterationId: copyToId as string ?? "",
       // TODO: copy tags?
       rawTags: undefined,
     };

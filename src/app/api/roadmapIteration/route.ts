@@ -498,8 +498,7 @@ export async function DELETE(request: NextRequest) {
     revalidateTag('roadmapIteration', 'max');
     return Response.json({ message: t('api:roadmapIteration.iteration_deleted'), id: deletedIteration.id },
       // Redirect to the parent roadmap
-      // TODO(Phase 6): update to the roadmap page's new path when the /metaRoadmap pages move
-      { status: 200, headers: { 'Location': `/metaRoadmap/${deletedIteration.roadmap_id}` } },
+      { status: 200, headers: { 'Location': `/roadmap/${deletedIteration.roadmap_id}` } },
     );
   }
   catch (err) {

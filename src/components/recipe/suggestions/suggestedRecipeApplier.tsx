@@ -10,7 +10,7 @@ import { useEffect, useMemo, useState } from "react";
 import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";
 import { isUnitFlag } from "@/functions/unit";
 import { IconAlertTriangleFilled, IconInfoCircle } from "@tabler/icons-react";
-import type { ClientRoadmap, DBRecipe } from "@/types";
+import type { ClientRoadmapIteration, DBRecipe } from "@/types";
 import { RecipeEditorPermissions } from "@/types/enums";
 import { Recipe } from "@/functions/recipe/recipe";
 import { getDefaultSuggestedRecipes, TextStatus } from "@/components/recipe";
@@ -31,7 +31,7 @@ export function SuggestedRecipeApplier({
   const { recipe, applyRecipeUpdate, clearRecipe } = useRecipe();
 
   const [availableDataSeries, setAvailableDataSeries] = useState<{ id: string; name: string; }[]>([]);
-  const [roadmapLookup, setRoadmapLookup] = useState<Record<string, ClientRoadmap>>({});
+  const [roadmapLookup, setRoadmapLookup] = useState<Record<string, ClientRoadmapIteration>>({});
   const [dataSeriesNamesById, setDataSeriesNamesById] = useState<Record<string, string>>({});
   const [selectedRecipeId, setSelectedRecipeId] = useState<string>("");
   const suggestedRecipes = useMemo(() => autoInsertDefaultSuggestions
@@ -48,7 +48,7 @@ export function SuggestedRecipeApplier({
         setAvailableDataSeries(
           roadmaps.map((roadmap) => ({
             id: roadmap.id,
-            name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version }),
+            name: t("common:roadmap_version_name", { name: roadmap.roadmap.name, version: roadmap.version }),
           })),
         );
 
@@ -57,10 +57,10 @@ export function SuggestedRecipeApplier({
         setDataSeriesNamesById(
           Object.values(roadmapLookup).reduce((acc, roadmap) => {
             for (const goal of roadmap.goals) {
-              const goalDisplayName = goal.name || goal.indicatorParameter;
+              const goalDisplayName = goal.name || goal.indicator_parameter;
 
-              if (goal.dataSeries) {
-                acc[goal.dataSeries.id] = goalDisplayName;
+              if (goal.data_series) {
+                acc[goal.data_series.id] = goalDisplayName;
               }
 
               if (goal.baseline) {
@@ -68,8 +68,8 @@ export function SuggestedRecipeApplier({
               }
 
               for (const effect of goal.effects) {
-                if (!effect.dataSeries) continue;
-                acc[effect.dataSeries.id] = `${goalDisplayName} - ${t("common:effect_one")}`;
+                if (!effect.data_series) continue;
+                acc[effect.data_series.id] = `${goalDisplayName} - ${t("common:effect_one")}`;
               }
             }
 

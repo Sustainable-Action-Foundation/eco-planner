@@ -1,6 +1,6 @@
 "use client";
 
-import type { DataSeries, Goal } from "@/lib/prisma/generated";
+import type { Goal } from "@/types";
 import { ChildGraphType } from "@/types/enums";
 import type { ChangeEvent, Dispatch, SetStateAction } from "react";
 import { setStoredChildGraphType } from "../functions/graphFunctions";
@@ -11,7 +11,7 @@ export default function ChildGraphSelector({
   currentSelection,
   setter,
 }: {
-  goal: Goal & { dataSeries: DataSeries | null },
+  goal: Pick<Goal, "id" | "data_series">,
   currentSelection: ChildGraphType,
   setter: Dispatch<SetStateAction<ChildGraphType>>
 }) {

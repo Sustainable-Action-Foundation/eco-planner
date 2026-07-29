@@ -37,11 +37,11 @@ export default function HistoricalForm({
   }, [previewHistoricalRecipe]);
 
   const previewGraphSeries = useMemo(() => ({
-    main: goal.dataSeries && {
+    main: goal.data_series && {
       name: goal.name ?? 'goal', // todo: use full leap param fallback + i18n
-      unit: (goal.dataSeries?.unit ?? 'MISSING_UNIT') as Unit, // TODO: Typeguard? idk?
+      unit: (goal.data_series?.unit ?? 'MISSING_UNIT') as Unit, // TODO: Typeguard? idk?
       dateValues: Object.fromEntries(
-        goal.dataSeries.values.map((value) => [
+        goal.data_series.values.map((value) => [
           value.timestamp.toISOString(),
           value.value,
         ]),
@@ -49,7 +49,7 @@ export default function HistoricalForm({
     },
     baseline: goal.baseline?.values && {
       name: t('graphs:common.baseline_scenario'),
-      unit: (goal.dataSeries?.unit ?? 'MISSING_UNIT') as Unit, // TODO: Typeguard? idk? also we lie here for now and say that all dataseries share the same unit
+      unit: (goal.data_series?.unit ?? 'MISSING_UNIT') as Unit, // TODO: Typeguard? idk? also we lie here for now and say that all dataseries share the same unit
       dateValues: Object.fromEntries(
         goal.baseline.values.map((value) => [
           value.timestamp.toISOString(),
@@ -57,12 +57,12 @@ export default function HistoricalForm({
         ]),
       ),
     },
-    historical: (goal.dataSeries && previewHistoricalSerie?.dateValues) && {
+    historical: (goal.data_series && previewHistoricalSerie?.dateValues) && {
       name: historicalLabel ? `${historicalLabel} (historical)` : 'historical data', // TODO: I18n
-      unit: (goal.dataSeries?.unit ?? 'MISSING_UNIT') as Unit, // TODO: Typeguard? idk? also we lie here for now and say that all dataseries share the same unit
+      unit: (goal.data_series?.unit ?? 'MISSING_UNIT') as Unit, // TODO: Typeguard? idk? also we lie here for now and say that all dataseries share the same unit
       dateValues: previewHistoricalSerie.dateValues,
     },
-  }), [previewHistoricalSerie, historicalLabel, t, goal.baseline?.values, goal.dataSeries, goal.name]);
+  }), [previewHistoricalSerie, historicalLabel, t, goal.baseline?.values, goal.data_series, goal.name]);
 
   // The section's inputs live in a recipe context; its FormSync injects the
   // resulting recipe and date values as hidden fields, read out here on submit.
@@ -105,7 +105,7 @@ export default function HistoricalForm({
       goalId: goal.id,
       historical: historical,
       historicalRecipe: recipe.serialize(),
-      historicalRecipeId: goal.historical?.recipeUsed?.id ?? undefined,
+      historicalRecipeId: goal.historical?.recipe_used?.id ?? undefined,
       timestamp: Date.now(),
     } satisfies GoalUpdateInput), "PUT", t);
   }

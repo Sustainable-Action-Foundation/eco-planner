@@ -1,68 +1,69 @@
-import RoadmapForm from "@/components/form/forms/roadmap";
-import { getOneRoadmap } from "@/fetchers";
+import RoadmapIterationForm from "@/components/form/forms/roadmapIteration";
+import { getOneRoadmapIteration, getUserAccessContext } from "@/fetchers";
 import { getSession } from '@/lib/session';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
-import accessChecker from "@/lib/accessChecker";
-import { AccessLevel } from "@/types/enums";
+import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import type { Metadata } from "next";
 
-export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ iterationId: string }> }): Promise<Metadata> {
   const params = await props.params;
-  const [t, session, roadmap] = await Promise.all([
+  const [t, session, iteration] = await Promise.all([
     serveTea("metadata"),
     getSession(await cookies()),
-    getOneRoadmap(params.roadmapId),
+    getOneRoadmapIteration(params.iterationId),
   ]);
 
   if (!session.user?.isLoggedIn) {
     return buildMetadata({
       title: t("metadata:login.title"),
       description: t("metadata:login.title"),
-      og_url: `/roadmap/${params.roadmapId}/edit`,
+      og_url: `/roadmapIteration/${params.iterationId}/edit`,
       og_image_url: '/images/og_wind.png',
     });
   }
 
   return buildMetadata({
-    title: `${t("metadata:roadmap_edit.title")} ${roadmap?.metaRoadmap.name}`,
-    description: roadmap?.description || roadmap?.metaRoadmap.description,
-    og_url: `/roadmap/${params.roadmapId}/edit`,
+    title: `${t("metadata:roadmap_edit.title")} ${iteration?.roadmap.name}`,
+    description: iteration?.description || iteration?.roadmap.description,
+    og_url: `/roadmapIteration/${params.iterationId}/edit`,
     og_image_url: undefined,
   });
 }
 
 
-export default async function Page(props: { params: Promise<{ roadmapId: string }> }) {
+export default async function Page(props: { params: Promise<{ iterationId: string }> }) {
   const params = await props.params;
-  const [t, session, roadmap] = await Promise.all([
+  const [t, session, accessContext, iteration] = await Promise.all([
     serveTea("pages"),
     getSession(await cookies()),
-    getOneRoadmap(params.roadmapId),
+    getUserAccessContext(),
+    getOneRoadmapIteration(params.iterationId),
   ]);
 
-  const access = accessChecker(roadmap, session.user);
+  const access = accessChecker(
+    iteration ? { access_control: iteration.roadmap.access_control, published_at: iteration.published_at } : null,
+    accessContext,
+  );
 
-  // User must be signed in and have edit access to the roadmap, which must exist
-  if (!session.user || !roadmap || access === AccessLevel.None || access === AccessLevel.View) {
+  // User must be signed in and have edit access to the iteration, which must exist
+  if (!session.user || !iteration || !hasEditAccess(access)) {
     return notFound();
   }
 
   return (
     <>
-      <Breadcrumb object={roadmap} customSections={[t("pages:roadmap_edit.breadcrumb")]} />
+      <Breadcrumb object={iteration} customSections={[t("pages:roadmap_edit.breadcrumb")]} />
 
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-top-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
           {t("pages:roadmap_edit.title")} {/* TODO: Need a better name here... */}
         </h1>
-        <RoadmapForm
-          user={session.user}
-          userGroups={session.user?.userGroups}
-          currentRoadmap={roadmap}
+        <RoadmapIterationForm
+          currentIteration={iteration}
         />
       </div>
     </>

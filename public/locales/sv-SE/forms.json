@@ -6,7 +6,15 @@
     "me_only": "Enbart jag",
     "select_groups": "Välj grupper",
     "select_users": "Välj användare",
-    "users": "Användare"
+    "users": "Användare",
+    "visibility": "Vem kan se detta?",
+    "granted_groups_only": "Endast grupper med åtkomst nedan",
+    "org_members": "Alla i organisationen",
+    "group_grants": "Gruppåtkomst",
+    "no_groups": "Organisationen har inga grupper ännu. Chefer kan skapa grupper.",
+    "no_access": "Ingen åtkomst",
+    "read_only": "Läsa",
+    "read_write": "Läsa och redigera"
   },
   "action": {
     "action_description": "Beskrivning",
@@ -35,7 +43,9 @@
     "relationship_label": "$t(common:roadmap_version_one)",
     "relationship_no_chosen": "Välj $t(common:roadmap_version_one)",
     "relevant_actors": "Relevanta aktörer",
-    "start_year": "Startår"
+    "start_year": "Startår",
+    "tag": "Tagg",
+    "field_header": "Fältrubrik"
   },
   "combobox": {
     "default_autocomplete_placeholder": "Skriv för att se förslag",
@@ -198,7 +208,11 @@
     "relationship_label": "Förälder",
     "relationship_legend": "Jobbar denna $t(common:roadmap_series_one) mot en annan $t(common:roadmap_series_one)?",
     "relationship_no_chosen": "Ingen förälder",
-    "type": "Typ"
+    "type": "Typ",
+    "org": "Ägande organisation",
+    "no_chosen_org": "Välj en organisation",
+    "geo_area": "Geografiskt område (för statistik)",
+    "no_chosen_geo_area": "Inget geografiskt område"
   },
   "repeatable_scaling": {
     "area": "Ytarea:",
@@ -240,7 +254,9 @@
     "scale_deprecated": "Kolumnen 'Scale' stöds inte och kommer att ignoreras.",
     "scale_deprecated_extended": "$t(forms:roadmap.scale_deprecated) Om kolumnen innehåller några skalor, vänligen baka in dem i enheten eller värdet istället. Exempel: använd 'MW' som enhet istället för att använda 'kW' med skala 'tusen'.",
     "unknown_error": "Okänt fel",
-    "upload_goals": "Ladda upp $t(common:goal_other)"
+    "upload_goals": "Ladda upp $t(common:goal_other)",
+    "publish": "Publicera denna version",
+    "publish_hint": "Opublicerade versioner är utkast som bara syns för personer som kan redigera färdplanen."
   },
   "text_editor_menu": {
     "bold": "Fetstil",

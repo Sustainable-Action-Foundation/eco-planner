@@ -1,7 +1,7 @@
 'use client';
 
 import { commentSorter } from "@/lib/sorters";
-import type { Comment } from "@/lib/prisma/generated";
+import type { Comments as CommentModel } from "@/lib/prisma/generated";
 import styles from './comments.module.css';
 import type { FocusEventHandler, InputEventHandler } from "react";
 import { useRef, useState } from "react";
@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 import Link from "next/link";
 import formSubmitter from "@/functions/formSubmitter";
 
-export default function Comments({ comments, objectId }: { comments?: (Comment & { author: { id: string, username: string } })[], objectId: string }) {
+export default function Comments({ comments, objectId }: { comments?: (CommentModel & { author: { id: string, username: string } | null })[], objectId: string }) {
   const { t } = useTranslation(["components", "common"]);
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
@@ -87,15 +87,20 @@ export default function Comments({ comments, objectId }: { comments?: (Comment &
         {comments?.map((comment) => (
           <div key={comment.id}>
             <div className="flex align-items-center gap-50 margin-top-200">
-              <Link className={styles.commentAuthor} href={`/@${comment.author.username}`}>{comment.author.username}</Link>
-              <span className="font-weight-300" style={{ color: 'gray', fontSize: '.75rem' }} title={new Date(comment.createdAt).toLocaleString()}>
-                {t("components:comments.relative_time", { date: new Date(comment.createdAt) })}
+              {comment.author ? (
+                <Link className={styles.commentAuthor} href={`/@${comment.author.username}`}>{comment.author.username}</Link>
+              ) : (
+                // Authors are nullable (deleted users)
+                <span className={styles.commentAuthor}>{t("components:comments.deleted_user")}</span>
+              )}
+              <span className="font-weight-300" style={{ color: 'gray', fontSize: '.75rem' }} title={new Date(comment.created_at).toLocaleString()}>
+                {t("components:comments.relative_time", { date: new Date(comment.created_at) })}
               </span>
             </div>
             <p className="margin-0" style={{ wordBreak: 'break-word' }}>
-              {expandedComments.includes(comment.id) ? comment.commentText : comment.commentText.length > 300 ? `${comment.commentText.substring(0, 300)}${t("common:tsx.ellipsis")}` : comment.commentText}
+              {expandedComments.includes(comment.id) ? comment.comment_text : comment.comment_text.length > 300 ? `${comment.comment_text.substring(0, 300)}${t("common:tsx.ellipsis")}` : comment.comment_text}
             </p>
-            {comment.commentText.length > 300 ?
+            {comment.comment_text.length > 300 ?
               <button type="button" className={`margin-block-25 ${styles.readMoreButton}`} onClick={() => expandComment(comment.id)}>
                 {expandedComments.includes(comment.id) ? t("common:tsx.show_less") : t("common:tsx.show_more")}
               </button>

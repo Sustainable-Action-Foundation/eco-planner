@@ -327,6 +327,10 @@ export const effectInclusionSelection = {
     select: {
       id: true,
       name: true,
+      // The owning org decides edit access for roadmapless actions (the public action database)
+      org_id: true,
+      // Present (if empty) so consumers can tell actions from goals by the fields list
+      fields: { select: { id: true } },
       roadmap_iteration_id: true,
       roadmap_iteration: {
         select: {

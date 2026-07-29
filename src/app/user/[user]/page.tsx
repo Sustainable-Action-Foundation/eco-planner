@@ -9,7 +9,8 @@ import styles from './page.module.css' with { type: "css" };
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from '@/functions/buildMetadata';
 import Link from 'next/link';
-import { getMetaRoadmaps, getRoadmaps, getUserInfo } from "@/fetchers";
+import { getRoadmapIterations, getRoadmaps, getUserInfo } from "@/fetchers";
+import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import type { Metadata } from "next";
 
 export async function generateMetadata(props: {
@@ -52,8 +53,9 @@ export default async function Page(
     username = username?.replace(userIndicatorRegEx, '');
   }
 
-  const [session, userdata] = await Promise.all([
+  const [session, accessContext, userdata] = await Promise.all([
     getSession(await cookies()),
+    getUserAccessContext(),
     getUserInfo(username),
   ]);
 
@@ -62,22 +64,22 @@ export default async function Page(
     return notFound();
   }
 
-  // If user is on their own page, also get all roadmaps/metaRoadmaps they have edit access to
-  const [roadmaps, metaRoadmaps] = await Promise.all([
+  // If user is on their own page, also get all roadmaps/iterations they have edit access to
+  const [iterations, roadmaps] = await Promise.all([
+    (session.user?.username === username) ? getRoadmapIterations() : [],
     (session.user?.username === username) ? getRoadmaps() : [],
-    (session.user?.username === username) ? getMetaRoadmaps() : [],
   ]);
 
-  const editableMetaRoadmaps = metaRoadmaps.filter(metaRoadmap => hasEditAccess(accessChecker(metaRoadmap, session.user)));
-  const editableRoadmaps = roadmaps.filter(roadmap => hasEditAccess(accessChecker(roadmap, session.user)));
+  const editableRoadmaps = roadmaps.filter(roadmap => hasEditAccess(accessChecker(roadmap, accessContext)));
+  const editableIterations = iterations.filter(iteration => hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, published_at: iteration.published_at }, accessContext)));
 
   // Get query params for filtering
   const objectsFilter = searchParams['objects'] ? (Array.isArray(searchParams['objects']) ? searchParams['objects'] : [searchParams['objects']]) : [];
   const accessFilter = searchParams['access'] ? (Array.isArray(searchParams['access']) ? searchParams['access'] : [searchParams['access']]) : [];
 
   // Update values based on query params
-  let displayedMetaRoadmaps: typeof metaRoadmaps = [];
   let displayedRoadmaps: typeof roadmaps = [];
+  let displayedIterations: typeof iterations = [];
   function toggleRoadmaps() {
 
     if (!userdata) {
@@ -86,34 +88,34 @@ export default async function Page(
 
     if (objectsFilter.length < 1) {
       if (accessFilter.includes('edit') && session.user?.username === username) {
-        displayedMetaRoadmaps = editableMetaRoadmaps;
         displayedRoadmaps = editableRoadmaps;
+        displayedIterations = editableIterations;
       } else {
-        // Default to only show authored meta roadmaps if user has not selected the edit option
-        // And default to only show authored roadmaps if user has not selected the edit option
-        displayedMetaRoadmaps = userdata.authoredMetaRoadmaps;
-        displayedRoadmaps = userdata.authoredRoadmaps;
+        // Default to only show authored roadmaps if user has not selected the edit option
+        // And default to only show authored iterations if user has not selected the edit option
+        displayedRoadmaps = userdata.authored_roadmaps;
+        displayedIterations = userdata.authored_roadmap_iterations;
       }
     } else {
-      displayedMetaRoadmaps = [];
       displayedRoadmaps = [];
+      displayedIterations = [];
     }
 
     if (objectsFilter.includes('roadmapseries')) {
       if (accessFilter.includes('edit') && session.user?.username === username) {
-        displayedMetaRoadmaps = editableMetaRoadmaps;
+        displayedRoadmaps = editableRoadmaps;
       } else {
-        // Default to only show authored meta roadmaps if user has not selected the edit option
-        displayedMetaRoadmaps = userdata.authoredMetaRoadmaps;
+        // Default to only show authored roadmaps if user has not selected the edit option
+        displayedRoadmaps = userdata.authored_roadmaps;
       }
     }
 
     if (objectsFilter.includes('roadmap')) {
       if (accessFilter.includes('edit') && session.user?.username === username) {
-        displayedRoadmaps = editableRoadmaps;
+        displayedIterations = editableIterations;
       } else {
-        // Default to only show authored roadmaps if user has not selected the edit option
-        displayedRoadmaps = userdata.authoredRoadmaps;
+        // Default to only show authored iterations if user has not selected the edit option
+        displayedIterations = userdata.authored_roadmap_iterations;
       }
     }
   }
@@ -145,19 +147,19 @@ export default async function Page(
         <UserFilters userPage={session.user?.username === username} />
 
         <nav>
-          {displayedMetaRoadmaps.length > 0 ?
+          {displayedRoadmaps.length > 0 ?
             <section className='margin-block-300'>
               <h3 className='margin-top-0'>{t("pages:profile.roadmap_series_ones")}</h3>
               <ul className={`${styles.itemsList}`}>
-                {displayedMetaRoadmaps.map((metaRoadmap, index) =>
+                {displayedRoadmaps.map((roadmap, index) =>
                   <li key={index}>
                     <div className='inline-block width-100' style={{ verticalAlign: 'middle' }}>
                       <div className='flex justify-content-space-between align-items-center'>
-                        <Link href={`/metaRoadmap/${metaRoadmap.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
-                          <h4 className='font-weight-500 margin-0'>{metaRoadmap.name} </h4>
-                          <p className='margin-0'>{t("pages:profile.version_count", { count: metaRoadmap.roadmapVersions.length })}</p>
+                        <Link href={`/roadmap/${roadmap.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
+                          <h4 className='font-weight-500 margin-0'>{roadmap.name} </h4>
+                          <p className='margin-0'>{t("pages:profile.version_count", { count: roadmap.iterations.length })}</p>
                         </Link>
-                        <ControlsMenu object={metaRoadmap} />
+                        <ControlsMenu object={roadmap} />
                       </div>
                     </div>
                   </li>,
@@ -166,19 +168,19 @@ export default async function Page(
             </section>
             : null}
 
-          {displayedRoadmaps.length > 0 ?
+          {displayedIterations.length > 0 ?
             <section className='margin-block-300'>
               <h3 className='margin-top-0'>{t("pages:profile.roadmap_versions")}</h3>
               <ul className={`${styles.itemsList}`}>
-                {displayedRoadmaps.map((roadmap, index) =>
+                {displayedIterations.map((iteration, index) =>
                   <li key={index}>
                     <div className='inline-block width-100' style={{ verticalAlign: 'middle' }}>
                       <div className='flex justify-content-space-between align-items-center'>
-                        <Link href={`/roadmap/${roadmap.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
-                          <h4 className='font-weight-500 margin-0'>{roadmap.metaRoadmap.name} {`(v${roadmap.version})`}</h4>
-                          <p className='margin-0'>{t("common:count.goal", { count: roadmap._count.goals })}</p>
+                        <Link href={`/roadmapIteration/${iteration.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
+                          <h4 className='font-weight-500 margin-0'>{iteration.roadmap.name} {`(v${iteration.version})`}</h4>
+                          <p className='margin-0'>{t("common:count.goal", { count: iteration._count.goals })}</p>
                         </Link>
-                        <ControlsMenu object={roadmap} />
+                        <ControlsMenu object={iteration} />
                       </div>
                     </div>
                   </li>,

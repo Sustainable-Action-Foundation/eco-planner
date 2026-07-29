@@ -1,13 +1,13 @@
 import { getSession } from '@/lib/session';
-import RoadmapForm from '@/components/form/forms/roadmap';
+import RoadmapIterationForm from '@/components/form/forms/roadmapIteration';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
 import accessChecker, { hasEditAccess } from '@/lib/accessChecker';
-import serveTea from "@/lib/i18nServer";;
+import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from '@/functions/buildMetadata';
 import { IconInfoCircle } from '@tabler/icons-react';
-import { getOneMetaRoadmap, getMetaRoadmaps } from "@/fetchers";
+import { getOneRoadmap, getRoadmaps, getUserAccessContext } from "@/fetchers";
 import type { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -16,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildMetadata({
     title: t("metadata:roadmap_create.title"),
     description: t('metadata:roadmap_create.description'),
-    og_url: `/roadmap/create`,
+    og_url: `/roadmapIteration/create`,
     og_image_url: undefined,
   });
 }
@@ -24,17 +24,18 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Page(
   props: {
     searchParams: Promise<{
-      metaRoadmapId?: string | string[] | undefined,
+      roadmapId?: string | string[] | undefined,
       [key: string]: string | string[] | undefined
     }>
   },
 ) {
   const searchParams = await props.searchParams;
-  const [t, session, parent, metaRoadmapAlternatives] = await Promise.all([
+  const [t, session, accessContext, parent, roadmapAlternatives] = await Promise.all([
     serveTea("pages"),
     getSession(await cookies()),
-    getOneMetaRoadmap(typeof searchParams.metaRoadmapId == 'string' ? searchParams.metaRoadmapId : ''),
-    getMetaRoadmaps(),
+    getUserAccessContext(),
+    getOneRoadmap(typeof searchParams.roadmapId == 'string' ? searchParams.roadmapId : ''),
+    getRoadmaps(),
   ]);
 
   // User must be signed in
@@ -42,15 +43,15 @@ export default async function Page(
     return notFound();
   }
 
-  const badMetaRoadmap = (
-    searchParams.metaRoadmapId instanceof Array
-    || (!parent && typeof searchParams.metaRoadmapId == 'string')
-    || (parent && !hasEditAccess(accessChecker(parent, session.user)))
+  const badRoadmap = (
+    searchParams.roadmapId instanceof Array
+    || (!parent && typeof searchParams.roadmapId == 'string')
+    || (parent && !hasEditAccess(accessChecker(parent, accessContext)))
   );
 
-  // The meta roadmaps the user can create the new roadmap under (the ones they have edit access to)
-  const filteredAlternatives = metaRoadmapAlternatives.filter(metaRoadmap =>
-    hasEditAccess(accessChecker(metaRoadmap, session.user)),
+  // The roadmaps the user can create the new iteration under (the ones they have edit access to)
+  const filteredAlternatives = roadmapAlternatives.filter(roadmap =>
+    hasEditAccess(accessChecker(roadmap, accessContext)),
   );
 
   return (
@@ -61,17 +62,15 @@ export default async function Page(
         <h1 className='margin-top-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
           {t("pages:roadmap_create.title")}
         </h1>
-        {badMetaRoadmap ? <p style={{ color: 'red' }}>
+        {badRoadmap ? <p style={{ color: 'red' }}>
             <IconInfoCircle role="img" aria-label={t("pages:roadmap_create.information_icon_aria")} />
             {t("pages:roadmap_create.bad_roadmap_series")} <br />
             {t("pages:roadmap_create.use_dropdown")}
           </p> : null
         }
-        <RoadmapForm
-          user={session.user}
-          userGroups={session.user?.userGroups}
-          metaRoadmapAlternatives={filteredAlternatives}
-          defaultMetaRoadmap={badMetaRoadmap ? undefined : searchParams.metaRoadmapId as string | undefined}
+        <RoadmapIterationForm
+          roadmapAlternatives={filteredAlternatives}
+          defaultRoadmapId={badRoadmap ? undefined : searchParams.roadmapId as string | undefined}
         />
       </div>
     </>

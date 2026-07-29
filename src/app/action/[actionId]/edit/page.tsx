@@ -2,10 +2,10 @@ import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import ActionForm from "@/components/form/forms/action";
 import { notFound } from "next/navigation";
-import accessChecker from "@/lib/accessChecker";
+import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getOneAction } from "@/fetchers";
-import type { AccessControlled } from "@/types";
-import { AccessLevel } from "@/types/enums";
+import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { OrgRole } from "@/lib/prisma/generated";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
@@ -30,7 +30,7 @@ export async function generateMetadata(props: { params: Promise<{ actionId: stri
 
   return buildMetadata({
     title: `${t("metadata:action_edit.title")} ${action?.name}`,
-    description: action?.description,
+    description: action?.fields[0]?.value,
     og_url: `/goal/${params.actionId}/edit`,
     og_image_url: undefined,
   });
@@ -42,26 +42,25 @@ export default async function Page(
   },
 ) {
   const params = await props.params;
-  const [t, session, action] = await Promise.all([
+  const [t, accessContext, action] = await Promise.all([
     serveTea("pages"),
-    getSession(await cookies()),
+    getUserAccessContext(),
     getOneAction(params.actionId),
   ]);
 
-  let actionAccessData: AccessControlled | null = null;
-  if (action) {
-    actionAccessData = {
-      author: action.author,
-      editors: action.roadmap.editors,
-      viewers: action.roadmap.viewers,
-      editGroups: action.roadmap.editGroups,
-      viewGroups: action.roadmap.viewGroups,
-      isPublic: action.roadmap.isPublic,
-    };
+  let mayEdit = false;
+  if (action && accessContext) {
+    mayEdit = action.roadmap_iteration
+      ? hasEditAccess(accessChecker({
+        access_control: action.roadmap_iteration.roadmap.access_control,
+        published_at: action.roadmap_iteration.published_at,
+      }, accessContext))
+      // Roadmapless actions (the public action database) are editable by the owning org's managers
+      : (accessContext.isSuperAdmin || accessContext.memberships.some(membership => membership.orgId === action.org_id && membership.role === OrgRole.MANAGER));
   }
 
   // User must be signed in and have edit access to the action, and the action must exist
-  if (!action || !session.user || !accessChecker(actionAccessData, session.user) || accessChecker(actionAccessData, session.user) === AccessLevel.View) {
+  if (!action || !accessContext || !mayEdit) {
     return notFound();
   }
 
@@ -73,11 +72,11 @@ export default async function Page(
         <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
           {t("pages:action_edit.title", {
             actionName: action.name,
-            roadmapName: action.roadmap.metaRoadmap.name,
-            version: action.roadmap.version,
+            roadmapName: action.roadmap_iteration?.roadmap.name,
+            version: action.roadmap_iteration?.version,
           })}
         </h1>
-        <ActionForm roadmapId={action.roadmapId} currentAction={action} roadmaps={[]} />
+        <ActionForm iterationId={action.roadmap_iteration_id ?? undefined} currentAction={action} roadmaps={[]} />
       </div>
     </>
   );

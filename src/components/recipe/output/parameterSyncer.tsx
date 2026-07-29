@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
 import { getRecipeRoadmapData } from "../context/roadmapDataCache";
 import { useEffect, useState } from "react";
-import type { ClientRoadmap } from "@/types";
+import type { ClientRoadmapIteration } from "@/types";
 
 export default function ParameterSync({
   setter,
@@ -10,7 +10,7 @@ export default function ParameterSync({
   setter: React.Dispatch<React.SetStateAction<string>>
 }) {
   const { variables } = useRecipe();
-  const [roadmapData, setRoadmapData] = useState<Record<string, ClientRoadmap> | null>(null);
+  const [roadmapData, setRoadmapData] = useState<Record<string, ClientRoadmapIteration> | null>(null);
   const { t } = useTranslation("components");
 
 
@@ -41,9 +41,9 @@ export default function ParameterSync({
     const resultingParameter = Object.values(roadmapData)
       .flatMap((roadmap) => roadmap.goals)
       .flatMap((goal) => [
-        ...(goal.dataSeries ? [{ id: goal.dataSeries.id, indicatorParameter: goal.indicatorParameter }] : []),
-        ...(goal.baseline ? [{ id: goal.baseline.id, indicatorParameter: goal.indicatorParameter }] : []),
-        ...goal.effects.flatMap((effect) => effect.dataSeries ? [{ id: effect.dataSeries.id, indicatorParameter: goal.indicatorParameter }] : []),
+        ...(goal.data_series ? [{ id: goal.data_series.id, indicatorParameter: goal.indicator_parameter }] : []),
+        ...(goal.baseline ? [{ id: goal.baseline.id, indicatorParameter: goal.indicator_parameter }] : []),
+        ...goal.effects.flatMap((effect) => effect.data_series ? [{ id: effect.data_series.id, indicatorParameter: goal.indicator_parameter }] : []),
       ]).find((entry) => entry.id === dataSeriesId)?.indicatorParameter;
 
     if (!resultingParameter) return null; // Fallback
@@ -64,9 +64,9 @@ export default function ParameterSync({
     const resultingParameters = Object.values(roadmapData)
       .flatMap((roadmap) => roadmap.goals)
       .flatMap((goal) => [
-        ...(goal.dataSeries ? [{ id: goal.dataSeries.id, indicatorParameter: goal.indicatorParameter }] : []),
-        ...(goal.baseline ? [{ id: goal.baseline.id, indicatorParameter: goal.indicatorParameter }] : []),
-        ...goal.effects.flatMap((effect) => effect.dataSeries ? [{ id: effect.dataSeries.id, indicatorParameter: goal.indicatorParameter }] : []),
+        ...(goal.data_series ? [{ id: goal.data_series.id, indicatorParameter: goal.indicator_parameter }] : []),
+        ...(goal.baseline ? [{ id: goal.baseline.id, indicatorParameter: goal.indicator_parameter }] : []),
+        ...goal.effects.flatMap((effect) => effect.data_series ? [{ id: effect.data_series.id, indicatorParameter: goal.indicator_parameter }] : []),
       ]).filter((entry) => dataSeriesIds.includes(entry.id))
       .map((entry) => entry.indicatorParameter);
 

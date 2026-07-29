@@ -1,8 +1,9 @@
 import { getSession } from '@/lib/session';
-import MetaRoadmapForm from '@/components/form/forms/metaRoadmap';
+import RoadmapForm from '@/components/form/forms/roadmap';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
-import { getMetaRoadmaps } from '@/fetchers';
+import { getRoadmaps } from '@/fetchers';
+import { getOrgOptions } from '@/fetchers/getOrgOptions';
 import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from '@/functions/buildMetadata';
@@ -14,20 +15,21 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildMetadata({
     title: t("metadata:roadmap_series_create.title"),
     description: t("metadata:roadmap_series_create.description"),
-    og_url: `/metaRoadmap/create`,
+    og_url: `/roadmap/create`,
     og_image_url: undefined,
   });
 }
 
 export default async function Page() {
-  const [t, session, parentRoadmapOptions] = await Promise.all([
+  const [t, session, parentRoadmapOptions, orgOptions] = await Promise.all([
     serveTea("pages"),
     getSession(await cookies()),
-    getMetaRoadmaps(),
+    getRoadmaps(),
+    getOrgOptions(),
   ]);
 
-  // User must be signed in
-  if (!session.user) {
+  // User must be signed in and be able to create in some org
+  if (!session.user || orgOptions.length === 0) {
     return notFound();
   }
 
@@ -39,9 +41,9 @@ export default async function Page() {
         <h1 className='margin-top-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
           {t("pages:roadmap_series_one_create.title")}
         </h1>
-        <MetaRoadmapForm
-          user={session.user}
-          userGroups={session.user?.userGroups}
+        <RoadmapForm
+          isSuperAdmin={session.user.isSuperAdmin}
+          orgOptions={orgOptions}
           parentRoadmapOptions={parentRoadmapOptions}
         />
       </div>

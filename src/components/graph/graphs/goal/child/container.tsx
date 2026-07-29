@@ -30,7 +30,7 @@ export default function ChildGraphContainer({
   })());
 
   // Default to stacked unless the unit is percent or fraction
-  const [isStacked, setIsStacked] = useState(!percentAndFraction.includes(goal.dataSeries?.unit?.toLowerCase() ?? ""));
+  const [isStacked, setIsStacked] = useState(!percentAndFraction.includes(goal.data_series?.unit?.toLowerCase() ?? ""));
 
   function childGraphSwitch(childGraphType: string) {
     switch (childGraphType) {
@@ -58,7 +58,7 @@ export default function ChildGraphContainer({
           </button>
         </menu>
         <h2 className={`${styles['heading']}`}>
-          {t("graphs:child_graph_container.goals_toward", { goalName: goal.name ? `${goal.name}` : `${goal.indicatorParameter}` })}
+          {t("graphs:child_graph_container.goals_toward", { goalName: goal.name ? `${goal.name}` : `${goal.indicator_parameter}` })}
         </h2>
       </header>
 
@@ -72,7 +72,7 @@ export default function ChildGraphContainer({
             <span key={child.id} className="flex gap-50 line-height-100">
               <a href={`/goal/${child.id}`} className="flex gap-25 align-items-center">
                 <IconLink width={14} height={14} strokeWidth={1.5} />
-                {child.name || child.indicatorParameter.split('\\').at(-1)} ({child.roadmap.metaRoadmap.name || t("graphs:common.unknown_roadmap")})
+                {child.name || child.indicator_parameter.split('\\').at(-1)} ({child.roadmap_iteration.roadmap.name || t("graphs:common.unknown_roadmap")})
               </a>
               {index !== childGoals.length - 1 ?
                 <hr aria-orientation="vertical" className="padding-0 margin-block-25" /> /* TODO: Need to add orientation aria to other HR */

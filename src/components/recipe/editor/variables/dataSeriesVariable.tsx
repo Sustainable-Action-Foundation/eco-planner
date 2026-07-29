@@ -5,16 +5,16 @@ import { useTranslation } from "react-i18next";
 import React, { useCallback, useMemo } from "react";
 import type { RecipeContextType, TreeItem } from "@/components/types";
 import SelectSingleTree from "@/components/form/elements/combobox/selectSingleTree";
-import { clientSafeGetOneRoadmap } from "@/fetchers/client";
+import { clientSafeGetOneRoadmapIteration } from "@/fetchers/client";
 import { CommonVariable, useRecipe, VectorPickerSelect } from "@/components/recipe";
-import type { ClientRoadmap } from "@/types";
+import type { ClientRoadmapIteration } from "@/types";
 import { RecipeEditorPermissions } from "@/types/enums";
 
 type AvailableRoadmapOption = { id: string; name: string; };
 
 function useRoadmapTreeItems(
   availableRoadmaps: AvailableRoadmapOption[],
-  roadmapLookup: Record<string, ClientRoadmap>,
+  roadmapLookup: Record<string, ClientRoadmapIteration>,
 ) {
   const { t } = useTranslation("components");
 
@@ -24,17 +24,17 @@ function useRoadmapTreeItems(
       name: roadmap.name,
       value: `roadmap:${roadmap.id}`,
       onExpand: async () => {
-        const data = roadmapLookup[roadmap.id] ?? await clientSafeGetOneRoadmap(roadmap.id);
+        const data = roadmapLookup[roadmap.id] ?? await clientSafeGetOneRoadmapIteration(roadmap.id);
         if (!data) return [];
 
         return data.goals.map((goal): TreeItem => {
-          const goalDisplayName = goal.name || goal.indicatorParameter;
+          const goalDisplayName = goal.name || goal.indicator_parameter;
           const goalChildren: TreeItem[] = [];
 
-          if (goal.dataSeries) {
+          if (goal.data_series) {
             goalChildren.push({
               name: goalDisplayName,
-              value: goal.dataSeries.id,
+              value: goal.data_series.id,
               expanded: null,
             });
           }
@@ -48,10 +48,10 @@ function useRoadmapTreeItems(
           }
 
           for (const effect of goal.effects) {
-            if (!effect.dataSeries) continue;
+            if (!effect.data_series) continue;
             goalChildren.push({
               name: `${goalDisplayName} - ${t("common:effect_one")}`,
-              value: effect.dataSeries.id,
+              value: effect.data_series.id,
               expanded: null,
             });
           }
@@ -102,7 +102,7 @@ export function DataSeriesVariableEditor({
   permissions?: RecipeEditorPermissions;
   availableDataSeries?: AvailableDataSeries;
   dataSeriesNamesById?: Record<string, string>;
-  roadmapLookup?: Record<string, ClientRoadmap>;
+  roadmapLookup?: Record<string, ClientRoadmapIteration>;
 }) {
   const { t } = useTranslation("components");
   const { recipe, upsertVariable, getVariable } = useRecipe();
@@ -176,7 +176,7 @@ export function DataSeriesVariableSimpleEditor({
   availableDataSeries?: AvailableRoadmapOption[];
   permissions?: RecipeEditorPermissions;
   dataSeriesNamesById?: Record<string, string>;
-  roadmapLookup?: Record<string, ClientRoadmap>;
+  roadmapLookup?: Record<string, ClientRoadmapIteration>;
 }) {
   const { t } = useTranslation("components");
   const { recipe, upsertVariable, getVariable } = useRecipe();

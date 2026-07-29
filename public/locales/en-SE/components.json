@@ -19,7 +19,8 @@
     "comment_count_other": "{{count}} comments",
     "comment_count_zero": "No comments",
     "relative_time": "{{date, timeAgo}}",
-    "send": "Submit"
+    "send": "Submit",
+    "deleted_user": "Deleted user"
   },
   "confirm_delete": {
     "confirmation": "Are you sure you want to delete post <strong>{{targetName}}</strong>?<br />This action cannot be undone.",

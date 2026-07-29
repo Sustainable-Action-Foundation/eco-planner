@@ -1,232 +1,156 @@
 'use client';
 
-import { useMemo, useRef, useState } from "react";
-import SelectMultipleSearch from "../elements/combobox/selectMultipleSearch";
-import type { AccessControlled, LoginData } from "@/types";
-import type { MetaRoadmap, Roadmap } from "@/lib/prisma/generated";
+import { useState } from "react";
+import type { AccessControlInfo, AccessControlInput } from "@/types";
+import { AccessLevel } from "@/lib/prisma/generated";
 import styles from '../forms.module.css';
 import { useTranslation } from "react-i18next";
 
+/** A grant row's selectable level; NONE means no grant for the group */
+const GrantChoice = {
+  None: "NONE",
+  ReadOnly: AccessLevel.RO,
+  ReadWrite: AccessLevel.RW,
+} as const;
+type GrantChoice = (typeof GrantChoice)[keyof typeof GrantChoice];
+
+type Visibility = "public" | "org" | "groups";
+
+function toVisibility(access: Pick<AccessControlInfo, "is_public" | "org_readable"> | undefined): Visibility {
+  if (!access) return "org";
+  if (access.is_public) return "public";
+  if (access.org_readable) return "org";
+  return "groups";
+}
+
+/**
+ * Sharing settings editor for an org-owned access control: overall visibility
+ * (public / org members / granted groups only) plus per-group RO/RW grants.
+ *
+ * Sharing is manager-only on existing content; the parent decides whether to
+ * render this at all. `mayEditPublic` gates the public option (is_public is
+ * only honored for org managers / super admins even on create).
+ */
 export default function ConfigureAccess({
-  user,
-  userGroups,
-  currentRoadmap,
+  groups,
+  initialAccess,
+  mayEditPublic,
+  onChange,
   positionIndex,
-  legends,
+  legend,
 }: {
-  user: LoginData['user'],
-  userGroups: string[],
-  currentRoadmap?: MetaRoadmap & AccessControlled | Roadmap & AccessControlled & { metaRoadmap: MetaRoadmap },
+  /** The owning org's groups */
+  groups: { id: string, name: string }[],
+  /** Existing access control when editing; leave undefined when creating */
+  initialAccess?: Pick<AccessControlInfo, "is_public" | "org_readable" | "grants">,
+  /** Whether the user may make the item public (org manager / super admin) */
+  mayEditPublic: boolean,
+  /** Called with the full sharing input whenever anything changes */
+  onChange: (access: AccessControlInput) => void,
   positionIndex: number,
-  legends: { viewers: string, editors: string }
+  legend: string,
 }) {
   const { t } = useTranslation(["forms"]);
 
-  const accessSectionRef = useRef<HTMLDivElement>(null);
+  const [visibility, setVisibility] = useState<Visibility>(toVisibility(initialAccess));
+  const [grants, setGrants] = useState<Record<string, GrantChoice>>(() => {
+    const initial: Record<string, GrantChoice> = {};
+    for (const group of groups) {
+      initial[group.id] = initialAccess?.grants.find(grant => grant.group_id === group.id)?.access_level ?? GrantChoice.None;
+    }
+    return initial;
+  });
 
-  let currentAccess: AccessControlled | undefined = undefined;
-  if (currentRoadmap) {
-    currentAccess = {
-      author: currentRoadmap.author,
-      editors: currentRoadmap.editors,
-      viewers: currentRoadmap.viewers,
-      editGroups: currentRoadmap.editGroups,
-      viewGroups: currentRoadmap.viewGroups,
-      isPublic: currentRoadmap.isPublic,
-    };
-  }
+  const emit = (nextVisibility: Visibility, nextGrants: Record<string, GrantChoice>) => {
+    onChange({
+      isPublic: nextVisibility === "public",
+      orgReadable: nextVisibility !== "groups",
+      grants: Object.entries(nextGrants)
+        .filter(([, level]) => level !== GrantChoice.None)
+        .map(([groupId, level]) => ({ groupId, accessLevel: level as AccessLevel })),
+    });
+  };
 
-  const [viewers, setViewers] = useState<string>(currentAccess ? currentAccess.viewers.map((viewer) => viewer.username).join(', ') : ''); // TODO: This has NOT been tested with multiple usernames, ensure it gives back exactly what the user initially wrote
-  const [viewerGroups, setViewerGroups] = useState<Array<{ name: string, value: string }>>(currentAccess ? currentAccess?.viewGroups.map((group) => { return { name: group.name, value: group.name }; }) : []);
-  const [editors, setEditors] = useState<string>(currentAccess ? currentAccess?.editors.map((editor) => editor.username).join(', ') : ''); // TODO: This has NOT been tested with multiple usernames, ensure it gives back exactly what the user initially wrote
-  const [editorGroups, setEditorGroups] = useState<Array<{ name: string, value: string }>>(currentAccess ? currentAccess?.editGroups.map((group) => { return { name: group.name, value: group.name }; }) : []);
+  const changeVisibility = (next: Visibility) => {
+    setVisibility(next);
+    emit(next, grants);
+  };
 
-  const [visibilityType, setVisibilityType] = useState<"private" | "public" | "custom" | undefined>(
-    currentAccess
-      ? (currentAccess.isPublic
-        ? "public"
-        : (currentAccess.viewers.length > 0 || currentAccess.viewGroups.length > 0
-          ? "custom"
-          : "private"))
-      : undefined,
-  );
-
-  const [editabilityType, setEditabilityType] = useState<"private" | "custom" | undefined>(
-    currentAccess ? (currentAccess.editors.length > 0 || currentAccess.editGroups.length > 0 ? "custom" : "private") : undefined,
-  );
-
-  const selectableGroups = useMemo(() => {
-    return [
-      ...(userGroups?.map(group => ({
-        name: group,
-        value: group,
-      })) ?? []),
-      /* Do we need this in options?
-        ...(currentAccess?.viewGroups?.map(group => ({
-          name: group.name,
-          value: group.name
-        })) ?? [])
-      */
-    ];
-  }, [userGroups]);
+  const changeGrant = (groupId: string, level: GrantChoice) => {
+    const next = { ...grants, [groupId]: level };
+    setGrants(next);
+    emit(visibility, next);
+  };
 
   return (
-    <div ref={accessSectionRef}>
-      {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) ? <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>
-            {legends.viewers}
-          </legend>
-          <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50">
-            <input
-              required={true}
-              type="radio"
-              name="visibility"
-              id="visibility-private"
-              value="private"
-              checked={visibilityType === "private"}
-              onChange={() => setVisibilityType("private")}
-            />
-            {t("forms:access_selector.me_only")}
-          </label>
+    <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+      <legend data-position={positionIndex} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>
+        {legend}
+      </legend>
+
+      <fieldset className="fieldset-unset-pseudo-class margin-bottom-100">
+        <legend className="font-weight-500 margin-bottom-50">{t("forms:access_selector.visibility")}</legend>
+        <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50">
+          <input
+            required={true}
+            type="radio"
+            name="visibility"
+            value="groups"
+            checked={visibility === "groups"}
+            onChange={() => changeVisibility("groups")}
+          />
+          {t("forms:access_selector.granted_groups_only")}
+        </label>
+        <label className="flex width-fit-content margin-block-75 align-items-center gap-50">
+          <input
+            type="radio"
+            name="visibility"
+            value="org"
+            checked={visibility === "org"}
+            onChange={() => changeVisibility("org")}
+          />
+          {t("forms:access_selector.org_members")}
+        </label>
+        {mayEditPublic ? (
           <label className="flex width-fit-content margin-block-75 align-items-center gap-50">
             <input
               type="radio"
               name="visibility"
-              id="visibility-public"
               value="public"
-              checked={visibilityType === "public"}
-              onChange={() => setVisibilityType("public")}
+              checked={visibility === "public"}
+              onChange={() => changeVisibility("public")}
             />
             {t("forms:access_selector.all_users")}
           </label>
-          <fieldset className=" fieldset-unset-pseudo-class">
-            <legend> {/* TODO: This causes repetition on a screen reader */}
-              <label className="flex width-fit-content align-items-center gap-50">
-                <input
-                  type="radio"
-                  name="visibility"
-                  id="visibility-custom"
-                  value="custom"
-                  checked={visibilityType === "custom"}
-                  onChange={() => setVisibilityType("custom")}
-                />
-                {t("forms:access_selector.custom")}
-              </label>
-            </legend>
-            <div
-              className="grid margin-block-100 gap-50 align-items-center"
-              style={{
-                paddingLeft: 'calc(14px + .5rem)', // Width of radio button + gap (aligns with above text)
-                gridTemplateColumns: 'auto 1fr',
-                gridTemplateRows: 'auto auto',
-                columnGap: '1rem',
-              }}
-            >
-              <label htmlFor="viewers">{`${t("forms:access_selector.users")}:`}</label>
-              <input
-                id="viewers"
-                name="viewers"
-                className="flex-grow-100"
-                placeholder={t("forms:access_selector.select_users")}
-                disabled={visibilityType !== "custom"}
-                required={visibilityType === "custom" && (!viewerGroups || viewerGroups.length === 0)}
-                type="text"
-                autoComplete="off"
-                defaultValue={viewers}
-                onChange={(e) => setViewers(e.target.value)}
-              />
-              <label htmlFor="viewer-groups" className="block width-fit-content">{`${t("forms:access_selector.groups")}:`}</label>
-              <SelectMultipleSearch
-                onChange={(option) => setViewerGroups(option ?? [])}
-                props={{
-                  id: "viewer-groups",
-                  name: "viewer-groups",
-                  placeholder: t("forms:access_selector.select_groups"),
-                  disabled: visibilityType !== "custom",
-                  required: visibilityType === "custom" && !viewers,
-                }}
-                defaultValue={viewerGroups}
-                options={selectableGroups}
-              />
-            </div>
-          </fieldset>
-        </fieldset> : null
-      }
+        ) : null}
+      </fieldset>
 
-      {(!currentRoadmap || user?.isAdmin || user?.id === currentRoadmap.authorId) ? <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend
-            // Technically incrementing here is unused but if you add a another entry after this one it will be correct
-            // eslint-disable-next-line no-useless-assignment
-            data-position={positionIndex++}
-            className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>
-            {legends.editors}
-          </legend>
-          <label className="flex width-fit-content  align-items-center gap-50  margin-bottom-75">
-            <input
-              required={true}
-              type="radio"
-              name="editability"
-              id="editability-private"
-              value="private"
-              checked={editabilityType === "private"}
-              onChange={() => setEditabilityType("private")}
-            />
-            {t("forms:access_selector.me_only")}
-          </label>
-          <fieldset
-            className=" fieldset-unset-pseudo-class"
+      <fieldset className="fieldset-unset-pseudo-class">
+        <legend className="font-weight-500 margin-bottom-50">{t("forms:access_selector.group_grants")}</legend>
+        {groups.length === 0 ? (
+          <p className="margin-block-25 font-style-italic">{t("forms:access_selector.no_groups")}</p>
+        ) : (
+          <div
+            className="grid margin-block-50 gap-50 align-items-center"
+            style={{ gridTemplateColumns: 'auto 1fr', columnGap: '1rem' }}
           >
-            <legend> {/* TODO: This causes repetion on a screenreader */}
-              <label className="flex width-fit-content align-items-center gap-50">
-                <input
-                  type="radio"
-                  name="editability"
-                  id="editability-custom"
-                  value="custom"
-                  checked={editabilityType === "custom"}
-                  onChange={() => setEditabilityType("custom")}
-                />
-                {t("forms:access_selector.custom")}
+            {groups.map(group => (
+              <label key={group.id} className="display-contents">
+                <span>{group.name}</span>
+                <select
+                  className="width-fit-content"
+                  value={grants[group.id] ?? GrantChoice.None}
+                  onChange={(e) => changeGrant(group.id, e.target.value as GrantChoice)}
+                >
+                  <option value={GrantChoice.None}>{t("forms:access_selector.no_access")}</option>
+                  <option value={GrantChoice.ReadOnly}>{t("forms:access_selector.read_only")}</option>
+                  <option value={GrantChoice.ReadWrite}>{t("forms:access_selector.read_write")}</option>
+                </select>
               </label>
-            </legend>
-            <div
-              className="grid margin-block-100 gap-50 align-items-center"
-              style={{
-                paddingLeft: 'calc(14px + .5rem)', // Width of radio button + gap (aligns with above text)
-                gridTemplateColumns: 'auto 1fr',
-                gridTemplateRows: 'auto auto',
-                columnGap: '1rem',
-              }}>
-
-              <label htmlFor="editors" className="block width-fit-content">{`${t("forms:access_selector.users")}:`}</label>
-              <input
-                type="text"
-                autoComplete="off"
-                id="editors"
-                name="editors"
-                placeholder={t("forms:access_selector.select_users")}
-                disabled={editabilityType !== "custom"}
-                required={editabilityType === "custom" && (!editorGroups || editorGroups.length === 0)}
-                defaultValue={editors}
-                onChange={(e) => setEditors(e.target.value)}
-              />
-              <label htmlFor="editor-groups" className="block width-fit-content">{`${t("forms:access_selector.groups")}:`}</label>
-              <SelectMultipleSearch
-                onChange={(option) => setEditorGroups(option ?? [])}
-                props={{
-                  id: "editor-groups",
-                  name: "editor-groups",
-                  placeholder: t("forms:access_selector.select_groups"),
-                  disabled: editabilityType !== "custom",
-                  required: editabilityType === "custom" && !editors,
-                }}
-                defaultValue={editorGroups}
-                options={selectableGroups}
-              />
-            </div>
-          </fieldset>
-        </fieldset> : null
-      }
-    </div>
+            ))}
+          </div>
+        )}
+      </fieldset>
+    </fieldset>
   );
 }

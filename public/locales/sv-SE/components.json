@@ -19,7 +19,8 @@
     "comment_count_other": "{{count}} kommentarer",
     "comment_count_zero": "Inga kommentarer",
     "relative_time": "{{date, timeAgo}}",
-    "send": "Skicka"
+    "send": "Skicka",
+    "deleted_user": "Raderad användare"
   },
   "confirm_delete": {
     "confirmation": "Är du säker på att du vill radera inlägget <strong>{{targetName}}</strong>?<br />Detta går inte att ångra.",
