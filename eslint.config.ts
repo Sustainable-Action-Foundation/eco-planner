@@ -78,7 +78,19 @@ const commonRules: Config["rules"] = {
   "@typescript-eslint/no-import-type-side-effects": "error",
   "@typescript-eslint/no-misused-promises": "warn",
   "@typescript-eslint/no-non-null-assertion": "warn",
-  "@typescript-eslint/no-restricted-imports": ["error", "fs", "path", "crypto", "child_process", "os", "http"],
+  "@typescript-eslint/no-restricted-imports": ["error", {
+    paths: ["fs", "path", "crypto", "child_process", "os", "http"],
+    patterns: [
+      {
+        // Only the Prisma namespace may come from the generated client (error classes,
+        // input types, TransactionClient...); models, enums, and payload types come from
+        // the curated re-export at @/lib/prisma/generated (excluded from this pattern).
+        group: ["**/prisma/generated", "**/prisma/generated/**", "!**/lib/prisma/generated", "!**/lib/prisma/generated/**", "@PRISMA-NAMESPACE-ONLY"],
+        allowImportNames: ["Prisma"],
+        message: "Import only the Prisma namespace from the generated client; everything else comes from @/lib/prisma/generated.",
+      },
+    ],
+  }],
   "@typescript-eslint/no-unnecessary-type-assertion": "warn",
   "@typescript-eslint/no-unsafe-argument": "warn",
   "@typescript-eslint/no-unsafe-assignment": "warn",
@@ -120,6 +132,20 @@ const commonRules: Config["rules"] = {
       // generateMetadata must be async
       "selector": "FunctionDeclaration[id.name=\"generateMetadata\"]:not([async=true])",
       "message": "generateMetadata must be async.",
+    },
+    // The pre-org-rework "metaRoadmap" vocabulary is banned: the old MetaRoadmap is
+    // now the roadmap (top level) and the old Roadmap is a roadmapIteration.
+    {
+      "selector": "[name=/meta_?roadmap/i]",
+      "message": "The legacy \"meta roadmap\" vocabulary is banned; use roadmap (top level) or roadmapIteration.",
+    },
+    {
+      "selector": "Literal[value=/meta_?roadmap/i]",
+      "message": "The legacy \"meta roadmap\" vocabulary is banned; use roadmap (top level) or roadmapIteration.",
+    },
+    {
+      "selector": "TemplateElement[value.raw=/meta_?roadmap/i]",
+      "message": "The legacy \"meta roadmap\" vocabulary is banned; use roadmap (top level) or roadmapIteration.",
     },
   ],
 };
@@ -186,6 +212,13 @@ export default defineConfig([
         project: "./tsconfig.json",
         tsconfigRootDir: process.cwd(),
       },
+    },
+  },
+  { // The curated Prisma re-export is the one place allowed to deep-import the generated client
+    name: "Prisma re-export carve-out",
+    files: ["src/lib/prisma/**"],
+    rules: {
+      "@typescript-eslint/no-restricted-imports": "off",
     },
   },
   globalIgnores([
