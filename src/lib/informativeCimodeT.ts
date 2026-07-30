@@ -1,5 +1,5 @@
-import { Locales } from "@/../i18n.config";
-import type { TOptions } from "@/../i18n.config";
+import { Locales } from "@root/i18n.config";
+import type { TOptions } from "@root/i18n.config";
 import type { TFunction, i18n } from "i18next";
 
 /**

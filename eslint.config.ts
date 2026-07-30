@@ -89,6 +89,13 @@ const commonRules: Config["rules"] = {
         allowImportNames: ["Prisma"],
         message: "Import only the Prisma namespace from the generated client; everything else comes from @/lib/prisma/generated.",
       },
+      {
+        // The @/ alias must stay inside src. Escaping it (@/../...) resolves in the
+        // Next bundler but breaks under plain tsx — e.g. the seed scripts' import
+        // graph in CI. Files outside src/ have the @root/ alias instead.
+        group: ["@/..", "@/../**"],
+        message: "Do not escape the @/ alias; import files outside src/ via @root/ (tsx, used by the seed scripts, cannot resolve @/../).",
+      },
     ],
   }],
   "@typescript-eslint/no-unnecessary-type-assertion": "warn",

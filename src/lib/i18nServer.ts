@@ -1,6 +1,6 @@
 import "server-only";
 import i18nServer, { type TFunction } from "i18next";
-import { initTemplate, Locales, possessive, relativeTime, titleCase } from "@/../i18n.config";
+import { initTemplate, Locales, possessive, relativeTime, titleCase } from "@root/i18n.config";
 import Backend from "i18next-fs-backend";
 import path from "node:path";
 import { cookies, headers } from "next/headers";

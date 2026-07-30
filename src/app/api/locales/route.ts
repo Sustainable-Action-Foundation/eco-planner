@@ -1,5 +1,5 @@
 import { match } from "@formatjs/intl-localematcher";
-import { Locales, allNamespaces, uniqueLocales } from "@/../i18n.config";
+import { Locales, allNamespaces, uniqueLocales } from "@root/i18n.config";
 import { NextResponse } from "next/server";
 import fs from "node:fs";
 import path from "node:path";

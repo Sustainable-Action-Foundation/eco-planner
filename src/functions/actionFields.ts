@@ -1,3 +1,4 @@
+import { Locales } from "@root/i18n.config";
 import type { TFunction } from "i18next";
 
 /**
@@ -26,10 +27,7 @@ export type ActionFieldHeaders = (typeof ActionFieldHeaders)[keyof typeof Action
  * namespace appended), so i18n tooling can statically find them as used.
  */
 function headerLabelKeys(t: TFunction): Record<string, string> {
-  // "cimode" is i18next's built-in key-echo language (the literal avoids importing
-  // i18n.config here: this module is also in the seed scripts' import graph, where
-  // tsx cannot resolve the `@/../` alias escape)
-  const keyOnly = { lng: "cimode", appendNamespaceToCIMode: true } as const;
+  const keyOnly = { lng: Locales.test, appendNamespaceToCIMode: true } as const;
   return {
     [ActionFieldHeaders.Description]: t("forms:action.action_description", keyOnly),
     [ActionFieldHeaders.CostEfficiency]: t("forms:action.cost_efficiency", keyOnly),
