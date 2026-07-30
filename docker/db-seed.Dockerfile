@@ -75,7 +75,7 @@ COPY --from=deps --chown=node:node /app/node_modules ./node_modules
 
 # Prisma schema and config files and generated
 COPY --from=prisma --chown=node:node /app/prisma/ ./prisma/
-COPY --chown=node:node prisma.config.ts tsconfig.json ./
+COPY --chown=node:node prisma.config.ts tsconfig.json i18n.config.ts ./
 
 # Yarn rewrites .yarn/install-state.gz at runtime, so the app dirs created by
 # root stages must be handed over too (non-recursive; contents are copied --chown)

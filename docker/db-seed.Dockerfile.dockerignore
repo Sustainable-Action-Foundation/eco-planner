@@ -18,3 +18,5 @@ prisma/generated/
 !tsconfig.json
 !yarn.lock
 !.yarnrc.yml
+# Imported (as @root/i18n.config) by src/functions/actionFields.ts in the seed graph
+!i18n.config.ts
