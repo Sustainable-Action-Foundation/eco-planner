@@ -164,6 +164,7 @@
     },
     "delete_variable": "Delete variable:",
     "edit_variable": "Edit variable",
+    "editing_recipe_named": "Editing recipe {{name}}",
     "equation": "Using equation",
     "external_data": "External data",
     "goal_or_effect": "Goal or effect",

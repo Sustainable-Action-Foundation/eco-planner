@@ -235,7 +235,7 @@
     "roadmap_version_creation_error": "$t(common:roadmap_version_definite_one, titleCase) kunde inte skapas.\n\nOrsak:\n {{error}}",
     "roadmap_version_legend": "Beskriv din $t(common:roadmap_version_one)",
     "scale_deprecated": "Kolumnen 'Scale' stöds inte och kommer att ignoreras.",
-    "scale_deprecated_extended": "$t(forms:roadmap.scale_deprecated) Om kolumnen innehåller några skalor, vänligen baka in dem i enheten eller värdet istället. Exempel: använd 'MW' som enhet istället för att använda 'kW' med skala 'tusen'.",
+    "scale_deprecated_extended": "$t(forms:roadmap_iteration.scale_deprecated) Om kolumnen innehåller några skalor, vänligen baka in dem i enheten eller värdet istället. Exempel: använd 'MW' som enhet istället för att använda 'kW' med skala 'tusen'.",
     "unknown_error": "Okänt fel",
     "upload_goals": "Ladda upp $t(common:goal_other)",
     "publish": "Publicera denna version",

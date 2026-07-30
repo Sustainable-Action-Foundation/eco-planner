@@ -235,7 +235,7 @@
     "roadmap_version_creation_error": "$t(common:roadmap_version_definite_one, titleCase) could not be created.\n\nReason:\n {{error}}",
     "roadmap_version_legend": "Describe your $t(common:roadmap_version_one)",
     "scale_deprecated": "The 'Scale' column is not supported and will be ignored.",
-    "scale_deprecated_extended": "$t(forms:roadmap.scale_deprecated) If the column contains any scales, please bake them into the unit or value instead. Example: unit 'MW' rather than unit 'kW' with scale 'thousand'.",
+    "scale_deprecated_extended": "$t(forms:roadmap_iteration.scale_deprecated) If the column contains any scales, please bake them into the unit or value instead. Example: unit 'MW' rather than unit 'kW' with scale 'thousand'.",
     "unknown_error": "Unknown error",
     "upload_goals": "Upload $t(common:goal_other)",
     "publish": "Publish this version",
