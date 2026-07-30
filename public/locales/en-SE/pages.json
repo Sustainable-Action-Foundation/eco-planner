@@ -171,7 +171,7 @@
     "troubleshooting_description": "Check your spam folder or fill in your email address below and click the button to receive a new email.",
     "troubleshooting_title": "Haven't received an email?"
   },
-  "verify_verify": {
+  "verify_confirm": {
     "description": "Verify your email by clicking the button below.",
     "submit": "Verify my email",
     "title": "Verify your email"

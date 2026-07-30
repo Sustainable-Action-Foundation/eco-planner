@@ -22,7 +22,7 @@ export default function UpdatePassword() {
     const email = params.get('email');
     const hash = params.get('hash');
 
-    formSubmitter('/api/reset-password', JSON.stringify({ email, hash, newPassword }), 'PATCH', t);
+    formSubmitter('/api/password', JSON.stringify({ email, hash, newPassword }), 'PATCH', t);
   }
 
   const [showPassword, setShowPassword] = useState(false);

@@ -8,10 +8,10 @@
   },
   "signup": {
     "subject": "Welcome to $t(common:layout.app_name_compact)",
-    "body": "Welcome to $t(common:layout.app_name_compact)! Please follow the link and press the button to verify your email:\n{{baseUrl}}/verify/verify?email={{email}}&hash={{userHash}}"
+    "body": "Welcome to $t(common:layout.app_name_compact)! Please follow the link and press the button to verify your email:\n{{baseUrl}}/verify/confirm?email={{email}}&hash={{userHash}}"
   },
   "verification": {
     "subject": "Verify your email address",
-    "body": "Hello! Please verify your email address by clicking on this link:\n{{baseUrl}}/verify/verify?email={{email}}&hash={{userHash}}"
+    "body": "Hello! Please verify your email address by clicking on this link:\n{{baseUrl}}/verify/confirm?email={{email}}&hash={{userHash}}"
   }
 }

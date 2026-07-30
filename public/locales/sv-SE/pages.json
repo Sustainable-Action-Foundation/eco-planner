@@ -171,7 +171,7 @@
     "troubleshooting_description": "Kolla i din skräppost eller fyll i din e‑postadress nedan och klicka på knappen för att få ett nytt e‑postmeddelande.",
     "troubleshooting_title": "Har du inte fått något meddelande?"
   },
-  "verify_verify": {
+  "verify_confirm": {
     "description": "Verifiera din e‑postadress genom att klicka på knappen nedan.",
     "submit": "Verifiera min e‑postadress",
     "title": "Verifiera din e‑postadress"

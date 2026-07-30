@@ -15,6 +15,6 @@ export default function VerifyButton() {
 	}
 
 	return (
-		<button type="button" className="seagreen color-purewhite font-weight-bold width-100" style={{ fontSize: '1rem' }} onClick={verify}>{t("pages:verify_verify.submit")}</button>
+		<button type="button" className="seagreen color-purewhite font-weight-bold width-100" style={{ fontSize: '1rem' }} onClick={verify}>{t("pages:verify_confirm.submit")}</button>
 	);
 }
