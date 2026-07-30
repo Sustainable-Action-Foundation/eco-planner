@@ -15,6 +15,7 @@
     "start": "next start",
     "lint": "tsc --noEmit -p ./tsconfig.json && eslint -c ./eslint.config.ts --cache",
     "check:version": "tsx scripts/checkVersionBump.ts",
+    "check:locales": "tsx scripts/findDeadLocaleKeys.ts",
     "test": "yarn test:unit & yarn test:e2e",
     "test:e2e": "playwright test -c tests/playwright.e2e.config.ts",
     "test:unit": "playwright test -c tests/playwright.unit.config.ts",
