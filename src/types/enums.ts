@@ -37,9 +37,9 @@ export type ViewMode = (typeof ViewMode)[keyof typeof ViewMode];
 export const GoalSortBy = {
   Default: "",
   Alpha: "ALPHA",
-  AlphaReverse: "ALPHA REVERSE",
-  ActionsFalling: "HIGH FIRST",
-  ActionsRising: "LOW FIRST",
+  AlphaReverse: "ALPHA_REVERSE",
+  ActionsFalling: "HIGH_FIRST",
+  ActionsRising: "LOW_FIRST",
   Interesting: "INTEREST",
 } as const;
 export type GoalSortBy = (typeof GoalSortBy)[keyof typeof GoalSortBy];
@@ -48,9 +48,9 @@ export type GoalSortBy = (typeof GoalSortBy)[keyof typeof GoalSortBy];
 export const RoadmapSortBy = {
   Default: "",
   Alpha: "ALPHA",
-  AlphaReverse: "ALPHA REVERSE",
-  GoalsFalling: "HIGH FIRST",
-  GoalsRising: "LOW FIRST",
+  AlphaReverse: "ALPHA_REVERSE",
+  GoalsFalling: "HIGH_FIRST",
+  GoalsRising: "LOW_FIRST",
 } as const;
 export type RoadmapSortBy = (typeof RoadmapSortBy)[keyof typeof RoadmapSortBy];
 
@@ -113,3 +113,4 @@ export const UnitFlags = {
   Unitless: "UNITLESS",
   Missing: "MISSING_UNIT",
 } as const;
+export type UnitFlags = (typeof UnitFlags)[keyof typeof UnitFlags];

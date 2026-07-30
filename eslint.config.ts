@@ -4,6 +4,7 @@ import { defineConfig, globalIgnores } from "eslint/config";
 import nextTS from "eslint-config-next/typescript";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import tseslint from "typescript-eslint";
+import { enumStyle } from "./scripts/eslint/enumStyle";
 
 // js.configs.recommended first, so the TS configs' compat layer can turn off
 // the core rules TypeScript itself already catches (no-undef, no-import-assign, ...)
@@ -19,6 +20,7 @@ const commonRules: Config["rules"] = {
   "default-case-last": "error",
   "default-case": "error",
   "eqeqeq": ["error", "smart"],
+  "local/enum-style": "error",
   "no-case-declarations": "error",
   "no-cond-assign": ["error", "always"],
   "no-duplicate-imports": ["error", { allowSeparateTypeImports: true, includeExports: true }],
@@ -158,6 +160,10 @@ const commonRules: Config["rules"] = {
 };
 
 export default defineConfig([
+  { // Register the local plugin globally so commonRules can reference it in every block
+    name: "Local rules",
+    plugins: { local: { rules: { "enum-style": enumStyle } } },
+  },
   { // App linting
     name: "App src/",
     files: ["src/**/*.{ts,tsx}"],

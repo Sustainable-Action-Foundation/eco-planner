@@ -8,6 +8,7 @@ import { createInstance } from "i18next";
 
 export type TOptions = Omit<RealTOptions, "context"> & { context?: string };
 
+// eslint-disable-next-line local/enum-style -- keys and values are external identifiers (BCP-47 tags, i18next's "cimode")
 export const Locales = {
   test: "cimode",
   enSE: "en-SE",

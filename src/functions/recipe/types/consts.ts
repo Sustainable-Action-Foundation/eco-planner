@@ -19,7 +19,7 @@ export type VectorIndexPickerOptions = typeof VectorIndexPickerOptions[keyof typ
  */
 export const RecipeDataTypes = {
   Scalar: "scalar",
-  DataSeries: "dataSeries",
+  DataSeries: "data-series",
   External: "external",
 } as const;
 export type RecipeDataTypes = typeof RecipeDataTypes[keyof typeof RecipeDataTypes];
@@ -55,7 +55,7 @@ export const emptyRecipeExternal: ExternalVariable = {
  * Defined here to usage before declaration.
  */
 export const emptyRecipesByDataType: Record<RecipeDataTypes, RecipeVariable> = {
-  scalar: emptyRecipeScalar,
-  dataSeries: emptyRecipeDataSeries,
-  external: emptyRecipeExternal,
+  [RecipeDataTypes.Scalar]: emptyRecipeScalar,
+  [RecipeDataTypes.DataSeries]: emptyRecipeDataSeries,
+  [RecipeDataTypes.External]: emptyRecipeExternal,
 } as const;

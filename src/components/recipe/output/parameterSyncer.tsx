@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
 import { getRecipeRoadmapData } from "../context/roadmapDataCache";
 import { useEffect, useState } from "react";
+import { RecipeDataTypes } from "@/functions/recipe/types/consts";
 import type { ClientRoadmapIteration } from "@/types";
 
 export default function ParameterSync({
@@ -32,7 +33,7 @@ export default function ParameterSync({
 
   if (!roadmapData) return null;
 
-  const dataSeriesVariables = variables.filter((variable) => variable.type === "dataSeries");
+  const dataSeriesVariables = variables.filter((variable) => variable.type === RecipeDataTypes.DataSeries);
 
   if (dataSeriesVariables.length === 0) {
     return null;
