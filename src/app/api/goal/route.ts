@@ -756,7 +756,7 @@ export async function DELETE(request: NextRequest) {
     revalidateTag('goal', 'max');
     return Response.json({ message: t('api:goal.goal_deleted'), id: deletedGoal.id },
       // Redirect to the parent iteration
-      { status: 200, headers: { 'Location': `/roadmap/${deletedGoal.roadmap_iteration_id}` } },
+      { status: 200, headers: { 'Location': `/roadmapIteration/${deletedGoal.roadmap_iteration_id}` } },
     );
   }
   catch (err) {

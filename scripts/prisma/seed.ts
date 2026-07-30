@@ -11,6 +11,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { colors } from "../lib/colors.ts";
+import { seedGeoAreas } from "./seed/seed-geo.ts";
 import { seedUsers } from "./seed/seed-users.ts";
 import { seedRoadmaps } from "./seed/seed-roadmaps.ts";
 import { seedGoals } from "./seed/seed-goals.ts";
@@ -26,10 +27,11 @@ prisma.$connect().catch((err: unknown) => {
 });
 
 async function main() {
+  await seedGeoAreas();
   const users = await seedUsers();
-  const { roadmaps } = await seedRoadmaps(users);
-  const goals = await seedGoals(users, roadmaps);
-  await seedActions(users, roadmaps, goals);
+  const { iterations } = await seedRoadmaps(users);
+  const goals = await seedGoals(users, iterations);
+  await seedActions(users, iterations, goals);
 }
 
 main().then(async () => {

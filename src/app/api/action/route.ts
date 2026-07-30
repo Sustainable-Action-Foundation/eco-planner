@@ -425,7 +425,7 @@ export async function DELETE(request: NextRequest) {
     revalidateTag('action', 'max');
     return Response.json({ message: t('api:action.action_deleted'), id: deletedAction.id },
       // Redirect to the parent iteration, or the action database for roadmapless actions
-      { status: 200, headers: { 'Location': deletedAction.roadmap_iteration_id ? `/roadmap/${deletedAction.roadmap_iteration_id}` : '/' } },
+      { status: 200, headers: { 'Location': deletedAction.roadmap_iteration_id ? `/roadmapIteration/${deletedAction.roadmap_iteration_id}` : '/' } },
     );
   }
   catch (err) {
