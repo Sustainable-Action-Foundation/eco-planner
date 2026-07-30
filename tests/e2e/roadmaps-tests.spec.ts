@@ -1,26 +1,37 @@
 import { expect, test } from "playwright/test";
+import type { Page } from "playwright/test";
 import path from "node:path";
 import { cwd } from "node:process";
 
 const adminFile = path.join(cwd(), "tests/.auth/admin.json");
 
+// The seeded org that the admin user manages; it owns everything created here.
+const orgName = "Sustainable Action";
+// The seeded group in that org, used for the per-group sharing grants.
+const groupName = "Hållbarhetsgruppen";
+
+/** The grant `<select>` for the given group in the sharing editor of the roadmap form */
+function grantSelect(page: Page, group: string) {
+  return page.locator('label').filter({ hasText: group }).locator('select');
+}
+
 test.describe.serial("Roadmaps tests", () => {
   test.use({ storageState: adminFile });
 
-  // Variables to hold the names of created metaRoadmaps for use across all tests in this describe block.
-  let metaRoadmapNameAllFields = "";
-  let metaRoadmapNameAllFieldsUpdated = "";
-  let metaRoadmapNameRequiredFields = "";
-  let metaRoadmapNameRequiredFieldsUpdated = "";
+  // Variables to hold the names of created roadmaps for use across all tests in this describe block.
+  let roadmapNameAllFields = "";
+  let roadmapNameAllFieldsUpdated = "";
+  let roadmapNameRequiredFields = "";
+  let roadmapNameRequiredFieldsUpdated = "";
 
-  // Cleanup function to delete any created metaRoadmaps so after a retry there are no duplicates. 
+  // Cleanup function to delete any created roadmaps so after a retry there are no duplicates.
   test.beforeAll(/* async */({ /* browser */ }, testInfo) => {
-    // Define the metaRoadmap name here so it can be accessed in all later tests.
+    // Define the roadmap name here so it can be accessed in all later tests.
     // Needs to be unique for each worker so different browsers running tests in parallel don't interfere with each other.
-    metaRoadmapNameAllFields = `Test All Fields ${testInfo.retry} ${testInfo.project.name}`;
+    roadmapNameAllFields = `Test All Fields ${testInfo.retry} ${testInfo.project.name}`;
 
     // if (testInfo.retry > 0) {
-    //   console.info(`Retrying tests, Cleaning up any existing metaRoadmap with name ${metaRoadmapNameAllFields} before retrying.`);
+    //   console.info(`Retrying tests, Cleaning up any existing roadmap with name ${roadmapNameAllFields} before retrying.`);
 
     //   // Page cannot be used in beforeAll so a new context and page here is needed.
     //   const context = await browser.newContext({ storageState: adminFile });
@@ -30,7 +41,7 @@ test.describe.serial("Roadmaps tests", () => {
     //   await page.waitForLoadState('networkidle');
 
     //   // Count how many matching items exist
-    //   const matchingItems = page.locator('li').filter({ hasText: metaRoadmapNameAllFields });
+    //   const matchingItems = page.locator('li').filter({ hasText: roadmapNameAllFields });
     //   const count = await matchingItems.count();
 
     //   // Delete all matching items
@@ -41,7 +52,7 @@ test.describe.serial("Roadmaps tests", () => {
     //     // All of these actions need to be performed on the correct row so they are using firstMatch as the base locator.
     //     await firstMatch.locator('svg').nth(1).click();
     //     await firstMatch.getByTestId('delete-post').click();
-    //     await firstMatch.locator('input[placeholder]').fill(metaRoadmapNameAllFields);
+    //     await firstMatch.locator('input[placeholder]').fill(roadmapNameAllFields);
     //     await firstMatch.locator('[type="submit"]').click();
 
     //     await page.waitForLoadState('networkidle');
@@ -52,16 +63,19 @@ test.describe.serial("Roadmaps tests", () => {
     // }
   });
 
-  test("Create MetaRoadmap and Roadmap - All Fields", async ({ page }) => {
+  test("Create Roadmap and Iteration - All Fields", async ({ page }) => {
 
-    // Navigate to create metaRoadmap page
-    await page.goto('/metaRoadmap/create');
+    // Navigate to the roadmap creation page
+    await page.goto('/roadmap/create');
 
-    // Fill in the metaRoadmap form
-    await page.locator('#name').fill(metaRoadmapNameAllFields);
+    // Fill in the roadmap form
+    await page.locator('#name').fill(roadmapNameAllFields);
 
     // Fill description in the tiptap editor
     await page.locator('.tiptap').first().fill('Test All');
+
+    // The seeded admin belongs to exactly one org, so it is preselected; select it explicitly anyway
+    await page.locator('#org').selectOption({ label: orgName });
 
     // Select roadmap type
     await page.locator('#type').selectOption("LOCAL");
@@ -69,48 +83,83 @@ test.describe.serial("Roadmaps tests", () => {
     // Fill in actor field
     await page.locator('#actor').fill("Test All");
 
-    // Set visibility to private
-    await page.locator('#visibility-private').check();
+    // Optional structured geo area (searchable select)
+    await page.locator('#geo-area').click();
+    await page.locator('#geo-area-dialog-listbox li').filter({ hasText: 'Uppsala län' }).click();
 
-    // Set editability to private
-    await page.locator('#editability-private').check();
+    // Sharing: visible to all org members, and give the seeded group edit access
+    await page.locator('input[name="visibility"][value="org"]').check();
+    await grantSelect(page, groupName).selectOption('RW');
 
-    // Test below non-functional at this time due to problem in code surrounding parent roadmap selection.
-
-    // await page.locator('#parent-roadmap').selectOption("Rikets färdplan");
+    // Work towards the seeded national roadmap
+    await page.locator('#parent-roadmap').click();
+    await page.locator('#parent-roadmap-dialog-listbox li').filter({ hasText: 'Rikets färdplan' }).click();
 
     // Submit the form
     await page.locator('#submit-button').click();
 
-    // Wait for redirect to roadmap creation page
-    await expect(page).toHaveURL(/\/roadmap\/create/);
+    // Creating a roadmap redirects to the iteration creation page for it
+    await expect(page).toHaveURL(/\/roadmapIteration\/create\?roadmapId=/);
 
-    // Fill in the roadmap form
+    // Fill in the iteration form
     // Fill description in the tiptap editor
     await page.locator('.tiptap').first().fill('Test All');
 
-    // Set visibility - "Vem får se färdplanen?" (Who can see the roadmap?)
-    await page.locator('#visibility-private').check();
+    // Since the new roadmap works towards the national roadmap, a target version can be selected; "0" means always latest
+    await page.locator('#target-version').selectOption('0');
 
-    // Set editability - "Vem får redigera färdplanen?" (Who can edit the roadmap?)
-    await page.locator('#editability-private').check();
+    // Publish the iteration so it is visible outside the group of editors
+    await page.locator('#publish').check();
 
-    // Submit the roadmap form
+    // Submit the iteration form
     await page.locator('#submit-button').click();
 
-    // Verify successful roadmap creation by checking the redirect
-    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+/);
+    // Verify successful creation by checking the redirect to the new iteration's page
+    await expect(page).toHaveURL(/\/roadmapIteration\/(?!create)[a-zA-Z0-9-]+/);
 
-    await expect(page.getByRole('heading', { name: metaRoadmapNameAllFields })).toBeVisible();
+    await expect(page.getByRole('heading', { name: roadmapNameAllFields })).toBeVisible();
+  });
+
+  test("Edit iteration, no changes - All Fields", async ({ page }) => {
+
+    await page.goto('/');
+
+    // The front page links to the latest iteration of each roadmap
+    await page.getByRole('link', { name: `${roadmapNameAllFields}` }).first().click();
+
+    // Wait for the iteration page to load
+    await expect(page).toHaveURL(/\/roadmapIteration\/[a-zA-Z0-9-]+$/);
+
+    // Click the edit button
+    await page.getByTestId('admin-panel-edit').click();
+
+    // Wait for edit page to load
+    await expect(page).toHaveURL(/\/roadmapIteration\/[a-zA-Z0-9-]+\/edit/);
+
+    // Verify all fields are filled in
+    await expect(page.locator('.tiptap').first()).toHaveText('Test All');
+
+    // Verify the iteration is still published
+    await expect(page.locator('#publish')).toBeChecked();
+
+    // Click the save button
+    await page.locator('#submit-button').click();
+
+    // Verify the save was successful
+    await expect(page).toHaveURL(/\/roadmapIteration\/[a-zA-Z0-9-]+$/);
+    await expect(page.getByTestId('admin-panel-edit')).toBeVisible();
   });
 
   test("Edit roadmap, no changes - All Fields", async ({ page }) => {
 
     await page.goto('/');
 
-    await page.getByRole('link', { name: `${metaRoadmapNameAllFields}` }).first().click();
+    await page.getByRole('link', { name: `${roadmapNameAllFields}` }).first().click();
 
-    // Wait for roadmap page to load
+    // Go from the iteration page to its parent roadmap page
+    await page.getByTestId('show-roadmap').click();
+
+    // Wait for the roadmap page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
 
     // Click the edit button
@@ -119,45 +168,7 @@ test.describe.serial("Roadmaps tests", () => {
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
 
-    // Verify all fields are filled in
-    await expect(page.locator('.tiptap').first()).toHaveText('Test All');
-
-    // Verify visibility is set
-    await expect(page.locator('#visibility-private')).toBeChecked();
-
-    // Verify editability is set
-    await expect(page.locator('#editability-custom')).toBeChecked();
-
-    // Verify admin user is in the editors list
-    await expect(page.locator('#editors')).toHaveValue('admin');
-
-    // Click the save button
-    await page.locator('#submit-button').click();
-
-    // Verify the save was successful
-    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
-    await expect(page.getByTestId('admin-panel-edit')).toBeVisible();
-  });
-
-  test("Edit MetaRoadmap, no changes - All Fields", async ({ page }) => {
-
-    await page.goto('/');
-
-    await page.getByRole('link', { name: `${metaRoadmapNameAllFields}` }).first().click();
-
-    // Go to MetaRoadmap page
-    await page.getByTestId('show-roadmap-series').click();
-
-    //  Wait for MetaRoadmap page to load
-    await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+$/);
-
-    // Click the edit button
-    await page.getByTestId('admin-panel-edit').click();
-
-    // Wait for edit page to load
-    await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+\/edit/);
-
-    await expect(page.locator('#name')).toHaveValue(metaRoadmapNameAllFields);
+    await expect(page.locator('#name')).toHaveValue(roadmapNameAllFields);
 
     // Verify all fields are filled in
     await expect(page.locator('.tiptap').first()).toHaveText('Test All');
@@ -168,102 +179,82 @@ test.describe.serial("Roadmaps tests", () => {
     // Verify actor field is filled in
     await expect(page.locator('#actor')).toHaveValue('Test All');
 
-    // Verify visibility is set
-    await expect(page.locator('#visibility-private')).toBeChecked();
+    // Verify geo area is set
+    await expect(page.locator('#geo-area')).toContainText('Uppsala län');
 
-    // Verify editability is set
-    await expect(page.locator('#editability-private')).toBeChecked();
+    // Verify visibility is set to org members
+    await expect(page.locator('input[name="visibility"][value="org"]')).toBeChecked();
 
-    // This part below is non-functional at this time due to problem in code surrounding parent roadmap selection.
+    // Verify the group grant is set to read and edit
+    await expect(grantSelect(page, groupName)).toHaveValue('RW');
 
-    // Verify parent roadmap is set
-    // await expect(page.locator('#parent-roadmap')).toHaveValue('Rikets färdplan');
-
-    // Click the save button
-    await page.locator('#submit-button').click();
-
-    // Verify the save was successful
-    await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+$/);
-    await expect(page.getByRole('heading', { name: metaRoadmapNameAllFields })).toBeVisible();
-  });
-
-  test("Edit roadmap, updated fields - All Fields", async ({ page }) => {
-
-    await page.goto('/');
-
-    await page.getByRole('link', { name: `${metaRoadmapNameAllFields}` }).first().click();
-
-    // Click the edit button
-    await page.getByTestId('admin-panel-edit').click();
-
-    // Wait for edit page to load
-    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
-
-    // Edit description in the tiptap editor
-    await page.locator('.tiptap').first().fill('Updated Roadmap Description All');
-
-    // Edit visibility - change to custom
-    await page.locator('#visibility-custom').check();
-
-    // Add viewers
-    await page.locator('#viewers').fill('admin');
-
-    // Edit editability - change to custom if not already
-    await page.locator('#editability-custom').check();
-
-    // Update editors list
-    await page.locator('#editors').fill('admin');
+    // Verify the parent roadmap is set
+    await expect(page.locator('#parent-roadmap')).toContainText('Rikets färdplan');
 
     // Click the save button
     await page.locator('#submit-button').click();
 
     // Verify the save was successful
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
-
-    // Click the edit button again to verify all changes were saved
-    await page.getByTestId('admin-panel-edit').click();
-
-    // Wait for edit page to load
-    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
-
-    // Verify description was updated
-    await expect(page.locator('.tiptap').first()).toHaveText('Updated Roadmap Description All');
-
-    // Verify visibility was changed to custom
-    await expect(page.locator('#visibility-custom')).toBeChecked();
-
-    // Verify viewers were added
-    await expect(page.locator('#viewers')).toHaveValue('admin');
-
-    // Verify editability was changed to custom
-    await expect(page.locator('#editability-custom')).toBeChecked();
-
-    // Verify editors list was updated
-    await expect(page.locator('#editors')).toHaveValue('admin');
+    await expect(page.getByRole('heading', { name: roadmapNameAllFields })).toBeVisible();
   });
 
-  test("Edit MetaRoadmap, updated fields - All Fields", async ({ page }, testInfo) => {
-
-    metaRoadmapNameAllFieldsUpdated = `Test Updated All Fields ${testInfo.retry} ${testInfo.project.name}`;
+  test("Edit iteration, updated fields - All Fields", async ({ page }) => {
 
     await page.goto('/');
 
-    await page.getByRole('link', { name: `${metaRoadmapNameAllFields}` }).first().click();
-
-    // Go to MetaRoadmap page
-    await page.getByTestId('show-roadmap-series').click();
-
-    //  Wait for MetaRoadmap page to load
-    await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+$/);
+    await page.getByRole('link', { name: `${roadmapNameAllFields}` }).first().click();
 
     // Click the edit button
     await page.getByTestId('admin-panel-edit').click();
 
     // Wait for edit page to load
-    await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+\/edit/);
+    await expect(page).toHaveURL(/\/roadmapIteration\/[a-zA-Z0-9-]+\/edit/);
+
+    // Edit description in the tiptap editor; keep the iteration published
+    await page.locator('.tiptap').first().fill('Updated Iteration Description All');
+
+    // Click the save button
+    await page.locator('#submit-button').click();
+
+    // Verify the save was successful
+    await expect(page).toHaveURL(/\/roadmapIteration\/[a-zA-Z0-9-]+$/);
+
+    // Click the edit button again to verify all changes were saved
+    await page.getByTestId('admin-panel-edit').click();
+
+    // Wait for edit page to load
+    await expect(page).toHaveURL(/\/roadmapIteration\/[a-zA-Z0-9-]+\/edit/);
+
+    // Verify description was updated
+    await expect(page.locator('.tiptap').first()).toHaveText('Updated Iteration Description All');
+
+    // Verify the iteration is still published
+    await expect(page.locator('#publish')).toBeChecked();
+  });
+
+  test("Edit roadmap, updated fields - All Fields", async ({ page }, testInfo) => {
+
+    roadmapNameAllFieldsUpdated = `Test Updated All Fields ${testInfo.retry} ${testInfo.project.name}`;
+
+    await page.goto('/');
+
+    await page.getByRole('link', { name: `${roadmapNameAllFields}` }).first().click();
+
+    // Go from the iteration page to its parent roadmap page
+    await page.getByTestId('show-roadmap').click();
+
+    // Wait for the roadmap page to load
+    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
+
+    // Click the edit button
+    await page.getByTestId('admin-panel-edit').click();
+
+    // Wait for edit page to load
+    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
 
     // Edit name
-    await page.locator('#name').fill(metaRoadmapNameAllFieldsUpdated);
+    await page.locator('#name').fill(roadmapNameAllFieldsUpdated);
 
     // Edit description in the tiptap editor
     await page.locator('.tiptap').first().fill('Updated Description All');
@@ -274,35 +265,27 @@ test.describe.serial("Roadmaps tests", () => {
     // Edit actor field
     await page.locator('#actor').fill("Updated Actor All");
 
-    // Edit visibility - uncheck private and check another option if available
-    await page.locator('#visibility-custom').check();
+    // Edit visibility - the admin user is an org manager, so the public option is available
+    await page.locator('input[name="visibility"][value="public"]').check();
 
-    await page.locator('#viewers').fill('admin');
-
-    // Edit editability - uncheck private and check another option if available
-    await page.locator('#editability-custom').check();
-
-    // Who gets edit access 
-    await page.locator('#editors').fill('admin');
-
-    // This part below is non-functional at this time due to problem in code surrounding parent roadmap selection.
-    // await page.locator('#parent-roadmap').selectOption("Ingen förälder");
+    // Downgrade the group grant to read-only
+    await grantSelect(page, groupName).selectOption('RO');
 
     // Click the save button
     await page.locator('#submit-button').click();
 
     // Verify the save was successful
-    await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+$/);
-    await expect(page.getByRole('heading', { name: metaRoadmapNameAllFieldsUpdated })).toBeVisible();
+    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
+    await expect(page.getByRole('heading', { name: roadmapNameAllFieldsUpdated })).toBeVisible();
 
     // Click the edit button again to verify all changes were saved
     await page.getByTestId('admin-panel-edit').click();
 
     // Wait for edit page to load
-    await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+\/edit/);
+    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
 
     // Verify name was updated
-    await expect(page.locator('#name')).toHaveValue(metaRoadmapNameAllFieldsUpdated);
+    await expect(page.locator('#name')).toHaveValue(roadmapNameAllFieldsUpdated);
 
     // Verify description was updated
     await expect(page.locator('.tiptap').first()).toHaveText('Updated Description All');
@@ -313,30 +296,27 @@ test.describe.serial("Roadmaps tests", () => {
     // Verify actor field was updated
     await expect(page.locator('#actor')).toHaveValue('Updated Actor All');
 
-    // Verify visibility was unchecked
-    await expect(page.locator('#visibility-custom')).toBeChecked();
+    // Verify visibility was changed to public
+    await expect(page.locator('input[name="visibility"][value="public"]')).toBeChecked();
 
-    // Verify visibility value was updated    
-    await expect(page.locator('#viewers')).toHaveValue('admin');
-
-    // Verify editability was unchecked
-    await expect(page.locator('#editability-custom')).toBeChecked();
-
-    // Verify user has edit access
-    await expect(page.locator('#editors')).toHaveValue('admin');
+    // Verify the group grant was downgraded to read-only
+    await expect(grantSelect(page, groupName)).toHaveValue('RO');
   });
 
-  test("Create MetaRoadmap and Roadmap - Required Fields", async ({ page }, testInfo) => {
+  test("Create Roadmap and Iteration - Required Fields", async ({ page }, testInfo) => {
 
-    metaRoadmapNameRequiredFields = `Test Required ${testInfo.retry} ${testInfo.project.name}`;
-    // Navigate to create metaRoadmap page
-    await page.goto('/metaRoadmap/create');
+    roadmapNameRequiredFields = `Test Required ${testInfo.retry} ${testInfo.project.name}`;
+    // Navigate to the roadmap creation page
+    await page.goto('/roadmap/create');
 
-    // Fill in the metaRoadmap form
-    await page.locator('#name').fill(metaRoadmapNameRequiredFields);
+    // Fill in the roadmap form
+    await page.locator('#name').fill(roadmapNameRequiredFields);
 
-    // Fill description in the tiptap editor
+    // Fill description in the tiptap editor (required on create)
     await page.locator('.tiptap').first().fill('Test Required');
+
+    // The seeded admin belongs to exactly one org, so it should already be preselected
+    await expect(page.locator('#org')).toHaveValue(/.+/);
 
     // Select roadmap type
     await page.locator('#type').selectOption("LOCAL");
@@ -344,38 +324,64 @@ test.describe.serial("Roadmaps tests", () => {
     // Fill in actor field
     await page.locator('#actor').fill("Test Required");
 
-    // Set visibility to private
-    await page.locator('#visibility-private').check();
-
-    // Set editability to private
-    await page.locator('#editability-private').check();
+    // Visibility defaults to org members; the admin user is an org manager, so no group grant is needed
 
     // Submit the form
     await page.locator('#submit-button').click();
 
-    // Wait for redirect to roadmap creation page
-    await expect(page).toHaveURL(/\/roadmap\/create/);
+    // Creating a roadmap redirects to the iteration creation page for it
+    await expect(page).toHaveURL(/\/roadmapIteration\/create\?roadmapId=/);
 
-    // Set visibility - "Vem får se färdplanen?" (Who can see the roadmap?)
-    await page.locator('#visibility-private').check();
+    // The iteration form has no required fields when the roadmap comes from the query;
+    // publish so the iteration is visible outside the group of editors
+    await page.locator('#publish').check();
 
-    // Set editability - "Vem får redigera färdplanen?" (Who can edit the roadmap?)
-    await page.locator('#editability-private').check();
-
-    // Submit the roadmap form
+    // Submit the iteration form
     await page.locator('#submit-button').click();
 
-    // Verify successful roadmap creation by checking the redirect
-    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+/);
+    // Verify successful creation by checking the redirect to the new iteration's page
+    await expect(page).toHaveURL(/\/roadmapIteration\/(?!create)[a-zA-Z0-9-]+/);
 
-    await expect(page.getByRole('heading', { name: metaRoadmapNameRequiredFields })).toBeVisible();
+    await expect(page.getByRole('heading', { name: roadmapNameRequiredFields })).toBeVisible();
+  });
+
+  test("Edit iteration, no changes - Required Fields", async ({ page }) => {
+
+    await page.goto('/');
+
+    await page.getByRole('link', { name: `${roadmapNameRequiredFields}` }).first().click();
+
+    // Wait for the iteration page to load
+    await expect(page).toHaveURL(/\/roadmapIteration\/[a-zA-Z0-9-]+$/);
+
+    // Click the edit button
+    await page.getByTestId('admin-panel-edit').click();
+
+    // Wait for edit page to load
+    await expect(page).toHaveURL(/\/roadmapIteration\/[a-zA-Z0-9-]+\/edit/);
+
+    // Verify the iteration is still published
+    await expect(page.locator('#publish')).toBeChecked();
+
+    // Click the save button
+    await page.locator('#submit-button').click();
+
+    // Verify the save was successful
+    await expect(page).toHaveURL(/\/roadmapIteration\/[a-zA-Z0-9-]+$/);
+    await expect(page.getByTestId('admin-panel-edit')).toBeVisible();
   });
 
   test("Edit roadmap, no changes - Required Fields", async ({ page }) => {
 
     await page.goto('/');
 
-    await page.getByRole('link', { name: `${metaRoadmapNameRequiredFields}` }).first().click();
+    await page.getByRole('link', { name: `${roadmapNameRequiredFields}` }).first().click();
+
+    // Go from the iteration page to its parent roadmap page
+    await page.getByTestId('show-roadmap').click();
+
+    // Wait for the roadmap page to load
+    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
 
     // Click the edit button
     await page.getByTestId('admin-panel-edit').click();
@@ -383,43 +389,8 @@ test.describe.serial("Roadmaps tests", () => {
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
 
-    // Verify visibility is set
-    await expect(page.locator('#visibility-private')).toBeChecked();
-
-    // Verify editability is set
-    await expect(page.locator('#editability-custom')).toBeChecked();
-
-    // Verify admin user is in the editors list
-    await expect(page.locator('#editors')).toHaveValue('admin');
-
-    // Click the save button
-    await page.locator('#submit-button').click();
-
-    // Verify the save was successful
-    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
-    await expect(page.getByTestId('admin-panel-edit')).toBeVisible();
-  });
-
-  test("Edit MetaRoadmap, no changes - Required Fields", async ({ page }) => {
-
-    await page.goto('/');
-
-    await page.getByRole('link', { name: `${metaRoadmapNameRequiredFields}` }).first().click();
-
-    // Go to MetaRoadmap page
-    await page.getByTestId('show-roadmap-series').click();
-
-    //  Wait for MetaRoadmap page to load
-    await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+$/);
-
-    // Click the edit button
-    await page.getByTestId('admin-panel-edit').click();
-
-    // Wait for edit page to load
-    await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+\/edit/);
-
     // Verify name is filled in
-    await expect(page.locator('#name')).toHaveValue(metaRoadmapNameRequiredFields);
+    await expect(page.locator('#name')).toHaveValue(roadmapNameRequiredFields);
 
     // Verify description in the tiptap editor is filled in
     await expect(page.locator('.tiptap').first()).toHaveText('Test Required');
@@ -430,97 +401,75 @@ test.describe.serial("Roadmaps tests", () => {
     // Verify actor field is filled in
     await expect(page.locator('#actor')).toHaveValue('Test Required');
 
-    // Verify visibility is set
-    await expect(page.locator('#visibility-private')).toBeChecked();
+    // Verify visibility is still the default (org members)
+    await expect(page.locator('input[name="visibility"][value="org"]')).toBeChecked();
 
-    // Verify editability is set
-    await expect(page.locator('#editability-private')).toBeChecked();
-
-    // Click the save button
-    await page.locator('#submit-button').click();
-
-    // Verify the save was successful
-    await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+$/);
-    await expect(page.getByRole('heading', { name: metaRoadmapNameRequiredFields })).toBeVisible();
-  });
-
-  test("Edit roadmap, updated fields - Required Fields", async ({ page }) => {
-
-    await page.goto('/');
-
-    await page.getByRole('link', { name: `${metaRoadmapNameRequiredFields}` }).first().click();
-
-    // Click the edit button
-    await page.getByTestId('admin-panel-edit').click();
-
-    // Wait for edit page to load
-    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
-
-    // Edit description in the tiptap editor
-    await page.locator('.tiptap').first().fill('Updated Roadmap Description Required');
-
-    // Edit visibility - change to custom
-    await page.locator('#visibility-custom').check();
-
-    // Add viewers
-    await page.locator('#viewers').fill('admin');
-
-    // Edit editability - change to custom if not already
-    await page.locator('#editability-custom').check();
-
-    // Update editors list
-    await page.locator('#editors').fill('admin');
+    // Verify no grant was given to the group
+    await expect(grantSelect(page, groupName)).toHaveValue('NONE');
 
     // Click the save button
     await page.locator('#submit-button').click();
 
     // Verify the save was successful
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
-    await expect(page.getByRole('heading', { name: metaRoadmapNameRequiredFields })).toBeVisible();
-
-    // Click the edit button again to verify all changes were saved
-    await page.getByTestId('admin-panel-edit').click();
-
-    // Wait for edit page to load
-    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
-
-    // Verify description was updated
-    await expect(page.locator('.tiptap').first()).toContainText('Updated Roadmap Description Required');
-
-    // Verify visibility was changed to custom
-    await expect(page.locator('#visibility-custom')).toBeChecked();
-
-    // Verify viewers were added
-    await expect(page.locator('#viewers')).toHaveValue('admin');
-
-    // Verify editability was changed to custom
-    await expect(page.locator('#editability-custom')).toBeChecked();
-
-    // Verify editors list was updated
-    await expect(page.locator('#editors')).toHaveValue('admin');
+    await expect(page.getByRole('heading', { name: roadmapNameRequiredFields })).toBeVisible();
   });
 
-  test("Edit MetaRoadmap, updated fields - Required Fields", async ({ page }, testInfo) => {
+  test("Edit iteration, updated fields - Required Fields", async ({ page }) => {
 
-    metaRoadmapNameRequiredFieldsUpdated = `Test Updated Required Fields ${testInfo.retry} ${testInfo.project.name}`;
     await page.goto('/');
 
-    await page.getByRole('link', { name: `${metaRoadmapNameRequiredFields}` }).first().click();
-
-    // Go to MetaRoadmap page
-    await page.getByTestId('show-roadmap-series').click();
-
-    //  Wait for MetaRoadmap page to load
-    await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+$/);
+    await page.getByRole('link', { name: `${roadmapNameRequiredFields}` }).first().click();
 
     // Click the edit button
     await page.getByTestId('admin-panel-edit').click();
 
     // Wait for edit page to load
-    await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+\/edit/);
+    await expect(page).toHaveURL(/\/roadmapIteration\/[a-zA-Z0-9-]+\/edit/);
+
+    // Edit description in the tiptap editor; keep the iteration published
+    await page.locator('.tiptap').first().fill('Updated Iteration Description Required');
+
+    // Click the save button
+    await page.locator('#submit-button').click();
+
+    // Verify the save was successful
+    await expect(page).toHaveURL(/\/roadmapIteration\/[a-zA-Z0-9-]+$/);
+
+    // Click the edit button again to verify all changes were saved
+    await page.getByTestId('admin-panel-edit').click();
+
+    // Wait for edit page to load
+    await expect(page).toHaveURL(/\/roadmapIteration\/[a-zA-Z0-9-]+\/edit/);
+
+    // Verify description was updated
+    await expect(page.locator('.tiptap').first()).toContainText('Updated Iteration Description Required');
+
+    // Verify the iteration is still published
+    await expect(page.locator('#publish')).toBeChecked();
+  });
+
+  test("Edit roadmap, updated fields - Required Fields", async ({ page }, testInfo) => {
+
+    roadmapNameRequiredFieldsUpdated = `Test Updated Required Fields ${testInfo.retry} ${testInfo.project.name}`;
+    await page.goto('/');
+
+    await page.getByRole('link', { name: `${roadmapNameRequiredFields}` }).first().click();
+
+    // Go from the iteration page to its parent roadmap page
+    await page.getByTestId('show-roadmap').click();
+
+    // Wait for the roadmap page to load
+    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
+
+    // Click the edit button
+    await page.getByTestId('admin-panel-edit').click();
+
+    // Wait for edit page to load
+    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
 
     // Edit name
-    await page.locator('#name').fill(metaRoadmapNameRequiredFieldsUpdated);
+    await page.locator('#name').fill(roadmapNameRequiredFieldsUpdated);
 
     // Edit description in the tiptap editor
     await page.locator('.tiptap').first().fill('Updated Description Required');
@@ -531,35 +480,27 @@ test.describe.serial("Roadmaps tests", () => {
     // Edit actor field
     await page.locator('#actor').fill("Updated Actor Required");
 
-    // Edit visibility - uncheck private and check another option if available
-    await page.locator('#visibility-custom').check();
+    // Edit visibility - only granted groups may see the roadmap
+    await page.locator('input[name="visibility"][value="groups"]').check();
 
-    await page.locator('#viewers').fill('admin');
-
-    // Edit editability - uncheck private and check another option if available
-    await page.locator('#editability-custom').check();
-
-    // Who gets edit access 
-    await page.locator('#editors').fill('admin');
-
-    // This part below is non-functional at this time due to problem in code surrounding parent roadmap selection.
-    // await page.locator('#parent-roadmap').selectOption("Ingen förälder");
+    // Give the group edit access
+    await grantSelect(page, groupName).selectOption('RW');
 
     // Click the save button
     await page.locator('#submit-button').click();
 
     // Verify the save was successful
-    await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+$/);
-    await expect(page.getByRole('heading', { name: metaRoadmapNameRequiredFieldsUpdated })).toBeVisible();
+    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
+    await expect(page.getByRole('heading', { name: roadmapNameRequiredFieldsUpdated })).toBeVisible();
 
     // Click the edit button again to verify all changes were saved
     await page.getByTestId('admin-panel-edit').click();
 
     // Wait for edit page to load
-    await expect(page).toHaveURL(/\/metaRoadmap\/[a-zA-Z0-9-]+\/edit/);
+    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
 
     // Verify name was updated
-    await expect(page.locator('#name')).toHaveValue(metaRoadmapNameRequiredFieldsUpdated);
+    await expect(page.locator('#name')).toHaveValue(roadmapNameRequiredFieldsUpdated);
 
     // Verify description was updated
     await expect(page.locator('.tiptap').first()).toHaveText('Updated Description Required');
@@ -570,17 +511,11 @@ test.describe.serial("Roadmaps tests", () => {
     // Verify actor field was updated
     await expect(page.locator('#actor')).toHaveValue('Updated Actor Required');
 
-    // Verify visibility was unchecked
-    await expect(page.locator('#visibility-custom')).toBeChecked();
+    // Verify visibility was changed to granted groups only
+    await expect(page.locator('input[name="visibility"][value="groups"]')).toBeChecked();
 
-    // Verify visibility value was updated    
-    await expect(page.locator('#viewers')).toHaveValue('admin');
-
-    // Verify editability was unchecked
-    await expect(page.locator('#editability-custom')).toBeChecked();
-
-    // Verify user has edit access
-    await expect(page.locator('#editors')).toHaveValue('admin');
+    // Verify the group was given edit access
+    await expect(grantSelect(page, groupName)).toHaveValue('RW');
   });
 
 });

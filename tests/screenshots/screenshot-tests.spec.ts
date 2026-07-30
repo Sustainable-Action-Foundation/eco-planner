@@ -71,7 +71,7 @@ test.describe('Screenshot tests', () => {
   async function sidebarTest(page: Page, openState: string, worker: string) {
     // Create menu popover
     await page.getByTestId('create-button').click();
-    await expect.soft(page.getByTestId('create-roadmap-series')).toBeVisible();
+    await expect.soft(page.getByTestId('create-roadmap')).toBeVisible();
 
     await page.screenshot({ path: `${outputDir}/createMenuPopped/${openState}-${worker}.jpeg`, fullPage: false, animations: "disabled" });
     await page.screenshot({ path: `${outputDir}/createMenuPopped-fullPage/${openState}-${worker}.jpeg`, fullPage: true, animations: "disabled" });
@@ -175,47 +175,6 @@ test.describe('Screenshots Admin', () => {
     await takeScreenshot(sendPageName, page, metadata.project.name);
   });
 
-  test('Roadmap Series pics', async ({ page }, metadata) => {
-    // Roadmap Series create
-    await page.goto('/metaRoadmap/create');
-    await Promise.any([
-      page.waitForLoadState('load'),
-      Promise.resolve(setTimeout(() => { /* pass */ }, maxLoadTime)),
-    ]);
-
-    await expect.soft(page.locator('#submit-button')).toBeVisible();
-    sendPageName = "createSeries"; // What the screenshot is of
-    await takeScreenshot(sendPageName, page, metadata.project.name);
-
-    // Roadmap Series 
-    await page.goto('/');
-    await Promise.any([
-      page.waitForLoadState('load'),
-      Promise.resolve(setTimeout(() => { /* pass */ }, maxLoadTime)),
-    ]);
-
-    await page.getByRole('link', { name: "Rikets färdplan" }).scrollIntoViewIfNeeded();
-    await page.getByRole('link', { name: "Rikets färdplan" }).click(metadata.project.name.includes("Galaxy") ? { force: true } : undefined);
-    await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
-
-    await page.getByTestId('show-roadmap-series').click();
-    await Promise.any([
-      page.waitForLoadState('load'),
-      Promise.resolve(setTimeout(() => { /* pass */ }, maxLoadTime)),
-    ]);
-
-    // await page.getByRole('heading', { name: 'roadmap_versions' }).hover();
-    await expect.soft(page.getByRole('heading', { name: 'roadmap_versions' })).toBeVisible();
-    sendPageName = "roadmapSeries"; // What the screenshot is of
-    await takeScreenshot(sendPageName, page, metadata.project.name);
-
-    // Roadmap Series Edit
-    await page.getByTestId('admin-panel-edit').click();
-    await expect.soft(page.locator('#submit-button')).toBeVisible();
-    sendPageName = "editRoadmapSeries"; // What the screenshot is of
-    await takeScreenshot(sendPageName, page, metadata.project.name);
-  });
-
   test('Roadmap pics', async ({ page }, metadata) => {
     // Roadmap create
     await page.goto('/roadmap/create');
@@ -228,7 +187,48 @@ test.describe('Screenshots Admin', () => {
     sendPageName = "createRoadmap"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
 
-    // Roadmap
+    // Roadmap (the front page links to the latest iteration, which links to its parent roadmap)
+    await page.goto('/');
+    await Promise.any([
+      page.waitForLoadState('load'),
+      Promise.resolve(setTimeout(() => { /* pass */ }, maxLoadTime)),
+    ]);
+
+    await page.getByRole('link', { name: "Rikets färdplan" }).scrollIntoViewIfNeeded();
+    await page.getByRole('link', { name: "Rikets färdplan" }).click(metadata.project.name.includes("Galaxy") ? { force: true } : undefined);
+    await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
+
+    await page.getByTestId('show-roadmap').click();
+    await Promise.any([
+      page.waitForLoadState('load'),
+      Promise.resolve(setTimeout(() => { /* pass */ }, maxLoadTime)),
+    ]);
+
+    // await page.getByRole('heading', { name: 'roadmap_versions' }).hover();
+    await expect.soft(page.getByRole('heading', { name: 'roadmap_versions' })).toBeVisible();
+    sendPageName = "roadmap"; // What the screenshot is of
+    await takeScreenshot(sendPageName, page, metadata.project.name);
+
+    // Roadmap Edit
+    await page.getByTestId('admin-panel-edit').click();
+    await expect.soft(page.locator('#submit-button')).toBeVisible();
+    sendPageName = "editRoadmap"; // What the screenshot is of
+    await takeScreenshot(sendPageName, page, metadata.project.name);
+  });
+
+  test('Roadmap iteration pics', async ({ page }, metadata) => {
+    // Iteration create
+    await page.goto('/roadmapIteration/create');
+    await Promise.any([
+      page.waitForLoadState('load'),
+      Promise.resolve(setTimeout(() => { /* pass */ }, maxLoadTime)),
+    ]);
+
+    await expect.soft(page.locator('#submit-button')).toBeVisible();
+    sendPageName = "createIteration"; // What the screenshot is of
+    await takeScreenshot(sendPageName, page, metadata.project.name);
+
+    // Iteration (the front page links to the latest iteration of each roadmap)
     await page.goto('/');
     await Promise.any([
       page.waitForLoadState('load'),
@@ -241,14 +241,14 @@ test.describe('Screenshots Admin', () => {
     await page.getByRole('link', { name: "Rikets färdplan" }).click(metadata.project.name.includes("Galaxy") ? { force: true } : undefined);
 
     await expect.soft(page.getByRole('heading', { name: "Rikets färdplan" })).toBeVisible();
-    sendPageName = "roadmap"; // What the screenshot is of
+    sendPageName = "roadmapIteration"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
 
-    // Roadmap Edit
+    // Iteration Edit
     await page.getByTestId('admin-panel-edit').click();
 
     await expect.soft(page.locator('#submit-button')).toBeVisible();
-    sendPageName = "editRoadmap"; // What the screenshot is of
+    sendPageName = "editIteration"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
   });
 

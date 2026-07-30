@@ -81,11 +81,11 @@
     "title": "$t(common:edit.goal): {{goalName}}"
   },
   "home": {
-    "create_roadmap": "$t(common:new.roadmap_series)",
+    "create_roadmap": "$t(common:new.roadmap)",
     "filter": "Filter",
     "search_roadmaps": "Sök bland $t(common:count.roadmap)",
     "shown_results": "Visar {{shown}} av {{total}} $t(common:roadmap, {\"count\": {{total}}})",
-    "title": "$t(common:roadmap_short_other, titleCase)"
+    "title": "$t(common:roadmap_other, titleCase)"
   },
   "historical_data": {
     "breadcrumb": "Redigera historisk data"
@@ -153,8 +153,8 @@
     "title_legend": "$t(common:roadmap_one, titleCase)"
   },
   "roadmap_create": {
-    "breadcrumb": "$t(common:new.roadmap_series)",
-    "title": "$t(common:new.roadmap_series)"
+    "breadcrumb": "$t(common:new.roadmap)",
+    "title": "$t(common:new.roadmap)"
   },
   "roadmap_edit": {
     "breadcrumb": "Redigera metadata",
