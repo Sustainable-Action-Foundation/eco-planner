@@ -127,7 +127,7 @@ export default function RoadmapIterationForm({
 
     const formJSON = JSON.stringify(formData);
 
-    formSubmitter('/api/roadmapIteration', formJSON, currentIteration ? 'PUT' : 'POST', t, setIsLoading, undefined, undefined, undefined, addToast, (url) => router.push(url));
+    formSubmitter('/api/roadmap-iteration', formJSON, currentIteration ? 'PUT' : 'POST', t, setIsLoading, undefined, undefined, undefined, addToast, (url) => router.push(url));
   }
 
   // Indexes for the data-position attribute in the legend elements

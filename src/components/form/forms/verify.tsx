@@ -17,7 +17,7 @@ export default function VerifyForm() {
     const emailAddress = form.email.value;
 
     // Send a new verification email
-    formSubmitter('/api/sendVerification', JSON.stringify({ email: emailAddress }), 'POST', t);
+    formSubmitter('/api/send-verification', JSON.stringify({ email: emailAddress }), 'POST', t);
   }
 
   return (

@@ -19,7 +19,7 @@ export default function SendResetMail() {
       }
 
       // Send a new verification email
-      formSubmitter('/api/sendReset', JSON.stringify({ email: emailAddress }), 'POST', t);
+      formSubmitter('/api/send-reset', JSON.stringify({ email: emailAddress }), 'POST', t);
     }
   }
 

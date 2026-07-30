@@ -21,7 +21,7 @@ export async function generateMetadata(props: { params: Promise<{ iterationId: s
     return buildMetadata({
       title: t("metadata:login.title"),
       description: t("metadata:login.title"),
-      og_url: `/roadmapIteration/${params.iterationId}/edit`,
+      og_url: `/roadmap-iteration/${params.iterationId}/edit`,
       og_image_url: '/images/og_wind.png',
     });
   }
@@ -29,7 +29,7 @@ export async function generateMetadata(props: { params: Promise<{ iterationId: s
   return buildMetadata({
     title: `${t("metadata:roadmap_iteration_edit.title")} ${iteration?.roadmap.name}`,
     description: iteration?.description || iteration?.roadmap.description,
-    og_url: `/roadmapIteration/${params.iterationId}/edit`,
+    og_url: `/roadmap-iteration/${params.iterationId}/edit`,
     og_image_url: undefined,
   });
 }

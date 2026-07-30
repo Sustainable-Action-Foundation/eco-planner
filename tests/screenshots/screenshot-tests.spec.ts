@@ -218,7 +218,7 @@ test.describe('Screenshots Admin', () => {
 
   test('Roadmap iteration pics', async ({ page }, metadata) => {
     // Iteration create
-    await page.goto('/roadmapIteration/create');
+    await page.goto('/roadmap-iteration/create');
     await Promise.any([
       page.waitForLoadState('load'),
       Promise.resolve(setTimeout(() => { /* pass */ }, maxLoadTime)),

@@ -80,7 +80,7 @@ function buildLinks(
   // Roadmaps (top level)
   if ("iterations" in object) {
     selfLink = `/roadmap/${object.id}`;
-    creationLink = `/roadmapIteration/create?roadmapId=${object.id}`;
+    creationLink = `/roadmap-iteration/create?roadmapId=${object.id}`;
     creationDescription = t("components:table_menu.new_roadmap_version");
     editLink = `/roadmap/${object.id}/edit`;
     deleteLink = "/api/roadmap";
@@ -88,22 +88,22 @@ function buildLinks(
 
   // Roadmap iterations
   else if ("roadmap" in object) {
-    selfLink = `/roadmapIteration/${object.id}`;
+    selfLink = `/roadmap-iteration/${object.id}`;
     parentLink = `/roadmap/${object.roadmap.id}`;
     parentDescription = t("components:table_menu.go_to_series");
     creationLink = `/goal/create?iterationId=${object.id}`;
     creationDescription = t("components:table_menu.new_goal");
     creationLink2 = `/action/create?iterationId=${object.id}`;
     creationDescription2 = t("components:table_menu.new_action");
-    editLink = `/roadmapIteration/${object.id}/edit`;
-    deleteLink = "/api/roadmapIteration";
+    editLink = `/roadmap-iteration/${object.id}/edit`;
+    deleteLink = "/api/roadmap-iteration";
   }
 
   // Goals
   else if ("indicator_parameter" in object) {
     featureGoal = "/api/goal"; /* TODO: Update this line */
     selfLink = `/goal/${object.id}`;
-    parentLink = `/roadmapIteration/${object.roadmap_iteration.id}`;
+    parentLink = `/roadmap-iteration/${object.roadmap_iteration.id}`;
     parentDescription = t("components:table_menu.go_to_version");
     creationLink = `/action/create?iterationId=${object.roadmap_iteration_id}&goalId=${object.id}`;
     creationDescription = t("components:table_menu.new_action");
@@ -136,7 +136,7 @@ function buildLinks(
   // Actions
   else if ("roadmap_iteration_id" in object) {
     selfLink = `/action/${object.id}`;
-    parentLink = object.roadmap_iteration_id ? `/roadmapIteration/${object.roadmap_iteration_id}` : undefined;
+    parentLink = object.roadmap_iteration_id ? `/roadmap-iteration/${object.roadmap_iteration_id}` : undefined;
     parentDescription = t("components:table_menu.go_to_version");
     creationLink = `/effect/create?actionId=${object.id}`;
     creationDescription = t("components:table_menu.new_effect");

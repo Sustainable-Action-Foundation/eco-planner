@@ -176,7 +176,7 @@ export default async function Page(
                   <li key={index}>
                     <div className='inline-block width-100' style={{ verticalAlign: 'middle' }}>
                       <div className='flex justify-content-space-between align-items-center'>
-                        <Link href={`/roadmapIteration/${iteration.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
+                        <Link href={`/roadmap-iteration/${iteration.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
                           <h4 className='font-weight-500 margin-0'>{iteration.roadmap.name} {`(v${iteration.version})`}</h4>
                           <p className='margin-0'>{t("common:count.goal", { count: iteration._count.goals })}</p>
                         </Link>

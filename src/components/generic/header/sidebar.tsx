@@ -84,7 +84,7 @@ export default async function Sidebar() {
                   </Link>
                 </li>
                 <li>
-                  <Link href='/roadmapIteration/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none'>
+                  <Link href='/roadmap-iteration/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none'>
                     {t("common:roadmap_version_one")}
                     <IconPlus width={16} height={16} />
                   </Link>

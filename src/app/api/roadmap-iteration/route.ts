@@ -241,7 +241,7 @@ export async function POST(request: NextRequest) {
     revalidateTag('roadmapIteration', { expire: 0 });
     // Return the new iteration's ID if successful
     return Response.json({ message: t('api:roadmapIteration.iteration_created'), id: newIteration.id },
-      { status: 201, headers: { 'Location': `/roadmapIteration/${newIteration.id}` } },
+      { status: 201, headers: { 'Location': `/roadmap-iteration/${newIteration.id}` } },
     );
   }
   catch (err) {
@@ -384,7 +384,7 @@ export async function PUT(request: NextRequest) {
     revalidateTag('roadmapIteration', { expire: 0 });
     // Return the iteration's ID if successful
     return Response.json({ message: t('api:roadmapIteration.iteration_updated'), id: updatedIteration.id },
-      { status: 200, headers: { 'Location': `/roadmapIteration/${updatedIteration.id}` } },
+      { status: 200, headers: { 'Location': `/roadmap-iteration/${updatedIteration.id}` } },
     );
   }
   catch (err) {

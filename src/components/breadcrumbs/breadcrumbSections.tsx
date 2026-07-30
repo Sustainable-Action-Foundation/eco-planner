@@ -74,7 +74,7 @@ export function RoadmapIterationSection({
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
       {t("components:breadcrumbs_sections.version_label")}
-      <Link href={`/roadmapIteration/${iteration.id}`} className={styles.breadCrumb}>
+      <Link href={`/roadmap-iteration/${iteration.id}`} className={styles.breadCrumb}>
         {t("components:breadcrumbs_sections.version", { version: iteration.version })}
       </Link>
     </span>

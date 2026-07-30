@@ -99,7 +99,7 @@ test.describe.serial("Roadmaps tests", () => {
     await page.locator('#submit-button').click();
 
     // Creating a roadmap redirects to the iteration creation page for it
-    await expect(page).toHaveURL(/\/roadmapIteration\/create\?roadmapId=/);
+    await expect(page).toHaveURL(/\/roadmap-iteration\/create\?roadmapId=/);
 
     // Fill in the iteration form
     // Fill description in the tiptap editor
@@ -115,7 +115,7 @@ test.describe.serial("Roadmaps tests", () => {
     await page.locator('#submit-button').click();
 
     // Verify successful creation by checking the redirect to the new iteration's page
-    await expect(page).toHaveURL(/\/roadmapIteration\/(?!create)[a-zA-Z0-9-]+/);
+    await expect(page).toHaveURL(/\/roadmap-iteration\/(?!create)[a-zA-Z0-9-]+/);
 
     await expect(page.getByRole('heading', { name: roadmapNameAllFields })).toBeVisible();
   });
@@ -128,13 +128,13 @@ test.describe.serial("Roadmaps tests", () => {
     await page.getByRole('link', { name: `${roadmapNameAllFields}` }).first().click();
 
     // Wait for the iteration page to load
-    await expect(page).toHaveURL(/\/roadmapIteration\/[a-zA-Z0-9-]+$/);
+    await expect(page).toHaveURL(/\/roadmap-iteration\/[a-zA-Z0-9-]+$/);
 
     // Click the edit button
     await page.getByTestId('admin-panel-edit').click();
 
     // Wait for edit page to load
-    await expect(page).toHaveURL(/\/roadmapIteration\/[a-zA-Z0-9-]+\/edit/);
+    await expect(page).toHaveURL(/\/roadmap-iteration\/[a-zA-Z0-9-]+\/edit/);
 
     // Verify all fields are filled in
     await expect(page.locator('.tiptap').first()).toHaveText('Test All');
@@ -146,7 +146,7 @@ test.describe.serial("Roadmaps tests", () => {
     await page.locator('#submit-button').click();
 
     // Verify the save was successful
-    await expect(page).toHaveURL(/\/roadmapIteration\/[a-zA-Z0-9-]+$/);
+    await expect(page).toHaveURL(/\/roadmap-iteration\/[a-zA-Z0-9-]+$/);
     await expect(page.getByTestId('admin-panel-edit')).toBeVisible();
   });
 
@@ -209,7 +209,7 @@ test.describe.serial("Roadmaps tests", () => {
     await page.getByTestId('admin-panel-edit').click();
 
     // Wait for edit page to load
-    await expect(page).toHaveURL(/\/roadmapIteration\/[a-zA-Z0-9-]+\/edit/);
+    await expect(page).toHaveURL(/\/roadmap-iteration\/[a-zA-Z0-9-]+\/edit/);
 
     // Edit description in the tiptap editor; keep the iteration published
     await page.locator('.tiptap').first().fill('Updated Iteration Description All');
@@ -218,13 +218,13 @@ test.describe.serial("Roadmaps tests", () => {
     await page.locator('#submit-button').click();
 
     // Verify the save was successful
-    await expect(page).toHaveURL(/\/roadmapIteration\/[a-zA-Z0-9-]+$/);
+    await expect(page).toHaveURL(/\/roadmap-iteration\/[a-zA-Z0-9-]+$/);
 
     // Click the edit button again to verify all changes were saved
     await page.getByTestId('admin-panel-edit').click();
 
     // Wait for edit page to load
-    await expect(page).toHaveURL(/\/roadmapIteration\/[a-zA-Z0-9-]+\/edit/);
+    await expect(page).toHaveURL(/\/roadmap-iteration\/[a-zA-Z0-9-]+\/edit/);
 
     // Verify description was updated
     await expect(page.locator('.tiptap').first()).toHaveText('Updated Iteration Description All');
@@ -330,7 +330,7 @@ test.describe.serial("Roadmaps tests", () => {
     await page.locator('#submit-button').click();
 
     // Creating a roadmap redirects to the iteration creation page for it
-    await expect(page).toHaveURL(/\/roadmapIteration\/create\?roadmapId=/);
+    await expect(page).toHaveURL(/\/roadmap-iteration\/create\?roadmapId=/);
 
     // The iteration form has no required fields when the roadmap comes from the query;
     // publish so the iteration is visible outside the group of editors
@@ -340,7 +340,7 @@ test.describe.serial("Roadmaps tests", () => {
     await page.locator('#submit-button').click();
 
     // Verify successful creation by checking the redirect to the new iteration's page
-    await expect(page).toHaveURL(/\/roadmapIteration\/(?!create)[a-zA-Z0-9-]+/);
+    await expect(page).toHaveURL(/\/roadmap-iteration\/(?!create)[a-zA-Z0-9-]+/);
 
     await expect(page.getByRole('heading', { name: roadmapNameRequiredFields })).toBeVisible();
   });
@@ -352,13 +352,13 @@ test.describe.serial("Roadmaps tests", () => {
     await page.getByRole('link', { name: `${roadmapNameRequiredFields}` }).first().click();
 
     // Wait for the iteration page to load
-    await expect(page).toHaveURL(/\/roadmapIteration\/[a-zA-Z0-9-]+$/);
+    await expect(page).toHaveURL(/\/roadmap-iteration\/[a-zA-Z0-9-]+$/);
 
     // Click the edit button
     await page.getByTestId('admin-panel-edit').click();
 
     // Wait for edit page to load
-    await expect(page).toHaveURL(/\/roadmapIteration\/[a-zA-Z0-9-]+\/edit/);
+    await expect(page).toHaveURL(/\/roadmap-iteration\/[a-zA-Z0-9-]+\/edit/);
 
     // Verify the iteration is still published
     await expect(page.locator('#publish')).toBeChecked();
@@ -367,7 +367,7 @@ test.describe.serial("Roadmaps tests", () => {
     await page.locator('#submit-button').click();
 
     // Verify the save was successful
-    await expect(page).toHaveURL(/\/roadmapIteration\/[a-zA-Z0-9-]+$/);
+    await expect(page).toHaveURL(/\/roadmap-iteration\/[a-zA-Z0-9-]+$/);
     await expect(page.getByTestId('admin-panel-edit')).toBeVisible();
   });
 
@@ -425,7 +425,7 @@ test.describe.serial("Roadmaps tests", () => {
     await page.getByTestId('admin-panel-edit').click();
 
     // Wait for edit page to load
-    await expect(page).toHaveURL(/\/roadmapIteration\/[a-zA-Z0-9-]+\/edit/);
+    await expect(page).toHaveURL(/\/roadmap-iteration\/[a-zA-Z0-9-]+\/edit/);
 
     // Edit description in the tiptap editor; keep the iteration published
     await page.locator('.tiptap').first().fill('Updated Iteration Description Required');
@@ -434,13 +434,13 @@ test.describe.serial("Roadmaps tests", () => {
     await page.locator('#submit-button').click();
 
     // Verify the save was successful
-    await expect(page).toHaveURL(/\/roadmapIteration\/[a-zA-Z0-9-]+$/);
+    await expect(page).toHaveURL(/\/roadmap-iteration\/[a-zA-Z0-9-]+$/);
 
     // Click the edit button again to verify all changes were saved
     await page.getByTestId('admin-panel-edit').click();
 
     // Wait for edit page to load
-    await expect(page).toHaveURL(/\/roadmapIteration\/[a-zA-Z0-9-]+\/edit/);
+    await expect(page).toHaveURL(/\/roadmap-iteration\/[a-zA-Z0-9-]+\/edit/);
 
     // Verify description was updated
     await expect(page.locator('.tiptap').first()).toContainText('Updated Iteration Description Required');
