@@ -150,6 +150,33 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page.getByTestId('admin-panel-edit')).toBeVisible();
   });
 
+  test("Iteration id route redirects to version slug - All Fields", async ({ page }) => {
+
+    await page.goto('/');
+
+    // The front page links to the latest iteration of each roadmap
+    await page.getByRole('link', { name: `${roadmapNameAllFields}` }).first().click();
+
+    // Wait for the iteration page to load
+    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/v\d+$/);
+
+    // The version URL holds the roadmap id and version slug but not the iteration id;
+    // extract the id from the new-goal link, which carries it as a query parameter
+    const { pathname, origin } = new URL(page.url());
+    const [, , roadmapId, versionSlug] = pathname.split('/');
+    const goalCreateHref = await page.locator('a[href*="iterationId="]').first().getAttribute('href');
+    const iterationId = new URL(goalCreateHref ?? '', origin).searchParams.get('iterationId');
+    expect(iterationId).toBeTruthy();
+
+    // Linking an iteration by id redirects to the canonical version slug
+    await page.goto(`/roadmap/${roadmapId}/iteration/${iterationId}`);
+    await expect(page).toHaveURL(`/roadmap/${roadmapId}/${versionSlug}`);
+
+    // The iteration's own roadmap is authoritative when the roadmap id in the path is wrong
+    await page.goto(`/roadmap/not-a-real-roadmap-id/iteration/${iterationId}`);
+    await expect(page).toHaveURL(`/roadmap/${roadmapId}/${versionSlug}`);
+  });
+
   test("Edit roadmap, no changes - All Fields", async ({ page }) => {
 
     await page.goto('/');
