@@ -950,6 +950,135 @@ ALTER TABLE `AccessGrants` ADD CONSTRAINT `AccessGrants_group_id_org_id_fkey`
     FOREIGN KEY (`group_id`, `org_id`) REFERENCES `Groups`(`id`, `org_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- ============================================================================
+-- 12b. LEVEL CONSTRAINT NAMES: rename leftovers to the canonical Prisma names
+-- ============================================================================
+-- The renamed tables keep their pre-rework FK/index names; recreate them with the
+-- names 0_init uses so the final state matches the leveled migration exactly
+-- (afterwards `migrate diff --from-config-datasource --to-schema` must be EMPTY).
+-- Purely renames: FKs dropped and re-added with identical definitions.
+-- (The `_goal_tags` old B index/FK cover column `A` after the A/B column swap.)
+
+-- DropForeignKey
+ALTER TABLE `ActionFields` DROP FOREIGN KEY `action_field_action_id_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `Actions` DROP FOREIGN KEY `action_parent_action_id_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `Actions` DROP FOREIGN KEY `action_roadmap_id_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `Comments` DROP FOREIGN KEY `comment_action_id_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `Comments` DROP FOREIGN KEY `comment_goal_id_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `Comments` DROP FOREIGN KEY `comment_meta_roadmap_id_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `Comments` DROP FOREIGN KEY `comment_roadmap_id_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `Effects` DROP FOREIGN KEY `effect_action_id_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `Effects` DROP FOREIGN KEY `effect_data_series_id_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `Effects` DROP FOREIGN KEY `effect_goal_id_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `Goals` DROP FOREIGN KEY `goal_baseline_id_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `Goals` DROP FOREIGN KEY `goal_data_series_id_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `Goals` DROP FOREIGN KEY `goal_historical_id_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `Goals` DROP FOREIGN KEY `goal_roadmap_id_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `RoadmapIterations` DROP FOREIGN KEY `roadmap_meta_roadmap_id_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `Roadmaps` DROP FOREIGN KEY `meta_roadmap_parent_roadmap_id_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `_goal_tags` DROP FOREIGN KEY `_goal_tag_A_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `_goal_tags` DROP FOREIGN KEY `_goal_tag_B_fkey`;
+
+-- DropIndex
+DROP INDEX `_goal_tag_AB_unique` ON `_goal_tags`;
+
+-- DropIndex (after the A/B column swap this old index covers column `A`)
+DROP INDEX `_goal_tag_B_index` ON `_goal_tags`;
+
+-- CreateIndex
+CREATE UNIQUE INDEX `_goal_tags_AB_unique` ON `_goal_tags`(`A`, `B`);
+
+-- CreateIndex
+CREATE INDEX `_goal_tags_B_index` ON `_goal_tags`(`B`);
+
+-- AddForeignKey
+ALTER TABLE `Roadmaps` ADD CONSTRAINT `Roadmaps_parent_roadmap_id_fkey` FOREIGN KEY (`parent_roadmap_id`) REFERENCES `Roadmaps`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `RoadmapIterations` ADD CONSTRAINT `RoadmapIterations_roadmap_id_fkey` FOREIGN KEY (`roadmap_id`) REFERENCES `Roadmaps`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Goals` ADD CONSTRAINT `Goals_data_series_id_fkey` FOREIGN KEY (`data_series_id`) REFERENCES `DataSeries`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Goals` ADD CONSTRAINT `Goals_baseline_id_fkey` FOREIGN KEY (`baseline_id`) REFERENCES `DataSeries`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Goals` ADD CONSTRAINT `Goals_historical_id_fkey` FOREIGN KEY (`historical_id`) REFERENCES `DataSeries`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Goals` ADD CONSTRAINT `Goals_roadmap_iteration_id_fkey` FOREIGN KEY (`roadmap_iteration_id`) REFERENCES `RoadmapIterations`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Actions` ADD CONSTRAINT `Actions_roadmap_iteration_id_fkey` FOREIGN KEY (`roadmap_iteration_id`) REFERENCES `RoadmapIterations`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Actions` ADD CONSTRAINT `Actions_parent_action_id_fkey` FOREIGN KEY (`parent_action_id`) REFERENCES `Actions`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `ActionFields` ADD CONSTRAINT `ActionFields_action_id_fkey` FOREIGN KEY (`action_id`) REFERENCES `Actions`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Effects` ADD CONSTRAINT `Effects_data_series_id_fkey` FOREIGN KEY (`data_series_id`) REFERENCES `DataSeries`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Effects` ADD CONSTRAINT `Effects_action_id_fkey` FOREIGN KEY (`action_id`) REFERENCES `Actions`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Effects` ADD CONSTRAINT `Effects_goal_id_fkey` FOREIGN KEY (`goal_id`) REFERENCES `Goals`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Comments` ADD CONSTRAINT `Comments_action_id_fkey` FOREIGN KEY (`action_id`) REFERENCES `Actions`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Comments` ADD CONSTRAINT `Comments_goal_id_fkey` FOREIGN KEY (`goal_id`) REFERENCES `Goals`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Comments` ADD CONSTRAINT `Comments_roadmap_iteration_id_fkey` FOREIGN KEY (`roadmap_iteration_id`) REFERENCES `RoadmapIterations`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Comments` ADD CONSTRAINT `Comments_roadmap_id_fkey` FOREIGN KEY (`roadmap_id`) REFERENCES `Roadmaps`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `_goal_tags` ADD CONSTRAINT `_goal_tags_A_fkey` FOREIGN KEY (`A`) REFERENCES `GoalTags`(`name`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `_goal_tags` ADD CONSTRAINT `_goal_tags_B_fkey` FOREIGN KEY (`B`) REFERENCES `Goals`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- ============================================================================
 -- 13. CLEANUP + RESET MIGRATION HISTORY
 -- ============================================================================
 DROP TABLE `_migration_user_org`, `_migration_meta_org`, `_migration_group_org`,
@@ -959,15 +1088,11 @@ DROP TABLE `_migration_user_org`, `_migration_meta_org`, `_migration_group_org`,
 TRUNCATE `_prisma_migrations`;
 
 -- ============================================================================
--- LEVELING (run in the repo after this script succeeds):
---   rm -rf prisma/migrations
---   mkdir -p prisma/migrations/0_init
---   printf 'provider = "mysql"' > prisma/migrations/migration_lock.toml
---   yarn prisma migrate diff --from-empty \
---     --to-schema prisma/schema.prisma --script \
---     > prisma/migrations/0_init/migration.sql
---   yarn prisma migrate resolve --applied 0_init
---   yarn prisma generate
--- Then run `yarn prisma migrate dev` once; it emits a small
--- constraint-rename migration for leftover old FK names — apply it.
+-- LEVELING (after this script succeeds):
+--   The repo's prisma/migrations contains only 0_init, generated from the final
+--   schema. Section 12b above already leveled the constraint names, so:
+--     yarn prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --script
+--   must print an EMPTY migration. Then baseline the database ("the lie"):
+--     yarn prisma migrate resolve --applied 0_init
+--   and verify with `yarn prisma migrate status` (should be up to date).
 -- ============================================================================
