@@ -1,7 +1,8 @@
 "use client";
 
-import { RecipeError } from "@/functions/recipe/types";
-import type { RecipeDataTypes, RecipeVariable, SerializedRecipe } from "@/functions/recipe/types";
+import { RecipeError } from "@/functions/recipe/types/errors";
+import type { RecipeDataTypes } from "@/functions/recipe/types/enums";
+import type { RecipeVariable, SerializedRecipe } from "@/functions/recipe/types";
 import { externalSelectionKey } from "@/functions/recipe/extractors";
 import getTableContent from "@/lib/api/getTableContent";
 import type { ApiSelectionItem, ApiTableContent } from "@/lib/api/apiTypes";

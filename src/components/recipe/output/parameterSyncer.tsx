@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
 import { getRecipeRoadmapData } from "../context/roadmapDataCache";
 import { useEffect, useState } from "react";
-import { RecipeDataTypes } from "@/functions/recipe/types/consts";
+import { RecipeDataTypes } from "@/functions/recipe/types/enums";
 import type { ClientRoadmapIteration } from "@/types";
 
 export default function ParameterSync({

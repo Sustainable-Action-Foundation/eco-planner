@@ -5,9 +5,6 @@ import mathjs from "../../src/math";
 import {
   ANDMasks,
   Recipe,
-  RecipeDataTypes,
-  RecipeError,
-  VectorIndexPickerOptions,
   dateValuesToDBDateRecord,
   dataSeriesToDateValues,
   extractDataSeries,
@@ -22,6 +19,8 @@ import {
   sanityCheckScalars,
   transformDateValuesToVector,
 } from "../../src/functions/recipe";
+import { RecipeDataTypes, VectorIndexPickerOptions } from "../../src/functions/recipe/types/enums";
+import { RecipeError } from "../../src/functions/recipe/types/errors";
 import type { DataSeriesVariable, ExternalVariable, ScalarVariable } from "../../src/functions/recipe/types";
 import type { ApiTableContent } from "../../src/lib/api/apiTypes";
 import type { DataSeries, DateValues, DateValuesWithUnit, ISOIshDate } from "../../src/types";

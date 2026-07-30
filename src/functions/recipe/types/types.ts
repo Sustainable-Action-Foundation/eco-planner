@@ -2,7 +2,7 @@ import type { Unit as MathJSUnit } from "mathjs";
 import type { ApiSelectionItem, DatasetKeys } from "@/lib/api/apiTypes";
 import type { DateValues, DateValuesWithUnit, ISOIshDate, Unit } from "@/types";
 import type { BaselineType } from "@/types/enums";
-import type { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/consts";
+import type { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/enums";
 
 type BaseVariable = {
   id: string;

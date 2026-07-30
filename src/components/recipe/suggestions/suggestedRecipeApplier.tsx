@@ -1,6 +1,7 @@
 'use client';
 
-import { isRecipe, RecipeDataTypes } from "@/functions/recipe/types";
+import { RecipeDataTypes } from "@/functions/recipe/types/enums";
+import { isRecipe } from "@/functions/recipe/types/typeguards";
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
 import { VariableTypeScalarSimple } from "../editor/variables/scalarVariable";
@@ -11,7 +12,7 @@ import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";
 import { isUnitFlag } from "@/functions/unit";
 import { IconAlertTriangleFilled, IconInfoCircle } from "@tabler/icons-react";
 import type { ClientRoadmapIteration, DBRecipe } from "@/types";
-import { RecipeEditorPermissions } from "@/types/enums";
+import { RecipeEditorPermissions } from "@/types/consts";
 import { Recipe } from "@/functions/recipe/recipe";
 import { getDefaultSuggestedRecipes, TextStatus } from "@/components/recipe";
 import styles from "../recipe.module.css" with {type: "css"};

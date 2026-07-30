@@ -85,15 +85,6 @@ export const HistoricalDataType = {
 export type HistoricalDataType = (typeof HistoricalDataType)[keyof typeof HistoricalDataType];
 
 
-/** What a recipe editor lets the user do. The object doubles as the permissive default that callers spread over. */
-export const RecipeEditorPermissions = {
-  allowAddVariables: true,
-  allowDeleteVariables: true,
-  allowNameEditing: true,
-  allowValueEditing: true,
-} as const;
-export type RecipeEditorPermissions = Partial<Record<keyof typeof RecipeEditorPermissions, boolean>>;
-
 /** The graphs available for a goal. */
 export const GraphType = {
   Main: "MAIN",

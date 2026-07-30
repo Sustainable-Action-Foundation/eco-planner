@@ -1,28 +1,6 @@
 import type { DataSeriesVariable, ExternalVariable, ScalarVariable, RecipeVariable } from "./types";
+import { RecipeDataTypes, VectorIndexPickerOptions } from "./enums";
 import { UnitFlags } from "@/types/enums";
-
-export const VectorIndexPickerOptions = {
-  Default: "whole",
-
-  Whole: "whole",
-  Reverse: "reverse",
-
-  Last: "last",
-  First: "first",
-  Median: "median",
-  Mean: "mean",
-} as const;
-export type VectorIndexPickerOptions = typeof VectorIndexPickerOptions[keyof typeof VectorIndexPickerOptions];
-
-/*
- * Common types for recipes
- */
-export const RecipeDataTypes = {
-  Scalar: "scalar",
-  DataSeries: "data-series",
-  External: "external",
-} as const;
-export type RecipeDataTypes = typeof RecipeDataTypes[keyof typeof RecipeDataTypes];
 
 export const emptyRecipeScalar: ScalarVariable = {
   id: "empty-scalar",

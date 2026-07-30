@@ -7,3 +7,12 @@ export const ClientError = {
   IllegalParent: "You are trying to connect this object to a parent you don't have access to or that doesn't exist",
   StaleData: "Stale data; please refresh and try again",
 } as const;
+
+/** What a recipe editor lets the user do. The object doubles as the permissive default that callers spread over. */
+export const RecipeEditorPermissions = {
+  allowAddVariables: true,
+  allowDeleteVariables: true,
+  allowNameEditing: true,
+  allowValueEditing: true,
+} as const;
+export type RecipeEditorPermissions = Partial<Record<keyof typeof RecipeEditorPermissions, boolean>>;

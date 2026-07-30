@@ -3,11 +3,12 @@
 import { Popover, PopoverButton } from "@/components/generic/popovers/popovers";
 import { useRecipe } from "../context/recipeContext.use";
 import { useRef, useState } from "react";
-import { emptyRecipesByDataType, RecipeDataTypes } from "@/functions/recipe/types";
+import { emptyRecipesByDataType } from "@/functions/recipe/types/consts";
+import { RecipeDataTypes } from "@/functions/recipe/types/enums";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { useTranslation } from "react-i18next";
 import { allOurUnits } from "@/math";
-import { RecipeEditorPermissions } from "@/types/enums";
+import { RecipeEditorPermissions } from "@/types/consts";
 import { parseUnit } from "@/functions/unit";
 
 export function VariableCreator({

@@ -1,6 +1,6 @@
 
 import { Recipe } from "@/functions/recipe/recipe";
-import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types";
+import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/enums";
 import type { DataSeriesVariable, ExternalVariable, ScalarVariable } from "@/functions/recipe/types";
 import type { DBRecipe } from "@/types";
 import type { TFunction } from "i18next";

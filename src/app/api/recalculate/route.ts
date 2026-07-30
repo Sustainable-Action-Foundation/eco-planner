@@ -3,7 +3,7 @@ import { clientSafeGetOneDataSeries } from "@/fetchers/client";
 import { getAccessContextById } from "@/fetchers/getUserAccessContext";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 import { Recipe } from "@/functions/recipe/recipe";
-import { RecipeError } from "@/functions/recipe/types";
+import { RecipeError } from "@/functions/recipe/types/errors";
 import { editableDataSeriesWhere } from "@/lib/accessFilters";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";

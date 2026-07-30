@@ -1,7 +1,8 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@PRISMA-NAMESPACE-ONLY";
-import { Recipe, RecipeDataTypes, fetchExternalVariableData, externalSelectionKey } from "@/functions/recipe";
+import { Recipe, fetchExternalVariableData, externalSelectionKey } from "@/functions/recipe";
+import { RecipeDataTypes } from "@/functions/recipe/types/enums";
 import getTableContent from "@/lib/api/getTableContent";
 import type { DataSeriesVariable, ExternalSource, RecipeVariable, ResolvedExternals, SerializedRecipe } from "@/functions/recipe";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";

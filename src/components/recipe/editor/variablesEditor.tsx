@@ -1,13 +1,13 @@
 'use client';
 
-import { RecipeDataTypes } from "@/functions/recipe/types";
+import { RecipeDataTypes } from "@/functions/recipe/types/enums";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
 import styles from '../recipe.module.css' with { type: "css" };
 import { VariableCreator, DataSeriesVariableEditor, VariableTypeExternal, VariableTypeScalar } from "@/components/recipe";
 import type { ClientRoadmapIteration } from "@/types";
-import { RecipeEditorPermissions } from "@/types/enums";
+import { RecipeEditorPermissions } from "@/types/consts";
 import { getRecipeRoadmapData } from "../context/roadmapDataCache";
 
 export function VariablesEditor({

@@ -2,7 +2,7 @@ import { expect, test } from "playwright/test";
 import type { Locator, Page } from "playwright/test";
 import path from "node:path";
 import { cwd } from "node:process";
-import { RecipeDataTypes } from "../../src/functions/recipe/types/consts";
+import { RecipeDataTypes } from "../../src/functions/recipe/types/enums";
 
 const adminFile = path.join(cwd(), "tests/.auth/admin.json");
 

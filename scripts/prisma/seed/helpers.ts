@@ -6,7 +6,8 @@
 // manual entry uses an inline manual recipe, derived series use real ones.
 
 import { prisma } from "@/lib/prisma";
-import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe";
+import { Recipe } from "@/functions/recipe";
+import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/enums";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 import type { DateValues } from "@/types";
 import { isISOIshDate } from "@/types/typeguards";

@@ -2,7 +2,8 @@ import type { DataSeries, DateValues, DateValuesWithUnit, Goal, ISOIshDate, Mask
 import { UnitFlags } from "@/types/enums";
 import { isISOIshDate } from "@/types/typeguards";
 import { isUnitFlag, parseUnit } from "@/functions/unit";
-import { RecipeError, VectorIndexPickerOptions } from "@/functions/recipe/types";
+import { VectorIndexPickerOptions } from "@/functions/recipe/types/enums";
+import { RecipeError } from "@/functions/recipe/types/errors";
 import type { Unit as MathJSUnit } from "mathjs";
 import mathjs from "@/math";
 

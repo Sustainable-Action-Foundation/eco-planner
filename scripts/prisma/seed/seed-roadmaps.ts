@@ -12,7 +12,8 @@
 import { prisma } from "@/lib/prisma";
 import { AccessLevel, RoadmapType } from "@/lib/prisma/generated";
 import type { RoadmapIterations, Roadmaps } from "@/lib/prisma/generated";
-import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe";
+import { Recipe } from "@/functions/recipe";
+import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/enums";
 import type { SeededUsers } from "./helpers.ts";
 import { getRandomCreatedAtAndUpdatedAt, getRandomDateInThePast, makeRandomComments } from "./helpers.ts";
 import { parseUnit } from "@/functions/unit";

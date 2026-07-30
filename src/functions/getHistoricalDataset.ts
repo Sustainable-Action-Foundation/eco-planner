@@ -1,4 +1,5 @@
-import { Recipe, RecipeDataTypes } from "@/functions/recipe";
+import { Recipe } from "@/functions/recipe";
+import { RecipeDataTypes } from "@/functions/recipe/types/enums";
 import type { ExternalSource } from "@/functions/recipe";
 import { ExternalDataset } from "@/lib/api/utility";
 import type { DatasetData, DatasetKeys } from "@/lib/api/apiTypes";

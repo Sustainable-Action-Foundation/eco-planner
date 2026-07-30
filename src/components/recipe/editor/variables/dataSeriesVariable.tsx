@@ -1,6 +1,7 @@
 "use client";
 
-import { isDataSeriesVariable, RecipeError } from "@/functions/recipe/types";
+import { RecipeError } from "@/functions/recipe/types/errors";
+import { isDataSeriesVariable } from "@/functions/recipe/types/typeguards";
 import { useTranslation } from "react-i18next";
 import React, { useCallback, useMemo } from "react";
 import type { RecipeContextType, TreeItem } from "@/components/types";
@@ -8,7 +9,7 @@ import SelectSingleTree from "@/components/form/elements/combobox/selectSingleTr
 import { clientSafeGetOneRoadmapIteration } from "@/fetchers/client";
 import { CommonVariable, useRecipe, VectorPickerSelect } from "@/components/recipe";
 import type { ClientRoadmapIteration } from "@/types";
-import { RecipeEditorPermissions } from "@/types/enums";
+import { RecipeEditorPermissions } from "@/types/consts";
 
 type AvailableRoadmapOption = { id: string; name: string; };
 
