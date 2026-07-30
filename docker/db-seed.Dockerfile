@@ -87,4 +87,7 @@ USER node
 RUN corepack prepare --activate
 
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["sh", "-c", "yarn prisma migrate reset --force && yarn prisma db seed"]
+# db push (not migrate reset): the migrations chain predates the org rework until it
+# is leveled into 0_init after the production migration; push syncs the test database
+# straight from schema.prisma, which stays correct both before and after leveling.
+CMD ["sh", "-c", "yarn prisma db push --force-reset && yarn prisma db seed"]
