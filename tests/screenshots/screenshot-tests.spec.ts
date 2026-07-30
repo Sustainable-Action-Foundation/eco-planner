@@ -217,8 +217,14 @@ test.describe('Screenshots Admin', () => {
   });
 
   test('Roadmap iteration pics', async ({ page }, metadata) => {
-    // Iteration create
-    await page.goto('/roadmap-iteration/create');
+    // Iteration create (derive the roadmap id from the front page, which links to the latest iteration of each roadmap)
+    await page.goto('/');
+    await Promise.any([
+      page.waitForLoadState('load'),
+      Promise.resolve(setTimeout(() => { /* pass */ }, maxLoadTime)),
+    ]);
+    const iterationHref = await page.getByRole('link', { name: "Rikets färdplan" }).first().getAttribute('href');
+    await page.goto(`/roadmap/${iterationHref?.split('/')[2]}/iteration/create`);
     await Promise.any([
       page.waitForLoadState('load'),
       Promise.resolve(setTimeout(() => { /* pass */ }, maxLoadTime)),

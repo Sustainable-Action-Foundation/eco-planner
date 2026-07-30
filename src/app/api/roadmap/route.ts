@@ -193,7 +193,7 @@ export async function POST(request: NextRequest) {
     revalidateTag('roadmap', 'max');
     // Return the new roadmap's ID if successful
     return Response.json({ message: t('api:roadmap.roadmap_created'), id: newRoadmap.id },
-      { status: 201, headers: { 'Location': `/roadmap-iteration/create?roadmapId=${newRoadmap.id}` } },
+      { status: 201, headers: { 'Location': `/roadmap/${newRoadmap.id}/iteration/create` } },
     );
   }
   catch (err) {

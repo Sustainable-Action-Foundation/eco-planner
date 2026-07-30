@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { getAccessContextById } from "@/fetchers/getUserAccessContext";
 import { accessControlSelection } from "@/fetchers/inclusionSelectors";
 import pruneOrphans from "@/functions/pruneOrphans";
+import { iterationPath } from "@/functions/versionSlug";
 import accessChecker, { hasAdminAccess, hasEditAccess } from "@/lib/accessChecker";
 import serveTea from "@/lib/i18nServer";
 import { prisma } from "@/lib/prisma";
@@ -235,13 +236,13 @@ export async function POST(request: NextRequest) {
           create: roadmapGoalCreator(iteration, session.user.id, orgId),
         },
       },
-      select: { id: true },
+      select: { id: true, roadmap_id: true, version: true },
     });
     // Invalidate old cache
     revalidateTag('roadmapIteration', { expire: 0 });
     // Return the new iteration's ID if successful
     return Response.json({ message: t('api:roadmapIteration.iteration_created'), id: newIteration.id },
-      { status: 201, headers: { 'Location': `/roadmap-iteration/${newIteration.id}` } },
+      { status: 201, headers: { 'Location': iterationPath(newIteration.roadmap_id, newIteration.version) } },
     );
   }
   catch (err) {
@@ -376,7 +377,7 @@ export async function PUT(request: NextRequest) {
           create: roadmapGoalCreator(iteration, session.user.id, orgId),
         },
       },
-      select: { id: true },
+      select: { id: true, roadmap_id: true, version: true },
     });
     // Prune any orphaned comments
     await pruneOrphans();
@@ -384,7 +385,7 @@ export async function PUT(request: NextRequest) {
     revalidateTag('roadmapIteration', { expire: 0 });
     // Return the iteration's ID if successful
     return Response.json({ message: t('api:roadmapIteration.iteration_updated'), id: updatedIteration.id },
-      { status: 200, headers: { 'Location': `/roadmap-iteration/${updatedIteration.id}` } },
+      { status: 200, headers: { 'Location': iterationPath(updatedIteration.roadmap_id, updatedIteration.version) } },
     );
   }
   catch (err) {

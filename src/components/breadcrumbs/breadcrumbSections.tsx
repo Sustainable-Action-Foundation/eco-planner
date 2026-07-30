@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useTranslation } from "react-i18next";
 import { IconChevronRight } from '@tabler/icons-react';
 import type { Action, Goal, Roadmap, RoadmapIteration } from "@/types";
+import { iterationPath } from "@/functions/versionSlug";
 
 export function BreadcrumbChevron() {
   return (
@@ -68,13 +69,13 @@ export function RoadmapSection({
 export function RoadmapIterationSection({
   iteration,
 }: {
-  iteration: Pick<RoadmapIteration, "id" | "version">
+  iteration: Pick<RoadmapIteration, "id" | "version"> & { roadmap: Pick<Roadmap, "id"> }
 }) {
   const { t } = useTranslation("components");
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
       {t("components:breadcrumbs_sections.version_label")}
-      <Link href={`/roadmap-iteration/${iteration.id}`} className={styles.breadCrumb}>
+      <Link href={iterationPath(iteration.roadmap.id, iteration.version)} className={styles.breadCrumb}>
         {t("components:breadcrumbs_sections.version", { version: iteration.version })}
       </Link>
     </span>

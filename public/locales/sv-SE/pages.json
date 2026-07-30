@@ -135,11 +135,8 @@
     "version": "$t(common:roadmap_version_one, titleCase) (v{{version}})"
   },
   "roadmap_iteration_create": {
-    "bad_roadmap": "Kunde inte hitta, eller har inte tillgång till, $t(common:roadmap_definite_one) i länken.",
     "breadcrumb": "$t(common:new.roadmap_version)",
-    "information_icon_aria": "Information",
-    "title": "$t(common:new.roadmap_version)",
-    "use_dropdown": "Använd dropdown-menyn för att välja en $t(common:roadmap_one)."
+    "title": "$t(common:new.roadmap_version)"
   },
   "roadmap_iteration_edit": {
     "are_you_in_the_right_place": "Ville du redigera den gemensamma metadatan för hela $t(common:roadmap_definite_one)? I så fall kan du <Link>gå hit</Link> för att redigera metadatan.",

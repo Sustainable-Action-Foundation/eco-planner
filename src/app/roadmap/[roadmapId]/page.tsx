@@ -80,7 +80,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
           <h2 className="margin-block-100 padding-bottom-50" style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:roadmap.roadmap_versions")}</h2>
           <menu className="margin-0 padding-0 margin-bottom-100 flex justify-content-flex-end">
             {hasEditAccess(accessLevel) ?
-              <Link href={`/roadmap-iteration/create?roadmapId=${roadmap.id}`} className="button pureblack color-purewhite round">{t("pages:roadmap.create_roadmap_version")}</Link>
+              <Link href={`/roadmap/${roadmap.id}/iteration/create`} className="button pureblack color-purewhite round">{t("pages:roadmap.create_roadmap_version")}</Link>
               : null}
           </menu>
           <RoadmapTable accessContext={accessContext} roadmap={roadmap} />

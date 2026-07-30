@@ -118,14 +118,14 @@ test.describe('Toast', () => {
     await page.locator('#submit-button').click();
 
     await expectToast(page, 'success', 'roadmap.roadmap_created');
-    await expect(page).toHaveURL(/\/roadmap-iteration\/create/);
+    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/iteration\/create/);
 
     // The iteration form has no required fields when the roadmap comes from the
     // query, so just publish and submit
     await page.locator('#publish').check();
     await page.locator('#submit-button').click();
     await expectToast(page, 'success', 'iteration_created');
-    await expect(page).toHaveURL(/\/roadmap-iteration\/(?!create)[a-zA-Z0-9-]+/);
+    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/v\d+/);
     await expect(page.getByRole('heading', { name: 'Roadmap Toast' })).toBeVisible();
   });
 

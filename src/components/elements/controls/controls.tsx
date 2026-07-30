@@ -12,6 +12,7 @@ import { IconArrowBackUp, IconChartHistogram, IconDotsVertical, IconEdit, IconPl
 import { hasAdminAccess, hasEditAccess } from '@/lib/accessChecker';
 import type { TFunction } from 'i18next';
 import formSubmitter from '@/functions/formSubmitter';
+import { iterationPath } from '@/functions/versionSlug';
 
 /*
   TODO:
@@ -21,13 +22,16 @@ import formSubmitter from '@/functions/formSubmitter';
 */
 /* TODO: Add an info bubble to the admin panel to clear some space? */
 
-type ActionMenuEntry = Pick<Action, "id" | "name" | "roadmap_iteration_id">;
-
-type GoalMenuEntry = Pick<Goal, "id" | "name" | "indicator_parameter" | "roadmap_iteration_id"> & {
-  roadmap_iteration: Pick<RoadmapIteration, "id"> & { roadmap: Pick<Roadmap, "id" | "name"> };
+type ActionMenuEntry = Pick<Action, "id" | "name" | "roadmap_iteration_id"> & {
+  // Optional: call sites without it (e.g. tables on the iteration page itself) just lose the parent link
+  roadmap_iteration?: Pick<RoadmapIteration, "roadmap_id" | "version"> | null;
 };
 
-type IterationMenuEntry = Pick<RoadmapIteration, "id"> & {
+type GoalMenuEntry = Pick<Goal, "id" | "name" | "indicator_parameter" | "roadmap_iteration_id"> & {
+  roadmap_iteration: Pick<RoadmapIteration, "id" | "version"> & { roadmap: Pick<Roadmap, "id" | "name"> };
+};
+
+type IterationMenuEntry = Pick<RoadmapIteration, "id" | "version"> & {
   roadmap: Pick<Roadmap, "id" | "name">;
   _count?: { goals: number };
 };
@@ -80,7 +84,7 @@ function buildLinks(
   // Roadmaps (top level)
   if ("iterations" in object) {
     selfLink = `/roadmap/${object.id}`;
-    creationLink = `/roadmap-iteration/create?roadmapId=${object.id}`;
+    creationLink = `/roadmap/${object.id}/iteration/create`;
     creationDescription = t("components:table_menu.new_roadmap_version");
     editLink = `/roadmap/${object.id}/edit`;
     deleteLink = "/api/roadmap";
@@ -88,14 +92,14 @@ function buildLinks(
 
   // Roadmap iterations
   else if ("roadmap" in object) {
-    selfLink = `/roadmap-iteration/${object.id}`;
+    selfLink = iterationPath(object.roadmap.id, object.version);
     parentLink = `/roadmap/${object.roadmap.id}`;
     parentDescription = t("components:table_menu.go_to_series");
     creationLink = `/goal/create?iterationId=${object.id}`;
     creationDescription = t("components:table_menu.new_goal");
     creationLink2 = `/action/create?iterationId=${object.id}`;
     creationDescription2 = t("components:table_menu.new_action");
-    editLink = `/roadmap-iteration/${object.id}/edit`;
+    editLink = `${iterationPath(object.roadmap.id, object.version)}/edit`;
     deleteLink = "/api/roadmap-iteration";
   }
 
@@ -103,7 +107,7 @@ function buildLinks(
   else if ("indicator_parameter" in object) {
     featureGoal = "/api/goal"; /* TODO: Update this line */
     selfLink = `/goal/${object.id}`;
-    parentLink = `/roadmap-iteration/${object.roadmap_iteration.id}`;
+    parentLink = iterationPath(object.roadmap_iteration.roadmap.id, object.roadmap_iteration.version);
     parentDescription = t("components:table_menu.go_to_version");
     creationLink = `/action/create?iterationId=${object.roadmap_iteration_id}&goalId=${object.id}`;
     creationDescription = t("components:table_menu.new_action");
@@ -136,7 +140,7 @@ function buildLinks(
   // Actions
   else if ("roadmap_iteration_id" in object) {
     selfLink = `/action/${object.id}`;
-    parentLink = object.roadmap_iteration_id ? `/roadmap-iteration/${object.roadmap_iteration_id}` : undefined;
+    parentLink = object.roadmap_iteration ? iterationPath(object.roadmap_iteration.roadmap_id, object.roadmap_iteration.version) : undefined;
     parentDescription = t("components:table_menu.go_to_version");
     creationLink = `/effect/create?actionId=${object.id}`;
     creationDescription = t("components:table_menu.new_effect");

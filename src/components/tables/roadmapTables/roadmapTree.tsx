@@ -4,6 +4,7 @@ import { ControlsMenu } from "@/components/elements/controls/controls";
 import accessChecker from "@/lib/accessChecker";
 import type { MultiRoadmapInstance, UserAccessContext } from "@/types";
 import Link from "next/link";
+import { iterationPath } from "@/functions/versionSlug";
 import { Fragment } from "react";
 import serveTea from "@/lib/i18nServer";
 import { IconCaretRightFilled, IconZoomQuestion } from "@tabler/icons-react";
@@ -85,7 +86,7 @@ async function NestedRoadmapRenderer({
                 <summary className="flex justify-content-space-between" aria-label={t("components:roadmap_tree.show_source_alt")}>
                   <div className='inline-flex align-items-center flex-grow-100' key={iteration.id}>
                     <IconCaretRightFilled aria-hidden="true" className="round padding-25 margin-inline-25" />
-                    <Link href={`/roadmap-iteration/${iteration.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth font-size-125' style={{ lineHeight: '1.1' }}>
+                    <Link href={iterationPath(iteration.roadmap_id, iteration.version)} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth font-size-125' style={{ lineHeight: '1.1' }}>
                       {/* Name, version */}
                       <div>
                         {t("components:roadmap_tree.title", { name: iteration.roadmap.name, version: iteration.version })}
@@ -119,7 +120,7 @@ async function NestedRoadmapRenderer({
             <li className="inline-flex align-items-center flex-grow-100 width-100">
               <div className='inline-flex align-items-center flex-grow-100' key={iteration.id}>
                 <IconCaretRightFilled aria-hidden="true" color="lightgray" className="round padding-25 margin-inline-25" />
-                <Link href={`/roadmap-iteration/${iteration.id}`} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth font-size-125' style={{ lineHeight: '1.1' }}>
+                <Link href={iterationPath(iteration.roadmap_id, iteration.version)} className='flex-grow-100 padding-50 color-black text-decoration-none font-weight-500 smooth font-size-125' style={{ lineHeight: '1.1' }}>
                   {/* Name, version */}
                   <div>
                     {t("components:roadmap_tree.title", { name: iteration.roadmap.name, version: iteration.version })}

@@ -84,12 +84,6 @@ export default async function Sidebar() {
                   </Link>
                 </li>
                 <li>
-                  <Link href='/roadmap-iteration/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none'>
-                    {t("common:roadmap_version_one")}
-                    <IconPlus width={16} height={16} />
-                  </Link>
-                </li>
-                <li>
                   <Link href='/goal/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none' data-testid="create-goal">
                     {t("common:goal_one")}
                     <IconPlus width={16} height={16} />

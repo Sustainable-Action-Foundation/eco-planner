@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { getAccessContextById } from "@/fetchers/getUserAccessContext";
 import { accessControlSelection } from "@/fetchers/inclusionSelectors";
 import pruneOrphans from "@/functions/pruneOrphans";
+import { iterationPath } from "@/functions/versionSlug";
 import { Recipe } from "@/functions/recipe/recipe";
 import { manualDataSeriesCreateData, resolveRecipeExternals, upsertRecipe } from "@/functions/recipe/persistence";
 import type { ResolvedExternals, SerializedRecipe } from "@/functions/recipe";
@@ -749,14 +750,14 @@ export async function DELETE(request: NextRequest) {
       },
       select: {
         id: true,
-        roadmap_iteration_id: true,
+        roadmap_iteration: { select: { roadmap_id: true, version: true } },
       },
     });
     // Invalidate old cache
     revalidateTag('goal', 'max');
     return Response.json({ message: t('api:goal.goal_deleted'), id: deletedGoal.id },
       // Redirect to the parent iteration
-      { status: 200, headers: { 'Location': `/roadmap-iteration/${deletedGoal.roadmap_iteration_id}` } },
+      { status: 200, headers: { 'Location': iterationPath(deletedGoal.roadmap_iteration.roadmap_id, deletedGoal.roadmap_iteration.version) } },
     );
   }
   catch (err) {

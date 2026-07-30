@@ -301,6 +301,7 @@ export const actionInclusionSelection = {
     select: {
       id: true,
       version: true,
+      roadmap_id: true,
       published_at: true,
       author: { select: { id: true, username: true } },
       roadmap: {
@@ -336,6 +337,7 @@ export const effectInclusionSelection = {
         select: {
           id: true,
           version: true,
+          roadmap_id: true,
           published_at: true,
           roadmap: {
             select: {

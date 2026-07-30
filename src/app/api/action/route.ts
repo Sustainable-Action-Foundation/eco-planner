@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { getAccessContextById } from "@/fetchers/getUserAccessContext";
 import { accessControlSelection } from "@/fetchers/inclusionSelectors";
 import pruneOrphans from "@/functions/pruneOrphans";
+import { iterationPath } from "@/functions/versionSlug";
 import { manualDataSeriesCreateData } from "@/functions/recipe/persistence";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import serveTea from "@/lib/i18nServer";
@@ -416,7 +417,7 @@ export async function DELETE(request: NextRequest) {
       },
       select: {
         id: true,
-        roadmap_iteration_id: true,
+        roadmap_iteration: { select: { roadmap_id: true, version: true } },
       },
     });
     // Prune any orphaned comments
@@ -425,7 +426,7 @@ export async function DELETE(request: NextRequest) {
     revalidateTag('action', 'max');
     return Response.json({ message: t('api:action.action_deleted'), id: deletedAction.id },
       // Redirect to the parent iteration, or the action database for roadmapless actions
-      { status: 200, headers: { 'Location': deletedAction.roadmap_iteration_id ? `/roadmap-iteration/${deletedAction.roadmap_iteration_id}` : '/' } },
+      { status: 200, headers: { 'Location': deletedAction.roadmap_iteration ? iterationPath(deletedAction.roadmap_iteration.roadmap_id, deletedAction.roadmap_iteration.version) : '/' } },
     );
   }
   catch (err) {

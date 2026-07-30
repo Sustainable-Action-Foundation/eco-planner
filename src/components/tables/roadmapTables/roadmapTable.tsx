@@ -5,6 +5,7 @@ import { ControlsMenu } from '@/components/elements/controls/controls';
 import accessChecker from '@/lib/accessChecker';
 import serveTea from "@/lib/i18nServer";
 import Link from 'next/link';
+import { iterationPath } from '@/functions/versionSlug';
 import type { ReactNode } from "react";
 
 /** The iteration shape this table renders; `MultiRoadmapInstance` satisfies it. */
@@ -60,7 +61,7 @@ export default async function RoadmapTable({
       const accessLevel = accessChecker({ access_control: iteration.roadmap.access_control, published_at: iteration.published_at }, accessContext);
       return (
         <div className='flex gap-100 justify-content-space-between align-items-center' key={iteration.id}>
-          <Link href={`/roadmap-iteration/${iteration.id}`} className={`${styles.roadmapLink} flex-grow-100`}>
+          <Link href={iterationPath(iteration.roadmap.id, iteration.version)} className={`${styles.roadmapLink} flex-grow-100`}>
             {/* Name, version */}
             <span className={styles.linkTitle}>
               {t("components:roadmap_table.title", { name: iteration.roadmap.name, version: iteration.version })}
