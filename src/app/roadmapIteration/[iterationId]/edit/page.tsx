@@ -27,7 +27,7 @@ export async function generateMetadata(props: { params: Promise<{ iterationId: s
   }
 
   return buildMetadata({
-    title: `${t("metadata:roadmap_edit.title")} ${iteration?.roadmap.name}`,
+    title: `${t("metadata:roadmap_iteration_edit.title")} ${iteration?.roadmap.name}`,
     description: iteration?.description || iteration?.roadmap.description,
     og_url: `/roadmapIteration/${params.iterationId}/edit`,
     og_image_url: undefined,
@@ -56,11 +56,11 @@ export default async function Page(props: { params: Promise<{ iterationId: strin
 
   return (
     <>
-      <Breadcrumb object={iteration} customSections={[t("pages:roadmap_edit.breadcrumb")]} />
+      <Breadcrumb object={iteration} customSections={[t("pages:roadmap_iteration_edit.breadcrumb")]} />
 
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-top-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          {t("pages:roadmap_edit.title")} {/* TODO: Need a better name here... */}
+          {t("pages:roadmap_iteration_edit.title")} {/* TODO: Need a better name here... */}
         </h1>
         <RoadmapIterationForm
           currentIteration={iteration}

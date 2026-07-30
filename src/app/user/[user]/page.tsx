@@ -101,7 +101,7 @@ export default async function Page(
       displayedIterations = [];
     }
 
-    if (objectsFilter.includes('roadmapseries')) {
+    if (objectsFilter.includes('roadmaps')) {
       if (accessFilter.includes('edit') && session.user?.username === username) {
         displayedRoadmaps = editableRoadmaps;
       } else {
@@ -149,7 +149,7 @@ export default async function Page(
         <nav>
           {displayedRoadmaps.length > 0 ?
             <section className='margin-block-300'>
-              <h3 className='margin-top-0'>{t("pages:profile.roadmap_series_ones")}</h3>
+              <h3 className='margin-top-0'>{t("pages:profile.roadmaps")}</h3>
               <ul className={`${styles.itemsList}`}>
                 {displayedRoadmaps.map((roadmap, index) =>
                   <li key={index}>

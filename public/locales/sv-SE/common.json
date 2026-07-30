@@ -13,8 +13,7 @@
     "action": "{{count}} $t(common:action, {\"count\":{{count}}})",
     "effect": "{{count}} $t(common:effect, {\"count\":{{count}}})",
     "goal": "{{count}} $t(common:goal, {\"count\":{{count}}})",
-    "roadmap": "{{count}} $t(common:roadmap_series, {\"count\":{{count}}})",
-    "roadmap_series": "{{count}} $t(common:roadmap_series, {\"count\":{{count}}})",
+    "roadmap": "{{count}} $t(common:roadmap, {\"count\":{{count}}})",
     "roadmap_version": "{{count}} $t(common:roadmap_version, {\"count\":{{count}}})"
   },
   "css": {
@@ -24,7 +23,7 @@
     "action": "Redigera åtgärd",
     "effect": "Redigera effekt",
     "goal": "Redigera målbana",
-    "roadmap_series": "Redigera färdplansserie",
+    "roadmap": "Redigera färdplan",
     "roadmap_version": "Redigera färdplansversion"
   },
   "effect_definite_one": "effekten",
@@ -57,7 +56,7 @@
     "action": "Skapa ny åtgärd",
     "effect": "Skapa ny effekt",
     "goal": "Skapa ny målbana",
-    "roadmap_series": "Skapa ny färdplansserie",
+    "roadmap": "Skapa ny färdplan",
     "roadmap_version": "Skapa ny färdplansversion"
   },
   "next": "Nästa",
@@ -67,12 +66,10 @@
     "password": "Lösenord",
     "username": "Användarnamn"
   },
-  "roadmap_series_definite_one": "färdplansserien",
-  "roadmap_series_definite_other": "färdplansserierna",
-  "roadmap_series_one": "färdplansserie",
-  "roadmap_series_other": "färdplansserier",
-  "roadmap_short_one": "färdplan",
-  "roadmap_short_other": "färdplaner",
+  "roadmap_definite_one": "färdplanen",
+  "roadmap_definite_other": "färdplanerna",
+  "roadmap_one": "färdplan",
+  "roadmap_other": "färdplaner",
   "roadmap_version_definite_one": "färdplansversionen",
   "roadmap_version_definite_other": "färdplansversionerna",
   "roadmap_version_name": "{{name}} (v{{version}})",
@@ -85,17 +82,17 @@
   },
   "scope": {
     "local": "Lokal",
-    "local_roadmap": "Lokal $t(common:roadmap_series_one)",
+    "local_roadmap": "Lokal $t(common:roadmap_one)",
     "municipal": "Kommunal",
-    "municipal_roadmap": "Kommunal $t(common:roadmap_series_one)",
+    "municipal_roadmap": "Kommunal $t(common:roadmap_one)",
     "national": "Nationell",
-    "national_roadmap": "Nationell $t(common:roadmap_series_one)",
+    "national_roadmap": "Nationell $t(common:roadmap_one)",
     "organizational": "Organisatorisk",
-    "organizational_roadmap": "Organisatorisk $t(common:roadmap_series_one)",
+    "organizational_roadmap": "Organisatorisk $t(common:roadmap_one)",
     "other": "Övrig",
-    "other_roadmap": "Övrig $t(common:roadmap_series_one)",
+    "other_roadmap": "Övrig $t(common:roadmap_one)",
     "regional": "Regional",
-    "regional_roadmap": "Regional $t(common:roadmap_series_one)"
+    "regional_roadmap": "Regional $t(common:roadmap_one)"
   },
   "tsx": {
     "cancel": "Avbryt",

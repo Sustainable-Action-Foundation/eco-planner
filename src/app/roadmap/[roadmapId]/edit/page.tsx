@@ -28,7 +28,7 @@ export async function generateMetadata(props: { params: Promise<{ roadmapId: str
   }
 
   return buildMetadata({
-    title: `${t("metadata:roadmap_series_edit.title")} ${roadmap?.name}`,
+    title: `${t("metadata:roadmap_edit.title")} ${roadmap?.name}`,
     description: roadmap?.description,
     og_url: `/roadmap/${params.roadmapId}/edit`,
     og_image_url: undefined,
@@ -56,11 +56,11 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
 
   return (
     <>
-      <Breadcrumb object={currentRoadmap} customSections={[t("pages:roadmap_series_one_edit.breadcrumb")]} />
+      <Breadcrumb object={currentRoadmap} customSections={[t("pages:roadmap_edit.breadcrumb")]} />
 
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-top-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          {t("pages:roadmap_series_one_edit.title", { name: currentRoadmap.name })}
+          {t("pages:roadmap_edit.title", { name: currentRoadmap.name })}
         </h1>
         <RoadmapForm
           isSuperAdmin={session.user.isSuperAdmin}

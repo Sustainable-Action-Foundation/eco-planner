@@ -177,7 +177,7 @@ export default async function Page(
 
       <main>
         <header className="margin-block-300" style={{ fontSize: 'smaller' }}>
-          <span style={{ color: 'gray' }}>{t("pages:roadmap.version", { version: iteration.version })}</span>
+          <span style={{ color: 'gray' }}>{t("pages:roadmap_iteration.version", { version: iteration.version })}</span>
           <span className="block margin-0 font-weight-600" style={{ fontSize: '1.15rem' }}>{iteration.roadmap.name}</span> {/* TODO: Check semantics of this  */}
           <div className="margin-block-25 flex justify-content-space-between margin-bottom-50 padding-bottom-50" style={{ borderBottom: '1px solid var(--gray-80)' }}>
             <div className="flex gap-25 align-items-center">
@@ -185,7 +185,7 @@ export default async function Page(
               {iteration.roadmap.actor}
             </div>
             <Link href={`/roadmap/${iteration.roadmap_id}`} className="discrete-link flex gap-25 align-items-center" style={{ lineHeight: '1' }}>
-              {t("pages:roadmap.show_series")}
+              {t("pages:roadmap_iteration.show_series")}
               <IconArrowNarrowRight height={20} width={20} style={{ minWidth: '20px' }} />
             </Link>
           </div>

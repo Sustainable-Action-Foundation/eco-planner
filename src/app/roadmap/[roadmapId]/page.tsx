@@ -63,9 +63,9 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
 
       <main>
         <section className="margin-block-300">
-          <span style={{ color: 'gray' }}>{t("pages:roadmap_series_one.title_legend")}</span>
+          <span style={{ color: 'gray' }}>{t("pages:roadmap.title_legend")}</span>
           <h1 className="margin-0">{roadmap.name}</h1>
-          <small>{t("pages:roadmap_series_one.description_legend")}</small>
+          <small>{t("pages:roadmap.description_legend")}</small>
           <div className="margin-block-100">
             <TextEditor
               id="rich-description"
@@ -77,10 +77,10 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
         </section>
 
         <section className="margin-block-300">
-          <h2 className="margin-block-100 padding-bottom-50" style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:roadmap_series_one.roadmap_versions")}</h2>
+          <h2 className="margin-block-100 padding-bottom-50" style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:roadmap.roadmap_versions")}</h2>
           <menu className="margin-0 padding-0 margin-bottom-100 flex justify-content-flex-end">
             {hasEditAccess(accessLevel) ?
-              <Link href={`/roadmapIteration/create?roadmapId=${roadmap.id}`} className="button pureblack color-purewhite round">{t("pages:roadmap_series_one.create_roadmap_version")}</Link>
+              <Link href={`/roadmapIteration/create?roadmapId=${roadmap.id}`} className="button pureblack color-purewhite round">{t("pages:roadmap.create_roadmap_version")}</Link>
               : null}
           </menu>
           <RoadmapTable accessContext={accessContext} roadmap={roadmap} />

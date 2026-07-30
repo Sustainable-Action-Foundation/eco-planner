@@ -136,15 +136,15 @@ const commonRules: Config["rules"] = {
     // The pre-org-rework "metaRoadmap" vocabulary is banned: the old MetaRoadmap is
     // now the roadmap (top level) and the old Roadmap is a roadmapIteration.
     {
-      "selector": "[name=/meta_?roadmap/i]",
+      "selector": "[name=/(meta_?roadmap|roadmap[-_ ]?series)/i]",
       "message": "The legacy \"meta roadmap\" vocabulary is banned; use roadmap (top level) or roadmapIteration.",
     },
     {
-      "selector": "Literal[value=/meta_?roadmap/i]",
+      "selector": "Literal[value=/(meta_?roadmap|roadmap[-_ ]?series)/i]",
       "message": "The legacy \"meta roadmap\" vocabulary is banned; use roadmap (top level) or roadmapIteration.",
     },
     {
-      "selector": "TemplateElement[value.raw=/meta_?roadmap/i]",
+      "selector": "TemplateElement[value.raw=/(meta_?roadmap|roadmap[-_ ]?series)/i]",
       "message": "The legacy \"meta roadmap\" vocabulary is banned; use roadmap (top level) or roadmapIteration.",
     },
   ],

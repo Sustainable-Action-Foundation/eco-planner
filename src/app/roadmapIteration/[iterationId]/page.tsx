@@ -83,7 +83,7 @@ export default async function Page(props: { params: Promise<{ iterationId: strin
 
     <main>
       <header className="margin-block-300" >
-        <span style={{ color: 'gray' }}>{t("pages:roadmap.version", { version: iteration.version })}</span>
+        <span style={{ color: 'gray' }}>{t("pages:roadmap_iteration.version", { version: iteration.version })}</span>
         <h1 className="margin-0">{iteration.roadmap.name}</h1>
         <div className="margin-block-25 flex justify-content-space-between margin-bottom-50 padding-bottom-50" style={{ borderBottom: '1px solid var(--gray-80)' }}>
           {iteration.roadmap.actor ?
@@ -94,8 +94,8 @@ export default async function Page(props: { params: Promise<{ iterationId: strin
             :
             null
           }
-          <Link href={`/roadmap/${iteration.roadmap_id}`} className="discrete-link flex gap-25 align-items-center" style={{ lineHeight: '1' }} data-testid="show-roadmap-series">
-            {t("pages:roadmap.show_series")}
+          <Link href={`/roadmap/${iteration.roadmap_id}`} className="discrete-link flex gap-25 align-items-center" style={{ lineHeight: '1' }} data-testid="show-roadmap">
+            {t("pages:roadmap_iteration.show_series")}
             <IconArrowNarrowRight height={20} width={20} style={{ minWidth: '20px' }} />
           </Link>
         </div>
@@ -125,7 +125,7 @@ export default async function Page(props: { params: Promise<{ iterationId: strin
 
       {featuredGoals.length > 0 ?
         <section className="margin-block-300">
-          <h2>{t("pages:roadmap.featured_goals")}</h2>
+          <h2>{t("pages:roadmap_iteration.featured_goals")}</h2>
           <div className="flex flex-wrap-nowrap gap-100 overflow-x-scroll padding-bottom-100" style={{ scrollbarWidth: 'thin', scrollbarColor: 'var(--gray) rgba(0,0,0,0)', scrollSnapType: 'x mandatory', direction: 'ltr' }}>
             {featuredGoals.map((goal, key) => {
               if (!goal) return null;
@@ -183,12 +183,12 @@ export default async function Page(props: { params: Promise<{ iterationId: strin
         : null}
 
       <section className="margin-block-300">
-        <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:roadmap.all_goals")}</h2>
+        <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:roadmap_iteration.all_goals")}</h2>
         <Goals iteration={iteration} accessLevel={accessLevel} />
       </section>
 
       <section className="margin-block-300">
-        <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:roadmap.all_actions")}</h2>
+        <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:roadmap_iteration.all_actions")}</h2>
         <ActionTable actions={iteration.actions} accessLevel={accessLevel} iterationId={iteration.id} />
       </section>
     </main>

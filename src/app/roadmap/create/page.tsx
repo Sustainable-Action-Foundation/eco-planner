@@ -13,8 +13,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const t = await serveTea("metadata");
 
   return buildMetadata({
-    title: t("metadata:roadmap_series_create.title"),
-    description: t("metadata:roadmap_series_create.description"),
+    title: t("metadata:roadmap_create.title"),
+    description: t("metadata:roadmap_create.description"),
     og_url: `/roadmap/create`,
     og_image_url: undefined,
   });
@@ -35,11 +35,11 @@ export default async function Page() {
 
   return (
     <>
-      <Breadcrumb customSections={[t("pages:roadmap_series_one_create.breadcrumb")]} />
+      <Breadcrumb customSections={[t("pages:roadmap_create.breadcrumb")]} />
 
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-top-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          {t("pages:roadmap_series_one_create.title")}
+          {t("pages:roadmap_create.title")}
         </h1>
         <RoadmapForm
           isSuperAdmin={session.user.isSuperAdmin}

@@ -11,7 +11,7 @@ export default function RoadmapDeleter({ roadmap }: { roadmap: NonNullable<Await
   const deletionRef = useRef<HTMLDialogElement | null>(null);
   return (
     <>
-      <button type="button" className="red color-purewhite" onClick={() => openModal(deletionRef)}>{t("components:roadmap_series_one_deleter.remove_metadata")}</button>
+      <button type="button" className="red color-purewhite" onClick={() => openModal(deletionRef)}>{t("components:roadmap_deleter.remove_metadata")}</button>
       <ConfirmDelete modalRef={deletionRef} targetUrl={`/api/roadmap`} targetName={roadmap.name} targetId={roadmap.id} />
     </>
   );

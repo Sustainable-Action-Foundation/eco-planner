@@ -162,7 +162,7 @@ export default function RoadmapIterationForm({
                   className: "margin-top-25 margin-bottom-100",
                   id: "parent-roadmap",
                   name: "parent-roadmap",
-                  placeholder: `${t("common:tsx.select")}  ${t("common:roadmap_series_one")}`,
+                  placeholder: `${t("common:tsx.select")}  ${t("common:roadmap_one")}`,
                 }}
                 onChange={(value) => value?.value ? setRoadmapId(value.value) : setRoadmapId("")}
                 options={roadmapOptions}

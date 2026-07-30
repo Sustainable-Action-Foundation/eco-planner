@@ -14,8 +14,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const t = await serveTea("metadata");
 
   return buildMetadata({
-    title: t("metadata:roadmap_create.title"),
-    description: t('metadata:roadmap_create.description'),
+    title: t("metadata:roadmap_iteration_create.title"),
+    description: t('metadata:roadmap_iteration_create.description'),
     og_url: `/roadmapIteration/create`,
     og_image_url: undefined,
   });
@@ -56,16 +56,16 @@ export default async function Page(
 
   return (
     <>
-      <Breadcrumb object={parent ?? undefined} customSections={[t("pages:roadmap_create.breadcrumb")]} />
+      <Breadcrumb object={parent ?? undefined} customSections={[t("pages:roadmap_iteration_create.breadcrumb")]} />
 
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-top-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          {t("pages:roadmap_create.title")}
+          {t("pages:roadmap_iteration_create.title")}
         </h1>
         {badRoadmap ? <p style={{ color: 'red' }}>
-            <IconInfoCircle role="img" aria-label={t("pages:roadmap_create.information_icon_aria")} />
-            {t("pages:roadmap_create.bad_roadmap_series")} <br />
-            {t("pages:roadmap_create.use_dropdown")}
+            <IconInfoCircle role="img" aria-label={t("pages:roadmap_iteration_create.information_icon_aria")} />
+            {t("pages:roadmap_iteration_create.bad_roadmap")} <br />
+            {t("pages:roadmap_iteration_create.use_dropdown")}
           </p> : null
         }
         <RoadmapIterationForm

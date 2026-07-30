@@ -57,7 +57,7 @@ export function RoadmapSection({
   const { t } = useTranslation("components");
   return (
     <span className={`display-flex align-items-center gap-25 ${styles.breadCrumbTitle}`}>
-      {t("components:breadcrumbs_sections.roadmap_series")}
+      {t("components:breadcrumbs_sections.roadmap")}
       <Link href={`/roadmap/${roadmap.id}`} className={styles.breadCrumb}>
         {roadmap.name}
       </Link>
