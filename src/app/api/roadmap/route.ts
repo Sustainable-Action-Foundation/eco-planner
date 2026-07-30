@@ -9,7 +9,7 @@ import { AccessLevel as GrantLevel, OrgRole, RoadmapType } from "@/lib/prisma/ge
 import { Prisma } from "../../../../prisma/generated/client";
 import { getSession } from "@/lib/session";
 import type { AccessControlInput, UserAccessContext, JSONValue } from "@/types";
-import { ClientError } from "@/types/enums";
+import { ClientError } from "@/types/consts";
 import { isRoadmapCreate, isRoadmapUpdate } from "@/types/typeguards";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";

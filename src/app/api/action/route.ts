@@ -11,7 +11,7 @@ import { Prisma } from "@PRISMA-NAMESPACE-ONLY";
 import { OrgRole } from "@/lib/prisma/generated";
 import { getSession } from "@/lib/session";
 import type { ActionInput, UserAccessContext } from "@/types";
-import { ClientError } from "@/types/enums";
+import { ClientError } from "@/types/consts";
 import { isDateValuesWithUnit } from "@/types/typeguards";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";

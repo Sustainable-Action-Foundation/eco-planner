@@ -10,7 +10,7 @@ import { Prisma } from "@PRISMA-NAMESPACE-ONLY";
 import { findClaimedSeries } from "@/lib/seriesInvariants";
 import { getSession } from "@/lib/session";
 import type { JSONValue, RoadmapIterationCreateInput, RoadmapIterationUpdateInput } from "@/types";
-import { ClientError } from "@/types/enums";
+import { ClientError } from "@/types/consts";
 import { isGoalCreate } from "@/types/typeguards";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
