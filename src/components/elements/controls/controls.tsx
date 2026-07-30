@@ -125,7 +125,7 @@ function buildLinks(
     selfLink = `/action/${object.action_id}`;
     parentLink = `/goal/${object.goal_id}`;
     parentDescription = t("components:table_menu.go_to_goal");
-    editLink = `/effect/edit?actionId=${object.action_id}&goalId=${object.goal_id}`;
+    editLink = `/effect/${object.action_id}/${object.goal_id}/edit`;
     deleteLink = "/api/effect";
 
     object.name ||= object.action?.name

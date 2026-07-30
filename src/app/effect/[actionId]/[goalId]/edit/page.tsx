@@ -11,40 +11,14 @@ import { IconInfoCircle } from "@tabler/icons-react";
 import { getOneEffect, getRoadmapIterations } from "@/fetchers";
 import type { Metadata } from "next";
 
-export async function generateMetadata(
-  props: {
-    searchParams: Promise<{
-      actionId?: string | string[] | undefined,
-      goalId?: string | string[] | undefined,
-      [key: string]: string | string[] | undefined
-    }>,
-  },
-): Promise<Metadata> {
-  const searchParams = await props.searchParams;
+export async function generateMetadata(props: { params: Promise<{ actionId: string, goalId: string }> }): Promise<Metadata> {
+  const params = await props.params;
   const [t, session] = await Promise.all([
     serveTea("metadata"),
     getSession(await cookies()),
   ]);
 
-  const params = new URLSearchParams();
-
-  if (Array.isArray(searchParams.actionId)) {
-    for (const action of searchParams.actionId) {
-      params.append('actionId', action);
-    }
-  } else if (typeof searchParams.actionId === 'string') {
-    params.set('actionId', searchParams.actionId);
-  }
-
-  if (Array.isArray(searchParams.goalId)) {
-    for (const goal of searchParams.goalId) {
-      params.append('goalId', goal);
-    }
-  } else if (typeof searchParams.goalId === 'string') {
-    params.set('goalId', searchParams.goalId);
-  }
-
-  const ownUrl = `/effect/edit?${params.toString()}`;
+  const ownUrl = `/effect/${params.actionId}/${params.goalId}/edit`;
 
   if (!session.user?.isLoggedIn) {
     return buildMetadata({
@@ -64,20 +38,12 @@ export async function generateMetadata(
 }
 
 
-export default async function Page(
-  props: {
-    searchParams: Promise<{
-      actionId?: string | string[] | undefined,
-      goalId?: string | string[] | undefined,
-      [key: string]: string | string[] | undefined
-    }>,
-  },
-) {
-  const searchParams = await props.searchParams;
+export default async function Page(props: { params: Promise<{ actionId: string, goalId: string }> }) {
+  const params = await props.params;
   const [t, accessContext, effect, iterations] = await Promise.all([
     serveTea("pages"),
     getUserAccessContext(),
-    getOneEffect(typeof searchParams.actionId == 'string' ? searchParams.actionId : '', typeof searchParams.goalId == 'string' ? searchParams.goalId : ''),
+    getOneEffect(params.actionId, params.goalId),
     getRoadmapIterations(),
   ]);
 
