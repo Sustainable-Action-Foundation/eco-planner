@@ -15,12 +15,12 @@ import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import type { Metadata } from "next";
 
 export async function generateMetadata(props: {
-  params: Promise<{ user: string }>,
+  params: Promise<{ username: string }>,
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 },
 ): Promise<Metadata> {
   const params = await props.params;
-  let username = params.user;
+  let username = params.username;
   const userIndicatorRegEx = /^(@|%40)/;
   if (username?.match(userIndicatorRegEx)) {
     username = username?.replace(userIndicatorRegEx, '');
@@ -36,7 +36,7 @@ export async function generateMetadata(props: {
 
 export default async function Page(
   props: {
-    params: Promise<{ user: string }>,
+    params: Promise<{ username: string }>,
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
   },
 ) {
@@ -46,7 +46,7 @@ export default async function Page(
     props.searchParams,
   ]);
 
-  let username = params.user;
+  let username = params.username;
 
   /** Matches strings starting with @ or %40 (URL-encoded @) */
   const userIndicatorRegEx = /^(@|%40)/;
