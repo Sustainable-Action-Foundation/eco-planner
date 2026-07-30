@@ -1,5 +1,6 @@
 import RoadmapIterationForm from "@/components/form/forms/roadmapIteration";
-import { getOneRoadmapIteration, getUserAccessContext } from "@/fetchers";
+import { getRoadmapIterationByVersion, getUserAccessContext } from "@/fetchers";
+import { parseVersionSlug } from "@/functions/versionSlug";
 import { getSession } from '@/lib/session';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
@@ -9,19 +10,20 @@ import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import type { Metadata } from "next";
 
-export async function generateMetadata(props: { params: Promise<{ iterationId: string }> }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ roadmapId: string, version: string }> }): Promise<Metadata> {
   const params = await props.params;
+  const version = parseVersionSlug(params.version);
   const [t, session, iteration] = await Promise.all([
     serveTea("metadata"),
     getSession(await cookies()),
-    getOneRoadmapIteration(params.iterationId),
+    version == null ? null : getRoadmapIterationByVersion(params.roadmapId, version),
   ]);
 
   if (!session.user?.isLoggedIn) {
     return buildMetadata({
       title: t("metadata:login.title"),
       description: t("metadata:login.title"),
-      og_url: `/roadmap-iteration/${params.iterationId}/edit`,
+      og_url: `/roadmap/${params.roadmapId}/${params.version}/edit`,
       og_image_url: '/images/og_wind.png',
     });
   }
@@ -29,19 +31,23 @@ export async function generateMetadata(props: { params: Promise<{ iterationId: s
   return buildMetadata({
     title: `${t("metadata:roadmap_iteration_edit.title")} ${iteration?.roadmap.name}`,
     description: iteration?.description || iteration?.roadmap.description,
-    og_url: `/roadmap-iteration/${params.iterationId}/edit`,
+    og_url: `/roadmap/${params.roadmapId}/${params.version}/edit`,
     og_image_url: undefined,
   });
 }
 
 
-export default async function Page(props: { params: Promise<{ iterationId: string }> }) {
+export default async function Page(props: { params: Promise<{ roadmapId: string, version: string }> }) {
   const params = await props.params;
+  const version = parseVersionSlug(params.version);
+  if (version == null) {
+    return notFound();
+  }
   const [t, session, accessContext, iteration] = await Promise.all([
     serveTea("pages"),
     getSession(await cookies()),
     getUserAccessContext(),
-    getOneRoadmapIteration(params.iterationId),
+    getRoadmapIterationByVersion(params.roadmapId, version),
   ]);
 
   const access = accessChecker(
