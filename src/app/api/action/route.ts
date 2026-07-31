@@ -143,17 +143,10 @@ export async function POST(request: NextRequest) {
   try {
     const newActionId = (await prisma.action.create({
       data: {
+        // TODO: set the required `indicatorParameter` (and `fields`/ActionField) once the form collects them
         name: actionCreate.name,
-        description: actionCreate.description,
-        costEfficiency: actionCreate.costEfficiency,
-        expectedOutcome: actionCreate.expectedOutcome,
         startYear: actionCreate.startYear,
         endYear: actionCreate.endYear,
-        projectManager: actionCreate.projectManager,
-        relevantActors: actionCreate.relevantActors,
-        isSufficiency: actionCreate.isSufficiency,
-        isEfficiency: actionCreate.isEfficiency,
-        isRenewables: actionCreate.isRenewables,
         roadmap: { connect: { id: actionCreate.roadmapId } },
         effects: !(actionCreate.dataSeries && actionCreate.goalId)
           ? undefined
@@ -309,17 +302,10 @@ export async function PUT(request: NextRequest) {
         id: action.actionId,
       },
       data: {
+        // TODO: update `indicatorParameter` (and `fields`/ActionField) once the form collects them
         name: action.name,
-        description: action.description,
-        costEfficiency: action.costEfficiency,
-        expectedOutcome: action.expectedOutcome,
         startYear: action.startYear,
         endYear: action.endYear,
-        projectManager: action.projectManager,
-        relevantActors: action.relevantActors,
-        isSufficiency: action.isSufficiency,
-        isEfficiency: action.isEfficiency,
-        isRenewables: action.isRenewables,
       },
       select: { id: true },
     })).id;

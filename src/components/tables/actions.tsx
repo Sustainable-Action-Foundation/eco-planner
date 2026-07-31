@@ -49,17 +49,13 @@ export default function ActionTable({
         <IconLink aria-hidden="true" color="gray" className="round padding-25 margin-inline-25" />
         <Link href={`/action/${action.id}`} className={`${styles.roadmapLink} flex-grow-100`}>
           <span className='font-weight-500'>{action.name}</span>
-          <p className={`${styles.actionLinkInfo} color-gray`}>{action.description || '\u00A0'}</p>
+          {/* TODO: description was dropped from the schema; show ActionField content here once available */}
+          <p className={`${styles.actionLinkInfo} color-gray`}>{'\u00A0'}</p>
         </Link>
         <ControlsMenu
           accessLevel={accessLevel}
           object={action}
         />
-        {/*
-          <span>{action.costEfficiency}</span>
-          <span>{action.expectedOutcome}</span>
-          <span>{action.relevantActors}</span>
-        */}
       </div>
     ))}
   </>;

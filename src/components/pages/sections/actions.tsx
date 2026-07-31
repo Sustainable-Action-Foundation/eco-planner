@@ -62,7 +62,8 @@ export default function Actions({
     if (!searchFilter || !actions) return actions;
 
     return actions.filter((action) =>
-      [action.name, action.description].some(
+      // TODO: description was dropped from the schema; extend search to `ActionField`s and indicatorParameter once available
+      [action.name].some(
         (value) =>
           typeof value === "string" &&
           value.toLowerCase().includes(searchFilter.toLowerCase()),
@@ -177,11 +178,12 @@ export default function Actions({
                   <Link href={`/action/${action.id}`} className="discrete-link padding-block-75 padding-inline-50 block flex-grow-100">
                     <div className={` color-gray font-size-14px ${styles['action-years']}`}>{action.startYear} - {action.endYear}</div>
                     <h2 className={`margin-0 ${styles['action-title']}`}>{action.name}</h2>
-                    <p 
-                      className={`margin-0 white-space-nowrap text-overflow-ellipsis overflow-hidden ${styles['action-description']}`} 
+                    {/* TODO: description was dropped from the schema; show indicatorParameter/ActionField content here once available */}
+                    <p
+                      className={`margin-0 white-space-nowrap text-overflow-ellipsis overflow-hidden ${styles['action-description']}`}
                       style={{ color: '#292929' }}
                     >
-                      {action.description}
+                      &nbsp;
                     </p>
                   </Link>
                   

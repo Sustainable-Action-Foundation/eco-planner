@@ -7,10 +7,9 @@ import { isDateValuesWithUnit } from "@/types/typeguards";
 import { ActionImpactType } from "@/lib/prisma/generated";
 import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
-import TextEditor from "../elements/textEditor/editor";
 import { FormSync, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
 import { Recipe } from "@/functions/recipe/recipe";
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 
@@ -27,7 +26,6 @@ export default function ActionForm({
 }) {
   const { t } = useTranslation(["forms", "common"]);
   const [timestamp] = useState(() => Date.now());
-  const descriptionRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
   const { addToast } = useToast();
@@ -70,17 +68,9 @@ export default function ActionForm({
       actionId: currentAction ? currentAction.id : undefined,
       roadmapId: roadmapId ?? (form.namedItem(ActionFormName.RoadmapId) as HTMLInputElement)?.value ?? undefined,
       goalId: goalId ?? undefined,
-      description: (form.namedItem(ActionFormName.Description) as HTMLInputElement | null)?.value ?? undefined,
       name: (form.namedItem(ActionFormName.ActionName) as HTMLInputElement)?.value ?? "",
       startYear,
       endYear,
-      costEfficiency: (form.namedItem(ActionFormName.CostEfficiency) as HTMLInputElement)?.value ?? undefined,
-      expectedOutcome: (form.namedItem(ActionFormName.ExpectedOutcome) as HTMLInputElement)?.value ?? undefined,
-      projectManager: (form.namedItem(ActionFormName.ProjectManager) as HTMLInputElement)?.value ?? undefined,
-      relevantActors: (form.namedItem(ActionFormName.RelevantActors) as HTMLInputElement)?.value ?? undefined,
-      isSufficiency: (form.namedItem(ActionFormName.IsSufficiency) as HTMLInputElement)?.checked ?? false,
-      isEfficiency: (form.namedItem(ActionFormName.IsEfficiency) as HTMLInputElement)?.checked ?? false,
-      isRenewables: (form.namedItem(ActionFormName.IsRenewables) as HTMLInputElement)?.checked ?? false,
       parentAction: currentAction ?? undefined,
       childActions: undefined,
       dataSeries,
@@ -128,27 +118,7 @@ export default function ActionForm({
           <input className="margin-top-25 margin-bottom-100" type="text" name={ActionFormName.ActionName} required={true} id="actionName" defaultValue={currentAction?.name} />
         </label>
 
-        <label id="description-label">{t("forms:action.action_description")}</label>
-        <TextEditor
-          className="margin-top-25 margin-bottom-100" // TODO: Need label for textEditorMenu
-          id="description"
-          ariaLabelledBy="description-label"
-          placeholder={t("forms:text_editor_menu.default_placeholder")}
-          editable={true}
-          content={currentAction ? currentAction.description : ""}
-          updater={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
-        />
-        <input ref={descriptionRef} type="hidden" name={ActionFormName.Description} />
-
-        <label>
-          {t("forms:action.cost_efficiency")}
-          <input className="margin-top-25 margin-bottom-100" type="text" name={ActionFormName.CostEfficiency} id="costEfficiency" defaultValue={currentAction?.costEfficiency ?? undefined} />
-        </label>
-
-        <label>
-          {t("forms:action.expected_outcome")}
-          <textarea className="margin-top-25 margin-bottom-100" name={ActionFormName.ExpectedOutcome} id="expectedOutcome" defaultValue={currentAction?.expectedOutcome ?? undefined} />
-        </label>
+        {/* TODO: description/costEfficiency/expectedOutcome were dropped from the schema. Replace with the new indicatorParameter + ActionField (header/value) inputs. */}
       </fieldset>
 
       {(goalId && !currentAction) ?
@@ -192,15 +162,7 @@ export default function ActionForm({
 
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
         <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:action.describe_actors_legend")}</legend>
-        <label className="block margin-bottom-100">
-          {t("forms:action.project_manager")}
-          <input className="margin-top-25 margin-bottom-100" type="text" name={ActionFormName.ProjectManager} id="projectManager" defaultValue={currentAction?.projectManager ?? undefined} />
-        </label>
-
-        <label className="block margin-block-100">
-          {t("forms:action.relevant_actors")}
-          <input className="margin-top-25 margin-bottom-100" type="text" name={ActionFormName.RelevantActors} id="relevantActors" defaultValue={currentAction?.relevantActors ?? undefined} />
-        </label>
+        {/* TODO: projectManager/relevantActors were dropped from the schema. Replace with the new ActionField (header/value) inputs. */}
       </fieldset>
 
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
@@ -212,20 +174,7 @@ export default function ActionForm({
         >
           {t("forms:action.categories_legend")}
         </legend>
-        <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50" htmlFor="isSufficiency">
-          <input type="checkbox" name={ActionFormName.IsSufficiency} id="isSufficiency" defaultChecked={currentAction?.isSufficiency} />
-          {t("forms:action.category_sufficiency")}
-        </label>
-
-        <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50" htmlFor="isEfficiency">
-          <input type="checkbox" name={ActionFormName.IsEfficiency} id="isEfficiency" defaultChecked={currentAction?.isEfficiency} />
-          {t("forms:action.category_efficiency")}
-        </label>
-
-        <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50" htmlFor="isRenewables">
-          <input type="checkbox" name={ActionFormName.IsRenewables} id="isRenewables" defaultChecked={currentAction?.isRenewables} />
-          {t("forms:action.category_renewables")}
-        </label>
+        {/* TODO: isSufficiency/isEfficiency/isRenewables were dropped from the schema. Replace with a new tag input in ActionField (header/value) format */}
       </fieldset>
 
       <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>

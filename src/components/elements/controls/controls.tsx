@@ -21,11 +21,11 @@ import formSubmitter from '@/functions/formSubmitter';
 */
 /* TODO: Add an info bubble to the admin panel to clear some space? */
 
-type ActionMenuEntry = Pick<Action, "id" | "name" | "roadmapId" | "isSufficiency"> & {
-  description?: string | null;
-};
+type ActionMenuEntry = Pick<Action, "id" | "name" | "roadmapId">;
 
-type GoalMenuEntry = Pick<Goal, "id" | "name" | "indicatorParameter" | "roadmapId"> & {
+// `isFeatured` is Goal-only; it's what distinguishes a Goal from an Action at runtime
+// (both now share `indicatorParameter`), see buildLinks below.
+type GoalMenuEntry = Pick<Goal, "id" | "name" | "indicatorParameter" | "roadmapId" | "isFeatured"> & {
   roadmap: Pick<Roadmap, "id"> & { metaRoadmap: Pick<MetaRoadmap, "id" | "name"> };
 };
 
@@ -101,8 +101,8 @@ function buildLinks(
     deleteLink = "/api/roadmap";
   }
 
-  // Goals
-  else if ("indicatorParameter" in object) {
+  // Goals (distinguished from Actions by the Goal-only `isFeatured`, since both share `indicatorParameter`)
+  else if ("isFeatured" in object) {
     featureGoal = "/api/goal"; /* TODO: Update this line */
     selfLink = `/goal/${object.id}`;
     parentLink = `/roadmap/${object.roadmap.id}`;
@@ -118,8 +118,8 @@ function buildLinks(
     object.name ||= object.indicatorParameter;
   }
 
-  // Actions
-  else if ("isSufficiency" in object) {
+  // Actions (fallthrough object type; `roadmapId` guard keeps the unknown-object error branch reachable)
+  else if ("roadmapId" in object) {
     selfLink = `/action/${object.id}`;
     parentLink = `/roadmap/${object.roadmapId}`;
     parentDescription = t("components:table_menu.go_to_version");

@@ -11,7 +11,6 @@ import EffectTable from "@/components/tables/effects";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
-import TextEditor from "@/components/form/elements/textEditor/editor";
 import { AdminPanel } from "@/components/elements/controls/controls";
 
 export async function generateMetadata(props: { params: Promise<{ actionId: string }> }) {
@@ -33,7 +32,8 @@ export async function generateMetadata(props: { params: Promise<{ actionId: stri
 
   return buildMetadata({
     title: action?.name,
-    description: action?.description,
+    // TODO: description was dropped from the schema; derive from ActionField once available
+    description: undefined,
     og_url: `/action/${params.actionId}`,
     og_image_url: undefined,
   });
@@ -78,57 +78,28 @@ export default async function Page(props: { params: Promise<{ actionId: string }
           <span style={{ color: 'gray' }}>{t("pages:action.action_label")}</span>
           <h1 className="margin-0">{action.name}</h1>
           <p className="margin-top-0 margin-bottom-100">{action.startYear} - {action.endYear}</p>
-          {action.description ?
-            <TextEditor
-              id="rich-description"
-              editable={false}
-              defaultStyles={false}
-              content={action.description}
-            />
-            : null}
+          {/* TODO: description was dropped from the schema; ActionField content here once available */}
         </section>
 
+        {/*
+          TODO: expectedOutcome/costEfficiency/projectManager/relevantActors/categories were dropped from the schema.
+          These section shells are kept for the upcoming ActionField (header/value)-based content.
+        */}
         <section className="margin-block-300">
           <h2 className="margin-top-300">{t("pages:action.expected_effect")}</h2>
-          {action.expectedOutcome ?
-            <p>{action.expectedOutcome}</p>
-            :
-            <p>{t("pages:action.no_effect")}</p>
-          }
+          <p>{t("pages:action.no_effect")}</p>
 
           <h2 className="margin-top-300">{t("pages:action.cost_efficiency")}</h2>
-          {action.costEfficiency ?
-            <p>{action.costEfficiency}</p>
-            :
-            <p>{t("pages:action.no_cost_efficiency")}</p>
-          }
+          <p>{t("pages:action.no_cost_efficiency")}</p>
 
           <h2 className="margin-top-300">{t("pages:action.project_manager")}</h2>
-          {(action.projectManager && (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin)) ?
-            <p>{action.projectManager}</p>
-            :
-            <p>{t("pages:action.no_project_manager")}</p>
-          }
+          <p>{t("pages:action.no_project_manager")}</p>
 
           <h2 className="margin-top-300">{t("pages:action.relevant_actors")}</h2>
-          {action.relevantActors ?
-            <p>{action.relevantActors}</p>
-            :
-            <p>{t("pages:action.no_actors")}</p>
-          }
+          <p>{t("pages:action.no_actors")}</p>
 
           <h2 className="margin-top-300">{t("pages:action.categories")}</h2>
-          {(action.isEfficiency || action.isSufficiency || action.isRenewables) ? (
-            <ul>
-              {/* TODO: i18n */}
-              {action.isEfficiency ? <li className="margin-block-50">Efficiency</li> : null}
-              {action.isSufficiency ? <li className="margin-block-50">Sufficiency</li> : null}
-              {action.isRenewables ? <li className="margin-block-50">Renewables</li> : null}
-            </ul>
-          ) : (
-            <p>{t("pages:action.no_category")}</p>
-          )
-          }
+          <p>{t("pages:action.no_category")}</p>
         </section>
 
         <section className="margin-block-300">

@@ -60,17 +60,10 @@ async function createAction(
   const startYear = randomInt(2020, 2030);
   const action = await prisma.action.create({
     data: {
+      // TODO: set the required `indicatorParameter` (and `fields`/ActionField) once those are modelled in the seed
       name: RandomTextSE.sentence(3, 1).replace(/\.$/, ""),
-      description: chance(0.8) ? RandomTextSE.paragraph(randomInt(1, 2)) : null,
       startYear,
       endYear: chance(0.7) ? startYear + randomInt(1, 20) : null,
-      costEfficiency: chance(0.5) ? RandomTextSE.sentence(randomInt(3, 8)) : null,
-      expectedOutcome: chance(0.6) ? RandomTextSE.paragraph(1) : null,
-      projectManager: chance(0.5) ? RandomTextSE.words(2) : null,
-      relevantActors: chance(0.5) ? RandomTextSE.words(randomInt(1, 3)) : null,
-      isSufficiency: chance(0.4),
-      isEfficiency: chance(0.4),
-      isRenewables: chance(0.4),
       author: { connect: { id: randomOf(users.all).id } },
       roadmap: { connect: { id: roadmapId } },
       ...(options.parentActionId ? { parentAction: { connect: { id: options.parentActionId } } } : {}),

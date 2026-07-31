@@ -299,20 +299,9 @@ export type ActionInput = {
   roadmapId: string | undefined;
   goalId: string | undefined;
 
-  description: string | null | undefined;
   name: string;
   startYear: number | null | undefined;
   endYear: number | null | undefined;
-
-  costEfficiency: string | null | undefined;
-  expectedOutcome: string | null | undefined;
-
-  projectManager: string | null | undefined;
-  relevantActors: string | null | undefined;
-
-  isSufficiency: boolean | undefined;
-  isEfficiency: boolean | undefined;
-  isRenewables: boolean | undefined;
 
   parentAction: Action | null | undefined;
   childActions: Action[] | null | undefined;

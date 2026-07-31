@@ -47,17 +47,9 @@ export type EffectFormName = (typeof EffectFormName)[keyof typeof EffectFormName
 export const ActionFormName = {
   RoadmapId: "ROADMAP_ID",
   ActionName: "ACTION_NAME",
-  Description: "DESCRIPTION",
-  CostEfficiency: "COST_EFFICIENCY",
-  ExpectedOutcome: "EXPECTED_OUTCOME",
   ImpactType: "IMPACT_TYPE",
   ResultingDateValues: "RESULTING_DATE_VALUES",
   StartYear: "START_YEAR",
   EndYear: "END_YEAR",
-  ProjectManager: "PROJECT_MANAGER",
-  RelevantActors: "RELEVANT_ACTORS",
-  IsSufficiency: "IS_SUFFICIENCY",
-  IsEfficiency: "IS_EFFICIENCY",
-  IsRenewables: "IS_RENEWABLES",
 } as const;
 export type ActionFormName = (typeof ActionFormName)[keyof typeof ActionFormName];
