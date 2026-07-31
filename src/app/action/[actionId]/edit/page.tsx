@@ -30,7 +30,8 @@ export async function generateMetadata(props: { params: Promise<{ actionId: stri
 
   return buildMetadata({
     title: `${t("metadata:action_edit.title")} ${action?.name}`,
-    description: action?.fields[0]?.value,
+    // TODO: description was dropped from the schema; derive from ActionField once available
+    description: undefined,
     og_url: `/goal/${params.actionId}/edit`,
     og_image_url: undefined,
   });
