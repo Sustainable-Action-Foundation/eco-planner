@@ -49,6 +49,15 @@ export type EffectMenuEntry = Pick<Effect, "action_id" | "goal_id"> & {
 
 type ObjectParameter = EffectMenuEntry | ActionMenuEntry | GoalMenuEntry | IterationMenuEntry | RoadmapMenuEntry;
 
+/**
+ * Both actions and goals carry `indicator_parameter` and `roadmap_iteration_id` at runtime,
+ * so actions are recognized by columns/relations only they have. Full action rows always
+ * carry `start_year`/`org_id` (possibly null); narrower selections carry `fields`.
+ */
+function isActionEntry(object: ObjectParameter): object is ActionMenuEntry {
+  return "start_year" in object || "org_id" in object || "fields" in object;
+}
+
 type links = {
   featureGoal?: string,
   selfLink?: string;
@@ -103,23 +112,6 @@ function buildLinks(
     deleteLink = "/api/roadmap-iteration";
   }
 
-  // Goals
-  else if ("indicator_parameter" in object) {
-    featureGoal = "/api/goal"; /* TODO: Update this line */
-    selfLink = `/goal/${object.id}`;
-    parentLink = iterationPath(object.roadmap_iteration.roadmap.id, object.roadmap_iteration.version);
-    parentDescription = t("components:table_menu.go_to_version");
-    creationLink = `/action/create?iterationId=${object.roadmap_iteration_id}&goalId=${object.id}`;
-    creationDescription = t("components:table_menu.new_action");
-    creationLink2 = `/effect/create?goalId=${object.id}`;
-    creationDescription2 = t("components:table_menu.add_effect_from_existing_action");
-    editLink = `/goal/${object.id}/edit`;
-    historicalDataLink = `/goal/${object.id}/historical-data`;
-    deleteLink = "/api/goal";
-
-    object.name ||= object.indicator_parameter;
-  }
-
   // Effects
   else if ("action_id" in object) {
     selfLink = `/action/${object.action_id}`;
@@ -137,8 +129,9 @@ function buildLinks(
     object.id ??= { actionId: object.action_id, goalId: object.goal_id };
   }
 
-  // Actions
-  else if ("roadmap_iteration_id" in object) {
+  // Actions (checked before goals: actions also carry an indicator_parameter,
+  // so goals can only be recognized by it once action shapes are ruled out)
+  else if (isActionEntry(object)) {
     selfLink = `/action/${object.id}`;
     parentLink = object.roadmap_iteration ? iterationPath(object.roadmap_iteration.roadmap_id, object.roadmap_iteration.version) : undefined;
     parentDescription = t("components:table_menu.go_to_version");
@@ -146,6 +139,23 @@ function buildLinks(
     creationDescription = t("components:table_menu.new_effect");
     editLink = `/action/${object.id}/edit`;
     deleteLink = "/api/action";
+  }
+
+  // Goals
+  else if ("indicator_parameter" in object) {
+    featureGoal = "/api/goal"; /* TODO: Update this line */
+    selfLink = `/goal/${object.id}`;
+    parentLink = object.roadmap_iteration ? iterationPath(object.roadmap_iteration.roadmap.id, object.roadmap_iteration.version) : undefined;
+    parentDescription = t("components:table_menu.go_to_version");
+    creationLink = `/action/create?iterationId=${object.roadmap_iteration_id}&goalId=${object.id}`;
+    creationDescription = t("components:table_menu.new_action");
+    creationLink2 = `/effect/create?goalId=${object.id}`;
+    creationDescription2 = t("components:table_menu.add_effect_from_existing_action");
+    editLink = `/goal/${object.id}/edit`;
+    historicalDataLink = `/goal/${object.id}/historical-data`;
+    deleteLink = "/api/goal";
+
+    object.name ||= object.indicator_parameter;
   }
 
   else {

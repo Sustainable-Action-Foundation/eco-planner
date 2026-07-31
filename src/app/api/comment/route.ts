@@ -103,7 +103,8 @@ export async function POST(request: NextRequest) {
         roadmap_iteration_id: objectType === "roadmapIteration" ? comment.objectId : undefined,
       },
     });
-    revalidateTag(objectType, 'max');
+    // Expire immediately so the commenter sees their own comment on refresh
+    revalidateTag(objectType, { expire: 0 });
     return Response.json({ message: 'Comment created', id: newComment.id },
       { status: 200 },
     );

@@ -189,8 +189,8 @@ export async function POST(request: NextRequest) {
       },
       select: { id: true },
     });
-    // Invalidate old cache
-    revalidateTag('roadmap', 'max');
+    // Invalidate old cache; expire immediately so the page the client is redirected to sees the new roadmap
+    revalidateTag('roadmap', { expire: 0 });
     // Return the new roadmap's ID if successful
     return Response.json({ message: t('api:roadmap.roadmap_created'), id: newRoadmap.id },
       { status: 201, headers: { 'Location': `/roadmap/${newRoadmap.id}/iteration/create` } },
@@ -379,8 +379,8 @@ export async function PUT(request: NextRequest) {
     });
     // Prune any orphaned comments
     await pruneOrphans();
-    // Invalidate old cache
-    revalidateTag('roadmap', 'max');
+    // Invalidate old cache; expire immediately so the follow-up navigation sees the update
+    revalidateTag('roadmap', { expire: 0 });
     // Return the updated roadmap's ID if successful
     return Response.json({ message: t('api:roadmap.roadmap_updated'), id: updatedRoadmap.id },
       { status: 200, headers: { 'Location': `/roadmap/${updatedRoadmap.id}` } },

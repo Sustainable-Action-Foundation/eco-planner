@@ -30,14 +30,14 @@ async function expectNativeValidationRejection(page: Page) {
 }
 
 async function selectRiketsRoadmap(page: Page) {
-  const option = page.locator('#roadmapId option').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: 'v2' });
+  const option = page.locator('#iterationId option').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: 'v2' });
   const value = await option.getAttribute('value');
 
   if (!value) {
     throw new Error('Could not find Rikets färdplan version 2');
   }
 
-  await page.locator('#roadmapId').selectOption(value);
+  await page.locator('#iterationId').selectOption(value);
 }
 
 async function selectParentRiketsRoadmap(page: Page) {

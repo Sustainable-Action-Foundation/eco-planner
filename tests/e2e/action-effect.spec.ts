@@ -57,11 +57,11 @@ test.describe.serial("Action & Effect tests", () => {
     await page.getByTestId("create-button").click();
     await page.getByTestId("create-action").click();
 
-    const option = page.locator('#roadmapId option').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: 'v2' }); // Checks for Rikets färdplan to be contained in an option, with version 2 to avoid selecting the wrong roadmap
+    const option = page.locator('#iterationId option').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: 'v2' }); // Checks for Rikets färdplan to be contained in an option, with version 2 to avoid selecting the wrong roadmap
 
     const value = await option.getAttribute('value');
 
-    await page.locator('#roadmapId').selectOption(value);
+    await page.locator('#iterationId').selectOption(value);
 
     await page.locator('#actionName').fill(actionNameRequiredFields);
 
@@ -141,11 +141,11 @@ test.describe.serial("Action & Effect tests", () => {
     await page.getByTestId("create-button").click();
     await page.getByTestId("create-action").click();
 
-    const option = page.locator('#roadmapId option').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: 'v2' }); // Checks for Rikets färdplan to be contained in an option, with version 2 to avoid selecting the wrong roadmap
+    const option = page.locator('#iterationId option').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: 'v2' }); // Checks for Rikets färdplan to be contained in an option, with version 2 to avoid selecting the wrong roadmap
 
     const value = await option.getAttribute('value');
 
-    await page.locator('#roadmapId').selectOption(value);
+    await page.locator('#iterationId').selectOption(value);
 
     // Part 1 of the form
     await page.locator('#actionName').fill(actionNameAllFields);
