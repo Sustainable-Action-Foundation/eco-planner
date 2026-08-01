@@ -122,10 +122,7 @@ export default function HistoricalSeriesSection({
         {!goal?.historical?.values &&
           (hasInitializedNone ? (
             <fieldset className={`${historicalDataType === HistoricalDataType.None ? "" : "display-none"}`} disabled={historicalDataType !== HistoricalDataType.None}>
-              <RecipeContextProvider
-                initialRecipe={externalInitialRecipe}
-                availableDataSeries={goal?.historical?.recipeUsed?.sourceDataSeries}
-              >
+              <RecipeContextProvider>
                 <FormSync
                   RecipeFormElement={<input name={GoalFormName.HistoricalRecipe} />}
                   DateValuesFormElement={<input name={GoalFormName.HistoricalDataSeries} />}

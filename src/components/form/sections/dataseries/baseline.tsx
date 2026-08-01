@@ -6,7 +6,7 @@ import { GoalFormName } from "@/types/form-names";
 import { useTranslation } from "react-i18next";
 import { FormSync, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
-import { IconCheck } from "@tabler/icons-react";
+import { IconCheck, IconInfoCircle } from "@tabler/icons-react";
 import { dataSeriesToDateValues } from "@/functions/recipe";
 import { Recipe } from "@/functions/recipe/recipe";
 import { useEffect, useRef, useState } from "react";
@@ -15,7 +15,7 @@ import { clientSafeGetRoadmaps, clientSafeGetOneRoadmap, clientSafeGetOneGoal } 
 import SelectSingleTree from "@/components/form/elements/combobox/selectSingleTree";
 import { RecipeSync } from "@/components/recipe/output/recipeSync";
 import { parseUnit } from "@/functions/unit";
-import { BaselineType, UnitFlags } from "@/types/enums";
+import { BaselineType } from "@/types/enums";
 
 export default function BaselineSeriesSection({
   goal,
@@ -121,9 +121,12 @@ export default function BaselineSeriesSection({
             </span>
           </span>
         </p> {/* TODO: Should be a legend? */}
-        
+
         {hasInitializedInitial || hasInitializedInitialNonZero ?
-          <fieldset className={`${baselineType === BaselineType.Initial || baselineType === BaselineType.InitialNonZero ? "" : "display-none"}`} disabled={baselineType !== BaselineType.Initial && baselineType !== BaselineType.InitialNonZero}>
+          <fieldset
+            className={`${baselineType === BaselineType.Initial || baselineType === BaselineType.InitialNonZero ? "" : "display-none"}`}
+            disabled={baselineType !== BaselineType.Initial && baselineType !== BaselineType.InitialNonZero}
+          >
             <RecipeContextProvider>
               <InitialBaseline
                 dataSeries={dataSeries}
@@ -142,15 +145,15 @@ export default function BaselineSeriesSection({
         {hasInitializedManual ?
           <fieldset className={`${baselineType === BaselineType.Custom ? "" : "display-none"}`} disabled={baselineType !== BaselineType.Custom}>
             <RecipeContextProvider
-              initialRecipe={Recipe.fromManualDateValues(
-                goal?.dataSeries ? dataSeriesToDateValues(goal.dataSeries) : { unit: UnitFlags.Missing, dateValues: {} },
-              ).serialize()}
+              initialRecipe={goal?.baseline?.recipeUsed?.recipe
+                ? Recipe.from(goal.baseline.recipeUsed.recipe).serialize()
+                : undefined}
             >
               <ManualDataSeriesInput
                 id="baseline-dataseries"
                 label={t("forms:data_series_input.data_series")}
-                {...goal?.dataSeries
-                  ? { initialDateValues: dataSeriesToDateValues(goal.dataSeries) }
+                {...goal?.baseline?.recipeUsed?.recipe
+                  ? { initialDateValues: dataSeriesToDateValues(goal.baseline) }
                   : {}
                 }
               />
@@ -170,7 +173,6 @@ export default function BaselineSeriesSection({
 
         {/* Inherited baseline input */}
         {hasInitializedInherited ?
-
           <fieldset className={`${baselineType === BaselineType.Inherited ? "" : "display-none"}`} disabled={baselineType !== BaselineType.Inherited}>
             <RecipeContextProvider
               initialRecipe={goal?.baseline?.recipeUsed?.recipe
@@ -325,6 +327,19 @@ function InheritingBaseline() {
       {goalData ? <p className="block margin-block-75">
         {`${t("forms:goal.baseline_copied")}: "${goalData.name}"`}
       </p> : null
+      }
+      {recipe.variables[0]?.name ? // TODO: Add a proper translation key for the below text.
+        <small style={{color: '#B35400', textShadow: '0 0 #ffcb00'}}>
+            <IconInfoCircle width={16} height={16} style={{verticalAlign: 'bottom', marginRight: '.25rem'}} />
+            The goal: <strong>{recipe.variables[0]?.name}</strong> is being used as a baseline but there was an 
+            issue when trying to automatically select it. Before saving (if you wish to keep using this goal as your
+            baseline) you must either: <br />
+            <ol>
+              <li> Select: "Manual" as a baseline type, which has the correct values pre-filled. </li>
+              <li> Re-select the goal in the menu above.</li>
+            </ol>
+        </small>
+        : null
       }
     </>
   );
