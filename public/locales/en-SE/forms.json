@@ -138,7 +138,7 @@
         "type": "Historical data type",
         "no_historical_title": "No data",
         "no_historical": "Do not use a historical data series for this goal. You can always add one at a later point.",
-        "no_historical_description": "Leaving historical data blank",
+        "no_historical_description": "Skipping the historical data series",
         "external_title": "External",
         "external": "Create a historical data series with data from external sources.",
         "custom_title": "Manual",

@@ -67,7 +67,6 @@ export default function HistoricalForm({
   // The section's inputs live in a recipe context; its FormSync injects the
   // resulting recipe and date values as hidden fields, read out here on submit.
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
-    console.log('waaaaaaaaow');
     event.preventDefault();
     if (!(event.target instanceof HTMLFormElement)) return;
     if (!(event.target.checkValidity())) return;

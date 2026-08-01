@@ -7,7 +7,7 @@ import type { Action, Effect, Goal, GoalUpdateInput, MetaRoadmap, Roadmap } from
 import { AccessLevel, GoalDataTarget } from "@/types/enums";
 import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { IconArrowBackUp, IconChartHistogram, IconDotsVertical, IconEdit, IconPlus, IconStar, IconStarFilled, IconTrashXFilled, IconX } from "@tabler/icons-react";
 import { hasEditAccess } from '@/lib/accessChecker';
 import type { TFunction } from 'i18next';
@@ -396,7 +396,7 @@ export function AdminPanel(
                         <span>{t("components:table_menu.historical_data")}</span>
                         <IconChartHistogram aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                       </button>
-                    
+
                       <div
                         popover='auto'
                         id='historical-data-popover'
@@ -451,7 +451,7 @@ export function AdminPanel(
                                   <button type="button" className="grid round padding-50 transparent" onClick={() => historicalDeletionRef.current?.close()} autoFocus={true} aria-label={t("common:tsx.close")} >
                                     <IconX aria-hidden="true" width={28} height={28} strokeWidth={3} style={{ minWidth: '28px' }} />
                                   </button>
-                                  <h2 className='margin-0'>{t("components:table_menu.historical_data_delete")}????</h2>
+                                  <h2 className='margin-0'>{t("components:table_menu.historical_data_delete")}?</h2>
                                 </div>
                                 <form
                                   className='dialog-body'
@@ -470,69 +470,77 @@ export function AdminPanel(
                                     } satisfies GoalUpdateInput), 'PUT', t);
                                   }}
                                 >
-                                <div className="flex-grow-100">
-                                  <p className="margin-0" >
-                                    {t("components:confirm_delete.confirmation")}
-                                  </p>
-                                  <label className="block margin-block-75">
-                                    {t("components:confirm_delete.type_to_confirm")}
-                                    <input className="margin-block-25" type="text" required={true} pattern={`${t("components:table_menu.historical_data")}`} />
-                                  </label>
-                                </div>
-                                <div className="flex gap-25">
-                                  <button type="button" className="font-weight-500 flex-grow-100" onClick={() => historicalDeletionRef.current?.close()}>{t("common:tsx.cancel")}</button>
-                                  <button
-                                    type='submit'
-                                    className="color-purewhite red font-weight-500"
-                                  >
-                                    {t("components:table_menu.historical_data_delete")}
-                                  </button>
-                                </div>
-                              </form>
-                            </div>
-                          </dialog>
-                      </>
+                                  <div className="flex-grow-100">
+                                    <p className="margin-0" >
+                                      <Trans
+                                        i18nKey={"components:confirm_delete.confirmation"}
+                                        values={{ targetName: t("components:table_menu.historical_data") }}
+                                        components={{ strong: <strong /> }}
+                                      />
+                                    </p>
+                                    <label className="block margin-block-75">
+                                      <Trans
+                                        i18nKey={"components:confirm_delete.type_to_confirm"}
+                                        values={{ targetName: t("components:table_menu.historical_data") }}
+                                        components={{ strong: <strong /> }}
+                                      />
+                                      <input className="margin-block-25" type="text" required={true} pattern={`${t("components:table_menu.historical_data")}`} />
+                                    </label>
+                                  </div>
+                                  <div className="flex gap-25">
+                                    <button type="button" className="font-weight-500 flex-grow-100" onClick={() => historicalDeletionRef.current?.close()}>{t("common:tsx.cancel")}</button>
+                                    <button
+                                      type='submit'
+                                      className="color-purewhite red font-weight-500"
+                                    >
+                                      {t("components:table_menu.historical_data_delete")}
+                                    </button>
+                                  </div>
+                                </form>
+                              </div>
+                            </dialog>
+                          </>
                         ) : null}
-                    </div>
-                </>
-                : null
+                      </div>
+                    </>
+                    : null
                   }
-                {links.creationLink ? <Link href={links.creationLink} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`}>
-                  <span>{links.creationDescription}</span>
-                  <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
-                </Link> : null
-                }
-                {links.creationLink2 ? <Link href={links.creationLink2} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`} data-testid="admin-panel-new-action">
-                  <span>{links.creationDescription2 || links.creationLink2}</span>
-                  <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
-                </Link> : null
-                }
-                {links.editLink ? <Link href={links.editLink} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`} data-testid="admin-panel-edit">
-                  <span>{t("components:table_menu.edit")}</span>
-                  <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
-                </Link> : null
-                }
-              </nav>
-          </>
-        ) : null
-        }
-        {/* Admins and authors can delete items */}
-        {(accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) && links.deleteLink ? <>
-          <button
-            type="button"
-            className={`flex gap-50 justify-content-space-between align-items-center button smooth font-size-14px  
+                  {links.creationLink ? <Link href={links.creationLink} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`}>
+                    <span>{links.creationDescription}</span>
+                    <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+                  </Link> : null
+                  }
+                  {links.creationLink2 ? <Link href={links.creationLink2} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`} data-testid="admin-panel-new-action">
+                    <span>{links.creationDescription2 || links.creationLink2}</span>
+                    <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+                  </Link> : null
+                  }
+                  {links.editLink ? <Link href={links.editLink} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`} data-testid="admin-panel-edit">
+                    <span>{t("components:table_menu.edit")}</span>
+                    <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+                  </Link> : null
+                  }
+                </nav>
+              </>
+            ) : null
+            }
+            {/* Admins and authors can delete items */}
+            {(accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) && links.deleteLink ? <>
+              <button
+                type="button"
+                className={`flex gap-50 justify-content-space-between align-items-center button smooth font-size-14px  
                 ${styles['object-menu-button']}`} style={{ textShadow: 'none', color: 'white', backgroundColor: "#f03b3b", border: '0' }}
-            onClick={() => openModal(deletionRef)}
-          >
-            {t("components:table_menu.delete")}
-            <IconTrashXFilled aria-hidden="true" width={20} height={20} fill="white" style={{ minWidth: '20px' }} />
-          </button>
-          <ConfirmDelete modalRef={deletionRef} targetUrl={links.deleteLink} targetName={objectName || metaRoadmapName || t("components:table_menu.delete_missing_name")} targetId={object.id} />
-        </> : null
-        }
-      </>
+                onClick={() => openModal(deletionRef)}
+              >
+                {t("components:table_menu.delete")}
+                <IconTrashXFilled aria-hidden="true" width={20} height={20} fill="white" style={{ minWidth: '20px' }} />
+              </button>
+              <ConfirmDelete modalRef={deletionRef} targetUrl={links.deleteLink} targetName={objectName || metaRoadmapName || t("components:table_menu.delete_missing_name")} targetId={object.id} />
+            </> : null
+            }
+          </>
         ) : null}
-    </menu>
+      </menu>
     </aside >
   );
 
