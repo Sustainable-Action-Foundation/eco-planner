@@ -136,6 +136,9 @@
       "historical": {
         "title": "Skapa en dataserie för din målbanas historiska data",
         "type": "Historiska datans typ",
+        "no_historical_title": "Ingen data",
+        "no_historical": "Skapa inte en historisk dataserie. Du kan alltid lägga till en vid ett senare tillfälle.",
+        "no_historical_description": "Skippar den historiska dataserien",
         "external_title": "Extern",
         "external": "Skapa en historisk dataserie med data från externa källor.",
         "custom_title": "Manuell",

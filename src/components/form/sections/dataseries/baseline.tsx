@@ -109,21 +109,21 @@ export default function BaselineSeriesSection({
         className="padding-100 smooth"
         style={{ border: '1px dashed var(--blue)' }}
       >
+        <p className={`${baselineType === BaselineType.Initial || baselineType === BaselineType.InitialNonZero ? "margin-0" : "margin-top-0"} flex gap-50 align-items-center`} style={{ color: 'var(--blue)', textShadow: '0 0 var(--blue)' }}>
+          <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
+          <span>
+            <span className="text-transform-capitalize">{t("common:tsx.using")}</span>
+            <span className="text-transform-lowercase">
+              {baselineType === BaselineType.Initial ? ` ${t("forms:goal.baseline_types.initial")}`
+                : baselineType === BaselineType.InitialNonZero ? ` ${t("forms:goal.baseline_types.initial_non_zero")}`
+                  : baselineType === BaselineType.Custom ? ` ${t("forms:goal.baseline_types.custom")}`
+                    : ` ${t("forms:goal.baseline_types.inherited")}`}
+            </span>
+          </span>
+        </p> {/* TODO: Should be a legend? */}
+        
         {hasInitializedInitial || hasInitializedInitialNonZero ?
           <fieldset className={`${baselineType === BaselineType.Initial || baselineType === BaselineType.InitialNonZero ? "" : "display-none"}`} disabled={baselineType !== BaselineType.Initial && baselineType !== BaselineType.InitialNonZero}>
-            <p className={`${baselineType === BaselineType.Initial || baselineType === BaselineType.InitialNonZero ? "margin-0" : "margin-top-0"} flex gap-50 align-items-center`} style={{ color: 'var(--blue)', textShadow: '0 0 var(--blue)' }}>
-              <IconCheck aria-hidden="true" height={20} width={20} style={{ minWidth: '20px' }} />
-              <span>
-                <span className="text-transform-capitalize">{t("common:tsx.using")}</span>
-                <span className="text-transform-lowercase">
-                  {baselineType === BaselineType.Initial ? ` ${t("forms:goal.baseline_types.initial")}`
-                    : baselineType === BaselineType.InitialNonZero ? ` ${t("forms:goal.baseline_types.initial_non_zero")}`
-                      : baselineType === BaselineType.Custom ? ` ${t("forms:goal.baseline_types.custom")}`
-                        : ` ${t("forms:goal.baseline_types.inherited")}`}
-                </span>
-              </span>
-            </p> {/* TODO: Should be a legend? */}
-
             <RecipeContextProvider>
               <InitialBaseline
                 dataSeries={dataSeries}

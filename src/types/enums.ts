@@ -83,6 +83,7 @@ export type BaselineType = (typeof BaselineType)[keyof typeof BaselineType];
  * Used by form
  */
 export const HistoricalDataType = {
+  None: "NONE",
   External: "EXTERNAL",
   Custom: "CUSTOM",
 } as const;

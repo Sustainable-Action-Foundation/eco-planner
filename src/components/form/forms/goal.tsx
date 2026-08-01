@@ -74,14 +74,13 @@ function resolveBaselineType(goal?: Goal): BaselineType {
 }
 
 export function resolveHistoricalDataType(goal?: Goal): HistoricalDataType {
-  const recipe = goal?.historical?.recipeUsed?.recipe;
-  if (!recipe) return HistoricalDataType.External;
-
-  // Manual entry stored as an inline data series recipe; anything else (e.g. an
-  // external API selection) edits as external.
-  return Recipe.from(recipe).isManual()
-    ? HistoricalDataType.Custom
-    : HistoricalDataType.External;
+  const historical = goal?.historical;
+  if (!historical?.values) return HistoricalDataType.None;
+  
+  if (!historical.recipeUsed || Recipe.from(historical.recipeUsed.recipe).isManual()) {
+    return HistoricalDataType.Custom;
+  }
+  return HistoricalDataType.External;
 }
 
 // Tracks every distinct value `current` has taken since mount, as a Set.
@@ -123,6 +122,7 @@ export default function GoalForm({
 
   const [historicalDataType, setHistoricalDataType] = useState<HistoricalDataType>(() => resolveHistoricalDataType(currentGoal));
   const initializedHistoricalTypes = useInitializedValues(historicalDataType);
+  const historicalHasInitializedNone = initializedHistoricalTypes.has(HistoricalDataType.None);
   const historicalHasInitializedExternal = initializedHistoricalTypes.has(HistoricalDataType.External);
   const historicalHasInitializedCustom = initializedHistoricalTypes.has(HistoricalDataType.Custom);
 
@@ -609,6 +609,7 @@ export default function GoalForm({
             setHistoricalDataType={setHistoricalDataType}
             setPreviewHistoricalSerie={setPreviewHistoricalSerie}
             setPreviewHistoricalRecipe={setPreviewHistoricalRecipe}
+            hasInitializedNone={historicalHasInitializedNone}
             hasInitializedExternal={historicalHasInitializedExternal}
             hasInitializedManual={historicalHasInitializedCustom}
           />

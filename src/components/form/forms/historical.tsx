@@ -8,7 +8,7 @@ import { Recipe, type SerializedRecipe } from "@/functions/recipe";
 import type { DateValuesWithUnit, Goal, GoalUpdateInput, Unit } from "@/types";
 import { GoalDataTarget, HistoricalDataType } from "@/types/enums";
 import { GoalFormName } from "@/types/form-names";
-import { useEffect, useMemo, useState, type SubmitEvent } from "react";
+import { useMemo, useState, type SubmitEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { GoalGraph } from "@/components/graph/graphs/goal/main";
 import { getHistoricalDatasetFromRecipe } from "@/functions/getHistoricalDataset";
@@ -109,17 +109,14 @@ export default function HistoricalForm({
       timestamp: Date.now(),
     } satisfies GoalUpdateInput), "PUT", t);
   }
-
-  useEffect(() => {
-    console.log(previewHistoricalSerie);
-  }, [previewHistoricalSerie]);
-
+ 
   return (
     <form onSubmit={(event) => { void handleSubmit(event); }} name="goalForm">
       <HistoricalDataSection
         goal={goal}
         historicalDataType={historicalDataType}
         setHistoricalDataType={setHistoricalDataType}
+        hasInitializedNone={initializedHistoricalTypes.has(HistoricalDataType.None)}
         hasInitializedExternal={initializedHistoricalTypes.has(HistoricalDataType.External)}
         hasInitializedManual={initializedHistoricalTypes.has(HistoricalDataType.Custom)}
         setPreviewHistoricalSerie={setPreviewHistoricalSerie}
