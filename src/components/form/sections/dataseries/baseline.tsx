@@ -143,14 +143,14 @@ export default function BaselineSeriesSection({
           <fieldset className={`${baselineType === BaselineType.Custom ? "" : "display-none"}`} disabled={baselineType !== BaselineType.Custom}>
             <RecipeContextProvider
               initialRecipe={Recipe.fromManualDateValues(
-                goal?.baseline ? dataSeriesToDateValues(goal.baseline) : { unit: UnitFlags.Missing, dateValues: {} },
+                goal?.dataSeries ? dataSeriesToDateValues(goal.dataSeries) : { unit: UnitFlags.Missing, dateValues: {} },
               ).serialize()}
             >
               <ManualDataSeriesInput
                 id="baseline-dataseries"
                 label={t("forms:data_series_input.data_series")}
-                {...goal?.baseline
-                  ? { initialDateValues: dataSeriesToDateValues(goal.baseline) }
+                {...goal?.dataSeries
+                  ? { initialDateValues: dataSeriesToDateValues(goal.dataSeries) }
                   : {}
                 }
               />
