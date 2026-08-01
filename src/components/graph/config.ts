@@ -21,13 +21,24 @@ export const marker: ApexMarkers = {
 export const stroke: ApexStroke = {
   curve: 'straight',
   width: 3,
-};
+}; 
+
+// Tracks, per chart instance, which timestamp is currently highlighted —
+// keyed by the chart's own base element, since multiple GoalGraph instances
+// can be mounted on the same page at once (e.g. main + siblings tabs both
+// stay mounted, just hidden). A single shared variable would let hovering
+// the same year on one chart incorrectly suppress the update on another.
+// Used below to skip the (more expensive) "shrink the previous point's
+// markers" step when the hovered point hasn't actually changed — the
+// enlargement step still runs on every call regardless (see comment there).
+const lastHighlightedTimestampByChart = new WeakMap<HTMLElement, number>();
 
 // Builds the same circle `d` path string ApexCharts itself uses for markers
 // (a two-arc circle centered at cx/cy with the given radius).
 function buildMarkerCirclePath(cx: number, cy: number, radius: number): string {
   return `M ${cx}, ${cy} m -${radius}, 0 a ${radius},${radius} 0 1,0 ${radius * 2},0 a ${radius},${radius} 0 1,0 -${radius * 2},0`;
 }
+
 function highlightSharedMarkers({
   seriesIndex,
   dataPointIndex,
@@ -46,22 +57,26 @@ function highlightSharedMarkers({
   const baseEl = w.globals.dom?.baseEl;
   if (!baseEl) return;
 
-  // Shrink back down any markers we enlarged on a previous hover.
-  baseEl.querySelectorAll<SVGPathElement>('path.apexcharts-marker[data-graph-hover="true"]').forEach((path) => {
-    const cx = parseFloat(path.getAttribute('cx') ?? '0');
-    const cy = parseFloat(path.getAttribute('cy') ?? '0');
-    const defaultSize = parseFloat(path.getAttribute('default-marker-size') ?? '0');
-    path.style.transition = 'none';
-    path.setAttribute('d', buildMarkerCirclePath(cx, cy, defaultSize));
-    path.removeAttribute('data-graph-hover');
-  });
-
   const hoveredTimestamp = w.globals.seriesX[seriesIndex]?.[dataPointIndex];
   if (hoveredTimestamp === undefined) return;
 
+  const pointChanged = lastHighlightedTimestampByChart.get(baseEl) !== hoveredTimestamp;
+  if (pointChanged) {
+    lastHighlightedTimestampByChart.set(baseEl, hoveredTimestamp);
+
+    // Shrink back down markers enlarged on a previous hover.
+    baseEl.querySelectorAll<SVGPathElement>('path.apexcharts-marker[data-graph-hover="true"]').forEach((path) => {
+      const cx = parseFloat(path.getAttribute('cx') ?? '0');
+      const cy = parseFloat(path.getAttribute('cy') ?? '0');
+      const defaultSize = parseFloat(path.getAttribute('default-marker-size') ?? '0');
+      path.setAttribute('d', buildMarkerCirclePath(cx, cy, defaultSize));
+      path.removeAttribute('data-graph-hover');
+    });
+  }
+
   const seriesMarkerWraps = Array.from(
     baseEl.querySelectorAll<SVGGElement>('.apexcharts-series-markers-wrap'),
-  );
+  ); 
 
   requestAnimationFrame(() => {
     w.globals.seriesNames.forEach((_name, idx) => {
@@ -82,13 +97,12 @@ function highlightSharedMarkers({
 
         const cx = parseFloat(markerPath.getAttribute('cx') ?? '0');
         const cy = parseFloat(markerPath.getAttribute('cy') ?? '0');
-        markerPath.style.transition = 'none';
         markerPath.setAttribute('d', buildMarkerCirclePath(cx, cy, defaultSize * 3)); // Multiplying by 3 matches apexcharts own highlight style
         markerPath.setAttribute('data-graph-hover', 'true');
       });
     });
   });
-}
+} 
 
 function buildSharedDatetimeTooltip({
   series,
@@ -109,7 +123,7 @@ function buildSharedDatetimeTooltip({
   };
 }): string {
   highlightSharedMarkers({ seriesIndex, dataPointIndex, w });
-
+ 
   const hoveredTimestamp = w.globals.seriesX[seriesIndex]?.[dataPointIndex];
   if (hoveredTimestamp === undefined) return '';
 
@@ -146,7 +160,7 @@ function buildSharedDatetimeTooltip({
   return `
     <div class="apexcharts-tooltip-title">${dateLabel}</div>
     ${rows}
-   `;
+  `;
 }
 
 // TODO: Don't really like this ):
