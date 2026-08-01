@@ -17,29 +17,46 @@ function isDataSeries(
   return !("dateValues" in series);
 }
 
-function toChartSeries(
+function toDateValueMap(
   series: DataSeries | DateValuesWithUnit,
+): Map<number, number> {
+  const dateValuesWithUnit = isDataSeries(series)
+    ? dataSeriesToDateValues(series)
+    : series;
+
+  const map = new Map<number, number>();
+  for (const [isoDate, value] of Object.entries(dateValuesWithUnit.dateValues)) {
+    map.set(new Date(isoDate).getTime(), value);
+  }
+
+  return map;
+}
+
+// Pad with null or omit values to create tooltips which function for multiple series.
+function toChartSeries(
+  dateValueMap: Map<number, number>,
+  allTimestamps: number[],
   name: string,
   type: ApexAxisChartSeries[number]["type"] = "line",
   color: ApexAxisChartSeries[number]["color"] = "",
 ) {
-  // If a dataSeries is passed, convert it to DateValuesWithUnit 
-  const dateValues = isDataSeries(series)
-    ? dataSeriesToDateValues(series)
-    : series;
+  const ownTimestamps = Array.from(dateValueMap.keys());
+  const minOwn = ownTimestamps.length > 0 ? Math.min(...ownTimestamps) : null;
+  const maxOwn = ownTimestamps.length > 0 ? Math.max(...ownTimestamps) : null;
 
-  // Sort all entries in DateValuesWithUnit by time
-  const entries = Object.entries(dateValues.dateValues).sort(
-    (a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime(),
-  );
-
-  const data = entries.map(([isoDate, value]) => ({
-    x: new Date(isoDate).getTime(),
-    y: Number.isFinite(value) ? value : null,
-  }));
+  const data = allTimestamps
+    .filter((x) => minOwn !== null && maxOwn !== null && x >= minOwn && x <= maxOwn)
+    .map((x) => {
+      const value = dateValueMap.get(x);
+      return {
+        x,
+        y: value !== undefined && Number.isFinite(value) ? value : null,
+      };
+    });
 
   return { name, data, type, color };
 }
+
 
 // Converts a hex color to HSL components
 function hexToHsl(hex: string): { h: number; s: number; l: number } {
@@ -86,7 +103,7 @@ function getSiblingColor(index: number, total: number, baseHex: string): string 
   const hueRange = 80; // total spread in degrees
   const hueStart = base.h - hueRange / 2;
   const hue = total > 1 ? hueStart + (index * hueRange) / (total - 1) : base.h;
- 
+
 
   return `hsl(${hue}, ${base.s}%, 50%)`;
 }
@@ -140,37 +157,68 @@ export function GoalGraph({
       ? ((options.yaxis as ApexYAxis[])[0].seriesName as string[])
       : undefined;
 
+  // Pre-compute date-value maps for every series that's actually present,
+  // then union all their timestamps so every rendered series shares the
+  // same x-axis domain (missing points become null rather than the series
+  // just stopping short).
+  const dateValueMaps = {
+    main: main ? toDateValueMap(main) : null,
+    baseline: baseline ? toDateValueMap(baseline) : null,
+    historical: historical ? toDateValueMap(historical) : null,
+    predictedOutcome: predictedOutcome ? toDateValueMap(predictedOutcome) : null,
+    comparison: comparison ? toDateValueMap(comparison) : null,
+    parent: parent ? toDateValueMap(parent) : null,
+    siblings: siblings ? siblings.map((sibling) => toDateValueMap(sibling)) : null,
+  };
+
+  const allTimestampsSet = new Set<number>();
+  for (const map of [
+    dateValueMaps.main,
+    dateValueMaps.baseline,
+    dateValueMaps.historical,
+    dateValueMaps.predictedOutcome,
+    dateValueMaps.comparison,
+    dateValueMaps.parent,
+    ...(dateValueMaps.siblings ?? []),
+  ]) {
+    if (!map) continue;
+    for (const timestamp of map.keys()) {
+      allTimestampsSet.add(timestamp);
+    }
+  }
+  const allTimestamps = Array.from(allTimestampsSet).sort((a, b) => a - b);
+
   // TODO: Need to add z-index so this is always on top! (probably want to handle typing so its easier to accept correct things for each dataseries)
-  if (main) { // TODO: i dislike the way i handle area types here, figure out a better way ... 
-    chart.push(toChartSeries(main, main.name, chartOptionsType ?? 'line', color_palette.main.color));
+  if (main && dateValueMaps.main) { // TODO: i dislike the way i handle area types here, figure out a better way ... 
+    chart.push(toChartSeries(dateValueMaps.main, allTimestamps, main.name, chartOptionsType ?? 'line', color_palette.main.color));
     mainYAxis?.push(main.name);
     colors.push(color_palette.main.color);
     opacities.push(chartOptionsType === "area" ? 0.3 : 1); // TODO: Weird stuff is happening with opacities...
   }
 
-  if (baseline) {
-    chart.push(toChartSeries(baseline, baseline.name, "line", color_palette.baseline.color));
+  if (baseline && dateValueMaps.baseline) {
+    chart.push(toChartSeries(dateValueMaps.baseline, allTimestamps, baseline.name, "line", color_palette.baseline.color));
     mainYAxis?.push(baseline.name);
     colors.push(color_palette.baseline.color);
     opacities.push(color_palette.baseline.fillOpacity);
   }
 
-  if (historical) {
-    chart.push(toChartSeries(historical, historical.name, "area", color_palette.historical.color));
+  if (historical && dateValueMaps.historical) {
+    chart.push(toChartSeries(dateValueMaps.historical, allTimestamps, historical.name, "area", color_palette.historical.color));
     mainYAxis?.push(historical.name);
     colors.push(color_palette.historical.color);
     opacities.push(color_palette.historical.fillOpacity);
   }
 
-  if (predictedOutcome) {
-    chart.push(toChartSeries(predictedOutcome, predictedOutcome.name, "line", color_palette.predictedOutcome.color));
+  if (predictedOutcome && dateValueMaps.predictedOutcome) {
+    chart.push(toChartSeries(dateValueMaps.predictedOutcome, allTimestamps, predictedOutcome.name, "line", color_palette.predictedOutcome.color));
     mainYAxis?.push(predictedOutcome.name);
     colors.push(color_palette.predictedOutcome.color);
     opacities.push(color_palette.predictedOutcome.fillOpacity);
   }
 
-  if (comparison) {
-    chart.push(toChartSeries(comparison, comparison.name, "line", color_palette.comparison.color));
+  if (comparison && dateValueMaps.comparison) {
+    chart.push(toChartSeries(dateValueMaps.comparison, allTimestamps, comparison.name, "line", color_palette.comparison.color));
 
     (options.yaxis as ApexYAxis[]).push({
       title: {
@@ -192,22 +240,27 @@ export function GoalGraph({
     opacities.push(color_palette.comparison.fillOpacity);
   }
 
-  if (parent) {
-    chart.push(toChartSeries(parent, parent.name, "line", color_palette.parentGoal.color)); // TODO: Rename parentGoal --> parent
+  if (parent && dateValueMaps.parent) {
+    chart.push(toChartSeries(dateValueMaps.parent, allTimestamps, parent.name, "line", color_palette.parentGoal.color)); // TODO: Rename parentGoal --> parent
     mainYAxis?.push(parent.name);
     colors.push(color_palette.parentGoal.color);
     opacities.push(color_palette.parentGoal.fillOpacity);
   }
 
-  if (siblings) {
-    siblings.forEach((sibling, index) => {
-      const siblingColor = getSiblingColor(index, siblings.length + 1, color_palette.main.color);
-      chart.push(toChartSeries(sibling, sibling.name, 'area', siblingColor));
-      mainYAxis?.push(sibling.name);
-      colors.push(siblingColor);
-      opacities.push(0.3); // TODO: Weird stuff is happening with opacities...
-    });
-     
+  if (siblings && dateValueMaps.siblings) {
+    const siblingMaps = dateValueMaps.siblings;
+
+    if (siblings && siblingMaps) {
+      siblings.forEach((sibling, index) => {
+        const siblingMap = siblingMaps[index];
+        const siblingColor = getSiblingColor(index, siblings.length + 1, color_palette.main.color);
+
+        chart.push(toChartSeries(siblingMap, allTimestamps, sibling.name, 'area', siblingColor));
+        mainYAxis?.push(sibling.name);
+        colors.push(siblingColor);
+        opacities.push(0.3); // TODO: Weird stuff is happening with opacities...
+      });
+    }
   }
 
   return <WrappedChart
