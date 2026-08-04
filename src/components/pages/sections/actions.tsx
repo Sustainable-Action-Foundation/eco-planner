@@ -16,7 +16,7 @@ export default function Actions({
   searchParamsProp,
 }: {
   actions: Action[] | null,
-  searchParamsProp: { [key: string]: string | string[] | undefined }
+  searchParamsProp: Record<string, string | string[] | undefined>
 }) {
 
   const { t } = useTranslation(["pages", "forms"]);

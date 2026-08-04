@@ -8,7 +8,7 @@ import type { Metadata } from "next";
 // TODO: More detailed metadata?
 export async function generateMetadata(): Promise<Metadata> {
   return await buildMetadata({
-    title: 'Åtgärder',
+    title: 'Åtgärder', // TODO: i18n
     description: undefined,
     og_url: undefined,
     og_image_url: undefined,
