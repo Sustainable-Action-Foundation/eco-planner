@@ -26,7 +26,8 @@ export async function getRoadmapIterations(iterationIds?: string[]): Promise<Mul
  */
 async function getCachedRoadmapIterations(accessContext: UserAccessContext | null, iterationIds?: string[]): Promise<MultiRoadmapInstance[]> {
   'use cache';
-  cacheTag('database', 'roadmap', 'roadmapIteration');
+  // goal/action are included because the returned iterations carry goal and action counts
+  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action');
 
   let iterations: MultiRoadmapInstance[];
   try {

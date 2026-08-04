@@ -15,6 +15,16 @@ function grantSelect(page: Page, group: string) {
   return page.locator('label').filter({ hasText: group }).locator('select');
 }
 
+/**
+ * Opens the given roadmap's latest iteration from the front page.
+ * The tree on the front page nests child roadmaps inside collapsed `<details>`,
+ * so search for the name first; filtering out the parent promotes the match to the top level.
+ */
+async function openRoadmapFromHome(page: Page, roadmapName: string) {
+  await page.goto(`/?searchFilter=${encodeURIComponent(roadmapName)}`);
+  await page.getByRole('link', { name: roadmapName }).first().click();
+}
+
 test.describe.serial("Roadmaps tests", () => {
   test.use({ storageState: adminFile });
 
@@ -122,10 +132,8 @@ test.describe.serial("Roadmaps tests", () => {
 
   test("Edit iteration, no changes - All Fields", async ({ page }) => {
 
-    await page.goto('/');
-
     // The front page links to the latest iteration of each roadmap
-    await page.getByRole('link', { name: `${roadmapNameAllFields}` }).first().click();
+    await openRoadmapFromHome(page, roadmapNameAllFields);
 
     // Wait for the iteration page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/v\d+$/);
@@ -152,10 +160,8 @@ test.describe.serial("Roadmaps tests", () => {
 
   test("Iteration id route redirects to version slug - All Fields", async ({ page }) => {
 
-    await page.goto('/');
-
     // The front page links to the latest iteration of each roadmap
-    await page.getByRole('link', { name: `${roadmapNameAllFields}` }).first().click();
+    await openRoadmapFromHome(page, roadmapNameAllFields);
 
     // Wait for the iteration page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/v\d+$/);
@@ -179,9 +185,7 @@ test.describe.serial("Roadmaps tests", () => {
 
   test("Edit roadmap, no changes - All Fields", async ({ page }) => {
 
-    await page.goto('/');
-
-    await page.getByRole('link', { name: `${roadmapNameAllFields}` }).first().click();
+    await openRoadmapFromHome(page, roadmapNameAllFields);
 
     // Go from the iteration page to its parent roadmap page
     await page.getByTestId('show-roadmap').click();
@@ -228,9 +232,7 @@ test.describe.serial("Roadmaps tests", () => {
 
   test("Edit iteration, updated fields - All Fields", async ({ page }) => {
 
-    await page.goto('/');
-
-    await page.getByRole('link', { name: `${roadmapNameAllFields}` }).first().click();
+    await openRoadmapFromHome(page, roadmapNameAllFields);
 
     // Click the edit button
     await page.getByTestId('admin-panel-edit').click();
@@ -264,9 +266,7 @@ test.describe.serial("Roadmaps tests", () => {
 
     roadmapNameAllFieldsUpdated = `Test Updated All Fields ${testInfo.retry} ${testInfo.project.name}`;
 
-    await page.goto('/');
-
-    await page.getByRole('link', { name: `${roadmapNameAllFields}` }).first().click();
+    await openRoadmapFromHome(page, roadmapNameAllFields);
 
     // Go from the iteration page to its parent roadmap page
     await page.getByTestId('show-roadmap').click();
