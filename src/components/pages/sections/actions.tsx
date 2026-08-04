@@ -9,7 +9,7 @@ import Image from "next/image";
 import { useDebouncedCallback } from "use-debounce";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
-import { actionFieldLabel, getActionDescription } from "@/functions/actionFields";
+import { actionFieldLabel, getActionDescription, groupActionFields } from "@/functions/actionFields";
 
 export default function Actions({
   actions,
@@ -185,7 +185,7 @@ export default function Actions({
                       style={{ color: '#292929' }}
                     >
                       {getActionDescription(action.fields)
-                        ?? action.fields.map((field) => `${actionFieldLabel(field.header, t)}: ${field.value}`).join(' · ')}
+                        ?? groupActionFields(action.fields).map((group) => `${actionFieldLabel(group.header, t)}: ${group.values.join(', ')}`).join(' · ')}
                     </p>
                   </Link>
 

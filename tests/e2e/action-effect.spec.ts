@@ -5,17 +5,18 @@ import { cwd } from "node:process";
 
 const adminFile = path.join(cwd(), "tests/.auth/admin.json");
 
-/** The repeatable descriptive-field rows of the action form (header input + value textarea).
+/** The repeatable descriptive-field rows of the action form (header input + type select + value control).
  * Scoped to fieldsets nested in the form's own fieldsets; the sidebar menus use the same class. */
 function actionFieldRows(page: Page) {
   return page.locator('form fieldset fieldset.fieldset-unset-pseudo-class');
 }
 
-/** Reads the action form's descriptive fields as a header -> value record */
+/** Reads the action form's descriptive fields as a header -> value record.
+ * The value control varies with the row's field type (textarea or input), so both go through the testid. */
 async function readActionFields(page: Page): Promise<Record<string, string>> {
   const pairs = await actionFieldRows(page).evaluateAll(rows => rows.map((row): [string, string] => [
-    row.querySelector<HTMLInputElement>('input[type="text"]')?.value ?? '',
-    row.querySelector<HTMLTextAreaElement>('textarea')?.value ?? '',
+    row.querySelector<HTMLInputElement>('[data-testid="action-field-header"]')?.value ?? '',
+    row.querySelector<HTMLInputElement | HTMLTextAreaElement>('[data-testid="action-field-value"]')?.value ?? '',
   ]));
   return Object.fromEntries(pairs);
 }
@@ -27,14 +28,14 @@ async function readActionFields(page: Page): Promise<Record<string, string>> {
  */
 async function fillActionField(page: Page, header: string, value: string) {
   const rows = actionFieldRows(page);
-  const headers = await rows.locator('input[type="text"]').evaluateAll(els => els.map(el => (el as HTMLInputElement).value));
+  const headers = await rows.getByTestId('action-field-header').evaluateAll(els => els.map(el => (el as HTMLInputElement).value));
   let index = headers.indexOf(header);
   if (index === -1) {
     await page.getByRole('button', { name: 'data_series_input.add_new_row' }).click();
     index = headers.length;
-    await rows.nth(index).locator('input[type="text"]').fill(header);
+    await rows.nth(index).getByTestId('action-field-header').fill(header);
   }
-  await rows.nth(index).locator('textarea').fill(value);
+  await rows.nth(index).getByTestId('action-field-value').fill(value);
 }
 
 test.describe.serial("Action & Effect tests", () => {

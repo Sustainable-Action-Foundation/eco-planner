@@ -125,6 +125,7 @@ CREATE TABLE `ActionFields` (
     `action_id` VARCHAR(191) NOT NULL,
     `header` TINYTEXT NOT NULL,
     `value` TEXT NOT NULL,
+    `type` ENUM('PARAGRAPH', 'DATE', 'SHORT') NOT NULL DEFAULT 'PARAGRAPH',
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

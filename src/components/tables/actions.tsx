@@ -2,7 +2,7 @@
 
 // TODO: Move to actions.tsx
 import styles from './tables.module.css' with { type: "css" };
-import { actionFieldLabel, getActionDescription } from "@/functions/actionFields";
+import { actionFieldLabel, getActionDescription, groupActionFields } from "@/functions/actionFields";
 import type { Action, RoadmapIteration } from "@/types";
 import { AccessLevel } from "@/types/enums";
 import Link from 'next/link';
@@ -55,7 +55,7 @@ export default function ActionTable({
           <p className={`${styles.actionLinkInfo} color-gray`}>
             {("fields" in action && action.fields.length > 0)
               ? getActionDescription(action.fields)
-                ?? action.fields.map(field => `${actionFieldLabel(field.header, t)}: ${field.value}`).join(' \u00B7 ')
+                ?? groupActionFields(action.fields).map(group => `${actionFieldLabel(group.header, t)}: ${group.values.join(', ')}`).join(' \u00B7 ')
               : '\u00A0'}
           </p>
         </Link>

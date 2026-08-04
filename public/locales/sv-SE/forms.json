@@ -45,7 +45,13 @@
     "relevant_actors": "Relevanta aktörer",
     "start_year": "Startår",
     "tag": "Tagg",
-    "field_header": "Fältrubrik"
+    "field_header": "Fältrubrik",
+    "field_type_label": "Fälttyp",
+    "field_types": {
+      "date": "Datum",
+      "paragraph": "Stycke",
+      "short": "Kort text"
+    }
   },
   "combobox": {
     "default_autocomplete_placeholder": "Skriv för att se förslag",

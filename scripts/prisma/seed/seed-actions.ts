@@ -4,7 +4,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { ActionImpactType } from "@/lib/prisma/generated";
-import { ActionFieldHeaders } from "@/functions/actionFields";
+import { ActionFieldHeaders, defaultActionFieldType } from "@/functions/actionFields";
 import { Recipe } from "@/functions/recipe";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 import { parseUnit } from "@/functions/unit";
@@ -86,7 +86,9 @@ async function createAction(
       start_year: startYear,
       end_year: chance(0.7) ? startYear + randomInt(1, 20) : null,
       org: { connect: { id: users.org.id } },
-      fields: fields.length ? { createMany: { data: fields } } : undefined,
+      fields: fields.length
+        ? { createMany: { data: fields.map(field => ({ ...field, type: defaultActionFieldType(field.header) })) } }
+        : undefined,
       author: { connect: { id: randomOf(users.all).id } },
       ...(iterationId ? { roadmap_iteration: { connect: { id: iterationId } } } : {}),
       ...(options.parentActionId ? { parent_action: { connect: { id: options.parentActionId } } } : {}),

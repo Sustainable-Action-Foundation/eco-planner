@@ -1,8 +1,8 @@
 import { getOneAction } from "@/fetchers";
-import { actionFieldLabel, getActionDescription } from "@/functions/actionFields";
+import { actionFieldLabel, getActionDescription, groupActionFields } from "@/functions/actionFields";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { getSession } from "@/lib/session";
-import { OrgRole } from "@/lib/prisma/generated";
+import { ActionFieldType, OrgRole } from "@/lib/prisma/generated";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -88,10 +88,17 @@ export default async function Page(props: { params: Promise<{ actionId: string }
         </section>
 
         <section className="margin-block-300">
-          {action.fields.map(field => (
-            <div key={field.id}>
-              <h2 className="margin-top-300">{actionFieldLabel(field.header, t)}</h2>
-              <p>{field.value}</p>
+          {/* Fields sharing a header form one group; repeated non-paragraph values collapse into a list */}
+          {groupActionFields(action.fields).map(group => (
+            <div key={group.header}>
+              <h2 className="margin-top-300">{actionFieldLabel(group.header, t)}</h2>
+              {group.values.length > 1 && group.type !== ActionFieldType.PARAGRAPH ? (
+                <ul>
+                  {group.values.map((value, index) => <li key={index}>{value}</li>)}
+                </ul>
+              ) : (
+                group.values.map((value, index) => <p key={index}>{value}</p>)
+              )}
             </div>
           ))}
         </section>

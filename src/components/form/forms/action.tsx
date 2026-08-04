@@ -1,11 +1,11 @@
 "use client";
 
-import { ActionFieldHeaders, actionFieldLabel } from "@/functions/actionFields";
+import { ActionFieldHeaders, actionFieldLabel, defaultActionFieldType } from "@/functions/actionFields";
 import formSubmitter from "@/functions/formSubmitter";
 import type { Action, ActionInput, DateValuesWithUnit, MultiRoadmapInstance } from "@/types";
 import { ActionFormName } from "@/types/form-names";
 import { isDateValuesWithUnit } from "@/types/typeguards";
-import { ActionImpactType } from "@/lib/prisma/generated";
+import { ActionFieldType, ActionImpactType } from "@/lib/prisma/generated";
 import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
 import { FormSync, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
@@ -36,19 +36,33 @@ export default function ActionForm({
   // Free-form descriptive fields, replacing the old fixed columns. New actions are
   // seeded with the canonical machine-key headers (the same ones the migration used
   // for old data); the UI translates known keys for display.
-  const [fields, setFields] = useState<{ header: string, value: string }[]>(() =>
+  const [fields, setFields] = useState<{ header: string, value: string, type: ActionFieldType }[]>(() =>
     currentAction
-      ? currentAction.fields.map(field => ({ header: field.header, value: field.value }))
+      ? currentAction.fields.map(field => ({ header: field.header, value: field.value, type: field.type }))
       : [
-        { header: ActionFieldHeaders.Description, value: "" },
-        { header: ActionFieldHeaders.CostEfficiency, value: "" },
-        { header: ActionFieldHeaders.ExpectedOutcome, value: "" },
-        { header: ActionFieldHeaders.RelevantActors, value: "" },
-      ],
+        ActionFieldHeaders.Description,
+        ActionFieldHeaders.CostEfficiency,
+        ActionFieldHeaders.ExpectedOutcome,
+        ActionFieldHeaders.RelevantActors,
+      ].map(header => ({ header, value: "", type: defaultActionFieldType(header) })),
   );
 
-  function updateField(index: number, patch: Partial<{ header: string, value: string }>) {
-    setFields(previous => previous.map((field, i) => i === index ? { ...field, ...patch } : field));
+  function updateField(index: number, patch: Partial<{ header: string, value: string, type: ActionFieldType }>) {
+    setFields(previous => {
+      let next = previous.map((field, i) => i === index ? { ...field, ...patch } : field);
+      // Same-header fields render as one group (a list) and must agree on type:
+      // a renamed field adopts its new group's type (or the header's canonical
+      // default), and an explicit type change applies to the whole group.
+      if (patch.header !== undefined) {
+        const groupType = previous.find((field, i) => i !== index && field.header === patch.header)?.type
+          ?? defaultActionFieldType(patch.header);
+        next = next.map((field, i) => i === index ? { ...field, type: groupType } : field);
+      } else if (patch.type !== undefined) {
+        const header = previous[index]?.header;
+        next = next.map(field => field.header === header ? { ...field, type: patch.type as ActionFieldType } : field);
+      }
+      return next;
+    });
   }
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
@@ -151,17 +165,42 @@ export default function ActionForm({
               <input
                 className="margin-top-25 margin-bottom-100"
                 type="text"
+                data-testid="action-field-header"
                 value={field.header}
                 onChange={(event) => updateField(index, { header: event.target.value })}
               />
             </label>
             <label>
+              {t("forms:action.field_type_label")}
+              <select
+                className="block margin-top-25 margin-bottom-100 width-100"
+                data-testid="action-field-type"
+                value={field.type}
+                onChange={(event) => updateField(index, { type: event.target.value as ActionFieldType })}
+              >
+                <option value={ActionFieldType.PARAGRAPH}>{t("forms:action.field_types.paragraph")}</option>
+                <option value={ActionFieldType.SHORT}>{t("forms:action.field_types.short")}</option>
+                <option value={ActionFieldType.DATE}>{t("forms:action.field_types.date")}</option>
+              </select>
+            </label>
+            <label>
               {actionFieldLabel(field.header, t) === field.header ? t("forms:data_series_input.value") : actionFieldLabel(field.header, t)}
-              <textarea
-                className="margin-top-25 margin-bottom-100"
-                value={field.value}
-                onChange={(event) => updateField(index, { value: event.target.value })}
-              />
+              {field.type === ActionFieldType.PARAGRAPH ? (
+                <textarea
+                  className="margin-top-25 margin-bottom-100"
+                  data-testid="action-field-value"
+                  value={field.value}
+                  onChange={(event) => updateField(index, { value: event.target.value })}
+                />
+              ) : (
+                <input
+                  className="margin-top-25 margin-bottom-100"
+                  type={field.type === ActionFieldType.DATE ? "date" : "text"}
+                  data-testid="action-field-value"
+                  value={field.value}
+                  onChange={(event) => updateField(index, { value: event.target.value })}
+                />
+              )}
             </label>
             <button
               type="button"
@@ -174,7 +213,7 @@ export default function ActionForm({
         <button
           type="button"
           className="margin-top-100"
-          onClick={() => setFields(previous => [...previous, { header: "", value: "" }])}
+          onClick={() => setFields(previous => [...previous, { header: "", value: "", type: defaultActionFieldType("") }])}
         >
           {t("forms:data_series_input.add_new_row")}
         </button>

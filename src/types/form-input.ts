@@ -1,5 +1,5 @@
 import type { SerializedRecipe } from "@/functions/recipe";
-import type { AccessLevel, ActionImpactType, RoadmapType } from "@/lib/prisma/generated";
+import type { AccessLevel, ActionFieldType, ActionImpactType, RoadmapType } from "@/lib/prisma/generated";
 import type { DateValuesWithUnit } from "@/types";
 // Imported as a value (not `import type`) because it's used in `typeof GoalDataTarget.*` queries below.
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
@@ -235,7 +235,7 @@ export type ActionInput = {
    * (description, cost efficiency, expected outcome, project manager, relevant actors...).
    * A full set replacing the current one; `null`/`[]` clears it, `undefined` leaves it unchanged.
    */
-  fields: { header: string, value: string }[] | null | undefined;
+  fields: { header: string, value: string, type: ActionFieldType }[] | null | undefined;
 
   /** Action to inherit from, if any */
   parentActionId: string | null | undefined;

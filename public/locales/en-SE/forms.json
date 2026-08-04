@@ -45,7 +45,13 @@
     "relevant_actors": "Relevant actors",
     "start_year": "Start year",
     "tag": "Tag",
-    "field_header": "Field label"
+    "field_header": "Field label",
+    "field_type_label": "Field type",
+    "field_types": {
+      "date": "Date",
+      "paragraph": "Paragraph",
+      "short": "Short text"
+    }
   },
   "combobox": {
     "default_autocomplete_placeholder": "Type to view suggestions",
