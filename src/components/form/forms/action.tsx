@@ -59,6 +59,8 @@ export default function ActionForm({
     (currentAction?.fields.filter(field => field.header === ActionFieldHeaders.Tag).map(field => field.value) ?? []).sort((a, b) => a.localeCompare(b)),
   );
   const [tagDraft, setTagDraft] = useState("");
+  // Chips toggle between kept and marked-for-deletion; marked tags are dropped at submit
+  const [tagsMarkedForDeletion, setTagsMarkedForDeletion] = useState<string[]>([]);
 
   // Tags and field headers on other visible actions, offered as suggestions (free text is still allowed)
   const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
@@ -73,6 +75,12 @@ export default function ActionForm({
     setTagDraft("");
     if (!value) return;
     setTags(previous => previous.includes(value) ? previous : [...previous, value].sort((a, b) => a.localeCompare(b)));
+    // Re-adding a tag marked for deletion revives it
+    setTagsMarkedForDeletion(previous => previous.filter(existing => existing !== value));
+  }
+
+  function toggleTagDeletion(tag: string) {
+    setTagsMarkedForDeletion(previous => previous.includes(tag) ? previous.filter(existing => existing !== tag) : [...previous, tag]);
   }
 
   function updateGroup(index: number, patch: Partial<{ header: string, type: ActionFieldType }>) {
@@ -164,7 +172,9 @@ export default function ActionForm({
             .filter(value => value.trim() !== "")
             .map(value => ({ header: group.header, value, type: group.type })),
           ),
-        ...tags.map(value => ({ header: ActionFieldHeaders.Tag as string, value, type: defaultActionFieldType(ActionFieldHeaders.Tag) })),
+        ...tags
+          .filter(tag => !tagsMarkedForDeletion.includes(tag))
+          .map(value => ({ header: ActionFieldHeaders.Tag as string, value, type: defaultActionFieldType(ActionFieldHeaders.Tag) })),
       ],
       parentActionId: currentAction?.parent_action_id ?? undefined,
       dataSeries,
@@ -252,20 +262,29 @@ export default function ActionForm({
           </button>
           {tags.length > 0 &&
             <ul className="flex gap-25 margin-top-50 margin-bottom-0 padding-0" style={{ listStyle: 'none', flexWrap: 'wrap' }}>
-              {tags.map(tag => (
-                <li key={tag} className="smooth padding-inline-50 padding-block-25 flex gap-25 align-items-center" style={{ backgroundColor: 'var(--seagreen-90)', border: '1px solid var(--seagreen-80)', color: 'var(--seagreen-30)' }}>
-                  {tag}
-                  <button
-                    type="button"
-                    aria-label={`${t("common:tsx.delete")}: ${tag}`}
-                    className="padding-0 transparent"
-                    style={{ lineHeight: 1, fontSize: '1.25em' }}
-                    onClick={() => setTags(previous => previous.filter(existing => existing !== tag))}
+              {tags.map(tag => {
+                const marked = tagsMarkedForDeletion.includes(tag);
+                return (
+                  <li
+                    key={tag}
+                    className={`smooth padding-inline-50 padding-block-25 flex gap-25 align-items-center ${marked ? styles.chipMarkedForDeletion : ''}`}
+                    style={{ backgroundColor: 'var(--seagreen-90)', border: '1px solid var(--seagreen-80)', color: 'var(--seagreen-30)' }}
                   >
-                    ×
-                  </button>
-                </li>
-              ))}
+                    {tag}
+                    <button
+                      type="button"
+                      aria-label={`${marked ? t("forms:action.restore_tag") : t("common:tsx.delete")}: ${tag}`}
+                      aria-pressed={marked}
+                      className="padding-0 transparent"
+                      // Fixed-size box so swapping the ×/↺ glyphs doesn't resize the chip
+                      style={{ lineHeight: 1, fontSize: '1.25em', width: '1em', height: '1em', display: 'inline-grid', placeItems: 'center' }}
+                      onClick={() => toggleTagDeletion(tag)}
+                    >
+                      {marked ? '↺' : '×'}
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           }
         </div>

@@ -46,6 +46,7 @@
     "relationship_label": "$t(common:roadmap_version_one)",
     "relationship_no_chosen": "Välj $t(common:roadmap_version_one)",
     "relevant_actors": "Relevanta aktörer",
+    "restore_tag": "Återställ tagg",
     "start_year": "Startår",
     "tag": "Tagg",
     "tag_header_forbidden": "TAG är reserverad; använd taggfältet ovan istället",

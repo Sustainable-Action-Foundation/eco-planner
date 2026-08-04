@@ -221,6 +221,13 @@
   }
 }
 
+/* Action form: tag chips marked for deletion get red diagonal stripes until the form is submitted.
+   Only the background-image is set so the chip's own background-color shows through. */
+.chipMarkedForDeletion {
+  background-image: repeating-linear-gradient(-45deg, rgba(240, 59, 59, 0.25) 0 .375rem, transparent .375rem .75rem);
+  text-decoration: line-through;
+}
+
 .actionFieldsTableHeader {
   font-weight: 500;
 

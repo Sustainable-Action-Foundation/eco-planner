@@ -46,6 +46,7 @@
     "relationship_label": "$t(common:roadmap_version_one)",
     "relationship_no_chosen": "Select $t(common:roadmap_version_one)",
     "relevant_actors": "Relevant actors",
+    "restore_tag": "Restore tag",
     "start_year": "Start year",
     "tag": "Tag",
     "tag_header_forbidden": "TAG is reserved; use the tags input above instead",
