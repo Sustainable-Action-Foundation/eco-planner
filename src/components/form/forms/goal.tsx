@@ -51,6 +51,7 @@ function resolveDataSeriesType(goal?: Goal): DataSeriesType {
   return DataSeriesType.Manual;
 }
 
+// TODO: The below never reaches initialNonZero?
 function resolveBaselineType(goal?: Goal): BaselineType {
   // Default to first value for new goals
   if (!goal?.baseline) return BaselineType.Initial;
@@ -63,25 +64,35 @@ function resolveBaselineType(goal?: Goal): BaselineType {
   // Derived from the goal's data series (first / first non-zero value)
   const derivation = recipe.baselineDerivation();
   if (derivation === BaselineType.Initial || derivation === BaselineType.InitialNonZero) {
-    return derivation;
+     return derivation;
   }
 
   // Manual entry stored as an inline data series recipe is custom; anything
   // else (e.g. a recipe linking another goal's series) is inherited.
+  /*
   return recipe.isManual()
     ? BaselineType.Custom
     : BaselineType.Inherited;
+  */
+
+  // As of now we cannot return Inherited. To pre-select the correct value for an inherited
+  // baseline we need to know the id of the goal from which it was inherited. Since we do not
+  // know this we instead always show the manual input field which is atleast able to pre-fill the 
+  // correct values for the inherited baseline dataseries. 
+  return BaselineType.Custom;
 }
 
 export function resolveHistoricalDataType(goal?: Goal): HistoricalDataType {
-  const recipe = goal?.historical?.recipe_used?.recipe;
-  if (!recipe) return HistoricalDataType.External;
+  const historical = goal?.historical;
+  if (!historical?.values) return HistoricalDataType.None;
 
-  // Manual entry stored as an inline data series recipe; anything else (e.g. an
-  // external API selection) edits as external.
-  return Recipe.from(recipe).isManual()
-    ? HistoricalDataType.Custom
-    : HistoricalDataType.External;
+  // Manual entry stored as an inline data series recipe (or a legacy series with
+  // no recipe) edits as custom values; anything else (e.g. an external API
+  // selection) edits as external.
+  if (!historical.recipe_used || Recipe.from(historical.recipe_used.recipe).isManual()) {
+    return HistoricalDataType.Custom;
+  }
+  return HistoricalDataType.External;
 }
 
 // Tracks every distinct value `current` has taken since mount, as a Set.
@@ -124,6 +135,7 @@ export default function GoalForm({
 
   const [historicalDataType, setHistoricalDataType] = useState<HistoricalDataType>(() => resolveHistoricalDataType(currentGoal));
   const initializedHistoricalTypes = useInitializedValues(historicalDataType);
+  const historicalHasInitializedNone = initializedHistoricalTypes.has(HistoricalDataType.None);
   const historicalHasInitializedExternal = initializedHistoricalTypes.has(HistoricalDataType.External);
   const historicalHasInitializedCustom = initializedHistoricalTypes.has(HistoricalDataType.Custom);
 
@@ -134,7 +146,7 @@ export default function GoalForm({
   const [previewHistoricalSerie, setPreviewHistoricalSerie] = useState<DateValuesWithUnit | null>(null);
   const [previewBaselineSerie, setPreviewBaselineSerie] = useState<DateValuesWithUnit | null>(null);
   const [previewHistoricalRecipe, setPreviewHistoricalRecipe] = useState<SerializedRecipe | null>(null);
-
+ 
   // Evaluation error of the currently-selected recipe input (Suggested/Custom)  setPreviewHistoricalRecipe={setPreviewHistoricalRecipe},
   // lifted out of the recipe context so submission can be blocked when it fails
   // to evaluate (e.g. an external variable with an incomplete selection).
@@ -606,6 +618,7 @@ export default function GoalForm({
             setHistoricalDataType={setHistoricalDataType}
             setPreviewHistoricalSerie={setPreviewHistoricalSerie}
             setPreviewHistoricalRecipe={setPreviewHistoricalRecipe}
+            hasInitializedNone={historicalHasInitializedNone}
             hasInitializedExternal={historicalHasInitializedExternal}
             hasInitializedManual={historicalHasInitializedCustom}
           />

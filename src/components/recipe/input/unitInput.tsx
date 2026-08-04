@@ -129,13 +129,13 @@ export function UnitInput({
           />
         </small>
         :
-        <small className="flex align-items-center gap-25 margin-top-25 margin-bottom-0" style={{ color: "#dfab00" }}>
+        <small className="flex align-items-center gap-25 margin-top-25 margin-bottom-0" style={{color: '#B35400', textShadow: '0 0 #ffcb00'}}>
           <IconInfoCircle width={20} height={20} style={{ minWidth: '20px' }} aria-hidden="true" />
           {t("forms:data_series_input.unit_not_interpreted")}
         </small>
       }
       {overrideMasksResolvedUnit ?
-        <small className="flex align-items-center gap-25 margin-top-25 margin-bottom-0" style={{ color: "#dfab00" }}>
+        <small className="flex align-items-center gap-25 margin-top-25 margin-bottom-0" style={{color: '#B35400', textShadow: '0 0 #ffcb00'}}>
           <IconInfoCircle width={20} height={20} style={{ minWidth: '20px' }} aria-hidden="true" />
           <Trans
             i18nKey={"forms:data_series_input.unit_override_status.overriding"}

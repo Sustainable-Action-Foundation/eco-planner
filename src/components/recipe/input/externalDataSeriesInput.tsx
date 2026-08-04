@@ -51,9 +51,6 @@ export function ExternalDataSeriesInput({
     <ExternalData
       goal={goal}
       onChange={handleChange}
-      // The selection is optional here: without one the recipe stays empty and
-      // the form simply submits no historical recipe.
-      required={false}
     />
   );
 }

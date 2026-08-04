@@ -62,7 +62,18 @@ fieldset:not(:has(input:required, select:required, textarea:required)):has(field
 }
 
 /* Apex */
+.apexcharts-tooltip.apexcharts-active[data-positioned="true"] {
+  transition: left .16s ease-out, top .16s ease-out !important;
+ 
+}
 
+.apexcharts-tooltip-marker {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
 
 /* Temporary while rewriting */
 .discrete-link {
