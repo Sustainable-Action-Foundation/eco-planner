@@ -5,6 +5,7 @@ import nextTS from "eslint-config-next/typescript";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import tseslint from "typescript-eslint";
 import { enumStyle } from "./scripts/eslint/enumStyle";
+import { serializableBoundaryProps } from "./scripts/eslint/serializableBoundaryProps";
 
 // js.configs.recommended first, so the TS configs' compat layer can turn off
 // the core rules TypeScript itself already catches (no-undef, no-import-assign, ...)
@@ -162,7 +163,7 @@ const commonRules: Config["rules"] = {
 export default defineConfig([
   { // Register the local plugin globally so commonRules can reference it in every block
     name: "Local rules",
-    plugins: { local: { rules: { "enum-style": enumStyle } } },
+    plugins: { local: { rules: { "enum-style": enumStyle, "serializable-boundary-props": serializableBoundaryProps } } },
   },
   { // App linting
     name: "App src/",
@@ -176,6 +177,7 @@ export default defineConfig([
       "react-hooks/set-state-in-effect": "off", // TODO: get a grip and understand react
       "react-hooks/set-state-in-render": "off", // TODO: get a grip and understand react
       "react-hooks/immutability": "error",
+      "local/serializable-boundary-props": "error",
       "react/button-has-type": "error",
       "react/checked-requires-onchange-or-readonly": "error",
       "react/jsx-boolean-value": ["error", "always"],
