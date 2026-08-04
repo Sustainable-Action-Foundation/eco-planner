@@ -52,7 +52,7 @@ export default function ActionForm({
   // Tags are stored as TAG-headed fields but edited through their own input rather
   // than the free-form rows; they render as cards under the title on the view page
   const [tags, setTags] = useState<string[]>(() =>
-    currentAction?.fields.filter(field => field.header === ActionFieldHeaders.Tag).map(field => field.value) ?? [],
+    (currentAction?.fields.filter(field => field.header === ActionFieldHeaders.Tag).map(field => field.value) ?? []).sort((a, b) => a.localeCompare(b)),
   );
   const [tagDraft, setTagDraft] = useState("");
 
@@ -60,7 +60,7 @@ export default function ActionForm({
     const value = tagDraft.trim();
     setTagDraft("");
     if (!value) return;
-    setTags(previous => previous.includes(value) ? previous : [...previous, value]);
+    setTags(previous => previous.includes(value) ? previous : [...previous, value].sort((a, b) => a.localeCompare(b)));
   }
 
   function updateField(index: number, patch: Partial<{ header: string, value: string, type: ActionFieldType }>) {

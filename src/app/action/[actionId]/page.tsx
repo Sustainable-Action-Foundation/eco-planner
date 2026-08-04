@@ -73,8 +73,9 @@ export default async function Page(props: { params: Promise<{ actionId: string }
     return notFound();
   }
 
-  // Tags are TAG-headed fields but render as cards under the title rather than as a field group
-  const tags = action.fields.filter(field => field.header === ActionFieldHeaders.Tag).map(field => field.value);
+  // Tags are TAG-headed fields but render as cards under the title rather than as a field group.
+  // Sorted alphabetically since the rows come back from the database in arbitrary order.
+  const tags = action.fields.filter(field => field.header === ActionFieldHeaders.Tag).map(field => field.value).sort((a, b) => a.localeCompare(b));
 
   return (
     <>

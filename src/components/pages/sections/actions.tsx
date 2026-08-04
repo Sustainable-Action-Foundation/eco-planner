@@ -182,13 +182,13 @@ export default function Actions({
                     {/* One line of tag cards; overflowing tags are cut off with an ellipsis */}
                     {action.fields.some(field => field.header === ActionFieldHeaders.Tag) &&
                       <div className="white-space-nowrap text-overflow-ellipsis overflow-hidden margin-top-25">
-                        {action.fields.filter(field => field.header === ActionFieldHeaders.Tag).map(field => (
+                        {action.fields.filter(field => field.header === ActionFieldHeaders.Tag).map(field => field.value).sort((a, b) => a.localeCompare(b)).map(tag => (
                           <span
-                            key={field.value}
+                            key={tag}
                             className="smooth padding-inline-25 margin-right-25"
                             style={{ display: 'inline-block', fontSize: '12px', backgroundColor: 'var(--seagreen-90)', border: '1px solid var(--seagreen-80)', color: 'var(--seagreen-30)' }}
                           >
-                            {field.value}
+                            {tag}
                           </span>
                         ))}
                       </div>
