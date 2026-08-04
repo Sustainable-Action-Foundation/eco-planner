@@ -10,7 +10,9 @@ import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
 import { FormSync, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
 import { Recipe } from "@/functions/recipe/recipe";
-import { useState } from "react";
+import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
+import { clientSafeGetAllTags } from "@/fetchers/clientSafeGetAllTags";
+import { useEffect, useState } from "react";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 import { UnitFlags } from "@/types/enums";
@@ -55,6 +57,12 @@ export default function ActionForm({
     (currentAction?.fields.filter(field => field.header === ActionFieldHeaders.Tag).map(field => field.value) ?? []).sort((a, b) => a.localeCompare(b)),
   );
   const [tagDraft, setTagDraft] = useState("");
+
+  // Tags on other visible actions, offered as suggestions (free text is still allowed)
+  const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
+  useEffect(() => {
+    clientSafeGetAllTags().then(setTagSuggestions).catch(() => setTagSuggestions([]));
+  }, []);
 
   function addTag() {
     const value = tagDraft.trim();
@@ -178,23 +186,38 @@ export default function ActionForm({
         {/* The chips live outside the label: a label's implicit control is its first
             form control, which would hijack hover and clicks meant for the other chips' delete buttons */}
         <div className="margin-bottom-100">
-          <label>
+          <label htmlFor="action-tag-input">
             {t("forms:action.tags_label")}
-            <input
-              className="margin-top-25"
-              type="text"
-              data-testid="action-tag-input"
-              value={tagDraft}
-              onChange={(event) => setTagDraft(event.target.value)}
-              onKeyDown={(event) => {
-                // Enter adds the tag instead of submitting the form
-                if (event.key === "Enter") {
-                  event.preventDefault();
-                  addTag();
-                }
-              }}
-            />
           </label>
+          {/* Enter adds the draft as a tag, unless a suggestion is highlighted
+              (aria-activedescendant marks that state) — then it accepts the suggestion
+              into the input first, and a second Enter adds it */}
+          <div
+            onKeyDownCapture={(event) => {
+              if (event.key !== "Enter") return;
+              if (!(event.target instanceof HTMLInputElement)) return;
+              if (event.target.getAttribute("aria-activedescendant")) return;
+              event.preventDefault();
+              event.stopPropagation();
+              addTag();
+            }}
+          >
+            <TextSingleAutocomplete
+              props={{
+                id: "action-tag-input",
+                name: "action-tag-input",
+                placeholder: t("forms:combobox.default_autocomplete_placeholder"),
+                className: "margin-top-25",
+              }}
+              options={tagSuggestions.filter(tag => !tags.includes(tag)).map(tag => ({ name: tag, value: tag }))}
+              fuseOptions={{
+                threshold: 0.3,
+                ignoreLocation: true,
+              }}
+              value={tagDraft}
+              setter={setTagDraft}
+            />
+          </div>
           <button type="button" className="margin-top-25" onClick={addTag}>
             {t("forms:action.add_tag")}
           </button>
