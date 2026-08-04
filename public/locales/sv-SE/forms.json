@@ -141,7 +141,10 @@
         "first_year_value": "Använd din målbanas första värde som en en baslinje.",
         "first_defined_year": "Använd din målbanas första nollskilda värde som en baslinje.",
         "custom": "Skapa en baslinje manuellt genom att fylla i år och värden.",
-        "another_goal": "Kopiera en annan målbana och använd den som din baslinje."
+        "another_goal": "Kopiera en annan målbana och använd den som din baslinje.",
+        "inherit_error": "$t(common:goal_definite_one): <strong>{{goal}}</strong> används som baslinje men något gick fel när denna skulle förväljas automatiskt. Om du vill fortsätta använda målbanan som din baslinje måste du antingen:",
+        "inherit_fix_one": "Välja: \"manuell\" (vilken har de korrekta värden ifyllda) som baslinjens typ.",
+        "inherit_fix_two": "Välja målbanan i menyn ovan igen."
       },
       "historical": {
         "title": "Skapa en dataserie för din målbanas historiska data",

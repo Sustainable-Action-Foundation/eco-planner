@@ -141,7 +141,10 @@
         "first_year_value": "Use the first value of your goal as a baseline.",
         "first_defined_year": "Use the first non-zero value of your goal as a baseline.",
         "custom": "Create a baseline by manually inputting years and values.",
-        "another_goal": "Copy another goal and use it as your baseline."
+        "another_goal": "Copy another goal and use it as your baseline.",
+        "inherit_error": "$t(common:goal_definite_one): <strong>{{goal}}</strong> is being used as a baseline but there was an issue when trying to automatically select it. If you wish to keep using this goal as your baseline you must either:",
+        "inherit_fix_one": "Select: \"manual\" as the baseline type, which has the correct values pre-filled.",
+        "inherit_fix_two": "Re-select the goal in the menu above."
       },
       "historical": {
         "title": "Create a data series for your goals historical data",
