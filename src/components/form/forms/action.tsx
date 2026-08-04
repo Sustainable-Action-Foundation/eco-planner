@@ -12,7 +12,7 @@ import { FormSync, ManualDataSeriesInput, RecipeContextProvider } from "@/compon
 import { Recipe } from "@/functions/recipe/recipe";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { clientSafeGetAllTags } from "@/fetchers/clientSafeGetAllTags";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 import { UnitFlags } from "@/types/enums";
@@ -241,64 +241,70 @@ export default function ActionForm({
           }
         </div>
 
-        {/* Repeatable free-form fields, replacing the old fixed inputs
-            (description, cost efficiency, expected outcome, project manager, relevant actors...) */}
-        {fields.map((field, index) => (
-          <fieldset key={index} className="margin-bottom-100 fieldset-unset-pseudo-class">
-            <label>
-              {t("forms:action.field_header")}
-              <input
-                className="margin-top-25 margin-bottom-100"
-                type="text"
-                data-testid="action-field-header"
-                value={field.header}
-                onChange={(event) => {
-                  // TAG-headed fields are managed by the dedicated tags input
-                  event.target.setCustomValidity(event.target.value.trim() === ActionFieldHeaders.Tag ? t("forms:action.tag_header_forbidden") : "");
-                  updateField(index, { header: event.target.value });
-                }}
-              />
-            </label>
-            <label>
-              {t("forms:action.field_type_label")}
-              <select
-                className="block margin-top-25 margin-bottom-100 width-100"
-                data-testid="action-field-type"
-                value={field.type}
-                onChange={(event) => updateField(index, { type: event.target.value as ActionFieldType })}
-              >
-                <option value={ActionFieldType.PARAGRAPH}>{t("forms:action.field_types.paragraph")}</option>
-                <option value={ActionFieldType.SHORT}>{t("forms:action.field_types.short")}</option>
-                <option value={ActionFieldType.DATE}>{t("forms:action.field_types.date")}</option>
-              </select>
-            </label>
-            <label>
-              {actionFieldLabel(field.header, t) === field.header ? t("forms:data_series_input.value") : actionFieldLabel(field.header, t)}
-              {field.type === ActionFieldType.PARAGRAPH ? (
-                <textarea
-                  className="margin-top-25 margin-bottom-100"
-                  data-testid="action-field-value"
-                  value={field.value}
-                  onChange={(event) => updateField(index, { value: event.target.value })}
-                />
-              ) : (
+      </fieldset>
+
+      {/* Repeatable free-form fields, replacing the old fixed inputs
+          (description, cost efficiency, expected outcome, project manager, relevant actors...) */}
+      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:action.custom_fields_legend")}</legend>
+
+        {fields.length > 0 &&
+          <div className={styles.actionFieldsTable}>
+            {/* Column headers; the inputs carry aria-labels, so these are visual only */}
+            <span className={styles.actionFieldsTableHeader} aria-hidden="true">{t("forms:action.field_header")}</span>
+            <span className={styles.actionFieldsTableHeader} aria-hidden="true">{t("forms:action.field_type_label")}</span>
+            <span className={styles.actionFieldsTableHeader} aria-hidden="true">{t("forms:action.field_content")}</span>
+            <span className={styles.actionFieldsTableHeader} aria-hidden="true" />
+            {fields.map((field, index) => (
+              <Fragment key={index}>
                 <input
-                  className="margin-top-25 margin-bottom-100"
-                  type={field.type === ActionFieldType.DATE ? "date" : "text"}
-                  data-testid="action-field-value"
-                  value={field.value}
-                  onChange={(event) => updateField(index, { value: event.target.value })}
+                  type="text"
+                  aria-label={t("forms:action.field_header")}
+                  data-testid="action-field-header"
+                  value={field.header}
+                  onChange={(event) => {
+                    // TAG-headed fields are managed by the dedicated tags input
+                    event.target.setCustomValidity(event.target.value.trim() === ActionFieldHeaders.Tag ? t("forms:action.tag_header_forbidden") : "");
+                    updateField(index, { header: event.target.value });
+                  }}
                 />
-              )}
-            </label>
-            <button
-              type="button"
-              onClick={() => setFields(previous => previous.filter((_, i) => i !== index))}
-            >
-              {t("common:tsx.delete")}
-            </button>
-          </fieldset>
-        ))}
+                <select
+                  aria-label={t("forms:action.field_type_label")}
+                  data-testid="action-field-type"
+                  value={field.type}
+                  onChange={(event) => updateField(index, { type: event.target.value as ActionFieldType })}
+                >
+                  <option value={ActionFieldType.PARAGRAPH}>{t("forms:action.field_types.paragraph")}</option>
+                  <option value={ActionFieldType.SHORT}>{t("forms:action.field_types.short")}</option>
+                  <option value={ActionFieldType.DATE}>{t("forms:action.field_types.date")}</option>
+                </select>
+                {field.type === ActionFieldType.PARAGRAPH ? (
+                  <textarea
+                    rows={2}
+                    aria-label={actionFieldLabel(field.header, t) === field.header ? t("forms:action.field_content") : actionFieldLabel(field.header, t)}
+                    data-testid="action-field-value"
+                    value={field.value}
+                    onChange={(event) => updateField(index, { value: event.target.value })}
+                  />
+                ) : (
+                  <input
+                    type={field.type === ActionFieldType.DATE ? "date" : "text"}
+                    aria-label={actionFieldLabel(field.header, t) === field.header ? t("forms:action.field_content") : actionFieldLabel(field.header, t)}
+                    data-testid="action-field-value"
+                    value={field.value}
+                    onChange={(event) => updateField(index, { value: event.target.value })}
+                  />
+                )}
+                <button
+                  type="button"
+                  onClick={() => setFields(previous => previous.filter((_, i) => i !== index))}
+                >
+                  {t("common:tsx.delete")}
+                </button>
+              </Fragment>
+            ))}
+          </div>
+        }
         <button
           type="button"
           className="margin-top-100"

@@ -208,3 +208,23 @@
 .preview-table td {
   padding: .25rem;
 }
+
+/* Action form: custom fields laid out as a table-like grid, one field per row */
+.actionFieldsTable {
+  display: grid;
+  grid-template-columns: minmax(7rem, 1fr) max-content minmax(9rem, 2fr) max-content;
+  gap: .5rem;
+  align-items: start;
+
+  @media(max-width: 615px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.actionFieldsTableHeader {
+  font-weight: 500;
+
+  @media(max-width: 615px) {
+    display: none;
+  }
+}
