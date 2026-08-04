@@ -67,19 +67,9 @@ function resolveBaselineType(goal?: Goal): BaselineType {
      return derivation;
   }
 
-  // Manual entry stored as an inline data series recipe is custom; anything
-  // else (e.g. a recipe linking another goal's series) is inherited.
-  /*
   return recipe.isManual()
     ? BaselineType.Custom
     : BaselineType.Inherited;
-  */
-
-  // As of now we cannot return Inherited. To pre-select the correct value for an inherited
-  // baseline we need to know the id of the goal from which it was inherited. Since we do not
-  // know this we instead always show the manual input field which is atleast able to pre-fill the 
-  // correct values for the inhertied baseline dataseries. 
-  return BaselineType.Custom;
 }
 
 export function resolveHistoricalDataType(goal?: Goal): HistoricalDataType {
@@ -594,6 +584,7 @@ export default function GoalForm({
           <BaselineSeriesSection
             goal={currentGoal}
             baselineType={baselineType}
+            initialBaselineType={resolveBaselineType(currentGoal)}
             dataSeries={previewDataSerie}
             setBaselineType={setBaselineType}
             setPreviewBaselineSerie={setPreviewBaselineSerie}

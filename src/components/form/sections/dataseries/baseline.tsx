@@ -16,10 +16,13 @@ import SelectSingleTree from "@/components/form/elements/combobox/selectSingleTr
 import { RecipeSync } from "@/components/recipe/output/recipeSync";
 import { parseUnit } from "@/functions/unit";
 import { BaselineType } from "@/types/enums";
+import { Trans } from "react-i18next/TransWithoutContext";
+import i18next from "i18next";
 
 export default function BaselineSeriesSection({
   goal,
   baselineType,
+  initialBaselineType,
   dataSeries,
   setBaselineType,
   setPreviewBaselineSerie,
@@ -30,6 +33,7 @@ export default function BaselineSeriesSection({
 }: {
   goal: Goal | undefined;
   baselineType: BaselineType;
+  initialBaselineType: BaselineType;
   dataSeries: DateValuesWithUnit | null;
   setBaselineType: Dispatch<SetStateAction<BaselineType>>;
   setPreviewBaselineSerie: Dispatch<SetStateAction<DateValuesWithUnit | null>>;
@@ -180,7 +184,7 @@ export default function BaselineSeriesSection({
                 : undefined}
               availableDataSeries={goal?.baseline?.recipeUsed?.sourceDataSeries}
             >
-              <InheritingBaseline />
+              <InheritingBaseline initialBaselineType={initialBaselineType} />
               <FormSync
                 RecipeFormElement={<input name={GoalFormName.BaselineRecipe} />}
                 DateValuesFormElement={<input name={GoalFormName.BaselineDataSeries} />}
@@ -233,7 +237,7 @@ function InitialBaseline({
       * Must be rendered inside a `RecipeContextProvider` (seed it with the saved
       * baseline recipe when editing so the initial output and context agree).
       */
-function InheritingBaseline() {
+function InheritingBaseline({initialBaselineType}: {initialBaselineType: BaselineType}) {
   const { t } = useTranslation(["forms", "common"]);
   const { recipe, applyRecipeUpdate } = useRecipe();
   const [treeItems, setTreeItems] = useState<TreeItem[]>([]);
@@ -328,16 +332,20 @@ function InheritingBaseline() {
         {`${t("forms:goal.baseline_copied")}: "${goalData.name}"`}
       </p> : null
       }
-      {recipe.variables[0]?.name ? // TODO: Add a proper translation key for the below text.
-        <small style={{color: '#B35400', textShadow: '0 0 #ffcb00'}}>
-            <IconInfoCircle width={16} height={16} style={{verticalAlign: 'bottom', marginRight: '.25rem'}} />
-            The goal: <strong>{recipe.variables[0]?.name}</strong> is being used as a baseline but there was an 
-            issue when trying to automatically select it. Before saving (if you wish to keep using this goal as your
-            baseline) you must either: <br />
-            <ol>
-              <li> Select: "Manual" as a baseline type, which has the correct values pre-filled. </li>
-              <li> Re-select the goal in the menu above.</li>
-            </ol>
+      {recipe.variables[0]?.name && !selectedGoal && initialBaselineType === BaselineType.Inherited ? // TODO: Should only show if our previous baseline is 
+        <small style={{ color: '#B35400', textShadow: '0 0 #ffcb00' }}>
+          <IconInfoCircle width={16} height={16} style={{ verticalAlign: 'bottom', marginRight: '.25rem' }} />
+          <Trans
+            i18nKey="forms:goal.data_series.baseline.inherit_error"
+            tOptions={{
+              goal: recipe.variables[0]?.name,
+            }}
+            i18n={i18next}
+          />
+          <ol>
+            <li>{t("forms:goal.data_series.baseline.inherit_fix_one")}</li>
+            <li>{t("forms:goal.data_series.baseline.inherit_fix_two")}</li>
+          </ol>
         </small>
         : null
       }
