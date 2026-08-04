@@ -2,7 +2,7 @@
 
 import { clientSafeGoalSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { visibleRoadmapIterationsWhere } from "@/lib/accessFilters";
+import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { ClientGoal, UserAccessContext } from "@/types";
 import { cacheTag } from "next/cache";
@@ -28,7 +28,7 @@ async function clientSafeGetCachedGoal(id: string, accessContext: UserAccessCont
     goal = await prisma.goals.findUnique({
       where: {
         id,
-        roadmap_iteration: visibleRoadmapIterationsWhere(accessContext),
+        roadmap_iteration: visibleRoadmapIterationsWHERE(accessContext),
       },
       select: clientSafeGoalSelection,
     }) satisfies ClientGoal | null;

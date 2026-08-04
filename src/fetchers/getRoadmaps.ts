@@ -1,7 +1,7 @@
 import "server-only";
 import { roadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { readableAccessControlWhere, visibleRoadmapIterationsWhere } from "@/lib/accessFilters";
+import { readableAccessControlWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { roadmapSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
 import type { Roadmap, UserAccessContext } from "@/types";
@@ -31,12 +31,12 @@ async function getCachedRoadmaps(accessContext: UserAccessContext | null): Promi
   try {
     roadmaps = await prisma.roadmaps.findMany({
       where: {
-        access_control: readableAccessControlWhere(accessContext),
+        access_control: readableAccessControlWHERE(accessContext),
       },
       include: {
         ...roadmapInclusionSelection,
         iterations: {
-          where: visibleRoadmapIterationsWhere(accessContext),
+          where: visibleRoadmapIterationsWHERE(accessContext),
           include: roadmapInclusionSelection.iterations.include,
         },
       },

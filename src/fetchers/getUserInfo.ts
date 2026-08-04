@@ -1,7 +1,7 @@
 import "server-only";
 import { userInfoSelector } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { readableAccessControlWhere, visibleRoadmapIterationsWhere } from "@/lib/accessFilters";
+import { readableAccessControlWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { roadmapIterationSorter, roadmapSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
 import type { UserAccessContext } from "@/types";
@@ -38,12 +38,12 @@ async function getCachedUserInfo(username: string, accessContext: UserAccessCont
         ...userInfoSelector,
         authored_roadmaps: {
           where: {
-            access_control: readableAccessControlWhere(accessContext),
+            access_control: readableAccessControlWHERE(accessContext),
           },
           include: userInfoSelector.authored_roadmaps.include,
         },
         authored_roadmap_iterations: {
-          where: visibleRoadmapIterationsWhere(accessContext),
+          where: visibleRoadmapIterationsWHERE(accessContext),
           include: userInfoSelector.authored_roadmap_iterations.include,
         },
       },

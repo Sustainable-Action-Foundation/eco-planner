@@ -1,7 +1,7 @@
 import "server-only";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { visibleRoadmapIterationsWhere } from "@/lib/accessFilters";
+import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { effectSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
 import type { Goal, UserAccessContext } from "@/types";
@@ -43,7 +43,7 @@ async function getCachedGoalByIndicator(iterationId: string, indicatorParameter:
         ...(unit !== undefined ? { data_series: { unit: unit } } : {}),
         roadmap_iteration: {
           id: iterationId,
-          ...visibleRoadmapIterationsWhere(accessContext),
+          ...visibleRoadmapIterationsWHERE(accessContext),
         },
       },
       include: goalInclusionSelection,

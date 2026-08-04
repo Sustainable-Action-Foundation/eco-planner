@@ -32,7 +32,7 @@ export function allGroupIds(ctx: UserAccessContext): string[] {
 /**
  * Matches access controls the user may read.
  */
-export function readableAccessControlWhere(ctx: UserAccessContext | null): Prisma.AccessControlsWhereInput {
+export function readableAccessControlWHERE(ctx: UserAccessContext | null): Prisma.AccessControlsWhereInput {
   if (!ctx) {
     return { is_public: true };
   }
@@ -52,7 +52,7 @@ export function readableAccessControlWhere(ctx: UserAccessContext | null): Prism
 /**
  * Matches access controls the user may write under (content writes; sharing settings are manager-only).
  */
-export function writableAccessControlWhere(ctx: UserAccessContext | null): Prisma.AccessControlsWhereInput {
+export function writableAccessControlWHERE(ctx: UserAccessContext | null): Prisma.AccessControlsWhereInput {
   if (!ctx) {
     // `in: []` matches nothing: anonymous visitors can never write
     return { org_id: { in: [] } };
@@ -72,12 +72,12 @@ export function writableAccessControlWhere(ctx: UserAccessContext | null): Prism
  * Matches roadmap iterations the user may see: readable via the roadmap's access control,
  * and either published or (for drafts) writable.
  */
-export function visibleRoadmapIterationsWhere(ctx: UserAccessContext | null): Prisma.RoadmapIterationsWhereInput {
+export function visibleRoadmapIterationsWHERE(ctx: UserAccessContext | null): Prisma.RoadmapIterationsWhereInput {
   return {
-    roadmap: { access_control: readableAccessControlWhere(ctx) },
+    roadmap: { access_control: readableAccessControlWHERE(ctx) },
     OR: [
       { published_at: { not: null } },
-      { roadmap: { access_control: writableAccessControlWhere(ctx) } },
+      { roadmap: { access_control: writableAccessControlWHERE(ctx) } },
     ],
   };
 }
@@ -90,7 +90,7 @@ export function visibleActionsWhere(ctx: UserAccessContext | null): Prisma.Actio
   return {
     OR: [
       { roadmap_iteration: null },
-      { roadmap_iteration: visibleRoadmapIterationsWhere(ctx) },
+      { roadmap_iteration: visibleRoadmapIterationsWHERE(ctx) },
     ],
   };
 }
@@ -99,7 +99,7 @@ export function visibleActionsWhere(ctx: UserAccessContext | null): Prisma.Actio
  * Matches actions the user may edit: those under a writable roadmap, plus
  * roadmapless actions (the public action database) for managers of the owning org.
  */
-export function editableActionsWhere(ctx: UserAccessContext | null): Prisma.ActionsWhereInput {
+export function editableActionsWHERE(ctx: UserAccessContext | null): Prisma.ActionsWhereInput {
   if (!ctx) {
     // `in: []` matches nothing: anonymous visitors can never write
     return { org_id: { in: [] } };
@@ -109,7 +109,7 @@ export function editableActionsWhere(ctx: UserAccessContext | null): Prisma.Acti
   }
   return {
     OR: [
-      { roadmap_iteration: { roadmap: { access_control: writableAccessControlWhere(ctx) } } },
+      { roadmap_iteration: { roadmap: { access_control: writableAccessControlWHERE(ctx) } } },
       { roadmap_iteration: null, org_id: { in: managedOrgIds(ctx) } },
     ],
   };
@@ -120,9 +120,9 @@ export function editableActionsWhere(ctx: UserAccessContext | null): Prisma.Acti
  * access is derived from the parent goal/effect context; effects require edit access
  * to both the action and the goal.
  */
-export function editableDataSeriesWhere(ctx: UserAccessContext | null): Prisma.DataSeriesWhereInput {
+export function editableDataSeriesWHERE(ctx: UserAccessContext | null): Prisma.DataSeriesWhereInput {
   const writableIteration: Prisma.RoadmapIterationsWhereInput = {
-    roadmap: { access_control: writableAccessControlWhere(ctx) },
+    roadmap: { access_control: writableAccessControlWHERE(ctx) },
   };
   return {
     OR: [
@@ -131,7 +131,7 @@ export function editableDataSeriesWhere(ctx: UserAccessContext | null): Prisma.D
       { dependent_historical: { roadmap_iteration: writableIteration } },
       {
         dependent_effect: {
-          action: editableActionsWhere(ctx),
+          action: editableActionsWHERE(ctx),
           goal: { roadmap_iteration: writableIteration },
         },
       },
@@ -144,8 +144,8 @@ export function editableDataSeriesWhere(ctx: UserAccessContext | null): Prisma.D
  * goal/effect context (series have no access control of their own): the series is visible
  * if any of its dependent slots sits under a visible iteration.
  */
-export function visibleDataSeriesWhere(ctx: UserAccessContext | null): Prisma.DataSeriesWhereInput {
-  const visibleIterations = visibleRoadmapIterationsWhere(ctx);
+export function visibleDataSeriesWHERE(ctx: UserAccessContext | null): Prisma.DataSeriesWhereInput {
+  const visibleIterations = visibleRoadmapIterationsWHERE(ctx);
   return {
     OR: [
       { dependent_goal: { roadmap_iteration: visibleIterations } },

@@ -2,7 +2,7 @@
 
 import { clientSafeDataSeriesSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { visibleDataSeriesWhere } from "@/lib/accessFilters";
+import { visibleDataSeriesWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { DataSeries, UserAccessContext } from "@/types";
 import { cacheTag } from "next/cache";
@@ -28,7 +28,7 @@ async function clientSafeGetCachedDataSeries(id: string, accessContext: UserAcce
       where: {
         id,
         // AND keeps the filter's optional unique-key fields out of the WhereUniqueInput type
-        AND: [visibleDataSeriesWhere(accessContext)],
+        AND: [visibleDataSeriesWHERE(accessContext)],
       },
       select: clientSafeDataSeriesSelection,
     }) satisfies DataSeries | null;

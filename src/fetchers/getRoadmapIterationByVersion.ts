@@ -1,7 +1,7 @@
 import "server-only";
 import { roadmapIterationInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { visibleRoadmapIterationsWhere } from "@/lib/accessFilters";
+import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { goalSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
 import type { RoadmapIteration, UserAccessContext } from "@/types";
@@ -39,7 +39,7 @@ async function getCachedRoadmapIterationByVersion(roadmapId: string, version: nu
         where: {
           roadmap_id: roadmapId,
           published_at: { not: null },
-          AND: [visibleRoadmapIterationsWhere(accessContext)],
+          AND: [visibleRoadmapIterationsWHERE(accessContext)],
         },
         orderBy: { version: "desc" },
         include: roadmapIterationInclusionSelection,
@@ -50,7 +50,7 @@ async function getCachedRoadmapIterationByVersion(roadmapId: string, version: nu
         where: {
           roadmap_version: { roadmap_id: roadmapId, version },
           // AND keeps the filter's optional unique-key fields out of the WhereUniqueInput type
-          AND: [visibleRoadmapIterationsWhere(accessContext)],
+          AND: [visibleRoadmapIterationsWHERE(accessContext)],
         },
         include: roadmapIterationInclusionSelection,
       }) satisfies RoadmapIteration | null;

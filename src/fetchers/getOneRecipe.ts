@@ -1,7 +1,7 @@
 import "server-only";
 import { recipeSelector } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { visibleDataSeriesWhere } from "@/lib/accessFilters";
+import { visibleDataSeriesWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { DBRecipe, UserAccessContext } from "@/types";
 import { cacheTag } from "next/cache";
@@ -31,7 +31,7 @@ async function getCachedRecipe(id: string, accessContext: UserAccessContext | nu
       where: {
         id,
         // Super admins may also fetch recipes not attached to any series (e.g. suggestion templates)
-        ...(accessContext?.isSuperAdmin ? {} : { derived_data_series: visibleDataSeriesWhere(accessContext) }),
+        ...(accessContext?.isSuperAdmin ? {} : { derived_data_series: visibleDataSeriesWHERE(accessContext) }),
       },
       select: recipeSelector,
     }) satisfies DBRecipe | null;

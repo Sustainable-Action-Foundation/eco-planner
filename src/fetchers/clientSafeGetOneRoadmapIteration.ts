@@ -2,7 +2,7 @@
 
 import { clientSafeRoadmapIterationSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { visibleRoadmapIterationsWhere } from "@/lib/accessFilters";
+import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { goalSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
 import type { ClientRoadmapIteration, UserAccessContext } from "@/types";
@@ -29,7 +29,7 @@ async function getCachedClientSafeRoadmapIteration(id: string, accessContext: Us
     iteration = await prisma.roadmapIterations.findUnique({
       where: {
         // Spread first: the filter type has an optional `id` that would otherwise widen the unique key
-        ...visibleRoadmapIterationsWhere(accessContext),
+        ...visibleRoadmapIterationsWHERE(accessContext),
         id,
       },
       select: clientSafeRoadmapIterationSelection,

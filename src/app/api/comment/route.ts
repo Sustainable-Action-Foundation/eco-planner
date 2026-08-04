@@ -1,6 +1,6 @@
 import findTypeFromId from "@/functions/findTypeFromId";
 import { getAccessContextById } from "@/fetchers/getUserAccessContext";
-import { readableAccessControlWhere, visibleActionsWhere, visibleRoadmapIterationsWhere } from "@/lib/accessFilters";
+import { readableAccessControlWHERE, visibleActionsWhere, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import type { JSONValue } from "@/types";
@@ -57,21 +57,21 @@ export async function POST(request: NextRequest) {
       }
       case "goal": {
         canView = !!await prisma.goals.findUnique({
-          where: { id: comment.objectId, roadmap_iteration: visibleRoadmapIterationsWhere(accessContext) },
+          where: { id: comment.objectId, roadmap_iteration: visibleRoadmapIterationsWHERE(accessContext) },
           select: { id: true },
         });
         break;
       }
       case "roadmap": {
         canView = !!await prisma.roadmaps.findUnique({
-          where: { id: comment.objectId, access_control: readableAccessControlWhere(accessContext) },
+          where: { id: comment.objectId, access_control: readableAccessControlWHERE(accessContext) },
           select: { id: true },
         });
         break;
       }
       case "roadmapIteration": {
         canView = !!await prisma.roadmapIterations.findUnique({
-          where: { id: comment.objectId, AND: [visibleRoadmapIterationsWhere(accessContext)] },
+          where: { id: comment.objectId, AND: [visibleRoadmapIterationsWHERE(accessContext)] },
           select: { id: true },
         });
         break;

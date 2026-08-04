@@ -1,7 +1,7 @@
 import "server-only";
 import { multiRoadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { visibleRoadmapIterationsWhere } from "@/lib/accessFilters";
+import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { roadmapIterationSorter } from "@/lib/sorters";
 import type { Prisma } from "@/lib/prisma/generated";
 import { prisma } from "@/lib/prisma";
@@ -47,7 +47,7 @@ async function getCachedRoadmapSubset(accessContext: UserAccessContext | null, a
         // AND avoids clobbering the `roadmap` key inside the visibility filter
         AND: [
           { roadmap: { actor: actor ?? undefined } },
-          visibleRoadmapIterationsWhere(accessContext),
+          visibleRoadmapIterationsWHERE(accessContext),
         ],
       },
       include: roadmapSubsetSelect,
