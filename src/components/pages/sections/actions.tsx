@@ -29,6 +29,7 @@ export default function Actions({
   const searchParams = useSearchParams();
 
   const searchFilter = searchParamsProp['search'] ? (Array.isArray(searchParamsProp['search']) ? searchParamsProp['search'][0] : searchParamsProp['search']) : '';
+  const tagFilter = searchParamsProp['tag'] ? (Array.isArray(searchParamsProp['tag']) ? searchParamsProp['tag'][0] : searchParamsProp['tag']) : '';
 
   function updateStringParam(key: string, value: string) {
     const newParams = new URLSearchParams(searchParams);
@@ -60,16 +61,29 @@ export default function Actions({
   };
 
   const filteredActions = useMemo(() => {
-    if (!searchFilter || !actions) return actions;
+    if (!actions) return actions;
 
-    return actions.filter((action) =>
-      [action.name, ...action.fields.flatMap((field) => [field.header, field.value])].some(
-        (value) =>
-          typeof value === "string" &&
-          value.toLowerCase().includes(searchFilter.toLowerCase()),
-      ),
-    );
-  }, [actions, searchFilter]);
+    let result = actions;
+
+    // The tag filter matches exactly, unlike the free-text search
+    if (tagFilter) {
+      result = result.filter((action) =>
+        action.fields.some((field) => field.header === ActionFieldHeaders.Tag && field.value === tagFilter),
+      );
+    }
+
+    if (searchFilter) {
+      result = result.filter((action) =>
+        [action.name, ...action.fields.flatMap((field) => [field.header, field.value])].some(
+          (value) =>
+            typeof value === "string" &&
+            value.toLowerCase().includes(searchFilter.toLowerCase()),
+        ),
+      );
+    }
+
+    return result;
+  }, [actions, searchFilter, tagFilter]);
 
   return (
     <search className="flex flex-wrap-wrap gap-200">
@@ -134,6 +148,25 @@ export default function Actions({
             <IconPlus width={20} height={20} style={{ minWidth: '20px' }} aria-hidden="true" />
           </Link>
         </div>
+
+        {tagFilter ?
+          <div className="flex gap-25 align-items-center margin-top-100">
+            {t('pages:actions.filtering_by_tag')}
+            <span className="smooth padding-inline-50 padding-block-25 flex gap-25 align-items-center" style={{ backgroundColor: 'var(--seagreen-90)', border: '1px solid var(--seagreen-80)', color: 'var(--seagreen-30)' }}>
+              {tagFilter}
+              <button
+                type="button"
+                aria-label={t('pages:actions.clear_tag_filter')}
+                title={t('pages:actions.clear_tag_filter')}
+                className="padding-0 transparent"
+                style={{ lineHeight: 1, fontSize: '1.25em' }}
+                onClick={() => updateStringParam('tag', '')}
+              >
+                ×
+              </button>
+            </span>
+          </div>
+          : null}
 
         <section> {/* TODO: Is this an output? */}
           {actions && actions?.length > 0 ?

@@ -30,8 +30,10 @@
   "actions": {
     "actions": "Åtgärder",
     "author": "Skapare",
+    "clear_tag_filter": "Rensa taggfiltret",
     "create_new_action": "$t(common:new.action)",
     "filter": "Filter",
+    "filtering_by_tag": "Filtrerar på tagg:",
     "grid": "Rutnät",
     "list": "Lista",
     "search_actions": "Sök bland $t(common:count.action)",

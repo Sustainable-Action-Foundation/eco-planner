@@ -30,8 +30,10 @@
   "actions": {
     "actions": "Actions",
     "author": "Author",
+    "clear_tag_filter": "Clear tag filter",
     "create_new_action": "$t(common:new.action)",
     "filter": "Filter",
+    "filtering_by_tag": "Filtering by tag:",
     "grid": "Grid",
     "list": "List",
     "search_actions": "Search $t(common:count.action)",
