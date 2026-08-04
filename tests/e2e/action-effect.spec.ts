@@ -5,10 +5,9 @@ import { cwd } from "node:process";
 
 const adminFile = path.join(cwd(), "tests/.auth/admin.json");
 
-/** The repeatable descriptive-field rows of the action form (header input + type select + value control).
- * Scoped to fieldsets nested in the form's own fieldsets; the sidebar menus use the same class. */
+/** The repeatable descriptive-field rows of the action form (header combobox + type select + value control). */
 function actionFieldRows(page: Page) {
-  return page.locator('form fieldset fieldset.fieldset-unset-pseudo-class');
+  return page.getByTestId('action-field-row');
 }
 
 /** Reads the action form's descriptive fields as a header -> value record.

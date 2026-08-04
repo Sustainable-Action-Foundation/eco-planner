@@ -76,6 +76,8 @@ export type InputElement = GenericElement & {
   disabled?: boolean;
   placeholder?: string;
   defaultValue?: string;
+  ariaLabel?: string;
+  dataTestid?: string;
 };
 
 // TODO: DO not use name (reserved keyword)

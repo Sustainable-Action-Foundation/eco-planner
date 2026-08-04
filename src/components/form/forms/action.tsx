@@ -12,7 +12,8 @@ import { FormSync, ManualDataSeriesInput, RecipeContextProvider } from "@/compon
 import { Recipe } from "@/functions/recipe/recipe";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { clientSafeGetAllTags } from "@/fetchers/clientSafeGetAllTags";
-import { Fragment, useEffect, useState } from "react";
+import { clientSafeGetAllFieldHeaders } from "@/fetchers/clientSafeGetAllFieldHeaders";
+import { useEffect, useState } from "react";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 import { UnitFlags } from "@/types/enums";
@@ -58,10 +59,12 @@ export default function ActionForm({
   );
   const [tagDraft, setTagDraft] = useState("");
 
-  // Tags on other visible actions, offered as suggestions (free text is still allowed)
+  // Tags and field headers on other visible actions, offered as suggestions (free text is still allowed)
   const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
+  const [headerSuggestions, setHeaderSuggestions] = useState<string[]>([]);
   useEffect(() => {
     clientSafeGetAllTags().then(setTagSuggestions).catch(() => setTagSuggestions([]));
+    clientSafeGetAllFieldHeaders().then(setHeaderSuggestions).catch(() => setHeaderSuggestions([]));
   }, []);
 
   function addTag() {
@@ -91,6 +94,12 @@ export default function ActionForm({
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    // TAG-headed fields are managed by the dedicated tags input
+    if (fields.some(field => field.header.trim() === ActionFieldHeaders.Tag)) {
+      addToast(t("forms:action.tag_header_forbidden"), "error");
+      return;
+    }
 
     // TODO: Use formData instead of DOM traversal
     const form = event.target.elements;
@@ -256,16 +265,25 @@ export default function ActionForm({
             <span className={styles.actionFieldsTableHeader} aria-hidden="true">{t("forms:action.field_content")}</span>
             <span className={styles.actionFieldsTableHeader} aria-hidden="true" />
             {fields.map((field, index) => (
-              <Fragment key={index}>
-                <input
-                  type="text"
-                  aria-label={t("forms:action.field_header")}
-                  data-testid="action-field-header"
+              // display: contents keeps the row's controls as direct grid items while
+              // still giving tests and styling a per-row element to scope to
+              <div key={index} data-testid="action-field-row" style={{ display: 'contents' }}>
+                <TextSingleAutocomplete
+                  props={{
+                    id: `action-field-header-${index}`,
+                    name: `action-field-header-${index}`,
+                    ariaLabel: t("forms:action.field_header"),
+                    dataTestid: "action-field-header",
+                  }}
+                  options={headerSuggestions.map(header => ({ name: header, value: header }))}
+                  fuseOptions={{
+                    threshold: 0.3,
+                    ignoreLocation: true,
+                  }}
                   value={field.header}
-                  onChange={(event) => {
-                    // TAG-headed fields are managed by the dedicated tags input
-                    event.target.setCustomValidity(event.target.value.trim() === ActionFieldHeaders.Tag ? t("forms:action.tag_header_forbidden") : "");
-                    updateField(index, { header: event.target.value });
+                  setter={(action) => {
+                    const header = typeof action === "function" ? action(field.header) : action;
+                    updateField(index, { header });
                   }}
                 />
                 <select
@@ -301,7 +319,7 @@ export default function ActionForm({
                 >
                   {t("common:tsx.delete")}
                 </button>
-              </Fragment>
+              </div>
             ))}
           </div>
         }
