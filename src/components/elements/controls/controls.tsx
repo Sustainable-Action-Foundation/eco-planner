@@ -22,13 +22,19 @@ import { iterationPath } from '@/functions/versionSlug';
 */
 /* TODO: Add an info bubble to the admin panel to clear some space? */
 
-type ActionMenuEntry = Pick<Action, "id" | "name" | "roadmap_iteration_id"> & {
+// `org_id` doubles as the runtime discriminator (see isActionEntry): among the
+// menu entities only actions have it, and requiring it here means type-checked
+// call sites can't pass an action the sniffing would misrecognize.
+type ActionMenuEntry = Pick<Action, "id" | "name" | "org_id" | "roadmap_iteration_id"> & {
   // Optional: call sites without it (e.g. tables on the iteration page itself) just lose the parent link
   roadmap_iteration?: Pick<RoadmapIteration, "roadmap_id" | "version"> | null;
 };
 
 type GoalMenuEntry = Pick<Goal, "id" | "name" | "indicator_parameter" | "roadmap_iteration_id"> & {
   roadmap_iteration: Pick<RoadmapIteration, "id" | "version"> & { roadmap: Pick<Roadmap, "id" | "name"> };
+  // Read by AdminPanel's goal-only features; optional so leaner goal rows still fit the menu shape
+  is_featured?: Goal["is_featured"];
+  historical?: Goal["historical"];
 };
 
 type IterationMenuEntry = Pick<RoadmapIteration, "id" | "version"> & {
@@ -41,7 +47,8 @@ type RoadmapMenuEntry = Pick<Roadmap, "id" | "name"> & {
 };
 
 export type EffectMenuEntry = Pick<Effect, "action_id" | "goal_id"> & {
-  action?: ActionMenuEntry;
+  // Only the name is read off the embedded action, so effect queries needn't select org_id
+  action?: Pick<Action, "id" | "name">;
   goal?: GoalMenuEntry;
   name?: string;
   id?: { actionId: string; goalId: string };
@@ -51,11 +58,17 @@ type ObjectParameter = EffectMenuEntry | ActionMenuEntry | GoalMenuEntry | Itera
 
 /**
  * Both actions and goals carry `indicator_parameter` and `roadmap_iteration_id` at runtime,
- * so actions are recognized by columns/relations only they have. Full action rows always
- * carry `start_year`/`org_id` (possibly null); narrower selections carry `fields`.
+ * so actions are recognized by `org_id`, a column no other menu entity has. Since
+ * `ActionMenuEntry` requires it, type-checked call sites can't pass an action that
+ * misses this check.
  */
 function isActionEntry(object: ObjectParameter): object is ActionMenuEntry {
-  return "start_year" in object || "org_id" in object || "fields" in object;
+  return "org_id" in object;
+}
+
+/** Goals are whatever carries an `indicator_parameter` once action shapes are ruled out (see {@link isActionEntry}). */
+function isGoalEntry(object: ObjectParameter): object is GoalMenuEntry {
+  return !isActionEntry(object) && "indicator_parameter" in object;
 }
 
 type links = {
@@ -129,8 +142,7 @@ function buildLinks(
     object.id ??= { actionId: object.action_id, goalId: object.goal_id };
   }
 
-  // Actions (checked before goals: actions also carry an indicator_parameter,
-  // so goals can only be recognized by it once action shapes are ruled out)
+  // Actions
   else if (isActionEntry(object)) {
     selfLink = `/action/${object.id}`;
     parentLink = object.roadmap_iteration ? iterationPath(object.roadmap_iteration.roadmap_id, object.roadmap_iteration.version) : undefined;
@@ -142,7 +154,7 @@ function buildLinks(
   }
 
   // Goals
-  else if ("indicator_parameter" in object) {
+  else if (isGoalEntry(object)) {
     featureGoal = "/api/goal"; /* TODO: Update this line */
     selfLink = `/goal/${object.id}`;
     parentLink = object.roadmap_iteration ? iterationPath(object.roadmap_iteration.roadmap.id, object.roadmap_iteration.version) : undefined;
@@ -339,35 +351,8 @@ export function AdminPanel(
   const roadmapName = getRoadmapName(object);
   const [timestamp] = useState(() => Date.now());
 
-  const formContent = {
-    target: GoalDataTarget.Full,
-    goalId: (object as Goal).id,
-    timestamp: timestamp, // Only needed for edits
-
-    name: undefined,
-    description: undefined,
-    indicatorParameter: undefined,
-    isFeatured: undefined,
-    recipeSuggestions: undefined,
-
-    dataSeriesId: undefined,
-    dataSeries: undefined,
-    dataSeriesRecipeId: undefined,
-    dataSeriesRecipe: undefined,
-
-    baselineId: undefined,
-    baseline: undefined,
-    baselineRecipeId: undefined,
-    baselineRecipe: undefined,
-
-    historicalId: undefined,
-    historical: undefined,
-    historicalRecipeId: undefined,
-    historicalRecipe: undefined,
-
-    iterationId: undefined, // Can't reassign the roadmap iteration of an existing goal
-    rawTags: undefined, // TODO: add tags input
-  } satisfies GoalUpdateInput;
+  // The featured/historical sections only render for goals; the guard also narrows for their payloads
+  const goal = isGoalEntry(object) ? object : null;
 
 
   return (
@@ -381,20 +366,44 @@ export function AdminPanel(
           <>
             {hasEditAccess(accessLevel ?? AccessLevel.None) ? (
               <>
-                {links.featureGoal ? <button
+                {goal && links.featureGoal ? <button
                   type="button"
                   className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`}
                   style={{ boxShadow: 'none', cursor: 'pointer', fontSize: '14px', transform: 'none', whiteSpace: 'nowrap' }}
                   onClick={() => {
-                    const updatedForm = {
-                      ...formContent,
-                      isFeatured: !(object as Goal).is_featured,
-                    };
+                    // Full-target update touching only isFeatured; everything undefined is left unchanged
+                    formSubmitter('/api/goal', JSON.stringify({
+                      target: GoalDataTarget.Full,
+                      goalId: goal.id,
+                      timestamp: timestamp, // Only needed for edits
+                      isFeatured: !goal.is_featured,
 
-                    formSubmitter('/api/goal', JSON.stringify(updatedForm), 'PUT', t);
+                      name: undefined,
+                      description: undefined,
+                      indicatorParameter: undefined,
+                      recipeSuggestions: undefined,
+
+                      dataSeriesId: undefined,
+                      dataSeries: undefined,
+                      dataSeriesRecipeId: undefined,
+                      dataSeriesRecipe: undefined,
+
+                      baselineId: undefined,
+                      baseline: undefined,
+                      baselineRecipeId: undefined,
+                      baselineRecipe: undefined,
+
+                      historicalId: undefined,
+                      historical: undefined,
+                      historicalRecipeId: undefined,
+                      historicalRecipe: undefined,
+
+                      iterationId: undefined, // Can't reassign the roadmap iteration of an existing goal
+                      rawTags: undefined, // TODO: add tags input
+                    } satisfies GoalUpdateInput), 'PUT', t);
                   }}
                 >
-                  {(object as Goal).is_featured ? (
+                  {goal.is_featured ? (
                     <>
                       <span className='margin-right-25'>{t("components:table_menu.feature_goal_stop")}</span>
                       <IconStarFilled fill='darkorange' aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
@@ -408,7 +417,7 @@ export function AdminPanel(
                 </button>
                   : null}
                 <nav className="display-contents">
-                  {links.historicalDataLink ? // TODO: Clean up css and translations below
+                  {goal && links.historicalDataLink ? // TODO: Clean up css and translations below
                     <>
                       <button
                         type="button"
@@ -440,7 +449,7 @@ export function AdminPanel(
                           href={links.historicalDataLink}
                           data-testid="historical-data-link"
                         >
-                          {!(object as Goal).historical ? (
+                          {!goal.historical ? (
                             <>
                               {t("components:table_menu.historical_data_add")}
                               <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
@@ -452,7 +461,7 @@ export function AdminPanel(
                             </>
                           )}
                         </Link>
-                        {(object as Goal).historical ? (
+                        {goal.historical ? (
                           <>
                             <button
                               className={`flex gap-50 justify-content-space-between align-items-center button smooth width-100 font-size-14px ${styles['object-menu-button']}`}
@@ -484,7 +493,7 @@ export function AdminPanel(
                                     // Clear only the historical section, leaving the rest of the goal untouched.
                                     formSubmitter('/api/goal', JSON.stringify({
                                       target: GoalDataTarget.Historical,
-                                      goalId: (object as Goal).id,
+                                      goalId: goal.id,
                                       timestamp: timestamp,
                                       historicalId: null,
                                       historical: null,
