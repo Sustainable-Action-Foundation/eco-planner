@@ -175,18 +175,39 @@ export default function ActionForm({
           <input className="margin-top-25 margin-bottom-100" type="text" name={ActionFormName.ActionName} required={true} id="actionName" defaultValue={currentAction?.name} />
         </label>
 
-        <label>
-          {t("forms:action.tags_label")}
+        {/* The chips live outside the label: a label's implicit control is its first
+            form control, which would hijack hover and clicks meant for the other chips' delete buttons */}
+        <div className="margin-bottom-100">
+          <label>
+            {t("forms:action.tags_label")}
+            <input
+              className="margin-top-25"
+              type="text"
+              data-testid="action-tag-input"
+              value={tagDraft}
+              onChange={(event) => setTagDraft(event.target.value)}
+              onKeyDown={(event) => {
+                // Enter adds the tag instead of submitting the form
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  addTag();
+                }
+              }}
+            />
+          </label>
+          <button type="button" className="margin-top-25" onClick={addTag}>
+            {t("forms:action.add_tag")}
+          </button>
           {tags.length > 0 &&
-            <ul className="flex gap-25 margin-block-25 padding-0" style={{ listStyle: 'none', flexWrap: 'wrap' }}>
+            <ul className="flex gap-25 margin-top-50 margin-bottom-0 padding-0" style={{ listStyle: 'none', flexWrap: 'wrap' }}>
               {tags.map(tag => (
-                <li key={tag} className="smooth padding-inline-50 padding-block-25 flex gap-25 align-items-center" style={{ backgroundColor: 'var(--gray-90)', border: '1px solid var(--gray-80)', color: 'var(--gray-30)' }}>
+                <li key={tag} className="smooth padding-inline-50 padding-block-25 flex gap-25 align-items-center" style={{ backgroundColor: 'var(--seagreen-90)', border: '1px solid var(--seagreen-80)', color: 'var(--seagreen-30)' }}>
                   {tag}
                   <button
                     type="button"
                     aria-label={`${t("common:tsx.delete")}: ${tag}`}
                     className="padding-0 transparent"
-                    style={{ lineHeight: 1 }}
+                    style={{ lineHeight: 1, fontSize: '1.25em' }}
                     onClick={() => setTags(previous => previous.filter(existing => existing !== tag))}
                   >
                     ×
@@ -195,24 +216,7 @@ export default function ActionForm({
               ))}
             </ul>
           }
-          <input
-            className="margin-top-25"
-            type="text"
-            data-testid="action-tag-input"
-            value={tagDraft}
-            onChange={(event) => setTagDraft(event.target.value)}
-            onKeyDown={(event) => {
-              // Enter adds the tag instead of submitting the form
-              if (event.key === "Enter") {
-                event.preventDefault();
-                addTag();
-              }
-            }}
-          />
-        </label>
-        <button type="button" className="margin-top-25 margin-bottom-100" onClick={addTag}>
-          {t("forms:action.add_tag")}
-        </button>
+        </div>
 
         {/* Repeatable free-form fields, replacing the old fixed inputs
             (description, cost efficiency, expected outcome, project manager, relevant actors...) */}

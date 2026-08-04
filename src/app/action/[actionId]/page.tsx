@@ -90,7 +90,7 @@ export default async function Page(props: { params: Promise<{ actionId: string }
           {tags.length > 0 &&
             <ul className="flex gap-25 margin-block-25 padding-0" style={{ listStyle: 'none', flexWrap: 'wrap' }}>
               {tags.map(tag => (
-                <li key={tag} className="smooth padding-inline-50 padding-block-25" style={{ backgroundColor: 'var(--gray-90)', border: '1px solid var(--gray-80)', color: 'var(--gray-30)' }}>{tag}</li>
+                <li key={tag} className="smooth padding-inline-50 padding-block-25" style={{ backgroundColor: 'var(--seagreen-90)', border: '1px solid var(--seagreen-80)', color: 'var(--seagreen-30)' }}>{tag}</li>
               ))}
             </ul>
           }

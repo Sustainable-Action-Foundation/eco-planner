@@ -9,7 +9,7 @@ import Image from "next/image";
 import { useDebouncedCallback } from "use-debounce";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
-import { actionFieldLabel, getActionDescription, groupActionFields } from "@/functions/actionFields";
+import { ActionFieldHeaders, actionFieldLabel, getActionDescription, groupActionFields } from "@/functions/actionFields";
 
 export default function Actions({
   actions,
@@ -179,13 +179,27 @@ export default function Actions({
                   <Link href={`/action/${action.id}`} className="discrete-link padding-block-75 padding-inline-50 block flex-grow-100">
                     <div className={` color-gray font-size-14px ${styles['action-years']}`}>{action.start_year} - {action.end_year}</div>
                     <h2 className={`margin-0 ${styles['action-title']}`}>{action.name}</h2>
-                    {/* Actions no longer have a description column; prefer the description field, else summarize the rest */}
+                    {/* One line of tag cards; overflowing tags are cut off with an ellipsis */}
+                    {action.fields.some(field => field.header === ActionFieldHeaders.Tag) &&
+                      <div className="white-space-nowrap text-overflow-ellipsis overflow-hidden margin-top-25">
+                        {action.fields.filter(field => field.header === ActionFieldHeaders.Tag).map(field => (
+                          <span
+                            key={field.value}
+                            className="smooth padding-inline-25 margin-right-25"
+                            style={{ display: 'inline-block', fontSize: '12px', backgroundColor: 'var(--seagreen-90)', border: '1px solid var(--seagreen-80)', color: 'var(--seagreen-30)' }}
+                          >
+                            {field.value}
+                          </span>
+                        ))}
+                      </div>
+                    }
+                    {/* Actions no longer have a description column; prefer the description field, else summarize the rest (tags render above) */}
                     <p
                       className={`margin-0 white-space-nowrap text-overflow-ellipsis overflow-hidden ${styles['action-description']}`}
                       style={{ color: '#292929' }}
                     >
                       {getActionDescription(action.fields)
-                        ?? groupActionFields(action.fields).map((group) => `${actionFieldLabel(group.header, t)}: ${group.values.join(', ')}`).join(' · ')}
+                        ?? groupActionFields(action.fields).filter(group => group.header !== ActionFieldHeaders.Tag).map((group) => `${actionFieldLabel(group.header, t)}: ${group.values.join(', ')}`).join(' · ')}
                     </p>
                   </Link>
 
