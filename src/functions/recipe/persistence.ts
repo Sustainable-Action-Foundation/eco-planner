@@ -1,15 +1,37 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@PRISMA-NAMESPACE-ONLY";
-import { Recipe, RecipeDataTypes, fetchExternalVariableData, externalSelectionKey } from "@/functions/recipe";
+import { Recipe, fetchExternalVariableData, externalSelectionKey } from "@/functions/recipe";
+import { RecipeDataTypes } from "@/functions/recipe/types/enums";
 import getTableContent from "@/lib/api/getTableContent";
 import type { DataSeriesVariable, ExternalSource, RecipeVariable, ResolvedExternals, SerializedRecipe } from "@/functions/recipe";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 import { serializeUnit } from "@/functions/unit";
+import type { DateValuesWithUnit } from "@/types";
 
 /** True if two external selections are equivalent (order-insensitive). */
 function sameExternalSource(a: ExternalSource, b: ExternalSource): boolean {
   return externalSelectionKey(a.dataset, a.tableId, a.selection) === externalSelectionKey(b.dataset, b.tableId, b.selection);
+}
+
+/**
+ * Builds the nested create data for a hand-entered data series: the series plus
+ * its producing inline manual recipe (`meta.isManual`), both owned by `orgId`.
+ * Usable in any nested `create:` position for a DataSeries relation.
+ */
+export function manualDataSeriesCreateData(dateValues: DateValuesWithUnit, orgId: string, authorId: string) {
+  return {
+    org: { connect: { id: orgId } },
+    author: { connect: { id: authorId } },
+    unit: serializeUnit(dateValues.unit), // db keeps the legacy convention
+    values: { createMany: { data: dateValuesToDBDateRecord(dateValues.dateValues) } },
+    recipe_used: {
+      create: {
+        recipe: Recipe.fromManualDateValues(dateValues).serialize(),
+        org: { connect: { id: orgId } },
+      },
+    },
+  };
 }
 
 /**
@@ -30,7 +52,7 @@ export async function resolveRecipeExternals(
   // Map the currently-stored materialized externals by variable id, to detect unchanged selections.
   const storedByVariable = new Map<string, { dataSeriesId: string, source: ExternalSource }>();
   if (existingRecipeId) {
-    const existing = await prisma.recipe.findUnique({ where: { id: existingRecipeId }, select: { recipe: true } });
+    const existing = await prisma.recipes.findUnique({ where: { id: existingRecipeId }, select: { recipe: true } });
     if (existing) {
       for (const variable of Recipe.from(existing.recipe).variables) {
         if (variable.type === RecipeDataTypes.DataSeries && variable.externalSource && variable.dataSeriesId) {
@@ -73,6 +95,7 @@ export async function materializeRecipeExternals(
   tx: Prisma.TransactionClient,
   serializedRecipe: SerializedRecipe,
   authorId: string,
+  orgId: string,
   resolved: ResolvedExternals,
 ): Promise<{ serializedRecipe: SerializedRecipe, dataSeriesIdsByVariable: Record<string, string> }> {
   const recipe = Recipe.from(serializedRecipe);
@@ -89,11 +112,37 @@ export async function materializeRecipeExternals(
     let dataSeriesId: string;
     if (resolvedVariable.data) {
       const fetched = resolvedVariable.data;
+      // The fetched series is produced by its own single-variable "external fetch"
+      // recipe: the values are inlined (like a manual recipe) and the externalSource
+      // meta keeps the selection discoverable/re-editable (see getHistoricalSource).
+      const fetchRecipeVariable: DataSeriesVariable = {
+        id: variable.id,
+        name: variable.name,
+        type: RecipeDataTypes.DataSeries,
+        unit: fetched.unit,
+        template: variable.template,
+        pick: variable.pick,
+        dataSeriesId: null,
+        value: fetched.dateValues,
+        externalSource: resolvedVariable.source,
+      };
       dataSeriesId = (await tx.dataSeries.create({
         data: {
+          org: { connect: { id: orgId } },
           author: { connect: { id: authorId } },
           values: { createMany: { data: dateValuesToDBDateRecord(fetched.dateValues) } },
           unit: serializeUnit(fetched.unit), // db keeps the legacy convention
+          recipe_used: {
+            create: {
+              org: { connect: { id: orgId } },
+              recipe: new Recipe({
+                name: variable.name,
+                equation: `\${${variable.id}}`,
+                variables: [fetchRecipeVariable],
+                unit: fetched.unit,
+              }).serialize(),
+            },
+          },
         },
         select: { id: true },
       })).id;
@@ -129,6 +178,7 @@ export async function materializeRecipeExternals(
 export async function upsertRecipe(
   tx: Prisma.TransactionClient,
   authorId: string,
+  orgId: string,
   label: string,
   input: { recipe: SerializedRecipe | null | undefined, recipeId: string | null | undefined, resolved: ResolvedExternals | null },
 ): Promise<{ recipeId: string | null | undefined, dataSeriesIdsByVariable: Record<string, string> }> {
@@ -138,7 +188,7 @@ export async function upsertRecipe(
 
   // New recipe data: materialize its externals, then create or update
   if (recipe) {
-    const materialized = await materializeRecipeExternals(tx, recipe, authorId, input.resolved ?? new Map() as ResolvedExternals);
+    const materialized = await materializeRecipeExternals(tx, recipe, authorId, orgId, input.resolved ?? new Map() as ResolvedExternals);
     recipe = materialized.serializedRecipe;
     dataSeriesIdsByVariable = materialized.dataSeriesIdsByVariable;
 
@@ -151,14 +201,21 @@ export async function upsertRecipe(
     )].map(id => ({ id }));
 
     if (recipeId) {
-      await tx.recipe.update({ where: { id: recipeId }, data: { recipe, sourceDataSeries: { set: sourceConnect } } });
+      await tx.recipes.update({ where: { id: recipeId }, data: { recipe, source_data_series: { set: sourceConnect } } });
     } else {
-      recipeId = (await tx.recipe.create({ data: { recipe, sourceDataSeries: { connect: sourceConnect } }, select: { id: true } })).id;
+      recipeId = (await tx.recipes.create({
+        data: {
+          recipe,
+          org: { connect: { id: orgId } },
+          source_data_series: { connect: sourceConnect },
+        },
+        select: { id: true },
+      })).id;
     }
   }
   // No new recipe data + existing recipe ID = link (if it still exists)
   else if (recipeId) {
-    const existingRecipe = await tx.recipe.findUnique({ where: { id: recipeId }, select: { id: true } });
+    const existingRecipe = await tx.recipes.findUnique({ where: { id: recipeId }, select: { id: true } });
     if (!existingRecipe) {
       console.warn(`Goal save: tried linking goal with a ${label} recipe (${recipeId}) but not found, unlinking...`);
       recipeId = null;

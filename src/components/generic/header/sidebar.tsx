@@ -78,14 +78,8 @@ export default async function Sidebar() {
               </header>
               <ul className='padding-0 margin-0' style={{ listStyle: 'none' }}>
                 <li>
-                  <Link href='/metaRoadmap/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none' data-testid="create-roadmap-series">
-                    {t("common:roadmap_series_one")}
-                    <IconPlus width={16} height={16} />
-                  </Link>
-                </li>
-                <li>
-                  <Link href='/roadmap/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none'>
-                    {t("common:roadmap_short_one")}
+                  <Link href='/roadmap/create' className='text-transform-capitalize flex align-items-center justify-content-space-between gap-300 padding-25 smooth color-pureblack text-decoration-none' data-testid="create-roadmap">
+                    {t("common:roadmap_one")}
                     <IconPlus width={16} height={16} />
                   </Link>
                 </li>

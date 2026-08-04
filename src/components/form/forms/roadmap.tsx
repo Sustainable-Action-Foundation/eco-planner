@@ -1,185 +1,105 @@
 'use client';
 
+import areaCodes from "@/lib/areaCodes.json" with { type: "json" };
+import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" with { type: "json" };
+import type { AccessControlInput, Roadmap, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
+import type { OrgOption } from "@/fetchers/getOrgOptions";
+import { OrgRole, RoadmapType } from "@/lib/prisma/generated";
+import { useRef, useState } from "react";
 import formSubmitter from "@/functions/formSubmitter";
-import parseCsv, { csvToGoalList } from "@/functions/parseCsv";
-import type { AccessControlled, GoalCreateFull, LoginData, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
-import type { MetaRoadmap, Roadmap } from "@/lib/prisma/generated";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { areaSorter } from "@/lib/sorters";
 import styles from '../forms.module.css';
-import type { TFunction } from "i18next";
-import { Trans, useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
+import TextEditor from "@/components/form/elements/textEditor/editor";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
-import TextEditor from "../elements/textEditor/editor";
-import { IconUpload } from "@tabler/icons-react";
+import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
 import ConfigureAccess from "../sections/access";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 
-function checkForBadDecoding(csv: string[][], t: TFunction, addToast: (text: string, type: 'success' | 'error' | 'warning') => void) {
-  if (csv.some((row) => row.some((cell) => cell.includes("�")))) {
-    addToast(t("forms:roadmap.bad_decoding"), "warning");
-  }
-}
-
-// TODO: Still need to clean this up a bit
 export default function RoadmapForm({
-  user,
-  userGroups,
-  metaRoadmapAlternatives,
+  isSuperAdmin,
+  orgOptions,
+  parentRoadmapOptions,
   currentRoadmap,
-  defaultMetaRoadmap,
 }: {
-  user: LoginData['user'],
-  userGroups: string[],
-  metaRoadmapAlternatives?: (MetaRoadmap & {
-    roadmapVersions: { id: string, version: number }[],
-  })[],
-  currentRoadmap?: Roadmap & AccessControlled & { metaRoadmap: MetaRoadmap },
-  defaultMetaRoadmap?: string,
+  isSuperAdmin?: boolean,
+  /** Orgs the user can create in / manage, with their groups (see getOrgOptions) */
+  orgOptions: OrgOption[],
+  parentRoadmapOptions?: Pick<Roadmap, "id" | "name">[],
+  currentRoadmap?: Roadmap,
 }) {
   const { t } = useTranslation(["forms", "common"]);
   const descriptionRef = useRef<HTMLInputElement>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [roadmapType, setRoadmapType] = useState<string>(currentRoadmap?.type ?? "");
+  const [actor, setActor] = useState<string>(currentRoadmap?.actor ?? "");
+  const [orgId, setOrgId] = useState<string>(currentRoadmap?.access_control.org_id ?? (orgOptions.length === 1 ? orgOptions[0].id : ""));
+  const [access, setAccess] = useState<AccessControlInput | undefined>(undefined);
+  const { addToast } = useToast();
   const router = useRouter();
 
-  const { addToast } = useToast();
+  const [timestamp] = useState(() => Date.now());
 
-  const [currentFile, setCurrentFile] = useState<File | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [timestamp] = useState<number>(() => Date.now());
-  const [metaRoadmapId, setMetaRoadmapId] = useState<string>(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap || "");
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [targetVersion, setTargetVersion] = useState<number | null>(0);
-  // Temporarily disabled
-  // const [inheritableGoals, setInheritableGoals] = useState<{ id: string, name: string | null, indicatorParameter: string }[]>([])
-  const metaRoadmapTarget = useMemo(() => {
-    // The meta roadmap that the parent meta roadmap works towards, if any
-    return metaRoadmapAlternatives?.find((parentRoadmap) => parentRoadmap.id === metaRoadmapAlternatives?.find((roadmap) => roadmap.id === metaRoadmapId)?.parentRoadmapId);
-  }, [metaRoadmapId, metaRoadmapAlternatives]);
+  const selectedOrg = orgOptions.find(org => org.id === orgId);
+  // Sharing settings are manager-only on existing content; on create the creator sets the initial sharing
+  const mayEditSharing = !!selectedOrg && (isSuperAdmin || selectedOrg.role === OrgRole.MANAGER || !currentRoadmap);
+  const mayEditPublic = !!selectedOrg && (isSuperAdmin || selectedOrg.role === OrgRole.MANAGER);
 
-  // Fetch inheritable goals when the target version changes
-  // Temporarily disabled
-  // useEffect(() => {
-  //   setIsLoading(true)
-  //   clientSafeGetOneRoadmap(metaRoadmapTarget?.roadmapVersions.find((version) => version.version === targetVersion)?.id || "")
-  //     .then((roadmap) => {
-  //       if (!roadmap) {
-  //         setInheritableGoals([]);
-  //         setIsLoading(false);
-  //         return;
-  //       }
-  //       setInheritableGoals(roadmap.goals);
-  //       setIsLoading(false);
-  //       return;
-  //     })
-  //     .catch(() => {
-  //       setInheritableGoals([]);
-  //       setIsLoading(false);
-  //       return;
-  //     })
-  // }, [metaRoadmapTarget, targetVersion])
+  const customRoadmapTypes = {
+    [RoadmapType.NATIONAL]: t("common:scope.national"),
+    [RoadmapType.REGIONAL]: t("common:scope.regional"),
+    [RoadmapType.MUNICIPAL]: t("common:scope.municipal"),
+    [RoadmapType.LOCAL]: t("common:scope.local"),
+    [RoadmapType.ORGANIZATIONAL]: t("common:scope.organizational"),
+    [RoadmapType.OTHER]: t("common:scope.other"),
+  };
 
-  // Validate file when it changes
-  useEffect(() => {
-    if (!currentFile) return;
-    if (currentFile) {
-      setIsLoading(true);
-      try {
-        currentFile.arrayBuffer()
-          .then((buffer) => parseCsv(buffer))
-          .then((csv) => {
-            checkForBadDecoding(csv, t, addToast);
-            return csvToGoalList(csv, () => addToast(t("forms:roadmap.scale_deprecated_extended"), "warning"));
-          })
-          .then(() => setIsLoading(false))
-          .catch((err: unknown) => {
-            throw new Error(t("forms:roadmap.file_read_error", { error: err instanceof Error ? err.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }));
-          });
-      }
-      catch (err) {
-        addToast(t("forms:roadmap.file_read_error", { error: err instanceof Error ? err.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }), "error");
-        setIsLoading(false);
-        return;
-      }
-    }
-  }, [addToast, currentFile, t]);
-
-  async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
+  function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!metaRoadmapId && !currentRoadmap) { return; }
-
+    // Prevent double submission
+    if (isLoading) return;
     setIsLoading(true);
 
     const form = event.target.elements;
-    const description = (form.namedItem("description") as HTMLInputElement | null)?.value ?? null;
-    const visibility = (form.namedItem("visibility") as RadioNodeList)?.value;
-    const editability = (form.namedItem("editability") as RadioNodeList)?.value;
 
-    let goals: GoalCreateFull[] = [];
-    if (currentFile) {
-      try {
-        goals = csvToGoalList(parseCsv(await currentFile.arrayBuffer().then((buffer) => { return buffer; })), () => addToast(t("forms:roadmap.scale_deprecated"), "warning"));
-      }
-      catch (err) {
-        setIsLoading(false);
-        addToast(t("forms:roadmap.roadmap_version_creation_error", { error: err instanceof Error ? err.message || t("forms:roadmap.unknown_error") : t("forms:roadmap.unknown_error") }), "error");
-        return;
-      }
+    const description = form.namedItem("description") as HTMLInputElement | null;
+    if (!description?.value && !currentRoadmap) {
+      event.target.reportValidity();
+      setIsLoading(false);
+      addToast(t("forms:roadmap.description_required"), "warning");
+      return;
     }
 
-    /** 
-     * ## DEPRECATED - use recipes instead
-     * TODO: Migrate to recipes before deployment
-     */
-    const inheritGoalIds: string[] = [];
-    (form.namedItem('inherit-goals') as RadioNodeList | null)?.forEach((checkbox) => {
-      if (checkbox.checked) {
-        inheritGoalIds.push(checkbox.value);
-      }
-    });
+    const geoAreaCode = (form.namedItem("geo-area") as HTMLButtonElement | null)?.value || null;
 
     let formData: RoadmapCreateInput | RoadmapUpdateInput;
-    if (currentRoadmap) {
-      // Updating existing roadmap
+    if (!currentRoadmap) {
+      // Create
       formData = {
-        roadmapId: currentRoadmap.id,
-        timestamp: timestamp,
-
-        description: description ?? undefined,
-        targetVersion: parseInt((form.namedItem('target-version') as HTMLSelectElement)?.value, 10) || null,
-        isPublic: visibility === "public",
-
-        metaRoadmapId: undefined, // Can't change the metaRoadmap after creation
-        goals: goals,
-
-        editors: editability === "custom" ? (form.namedItem("editors") as HTMLInputElement)?.value.split(',').map(string => string.trim()).filter(Boolean) : [],
-        viewers: visibility === "custom" ? (form.namedItem("viewers") as HTMLInputElement)?.value.split(",").map(s => s.trim()).filter(Boolean) : [],
-        editGroups: editability === "custom" ? (form.namedItem("editor-groups") as HTMLButtonElement)?.value.split(',').filter(Boolean) : [],
-        viewGroups: visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
-
-        // DEPRECATED - moved to description
-        links: undefined,
-      };
+        name: (form.namedItem("name") as HTMLInputElement)?.value,
+        description: (form.namedItem("description") as HTMLInputElement | null)?.value || "", // Should always have a value due to the check above, but just in case
+        type: ((form.namedItem("type") as HTMLSelectElement)?.value as RoadmapType) || undefined,
+        actor: (form.namedItem("actor") as HTMLInputElement)?.value || null,
+        geoAreaCode: geoAreaCode,
+        orgId: orgId,
+        access: access,
+        parentRoadmapId: (form.namedItem("parent-roadmap") as HTMLButtonElement)?.value || undefined,
+      } satisfies RoadmapCreateInput;
     } else {
-      // Creating new roadmap
+      // Update
       formData = {
-        roadmapId: undefined,
-        timestamp: undefined,
-
-        description: description ?? null,
-        targetVersion: parseInt((form.namedItem('target-version') as HTMLSelectElement)?.value, 10) || null,
-        isPublic: visibility === "public",
-
-        metaRoadmapId: metaRoadmapId,
-        goals: goals,
-
-        editors: editability === "custom" ? (form.namedItem("editors") as HTMLInputElement)?.value.split(',').map(string => string.trim()).filter(Boolean) : [],
-        viewers: visibility === "custom" ? (form.namedItem("viewers") as HTMLInputElement)?.value.split(",").map(s => s.trim()).filter(Boolean) : [],
-        editGroups: editability === "custom" ? (form.namedItem("editor-groups") as HTMLButtonElement)?.value.split(',').filter(Boolean) : [],
-        viewGroups: visibility === "custom" ? (form.namedItem("viewer-groups") as HTMLInputElement)?.value.split(",").filter(Boolean) : [],
-
-        // DEPRECATED - moved to description
-        links: undefined,
-      };
+        id: currentRoadmap.id,
+        name: (form.namedItem("name") as HTMLInputElement)?.value,
+        description: (form.namedItem("description") as HTMLInputElement | null)?.value,
+        type: ((form.namedItem("type") as HTMLSelectElement)?.value as RoadmapType) || undefined,
+        actor: (form.namedItem("actor") as HTMLInputElement)?.value ?? undefined,
+        geoAreaCode: geoAreaCode,
+        // Sharing settings are only sent when the user may (and did) edit them
+        access: mayEditSharing ? access : undefined,
+        parentRoadmapId: (form.namedItem("parent-roadmap") as HTMLButtonElement)?.value || undefined,
+        timestamp,
+      } satisfies RoadmapUpdateInput;
     }
 
     const formJSON = JSON.stringify(formData);
@@ -190,64 +110,19 @@ export default function RoadmapForm({
   // Indexes for the data-position attribute in the legend elements
   let positionIndex = 1;
 
-  const metaRoadmaps = useMemo(() => {
-    return (metaRoadmapAlternatives ?? []).map(metaRoadmap => ({
-      name: metaRoadmap.name,
-      value: metaRoadmap.id,
-    }));
-  }, [metaRoadmapAlternatives]);
-
   return (
-    <form onSubmit={(e: React.ChangeEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      void handleSubmit(e);
-    }}>
-      {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when adding new entries in AccessSelector (for example, when pressing enter to add someone to the list of editors) */}
+    <form onSubmit={handleSubmit} >
+      {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when pressing enter in text inputs */}
       <input type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
-      {(!(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap) || metaRoadmapTarget?.roadmapVersions.length) ?
+      <fieldset className={`${styles.timeLineFieldset} width-100`}>
+        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:roadmap.description_legend")}</legend>
+        <label>
+          {t("forms:roadmap.name")}
+          <input id="name" name="name" className="margin-top-25 margin-bottom-100" type="text" defaultValue={currentRoadmap?.name ?? undefined} autoComplete="off" required={true} />
+        </label>
 
-        <fieldset className={`${styles.timeLineFieldset} width-100`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:roadmap.relationship_legend")}</legend>
-          {/* Allow user to select parent metaRoadmap if not already selected */}
-          {!(currentRoadmap?.metaRoadmapId || defaultMetaRoadmap) ?
-            <>
-              <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:roadmap.relationship_label")}</label> {/* TODO: Not capitalized properly due to issues in english translation */}
-              <SelectSingleSearch
-                props={{
-                  required: true,
-                  className: "margin-top-25 margin-bottom-100",
-                  id: "parent-roadmap",
-                  name: "parent-roadmap",
-                  placeholder: `${t("common:tsx.select")}  ${t("common:roadmap_series_one")}`,
-                }}
-                onChange={(value) => value?.value ? setMetaRoadmapId(value.value) : setMetaRoadmapId("")}
-                options={metaRoadmaps}
-              />
-
-            </>
-            : null
-          }
-
-          {metaRoadmapTarget?.roadmapVersions.length ? <label>
-            {t("forms:roadmap.roadmap_target_label", { targetName: metaRoadmapTarget.name })}
-            <select className="block margin-top-25 margin-bottom-100 width-100" name="target-version" id="target-version" required={true} defaultValue={currentRoadmap?.targetVersion ?? ""} onChange={(e) => setTargetVersion(parseInt(e.target.value, 10) || null)}>
-              <option value="">{t("forms:roadmap.roadmap_target_no_chosen")}</option>
-              <option value={0}>{t("forms:roadmap.roadmap_target_always_latest")}</option>
-              {metaRoadmapTarget.roadmapVersions.map((version) => {
-                return (
-                  <option key={version.version} value={version.version}>{`Version ${version.version}`}</option>
-                );
-              })}
-            </select>
-          </label> : null}
-        </fieldset>
-        : null
-      }
-
-      <fieldset className={`${styles.timeLineFieldset} width-100 ${positionIndex > 1 ? "margin-top-200" : ""}`}>
-        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:roadmap.roadmap_version_legend")}</legend>
-        <label id="description-label">{t("forms:roadmap.roadmap_description")}</label>
+        <label id="description-label">{t("forms:roadmap.description")}</label>
         <TextEditor
           className="margin-top-25 margin-bottom-100" // TODO: Need label for texteditormenu
           id="description"
@@ -257,68 +132,154 @@ export default function RoadmapForm({
           content={currentRoadmap ? currentRoadmap.description : ""}
           updater={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
         />
-        <input ref={descriptionRef} type="hidden" name="description" />
+        <input required={true} ref={descriptionRef} type="hidden" name="description" />
 
+        {/* The owning org is chosen at creation and cannot be changed afterwards */}
+        {!currentRoadmap ? (
+          <label>
+            {t("forms:roadmap.org")}
+            <select
+              className="block margin-top-25 margin-bottom-100 width-100"
+              name="org"
+              id="org"
+              value={orgId}
+              required={true}
+              onChange={(e) => setOrgId(e.target.value)}
+            >
+              <option value="" disabled={true}>{t("forms:roadmap.no_chosen_org")}</option>
+              {orgOptions.map((org) => (
+                <option key={org.id} value={org.id}>{org.name}</option>
+              ))}
+            </select>
+          </label>
+        ) : null}
       </fieldset>
 
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:roadmap.upload_goals")}</legend>
+        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:roadmap.actor_legend")}</legend>
         <label>
-          <Trans
-            i18nKey={"forms:roadmap.goal_accepted_formats"}
-            tOptions={{ fileTypes: [".csv"], encodings: ["UTF-8"], type: "unit" }}
-            components={{ small: <small /> }}
-          />
-          <div className="focusable flex width-fit-content align-items-center gap-50 margin-top-25 margin-bottom-100">
-            <div className="gray-90 padding-block-50 padding-inline-75" style={{ borderRadius: '.25rem 0 0 .25rem' }}>
-              <IconUpload width={20} height={20} aria-hidden={true} className="grid" />
-            </div>
-            <input
-              type="file"
-              name="csv-upload"
-              id="csv-upload"
-              accept=".csv"
-              onChange={(e) => e.target.files ? setCurrentFile(e.target.files[0]) : setCurrentFile(null)}
-            />
-          </div>
+          {t("forms:roadmap.type")}
+          <select
+            className="block margin-top-25 margin-bottom-100 width-100"
+            name="type"
+            id="type"
+            defaultValue={currentRoadmap?.type ?? ""}
+            required={true}
+            onChange={(e) => setRoadmapType((e.target as HTMLSelectElement).value)}
+          >
+            <option value="" disabled={true}>{t("forms:roadmap.no_chosen_roadmap_scope")}</option>
+            {
+              Object.values(RoadmapType).map((value) => {
+                if (value === RoadmapType.NATIONAL && !isSuperAdmin) return null;
+                return (
+                  <option key={value} value={value}>{value in customRoadmapTypes ? customRoadmapTypes[value] : value}</option>
+                );
+              })
+            }
+          </select>
         </label>
+
+        <label htmlFor="actor">{t("forms:roadmap.actor")}</label>
+        <TextSingleAutocomplete
+          props={{
+            className: "margin-top-25 margin-bottom-100",
+            id: "actor",
+            name: "actor",
+            required: true,
+            defaultValue: currentRoadmap?.actor ?? undefined,
+            placeholder: roadmapType === "REGIONAL" || roadmapType === "MUNICIPAL" ? t("forms:combobox.default_autocomplete_placeholder") : t("forms:roadmap.actor"),
+          }}
+          // L10N: the current implementation uses only Swedish counties and municipalities; should probably be adapted for international use in the future
+          options={
+            roadmapType === "REGIONAL"
+              ? Object.keys(countiesAndMunicipalities).map(item => ({ name: item, value: item }))
+              : roadmapType === "MUNICIPAL"
+                ? Object.values(countiesAndMunicipalities).flat().map(item => ({ name: item, value: item }))
+                : []
+          }
+          value={actor}
+          setter={setActor}
+        />
+
+        {/* Structured geo marker (SCB region code); the actor above stays a free-text display label */}
+        <label id="geo-area-label" htmlFor="geo-area">{t("forms:roadmap.geo_area")}</label>
+        <SelectSingleSearch
+          props={{
+            className: "margin-top-25 margin-bottom-100",
+            id: "geo-area",
+            name: "geo-area",
+            placeholder: t("forms:combobox.select_or_leave"),
+          }}
+          defaultValue={
+            currentRoadmap?.geo_area_code
+              ? (() => {
+                const selected = Object.entries(areaCodes).find(([, code]) => code === currentRoadmap.geo_area_code);
+                return selected ? { name: selected[0], value: selected[1] } : false;
+              })()
+              : false
+          }
+          options={[
+            { name: t("forms:roadmap.no_chosen_geo_area"), value: "" },
+            ...Object.entries(areaCodes)
+              .sort((a, b) => areaSorter([a[0], a[1]], [b[0], b[1]]))
+              .map(([name, code]) => ({ name: name, value: code })),
+          ]}
+        />
       </fieldset>
 
+      {/* Sharing settings; manager-only on existing content */}
+      {selectedOrg && mayEditSharing ? (
+        <ConfigureAccess
+          key={selectedOrg.id}
+          groups={selectedOrg.groups}
+          initialAccess={currentRoadmap?.access_control}
+          mayEditPublic={mayEditPublic}
+          onChange={setAccess}
+          positionIndex={positionIndex++}
+          legend={t("forms:roadmap.legend_visibility")}
+        />
+      ) : null}
 
-      {/* TODO: Use recipes */}
-      {/* TODO: Add option to inherit some/all goals from previous versions of same roadmap */}
-      {/* TODO: Add checkboxes for inheriting some/all goals from another roadmap (not the target) with `inheritFromID` */}
-      {/* TODO: Allow choosing which roadmap to inherit from, might be different from target */}
-      {/* Temporarily disabled */}
-      {/* RE-ENABLE WHEN UPDATED */}
-      {/*
-          inheritableGoals.length > 0 && (
-            <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-              <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:roadmap.inherit_goal_legend")}</legend>
-              {
-                inheritableGoals.map((goal) => {
-                  return (
-                    <label key={goal.id} className="flex width-fit-content margin-bottom-75 align-items-center gap-50">
-                      <input type="checkbox" name={`inherit-goals`} id={`inherit-goals-${goal.id}`} value={goal.id} />
-                      {`${goal.name || goal.indicatorParameter}`}
-                    </label>
-                  )
-                })
-              }
-            </fieldset>
-          )
-        */}
-
-      <ConfigureAccess
-        user={user}
-        userGroups={userGroups}
-        currentRoadmap={currentRoadmap}
-        positionIndex={positionIndex}
-        legends={{
-          viewers: t("forms:roadmap.legend_visibility"),
-          editors: t("forms:roadmap.legend_editability"),
-        }}
-      />
+      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+        <legend
+          // Technically incrementing here is unused but if you add a another entry after this one it will be correct
+          // eslint-disable-next-line no-useless-assignment
+          data-position={positionIndex++}
+          className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}
+        >
+          {t("forms:roadmap.relationship_legend")}</legend>
+        <label id="parent-roadmap-label" htmlFor="parent-roadmap">{t("forms:roadmap.relationship_label")}</label>
+        {parentRoadmapOptions ? ( // TODO: This might not make sense? // TODO: Memoize this?
+          <SelectSingleSearch
+            props={{
+              className: "margin-top-25",
+              id: "parent-roadmap",
+              name: "parent-roadmap",
+              placeholder: t("forms:combobox.select_or_leave"),
+              disabled: !parentRoadmapOptions,
+            }}
+            defaultValue={ // TODO: Might be a better way to do this
+              currentRoadmap
+                ? currentRoadmap.parent_roadmap_id
+                  ? (() => {
+                    const selected = parentRoadmapOptions.find(
+                      (roadmap) => roadmap.id === currentRoadmap.parent_roadmap_id,
+                    );
+                    return selected ? { name: selected.name, value: selected.id } : false;
+                  })()
+                  : { name: t("forms:roadmap.relationship_no_chosen"), value: "" }
+                : false
+            }
+            options={[
+              { name: t("forms:roadmap.relationship_no_chosen"), value: "" },
+              ...parentRoadmapOptions.map((roadmap) => ({
+                name: roadmap.name,
+                value: roadmap.id,
+              })),
+            ]}
+          />
+        ) : null}
+      </fieldset>
 
       <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
         <button
@@ -331,6 +292,6 @@ export default function RoadmapForm({
           {currentRoadmap ? t("common:tsx.save") : t("forms:roadmap.create")}
         </button>
       </div>
-    </form >
+    </form>
   );
 }

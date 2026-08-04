@@ -8,7 +8,7 @@
     "action": "$t(common:action_one, titleCase):",
     "goal": "$t(common:goal_one, titleCase):",
     "home": "$t(common:tsx.home)",
-    "roadmap_series": "$t(common:roadmap_series_one, titleCase):",
+    "roadmap": "$t(common:roadmap_one, titleCase):",
     "version": "Version {{version}}",
     "version_label": "Version:"
   },
@@ -19,7 +19,8 @@
     "comment_count_other": "{{count}} kommentarer",
     "comment_count_zero": "Inga kommentarer",
     "relative_time": "{{date, timeAgo}}",
-    "send": "Skicka"
+    "send": "Skicka",
+    "deleted_user": "Raderad användare"
   },
   "confirm_delete": {
     "confirmation": "Är du säker på att du vill radera inlägget <strong>{{targetName}}</strong>?<br />Detta går inte att ångra.",
@@ -163,6 +164,7 @@
     },
     "delete_variable": "Radera variabel:",
     "edit_variable": "Redigera variabel",
+    "editing_recipe_named": "Redigerar recept {{name}}",
     "equation": "Använder ekvation",
     "external_data": "Extern data",
     "goal_or_effect": "Målbana eller effekt",
@@ -219,11 +221,11 @@
     "goal_count_descending": "Antal $t(common:goal_other) (fallande)",
     "name_ascending": "Namn (Ö-A)",
     "name_descending": "Namn (A-Ö)",
-    "roadmap_type": "Typ av färdplansserie",
-    "search_roadmaps": "Sök bland $t(common:roadmap_series_other)",
+    "roadmap_type": "Typ av färdplan",
+    "search_roadmaps": "Sök bland $t(common:roadmap_other)",
     "sort_by": "Sortera utifrån"
   },
-  "roadmap_series_one_deleter": {
+  "roadmap_deleter": {
     "remove_metadata": "Ta bort metadata"
   },
   "roadmap_table": {
@@ -231,7 +233,7 @@
     "title": "{{name}} (v{{version}})"
   },
   "roadmap_tree": {
-    "no_roadmap_series_ones": "Inga $t(common:roadmap_series_other) hittades. Om du har några aktiva filter hittades inga $t(common:roadmap_series_other) som matchar dem.",
+    "no_roadmaps": "Inga $t(common:roadmap_other) hittades. Om du har några aktiva filter hittades inga $t(common:roadmap_other) som matchar dem.",
     "show_source_alt": "Visa underliggande $t(common:roadmap_version_other)",
     "title": "{{name}} (v{{version}})"
   },
@@ -274,7 +276,7 @@
     "feature_goal": "Lyft fram $t(common:goal_one)",
     "feature_goal_stop": "Sluta lyfta fram $t(common:goal_one)",
     "go_to_goal": "Gå till $t(common:goal_one)",
-    "go_to_series": "Gå till $t(common:roadmap_series_one)",
+    "go_to_series": "Gå till $t(common:roadmap_one)",
     "go_to_version": "Gå till $t(common:roadmap_version_one)",
     "historical_data": "Historisk data",
     "historical_data_add": "Lägg till historisk data",
@@ -306,7 +308,7 @@
     "access_level": "Behörighet",
     "editing_access": "Redigeringsbehörighet",
     "posts": "Inlägg",
-    "roadmap_series": "$t(common:roadmap_series_other, titleCase)",
+    "roadmaps": "$t(common:roadmap_other, titleCase)",
     "roadmap_versions": "$t(common:roadmap_version_other, titleCase)"
   }
 }

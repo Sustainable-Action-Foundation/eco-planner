@@ -2,7 +2,7 @@
 
 import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
 import React from 'react';
-import type { DataSeries, Goal } from "@/lib/prisma/generated";
+import type { Goal } from "@/types";
 import { GraphType } from "@/types/enums";
 import { setStoredGraphType } from '../functions/graphFunctions';
 import { useTranslation } from "react-i18next";
@@ -14,7 +14,7 @@ export default function GraphSelector({
   currentSelection,
   setter,
 }: {
-  goal: Goal & { dataSeries: DataSeries | null },
+  goal: Pick<Goal, "id" | "data_series">,
   currentSelection: GraphType | "",
   setter: Dispatch<SetStateAction<GraphType | "">>
 }) {
@@ -46,7 +46,7 @@ export default function GraphSelector({
         <option value={GraphType.Main}>{t("graphs:graph_selector.goal")}</option>
         <option value={GraphType.Delta}>{t("graphs:graph_selector.annual_change")}</option>
         { // Don't allow relative graph if the main graph is already percent or fraction
-          !percentAndFraction.includes(goal.dataSeries?.unit?.toLowerCase() ?? "") &&
+          !percentAndFraction.includes(goal.data_series?.unit?.toLowerCase() ?? "") &&
           <option value={GraphType.Relative}>{t("graphs:graph_selector.percentage_change")}</option>
         } 
       </select>

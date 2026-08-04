@@ -7,7 +7,7 @@ import { calculatePredictedOutcome, getStoredGraphType } from "../../functions/g
 import GraphSelector from "../../graphSelectors/graphSelector";
 import SecondaryGoalSelector from "../../graphSelectors/secondaryGoalSelector";
 import { Trans, useTranslation } from "react-i18next";
-import type { DataSeries, DateValues, DateValuesWithUnit, Goal, LoginData, Roadmap } from "@/types";
+import type { DataSeries, DateValues, DateValuesWithUnit, Goal, LoginData, RoadmapIteration } from "@/types";
 import { GraphType } from "@/types/enums";
 import CopyAndScale from "@/components/modals/copyAndScale";
 import styles from './goal.module.css';
@@ -24,7 +24,7 @@ export default function GoalGraphContainer({
   goal,
   secondaryGoal,
   childGoals,
-  roadmap,
+  iteration,
   parentGoal,
   session,
   roadmapOptions,
@@ -32,7 +32,7 @@ export default function GoalGraphContainer({
   goal: Goal,
   secondaryGoal: Goal | null,
   childGoals: Goal[],
-  roadmap: Roadmap,
+  iteration: RoadmapIteration,
   parentGoal: Goal | null,
   session: LoginData,
   roadmapOptions: {
@@ -52,20 +52,20 @@ export default function GoalGraphContainer({
     ? `${historicalDatasetLabel} (${t("common:historical_data")})`
     : t("common:historical_data");
 
-  const siblings = findSiblings(roadmap, goal);
-  const siblingsSeries: Array<(DataSeries | DateValuesWithUnit) & { name: string }> = findSiblings(roadmap, goal)
+  const siblings = findSiblings(iteration, goal);
+  const siblingsSeries: Array<(DataSeries | DateValuesWithUnit) & { name: string }> = findSiblings(iteration, goal)
     .filter(
-      (sibling): sibling is typeof sibling & { name: string; dataSeries: NonNullable<typeof sibling.dataSeries> } =>
-        sibling.name != null && sibling.dataSeries != null,
+      (sibling): sibling is typeof sibling & { name: string; data_series: NonNullable<typeof sibling.data_series> } =>
+        sibling.name != null && sibling.data_series != null,
     )
     .map((sibling) => {
       const dateValues: DateValues = Object.fromEntries(
-        sibling.dataSeries.values.map((value) => [value.timestamp.toISOString(), value.value]),
+        sibling.data_series.values.map((value) => [value.timestamp.toISOString(), value.value]),
       );
 
       return {
         name: sibling.name,
-        unit: parseUnit(sibling.dataSeries.unit),
+        unit: parseUnit(sibling.data_series.unit),
         dateValues,
       };
     });
@@ -130,7 +130,7 @@ export default function GoalGraphContainer({
 
       case GraphType.Delta: {
         // TODO: Is timestamp the time the value was created or the time it represents?
-        const sortedValues = [...(goal.dataSeries?.values ?? [])].sort(
+        const sortedValues = [...(goal.data_series?.values ?? [])].sort(
           (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
         );
 
@@ -149,10 +149,10 @@ export default function GoalGraphContainer({
           <GoalGraph
             chartType="main"
             series={{
-              main: goal.dataSeries && {
-                name: `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
-                unit: parseUnit(goal.dataSeries.unit),
-                dateValues: toDeltaDateValues(goal.dataSeries?.values ?? []),
+              main: goal.data_series && {
+                name: `${(goal.name || goal.indicator_parameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
+                unit: parseUnit(goal.data_series.unit),
+                dateValues: toDeltaDateValues(goal.data_series?.values ?? []),
               },
               baseline: goal.baseline && {
                 name: t("graphs:common.baseline_scenario"),
@@ -168,7 +168,7 @@ export default function GoalGraphContainer({
                 goal.effects.length > 0
                   ? {
                     name: t("graphs:common.expected_outcome"),
-                    unit: parseUnit(goal.effects[0].dataSeries?.unit),
+                    unit: parseUnit(goal.effects[0].data_series?.unit),
                     dateValues: toDeltaDateValues(
                       calculatePredictedOutcome(goal.effects, goal.baseline)
                         .filter((p): p is { x: number; y: number } => p.y !== null)
@@ -176,15 +176,15 @@ export default function GoalGraphContainer({
                     ),
                   }
                   : null,
-              comparison: secondaryGoal?.dataSeries && {
-                name: secondaryGoal.name || secondaryGoal.indicatorParameter.split('\\').slice(-1)[0],
-                unit: parseUnit(secondaryGoal.dataSeries.unit),
-                dateValues: toDeltaDateValues(secondaryGoal.dataSeries.values),
+              comparison: secondaryGoal?.data_series && {
+                name: secondaryGoal.name || secondaryGoal.indicator_parameter.split('\\').slice(-1)[0],
+                unit: parseUnit(secondaryGoal.data_series.unit),
+                dateValues: toDeltaDateValues(secondaryGoal.data_series.values),
               },
-              parent: parentGoal?.dataSeries && {
-                name: t("graphs:common.parent_counterpart", { parent: (parentGoal?.name || parentGoal?.indicatorParameter || "").split('\\').slice(-1)[0] }),
-                unit: parseUnit(parentGoal.dataSeries.unit),
-                dateValues: toDeltaDateValues(goal.dataSeries?.values ?? []),
+              parent: parentGoal?.data_series && {
+                name: t("graphs:common.parent_counterpart", { parent: (parentGoal?.name || parentGoal?.indicator_parameter || "").split('\\').slice(-1)[0] }),
+                unit: parseUnit(parentGoal.data_series.unit),
+                dateValues: toDeltaDateValues(goal.data_series?.values ?? []),
               },
             }}
           />
@@ -195,10 +195,10 @@ export default function GoalGraphContainer({
         return <GoalGraph
           chartType="main"
           series={{
-            main: goal.dataSeries && {
-              name: `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
-              unit: parseUnit(goal.dataSeries.unit),
-              dateValues: toPercentOfFirstDateValues(goal.dataSeries.values),
+            main: goal.data_series && {
+              name: `${(goal.name || goal.indicator_parameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
+              unit: parseUnit(goal.data_series.unit),
+              dateValues: toPercentOfFirstDateValues(goal.data_series.values),
             },
             baseline: goal.baseline && {
               name: t("graphs:common.baseline_scenario"),
@@ -216,7 +216,7 @@ export default function GoalGraphContainer({
                 // TODO: Not good if there are multiple different units for different effects.
                 // We likely want some conversion or warning, this includes units that differ between
                 // historical, baseline and main dataseries aswell!
-                unit: parseUnit(goal.effects[0].dataSeries?.unit),
+                unit: parseUnit(goal.effects[0].data_series?.unit),
                 dateValues: toPercentOfFirstDateValues(
                   calculatePredictedOutcome(goal.effects, goal.baseline)
                     .filter((point): point is { x: number; y: number } => point.y !== null)
@@ -224,15 +224,15 @@ export default function GoalGraphContainer({
                 ),
               }
               : null,
-            comparison: secondaryGoal?.dataSeries && {
-              name: secondaryGoal.name || secondaryGoal.indicatorParameter.split('\\').slice(-1)[0],
-              unit: parseUnit(secondaryGoal.dataSeries.unit),
-              dateValues: toPercentOfFirstDateValues(secondaryGoal.dataSeries.values),
+            comparison: secondaryGoal?.data_series && {
+              name: secondaryGoal.name || secondaryGoal.indicator_parameter.split('\\').slice(-1)[0],
+              unit: parseUnit(secondaryGoal.data_series.unit),
+              dateValues: toPercentOfFirstDateValues(secondaryGoal.data_series.values),
             },
-            parent: parentGoal?.dataSeries && {
-              name: t("graphs:common.parent_counterpart", { parent: (parentGoal?.name || parentGoal?.indicatorParameter || "").split('\\').slice(-1)[0] }),
-              unit: parseUnit(parentGoal.dataSeries.unit),
-              dateValues: toPercentOfFirstDateValues(parentGoal.dataSeries.values),
+            parent: parentGoal?.data_series && {
+              name: t("graphs:common.parent_counterpart", { parent: (parentGoal?.name || parentGoal?.indicator_parameter || "").split('\\').slice(-1)[0] }),
+              unit: parseUnit(parentGoal.data_series.unit),
+              dateValues: toPercentOfFirstDateValues(parentGoal.data_series.values),
             },
           }}
         />;
@@ -243,11 +243,11 @@ export default function GoalGraphContainer({
         return <GoalGraph
           chartType="main"
           series={{
-            main: goal.dataSeries && {
-              name: `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
-              unit: parseUnit(goal.dataSeries.unit),
+            main: goal.data_series && {
+              name: `${(goal.name || goal.indicator_parameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
+              unit: parseUnit(goal.data_series.unit),
               dateValues: Object.fromEntries(
-                goal.dataSeries.values.map((value) => [
+                goal.data_series.values.map((value) => [
                   value.timestamp.toISOString(),
                   value.value,
                 ]),
@@ -279,7 +279,7 @@ export default function GoalGraphContainer({
                 // TODO: Not good if there are multiple different units for different effects.
                 // We likely want some conversion or warning, this includes units that differ between
                 // historical, baseline and main dataseries aswell!
-                unit: parseUnit(goal.effects[0].dataSeries?.unit),
+                unit: parseUnit(goal.effects[0].data_series?.unit),
                 dateValues: Object.fromEntries(
                   calculatePredictedOutcome(goal.effects, goal.baseline)
                     .filter((point): point is { x: number; y: number } => point.y !== null)
@@ -287,21 +287,21 @@ export default function GoalGraphContainer({
                 ),
               }
               : null,
-            comparison: secondaryGoal?.dataSeries && {
-              name: secondaryGoal.name || secondaryGoal.indicatorParameter.split('\\').slice(-1)[0],
-              unit: parseUnit(secondaryGoal.dataSeries.unit),
+            comparison: secondaryGoal?.data_series && {
+              name: secondaryGoal.name || secondaryGoal.indicator_parameter.split('\\').slice(-1)[0],
+              unit: parseUnit(secondaryGoal.data_series.unit),
               dateValues: Object.fromEntries(
-                secondaryGoal.dataSeries.values.map((value) => [
+                secondaryGoal.data_series.values.map((value) => [
                   value.timestamp.toISOString(),
                   value.value,
                 ]),
               ),
             },
-            parent: parentGoal?.dataSeries && {
-              name: t("graphs:common.parent_counterpart", { parent: (parentGoal?.name || parentGoal?.indicatorParameter || "").split('\\').slice(-1)[0] }),
-              unit: parseUnit(parentGoal.dataSeries.unit),
+            parent: parentGoal?.data_series && {
+              name: t("graphs:common.parent_counterpart", { parent: (parentGoal?.name || parentGoal?.indicator_parameter || "").split('\\').slice(-1)[0] }),
+              unit: parseUnit(parentGoal.data_series.unit),
               dateValues: Object.fromEntries(
-                parentGoal.dataSeries.values.map((value) => [
+                parentGoal.data_series.values.map((value) => [
                   value.timestamp.toISOString(),
                   value.value,
                 ]),
@@ -324,15 +324,15 @@ export default function GoalGraphContainer({
             <menu className={`${styles['menu']}`}>
               <GraphSelector goal={goal} currentSelection={graphType} setter={setGraphType} />
               <SecondaryGoalSelector />
-              {(goal.dataSeries?.id && session.user) ?
+              {(goal.data_series?.id && session.user) ?
                 <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
                 : null}
             </menu>
             <h2 className={`${styles['heading']}`}>
-              {goal.name ? goal.name : goal.indicatorParameter}
+              {goal.name ? goal.name : goal.indicator_parameter}
             </h2>
             {secondaryGoal ? <p className="margin-block-0 margin-inline-auto text-align-center">
-              {t("graphs:graph_graph.compare_with_goal", { goalName: secondaryGoal.name || secondaryGoal.indicatorParameter })}
+              {t("graphs:graph_graph.compare_with_goal", { goalName: secondaryGoal.name || secondaryGoal.indicator_parameter })}
             </p> : null
             }
           </header>
@@ -390,15 +390,15 @@ export default function GoalGraphContainer({
               <menu className={`${styles['menu']}`}>
                 <GraphSelector goal={goal} currentSelection={graphType} setter={setGraphType} />
                 <SecondaryGoalSelector />
-                {(goal.dataSeries?.id && session.user) ?
+                {(goal.data_series?.id && session.user) ?
                   <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
                   : null}
               </menu>
               <h2 className={`${styles['heading']}`}>
-                {goal.name ? goal.name : goal.indicatorParameter}
+                {goal.name ? goal.name : goal.indicator_parameter}
               </h2>
               {secondaryGoal ? <p className="margin-block-0 margin-inline-auto text-align-center">
-                {t("graphs:graph_graph.compare_with_goal", { goalName: secondaryGoal.name || secondaryGoal.indicatorParameter })}
+                {t("graphs:graph_graph.compare_with_goal", { goalName: secondaryGoal.name || secondaryGoal.indicator_parameter })}
               </p> : null
               }
             </header>
@@ -450,11 +450,11 @@ export default function GoalGraphContainer({
                   chartType="siblings"
                   chartOptionsType={isStacked ? 'area' : 'line'}
                   series={{
-                    main: goal.dataSeries && {
-                      name: `${(goal.name || goal.indicatorParameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
-                      unit: parseUnit(goal.dataSeries.unit),
+                    main: goal.data_series && {
+                      name: `${(goal.name || goal.indicator_parameter).split('\\').slice(-1)[0]} (${t("common:goal_one")})`,
+                      unit: parseUnit(goal.data_series.unit),
                       dateValues: Object.fromEntries(
-                        goal.dataSeries.values.map((value) => [
+                        goal.data_series.values.map((value) => [
                           value.timestamp.toISOString(),
                           value.value,
                         ]),
@@ -471,7 +471,7 @@ export default function GoalGraphContainer({
                     <span key={sibling.id} className="flex gap-50 line-height-100">
                       <a href={`/goal/${sibling.id}`} className="flex gap-25 align-items-center">
                         <IconLink width={14} height={14} strokeWidth={1.5} />
-                        {sibling.name ? sibling.name : sibling.indicatorParameter.split('\\').at(-1)}
+                        {sibling.name ? sibling.name : sibling.indicator_parameter.split('\\').at(-1)}
                       </a>
                       {index !== siblings.length - 1 ?
                         <hr aria-orientation="vertical" className="padding-0 margin-block-25" /> /* TODO: Need to add orientation aria to other HR */
@@ -481,7 +481,7 @@ export default function GoalGraphContainer({
                 </nav>
               </footer>
             </div>
-            {/* <SiblingGraph roadmap={roadmap} goal={goal} />*/}
+            {/* <SiblingGraph iteration={iteration} goal={goal} />*/}
           </TabListSimple.TabPanel>
           : null}
       </TabListSimple>

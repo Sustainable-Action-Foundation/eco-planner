@@ -22,7 +22,7 @@ export async function proxy(req: NextRequest) {
 
   /**
    * Matches creation and editing pages, with or without trailing slashes.
-   * For example, "/metaRoadmap/create" or "/action/[actionId]/edit/"
+   * For example, "/roadmap/create" or "/action/[actionId]/edit/"
    * Also matches the new page for editing historical data for goals; "/goal/[goalId]/historical-data/"
    */
   const createOrEditRegEx = /\/(create|edit|historical-data)\/?$/;

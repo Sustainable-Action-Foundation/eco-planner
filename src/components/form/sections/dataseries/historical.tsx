@@ -36,9 +36,11 @@ export default function HistoricalSeriesSection({
 }) {
   const { t } = useTranslation(["components", "forms"]);
 
-  const savedHistoricalRecipe = goal?.historical?.recipeUsed?.recipe;
- 
-  const manualInitialDateValues = goal && resolveHistoricalDataType(goal) === HistoricalDataType.Custom
+  const savedHistoricalRecipe = goal?.historical?.recipe_used?.recipe;
+
+  // Seed each input from the saved historical data when it was made with the
+  // same input type; the other one starts empty.
+  const manualInitialDateValues = goal?.historical && resolveHistoricalDataType(goal) === HistoricalDataType.Custom
     ? dataSeriesToDateValues(goal.historical)
     : undefined;
 
@@ -140,7 +142,7 @@ export default function HistoricalSeriesSection({
           <fieldset className={`${historicalDataType === HistoricalDataType.External ? "" : "display-none"}`} disabled={historicalDataType !== HistoricalDataType.External}>
             <RecipeContextProvider
               initialRecipe={externalInitialRecipe}
-              availableDataSeries={goal?.historical?.recipeUsed?.sourceDataSeries}
+              availableDataSeries={goal?.historical?.recipe_used?.source_data_series}
             >
               <ExternalDataSeriesInput goal={goal} />
               <FormSync

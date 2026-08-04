@@ -2,15 +2,16 @@
 // Shared helpers and types for the seed scripts.
 // Pure random generators live at the top; DB-touching helpers (data series and
 // recipe creation) live at the bottom. The philosophy of the app is that data
-// series are derived through recipes, so the derive* helpers below are the main
-// way seeded data series come into existence.
+// series are derived through recipes, so every series is produced by one:
+// manual entry uses an inline manual recipe, derived series use real ones.
 
 import { prisma } from "@/lib/prisma";
-import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe";
+import { Recipe } from "@/functions/recipe";
+import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/enums";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 import type { DateValues } from "@/types";
 import { isISOIshDate } from "@/types/typeguards";
-import type { User, UserGroup } from "@/lib/prisma/generated";
+import type { Groups, Orgs, Users } from "@/lib/prisma/generated";
 import { RandomTextSE } from "../randomText";
 import { parseUnit } from "@/functions/unit";
 import { UnitFlags } from "@/types/enums";
@@ -19,13 +20,15 @@ import { UnitFlags } from "@/types/enums";
  * Shared types passed between seed modules.
  */
 export type SeededUsers = {
-  admin: User;
-  anita: User;
-  anton: User;
+  admin: Users;
+  anita: Users;
+  anton: Users;
   /** All users, handy for picking a random author. */
-  all: User[];
-  /** A user group containing the two regular users, used to test group sharing. */
-  group: UserGroup;
+  all: Users[];
+  /** The org owning all seeded content; admin manages it, anita and anton are members. */
+  org: Orgs;
+  /** A group containing the two regular users, used to test grant-based sharing. */
+  group: Groups;
 };
 
 /** A data series after it has been written to the DB, keeping its values in memory for further derivation. */
@@ -38,7 +41,7 @@ export type SeededSeries = {
 /** A goal after it has been written, keeping enough context to attach effects later. */
 export type SeededGoal = {
   id: string;
-  roadmapId: string;
+  iterationId: string;
   series: SeededSeries;
 };
 
@@ -63,13 +66,13 @@ export function getRandomDateInThePast(): Date {
   return new Date(randomInt(floor, roof));
 }
 
-/** A createdAt in the past and an updatedAt that is usually equal to it, occasionally later. */
-export function getRandomCreatedAtAndUpdatedAt(): { createdAt: Date; updatedAt: Date } {
-  const createdAt = getRandomDateInThePast();
-  const updatedAt = chance(0.75)
-    ? createdAt
-    : new Date(createdAt.getTime() + randomInt(0, 1000 * 60 * 60 * 24 * Math.floor(365.2425 * 5)));
-  return { createdAt, updatedAt };
+/** A created_at in the past and an updated_at that is usually equal to it, occasionally later. */
+export function getRandomCreatedAtAndUpdatedAt(): { created_at: Date; updated_at: Date } {
+  const created_at = getRandomDateInThePast();
+  const updated_at = chance(0.75)
+    ? created_at
+    : new Date(created_at.getTime() + randomInt(0, 1000 * 60 * 60 * 24 * Math.floor(365.2425 * 5)));
+  return { created_at, updated_at };
 }
 
 /** A grab bag of units, including empty/null/undefined to exercise the "missing" and "intentionally unitless" cases. */
@@ -126,37 +129,19 @@ export function getRandomCoherentDateValues(): DateValues {
 }
 
 /*
- * DB helpers that produce comment/link payloads for nested writes.
+ * DB helpers that produce comment payloads for nested writes.
  * The parent relation sets the foreign key implicitly, so no target id is needed.
  */
 export function makeRandomComment(users: SeededUsers) {
-  const { createdAt, updatedAt } = getRandomCreatedAtAndUpdatedAt();
   return {
-    authorId: randomOf(users.all).id,
-    commentText: RandomTextSE.sentence(randomInt(1, 20)),
-    createdAt,
-    updatedAt,
+    author_id: randomOf(users.all).id,
+    comment_text: RandomTextSE.sentence(randomInt(1, 20)),
+    ...getRandomCreatedAtAndUpdatedAt(),
   };
 }
 
 export function makeRandomComments(users: SeededUsers, count: number) {
   return new Array(count).fill(null).map(() => makeRandomComment(users));
-}
-
-export function makeRandomLink() {
-  return {
-    url: randomOf([
-      "https://sustainable-action.org/",
-      "https://www.scb.se/",
-      "https://www.naturvardsverket.se/",
-      "https://youtu.be/dQw4w9WgXcQ",
-    ]),
-    description: chance(0.6) ? RandomTextSE.sentence(randomInt(2, 5)) : undefined,
-  };
-}
-
-export function makeRandomLinks(count: number) {
-  return new Array(count).fill(null).map(() => makeRandomLink());
 }
 
 /*
@@ -169,43 +154,51 @@ function normalizeUnit(unit: string | null | undefined): string | null {
 }
 
 /**
- * Creates a "base" data series with manually-entered values and no recipe.
- * Base/manually-entered data legitimately has no recipe; derived series (below) do.
+ * Creates a data series with manually-entered values. Every series is produced by
+ * a recipe; manual entry uses an inline manual recipe (`meta.isManual`), like the app.
  */
 export async function createManualSeries(
   authorId: string,
+  orgId: string,
   dateValues: DateValues,
   unit: string | null | undefined,
 ): Promise<SeededSeries> {
-  const { createdAt, updatedAt } = getRandomCreatedAtAndUpdatedAt();
+  const dbUnit = normalizeUnit(unit);
+  const manualRecipe = Recipe.fromManualDateValues({ dateValues, unit: parseUnit(dbUnit) });
   const series = await prisma.dataSeries.create({
     data: {
-      authorId,
-      createdAt,
-      updatedAt,
+      author: { connect: { id: authorId } },
+      org: { connect: { id: orgId } },
+      ...getRandomCreatedAtAndUpdatedAt(),
       ...(unit === undefined ? {} : { unit }),
       values: { createMany: { data: dateValuesToDBDateRecord(dateValues) } },
+      recipe_used: {
+        create: {
+          recipe: manualRecipe.serialize(),
+          org: { connect: { id: orgId } },
+        },
+      },
     },
     select: { id: true },
   });
-  return { id: series.id, unit: normalizeUnit(unit), dateValues };
+  return { id: series.id, unit: dbUnit, dateValues };
 }
 
 /** Creates a data series whose every value is the first value of the source, mimicking an "initial value" baseline. */
-export async function createInitialBaseline(authorId: string, source: SeededSeries): Promise<SeededSeries> {
+export async function createInitialBaseline(authorId: string, orgId: string, source: SeededSeries): Promise<SeededSeries> {
   const firstValue = Object.values(source.dateValues)[0] ?? 0;
   const flat: DateValues = Object.fromEntries(
     Object.keys(source.dateValues).map(key => [key, firstValue]),
   );
-  return createManualSeries(authorId, flat, source.unit);
+  return createManualSeries(authorId, orgId, flat, source.unit);
 }
 
 /**
  * Derives a new data series from a source series through a 1:1 recipe (equation `${x}`).
- * The recipe is stored, linked as the new series' `recipeUsed`, and the source is
- * registered as one of the recipe's `sourceDataSeries`.
+ * The recipe is stored, linked as the new series' `recipe_used`, and the source is
+ * registered as one of the recipe's `source_data_series`.
  */
-export async function deriveOneToOne(authorId: string, source: SeededSeries, name: string): Promise<SeededSeries> {
+export async function deriveOneToOne(authorId: string, orgId: string, source: SeededSeries, name: string): Promise<SeededSeries> {
   const recipe = new Recipe({
     name,
     equation: "${källa}",
@@ -221,7 +214,7 @@ export async function deriveOneToOne(authorId: string, source: SeededSeries, nam
       },
     ],
   });
-  return createDerivedSeries(authorId, recipe, source, { ...source.dateValues });
+  return createDerivedSeries(authorId, orgId, recipe, source, { ...source.dateValues });
 }
 
 /**
@@ -230,6 +223,7 @@ export async function deriveOneToOne(authorId: string, source: SeededSeries, nam
  */
 export async function deriveByScalar(
   authorId: string,
+  orgId: string,
   source: SeededSeries,
   scalar: number,
   name: string,
@@ -259,32 +253,33 @@ export async function deriveByScalar(
   const scaled: DateValues = Object.fromEntries(
     Object.entries(source.dateValues).map(([key, value]) => [key, value / scalar]),
   );
-  return createDerivedSeries(authorId, recipe, source, scaled);
+  return createDerivedSeries(authorId, orgId, recipe, source, scaled);
 }
 
 /** Shared tail of the derive* helpers: persist the recipe, then the derived series linked back to it. */
 async function createDerivedSeries(
   authorId: string,
+  orgId: string,
   recipe: Recipe,
   source: SeededSeries,
   values: DateValues,
 ): Promise<SeededSeries> {
-  const recipeRow = await prisma.recipe.create({
+  const recipeRow = await prisma.recipes.create({
     data: {
       recipe: recipe.serialize(),
-      sourceDataSeries: { connect: { id: source.id } },
+      org: { connect: { id: orgId } },
+      source_data_series: { connect: { id: source.id } },
     },
     select: { id: true },
   });
-  const { createdAt, updatedAt } = getRandomCreatedAtAndUpdatedAt();
   const series = await prisma.dataSeries.create({
     data: {
       author: { connect: { id: authorId } },
-      createdAt,
-      updatedAt,
+      org: { connect: { id: orgId } },
+      ...getRandomCreatedAtAndUpdatedAt(),
       ...(source.unit === null ? { unit: UnitFlags.Unitless } : { unit: source.unit }),
       values: { createMany: { data: dateValuesToDBDateRecord(values) } },
-      recipeUsed: { connect: { id: recipeRow.id } },
+      recipe_used: { connect: { id: recipeRow.id } },
     },
     select: { id: true },
   });
@@ -294,9 +289,9 @@ async function createDerivedSeries(
 /**
  * Creates a pair of suggestion recipes (1:1 and scale-by-constant) that source the
  * given series, so goals inheriting from this one have something to pick.
- * Returns the created recipe ids for connecting as `recipeSuggestions`.
+ * Returns the created recipe ids for connecting as `recipe_suggestions`.
  */
-export async function createSuggestionRecipes(source: SeededSeries): Promise<string[]> {
+export async function createSuggestionRecipes(orgId: string, source: SeededSeries): Promise<string[]> {
   const oneToOne = new Recipe({
     name: "Ärv 1:1",
     equation: "${källa}",
@@ -332,8 +327,12 @@ export async function createSuggestionRecipes(source: SeededSeries): Promise<str
   });
 
   const created = await prisma.$transaction([oneToOne, byScalar].map(recipe =>
-    prisma.recipe.create({
-      data: { recipe: recipe.serialize(), sourceDataSeries: { connect: { id: source.id } } },
+    prisma.recipes.create({
+      data: {
+        recipe: recipe.serialize(),
+        org: { connect: { id: orgId } },
+        source_data_series: { connect: { id: source.id } },
+      },
       select: { id: true },
     }),
   ));

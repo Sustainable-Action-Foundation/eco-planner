@@ -1,97 +1,56 @@
 import "server-only";
 import { roadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
-import type { LoginData, Roadmap } from "@/types";
-import { getSession } from "@/lib/session";
-import { goalSorter } from "@/lib/sorters";
+import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { readableAccessControlWhere, visibleRoadmapIterationsWhere } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
+import type { Roadmap, UserAccessContext } from "@/types";
 import { cacheTag } from "next/cache";
-import { cookies } from "next/headers";
 
 /**
- * Gets specified roadmap and all goals for that roadmap.
- * 
- * Returns null if roadmap is not found or user does not have access to it. Also returns null on error.
+ * Gets specified roadmap with the iterations the user can see nested under it.
+ *
+ * Returns null if the roadmap is not found or user does not have access to it. Also returns null on error.
  * @param id ID of the roadmap to get
- * @returns Roadmap object with goals or null
+ * @returns Roadmap object with iterations
  */
 export async function getOneRoadmap(id: string): Promise<Roadmap | null> {
-  const session = await getSession(await cookies());
-  return await getCachedRoadmap(id, session.user);
+  const accessContext = await getUserAccessContext();
+  return getCachedRoadmap(id, accessContext);
 }
 
 /**
- * Caches the specified roadmap and all goals for that roadmap.
- * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap', 'goal']`, which is done in relevant API routes.
+ * Caches the specified roadmap.
+ * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap', 'roadmapIteration']`, which is done in relevant API routes.
  * @param id ID of the roadmap to cache
- * @param user Data from user's session cookie.
+ * @param accessContext Requesting user's access context (null for anonymous visitors); part of the cache key.
  */
-async function getCachedRoadmap(id: string, user: LoginData['user']) {
+async function getCachedRoadmap(id: string, accessContext: UserAccessContext | null): Promise<Roadmap | null> {
   'use cache';
-  cacheTag('database', 'roadmap', 'goal', 'action');
+  cacheTag('database', 'roadmap', 'roadmapIteration');
+
   let roadmap: Roadmap | null;
-
-  // If user is admin, always get the roadmap
-  if (user?.isAdmin) {
-    try {
-      roadmap = await prisma.roadmap.findUnique({
-        where: { id },
-        include: roadmapInclusionSelection,
-      }) satisfies Roadmap | null;
-    }
-    catch (err) {
-      console.error(`Error fetching admin roadmap with ID ${id}:`, { err });
-      return null;
-    }
-
-    roadmap?.goals.sort(goalSorter);
-
-    return roadmap;
-  }
-
-  // If user is logged in, get the roadmap if they have access to it
-  if (user?.isLoggedIn) {
-    try {
-      roadmap = await prisma.roadmap.findUnique({
-        where: {
-          id,
-          OR: [
-            { authorId: user.id },
-            { editors: { some: { id: user.id } } },
-            { viewers: { some: { id: user.id } } },
-            { editGroups: { some: { users: { some: { id: user.id } } } } },
-            { viewGroups: { some: { users: { some: { id: user.id } } } } },
-            { isPublic: true },
-          ],
-        },
-        include: roadmapInclusionSelection,
-      }) satisfies Roadmap | null;
-    }
-    catch (err) {
-      console.error(`Error fetching roadmap with ID ${id} for user ${user.id}:`, { err });
-      return null;
-    }
-
-    roadmap?.goals.sort(goalSorter);
-
-    return roadmap;
-  }
-
-  // If user is not logged in, get the roadmap if it is public
   try {
-    roadmap = await prisma.roadmap.findUnique({
+    roadmap = await prisma.roadmaps.findUnique({
       where: {
         id,
-        isPublic: true,
+        access_control: readableAccessControlWhere(accessContext),
       },
-      include: roadmapInclusionSelection,
-    }) satisfies Roadmap | null;
+      include: {
+        ...roadmapInclusionSelection,
+        iterations: {
+          where: visibleRoadmapIterationsWhere(accessContext),
+          include: roadmapInclusionSelection.iterations.include,
+        },
+      },
+    });
   }
   catch (err) {
-    console.error(`Error fetching public roadmap with ID ${id}:`, { err });
+    console.error("Error fetching roadmap:", { err });
     return null;
   }
 
-  roadmap?.goals.sort(goalSorter);
+  // Sort iterations newest version first
+  roadmap?.iterations.sort((a, b) => b.version - a.version);
 
   return roadmap;
 };

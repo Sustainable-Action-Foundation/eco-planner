@@ -1,4 +1,6 @@
 import findTypeFromId from "@/functions/findTypeFromId";
+import { getAccessContextById } from "@/fetchers/getUserAccessContext";
+import { readableAccessControlWhere, visibleActionsWhere, visibleRoadmapIterationsWhere } from "@/lib/accessFilters";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import type { JSONValue } from "@/types";
@@ -35,18 +37,74 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Commenting requires view access to the commented object (signed-in is already checked)
+  const accessContext = await getAccessContextById(session.user.id);
+  if (!accessContext) {
+    return Response.json({ message: 'Unauthenticated, only registered users can comment' },
+      { status: 401 },
+    );
+  }
+
+  let canView: boolean;
+  try {
+    switch (objectType) {
+      case "action": {
+        canView = !!await prisma.actions.findUnique({
+          where: { id: comment.objectId, AND: [visibleActionsWhere(accessContext)] },
+          select: { id: true },
+        });
+        break;
+      }
+      case "goal": {
+        canView = !!await prisma.goals.findUnique({
+          where: { id: comment.objectId, roadmap_iteration: visibleRoadmapIterationsWhere(accessContext) },
+          select: { id: true },
+        });
+        break;
+      }
+      case "roadmap": {
+        canView = !!await prisma.roadmaps.findUnique({
+          where: { id: comment.objectId, access_control: readableAccessControlWhere(accessContext) },
+          select: { id: true },
+        });
+        break;
+      }
+      case "roadmapIteration": {
+        canView = !!await prisma.roadmapIterations.findUnique({
+          where: { id: comment.objectId, AND: [visibleRoadmapIterationsWhere(accessContext)] },
+          select: { id: true },
+        });
+        break;
+      }
+      default: {
+        canView = false;
+        break;
+      }
+    }
+  } catch {
+    canView = false;
+  }
+
+  if (!canView) {
+    return Response.json({ message: 'You do not have access to the object you are trying to comment on' },
+      { status: 403 },
+    );
+  }
+
   // Create comment
   try {
-    const newComment = await prisma.comment.create({
+    const newComment = await prisma.comments.create({
       data: {
-        commentText: comment.commentText,
-        authorId: session.user.id,
-        actionId: objectType === "action" ? comment.objectId : undefined,
-        goalId: objectType === "goal" ? comment.objectId : undefined,
-        roadmapId: objectType === "roadmap" ? comment.objectId : undefined,
+        comment_text: comment.commentText,
+        author_id: session.user.id,
+        action_id: objectType === "action" ? comment.objectId : undefined,
+        goal_id: objectType === "goal" ? comment.objectId : undefined,
+        roadmap_id: objectType === "roadmap" ? comment.objectId : undefined,
+        roadmap_iteration_id: objectType === "roadmapIteration" ? comment.objectId : undefined,
       },
     });
-    revalidateTag(objectType, 'max');
+    // Expire immediately so the commenter sees their own comment on refresh
+    revalidateTag(objectType, { expire: 0 });
     return Response.json({ message: 'Comment created', id: newComment.id },
       { status: 200 },
     );

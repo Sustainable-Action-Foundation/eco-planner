@@ -1,9 +1,13 @@
 // Seeds actions and the effects that connect them to goals. Covers action inheritance
-// (v2 actions inherit from v1), orphaned actions (no effects), notes, links and comments.
+// (v2 actions inherit from v1), orphaned actions (no effects), a roadmapless action
+// (the public action database), free-form fields, and comments.
 
 import { prisma } from "@/lib/prisma";
 import { ActionImpactType } from "@/lib/prisma/generated";
+import { ActionFieldHeaders } from "@/functions/actionFields";
+import { Recipe } from "@/functions/recipe";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
+import { parseUnit } from "@/functions/unit";
 import type { SeededGoal, SeededUsers } from "./helpers.ts";
 import {
   RandomTextSE,
@@ -12,7 +16,7 @@ import {
   getRandomCreatedAtAndUpdatedAt,
   getRandomUnit,
   makeRandomComments,
-  makeRandomLinks,
+  randomIndicatorParameter,
   randomInt,
   randomOf,
 } from "./helpers.ts";
@@ -21,7 +25,7 @@ import type { SeededGoals } from "./seed-goals.ts";
 
 export async function seedActions(
   users: SeededUsers,
-  roadmaps: SeededRoadmaps["roadmaps"],
+  iterations: SeededRoadmaps["iterations"],
   goals: SeededGoals,
 ): Promise<void> {
   /*
@@ -29,7 +33,7 @@ export async function seedActions(
    */
   const nationalV1Actions: string[] = [];
   for (let i = 0; i < 4; i++) {
-    const actionId = await createAction(users, roadmaps.nationalV1.id, {});
+    const actionId = await createAction(users, iterations.nationalV1.id, {});
     nationalV1Actions.push(actionId);
     // Leave the last action orphaned to exercise actions without effects.
     if (i < 3) await addEffects(users, actionId, goals.nationalV1);
@@ -39,7 +43,7 @@ export async function seedActions(
    * National v2 - actions that inherit from the v1 actions and affect v2 goals.
    */
   for (let i = 0; i < 3; i++) {
-    const actionId = await createAction(users, roadmaps.nationalV2.id, { parentActionId: nationalV1Actions[i] });
+    const actionId = await createAction(users, iterations.nationalV2.id, { parentActionId: nationalV1Actions[i] });
     await addEffects(users, actionId, goals.nationalV2);
   }
 
@@ -47,37 +51,46 @@ export async function seedActions(
    * Uppsala v1 - regional actions affecting the regional goals.
    */
   for (let i = 0; i < 2; i++) {
-    const actionId = await createAction(users, roadmaps.uppsalaV1.id, {});
+    const actionId = await createAction(users, iterations.uppsalaV1.id, {});
     await addEffects(users, actionId, goals.uppsalaV1);
   }
+
+  /*
+   * One roadmapless action: the org-maintained public action database.
+   */
+  await createAction(users, null, {});
 }
 
-/** Creates an action with a random spread of fields, notes, links and comments. */
+/** Creates an action with a random spread of free-form fields and comments. */
 async function createAction(
   users: SeededUsers,
-  roadmapId: string,
+  iterationId: string | null,
   options: { parentActionId?: string },
 ): Promise<string> {
   const startYear = randomInt(2020, 2030);
-  const action = await prisma.action.create({
+
+  // The old fixed columns live on as ActionFields rows with canonical headers
+  const fields: { header: string, value: string }[] = [];
+  if (chance(0.8)) fields.push({ header: ActionFieldHeaders.Description, value: RandomTextSE.paragraph(randomInt(1, 2)) });
+  if (chance(0.5)) fields.push({ header: ActionFieldHeaders.CostEfficiency, value: RandomTextSE.sentence(randomInt(3, 8)) });
+  if (chance(0.6)) fields.push({ header: ActionFieldHeaders.ExpectedOutcome, value: RandomTextSE.paragraph(1) });
+  if (chance(0.5)) fields.push({ header: ActionFieldHeaders.RelevantActors, value: RandomTextSE.words(randomInt(1, 3)) });
+  for (const tag of ["sufficiency", "efficiency", "renewable"]) {
+    if (chance(0.4)) fields.push({ header: ActionFieldHeaders.Tag, value: tag });
+  }
+
+  const action = await prisma.actions.create({
     data: {
       name: RandomTextSE.sentence(3, 1).replace(/\.$/, ""),
-      description: chance(0.8) ? RandomTextSE.paragraph(randomInt(1, 2)) : null,
-      startYear,
-      endYear: chance(0.7) ? startYear + randomInt(1, 20) : null,
-      costEfficiency: chance(0.5) ? RandomTextSE.sentence(randomInt(3, 8)) : null,
-      expectedOutcome: chance(0.6) ? RandomTextSE.paragraph(1) : null,
-      projectManager: chance(0.5) ? RandomTextSE.words(2) : null,
-      relevantActors: chance(0.5) ? RandomTextSE.words(randomInt(1, 3)) : null,
-      isSufficiency: chance(0.4),
-      isEfficiency: chance(0.4),
-      isRenewables: chance(0.4),
+      indicator_parameter: randomIndicatorParameter(),
+      start_year: startYear,
+      end_year: chance(0.7) ? startYear + randomInt(1, 20) : null,
+      org: { connect: { id: users.org.id } },
+      fields: fields.length ? { createMany: { data: fields } } : undefined,
       author: { connect: { id: randomOf(users.all).id } },
-      roadmap: { connect: { id: roadmapId } },
-      ...(options.parentActionId ? { parentAction: { connect: { id: options.parentActionId } } } : {}),
+      ...(iterationId ? { roadmap_iteration: { connect: { id: iterationId } } } : {}),
+      ...(options.parentActionId ? { parent_action: { connect: { id: options.parentActionId } } } : {}),
       ...getRandomCreatedAtAndUpdatedAt(),
-      notes: { createMany: { data: makeRandomNotes(users, randomInt(0, 3)) } },
-      links: { create: makeRandomLinks(randomInt(0, 2)) },
       comments: { createMany: { data: makeRandomComments(users, randomInt(0, 6)) } },
     },
     select: { id: true },
@@ -93,33 +106,29 @@ async function addEffects(users: SeededUsers, actionId: string, goalPool: Seeded
   for (const goal of targets) {
     const authorId = randomOf(users.all).id;
     const unit = getRandomUnit();
-    await prisma.effect.create({
+    const dateValues = getRandomCoherentDateValues();
+    await prisma.effects.create({
       data: {
         action: { connect: { id: actionId } },
         goal: { connect: { id: goal.id } },
-        impactType: randomOf([ActionImpactType.PERCENT, ActionImpactType.ABSOLUTE, ActionImpactType.DELTA]),
+        impact_type: randomOf([ActionImpactType.PERCENT, ActionImpactType.ABSOLUTE, ActionImpactType.DELTA]),
         ...getRandomCreatedAtAndUpdatedAt(),
-        dataSeries: {
+        data_series: {
           create: {
             author: { connect: { id: authorId } },
+            org: { connect: { id: users.org.id } },
             ...(unit === undefined ? {} : { unit }),
-            values: { createMany: { data: dateValuesToDBDateRecord(getRandomCoherentDateValues()) } },
+            values: { createMany: { data: dateValuesToDBDateRecord(dateValues) } },
+            // Manual entry: the series is produced by an inline manual recipe
+            recipe_used: {
+              create: {
+                recipe: Recipe.fromManualDateValues({ dateValues, unit: parseUnit(unit === undefined ? "" : unit) }).serialize(),
+                org: { connect: { id: users.org.id } },
+              },
+            },
           },
         },
       },
     });
   }
-}
-
-/** Builds note payloads for a nested createMany (scalar authorId is set directly). */
-function makeRandomNotes(users: SeededUsers, count: number) {
-  return new Array(count).fill(null).map(() => {
-    const { createdAt, updatedAt } = getRandomCreatedAtAndUpdatedAt();
-    return {
-      note: RandomTextSE.paragraph(randomInt(1, 2)),
-      authorId: randomOf(users.all).id,
-      createdAt,
-      updatedAt,
-    };
-  });
 }

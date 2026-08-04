@@ -4,12 +4,12 @@
  * This file is a solution to a lot of components in the recipe editor wanting to know about roadmaps and their data series and they all fetched independently until now, hopefully :pray:
  */
 
-import { clientSafeGetOneRoadmap, clientSafeGetRoadmaps } from "@/fetchers/client";
-import type { ClientMultiRoadmapInstance, ClientRoadmap } from "@/types";
+import { clientSafeGetOneRoadmapIteration, clientSafeGetRoadmapIterations } from "@/fetchers/client";
+import type { ClientMultiRoadmapInstance, ClientRoadmapIteration } from "@/types";
 
 export type RecipeRoadmapData = {
   roadmaps: ClientMultiRoadmapInstance[];
-  roadmapLookup: Record<string, ClientRoadmap>;
+  roadmapLookup: Record<string, ClientRoadmapIteration>;
 };
 
 /** How long a successful roadmap fetch is reused before it is refetched. */
@@ -26,10 +26,10 @@ export function invalidateRecipeRoadmapData(): void {
 /**
  * Pullable in the sense that in the data series tree input can be populated with data from the provided roadmap.
  */
-function hasPullableData(roadmap: ClientRoadmap): boolean {
+function hasPullableData(roadmap: ClientRoadmapIteration): boolean {
   return roadmap.goals.some((goal) => {
-    if (goal.dataSeries || goal.baseline) return true;
-    return goal.effects.some((effect) => !!effect.dataSeries);
+    if (goal.data_series || goal.baseline) return true;
+    return goal.effects.some((effect) => !!effect.data_series);
   });
 }
 
@@ -44,11 +44,11 @@ export async function getRecipeRoadmapData(): Promise<RecipeRoadmapData> {
   if (!cachedRoadmapDataPromise) {
     cachedAt = Date.now();
     cachedRoadmapDataPromise = (async () => {
-      const roadmaps = await clientSafeGetRoadmaps();
+      const roadmaps = await clientSafeGetRoadmapIterations();
 
       const roadmapsWithData = await Promise.all(
         roadmaps.map(async (roadmap) => {
-          const fullRoadmap = await clientSafeGetOneRoadmap(roadmap.id);
+          const fullRoadmap = await clientSafeGetOneRoadmapIteration(roadmap.id);
           if (!fullRoadmap || !hasPullableData(fullRoadmap)) return null;
           return { roadmap, fullRoadmap };
         }),

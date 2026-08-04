@@ -45,19 +45,15 @@ export const EffectFormName = {
 export type EffectFormName = (typeof EffectFormName)[keyof typeof EffectFormName];
 
 export const ActionFormName = {
+  // The DOM name of the iteration select (kept for test stability)
   RoadmapId: "ROADMAP_ID",
   ActionName: "ACTION_NAME",
-  Description: "DESCRIPTION",
-  CostEfficiency: "COST_EFFICIENCY",
-  ExpectedOutcome: "EXPECTED_OUTCOME",
   ImpactType: "IMPACT_TYPE",
   ResultingDateValues: "RESULTING_DATE_VALUES",
   StartYear: "START_YEAR",
   EndYear: "END_YEAR",
-  ProjectManager: "PROJECT_MANAGER",
-  RelevantActors: "RELEVANT_ACTORS",
-  IsSufficiency: "IS_SUFFICIENCY",
-  IsEfficiency: "IS_EFFICIENCY",
-  IsRenewables: "IS_RENEWABLES",
+  // The old fixed inputs (description, cost efficiency, expected outcome, project
+  // manager, relevant actors, category booleans) are gone: actions now carry
+  // free-form ActionFields rows instead (see functions/actionFields.ts)
 } as const;
 export type ActionFormName = (typeof ActionFormName)[keyof typeof ActionFormName];

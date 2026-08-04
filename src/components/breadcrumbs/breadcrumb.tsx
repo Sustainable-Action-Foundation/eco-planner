@@ -1,48 +1,52 @@
-import { ActionSection, BaseSection, BreadcrumbChevron, CustomSection, GoalSection, MetaRoadmapSection, RoadmapSection } from "@/components/breadcrumbs/breadcrumbSections";
+import { ActionSection, BaseSection, BreadcrumbChevron, CustomSection, GoalSection, RoadmapIterationSection, RoadmapSection } from "@/components/breadcrumbs/breadcrumbSections";
 
-type SimpleMetaRoadmap = {
+type SimpleRoadmap = {
   id: string,
   name: string,
 
   version?: never,
-  indicatorParameter?: never,
+  indicator_parameter?: never,
   roadmap?: never,
-  metaRoadmap?: never,
+  roadmap_iteration?: never,
 }
 
-type SimpleRoadmap = {
+type SimpleIteration = {
   id: string,
   version: number,
-  metaRoadmap: SimpleMetaRoadmap,
+  roadmap: SimpleRoadmap,
 
   name?: never,
-  indicatorParameter?: never,
-  roadmap?: never,
+  indicator_parameter?: never,
+  roadmap_iteration?: never,
 }
 
 type SimpleGoal = {
   id: string,
   name?: string | null,
-  indicatorParameter: string,
-  roadmap: SimpleRoadmap,
+  indicator_parameter: string,
+  roadmap_iteration: SimpleIteration,
 
   version?: never,
-  metaRoadmap?: never,
+  roadmap?: never,
+  fields?: never,
 }
 
 type SimpleAction = {
   id: string,
   name: string,
-  roadmap: SimpleRoadmap,
+  // Roadmapless actions (the public action database) have no iteration
+  roadmap_iteration: SimpleIteration | null,
+  // Both goals and actions have an indicator parameter; the fields list tells them apart
+  indicator_parameter?: string,
+  fields: object[],
 
   version?: never,
-  indicatorParameter?: never,
-  metaRoadmap?: never,
+  roadmap?: never,
 }
 
 /**
  * Breadcrumb component, used to display a breadcrumb trail for a given object
- * 
+ *
  * Each item in customSections is appended to the end, before any children, in the order they are provided
  */
 export function Breadcrumb({
@@ -50,7 +54,7 @@ export function Breadcrumb({
   customSections,
   children,
 }: {
-  object?: SimpleMetaRoadmap | SimpleRoadmap | SimpleGoal | SimpleAction,
+  object?: SimpleRoadmap | SimpleIteration | SimpleGoal | SimpleAction,
   customSections?: (string | { title?: string, link?: string, linkText?: string })[],
   children?: React.ReactNode,
 }) {
@@ -78,40 +82,64 @@ export function Breadcrumb({
 }
 
 /**
- * Recursive breadcrumb section, calls itself until it reaches the top level (metaRoadmap)
+ * Recursive breadcrumb section, calls itself until it reaches the top level (the roadmap)
  */
 function BreadcrumbSection({
   object,
   children,
 }: {
-  object?: SimpleMetaRoadmap | SimpleRoadmap | SimpleGoal | SimpleAction,
+  object?: SimpleRoadmap | SimpleIteration | SimpleGoal | SimpleAction,
   children?: React.ReactNode,
 }) {
   if (!object) return (children);
 
-  if (object.roadmap || object.metaRoadmap) {
-    return <BreadcrumbSection object={object.roadmap ?? object.metaRoadmap}>
+  // Goals and actions hang off an iteration; iterations hang off a roadmap.
+  // Roadmapless actions (roadmap_iteration === null) render directly under the base.
+  if (object.roadmap_iteration || object.roadmap) {
+    return <BreadcrumbSection object={object.roadmap_iteration ?? object.roadmap}>
         <BreadcrumbChevron />
 
         { // Use appropriate section based on the object type
-          object.roadmap ? (
-            typeof object.indicatorParameter === 'string' ? (
-              <GoalSection goal={object} />
-            ) : (
+          "roadmap_iteration" in object && object.roadmap_iteration ? (
+            // Actions also carry an indicator parameter, so discriminate by their fields list
+            "fields" in object && object.fields ? (
               <ActionSection action={object} />
+            ) : (
+              <GoalSection goal={object} />
             )
           ) : (
-            <RoadmapSection roadmap={object} />
+            <RoadmapIterationSection iteration={object as SimpleIteration} />
           )
         }
 
         {children}
       </BreadcrumbSection>;
+  } else if ("version" in object && typeof object.version === "number") {
+    // An iteration whose roadmap wasn't included; shouldn't normally happen
+    return <>
+      <BreadcrumbChevron />
+      <RoadmapIterationSection iteration={object as SimpleIteration} />
+      {children}
+    </>;
+  } else if ("indicator_parameter" in object && typeof object.indicator_parameter === "string" && !("fields" in object && object.fields)) {
+    // Goals always have an iteration, but guard anyway
+    return <>
+      <BreadcrumbChevron />
+      <GoalSection goal={object as SimpleGoal} />
+      {children}
+    </>;
+  } else if (object.roadmap_iteration === null) {
+    // Roadmapless action
+    return <>
+      <BreadcrumbChevron />
+      <ActionSection action={object} />
+      {children}
+    </>;
   } else {
     return <>
       <BreadcrumbChevron />
 
-      <MetaRoadmapSection metaRoadmap={object} />
+      <RoadmapSection roadmap={object as SimpleRoadmap} />
 
       {children}
     </>;

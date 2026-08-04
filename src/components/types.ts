@@ -1,6 +1,7 @@
 import type { ApiSelectionItem, ApiTableMetadata, ApiTableContent } from "@/lib/api/apiTypes";
 import type { Recipe } from "@/functions/recipe/recipe";
-import type { RecipeDataTypes, RecipeVariable } from "@/functions/recipe/types";
+import type { RecipeDataTypes } from "@/functions/recipe/types/enums";
+import type { RecipeVariable } from "@/functions/recipe/types";
 import type { DateValues, Unit } from "@/types";
 import type { SetStateAction } from "react";
 import "@/types/tiptap-commands";

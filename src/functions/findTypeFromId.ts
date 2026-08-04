@@ -1,18 +1,23 @@
 import { prisma } from "@/lib/prisma";
 
-export default async function findTypeFromId(id: string): Promise<"action" | "goal" | "roadmap" | undefined> {
-  const [action, goal, roadmap] = await Promise.all([
-    prisma.action.findUnique({
+export default async function findTypeFromId(id: string): Promise<"action" | "goal" | "roadmap" | "roadmapIteration" | undefined> {
+  const [action, goal, roadmap, roadmapIteration] = await Promise.all([
+    prisma.actions.findUnique({
       where: {
         id: id,
       },
     }),
-    prisma.goal.findUnique({
+    prisma.goals.findUnique({
       where: {
         id: id,
       },
     }),
-    prisma.roadmap.findUnique({
+    prisma.roadmaps.findUnique({
+      where: {
+        id: id,
+      },
+    }),
+    prisma.roadmapIterations.findUnique({
       where: {
         id: id,
       },
@@ -21,6 +26,7 @@ export default async function findTypeFromId(id: string): Promise<"action" | "go
   if (action) return "action";
   if (goal) return "goal";
   if (roadmap) return "roadmap";
+  if (roadmapIteration) return "roadmapIteration";
   return undefined;
 
 }

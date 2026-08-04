@@ -4,7 +4,7 @@
 // serializable, which a `Recipe` class instance is not.
 import type { Recipe } from "@/functions/recipe/recipe";
 import type { RecipeVariable } from "@/functions/recipe/types";
-import { RecipeDataTypes } from "@/functions/recipe/types";
+import { RecipeDataTypes } from "@/functions/recipe/types/enums";
 import React from "react";
 
 /** Splits an equation into literal segments and `${token}` placeholders. */

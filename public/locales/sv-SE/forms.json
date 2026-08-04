@@ -6,7 +6,15 @@
     "me_only": "Enbart jag",
     "select_groups": "Välj grupper",
     "select_users": "Välj användare",
-    "users": "Användare"
+    "users": "Användare",
+    "visibility": "Vem kan se detta?",
+    "granted_groups_only": "Endast grupper med åtkomst nedan",
+    "org_members": "Alla i organisationen",
+    "group_grants": "Gruppåtkomst",
+    "no_groups": "Organisationen har inga grupper ännu. Chefer kan skapa grupper.",
+    "no_access": "Ingen åtkomst",
+    "read_only": "Läsa",
+    "read_write": "Läsa och redigera"
   },
   "action": {
     "action_description": "Beskrivning",
@@ -35,7 +43,9 @@
     "relationship_label": "$t(common:roadmap_version_one)",
     "relationship_no_chosen": "Välj $t(common:roadmap_version_one)",
     "relevant_actors": "Relevanta aktörer",
-    "start_year": "Startår"
+    "start_year": "Startår",
+    "tag": "Tagg",
+    "field_header": "Fältrubrik"
   },
   "combobox": {
     "default_autocomplete_placeholder": "Skriv för att se förslag",
@@ -109,7 +119,7 @@
       "initial_non_zero": "Första nollskilda värdet"
     },
     "choose_goal_data_series": "Ange en dataserie för denna $t(common:goal_one)",
-    "choose_relationship": "Vilken $t(common:roadmap_series_one) tillhör din $t(common:goal_one)?",
+    "choose_relationship": "Vilken $t(common:roadmap_one) tillhör din $t(common:goal_one)?",
     "create": "Skapa $t(common:goal_one)",
     "create_baseline_for_actions": "Skapa en baslinje för beräkning av åtgärders effekt på denna $t(common:goal_one)",
     "custom_recipe": "Recept",
@@ -176,8 +186,8 @@
     "leap_parameter": "LEAP parameter",
     "preview": "Är följande korrekt?",
     "preview_info": "Dina dataserier kommer att synas i din målbana såsom de visas nedan.",
-    "relationship_label": "$t(common:roadmap_series_one)",
-    "relationship_no_chosen": "Välj $t(common:roadmap_series_one)",
+    "relationship_label": "$t(common:roadmap_one)",
+    "relationship_no_chosen": "Välj $t(common:roadmap_one)",
     "search_tip": "Tips: använd <kbd><kbd>CTRL</kbd> + <kbd>F</kbd></kbd> för att hitta $t(common:goal_definite_other) du letar efter",
     "select_goal": "Välj $t(common:goal_one)",
     "select_goal_as_baseline": "Välj en $t(common:goal_one) att använda som baslinje (värdena kopieras istället för att länkas)",
@@ -190,40 +200,27 @@
     "unit_not_interpreted": "Enheten kunde inte tolkas. Du kan fortfarande spara $t(common:goal_definite_one), men viss funktionalitet kan saknas.",
     "unnamed_goal": "Namnlös $t(common:goal_one)"
   },
-  "meta_roadmap": {
+  "roadmap": {
     "actor": "Aktör",
     "actor_legend": "Välj ansvarig aktör",
-    "create": "Skapa $t(common:roadmap_series_one)",
+    "create": "Skapa $t(common:roadmap_one)",
     "description": "Beskrivning",
-    "description_legend": "Beskriv din $t(common:roadmap_series_one)",
+    "description_legend": "Beskriv din $t(common:roadmap_one)",
     "description_required": "Vänligen lägg till en beskrivning",
     "legend_editability": "Vem får redigera färdplansserien?",
     "legend_visibility": "Vem får se färdplansserien?",
     "name": "Namn",
     "no_chosen_roadmap_scope": "Välj en typ",
     "relationship_label": "Förälder",
-    "relationship_legend": "Jobbar denna $t(common:roadmap_series_one) mot en annan $t(common:roadmap_series_one)?",
+    "relationship_legend": "Jobbar denna $t(common:roadmap_one) mot en annan $t(common:roadmap_one)?",
     "relationship_no_chosen": "Ingen förälder",
-    "type": "Typ"
+    "type": "Typ",
+    "org": "Ägande organisation",
+    "no_chosen_org": "Välj en organisation",
+    "geo_area": "Geografiskt område (för statistik)",
+    "no_chosen_geo_area": "Inget geografiskt område"
   },
-  "repeatable_scaling": {
-    "area": "Ytarea:",
-    "new_area": "Nytt område:",
-    "no_option_selected": "Inget alternativ valt",
-    "original_area": "Ursprungligt område:",
-    "population_count": "Antal invånare:",
-    "relative_area": "Relativ yta",
-    "relative_population": "Relativt antal invånare",
-    "scale_based_on": "Skala utifrån:",
-    "scale_factor": "Skalfaktor för den här beräkningen:",
-    "select_area": "Välj område",
-    "specific_value": "Specifikt värde",
-    "specific_value_label": "Med vilket värde vill du skala?",
-    "square_kilometers": "kvadratkilometer",
-    "value_missing": "Värde saknas",
-    "weight_for_factor": "Vikt för denna faktor (används för att skapa ett viktat genomsnitt mellan faktorerna)"
-  },
-  "roadmap": {
+  "roadmap_iteration": {
     "bad_decoding": "Filen verkar använda en okänd kodning då den tolkade texten innehåller tecknet '�' som indikerar att något tecken inte kunde tolkas korrekt (antagligen Å, Ä eller Ö).\nDu kan fortfarande använda den här filen, men om du inte är helt säker på att den *ska* innehålla tecknet '�' så rekommenderas att du konverterar filen till UTF-8-kodning och försöker igen.",
     "change_edit_access": "Justera redigeringsåtkomst",
     "change_read_access": "Justera läsbehörighet",
@@ -233,20 +230,22 @@
     "inherit_goal_legend": "Välj $t(common:goal_one) att ärva",
     "legend_editability": "Vem får redigera färdplanen?",
     "legend_visibility": "Vem får se färdplanen?",
-    "relationship_label": "$t(common:roadmap_series_one)",
-    "relationship_legend": "Vilken $t(common:roadmap_series_one) tillhör din $t(common:roadmap_version_one)?",
-    "relationship_no_chosen": "Ingen $t(common:roadmap_series_one) vald",
-    "relationship_no_found": "Du verkar inte ha tillgång till några $t(common:roadmap_series_other)",
+    "relationship_label": "$t(common:roadmap_one)",
+    "relationship_legend": "Vilken $t(common:roadmap_one) tillhör din $t(common:roadmap_version_one)?",
+    "relationship_no_chosen": "Ingen $t(common:roadmap_one) vald",
+    "relationship_no_found": "Du verkar inte ha tillgång till några $t(common:roadmap_other)",
     "roadmap_description": "Beskrivning",
     "roadmap_target_always_latest": "Alltid senaste versionen",
-    "roadmap_target_label": "Version av $t(common:roadmap_series_definite_one) {{targetName}} den här $t(common:roadmap_series_definite_one) arbetar mot",
+    "roadmap_target_label": "Version av $t(common:roadmap_definite_one) {{targetName}} den här $t(common:roadmap_definite_one) arbetar mot",
     "roadmap_target_no_chosen": "Inget alternativ valt",
     "roadmap_version_creation_error": "$t(common:roadmap_version_definite_one, titleCase) kunde inte skapas.\n\nOrsak:\n {{error}}",
     "roadmap_version_legend": "Beskriv din $t(common:roadmap_version_one)",
     "scale_deprecated": "Kolumnen 'Scale' stöds inte och kommer att ignoreras.",
-    "scale_deprecated_extended": "$t(forms:roadmap.scale_deprecated) Om kolumnen innehåller några skalor, vänligen baka in dem i enheten eller värdet istället. Exempel: använd 'MW' som enhet istället för att använda 'kW' med skala 'tusen'.",
+    "scale_deprecated_extended": "$t(forms:roadmap_iteration.scale_deprecated) Om kolumnen innehåller några skalor, vänligen baka in dem i enheten eller värdet istället. Exempel: använd 'MW' som enhet istället för att använda 'kW' med skala 'tusen'.",
     "unknown_error": "Okänt fel",
-    "upload_goals": "Ladda upp $t(common:goal_other)"
+    "upload_goals": "Ladda upp $t(common:goal_other)",
+    "publish": "Publicera denna version",
+    "publish_hint": "Opublicerade versioner är utkast som bara syns för personer som kan redigera färdplanen."
   },
   "text_editor_menu": {
     "bold": "Fetstil",

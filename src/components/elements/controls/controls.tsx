@@ -3,49 +3,73 @@
 import styles from './controls.module.css' with { type: "css" };
 import Link from "next/link";
 import React, { useRef, useState } from "react";
-import type { Action, Effect, Goal, GoalUpdateInput, MetaRoadmap, Roadmap } from "@/types";
+import type { Action, Effect, Goal, GoalUpdateInput, Roadmap, RoadmapIteration } from "@/types";
 import { AccessLevel, GoalDataTarget } from "@/types/enums";
 import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
 import { Trans, useTranslation } from "react-i18next";
 import { IconArrowBackUp, IconChartHistogram, IconDotsVertical, IconEdit, IconPlus, IconStar, IconStarFilled, IconTrashXFilled, IconX } from "@tabler/icons-react";
-import { hasEditAccess } from '@/lib/accessChecker';
+import { hasAdminAccess, hasEditAccess } from '@/lib/accessChecker';
 import type { TFunction } from 'i18next';
 import formSubmitter from '@/functions/formSubmitter';
+import { iterationPath } from '@/functions/versionSlug';
 
 /*
-  TODO: 
+  TODO:
   This file was renamed from the previous "TableMenu" as it has long served as a menu outside of tables.
   The chosen name, "controls", may be too generic. We likely want to split the ControlsMenu and AdminPanel
   into separate components at some point to clarify
 */
 /* TODO: Add an info bubble to the admin panel to clear some space? */
 
-type ActionMenuEntry = Pick<Action, "id" | "name" | "roadmapId" | "isSufficiency"> & {
-  description?: string | null;
+// `org_id` doubles as the runtime discriminator (see isActionEntry): among the
+// menu entities only actions have it, and requiring it here means type-checked
+// call sites can't pass an action the sniffing would misrecognize.
+type ActionMenuEntry = Pick<Action, "id" | "name" | "org_id" | "roadmap_iteration_id"> & {
+  // Optional: call sites without it (e.g. tables on the iteration page itself) just lose the parent link
+  roadmap_iteration?: Pick<RoadmapIteration, "roadmap_id" | "version"> | null;
 };
 
-type GoalMenuEntry = Pick<Goal, "id" | "name" | "indicatorParameter" | "roadmapId"> & {
-  roadmap: Pick<Roadmap, "id"> & { metaRoadmap: Pick<MetaRoadmap, "id" | "name"> };
+type GoalMenuEntry = Pick<Goal, "id" | "name" | "indicator_parameter" | "roadmap_iteration_id"> & {
+  roadmap_iteration: Pick<RoadmapIteration, "id" | "version"> & { roadmap: Pick<Roadmap, "id" | "name"> };
+  // Read by AdminPanel's goal-only features; optional so leaner goal rows still fit the menu shape
+  is_featured?: Goal["is_featured"];
+  historical?: Goal["historical"];
 };
 
-type RoadmapMenuEntry = Pick<Roadmap, "id"> & {
-  metaRoadmap: Pick<MetaRoadmap, "id" | "name">;
+type IterationMenuEntry = Pick<RoadmapIteration, "id" | "version"> & {
+  roadmap: Pick<Roadmap, "id" | "name">;
   _count?: { goals: number };
 };
 
-type MetaRoadmapMenuEntry = Pick<MetaRoadmap, "id" | "name"> & {
-  roadmapVersions: Array<Pick<Roadmap, "id" | "version"> & { _count: { goals: number } }>;
+type RoadmapMenuEntry = Pick<Roadmap, "id" | "name"> & {
+  iterations: Array<Pick<RoadmapIteration, "id" | "version"> & { _count: { goals: number } }>;
 };
 
-export type EffectMenuEntry = Pick<Effect, "actionId" | "goalId"> & {
-  action?: ActionMenuEntry;
+export type EffectMenuEntry = Pick<Effect, "action_id" | "goal_id"> & {
+  // Only the name is read off the embedded action, so effect queries needn't select org_id
+  action?: Pick<Action, "id" | "name">;
   goal?: GoalMenuEntry;
   name?: string;
   id?: { actionId: string; goalId: string };
 };
 
-type ObjectParameter = EffectMenuEntry | ActionMenuEntry | GoalMenuEntry | RoadmapMenuEntry | MetaRoadmapMenuEntry;
+type ObjectParameter = EffectMenuEntry | ActionMenuEntry | GoalMenuEntry | IterationMenuEntry | RoadmapMenuEntry;
+
+/**
+ * Both actions and goals carry `indicator_parameter` and `roadmap_iteration_id` at runtime,
+ * so actions are recognized by `org_id`, a column no other menu entity has. Since
+ * `ActionMenuEntry` requires it, type-checked call sites can't pass an action that
+ * misses this check.
+ */
+function isActionEntry(object: ObjectParameter): object is ActionMenuEntry {
+  return "org_id" in object;
+}
+
+/** Goals are whatever carries an `indicator_parameter` once action shapes are ruled out (see {@link isActionEntry}). */
+function isGoalEntry(object: ObjectParameter): object is GoalMenuEntry {
+  return !isActionEntry(object) && "indicator_parameter" in object;
+}
 
 type links = {
   featureGoal?: string,
@@ -61,7 +85,7 @@ type links = {
   deleteLink?: string;
 };
 
-/* TODO: This implemantation seems dumb probably */
+/* TODO: This implementation seems dumb probably */
 function buildLinks(
   object: ObjectParameter,
   t: TFunction,
@@ -79,49 +103,49 @@ function buildLinks(
   let historicalDataLink: string | undefined;
   let deleteLink: string | undefined;
 
-  // MetaRoadmaps
-  if ("roadmapVersions" in object) {
-    selfLink = `/metaRoadmap/${object.id}`;
-    creationLink = `/roadmap/create?metaRoadmapId=${object.id}`;
-    creationDescription = t("components:table_menu.new_roadmap_version");
-    editLink = `/metaRoadmap/${object.id}/edit`;
-    deleteLink = "/api/metaRoadmap";
-  }
-
-  // Roadmaps
-  else if ("metaRoadmap" in object) {
+  // Roadmaps (top level)
+  if ("iterations" in object) {
     selfLink = `/roadmap/${object.id}`;
-    parentLink = `/metaRoadmap/${object.metaRoadmap.id}`;
-    parentDescription = t("components:table_menu.go_to_series");
-    creationLink = `/goal/create?roadmapId=${object.id}`;
-    creationDescription = t("components:table_menu.new_goal");
-    creationLink2 = `/action/create?roadmapId=${object.id}`;
-    creationDescription2 = t("components:table_menu.new_action");
+    creationLink = `/roadmap/${object.id}/iteration/create`;
+    creationDescription = t("components:table_menu.new_roadmap_version");
     editLink = `/roadmap/${object.id}/edit`;
     deleteLink = "/api/roadmap";
   }
 
-  // Goals
-  else if ("indicatorParameter" in object) {
-    featureGoal = "/api/goal"; /* TODO: Update this line */
-    selfLink = `/goal/${object.id}`;
+  // Roadmap iterations
+  else if ("roadmap" in object) {
+    selfLink = iterationPath(object.roadmap.id, object.version);
     parentLink = `/roadmap/${object.roadmap.id}`;
-    parentDescription = t("components:table_menu.go_to_version");
-    creationLink = `/action/create?roadmapId=${object.roadmapId}&goalId=${object.id}`;
-    creationDescription = t("components:table_menu.new_action");
-    creationLink2 = `/effect/create?goalId=${object.id}`;
-    creationDescription2 = t("components:table_menu.add_effect_from_existing_action");
-    editLink = `/goal/${object.id}/edit`;
-    historicalDataLink = `/goal/${object.id}/historical-data`;
-    deleteLink = "/api/goal";
+    parentDescription = t("components:table_menu.go_to_series");
+    creationLink = `/goal/create?iterationId=${object.id}`;
+    creationDescription = t("components:table_menu.new_goal");
+    creationLink2 = `/action/create?iterationId=${object.id}`;
+    creationDescription2 = t("components:table_menu.new_action");
+    editLink = `${iterationPath(object.roadmap.id, object.version)}/edit`;
+    deleteLink = "/api/roadmap-iteration";
+  }
 
-    object.name ||= object.indicatorParameter;
+  // Effects
+  else if ("action_id" in object) {
+    selfLink = `/action/${object.action_id}`;
+    parentLink = `/goal/${object.goal_id}`;
+    parentDescription = t("components:table_menu.go_to_goal");
+    editLink = `/effect/${object.action_id}/${object.goal_id}/edit`;
+    deleteLink = "/api/effect";
+
+    object.name ||= object.action?.name
+      ? t("components:table_menu.effect_from_action", { source: object.action.name })
+      : object.goal
+        ? (object.goal.name ?? object.goal.indicator_parameter)
+        : t("components:table_menu.effect_missing_name");
+
+    object.id ??= { actionId: object.action_id, goalId: object.goal_id };
   }
 
   // Actions
-  else if ("isSufficiency" in object) {
+  else if (isActionEntry(object)) {
     selfLink = `/action/${object.id}`;
-    parentLink = `/roadmap/${object.roadmapId}`;
+    parentLink = object.roadmap_iteration ? iterationPath(object.roadmap_iteration.roadmap_id, object.roadmap_iteration.version) : undefined;
     parentDescription = t("components:table_menu.go_to_version");
     creationLink = `/effect/create?actionId=${object.id}`;
     creationDescription = t("components:table_menu.new_effect");
@@ -129,21 +153,21 @@ function buildLinks(
     deleteLink = "/api/action";
   }
 
-  // Effects
-  else if ("actionId" in object) {
-    selfLink = `/action/${object.actionId}`;
-    parentLink = `/goal/${object.goalId}`;
-    parentDescription = t("components:table_menu.go_to_goal");
-    editLink = `/effect/edit?actionId=${object.actionId}&goalId=${object.goalId}`;
-    deleteLink = "/api/effect";
+  // Goals
+  else if (isGoalEntry(object)) {
+    featureGoal = "/api/goal"; /* TODO: Update this line */
+    selfLink = `/goal/${object.id}`;
+    parentLink = object.roadmap_iteration ? iterationPath(object.roadmap_iteration.roadmap.id, object.roadmap_iteration.version) : undefined;
+    parentDescription = t("components:table_menu.go_to_version");
+    creationLink = `/action/create?iterationId=${object.roadmap_iteration_id}&goalId=${object.id}`;
+    creationDescription = t("components:table_menu.new_action");
+    creationLink2 = `/effect/create?goalId=${object.id}`;
+    creationDescription2 = t("components:table_menu.add_effect_from_existing_action");
+    editLink = `/goal/${object.id}/edit`;
+    historicalDataLink = `/goal/${object.id}/historical-data`;
+    deleteLink = "/api/goal";
 
-    object.name ||= object.action?.name
-      ? t("components:table_menu.effect_from_action", { source: object.action.name })
-      : object.goal
-        ? (object.goal.name ?? object.goal.indicatorParameter)
-        : t("components:table_menu.effect_missing_name");
-
-    object.id ??= { actionId: object.actionId, goalId: object.goalId };
+    object.name ||= object.indicator_parameter;
   }
 
   else {
@@ -167,8 +191,8 @@ function buildLinks(
 }
 
 const getObjectName = (object: ObjectParameter): string | undefined => {
-  if ("indicatorParameter" in object) {
-    return object.name || object.indicatorParameter;
+  if ("indicator_parameter" in object) {
+    return object.name || object.indicator_parameter;
   }
   if ("name" in object && object.name) {
     return object.name;
@@ -176,12 +200,26 @@ const getObjectName = (object: ObjectParameter): string | undefined => {
   return undefined;
 };
 
-const getMetaRoadmapName = (object: ObjectParameter): string | undefined =>
-  "metaRoadmap" in object ? object.metaRoadmap?.name : undefined;
+/** The name of the (parent) roadmap, for entries that carry one */
+const getRoadmapName = (object: ObjectParameter): string | undefined => {
+  if ("roadmap" in object) return object.roadmap?.name;
+  if ("indicator_parameter" in object) return object.roadmap_iteration?.roadmap?.name;
+  if ("iterations" in object) return object.name;
+  return undefined;
+};
 
+/**
+ * Deletion is a content edit for goals/actions/effects/iterations, but roadmap
+ * deletion (taking all iterations with it) is manager-only. The server enforces
+ * the fine print (e.g. published iterations); this only decides what to show.
+ */
+const mayShowDelete = (object: ObjectParameter, accessLevel: AccessLevel): boolean => {
+  if ("iterations" in object) return hasAdminAccess(accessLevel);
+  return hasEditAccess(accessLevel);
+};
 
-/** 
- * General purpose button for roadmaps, goals and actions. 
+/**
+ * General purpose button for roadmaps, goals and actions.
  */
 export function ControlsMenu(
   {
@@ -204,7 +242,7 @@ export function ControlsMenu(
 
   const links = buildLinks(object, t);
   const objectName = getObjectName(object);
-  const metaRoadmapName = getMetaRoadmapName(object);
+  const roadmapName = getRoadmapName(object);
 
   const openMenu = () => {
     menu.current?.show();
@@ -229,7 +267,7 @@ export function ControlsMenu(
 
   return (
     <div className={`${styles.actionButton} display-flex`}>
-      <button type="button" onClick={openMenu} className={styles.button} aria-label={t("components:table_menu.button_aria", { component: objectName || metaRoadmapName || t("components:table_menu.button_aria_alt") })}> {/* TODO: Remove this aria if we pass buttontext */}
+      <button type="button" onClick={openMenu} className={styles.button} aria-label={t("components:table_menu.button_aria", { component: objectName || roadmapName || t("components:table_menu.button_aria_alt") })}> {/* TODO: Remove this aria if we pass buttontext */}
         {buttonText || null}
         <IconDotsVertical aria-hidden="true" width={width} height={height} />
       </button>
@@ -241,14 +279,14 @@ export function ControlsMenu(
           </button>
           {/* Link to the object */}
           {links?.selfLink ?
-            <Link href={links.selfLink} className={styles.menuHeadingTitle}>{objectName || metaRoadmapName}</Link>
+            <Link href={links.selfLink} className={styles.menuHeadingTitle}>{objectName || roadmapName}</Link>
             : <p>{t("common:tsx.menu")}</p>}
         </div>
         {links ? (
           <>
             {links.parentLink ? <Link href={links.parentLink} className={styles.menuAction}>
               <span>{links.parentDescription || links.parentLink}</span>
-              <IconArrowBackUp aria-hidden="true" style={{ minWidth: '24px' }} /> {/* TODO: Probably dont want this anymore, should however make it available elsewhere before removing */}
+              <IconArrowBackUp aria-hidden="true" style={{ minWidth: '24px' }} /> {/* TODO: Probably don't want this anymore, should however make it available elsewhere before removing */}
             </Link> : null
             }
             {hasEditAccess(accessLevel ?? AccessLevel.None) ?
@@ -273,13 +311,13 @@ export function ControlsMenu(
                   <IconChartHistogram aria-hidden="true" style={{ minWidth: '24px' }} />
                 </Link> : null
                 }
-                { // Admins and authors can delete items
-                  (accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) && links.deleteLink ? <>
+                {
+                  mayShowDelete(object, accessLevel ?? AccessLevel.None) && links.deleteLink ? <>
                     <button type="button" className="width-100 transparent display-flex align-items-center justify-content-space-between padding-50" style={{ fontSize: '1rem' }} data-testid="delete-post" onClick={() => openModal(deletionRef)}>
                       {t("components:table_menu.delete")}
                       <IconTrashXFilled aria-hidden="true" fill="red" style={{ minWidth: '24px' }} />
                     </button>
-                    <ConfirmDelete modalRef={deletionRef} targetUrl={links.deleteLink} targetName={objectName || metaRoadmapName || t("components:table_menu.delete_missing_name")} targetId={object.id} />
+                    <ConfirmDelete modalRef={deletionRef} targetUrl={links.deleteLink} targetName={objectName || roadmapName || t("components:table_menu.delete_missing_name")} targetId={object.id} />
                   </> : null
                 }
               </>
@@ -310,41 +348,11 @@ export function AdminPanel(
   const historicalDeletionRef = useRef<HTMLDialogElement | null>(null);
 
   const objectName = getObjectName(object);
-  const metaRoadmapName = getMetaRoadmapName(object);
+  const roadmapName = getRoadmapName(object);
   const [timestamp] = useState(() => Date.now());
 
-  const formContent = {
-    target: GoalDataTarget.Full,
-    goalId: (object as Goal).id,
-    timestamp: timestamp, // Only needed for edits
-
-    name: undefined,
-    description: undefined,
-    indicatorParameter: undefined,
-    isFeatured: undefined,
-    recipeSuggestions: undefined,
-
-    dataSeriesId: undefined,
-    dataSeries: undefined,
-    dataSeriesRecipeId: undefined,
-    dataSeriesRecipe: undefined,
-
-    baselineId: undefined,
-    baseline: undefined,
-    baselineRecipeId: undefined,
-    baselineRecipe: undefined,
-
-    historicalId: undefined,
-    historical: undefined,
-    historicalRecipeId: undefined,
-    historicalRecipe: undefined,
-
-    roadmapId: undefined, // Can't reassign the roadmap of an existing goal
-    rawTags: undefined, // TODO: add tags input
-
-    // DEPRECATED - moved to description
-    links: undefined,
-  } satisfies GoalUpdateInput;
+  // The featured/historical sections only render for goals; the guard also narrows for their payloads
+  const goal = isGoalEntry(object) ? object : null;
 
 
   return (
@@ -358,20 +366,44 @@ export function AdminPanel(
           <>
             {hasEditAccess(accessLevel ?? AccessLevel.None) ? (
               <>
-                {links.featureGoal ? <button
+                {goal && links.featureGoal ? <button
                   type="button"
                   className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`}
                   style={{ boxShadow: 'none', cursor: 'pointer', fontSize: '14px', transform: 'none', whiteSpace: 'nowrap' }}
                   onClick={() => {
-                    const updatedForm = {
-                      ...formContent,
-                      isFeatured: !(object as Goal).isFeatured,
-                    };
+                    // Full-target update touching only isFeatured; everything undefined is left unchanged
+                    formSubmitter('/api/goal', JSON.stringify({
+                      target: GoalDataTarget.Full,
+                      goalId: goal.id,
+                      timestamp: timestamp, // Only needed for edits
+                      isFeatured: !goal.is_featured,
 
-                    formSubmitter('/api/goal', JSON.stringify(updatedForm), 'PUT', t);
+                      name: undefined,
+                      description: undefined,
+                      indicatorParameter: undefined,
+                      recipeSuggestions: undefined,
+
+                      dataSeriesId: undefined,
+                      dataSeries: undefined,
+                      dataSeriesRecipeId: undefined,
+                      dataSeriesRecipe: undefined,
+
+                      baselineId: undefined,
+                      baseline: undefined,
+                      baselineRecipeId: undefined,
+                      baselineRecipe: undefined,
+
+                      historicalId: undefined,
+                      historical: undefined,
+                      historicalRecipeId: undefined,
+                      historicalRecipe: undefined,
+
+                      iterationId: undefined, // Can't reassign the roadmap iteration of an existing goal
+                      rawTags: undefined, // TODO: add tags input
+                    } satisfies GoalUpdateInput), 'PUT', t);
                   }}
                 >
-                  {(object as Goal).isFeatured ? (
+                  {goal.is_featured ? (
                     <>
                       <span className='margin-right-25'>{t("components:table_menu.feature_goal_stop")}</span>
                       <IconStarFilled fill='darkorange' aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
@@ -385,7 +417,7 @@ export function AdminPanel(
                 </button>
                   : null}
                 <nav className="display-contents">
-                  {links.historicalDataLink ? // TODO: Clean up css and translations below
+                  {goal && links.historicalDataLink ? // TODO: Clean up css and translations below
                     <>
                       <button
                         type="button"
@@ -417,7 +449,7 @@ export function AdminPanel(
                           href={links.historicalDataLink}
                           data-testid="historical-data-link"
                         >
-                          {!(object as Goal).historical ? (
+                          {!goal.historical ? (
                             <>
                               {t("components:table_menu.historical_data_add")}
                               <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
@@ -429,7 +461,7 @@ export function AdminPanel(
                             </>
                           )}
                         </Link>
-                        {(object as Goal).historical ? (
+                        {goal.historical ? (
                           <>
                             <button
                               className={`flex gap-50 justify-content-space-between align-items-center button smooth width-100 font-size-14px ${styles['object-menu-button']}`}
@@ -461,7 +493,7 @@ export function AdminPanel(
                                     // Clear only the historical section, leaving the rest of the goal untouched.
                                     formSubmitter('/api/goal', JSON.stringify({
                                       target: GoalDataTarget.Historical,
-                                      goalId: (object as Goal).id,
+                                      goalId: goal.id,
                                       timestamp: timestamp,
                                       historicalId: null,
                                       historical: null,
@@ -505,40 +537,39 @@ export function AdminPanel(
                     </>
                     : null
                   }
-                  {links.creationLink ? <Link href={links.creationLink} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`}>
-                    <span>{links.creationDescription}</span>
-                    <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
-                  </Link> : null
-                  }
-                  {links.creationLink2 ? <Link href={links.creationLink2} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`} data-testid="admin-panel-new-action">
-                    <span>{links.creationDescription2 || links.creationLink2}</span>
-                    <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
-                  </Link> : null
-                  }
-                  {links.editLink ? <Link href={links.editLink} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`} data-testid="admin-panel-edit">
-                    <span>{t("components:table_menu.edit")}</span>
-                    <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
-                  </Link> : null
-                  }
-                </nav>
-              </>
-            ) : null
-            }
-            {/* Admins and authors can delete items */}
-            {(accessLevel === AccessLevel.Admin || accessLevel === AccessLevel.Author) && links.deleteLink ? <>
-              <button
-                type="button"
-                className={`flex gap-50 justify-content-space-between align-items-center button smooth font-size-14px  
-                ${styles['object-menu-button']}`} style={{ textShadow: 'none', color: 'white', backgroundColor: "#f03b3b", border: '0' }}
-                onClick={() => openModal(deletionRef)}
-              >
-                {t("components:table_menu.delete")}
-                <IconTrashXFilled aria-hidden="true" width={20} height={20} fill="white" style={{ minWidth: '20px' }} />
-              </button>
-              <ConfirmDelete modalRef={deletionRef} targetUrl={links.deleteLink} targetName={objectName || metaRoadmapName || t("components:table_menu.delete_missing_name")} targetId={object.id} />
-            </> : null
-            }
+                {links.creationLink ? <Link href={links.creationLink} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`}>
+                  <span>{links.creationDescription}</span>
+                  <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+                </Link> : null
+                }
+                {links.creationLink2 ? <Link href={links.creationLink2} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`} data-testid="admin-panel-new-action">
+                  <span>{links.creationDescription2 || links.creationLink2}</span>
+                  <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+                </Link> : null
+                }
+                {links.editLink ? <Link href={links.editLink} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`} data-testid="admin-panel-edit">
+                  <span>{t("components:table_menu.edit")}</span>
+                  <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+                </Link> : null
+                }
+              </nav>
           </>
+        ) : null
+        }
+        {mayShowDelete(object, accessLevel ?? AccessLevel.None) && links.deleteLink ? <>
+          <button
+            type="button"
+            className={`flex gap-50 justify-content-space-between align-items-center button smooth font-size-14px
+                ${styles['object-menu-button']}`} style={{ textShadow: 'none', color: 'white', backgroundColor: "#f03b3b", border: '0' }}
+            onClick={() => openModal(deletionRef)}
+          >
+            {t("components:table_menu.delete")}
+            <IconTrashXFilled aria-hidden="true" width={20} height={20} fill="white" style={{ minWidth: '20px' }} />
+          </button>
+          <ConfirmDelete modalRef={deletionRef} targetUrl={links.deleteLink} targetName={objectName || roadmapName || t("components:table_menu.delete_missing_name")} targetId={object.id} />
+        </> : null
+        }
+      </>
         ) : null}
       </menu>
     </aside >

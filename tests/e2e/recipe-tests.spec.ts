@@ -2,6 +2,7 @@ import { expect, test } from "playwright/test";
 import type { Locator, Page } from "playwright/test";
 import path from "node:path";
 import { cwd } from "node:process";
+import { RecipeDataTypes } from "../../src/functions/recipe/types/enums";
 
 const adminFile = path.join(cwd(), "tests/.auth/admin.json");
 
@@ -130,7 +131,7 @@ test.describe("Recipe tests", () => {
     await page.getByRole("button", { name: "copy_and_scale.add_variable" }).first().click();
     const variablePopover = page.locator("#add-variable-popover").first();
     await variablePopover.locator("#variable-name").fill("series");
-    await variablePopover.locator('input[name="variable-type"][value="dataSeries"]').check();
+    await variablePopover.locator(`input[name="variable-type"][value="${RecipeDataTypes.DataSeries}"]`).check();
     await variablePopover.getByRole("button", { name: "recipe_editor.create_variable" }).click();
 
     // Pick a data series for it (on the Variables tab).

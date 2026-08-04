@@ -2,14 +2,14 @@
 
 import WrappedChart from "@/lib/chartWrapper";
 import { actionGraphSorter } from "@/lib/sorters";
-import type { Action } from "@/lib/prisma/generated";
+import type { Action } from "@/types";
 import type { ApexAxisChartSeries } from "apexcharts";
 import { useTranslation } from "react-i18next";
 
 export default function ActionGraph({
   actions,
 }: {
-  actions: Action[],
+  actions: Pick<Action, "name" | "start_year" | "end_year">[],
 }) {
   const { t } = useTranslation("graphs");
 
@@ -23,8 +23,8 @@ export default function ActionGraph({
     actionData.push({
       x: action.name,
       y: [
-        new Date((action.startYear ?? 2020).toString()).getTime(),
-        new Date((action.endYear ?? 2050).toString()).getTime(),
+        new Date((action.start_year ?? 2020).toString()).getTime(),
+        new Date((action.end_year ?? 2050).toString()).getTime(),
       ],
     });
   }

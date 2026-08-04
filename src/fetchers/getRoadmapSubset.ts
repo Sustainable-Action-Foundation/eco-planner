@@ -1,112 +1,64 @@
 import "server-only";
 import { multiRoadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
-import type { LoginData } from "@/types";
-import { getSession } from "@/lib/session";
-import { roadmapSorter } from "@/lib/sorters";
+import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { visibleRoadmapIterationsWhere } from "@/lib/accessFilters";
+import { roadmapIterationSorter } from "@/lib/sorters";
 import type { Prisma } from "@/lib/prisma/generated";
 import { prisma } from "@/lib/prisma";
+import type { UserAccessContext } from "@/types";
 import { cacheTag } from "next/cache";
-import { cookies } from "next/headers";
 
 /**
- * Gets a subset of roadmaps the user has access to, based on the parameters passed to the function.
- * 
- * Returns an empty array if no roadmaps are found or user does not have access to any. Also returns an empty array on error.
- * @param actor Actor to filter by
- * @returns Array of roadmaps
+ * Gets a subset of roadmap iterations the user has access to, based on the parameters passed to the function.
+ *
+ * Returns an empty array if no iterations are found or user does not have access to any. Also returns an empty array on error.
+ * @param actor Actor to filter by (matched against the parent roadmap's free-text actor; TODO: filter by geo_area_code instead)
+ * @returns Array of roadmap iterations
  */
 export async function getRoadmapSubset(actor?: string) {
-  const session = await getSession(await cookies());
-  return getCachedRoadmapSubset(session.user, actor);
+  const accessContext = await getUserAccessContext();
+  return getCachedRoadmapSubset(accessContext, actor);
 }
 
-// Also include the ids of goals and actions under the selected roadmaps
+// Also include the ids of goals and actions under the selected iterations
 const roadmapSubsetSelect = {
   ...multiRoadmapInclusionSelection,
   goals: { select: { id: true } },
   actions: { select: { id: true } },
-};
+} satisfies Prisma.RoadmapIterationsInclude;
 
 /**
- * Caches a subset of roadmaps the user has access to, based on the parameters passed to the function.
- * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap']`, which is done in relevant API routes.
- * @param user Data from user's session cookie.
+ * Caches a subset of roadmap iterations the user has access to, based on the parameters passed to the function.
+ * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap', 'roadmapIteration']`, which is done in relevant API routes.
+ * @param accessContext Requesting user's access context (null for anonymous visitors); part of the cache key.
  * @param actor Actor to filter by
  */
-async function getCachedRoadmapSubset(user: LoginData['user'], actor?: string) {
+async function getCachedRoadmapSubset(accessContext: UserAccessContext | null, actor?: string) {
   'use cache';
-  cacheTag('database', 'roadmap');
-  let roadmaps: Prisma.RoadmapGetPayload<{
+  cacheTag('database', 'roadmap', 'roadmapIteration');
+
+  let iterations: Prisma.RoadmapIterationsGetPayload<{
     include: typeof roadmapSubsetSelect;
   }>[];
 
-  // If user is admin, get all relevant roadmaps
-  if (user?.isAdmin) {
-    try {
-      roadmaps = await prisma.roadmap.findMany({
-        where: {
-          metaRoadmap: { actor: actor ?? undefined },
-        },
-        include: roadmapSubsetSelect,
-      });
-    }
-    catch (err) {
-      console.error("Error fetching admin roadmaps", { err });
-      return [];
-    }
-
-    // Sort roadmaps
-    roadmaps.sort(roadmapSorter);
-
-    return roadmaps;
-  }
-
-  // If user is logged in, get all relevant roadmaps they have access to
-  if (user?.isLoggedIn) {
-    try {
-      roadmaps = await prisma.roadmap.findMany({
-        where: {
-          metaRoadmap: { actor: actor ?? undefined },
-          OR: [
-            { authorId: user.id },
-            { editors: { some: { id: user.id } } },
-            { viewers: { some: { id: user.id } } },
-            { editGroups: { some: { users: { some: { id: user.id } } } } },
-            { viewGroups: { some: { users: { some: { id: user.id } } } } },
-            { isPublic: true },
-          ],
-        },
-        include: roadmapSubsetSelect,
-      });
-    }
-    catch (err) {
-      console.error("Error fetching user roadmaps", { err });
-      return [];
-    }
-
-    // Sort roadmaps
-    roadmaps.sort(roadmapSorter);
-
-    return roadmaps;
-  }
-
-  // If user is not logged in, get all public roadmaps
   try {
-    roadmaps = await prisma.roadmap.findMany({
+    iterations = await prisma.roadmapIterations.findMany({
       where: {
-        metaRoadmap: { actor: actor ?? undefined },
-        isPublic: true,
+        // AND avoids clobbering the `roadmap` key inside the visibility filter
+        AND: [
+          { roadmap: { actor: actor ?? undefined } },
+          visibleRoadmapIterationsWhere(accessContext),
+        ],
       },
       include: roadmapSubsetSelect,
     });
   }
   catch (err) {
-    console.error("Error fetching public roadmaps", { err });
+    console.error("Error fetching roadmap iteration subset", { err });
     return [];
   }
 
-  // Sort roadmaps
-  roadmaps.sort(roadmapSorter);
+  iterations.sort(roadmapIterationSorter);
 
-  return roadmaps;
+  return iterations;
 };

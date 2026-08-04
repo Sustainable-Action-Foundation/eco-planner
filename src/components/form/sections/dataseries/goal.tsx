@@ -36,16 +36,16 @@ export default function GoalSeriesSection({
 }) {
   const { t } = useTranslation(["forms", "common"]);
 
-  const manualInitialDateValues = goal?.dataSeries
-    ? dataSeriesToDateValues(goal.dataSeries)
+  const manualInitialDateValues = goal?.data_series
+    ? dataSeriesToDateValues(goal.data_series)
     : undefined;
 
   const initialLoadedRecipe = useMemo(() => {
-    const base = goal?.dataSeries?.recipeUsed?.recipe;
+    const base = goal?.data_series?.recipe_used?.recipe;
     if (!base) return undefined;
 
     return Recipe.from(base).withEditableExternals().serialize();
-  }, [goal?.dataSeries?.recipeUsed?.recipe]);
+  }, [goal?.data_series?.recipe_used?.recipe]);
 
   return (
     <>
@@ -122,12 +122,12 @@ export default function GoalSeriesSection({
           <fieldset className={`${dataSeriesType !== DataSeriesType.Suggested ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Suggested}>
             <RecipeContextProvider
               initialRecipe={initialLoadedRecipe}
-              availableDataSeries={goal?.dataSeries?.recipeUsed?.sourceDataSeries}
+              availableDataSeries={goal?.data_series?.recipe_used?.source_data_series}
             >
               <SuggestedRecipeApplier />
               <UnitInput
                 id="goal-suggested-unit"
-                staticProvidedUnit={parseUnit(goal?.dataSeries?.unit)}
+                staticProvidedUnit={parseUnit(goal?.data_series?.unit)}
               />
               <FormSync
                 RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
@@ -160,7 +160,7 @@ export default function GoalSeriesSection({
               />
               <UnitInput
                 id="goal-manual-unit"
-                staticProvidedUnit={parseUnit(goal?.dataSeries?.unit)}
+                staticProvidedUnit={parseUnit(goal?.data_series?.unit)}
               />
               <FormSync
                 RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
@@ -182,12 +182,12 @@ export default function GoalSeriesSection({
           <fieldset className={`${dataSeriesType !== DataSeriesType.Custom ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Custom}>
             <RecipeContextProvider
               initialRecipe={initialLoadedRecipe}
-              availableDataSeries={goal?.dataSeries?.recipeUsed?.sourceDataSeries}
+              availableDataSeries={goal?.data_series?.recipe_used?.source_data_series}
             >
               <RecipeEditor />
               <UnitInput
                 id="goal-custom-unit"
-                staticProvidedUnit={parseUnit(goal?.dataSeries?.unit)}
+                staticProvidedUnit={parseUnit(goal?.data_series?.unit)}
               />
               <FormSync
                 RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}

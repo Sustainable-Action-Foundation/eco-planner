@@ -30,14 +30,14 @@ async function expectNativeValidationRejection(page: Page) {
 }
 
 async function selectRiketsRoadmap(page: Page) {
-  const option = page.locator('#roadmapId option').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: 'v2' });
+  const option = page.locator('#iterationId option').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: 'v2' });
   const value = await option.getAttribute('value');
 
   if (!value) {
     throw new Error('Could not find Rikets färdplan version 2');
   }
 
-  await page.locator('#roadmapId').selectOption(value);
+  await page.locator('#iterationId').selectOption(value);
 }
 
 async function selectParentRiketsRoadmap(page: Page) {
@@ -96,38 +96,37 @@ test.describe('Toast', () => {
     await expectToast(page, 'success', 'action');
   });
 
-  test('Metaroadmap rejects invalid submit and shows success toast', async ({ page }) => {
-    await page.goto('/metaRoadmap/create');
+  test('Roadmap rejects invalid submit and shows success toast', async ({ page }) => {
+    await page.goto('/roadmap/create');
 
+    // Name, type and actor are required, so an empty submit is rejected natively
     await page.locator('#submit-button').click();
     await expectNativeValidationRejection(page);
 
-    await page.locator('#name').fill('MetaRoadmap Toast');
+    await page.locator('#name').fill('Roadmap Toast');
     await page.locator('#type').selectOption('LOCAL');
     await page.locator('#actor').fill('Toast');
-    await page.locator('#visibility-private').check();
-    await page.locator('#editability-private').check();
+    // The single seeded org is preselected, and visibility defaults to org members.
+    // The admin user is an org manager, so no group grant is needed either.
 
+    // The description lives in a hidden input, so the form's own submit handler
+    // rejects the missing description with a warning toast
     await page.locator('#submit-button').click();
-    await expectToast(page, 'warning', 'meta_roadmap');
+    await expectToast(page, 'warning', 'roadmap.description_required');
 
     await page.locator('.tiptap').first().fill('Toast');
     await page.locator('#submit-button').click();
 
-    await expectToast(page, 'success', 'meta_roadmap');
-    await expect(page).toHaveURL(/\/roadmap\/create/);
+    await expectToast(page, 'success', 'roadmap.roadmap_created');
+    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/iteration\/create/);
 
+    // The iteration form has no required fields when the roadmap comes from the
+    // query, so just publish and submit
+    await page.locator('#publish').check();
     await page.locator('#submit-button').click();
-    await expectNativeValidationRejection(page);
-
-    await page.locator('#visibility-private').check();
-    await page.locator('#editability-private').check();
-
-    await page.locator('#submit-button').click();
-    // Check for a toast containing roadmap, not immediately preceded by "meta" or "meta_"
-    await expectToast(page, 'success', /(?<!meta_?)roadmap\b/i);
-    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+/);
-    await expect(page.getByRole('heading', { name: 'Toast' })).toBeVisible();
+    await expectToast(page, 'success', 'iteration_created');
+    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/v\d+/);
+    await expect(page.getByRole('heading', { name: 'Roadmap Toast' })).toBeVisible();
   });
 
   test('Goal rejects invalid submit and shows success toast', async ({ page }) => {

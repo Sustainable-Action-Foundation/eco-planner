@@ -1,4 +1,5 @@
-import { Recipe, RecipeDataTypes } from "@/functions/recipe";
+import { Recipe } from "@/functions/recipe";
+import { RecipeDataTypes } from "@/functions/recipe/types/enums";
 import type { ExternalSource } from "@/functions/recipe";
 import { ExternalDataset } from "@/lib/api/utility";
 import type { DatasetData, DatasetKeys } from "@/lib/api/apiTypes";
@@ -50,7 +51,7 @@ export function getHistoricalSourceFromRecipe(recipe: Recipe | null | undefined)
  * case; deserializes the stored recipe JSON before delegating.
  */
 export function getHistoricalSource(goal: Pick<Goal, "historical">): HistoricalSource | null {
-  const recipeJson = goal.historical?.recipeUsed?.recipe;
+  const recipeJson = goal.historical?.recipe_used?.recipe;
   if (!recipeJson) return null;
 
   try {

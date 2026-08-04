@@ -2,9 +2,9 @@ import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import GoalForm from "@/components/form/forms/goal";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
+import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { notFound } from "next/navigation";
 import type { AccessControlled } from "@/types";
-import { AccessLevel } from "@/types/enums";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
@@ -38,9 +38,9 @@ export async function generateMetadata(props: { params: Promise<{ goalId: string
 
 export default async function Page(props: { params: Promise<{ goalId: string }> }) {
   const params = await props.params;
-  const [t, session, currentGoal, roadmaps] = await Promise.all([
+  const [t, accessContext, currentGoal, roadmaps] = await Promise.all([
     serveTea("pages"),
-    getSession(await cookies()),
+    getUserAccessContext(),
     getOneGoal(params.goalId),
     getRoadmaps(),
   ]);
@@ -48,20 +48,16 @@ export default async function Page(props: { params: Promise<{ goalId: string }> 
   let goalAccessData: AccessControlled | null = null;
   if (currentGoal) {
     goalAccessData = {
-      author: currentGoal.author,
-      editors: currentGoal.roadmap.editors,
-      viewers: currentGoal.roadmap.viewers,
-      editGroups: currentGoal.roadmap.editGroups,
-      viewGroups: currentGoal.roadmap.viewGroups,
-      isPublic: currentGoal.roadmap.isPublic,
+      access_control: currentGoal.roadmap_iteration.roadmap.access_control,
+      published_at: currentGoal.roadmap_iteration.published_at,
     };
   }
   // User must be signed in and have edit access to the goal, and the goal must exist
-  if (!currentGoal || !session.user || !accessChecker(goalAccessData, session.user) || accessChecker(goalAccessData, session.user) === AccessLevel.View) {
+  if (!currentGoal || !accessContext || !hasEditAccess(accessChecker(goalAccessData, accessContext))) {
     return notFound();
   }
 
-  const roadmapList = roadmaps.filter((roadmap) => hasEditAccess(accessChecker(roadmap, session.user)));
+  const roadmapList = roadmaps.filter((roadmap) => hasEditAccess(accessChecker(roadmap, accessContext)));
 
   return (
     <>
@@ -70,11 +66,11 @@ export default async function Page(props: { params: Promise<{ goalId: string }> 
       <div className="container-text margin-inline-auto">
         <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
           {t("pages:goal_edit.title", {
-            goalName: currentGoal.name ? currentGoal.name : currentGoal.indicatorParameter,
+            goalName: currentGoal.name ? currentGoal.name : currentGoal.indicator_parameter,
           })}
         </h1>
         <GoalForm
-          roadmapId={currentGoal.roadmapId}
+          iterationId={currentGoal.roadmap_iteration_id}
           currentGoal={currentGoal}
           roadmapAlternatives={roadmapList}
         />

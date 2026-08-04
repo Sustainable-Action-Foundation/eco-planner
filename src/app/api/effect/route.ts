@@ -1,17 +1,21 @@
+import { getAccessContextById } from "@/fetchers/getUserAccessContext";
+import { accessControlSelection } from "@/fetchers/inclusionSelectors";
+import { Recipe } from "@/functions/recipe/recipe";
+import { manualDataSeriesCreateData } from "@/functions/recipe/persistence";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
+import { serializeUnit } from "@/functions/unit";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
-import { getSession } from "@/lib/session";
+import serveTea from "@/lib/i18nServer";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@PRISMA-NAMESPACE-ONLY";
-import { ActionImpactType } from "@/lib/prisma/generated";
-import type { EffectInput, JSONValue } from "@/types";
-import { ClientError } from "@/types/enums";
+import { ActionImpactType, OrgRole } from "@/lib/prisma/generated";
+import { getSession } from "@/lib/session";
+import type { EffectInput, JSONValue, UserAccessContext } from "@/types";
+import { ClientError } from "@/types/consts";
 import { isDateValuesWithUnit } from "@/types/typeguards";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
-import serveTea from "@/lib/i18nServer";
-import { serializeUnit } from "@/functions/unit";
 
 // Typeguard and check if the request body is valid
 function isEffect(effect: JSONValue): effect is EffectInput {
@@ -32,6 +36,45 @@ function isEffect(effect: JSONValue): effect is EffectInput {
       || Object.values(ActionImpactType).includes(effect.impactType as ActionImpactType)
     )
   );
+}
+
+/** The selection needed to run the edit-access checks on an effect's action and goal. */
+const effectParentsSelection = {
+  action: {
+    select: {
+      org_id: true,
+      roadmap_iteration: {
+        select: {
+          published_at: true,
+          roadmap: { select: { access_control: { select: accessControlSelection } } },
+        },
+      },
+    },
+  },
+  goal: {
+    select: {
+      roadmap_iteration: {
+        select: {
+          published_at: true,
+          roadmap: { select: { access_control: { select: accessControlSelection } } },
+        },
+      },
+    },
+  },
+} satisfies Prisma.EffectsSelect;
+
+type EffectParents = Prisma.EffectsGetPayload<{ select: typeof effectParentsSelection }>;
+
+/**
+ * Edit access to an effect requires edit access to both the action and the goal.
+ * Roadmapless actions (the public action database) are editable by the owning org's managers.
+ */
+function mayEditEffectParents(parents: Pick<EffectParents, "action" | "goal">, accessContext: UserAccessContext): boolean {
+  const actionEditable = parents.action.roadmap_iteration
+    ? hasEditAccess(accessChecker({ access_control: parents.action.roadmap_iteration.roadmap.access_control, published_at: parents.action.roadmap_iteration.published_at }, accessContext))
+    : (accessContext.isSuperAdmin || accessContext.memberships.some(membership => membership.orgId === parents.action.org_id && membership.role === OrgRole.MANAGER));
+  const goalEditable = hasEditAccess(accessChecker({ access_control: parents.goal.roadmap_iteration.roadmap.access_control, published_at: parents.goal.roadmap_iteration.published_at }, accessContext));
+  return actionEditable && goalEditable;
 }
 
 /**
@@ -56,47 +99,24 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  let goalOrgId: string;
+
   // Get user and check permissions
   try {
-    const [user, action, goal] = await Promise.all([
-      prisma.user.findUnique({
-        where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true },
-      }),
-      prisma.action.findUnique({
+    const [accessContext, action, goal] = await Promise.all([
+      getAccessContextById(session.user.id),
+      prisma.actions.findUnique({
         where: { id: effect.actionId },
-        select: {
-          roadmap: {
-            select: {
-              author: { select: { id: true, username: true } },
-              editors: { select: { id: true, username: true } },
-              viewers: { select: { id: true, username: true } },
-              editGroups: { include: { users: { select: { id: true, username: true } } } },
-              viewGroups: { include: { users: { select: { id: true, username: true } } } },
-              isPublic: true,
-            },
-          },
-        },
+        select: effectParentsSelection.action.select,
       }),
-      prisma.goal.findUnique({
+      prisma.goals.findUnique({
         where: { id: effect.goalId },
-        select: {
-          roadmap: {
-            select: {
-              author: { select: { id: true, username: true } },
-              editors: { select: { id: true, username: true } },
-              viewers: { select: { id: true, username: true } },
-              editGroups: { include: { users: { select: { id: true, username: true } } } },
-              viewGroups: { include: { users: { select: { id: true, username: true } } } },
-              isPublic: true,
-            },
-          },
-        },
+        select: effectParentsSelection.goal.select,
       }),
     ]);
 
-    // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
-    if (!user || (session.user.isAdmin && !user.isAdmin)) {
+    // If no user is found or the found user falsely claims to be a super admin, they have a bad session cookie and should be logged out
+    if (!accessContext || (session.user.isSuperAdmin && !accessContext.isSuperAdmin)) {
       throw new Error(ClientError.BadSession, { cause: 'effect' });
     }
 
@@ -105,12 +125,12 @@ export async function POST(request: NextRequest) {
       throw new Error(ClientError.IllegalParent, { cause: 'effect' });
     }
 
-    const actionAccess = accessChecker(action.roadmap, session.user);
-    const goalAccess = accessChecker(goal.roadmap, session.user);
-
-    if (!hasEditAccess(actionAccess) || !hasEditAccess(goalAccess)) {
+    if (!mayEditEffectParents({ action, goal }, accessContext)) {
       throw new Error(ClientError.IllegalParent, { cause: 'effect' });
     }
+
+    // The effect's series belongs to the goal's (deriving) org
+    goalOrgId = goal.roadmap_iteration.roadmap.access_control.org_id;
   }
   catch (err) {
     if (err instanceof Error) {
@@ -142,17 +162,13 @@ export async function POST(request: NextRequest) {
 
   // Create the effect
   try {
-    const newEffect = await prisma.effect.create({
+    const newEffect = await prisma.effects.create({
       data: {
         action: { connect: { id: effect.actionId } },
         goal: { connect: { id: effect.goalId } },
-        impactType: effect.impactType,
-        dataSeries: {
-          create: {
-            values: { createMany: { data: dateValuesToDBDateRecord(effect.dataSeries.dateValues) } },
-            unit: serializeUnit(effect.dataSeries.unit), // db keeps the legacy convention
-            authorId: session.user.id,
-          },
+        impact_type: effect.impactType,
+        data_series: {
+          create: manualDataSeriesCreateData(effect.dataSeries, goalOrgId, session.user.id),
         },
       },
     });
@@ -160,7 +176,7 @@ export async function POST(request: NextRequest) {
     revalidateTag('action', { expire: 0 });
     revalidateTag('goal', { expire: 0 });
     // Return success
-    return Response.json({ message: t('api:effect.effect_created'), actionId: newEffect.actionId, goalId: newEffect.goalId },
+    return Response.json({ message: t('api:effect.effect_created'), actionId: newEffect.action_id, goalId: newEffect.goal_id },
       { status: 201 },
     );
   }
@@ -206,68 +222,35 @@ export async function PUT(request: NextRequest) {
     );
   }
 
+  let goalOrgId: string;
+
   // Get user and check permissions
   try {
-    const [user, currentEffect] = await Promise.all([
-      prisma.user.findUnique({
-        where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true },
-      }),
-      prisma.effect.findUnique({
-        where: { id: { actionId: effect.actionId, goalId: effect.goalId } },
+    const [accessContext, currentEffect] = await Promise.all([
+      getAccessContextById(session.user.id),
+      prisma.effects.findUnique({
+        where: { id: { action_id: effect.actionId, goal_id: effect.goalId } },
         select: {
-          updatedAt: true,
-          goal: {
-            select: {
-              roadmap: {
-                select: {
-                  author: { select: { id: true, username: true } },
-                  editors: { select: { id: true, username: true } },
-                  viewers: { select: { id: true, username: true } },
-                  editGroups: { include: { users: { select: { id: true, username: true } } } },
-                  viewGroups: { include: { users: { select: { id: true, username: true } } } },
-                  isPublic: true,
-                },
-              },
-            },
-          },
-          action: {
-            select: {
-              roadmap: {
-                select: {
-                  author: { select: { id: true, username: true } },
-                  editors: { select: { id: true, username: true } },
-                  viewers: { select: { id: true, username: true } },
-                  editGroups: { include: { users: { select: { id: true, username: true } } } },
-                  viewGroups: { include: { users: { select: { id: true, username: true } } } },
-                  isPublic: true,
-                },
-              },
-            },
-          },
+          updated_at: true,
+          ...effectParentsSelection,
         },
       }),
     ]);
 
-    // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
-    if (!user || (session.user.isAdmin && !user.isAdmin)) {
+    // If no user is found or the found user falsely claims to be a super admin, they have a bad session cookie and should be logged out
+    if (!accessContext || (session.user.isSuperAdmin && !accessContext.isSuperAdmin)) {
       throw new Error(ClientError.BadSession, { cause: 'effect' });
     }
 
     // Check access
-    if (!currentEffect) {
+    if (!currentEffect || !mayEditEffectParents(currentEffect, accessContext)) {
       throw new Error(ClientError.AccessDenied, { cause: 'effect' });
     }
 
-    const actionAccess = accessChecker(currentEffect.action.roadmap, session.user);
-    const goalAccess = accessChecker(currentEffect.goal.roadmap, session.user);
-
-    if (!hasEditAccess(actionAccess) || !hasEditAccess(goalAccess)) {
-      throw new Error(ClientError.AccessDenied, { cause: 'effect' });
-    }
+    goalOrgId = currentEffect.goal.roadmap_iteration.roadmap.access_control.org_id;
 
     // Check if the data is stale
-    if (currentEffect.updatedAt.getTime() > effect.timestamp) {
+    if (currentEffect.updated_at.getTime() > effect.timestamp) {
       throw new Error(ClientError.StaleData, { cause: 'effect' });
     }
   }
@@ -306,23 +289,24 @@ export async function PUT(request: NextRequest) {
 
   // Update the effect
   try {
-    const updatedEffect = await prisma.effect.update({
-      where: { id: { actionId: effect.actionId, goalId: effect.goalId } },
+    const updatedEffect = await prisma.effects.update({
+      where: { id: { action_id: effect.actionId, goal_id: effect.goalId } },
       data: {
-        impactType: effect.impactType,
-        dataSeries: {
+        impact_type: effect.impactType,
+        data_series: {
           upsert: {
-            create: {
-              values: { createMany: { data: dateValuesToDBDateRecord(effect.dataSeries.dateValues) } },
-              unit: serializeUnit(effect.dataSeries.unit), // db keeps the legacy convention
-              authorId: session.user.id,
-            },
+            create: manualDataSeriesCreateData(effect.dataSeries, goalOrgId, session.user.id),
             update: {
               values: {
                 deleteMany: {},
                 createMany: { data: dateValuesToDBDateRecord(effect.dataSeries.dateValues) },
               },
               unit: serializeUnit(effect.dataSeries.unit), // db keeps the legacy convention
+              // Keep the producing manual recipe in sync with the entered values,
+              // so recalculating the series doesn't resurrect stale data
+              recipe_used: {
+                update: { recipe: Recipe.fromManualDateValues(effect.dataSeries).serialize() },
+              },
             },
           },
         },
@@ -332,7 +316,7 @@ export async function PUT(request: NextRequest) {
     revalidateTag('action', { expire: 0 });
     revalidateTag('goal', { expire: 0 });
     // Return success
-    return Response.json({ message: t('api:effect.effect_updated'), actionId: updatedEffect.actionId, goalId: updatedEffect.goalId },
+    return Response.json({ message: t('api:effect.effect_updated'), actionId: updatedEffect.action_id, goalId: updatedEffect.goal_id },
       { status: 200 },
     );
   }
@@ -356,7 +340,7 @@ export async function DELETE(request: NextRequest) {
 
   // Typeguard and check if the request body is valid
   // For delete, only expect actionId and goalId (but allow other fields)
-  function isEffect(effect: JSONValue): effect is { actionId: string, goalId: string } {
+  function isEffectDelete(effect: JSONValue): effect is { actionId: string, goalId: string } {
     return (
       // effect should be an object
       (typeof effect === 'object' &&
@@ -367,7 +351,7 @@ export async function DELETE(request: NextRequest) {
     );
   }
 
-  if (!isEffect(effect)) {
+  if (!isEffectDelete(effect)) {
     return Response.json({ message: t('api:common.invalid_request_body') },
       { status: 400 },
     );
@@ -381,36 +365,22 @@ export async function DELETE(request: NextRequest) {
 
   // Get user and check permissions
   try {
-    const [user, currentEffect] = await Promise.all([
-      prisma.user.findUnique({
-        where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true },
-      }),
-      prisma.effect.findUnique({
-        where: {
-          id: { actionId: effect.actionId, goalId: effect.goalId },
-          // The user must be an admin or the author of one of the effect's parents
-          ...(session.user.isAdmin ? {} : {
-            OR: [
-              { goal: { authorId: session.user.id } },
-              { goal: { roadmap: { authorId: session.user.id } } },
-              { goal: { roadmap: { metaRoadmap: { authorId: session.user.id } } } },
-              { action: { authorId: session.user.id } },
-              { action: { roadmap: { authorId: session.user.id } } },
-              { action: { roadmap: { metaRoadmap: { authorId: session.user.id } } } },
-            ],
-          }),
-        },
+    const [accessContext, currentEffect] = await Promise.all([
+      getAccessContextById(session.user.id),
+      prisma.effects.findUnique({
+        where: { id: { action_id: effect.actionId, goal_id: effect.goalId } },
+        select: effectParentsSelection,
       }),
     ]);
 
-    // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
-    if (!user || (session.user.isAdmin && !user.isAdmin)) {
+    // If no user is found or the found user falsely claims to be a super admin, they have a bad session cookie and should be logged out
+    if (!accessContext || (session.user.isSuperAdmin && !accessContext.isSuperAdmin)) {
       throw new Error(ClientError.BadSession, { cause: 'effect' });
     }
 
-    // If the effect is not found it either does not exist or the user does not have access
-    if (!currentEffect) {
+    // Deleting requires the same edit access as updating.
+    // Also covers effects that don't exist at all.
+    if (!currentEffect || !mayEditEffectParents(currentEffect, accessContext)) {
       throw new Error(ClientError.AccessDenied, { cause: 'effect' });
     }
   }
@@ -444,14 +414,14 @@ export async function DELETE(request: NextRequest) {
 
   // Delete the effect
   try {
-    const deletedEffect = await prisma.effect.delete({
-      where: { id: { actionId: effect.actionId, goalId: effect.goalId } },
+    const deletedEffect = await prisma.effects.delete({
+      where: { id: { action_id: effect.actionId, goal_id: effect.goalId } },
     });
     // Invalidate old cache
     revalidateTag('action', 'max');
     revalidateTag('goal', 'max');
     // Return success
-    return Response.json({ message: t('api:effect.effect_deleted'), actionId: deletedEffect.actionId, goalId: deletedEffect.goalId },
+    return Response.json({ message: t('api:effect.effect_deleted'), actionId: deletedEffect.action_id, goalId: deletedEffect.goal_id },
       { status: 200 },
     );
   }

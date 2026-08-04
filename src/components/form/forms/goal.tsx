@@ -27,11 +27,11 @@ import { parseUnit } from "@/functions/unit";
 
 function resolveDataSeriesType(goal?: Goal): DataSeriesType {
   // Somehow missing
-  if (!goal?.dataSeries) return DataSeriesType.Suggested;
+  if (!goal?.data_series) return DataSeriesType.Suggested;
 
   // Defined recipe
-  if (goal.dataSeries.recipeUsed) {
-    const recipe = Recipe.from(goal.dataSeries.recipeUsed.recipe);
+  if (goal.data_series.recipe_used) {
+    const recipe = Recipe.from(goal.data_series.recipe_used.recipe);
 
     // Manual entry stored as an inline data series recipe
     if (recipe.isManual()) {
@@ -57,9 +57,9 @@ function resolveBaselineType(goal?: Goal): BaselineType {
   if (!goal?.baseline) return BaselineType.Initial;
 
   // No recipe: manual value input (or a legacy baseline; both edit as custom values)
-  if (!goal.baseline.recipeUsed) return BaselineType.Custom; 
- 
-  const recipe = Recipe.from(goal.baseline.recipeUsed.recipe);
+  if (!goal.baseline.recipe_used) return BaselineType.Custom;
+
+  const recipe = Recipe.from(goal.baseline.recipe_used.recipe);
 
   // Derived from the goal's data series (first / first non-zero value)
   const derivation = recipe.baselineDerivation();
@@ -75,8 +75,11 @@ function resolveBaselineType(goal?: Goal): BaselineType {
 export function resolveHistoricalDataType(goal?: Goal): HistoricalDataType {
   const historical = goal?.historical;
   if (!historical?.values) return HistoricalDataType.None;
-  
-  if (!historical.recipeUsed || Recipe.from(historical.recipeUsed.recipe).isManual()) {
+
+  // Manual entry stored as an inline data series recipe (or a legacy series with
+  // no recipe) edits as custom values; anything else (e.g. an external API
+  // selection) edits as external.
+  if (!historical.recipe_used || Recipe.from(historical.recipe_used.recipe).isManual()) {
     return HistoricalDataType.Custom;
   }
   return HistoricalDataType.External;
@@ -96,11 +99,12 @@ export function useInitializedValues<T>(current: T): Set<T> {
 }
 
 export default function GoalForm({
-  roadmapId,
+  iterationId,
   roadmapAlternatives,
   currentGoal,
 }: {
-  roadmapId?: string,
+  /** The roadmap iteration the goal belongs to, if preselected */
+  iterationId?: string,
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
   currentGoal?: Goal;
 }) {
@@ -125,9 +129,9 @@ export default function GoalForm({
   const historicalHasInitializedExternal = initializedHistoricalTypes.has(HistoricalDataType.External);
   const historicalHasInitializedCustom = initializedHistoricalTypes.has(HistoricalDataType.Custom);
 
-  const [indicatorParameter, setIndicatorParameter] = useState<string>(currentGoal?.indicatorParameter ?? "");
+  const [indicatorParameter, setIndicatorParameter] = useState<string>(currentGoal?.indicator_parameter ?? "");
   // const [goalName, setGoalName] = useState<string>(currentGoal?.name ?? "");
-  const [parentRoadmapId, setParentRoadmapId] = useState<string>(roadmapId || "");
+  const [parentIterationId, setParentIterationId] = useState<string>(iterationId || "");
   const [previewDataSerie, setPreviewDataSerie] = useState<DateValuesWithUnit | null>(null);
   const [previewHistoricalSerie, setPreviewHistoricalSerie] = useState<DateValuesWithUnit | null>(null);
   const [previewBaselineSerie, setPreviewBaselineSerie] = useState<DateValuesWithUnit | null>(null);
@@ -171,11 +175,13 @@ export default function GoalForm({
   }), [previewDataSerie, previewBaselineSerie, previewHistoricalSerie, historicalLabel, t]);
 
 
-  const parentRoadmaps = useMemo(() => {
-    return (roadmapAlternatives ?? []).map(roadmap => ({
-      name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version }),
-      value: roadmap.id,
-    }));
+  const parentIterations = useMemo(() => {
+    return (roadmapAlternatives ?? []).flatMap(roadmap =>
+      roadmap.iterations.map(iteration => ({
+        name: t("common:roadmap_version_name", { name: roadmap.name, version: iteration.version }),
+        value: iteration.id,
+      })),
+    );
   }, [roadmapAlternatives, t]);
 
   const [timestamp] = useState(() => Date.now());
@@ -397,6 +403,7 @@ export default function GoalForm({
         description: formData.get(GoalFormName.Description) as string | null ?? null, // Use the hidden input for the description, which contains the latest editor content
         indicatorParameter: formData.get(GoalFormName.IndicatorParameter) as string | null ?? (event.target.reportValidity(), ""),
         isFeatured: (form.namedItem(GoalFormName.IsFeatured) as HTMLInputElement)?.checked || false,
+        iterationId: iterationId || parentIterationId,
         recipeSuggestions: recipeSuggestions,
 
         dataSeriesId: null,
@@ -414,11 +421,7 @@ export default function GoalForm({
         historicalRecipeId: null,
         historicalRecipe: historicalRecipe?.serialize() ?? null,
 
-        roadmapId: roadmapId || parentRoadmapId,
         rawTags: undefined, // TODO: add tags input
-
-        // DEPRECATED - moved to description
-        links: undefined,
       } satisfies GoalCreateInput;
     }
     else if (currentGoal) {
@@ -449,11 +452,8 @@ export default function GoalForm({
         historicalRecipeId: undefined,
         historicalRecipe: historicalRecipe?.serialize() ?? undefined,
 
-        roadmapId: undefined, // Can't reassign the roadmap of an existing goal
+        iterationId: undefined, // Can't reassign the roadmap iteration of an existing goal
         rawTags: undefined, // TODO: add tags input
-
-        // DEPRECATED - moved to description
-        links: undefined,
       } satisfies GoalUpdateInput;
     }
     else {
@@ -474,8 +474,8 @@ export default function GoalForm({
       {/* This hidden submit button prevents submitting by pressing enter, to avoid accidental submission */}
       <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
-      {/* Allow user to select parent roadmap if not already selected */}
-      {!(roadmapId || currentGoal?.roadmapId) ?
+      {/* Allow user to select parent roadmap iteration if not already selected */}
+      {!(iterationId || currentGoal?.roadmap_iteration_id) ?
         <fieldset className={`${styles.timeLineFieldset} width-100`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_relationship")}</legend>
           <label htmlFor="parent-roadmap">{t("forms:goal.relationship_label")}</label>
@@ -485,10 +485,10 @@ export default function GoalForm({
               className: "margin-top-25 margin-bottom-100",
               id: "parent-roadmap",
               name: "parent-roadmap",
-              placeholder: `${t("common:tsx.select")}  ${t("common:roadmap_series_one")}`,
+              placeholder: `${t("common:tsx.select")}  ${t("common:roadmap_one")}`,
             }}
-            onChange={(value) => value?.value ? setParentRoadmapId(value.value) : setParentRoadmapId("")}
-            options={parentRoadmaps}
+            onChange={(value) => value?.value ? setParentIterationId(value.value) : setParentIterationId("")}
+            options={parentIterations}
           />
         </fieldset>
         : null
@@ -532,7 +532,7 @@ export default function GoalForm({
             name: GoalFormName.IndicatorParameter,
             placeholder: t("forms:combobox.default_autocomplete_placeholder"),
             className: "margin-top-25 margin-bottom-100",
-            defaultValue: currentGoal?.indicatorParameter ?? undefined,
+            defaultValue: currentGoal?.indicator_parameter ?? undefined,
           }}
           options={indicatorParameters}
           fuseOptions={{
@@ -548,7 +548,7 @@ export default function GoalForm({
             {t("forms:goal.feature_this_goal")}
           </legend>
           <label className="flex align-items-center gap-50 margin-top-50 margin-bottom-100">
-            <input type="checkbox" name={GoalFormName.IsFeatured} id="isFeatured" defaultChecked={currentGoal?.isFeatured} />
+            <input type="checkbox" name={GoalFormName.IsFeatured} id="isFeatured" defaultChecked={currentGoal?.is_featured} />
             {t("forms:goal.feature_goal")}
           </label>
         </fieldset >

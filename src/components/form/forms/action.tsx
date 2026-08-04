@@ -1,5 +1,6 @@
 "use client";
 
+import { ActionFieldHeaders, actionFieldLabel } from "@/functions/actionFields";
 import formSubmitter from "@/functions/formSubmitter";
 import type { Action, ActionInput, DateValuesWithUnit, MultiRoadmapInstance } from "@/types";
 import { ActionFormName } from "@/types/form-names";
@@ -7,31 +8,48 @@ import { isDateValuesWithUnit } from "@/types/typeguards";
 import { ActionImpactType } from "@/lib/prisma/generated";
 import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
-import TextEditor from "../elements/textEditor/editor";
 import { FormSync, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
 import { Recipe } from "@/functions/recipe/recipe";
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 import { UnitFlags } from "@/types/enums";
 
 export default function ActionForm({
   goalId,
-  roadmapId,
+  iterationId,
   currentAction,
   roadmaps,
 }: {
   goalId?: string,
-  roadmapId?: string,
+  /** The roadmap iteration the action belongs to, if preselected */
+  iterationId?: string,
   currentAction?: Action,
   roadmaps: MultiRoadmapInstance[],
 }) {
   const { t } = useTranslation(["forms", "common"]);
   const [timestamp] = useState(() => Date.now());
-  const descriptionRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
   const { addToast } = useToast();
+
+  // Free-form descriptive fields, replacing the old fixed columns. New actions are
+  // seeded with the canonical machine-key headers (the same ones the migration used
+  // for old data); the UI translates known keys for display.
+  const [fields, setFields] = useState<{ header: string, value: string }[]>(() =>
+    currentAction
+      ? currentAction.fields.map(field => ({ header: field.header, value: field.value }))
+      : [
+        { header: ActionFieldHeaders.Description, value: "" },
+        { header: ActionFieldHeaders.CostEfficiency, value: "" },
+        { header: ActionFieldHeaders.ExpectedOutcome, value: "" },
+        { header: ActionFieldHeaders.RelevantActors, value: "" },
+      ],
+  );
+
+  function updateField(index: number, patch: Partial<{ header: string, value: string }>) {
+    setFields(previous => previous.map((field, i) => i === index ? { ...field, ...patch } : field));
+  }
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -69,26 +87,20 @@ export default function ActionForm({
 
     const formContent: ActionInput = {
       actionId: currentAction ? currentAction.id : undefined,
-      roadmapId: roadmapId ?? (form.namedItem(ActionFormName.RoadmapId) as HTMLInputElement)?.value ?? undefined,
+      iterationId: iterationId ?? (form.namedItem(ActionFormName.RoadmapId) as HTMLInputElement)?.value ?? undefined,
+      orgId: undefined, // Derived from the iteration's roadmap
       goalId: goalId ?? undefined,
-      description: (form.namedItem(ActionFormName.Description) as HTMLInputElement | null)?.value ?? undefined,
       name: (form.namedItem(ActionFormName.ActionName) as HTMLInputElement)?.value ?? "",
+      indicatorParameter: currentAction?.indicator_parameter ?? undefined, // Falls back to the name server-side
       startYear,
       endYear,
-      costEfficiency: (form.namedItem(ActionFormName.CostEfficiency) as HTMLInputElement)?.value ?? undefined,
-      expectedOutcome: (form.namedItem(ActionFormName.ExpectedOutcome) as HTMLInputElement)?.value ?? undefined,
-      projectManager: (form.namedItem(ActionFormName.ProjectManager) as HTMLInputElement)?.value ?? undefined,
-      relevantActors: (form.namedItem(ActionFormName.RelevantActors) as HTMLInputElement)?.value ?? undefined,
-      isSufficiency: (form.namedItem(ActionFormName.IsSufficiency) as HTMLInputElement)?.checked ?? false,
-      isEfficiency: (form.namedItem(ActionFormName.IsEfficiency) as HTMLInputElement)?.checked ?? false,
-      isRenewables: (form.namedItem(ActionFormName.IsRenewables) as HTMLInputElement)?.checked ?? false,
-      parentAction: currentAction ?? undefined,
-      childActions: undefined,
+      // Empty rows carry no data; drop them rather than storing blank fields.
+      fields: fields.filter(field => field.header.trim() !== "" && field.value.trim() !== ""),
+      parentActionId: currentAction?.parent_action_id ?? undefined,
       dataSeries,
       impactType: goalId && !currentAction
         ? (form.namedItem(ActionFormName.ImpactType) as HTMLInputElement)?.value as ActionImpactType
         : undefined,
-      links: undefined,
       timestamp,
     };
 
@@ -102,19 +114,19 @@ export default function ActionForm({
 
   return (
     <form onSubmit={handleSubmit}>
-      {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when adding new entries in AccessSelector (for example, when pressing enter to add someone to the list of editors) */}
+      {/* This hidden submit button prevents submitting by pressing enter, to avoid accidental submission */}
       <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
-      {!(roadmapId || currentAction?.roadmapId) ?
+      {!(iterationId || currentAction?.roadmap_iteration_id) ?
         <fieldset className={`${styles.timeLineFieldset} width-100`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:action.choose_relationship")}</legend>
           <label>
             {t("forms:action.relationship_label")}
-            <select name={ActionFormName.RoadmapId} id="roadmapId" required={true} className="block margin-top-25 margin-bottom-100 width-100" defaultValue={""}>
+            <select name={ActionFormName.RoadmapId} id="iterationId" required={true} className="block margin-top-25 margin-bottom-100 width-100" defaultValue={""}>
               <option value="" disabled={true}>{t("forms:action.relationship_no_chosen")}</option>
-              {roadmaps.map(roadmap => (
-                <option key={roadmap.id} value={roadmap.id}>
-                  {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("common:count.action", { count: roadmap._count.actions })}`}
+              {roadmaps.map(iteration => (
+                <option key={iteration.id} value={iteration.id}>
+                  {`${iteration.roadmap.name} (v${iteration.version}): ${t("common:count.action", { count: iteration._count.actions })}`}
                 </option>
               ))}
             </select>
@@ -130,27 +142,42 @@ export default function ActionForm({
           <input className="margin-top-25 margin-bottom-100" type="text" name={ActionFormName.ActionName} required={true} id="actionName" defaultValue={currentAction?.name} />
         </label>
 
-        <label id="description-label">{t("forms:action.action_description")}</label>
-        <TextEditor
-          className="margin-top-25 margin-bottom-100" // TODO: Need label for textEditorMenu
-          id="description"
-          ariaLabelledBy="description-label"
-          placeholder={t("forms:text_editor_menu.default_placeholder")}
-          editable={true}
-          content={currentAction ? currentAction.description : ""}
-          updater={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
-        />
-        <input ref={descriptionRef} type="hidden" name={ActionFormName.Description} />
-
-        <label>
-          {t("forms:action.cost_efficiency")}
-          <input className="margin-top-25 margin-bottom-100" type="text" name={ActionFormName.CostEfficiency} id="costEfficiency" defaultValue={currentAction?.costEfficiency ?? undefined} />
-        </label>
-
-        <label>
-          {t("forms:action.expected_outcome")}
-          <textarea className="margin-top-25 margin-bottom-100" name={ActionFormName.ExpectedOutcome} id="expectedOutcome" defaultValue={currentAction?.expectedOutcome ?? undefined} />
-        </label>
+        {/* Repeatable free-form fields, replacing the old fixed inputs
+            (description, cost efficiency, expected outcome, project manager, relevant actors...) */}
+        {fields.map((field, index) => (
+          <fieldset key={index} className="margin-bottom-100 fieldset-unset-pseudo-class">
+            <label>
+              {t("forms:action.field_header")}
+              <input
+                className="margin-top-25 margin-bottom-100"
+                type="text"
+                value={field.header}
+                onChange={(event) => updateField(index, { header: event.target.value })}
+              />
+            </label>
+            <label>
+              {actionFieldLabel(field.header, t) === field.header ? t("forms:data_series_input.value") : actionFieldLabel(field.header, t)}
+              <textarea
+                className="margin-top-25 margin-bottom-100"
+                value={field.value}
+                onChange={(event) => updateField(index, { value: event.target.value })}
+              />
+            </label>
+            <button
+              type="button"
+              onClick={() => setFields(previous => previous.filter((_, i) => i !== index))}
+            >
+              {t("common:tsx.delete")}
+            </button>
+          </fieldset>
+        ))}
+        <button
+          type="button"
+          className="margin-top-100"
+          onClick={() => setFields(previous => [...previous, { header: "", value: "" }])}
+        >
+          {t("forms:data_series_input.add_new_row")}
+        </button>
       </fieldset>
 
       {(goalId && !currentAction) ?
@@ -180,53 +207,22 @@ export default function ActionForm({
       }
 
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:action.action_years_legend")}</legend>
-        <label>
-          {t("forms:action.start_year")}
-          <input className="margin-top-25 margin-bottom-100" type="number" name={ActionFormName.StartYear} id="startYear" defaultValue={currentAction?.startYear ?? undefined} min={2000} />
-        </label>
-
-        <label>
-          {t("forms:action.end_year")}
-          <input className="margin-top-25 margin-bottom-100" type="number" name={ActionFormName.EndYear} id="endYear" defaultValue={currentAction?.endYear ?? undefined} min={2000} />
-        </label>
-      </fieldset>
-
-      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:action.describe_actors_legend")}</legend>
-        <label className="block margin-bottom-100">
-          {t("forms:action.project_manager")}
-          <input className="margin-top-25 margin-bottom-100" type="text" name={ActionFormName.ProjectManager} id="projectManager" defaultValue={currentAction?.projectManager ?? undefined} />
-        </label>
-
-        <label className="block margin-block-100">
-          {t("forms:action.relevant_actors")}
-          <input className="margin-top-25 margin-bottom-100" type="text" name={ActionFormName.RelevantActors} id="relevantActors" defaultValue={currentAction?.relevantActors ?? undefined} />
-        </label>
-      </fieldset>
-
-      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
         <legend
           // Technically incrementing here is unused but if you add a another entry after this one it will be correct
           // eslint-disable-next-line no-useless-assignment
           data-position={positionIndex++}
           className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
         >
-          {t("forms:action.categories_legend")}
+          {t("forms:action.action_years_legend")}
         </legend>
-        <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50" htmlFor="isSufficiency">
-          <input type="checkbox" name={ActionFormName.IsSufficiency} id="isSufficiency" defaultChecked={currentAction?.isSufficiency} />
-          {t("forms:action.category_sufficiency")}
+        <label>
+          {t("forms:action.start_year")}
+          <input className="margin-top-25 margin-bottom-100" type="number" name={ActionFormName.StartYear} id="startYear" defaultValue={currentAction?.start_year ?? undefined} min={2000} />
         </label>
 
-        <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50" htmlFor="isEfficiency">
-          <input type="checkbox" name={ActionFormName.IsEfficiency} id="isEfficiency" defaultChecked={currentAction?.isEfficiency} />
-          {t("forms:action.category_efficiency")}
-        </label>
-
-        <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50" htmlFor="isRenewables">
-          <input type="checkbox" name={ActionFormName.IsRenewables} id="isRenewables" defaultChecked={currentAction?.isRenewables} />
-          {t("forms:action.category_renewables")}
+        <label>
+          {t("forms:action.end_year")}
+          <input className="margin-top-25 margin-bottom-100" type="number" name={ActionFormName.EndYear} id="endYear" defaultValue={currentAction?.end_year ?? undefined} min={2000} />
         </label>
       </fieldset>
 

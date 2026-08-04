@@ -81,11 +81,11 @@
     "title": "$t(common:edit.goal): {{goalName}}"
   },
   "home": {
-    "create_roadmap": "$t(common:new.roadmap_series)",
+    "create_roadmap": "$t(common:new.roadmap)",
     "filter": "Filter",
     "search_roadmaps": "Sök bland $t(common:count.roadmap)",
-    "shown_results": "Visar {{shown}} av {{total}} $t(common:roadmap_series, {\"count\": {{total}}})",
-    "title": "$t(common:roadmap_short_other, titleCase)"
+    "shown_results": "Visar {{shown}} av {{total}} $t(common:roadmap, {\"count\": {{total}}})",
+    "title": "$t(common:roadmap_other, titleCase)"
   },
   "historical_data": {
     "breadcrumb": "Redigera historisk data"
@@ -120,45 +120,42 @@
   "profile": {
     "handle_data": "Hantera min data",
     "my_posts": "Mina inlägg",
-    "roadmap_series_ones": "$t(common:roadmap_series_other, titleCase)",
+    "roadmaps": "$t(common:roadmap_other, titleCase)",
     "roadmap_versions": "$t(common:roadmap_version_other, titleCase)",
     "user_posts": "{{name, possessive, titleCase}} inlägg",
     "version_count_one": "{{count}} version",
     "version_count_other": "{{count}} versioner"
   },
-  "roadmap": {
+  "roadmap_iteration": {
     "all_actions": "Alla $t(common:action_other)",
     "all_goals": "Alla $t(common:goal_other)",
     "featured_goals": "Utvalda $t(common:goal_other)",
-    "show_series": "Besök $t(common:roadmap_series_one)",
+    "show_series": "Besök $t(common:roadmap_one)",
     "title": "$t(common:roadmap_version_one, titleCase)",
     "version": "$t(common:roadmap_version_one, titleCase) (v{{version}})"
   },
-  "roadmap_create": {
-    "bad_roadmap_series": "Kunde inte hitta, eller har inte tillgång till, $t(common:roadmap_series_definite_one) i länken.",
+  "roadmap_iteration_create": {
     "breadcrumb": "$t(common:new.roadmap_version)",
-    "information_icon_aria": "Information",
-    "title": "$t(common:new.roadmap_version)",
-    "use_dropdown": "Använd dropdown-menyn för att välja en $t(common:roadmap_series_one)."
+    "title": "$t(common:new.roadmap_version)"
   },
-  "roadmap_edit": {
-    "are_you_in_the_right_place": "Ville du redigera den gemensamma metadatan för hela $t(common:roadmap_series_definite_one)? I så fall kan du <Link>gå hit</Link> för att redigera metadatan.",
+  "roadmap_iteration_edit": {
+    "are_you_in_the_right_place": "Ville du redigera den gemensamma metadatan för hela $t(common:roadmap_definite_one)? I så fall kan du <Link>gå hit</Link> för att redigera metadatan.",
     "breadcrumb": "$t(common:edit.roadmap_version)",
     "title": "$t(common:edit.roadmap_version)"
   },
-  "roadmap_series_one": {
+  "roadmap": {
     "create_roadmap_version": "$t(common:new.roadmap_version)",
     "description_legend": "Metadata för en serie av $t(common:roadmap_version_other)",
     "roadmap_versions": "$t(common:roadmap_version_other, titleCase)",
-    "title_legend": "$t(common:roadmap_series_one, titleCase)"
+    "title_legend": "$t(common:roadmap_one, titleCase)"
   },
-  "roadmap_series_one_create": {
-    "breadcrumb": "$t(common:new.roadmap_series)",
-    "title": "$t(common:new.roadmap_series)"
+  "roadmap_create": {
+    "breadcrumb": "$t(common:new.roadmap)",
+    "title": "$t(common:new.roadmap)"
   },
-  "roadmap_series_one_edit": {
+  "roadmap_edit": {
     "breadcrumb": "Redigera metadata",
-    "title": "Redigera metadata för $t(common:roadmap_series_definite_one): {{name}}"
+    "title": "Redigera metadata för $t(common:roadmap_definite_one): {{name}}"
   },
   "signup": {
     "breadcrumb": "Skapa konto"
@@ -171,7 +168,7 @@
     "troubleshooting_description": "Kolla i din skräppost eller fyll i din e‑postadress nedan och klicka på knappen för att få ett nytt e‑postmeddelande.",
     "troubleshooting_title": "Har du inte fått något meddelande?"
   },
-  "verify_verify": {
+  "verify_confirm": {
     "description": "Verifiera din e‑postadress genom att klicka på knappen nedan.",
     "submit": "Verifiera min e‑postadress",
     "title": "Verifiera din e‑postadress"

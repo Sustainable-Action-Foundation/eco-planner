@@ -1,9 +1,10 @@
 "use client";
 
-import { isDataSeriesVariable, isExternalVariable, VectorIndexPickerOptions } from "@/functions/recipe/types";
+import { VectorIndexPickerOptions } from "@/functions/recipe/types/enums";
+import { isDataSeriesVariable, isExternalVariable } from "@/functions/recipe/types/typeguards";
 import type { DataSeriesVariable } from "@/functions/recipe/types";
 import { useTranslation } from "react-i18next";
-import { RecipeEditorPermissions } from "@/types/enums";
+import { RecipeEditorPermissions } from "@/types/consts";
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 
 export function VectorPickerSelect({ permissions: incomingPermissions, variableId }: { permissions?: RecipeEditorPermissions, variableId: string }) {

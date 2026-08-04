@@ -83,6 +83,8 @@ jobs:
         run: |
           # Packages
           yarn install --immutable
+          # Prisma client (src modules imported by tests reach the generated client)
+          yarn prisma generate
           # Playwright browsers
           yarn playwright install --with-deps
 

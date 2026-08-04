@@ -1,20 +1,16 @@
-/** Object and type for the different access levels returned by the accessChecker function. */
+/**
+ * Object and type for the different access levels returned by the accessChecker function.
+ * Admin means managing sharing settings and org groups on top of editing content;
+ * it is reserved for super admins and managers of the owning org.
+ * (The old AUTHOR level is gone: authorship is cosmetic and never grants access.)
+ */
 export const AccessLevel = {
   None: "",
   View: "VIEW",
   Edit: "EDIT",
-  Author: "AUTHOR",
   Admin: "ADMIN",
 } as const;
 export type AccessLevel = (typeof AccessLevel)[keyof typeof AccessLevel];
-
-export const ClientError = {
-  AccessDenied: "You either don't have access to this entry or are trying to edit an entry that doesn't exist",
-  BadSession: "Bad session cookie; you have been logged out. Please log in and try again.",
-  IllegalParent: "You are trying to connect this object to a parent you don't have access to or that doesn't exist",
-  StaleData: "Stale data; please refresh and try again",
-} as const;
-export type ClientError = (typeof ClientError)[keyof typeof ClientError];
 
 /**
  * Which part of a goal a create/update request targets. Sent by the client to
@@ -41,9 +37,9 @@ export type ViewMode = (typeof ViewMode)[keyof typeof ViewMode];
 export const GoalSortBy = {
   Default: "",
   Alpha: "ALPHA",
-  AlphaReverse: "ALPHA REVERSE",
-  ActionsFalling: "HIGH FIRST",
-  ActionsRising: "LOW FIRST",
+  AlphaReverse: "ALPHA_REVERSE",
+  ActionsFalling: "HIGH_FIRST",
+  ActionsRising: "LOW_FIRST",
   Interesting: "INTEREST",
 } as const;
 export type GoalSortBy = (typeof GoalSortBy)[keyof typeof GoalSortBy];
@@ -52,9 +48,9 @@ export type GoalSortBy = (typeof GoalSortBy)[keyof typeof GoalSortBy];
 export const RoadmapSortBy = {
   Default: "",
   Alpha: "ALPHA",
-  AlphaReverse: "ALPHA REVERSE",
-  GoalsFalling: "HIGH FIRST",
-  GoalsRising: "LOW FIRST",
+  AlphaReverse: "ALPHA_REVERSE",
+  GoalsFalling: "HIGH_FIRST",
+  GoalsRising: "LOW_FIRST",
 } as const;
 export type RoadmapSortBy = (typeof RoadmapSortBy)[keyof typeof RoadmapSortBy];
 
@@ -90,15 +86,6 @@ export const HistoricalDataType = {
 export type HistoricalDataType = (typeof HistoricalDataType)[keyof typeof HistoricalDataType];
 
 
-/** What a recipe editor lets the user do. The object doubles as the permissive default that callers spread over. */
-export const RecipeEditorPermissions = {
-  allowAddVariables: true,
-  allowDeleteVariables: true,
-  allowNameEditing: true,
-  allowValueEditing: true,
-} as const;
-export type RecipeEditorPermissions = Partial<Record<keyof typeof RecipeEditorPermissions, boolean>>;
-
 /** The graphs available for a goal. */
 export const GraphType = {
   Main: "MAIN",
@@ -118,3 +105,4 @@ export const UnitFlags = {
   Unitless: "UNITLESS",
   Missing: "MISSING_UNIT",
 } as const;
+export type UnitFlags = (typeof UnitFlags)[keyof typeof UnitFlags];

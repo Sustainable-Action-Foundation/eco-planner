@@ -1,207 +1,115 @@
 import type { SerializedRecipe } from "@/functions/recipe";
-import type { ActionImpactType, Prisma, RoadmapType } from "@/lib/prisma/generated";
-import type { Action, DateValuesWithUnit } from "@/types";
+import type { AccessLevel, ActionImpactType, RoadmapType } from "@/lib/prisma/generated";
+import type { DateValuesWithUnit } from "@/types";
 // Imported as a value (not `import type`) because it's used in `typeof GoalDataTarget.*` queries below.
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { GoalDataTarget } from "@/types/enums";
 
-/** The format of data needed to create a new roadmap series */
-export type MetaRoadmapCreateInput = {
-  /**
-   * This type is derived from @type {Prisma.MetaRoadmapCreateInput}, but with some fields omitted in clear text for better intellisense readability and maintainability.
-   * 
-   * That being said, if the schema changes, this type will need to be updated manually.
-   */
-  /* Automatically managed by Prisma */
+/**
+ * Sharing settings for an access control. On create this is the initial sharing set
+ * by the creator; on update only org managers (and super admins) may send it.
+ * `isPublic` is only honored for managers/super admins even on create.
+ */
+export type AccessControlInput = {
+  isPublic: boolean | undefined;
+  orgReadable: boolean | undefined;
+  /** Full replacement set of group grants; the groups must belong to the owning org. */
+  grants: { groupId: string, accessLevel: AccessLevel }[] | null | undefined;
+};
+
+/** The format of data needed to create a new roadmap (the top level; iterations are created separately). */
+export type RoadmapCreateInput = {
+  // To differentiate between create and update
   id?: never,
-  // createdAt?: Date | string,
-  // updatedAt?: Date | string,
+  timestamp?: never,
 
   name: string,
   description: string,
   type: RoadmapType | undefined,
+  /** Free-text display label for the target of the roadmap */
   actor: string | null | undefined,
-  isPublic: boolean | undefined,
+  /** SCB region code from the GeoAreas table (structured geo marker) */
+  geoAreaCode: string | null | undefined,
 
-  /* Relational fields are handled differently in our API */
-  // roadmapVersions?: RoadmapCreateNestedManyWithoutMetaRoadmapInput,
-  // parentRoadmap?: MetaRoadmapCreateNestedOneWithoutChildRoadmapsInput,
-  // childRoadmaps?: MetaRoadmapCreateNestedManyWithoutParentRoadmapInput,
-  // comments?: CommentCreateNestedManyWithoutMetaRoadmapInput,
-  // links?: LinkCreateNestedManyWithoutMetaRoadmapInput,
-  // author: UserCreateNestedOneWithoutAuthoredMetaRoadmapsInput,
-  // editors?: UserCreateNestedManyWithoutEditMetaRoadmapsInput,
-  // editGroups?: UserGroupCreateNestedManyWithoutEditMetaRoadmapInput,
-  // viewers?: UserCreateNestedManyWithoutViewMetaRoadmapsInput,
-  // viewGroups?: UserGroupCreateNestedManyWithoutViewMetaRoadmapInput,
+  /** The org that will own the roadmap; the user must be a non-guest member (or super admin) */
+  orgId: string,
 
-  /* 
-   * Non-prisma fields
-   * These are used to make the API more usable and nice to deal with due to formatting and types.
-   */
-  // Accepts lists of UUIDs for all of the following, to link them to the roadmap (optional)
-  editors: string[] | null | undefined;
-  viewers: string[] | null | undefined;
-  editGroups: string[] | null | undefined;
-  viewGroups: string[] | null | undefined;
+  /** Initial sharing settings */
+  access: AccessControlInput | undefined,
 
-  // UUID for the parent meta roadmap (if any)
-  parentRoadmapId: string | null | undefined;
-
-  // TODO - DEPRECATED - Will be migrated to description
-  links: { url: string, description?: string }[] | null | undefined;
+  // UUID for the parent roadmap (if any)
+  parentRoadmapId: string | null | undefined,
 }
 
-/** The format of data needed to update an existing data series. When compared to MetaRoadmapCreateInput, this type allows most fields to be undefined, indicating that they should not be changed. */
-export type MetaRoadmapUpdateInput = {
-  /**
-   * This type is derived from @type {Prisma.MetaRoadmapCreateInput}, but with some fields omitted in clear text for better intellisense readability and maintainability.
-   * 
-   * That being said, if the schema changes, this type will need to be updated manually.
-   */
-  /* Automatically managed by Prisma */
-  // createdAt?: Date | string,
-  // updatedAt?: Date | string,
-
+/** The format of data allowed to update an existing roadmap. Undefined fields are left unchanged. */
+export type RoadmapUpdateInput = {
   id: string,
   name: string | undefined,
   description: string | undefined,
   type: RoadmapType | undefined,
   actor: string | null | undefined,
-  isPublic: boolean | undefined,
+  geoAreaCode: string | null | undefined,
 
-  /* Relational fields are handled differently in our API */
-  // roadmapVersions?: RoadmapCreateNestedManyWithoutMetaRoadmapInput,
-  // parentRoadmap?: MetaRoadmapCreateNestedOneWithoutChildRoadmapsInput,
-  // childRoadmaps?: MetaRoadmapCreateNestedManyWithoutParentRoadmapInput,
-  // comments?: CommentCreateNestedManyWithoutMetaRoadmapInput,
-  // links?: LinkCreateNestedManyWithoutMetaRoadmapInput,
-  // author: UserCreateNestedOneWithoutAuthoredMetaRoadmapsInput,
-  // editors?: UserCreateNestedManyWithoutEditMetaRoadmapsInput,
-  // editGroups?: UserGroupCreateNestedManyWithoutEditMetaRoadmapInput,
-  // viewers?: UserCreateNestedManyWithoutViewMetaRoadmapsInput,
-  // viewGroups?: UserGroupCreateNestedManyWithoutViewMetaRoadmapInput,
+  /** The owning org cannot be changed */
+  orgId?: never,
 
-  /* 
-   * Non-prisma fields
-   * These are used to make the API more usable and nice to deal with due to formatting and types.
-   */
-  // Accepts lists of UUIDs for all of the following, to link them to the roadmap (optional)
-  editors: string[] | null | undefined;
-  viewers: string[] | null | undefined;
-  editGroups: string[] | null | undefined;
-  viewGroups: string[] | null | undefined;
+  /** Sharing settings; only org managers and super admins may send this */
+  access: AccessControlInput | undefined,
 
-  // UUID for the parent meta roadmap (if any)
-  parentRoadmapId: string | null | undefined;
+  // UUID for the parent roadmap (if any)
+  parentRoadmapId: string | null | undefined,
 
   // Timestamp to check if the user is trying to update based on stale data
-  timestamp: number;
-
-  // TODO - DEPRECATED - Will be migrated to description
-  links: { url: string, description?: string }[] | null | undefined;
+  timestamp: number,
 }
 
-/** The format of the data needed to create a new roadmap version. */
-export type RoadmapInput = Omit<
-  Prisma.RoadmapCreateInput,
-  'id' | 'createdAt' | 'updatedAt' | 'goals' | 'author' | 'editors' |
-  'viewers' | 'editGroups' | 'viewGroups' | 'comments' | 'metaRoadmap' | 'version'
-> & {
-  // Accepts lists of UUIDs for all of the following, to link them to the roadmap (optional)
-  editors?: string[] | undefined;
-  viewers?: string[] | undefined;
-  editGroups?: string[] | undefined;
-  viewGroups?: string[] | undefined;
-  // UUID for the meta roadmap this roadmap belongs to
-  metaRoadmapId: string;
-  // Used in API to inherit the goals with the given IDs from other roadmaps
-  // TODO: DEPRECATED - remove this prop since it should be recipe derived
-  inheritFromIds?: string[] | null | undefined;
-  // Version numbers are assigned by the API and therefore omitted
-};
-
-/** 
- * The format of the data needed to create a new roadmap version.
- * 
- * This type is derived from @type {Prisma.RoadmapCreateInput} but with some fields omitted in clear text for better intellisense readability and maintainability.
- * 
- * That being said, if the schema changes, this type will need to be updated manually.
+/**
+ * The format of the data needed to create a new roadmap iteration.
  */
-export type RoadmapCreateInput = {
+export type RoadmapIterationCreateInput = {
   // To differentiate between create and update
-  roadmapId?: never;
+  iterationId?: never;
   timestamp?: never; // Not needed when creating
 
-  // id: string | undefined; // Created by the API
-  // createdAt: string | Date | undefined; // Created by the API
-  // updatedAt: string | Date | undefined; // Created by the API
-  // version: number;  // Created by the API
+  // version: number;  // Assigned by the API
 
   // Basic meta
   targetVersion: number | null | undefined;
   description: string | null | undefined;
-  isPublic: boolean | undefined;
+  /** True publishes immediately; otherwise the iteration is created as a draft (visible only to users with edit access) */
+  publish: boolean | undefined;
 
   // Relations
-  metaRoadmapId: string;
-  // comments: Prisma.CommentCreateNestedManyWithoutRoadmapInput; // Cannot be created with a new roadmap
-  // goals: Prisma.GoalCreateNestedManyWithoutRoadmapInput;
+  /** The roadmap this is an iteration of */
+  roadmapId: string;
   // Nested goals are always created in full (a new goal needs its data series etc.)
   goals: GoalCreateFull[] | null | undefined;
-  // actions: Prisma.ActionCreateNestedManyWithoutRoadmapInput; // Cannot be created with a new roadmap
 
-  // Access control
-  // author: Prisma.UserCreateNestedOneWithoutAuthoredRoadmapsInput; // Derived from session in the API
-  editors: string[] | null | undefined;
-  editGroups: string[] | null | undefined;
-  viewers: string[] | null | undefined;
-  viewGroups: string[] | null | undefined;
-
-  // TODO - DEPRECATED - Will be migrated to description
-  links: { url: string, description?: string | null }[] | null | undefined;
+  // Access control lives on the parent roadmap
 };
 
-/** 
- * The format of the data allowed to update an existing roadmap version.
- * 
- * This type is derived from @type {Prisma.RoadmapUpdateInput} but with some fields omitted in clear text for better intellisense readability and maintainability.
- * 
- * That being said, if the schema changes, this type will need to be updated manually.
+/**
+ * The format of the data allowed to update an existing roadmap iteration.
  */
-export type RoadmapUpdateInput = {
-  // Required to find this roadmap
-  roadmapId: string;
+export type RoadmapIterationUpdateInput = {
+  // Required to find this iteration
+  iterationId: string;
 
   // Stale data check
   timestamp: number; // From Date.now() i.e. milliseconds since epoch
 
-  // createdAt: string | Date | undefined; // Handled by the API
-  // updatedAt: string | Date | undefined; // Handled by the API
-  // version: number; // Handled by the API
-
   // Basic meta
   description: string | null | undefined;
   targetVersion: number | null | undefined;
-  isPublic: boolean | undefined;
+  /** True publishes a draft; false unpublishes (back to draft); undefined leaves the publication state unchanged */
+  publish: boolean | undefined;
 
   // Relations
-  metaRoadmapId?: never; // Can't reassign the meta roadmap of an existing roadmap. IT WOULD BE MAYHEM.
-  // comments: Prisma.CommentUpdateManyWithoutRoadmapNestedInput; // Cannot be updated from the roadmap
-  // goals: Prisma.GoalUpdateManyWithoutRoadmapNestedInput;
+  roadmapId?: never; // Can't reassign the roadmap of an existing iteration. IT WOULD BE MAYHEM.
   // Nested goals are always created in full (a new goal needs its data series etc.)
   goals: GoalCreateFull[] | null | undefined;
-  // actions: Prisma.ActionUpdateManyWithoutRoadmapNestedInput; // Cannot be updated from the roadmap
 
-  // Access control
-  // author: Prisma.UserUpdateOneRequiredWithoutAuthoredRoadmapsNestedInput;
-  editors: string[] | null | undefined;
-  editGroups: string[] | null | undefined;
-  viewers: string[] | null | undefined;
-  viewGroups: string[] | null | undefined;
-
-  // TODO - DEPRECATED - Will be migrated to description
-  links: { url: string, description?: string | null }[] | null | undefined;
+  // Access control lives on the parent roadmap
 };
 
 /**
@@ -214,15 +122,13 @@ export type RoadmapUpdateInput = {
  * changes, these must be updated manually.
  */
 
-/** Basic goal metadata, plus the deprecated `links`. */
+/** Basic goal metadata. */
 type GoalMetaFields = {
   name: string | null | undefined;
   description: string | null | undefined;
   indicatorParameter: string | undefined;
   isFeatured: boolean | undefined;
   rawTags: string[] | null | undefined; // Transform into tags relation in the server side API
-  // TODO: Deprecated - will be moved to description
-  links: { url: string, description?: string | null }[] | null | undefined;
 };
 
 /**
@@ -268,7 +174,7 @@ export type HistoricalFields = {
 type GoalSectionIdentity = {
   goalId: string; // The existing goal being written to
   timestamp: number; // Stale data check; from Date.now() i.e. milliseconds since epoch
-  roadmapId?: never; // Sectional requests can't (re)assign a roadmap
+  iterationId?: never; // Sectional requests can't (re)assign a roadmap iteration
 };
 
 // The three sectional variants are structurally identical between create and
@@ -284,7 +190,7 @@ export type GoalCreateFull = {
   target: typeof GoalDataTarget.Full;
   goalId?: never; // Ignored when creating
   timestamp?: never; // Ignored when creating
-  roadmapId: string;
+  iterationId: string; // The roadmap iteration the goal belongs to
   indicatorParameter: string; // Required on create
   dataSeries: DateValuesWithUnit; // Required on create
 } & GoalMetaFields & DataSeriesFields & BaselineFields & HistoricalFields & RecipeSuggestionsFields;
@@ -294,7 +200,7 @@ export type GoalUpdateFull = {
   target: typeof GoalDataTarget.Full;
   goalId: string;
   timestamp: number; // Stale data check; from Date.now() i.e. milliseconds since epoch
-  roadmapId?: never; // Can't reassign the roadmap of an existing goal
+  iterationId?: never; // Can't reassign the roadmap iteration of an existing goal
 } & GoalMetaFields & DataSeriesFields & BaselineFields & HistoricalFields & RecipeSuggestionsFields;
 
 /**
@@ -312,32 +218,30 @@ export type GoalUpdateInput = GoalUpdateFull | GoalDataSeriesSection | GoalBasel
 /** The format of the data needed to create a new action. */
 export type ActionInput = {
   actionId: string | null | undefined;
-  roadmapId: string | undefined;
+  /** The roadmap iteration the action belongs to; omitted for roadmapless actions (the public action database) */
+  iterationId: string | undefined;
+  /** The org that will own the action. Required when `iterationId` is omitted; otherwise derived from the iteration's roadmap. */
+  orgId: string | undefined;
   goalId: string | undefined;
 
-  description: string | null | undefined;
   name: string;
+  /** Tree placement like "Some\Tree\Structure"; falls back to the name */
+  indicatorParameter: string | undefined;
   startYear: number | null | undefined;
   endYear: number | null | undefined;
 
-  costEfficiency: string | null | undefined;
-  expectedOutcome: string | null | undefined;
+  /**
+   * Free-form descriptive fields, replacing the old fixed columns
+   * (description, cost efficiency, expected outcome, project manager, relevant actors...).
+   * A full set replacing the current one; `null`/`[]` clears it, `undefined` leaves it unchanged.
+   */
+  fields: { header: string, value: string }[] | null | undefined;
 
-  projectManager: string | null | undefined;
-  relevantActors: string | null | undefined;
-
-  isSufficiency: boolean | undefined;
-  isEfficiency: boolean | undefined;
-  isRenewables: boolean | undefined;
-
-  parentAction: Action | null | undefined;
-  childActions: Action[] | null | undefined;
+  /** Action to inherit from, if any */
+  parentActionId: string | null | undefined;
 
   dataSeries: DateValuesWithUnit | undefined;
   impactType: ActionImpactType | undefined;
-
-  // TODO: Deprecated - will be moved to description
-  links: { url: string, description?: string | null }[] | null | undefined;
 
   timestamp: number | undefined;
 };

@@ -2,7 +2,8 @@ import type { DataSeries, DateValues, DateValuesWithUnit, Goal, ISOIshDate, Mask
 import { UnitFlags } from "@/types/enums";
 import { isISOIshDate } from "@/types/typeguards";
 import { isUnitFlag, parseUnit } from "@/functions/unit";
-import { RecipeError, VectorIndexPickerOptions } from "@/functions/recipe/types";
+import { VectorIndexPickerOptions } from "@/functions/recipe/types/enums";
+import { RecipeError } from "@/functions/recipe/types/errors";
 import type { Unit as MathJSUnit } from "mathjs";
 import mathjs from "@/math";
 
@@ -259,7 +260,7 @@ export function ANDMasks(masks: Mask[]): Mask {
   return combinedMask;
 }
 
-export function dataSeriesToDateValues(dataSeries: DataSeries | Goal["dataSeries"]): DateValuesWithUnit {
+export function dataSeriesToDateValues(dataSeries: DataSeries | Goal["data_series"]): DateValuesWithUnit {
   if (!dataSeries?.values) {
     throw new RecipeError("DataSeriesToDateValues: Goal data series is missing or does not contain values.");
   }
@@ -283,7 +284,7 @@ export function dateValuesToDBDateRecord(dateValues: DateValues, dataSeriesId?: 
   const dateRecord: {
     timestamp: Date;
     value: number;
-    dataSeriesId?: string;
+    data_series_id?: string;
   }[] = [];
 
   for (const [key, val] of Object.entries(dateValues)) {
@@ -291,7 +292,7 @@ export function dateValuesToDBDateRecord(dateValues: DateValues, dataSeriesId?: 
       throw new RecipeError(`dateValuesToDBDateRecord: Invalid ISOIshDate key '${key}' in dateValues.`);
     }
     dateRecord.push({
-      ...(dataSeriesId ? { dataSeriesId } : {}),
+      ...(dataSeriesId ? { data_series_id: dataSeriesId } : {}),
       timestamp: new Date(key),
       value: val,
     });

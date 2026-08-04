@@ -27,6 +27,7 @@ next-env.d.ts
 
 # Prisma generated client
 prisma/generated/
+prisma/transition_planner*
 
 # Playwright output
 test-results/

@@ -1,4 +1,6 @@
-import { isDataSeriesVariable, isExternalSelection, isScalarVariable, RecipeDataTypes, RecipeError } from "@/functions/recipe/types";
+import { RecipeDataTypes } from "@/functions/recipe/types/enums";
+import { RecipeError } from "@/functions/recipe/types/errors";
+import { isDataSeriesVariable, isExternalSelection, isScalarVariable } from "@/functions/recipe/types/typeguards";
 import type { DataSeriesVariable, EvalTimeSeries, ExternalVariable, RecipeExtractionOutput, RecipeVariable, EvalTimeVariable } from "@/functions/recipe/types";
 import type { ApiSelectionItem, ApiTableContent } from "@/lib/api/apiTypes";
 import mathjs from "@/math";
@@ -141,7 +143,7 @@ export async function extractDataSeries(
         id: inlineId,
         unit: serializeUnit(variable.unit),
         values: Object.entries(variable.value).map(([key, val]) => ({
-          dataSeriesId: inlineId,
+          data_series_id: inlineId,
           timestamp: new Date(key), // TODO, fix very naive parsing
           value: val,
         })),

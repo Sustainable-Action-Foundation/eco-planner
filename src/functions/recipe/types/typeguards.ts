@@ -5,7 +5,7 @@ import { uuidRegex } from "@/types/consts";
 import { isDateValues, isDateValuesWithUnit, isISOIshDate, isStandardObject } from "@/types/typeguards";
 import mathjs from "@/math";
 
-import { RecipeDataTypes, VectorIndexPickerOptions } from "./consts";
+import { RecipeDataTypes, VectorIndexPickerOptions } from "./enums";
 import type {
   EvalTimeVariable,
   DataSeriesVariable,

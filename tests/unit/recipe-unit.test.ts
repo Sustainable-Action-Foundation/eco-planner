@@ -5,9 +5,6 @@ import mathjs from "../../src/math";
 import {
   ANDMasks,
   Recipe,
-  RecipeDataTypes,
-  RecipeError,
-  VectorIndexPickerOptions,
   dateValuesToDBDateRecord,
   dataSeriesToDateValues,
   extractDataSeries,
@@ -22,6 +19,8 @@ import {
   sanityCheckScalars,
   transformDateValuesToVector,
 } from "../../src/functions/recipe";
+import { RecipeDataTypes, VectorIndexPickerOptions } from "../../src/functions/recipe/types/enums";
+import { RecipeError } from "../../src/functions/recipe/types/errors";
 import type { DataSeriesVariable, ExternalVariable, ScalarVariable } from "../../src/functions/recipe/types";
 import type { ApiTableContent } from "../../src/lib/api/apiTypes";
 import type { DataSeries, DateValues, DateValuesWithUnit, ISOIshDate } from "../../src/types";
@@ -89,17 +88,17 @@ function inlineDataSeriesVariable({
 
 function makeDataSeriesGetter(seed: Record<string, { values: DateValues; unit?: string | null }>) {
   // eslint-disable-next-line @typescript-eslint/require-await
-  return async (dataSeriesId: string): Promise<DataSeries | null> => {
-    const found = seed[dataSeriesId];
+  return async (data_series_id: string): Promise<DataSeries | null> => {
+    const found = seed[data_series_id];
     if (!found) {
       return null;
     }
 
     return {
-      id: dataSeriesId,
+      id: data_series_id,
       unit: found.unit ?? null,
       values: Object.entries(found.values).map(([timestamp, value]) => ({
-        dataSeriesId,
+        data_series_id,
         timestamp: new Date(timestamp),
         value,
       })),
@@ -440,8 +439,8 @@ test.describe("Recipe evaluator and factories", () => {
       id: dataSeriesIds.main,
       unit: parseUnit("kg"),
       values: [
-        { dataSeriesId: dataSeriesIds.main, timestamp: new Date("2020-06-15T00:00:00.000Z"), value: 7 },
-        { dataSeriesId: dataSeriesIds.main, timestamp: new Date("2021-09-30T00:00:00.000Z"), value: 9 },
+        { data_series_id: dataSeriesIds.main, timestamp: new Date("2020-06-15T00:00:00.000Z"), value: 7 },
+        { data_series_id: dataSeriesIds.main, timestamp: new Date("2021-09-30T00:00:00.000Z"), value: 9 },
       ],
     });
 
@@ -842,7 +841,7 @@ test.describe("Vector and mask utilities", () => {
     }, "ds-1");
 
     expect(converted).toHaveLength(2);
-    expect(converted[0].dataSeriesId).toBe("ds-1");
+    expect(converted[0].data_series_id).toBe("ds-1");
     expect(converted[0].timestamp).toBeInstanceOf(Date);
 
     expect(() => dateValuesToDBDateRecord({

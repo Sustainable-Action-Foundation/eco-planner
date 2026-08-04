@@ -1,8 +1,41 @@
 import { expect, test } from "playwright/test";
+import type { Page } from "playwright/test";
 import path from "node:path";
 import { cwd } from "node:process";
 
 const adminFile = path.join(cwd(), "tests/.auth/admin.json");
+
+/** The repeatable descriptive-field rows of the action form (header input + value textarea).
+ * Scoped to fieldsets nested in the form's own fieldsets; the sidebar menus use the same class. */
+function actionFieldRows(page: Page) {
+  return page.locator('form fieldset fieldset.fieldset-unset-pseudo-class');
+}
+
+/** Reads the action form's descriptive fields as a header -> value record */
+async function readActionFields(page: Page): Promise<Record<string, string>> {
+  const pairs = await actionFieldRows(page).evaluateAll(rows => rows.map((row): [string, string] => [
+    row.querySelector<HTMLInputElement>('input[type="text"]')?.value ?? '',
+    row.querySelector<HTMLTextAreaElement>('textarea')?.value ?? '',
+  ]));
+  return Object.fromEntries(pairs);
+}
+
+/**
+ * Fills the value of the descriptive-field row with the given header (e.g. "DESCRIPTION").
+ * New actions come pre-seeded with rows for the canonical headers; any other header
+ * gets a new row added for it.
+ */
+async function fillActionField(page: Page, header: string, value: string) {
+  const rows = actionFieldRows(page);
+  const headers = await rows.locator('input[type="text"]').evaluateAll(els => els.map(el => (el as HTMLInputElement).value));
+  let index = headers.indexOf(header);
+  if (index === -1) {
+    await page.getByRole('button', { name: 'data_series_input.add_new_row' }).click();
+    index = headers.length;
+    await rows.nth(index).locator('input[type="text"]').fill(header);
+  }
+  await rows.nth(index).locator('textarea').fill(value);
+}
 
 test.describe.serial("Action & Effect tests", () => {
   test.use({ storageState: adminFile });
@@ -57,11 +90,11 @@ test.describe.serial("Action & Effect tests", () => {
     await page.getByTestId("create-button").click();
     await page.getByTestId("create-action").click();
 
-    const option = page.locator('#roadmapId option').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: 'v2' }); // Checks for Rikets färdplan to be contained in an option, with version 2 to avoid selecting the wrong roadmap
+    const option = page.locator('#iterationId option').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: 'v2' }); // Checks for Rikets färdplan to be contained in an option, with version 2 to avoid selecting the wrong roadmap
 
     const value = await option.getAttribute('value');
 
-    await page.locator('#roadmapId').selectOption(value);
+    await page.locator('#iterationId').selectOption(value);
 
     await page.locator('#actionName').fill(actionNameRequiredFields);
 
@@ -105,28 +138,16 @@ test.describe.serial("Action & Effect tests", () => {
     await page.waitForLoadState("networkidle");
     await page.getByTestId("admin-panel-edit").click();
 
-    // Part 1 of the form
+    // Update the name
     await page.locator('#actionName').fill(actionNameRequiredFieldsUpdated);
     await page.locator('#actionName').blur(); // This is needed to make sure the name field is loaded before filling it, otherwise it will be empty and the test will fail.
 
-    await page.locator('.tiptap').first().fill("Test Action Updated description.");
+    // The action was created without descriptive fields, so this adds a new row
+    await fillActionField(page, 'DESCRIPTION', "Test Action Updated description.");
 
-    await page.locator('#costEfficiency').fill("Text for cost efficiency");
-
-    await page.locator('#expectedOutcome').fill("Text for expected outcome");
-
-    // Part 2 of the form
     // These two fields are required to be numbers
     await page.locator('#startYear').fill("2025");
     await page.locator('#endYear').fill("2070");
-
-    // Part 3 of the form
-    await page.locator('#projectManager').fill("Test Manager");
-    await page.locator('#relevantActors').fill("Test Actor");
-
-    // Part 4 of the form
-    await page.locator('#isEfficiency').check();
-    await page.locator('#isRenewables').check();
 
     // Submit the form
     await page.locator('#submit-button').click();
@@ -141,33 +162,24 @@ test.describe.serial("Action & Effect tests", () => {
     await page.getByTestId("create-button").click();
     await page.getByTestId("create-action").click();
 
-    const option = page.locator('#roadmapId option').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: 'v2' }); // Checks for Rikets färdplan to be contained in an option, with version 2 to avoid selecting the wrong roadmap
+    const option = page.locator('#iterationId option').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: 'v2' }); // Checks for Rikets färdplan to be contained in an option, with version 2 to avoid selecting the wrong roadmap
 
     const value = await option.getAttribute('value');
 
-    await page.locator('#roadmapId').selectOption(value);
+    await page.locator('#iterationId').selectOption(value);
 
-    // Part 1 of the form
+    // Name and descriptive fields; the canonical rows are pre-seeded, PROJECT_MANAGER gets a new row
     await page.locator('#actionName').fill(actionNameAllFields);
 
-    await page.locator('.tiptap').first().fill("Test Action description.");
+    await fillActionField(page, 'DESCRIPTION', "Test Action description.");
+    await fillActionField(page, 'COST_EFFICIENCY', "Text for cost efficiency");
+    await fillActionField(page, 'EXPECTED_OUTCOME', "Text for expected outcome");
+    await fillActionField(page, 'RELEVANT_ACTORS', "Test Actor");
+    await fillActionField(page, 'PROJECT_MANAGER', "Test Manager");
 
-    await page.locator('#costEfficiency').fill("Text for cost efficiency");
-
-    await page.locator('#expectedOutcome').fill("Text for expected outcome");
-
-    // Part 2 of the form
     // These two fields are required to be numbers
     await page.locator('#startYear').fill("2030");
     await page.locator('#endYear').fill("2070");
-
-    // Part 3 of the form
-    await page.locator('#projectManager').fill("Test Manager");
-    await page.locator('#relevantActors').fill("Test Actor");
-
-    // Part 4 of the form
-    await page.locator('#isEfficiency').check();
-    await page.locator('#isRenewables').check();
 
     // Submit the form
     await page.locator('#submit-button').hover();
@@ -191,19 +203,17 @@ test.describe.serial("Action & Effect tests", () => {
 
     await expect(page.locator('#actionName')).toHaveValue(actionNameAllFields);
 
-    await expect(page.locator('.tiptap').first()).toHaveText("Test Action description.");
-
-    await expect(page.locator('#costEfficiency')).toHaveValue("Text for cost efficiency");
-    await expect(page.locator('#expectedOutcome')).toHaveValue("Text for expected outcome");
+    // All descriptive fields were saved (empty pre-seeded rows are dropped on submit)
+    await expect(actionFieldRows(page)).toHaveCount(5);
+    const savedFields = await readActionFields(page);
+    expect(savedFields['DESCRIPTION']).toBe("Test Action description.");
+    expect(savedFields['COST_EFFICIENCY']).toBe("Text for cost efficiency");
+    expect(savedFields['EXPECTED_OUTCOME']).toBe("Text for expected outcome");
+    expect(savedFields['RELEVANT_ACTORS']).toBe("Test Actor");
+    expect(savedFields['PROJECT_MANAGER']).toBe("Test Manager");
 
     await expect(page.locator('#startYear')).toHaveValue("2030");
     await expect(page.locator('#endYear')).toHaveValue("2070");
-
-    await expect(page.locator('#projectManager')).toHaveValue("Test Manager");
-    await expect(page.locator('#relevantActors')).toHaveValue("Test Actor");
-
-    await expect(page.locator('#isEfficiency')).toBeChecked();
-    await expect(page.locator('#isRenewables')).toBeChecked();
 
     // Submit the form without making any changes
     await page.locator('#submit-button').click();
@@ -225,27 +235,18 @@ test.describe.serial("Action & Effect tests", () => {
     await page.getByRole('heading', { name: actionNameAllFields }).hover();
     await page.getByTestId("admin-panel-edit").click();
 
-    // Part 1 of the form
+    // Update the name and every descriptive field
     await page.locator('#actionName').fill(actionNameAllFieldsUpdated);
 
-    await page.locator('.tiptap').first().fill("Test Action Updated description.");
+    await fillActionField(page, 'DESCRIPTION', "Test Action Updated description.");
+    await fillActionField(page, 'COST_EFFICIENCY', "Updated text for cost efficiency");
+    await fillActionField(page, 'EXPECTED_OUTCOME', "Updated text for expected outcome");
+    await fillActionField(page, 'RELEVANT_ACTORS', "Updated Test Actor");
+    await fillActionField(page, 'PROJECT_MANAGER', "Updated Test Manager");
 
-    await page.locator('#costEfficiency').fill("Updated text for cost efficiency");
-    await page.locator('#expectedOutcome').fill("Updated text for expected outcome");
-
-    // Part 2 of the form
     // These two fields are required to be numbers
     await page.locator('#startYear').fill("2026");
     await page.locator('#endYear').fill("2071");
-
-    // Part 3 of the form
-    await page.locator('#projectManager').fill("Updated Test Manager");
-    await page.locator('#relevantActors').fill("Updated Test Actor");
-
-    // Part 4 of the form
-    await page.locator('#isEfficiency').uncheck();
-    await page.locator('#isRenewables').uncheck();
-    await page.locator('#isSufficiency').check();
 
     // Submit the form
     await page.locator('#submit-button').click();
@@ -256,19 +257,17 @@ test.describe.serial("Action & Effect tests", () => {
     await page.getByTestId("admin-panel-edit").click();
 
     await expect(page.locator('#actionName')).toHaveValue(actionNameAllFieldsUpdated);
-    await expect(page.locator('.tiptap').first()).toHaveText("Test Action Updated description.");
-    await expect(page.locator('#costEfficiency')).toHaveValue("Updated text for cost efficiency");
-    await expect(page.locator('#expectedOutcome')).toHaveValue("Updated text for expected outcome");
+
+    await expect(actionFieldRows(page)).toHaveCount(5);
+    const updatedFields = await readActionFields(page);
+    expect(updatedFields['DESCRIPTION']).toBe("Test Action Updated description.");
+    expect(updatedFields['COST_EFFICIENCY']).toBe("Updated text for cost efficiency");
+    expect(updatedFields['EXPECTED_OUTCOME']).toBe("Updated text for expected outcome");
+    expect(updatedFields['RELEVANT_ACTORS']).toBe("Updated Test Actor");
+    expect(updatedFields['PROJECT_MANAGER']).toBe("Updated Test Manager");
 
     await expect(page.locator('#startYear')).toHaveValue("2026");
     await expect(page.locator('#endYear')).toHaveValue("2071");
-
-    await expect(page.locator('#projectManager')).toHaveValue("Updated Test Manager");
-    await expect(page.locator('#relevantActors')).toHaveValue("Updated Test Actor");
-
-    await expect(page.locator('#isEfficiency')).not.toBeChecked();
-    await expect(page.locator('#isRenewables')).not.toBeChecked();
-    await expect(page.locator('#isSufficiency')).toBeChecked();
   });
 
   test("Create Action from Roadmap - required", async ({ page }, testInfo) => {
@@ -294,27 +293,18 @@ test.describe.serial("Action & Effect tests", () => {
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByTestId("admin-panel-new-action").click();
 
-    // Part 1 of the form
+    // Name and descriptive fields; the canonical rows are pre-seeded, PROJECT_MANAGER gets a new row
     await page.locator('#actionName').fill(roadmapActionNameAllFields);
 
-    await page.locator('.tiptap').first().fill("Test Action description.");
+    await fillActionField(page, 'DESCRIPTION', "Test Action description.");
+    await fillActionField(page, 'COST_EFFICIENCY', "Text for cost efficiency");
+    await fillActionField(page, 'EXPECTED_OUTCOME', "Text for expected outcome");
+    await fillActionField(page, 'RELEVANT_ACTORS', "Test Actor");
+    await fillActionField(page, 'PROJECT_MANAGER', "Test Manager");
 
-    await page.locator('#costEfficiency').fill("Text for cost efficiency");
-
-    await page.locator('#expectedOutcome').fill("Text for expected outcome");
-
-    // Part 2 of the form
     // These two fields are required to be numbers
     await page.locator('#startYear').fill("2030");
     await page.locator('#endYear').fill("2070");
-
-    // Part 3 of the form
-    await page.locator('#projectManager').fill("Test Manager");
-    await page.locator('#relevantActors').fill("Test Actor");
-
-    // Part 4 of the form
-    await page.locator('#isEfficiency').check();
-    await page.locator('#isRenewables').check();
 
     // Submit the form
     await page.locator('#submit-button').click();

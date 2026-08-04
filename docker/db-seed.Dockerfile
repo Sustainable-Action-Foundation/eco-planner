@@ -75,7 +75,7 @@ COPY --from=deps --chown=node:node /app/node_modules ./node_modules
 
 # Prisma schema and config files and generated
 COPY --from=prisma --chown=node:node /app/prisma/ ./prisma/
-COPY --chown=node:node prisma.config.ts tsconfig.json ./
+COPY --chown=node:node prisma.config.ts tsconfig.json i18n.config.ts ./
 
 # Yarn rewrites .yarn/install-state.gz at runtime, so the app dirs created by
 # root stages must be handed over too (non-recursive; contents are copied --chown)
@@ -87,4 +87,7 @@ USER node
 RUN corepack prepare --activate
 
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["sh", "-c", "yarn prisma migrate reset --force && yarn prisma db seed"]
+# db push (not migrate reset): the migrations chain predates the org rework until it
+# is leveled into 0_init after the production migration; push syncs the test database
+# straight from schema.prisma, which stays correct both before and after leveling.
+CMD ["sh", "-c", "yarn prisma db push --force-reset && yarn prisma db seed"]

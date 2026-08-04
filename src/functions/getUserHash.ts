@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import crypto from 'node:crypto';
 
 export default async function getUserHash(userEmail: string): Promise<string> {
-  const user = await prisma.user.findUnique({
+  const user = await prisma.users.findUnique({
     where: {
       email: userEmail,
     },
@@ -14,22 +14,21 @@ export default async function getUserHash(userEmail: string): Promise<string> {
       id: true,
       email: true,
       username: true,
-      password: true,
-      userGroups: {
+      password_hash: true,
+      memberships: {
         select: {
-          id: true,
-          name: true,
+          org_id: true,
+          role: true,
         },
       },
-      authoredActions: { select: { id: true } },
-      authoredComments: { select: { id: true } },
-      authoredData: { select: { id: true } },
-      authoredRoadmaps: { select: { id: true } },
-      authoredMetaRoadmaps: { select: { id: true } },
-      authoredGoals: { select: { id: true } },
-      authoredNotes: { select: { id: true } },
-      isAdmin: true,
-      isVerified: true,
+      authored_actions: { select: { id: true } },
+      authored_comments: { select: { id: true } },
+      authored_data_series: { select: { id: true } },
+      authored_goals: { select: { id: true } },
+      authored_roadmap_iterations: { select: { id: true } },
+      authored_roadmaps: { select: { id: true } },
+      is_super_admin: true,
+      is_verified: true,
     },
   });
   if (!user) {

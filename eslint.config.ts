@@ -4,6 +4,8 @@ import { defineConfig, globalIgnores } from "eslint/config";
 import nextTS from "eslint-config-next/typescript";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import tseslint from "typescript-eslint";
+import { enumStyle } from "./scripts/eslint/enumStyle";
+import { serializableBoundaryProps } from "./scripts/eslint/serializableBoundaryProps";
 
 // js.configs.recommended first, so the TS configs' compat layer can turn off
 // the core rules TypeScript itself already catches (no-undef, no-import-assign, ...)
@@ -19,6 +21,7 @@ const commonRules: Config["rules"] = {
   "default-case-last": "error",
   "default-case": "error",
   "eqeqeq": ["error", "smart"],
+  "local/enum-style": "error",
   "no-case-declarations": "error",
   "no-cond-assign": ["error", "always"],
   "no-duplicate-imports": ["error", { allowSeparateTypeImports: true, includeExports: true }],
@@ -78,7 +81,26 @@ const commonRules: Config["rules"] = {
   "@typescript-eslint/no-import-type-side-effects": "error",
   "@typescript-eslint/no-misused-promises": "warn",
   "@typescript-eslint/no-non-null-assertion": "warn",
-  "@typescript-eslint/no-restricted-imports": ["error", "fs", "path", "crypto", "child_process", "os", "http"],
+  "@typescript-eslint/no-restricted-imports": ["error", {
+    paths: ["fs", "path", "crypto", "child_process", "os", "http"],
+    patterns: [
+      {
+        // Only the Prisma namespace may come from the generated client (error classes,
+        // input types, TransactionClient...); models, enums, and payload types come from
+        // the curated re-export at @/lib/prisma/generated (excluded from this pattern).
+        group: ["**/prisma/generated", "**/prisma/generated/**", "!**/lib/prisma/generated", "!**/lib/prisma/generated/**", "@PRISMA-NAMESPACE-ONLY"],
+        allowImportNames: ["Prisma"],
+        message: "Import only the Prisma namespace from the generated client; everything else comes from @/lib/prisma/generated.",
+      },
+      {
+        // The @/ alias must stay inside src. Escaping it (@/../...) resolves in the
+        // Next bundler but breaks under plain tsx — e.g. the seed scripts' import
+        // graph in CI. Files outside src/ have the @root/ alias instead.
+        group: ["@/..", "@/../**"],
+        message: "Do not escape the @/ alias; import files outside src/ via @root/ (tsx, used by the seed scripts, cannot resolve @/../).",
+      },
+    ],
+  }],
   "@typescript-eslint/no-unnecessary-type-assertion": "warn",
   "@typescript-eslint/no-unsafe-argument": "warn",
   "@typescript-eslint/no-unsafe-assignment": "warn",
@@ -121,10 +143,28 @@ const commonRules: Config["rules"] = {
       "selector": "FunctionDeclaration[id.name=\"generateMetadata\"]:not([async=true])",
       "message": "generateMetadata must be async.",
     },
+    // The pre-org-rework "metaRoadmap" vocabulary is banned: the old MetaRoadmap is
+    // now the roadmap (top level) and the old Roadmap is a roadmapIteration.
+    {
+      "selector": "[name=/(meta_?roadmap|roadmap[-_ ]?series)/i]",
+      "message": "The legacy \"meta roadmap\" vocabulary is banned; use roadmap (top level) or roadmapIteration.",
+    },
+    {
+      "selector": "Literal[value=/(meta_?roadmap|roadmap[-_ ]?series)/i]",
+      "message": "The legacy \"meta roadmap\" vocabulary is banned; use roadmap (top level) or roadmapIteration.",
+    },
+    {
+      "selector": "TemplateElement[value.raw=/(meta_?roadmap|roadmap[-_ ]?series)/i]",
+      "message": "The legacy \"meta roadmap\" vocabulary is banned; use roadmap (top level) or roadmapIteration.",
+    },
   ],
 };
 
 export default defineConfig([
+  { // Register the local plugin globally so commonRules can reference it in every block
+    name: "Local rules",
+    plugins: { local: { rules: { "enum-style": enumStyle, "serializable-boundary-props": serializableBoundaryProps } } },
+  },
   { // App linting
     name: "App src/",
     files: ["src/**/*.{ts,tsx}"],
@@ -137,6 +177,7 @@ export default defineConfig([
       "react-hooks/set-state-in-effect": "off", // TODO: get a grip and understand react
       "react-hooks/set-state-in-render": "off", // TODO: get a grip and understand react
       "react-hooks/immutability": "error",
+      "local/serializable-boundary-props": "error",
       "react/button-has-type": "error",
       "react/checked-requires-onchange-or-readonly": "error",
       "react/jsx-boolean-value": ["error", "always"],
@@ -186,6 +227,13 @@ export default defineConfig([
         project: "./tsconfig.json",
         tsconfigRootDir: process.cwd(),
       },
+    },
+  },
+  { // The curated Prisma re-export is the one place allowed to deep-import the generated client
+    name: "Prisma re-export carve-out",
+    files: ["src/lib/prisma/**"],
+    rules: {
+      "@typescript-eslint/no-restricted-imports": "off",
     },
   },
   globalIgnores([

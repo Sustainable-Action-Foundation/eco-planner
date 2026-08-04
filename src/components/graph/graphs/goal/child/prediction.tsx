@@ -20,26 +20,26 @@ export default function PredictionChildGraph({
   const { t } = useTranslation("graphs");
 
   // Early returns if there is no relevant data to compare
-  if (!goal.dataSeries) {
+  if (!goal.data_series) {
     return null;
   }
-  if (childGoals.filter(child => child.dataSeries).length < 1) {
+  if (childGoals.filter(child => child.data_series).length < 1) {
     return null;
   }
 
   const dataPoints: ApexAxisChartSeries = [];
 
   const definedDates: string[] = [...new Set(
-    ...goal.dataSeries.values.map(e => new Date(e.timestamp).getUTCFullYear().toString()),
+    ...goal.data_series.values.map(e => new Date(e.timestamp).getUTCFullYear().toString()),
     ...childGoals
-      .filter(child => child.dataSeries)
-      .flatMap(child => child.dataSeries?.values.map(e => new Date(e.timestamp).getUTCFullYear().toString())),
+      .filter(child => child.data_series)
+      .flatMap(child => child.data_series?.values.map(e => new Date(e.timestamp).getUTCFullYear().toString())),
   )]
     .sort()
     .map(yyyy => `${yyyy}-01-01T00:00:00Z`);
   if (!definedDates.every(d => isISOIshDate(d))) return null;
 
-  const dataSeries = dataSeriesToDateValues(goal.dataSeries);
+  const dataSeries = dataSeriesToDateValues(goal.data_series);
 
   // Data series for the main goal
   // Use projected outcomes only for the children, not the main goal
@@ -53,7 +53,7 @@ export default function PredictionChildGraph({
     });
   }
   dataPoints.push({
-    name: (goal.name || goal.indicatorParameter.split('\\').at(-1)),
+    name: (goal.name || goal.indicator_parameter.split('\\').at(-1)),
     data: mainSeries,
     // Main series is always a line
     type: 'line',
@@ -62,15 +62,15 @@ export default function PredictionChildGraph({
   });
 
   for (const child of childGoals) {
-    const definedEffects = child.effects.filter(e => e.dataSeries);
+    const definedEffects = child.effects.filter(e => e.data_series);
     const totalEffect = calculatePredictedOutcome(definedEffects, child.baseline);
     if (isStacked) {
       // For stacked area graphs, default to 0 rather than null on bad values
       for (const entry of totalEffect) entry.y ??= 0;
     }
     if (totalEffect.length > 0) {
-      const effectName = child.name || child.indicatorParameter.split('\\').at(-1);
-      const roadmapName = child.roadmap.metaRoadmap.name || t("graphs:common.unknown_roadmap");
+      const effectName = child.name || child.indicator_parameter.split('\\').at(-1);
+      const roadmapName = child.roadmap_iteration.roadmap.name || t("graphs:common.unknown_roadmap");
       dataPoints.push({
         name: `${effectName} (${roadmapName})`,
         data: totalEffect,
@@ -116,7 +116,7 @@ export default function PredictionChildGraph({
       max: new Date(`2050-01-01T00:00:00Z`).getTime(),
     },
     yaxis: {
-      title: { text: goal.dataSeries.unit === null ? t("common:tsx.unitless") : goal.dataSeries.unit || t("common:tsx.unit_missing") },
+      title: { text: goal.data_series.unit === null ? t("common:tsx.unitless") : goal.data_series.unit || t("common:tsx.unit_missing") },
       labels: { formatter: graphNumberFormatter },
     },
     tooltip: {

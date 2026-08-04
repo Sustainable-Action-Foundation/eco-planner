@@ -1,129 +1,144 @@
 /* eslint-disable no-template-curly-in-string */
-// Seeds meta roadmaps, their versions, and a set of unattached "template" scaling
-// recipes. The national "Rikets färdplan" meta roadmap and its public version 2 are
-// relied upon by the e2e test suite.
+// Seeds roadmaps (with their org-owned access controls and grants), their
+// iterations, and a set of unattached "template" scaling recipes. The national
+// "Rikets färdplan" roadmap and its published version 2 are relied upon by the
+// e2e test suite.
+//
+// Access setup exercised here:
+//   - national: public, RW grant to the regular users' group (they can edit)
+//   - uppsala:  org-readable only (not public), RO grant to the group;
+//               v2 is a DRAFT (published_at = null), visible only to editors/managers
 
 import { prisma } from "@/lib/prisma";
-import { RoadmapType } from "@/lib/prisma/generated";
-import type { MetaRoadmap, Roadmap } from "@/lib/prisma/generated";
-import { Recipe, RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe";
+import { AccessLevel, RoadmapType } from "@/lib/prisma/generated";
+import type { RoadmapIterations, Roadmaps } from "@/lib/prisma/generated";
+import { Recipe } from "@/functions/recipe";
+import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/enums";
 import type { SeededUsers } from "./helpers.ts";
-import { getRandomCreatedAtAndUpdatedAt, makeRandomComments, makeRandomLinks } from "./helpers.ts";
+import { getRandomCreatedAtAndUpdatedAt, getRandomDateInThePast, makeRandomComments } from "./helpers.ts";
 import { parseUnit } from "@/functions/unit";
 import { UnitFlags } from "@/types/enums";
 
 export type SeededRoadmaps = {
-  metaRoadmaps: { national: MetaRoadmap; uppsala: MetaRoadmap };
-  roadmaps: { nationalV1: Roadmap; nationalV2: Roadmap; uppsalaV1: Roadmap; uppsalaV2: Roadmap };
+  roadmaps: { national: Roadmaps; uppsala: Roadmaps };
+  iterations: { nationalV1: RoadmapIterations; nationalV2: RoadmapIterations; uppsalaV1: RoadmapIterations; uppsalaV2: RoadmapIterations };
 };
 
 export async function seedRoadmaps(users: SeededUsers): Promise<SeededRoadmaps> {
-  await createTemplateRecipes();
+  await createTemplateRecipes(users.org.id);
 
-  const { admin, anita, anton } = users;
-  const allEditors = { connect: [{ id: admin.id }, { id: anita.id }, { id: anton.id }] };
+  const { admin, anita, org, group } = users;
 
   /*
-   * National meta roadmap - "Rikets färdplan"
+   * National roadmap - "Rikets färdplan": public, editable by the group via an RW grant
    */
-  const national = await prisma.metaRoadmap.create({
+  const national = await prisma.roadmaps.create({
     data: {
       name: "Rikets färdplan",
       description:
         "Denna färdplan har lagts för att ge stöd till andra aktörer att ärva ifrån.\n\nResurser:\nhttps://sustainable-action.org/",
       actor: "Sverige",
+      geo_area: { connect: { code: "00" } },
       type: RoadmapType.NATIONAL,
-      authorId: anita.id,
-      isPublic: true,
-      editors: { connect: [{ id: admin.id }] },
+      author: { connect: { id: anita.id } },
+      access_control: {
+        create: { org: { connect: { id: org.id } }, is_public: true, org_readable: true },
+      },
       ...getRandomCreatedAtAndUpdatedAt(),
       comments: { createMany: { data: makeRandomComments(users, 40) } },
-      links: { create: makeRandomLinks(3) },
     },
   });
 
-  const nationalV1 = await prisma.roadmap.create({
+  const nationalV1 = await prisma.roadmapIterations.create({
     data: {
       version: 1,
-      authorId: anita.id,
-      metaRoadmapId: national.id,
+      author: { connect: { id: anita.id } },
+      roadmap: { connect: { id: national.id } },
       description: "Det här är den första versionen av den nationella färdplanen.",
-      isPublic: true,
-      editors: allEditors,
+      published_at: getRandomDateInThePast(),
       ...getRandomCreatedAtAndUpdatedAt(),
       comments: { createMany: { data: makeRandomComments(users, 30) } },
-      links: { create: makeRandomLinks(2) },
     },
   });
 
-  const nationalV2 = await prisma.roadmap.create({
+  const nationalV2 = await prisma.roadmapIterations.create({
     data: {
       version: 2,
-      authorId: anita.id,
-      metaRoadmapId: national.id,
+      author: { connect: { id: anita.id } },
+      roadmap: { connect: { id: national.id } },
       description: "Det här är den andra versionen av den nationella färdplanen.",
-      isPublic: true,
-      editors: allEditors,
+      published_at: getRandomDateInThePast(),
       ...getRandomCreatedAtAndUpdatedAt(),
       comments: { createMany: { data: makeRandomComments(users, 30) } },
-      links: { create: makeRandomLinks(2) },
     },
   });
 
   /*
-   * Regional meta roadmap - "Uppsala län", a child of the national meta roadmap
+   * Regional roadmap - "Uppsala län", a child of the national roadmap.
+   * Not public: org members can read it (org_readable), the group holds an RO grant,
+   * and its second iteration is a draft only editors/managers can see.
    */
-  const uppsala = await prisma.metaRoadmap.create({
+  const uppsala = await prisma.roadmaps.create({
     data: {
       name: "Uppsala län",
       description:
         "Denna färdplan har lagts för att främst ge stöd till kommunerna inom länet.\n\nLänkar:\nhttps://www.lansstyrelsen.se/uppsala.html",
       actor: "Uppsala län",
+      geo_area: { connect: { code: "03" } },
       type: RoadmapType.REGIONAL,
-      authorId: admin.id,
-      isPublic: true,
-      parentRoadmapId: national.id,
-      // Shared for viewing with the regular users' group.
-      viewGroups: { connect: [{ id: users.group.id }] },
+      author: { connect: { id: admin.id } },
+      parent_roadmap: { connect: { id: national.id } },
+      access_control: {
+        create: { org: { connect: { id: org.id } }, is_public: false, org_readable: true },
+      },
       ...getRandomCreatedAtAndUpdatedAt(),
       comments: { createMany: { data: makeRandomComments(users, 20) } },
-      links: { create: makeRandomLinks(1) },
     },
+    include: { access_control: { select: { id: true } } },
   });
 
-  const uppsalaV1 = await prisma.roadmap.create({
+  // Grants (top-level createMany: the composite FKs pair each grant's group and
+  // access control through the shared org_id column)
+  const nationalWithAc = await prisma.roadmaps.findUniqueOrThrow({
+    where: { id: national.id },
+    select: { access_control_id: true },
+  });
+  await prisma.accessGrants.createMany({
+    data: [
+      { access_control_id: nationalWithAc.access_control_id, group_id: group.id, org_id: org.id, access_level: AccessLevel.RW },
+      { access_control_id: uppsala.access_control_id, group_id: group.id, org_id: org.id, access_level: AccessLevel.RO },
+    ],
+  });
+
+  const uppsalaV1 = await prisma.roadmapIterations.create({
     data: {
       version: 1,
-      authorId: admin.id,
-      metaRoadmapId: uppsala.id,
+      author: { connect: { id: admin.id } },
+      roadmap: { connect: { id: uppsala.id } },
       // Related to the national roadmap it inherits from.
-      targetVersion: 1,
-      isPublic: true,
-      editors: allEditors,
+      target_version: 1,
+      published_at: getRandomDateInThePast(),
       ...getRandomCreatedAtAndUpdatedAt(),
       comments: { createMany: { data: makeRandomComments(users, 10) } },
-      links: { create: makeRandomLinks(1) },
     },
   });
 
-  const uppsalaV2 = await prisma.roadmap.create({
+  const uppsalaV2 = await prisma.roadmapIterations.create({
     data: {
       version: 2,
-      authorId: admin.id,
-      metaRoadmapId: uppsala.id,
-      targetVersion: 2,
-      // A private version, shared with the regular users through their group.
-      isPublic: false,
-      editors: { connect: [{ id: admin.id }] },
-      viewGroups: { connect: [{ id: users.group.id }] },
+      author: { connect: { id: admin.id } },
+      roadmap: { connect: { id: uppsala.id } },
+      target_version: 2,
+      // A draft: only users with edit access (managers, RW grants) can see it.
+      published_at: null,
       ...getRandomCreatedAtAndUpdatedAt(),
       comments: { createMany: { data: makeRandomComments(users, 10) } },
     },
   });
 
   return {
-    metaRoadmaps: { national, uppsala },
-    roadmaps: { nationalV1, nationalV2, uppsalaV1, uppsalaV2 },
+    roadmaps: { national, uppsala },
+    iterations: { nationalV1, nationalV2, uppsalaV1, uppsalaV2 },
   };
 }
 
@@ -132,7 +147,7 @@ export async function seedRoadmaps(users: SeededUsers): Promise<SeededRoadmaps> 
  * as unattached templates. They contain `External` (SCB) variables, so seeding them
  * exercises the external-dataset shape of stored recipes without needing network access.
  */
-async function createTemplateRecipes(): Promise<void> {
+async function createTemplateRecipes(orgId: string): Promise<void> {
   const byArea = new Recipe({
     name: "Skala utifrån yta",
     equation: "${Riket} * ${ArvingsArea} / ${RiketsArea}",
@@ -192,6 +207,7 @@ async function createTemplateRecipes(): Promise<void> {
   });
 
   await prisma.$transaction(
-    [byArea, byPopulation, byScalar].map(recipe => prisma.recipe.create({ data: { recipe: recipe.serialize() } })),
+    [byArea, byPopulation, byScalar].map(recipe =>
+      prisma.recipes.create({ data: { recipe: recipe.serialize(), org: { connect: { id: orgId } } } })),
   );
 }

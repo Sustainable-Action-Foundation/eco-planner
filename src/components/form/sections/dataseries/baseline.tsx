@@ -11,7 +11,7 @@ import { dataSeriesToDateValues } from "@/functions/recipe";
 import { Recipe } from "@/functions/recipe/recipe";
 import { useEffect, useRef, useState } from "react";
 import type { TreeItem } from "@/components/types";
-import { clientSafeGetRoadmaps, clientSafeGetOneRoadmap, clientSafeGetOneGoal } from "@/fetchers/client";
+import { clientSafeGetRoadmapIterations, clientSafeGetOneRoadmapIteration, clientSafeGetOneGoal } from "@/fetchers/client";
 import SelectSingleTree from "@/components/form/elements/combobox/selectSingleTree";
 import { RecipeSync } from "@/components/recipe/output/recipeSync";
 import { parseUnit } from "@/functions/unit";
@@ -149,14 +149,14 @@ export default function BaselineSeriesSection({
         {hasInitializedManual ?
           <fieldset className={`${baselineType === BaselineType.Custom ? "" : "display-none"}`} disabled={baselineType !== BaselineType.Custom}>
             <RecipeContextProvider
-              initialRecipe={goal?.baseline?.recipeUsed?.recipe
-                ? Recipe.from(goal.baseline.recipeUsed.recipe).serialize()
+              initialRecipe={goal?.baseline?.recipe_used?.recipe
+                ? Recipe.from(goal.baseline.recipe_used.recipe).serialize()
                 : undefined}
             >
               <ManualDataSeriesInput
                 id="baseline-dataseries"
                 label={t("forms:data_series_input.data_series")}
-                {...goal?.baseline?.recipeUsed?.recipe
+                {...goal?.baseline?.recipe_used?.recipe
                   ? { initialDateValues: dataSeriesToDateValues(goal.baseline) }
                   : {}
                 }
@@ -179,10 +179,10 @@ export default function BaselineSeriesSection({
         {hasInitializedInherited ?
           <fieldset className={`${baselineType === BaselineType.Inherited ? "" : "display-none"}`} disabled={baselineType !== BaselineType.Inherited}>
             <RecipeContextProvider
-              initialRecipe={goal?.baseline?.recipeUsed?.recipe
-                ? Recipe.from(goal.baseline.recipeUsed.recipe).serialize()
+              initialRecipe={goal?.baseline?.recipe_used?.recipe
+                ? Recipe.from(goal.baseline.recipe_used.recipe).serialize()
                 : undefined}
-              availableDataSeries={goal?.baseline?.recipeUsed?.sourceDataSeries}
+              availableDataSeries={goal?.baseline?.recipe_used?.source_data_series}
             >
               <InheritingBaseline initialBaselineType={initialBaselineType} />
               <FormSync
@@ -254,7 +254,7 @@ function InheritingBaseline({initialBaselineType}: {initialBaselineType: Baselin
   useEffect(() => {
     if (!goalData) return;
 
-    const inheritedSeries = goalData.baseline ?? goalData.dataSeries;
+    const inheritedSeries = goalData.baseline ?? goalData.data_series;
     if (!inheritedSeries?.id) return;
 
     void applyRecipeUpdate(() => Recipe.fromLinkedDataSeries({
@@ -265,22 +265,22 @@ function InheritingBaseline({initialBaselineType}: {initialBaselineType: Baselin
     }));
   }, [goalData, applyRecipeUpdate, t]);
 
-  // Roadmaps are the top-level nodes; each one's goals are fetched lazily
-  // the first time it's expanded, via onExpand.
+  // Roadmap iterations are the top-level nodes; each one's goals are fetched
+  // lazily the first time it's expanded, via onExpand.
   useEffect(() => {
-    clientSafeGetRoadmaps()
-      .then((roadmapList) => {
+    clientSafeGetRoadmapIterations()
+      .then((iterationList) => {
         setTreeItems(
-          roadmapList.map((roadmap): TreeItem => ({
-            value: roadmap.id,
-            name: `${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("common:count.goal", { count: roadmap._count.goals })}`,
+          iterationList.map((iteration): TreeItem => ({
+            value: iteration.id,
+            name: `${iteration.roadmap.name} (v${iteration.version}): ${t("common:count.goal", { count: iteration._count.goals })}`,
             expanded: false,
             onExpand: async () => {
-              const roadmapData = await clientSafeGetOneRoadmap(roadmap.id).catch(() => null);
-              if (!roadmapData) return [];
-              return roadmapData.goals.map((goal): TreeItem => ({
+              const iterationData = await clientSafeGetOneRoadmapIteration(iteration.id).catch(() => null);
+              if (!iterationData) return [];
+              return iterationData.goals.map((goal): TreeItem => ({
                 value: goal.id,
-                name: `${(!goal.dataSeries) ? t("forms:goal.data_missing") : ""}${goal.name ?? t("forms:goal.unnamed_goal")}: ${goal.indicatorParameter} (${goal.dataSeries?.unit === null ? t("common:tsx.unitless") : goal.dataSeries?.unit || t("common:tsx.unit_missing")})`,
+                name: `${(!goal.data_series) ? t("forms:goal.data_missing") : ""}${goal.name ?? t("forms:goal.unnamed_goal")}: ${goal.indicator_parameter} (${goal.data_series?.unit === null ? t("common:tsx.unitless") : goal.data_series?.unit || t("common:tsx.unit_missing")})`,
                 expanded: null,
               }));
             },
@@ -332,7 +332,7 @@ function InheritingBaseline({initialBaselineType}: {initialBaselineType: Baselin
         {`${t("forms:goal.baseline_copied")}: "${goalData.name}"`}
       </p> : null
       }
-      {recipe.variables[0]?.name && !selectedGoal && initialBaselineType === BaselineType.Inherited ? // TODO: Should only show if our previous baseline is 
+      {recipe.variables[0]?.name && !selectedGoal && initialBaselineType === BaselineType.Inherited ? // TODO: Should only show if our previous baseline is
         <small style={{ color: '#B35400', textShadow: '0 0 #ffcb00' }}>
           <IconInfoCircle width={16} height={16} style={{ verticalAlign: 'bottom', marginRight: '.25rem' }} />
           <Trans
@@ -340,6 +340,7 @@ function InheritingBaseline({initialBaselineType}: {initialBaselineType: Baselin
             tOptions={{
               goal: recipe.variables[0]?.name,
             }}
+            components={{ strong: <strong /> }}
             i18n={i18next}
           />
           <ol>

@@ -8,7 +8,7 @@
     "action": "$t(common:action_one, titleCase):",
     "goal": "$t(common:goal_one, titleCase):",
     "home": "$t(common:tsx.home)",
-    "roadmap_series": "$t(common:roadmap_series_one, titleCase):",
+    "roadmap": "$t(common:roadmap_one, titleCase):",
     "version": "Version {{version}}",
     "version_label": "Version:"
   },
@@ -19,7 +19,8 @@
     "comment_count_other": "{{count}} comments",
     "comment_count_zero": "No comments",
     "relative_time": "{{date, timeAgo}}",
-    "send": "Submit"
+    "send": "Submit",
+    "deleted_user": "Deleted user"
   },
   "confirm_delete": {
     "confirmation": "Are you sure you want to delete post <strong>{{targetName}}</strong>?<br />This action cannot be undone.",
@@ -163,6 +164,7 @@
     },
     "delete_variable": "Delete variable:",
     "edit_variable": "Edit variable",
+    "editing_recipe_named": "Editing recipe {{name}}",
     "equation": "Using equation",
     "external_data": "External data",
     "goal_or_effect": "Goal or effect",
@@ -220,10 +222,10 @@
     "name_ascending": "Name (Z-A)",
     "name_descending": "Name (A-Z)",
     "roadmap_type": "Roadmap type",
-    "search_roadmaps": "Search $t(common:roadmap_series_one)",
+    "search_roadmaps": "Search $t(common:roadmap_one)",
     "sort_by": "Sort by"
   },
-  "roadmap_series_one_deleter": {
+  "roadmap_deleter": {
     "remove_metadata": "Remove metadata"
   },
   "roadmap_table": {
@@ -231,7 +233,7 @@
     "title": "{{name}} (v{{version}})"
   },
   "roadmap_tree": {
-    "no_roadmap_series_ones": "No $t(common:roadmap_series_one) found. If you have any filters active, no $t(common:roadmap_series_one) were found that match them.",
+    "no_roadmaps": "No $t(common:roadmap_one) found. If you have any filters active, no $t(common:roadmap_one) were found that match them.",
     "show_source_alt": "Show underlying $t(common:roadmap_version_other)",
     "title": "{{name}} (v{{version}})"
   },
@@ -274,7 +276,7 @@
     "feature_goal": "Feature $t(common:goal_one)",
     "feature_goal_stop": "Stop featuring $t(common:goal_one)",
     "go_to_goal": "Go to $t(common:goal_one)",
-    "go_to_series": "Go to $t(common:roadmap_series_one)",
+    "go_to_series": "Go to $t(common:roadmap_one)",
     "go_to_version": "Go to $t(common:roadmap_version_one)",
     "historical_data": "Historical data",
     "historical_data_add": "Add historical data",
@@ -306,7 +308,7 @@
     "access_level": "Access level",
     "editing_access": "Editing access",
     "posts": "Posts",
-    "roadmap_series": "$t(common:roadmap_series_one, titleCase)",
+    "roadmaps": "$t(common:roadmap_one, titleCase)",
     "roadmap_versions": "$t(common:roadmap_version_other, titleCase)"
   }
 }

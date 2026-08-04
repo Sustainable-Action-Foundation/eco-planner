@@ -13,7 +13,8 @@ import styles from "./queryBuilder.module.css";
 import { IconDatabaseSearch, IconSearch, IconX } from "@tabler/icons-react";
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 import getTableContent from "@/lib/api/getTableContent";
-import { RecipeDataTypes, externalSelectionKey } from "@/functions/recipe";
+import { externalSelectionKey } from "@/functions/recipe";
+import { RecipeDataTypes } from "@/functions/recipe/types/enums";
 
 // TODO: move-history-v3: replace this with external data component once we are done!
 

@@ -1,3 +1,5 @@
+"use client";
+
 import { getHistoricalSource } from "@/functions/getHistoricalDataset";
 import getTableContent from "@/lib/api/getTableContent";
 import getTableMetadata from "@/lib/api/getTableMetadata";
@@ -14,7 +16,7 @@ import type { ExternalData, ExternalDataState } from "@/components/types";
 import type { ApiSelectionItem } from "@/lib/api/apiTypes";
 
 // TODO: Maybe this should not be in /api
-// TODO: All id's in this component must be dynamic incase it is used multiple times on the same page.
+// TODO: All id's in this component must be dynamic in case it is used multiple times on the same page.
 
 export default function ExternalData({
   goal,

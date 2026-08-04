@@ -1,5 +1,5 @@
 import type { EvalTimeVariable, RecipeExtractionOutput } from "@/functions/recipe/types";
-import { isEvalTimeVariable, isEvalTimeSeries } from "@/functions/recipe/types";
+import { isEvalTimeVariable, isEvalTimeSeries } from "@/functions/recipe/types/typeguards";
 import type { Unit as MathJSUnit } from "mathjs";
 
 const HUGE_THRESHOLD = 1e12;

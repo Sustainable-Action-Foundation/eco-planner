@@ -1,12 +1,11 @@
-import { getSession } from "@/lib/session";
-import { cookies } from "next/headers";
 import GoalForm from "@/components/form/forms/goal";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
+import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconInfoCircle } from "@tabler/icons-react";
-import { getOneRoadmap, getRoadmaps } from "@/fetchers";
+import { getOneRoadmapIteration, getRoadmaps } from "@/fetchers";
 import type { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -23,30 +22,30 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Page(
   props: {
     searchParams: Promise<{
-      roadmapId?: string | string[] | undefined,
+      iterationId?: string | string[] | undefined,
       [key: string]: string | string[] | undefined
     }>
   },
 ) {
   const searchParams = await props.searchParams;
-  const [t, session, roadmap, roadmapList] = await Promise.all([
+  const [t, accessContext, iteration, roadmapList] = await Promise.all([
     serveTea("pages"),
-    getSession(await cookies()),
-    getOneRoadmap(typeof searchParams.roadmapId == 'string' ? searchParams.roadmapId : ''),
+    getUserAccessContext(),
+    getOneRoadmapIteration(typeof searchParams.iterationId == 'string' ? searchParams.iterationId : ''),
     getRoadmaps(),
   ]);
 
-  // Ignore the roadmap (and inform user) if it is not found or the user does not have edit access
+  // Ignore the iteration (and inform user) if it is not found or the user does not have edit access
   const badRoadmap = (
-    (!roadmap && typeof searchParams.roadmapId == 'string') ||
-    (roadmap && !hasEditAccess(accessChecker(roadmap, session.user)))
+    (!iteration && typeof searchParams.iterationId == 'string') ||
+    (iteration && !hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, published_at: iteration.published_at }, accessContext)))
   );
 
-  const filteredRoadmaps = roadmapList.filter((roadmap) => hasEditAccess(accessChecker(roadmap, session.user)));
+  const filteredRoadmaps = roadmapList.filter((roadmap) => hasEditAccess(accessChecker(roadmap, accessContext)));
 
   return (
     <>
-      <Breadcrumb object={roadmap ?? undefined} customSections={[t("pages:goal_create.breadcrumb")]} />
+      <Breadcrumb object={iteration ?? undefined} customSections={[t("pages:goal_create.breadcrumb")]} />
       <div className='container-text margin-inline-auto'>
         <h1 className='margin-top-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
           {t("pages:goal_create.title")}
@@ -56,7 +55,7 @@ export default async function Page(
             {t("pages:goal_create.bad_roadmap")}
           </p> : null
         }
-        <GoalForm roadmapId={badRoadmap ? undefined : searchParams.roadmapId as string} roadmapAlternatives={filteredRoadmaps} />
+        <GoalForm iterationId={badRoadmap ? undefined : searchParams.iterationId as string} roadmapAlternatives={filteredRoadmaps} />
       </div>
     </>
   );

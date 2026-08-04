@@ -1,11 +1,12 @@
 "use client";
 
 import { useTranslation } from "react-i18next";
-import { RecipeEditorPermissions } from "@/types/enums";
+import { RecipeEditorPermissions } from "@/types/consts";
 import { ExternalDataset, isDataSetKeys } from "@/lib/api/utility";
 import RecipeQueryBuilder from "@/components/form/api/recipeQueryBuilder";
 import type { ExternalVariable } from "@/functions/recipe/types";
-import { isStringifiedExternalSelection, RecipeDataTypes } from "@/functions/recipe/types";
+import { RecipeDataTypes } from "@/functions/recipe/types/enums";
+import { isStringifiedExternalSelection } from "@/functions/recipe/types/typeguards";
 import { useRecipe, CommonVariable, VectorPickerSelect } from "@/components/recipe";
 
 // TODO: Fix labels

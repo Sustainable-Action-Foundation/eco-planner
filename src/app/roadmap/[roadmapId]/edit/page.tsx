@@ -1,13 +1,13 @@
-import RoadmapForm from "@/components/form/forms/roadmap";
-import { getOneRoadmap } from "@/fetchers";
 import { getSession } from '@/lib/session';
+import RoadmapForm from '@/components/form/forms/roadmap';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
-import accessChecker from "@/lib/accessChecker";
-import { AccessLevel } from "@/types/enums";
-import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
+import accessChecker, { hasEditAccess } from '@/lib/accessChecker';
+import { Breadcrumb } from '@/components/breadcrumbs/breadcrumb';
 import serveTea from "@/lib/i18nServer";
-import { buildMetadata } from "@/functions/buildMetadata";
+import { buildMetadata } from '@/functions/buildMetadata';
+import { getOneRoadmap, getRoadmaps, getUserAccessContext } from "@/fetchers";
+import { getOrgOptions } from '@/fetchers/getOrgOptions';
 import type { Metadata } from "next";
 
 export async function generateMetadata(props: { params: Promise<{ roadmapId: string }> }): Promise<Metadata> {
@@ -28,8 +28,8 @@ export async function generateMetadata(props: { params: Promise<{ roadmapId: str
   }
 
   return buildMetadata({
-    title: `${t("metadata:roadmap_edit.title")} ${roadmap?.metaRoadmap.name}`,
-    description: roadmap?.description || roadmap?.metaRoadmap.description,
+    title: `${t("metadata:roadmap_edit.title")} ${roadmap?.name}`,
+    description: roadmap?.description,
     og_url: `/roadmap/${params.roadmapId}/edit`,
     og_image_url: undefined,
   });
@@ -38,31 +38,35 @@ export async function generateMetadata(props: { params: Promise<{ roadmapId: str
 
 export default async function Page(props: { params: Promise<{ roadmapId: string }> }) {
   const params = await props.params;
-  const [t, session, roadmap] = await Promise.all([
+  const [t, session, accessContext, currentRoadmap, parentRoadmapOptions, orgOptions] = await Promise.all([
     serveTea("pages"),
     getSession(await cookies()),
+    getUserAccessContext(),
     getOneRoadmap(params.roadmapId),
+    getRoadmaps(),
+    getOrgOptions(),
   ]);
 
-  const access = accessChecker(roadmap, session.user);
+  const access = accessChecker(currentRoadmap, accessContext);
 
   // User must be signed in and have edit access to the roadmap, which must exist
-  if (!session.user || !roadmap || access === AccessLevel.None || access === AccessLevel.View) {
+  if (!session.user || !currentRoadmap || !hasEditAccess(access)) {
     return notFound();
   }
 
   return (
     <>
-      <Breadcrumb object={roadmap} customSections={[t("pages:roadmap_edit.breadcrumb")]} />
+      <Breadcrumb object={currentRoadmap} customSections={[t("pages:roadmap_edit.breadcrumb")]} />
 
       <div className='container-text margin-inline-auto'>
-        <h1 className='margin-top-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}>
-          {t("pages:roadmap_edit.title")} {/* TODO: Need a better name here... */}
+        <h1 className='margin-top-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}>
+          {t("pages:roadmap_edit.title", { name: currentRoadmap.name })}
         </h1>
         <RoadmapForm
-          user={session.user}
-          userGroups={session.user?.userGroups}
-          currentRoadmap={roadmap}
+          isSuperAdmin={session.user.isSuperAdmin}
+          orgOptions={orgOptions}
+          parentRoadmapOptions={parentRoadmapOptions.filter(roadmap => roadmap.id !== currentRoadmap.id)}
+          currentRoadmap={currentRoadmap}
         />
       </div>
     </>

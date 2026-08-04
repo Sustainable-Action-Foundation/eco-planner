@@ -235,7 +235,7 @@ export function SuggestedRecipesList({
             const newRecipe = Recipe.fromDataSeries({
               recipeName: t("components:recipe_editor.new_recipe"),
               dataSeriesName: currentGoal?.name || t("components:recipe_editor.this_data_series"),
-              unit: parseUnit(currentGoal?.dataSeries?.unit),
+              unit: parseUnit(currentGoal?.data_series?.unit),
             });
             setNewSuggestedRecipes((prev) => [...prev, { id: newId, recipe: newRecipe }]);
             startEditing(newId, newRecipe.name, true);

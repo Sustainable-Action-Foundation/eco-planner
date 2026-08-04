@@ -84,11 +84,11 @@
     "breadcrumb": "Edit historical data"
   },
   "home": {
-    "create_roadmap": "$t(common:new.roadmap_series)",
+    "create_roadmap": "$t(common:new.roadmap)",
     "filter": "Filter",
     "search_roadmaps": "Search among $t(common:count.roadmap)",
-    "shown_results": "Showing {{shown}} out of {{total}} $t(common:roadmap_series, {\"count\": {{total}}})",
-    "title": "$t(common:roadmap_short_other, titleCase)"
+    "shown_results": "Showing {{shown}} out of {{total}} $t(common:roadmap, {\"count\": {{total}}})",
+    "title": "$t(common:roadmap_other, titleCase)"
   },
   "info": {
     "breadcrumb": "Information",
@@ -120,45 +120,42 @@
   "profile": {
     "handle_data": "Data management",
     "my_posts": "My posts",
-    "roadmap_series_ones": "$t(common:roadmap_series_one, titleCase)",
+    "roadmaps": "$t(common:roadmap_one, titleCase)",
     "roadmap_versions": "$t(common:roadmap_version_other, titleCase)",
     "user_posts": "{{name, possessive, titleCase}} posts",
     "version_count_one": "{{count}} version",
     "version_count_other": "{{count}} versions"
   },
-  "roadmap": {
+  "roadmap_iteration": {
     "all_actions": "All $t(common:action_other)",
     "all_goals": "All $t(common:goal_other)",
     "featured_goals": "Featured $t(common:goal_other)",
-    "show_series": "Visit $t(common:roadmap_series_one)",
+    "show_series": "Visit $t(common:roadmap_one)",
     "title": "$t(common:roadmap_version_one, titleCase)",
     "version": "$t(common:roadmap_version_one, titleCase) (v{{version}})"
   },
-  "roadmap_create": {
-    "bad_roadmap_series": "Could not find or do not have access to $t(common:roadmap_series_definite_one) in the link.",
+  "roadmap_iteration_create": {
     "breadcrumb": "$t(common:new.roadmap_version)",
-    "information_icon_aria": "Information",
-    "title": "$t(common:new.roadmap_version)",
-    "use_dropdown": "Use the dropdown menu to select a $t(common:roadmap_series_one)."
+    "title": "$t(common:new.roadmap_version)"
   },
-  "roadmap_edit": {
-    "are_you_in_the_right_place": "Did you mean to edit the entire $t(common:roadmap_series_definite_one)? In that case, <Link>go here</Link> to edit the metadata.",
+  "roadmap_iteration_edit": {
+    "are_you_in_the_right_place": "Did you mean to edit the entire $t(common:roadmap_definite_one)? In that case, <Link>go here</Link> to edit the metadata.",
     "breadcrumb": "$t(common:edit.roadmap_version)",
     "title": "$t(common:edit.roadmap_version)"
   },
-  "roadmap_series_one": {
+  "roadmap": {
     "create_roadmap_version": "$t(common:new.roadmap_version)",
     "description_legend": "Metadata for a series of $t(common:roadmap_version_other)",
     "roadmap_versions": "$t(common:roadmap_version_other, titleCase)",
-    "title_legend": "$t(common:roadmap_series_one, titleCase)"
+    "title_legend": "$t(common:roadmap_one, titleCase)"
   },
-  "roadmap_series_one_create": {
-    "breadcrumb": "$t(common:new.roadmap_series)",
-    "title": "$t(common:new.roadmap_series)"
+  "roadmap_create": {
+    "breadcrumb": "$t(common:new.roadmap)",
+    "title": "$t(common:new.roadmap)"
   },
-  "roadmap_series_one_edit": {
+  "roadmap_edit": {
     "breadcrumb": "Edit metadata",
-    "title": "Edit metadata for $t(common:roadmap_series_definite_one): {{name}}"
+    "title": "Edit metadata for $t(common:roadmap_definite_one): {{name}}"
   },
   "signup": {
     "breadcrumb": "Create account"
@@ -171,7 +168,7 @@
     "troubleshooting_description": "Check your spam folder or fill in your email address below and click the button to receive a new email.",
     "troubleshooting_title": "Haven't received an email?"
   },
-  "verify_verify": {
+  "verify_confirm": {
     "description": "Verify your email by clicking the button below.",
     "submit": "Verify my email",
     "title": "Verify your email"

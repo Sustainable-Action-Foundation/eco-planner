@@ -32,9 +32,9 @@ export default function EffectForm({
 
   const { addToast } = useToast();
 
-  const [selectedImpactType, setSelectedImpactType] = useState<ActionImpactType>(currentEffect?.impactType ?? ActionImpactType.ABSOLUTE);
-  const [dateValues, setDateValues] = useState<DateValuesWithUnit>(currentEffect?.dataSeries
-    ? dataSeriesToDateValues(currentEffect.dataSeries)
+  const [selectedImpactType, setSelectedImpactType] = useState<ActionImpactType>(currentEffect?.impact_type ?? ActionImpactType.ABSOLUTE);
+  const [dateValues, setDateValues] = useState<DateValuesWithUnit>(currentEffect?.data_series
+    ? dataSeriesToDateValues(currentEffect.data_series)
     : { unit: UnitFlags.Missing, dateValues: {} },
   );
 
@@ -43,8 +43,8 @@ export default function EffectForm({
 
     const formData = new FormData(event.target);
 
-    const selectedAction = currentEffect?.actionId ?? formData.get(EffectFormName.ActionId);
-    const selectedGoal = currentEffect?.goalId ?? formData.get(EffectFormName.GoalId);
+    const selectedAction = currentEffect?.action_id ?? formData.get(EffectFormName.ActionId);
+    const selectedGoal = currentEffect?.goal_id ?? formData.get(EffectFormName.GoalId);
     const impactType = formData.get(EffectFormName.ImpactType);
 
     // Parse date values (required)

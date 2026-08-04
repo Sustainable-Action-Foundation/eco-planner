@@ -1,96 +1,46 @@
 import "server-only";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
-import type { Goal, LoginData } from "@/types";
-import { getSession } from "@/lib/session";
+import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { visibleRoadmapIterationsWhere } from "@/lib/accessFilters";
 import { effectSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
+import type { Goal, UserAccessContext } from "@/types";
 import { cacheTag } from "next/cache";
-import { cookies } from "next/headers";
 
 /**
- * Gets specified goal and all actions for that goal.
- * 
+ * Gets specified goal and all effects for that goal.
+ *
  * Returns null if goal is not found or user does not have access to it. Also returns null on error.
  * @param id ID of the goal to get
- * @returns Goal object with actions
+ * @returns Goal object with effects
  */
 export async function getOneGoal(id: string): Promise<Goal | null> {
-  const session = await getSession(await cookies());
-  return getCachedGoal(id, session.user);
+  const accessContext = await getUserAccessContext();
+  return getCachedGoal(id, accessContext);
 }
 
 /**
- * Caches the specified goal and all actions for that goal.
+ * Caches the specified goal and all effects for that goal.
  * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'goal', 'action', 'dataSeries']`, which is done in relevant API routes.
  * @param id ID of the goal to cache
- * @param user Data from user's session cookie.
+ * @param accessContext Requesting user's access context (null for anonymous visitors); part of the cache key.
  */
-async function getCachedGoal(id: string, user: LoginData['user']): Promise<Goal | null> {
+async function getCachedGoal(id: string, accessContext: UserAccessContext | null): Promise<Goal | null> {
   'use cache';
   cacheTag('database', 'goal', 'action', 'dataSeries');
 
   let goal: Goal | null;
-
-  // If user is admin, always get the goal
-  if (user?.isAdmin) {
-    try {
-      goal = await prisma.goal.findUnique({
-        where: { id },
-        include: goalInclusionSelection,
-      }) satisfies Goal | null;
-    }
-    catch (err) {
-      console.error("Error fetching admin goal:", { err });
-      return null;
-    }
-
-    goal?.effects.sort(effectSorter);
-
-    return goal;
-  }
-
-  // If user is logged in, get the goal if they have access to it
-  if (user?.isLoggedIn) {
-    try {
-      goal = await prisma.goal.findUnique({
-        where: {
-          id,
-          roadmap: {
-            OR: [
-              { authorId: user.id },
-              { editors: { some: { id: user.id } } },
-              { viewers: { some: { id: user.id } } },
-              { editGroups: { some: { users: { some: { id: user.id } } } } },
-              { viewGroups: { some: { users: { some: { id: user.id } } } } },
-              { isPublic: true },
-            ],
-          },
-        },
-        include: goalInclusionSelection,
-      }) satisfies Goal | null;
-    }
-    catch (err) {
-      console.error("Error fetching user goal:", { err });
-      return null;
-    }
-
-    goal?.effects.sort(effectSorter);
-
-    return goal;
-  }
-
-  // If user is not logged in, get the goal if it is public
   try {
-    goal = await prisma.goal.findUnique({
+    goal = await prisma.goals.findUnique({
       where: {
         id,
-        roadmap: { isPublic: true },
+        roadmap_iteration: visibleRoadmapIterationsWhere(accessContext),
       },
       include: goalInclusionSelection,
     }) satisfies Goal | null;
   }
   catch (err) {
-    console.error("Error fetching public goal:", { err });
+    console.error("Error fetching goal:", { err });
     return null;
   }
 

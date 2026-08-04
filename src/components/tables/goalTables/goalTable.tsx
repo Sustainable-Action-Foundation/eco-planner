@@ -1,7 +1,7 @@
 "use client";
 
 import { goalSorter, goalSorterActionAmount, goalSorterActionAmountReverse, goalSorterInterest, goalSorterReverse } from '@/lib/sorters';
-import type { Goal, Roadmap } from "@/types";
+import type { Goal, RoadmapIteration } from "@/types";
 import { GoalSortBy } from "@/types/enums";
 import styles from '../tables.module.css' with { type: "css" };
 import { useTranslation } from "react-i18next";
@@ -14,48 +14,46 @@ type GoalTableCommonProps = {
 
 type GoalTableWithGoals = {
   goals: Goal[];
-  roadmap?: never;
+  iteration?: never;
 } & GoalTableCommonProps;
 
-type GoalTableWithRoadmap = {
+type GoalTableWithIteration = {
   goals?: never;
-  roadmap: Roadmap;
+  iteration: RoadmapIteration;
 } & GoalTableCommonProps;
 
-type GoalTableProps = GoalTableWithGoals | GoalTableWithRoadmap;
+type GoalTableProps = GoalTableWithGoals | GoalTableWithIteration;
 
 export default function GoalTable({
   goals,
-  roadmap,
+  iteration,
   sortBy,
 }: GoalTableProps): ReactNode {
   const { t } = useTranslation("components");
 
   // Failsafe in case wrong props are passed
   if (
-    (!goals && !roadmap)
-    || (goals && roadmap)
-  ) throw new Error('GoalTable: Either `goals` XOR `roadmap` must be provided');
+    (!goals && !iteration)
+    || (goals && iteration)
+  ) throw new Error('GoalTable: Either `goals` XOR `iteration` must be provided');
 
   const parsedGoals: Goal[] = [];
 
-  if (!goals && roadmap) {
-    const stripGoals = (roadmap: Roadmap): Goal["roadmap"] => {
+  if (!goals && iteration) {
+    const stripGoals = (iteration: RoadmapIteration): Goal["roadmap_iteration"] => {
       const {
         goals,
         ...interestingData
-      } = roadmap;
-      return interestingData satisfies Goal["roadmap"];
+      } = iteration;
+      return interestingData satisfies Goal["roadmap_iteration"];
     };
-    for (const goal of roadmap.goals) {
+    for (const goal of iteration.goals) {
       parsedGoals.push({
         ...goal,
-        roadmap: stripGoals(roadmap),
+        roadmap_iteration: stripGoals(iteration),
         effects: [],
         comments: [],
-        links: [],
         baseline: null,
-        dataSeries: null,
       });
     }
   }
@@ -109,9 +107,9 @@ export default function GoalTable({
       <tbody>
         {parsedGoals.map(goal => (goal &&
           <tr key={goal.id}>
-            <td><Link href={`/goal/${goal.id}`}>{goal.name || goal.indicatorParameter}</Link></td>
-            <td>{goal.indicatorParameter}</td>
-            <td>{goal.dataSeries?.unit === null ? t("common:tsx.unitless") : goal.dataSeries?.unit || t("common:tsx.unit_missing")}</td>
+            <td><Link href={`/goal/${goal.id}`}>{goal.name || goal.indicator_parameter}</Link></td>
+            <td>{goal.indicator_parameter}</td>
+            <td>{goal.data_series?.unit === null ? t("common:tsx.unitless") : goal.data_series?.unit || t("common:tsx.unit_missing")}</td>
             <td>{goal._count.effects}</td>
           </tr>
         ))}

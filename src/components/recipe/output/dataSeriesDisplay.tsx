@@ -3,7 +3,7 @@
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
 import { IconInfoCircle } from "@tabler/icons-react";
-import { Locales } from "@/../i18n.config";
+import { Locales } from "@root/i18n.config";
 import { isISOIshDate } from "@/types/typeguards";
 import { isUnitFlag } from "@/functions/unit";
 

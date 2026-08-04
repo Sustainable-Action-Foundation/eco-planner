@@ -47,7 +47,7 @@ export default function UserFilters({
           {t("components:user_filters.roadmap_versions")}
         </label>
         <label className='flex gap-25 align-items-center'>
-          <input type='checkbox' value='roadmapseries' defaultChecked={searchParams.getAll('objects').includes('roadmapseries')} onChange={(e) => {
+          <input type='checkbox' value='roadmaps' defaultChecked={searchParams.getAll('objects').includes('roadmaps')} onChange={(e) => {
             if (e.target.checked) {
               updateArrayParam('objects', e.target.value);
             } else {
@@ -55,7 +55,7 @@ export default function UserFilters({
             }
           }}
           />
-          {t("components:user_filters.roadmap_series")}
+          {t("components:user_filters.roadmaps")}
         </label>
       </fieldset>
 

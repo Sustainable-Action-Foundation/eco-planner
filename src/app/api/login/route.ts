@@ -31,24 +31,19 @@ export async function POST(request: NextRequest) {
   } : options);
 
   // Validate credentials
-  let user: { id: string; username: string; password: string; isAdmin: boolean; userGroups: { name: string; }[]; };
+  let user: { id: string; username: string; password_hash: string; is_super_admin: boolean; };
 
   try {
-    user = await prisma.user.findUniqueOrThrow({
+    user = await prisma.users.findUniqueOrThrow({
       where: {
         username: username,
-        isVerified: true,
+        is_verified: true,
       },
       select: {
         id: true,
         username: true,
-        password: true,
-        isAdmin: true,
-        userGroups: {
-          select: {
-            name: true,
-          },
-        },
+        password_hash: true,
+        is_super_admin: true,
       },
     });
   }
@@ -60,7 +55,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Check password
-  const passwordMatches = await bcrypt.compare(password, user.password);
+  const passwordMatches = await bcrypt.compare(password, user.password_hash);
 
   if (!passwordMatches) {
     return Response.json({ message: 'Incorrect password' },
@@ -68,13 +63,13 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Set session
+  // Set session. Org and group memberships are deliberately NOT stored in the cookie;
+  // they are fetched per request (see getUserAccessContext) so membership changes apply without re-login.
   session.user = {
     id: user.id,
     username: user.username,
     isLoggedIn: true,
-    isAdmin: user.isAdmin,
-    userGroups: user.userGroups.map(group => group.name),
+    isSuperAdmin: user.is_super_admin,
   };
 
   await session.save();
