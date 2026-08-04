@@ -229,7 +229,11 @@ export default function ActionForm({
                 type="text"
                 data-testid="action-field-header"
                 value={field.header}
-                onChange={(event) => updateField(index, { header: event.target.value })}
+                onChange={(event) => {
+                  // TAG-headed fields are managed by the dedicated tags input
+                  event.target.setCustomValidity(event.target.value.trim() === ActionFieldHeaders.Tag ? t("forms:action.tag_header_forbidden") : "");
+                  updateField(index, { header: event.target.value });
+                }}
               />
             </label>
             <label>

@@ -46,6 +46,7 @@
     "relevant_actors": "Relevant actors",
     "start_year": "Start year",
     "tag": "Tag",
+    "tag_header_forbidden": "TAG is reserved; use the tags input above instead",
     "tags_label": "Tags",
     "field_header": "Field label",
     "field_type_label": "Field type",

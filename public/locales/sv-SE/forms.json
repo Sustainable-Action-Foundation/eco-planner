@@ -46,6 +46,7 @@
     "relevant_actors": "Relevanta aktörer",
     "start_year": "Startår",
     "tag": "Tagg",
+    "tag_header_forbidden": "TAG är reserverad; använd taggfältet ovan istället",
     "tags_label": "Taggar",
     "field_header": "Fältrubrik",
     "field_type_label": "Fälttyp",
