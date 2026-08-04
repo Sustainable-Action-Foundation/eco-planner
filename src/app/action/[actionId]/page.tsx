@@ -1,5 +1,5 @@
 import { getOneAction } from "@/fetchers";
-import { actionFieldLabel, getActionDescription, groupActionFields } from "@/functions/actionFields";
+import { ActionFieldHeaders, actionFieldLabel, getActionDescription, groupActionFields } from "@/functions/actionFields";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { getSession } from "@/lib/session";
 import { ActionFieldType, OrgRole } from "@/lib/prisma/generated";
@@ -73,6 +73,9 @@ export default async function Page(props: { params: Promise<{ actionId: string }
     return notFound();
   }
 
+  // Tags are TAG-headed fields but render as cards under the title rather than as a field group
+  const tags = action.fields.filter(field => field.header === ActionFieldHeaders.Tag).map(field => field.value);
+
   return (
     <>
       <Breadcrumb object={action} />
@@ -84,12 +87,20 @@ export default async function Page(props: { params: Promise<{ actionId: string }
         <section className="margin-block-300 container">
           <span style={{ color: 'gray' }}>{t("pages:action.action_label")}</span>
           <h1 className="margin-0">{action.name}</h1>
+          {tags.length > 0 &&
+            <ul className="flex gap-25 margin-block-25 padding-0" style={{ listStyle: 'none', flexWrap: 'wrap' }}>
+              {tags.map(tag => (
+                <li key={tag} className="smooth padding-inline-50 padding-block-25" style={{ backgroundColor: 'var(--gray-90)', border: '1px solid var(--gray-80)', color: 'var(--gray-30)' }}>{tag}</li>
+              ))}
+            </ul>
+          }
           <p className="margin-top-0 margin-bottom-100">{action.start_year} - {action.end_year}</p>
         </section>
 
         <section className="margin-block-300">
-          {/* Fields sharing a header form one group; repeated non-paragraph values collapse into a list */}
-          {groupActionFields(action.fields).map(group => (
+          {/* Fields sharing a header form one group; repeated non-paragraph values collapse into a list.
+              Tags are excluded here since they already render under the title. */}
+          {groupActionFields(action.fields).filter(group => group.header !== ActionFieldHeaders.Tag).map(group => (
             <div key={group.header}>
               <h2 className="margin-top-300">{actionFieldLabel(group.header, t)}</h2>
               {group.values.length > 1 && group.type !== ActionFieldType.PARAGRAPH ? (
