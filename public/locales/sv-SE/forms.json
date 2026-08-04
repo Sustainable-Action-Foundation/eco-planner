@@ -21,6 +21,7 @@
     "action_description_legend": "Beskriv din $t(common:action_one)",
     "action_name": "Namn",
     "action_years_legend": "Välj pågående år för din $t(common:action_one)",
+    "add_list_item": "Lägg till listpunkt",
     "add_tag": "Lägg till tagg",
     "attach_external_resources": "Bifoga externa resurser",
     "categories_legend": "Vilka kategorier faller $t(common:action_definite_one) under?",

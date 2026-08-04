@@ -1,6 +1,6 @@
 "use client";
 
-import { ActionFieldHeaders, actionFieldLabel, defaultActionFieldType } from "@/functions/actionFields";
+import { ActionFieldHeaders, actionFieldLabel, defaultActionFieldType, groupActionFields } from "@/functions/actionFields";
 import formSubmitter from "@/functions/formSubmitter";
 import type { Action, ActionInput, DateValuesWithUnit, MultiRoadmapInstance } from "@/types";
 import { ActionFormName } from "@/types/form-names";
@@ -13,7 +13,7 @@ import { Recipe } from "@/functions/recipe/recipe";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { clientSafeGetAllTags } from "@/fetchers/clientSafeGetAllTags";
 import { clientSafeGetAllFieldHeaders } from "@/fetchers/clientSafeGetAllFieldHeaders";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 import { UnitFlags } from "@/types/enums";
@@ -39,17 +39,17 @@ export default function ActionForm({
   // Free-form descriptive fields, replacing the old fixed columns. New actions are
   // seeded with the canonical machine-key headers (the same ones the migration used
   // for old data); the UI translates known keys for display.
-  const [fields, setFields] = useState<{ header: string, value: string, type: ActionFieldType }[]>(() =>
+  // Edited as groups (one header/type, any number of values), matching how same-header
+  // fields render as one list; each value becomes its own ActionFields row on submit.
+  const [fields, setFields] = useState<{ header: string, type: ActionFieldType, values: string[] }[]>(() =>
     currentAction
-      ? currentAction.fields
-        .filter(field => field.header !== ActionFieldHeaders.Tag)
-        .map(field => ({ header: field.header, value: field.value, type: field.type }))
+      ? groupActionFields(currentAction.fields.filter(field => field.header !== ActionFieldHeaders.Tag))
       : [
         ActionFieldHeaders.Description,
         ActionFieldHeaders.CostEfficiency,
         ActionFieldHeaders.ExpectedOutcome,
         ActionFieldHeaders.RelevantActors,
-      ].map(header => ({ header, value: "", type: defaultActionFieldType(header) })),
+      ].map(header => ({ header, type: defaultActionFieldType(header), values: [""] })),
   );
 
   // Tags are stored as TAG-headed fields but edited through their own input rather
@@ -74,22 +74,36 @@ export default function ActionForm({
     setTags(previous => previous.includes(value) ? previous : [...previous, value].sort((a, b) => a.localeCompare(b)));
   }
 
-  function updateField(index: number, patch: Partial<{ header: string, value: string, type: ActionFieldType }>) {
-    setFields(previous => {
-      let next = previous.map((field, i) => i === index ? { ...field, ...patch } : field);
-      // Same-header fields render as one group (a list) and must agree on type:
-      // a renamed field adopts its new group's type (or the header's canonical
-      // default), and an explicit type change applies to the whole group.
-      if (patch.header !== undefined) {
-        const groupType = previous.find((field, i) => i !== index && field.header === patch.header)?.type
-          ?? defaultActionFieldType(patch.header);
-        next = next.map((field, i) => i === index ? { ...field, type: groupType } : field);
-      } else if (patch.type !== undefined) {
-        const header = previous[index]?.header;
-        next = next.map(field => field.header === header ? { ...field, type: patch.type as ActionFieldType } : field);
-      }
-      return next;
-    });
+  function updateGroup(index: number, patch: Partial<{ header: string, type: ActionFieldType }>) {
+    setFields(previous => previous.map((group, i) => {
+      if (i !== index) return group;
+      // A renamed group adopts its header's established type: another group already
+      // using the header wins, else the header's canonical default.
+      const type = patch.header !== undefined
+        ? previous.find((other, o) => o !== index && other.header === patch.header)?.type ?? defaultActionFieldType(patch.header)
+        : patch.type ?? group.type;
+      return { ...group, ...patch, type };
+    }));
+  }
+
+  function updateValue(groupIndex: number, valueIndex: number, value: string) {
+    setFields(previous => previous.map((group, i) =>
+      i === groupIndex
+        ? { ...group, values: group.values.map((existing, v) => v === valueIndex ? value : existing) }
+        : group,
+    ));
+  }
+
+  function addValue(groupIndex: number) {
+    setFields(previous => previous.map((group, i) => i === groupIndex ? { ...group, values: [...group.values, ""] } : group));
+  }
+
+  // Removing a group's last value removes the whole group
+  function removeValue(groupIndex: number, valueIndex: number) {
+    setFields(previous => previous
+      .map((group, i) => i === groupIndex ? { ...group, values: group.values.filter((_, v) => v !== valueIndex) } : group)
+      .filter(group => group.values.length > 0),
+    );
   }
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
@@ -143,7 +157,12 @@ export default function ActionForm({
       endYear,
       // Empty rows carry no data; drop them rather than storing blank fields.
       fields: [
-        ...fields.filter(field => field.header.trim() !== "" && field.value.trim() !== ""),
+        ...fields
+          .filter(group => group.header.trim() !== "")
+          .flatMap(group => group.values
+            .filter(value => value.trim() !== "")
+            .map(value => ({ header: group.header, value, type: group.type })),
+          ),
         ...tags.map(value => ({ header: ActionFieldHeaders.Tag as string, value, type: defaultActionFieldType(ActionFieldHeaders.Tag) })),
       ],
       parentActionId: currentAction?.parent_action_id ?? undefined,
@@ -264,69 +283,107 @@ export default function ActionForm({
             <span className={styles.actionFieldsTableHeader} aria-hidden="true">{t("forms:action.field_type_label")}</span>
             <span className={styles.actionFieldsTableHeader} aria-hidden="true">{t("forms:action.field_content")}</span>
             <span className={styles.actionFieldsTableHeader} aria-hidden="true" />
-            {fields.map((field, index) => (
-              // display: contents keeps the row's controls as direct grid items while
-              // still giving tests and styling a per-row element to scope to
-              <div key={index} data-testid="action-field-row" style={{ display: 'contents' }}>
-                <TextSingleAutocomplete
-                  props={{
-                    id: `action-field-header-${index}`,
-                    name: `action-field-header-${index}`,
-                    ariaLabel: t("forms:action.field_header"),
-                    dataTestid: "action-field-header",
-                  }}
-                  options={headerSuggestions.map(header => ({ name: header, value: header }))}
-                  fuseOptions={{
-                    threshold: 0.3,
-                    ignoreLocation: true,
-                  }}
-                  value={field.header}
-                  setter={(action) => {
-                    const header = typeof action === "function" ? action(field.header) : action;
-                    updateField(index, { header });
-                  }}
-                />
-                <select
-                  aria-label={t("forms:action.field_type_label")}
-                  data-testid="action-field-type"
-                  value={field.type}
-                  onChange={(event) => updateField(index, { type: event.target.value as ActionFieldType })}
-                >
-                  <option value={ActionFieldType.PARAGRAPH}>{t("forms:action.field_types.paragraph")}</option>
-                  <option value={ActionFieldType.SHORT}>{t("forms:action.field_types.short")}</option>
-                  <option value={ActionFieldType.DATE}>{t("forms:action.field_types.date")}</option>
-                </select>
-                {field.type === ActionFieldType.PARAGRAPH ? (
+            {fields.map((group, index) => {
+              const contentLabel = actionFieldLabel(group.header, t) === group.header ? t("forms:action.field_content") : actionFieldLabel(group.header, t);
+              // A plain render function (not a component) so the controls don't remount and drop focus on rerenders
+              const valueControl = (valueIndex: number) =>
+                group.type === ActionFieldType.PARAGRAPH ? (
                   <textarea
                     rows={2}
-                    aria-label={actionFieldLabel(field.header, t) === field.header ? t("forms:action.field_content") : actionFieldLabel(field.header, t)}
+                    aria-label={contentLabel}
                     data-testid="action-field-value"
-                    value={field.value}
-                    onChange={(event) => updateField(index, { value: event.target.value })}
+                    value={group.values[valueIndex]}
+                    onChange={(event) => updateValue(index, valueIndex, event.target.value)}
                   />
                 ) : (
                   <input
-                    type={field.type === ActionFieldType.DATE ? "date" : "text"}
-                    aria-label={actionFieldLabel(field.header, t) === field.header ? t("forms:action.field_content") : actionFieldLabel(field.header, t)}
+                    type={group.type === ActionFieldType.DATE ? "date" : "text"}
+                    aria-label={contentLabel}
                     data-testid="action-field-value"
-                    value={field.value}
-                    onChange={(event) => updateField(index, { value: event.target.value })}
+                    value={group.values[valueIndex]}
+                    onChange={(event) => updateValue(index, valueIndex, event.target.value)}
                   />
-                )}
-                <button
-                  type="button"
-                  onClick={() => setFields(previous => previous.filter((_, i) => i !== index))}
-                >
-                  {t("common:tsx.delete")}
-                </button>
-              </div>
-            ))}
+                );
+
+              return (
+                // display: contents keeps the group's controls as direct grid items while
+                // still giving tests and styling a per-group element to scope to
+                <div key={index} data-testid="action-field-row" style={{ display: 'contents' }}>
+                  <TextSingleAutocomplete
+                    props={{
+                      id: `action-field-header-${index}`,
+                      name: `action-field-header-${index}`,
+                      ariaLabel: t("forms:action.field_header"),
+                      dataTestid: "action-field-header",
+                    }}
+                    options={headerSuggestions.map(header => ({ name: header, value: header }))}
+                    fuseOptions={{
+                      threshold: 0.3,
+                      ignoreLocation: true,
+                    }}
+                    value={group.header}
+                    setter={(action) => {
+                      const header = typeof action === "function" ? action(group.header) : action;
+                      updateGroup(index, { header });
+                    }}
+                  />
+                  <select
+                    aria-label={t("forms:action.field_type_label")}
+                    data-testid="action-field-type"
+                    value={group.type}
+                    onChange={(event) => updateGroup(index, { type: event.target.value as ActionFieldType })}
+                  >
+                    <option value={ActionFieldType.PARAGRAPH}>{t("forms:action.field_types.paragraph")}</option>
+                    <option value={ActionFieldType.SHORT}>{t("forms:action.field_types.short")}</option>
+                    <option value={ActionFieldType.DATE}>{t("forms:action.field_types.date")}</option>
+                  </select>
+                  {valueControl(0)}
+                  <button
+                    type="button"
+                    onClick={() => removeValue(index, 0)}
+                  >
+                    {t("common:tsx.delete")}
+                  </button>
+
+                  {/* Additional list values render underneath, sharing the group's heading and type */}
+                  {group.values.slice(1).map((_, restIndex) => (
+                    <Fragment key={restIndex + 1}>
+                      <span aria-hidden="true" />
+                      <span aria-hidden="true" />
+                      {valueControl(restIndex + 1)}
+                      <button
+                        type="button"
+                        onClick={() => removeValue(index, restIndex + 1)}
+                      >
+                        {t("common:tsx.delete")}
+                      </button>
+                    </Fragment>
+                  ))}
+
+                  {/* Short texts and dates may hold several values; they render as a list */}
+                  {group.type !== ActionFieldType.PARAGRAPH &&
+                    <>
+                      <span aria-hidden="true" />
+                      <span aria-hidden="true" />
+                      <button
+                        type="button"
+                        style={{ justifySelf: 'start' }}
+                        onClick={() => addValue(index)}
+                      >
+                        {t("forms:action.add_list_item")}
+                      </button>
+                      <span aria-hidden="true" />
+                    </>
+                  }
+                </div>
+              );
+            })}
           </div>
         }
         <button
           type="button"
           className="margin-top-100"
-          onClick={() => setFields(previous => [...previous, { header: "", value: "", type: defaultActionFieldType("") }])}
+          onClick={() => setFields(previous => [...previous, { header: "", type: defaultActionFieldType(""), values: [""] }])}
         >
           {t("forms:data_series_input.add_new_row")}
         </button>
