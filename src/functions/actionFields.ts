@@ -94,6 +94,20 @@ export function getActionDescription(fields: { header: string, value: string }[]
 }
 
 /**
+ * Splits pasted text into list items if it looks like a simple CSV: values separated
+ * by commas, semicolons, tabs, or newlines (e.g. a pasted spreadsheet column).
+ * Items are trimmed, surrounding quotes are stripped, and empties are dropped.
+ * A single-item result means the text carried no delimiters and should be treated
+ * as a plain paste.
+ */
+export function parseCsvList(text: string): string[] {
+  return text
+    .split(/[\n\r\t;,]+/)
+    .map(item => item.trim().replace(/^(["'])(.*)\1$/, "$2").trim())
+    .filter(item => item !== "");
+}
+
+/**
  * Display label for a field header: known canonical keys get their i18n label,
  * anything else (user-invented headers) renders verbatim.
  * The calling component must have the `forms` namespace loaded.

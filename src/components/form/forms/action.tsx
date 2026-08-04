@@ -1,6 +1,6 @@
 "use client";
 
-import { ActionFieldHeaders, actionFieldLabel, defaultActionFieldType, groupActionFields } from "@/functions/actionFields";
+import { ActionFieldHeaders, actionFieldLabel, defaultActionFieldType, groupActionFields, parseCsvList } from "@/functions/actionFields";
 import formSubmitter from "@/functions/formSubmitter";
 import type { Action, ActionInput, DateValuesWithUnit, MultiRoadmapInstance } from "@/types";
 import { ActionFormName } from "@/types/form-names";
@@ -302,6 +302,17 @@ export default function ActionForm({
                     data-testid="action-field-value"
                     value={group.values[valueIndex]}
                     onChange={(event) => updateValue(index, valueIndex, event.target.value)}
+                    onPaste={group.type === ActionFieldType.SHORT ? (event) => {
+                      // Pasting CSV into a short text becomes a list, one item per value
+                      const items = parseCsvList(event.clipboardData.getData("text"));
+                      if (items.length < 2) return;
+                      event.preventDefault();
+                      setFields(previous => previous.map((g, i) =>
+                        i === index
+                          ? { ...g, values: [...g.values.slice(0, valueIndex), ...items, ...g.values.slice(valueIndex + 1)] }
+                          : g,
+                      ));
+                    } : undefined}
                   />
                 );
 
