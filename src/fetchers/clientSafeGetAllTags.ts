@@ -2,7 +2,7 @@
 
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { ActionFieldHeaders } from "@/functions/actionFields";
-import { visibleActionsWhere } from "@/lib/accessFilters";
+import { visibleActionsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { UserAccessContext } from "@/types";
 import { cacheTag } from "next/cache";
@@ -25,7 +25,7 @@ async function clientSafeGetCachedAllTags(accessContext: UserAccessContext | nul
     fields = await prisma.actionFields.findMany({
       where: {
         header: ActionFieldHeaders.Tag,
-        action: visibleActionsWhere(accessContext),
+        action: visibleActionsWHERE(accessContext),
       },
       select: { value: true },
       distinct: ['value'],

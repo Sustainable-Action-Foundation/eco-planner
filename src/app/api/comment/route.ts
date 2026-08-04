@@ -1,6 +1,6 @@
 import findTypeFromId from "@/functions/findTypeFromId";
 import { getAccessContextById } from "@/fetchers/getUserAccessContext";
-import { readableAccessControlWHERE, visibleActionsWhere, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
+import { readableAccessControlWHERE, visibleActionsWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import type { JSONValue } from "@/types";
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     switch (objectType) {
       case "action": {
         canView = !!await prisma.actions.findUnique({
-          where: { id: comment.objectId, AND: [visibleActionsWhere(accessContext)] },
+          where: { id: comment.objectId, AND: [visibleActionsWHERE(accessContext)] },
           select: { id: true },
         });
         break;

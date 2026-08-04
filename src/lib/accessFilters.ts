@@ -86,7 +86,7 @@ export function visibleRoadmapIterationsWHERE(ctx: UserAccessContext | null): Pr
  * Matches actions the user may see: those under a visible iteration, plus
  * roadmapless actions (the public action database).
  */
-export function visibleActionsWhere(ctx: UserAccessContext | null): Prisma.ActionsWhereInput {
+export function visibleActionsWHERE(ctx: UserAccessContext | null): Prisma.ActionsWhereInput {
   return {
     OR: [
       { roadmap_iteration: null },
@@ -154,7 +154,7 @@ export function visibleDataSeriesWHERE(ctx: UserAccessContext | null): Prisma.Da
       // Effects require access to both the action and the goal
       {
         dependent_effect: {
-          action: visibleActionsWhere(ctx),
+          action: visibleActionsWHERE(ctx),
           goal: { roadmap_iteration: visibleIterations },
         },
       },

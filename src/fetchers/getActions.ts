@@ -1,7 +1,7 @@
 import "server-only";
 import { actionInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { visibleActionsWhere } from "@/lib/accessFilters";
+import { visibleActionsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { Action, UserAccessContext } from "@/types";
 import { cacheTag } from "next/cache";
@@ -29,7 +29,7 @@ async function getCachedActions(accessContext: UserAccessContext | null): Promis
   let actions: Action[];
   try {
     actions = await prisma.actions.findMany({
-      where: visibleActionsWhere(accessContext),
+      where: visibleActionsWHERE(accessContext),
       include: actionInclusionSelection,
     });
   }
