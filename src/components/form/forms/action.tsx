@@ -13,6 +13,7 @@ import { Recipe } from "@/functions/recipe/recipe";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { clientSafeGetAllTags } from "@/fetchers/clientSafeGetAllTags";
 import { clientSafeGetAllFieldHeaders } from "@/fetchers/clientSafeGetAllFieldHeaders";
+import { IconInfoCircle } from "@tabler/icons-react";
 import { Fragment, useEffect, useState } from "react";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
@@ -281,7 +282,12 @@ export default function ActionForm({
             {/* Column headers; the inputs carry aria-labels, so these are visual only */}
             <span className={styles.actionFieldsTableHeader} aria-hidden="true">{t("forms:action.field_header")}</span>
             <span className={styles.actionFieldsTableHeader} aria-hidden="true">{t("forms:action.field_type_label")}</span>
-            <span className={styles.actionFieldsTableHeader} aria-hidden="true">{t("forms:action.field_content")}</span>
+            <span className={`${styles.actionFieldsTableHeader} flex gap-25 align-items-center`}>
+              <span aria-hidden="true">{t("forms:action.field_content")}</span>
+              <span title={t("forms:action.field_content_info")} style={{ cursor: 'help', lineHeight: 0 }}>
+                <IconInfoCircle width={16} height={16} role="img" aria-label={t("forms:action.field_content_info")} />
+              </span>
+            </span>
             <span className={styles.actionFieldsTableHeader} aria-hidden="true" />
             {fields.map((group, index) => {
               const contentLabel = actionFieldLabel(group.header, t) === group.header ? t("forms:action.field_content") : actionFieldLabel(group.header, t);

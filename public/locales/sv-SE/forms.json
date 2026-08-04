@@ -51,6 +51,7 @@
     "tag_header_forbidden": "TAG är reserverad; använd taggfältet ovan istället",
     "tags_label": "Taggar",
     "field_content": "Innehåll",
+    "field_content_info": "Korta texter och datum kan ha flera värden som visas som en lista. Klistrar du in komma- eller semikolonseparerad text i en kort text delas den upp i listpunkter.",
     "field_header": "Rubrik",
     "field_type_label": "Typ",
     "field_types": {

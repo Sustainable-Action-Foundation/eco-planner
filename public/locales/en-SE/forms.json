@@ -51,6 +51,7 @@
     "tag_header_forbidden": "TAG is reserved; use the tags input above instead",
     "tags_label": "Tags",
     "field_content": "Content",
+    "field_content_info": "Short texts and dates can hold several values, shown as a list. Pasting comma- or semicolon-separated text into a short text splits it into list items.",
     "field_header": "Heading",
     "field_type_label": "Type",
     "field_types": {
