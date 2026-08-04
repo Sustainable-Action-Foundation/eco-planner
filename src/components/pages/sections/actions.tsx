@@ -13,10 +13,8 @@ import { ActionFieldHeaders, actionFieldLabel, getActionDescription, groupAction
 
 export default function Actions({
   actions,
-  searchParamsProp,
 }: {
   actions: Action[] | null,
-  searchParamsProp: Record<string, string | string[] | undefined>
 }) {
 
   const { t } = useTranslation(["pages", "forms"]);
@@ -28,8 +26,10 @@ export default function Actions({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const searchFilter = searchParamsProp['search'] ? (Array.isArray(searchParamsProp['search']) ? searchParamsProp['search'][0] : searchParamsProp['search']) : '';
-  const tagFilter = searchParamsProp['tag'] ? (Array.isArray(searchParamsProp['tag']) ? searchParamsProp['tag'][0] : searchParamsProp['tag']) : '';
+  // Read from the client-side params (rather than the server-passed prop) so the
+  // list rerenders as soon as the URL changes, without waiting on a server roundtrip
+  const searchFilter = searchParams.get('search') ?? '';
+  const tagFilter = useMemo(() => searchParams.getAll('tag'), [searchParams]);
 
   function updateStringParam(key: string, value: string) {
     const newParams = new URLSearchParams(searchParams);
@@ -42,6 +42,18 @@ export default function Actions({
 
     startTransition(() => {
       router.replace(`${pathname}?${newParams.toString()}`);
+    });
+  }
+
+  function removeTagParam(tag: string) {
+    const newParams = new URLSearchParams(searchParams);
+    const remaining = newParams.getAll('tag').filter((existing) => existing !== tag);
+    newParams.delete('tag');
+    for (const value of remaining) newParams.append('tag', value);
+
+    // Filter changes push history entries so the back button can undo them
+    startTransition(() => {
+      router.push(`${pathname}?${newParams.toString()}`);
     });
   }
 
@@ -65,10 +77,12 @@ export default function Actions({
 
     let result = actions;
 
-    // The tag filter matches exactly, unlike the free-text search
-    if (tagFilter) {
+    // Tag filters match exactly, unlike the free-text search; multiple tags must all be present
+    if (tagFilter.length > 0) {
       result = result.filter((action) =>
-        action.fields.some((field) => field.header === ActionFieldHeaders.Tag && field.value === tagFilter),
+        tagFilter.every((tag) =>
+          action.fields.some((field) => field.header === ActionFieldHeaders.Tag && field.value === tag),
+        ),
       );
     }
 
@@ -149,22 +163,24 @@ export default function Actions({
           </Link>
         </div>
 
-        {tagFilter ?
-          <div className="flex gap-25 align-items-center margin-top-100">
-            {t('pages:actions.filtering_by_tag')}
-            <span className="smooth padding-inline-50 padding-block-25 flex gap-25 align-items-center" style={{ backgroundColor: 'var(--seagreen-90)', border: '1px solid var(--seagreen-80)', color: 'var(--seagreen-30)' }}>
-              {tagFilter}
-              <button
-                type="button"
-                aria-label={t('pages:actions.clear_tag_filter')}
-                title={t('pages:actions.clear_tag_filter')}
-                className="padding-0 transparent"
-                style={{ lineHeight: 1, fontSize: '1.25em' }}
-                onClick={() => updateStringParam('tag', '')}
-              >
-                ×
-              </button>
-            </span>
+        {tagFilter.length > 0 ?
+          <div className="flex flex-wrap-wrap gap-25 align-items-center margin-top-100">
+            {t('pages:actions.filtering_by_tag', { count: tagFilter.length })}
+            {tagFilter.map((tag) => (
+              <span key={tag} className="smooth padding-inline-50 padding-block-25 flex gap-25 align-items-center" style={{ backgroundColor: 'var(--seagreen-90)', border: '1px solid var(--seagreen-80)', color: 'var(--seagreen-30)' }}>
+                {tag}
+                <button
+                  type="button"
+                  aria-label={`${t('pages:actions.clear_tag_filter')}: ${tag}`}
+                  title={t('pages:actions.clear_tag_filter')}
+                  className="padding-0 transparent"
+                  style={{ lineHeight: 1, fontSize: '1.25em' }}
+                  onClick={() => removeTagParam(tag)}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
           </div>
           : null}
 
