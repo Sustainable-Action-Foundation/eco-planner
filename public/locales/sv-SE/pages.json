@@ -86,6 +86,8 @@
   "home": {
     "create_roadmap": "$t(common:new.roadmap)",
     "filter": "Filter",
+    "org_nav_label": "Organisationsvyer",
+    "public_tab": "Alla publika $t(common:roadmap_other)",
     "search_roadmaps": "Sök bland $t(common:count.roadmap)",
     "shown_results": "Visar {{shown}} av {{total}} $t(common:roadmap, {\"count\": {{total}}})",
     "title": "$t(common:roadmap_other, titleCase)"

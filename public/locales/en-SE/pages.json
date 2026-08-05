@@ -89,6 +89,8 @@
   "home": {
     "create_roadmap": "$t(common:new.roadmap)",
     "filter": "Filter",
+    "org_nav_label": "Organization views",
+    "public_tab": "All public $t(common:roadmap_other)",
     "search_roadmaps": "Search among $t(common:count.roadmap)",
     "shown_results": "Showing {{shown}} out of {{total}} $t(common:roadmap, {\"count\": {{total}}})",
     "title": "$t(common:roadmap_other, titleCase)"
