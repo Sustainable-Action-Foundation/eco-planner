@@ -124,74 +124,74 @@ export default async function Page(
   toggleRoadmaps();
 
   return <main>
+    <section className='margin-block-300'>
+      <h1 className='margin-bottom-0'>{userdata.username}</h1>
+      <small style={{ color: 'var(--gray-50)' }}>@{userdata.username}</small>
+    </section>
+    
+    {session.user?.username === username ?
       <section className='margin-block-300'>
-        <h1 className='margin-bottom-0'>{userdata.username}</h1>
-        <small style={{ color: 'var(--gray-50)' }}>@{userdata.username}</small>
+        <h2>{t("pages:profile.handle_data")}</h2>
+        <GraphCookie />
       </section>
+      : null}
 
-      {session.user?.username === username ?
-        <section className='margin-block-300'>
-            <h2>{t("pages:profile.handle_data")}</h2>
-            <GraphCookie />
+    <section className='margin-block-300'>
+      <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>
+        {session.user?.username === username ?
+          t("pages:profile.my_posts")
+          :
+          t("pages:profile.user_posts", { name: userdata.username })
+        }
+      </h2>
+
+      <UserFilters userPage={session.user?.username === username} />
+
+      <nav>
+        {displayedRoadmaps.length > 0 ?
+          <section className='margin-block-300'>
+            <h3 className='margin-top-0'>{t("pages:profile.roadmaps")}</h3>
+            <ul className={`${styles.itemsList}`}>
+              {displayedRoadmaps.map((roadmap, index) =>
+                <li key={index}>
+                  <div className='inline-block width-100' style={{ verticalAlign: 'middle' }}>
+                    <div className='flex justify-content-space-between align-items-center'>
+                      <Link href={`/roadmap/${roadmap.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
+                        <h4 className='font-weight-500 margin-0'>{roadmap.name} </h4>
+                        <p className='margin-0'>{t("pages:profile.version_count", { count: roadmap.iterations.length })}</p>
+                      </Link>
+                      <ControlsMenu object={roadmap} />
+                    </div>
+                  </div>
+                </li>,
+              )}
+            </ul>
           </section>
-        : null}
+          : null}
 
-      <section className='margin-block-300'>
-        <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>
-          {session.user?.username === username ?
-            t("pages:profile.my_posts")
-            :
-            t("pages:profile.user_posts", { name: userdata.username })
-          }
-        </h2>
-
-        <UserFilters userPage={session.user?.username === username} />
-
-        <nav>
-          {displayedRoadmaps.length > 0 ?
-            <section className='margin-block-300'>
-              <h3 className='margin-top-0'>{t("pages:profile.roadmaps")}</h3>
-              <ul className={`${styles.itemsList}`}>
-                {displayedRoadmaps.map((roadmap, index) =>
-                  <li key={index}>
-                    <div className='inline-block width-100' style={{ verticalAlign: 'middle' }}>
-                      <div className='flex justify-content-space-between align-items-center'>
-                        <Link href={`/roadmap/${roadmap.id}`} className='block text-decoration-none flex-grow-100 color-pureblack'>
-                          <h4 className='font-weight-500 margin-0'>{roadmap.name} </h4>
-                          <p className='margin-0'>{t("pages:profile.version_count", { count: roadmap.iterations.length })}</p>
-                        </Link>
-                        <ControlsMenu object={roadmap} />
-                      </div>
+        {displayedIterations.length > 0 ?
+          <section className='margin-block-300'>
+            <h3 className='margin-top-0'>{t("pages:profile.roadmap_versions")}</h3>
+            <ul className={`${styles.itemsList}`}>
+              {displayedIterations.map((iteration, index) =>
+                <li key={index}>
+                  <div className='inline-block width-100' style={{ verticalAlign: 'middle' }}>
+                    <div className='flex justify-content-space-between align-items-center'>
+                      <Link href={iterationPath(iteration.roadmap_id, iteration.version)} className='block text-decoration-none flex-grow-100 color-pureblack'>
+                        <h4 className='font-weight-500 margin-0'>{iteration.roadmap.name} {`(v${iteration.version})`}</h4>
+                        <p className='margin-0'>{t("common:count.goal", { count: iteration._count.goals })}</p>
+                      </Link>
+                      <ControlsMenu object={iteration} />
                     </div>
-                  </li>,
-                )}
-              </ul>
-            </section>
-            : null}
+                  </div>
+                </li>,
+              )}
+            </ul>
+          </section>
+          : null}
 
-          {displayedIterations.length > 0 ?
-            <section className='margin-block-300'>
-              <h3 className='margin-top-0'>{t("pages:profile.roadmap_versions")}</h3>
-              <ul className={`${styles.itemsList}`}>
-                {displayedIterations.map((iteration, index) =>
-                  <li key={index}>
-                    <div className='inline-block width-100' style={{ verticalAlign: 'middle' }}>
-                      <div className='flex justify-content-space-between align-items-center'>
-                        <Link href={iterationPath(iteration.roadmap_id, iteration.version)} className='block text-decoration-none flex-grow-100 color-pureblack'>
-                          <h4 className='font-weight-500 margin-0'>{iteration.roadmap.name} {`(v${iteration.version})`}</h4>
-                          <p className='margin-0'>{t("common:count.goal", { count: iteration._count.goals })}</p>
-                        </Link>
-                        <ControlsMenu object={iteration} />
-                      </div>
-                    </div>
-                  </li>,
-                )}
-              </ul>
-            </section>
-            : null}
+      </nav>
+    </section>
 
-        </nav>
-      </section>
-
-    </main>;
+  </main>;
 }

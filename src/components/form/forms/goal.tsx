@@ -18,12 +18,12 @@ import { Recipe } from "@/functions/recipe/recipe";
 import type { SerializedRecipe } from "@/functions/recipe";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
-import GoalGraph from "@/components/graph/graphs/goal/main";
 import HistoricalSeriesSection from "../sections/dataseries/historical";
 import BaselineSeriesSection from "../sections/dataseries/baseline";
 import GoalSeriesSection from "../sections/dataseries/goal";
 import { getHistoricalDatasetFromRecipe } from "@/functions/getHistoricalDataset";
 import { parseUnit } from "@/functions/unit";
+import PreviewSeries from "../sections/dataseries/preview";
 
 function resolveDataSeriesType(goal?: Goal): DataSeriesType {
   // Somehow missing
@@ -64,22 +64,12 @@ function resolveBaselineType(goal?: Goal): BaselineType {
   // Derived from the goal's data series (first / first non-zero value)
   const derivation = recipe.baselineDerivation();
   if (derivation === BaselineType.Initial || derivation === BaselineType.InitialNonZero) {
-     return derivation;
+    return derivation;
   }
 
-  // Manual entry stored as an inline data series recipe is custom; anything
-  // else (e.g. a recipe linking another goal's series) is inherited.
-  /*
   return recipe.isManual()
     ? BaselineType.Custom
     : BaselineType.Inherited;
-  */
-
-  // As of now we cannot return Inherited. To pre-select the correct value for an inherited
-  // baseline we need to know the id of the goal from which it was inherited. Since we do not
-  // know this we instead always show the manual input field which is atleast able to pre-fill the 
-  // correct values for the inherited baseline dataseries. 
-  return BaselineType.Custom;
 }
 
 export function resolveHistoricalDataType(goal?: Goal): HistoricalDataType {
@@ -146,7 +136,7 @@ export default function GoalForm({
   const [previewHistoricalSerie, setPreviewHistoricalSerie] = useState<DateValuesWithUnit | null>(null);
   const [previewBaselineSerie, setPreviewBaselineSerie] = useState<DateValuesWithUnit | null>(null);
   const [previewHistoricalRecipe, setPreviewHistoricalRecipe] = useState<SerializedRecipe | null>(null);
- 
+
   // Evaluation error of the currently-selected recipe input (Suggested/Custom)  setPreviewHistoricalRecipe={setPreviewHistoricalRecipe},
   // lifted out of the recipe context so submission can be blocked when it fails
   // to evaluate (e.g. an external variable with an incomplete selection).
@@ -594,6 +584,7 @@ export default function GoalForm({
           <BaselineSeriesSection
             goal={currentGoal}
             baselineType={baselineType}
+            initialBaselineType={resolveBaselineType(currentGoal)}
             dataSeries={previewDataSerie}
             setBaselineType={setBaselineType}
             setPreviewBaselineSerie={setPreviewBaselineSerie}
@@ -629,16 +620,11 @@ export default function GoalForm({
         >
           <strong className="block font-size-125 font-weight-bold text-align-center margin-0 padding-top-125">{t("forms:goal.preview")}</strong>
           <p className="text-align-center margin-top-50">{t("forms:goal.preview_info")}</p>
-          <output
-            className="display-block"
-            style={{ height: '400px' }}
-          >
-            {/* TODO: Need preview for values aswell. Probably create a switch between graph and table then tabs in the table to view different series. */}
-            <GoalGraph // TODO: This is not correctly re-rendering when updating dataseries?
-              chartType="preview"
-              series={previewGraphSeries}
-            />
-          </output>
+          <PreviewSeries
+            main={previewGraphSeries.main}
+            baseline={previewGraphSeries.baseline}
+            historical={previewGraphSeries.historical}
+          />
         </div>
       </fieldset>
 
