@@ -21,7 +21,7 @@ async function readActionFields(page: Page): Promise<Record<string, string>> {
 }
 
 /**
- * Fills the value of the descriptive-field row with the given header (e.g. "DESCRIPTION").
+ * Fills the value of the descriptive-field row with the given header (e.g. "COST_EFFICIENCY").
  * New actions come pre-seeded with rows for the canonical headers; any other header
  * gets a new row added for it.
  */
@@ -142,8 +142,8 @@ test.describe.serial("Action & Effect tests", () => {
     await page.locator('#actionName').fill(actionNameRequiredFieldsUpdated);
     await page.locator('#actionName').blur(); // This is needed to make sure the name field is loaded before filling it, otherwise it will be empty and the test will fail.
 
-    // The action was created without descriptive fields, so this adds a new row
-    await fillActionField(page, 'DESCRIPTION', "Test Action Updated description.");
+    // The description has its own dedicated input rather than a field row
+    await page.locator('#action-description').fill("Test Action Updated description.");
 
     // These two fields are required to be numbers
     await page.locator('#startYear').fill("2025");
@@ -168,10 +168,11 @@ test.describe.serial("Action & Effect tests", () => {
 
     await page.locator('#iterationId').selectOption(value);
 
-    // Name and descriptive fields; the canonical rows are pre-seeded, PROJECT_MANAGER gets a new row
+    // Name and descriptive fields; the canonical rows are pre-seeded, PROJECT_MANAGER gets a new row.
+    // The description has its own dedicated input rather than a field row.
     await page.locator('#actionName').fill(actionNameAllFields);
+    await page.locator('#action-description').fill("Test Action description.");
 
-    await fillActionField(page, 'DESCRIPTION', "Test Action description.");
     await fillActionField(page, 'COST_EFFICIENCY', "Text for cost efficiency");
     await fillActionField(page, 'EXPECTED_OUTCOME', "Text for expected outcome");
     await fillActionField(page, 'RELEVANT_ACTORS', "Test Actor");
@@ -203,10 +204,11 @@ test.describe.serial("Action & Effect tests", () => {
 
     await expect(page.locator('#actionName')).toHaveValue(actionNameAllFields);
 
-    // All descriptive fields were saved (empty pre-seeded rows are dropped on submit)
-    await expect(actionFieldRows(page)).toHaveCount(5);
+    // All descriptive fields were saved (empty pre-seeded rows are dropped on submit);
+    // the description loads into its dedicated input rather than a field row
+    await expect(page.locator('#action-description')).toHaveValue("Test Action description.");
+    await expect(actionFieldRows(page)).toHaveCount(4);
     const savedFields = await readActionFields(page);
-    expect(savedFields['DESCRIPTION']).toBe("Test Action description.");
     expect(savedFields['COST_EFFICIENCY']).toBe("Text for cost efficiency");
     expect(savedFields['EXPECTED_OUTCOME']).toBe("Text for expected outcome");
     expect(savedFields['RELEVANT_ACTORS']).toBe("Test Actor");
@@ -235,10 +237,10 @@ test.describe.serial("Action & Effect tests", () => {
     await page.getByRole('heading', { name: actionNameAllFields }).hover();
     await page.getByTestId("admin-panel-edit").click();
 
-    // Update the name and every descriptive field
+    // Update the name and every descriptive field; the description has its own dedicated input
     await page.locator('#actionName').fill(actionNameAllFieldsUpdated);
+    await page.locator('#action-description').fill("Test Action Updated description.");
 
-    await fillActionField(page, 'DESCRIPTION', "Test Action Updated description.");
     await fillActionField(page, 'COST_EFFICIENCY', "Updated text for cost efficiency");
     await fillActionField(page, 'EXPECTED_OUTCOME', "Updated text for expected outcome");
     await fillActionField(page, 'RELEVANT_ACTORS', "Updated Test Actor");
@@ -258,9 +260,9 @@ test.describe.serial("Action & Effect tests", () => {
 
     await expect(page.locator('#actionName')).toHaveValue(actionNameAllFieldsUpdated);
 
-    await expect(actionFieldRows(page)).toHaveCount(5);
+    await expect(page.locator('#action-description')).toHaveValue("Test Action Updated description.");
+    await expect(actionFieldRows(page)).toHaveCount(4);
     const updatedFields = await readActionFields(page);
-    expect(updatedFields['DESCRIPTION']).toBe("Test Action Updated description.");
     expect(updatedFields['COST_EFFICIENCY']).toBe("Updated text for cost efficiency");
     expect(updatedFields['EXPECTED_OUTCOME']).toBe("Updated text for expected outcome");
     expect(updatedFields['RELEVANT_ACTORS']).toBe("Updated Test Actor");
@@ -293,10 +295,11 @@ test.describe.serial("Action & Effect tests", () => {
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByTestId("admin-panel-new-action").click();
 
-    // Name and descriptive fields; the canonical rows are pre-seeded, PROJECT_MANAGER gets a new row
+    // Name and descriptive fields; the canonical rows are pre-seeded, PROJECT_MANAGER gets a new row.
+    // The description has its own dedicated input rather than a field row.
     await page.locator('#actionName').fill(roadmapActionNameAllFields);
+    await page.locator('#action-description').fill("Test Action description.");
 
-    await fillActionField(page, 'DESCRIPTION', "Test Action description.");
     await fillActionField(page, 'COST_EFFICIENCY', "Text for cost efficiency");
     await fillActionField(page, 'EXPECTED_OUTCOME', "Text for expected outcome");
     await fillActionField(page, 'RELEVANT_ACTORS', "Test Actor");
