@@ -55,7 +55,7 @@ test.describe.serial("Action & Effect tests", () => {
       const context = await browser.newContext({ storageState: adminFile });
       const page = await context.newPage();
 
-      await page.goto('/');
+      await page.goto('/?org=public');
       await page.waitForLoadState('networkidle');
 
       // Count how many matching items exist
@@ -108,7 +108,9 @@ test.describe.serial("Action & Effect tests", () => {
 
   test("No edit Action - required", async ({ page }) => {
     // Navigate to the action edit form
-    await page.goto('/');
+    // The public view: logged-in org members land on their org's page by default,
+    // which only lists that org's own content
+    await page.goto('/?org=public');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
     await page.getByRole('link', { name: actionNameRequiredFields }).first().click();
@@ -129,7 +131,9 @@ test.describe.serial("Action & Effect tests", () => {
   test("Edit Action - required", async ({ page }, testInfo) => {
     actionNameRequiredFieldsUpdated = `Test Updated Action  ${testInfo.project.name}`;
     // Navigate to the action edit form
-    await page.goto('/');
+    // The public view: logged-in org members land on their org's page by default,
+    // which only lists that org's own content
+    await page.goto('/?org=public');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
     await page.getByRole('link', { name: actionNameRequiredFields }).first().click(); // TODO (fix): The tests doesn't seem to click on the right name here and therefore they fail.
@@ -193,7 +197,9 @@ test.describe.serial("Action & Effect tests", () => {
 
   test("No edit Action - All Fields", async ({ page }) => {
     // Navigate to the action edit form
-    await page.goto('/');
+    // The public view: logged-in org members land on their org's page by default,
+    // which only lists that org's own content
+    await page.goto('/?org=public');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
     await page.getByRole('link', { name: actionNameAllFields }).first().click();
@@ -228,7 +234,9 @@ test.describe.serial("Action & Effect tests", () => {
   test("Edit Action - All Fields", async ({ page }, testInfo) => {
     actionNameAllFieldsUpdated = `Test Action Updated All Fields  ${testInfo.project.name}`;
     // Navigate to the action edit form
-    await page.goto('/');
+    // The public view: logged-in org members land on their org's page by default,
+    // which only lists that org's own content
+    await page.goto('/?org=public');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
     await page.getByRole('link', { name: actionNameAllFields }).first().click();
@@ -275,7 +283,9 @@ test.describe.serial("Action & Effect tests", () => {
   test("Create Action from Roadmap - required", async ({ page }, testInfo) => {
     roadmapActionNameRequiredFields = `Test Action from Roadmap  ${testInfo.project.name}`;
     // Navigate to the action edit form
-    await page.goto('/');
+    // The public view: logged-in org members land on their org's page by default,
+    // which only lists that org's own content
+    await page.goto('/?org=public');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByTestId("admin-panel-new-action").click();
 
@@ -291,7 +301,9 @@ test.describe.serial("Action & Effect tests", () => {
   test("Create Action from Roadmap - All Fields", async ({ page }, testInfo) => {
     roadmapActionNameAllFields = `Test Action from Roadmap All Fields  ${testInfo.project.name}`;
     // Navigate to the action edit form
-    await page.goto('/');
+    // The public view: logged-in org members land on their org's page by default,
+    // which only lists that org's own content
+    await page.goto('/?org=public');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByTestId("admin-panel-new-action").click();
 

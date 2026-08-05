@@ -19,9 +19,11 @@ function grantSelect(page: Page, group: string) {
  * Opens the given roadmap's latest iteration from the front page.
  * The tree on the front page nests child roadmaps inside collapsed `<details>`,
  * so search for the name first; filtering out the parent promotes the match to the top level.
+ * Targets the public view: logged-in org members land on their org's page by default,
+ * and its filtered tree only holds that org's own roadmaps.
  */
 async function openRoadmapFromHome(page: Page, roadmapName: string) {
-  await page.goto(`/?searchFilter=${encodeURIComponent(roadmapName)}`);
+  await page.goto(`/?org=public&searchFilter=${encodeURIComponent(roadmapName)}`);
   await page.getByRole('link', { name: roadmapName }).first().click();
 }
 
@@ -374,7 +376,9 @@ test.describe.serial("Roadmaps tests", () => {
 
   test("Edit iteration, no changes - Required Fields", async ({ page }) => {
 
-    await page.goto('/');
+    // The public view: logged-in org members land on their org's page by default,
+    // which only lists that org's own content
+    await page.goto('/?org=public');
 
     await page.getByRole('link', { name: `${roadmapNameRequiredFields}` }).first().click();
 
@@ -400,7 +404,9 @@ test.describe.serial("Roadmaps tests", () => {
 
   test("Edit roadmap, no changes - Required Fields", async ({ page }) => {
 
-    await page.goto('/');
+    // The public view: logged-in org members land on their org's page by default,
+    // which only lists that org's own content
+    await page.goto('/?org=public');
 
     await page.getByRole('link', { name: `${roadmapNameRequiredFields}` }).first().click();
 
@@ -444,7 +450,9 @@ test.describe.serial("Roadmaps tests", () => {
 
   test("Edit iteration, updated fields - Required Fields", async ({ page }) => {
 
-    await page.goto('/');
+    // The public view: logged-in org members land on their org's page by default,
+    // which only lists that org's own content
+    await page.goto('/?org=public');
 
     await page.getByRole('link', { name: `${roadmapNameRequiredFields}` }).first().click();
 
@@ -479,7 +487,9 @@ test.describe.serial("Roadmaps tests", () => {
   test("Edit roadmap, updated fields - Required Fields", async ({ page }, testInfo) => {
 
     roadmapNameRequiredFieldsUpdated = `Test Updated Required Fields ${testInfo.retry} ${testInfo.project.name}`;
-    await page.goto('/');
+    // The public view: logged-in org members land on their org's page by default,
+    // which only lists that org's own content
+    await page.goto('/?org=public');
 
     await page.getByRole('link', { name: `${roadmapNameRequiredFields}` }).first().click();
 
