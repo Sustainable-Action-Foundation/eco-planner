@@ -60,7 +60,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
       {hasEditAccess(accessLevel) &&
         <AdminPanel accessLevel={accessLevel} object={roadmap} />
       }
-
+ 
       <main>
         <section className="margin-block-300">
           <span style={{ color: 'gray' }}>{t("pages:roadmap.title_legend")}</span>

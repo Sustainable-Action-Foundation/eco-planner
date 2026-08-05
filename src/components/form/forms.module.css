@@ -125,6 +125,7 @@
     box-shadow .2s ease;
   scale: 1;
 }
+
 /* TODO: Look at the implementation of arias-here. Does not seem to work as intended (see historical-data)*/
 .timeLineFieldset:not([data-info]):has(input:required:not(:disabled), select:required:not(:disabled), textarea:required:not(:disabled)):valid .timeLineLegend::before,
 .timeLineFieldset:not([data-info]):has([aria-required="true"][aria-invalid="false"]) .timeLineLegend::before {
@@ -181,30 +182,67 @@
   }
 }
 
-/* Historical data */ 
-.historical-data select {
-  width: 100%;
-  max-width: 100%;
+/* Historical data */
+.preview-table-tab {
+  transform: scale(1);
+  background-color: transparent;
+  margin-block: .25rem;
+  line-height: 1;
+}
+
+.preview-table-tab[aria-selected="true"] {
+  background-color: #99d3ff80;
+  text-shadow: 0 0 black;
 }
 
 .preview-table {
   width: 100%;
+  height: 100%;
   border-spacing: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.preview-table caption {
+  caption-side: bottom;
+  margin-block: .5rem;
 }
 
 .preview-table thead {
   text-align: left;
+  border-radius: .25rem .25rem 0 0;
+  background-color: var(--gray-90);
+  border: 1px solid var(--gray-80);
+  border-bottom: 0;
 }
 
 .preview-table thead th {
-  padding: .25rem;
-  border-bottom: 1px solid var(--gray-80);
+  text-shadow: 0 0 black;
 }
 
-.preview-table tbody tr:nth-child(odd) {
+.preview-table tbody,
+.preview-table thead {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr;
+  align-items: start;
+}
+
+.preview-table tbody {
+  overflow-y: scroll;
+  border: 1px solid var(--gray-80);
+  border-radius: 0 0 .25rem .25rem;
+}
+
+.preview-table tbody tr:nth-child(odd) :is(td, th) {
   background-color: var(--gray-95);
 }
 
-.preview-table td {
+.preview-table tbody tr:nth-child(even) :is(td, th) {
+  background-color: var(--primary-neutral);
+}
+
+.preview-table td,
+.preview-table th {
   padding: .25rem;
+  font-weight: normal;
 }
