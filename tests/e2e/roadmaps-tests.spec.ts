@@ -342,8 +342,8 @@ test.describe.serial("Roadmaps tests", () => {
     // Fill description in the tiptap editor (required on create)
     await page.locator('.tiptap').first().fill('Test Required');
 
-    // The seeded admin belongs to exactly one org, so it should already be preselected
-    await expect(page.locator('#org')).toHaveValue(/.+/);
+    // Several orgs are seeded (and super admins can create in all of them), so the org must be chosen
+    await page.locator('#org').selectOption({ label: orgName });
 
     // Select roadmap type
     await page.locator('#type').selectOption("LOCAL");

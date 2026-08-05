@@ -106,8 +106,10 @@ test.describe('Toast', () => {
     await page.locator('#name').fill('Roadmap Toast');
     await page.locator('#type').selectOption('LOCAL');
     await page.locator('#actor').fill('Toast');
-    // The single seeded org is preselected, and visibility defaults to org members.
-    // The admin user is an org manager, so no group grant is needed either.
+    // Several orgs are seeded, so the owning org must be chosen explicitly.
+    // Visibility defaults to org members, and the admin user manages this org,
+    // so no group grant is needed.
+    await page.locator('#org').selectOption({ label: 'Sustainable Action' });
 
     // The description lives in a hidden input, so the form's own submit handler
     // rejects the missing description with a warning toast

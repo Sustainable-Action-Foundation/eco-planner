@@ -1,5 +1,7 @@
-// Seeds the users, their org, and a group.
-// The three users and their credentials are relied upon by the e2e test suite:
+// Seeds the users, their org, and a group, plus a few extra orgs so multi-org
+// behavior (the start page org switcher, the roadmap form's org select) gets
+// exercised. The three users and their credentials are relied upon by the e2e
+// test suite:
 //   admin/admin  -> super admin + org manager, verified
 //   anita/anita  -> regular org member, verified
 //   anton/anton  -> regular org member, NOT verified (cannot log in)
@@ -8,6 +10,8 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { OrgRole } from "@/lib/prisma/generated";
 import type { SeededUsers } from "./helpers.ts";
+import { RandomTextSE } from "../randomText";
+import { randomInt } from "./helpers.ts";
 
 export async function seedUsers(): Promise<SeededUsers> {
   const [adminPassword, anitaPassword, antonPassword] = await Promise.all([
@@ -69,5 +73,78 @@ export async function seedUsers(): Promise<SeededUsers> {
     },
   });
 
-  return { admin, anita, anton, all: [admin, anita, anton], org, group };
+  // Extra orgs with random names and @example.com-style domains, each with a
+  // few flavor users of their own (email at the org's domain, password
+  // "password" — nothing logs in as them). Admin is enrolled in the first two
+  // (one managed, one as plain member) so the start page switcher shows several
+  // tabs; the last one has no admin membership at all and is only reachable
+  // through the super-admin override, so its first flavor user manages it.
+  const flavorPassword = await bcrypt.hash("password", 10);
+  const adminRoles: (OrgRole | null)[] = [OrgRole.MANAGER, OrgRole.MEMBER, null];
+  const usedNames = new Set([org.name]);
+  const usedDomains = new Set([org.domain]);
+  const usedUsernames = new Set([admin.username, anita.username, anton.username]);
+  const extraOrgs: SeededUsers["extraOrgs"] = [];
+  for (const adminRole of adminRoles) {
+    let name: string;
+    let domain: string;
+    do {
+      const words = RandomTextSE.words(randomInt(1, 2));
+      name = words.charAt(0).toUpperCase() + words.slice(1);
+      domain = `${slugify(name)}.example.com`;
+    } while (usedNames.has(name) || usedDomains.has(domain));
+    usedNames.add(name);
+    usedDomains.add(domain);
+
+    const members = [];
+    for (let i = 0; i < randomInt(2, 4); i++) {
+      let username: string;
+      do {
+        const word = RandomTextSE.words(1);
+        username = word.charAt(0).toUpperCase() + word.slice(1);
+      } while (usedUsernames.has(username) || slugify(username).length < 3);
+      usedUsernames.add(username);
+
+      members.push(await prisma.users.create({
+        data: {
+          username,
+          password_hash: flavorPassword,
+          is_super_admin: false,
+          is_verified: true,
+          email: `${slugify(username)}@${domain}`,
+        },
+      }));
+    }
+
+    const extraOrg = await prisma.orgs.create({
+      data: {
+        name,
+        domain,
+        memberships: {
+          createMany: {
+            data: [
+              ...(adminRole ? [{ user_id: admin.id, role: adminRole }] : []),
+              // Someone has to manage the org admin isn't part of
+              ...members.map((member, index) => ({
+                user_id: member.id,
+                role: !adminRole && index === 0 ? OrgRole.MANAGER : OrgRole.MEMBER,
+              })),
+            ],
+          },
+        },
+      },
+    });
+    extraOrgs.push({ org: extraOrg, members });
+  }
+
+  return { admin, anita, anton, all: [admin, anita, anton], org, group, extraOrgs };
+}
+
+/** Lowercases and strips a name down to a domain/email-safe slug. */
+function slugify(name: string): string {
+  return name.toLowerCase()
+    .replace(/[åä]/g, "a")
+    .replace(/ö/g, "o")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }

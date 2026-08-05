@@ -40,7 +40,7 @@ export default async function Page(
   ]);
 
   // Org members land on their org's landing page; ?org= switches between the
-  // user's orgs and the public view. Orgless users (and guests) always get the
+  // user's orgs and the public view. Org-less users (and guests) always get the
   // public view, so `selectedOrg` stays null for them.
   const orgParam = searchParams['org'] ? (Array.isArray(searchParams['org']) ? searchParams['org'][0] : searchParams['org']) : '';
   const selectedOrg = orgParam === 'public'
@@ -242,7 +242,7 @@ export default async function Page(
         <RoadmapFilters />
       </section>
 
-      TODO: There might be some issues with displayning public roadmaps, explore this.
+      TODO: There might be some issues with displaying public roadmaps, explore this.
       <section className="margin-bottom-500">
         <RoadmapTree
           accessContext={accessContext}
