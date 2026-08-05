@@ -44,13 +44,18 @@ export default function ActionForm({
   // fields render as one list; each value becomes its own ActionFields row on submit.
   const [fields, setFields] = useState<{ header: string, type: ActionFieldType, values: string[] }[]>(() =>
     currentAction
-      ? groupActionFields(currentAction.fields.filter(field => field.header !== ActionFieldHeaders.Tag))
+      ? groupActionFields(currentAction.fields.filter(field => field.header !== ActionFieldHeaders.Tag && field.header !== ActionFieldHeaders.Description))
       : [
-        ActionFieldHeaders.Description,
         ActionFieldHeaders.CostEfficiency,
         ActionFieldHeaders.ExpectedOutcome,
         ActionFieldHeaders.RelevantActors,
       ].map(header => ({ header, type: defaultActionFieldType(header), values: [""] })),
+  );
+
+  // The description is stored as a DESCRIPTION-headed paragraph field but edited through
+  // its own optional input; left blank, no field is saved at all
+  const [description, setDescription] = useState<string>(() =>
+    currentAction?.fields.filter(field => field.header === ActionFieldHeaders.Description).map(field => field.value).join("\n\n") ?? "",
   );
 
   // Tags are stored as TAG-headed fields but edited through their own input rather
@@ -166,6 +171,9 @@ export default function ActionForm({
       endYear,
       // Empty rows carry no data; drop them rather than storing blank fields.
       fields: [
+        ...(description.trim() !== ""
+          ? [{ header: ActionFieldHeaders.Description as string, value: description.trim(), type: ActionFieldType.PARAGRAPH }]
+          : []),
         ...fields
           .filter(group => group.header.trim() !== "")
           .flatMap(group => group.values
@@ -220,6 +228,17 @@ export default function ActionForm({
         <label>
           {t("forms:action.action_name")}
           <input className="margin-top-25 margin-bottom-100" type="text" name={ActionFormName.ActionName} required={true} id="actionName" defaultValue={currentAction?.name} />
+        </label>
+
+        <label>
+          {t("forms:action.action_description")}
+          <textarea
+            className="margin-top-25 margin-bottom-100"
+            id="action-description"
+            data-testid="action-description"
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+          />
         </label>
 
         {/* The chips live outside the label: a label's implicit control is its first
