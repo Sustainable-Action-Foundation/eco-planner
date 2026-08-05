@@ -1,7 +1,7 @@
 import "server-only";
 import { roadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { readableAccessControlWhere, visibleRoadmapIterationsWhere } from "@/lib/accessFilters";
+import { readableAccessControlWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { Roadmap, UserAccessContext } from "@/types";
 import { cacheTag } from "next/cache";
@@ -33,12 +33,12 @@ async function getCachedRoadmap(id: string, accessContext: UserAccessContext | n
     roadmap = await prisma.roadmaps.findUnique({
       where: {
         id,
-        access_control: readableAccessControlWhere(accessContext),
+        access_control: readableAccessControlWHERE(accessContext),
       },
       include: {
         ...roadmapInclusionSelection,
         iterations: {
-          where: visibleRoadmapIterationsWhere(accessContext),
+          where: visibleRoadmapIterationsWHERE(accessContext),
           include: roadmapInclusionSelection.iterations.include,
         },
       },

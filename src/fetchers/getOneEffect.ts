@@ -1,7 +1,7 @@
 import "server-only";
 import { effectInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { visibleActionsWhere, visibleRoadmapIterationsWhere } from "@/lib/accessFilters";
+import { visibleActionsWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { Effect, UserAccessContext } from "@/types";
 import { cacheTag } from "next/cache";
@@ -34,8 +34,8 @@ async function getCachedEffect(actionId: string, goalId: string, accessContext: 
       where: {
         id: { action_id: actionId, goal_id: goalId },
         // Requires access to both the action and the goal
-        action: visibleActionsWhere(accessContext),
-        goal: { roadmap_iteration: visibleRoadmapIterationsWhere(accessContext) },
+        action: visibleActionsWHERE(accessContext),
+        goal: { roadmap_iteration: visibleRoadmapIterationsWHERE(accessContext) },
       },
       include: effectInclusionSelection,
     }) satisfies Effect | null;

@@ -1,7 +1,7 @@
 import "server-only";
 import { actionInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { visibleActionsWhere } from "@/lib/accessFilters";
+import { visibleActionsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { Action, UserAccessContext } from "@/types";
 import { cacheTag } from "next/cache";
@@ -33,7 +33,7 @@ async function getCachedAction(id: string, accessContext: UserAccessContext | nu
     action = await prisma.actions.findUnique({
       where: {
         // Spread first: the filter type has an optional `id` that would otherwise widen the unique key
-        ...visibleActionsWhere(accessContext),
+        ...visibleActionsWHERE(accessContext),
         id,
       },
       include: actionInclusionSelection,

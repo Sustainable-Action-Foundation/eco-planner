@@ -1,8 +1,8 @@
 import { getOneAction } from "@/fetchers";
-import { actionFieldLabel, getActionDescription } from "@/functions/actionFields";
+import { ActionFieldHeaders, actionFieldLabel, getActionDescription, groupActionFields } from "@/functions/actionFields";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { getSession } from "@/lib/session";
-import { OrgRole } from "@/lib/prisma/generated";
+import { ActionFieldType, OrgRole } from "@/lib/prisma/generated";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -73,6 +73,10 @@ export default async function Page(props: { params: Promise<{ actionId: string }
     return notFound();
   }
 
+  // Tags are TAG-headed fields but render as cards under the title rather than as a field group.
+  // Sorted alphabetically since the rows come back from the database in arbitrary order.
+  const tags = action.fields.filter(field => field.header === ActionFieldHeaders.Tag).map(field => field.value).sort((a, b) => a.localeCompare(b));
+
   return (
     <>
       <Breadcrumb object={action} />
@@ -84,14 +88,37 @@ export default async function Page(props: { params: Promise<{ actionId: string }
         <section className="margin-block-300 container">
           <span style={{ color: 'gray' }}>{t("pages:action.action_label")}</span>
           <h1 className="margin-0">{action.name}</h1>
+          {tags.length > 0 &&
+            <ul className="flex gap-25 margin-block-25 padding-0" style={{ listStyle: 'none', flexWrap: 'wrap' }}>
+              {tags.map(tag => (
+                <li key={tag} className="smooth" style={{ backgroundColor: 'var(--seagreen-90)', border: '1px solid var(--seagreen-80)' }}>
+                  <Link
+                    href={`/actions?tag=${encodeURIComponent(tag)}`}
+                    className="discrete-link block padding-inline-50 padding-block-25"
+                    style={{ color: 'var(--seagreen-30)' }}
+                  >
+                    {tag}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          }
           <p className="margin-top-0 margin-bottom-100">{action.start_year} - {action.end_year}</p>
         </section>
 
         <section className="margin-block-300">
-          {action.fields.map(field => (
-            <div key={field.id}>
-              <h2 className="margin-top-300">{actionFieldLabel(field.header, t)}</h2>
-              <p>{field.value}</p>
+          {/* Fields sharing a header form one group; repeated non-paragraph values collapse into a list.
+              Tags are excluded here since they already render under the title. */}
+          {groupActionFields(action.fields).filter(group => group.header !== ActionFieldHeaders.Tag).map(group => (
+            <div key={group.header}>
+              <h2 className="margin-top-300">{actionFieldLabel(group.header, t)}</h2>
+              {group.values.length > 1 && group.type !== ActionFieldType.PARAGRAPH ? (
+                <ul>
+                  {group.values.map((value, index) => <li key={index}>{value}</li>)}
+                </ul>
+              ) : (
+                group.values.map((value, index) => <p key={index}>{value}</p>)
+              )}
             </div>
           ))}
         </section>

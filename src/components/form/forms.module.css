@@ -78,7 +78,7 @@
   }
 }
 
-/* Roadmapform */
+/* Roadmap form */
 
 .timeLineLegend {
   position: relative;
@@ -245,4 +245,31 @@
 .preview-table th {
   padding: .25rem;
   font-weight: normal;
+}
+
+/* Action form: custom fields laid out as a table-like grid, one field per row */
+.actionFieldsTable {
+  display: grid;
+  grid-template-columns: minmax(7rem, 1fr) max-content minmax(9rem, 2fr) max-content;
+  gap: .5rem;
+  align-items: start;
+
+  @media(max-width: 615px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Action form: tag chips marked for deletion get red diagonal stripes until the form is submitted.
+   Only the background-image is set so the chip's own background-color shows through. */
+.chipMarkedForDeletion {
+  background-image: repeating-linear-gradient(-45deg, rgba(240, 59, 59, 0.25) 0 .375rem, transparent .375rem .75rem);
+  text-decoration: line-through;
+}
+
+.actionFieldsTableHeader {
+  font-weight: 500;
+
+  @media(max-width: 615px) {
+    display: none;
+  }
 }

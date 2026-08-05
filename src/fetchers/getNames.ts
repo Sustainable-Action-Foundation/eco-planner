@@ -1,7 +1,7 @@
 import "server-only";
 import { nameSelector } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { readableAccessControlWhere, visibleRoadmapIterationsWhere } from "@/lib/accessFilters";
+import { readableAccessControlWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { NameObject, UserAccessContext } from "@/types";
 import { cacheTag } from "next/cache";
@@ -30,12 +30,12 @@ async function getCachedNames(accessContext: UserAccessContext | null) {
   try {
     names = await prisma.roadmaps.findMany({
       where: {
-        access_control: readableAccessControlWhere(accessContext),
+        access_control: readableAccessControlWHERE(accessContext),
       },
       select: {
         ...nameSelector,
         iterations: {
-          where: visibleRoadmapIterationsWhere(accessContext),
+          where: visibleRoadmapIterationsWHERE(accessContext),
           select: nameSelector.iterations.select,
         },
       },

@@ -41,6 +41,16 @@ enum OrgRole {
   MANAGER
 }
 
+// How an ActionFields value should be interpreted and rendered. The value itself
+// is always stored as a string; this only informs the UI (input widget, display).
+// List-ness is structural, not typed: multiple fields sharing a header collapse
+// into a list in the UI when their type supports it (i.e. is not PARAGRAPH).
+enum ActionFieldType {
+  PARAGRAPH
+  DATE
+  SHORT
+}
+
 enum GeoAreaType {
   NATION
   COUNTY
@@ -291,8 +301,9 @@ model ActionFields {
   action_id String
   action    Actions @relation("action_fields", fields: [action_id], references: [id], onDelete: Cascade)
 
-  header String @db.TinyText
-  value  String @db.Text
+  header String          @db.TinyText
+  value  String          @db.Text
+  type   ActionFieldType @default(PARAGRAPH)
 }
 
 // Effects are the connection between an action and a goal, showing how the action affects the goal

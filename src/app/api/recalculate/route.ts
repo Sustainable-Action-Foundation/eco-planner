@@ -4,7 +4,7 @@ import { getAccessContextById } from "@/fetchers/getUserAccessContext";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 import { Recipe } from "@/functions/recipe/recipe";
 import { RecipeError } from "@/functions/recipe/types/errors";
-import { editableDataSeriesWhere } from "@/lib/accessFilters";
+import { editableDataSeriesWHERE } from "@/lib/accessFilters";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { UnitFlags } from "@/types/enums";
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     const dataSeries = await prisma.dataSeries.findUnique({
       where: {
         id: requestJson.dataSeriesId,
-        AND: [editableDataSeriesWhere(accessContext)],
+        AND: [editableDataSeriesWHERE(accessContext)],
       },
       select: {
         id: true,

@@ -2,7 +2,7 @@
 
 import { clientSafeMultiRoadmapSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { visibleRoadmapIterationsWhere } from "@/lib/accessFilters";
+import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { roadmapIterationSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
 import type { ClientMultiRoadmapInstance, UserAccessContext } from "@/types";
@@ -26,7 +26,7 @@ async function getCachedClientSafeRoadmapIterations(accessContext: UserAccessCon
   let iterations: ClientMultiRoadmapInstance[];
   try {
     iterations = await prisma.roadmapIterations.findMany({
-      where: visibleRoadmapIterationsWhere(accessContext),
+      where: visibleRoadmapIterationsWHERE(accessContext),
       select: clientSafeMultiRoadmapSelection,
     }) satisfies ClientMultiRoadmapInstance[];
   }

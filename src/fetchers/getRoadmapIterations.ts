@@ -1,7 +1,7 @@
 import "server-only";
 import { multiRoadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { visibleRoadmapIterationsWhere } from "@/lib/accessFilters";
+import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { roadmapIterationSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
 import type { MultiRoadmapInstance, UserAccessContext } from "@/types";
@@ -34,7 +34,7 @@ async function getCachedRoadmapIterations(accessContext: UserAccessContext | nul
     iterations = await prisma.roadmapIterations.findMany({
       where: {
         ...(iterationIds ? { id: { in: iterationIds } } : {}), // If iterationIds is provided, filter by it
-        ...visibleRoadmapIterationsWhere(accessContext),
+        ...visibleRoadmapIterationsWHERE(accessContext),
       },
       include: multiRoadmapInclusionSelection,
     }) satisfies MultiRoadmapInstance[];

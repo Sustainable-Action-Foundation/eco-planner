@@ -9,14 +9,12 @@ import Image from "next/image";
 import { useDebouncedCallback } from "use-debounce";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
-import { actionFieldLabel, getActionDescription } from "@/functions/actionFields";
+import { ActionFieldHeaders, actionFieldLabel, getActionDescription, groupActionFields } from "@/functions/actionFields";
 
 export default function Actions({
   actions,
-  searchParamsProp,
 }: {
   actions: Action[] | null,
-  searchParamsProp: { [key: string]: string | string[] | undefined }
 }) {
 
   const { t } = useTranslation(["pages", "forms"]);
@@ -28,7 +26,10 @@ export default function Actions({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const searchFilter = searchParamsProp['search'] ? (Array.isArray(searchParamsProp['search']) ? searchParamsProp['search'][0] : searchParamsProp['search']) : '';
+  // Read from the client-side params (rather than the server-passed prop) so the
+  // list rerenders as soon as the URL changes, without waiting on a server roundtrip
+  const searchFilter = searchParams.get('search') ?? '';
+  const tagFilter = useMemo(() => searchParams.getAll('tag'), [searchParams]);
 
   function updateStringParam(key: string, value: string) {
     const newParams = new URLSearchParams(searchParams);
@@ -41,6 +42,18 @@ export default function Actions({
 
     startTransition(() => {
       router.replace(`${pathname}?${newParams.toString()}`);
+    });
+  }
+
+  function removeTagParam(tag: string) {
+    const newParams = new URLSearchParams(searchParams);
+    const remaining = newParams.getAll('tag').filter((existing) => existing !== tag);
+    newParams.delete('tag');
+    for (const value of remaining) newParams.append('tag', value);
+
+    // Filter changes push history entries so the back button can undo them
+    startTransition(() => {
+      router.push(`${pathname}?${newParams.toString()}`);
     });
   }
 
@@ -60,16 +73,31 @@ export default function Actions({
   };
 
   const filteredActions = useMemo(() => {
-    if (!searchFilter || !actions) return actions;
+    if (!actions) return actions;
 
-    return actions.filter((action) =>
-      [action.name, ...action.fields.flatMap((field) => [field.header, field.value])].some(
-        (value) =>
-          typeof value === "string" &&
-          value.toLowerCase().includes(searchFilter.toLowerCase()),
-      ),
-    );
-  }, [actions, searchFilter]);
+    let result = actions;
+
+    // Tag filters match exactly, unlike the free-text search; multiple tags must all be present
+    if (tagFilter.length > 0) {
+      result = result.filter((action) =>
+        tagFilter.every((tag) =>
+          action.fields.some((field) => field.header === ActionFieldHeaders.Tag && field.value === tag),
+        ),
+      );
+    }
+
+    if (searchFilter) {
+      result = result.filter((action) =>
+        [action.name, ...action.fields.flatMap((field) => [field.header, field.value])].some(
+          (value) =>
+            typeof value === "string" &&
+            value.toLowerCase().includes(searchFilter.toLowerCase()),
+        ),
+      );
+    }
+
+    return result;
+  }, [actions, searchFilter, tagFilter]);
 
   return (
     <search className="flex flex-wrap-wrap gap-200">
@@ -135,6 +163,27 @@ export default function Actions({
           </Link>
         </div>
 
+        {tagFilter.length > 0 ?
+          <div className="flex flex-wrap-wrap gap-25 align-items-center margin-top-100">
+            {t('pages:actions.filtering_by_tag', { count: tagFilter.length })}
+            {tagFilter.map((tag) => (
+              <span key={tag} className="smooth padding-inline-50 padding-block-25 flex gap-25 align-items-center" style={{ backgroundColor: 'var(--seagreen-90)', border: '1px solid var(--seagreen-80)', color: 'var(--seagreen-30)' }}>
+                {tag}
+                <button
+                  type="button"
+                  aria-label={`${t('pages:actions.clear_tag_filter')}: ${tag}`}
+                  title={t('pages:actions.clear_tag_filter')}
+                  className="padding-0 transparent"
+                  style={{ lineHeight: 1, fontSize: '1.25em' }}
+                  onClick={() => removeTagParam(tag)}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+          : null}
+
         <section> {/* TODO: Is this an output? */}
           {actions && actions?.length > 0 ?
             <h3 className="margin-bottom-50 margin-top-200 font-style-italic color-gray font-weight-normal font-size-100">
@@ -179,13 +228,27 @@ export default function Actions({
                   <Link href={`/action/${action.id}`} className="discrete-link padding-block-75 padding-inline-50 block flex-grow-100">
                     <div className={` color-gray font-size-14px ${styles['action-years']}`}>{action.start_year} - {action.end_year}</div>
                     <h2 className={`margin-0 ${styles['action-title']}`}>{action.name}</h2>
-                    {/* Actions no longer have a description column; prefer the description field, else summarize the rest */}
+                    {/* One line of tag cards; overflowing tags are cut off with an ellipsis */}
+                    {action.fields.some(field => field.header === ActionFieldHeaders.Tag) &&
+                      <div className="white-space-nowrap text-overflow-ellipsis overflow-hidden margin-top-25">
+                        {action.fields.filter(field => field.header === ActionFieldHeaders.Tag).map(field => field.value).sort((a, b) => a.localeCompare(b)).map(tag => (
+                          <span
+                            key={tag}
+                            className="smooth padding-inline-25 margin-right-25"
+                            style={{ display: 'inline-block', fontSize: '12px', backgroundColor: 'var(--seagreen-90)', border: '1px solid var(--seagreen-80)', color: 'var(--seagreen-30)' }}
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    }
+                    {/* Actions no longer have a description column; prefer the description field, else summarize the rest (tags render above) */}
                     <p
                       className={`margin-0 white-space-nowrap text-overflow-ellipsis overflow-hidden ${styles['action-description']}`}
                       style={{ color: '#292929' }}
                     >
                       {getActionDescription(action.fields)
-                        ?? action.fields.map((field) => `${actionFieldLabel(field.header, t)}: ${field.value}`).join(' · ')}
+                        ?? groupActionFields(action.fields).filter(group => group.header !== ActionFieldHeaders.Tag).map((group) => `${actionFieldLabel(group.header, t)}: ${group.values.join(', ')}`).join(' · ')}
                     </p>
                   </Link>
 

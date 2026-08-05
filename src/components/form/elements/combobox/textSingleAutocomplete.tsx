@@ -75,6 +75,8 @@ export default function TextSingleAutocomplete({
           required={props.required ? props.required : false}
           disabled={props.disabled}
           value={value}
+          aria-label={props.ariaLabel}
+          data-testid={props.dataTestid}
           autoComplete="off"
           onChange={(e) => { setter(e.target.value); setFocusedListBoxItem(0); }} // TODO: Enter seems to select values even if nothing is selected
           {...(options.length > 0

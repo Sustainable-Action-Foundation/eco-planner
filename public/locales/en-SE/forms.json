@@ -21,6 +21,8 @@
     "action_description_legend": "Describe your $t(common:action_one)",
     "action_name": "Name",
     "action_years_legend": "Choose active years for your $t(common:action_one)",
+    "add_list_item": "Add list item",
+    "add_tag": "Add tag",
     "attach_external_resources": "Attach external resources",
     "categories_legend": "Which categories does $t(common:action_definite_one) fall under?",
     "category_efficiency": "Efficiency",
@@ -29,6 +31,7 @@
     "choose_relationship": "Which $t(common:roadmap_version_one) does your $t(common:action_one) belong to?",
     "cost_efficiency": "Cost efficiency",
     "create": "Create $t(common:action_one)",
+    "custom_fields_legend": "Describe your $t(common:action_one) with your own headings",
     "describe_actors_legend": "Describe actors for your $t(common:action_one)",
     "end_year": "End year",
     "expected_effect_legend": "Specify expected $t(common:effect_one) of $t(common:action_definite_one)",
@@ -43,9 +46,20 @@
     "relationship_label": "$t(common:roadmap_version_one)",
     "relationship_no_chosen": "Select $t(common:roadmap_version_one)",
     "relevant_actors": "Relevant actors",
+    "restore_tag": "Restore tag",
     "start_year": "Start year",
     "tag": "Tag",
-    "field_header": "Field label"
+    "tag_header_forbidden": "TAG is reserved; use the tags input above instead",
+    "tags_label": "Tags",
+    "field_content": "Content",
+    "field_content_info": "Short texts and dates can hold several values, shown as a list. Pasting comma- or semicolon-separated text into a short text splits it into list items.",
+    "field_header": "Heading",
+    "field_type_label": "Type",
+    "field_types": {
+      "date": "Date",
+      "paragraph": "Paragraph",
+      "short": "Short text"
+    }
   },
   "combobox": {
     "default_autocomplete_placeholder": "Type to view suggestions",

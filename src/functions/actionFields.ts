@@ -1,4 +1,5 @@
 import { Locales } from "@root/i18n.config";
+import { ActionFieldType } from "@/lib/prisma/generated";
 import type { TFunction } from "i18next";
 
 /**
@@ -38,6 +39,50 @@ function headerLabelKeys(t: TFunction): Record<string, string> {
   };
 }
 
+/**
+ * The semantic type each canonical header's values carry. The prose-like ones are
+ * paragraphs; the rest hold short values (names, tags). User-invented headers
+ * default to {@link ActionFieldType.PARAGRAPH}.
+ */
+const canonicalHeaderTypes: Record<string, ActionFieldType> = {
+  [ActionFieldHeaders.Description]: ActionFieldType.PARAGRAPH,
+  [ActionFieldHeaders.CostEfficiency]: ActionFieldType.PARAGRAPH,
+  [ActionFieldHeaders.ExpectedOutcome]: ActionFieldType.PARAGRAPH,
+  [ActionFieldHeaders.ProjectManager]: ActionFieldType.SHORT,
+  [ActionFieldHeaders.RelevantActors]: ActionFieldType.SHORT,
+  [ActionFieldHeaders.Tag]: ActionFieldType.SHORT,
+};
+
+/** The type a field with the given header starts out as (the user may override it) */
+export function defaultActionFieldType(header: string): ActionFieldType {
+  return canonicalHeaderTypes[header] ?? ActionFieldType.PARAGRAPH;
+}
+
+/** Coerces an untrusted value (API input) to a valid ActionFieldType, falling back to PARAGRAPH */
+export function parseActionFieldType(value: unknown): ActionFieldType {
+  return Object.values(ActionFieldType).includes(value as ActionFieldType)
+    ? value as ActionFieldType
+    : ActionFieldType.PARAGRAPH;
+}
+
+/**
+ * Groups fields by header, preserving the order headers first appear in.
+ * List-ness is structural: a group with several values renders as a list when its
+ * type supports it (any type but PARAGRAPH); the group's type is its first field's.
+ */
+export function groupActionFields(fields: { header: string, value: string, type: ActionFieldType }[]): { header: string, type: ActionFieldType, values: string[] }[] {
+  const groups: { header: string, type: ActionFieldType, values: string[] }[] = [];
+  for (const field of fields) {
+    const group = groups.find(g => g.header === field.header);
+    if (group) {
+      group.values.push(field.value);
+    } else {
+      groups.push({ header: field.header, type: field.type, values: [field.value] });
+    }
+  }
+  return groups;
+}
+
 /** The first value among the fields with the given canonical header, if any */
 export function getActionFieldValue(fields: { header: string, value: string }[] | undefined, header: string): string | undefined {
   return fields?.find(field => field.header === header)?.value;
@@ -46,6 +91,20 @@ export function getActionFieldValue(fields: { header: string, value: string }[] 
 /** An action's description now lives in its `DESCRIPTION`-headed field */
 export function getActionDescription(fields: { header: string, value: string }[] | undefined): string | undefined {
   return getActionFieldValue(fields, ActionFieldHeaders.Description);
+}
+
+/**
+ * Splits pasted text into list items if it looks like a simple CSV: values separated
+ * by commas, semicolons, tabs, or newlines (e.g. a pasted spreadsheet column).
+ * Items are trimmed, surrounding quotes are stripped, and empties are dropped.
+ * A single-item result means the text carried no delimiters and should be treated
+ * as a plain paste.
+ */
+export function parseCsvList(text: string): string[] {
+  return text
+    .split(/[\n\r\t;,]+/)
+    .map(item => item.trim().replace(/^(["'])(.*)\1$/, "$2").trim())
+    .filter(item => item !== "");
 }
 
 /**

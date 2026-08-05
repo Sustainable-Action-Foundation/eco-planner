@@ -1,7 +1,7 @@
 import "server-only";
 import { roadmapIterationInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { visibleRoadmapIterationsWhere } from "@/lib/accessFilters";
+import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { goalSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
 import type { RoadmapIteration, UserAccessContext } from "@/types";
@@ -34,7 +34,7 @@ async function getCachedRoadmapIteration(id: string, accessContext: UserAccessCo
     iteration = await prisma.roadmapIterations.findUnique({
       where: {
         // Spread first: the filter type has an optional `id` that would otherwise widen the unique key
-        ...visibleRoadmapIterationsWhere(accessContext),
+        ...visibleRoadmapIterationsWHERE(accessContext),
         id,
       },
       include: roadmapIterationInclusionSelection,

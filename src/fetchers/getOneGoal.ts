@@ -1,7 +1,7 @@
 import "server-only";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { visibleRoadmapIterationsWhere } from "@/lib/accessFilters";
+import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { effectSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
 import type { Goal, UserAccessContext } from "@/types";
@@ -34,7 +34,7 @@ async function getCachedGoal(id: string, accessContext: UserAccessContext | null
     goal = await prisma.goals.findUnique({
       where: {
         id,
-        roadmap_iteration: visibleRoadmapIterationsWhere(accessContext),
+        roadmap_iteration: visibleRoadmapIterationsWHERE(accessContext),
       },
       include: goalInclusionSelection,
     }) satisfies Goal | null;

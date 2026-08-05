@@ -526,6 +526,14 @@ ALTER TABLE `_goal_tags` RENAME COLUMN `tmp_swap` TO `B`;
 UPDATE `ActionFields` SET `header` = UPPER(`header`)
 WHERE `header` IN ('description', 'cost_efficiency', 'expected_outcome', 'project_manager', 'relevant_actors', 'tag');
 
+-- Semantic field types (rendering hint; the value stays a string). Old data was
+-- all textareas, so everything defaults to PARAGRAPH except the canonical headers
+-- known to hold short values (names, tags). List-ness is structural (repeated
+-- headers), not typed — see src/functions/actionFields.ts.
+ALTER TABLE `ActionFields` ADD COLUMN `type` ENUM('PARAGRAPH', 'DATE', 'SHORT') NOT NULL DEFAULT 'PARAGRAPH';
+UPDATE `ActionFields` SET `type` = 'SHORT'
+WHERE `header` IN ('RELEVANT_ACTORS', 'PROJECT_MANAGER', 'TAG');
+
 -- ============================================================================
 -- 11b. GEO AREAS: static SCB region lookup + geo markers on Roadmaps and Orgs
 -- ============================================================================
