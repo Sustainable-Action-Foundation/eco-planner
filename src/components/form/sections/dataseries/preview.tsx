@@ -104,18 +104,17 @@ export default function PreviewSeries({
       </button>
 
       <div
-        className="padding-50 flex flex-direction-column" 
-        style={{height: '400px'}}
+        className="padding-50 flex flex-direction-column flex-grow-100" 
       >
         {displayGraph ?
-          <GoalGraph
-            chartType="preview"
-            series={{
-              main: main,
-              baseline: baseline,
-              historical: historical,
-            }}
-          />
+            <GoalGraph
+              chartType="preview"
+              series={{
+                main: main,
+                baseline: baseline,
+                historical: historical,
+              }}
+            />
           :
           <PreviewTable
             main={main}
