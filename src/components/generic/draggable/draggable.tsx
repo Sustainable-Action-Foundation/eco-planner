@@ -3,8 +3,11 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import styles from './draggable.module.css';
 import { IconRestore } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 export default function DraggableSnapBack({ children }: { children: React.ReactNode }) {
+  const { t } = useTranslation(["components"]);
+
   const landingZoneRef = useRef<HTMLDivElement | null>(null);   // the "home" drop zone (the initial area)
   const draggableContainerRef = useRef<HTMLDivElement | null>(null);    // the draggable element itself
 
@@ -92,7 +95,6 @@ export default function DraggableSnapBack({ children }: { children: React.ReactN
     setIsOverHome(checkOverlapsHome());
   }, [pos, dragging, checkOverlapsHome]);
 
-
   return (
     <div
       ref={landingZoneRef}
@@ -102,10 +104,15 @@ export default function DraggableSnapBack({ children }: { children: React.ReactN
         backgroundColor: isOverHome ? 'var(--blue-90)' : '',
       }}
     >
-      <p style={{ transition: 'color .2s ease', color: isOverHome ? 'var(--blue-40)' : '' }}>Drag to snap back</p> {/* TODO: i18n */}
-      <button type="button" className='flex align-items-center gap-25' onClick={snapBack} style={{ color: isOverHome ? 'var(--blue-40)' : '' }}>
+      <p style={{color: isOverHome ? 'var(--blue-40)' : '' }}>{t("components:draggable.drag_to_snap")}</p>
+      <button 
+        type="button"
+        onClick={snapBack} 
+        className='flex align-items-center gap-25'
+        style={{ color: isOverHome ? 'var(--blue-40)' : '' }}
+      >
         <IconRestore width={16} height={16} aria-hidden="true" style={{ minWidth: '16px' }} />
-        Bring back {/* TODO: i18n */}
+        {t("components:draggable.bring_back")}
       </button>
 
       <div
@@ -125,7 +132,10 @@ export default function DraggableSnapBack({ children }: { children: React.ReactN
           className={`padding-75 margin-0 flex justify-content-center align-items-center ${styles['draggable-thumb-container']} `}
           style={{ cursor: dragging ? 'grabbing' : 'grab' }}
         >
-          <div className={`${styles['draggable-thumb']}`} style={{ backgroundColor: dragging ? 'var(--gray-70)' : 'var(--gray-90)' }}></div>
+          <div 
+            className={`${styles['draggable-thumb']}`} 
+            style={{ backgroundColor: dragging ? 'var(--gray-70)' : 'var(--gray-90)' }}>
+          </div>
         </menu>
         {children}
       </div>

@@ -13,6 +13,7 @@
     color: var(--gray-80);
     align-self: end;
     justify-self: center;
+    transition: color .2s ease;
 }
 
 .landing-zone>button {
