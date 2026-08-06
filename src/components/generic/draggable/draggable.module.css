@@ -27,8 +27,8 @@
     min-height: 0;
     z-index: calc(infinity * 1);
     position: fixed;
-    width: calc(anchor-size(--my-anchor width) - .5rem);
-    height: calc(anchor-size(--my-anchor height) - .5rem);
+    width: calc(anchor-size(--my-anchor width) - 1rem);
+    height: calc(anchor-size(--my-anchor height) - 1rem);
     touch-action: none;
     background-color: var(--secondary-neutral);
     border-radius: .25rem;

@@ -16,7 +16,7 @@ function SeriesTable({
     <table className={`${styles['preview-table']}`}>
       <thead>
         <tr className="display-contents">
-          <th className="text-align-center" style={{paddingInline: '.5rem'}}>#</th>{/* TODO: i18n */}
+          <th className="text-align-center" style={{paddingInline: '.75rem'}}>#</th>{/* TODO: i18n */}
           <th>Date</th>
           <th>Value</th>
         </tr>

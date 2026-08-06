@@ -210,10 +210,8 @@
 
 .preview-table thead {
   text-align: left;
-  border-radius: .25rem .25rem 0 0;
-  background-color: var(--gray-90);
-  border: 1px solid var(--gray-80);
-  border-bottom: 0;
+  border-radius: .25rem;
+  background-color: var(--gray-95);
 }
 
 .preview-table thead th {
@@ -228,22 +226,16 @@
 }
 
 .preview-table tbody {
-  overflow-y: scroll;
-  border: 1px solid var(--gray-80);
-  border-radius: 0 0 .25rem .25rem;
-}
-
-.preview-table tbody tr:nth-child(odd) :is(td, th) {
-  background-color: var(--gray-95);
+  overflow-y: scroll; 
 }
 
 .preview-table tbody tr:nth-child(even) :is(td, th) {
-  background-color: var(--primary-neutral);
+  background-color: var(--tertiary-neutral);
 }
 
 .preview-table td,
 .preview-table th {
-  padding: .25rem;
+  padding: .5rem;
   font-weight: normal;
 }
 
