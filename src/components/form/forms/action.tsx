@@ -13,7 +13,6 @@ import { Recipe } from "@/functions/recipe/recipe";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { clientSafeGetAllTags } from "@/fetchers/clientSafeGetAllTags";
 import { clientSafeGetAllFieldHeaders } from "@/fetchers/clientSafeGetAllFieldHeaders";
-import { IconInfoCircle } from "@tabler/icons-react";
 import { Fragment, useEffect, useState } from "react";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
@@ -307,7 +306,24 @@ export default function ActionForm({
             </ul>
           }
         </div>
+      </fieldset>
 
+      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+        <legend
+          data-position={positionIndex++}
+          className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
+        >
+          {t("forms:action.action_years_legend")}
+        </legend>
+        <label>
+          {t("forms:action.start_year")}
+          <input className="margin-top-25 margin-bottom-100" type="number" name={ActionFormName.StartYear} id="startYear" defaultValue={currentAction?.start_year ?? undefined} min={2000} />
+        </label>
+
+        <label>
+          {t("forms:action.end_year")}
+          <input className="margin-top-25 margin-bottom-100" type="number" name={ActionFormName.EndYear} id="endYear" defaultValue={currentAction?.end_year ?? undefined} min={2000} />
+        </label>
       </fieldset>
 
       {/* Repeatable free-form fields, replacing the old fixed inputs
@@ -315,111 +331,107 @@ export default function ActionForm({
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
         <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:action.custom_fields_legend")}</legend>
 
-        {fields.length > 0 &&
-          <div className={styles.actionFieldsTable}>
-            {/* Column headers; the inputs carry aria-labels, so these are visual only */}
-            <span className={styles.actionFieldsTableHeader} aria-hidden="true">{t("forms:action.field_header")}</span>
-            <span className={styles.actionFieldsTableHeader} aria-hidden="true">{t("forms:action.field_type_label")}</span>
-            <span className={`${styles.actionFieldsTableHeader} flex gap-25 align-items-center`}>
-              <span aria-hidden="true">{t("forms:action.field_content")}</span>
-              <span title={t("forms:action.field_content_info")} style={{ cursor: 'help', lineHeight: 0 }}>
-                <IconInfoCircle width={16} height={16} role="img" aria-label={t("forms:action.field_content_info")} />
-              </span>
-            </span>
-            <span className={styles.actionFieldsTableHeader} aria-hidden="true" />
-            {fields.map((group, index) => {
-              const contentLabel = actionFieldLabel(group.header, t) === group.header ? t("forms:action.field_content") : actionFieldLabel(group.header, t);
-              // A plain render function (not a component) so the controls don't remount and drop focus on rerenders
-              const valueControl = (valueIndex: number) =>
-                group.type === ActionFieldType.PARAGRAPH ? (
-                  <textarea
-                    rows={2}
-                    aria-label={contentLabel}
-                    data-testid="action-field-value"
-                    value={group.values[valueIndex]}
-                    onChange={(event) => updateValue(index, valueIndex, event.target.value)}
-                  />
-                ) : (
-                  <input
-                    type={group.type === ActionFieldType.DATE ? "date" : "text"}
-                    aria-label={contentLabel}
-                    data-testid="action-field-value"
-                    value={group.values[valueIndex]}
-                    onChange={(event) => updateValue(index, valueIndex, event.target.value)}
-                    onPaste={group.type === ActionFieldType.SHORT ? (event) => {
-                      // Pasting CSV into a short text becomes a list, one item per value
-                      const items = parseCsvList(event.clipboardData.getData("text"));
-                      if (items.length < 2) return;
-                      event.preventDefault();
-                      setFields(previous => previous.map((g, i) =>
-                        i === index
-                          ? { ...g, values: [...g.values.slice(0, valueIndex), ...items, ...g.values.slice(valueIndex + 1)] }
-                          : g,
-                      ));
-                    } : undefined}
-                  />
-                );
+        {fields.map((group, index) =>
+          <details key={index} className="margin-bottom-100 cursor-pointer">
+            <summary>
+              {group.header ? group.header : t("forms:action.field_header")} ({group.type.toLocaleLowerCase()}) {/* TODO: Actually pass the locale, TODO: Title needs to make sense, TODO: group needs to be localized (i.e paragraph -> stycke)*/} 
+              <button
+                type="button"
+                onClick={() => removeValue(index, 0)}
+              >
+                {t("common:tsx.delete")}
+              </button>
+            </summary>
+            <label htmlFor={`action-field-header-${index}`}>{t("forms:action.field_header")}</label>
+            <TextSingleAutocomplete
+              props={{
+                id: `action-field-header-${index}`,
+                name: `action-field-header-${index}`,
+                className: "margin-bottom-100 margin-top-25",
+                ariaLabel: t("forms:action.field_header"),
+                dataTestid: "action-field-header",
+              }}
+              options={headerSuggestions.map(header => ({ name: header, value: header }))}
+              fuseOptions={{
+                threshold: 0.3,
+                ignoreLocation: true,
+              }}
+              value={group.header}
+              setter={(action) => {
+                const header = typeof action === "function" ? action(group.header) : action;
+                updateGroup(index, { header });
+              }}
+            />
 
-              return (
-                // display: contents keeps the group's controls as direct grid items while
-                // still giving tests and styling a per-group element to scope to
-                <div key={index} data-testid="action-field-row" style={{ display: 'contents' }}>
-                  <TextSingleAutocomplete
-                    props={{
-                      id: `action-field-header-${index}`,
-                      name: `action-field-header-${index}`,
-                      ariaLabel: t("forms:action.field_header"),
-                      dataTestid: "action-field-header",
-                    }}
-                    options={headerSuggestions.map(header => ({ name: header, value: header }))}
-                    fuseOptions={{
-                      threshold: 0.3,
-                      ignoreLocation: true,
-                    }}
-                    value={group.header}
-                    setter={(action) => {
-                      const header = typeof action === "function" ? action(group.header) : action;
-                      updateGroup(index, { header });
-                    }}
-                  />
-                  <select
-                    aria-label={t("forms:action.field_type_label")}
-                    data-testid="action-field-type"
-                    value={group.type}
-                    onChange={(event) => updateGroup(index, { type: event.target.value as ActionFieldType })}
-                  >
-                    <option value={ActionFieldType.PARAGRAPH}>{t("forms:action.field_types.paragraph")}</option>
-                    <option value={ActionFieldType.SHORT}>{t("forms:action.field_types.short")}</option>
-                    <option value={ActionFieldType.DATE}>{t("forms:action.field_types.date")}</option>
-                  </select>
-                  {valueControl(0)}
-                  <button
-                    type="button"
-                    onClick={() => removeValue(index, 0)}
-                  >
-                    {t("common:tsx.delete")}
-                  </button>
+            <fieldset>
+              <legend>{t("forms:action.field_type_label")}</legend>
+              <select
+                className="width-100 margin-bottom-100 margin-top-25"
+                aria-label={t("forms:action.field_type_label")}
+                data-testid="action-field-type"
+                value={group.type}
+                onChange={(event) => updateGroup(index, { type: event.target.value as ActionFieldType })}
+              >
+                <option value={ActionFieldType.PARAGRAPH}>{t("forms:action.field_types.paragraph")}</option>
+                <option value={ActionFieldType.SHORT}>{t("forms:action.field_types.short")}</option>
+                <option value={ActionFieldType.DATE}>{t("forms:action.field_types.date")}</option>
+              </select>
+            </fieldset>
 
-                  {/* Additional list values render underneath, sharing the group's heading and type */}
-                  {group.values.slice(1).map((_, restIndex) => (
-                    <Fragment key={restIndex + 1}>
-                      <span aria-hidden="true" />
-                      <span aria-hidden="true" />
-                      {valueControl(restIndex + 1)}
-                      <button
-                        type="button"
-                        onClick={() => removeValue(index, restIndex + 1)}
-                      >
-                        {t("common:tsx.delete")}
-                      </button>
-                    </Fragment>
-                  ))}
+            <fieldset>
+              <legend>{t("forms:action.field_content")}</legend>
+              {(() => {
+                const contentLabel = actionFieldLabel(group.header, t) === group.header
+                  ? t("forms:action.field_content")
+                  : actionFieldLabel(group.header, t);
 
-                  {/* Short texts and dates may hold several values; they render as a list */}
-                  {group.type !== ActionFieldType.PARAGRAPH &&
-                    <>
-                      <span aria-hidden="true" />
-                      <span aria-hidden="true" />
+                const valueControl = (valueIndex: number) =>
+                  group.type === ActionFieldType.PARAGRAPH ? (
+                    <textarea
+                      rows={2}
+                      aria-label={contentLabel}
+                      data-testid="action-field-value"
+                      value={group.values[valueIndex]}
+                      onChange={(event) => updateValue(index, valueIndex, event.target.value)}
+                    />
+                  ) : (
+                    <input
+                      type={group.type === ActionFieldType.DATE ? "date" : "text"}
+                      aria-label={contentLabel}
+                      data-testid="action-field-value"
+                      value={group.values[valueIndex]}
+                      onChange={(event) => updateValue(index, valueIndex, event.target.value)}
+                      onPaste={group.type === ActionFieldType.SHORT ? (event) => {
+                        const items = parseCsvList(event.clipboardData.getData("text"));
+                        if (items.length < 2) return;
+                        event.preventDefault();
+                        setFields(previous => previous.map((g, i) =>
+                          i === index
+                            ? { ...g, values: [...g.values.slice(0, valueIndex), ...items, ...g.values.slice(valueIndex + 1)] }
+                            : g,
+                        ));
+                      } : undefined}
+                    />
+                  );
+
+                return (
+                  <>
+                    {valueControl(0)}
+                    { /* Additional list values render underneath, sharing the group's heading and type */}
+                    {group.values.slice(1).map((_, restIndex) => (
+                      <div className="flex gap-25 align-items-center margin-block-50" key={restIndex + 1}>
+                        {valueControl(restIndex + 1)}
+                        <button
+                          type="button"
+                          onClick={() => removeValue(index, restIndex + 1)}
+                        >
+                          {t("common:tsx.delete")}
+                        </button>
+                      </div>
+                    ))}
+
+                    {/* Short texts and dates may hold several values; they render as a list */}
+                    {group.type !== ActionFieldType.PARAGRAPH &&
                       <button
                         type="button"
                         style={{ justifySelf: 'start' }}
@@ -427,14 +439,13 @@ export default function ActionForm({
                       >
                         {t("forms:action.add_list_item")}
                       </button>
-                      <span aria-hidden="true" />
-                    </>
-                  }
-                </div>
-              );
-            })}
-          </div>
-        }
+                    }
+                  </>
+                );
+              })()}
+            </fieldset>
+          </details>,
+        )}
         <button
           type="button"
           className="margin-top-100"
@@ -444,10 +455,17 @@ export default function ActionForm({
         </button>
       </fieldset>
 
+
       {(goalId && !currentAction) ?
         // TODO: Allow conversion between absolute and delta like in effectForm?
         <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:action.expected_effect_legend")}</legend>
+          <legend
+            // Technically incrementing here is unused but if you add a another entry after this one it will be correct
+            // eslint-disable-next-line no-useless-assignment
+            data-position={positionIndex++}
+            className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>
+            {t("forms:action.expected_effect_legend")}
+          </legend>
           <label>
             {t("forms:action.impact_type_label")}
             <select name={ActionFormName.ImpactType} id="impactType" className="block margin-top-25 margin-bottom-100 width-100" /* defaultValue={actionImpactType} onChange={e => setActionImpactType(e.target.value as ActionImpactType)} */ >
@@ -469,26 +487,6 @@ export default function ActionForm({
         </fieldset>
         : null
       }
-
-      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-        <legend
-          // Technically incrementing here is unused but if you add a another entry after this one it will be correct
-          // eslint-disable-next-line no-useless-assignment
-          data-position={positionIndex++}
-          className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
-        >
-          {t("forms:action.action_years_legend")}
-        </legend>
-        <label>
-          {t("forms:action.start_year")}
-          <input className="margin-top-25 margin-bottom-100" type="number" name={ActionFormName.StartYear} id="startYear" defaultValue={currentAction?.start_year ?? undefined} min={2000} />
-        </label>
-
-        <label>
-          {t("forms:action.end_year")}
-          <input className="margin-top-25 margin-bottom-100" type="number" name={ActionFormName.EndYear} id="endYear" defaultValue={currentAction?.end_year ?? undefined} min={2000} />
-        </label>
-      </fieldset>
 
       <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
         <button
