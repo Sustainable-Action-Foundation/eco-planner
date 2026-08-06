@@ -93,7 +93,7 @@ export default function PreviewSeries({
       <button 
         type="button"
         style={{transform: 'scale(1)'}}
-        className="flex align-items-center gap-25 margin-inline-auto height-fit-content"
+        className="flex align-items-center gap-25 margin-inline-auto height-fit-content transparent"
         onClick={() => setDisplayGraph(!displayGraph)}
       >
         {displayGraph ?
@@ -111,6 +111,7 @@ export default function PreviewSeries({
 
       <div
         className="padding-50 flex flex-direction-column flex-grow-100" 
+        style={{minHeight: '0'}}
       >
         {displayGraph ?
             <GoalGraph

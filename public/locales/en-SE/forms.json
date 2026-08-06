@@ -197,7 +197,7 @@
     "goal_description_legend": "Describe your $t(common:goal_one)",
     "goal_name": "Name",
     "invert_goal": "Invert the $t(common:goal_one) (divide by this $t(common:goal_one) rather than multiply)",
-    "leap_parameter": "LEAP parameter",
+    "leap_parameter": "Indicator parameter",
     "preview": "Is the following correct?",
     "preview_info": "Your data series will appear in your goal as they are shown below.",
     "relationship_label": "$t(common:roadmap_one)",

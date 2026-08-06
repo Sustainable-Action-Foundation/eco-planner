@@ -525,7 +525,7 @@ export default function GoalForm({
 
         {/* Indicator parameter / LEAP parameter */}
         <label htmlFor="indicatorParameter">
-          {t("forms:goal.leap_parameter")}
+          {t("forms:goal.leap_parameter")} 
         </label>
         <TextSingleAutocomplete
           props={{

@@ -59,7 +59,7 @@
   "goal_table": {
     "action_count": "$t(common:action_other, titleCase)",
     "goal_name": "$t(common:goal_one, titleCase) name",
-    "leap_parameter": "LEAP parameter",
+    "leap_parameter": "indicator parameter",
     "no_goals": "You do not have access to any $t(common:goal_other) in this $t(common:roadmap_version_one), or $t(common:roadmap_version_definite_one) lacks $t(common:goal_other).",
     "unit": "Unit"
   },
@@ -151,7 +151,8 @@
   "recipe_editor": {
     "add_external_data": "Find external data",
     "add_new_recipe": "Add new recipe",
-    "apply_parameter": "Copy used indicator parameter to form",
+    "apply_paramater_question": "Use the same indicator parameter as the parent goal?",
+    "apply_parameter": "Use <strong>{{indicator}}</strong> as indicator parameter",
     "apply_unit": "Copy resulting unit to form",
     "cancel_editing_recipe": "Cancel",
     "commit_editing_recipe": "Save recipe",
