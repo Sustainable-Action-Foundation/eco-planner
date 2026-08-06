@@ -17,6 +17,7 @@ import { Fragment, useEffect, useState } from "react";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 import { UnitFlags } from "@/types/enums";
+import { IconPilcrow, IconWriting, IconCalendar } from "@tabler/icons-react";
 
 export default function ActionForm({
   goalId,
@@ -328,13 +329,14 @@ export default function ActionForm({
 
       {/* Repeatable free-form fields, replacing the old fixed inputs
           (description, cost efficiency, expected outcome, project manager, relevant actors...) */}
+      {/* TODO: Check if any stylings are un-needed now since rewriting this */}
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
         <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:action.custom_fields_legend")}</legend>
 
         {fields.map((group, index) =>
           <details key={index} className="margin-bottom-100 cursor-pointer">
             <summary>
-              {group.header ? group.header : t("forms:action.field_header")} ({group.type.toLocaleLowerCase()}) {/* TODO: Actually pass the locale, TODO: Title needs to make sense, TODO: group needs to be localized (i.e paragraph -> stycke)*/} 
+              {group.header ? group.header : t("forms:action.field_header")} ({group.type.toLocaleLowerCase()}) {/* TODO: Actually pass the locale, TODO: Title needs to make sense, TODO: group needs to be localized (i.e paragraph -> stycke)*/}
               <button
                 type="button"
                 onClick={() => removeValue(index, 0)}
@@ -365,17 +367,29 @@ export default function ActionForm({
 
             <fieldset>
               <legend>{t("forms:action.field_type_label")}</legend>
-              <select
-                className="width-100 margin-bottom-100 margin-top-25"
-                aria-label={t("forms:action.field_type_label")}
-                data-testid="action-field-type"
-                value={group.type}
-                onChange={(event) => updateGroup(index, { type: event.target.value as ActionFieldType })}
-              >
-                <option value={ActionFieldType.PARAGRAPH}>{t("forms:action.field_types.paragraph")}</option>
-                <option value={ActionFieldType.SHORT}>{t("forms:action.field_types.short")}</option>
-                <option value={ActionFieldType.DATE}>{t("forms:action.field_types.date")}</option>
-              </select>
+              <div className="radio-group-icons margin-bottom-100 margin-top-25" data-testid="action-field-type" role="radiogroup" aria-label={t("forms:action.field_type_label")}>
+                {[
+                  { type: ActionFieldType.PARAGRAPH, Icon: IconPilcrow },
+                  { type: ActionFieldType.SHORT, Icon: IconWriting },
+                  { type: ActionFieldType.DATE, Icon: IconCalendar },
+                ].map(({ type, Icon }) => {
+                  const optionId = `action-field-type-${index}-${type}`;
+                  return (
+                    <label key={type} htmlFor={optionId} className="display-block">
+                      <input
+                        type="radio"
+                        id={optionId}
+                        name={`action-field-type-${index}`}
+                        value={type}
+                        checked={group.type === type}
+                        onChange={() => updateGroup(index, { type })}
+                      />
+                      <Icon aria-hidden="true" />
+                      {t(`forms:action.field_types.${type.toLowerCase()}`)}
+                    </label>
+                  );
+                })}
+              </div>
             </fieldset>
 
             <fieldset>
