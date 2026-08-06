@@ -324,13 +324,14 @@ button[type="submit"]:disabled {
 /* Radio group with icons */
 
 .radio-group-icons {
-  display: grid;
+  display: flex;
   gap: .5rem;
-  grid-template-columns: repeat(10, 1fr);
 }
 
 .radio-group-icons label:has(input[type="radio"]) {
+  width: 80px;
   padding: .5rem;
+  aspect-ratio: 1 / 1;
   gap: .25rem;
   border-radius: .25rem;
   border: 1px solid var(--gray-80);
@@ -339,6 +340,7 @@ button[type="submit"]:disabled {
   display: grid;
   justify-items: center;
   align-items: end;
+  text-align: center;
 }
 
 .radio-group-icons input[type="radio"] {

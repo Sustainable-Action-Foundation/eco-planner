@@ -226,7 +226,7 @@
 }
 
 .preview-table tbody {
-  overflow-y: scroll; 
+  overflow-y: scroll;
 }
 
 .preview-table tbody tr:nth-child(even) :is(td, th) {
@@ -239,16 +239,35 @@
   font-weight: normal;
 }
 
-/* Action form: custom fields laid out as a table-like grid, one field per row */
-.actionFieldsTable {
-  display: grid;
-  grid-template-columns: minmax(7rem, 1fr) max-content minmax(9rem, 2fr) max-content;
-  gap: .5rem;
-  align-items: start;
+/* Action form */ 
+.action-details summary {
+  border: 1px solid var(--gray-80);
+  border-radius: .25rem;
+  background-color: var(--gray-90);
+  font-size: 14px;
+  text-shadow: 0 0 black;
+  padding: .25rem;
+}
+ 
+.action-details[open] summary {
+  border-radius: .25rem .25rem 0 0;
+}
 
-  @media(max-width: 615px) {
-    grid-template-columns: 1fr;
-  }
+.action-details summary .caret {
+  transition: transform .2s cubic-bezier(.33, -0.03, .15, 1.01);;
+}
+
+.action-details[open] summary .caret {
+  transform: rotate(90deg);
+}
+
+.action-details-body {
+  height: auto;
+  border: 1px solid var(--gray-80);
+  border-top: 0;
+  border-radius: 0 0 .25rem .25rem;
+  background-color: var(--gray-95);
+  padding: 1rem;
 }
 
 /* Action form: tag chips marked for deletion get red diagonal stripes until the form is submitted.
