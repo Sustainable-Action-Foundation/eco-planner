@@ -429,6 +429,12 @@ model OrgMemberships {
 
   role OrgRole @default(MEMBER)
 
+  // Who last changed the role and when (written by the org-membership API);
+  // a lightweight stand-in for a proper audit log. Only the latest change is kept.
+  role_changed_at    DateTime?
+  role_changed_by_id String?
+  role_changed_by    Users?    @relation("membership_role_changes", fields: [role_changed_by_id], references: [id], onDelete: SetNull)
+
   group_memberships GroupMemberships[]
 
   @@unique([user_id, org_id]) // No dupe memberships for the same user in the same org
@@ -508,4 +514,6 @@ model Users {
   authored_comments           Comments[]          @relation("comment_author")
 
   sent_guest_invites GuestInvites[] @relation("sent_guest_invites")
+
+  membership_role_changes OrgMemberships[] @relation("membership_role_changes")
 }

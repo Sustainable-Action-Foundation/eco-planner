@@ -111,6 +111,9 @@ CREATE TABLE `OrgMemberships` (
     `user_id` VARCHAR(191) NOT NULL,
     `org_id`  VARCHAR(191) NOT NULL,
     `role`    ENUM('GUEST', 'MEMBER', 'MANAGER') NOT NULL DEFAULT 'MEMBER',
+    -- Latest role change (who/when), written by the org-membership API; starts empty
+    `role_changed_at`    DATETIME(3) NULL,
+    `role_changed_by_id` VARCHAR(191) NULL,
 
     PRIMARY KEY (`id`),
     UNIQUE INDEX `OrgMemberships_user_id_org_id_key`(`user_id`, `org_id`),
@@ -962,6 +965,8 @@ ALTER TABLE `OrgMemberships` ADD CONSTRAINT `OrgMemberships_user_id_fkey`
     FOREIGN KEY (`user_id`) REFERENCES `Users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `OrgMemberships` ADD CONSTRAINT `OrgMemberships_org_id_fkey`
     FOREIGN KEY (`org_id`) REFERENCES `Orgs`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `OrgMemberships` ADD CONSTRAINT `OrgMemberships_role_changed_by_id_fkey`
+    FOREIGN KEY (`role_changed_by_id`) REFERENCES `Users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 ALTER TABLE `GroupMemberships` ADD CONSTRAINT `GroupMemberships_membership_id_org_id_fkey`
     FOREIGN KEY (`membership_id`, `org_id`) REFERENCES `OrgMemberships`(`id`, `org_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `GroupMemberships` ADD CONSTRAINT `GroupMemberships_group_id_org_id_fkey`

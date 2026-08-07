@@ -71,7 +71,12 @@ export async function PUT(request: NextRequest) {
   try {
     await prisma.orgMemberships.update({
       where: { id: membership.id },
-      data: { role },
+      data: {
+        role,
+        // Latest-change trail; a lightweight stand-in for a proper audit log
+        role_changed_at: new Date(),
+        role_changed_by: { connect: { id: session.user.id } },
+      },
     });
   }
   catch (error) {

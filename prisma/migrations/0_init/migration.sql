@@ -199,6 +199,8 @@ CREATE TABLE `OrgMemberships` (
     `user_id` VARCHAR(191) NOT NULL,
     `org_id` VARCHAR(191) NOT NULL,
     `role` ENUM('GUEST', 'MEMBER', 'MANAGER') NOT NULL DEFAULT 'MEMBER',
+    `role_changed_at` DATETIME(3) NULL,
+    `role_changed_by_id` VARCHAR(191) NULL,
 
     UNIQUE INDEX `OrgMemberships_user_id_org_id_key`(`user_id`, `org_id`),
     UNIQUE INDEX `OrgMemberships_id_org_id_key`(`id`, `org_id`),
@@ -418,4 +420,7 @@ ALTER TABLE `GuestInvites` ADD CONSTRAINT `GuestInvites_org_id_fkey` FOREIGN KEY
 
 -- AddForeignKey
 ALTER TABLE `GuestInvites` ADD CONSTRAINT `GuestInvites_invited_by_id_fkey` FOREIGN KEY (`invited_by_id`) REFERENCES `Users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `OrgMemberships` ADD CONSTRAINT `OrgMemberships_role_changed_by_id_fkey` FOREIGN KEY (`role_changed_by_id`) REFERENCES `Users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
