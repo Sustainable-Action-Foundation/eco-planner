@@ -63,10 +63,11 @@ export async function getOrgManagement(orgId: string): Promise<OrgManagement | n
           select: { id: true, name: true, memberships: { select: { membership_id: true } } },
           orderBy: { name: 'asc' },
         },
-        guest_invites: {
-          select: { token: true, email: true, created_at: true },
-          orderBy: { created_at: 'desc' },
-        },
+        // NOTE: Guests are disabled until further notice; no invites are fetched.
+        // guest_invites: {
+        //   select: { token: true, email: true, created_at: true },
+        //   orderBy: { created_at: 'desc' },
+        // },
       },
     });
     if (!org) {
@@ -86,11 +87,9 @@ export async function getOrgManagement(orgId: string): Promise<OrgManagement | n
         name: group.name,
         memberIds: group.memberships.map(membership => membership.membership_id),
       })),
-      invites: org.guest_invites.map(invite => ({
-        token: invite.token,
-        email: invite.email,
-        createdAt: invite.created_at,
-      })),
+      // NOTE: Guests are disabled until further notice; restore the mapping from
+      // org.guest_invites (and the select above) when they return.
+      invites: [],
       selfMembershipId: org.memberships.find(membership => membership.user.id === accessContext.id)?.id ?? null,
     };
   }

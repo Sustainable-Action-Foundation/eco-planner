@@ -1,3 +1,5 @@
+// NOTE: Guests are disabled until further notice. This fetcher is currently
+// unused (the /invite/[inviteToken] page that consumed it dead-ends in a 404).
 import "server-only";
 import { prisma } from "@/lib/prisma";
 

@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
+import { OrgRole } from "@/lib/prisma/generated";
 import { getSession } from "@/lib/session";
 import type { UserAccessContext } from "@/types";
 import { cookies } from "next/headers";
@@ -46,7 +47,11 @@ export async function getAccessContextById(userId: string): Promise<UserAccessCo
       id: user.id,
       username: user.username,
       isSuperAdmin: user.is_super_admin,
-      memberships: user.memberships.map(membership => ({
+      // NOTE: Guests are disabled until further notice. GUEST memberships are
+      // dropped here at the root, so any lingering GUEST row grants nothing
+      // anywhere: no group grants, no org tab, no visibility. Remove the filter
+      // to re-enable guests.
+      memberships: user.memberships.filter(membership => membership.role !== OrgRole.GUEST).map(membership => ({
         orgId: membership.org_id,
         role: membership.role,
         groupIds: membership.group_memberships.map(groupMembership => groupMembership.group_id),

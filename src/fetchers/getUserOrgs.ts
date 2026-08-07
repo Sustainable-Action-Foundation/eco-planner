@@ -12,6 +12,10 @@ export type UserOrg = { id: string, name: string, isGuest: boolean };
  * account. `isGuest` lets the start page keep guests off the org landing by
  * default (they reach it through its tab), since guests only see what their
  * groups are explicitly granted.
+ *
+ * NOTE: Guests are disabled until further notice: the access context drops
+ * GUEST memberships at the root (see getUserAccessContext), so `isGuest` is
+ * currently never true here.
  */
 export async function getUserOrgs(): Promise<UserOrg[]> {
   const accessContext = await getUserAccessContext();

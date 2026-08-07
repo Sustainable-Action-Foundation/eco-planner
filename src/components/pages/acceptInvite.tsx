@@ -1,3 +1,5 @@
+// NOTE: Guests are disabled until further notice. This component is currently
+// unused (the /invite/[inviteToken] page that rendered it dead-ends in a 404).
 'use client';
 
 import { useState } from "react";
