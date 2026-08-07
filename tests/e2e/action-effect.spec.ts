@@ -5,9 +5,14 @@ import { cwd } from "node:process";
 
 const adminFile = path.join(cwd(), "tests/.auth/admin.json");
 
-/** The repeatable descriptive-field rows of the action form (header combobox + type select + value control). */
+/** The repeatable descriptive-field rows of the action form: one <details> accordion per group. */
 function actionFieldRows(page: Page) {
   return page.getByTestId('action-field-row');
+}
+
+/** The rows are collapsed <details>; open them all so their inputs become visible/fillable */
+async function openActionFieldRows(page: Page) {
+  await actionFieldRows(page).evaluateAll(rows => rows.forEach(row => row.setAttribute('open', '')));
 }
 
 /** Reads the action form's descriptive fields as a header -> value record.
@@ -26,11 +31,13 @@ async function readActionFields(page: Page): Promise<Record<string, string>> {
  * gets a new row added for it.
  */
 async function fillActionField(page: Page, header: string, value: string) {
+  await openActionFieldRows(page);
   const rows = actionFieldRows(page);
   const headers = await rows.getByTestId('action-field-header').evaluateAll(els => els.map(el => (el as HTMLInputElement).value));
   let index = headers.indexOf(header);
   if (index === -1) {
     await page.getByRole('button', { name: 'data_series_input.add_new_row' }).click();
+    await openActionFieldRows(page);
     index = headers.length;
     await rows.nth(index).getByTestId('action-field-header').fill(header);
   }
