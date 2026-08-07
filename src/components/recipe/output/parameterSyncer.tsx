@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
 import { getRecipeRoadmapData } from "../context/roadmapDataCache";
 import { useEffect, useState } from "react";
@@ -13,7 +13,6 @@ export default function ParameterSync({
   const { variables } = useRecipe();
   const [roadmapData, setRoadmapData] = useState<Record<string, ClientRoadmapIteration> | null>(null);
   const { t } = useTranslation("components");
-
 
   useEffect(() => {
     async function fetchRoadmapData() {
@@ -51,14 +50,22 @@ export default function ParameterSync({
 
     // Button to apply the single parameter if there's only one option
     return (
-      <button
-        type="button"
-        onClick={() => {
-          setter(resultingParameter);
-        }}
-      >
-        {t("components:recipe_editor.apply_parameter")}
-      </button>
+      <>
+        <p className="margin-top-100 margin-bottom-25">{t("components:recipe_editor.apply_paramater_question")}</p>
+        <button
+          className="width-100"
+          type="button"
+          onClick={() => {
+            setter(resultingParameter);
+          }}
+        >
+          <Trans
+            i18nKey="components:recipe_editor.apply_parameter"
+            values={{ indicator: resultingParameter }}
+            components={{ strong: <strong /> }}
+          />
+        </button>
+      </>
     );
   } else { // > 1 data series variables
     const dataSeriesIds = dataSeriesVariables.map((variable) => variable.dataSeriesId);
@@ -76,14 +83,22 @@ export default function ParameterSync({
     } else if (resultingParameters.length === 1) {
       // Button to apply the single parameter if there's only one option after filtering
       return (
-        <button
-          type="button"
-          onClick={() => {
-            setter(resultingParameters[0]);
-          }}
-        >
-          {t("components:recipe_editor.apply_parameter")}
-        </button>
+        <>
+          <p className="margin-top-100 margin-bottom-25">{t("components:recipe_editor.apply_paramater_question")}</p>
+          <button
+            className="width-100"
+            type="button"
+            onClick={() => {
+              setter(resultingParameters[0]);
+            }}
+          >
+            <Trans
+              i18nKey="components:recipe_editor.apply_parameter"
+              values={{ indicator: resultingParameters[0] }}
+              components={{ strong: <strong /> }}
+            />
+          </button>
+        </>
       );
     } else {
       return null;

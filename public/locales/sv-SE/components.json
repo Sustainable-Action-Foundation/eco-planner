@@ -46,6 +46,10 @@
     "unnamed_suggestion": "Namnlöst förslag",
     "version": "version"
   },
+  "draggable": {
+    "drag_to_snap": "Dra över för att fästa panelen",
+    "bring_back": "Ta tillbaka panelen"
+  },
   "effects_table": {
     "create_new_effect": "$t(common:new.effect)",
     "effect_missing_name": "Namn saknas",
@@ -55,7 +59,7 @@
   "goal_table": {
     "action_count": "Antal $t(common:action_other)",
     "goal_name": "Målbannamn",
-    "leap_parameter": "LEAP-parameter",
+    "leap_parameter": "Indikatorparameter",
     "no_goals": "Du har inte tillgång till några $t(common:goal_other) i denna $t(common:roadmap_version_one), eller så är $t(common:roadmap_version_definite_one) tom.",
     "unit": "Enhet"
   },
@@ -94,6 +98,16 @@
   },
   "notification": {
     "icon_aria_label": "notiser"
+  },
+  "preview": {
+    "index": "#",
+    "date": "Datum",
+    "value": "Värde",
+    "goal": "Målbana",
+    "baseline": "Baslinje",
+    "historical": "Historisk",
+    "view_as_table": "Byt till tabell",
+    "view_as_graph": "Byt till graf"
   },
   "query_builder": {
     "add_data_manually": "Lägg till data manuellt",
@@ -137,7 +151,8 @@
   "recipe_editor": {
     "add_external_data": "Hitta historisk data",
     "add_new_recipe": "Lägg till nytt recept",
-    "apply_parameter": "Kopiera använd indikatorparameter till formuläret",
+    "apply_paramater_question": "Använd samma indikatorparameter som föräldern?",
+    "apply_parameter": "Använd <strong>{{indicator}}</strong> som indikatorparameter",
     "apply_unit": "Kopiera resulterande enhet till formuläret",
     "cancel_editing_recipe": "Avbryt",
     "commit_editing_recipe": "Spara recept",

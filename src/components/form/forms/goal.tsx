@@ -24,6 +24,7 @@ import GoalSeriesSection from "../sections/dataseries/goal";
 import { getHistoricalDatasetFromRecipe } from "@/functions/getHistoricalDataset";
 import { parseUnit } from "@/functions/unit";
 import PreviewSeries from "../sections/dataseries/preview";
+import DraggableSnapBack from "@/components/generic/draggable/draggable";
 
 function resolveDataSeriesType(goal?: Goal): DataSeriesType {
   // Somehow missing
@@ -524,7 +525,7 @@ export default function GoalForm({
 
         {/* Indicator parameter / LEAP parameter */}
         <label htmlFor="indicatorParameter">
-          {t("forms:goal.leap_parameter")}
+          {t("forms:goal.leap_parameter")} 
         </label>
         <TextSingleAutocomplete
           props={{
@@ -620,11 +621,13 @@ export default function GoalForm({
         >
           <strong className="block font-size-125 font-weight-bold text-align-center margin-0 padding-top-125">{t("forms:goal.preview")}</strong>
           <p className="text-align-center margin-top-50">{t("forms:goal.preview_info")}</p>
-          <PreviewSeries
-            main={previewGraphSeries.main}
-            baseline={previewGraphSeries.baseline}
-            historical={previewGraphSeries.historical}
-          />
+          <DraggableSnapBack>
+            <PreviewSeries
+              main={previewGraphSeries.main}
+              baseline={previewGraphSeries.baseline}
+              historical={previewGraphSeries.historical}
+            />
+          </DraggableSnapBack>
         </div>
       </fieldset>
 
