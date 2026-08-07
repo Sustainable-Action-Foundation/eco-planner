@@ -54,6 +54,6 @@ export const ActionFormName = {
   EndYear: "END_YEAR",
   // The old fixed inputs (description, cost efficiency, expected outcome, project
   // manager, relevant actors, category booleans) are gone: actions now carry
-  // free-form ActionFields rows instead (see functions/actionFields.ts)
+  // free-form ActionFields rows instead (see functions/fields.ts)
 } as const;
 export type ActionFormName = (typeof ActionFormName)[keyof typeof ActionFormName];

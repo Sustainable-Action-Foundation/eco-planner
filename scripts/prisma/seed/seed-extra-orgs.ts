@@ -7,7 +7,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { RoadmapType } from "@/lib/prisma/generated";
-import { ActionFieldHeaders, defaultActionFieldType } from "@/functions/actionFields";
+import { ActionFieldHeaders, defaultActionFieldType } from "@/functions/fields";
 import type { SeededUsers } from "./helpers.ts";
 import {
   RandomTextSE,

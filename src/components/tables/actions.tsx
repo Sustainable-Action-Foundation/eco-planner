@@ -2,7 +2,7 @@
 
 // TODO: Move to actions.tsx
 import styles from './tables.module.css' with { type: "css" };
-import { actionFieldLabel, getActionDescription, groupActionFields } from "@/functions/actionFields";
+import { actionFieldLabel, getActionDescription, groupActionFields } from "@/functions/fields";
 import type { Action, RoadmapIteration } from "@/types";
 import { AccessLevel } from "@/types/enums";
 import Link from 'next/link';

@@ -4,7 +4,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { ActionImpactType } from "@/lib/prisma/generated";
-import { ActionFieldHeaders, defaultActionFieldType } from "@/functions/actionFields";
+import { ActionFieldHeaders, defaultActionFieldType } from "@/functions/fields";
 import { Recipe } from "@/functions/recipe";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 import { parseUnit } from "@/functions/unit";

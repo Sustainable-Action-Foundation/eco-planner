@@ -9,7 +9,7 @@ import Image from "next/image";
 import { useDebouncedCallback } from "use-debounce";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
-import { ActionFieldHeaders, actionFieldLabel, getActionDescription, groupActionFields } from "@/functions/actionFields";
+import { ActionFieldHeaders, actionFieldLabel, getActionDescription, groupActionFields } from "@/functions/fields";
 
 export default function Actions({
   actions,

@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { getAccessContextById } from "@/fetchers/getUserAccessContext";
 import { accessControlSelection } from "@/fetchers/inclusionSelectors";
-import { parseActionFieldType } from "@/functions/actionFields";
+import { parseActionFieldType } from "@/functions/fields";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { iterationPath } from "@/functions/versionSlug";
 import { manualDataSeriesCreateData } from "@/functions/recipe/persistence";

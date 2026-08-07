@@ -1,5 +1,5 @@
 import { getOneAction } from "@/fetchers";
-import { ActionFieldHeaders, actionFieldLabel, getActionDescription, groupActionFields } from "@/functions/actionFields";
+import { ActionFieldHeaders, actionFieldLabel, getActionDescription, groupActionFields } from "@/functions/fields";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { getSession } from "@/lib/session";
 import { ActionFieldType, OrgRole } from "@/lib/prisma/generated";
