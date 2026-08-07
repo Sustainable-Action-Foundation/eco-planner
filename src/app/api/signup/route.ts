@@ -57,8 +57,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Pending guest invites both bypass the domain allowlist (the invitation is
+  // the vetting) and are consumed into GUEST memberships at creation below
+  const pendingInvites = await prisma.guestInvites.findMany({
+    where: { email: lowercaseEmail },
+    select: { org_id: true },
+  });
+
   // Check if the domain ends with any of the allowed domains (to allow subdomains)
-  if (!allowedDomains.some((allowedDomain) => (domain === allowedDomain) || (domain ?? '').endsWith('.' + allowedDomain))) {
+  if (!allowedDomains.some((allowedDomain) => (domain === allowedDomain) || (domain ?? '').endsWith('.' + allowedDomain))
+    && pendingInvites.length === 0) {
     return Response.json({ message: `Email domain '${domain}' is not allowed` },
       { status: 400 },
     );
@@ -90,22 +98,27 @@ export async function POST(request: NextRequest) {
   });
   const org = matchingOrgs.sort((a, b) => (b.domain?.length ?? 0) - (a.domain?.length ?? 0)).at(0);
 
+  // Guest memberships from pending invites; the domain org (joined as MEMBER below) wins if both apply
+  const invitedOrgIds = [...new Set(pendingInvites.map(invite => invite.org_id))].filter(orgId => orgId !== org?.id);
+
   // Create user
   try {
-    await prisma.users.create({
-      data: {
-        username: username,
-        email: lowercaseEmail,
-        password_hash: hashedPassword,
-        ...(org ? {
+    await prisma.$transaction(async (tx) => {
+      await tx.users.create({
+        data: {
+          username: username,
+          email: lowercaseEmail,
+          password_hash: hashedPassword,
           memberships: {
-            create: {
-              org: { connect: { id: org.id } },
-              role: OrgRole.MEMBER,
-            },
+            create: [
+              ...(org ? [{ org: { connect: { id: org.id } }, role: OrgRole.MEMBER }] : []),
+              ...invitedOrgIds.map(orgId => ({ org: { connect: { id: orgId } }, role: OrgRole.GUEST })),
+            ],
           },
-        } : {}),
-      },
+        },
+      });
+      // The invites are consumed by the signup
+      await tx.guestInvites.deleteMany({ where: { email: lowercaseEmail } });
     });
   }
   catch (err) {

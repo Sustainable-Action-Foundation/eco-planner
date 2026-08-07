@@ -193,6 +193,18 @@ CREATE TABLE `GroupMemberships` (
     PRIMARY KEY (`membership_id`, `group_id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- Pending guest invitations (new feature; starts empty, no data to migrate)
+CREATE TABLE `GuestInvites` (
+    `token`         VARCHAR(191) NOT NULL,
+    `email`         VARCHAR(191) NOT NULL,
+    `created_at`    DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `org_id`        VARCHAR(191) NOT NULL,
+    `invited_by_id` VARCHAR(191) NULL,
+
+    UNIQUE INDEX `GuestInvites_org_id_email_key`(`org_id`, `email`),
+    PRIMARY KEY (`token`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- Helper: old group -> majority org (dropped in section 13).
 -- _user_group: A = user id, B = user_group id.
 CREATE TABLE `_migration_group_org` AS
@@ -942,6 +954,10 @@ ALTER TABLE `Actions` ADD CONSTRAINT `Actions_org_id_fkey`
 
 ALTER TABLE `Groups` ADD CONSTRAINT `Groups_org_id_fkey`
     FOREIGN KEY (`org_id`) REFERENCES `Orgs`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `GuestInvites` ADD CONSTRAINT `GuestInvites_org_id_fkey`
+    FOREIGN KEY (`org_id`) REFERENCES `Orgs`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `GuestInvites` ADD CONSTRAINT `GuestInvites_invited_by_id_fkey`
+    FOREIGN KEY (`invited_by_id`) REFERENCES `Users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 ALTER TABLE `OrgMemberships` ADD CONSTRAINT `OrgMemberships_user_id_fkey`
     FOREIGN KEY (`user_id`) REFERENCES `Users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `OrgMemberships` ADD CONSTRAINT `OrgMemberships_org_id_fkey`

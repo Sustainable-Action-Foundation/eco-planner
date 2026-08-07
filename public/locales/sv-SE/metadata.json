@@ -54,5 +54,8 @@
   },
   "org_groups": {
     "title": "Hantera organisation"
+  },
+  "invite": {
+    "title": "Inbjudan"
   }
 }

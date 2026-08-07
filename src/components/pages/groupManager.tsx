@@ -57,11 +57,86 @@ export default function GroupManager({ management }: { management: OrgManagement
         </details>
       </section>
 
+      <section className="margin-bottom-300">
+        <h2 className="font-size-125">{t("pages:org_groups.invite_heading")}</h2>
+        <InviteGuests orgId={management.org.id} invites={management.invites} />
+      </section>
+
       <section>
         <h2 className="font-size-125">{t("pages:org_groups.groups_heading")}</h2>
         <GroupList management={management} />
         <CreateGroup orgId={management.org.id} members={management.members} />
       </section>
+    </>
+  );
+}
+
+/** Email input to invite a guest, plus the org's pending invites with revoke buttons */
+function InviteGuests({ orgId, invites }: { orgId: string, invites: OrgManagement["invites"] }) {
+  const { t } = useTranslation(["pages", "common"]);
+  const { addToast } = useToast();
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  function invite(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    formSubmitter('/api/guest-invite', JSON.stringify({ orgId, email }), 'POST', t, setIsLoading, undefined, () => {
+      addToast(t("pages:org_groups.invite_sent_toast", { email }), "success");
+      setEmail("");
+      router.refresh();
+    }, (err) => {
+      setIsLoading(false);
+      addToast(errorMessage(err, t), "error");
+      // The invite may have been kept even though sending failed; show it
+      router.refresh();
+    }, addToast);
+  }
+
+  function revoke(invitation: OrgManagement["invites"][number]) {
+    formSubmitter('/api/guest-invite', JSON.stringify({ token: invitation.token }), 'DELETE', t, setIsLoading, undefined, () => {
+      addToast(t("pages:org_groups.invite_revoked_toast", { email: invitation.email }), "success");
+      router.refresh();
+    }, (err) => {
+      setIsLoading(false);
+      addToast(errorMessage(err, t), "error");
+    }, addToast);
+  }
+
+  return (
+    <>
+      <p className="margin-top-0 color-gray">{t("pages:org_groups.invite_description")}</p>
+      <form onSubmit={invite} className="flex gap-50 flex-wrap-wrap align-items-flex-end" data-testid="invite-form">
+        <label className="font-weight-500">
+          {t("pages:org_groups.invite_email_label")}
+          <input
+            className="margin-top-25 block"
+            type="email"
+            required={true}
+            data-testid="invite-email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+        </label>
+        <button type="submit" className="seagreen color-purewhite" disabled={isLoading} data-testid="invite-send">
+          {t("pages:org_groups.invite_send")}
+        </button>
+      </form>
+
+      {invites.length > 0 ? (
+        <ul className="margin-0 padding-0 margin-top-100" style={{ listStyle: 'none', maxWidth: '30rem' }}>
+          {invites.map(invitation => (
+            <li key={invitation.token} className="flex gap-100 align-items-center margin-block-25 font-size-14px" data-testid="invite-row">
+              <span className="flex-grow-100 white-space-nowrap text-overflow-ellipsis overflow-hidden">{invitation.email}</span>
+              {/* ISO date, not locale-dependent: SSR and client must agree for hydration */}
+              <span className="color-gray">{new Date(invitation.createdAt).toISOString().slice(0, 10)}</span>
+              <button type="button" disabled={isLoading} data-testid="invite-revoke" onClick={() => revoke(invitation)}>
+                {t("pages:org_groups.invite_revoke")}
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </>
   );
 }
@@ -180,7 +255,7 @@ function GroupEditor({
   const [deleteArmed, setDeleteArmed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  function save(event: React.FormEvent) {
+  function save(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     formSubmitter('/api/group', JSON.stringify({
       groupId: group.id,
@@ -276,7 +351,7 @@ function CreateGroup({
   // Remount the member select after a successful create to clear it
   const [createdCount, setCreatedCount] = useState(0);
 
-  function create(event: React.FormEvent) {
+  function create(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     formSubmitter('/api/group', JSON.stringify({
       orgId,

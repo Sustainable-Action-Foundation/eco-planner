@@ -375,10 +375,32 @@ model Orgs {
   memberships     OrgMemberships[]
   groups          Groups[]         @relation("org_groups")
   access_controls AccessControls[]
+  guest_invites   GuestInvites[]
 
   data_series DataSeries[]
   recipes     Recipes[]
   actions     Actions[]
+}
+
+// A pending invitation to join an org as a GUEST, sent to an email address by an
+// org manager. The token doubles as the email link's capability; accepting (or
+// signing up with the invited email) consumes the invite by deleting it, so the
+// table only ever holds pending invites. An invited email may sign up even when
+// its domain is not in the allowed list.
+model GuestInvites {
+  token      String   @id @default(uuid())
+  email      String
+  created_at DateTime @default(now())
+
+  org_id String
+  org    Orgs   @relation(fields: [org_id], references: [id], onDelete: Cascade)
+
+  // Purely informational; the invite survives the inviter leaving
+  invited_by_id String?
+  invited_by    Users?  @relation("sent_guest_invites", fields: [invited_by_id], references: [id], onDelete: SetNull)
+
+  // One pending invite per email and org; re-inviting replaces it (with a fresh token)
+  @@unique([org_id, email])
 }
 
 model Groups {
@@ -484,4 +506,6 @@ model Users {
   authored_roadmaps           Roadmaps[]          @relation("roadmap_author")
   authored_data_series        DataSeries[]        @relation("data_series_author")
   authored_comments           Comments[]          @relation("comment_author")
+
+  sent_guest_invites GuestInvites[] @relation("sent_guest_invites")
 }

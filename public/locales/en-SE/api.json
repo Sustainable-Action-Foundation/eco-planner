@@ -56,5 +56,15 @@
     "own_role": "You cannot change your own role",
     "guest_locked": "Guest roles cannot be changed here",
     "updated": "Role updated"
+  },
+  "guestInvite": {
+    "invalid_email": "That does not look like an email address",
+    "already_member": "That email already belongs to a member of the organization",
+    "send_failed": "The invite was saved but the email could not be sent; revoke it or try again later",
+    "sent": "Invite sent",
+    "invalid": "Invite not found; it may have been accepted or revoked",
+    "email_mismatch": "This invitation was sent to a different email address than your account's",
+    "accepted": "Invite accepted",
+    "revoked": "Invite revoked"
   }
 }

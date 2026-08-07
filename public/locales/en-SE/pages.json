@@ -201,6 +201,24 @@
     "members_placeholder": "Select members",
     "role_updated_toast": "Updated {{name}}'s role",
     "member_count_one": "{{count}} member",
-    "member_count_other": "{{count}} members"
+    "member_count_other": "{{count}} members",
+    "invite_heading": "Invite guests",
+    "invite_description": "Guests are outside contributors: they only see what their groups are explicitly granted. The invitee gets an email with a link to join.",
+    "invite_email_label": "Email address",
+    "invite_send": "Send invite",
+    "invite_sent_toast": "Invite sent to {{email}}",
+    "invite_revoked_toast": "Invite to {{email}} revoked",
+    "invite_revoke": "Revoke"
+  },
+  "invite": {
+    "title": "Invitation",
+    "heading": "You have been invited to {{org}}",
+    "description": "This invitation lets {{email}} join {{org}} as a guest.",
+    "login_prompt": "Log in with the invited email address to accept, or create an account first if you don't have one.",
+    "login_link": "Log in",
+    "signup_link": "Create account",
+    "signup_hint": "If you sign up with the invited email address, the invitation is accepted automatically.",
+    "accept": "Join {{org}} as a guest",
+    "accepted_toast": "You are now a guest in {{org}}"
   }
 }

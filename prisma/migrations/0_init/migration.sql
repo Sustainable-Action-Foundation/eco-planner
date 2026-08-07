@@ -171,6 +171,18 @@ CREATE TABLE `Orgs` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
+CREATE TABLE `GuestInvites` (
+    `token` VARCHAR(191) NOT NULL,
+    `email` VARCHAR(191) NOT NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `org_id` VARCHAR(191) NOT NULL,
+    `invited_by_id` VARCHAR(191) NULL,
+
+    UNIQUE INDEX `GuestInvites_org_id_email_key`(`org_id`, `email`),
+    PRIMARY KEY (`token`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `Groups` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
@@ -400,4 +412,10 @@ ALTER TABLE `_goal_tags` ADD CONSTRAINT `_goal_tags_A_fkey` FOREIGN KEY (`A`) RE
 
 -- AddForeignKey
 ALTER TABLE `_goal_tags` ADD CONSTRAINT `_goal_tags_B_fkey` FOREIGN KEY (`B`) REFERENCES `Goals`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `GuestInvites` ADD CONSTRAINT `GuestInvites_org_id_fkey` FOREIGN KEY (`org_id`) REFERENCES `Orgs`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `GuestInvites` ADD CONSTRAINT `GuestInvites_invited_by_id_fkey` FOREIGN KEY (`invited_by_id`) REFERENCES `Users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 

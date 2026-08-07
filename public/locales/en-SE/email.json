@@ -13,5 +13,9 @@
   "verification": {
     "subject": "Verify your email address",
     "body": "Hello! Please verify your email address by clicking on this link:\n{{baseUrl}}/verify/confirm?email={{email}}&hash={{userHash}}"
+  },
+  "invite": {
+    "subject": "You have been invited to {{orgName}} on $t(common:layout.app_name_compact)",
+    "body": "Hello! You have been invited to join {{orgName}} as a guest on $t(common:layout.app_name_compact). Follow this link to accept:\n{{baseUrl}}/invite/{{token}}\n\nIf you don't have an account yet, sign up with this email address and the invitation is accepted automatically."
   }
 }
