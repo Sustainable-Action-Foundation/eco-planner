@@ -4,28 +4,30 @@ import { prisma } from "@/lib/prisma";
 import { OrgRole } from "@/lib/prisma/generated";
 import { cacheTag } from "next/cache";
 
-export type UserOrg = { id: string, name: string };
+export type UserOrg = { id: string, name: string, isGuest: boolean };
 
 /**
- * The orgs whose landing pages the requesting user gets on the start page:
- * proper (non-guest) memberships only. Guests are cross-org contributors and
- * keep the public start page, like users without an org.
+ * The orgs shown in the start page's org switcher: every membership, guest ones
+ * included — the org a guest was invited into is the whole point of their
+ * account. `isGuest` lets the start page keep guests off the org landing by
+ * default (they reach it through its tab), since guests only see what their
+ * groups are explicitly granted.
  */
 export async function getUserOrgs(): Promise<UserOrg[]> {
   const accessContext = await getUserAccessContext();
-  const orgIds = accessContext?.memberships
-    .filter(membership => membership.role !== OrgRole.GUEST)
-    .map(membership => membership.orgId)
-    ?? [];
-
-  if (!orgIds.length) {
+  if (!accessContext?.memberships.length) {
     return [];
   }
-  return getCachedOrgs(orgIds);
+
+  const orgs = await getCachedOrgs(accessContext.memberships.map(membership => membership.orgId));
+  return orgs.map(org => ({
+    ...org,
+    isGuest: accessContext.memberships.find(membership => membership.orgId === org.id)?.role === OrgRole.GUEST,
+  }));
 }
 
 /** Caches the org names per org-id set (org names practically never change). */
-async function getCachedOrgs(orgIds: string[]): Promise<UserOrg[]> {
+async function getCachedOrgs(orgIds: string[]): Promise<{ id: string, name: string }[]> {
   'use cache';
   cacheTag('database', 'org');
 

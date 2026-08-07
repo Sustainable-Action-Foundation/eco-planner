@@ -40,12 +40,14 @@ export default async function Page(
   ]);
 
   // Org members land on their org's landing page; ?org= switches between the
-  // user's orgs and the public view. Org-less users (and guests) always get the
-  // public view, so `selectedOrg` stays null for them.
+  // user's orgs (guest ones included) and the public view. The default is the
+  // first proper membership: org-less users and pure guests get the public view
+  // and reach their org through its tab, since a guest's org landing only holds
+  // what their groups are explicitly granted.
   const orgParam = searchParams['org'] ? (Array.isArray(searchParams['org']) ? searchParams['org'][0] : searchParams['org']) : '';
   const selectedOrg = orgParam === 'public'
     ? null
-    : userOrgs.find(org => org.id === orgParam) ?? userOrgs[0] ?? null;
+    : userOrgs.find(org => org.id === orgParam) ?? userOrgs.find(org => !org.isGuest) ?? null;
 
   const typeFilter = searchParams['typeFilter'] ? (Array.isArray(searchParams['typeFilter']) ? searchParams['typeFilter'] : [searchParams['typeFilter']]) : [];
   const sortBy = searchParams['sortBy'] ? (Array.isArray(searchParams['sortBy']) ? (searchParams['sortBy'][0] as RoadmapSortBy) : (searchParams['sortBy'] as RoadmapSortBy)) : RoadmapSortBy.Default;

@@ -6,7 +6,13 @@ import { OrgRole } from "@/lib/prisma/generated";
 export type OrgManagement = {
   org: { id: string, name: string },
   /** All memberships of the org (group membership hangs off these, not off users) */
-  members: { membershipId: string, username: string, role: OrgRole }[],
+  members: {
+    membershipId: string,
+    username: string,
+    role: OrgRole,
+    /** Orgs (other than this one) where the user is a proper non-guest member; annotates where guests come from */
+    homeOrgs: string[],
+  }[],
   groups: { id: string, name: string, memberIds: string[] }[],
   /** Pending guest invites (they are deleted when accepted, so all rows are pending) */
   invites: { token: string, email: string, createdAt: Date }[],
@@ -35,7 +41,22 @@ export async function getOrgManagement(orgId: string): Promise<OrgManagement | n
         id: true,
         name: true,
         memberships: {
-          select: { id: true, role: true, user: { select: { id: true, username: true } } },
+          select: {
+            id: true,
+            role: true,
+            user: {
+              select: {
+                id: true,
+                username: true,
+                // The user's proper memberships elsewhere, to show where guests come from
+                memberships: {
+                  where: { role: { not: OrgRole.GUEST }, org_id: { not: orgId } },
+                  select: { org: { select: { name: true } } },
+                  orderBy: { org: { name: 'asc' } },
+                },
+              },
+            },
+          },
           orderBy: { user: { username: 'asc' } },
         },
         groups: {
@@ -58,6 +79,7 @@ export async function getOrgManagement(orgId: string): Promise<OrgManagement | n
         membershipId: membership.id,
         username: membership.user.username,
         role: membership.role,
+        homeOrgs: membership.user.memberships.map(homeMembership => homeMembership.org.name),
       })),
       groups: org.groups.map(group => ({
         id: group.id,

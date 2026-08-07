@@ -208,7 +208,9 @@
     "invite_send": "Skicka inbjudan",
     "invite_sent_toast": "Inbjudan skickad till {{email}}",
     "invite_revoked_toast": "Inbjudan till {{email}} återkallades",
-    "invite_revoke": "Återkalla"
+    "invite_revoke": "Återkalla",
+    "home_org": "från {{orgs}}",
+    "home_org_none": "ingen egen organisation"
   },
   "invite": {
     "title": "Inbjudan",

@@ -208,7 +208,9 @@
     "invite_send": "Send invite",
     "invite_sent_toast": "Invite sent to {{email}}",
     "invite_revoked_toast": "Invite to {{email}} revoked",
-    "invite_revoke": "Revoke"
+    "invite_revoke": "Revoke",
+    "home_org": "from {{orgs}}",
+    "home_org_none": "no organization of their own"
   },
   "invite": {
     "title": "Invitation",

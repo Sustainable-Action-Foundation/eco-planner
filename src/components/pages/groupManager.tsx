@@ -79,7 +79,7 @@ function InviteGuests({ orgId, invites }: { orgId: string, invites: OrgManagemen
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  function invite(event: React.FormEvent<HTMLFormElement>) {
+  function invite(event: React.SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
     formSubmitter('/api/guest-invite', JSON.stringify({ orgId, email }), 'POST', t, setIsLoading, undefined, () => {
       addToast(t("pages:org_groups.invite_sent_toast", { email }), "success");
@@ -214,7 +214,16 @@ function MemberRoles({ management }: { management: OrgManagement }) {
         const locked = member.membershipId === management.selfMembershipId || member.role === OrgRole.GUEST;
         return (
           <li key={member.membershipId} className="flex gap-100 align-items-center margin-block-25 font-size-14px" data-testid="member-row">
-            <span className="flex-grow-100 white-space-nowrap text-overflow-ellipsis overflow-hidden">{member.username}</span>
+            <span className="flex-grow-100 white-space-nowrap text-overflow-ellipsis overflow-hidden">
+              {member.username}
+              {/* Proper members are home here — nothing to annotate. Guests show where
+                  they come from, or that they have no home org at all. */}
+              {member.role === OrgRole.GUEST ? (
+                <small className="color-gray"> {member.homeOrgs.length > 0
+                  ? t("pages:org_groups.home_org", { orgs: member.homeOrgs.join(", ") })
+                  : t("pages:org_groups.home_org_none")}</small>
+              ) : null}
+            </span>
             {member.role === OrgRole.GUEST ? (
               <span className="color-gray">{roleLabel(member.role, t)}</span>
             ) : (
@@ -255,7 +264,7 @@ function GroupEditor({
   const [deleteArmed, setDeleteArmed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  function save(event: React.FormEvent<HTMLFormElement>) {
+  function save(event: React.SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
     formSubmitter('/api/group', JSON.stringify({
       groupId: group.id,
@@ -351,7 +360,7 @@ function CreateGroup({
   // Remount the member select after a successful create to clear it
   const [createdCount, setCreatedCount] = useState(0);
 
-  function create(event: React.FormEvent<HTMLFormElement>) {
+  function create(event: React.SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
     formSubmitter('/api/group', JSON.stringify({
       orgId,
