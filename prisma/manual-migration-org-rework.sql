@@ -549,6 +549,17 @@ ALTER TABLE `ActionFields` ADD COLUMN `type` ENUM('PARAGRAPH', 'DATE', 'SHORT') 
 UPDATE `ActionFields` SET `type` = 'SHORT'
 WHERE `header` IN ('RELEVANT_ACTORS', 'PROJECT_MANAGER', 'TAG');
 
+-- Display order within each action. Old data has no meaningful order, so assign
+-- a stable one: grouped by header (canonical prose first is not attempted; plain
+-- alphabetical), ties broken by id. New writes set order explicitly.
+ALTER TABLE `ActionFields` ADD COLUMN `order` INTEGER NOT NULL DEFAULT 0;
+UPDATE `ActionFields` af
+JOIN (
+    SELECT `id`, ROW_NUMBER() OVER (PARTITION BY `action_id` ORDER BY `header`, `id`) - 1 AS `new_order`
+    FROM `ActionFields`
+) numbered ON numbered.`id` = af.`id`
+SET af.`order` = numbered.`new_order`;
+
 -- ============================================================================
 -- 11b. GEO AREAS: static SCB region lookup + geo markers on Roadmaps and Orgs
 -- ============================================================================

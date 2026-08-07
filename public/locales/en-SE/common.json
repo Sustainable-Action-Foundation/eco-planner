@@ -126,6 +126,8 @@
     "unitless": "unitless",
     "using": "using",
     "write": "Write something",
-    "yes": "Yes"
+    "yes": "Yes",
+    "move_up": "Move up",
+    "move_down": "Move down"
   }
 }

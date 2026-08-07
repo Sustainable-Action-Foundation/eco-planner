@@ -304,6 +304,8 @@ model ActionFields {
   header String          @db.TinyText
   value  String          @db.Text
   type   ActionFieldType @default(PARAGRAPH)
+  // Display order within the action (also orders repeated same-header values in their list)
+  order  Int             @default(0)
 }
 
 // Effects are the connection between an action and a goal, showing how the action affects the goal

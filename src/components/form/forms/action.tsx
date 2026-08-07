@@ -13,7 +13,7 @@ import { Recipe } from "@/functions/recipe/recipe";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { clientSafeGetAllTags } from "@/fetchers/clientSafeGetAllTags";
 import { clientSafeGetAllFieldHeaders } from "@/fetchers/clientSafeGetAllFieldHeaders";
-import { IconInfoCircle } from "@tabler/icons-react";
+import { IconChevronDown, IconChevronUp, IconInfoCircle } from "@tabler/icons-react";
 import { Fragment, useEffect, useState } from "react";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
@@ -110,6 +110,29 @@ export default function ActionForm({
 
   function addValue(groupIndex: number) {
     setFields(previous => previous.map((group, i) => i === groupIndex ? { ...group, values: [...group.values, ""] } : group));
+  }
+
+  // The submitted (and therefore persisted) order is the state order, so these
+  // swaps are what "reordering" means; the API stores it in the fields' `order`.
+  function moveGroup(index: number, direction: -1 | 1) {
+    setFields(previous => {
+      const target = index + direction;
+      if (target < 0 || target >= previous.length) return previous;
+      const next = [...previous];
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
+  }
+
+  function moveValue(groupIndex: number, valueIndex: number, direction: -1 | 1) {
+    setFields(previous => previous.map((group, i) => {
+      if (i !== groupIndex) return group;
+      const target = valueIndex + direction;
+      if (target < 0 || target >= group.values.length) return group;
+      const values = [...group.values];
+      [values[valueIndex], values[target]] = [values[target], values[valueIndex]];
+      return { ...group, values };
+    }));
   }
 
   // Removing a group's last value removes the whole group
@@ -393,12 +416,35 @@ export default function ActionForm({
                     <option value={ActionFieldType.DATE}>{t("forms:action.field_types.date")}</option>
                   </select>
                   {valueControl(0)}
-                  <button
-                    type="button"
-                    onClick={() => removeValue(index, 0)}
-                  >
-                    {t("common:tsx.delete")}
-                  </button>
+                  <span className="flex gap-25 align-items-center">
+                    {/* Reorders the whole group among the fields */}
+                    <button
+                      type="button"
+                      className="padding-25"
+                      aria-label={t("common:tsx.move_up")}
+                      disabled={index === 0}
+                      data-testid="action-field-move-up"
+                      onClick={() => moveGroup(index, -1)}
+                    >
+                      <IconChevronUp width={16} height={16} aria-hidden="true" style={{ display: 'block' }} />
+                    </button>
+                    <button
+                      type="button"
+                      className="padding-25"
+                      aria-label={t("common:tsx.move_down")}
+                      disabled={index === fields.length - 1}
+                      data-testid="action-field-move-down"
+                      onClick={() => moveGroup(index, 1)}
+                    >
+                      <IconChevronDown width={16} height={16} aria-hidden="true" style={{ display: 'block' }} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeValue(index, 0)}
+                    >
+                      {t("common:tsx.delete")}
+                    </button>
+                  </span>
 
                   {/* Additional list values render underneath, sharing the group's heading and type */}
                   {group.values.slice(1).map((_, restIndex) => (
@@ -406,12 +452,34 @@ export default function ActionForm({
                       <span aria-hidden="true" />
                       <span aria-hidden="true" />
                       {valueControl(restIndex + 1)}
-                      <button
-                        type="button"
-                        onClick={() => removeValue(index, restIndex + 1)}
-                      >
-                        {t("common:tsx.delete")}
-                      </button>
+                      <span className="flex gap-25 align-items-center">
+                        {/* Reorders this value within the group's list (moving the second value up swaps it with the first) */}
+                        <button
+                          type="button"
+                          className="padding-25"
+                          aria-label={t("common:tsx.move_up")}
+                          data-testid="action-value-move-up"
+                          onClick={() => moveValue(index, restIndex + 1, -1)}
+                        >
+                          <IconChevronUp width={16} height={16} aria-hidden="true" style={{ display: 'block' }} />
+                        </button>
+                        <button
+                          type="button"
+                          className="padding-25"
+                          aria-label={t("common:tsx.move_down")}
+                          disabled={restIndex + 1 === group.values.length - 1}
+                          data-testid="action-value-move-down"
+                          onClick={() => moveValue(index, restIndex + 1, 1)}
+                        >
+                          <IconChevronDown width={16} height={16} aria-hidden="true" style={{ display: 'block' }} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeValue(index, restIndex + 1)}
+                        >
+                          {t("common:tsx.delete")}
+                        </button>
+                      </span>
                     </Fragment>
                   ))}
 

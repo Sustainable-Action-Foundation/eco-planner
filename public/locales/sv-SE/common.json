@@ -126,6 +126,8 @@
     "unitless": "enhetslös",
     "using": "använder",
     "write": "Skriv något",
-    "yes": "Ja"
+    "yes": "Ja",
+    "move_up": "Flytta upp",
+    "move_down": "Flytta ner"
   }
 }

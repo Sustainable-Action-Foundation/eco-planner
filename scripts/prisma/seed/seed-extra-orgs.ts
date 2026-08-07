@@ -82,7 +82,7 @@ export async function seedExtraOrgs(users: SeededUsers): Promise<void> {
           org: { connect: { id: org.id } },
           roadmap_iteration: { connect: { id: iteration.id } },
           author: { connect: { id: randomOf(members).id } },
-          fields: { createMany: { data: fields.map(field => ({ ...field, type: defaultActionFieldType(field.header) })) } },
+          fields: { createMany: { data: fields.map((field, index) => ({ ...field, type: defaultActionFieldType(field.header), order: index })) } },
           ...getRandomCreatedAtAndUpdatedAt(),
         },
       });
