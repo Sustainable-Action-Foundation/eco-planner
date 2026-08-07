@@ -177,5 +177,28 @@
     "description": "Verify your email by clicking the button below.",
     "submit": "Verify my email",
     "title": "Verify your email"
+  },
+  "org_groups": {
+    "title": "Manage organization",
+    "heading": "Manage {{org}}",
+    "description": "Groups gather members so that content can be shared with them through access grants. Deleting a group also removes its grants.",
+    "manage_groups": "Manage organization",
+    "name_label": "Group name",
+    "members_legend": "Members",
+    "create_group": "Create group",
+    "no_groups": "This organization has no groups yet.",
+    "saved_toast": "Group \"{{name}}\" saved",
+    "created_toast": "Group \"{{name}}\" created",
+    "deleted_toast": "Group \"{{name}}\" deleted",
+    "confirm_delete": "Confirm deletion",
+    "roles": {
+      "manager": "Manager",
+      "member": "Member",
+      "guest": "Guest"
+    },
+    "members_heading": "Members",
+    "groups_heading": "Groups",
+    "members_placeholder": "Select members",
+    "role_updated_toast": "Updated {{name}}'s role"
   }
 }

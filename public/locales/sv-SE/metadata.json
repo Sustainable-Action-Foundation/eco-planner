@@ -51,5 +51,8 @@
   "action_create": {
     "title": "Skapa åtgärd",
     "description": "Skapa en ny åtgärd"
+  },
+  "org_groups": {
+    "title": "Hantera organisation"
   }
 }

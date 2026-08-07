@@ -177,5 +177,28 @@
     "description": "Verifiera din e‑postadress genom att klicka på knappen nedan.",
     "submit": "Verifiera min e‑postadress",
     "title": "Verifiera din e‑postadress"
+  },
+  "org_groups": {
+    "title": "Hantera organisation",
+    "heading": "Hantera {{org}}",
+    "description": "Grupper samlar medlemmar så att innehåll kan delas med dem genom åtkomstbehörigheter. Om en grupp tas bort försvinner även dess behörigheter.",
+    "manage_groups": "Hantera organisation",
+    "name_label": "Gruppnamn",
+    "members_legend": "Medlemmar",
+    "create_group": "Skapa grupp",
+    "no_groups": "Organisationen har inga grupper ännu.",
+    "saved_toast": "Gruppen \"{{name}}\" sparades",
+    "created_toast": "Gruppen \"{{name}}\" skapades",
+    "deleted_toast": "Gruppen \"{{name}}\" togs bort",
+    "confirm_delete": "Bekräfta borttagning",
+    "roles": {
+      "manager": "Ansvarig",
+      "member": "Medlem",
+      "guest": "Gäst"
+    },
+    "members_heading": "Medlemmar",
+    "groups_heading": "Grupper",
+    "members_placeholder": "Välj medlemmar",
+    "role_updated_toast": "{{name}}s roll uppdaterades"
   }
 }

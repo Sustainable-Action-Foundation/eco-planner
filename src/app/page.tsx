@@ -2,7 +2,7 @@ import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import AttributedImage, { AttributeText } from "@/components/generic/images/attributedImage";
 import { roadmapIterationSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
-import { RoadmapType } from "@/lib/prisma/generated";
+import { OrgRole, RoadmapType } from "@/lib/prisma/generated";
 import RoadmapFilters from "@/components/form/filters/roadmapFilters";
 import { RoadmapSortBy } from "@/types/enums";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
@@ -171,11 +171,18 @@ export default async function Page(
         <div className="rounded width-100 margin-bottom-100 margin-top-100 flex align-items-flex-end" style={{ height: '350px', backgroundColor: 'var(--seagreen)' }}>
           <div className="flex gap-100 flex-wrap-wrap align-items-flex-end justify-content-space-between padding-100 width-100">
             <h1 className="margin-block-25 color-purewhite" data-testid="home-title">{selectedOrg.name}</h1>
-            { // Link to create roadmap form if logged in
-              session.user
-                ? <Link href="/roadmap/create" className="button purewhite round block">{t("pages:home.create_roadmap")}</Link>
-                : null
-            }
+            <div className="flex gap-50 flex-wrap-wrap">
+              { // Managers also administer the org's groups
+                accessContext?.isSuperAdmin || accessContext?.memberships.some(membership => membership.orgId === selectedOrg.id && membership.role === OrgRole.MANAGER)
+                  ? <Link href={`/org/${selectedOrg.id}/groups`} className="button purewhite round block">{t("pages:org_groups.manage_groups")}</Link>
+                  : null
+              }
+              { // Link to create roadmap form if logged in
+                session.user
+                  ? <Link href="/roadmap/create" className="button purewhite round block">{t("pages:home.create_roadmap")}</Link>
+                  : null
+              }
+            </div>
           </div>
         </div>
 

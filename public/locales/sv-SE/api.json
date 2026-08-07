@@ -42,5 +42,19 @@
     "iteration_deleted": "Version av färdplan raderad",
     "failed_fetch_latest": "Misslyckades att hämta senaste versionen av färdplanen",
     "failed_record_connection": "Misslyckades att koppla poster. Förmodligen ogiltig färdplans- eller dataseriereferens"
+  },
+  "group": {
+    "manager_only": "Endast organisationens ansvariga kan hantera dess grupper",
+    "name_taken": "En grupp med det namnet finns redan i organisationen",
+    "not_found": "Gruppen hittades inte",
+    "created": "Gruppen skapades",
+    "updated": "Gruppen uppdaterades",
+    "deleted": "Gruppen togs bort"
+  },
+  "orgMembership": {
+    "not_found": "Medlemskapet hittades inte",
+    "own_role": "Du kan inte ändra din egen roll",
+    "guest_locked": "Gästroller kan inte ändras här",
+    "updated": "Rollen uppdaterades"
   }
 }

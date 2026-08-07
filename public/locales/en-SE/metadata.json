@@ -51,5 +51,8 @@
   "action_create": {
     "title": "Create action",
     "description": "Create a new action"
+  },
+  "org_groups": {
+    "title": "Manage organization"
   }
 }
