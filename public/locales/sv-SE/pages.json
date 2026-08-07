@@ -199,6 +199,8 @@
     "members_heading": "Medlemmar",
     "groups_heading": "Grupper",
     "members_placeholder": "Välj medlemmar",
-    "role_updated_toast": "{{name}}s roll uppdaterades"
+    "role_updated_toast": "{{name}}s roll uppdaterades",
+    "member_count_one": "{{count}} medlem",
+    "member_count_other": "{{count}} medlemmar"
   }
 }

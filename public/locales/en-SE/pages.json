@@ -199,6 +199,8 @@
     "members_heading": "Members",
     "groups_heading": "Groups",
     "members_placeholder": "Select members",
-    "role_updated_toast": "Updated {{name}}'s role"
+    "role_updated_toast": "Updated {{name}}'s role",
+    "member_count_one": "{{count}} member",
+    "member_count_other": "{{count}} members"
   }
 }

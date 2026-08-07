@@ -27,9 +27,14 @@ function roleLabel(role: OrgRole, t: TFunction): string {
   }
 }
 
-/** A member as a combobox option, searchable by username */
+/** A member as a combobox option, searchable by username. Plain members get no
+ * suffix: "(Member)" reads too much like "(Manager)" at a glance, and it's the
+ * overwhelmingly common case anyway. */
 function memberOption(member: OrgManagement["members"][number], t: TFunction): Option {
-  return { name: `${member.username} (${roleLabel(member.role, t)})`, value: member.membershipId };
+  return {
+    name: member.role === OrgRole.MEMBER ? member.username : `${member.username} (${roleLabel(member.role, t)})`,
+    value: member.membershipId,
+  };
 }
 
 /**
@@ -44,27 +49,65 @@ export default function GroupManager({ management }: { management: OrgManagement
     <>
       <section className="margin-bottom-300">
         <h2 className="font-size-125">{t("pages:org_groups.members_heading")}</h2>
-        <MemberRoles management={management} />
+        <details data-testid="members-details">
+          <summary className="padding-block-25" style={{ cursor: 'pointer' }}>
+            {t("pages:org_groups.member_count", { count: management.members.length })}
+          </summary>
+          <MemberRoles management={management} />
+        </details>
       </section>
 
       <section>
         <h2 className="font-size-125">{t("pages:org_groups.groups_heading")}</h2>
-        {management.groups.length === 0 ? (
-          <p className="margin-block-100">{t("pages:org_groups.no_groups")}</p>
-        ) : (
-          management.groups.map(group => (
+        <GroupList management={management} />
+        <CreateGroup orgId={management.org.id} members={management.members} />
+      </section>
+    </>
+  );
+}
+
+/** The org's groups as rows (member count + truncated names); one at a time expands into an editor */
+function GroupList({ management }: { management: OrgManagement }) {
+  const { t } = useTranslation(["pages", "common"]);
+  const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
+
+  if (management.groups.length === 0) {
+    return <p className="margin-block-100">{t("pages:org_groups.no_groups")}</p>;
+  }
+
+  const usernames = new Map(management.members.map(member => [member.membershipId, member.username]));
+
+  return (
+    <ul className="margin-0 padding-0" style={{ listStyle: 'none' }}>
+      {management.groups.map(group => (
+        <li key={group.id} className="margin-bottom-50" data-group-id={group.id}>
+          {group.id === editingGroupId ? (
             // Keyed on content so a router.refresh() after saving remounts with fresh data
             <GroupEditor
               key={`${group.id}:${group.name}:${group.memberIds.join(',')}`}
               group={group}
               members={management.members}
+              onClose={() => setEditingGroupId(null)}
             />
-          ))
-        )}
-
-        <CreateGroup orgId={management.org.id} members={management.members} />
-      </section>
-    </>
+          ) : (
+            <div className="flex gap-100 align-items-center padding-50 smooth" style={{ border: '1px solid var(--gray-80)' }} data-testid="group-row">
+              <div className="flex-grow-100" style={{ minWidth: 0 }}>
+                <span className="font-weight-500">{group.name}</span>
+                <p className="margin-0 color-gray white-space-nowrap text-overflow-ellipsis overflow-hidden">
+                  {t("pages:org_groups.member_count", { count: group.memberIds.length })}
+                  {group.memberIds.length > 0
+                    ? ` · ${group.memberIds.map(id => usernames.get(id)).filter(Boolean).join(", ")}`
+                    : null}
+                </p>
+              </div>
+              <button type="button" data-testid="group-edit" onClick={() => setEditingGroupId(group.id)}>
+                {t("common:tsx.edit")}
+              </button>
+            </div>
+          )}
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -89,18 +132,19 @@ function MemberRoles({ management }: { management: OrgManagement }) {
   }
 
   return (
-    <ul className="margin-0 padding-0" style={{ listStyle: 'none' }}>
+    <ul className="margin-0 padding-0" style={{ listStyle: 'none', maxWidth: '30rem' }}>
       {management.members.map(member => {
         // One's own role is locked (an org shouldn't manage away its last manager
         // by accident), and guest status is a different relationship, not a rank
         const locked = member.membershipId === management.selfMembershipId || member.role === OrgRole.GUEST;
         return (
-          <li key={member.membershipId} className="flex gap-100 align-items-center margin-block-50" data-testid="member-row">
-            <span className="flex-grow-100">{member.username}</span>
+          <li key={member.membershipId} className="flex gap-100 align-items-center margin-block-25 font-size-14px" data-testid="member-row">
+            <span className="flex-grow-100 white-space-nowrap text-overflow-ellipsis overflow-hidden">{member.username}</span>
             {member.role === OrgRole.GUEST ? (
               <span className="color-gray">{roleLabel(member.role, t)}</span>
             ) : (
               <select
+                style={{ padding: '.25rem .5rem' }}
                 value={member.role}
                 disabled={locked || isLoading}
                 data-testid="member-role"
@@ -120,9 +164,11 @@ function MemberRoles({ management }: { management: OrgManagement }) {
 function GroupEditor({
   group,
   members,
+  onClose,
 }: {
   group: OrgManagement["groups"][number],
   members: OrgManagement["members"],
+  onClose: () => void,
 }) {
   const { t } = useTranslation(["pages", "common"]);
   const { addToast } = useToast();
@@ -195,6 +241,9 @@ function GroupEditor({
       <div className="flex gap-50 margin-top-100">
         <button type="submit" className="seagreen color-purewhite" disabled={isLoading} data-testid="group-save">
           {t("common:tsx.save")}
+        </button>
+        <button type="button" disabled={isLoading} data-testid="group-cancel" onClick={onClose}>
+          {t("common:tsx.cancel")}
         </button>
         <button
           type="button"

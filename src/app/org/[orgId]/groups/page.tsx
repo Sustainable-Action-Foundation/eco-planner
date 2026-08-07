@@ -32,7 +32,7 @@ export default async function Page(props: { params: Promise<{ orgId: string }> }
     <>
       <Breadcrumb customSections={[management.org.name, t("pages:org_groups.title")]} />
 
-      <main>
+      <main className="padding-bottom-500">
         <h1 className="margin-block-300 padding-bottom-100" style={{ borderBottom: '1px solid var(--gray-80)' }}>
           {t("pages:org_groups.heading", { org: management.org.name })}
         </h1>
