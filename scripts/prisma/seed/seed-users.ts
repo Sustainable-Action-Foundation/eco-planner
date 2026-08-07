@@ -5,6 +5,9 @@
 //   admin/admin  -> super admin + org manager, verified
 //   anita/anita  -> regular org member, verified
 //   anton/anton  -> regular org member, NOT verified (cannot log in)
+//   greta/greta  -> GUEST in the org AND in the granted group: guests are disabled,
+//                   so she must see/edit NOTHING beyond public content (canary for
+//                   the guest-disabled invariants, see tests/e2e/guest-disabled.spec.ts)
 
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
@@ -14,10 +17,11 @@ import { RandomTextSE } from "../randomText";
 import { randomInt } from "./helpers.ts";
 
 export async function seedUsers(): Promise<SeededUsers> {
-  const [adminPassword, anitaPassword, antonPassword] = await Promise.all([
+  const [adminPassword, anitaPassword, antonPassword, gretaPassword] = await Promise.all([
     bcrypt.hash("admin", 10),
     bcrypt.hash("anita", 10),
     bcrypt.hash("anton", 10),
+    bcrypt.hash("greta", 10),
   ]);
 
   /** A super admin, username and password 'admin'. */
@@ -32,6 +36,10 @@ export async function seedUsers(): Promise<SeededUsers> {
   const anton = await prisma.users.create({
     data: { username: "Anton", password_hash: antonPassword, is_super_admin: false, is_verified: false, email: "anton@sustainable-action.ngo" },
   });
+  /** Greta is a GUEST: while guests are disabled her memberships must grant nothing. */
+  const greta = await prisma.users.create({
+    data: { username: "Greta", password_hash: gretaPassword, is_super_admin: false, is_verified: true, email: "greta@example.com" },
+  });
 
   // The org that owns all seeded content; its domain matches the users' emails so signup auto-joins.
   const org = await prisma.orgs.create({
@@ -44,6 +52,7 @@ export async function seedUsers(): Promise<SeededUsers> {
             { user_id: admin.id, role: OrgRole.MANAGER },
             { user_id: anita.id, role: OrgRole.MEMBER },
             { user_id: anton.id, role: OrgRole.MEMBER },
+            { user_id: greta.id, role: OrgRole.GUEST },
           ],
         },
       },
@@ -52,9 +61,12 @@ export async function seedUsers(): Promise<SeededUsers> {
   });
 
   // A group of the two regular users, used to exercise grant-based sharing.
+  // Greta (guest) is deliberately included: with guests disabled the group's
+  // grants must still give her nothing.
   const anitaMembership = org.memberships.find(membership => membership.user_id === anita.id);
   const antonMembership = org.memberships.find(membership => membership.user_id === anton.id);
-  if (!anitaMembership || !antonMembership) {
+  const gretaMembership = org.memberships.find(membership => membership.user_id === greta.id);
+  if (!anitaMembership || !antonMembership || !gretaMembership) {
     throw new Error("Seeded org memberships not found");
   }
   const group = await prisma.groups.create({
@@ -67,6 +79,7 @@ export async function seedUsers(): Promise<SeededUsers> {
           data: [
             { membership_id: anitaMembership.id },
             { membership_id: antonMembership.id },
+            { membership_id: gretaMembership.id },
           ],
         },
       },
@@ -83,7 +96,7 @@ export async function seedUsers(): Promise<SeededUsers> {
   const adminRoles: (OrgRole | null)[] = [OrgRole.MANAGER, OrgRole.MEMBER, null];
   const usedNames = new Set([org.name]);
   const usedDomains = new Set([org.domain]);
-  const usedUsernames = new Set([admin.username, anita.username, anton.username]);
+  const usedUsernames = new Set([admin.username, anita.username, anton.username, greta.username]);
   const extraOrgs: SeededUsers["extraOrgs"] = [];
   for (const adminRole of adminRoles) {
     let name: string;

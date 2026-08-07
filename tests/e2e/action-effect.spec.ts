@@ -335,5 +335,52 @@ test.describe.serial("Action & Effect tests", () => {
 
     await expect(page.getByRole('heading', { name: roadmapActionNameAllFields })).toBeVisible();
   });
+  test("Field order persists as entered", async ({ page }, testInfo) => {
+    // Entry order is the persisted order (the fields' `order` column): groups keep
+    // their sequence and repeated values render as a list in entry order.
+    // TODO: When reordering controls land in the accordion UI, cover them here too.
+    const name = `Test Ordered Action  ${testInfo.project.name}`;
+
+    await page.goto('/');
+    await page.getByTestId("create-button").click();
+    await page.getByTestId("create-action").click();
+
+    const option = page.locator('#iterationId option').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: 'v2' });
+    await page.locator('#iterationId').selectOption(await option.getAttribute('value'));
+    await page.locator('#actionName').fill(name);
+
+    // Pre-seeded group order: COST_EFFICIENCY, EXPECTED_OUTCOME, RELEVANT_ACTORS
+    await fillActionField(page, 'COST_EFFICIENCY', "CE text");
+    await fillActionField(page, 'EXPECTED_OUTCOME', "EO text");
+    await fillActionField(page, 'RELEVANT_ACTORS', "Actor B");
+    // A second value in the actors group becomes a list item after the first
+    await actionFieldRows(page).nth(2).getByRole('button', { name: 'action.add_list_item' }).click();
+    await actionFieldRows(page).nth(2).getByTestId('action-field-value').nth(1).fill("Actor A");
+
+    await page.locator('#submit-button').click();
+    await page.waitForLoadState("networkidle");
+    await expect(page.getByRole('heading', { name })).toBeVisible();
+
+    // Display: groups appear in entry order, list values in entry order (B before A)
+    const mainText = (await page.locator('main').textContent())?.replace(/\s+/g, ' ') ?? '';
+    const ce = mainText.indexOf('cost_efficiency');
+    const eo = mainText.indexOf('expected_outcome');
+    const ra = mainText.indexOf('relevant_actors');
+    expect(ce).toBeGreaterThan(-1);
+    expect(eo).toBeGreaterThan(ce);
+    expect(ra).toBeGreaterThan(eo);
+    const listItems = await page.locator('main ul li').allTextContents();
+    expect(listItems.indexOf('Actor B')).toBeGreaterThan(-1);
+    expect(listItems.indexOf('Actor B')).toBeLessThan(listItems.indexOf('Actor A'));
+
+    // Edit round-trip: same group order, same value order within the list
+    await page.getByTestId("admin-panel-edit").click();
+    await expect(actionFieldRows(page).first()).toBeVisible();
+    const headers = await actionFieldRows(page).getByTestId('action-field-header').evaluateAll(els => els.map(el => (el as HTMLInputElement).value));
+    expect(headers).toEqual(['COST_EFFICIENCY', 'EXPECTED_OUTCOME', 'RELEVANT_ACTORS']);
+    const actorValues = await actionFieldRows(page).nth(2).getByTestId('action-field-value').evaluateAll(els => els.map(el => (el as HTMLInputElement | HTMLTextAreaElement).value));
+    expect(actorValues).toEqual(['Actor B', 'Actor A']);
+  });
+
   // Effect tests begin here //  
 });
