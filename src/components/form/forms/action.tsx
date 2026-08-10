@@ -1,6 +1,6 @@
 "use client";
 
-import { ActionFieldHeaders, actionFieldLabel, defaultActionFieldType, groupActionFields, parseCsvList } from "@/functions/actionFields";
+import { ActionFieldHeaders, defaultActionFieldType, groupActionFields, parseCsvList } from "@/functions/fields";
 import formSubmitter from "@/functions/formSubmitter";
 import type { Action, ActionInput, DateValuesWithUnit, MultiRoadmapInstance } from "@/types";
 import { ActionFormName } from "@/types/form-names";
@@ -334,7 +334,7 @@ export default function ActionForm({
         <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:action.custom_fields_legend")}</legend>
 
         {fields.map((group, index) =>
-          <details key={index} className={`smooth margin-bottom-50 ${styles['action-details']}`}>
+          <details key={index} data-testid="action-field-row" className={`smooth margin-bottom-50 ${styles['action-details']}`}>
             <summary className="flex justify-content-space-between align-items-center padding-50 cursor-pointer" >
               <IconCaretRightFilled className={`${styles['caret']}`} height={20} width={20} style={{ minWidth: '20px' }} aria-hidden="true" />
               {group.header ? group.header : t("forms:action.field_header")} {/* TODO: Actually pass the locale, TODO: Title needs to make sense */}

@@ -9,7 +9,9 @@ test.describe("Historical Data Tests", () => {
 
   test.skip('Add Data Manually', async ({ page }) => {
     // Navigate to goal and historical data page
-    await page.goto('/');
+    // The public view: logged-in org members land on their org's page by default,
+    // which only lists that org's own content
+    await page.goto('/?org=public');
     await page.waitForLoadState("networkidle");
 
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
@@ -59,7 +61,9 @@ test.describe("Historical Data Tests", () => {
 
   test.skip('Add Data - External', async ({ page }) => {
     // Navigate to goal and historical data page
-    await page.goto('/');
+    // The public view: logged-in org members land on their org's page by default,
+    // which only lists that org's own content
+    await page.goto('/?org=public');
     await page.waitForLoadState("networkidle");
 
     await page.getByRole('link', { name: "Rikets färdplan" }).click();

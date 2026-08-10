@@ -53,7 +53,7 @@ async function isSidebarOpen(page: Page, wantedClosed: boolean) { // Checks if t
 test.describe('Screenshot tests', () => {
 
   test('Main page pics', async ({ page }, metadata) => {
-    await page.goto('/');
+    await page.goto('/?org=public');
     await Promise.any([
       page.waitForLoadState('load'),
       Promise.resolve(setTimeout(() => { /* pass */ }, maxLoadTime)),
@@ -94,7 +94,7 @@ test.describe('Screenshot tests', () => {
   }
 
   test('Sidebar pics', async ({ page }, metadata) => {
-    await page.goto('/');
+    await page.goto('/?org=public');
     await Promise.any([
       page.waitForLoadState('load'),
       Promise.resolve(setTimeout(() => { /* pass */ }, maxLoadTime)),
@@ -147,7 +147,7 @@ test.describe('Screenshots Admin', () => {
   test.use({ storageState: adminFile });
 
   test('Logged in sidebar pics', async ({ page }, metadata) => {
-    await page.goto('/');
+    await page.goto('/?org=public');
     await Promise.any([
       page.waitForLoadState('load'),
       Promise.resolve(setTimeout(() => { /* pass */ }, maxLoadTime)),
@@ -188,7 +188,7 @@ test.describe('Screenshots Admin', () => {
     await takeScreenshot(sendPageName, page, metadata.project.name);
 
     // Roadmap (the front page links to the latest iteration, which links to its parent roadmap)
-    await page.goto('/');
+    await page.goto('/?org=public');
     await Promise.any([
       page.waitForLoadState('load'),
       Promise.resolve(setTimeout(() => { /* pass */ }, maxLoadTime)),
@@ -218,7 +218,7 @@ test.describe('Screenshots Admin', () => {
 
   test('Roadmap iteration pics', async ({ page }, metadata) => {
     // Iteration create (derive the roadmap id from the front page, which links to the latest iteration of each roadmap)
-    await page.goto('/');
+    await page.goto('/?org=public');
     await Promise.any([
       page.waitForLoadState('load'),
       Promise.resolve(setTimeout(() => { /* pass */ }, maxLoadTime)),
@@ -235,7 +235,7 @@ test.describe('Screenshots Admin', () => {
     await takeScreenshot(sendPageName, page, metadata.project.name);
 
     // Iteration (the front page links to the latest iteration of each roadmap)
-    await page.goto('/');
+    await page.goto('/?org=public');
     await Promise.any([
       page.waitForLoadState('load'),
       Promise.resolve(setTimeout(() => { /* pass */ }, maxLoadTime)),
@@ -268,7 +268,7 @@ test.describe('Screenshots Admin', () => {
     await takeScreenshot(sendPageName, page, metadata.project.name);
 
     // Goal
-    await page.goto('/');
+    await page.goto('/?org=public');
     await Promise.any([
       page.waitForLoadState('load'),
       Promise.resolve(setTimeout(() => { /* pass */ }, maxLoadTime)),

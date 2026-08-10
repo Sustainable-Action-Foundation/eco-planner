@@ -1,7 +1,7 @@
 'use server';
 
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { ActionFieldHeaders } from "@/functions/actionFields";
+import { ActionFieldHeaders } from "@/functions/fields";
 import { visibleActionsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { UserAccessContext } from "@/types";

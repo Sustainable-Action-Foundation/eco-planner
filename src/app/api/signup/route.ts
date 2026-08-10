@@ -57,8 +57,17 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // NOTE: Guests are disabled until further notice. When they return, pending
+  // guest invites both bypass the domain allowlist (the invitation is the
+  // vetting) and are consumed into GUEST memberships at creation below.
+  // const pendingInvites = await prisma.guestInvites.findMany({
+  //   where: { email: lowercaseEmail },
+  //   select: { org_id: true },
+  // });
+
   // Check if the domain ends with any of the allowed domains (to allow subdomains)
-  if (!allowedDomains.some((allowedDomain) => (domain === allowedDomain) || (domain ?? '').endsWith('.' + allowedDomain))) {
+  if (!allowedDomains.some((allowedDomain) => (domain === allowedDomain) || (domain ?? '').endsWith('.' + allowedDomain))
+    /* && pendingInvites.length === 0 */) {
     return Response.json({ message: `Email domain '${domain}' is not allowed` },
       { status: 400 },
     );
@@ -89,6 +98,13 @@ export async function POST(request: NextRequest) {
     select: { id: true, domain: true },
   });
   const org = matchingOrgs.sort((a, b) => (b.domain?.length ?? 0) - (a.domain?.length ?? 0)).at(0);
+
+  // NOTE: Guests are disabled until further notice. When they return, signup
+  // consumes any pending invites into GUEST memberships:
+  // const invitedOrgIds = [...new Set(pendingInvites.map(invite => invite.org_id))].filter(orgId => orgId !== org?.id);
+  // ... and inside the creation below:
+  //   memberships: { create: [ ...member entry..., ...invitedOrgIds.map(orgId => ({ org: { connect: { id: orgId } }, role: OrgRole.GUEST })) ] }
+  //   await tx.guestInvites.deleteMany({ where: { email: lowercaseEmail } });
 
   // Create user
   try {

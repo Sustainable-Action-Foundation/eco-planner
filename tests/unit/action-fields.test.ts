@@ -1,6 +1,6 @@
 import { expect, test } from "playwright/test";
 
-import { parseCsvList } from "../../src/functions/actionFields";
+import { parseCsvList } from "../../src/functions/fields";
 
 test.describe("parseCsvList", () => {
   test("splits comma-separated values", () => {

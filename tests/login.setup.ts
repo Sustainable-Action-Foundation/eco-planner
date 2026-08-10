@@ -6,6 +6,7 @@ import { cwd } from "node:process";
 
 const adminFile = path.join(cwd(), "tests/.auth/admin.json");
 const verifiedFile = path.join(cwd(), "tests/.auth/verified.json");
+const guestFile = path.join(cwd(), "tests/.auth/guest.json");
 
 async function loginHelper(page: Page, username: string, password: string) {
   await page.goto("/login");
@@ -50,6 +51,12 @@ setup('authenticate as verified user', async ({ page }) => {
     console.error('Failed to save verified storageState:', err);
     throw err;
   }
+});
+
+setup('authenticate as guest user', async ({ page }) => {
+  // Greta can log in like any verified user; being a GUEST only affects access
+  await loginHelper(page, 'greta', 'greta');
+  await page.context().storageState({ path: guestFile });
 });
 
 setup('authenticate as unverified user', async ({ page }) => {

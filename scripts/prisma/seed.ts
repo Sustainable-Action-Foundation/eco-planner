@@ -16,6 +16,7 @@ import { seedUsers } from "./seed/seed-users.ts";
 import { seedRoadmaps } from "./seed/seed-roadmaps.ts";
 import { seedGoals } from "./seed/seed-goals.ts";
 import { seedActions } from "./seed/seed-actions.ts";
+import { seedExtraOrgs } from "./seed/seed-extra-orgs.ts";
 
 prisma.$connect().catch((err: unknown) => {
   console.error(colors.yellow(`
@@ -32,6 +33,7 @@ async function main() {
   const { iterations } = await seedRoadmaps(users);
   const goals = await seedGoals(users, iterations);
   await seedActions(users, iterations, goals);
+  await seedExtraOrgs(users);
 }
 
 main().then(async () => {

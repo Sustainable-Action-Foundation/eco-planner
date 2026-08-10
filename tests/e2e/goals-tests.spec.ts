@@ -85,7 +85,9 @@ test.describe("Goals tests", () => {
     // will only work correctly if 'Create goal required only' is run before
 
     // Navigate to roadmap
-    await page.goto('/');
+    // The public view: logged-in org members land on their org's page by default,
+    // which only lists that org's own content
+    await page.goto('/?org=public');
     await page.waitForLoadState("networkidle");
 
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
@@ -231,7 +233,9 @@ test.describe("Goals tests", () => {
     // Will only work correctly if 'Create goal all' is run before
 
     // Navigate to roadmap
-    await page.goto('/');
+    // The public view: logged-in org members land on their org's page by default,
+    // which only lists that org's own content
+    await page.goto('/?org=public');
     await page.waitForLoadState("networkidle");
 
     await page.getByRole('link', { name: "Rikets färdplan" }).click();

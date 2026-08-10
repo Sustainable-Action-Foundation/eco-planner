@@ -42,5 +42,29 @@
     "iteration_deleted": "Roadmap iteration deleted",
     "failed_fetch_latest": "Failed to fetch latest roadmap iteration",
     "failed_record_connection": "Failed to connect records. Probably invalid roadmap or data series reference(s)"
+  },
+  "group": {
+    "manager_only": "Only the organization's managers can manage its groups",
+    "name_taken": "A group with that name already exists in the organization",
+    "not_found": "Group not found",
+    "created": "Group created",
+    "updated": "Group updated",
+    "deleted": "Group deleted"
+  },
+  "orgMembership": {
+    "not_found": "Membership not found",
+    "own_role": "You cannot change your own role",
+    "guest_locked": "Guest roles cannot be changed here",
+    "updated": "Role updated"
+  },
+  "guestInvite": {
+    "invalid_email": "That does not look like an email address",
+    "already_member": "That email already belongs to a member of the organization",
+    "send_failed": "The invite was saved but the email could not be sent; revoke it or try again later",
+    "sent": "Invite sent",
+    "invalid": "Invite not found; it may have been accepted or revoked",
+    "email_mismatch": "This invitation was sent to a different email address than your account's",
+    "accepted": "Invite accepted",
+    "revoked": "Invite revoked"
   }
 }

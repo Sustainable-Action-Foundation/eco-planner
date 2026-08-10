@@ -304,6 +304,8 @@ model ActionFields {
   header String          @db.TinyText
   value  String          @db.Text
   type   ActionFieldType @default(PARAGRAPH)
+  // Display order within the action (also orders repeated same-header values in their list)
+  order  Int             @default(0)
 }
 
 // Effects are the connection between an action and a goal, showing how the action affects the goal
@@ -375,10 +377,32 @@ model Orgs {
   memberships     OrgMemberships[]
   groups          Groups[]         @relation("org_groups")
   access_controls AccessControls[]
+  guest_invites   GuestInvites[]
 
   data_series DataSeries[]
   recipes     Recipes[]
   actions     Actions[]
+}
+
+// A pending invitation to join an org as a GUEST, sent to an email address by an
+// org manager. The token doubles as the email link's capability; accepting (or
+// signing up with the invited email) consumes the invite by deleting it, so the
+// table only ever holds pending invites. An invited email may sign up even when
+// its domain is not in the allowed list.
+model GuestInvites {
+  token      String   @id @default(uuid())
+  email      String
+  created_at DateTime @default(now())
+
+  org_id String
+  org    Orgs   @relation(fields: [org_id], references: [id], onDelete: Cascade)
+
+  // Purely informational; the invite survives the inviter leaving
+  invited_by_id String?
+  invited_by    Users?  @relation("sent_guest_invites", fields: [invited_by_id], references: [id], onDelete: SetNull)
+
+  // One pending invite per email and org; re-inviting replaces it (with a fresh token)
+  @@unique([org_id, email])
 }
 
 model Groups {
@@ -406,6 +430,12 @@ model OrgMemberships {
   org     Orgs   @relation(fields: [org_id], references: [id], onDelete: Cascade)
 
   role OrgRole @default(MEMBER)
+
+  // Who last changed the role and when (written by the org-membership API);
+  // a lightweight stand-in for a proper audit log. Only the latest change is kept.
+  role_changed_at    DateTime?
+  role_changed_by_id String?
+  role_changed_by    Users?    @relation("membership_role_changes", fields: [role_changed_by_id], references: [id], onDelete: SetNull)
 
   group_memberships GroupMemberships[]
 
@@ -484,4 +514,8 @@ model Users {
   authored_roadmaps           Roadmaps[]          @relation("roadmap_author")
   authored_data_series        DataSeries[]        @relation("data_series_author")
   authored_comments           Comments[]          @relation("comment_author")
+
+  sent_guest_invites GuestInvites[] @relation("sent_guest_invites")
+
+  membership_role_changes OrgMemberships[] @relation("membership_role_changes")
 }

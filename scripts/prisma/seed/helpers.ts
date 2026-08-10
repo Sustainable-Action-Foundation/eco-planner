@@ -27,6 +27,8 @@ export type SeededUsers = {
   all: Users[];
   /** The org owning all seeded content; admin manages it, anita and anton are members. */
   org: Orgs;
+  /** Extra orgs with light content and flavor members of their own; admin manages the first, is a member of the second, and has no membership in the last. */
+  extraOrgs: { org: Orgs, members: Users[] }[];
   /** A group containing the two regular users, used to test grant-based sharing. */
   group: Groups;
 };

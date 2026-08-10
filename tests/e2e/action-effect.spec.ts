@@ -5,9 +5,14 @@ import { cwd } from "node:process";
 
 const adminFile = path.join(cwd(), "tests/.auth/admin.json");
 
-/** The repeatable descriptive-field rows of the action form (header combobox + type select + value control). */
+/** The repeatable descriptive-field rows of the action form: one <details> accordion per group. */
 function actionFieldRows(page: Page) {
   return page.getByTestId('action-field-row');
+}
+
+/** The rows are collapsed <details>; open them all so their inputs become visible/fillable */
+async function openActionFieldRows(page: Page) {
+  await actionFieldRows(page).evaluateAll(rows => rows.forEach(row => row.setAttribute('open', '')));
 }
 
 /** Reads the action form's descriptive fields as a header -> value record.
@@ -26,11 +31,13 @@ async function readActionFields(page: Page): Promise<Record<string, string>> {
  * gets a new row added for it.
  */
 async function fillActionField(page: Page, header: string, value: string) {
+  await openActionFieldRows(page);
   const rows = actionFieldRows(page);
   const headers = await rows.getByTestId('action-field-header').evaluateAll(els => els.map(el => (el as HTMLInputElement).value));
   let index = headers.indexOf(header);
   if (index === -1) {
     await page.getByRole('button', { name: 'data_series_input.add_new_row' }).click();
+    await openActionFieldRows(page);
     index = headers.length;
     await rows.nth(index).getByTestId('action-field-header').fill(header);
   }
@@ -55,7 +62,7 @@ test.describe.serial("Action & Effect tests", () => {
       const context = await browser.newContext({ storageState: adminFile });
       const page = await context.newPage();
 
-      await page.goto('/');
+      await page.goto('/?org=public');
       await page.waitForLoadState('networkidle');
 
       // Count how many matching items exist
@@ -108,7 +115,9 @@ test.describe.serial("Action & Effect tests", () => {
 
   test("No edit Action - required", async ({ page }) => {
     // Navigate to the action edit form
-    await page.goto('/');
+    // The public view: logged-in org members land on their org's page by default,
+    // which only lists that org's own content
+    await page.goto('/?org=public');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
     await page.getByRole('link', { name: actionNameRequiredFields }).first().click();
@@ -129,7 +138,9 @@ test.describe.serial("Action & Effect tests", () => {
   test("Edit Action - required", async ({ page }, testInfo) => {
     actionNameRequiredFieldsUpdated = `Test Updated Action  ${testInfo.project.name}`;
     // Navigate to the action edit form
-    await page.goto('/');
+    // The public view: logged-in org members land on their org's page by default,
+    // which only lists that org's own content
+    await page.goto('/?org=public');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
     await page.getByRole('link', { name: actionNameRequiredFields }).first().click(); // TODO (fix): The tests doesn't seem to click on the right name here and therefore they fail.
@@ -193,7 +204,9 @@ test.describe.serial("Action & Effect tests", () => {
 
   test("No edit Action - All Fields", async ({ page }) => {
     // Navigate to the action edit form
-    await page.goto('/');
+    // The public view: logged-in org members land on their org's page by default,
+    // which only lists that org's own content
+    await page.goto('/?org=public');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
     await page.getByRole('link', { name: actionNameAllFields }).first().click();
@@ -228,7 +241,9 @@ test.describe.serial("Action & Effect tests", () => {
   test("Edit Action - All Fields", async ({ page }, testInfo) => {
     actionNameAllFieldsUpdated = `Test Action Updated All Fields  ${testInfo.project.name}`;
     // Navigate to the action edit form
-    await page.goto('/');
+    // The public view: logged-in org members land on their org's page by default,
+    // which only lists that org's own content
+    await page.goto('/?org=public');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
     await page.getByRole('link', { name: actionNameAllFields }).first().click();
@@ -275,7 +290,9 @@ test.describe.serial("Action & Effect tests", () => {
   test("Create Action from Roadmap - required", async ({ page }, testInfo) => {
     roadmapActionNameRequiredFields = `Test Action from Roadmap  ${testInfo.project.name}`;
     // Navigate to the action edit form
-    await page.goto('/');
+    // The public view: logged-in org members land on their org's page by default,
+    // which only lists that org's own content
+    await page.goto('/?org=public');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByTestId("admin-panel-new-action").click();
 
@@ -291,7 +308,9 @@ test.describe.serial("Action & Effect tests", () => {
   test("Create Action from Roadmap - All Fields", async ({ page }, testInfo) => {
     roadmapActionNameAllFields = `Test Action from Roadmap All Fields  ${testInfo.project.name}`;
     // Navigate to the action edit form
-    await page.goto('/');
+    // The public view: logged-in org members land on their org's page by default,
+    // which only lists that org's own content
+    await page.goto('/?org=public');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
     await page.getByTestId("admin-panel-new-action").click();
 
@@ -316,5 +335,52 @@ test.describe.serial("Action & Effect tests", () => {
 
     await expect(page.getByRole('heading', { name: roadmapActionNameAllFields })).toBeVisible();
   });
+  test("Field order persists as entered", async ({ page }, testInfo) => {
+    // Entry order is the persisted order (the fields' `order` column): groups keep
+    // their sequence and repeated values render as a list in entry order.
+    // TODO: When reordering controls land in the accordion UI, cover them here too.
+    const name = `Test Ordered Action  ${testInfo.project.name}`;
+
+    await page.goto('/');
+    await page.getByTestId("create-button").click();
+    await page.getByTestId("create-action").click();
+
+    const option = page.locator('#iterationId option').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: 'v2' });
+    await page.locator('#iterationId').selectOption(await option.getAttribute('value'));
+    await page.locator('#actionName').fill(name);
+
+    // Pre-seeded group order: COST_EFFICIENCY, EXPECTED_OUTCOME, RELEVANT_ACTORS
+    await fillActionField(page, 'COST_EFFICIENCY', "CE text");
+    await fillActionField(page, 'EXPECTED_OUTCOME', "EO text");
+    await fillActionField(page, 'RELEVANT_ACTORS', "Actor B");
+    // A second value in the actors group becomes a list item after the first
+    await actionFieldRows(page).nth(2).getByRole('button', { name: 'action.add_list_item' }).click();
+    await actionFieldRows(page).nth(2).getByTestId('action-field-value').nth(1).fill("Actor A");
+
+    await page.locator('#submit-button').click();
+    await page.waitForLoadState("networkidle");
+    await expect(page.getByRole('heading', { name })).toBeVisible();
+
+    // Display: groups appear in entry order, list values in entry order (B before A)
+    const mainText = (await page.locator('main').textContent())?.replace(/\s+/g, ' ') ?? '';
+    const ce = mainText.indexOf('cost_efficiency');
+    const eo = mainText.indexOf('expected_outcome');
+    const ra = mainText.indexOf('relevant_actors');
+    expect(ce).toBeGreaterThan(-1);
+    expect(eo).toBeGreaterThan(ce);
+    expect(ra).toBeGreaterThan(eo);
+    const listItems = await page.locator('main ul li').allTextContents();
+    expect(listItems.indexOf('Actor B')).toBeGreaterThan(-1);
+    expect(listItems.indexOf('Actor B')).toBeLessThan(listItems.indexOf('Actor A'));
+
+    // Edit round-trip: same group order, same value order within the list
+    await page.getByTestId("admin-panel-edit").click();
+    await expect(actionFieldRows(page).first()).toBeVisible();
+    const headers = await actionFieldRows(page).getByTestId('action-field-header').evaluateAll(els => els.map(el => (el as HTMLInputElement).value));
+    expect(headers).toEqual(['COST_EFFICIENCY', 'EXPECTED_OUTCOME', 'RELEVANT_ACTORS']);
+    const actorValues = await actionFieldRows(page).nth(2).getByTestId('action-field-value').evaluateAll(els => els.map(el => (el as HTMLInputElement | HTMLTextAreaElement).value));
+    expect(actorValues).toEqual(['Actor B', 'Actor A']);
+  });
+
   // Effect tests begin here //  
 });

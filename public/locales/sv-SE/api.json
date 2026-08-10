@@ -42,5 +42,29 @@
     "iteration_deleted": "Version av färdplan raderad",
     "failed_fetch_latest": "Misslyckades att hämta senaste versionen av färdplanen",
     "failed_record_connection": "Misslyckades att koppla poster. Förmodligen ogiltig färdplans- eller dataseriereferens"
+  },
+  "group": {
+    "manager_only": "Endast organisationens ansvariga kan hantera dess grupper",
+    "name_taken": "En grupp med det namnet finns redan i organisationen",
+    "not_found": "Gruppen hittades inte",
+    "created": "Gruppen skapades",
+    "updated": "Gruppen uppdaterades",
+    "deleted": "Gruppen togs bort"
+  },
+  "orgMembership": {
+    "not_found": "Medlemskapet hittades inte",
+    "own_role": "Du kan inte ändra din egen roll",
+    "guest_locked": "Gästroller kan inte ändras här",
+    "updated": "Rollen uppdaterades"
+  },
+  "guestInvite": {
+    "invalid_email": "Det där ser inte ut som en e-postadress",
+    "already_member": "Den e-postadressen tillhör redan en medlem i organisationen",
+    "send_failed": "Inbjudan sparades men mejlet kunde inte skickas; återkalla den eller försök igen senare",
+    "sent": "Inbjudan skickad",
+    "invalid": "Inbjudan hittades inte; den kan ha godkänts eller återkallats",
+    "email_mismatch": "Den här inbjudan skickades till en annan e-postadress än ditt kontos",
+    "accepted": "Inbjudan godkänd",
+    "revoked": "Inbjudan återkallad"
   }
 }

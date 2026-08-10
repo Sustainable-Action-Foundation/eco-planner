@@ -86,6 +86,8 @@
   "home": {
     "create_roadmap": "$t(common:new.roadmap)",
     "filter": "Filter",
+    "org_nav_label": "Organisationsvyer",
+    "public_tab": "Alla publika $t(common:roadmap_other)",
     "search_roadmaps": "Sök bland $t(common:count.roadmap)",
     "shown_results": "Visar {{shown}} av {{total}} $t(common:roadmap, {\"count\": {{total}}})",
     "title": "$t(common:roadmap_other, titleCase)"
@@ -175,5 +177,50 @@
     "description": "Verifiera din e‑postadress genom att klicka på knappen nedan.",
     "submit": "Verifiera min e‑postadress",
     "title": "Verifiera din e‑postadress"
+  },
+  "org_groups": {
+    "title": "Hantera organisation",
+    "heading": "Hantera {{org}}",
+    "description": "Grupper samlar medlemmar så att innehåll kan delas med dem genom åtkomstbehörigheter. Om en grupp tas bort försvinner även dess behörigheter.",
+    "manage_groups": "Hantera organisation",
+    "name_label": "Gruppnamn",
+    "members_legend": "Medlemmar",
+    "create_group": "Skapa grupp",
+    "no_groups": "Organisationen har inga grupper ännu.",
+    "saved_toast": "Gruppen \"{{name}}\" sparades",
+    "created_toast": "Gruppen \"{{name}}\" skapades",
+    "deleted_toast": "Gruppen \"{{name}}\" togs bort",
+    "confirm_delete": "Bekräfta borttagning",
+    "roles": {
+      "manager": "Ansvarig",
+      "member": "Medlem",
+      "guest": "Gäst"
+    },
+    "members_heading": "Medlemmar",
+    "groups_heading": "Grupper",
+    "members_placeholder": "Välj medlemmar",
+    "role_updated_toast": "{{name}}s roll uppdaterades",
+    "member_count_one": "{{count}} medlem",
+    "member_count_other": "{{count}} medlemmar",
+    "invite_heading": "Bjud in gäster",
+    "invite_description": "Gäster är externa medarbetare: de ser bara det som deras grupper uttryckligen fått tillgång till. Den inbjudna får ett mejl med en länk för att gå med.",
+    "invite_email_label": "E-postadress",
+    "invite_send": "Skicka inbjudan",
+    "invite_sent_toast": "Inbjudan skickad till {{email}}",
+    "invite_revoked_toast": "Inbjudan till {{email}} återkallades",
+    "invite_revoke": "Återkalla",
+    "home_org": "från {{orgs}}",
+    "home_org_none": "ingen egen organisation"
+  },
+  "invite": {
+    "title": "Inbjudan",
+    "heading": "Du har blivit inbjuden till {{org}}",
+    "description": "Den här inbjudan låter {{email}} gå med i {{org}} som gäst.",
+    "login_prompt": "Logga in med den inbjudna e-postadressen för att tacka ja, eller skapa ett konto först om du inte har något.",
+    "login_link": "Logga in",
+    "signup_link": "Skapa konto",
+    "signup_hint": "Om du registrerar dig med den inbjudna e-postadressen godkänns inbjudan automatiskt.",
+    "accept": "Gå med i {{org}} som gäst",
+    "accepted_toast": "Du är nu gäst i {{org}}"
   }
 }

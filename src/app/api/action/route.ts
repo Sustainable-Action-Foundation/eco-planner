@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { getAccessContextById } from "@/fetchers/getUserAccessContext";
 import { accessControlSelection } from "@/fetchers/inclusionSelectors";
-import { parseActionFieldType } from "@/functions/actionFields";
+import { parseActionFieldType } from "@/functions/fields";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { iterationPath } from "@/functions/versionSlug";
 import { manualDataSeriesCreateData } from "@/functions/recipe/persistence";
@@ -164,7 +164,7 @@ export async function POST(request: NextRequest) {
         roadmap_iteration: actionCreate.iterationId ? { connect: { id: actionCreate.iterationId } } : undefined,
         parent_action: actionCreate.parentActionId ? { connect: { id: actionCreate.parentActionId } } : undefined,
         fields: actionCreate.fields?.length
-          ? { createMany: { data: actionCreate.fields.map(field => ({ header: field.header, value: field.value, type: parseActionFieldType(field.type) })) } }
+          ? { createMany: { data: actionCreate.fields.map((field, index) => ({ header: field.header, value: field.value, type: parseActionFieldType(field.type), order: index })) } }
           : undefined,
         effects: !(actionCreate.dataSeries && actionCreate.goalId && goalOrgId)
           ? undefined
@@ -311,7 +311,7 @@ export async function PUT(request: NextRequest) {
         ...(action.fields === undefined ? {} : {
           fields: {
             deleteMany: {},
-            createMany: { data: (action.fields ?? []).map(field => ({ header: field.header, value: field.value, type: parseActionFieldType(field.type) })) },
+            createMany: { data: (action.fields ?? []).map((field, index) => ({ header: field.header, value: field.value, type: parseActionFieldType(field.type), order: index })) },
           },
         }),
       },

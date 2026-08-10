@@ -111,6 +111,9 @@ CREATE TABLE `OrgMemberships` (
     `user_id` VARCHAR(191) NOT NULL,
     `org_id`  VARCHAR(191) NOT NULL,
     `role`    ENUM('GUEST', 'MEMBER', 'MANAGER') NOT NULL DEFAULT 'MEMBER',
+    -- Latest role change (who/when), written by the org-membership API; starts empty
+    `role_changed_at`    DATETIME(3) NULL,
+    `role_changed_by_id` VARCHAR(191) NULL,
 
     PRIMARY KEY (`id`),
     UNIQUE INDEX `OrgMemberships_user_id_org_id_key`(`user_id`, `org_id`),
@@ -191,6 +194,18 @@ CREATE TABLE `GroupMemberships` (
     `group_id`      VARCHAR(191) NOT NULL,
 
     PRIMARY KEY (`membership_id`, `group_id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- Pending guest invitations (new feature; starts empty, no data to migrate)
+CREATE TABLE `GuestInvites` (
+    `token`         VARCHAR(191) NOT NULL,
+    `email`         VARCHAR(191) NOT NULL,
+    `created_at`    DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `org_id`        VARCHAR(191) NOT NULL,
+    `invited_by_id` VARCHAR(191) NULL,
+
+    UNIQUE INDEX `GuestInvites_org_id_email_key`(`org_id`, `email`),
+    PRIMARY KEY (`token`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Helper: old group -> majority org (dropped in section 13).
@@ -533,6 +548,17 @@ WHERE `header` IN ('description', 'cost_efficiency', 'expected_outcome', 'projec
 ALTER TABLE `ActionFields` ADD COLUMN `type` ENUM('PARAGRAPH', 'DATE', 'SHORT') NOT NULL DEFAULT 'PARAGRAPH';
 UPDATE `ActionFields` SET `type` = 'SHORT'
 WHERE `header` IN ('RELEVANT_ACTORS', 'PROJECT_MANAGER', 'TAG');
+
+-- Display order within each action. Old data has no meaningful order, so assign
+-- a stable one: grouped by header (canonical prose first is not attempted; plain
+-- alphabetical), ties broken by id. New writes set order explicitly.
+ALTER TABLE `ActionFields` ADD COLUMN `order` INTEGER NOT NULL DEFAULT 0;
+UPDATE `ActionFields` af
+JOIN (
+    SELECT `id`, ROW_NUMBER() OVER (PARTITION BY `action_id` ORDER BY `header`, `id`) - 1 AS `new_order`
+    FROM `ActionFields`
+) numbered ON numbered.`id` = af.`id`
+SET af.`order` = numbered.`new_order`;
 
 -- ============================================================================
 -- 11b. GEO AREAS: static SCB region lookup + geo markers on Roadmaps and Orgs
@@ -942,10 +968,16 @@ ALTER TABLE `Actions` ADD CONSTRAINT `Actions_org_id_fkey`
 
 ALTER TABLE `Groups` ADD CONSTRAINT `Groups_org_id_fkey`
     FOREIGN KEY (`org_id`) REFERENCES `Orgs`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `GuestInvites` ADD CONSTRAINT `GuestInvites_org_id_fkey`
+    FOREIGN KEY (`org_id`) REFERENCES `Orgs`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `GuestInvites` ADD CONSTRAINT `GuestInvites_invited_by_id_fkey`
+    FOREIGN KEY (`invited_by_id`) REFERENCES `Users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 ALTER TABLE `OrgMemberships` ADD CONSTRAINT `OrgMemberships_user_id_fkey`
     FOREIGN KEY (`user_id`) REFERENCES `Users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `OrgMemberships` ADD CONSTRAINT `OrgMemberships_org_id_fkey`
     FOREIGN KEY (`org_id`) REFERENCES `Orgs`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `OrgMemberships` ADD CONSTRAINT `OrgMemberships_role_changed_by_id_fkey`
+    FOREIGN KEY (`role_changed_by_id`) REFERENCES `Users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 ALTER TABLE `GroupMemberships` ADD CONSTRAINT `GroupMemberships_membership_id_org_id_fkey`
     FOREIGN KEY (`membership_id`, `org_id`) REFERENCES `OrgMemberships`(`id`, `org_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `GroupMemberships` ADD CONSTRAINT `GroupMemberships_group_id_org_id_fkey`
