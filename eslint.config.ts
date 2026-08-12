@@ -222,9 +222,11 @@ export const i18nLiteralStrings: Config = {
       words: {
         exclude: [
           // plugin defaults (punctuation/digits, ALL_CAPS, html entities, emoji),
-          // widened to tolerate whitespace/nbsp/middle-dot/ellipsis and emoji variation selectors
-          "[0-9!-/:-@[-`{-~\\s\\u00a0\\u00b7\\u2026]+", "[A-Z_-]+", "(&[a-z]+;|\\s)+",
-          "^(\\p{Emoji}|\\ufe0f)+$", "^$",
+          // widened to tolerate whitespace/nbsp/·/×/↺/… mixed into punctuation runs.
+          // NOTE: the plugin compiles string patterns WITHOUT the u flag, so \p{...}
+          // escapes silently never match — emoji are matched as surrogate ranges instead.
+          "[0-9!-/:-@[-`{-~\\s\\u00a0\\u00b7\\u00d7\\u21ba\\u2026]+", "[A-Z_-]+", "(&[a-z]+;|\\s)+",
+          "^[\\s\\ufe0f\\u2600-\\u27bf\\ud800-\\udfff]+$", "^$",
           // machine-value patterns
           "^var\\(--.+\\)$", "^--.+", "^https?://.+", "^mailto:.+", "^/.+",
           "^[0-9.]+(rem|em|px|%)$", "^[a-z0-9-]+@[a-z0-9-]+\\..+",
