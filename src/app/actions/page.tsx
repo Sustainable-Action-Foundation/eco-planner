@@ -7,8 +7,9 @@ import type { Metadata } from "next";
  
 // TODO: More detailed metadata?
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await serveTea("metadata");
   return await buildMetadata({
-    title: 'Åtgärder', // TODO: i18n
+    title: t("metadata:actions.title"),
     description: undefined,
     og_url: undefined,
     og_image_url: undefined,

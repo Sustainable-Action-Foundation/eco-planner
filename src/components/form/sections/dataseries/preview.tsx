@@ -13,7 +13,7 @@ function SeriesTable({
 }: {
   series: (DateValuesWithUnit & { name: string }),
 }) {
-  const { t } = useTranslation(["components"]);
+  const { t, i18n } = useTranslation(["components"]);
   
   return (
     <table className={`${styles['preview-table']}`}>
@@ -28,7 +28,7 @@ function SeriesTable({
         {Object.entries(series.dateValues).map(([date, value], index) => (
           <tr className="display-contents" key={date}>
             <th>{index}</th>
-            <td>{new Date(date).toLocaleDateString()}</td>{/* TODO: Format properly given the locale */}
+            <td>{new Date(date).toLocaleDateString(i18n.language)}</td>
             <td>{value}</td>
           </tr>
         ))}

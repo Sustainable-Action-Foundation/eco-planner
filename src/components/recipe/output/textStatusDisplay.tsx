@@ -52,7 +52,7 @@ export function TextStatus({
       <ul lang={Locales.enSE} key="warnings" className="margin-0 padding-0" style={{ color: 'darkorange', listStyle: 'none', fontSize: '14px' }}>
         {warnings.map((warning, i) => (
           <li key={i} className="flex align-items-flex-start gap-50 margin-block-50">
-            <IconAlertTriangleFilled width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="darkorange" aria-label={t("components:copy_and_scale.evaluation_warning_title")} /> {/* TODO: Check this translation */}
+            <IconAlertTriangleFilled width={16} height={16} style={{ minWidth: '16px', marginTop: '2px' }} color="darkorange" aria-label={t("components:recipe_editor.evaluation_warning_title")} />
             {`[EN] ${warning}`}
           </li>
         ))}

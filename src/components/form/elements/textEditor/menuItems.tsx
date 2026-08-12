@@ -492,7 +492,7 @@ export function Link(props: MenubarButtonProps) {
       >
         <div className="flex align-items-flex-end gap-25">
           <div>
-            <label aria-label=""> {/* TODO: Label text + I18n */}
+            <label aria-label={t('forms:text_editor_menu.link.text_label')}>
               <div className="focusable flex align-items-center padding-inline-25 margin-bottom-25">
                 <IconAlignLeft width={16} height={16} aria-hidden={true} />
                 <input
@@ -506,7 +506,7 @@ export function Link(props: MenubarButtonProps) {
                 />
               </div>
             </label>
-            <label aria-label=""> {/* TODO: Label text + I18n */}
+            <label aria-label={t('forms:text_editor_menu.link.url_label')}>
               <div className="focusable flex align-items-center padding-inline-25">
                 <IconLink width={16} height={16} aria-hidden={true} />
                 <input

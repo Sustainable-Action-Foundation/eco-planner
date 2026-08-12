@@ -158,8 +158,8 @@ export default function GoalForm({
 
   const previewGraphSeries = useMemo(() => ({
     main: previewDataSerie?.dateValues && {
-      //name: goalName ? `${goalName} (goal)` : 'goal', // TODO: i18n
-      name: 'goal', // TODO: Really want this implemented as is it above but this turned out to be really expensive as tracking the name will re-render the form. 
+      //name: goalName ? `${goalName} (goal)` : 'goal',
+      name: t("common:goal_one"), // TODO: Really want this implemented as is it above but this turned out to be really expensive as tracking the name will re-render the form.
       unit: previewDataSerie.unit,
       dateValues: previewDataSerie.dateValues, // TODO: Needs to be updated if we remove stuff
     },
@@ -169,7 +169,7 @@ export default function GoalForm({
       dateValues: previewBaselineSerie.dateValues,
     },
     historical: (previewHistoricalSerie?.dateValues && previewDataSerie) && {
-      name: historicalLabel ? `${historicalLabel} (historical)` : 'historical data', // TODO: i18n
+      name: historicalLabel ? t("graphs:common.historical_series", { label: historicalLabel }) : t("common:historical_data"),
       unit: previewDataSerie.unit, // TODO: For now we lie and say that historical and preview data series share the same unit. Should make sure that we sync properly in the future though.
       dateValues: previewHistoricalSerie.dateValues,
     },

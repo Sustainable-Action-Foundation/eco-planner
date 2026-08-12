@@ -128,6 +128,8 @@
     "write": "Skriv något",
     "yes": "Ja",
     "move_up": "Flytta upp",
-    "move_down": "Flytta ner"
+    "move_down": "Flytta ner",
+    "hide_password": "Dölj lösenord",
+    "show_password": "Visa lösenord"
   }
 }

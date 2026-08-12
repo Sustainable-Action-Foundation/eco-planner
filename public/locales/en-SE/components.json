@@ -67,6 +67,7 @@
     "listed_tab": "$t(common:goal_other, titleCase) ({{count}})",
     "loading_alt": "Loading",
     "new_goal": "New $t(common:goal_one)",
+    "recipe_only_filter": "Only show $t(common:goal_other) with recipes",
     "search": "Search $t(common:goal_other)",
     "sort_action_count_ascending": "$t(common:action_one, titleCase) count (low to high)",
     "sort_action_count_descending": "$t(common:action_one, titleCase) count (high to low)",
@@ -230,7 +231,10 @@
     "vector_index_picker_label": "Value(s)",
     "recipe_name": "Recipe name",
     "new_recipe": "New recipe",
-    "this_data_series": "This data series"
+    "this_data_series": "This data series",
+    "delete_recipe": "Delete recipe",
+    "edit_recipe": "Edit recipe",
+    "evaluation_warning_title": "Warnings"
   },
   "roadmap_filters": {
     "default": "Default",
@@ -313,6 +317,7 @@
   },
   "toasts": {
     "clear_toasts": "Clear all messages",
+    "close_toast": "Close message",
     "error": "Something went wrong!",
     "show_less": "Show less",
     "show_more": "Show more",

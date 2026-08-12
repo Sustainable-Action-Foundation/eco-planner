@@ -18,7 +18,7 @@ export default function HistoricalForm({
 }: {
   goal: Goal
 }) {
-  const { t } = useTranslation(["common"]);
+  const { t } = useTranslation(["common", "graphs"]);
 
   // Same wiring as the goal form: the section renders both input types in
   // hidden-not-unmounted fieldsets once visited, with the type lifted here.
@@ -38,7 +38,7 @@ export default function HistoricalForm({
 
   const previewGraphSeries = useMemo(() => ({
     main: goal.data_series && {
-      name: goal.name ?? 'goal', // todo: use full leap param fallback + i18n
+      name: goal.name ?? t("common:goal_one"), // todo: use full leap param fallback
       unit: (goal.data_series?.unit ?? 'MISSING_UNIT') as Unit, // TODO: Typeguard? idk?
       dateValues: Object.fromEntries(
         goal.data_series.values.map((value) => [
@@ -58,7 +58,7 @@ export default function HistoricalForm({
       ),
     },
     historical: (goal.data_series && previewHistoricalSerie?.dateValues) && {
-      name: historicalLabel ? `${historicalLabel} (historical)` : 'historical data', // TODO: I18n
+      name: historicalLabel ? t("graphs:common.historical_series", { label: historicalLabel }) : t("common:historical_data"),
       unit: (goal.data_series?.unit ?? 'MISSING_UNIT') as Unit, // TODO: Typeguard? idk? also we lie here for now and say that all dataseries share the same unit
       dateValues: previewHistoricalSerie.dateValues,
     },
