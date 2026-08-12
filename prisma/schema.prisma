@@ -162,6 +162,10 @@ model Goals {
 
   // The graphs of featured Goals' DataSeries will be shown as thumbnails on the roadmap page
   is_featured Boolean @default(false)
+  // Unlisted goals are hidden from regular goal listings; they are only listed
+  // for users with edit access to the iteration. Direct links still resolve
+  // with normal read access.
+  is_unlisted Boolean @default(false)
 
   // A series of data points representing the goals for each year
   data_series_id String?     @unique

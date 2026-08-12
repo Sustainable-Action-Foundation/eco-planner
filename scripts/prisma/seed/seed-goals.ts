@@ -28,6 +28,7 @@ export type SeededGoals = {
   nationalV1: SeededGoal[];
   nationalV2: SeededGoal[];
   uppsalaV1: SeededGoal[];
+  nationalV1Unlisted: SeededGoal;
 };
 
 const NATIONAL_GOAL_COUNT = 10;
@@ -87,7 +88,52 @@ export async function seedGoals(users: SeededUsers, iterations: SeededRoadmaps["
     uppsalaV1.push(await createGoal(users, { iterationId: iterations.uppsalaV1.id, series }));
   }
 
-  return { nationalV1, nationalV2, uppsalaV1 };
+  /*
+   * Deterministic unlisted goals - hidden from regular listings, only listed
+   * (in their own tab) for users with edit access. The national one is also
+   * featured, which the featured strip must ignore for unlisted goals.
+   * Kept out of the arrays above so they don't spawn derived children or effects.
+   */
+  const nationalV1Unlisted = await createUnlistedGoal(users, orgId, iterations.nationalV1.id, {
+    name: "Dold nationell målbana",
+    indicatorParameter: "Dold\\Nationell",
+    isFeatured: true,
+  });
+  await createUnlistedGoal(users, orgId, iterations.uppsalaV1.id, {
+    name: "Dold regional målbana",
+    indicatorParameter: "Dold\\Regional",
+    isFeatured: false,
+  });
+
+  return { nationalV1, nationalV2, uppsalaV1, nationalV1Unlisted };
+}
+
+/** Creates a deterministically-named unlisted goal with a manual series. */
+async function createUnlistedGoal(
+  users: SeededUsers,
+  orgId: string,
+  iterationId: string,
+  options: { name: string, indicatorParameter: string, isFeatured: boolean },
+): Promise<SeededGoal> {
+  const authorId = randomOf(users.all).id;
+  const series = await createManualSeries(authorId, orgId, getRandomCoherentDateValues(), getRandomUnit());
+
+  const goal = await prisma.goals.create({
+    data: {
+      name: options.name,
+      description: "Denna målbana är dold och ska bara synas för användare med redigeringsbehörighet.",
+      indicator_parameter: options.indicatorParameter,
+      is_featured: options.isFeatured,
+      is_unlisted: true,
+      author: { connect: { id: authorId } },
+      roadmap_iteration: { connect: { id: iterationId } },
+      ...getRandomCreatedAtAndUpdatedAt(),
+      data_series: { connect: { id: series.id } },
+    },
+    select: { id: true },
+  });
+
+  return { id: goal.id, iterationId, series };
 }
 
 type GoalOptions = {

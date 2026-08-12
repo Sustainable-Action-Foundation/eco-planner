@@ -51,6 +51,7 @@ CREATE TABLE `Goals` (
     `description` TEXT NULL,
     `indicator_parameter` TEXT NOT NULL,
     `is_featured` BOOLEAN NOT NULL DEFAULT false,
+    `is_unlisted` BOOLEAN NOT NULL DEFAULT false,
     `data_series_id` VARCHAR(191) NULL,
     `baseline_id` VARCHAR(191) NULL,
     `historical_id` VARCHAR(191) NULL,

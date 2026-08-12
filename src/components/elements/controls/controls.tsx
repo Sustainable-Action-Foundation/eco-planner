@@ -379,6 +379,7 @@ export function AdminPanel(
                       isFeatured: !goal.is_featured,
 
                       name: undefined,
+                      isUnlisted: undefined,
                       description: undefined,
                       indicatorParameter: undefined,
                       recipeSuggestions: undefined,

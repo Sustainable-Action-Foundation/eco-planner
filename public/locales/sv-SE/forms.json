@@ -138,7 +138,6 @@
     "create_baseline_for_actions": "Skapa en baslinje för beräkning av åtgärders effekt på denna $t(common:goal_one)",
     "custom_recipe": "Recept",
     "data_missing": "DATA SAKNAS; ",
-    "data_series_type_legend": "Välj typ av dataserie för din $t(common:goal_one)",
     "data_series": {
       "create": "Skapa dataserier",
       "unit": "Enhet",
@@ -172,6 +171,7 @@
         "custom": "Skapa en historisk dataserie manuellt genom att fylla i år och värden."
       }
     },
+    "data_series_type_legend": "Välj typ av dataserie för din $t(common:goal_one)",
     "default_combination_recipe": "Standardkombinationsrecept",
     "default_scaling_recipe": "Standardskalningsrecept",
     "derive_data_series_manually": "Ange manuellt",
@@ -212,6 +212,8 @@
     "suggested_inheritance": "Ärvd och skalad",
     "unit_interpreted_as": "Enheten tolkas som:",
     "unit_not_interpreted": "Enheten kunde inte tolkas. Du kan fortfarande spara $t(common:goal_definite_one), men viss funktionalitet kan saknas.",
+    "unlist_goal": "Ja, dölj $t(common:goal_definite_one) från vanliga listor. Endast användare med redigeringsbehörighet ser den i listan.",
+    "unlist_this_goal": "Vill du dölja den här $t(common:goal_definite_one)?",
     "unnamed_goal": "Namnlös $t(common:goal_one)"
   },
   "roadmap": {

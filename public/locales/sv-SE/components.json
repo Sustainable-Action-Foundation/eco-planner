@@ -64,6 +64,7 @@
     "unit": "Enhet"
   },
   "goals": {
+    "listed_tab": "$t(common:goal_other, titleCase) ({{count}})",
     "loading_alt": "Laddar",
     "new_goal": "$t(common:new.goal)",
     "search": "Sök bland $t(common:goal_other)",
@@ -73,7 +74,9 @@
     "sort_default": "Standard",
     "sort_interest": "Intresse",
     "sort_name_ascending": "Namn (Ö-A)",
-    "sort_name_descending": "Namn (A-Ö)"
+    "sort_name_descending": "Namn (A-Ö)",
+    "unlisted_nav_label": "Synlighet för $t(common:goal_other)",
+    "unlisted_tab": "Dolda $t(common:goal_other) ({{count}})"
   },
   "image_attribute": {
     "by": "Foto av",

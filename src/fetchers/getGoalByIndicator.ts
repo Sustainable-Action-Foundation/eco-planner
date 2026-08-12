@@ -39,6 +39,8 @@ async function getCachedGoalByIndicator(iterationId: string, indicatorParameter:
     goal = await prisma.goals.findFirst({
       where: {
         indicator_parameter: indicatorParameter,
+        // Unlisted goals are excluded from other goals' parent/child listings
+        is_unlisted: false,
         // If unit is specified, get a goal with the specified unit
         ...(unit !== undefined ? { data_series: { unit: unit } } : {}),
         roadmap_iteration: {

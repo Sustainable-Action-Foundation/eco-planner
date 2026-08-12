@@ -59,8 +59,10 @@ export default async function Page(props: { params: Promise<{ roadmapId: string,
     getRoadmapIterationByVersion(params.roadmapId, version),
   ]);
 
+  // Unlisted goals stay out of the featured strip and the public count; they
+  // are only listed inside <Goals> for users with edit access
   const featuredGoals = (iteration?.goals ?? [])
-    .filter((goal) => goal.is_featured)
+    .filter((goal) => goal.is_featured && !goal.is_unlisted)
     .map((goal) => ({
       id: goal.id,
       name: goal.name,
@@ -106,7 +108,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string,
           </Link>
         </div>
         <span className="font-weight-600">
-          {t("common:count.goal", { count: iteration.goals.length })}
+          {t("common:count.goal", { count: iteration.goals.filter(goal => !goal.is_unlisted).length })}
         </span>
       </header>
 

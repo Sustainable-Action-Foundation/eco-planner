@@ -138,7 +138,6 @@
     "create_baseline_for_actions": "Create a baseline for calculating $t(common:action_other, possessive) $t(common:effect_other) on this $t(common:goal_one)",
     "custom_recipe": "Recipe",
     "data_missing": "DATA MISSING; ",
-    "data_series_type_legend": "Choose type of data series for your $t(common:goal_one)",
     "data_series": {
       "create": "Create data series",
       "unit": "Unit",
@@ -172,6 +171,7 @@
         "custom": "Create a historical data series by manually inputting years and values."
       }
     },
+    "data_series_type_legend": "Choose type of data series for your $t(common:goal_one)",
     "default_combination_recipe": "Default combination recipe",
     "default_scaling_recipe": "Default scaling recipe",
     "derive_data_series_manually": "Input manually",
@@ -212,6 +212,8 @@
     "suggested_inheritance": "Inherited and scaled",
     "unit_interpreted_as": "Unit interpreted as:",
     "unit_not_interpreted": "The unit could not be interpreted. You can still save the $t(common:goal_one), but some functionality may be missing.",
+    "unlist_goal": "Yes, hide this $t(common:goal_one) from regular goal listings. Only users with edit access will see it listed.",
+    "unlist_this_goal": "Do you want to unlist this $t(common:goal_one)?",
     "unnamed_goal": "Unnamed $t(common:goal_one)"
   },
   "roadmap": {

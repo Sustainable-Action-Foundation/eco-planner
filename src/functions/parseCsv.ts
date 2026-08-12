@@ -81,6 +81,7 @@ export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void
       description: undefined,
       indicatorParameter: csv[i][headerIndex["indicatorParameter"] ?? NaN],
       isFeatured: undefined,
+      isUnlisted: undefined,
       recipeSuggestions: undefined,
       dataSeriesId: undefined,
       dataSeries: {

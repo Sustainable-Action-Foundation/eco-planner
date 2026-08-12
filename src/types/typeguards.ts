@@ -138,6 +138,10 @@ function validateGoalMetaFields(goal: Record<string, unknown>): boolean {
     console.debug(`optional goal parameter "isFeatured" has wrong type: ${typeof goal.isFeatured}`);
     return false;
   }
+  if ("isUnlisted" in goal && !(typeof goal.isUnlisted === 'boolean' || goal.isUnlisted === undefined)) {
+    console.debug(`optional goal parameter "isUnlisted" has wrong type: ${typeof goal.isUnlisted}`);
+    return false;
+  }
   if ("rawTags" in goal && !isStringArrayOrNullish(goal.rawTags)) {
     console.debug(`optional goal parameter "rawTags" has wrong type: ${typeof goal.rawTags}`);
     return false;

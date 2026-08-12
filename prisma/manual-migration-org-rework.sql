@@ -534,6 +534,10 @@ ALTER TABLE `_goal_tags` RENAME COLUMN `A` TO `tmp_swap`;
 ALTER TABLE `_goal_tags` RENAME COLUMN `B` TO `A`;
 ALTER TABLE `_goal_tags` RENAME COLUMN `tmp_swap` TO `B`;
 
+-- Unlisted goals: hidden from regular goal listings, only listed for users with
+-- edit access. All existing goals stay listed.
+ALTER TABLE `Goals` ADD COLUMN `is_unlisted` BOOLEAN NOT NULL DEFAULT false;
+
 -- Canonicalize ActionFields headers to the app's enum-ish UPPER_SNAKE keys
 -- (migration 20260720131447 wrote them lowercase; the collation is case-insensitive
 -- so the IN matches regardless of case, but the app compares headers in JS where

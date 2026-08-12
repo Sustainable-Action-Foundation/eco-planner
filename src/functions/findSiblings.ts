@@ -18,6 +18,11 @@ export default function findSiblings(
       continue;
     }
 
+    // Unlisted goals are excluded from other goals' sibling listings
+    if (sibling.is_unlisted) {
+      continue;
+    }
+
     const siblingParameters = sibling.indicator_parameter.split("\\");
     // Goals can be siblings despite one of them having a "Key" and the other a "Demand" parameter
     if (siblingParameters[0] === "Key" || siblingParameters[0] === "Demand") {

@@ -23,6 +23,7 @@ export const GoalFormName = {
   Description: "DESCRIPTION",
   IndicatorParameter: "INDICATOR_PARAMETER",
   IsFeatured: "IS_FEATURED",
+  IsUnlisted: "IS_UNLISTED",
   DataSeriesType: "DATA_SERIES_TYPE",
   BaselineType: "BASELINE_TYPE",
   DataUnit: "DATA_UNIT",
