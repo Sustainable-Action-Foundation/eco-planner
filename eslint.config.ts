@@ -3,6 +3,7 @@ import type { Config } from "eslint/config";
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextTS from "eslint-config-next/typescript";
 import nextVitals from "eslint-config-next/core-web-vitals";
+import i18next from "eslint-plugin-i18next";
 import tseslint from "typescript-eslint";
 import { enumStyle } from "./scripts/eslint/enumStyle";
 import { serializableBoundaryProps } from "./scripts/eslint/serializableBoundaryProps";
@@ -160,6 +161,79 @@ const commonRules: Config["rules"] = {
   ],
 };
 
+// i18n: flag hardcoded UI strings in JSX. Currently disabled — uncomment the spread in defineConfig below to enable.
+// Exported (rather than plain const) so no-unused-vars stays quiet while disabled.
+// Current findings inventory + tuning rationale: ignore/i18n-todos.md (standalone runner: ignore/eslint.i18n-sweep.config.ts)
+// Caveat: jsx-only mode misses strings assigned outside JSX (e.g. `const label = "..."` later rendered).
+export const i18nLiteralStrings: Config = {
+  name: "i18n literal strings src/",
+  files: ["src/**/*.{ts,tsx}"],
+  ignores: ["src/app/tests/**"], // Internal dev/test pages are intentionally untranslated
+  plugins: { i18next },
+  rules: {
+    "i18next/no-literal-string": ["warn", {
+      mode: "jsx-only",
+      // NOTE: each option block replaces the plugin defaults wholesale (shallow spread),
+      // so the defaults are repeated before our additions.
+      "jsx-attributes": {
+        include: [],
+        exclude: [
+          // plugin defaults
+          "className", "styleName", "style", "type", "key", "id", "width", "height",
+          // standard non-UI attributes
+          "data-testid", "href", "src", "rel", "target", "name", "htmlFor",
+          "aria-labelledby", "aria-describedby", "aria-hidden", "aria-live", "role",
+          "autoComplete", "lang", "dir", "sizes", "viewBox", "d", "fill",
+          "stroke", "strokeWidth", "color", "form", "accept", "min", "max",
+          "step", "pattern", "inputMode", "loading", "decoding", "value",
+          "defaultValue", "popover", "popoverTarget",
+          // custom component props in this codebase (machine values)
+          "anchorName", "positionAnchor", "anchorInlinePosition",
+          "popoverDirection", "margin", "chartType", "chartOptionsType",
+          "styling", "placement", "ariaLabelledBy", "labelledBy", "dataTestid",
+          // image attribution props (proper nouns + URLs)
+          "author", "authorLink", "source", "sourceLink",
+        ],
+      },
+      "object-properties": {
+        include: [],
+        exclude: [
+          // plugin default
+          "[A-Z_-]+",
+          // DOM/props passed as object props
+          "className", "classNames", "id", "name", "type", "key", "dataTestid",
+          "placement", "role", "aria-.+",
+          // CSS-in-JS style keys
+          "style", "gridTemplateColumns", "gridRow", "gridColumn", "width",
+          "height", "borderBottom", "backgroundColor", "transform", "padding",
+          "fontSize", "flexGrow", "marginTop",
+        ],
+      },
+      callees: {
+        exclude: [
+          // plugin defaults
+          "i18n(ext)?", "t", "require", "addEventListener", "removeEventListener",
+          "postMessage", "getElementById", "dispatch", "commit", "includes",
+          "indexOf", "endsWith", "startsWith",
+          // logging + attribute lookups
+          "console\\.(log|warn|error|debug|info)", "getAttributes",
+        ],
+      },
+      words: {
+        exclude: [
+          // plugin defaults (punctuation/digits, ALL_CAPS, html entities, emoji),
+          // widened to tolerate whitespace/nbsp/middle-dot/ellipsis and emoji variation selectors
+          "[0-9!-/:-@[-`{-~\\s\\u00a0\\u00b7\\u2026]+", "[A-Z_-]+", "(&[a-z]+;|\\s)+",
+          "^(\\p{Emoji}|\\ufe0f)+$", "^$",
+          // machine-value patterns
+          "^var\\(--.+\\)$", "^--.+", "^https?://.+", "^mailto:.+", "^/.+",
+          "^[0-9.]+(rem|em|px|%)$", "^[a-z0-9-]+@[a-z0-9-]+\\..+",
+        ],
+      },
+    }],
+  },
+};
+
 export default defineConfig([
   { // Register the local plugin globally so commonRules can reference it in every block
     name: "Local rules",
@@ -236,6 +310,7 @@ export default defineConfig([
       "@typescript-eslint/no-restricted-imports": "off",
     },
   },
+  // i18nLiteralStrings, // Uncomment to flag hardcoded UI strings (see the const above defineConfig)
   globalIgnores([
     "prisma/generated/**/*",
     "node_modules/**/*",
