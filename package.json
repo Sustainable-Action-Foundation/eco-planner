@@ -109,6 +109,7 @@
     "@types/react-dom": "^19.2.3",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.2.10",
+    "eslint-plugin-i18next": "^6.1.5",
     "playwright": "~1.60.0",
     "prisma": "patch:prisma@npm%3A7.8.0#~/.yarn/patches/prisma-npm-7.8.0-534d96c361.patch",
     "tsx": "^4.23.1",

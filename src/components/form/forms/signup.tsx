@@ -75,7 +75,7 @@ export default function Signup() {
               type="button"
               className={`${styles.showPasswordButton} grid padding-0 transparent`}
               onClick={() => setShowPassword(prevState => !prevState)}
-              aria-label={showPassword ? 'hide password' : 'show password'}
+              aria-label={showPassword ? t("common:tsx.hide_password") : t("common:tsx.show_password")}
             >
               {showPassword ? <IconEyeOff style={{ minWidth: '24px' }} aria-hidden="true" /> : <IconEye style={{ minWidth: '24px' }} aria-hidden="true" />}
             </button>

@@ -59,7 +59,9 @@
       "date": "Datum",
       "paragraph": "Stycke",
       "short": "Kort text"
-    }
+    },
+    "field_placeholder_paragraph": "Längre text...",
+    "field_placeholder_short": "Kortare text..."
   },
   "combobox": {
     "default_autocomplete_placeholder": "Skriv för att se förslag",
@@ -282,8 +284,10 @@
       "edit_link": "Redigera länk",
       "insert_link": "Infoga länk",
       "remove_link": "Ta bort länk",
+      "text_label": "Länktext",
       "text_placeholder": "Eco Planner",
       "text_tooltip": "Text att visa (t.ex. 'Eco Planner')",
+      "url_label": "Länkadress",
       "url_parse_error": "Länken kunde inte tolkas",
       "url_placeholder": "https://example.com",
       "url_tooltip": "Länk (t.ex. https://example.com)"

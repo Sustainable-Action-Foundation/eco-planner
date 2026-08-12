@@ -415,7 +415,7 @@ export default function ActionForm({
                     group.type === ActionFieldType.PARAGRAPH ? (
                       <textarea
                         aria-labelledby={`action-field-type-${index}-${group.type}-label`} // Labelled by the paragraph radio button (TODO: check that it is fine to label like this)
-                        placeholder="Skriv ett stycke" // Todo: i18n
+                        placeholder={t("forms:action.field_placeholder_paragraph")}
                         data-testid="action-field-value"
                         value={group.values[valueIndex]}
                         onChange={(event) => updateValue(index, valueIndex, event.target.value)}
@@ -424,7 +424,7 @@ export default function ActionForm({
                       <input
                         type={group.type === ActionFieldType.DATE ? "date" : "text"}
                         aria-labelledby={`action-field-type-${index}-${group.type}-label`} // Labelled by either paragraph or data radio button (TODO: check that it is fine to label like this)
-                        placeholder={group.type === ActionFieldType.DATE ? "" : "Skriv en kort text"} // TODO: I18n
+                        placeholder={group.type === ActionFieldType.DATE ? "" : t("forms:action.field_placeholder_short")}
                         data-testid="action-field-value"
                         value={group.values[valueIndex]}
                         onChange={(event) => updateValue(index, valueIndex, event.target.value)}

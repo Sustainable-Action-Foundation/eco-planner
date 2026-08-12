@@ -1,6 +1,7 @@
 "use client";
 
 import { RecipeError } from "@/functions/recipe/types/errors";
+import { RecipeDataTypes } from "@/functions/recipe/types/enums";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "@/components/recipe";
@@ -35,7 +36,11 @@ export function CommonVariable({
       className={`flex gap-100 align-items-flex-start justify-content-space-between ${styles['variable-fieldset']}`}
     >
       <fieldset className="flex-grow-100">
-        <p style={{ marginTop: 0 }}>{variable.type}</p> {/* TODO: i18n */}
+        <p style={{ marginTop: 0 }}>{{
+          [RecipeDataTypes.Scalar]: t("components:recipe_editor.scalar"),
+          [RecipeDataTypes.DataSeries]: t("components:recipe_editor.data_series"),
+          [RecipeDataTypes.External]: t("components:recipe_editor.external_data"),
+        }[variable.type]}</p>
 
         <div className="flex gap-25 align-items-center margin-bottom-75">
           {/* Name */}

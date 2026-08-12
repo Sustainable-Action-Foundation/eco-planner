@@ -100,7 +100,7 @@ export default function Toast({ children, id, type, hasTimeout = true }: { child
             setCloseToast(true);
             setTimeout(() => removeToast(id), 300);
           }}
-          className="round padding-25 transparent margin-left-auto grid" aria-label="Close toast"
+          className="round padding-25 transparent margin-left-auto grid" aria-label={t("components:toasts.close_toast")}
         >
           <IconX aria-hidden="true" width={22} height={22} strokeWidth={3} color={color.accent} />
         </button>

@@ -57,5 +57,8 @@
   },
   "invite": {
     "title": "Invitation"
+  },
+  "actions": {
+    "title": "Actions"
   }
 }

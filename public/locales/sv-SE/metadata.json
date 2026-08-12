@@ -57,5 +57,8 @@
   },
   "invite": {
     "title": "Inbjudan"
+  },
+  "actions": {
+    "title": "Åtgärder"
   }
 }

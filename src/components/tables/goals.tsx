@@ -102,8 +102,7 @@ export default function Goals({
           </div>
         </label>
         <label className='flex align-items-center gap-50'>
-          {/* TODO: i18n */}
-          Visa enbart målbanor med recept
+          {t("components:goals.recipe_only_filter")}
           <input checked={recipeOnly} onChange={() => setRecipeOnly(!recipeOnly)} type='checkbox' />
         </label>
         {viewMode === ViewMode.Table && (

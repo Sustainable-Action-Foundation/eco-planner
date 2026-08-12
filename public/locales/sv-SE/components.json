@@ -67,6 +67,7 @@
     "listed_tab": "$t(common:goal_other, titleCase) ({{count}})",
     "loading_alt": "Laddar",
     "new_goal": "$t(common:new.goal)",
+    "recipe_only_filter": "Visa enbart $t(common:goal_other) med recept",
     "search": "Sök bland $t(common:goal_other)",
     "sort_action_count_ascending": "Antal $t(common:action_other) (stigande)",
     "sort_action_count_descending": "Antal $t(common:action_other) (fallande)",
@@ -230,7 +231,10 @@
     "vector_index_picker_label": "Värde(n)",
     "recipe_name": "Receptnamn",
     "new_recipe": "Nytt recept",
-    "this_data_series": "Denna dataserie"
+    "this_data_series": "Denna dataserie",
+    "delete_recipe": "Radera recept",
+    "edit_recipe": "Redigera recept",
+    "evaluation_warning_title": "Varningar"
   },
   "roadmap_filters": {
     "default": "Standard",
@@ -313,6 +317,7 @@
   },
   "toasts": {
     "clear_toasts": "Rensa alla meddelanden",
+    "close_toast": "Stäng meddelande",
     "error": "Något gick fel!",
     "show_less": "Visa mindre",
     "show_more": "Visa mer",

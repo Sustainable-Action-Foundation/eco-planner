@@ -4,7 +4,8 @@
     "baseline_scenario": "Basscenario",
     "expected_outcome": "Förväntat utfall",
     "unknown_roadmap": "Okänd $t(common:roadmap_version_one)",
-    "change_graph_type": "Ändra graftyp"
+    "change_graph_type": "Ändra graftyp",
+    "historical_series": "{{label}} (historisk)"
   },
   "action_graph": {
     "actions": "$t(common:action_other, titleCase)"

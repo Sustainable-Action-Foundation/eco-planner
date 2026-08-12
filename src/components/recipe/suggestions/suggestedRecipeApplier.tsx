@@ -182,7 +182,7 @@ export function SuggestedRecipeApplier({
                   width={16} height={16}
                   style={{ minWidth: '16px', marginBottom: '-3px', marginLeft: '1px' }}
                   color="darkorange"
-                  aria-label={t("components:copy_and_scale.evaluation_warning_title")} // TODO: Check this translation
+                  aria-label={t("components:recipe_editor.evaluation_warning_title")}
                 />
                 {"]"}
               </span>

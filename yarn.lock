@@ -3020,6 +3020,7 @@ __metadata:
     dotenv: "npm:^17.4.2"
     eslint: "npm:^9.39.5"
     eslint-config-next: "npm:^16.2.10"
+    eslint-plugin-i18next: "npm:^6.1.5"
     fuse.js: "npm:^7.4.2"
     i18next: "npm:^26.3.6"
     i18next-fs-backend: "npm:^2.6.6"
@@ -3405,6 +3406,15 @@ __metadata:
     eslint:
       optional: true
   checksum: 10c0/6f4efbe7a91ae49bf67b4ab3644cb60bc5bd7db4cb5521de1b65be0847ffd3fb6bce0dd68f0995e1b312d137f768e2a1f842ee26fe73621afa05f850628fdc40
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-i18next@npm:^6.1.5":
+  version: 6.1.5
+  resolution: "eslint-plugin-i18next@npm:6.1.5"
+  dependencies:
+    requireindex: "npm:~1.1.0"
+  checksum: 10c0/500cb271999e49c630015bcfa7cc635c860a1385b71731f90ca77d37eae4f15c80bd1bb50b6d8b67a468b239fbe6fe73b5346aebdf457100b553b98618a817be
   languageName: node
   linkType: hard
 
@@ -5773,6 +5783,13 @@ __metadata:
   version: 2.0.2
   resolution: "require-from-string@npm:2.0.2"
   checksum: 10c0/aaa267e0c5b022fc5fd4eef49d8285086b15f2a1c54b28240fdf03599cbd9c26049fee3eab894f2e1f6ca65e513b030a7c264201e3f005601e80c49fb2937ce2
+  languageName: node
+  linkType: hard
+
+"requireindex@npm:~1.1.0":
+  version: 1.1.0
+  resolution: "requireindex@npm:1.1.0"
+  checksum: 10c0/4d57e7c6d160c4d043a233a6a95a22c792ada72ff378c5ebd415be505b328f3c719f9188dd100f8fcaa8af513a85f39eee0a5047838d715e22e79544a3b7d002
   languageName: node
   linkType: hard
 

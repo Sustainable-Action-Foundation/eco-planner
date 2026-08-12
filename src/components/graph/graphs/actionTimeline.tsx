@@ -11,7 +11,7 @@ export default function ActionGraph({
 }: {
   actions: Pick<Action, "name" | "start_year" | "end_year">[],
 }) {
-  const { t } = useTranslation("graphs");
+  const { t, i18n } = useTranslation("graphs");
 
   const series: ApexAxisChartSeries = [];
   const actionData = [];
@@ -112,7 +112,7 @@ export default function ActionGraph({
               background: 'var(--gray-95)',
               fontSize: '14px',
             },
-            text: new Date().toLocaleDateString('en-GB', { /* TODO: i18n */
+            text: new Date().toLocaleDateString(i18n.language, {
               day: 'numeric',
               month: 'short',
               year: 'numeric',

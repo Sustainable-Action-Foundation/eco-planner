@@ -199,6 +199,7 @@ export function SuggestedRecipesList({
               {/* Delete */}
               <button
                 type="button"
+                aria-label={`${t("components:recipe_editor.delete_recipe")}: ${db.recipe.name}`}
                 onClick={() => deleteRecipe(db.id)}
               >
                 🗑️
@@ -207,6 +208,7 @@ export function SuggestedRecipesList({
               {/* Edit */}
               <button
                 type="button"
+                aria-label={`${t("components:recipe_editor.edit_recipe")}: ${db.recipe.name}`}
                 onClick={() => startEditing(db.id, db.recipe.name)}
               >
                 ✏️

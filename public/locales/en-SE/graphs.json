@@ -4,7 +4,8 @@
     "baseline_scenario": "Baseline scenario",
     "change_graph_type": "Change graph type",
     "expected_outcome": "Expected outcome",
-    "unknown_roadmap": "Unknown $t(common:roadmap_version_one)"
+    "unknown_roadmap": "Unknown $t(common:roadmap_version_one)",
+    "historical_series": "{{label}} (historical)"
   },
   "action_graph": {
     "actions": "$t(common:action_other, titleCase)"

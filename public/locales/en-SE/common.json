@@ -128,6 +128,8 @@
     "write": "Write something",
     "yes": "Yes",
     "move_up": "Move up",
-    "move_down": "Move down"
+    "move_down": "Move down",
+    "hide_password": "Hide password",
+    "show_password": "Show password"
   }
 }

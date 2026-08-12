@@ -59,7 +59,9 @@
       "date": "Date",
       "paragraph": "Paragraph",
       "short": "Short text"
-    }
+    },
+    "field_placeholder_paragraph": "Longer text...",
+    "field_placeholder_short": "Shorter text..."
   },
   "combobox": {
     "default_autocomplete_placeholder": "Type to view suggestions",
@@ -282,8 +284,10 @@
       "edit_link": "Edit link",
       "insert_link": "Insert link",
       "remove_link": "Remove link",
+      "text_label": "Link text",
       "text_placeholder": "Eco Planner",
       "text_tooltip": "Text to display (e.g. 'Eco Planner')",
+      "url_label": "Link URL",
       "url_parse_error": "Failed to parse URL",
       "url_placeholder": "https://example.com",
       "url_tooltip": "URL (e.g. https://example.com)"
