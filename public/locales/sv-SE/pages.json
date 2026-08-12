@@ -135,7 +135,7 @@
     "all_actions": "Alla $t(common:action_other)",
     "all_goals": "Alla $t(common:goal_other)",
     "featured_goals": "Utvalda $t(common:goal_other)",
-    "show_series": "Besök $t(common:roadmap_one)",
+    "show_series": "Visa versioner",
     "title": "$t(common:roadmap_version_one, titleCase)",
     "version": "$t(common:roadmap_version_one, titleCase) (v{{version}})"
   },

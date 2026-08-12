@@ -27,12 +27,24 @@ export default function Goals({
   const [sortBy, setSortBy] = useState<GoalSortBy>(getStoredGoalSortBy() || GoalSortBy.Default);
   const [searchFilter, setSearchFilter] = useState<string>('');
   const [recipeOnly, setRecipeOnly] = useState<boolean>(false);
+  const [showUnlisted, setShowUnlisted] = useState<boolean>(false);
 
-  let filteredIteration = iteration;
+  // Unlisted goals are hidden from the regular list; users with edit access get
+  // them in a separate tab instead
+  const listedGoals = iteration.goals.filter(goal => !goal.is_unlisted);
+  const unlistedGoals = hasEditAccess(accessLevel ?? AccessLevel.None)
+    ? iteration.goals.filter(goal => goal.is_unlisted)
+    : [];
+  const activeIteration = {
+    ...iteration,
+    goals: showUnlisted && unlistedGoals.length > 0 ? unlistedGoals : listedGoals,
+  };
+
+  let filteredIteration = activeIteration;
   if (searchFilter) {
     filteredIteration = {
-      ...iteration,
-      goals: iteration.goals.filter(goal => {
+      ...activeIteration,
+      goals: activeIteration.goals.filter(goal => {
         if (Object.values(goal).some(value => typeof value === 'string' && value.toLowerCase().includes(searchFilter.toLowerCase()))) {
           return true;
         } else if (goal.data_series && Object.values(goal.data_series).some(value => typeof value === 'string' && value.toLowerCase().includes(searchFilter.toLowerCase()))) {
@@ -44,8 +56,8 @@ export default function Goals({
 
   if (recipeOnly) {
     filteredIteration = {
-      ...iteration,
-      goals: iteration.goals.filter(goal => {
+      ...activeIteration,
+      goals: activeIteration.goals.filter(goal => {
         // Every data series now has a recipe; manually entered series use an inline recipe tagged `meta.isManual`
         const recipe = goal.data_series?.recipe_used?.recipe;
         const isManual = (
@@ -61,6 +73,26 @@ export default function Goals({
 
   return (
     <>
+      {unlistedGoals.length > 0 ?
+        <nav className="flex gap-50 flex-wrap-wrap margin-bottom-100" aria-label={t("components:goals.unlisted_nav_label")}>
+          <button
+            type="button"
+            className={`button round smooth${!showUnlisted ? ' seagreen color-purewhite font-weight-500' : ''}`}
+            onClick={() => setShowUnlisted(false)}
+            data-testid="listed-goals-tab"
+          >
+            {t("components:goals.listed_tab", { count: listedGoals.length })}
+          </button>
+          <button
+            type="button"
+            className={`button round smooth${showUnlisted ? ' seagreen color-purewhite font-weight-500' : ''}`}
+            onClick={() => setShowUnlisted(true)}
+            data-testid="unlisted-goals-tab"
+          >
+            {t("components:goals.unlisted_tab", { count: unlistedGoals.length })}
+          </button>
+        </nav>
+        : null}
       <menu className={`margin-bottom-100 flex justify-content-space-between align-items-flex-end flex-wrap-wrap gap-100 padding-0 margin-0 ${styles.tableNav}`}>
         <label className="font-weight-bold flex-grow-100">
           {t("components:goals.search")}
@@ -70,6 +102,7 @@ export default function Goals({
           </div>
         </label>
         <label className='flex align-items-center gap-50'>
+          {/* TODO: i18n */}
           Visa enbart målbanor med recept
           <input checked={recipeOnly} onChange={() => setRecipeOnly(!recipeOnly)} type='checkbox' />
         </label>

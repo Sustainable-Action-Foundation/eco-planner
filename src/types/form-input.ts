@@ -128,6 +128,7 @@ type GoalMetaFields = {
   description: string | null | undefined;
   indicatorParameter: string | undefined;
   isFeatured: boolean | undefined;
+  isUnlisted: boolean | undefined;
   rawTags: string[] | null | undefined; // Transform into tags relation in the server side API
 };
 

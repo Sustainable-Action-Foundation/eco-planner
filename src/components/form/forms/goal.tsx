@@ -404,6 +404,7 @@ export default function GoalForm({
         description: formData.get(GoalFormName.Description) as string | null ?? null, // Use the hidden input for the description, which contains the latest editor content
         indicatorParameter: formData.get(GoalFormName.IndicatorParameter) as string | null ?? (event.target.reportValidity(), ""),
         isFeatured: (form.namedItem(GoalFormName.IsFeatured) as HTMLInputElement)?.checked || false,
+        isUnlisted: (form.namedItem(GoalFormName.IsUnlisted) as HTMLInputElement)?.checked || false,
         iterationId: iterationId || parentIterationId,
         recipeSuggestions: recipeSuggestions,
 
@@ -436,6 +437,7 @@ export default function GoalForm({
         description: formData.get(GoalFormName.Description) as string | null ?? undefined, // Use the hidden input for the description, which contains the latest editor content
         indicatorParameter: formData.get(GoalFormName.IndicatorParameter) as string | null ?? undefined,
         isFeatured: (form.namedItem(GoalFormName.IsFeatured) as HTMLInputElement)?.checked ?? undefined,
+        isUnlisted: (form.namedItem(GoalFormName.IsUnlisted) as HTMLInputElement)?.checked ?? undefined,
         recipeSuggestions: recipeSuggestions,
 
         dataSeriesId: undefined,
@@ -551,6 +553,15 @@ export default function GoalForm({
           <label className="flex align-items-center gap-50 margin-top-50 margin-bottom-100">
             <input type="checkbox" name={GoalFormName.IsFeatured} id="isFeatured" defaultChecked={currentGoal?.is_featured} />
             {t("forms:goal.feature_goal")}
+          </label>
+        </fieldset >
+        <fieldset>
+          <legend>
+            {t("forms:goal.unlist_this_goal")}
+          </legend>
+          <label className="flex align-items-center gap-50 margin-top-50 margin-bottom-100">
+            <input type="checkbox" name={GoalFormName.IsUnlisted} id="isUnlisted" defaultChecked={currentGoal?.is_unlisted} />
+            {t("forms:goal.unlist_goal")}
           </label>
         </fieldset >
       </fieldset>

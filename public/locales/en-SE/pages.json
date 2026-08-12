@@ -135,7 +135,7 @@
     "all_actions": "All $t(common:action_other)",
     "all_goals": "All $t(common:goal_other)",
     "featured_goals": "Featured $t(common:goal_other)",
-    "show_series": "Visit $t(common:roadmap_one)",
+    "show_series": "Show versions",
     "title": "$t(common:roadmap_version_one, titleCase)",
     "version": "$t(common:roadmap_version_one, titleCase) (v{{version}})"
   },

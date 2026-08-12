@@ -64,6 +64,7 @@
     "unit": "Unit"
   },
   "goals": {
+    "listed_tab": "$t(common:goal_other, titleCase) ({{count}})",
     "loading_alt": "Loading",
     "new_goal": "New $t(common:goal_one)",
     "search": "Search $t(common:goal_other)",
@@ -73,7 +74,9 @@
     "sort_default": "Default",
     "sort_interest": "Interest",
     "sort_name_ascending": "Name (Z-A)",
-    "sort_name_descending": "Name (A-Z)"
+    "sort_name_descending": "Name (A-Z)",
+    "unlisted_nav_label": "$t(common:goal_one, titleCase) visibility",
+    "unlisted_tab": "Unlisted $t(common:goal_other) ({{count}})"
   },
   "image_attribute": {
     "by": "Photo by",

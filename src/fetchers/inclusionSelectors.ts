@@ -67,7 +67,8 @@ const dataSeriesInclusionSelection = {
 export const roadmapInclusionSelection = {
   iterations: {
     include: {
-      _count: { select: { goals: true } },
+      // Displayed counts exclude unlisted goals
+      _count: { select: { goals: { where: { is_unlisted: false } } } },
       author: { select: { id: true, username: true } },
     },
   },
@@ -94,7 +95,9 @@ export const roadmapIterationInclusionSelection = {
       child_roadmaps: { select: { id: true, name: true } },
     },
   },
-  _count: { select: { goals: true } },
+  // Displayed counts exclude unlisted goals; the goals list itself carries them
+  // for users with edit access (filtered in the UI)
+  _count: { select: { goals: { where: { is_unlisted: false } } } },
   goals: {
     include: {
       _count: { select: { effects: true } },
@@ -143,6 +146,7 @@ export const clientSafeRoadmapIterationSelection = {
       description: true,
       indicator_parameter: true,
       is_featured: true,
+      is_unlisted: true,
       _count: { select: { effects: true } },
       data_series: { include: dataSeriesInclusionSelection },
       baseline: { include: dataSeriesInclusionSelection },
@@ -189,7 +193,8 @@ export const clientSafeRoadmapIterationSelection = {
 export const multiRoadmapInclusionSelection = {
   _count: {
     select: {
-      goals: true,
+      // Displayed counts exclude unlisted goals
+      goals: { where: { is_unlisted: false } },
       actions: true,
     },
   },
@@ -210,7 +215,8 @@ export const clientSafeMultiRoadmapSelection = {
   published_at: true,
   _count: {
     select: {
-      goals: true,
+      // Displayed counts exclude unlisted goals
+      goals: { where: { is_unlisted: false } },
       actions: true,
     },
   },
@@ -271,6 +277,7 @@ export const clientSafeGoalSelection = {
   description: true,
   indicator_parameter: true,
   is_featured: true,
+  is_unlisted: true,
   roadmap_iteration_id: true,
   data_series: { include: dataSeriesInclusionSelection },
   baseline: { include: dataSeriesInclusionSelection },
