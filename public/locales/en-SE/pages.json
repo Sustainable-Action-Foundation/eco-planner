@@ -2,18 +2,12 @@
   "action": {
     "action_label": "$t(common:action_one, titleCase)",
     "categories": "Categories",
-    "cost_efficiency": "Cost efficiency",
     "create_new_effect": "$t(common:new.effect)",
     "edit_action": "$t(common:edit.action)",
     "effects_label": "$t(common:effect_other, titleCase)",
     "expected_effect": "Expected $t(common:effect_other)",
-    "no_actors": "No specified actors",
     "no_category": "No specified category",
-    "no_cost_efficiency": "No specified cost efficiency",
-    "no_effect": "No specified $t(common:effect_other)",
-    "no_project_manager": "No specified project manager",
-    "project_manager": "Project manager",
-    "relevant_actors": "Relevant actors"
+    "no_effect": "No specified $t(common:effect_other)"
   },
   "action_create": {
     "bad_goal": "Could not find or do not have access to the $t(common:goal_one) in the link.",

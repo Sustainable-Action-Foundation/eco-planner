@@ -37,19 +37,13 @@ export default function ActionForm({
 
   const { addToast } = useToast();
 
-  // Free-form descriptive fields, replacing the old fixed columns. New actions are
-  // seeded with the canonical machine-key headers (the same ones the migration used
-  // for old data); the UI translates known keys for display.
+  // Free-form descriptive fields, replacing the old fixed columns.
   // Edited as groups (one header/type, any number of values), matching how same-header
   // fields render as one list; each value becomes its own ActionFields row on submit.
   const [fields, setFields] = useState<{ header: string, type: ActionFieldType, values: string[] }[]>(() =>
     currentAction
       ? groupActionFields(currentAction.fields.filter(field => field.header !== ActionFieldHeaders.Tag && field.header !== ActionFieldHeaders.Description))
-      : [
-        ActionFieldHeaders.CostEfficiency,
-        ActionFieldHeaders.ExpectedOutcome,
-        ActionFieldHeaders.RelevantActors,
-      ].map(header => ({ header, type: defaultActionFieldType(header), values: [""] })),
+      : [],
   );
 
   // The description is stored as a DESCRIPTION-headed paragraph field but edited through
