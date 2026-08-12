@@ -27,8 +27,7 @@ async function readActionFields(page: Page): Promise<Record<string, string>> {
 
 /**
  * Fills the value of the descriptive-field row with the given header (e.g. "COST_EFFICIENCY").
- * New actions come pre-seeded with rows for the canonical headers; any other header
- * gets a new row added for it.
+ * New actions start with no rows; a header without a row gets a new row added for it.
  */
 async function fillActionField(page: Page, header: string, value: string) {
   await openActionFieldRows(page);
@@ -217,7 +216,7 @@ test.describe.serial("Action & Effect tests", () => {
 
     await expect(page.locator('#actionName')).toHaveValue(actionNameAllFields);
 
-    // All descriptive fields were saved (empty pre-seeded rows are dropped on submit);
+    // All descriptive fields were saved;
     // the description loads into its dedicated input rather than a field row
     await expect(page.locator('#action-description')).toHaveValue("Test Action description.");
     await expect(actionFieldRows(page)).toHaveCount(4);
@@ -349,11 +348,13 @@ test.describe.serial("Action & Effect tests", () => {
     await page.locator('#iterationId').selectOption(await option.getAttribute('value'));
     await page.locator('#actionName').fill(name);
 
-    // Pre-seeded group order: COST_EFFICIENCY, EXPECTED_OUTCOME, RELEVANT_ACTORS
+    // Groups are added in this entry order: COST_EFFICIENCY, EXPECTED_OUTCOME, RELEVANT_ACTORS
     await fillActionField(page, 'COST_EFFICIENCY', "CE text");
     await fillActionField(page, 'EXPECTED_OUTCOME', "EO text");
     await fillActionField(page, 'RELEVANT_ACTORS', "Actor B");
-    // A second value in the actors group becomes a list item after the first
+    // A second value in the actors group becomes a list item after the first.
+    // Lists need a non-paragraph type, and new rows default to paragraph.
+    await actionFieldRows(page).nth(2).getByRole('radio', { name: 'action.field_types.short' }).check();
     await actionFieldRows(page).nth(2).getByRole('button', { name: 'action.add_list_item' }).click();
     await actionFieldRows(page).nth(2).getByTestId('action-field-value').nth(1).fill("Actor A");
 
@@ -361,11 +362,12 @@ test.describe.serial("Action & Effect tests", () => {
     await page.waitForLoadState("networkidle");
     await expect(page.getByRole('heading', { name })).toBeVisible();
 
-    // Display: groups appear in entry order, list values in entry order (B before A)
+    // Display: groups appear in entry order, list values in entry order (B before A).
+    // These headers are no longer canonical, so they render verbatim rather than translated.
     const mainText = (await page.locator('main').textContent())?.replace(/\s+/g, ' ') ?? '';
-    const ce = mainText.indexOf('cost_efficiency');
-    const eo = mainText.indexOf('expected_outcome');
-    const ra = mainText.indexOf('relevant_actors');
+    const ce = mainText.indexOf('COST_EFFICIENCY');
+    const eo = mainText.indexOf('EXPECTED_OUTCOME');
+    const ra = mainText.indexOf('RELEVANT_ACTORS');
     expect(ce).toBeGreaterThan(-1);
     expect(eo).toBeGreaterThan(ce);
     expect(ra).toBeGreaterThan(eo);
