@@ -1,7 +1,7 @@
 'use client';
 
 import formSubmitter from "@/functions/formSubmitter";
-import parseCsv, { csvToGoalList } from "@/functions/parseCsv";
+import { csvToGoalList, parseGoalCsv } from "@/functions/parseGoalCsv";
 import type { GoalCreateFull, Roadmap, RoadmapIteration, RoadmapIterationCreateInput, RoadmapIterationUpdateInput } from "@/types";
 import { useEffect, useMemo, useRef, useState } from "react";
 import styles from '../forms.module.css';
@@ -56,7 +56,7 @@ export default function RoadmapIterationForm({
       setIsLoading(true);
       try {
         currentFile.arrayBuffer()
-          .then((buffer) => parseCsv(buffer))
+          .then((buffer) => parseGoalCsv(buffer))
           .then((csv) => {
             checkForBadDecoding(csv, t, addToast);
             return csvToGoalList(csv, () => addToast(t("forms:roadmap_iteration.scale_deprecated_extended"), "warning"));
@@ -87,7 +87,7 @@ export default function RoadmapIterationForm({
     let goals: GoalCreateFull[] = [];
     if (currentFile) {
       try {
-        goals = csvToGoalList(parseCsv(await currentFile.arrayBuffer().then((buffer) => { return buffer; })), () => addToast(t("forms:roadmap_iteration.scale_deprecated"), "warning"));
+        goals = csvToGoalList(parseGoalCsv(await currentFile.arrayBuffer()), () => addToast(t("forms:roadmap_iteration.scale_deprecated"), "warning"));
       }
       catch (err) {
         setIsLoading(false);
