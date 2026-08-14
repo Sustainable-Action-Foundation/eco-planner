@@ -1,13 +1,14 @@
 'use client';
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import styles from '../forms.module.css';
 import { useTranslation } from "react-i18next";
 import { IconExclamationCircle, IconEye, IconEyeOff, IconLock, IconUser } from "@tabler/icons-react";
 import type { TFunction } from "i18next";
 
-function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction, setErrorMessage: React.Dispatch<React.SetStateAction<string | null>>, setErrorKey: React.Dispatch<React.SetStateAction<number>>) {
+function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction, router: ReturnType<typeof useRouter>, setErrorMessage: React.Dispatch<React.SetStateAction<string | null>>, setErrorKey: React.Dispatch<React.SetStateAction<number>>) {
   event.preventDefault();
 
   const form = event.target;
@@ -29,11 +30,8 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction, s
     if (res.ok) {
       // Redirect to the page the user came from, or to the home page.
       const from = new URLSearchParams(window.location.search).get('from');
-      if (from) {
-        window.location.href = from;
-      } else {
-        window.location.href = '/';
-      }
+      router.push(from || '/');
+      router.refresh();
     } else {
       setErrorKey(prevKey => prevKey + 1);
       setErrorMessage(t("components:login.invalid_credentials"));
@@ -46,6 +44,7 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction, s
 
 export default function Login() {
   const { t } = useTranslation(["components", "common"]);
+  const router = useRouter();
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -54,7 +53,7 @@ export default function Login() {
 
 
   return (
-    <form onSubmit={(event: React.ChangeEvent<HTMLFormElement>) => handleSubmit(event, t, setErrorMessage, setErrorKey)} className={`${styles.padding}`}>
+    <form onSubmit={(event: React.ChangeEvent<HTMLFormElement>) => handleSubmit(event, t, router, setErrorMessage, setErrorKey)} className={`${styles.padding}`}>
         <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid silver' }}>{t("common:tsx.login")}</h1>
 
         <label>

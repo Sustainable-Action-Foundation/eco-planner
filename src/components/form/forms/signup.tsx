@@ -1,6 +1,7 @@
 'use client';
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import styles from '../forms.module.css';
 import type { TFunction } from "i18next";
@@ -8,7 +9,7 @@ import { useTranslation } from "react-i18next";
 import { IconEye, IconEyeOff, IconLock, IconMail, IconUser } from "@tabler/icons-react";
 import type { JSONValue } from "@/types";
 
-function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction) {
+function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction, router: ReturnType<typeof useRouter>) {
   event.preventDefault();
 
   const form = event.target;
@@ -29,7 +30,8 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction) {
     headers: { 'Content-Type': 'application/json' },
   }).then((res) => {
     if (res.ok) {
-      window.location.href = '/verify';
+      router.push('/verify');
+      router.refresh();
     } else {
       (res.json() as Promise<JSONValue>).then((data) => {
         if (data instanceof Object && "message" in data) {
@@ -46,11 +48,12 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction) {
 
 export default function Signup() {
   const { t } = useTranslation(["components", "common"]);
+  const router = useRouter();
 
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <form onSubmit={(event: React.ChangeEvent<HTMLFormElement>) => handleSubmit(event, t)} className={`${styles.padding}`}>
+    <form onSubmit={(event: React.ChangeEvent<HTMLFormElement>) => handleSubmit(event, t, router)} className={`${styles.padding}`}>
         <h1 className="padding-bottom-100" style={{ borderBottom: '1px solid silver' }}>{t("components:signup.create_account")}</h1>
         <label>
           {t("components:signup.username")}
