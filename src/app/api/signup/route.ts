@@ -3,11 +3,10 @@ import { allowedDomains } from "@/lib/allowedDomains";
 import { OrgRole } from "@/lib/prisma/generated";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import mailClient from "@/mailClient";
+import mailClient, { type MailOptions } from "@/mailClient";
 import getUserHash from "@/functions/getUserHash";
 import { baseUrl } from "@/lib/baseUrl";
 import serveTea from "@/lib/i18nServer";
-import type Mail from "nodemailer/lib/mailer";
 import type { JSONValue } from "@/types";
 
 export async function POST(request: NextRequest) {
@@ -139,7 +138,7 @@ export async function POST(request: NextRequest) {
       throw new Error('User not found');
     }
 
-    const mailContent: Mail.Options = {
+    const mailContent: MailOptions = {
       from: t("email:common.from", { emailServer: process.env.MAIL_USER }),
       to: lowercaseEmail,
       subject: t("email:signup.subject"),

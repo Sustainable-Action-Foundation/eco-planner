@@ -1,11 +1,10 @@
 import getUserHash from "@/functions/getUserHash";
 import { baseUrl } from "@/lib/baseUrl";
 import serveTea from "@/lib/i18nServer";
-import mailClient from "@/mailClient";
+import mailClient, { type MailOptions } from "@/mailClient";
 import { prisma } from "@/lib/prisma";
 import type { JSONValue } from "@/types";
 import type { NextRequest } from "next/server";
-import type Mail from "nodemailer/lib/mailer";
 
 /** Sends a verification email to the given address. */
 export async function POST(request: NextRequest) {
@@ -23,7 +22,7 @@ export async function POST(request: NextRequest) {
     return Response.json({ message: 'If the user exists and is unverified, an email with instructions for verification will be sent' }, { status: 200, headers: { 'Location': '/verify' } });
   }
 
-  const mailContent: Mail.Options = {
+  const mailContent: MailOptions = {
     from: t("email:common.from", { emailServer: process.env.MAIL_USER }),
     to: body.email.toLowerCase(),
     subject: t("email:verification.subject"),

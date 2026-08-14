@@ -1786,15 +1786,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*":
-  version: 25.0.3
-  resolution: "@types/node@npm:25.0.3"
-  dependencies:
-    undici-types: "npm:~7.16.0"
-  checksum: 10c0/b7568f0d765d9469621615e2bb257c7fd1953d95e9acbdb58dffb6627a2c4150d405a4600aa1ad8a40182a94fe5f903cafd3c0a2f5132814debd0e3bfd61f835
-  languageName: node
-  linkType: hard
-
 "@types/node@npm:^24.0.13":
   version: 24.12.2
   resolution: "@types/node@npm:24.12.2"
@@ -1810,15 +1801,6 @@ __metadata:
   dependencies:
     undici-types: "npm:>=7.24.0 <7.24.7"
   checksum: 10c0/addbfe55f14d6a7f149a8796c2fca68463ac6caf911c623f552d07385691d36c0669a9c38724350d0e958131827d59a63c18781e753dede8113a903dd62b7932
-  languageName: node
-  linkType: hard
-
-"@types/nodemailer@npm:^8.0.1":
-  version: 8.0.1
-  resolution: "@types/nodemailer@npm:8.0.1"
-  dependencies:
-    "@types/node": "npm:*"
-  checksum: 10c0/4370ac478a6811faaa64fcf769556515c72b78c66961cde22be75bb975ce8a964cfbe5e7c0988a99250f3250faa34357c73958b019b3c63dd138ea3784442032
   languageName: node
   linkType: hard
 
@@ -3009,7 +2991,6 @@ __metadata:
     "@tiptap/react": "npm:~3.24.0"
     "@tiptap/starter-kit": "npm:~3.24.0"
     "@types/node": "npm:^25.9.5"
-    "@types/nodemailer": "npm:^8.0.1"
     "@types/react": "npm:^19.2.17"
     "@types/react-dom": "npm:^19.2.3"
     accept-language: "npm:^3.0.20"
@@ -3028,7 +3009,6 @@ __metadata:
     iron-session: "npm:^8.0.4"
     mathjs: "npm:^15.2.0"
     next: "npm:^16.2.10"
-    nodemailer: "npm:^9.0.3"
     playwright: "npm:~1.60.0"
     prisma: "patch:prisma@npm%3A7.8.0#~/.yarn/patches/prisma-npm-7.8.0-534d96c361.patch"
     react: "npm:^19.2.7"
@@ -5113,13 +5093,6 @@ __metadata:
   version: 2.0.36
   resolution: "node-releases@npm:2.0.36"
   checksum: 10c0/85d8d7f4b6248c8372831cbcc3829ce634cb2b01dbd85e55705cefc8a9eda4ce8121bd218b9629cf2579aef8a360541bad409f3925a35675c825b9471a49d7e9
-  languageName: node
-  linkType: hard
-
-"nodemailer@npm:^9.0.3":
-  version: 9.0.3
-  resolution: "nodemailer@npm:9.0.3"
-  checksum: 10c0/9e93516fb9fcc8835b683cdf3b90135648dabf0133ac9b04890303c2e23eef1d7bae58fe98afb0e251ae10428b96f05df483deb78f0b49f47793debbb0383216
   languageName: node
   linkType: hard
 
