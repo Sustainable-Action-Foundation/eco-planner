@@ -16,8 +16,9 @@ services:
       # Iron session cookie encryption password
       - IRON_SESSION_PASSWORD=${IRON_SESSION_PASSWORD:?error}
       # Used to connect mailClient to SMTP server
-      - MAIL_HOST=${MAIL_HOST:?error}
+      - MAIL_TENANT_ID=${MAIL_TENANT_ID:?error}
+      - MAIL_CLIENT_ID=${MAIL_CLIENT_ID:?error}
+      - MAIL_CLIENT_SECRET=${MAIL_CLIENT_SECRET:?error}
       - MAIL_USER=${MAIL_USER:?error}
-      - MAIL_PASSWORD=${MAIL_PASSWORD:?error}
       # Used for links in emails and as canonical url in meta tags
       - BASE_URL=${BASE_URL}

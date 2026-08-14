@@ -228,9 +228,10 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           IRON_SESSION_PASSWORD: ${{ secrets.IRON_SESSION_PASSWORD }}
           MARIADB_ROOT_PASSWORD: ${{ secrets.MARIADB_ROOT_PASSWORD }}
-          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          MAIL_CLIENT_SECRET: ${{ secrets.MAIL_CLIENT_SECRET }}
           MARIADB_DATABASE: ${{ vars.MARIADB_DATABASE }}
-          MAIL_HOST: ${{ vars.MAIL_HOST }}
+          MAIL_TENANT_ID: ${{ vars.MAIL_TENANT_ID }}
+          MAIL_CLIENT_ID: ${{ vars.MAIL_CLIENT_ID }}
           MAIL_USER: ${{ vars.MAIL_USER }}
           BASE_URL: ${{ vars.BASE_URL }}
         run: |
@@ -240,9 +241,10 @@ jobs:
             printf 'IRON_SESSION_PASSWORD=%s\n' "$IRON_SESSION_PASSWORD"
             printf 'MARIADB_DATABASE=%s\n' "$MARIADB_DATABASE"
             printf 'MARIADB_ROOT_PASSWORD=%s\n' "$MARIADB_ROOT_PASSWORD"
-            printf 'MAIL_HOST=%s\n' "$MAIL_HOST"
+            printf 'MAIL_TENANT_ID=%s\n' "$MAIL_TENANT_ID"
+            printf 'MAIL_CLIENT_ID=%s\n' "$MAIL_CLIENT_ID"
+            printf 'MAIL_CLIENT_SECRET=%s\n' "$MAIL_CLIENT_SECRET"
             printf 'MAIL_USER=%s\n' "$MAIL_USER"
-            printf 'MAIL_PASSWORD=%s\n' "$MAIL_PASSWORD"
             printf 'BASE_URL=%s\n' "$BASE_URL"
           } > deploy.env
 
@@ -290,8 +292,9 @@ jobs:
           IMAGE_TAG: sha-${{ github.sha }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           IRON_SESSION_PASSWORD: ${{ secrets.IRON_SESSION_PASSWORD }}
-          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
-          MAIL_HOST: ${{ vars.MAIL_HOST }}
+          MAIL_CLIENT_SECRET: ${{ secrets.MAIL_CLIENT_SECRET }}
+          MAIL_TENANT_ID: ${{ vars.MAIL_TENANT_ID }}
+          MAIL_CLIENT_ID: ${{ vars.MAIL_CLIENT_ID }}
           MAIL_USER: ${{ vars.MAIL_USER }}
           BASE_URL: ${{ vars.BASE_URL }}
         run: |
@@ -299,9 +302,10 @@ jobs:
             printf 'IMAGE_TAG=%s\n' "$IMAGE_TAG"
             printf 'DATABASE_URL=%s\n' "$DATABASE_URL"
             printf 'IRON_SESSION_PASSWORD=%s\n' "$IRON_SESSION_PASSWORD"
-            printf 'MAIL_HOST=%s\n' "$MAIL_HOST"
+            printf 'MAIL_TENANT_ID=%s\n' "$MAIL_TENANT_ID"
+            printf 'MAIL_CLIENT_ID=%s\n' "$MAIL_CLIENT_ID"
+            printf 'MAIL_CLIENT_SECRET=%s\n' "$MAIL_CLIENT_SECRET"
             printf 'MAIL_USER=%s\n' "$MAIL_USER"
-            printf 'MAIL_PASSWORD=%s\n' "$MAIL_PASSWORD"
             printf 'BASE_URL=%s\n' "$BASE_URL"
           } > deploy.env
 
