@@ -1,20 +1,22 @@
-import { getOneAction }from "@/fetchers";
+import { getOneAction } from "@/fetchers";
+import { ActionFieldHeaders, actionFieldLabel, getActionDescription, groupActionFields } from "@/functions/fields";
+import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { getSession } from "@/lib/session";
+import { ActionFieldType, OrgRole } from "@/lib/prisma/generated";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AccessLevel } from "@/types";
-import type { AccessControlled } from "@/types";
-import accessChecker from "@/lib/accessChecker";
+import { AccessLevel } from "@/types/enums";
+import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import Comments from "@/components/comments/comments";
 import EffectTable from "@/components/tables/effects";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
-import TextEditor from "@/components/form/elements/textEditor/editor";
 import { AdminPanel } from "@/components/elements/controls/controls";
+import type { Metadata } from "next";
 
-export async function generateMetadata(props: { params: Promise<{ actionId: string }> }) {
+export async function generateMetadata(props: { params: Promise<{ actionId: string }> }): Promise<Metadata> {
   const params = await props.params;
   const [t, session, action] = await Promise.all([
     serveTea("metadata"),
@@ -33,7 +35,7 @@ export async function generateMetadata(props: { params: Promise<{ actionId: stri
 
   return buildMetadata({
     title: action?.name,
-    description: action?.description,
+    description: getActionDescription(action?.fields),
     og_url: `/action/${params.actionId}`,
     og_image_url: undefined,
   });
@@ -42,23 +44,28 @@ export async function generateMetadata(props: { params: Promise<{ actionId: stri
 
 export default async function Page(props: { params: Promise<{ actionId: string }> }) {
   const params = await props.params;
-  const [t, session, action] = await Promise.all([
-    serveTea("pages"),
-    getSession(await cookies()),
+  const [t, accessContext, action] = await Promise.all([
+    serveTea(["pages", "forms"]),
+    getUserAccessContext(),
     getOneAction(params.actionId),
   ]);
 
   let accessLevel: AccessLevel = AccessLevel.None;
   if (action) {
-    const actionAccessData: AccessControlled = {
-      author: action.author,
-      editors: action.roadmap.editors,
-      viewers: action.roadmap.viewers,
-      editGroups: action.roadmap.editGroups,
-      viewGroups: action.roadmap.viewGroups,
-      isPublic: action.roadmap.isPublic,
-    };
-    accessLevel = accessChecker(actionAccessData, session.user);
+    if (action.roadmap_iteration) {
+      accessLevel = accessChecker({
+        access_control: action.roadmap_iteration.roadmap.access_control,
+        published_at: action.roadmap_iteration.published_at,
+      }, accessContext);
+    } else if (accessContext?.isSuperAdmin) {
+      accessLevel = AccessLevel.Admin;
+    } else if (accessContext?.memberships.some(membership => membership.orgId === action.org_id && membership.role === OrgRole.MANAGER)) {
+      // Roadmapless actions (the public action database) are editable by the owning org's managers
+      accessLevel = AccessLevel.Edit;
+    } else {
+      // Roadmapless actions are visible to everyone
+      accessLevel = AccessLevel.View;
+    }
   }
 
   // 404 if the action doesn't exist or if the user doesn't have access to it
@@ -66,10 +73,14 @@ export default async function Page(props: { params: Promise<{ actionId: string }
     return notFound();
   }
 
+  // Tags are TAG-headed fields but render as cards under the title rather than as a field group.
+  // Sorted alphabetically since the rows come back from the database in arbitrary order.
+  const tags = action.fields.filter(field => field.header === ActionFieldHeaders.Tag).map(field => field.value).sort((a, b) => a.localeCompare(b));
+
   return (
     <>
       <Breadcrumb object={action} />
-      {(accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
+      {hasEditAccess(accessLevel) &&
         <AdminPanel accessLevel={accessLevel} object={action} />
       }
 
@@ -77,57 +88,39 @@ export default async function Page(props: { params: Promise<{ actionId: string }
         <section className="margin-block-300 container">
           <span style={{ color: 'gray' }}>{t("pages:action.action_label")}</span>
           <h1 className="margin-0">{action.name}</h1>
-          <p className="margin-top-0 margin-bottom-100">{action.startYear} - {action.endYear}</p>
-          {action.description ?
-            <TextEditor
-              id="rich-description"
-              editable={false}
-              defaultStyles={false}
-              content={action.description}
-            />
-            : null}
+          {tags.length > 0 &&
+            <ul className="flex gap-25 margin-block-25 padding-0" style={{ listStyle: 'none', flexWrap: 'wrap' }}>
+              {tags.map(tag => (
+                <li key={tag} className="smooth" style={{ backgroundColor: 'var(--seagreen-90)', border: '1px solid var(--seagreen-80)' }}>
+                  <Link
+                    href={`/actions?tag=${encodeURIComponent(tag)}`}
+                    className="discrete-link block padding-inline-50 padding-block-25"
+                    style={{ color: 'var(--seagreen-30)' }}
+                  >
+                    {tag}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          }
+          <p className="margin-top-0 margin-bottom-100">{action.start_year} - {action.end_year}</p>
         </section>
 
         <section className="margin-block-300">
-          <h2 className="margin-top-300">{t("pages:action.expected_effect")}</h2>
-          {action.expectedOutcome ?
-            <p>{action.expectedOutcome}</p>
-            :
-            <p>{t("pages:action.no_effect")}</p>
-          }
-
-          <h2 className="margin-top-300">{t("pages:action.cost_efficiency")}</h2>
-          {action.costEfficiency ?
-            <p>{action.costEfficiency}</p>
-            :
-            <p>{t("pages:action.no_cost_efficiency")}</p>
-          }
-
-          <h2 className="margin-top-300">{t("pages:action.project_manager")}</h2>
-          {(action.projectManager && (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin)) ?
-            <p>{action.projectManager}</p>
-            :
-            <p>{t("pages:action.no_project_manager")}</p>
-          }
-
-          <h2 className="margin-top-300">{t("pages:action.relevant_actors")}</h2>
-          {action.relevantActors ?
-            <p>{action.relevantActors}</p>
-            :
-            <p>{t("pages:action.no_actors")}</p>
-          }
-
-          <h2 className="margin-top-300">{t("pages:action.categories")}</h2>
-          {(action.isEfficiency || action.isSufficiency || action.isRenewables) ? (
-            <ul>
-              {action.isEfficiency ? <li className="margin-block-50">Efficiency</li> : null}
-              {action.isSufficiency ? <li className="margin-block-50">Sufficiency</li> : null}
-              {action.isRenewables ? <li className="margin-block-50">Renewables</li> : null}
-            </ul>
-          ) : (
-            <p>{t("pages:action.no_category")}</p>
-          )
-          }
+          {/* Fields sharing a header form one group; repeated non-paragraph values collapse into a list.
+              Tags are excluded here since they already render under the title. */}
+          {groupActionFields(action.fields).filter(group => group.header !== ActionFieldHeaders.Tag).map(group => (
+            <div key={group.header}>
+              <h2 className="margin-top-300">{actionFieldLabel(group.header, t)}</h2>
+              {group.values.length > 1 && group.type !== ActionFieldType.PARAGRAPH ? (
+                <ul>
+                  {group.values.map((value, index) => <li key={index}>{value}</li>)}
+                </ul>
+              ) : (
+                group.values.map((value, index) => <p key={index}>{value}</p>)
+              )}
+            </div>
+          ))}
         </section>
 
         <section className="margin-block-300">

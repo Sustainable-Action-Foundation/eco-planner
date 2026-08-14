@@ -1,33 +1,36 @@
 import fs from "node:fs";
 import path from "node:path";
 import { expect, test } from "playwright/test";
-import { uniqueLocales, allNamespaces, Locales } from "../../i18n.config";
+import { allNamespaces, Locales } from "../../i18n.config";
+import {
+  allPermutations,
+  escapeRegExp,
+  filteredLocales,
+  getAllJSONFlattened,
+  getAllTSXFiles,
+  isKeyDefined,
+  localesDir,
+  nestedTRegex,
+  tCallRegex,
+  validPluralSuffixes,
+} from "../../scripts/lib/localeKeyScan.ts";
 
-function isStandardObject(object: unknown): object is object {
-  return typeof object === "object" && object != null && !Array.isArray(object);
-}
-
-/* 
+/*
  **********
  * Config *
  **********
  */
-/** Where the locale files are located relative to project root. */
-const localesDir = "public/locales";
 
-const filteredLocales = uniqueLocales.filter(locale => locale !== Locales.test);
-
-/** Every combo of locale and ns in a 2d array. */
-const allPermutations = filteredLocales.flatMap(locale => allNamespaces.map(namespace => [locale, namespace]));
+/*
+ * Only breaking checks live here. Non-breaking reports (unused/dead keys and
+ * empty values) live in `scripts/findDeadLocaleKeys.ts`, run via `yarn check:locales`.
+ */
 
 /** Every NS file per locale with their flattened key-values. */
 const allJSON = getAllJSONFlattened();
 
 /** The app files to check. */
 const allTSX = getAllTSXFiles();
-
-/** When validating pluralized translations, use these to determine if a base key isa valid. */
-const validPluralSuffixes = ["_one", "_two", "_few", "_many", "_other", "_zero"];
 
 /** Since the translation system uses client and server side instances of i18next, we test for mismatches. */
 const tServerUsageIndications = ["@/lib/i18nServer", "serveTea("];
@@ -45,7 +48,7 @@ const keysAllowedDirectlyInApp = ["common:tsx.", "common:placeholder.", "common:
 const swedishRegex = /(?<!\/\/|\*|\/\*|\/\*\*|^\s*\*\s*)(?:\w*[åäöÅÄÖ]+\w*)+/gim;
 
 
-/* 
+/*
  * Exceptions
  */
 
@@ -58,10 +61,8 @@ const exemptedKeysUsingCommonValues = ["pages:info.info_body", "components:confi
 /** Orphaned keys in root levels of namespaces are discouraged, except in these namespaces */
 const exemptedOrphanNS = ["common"];
 const exemptedOrphanKeys: string[] = [];
-/** A test checks if any keys defined go unused. These keys are exempted from that test. _ is for descriptions. */
-const exemptedUnusedKeys: string[] = ["_", "common:"];
 
-/* 
+/*
  *********
  * Tests *
  *********
@@ -161,7 +162,7 @@ test.skip("Common values not referenced", () => {
     });
   });
 
-  const totalBadKeys = Object.values(flattenTree(perLocaleNS)).length;
+  const totalBadKeys = Object.values(perLocaleNS).flatMap(commonKeys => Object.values(commonKeys)).flat().length;
   expect(totalBadKeys, `Common keys used as values: ${JSON.stringify(perLocaleNS, null, 2)}`).toBe(0);
 });
 
@@ -169,8 +170,6 @@ test.skip("Common values not referenced", () => {
 test("Are nested keys defined", () => {
   const perLocale: Record<string, string[]>
     = Object.fromEntries(filteredLocales.map(locale => [locale, []]));
-
-  const nestedTRegex = /\$t\((.*?)\)/gm;
 
   filteredLocales.forEach(locale => {
     const translations = Object.entries(allJSON[locale])
@@ -198,7 +197,7 @@ test("Are nested keys defined", () => {
           // Find and escape the arguments
           const args = nestedKey
             .replace(/.*?:.*?,\s*/gm, "") // Remove key part
-            .replace(/(?<=\".*?\":\s*)([^"']*?)(?=\s*,|\s*}$)/gm, "\"$1\""); // var => "var"
+            .replace(/(?<=".*?":\s*)([^"']*?)(?=\s*,|\s*}$)/gm, "\"$1\""); // var => "var"
 
           // Notice on argument, syntax error
           try { JSON.parse(args); }
@@ -232,7 +231,7 @@ test("Are nested keys defined", () => {
     });
   });
 
-  const totalBadKeys = Object.values(flattenTree(perLocale)).length;
+  const totalBadKeys = Object.values(perLocale).flat().length;
 
   expect(totalBadKeys, `Nested keys not defined: ${JSON.stringify(perLocale, null, 2)}`).toBe(0);
 });
@@ -269,7 +268,7 @@ test("Variable syntax in JSON files", () => {
     });
   });
 
-  const totalBad = Object.values(flattenTree(perLocale)).length;
+  const totalBad = Object.values(perLocale).flat().length;
 
   expect(totalBad, `Invalid variable syntax: ${JSON.stringify(perLocale, null, 2)}`).toBe(0);
 });
@@ -292,8 +291,8 @@ test("Orphan keys in root of namespace files", () => {
         throw new Error("Not an object");
       }
     }
-    catch (e: unknown) {
-      const errorMessage = e instanceof Error ? e.message : String(e);
+    catch (err) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
       perLocale[locale] ??= [];
       perLocale[locale].push(`[Invalid JSON] > '${namespace}.json': ${errorMessage}`);
       return;
@@ -372,18 +371,18 @@ test("Mixed server and client side code", () => {
   expect(totalBad, `Server and client side code mixed: ${JSON.stringify(perFile, null, 2)}`).toBe(0);
 });
 
-/** Checks if all t() calls in the tsx have a defined namespace  */
+/** Checks if all t() calls in the tsx use keys that are defined, including calls with an options argument */
 test("Keys used in app are not defined", () => {
   const perFile: Record<string, string[]> = {};
 
   allTSX.forEach(({ filePath, content }) => {
-    const allTCalls = Array.from(content.matchAll(/\Wt\(["']([^"']*)["']\)/gm)) || [];
+    const allTCalls = Array.from(content.matchAll(tCallRegex));
 
     allTCalls.forEach(call => {
       const [, key] = call;
 
       filteredLocales.forEach(locale => {
-        if (allJSON[locale][key]) return; // Skip if key is defined
+        if (isKeyDefined(key, allJSON[locale])) return; // Defined directly or as a plural variant
         if (!perFile[filePath]) perFile[filePath] = [];
         perFile[filePath].push(`[Undefined key] > '${locale}': '${key}'`);
       });
@@ -400,7 +399,7 @@ test.skip("Common keys used directly in files", () => {
   const perFile: Record<string, string[]> = {};
 
   allTSX.forEach(({ filePath, content }) => {
-    const allTCalls = Array.from(content.matchAll(/\Wt\(["']([^"']*)["']\)/gm)) || [];
+    const allTCalls = Array.from(content.matchAll(tCallRegex));
     if (allTCalls.length === 0) return; // Skip if no t() calls
 
     allTCalls.forEach(call => {
@@ -434,7 +433,7 @@ test("<Trans /> keys", () => {
 
     calls.forEach(call => {
       const [match, key] = call;
-      const isValidKey = key && allJSON[Locales.default][key]; // Check if key is valid
+      const isValidKey = key && isKeyDefined(key, allJSON[Locales.default]); // Check if key is valid
 
       if (!isValidKey) {
         if (!perFile[filePath]) perFile[filePath] = [];
@@ -534,201 +533,3 @@ test("No hardcoded Swedish text in code", () => {
 
   expect(totalMatches, `Found Swedish text that should be internationalized: ${JSON.stringify(perFile, null, 2)}`).toBe(0);
 });
-
-/** Checks for keys in locale files that aren't used in the application */
-test("Unused keys", () => {
-  const unusedPerLocale: Record<string, string[]> = Object.fromEntries(filteredLocales.map(locale => [locale, []]));
-
-  const stripSuffix = (key: string) => {
-    validPluralSuffixes.forEach(suffix => {
-      if (key.endsWith(suffix)) {
-        key = key.slice(0, -suffix.length);
-      }
-    });
-    return key;
-  };
-
-  filteredLocales.forEach(locale => {
-    const usedKeys: string[] = [];
-
-    // Collect TSX used keys
-    allTSX.forEach(({ content }) => {
-      const allTCalls = Array.from(content.matchAll(/\Wt\(["']([^"']*)["'].*?\)*/gms)) || [];
-      const allTransCalls = Array.from(content.matchAll(/(?<=<\w*.*?\W)(?:\w*?[kK]ey\w*?)=\{?["'](.*?)["']\}?(?=.*?\/>)/gmus)) || [];
-
-      [...allTCalls, ...allTransCalls].forEach(call => {
-        let [, key] = call;
-
-        if (key) {
-          // Remove any plural suffix
-          key = stripSuffix(key);
-
-          usedKeys.push(key);
-        }
-      });
-    });
-
-    // Collect nested keys in JSON files
-    (() => {
-      const data = allJSON[locale];
-      if (!data) {
-        console.warn("No data for locale:", locale);
-        return;
-      };
-
-      const values = Object.values(data);
-
-      values.forEach(value => {
-        const nestedKeys = Array.from(value.matchAll(/\$t\((.*?)\)/gm)) || [];
-
-        nestedKeys.forEach(([_, key]) => {
-          // Remove options object
-          const optionsStart = key.indexOf(",");
-          if (optionsStart !== -1) {
-            key = key.slice(0, optionsStart).trim();
-          }
-
-          // Remove any plural suffix
-          key = stripSuffix(key);
-
-          usedKeys.push(key);
-        });
-      });
-    })();
-
-    const uniqueUsedKeys = [...new Set(usedKeys)];
-    const allKeys = Object.keys(allJSON[locale]);
-    const unusedKeys = allKeys
-      // Remove exempted keys
-      .filter(key => !exemptedUnusedKeys.some(exemptedKey => key.startsWith(exemptedKey)))
-      .filter(key => !uniqueUsedKeys.includes(stripSuffix(key)));
-    if (unusedKeys.length > 0) {
-      unusedPerLocale[locale].push(...unusedKeys.map(key => `[Unused key] > '${key}'`));
-    }
-  });
-
-  const totalUnusedKeys = Object.values(unusedPerLocale).flat().length;
-
-  // Instead of failing the test, just add an annotation
-  if (totalUnusedKeys > 0) {
-    test.info().annotations.push({ type: "Warn", description: `Unused keys in locale files: ${JSON.stringify(unusedPerLocale, null, 2)}` });
-  }
-
-  // expect(totalUnusedKeys, `Unused keys in locale files: ${JSON.stringify(unusedPerLocale, null, 2)}`).toBe(0);
-});
-
-/* 
- ***********
- * Helpers *
- ***********
- */
-
-/** Structure is is `{ Locales: { "namespace:key.keyN": value } }` */
-function getAllJSONFlattened(): Record<string, Record<string, string>> {
-  const perLocale: Record<string, Record<string, string>> = Object.fromEntries(filteredLocales.map(locale => [locale, {}]));
-  allPermutations.map(([locale, namespace]) => {
-    try {
-      const unparsed = fs.readFileSync(path.join(localesDir, locale, `${namespace}.json`), "utf-8");
-      const nsData = JSON.parse(unparsed) as unknown;
-      if (typeof nsData !== "object" || nsData === null || Array.isArray(nsData)) {
-        throw new Error("Not an object");
-      }
-      const flattened = flattenTree(nsData);
-      const prefixed = Object.fromEntries(Object.entries(flattened)
-        .map(([key, value]) => [`${namespace}:${key}`, value]),
-      );
-      perLocale[locale] = { ...perLocale[locale], ...prefixed };
-    }
-    catch (e: unknown) {
-      console.warn(`Failed to read or parse JSON file for locale '${locale}' and namespace '${namespace}':`, e);
-      throw e;
-    }
-  });
-  return perLocale;
-}
-
-/** Get every file where t might be implemented as an array of objects storing the file path and their content as text */
-function getAllTSXFiles() {
-  const allTSXPaths = fs.globSync(["src/**/*.{tsx,ts}", "!scripts/**/*", "!src/prisma/generated/**/*", "!.prisma/**/*", "!src/.prisma/**/*", "!prisma/generated/**/*"]);
-
-  return allTSXPaths.map(filePath => {
-    const contentRaw = fs.readFileSync(filePath, "utf-8");
-
-    const lines = contentRaw.split(/\r?\n/);
-    // Remove comments
-    const strippedLines = lines.map((line, i) => {
-
-      const trimmedLine = line.trim();
-      if (!trimmedLine) return ""; // Empty lines
-
-      // Single line comments
-      if (
-        trimmedLine.startsWith("//") // Single line comment
-        ||
-        (trimmedLine.startsWith("/*") && trimmedLine.endsWith("*/")) // Single line block comment
-        ||
-        (trimmedLine.startsWith("{/*") && trimmedLine.endsWith("*/}")) // Single line block comment
-      ) {
-        return "";
-      }
-
-      // Remove block comments
-      if (trimmedLine.startsWith("/*") || trimmedLine.startsWith("/**") || trimmedLine.startsWith("{/*") || trimmedLine.startsWith("{/**")) {
-        const spanStart = i;
-        const spanEnd = lines.findIndex((l, j) => ((l.trim().endsWith("*/") || l.trim().endsWith("*/}")) && j > spanStart));
-
-        if (spanEnd === -1) {
-          console.warn(`Comment stripping failed ${filePath}:${i + 1}`);
-          return line;
-        }
-
-        for (let j = spanStart; j <= spanEnd; j++) {
-          lines[j] = ""; // Remove the comment lines
-        }
-      }
-
-      return line; // Keep the line as is
-    });
-
-    const content = strippedLines.join("\n");
-
-    return { filePath, content: content };
-  });
-}
-
-/** Returns a flattened object with the structure `{ "key1.key2.keyN": value }` */
-function flattenTree(obj: unknown) {
-  const result: Record<string, string> = {};
-
-  const isRecord = (value: unknown): value is Record<string, unknown> =>
-    typeof value === "object" && value !== null && !Array.isArray(value);
-
-  const recurse = (obj: object, prefix = "") => {
-    for (const [key, value] of Object.entries(obj)) {
-      const newPrefix = prefix ? `${prefix}.${key}` : key;
-
-      if (isStandardObject(value)) {
-        recurse(value, newPrefix);
-      }
-      else if (typeof value === "string") {
-        result[newPrefix] = value;
-      }
-      else if (Array.isArray(value) && value.length === 0) {
-        // No-op
-      }
-      else {
-        console.warn(`Unexpected value type at key '${newPrefix}':`, value);
-      }
-    }
-  };
-
-  if (isRecord(obj)) {
-    recurse(obj);
-  }
-
-  return result;
-}
-
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}

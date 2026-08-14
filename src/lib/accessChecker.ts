@@ -1,45 +1,75 @@
-import { AccessLevel } from "@/types";
-import type { AccessControlled } from "@/types";
-import type { LoginData } from "./session";
+import { AccessLevel as GrantLevel, OrgRole } from "@/lib/prisma/generated";
+import type { AccessControlled, AccessControlInfo, UserAccessContext } from "@/types";
+import { AccessLevel } from "@/types/enums";
+
+/*
+ * The access ladder, in order:
+ * - super admin -> admin everywhere
+ * - MANAGER of the access control's org -> admin (content + sharing settings + group management)
+ * - RW grant via a group -> edit (content only; sharing settings are admin-only)
+ * - RO grant / org_readable (members, not GUESTs) / is_public -> view
+ * - Draft iterations (published_at == null) are only visible with edit access or better
+ *
+ * Authorship is cosmetic and never grants access. The query-side counterpart to this
+ * ladder lives in `@/lib/accessFilters` — keep the two in sync.
+ */
 
 /**
  * Checks if the user has access to an item and returns their access level. An empty string means no access.
  * @param item An object that implements the `AccessControlled` interface
- * @param user The user object from the session
- * @returns A string representing the user's access level to the item; "", "VIEW", "EDIT", "AUTHOR", or "ADMIN", based on the `AccessLevel` object
+ * @param userAccessContext The requesting user's access context (see `getUserAccessContext`); null for anonymous visitors
+ * @returns A string representing the user's access level to the item; "", "VIEW", "EDIT", or "ADMIN", based on the `AccessLevel` object
  */
-export default function accessChecker(item: AccessControlled | null | undefined, user: LoginData["user"]): AccessLevel {
+export default function accessChecker(item: AccessControlled | null | undefined, userAccessContext: UserAccessContext | null | undefined): AccessLevel {
   // If the item is null or undefined, return no access
   if (!item) return AccessLevel.None;
 
-  // User is not signed in
-  if (!user) {
-    if (item.isPublic) return AccessLevel.View;
-    return AccessLevel.None;
-  }
+  const accessLevel = accessControlLevel(item.access_control, userAccessContext);
 
-  // User is admin
-  if (user?.isAdmin) return AccessLevel.Admin;
+  // Draft iterations are only visible to users who could edit them.
+  // Items without a `published_at` field (roadmaps, goals, actions...) are unaffected: absent is not null.
+  if (item.published_at === null && !hasEditAccess(accessLevel)) return AccessLevel.None;
 
-  // User is author
-  if (Array.isArray(item.author) && item.author.map(author => author.id).includes(user.id)) return AccessLevel.Author;
-  if ((!Array.isArray(item.author)) && item.author?.id === user.id) return AccessLevel.Author;
+  return accessLevel;
+}
 
-  // User is editor
-  if (item.editors?.map(editor => editor.id).includes(user.id)) return AccessLevel.Edit;
-  if (item.editGroups?.map(group => group.name).some(name => user.userGroups?.includes(name))) return AccessLevel.Edit;
+/**
+ * The ladder itself, on a bare access control (no draft handling).
+ */
+function accessControlLevel(accessControl: AccessControlInfo, userAccessContext: UserAccessContext | null | undefined): AccessLevel {
+  if (userAccessContext?.isSuperAdmin) return AccessLevel.Admin;
 
-  // User is viewer
-  if (item.isPublic) return AccessLevel.View;
-  if (item.viewers?.map(viewer => viewer.id).includes(user.id)) return AccessLevel.View;
-  if (item.viewGroups?.map(group => group.name).some(name => user.userGroups?.includes(name))) return AccessLevel.View;
+  // The user's membership in the org owning the access control, if any
+  const membership = userAccessContext?.memberships.find(membership => membership.orgId === accessControl.org_id);
+  if (membership?.role === OrgRole.MANAGER) return AccessLevel.Admin;
+
+  // Grants can only reference groups in the owning org (enforced by composite FKs),
+  // so matching on group id alone cannot leak access across orgs
+  const userGroupIds = new Set(userAccessContext?.memberships.flatMap(membership => membership.groupIds) ?? []);
+  const userGrants = accessControl.grants.filter(grant => userGroupIds.has(grant.group_id));
+
+  if (userGrants.some(grant => grant.access_level === GrantLevel.RW)) return AccessLevel.Edit;
+
+  if (accessControl.is_public) return AccessLevel.View;
+  // Any remaining grant is RO
+  if (userGrants.length > 0) return AccessLevel.View;
+  // GUESTs are cross-org contributors and only see what their groups grant (plus public content)
+  if (accessControl.org_readable && membership && membership.role !== OrgRole.GUEST) return AccessLevel.View;
 
   // User does not have access
   return AccessLevel.None;
 }
 
+/**
+ * Admin access = managing sharing settings (is_public, org_readable, grants) and org groups.
+ * Only super admins and managers of the owning org get this; RW grants deliberately don't.
+ */
+export function hasAdminAccess(accessLevel: AccessLevel): boolean {
+  return accessLevel === AccessLevel.Admin;
+}
+
 export function hasEditAccess(accessLevel: AccessLevel): boolean {
-  if (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) {
+  if (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Admin) {
     return true;
   }
   return false;
@@ -50,4 +80,11 @@ export function hasViewAccess(accessLevel: AccessLevel): boolean {
     return true;
   }
   return false;
+}
+
+/**
+ * Commenting requires view access and a signed-in user (no grant needed on public content).
+ */
+export function hasCommentAccess(accessLevel: AccessLevel, userAccessContext: UserAccessContext | null | undefined): boolean {
+  return hasViewAccess(accessLevel) && !!userAccessContext;
 }

@@ -80,7 +80,7 @@ function TabList({ props, children }: { props?: GenericElement, children: React.
   }, [activeIndex]);
 
   return (
-    <div>
+    <>
       <div
         ref={tabListRef}
         className={props?.className}
@@ -132,15 +132,13 @@ function TabList({ props, children }: { props?: GenericElement, children: React.
           }),
         )}
       </div>
-      <div>
-        {panels.map((panel, index) =>
-          React.cloneElement(panel, {
-            hidden: activeIndex === null ? index !== 0 : index !== activeIndex,
-            key: index,
-          }),
-        )}
-      </div>
-    </div>
+      {panels.map((panel, index) =>
+        React.cloneElement(panel, {
+          hidden: activeIndex === null ? index !== 0 : index !== activeIndex,
+          key: index,
+        }),
+      )}
+    </>
   );
 }
 

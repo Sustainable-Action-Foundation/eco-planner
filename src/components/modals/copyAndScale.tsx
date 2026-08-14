@@ -2,14 +2,17 @@
 
 import { closeModal, openModal } from "./modalFunctions";
 import { useRef, useState } from "react";
-import { isDateValues } from "@/types";
-import type { GoalCreateInput, Goal, DateValues, JSONValue } from "@/types";
+import type { SubmitEvent } from "react";
+import type { DateValues, Goal, GoalCreateInput, JSONValue, Unit } from "@/types";
+import { isDateValues } from "@/types/typeguards";
 import formSubmitter from "@/functions/formSubmitter";
 import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
 import styles from "../form/api/queryBuilder.module.css";
 import { Recipe } from "@/functions/recipe";
-import { FormIntegration, RecipeContextProvider, SuggestedRecipeApplier } from "@/components/recipe";
+import { FormSync, RecipeContextProvider, SuggestedRecipeApplier } from "@/components/recipe";
+import { parseUnit } from "@/functions/unit";
+import { GoalDataTarget, UnitFlags } from "@/types/enums";
 
 
 export default function CopyAndScale({
@@ -24,7 +27,8 @@ export default function CopyAndScale({
 
   const modalRef = useRef<HTMLDialogElement | null>(null);
 
-  function formSubmission(form: FormData) {
+  function formSubmission(form: FormData, e: SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
     setIsLoading(true);
 
     // Id of the roadmap to copy the goal to
@@ -46,27 +50,33 @@ export default function CopyAndScale({
 
       resultingDataSeries = parsedDataSeries;
     }
-    catch (error) {
+    catch (err) {
       setIsLoading(false);
-      console.error("Failed to parse resulting data series:", { error });
+      console.error("Failed to parse resulting data series:", { error: err });
       return;
     }
 
-    let resultingUnit: string | null;
+    let resultingUnit: Unit;
     try {
-      const parsedUnit = JSON.parse(form.get("resultingDataSeriesUnit") as string) as JSONValue;
+      const rawUnit = form.get("resultingDataSeriesUnit");
 
-      if (typeof parsedUnit === "string") {
-        resultingUnit = parsedUnit;
-      } else if (parsedUnit === null) {
-        resultingUnit = null;
+      if (rawUnit === "") {
+        resultingUnit = UnitFlags.Unitless;
       } else {
-        throw new Error("Parsed data series unit is not a string or null");
+        const parsedUnit = JSON.parse(rawUnit as string) as JSONValue;
+
+        if (typeof parsedUnit === "string") {
+          resultingUnit = parseUnit(parsedUnit);
+        } else if (parsedUnit === null) {
+          resultingUnit = UnitFlags.Unitless;
+        } else {
+          throw new Error("Parsed data series unit is not a string or null");
+        }
       }
     }
-    catch (error) {
+    catch (err) {
       setIsLoading(false);
-      console.error("Failed to parse resulting data series unit:", { error });
+      console.error("Failed to parse resulting data series unit:", { error: err });
       return;
     }
 
@@ -85,24 +95,22 @@ export default function CopyAndScale({
         throw new Error("Failed to parse recipe from form data");
       }
     }
-    catch (error) {
+    catch (err) {
       setIsLoading(false);
-      console.error("Failed to parse recipe:", { error });
+      console.error("Failed to parse recipe:", { error: err });
       return;
     }
 
     const formData: GoalCreateInput = {
+      target: GoalDataTarget.Full,
       goalId: undefined,
       timestamp: undefined,
 
       name: goal.name,
       description: goal.description,
-      indicatorParameter: goal.indicatorParameter,
+      indicatorParameter: goal.indicator_parameter,
       isFeatured: undefined,
-
-      externalDataset: null,
-      externalTableId: null,
-      externalSelection: null,
+      isUnlisted: undefined,
 
       dataSeriesId: undefined,
       dataSeries: { dateValues: resultingDataSeries, unit: resultingUnit },
@@ -117,10 +125,15 @@ export default function CopyAndScale({
       baselineRecipeId: undefined,
       baselineRecipe: undefined,
 
-      roadmapId: copyToId as string ?? "",
+      // TODO: copy historical data?
+      historicalId: undefined,
+      historical: undefined,
+      historicalRecipeId: undefined,
+      historicalRecipe: undefined,
+
+      iterationId: copyToId as string ?? "",
       // TODO: copy tags?
       rawTags: undefined,
-      links: undefined,
     };
 
     const formJSON = JSON.stringify(formData);
@@ -151,8 +164,7 @@ export default function CopyAndScale({
           </div>
 
           <div className={`${styles['dialog-body']}`}>
-            <form action={formSubmission} name="copyAndScale">
-
+            <form onSubmit={(e) => formSubmission(new FormData(e.currentTarget), e)} name="copyAndScale">
               {/* Roadmap version select */}
               <label className="block margin-block-100">
                 {t("components:copy_and_scale.select_roadmap_version")}
@@ -176,7 +188,7 @@ export default function CopyAndScale({
                   }}
                 />
 
-                <FormIntegration
+                <FormSync
                   DataSeriesFormElement={<input name="resultingDataSeries" />}
                   UnitFormElement={<input name="resultingDataSeriesUnit" />}
                   RecipeFormElement={<input name="resultingRecipe" />}

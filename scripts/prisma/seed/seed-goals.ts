@@ -1,0 +1,178 @@
+// Seeds goals and their data series. Embodies the app's philosophy that data series
+// are derived through recipes:
+//   - National v1 goals hold manually-entered series (inline manual recipes).
+//   - National v2 goals derive their series 1:1 from the matching v1 goal (recipe).
+//   - Uppsala goals derive their series from national goals by a constant (recipe).
+
+import { prisma } from "@/lib/prisma";
+import type { SeededGoal, SeededSeries, SeededUsers } from "./helpers.ts";
+import {
+  RandomTextSE,
+  chance,
+  createInitialBaseline,
+  createManualSeries,
+  createSuggestionRecipes,
+  deriveByScalar,
+  deriveOneToOne,
+  getRandomCoherentDateValues,
+  getRandomCreatedAtAndUpdatedAt,
+  getRandomUnit,
+  makeRandomComments,
+  randomIndicatorParameter,
+  randomInt,
+  randomOf,
+} from "./helpers.ts";
+import type { SeededRoadmaps } from "./seed-roadmaps.ts";
+
+export type SeededGoals = {
+  nationalV1: SeededGoal[];
+  nationalV2: SeededGoal[];
+  uppsalaV1: SeededGoal[];
+  nationalV1Unlisted: SeededGoal;
+};
+
+const NATIONAL_GOAL_COUNT = 10;
+const UPPSALA_GOAL_COUNT = 6;
+const TAG_POOL = ["klimat", "energi", "transport", "industri", "byggnation", "avfall", "jordbruk"] as const;
+
+export async function seedGoals(users: SeededUsers, iterations: SeededRoadmaps["iterations"]): Promise<SeededGoals> {
+  const orgId = users.org.id;
+
+  /*
+   * National v1 - base goals with manually-entered series and suggestion recipes for inheritance.
+   */
+  const nationalV1: SeededGoal[] = [];
+  for (let i = 0; i < NATIONAL_GOAL_COUNT; i++) {
+    const authorId = randomOf(users.all).id;
+    const series = await createManualSeries(authorId, orgId, getRandomCoherentDateValues(), getRandomUnit());
+    const baseline = await createInitialBaseline(authorId, orgId, series);
+    const historical = chance(0.3)
+      ? await createManualSeries(authorId, orgId, getRandomCoherentDateValues(), series.unit)
+      : undefined;
+    const recipeSuggestionIds = await createSuggestionRecipes(orgId, series);
+
+    nationalV1.push(await createGoal(users, {
+      iterationId: iterations.nationalV1.id,
+      series,
+      baseline,
+      historical,
+      recipeSuggestionIds,
+    }));
+  }
+
+  /*
+   * National v2 - each goal derives its series 1:1 from the matching v1 goal.
+   */
+  const nationalV2: SeededGoal[] = [];
+  for (const parent of nationalV1) {
+    const authorId = randomOf(users.all).id;
+    const series = await deriveOneToOne(authorId, orgId, parent.series, "1:1 från föregående version");
+    const recipeSuggestionIds = await createSuggestionRecipes(orgId, series);
+
+    nationalV2.push(await createGoal(users, {
+      iterationId: iterations.nationalV2.id,
+      series,
+      recipeSuggestionIds,
+    }));
+  }
+
+  /*
+   * Uppsala v1 - a subset of national goals scaled down to the region by a constant.
+   */
+  const uppsalaV1: SeededGoal[] = [];
+  for (const parent of nationalV1.slice(0, UPPSALA_GOAL_COUNT)) {
+    const authorId = randomOf(users.all).id;
+    const scalar = 1 + Math.random() * 9;
+    const series = await deriveByScalar(authorId, orgId, parent.series, scalar, "Skalning från riket till Uppsala län");
+
+    uppsalaV1.push(await createGoal(users, { iterationId: iterations.uppsalaV1.id, series }));
+  }
+
+  /*
+   * Deterministic unlisted goals - hidden from regular listings, only listed
+   * (in their own tab) for users with edit access. The national one is also
+   * featured, which the featured strip must ignore for unlisted goals.
+   * Kept out of the arrays above so they don't spawn derived children or effects.
+   */
+  const nationalV1Unlisted = await createUnlistedGoal(users, orgId, iterations.nationalV1.id, {
+    name: "Dold nationell målbana",
+    indicatorParameter: "Dold\\Nationell",
+    isFeatured: true,
+  });
+  await createUnlistedGoal(users, orgId, iterations.uppsalaV1.id, {
+    name: "Dold regional målbana",
+    indicatorParameter: "Dold\\Regional",
+    isFeatured: false,
+  });
+
+  return { nationalV1, nationalV2, uppsalaV1, nationalV1Unlisted };
+}
+
+/** Creates a deterministically-named unlisted goal with a manual series. */
+async function createUnlistedGoal(
+  users: SeededUsers,
+  orgId: string,
+  iterationId: string,
+  options: { name: string, indicatorParameter: string, isFeatured: boolean },
+): Promise<SeededGoal> {
+  const authorId = randomOf(users.all).id;
+  const series = await createManualSeries(authorId, orgId, getRandomCoherentDateValues(), getRandomUnit());
+
+  const goal = await prisma.goals.create({
+    data: {
+      name: options.name,
+      description: "Denna målbana är dold och ska bara synas för användare med redigeringsbehörighet.",
+      indicator_parameter: options.indicatorParameter,
+      is_featured: options.isFeatured,
+      is_unlisted: true,
+      author: { connect: { id: authorId } },
+      roadmap_iteration: { connect: { id: iterationId } },
+      ...getRandomCreatedAtAndUpdatedAt(),
+      data_series: { connect: { id: series.id } },
+    },
+    select: { id: true },
+  });
+
+  return { id: goal.id, iterationId, series };
+}
+
+type GoalOptions = {
+  iterationId: string;
+  series: SeededSeries;
+  baseline?: SeededSeries | undefined;
+  historical?: SeededSeries | undefined;
+  recipeSuggestionIds?: string[] | undefined;
+};
+
+/** Creates a goal wired to an already-created data series, plus tags and comments. */
+async function createGoal(users: SeededUsers, options: GoalOptions): Promise<SeededGoal> {
+  const goal = await prisma.goals.create({
+    data: {
+      name: RandomTextSE.sentence(3, 1),
+      description: RandomTextSE.paragraph(randomInt(1, 3)),
+      indicator_parameter: randomIndicatorParameter(),
+      is_featured: chance(0.3),
+      author: { connect: { id: randomOf(users.all).id } },
+      roadmap_iteration: { connect: { id: options.iterationId } },
+      ...getRandomCreatedAtAndUpdatedAt(),
+      data_series: { connect: { id: options.series.id } },
+      ...(options.baseline ? { baseline: { connect: { id: options.baseline.id } } } : {}),
+      ...(options.historical ? { historical: { connect: { id: options.historical.id } } } : {}),
+      ...(options.recipeSuggestionIds?.length
+        ? { recipe_suggestions: { connect: options.recipeSuggestionIds.map(id => ({ id })) } }
+        : {}),
+      tags: { connectOrCreate: pickTags() },
+      comments: { createMany: { data: makeRandomComments(users, randomInt(0, 8)) } },
+    },
+    select: { id: true },
+  });
+
+  return { id: goal.id, iterationId: options.iterationId, series: options.series };
+}
+
+/** Picks a random subset of tags as connectOrCreate payloads (tags are shared by name across goals). */
+function pickTags() {
+  const count = randomInt(0, 3);
+  const shuffled = [...TAG_POOL].sort(() => Math.random() - 0.5).slice(0, count);
+  return shuffled.map(name => ({ where: { name }, create: { name } }));
+}

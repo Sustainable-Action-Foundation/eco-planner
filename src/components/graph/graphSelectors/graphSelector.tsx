@@ -2,8 +2,8 @@
 
 import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
 import React from 'react';
-import type { DataSeries, Goal } from "@/lib/prisma/generated";
-import { GraphType } from "../graphs/goal/main/container";
+import type { Goal } from "@/types";
+import { GraphType } from "@/types/enums";
 import { setStoredGraphType } from '../functions/graphFunctions';
 import { useTranslation } from "react-i18next";
 
@@ -11,14 +11,10 @@ export const percentAndFraction = ['procent', 'percent', '%', 'andel', 'fraction
 
 export default function GraphSelector({
   goal,
-  childGoals,
-  siblings,
   currentSelection,
   setter,
 }: {
-  goal: Goal & { dataSeries: DataSeries | null },
-  childGoals: boolean,
-  siblings: boolean,
+  goal: Pick<Goal, "id" | "data_series">,
   currentSelection: GraphType | "",
   setter: Dispatch<SetStateAction<GraphType | "">>
 }) {
@@ -50,11 +46,9 @@ export default function GraphSelector({
         <option value={GraphType.Main}>{t("graphs:graph_selector.goal")}</option>
         <option value={GraphType.Delta}>{t("graphs:graph_selector.annual_change")}</option>
         { // Don't allow relative graph if the main graph is already percent or fraction
-          !percentAndFraction.includes(goal.dataSeries?.unit?.toLowerCase() ?? "") &&
+          !percentAndFraction.includes(goal.data_series?.unit?.toLowerCase() ?? "") &&
           <option value={GraphType.Relative}>{t("graphs:graph_selector.percentage_change")}</option>
-        }
-        {childGoals ? <option value={GraphType.Children}>{t("pages:goal.goals_working_towards", { goalName: !!goal.name ? goal.name : goal.indicatorParameter })}</option> : null}
-        {siblings ? <option value={GraphType.Siblings}>{t("pages:goal.related_goals")}</option> : null}
+        } 
       </select>
     </div>
   );

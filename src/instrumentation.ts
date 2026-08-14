@@ -31,8 +31,8 @@ export async function register() {
     // Self-test email functionality
     const mailClient = await import("@/mailClient").then(module => module.default);
 
-    await mailClient.verify().catch((e: unknown) => {
-      const errorMessage = e instanceof Error ? e.message : String(e);
+    await mailClient.verify().catch((err: unknown) => {
+      const errorMessage = err instanceof Error ? err.message : String(err);
       console.error("Mail client is not configured correctly: " + errorMessage);
       console.warn("Check that the email-related environment variables (`MAIL_HOST`, `MAIL_USER`, `MAIL_PASSWORD`) are set correctly.");
       errorCount++;
@@ -41,8 +41,8 @@ export async function register() {
     // Self-test database connection
     const prisma = await import("@/lib/prisma").then(module => module.prisma);
 
-    await prisma.$executeRaw`SELECT 1;`.catch((e: unknown) => {
-      const errorMessage = e instanceof Error ? e.message : String(e);
+    await prisma.$executeRaw`SELECT 1;`.catch((err: unknown) => {
+      const errorMessage = err instanceof Error ? err.message : String(err);
       console.error("Database connection failed: " + errorMessage);
       console.warn("Check that the `DATABASE_URL` environment variable is set correctly.");
       errorCount++;
@@ -56,7 +56,7 @@ export async function register() {
     } else {
       console.info("Self-test passed");
     }
-  } catch (error) {
-    console.error("Unexpected error during self-test: ", error);
+  } catch (err) {
+    console.error("Unexpected error during self-test: ", err);
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { AccessLevel } from '@/types';
+import { AccessLevel, GoalSortBy, ViewMode } from "@/types/enums";
+import { hasEditAccess } from "@/lib/accessChecker";
 import GoalTable from "./goalTables/goalTable";
 import TableSelector from './tableSelector/tableSelector';
 import LinkTree from './goalTables/linkTree';
@@ -9,49 +10,44 @@ import { getStoredGoalSortBy, getStoredViewMode, setStoredGoalSortBy } from "./f
 import Link from "next/link";
 import Image from "next/image";
 import styles from './tables.module.css';
-import type { getOneRoadmap } from "@/fetchers";
+import type { getOneRoadmapIteration } from "@/fetchers";
 import { useTranslation } from "react-i18next";
 import { IconSearch } from '@tabler/icons-react';
 
-/** Object containing the different view modes for the goal table. */
-export const ViewMode = {
-  Table: "TABLE",
-  Tree: "TREE",
-} as const;
-export type ViewMode = (typeof ViewMode)[keyof typeof ViewMode];
-
-export const GoalSortBy = {
-  Default: "",
-  Alpha: "ALPHA",
-  AlphaReverse: "ALPHA REVERSE",
-  ActionsFalling: "HIGH FIRST",
-  ActionsRising: "LOW FIRST",
-  Interesting: "INTEREST",
-} as const;
-export type GoalSortBy = (typeof GoalSortBy)[keyof typeof GoalSortBy];
-
 export default function Goals({
-  roadmap,
+  iteration,
   accessLevel,
 }: {
-  roadmap: NonNullable<Awaited<ReturnType<typeof getOneRoadmap>>>,
+  iteration: NonNullable<Awaited<ReturnType<typeof getOneRoadmapIteration>>>,
   accessLevel?: AccessLevel
 }) {
   const { t } = useTranslation("components");
 
-  const [viewMode, setViewMode] = useState<ViewMode | ''>(getStoredViewMode(roadmap.id));
+  const [viewMode, setViewMode] = useState<ViewMode | ''>(getStoredViewMode(iteration.id));
   const [sortBy, setSortBy] = useState<GoalSortBy>(getStoredGoalSortBy() || GoalSortBy.Default);
   const [searchFilter, setSearchFilter] = useState<string>('');
   const [recipeOnly, setRecipeOnly] = useState<boolean>(false);
+  const [showUnlisted, setShowUnlisted] = useState<boolean>(false);
 
-  let filteredRoadmap = roadmap;
+  // Unlisted goals are hidden from the regular list; users with edit access get
+  // them in a separate tab instead
+  const listedGoals = iteration.goals.filter(goal => !goal.is_unlisted);
+  const unlistedGoals = hasEditAccess(accessLevel ?? AccessLevel.None)
+    ? iteration.goals.filter(goal => goal.is_unlisted)
+    : [];
+  const activeIteration = {
+    ...iteration,
+    goals: showUnlisted && unlistedGoals.length > 0 ? unlistedGoals : listedGoals,
+  };
+
+  let filteredIteration = activeIteration;
   if (searchFilter) {
-    filteredRoadmap = {
-      ...roadmap,
-      goals: roadmap.goals.filter(goal => {
+    filteredIteration = {
+      ...activeIteration,
+      goals: activeIteration.goals.filter(goal => {
         if (Object.values(goal).some(value => typeof value === 'string' && value.toLowerCase().includes(searchFilter.toLowerCase()))) {
           return true;
-        } else if (goal.dataSeries && Object.values(goal.dataSeries).some(value => typeof value === 'string' && value.toLowerCase().includes(searchFilter.toLowerCase()))) {
+        } else if (goal.data_series && Object.values(goal.data_series).some(value => typeof value === 'string' && value.toLowerCase().includes(searchFilter.toLowerCase()))) {
           return true;
         }
       }),
@@ -59,20 +55,44 @@ export default function Goals({
   }
 
   if (recipeOnly) {
-    filteredRoadmap = {
-      ...roadmap,
-      goals: roadmap.goals.filter(goal => {
-        if (goal.dataSeries?.recipeUsedId) {
-          return true;
-        } else {
-          return false;
-        }
+    filteredIteration = {
+      ...activeIteration,
+      goals: activeIteration.goals.filter(goal => {
+        // Every data series now has a recipe; manually entered series use an inline recipe tagged `meta.isManual`
+        const recipe = goal.data_series?.recipe_used?.recipe;
+        const isManual = (
+          typeof recipe === 'object'
+          && recipe !== null
+          && !Array.isArray(recipe)
+          && (recipe as { meta?: { isManual?: boolean } }).meta?.isManual === true
+        );
+        return !!goal.data_series?.recipe_used && !isManual;
       }),
     };
   }
 
   return (
     <>
+      {unlistedGoals.length > 0 ?
+        <nav className="flex gap-50 flex-wrap-wrap margin-bottom-100" aria-label={t("components:goals.unlisted_nav_label")}>
+          <button
+            type="button"
+            className={`button round smooth${!showUnlisted ? ' seagreen color-purewhite font-weight-500' : ''}`}
+            onClick={() => setShowUnlisted(false)}
+            data-testid="listed-goals-tab"
+          >
+            {t("components:goals.listed_tab", { count: listedGoals.length })}
+          </button>
+          <button
+            type="button"
+            className={`button round smooth${showUnlisted ? ' seagreen color-purewhite font-weight-500' : ''}`}
+            onClick={() => setShowUnlisted(true)}
+            data-testid="unlisted-goals-tab"
+          >
+            {t("components:goals.unlisted_tab", { count: unlistedGoals.length })}
+          </button>
+        </nav>
+        : null}
       <menu className={`margin-bottom-100 flex justify-content-space-between align-items-flex-end flex-wrap-wrap gap-100 padding-0 margin-0 ${styles.tableNav}`}>
         <label className="font-weight-bold flex-grow-100">
           {t("components:goals.search")}
@@ -82,7 +102,7 @@ export default function Goals({
           </div>
         </label>
         <label className='flex align-items-center gap-50'>
-          Visa enbart målbanor med recept
+          {t("components:goals.recipe_only_filter")}
           <input checked={recipeOnly} onChange={() => setRecipeOnly(!recipeOnly)} type='checkbox' />
         </label>
         {viewMode === ViewMode.Table && (
@@ -102,19 +122,19 @@ export default function Goals({
             </select>
           </label>
         )}
-        <TableSelector id={roadmap.id} current={viewMode} setter={setViewMode} />
-        { // Only show the button if the user has edit access to the roadmap
-          (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin) &&
-          <Link className="button round color-purewhite pureblack font-weight-500" href={`/goal/create?roadmapId=${roadmap.id}`}>{t("components:goals.new_goal")}</Link>
+        <TableSelector id={iteration.id} current={viewMode} setter={setViewMode} />
+        { // Only show the button if the user has edit access to the roadmap iteration
+          hasEditAccess(accessLevel ?? AccessLevel.None) &&
+          <Link className="button round color-purewhite pureblack font-weight-500" href={`/goal/create?iterationId=${iteration.id}`}>{t("components:goals.new_goal")}</Link>
         }
       </menu>
 
       {/* TODO: Probably not correct to handle loading as a default state? */}
       {/* TODO: Probably use a skeleton for the loading state */}
       {viewMode === ViewMode.Tree ? (
-        <LinkTree roadmap={filteredRoadmap} />
+        <LinkTree iteration={filteredIteration} />
       ) : viewMode === ViewMode.Table ? (
-        <GoalTable roadmap={filteredRoadmap} sortBy={sortBy} />
+        <GoalTable iteration={filteredIteration} sortBy={sortBy} />
       ) :
         <Image
           src='/loaders/3-dots-scale.svg'

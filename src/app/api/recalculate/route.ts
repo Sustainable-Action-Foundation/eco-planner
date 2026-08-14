@@ -1,11 +1,15 @@
 import { getOneRecipe } from "@/fetchers";
+import { clientSafeGetOneDataSeries } from "@/fetchers/client";
+import { getAccessContextById } from "@/fetchers/getUserAccessContext";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 import { Recipe } from "@/functions/recipe/recipe";
-import { RecipeError } from "@/functions/recipe/types";
-import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
+import { RecipeError } from "@/functions/recipe/types/errors";
+import { editableDataSeriesWHERE } from "@/lib/accessFilters";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { ClientError, isDateValues } from "@/types";
+import { UnitFlags } from "@/types/enums";
+import { ClientError } from "@/types/consts";
+import { isDateValues } from "@/types/typeguards";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
@@ -31,83 +35,32 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const roadmapAccessSelect = {
-      author: { select: { id: true, username: true } },
-      editors: { select: { id: true, username: true } },
-      viewers: { select: { id: true, username: true } },
-      editGroups: { include: { users: { select: { id: true, username: true } } } },
-      viewGroups: { include: { users: { select: { id: true, username: true } } } },
-      isPublic: true,
-    };
+    const accessContext = await getAccessContextById(session.user.id);
 
-    // Get user and data series
-    const [user, dataSeries] = await Promise.all([
-      prisma.user.findUnique({
-        where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true },
-      }),
-      prisma.dataSeries.findUnique({
-        where: { id: requestJson.dataSeriesId },
-        select: {
-          id: true,
-          authorId: true,
-          recipeUsedId: true,
-          dependentGoals: {
-            select: {
-              roadmap: { select: roadmapAccessSelect },
-            },
-          },
-          dependentBaselines: {
-            select: {
-              roadmap: { select: roadmapAccessSelect },
-            },
-          },
-          dependentEffects: {
-            select: {
-              action: { select: { roadmap: { select: roadmapAccessSelect } } },
-              goal: { select: { roadmap: { select: roadmapAccessSelect } } },
-            },
-          },
-        },
-      }),
-    ]);
-
-    // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
-    if (!user || (session.user.isAdmin && !user.isAdmin)) {
+    // If no user is found or the found user falsely claims to be a super admin, they have a bad session cookie and should be logged out
+    if (!accessContext || (session.user.isSuperAdmin && !accessContext.isSuperAdmin)) {
       throw new Error(ClientError.BadSession, { cause: 'goal' });
     }
 
+    // Get the data series, requiring edit access via any of its dependent slots
+    const dataSeries = await prisma.dataSeries.findUnique({
+      where: {
+        id: requestJson.dataSeriesId,
+        AND: [editableDataSeriesWHERE(accessContext)],
+      },
+      select: {
+        id: true,
+        recipe_used_id: true,
+      },
+    });
+
+    // Also covers series that don't exist at all
     if (!dataSeries) {
       throw new Error(ClientError.AccessDenied);
     }
 
-    const hasEditRoadmapAccess = (roadmap: typeof dataSeries.dependentGoals[number]['roadmap']) => {
-      const accessLevel = accessChecker(roadmap, session.user);
-      return hasEditAccess(accessLevel);
-    };
-
-    const hasEditAccessToDataSeries =
-      user.isAdmin ||
-      dataSeries.authorId === user.id ||
-      dataSeries.dependentGoals.some((goal) => hasEditRoadmapAccess(goal.roadmap)) ||
-      dataSeries.dependentBaselines.some((goal) => hasEditRoadmapAccess(goal.roadmap)) ||
-      dataSeries.dependentEffects.some((effect) =>
-        hasEditRoadmapAccess(effect.action.roadmap) && hasEditRoadmapAccess(effect.goal.roadmap),
-      );
-
-    if (!hasEditAccessToDataSeries) {
-      throw new Error(ClientError.AccessDenied);
-    }
-
-    // Nothing beside the recipe has the information needed to recalculate the goal's data series now after the great recipe implementation.
-    if (!dataSeries.recipeUsedId) {
-      return Response.json({ message: "Data series has no recipe to recalculate from" },
-        { status: 400 },
-      );
-    }
-
     // Fetch recipe
-    const dbRecipe = await getOneRecipe(dataSeries.recipeUsedId);
+    const dbRecipe = await getOneRecipe(dataSeries.recipe_used_id);
     if (!dbRecipe) {
       return Response.json({ message: "Recipe was not found." },
         { status: 404 },
@@ -117,7 +70,7 @@ export async function POST(request: NextRequest) {
     // Try to recalculate the data series
     const recipe = Recipe.from(dbRecipe.recipe);
     const warnings: string[] = [];
-    const evaluationResult = await recipe.evaluate(warnings)
+    const evaluationResult = await recipe.evaluate(warnings, { dataSeriesGetter: clientSafeGetOneDataSeries })
       .catch((err: unknown) => {
         const errorMessage = err instanceof Error ? err.message : String(err);
         console.error(`Error evaluating recipe ${dbRecipe.id} for data series ${requestJson.dataSeriesId}:`, { err });
@@ -156,12 +109,12 @@ export async function POST(request: NextRequest) {
       where: { id: requestJson.dataSeriesId },
       data: {
         values: { createMany: { data: dateValuesToDBDateRecord(evaluationResult.dateValues) } },
-        // Unit === null -> remove unit
-        // Unit === undefined -> omit (keep current unit)
-        // Unit === string -> update unit
-        ...(evaluationResult.unit === null
+        // Unitless -> remove unit
+        // Missing -> omit (keep current unit)
+        // real unit -> update unit
+        ...(evaluationResult.unit === UnitFlags.Unitless
           ? { unit: null }
-          : typeof evaluationResult.unit === "undefined"
+          : evaluationResult.unit === UnitFlags.Missing
             ? {}
             : { unit: evaluationResult.unit }
         ),
@@ -173,25 +126,26 @@ export async function POST(request: NextRequest) {
     return Response.json({ message: "Data series updated", id: updatedDataSeries.id },
       { status: 200 },
     );
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === ClientError.BadSession) {
+  }
+  catch (err) {
+    if (err instanceof Error) {
+      if (err.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } },
         );
-      } else if (error.message === ClientError.AccessDenied) {
+      } else if (err.message === ClientError.AccessDenied) {
         return Response.json({ message: ClientError.AccessDenied },
           { status: 403 },
         );
-      } else if (error instanceof RecipeError) {
-        return Response.json({ message: error.message },
+      } else if (err instanceof RecipeError) {
+        return Response.json({ message: err.message },
           { status: 500 },
         );
       }
     }
-    console.error(error);
+    console.error(err);
     return Response.json({ message: "Internal server error" },
       { status: 500 },
     );

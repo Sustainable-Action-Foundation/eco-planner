@@ -12,21 +12,25 @@ async function generateLeapList() {
 
   // Get the indicator parameters
   try {
-    rawData = await prisma.roadmap.findMany({
+    rawData = await prisma.roadmapIterations.findMany({
       where: {
-        metaRoadmap: { type: RoadmapType.NATIONAL },
-        isPublic: true,
+        roadmap: {
+          type: RoadmapType.NATIONAL,
+          access_control: { is_public: true },
+        },
+        // Drafts are not public content
+        published_at: { not: null },
       },
       select: {
         goals: {
           select: {
-            indicatorParameter: true,
+            indicator_parameter: true,
           },
         },
       },
     });
   }
-  catch (err: unknown) {
+  catch (err) {
     console.error('Failed to fetch roadmaps for LEAP list generation.', { err });
     return;
   }
@@ -38,10 +42,10 @@ async function generateLeapList() {
 
   // Flatten the data
   const leapList: string[] = [];
-  for (const roadmap of rawData) {
-    for (const goal of roadmap.goals) {
-      if (typeof goal.indicatorParameter === 'string' && goal.indicatorParameter.length > 0) {
-        leapList.push(goal.indicatorParameter);
+  for (const iteration of rawData) {
+    for (const goal of iteration.goals) {
+      if (typeof goal.indicator_parameter === 'string' && goal.indicator_parameter.length > 0) {
+        leapList.push(goal.indicator_parameter);
       }
     }
   }
@@ -55,7 +59,7 @@ async function generateLeapList() {
     fs.writeFileSync('src/lib/LEAPList.json', JSON.stringify(uniqueLeapList));
     console.info('LEAP list updated');
   }
-  catch (err: unknown) {
+  catch (err) {
     console.warn('Failed to write LEAP list file', { err });
   }
 }

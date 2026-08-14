@@ -3,6 +3,7 @@
 // Extracted text from wikipedia 
 //   https://sv.wikipedia.org/wiki/H%C3%A5llbar_utveckling 
 //   https://sv.wikipedia.org/wiki/Ekosystemtj%C3%A4nster
+//   https://sv.wikipedia.org/wiki/V%C3%A5tmark
 // Our license should be compatible https://creativecommons.org/share-your-work/licensing-considerations/compatible-licenses/
 
 /** 
@@ -46,6 +47,8 @@ function main() {
     // Post trim and content filter
     .map(t => t.trim())
     .filter(t => !t.includes("http") && !t.includes("www") && !t.includes("@") && !t.includes("mailto:") && !t.includes("://") && !(t.match(/\/.*?\//) ?? false))
+    .filter(t => t !== "Redigera wikitext")
+    .filter(t => t !== "redigera")
     .filter(t => !(t.match(/\[\d*\]/) ?? false)) // Citations
     .filter(t => !(t.includes("[") && t.includes("]") && t.includes("|"))) // Wikipedia edit nav
     .filter(t => t.length > 1);

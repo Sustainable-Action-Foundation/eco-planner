@@ -3,10 +3,10 @@
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
 import { IconInfoCircle } from "@tabler/icons-react";
-import { Locales } from "@/../i18n.config";
-import { isISOIshDate } from "@/types";
+import { Locales } from "@root/i18n.config";
+import { isISOIshDate } from "@/types/typeguards";
+import { isUnitFlag } from "@/functions/unit";
 
-// TODO: Does this take historical data into account? Do we need to account for it?
 export function OutputDataSeries() {
   const { t } = useTranslation("components");
   const { resultingDataSeries, resultingUnit } = useRecipe();
@@ -23,7 +23,7 @@ export function OutputDataSeries() {
       {/* TODO: We also want a non-generic title which is visible */}
       <strong className="block bold text-align-center">
         {t("components:copy_and_scale.resulting_data_series")}
-        {resultingUnit ? ` (${resultingUnit})` : ""}
+        {isUnitFlag(resultingUnit) ? "" : ` (${resultingUnit})`}
       </strong>
 
       <div

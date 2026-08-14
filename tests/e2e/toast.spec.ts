@@ -30,14 +30,14 @@ async function expectNativeValidationRejection(page: Page) {
 }
 
 async function selectRiketsRoadmap(page: Page) {
-  const option = page.locator('#roadmapId option').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: 'v2' });
+  const option = page.locator('#iterationId option').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: 'v2' });
   const value = await option.getAttribute('value');
 
   if (!value) {
     throw new Error('Could not find Rikets färdplan version 2');
   }
 
-  await page.locator('#roadmapId').selectOption(value);
+  await page.locator('#iterationId').selectOption(value);
 }
 
 async function selectParentRiketsRoadmap(page: Page) {
@@ -46,10 +46,12 @@ async function selectParentRiketsRoadmap(page: Page) {
 }
 
 async function fillGoalSeries(page: Page) {
-  await page.locator('input[name="dataSeriesType"][value="MANUAL"]').check();
+  await page.locator('input[name="DATA_SERIES_TYPE"][value="MANUAL"]').check();
   await page.locator('#indicatorParameter').fill('Goal Toast');
-  await page.locator('#dataUnit').fill('yard');
-  await page.locator('#dataUnit').blur(); // Blur to avoid covering anything else
+  // The unit lives in the recipe context; a manual series has none, so type an override.
+  // Blur afterwards so the autocomplete dropdown doesn't cover elements below.
+  await page.locator('#goal-manual-unit').fill('yard');
+  await page.locator('#goal-manual-unit').blur();
 
   const insertRowButton = page.getByTestId("add-row-button");
   for (let i = 1; i < 10; i++) {
@@ -72,7 +74,10 @@ test.describe('Toast', () => {
   test('Login shows inline error', async ({ page }) => {
     await page.goto('/');
     await page.getByTestId('logout-button').click();
-    await page.waitForLoadState('networkidle');
+    // Logout refreshes the page; the sidebar swaps the logout button for a
+    // login link once the session is gone, which is a deterministic signal
+    // (unlike networkidle, which hangs if any connection stays open)
+    await expect(page.locator('a[href="/login"]')).toBeVisible();
 
     await page.goto('/login');
     await page.locator('#submit-button').click();
@@ -94,38 +99,39 @@ test.describe('Toast', () => {
     await expectToast(page, 'success', 'action');
   });
 
-  test('Metaroadmap rejects invalid submit and shows success toast', async ({ page }) => {
-    await page.goto('/metaRoadmap/create');
+  test('Roadmap rejects invalid submit and shows success toast', async ({ page }) => {
+    await page.goto('/roadmap/create');
 
+    // Name, type and actor are required, so an empty submit is rejected natively
     await page.locator('#submit-button').click();
     await expectNativeValidationRejection(page);
 
-    await page.locator('#name').fill('MetaRoadmap Toast');
+    await page.locator('#name').fill('Roadmap Toast');
     await page.locator('#type').selectOption('LOCAL');
     await page.locator('#actor').fill('Toast');
-    await page.locator('#visibility-private').check();
-    await page.locator('#editability-private').check();
+    // Several orgs are seeded, so the owning org must be chosen explicitly.
+    // Visibility defaults to org members, and the admin user manages this org,
+    // so no group grant is needed.
+    await page.locator('#org').selectOption({ label: 'Sustainable Action' });
 
+    // The description lives in a hidden input, so the form's own submit handler
+    // rejects the missing description with a warning toast
     await page.locator('#submit-button').click();
-    await expectToast(page, 'warning', 'meta_roadmap');
+    await expectToast(page, 'warning', 'roadmap.description_required');
 
     await page.locator('.tiptap').first().fill('Toast');
     await page.locator('#submit-button').click();
 
-    await expectToast(page, 'success', 'meta_roadmap');
-    await expect(page).toHaveURL(/\/roadmap\/create/);
+    await expectToast(page, 'success', 'roadmap.roadmap_created');
+    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/iteration\/create/);
 
+    // The iteration form has no required fields when the roadmap comes from the
+    // query, so just publish and submit
+    await page.locator('#publish').check();
     await page.locator('#submit-button').click();
-    await expectNativeValidationRejection(page);
-
-    await page.locator('#visibility-private').check();
-    await page.locator('#editability-private').check();
-
-    await page.locator('#submit-button').click();
-    // Check for a toast containing roadmap, not immediately preceded by "meta" or "meta_"
-    await expectToast(page, 'success', /(?<!meta_?)roadmap\b/i);
-    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+/);
-    await expect(page.getByRole('heading', { name: 'Toast' })).toBeVisible();
+    await expectToast(page, 'success', 'iteration_created');
+    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/v\d+/);
+    await expect(page.getByRole('heading', { name: 'Roadmap Toast' })).toBeVisible();
   });
 
   test('Goal rejects invalid submit and shows success toast', async ({ page }) => {
@@ -138,6 +144,21 @@ test.describe('Toast', () => {
 
     await selectParentRiketsRoadmap(page);
 
+    // The default (suggested) tab has a required preset select, so an empty
+    // submit is rejected by native validation before reaching the handler
+    await page.locator('#submit-button').click();
+    await expectNativeValidationRejection(page);
+
+    // Manual mode: the grid's year cells are required, so an empty grid is
+    // also rejected natively
+    await page.locator('input[name="DATA_SERIES_TYPE"][value="MANUAL"]').check();
+    await page.locator('#submit-button').click();
+    await expectNativeValidationRejection(page);
+
+    // A year without a value passes native validation but yields no usable
+    // data series, which the submit handler must reject with an error toast
+    await page.locator(`#goal-dataseries [data-row="0"][data-column="1"] input`).focus();
+    await page.locator(`#goal-dataseries [data-row="0"][data-column="1"] input`).fill('2020');
     await page.locator('#submit-button').click();
     await expectToast(page, 'error', 'goal');
 

@@ -1,88 +1,41 @@
 import "server-only";
 import { actionInclusionSelection } from "@/fetchers/inclusionSelectors";
-import type { LoginData } from "@/lib/session";
-import { getSession } from "@/lib/session";
+import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { visibleActionsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
-import { cookies } from "next/headers";
-import { cacheTag } from "next/dist/server/use-cache/cache-tag";
-import type { Action } from "@/types";
+import type { Action, UserAccessContext } from "@/types";
+import { cacheTag } from "next/cache";
 
 /**
- * Gets all available actions.
- * 
+ * Gets all available actions, including roadmapless ones from the public action database.
+ *
  * Returns an empty array if no actions are found or user does not have access to any. Also returns an empty array on error.
  * @returns Array of actions
  */
-export async function getActions() {
-  const session = await getSession(await cookies());
-  return getCachedActions(session.user);
+export async function getActions(): Promise<Action[]> {
+  const accessContext = await getUserAccessContext();
+  return getCachedActions(accessContext);
 }
 
 /**
  * Caches available actions per user.
- * @param user Data from user's session cookie.
+ * @param accessContext Requesting user's access context (null for anonymous visitors); part of the cache key.
  */
-async function getCachedActions(user: LoginData['user']) {
+async function getCachedActions(accessContext: UserAccessContext | null): Promise<Action[]> {
   'use cache';
   cacheTag('database', 'action');
 
   // TODO: Use a different inclusion selection, probably excluding effects and parent roadmap
   let actions: Action[];
-
-  // If user is admin, get all actions
-  if (user?.isAdmin) {
-    try {
-      actions = await prisma.action.findMany({
-        include: actionInclusionSelection,
-      });
-    }
-    catch (error) {
-      console.error("Error fetching admin actions", { error });
-      return null;
-    }
-
-    return actions;
-  }
-
-  // If user is logged in, get the action if they have access to it
-  if (user?.isLoggedIn) {
-    try {
-      actions = await prisma.action.findMany({
-        where: {
-          roadmap: {
-            OR: [
-              { authorId: user.id },
-              { editors: { some: { id: user.id } } },
-              { viewers: { some: { id: user.id } } },
-              { editGroups: { some: { users: { some: { id: user.id } } } } },
-              { viewGroups: { some: { users: { some: { id: user.id } } } } },
-              { isPublic: true },
-            ],
-          },
-        },
-        include: actionInclusionSelection,
-      });
-    }
-    catch (error) {
-      console.error("Error fetching user actions", { error });
-      return null;
-    }
-
-    return actions;
-  }
-
-  // If user is not logged in, get the action if it is public
   try {
-    actions = await prisma.action.findMany({
-      where: {
-        roadmap: { isPublic: true },
-      },
+    actions = await prisma.actions.findMany({
+      where: visibleActionsWHERE(accessContext),
       include: actionInclusionSelection,
     });
   }
-  catch (error) {
-    console.error("Error fetching public actions", { error });
-    return null;
+  catch (err) {
+    console.error("Error fetching actions", { err });
+    return [];
   }
 
   return actions;

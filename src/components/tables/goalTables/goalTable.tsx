@@ -1,11 +1,11 @@
 "use client";
 
 import { goalSorter, goalSorterActionAmount, goalSorterActionAmountReverse, goalSorterInterest, goalSorterReverse } from '@/lib/sorters';
-import { GoalSortBy } from '../goals';
+import type { Goal, RoadmapIteration } from "@/types";
+import { GoalSortBy } from "@/types/enums";
 import styles from '../tables.module.css' with { type: "css" };
 import { useTranslation } from "react-i18next";
 import Link from 'next/link';
-import type { Goal, Roadmap } from "@/types";
 import type { ReactNode } from "react";
 
 type GoalTableCommonProps = {
@@ -14,48 +14,46 @@ type GoalTableCommonProps = {
 
 type GoalTableWithGoals = {
   goals: Goal[];
-  roadmap?: never;
+  iteration?: never;
 } & GoalTableCommonProps;
 
-type GoalTableWithRoadmap = {
+type GoalTableWithIteration = {
   goals?: never;
-  roadmap: Roadmap;
+  iteration: RoadmapIteration;
 } & GoalTableCommonProps;
 
-type GoalTableProps = GoalTableWithGoals | GoalTableWithRoadmap;
+type GoalTableProps = GoalTableWithGoals | GoalTableWithIteration;
 
 export default function GoalTable({
   goals,
-  roadmap,
+  iteration,
   sortBy,
 }: GoalTableProps): ReactNode {
   const { t } = useTranslation("components");
 
   // Failsafe in case wrong props are passed
   if (
-    (!goals && !roadmap)
-    || (goals && roadmap)
-  ) throw new Error('GoalTable: Either `goals` XOR `roadmap` must be provided');
+    (!goals && !iteration)
+    || (goals && iteration)
+  ) throw new Error('GoalTable: Either `goals` XOR `iteration` must be provided');
 
   const parsedGoals: Goal[] = [];
 
-  if (!goals && roadmap) {
-    const stripGoals = (roadmap: Roadmap): Goal["roadmap"] => {
+  if (!goals && iteration) {
+    const stripGoals = (iteration: RoadmapIteration): Goal["roadmap_iteration"] => {
       const {
         goals,
         ...interestingData
-      } = roadmap;
-      return interestingData satisfies Goal["roadmap"];
+      } = iteration;
+      return interestingData satisfies Goal["roadmap_iteration"];
     };
-    for (const goal of roadmap.goals) {
+    for (const goal of iteration.goals) {
       parsedGoals.push({
         ...goal,
-        roadmap: stripGoals(roadmap),
+        roadmap_iteration: stripGoals(iteration),
         effects: [],
         comments: [],
-        links: [],
         baseline: null,
-        dataSeries: null,
       });
     }
   }
@@ -68,48 +66,54 @@ export default function GoalTable({
   </p>;
 
   switch (sortBy) {
-    case GoalSortBy.Alpha:
+    case GoalSortBy.Alpha: {
       parsedGoals.sort(goalSorter);
       break;
-    case GoalSortBy.AlphaReverse:
+    }
+    case GoalSortBy.AlphaReverse: {
       parsedGoals.sort(goalSorterReverse);
       break;
-    case GoalSortBy.ActionsFalling:
+    }
+    case GoalSortBy.ActionsFalling: {
       parsedGoals.sort(goalSorterActionAmount);
       break;
-    case GoalSortBy.ActionsRising:
+    }
+    case GoalSortBy.ActionsRising: {
       parsedGoals.sort(goalSorterActionAmountReverse);
       break;
-    case GoalSortBy.Interesting:
+    }
+    case GoalSortBy.Interesting: {
       parsedGoals.sort(goalSorterInterest);
       break;
+    }
     case GoalSortBy.Default:
     case undefined:
-    default:
+    default: {
       parsedGoals.sort(goalSorter);
       break;
+    }
   }
 
   return <div className="overflow-x-scroll smooth">
-      <table id="goalTable" className={styles.table}>
-        <thead>
-          <tr>
-            <th>{t("components:goal_table.goal_name")}</th>
-            <th>{t("components:goal_table.leap_parameter")}</th>
-            <th>{t("components:goal_table.unit")}</th>
-            <th>{t("components:goal_table.action_count")}</th>
+    <table id="goalTable" className={styles.table}>
+      <thead>
+        <tr>
+          <th>{t("components:goal_table.goal_name")}</th>
+          <th>{t("components:goal_table.leap_parameter")}</th>
+          <th>{t("components:goal_table.unit")}</th>
+          <th>{t("components:goal_table.action_count")}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {parsedGoals.map(goal => (goal &&
+          <tr key={goal.id}>
+            <td><Link href={`/goal/${goal.id}`}>{goal.name || goal.indicator_parameter}</Link></td>
+            <td>{goal.indicator_parameter}</td>
+            <td>{goal.data_series?.unit === null ? t("common:tsx.unitless") : goal.data_series?.unit || t("common:tsx.unit_missing")}</td>
+            <td>{goal._count.effects}</td>
           </tr>
-        </thead>
-        <tbody>
-          {parsedGoals.map(goal => (goal &&
-            <tr key={goal.id}>
-              <td><Link href={`/goal/${goal.id}`}>{goal.name || goal.indicatorParameter}</Link></td>
-              <td>{goal.indicatorParameter}</td>
-              <td>{goal.dataSeries?.unit === null ? t("common:tsx.unitless") : goal.dataSeries?.unit || t("common:tsx.unit_missing")}</td>
-              <td>{goal._count.effects}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>;
+        ))}
+      </tbody>
+    </table>
+  </div>;
 }

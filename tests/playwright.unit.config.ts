@@ -41,5 +41,11 @@ export default defineConfig({
       retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
       use: {},
     },
+    {
+      name: "Action fields unit tests",
+      testMatch: ["unit/action-fields.test.ts"],
+      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
+      use: {},
+    },
   ],
 });

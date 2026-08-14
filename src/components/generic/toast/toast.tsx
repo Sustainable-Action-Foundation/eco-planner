@@ -46,10 +46,6 @@ export default function Toast({ children, id, type, hasTimeout = true }: { child
 
   const maxLengthMessage = 35;
 
-  if (typeof children === "string" && type !== "error" && children.length > maxLengthMessage) {
-    throw new Error("Toast message is too long for a success or warning toast.");
-  }
-
   const errorLong = typeof children === "string" && type === "error" && children.length > 77; // TODO: This is a rough approximation for when content hits 3 lines and should be hidden. We can probably do this better.
 
   useEffect(() => {
@@ -72,7 +68,11 @@ export default function Toast({ children, id, type, hasTimeout = true }: { child
 
   }, [hasTimeout, id, removeToast]);
 
-  return (  
+  if (typeof children === "string" && type !== "error" && children.length > maxLengthMessage) {
+    console.error(`Toast message is too long for a ${type} toast. Message: "${children}"`);
+    return null;
+  }
+  return (
     <dialog
       className={`${styles.toast} flex flex-direction-column rounded position-relative padding-0 width-100 rounded pointer-events-initial ${closeToast ? " " + styles["toast-closing"] : ""}`}
       role={type === "error" ? "alert" : "status"}
@@ -94,13 +94,13 @@ export default function Toast({ children, id, type, hasTimeout = true }: { child
               ? t("components:toasts.warning")
               : t("components:toasts.error")
         }</span>
-        <button 
-          type="button"   
+        <button
+          type="button"
           onClick={() => {
             setCloseToast(true);
             setTimeout(() => removeToast(id), 300);
           }}
-         className="round padding-25 transparent margin-left-auto grid" aria-label="Close toast"
+          className="round padding-25 transparent margin-left-auto grid" aria-label={t("components:toasts.close_toast")}
         >
           <IconX aria-hidden="true" width={22} height={22} strokeWidth={3} color={color.accent} />
         </button>
@@ -111,14 +111,14 @@ export default function Toast({ children, id, type, hasTimeout = true }: { child
       </p>
       {type === 'error' && errorLong ?
         <button type="button" className={"margin-0 padding-25 width-100"}
-          onClick={() => setIsOpen((prev) => !prev)} 
+          onClick={() => setIsOpen((prev) => !prev)}
           style={{ backgroundColor: color.extends, transform: "scale(1)" }}
         >
-        <span className="flex align-items-flex-end font-weight-600" >
-          <IconArrowUp className="margin-left-25 margin-right-50" width={16} height={16} style={{ transform: `${isOpen ? '' : 'rotate(180deg)'}` }} />
-          {isOpen ? t("components:toasts.show_less") : t("components:toasts.show_more")}
-        </span>
-      </button> : null
+          <span className="flex align-items-flex-end font-weight-600" >
+            <IconArrowUp className="margin-left-25 margin-right-50" width={16} height={16} style={{ transform: `${isOpen ? '' : 'rotate(180deg)'}` }} />
+            {isOpen ? t("components:toasts.show_less") : t("components:toasts.show_more")}
+          </span>
+        </button> : null
       }
       <progress className={`${hasTimeout ? "" : "none"}`} value={hasTimeout ? timer : 0} max={totalTime} aria-hidden="true" style={{ '--progress-color': color.accent, '--progress-background-color': color.background } as React.CSSProperties} />
     </dialog>

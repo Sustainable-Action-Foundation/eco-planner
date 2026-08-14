@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 
 export default function LogoutButton({
@@ -14,6 +15,7 @@ export default function LogoutButton({
   children?: React.ReactNode,
 }) {
   const { t } = useTranslation(["common", "components"]);
+  const router = useRouter();
   return (
     <button
       type="button"
@@ -27,12 +29,13 @@ export default function LogoutButton({
           headers: { 'Content-Type': 'application/json' },
         }).then((res) => {
           if (res.ok) {
-            window.location.href = '/';
+            router.push('/');
+            router.refresh();
           } else {
             alert(t("components:logout_button.failed"));
           }
-        }).catch((e: unknown) => {
-          console.error("Logout failed:", e);
+        }).catch((err: unknown) => {
+          console.error("Logout failed:", err);
           alert(t("components:logout_button.failed"));
         });
       }}>

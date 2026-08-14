@@ -8,10 +8,14 @@
   },
   "signup": {
     "subject": "Välkommen till $t(common:layout.app_name_compact)",
-    "body": "Välkommen till $t(common:layout.app_name_compact)! Vänligen följ länken och tryck på knappen för att verifiera din e‑postadress:\n{{baseUrl}}/verify/verify?email={{email}}&hash={{userHash}}"
+    "body": "Välkommen till $t(common:layout.app_name_compact)! Vänligen följ länken och tryck på knappen för att verifiera din e‑postadress:\n{{baseUrl}}/verify/confirm?email={{email}}&hash={{userHash}}"
   },
   "verification": {
     "subject": "Verifiera din e‑postadress",
-    "body": "Hej! Vänligen verifiera din e‑postadress genom att klicka på den här länken:\n{{baseUrl}}/verify/verify?email={{email}}&hash={{userHash}}"
+    "body": "Hej! Vänligen verifiera din e‑postadress genom att klicka på den här länken:\n{{baseUrl}}/verify/confirm?email={{email}}&hash={{userHash}}"
+  },
+  "invite": {
+    "subject": "Du har blivit inbjuden till {{orgName}} på $t(common:layout.app_name_compact)",
+    "body": "Hej! Du har blivit inbjuden att gå med i {{orgName}} som gäst på $t(common:layout.app_name_compact). Följ länken för att tacka ja:\n{{baseUrl}}/invite/{{token}}\n\nOm du inte har något konto ännu kan du registrera dig med den här e-postadressen så godkänns inbjudan automatiskt."
   }
 }

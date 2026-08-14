@@ -1,0 +1,37 @@
+name: version bump check
+
+on:
+  pull_request:
+    branches:
+      - "main"
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  version-bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v6
+
+      - name: Fetch base branch
+        run: git fetch origin "${{ github.base_ref }}" --depth=1
+
+      - name: Enable yarn through corepack
+        run: |
+          corepack enable
+          corepack prepare --activate
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: package.json
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Check version bump
+        run: yarn check:version

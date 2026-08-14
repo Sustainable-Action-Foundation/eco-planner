@@ -1,9 +1,10 @@
 "use client";
 
 import { useRecipe } from "@/components/recipe/context/recipeContext.use";
-import { RecipeDataTypes, RecipeError } from "@/functions/recipe/types";
+import { RecipeDataTypes } from "@/functions/recipe/types/enums";
+import { RecipeError } from "@/functions/recipe/types/errors";
 import { useTranslation } from "react-i18next";
-import { RecipeEditorPermissions } from "../recipeEditorPermissions";
+import { RecipeEditorPermissions } from "@/types/consts";
 import { CommonVariable } from "@/components/recipe";
 
 // TODO: Fix labels

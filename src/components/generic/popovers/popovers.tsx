@@ -121,7 +121,7 @@ export function Popover({
           } as React.CSSProperties}
         >
         </div>
-        : null}
+      : null }
       <div
         role='dialog'
         id={id}

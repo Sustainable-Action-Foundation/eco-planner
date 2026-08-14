@@ -1,17 +1,18 @@
 import type { JSONValue } from "@/types";
-import getPxWebTableContent from "../pxWeb/getPxWebTableContent";
-import getTrafaTableContent from "../trafa/getTrafaTableContent";
+import getPxWebTableContent from "./pxWeb/getPxWebTableContentAction";
+import getTrafaTableContent from "./trafa/getTrafaTableContent";
 import { ExternalDataset } from "./utility";
+import type { ApiSelectionItem, ApiTableContent } from "./apiTypes";
 
-export default async function getTableContent(tableId: string, externalDataset: string | undefined, selection: { variableCode: string, valueCodes: string[] }[] | string = [], language?: string) {
+export default async function getTableContent(tableId: string, externalDataset: string | undefined, selection: ApiSelectionItem[] | string = [], language?: string): Promise<ApiTableContent | null> {
   if (!externalDataset) { return null; }
- 
+
   // The selection may be a stringified version of the expected selection array
   if (typeof selection === "string") {
     const intermediateSelection = JSON.parse(selection) as JSONValue;
     if (!Array.isArray(intermediateSelection)) {
       return null;
-    } else if (!intermediateSelection.every(item => {
+    } else if (!intermediateSelection.every((item): item is ApiSelectionItem => {
       return (
         typeof item === "object" &&
         item !== null &&
@@ -23,7 +24,7 @@ export default async function getTableContent(tableId: string, externalDataset: 
     })) {
       return null;
     }
-    selection = intermediateSelection as { variableCode: string, valueCodes: string[] }[];
+    selection = intermediateSelection;
   }
 
   const dataset = ExternalDataset.getDatasetByAlternateName(externalDataset);

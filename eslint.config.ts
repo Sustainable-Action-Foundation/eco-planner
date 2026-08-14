@@ -1,10 +1,20 @@
+import js from "@eslint/js";
 import type { Config } from "eslint/config";
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextTS from "eslint-config-next/typescript";
 import nextVitals from "eslint-config-next/core-web-vitals";
+import i18next from "eslint-plugin-i18next";
 import tseslint from "typescript-eslint";
+import { enumStyle } from "./scripts/eslint/enumStyle";
+import { serializableBoundaryProps } from "./scripts/eslint/serializableBoundaryProps";
 
-const tsBaseConfig = tseslint.configs.recommendedTypeChecked;
+// js.configs.recommended first, so the TS configs' compat layer can turn off
+// the core rules TypeScript itself already catches (no-undef, no-import-assign, ...)
+const tsBaseConfig = [js.configs.recommended, ...tseslint.configs.recommendedTypeChecked];
+// eslint-config-next/typescript registers its own @typescript-eslint plugin instance,
+// so tseslint configs can't be extended alongside it — merge their rules instead.
+const tsRecommendedRules = tseslint.configs.recommendedTypeChecked
+  .reduce<NonNullable<Config["rules"]>>((acc, c) => ({ ...acc, ...c.rules }), {});
 const nextBaseConfig = [...nextTS, ...nextVitals];
 
 const commonRules: Config["rules"] = {
@@ -12,6 +22,7 @@ const commonRules: Config["rules"] = {
   "default-case-last": "error",
   "default-case": "error",
   "eqeqeq": ["error", "smart"],
+  "local/enum-style": "error",
   "no-case-declarations": "error",
   "no-cond-assign": ["error", "always"],
   "no-duplicate-imports": ["error", { allowSeparateTypeImports: true, includeExports: true }],
@@ -71,7 +82,26 @@ const commonRules: Config["rules"] = {
   "@typescript-eslint/no-import-type-side-effects": "error",
   "@typescript-eslint/no-misused-promises": "warn",
   "@typescript-eslint/no-non-null-assertion": "warn",
-  "@typescript-eslint/no-restricted-imports": ["error", "fs", "path", "crypto", "child_process", "os", "http"],
+  "@typescript-eslint/no-restricted-imports": ["error", {
+    paths: ["fs", "path", "crypto", "child_process", "os", "http"],
+    patterns: [
+      {
+        // Only the Prisma namespace may come from the generated client (error classes,
+        // input types, TransactionClient...); models, enums, and payload types come from
+        // the curated re-export at @/lib/prisma/generated (excluded from this pattern).
+        group: ["**/prisma/generated", "**/prisma/generated/**", "!**/lib/prisma/generated", "!**/lib/prisma/generated/**", "@PRISMA-NAMESPACE-ONLY"],
+        allowImportNames: ["Prisma"],
+        message: "Import only the Prisma namespace from the generated client; everything else comes from @/lib/prisma/generated.",
+      },
+      {
+        // The @/ alias must stay inside src. Escaping it (@/../...) resolves in the
+        // Next bundler but breaks under plain tsx — e.g. the seed scripts' import
+        // graph in CI. Files outside src/ have the @root/ alias instead.
+        group: ["@/..", "@/../**"],
+        message: "Do not escape the @/ alias; import files outside src/ via @root/ (tsx, used by the seed scripts, cannot resolve @/../).",
+      },
+    ],
+  }],
   "@typescript-eslint/no-unnecessary-type-assertion": "warn",
   "@typescript-eslint/no-unsafe-argument": "warn",
   "@typescript-eslint/no-unsafe-assignment": "warn",
@@ -88,19 +118,142 @@ const commonRules: Config["rules"] = {
   "@typescript-eslint/switch-exhaustiveness-check": "warn",
   "@typescript-eslint/use-unknown-in-catch-callback-variable": "error",
   // "@typescript-eslint/array-type": ["error", { default: "array", readonly: "generic" }], // could be nice but cannot be bother to manually fix all occurrences
+
+  // Switch cases must be scoped
+  "no-restricted-syntax": ["error",
+    {
+      "selector": "SwitchCase > *.consequent:not(ReturnStatement):not(BreakStatement):not(BlockStatement)",
+      "message": "Switch cases without blocks are disallowed.",
+    },
+    {
+      "selector": "SwitchStatement:has(SwitchCase > *.consequent:not(ReturnStatement)):has(SwitchCase > ReturnStatement.consequent)",
+      "message": "Switch cases must be consistent: do not mix direct returns with other case body styles.",
+    },
+    {
+      // Only the un-aliased form is banned; `Unit as MathJSUnit` stays allowed.
+      "selector": "ImportDeclaration[source.value=\"mathjs\"] ImportSpecifier[imported.name=\"Unit\"][local.name=\"Unit\"]",
+      "message": "Importing mathjs' `Unit` un-aliased collides with the app's `Unit` type; alias it, e.g. `import { Unit as MathJSUnit } from \"mathjs\"`.",
+    },
+    {
+      // async generateMetadata return type must be `Promise<Metadata>`
+      "selector": "FunctionDeclaration[async=true][id.name=\"generateMetadata\"]:not([returnType.typeAnnotation.typeName.name=\"Promise\"][returnType.typeAnnotation.typeArguments.params.0.typeName.name=\"Metadata\"])",
+      "message": "generateMetadata must return a Promise<Metadata>.",
+    },
+    {
+      // generateMetadata must be async
+      "selector": "FunctionDeclaration[id.name=\"generateMetadata\"]:not([async=true])",
+      "message": "generateMetadata must be async.",
+    },
+    // The pre-org-rework "metaRoadmap" vocabulary is banned: the old MetaRoadmap is
+    // now the roadmap (top level) and the old Roadmap is a roadmapIteration.
+    {
+      "selector": "[name=/(meta_?roadmap|roadmap[-_ ]?series)/i]",
+      "message": "The legacy \"meta roadmap\" vocabulary is banned; use roadmap (top level) or roadmapIteration.",
+    },
+    {
+      "selector": "Literal[value=/(meta_?roadmap|roadmap[-_ ]?series)/i]",
+      "message": "The legacy \"meta roadmap\" vocabulary is banned; use roadmap (top level) or roadmapIteration.",
+    },
+    {
+      "selector": "TemplateElement[value.raw=/(meta_?roadmap|roadmap[-_ ]?series)/i]",
+      "message": "The legacy \"meta roadmap\" vocabulary is banned; use roadmap (top level) or roadmapIteration.",
+    },
+  ],
+};
+
+// i18n: flag hardcoded UI strings in JSX. Currently disabled — uncomment the spread in defineConfig below to enable.
+// Exported (rather than plain const) so no-unused-vars stays quiet while disabled.
+// Current findings inventory + tuning rationale: ignore/i18n-todos.md (standalone runner: ignore/eslint.i18n-sweep.config.ts)
+// Caveat: jsx-only mode misses strings assigned outside JSX (e.g. `const label = "..."` later rendered).
+export const i18nLiteralStrings: Config = {
+  name: "i18n literal strings src/",
+  files: ["src/**/*.{ts,tsx}"],
+  ignores: ["src/app/tests/**"], // Internal dev/test pages are intentionally untranslated
+  plugins: { i18next },
+  rules: {
+    "i18next/no-literal-string": ["warn", {
+      mode: "jsx-only",
+      // NOTE: each option block replaces the plugin defaults wholesale (shallow spread),
+      // so the defaults are repeated before our additions.
+      "jsx-attributes": {
+        include: [],
+        exclude: [
+          // plugin defaults
+          "className", "styleName", "style", "type", "key", "id", "width", "height",
+          // standard non-UI attributes
+          "data-testid", "href", "src", "rel", "target", "name", "htmlFor",
+          "aria-labelledby", "aria-describedby", "aria-hidden", "aria-live", "role",
+          "autoComplete", "lang", "dir", "sizes", "viewBox", "d", "fill",
+          "stroke", "strokeWidth", "color", "form", "accept", "min", "max",
+          "step", "pattern", "inputMode", "loading", "decoding", "value",
+          "defaultValue", "popover", "popoverTarget",
+          // custom component props in this codebase (machine values)
+          "anchorName", "positionAnchor", "anchorInlinePosition",
+          "popoverDirection", "margin", "chartType", "chartOptionsType",
+          "styling", "placement", "ariaLabelledBy", "labelledBy", "dataTestid",
+          // image attribution props (proper nouns + URLs)
+          "author", "authorLink", "source", "sourceLink",
+        ],
+      },
+      "object-properties": {
+        include: [],
+        exclude: [
+          // plugin default
+          "[A-Z_-]+",
+          // DOM/props passed as object props
+          "className", "classNames", "id", "name", "type", "key", "dataTestid",
+          "placement", "role", "aria-.+",
+          // CSS-in-JS style keys
+          "style", "gridTemplateColumns", "gridRow", "gridColumn", "width",
+          "height", "borderBottom", "backgroundColor", "transform", "padding",
+          "fontSize", "flexGrow", "marginTop",
+        ],
+      },
+      callees: {
+        exclude: [
+          // plugin defaults
+          "i18n(ext)?", "t", "require", "addEventListener", "removeEventListener",
+          "postMessage", "getElementById", "dispatch", "commit", "includes",
+          "indexOf", "endsWith", "startsWith",
+          // logging + attribute lookups
+          "console\\.(log|warn|error|debug|info)", "getAttributes",
+        ],
+      },
+      words: {
+        exclude: [
+          // plugin defaults (punctuation/digits, ALL_CAPS, html entities, emoji),
+          // widened to tolerate whitespace/nbsp/·/×/↺/… mixed into punctuation runs.
+          // NOTE: the plugin compiles string patterns WITHOUT the u flag, so \p{...}
+          // escapes silently never match — emoji are matched as surrogate ranges instead.
+          "[0-9!-/:-@[-`{-~\\s\\u00a0\\u00b7\\u00d7\\u21ba\\u2026]+", "[A-Z_-]+", "(&[a-z]+;|\\s)+",
+          "^[\\s\\ufe0f\\u2600-\\u27bf\\ud800-\\udfff]+$", "^$",
+          // machine-value patterns
+          "^var\\(--.+\\)$", "^--.+", "^https?://.+", "^mailto:.+", "^/.+",
+          "^[0-9.]+(rem|em|px|%)$", "^[a-z0-9-]+@[a-z0-9-]+\\..+",
+        ],
+      },
+    }],
+  },
 };
 
 export default defineConfig([
+  { // Register the local plugin globally so commonRules can reference it in every block
+    name: "Local rules",
+    plugins: { local: { rules: { "enum-style": enumStyle, "serializable-boundary-props": serializableBoundaryProps } } },
+  },
   { // App linting
     name: "App src/",
     files: ["src/**/*.{ts,tsx}"],
     extends: [
+      js.configs.recommended,
       ...nextBaseConfig,
     ],
     rules: {
+      ...tsRecommendedRules,
       "react-hooks/set-state-in-effect": "off", // TODO: get a grip and understand react
       "react-hooks/set-state-in-render": "off", // TODO: get a grip and understand react
       "react-hooks/immutability": "error",
+      "local/serializable-boundary-props": "error",
       "react/button-has-type": "error",
       "react/checked-requires-onchange-or-readonly": "error",
       "react/jsx-boolean-value": ["error", "always"],
@@ -126,6 +279,8 @@ export default defineConfig([
     ],
     rules: {
       ...commonRules,
+      // Playwright fixtures require a (possibly empty) destructuring pattern as first arg
+      "no-empty-pattern": ["error", { allowObjectPatternsAsParameters: true }],
     },
     languageOptions: {
       parserOptions: {
@@ -150,17 +305,19 @@ export default defineConfig([
       },
     },
   },
+  { // The curated Prisma re-export is the one place allowed to deep-import the generated client
+    name: "Prisma re-export carve-out",
+    files: ["src/lib/prisma/**"],
+    rules: {
+      "@typescript-eslint/no-restricted-imports": "off",
+    },
+  },
+  // i18nLiteralStrings, // Uncomment to flag hardcoded UI strings (see the const above defineConfig)
   globalIgnores([
-    ".prisma/**/*",
-    "src/prisma/generated/**/*",
-    "src/.prisma/**/*",
-    ".prisma/**/*",
     "prisma/generated/**/*",
     "node_modules/**/*",
     ".next/**/*",
-    "out/**/*",
-    "dist/**/*",
-    "build/**/*",
+    ".claude/**/*",
     "ignore/**/*",
     "next-env.d.ts",
   ]),

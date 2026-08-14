@@ -1,13 +1,16 @@
 "use client";
 
-import { RecipeError } from "@/functions/recipe/types";
+import { RecipeError } from "@/functions/recipe/types/errors";
+import { RecipeDataTypes } from "@/functions/recipe/types/enums";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { RecipeEditorPermissions, useRecipe } from "@/components/recipe";
+import { useRecipe } from "@/components/recipe";
+import { RecipeEditorPermissions } from "@/types/consts";
 import styles from "../../recipe.module.css" with { type: "css" };
 import { IconTrashXFilled } from "@tabler/icons-react";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { allOurUnits } from "@/math";
+import { parseUnit } from "@/functions/unit";
 
 // TODO: Fix labels
 export function CommonVariable({
@@ -22,9 +25,9 @@ export function CommonVariable({
   const { t } = useTranslation(["common", "components"]);
 
   const { upsertVariable, getVariable } = useRecipe();
-  const [unit, setUnit] = useState<string>("");
   const variable = getVariable(variableId);
   if (!variable) throw new RecipeError(`Variable with id "${variableId}" not found in recipe context.`);
+  const [unit, setUnit] = useState<string>(variable.unit ?? "");
 
   const permissions = { ...RecipeEditorPermissions, ...incomingPermissions };
 
@@ -33,7 +36,11 @@ export function CommonVariable({
       className={`flex gap-100 align-items-flex-start justify-content-space-between ${styles['variable-fieldset']}`}
     >
       <fieldset className="flex-grow-100">
-        <p style={{ marginTop: 0 }}>{variable.type}</p> {/* TODO: i18n */}
+        <p style={{ marginTop: 0 }}>{{
+          [RecipeDataTypes.Scalar]: t("components:recipe_editor.scalar"),
+          [RecipeDataTypes.DataSeries]: t("components:recipe_editor.data_series"),
+          [RecipeDataTypes.External]: t("components:recipe_editor.external_data"),
+        }[variable.type]}</p>
 
         <div className="flex gap-25 align-items-center margin-bottom-75">
           {/* Name */}
@@ -62,13 +69,16 @@ export function CommonVariable({
                 disabled: !permissions.allowValueEditing,
                 id: `variable-unit-${variableId}`,
                 name: `variable-unit-${variableId}`,
-                defaultValue: variable.unit || "",
                 placeholder: " ",
                 style: { gridRow: '1', gridColumn: '2', width: '125px' },
               }}
               options={allOurUnits.map(unit => ({ name: unit, value: unit }))}
               value={unit}
-              setter={setUnit}
+              setter={(next) => {
+                const value = typeof next === "function" ? next(unit) : next;
+                setUnit(value);
+                upsertVariable(variableId, v => ({ ...v, unit: parseUnit(value) }));
+              }}
             />
           </div>
         </div>

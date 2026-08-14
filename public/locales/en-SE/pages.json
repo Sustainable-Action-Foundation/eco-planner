@@ -2,18 +2,12 @@
   "action": {
     "action_label": "$t(common:action_one, titleCase)",
     "categories": "Categories",
-    "cost_efficiency": "Cost efficiency",
     "create_new_effect": "$t(common:new.effect)",
     "edit_action": "$t(common:edit.action)",
     "effects_label": "$t(common:effect_other, titleCase)",
     "expected_effect": "Expected $t(common:effect_other)",
-    "no_actors": "No specified actors",
     "no_category": "No specified category",
-    "no_cost_efficiency": "No specified cost efficiency",
-    "no_effect": "No specified $t(common:effect_other)",
-    "no_project_manager": "No specified project manager",
-    "project_manager": "Project manager",
-    "relevant_actors": "Relevant actors"
+    "no_effect": "No specified $t(common:effect_other)"
   },
   "action_create": {
     "bad_goal": "Could not find or do not have access to the $t(common:goal_one) in the link.",
@@ -30,8 +24,11 @@
   "actions": {
     "actions": "Actions",
     "author": "Author",
+    "clear_tag_filter": "Clear tag filter",
     "create_new_action": "$t(common:new.action)",
     "filter": "Filter",
+    "filtering_by_tag_one": "Filtering by tag:",
+    "filtering_by_tag_other": "Filtering by tags:",
     "grid": "Grid",
     "list": "List",
     "search_actions": "Search $t(common:count.action)",
@@ -84,11 +81,13 @@
     "breadcrumb": "Edit historical data"
   },
   "home": {
-    "create_roadmap": "$t(common:new.roadmap_series)",
+    "create_roadmap": "$t(common:new.roadmap)",
     "filter": "Filter",
+    "org_nav_label": "Organization views",
+    "public_tab": "All public $t(common:roadmap_other)",
     "search_roadmaps": "Search among $t(common:count.roadmap)",
-    "shown_results": "Showing {{shown}} out of {{total}} $t(common:roadmap_series, {\"count\": {{total}}})",
-    "title": "$t(common:roadmap_short_other, titleCase)"
+    "shown_results": "Showing {{shown}} out of {{total}} $t(common:roadmap, {\"count\": {{total}}})",
+    "title": "$t(common:roadmap_other, titleCase)"
   },
   "info": {
     "breadcrumb": "Information",
@@ -120,45 +119,42 @@
   "profile": {
     "handle_data": "Data management",
     "my_posts": "My posts",
-    "roadmap_series_ones": "$t(common:roadmap_series_one, titleCase)",
+    "roadmaps": "$t(common:roadmap_one, titleCase)",
     "roadmap_versions": "$t(common:roadmap_version_other, titleCase)",
     "user_posts": "{{name, possessive, titleCase}} posts",
     "version_count_one": "{{count}} version",
     "version_count_other": "{{count}} versions"
   },
-  "roadmap": {
+  "roadmap_iteration": {
     "all_actions": "All $t(common:action_other)",
     "all_goals": "All $t(common:goal_other)",
     "featured_goals": "Featured $t(common:goal_other)",
-    "show_series": "Visit $t(common:roadmap_series_one)",
+    "show_series": "Show versions",
     "title": "$t(common:roadmap_version_one, titleCase)",
     "version": "$t(common:roadmap_version_one, titleCase) (v{{version}})"
   },
-  "roadmap_create": {
-    "bad_roadmap_series": "Could not find or do not have access to $t(common:roadmap_series_definite_one) in the link.",
+  "roadmap_iteration_create": {
     "breadcrumb": "$t(common:new.roadmap_version)",
-    "information_icon_aria": "Information",
-    "title": "$t(common:new.roadmap_version)",
-    "use_dropdown": "Use the dropdown menu to select a $t(common:roadmap_series_one)."
+    "title": "$t(common:new.roadmap_version)"
   },
-  "roadmap_edit": {
-    "are_you_in_the_right_place": "Did you mean to edit the entire $t(common:roadmap_series_definite_one)? In that case, <Link>go here</Link> to edit the metadata.",
+  "roadmap_iteration_edit": {
+    "are_you_in_the_right_place": "Did you mean to edit the entire $t(common:roadmap_definite_one)? In that case, <Link>go here</Link> to edit the metadata.",
     "breadcrumb": "$t(common:edit.roadmap_version)",
     "title": "$t(common:edit.roadmap_version)"
   },
-  "roadmap_series_one": {
+  "roadmap": {
     "create_roadmap_version": "$t(common:new.roadmap_version)",
     "description_legend": "Metadata for a series of $t(common:roadmap_version_other)",
     "roadmap_versions": "$t(common:roadmap_version_other, titleCase)",
-    "title_legend": "$t(common:roadmap_series_one, titleCase)"
+    "title_legend": "$t(common:roadmap_one, titleCase)"
   },
-  "roadmap_series_one_create": {
-    "breadcrumb": "$t(common:new.roadmap_series)",
-    "title": "$t(common:new.roadmap_series)"
+  "roadmap_create": {
+    "breadcrumb": "$t(common:new.roadmap)",
+    "title": "$t(common:new.roadmap)"
   },
-  "roadmap_series_one_edit": {
+  "roadmap_edit": {
     "breadcrumb": "Edit metadata",
-    "title": "Edit metadata for $t(common:roadmap_series_definite_one): {{name}}"
+    "title": "Edit metadata for $t(common:roadmap_definite_one): {{name}}"
   },
   "signup": {
     "breadcrumb": "Create account"
@@ -171,9 +167,54 @@
     "troubleshooting_description": "Check your spam folder or fill in your email address below and click the button to receive a new email.",
     "troubleshooting_title": "Haven't received an email?"
   },
-  "verify_verify": {
+  "verify_confirm": {
     "description": "Verify your email by clicking the button below.",
     "submit": "Verify my email",
     "title": "Verify your email"
+  },
+  "org_groups": {
+    "title": "Manage organization",
+    "heading": "Manage {{org}}",
+    "description": "Groups gather members so that content can be shared with them through access grants. Deleting a group also removes its grants.",
+    "manage_groups": "Manage organization",
+    "name_label": "Group name",
+    "members_legend": "Members",
+    "create_group": "Create group",
+    "no_groups": "This organization has no groups yet.",
+    "saved_toast": "Group \"{{name}}\" saved",
+    "created_toast": "Group \"{{name}}\" created",
+    "deleted_toast": "Group \"{{name}}\" deleted",
+    "confirm_delete": "Confirm deletion",
+    "roles": {
+      "manager": "Manager",
+      "member": "Member",
+      "guest": "Guest"
+    },
+    "members_heading": "Members",
+    "groups_heading": "Groups",
+    "members_placeholder": "Select members",
+    "role_updated_toast": "Updated {{name}}'s role",
+    "member_count_one": "{{count}} member",
+    "member_count_other": "{{count}} members",
+    "invite_heading": "Invite guests",
+    "invite_description": "Guests are outside contributors: they only see what their groups are explicitly granted. The invitee gets an email with a link to join.",
+    "invite_email_label": "Email address",
+    "invite_send": "Send invite",
+    "invite_sent_toast": "Invite sent to {{email}}",
+    "invite_revoked_toast": "Invite to {{email}} revoked",
+    "invite_revoke": "Revoke",
+    "home_org": "from {{orgs}}",
+    "home_org_none": "no organization of their own"
+  },
+  "invite": {
+    "title": "Invitation",
+    "heading": "You have been invited to {{org}}",
+    "description": "This invitation lets {{email}} join {{org}} as a guest.",
+    "login_prompt": "Log in with the invited email address to accept, or create an account first if you don't have one.",
+    "login_link": "Log in",
+    "signup_link": "Create account",
+    "signup_hint": "If you sign up with the invited email address, the invitation is accepted automatically.",
+    "accept": "Join {{org}} as a guest",
+    "accepted_toast": "You are now a guest in {{org}}"
   }
 }

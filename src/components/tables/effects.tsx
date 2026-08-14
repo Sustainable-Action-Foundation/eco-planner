@@ -1,9 +1,10 @@
 'use client';
 
-import { AccessLevel } from "@/types";
-import type { Action, Effect, Goal } from "@/types";
+import type { Action, Goal } from "@/types";
+import { AccessLevel } from "@/types/enums";
 import Link from "next/link";
 import { ControlsMenu } from "../elements/controls/controls";
+import type { EffectMenuEntry } from "../elements/controls/controls";
 import { useTranslation } from "react-i18next";
 import styles from "@/components/tables/tables.module.css" with { type: "css" };
 import type { ReactNode } from "@tabler/icons-react";
@@ -34,11 +35,9 @@ export default function EffectTable({
           hasEditAccess(accessLevel ?? AccessLevel.None)
           && <span> {t("components:effects_table.wanna_create_effect")}&nbsp;
             <Link
-              href={(object as Goal).indicatorParameter !== undefined
-                ? `/effect/create?goalId=${object.id}`
-                : (object as Action).isSufficiency !== undefined
-                  ? `/effect/create?actionId=${object.id}`
-                  : '/effect/create'}
+              href={"fields" in object
+                ? `/effect/create?actionId=${object.id}`
+                : `/effect/create?goalId=${object.id}`}
             >
               {t("components:effects_table.create_new_effect")}
             </Link>
@@ -57,13 +56,13 @@ export default function EffectTable({
         if (!action && !goal) return null;
 
         return (
-          <li key={`${effect.actionId}_${effect.goalId}`} className="margin-block-75">
+          <li key={`${effect.action_id}_${effect.goal_id}`} className="margin-block-75">
             <div className='flex justify-content-space-between align-items-center width-100'>
               <IconCaretRightFilled fill="lightgray" aria-hidden="true" className="margin-inline-25 padding-25" style={{ minWidth: '24px' }} />
               <Link
-                href={(object as Action).isSufficiency !== undefined
-                  ? `/goal/${effect.goalId}`
-                  : `/action/${effect.actionId}`
+                href={"fields" in object
+                  ? `/goal/${effect.goal_id}`
+                  : `/action/${effect.action_id}`
                 }
                 className="font-weight-500 color-pureblack text-decoration-none flex-grow-100 inline-block padding-25 smooth">
                 <span>
@@ -71,21 +70,24 @@ export default function EffectTable({
                     action?.name
                     ?? (
                       goal?.name
-                      || goal?.indicatorParameter
+                      || goal?.indicator_parameter
                     )
                     ?? t("components:effects_table.effect_missing_name")
                   }
                 </span>
                 <br />
                 {
-                  action?.startYear && action?.endYear
-                    ? <small className="color-gray">{action?.startYear} - {action?.endYear}</small>
+                  action?.start_year && action?.end_year
+                    ? <small className="color-gray">{action?.start_year} - {action?.end_year}</small>
                     : null
                 }
               </Link>
               <ControlsMenu
                 accessLevel={accessLevel}
-                object={effect as Effect} // TODO: Fix typing
+                // The embedded effect carries everything ControlsMenu reads at runtime,
+                // but action/goal-embedded effects each expose only their counterpart
+                // relation, so we assert the menu-entry shape directly.
+                object={effect as unknown as EffectMenuEntry}
               />
             </div>
           </li>

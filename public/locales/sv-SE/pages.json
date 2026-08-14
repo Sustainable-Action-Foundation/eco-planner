@@ -2,18 +2,12 @@
   "action": {
     "action_label": "$t(common:action_one, titleCase)",
     "categories": "Kategorier",
-    "cost_efficiency": "Kostnadseffektivitet",
     "create_new_effect": "$t(common:new.effect)",
     "edit_action": "$t(common:edit.action)",
     "effects_label": "$t(common:effect_other, titleCase)",
     "expected_effect": "Förväntad $t(common:effect_one)",
-    "no_actors": "Inga angivna aktörer",
     "no_category": "Ingen angiven kategori",
-    "no_cost_efficiency": "Ingen angiven kostnadseffektivitet",
-    "no_effect": "Ingen angiven $t(common:effect_one)",
-    "no_project_manager": "Ingen angiven projektledare",
-    "project_manager": "Projektledare",
-    "relevant_actors": "Relevanta aktörer"
+    "no_effect": "Ingen angiven $t(common:effect_one)"
   },
   "action_create": {
     "bad_goal": "Kunde inte hitta, eller har inte tillgång till, $t(common:goal_definite_one) i länken.",
@@ -30,8 +24,11 @@
   "actions": {
     "actions": "Åtgärder",
     "author": "Skapare",
+    "clear_tag_filter": "Rensa taggfiltret",
     "create_new_action": "$t(common:new.action)",
     "filter": "Filter",
+    "filtering_by_tag_one": "Filtrerar på tagg:",
+    "filtering_by_tag_other": "Filtrerar på taggar:",
     "grid": "Rutnät",
     "list": "Lista",
     "search_actions": "Sök bland $t(common:count.action)",
@@ -81,11 +78,13 @@
     "title": "$t(common:edit.goal): {{goalName}}"
   },
   "home": {
-    "create_roadmap": "$t(common:new.roadmap_series)",
+    "create_roadmap": "$t(common:new.roadmap)",
     "filter": "Filter",
+    "org_nav_label": "Organisationsvyer",
+    "public_tab": "Alla publika $t(common:roadmap_other)",
     "search_roadmaps": "Sök bland $t(common:count.roadmap)",
-    "shown_results": "Visar {{shown}} av {{total}} $t(common:roadmap_series, {\"count\": {{total}}})",
-    "title": "$t(common:roadmap_short_other, titleCase)"
+    "shown_results": "Visar {{shown}} av {{total}} $t(common:roadmap, {\"count\": {{total}}})",
+    "title": "$t(common:roadmap_other, titleCase)"
   },
   "historical_data": {
     "breadcrumb": "Redigera historisk data"
@@ -120,45 +119,42 @@
   "profile": {
     "handle_data": "Hantera min data",
     "my_posts": "Mina inlägg",
-    "roadmap_series_ones": "$t(common:roadmap_series_other, titleCase)",
+    "roadmaps": "$t(common:roadmap_other, titleCase)",
     "roadmap_versions": "$t(common:roadmap_version_other, titleCase)",
     "user_posts": "{{name, possessive, titleCase}} inlägg",
     "version_count_one": "{{count}} version",
     "version_count_other": "{{count}} versioner"
   },
-  "roadmap": {
+  "roadmap_iteration": {
     "all_actions": "Alla $t(common:action_other)",
     "all_goals": "Alla $t(common:goal_other)",
     "featured_goals": "Utvalda $t(common:goal_other)",
-    "show_series": "Besök $t(common:roadmap_series_one)",
+    "show_series": "Visa versioner",
     "title": "$t(common:roadmap_version_one, titleCase)",
     "version": "$t(common:roadmap_version_one, titleCase) (v{{version}})"
   },
-  "roadmap_create": {
-    "bad_roadmap_series": "Kunde inte hitta, eller har inte tillgång till, $t(common:roadmap_series_definite_one) i länken.",
+  "roadmap_iteration_create": {
     "breadcrumb": "$t(common:new.roadmap_version)",
-    "information_icon_aria": "Information",
-    "title": "$t(common:new.roadmap_version)",
-    "use_dropdown": "Använd dropdown-menyn för att välja en $t(common:roadmap_series_one)."
+    "title": "$t(common:new.roadmap_version)"
   },
-  "roadmap_edit": {
-    "are_you_in_the_right_place": "Ville du redigera den gemensamma metadatan för hela $t(common:roadmap_series_definite_one)? I så fall kan du <Link>gå hit</Link> för att redigera metadatan.",
+  "roadmap_iteration_edit": {
+    "are_you_in_the_right_place": "Ville du redigera den gemensamma metadatan för hela $t(common:roadmap_definite_one)? I så fall kan du <Link>gå hit</Link> för att redigera metadatan.",
     "breadcrumb": "$t(common:edit.roadmap_version)",
     "title": "$t(common:edit.roadmap_version)"
   },
-  "roadmap_series_one": {
+  "roadmap": {
     "create_roadmap_version": "$t(common:new.roadmap_version)",
     "description_legend": "Metadata för en serie av $t(common:roadmap_version_other)",
     "roadmap_versions": "$t(common:roadmap_version_other, titleCase)",
-    "title_legend": "$t(common:roadmap_series_one, titleCase)"
+    "title_legend": "$t(common:roadmap_one, titleCase)"
   },
-  "roadmap_series_one_create": {
-    "breadcrumb": "$t(common:new.roadmap_series)",
-    "title": "$t(common:new.roadmap_series)"
+  "roadmap_create": {
+    "breadcrumb": "$t(common:new.roadmap)",
+    "title": "$t(common:new.roadmap)"
   },
-  "roadmap_series_one_edit": {
+  "roadmap_edit": {
     "breadcrumb": "Redigera metadata",
-    "title": "Redigera metadata för $t(common:roadmap_series_definite_one): {{name}}"
+    "title": "Redigera metadata för $t(common:roadmap_definite_one): {{name}}"
   },
   "signup": {
     "breadcrumb": "Skapa konto"
@@ -171,9 +167,54 @@
     "troubleshooting_description": "Kolla i din skräppost eller fyll i din e‑postadress nedan och klicka på knappen för att få ett nytt e‑postmeddelande.",
     "troubleshooting_title": "Har du inte fått något meddelande?"
   },
-  "verify_verify": {
+  "verify_confirm": {
     "description": "Verifiera din e‑postadress genom att klicka på knappen nedan.",
     "submit": "Verifiera min e‑postadress",
     "title": "Verifiera din e‑postadress"
+  },
+  "org_groups": {
+    "title": "Hantera organisation",
+    "heading": "Hantera {{org}}",
+    "description": "Grupper samlar medlemmar så att innehåll kan delas med dem genom åtkomstbehörigheter. Om en grupp tas bort försvinner även dess behörigheter.",
+    "manage_groups": "Hantera organisation",
+    "name_label": "Gruppnamn",
+    "members_legend": "Medlemmar",
+    "create_group": "Skapa grupp",
+    "no_groups": "Organisationen har inga grupper ännu.",
+    "saved_toast": "Gruppen \"{{name}}\" sparades",
+    "created_toast": "Gruppen \"{{name}}\" skapades",
+    "deleted_toast": "Gruppen \"{{name}}\" togs bort",
+    "confirm_delete": "Bekräfta borttagning",
+    "roles": {
+      "manager": "Ansvarig",
+      "member": "Medlem",
+      "guest": "Gäst"
+    },
+    "members_heading": "Medlemmar",
+    "groups_heading": "Grupper",
+    "members_placeholder": "Välj medlemmar",
+    "role_updated_toast": "{{name}}s roll uppdaterades",
+    "member_count_one": "{{count}} medlem",
+    "member_count_other": "{{count}} medlemmar",
+    "invite_heading": "Bjud in gäster",
+    "invite_description": "Gäster är externa medarbetare: de ser bara det som deras grupper uttryckligen fått tillgång till. Den inbjudna får ett mejl med en länk för att gå med.",
+    "invite_email_label": "E-postadress",
+    "invite_send": "Skicka inbjudan",
+    "invite_sent_toast": "Inbjudan skickad till {{email}}",
+    "invite_revoked_toast": "Inbjudan till {{email}} återkallades",
+    "invite_revoke": "Återkalla",
+    "home_org": "från {{orgs}}",
+    "home_org_none": "ingen egen organisation"
+  },
+  "invite": {
+    "title": "Inbjudan",
+    "heading": "Du har blivit inbjuden till {{org}}",
+    "description": "Den här inbjudan låter {{email}} gå med i {{org}} som gäst.",
+    "login_prompt": "Logga in med den inbjudna e-postadressen för att tacka ja, eller skapa ett konto först om du inte har något.",
+    "login_link": "Logga in",
+    "signup_link": "Skapa konto",
+    "signup_hint": "Om du registrerar dig med den inbjudna e-postadressen godkänns inbjudan automatiskt.",
+    "accept": "Gå med i {{org}} som gäst",
+    "accepted_toast": "Du är nu gäst i {{org}}"
   }
 }

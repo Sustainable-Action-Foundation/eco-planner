@@ -1,6 +1,7 @@
 'use client';
 
-import { isRecipe, RecipeDataTypes } from "@/functions/recipe/types";
+import { RecipeDataTypes } from "@/functions/recipe/types/enums";
+import { isRecipe } from "@/functions/recipe/types/typeguards";
 import { useTranslation } from "react-i18next";
 import { useRecipe } from "../context/recipeContext.use";
 import { VariableTypeScalarSimple } from "../editor/variables/scalarVariable";
@@ -8,11 +9,12 @@ import { DataSeriesVariableSimpleEditor } from "../editor/variables/dataSeriesVa
 import { VariableTypeExternalSimple } from "../editor/variables/externalVariable";
 import { useEffect, useMemo, useState } from "react";
 import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";
-import { IconAlertTriangleFilled } from "@tabler/icons-react";
-import { RecipeEditorPermissions } from "../editor/recipeEditorPermissions";
-import type { ClientRoadmap, DBRecipe } from "@/types";
+import { isUnitFlag } from "@/functions/unit";
+import { IconAlertTriangleFilled, IconInfoCircle } from "@tabler/icons-react";
+import type { ClientRoadmapIteration, DBRecipe } from "@/types";
+import { RecipeEditorPermissions } from "@/types/consts";
 import { Recipe } from "@/functions/recipe/recipe";
-import { CombinedStatusDisplay, getDefaultSuggestedRecipes, TextStatus } from "@/components/recipe";
+import { getDefaultSuggestedRecipes, TextStatus } from "@/components/recipe";
 import styles from "../recipe.module.css" with {type: "css"};
 import { getRecipeRoadmapData } from "../context/roadmapDataCache";
 
@@ -30,7 +32,7 @@ export function SuggestedRecipeApplier({
   const { recipe, applyRecipeUpdate, clearRecipe } = useRecipe();
 
   const [availableDataSeries, setAvailableDataSeries] = useState<{ id: string; name: string; }[]>([]);
-  const [roadmapLookup, setRoadmapLookup] = useState<Record<string, ClientRoadmap>>({});
+  const [roadmapLookup, setRoadmapLookup] = useState<Record<string, ClientRoadmapIteration>>({});
   const [dataSeriesNamesById, setDataSeriesNamesById] = useState<Record<string, string>>({});
   const [selectedRecipeId, setSelectedRecipeId] = useState<string>("");
   const suggestedRecipes = useMemo(() => autoInsertDefaultSuggestions
@@ -47,7 +49,7 @@ export function SuggestedRecipeApplier({
         setAvailableDataSeries(
           roadmaps.map((roadmap) => ({
             id: roadmap.id,
-            name: t("common:roadmap_version_name", { name: roadmap.metaRoadmap.name, version: roadmap.version }),
+            name: t("common:roadmap_version_name", { name: roadmap.roadmap.name, version: roadmap.version }),
           })),
         );
 
@@ -56,10 +58,10 @@ export function SuggestedRecipeApplier({
         setDataSeriesNamesById(
           Object.values(roadmapLookup).reduce((acc, roadmap) => {
             for (const goal of roadmap.goals) {
-              const goalDisplayName = goal.name || goal.indicatorParameter;
+              const goalDisplayName = goal.name || goal.indicator_parameter;
 
-              if (goal.dataSeries) {
-                acc[goal.dataSeries.id] = goalDisplayName;
+              if (goal.data_series) {
+                acc[goal.data_series.id] = goalDisplayName;
               }
 
               if (goal.baseline) {
@@ -67,8 +69,8 @@ export function SuggestedRecipeApplier({
               }
 
               for (const effect of goal.effects) {
-                if (!effect.dataSeries) continue;
-                acc[effect.dataSeries.id] = `${goalDisplayName} - ${t("common:effect_one")}`;
+                if (!effect.data_series) continue;
+                acc[effect.data_series.id] = `${goalDisplayName} - ${t("common:effect_one")}`;
               }
             }
 
@@ -76,14 +78,14 @@ export function SuggestedRecipeApplier({
           }, {} as Record<string, string>),
         );
       }
-      catch (e) {
-        console.error("Failed to fetch roadmaps", e);
+      catch (err) {
+        console.error("Failed to fetch roadmaps", err);
       }
     }
 
     fetchRoadmaps()
-      .catch((e: unknown) => {
-        const errorMessage = e instanceof Error ? e.message : String(e);
+      .catch((err: unknown) => {
+        const errorMessage = err instanceof Error ? err.message : String(err);
         console.error("Failed to fetch roadmaps", errorMessage);
       });
   }, [t]);
@@ -121,8 +123,8 @@ export function SuggestedRecipeApplier({
     }
 
     applyRecipeUpdate(parsedRecipe)
-      .catch((e: unknown) => {
-        const errorMessage = e instanceof Error ? e.message : String(e);
+      .catch((err: unknown) => {
+        const errorMessage = err instanceof Error ? err.message : String(err);
         console.error("Failed to set recipe from suggestion", errorMessage);
         clearRecipe();
       });
@@ -130,11 +132,12 @@ export function SuggestedRecipeApplier({
 
   return (<>
     {/* Select which suggested recipe to use */}
-    {/* TODO: Might be reasonable if this is a fieldset where this label is the legend? */}
-    <label className="flex gap-50 margin-bottom-100 margin-top-25 align-items-center">
-      {t("components:recipe_editor.suggested_recipe_label")}:
+    <label>
+      {t("components:recipe_editor.suggested_recipe_label")}
       <select
+        className="block margin-top-25 width-100"
         id="select-preset"
+        required={true}
         value={selectedRecipeId}
         onChange={handleChange}
       >
@@ -146,101 +149,107 @@ export function SuggestedRecipeApplier({
         ))}
       </select>
     </label>
-
+    {recipe.equation ? 
+      <small className="flex gap-25 align-items-center margin-top-25 margin-bottom-100" >
+        <IconInfoCircle width={20} height={20} style={{ minWidth: '20px' }} aria-hidden="true" />
+        {`${t("components:recipe_editor.equation")}: ${recipe.equation}`}
+      </small>
+    : null }
 
     {/* TODO: Look into using an ordered list for this. */}
-
+    {/* TODO: Everything should probably be required */}
     {/* Select of available recipes */}
-    <ul
-      className="grid gap-50 padding-left-100 align-items-center"
-      style={{
-        gridTemplateColumns: 'auto auto 1fr',
-        gridTemplateRows: 'auto auto',
-      }}
-    >
-      {(recipe?.variables ?? []).map(variable => {
-        const variableId = variable.id;
-        const variableDisplayName = variable.name;
-        const unitIsProvided = typeof variable.unit !== "undefined" && variable.unit !== null;
-        const isValidUnit = unitIsProvided ? isMathjsUnit(variable.unit as string) : false;
-        const unitDisplay = isValidUnit
-          ? ` [${variable.unit}]`
-          : unitIsProvided && variable.unit !== ''
-            ? <span className="inline">
-              {" ["}
-              {variable.unit}
-              <IconAlertTriangleFilled
-                width={16} height={16}
-                style={{ minWidth: '16px', marginBottom: '-3px', marginLeft: '1px' }}
-                color="darkorange"
-                aria-label={t("components:copy_and_scale.evaluation_warning_title")} // TODO: Check this translation
-              />
-              {"]"}
-            </span>
-            : '';
-
-        switch (variable.type) {
-          case RecipeDataTypes.Scalar: {/* TODO: Fix these labels */ }
-            return (
-              <li key={variableId} className={`${styles["variable"]} ${!variable.template ? styles["variable-selected"] : ""}`}>
-                <label className="margin-right-150 margin-left-25">
-                  {variableDisplayName}{unitDisplay}:
-                </label>
-                <VariableTypeScalarSimple
-                  variableId={variableId}
-                  permissions={permissions}
-                  props={{
-                    defaultValue: variable.value,
-                  }}
+    {recipe?.variables.length > 0 &&
+      <ul
+        className="grid gap-50 padding-left-100 align-items-center"
+        style={{
+          gridTemplateColumns: 'auto auto 1fr',
+          gridTemplateRows: 'auto auto',
+        }}
+      >
+        {(recipe?.variables ?? []).map(variable => {
+          const variableId = variable.id;
+          const variableDisplayName = variable.name;
+          const unitIsProvided = !isUnitFlag(variable.unit);
+          const isValidUnit = unitIsProvided ? isMathjsUnit(variable.unit) : false;
+          const unitDisplay = isValidUnit
+            ? ` [${variable.unit}]`
+            : unitIsProvided
+              ? <span className="inline">
+                {" ["}
+                {variable.unit}
+                <IconAlertTriangleFilled
+                  width={16} height={16}
+                  style={{ minWidth: '16px', marginBottom: '-3px', marginLeft: '1px' }}
+                  color="darkorange"
+                  aria-label={t("components:recipe_editor.evaluation_warning_title")}
                 />
-              </li>
-            );
+                {"]"}
+              </span>
+              : '';
 
-          case RecipeDataTypes.DataSeries:
-            return (
-              <li key={variableId} className={`${styles["variable"]} ${!variable.template ? styles["variable-selected"] : ""}`}>
-                <label className="margin-right-150 margin-left-25">
-                  {variableDisplayName}{unitDisplay}:
-                </label>
-                <DataSeriesVariableSimpleEditor
-                  variableId={variableId}
-                  availableDataSeries={availableDataSeries}
-                  roadmapLookup={roadmapLookup}
-                  dataSeriesNamesById={dataSeriesNamesById}
-                  permissions={{ ...permissions }}
-                />
-              </li>
-            );
+          switch (variable.type) {
+            case RecipeDataTypes.Scalar: {// TODO: Fix these labels
+              return (
+                <li key={variableId} className={`${styles["variable"]} ${!variable.template ? styles["variable-selected"] : ""}`}>
+                  <label className="margin-right-150 margin-left-25">
+                    {variableDisplayName}{unitDisplay}:
+                  </label>
+                  <VariableTypeScalarSimple
+                    variableId={variableId}
+                    permissions={permissions}
+                    props={{
+                      defaultValue: variable.value,
+                    }}
+                  />
+                </li>
+              );
+            }
+            case RecipeDataTypes.DataSeries: {
+              return (
+                <li key={variableId} className={`${styles["variable"]} ${!variable.template ? styles["variable-selected"] : ""}`}>
+                  <label className="margin-right-150 margin-left-25">
+                    {variableDisplayName}{unitDisplay}:
+                  </label>
+                  <DataSeriesVariableSimpleEditor
+                    variableId={variableId}
+                    availableDataSeries={availableDataSeries}
+                    roadmapLookup={roadmapLookup}
+                    dataSeriesNamesById={dataSeriesNamesById}
+                    permissions={{ ...permissions }}
+                  />
+                </li>
+              );
+            }
+            case RecipeDataTypes.External: {
+              return (
+                <li key={variableId} className={`${styles["variable"]} ${!variable.template ? styles["variable-selected"] : ""}`}>
+                  <label className="margin-right-150 margin-left-25">
+                    {variableDisplayName}{unitDisplay}:
+                  </label>
+                  <VariableTypeExternalSimple
+                    variableId={variableId}
+                    permissions={permissions}
+                  />
+                </li>
+              );
+            }
+            default: {
+              console.warn("Unknown variable type for variable", { variable });
+              return (
+                <p key={variableId}>
+                  {variableDisplayName}: {t("components:recipe_editor.unknown_variable_type")}
+                </p>
+              );
+            }
+          }
+        })}
+      </ul>
+    }
 
-          case RecipeDataTypes.External:
-            return (
-              <li key={variableId} className={`${styles["variable"]} ${!variable.template ? styles["variable-selected"] : ""}`}>
-                <label className="margin-right-150 margin-left-25">
-                  {variableDisplayName}{unitDisplay}:
-                </label>
-                <VariableTypeExternalSimple
-                  variableId={variableId}
-                  permissions={permissions}
-                />
-              </li>
-            );
-
-          default:
-            console.warn("Unknown variable type for variable", { variable });
-            return (
-              <p key={variableId}>
-                {variableDisplayName}: {t("components:recipe_editor.unknown_variable_type")}
-              </p>
-            );
-        }
-      })}
-    </ul>
-
-    {!!selectedRecipeId && <>
+    {!!selectedRecipeId &&
       <TextStatus showAllGood={false} />
-
-      <CombinedStatusDisplay />
-    </>}
+    }
   </>
   );
 }

@@ -1,17 +1,8 @@
 import type { IronSession, SessionOptions } from "iron-session";
 import { getIronSession } from "iron-session";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import type { LoginData } from "@/types";
 
-// The information we store in our cookie
-export type LoginData = {
-  user?: {
-    id: string;
-    username: string;
-    isLoggedIn?: boolean;
-    isAdmin?: boolean;
-    userGroups: string[];
-  };
-}
 
 // Config stuff for Iron-Session
 export const options: SessionOptions = {

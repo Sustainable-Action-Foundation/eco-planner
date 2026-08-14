@@ -2,17 +2,21 @@
 
 !prisma/
 prisma/generated/
-# seeding script + types.ts reference a few files in src/
-!src/fetchers/
+
+# Seeding script + types.ts reference a few files in src/
 !src/functions/
 !src/lib/
 !src/types/
 !scripts/lib/
 !scripts/prisma/
 
+# Configs
 !package.json
+!.yarn/patches/
 !prisma.config.ts
 !src/math.ts
 !tsconfig.json
 !yarn.lock
 !.yarnrc.yml
+# Imported (as @root/i18n.config) by src/functions/actionFields.ts in the seed graph
+!i18n.config.ts

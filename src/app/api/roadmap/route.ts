@@ -1,207 +1,66 @@
 import type { NextRequest } from "next/server";
-import { getSession } from "@/lib/session";
-import { prisma } from "@/lib/prisma";
-import { Prisma } from "@PRISMA-NAMESPACE-ONLY";
-import { AccessLevel, ClientError, isGoalCreate } from "@/types";
-import type { AccessControlled, JSONValue, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
-import roadmapGoalCreator from "./roadmapGoalCreator";
-import accessChecker from "@/lib/accessChecker";
-import { revalidateTag } from "next/cache";
+import { getAccessContextById } from "@/fetchers/getUserAccessContext";
+import { accessControlSelection } from "@/fetchers/inclusionSelectors";
 import pruneOrphans from "@/functions/pruneOrphans";
-import { cookies } from "next/headers";
+import accessChecker, { hasAdminAccess, hasEditAccess, hasViewAccess } from "@/lib/accessChecker";
 import serveTea from "@/lib/i18nServer";
+import { prisma } from "@/lib/prisma";
+import { AccessLevel as GrantLevel, OrgRole, RoadmapType } from "@/lib/prisma/generated";
+import { Prisma } from "../../../../prisma/generated/client";
+import { getSession } from "@/lib/session";
+import type { AccessControlInput, UserAccessContext, JSONValue } from "@/types";
+import { ClientError } from "@/types/consts";
+import { isRoadmapCreate, isRoadmapUpdate } from "@/types/typeguards";
+import { revalidateTag } from "next/cache";
+import { cookies } from "next/headers";
 
-// Type guards
-function isRoadmapCreate(roadmap: JSONValue): roadmap is RoadmapCreateInput {
-  return (
-    (
-      typeof roadmap === 'object' &&
-      roadmap !== null &&
-      !Array.isArray(roadmap)
-    ) &&
+/**
+ * Validates sharing settings against the owning org and builds the values to store.
+ * Returns null (plus a message) when the input is invalid.
+ *
+ * `isPublic` is only honored for users with admin access to the org's content
+ * (org managers and super admins); for everyone else it stays false.
+ */
+async function resolveAccessInput(
+  access: AccessControlInput | undefined,
+  orgId: string,
+  accessContext: UserAccessContext,
+  creatorMustKeepEditAccess: boolean,
+): Promise<{ ok: true, isPublic: boolean, orgReadable: boolean, grants: { group_id: string, access_level: GrantLevel }[] } | { ok: false, message: string }> {
+  const isOrgAdmin = accessContext.isSuperAdmin
+    || accessContext.memberships.some(membership => membership.orgId === orgId && membership.role === OrgRole.MANAGER);
 
-    // description: string | null | undefined;
-    (
-      typeof roadmap.description === 'string' ||
-      roadmap.description === null ||
-      roadmap.description === undefined
-    ) &&
+  const isPublic = (access?.isPublic ?? false) && isOrgAdmin;
+  const orgReadable = access?.orgReadable ?? true;
+  const grants = (access?.grants ?? []).map(grant => ({ group_id: grant.groupId, access_level: grant.accessLevel }));
 
-    // targetVersion: number | null | undefined;
-    (
-      typeof roadmap.targetVersion === 'number' ||
-      roadmap.targetVersion === null ||
-      roadmap.targetVersion === undefined
-    ) &&
+  // Every granted group must belong to the owning org (the composite FK would also
+  // reject this at insert, but check upfront for a clear error message)
+  const groupIds = [...new Set(grants.map(grant => grant.group_id))];
+  if (groupIds.length !== grants.length) {
+    return { ok: false, message: 'Duplicate groups in grants' };
+  }
+  if (groupIds.length > 0) {
+    const matching = await prisma.groups.count({ where: { id: { in: groupIds }, org_id: orgId } });
+    if (matching !== groupIds.length) {
+      return { ok: false, message: 'All granted groups must belong to the owning org' };
+    }
+  }
 
-    // isPublic: boolean | undefined;
-    (
-      typeof roadmap.isPublic === 'boolean' ||
-      roadmap.isPublic === undefined
-    ) &&
+  // A non-manager creator must keep edit access to their own creation via an RW grant
+  if (creatorMustKeepEditAccess && !isOrgAdmin) {
+    const userGroupIds = new Set(accessContext.memberships.flatMap(membership => membership.groupIds));
+    const keepsEditAccess = grants.some(grant => grant.access_level === GrantLevel.RW && userGroupIds.has(grant.group_id));
+    if (!keepsEditAccess) {
+      return { ok: false, message: 'Sharing settings must include a read-write grant for a group you belong to, so you can keep editing the roadmap' };
+    }
+  }
 
-    // metaRoadmapId: string;
-    (
-      typeof roadmap.metaRoadmapId === 'string'
-    ) &&
-
-    // goals: GoalCreateInput[] | null | undefined;
-    (
-      roadmap.goals === null ||
-      roadmap.goals === undefined ||
-      (
-        // check if array of GoalCreateInput
-        Array.isArray(roadmap.goals) &&
-        roadmap.goals.every((goal) =>
-          isGoalCreate(goal),
-        )
-      )
-    ) &&
-
-    // editors: string[] | null | undefined;
-    (
-      roadmap.editors === null ||
-      roadmap.editors === undefined ||
-      (
-        Array.isArray(roadmap.editors) &&
-        roadmap.editors.every(name => typeof name === 'string')
-      )
-    ) &&
-
-    // viewers: string[] | null | undefined;
-    (
-      roadmap.viewers === null ||
-      roadmap.viewers === undefined ||
-      (
-        Array.isArray(roadmap.viewers) &&
-        roadmap.viewers.every(name => typeof name === 'string')
-      )
-    ) &&
-
-    // editGroups: string[] | null | undefined;
-
-    (
-      roadmap.editGroups === null ||
-      roadmap.editGroups === undefined ||
-      (
-        Array.isArray(roadmap.editGroups) &&
-        roadmap.editGroups.every(group => typeof group === 'string')
-      )
-    ) &&
-
-    // viewGroups: string[] | null | undefined;
-    (
-      roadmap.viewGroups === null ||
-      roadmap.viewGroups === undefined ||
-      (
-        Array.isArray(roadmap.viewGroups) &&
-        roadmap.viewGroups.every(group => typeof group === 'string')
-      )
-    )
-
-    // links are deprecated and not checked
-  );
-}
-
-function isRoadmapUpdate(roadmap: JSONValue): roadmap is RoadmapUpdateInput {
-  return (
-    (
-      typeof roadmap === 'object' &&
-      roadmap !== null &&
-      !Array.isArray(roadmap)
-    ) &&
-
-    // roadmapId: string;
-    (
-      typeof roadmap.roadmapId === 'string'
-    ) &&
-
-    // timestamp: number;
-    // Used to check for stale data
-    (
-      typeof roadmap.timestamp === 'number'
-    ) &&
-
-    // description: string | null | undefined;
-    (
-      typeof roadmap.description === 'string' ||
-      roadmap.description === null ||
-      roadmap.description === undefined
-    ) &&
-
-    // targetVersion: number | null | undefined;
-    (
-      typeof roadmap.targetVersion === 'number' ||
-      roadmap.targetVersion === null ||
-      roadmap.targetVersion === undefined
-    ) &&
-
-    // isPublic: boolean | undefined;
-    (
-      typeof roadmap.isPublic === 'boolean' ||
-      roadmap.isPublic === undefined
-    ) &&
-
-    // goals: GoalCreateInput[] | null | undefined;
-    (
-      roadmap.goals === null ||
-      roadmap.goals === undefined ||
-      (
-        // check if array of GoalCreateInput
-        Array.isArray(roadmap.goals) &&
-        roadmap.goals.every((goal) =>
-          isGoalCreate(goal),
-        )
-      )
-    ) &&
-
-    // editors: string[] | null | undefined;
-    (
-      roadmap.editors === null ||
-      roadmap.editors === undefined ||
-      (
-        Array.isArray(roadmap.editors) &&
-        roadmap.editors.every(name => typeof name === 'string')
-      )
-    ) &&
-
-    // viewers: string[] | null | undefined;
-    (
-      roadmap.viewers === null ||
-      roadmap.viewers === undefined ||
-      (
-        Array.isArray(roadmap.viewers) &&
-        roadmap.viewers.every(name => typeof name === 'string')
-      )
-    ) &&
-
-    // editGroups: string[] | null | undefined;
-
-    (
-      roadmap.editGroups === null ||
-      roadmap.editGroups === undefined ||
-      (
-        Array.isArray(roadmap.editGroups) &&
-        roadmap.editGroups.every(group => typeof group === 'string')
-      )
-    ) &&
-
-    // viewGroups: string[] | null | undefined;
-    (
-      roadmap.viewGroups === null ||
-      roadmap.viewGroups === undefined ||
-      (
-        Array.isArray(roadmap.viewGroups) &&
-        roadmap.viewGroups.every(group => typeof group === 'string')
-      )
-    )
-
-    // links are deprecated and not checked
-  );
+  return { ok: true, isPublic, orgReadable, grants };
 }
 
 /**
- * Handles POST requests to the roadmap API
+ * Handles POST requests to the roadmap API (the top level owning access control and iterations)
  */
 export async function POST(request: NextRequest) {
   const [session, roadmap] = await Promise.all([
@@ -217,61 +76,66 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Validate request body
   if (!isRoadmapCreate(roadmap)) {
-    return Response.json({ message: t('api:common.invalid_request_body') },
+    return Response.json({ message: t('api:common.missing_input') },
       { status: 400 },
     );
   }
 
-  let originalAuthor: { id: string, username: string };
+  // If given roadmap type is invalid or undefined, set it to OTHER
+  roadmap.type ??= RoadmapType.OTHER;
+  if (!(roadmap.type in RoadmapType)) {
+    roadmap.type = RoadmapType.OTHER;
+  }
 
+  let accessContext: UserAccessContext;
   try {
-    // Get user and parent roadmap
-    const [user, metaRoadmap] = await Promise.all([
-      prisma.user.findUnique({
-        where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true },
-      }),
-      prisma.metaRoadmap.findUnique({
-        where: { id: roadmap.metaRoadmapId },
-        include: {
-          author: { select: { id: true, username: true } },
-          editors: { select: { id: true, username: true } },
-          viewers: { select: { id: true, username: true } },
-          editGroups: { include: { users: { select: { id: true, username: true } } } },
-          viewGroups: { include: { users: { select: { id: true, username: true } } } },
-        },
-      }),
+    const [fetchedContext, targetRoadmap] = await Promise.all([
+      getAccessContextById(session.user.id),
+      ...(
+        roadmap.parentRoadmapId ?
+          [
+            prisma.roadmaps.findUnique({
+              where: { id: roadmap.parentRoadmapId },
+              select: { access_control: { select: accessControlSelection } },
+            }),
+          ] :
+          []
+      ),
     ]);
-    // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
-    if (!user || (session.user.isAdmin && !user.isAdmin)) {
+    // If no user is found or the found user falsely claims to be a super admin, they have a bad session cookie and should be logged out
+    if (!fetchedContext || (session.user.isSuperAdmin && !fetchedContext.isSuperAdmin)) {
       throw new Error(ClientError.BadSession, { cause: 'roadmap' });
     }
+    accessContext = fetchedContext;
 
-    // Check if the parent roadmap exists and the user has access to it
-    if (!metaRoadmap) {
-      throw new Error(ClientError.IllegalParent, { cause: 'roadmap' });
+    // The user must be a non-guest member of the org that will own the roadmap (super admins are exempt)
+    const membership = accessContext.memberships.find(m => m.orgId === roadmap.orgId);
+    if (!accessContext.isSuperAdmin && (!membership || membership.role === OrgRole.GUEST)) {
+      throw new Error(ClientError.AccessDenied, { cause: 'roadmap' });
     }
-    originalAuthor = metaRoadmap.author;
-    const accessFields: AccessControlled = {
-      author: metaRoadmap.author,
-      editors: metaRoadmap.editors,
-      viewers: metaRoadmap.viewers,
-      editGroups: metaRoadmap.editGroups,
-      viewGroups: metaRoadmap.viewGroups,
-      isPublic: metaRoadmap.isPublic,
-    };
-    const accessLevel = accessChecker(accessFields, session.user);
-    if (accessLevel === AccessLevel.None || accessLevel === AccessLevel.View) {
-      throw new Error(ClientError.IllegalParent, { cause: 'roadmap' });
+
+    // Get the target roadmap (if any) to check if the user has access to it
+    if (roadmap.parentRoadmapId) {
+      // For now, being able to view a roadmap is enough to create a new one working towards it.
+      if (!targetRoadmap || !hasViewAccess(accessChecker(targetRoadmap, accessContext))) {
+        throw new Error(ClientError.IllegalParent, { cause: 'roadmap' });
+      }
     }
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === ClientError.BadSession) {
+  }
+  catch (err) {
+    if (err instanceof Error) {
+      if (err.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } },
+        );
+      }
+      if (err.message === ClientError.AccessDenied) {
+        return Response.json({ message: ClientError.AccessDenied },
+          { status: 403 },
         );
       }
       return Response.json({ message: ClientError.IllegalParent },
@@ -279,107 +143,67 @@ export async function POST(request: NextRequest) {
       );
     } else {
       // If non-error is thrown, log it and return a generic error message
-      console.error(error);
+      console.error(err);
       return Response.json({ message: t('api:common.unknown_server_error') },
         { status: 500 },
       );
     }
   }
 
-  // TODO: reevaluate this. Should use recipe based system
-  // If a parent roadmap is defined to be inherited from, append its goals to the new roadmap's goals
-  // if (roadmap.inheritFromIds?.length) {
-  //   return Response.json({ message: 'This feature is no longer supported' }, { status: 500 });
-  //   try {
-  //     const goalArray = await Promise.all(roadmap.inheritFromIds.map(async (id) => await getOneGoal(id)));
-  //     //getOneRoadmap(roadmap.inheritFromId);
-  //     if (goalArray) {
-  //       roadmap.goals = [...(roadmap.goals || []), ...goalInputFromGoalArray(goalArray, roadmap.metaRoadmapId)];
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //     return Response.json({ message: 'Failed to fetch roadmap to inherit from' },
-  //       { status: 400 }
-  //     );
-  //   }
-  // }
-
-  // Get the highest existing version number for this meta roadmap, defaulting to 0
-  let latestVersion: number;
-  try {
-    latestVersion = (await prisma.roadmap.aggregate({
-      where: { metaRoadmapId: roadmap.metaRoadmapId },
-      _max: { version: true },
-    }))._max.version ?? 0;
-  } catch {
-    return Response.json({ message: t('api:roadmap.failed_fetch_latest') },
-      { status: 500 },
+  // Only allow super admins to create national roadmaps
+  if (roadmap.type === RoadmapType.NATIONAL && !accessContext.isSuperAdmin) {
+    return Response.json({ message: t('api:roadmap.national_roadmap_forbidden') },
+      { status: 403 },
     );
   }
 
-  // Create lists of names for linking
-  const editors: { username: string }[] = [];
-  for (const name of [...(roadmap.editors ?? []), originalAuthor.username]) {
-    editors.push({ username: name });
+  // Resolve initial sharing settings
+  const resolvedAccess = await resolveAccessInput(roadmap.access, roadmap.orgId, accessContext, true);
+  if (!resolvedAccess.ok) {
+    return Response.json({ message: resolvedAccess.message },
+      { status: 400 },
+    );
   }
 
-  const viewers: { username: string }[] = [];
-  for (const name of roadmap.viewers ?? []) {
-    viewers.push({ username: name });
-  }
-
-  const editGroups: { name: string }[] = [];
-  for (const name of roadmap.editGroups ?? []) {
-    editGroups.push({ name: name });
-  }
-
-  const viewGroups: { name: string }[] = [];
-  for (const name of roadmap.viewGroups ?? []) {
-    viewGroups.push({ name: name });
-  }
-
-  // Create the roadmap
+  // Create the new roadmap with its access control
   try {
-    const newRoadmap = await prisma.roadmap.create({
+    const newRoadmap = await prisma.roadmaps.create({
       data: {
+        name: roadmap.name,
         description: roadmap.description,
-        version: latestVersion + 1,
-        targetVersion: roadmap.targetVersion,
+        type: roadmap.type,
+        actor: roadmap.actor,
+        geo_area: roadmap.geoAreaCode ? { connect: { code: roadmap.geoAreaCode } } : undefined,
+        parent_roadmap: roadmap.parentRoadmapId ? { connect: { id: roadmap.parentRoadmapId } } : undefined,
         author: { connect: { id: session.user.id } },
-        editors: { connect: editors },
-        viewers: { connect: viewers },
-        editGroups: { connect: editGroups },
-        viewGroups: { connect: viewGroups },
-        isPublic: roadmap.isPublic,
-        metaRoadmap: { connect: { id: roadmap.metaRoadmapId } },
-        goals: {
-          create: roadmapGoalCreator(roadmap, session.user.id),
+        access_control: {
+          create: {
+            org: { connect: { id: roadmap.orgId } },
+            is_public: resolvedAccess.isPublic,
+            org_readable: resolvedAccess.orgReadable,
+            grants: {
+              createMany: { data: resolvedAccess.grants },
+            },
+          },
         },
       },
       select: { id: true },
     });
-    // Invalidate old cache
+    // Invalidate old cache; expire immediately so the page the client is redirected to sees the new roadmap
     revalidateTag('roadmap', { expire: 0 });
     // Return the new roadmap's ID if successful
     return Response.json({ message: t('api:roadmap.roadmap_created'), id: newRoadmap.id },
-      { status: 201, headers: { 'Location': `/roadmap/${newRoadmap.id}` } },
+      { status: 201, headers: { 'Location': `/roadmap/${newRoadmap.id}/iteration/create` } },
     );
-  } catch (error) {
-    // Custom error if there are errors in the nested goal creation
-    if (error instanceof Error) {
-      if (error.cause === 'nestedGoalCreation') {
-        return Response.json({ message: error.message },
-          { status: 400 },
-        );
-      }
-    }
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+  }
+  catch (err) {
+    console.error(err);
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
       return Response.json({ message: t('api:roadmap.failed_record_connection') },
         { status: 400 },
       );
     }
-    console.error(error);
-    return Response.json({ message: t('api:common.server_error') },
+    return Response.json({ message: t('api:roadmap.failed_roadmap_creation') },
       { status: 500 },
     );
   }
@@ -391,7 +215,6 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   const [session, roadmap] = await Promise.all([
     getSession(await cookies()),
-    // The version number is not allowed to be changed
     request.json() as Promise<JSONValue>,
   ]);
   const t = await serveTea("api");
@@ -405,131 +228,167 @@ export async function PUT(request: NextRequest) {
 
   // Validate request body
   if (!isRoadmapUpdate(roadmap)) {
-    return Response.json({ message: t('api:common.invalid_request_body') },
+    return Response.json({ message: t('api:common.missing_input') },
       { status: 400 },
     );
   }
 
+  // If given roadmap type is invalid, set it to OTHER. If type is undefined leave it be; it wont update the existing value in the database
+  if (
+    roadmap.type !== undefined &&
+    !(roadmap.type in RoadmapType)
+  ) {
+    roadmap.type = RoadmapType.OTHER;
+  }
+
+  let accessContext: UserAccessContext;
+  let orgId: string;
   try {
-    // Get user and current roadmap
-    const [user, currentRoadmap] = await Promise.all([
-      prisma.user.findUnique({
-        where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true },
-      }),
-      prisma.roadmap.findUnique({
-        where: { id: roadmap.roadmapId },
+    // Get user context, current roadmap, and target parent roadmap (if any)
+    const [fetchedContext, currentRoadmap, targetRoadmap] = await Promise.all([
+      getAccessContextById(session.user.id),
+      prisma.roadmaps.findUnique({
+        where: { id: roadmap.id },
         select: {
-          updatedAt: true,
-          author: { select: { id: true, username: true } },
-          editors: { select: { id: true, username: true } },
-          viewers: { select: { id: true, username: true } },
-          editGroups: { include: { users: { select: { id: true, username: true } } } },
-          viewGroups: { include: { users: { select: { id: true, username: true } } } },
-          isPublic: true,
+          updated_at: true,
+          access_control: { select: accessControlSelection },
         },
       }),
+      ...(
+        roadmap.parentRoadmapId ?
+          [
+            prisma.roadmaps.findUnique({
+              where: { id: roadmap.parentRoadmapId },
+              select: { access_control: { select: accessControlSelection } },
+            }),
+          ] :
+          []
+      ),
     ]);
-    // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
-    if (!user || (session.user.isAdmin && !user.isAdmin)) {
+    // If no user is found or the found user falsely claims to be a super admin, they have a bad session cookie and should be logged out
+    if (!fetchedContext || (session.user.isSuperAdmin && !fetchedContext.isSuperAdmin)) {
       throw new Error(ClientError.BadSession, { cause: 'roadmap' });
     }
+    accessContext = fetchedContext;
 
-    // Check if the roadmap exists and the user has access to it
-    const access = accessChecker(currentRoadmap, session.user);
-    if (access === AccessLevel.None || access === AccessLevel.View) {
+    // Check if the user has edit access to the current roadmap (accessChecker returns None if no roadmap is found)
+    const currentAccess = accessChecker(currentRoadmap, accessContext);
+    if (!currentRoadmap || !hasEditAccess(currentAccess)) {
       throw new Error(ClientError.AccessDenied, { cause: 'roadmap' });
     }
 
+    // Sharing settings are manager-only: read-write grants must not be able to (re)publish content
+    if (roadmap.access !== undefined && !hasAdminAccess(currentAccess)) {
+      throw new Error(ClientError.AccessDenied, { cause: 'roadmap' });
+    }
+
+    orgId = currentRoadmap.access_control.org_id;
+
+    if (roadmap.parentRoadmapId) {
+      // If the user is trying to set a parent roadmap, check if they have at least viewing access to it
+      if (!targetRoadmap || !hasViewAccess(accessChecker(targetRoadmap, accessContext))) {
+        throw new Error(ClientError.IllegalParent, { cause: 'roadmap' });
+      }
+    }
+
     // Check if the client's data is stale
-    if (!roadmap.timestamp || (currentRoadmap?.updatedAt?.getTime() ?? 0) > roadmap.timestamp) {
+    if (!roadmap.timestamp || (currentRoadmap?.updated_at?.getTime() ?? 0) > roadmap.timestamp) {
       throw new Error(ClientError.StaleData, { cause: 'roadmap' });
     }
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === ClientError.BadSession) {
+  }
+  catch (err) {
+    if (err instanceof Error) {
+      if (err.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } },
         );
       }
-      if (error.message === ClientError.StaleData) {
+      if (err.message === ClientError.StaleData) {
         return Response.json({ message: ClientError.StaleData },
           { status: 409 },
+        );
+      }
+      if (err.message === ClientError.IllegalParent) {
+        return Response.json({ message: ClientError.IllegalParent },
+          { status: 403 },
         );
       }
       return Response.json({ message: ClientError.AccessDenied },
         { status: 403 },
       );
-    } else {
-      // If non-error is thrown, log it and return a generic error message
-      console.error(error);
-      return Response.json({ message: "Unknown internal server error" },
+    }
+    // If non-error is thrown, log it and return a generic error message
+    else {
+      console.error(err);
+      return Response.json({ message: t('api:common.unknown_server_error') },
         { status: 500 },
       );
     }
   }
 
-  // Create lists of names for linking
-  const editors: { username: string }[] = [];
-  for (const name of roadmap.editors ?? []) {
-    editors.push({ username: name });
+  // Only allow super admins to make roadmaps national
+  if (roadmap.type === RoadmapType.NATIONAL && !accessContext.isSuperAdmin) {
+    return Response.json({ message: t('api:roadmap.national_roadmap_forbidden') },
+      { status: 403 },
+    );
   }
 
-  const viewers: { username: string }[] = [];
-  for (const name of roadmap.viewers ?? []) {
-    viewers.push({ username: name });
-  }
-
-  const editGroups: { name: string }[] = [];
-  for (const name of roadmap.editGroups ?? []) {
-    editGroups.push({ name: name });
-  }
-
-  const viewGroups: { name: string }[] = [];
-  for (const name of roadmap.viewGroups ?? []) {
-    viewGroups.push({ name: name });
+  // Resolve new sharing settings, if any (only admins get this far with them)
+  let resolvedAccess: Awaited<ReturnType<typeof resolveAccessInput>> | null = null;
+  if (roadmap.access !== undefined) {
+    resolvedAccess = await resolveAccessInput(roadmap.access, orgId, accessContext, false);
+    if (!resolvedAccess.ok) {
+      return Response.json({ message: resolvedAccess.message },
+        { status: 400 },
+      );
+    }
   }
 
   // Update the roadmap
   try {
-    // Update roadmap, goals, and actions in a single transaction
-    const updatedRoadmap = await prisma.roadmap.update({
-      where: { id: roadmap.roadmapId },
+    const updatedRoadmap = await prisma.roadmaps.update({
+      where: { id: roadmap.id },
       data: {
+        name: roadmap.name,
         description: roadmap.description,
-        targetVersion: roadmap.targetVersion,
-        editors: { set: editors },
-        viewers: { set: viewers },
-        editGroups: { set: editGroups },
-        viewGroups: { set: viewGroups },
-        isPublic: roadmap.isPublic,
-        goals: {
-          create: roadmapGoalCreator(roadmap, session.user.id),
-        },
+        type: roadmap.type,
+        actor: roadmap.actor,
+        geo_area: roadmap.geoAreaCode === undefined ? undefined
+          : roadmap.geoAreaCode === null ? { disconnect: true }
+            : { connect: { code: roadmap.geoAreaCode } },
+        parent_roadmap: roadmap.parentRoadmapId === undefined ? undefined
+          : roadmap.parentRoadmapId === null ? { disconnect: true }
+            : { connect: { id: roadmap.parentRoadmapId } },
+        ...(resolvedAccess?.ok ? {
+          access_control: {
+            update: {
+              is_public: resolvedAccess.isPublic,
+              org_readable: resolvedAccess.orgReadable,
+              grants: {
+                // Full replacement of the grant set
+                deleteMany: {},
+                createMany: { data: resolvedAccess.grants },
+              },
+            },
+          },
+        } : {}),
       },
       select: { id: true },
     });
-    // Prune any orphaned links and comments
+    // Prune any orphaned comments
     await pruneOrphans();
-    // Invalidate old cache
+    // Invalidate old cache; expire immediately so the follow-up navigation sees the update
     revalidateTag('roadmap', { expire: 0 });
-    // Return the new roadmap's ID if successful
+    // Return the updated roadmap's ID if successful
     return Response.json({ message: t('api:roadmap.roadmap_updated'), id: updatedRoadmap.id },
       { status: 200, headers: { 'Location': `/roadmap/${updatedRoadmap.id}` } },
     );
-  } catch (error) {
-    console.error(error);
-    // Custom error if there are errors in the nested goal creation
-    if (error instanceof Error) {
-      if (error.cause === 'nestedGoalCreation') {
-        return Response.json({ message: error.message },
-          { status: 400 },
-        );
-      }
-    }
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+  }
+  catch (err) {
+    console.error(err);
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
       return Response.json({ message: t('api:roadmap.failed_record_connection') },
         { status: 400 },
       );
@@ -565,36 +424,28 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
-    const [user, currentRoadmap] = await Promise.all([
-      prisma.user.findUnique({
-        where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true },
-      }),
-      prisma.roadmap.findUnique({
-        where: {
-          id: roadmap.id,
-          ...(session.user.isAdmin ? {} : {
-            OR: [
-              { authorId: session.user.id },
-              { metaRoadmap: { authorId: session.user.id } },
-            ],
-          }),
-        },
+    const [accessContext, currentRoadmap] = await Promise.all([
+      getAccessContextById(session.user.id),
+      prisma.roadmaps.findUnique({
+        where: { id: roadmap.id },
+        select: { access_control: { select: accessControlSelection } },
       }),
     ]);
 
-    // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
-    if (!user || (session.user.isAdmin && !user.isAdmin)) {
+    // If no user is found or the found user falsely claims to be a super admin, they have a bad session cookie and should be logged out
+    if (!accessContext || (session.user.isSuperAdmin && !accessContext.isSuperAdmin)) {
       throw new Error(ClientError.BadSession, { cause: 'roadmap' });
     }
 
-    // If the roadmap is not found it either does not exist or the user has no access to it
-    if (!currentRoadmap) {
+    // Deleting a roadmap requires admin access (org manager or super admin).
+    // Also covers roadmaps that don't exist at all.
+    if (!hasAdminAccess(accessChecker(currentRoadmap, accessContext))) {
       throw new Error(ClientError.AccessDenied, { cause: 'roadmap' });
     }
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === ClientError.BadSession) {
+  }
+  catch (err) {
+    if (err instanceof Error) {
+      if (err.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
@@ -605,7 +456,7 @@ export async function DELETE(request: NextRequest) {
         { status: 403 },
       );
     } else {
-      console.error(error);
+      console.error(err);
       return Response.json({ message: t('api:common.unknown_server_error') },
         { status: 500 },
       );
@@ -614,25 +465,24 @@ export async function DELETE(request: NextRequest) {
 
   // Delete the roadmap
   try {
-    const deletedRoadmap = await prisma.roadmap.delete({
+    const deletedRoadmap = await prisma.roadmaps.delete({
       where: {
         id: roadmap.id,
       },
       select: {
         id: true,
-        metaRoadmapId: true,
       },
     });
-    // Prune any orphaned links and comments
+    // Prune any orphaned comments
     await pruneOrphans();
     // Invalidate old cache
     revalidateTag('roadmap', 'max');
     return Response.json({ message: t('api:roadmap.roadmap_deleted'), id: deletedRoadmap.id },
-      // Redirect to the parent meta roadmap
-      { status: 200, headers: { 'Location': `/metaRoadmap/${deletedRoadmap.metaRoadmapId}` } },
+      { status: 200, headers: { 'Location': `/` } },
     );
-  } catch (error) {
-    console.error(error);
+  }
+  catch (err) {
+    console.error(err);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );

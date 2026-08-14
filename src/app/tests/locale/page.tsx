@@ -1,6 +1,6 @@
 import styles from "./locales.module.css" with {type: "css"};
 import serveTea from "@/lib/i18nServer";
-import { uniqueLocales, Locales, allNamespaces } from "@/../i18n.config";
+import { uniqueLocales, Locales, allNamespaces } from "@root/i18n.config";
 import fs from "node:fs";
 import path from "node:path";
 import { ServerSideT } from "./serverSide";

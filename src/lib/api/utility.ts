@@ -1,17 +1,7 @@
-import { isStandardObject } from "@/types";
-import type { ApiTableContent } from "./apiTypes";
+import { isStandardObject } from "@/types/typeguards";
+import type { ApiSelectionItem, ApiTableContent, ApiTableMetadata, DatasetData, DatasetKeys } from "./apiTypes";
 
 // TODO: Refactor file
-
-export type DatasetKeys = "SCB" | "Trafa" | "SSB";
-export type DatasetData = {
-  baseUrl: string,
-  userFacingUrl: string,
-  supportedLanguages: string[],
-  api: "PxWeb" | "Trafa",
-  fullName?: string,
-  alternateNames?: string[]
-};
 
 export function isDataSetKeys(value: unknown): value is DatasetKeys {
   return typeof value === "string" && ExternalDataset.knownDatasetKeys.includes(value as DatasetKeys);
@@ -53,6 +43,17 @@ export class ExternalDataset {
   };
   static ssb = this.SSB;
 
+  /** An API provided by Swedish Energimyndigheten, using th PxWeb API v2 */
+  static STEM: DatasetData = {
+    baseUrl: "https://api.pxexternal2.energimyndigheten.se/",
+    userFacingUrl: "https://pxexternal.energimyndigheten.se/pxweb/",
+    supportedLanguages: ["sv"/*, "en"*/], // English support is currently (2026-05-22) very spotty from their side, so we won't list it as supported until it's more reliable
+    api: "PxWeb",
+    fullName: "Energimyndigheten",
+    alternateNames: ["energimyndigheten", "swedish energy agency", "statens energimyndighet"],
+  };
+  static stem = this.STEM;
+
 
   // Trafa-based APIs
   /** An API provided by Swedish Trafikanalys, with their own data format */
@@ -69,7 +70,7 @@ export class ExternalDataset {
 
   // Utility methods and properties
   /** A list of dataset keys with "canonical" casing. Should match the main keys of the class and be safe to use everywhere */
-  static knownDatasetKeys: DatasetKeys[] = ["SCB", "SSB", "Trafa"];
+  static knownDatasetKeys: DatasetKeys[] = ["SCB", "SSB", "Trafa", "STEM"];
 
   /**
    * Returns a list of datasets using the specified API(s).
@@ -221,4 +222,39 @@ export function filterToInitialYearlyRecords(periodValuePairs: ApiTableContent["
   }
 
   return filteredValues;
+}
+
+/**
+ * A utility function to parse a FormData object into an array of ApiSelectionItem objects,
+ * made to be shared by all query building components.
+ * @param formData A `FormData` object to parse into `ApiSelectionItem[]` format
+ * @param ignoreKeys Additional keys from the `FormData` object to ignore when parsing. The keys "externalDataset" and "externalTableId" are always ignored.
+ * @param mainPxWebTimeVariableKey The key of the main PxWeb time variable, if any. If provided, the value for this key will be wrapped in a `FROM()` function in order to also include all subsequent values in the dimension.
+ */
+export function formQueryHelper(formData: FormData, tableMetadata: ApiTableMetadata | null, mainPxWebTimeVariableKey?: string | null): ApiSelectionItem[] {
+  if (!tableMetadata) return [];
+
+  const selection: ApiSelectionItem[] = [];
+
+  const keysToSelect = new Set<string>();
+  tableMetadata.metricDimensions.forEach(dimension => keysToSelect.add(dimension.id));
+  tableMetadata.timeDimensions.forEach(dimension => keysToSelect.add(dimension.id));
+  tableMetadata.regularDimensions.forEach(dimension => keysToSelect.add(dimension.id));
+  tableMetadata.hierarchies?.forEach(hierarchy => hierarchy.children.forEach(child => keysToSelect.add(child.id)));
+
+  for (const key of keysToSelect) {
+    if (formData.has(key)) {
+      const value = formData.get(key);
+      if (typeof value === "string" && value.trim() !== "") {
+        if (mainPxWebTimeVariableKey && key === mainPxWebTimeVariableKey && tableMetadata.api === "PxWeb") {
+          // If the key is the main PxWeb time variable, we need to wrap the value in a FROM() function, but only for PxWeb datasets
+          selection.push({ variableCode: key, valueCodes: [`FROM(${value})`] });
+        } else {
+          selection.push({ variableCode: key, valueCodes: [value] });
+        }
+      }
+    }
+  }
+
+  return selection;
 }

@@ -13,8 +13,7 @@
     "action": "{{count}} $t(common:action, {\"count\":{{count}}})",
     "effect": "{{count}} $t(common:effect, {\"count\":{{count}}})",
     "goal": "{{count}} $t(common:goal, {\"count\":{{count}}})",
-    "roadmap": "{{count}} $t(common:roadmap_series, {\"count\":{{count}}})",
-    "roadmap_series": "{{count}} $t(common:roadmap_series, {\"count\":{{count}}})",
+    "roadmap": "{{count}} $t(common:roadmap, {\"count\":{{count}}})",
     "roadmap_version": "{{count}} $t(common:roadmap_version, {\"count\":{{count}}})"
   },
   "css": {
@@ -24,7 +23,7 @@
     "action": "Edit action",
     "effect": "Edit effect",
     "goal": "Edit goal",
-    "roadmap_series": "Edit roadmap series",
+    "roadmap": "Edit roadmap",
     "roadmap_version": "Edit roadmap version"
   },
   "effect_definite_one": "the effect",
@@ -57,7 +56,7 @@
     "action": "Create new action",
     "effect": "Create new effect",
     "goal": "Create new goal",
-    "roadmap_series": "Create new roadmap series",
+    "roadmap": "Create new roadmap",
     "roadmap_version": "Create new roadmap version"
   },
   "next": "Next",
@@ -67,12 +66,10 @@
     "password": "Password",
     "username": "Username"
   },
-  "roadmap_series_definite_one": "the roadmap series",
-  "roadmap_series_definite_other": "the roadmap series",
-  "roadmap_series_one": "roadmap series",
-  "roadmap_series_other": "roadmap series",
-  "roadmap_short_one": "roadmap",
-  "roadmap_short_other": "roadmaps",
+  "roadmap_definite_one": "the roadmap",
+  "roadmap_definite_other": "the roadmaps",
+  "roadmap_one": "roadmap",
+  "roadmap_other": "roadmaps",
   "roadmap_version_definite_one": "the roadmap version",
   "roadmap_version_definite_other": "the roadmap versions",
   "roadmap_version_name": "{{name}} (v{{version}})",
@@ -85,17 +82,17 @@
   },
   "scope": {
     "local": "Local",
-    "local_roadmap": "Local $t(common:roadmap_series_one)",
+    "local_roadmap": "Local $t(common:roadmap_one)",
     "municipal": "Municipal",
-    "municipal_roadmap": "Municipal $t(common:roadmap_series_one)",
+    "municipal_roadmap": "Municipal $t(common:roadmap_one)",
     "national": "National",
-    "national_roadmap": "National $t(common:roadmap_series_one)",
+    "national_roadmap": "National $t(common:roadmap_one)",
     "organizational": "Organizational",
-    "organizational_roadmap": "Organizational $t(common:roadmap_series_one)",
+    "organizational_roadmap": "Organizational $t(common:roadmap_one)",
     "other": "Other",
-    "other_roadmap": "Other $t(common:roadmap_series_one)",
+    "other_roadmap": "Other $t(common:roadmap_one)",
     "regional": "Regional",
-    "regional_roadmap": "Regional $t(common:roadmap_series_one)"
+    "regional_roadmap": "Regional $t(common:roadmap_one)"
   },
   "tsx": {
     "cancel": "Cancel",
@@ -111,6 +108,7 @@
     "login": "Log in",
     "logout": "Log out",
     "menu": "Menu",
+    "no": "No",
     "no_results": "No results",
     "no_suggestions": "No suggestions",
     "options": "Options",
@@ -126,6 +124,12 @@
     "suggestions": "Suggestions",
     "unit_missing": "missing unit",
     "unitless": "unitless",
-    "write": "Write something"
+    "using": "using",
+    "write": "Write something",
+    "yes": "Yes",
+    "move_up": "Move up",
+    "move_down": "Move down",
+    "hide_password": "Hide password",
+    "show_password": "Show password"
   }
 }

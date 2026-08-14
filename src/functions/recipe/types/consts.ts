@@ -1,34 +1,13 @@
 import type { DataSeriesVariable, ExternalVariable, ScalarVariable, RecipeVariable } from "./types";
-
-export const VectorIndexPickerOptions = {
-  Default: "whole",
-
-  Whole: "whole",
-  Reverse: "reverse",
-
-  Last: "last",
-  First: "first",
-  Median: "median",
-  Mean: "mean",
-} as const;
-export type VectorIndexPickerOptions = typeof VectorIndexPickerOptions[keyof typeof VectorIndexPickerOptions];
-
-/*
- * Common types for recipes
- */
-export const RecipeDataTypes = {
-  Scalar: "scalar",
-  DataSeries: "dataSeries",
-  External: "external",
-} as const;
-export type RecipeDataTypes = typeof RecipeDataTypes[keyof typeof RecipeDataTypes];
+import { RecipeDataTypes, VectorIndexPickerOptions } from "./enums";
+import { UnitFlags } from "@/types/enums";
 
 export const emptyRecipeScalar: ScalarVariable = {
   id: "empty-scalar",
   name: "empty-scalar",
   type: RecipeDataTypes.Scalar,
   value: 0,
-  unit: undefined,
+  unit: UnitFlags.Missing,
 } as const;
 export const emptyRecipeDataSeries: DataSeriesVariable = {
   id: "empty-data-series",
@@ -36,7 +15,7 @@ export const emptyRecipeDataSeries: DataSeriesVariable = {
   type: RecipeDataTypes.DataSeries,
   dataSeriesId: undefined,
   pick: VectorIndexPickerOptions.Default,
-  unit: undefined,
+  unit: UnitFlags.Missing,
   value: undefined,
 } as const;
 export const emptyRecipeExternal: ExternalVariable = {
@@ -47,14 +26,14 @@ export const emptyRecipeExternal: ExternalVariable = {
   tableId: null,
   selection: [],
   pick: VectorIndexPickerOptions.Default,
-  unit: undefined,
+  unit: UnitFlags.Missing,
 } as const;
 
 /**
  * Defined here to usage before declaration.
  */
 export const emptyRecipesByDataType: Record<RecipeDataTypes, RecipeVariable> = {
-  scalar: emptyRecipeScalar,
-  dataSeries: emptyRecipeDataSeries,
-  external: emptyRecipeExternal,
+  [RecipeDataTypes.Scalar]: emptyRecipeScalar,
+  [RecipeDataTypes.DataSeries]: emptyRecipeDataSeries,
+  [RecipeDataTypes.External]: emptyRecipeExternal,
 } as const;

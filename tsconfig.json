@@ -30,6 +30,11 @@
       "@/*": [
         "./src/*",
       ],
+      // For files outside src/ (e.g. i18n.config). Unlike escaping @/ with "@/../",
+      // this expands without a ".." segment, which tsx (used by the seed scripts) resolves.
+      "@root/*": [
+        "./*",
+      ],
       "@PRISMA-NAMESPACE-ONLY": [
         "./prisma/generated/client",
       ],
@@ -42,19 +47,11 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts",
-    "src/types/**/*.d.ts",
   ],
   "exclude": [
-    ".prisma/**/*",
-    "src/prisma/generated/**/*",
-    "src/.prisma/**/*",
-    ".prisma/**/*",
     "prisma/generated/**/*",
     "node_modules",
-    ".next",
-    "out",
-    "dist",
-    "build",
+    ".claude",
     "ignore",
   ],
 }

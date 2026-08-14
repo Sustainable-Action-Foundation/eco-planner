@@ -1,53 +1,52 @@
 "use client";
 
 import styles from '../tables.module.css' with { type: "css" };
-import type { GoalTree, GoalTreeEntry } from '@/functions/goalsToTree';
+import type { GoalTree, GoalTreeEntry, RoadmapIteration } from "@/types";
 import goalsToTree from '@/functions/goalsToTree';
 import type { SyntheticEvent } from 'react';
 import { getSessionStorage, setSessionStorage } from '@/functions/localStorage';
 import { useTranslation } from "react-i18next";
 import { IconCaretRightFilled, IconLink } from '@tabler/icons-react';
 import Link from 'next/link';
-import type { Roadmap } from "@/types";
 
 // interface LinkTreeCommonProps {}
 
 type LinkTreeWithGoals = {
   goals: GoalTreeEntry[],
-  roadmap?: never,
+  iteration?: never,
 }
 
-type LinkTreeWithRoadmap = {
+type LinkTreeWithIteration = {
   goals?: never,
-  roadmap: Roadmap,
+  iteration: RoadmapIteration,
 }
 
-type LinkTreeProps = LinkTreeWithGoals | LinkTreeWithRoadmap;
+type LinkTreeProps = LinkTreeWithGoals | LinkTreeWithIteration;
 
 export default function LinkTree({
   goals,
-  roadmap,
+  iteration,
 }: LinkTreeProps) {
   // common is used in goalsToTree, which this TFunction is passed into
   const { t } = useTranslation(["components", "common"]);
 
   // Failsafe in case wrong props are passed
-  if ((!goals && !roadmap) || (goals && roadmap)) throw new Error('LinkTree: Either `goals` XOR `roadmap` must be provided');
+  if ((!goals && !iteration) || (goals && iteration)) throw new Error('LinkTree: Either `goals` XOR `iteration` must be provided');
 
-  goals ??= roadmap?.goals ?? [];
+  goals ??= iteration?.goals ?? [];
 
   if (!goals?.length) return (<p>{t("components:link_tree.no_roadmaps")}</p>);
 
-  let openCategories: string[] = getSessionStorage(roadmap?.id || "") as string[] || [];
+  let openCategories: string[] = getSessionStorage(iteration?.id || "") as string[] || [];
   if (!(openCategories instanceof Array)) {
     openCategories = [];
   }
 
   const handleToggle = (e: SyntheticEvent<HTMLDetailsElement, Event>, key: string) => {
-    if (!roadmap) return;
-    let currentStorage: string[] = getSessionStorage(roadmap.id) as string[];
+    if (!iteration) return;
+    let currentStorage: string[] = getSessionStorage(iteration.id) as string[];
     if (!(currentStorage instanceof Array)) {
-      setSessionStorage(roadmap.id, []);
+      setSessionStorage(iteration.id, []);
       currentStorage = [];
     }
 
@@ -55,9 +54,9 @@ export default function LinkTree({
       // Don't add the same branch twice
       if (currentStorage.includes(key))
         return;
-      setSessionStorage(roadmap.id, [...currentStorage, key]);
+      setSessionStorage(iteration.id, [...currentStorage, key]);
     } else {
-      setSessionStorage(roadmap.id, currentStorage.filter(branch => branch !== key));
+      setSessionStorage(iteration.id, currentStorage.filter(branch => branch !== key));
     }
   };
 

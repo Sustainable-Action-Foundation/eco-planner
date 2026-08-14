@@ -1,15 +1,16 @@
 
 import { Recipe } from "@/functions/recipe/recipe";
-import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types";
+import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/enums";
 import type { DataSeriesVariable, ExternalVariable, ScalarVariable } from "@/functions/recipe/types";
 import type { DBRecipe } from "@/types";
 import type { TFunction } from "i18next";
+import { UnitFlags } from "@/types/enums";
 
 export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
 
   const areaRecipe = new Recipe({
     name: t("components:recipe_editor.default_area_recipe.name"),
-    equation: `\$\{${t("components:recipe_editor.default_area_recipe.parent_value")}\} * \$\{${t("components:recipe_editor.default_area_recipe.child_area")}\} / \$\{${t("components:recipe_editor.default_area_recipe.parent_area")}\}`,
+    equation: `\${${t("components:recipe_editor.default_area_recipe.parent_value")}} * \${${t("components:recipe_editor.default_area_recipe.child_area")}} / \${${t("components:recipe_editor.default_area_recipe.parent_area")}}`,
     variables: [
       {
         id: "parent-value-dummy-uuid",
@@ -18,7 +19,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
         pick: VectorIndexPickerOptions.Default,
         value: undefined,
         dataSeriesId: undefined,
-        unit: undefined,
+        unit: UnitFlags.Missing,
         template: true,
       } satisfies DataSeriesVariable,
 
@@ -37,7 +38,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
           { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
         ],
         pick: VectorIndexPickerOptions.Last,
-        unit: undefined,
+        unit: UnitFlags.Missing,
         template: true,
       } satisfies ExternalVariable,
 
@@ -56,7 +57,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
           { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
         ],
         pick: VectorIndexPickerOptions.Last,
-        unit: undefined,
+        unit: UnitFlags.Missing,
         template: true,
       } satisfies ExternalVariable,
     ],
@@ -67,14 +68,14 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
 
   const populationRecipe = new Recipe({
     name: t("components:recipe_editor.default_population_recipe.name"),
-    equation: `\$\{${t("components:recipe_editor.default_population_recipe.parent_value")}\} * \$\{${t("components:recipe_editor.default_population_recipe.child_population")}\} / \$\{${t("components:recipe_editor.default_population_recipe.parent_population")}\}`,
+    equation: `\${${t("components:recipe_editor.default_population_recipe.parent_value")}} * \${${t("components:recipe_editor.default_population_recipe.child_population")}} / \${${t("components:recipe_editor.default_population_recipe.parent_population")}}`,
     variables: [
       {
         id: "parent-value-dummy-uuid",
         name: t("components:recipe_editor.default_population_recipe.parent_value"),
         type: RecipeDataTypes.DataSeries,
         pick: VectorIndexPickerOptions.Default,
-        unit: undefined,
+        unit: UnitFlags.Missing,
         value: undefined,
         dataSeriesId: undefined,
         template: true,
@@ -85,7 +86,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
         name: t("components:recipe_editor.default_population_recipe.parent_population"),
         type: RecipeDataTypes.External,
         pick: VectorIndexPickerOptions.Default,
-        unit: undefined,
+        unit: UnitFlags.Missing,
         dataset: 'SCB',
         tableId: 'BE0101N1',
         selection: [
@@ -110,7 +111,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
           { variableCode: "ContentsCode", valueCodes: ["000007E1"] },
         ],
         pick: VectorIndexPickerOptions.Default,
-        unit: undefined,
+        unit: UnitFlags.Missing,
         template: true,
       } satisfies ExternalVariable,
     ],
@@ -121,7 +122,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
 
   const scalarRecipe = new Recipe({
     name: t("components:recipe_editor.default_scalar_recipe.name"),
-    equation: `\$\{${t("components:recipe_editor.default_scalar_recipe.parent_value")}\} * \$\{${t("components:recipe_editor.default_scalar_recipe.scalar")}\}`,
+    equation: `\${${t("components:recipe_editor.default_scalar_recipe.parent_value")}} * \${${t("components:recipe_editor.default_scalar_recipe.scalar")}}`,
     variables: [
       {
         id: "parent-value-dummy-uuid",
@@ -130,7 +131,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
         pick: VectorIndexPickerOptions.Default,
         dataSeriesId: undefined,
         value: undefined,
-        unit: undefined,
+        unit: UnitFlags.Missing,
         template: true,
       } satisfies DataSeriesVariable,
 
@@ -139,7 +140,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
         name: t("components:recipe_editor.default_scalar_recipe.scalar"),
         type: RecipeDataTypes.Scalar,
         value: 1,
-        unit: null,
+        unit: UnitFlags.Unitless,
       } satisfies ScalarVariable,
     ],
     meta: {

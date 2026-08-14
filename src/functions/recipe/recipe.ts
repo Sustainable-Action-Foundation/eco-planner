@@ -1,32 +1,58 @@
-import type { DataSeries, DateValuesWithUnit, JSONValue, Mask } from "@/types";
-import { isISOIshDate } from "@/types";
+import type { DataSeries, DateValuesWithUnit, JSONValue, Mask, Unit } from "@/types";
+import { isISOIshDate } from "@/types/typeguards";
 import mathjs from "@/math";
-import type { Unit } from "mathjs";
-import type { ApiTableContent } from "@/lib/api/apiTypes";
-import type { RecipeExtractionOutput, RecipeVariable, SerializedRecipe, SerializedRecipeShape } from "@/functions/recipe";
-import { isEvalTimeVariable, isRecipe, MathjsError, RecipeError, parseDateValuesFromVector, transformDateValuesToVector, ANDMasks, extractDataSeries, extractExternalDatasets, extractScalars, isEvalTimeSeries } from "@/functions/recipe";
+import type { Unit as MathJSUnit } from "mathjs";
+import type { ApiSelectionItem, ApiTableContent, DatasetKeys } from "@/lib/api/apiTypes";
+import type { ExternalVariable, RecipeExtractionOutput, RecipeVariable, SerializedRecipe, RecipeShape, DataSeriesVariable } from "@/functions/recipe";
+import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/enums";
+import { MathjsError, RecipeError } from "@/functions/recipe/types/errors";
+import { isEvalTimeSeries, isEvalTimeVariable, isRecipe } from "@/functions/recipe/types/typeguards";
+import { ANDMasks, parseDateValuesFromVector, transformDateValuesToVector } from "@/functions/recipe/vectorAndMaskUtils";
+import { extractDataSeries, extractExternalDatasets, extractScalars } from "@/functions/recipe/extractors";
 import { sanityCheckDataSeries, sanityCheckExternalDatasets, sanityCheckScalars } from "@/functions/recipe/sanityChecks";
+import { isUnitFlag, parseUnit } from "@/functions/unit";
+import { UnitFlags } from "@/types/enums";
+
+/**
+ * Deterministic JSON serialization: object keys are sorted recursively so that
+ * two structurally-equal values produce identical strings regardless of key
+ * insertion order. Array order is preserved (it is significant).
+ */
+function canonicalStringify(value: unknown): string {
+  return JSON.stringify(value, (_key, val: unknown) => {
+    if (val && typeof val === "object" && !Array.isArray(val)) {
+      return Object.fromEntries(
+        Object.entries(val as Record<string, unknown>).sort(([a], [b]) => a.localeCompare(b)),
+      );
+    }
+    return val;
+  });
+}
 
 export class Recipe {
   public name: string;
   public equation: string;
   public variables: RecipeVariable[];
-  private meta?: SerializedRecipeShape["meta"];
+  public unit: Unit;
+  private meta?: RecipeShape["meta"];
 
   public constructor({
     name,
     equation,
     variables,
+    unit,
     meta,
   }: {
     name: string;
     equation: string;
     variables: RecipeVariable[];
-    meta?: SerializedRecipeShape["meta"];
+    unit?: Unit;
+    meta?: RecipeShape["meta"];
   }) {
     this.name = name;
     this.equation = equation;
     this.variables = variables;
+    this.unit = unit ?? UnitFlags.Missing;
     this.meta = meta;
   }
 
@@ -42,10 +68,27 @@ export class Recipe {
     return this.meta?.isSuggestedRecipe ?? false;
   }
 
+  /**
+   * Whether this recipe just wraps a single hand-entered ("manual"/"static")
+   * data series. Such recipes are produced by {@link Recipe.fromManualDateValues}
+   * and let forms tell a manual entry apart from a real, composed recipe.
+   */
+  public isManual(): boolean {
+    return this.meta?.isManual ?? false;
+  }
+
+  /**
+   * Which baseline derivation produced this recipe, if any
+   * (see {@link Recipe.fromInitialDateValue}).
+   */
+  public baselineDerivation(): RecipeShape["meta"]["baselineDerivation"] {
+    return this.meta?.baselineDerivation;
+  }
+
   /** 
    * Runs evaluator on recipe and catch anything wrong
    */
-  public async checkValidity(): Promise<{ good: boolean, error: string | undefined, warnings: string[] | undefined }> {
+  public async checkValidity(options?: Parameters<Recipe["evaluate"]>[1]): Promise<{ good: boolean, error: string | undefined, warnings: string[] | undefined }> {
     if (this.isTemplate()) {
       console.info("Recipe contains template variables, skipping validity check.");
       return { good: true, error: undefined, warnings: undefined };
@@ -53,7 +96,7 @@ export class Recipe {
 
     const warnings: string[] = [];
     try {
-      const _ = await this.evaluate(warnings);
+      const _ = await this.evaluate(warnings, options);
       if (warnings.length) {
         console.warn("Warnings encountered during recipe validity check:", warnings);
       }
@@ -63,7 +106,7 @@ export class Recipe {
         warnings: warnings.length ? warnings : undefined,
       };
     }
-    catch (e) {
+    catch (err) {
       if (warnings.length) {
         console.warn("Warnings encountered during recipe validity check:", warnings);
       }
@@ -75,7 +118,7 @@ export class Recipe {
           "Cannot add a unit to a unitless number.",
       };
 
-      const errorMessage = e instanceof Error ? e.message : String(e);
+      const errorMessage = err instanceof Error ? err.message : String(err);
       const friendlyMessage = errorAliases[errorMessage as keyof typeof errorAliases] ?? errorMessage;
 
       return {
@@ -88,8 +131,8 @@ export class Recipe {
   /** 
    * Runs evaluator and simply returns a bool if it ran through or not
    */
-  public async isValid(): Promise<boolean> {
-    return (await this.checkValidity()).good;
+  public async isValid(options?: Parameters<Recipe["evaluate"]>[1]): Promise<boolean> {
+    return (await this.checkValidity(options)).good;
   }
 
   /** 
@@ -101,7 +144,7 @@ export class Recipe {
     warnings: string[] = [],
     options?: {
       dataSeriesGetter?: (dataSeriesId: string) => Promise<DataSeries | null>;
-      externalTableContentGetter?: (tableId: string, dataset: string, selection: { variableCode: string, valueCodes: string[] }[]) => Promise<ApiTableContent | null>;
+      externalTableContentGetter?: (tableId: string, dataset: string, selection: ApiSelectionItem[]) => Promise<ApiTableContent | null>;
     },
   ): Promise<DateValuesWithUnit | null> {
     const serialized = this.serialize();
@@ -117,7 +160,7 @@ export class Recipe {
     const scalarVars = extractScalars(this.variables, warnings);
     const [dataSeriesVars, externalVars] = await Promise.all([
       extractDataSeries(this.variables, warnings, options?.dataSeriesGetter),
-      extractExternalDatasets(this.variables, warnings, options?.externalTableContentGetter),
+      extractExternalDatasets(this.variables, warnings, options?.externalTableContentGetter, options?.dataSeriesGetter),
     ]);
     const allVars: RecipeExtractionOutput = [
       ...scalarVars,
@@ -152,6 +195,10 @@ export class Recipe {
     // +1 since the diff would miss one fence post year
     const maxTimeSpan = commonEndDate.getUTCFullYear() - commonStartDate.getUTCFullYear() + 1;
 
+    if (maxTimeSpan <= 0) {
+      throw new RecipeError("The selected data series have no overlapping years; cannot evaluate. Adjust their date ranges or picks.");
+    }
+
     const masks: Mask[] = [];
     for (const ds of seriesVariables) {
       const { mask, vector } = transformDateValuesToVector(
@@ -171,7 +218,7 @@ export class Recipe {
     sanityCheckDataSeries(dataSeriesVars, warnings);
     sanityCheckExternalDatasets(externalVars, warnings);
 
-    const scope: Record<string, number | number[] | Unit | Unit[]> = {};
+    const scope: Record<string, number | number[] | MathJSUnit | MathJSUnit[]> = {};
     let equation = this.equation;
 
     const nameNormalizer = (name: string) => {
@@ -185,7 +232,9 @@ export class Recipe {
       return counts;
     }, {} as Record<string, number>);
     const usedScopeNames = new Set<string>();
-    const loggedLegacyDisplayNameInfo = new Set<string>();
+
+    // Build the variable map once; the getter rebuilds it on every access.
+    const variableMap = this.variableMap;
 
     for (const variable of evalTimeVars) {
       if (!variable.value) {
@@ -193,11 +242,7 @@ export class Recipe {
       }
 
       const variableId = variable.id;
-      const recipeVariable = this.variableMap[variableId];
-      const legacyDisplayNamePlaceholder = recipeVariable
-        ? inlineEqEscapeFormat(recipeVariable.name)
-        : null;
-      const hasLegacyDisplayNamePlaceholder = !!legacyDisplayNamePlaceholder && equation.includes(legacyDisplayNamePlaceholder);
+      const recipeVariable = variableMap[variableId];
 
       const newNameBase = nameNormalizer(variableId);
       let newName = newNameBase;
@@ -215,25 +260,17 @@ export class Recipe {
 
       // Backward compatibility for legacy formulas that still reference display names.
       if (recipeVariable && displayNameCounts[recipeVariable.name] === 1) {
-        if (hasLegacyDisplayNamePlaceholder && !loggedLegacyDisplayNameInfo.has(recipeVariable.name)) {
-          console.info(`Recipe.evaluate: replacing deprecated display-name placeholder "${legacyDisplayNamePlaceholder}" with id-based placeholder for variable id "${variableId}".`);
-          loggedLegacyDisplayNameInfo.add(recipeVariable.name);
-        }
         equation = equation.replaceAll(inlineEqEscapeFormat(recipeVariable.name), newName);
-      }
-      else if (recipeVariable && hasLegacyDisplayNamePlaceholder && !loggedLegacyDisplayNameInfo.has(recipeVariable.name)) {
-        console.info(`Recipe.evaluate: found deprecated display-name placeholder "${legacyDisplayNamePlaceholder}" but skipped auto-replacement because display name "${recipeVariable.name}" is ambiguous.`);
-        loggedLegacyDisplayNameInfo.add(recipeVariable.name);
       }
 
       scope[newName] = variable.value;
     }
 
-    let result: Unit | Unit[];
+    let result: MathJSUnit | MathJSUnit[];
     try {
       const rawResult: unknown = mathjs.evaluate(equation, scope);
 
-      const toUnit = (value: unknown): Unit => {
+      const toUnit = (value: unknown): MathJSUnit => {
         if (mathjs.isUnit(value)) {
           return value;
         }
@@ -245,7 +282,7 @@ export class Recipe {
         throw new RecipeError(`Result contains unsupported value types. {value: ${String(value)}, type: ${typeof value}}`);
       };
 
-      const normalizeResult = (value: unknown): Unit | Unit[] => {
+      const normalizeResult = (value: unknown): MathJSUnit | MathJSUnit[] => {
         // Handle 1d matrix
         if (
           typeof value === "object"
@@ -271,13 +308,13 @@ export class Recipe {
 
       result = normalizeResult(rawResult);
     }
-    catch (e) {
-      throw new MathjsError("Error evaluating recipe equation: " + (e as Error).message);
+    catch (err) {
+      throw new MathjsError("Error evaluating recipe equation: " + (err as Error).message);
     }
 
     if (result instanceof mathjs.Unit) {
       warnings.push("Equation returned a scalar, applying to all fields.");
-      result = Array(maxTimeSpan).fill(result.clone()) as Unit[];
+      result = Array(maxTimeSpan).fill(result.clone()) as MathJSUnit[];
     }
 
     const outputMask: Mask = masks.length > 0
@@ -298,15 +335,51 @@ export class Recipe {
         return generatedMask;
       })();
 
-    return parseDateValuesFromVector(
+    const evaluated = parseDateValuesFromVector(
       {
         vector: result,
         mask: outputMask,
       },
     );
+ 
+    // A declared unit overrides the evaluated one. "Missing" means nothing was
+    // declared; an explicit "unitless" declaration does override.
+    return this.unit === UnitFlags.Missing ? evaluated : { ...evaluated, unit: this.unit };
   }
 
-  /** 
+  /**
+   * Returns a copy of this recipe with any externally-derived data series
+   * variables rehydrated back into `External` variables for editing.
+   *
+   * Stored recipes never contain `External` variables (they are materialized
+   * into `DataSeries` on save), but the recipe editor works with `External`
+   * variables. This reverses that conversion using the `externalSource` meta so
+   * the editor and the rest of the recipe machinery stay unchanged.
+   */
+  public withEditableExternals(): Recipe {
+    const copy = this.copy();
+    copy.variables = copy.variables.map(variable => {
+      if (variable.type !== RecipeDataTypes.DataSeries || !variable.externalSource) return variable;
+      const editable: ExternalVariable = {
+        id: variable.id,
+        name: variable.name,
+        type: RecipeDataTypes.External,
+        unit: variable.unit,
+        template: variable.template,
+        pick: variable.pick,
+        // Keep the materialized series as canon for the editor; only cleared when
+        // the selection is explicitly changed.
+        dataSeriesId: variable.dataSeriesId,
+        dataset: variable.externalSource.dataset,
+        tableId: variable.externalSource.tableId,
+        selection: variable.externalSource.selection,
+      };
+      return editable;
+    });
+    return copy;
+  }
+
+  /**
    * Clones this instance of Recipe.
    */
   public copy(): Recipe {
@@ -314,16 +387,91 @@ export class Recipe {
   }
 
   /** 
+   * @deprecated
+   * 
    * ## Notice
    * ### This is not the serialization method!
    * 
-   * Uses JSON to format the recipe in a readable way.
-   * 
-   * @deprecated
+   * Uses JSON or {@linkcode Recipe.toPrettyString} to format the recipe in a readable way.
    */
   public toString(): string {
     console.warn("Recipe.toString() is not meant for serialization, but for human-readable formatting. For serialization, use Recipe.serialize().");
     return JSON.stringify(JSON.parse(this.serialize()), null, 2);
+  }
+
+  /**
+   * Matches a `${token}` placeholder in an equation, capturing the inner token.
+   * The token is usually a variable id, but legacy/suggested recipes reference
+   * the variable's display name instead (see {@link Recipe.evaluate}).
+   */
+  private static readonly placeholderRegex = /\$\{([^}]+)\}/g;
+
+  /**
+   * Resolves a placeholder token (variable id or display name) to its variable.
+   */
+  private resolveVariableToken(token: string): RecipeVariable | undefined {
+    return this.variableMap[token] ?? this.variables.find(v => v.name === token);
+  }
+
+  /**
+   * The equation with every `${token}` placeholder replaced by the matching
+   * variable's display name. Tokens that don't resolve are left as bare text.
+   * For human-readable display only — not for evaluation or serialization.
+   */
+  public displayEquation(): string {
+    return this.equation.replace(
+      Recipe.placeholderRegex,
+      (_match, token: string) => this.resolveVariableToken(token)?.name ?? token,
+    );
+  }
+
+  /**
+   * A one-line, human-readable summary of a single variable's source.
+   */
+  private static prettyVariableSummary(variable: RecipeVariable): string {
+    switch (variable.type) {
+      case RecipeDataTypes.Scalar: {
+        return isUnitFlag(variable.unit) ? `${variable.value}` : `${variable.value} ${variable.unit}`;
+      }
+      case RecipeDataTypes.DataSeries: {
+        const source = variable.externalSource
+          ? `${variable.externalSource.dataset ?? "external"}/${variable.externalSource.tableId ?? "?"}`
+          : "data series";
+        return `${source} · pick: ${String(variable.pick)}`;
+      }
+      case RecipeDataTypes.External: {
+        const source = `${variable.dataset ?? "external"}/${variable.tableId ?? "?"}`;
+        return `${source} · pick: ${String(variable.pick)}`;
+      }
+      default: {
+        return (variable as RecipeVariable).type;
+      }
+    }
+  }
+
+  /**
+   * ## Notice
+   * ### This is not the serialization method!
+   *
+   * Builds a readable, multi-line summary of the recipe: its name, the equation
+   * with placeholders unwrapped to variable names, and a line per variable
+   * describing where it comes from. For display/logging only.
+   */
+  public toPrettyString(): string {
+    const lines: string[] = [this.name];
+
+    if (this.equation.trim() !== "") {
+      lines.push(this.displayEquation());
+    }
+
+    if (this.variables.length > 0) {
+      lines.push("");
+      for (const variable of this.variables) {
+        lines.push(`${variable.name} — ${Recipe.prettyVariableSummary(variable)}`);
+      }
+    }
+
+    return lines.join("\n");
   }
 
   /** 
@@ -334,44 +482,30 @@ export class Recipe {
       name: this.name,
       equation: this.equation,
       variables: this.variables,
+      unit: this.unit,
       meta: {
         v: 1,
         isSuggestedRecipe: this.meta?.isSuggestedRecipe ?? false,
+        isManual: this.meta?.isManual ?? false,
+        ...(this.meta?.baselineDerivation ? { baselineDerivation: this.meta.baselineDerivation } : {}),
       },
-    } satisfies SerializedRecipeShape);
+    } satisfies RecipeShape) as SerializedRecipe;
   }
 
-  /** 
-   * Recipe factory, takes serialized recipe and returns a new recipe instance.
-   */
-  public static deserialize(serializedRecipe: SerializedRecipe): Recipe {
-    let objectForm: JSONValue;
-
-    try {
-      objectForm = JSON.parse(serializedRecipe) as JSONValue;
-    }
-    catch {
-      throw new RecipeError("Invalid serialized recipe format, not a valid JSON string");
-    }
-
-    if (!isRecipe(objectForm)) {
-      throw new RecipeError("Invalid serialized recipe format, not a valid Recipe object");
-    }
-
-    return Recipe.fromObject(objectForm);
-  }
-
-  /** 
-   * Recipe factory, takes either a serialized recipe, a plain object recipe or an existing Recipe and returns a new recipe instance.
+  /**
+   * Universal Recipe factory. Normalizes any supported input to a validated
+   * recipe instance.
    *
-   * Can take in various shapes:
-   * 
+   * Accepts:
+   *
    * ### 1. Serialized recipe string:
    * ```ts
    * "{ ... }"
    * ```
-   * 
-   * ### 2. Plain recipe object:
+   *
+   * ### 2. Existing Recipe instance (returns a clone)
+   *
+   * ### 3. Plain recipe object:
    * ```ts
    * {
    *   name: string;
@@ -379,75 +513,42 @@ export class Recipe {
    *   ...
    * }
    * ```
-   * 
-   * ### 3. DB-shaped object:
+   *
+   * ### 4. DB-shaped object (serialized or deserialized `recipe` field):
    * ```ts
-   * {
-   *   id: string;
-   *   recipe: string;
-   * }
-   * ```
-   * 
-   * ### 4. DB-shaped object with deserialized recipe:
-   * ```ts
-   * {
-   *   id: string;
-   *   recipe: {
-   *     name: string;
-   *     equation: string;
-   *     ...
-   *   }
-   * }
+   * { id: string, recipe: string }
+   * { id: string, recipe: { name: string, equation: string, ... } }
    * ```
    */
   public static from(input: string | Recipe | JSONValue): Recipe {
-    if (typeof input === "string") {
-      return Recipe.deserialize(input);
+    if (input instanceof Recipe) return input.copy();
+
+    const obj: JSONValue = typeof input === "string" ? Recipe.parseJson(input) : input;
+    return Recipe.fromObject(obj);
+  }
+
+  /**
+   * Typed entry point for serialized recipes. Equivalent to {@link Recipe.from}.
+   */
+  public static deserialize(serializedRecipe: string): Recipe {
+    return Recipe.from(serializedRecipe);
+  }
+
+  /**
+   * Parses a serialized recipe string into its object form.
+   */
+  private static parseJson(serialized: string): JSONValue {
+    try {
+      return JSON.parse(serialized) as JSONValue;
     }
-    else if (input instanceof Recipe) {
-      return Recipe.deserialize(input.serialize());
-    }
-    else if (typeof input === "object" && input !== null) {
-      return Recipe.fromObject(input);
-    }
-    else {
-      throw new RecipeError("Unsupported input type for Recipe.from. Expected string, Recipe instance, or object. Received: " + String(input));
+    catch {
+      throw new RecipeError("Invalid serialized recipe format, not a valid JSON string");
     }
   }
 
-  /** 
-   * Recipe factory, takes recipe object and returns a new recipe instance if valid.
-   * 
-   * ## Takes:
-   * 
-   * ### 1. Plain recipe object:
-   * ```ts
-   * {
-   *   name: string;
-   *   equation: string;
-   *   ...
-   * }
-   * ```
-   * 
-   * ### 2. DB-shaped object:
-   * ```ts
-   * {
-   *   id: string;
-   *   recipe: string;
-   * }
-   * ```
-   * 
-   * ### 3. DB-shaped object with deserialized recipe:
-   * ```ts
-   * {
-   *   id: string;
-   *   recipe: {
-   *     name: string;
-   *     equation: string;
-   *     ...
-   *   }
-   * }
-   * ```
+  /**
+   * Recipe factory, takes a plain or DB-shaped recipe object and returns a new
+   * recipe instance if valid. Use {@link Recipe.from} for the polymorphic entry.
    */
   private static fromObject(obj: JSONValue): Recipe {
     const normalized = Recipe.normalizeRecipeObject(obj);
@@ -459,7 +560,10 @@ export class Recipe {
     return new Recipe({
       name: normalized.name,
       equation: normalized.equation,
-      variables: normalized.variables,
+      // Stored recipes may carry legacy unit values (null / "" / undefined);
+      // parse them into the Unit type at this deserialization boundary.
+      variables: normalized.variables.map(variable => ({ ...variable, unit: parseUnit(variable.unit) })),
+      unit: parseUnit(normalized.unit),
       meta: normalized.meta,
     });
   }
@@ -494,14 +598,195 @@ export class Recipe {
     return obj;
   }
 
-  /** 
+  /**
    * Recipe factory, returns an empty recipe instance.
    */
   public static getEmpty(): Recipe {
     return new Recipe({
-      name: "Empty Recipe",
+      name: "Empty Recipe", // TODO: i18n
       equation: "",
       variables: [],
+      unit: UnitFlags.Missing,
+    });
+  }
+
+  /**
+   * Recipe factory for a hand-entered ("manual"/"static") data series: a recipe
+   * whose single inline `DataSeries` variable holds the entered values, with an
+   * equation that just reads that variable. Evaluating it returns those values
+   * unchanged, so a manual entry flows through the recipe context exactly like
+   * any other data series input (see the manual data series input).
+   *
+   * Pass `variableId` to keep the variable id stable across edits; otherwise a
+   * fresh id is generated. The recipe is tagged `meta.isManual` so forms can tell
+   * it apart from a real, composed recipe (see {@link Recipe.isManual}).
+   */
+  public static fromManualDateValues(
+    dateValues: DateValuesWithUnit,
+    variableId: string = crypto.randomUUID(),
+  ): Recipe {
+    const inlineVariable: DataSeriesVariable = {
+      id: variableId,
+      name: "Manual data series", // TODO: i18n
+      type: RecipeDataTypes.DataSeries,
+      pick: VectorIndexPickerOptions.Default,
+      unit: dateValues.unit,
+      dataSeriesId: null,
+      value: dateValues.dateValues,
+    };
+    return new Recipe({
+      name: "Manual data series", // TODO: i18n
+      equation: `\${${variableId}}`,
+      variables: [inlineVariable],
+      unit: dateValues.unit,
+      meta: { isManual: true },
+    });
+  }
+
+  /**
+   * Recipe factory for a baseline derived from a goal's data series: the
+   * series' values are inlined like a manual recipe, and the equation picks the
+   * first value (`${var}[1]`; mathjs vectors are 1-indexed) or the first
+   * non-zero value (`firstNonZero(${var})`, a custom function imported in
+   * `src/math.ts`). Evaluating it returns a scalar, which the evaluator
+   * broadcasts across the series' defined years — the "initial value" baseline.
+   *
+   * The inline variable is kept unitless so evaluation never has to parse the
+   * (possibly user-overridden, non-mathjs) unit; like the manual input, the
+   * unit is declared on `recipe.unit` instead. The recipe is tagged
+   * `meta.baselineDerivation` so forms can restore the selected baseline type
+   * (see {@link Recipe.baselineDerivation}).
+   */
+  public static fromInitialDateValue(
+    dateValues: DateValuesWithUnit,
+    options?: { nonZero?: boolean },
+    variableId: string = crypto.randomUUID(),
+  ): Recipe {
+    const inlineVariable: DataSeriesVariable = {
+      id: variableId,
+      name: "Initial value baseline", // TODO: i18n
+      type: RecipeDataTypes.DataSeries,
+      pick: VectorIndexPickerOptions.Default,
+      unit: UnitFlags.Unitless,
+      dataSeriesId: null,
+      value: dateValues.dateValues,
+    };
+    return new Recipe({
+      name: "Initial value baseline", // TODO: i18n
+      equation: options?.nonZero
+        ? `firstNonZero(\${${variableId}})`
+        : `\${${variableId}}[1]`,
+      variables: [inlineVariable],
+      unit: dateValues.unit,
+      meta: { baselineDerivation: options?.nonZero ? "INITIAL_NON_ZERO" : "INITIAL" },
+    });
+  }
+
+  /**
+   * Recipe factory for an external API data source: a recipe whose single
+   * `External` variable holds the upstream API selection, with an equation that
+   * just reads that variable. On save the server fetches it into a `DataSeries`
+   * (e.g. a goal's `historical` series via `/api/goal/historical`).
+   *
+   * Pass `variableId` (the existing source's variable id) when editing so the
+   * equation stays stable across edits; otherwise a fresh id is generated.
+   */
+  public static fromExternalSource({
+    name,
+    dataset,
+    tableId,
+    selection,
+    variableId = crypto.randomUUID(),
+  }: {
+    name: string;
+    dataset: DatasetKeys | null;
+    tableId: string | null;
+    selection: ApiSelectionItem[];
+    variableId?: string;
+  }): Recipe {
+    const externalVariable: ExternalVariable = {
+      id: variableId,
+      name,
+      type: RecipeDataTypes.External,
+      pick: VectorIndexPickerOptions.Default,
+      unit: UnitFlags.Missing,
+      dataset,
+      tableId,
+      selection,
+    };
+    return new Recipe({
+      name,
+      equation: `\${${variableId}}`,
+      variables: [externalVariable],
+      unit: UnitFlags.Missing,
+    });
+  }
+
+  /**
+   * Recipe factory for linking an existing data series by id: a recipe whose
+   * single `DataSeries` variable references the stored series, with an equation
+   * that just reads that variable. Evaluating it returns the linked series'
+   * values, so an inherited series (e.g. a baseline inherited from another
+   * goal) flows through the recipe context exactly like any other data series
+   * input.
+   *
+   * Pass `variableId` (the existing variable's id) when editing so the equation
+   * stays stable across edits; otherwise a fresh id is generated.
+   */
+  public static fromLinkedDataSeries({
+    name,
+    dataSeriesId,
+    unit = UnitFlags.Missing,
+    variableId = crypto.randomUUID(),
+  }: {
+    name: string;
+    dataSeriesId: string;
+    unit?: Unit;
+    variableId?: string;
+  }): Recipe {
+    const linkedVariable: DataSeriesVariable = {
+      id: variableId,
+      name,
+      type: RecipeDataTypes.DataSeries,
+      pick: VectorIndexPickerOptions.Default,
+      unit,
+      dataSeriesId,
+      value: null,
+    };
+    return new Recipe({
+      name,
+      equation: `\${${variableId}}`,
+      variables: [linkedVariable],
+      unit: UnitFlags.Missing,
+    });
+  }
+
+  /**
+   * Recipe factory for a data series: a recipe whose single `DataSeries` variable.
+   */
+  public static fromDataSeries({
+    recipeName,
+    dataSeriesName,
+    unit = UnitFlags.Missing,
+  }: {
+    recipeName: string;
+    dataSeriesName: string;
+    unit: Unit;
+  }): Recipe {
+    const dataSeriesVariable: DataSeriesVariable = {
+      id: crypto.randomUUID(),
+      name: dataSeriesName,
+      type: RecipeDataTypes.DataSeries,
+      pick: VectorIndexPickerOptions.Default,
+      unit,
+      dataSeriesId: null,
+      value: null,
+    };
+    return new Recipe({
+      name: recipeName,
+      equation: `\${${dataSeriesVariable.name}}`,
+      variables: [dataSeriesVariable],
+      unit,
     });
   }
 
@@ -509,14 +794,6 @@ export class Recipe {
    * To query whether a recipe has practically been touched, not a perfect metric, but a simple heuristic to check if the recipe is essentially empty or not.
    */
   public isEmpty(): boolean {
-    if (Recipe.areRecipesEqual(this, Recipe.getEmpty())) {
-      return true;
-    }
-
-    if (!this.name || this.name.trim() === "" || this.name === Recipe.getEmpty().name) {
-      return true;
-    }
-
     if (this.equation.trim() !== "") {
       return false;
     }
@@ -535,7 +812,8 @@ export class Recipe {
     const ignoredFields: (keyof RecipeVariable)[] = ["template"];
     const var1Stripped = Object.fromEntries(Object.entries(var1).filter(([key]) => !ignoredFields.includes(key as keyof RecipeVariable)));
     const var2Stripped = Object.fromEntries(Object.entries(var2).filter(([key]) => !ignoredFields.includes(key as keyof RecipeVariable)));
-    return JSON.stringify(var1Stripped) === JSON.stringify(var2Stripped);
+    // Canonical (key-order-insensitive) compare so reordered fields aren't treated as changes.
+    return canonicalStringify(var1Stripped) === canonicalStringify(var2Stripped);
   }
   /** 
    * Selective compare if two variable sets are the same
@@ -562,6 +840,10 @@ export class Recipe {
     }
 
     if (recipe1.equation !== recipe2.equation) {
+      return false;
+    }
+
+    if (recipe1.unit !== recipe2.unit) {
       return false;
     }
 

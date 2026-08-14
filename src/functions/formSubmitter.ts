@@ -1,8 +1,8 @@
 'use client';
 
 import type { TFunction } from "i18next";
-import { isStandardObject } from "@/types";
 import type { JSONValue } from "@/types";
+import { isStandardObject } from "@/types/typeguards";
 import type { SetStateAction } from "react";
 import type { ToastType } from '@/components/generic/toast/types.ts';
 
@@ -66,7 +66,6 @@ export default function formSubmitter(
       // If the API provides a message, alert it
       if (isStandardObject(data.body) && 'message' in data.body && typeof data.body.message === 'string') {
         if (data.body.message) {
-          // alert(data.body.message);
           if (createToast) {
             createToast(data.body.message, "success");
           } else {

@@ -1,10 +1,6 @@
 import { goalSorterTree } from "@/lib/sorters";
-import type { Goal } from "@/types";
+import type { GoalTree, GoalTreeEntry } from "@/types";
 import type { TFunction } from "i18next";
-
-export type GoalTreeEntry = Pick<Goal, "id" | "name" | "indicatorParameter" | "dataSeries">;
-
-export type GoalTree = { [key: string]: GoalTree | GoalTreeEntry };
 
 export default function goalsToTree(goals: Array<GoalTreeEntry | null>, t: TFunction) {
   const filteredGoals = goals.filter(goal => goal != null);
@@ -12,7 +8,7 @@ export default function goalsToTree(goals: Array<GoalTreeEntry | null>, t: TFunc
   const tree: GoalTree = {};
 
   for (const goal of sortedGoals) {
-    const parameters = goal.indicatorParameter.split('\\');
+    const parameters = goal.indicator_parameter.split('\\');
 
     // "key" and "demand" are currently the first subsection in the parameters of our data exported from LEAP, but they are mainly metadata and not relevant for the tree structure
     if (parameters[0].toLowerCase() === 'key' || parameters[0].toLowerCase() === 'demand') {
@@ -33,10 +29,10 @@ export default function goalsToTree(goals: Array<GoalTreeEntry | null>, t: TFunc
     // Includes a zero width non-joiner to decrease risk of colliding with user input
     // Otherwise, a param subsection could theoretically collide with a goal name/parameter and prevent the rendering of either the goal link or the param subsection <details> element
     // Example: Nameless goal with parameter "test" and unit "kg" would collide with a goal with parameter "test (kg)\\whatever"
-    const indicatorName = goal.name ?? goal.indicatorParameter.split('\\').at(-1);
-    const unit = goal.dataSeries?.unit === null
+    const indicatorName = goal.name ?? goal.indicator_parameter.split('\\').at(-1);
+    const unit = goal.data_series?.unit === null
       ? t("common:tsx.unitless")
-      : goal.dataSeries?.unit ?? t("common:tsx.unit_missing");
+      : goal.data_series?.unit ?? t("common:tsx.unit_missing");
     current[`${indicatorName} (\u200c${unit})`] = goal;
   }
 

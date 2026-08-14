@@ -28,19 +28,43 @@
     "effect_deleted": "Effect deleted",
     "effect_already_exists": "Effect already exists, try edit page if you want to change values"
   },
-  "metaRoadmap": {
-    "meta_roadmap_created": "Roadmap metadata created.",
-    "meta_roadmap_updated": "Meta roadmap updated",
-    "meta_roadmap_deleted": "Meta roadmap deleted",
-    "national_roadmap_forbidden": "Forbidden; only admins may create national roadmaps. Feel free to send an email to kontakt@sustainable-action.org if you think we should add another.",
-    "failed_record_connection": "Failed to connect records. Probably invalid editor, viewer, editGroup, and/or viewGroup name(s)",
-    "failed_roadmap_creation": "Failed to create roadmap metadata"
-  },
   "roadmap": {
     "roadmap_created": "Roadmap created",
     "roadmap_updated": "Roadmap updated",
     "roadmap_deleted": "Roadmap deleted",
-    "failed_fetch_latest": "Failed to fetch latest roadmap version",
-    "failed_record_connection": "Failed to connect records. Probably invalid editor, viewer, editGroup, and/or viewGroup name(s)"
+    "national_roadmap_forbidden": "Forbidden; only admins may create national roadmaps. Feel free to send an email to kontakt@sustainable-action.org if you think we should add another.",
+    "failed_record_connection": "Failed to connect records. Probably invalid group, org, geo area, or parent roadmap reference(s)",
+    "failed_roadmap_creation": "Failed to create roadmap"
+  },
+  "roadmapIteration": {
+    "iteration_created": "Roadmap iteration created",
+    "iteration_updated": "Roadmap iteration updated",
+    "iteration_deleted": "Roadmap iteration deleted",
+    "failed_fetch_latest": "Failed to fetch latest roadmap iteration",
+    "failed_record_connection": "Failed to connect records. Probably invalid roadmap or data series reference(s)"
+  },
+  "group": {
+    "manager_only": "Only the organization's managers can manage its groups",
+    "name_taken": "A group with that name already exists in the organization",
+    "not_found": "Group not found",
+    "created": "Group created",
+    "updated": "Group updated",
+    "deleted": "Group deleted"
+  },
+  "orgMembership": {
+    "not_found": "Membership not found",
+    "own_role": "You cannot change your own role",
+    "guest_locked": "Guest roles cannot be changed here",
+    "updated": "Role updated"
+  },
+  "guestInvite": {
+    "invalid_email": "That does not look like an email address",
+    "already_member": "That email already belongs to a member of the organization",
+    "send_failed": "The invite was saved but the email could not be sent; revoke it or try again later",
+    "sent": "Invite sent",
+    "invalid": "Invite not found; it may have been accepted or revoked",
+    "email_mismatch": "This invitation was sent to a different email address than your account's",
+    "accepted": "Invite accepted",
+    "revoked": "Invite revoked"
   }
 }

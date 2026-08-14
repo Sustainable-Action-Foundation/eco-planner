@@ -1,5 +1,5 @@
-import { Locales } from "@/../i18n.config";
-import type { TOptions } from "@/../i18n.config";
+import { Locales } from "@root/i18n.config";
+import type { TOptions } from "@root/i18n.config";
 import type { TFunction, i18n } from "i18next";
 
 /**
@@ -30,9 +30,15 @@ export function informativeCimodeT(instance: i18n): TFunction {
       returnDetails: true,
     });
 
+    // i18next's getUsedParamsDetails filters its other t-options out of usedParams but
+    // misses appendNamespaceToCIMode, which would corrupt key-extraction calls like
+    // headerLabelKeys() in actionFields.ts if appended here
+    const usedParams: Record<string, unknown> = { ...details.usedParams };
+    delete usedParams.appendNamespaceToCIMode;
+
     // If there are used parameters, return them appended after the result, otherwise just return the result
-    if (details.usedParams && Object.values(details.usedParams).filter(val => val !== undefined).length > 0) {
-      return `${details.res} :: ${JSON.stringify(details.usedParams)}`;
+    if (Object.values(usedParams).filter(val => val !== undefined).length > 0) {
+      return `${details.res} :: ${JSON.stringify(usedParams)}`;
     } else {
       return details.res;
     }

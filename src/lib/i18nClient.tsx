@@ -1,6 +1,6 @@
 "use client";
 
-import { initTemplate, Locales, possessive, relativeTime, titleCase } from "@/../i18n.config";
+import { initTemplate, Locales, possessive, relativeTime, titleCase } from "@root/i18n.config";
 import i18nClient from "i18next";
 import { I18nextProvider, initReactI18next } from "react-i18next";
 import Backend from "i18next-http-backend";
@@ -15,8 +15,8 @@ i18nClient
     backend: {
       loadPath: "/api/locales?lng={{lng}}&ns={{ns}}",
     },
-  }).catch((e: unknown) => {
-    const errorMessage = e instanceof Error ? e.message : String(e);
+  }).catch((err: unknown) => {
+    const errorMessage = err instanceof Error ? err.message : String(err);
     console.error("i18nClient initialization failed:", errorMessage);
   });
 

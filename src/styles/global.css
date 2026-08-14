@@ -61,6 +61,20 @@ fieldset:not(:has(input:required, select:required, textarea:required)):has(field
   content: none !important;
 }
 
+/* Apex */
+.apexcharts-tooltip.apexcharts-active[data-positioned="true"] {
+  transition: left .16s ease-out, top .16s ease-out !important;
+ 
+}
+
+.apexcharts-tooltip-marker {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
 /* Temporary while rewriting */
 .discrete-link {
   color: black;
@@ -287,3 +301,55 @@ button[type="submit"]:disabled {
     padding: .75rem;
   }
 }
+
+/* Radio group */
+
+.radio-group label:has(input[type="radio"]) {
+  padding: .75rem;
+  border-radius: .25rem;
+  border: 1px solid var(--gray-80);
+  font-size: smaller;
+  background-color: var(--secondary-neutral);
+}
+
+.radio-group label:has(input[type="radio"]:checked) {
+  border-color: var(--blue-50);
+  background-color: rgba(153, 211, 255, .25);
+}
+
+.radio-group input[type="radio"] {
+  margin-top: 1px;
+}
+
+/* Radio group with icons */
+
+.radio-group-icons {
+  display: flex;
+  gap: .5rem;
+}
+
+.radio-group-icons label:has(input[type="radio"]) {
+  width: 80px;
+  padding: .5rem;
+  aspect-ratio: 1 / 1;
+  gap: .25rem;
+  border-radius: .25rem;
+  border: 1px solid var(--gray-80);
+  font-size: smaller;
+  background-color: var(--secondary-neutral);
+  display: grid;
+  justify-items: center;
+  align-items: end;
+  text-align: center;
+}
+
+.radio-group-icons input[type="radio"] {
+  opacity: 0;
+  position: absolute;
+}
+
+.radio-group-icons label:has(input[type="radio"]:checked) {
+  border-color: var(--blue-50);
+  background-color: rgba(153, 211, 255, .25);
+}
+ 

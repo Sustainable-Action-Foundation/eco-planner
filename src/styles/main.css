@@ -337,6 +337,10 @@
   border-radius: 100%;
 }
 
+.min-width-0 {
+  min-width: 0;
+}
+
 .width-0 {
   width: 0;
 }
@@ -1689,6 +1693,10 @@ container-text {
 
 .padding-top-100 {
   padding-top: 1rem;
+}
+
+.padding-top-125 {
+  padding-top: 1.25rem;
 }
 
 .padding-top-200 {

@@ -1,4 +1,4 @@
-export * from "./types";
+export type * from "./types";
 export * from "./recipe";
 export * from "./sanityChecks";
 export * from "./extractors";

@@ -29,7 +29,7 @@ export function handleKeyDownGrid({
 
   const key = e.key;
   switch (key) {
-    case "ArrowDown":
+    case "ArrowDown": {
       e.preventDefault();
 
       if (editMode) return; // Up and down arrows in a number input are annoying so we check this after preventing default
@@ -37,8 +37,9 @@ export function handleKeyDownGrid({
       if (focusedCell.row === amountRows - 1) return; // Total amount of rows minus 1 to get index
       setFocusedCell({ row: focusedCell.row + 1, column: focusedCell.column });
       break;
+    }
 
-    case "ArrowUp":
+    case "ArrowUp": {
       e.preventDefault();
 
       if (editMode) return; // Up and down arrows in a number input are annoying so we check this after preventing default
@@ -46,38 +47,43 @@ export function handleKeyDownGrid({
       if (focusedCell.row === 0) return; // Cant move past the first row
       setFocusedCell({ row: focusedCell.row - 1, column: focusedCell.column });
       break;
+    }
 
-    case "ArrowRight":
+    case "ArrowRight": {
       if (editMode) return;
 
       e.preventDefault();
       if (focusedCell.column === amountColumns - 1) return;
       setFocusedCell({ row: focusedCell.row, column: focusedCell.column + 1 });
       break;
+    }
 
-    case "ArrowLeft":
+    case "ArrowLeft": {
       if (editMode) return;
 
       e.preventDefault();
       if (focusedCell.column === 1) return; // Our headers count as a column but we don't want to tab into those
       setFocusedCell({ row: focusedCell.row, column: focusedCell.column - 1 });
       break;
+    }
 
-    case "PageUp":
+    case "PageUp": {
       if (editMode) setEditMode(false);
       e.preventDefault();
       // Note: the behavior for page up/down is correct for a fully visible grid (which we assume it is for now). 
       // If the grid is scrollable other behaviour applies, see mdn. 
       setFocusedCell({ row: 0, column: focusedCell.column }); // TODO: We likely want to start rows at 0 in the future. We set it to 1 for now as the headers make up the first row
       break;
+    }
 
-    case "PageDown":
+    case "PageDown": {
       if (editMode) setEditMode(false);
       e.preventDefault();
       setFocusedCell({ row: amountRows - 1, column: focusedCell.column });
       break;
+    }
 
-    case "Home":
+    case "Home": {
       if (editMode) setEditMode(false);
       e.preventDefault();
       if (e.ctrlKey) {
@@ -86,8 +92,9 @@ export function handleKeyDownGrid({
         setFocusedCell({ row: focusedCell.row, column: 1 });
       }
       break;
+    }
 
-    case "End":
+    case "End": {
       if (editMode) setEditMode(false);
       e.preventDefault();
       if (e.ctrlKey) {
@@ -96,6 +103,7 @@ export function handleKeyDownGrid({
         setFocusedCell({ row: focusedCell.row, column: amountColumns - 1 });
       }
       break;
+    }
 
     case "?": {
       if (editMode) setEditMode(false);
@@ -151,7 +159,7 @@ export function handleKeyDownGrid({
       e.preventDefault();
 
       if (editMode === true) setEditMode(false);
- 
+
       if (e.shiftKey) {
         if (focusedCell.row === 0) return;
         setFocusedCell({ row: focusedCell.row - 1, column: focusedCell.column });
@@ -165,7 +173,7 @@ export function handleKeyDownGrid({
       break;
     }
 
-    case "F2" : {
+    case "F2": {
       e.preventDefault();
       setEditMode(!editMode);
       break;
@@ -183,7 +191,7 @@ export function handleKeyDownGrid({
       e.preventDefault();
       if (e.ctrlKey) {
         deleteCurrentRow();
-       } else {
+      } else {
         deleteCurrentGridCellContents({ row: focusedCell.row, column: focusedCell.column });
       }
 
@@ -220,13 +228,14 @@ export function handleKeyDownGrid({
       break;
     }
 
-    default:
+    default: {
       if (e.key.length > 1) break; // TODO: (hacky?) fix to prevent special keys (ex. shift, ctrl, f4 etc...) from doing things here. Might not function on certain asian keyboards.
 
       if (!editMode) {
-        deleteCurrentGridCellContents({ row: focusedCell.row, column: focusedCell.column }); 
+        deleteCurrentGridCellContents({ row: focusedCell.row, column: focusedCell.column });
       }
       setEditMode(true);
       break;
+    }
   }
 }

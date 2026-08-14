@@ -1,100 +1,57 @@
 import "server-only";
-import type { LoginData } from "@/lib/session";
-import { getSession } from "@/lib/session";
-import { prisma } from "@/lib/prisma";
+import { roadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
+import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { readableAccessControlWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { roadmapSorter } from "@/lib/sorters";
+import { prisma } from "@/lib/prisma";
+import type { Roadmap, UserAccessContext } from "@/types";
 import { cacheTag } from "next/cache";
-import { cookies } from "next/headers";
-import { multiRoadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
-import type { MultiRoadmapInstance } from "@/types";
 
 /**
- * Gets all roadmaps the user has access to, as well as the count of goals for each roadmap.
- * 
- * Returns an empty array if no roadmaps are found or user does not have access to any. Also returns an empty array on error.
+ * Gets all roadmaps the user has access to, with the iterations the user can see nested under each.
+ *
+ * Returns an empty array if none are found or user does not have access to any. Also returns an empty array on error.
  * @returns Array of roadmaps
  */
-export async function getRoadmaps(roadmapIds?: string[]): Promise<MultiRoadmapInstance[]> {
-  const session = await getSession(await cookies());
-  return getCachedRoadmaps(session.user, roadmapIds);
+export async function getRoadmaps(): Promise<Roadmap[]> {
+  const accessContext = await getUserAccessContext();
+  return getCachedRoadmaps(accessContext);
 }
 
 /**
  * Caches all roadmaps the user has access to.
- * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap']`, which is done in relevant API routes.
- * @param user Data from user's session cookie.
+ * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap', 'roadmapIteration']`, which is done in relevant API routes.
+ * @param accessContext Requesting user's access context (null for anonymous visitors); part of the cache key.
  */
-async function getCachedRoadmaps(user: LoginData['user'], roadmapIds?: string[]): Promise<MultiRoadmapInstance[]> {
+async function getCachedRoadmaps(accessContext: UserAccessContext | null): Promise<Roadmap[]> {
   'use cache';
-  cacheTag('database', 'roadmap');
-  let roadmaps: MultiRoadmapInstance[];
+  cacheTag('database', 'roadmap', 'roadmapIteration');
 
-  // If user is admin, get all roadmaps
-  if (user?.isAdmin) {
-    try {
-      roadmaps = await prisma.roadmap.findMany({
-        ...(roadmapIds ? { where: { id: { in: roadmapIds } } } : {}), // If roadmapIds is provided, filter by it
-        include: multiRoadmapInclusionSelection,
-      }) satisfies MultiRoadmapInstance[];
-    }
-    catch (error) {
-      console.error("Error fetching admin roadmaps", { error });
-      return [];
-    }
-
-    // Sort roadmaps
-    roadmaps.sort(roadmapSorter);
-
-    return roadmaps;
-  }
-
-  // If user is logged in, get all roadmaps they have access to
-  if (user?.isLoggedIn) {
-    try {
-      // Get all roadmaps authored by the user
-      roadmaps = await prisma.roadmap.findMany({
-        where: {
-          ...(roadmapIds ? { id: { in: roadmapIds } } : {}), // If roadmapIds is provided, filter by it
-          OR: [
-            { authorId: user.id },
-            { editors: { some: { id: user.id } } },
-            { viewers: { some: { id: user.id } } },
-            { editGroups: { some: { users: { some: { id: user.id } } } } },
-            { viewGroups: { some: { users: { some: { id: user.id } } } } },
-            { isPublic: true },
-          ],
-        },
-        include: multiRoadmapInclusionSelection,
-      }) satisfies MultiRoadmapInstance[];
-    }
-    catch (error) {
-      console.error("Error fetching user roadmaps", { error });
-      return [];
-    }
-
-    // Sort roadmaps
-    roadmaps.sort(roadmapSorter);
-
-    return roadmaps;
-  }
-
-  // Get all public roadmaps
+  let roadmaps: Roadmap[];
   try {
-    roadmaps = await prisma.roadmap.findMany({
+    roadmaps = await prisma.roadmaps.findMany({
       where: {
-        ...(roadmapIds ? { id: { in: roadmapIds } } : {}), // If roadmapIds is provided, filter by it
-        isPublic: true,
+        access_control: readableAccessControlWHERE(accessContext),
       },
-      include: multiRoadmapInclusionSelection,
-    }) satisfies MultiRoadmapInstance[];
+      include: {
+        ...roadmapInclusionSelection,
+        iterations: {
+          where: visibleRoadmapIterationsWHERE(accessContext),
+          include: roadmapInclusionSelection.iterations.include,
+        },
+      },
+    });
   }
-  catch (error) {
-    console.error("Error fetching public roadmaps", { error });
+  catch (err) {
+    console.error("Error fetching roadmaps", { err });
     return [];
   }
 
-  // Sort roadmaps
+  // Sort roadmaps, and their iterations newest version first
   roadmaps.sort(roadmapSorter);
+  for (const roadmap of roadmaps) {
+    roadmap.iterations.sort((a, b) => b.version - a.version);
+  }
 
   return roadmaps;
 };

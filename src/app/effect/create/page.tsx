@@ -1,8 +1,8 @@
 import EffectForm from "@/components/form/forms/effect";
-import { getOneAction, getOneGoal, getRoadmaps } from "@/fetchers";
+import { getOneAction, getOneGoal, getRoadmapIterations } from "@/fetchers";
+import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
-import { getSession } from "@/lib/session";
-import { cookies } from "next/headers";
+import { OrgRole } from "@/lib/prisma/generated";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
@@ -30,25 +30,32 @@ export default async function Page(
   },
 ) {
   const searchParams = await props.searchParams;
-  const [t, session, action, goal, roadmaps] = await Promise.all([
+  const [t, accessContext, action, goal, iterations] = await Promise.all([
     serveTea("pages"),
-    getSession(await cookies()),
+    getUserAccessContext(),
     getOneAction(typeof searchParams.actionId === 'string' ? searchParams.actionId : ''),
     getOneGoal(typeof searchParams.goalId === 'string' ? searchParams.goalId : ''),
-    getRoadmaps(),
+    getRoadmapIterations(),
   ]);
+
+  // Roadmapless actions (the public action database) are editable by the owning org's managers
+  const mayEditAction = action ? (
+    action.roadmap_iteration
+      ? hasEditAccess(accessChecker({ access_control: action.roadmap_iteration.roadmap.access_control, published_at: action.roadmap_iteration.published_at }, accessContext))
+      : (accessContext?.isSuperAdmin || accessContext?.memberships.some(membership => membership.orgId === action.org_id && membership.role === OrgRole.MANAGER)) ?? false
+  ) : false;
 
   const badAction = (
     (!action && typeof searchParams.actionId === 'string')
-    || (action && !hasEditAccess(accessChecker(action.roadmap, session.user)))
+    || (action && !mayEditAction)
   );
 
   const badGoal = (
     (!goal && typeof searchParams.goalId === 'string')
-    || (goal && !hasEditAccess(accessChecker(goal.roadmap, session.user)))
+    || (goal && !hasEditAccess(accessChecker({ access_control: goal.roadmap_iteration.roadmap.access_control, published_at: goal.roadmap_iteration.published_at }, accessContext)))
   );
 
-  const roadmapList = roadmaps.filter((roadmap) => hasEditAccess(accessChecker(roadmap, session.user)));
+  const roadmapList = iterations.filter((iteration) => hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, published_at: iteration.published_at }, accessContext)));
 
   return (
     <>

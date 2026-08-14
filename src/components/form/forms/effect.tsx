@@ -2,15 +2,18 @@
 
 import formSubmitter from "@/functions/formSubmitter";
 import type { Action, DateValuesWithUnit, Effect, EffectInput, Goal, MultiRoadmapInstance } from "@/types";
-import { isDateValuesWithUnit } from "@/types";
+import { EffectFormName } from "@/types/form-names";
+import { isDateValuesWithUnit } from "@/types/typeguards";
 import { ActionImpactType } from "@/lib/prisma/generated";
 import { useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { absoluteToDelta, ActionSelector, deltaToAbsolute, GoalSelector } from "../sections/effectFormSections";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
-import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
+import { FormSync, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
+import { Recipe } from "@/functions/recipe/recipe";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
+import { UnitFlags } from "@/types/enums";
 
 export default function EffectForm({
   goal,
@@ -29,10 +32,10 @@ export default function EffectForm({
 
   const { addToast } = useToast();
 
-  const [selectedImpactType, setSelectedImpactType] = useState<ActionImpactType>(currentEffect?.impactType ?? ActionImpactType.ABSOLUTE);
-  const [dateValues, setDateValues] = useState<DateValuesWithUnit>(currentEffect?.dataSeries
-    ? dataSeriesToDateValues(currentEffect.dataSeries)
-    : { unit: undefined, dateValues: {} },
+  const [selectedImpactType, setSelectedImpactType] = useState<ActionImpactType>(currentEffect?.impact_type ?? ActionImpactType.ABSOLUTE);
+  const [dateValues, setDateValues] = useState<DateValuesWithUnit>(currentEffect?.data_series
+    ? dataSeriesToDateValues(currentEffect.data_series)
+    : { unit: UnitFlags.Missing, dateValues: {} },
   );
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
@@ -40,12 +43,12 @@ export default function EffectForm({
 
     const formData = new FormData(event.target);
 
-    const selectedAction = currentEffect?.actionId ?? formData.get("actionId");
-    const selectedGoal = currentEffect?.goalId ?? formData.get("goalId");
-    const impactType = formData.get("impactType");
+    const selectedAction = currentEffect?.action_id ?? formData.get(EffectFormName.ActionId);
+    const selectedGoal = currentEffect?.goal_id ?? formData.get(EffectFormName.GoalId);
+    const impactType = formData.get(EffectFormName.ImpactType);
 
     // Parse date values (required)
-    const resultingDateValuesString = formData.get("resultingDateValues") as string | null || formData.get("data-series") as string | null; // Fallback for manual data series input
+    const resultingDateValuesString = formData.get(EffectFormName.ResultingDateValues) as string | null;
     if (!resultingDateValuesString) {
       console.error("No resulting date values provided in form.");
       event.target.reportValidity();
@@ -56,10 +59,11 @@ export default function EffectForm({
     // let dataSeries: DateValuesWithUnit | undefined = undefined;
     try {
       dataSeries = JSON.parse(resultingDateValuesString) as DateValuesWithUnit;
-      dataSeries.unit = undefined;
-      // dataSeries.unit = formData.get("dataUnit") as string | null;
-    } catch (e) {
-      console.error("Failed to parse resulting date values from form:", e);
+      // Effects share the goal's unit implicitly; stored without one (serializes to null in the db).
+      dataSeries.unit = UnitFlags.Unitless;
+    }
+    catch (err) {
+      console.error("Failed to parse resulting date values from form:", err);
       event.target.reportValidity();
       return;
     }
@@ -103,96 +107,100 @@ export default function EffectForm({
       defaultLocation = `/action/${selectedAction}`;
     }
 
-    formSubmitter('/api/effect', JSON.stringify(formContent), currentEffect ? 'PUT' : 'POST', t, undefined, defaultLocation, undefined, undefined, addToast, router.push);
+    formSubmitter('/api/effect', JSON.stringify(formContent), currentEffect ? 'PUT' : 'POST', t, undefined, defaultLocation, undefined, undefined, addToast, (url) => router.push(url));
   }
 
   return (
     <form onSubmit={handleSubmit}>
-        <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
+      <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
-        <ActionSelector
-          action={action ?? currentEffect?.action ?? null}
-          roadmaps={roadmaps}
-        />
-        <GoalSelector
-          goal={goal ?? currentEffect?.goal ?? null}
-          roadmaps={roadmaps}
-        />
+      <ActionSelector
+        action={action ?? currentEffect?.action ?? null}
+        roadmaps={roadmaps}
+      />
+      <GoalSelector
+        goal={goal ?? currentEffect?.goal ?? null}
+        roadmaps={roadmaps}
+      />
 
-        <DataSeriesInputManual
+      <RecipeContextProvider
+        initialRecipe={Recipe.fromManualDateValues(dateValues).serialize()}
+      >
+        <ManualDataSeriesInput
           id="effect-dataseries"
           label={t("forms:data_series_input.data_series")}
           initialDateValues={dateValues}
-          outputFormElement={<input name="data-series" />}
         />
+        <FormSync DateValuesFormElement={<input name={EffectFormName.ResultingDateValues} />} />
+      </RecipeContextProvider>
 
-        {(
-          selectedImpactType === ActionImpactType.ABSOLUTE
-          || selectedImpactType === ActionImpactType.DELTA
+      {(
+        selectedImpactType === ActionImpactType.ABSOLUTE
+        || selectedImpactType === ActionImpactType.DELTA
+      )
+        && (
+          <div className="margin-block-100">
+            <button
+              type="button"
+              onClick={() => {
+                if (selectedImpactType === ActionImpactType.ABSOLUTE) {
+                  setSelectedImpactType(ActionImpactType.DELTA);
+                  setDateValues(prev => absoluteToDelta(prev));
+                } else {
+                  setSelectedImpactType(ActionImpactType.ABSOLUTE);
+                  setDateValues(prev => deltaToAbsolute(prev));
+                }
+              }}
+            >
+              {selectedImpactType === ActionImpactType.ABSOLUTE
+                ? t("forms:effect.to_year_by_year")
+                : t("forms:effect.to_absolute")
+              }
+            </button>
+            <br />
+            <small>
+              {selectedImpactType === ActionImpactType.ABSOLUTE
+                ? <Trans
+                  i18nKey="forms:effect.to_year_by_year_info"
+                  components={{ strong: <strong /> }}
+                />
+                : <Trans
+                  i18nKey="forms:effect.to_absolute_info"
+                  components={{ strong: <strong /> }}
+                />
+              }
+            </small>
+          </div>
         )
-          && (
-            <div className="margin-block-100">
-              <button
-                type="button"
-                onClick={() => {
-                  if (selectedImpactType === ActionImpactType.ABSOLUTE) {
-                    setSelectedImpactType(ActionImpactType.DELTA);
-                    setDateValues(prev => absoluteToDelta(prev));
-                  } else {
-                    setSelectedImpactType(ActionImpactType.ABSOLUTE);
-                    setDateValues(prev => deltaToAbsolute(prev));
-                  }
-                }}
-              >
-                {selectedImpactType === ActionImpactType.ABSOLUTE
-                  ? t("forms:effect.to_year_by_year")
-                  : t("forms:effect.to_absolute")
-                }
-              </button>
-              <br />
-              <small>
-                {selectedImpactType === ActionImpactType.ABSOLUTE
-                  ? <Trans
-                    i18nKey="forms:effect.to_year_by_year_info"
-                    components={{ strong: <strong /> }}
-                  />
-                  : <Trans
-                    i18nKey="forms:effect.to_absolute_info"
-                    components={{ strong: <strong /> }}
-                  />
-                }
-              </small>
-            </div>
-          )
-        }
+      }
 
-        {/* TODO: Show preview of how it would affect the goal */}
-        <label>
-          {t("forms:effect.impact_type_label")}
-          <select className="block margin-top-25 margin-bottom-100 width-100" name="impactType" id="impactType" required={true}
-            value={selectedImpactType}
-            onChange={(event) => setSelectedImpactType(event.target.value as ActionImpactType)}
-          >
-            <option value={ActionImpactType.ABSOLUTE}>{t("forms:effect.impact_types.absolute")}</option>
-            <option value={ActionImpactType.DELTA}>{t("forms:effect.impact_types.delta")}</option>
-            <option value={ActionImpactType.PERCENT}>{t("forms:effect.impact_types.percent")}</option>
-          </select>
-        </label>
+      {/* TODO: Show preview of how it would affect the goal */}
+      <label>
+        {t("forms:effect.impact_type_label")}
+        <select className="block margin-top-25 margin-bottom-100 width-100" name={EffectFormName.ImpactType} id="impactType" required={true}
+          value={selectedImpactType}
+          onChange={(event) => setSelectedImpactType(event.target.value as ActionImpactType)}
+        >
+          <option value={ActionImpactType.ABSOLUTE}>{t("forms:effect.impact_types.absolute")}</option>
+          <option value={ActionImpactType.DELTA}>{t("forms:effect.impact_types.delta")}</option>
+          <option value={ActionImpactType.PERCENT}>{t("forms:effect.impact_types.percent")}</option>
+        </select>
+      </label>
 
-        <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
-          <button
-            className="text-align-center seagreen color-purewhite width-100"
-            style={{ fontSize: '14px', transform: 'none' }}
-            type="submit"
-            id="submit-button"
-          >
-            {currentEffect
-              ? t("common:tsx.save")
-              : t("forms:effect.create")
-            }
-          </button>
-        </div>
+      <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
+        <button
+          className="text-align-center seagreen color-purewhite width-100"
+          style={{ fontSize: '14px', transform: 'none' }}
+          type="submit"
+          id="submit-button"
+        >
+          {currentEffect
+            ? t("common:tsx.save")
+            : t("forms:effect.create")
+          }
+        </button>
+      </div>
 
-      </form>
+    </form>
   );
 }

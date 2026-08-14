@@ -29,9 +29,15 @@ export default function SelectSingleSearch({
   // TODO: We probably need a check that default value exists in our options
   const [value, setValue] = useState<Option | null>(null);
 
+  // Once the user has picked (or cleared) an option themselves, the default-value sync
+  // below must leave the selection alone. Parents often rebuild `options`/`defaultValue`
+  // identities on unrelated re-renders, which would otherwise silently reset it.
+  const userHasSelectedRef = useRef(false);
+
   // Syncs default value to value
   // NOTE: Might want to explore if we can make this a controlled component (i.e Move state ownership to its parent) (would mean treating value and defaultvalue as any other standard input does)
   useEffect(() => {
+    if (userHasSelectedRef.current) return;
     // Auto-select first option
     if (defaultValue === true && options.length > 0) {
       if (value?.value !== options[0].value) {
@@ -123,7 +129,7 @@ export default function SelectSingleSearch({
         aria-controls={menuOpen ? `${props.id}-dialog` : undefined}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
-        aria-required={!!props.required ? props.required : false}
+        aria-required={props.required ? props.required : false}
         aria-invalid={!valueIsValid}
       >
         <span className={`${styles['selected-value-text']}`} >
@@ -170,7 +176,8 @@ export default function SelectSingleSearch({
                 focusedListboxOption,
                 setFocusedListboxOption,
                 (selectedOption) => {
-                  setValue(selectedOption?.value !== value?.value ? selectedOption : null); // TODO: Abstract this to use in onclick     
+                  userHasSelectedRef.current = true;
+                  setValue(selectedOption?.value !== value?.value ? selectedOption : null); // TODO: Abstract this to use in onclick
                   setSelectionMade(true);
                   setMenuOpen(false);
                   toggleRef.current?.focus();
@@ -201,6 +208,7 @@ export default function SelectSingleSearch({
                 className={index === focusedListboxOption ? styles['focused-option'] : ''}
                 ref={(el) => { optionRefs.current[index] = el; }}
                 onClick={() => {
+                  userHasSelectedRef.current = true;
                   setValue(option.value !== value?.value ? option : null);
                   setSelectionMade(true);
                   setMenuOpen(false);

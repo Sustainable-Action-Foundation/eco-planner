@@ -22,7 +22,7 @@ export default function UpdatePassword() {
     const email = params.get('email');
     const hash = params.get('hash');
 
-    formSubmitter('/api/resetPassword', JSON.stringify({ email, hash, newPassword }), 'PATCH', t);
+    formSubmitter('/api/password', JSON.stringify({ email, hash, newPassword }), 'PATCH', t);
   }
 
   const [showPassword, setShowPassword] = useState(false);
@@ -38,7 +38,7 @@ export default function UpdatePassword() {
             type="button"
             className={`${styles.showPasswordButton} grid padding-0 transparent`}
             onClick={() => setShowPassword(prevState => !prevState)}
-            aria-label={showPassword ? 'hide password' : 'show password'}
+            aria-label={showPassword ? t("common:tsx.hide_password") : t("common:tsx.show_password")}
           >
             {showPassword ? <IconEyeOff style={{ minWidth: '24px' }} aria-hidden="true" /> : <IconEye style={{ minWidth: '24px' }} aria-hidden="true" />}
           </button>

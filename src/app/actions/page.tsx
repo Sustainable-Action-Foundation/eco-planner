@@ -7,18 +7,18 @@ import type { Metadata } from "next";
  
 // TODO: More detailed metadata?
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await serveTea("metadata");
   return await buildMetadata({
-    title: 'Åtgärder',
+    title: t("metadata:actions.title"),
     description: undefined,
     og_url: undefined,
     og_image_url: undefined,
   });
 }
 
-export default async function Page(props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
-  const [t, searchParams, actions] = await Promise.all([
+export default async function Page() {
+  const [t, actions] = await Promise.all([
     serveTea("pages"),
-    props.searchParams,
     getActions(),
   ]);
 
@@ -28,7 +28,7 @@ export default async function Page(props: { searchParams: Promise<{ [key: string
 
       <main>
         <h1 className="margin-block-300 padding-bottom-100" style={{ borderBottom: '1px solid var(--gray-80)' }}>{t('pages:actions.actions')}</h1>
-        <Actions searchParamsProp={searchParams} actions={actions} />
+        <Actions actions={actions} />
       </main>
     </>
   );

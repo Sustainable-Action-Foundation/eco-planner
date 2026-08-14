@@ -1,10 +1,10 @@
 "use client";
 
 import type { TOptionsBase } from "i18next";
-import type { $Dictionary } from "@/../node_modules/i18next/typescript/helpers";
+import type { $Dictionary } from "@root/node_modules/i18next/typescript/helpers";
 import { Trans, useTranslation } from "react-i18next";
 import { reporter } from "./commonLogic";
-import { allNamespaces } from "@/../i18n.config";
+import { allNamespaces } from "@root/i18n.config";
 
 export function ClientSideT({ i18nKey, options, ...props }: { i18nKey: string, options: TOptionsBase & $Dictionary & { context?: undefined; }, props?: Record<string, unknown> }) {
   const { t } = useTranslation(allNamespaces);

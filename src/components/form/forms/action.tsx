@@ -1,43 +1,133 @@
 "use client";
 
+import { ActionFieldHeaders, defaultActionFieldType, groupActionFields, parseCsvList } from "@/functions/fields";
 import formSubmitter from "@/functions/formSubmitter";
 import type { Action, ActionInput, DateValuesWithUnit, MultiRoadmapInstance } from "@/types";
-import { isDateValuesWithUnit } from "@/types";
-import { ActionImpactType } from "@/lib/prisma/generated";
+import { ActionFormName } from "@/types/form-names";
+import { isDateValuesWithUnit } from "@/types/typeguards";
+import { ActionFieldType, ActionImpactType } from "@/lib/prisma/generated";
 import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
-import TextEditor from "../elements/textEditor/editor";
-import DataSeriesInputManual from "../elements/dataSeriesInput/dataSeriesInputManual";
-import { useState, useRef } from "react";
+import { FormSync, ManualDataSeriesInput, RecipeContextProvider } from "@/components/recipe";
+import { Recipe } from "@/functions/recipe/recipe";
+import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
+import { clientSafeGetAllTags } from "@/fetchers/clientSafeGetAllTags";
+import { clientSafeGetAllFieldHeaders } from "@/fetchers/clientSafeGetAllFieldHeaders";
+import { useEffect, useState } from "react";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
+import { UnitFlags } from "@/types/enums";
+import { IconPilcrow, IconWriting, IconCalendar, IconCaretRightFilled } from "@tabler/icons-react";
 
 export default function ActionForm({
   goalId,
-  roadmapId,
+  iterationId,
   currentAction,
   roadmaps,
 }: {
   goalId?: string,
-  roadmapId?: string,
+  /** The roadmap iteration the action belongs to, if preselected */
+  iterationId?: string,
   currentAction?: Action,
   roadmaps: MultiRoadmapInstance[],
 }) {
   const { t } = useTranslation(["forms", "common"]);
   const [timestamp] = useState(() => Date.now());
-  const descriptionRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
   const { addToast } = useToast();
 
+  // Free-form descriptive fields, replacing the old fixed columns.
+  // Edited as groups (one header/type, any number of values), matching how same-header
+  // fields render as one list; each value becomes its own ActionFields row on submit.
+  const [fields, setFields] = useState<{ header: string, type: ActionFieldType, values: string[] }[]>(() =>
+    currentAction
+      ? groupActionFields(currentAction.fields.filter(field => field.header !== ActionFieldHeaders.Tag && field.header !== ActionFieldHeaders.Description))
+      : [],
+  );
+
+  // The description is stored as a DESCRIPTION-headed paragraph field but edited through
+  // its own optional input; left blank, no field is saved at all
+  const [description, setDescription] = useState<string>(() =>
+    currentAction?.fields.filter(field => field.header === ActionFieldHeaders.Description).map(field => field.value).join("\n\n") ?? "",
+  );
+
+  // Tags are stored as TAG-headed fields but edited through their own input rather
+  // than the free-form rows; they render as cards under the title on the view page
+  const [tags, setTags] = useState<string[]>(() =>
+    (currentAction?.fields.filter(field => field.header === ActionFieldHeaders.Tag).map(field => field.value) ?? []).sort((a, b) => a.localeCompare(b)),
+  );
+  const [tagDraft, setTagDraft] = useState("");
+  // Chips toggle between kept and marked-for-deletion; marked tags are dropped at submit
+  const [tagsMarkedForDeletion, setTagsMarkedForDeletion] = useState<string[]>([]);
+
+  // Tags and field headers on other visible actions, offered as suggestions (free text is still allowed)
+  const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
+  const [headerSuggestions, setHeaderSuggestions] = useState<string[]>([]);
+  useEffect(() => {
+    clientSafeGetAllTags().then(setTagSuggestions).catch(() => setTagSuggestions([]));
+    clientSafeGetAllFieldHeaders().then(setHeaderSuggestions).catch(() => setHeaderSuggestions([]));
+  }, []);
+
+  function addTag() {
+    const value = tagDraft.trim();
+    setTagDraft("");
+    if (!value) return;
+    setTags(previous => previous.includes(value) ? previous : [...previous, value].sort((a, b) => a.localeCompare(b)));
+    // Re-adding a tag marked for deletion revives it
+    setTagsMarkedForDeletion(previous => previous.filter(existing => existing !== value));
+  }
+
+  function toggleTagDeletion(tag: string) {
+    setTagsMarkedForDeletion(previous => previous.includes(tag) ? previous.filter(existing => existing !== tag) : [...previous, tag]);
+  }
+
+  function updateGroup(index: number, patch: Partial<{ header: string, type: ActionFieldType }>) {
+    setFields(previous => previous.map((group, i) => {
+      if (i !== index) return group;
+      // A renamed group adopts its header's established type: another group already
+      // using the header wins, else the header's canonical default.
+      const type = patch.header !== undefined
+        ? previous.find((other, o) => o !== index && other.header === patch.header)?.type ?? defaultActionFieldType(patch.header)
+        : patch.type ?? group.type;
+      return { ...group, ...patch, type };
+    }));
+  }
+
+  function updateValue(groupIndex: number, valueIndex: number, value: string) {
+    setFields(previous => previous.map((group, i) =>
+      i === groupIndex
+        ? { ...group, values: group.values.map((existing, v) => v === valueIndex ? value : existing) }
+        : group,
+    ));
+  }
+
+  function addValue(groupIndex: number) {
+    setFields(previous => previous.map((group, i) => i === groupIndex ? { ...group, values: [...group.values, ""] } : group));
+  }
+
+  // Removing a group's last value removes the whole group
+  function removeValue(groupIndex: number, valueIndex: number) {
+    setFields(previous => previous
+      .map((group, i) => i === groupIndex ? { ...group, values: group.values.filter((_, v) => v !== valueIndex) } : group)
+      .filter(group => group.values.length > 0),
+    );
+  }
+
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    // TAG-headed fields are managed by the dedicated tags input
+    if (fields.some(field => field.header.trim() === ActionFieldHeaders.Tag)) {
+      addToast(t("forms:action.tag_header_forbidden"), "error");
+      return;
+    }
 
     // TODO: Use formData instead of DOM traversal
     const form = event.target.elements;
 
-    let startYear: number | undefined = parseInt((form.namedItem("startYear") as HTMLInputElement).value, 10);
-    let endYear: number | undefined = parseInt((form.namedItem("endYear") as HTMLInputElement).value, 10);
+    let startYear: number | undefined = parseInt((form.namedItem(ActionFormName.StartYear) as HTMLInputElement).value, 10);
+    let endYear: number | undefined = parseInt((form.namedItem(ActionFormName.EndYear) as HTMLInputElement).value, 10);
 
     if (!Number.isFinite(startYear)) {
       startYear = undefined;
@@ -48,7 +138,7 @@ export default function ActionForm({
 
     let dataSeries: DateValuesWithUnit | undefined;
     try {
-      const rawDataSeries = JSON.parse((form.namedItem("data-series") as HTMLInputElement)?.value) as unknown;
+      const rawDataSeries = JSON.parse((form.namedItem(ActionFormName.ResultingDateValues) as HTMLInputElement)?.value) as unknown;
       if (rawDataSeries && isDateValuesWithUnit(rawDataSeries)) {
         dataSeries = rawDataSeries;
       }
@@ -66,32 +156,39 @@ export default function ActionForm({
 
     const formContent: ActionInput = {
       actionId: currentAction ? currentAction.id : undefined,
-      roadmapId: roadmapId ?? (form.namedItem("roadmapId") as HTMLInputElement)?.value ?? undefined,
+      iterationId: iterationId ?? (form.namedItem(ActionFormName.RoadmapId) as HTMLInputElement)?.value ?? undefined,
+      orgId: undefined, // Derived from the iteration's roadmap
       goalId: goalId ?? undefined,
-      description: (form.namedItem("description") as HTMLInputElement | null)?.value ?? undefined,
-      name: (form.namedItem("actionName") as HTMLInputElement)?.value ?? "",
+      name: (form.namedItem(ActionFormName.ActionName) as HTMLInputElement)?.value ?? "",
+      indicatorParameter: currentAction?.indicator_parameter ?? undefined, // Falls back to the name server-side
       startYear,
       endYear,
-      costEfficiency: (form.namedItem("costEfficiency") as HTMLInputElement)?.value ?? undefined,
-      expectedOutcome: (form.namedItem("expectedOutcome") as HTMLInputElement)?.value ?? undefined,
-      projectManager: (form.namedItem("projectManager") as HTMLInputElement)?.value ?? undefined,
-      relevantActors: (form.namedItem("relevantActors") as HTMLInputElement)?.value ?? undefined,
-      isSufficiency: (form.namedItem("isSufficiency") as HTMLInputElement)?.checked ?? false,
-      isEfficiency: (form.namedItem("isEfficiency") as HTMLInputElement)?.checked ?? false,
-      isRenewables: (form.namedItem("isRenewables") as HTMLInputElement)?.checked ?? false,
-      parentAction: currentAction ?? undefined,
-      childActions: undefined,
+      // Empty rows carry no data; drop them rather than storing blank fields.
+      fields: [
+        ...(description.trim() !== ""
+          ? [{ header: ActionFieldHeaders.Description as string, value: description.trim(), type: ActionFieldType.PARAGRAPH }]
+          : []),
+        ...fields
+          .filter(group => group.header.trim() !== "")
+          .flatMap(group => group.values
+            .filter(value => value.trim() !== "")
+            .map(value => ({ header: group.header, value, type: group.type })),
+          ),
+        ...tags
+          .filter(tag => !tagsMarkedForDeletion.includes(tag))
+          .map(value => ({ header: ActionFieldHeaders.Tag as string, value, type: defaultActionFieldType(ActionFieldHeaders.Tag) })),
+      ],
+      parentActionId: currentAction?.parent_action_id ?? undefined,
       dataSeries,
       impactType: goalId && !currentAction
-        ? (form.namedItem("impactType") as HTMLInputElement)?.value as ActionImpactType
+        ? (form.namedItem(ActionFormName.ImpactType) as HTMLInputElement)?.value as ActionImpactType
         : undefined,
-      links: undefined,
       timestamp,
     };
 
     const formJSON = JSON.stringify(formContent);
 
-    formSubmitter('/api/action', formJSON, currentAction ? 'PUT' : 'POST', t, undefined, undefined, undefined, undefined, addToast, router.push);
+    formSubmitter('/api/action', formJSON, currentAction ? 'PUT' : 'POST', t, undefined, undefined, undefined, undefined, addToast, (url) => router.push(url));
   }
 
   // Indexes for the data-position attribute in the legend elements
@@ -99,19 +196,19 @@ export default function ActionForm({
 
   return (
     <form onSubmit={handleSubmit}>
-      {/* This hidden submit button prevents submitting by pressing enter, this avoids accidental submission when adding new entries in AccessSelector (for example, when pressing enter to add someone to the list of editors) */}
+      {/* This hidden submit button prevents submitting by pressing enter, to avoid accidental submission */}
       <button type="submit" disabled={true} className="display-none" aria-hidden={true} />
 
-      {!(roadmapId || currentAction?.roadmapId) ?
+      {!(iterationId || currentAction?.roadmap_iteration_id) ?
         <fieldset className={`${styles.timeLineFieldset} width-100`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:action.choose_relationship")}</legend>
           <label>
             {t("forms:action.relationship_label")}
-            <select name="roadmapId" id="roadmapId" required={true} className="block margin-top-25 margin-bottom-100 width-100" defaultValue={""}>
+            <select name={ActionFormName.RoadmapId} id="iterationId" required={true} className="block margin-top-25 margin-bottom-100 width-100" defaultValue={""}>
               <option value="" disabled={true}>{t("forms:action.relationship_no_chosen")}</option>
-              {roadmaps.map(roadmap => (
-                <option key={roadmap.id} value={roadmap.id}>
-                  {`${roadmap.metaRoadmap.name} (v${roadmap.version}): ${t("common:count.action", { count: roadmap._count.actions })}`}
+              {roadmaps.map(iteration => (
+                <option key={iteration.id} value={iteration.id}>
+                  {`${iteration.roadmap.name} (v${iteration.version}): ${t("common:count.action", { count: iteration._count.actions })}`}
                 </option>
               ))}
             </select>
@@ -124,104 +221,295 @@ export default function ActionForm({
         <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:action.action_description_legend")}</legend>
         <label>
           {t("forms:action.action_name")}
-          <input className="margin-top-25 margin-bottom-100" type="text" name="actionName" required={true} id="actionName" defaultValue={currentAction?.name} />
-        </label>
-
-        <label id="description-label">{t("forms:action.action_description")}</label>
-        <TextEditor
-          className="margin-top-25 margin-bottom-100" // TODO: Need label for textEditorMenu
-          id="description"
-          ariaLabelledBy="description-label"
-          placeholder={t("forms:text_editor_menu.default_placeholder")}
-          editable={true}
-          content={currentAction ? currentAction.description : ""}
-          updater={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
-        />
-        <input ref={descriptionRef} type="hidden" name="description" />
-
-        <label>
-          {t("forms:action.cost_efficiency")}
-          <input className="margin-top-25 margin-bottom-100" type="text" name="costEfficiency" id="costEfficiency" defaultValue={currentAction?.costEfficiency ?? undefined} />
+          <input className="margin-top-25 margin-bottom-100" type="text" name={ActionFormName.ActionName} required={true} id="actionName" defaultValue={currentAction?.name} />
         </label>
 
         <label>
-          {t("forms:action.expected_outcome")}
-          <textarea className="margin-top-25 margin-bottom-100" name="expectedOutcome" id="expectedOutcome" defaultValue={currentAction?.expectedOutcome ?? undefined} />
-        </label>
-      </fieldset>
-
-      {(goalId && !currentAction) ?
-        // TODO: Allow conversion between absolute and delta like in effectForm?
-        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:action.expected_effect_legend")}</legend>
-          <label>
-            {t("forms:action.impact_type_label")}
-            <select name="impactType" id="impactType" className="block margin-top-25 margin-bottom-100 width-100" /* defaultValue={actionImpactType} onChange={e => setActionImpactType(e.target.value as ActionImpactType)} */ >
-              <option value={ActionImpactType.ABSOLUTE}>{t("forms:action.impact_types.absolute")}</option>
-              <option value={ActionImpactType.DELTA}>{t("forms:action.impact_types.delta")}</option>
-              <option value={ActionImpactType.PERCENT}>{t("forms:action.impact_types.percent")}</option>
-            </select>
-          </label>
-
-          <DataSeriesInputManual
-            id="action-dataseries"
-            label={t("forms:data_series_input.data_series")}
-            outputFormElement={<input name="data-series" />}
+          {t("forms:action.action_description")}
+          <textarea
+            className="margin-top-25 margin-bottom-100"
+            id="action-description"
+            data-testid="action-description"
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
           />
-        </fieldset>
-        : null
-      }
-
-      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:action.action_years_legend")}</legend>
-        <label>
-          {t("forms:action.start_year")}
-          <input className="margin-top-25 margin-bottom-100" type="number" name="startYear" id="startYear" defaultValue={currentAction?.startYear ?? undefined} min={2000} />
         </label>
 
-        <label>
-          {t("forms:action.end_year")}
-          <input className="margin-top-25 margin-bottom-100" type="number" name="endYear" id="endYear" defaultValue={currentAction?.endYear ?? undefined} min={2000} />
-        </label>
-      </fieldset>
-
-      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:action.describe_actors_legend")}</legend>
-        <label className="block margin-bottom-100">
-          {t("forms:action.project_manager")}
-          <input className="margin-top-25 margin-bottom-100" type="text" name="projectManager" id="projectManager" defaultValue={currentAction?.projectManager ?? undefined} />
-        </label>
-
-        <label className="block margin-block-100">
-          {t("forms:action.relevant_actors")}
-          <input className="margin-top-25 margin-bottom-100" type="text" name="relevantActors" id="relevantActors" defaultValue={currentAction?.relevantActors ?? undefined} />
-        </label>
+        {/* The chips live outside the label: a label's implicit control is its first
+            form control, which would hijack hover and clicks meant for the other chips' delete buttons */}
+        <div className="margin-bottom-100">
+          <label htmlFor="action-tag-input">
+            {t("forms:action.tags_label")}
+          </label>
+          {/* Enter adds the draft as a tag, unless a suggestion is highlighted
+              (aria-activedescendant marks that state) — then it accepts the suggestion
+              into the input first, and a second Enter adds it */}
+          <div
+            onKeyDownCapture={(event) => {
+              if (event.key !== "Enter") return;
+              if (!(event.target instanceof HTMLInputElement)) return;
+              if (event.target.getAttribute("aria-activedescendant")) return;
+              event.preventDefault();
+              event.stopPropagation();
+              addTag();
+            }}
+          >
+            <TextSingleAutocomplete
+              props={{
+                id: "action-tag-input",
+                name: "action-tag-input",
+                placeholder: t("forms:combobox.default_autocomplete_placeholder"),
+                className: "margin-top-25",
+              }}
+              options={tagSuggestions.filter(tag => !tags.includes(tag)).map(tag => ({ name: tag, value: tag }))}
+              fuseOptions={{
+                threshold: 0.3,
+                ignoreLocation: true,
+              }}
+              value={tagDraft}
+              setter={setTagDraft}
+            />
+          </div>
+          <button type="button" className="margin-top-25" onClick={addTag}>
+            {t("forms:action.add_tag")}
+          </button>
+          {tags.length > 0 &&
+            <ul className="flex gap-25 margin-top-50 margin-bottom-0 padding-0" style={{ listStyle: 'none', flexWrap: 'wrap' }}>
+              {tags.map(tag => {
+                const marked = tagsMarkedForDeletion.includes(tag);
+                return (
+                  <li
+                    key={tag}
+                    className={`smooth padding-inline-50 padding-block-25 flex gap-25 align-items-center ${marked ? styles.chipMarkedForDeletion : ''}`}
+                    style={{ backgroundColor: 'var(--seagreen-90)', border: '1px solid var(--seagreen-80)', color: 'var(--seagreen-30)' }}
+                  >
+                    {tag}
+                    <button
+                      type="button"
+                      aria-label={`${marked ? t("forms:action.restore_tag") : t("common:tsx.delete")}: ${tag}`}
+                      aria-pressed={marked}
+                      className="padding-0 transparent"
+                      // Fixed-size box so swapping the ×/↺ glyphs doesn't resize the chip
+                      style={{ lineHeight: 1, fontSize: '1.25em', width: '1em', height: '1em', display: 'inline-grid', placeItems: 'center' }}
+                      onClick={() => toggleTagDeletion(tag)}
+                    >
+                      {marked ? '↺' : '×'}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          }
+        </div>
       </fieldset>
 
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
         <legend
-          // Technically incrementing here is unused but if you add a another entry after this one it will be correct
-          // eslint-disable-next-line no-useless-assignment
           data-position={positionIndex++}
           className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
         >
-          {t("forms:action.categories_legend")}
+          {t("forms:action.action_years_legend")}
         </legend>
-        <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50" htmlFor="isSufficiency">
-          <input type="checkbox" name="isSufficiency" id="isSufficiency" defaultChecked={currentAction?.isSufficiency} />
-          {t("forms:action.category_sufficiency")}
+        <label>
+          {t("forms:action.start_year")}
+          <input className="margin-top-25 margin-bottom-100" type="number" name={ActionFormName.StartYear} id="startYear" defaultValue={currentAction?.start_year ?? undefined} min={2000} />
         </label>
 
-        <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50" htmlFor="isEfficiency">
-          <input type="checkbox" name="isEfficiency" id="isEfficiency" defaultChecked={currentAction?.isEfficiency} />
-          {t("forms:action.category_efficiency")}
-        </label>
-
-        <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50" htmlFor="isRenewables">
-          <input type="checkbox" name="isRenewables" id="isRenewables" defaultChecked={currentAction?.isRenewables} />
-          {t("forms:action.category_renewables")}
+        <label>
+          {t("forms:action.end_year")}
+          <input className="margin-top-25 margin-bottom-100" type="number" name={ActionFormName.EndYear} id="endYear" defaultValue={currentAction?.end_year ?? undefined} min={2000} />
         </label>
       </fieldset>
+
+      {/* Repeatable free-form fields, replacing the old fixed inputs
+          (description, cost efficiency, expected outcome, project manager, relevant actors...) */}
+      {/* TODO: Check if any stylings are un-needed now since rewriting this */}
+      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:action.custom_fields_legend")}</legend>
+
+        {fields.map((group, index) =>
+          <details key={index} data-testid="action-field-row" className={`smooth margin-bottom-50 ${styles['action-details']}`}>
+            <summary className="flex justify-content-space-between align-items-center padding-50 cursor-pointer" >
+              <IconCaretRightFilled className={`${styles['caret']}`} height={20} width={20} style={{ minWidth: '20px' }} aria-hidden="true" />
+              {group.header ? group.header : t("forms:action.field_header")} {/* TODO: Actually pass the locale, TODO: Title needs to make sense */}
+              {(() => {
+                const Icon = {
+                  [ActionFieldType.PARAGRAPH]: IconPilcrow,
+                  [ActionFieldType.SHORT]: IconWriting,
+                  [ActionFieldType.DATE]: IconCalendar,
+                }[group.type];
+                return Icon ? <Icon aria-hidden="true" /> : null;
+              })()}
+              {/*
+              <button
+                className="padding-25 transparent"
+                type="button"
+                onClick={() => removeValue(index, 0)}
+              >
+                {t("common:tsx.delete")}
+              </button>
+               */}
+            </summary>
+            <div className={`padding-50 ${styles['action-details-body']}`}>
+              
+              {/* Title */}
+              <label htmlFor={`action-field-header-${index}`}>{t("forms:action.field_header")}</label>
+              <TextSingleAutocomplete
+                props={{
+                  id: `action-field-header-${index}`,
+                  name: `action-field-header-${index}`,
+                  className: "margin-bottom-100 margin-top-25",
+                  ariaLabel: t("forms:action.field_header"),
+                  dataTestid: "action-field-header",
+                }}
+                options={headerSuggestions.map(header => ({ name: header, value: header }))}
+                fuseOptions={{
+                  threshold: 0.3,
+                  ignoreLocation: true,
+                }}
+                value={group.header}
+                setter={(action) => {
+                  const header = typeof action === "function" ? action(group.header) : action;
+                  updateGroup(index, { header });
+                }}
+              />
+
+              <fieldset>
+                <legend>{t("forms:action.field_content")}</legend>
+                
+                {/* Type */}
+                <div className="radio-group-icons margin-block-25" data-testid="action-field-type" role="radiogroup" aria-label={t("forms:action.field_type_label")}>
+                  {[
+                    { type: ActionFieldType.PARAGRAPH, Icon: IconPilcrow },
+                    { type: ActionFieldType.SHORT, Icon: IconWriting },
+                    { type: ActionFieldType.DATE, Icon: IconCalendar },
+                  ].map(({ type, Icon }) => {
+                    const optionId = `action-field-type-${index}-${type}`;
+                    return (
+                      <label id={`${optionId}-label`} key={type} htmlFor={optionId} className="display-block">
+                        <input
+                          type="radio"
+                          id={optionId}
+                          name={`action-field-type-${index}`}
+                          value={type}
+                          checked={group.type === type}
+                          onChange={() => updateGroup(index, { type })}
+                        />
+                        <Icon aria-hidden="true" />
+                        {t(`forms:action.field_types.${type.toLowerCase()}`)}
+                      </label>
+                    );
+                  })}
+                </div>
+
+                {/* Content */}
+                {(() => {
+
+                  const valueControl = (valueIndex: number) =>
+                    group.type === ActionFieldType.PARAGRAPH ? (
+                      <textarea
+                        aria-labelledby={`action-field-type-${index}-${group.type}-label`} // Labelled by the paragraph radio button (TODO: check that it is fine to label like this)
+                        placeholder={t("forms:action.field_placeholder_paragraph")}
+                        data-testid="action-field-value"
+                        value={group.values[valueIndex]}
+                        onChange={(event) => updateValue(index, valueIndex, event.target.value)}
+                      />
+                    ) : (
+                      <input
+                        type={group.type === ActionFieldType.DATE ? "date" : "text"}
+                        aria-labelledby={`action-field-type-${index}-${group.type}-label`} // Labelled by either paragraph or data radio button (TODO: check that it is fine to label like this)
+                        placeholder={group.type === ActionFieldType.DATE ? "" : t("forms:action.field_placeholder_short")}
+                        data-testid="action-field-value"
+                        value={group.values[valueIndex]}
+                        onChange={(event) => updateValue(index, valueIndex, event.target.value)}
+                        onPaste={group.type === ActionFieldType.SHORT ? (event) => {
+                          const items = parseCsvList(event.clipboardData.getData("text"));
+                          if (items.length < 2) return;
+                          event.preventDefault();
+                          setFields(previous => previous.map((g, i) =>
+                            i === index
+                              ? { ...g, values: [...g.values.slice(0, valueIndex), ...items, ...g.values.slice(valueIndex + 1)] }
+                              : g,
+                          ));
+                        } : undefined}
+                      />
+                    );
+
+                  return (
+                    <>
+                      {valueControl(0)}
+                      { /* Additional list values render underneath, sharing the group's heading and type */}
+                      {group.values.slice(1).map((_, restIndex) => (
+                        <div className="flex gap-25 align-items-center margin-block-50" key={restIndex + 1}>
+                          {valueControl(restIndex + 1)}
+                          <button
+                            type="button"
+                            onClick={() => removeValue(index, restIndex + 1)}
+                          >
+                            {t("common:tsx.delete")}
+                          </button>
+                        </div>
+                      ))}
+
+                      {/* Short texts and dates may hold several values; they render as a list */}
+                      {group.type !== ActionFieldType.PARAGRAPH &&
+                        <button
+                          type="button"
+                          className="margin-top-100"
+                          onClick={() => addValue(index)}
+                        >
+                          {t("forms:action.add_list_item")}
+                        </button>
+                      }
+                    </>
+                  );
+                })()}
+              </fieldset>
+            </div>
+          </details>,
+        )}
+        <button
+          type="button"
+          className="margin-top-100"
+          onClick={() => setFields(previous => [...previous, { header: "", type: defaultActionFieldType(""), values: [""] }])}
+        >
+          {t("forms:data_series_input.add_new_row")}
+        </button>
+      </fieldset>
+
+
+      {
+        (goalId && !currentAction) ?
+          // TODO: Allow conversion between absolute and delta like in effectForm?
+          <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+            <legend
+              // Technically incrementing here is unused but if you add a another entry after this one it will be correct
+              // eslint-disable-next-line no-useless-assignment
+              data-position={positionIndex++}
+              className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>
+              {t("forms:action.expected_effect_legend")}
+            </legend>
+            <label>
+              {t("forms:action.impact_type_label")}
+              <select name={ActionFormName.ImpactType} id="impactType" className="block margin-top-25 margin-bottom-100 width-100" /* defaultValue={actionImpactType} onChange={e => setActionImpactType(e.target.value as ActionImpactType)} */ >
+                <option value={ActionImpactType.ABSOLUTE}>{t("forms:action.impact_types.absolute")}</option>
+                <option value={ActionImpactType.DELTA}>{t("forms:action.impact_types.delta")}</option>
+                <option value={ActionImpactType.PERCENT}>{t("forms:action.impact_types.percent")}</option>
+              </select>
+            </label>
+
+            <RecipeContextProvider
+              initialRecipe={Recipe.fromManualDateValues({ unit: UnitFlags.Missing, dateValues: {} }).serialize()}
+            >
+              <ManualDataSeriesInput
+                id="action-dataseries"
+                label={t("forms:data_series_input.data_series")}
+              />
+              <FormSync DateValuesFormElement={<input name={ActionFormName.ResultingDateValues} />} />
+            </RecipeContextProvider>
+          </fieldset>
+          : null
+      }
 
       <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
         <button
@@ -233,6 +521,6 @@ export default function ActionForm({
           {currentAction ? t("common:tsx.save") : t("forms:action.create")}
         </button>
       </div>
-    </form>
+    </form >
   );
 }

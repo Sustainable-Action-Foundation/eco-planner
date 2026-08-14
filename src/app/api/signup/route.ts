@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 import { allowedDomains } from "@/lib/allowedDomains";
+import { OrgRole } from "@/lib/prisma/generated";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import mailClient from "@/mailClient";
@@ -21,7 +22,7 @@ export async function POST(request: NextRequest) {
 
   // Check if email or username already exists; this is implicitly done by Prisma when creating a new user,
   // but we want to return a more specific error message
-  const usernameExists = await prisma.user.findUnique({
+  const usernameExists = await prisma.users.findUnique({
     where: {
       username: username,
     },
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const emailExists = await prisma.user.findUnique({
+  const emailExists = await prisma.users.findUnique({
     where: {
       email: lowercaseEmail,
     },
@@ -49,15 +50,24 @@ export async function POST(request: NextRequest) {
   // Get the part after last '@' to support emails like `"john@doe"@example.com`, and trim any whitespace or trailing '>' character (e.g. if the email is in the format `John Doe <john.doe@example.com>`)
   const domain = lowercaseEmail.split('@').pop()?.trim().replace(/>$/, '').trim();
   /** A regex matching domain names according to RFC 1035 and RFC 1123 */
-  const domainRegex = /^[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?)*$/;
+  const domainRegex = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)*$/;
   if (!domainRegex.test(domain ?? '')) {
     return Response.json({ message: `Failed to parse domain '${domain}'.` },
       { status: 400 },
     );
   }
 
+  // NOTE: Guests are disabled until further notice. When they return, pending
+  // guest invites both bypass the domain allowlist (the invitation is the
+  // vetting) and are consumed into GUEST memberships at creation below.
+  // const pendingInvites = await prisma.guestInvites.findMany({
+  //   where: { email: lowercaseEmail },
+  //   select: { org_id: true },
+  // });
+
   // Check if the domain ends with any of the allowed domains (to allow subdomains)
-  if (!allowedDomains.some((allowedDomain) => (domain === allowedDomain) || (domain ?? '').endsWith('.' + allowedDomain))) {
+  if (!allowedDomains.some((allowedDomain) => (domain === allowedDomain) || (domain ?? '').endsWith('.' + allowedDomain))
+    /* && pendingInvites.length === 0 */) {
     return Response.json({ message: `Email domain '${domain}' is not allowed` },
       { status: 400 },
     );
@@ -69,36 +79,53 @@ export async function POST(request: NextRequest) {
 
   // If mailClient does not verify, don't try to create the user since something on the server is misconfigured. If only the sendVerificationEmail function fails, the user can try requesting a new verification email later.
   try {
-    await mailClient.verify().catch((e: unknown) => { throw e; });
+    await mailClient.verify();
   }
-  catch (error) {
-    console.error(error);
+  catch (err) {
+    console.error(err);
     return Response.json({ message: 'Problem connecting to email service; User not created since server is misconfigured. Please try again later' },
       { status: 500 },
     );
   }
 
+  // Find the org owning this email domain, if any. Matches the exact domain or a parent domain
+  // (e.g. "stadshuset.goteborg.se" joins an org with domain "goteborg.se"); prefers the most specific match.
+  // Orgs are curated, so unlike the old per-domain user groups nothing is auto-created here:
+  // users from unclaimed domains sign up without an org and can be invited into one later.
+  const domainCandidates = (domain ?? '').split('.').map((_, i, parts) => parts.slice(i).join('.'));
+  const matchingOrgs = await prisma.orgs.findMany({
+    where: { domain: { in: domainCandidates } },
+    select: { id: true, domain: true },
+  });
+  const org = matchingOrgs.sort((a, b) => (b.domain?.length ?? 0) - (a.domain?.length ?? 0)).at(0);
+
+  // NOTE: Guests are disabled until further notice. When they return, signup
+  // consumes any pending invites into GUEST memberships:
+  // const invitedOrgIds = [...new Set(pendingInvites.map(invite => invite.org_id))].filter(orgId => orgId !== org?.id);
+  // ... and inside the creation below:
+  //   memberships: { create: [ ...member entry..., ...invitedOrgIds.map(orgId => ({ org: { connect: { id: orgId } }, role: OrgRole.GUEST })) ] }
+  //   await tx.guestInvites.deleteMany({ where: { email: lowercaseEmail } });
+
   // Create user
   try {
-    await prisma.user.create({
+    await prisma.users.create({
       data: {
         username: username,
         email: lowercaseEmail,
-        password: hashedPassword,
-        userGroups: {
-          connectOrCreate: {
-            where: {
-              name: lowercaseEmail.split('@')[1],
-            },
+        password_hash: hashedPassword,
+        ...(org ? {
+          memberships: {
             create: {
-              name: lowercaseEmail.split('@')[1],
+              org: { connect: { id: org.id } },
+              role: OrgRole.MEMBER,
             },
           },
-        },
+        } : {}),
       },
     });
-  } catch (error) {
-    console.error(error);
+  }
+  catch (err) {
+    console.error(err);
     return Response.json({ message: 'Error creating user' },
       { status: 500 },
     );
@@ -119,8 +146,8 @@ export async function POST(request: NextRequest) {
       text: t("email:signup.body", { baseUrl: baseUrl, email: lowercaseEmail, userHash: userHash }),
     };
 
-    await mailClient.sendMail(mailContent).catch((e: unknown) => {
-      console.error(e);
+    await mailClient.sendMail(mailContent).catch((err: unknown) => {
+      console.error(err);
       throw new Error('Error sending verification email');
     });
   } catch {

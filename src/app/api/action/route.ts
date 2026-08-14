@@ -1,15 +1,27 @@
 import type { NextRequest } from "next/server";
-import { getSession } from "@/lib/session";
+import { getAccessContextById } from "@/fetchers/getUserAccessContext";
+import { accessControlSelection } from "@/fetchers/inclusionSelectors";
+import { parseActionFieldType } from "@/functions/fields";
+import pruneOrphans from "@/functions/pruneOrphans";
+import { iterationPath } from "@/functions/versionSlug";
+import { manualDataSeriesCreateData } from "@/functions/recipe/persistence";
+import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
+import serveTea from "@/lib/i18nServer";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@PRISMA-NAMESPACE-ONLY";
-import { AccessLevel, ClientError, isDateValuesWithUnit } from "@/types";
-import type { AccessControlled, ActionInput } from "@/types";
-import accessChecker from "@/lib/accessChecker";
+import { OrgRole } from "@/lib/prisma/generated";
+import { getSession } from "@/lib/session";
+import type { ActionInput, UserAccessContext } from "@/types";
+import { ClientError } from "@/types/consts";
+import { isDateValuesWithUnit } from "@/types/typeguards";
 import { revalidateTag } from "next/cache";
-import pruneOrphans from "@/functions/pruneOrphans";
 import { cookies } from "next/headers";
-import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
-import serveTea from "@/lib/i18nServer";
+
+/** True if the user manages the given org (roadmapless actions are maintained by the owning org's managers). */
+function managesOrg(accessContext: UserAccessContext, orgId: string): boolean {
+  return accessContext.isSuperAdmin
+    || accessContext.memberships.some(membership => membership.orgId === orgId && membership.role === OrgRole.MANAGER);
+}
 
 /**
  * Handles POST requests to the action API
@@ -28,7 +40,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (!actionCreate.roadmapId) {
+  // Actions either sit under a roadmap iteration or (roadmapless) directly under an org
+  if (!actionCreate.iterationId && !actionCreate.orgId) {
     return Response.json({ message: t('api:action.missing_parent') },
       { status: 400 },
     );
@@ -41,81 +54,81 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  let orgId: string;
+  let goalOrgId: string | null = null;
+
   // Auth
   try {
-    // Get user and goal
-    const [user, roadmap, goal] = await Promise.all([
-      prisma.user.findUnique({
-        where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true },
-      }),
-      prisma.roadmap.findUnique({
-        where: { id: actionCreate.roadmapId },
-        select: {
-          author: { select: { id: true, username: true } },
-          editors: { select: { id: true, username: true } },
-          viewers: { select: { id: true, username: true } },
-          editGroups: { include: { users: { select: { id: true, username: true } } } },
-          viewGroups: { include: { users: { select: { id: true, username: true } } } },
-          isPublic: true,
-        },
-      }),
+    const [accessContext, iteration, goal] = await Promise.all([
+      getAccessContextById(session.user.id),
+      !actionCreate.iterationId
+        ? null
+        : prisma.roadmapIterations.findUnique({
+          where: { id: actionCreate.iterationId },
+          select: {
+            published_at: true,
+            roadmap: { select: { access_control: { select: accessControlSelection } } },
+          },
+        }),
       !actionCreate.goalId
         ? null
-        : prisma.goal.findUnique({
+        : prisma.goals.findUnique({
           where: { id: actionCreate.goalId },
-          include: {
-            roadmap: {
+          select: {
+            roadmap_iteration: {
               select: {
-                author: { select: { id: true, username: true } },
-                editors: { select: { id: true, username: true } },
-                viewers: { select: { id: true, username: true } },
-                editGroups: { include: { users: { select: { id: true, username: true } } } },
-                viewGroups: { include: { users: { select: { id: true, username: true } } } },
-                isPublic: true,
+                published_at: true,
+                roadmap: { select: { access_control: { select: accessControlSelection } } },
               },
             },
           },
         }),
     ]);
 
-    // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
-    if (!user || (session.user.isAdmin && !user.isAdmin)) {
+    // If no user is found or the found user falsely claims to be a super admin, they have a bad session cookie and should be logged out
+    if (!accessContext || (session.user.isSuperAdmin && !accessContext.isSuperAdmin)) {
       throw new Error(ClientError.BadSession, { cause: 'action' });
     }
 
-    // If no roadmap is found or the user has no access to the roadmap, return IllegalParent
     // Also return IllegalParent if a goalId is provided and no valid goal is found
-    if (!roadmap || (!goal && actionCreate.goalId)) {
+    if (!goal && actionCreate.goalId) {
       throw new Error(ClientError.IllegalParent, { cause: 'action' });
     }
 
-    const roadmapAccess = accessChecker(roadmap, session.user);
-    if (roadmapAccess === AccessLevel.None || roadmapAccess === AccessLevel.View) {
-      throw new Error(ClientError.IllegalParent, { cause: 'action' });
+    if (actionCreate.iterationId) {
+      // Creating under an iteration requires edit access to it (also covers iterations that don't exist)
+      if (!iteration || !hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, published_at: iteration.published_at }, accessContext))) {
+        throw new Error(ClientError.IllegalParent, { cause: 'action' });
+      }
+      orgId = iteration.roadmap.access_control.org_id;
+    } else {
+      // Roadmapless actions (the public action database) are maintained by the owning org's managers
+      if (!actionCreate.orgId || !managesOrg(accessContext, actionCreate.orgId)) {
+        throw new Error(ClientError.AccessDenied, { cause: 'action' });
+      }
+      orgId = actionCreate.orgId;
     }
 
     if (goal) {
-      const accessFields: AccessControlled = {
-        author: goal.roadmap.author,
-        editors: goal.roadmap.editors,
-        viewers: goal.roadmap.viewers,
-        editGroups: goal.roadmap.editGroups,
-        viewGroups: goal.roadmap.viewGroups,
-        isPublic: goal.roadmap.isPublic,
-      };
-      const accessLevel = accessChecker(accessFields, session.user);
-      if (accessLevel === AccessLevel.None || accessLevel === AccessLevel.View) {
+      // Creating an effect on the goal requires edit access to the goal
+      const goalAccess = accessChecker({ access_control: goal.roadmap_iteration.roadmap.access_control, published_at: goal.roadmap_iteration.published_at }, accessContext);
+      if (!hasEditAccess(goalAccess)) {
         throw new Error(ClientError.IllegalParent, { cause: 'action' });
       }
+      goalOrgId = goal.roadmap_iteration.roadmap.access_control.org_id;
     }
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === ClientError.BadSession) {
+  } catch (err) {
+    if (err instanceof Error) {
+      if (err.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
-        return Response.json({ message: ClientError.StaleData },
+        return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } },
+        );
+      }
+      if (err.message === ClientError.AccessDenied) {
+        return Response.json({ message: ClientError.AccessDenied },
+          { status: 403 },
         );
       }
       return Response.json({ message: ClientError.IllegalParent },
@@ -123,7 +136,7 @@ export async function POST(request: NextRequest) {
       );
     } else {
       // If non-error is thrown, log it and return a generic error message
-      console.error(error);
+      console.error(err);
       return Response.json({ message: t('api:common.unknown_server_error') },
         { status: 500 },
       );
@@ -140,44 +153,33 @@ export async function POST(request: NextRequest) {
 
   // Create the action
   try {
-    const newActionId = (await prisma.action.create({
+    const newActionId = (await prisma.actions.create({
       data: {
         name: actionCreate.name,
-        description: actionCreate.description,
-        costEfficiency: actionCreate.costEfficiency,
-        expectedOutcome: actionCreate.expectedOutcome,
-        startYear: actionCreate.startYear,
-        endYear: actionCreate.endYear,
-        projectManager: actionCreate.projectManager,
-        relevantActors: actionCreate.relevantActors,
-        isSufficiency: actionCreate.isSufficiency,
-        isEfficiency: actionCreate.isEfficiency,
-        isRenewables: actionCreate.isRenewables,
-        roadmap: { connect: { id: actionCreate.roadmapId } },
-        effects: !(actionCreate.dataSeries && actionCreate.goalId)
+        // The indicator parameter places the action in a tree; fall back to the name for a flat placement
+        indicator_parameter: actionCreate.indicatorParameter || actionCreate.name,
+        start_year: actionCreate.startYear,
+        end_year: actionCreate.endYear,
+        org: { connect: { id: orgId } },
+        roadmap_iteration: actionCreate.iterationId ? { connect: { id: actionCreate.iterationId } } : undefined,
+        parent_action: actionCreate.parentActionId ? { connect: { id: actionCreate.parentActionId } } : undefined,
+        fields: actionCreate.fields?.length
+          ? { createMany: { data: actionCreate.fields.map((field, index) => ({ header: field.header, value: field.value, type: parseActionFieldType(field.type), order: index })) } }
+          : undefined,
+        effects: !(actionCreate.dataSeries && actionCreate.goalId && goalOrgId)
           ? undefined
           : {
             create: {
-              impactType: actionCreate.impactType,
-              dataSeries: {
-                create: {
-                  author: { connect: { id: session.user.id } },
-                  unit: null,
-                  values: { createMany: { data: dateValuesToDBDateRecord(actionCreate.dataSeries.dateValues) } },
-                },
+              impact_type: actionCreate.impactType,
+              // The effect's series belongs to the goal's (deriving) org
+              data_series: {
+                create: manualDataSeriesCreateData(actionCreate.dataSeries, goalOrgId, session.user.id),
               },
               goal: {
                 connect: { id: actionCreate.goalId },
               },
             },
           },
-        links: {
-          create: actionCreate.links?.map(link => ({
-            url: link.url,
-            description: link.description || undefined,
-          })),
-        },
-        // TODO: Add `Note`s
         author: { connect: { id: session.user.id } },
       },
       select: { id: true },
@@ -189,9 +191,10 @@ export async function POST(request: NextRequest) {
     return Response.json({ message: t('api:action.action_created'), id: newActionId },
       { status: 201, headers: { 'Location': `/action/${newActionId}` } },
     );
-  } catch (error) {
-    console.error(error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+  }
+  catch (err) {
+    console.error(err);
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
       return Response.json({ message: t('api:action.goal_not_found') },
         { status: 400 },
       );
@@ -233,64 +236,51 @@ export async function PUT(request: NextRequest) {
 
   // Auth
   try {
-    const [user, currentAction] = await Promise.all([
-      prisma.user.findUnique({
-        where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true },
-      }),
-      prisma.action.findUnique({
+    const [accessContext, currentAction] = await Promise.all([
+      getAccessContextById(session.user.id),
+      prisma.actions.findUnique({
         where: { id: action.actionId },
         select: {
-          updatedAt: true,
-          roadmap: {
+          updated_at: true,
+          org_id: true,
+          roadmap_iteration: {
             select: {
-              author: { select: { id: true, username: true } },
-              editors: { select: { id: true, username: true } },
-              viewers: { select: { id: true, username: true } },
-              editGroups: { include: { users: { select: { id: true, username: true } } } },
-              viewGroups: { include: { users: { select: { id: true, username: true } } } },
-              isPublic: true,
+              published_at: true,
+              roadmap: { select: { access_control: { select: accessControlSelection } } },
             },
           },
         },
       }),
     ]);
-    // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
-    if (!user || (session.user.isAdmin && !user.isAdmin)) {
-      throw new Error(ClientError.BadSession, { cause: 'goal' });
+    // If no user is found or the found user falsely claims to be a super admin, they have a bad session cookie and should be logged out
+    if (!accessContext || (session.user.isSuperAdmin && !accessContext.isSuperAdmin)) {
+      throw new Error(ClientError.BadSession, { cause: 'action' });
     }
 
-    // If no action is found or the user has no access to the action, return AccessDenied
-    if (!currentAction) {
-      throw new Error(ClientError.AccessDenied, { cause: 'action' });
-    }
-    const accessFields: AccessControlled = {
-      author: currentAction.roadmap.author,
-      editors: currentAction.roadmap.editors,
-      viewers: currentAction.roadmap.viewers,
-      editGroups: currentAction.roadmap.editGroups,
-      viewGroups: currentAction.roadmap.viewGroups,
-      isPublic: currentAction.roadmap.isPublic,
-    };
-    const accessLevel = accessChecker(accessFields, session.user);
-    if (accessLevel === AccessLevel.None || accessLevel === AccessLevel.View) {
+    // If no action is found or the user has no edit access to it, return AccessDenied
+    const mayEdit = !currentAction ? false
+      : currentAction.roadmap_iteration
+        ? hasEditAccess(accessChecker({ access_control: currentAction.roadmap_iteration.roadmap.access_control, published_at: currentAction.roadmap_iteration.published_at }, accessContext))
+        : managesOrg(accessContext, currentAction.org_id);
+    if (!currentAction || !mayEdit) {
       throw new Error(ClientError.AccessDenied, { cause: 'action' });
     }
 
     // Check if the action has been updated since the client last fetched it
-    if ((currentAction?.updatedAt?.getTime() || 0) > action.timestamp) {
+    if ((currentAction.updated_at?.getTime() || 0) > action.timestamp) {
       throw new Error(ClientError.StaleData, { cause: 'action' });
     }
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === ClientError.BadSession) {
+  }
+  catch (err) {
+    if (err instanceof Error) {
+      if (err.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
           { status: 400, headers: { 'Location': '/login' } },
         );
       }
-      if (error.message === ClientError.StaleData) {
+      if (err.message === ClientError.StaleData) {
         return Response.json({ message: ClientError.StaleData },
           { status: 409 },
         );
@@ -299,7 +289,7 @@ export async function PUT(request: NextRequest) {
         { status: 403 },
       );
     } else {
-      console.error(error);
+      console.error(err);
       return Response.json({ message: t('api:common.unknown_server_error') },
         { status: 500 },
       );
@@ -308,33 +298,26 @@ export async function PUT(request: NextRequest) {
 
   // Update the action
   try {
-    const updatedActionId = (await prisma.action.update({
+    const updatedActionId = (await prisma.actions.update({
       where: {
         id: action.actionId,
       },
       data: {
         name: action.name,
-        description: action.description,
-        costEfficiency: action.costEfficiency,
-        expectedOutcome: action.expectedOutcome,
-        startYear: action.startYear,
-        endYear: action.endYear,
-        projectManager: action.projectManager,
-        relevantActors: action.relevantActors,
-        isSufficiency: action.isSufficiency,
-        isEfficiency: action.isEfficiency,
-        isRenewables: action.isRenewables,
-        links: {
-          set: [],
-          create: action.links?.map(link => ({
-            url: link.url,
-            description: link.description || undefined,
-          })),
-        },
+        indicator_parameter: action.indicatorParameter,
+        start_year: action.startYear,
+        end_year: action.endYear,
+        // Full replacement of the field set, if provided
+        ...(action.fields === undefined ? {} : {
+          fields: {
+            deleteMany: {},
+            createMany: { data: (action.fields ?? []).map((field, index) => ({ header: field.header, value: field.value, type: parseActionFieldType(field.type), order: index })) },
+          },
+        }),
       },
       select: { id: true },
     })).id;
-    // Prune any orphaned links and comments
+    // Prune any orphaned comments
     await pruneOrphans();
     // Invalidate old cache
     revalidateTag('action', { expire: 0 });
@@ -342,8 +325,9 @@ export async function PUT(request: NextRequest) {
     return Response.json({ message: t('api:action.action_created'), id: updatedActionId },
       { status: 200, headers: { 'Location': `/action/${updatedActionId}` } },
     );
-  } catch (error) {
-    console.error(error);
+  }
+  catch (err) {
+    console.error(err);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );
@@ -375,38 +359,40 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
-    const [user, currentAction] = await Promise.all([
-      prisma.user.findUnique({
-        where: { id: session.user.id },
-        select: { id: true, username: true, isAdmin: true, userGroups: true },
-      }),
-      prisma.action.findUnique({
-        where: {
-          id: action.id,
-          // The user must be admin, or have authored the action or one of its parents
-          ...(session.user.isAdmin ? {} : {
-            OR: [
-              { authorId: session.user.id },
-              { roadmap: { authorId: session.user.id } },
-              { roadmap: { metaRoadmap: { authorId: session.user.id } } },
-            ],
-          }),
+    const [accessContext, currentAction] = await Promise.all([
+      getAccessContextById(session.user.id),
+      prisma.actions.findUnique({
+        where: { id: action.id },
+        select: {
+          org_id: true,
+          roadmap_iteration: {
+            select: {
+              published_at: true,
+              roadmap: { select: { access_control: { select: accessControlSelection } } },
+            },
+          },
         },
       }),
     ]);
 
-    // If no user is found or the found user falsely claims to be an admin, they have a bad session cookie and should be logged out
-    if (!user || (session.user.isAdmin && !user.isAdmin)) {
+    // If no user is found or the found user falsely claims to be a super admin, they have a bad session cookie and should be logged out
+    if (!accessContext || (session.user.isSuperAdmin && !accessContext.isSuperAdmin)) {
       throw new Error(ClientError.BadSession, { cause: 'action' });
     }
 
-    // If the action is not found it eiter does not exist or the user has no access to it
-    if (!currentAction) {
+    // Deleting requires the same edit access as updating.
+    // Also covers actions that don't exist at all.
+    const mayDelete = !currentAction ? false
+      : currentAction.roadmap_iteration
+        ? hasEditAccess(accessChecker({ access_control: currentAction.roadmap_iteration.roadmap.access_control, published_at: currentAction.roadmap_iteration.published_at }, accessContext))
+        : managesOrg(accessContext, currentAction.org_id);
+    if (!currentAction || !mayDelete) {
       throw new Error(ClientError.AccessDenied, { cause: 'action' });
     }
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === ClientError.BadSession) {
+  }
+  catch (err) {
+    if (err instanceof Error) {
+      if (err.message === ClientError.BadSession) {
         // Remove session to log out. The client should redirect to login page.
         session.destroy();
         return Response.json({ message: ClientError.BadSession },
@@ -417,7 +403,7 @@ export async function DELETE(request: NextRequest) {
         { status: 403 },
       );
     } else {
-      console.error(error);
+      console.error(err);
       return Response.json({ message: t('api:common.unknown_server_error') },
         { status: 500 },
       );
@@ -426,29 +412,26 @@ export async function DELETE(request: NextRequest) {
 
   // Delete the action
   try {
-    const deletedAction = await prisma.action.delete({
+    const deletedAction = await prisma.actions.delete({
       where: {
         id: action.id,
       },
       select: {
         id: true,
-        roadmap: {
-          select: {
-            id: true,
-          },
-        },
+        roadmap_iteration: { select: { roadmap_id: true, version: true } },
       },
     });
-    // Prune any orphaned links and comments
+    // Prune any orphaned comments
     await pruneOrphans();
     // Invalidate old cache
     revalidateTag('action', 'max');
     return Response.json({ message: t('api:action.action_deleted'), id: deletedAction.id },
-      // Redirect to the parent goal
-      { status: 200, headers: { 'Location': `/roadmap/${deletedAction.roadmap.id}` } },
+      // Redirect to the parent iteration, or the action database for roadmapless actions
+      { status: 200, headers: { 'Location': deletedAction.roadmap_iteration ? iterationPath(deletedAction.roadmap_iteration.roadmap_id, deletedAction.roadmap_iteration.version) : '/' } },
     );
-  } catch (error) {
-    console.error(error);
+  }
+  catch (err) {
+    console.error(err);
     return Response.json({ message: t('api:common.server_error') },
       { status: 500 },
     );

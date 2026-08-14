@@ -4,9 +4,9 @@
     "short_title": "Eco - planner",
     "description": "A tool that supports Sweden's climate transition through local action plans, a shared measures database, and collaboration on roadmaps."
   },
-  "verify_verify": {
+  "verify_confirm": {
     "description": "Verify your email."
-  },  
+  },
   "password_reset": {
     "description": "Update password"
   },
@@ -18,19 +18,19 @@
     "title": "Log in",
     "description": "Log in to Eco - planner"
   },
+  "roadmap_iteration_edit": {
+    "title": "Edit roadmap:"
+  },
+  "roadmap_iteration_create": {
+    "title": "Create roadmap",
+    "description": "Create a new roadmap"
+  },
   "roadmap_edit": {
     "title": "Edit roadmap:"
   },
   "roadmap_create": {
     "title": "Create roadmap",
     "description": "Create a new roadmap"
-  },
-  "roadmap_series_edit": {
-    "title": "Edit roadmap series:"
-  },
-  "roadmap_series_create": {
-    "title": "Create roadmap series",
-    "description": "Create a new roadmap series"
   },
   "goal_edit": {
     "title": "Edit goal:"
@@ -51,5 +51,14 @@
   "action_create": {
     "title": "Create action",
     "description": "Create a new action"
+  },
+  "org_groups": {
+    "title": "Manage organization"
+  },
+  "invite": {
+    "title": "Invitation"
+  },
+  "actions": {
+    "title": "Actions"
   }
 }

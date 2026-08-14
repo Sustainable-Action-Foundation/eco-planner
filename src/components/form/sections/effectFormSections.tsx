@@ -1,27 +1,31 @@
 'use client';
 
-import { clientSafeGetOneRoadmap } from "@/fetchers/client";
+import { clientSafeGetOneRoadmapIteration } from "@/fetchers/client";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { isISOIshDate } from "@/types";
-import type { Action, ClientRoadmap, DateValuesWithUnit, Goal, MultiRoadmapInstance } from "@/types";
+import type { Action, ClientRoadmapIteration, DateValuesWithUnit, Goal, MultiRoadmapInstance } from "@/types";
+import { EffectFormName } from "@/types/form-names";
+import { isISOIshDate } from "@/types/typeguards";
 
 export function ActionSelector({
   action,
   roadmaps,
 }: {
-  action: Action | null,
+  // Only identity fields are read here, so accept any object carrying them
+  // (a full Action, or the trimmed action on an Effect). Avoids demanding — and
+  // therefore serializing — the whole Action to the client.
+  action: Pick<Action, "id" | "roadmap_iteration_id"> | null,
   roadmaps: MultiRoadmapInstance[],
 }) {
   const { t } = useTranslation("forms");
   const [selectedAction, setSelectedAction] = useState<string>(action?.id ?? "");
-  const [selectedRoadmap, setSelectedRoadmap] = useState<string>(action?.roadmapId ?? "");
+  const [selectedRoadmap, setSelectedRoadmap] = useState<string>(action?.roadmap_iteration_id ?? "");
 
-  const [roadmapData, setRoadmapData] = useState<ClientRoadmap | null>(null);
+  const [roadmapData, setRoadmapData] = useState<ClientRoadmapIteration | null>(null);
 
   useEffect(() => {
     if (selectedRoadmap) {
-      clientSafeGetOneRoadmap(selectedRoadmap).then(setRoadmapData).catch(() => {
+      clientSafeGetOneRoadmapIteration(selectedRoadmap).then(setRoadmapData).catch(() => {
         setRoadmapData(null);
       });
     } else {
@@ -40,8 +44,8 @@ export function ActionSelector({
           <option value="" disabled={true}>{t("forms:effect.select_roadmap_version")}</option>
           {roadmaps.map(roadmapOption => (
             // Disable selecting a different roadmap if a goal is preselected (for example when goalId is specified in the URL query)
-            <option key={`action-selector${roadmapOption.id}`} value={roadmapOption.id} disabled={!!action && roadmapOption.id !== action.roadmapId}>
-              {`${roadmapOption.metaRoadmap.name} (v${roadmapOption.version}): ${t("common:count.action", { count: roadmapOption._count.actions })}`}
+            <option key={`action-selector${roadmapOption.id}`} value={roadmapOption.id} disabled={!!action && roadmapOption.id !== action.roadmap_iteration_id}>
+              {`${roadmapOption.roadmap.name} (v${roadmapOption.version}): ${t("common:count.action", { count: roadmapOption._count.actions })}`}
             </option>
           ))}
         </select>
@@ -49,7 +53,7 @@ export function ActionSelector({
 
       {selectedRoadmap ? <label>
           {t("forms:effect.select_action_for_effect")}
-          <select name="actionId" id="actionId" className="block margin-top-25 margin-bottom-100 width-100" required={true}
+          <select name={EffectFormName.ActionId} id="actionId" className="block margin-top-25 margin-bottom-100 width-100" required={true}
             value={action?.id || selectedAction}
             onChange={event => setSelectedAction(event.target.value)}
           >
@@ -70,18 +74,20 @@ export function GoalSelector({
   goal,
   roadmaps,
 }: {
-  goal: Goal | null,
+  // Only identity fields are read here, so accept any object carrying them
+  // (a full Goal, or the trimmed goal on an Effect).
+  goal: Pick<Goal, "id" | "roadmap_iteration_id"> | null,
   roadmaps: MultiRoadmapInstance[],
 }) {
   const { t } = useTranslation(["forms", "common"]);
   const [selectedGoal, setSelectedGoal] = useState<string | null>(goal?.id ?? null);
-  const [selectedRoadmap, setSelectedRoadmap] = useState<string | null>(goal?.roadmapId ?? null);
+  const [selectedRoadmap, setSelectedRoadmap] = useState<string | null>(goal?.roadmap_iteration_id ?? null);
 
-  const [roadmapData, setRoadmapData] = useState<ClientRoadmap | null>(null);
+  const [roadmapData, setRoadmapData] = useState<ClientRoadmapIteration | null>(null);
 
   useEffect(() => {
     if (selectedRoadmap) {
-      clientSafeGetOneRoadmap(selectedRoadmap).then(setRoadmapData).catch(() => {
+      clientSafeGetOneRoadmapIteration(selectedRoadmap).then(setRoadmapData).catch(() => {
         setRoadmapData(null);
       });
     } else {
@@ -100,8 +106,8 @@ export function GoalSelector({
           <option value="" disabled={true}>{t("forms:effect.select_roadmap_version")}</option>
           {roadmaps.map(roadmapOption => (
             // Disable selecting a different roadmap if a goal is preselected (for example when goalId is specified in the URL query)
-            <option key={`goal-selector${roadmapOption.id}`} value={roadmapOption.id} disabled={!!goal && roadmapOption.id !== goal.roadmapId}>
-              {`${roadmapOption.metaRoadmap.name} (v${roadmapOption.version}): ${t("common:count.goal", { count: roadmapOption._count.goals })}`}
+            <option key={`goal-selector${roadmapOption.id}`} value={roadmapOption.id} disabled={!!goal && roadmapOption.id !== goal.roadmap_iteration_id}>
+              {`${roadmapOption.roadmap.name} (v${roadmapOption.version}): ${t("common:count.goal", { count: roadmapOption._count.goals })}`}
             </option>
           ))}
         </select>
@@ -109,14 +115,14 @@ export function GoalSelector({
 
       {selectedRoadmap ? <label>
           {t("forms:effect.select_goal_to_affect")}
-          <select name="goalId" id="goalId" className="block margin-top-25 margin-bottom-100 width-100" required={true}
+          <select name={EffectFormName.GoalId} id="goalId" className="block margin-top-25 margin-bottom-100 width-100" required={true}
             value={goal?.id ?? selectedGoal ?? ""}
             onChange={event => setSelectedGoal(event.target.value)}
           >
             <option value="" disabled={true}>{t("forms:effect.select_goal")}</option>
             {roadmapData?.goals.map(goalOption => (
               <option key={`goal-selector${goalOption.id}`} value={goalOption.id} disabled={!!goal && goalOption.id !== goal.id}>
-                {`${goalOption.name ?? t("forms:effect.unnamed_goal")}: ${goalOption.indicatorParameter} (${goalOption.dataSeries?.unit === null ? t("common:tsx.unitless") : goalOption.dataSeries?.unit || t("common:tsx.unit_missing")})`}
+                {`${goalOption.name ?? t("forms:effect.unnamed_goal")}: ${goalOption.indicator_parameter} (${goalOption.data_series?.unit === null ? t("common:tsx.unitless") : goalOption.data_series?.unit || t("common:tsx.unit_missing")})`}
               </option>
             ))}
           </select>

@@ -1,6 +1,7 @@
 'use server';
 
-import getPxWebTableContent from "./pxWeb/getPxWebTableContent";
+import getPxWebTableContent from "./api/pxWeb/getPxWebTableContent";
+import { guardExternalApi } from "./api/guardExternalApi";
 import { cacheTag, cacheLife } from 'next/cache';
 
 /**
@@ -10,6 +11,9 @@ import { cacheTag, cacheLife } from 'next/cache';
  * @returns Object containing the area of the target area and the parent area. Returns null if the query fails.
  */
 export default async function scbAreaQuery(areaCode: string, parentAreaCode?: string) {
+  // Guarded here at the request-scoped level; getCachedQuery below runs under
+  // `use cache` and calls the cache-safe core, which performs no auth work itself.
+  await guardExternalApi();
   const area = await getCachedQuery(areaCode);
   let parentArea: Awaited<ReturnType<typeof getCachedQuery>> = null;
   if (parentAreaCode) {

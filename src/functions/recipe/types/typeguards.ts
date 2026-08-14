@@ -1,16 +1,17 @@
-import type { DatasetKeys } from "@/lib/api/utility";
+import type { DatasetKeys } from "@/lib/api/apiTypes";
 import { ExternalDataset } from "@/lib/api/utility";
-import { isDateValuesWithUnit, isStandardObject, isDateValues, isISOIshDate, uuidRegex } from "@/types";
 import type { JSONValue } from "@/types";
+import { uuidRegex } from "@/types/consts";
+import { isDateValues, isDateValuesWithUnit, isISOIshDate, isStandardObject } from "@/types/typeguards";
 import mathjs from "@/math";
 
-import { RecipeDataTypes, VectorIndexPickerOptions } from "./consts";
+import { RecipeDataTypes, VectorIndexPickerOptions } from "./enums";
 import type {
   EvalTimeVariable,
   DataSeriesVariable,
   ExternalVariable,
   ScalarVariable,
-  SerializedRecipeShape,
+  RecipeShape,
   EvalTimeSeries,
   RecipeExtractionOutput,
 } from "@/functions/recipe/types";
@@ -89,7 +90,7 @@ export function isScalarVariable(variable: JSONValue): variable is ScalarVariabl
 }
 
 export function isDataSeriesVariable(variable: JSONValue): variable is DataSeriesVariable {
-  const allowedProps = ["id", "name", "type", "unit", "template", "pick", "dataSeriesId", "value"];
+  const allowedProps = ["id", "name", "type", "unit", "template", "pick", "dataSeriesId", "value", "externalSource"];
   if (!isStandardObject(variable)) {
     console.warn("Type guard: data series variable should be an object", variable);
     return false;
@@ -137,6 +138,31 @@ export function isDataSeriesVariable(variable: JSONValue): variable is DataSerie
     return false;
   }
 
+  // .externalSource: ExternalSource | null | undefined
+  const externalSource = dataSeries.externalSource;
+  if (externalSource !== undefined && externalSource !== null) {
+    if (!isStandardObject(externalSource)) {
+      console.warn("Type guard: 'externalSource' in data series variable should be an object", variable);
+      return false;
+    }
+    const source = externalSource as Record<string, unknown>;
+    if (
+      source.dataset !== null
+      && (typeof source.dataset !== "string" || !ExternalDataset.knownDatasetKeys.includes(source.dataset as DatasetKeys))
+    ) {
+      console.warn("Type guard: 'externalSource.dataset' in data series variable", variable);
+      return false;
+    }
+    if (source.tableId !== null && (typeof source.tableId !== "string" || source.tableId.trim() === "")) {
+      console.warn("Type guard: 'externalSource.tableId' in data series variable", variable);
+      return false;
+    }
+    if (!isExternalSelection(source.selection as JSONValue)) {
+      console.warn("Type guard: 'externalSource.selection' in data series variable", variable);
+      return false;
+    }
+  }
+
   // .name: non-empty string
   const name = dataSeries.name;
   if (typeof name !== "string" || name.trim() === "") {
@@ -159,7 +185,7 @@ export function isDataSeriesVariable(variable: JSONValue): variable is DataSerie
 }
 
 export function isExternalVariable(variable: JSONValue): variable is ExternalVariable {
-  const allowedProps = ["id", "name", "type", "unit", "template", "dataset", "tableId", "selection", "pick"];
+  const allowedProps = ["id", "name", "type", "unit", "template", "dataset", "tableId", "selection", "pick", "dataSeriesId"];
   if (!isStandardObject(variable)) {
     console.warn("Type guard: external dataset variable should be an object", variable);
     return false;
@@ -169,6 +195,16 @@ export function isExternalVariable(variable: JSONValue): variable is ExternalVar
   // .type: RecipeDataTypes.External
   if (external.type !== RecipeDataTypes.External) {
     console.warn("Type guard: 'type' in external dataset variable", variable);
+    return false;
+  }
+
+  // .dataSeriesId: UUID string | null | undefined
+  if (
+    external.dataSeriesId !== null
+    && external.dataSeriesId !== undefined
+    && (typeof external.dataSeriesId !== "string" || !uuidRegex.test(external.dataSeriesId))
+  ) {
+    console.warn("Type guard: 'dataSeriesId' in external dataset variable", variable);
     return false;
   }
 
@@ -295,8 +331,8 @@ export function isExternalSelection(selection: JSONValue): selection is External
   return true;
 }
 
-export function isRecipe(recipe: JSONValue): recipe is SerializedRecipeShape {
-  const allowedProps = ["name", "equation", "variables", "meta"];
+export function isRecipe(recipe: JSONValue): recipe is RecipeShape {
+  const allowedProps = ["name", "equation", "variables", "unit", "meta"];
 
   // Passed as serialized string, try to parse it first
   if (typeof recipe === "string") {
@@ -344,6 +380,17 @@ export function isRecipe(recipe: JSONValue): recipe is SerializedRecipeShape {
     || !Array.isArray(recipe.variables)
   ) {
     console.warn("Type guard: 'variables' in recipe should be an array", recipe);
+    return false;
+  }
+
+  // .unit: string | null | undefined
+  if (
+    "unit" in recipe
+    && recipe.unit !== undefined
+    && typeof recipe.unit !== "string"
+    && recipe.unit !== null
+  ) {
+    console.warn("Type guard: 'unit' in recipe", recipe);
     return false;
   }
 
@@ -400,7 +447,7 @@ export function isEvalTimeVariable(
   variable: unknown,
   options: { silent?: boolean } = {},
 ): variable is EvalTimeVariable {
-  const warn = (...args: unknown[]) => !!options.silent ? undefined : console.warn(...args);
+  const warn = (...args: unknown[]) => options.silent ? undefined : console.warn(...args);
 
   if (
     !isStandardObject(variable)
@@ -449,7 +496,7 @@ export function isEvalTimeVariable(
 }
 
 export function isEvalTimeSeries(variable: unknown, options: { silent?: boolean } = {}): variable is EvalTimeSeries {
-  const warn = (...args: unknown[]) => !!options.silent ? undefined : console.warn(...args);
+  const warn = (...args: unknown[]) => options.silent ? undefined : console.warn(...args);
 
   if (
     !isStandardObject(variable)

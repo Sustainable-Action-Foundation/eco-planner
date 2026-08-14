@@ -4,7 +4,7 @@
     "short_title": "Eco - planner",
     "description": "Ett verktyg som stödjer Sveriges klimatomställning genom lokala handlingsplaner, gemensam åtgärdsdatabas och samarbete kring färdplaner."
   },
-  "verify_verify": {
+  "verify_confirm": {
     "description": "Verifiera din e‑postadress"
   },
   "password_reset": {
@@ -18,19 +18,19 @@
     "title": "Logga in",
     "description": "Logga in till Eco - planner"
   },
+  "roadmap_iteration_edit": {
+    "title": "Redigera färdplan:"
+  },
+  "roadmap_iteration_create": {
+    "title": "Skapa färdplan",
+    "description": "Skapa en ny färdplan"
+  },
   "roadmap_edit": {
     "title": "Redigera färdplan:"
   },
   "roadmap_create": {
     "title": "Skapa färdplan",
     "description": "Skapa en ny färdplan"
-  },
-  "roadmap_series_edit": {
-    "title": "Redigera färdplansserie:"
-  },
-  "roadmap_series_create": {
-    "title": "Skapa färdplansserie",
-    "description": "Skapa en ny färdplansserie"
   },
   "goal_edit": {
     "title": "Redigera målbana:"
@@ -51,5 +51,14 @@
   "action_create": {
     "title": "Skapa åtgärd",
     "description": "Skapa en ny åtgärd"
+  },
+  "org_groups": {
+    "title": "Hantera organisation"
+  },
+  "invite": {
+    "title": "Inbjudan"
+  },
+  "actions": {
+    "title": "Åtgärder"
   }
 }

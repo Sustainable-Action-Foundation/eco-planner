@@ -1,5 +1,5 @@
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import HistoricalData from "@/components/form/forms/historicalData";
+import HistoricalForm from "@/components/form/forms/historical";
 import { getOneGoal } from "@/fetchers";
 import { buildMetadata } from "@/functions/buildMetadata";
 import serveTea from "@/lib/i18nServer";
@@ -60,17 +60,17 @@ export default async function page(
 
   if (!goal) {
     return null;
-  }
+  } 
 
   return (
     <>
       <Breadcrumb object={goal} customSections={[t("pages:historical_data.breadcrumb")]} />
-        <main className="container-text margin-inline-auto">
-          <h1 className='margin-block-300 padding-bottom-100 margin-right-300' style={{ borderBottom: '1px solid var(--gray-90)' }}> {/* TODO: would like this to also say which goal i am editing for */}
-            {t("components:query_builder.edit_historical_data")}
-          </h1>
-          <HistoricalData goal={goal} />
-        </main>
+      <main className="container-text margin-inline-auto">
+        <h1 className='margin-block-300 padding-bottom-100' style={{ borderBottom: '1px solid var(--gray-90)' }}> {/* TODO: would like this to also say which goal i am editing for */}
+          {t("components:query_builder.edit_historical_data")}
+        </h1>
+        <HistoricalForm goal={goal} />
+      </main>
     </>
   );
 }

@@ -2,12 +2,14 @@
 
 // TODO: Move to actions.tsx
 import styles from './tables.module.css' with { type: "css" };
-import { AccessLevel } from '@/types';
-import type { Action, Roadmap } from '@/types';
+import { actionFieldLabel, getActionDescription, groupActionFields } from "@/functions/fields";
+import type { Action, RoadmapIteration } from "@/types";
+import { AccessLevel } from "@/types/enums";
 import Link from 'next/link';
 import { ControlsMenu } from '../elements/controls/controls';
 import { useTranslation } from "react-i18next";
 import { IconLink } from '@tabler/icons-react';
+import { hasEditAccess } from '@/lib/accessChecker';
 
 /**
  * Displays a table of actions. Requires either a goal XOR a list of actions.
@@ -18,23 +20,23 @@ import { IconLink } from '@tabler/icons-react';
 export default function ActionTable({
   actions,
   accessLevel,
-  roadmapId,
+  iterationId,
 }: {
-  actions: Action[] | Roadmap["actions"];
+  actions: Action[] | RoadmapIteration["actions"];
   accessLevel?: AccessLevel;
-  roadmapId?: string;
+  iterationId?: string;
 }) {
-  const { t } = useTranslation("components");
+  const { t } = useTranslation(["components", "forms"]);
 
   // If no actions are found, return a message
   if (!actions?.length) return (
     <p>{t("components:action_table.no_actions")}
-      { // Only show the button if the user has edit access and a roadmapId is provided
-        (accessLevel === AccessLevel.Edit || accessLevel === AccessLevel.Author || accessLevel === AccessLevel.Admin)
-        && !!roadmapId
+      { // Only show the button if the user has edit access and an iterationId is provided
+        hasEditAccess(accessLevel ?? AccessLevel.None)
+        && !!iterationId
         && (
           <span> {t("components:action_table.wanna_create_action")}&nbsp;
-            <Link href={`/action/create?roadmapId=${roadmapId}`}>
+            <Link href={`/action/create?iterationId=${iterationId}`}>
               {t("components:action_table.create_action")}
             </Link>
           </span>
@@ -49,17 +51,18 @@ export default function ActionTable({
         <IconLink aria-hidden="true" color="gray" className="round padding-25 margin-inline-25" />
         <Link href={`/action/${action.id}`} className={`${styles.roadmapLink} flex-grow-100`}>
           <span className='font-weight-500'>{action.name}</span>
-          <p className={`${styles.actionLinkInfo} color-gray`}>{action.description || '\u00A0'}</p>
+          {/* Actions no longer have a description column; prefer the description field, else summarize the rest */}
+          <p className={`${styles.actionLinkInfo} color-gray`}>
+            {("fields" in action && action.fields.length > 0)
+              ? getActionDescription(action.fields)
+                ?? groupActionFields(action.fields).map(group => `${actionFieldLabel(group.header, t)}: ${group.values.join(', ')}`).join(' \u00B7 ')
+              : '\u00A0'}
+          </p>
         </Link>
         <ControlsMenu
           accessLevel={accessLevel}
           object={action}
         />
-        {/*
-          <span>{action.costEfficiency}</span>
-          <span>{action.expectedOutcome}</span>
-          <span>{action.relevantActors}</span>
-        */}
       </div>
     ))}
   </>;

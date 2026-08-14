@@ -1,6 +1,6 @@
 import type { EvalTimeVariable, RecipeExtractionOutput } from "@/functions/recipe/types";
-import { isEvalTimeVariable, isEvalTimeSeries } from "@/functions/recipe/types";
-import type { Unit } from "mathjs";
+import { isEvalTimeVariable, isEvalTimeSeries } from "@/functions/recipe/types/typeguards";
+import type { Unit as MathJSUnit } from "mathjs";
 
 const HUGE_THRESHOLD = 1e12;
 const NEAR_ZERO_THRESHOLD = 1e-12;
@@ -9,7 +9,7 @@ const LONG_SERIES_THRESHOLD = 50;
 type NumericScalar = { displayName: string, value: number };
 type NumericSeries = { displayName: string, values: number[] };
 
-function toNumber(value: Unit | Unit[] | number): number | null {
+function toNumber(value: MathJSUnit | MathJSUnit[] | number): number | null {
   if (Array.isArray(value)) return null;
   if (typeof value === "number") return value;
 
