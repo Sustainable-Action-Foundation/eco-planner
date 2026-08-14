@@ -31,6 +31,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: sustainable-action-foundation/eco-planner
+  SEED_IMAGE_NAME: sustainable-action-foundation/eco-planner-db-seed
 
 jobs:
   de-duplication:
@@ -141,6 +142,20 @@ jobs:
           tags: |
             type=edge
             type=ref,event=branch
+            # Immutable per-commit tag; deploys pin this so rollback = redeploy an older run
+            type=sha,format=long
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}},enable=${{ !startsWith(github.ref, 'refs/tags/v0.') }}
+
+      - name: Setup docker metadata for seed image
+        id: seed-metadata
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.SEED_IMAGE_NAME }}
+          tags: |
+            type=edge
+            type=ref,event=branch
+            type=sha,format=long
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}},enable=${{ !startsWith(github.ref, 'refs/tags/v0.') }}
 
@@ -166,3 +181,136 @@ jobs:
             BUILD_ID=${{ github.run_id }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Build and push seed image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./docker/db-seed.Dockerfile
+          push: ${{ steps.run-tests.outcome != 'failed' && github.event_name != 'pull_request' && (github.event_name != 'workflow_dispatch' || inputs.should_push == true) }}
+          tags: ${{ steps.seed-metadata.outputs.tags }}
+          labels: ${{ steps.seed-metadata.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy-staging:
+    needs: build-and-publish
+    # Deploys on dev pushes (and manual dispatches on dev that pushed an image)
+    if: ${{ github.ref == 'refs/heads/dev' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.should_push == true)) }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    environment:
+      name: staging
+      url: ${{ vars.BASE_URL }}
+    concurrency:
+      group: deploy-staging
+      cancel-in-progress: false
+    steps:
+      - name: Checkout compose file
+        uses: actions/checkout@v6
+        with:
+          sparse-checkout: docker
+
+      - name: Prepare SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST_KEY: ${{ vars.SSH_HOST_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          printf '%s\n' "$SSH_HOST_KEY" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/deploy_key
+
+      - name: Render environment file
+        env:
+          IMAGE_TAG: sha-${{ github.sha }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          IRON_SESSION_PASSWORD: ${{ secrets.IRON_SESSION_PASSWORD }}
+          MARIADB_ROOT_PASSWORD: ${{ secrets.MARIADB_ROOT_PASSWORD }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          MARIADB_DATABASE: ${{ vars.MARIADB_DATABASE }}
+          MAIL_HOST: ${{ vars.MAIL_HOST }}
+          MAIL_USER: ${{ vars.MAIL_USER }}
+          BASE_URL: ${{ vars.BASE_URL }}
+        run: |
+          {
+            printf 'IMAGE_TAG=%s\n' "$IMAGE_TAG"
+            printf 'DATABASE_URL=%s\n' "$DATABASE_URL"
+            printf 'IRON_SESSION_PASSWORD=%s\n' "$IRON_SESSION_PASSWORD"
+            printf 'MARIADB_DATABASE=%s\n' "$MARIADB_DATABASE"
+            printf 'MARIADB_ROOT_PASSWORD=%s\n' "$MARIADB_ROOT_PASSWORD"
+            printf 'MAIL_HOST=%s\n' "$MAIL_HOST"
+            printf 'MAIL_USER=%s\n' "$MAIL_USER"
+            printf 'MAIL_PASSWORD=%s\n' "$MAIL_PASSWORD"
+            printf 'BASE_URL=%s\n' "$BASE_URL"
+          } > deploy.env
+
+      - name: Deploy
+        env:
+          SSH_DEST: ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }}
+        run: |
+          SSH="ssh -i $HOME/.ssh/deploy_key -o StrictHostKeyChecking=yes"
+          $SSH "$SSH_DEST" 'mkdir -p ~/eco-planner'
+          $SSH "$SSH_DEST" 'install -m 600 /dev/stdin ~/eco-planner/.env' < deploy.env
+          $SSH "$SSH_DEST" 'cat > ~/eco-planner/compose.yaml' < docker/compose.staging.yaml
+          $SSH "$SSH_DEST" 'cd ~/eco-planner && docker compose --env-file .env pull --quiet && docker compose --env-file .env up -d --wait --wait-timeout 300 && docker image prune -f'
+
+  deploy-production:
+    needs: build-and-publish
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.should_push == true)) }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    # The production environment's required reviewers gate this job
+    environment:
+      name: production
+      url: ${{ vars.BASE_URL }}
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    steps:
+      - name: Checkout compose file
+        uses: actions/checkout@v6
+        with:
+          sparse-checkout: docker
+
+      - name: Prepare SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST_KEY: ${{ vars.SSH_HOST_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          printf '%s\n' "$SSH_HOST_KEY" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/deploy_key
+
+      - name: Render environment file
+        env:
+          IMAGE_TAG: sha-${{ github.sha }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          IRON_SESSION_PASSWORD: ${{ secrets.IRON_SESSION_PASSWORD }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          MAIL_HOST: ${{ vars.MAIL_HOST }}
+          MAIL_USER: ${{ vars.MAIL_USER }}
+          BASE_URL: ${{ vars.BASE_URL }}
+        run: |
+          {
+            printf 'IMAGE_TAG=%s\n' "$IMAGE_TAG"
+            printf 'DATABASE_URL=%s\n' "$DATABASE_URL"
+            printf 'IRON_SESSION_PASSWORD=%s\n' "$IRON_SESSION_PASSWORD"
+            printf 'MAIL_HOST=%s\n' "$MAIL_HOST"
+            printf 'MAIL_USER=%s\n' "$MAIL_USER"
+            printf 'MAIL_PASSWORD=%s\n' "$MAIL_PASSWORD"
+            printf 'BASE_URL=%s\n' "$BASE_URL"
+          } > deploy.env
+
+      - name: Deploy
+        env:
+          SSH_DEST: ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }}
+        run: |
+          SSH="ssh -i $HOME/.ssh/deploy_key -o StrictHostKeyChecking=yes"
+          $SSH "$SSH_DEST" 'mkdir -p ~/eco-planner'
+          $SSH "$SSH_DEST" 'install -m 600 /dev/stdin ~/eco-planner/.env' < deploy.env
+          $SSH "$SSH_DEST" 'cat > ~/eco-planner/compose.yaml' < docker/compose.prod.yaml
+          $SSH "$SSH_DEST" 'cd ~/eco-planner && docker compose --env-file .env pull --quiet && docker compose --env-file .env up -d --wait --wait-timeout 300 && docker image prune -f'
