@@ -97,6 +97,7 @@ export async function seedUsers(): Promise<SeededUsers> {
   const usedNames = new Set([org.name]);
   const usedDomains = new Set([org.domain]);
   const usedUsernames = new Set([admin.username, anita.username, anton.username, greta.username]);
+  const usedEmailSlugs = new Set([admin.username, anita.username, anton.username, greta.username].map(slugify));
   const extraOrgs: SeededUsers["extraOrgs"] = [];
   for (const adminRole of adminRoles) {
     let name: string;
@@ -112,11 +113,16 @@ export async function seedUsers(): Promise<SeededUsers> {
     const members = [];
     for (let i = 0; i < randomInt(2, 4); i++) {
       let username: string;
+      let emailSlug: string;
       do {
         const word = RandomTextSE.words(1);
         username = word.charAt(0).toUpperCase() + word.slice(1);
-      } while (usedUsernames.has(username) || slugify(username).length < 3);
+        emailSlug = slugify(username);
+        // Emails are built from the slug, so dedupe on it too: distinct usernames
+        // (e.g. "Grön"/"Gron") can slugify identically and collide on Users_email_key
+      } while (usedUsernames.has(username) || usedEmailSlugs.has(emailSlug) || emailSlug.length < 3);
       usedUsernames.add(username);
+      usedEmailSlugs.add(emailSlug);
 
       members.push(await prisma.users.create({
         data: {
@@ -124,7 +130,7 @@ export async function seedUsers(): Promise<SeededUsers> {
           password_hash: flavorPassword,
           is_super_admin: false,
           is_verified: true,
-          email: `${slugify(username)}@${domain}`,
+          email: `${emailSlug}@${domain}`,
         },
       }));
     }
