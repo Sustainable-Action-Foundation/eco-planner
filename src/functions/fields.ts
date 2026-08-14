@@ -7,17 +7,14 @@ import type { TFunction } from "i18next";
  *
  * Actions no longer have fixed description/cost efficiency/... columns; migration
  * 20260720131447 folded them into ActionFields rows (and the org-rework migration
- * canonicalizes those headers to these UPPER_SNAKE keys). The action form seeds
- * new actions with them. The UI translates known keys for display and renders
- * unknown (user-invented) headers verbatim.
+ * canonicalizes those headers to UPPER_SNAKE keys). Only the headers with
+ * special-case handling remain canonical: DESCRIPTION (dedicated textarea,
+ * og:description) and TAG (chips). The other migrated headers (COST_EFFICIENCY,
+ * EXPECTED_OUTCOME, PROJECT_MANAGER, RELEVANT_ACTORS) are ordinary user headers
+ * and render verbatim like any other.
  */
 export const ActionFieldHeaders = {
   Description: "DESCRIPTION",
-  CostEfficiency: "COST_EFFICIENCY",
-  ExpectedOutcome: "EXPECTED_OUTCOME",
-  // Not seeded by the form: old project manager data was deliberately dropped in the migration
-  ProjectManager: "PROJECT_MANAGER",
-  RelevantActors: "RELEVANT_ACTORS",
   Tag: "TAG",
 } as const;
 export type ActionFieldHeaders = (typeof ActionFieldHeaders)[keyof typeof ActionFieldHeaders];
@@ -31,25 +28,17 @@ function headerLabelKeys(t: TFunction): Record<string, string> {
   const keyOnly = { lng: Locales.test, appendNamespaceToCIMode: true } as const;
   return {
     [ActionFieldHeaders.Description]: t("forms:action.action_description", keyOnly),
-    [ActionFieldHeaders.CostEfficiency]: t("forms:action.cost_efficiency", keyOnly),
-    [ActionFieldHeaders.ExpectedOutcome]: t("forms:action.expected_outcome", keyOnly),
-    [ActionFieldHeaders.ProjectManager]: t("forms:action.project_manager", keyOnly),
-    [ActionFieldHeaders.RelevantActors]: t("forms:action.relevant_actors", keyOnly),
     [ActionFieldHeaders.Tag]: t("forms:action.tag", keyOnly),
   };
 }
 
 /**
- * The semantic type each canonical header's values carry. The prose-like ones are
- * paragraphs; the rest hold short values (names, tags). User-invented headers
- * default to {@link ActionFieldType.PARAGRAPH}.
+ * The semantic type each canonical header's values carry: descriptions are
+ * paragraphs, tags are short values. User-invented headers default to
+ * {@link ActionFieldType.PARAGRAPH}.
  */
 const canonicalHeaderTypes: Record<string, ActionFieldType> = {
   [ActionFieldHeaders.Description]: ActionFieldType.PARAGRAPH,
-  [ActionFieldHeaders.CostEfficiency]: ActionFieldType.PARAGRAPH,
-  [ActionFieldHeaders.ExpectedOutcome]: ActionFieldType.PARAGRAPH,
-  [ActionFieldHeaders.ProjectManager]: ActionFieldType.SHORT,
-  [ActionFieldHeaders.RelevantActors]: ActionFieldType.SHORT,
   [ActionFieldHeaders.Tag]: ActionFieldType.SHORT,
 };
 

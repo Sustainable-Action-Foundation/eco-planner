@@ -3,7 +3,7 @@
 // (the public action database), free-form fields, and comments.
 
 import { prisma } from "@/lib/prisma";
-import { ActionImpactType } from "@/lib/prisma/generated";
+import { ActionFieldType, ActionImpactType } from "@/lib/prisma/generated";
 import { ActionFieldHeaders, defaultActionFieldType } from "@/functions/fields";
 import { Recipe } from "@/functions/recipe";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
@@ -69,12 +69,13 @@ async function createAction(
 ): Promise<string> {
   const startYear = randomInt(2020, 2030);
 
-  // The old fixed columns live on as ActionFields rows with canonical headers
-  const fields: { header: string, value: string }[] = [];
+  // The description and tags use their canonical headers; the rest are ordinary
+  // user-invented headers like the ones the old fixed columns migrated into
+  const fields: { header: string, value: string, type?: ActionFieldType }[] = [];
   if (chance(0.8)) fields.push({ header: ActionFieldHeaders.Description, value: RandomTextSE.paragraph(randomInt(1, 2)) });
-  if (chance(0.5)) fields.push({ header: ActionFieldHeaders.CostEfficiency, value: RandomTextSE.sentence(randomInt(3, 8)) });
-  if (chance(0.6)) fields.push({ header: ActionFieldHeaders.ExpectedOutcome, value: RandomTextSE.paragraph(1) });
-  if (chance(0.5)) fields.push({ header: ActionFieldHeaders.RelevantActors, value: RandomTextSE.words(randomInt(1, 3)) });
+  if (chance(0.5)) fields.push({ header: "Kostnadseffektivitet", value: RandomTextSE.sentence(randomInt(3, 8)) });
+  if (chance(0.6)) fields.push({ header: "Förväntat resultat", value: RandomTextSE.paragraph(1) });
+  if (chance(0.5)) fields.push({ header: "Relevanta aktörer", value: RandomTextSE.words(randomInt(1, 3)), type: ActionFieldType.SHORT });
   for (const tag of ["sufficiency", "efficiency", "renewable"]) {
     if (chance(0.4)) fields.push({ header: ActionFieldHeaders.Tag, value: tag });
   }
@@ -87,7 +88,7 @@ async function createAction(
       end_year: chance(0.7) ? startYear + randomInt(1, 20) : null,
       org: { connect: { id: users.org.id } },
       fields: fields.length
-        ? { createMany: { data: fields.map((field, index) => ({ ...field, type: defaultActionFieldType(field.header), order: index })) } }
+        ? { createMany: { data: fields.map((field, index) => ({ ...field, type: field.type ?? defaultActionFieldType(field.header), order: index })) } }
         : undefined,
       author: { connect: { id: randomOf(users.all).id } },
       ...(iterationId ? { roadmap_iteration: { connect: { id: iterationId } } } : {}),

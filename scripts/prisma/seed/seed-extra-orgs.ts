@@ -6,7 +6,7 @@
 // public view gets some cross-org variety; the rest stay org-readable only.
 
 import { prisma } from "@/lib/prisma";
-import { RoadmapType } from "@/lib/prisma/generated";
+import { ActionFieldType, RoadmapType } from "@/lib/prisma/generated";
 import { ActionFieldHeaders, defaultActionFieldType } from "@/functions/fields";
 import type { SeededUsers } from "./helpers.ts";
 import {
@@ -67,11 +67,11 @@ export async function seedExtraOrgs(users: SeededUsers): Promise<void> {
 
     for (let i = 0; i < 2; i++) {
       const startYear = randomInt(2020, 2030);
-      // Two RELEVANT_ACTORS rows on purpose: they collapse into a list in the UI
-      const fields: { header: string, value: string }[] = [
+      // Two same-headed SHORT rows on purpose: they collapse into a list in the UI
+      const fields: { header: string, value: string, type?: ActionFieldType }[] = [
         { header: ActionFieldHeaders.Description, value: RandomTextSE.paragraph(1) },
-        { header: ActionFieldHeaders.RelevantActors, value: RandomTextSE.words(randomInt(1, 2)) },
-        { header: ActionFieldHeaders.RelevantActors, value: RandomTextSE.words(randomInt(1, 2)) },
+        { header: "Relevanta aktörer", value: RandomTextSE.words(randomInt(1, 2)), type: ActionFieldType.SHORT },
+        { header: "Relevanta aktörer", value: RandomTextSE.words(randomInt(1, 2)), type: ActionFieldType.SHORT },
       ];
       await prisma.actions.create({
         data: {
@@ -82,7 +82,7 @@ export async function seedExtraOrgs(users: SeededUsers): Promise<void> {
           org: { connect: { id: org.id } },
           roadmap_iteration: { connect: { id: iteration.id } },
           author: { connect: { id: randomOf(members).id } },
-          fields: { createMany: { data: fields.map((field, index) => ({ ...field, type: defaultActionFieldType(field.header), order: index })) } },
+          fields: { createMany: { data: fields.map((field, index) => ({ ...field, type: field.type ?? defaultActionFieldType(field.header), order: index })) } },
           ...getRandomCreatedAtAndUpdatedAt(),
         },
       });

@@ -2,18 +2,12 @@
   "action": {
     "action_label": "$t(common:action_one, titleCase)",
     "categories": "Kategorier",
-    "cost_efficiency": "Kostnadseffektivitet",
     "create_new_effect": "$t(common:new.effect)",
     "edit_action": "$t(common:edit.action)",
     "effects_label": "$t(common:effect_other, titleCase)",
     "expected_effect": "Förväntad $t(common:effect_one)",
-    "no_actors": "Inga angivna aktörer",
     "no_category": "Ingen angiven kategori",
-    "no_cost_efficiency": "Ingen angiven kostnadseffektivitet",
-    "no_effect": "Ingen angiven $t(common:effect_one)",
-    "no_project_manager": "Ingen angiven projektledare",
-    "project_manager": "Projektledare",
-    "relevant_actors": "Relevanta aktörer"
+    "no_effect": "Ingen angiven $t(common:effect_one)"
   },
   "action_create": {
     "bad_goal": "Kunde inte hitta, eller har inte tillgång till, $t(common:goal_definite_one) i länken.",
