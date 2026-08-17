@@ -11,6 +11,7 @@ import { IconBrush, IconHome, IconInfoCircle, IconList, IconLogin2, IconLogout2,
 import GraphCookie from '@/components/cookies/graphCookie';
 import { getUserAccessContext } from '@/fetchers';
 import { OrgRole } from '@/lib/prisma/generated';
+import DisabledCreateButton from '@/components/buttons/disabledCreateButton';
 
 export default async function Sidebar() {
   const [t, { user }] = await Promise.all([
@@ -71,17 +72,10 @@ export default async function Sidebar() {
               {t("components:sidebar.create")}
             </PopoverButton>
             :
-            <button
-              type="button"
-              disabled={true}
-              title={t("components:sidebar.create_needs_org")}
-              className='transparent rounded'
-              style={{ fontSize: '1rem' }}
-              data-testid='create-button-disabled'
-            >
-              <IconBrush aria-hidden="true" />
-              {t("components:sidebar.create")}
-            </button>
+            <DisabledCreateButton
+              label={t("components:sidebar.create")}
+              hint={t("components:sidebar.create_needs_org")}
+            />
           }
           {canCreate ? <Popover
             id='create-popover'
