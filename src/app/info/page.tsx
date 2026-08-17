@@ -45,21 +45,29 @@ export default async function Page() {
         />
       </p>
 
-      {/* Version */}
-      <p>{t("pages:info.version", { version: env.APP_VERSION })}</p>
-
-      {/* Commit */}
+      {/* Version and commit */}
       <p>
         {env.COMMIT_URL
           ? <Trans
-            i18nKey="pages:info.commit_with_link"
+            i18nKey="pages:info.version_with_link"
             components={{ a: <a href={env.COMMIT_URL} target="_blank" rel="noreferrer" /> }}
-            tOptions={{ commit: env.COMMIT_SHA }}
+            tOptions={{ version: env.APP_VERSION, commit: shortCommitSha(env.COMMIT_SHA) }}
             i18n={i18next}
           />
-          : t("pages:info.commit_without_link", { commit: env.COMMIT_SHA })
+          : t("pages:info.version", { version: env.APP_VERSION, commit: shortCommitSha(env.COMMIT_SHA) })
         }
       </p>
     </>
   );
+}
+
+/** Shortens a full commit sha to 7 characters, preserving any "dirty-" prefix. */
+function shortCommitSha(sha: string) {
+  const dirtyPrefix = "dirty-";
+
+  if (sha.startsWith(dirtyPrefix)) {
+    return dirtyPrefix + sha.slice(dirtyPrefix.length, dirtyPrefix.length + 7);
+  }
+
+  return sha.slice(0, 7);
 }
