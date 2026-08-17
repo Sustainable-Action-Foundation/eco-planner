@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { allowedDomains } from "@/lib/allowedDomains";
+import { allowedDomains, orgDomainAliases } from "@/lib/allowedDomains";
 import { OrgRole } from "@/lib/prisma/generated";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
@@ -91,7 +91,9 @@ export async function POST(request: NextRequest) {
   // (e.g. "stadshuset.goteborg.se" joins an org with domain "goteborg.se"); prefers the most specific match.
   // Orgs are curated, so unlike the old per-domain user groups nothing is auto-created here:
   // users from unclaimed domains sign up without an org and can be invited into one later.
-  const domainCandidates = (domain ?? '').split('.').map((_, i, parts) => parts.slice(i).join('.'));
+  // Aliased domains (e.g. sustainable-action.ngo) enroll into their canonical domain's org
+  const domainCandidates = (domain ?? '').split('.').map((_, i, parts) => parts.slice(i).join('.'))
+    .map(candidate => orgDomainAliases[candidate] ?? candidate);
   const matchingOrgs = await prisma.orgs.findMany({
     where: { domain: { in: domainCandidates } },
     select: { id: true, domain: true },
