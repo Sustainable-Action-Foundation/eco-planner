@@ -30,25 +30,22 @@ export async function POST(request: NextRequest) {
     },
   } : options);
 
-  // Validate credentials
-  let user: { id: string; username: string; password_hash: string; is_super_admin: boolean; };
+  // Validate credentials. A missing/unverified user is expected control flow,
+  // not an error worth a stack trace in the server log.
+  const user = await prisma.users.findUnique({
+    where: {
+      username: username,
+      is_verified: true,
+    },
+    select: {
+      id: true,
+      username: true,
+      password_hash: true,
+      is_super_admin: true,
+    },
+  });
 
-  try {
-    user = await prisma.users.findUniqueOrThrow({
-      where: {
-        username: username,
-        is_verified: true,
-      },
-      select: {
-        id: true,
-        username: true,
-        password_hash: true,
-        is_super_admin: true,
-      },
-    });
-  }
-  catch (err) {
-    console.error(err);
+  if (!user) {
     return Response.json({ message: 'User not found or has not verified their email' },
       { status: 400 },
     );
