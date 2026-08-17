@@ -29,7 +29,7 @@ export async function DELETE(_request: NextRequest) { return disabled(); }
 // import type { UserAccessContext } from "@/types";
 // import { cookies } from "next/headers";
 // import type { NextRequest } from "next/server";
-// import type Mail from "nodemailer/lib/mailer";
+// import type { MailOptions } from "@/mailClient";
 //
 // // Guest invitations: org managers invite an email address; the invitee gets a
 // // mail with a link to /invite/<token>. Accepting (or signing up with the
@@ -121,7 +121,7 @@ export async function DELETE(_request: NextRequest) { return disabled(); }
 //     );
 //   }
 //
-//   const mailContent: Mail.Options = {
+//   const mailContent: MailOptions = {
 //     from: t("email:common.from", { emailServer: process.env.MAIL_USER }),
 //     to: email,
 //     subject: t("email:invite.subject", { orgName: org.name }),

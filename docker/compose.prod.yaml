@@ -2,7 +2,8 @@ name: eco-planner-production
 
 services:
   app:
-    image: ghcr.io/sustainable-action-foundation/eco-planner:edge
+    # Deploys pin IMAGE_TAG to the commit (sha-<sha>); manual runs fall back to edge
+    image: ghcr.io/sustainable-action-foundation/eco-planner:${IMAGE_TAG:-edge}
     pull_policy: always
     restart: always
     networks:
@@ -15,8 +16,9 @@ services:
       # Iron session cookie encryption password
       - IRON_SESSION_PASSWORD=${IRON_SESSION_PASSWORD:?error}
       # Used to connect mailClient to SMTP server
-      - MAIL_HOST=${MAIL_HOST:?error}
+      - MAIL_TENANT_ID=${MAIL_TENANT_ID:?error}
+      - MAIL_CLIENT_ID=${MAIL_CLIENT_ID:?error}
+      - MAIL_CLIENT_SECRET=${MAIL_CLIENT_SECRET:?error}
       - MAIL_USER=${MAIL_USER:?error}
-      - MAIL_PASSWORD=${MAIL_PASSWORD:?error}
       # Used for links in emails and as canonical url in meta tags
       - BASE_URL=${BASE_URL}

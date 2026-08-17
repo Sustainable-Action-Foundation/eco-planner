@@ -20,9 +20,10 @@ services:
       retries: 10
 
   db_seed:
-    # TODO: Change to pulling a prebuilt image when available
-    image: eco-planner-db-seed:dev
-    pull_policy: build
+    # CI publishes this image; deploys pin IMAGE_TAG to the commit (sha-<sha>),
+    # while local/manual runs fall back to the floating dev tag
+    image: ghcr.io/sustainable-action-foundation/eco-planner-db-seed:${IMAGE_TAG:-dev}
+    pull_policy: always
     build:
       context: ..
       dockerfile: docker/db-seed.Dockerfile
@@ -36,7 +37,7 @@ services:
       - DATABASE_URL=${DATABASE_URL}
 
   app:
-    image: ghcr.io/sustainable-action-foundation/eco-planner:dev
+    image: ghcr.io/sustainable-action-foundation/eco-planner:${IMAGE_TAG:-dev}
     pull_policy: always
     build:
       context: ..
@@ -58,9 +59,10 @@ services:
       # Iron session cookie encryption password
       - IRON_SESSION_PASSWORD=${IRON_SESSION_PASSWORD}
       # Used to connect mailClient to SMTP server
-      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_TENANT_ID=${MAIL_TENANT_ID}
+      - MAIL_CLIENT_ID=${MAIL_CLIENT_ID}
+      - MAIL_CLIENT_SECRET=${MAIL_CLIENT_SECRET}
       - MAIL_USER=${MAIL_USER}
-      - MAIL_PASSWORD=${MAIL_PASSWORD}
       # Used for links in emails and as canonical url in meta tags
       - BASE_URL=${BASE_URL}
 
