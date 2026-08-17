@@ -2,7 +2,9 @@ name: eco-planner-staging
 
 services:
   db:
-    image: mariadb:lts
+    # Pinned to a major: the floating lts tag jumped 11.8 -> 12.3 under the persisted
+    # volume, requiring a manual mariadb-upgrade before the seed could run again
+    image: mariadb:12.3
     restart: always
     networks:
       - staging_network
