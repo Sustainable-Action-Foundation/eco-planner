@@ -74,7 +74,10 @@ test.describe('Toast', () => {
   test('Login shows inline error', async ({ page }) => {
     await page.goto('/');
     await page.getByTestId('logout-button').click();
-    await page.waitForLoadState('networkidle');
+    // Logout refreshes the page; the sidebar swaps the logout button for a
+    // login link once the session is gone, which is a deterministic signal
+    // (unlike networkidle, which hangs if any connection stays open)
+    await expect(page.locator('a[href="/login"]')).toBeVisible();
 
     await page.goto('/login');
     await page.locator('#submit-button').click();
