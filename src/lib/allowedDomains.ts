@@ -362,10 +362,10 @@ export const allowedDomains = [
 
 /**
  * Email domains that enroll into another domain's org at signup.
- * In-code alias so both SAF addresses land in the same org without touching
- * the database (the org row carries the canonical domain).
+ * In-code alias so both SAF addresses land in the same org (the org row
+ * carries the canonical domain, sustainable-action.ngo).
  * NOTE: "permanent temporary" solution; revisit if SAF ever becomes two real orgs.
  */
 export const orgDomainAliases: Record<string, string> = {
-  "sustainable-action.ngo": "sustainable-action.org",
+  "sustainable-action.org": "sustainable-action.ngo",
 };

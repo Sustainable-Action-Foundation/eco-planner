@@ -83,7 +83,7 @@ export default async function Sidebar() {
               {t("components:sidebar.create")}
             </button>
           }
-          {canCreate && <Popover
+          {canCreate ? <Popover
             id='create-popover'
             popover='auto'
             positionAnchor='--create-popover-button'
@@ -128,7 +128,7 @@ export default async function Sidebar() {
                 </li>
               </ul>
             </nav>
-          </Popover>}
+          </Popover> : null}
           <Link href="/info" className="margin-top-auto color-pureblack rounded">
             <IconInfoCircle aria-hidden='true' />
             {t("components:sidebar.about")}
