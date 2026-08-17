@@ -8,6 +8,8 @@
 //   greta/greta  -> GUEST in the org AND in the granted group: guests are disabled,
 //                   so she must see/edit NOTHING beyond public content (canary for
 //                   the guest-disabled invariants, see tests/e2e/guest-disabled.spec.ts)
+//   orgless/orgless -> verified but with NO org memberships: sees only public
+//                   content, cannot create anything (disabled create button)
 
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
@@ -17,11 +19,12 @@ import { RandomTextSE } from "../randomText";
 import { randomInt } from "./helpers.ts";
 
 export async function seedUsers(): Promise<SeededUsers> {
-  const [adminPassword, anitaPassword, antonPassword, gretaPassword] = await Promise.all([
+  const [adminPassword, anitaPassword, antonPassword, gretaPassword, orglessPassword] = await Promise.all([
     bcrypt.hash("admin", 10),
     bcrypt.hash("anita", 10),
     bcrypt.hash("anton", 10),
     bcrypt.hash("greta", 10),
+    bcrypt.hash("orgless", 10),
   ]);
 
   /** A super admin, username and password 'admin'. */
@@ -39,6 +42,10 @@ export async function seedUsers(): Promise<SeededUsers> {
   /** Greta is a GUEST: while guests are disabled her memberships must grant nothing. */
   const greta = await prisma.users.create({
     data: { username: "Greta", password_hash: gretaPassword, is_super_admin: false, is_verified: true, email: "greta@example.com" },
+  });
+  /** Poor little Orgless has no org memberships at all: sees only public content and cannot create anything. */
+  await prisma.users.create({
+    data: { username: "orgless", password_hash: orglessPassword, is_super_admin: false, is_verified: true, email: "orgless@unclaimed.example.com" },
   });
 
   // The org that owns all seeded content; its domain matches the users' emails so signup auto-joins.
