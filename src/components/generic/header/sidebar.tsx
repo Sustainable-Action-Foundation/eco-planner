@@ -9,12 +9,23 @@ import serveTea from "@/lib/i18nServer";
 import { PopoverButton, Popover } from '@/components/generic/popovers/popovers';
 import { IconBrush, IconHome, IconInfoCircle, IconList, IconLogin2, IconLogout2, IconMenu2, IconPlus, IconSettings, IconUser, IconUserPlus, IconWorld, IconX } from '@tabler/icons-react';
 import GraphCookie from '@/components/cookies/graphCookie';
+import { getUserAccessContext } from '@/fetchers';
+import { OrgRole } from '@/lib/prisma/generated';
 
 export default async function Sidebar() {
   const [t, { user }] = await Promise.all([
     serveTea(["components", "common"]),
     getSession(await cookies()),
   ]);
+
+  // Logged-in users can create content only with a non-guest org membership
+  // (or as super admin); logged-out visitors keep the menu since its links
+  // redirect to the login page. Guests never reach the context's memberships
+  // (see getUserAccessContext), so any membership here counts.
+  const accessContext = user?.isLoggedIn ? await getUserAccessContext() : null;
+  const canCreate = !user?.isLoggedIn
+    || !!accessContext?.isSuperAdmin
+    || (accessContext?.memberships.some(membership => membership.role !== OrgRole.GUEST) ?? false);
 
   return <aside className={`${styles["sidebar"]} inline-flex flex-direction-column secondary-neutral-background`}>
       {/* Consider using js + button instead of checkbox (or on top of using a checkbox) for accesability purposes */}
@@ -48,17 +59,31 @@ export default async function Sidebar() {
             <IconList aria-hidden='true' />
             {t("components:sidebar.actions_database")}
           </Link>
-          <PopoverButton
-            anchorName='--create-popover-button'
-            popoverTarget='create-popover'
-            className='transparent rounded'
-            style={{ fontSize: '1rem' }}
-            data-testid='create-button'
-          >
-            <IconBrush aria-hidden="true" />
-            {t("components:sidebar.create")}
-          </PopoverButton>
-          <Popover
+          {canCreate ?
+            <PopoverButton
+              anchorName='--create-popover-button'
+              popoverTarget='create-popover'
+              className='transparent rounded'
+              style={{ fontSize: '1rem' }}
+              data-testid='create-button'
+            >
+              <IconBrush aria-hidden="true" />
+              {t("components:sidebar.create")}
+            </PopoverButton>
+            :
+            <button
+              type="button"
+              disabled={true}
+              title={t("components:sidebar.create_needs_org")}
+              className='transparent rounded'
+              style={{ fontSize: '1rem' }}
+              data-testid='create-button-disabled'
+            >
+              <IconBrush aria-hidden="true" />
+              {t("components:sidebar.create")}
+            </button>
+          }
+          {canCreate && <Popover
             id='create-popover'
             popover='auto'
             positionAnchor='--create-popover-button'
@@ -103,7 +128,7 @@ export default async function Sidebar() {
                 </li>
               </ul>
             </nav>
-          </Popover>
+          </Popover>}
           <Link href="/info" className="margin-top-auto color-pureblack rounded">
             <IconInfoCircle aria-hidden='true' />
             {t("components:sidebar.about")}
