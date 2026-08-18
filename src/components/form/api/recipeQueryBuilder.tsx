@@ -4,6 +4,7 @@ import { closeModal, openModal } from "@/components/modals/modalFunctions";
 import type { ApiMetadataDimensionBase, ApiSelectionItem, ApiTableContent, ApiTableListEntry, ApiTableMetadata } from "@/lib/api/apiTypes";
 import getTableMetadata from "@/lib/api/getTableMetadata";
 import getTables from "@/lib/api/getTables";
+import { aggregateTimeUnitFacets, aggregateVariableFacets, filterTableCatalog, PXWEB_CONTENTS_PLACEHOLDER } from "@/lib/api/tableCatalog";
 import { ExternalDataset, formQueryHelper, isDataSetKeys } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
@@ -73,50 +74,14 @@ export default function RecipeQueryBuilder({
   const renderedTablesListMaxLength = 100;
   const initialRenderingMargin = 15;
 
-  // Client-side filtering of the fetched table catalog; all active filters are ANDed together.
   const filteredTables = useMemo(() => {
     if (!tables) return null;
-    const search = tableSearch.trim().toLowerCase();
-    const coverageYear = /^\d{4}$/.test(coverageYearFilter.trim()) ? parseInt(coverageYearFilter.trim(), 10) : null;
-
-    return tables.filter(table => {
-      if (search && !table.label.toLowerCase().includes(search) && !table.tableId.toLowerCase().includes(search)) return false;
-      if (variableFilters.length > 0) {
-        const names = table.variableNames?.map(name => name.toLowerCase()) ?? [];
-        if (!variableFilters.every(filter => names.includes(filter))) return false;
-      }
-      if (timeUnitFilter && table.timeUnit !== timeUnitFilter) return false;
-      if (coverageYear !== null) {
-        // Sub-yearly periods like "2024K2" parse to their year, since parseInt stops at the first non-digit
-        const firstYear = parseInt(table.firstPeriod ?? "", 10);
-        const lastYear = parseInt(table.lastPeriod ?? "", 10);
-        if (Number.isNaN(firstYear) || Number.isNaN(lastYear) || coverageYear < firstYear || coverageYear > lastYear) return false;
-      }
-      return true;
-    });
+    return filterTableCatalog(tables, { search: tableSearch, variableFilters, timeUnitFilter, coverageYearFilter });
   }, [tables, tableSearch, variableFilters, timeUnitFilter, coverageYearFilter]);
 
-  // Variable facet options aggregated over the whole catalog, keyed case-insensitively
-  // since sources are inconsistent about capitalization.
-  const variableFacetOptions = useMemo(() => {
-    const counts = new Map<string, { key: string, name: string, count: number }>();
-    for (const table of tables ?? []) {
-      for (const name of table.variableNames ?? []) {
-        // Some PxWeb sources report their contents dimension under this placeholder rather than a real variable name
-        if (name === "ApiContentsVariableName") continue;
-        const key = name.toLowerCase();
-        const existing = counts.get(key);
-        if (existing) existing.count++;
-        else counts.set(key, { key, name, count: 1 });
-      }
-    }
-    return [...counts.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
-  }, [tables]);
+  const variableFacetOptions = useMemo(() => aggregateVariableFacets(tables ?? []), [tables]);
 
-  const timeUnitFacetOptions = useMemo(() => {
-    const presentUnits = new Set((tables ?? []).map(table => table.timeUnit));
-    return (["Annual", "Quarterly", "Monthly", "Weekly", "Other"] as const).filter(unit => presentUnits.has(unit));
-  }, [tables]);
+  const timeUnitFacetOptions = useMemo(() => aggregateTimeUnitFacets(tables ?? []), [tables]);
 
   const activeFilterCount = variableFilters.length + (timeUnitFilter ? 1 : 0) + (coverageYearFilter.trim() ? 1 : 0);
 
@@ -363,9 +328,7 @@ export default function RecipeQueryBuilder({
 
   function dimensionDisplayLabel(dimension: ApiMetadataDimensionBase) {
     const label = dimension.label || dimension.name;
-    // Some PxWeb sources (e.g. STEM) report their contents dimension under this
-    // placeholder rather than a real name
-    if (label === "ApiContentsVariableName") return t("components:query_builder.contents_variable");
+    if (label === PXWEB_CONTENTS_PLACEHOLDER) return t("components:query_builder.contents_variable");
     return label;
   }
 
