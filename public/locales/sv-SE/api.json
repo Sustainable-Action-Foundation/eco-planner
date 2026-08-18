@@ -32,7 +32,7 @@
     "roadmap_created": "Färdplan skapad",
     "roadmap_updated": "Färdplan uppdaterad",
     "roadmap_deleted": "Färdplan raderad",
-    "national_roadmap_forbidden": "Förbjudet; endast administratörer kan skapa nationella målbanor. Skicka gärna ett e-postmeddelande till kontakt@sustainable-action.org om du tycker att vi bör lägga till en till.",
+    "national_roadmap_forbidden": "Förbjudet; endast administratörer kan skapa nationella målbanor. Skicka gärna ett e-postmeddelande till kontakt@sustainable-action.ngo om du tycker att vi bör lägga till en till.",
     "failed_record_connection": "Misslyckades att koppla poster. Förmodligen ogiltig grupp-, organisations-, geografi- eller färdplansreferens",
     "failed_roadmap_creation": "Misslyckades att skapa färdplan"
   },

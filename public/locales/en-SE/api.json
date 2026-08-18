@@ -32,7 +32,7 @@
     "roadmap_created": "Roadmap created",
     "roadmap_updated": "Roadmap updated",
     "roadmap_deleted": "Roadmap deleted",
-    "national_roadmap_forbidden": "Forbidden; only admins may create national roadmaps. Feel free to send an email to kontakt@sustainable-action.org if you think we should add another.",
+    "national_roadmap_forbidden": "Forbidden; only admins may create national roadmaps. Feel free to send an email to kontakt@sustainable-action.ngo if you think we should add another.",
     "failed_record_connection": "Failed to connect records. Probably invalid group, org, geo area, or parent roadmap reference(s)",
     "failed_roadmap_creation": "Failed to create roadmap"
   },

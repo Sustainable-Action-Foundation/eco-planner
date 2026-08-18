@@ -99,7 +99,7 @@ export default function Signup() {
           {t("components:signup.already_have_account")} <Link href='/login'>{t("common:tsx.login")}</Link>
         </p>
         <p className="text-align-center padding-block-50 margin-bottom-100 margin-top-0">
-          {t("components:signup.disclaimer")} <Link href='mailto:kontakt@sustainable-action.org'>kontakt@sustainable-action.org</Link>
+          {t("components:signup.disclaimer")} <Link href='mailto:kontakt@sustainable-action.ngo'>kontakt@sustainable-action.ngo</Link>
         </p>
 
       </form>

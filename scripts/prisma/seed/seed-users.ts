@@ -52,7 +52,7 @@ export async function seedUsers(): Promise<SeededUsers> {
   const org = await prisma.orgs.create({
     data: {
       name: "Sustainable Action",
-      // Canonical SAF domain; sustainable-action.org signups alias into it (see orgDomainAliases)
+      // Canonical SAF domain; sustainable-action.ngo signups alias into it (see orgDomainAliases)
       domain: "sustainable-action.ngo",
       memberships: {
         createMany: {
