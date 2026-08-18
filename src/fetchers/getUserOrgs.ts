@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { OrgRole } from "@/lib/prisma/generated";
 import { cacheTag } from "next/cache";
 
-export type UserOrg = { id: string, name: string, isGuest: boolean };
+export type UserOrg = { id: string, name: string, isGuest: boolean, geoArea: { code: string, name: string } | null };
 
 /**
  * The orgs shown in the start page's org switcher: every membership, guest ones
@@ -25,20 +25,22 @@ export async function getUserOrgs(): Promise<UserOrg[]> {
 
   const orgs = await getCachedOrgs(accessContext.memberships.map(membership => membership.orgId));
   return orgs.map(org => ({
-    ...org,
+    id: org.id,
+    name: org.name,
     isGuest: accessContext.memberships.find(membership => membership.orgId === org.id)?.role === OrgRole.GUEST,
+    geoArea: org.geo_area,
   }));
 }
 
 /** Caches the org names per org-id set (org names practically never change). */
-async function getCachedOrgs(orgIds: string[]): Promise<{ id: string, name: string }[]> {
+async function getCachedOrgs(orgIds: string[]): Promise<{ id: string, name: string, geo_area: { code: string, name: string } | null }[]> {
   'use cache';
   cacheTag('database', 'org');
 
   try {
     return await prisma.orgs.findMany({
       where: { id: { in: orgIds } },
-      select: { id: true, name: true },
+      select: { id: true, name: true, geo_area: { select: { code: true, name: true } } },
       orderBy: { name: 'asc' },
     });
   }

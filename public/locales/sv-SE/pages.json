@@ -79,6 +79,20 @@
   },
   "home": {
     "create_roadmap": "$t(common:new.roadmap)",
+    "curated_historical": {
+      "category_emissions": "Klimat och utsläpp",
+      "category_geography": "Geografi",
+      "category_population": "Befolkning",
+      "description": "Relevant statistik för ert område, hämtad direkt från öppna datakällor.",
+      "ghg_emissions_description": "Territoriella utsläpp av växthusgaser inom områdets gränser, i kiloton koldioxidekvivalenter.",
+      "ghg_emissions_name": "Växthusgasutsläpp",
+      "land_area_description": "Landareal i kvadratkilometer, exklusive vattenområden.",
+      "land_area_name": "Landareal",
+      "population_description": "Antal folkbokförda invånare vid årets slut.",
+      "population_name": "Folkmängd",
+      "source": "Källa",
+      "title": "Utvald historisk data för {{area}}"
+    },
     "filter": "Filter",
     "org_nav_label": "Organisationsvyer",
     "public_tab": "Alla publika $t(common:roadmap_other)",
