@@ -36,6 +36,9 @@ export default function CuratedHistoricalGraph({
       type: 'datetime',
       labels: { format: 'yyyy' },
       tooltip: { enabled: false },
+      // Cap ticks at the data points so short series don't repeat the same
+      // year label across sub-year ticks
+      tickAmount: Math.max(1, Math.min(chartSeries[0].data.length - 1, 8)),
     },
     yaxis: {
       labels: {

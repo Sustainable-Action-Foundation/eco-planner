@@ -32,7 +32,9 @@
     "grid": "Rutnät",
     "list": "Lista",
     "search_actions": "Sök bland $t(common:count.action)",
+    "show_all": "Visa alla $t(common:count.action)",
     "show_as": "Visa som",
+    "show_fewer": "Visa färre",
     "shown_results": "Visar $t(common:count.action)",
     "title": "Titel",
     "visit_action": "Gå till $t(common:action_definite_one)"
@@ -83,7 +85,7 @@
       "category_emissions": "Klimat och utsläpp",
       "category_geography": "Geografi",
       "category_population": "Befolkning",
-      "description": "Relevant statistik för ert område, hämtad direkt från öppna datakällor.",
+      "description": "Statistik för ert geografiska område, hämtad direkt från öppna datakällor.",
       "ghg_emissions_description": "Territoriella utsläpp av växthusgaser inom områdets gränser, i kiloton koldioxidekvivalenter.",
       "ghg_emissions_name": "Växthusgasutsläpp",
       "land_area_description": "Landareal i kvadratkilometer, exklusive vattenområden.",
@@ -91,7 +93,7 @@
       "population_description": "Antal folkbokförda invånare vid årets slut.",
       "population_name": "Folkmängd",
       "source": "Källa",
-      "title": "Utvald historisk data för {{area}}"
+      "title": "Historisk data för {{area}}"
     },
     "filter": "Filter",
     "org_nav_label": "Organisationsvyer",

@@ -37,29 +37,33 @@ export default async function CuratedHistoricalData({
       {t("pages:home.curated_historical.description")}
     </p>
 
-    {categories.map(group => (
-      <section key={group.category} className="margin-bottom-200">
-        <h3 className="margin-bottom-50 font-weight-500" style={{ fontSize: '1.25rem' }}>
-          {categoryLabels[group.category]}
-        </h3>
-        <ul
-          className="margin-0 padding-0"
-          style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem', listStyle: 'none' }}
-        >
-          {group.entries.map(entry => (
-            <li key={entry.key} className="smooth" style={{ border: '1px solid var(--gray-80)' }}>
-              <article className="padding-50 height-100 flex flex-direction-column">
-                <h4 className="margin-block-25 font-weight-500">{entry.name}</h4>
-                <CuratedHistoricalGraph name={entry.name} unit={entry.unit} dateValues={entry.dateValues} />
-                <p className="margin-block-25 font-size-14px color-gray flex-grow-100">{entry.description}</p>
-                <small className="color-gray">
-                  {t("pages:home.curated_historical.source")}: {ExternalDataset.getDatasetByAlternateName(entry.dataset)?.fullName ?? entry.dataset} ({entry.tableId})
-                </small>
-              </article>
-            </li>
-          ))}
-        </ul>
-      </section>
-    ))}
+    {/* Categories share lines when they fit (flex basis scales with card count), so
+        e.g. three one-card categories render as a single row instead of stacking */}
+    <div className="flex flex-wrap-wrap" style={{ gap: '1rem' }}>
+      {categories.map(group => (
+        <section key={group.category} style={{ flex: `1 1 ${group.entries.length * 300}px`, maxWidth: '100%' }}>
+          <h3 className="margin-top-0 margin-bottom-50 font-weight-500" style={{ fontSize: '1.25rem' }}>
+            {categoryLabels[group.category]}
+          </h3>
+          <ul
+            className="margin-0 padding-0"
+            style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem', listStyle: 'none' }}
+          >
+            {group.entries.map(entry => (
+              <li key={entry.key} className="smooth" style={{ border: '1px solid var(--gray-80)' }}>
+                <article className="padding-50 height-100 flex flex-direction-column">
+                  <h4 className="margin-block-25 font-weight-500">{entry.name}</h4>
+                  <CuratedHistoricalGraph name={entry.name} unit={entry.unit} dateValues={entry.dateValues} />
+                  <p className="margin-block-25 font-size-14px color-gray flex-grow-100">{entry.description}</p>
+                  <small className="color-gray">
+                    {t("pages:home.curated_historical.source")}: {ExternalDataset.getDatasetByAlternateName(entry.dataset)?.fullName ?? entry.dataset} ({entry.tableId})
+                  </small>
+                </article>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
   </>;
 }
