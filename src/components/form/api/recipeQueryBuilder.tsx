@@ -8,6 +8,7 @@ import { ExternalDataset, formQueryHelper, isDataSetKeys } from "@/lib/api/utili
 import { LocaleContext } from "@/lib/i18nClient";
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
+import SelectMultipleSearch from "../elements/combobox/selectMultipleSearch";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
 import { IconDatabaseSearch, IconSearch, IconX } from "@tabler/icons-react";
@@ -51,6 +52,8 @@ export default function RecipeQueryBuilder({
   const [variableFilters, setVariableFilters] = useState<string[]>([]);
   const [timeUnitFilter, setTimeUnitFilter] = useState("");
   const [coverageYearFilter, setCoverageYearFilter] = useState("");
+  // The variable filter combobox is uncontrolled, so it is reset by remounting via this key
+  const [filterResetKey, setFilterResetKey] = useState(0);
   const [tableMetadata, _setTableMetadata] = useState<ApiTableMetadata | null>(null);
   const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
   const [mainTimeDimensionId, setMainTimeDimensionId] = useState<string | null>(null);
@@ -226,6 +229,7 @@ export default function RecipeQueryBuilder({
     setVariableFilters([]);
     setTimeUnitFilter("");
     setCoverageYearFilter("");
+    setFilterResetKey(previous => previous + 1);
     setOffset(0);
   }
 
@@ -631,25 +635,23 @@ export default function RecipeQueryBuilder({
                       </summary>
 
                       {variableFacetOptions.length > 0 ?
-                        <fieldset className="margin-block-50 padding-0" style={{ border: "none" }}>
-                          <legend className="font-weight-500">{t("components:query_builder.filter_by_variable")}</legend>
-                          <div className={`${styles.temporary}`} style={{ maxHeight: "150px", overflowY: "auto" }}>
-                            {variableFacetOptions.map(({ key, name, count }) => (
-                              <label key={key} className="flex align-items-center gap-25 padding-block-25">
-                                <input
-                                  type="checkbox"
-                                  checked={variableFilters.includes(key)}
-                                  onChange={e => {
-                                    setVariableFilters(prev => e.target.checked ? [...prev, key] : prev.filter(filter => filter !== key));
-                                    setOffset(0);
-                                  }}
-                                />
-                                <span style={{ textTransform: "capitalize" }}>{name}</span>
-                                <small className="color-gray">({count})</small>
-                              </label>
-                            ))}
-                          </div>
-                        </fieldset>
+                        <>
+                          <label htmlFor="tableVariableFilter" className="block margin-top-50">{t("components:query_builder.filter_by_variable")}</label>
+                          <SelectMultipleSearch
+                            key={`variable-filter-${dataSource}-${lang}-${filterResetKey}`}
+                            props={{
+                              id: "tableVariableFilter",
+                              name: "tableVariableFilter",
+                              className: "margin-block-25",
+                              placeholder: t("components:query_builder.any_variable"),
+                            }}
+                            options={variableFacetOptions.map(({ key, name, count }) => ({ name: `${name} (${count})`, value: key }))}
+                            onChange={value => {
+                              setVariableFilters((value ?? []).map(option => option.value));
+                              setOffset(0);
+                            }}
+                          />
+                        </>
                         : null}
 
                       {timeUnitFacetOptions.length > 0 ?
