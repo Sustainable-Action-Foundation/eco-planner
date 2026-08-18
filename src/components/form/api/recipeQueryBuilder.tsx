@@ -59,7 +59,6 @@ export default function RecipeQueryBuilder({
   const [mainTimeDimensionId, setMainTimeDimensionId] = useState<string | null>(null);
   const [defaultMetricSelected, setDefaultMetricSelected] = useState(true);
   const hasAppliedInitialTableSelectionRef = useRef(false);
-  const hasAppliedInitialSelectionRef = useRef(false);
 
   const modalRef = useRef<HTMLDialogElement | null>(null);
   const fieldsetRef = useRef<HTMLFieldSetElement | null>(null);
@@ -185,9 +184,12 @@ export default function RecipeQueryBuilder({
       .finally(() => setIsLoading(false));
   }, [dataSource, initialTableId, lang, setTableMetadata, tables]);
 
-  // Run one first query when initial values are set.
+  // Run one first query when all metrics already have values without the user touching
+  // them — from initial values, or from a single-option metric that was auto-selected.
+  // Without this, the variable fieldset (which only unlocks in handleMetricSelect's
+  // change handler) would stay disabled forever for single-metric tables.
   useEffect(() => {
-    if (!tableMetadata || !initialSelection?.length || hasAppliedInitialSelectionRef.current) return;
+    if (!tableMetadata) return;
     if (!(selectorMenuRef.current instanceof HTMLDivElement)) return;
 
     const metricSelectElements = selectorMenuRef.current.querySelectorAll("select.metric");
@@ -198,12 +200,16 @@ export default function RecipeQueryBuilder({
     });
     if (hasUnselectedMetric) return;
 
-    hasAppliedInitialSelectionRef.current = true;
+    // Only dispatch while the variable fieldset is still locked, so later metadata
+    // updates (e.g. Trafa's metric-filtered refetches) don't loop back in here.
+    const variableFieldsets = Array.from(document?.getElementsByName("variableSelectionFieldset") ?? []);
+    if (variableFieldsets.length > 0 && !variableFieldsets.some(fieldset => fieldset.hasAttribute("disabled"))) return;
+
     const firstMetricSelect = metricSelectElements[0];
     if (firstMetricSelect instanceof HTMLSelectElement) {
       firstMetricSelect.dispatchEvent(new Event("change", { bubbles: true }));
     }
-  }, [initialSelection, tableMetadata]);
+  }, [tableMetadata]);
 
   // Show or hide the loader.
   useEffect(() => {
@@ -252,7 +258,6 @@ export default function RecipeQueryBuilder({
     setDefaultMetricSelected(true);
     setOffset(0);
     hasAppliedInitialTableSelectionRef.current = false;
-    hasAppliedInitialSelectionRef.current = false;
     // Clear table metadata and content whenever the data source changes
     setTableContent(null);
     setTableMetadata(null);
@@ -263,7 +268,6 @@ export default function RecipeQueryBuilder({
     setIsLoading(true);
     setSelectedTableId(tableId);
     setDefaultMetricSelected(true);
-    hasAppliedInitialSelectionRef.current = false;
 
     if (!ExternalDataset.getDatasetByAlternateName(dataSource)?.baseUrl) return;
     if (!tableId) return;
@@ -357,12 +361,29 @@ export default function RecipeQueryBuilder({
     }
   }
 
+  function dimensionDisplayLabel(dimension: ApiMetadataDimensionBase) {
+    const label = dimension.label || dimension.name;
+    // Some PxWeb sources (e.g. STEM) report their contents dimension under this
+    // placeholder rather than a real name
+    if (label === "ApiContentsVariableName") return t("components:query_builder.contents_variable");
+    return label;
+  }
+
   function metricSelectionHelper(metricDimension: ApiMetadataDimensionBase, tableMetadata: ApiTableMetadata) {
     if (metricDimension.options) {
+      // A single-option PxWeb metric is auto-selected, so show it as plain text; the
+      // select stays in the DOM (hidden) since queries are built from select values.
+      const isAutoSelectedSingle = ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && metricDimension.options.length === 1;
       return (
         <label key={`metric-${tableMetadata.tableId}-${metricDimension.id}`} className="block margin-block-75">
-          {metricDimension.label || metricDimension.name}
+          {dimensionDisplayLabel(metricDimension)}
+          {isAutoSelectedSingle ?
+            <span className="block margin-block-25" lang={tableMetadata.language}>
+              {metricDimension.options[0].label || metricDimension.options[0].value}
+            </span>
+            : null}
           <select
+            style={isAutoSelectedSingle ? { display: "none" } : undefined}
             className="block margin-block-25 metric"
             required={true}
             name={metricDimension.id}
@@ -393,7 +414,7 @@ export default function RecipeQueryBuilder({
         <label key={dimension.id} className={`block margin-block-75 ${options?.classNames?.map((className: string) => className).join(" ")}`}>
           {/* Only display "optional" tags if the data source provides this information */}
           <span style={{ "textTransform": "capitalize" }}>
-            {dimension.label || dimension.name}{optionalTag(dataSource, dimension.optional ?? false)}
+            {dimensionDisplayLabel(dimension)}{optionalTag(dataSource, dimension.optional ?? false)}
           </span>
           {/* TODO: Use CSS to set proper capitalization of labels; something like `label::first-letter { text-transform: capitalize; }` */}
           <select

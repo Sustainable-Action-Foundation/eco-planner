@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslation } from "react-i18next";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import styles from "./forms.module.css";
 import { IconArrowLeft, IconArrowRight } from "@tabler/icons-react";
 
@@ -34,6 +34,7 @@ export default function FormWrapper({
   }
 
   const [transformIndex, setTransformIndex] = useState(0);
+  const sliderRef = useRef<HTMLDivElement | null>(null);
   const sections = React.Children.toArray(children);
 
   function iterateSections(options?: { reverse?: boolean }) {
@@ -61,6 +62,14 @@ export default function FormWrapper({
 
     iterateIndicators(currentTransformIndex);
     setTransformIndex(currentTransformIndex);
+
+    // Scroll the nearest scrollable ancestor back to the top so the new section
+    // starts in view; otherwise fields at the top (often required ones) can be missed.
+    let scrollParent: HTMLElement | null = sliderRef.current?.parentElement ?? null;
+    while (scrollParent && scrollParent.scrollHeight <= scrollParent.clientHeight) {
+      scrollParent = scrollParent.parentElement;
+    }
+    scrollParent?.scrollTo({ top: 0 });
   }
 
   // Hide the "next" button when at the final slide
@@ -77,7 +86,7 @@ export default function FormWrapper({
 
   return (
     <>
-      <div className={styles.formSlider}>
+      <div className={styles.formSlider} ref={sliderRef}>
         {React.Children.map(children, (child, index) => (
           <div className={`${styles.formSlide} fieldsetWrapper`} key={index}>
             {child}

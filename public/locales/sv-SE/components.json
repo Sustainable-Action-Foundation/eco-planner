@@ -125,6 +125,7 @@
     "any_variable": "Alla variabler",
     "change_historical_data": "Ändra historisk data",
     "clear_filters": "Rensa sökning och filter",
+    "contents_variable": "Innehåll",
     "data_source": "Datakälla",
     "does_this_look_correct_one": "Ser detta rimligt ut? (visar max {{count}} värde)",
     "does_this_look_correct_other": "Ser detta rimligt ut? (visar max {{count}} värden)",
