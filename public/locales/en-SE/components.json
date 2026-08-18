@@ -295,7 +295,8 @@
     "password": "Password",
     "signup_failed": "Registration failed. Please try again.",
     "signup_failed_motivated": "Registration failed. Reason: {{reason}}",
-    "username": "Username"
+    "username": "Username",
+    "username_requirements": "{{min}}-{{max}} characters: letters, digits, periods, underscores or hyphens"
   },
   "table_menu": {
     "add_effect_from_existing_action": "Add $t(common:effect_one)",

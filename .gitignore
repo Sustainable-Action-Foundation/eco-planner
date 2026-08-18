@@ -43,3 +43,7 @@ tests/playwright.e2e.config-local.ts
 !.vscode/extensions.json
 
 .claude/
+
+# Autogen files from Next.js about reading current docs
+CLAUDE.md
+AGENTS.md

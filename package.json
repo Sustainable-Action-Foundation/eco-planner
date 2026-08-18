@@ -25,21 +25,21 @@
   },
   "author": {
     "name": "Sustainable Action Foundation",
-    "email": "info@sustainable-action.org",
-    "url": "https://sustainable-action.org"
+    "email": "kontakt@sustainable-action.ngo",
+    "url": "https://sustainable-action.ngo"
   },
   "contributors": [
     {
       "name": "Noëlle Lööv",
-      "email": "noelle.loov@sustainable-action.org"
+      "email": "noelle.loov@sustainable-action.ngo"
     },
     {
       "name": "Axel Schnürer",
-      "email": "axel.schnurer@sustainable-action.org"
+      "email": "axel.schnurer@sustainable-action.ngo"
     },
     {
       "name": "Vena Ström",
-      "email": "vena.strom@sustainable-action.org",
+      "email": "vena.strom@sustainable-action.ngo",
       "url": "https://venastrom.se/"
     },
     {
@@ -82,7 +82,7 @@
     "@tiptap/react": "~3.24.0",
     "@tiptap/starter-kit": "~3.24.0",
     "accept-language": "^3.0.20",
-    "apexcharts": "^6.7.0",
+    "apexcharts": "^6.8.0",
     "bcryptjs": "^3.0.3",
     "client-only": "^0.0.1",
     "cookies-next": "^6.1.1",
@@ -93,8 +93,8 @@
     "i18next-http-backend": "^4.0.1",
     "iron-session": "^8.0.4",
     "mathjs": "^15.2.0",
-    "next": "^16.2.10",
-    "react": "^19.2.7",
+    "next": "^16.3.0",
+    "react": "^19.2.8",
     "react-apexcharts": "^2.1.1",
     "react-dom": "^19.2.8",
     "react-i18next": "^17.0.11",
@@ -103,16 +103,16 @@
   },
   "devDependencies": {
     "@types/node": "^25.9.5",
-    "@types/react": "^19.2.17",
-    "@types/react-dom": "^19.2.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.3.0",
     "eslint-plugin-i18next": "^6.1.5",
     "playwright": "~1.60.0",
-    "prisma": "patch:prisma@npm%3A7.8.0#~/.yarn/patches/prisma-npm-7.8.0-534d96c361.patch",
-    "tsx": "^4.23.11",
+    "prisma": "patch:prisma@npm%3A7.9.1#~/.yarn/patches/prisma-npm-7.9.1-ddecb28061.patch",
+    "tsx": "^4.23.12",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.66.0"
+    "typescript-eslint": "^8.67.0"
   },
   "devEngines": {
     "runtime": {

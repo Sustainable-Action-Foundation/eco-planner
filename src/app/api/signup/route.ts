@@ -8,6 +8,7 @@ import getUserHash from "@/functions/getUserHash";
 import { baseUrl } from "@/lib/baseUrl";
 import serveTea from "@/lib/i18nServer";
 import type { JSONValue } from "@/types";
+import { isValidUsername, usernameMaxLength, usernameMinLength } from "@/functions/username";
 
 export async function POST(request: NextRequest) {
   const t = await serveTea("email");
@@ -18,6 +19,13 @@ export async function POST(request: NextRequest) {
   }
   const { username, email, password } = body;
   const lowercaseEmail = email.toLowerCase();
+
+  // Usernames appear in /user/[username] URLs, so restrict them to URL-safe characters
+  if (!isValidUsername(username)) {
+    return Response.json({ message: `Invalid username; use ${usernameMinLength}-${usernameMaxLength} characters: letters, digits, ".", "_" or "-"` },
+      { status: 400 },
+    );
+  }
 
   // Check if email or username already exists; this is implicitly done by Prisma when creating a new user,
   // but we want to return a more specific error message
@@ -91,7 +99,7 @@ export async function POST(request: NextRequest) {
   // (e.g. "stadshuset.goteborg.se" joins an org with domain "goteborg.se"); prefers the most specific match.
   // Orgs are curated, so unlike the old per-domain user groups nothing is auto-created here:
   // users from unclaimed domains sign up without an org and can be invited into one later.
-  // Aliased domains (e.g. sustainable-action.org) enroll into their canonical domain's org
+  // Aliased domains (e.g. sustainable-action.ngo) enroll into their canonical domain's org
   const domainCandidates = (domain ?? '').split('.').map((_, i, parts) => parts.slice(i).join('.'))
     .map(candidate => orgDomainAliases[candidate] ?? candidate);
   const matchingOrgs = await prisma.orgs.findMany({

@@ -77,6 +77,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          # Full history so the commits-since-version-bump count can be computed
+          fetch-depth: 0
+
+      - name: Count commits since last version bump
+        id: commits-ahead
+        run: |
+          bump_commit=$(git log -1 --format=%H -G'"version":' -- package.json)
+          echo "count=$(git rev-list --count "$bump_commit"..HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
@@ -179,6 +188,7 @@ jobs:
           build-args: |
             COMMIT_SHA=${{ github.sha }}
             BUILD_ID=${{ github.run_id }}
+            COMMITS_AHEAD=${{ steps.commits-ahead.outputs.count }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
