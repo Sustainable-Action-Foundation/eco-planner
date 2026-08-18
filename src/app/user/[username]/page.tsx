@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { iterationPath } from '@/functions/versionSlug';
 import { getRoadmapIterations, getRoadmaps, getUserInfo } from "@/fetchers";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { usernameFromParam } from "@/functions/username";
 import type { Metadata } from "next";
 
 export async function generateMetadata(props: {
@@ -20,16 +21,12 @@ export async function generateMetadata(props: {
 },
 ): Promise<Metadata> {
   const params = await props.params;
-  let username = params.username;
-  const userIndicatorRegEx = /^(@|%40)/;
-  if (username?.match(userIndicatorRegEx)) {
-    username = username?.replace(userIndicatorRegEx, '');
-  }
+  const username = usernameFromParam(params.username);
 
   return buildMetadata({
     title: `@${username}`,
     description: undefined, // TODO: Should be like a bio or something
-    og_url: `/user/${username}`,
+    og_url: `/user/${encodeURIComponent(username)}`,
     og_image_url: undefined,
   });
 }
@@ -46,13 +43,7 @@ export default async function Page(
     props.searchParams,
   ]);
 
-  let username = params.username;
-
-  /** Matches strings starting with @ or %40 (URL-encoded @) */
-  const userIndicatorRegEx = /^(@|%40)/;
-  if (username?.match(userIndicatorRegEx)) {
-    username = username?.replace(userIndicatorRegEx, '');
-  }
+  const username = usernameFromParam(params.username);
 
   const [session, accessContext, userdata] = await Promise.all([
     getSession(await cookies()),

@@ -8,6 +8,7 @@ import getUserHash from "@/functions/getUserHash";
 import { baseUrl } from "@/lib/baseUrl";
 import serveTea from "@/lib/i18nServer";
 import type { JSONValue } from "@/types";
+import { isValidUsername, usernameMaxLength, usernameMinLength } from "@/functions/username";
 
 export async function POST(request: NextRequest) {
   const t = await serveTea("email");
@@ -18,6 +19,13 @@ export async function POST(request: NextRequest) {
   }
   const { username, email, password } = body;
   const lowercaseEmail = email.toLowerCase();
+
+  // Usernames appear in /user/[username] URLs, so restrict them to URL-safe characters
+  if (!isValidUsername(username)) {
+    return Response.json({ message: `Invalid username; use ${usernameMinLength}-${usernameMaxLength} characters: letters, digits, ".", "_" or "-"` },
+      { status: 400 },
+    );
+  }
 
   // Check if email or username already exists; this is implicitly done by Prisma when creating a new user,
   // but we want to return a more specific error message

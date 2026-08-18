@@ -8,6 +8,7 @@ import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { IconEye, IconEyeOff, IconLock, IconMail, IconUser } from "@tabler/icons-react";
 import type { JSONValue } from "@/types";
+import { usernameMaxLength, usernameMinLength, usernamePattern } from "@/functions/username";
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction, router: ReturnType<typeof useRouter>) {
   event.preventDefault();
@@ -59,7 +60,7 @@ export default function Signup() {
           {t("components:signup.username")}
           <div className="margin-top-50 margin-bottom-100 padding-50 flex align-items-center smooth focusable">
             <IconUser style={{ minWidth: '24px' }} aria-hidden="true" />
-            <input className="padding-0 margin-inline-50 font-size-100" type="text" placeholder={t("common:placeholder.name")} name="username" required={true} id="username" autoComplete="username" />
+            <input className="padding-0 margin-inline-50 font-size-100" type="text" placeholder={t("common:placeholder.name")} name="username" required={true} id="username" autoComplete="username" minLength={usernameMinLength} maxLength={usernameMaxLength} pattern={usernamePattern} title={t("components:signup.username_requirements", { min: usernameMinLength, max: usernameMaxLength })} />
           </div>
         </label>
         <label>
