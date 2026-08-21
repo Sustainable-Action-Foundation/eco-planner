@@ -68,9 +68,16 @@ export default function Toast({ children, id, type, hasTimeout = true }: { child
 
   }, [hasTimeout, id, removeToast]);
 
+  // Non-error toasts are meant for one-liners, but a long message should never
+  // cost the user the toast: nudge the developer in the console, render anyway,
+  // and only truncate the truly excessive.
+  const maxRenderedLength = 140;
+  let message = children;
   if (typeof children === "string" && type !== "error" && children.length > maxLengthMessage) {
-    console.error(`Toast message is too long for a ${type} toast. Message: "${children}"`);
-    return null;
+    console.info(`Toast message is longer than ${maxLengthMessage} characters; prefer a shorter message (or an "error" toast, which can expand). Message: "${children}"`);
+    if (children.length > maxRenderedLength) {
+      message = children.slice(0, maxRenderedLength - 1) + "…";
+    }
   }
   return (
     <dialog
@@ -107,7 +114,7 @@ export default function Toast({ children, id, type, hasTimeout = true }: { child
       </header>
       <p
         className={`margin-0 margin-bottom-75 ${type === "error" && errorLong ? (isOpen ? styles["toast-open"] : styles["toast-closed"]) : ""}`} style={{ paddingInline: "1.25rem" }} >
-        {children}
+        {message}
       </p>
       {type === 'error' && errorLong ?
         <button type="button" className={"margin-0 padding-25 width-100"}

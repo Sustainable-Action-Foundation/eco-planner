@@ -34,7 +34,7 @@ export async function register() {
     await mailClient.verify().catch((err: unknown) => {
       const errorMessage = err instanceof Error ? err.message : String(err);
       console.error("Mail client is not configured correctly: " + errorMessage);
-      console.warn("Check that the email-related environment variables (`MAIL_HOST`, `MAIL_USER`, `MAIL_PASSWORD`) are set correctly.");
+      console.warn("Check that the email-related environment variables (`MAIL_TENANT_ID`, `MAIL_CLIENT_ID`, `MAIL_CLIENT_SECRET`, `MAIL_USER`) are set correctly.");
       errorCount++;
     });
 

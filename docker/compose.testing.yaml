@@ -2,7 +2,8 @@ name: eco-planner-test-suite
 
 services:
   db:
-    image: mariadb:lts
+    # Keep in sync with compose.staging.yaml (pinned after a surprise lts major bump)
+    image: mariadb:12.3
     restart: always
     networks:
       # - default

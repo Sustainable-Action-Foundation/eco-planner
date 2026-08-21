@@ -61,6 +61,7 @@ FROM base AS builder
 
 ARG COMMIT_SHA
 ARG BUILD_ID
+ARG COMMITS_AHEAD
 
 # Copy dependencies
 COPY --from=deps /app/node_modules ./node_modules
@@ -77,6 +78,7 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV CI=true
 ENV COMMIT_SHA=${COMMIT_SHA}
+ENV COMMITS_AHEAD=${COMMITS_AHEAD}
 
 # Force Next config re-evaluation per commit without busting deps.
 RUN printf "// BUILD_COMMIT: %s\n" "${COMMIT_SHA}" >> next.config.ts

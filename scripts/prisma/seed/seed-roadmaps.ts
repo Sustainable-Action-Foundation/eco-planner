@@ -36,7 +36,7 @@ export async function seedRoadmaps(users: SeededUsers): Promise<SeededRoadmaps> 
     data: {
       name: "Rikets färdplan",
       description:
-        "Denna färdplan har lagts för att ge stöd till andra aktörer att ärva ifrån.\n\nResurser:\nhttps://sustainable-action.org/",
+        "Denna färdplan har lagts för att ge stöd till andra aktörer att ärva ifrån.\n\nResurser:\nhttps://sustainable-action.ngo/",
       actor: "Sverige",
       geo_area: { connect: { code: "00" } },
       type: RoadmapType.NATIONAL,

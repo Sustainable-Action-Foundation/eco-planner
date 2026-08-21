@@ -481,7 +481,7 @@ export default function GoalForm({
       {!(iterationId || currentGoal?.roadmap_iteration_id) ?
         <fieldset className={`${styles.timeLineFieldset} width-100`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_relationship")}</legend>
-          <label htmlFor="parent-roadmap">{t("forms:goal.relationship_label")}</label>
+          <label htmlFor="parent-roadmap">{t("forms:goal.relationship_label")}</label> {/* TODO: i18n, title case */}
           <SelectSingleSearch
             props={{
               required: true,

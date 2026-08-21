@@ -4,9 +4,12 @@ import { execSync } from "node:child_process";
 import packageJSON from "./package.json" with { type: "json" };
 
 const { sha, dirty: dirtyTree } = getCommitHash();
+const commitsAhead = getCommitsAhead();
 
 const buildTimeEnv: GlobalEnv = {
-  APP_VERSION: process.env.npm_package_version ?? "unknown",
+  // Version bumps are informal, so commits since the last bump ("+N", semver build
+  // metadata shape) supply the real granularity between bumps
+  APP_VERSION: (process.env.npm_package_version ?? "unknown") + (commitsAhead ? `+${commitsAhead}` : ""),
   COMMIT_SHA: sha,
   COMMIT_URL: dirtyTree ? undefined : new URL(`commit/${sha}`, packageJSON.homepage).toString(),
   REMOTE_REPO_URL: packageJSON.homepage,
@@ -67,4 +70,24 @@ function getCommitHash(): { sha: string, dirty: boolean } {
   }
 
   return hashInfo;
+}
+
+function getCommitsAhead(): string | undefined {
+  // CI passes the count in, since the docker build only sees a shallow checkout
+  if (process.env.COMMITS_AHEAD) {
+    return /^[1-9]\d*$/.test(process.env.COMMITS_AHEAD) ? process.env.COMMITS_AHEAD : undefined;
+  }
+
+  try {
+    // -G limits to commits touching the version line, so dep bumps in package.json don't reset the count
+    const bumpCommit = execSync(`git log -1 --format=%H -G'"version":' -- package.json`)?.toString().trim();
+    if (!bumpCommit) return undefined;
+
+    const count = execSync(`git rev-list --count ${bumpCommit}..HEAD`)?.toString().trim();
+    return count && count !== "0" ? count : undefined;
+  }
+  catch (err) {
+    console.warn("Failed to count commits since last version bump", { err });
+    return undefined;
+  }
 }

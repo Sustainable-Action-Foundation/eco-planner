@@ -267,6 +267,7 @@
     "close_menu_settings": "Stäng meny: Inställningar",
     "create": "Skapa",
     "create_account": "Skapa konto",
+    "create_needs_org": "Du behöver vara medlem i en organisation för att skapa innehåll.",
     "home": "$t(common:tsx.home)",
     "language": "Språk",
     "language_alt": "Välj språk",
@@ -282,7 +283,8 @@
     "password": "Lösenord",
     "signup_failed": "Registreringen misslyckades. Försök igen.",
     "signup_failed_motivated": "Registreringen misslyckades. Skäl: {{reason}}",
-    "username": "Användarnamn"
+    "username": "Användarnamn",
+    "username_requirements": "{{min}}-{{max}} tecken: bokstäver, siffror, punkter, understreck eller bindestreck"
   },
   "table_menu": {
     "add_effect_from_existing_action": "Lägg till $t(common:effect_one)",
