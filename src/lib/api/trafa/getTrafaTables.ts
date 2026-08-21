@@ -2,6 +2,7 @@
 
 import { ExternalDataset } from "../utility";
 import { guardExternalApi } from "../guardExternalApi";
+import type { ApiTableListEntry } from "../apiTypes";
 import type { StructureItem, TrafaDataResponse } from "./trafaTypes";
 
 export default async function getTrafaTables(language?: string) {
@@ -15,7 +16,7 @@ export default async function getTrafaTables(language?: string) {
     url.searchParams.append('lang', language);
   }
 
-  const tables: { tableId: string, label: string }[] = [];
+  const tables: ApiTableListEntry[] = [];
 
   try {
     let data: TrafaDataResponse | null = null;
@@ -43,7 +44,7 @@ export default async function getTrafaTables(language?: string) {
 
     data.StructureItems.forEach((item: StructureItem) => {
       // TODO - item.Label needs to be manually translated here when internationalization is implemented
-      const pushItem: { tableId: string, label: string } = {
+      const pushItem: ApiTableListEntry = {
         tableId: item.Name,
         label: `${item.Label} (${item.Name})`,
       };
