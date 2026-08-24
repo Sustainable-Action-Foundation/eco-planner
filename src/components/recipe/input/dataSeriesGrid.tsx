@@ -331,7 +331,7 @@ export default function DataSeriesGrid({
                 <input
                   type="text"
                   inputMode="decimal"
-                  pattern="[+\-]?[0-9]*[.,]?[0-9]+([eE][+\-]?[0-9]+)?" // Keep in sync with parseDecimalInput: everything this admits must parse
+                  pattern="[+\-]?[0-9\s]*[.,]?[0-9]+([eE][+\-]?[0-9]+)?" // Decimal comma and grouping spaces allowed. Keep in sync with parseDecimalInput: everything this admits must parse
                   tabIndex={-1}
                   value={item.data === null ? '' : String(item.data)}
                   onChange={(e) => {
