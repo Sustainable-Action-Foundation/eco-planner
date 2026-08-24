@@ -332,8 +332,8 @@
     "visibility_public": "Public",
     "visibility_unlisted": "Unlisted",
     "visibility_featured": "Featured",
-    "unlist_iteration": "Unlist $t(common:roadmap_version_one)",
-    "list_iteration": "List $t(common:roadmap_version_one) again",
+    "unlist_iteration": "Unlist",
+    "list_iteration": "List",
     "add_menu_effect": "$t(common:effect_one, titleCase)",
     "add_menu_action": "$t(common:action_one, titleCase)",
     "visibility_current": "Visibility: {{state}}"

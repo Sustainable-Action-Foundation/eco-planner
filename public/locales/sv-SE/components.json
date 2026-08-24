@@ -332,8 +332,8 @@
     "visibility_public": "Publik",
     "visibility_unlisted": "Olistad",
     "visibility_featured": "Framlyft",
-    "unlist_iteration": "Dölj $t(common:roadmap_version_one) från listor",
-    "list_iteration": "Visa $t(common:roadmap_version_one) i listor igen",
+    "unlist_iteration": "Dölj i listor",
+    "list_iteration": "Visa i listor",
     "add_menu_effect": "$t(common:effect_one, titleCase)",
     "add_menu_action": "$t(common:action_one, titleCase)",
     "visibility_current": "Synlighet: {{state}}"
