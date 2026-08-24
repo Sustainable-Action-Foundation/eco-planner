@@ -108,7 +108,8 @@ export async function POST(request: NextRequest) {
     const updatedDataSeries = await prisma.dataSeries.update({
       where: { id: requestJson.dataSeriesId },
       data: {
-        values: { createMany: { data: dateValuesToDBDateRecord(evaluationResult.dateValues) } },
+        // Values share a composite PK (data_series_id, timestamp), so clear before re-inserting
+        values: { deleteMany: {}, createMany: { data: dateValuesToDBDateRecord(evaluationResult.dateValues) } },
         // Unitless -> remove unit
         // Missing -> omit (keep current unit)
         // real unit -> update unit
