@@ -247,19 +247,9 @@ export function scrollOptionIntoView(
   }
 }
 
-export function preventInvalidFormSubmission(
-  formElement: HTMLInputElement | HTMLButtonElement | HTMLTextAreaElement | HTMLSelectElement,
-  valid: boolean,
-) {
-  const form = formElement.closest("form");
-  if (!form) return;
-  const handleSubmit = (e: Event) => {
-    if (!valid) {
-      e.preventDefault();
-      e.stopPropagation();
-      formElement.focus();
-    }
-  };
-  form.addEventListener("submit", handleSubmit);
-  return () => form.removeEventListener("submit", handleSubmit);
-} 
+// preventInvalidFormSubmission used to live here: a native submit listener that
+// swallowed the event (preventDefault + stopPropagation) when a required
+// combobox was empty. That blocked forms with no user feedback whatsoever —
+// React submit handlers never ran, so no toast or bubble appeared. Comboboxes
+// now render a ComboboxValidationProxy instead, which puts them under the
+// browser's own constraint validation with a visible bubble.

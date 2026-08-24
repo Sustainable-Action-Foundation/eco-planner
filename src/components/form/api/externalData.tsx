@@ -11,7 +11,7 @@ import { useContext, useCallback, useRef, useEffect, useMemo, useReducer } from 
 import type { SubmitEvent } from "react";
 import { useTranslation } from "react-i18next";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
-import { getInitialSelectionValue, shouldVariableFieldsetBeVisible, metricSelectionHelper, optionalTag, timeVariableSelectionHelper, variableSelectionHelper, externalDataReducer } from "./helpers";
+import { getInitialSelectionValue, shouldVariableFieldsetBeVisible, metricSelectionHelper, optionalTag, timeVariableSelectionHelper, variableSelectionHelper, externalDataReducer, EXTERNAL_SELECTION_DETACHED_FORM } from "./helpers";
 import type { ExternalData, ExternalDataState } from "@/components/types";
 import type { ApiSelectionItem } from "@/lib/api/apiTypes";
 
@@ -184,6 +184,7 @@ export default function ExternalData({
         <select
           defaultValue={historicalSource?.dataset ?? ''}
           className="block margin-top-25 margin-bottom-100 width-100"
+          form={EXTERNAL_SELECTION_DETACHED_FORM}
           required={true}
           name="externalDataset"
           id="externalDataset"
@@ -202,6 +203,10 @@ export default function ExternalData({
           name: 'externalTableId',
           placeholder: !dataSource ? t("components:query_builder.select_source_for_table") : t("components:query_builder.select_table"),
           required: true,
+          // Required within this selection panel, but it must not gate the
+          // surrounding goal form — an incomplete historical selection is
+          // deliberately skipped on submit.
+          form: EXTERNAL_SELECTION_DETACHED_FORM,
           disabled: !dataSource ? true : false,
         }}
         defaultValue={table ? { name: table.label, value: table.tableId } : false}

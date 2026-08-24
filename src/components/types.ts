@@ -78,6 +78,9 @@ export type InputElement = GenericElement & {
   defaultValue?: string;
   ariaLabel?: string;
   dataTestid?: string;
+  /** Forwarded to the combobox's validation proxy; point it at a non-existent
+   * form id to keep a required combobox from gating the surrounding form. */
+  form?: string;
 };
 
 // TODO: DO not use name (reserved keyword)

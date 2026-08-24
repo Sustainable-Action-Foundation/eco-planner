@@ -3,7 +3,8 @@
 import type { InputElement, TreeItem } from "@/components/types";
 import { IconCaretRightFilled, IconSelector } from "@tabler/icons-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { handleKeyDownTreeCombobox, preventInvalidFormSubmission, scrollOptionIntoView } from "./functions";
+import { handleKeyDownTreeCombobox, scrollOptionIntoView } from "./functions";
+import { ComboboxValidationProxy } from "./validationProxy";
 import styles from './comboBox.module.css' with { type: "css" };
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
@@ -96,17 +97,11 @@ export default function SelectSingleTree({
 
   }, [focusedIndex, flattenedItems, props.id]);
 
-  // Disables form submission if value is invalid 
   // Define what an invalid value is (missing value or empty string). We only need this defined if the field is required
   const valueIsValid = useMemo(() => {
     if ((!value || value.value === "") && props.required) return false;
     return true;
   }, [value, props.required]);
-
-  useEffect(() => {
-    if (!toggleRef.current) return;
-    return preventInvalidFormSubmission(toggleRef.current, valueIsValid);
-  }, [valueIsValid]);
 
   useEffect(() => {
     setItems(treeItems);
@@ -293,6 +288,12 @@ export default function SelectSingleTree({
         </span>
         <IconSelector height={20} width={20} style={{ minWidth: '20px' }} aria-hidden={true} />
       </button>
+      <ComboboxValidationProxy
+        hasValue={!!value && value.value !== ""}
+        required={props.required}
+        disabled={props.disabled}
+        form={props.form}
+      />
 
       <ul
         id={`${props.id}-dialog-tree`}

@@ -138,7 +138,7 @@ export default function GoalForm({
   const [previewBaselineSerie, setPreviewBaselineSerie] = useState<DateValuesWithUnit | null>(null);
   const [previewHistoricalRecipe, setPreviewHistoricalRecipe] = useState<SerializedRecipe | null>(null);
 
-  // Evaluation error of the currently-selected recipe input (Suggested/Custom)  setPreviewHistoricalRecipe={setPreviewHistoricalRecipe},
+  // Evaluation error of the currently-selected recipe input (Manual/Suggested/Custom)
   // lifted out of the recipe context so submission can be blocked when it fails
   // to evaluate (e.g. an external variable with an incomplete selection).
   const [dataSeriesRecipeError, setDataSeriesRecipeError] = useState<string | null>(null);
@@ -218,12 +218,10 @@ export default function GoalForm({
     }
 
     // Block submission when the selected recipe input failed to evaluate (e.g. an
-    // external dataset variable with an incomplete selection). Without this the
-    // recipe is sent and only fails server-side while materializing externals (500).
-    if (
-      (dataSeriesType === DataSeriesType.Suggested || dataSeriesType === DataSeriesType.Custom)
-      && dataSeriesRecipeError
-    ) {
+    // external dataset variable with an incomplete selection, or a manual series
+    // that didn't pass the recipe type guards). Without this the recipe is sent
+    // and only fails server-side (invalid body / 500 while materializing externals).
+    if (dataSeriesRecipeError) {
       addToast(`${t("forms:goal.errors.recipe_has_error")} ${dataSeriesRecipeError}`, "error", false);
       event.target.reportValidity();
       return;
