@@ -99,8 +99,9 @@ test.describe("Goals tests", () => {
     // Wait for page to load
     await page.locator('h1').filter({ hasText: indicatorRequiredOnly }).hover();
 
-    // Enter edit form
-    await page.getByRole('link', { name: "table_menu.edit" }).click();
+    // Enter edit form (the full form sits under the panel's edit menu)
+    await page.getByTestId("admin-panel-edit-menu").click();
+    await page.getByTestId("admin-panel-edit").click();
     await page.waitForLoadState("networkidle");
 
     // Check that everything is auto filled
@@ -133,6 +134,7 @@ test.describe("Goals tests", () => {
     await page.locator('#comment-text').hover();
 
     // Reenter edit form
+    await page.getByTestId("admin-panel-edit-menu").click();
     await page.getByTestId("admin-panel-edit").click();
     await page.waitForLoadState("networkidle");
     //await expect(page.locator('#comment-text')).toBeEmpty(); TODO: There is placeholder content here so this will never be empty. Should probably check that the placeholder exists, but that should be done in another test...  
@@ -163,6 +165,7 @@ test.describe("Goals tests", () => {
     //await expect(page.locator('#comment-text')).toBeEmpty(); TODO: There is placeholder content here so this will never be empty. Should probably check that the placeholder exists, but that should be done in another test...  
 
     // Reenter edit form to see that everything is updated
+    await page.getByTestId("admin-panel-edit-menu").click();
     await page.getByTestId("admin-panel-edit").click();
     await page.waitForLoadState("networkidle");
 
@@ -247,8 +250,9 @@ test.describe("Goals tests", () => {
     // Wait for page to load
     await page.locator('h1').filter({ hasText: nameAll }).hover();
 
-    // Enter edit form
-    await page.getByRole('link', { name: "table_menu.edit" }).click();
+    // Enter edit form (the full form sits under the panel's edit menu)
+    await page.getByTestId("admin-panel-edit-menu").click();
+    await page.getByTestId("admin-panel-edit").click();
     await page.waitForLoadState("networkidle");
 
     // Check that everything is auto filled
@@ -279,6 +283,7 @@ test.describe("Goals tests", () => {
     await page.locator('h1').filter({ hasText: nameAll }).hover();
 
     // Reenter edit form
+    await page.getByTestId("admin-panel-edit-menu").click();
     await page.getByTestId("admin-panel-edit").click();
     await page.waitForLoadState("networkidle");
 
@@ -314,6 +319,7 @@ test.describe("Goals tests", () => {
     await page.locator('#comment-text').hover();
 
     // Reenter edit form
+    await page.getByTestId("admin-panel-edit-menu").click();
     await page.getByTestId("admin-panel-edit").click();
     await page.waitForLoadState("networkidle");
 

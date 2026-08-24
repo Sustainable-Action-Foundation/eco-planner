@@ -144,7 +144,8 @@
         "type": "Goal type",
         "inherit": "Create a data series by copying it from another goal and scaling it using a suggested method.",
         "manual": "Create a data series by manually inputting years and values.",
-        "recipe": "Create a data series by defining variables and using them in a custom equation."
+        "recipe": "Create a data series by defining variables and using them in a custom equation.",
+        "baseline_rederived": "The baseline is derived from this data series and will be updated to match when you save."
       },
       "baseline": {
         "title": "Create a data series for your goals baseline",
@@ -186,7 +187,8 @@
       "initial_baseline_error": "Cannot use initial baseline when data series is empty.",
       "missing_inherited_baseline": "No inherited baseline provided in form.",
       "missing_baseline": "No baseline provided for new goal.",
-      "recipe_has_error": "This data series can't be saved because its recipe has an error. Please fix it before saving:"
+      "recipe_has_error": "This data series can't be saved because its recipe has an error. Please fix it before saving:",
+      "missing_historical_data": "No historical data was entered or selected."
     },
     "feature_goal": "Yes, feature this $t(common:goal_one).",
     "feature_this_goal": "Do you want to feature this $t(common:goal_one) in your $t(common:roadmap_version_one)?",
@@ -259,7 +261,9 @@
     "unknown_error": "Unknown error",
     "upload_goals": "Upload $t(common:goal_other)",
     "publish": "Publish this version",
-    "publish_hint": "Unpublished versions are drafts, visible only to people who can edit the roadmap."
+    "publish_hint": "Unpublished versions are drafts, visible only to people who can edit the roadmap.",
+    "unlist": "Unlist this version",
+    "unlist_hint": "Unlisted versions are left out of roadmap listings for people who can't edit the roadmap, but still open from a direct link."
   },
   "text_editor_menu": {
     "bold": "Bold",

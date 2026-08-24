@@ -2,7 +2,7 @@ import "server-only";
 import type { MultiRoadmapInstance, Roadmap, UserAccessContext } from "@/types";
 import styles from '@/components/tables/tables.module.css' with { type: "css" };
 import { ControlsMenu } from '@/components/elements/controls/controls';
-import accessChecker from '@/lib/accessChecker';
+import accessChecker, { hasEditAccess } from '@/lib/accessChecker';
 import serveTea from "@/lib/i18nServer";
 import Link from 'next/link';
 import { iterationPath } from '@/functions/versionSlug';
@@ -49,8 +49,14 @@ export default async function RoadmapTable({
     parsedIterations.push(...iterations);
   }
 
-  return parsedIterations.length
-    ? parsedIterations.map(iteration => {
+  // Unlisted iterations are only listed for users who can edit them
+  const listedIterations = parsedIterations.filter(iteration => {
+    if (!iteration.is_unlisted) return true;
+    return hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, published_at: iteration.published_at }, accessContext));
+  });
+
+  return listedIterations.length
+    ? listedIterations.map(iteration => {
       let typeAlias = iteration.roadmap.type.toString();
       if (iteration.roadmap.type === "NATIONAL") typeAlias = t("common:scope.national");
       else if (iteration.roadmap.type === "REGIONAL") typeAlias = t("common:scope.regional");

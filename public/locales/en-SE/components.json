@@ -25,7 +25,8 @@
   "confirm_delete": {
     "confirmation": "Are you sure you want to delete post <strong>{{targetName}}</strong>?<br />This action cannot be undone.",
     "delete_post": "Delete post",
-    "type_to_confirm": "Type <strong>{{targetName}}</strong> to confirm."
+    "type_to_confirm": "Type <strong>{{targetName}}</strong> to confirm.",
+    "mismatch": "The text does not match."
   },
   "copy_and_scale": {
     "add_variable": "Add variable",
@@ -311,8 +312,6 @@
     "edit": "Edit",
     "effect_from_action": "$t(common:effect_one, titleCase) from {{source}}",
     "effect_missing_name": "Name missing",
-    "feature_goal": "Feature $t(common:goal_one)",
-    "feature_goal_stop": "Stop featuring $t(common:goal_one)",
     "go_to_goal": "Go to $t(common:goal_one)",
     "go_to_series": "Go to $t(common:roadmap_one)",
     "go_to_version": "Go to $t(common:roadmap_version_one)",
@@ -324,7 +323,20 @@
     "new_effect": "New $t(common:effect_one)",
     "new_goal": "New $t(common:goal_one)",
     "new_roadmap_version": "New $t(common:roadmap_version_one)",
-    "no_available_actions": "No available actions"
+    "no_available_actions": "No available actions",
+    "add": "Add",
+    "edit_whole": "Everything",
+    "edit_data_series": "Data series",
+    "edit_baseline": "Baseline",
+    "edit_historical": "Historical data",
+    "visibility_public": "Public",
+    "visibility_unlisted": "Unlisted",
+    "visibility_featured": "Featured",
+    "unlist_iteration": "Unlist $t(common:roadmap_version_one)",
+    "list_iteration": "List $t(common:roadmap_version_one) again",
+    "add_menu_effect": "$t(common:effect_one, titleCase)",
+    "add_menu_action": "$t(common:action_one, titleCase)",
+    "visibility_current": "Visibility: {{state}}"
   },
   "table_selector": {
     "actions": "$t(common:action_other, titleCase)",

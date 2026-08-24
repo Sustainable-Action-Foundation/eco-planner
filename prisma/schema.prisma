@@ -130,6 +130,10 @@ model RoadmapIterations {
   target_version Int?
   // When this iteration was published; null means draft, visible only to users with RW access (or better) via the roadmap's access control
   published_at   DateTime?
+  // Unlisted iterations are hidden from regular roadmap listings; they are only
+  // listed for users with edit access to the roadmap. Direct links still resolve
+  // with normal read access.
+  is_unlisted    Boolean   @default(false)
 
   comments Comments[] @relation("roadmap_iteration_comments")
   goals    Goals[]    @relation("roadmap_iteration_goals")

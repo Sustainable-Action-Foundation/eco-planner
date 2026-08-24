@@ -128,6 +128,7 @@ export const clientSafeRoadmapIterationSelection = {
   version: true,
   target_version: true,
   published_at: true,
+  is_unlisted: true,
   roadmap: {
     select: {
       id: true,
@@ -213,6 +214,7 @@ export const clientSafeMultiRoadmapSelection = {
   version: true,
   target_version: true,
   published_at: true,
+  is_unlisted: true,
   _count: {
     select: {
       // Displayed counts exclude unlisted goals

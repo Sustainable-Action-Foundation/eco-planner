@@ -25,7 +25,8 @@
   "confirm_delete": {
     "confirmation": "Är du säker på att du vill radera inlägget <strong>{{targetName}}</strong>?<br />Detta går inte att ångra.",
     "delete_post": "Radera inlägg",
-    "type_to_confirm": "Skriv <strong>{{targetName}}</strong> för att bekräfta."
+    "type_to_confirm": "Skriv <strong>{{targetName}}</strong> för att bekräfta.",
+    "mismatch": "Texten stämmer inte."
   },
   "copy_and_scale": {
     "add_variable": "Lägg till variabel",
@@ -311,8 +312,6 @@
     "edit": "Redigera",
     "effect_from_action": "$t(common:effect_one, titleCase) från {{source}}",
     "effect_missing_name": "Namn saknas",
-    "feature_goal": "Lyft fram $t(common:goal_one)",
-    "feature_goal_stop": "Sluta lyfta fram $t(common:goal_one)",
     "go_to_goal": "Gå till $t(common:goal_one)",
     "go_to_series": "Gå till $t(common:roadmap_one)",
     "go_to_version": "Gå till $t(common:roadmap_version_one)",
@@ -324,7 +323,20 @@
     "new_effect": "Ny $t(common:effect_one)",
     "new_goal": "Ny $t(common:goal_one)",
     "new_roadmap_version": "Ny $t(common:roadmap_version_one)",
-    "no_available_actions": "Inga tillgängliga åtgärder"
+    "no_available_actions": "Inga tillgängliga åtgärder",
+    "add": "Lägg till",
+    "edit_whole": "Allt",
+    "edit_data_series": "Dataserie",
+    "edit_baseline": "Baslinje",
+    "edit_historical": "Historisk data",
+    "visibility_public": "Publik",
+    "visibility_unlisted": "Olistad",
+    "visibility_featured": "Framlyft",
+    "unlist_iteration": "Dölj $t(common:roadmap_version_one) från listor",
+    "list_iteration": "Visa $t(common:roadmap_version_one) i listor igen",
+    "add_menu_effect": "$t(common:effect_one, titleCase)",
+    "add_menu_action": "$t(common:action_one, titleCase)",
+    "visibility_current": "Synlighet: {{state}}"
   },
   "table_selector": {
     "actions": "$t(common:action_other, titleCase)",
