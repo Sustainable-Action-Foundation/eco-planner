@@ -1,4 +1,5 @@
 import type { PxWebTableArray } from "@/lib/api/pxWeb/pxWebApiV2Types";
+import type { ApiTableListEntry } from "../apiTypes";
 import { ExternalDataset } from "../utility";
 
 /**
@@ -43,9 +44,16 @@ export default async function getPxWebTables(externalDataset: string, language?:
     return null;
   }
 
-  const result: { tableId: string, label: string }[] = [];
+  const result: ApiTableListEntry[] = [];
   for (const table of data.tables) {
-    result.push({ tableId: table.id, label: `${table.label} (${table.id})` });
+    result.push({
+      tableId: table.id,
+      label: `${table.label} (${table.id})`,
+      variableNames: table.variableNames,
+      timeUnit: table.timeUnit,
+      firstPeriod: table.firstPeriod,
+      lastPeriod: table.lastPeriod,
+    });
   }
 
   return result;
