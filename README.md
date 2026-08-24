@@ -20,10 +20,8 @@ This tool requires the following environment variables to be set:
 
 On startup the app runs a self-test (`src/instrumentation.ts`) which checks the session password, mail configuration and database connection, and logs a warning for anything misconfigured.
 
-If you want to target a different type of database, you might want to remove the existing `prisma/migrations` folder and start from scratch with `yarn prisma migrate dev --create-only` to generate new migration files after changing the `provider` field in the prisma schema file.
-
 1. Install dependencies with `yarn install`
-2. If you're setting up the database for the first time (for example, a clean development database), run `yarn prisma migrate deploy` to apply the existing migrations to the database, or `yarn prisma migrate dev` if you do not have any migration files.
+2. If you're setting up the database for the first time (for example, a clean development database), run `yarn prisma migrate deploy` to apply the existing migrations to the database..
     - Any local MariaDB/MySQL server works for development, whether installed natively or run as a docker container.
 
 Now you should be able to run the app with `yarn dev` and access it at http://localhost:3000 or build it with `yarn build` and run it with `yarn start`.
