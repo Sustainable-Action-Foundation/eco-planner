@@ -46,11 +46,16 @@ export default async function Page(
   // user's orgs (guest ones included) and the public view. The default is the
   // first proper membership: org-less users and pure guests get the public view
   // and reach their org through its tab, since a guest's org landing only holds
-  // what their groups are explicitly granted.
+  // what their groups are explicitly granted. Super admins get every org in the
+  // switcher (memberships first), so one without a membership lands on the
+  // first org instead of the public view.
   const orgParam = searchParams['org'] ? (Array.isArray(searchParams['org']) ? searchParams['org'][0] : searchParams['org']) : '';
   const selectedOrg = orgParam === 'public'
     ? null
-    : userOrgs.find(org => org.id === orgParam) ?? userOrgs.find(org => !org.isGuest) ?? null;
+    : userOrgs.find(org => org.id === orgParam)
+      ?? userOrgs.find(org => org.isMember && !org.isGuest)
+      ?? (accessContext?.isSuperAdmin ? userOrgs[0] : null)
+      ?? null;
 
   const typeFilter = searchParams['typeFilter'] ? (Array.isArray(searchParams['typeFilter']) ? searchParams['typeFilter'] : [searchParams['typeFilter']]) : [];
   const sortBy = searchParams['sortBy'] ? (Array.isArray(searchParams['sortBy']) ? (searchParams['sortBy'][0] as RoadmapSortBy) : (searchParams['sortBy'] as RoadmapSortBy)) : RoadmapSortBy.Default;
