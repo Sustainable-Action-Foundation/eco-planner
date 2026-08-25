@@ -63,7 +63,10 @@ export default function DataSeriesForm({
     // outputs to settle so a submit right after an edit doesn't read stale data.
     await waitForRecipeFormSyncs(event.target);
 
-    if ((dataSeriesType === DataSeriesType.Suggested || dataSeriesType === DataSeriesType.Custom) && dataSeriesRecipeError) {
+    // Block submission when the selected input failed to evaluate (an external
+    // dataset variable with an incomplete selection, or a manual series that
+    // didn't pass the recipe type guards), as the full goal form does
+    if (dataSeriesRecipeError) {
       addToast(`${t("forms:goal.errors.recipe_has_error")} ${dataSeriesRecipeError}`, "error", false);
       return;
     }
