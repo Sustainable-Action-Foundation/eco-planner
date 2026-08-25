@@ -3,13 +3,16 @@
 import { useMemo, useState, useTransition } from "react";
 import styles from "./sections.module.css";
 import type { Action } from "@/types";
-import { IconArrowNarrowRight, IconLayoutGridFilled, IconList, IconPlus, IconSearch, IconUser } from "@tabler/icons-react";
+import { IconArrowNarrowRight, IconChevronDown, IconChevronUp, IconLayoutGridFilled, IconList, IconPlus, IconSearch, IconUser } from "@tabler/icons-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useDebouncedCallback } from "use-debounce";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { ActionFieldHeaders, actionFieldLabel, getActionDescription, groupActionFields } from "@/functions/fields";
+
+/** Collapsed, the section shows at most this many actions (~3 grid rows at desktop width) with an expand toggle */
+const collapsedActionCount = 9;
 
 export default function Actions({
   actions,
@@ -21,6 +24,7 @@ export default function Actions({
 
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [_isPending, startTransition] = useTransition();
   const pathname = usePathname();
@@ -218,7 +222,7 @@ export default function Actions({
                 </article>
               </li>
               : null}
-            {filteredActions?.map(action => (
+            {(expanded ? filteredActions : filteredActions?.slice(0, collapsedActionCount))?.map(action => (
               <li
                 key={action.id}
                 className="smooth"
@@ -268,6 +272,19 @@ export default function Actions({
               </li>
             ))}
           </ul>
+          {filteredActions && filteredActions.length > collapsedActionCount ?
+            <button
+              type="button"
+              className="flex gap-25 align-items-center smooth padding-50 margin-top-100 font-weight-500 line-height-100 font-size-14px"
+              style={{ marginInline: 'auto' }}
+              aria-expanded={expanded}
+              onClick={() => setExpanded(!expanded)}
+            >
+              {expanded
+                ? <>{t('pages:actions.show_fewer')} <IconChevronUp width={20} height={20} style={{ minWidth: '20px' }} aria-hidden="true" /></>
+                : <>{t('pages:actions.show_all', { count: filteredActions.length })} <IconChevronDown width={20} height={20} style={{ minWidth: '20px' }} aria-hidden="true" /></>}
+            </button>
+            : null}
         </section>
       </div>
     </search>

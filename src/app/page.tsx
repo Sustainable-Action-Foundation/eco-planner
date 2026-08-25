@@ -13,6 +13,9 @@ import { buildMetadata } from "@/functions/buildMetadata";
 import { getActions, getRoadmapIterations, getRoadmaps, getUserOrgs } from "@/fetchers";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import Actions from "@/components/pages/sections/actions";
+import CuratedHistoricalData from "@/components/pages/sections/historicalData";
+import Image from "next/image";
+import { Suspense } from "react";
 import SearchRoadmaps from "@/components/form/filters/searchRoadmaps";
 import SortRoadmaps from "@/components/form/filters/sortRoadmaps";
 import styles from "./page.module.css";
@@ -204,6 +207,16 @@ export default async function Page(
         <section className="margin-block-300">
           <Actions actions={orgActions} />
         </section>
+
+        { // Curated historical data needs a geo area to localize to
+          selectedOrg.geoArea ?
+            <section className="margin-block-300">
+              {/* The section fetches from external statistics APIs; don't block the rest of the page on a cold cache */}
+              <Suspense fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
+                <CuratedHistoricalData geoArea={selectedOrg.geoArea} />
+              </Suspense>
+            </section>
+            : null}
       </> : <>
       <div className="rounded width-100 margin-bottom-100 margin-top-300 position-relative overflow-hidden" style={{ height: '350px' }}>
         <AttributedImage src="/images/solar.jpg" alt="" sizes="(max-width: 1250px) 100vw, 1250px">

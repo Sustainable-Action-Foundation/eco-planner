@@ -32,7 +32,9 @@
     "grid": "Grid",
     "list": "List",
     "search_actions": "Search $t(common:count.action)",
+    "show_all": "Show all $t(common:count.action)",
     "show_as": "Visa som",
+    "show_fewer": "Show fewer",
     "shown_results": "Showing $t(common:count.action)",
     "title": "Title",
     "visit_action": "Visit $t(common:action_definite_one)"
@@ -82,6 +84,20 @@
   },
   "home": {
     "create_roadmap": "$t(common:new.roadmap)",
+    "curated_historical": {
+      "category_emissions": "Climate and emissions",
+      "category_geography": "Geography",
+      "category_population": "Population",
+      "description": "Statistics for your geographic area, fetched directly from open data sources.",
+      "ghg_emissions_description": "Territorial greenhouse gas emissions within the area's borders, in kilotonnes of carbon dioxide equivalents.",
+      "ghg_emissions_name": "Greenhouse gas emissions",
+      "land_area_description": "Land area in square kilometres, excluding water.",
+      "land_area_name": "Land area",
+      "population_description": "Number of registered inhabitants at the end of each year.",
+      "population_name": "Population",
+      "source": "Source",
+      "title": "Historical data for {{area}}"
+    },
     "filter": "Filter",
     "org_nav_label": "Organization views",
     "public_tab": "All public $t(common:roadmap_other)",
