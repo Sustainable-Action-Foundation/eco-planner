@@ -4,6 +4,7 @@ import { useCallback, useRef } from "react";
 import { useRecipe } from "../context/recipeContext.use";
 import { Recipe } from "@/functions/recipe/recipe";
 import type { DateValuesWithUnit } from "@/types";
+import { UnitFlags } from "@/types/enums";
 import DataSeriesGrid from "./dataSeriesGrid";
 
 /**
@@ -35,10 +36,10 @@ export function ManualDataSeriesInput({
 
   const handleDateValuesChange = useCallback((dateValues: DateValuesWithUnit) => {
     void applyRecipeUpdate((current) => {
-      // The grid has no unit input (it always emits `unit: undefined`), so keep the
-      // recipe's current unit (e.g. a `UnitInput` override) across grid edits.
+      // The grid has no unit input (it always emits `unit: MISSING_UNIT`), so keep
+      // the recipe's current unit (e.g. a `UnitInput` override) across grid edits.
       const next = Recipe.fromManualDateValues(dateValues, variableIdRef.current);
-      next.unit = dateValues.unit ?? current.unit;
+      next.unit = dateValues.unit === UnitFlags.Missing ? current.unit : dateValues.unit;
       return next;
     });
   }, [applyRecipeUpdate]);

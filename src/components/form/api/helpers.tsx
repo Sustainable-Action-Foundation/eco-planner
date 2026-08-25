@@ -7,6 +7,15 @@ import type { ExternalData, ExternalDataAction } from "@/components/types";
 // TODO: Look over naming now that this is in the /api folder
 // TODO: Actually should probably not be in the api folders
 
+/**
+ * `form` attribute for the external-data selection controls. It matches no
+ * `<form>` id, so the controls get no form owner: they must not join a
+ * surrounding form's native validation (a required, empty select would
+ * silently veto submission) or its FormData. Selection completeness is
+ * instead checked per element via `checkValidity()` in `buildQuery()`.
+ */
+export const EXTERNAL_SELECTION_DETACHED_FORM = "external-selection-has-no-form-owner";
+
 export function metricSelectionHelper({
   t,
   metricDimension,
@@ -29,6 +38,7 @@ export function metricSelectionHelper({
       <label key={`metric-${tableMetadata.tableId}-${metricDimension.id}`}>
         {metricDimension.label || metricDimension.name}
         <select className="block margin-top-25 margin-bottom-100 width-100 metric"
+          form={EXTERNAL_SELECTION_DETACHED_FORM}
           required={true}
           name={metricDimension.id}
           id={metricDimension.id}
@@ -83,6 +93,7 @@ export function timeVariableSelectionHelper({
     <label key={`${time.id}`}>
       {heading}{optionalTag(t, time.optional ?? false, datasetInfo)}
       <select className='block margin-top-25 margin-bottom-100 width-100 timeVariable'
+        form={EXTERNAL_SELECTION_DETACHED_FORM}
         required={!time.optional}
         name={time.id}
         id={time.id}
@@ -136,6 +147,7 @@ export function variableSelectionHelper({
         {dimension.label || dimension.name}{optionalTag(t, dimension.optional, datasetInfo)} {/* TODO: Maybe this should be implement in the same way as the options in the select? */}
         <select
           className='block margin-top-25 margin-bottom-100 width-100'
+          form={EXTERNAL_SELECTION_DETACHED_FORM}
           required={!dimension.optional}
           name={dimension.id}
           id={dimension.id}

@@ -8,6 +8,7 @@ import { aggregateTimeUnitFacets, aggregateVariableFacets, filterTableCatalog, P
 import { ExternalDataset, formQueryHelper, isDataSetKeys } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Trans, useTranslation } from "react-i18next";
 import SelectMultipleSearch from "../elements/combobox/selectMultipleSearch";
 import FormWrapper from "../formWrapper";
@@ -64,6 +65,15 @@ export default function RecipeQueryBuilder({
   const modalRef = useRef<HTMLDialogElement | null>(null);
   const fieldsetRef = useRef<HTMLFieldSetElement | null>(null);
   const selectorMenuRef = useRef<HTMLDivElement | null>(null);
+
+  // The dialog is portaled to <body> because this component mounts inside other
+  // forms (goal form fieldsets, via external recipe variables): as a descendant,
+  // its required selects would join that form's native validation and silently
+  // veto submission while sitting invisible in the closed dialog. The builder
+  // reads its own controls through refs, so it needs no form owner. Portals
+  // can't render during SSR, hence the mounted gate.
+  const [isPortalMounted, setIsPortalMounted] = useState(false);
+  useEffect(() => { setIsPortalMounted(true); }, []);
 
   const tableSearchInputName = "tableSearch";
 
@@ -567,6 +577,7 @@ export default function RecipeQueryBuilder({
         <IconDatabaseSearch strokeWidth={1.75} width={20} height={20} color='black' style={{ minWidth: '20' }} aria-hidden="true" />
       </button>
 
+      {isPortalMounted ? createPortal(
       <dialog className={`rounded padding-inline-0 padding-block-0 ${styles.dialog}`} ref={modalRef} aria-modal={true} style={{ backgroundColor: 'rgb(246, 246, 246)' }}>
         <div className={`${styles['dialog-content']}`}>
           <div className={`${styles['dialog-header']}`}>
@@ -798,7 +809,6 @@ export default function RecipeQueryBuilder({
             </output>
             {/* TODO: Should probably only be displayed on last slide? */}
             <button
-              id="submit-button"
               type="button"
               className="seagreen color-purewhite block width-100"
               onClick={() => saveRecipe()}
@@ -807,7 +817,9 @@ export default function RecipeQueryBuilder({
             </button>
           </div>
         </div>
-      </dialog>
+      </dialog>,
+      document.body,
+      ) : null}
     </>
   );
 }

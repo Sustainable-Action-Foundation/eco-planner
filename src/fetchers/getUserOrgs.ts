@@ -10,6 +10,7 @@ export type UserOrg = {
   /** The user holds a membership in the org (false only for the super-admin override) */
   isMember: boolean,
   isGuest: boolean,
+  geoArea: { code: string, name: string } | null,
 };
 
 /**
@@ -34,9 +35,11 @@ export async function getUserOrgs(): Promise<UserOrg[]> {
   const userOrgs = orgs.map(org => {
     const membership = accessContext.memberships.find(membership => membership.orgId === org.id);
     return {
-      ...org,
+      id: org.id,
+      name: org.name,
       isMember: !!membership,
       isGuest: membership?.role === OrgRole.GUEST,
+      geoArea: org.geo_area,
     };
   });
 
@@ -48,14 +51,14 @@ export async function getUserOrgs(): Promise<UserOrg[]> {
  * Caches the org names per org-id set (org names practically never change).
  * `null` fetches every org (the super-admin override).
  */
-async function getCachedOrgs(orgIds: string[] | null): Promise<{ id: string, name: string }[]> {
+async function getCachedOrgs(orgIds: string[] | null): Promise<{ id: string, name: string, geo_area: { code: string, name: string } | null }[]> {
   'use cache';
   cacheTag('database', 'org');
 
   try {
     return await prisma.orgs.findMany({
       where: orgIds ? { id: { in: orgIds } } : {},
-      select: { id: true, name: true },
+      select: { id: true, name: true, geo_area: { select: { code: true, name: true } } },
       orderBy: { name: 'asc' },
     });
   }
