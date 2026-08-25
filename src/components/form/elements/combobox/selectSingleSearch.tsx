@@ -4,7 +4,8 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import styles from './comboBox.module.css' with { type: "css" };
 import type { InputElement, Option } from "@/components/types";
-import { clearEditableCombobox, handleKeyDownEditableCombobox, preventInvalidFormSubmission, scrollOptionIntoView } from "./functions";
+import { clearEditableCombobox, handleKeyDownEditableCombobox, scrollOptionIntoView } from "./functions";
+import { ComboboxValidationProxy } from "./validationProxy";
 import type { IFuseOptions } from "fuse.js";
 import Fuse from "fuse.js";
 import { IconSearch, IconSelector } from "@tabler/icons-react";
@@ -84,17 +85,11 @@ export default function SelectSingleSearch({
     return searchValue ? fuse.search(searchValue).map(result => result.item) : options;
   }, [searchValue, fuse, options, selectionMade]);
 
-  // Disables form submission if value is invalid 
   // Define what an invalid value is (missing value or empty string). We only need this defined if the field is requied
   const valueIsValid = useMemo(() => {
     if ((!value || value.value === "") && props.required) return false;
     return true;
   }, [value, props.required]);
-
-  useEffect(() => {
-    if (!toggleRef.current) return;
-    return preventInvalidFormSubmission(toggleRef.current, valueIsValid);
-  }, [valueIsValid]);
 
   useEffect(() => {
     if (!searchRef.current) return;
@@ -137,6 +132,12 @@ export default function SelectSingleSearch({
         </span>
         <IconSelector height={20} width={20} style={{ minWidth: '20px' }} aria-hidden={true} />
       </button>
+      <ComboboxValidationProxy
+        hasValue={!!value && value.value !== ""}
+        required={props.required}
+        disabled={props.disabled}
+        form={props.form}
+      />
       <div
         id={`${props.id}-dialog`}
         className={`              

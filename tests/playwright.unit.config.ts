@@ -71,5 +71,11 @@ export default defineConfig({
       retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
       use: {},
     },
+    {
+      name: "Decimal input parsing unit tests",
+      testMatch: ["unit/parse-decimal-input.test.ts"],
+      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
+      use: {},
+    },
   ],
 });

@@ -5,7 +5,7 @@ import { cwd } from "node:process";
 
 const adminFile = path.join(cwd(), "tests/.auth/admin.json");
 
-async function fillManualDataSeries(page: Page, rows: Array<[number, number]>) {
+async function fillManualDataSeries(page: Page, rows: Array<[number | string, number | string]>) {
   const insertRowButton = page.getByTestId("add-row-button");
 
   for (let i = 1; i < rows.length; i++) {
@@ -78,6 +78,43 @@ test.describe("Goals tests", () => {
     await page.waitForLoadState("networkidle");
 
     await expect(page.getByRole('main')).toContainText("goal.title_label");
+  });
+
+  // Regression for #110: cells typed with a decimal comma or grouping spaces used
+  // to become NaN -> null, failing the recipe type guards so the form never
+  // submitted successfully.
+  test('Create goal with decimal comma and grouped values', async ({ page }, { project }) => {
+    await page.goto('/');
+    await page.waitForLoadState("networkidle");
+
+    await page.getByTestId('create-button').click();
+    await page.getByTestId('create-goal').click();
+    await page.waitForLoadState("networkidle");
+
+    await page.locator('#parent-roadmap').click();
+    await page.locator('#parent-roadmap-dialog-listbox li').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: '2' }).click();
+
+    await page.locator('input[name="DATA_SERIES_TYPE"][value="MANUAL"]').check();
+    await page.locator('#indicatorParameter').fill(`Decimal\\comma\\${project.name}`);
+    await page.locator('#goal-manual-unit').fill(unitRequiredOnly);
+    await page.locator('#goal-manual-unit').blur();
+
+    await fillManualDataSeries(page, [[2020, "1,5"], [2021, "18 800"], [2022, "2,25"]]);
+
+    await page.locator('#submit-button').click();
+    await page.waitForLoadState("networkidle");
+
+    await expect(page.getByRole('main')).toContainText("goal.title_label");
+
+    // Reopen in the edit form: values are stored as numbers, and the typed unit
+    // must have survived the grid edits (it used to be reset to "missing").
+    await page.getByRole('link', { name: "table_menu.edit" }).click();
+    await page.waitForLoadState("networkidle");
+    await page.locator('input[name="DATA_SERIES_TYPE"][value="MANUAL"]').check();
+    await expect.soft(page.locator('#goal-manual-unit')).toHaveValue(unitRequiredOnly);
+    for (const [row, expected] of [["0", "1.5"], ["1", "18800"], ["2", "2.25"]]) {
+      await expect.soft(page.locator(`#goal-dataseries [data-row="${row}"][data-column="2"] input`)).toHaveValue(expected);
+    }
   });
 
   test('Edit goal required only', async ({ page }) => {
