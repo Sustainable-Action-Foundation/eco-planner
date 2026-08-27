@@ -1,6 +1,6 @@
 import type { JSONValue } from "@/types";
 import getPxWebTableContent from "./pxWeb/getPxWebTableContentAction";
-import getTrafaTableContent from "./trafa/getTrafaTableContentAction";
+import getTrafaTableContent from "./trafa/getTrafaTableContent";
 import { ExternalDataset } from "./utility";
 import type { ApiSelectionItem, ApiTableContent } from "./apiTypes";
 
