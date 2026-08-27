@@ -6,22 +6,23 @@ import type { DateValues } from "@/types";
 import type { ApexOptions } from "apexcharts";
 
 export default function CuratedHistoricalGraph({
-  series,
+  name,
   unit,
+  dateValues,
 }: {
-  series: { name: string, dateValues: DateValues }[],
+  name: string,
   unit: string | null,
+  dateValues: DateValues,
 }) {
-  const chartSeries = series.map(({ name, dateValues }) => ({
-    name,
-    data: Object.entries(dateValues)
-      .filter(([key]) => isISOIshDate(key))
-      .map(([key, value]) => ({ x: new Date(key).getTime(), y: value }))
-      .sort((a, b) => a.x - b.x),
-  }));
-
-  const longestSeries = Math.max(1, ...chartSeries.map(series => series.data.length));
-  const isMultiSeries = chartSeries.length > 1;
+  const chartSeries = [
+    {
+      name,
+      data: Object.entries(dateValues)
+        .filter(([key]) => isISOIshDate(key))
+        .map(([key, value]) => ({ x: new Date(key).getTime(), y: value }))
+        .sort((a, b) => a.x - b.x),
+    },
+  ];
 
   const chartOptions: ApexOptions = {
     chart: {
@@ -31,17 +32,13 @@ export default function CuratedHistoricalGraph({
       toolbar: { show: false },
     },
     stroke: { width: 2 },
-    legend: {
-      show: isMultiSeries,
-      position: "bottom",
-    },
     xaxis: {
       type: 'datetime',
       labels: { format: 'yyyy' },
       tooltip: { enabled: false },
       // Cap ticks at the data points so short series don't repeat the same
       // year label across sub-year ticks
-      tickAmount: Math.max(1, Math.min(longestSeries - 1, 8)),
+      tickAmount: Math.max(1, Math.min(chartSeries[0].data.length - 1, 8)),
     },
     yaxis: {
       labels: {
@@ -52,13 +49,11 @@ export default function CuratedHistoricalGraph({
       ...(unit ? { title: { text: unit } } : {}),
     },
     tooltip: {
-      shared: isMultiSeries,
       x: { format: 'yyyy' },
     },
   };
 
-  // Multi-series charts need room for the legend below the plot
   return (
-    <WrappedChart options={chartOptions} series={chartSeries} type="line" height={isMultiSeries ? 260 : 200} />
+    <WrappedChart options={chartOptions} series={chartSeries} type="line" height={200} />
   );
 }
