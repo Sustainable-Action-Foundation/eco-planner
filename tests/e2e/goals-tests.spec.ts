@@ -108,7 +108,9 @@ test.describe("Goals tests", () => {
 
     // Reopen in the edit form: values are stored as numbers, and the typed unit
     // must have survived the grid edits (it used to be reset to "missing").
-    await page.getByRole('link', { name: "table_menu.edit" }).click();
+    // The full form sits under the panel's edit menu
+    await page.getByTestId("admin-panel-edit-menu").click();
+    await page.getByTestId("admin-panel-edit").click();
     await page.waitForLoadState("networkidle");
     await page.locator('input[name="DATA_SERIES_TYPE"][value="MANUAL"]').check();
     await expect.soft(page.locator('#goal-manual-unit')).toHaveValue(unitRequiredOnly);
