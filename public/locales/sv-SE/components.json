@@ -339,6 +339,9 @@
     "username_requirements": "{{min}}-{{max}} tecken: bokstäver, siffror, punkter, understreck eller bindestreck"
   },
   "table_menu": {
+    "visibility_public": "Publik",
+    "visibility_unlisted": "Olistad",
+    "visibility_featured": "Framlyft",
     "add_effect_from_existing_action": "Lägg till $t(common:effect_one)",
     "admin_panel_info": "Enbart användare med administrations- eller redigeringsbehörighet kan se denna panel. Vilka åtgärder som är tillgängliga för en användare beror på deras behörighetsnivå.",
     "admin_panel_title": "Administrationspanel",

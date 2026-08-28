@@ -341,7 +341,7 @@ test.describe("Goals tests", () => {
     // No unit input in suggested mode: the unit comes from the recipe evaluation
 
     await page.locator('input[name="BASELINE_TYPE"][value="INITIAL"]').check();
-    await page.locator('#isFeatured').uncheck();
+    await page.locator('#isPublic').check(); // Visibility is a radio group; "public" is the non-featured, listed state
 
     // right before submitting, wait for the recipe to finish calculating by expecting there to be no issues with it
     await expect(page.getByText('recipe_editor.no_errors')).toBeVisible();
