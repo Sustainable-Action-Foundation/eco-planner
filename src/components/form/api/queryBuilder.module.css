@@ -66,6 +66,30 @@
   padding: 1rem;
 }
 
+/*
+ * The selection pane holds a FormWrapper, which renders its slides first and its
+ * back/next row last. Pin that row to the bottom of the pane so it stays reachable
+ * when the slide above it (e.g. the table list) is taller than the pane.
+ */
+.dialog-pane-form > :last-child {
+  position: sticky;
+  bottom: -1rem; /* Cancel the pane padding so it sits flush with the pane's bottom edge */
+  background-color: rgb(246, 246, 246); /* Same as dialog */
+  border-top: 1px solid var(--gray-80);
+  padding-top: .5rem;
+}
+
+/* "Selected table: …" on the values page stays in view while the values below scroll */
+.selected-table-heading {
+  position: sticky;
+  top: -1rem; /* Cancel the pane padding so it sits flush with the pane's top edge */
+  z-index: 1;
+  margin: 0;
+  padding-block: .75rem;
+  background-color: rgb(246, 246, 246); /* Same as dialog */
+  border-bottom: 1px solid var(--gray-80);
+}
+
 .dialog-preview {
   display: block;
   background-color: white;

@@ -594,7 +594,7 @@ export default function RecipeQueryBuilder({
           </div>
 
           <div className={`${styles['dialog-panes']}`}>
-            <div className={`${styles['dialog-pane']}`}>
+            <div className={`${styles['dialog-pane']} ${styles['dialog-pane-form']}`}>
             <FormWrapper section={section} labels={{ back: t("components:query_builder.change_table") }}>
               <fieldset className="position-relative" ref={fieldsetRef}>
                 <label className="margin-block-75 font-weight-500">
@@ -733,7 +733,7 @@ export default function RecipeQueryBuilder({
               </fieldset>
 
               {tableMetadata ? <div ref={selectorMenuRef}>
-                <label className="block margin-block-75">
+                <label className={`block ${styles['selected-table-heading']}`}>
                   <Trans
                     i18nKey={"components:query_builder.selected_table"}
                     values={{ table: document.getElementById(`table${tableMetadata.tableId}`)?.innerText }}
