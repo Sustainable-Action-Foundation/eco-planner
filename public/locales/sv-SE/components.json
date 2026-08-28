@@ -139,6 +139,8 @@
     "no_result_found": "Inget läsbart resultat hittades. Vänligen uppdatera dina val.",
     "change_table": "Byt tabell",
     "preview_placeholder": "En förhandsvisning av datan visas här när ett mätvärde har valts.",
+    "reported_unit": "Rapporterad enhet",
+    "unit_help": "Enheten för den hämtade datan. Källorna anger den sällan själva; beskrivningen ovan kan ge en ledtråd.",
     "no_tables_match_filters": "Inga tabeller matchar din sökning eller dina filter.",
     "no_variables_found": "Det finns inga variabler",
     "optional": "valfri",

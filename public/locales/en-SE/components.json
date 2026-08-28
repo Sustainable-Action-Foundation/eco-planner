@@ -139,6 +139,8 @@
     "no_result_found": "No readable result found. Please update your selections.",
     "change_table": "Change table",
     "preview_placeholder": "A preview of the data appears here once a metric has been chosen.",
+    "reported_unit": "Reported unit",
+    "unit_help": "The unit of the fetched data. Sources rarely state it themselves; the description above may give a hint.",
     "no_tables_match_filters": "No tables match your search or filters.",
     "no_variables_found": "There are no variables",
     "optional": "optional",

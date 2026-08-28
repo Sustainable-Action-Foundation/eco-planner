@@ -108,6 +108,7 @@ export default async function getTrafaTableMetadata(tableId: string, selection: 
         type: "dimensionValue",
         value: structureItem.Name,
         label: structureItem.Label,
+        description: structureItem.Description || undefined,
         dataType: structureItem.DataType as "String",
       });
       return tableDetails.metricDimensions[0];

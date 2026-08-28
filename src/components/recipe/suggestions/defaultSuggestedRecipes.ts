@@ -46,28 +46,32 @@ function externalTemplate(id: string, name: string, preset?: ExternalPreset): Ex
   };
 }
 
-/** `parent * child / parent` scaling recipe over an external source (region left to the user). */
-function ratioRecipe(names: { name: string, parentValue: string, parentExternal: string, childExternal: string }, preset?: ExternalPreset): Recipe {
+/**
+ * `parent * child / parent` scaling recipe over an external source (region left to the user).
+ * `idPrefix` keeps variable ids distinct between presets: the editor keys its rows by
+ * variable id, so shared ids would keep one preset's editor state alive under another.
+ */
+function ratioRecipe(idPrefix: string, names: { name: string, parentValue: string, parentExternal: string, childExternal: string }, preset?: ExternalPreset): Recipe {
   return new Recipe({
     name: names.name,
     equation: `\${${names.parentValue}} * \${${names.childExternal}} / \${${names.parentExternal}}`,
     variables: [
       dataSeriesTemplate(PARENT_VALUE_ID, names.parentValue),
-      externalTemplate("parent-external-dummy-uuid", names.parentExternal, preset),
-      externalTemplate("child-external-dummy-uuid", names.childExternal, preset),
+      externalTemplate(`${idPrefix}-parent-external-dummy-uuid`, names.parentExternal, preset),
+      externalTemplate(`${idPrefix}-child-external-dummy-uuid`, names.childExternal, preset),
     ],
     meta: { isSuggestedRecipe: true },
   });
 }
 
 /** `first <operator> second` over two data series the user picks. */
-function combineRecipe(names: { name: string, first: string, second: string }, operator: "+" | "-"): Recipe {
+function combineRecipe(idPrefix: string, names: { name: string, first: string, second: string }, operator: "+" | "-"): Recipe {
   return new Recipe({
     name: names.name,
     equation: `\${${names.first}} ${operator} \${${names.second}}`,
     variables: [
-      dataSeriesTemplate("first-series-dummy-uuid", names.first),
-      dataSeriesTemplate("second-series-dummy-uuid", names.second),
+      dataSeriesTemplate(`${idPrefix}-first-series-dummy-uuid`, names.first),
+      dataSeriesTemplate(`${idPrefix}-second-series-dummy-uuid`, names.second),
     ],
     meta: { isSuggestedRecipe: true },
   });
@@ -111,7 +115,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
     /* Scaling by a ratio between two regions */
     {
       id: "area-recipe-dummy-uuid",
-      recipe: ratioRecipe({
+      recipe: ratioRecipe("area", {
         name: t("components:recipe_editor.default_area_recipe.name"),
         parentValue: t("components:recipe_editor.default_area_recipe.parent_value"),
         parentExternal: t("components:recipe_editor.default_area_recipe.parent_area"),
@@ -120,7 +124,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
     },
     {
       id: "population-recipe-dummy-uuid",
-      recipe: ratioRecipe({
+      recipe: ratioRecipe("population", {
         name: t("components:recipe_editor.default_population_recipe.name"),
         parentValue: t("components:recipe_editor.default_population_recipe.parent_value"),
         parentExternal: t("components:recipe_editor.default_population_recipe.parent_population"),
@@ -130,7 +134,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
     // Electric cars ("El"), e.g. for scaling charging infrastructure
     {
       id: "electric-cars-recipe-dummy-uuid",
-      recipe: ratioRecipe({
+      recipe: ratioRecipe("electric-cars", {
         name: t("components:recipe_editor.default_electric_cars_recipe.name"),
         parentValue: t("components:recipe_editor.default_electric_cars_recipe.parent_value"),
         parentExternal: t("components:recipe_editor.default_electric_cars_recipe.parent_cars"),
@@ -140,7 +144,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
     // All passenger cars ("Totalt"), e.g. for scaling an electric car goal so both regions get the same share
     {
       id: "passenger-cars-recipe-dummy-uuid",
-      recipe: ratioRecipe({
+      recipe: ratioRecipe("passenger-cars", {
         name: t("components:recipe_editor.default_passenger_cars_recipe.name"),
         parentValue: t("components:recipe_editor.default_passenger_cars_recipe.parent_value"),
         parentExternal: t("components:recipe_editor.default_passenger_cars_recipe.parent_cars"),
@@ -150,7 +154,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
     // Any external source, chosen entirely by the user
     {
       id: "external-ratio-recipe-dummy-uuid",
-      recipe: ratioRecipe({
+      recipe: ratioRecipe("external-ratio", {
         name: t("components:recipe_editor.default_external_ratio_recipe.name"),
         parentValue: t("components:recipe_editor.default_external_ratio_recipe.parent_value"),
         parentExternal: t("components:recipe_editor.default_external_ratio_recipe.parent_external"),
@@ -193,7 +197,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
     /* Combining two data series */
     {
       id: "sum-recipe-dummy-uuid",
-      recipe: combineRecipe({
+      recipe: combineRecipe("sum", {
         name: t("components:recipe_editor.default_sum_recipe.name"),
         first: t("components:recipe_editor.default_sum_recipe.first"),
         second: t("components:recipe_editor.default_sum_recipe.second"),
@@ -201,7 +205,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
     },
     {
       id: "difference-recipe-dummy-uuid",
-      recipe: combineRecipe({
+      recipe: combineRecipe("difference", {
         name: t("components:recipe_editor.default_difference_recipe.name"),
         first: t("components:recipe_editor.default_difference_recipe.first"),
         second: t("components:recipe_editor.default_difference_recipe.second"),

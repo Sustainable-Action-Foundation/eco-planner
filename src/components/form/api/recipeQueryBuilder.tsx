@@ -18,6 +18,10 @@ import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 import getTableContent from "@/lib/api/getTableContent";
 import { externalSelectionKey } from "@/functions/recipe";
 import { RecipeDataTypes } from "@/functions/recipe/types/enums";
+import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";
+import { isUnitFlag, parseUnit } from "@/functions/unit";
+import { allOurUnits } from "@/math";
+import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
 
 // TODO: move-history-v3: replace this with external data component once we are done!
 
@@ -35,7 +39,17 @@ export default function RecipeQueryBuilder({
   const { t } = useTranslation("components");
   // Locale has the format language-REGION, e.g. "sv-SE" or "en-US", we only need the language part
   const lang = new Intl.Locale(useContext(LocaleContext)).language;
-  const { upsertVariable } = useRecipe();
+  const { upsertVariable, getVariable } = useRecipe();
+  const variable = getVariable(variableId, RecipeDataTypes.External);
+
+  // The unit of the fetched data is not derivable from the APIs in general (Trafa
+  // never states it, PxWeb sometimes does), so the user declares it here and it is
+  // saved onto the variable. Seeded from the variable, then from a reported unit
+  // until the user types something.
+  const [unitInput, setUnitInput] = useState<string>(variable && !isUnitFlag(variable.unit) ? variable.unit : "");
+  const unitTouchedRef = useRef(false);
+  // Descriptions of the currently selected metric(s); often the only place the source states a unit
+  const [metricDescriptions, setMetricDescriptions] = useState<string[]>([]);
 
   function getInitialSelectionValue(variableCode: string) {
     const valueCode = initialSelection?.find(selection => selection.variableCode === variableCode)?.valueCodes?.[0];
@@ -96,6 +110,15 @@ export default function RecipeQueryBuilder({
   const timeUnitFacetOptions = useMemo(() => aggregateTimeUnitFacets(tables ?? []), [tables]);
 
   const activeFilterCount = variableFilters.length + (timeUnitFilter ? 1 : 0) + (coverageYearFilter.trim() ? 1 : 0);
+
+  // "Label (code)" of the chosen table, as listed in the catalog. Read from state
+  // rather than the list's DOM, which is virtualized and may not hold the row.
+  const selectedTableLabel = useMemo(() => {
+    const tableId = tableMetadata?.tableId;
+    if (!tableId) return "";
+    const catalogLabel = tables?.find(table => table.tableId === tableId)?.label ?? tableId;
+    return catalogLabel.includes(tableId) ? catalogLabel : `${catalogLabel} (${tableId})`;
+  }, [tables, tableMetadata]);
 
   const hasCoverageFacet = tables?.some(table => table.firstPeriod && table.lastPeriod) ?? false;
   // Catalogs without per-table details (currently Trafa, whose structure listing has
@@ -499,8 +522,20 @@ export default function RecipeQueryBuilder({
 
     const query = formQueryHelper(formData, tableMetadata, mainTimeDimensionId);
     const tableId = tableMetadata?.tableId ?? formData.get("externalTableId") as string ?? "";
+
+    // Surface the description of each chosen metric next to the data
+    setMetricDescriptions((tableMetadata?.metricDimensions ?? []).flatMap(metricDimension => {
+      const chosen = metricDimension.options.find(option => option.value === formData.get(metricDimension.id));
+      return chosen?.description ? [chosen.description] : [];
+    }));
+
     getTableContent(tableId, dataSource, query, lang).then(result => {
       setTableContent(result);
+      // Suggest a reported unit while the user hasn't declared one themselves
+      const reportedUnit = result?.unit?.base;
+      if (reportedUnit && !unitTouchedRef.current && isMathjsUnit(parseUnit(reportedUnit))) {
+        setUnitInput(reportedUnit);
+      }
       setIsLoading(false);
     }).catch((err: unknown) => {
       const errorMessage = err instanceof Error ? err.message : String(err);
@@ -557,6 +592,7 @@ export default function RecipeQueryBuilder({
         dataset: isDataSetKeys(dataSource) ? dataSource : prev.dataset,
         tableId: tableMetadata?.tableId ?? formData.get("externalTableId") as string ?? prev.tableId,
         selection: query,
+        unit: parseUnit(unitInput),
         dataSeriesId: selectionChanged ? null : prev.dataSeriesId,
       };
     });
@@ -745,7 +781,7 @@ export default function RecipeQueryBuilder({
                 <label className={`block ${styles['selected-table-heading']}`}>
                   <Trans
                     i18nKey={"components:query_builder.selected_table"}
-                    values={{ table: document.getElementById(`table${tableMetadata.tableId}`)?.innerText }}
+                    values={{ table: selectedTableLabel }}
                     components={{ strong: <strong />, small: <small />, i: <i /> }}
                   />
                   {/* {t("components:query_builder.selected_table", { table: document.getElementById(`table${tableMetadata.id}`)?.innerText })} */}
@@ -791,7 +827,8 @@ export default function RecipeQueryBuilder({
             </FormWrapper>
             </div>
 
-            <output className={`${styles['dialog-pane']} ${styles['dialog-preview']}`}>
+            <div className={`${styles['dialog-pane']} ${styles['dialog-preview']}`}>
+            <output className="block">
               {tableContent && tableContent.values.length > 0 ? (
                 <div>
                   <p className="margin-top-0">{t("components:query_builder.does_this_look_correct")}</p>
@@ -800,17 +837,20 @@ export default function RecipeQueryBuilder({
                   <div className={styles['preview-card']}>
                   <p className="margin-top-0 font-weight-500">{t("components:query_builder.fetched_data")}</p>
                   {(() => {
-                    const tableId = tableMetadata?.tableId ?? tableContent.id;
-                    const catalogLabel = tables?.find(table => table.tableId === tableId)?.label ?? tableId;
-                    const tableLabel = catalogLabel.includes(tableId) ? catalogLabel : `${catalogLabel} (${tableId})`;
+                    const tableLabel = selectedTableLabel || tableContent.id;
                     // Some sources (Trafa) only report the table name here, which the line above already shows
                     const selectionLabels = tableContent.metadata
                       .map(item => item.label)
                       .filter((label): label is string => !!label && !tableLabel.includes(label));
-                    const unit = tableContent.unit?.base ? ` [${tableContent.unit.base}]` : "";
                     return (<>
                       <p className="font-weight-500">{tableLabel}</p>
-                      {selectionLabels.length > 0 || unit ? <p>{selectionLabels.join(", ")}{unit}</p> : null}
+                      {selectionLabels.length > 0 ? <p>{selectionLabels.join(", ")}</p> : null}
+                      {metricDescriptions.map(description => (
+                        <p key={description} className="font-style-italic">{description}</p>
+                      ))}
+                      {tableContent.unit?.base ?
+                        <p>{t("components:query_builder.reported_unit")}: {tableContent.unit.base}</p>
+                        : null}
                     </>);
                   })()}
                   <table className={styles['preview-table']}>
@@ -839,6 +879,31 @@ export default function RecipeQueryBuilder({
                 <p className="margin-0 font-style-italic color-gray">{t("components:query_builder.preview_placeholder")}</p>
               )}
             </output>
+
+            {/* Unit of the fetched data, declared by the user (the APIs rarely state it) and saved onto the variable */}
+            {tableMetadata ?
+              <div className="margin-top-100">
+                <label htmlFor={`external-unit-${variableId}`} className="block font-weight-500">
+                  {t("components:recipe_editor.unit_placeholder")}
+                </label>
+                <TextSingleAutocomplete
+                  props={{
+                    id: `external-unit-${variableId}`,
+                    name: `external-unit-${variableId}`,
+                    className: "margin-block-25",
+                    style: { width: "100%" },
+                  }}
+                  options={allOurUnits.map(unit => ({ name: unit, value: unit }))}
+                  value={unitInput}
+                  setter={(next) => {
+                    unitTouchedRef.current = true;
+                    setUnitInput(next);
+                  }}
+                />
+                <small className="block color-gray">{t("components:query_builder.unit_help")}</small>
+              </div>
+              : null}
+            </div>
           </div>
 
           <div className={`${styles['dialog-footer']}`}>
