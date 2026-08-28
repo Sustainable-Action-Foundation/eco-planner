@@ -97,6 +97,11 @@ export default function RecipeQueryBuilder({
 
   const activeFilterCount = variableFilters.length + (timeUnitFilter ? 1 : 0) + (coverageYearFilter.trim() ? 1 : 0);
 
+  const hasCoverageFacet = tables?.some(table => table.firstPeriod && table.lastPeriod) ?? false;
+  // Catalogs without per-table details (currently Trafa, whose structure listing has
+  // no dimensions) have no facets to filter on, so the filter menu is not shown at all.
+  const hasAnyFacet = variableFacetOptions.length > 0 || timeUnitFacetOptions.length > 0 || hasCoverageFacet;
+
   const shouldRenderAllTables = (filteredTables?.length ?? 0) <= renderedTablesListMaxLength + initialRenderingMargin;
   const renderedTables = filteredTables
     ? filteredTables.slice(
@@ -238,11 +243,15 @@ export default function RecipeQueryBuilder({
     setSelectedTableId("");
     setDefaultMetricSelected(true);
     setOffset(0);
-    hasAppliedInitialTableSelectionRef.current = false;
-    // Clear table metadata and content whenever the data source changes
+    // Wipe the whole table selection: the old catalog, the metadata and the content.
+    // Keeping the old catalog around let the initial-table effect match the preset
+    // table id against the previous source's list and fetch it from the new source.
+    // The preset table is deliberately not re-applied if the user switches back.
+    hasAppliedInitialTableSelectionRef.current = true;
+    setTables(null);
     setTableContent(null);
     setTableMetadata(null);
-    // Make sure submit button is disabled when the data source is changed
+    setSection(0);
   }
 
   function handleTableSelect(tableId: string) {
@@ -631,7 +640,7 @@ export default function RecipeQueryBuilder({
                       </label>
                     </div>
 
-                    <details className="margin-bottom-25 smooth purewhite padding-50" style={{ border: "1px solid var(--gray-80)" }}>
+                    {hasAnyFacet ? <details className="margin-bottom-25 smooth purewhite padding-50" style={{ border: "1px solid var(--gray-80)" }}>
                       <summary className="font-weight-500" style={{ cursor: "pointer" }}>
                         {t("components:query_builder.filters")}{activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
                       </summary>
@@ -668,7 +677,7 @@ export default function RecipeQueryBuilder({
                         </label>
                         : null}
 
-                      {tables?.some(table => table.firstPeriod && table.lastPeriod) ?
+                      {hasCoverageFacet ?
                         <label className="block margin-block-50">
                           {t("components:query_builder.filter_has_data_for_year")}
                           <input
@@ -689,7 +698,7 @@ export default function RecipeQueryBuilder({
                           {t("components:query_builder.clear_filters")}
                         </button>
                         : null}
-                    </details>
+                    </details> : null}
 
                     {tables && filteredTables ?
                       <p className="margin-block-25 font-size-14px color-gray">
@@ -785,10 +794,17 @@ export default function RecipeQueryBuilder({
             <output className={`${styles['dialog-pane']} ${styles['dialog-preview']}`}>
               {tableContent && tableContent.values.length > 0 ? (
                 <div>
-                  <p className="margin-top-0">{t("components:query_builder.does_this_look_correct", { count: tableContent.values.length })}</p>
-                  {/* What the current selection resolved to, so the numbers below can be sanity checked against it */}
+                  <p className="margin-top-0">{t("components:query_builder.does_this_look_correct")}</p>
+                  {/* The table as listed on the left (label and code), plus what the selection resolved to, so the numbers below can be sanity checked against it */}
+                  <p className="font-weight-500">
+                    {(() => {
+                      const tableId = tableMetadata?.tableId ?? tableContent.id;
+                      const label = tables?.find(table => table.tableId === tableId)?.label ?? tableId;
+                      return label.includes(tableId) ? label : `${label} (${tableId})`;
+                    })()}
+                  </p>
                   {tableContent.metadata.some(item => item.label) ?
-                    <p className="font-size-14px color-gray">
+                    <p>
                       {tableContent.metadata.map(item => item.label).filter(Boolean).join(", ")}
                       {tableContent.unit?.base ? ` [${tableContent.unit.base}]` : ""}
                     </p>

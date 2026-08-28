@@ -89,7 +89,8 @@ export default function FormWrapper({
   return (
     <>
       <div className={styles.formSlider} ref={sliderRef}>
-        {React.Children.map(children, (child, index) => (
+        {/* Map the filtered array, not `children`: Children.map still yields a slide for a null child */}
+        {sections.map((child, index) => (
           <div className={`${styles.formSlide} fieldsetWrapper`} key={index}>
             {child}
           </div>
