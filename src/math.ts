@@ -15,9 +15,8 @@ const mathjs = create(all);
  * Only ASCII names can be parsed: the mathjs tokenizer stops at "å", so
  * "invånare" is spelled `invanare`. Never alias `inv` (matrix inverse function).
  *
- * Deliberately left out: "ton" (mathjs already defines it as the US short ton
- * and redefining it changes existing recipes; use `tonne`/`t`), "mil" (already
- * a thousandth of an inch) and "%" (not a valid unit token).
+ * Deliberately left out: "mil" (already a thousandth of an inch in mathjs) and
+ * "%" (not a valid unit token). "ton" is redefined below.
  */
 const customUnits: Record<string, UnitDefinition> = {
   // Heated floor area. Its own dimension, so it does not cancel against plain m2.
@@ -95,6 +94,10 @@ const customUnits: Record<string, UnitDefinition> = {
 };
 
 mathjs.createUnit(customUnits);
+
+// mathjs ships "ton" as the US short ton (907 kg). In Swedish data "ton" is
+// always the metric tonne, so redefine it; "kton"/"Mton" follow from the prefixes.
+mathjs.createUnit("ton", { definition: "1 tonne", prefixes: "short" }, { override: true });
 
 /**
  * Custom functions available in recipe equations through the mathjs parser.
