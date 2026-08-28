@@ -8,6 +8,7 @@ import { IconArrowLeft, IconArrowRight } from "@tabler/icons-react";
 export default function FormWrapper({
   children,
   section,
+  labels,
 }: {
   children: React.ReactNode,
   /**
@@ -16,6 +17,8 @@ export default function FormWrapper({
    * section that was filled in programmatically.
    */
   section?: number,
+  /** Overrides for the navigation button texts, e.g. "Change table" instead of "Back". */
+  labels?: { back?: string, next?: string },
 }) {
   const { t } = useTranslation("common");
 
@@ -29,7 +32,7 @@ export default function FormWrapper({
   // Everything is looked up through refs rather than document-wide ids/classes,
   // since several wrappers can be mounted at once (e.g. one query builder dialog
   // per external variable) and must not move each other's slides.
-  const goToSection = useCallback((index: number) => {
+  const goToSection = useCallback((index: number, options?: { scroll?: boolean }) => {
     if (index < 0 || index >= sectionCount) return;
 
     // Move each slide to bring the requested one into view
@@ -54,13 +57,17 @@ export default function FormWrapper({
 
     setTransformIndex(index);
 
-    // Scroll the nearest scrollable ancestor back to the top so the new section
-    // starts in view; otherwise fields at the top (often required ones) can be missed.
+    // On user navigation, scroll the nearest scrollable ancestor back to the top so
+    // the new section starts in view; otherwise fields at the top (often required
+    // ones) can be missed. Never the page itself: a programmatic jump can happen
+    // while the wrapper sits in a closed dialog, and yanking the page around then
+    // would be rude.
+    if (!options?.scroll) return;
     let scrollParent: HTMLElement | null = sliderRef.current?.parentElement ?? null;
-    while (scrollParent && scrollParent.scrollHeight <= scrollParent.clientHeight) {
+    while (scrollParent && scrollParent !== document.body && scrollParent.scrollHeight <= scrollParent.clientHeight) {
       scrollParent = scrollParent.parentElement;
     }
-    scrollParent?.scrollTo({ top: 0 });
+    if (scrollParent && scrollParent !== document.body) scrollParent.scrollTo({ top: 0 });
   }, [sectionCount]);
 
   useEffect(() => {
@@ -90,9 +97,9 @@ export default function FormWrapper({
       </div>
 
       <div className={`margin-block-start-100 gap-50 grid ${styles.indicatorLayout}`}>
-        <button type="button" id="backButton" className={`flex align-items-center transparent round gap-25 ${backButtonHiddenClass} ${styles.indicatorButton}`} onClick={() => goToSection(transformIndex - 1)}>
+        <button type="button" id="backButton" className={`flex align-items-center transparent round gap-25 ${backButtonHiddenClass} ${styles.indicatorButton}`} onClick={() => goToSection(transformIndex - 1, { scroll: true })}>
           <IconArrowLeft style={{ minWidth: '24px' }} aria-hidden="true" />
-          {t("common:back")}
+          {labels?.back ?? t("common:back")}
         </button>
 
         <div className={`margin-block-50 ${styles.indicatorWrapper}`}>
@@ -104,8 +111,8 @@ export default function FormWrapper({
           <div className={styles.currentIndicator} ref={currentIndicatorRef}></div>
         </div>
 
-        <button type="button" id="nextButton" className={`flex align-items-center transparent round gap-25 margin-left-auto ${nextButtonHiddenClass} ${styles.indicatorButton}`} onClick={() => goToSection(transformIndex + 1)}>
-          {t("common:next")}
+        <button type="button" id="nextButton" className={`flex align-items-center transparent round gap-25 margin-left-auto ${nextButtonHiddenClass} ${styles.indicatorButton}`} onClick={() => goToSection(transformIndex + 1, { scroll: true })}>
+          {labels?.next ?? t("common:next")}
           <IconArrowRight style={{ minWidth: '24px' }} aria-hidden="true" />
         </button>
       </div>

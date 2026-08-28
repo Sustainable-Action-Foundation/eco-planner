@@ -137,6 +137,8 @@
     "language_support_warning": "{{dataSource}} does not support your current language. A fallback language will be used.",
     "loading": "Loading...",
     "no_result_found": "No readable result found. Please update your selections.",
+    "change_table": "Change table",
+    "preview_placeholder": "A preview of the data appears here once a metric has been chosen.",
     "no_tables_match_filters": "No tables match your search or filters.",
     "no_variables_found": "There are no variables",
     "optional": "optional",

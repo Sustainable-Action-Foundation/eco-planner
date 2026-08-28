@@ -40,6 +40,61 @@
 } 
  
 
+/* Query builder: wider, and laid out as header / selection + preview panes / footer */
+.builder {
+  width: min(130ch, calc(100% - 2rem));
+  height: min(85vh, 70rem);
+}
+
+.builder .dialog-content {
+  grid-template-rows: auto 1fr auto;
+}
+
+.dialog-panes {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Each pane scrolls on its own, so the footer with the commit button always stays in view */
+.dialog-pane {
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray) rgba(0,0,0,0);
+  padding: 1rem;
+}
+
+.dialog-preview {
+  display: block;
+  background-color: white;
+  border-left: 1px solid var(--gray-80);
+}
+
+.dialog-footer {
+  padding: .75rem 1rem;
+  background-color: white;
+  border-top: 1px solid var(--gray-80);
+  border-radius: 0 0 .5rem .5rem; /* Same as dialog */
+}
+
+@media (max-width: 800px) {
+  .dialog-panes {
+    grid-template-columns: minmax(0, 1fr);
+    overflow-y: auto;
+  }
+
+  .dialog-pane {
+    overflow: visible;
+  }
+
+  .dialog-preview {
+    border-left: 0;
+    border-top: 1px solid var(--gray-80);
+  }
+}
+
 .dialog fieldset button:active { /* TODO: Remove? */
   transform: scale(.995);
 }

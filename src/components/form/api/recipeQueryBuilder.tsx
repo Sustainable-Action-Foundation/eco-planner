@@ -584,7 +584,7 @@ export default function RecipeQueryBuilder({
       </button>
 
       {isPortalMounted ? createPortal(
-      <dialog className={`rounded padding-inline-0 padding-block-0 ${styles.dialog}`} ref={modalRef} aria-modal={true} style={{ backgroundColor: 'rgb(246, 246, 246)' }}>
+      <dialog className={`rounded padding-inline-0 padding-block-0 ${styles.dialog} ${styles.builder}`} ref={modalRef} aria-modal={true} style={{ backgroundColor: 'rgb(246, 246, 246)' }}>
         <div className={`${styles['dialog-content']}`}>
           <div className={`${styles['dialog-header']}`}>
             <button type="button" className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus={true} aria-label={t("common:tsx.close")} >
@@ -593,8 +593,9 @@ export default function RecipeQueryBuilder({
             <h2 className="margin-0">{t("components:query_builder.add_data_source")}</h2>
           </div>
 
-          <div className={`${styles['dialog-body']}`}>
-            <FormWrapper section={section}>
+          <div className={`${styles['dialog-panes']}`}>
+            <div className={`${styles['dialog-pane']}`}>
+            <FormWrapper section={section} labels={{ back: t("components:query_builder.change_table") }}>
               <fieldset className="position-relative" ref={fieldsetRef}>
                 <label className="margin-block-75 font-weight-500">
                   {t("components:query_builder.data_source")}
@@ -750,13 +751,13 @@ export default function RecipeQueryBuilder({
                     ))}
                   </div>
                 </fieldset>
-                <fieldset name="variableSelectionFieldset" disabled={true} className={`margin-block-100 smooth padding-25 fieldset-unset-pseudo-class`} style={{ border: `${shouldVariableFieldsetBeVisible(tableMetadata, dataSource) ? "1px solid var(--gray-90)" : ""}`, maxHeight: "322px" }}>
+                <fieldset name="variableSelectionFieldset" disabled={true} className={`margin-block-100 smooth padding-25 fieldset-unset-pseudo-class`} style={{ border: `${shouldVariableFieldsetBeVisible(tableMetadata, dataSource) ? "1px solid var(--gray-90)" : ""}` }}>
                   {shouldVariableFieldsetBeVisible(tableMetadata, dataSource) ? (
                     <>
                       <legend className="padding-inline-50">
                         <b>{t("components:query_builder.select_values_for_table")}</b>
                       </legend>
-                      <div className={`${styles.scrollable}`} style={{ maxHeight: "282px", boxSizing: "content-box", padding: ".25rem", paddingRight: ".375rem" }}>
+                      <div className="padding-25">
                         {tableMetadata.timeDimensions?.map(time => {
                           return timeVariableSelectionHelper(time, tableMetadata.language);
                         })}
@@ -779,10 +780,11 @@ export default function RecipeQueryBuilder({
 
               </div> : null}
             </FormWrapper>
-            <output className="block padding-bottom-100">
-              {/* TODO: style this better */}
+            </div>
+
+            <output className={`${styles['dialog-pane']} ${styles['dialog-preview']}`}>
               {tableContent && tableContent.values.length > 0 ? (
-                <div className="padding-inline-100">
+                <div>
                   <p>{t("components:query_builder.does_this_look_correct", { count: 5 })}</p>
                   <table>
                     <thead>
@@ -806,14 +808,15 @@ export default function RecipeQueryBuilder({
                     </tbody>
                   </table>
                 </div>
-              ) :
-                !defaultMetricSelected &&
-                (
-                  <p className="padding-100">{t("components:query_builder.no_result_found")}</p>
-                )
-              }
+              ) : !defaultMetricSelected ? (
+                <p className="margin-0">{t("components:query_builder.no_result_found")}</p>
+              ) : (
+                <p className="margin-0 font-style-italic color-gray">{t("components:query_builder.preview_placeholder")}</p>
+              )}
             </output>
-            {/* TODO: Should probably only be displayed on last slide? */}
+          </div>
+
+          <div className={`${styles['dialog-footer']}`}>
             <button
               type="button"
               className="seagreen color-purewhite block width-100"
