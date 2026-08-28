@@ -785,7 +785,14 @@ export default function RecipeQueryBuilder({
             <output className={`${styles['dialog-pane']} ${styles['dialog-preview']}`}>
               {tableContent && tableContent.values.length > 0 ? (
                 <div>
-                  <p>{t("components:query_builder.does_this_look_correct", { count: 5 })}</p>
+                  <p className="margin-top-0">{t("components:query_builder.does_this_look_correct", { count: tableContent.values.length })}</p>
+                  {/* What the current selection resolved to, so the numbers below can be sanity checked against it */}
+                  {tableContent.metadata.some(item => item.label) ?
+                    <p className="font-size-14px color-gray">
+                      {tableContent.metadata.map(item => item.label).filter(Boolean).join(", ")}
+                      {tableContent.unit?.base ? ` [${tableContent.unit.base}]` : ""}
+                    </p>
+                    : null}
                   <table>
                     <thead>
                       <tr>
@@ -795,15 +802,12 @@ export default function RecipeQueryBuilder({
                     </thead>
                     <tbody>
                       {
-                        tableContent.values.map(({ period, value }, rowIndex) => {
-                          return (
-                            rowIndex < 5 &&
-                            <tr key={period}>
-                              <td>{period}</td>
-                              <td>{value}</td>
-                            </tr>
-                          );
-                        })
+                        tableContent.values.map(({ period, value }) => (
+                          <tr key={period}>
+                            <td>{period}</td>
+                            <td>{value}</td>
+                          </tr>
+                        ))
                       }
                     </tbody>
                   </table>
