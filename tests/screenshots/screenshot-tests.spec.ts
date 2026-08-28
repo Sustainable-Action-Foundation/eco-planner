@@ -299,6 +299,7 @@ test.describe('Screenshots Admin', () => {
     sendPageName = "goal"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
 
+    await page.getByTestId('admin-panel-edit-menu').click();
     await page.getByTestId('admin-panel-edit').click();
 
     await expect.soft(page.locator('#submit-button')).toBeVisible();

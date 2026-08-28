@@ -12,8 +12,10 @@ import Link from "next/link";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { getActions, getRoadmapIterations, getRoadmaps, getUserOrgs } from "@/fetchers";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import Actions from "@/components/pages/sections/actions";
 import CuratedHistoricalData from "@/components/pages/sections/historicalData";
+import { CuratedHistoricalCatalogKey } from "@/lib/curatedHistoricalData";
 import Image from "next/image";
 import { Suspense } from "react";
 import SearchRoadmaps from "@/components/form/filters/searchRoadmaps";
@@ -63,11 +65,15 @@ export default async function Page(
 
   // Get the latest version ids, then fetch proper iterations with access and counts
   const latestIterationIds = roadmaps.flatMap(roadmap => {
-    if (!roadmap.iterations.length) {
+    // Unlisted iterations only count as the latest for users who can edit the roadmap
+    const candidates = hasEditAccess(accessChecker(roadmap, accessContext))
+      ? roadmap.iterations
+      : roadmap.iterations.filter(iteration => !iteration.is_unlisted);
+    if (!candidates.length) {
       return [];
     }
 
-    const latestIteration = roadmap.iterations.reduce((current, candidate) =>
+    const latestIteration = candidates.reduce((current, candidate) =>
       candidate.version > current.version ? candidate : current,
     );
 
@@ -210,12 +216,19 @@ export default async function Page(
 
         { // Curated historical data needs a geo area to localize to
           selectedOrg.geoArea ?
-            <section className="margin-block-300">
-              {/* The section fetches from external statistics APIs; don't block the rest of the page on a cold cache */}
-              <Suspense fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
-                <CuratedHistoricalData geoArea={selectedOrg.geoArea} />
-              </Suspense>
-            </section>
+            <>
+              {/* The sections fetch from external statistics APIs; don't block the rest of the page (or each other) on a cold cache */}
+              <section className="margin-block-300">
+                <Suspense fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
+                  <CuratedHistoricalData catalog={CuratedHistoricalCatalogKey.EnergyTransport} geoArea={selectedOrg.geoArea} />
+                </Suspense>
+              </section>
+              <section className="margin-block-300">
+                <Suspense fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
+                  <CuratedHistoricalData catalog={CuratedHistoricalCatalogKey.General} geoArea={selectedOrg.geoArea} />
+                </Suspense>
+              </section>
+            </>
             : null}
       </> : <>
       <div className="rounded width-100 margin-bottom-100 margin-top-300 position-relative overflow-hidden" style={{ height: '350px' }}>

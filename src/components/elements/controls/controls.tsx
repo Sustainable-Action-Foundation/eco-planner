@@ -3,16 +3,17 @@
 import styles from './controls.module.css' with { type: "css" };
 import Link from "next/link";
 import React, { useRef, useState } from "react";
-import type { Action, Effect, Goal, GoalUpdateInput, Roadmap, RoadmapIteration } from "@/types";
-import { AccessLevel, GoalDataTarget } from "@/types/enums";
+import type { Action, Effect, Goal, GoalUpdateInput, Roadmap, RoadmapIteration, RoadmapIterationUpdateInput } from "@/types";
+import { AccessLevel, GoalDataTarget, GoalVisibility } from "@/types/enums";
 import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
-import { Trans, useTranslation } from "react-i18next";
-import { IconArrowBackUp, IconChartHistogram, IconDotsVertical, IconEdit, IconPlus, IconStar, IconStarFilled, IconTrashXFilled, IconX } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
+import { IconArrowBackUp, IconChartHistogram, IconCheck, IconChevronDown, IconDotsVertical, IconEdit, IconEye, IconEyeOff, IconPlus, IconStar, IconTrashXFilled, IconX } from "@tabler/icons-react";
 import { hasAdminAccess, hasEditAccess } from '@/lib/accessChecker';
 import type { TFunction } from 'i18next';
 import formSubmitter from '@/functions/formSubmitter';
 import { iterationPath } from '@/functions/versionSlug';
+import { goalVisibilityFromFlags, goalVisibilityToFlags } from '@/functions/goalVisibility';
 
 /*
   TODO:
@@ -34,12 +35,15 @@ type GoalMenuEntry = Pick<Goal, "id" | "name" | "indicator_parameter" | "roadmap
   roadmap_iteration: Pick<RoadmapIteration, "id" | "version"> & { roadmap: Pick<Roadmap, "id" | "name"> };
   // Read by AdminPanel's goal-only features; optional so leaner goal rows still fit the menu shape
   is_featured?: Goal["is_featured"];
+  is_unlisted?: Goal["is_unlisted"];
   historical?: Goal["historical"];
 };
 
 type IterationMenuEntry = Pick<RoadmapIteration, "id" | "version"> & {
   roadmap: Pick<Roadmap, "id" | "name">;
   _count?: { goals: number };
+  // Read by AdminPanel's unlisting toggle; optional so leaner iteration rows still fit the menu shape
+  is_unlisted?: RoadmapIteration["is_unlisted"];
 };
 
 type RoadmapMenuEntry = Pick<Roadmap, "id" | "name"> & {
@@ -72,7 +76,6 @@ function isGoalEntry(object: ObjectParameter): object is GoalMenuEntry {
 }
 
 type links = {
-  featureGoal?: string,
   selfLink?: string;
   parentLink?: string;
   parentDescription?: string;
@@ -81,7 +84,11 @@ type links = {
   creationLink2?: string;
   creationDescription2?: string;
   editLink?: string;
+  /** Goals only: the focused section forms, as alternatives to the full edit form */
+  dataSeriesEditLink?: string;
+  baselineEditLink?: string;
   historicalDataLink?: string;
+  historicalCreateLink?: string;
   deleteLink?: string;
 };
 
@@ -91,7 +98,6 @@ function buildLinks(
   t: TFunction,
 ): links | null {
 
-  let featureGoal: string | undefined;
   let selfLink: string | undefined;
   let parentLink: string | undefined;
   let parentDescription: string | undefined;
@@ -100,7 +106,10 @@ function buildLinks(
   let creationLink2: string | undefined;
   let creationDescription2: string | undefined;
   let editLink: string | undefined;
+  let dataSeriesEditLink: string | undefined;
+  let baselineEditLink: string | undefined;
   let historicalDataLink: string | undefined;
+  let historicalCreateLink: string | undefined;
   let deleteLink: string | undefined;
 
   // Roadmaps (top level)
@@ -155,7 +164,6 @@ function buildLinks(
 
   // Goals
   else if (isGoalEntry(object)) {
-    featureGoal = "/api/goal"; /* TODO: Update this line */
     selfLink = `/goal/${object.id}`;
     parentLink = object.roadmap_iteration ? iterationPath(object.roadmap_iteration.roadmap.id, object.roadmap_iteration.version) : undefined;
     parentDescription = t("components:table_menu.go_to_version");
@@ -164,7 +172,10 @@ function buildLinks(
     creationLink2 = `/effect/create?goalId=${object.id}`;
     creationDescription2 = t("components:table_menu.add_effect_from_existing_action");
     editLink = `/goal/${object.id}/edit`;
-    historicalDataLink = `/goal/${object.id}/historical-data`;
+    dataSeriesEditLink = `/goal/${object.id}/data-series/edit`;
+    baselineEditLink = `/goal/${object.id}/baseline/edit`;
+    historicalDataLink = `/goal/${object.id}/historical-data/edit`;
+    historicalCreateLink = `/goal/${object.id}/historical-data/create`;
     deleteLink = "/api/goal";
 
     object.name ||= object.indicator_parameter;
@@ -176,7 +187,6 @@ function buildLinks(
   }
 
   return {
-    featureGoal,
     selfLink,
     parentLink,
     parentDescription,
@@ -185,9 +195,17 @@ function buildLinks(
     creationLink2,
     creationDescription2,
     editLink,
+    dataSeriesEditLink,
+    baselineEditLink,
     historicalDataLink,
+    historicalCreateLink,
     deleteLink,
   };
+}
+
+/** Iterations are the menu entries with a parent roadmap but no iterations of their own. */
+function isIterationEntry(object: ObjectParameter): object is IterationMenuEntry {
+  return "roadmap" in object && !("iterations" in object);
 }
 
 const getObjectName = (object: ObjectParameter): string | undefined => {
@@ -306,8 +324,12 @@ export function ControlsMenu(
                   <IconEdit aria-hidden="true" style={{ minWidth: '24px' }} />
                 </Link> : null
                 }
-                {links.historicalDataLink ? <Link href={links.historicalDataLink} className={styles.menuAction}>
-                  <span>{t("components:table_menu.edit")}</span> {/* TODO: Switch text here */}
+                {links.historicalDataLink && links.historicalCreateLink ? <Link
+                  // Rows that don't carry the historical series get the edit form, which also accepts a first entry
+                  href={isGoalEntry(object) && object.historical === null ? links.historicalCreateLink : links.historicalDataLink}
+                  className={styles.menuAction}
+                >
+                  <span>{t("components:table_menu.historical_data")}</span>
                   <IconChartHistogram aria-hidden="true" style={{ minWidth: '24px' }} />
                 </Link> : null
                 }
@@ -333,6 +355,247 @@ export function ControlsMenu(
 }
 
 
+const panelItemClass = `flex gap-50 justify-content-space-between align-items-center smooth neutral-action font-size-14px ${styles['object-menu-link']}`;
+
+/**
+ * A panel button that opens a small anchored list of links below itself.
+ * The list is a native popover, so it closes on outside clicks and Escape.
+ */
+function PanelDropdown({
+  id,
+  label,
+  icon,
+  children,
+  testId,
+}: {
+  id: string;
+  label: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+  testId?: string;
+}) {
+  const popoverId = `${id}-popover`;
+  const anchorName = `--${id}-anchor`;
+  return (
+    <>
+      <button
+        type="button"
+        popoverTarget={popoverId}
+        style={{ anchorName, transform: 'scale(1)', boxShadow: 'none' }}
+        className={panelItemClass}
+        data-testid={testId}
+      >
+        <span className="flex gap-25 align-items-center">
+          {icon}
+          {label}
+        </span>
+        <IconChevronDown aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+      </button>
+      <div
+        popover='auto'
+        id={popoverId}
+        className={`smooth margin-0 position-fixed ${styles['panel-dropdown']}`}
+        style={{
+          backgroundColor: 'var(--secondary-neutral)',
+          positionAnchor: anchorName,
+          top: 'anchor(bottom)',
+          left: 'anchor(left)',
+          marginTop: '.25rem',
+          padding: '2px',
+          minWidth: 'anchor-size(width)',
+          boxShadow: 'rgba(0, 0, 0, 0.05) 0px 0px 0px 1px',
+        }}
+      >
+        {children}
+      </div>
+    </>
+  );
+}
+
+/** The goal-specific panel: listing state as one select, plus the add/edit menus. */
+function GoalPanelControls({
+  goal,
+  links,
+  timestamp,
+}: {
+  goal: GoalMenuEntry;
+  links: links;
+  timestamp: number;
+}) {
+  const { t } = useTranslation(["components", "common"]);
+
+  const visibility = goalVisibilityFromFlags({ is_featured: !!goal.is_featured, is_unlisted: !!goal.is_unlisted });
+  // Inline record so every key stays a literal inside t()
+  const visibilityLabels: Record<GoalVisibility, string> = {
+    [GoalVisibility.Public]: t("components:table_menu.visibility_public"),
+    [GoalVisibility.Unlisted]: t("components:table_menu.visibility_unlisted"),
+    [GoalVisibility.Featured]: t("components:table_menu.visibility_featured"),
+  };
+  const visibilityIcons: Record<GoalVisibility, React.ReactNode> = {
+    [GoalVisibility.Public]: <IconEye aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
+    [GoalVisibility.Unlisted]: <IconEyeOff aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
+    [GoalVisibility.Featured]: <IconStar aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
+  };
+
+  return (
+    <>
+      {/* Listing state, when the row carries the flags to derive it from */}
+      {goal.is_featured !== undefined && goal.is_unlisted !== undefined ?
+        <PanelDropdown
+          id="admin-panel-visibility"
+          label={t("components:table_menu.visibility_current", { state: visibilityLabels[visibility] })}
+          icon={visibilityIcons[visibility]}
+          testId="admin-panel-visibility"
+        >
+          {(Object.values(GoalVisibility)).map((option) => (
+            <button
+              key={option}
+              type="button"
+              className={panelItemClass}
+              style={{ boxShadow: 'none', cursor: 'pointer', transform: 'none', whiteSpace: 'nowrap' }}
+              aria-pressed={option === visibility}
+              data-testid={`admin-panel-visibility-${option.toLowerCase()}`}
+              onClick={(e) => {
+                e.currentTarget.closest<HTMLElement>('[popover]')?.hidePopover();
+                if (option === visibility) return;
+                // Full-target update touching only the listing flags; everything undefined is left unchanged
+                formSubmitter('/api/goal', JSON.stringify({
+                  target: GoalDataTarget.Full,
+                  goalId: goal.id,
+                  timestamp: timestamp, // Only needed for edits
+                  ...goalVisibilityToFlags(option),
+
+                  name: undefined,
+                  description: undefined,
+                  indicatorParameter: undefined,
+                  recipeSuggestions: undefined,
+
+                  dataSeriesId: undefined,
+                  dataSeries: undefined,
+                  dataSeriesRecipeId: undefined,
+                  dataSeriesRecipe: undefined,
+
+                  baselineId: undefined,
+                  baseline: undefined,
+                  baselineRecipeId: undefined,
+                  baselineRecipe: undefined,
+
+                  historicalId: undefined,
+                  historical: undefined,
+                  historicalRecipeId: undefined,
+                  historicalRecipe: undefined,
+
+                  iterationId: undefined, // Can't reassign the roadmap iteration of an existing goal
+                  rawTags: undefined, // TODO: add tags input
+                } satisfies GoalUpdateInput), 'PUT', t);
+              }}
+            >
+              <span className="flex gap-25 align-items-center">
+                {visibilityIcons[option]}
+                {visibilityLabels[option]}
+              </span>
+              {option === visibility
+                ? <IconCheck aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+                : <span aria-hidden="true" style={{ minWidth: '20px' }} />}
+            </button>
+          ))}
+        </PanelDropdown>
+        : null}
+
+      <nav className="display-contents">
+        <PanelDropdown
+          id="admin-panel-add"
+          label={t("components:table_menu.add")}
+          icon={<IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />}
+          testId="admin-panel-add-menu"
+        >
+          {/* Historical data is added once; editing it lives under the edit menu */}
+          {links.historicalCreateLink && !goal.historical ? <Link href={links.historicalCreateLink} className={panelItemClass} data-testid="historical-data-link">
+            <span>{t("components:table_menu.historical_data")}</span>
+            <IconChartHistogram aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+          </Link> : null}
+          {links.creationLink2 ? <Link href={links.creationLink2} className={panelItemClass} data-testid="admin-panel-new-effect">
+            <span>{t("components:table_menu.add_menu_effect")}</span>
+            <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+          </Link> : null}
+          {links.creationLink ? <Link href={links.creationLink} className={panelItemClass} data-testid="admin-panel-new-action">
+            <span>{t("components:table_menu.add_menu_action")}</span>
+            <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+          </Link> : null}
+        </PanelDropdown>
+
+        <PanelDropdown
+          id="admin-panel-edit"
+          label={t("components:table_menu.edit")}
+          icon={<IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />}
+          testId="admin-panel-edit-menu"
+        >
+          {links.editLink ? <Link href={links.editLink} className={panelItemClass} data-testid="admin-panel-edit">
+            <span>{t("components:table_menu.edit_whole")}</span>
+            <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+          </Link> : null}
+          {links.dataSeriesEditLink ? <Link href={links.dataSeriesEditLink} className={panelItemClass} data-testid="admin-panel-edit-data-series">
+            <span>{t("components:table_menu.edit_data_series")}</span>
+            <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+          </Link> : null}
+          {links.baselineEditLink ? <Link href={links.baselineEditLink} className={panelItemClass} data-testid="admin-panel-edit-baseline">
+            <span>{t("components:table_menu.edit_baseline")}</span>
+            <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+          </Link> : null}
+          {links.historicalDataLink && goal.historical ? <Link href={links.historicalDataLink} className={panelItemClass} data-testid="historical-data-link">
+            <span>{t("components:table_menu.edit_historical")}</span>
+            <IconChartHistogram aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+          </Link> : null}
+        </PanelDropdown>
+      </nav>
+    </>
+  );
+}
+
+/** Unlists (or lists again) a roadmap iteration straight from its panel. */
+function IterationUnlistToggle({
+  iteration,
+  timestamp,
+}: {
+  iteration: IterationMenuEntry & { is_unlisted: boolean };
+  timestamp: number;
+}) {
+  const { t } = useTranslation(["components", "common"]);
+
+  return (
+    <button
+      type="button"
+      className={panelItemClass}
+      style={{ boxShadow: 'none', cursor: 'pointer', transform: 'none', whiteSpace: 'nowrap' }}
+      data-testid="admin-panel-unlist"
+      onClick={() => {
+        // Touches only the listing flag; everything undefined is left unchanged
+        formSubmitter('/api/roadmap-iteration', JSON.stringify({
+          iterationId: iteration.id,
+          timestamp: timestamp,
+          isUnlisted: !iteration.is_unlisted,
+          description: undefined,
+          targetVersion: undefined,
+          publish: undefined,
+          goals: undefined,
+        } satisfies RoadmapIterationUpdateInput), 'PUT', t);
+      }}
+    >
+      {iteration.is_unlisted ? (
+        <>
+          <span className='margin-right-25'>{t("components:table_menu.list_iteration")}</span>
+          <IconEye aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+        </>
+      ) : (
+        <>
+          <span className='margin-right-25'>{t("components:table_menu.unlist_iteration")}</span>
+          <IconEyeOff aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+        </>
+      )}
+    </button>
+  );
+}
+
 /* TODO: This should probably use role="toolbar" (or menubar?) and then be labeled instead of having an h1 */
 export function AdminPanel(
   {
@@ -345,15 +608,15 @@ export function AdminPanel(
   const { t } = useTranslation(["components", "common"]);
   const links = buildLinks(object, t);
   const deletionRef = useRef<HTMLDialogElement | null>(null);
-  const historicalDeletionRef = useRef<HTMLDialogElement | null>(null);
 
   const objectName = getObjectName(object);
   const roadmapName = getRoadmapName(object);
   const [timestamp] = useState(() => Date.now());
 
-  // The featured/historical sections only render for goals; the guard also narrows for their payloads
+  // Goals get their own controls (listing select, add/edit menus); the guard also narrows for their payloads
   const goal = isGoalEntry(object) ? object : null;
-
+  // Iterations get the unlisting toggle when the entry carries the flag
+  const iteration = isIterationEntry(object) && typeof object.is_unlisted === "boolean" ? { ...object, is_unlisted: object.is_unlisted } : null;
 
   return (
     <aside className="margin-block-300">
@@ -365,215 +628,48 @@ export function AdminPanel(
         {links ? (
           <>
             {hasEditAccess(accessLevel ?? AccessLevel.None) ? (
-              <>
-                {goal && links.featureGoal ? <button
-                  type="button"
-                  className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`}
-                  style={{ boxShadow: 'none', cursor: 'pointer', fontSize: '14px', transform: 'none', whiteSpace: 'nowrap' }}
-                  onClick={() => {
-                    // Full-target update touching only isFeatured; everything undefined is left unchanged
-                    formSubmitter('/api/goal', JSON.stringify({
-                      target: GoalDataTarget.Full,
-                      goalId: goal.id,
-                      timestamp: timestamp, // Only needed for edits
-                      isFeatured: !goal.is_featured,
-
-                      name: undefined,
-                      isUnlisted: undefined,
-                      description: undefined,
-                      indicatorParameter: undefined,
-                      recipeSuggestions: undefined,
-
-                      dataSeriesId: undefined,
-                      dataSeries: undefined,
-                      dataSeriesRecipeId: undefined,
-                      dataSeriesRecipe: undefined,
-
-                      baselineId: undefined,
-                      baseline: undefined,
-                      baselineRecipeId: undefined,
-                      baselineRecipe: undefined,
-
-                      historicalId: undefined,
-                      historical: undefined,
-                      historicalRecipeId: undefined,
-                      historicalRecipe: undefined,
-
-                      iterationId: undefined, // Can't reassign the roadmap iteration of an existing goal
-                      rawTags: undefined, // TODO: add tags input
-                    } satisfies GoalUpdateInput), 'PUT', t);
-                  }}
-                >
-                  {goal.is_featured ? (
-                    <>
-                      <span className='margin-right-25'>{t("components:table_menu.feature_goal_stop")}</span>
-                      <IconStarFilled fill='darkorange' aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
-                    </>
-                  ) : (
-                    <>
-                      <span className='margin-right-25'>{t("components:table_menu.feature_goal")}</span>
-                      <IconStar aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
-                    </>
-                  )}
-                </button>
-                  : null}
-                <nav className="display-contents">
-                  {goal && links.historicalDataLink ? // TODO: Clean up css and translations below
-                    <>
-                      <button
-                        type="button"
-                        popoverTarget='historical-data-popover'
-                        style={{ anchorName: '--historical-data-anchor', transform: 'scale(1)', boxShadow: 'none' }}
-                        className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action font-size-14px ${styles['object-menu-link']}`}
-                      >
-                        <span>{t("components:table_menu.historical_data")}</span>
-                        <IconChartHistogram aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
-                      </button>
-
-                      <div
-                        popover='auto'
-                        id='historical-data-popover'
-                        className='smooth margin-0 position-fixed'
-                        style={{
-                          backgroundColor: 'var(--secondary-neutral)',
-                          positionAnchor: '--historical-data-anchor',
-                          top: 'anchor(bottom)',
-                          left: 'anchor(left)',
-                          marginTop: '.25rem',
-                          padding: '2px',
-                          width: 'anchor-size(width)',
-                          boxShadow: 'rgba(0, 0, 0, 0.05) 0px 0px 0px 1px',
-                        }}
-                      >
-                        <Link
-                          className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action width-100 ${styles['object-menu-link']}`}
-                          href={links.historicalDataLink}
-                          data-testid="historical-data-link"
-                        >
-                          {!goal.historical ? (
-                            <>
-                              {t("components:table_menu.historical_data_add")}
-                              <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
-                            </>
-                          ) : (
-                            <>
-                              {t("components:table_menu.historical_data_edit")}
-                              <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
-                            </>
-                          )}
-                        </Link>
-                        {goal.historical ? (
-                          <>
-                            <button
-                              className={`flex gap-50 justify-content-space-between align-items-center button smooth width-100 font-size-14px ${styles['object-menu-button']}`}
-                              style={{ marginTop: '2px', textShadow: 'none', color: 'white', backgroundColor: "#f03b3b", border: '0', transform: 'none' }}
-                              type="button"
-                              onClick={() => historicalDeletionRef.current?.showModal()}
-                            >
-                              {t("components:table_menu.historical_data_delete")}
-                              <IconTrashXFilled aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
-                            </button>
-                            <dialog
-                              closedby='any'
-                              ref={historicalDeletionRef}
-                              className={`rounded padding-inline-0 padding-block-0 dialog`}
-                              style={{ width: 'min(75ch, 100%)', height: 'calc(-2rem + 50vh)', fontSize: 'initial' }}
-                            >
-                              <div className='dialog-content'>
-                                <div className='dialog-header'>
-                                  <button type="button" className="grid round padding-50 transparent" onClick={() => historicalDeletionRef.current?.close()} autoFocus={true} aria-label={t("common:tsx.close")} >
-                                    <IconX aria-hidden="true" width={28} height={28} strokeWidth={3} style={{ minWidth: '28px' }} />
-                                  </button>
-                                  <h2 className='margin-0'>{t("components:table_menu.historical_data_delete")}?</h2>
-                                </div>
-                                <form
-                                  className='dialog-body'
-                                  onSubmit={(e: React.SubmitEvent) => {
-                                    e.preventDefault();
-
-                                    // Clear only the historical section, leaving the rest of the goal untouched.
-                                    formSubmitter('/api/goal', JSON.stringify({
-                                      target: GoalDataTarget.Historical,
-                                      goalId: goal.id,
-                                      timestamp: timestamp,
-                                      historicalId: null,
-                                      historical: null,
-                                      historicalRecipeId: null,
-                                      historicalRecipe: null,
-                                    } satisfies GoalUpdateInput), 'PUT', t);
-                                  }}
-                                >
-                                  <div className="flex-grow-100">
-                                    <p className="margin-0" >
-                                      <Trans
-                                        i18nKey={"components:confirm_delete.confirmation"}
-                                        values={{ targetName: t("components:table_menu.historical_data") }}
-                                        components={{ strong: <strong /> }}
-                                      />
-                                    </p>
-                                    <label className="block margin-block-75">
-                                      <Trans
-                                        i18nKey={"components:confirm_delete.type_to_confirm"}
-                                        values={{ targetName: t("components:table_menu.historical_data") }}
-                                        components={{ strong: <strong /> }}
-                                      />
-                                      <input className="margin-block-25" type="text" required={true} pattern={`${t("components:table_menu.historical_data")}`} />
-                                    </label>
-                                  </div>
-                                  <div className="flex gap-25">
-                                    <button type="button" className="font-weight-500 flex-grow-100" onClick={() => historicalDeletionRef.current?.close()}>{t("common:tsx.cancel")}</button>
-                                    <button
-                                      type='submit'
-                                      className="color-purewhite red font-weight-500"
-                                    >
-                                      {t("components:table_menu.historical_data_delete")}
-                                    </button>
-                                  </div>
-                                </form>
-                              </div>
-                            </dialog>
-                          </>
-                        ) : null}
-                      </div>
-                    </>
-                    : null
-                  }
-                {links.creationLink ? <Link href={links.creationLink} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`}>
-                  <span>{links.creationDescription}</span>
-                  <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
-                </Link> : null
-                }
-                {links.creationLink2 ? <Link href={links.creationLink2} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`} data-testid="admin-panel-new-action">
-                  <span>{links.creationDescription2 || links.creationLink2}</span>
-                  <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
-                </Link> : null
-                }
-                {links.editLink ? <Link href={links.editLink} className={`flex gap-50 justify-content-space-between align-items-center smooth neutral-action ${styles['object-menu-link']}`} data-testid="admin-panel-edit">
-                  <span>{t("components:table_menu.edit")}</span>
-                  <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
-                </Link> : null
-                }
-              </nav>
-          </>
-        ) : null
-        }
-        {mayShowDelete(object, accessLevel ?? AccessLevel.None) && links.deleteLink ? <>
-          <button
-            type="button"
-            className={`flex gap-50 justify-content-space-between align-items-center button smooth font-size-14px
+              goal ? (
+                <GoalPanelControls goal={goal} links={links} timestamp={timestamp} />
+              ) : (
+                <>
+                  {iteration ? <IterationUnlistToggle iteration={iteration} timestamp={timestamp} /> : null}
+                  <nav className="display-contents">
+                    {links.creationLink ? <Link href={links.creationLink} className={panelItemClass}>
+                      <span>{links.creationDescription}</span>
+                      <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+                    </Link> : null
+                    }
+                    {links.creationLink2 ? <Link href={links.creationLink2} className={panelItemClass} data-testid="admin-panel-new-action">
+                      <span>{links.creationDescription2 || links.creationLink2}</span>
+                      <IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+                    </Link> : null
+                    }
+                    {links.editLink ? <Link href={links.editLink} className={panelItemClass} data-testid="admin-panel-edit">
+                      <span>{t("components:table_menu.edit")}</span>
+                      <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+                    </Link> : null
+                    }
+                  </nav>
+                </>
+              )
+            ) : null
+            }
+            {mayShowDelete(object, accessLevel ?? AccessLevel.None) && links.deleteLink ? <>
+              <button
+                type="button"
+                className={`flex gap-50 justify-content-space-between align-items-center button smooth font-size-14px
                 ${styles['object-menu-button']}`} style={{ textShadow: 'none', color: 'white', backgroundColor: "#f03b3b", border: '0' }}
-            onClick={() => openModal(deletionRef)}
-          >
-            {t("components:table_menu.delete")}
-            <IconTrashXFilled aria-hidden="true" width={20} height={20} fill="white" style={{ minWidth: '20px' }} />
-          </button>
-          <ConfirmDelete modalRef={deletionRef} targetUrl={links.deleteLink} targetName={objectName || roadmapName || t("components:table_menu.delete_missing_name")} targetId={object.id} />
-        </> : null
-        }
-      </>
+                onClick={() => openModal(deletionRef)}
+              >
+                {t("components:table_menu.delete")}
+                <IconTrashXFilled aria-hidden="true" width={20} height={20} fill="white" style={{ minWidth: '20px' }} />
+              </button>
+              <ConfirmDelete modalRef={deletionRef} targetUrl={links.deleteLink} targetName={objectName || roadmapName || t("components:table_menu.delete_missing_name")} targetId={object.id} />
+            </> : null
+            }
+          </>
         ) : null}
       </menu>
     </aside >
   );
-
 }

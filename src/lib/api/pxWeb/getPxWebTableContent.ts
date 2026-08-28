@@ -46,11 +46,23 @@ export default async function getPxWebTableContent(tableId: string, externalData
 
   let data: JSONValue = null;
   try {
-    const response = await fetch(url, {
+    let response = await fetch(url, {
       method: 'POST',
       body: JSON.stringify(payload),
       headers: { 'Content-Type': 'application/json' },
     });
+    if (response.status === 429) {
+      // Rate limited; wait out the upstream's Retry-After (or 10 seconds, like getPxWebTableMetadata) and try once more
+      const retryAfterSeconds = parseInt(response.headers.get("Retry-After") ?? "", 10);
+      const waitMs = (Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0 ? retryAfterSeconds : 10) * 1000;
+      console.debug(`Received 429 status, retrying in ${waitMs / 1000} seconds...`, { url });
+      await new Promise(resolve => setTimeout(resolve, waitMs));
+      response = await fetch(url, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
     if (!response.ok) {
       const errorText = await response.text();
       console.error(errorText);

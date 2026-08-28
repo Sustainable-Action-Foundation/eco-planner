@@ -28,7 +28,8 @@ export default function GoalSeriesSection({
   goal: Goal | undefined;
   dataSeriesType: DataSeriesType;
   setDataSeriesType: Dispatch<SetStateAction<DataSeriesType>>;
-  indicatorParameter: string;
+  /** The form's current indicator parameter, if it has one, for the parameter sync button's applied state */
+  indicatorParameter?: string;
   setIndicatorParameter: Dispatch<SetStateAction<string>>;
   setPreviewDataSerie: Dispatch<SetStateAction<DateValuesWithUnit | null>>;
   setDataSeriesRecipeError: Dispatch<SetStateAction<string | null>>;

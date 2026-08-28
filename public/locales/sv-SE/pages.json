@@ -77,23 +77,64 @@
   },
   "goal_edit": {
     "breadcrumb": "$t(common:edit.goal)",
-    "title": "$t(common:edit.goal): {{goalName}}"
+    "title": "$t(common:edit.goal): {{goalName}}",
+    "data_series": {
+      "breadcrumb": "Redigera dataserie",
+      "title": "Redigera dataserie: {{goalName}}"
+    },
+    "baseline": {
+      "breadcrumb": "Redigera baslinje",
+      "title": "Redigera baslinje: {{goalName}}"
+    },
+    "historical": {
+      "breadcrumb": "Redigera historisk data",
+      "title": "Redigera historisk data: {{goalName}}"
+    },
+    "historical_create": {
+      "breadcrumb": "Lägg till historisk data",
+      "title": "Lägg till historisk data: {{goalName}}"
+    }
   },
   "home": {
     "create_roadmap": "$t(common:new.roadmap)",
     "curated_historical": {
+      "cars_by_fuel_description": "Antal registrerade personbilar i trafik vid årets slut, uppdelat per drivmedel.",
+      "cars_by_fuel_name": "Personbilar i trafik per drivmedel",
       "category_emissions": "Klimat och utsläpp",
       "category_geography": "Geografi",
       "category_population": "Befolkning",
+      "category_solar_power": "Solkraft",
+      "category_vehicles": "Fordon",
+      "category_wind_power": "Vindkraft",
       "description": "Statistik för ert geografiska område, hämtad direkt från öppna datakällor.",
+      "energy_transport_description": "Utvald statistik för att följa energi- och transportomställningen i ert område, hämtad direkt från Energimyndigheten och Trafikanalys.",
+      "energy_transport_title": "Energi och transport i {{area}}",
+      "fuel_diesel": "Diesel",
+      "fuel_electric": "El",
+      "fuel_ethanol": "Etanol",
+      "fuel_gas": "Gas",
+      "fuel_hybrid": "Elhybrid",
+      "fuel_other": "Övriga",
+      "fuel_petrol": "Bensin",
+      "fuel_plugin_hybrid": "Laddhybrid",
       "ghg_emissions_description": "Territoriella utsläpp av växthusgaser inom områdets gränser, i kiloton koldioxidekvivalenter.",
       "ghg_emissions_name": "Växthusgasutsläpp",
       "land_area_description": "Landareal i kvadratkilometer, exklusive vattenområden.",
       "land_area_name": "Landareal",
       "population_description": "Antal folkbokförda invånare vid årets slut.",
       "population_name": "Folkmängd",
+      "solar_capacity_description": "Installerad effekt för nätanslutna solcellsanläggningar vid årets slut, i megawatt, alla effektklasser.",
+      "solar_capacity_name": "Installerad solcellseffekt",
+      "solar_installations_description": "Antal nätanslutna solcellsanläggningar, alla effektklasser.",
+      "solar_installations_name": "Nätanslutna solcellsanläggningar",
       "source": "Källa",
-      "title": "Historisk data för {{area}}"
+      "title": "Historisk data för {{area}}",
+      "wind_capacity_description": "Vindkraftverkens installerade effekt vid årets slut, i megawatt.",
+      "wind_capacity_name": "Installerad vindkraftseffekt",
+      "wind_production_description": "El producerad av vindkraftverk under året, i gigawattimmar. Publiceras bara på läns- och riksnivå.",
+      "wind_production_name": "Vindkraftsproduktion",
+      "wind_turbines_description": "Antal vindkraftverk i drift vid årets slut.",
+      "wind_turbines_name": "Vindkraftverk"
     },
     "filter": "Filter",
     "org_nav_label": "Organisationsvyer",
@@ -101,9 +142,6 @@
     "search_roadmaps": "Sök bland $t(common:count.roadmap)",
     "shown_results": "Visar {{shown}} av {{total}} $t(common:roadmap, {\"count\": {{total}}})",
     "title": "$t(common:roadmap_other, titleCase)"
-  },
-  "historical_data": {
-    "breadcrumb": "Redigera historisk data"
   },
   "info": {
     "breadcrumb": "Information",

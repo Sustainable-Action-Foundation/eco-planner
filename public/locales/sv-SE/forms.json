@@ -144,7 +144,8 @@
         "type": "Målbanans typ",
         "inherit": "Skapa en dataserie genom att kopiera den från en annan målbana och skala den med en föreslagen metod.",
         "manual": "Skapa en dataserie manuellt genom att fylla i år och värden.",
-        "recipe": "Skapa en dataserie genom att definiera variabler och som kan användas i en skräddarsydd ekvation."
+        "recipe": "Skapa en dataserie genom att definiera variabler och som kan användas i en skräddarsydd ekvation.",
+        "baseline_rederived": "Baslinjen härleds från den här dataserien och uppdateras så att den stämmer när du sparar."
       },
       "baseline": {
         "title": "Skapa en dataserie för din målbanas baslinje",
@@ -186,7 +187,8 @@
       "initial_baseline_error": "Det går inte att använda den initiala baslinjen när dataserien är tom.",
       "missing_inherited_baseline": "Ingen ärvd baslinje angiven i formuläret.",
       "missing_baseline": "Ingen baslinje angiven för det nya målet.",
-      "recipe_has_error": "Den här dataserien kan inte sparas eftersom dess recept har ett fel. Åtgärda det innan du sparar:"
+      "recipe_has_error": "Den här dataserien kan inte sparas eftersom dess recept har ett fel. Åtgärda det innan du sparar:",
+      "missing_historical_data": "Ingen historisk data har angetts eller valts."
     },
     "visibility": "Synlighet",
     "visibility_public_description": "Syns i listor och i $t(common:roadmap_version_definite_one).",
@@ -259,7 +261,9 @@
     "unknown_error": "Okänt fel",
     "upload_goals": "Ladda upp $t(common:goal_other)",
     "publish": "Publicera denna version",
-    "publish_hint": "Opublicerade versioner är utkast som bara syns för personer som kan redigera färdplanen."
+    "publish_hint": "Opublicerade versioner är utkast som bara syns för personer som kan redigera färdplanen.",
+    "unlist": "Dölj denna version från listor",
+    "unlist_hint": "Dolda versioner visas inte i listor över färdplaner för personer som inte kan redigera färdplanen, men går fortfarande att öppna via direktlänk."
   },
   "text_editor_menu": {
     "bold": "Fetstil",
