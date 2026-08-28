@@ -795,21 +795,25 @@ export default function RecipeQueryBuilder({
               {tableContent && tableContent.values.length > 0 ? (
                 <div>
                   <p className="margin-top-0">{t("components:query_builder.does_this_look_correct")}</p>
-                  {/* The table as listed on the left (label and code), plus what the selection resolved to, so the numbers below can be sanity checked against it */}
-                  <p className="font-weight-500">
-                    {(() => {
-                      const tableId = tableMetadata?.tableId ?? tableContent.id;
-                      const label = tables?.find(table => table.tableId === tableId)?.label ?? tableId;
-                      return label.includes(tableId) ? label : `${label} (${tableId})`;
-                    })()}
-                  </p>
-                  {tableContent.metadata.some(item => item.label) ?
-                    <p>
-                      {tableContent.metadata.map(item => item.label).filter(Boolean).join(", ")}
-                      {tableContent.unit?.base ? ` [${tableContent.unit.base}]` : ""}
-                    </p>
-                    : null}
-                  <table>
+                  {/* Everything that came back from the API lives in this card: the table as
+                      listed on the left (label and code), what the selection resolved to, and the values */}
+                  <div className={styles['preview-card']}>
+                  <p className="margin-top-0 font-weight-500">{t("components:query_builder.fetched_data")}</p>
+                  {(() => {
+                    const tableId = tableMetadata?.tableId ?? tableContent.id;
+                    const catalogLabel = tables?.find(table => table.tableId === tableId)?.label ?? tableId;
+                    const tableLabel = catalogLabel.includes(tableId) ? catalogLabel : `${catalogLabel} (${tableId})`;
+                    // Some sources (Trafa) only report the table name here, which the line above already shows
+                    const selectionLabels = tableContent.metadata
+                      .map(item => item.label)
+                      .filter((label): label is string => !!label && !tableLabel.includes(label));
+                    const unit = tableContent.unit?.base ? ` [${tableContent.unit.base}]` : "";
+                    return (<>
+                      <p className="font-weight-500">{tableLabel}</p>
+                      {selectionLabels.length > 0 || unit ? <p>{selectionLabels.join(", ")}{unit}</p> : null}
+                    </>);
+                  })()}
+                  <table className={styles['preview-table']}>
                     <thead>
                       <tr>
                         <th scope="col">{t("components:query_builder.period")}</th>
@@ -827,6 +831,7 @@ export default function RecipeQueryBuilder({
                       }
                     </tbody>
                   </table>
+                  </div>
                 </div>
               ) : !defaultMetricSelected ? (
                 <p className="margin-0">{t("components:query_builder.no_result_found")}</p>

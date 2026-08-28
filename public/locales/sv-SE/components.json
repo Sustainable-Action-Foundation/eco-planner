@@ -128,6 +128,7 @@
     "contents_variable": "Innehåll",
     "data_source": "Datakälla",
     "does_this_look_correct": "Ser detta rimligt ut?",
+    "fetched_data": "Hämtad data",
     "edit_historical_data": "Redigera historisk data",
     "filter_by_time_unit": "Tidsupplösning",
     "filter_by_variable": "Visa endast tabeller med dessa variabler",

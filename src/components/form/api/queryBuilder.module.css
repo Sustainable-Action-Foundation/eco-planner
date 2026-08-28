@@ -96,6 +96,43 @@
   border-left: 1px solid var(--gray-80);
 }
 
+/* The data that came back from the API; tinted like the selected table row so it reads as "fetched", not as more form */
+.preview-card {
+  --preview-background: #ebf6ff; /* rgba(153, 211, 255, .2) over white, kept opaque for the sticky header */
+  background-color: var(--preview-background);
+  border: 1px solid rgba(153, 211, 255, .8);
+  border-radius: .5rem;
+  padding: .75rem 1rem;
+}
+
+.preview-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.preview-table th {
+  position: sticky;
+  top: -1rem; /* Cancel the pane padding so it sits flush with the pane's top edge */
+  background-color: var(--preview-background);
+  text-align: left;
+  padding: .25rem .5rem;
+  border-bottom: 1px solid rgba(153, 211, 255, .8);
+}
+
+.preview-table td {
+  padding: .125rem .5rem;
+}
+
+.preview-table th:last-child,
+.preview-table td:last-child {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.preview-table tbody tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, .5);
+}
+
 .dialog-footer {
   padding: .75rem 1rem;
   background-color: white;
