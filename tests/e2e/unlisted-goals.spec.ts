@@ -180,6 +180,7 @@ test.describe.serial("Unlisted goal creation", () => {
     await page.locator('#comment-text').hover();
 
     // The checkbox round-trips in the edit form
+    await page.getByTestId("admin-panel-edit-menu").click();
     await page.getByTestId("admin-panel-edit").click();
     await page.waitForLoadState("networkidle");
     await expect(page.locator('#isUnlisted')).toBeChecked();

@@ -77,10 +77,23 @@
   },
   "goal_edit": {
     "breadcrumb": "$t(common:edit.goal)",
-    "title": "$t(common:edit.goal): {{goalName}}"
-  },
-  "historical_data": {
-    "breadcrumb": "Edit historical data"
+    "title": "$t(common:edit.goal): {{goalName}}",
+    "data_series": {
+      "breadcrumb": "Edit data series",
+      "title": "Edit data series: {{goalName}}"
+    },
+    "baseline": {
+      "breadcrumb": "Edit baseline",
+      "title": "Edit baseline: {{goalName}}"
+    },
+    "historical": {
+      "breadcrumb": "Edit historical data",
+      "title": "Edit historical data: {{goalName}}"
+    },
+    "historical_create": {
+      "breadcrumb": "Add historical data",
+      "title": "Add historical data: {{goalName}}"
+    }
   },
   "home": {
     "create_roadmap": "$t(common:new.roadmap)",

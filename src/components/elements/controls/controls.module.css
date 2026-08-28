@@ -83,4 +83,11 @@
 .object-menu-button, .object-menu-link {
   padding: .5rem;
   text-shadow: 0 0 var(--darkblue)
-} 
+}
+
+/* Popovers are display: none until opened; the layout only applies while open
+   (a plain `.grid` utility would override that and keep the menu expanded) */
+.panel-dropdown:popover-open {
+  display: grid;
+  gap: 2px;
+}

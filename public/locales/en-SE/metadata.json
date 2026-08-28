@@ -60,5 +60,8 @@
   },
   "actions": {
     "title": "Actions"
+  },
+  "historical_data_create": {
+    "title": "Add historical data:"
   }
 }

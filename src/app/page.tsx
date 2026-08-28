@@ -12,6 +12,7 @@ import Link from "next/link";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { getActions, getRoadmapIterations, getRoadmaps, getUserOrgs } from "@/fetchers";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import Actions from "@/components/pages/sections/actions";
 import CuratedHistoricalData from "@/components/pages/sections/historicalData";
 import { CuratedHistoricalCatalogKey } from "@/lib/curatedHistoricalData";
@@ -64,11 +65,15 @@ export default async function Page(
 
   // Get the latest version ids, then fetch proper iterations with access and counts
   const latestIterationIds = roadmaps.flatMap(roadmap => {
-    if (!roadmap.iterations.length) {
+    // Unlisted iterations only count as the latest for users who can edit the roadmap
+    const candidates = hasEditAccess(accessChecker(roadmap, accessContext))
+      ? roadmap.iterations
+      : roadmap.iterations.filter(iteration => !iteration.is_unlisted);
+    if (!candidates.length) {
       return [];
     }
 
-    const latestIteration = roadmap.iterations.reduce((current, candidate) =>
+    const latestIteration = candidates.reduce((current, candidate) =>
       candidate.version > current.version ? candidate : current,
     );
 

@@ -77,7 +77,23 @@
   },
   "goal_edit": {
     "breadcrumb": "$t(common:edit.goal)",
-    "title": "$t(common:edit.goal): {{goalName}}"
+    "title": "$t(common:edit.goal): {{goalName}}",
+    "data_series": {
+      "breadcrumb": "Redigera dataserie",
+      "title": "Redigera dataserie: {{goalName}}"
+    },
+    "baseline": {
+      "breadcrumb": "Redigera baslinje",
+      "title": "Redigera baslinje: {{goalName}}"
+    },
+    "historical": {
+      "breadcrumb": "Redigera historisk data",
+      "title": "Redigera historisk data: {{goalName}}"
+    },
+    "historical_create": {
+      "breadcrumb": "Lägg till historisk data",
+      "title": "Lägg till historisk data: {{goalName}}"
+    }
   },
   "home": {
     "create_roadmap": "$t(common:new.roadmap)",
@@ -126,9 +142,6 @@
     "search_roadmaps": "Sök bland $t(common:count.roadmap)",
     "shown_results": "Visar {{shown}} av {{total}} $t(common:roadmap, {\"count\": {{total}}})",
     "title": "$t(common:roadmap_other, titleCase)"
-  },
-  "historical_data": {
-    "breadcrumb": "Redigera historisk data"
   },
   "info": {
     "breadcrumb": "Information",

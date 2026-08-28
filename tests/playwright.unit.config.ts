@@ -83,5 +83,11 @@ export default defineConfig({
       retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
       use: {},
     },
+    {
+      name: "Goal visibility unit tests",
+      testMatch: ["unit/goal-visibility.test.ts"],
+      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
+      use: {},
+    },
   ],
 });

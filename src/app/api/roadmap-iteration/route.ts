@@ -50,6 +50,12 @@ function isRoadmapIterationCreate(iteration: JSONValue): iteration is RoadmapIte
       iteration.publish === undefined
     ) &&
 
+    // isUnlisted: boolean | undefined;
+    (
+      typeof iteration.isUnlisted === 'boolean' ||
+      iteration.isUnlisted === undefined
+    ) &&
+
     // roadmapId: string;
     (
       typeof iteration.roadmapId === 'string'
@@ -107,6 +113,12 @@ function isRoadmapIterationUpdate(iteration: JSONValue): iteration is RoadmapIte
     (
       typeof iteration.publish === 'boolean' ||
       iteration.publish === undefined
+    ) &&
+
+    // isUnlisted: boolean | undefined;
+    (
+      typeof iteration.isUnlisted === 'boolean' ||
+      iteration.isUnlisted === undefined
     ) &&
 
     // roadmapId?: never;
@@ -230,6 +242,7 @@ export async function POST(request: NextRequest) {
         target_version: iteration.targetVersion,
         // Drafts (published_at == null) are only visible to users with edit access
         published_at: iteration.publish ? new Date() : null,
+        is_unlisted: iteration.isUnlisted,
         author: { connect: { id: session.user.id } },
         roadmap: { connect: { id: iteration.roadmapId } },
         goals: {
@@ -373,6 +386,7 @@ export async function PUT(request: NextRequest) {
         target_version: iteration.targetVersion,
         // publish: true publishes a draft, false unpublishes (back to draft), undefined leaves unchanged
         ...(iteration.publish === undefined ? {} : { published_at: iteration.publish ? new Date() : null }),
+        is_unlisted: iteration.isUnlisted,
         goals: {
           create: roadmapGoalCreator(iteration, session.user.id, orgId),
         },

@@ -83,6 +83,7 @@ export default function RoadmapIterationForm({
     const form = event.target.elements;
     const description = (form.namedItem("description") as HTMLInputElement | null)?.value ?? null;
     const publish = (form.namedItem("publish") as HTMLInputElement | null)?.checked ?? false;
+    const isUnlisted = (form.namedItem("isUnlisted") as HTMLInputElement | null)?.checked ?? false;
 
     let goals: GoalCreateFull[] = [];
     if (currentFile) {
@@ -106,6 +107,7 @@ export default function RoadmapIterationForm({
         description: description ?? undefined,
         targetVersion: parseInt((form.namedItem('target-version') as HTMLSelectElement)?.value, 10) || null,
         publish: publish,
+        isUnlisted: isUnlisted,
 
         roadmapId: undefined, // Can't change the roadmap after creation
         goals: goals,
@@ -119,6 +121,7 @@ export default function RoadmapIterationForm({
         description: description ?? null,
         targetVersion: parseInt((form.namedItem('target-version') as HTMLSelectElement)?.value, 10) || null,
         publish: publish,
+        isUnlisted: isUnlisted,
 
         roadmapId: roadmapId,
         goals: goals,
@@ -213,6 +216,18 @@ export default function RoadmapIterationForm({
           {t("forms:roadmap_iteration.publish")}
         </label>
         <small className="block margin-bottom-100">{t("forms:roadmap_iteration.publish_hint")}</small>
+
+        {/* Unlisted iterations stay reachable by link but are left out of roadmap listings for people who can't edit them */}
+        <label className="flex width-fit-content align-items-center gap-50 margin-bottom-100">
+          <input
+            type="checkbox"
+            name="isUnlisted"
+            id="isUnlisted"
+            defaultChecked={!!currentIteration?.is_unlisted}
+          />
+          {t("forms:roadmap_iteration.unlist")}
+        </label>
+        <small className="block margin-bottom-100">{t("forms:roadmap_iteration.unlist_hint")}</small>
 
       </fieldset>
 

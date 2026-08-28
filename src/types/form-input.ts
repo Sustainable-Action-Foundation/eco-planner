@@ -78,6 +78,8 @@ export type RoadmapIterationCreateInput = {
   description: string | null | undefined;
   /** True publishes immediately; otherwise the iteration is created as a draft (visible only to users with edit access) */
   publish: boolean | undefined;
+  /** Unlisted iterations are hidden from regular roadmap listings for users without edit access */
+  isUnlisted: boolean | undefined;
 
   // Relations
   /** The roadmap this is an iteration of */
@@ -103,6 +105,8 @@ export type RoadmapIterationUpdateInput = {
   targetVersion: number | null | undefined;
   /** True publishes a draft; false unpublishes (back to draft); undefined leaves the publication state unchanged */
   publish: boolean | undefined;
+  /** Hides from / restores to regular roadmap listings; undefined leaves it unchanged */
+  isUnlisted: boolean | undefined;
 
   // Relations
   roadmapId?: never; // Can't reassign the roadmap of an existing iteration. IT WOULD BE MAYHEM.
