@@ -190,7 +190,7 @@
     },
     "visibility": "Visibility",
     "visibility_public_description": "Shown in listings and in the $t(common:roadmap_version_one).",
-    "visibility_unlisted_description": "Only listed for users with edit access.",
+    "visibility_unlisted_description": "Only listed for users with edit access, but still opens from a direct link.",
     "visibility_featured_description": "Highlighted at the top of the $t(common:roadmap_version_one).",
     "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
     "goal_description": "Description",
