@@ -190,7 +190,7 @@
     },
     "visibility": "Synlighet",
     "visibility_public_description": "Syns i listor och i $t(common:roadmap_version_definite_one).",
-    "visibility_unlisted_description": "Dold från vanliga listor. Endast användare med redigeringsbehörighet ser $t(common:goal_definite_one) i listan.",
+    "visibility_unlisted_description": "Syns bara i listor för dem med redigeringsbehörighet.",
     "visibility_featured_description": "Lyfts fram överst i $t(common:roadmap_version_definite_one).",
     "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
     "goal_description": "Beskrivning",
