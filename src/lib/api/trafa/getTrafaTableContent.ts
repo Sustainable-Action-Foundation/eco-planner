@@ -1,8 +1,12 @@
-"use server";
+// Cache-safe core for fetching + parsing Trafa table content. This is intentionally
+// NOT a "use server" entry point: the public, guarded action lives in
+// ./getTrafaTableContentAction.ts (which the client reaches via getTableContent),
+// while cache-scoped callers (e.g. the curated historical data's `use cache` block)
+// call this directly — safe because it does no request-scoped work (no cookies()/session).
+import "server-only";
 
 import type { ApiSelectionItem, ApiTableContent } from "../apiTypes";
 import { ExternalDataset } from "../utility";
-import { guardExternalApi } from "../guardExternalApi";
 import type { TrafaDataResponse } from "./trafaTypes";
 import { getTrafaSearchQueryString } from "./trafaUtility";
 
@@ -11,7 +15,6 @@ import { getTrafaSearchQueryString } from "./trafaUtility";
 // but can be useful to show how to implement a new data provider which doesn't follow the pxWebV2 standard.
 
 export default async function getTrafaTableContent(tableId: string, selection: ApiSelectionItem[], language?: string) {
-  await guardExternalApi();
   const searchQuery = getTrafaSearchQueryString(selection);
 
   const url = new URL('./data', ExternalDataset.Trafa.baseUrl);
