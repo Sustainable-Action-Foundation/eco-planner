@@ -175,6 +175,7 @@
     "add_new_recipe": "Add new recipe",
     "apply_paramater_question": "Use the same indicator parameter as the parent goal?",
     "apply_parameter": "Use <strong>{{indicator}}</strong> as indicator parameter",
+    "parameter_applied": "The indicator parameter is <strong>{{indicator}}</strong>",
     "apply_unit": "Copy resulting unit to form",
     "cancel_editing_recipe": "Cancel",
     "commit_editing_recipe": "Save recipe",

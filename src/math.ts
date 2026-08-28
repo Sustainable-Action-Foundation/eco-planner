@@ -64,6 +64,11 @@ const customUnits: Record<string, UnitDefinition> = {
   },
 
   /* Swedish spellings of mathjs units */
+  // "år" after diacritics are stripped by parseUnit, e.g. "kWh/år"
+  "ar": {
+    definition: '1 year',
+    prefixes: 'none',
+  },
   "kvadratkilometer": {
     definition: '1 km2',
     prefixes: 'none',

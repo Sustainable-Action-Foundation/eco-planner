@@ -573,6 +573,7 @@ export default function GoalForm({
             goal={currentGoal}
             dataSeriesType={dataSeriesType}
             setDataSeriesType={setDataSeriesType}
+            indicatorParameter={indicatorParameter}
             setIndicatorParameter={setIndicatorParameter}
             setPreviewDataSerie={setPreviewDataSerie}
             setDataSeriesRecipeError={setDataSeriesRecipeError}

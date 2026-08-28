@@ -175,6 +175,7 @@
     "add_new_recipe": "Lägg till nytt recept",
     "apply_paramater_question": "Använd samma indikatorparameter som föräldern?",
     "apply_parameter": "Använd <strong>{{indicator}}</strong> som indikatorparameter",
+    "parameter_applied": "Indikatorparametern är <strong>{{indicator}}</strong>",
     "apply_unit": "Kopiera resulterande enhet till formuläret",
     "cancel_editing_recipe": "Avbryt",
     "commit_editing_recipe": "Spara recept",

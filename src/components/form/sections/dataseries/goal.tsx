@@ -16,6 +16,7 @@ export default function GoalSeriesSection({
   goal,
   dataSeriesType,
   setDataSeriesType,
+  indicatorParameter,
   setIndicatorParameter,
   setPreviewDataSerie,
   setDataSeriesRecipeError,
@@ -27,6 +28,7 @@ export default function GoalSeriesSection({
   goal: Goal | undefined;
   dataSeriesType: DataSeriesType;
   setDataSeriesType: Dispatch<SetStateAction<DataSeriesType>>;
+  indicatorParameter: string;
   setIndicatorParameter: Dispatch<SetStateAction<string>>;
   setPreviewDataSerie: Dispatch<SetStateAction<DateValuesWithUnit | null>>;
   setDataSeriesRecipeError: Dispatch<SetStateAction<string | null>>;
@@ -136,6 +138,8 @@ export default function GoalSeriesSection({
               />
               <ParameterSync
                 setter={setIndicatorParameter}
+                current={indicatorParameter}
+                inputId="indicatorParameter"
               />
               <RecipeSync
                 onDateValues={setPreviewDataSerie}
@@ -196,6 +200,8 @@ export default function GoalSeriesSection({
               />
               <ParameterSync
                 setter={setIndicatorParameter}
+                current={indicatorParameter}
+                inputId="indicatorParameter"
               />
               <RecipeSync
                 onDateValues={setPreviewDataSerie}
