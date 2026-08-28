@@ -44,10 +44,9 @@
   transform: scale(.995);
 }
 
-/* For selecting tables when choosing a specific data source */
-/* TODO: Classnames makes no sense here */
-.tableList { 
-  overflow-y: scroll;
+/* Height-limited lists inside the dialog (table list, variable selection) */
+.scrollable {
+  overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--gray) rgba(0,0,0,0);
 }

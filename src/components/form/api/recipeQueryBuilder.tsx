@@ -61,6 +61,8 @@ export default function RecipeQueryBuilder({
   const [mainTimeDimensionId, setMainTimeDimensionId] = useState<string | null>(null);
   const [defaultMetricSelected, setDefaultMetricSelected] = useState(true);
   const hasAppliedInitialTableSelectionRef = useRef(false);
+  // Which page of the dialog to show; bumped to the selection page once a preset table has loaded
+  const [section, setSection] = useState(0);
 
   const modalRef = useRef<HTMLDialogElement | null>(null);
   const fieldsetRef = useRef<HTMLFieldSetElement | null>(null);
@@ -150,7 +152,11 @@ export default function RecipeQueryBuilder({
 
     hasAppliedInitialTableSelectionRef.current = true;
     getTableMetadata(initialTableId, dataSource, undefined, lang)
-      .then(result => { setTableMetadata(result); })
+      .then(result => {
+        setTableMetadata(result);
+        // The table is already chosen, so open on the selection page
+        if (result) setSection(1);
+      })
       .catch((err: unknown) => {
         const errorMessage = err instanceof Error ? err.message : String(err);
         console.error("Error fetching initial table metadata:", errorMessage);
@@ -588,7 +594,7 @@ export default function RecipeQueryBuilder({
           </div>
 
           <div className={`${styles['dialog-body']}`}>
-            <FormWrapper>
+            <FormWrapper section={section}>
               <fieldset className="position-relative" ref={fieldsetRef}>
                 <label className="margin-block-75 font-weight-500">
                   {t("components:query_builder.data_source")}
@@ -692,7 +698,7 @@ export default function RecipeQueryBuilder({
 
                     <ul
                       id="tablesList"
-                      className={`position-relative padding-25 smooth purewhite ${styles.temporary}`} onScroll={e => handleTableListScroll(e)}
+                      className={`position-relative padding-25 smooth purewhite ${styles.scrollable}`} onScroll={e => handleTableListScroll(e)}
                       style={{ maxHeight: "300px", border: "1px solid var(--gray-80)", listStyle: "none", overflowY: 'scroll' }} >
                       {filteredTables?.length === 0 ?
                         <li className="padding-block-25 font-style-italic color-gray">{t("components:query_builder.no_tables_match_filters")}</li>
@@ -750,7 +756,7 @@ export default function RecipeQueryBuilder({
                       <legend className="padding-inline-50">
                         <b>{t("components:query_builder.select_values_for_table")}</b>
                       </legend>
-                      <div className={`${styles.temporary}`} style={{ maxHeight: "282px", boxSizing: "content-box", padding: ".25rem", paddingRight: ".375rem" }}>
+                      <div className={`${styles.scrollable}`} style={{ maxHeight: "282px", boxSizing: "content-box", padding: ".25rem", paddingRight: ".375rem" }}>
                         {tableMetadata.timeDimensions?.map(time => {
                           return timeVariableSelectionHelper(time, tableMetadata.language);
                         })}
