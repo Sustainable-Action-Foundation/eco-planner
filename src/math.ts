@@ -3,22 +3,68 @@ import { create, all, Unit as MathJSUnit } from 'mathjs';
 
 const mathjs = create(all);
 
+/**
+ * Units beyond what mathjs ships with. Three kinds:
+ * - new base dimensions (people, money, counts), each with several spellings so
+ *   `t CO2e/capita * 1000 person` cancels;
+ * - compound units given as a `definition` (never a new `baseName`), so
+ *   `pkm / person → km` and `person * km → personkm` work;
+ * - Swedish names as reported by SCB/STEM and as users type them, defined in
+ *   terms of the mathjs unit so they convert (`1 hektar → 10000 m2`).
+ *
+ * Only ASCII names can be parsed: the mathjs tokenizer stops at "å", so
+ * "invånare" is spelled `invanare`. Never alias `inv` (matrix inverse function).
+ *
+ * Deliberately left out: "ton" (mathjs already defines it as the US short ton
+ * and redefining it changes existing recipes; use `tonne`/`t`), "mil" (already
+ * a thousandth of an inch) and "%" (not a valid unit token).
+ */
 const customUnits: Record<string, UnitDefinition> = {
+  // Heated floor area. Its own dimension, so it does not cancel against plain m2.
   "Atemp": {
     prefixes: 'none',
     baseName: 'area',
-  },
-  "capita": {
-    prefixes: 'none',
   },
   "CO2e": {
     prefixes: 'none',
     aliases: ['co2e', 'Co2e', 'CO2', 'co2', 'Co2'],
   },
 
-  // Swedish unit names as reported by SCB/STEM and as users tend to type them.
-  // Deliberately left out: "ton" (mathjs already defines it as the US short ton;
-  // redefining it changes existing recipes) and "mil" (already a thousandth of an inch).
+  /* People, money, counts */
+  "person": {
+    prefixes: 'none',
+    baseName: 'PERSON',
+    aliases: ['persons', 'personer', 'capita', 'cap', 'pers', 'invanare'],
+  },
+  "SEK": {
+    prefixes: 'short', // kSEK, MSEK, Mkr
+    baseName: 'CURRENCY',
+    aliases: ['kr', 'kronor'],
+  },
+  "st": {
+    prefixes: 'none',
+    baseName: 'COUNT',
+    aliases: ['antal', 'styck', 'stycken', 'pcs', 'fordon'],
+  },
+
+  /* Transport work */
+  "personkm": {
+    definition: '1 person km',
+    prefixes: 'short', // Mpkm
+    aliases: ['pkm', 'personkilometer'],
+  },
+  "tonkm": {
+    definition: '1 tonne km',
+    prefixes: 'short',
+    aliases: ['tkm', 'tonkilometer'],
+  },
+  "fordonskm": {
+    definition: '1 st km',
+    prefixes: 'short',
+    aliases: ['fordonskilometer'],
+  },
+
+  /* Swedish spellings of mathjs units */
   "kvadratkilometer": {
     definition: '1 km2',
     prefixes: 'none',
@@ -31,10 +77,20 @@ const customUnits: Record<string, UnitDefinition> = {
     definition: '1 hectare',
     prefixes: 'none',
   },
-  // A count, like "capita"; dimensionless but kept as a unit so it survives into results
-  "antal": {
+  "kubikmeter": {
+    definition: '1 m3',
     prefixes: 'none',
-    aliases: ['styck', 'stycken'],
+  },
+  "wattimme": {
+    definition: '1 Wh',
+    prefixes: 'long', // kilowattimme, megawattimmar, gigawattimmar
+    aliases: ['wattimmar'],
+  },
+  // mathjs has no percent unit of its own; a dimensionless hundredth
+  "procent": {
+    definition: '0.01',
+    prefixes: 'none',
+    aliases: ['percent'],
   },
 };
 
@@ -69,5 +125,7 @@ export default mathjs;
 
 export const allOurUnits: string[] = [
   ...Object.keys(MathJSUnit.UNITS),
-  ...Object.keys(customUnits), // This adds the custom units to the list without adding all the aliases
+  ...Object.keys(customUnits),
+  // Aliases too, so the autocomplete offers e.g. "capita" and "pkm", not only "person" and "personkm"
+  ...Object.values(customUnits).flatMap(unit => unit.aliases ?? []),
 ];
