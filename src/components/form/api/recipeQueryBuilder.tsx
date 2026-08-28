@@ -849,7 +849,7 @@ export default function RecipeQueryBuilder({
                         <p key={description} className="font-style-italic">{description}</p>
                       ))}
                       {tableContent.unit?.base ?
-                        <p>{t("components:query_builder.reported_unit")}: {tableContent.unit.base}</p>
+                        <p>{t("components:query_builder.reported_unit")}: <strong>[{tableContent.unit.base}]</strong></p>
                         : null}
                     </>);
                   })()}
@@ -876,7 +876,10 @@ export default function RecipeQueryBuilder({
               ) : !defaultMetricSelected ? (
                 <p className="margin-0">{t("components:query_builder.no_result_found")}</p>
               ) : (
-                <p className="margin-0 font-style-italic color-gray">{t("components:query_builder.preview_placeholder")}</p>
+                <div className="flex flex-direction-column align-items-center gap-50 padding-block-100 text-align-center color-gray">
+                  <IconDatabaseSearch width={48} height={48} strokeWidth={1.25} aria-hidden="true" />
+                  <p className="margin-0 font-style-italic">{t("components:query_builder.preview_placeholder")}</p>
+                </div>
               )}
             </output>
 

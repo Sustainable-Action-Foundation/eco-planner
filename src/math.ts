@@ -15,6 +15,27 @@ const customUnits: Record<string, UnitDefinition> = {
     prefixes: 'none',
     aliases: ['co2e', 'Co2e', 'CO2', 'co2', 'Co2'],
   },
+
+  // Swedish unit names as reported by SCB/STEM and as users tend to type them.
+  // Deliberately left out: "ton" (mathjs already defines it as the US short ton;
+  // redefining it changes existing recipes) and "mil" (already a thousandth of an inch).
+  "kvadratkilometer": {
+    definition: '1 km2',
+    prefixes: 'none',
+  },
+  "kvadratmeter": {
+    definition: '1 m2',
+    prefixes: 'none',
+  },
+  "hektar": {
+    definition: '1 hectare',
+    prefixes: 'none',
+  },
+  // A count, like "capita"; dimensionless but kept as a unit so it survives into results
+  "antal": {
+    prefixes: 'none',
+    aliases: ['styck', 'stycken'],
+  },
 };
 
 mathjs.createUnit(customUnits);
