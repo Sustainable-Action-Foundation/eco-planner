@@ -184,8 +184,36 @@
       "parent_area": "Förälders yta",
       "parent_value": "Förälder"
     },
+    "default_difference_recipe": {
+      "first": "Dataserie A",
+      "name": "Differens mellan två dataserier (A − B)",
+      "second": "Dataserie B"
+    },
+    "default_electric_cars_recipe": {
+      "child_cars": "Arvtagares elbilar",
+      "name": "Skala utifrån antal elbilar",
+      "parent_cars": "Förälders elbilar",
+      "parent_value": "Förälder"
+    },
+    "default_external_factor_recipe": {
+      "factor": "Extern faktor",
+      "name": "Skala utifrån externt värde",
+      "parent_value": "Förälder"
+    },
+    "default_external_ratio_recipe": {
+      "child_external": "Arvtagares värde i extern tabell",
+      "name": "Skala utifrån kvot i extern tabell",
+      "parent_external": "Förälders värde i extern tabell",
+      "parent_value": "Förälder"
+    },
+    "default_passenger_cars_recipe": {
+      "child_cars": "Arvtagares personbilar",
+      "name": "Skala utifrån antal personbilar",
+      "parent_cars": "Förälders personbilar",
+      "parent_value": "Förälder"
+    },
     "default_population_recipe": {
-      "child_population": "Arvtageres befolkning",
+      "child_population": "Arvtagares befolkning",
       "name": "Skala utifrån befolkning",
       "parent_population": "Förälders befolkning",
       "parent_value": "Förälder"
@@ -194,6 +222,11 @@
       "name": "Skala utifrån fast värde",
       "parent_value": "Förälder",
       "scalar": "Skalär"
+    },
+    "default_sum_recipe": {
+      "first": "Dataserie A",
+      "name": "Summa av två dataserier (A + B)",
+      "second": "Dataserie B"
     },
     "delete_variable": "Radera variabel:",
     "edit_variable": "Redigera variabel",

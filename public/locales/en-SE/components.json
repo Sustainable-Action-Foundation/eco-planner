@@ -184,6 +184,34 @@
       "parent_area": "Parent area",
       "parent_value": "Parent"
     },
+    "default_difference_recipe": {
+      "first": "Data series A",
+      "name": "Difference between two data series (A − B)",
+      "second": "Data series B"
+    },
+    "default_electric_cars_recipe": {
+      "child_cars": "Child electric cars",
+      "name": "Scale by number of electric cars",
+      "parent_cars": "Parent electric cars",
+      "parent_value": "Parent"
+    },
+    "default_external_factor_recipe": {
+      "factor": "External factor",
+      "name": "Scale by external value",
+      "parent_value": "Parent"
+    },
+    "default_external_ratio_recipe": {
+      "child_external": "Child value in external table",
+      "name": "Scale by ratio in external table",
+      "parent_external": "Parent value in external table",
+      "parent_value": "Parent"
+    },
+    "default_passenger_cars_recipe": {
+      "child_cars": "Child passenger cars",
+      "name": "Scale by number of passenger cars",
+      "parent_cars": "Parent passenger cars",
+      "parent_value": "Parent"
+    },
     "default_population_recipe": {
       "child_population": "Child population",
       "name": "Scale by population",
@@ -194,6 +222,11 @@
       "name": "Scale by constant value",
       "parent_value": "Parent",
       "scalar": "Scalar"
+    },
+    "default_sum_recipe": {
+      "first": "Data series A",
+      "name": "Sum of two data series (A + B)",
+      "second": "Data series B"
     },
     "delete_variable": "Delete variable:",
     "edit_variable": "Edit variable",
