@@ -269,7 +269,7 @@
     "visibility_unlisted": "Dold",
     "visibility_unlisted_description": "Visas inte i listor över färdplaner för personer som inte kan redigera färdplanen, men går att öppna via direktlänk.",
     "visibility_public": "Publik",
-    "visibility_public_description": "Publicerad och listad för alla som kan se färdplanen."
+    "visibility_public_description": "Publicerad och synlig för alla som kan se färdplanen."
   },
   "text_editor_menu": {
     "bold": "Fetstil",
