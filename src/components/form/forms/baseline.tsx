@@ -112,8 +112,7 @@ export default function BaselineForm({
       />
 
       <div className="margin-top-200 min-width-0">
-        <strong className="block font-size-125 font-weight-bold text-align-center margin-0 padding-top-125">{t("forms:goal.preview")}</strong>
-        <p className="text-align-center margin-top-50">{t("forms:goal.preview_info")}</p>
+        <strong className="block font-size-125 font-weight-bold text-align-center margin-0 padding-top-125 margin-bottom-50">{t("forms:goal.preview")}</strong>
         <output className="display-block" style={{ height: '400px' }}>
           <GoalGraph
             chartType="preview"
