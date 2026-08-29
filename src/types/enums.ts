@@ -68,6 +68,7 @@ export type DataSeriesType = (typeof DataSeriesType)[keyof typeof DataSeriesType
  * Used by form
  */
 export const BaselineType = {
+  None: "NONE",
   Initial: "INITIAL",
   InitialNonZero: "INITIAL_NON_ZERO",
   Custom: "CUSTOM",

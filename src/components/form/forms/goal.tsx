@@ -184,12 +184,6 @@ export default function GoalForm({
       event.target.reportValidity();
       return;
     }
-    // Throw if baseline is missing on create
-    if (!currentGoal && !baseline) {
-      addToast(t("forms:goal.errors.missing_baseline"), "error", false);
-      event.target.reportValidity();
-      return;
-    }
 
     // The visibility radio stands in for the two listing flags the API takes
     const visibilityValue = formData.get(GoalFormName.Visibility);
@@ -197,7 +191,7 @@ export default function GoalForm({
 
     // Build the JSON payload for the API
     let formContent: GoalCreateInput | GoalUpdateInput;
-    if (!currentGoal && baseline) {
+    if (!currentGoal) {
       // Create
       formContent = {
         target: GoalDataTarget.Full,
@@ -247,7 +241,8 @@ export default function GoalForm({
         dataSeriesRecipeId: undefined,
         dataSeriesRecipe: dataSeriesRecipe?.serialize() ?? undefined,
 
-        baselineId: undefined,
+        // Selecting "no baseline" on an existing goal drops its current one
+        baselineId: baselineType === BaselineType.None ? null : undefined,
         baseline: baseline,
         baselineRecipeId: undefined,
         baselineRecipe: baselineRecipe?.serialize() ?? undefined,

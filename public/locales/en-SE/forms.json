@@ -128,6 +128,7 @@
     "baseline_copied": "Baseline, copied from selected $t(common:goal_one)",
     "baseline_label": "Baseline",
     "baseline_types": {
+      "none": "No baseline",
       "custom": "Manual",
       "inherited": "Inherited",
       "initial": "First years value",
@@ -150,6 +151,7 @@
         "baseline_rederived": "The baseline is derived from this data series and will be updated to match when you save."
       },
       "baseline": {
+        "none": "Skip the baseline for now; you can add one later. Without one, the effect of actions can't be compared against a no-action scenario.",
         "title": "Create a data series for your goals baseline",
         "type": "Baseline type",
         "first_year_value": "Use the first value of your goal as a baseline.",
@@ -188,7 +190,6 @@
       "failed_parse_historical_data": "Failed to parse historical date values from form:",
       "initial_baseline_error": "Cannot use initial baseline when data series is empty.",
       "missing_inherited_baseline": "No inherited baseline provided in form.",
-      "missing_baseline": "No baseline provided for new goal.",
       "recipe_has_error": "This data series can't be saved because its formula has an error. Please fix it before saving:",
       "missing_historical_data": "No historical data was entered or selected."
     },

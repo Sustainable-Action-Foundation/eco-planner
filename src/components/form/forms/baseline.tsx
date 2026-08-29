@@ -79,18 +79,31 @@ export default function BaselineForm({
       addToast(err.message, "error", false);
       return;
     }
-    if (!baseline) {
-      addToast(t("forms:goal.errors.missing_baseline"), "error", false);
+    // "No baseline" drops the current one; anything else must have produced values
+    if (baselineType !== BaselineType.None && !baseline) {
+      addToast(t("forms:goal.errors.missing_inherited_baseline"), "error", false);
       return;
     }
 
-    formSubmitter("/api/goal", JSON.stringify({
-      target: GoalDataTarget.Baseline,
-      goalId: goal.id,
-      timestamp: timestamp,
-      baseline: baseline,
-      baselineRecipe: baselineRecipe?.serialize() ?? undefined,
-    } satisfies GoalUpdateInput), "PUT", t, undefined, undefined, undefined, undefined, addToast, (url) => router.push(url));
+    formSubmitter("/api/goal", JSON.stringify(
+      baselineType === BaselineType.None
+        ? {
+          target: GoalDataTarget.Baseline,
+          goalId: goal.id,
+          timestamp: timestamp,
+          baselineId: null,
+          baseline: null,
+          baselineRecipeId: null,
+          baselineRecipe: null,
+        } satisfies GoalUpdateInput
+        : {
+          target: GoalDataTarget.Baseline,
+          goalId: goal.id,
+          timestamp: timestamp,
+          baseline: baseline,
+          baselineRecipe: baselineRecipe?.serialize() ?? undefined,
+        } satisfies GoalUpdateInput,
+    ), "PUT", t, undefined, undefined, undefined, undefined, addToast, (url) => router.push(url));
   }
 
   return (

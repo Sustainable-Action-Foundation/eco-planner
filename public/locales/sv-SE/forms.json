@@ -128,6 +128,7 @@
     "baseline_copied": "Baslinje, kopierad från vald $t(common:goal_one)",
     "baseline_label": "Baslinje",
     "baseline_types": {
+      "none": "Ingen baslinje",
       "custom": "Mata in",
       "inherited": "Härledd från målbana",
       "initial": "Första årets värde",
@@ -150,6 +151,7 @@
         "baseline_rederived": "Baslinjen härleds från målbanans värden och uppdateras så att den stämmer när du sparar."
       },
       "baseline": {
+        "none": "Hoppa över baslinjen tills vidare; du kan lägga till en senare. Utan baslinje kan åtgärders effekt inte jämföras mot ett scenario utan åtgärder.",
         "title": "Baslinjens värden",
         "type": "Hur vill du ta fram baslinjen?",
         "first_year_value": "Använd din målbanas första värde som en en baslinje.",
@@ -188,7 +190,6 @@
       "failed_parse_historical_data": "Det gick inte att tolka historiska datumvärden från formuläret:",
       "initial_baseline_error": "Det går inte att använda första årets värde som baslinje när målbanan saknar värden.",
       "missing_inherited_baseline": "Ingen härledd baslinje angiven i formuläret.",
-      "missing_baseline": "Ingen baslinje angiven för det nya målet.",
       "recipe_has_error": "Värdena kan inte sparas eftersom formeln har ett fel. Åtgärda det innan du sparar:",
       "missing_historical_data": "Ingen historisk data har angetts eller valts."
     },

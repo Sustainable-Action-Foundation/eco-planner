@@ -55,6 +55,20 @@ export default function BaselineSeriesSection({
               required={true}
               type="radio"
               name={GoalFormName.BaselineType}
+              value={BaselineType.None}
+              checked={baselineType === BaselineType.None}
+              onChange={(e) => setBaselineType(e.target.value as BaselineType)}
+            />
+            <span>
+              <span className="block" style={{ textShadow: '0 0' }}>{t("forms:goal.baseline_types.none")}</span>
+              <span style={{ color: '#292929' }}>{t("forms:goal.data_series.baseline.none")}</span>
+            </span>
+          </label>
+          <label className="flex align-items-start gap-50 margin-bottom-25">
+            <input
+              required={true}
+              type="radio"
+              name={GoalFormName.BaselineType}
               value={BaselineType.Initial}
               checked={baselineType === BaselineType.Initial}
               onChange={(e) => setBaselineType(e.target.value as BaselineType)}
@@ -118,7 +132,8 @@ export default function BaselineSeriesSection({
           <span>
             <span className="text-transform-capitalize">{t("common:tsx.using")}</span>
             <span className="text-transform-lowercase">
-              {baselineType === BaselineType.Initial ? ` ${t("forms:goal.baseline_types.initial")}`
+              {baselineType === BaselineType.None ? ` ${t("forms:goal.baseline_types.none")}`
+                : baselineType === BaselineType.Initial ? ` ${t("forms:goal.baseline_types.initial")}`
                 : baselineType === BaselineType.InitialNonZero ? ` ${t("forms:goal.baseline_types.initial_non_zero")}`
                   : baselineType === BaselineType.Custom ? ` ${t("forms:goal.baseline_types.custom")}`
                     : ` ${t("forms:goal.baseline_types.inherited")}`}

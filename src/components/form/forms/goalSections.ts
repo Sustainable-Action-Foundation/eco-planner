@@ -63,8 +63,8 @@ export function resolveDataSeriesType(goal?: Goal): DataSeriesType {
 
 // TODO: The below never reaches initialNonZero?
 export function resolveBaselineType(goal?: Goal): BaselineType {
-  // Default to first value for new goals
-  if (!goal?.baseline) return BaselineType.Initial;
+  // No baseline yet (new goals start without one)
+  if (!goal?.baseline) return BaselineType.None;
 
   // No recipe: manual value input (or a legacy baseline; both edit as custom values)
   if (!goal.baseline.recipe_used) return BaselineType.Custom;
