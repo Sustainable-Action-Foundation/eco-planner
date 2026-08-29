@@ -190,8 +190,10 @@
       "recipe_has_error": "This data series can't be saved because its recipe has an error. Please fix it before saving:",
       "missing_historical_data": "No historical data was entered or selected."
     },
-    "feature_goal": "Yes, feature this $t(common:goal_one).",
-    "feature_this_goal": "Do you want to feature this $t(common:goal_one) in your $t(common:roadmap_version_one)?",
+    "visibility": "Visibility",
+    "visibility_public_description": "Shown in listings and in the $t(common:roadmap_version_one).",
+    "visibility_unlisted_description": "Only listed for users with edit access, but still opens from a direct link.",
+    "visibility_featured_description": "Highlighted at the top of the $t(common:roadmap_version_one).",
     "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
     "goal_description": "Description",
     "goal_description_legend": "Describe your $t(common:goal_one)",
@@ -212,8 +214,6 @@
     "suggested_inheritance": "Inherited and scaled",
     "unit_interpreted_as": "Unit interpreted as:",
     "unit_not_interpreted": "The unit could not be interpreted. You can still save the $t(common:goal_one), but some functionality may be missing.",
-    "unlist_goal": "Yes, hide this $t(common:goal_one) from regular goal listings. Only users with edit access will see it listed.",
-    "unlist_this_goal": "Do you want to unlist this $t(common:goal_one)?",
     "unnamed_goal": "Unnamed $t(common:goal_one)"
   },
   "roadmap": {

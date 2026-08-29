@@ -106,6 +106,7 @@ export const UnitFlags = {
   Missing: "MISSING_UNIT",
 } as const;
 export type UnitFlags = (typeof UnitFlags)[keyof typeof UnitFlags];
+
 /**
  * The listing state of a goal as one setting: the admin panel exposes it as a
  * single select rather than the two underlying flags (`is_featured`,

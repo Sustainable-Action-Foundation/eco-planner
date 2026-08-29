@@ -17,7 +17,11 @@ import type { Unit } from "@/types";
 export function parseUnit(raw: string | null | undefined): Unit {
   if (raw === null || raw === undefined) return UnitFlags.Unitless;
   if (raw.trim() === "") return UnitFlags.Missing;
-  return raw as Unit;
+  // The mathjs tokenizer only knows ASCII letters, so "invånare" would be read
+  // as "inv" + garbage. Strip diacritics (å→a, ä→a, ö→o, é→e) so Swedish
+  // spellings reach the ASCII unit names defined in `@/math`, and write the
+  // micro prefix the way mathjs spells it (µg → ug).
+  return raw.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[µμ]/g, "u") as Unit;
 }
 
 /**

@@ -105,4 +105,6 @@ export type ApiSelectOptionBase = {
   type: "dimensionValue" | "filter";
   label?: string;
   value: string;
+  /** Free-text explanation from the source, when it provides one (e.g. Trafa metric descriptions); often the only place a unit is stated */
+  description?: string;
 }

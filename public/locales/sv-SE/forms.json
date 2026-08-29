@@ -190,8 +190,10 @@
       "recipe_has_error": "Den här dataserien kan inte sparas eftersom dess recept har ett fel. Åtgärda det innan du sparar:",
       "missing_historical_data": "Ingen historisk data har angetts eller valts."
     },
-    "feature_goal": "Ja, lyft fram $t(common:goal_definite_one).",
-    "feature_this_goal": "Vill du lyfta fram den här $t(common:goal_definite_one) under din $t(common:roadmap_version_one)?",
+    "visibility": "Synlighet",
+    "visibility_public_description": "Syns i listor och i $t(common:roadmap_version_definite_one).",
+    "visibility_unlisted_description": "Visas bara i listor för dem med redigeringsbehörighet, men går fortfarande att öppna via direktlänk.",
+    "visibility_featured_description": "Lyfts fram överst i $t(common:roadmap_version_definite_one).",
     "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
     "goal_description": "Beskrivning",
     "goal_description_legend": "Beskriv din $t(common:goal_one)",
@@ -212,8 +214,6 @@
     "suggested_inheritance": "Ärvd och skalad",
     "unit_interpreted_as": "Enheten tolkas som:",
     "unit_not_interpreted": "Enheten kunde inte tolkas. Du kan fortfarande spara $t(common:goal_definite_one), men viss funktionalitet kan saknas.",
-    "unlist_goal": "Ja, dölj $t(common:goal_definite_one) från vanliga listor. Endast användare med redigeringsbehörighet ser den i listan.",
-    "unlist_this_goal": "Vill du dölja den här $t(common:goal_definite_one)?",
     "unnamed_goal": "Namnlös $t(common:goal_one)"
   },
   "roadmap": {

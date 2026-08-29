@@ -3,8 +3,10 @@
 import type { getRoadmaps } from "@/fetchers";
 import formSubmitter from "@/functions/formSubmitter";
 import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput } from "@/types";
-import { BaselineType, DataSeriesType, GoalDataTarget, HistoricalDataType } from "@/types/enums";
+import { BaselineType, DataSeriesType, GoalDataTarget, GoalVisibility, HistoricalDataType } from "@/types/enums";
 import { GoalFormName } from "@/types/form-names";
+import { goalVisibilityFromFlags, goalVisibilityToFlags, isGoalVisibility } from "@/functions/goalVisibility";
+import { IconEye, IconEyeOff, IconStar } from "@tabler/icons-react";
 import { waitForRecipeFormSyncs } from "@/components/recipe";
 import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -67,6 +69,7 @@ export default function GoalForm({
   const historicalHasInitializedCustom = initializedHistoricalTypes.has(HistoricalDataType.Custom);
 
   const [indicatorParameter, setIndicatorParameter] = useState<string>(currentGoal?.indicator_parameter ?? "");
+  const initialVisibility = goalVisibilityFromFlags({ is_featured: !!currentGoal?.is_featured, is_unlisted: !!currentGoal?.is_unlisted });
   // const [goalName, setGoalName] = useState<string>(currentGoal?.name ?? "");
   const [parentIterationId, setParentIterationId] = useState<string>(iterationId || "");
   const [previewDataSerie, setPreviewDataSerie] = useState<DateValuesWithUnit | null>(null);
@@ -140,7 +143,6 @@ export default function GoalForm({
     // outputs to settle so a submit right after an edit doesn't read stale data.
     await waitForRecipeFormSyncs(event.target);
 
-    const form = event.target.elements;
     const formData = new FormData(event.target);
     // List of inputs expecting a file
     const fileInputKeys: string[] = [];
@@ -189,6 +191,10 @@ export default function GoalForm({
       return;
     }
 
+    // The visibility radio stands in for the two listing flags the API takes
+    const visibilityValue = formData.get(GoalFormName.Visibility);
+    const visibilityFlags = goalVisibilityToFlags(isGoalVisibility(visibilityValue) ? visibilityValue : GoalVisibility.Public);
+
     // Build the JSON payload for the API
     let formContent: GoalCreateInput | GoalUpdateInput;
     if (!currentGoal && baseline) {
@@ -201,8 +207,7 @@ export default function GoalForm({
         name: formData.get(GoalFormName.GoalName) as string | null ?? null,
         description: formData.get(GoalFormName.Description) as string | null ?? null, // Use the hidden input for the description, which contains the latest editor content
         indicatorParameter: formData.get(GoalFormName.IndicatorParameter) as string | null ?? (event.target.reportValidity(), ""),
-        isFeatured: (form.namedItem(GoalFormName.IsFeatured) as HTMLInputElement)?.checked || false,
-        isUnlisted: (form.namedItem(GoalFormName.IsUnlisted) as HTMLInputElement)?.checked || false,
+        ...visibilityFlags,
         iterationId: iterationId || parentIterationId,
         recipeSuggestions: recipeSuggestions,
 
@@ -234,8 +239,7 @@ export default function GoalForm({
         name: formData.get(GoalFormName.GoalName) as string | null ?? undefined,
         description: formData.get(GoalFormName.Description) as string | null ?? undefined, // Use the hidden input for the description, which contains the latest editor content
         indicatorParameter: formData.get(GoalFormName.IndicatorParameter) as string | null ?? undefined,
-        isFeatured: (form.namedItem(GoalFormName.IsFeatured) as HTMLInputElement)?.checked ?? undefined,
-        isUnlisted: (form.namedItem(GoalFormName.IsUnlisted) as HTMLInputElement)?.checked ?? undefined,
+        ...visibilityFlags,
         recipeSuggestions: recipeSuggestions,
 
         dataSeriesId: undefined,
@@ -344,24 +348,50 @@ export default function GoalForm({
           value={indicatorParameter}
           setter={setIndicatorParameter}
         />
-        <fieldset>
+        {/* Visibility: one setting standing in for the featured/unlisted flags, like the admin panel */}
+        <fieldset className="margin-top-100">
           <legend>
-            {t("forms:goal.feature_this_goal")}
+            {t("forms:goal.visibility")}
           </legend>
-          <label className="flex align-items-center gap-50 margin-top-50 margin-bottom-100">
-            <input type="checkbox" name={GoalFormName.IsFeatured} id="isFeatured" defaultChecked={currentGoal?.is_featured} />
-            {t("forms:goal.feature_goal")}
-          </label>
-        </fieldset >
-        <fieldset>
-          <legend>
-            {t("forms:goal.unlist_this_goal")}
-          </legend>
-          <label className="flex align-items-center gap-50 margin-top-50 margin-bottom-100">
-            <input type="checkbox" name={GoalFormName.IsUnlisted} id="isUnlisted" defaultChecked={currentGoal?.is_unlisted} />
-            {t("forms:goal.unlist_goal")}
-          </label>
-        </fieldset >
+          {[
+            {
+              value: GoalVisibility.Public,
+              id: "isPublic",
+              icon: <IconEye aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
+              label: t("components:table_menu.visibility_public"),
+              description: t("forms:goal.visibility_public_description"),
+            },
+            {
+              value: GoalVisibility.Unlisted,
+              id: "isUnlisted",
+              icon: <IconEyeOff aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
+              label: t("components:table_menu.visibility_unlisted"),
+              description: t("forms:goal.visibility_unlisted_description"),
+            },
+            {
+              value: GoalVisibility.Featured,
+              id: "isFeatured",
+              icon: <IconStar aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
+              label: t("components:table_menu.visibility_featured"),
+              description: t("forms:goal.visibility_featured_description"),
+            },
+          ].map((option) => (
+            <label key={option.value} className="flex align-items-start gap-50 margin-top-50 margin-bottom-50">
+              <input
+                type="radio"
+                required={true}
+                name={GoalFormName.Visibility}
+                id={option.id}
+                value={option.value}
+                defaultChecked={initialVisibility === option.value}
+              />
+              <span>
+                <span className="flex align-items-center gap-25" style={{ textShadow: '0 0' }}>{option.icon}{option.label}</span>
+                <span className="block" style={{ color: '#292929' }}>{option.description}</span>
+              </span>
+            </label>
+          ))}
+        </fieldset>
       </fieldset>
 
       {/* Goal series input section */}
@@ -373,6 +403,7 @@ export default function GoalForm({
             goal={currentGoal}
             dataSeriesType={dataSeriesType}
             setDataSeriesType={setDataSeriesType}
+            indicatorParameter={indicatorParameter}
             setIndicatorParameter={setIndicatorParameter}
             setPreviewDataSerie={setPreviewDataSerie}
             setDataSeriesRecipeError={setDataSeriesRecipeError}

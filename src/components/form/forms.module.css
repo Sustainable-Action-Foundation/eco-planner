@@ -1,6 +1,8 @@
 .formSlider {
   display: flex;
-  overflow: hidden;
+  /* clip rather than hidden: it doesn't make this a scroll container, so sticky
+     elements inside a slide can stick to the surrounding scrolling pane */
+  overflow: clip;
 }
 
 .formSlider>.formSlide {

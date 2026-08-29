@@ -128,8 +128,8 @@
     "clear_filters": "Clear search and filters",
     "contents_variable": "Contents",
     "data_source": "Data source",
-    "does_this_look_correct_one": "Does this look correct? (showing max {{count}} value)",
-    "does_this_look_correct_other": "Does this look correct? (showing max {{count}} values)",
+    "does_this_look_correct": "Does this look correct?",
+    "fetched_data": "Fetched data",
     "edit_historical_data": "Edit historical data",
     "filter_by_time_unit": "Time resolution",
     "filter_by_variable": "Only show tables with these variables",
@@ -138,6 +138,10 @@
     "language_support_warning": "{{dataSource}} does not support your current language. A fallback language will be used.",
     "loading": "Loading...",
     "no_result_found": "No readable result found. Please update your selections.",
+    "change_table": "Change table",
+    "preview_placeholder": "A preview of the data appears here once a metric has been chosen.",
+    "reported_unit": "Reported unit",
+    "unit_help": "The unit of the fetched data. Sources rarely state it themselves; the description above may give a hint.",
     "no_tables_match_filters": "No tables match your search or filters.",
     "no_variables_found": "There are no variables",
     "optional": "optional",
@@ -172,6 +176,7 @@
     "add_new_recipe": "Add new recipe",
     "apply_paramater_question": "Use the same indicator parameter as the parent goal?",
     "apply_parameter": "Use <strong>{{indicator}}</strong> as indicator parameter",
+    "parameter_applied": "The indicator parameter is <strong>{{indicator}}</strong>",
     "apply_unit": "Copy resulting unit to form",
     "cancel_editing_recipe": "Cancel",
     "commit_editing_recipe": "Save recipe",
@@ -185,6 +190,34 @@
       "parent_area": "Parent area",
       "parent_value": "Parent"
     },
+    "default_difference_recipe": {
+      "first": "Data series A",
+      "name": "Difference between two data series (A − B)",
+      "second": "Data series B"
+    },
+    "default_electric_cars_recipe": {
+      "child_cars": "Child electric cars",
+      "name": "Scale by number of electric cars",
+      "parent_cars": "Parent electric cars",
+      "parent_value": "Parent"
+    },
+    "default_external_factor_recipe": {
+      "factor": "External factor",
+      "name": "Scale by external value",
+      "parent_value": "Parent"
+    },
+    "default_external_ratio_recipe": {
+      "child_external": "Child value in external table",
+      "name": "Scale by ratio in external table",
+      "parent_external": "Parent value in external table",
+      "parent_value": "Parent"
+    },
+    "default_passenger_cars_recipe": {
+      "child_cars": "Child passenger cars",
+      "name": "Scale by number of passenger cars",
+      "parent_cars": "Parent passenger cars",
+      "parent_value": "Parent"
+    },
     "default_population_recipe": {
       "child_population": "Child population",
       "name": "Scale by population",
@@ -195,6 +228,11 @@
       "name": "Scale by constant value",
       "parent_value": "Parent",
       "scalar": "Scalar"
+    },
+    "default_sum_recipe": {
+      "first": "Data series A",
+      "name": "Sum of two data series (A + B)",
+      "second": "Data series B"
     },
     "delete_variable": "Delete variable:",
     "edit_variable": "Edit variable",

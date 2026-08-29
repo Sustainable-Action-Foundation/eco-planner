@@ -18,6 +18,10 @@ import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 import getTableContent from "@/lib/api/getTableContent";
 import { externalSelectionKey } from "@/functions/recipe";
 import { RecipeDataTypes } from "@/functions/recipe/types/enums";
+import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";
+import { isUnitFlag, parseUnit } from "@/functions/unit";
+import { allOurUnits } from "@/math";
+import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
 
 // TODO: move-history-v3: replace this with external data component once we are done!
 
@@ -35,7 +39,17 @@ export default function RecipeQueryBuilder({
   const { t } = useTranslation("components");
   // Locale has the format language-REGION, e.g. "sv-SE" or "en-US", we only need the language part
   const lang = new Intl.Locale(useContext(LocaleContext)).language;
-  const { upsertVariable } = useRecipe();
+  const { upsertVariable, getVariable } = useRecipe();
+  const variable = getVariable(variableId, RecipeDataTypes.External);
+
+  // The unit of the fetched data is not derivable from the APIs in general (Trafa
+  // never states it, PxWeb sometimes does), so the user declares it here and it is
+  // saved onto the variable. Seeded from the variable, then from a reported unit
+  // until the user types something.
+  const [unitInput, setUnitInput] = useState<string>(variable && !isUnitFlag(variable.unit) ? variable.unit : "");
+  const unitTouchedRef = useRef(false);
+  // Descriptions of the currently selected metric(s); often the only place the source states a unit
+  const [metricDescriptions, setMetricDescriptions] = useState<string[]>([]);
 
   function getInitialSelectionValue(variableCode: string) {
     const valueCode = initialSelection?.find(selection => selection.variableCode === variableCode)?.valueCodes?.[0];
@@ -61,6 +75,8 @@ export default function RecipeQueryBuilder({
   const [mainTimeDimensionId, setMainTimeDimensionId] = useState<string | null>(null);
   const [defaultMetricSelected, setDefaultMetricSelected] = useState(true);
   const hasAppliedInitialTableSelectionRef = useRef(false);
+  // Which page of the dialog to show; bumped to the selection page once a preset table has loaded
+  const [section, setSection] = useState(0);
 
   const modalRef = useRef<HTMLDialogElement | null>(null);
   const fieldsetRef = useRef<HTMLFieldSetElement | null>(null);
@@ -94,6 +110,20 @@ export default function RecipeQueryBuilder({
   const timeUnitFacetOptions = useMemo(() => aggregateTimeUnitFacets(tables ?? []), [tables]);
 
   const activeFilterCount = variableFilters.length + (timeUnitFilter ? 1 : 0) + (coverageYearFilter.trim() ? 1 : 0);
+
+  // "Label (code)" of the chosen table, as listed in the catalog. Read from state
+  // rather than the list's DOM, which is virtualized and may not hold the row.
+  const selectedTableLabel = useMemo(() => {
+    const tableId = tableMetadata?.tableId;
+    if (!tableId) return "";
+    const catalogLabel = tables?.find(table => table.tableId === tableId)?.label ?? tableId;
+    return catalogLabel.includes(tableId) ? catalogLabel : `${catalogLabel} (${tableId})`;
+  }, [tables, tableMetadata]);
+
+  const hasCoverageFacet = tables?.some(table => table.firstPeriod && table.lastPeriod) ?? false;
+  // Catalogs without per-table details (currently Trafa, whose structure listing has
+  // no dimensions) have no facets to filter on, so the filter menu is not shown at all.
+  const hasAnyFacet = variableFacetOptions.length > 0 || timeUnitFacetOptions.length > 0 || hasCoverageFacet;
 
   const shouldRenderAllTables = (filteredTables?.length ?? 0) <= renderedTablesListMaxLength + initialRenderingMargin;
   const renderedTables = filteredTables
@@ -150,7 +180,11 @@ export default function RecipeQueryBuilder({
 
     hasAppliedInitialTableSelectionRef.current = true;
     getTableMetadata(initialTableId, dataSource, undefined, lang)
-      .then(result => { setTableMetadata(result); })
+      .then(result => {
+        setTableMetadata(result);
+        // The table is already chosen, so open on the selection page
+        if (result) setSection(1);
+      })
       .catch((err: unknown) => {
         const errorMessage = err instanceof Error ? err.message : String(err);
         console.error("Error fetching initial table metadata:", errorMessage);
@@ -232,11 +266,15 @@ export default function RecipeQueryBuilder({
     setSelectedTableId("");
     setDefaultMetricSelected(true);
     setOffset(0);
-    hasAppliedInitialTableSelectionRef.current = false;
-    // Clear table metadata and content whenever the data source changes
+    // Wipe the whole table selection: the old catalog, the metadata and the content.
+    // Keeping the old catalog around let the initial-table effect match the preset
+    // table id against the previous source's list and fetch it from the new source.
+    // The preset table is deliberately not re-applied if the user switches back.
+    hasAppliedInitialTableSelectionRef.current = true;
+    setTables(null);
     setTableContent(null);
     setTableMetadata(null);
-    // Make sure submit button is disabled when the data source is changed
+    setSection(0);
   }
 
   function handleTableSelect(tableId: string) {
@@ -484,8 +522,20 @@ export default function RecipeQueryBuilder({
 
     const query = formQueryHelper(formData, tableMetadata, mainTimeDimensionId);
     const tableId = tableMetadata?.tableId ?? formData.get("externalTableId") as string ?? "";
+
+    // Surface the description of each chosen metric next to the data
+    setMetricDescriptions((tableMetadata?.metricDimensions ?? []).flatMap(metricDimension => {
+      const chosen = metricDimension.options.find(option => option.value === formData.get(metricDimension.id));
+      return chosen?.description ? [chosen.description] : [];
+    }));
+
     getTableContent(tableId, dataSource, query, lang).then(result => {
       setTableContent(result);
+      // Suggest a reported unit while the user hasn't declared one themselves
+      const reportedUnit = result?.unit?.base;
+      if (reportedUnit && !unitTouchedRef.current && isMathjsUnit(parseUnit(reportedUnit))) {
+        setUnitInput(reportedUnit);
+      }
       setIsLoading(false);
     }).catch((err: unknown) => {
       const errorMessage = err instanceof Error ? err.message : String(err);
@@ -542,6 +592,7 @@ export default function RecipeQueryBuilder({
         dataset: isDataSetKeys(dataSource) ? dataSource : prev.dataset,
         tableId: tableMetadata?.tableId ?? formData.get("externalTableId") as string ?? prev.tableId,
         selection: query,
+        unit: parseUnit(unitInput),
         dataSeriesId: selectionChanged ? null : prev.dataSeriesId,
       };
     });
@@ -578,7 +629,7 @@ export default function RecipeQueryBuilder({
       </button>
 
       {isPortalMounted ? createPortal(
-      <dialog className={`rounded padding-inline-0 padding-block-0 ${styles.dialog}`} ref={modalRef} aria-modal={true} style={{ backgroundColor: 'rgb(246, 246, 246)' }}>
+      <dialog className={`rounded padding-inline-0 padding-block-0 ${styles.dialog} ${styles.builder}`} ref={modalRef} aria-modal={true} style={{ backgroundColor: 'rgb(246, 246, 246)' }}>
         <div className={`${styles['dialog-content']}`}>
           <div className={`${styles['dialog-header']}`}>
             <button type="button" className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus={true} aria-label={t("common:tsx.close")} >
@@ -587,8 +638,9 @@ export default function RecipeQueryBuilder({
             <h2 className="margin-0">{t("components:query_builder.add_data_source")}</h2>
           </div>
 
-          <div className={`${styles['dialog-body']}`}>
-            <FormWrapper>
+          <div className={`${styles['dialog-panes']}`}>
+            <div className={`${styles['dialog-pane']} ${styles['dialog-pane-form']}`}>
+            <FormWrapper section={section} labels={{ back: t("components:query_builder.change_table") }}>
               <fieldset className="position-relative" ref={fieldsetRef}>
                 <label className="margin-block-75 font-weight-500">
                   {t("components:query_builder.data_source")}
@@ -624,7 +676,7 @@ export default function RecipeQueryBuilder({
                       </label>
                     </div>
 
-                    <details className="margin-bottom-25 smooth purewhite padding-50" style={{ border: "1px solid var(--gray-80)" }}>
+                    {hasAnyFacet ? <details className="margin-bottom-25 smooth purewhite padding-50" style={{ border: "1px solid var(--gray-80)" }}>
                       <summary className="font-weight-500" style={{ cursor: "pointer" }}>
                         {t("components:query_builder.filters")}{activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
                       </summary>
@@ -661,7 +713,7 @@ export default function RecipeQueryBuilder({
                         </label>
                         : null}
 
-                      {tables?.some(table => table.firstPeriod && table.lastPeriod) ?
+                      {hasCoverageFacet ?
                         <label className="block margin-block-50">
                           {t("components:query_builder.filter_has_data_for_year")}
                           <input
@@ -682,7 +734,7 @@ export default function RecipeQueryBuilder({
                           {t("components:query_builder.clear_filters")}
                         </button>
                         : null}
-                    </details>
+                    </details> : null}
 
                     {tables && filteredTables ?
                       <p className="margin-block-25 font-size-14px color-gray">
@@ -692,7 +744,7 @@ export default function RecipeQueryBuilder({
 
                     <ul
                       id="tablesList"
-                      className={`position-relative padding-25 smooth purewhite ${styles.temporary}`} onScroll={e => handleTableListScroll(e)}
+                      className={`position-relative padding-25 smooth purewhite ${styles.scrollable}`} onScroll={e => handleTableListScroll(e)}
                       style={{ maxHeight: "300px", border: "1px solid var(--gray-80)", listStyle: "none", overflowY: 'scroll' }} >
                       {filteredTables?.length === 0 ?
                         <li className="padding-block-25 font-style-italic color-gray">{t("components:query_builder.no_tables_match_filters")}</li>
@@ -726,10 +778,10 @@ export default function RecipeQueryBuilder({
               </fieldset>
 
               {tableMetadata ? <div ref={selectorMenuRef}>
-                <label className="block margin-block-75">
+                <label className={`block ${styles['selected-table-heading']}`}>
                   <Trans
                     i18nKey={"components:query_builder.selected_table"}
-                    values={{ table: document.getElementById(`table${tableMetadata.tableId}`)?.innerText }}
+                    values={{ table: selectedTableLabel }}
                     components={{ strong: <strong />, small: <small />, i: <i /> }}
                   />
                   {/* {t("components:query_builder.selected_table", { table: document.getElementById(`table${tableMetadata.id}`)?.innerText })} */}
@@ -744,13 +796,13 @@ export default function RecipeQueryBuilder({
                     ))}
                   </div>
                 </fieldset>
-                <fieldset name="variableSelectionFieldset" disabled={true} className={`margin-block-100 smooth padding-25 fieldset-unset-pseudo-class`} style={{ border: `${shouldVariableFieldsetBeVisible(tableMetadata, dataSource) ? "1px solid var(--gray-90)" : ""}`, maxHeight: "322px" }}>
+                <fieldset name="variableSelectionFieldset" disabled={true} className={`margin-block-100 smooth padding-25 fieldset-unset-pseudo-class`} style={{ border: `${shouldVariableFieldsetBeVisible(tableMetadata, dataSource) ? "1px solid var(--gray-90)" : ""}` }}>
                   {shouldVariableFieldsetBeVisible(tableMetadata, dataSource) ? (
                     <>
                       <legend className="padding-inline-50">
                         <b>{t("components:query_builder.select_values_for_table")}</b>
                       </legend>
-                      <div className={`${styles.temporary}`} style={{ maxHeight: "282px", boxSizing: "content-box", padding: ".25rem", paddingRight: ".375rem" }}>
+                      <div className="padding-25">
                         {tableMetadata.timeDimensions?.map(time => {
                           return timeVariableSelectionHelper(time, tableMetadata.language);
                         })}
@@ -773,12 +825,35 @@ export default function RecipeQueryBuilder({
 
               </div> : null}
             </FormWrapper>
-            <output className="block padding-bottom-100">
-              {/* TODO: style this better */}
+            </div>
+
+            <div className={`${styles['dialog-pane']} ${styles['dialog-preview']}`}>
+            <output className="block">
               {tableContent && tableContent.values.length > 0 ? (
-                <div className="padding-inline-100">
-                  <p>{t("components:query_builder.does_this_look_correct", { count: 5 })}</p>
-                  <table>
+                <div>
+                  <p className="margin-top-0">{t("components:query_builder.does_this_look_correct")}</p>
+                  {/* Everything that came back from the API lives in this card: the table as
+                      listed on the left (label and code), what the selection resolved to, and the values */}
+                  <div className={styles['preview-card']}>
+                  <p className="margin-top-0 font-weight-500">{t("components:query_builder.fetched_data")}</p>
+                  {(() => {
+                    const tableLabel = selectedTableLabel || tableContent.id;
+                    // Some sources (Trafa) only report the table name here, which the line above already shows
+                    const selectionLabels = tableContent.metadata
+                      .map(item => item.label)
+                      .filter((label): label is string => !!label && !tableLabel.includes(label));
+                    return (<>
+                      <p className="font-weight-500">{tableLabel}</p>
+                      {selectionLabels.length > 0 ? <p>{selectionLabels.join(", ")}</p> : null}
+                      {metricDescriptions.map(description => (
+                        <p key={description} className="font-style-italic">{description}</p>
+                      ))}
+                      {tableContent.unit?.base ?
+                        <p>{t("components:query_builder.reported_unit")}: <strong>[{tableContent.unit.base}]</strong></p>
+                        : null}
+                    </>);
+                  })()}
+                  <table className={styles['preview-table']}>
                     <thead>
                       <tr>
                         <th scope="col">{t("components:query_builder.period")}</th>
@@ -787,27 +862,54 @@ export default function RecipeQueryBuilder({
                     </thead>
                     <tbody>
                       {
-                        tableContent.values.map(({ period, value }, rowIndex) => {
-                          return (
-                            rowIndex < 5 &&
-                            <tr key={period}>
-                              <td>{period}</td>
-                              <td>{value}</td>
-                            </tr>
-                          );
-                        })
+                        tableContent.values.map(({ period, value }) => (
+                          <tr key={period}>
+                            <td>{period}</td>
+                            <td>{value}</td>
+                          </tr>
+                        ))
                       }
                     </tbody>
                   </table>
+                  </div>
                 </div>
-              ) :
-                !defaultMetricSelected &&
-                (
-                  <p className="padding-100">{t("components:query_builder.no_result_found")}</p>
-                )
-              }
+              ) : !defaultMetricSelected ? (
+                <p className="margin-0">{t("components:query_builder.no_result_found")}</p>
+              ) : (
+                <div className="flex flex-direction-column align-items-center gap-50 padding-block-100 text-align-center color-gray">
+                  <IconDatabaseSearch width={48} height={48} strokeWidth={1.25} aria-hidden="true" />
+                  <p className="margin-0 font-style-italic">{t("components:query_builder.preview_placeholder")}</p>
+                </div>
+              )}
             </output>
-            {/* TODO: Should probably only be displayed on last slide? */}
+
+            {/* Unit of the fetched data, declared by the user (the APIs rarely state it) and saved onto the variable */}
+            {tableMetadata ?
+              <div className="margin-top-100">
+                <label htmlFor={`external-unit-${variableId}`} className="block font-weight-500">
+                  {t("components:recipe_editor.unit_placeholder")}
+                </label>
+                <TextSingleAutocomplete
+                  props={{
+                    id: `external-unit-${variableId}`,
+                    name: `external-unit-${variableId}`,
+                    className: "margin-block-25",
+                    style: { width: "100%" },
+                  }}
+                  options={allOurUnits.map(unit => ({ name: unit, value: unit }))}
+                  value={unitInput}
+                  setter={(next) => {
+                    unitTouchedRef.current = true;
+                    setUnitInput(next);
+                  }}
+                />
+                <small className="block color-gray">{t("components:query_builder.unit_help")}</small>
+              </div>
+              : null}
+            </div>
+          </div>
+
+          <div className={`${styles['dialog-footer']}`}>
             <button
               type="button"
               className="seagreen color-purewhite block width-100"

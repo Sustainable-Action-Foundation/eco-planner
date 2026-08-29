@@ -40,14 +40,129 @@
 } 
  
 
+/* Query builder: wider, and laid out as header / selection + preview panes / footer */
+.builder {
+  width: min(130ch, calc(100% - 2rem));
+  height: min(85vh, 70rem);
+}
+
+.builder .dialog-content {
+  grid-template-rows: auto 1fr auto;
+}
+
+.dialog-panes {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Each pane scrolls on its own, so the footer with the commit button always stays in view */
+.dialog-pane {
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray) rgba(0,0,0,0);
+  padding: 1rem;
+}
+
+/*
+ * The selection pane holds a FormWrapper, which renders its slides first and its
+ * back/next row last. Pin that row to the bottom of the pane so it stays reachable
+ * when the slide above it (e.g. the table list) is taller than the pane.
+ */
+.dialog-pane-form > :last-child {
+  position: sticky;
+  bottom: -1rem; /* Cancel the pane padding so it sits flush with the pane's bottom edge */
+  background-color: rgb(246, 246, 246); /* Same as dialog */
+  border-top: 1px solid var(--gray-80);
+  padding-top: .5rem;
+}
+
+/* "Selected table: …" on the values page stays in view while the values below scroll */
+.selected-table-heading {
+  position: sticky;
+  top: -1rem; /* Cancel the pane padding so it sits flush with the pane's top edge */
+  z-index: 1;
+  margin: 0;
+  padding-block: .75rem;
+  background-color: rgb(246, 246, 246); /* Same as dialog */
+  border-bottom: 1px solid var(--gray-80);
+}
+
+.dialog-preview {
+  display: block;
+  background-color: white;
+  border-left: 1px solid var(--gray-80);
+}
+
+/* The data that came back from the API; tinted like the selected table row so it reads as "fetched", not as more form */
+.preview-card {
+  --preview-background: #ebf6ff; /* rgba(153, 211, 255, .2) over white, kept opaque for the sticky header */
+  background-color: var(--preview-background);
+  border: 1px solid rgba(153, 211, 255, .8);
+  border-radius: .5rem;
+  padding: .75rem 1rem;
+}
+
+.preview-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.preview-table th {
+  position: sticky;
+  top: -1rem; /* Cancel the pane padding so it sits flush with the pane's top edge */
+  background-color: var(--preview-background);
+  text-align: left;
+  padding: .25rem .5rem;
+  border-bottom: 1px solid rgba(153, 211, 255, .8);
+}
+
+.preview-table td {
+  padding: .125rem .5rem;
+}
+
+.preview-table th:last-child,
+.preview-table td:last-child {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.preview-table tbody tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, .5);
+}
+
+.dialog-footer {
+  padding: .75rem 1rem;
+  background-color: white;
+  border-top: 1px solid var(--gray-80);
+  border-radius: 0 0 .5rem .5rem; /* Same as dialog */
+}
+
+@media (max-width: 800px) {
+  .dialog-panes {
+    grid-template-columns: minmax(0, 1fr);
+    overflow-y: auto;
+  }
+
+  .dialog-pane {
+    overflow: visible;
+  }
+
+  .dialog-preview {
+    border-left: 0;
+    border-top: 1px solid var(--gray-80);
+  }
+}
+
 .dialog fieldset button:active { /* TODO: Remove? */
   transform: scale(.995);
 }
 
-/* For selecting tables when choosing a specific data source */
-/* TODO: Classnames makes no sense here */
-.tableList { 
-  overflow-y: scroll;
+/* Height-limited lists inside the dialog (table list, variable selection) */
+.scrollable {
+  overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--gray) rgba(0,0,0,0);
 }

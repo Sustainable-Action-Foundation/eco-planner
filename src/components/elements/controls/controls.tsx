@@ -422,7 +422,7 @@ function GoalPanelControls({
   links: links;
   timestamp: number;
 }) {
-  const { t } = useTranslation(["components", "common"]);
+  const { t } = useTranslation(["components", "common", "forms"]);
 
   const visibility = goalVisibilityFromFlags({ is_featured: !!goal.is_featured, is_unlisted: !!goal.is_unlisted });
   // Inline record so every key stays a literal inside t()
@@ -435,6 +435,12 @@ function GoalPanelControls({
     [GoalVisibility.Public]: <IconEye aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
     [GoalVisibility.Unlisted]: <IconEyeOff aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
     [GoalVisibility.Featured]: <IconStar aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
+  };
+  // Same explanations as the goal form's visibility radio; notably that "unlisted" still opens from a link
+  const visibilityDescriptions: Record<GoalVisibility, string> = {
+    [GoalVisibility.Public]: t("forms:goal.visibility_public_description"),
+    [GoalVisibility.Unlisted]: t("forms:goal.visibility_unlisted_description"),
+    [GoalVisibility.Featured]: t("forms:goal.visibility_featured_description"),
   };
 
   return (
@@ -454,6 +460,7 @@ function GoalPanelControls({
               className={panelItemClass}
               style={{ boxShadow: 'none', cursor: 'pointer', transform: 'none', whiteSpace: 'nowrap' }}
               aria-pressed={option === visibility}
+              title={visibilityDescriptions[option]}
               data-testid={`admin-panel-visibility-${option.toLowerCase()}`}
               onClick={(e) => {
                 e.currentTarget.closest<HTMLElement>('[popover]')?.hidePopover();
