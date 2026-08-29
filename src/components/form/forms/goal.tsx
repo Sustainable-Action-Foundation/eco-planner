@@ -395,80 +395,77 @@ export default function GoalForm({
       </fieldset>
 
       {/* Goal series input section */}
-      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200 padding-left-200`}>
-        <legend data-position={positionIndex} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.data_series.create")}</legend>
-        <fieldset className={`${styles.timeLineFieldset} margin-top-200 margin-left-400`}>
-          <legend data-position={positionIndex + 0.1} className={`  ${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.data_series.goal.title")}</legend>
-          <GoalSeriesSection
-            goal={currentGoal}
-            dataSeriesType={dataSeriesType}
-            setDataSeriesType={setDataSeriesType}
-            indicatorParameter={indicatorParameter}
-            setIndicatorParameter={setIndicatorParameter}
-            setPreviewDataSerie={setPreviewDataSerie}
-            setDataSeriesRecipeError={setDataSeriesRecipeError}
-            hasInitializedSuggested={hasInitializedSuggested}
-            hasInitializedManual={hasInitializedManual}
-            hasInitializedCustom={hasInitializedCustom}
-          />
-        </fieldset>
-
-        {/* Baseline series input section */}
-        <fieldset className={`${styles.timeLineFieldset} margin-top-200 margin-left-400`}>
-          <legend
-            data-position={positionIndex + 0.2}
-            className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
-          >
-            {t("forms:goal.data_series.baseline.title")}
-          </legend>
-
-          <BaselineSeriesSection
-            goal={currentGoal}
-            baselineType={baselineType}
-            initialBaselineType={resolveBaselineType(currentGoal)}
-            dataSeries={previewDataSerie}
-            setBaselineType={setBaselineType}
-            setPreviewBaselineSerie={setPreviewBaselineSerie}
-            hasInitializedInitial={baselineHasInitializedInitial}
-            hasInitializedInitialNonZero={baselineHasInitializedInitialNonZero}
-            hasInitializedManual={baselineHasInitializedManual}
-            hasInitializedInherited={baselineHasInitializedInherited}
-          />
-        </fieldset>
-
-        {/* Historical series input section */}
-        <fieldset className={`${styles.timeLineFieldset} margin-top-200 min-width-0 margin-left-400`}>
-          <legend
-            data-position={positionIndex + 0.3}
-            className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
-          >
-            {t("forms:goal.data_series.historical.title")}
-          </legend>
-          <HistoricalSeriesSection
-            goal={currentGoal}
-            historicalDataType={historicalDataType}
-            setHistoricalDataType={setHistoricalDataType}
-            setPreviewHistoricalSerie={setPreviewHistoricalSerie}
-            setPreviewHistoricalRecipe={setPreviewHistoricalRecipe}
-            hasInitializedNone={historicalHasInitializedNone}
-            hasInitializedExternal={historicalHasInitializedExternal}
-            hasInitializedManual={historicalHasInitializedCustom}
-          />
-        </fieldset>
-
-        <div
-          className="margin-top-200 min-width-0 margin-left-400"
-        >
-          <strong className="block font-size-125 font-weight-bold text-align-center margin-0 padding-top-125 margin-bottom-50">{t("forms:goal.preview")}</strong>
-          <DraggableSnapBack>
-            <PreviewSeries
-              main={previewGraphSeries.main}
-              baseline={previewGraphSeries.baseline}
-              historical={previewGraphSeries.historical}
-            />
-          </DraggableSnapBack>
-        </div>
+      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.data_series.goal.title")}</legend>
+        <GoalSeriesSection
+          goal={currentGoal}
+          dataSeriesType={dataSeriesType}
+          setDataSeriesType={setDataSeriesType}
+          indicatorParameter={indicatorParameter}
+          setIndicatorParameter={setIndicatorParameter}
+          setPreviewDataSerie={setPreviewDataSerie}
+          setDataSeriesRecipeError={setDataSeriesRecipeError}
+          hasInitializedSuggested={hasInitializedSuggested}
+          hasInitializedManual={hasInitializedManual}
+          hasInitializedCustom={hasInitializedCustom}
+        />
       </fieldset>
+
+      {/* Baseline series input section */}
+      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+        <legend
+          data-position={positionIndex++}
+          className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
+        >
+          {t("forms:goal.data_series.baseline.title")}
+        </legend>
+
+        <BaselineSeriesSection
+          goal={currentGoal}
+          baselineType={baselineType}
+          initialBaselineType={resolveBaselineType(currentGoal)}
+          dataSeries={previewDataSerie}
+          setBaselineType={setBaselineType}
+          setPreviewBaselineSerie={setPreviewBaselineSerie}
+          hasInitializedInitial={baselineHasInitializedInitial}
+          hasInitializedInitialNonZero={baselineHasInitializedInitialNonZero}
+          hasInitializedManual={baselineHasInitializedManual}
+          hasInitializedInherited={baselineHasInitializedInherited}
+        />
+      </fieldset>
+
+      {/* Historical series input section */}
+      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200 min-width-0`}>
+        <legend
+          // Technically incrementing here is unused but if you add another entry after this one it will be correct
+          // eslint-disable-next-line no-useless-assignment
+          data-position={positionIndex++}
+          className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
+        >
+          {t("forms:goal.data_series.historical.title")}
+        </legend>
+        <HistoricalSeriesSection
+          goal={currentGoal}
+          historicalDataType={historicalDataType}
+          setHistoricalDataType={setHistoricalDataType}
+          setPreviewHistoricalSerie={setPreviewHistoricalSerie}
+          setPreviewHistoricalRecipe={setPreviewHistoricalRecipe}
+          hasInitializedNone={historicalHasInitializedNone}
+          hasInitializedExternal={historicalHasInitializedExternal}
+          hasInitializedManual={historicalHasInitializedCustom}
+        />
+      </fieldset>
+
+      <div className="margin-top-200 min-width-0">
+        <strong className="block font-size-125 font-weight-bold text-align-center margin-0 padding-top-125 margin-bottom-50">{t("forms:goal.preview")}</strong>
+        <DraggableSnapBack>
+          <PreviewSeries
+            main={previewGraphSeries.main}
+            baseline={previewGraphSeries.baseline}
+            historical={previewGraphSeries.historical}
+          />
+        </DraggableSnapBack>
+      </div>
 
 
       {/* Suggested recipes section 

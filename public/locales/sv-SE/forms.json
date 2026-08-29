@@ -140,7 +140,6 @@
     "custom_recipe": "Formel",
     "data_missing": "DATA SAKNAS; ",
     "data_series": {
-      "create": "Ta fram värden",
       "unit": "Enhet",
       "goal": {
         "title": "Målbanans värden",

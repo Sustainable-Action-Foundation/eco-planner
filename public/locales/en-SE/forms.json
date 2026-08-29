@@ -140,7 +140,6 @@
     "custom_recipe": "Recipe",
     "data_missing": "DATA MISSING; ",
     "data_series": {
-      "create": "Create data series",
       "unit": "Unit",
       "goal": {
         "title": "Create a data series for your goal",
