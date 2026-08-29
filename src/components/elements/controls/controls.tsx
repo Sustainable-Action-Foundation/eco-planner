@@ -510,7 +510,7 @@ function GoalPanelControls({
           testId="admin-panel-add-menu"
         >
           {/* Historical data is added once; editing it lives under the edit menu */}
-          {links.historicalCreateLink && !goal.historical ? <Link href={links.historicalCreateLink} className={panelItemClass} data-testid="historical-data-link">
+          {links.historicalCreateLink && !goal.historical ? <Link href={links.historicalCreateLink} className={panelItemClass} data-testid="historical-data-create-link">
             <span>{t("components:table_menu.historical_data")}</span>
             <IconChartHistogram aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
           </Link> : null}
@@ -542,7 +542,8 @@ function GoalPanelControls({
             <span>{t("components:table_menu.edit_baseline")}</span>
             <IconEdit aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
           </Link> : null}
-          {links.historicalDataLink && goal.historical ? <Link href={links.historicalDataLink} className={panelItemClass} data-testid="historical-data-link">
+          {/* Always offered: the edit form takes a first entry too, so a goal without historical data isn't a dead end here */}
+          {links.historicalDataLink ? <Link href={links.historicalDataLink} className={panelItemClass} data-testid="historical-data-link">
             <span>{t("components:table_menu.edit_historical")}</span>
             <IconChartHistogram aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
           </Link> : null}

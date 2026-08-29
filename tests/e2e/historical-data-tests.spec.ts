@@ -20,8 +20,8 @@ test.describe("Historical Data Tests", () => {
     // TODO: Don't go to first featured goal, I don't think we guarantee any during seeding.
     // Instead, we should go to the first goal in the list of goals in this test, and the second one in the other test.
     await page.getByTestId('featured-goals').first().click();
-    // The link sits under the add menu (no historical data yet) or the edit menu
-    await page.locator('[data-testid="admin-panel-add-menu"], [data-testid="admin-panel-edit-menu"]').first().click();
+    // The historical form sits under the panel's edit menu (also for a first entry)
+    await page.getByTestId('admin-panel-edit-menu').click();
     await page.getByTestId('historical-data-link').click();
 
     // Switch to manual input
@@ -74,8 +74,8 @@ test.describe("Historical Data Tests", () => {
     // TODO: Don't go to first featured goal, I don't think we guarantee any during seeding.
     // Instead, we should go to the second goal in the list of goals in this test, and the first one in the first test.
     await page.getByTestId('featured-goals').first().click();
-    // The link sits under the add menu (no historical data yet) or the edit menu
-    await page.locator('[data-testid="admin-panel-add-menu"], [data-testid="admin-panel-edit-menu"]').first().click();
+    // The historical form sits under the panel's edit menu (also for a first entry)
+    await page.getByTestId('admin-panel-edit-menu').click();
     await page.getByTestId('historical-data-link').click();
 
     // Switch to external dataset input
