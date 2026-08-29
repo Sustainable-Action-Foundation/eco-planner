@@ -6,7 +6,8 @@ import { isISOIshDate } from "@/types/typeguards";
 /**
  * Parser for the goal CSV uploaded in the roadmap iteration form (LEAP-style
  * exports): a `Branch Path` and `Units` column plus one column per 4-digit year,
- * optionally preceded by a metadata row and a blank row.
+ * optionally preceded by a metadata row and a blank row. Rows flagged in the
+ * export's hide column become unlisted goals.
  */
 
 /**
@@ -70,21 +71,32 @@ export function parseGoalCsv(csv: ArrayBuffer): string[][] {
   return rows;
 }
 
+/** Matches the hide column label, written as `Hide:` in the LEAP export's metadata row or `Hide` as a plain header */
+const HIDE_HEADER = /^hide:?$/i;
+
 /**
  * Turns parsed CSV rows into goal create inputs for the roadmap iteration API,
  * which creates each `dataSeries` as manual input under the iteration.
  * Requires headers on the first or third row (LEAP exports put a metadata row
  * and a blank row above them) and throws if any required header is missing.
+ * Rows with anything in the hide column are imported as unlisted goals; LEAP
+ * labels that column in the metadata row rather than the header row, so both
+ * are checked.
  * @param csv A 2D array of strings
  * @param scaleWarningCallback A function to call if the CSV contains a column for the deprecated "Scale" header
  */
 export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void): GoalCreateFull[] {
+  let hideIndex = -1;
   if (csv.length > 2 && !csv[1].some(cell => cell.trim() !== "")) {
+    hideIndex = csv[0].findIndex(cell => HIDE_HEADER.test(cell.trim()));
     csv = csv.slice(2);
   }
   if (csv.length === 0) return [];
 
   const headers = csv[0].map(header => header.trim());
+  if (hideIndex === -1) {
+    hideIndex = headers.findIndex(header => HIDE_HEADER.test(header));
+  }
 
   /** Format: `ourFieldName: csvHeaderName` */
   const nonNumericHeaders = {
@@ -140,7 +152,7 @@ export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void
       name: undefined,
       description: undefined,
       isFeatured: undefined,
-      isUnlisted: undefined,
+      isUnlisted: hideIndex === -1 ? undefined : !!row[hideIndex]?.trim(),
       rawTags: undefined,
       dataSeries: {
         dateValues,

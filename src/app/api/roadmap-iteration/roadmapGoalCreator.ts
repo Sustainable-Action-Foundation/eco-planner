@@ -36,6 +36,8 @@ export default function roadmapGoalCreator(
       name: goal.name,
       description: goal.description,
       indicator_parameter: goal.indicatorParameter,
+      is_featured: goal.isFeatured,
+      is_unlisted: goal.isUnlisted,
 
       data_series: {
         create: manualDataSeriesCreateData(dataSeries, orgId, authorId),

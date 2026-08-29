@@ -78,6 +78,22 @@ test.describe("csvToGoalList", () => {
     expect(() => csvToGoalList(parseGoalCsv(buffer(`${headers}\nDemand;ton;N/A;2`)))).toThrow(/not a number/);
   });
 
+  test("unlists rows flagged in a hide column labelled in the metadata row", () => {
+    // LEAP writes "Hide:" above an otherwise unlabelled column
+    const goals = csvToGoalList(parseGoalCsv(buffer(`Hide:;Area:;LEAP\n\n;${headers}\nx;A;ton;1;2\n;B;ton;1;2`)));
+    expect(goals.map(goal => goal.isUnlisted)).toEqual([true, false]);
+  });
+
+  test("unlists rows flagged in a Hide header column", () => {
+    const goals = csvToGoalList(parseGoalCsv(buffer(`Hide;${headers}\nx;A;ton;1;2\n;B;ton;1;2`)));
+    expect(goals.map(goal => goal.isUnlisted)).toEqual([true, false]);
+  });
+
+  test("leaves isUnlisted undefined without a hide column", () => {
+    const goals = csvToGoalList(parseGoalCsv(buffer(`${headers}\nA;ton;1;2`)));
+    expect(goals[0].isUnlisted).toBeUndefined();
+  });
+
   test("warns about the deprecated Scale header", () => {
     let warned = false;
     csvToGoalList(parseGoalCsv(buffer("Branch Path;Units;Scale;2020\nDemand;ton;1;2")), () => { warned = true; });
