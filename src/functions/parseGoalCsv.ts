@@ -71,8 +71,8 @@ export function parseGoalCsv(csv: ArrayBuffer): string[][] {
   return rows;
 }
 
-/** Matches the hide column label, written as `Hide:` in the LEAP export's metadata row or `Hide` as a plain header */
-const HIDE_HEADER = /^hide:?$/i;
+/** Matches the hide column label (`Hide`, `Unlisted`, or Swedish `Dold`), written as `Hide:` in the LEAP export's metadata row or as a plain header */
+const HIDE_HEADER = /^(hide|unlisted|dold):?$/i;
 
 /**
  * Turns parsed CSV rows into goal create inputs for the roadmap iteration API,

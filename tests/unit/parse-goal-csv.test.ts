@@ -89,6 +89,13 @@ test.describe("csvToGoalList", () => {
     expect(goals.map(goal => goal.isUnlisted)).toEqual([true, false]);
   });
 
+  test("accepts Unlisted and Dold as hide column labels", () => {
+    for (const label of ["Unlisted", "Dold", "dold:"]) {
+      const goals = csvToGoalList(parseGoalCsv(buffer(`${label};${headers}\nx;A;ton;1;2\n;B;ton;1;2`)));
+      expect(goals.map(goal => goal.isUnlisted), label).toEqual([true, false]);
+    }
+  });
+
   test("leaves isUnlisted undefined without a hide column", () => {
     const goals = csvToGoalList(parseGoalCsv(buffer(`${headers}\nA;ton;1;2`)));
     expect(goals[0].isUnlisted).toBeUndefined();
