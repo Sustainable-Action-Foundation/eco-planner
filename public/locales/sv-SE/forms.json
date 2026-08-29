@@ -266,7 +266,7 @@
     "visibility": "Synlighet",
     "visibility_draft": "Utkast",
     "visibility_draft_description": "Bara personer som kan redigera färdplanen kan se den.",
-    "visibility_unlisted": "Olistad",
+    "visibility_unlisted": "Dold",
     "visibility_unlisted_description": "Visas inte i listor över färdplaner för personer som inte kan redigera färdplanen, men går att öppna via direktlänk.",
     "visibility_public": "Publik",
     "visibility_public_description": "Publicerad och listad för alla som kan se färdplanen."
