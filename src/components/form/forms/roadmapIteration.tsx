@@ -9,7 +9,9 @@ import type { TFunction } from "i18next";
 import { Trans, useTranslation } from "react-i18next";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import TextEditor from "../elements/textEditor/editor";
-import { IconUpload } from "@tabler/icons-react";
+import { IconEye, IconEyeOff, IconPencil, IconUpload } from "@tabler/icons-react";
+import { IterationVisibility } from "@/types/enums";
+import { isIterationVisibility, iterationVisibilityFromFields, iterationVisibilityToFields } from "@/functions/iterationVisibility";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 
@@ -41,6 +43,8 @@ export default function RoadmapIterationForm({
   const [currentFile, setCurrentFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [timestamp] = useState<number>(() => Date.now());
+  // New iterations start as drafts
+  const initialVisibility = iterationVisibilityFromFields({ published_at: currentIteration?.published_at ?? null, is_unlisted: !!currentIteration?.is_unlisted });
   const [roadmapId, setRoadmapId] = useState<string>(currentIteration?.roadmap_id || defaultRoadmapId || "");
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [targetVersion, setTargetVersion] = useState<number | null>(0);
@@ -82,8 +86,9 @@ export default function RoadmapIterationForm({
 
     const form = event.target.elements;
     const description = (form.namedItem("description") as HTMLInputElement | null)?.value ?? null;
-    const publish = (form.namedItem("publish") as HTMLInputElement | null)?.checked ?? false;
-    const isUnlisted = (form.namedItem("isUnlisted") as HTMLInputElement | null)?.checked ?? false;
+    // The visibility radio stands in for the publish / unlisted fields the API takes
+    const visibilityValue = (form.namedItem("visibility") as RadioNodeList | null)?.value;
+    const { publish, isUnlisted } = iterationVisibilityToFields(isIterationVisibility(visibilityValue) ? visibilityValue : IterationVisibility.Draft);
 
     let goals: GoalCreateFull[] = [];
     if (currentFile) {
@@ -205,30 +210,48 @@ export default function RoadmapIterationForm({
         />
         <input ref={descriptionRef} type="hidden" name="description" />
 
-        {/* Drafts (unpublished iterations) are only visible to people who can edit the roadmap */}
-        <label className="flex width-fit-content align-items-center gap-50 margin-bottom-100">
-          <input
-            type="checkbox"
-            name="publish"
-            id="publish"
-            defaultChecked={!!currentIteration?.published_at}
-          />
-          {t("forms:roadmap_iteration.publish")}
-        </label>
-        <small className="block margin-bottom-100">{t("forms:roadmap_iteration.publish_hint")}</small>
-
-        {/* Unlisted iterations stay reachable by link but are left out of roadmap listings for people who can't edit them */}
-        <label className="flex width-fit-content align-items-center gap-50 margin-bottom-100">
-          <input
-            type="checkbox"
-            name="isUnlisted"
-            id="isUnlisted"
-            defaultChecked={!!currentIteration?.is_unlisted}
-          />
-          {t("forms:roadmap_iteration.unlist")}
-        </label>
-        <small className="block margin-bottom-100">{t("forms:roadmap_iteration.unlist_hint")}</small>
-
+        {/* Publication as one tiered setting: draft (editors only) → unlisted (by link) → public (listed) */}
+        <fieldset className="margin-top-100 margin-bottom-100">
+          <legend>{t("forms:roadmap_iteration.visibility")}</legend>
+          {[
+            {
+              value: IterationVisibility.Draft,
+              id: "draft",
+              icon: <IconPencil aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
+              label: t("forms:roadmap_iteration.visibility_draft"),
+              description: t("forms:roadmap_iteration.visibility_draft_description"),
+            },
+            {
+              value: IterationVisibility.Unlisted,
+              id: "isUnlisted",
+              icon: <IconEyeOff aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
+              label: t("forms:roadmap_iteration.visibility_unlisted"),
+              description: t("forms:roadmap_iteration.visibility_unlisted_description"),
+            },
+            {
+              value: IterationVisibility.Public,
+              id: "publish",
+              icon: <IconEye aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
+              label: t("forms:roadmap_iteration.visibility_public"),
+              description: t("forms:roadmap_iteration.visibility_public_description"),
+            },
+          ].map((option) => (
+            <label key={option.value} className="flex align-items-start gap-50 margin-top-50 margin-bottom-50">
+              <input
+                type="radio"
+                required={true}
+                name="visibility"
+                id={option.id}
+                value={option.value}
+                defaultChecked={initialVisibility === option.value}
+              />
+              <span>
+                <span className="flex align-items-center gap-25" style={{ textShadow: '0 0' }}>{option.icon}{option.label}</span>
+                <span className="block" style={{ color: '#292929' }}>{option.description}</span>
+              </span>
+            </label>
+          ))}
+        </fieldset>
       </fieldset>
 
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>

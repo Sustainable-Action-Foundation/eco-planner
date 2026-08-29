@@ -263,10 +263,13 @@
     "scale_deprecated_extended": "$t(forms:roadmap_iteration.scale_deprecated) Om kolumnen innehåller några skalor, vänligen baka in dem i enheten eller värdet istället. Exempel: använd 'MW' som enhet istället för att använda 'kW' med skala 'tusen'.",
     "unknown_error": "Okänt fel",
     "upload_goals": "Ladda upp $t(common:goal_other)",
-    "publish": "Publicera denna version",
-    "publish_hint": "Opublicerade versioner är utkast som bara syns för personer som kan redigera färdplanen.",
-    "unlist": "Dölj denna version från listor",
-    "unlist_hint": "Dolda versioner visas inte i listor över färdplaner för personer som inte kan redigera färdplanen, men går fortfarande att öppna via direktlänk."
+    "visibility": "Synlighet",
+    "visibility_draft": "Utkast",
+    "visibility_draft_description": "Bara personer som kan redigera färdplanen kan se den.",
+    "visibility_unlisted": "Olistad",
+    "visibility_unlisted_description": "Visas inte i listor över färdplaner för personer som inte kan redigera färdplanen, men går att öppna via direktlänk.",
+    "visibility_public": "Publik",
+    "visibility_public_description": "Publicerad och listad för alla som kan se färdplanen."
   },
   "text_editor_menu": {
     "bold": "Fetstil",

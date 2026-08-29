@@ -119,3 +119,15 @@ export const GoalVisibility = {
   Featured: "FEATURED",
 } as const;
 export type GoalVisibility = (typeof GoalVisibility)[keyof typeof GoalVisibility];
+
+/**
+ * A roadmap iteration's publication state as one tiered setting, standing in
+ * for the two underlying fields (`published_at`, `is_unlisted`) in the form.
+ * See `functions/iterationVisibility.ts` for the mapping.
+ */
+export const IterationVisibility = {
+  Draft: "DRAFT",
+  Unlisted: "UNLISTED",
+  Public: "PUBLIC",
+} as const;
+export type IterationVisibility = (typeof IterationVisibility)[keyof typeof IterationVisibility];

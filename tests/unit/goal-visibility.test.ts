@@ -1,7 +1,8 @@
 import { expect, test } from "playwright/test";
 
 import { goalVisibilityFromFlags, goalVisibilityToFlags, isGoalVisibility } from "../../src/functions/goalVisibility";
-import { GoalVisibility } from "../../src/types/enums";
+import { GoalVisibility, IterationVisibility } from "../../src/types/enums";
+import { isIterationVisibility, iterationVisibilityFromFields, iterationVisibilityToFields } from "../../src/functions/iterationVisibility";
 
 /**
  * The admin panel edits a goal's listing state through one select; these pin
@@ -49,5 +50,48 @@ test.describe("isGoalVisibility", () => {
     expect(isGoalVisibility("")).toBe(false);
     expect(isGoalVisibility(undefined)).toBe(false);
     expect(isGoalVisibility(1)).toBe(false);
+  });
+});
+
+/*
+ * The iteration form edits publication state the same way: one tiered setting
+ * standing in for `published_at` and `is_unlisted`.
+ */
+
+test.describe("iterationVisibilityFromFields", () => {
+  test("unpublished iterations are drafts, whatever the listing flag says", () => {
+    expect(iterationVisibilityFromFields({ published_at: null, is_unlisted: false })).toBe(IterationVisibility.Draft);
+    expect(iterationVisibilityFromFields({ published_at: null, is_unlisted: true })).toBe(IterationVisibility.Draft);
+  });
+
+  test("published iterations are unlisted or public by the flag", () => {
+    expect(iterationVisibilityFromFields({ published_at: new Date(), is_unlisted: true })).toBe(IterationVisibility.Unlisted);
+    expect(iterationVisibilityFromFields({ published_at: new Date(), is_unlisted: false })).toBe(IterationVisibility.Public);
+  });
+});
+
+test.describe("iterationVisibilityToFields", () => {
+  test("round-trips every visibility", () => {
+    for (const visibility of Object.values(IterationVisibility)) {
+      const fields = iterationVisibilityToFields(visibility);
+      expect(iterationVisibilityFromFields({ published_at: fields.publish ? new Date() : null, is_unlisted: fields.isUnlisted })).toBe(visibility);
+    }
+  });
+
+  test("only published iterations can be unlisted", () => {
+    for (const visibility of Object.values(IterationVisibility)) {
+      const fields = iterationVisibilityToFields(visibility);
+      expect(fields.isUnlisted && !fields.publish).toBe(false);
+    }
+  });
+});
+
+test.describe("isIterationVisibility", () => {
+  test("accepts the enum values and rejects everything else", () => {
+    for (const visibility of Object.values(IterationVisibility)) {
+      expect(isIterationVisibility(visibility)).toBe(true);
+    }
+    expect(isIterationVisibility("draft")).toBe(false);
+    expect(isIterationVisibility(undefined)).toBe(false);
   });
 });
