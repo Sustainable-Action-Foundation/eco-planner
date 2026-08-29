@@ -137,7 +137,7 @@
     "choose_relationship": "Which $t(common:roadmap_one) does your $t(common:goal_one) belong to?",
     "create": "Create $t(common:goal_one)",
     "create_baseline_for_actions": "Create a baseline for calculating $t(common:action_other, possessive) $t(common:effect_other) on this $t(common:goal_one)",
-    "custom_recipe": "Recipe",
+    "custom_recipe": "Formula",
     "data_missing": "DATA MISSING; ",
     "data_series": {
       "unit": "Unit",
@@ -173,14 +173,14 @@
       }
     },
     "data_series_type_legend": "Choose type of data series for your $t(common:goal_one)",
-    "default_combination_recipe": "Default combination recipe",
-    "default_scaling_recipe": "Default scaling recipe",
+    "default_combination_recipe": "Default combination formula",
+    "default_scaling_recipe": "Default scaling formula",
     "derive_data_series_manually": "Input manually",
-    "derive_data_series_recipe": "Derive from recipe",
+    "derive_data_series_recipe": "Derive from formula",
     "errors": {
       "unexpected_file_object": "Form data contains an unexpected File object.",
-      "failed_parse_recipe": "Failed to parse resulting recipe from form:",
-      "failed_parse_recipe_suggestions": "Failed to parse recipe suggestions from form:",
+      "failed_parse_recipe": "Failed to parse resulting formula from form:",
+      "failed_parse_recipe_suggestions": "Failed to parse formula suggestions from form:",
       "missing_date_values": "No resulting date values provided in form.",
       "failed_parse_date_values": "Failed to parse resulting date values from form:",
       "invalid_date_values": "Parsed date values from form are invalid:",
@@ -189,7 +189,7 @@
       "initial_baseline_error": "Cannot use initial baseline when data series is empty.",
       "missing_inherited_baseline": "No inherited baseline provided in form.",
       "missing_baseline": "No baseline provided for new goal.",
-      "recipe_has_error": "This data series can't be saved because its recipe has an error. Please fix it before saving:",
+      "recipe_has_error": "This data series can't be saved because its formula has an error. Please fix it before saving:",
       "missing_historical_data": "No historical data was entered or selected."
     },
     "visibility": "Visibility",
