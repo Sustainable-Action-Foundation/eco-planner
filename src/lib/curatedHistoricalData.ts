@@ -2,18 +2,7 @@ import type { ApiSelectionItem, DatasetKeys } from "@/lib/api/apiTypes";
 import { GeoAreaType } from "@/lib/prisma/generated";
 import type { TFunction } from "i18next";
 
-export const CuratedHistoricalCatalogKey = {
-  /** General statistics about the area: emissions, population, geography */
-  General: "GENERAL",
-  /** Statistics curated for following the energy and transport transition */
-  EnergyTransport: "ENERGY_TRANSPORT",
-} as const;
-export type CuratedHistoricalCatalogKey = (typeof CuratedHistoricalCatalogKey)[keyof typeof CuratedHistoricalCatalogKey];
-
 export const CuratedHistoricalCategory = {
-  Emissions: "EMISSIONS",
-  Population: "POPULATION",
-  Geography: "GEOGRAPHY",
   WindPower: "WIND_POWER",
   SolarPower: "SOLAR_POWER",
   Vehicles: "VEHICLES",
@@ -71,8 +60,7 @@ export type CuratedHistoricalEntry = {
   /**
    * Display unit, shared by all series in the entry. Declared here rather than
    * read from the source table, since table metadata units are inconsistent
-   * (e.g. TAB4357 reports one unit string across substances that differ by a
-   * factor of a thousand, and Energimyndigheten reports "Antal, MW, GWh").
+   * (e.g. Energimyndigheten reports "Antal, MW, GWh" for every category).
    */
   unit: string | null;
   /** One chart per entry; multi-series entries render one line per series. */
@@ -80,7 +68,6 @@ export type CuratedHistoricalEntry = {
 };
 
 export type CuratedHistoricalCatalog = {
-  key: CuratedHistoricalCatalogKey;
   title: string;
   description: string;
   entries: CuratedHistoricalEntry[];
@@ -96,108 +83,19 @@ function allLevels(source: CuratedSource): CuratedSeries["sources"] {
 }
 
 /**
- * The curated sets of historical statistics shown on an org's landing page,
- * localized to the org's geo area. Areas missing from a table (e.g. counties
- * in the municipality-only emissions table) simply drop that series.
+ * The curated set of historical statistics shown on an org's landing page,
+ * localized to the org's geo area: the energy and transport transition series
+ * selected by the domain experts. Areas missing from a table simply drop that
+ * series.
  *
- * @param areaName Interpolated into the catalog titles.
+ * @param areaName Interpolated into the catalog title.
  */
-export function getCuratedHistoricalCatalog(t: TFunction, key: CuratedHistoricalCatalogKey, areaName: string): CuratedHistoricalCatalog {
-  switch (key) {
-    case CuratedHistoricalCatalogKey.General: {
-      return {
-        key,
-        title: t("pages:home.curated_historical.title", { area: areaName }),
-        description: t("pages:home.curated_historical.description"),
-        entries: getGeneralEntries(t),
-      };
-    }
-    case CuratedHistoricalCatalogKey.EnergyTransport: {
-      return {
-        key,
-        title: t("pages:home.curated_historical.energy_transport_title", { area: areaName }),
-        description: t("pages:home.curated_historical.energy_transport_description"),
-        entries: getEnergyTransportEntries(t),
-      };
-    }
-    default: {
-      throw new Error(`Unknown curated historical catalog "${String(key satisfies never)}"`);
-    }
-  }
-}
-
-function getGeneralEntries(t: TFunction): CuratedHistoricalEntry[] {
-  return [
-    {
-      key: "ghg-emissions",
-      category: CuratedHistoricalCategory.Emissions,
-      name: t("pages:home.curated_historical.ghg_emissions_name"),
-      description: t("pages:home.curated_historical.ghg_emissions_description"),
-      unit: "kt CO₂e",
-      series: [{
-        key: "ghg-emissions",
-        name: t("pages:home.curated_historical.ghg_emissions_name"),
-        sources: allLevels({
-          dataset: "SCB",
-          tableId: "TAB4357",
-          selection: [
-            // Greenhouse gases, in kilotonnes of CO2 equivalents
-            { variableCode: "AmneMiljo", valueCodes: ["GHG"] },
-            // The table's only content code ("Ämne")
-            { variableCode: "ContentsCode", valueCodes: ["000000KY"] },
-          ],
-          region: { kind: CuratedRegionKind.PxWebCode, variableCode: "Region" },
-        }),
-      }],
-    },
-    // Note when adding entries: verify the table actually carries data for the
-    // targeted region level. TAB4357 lists all municipalities but only
-    // publishes GHG values for them; its other substances (NOX, PM25, ...) are
-    // null for every municipality and would just negative-cache.
-    {
-      key: "population",
-      category: CuratedHistoricalCategory.Population,
-      name: t("pages:home.curated_historical.population_name"),
-      description: t("pages:home.curated_historical.population_description"),
-      unit: null,
-      series: [{
-        key: "population",
-        name: t("pages:home.curated_historical.population_name"),
-        sources: allLevels({
-          dataset: "SCB",
-          tableId: "TAB638",
-          selection: [
-            // Total population; the table's other dimensions (marital status, age,
-            // sex) are eliminable and aggregate to totals when omitted
-            { variableCode: "ContentsCode", valueCodes: ["BE0101N1"] },
-          ],
-          region: { kind: CuratedRegionKind.PxWebCode, variableCode: "Region" },
-        }),
-      }],
-    },
-    {
-      key: "land-area",
-      category: CuratedHistoricalCategory.Geography,
-      name: t("pages:home.curated_historical.land_area_name"),
-      description: t("pages:home.curated_historical.land_area_description"),
-      unit: "km²",
-      series: [{
-        key: "land-area",
-        name: t("pages:home.curated_historical.land_area_name"),
-        sources: allLevels({
-          dataset: "SCB",
-          tableId: "TAB6420",
-          selection: [
-            // Specifically land areas, not including water
-            { variableCode: "ArealTyp", valueCodes: ["01"] },
-            // Magic string to get area sizes in square kilometers (as opposed to hectares with "000007E1")
-            { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
-          ],
-          region: { kind: CuratedRegionKind.PxWebCode, variableCode: "Region" },
-        }),
-      }],
-    },
-  ];
+export function getCuratedHistoricalCatalog(t: TFunction, areaName: string): CuratedHistoricalCatalog {
+  return {
+    title: t("pages:home.curated_historical.title", { area: areaName }),
+    description: t("pages:home.curated_historical.description"),
+    entries: getEnergyTransportEntries(t),
+  };
 }
 
 /**

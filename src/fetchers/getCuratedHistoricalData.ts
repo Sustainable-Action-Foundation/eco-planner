@@ -8,7 +8,7 @@ import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/ty
 import { buildRegionSelection, CuratedRegionKind, findRegionCodeByLabel, getCuratedHistoricalCatalog } from "@/lib/curatedHistoricalData";
 import { UnitFlags } from "@/types/enums";
 import { cacheLife, cacheTag } from "next/cache";
-import type { CuratedHistoricalCatalog, CuratedHistoricalCatalogKey, CuratedHistoricalEntry, CuratedSeries, CuratedSource } from "@/lib/curatedHistoricalData";
+import type { CuratedHistoricalCatalog, CuratedHistoricalEntry, CuratedSeries, CuratedSource } from "@/lib/curatedHistoricalData";
 import type { ApiSelectionItem, ApiTableContent, DatasetKeys } from "@/lib/api/apiTypes";
 import type { ExternalVariable } from "@/functions/recipe/types";
 import type { DateValues } from "@/types";
@@ -32,7 +32,7 @@ export type CuratedHistoricalCatalogData = Omit<CuratedHistoricalCatalog, "entri
 };
 
 /**
- * Fetches one curated historical catalog for a geo area. Series whose source
+ * Fetches the curated historical catalog for a geo area. Series whose source
  * has no data for the area (or no source for its level) are dropped, and so
  * are entries left without series, so callers can render what comes back as-is.
  *
@@ -40,8 +40,8 @@ export type CuratedHistoricalCatalogData = Omit<CuratedHistoricalCatalog, "entri
  * scb*Query proxies this needs no guardExternalApi: the upstream traffic is
  * bounded by the catalog size and the days-long cache below.
  */
-export async function getCuratedHistoricalData(t: TFunction, catalogKey: CuratedHistoricalCatalogKey, geoArea: CuratedGeoArea): Promise<CuratedHistoricalCatalogData> {
-  const catalog = getCuratedHistoricalCatalog(t, catalogKey, geoArea.name);
+export async function getCuratedHistoricalData(t: TFunction, geoArea: CuratedGeoArea): Promise<CuratedHistoricalCatalogData> {
+  const catalog = getCuratedHistoricalCatalog(t, geoArea.name);
   const area = { code: geoArea.code, type: geoArea.type };
 
   // The series are fetched one at a time per dataset (datasets in parallel):

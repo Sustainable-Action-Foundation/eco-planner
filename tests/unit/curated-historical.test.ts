@@ -3,7 +3,7 @@ import path from "node:path";
 import { cwd } from "node:process";
 import { expect, test } from "playwright/test";
 
-import { buildRegionSelection, CuratedHistoricalCatalogKey, CuratedHistoricalCategory, CuratedRegionKind, findRegionCodeByLabel, getCuratedHistoricalCatalog } from "../../src/lib/curatedHistoricalData";
+import { buildRegionSelection, CuratedHistoricalCategory, CuratedRegionKind, findRegionCodeByLabel, getCuratedHistoricalCatalog } from "../../src/lib/curatedHistoricalData";
 import { ExternalDataset } from "../../src/lib/api/utility";
 import { GeoAreaType } from "../../src/lib/prisma/generated";
 import type { CuratedSource } from "../../src/lib/curatedHistoricalData";
@@ -12,8 +12,8 @@ import type { TFunction } from "i18next";
 /** Identity t: entries carry their literal i18n keys so they can be checked against the locale files. */
 const identityT = ((key: string) => key) as TFunction;
 
-const catalogs = Object.values(CuratedHistoricalCatalogKey).map(key => getCuratedHistoricalCatalog(identityT, key, "area"));
-const entries = catalogs.flatMap(catalog => catalog.entries);
+const catalog = getCuratedHistoricalCatalog(identityT, "area");
+const entries = catalog.entries;
 const sources: { label: string, source: CuratedSource }[] = entries.flatMap(entry =>
   entry.series.flatMap(series =>
     Object.entries(series.sources).map(([level, source]) => ({ label: `${entry.key}/${series.key}@${level}`, source })),
@@ -21,15 +21,10 @@ const sources: { label: string, source: CuratedSource }[] = entries.flatMap(entr
 );
 
 test.describe("Curated historical data catalog", () => {
-  test("catalogs have entries with unique keys", () => {
-    for (const catalog of catalogs) {
-      expect(catalog.entries.length, `entries of ${catalog.key}`).toBeGreaterThan(0);
-      const keys = catalog.entries.map(entry => entry.key);
-      expect(new Set(keys).size, `entry keys of ${catalog.key}`).toBe(keys.length);
-    }
-    // Entry keys are React keys within a section, but keeping them globally unique keeps the catalogs unambiguous
-    const allKeys = entries.map(entry => entry.key);
-    expect(new Set(allKeys).size).toBe(allKeys.length);
+  test("catalog has entries with unique keys", () => {
+    expect(entries.length).toBeGreaterThan(0);
+    const keys = entries.map(entry => entry.key);
+    expect(new Set(keys).size).toBe(keys.length);
   });
 
   test("entries are well-formed", () => {
@@ -99,14 +94,15 @@ test.describe("Curated historical data catalog", () => {
     }
   });
 
-  test("catalog titles, entry names and descriptions are literal keys defined in every locale", () => {
+  test("catalog title, entry names and descriptions are literal keys defined in every locale", () => {
     // The locale key scanner only covers .tsx files, so the catalog's .ts keys are checked here
     const localesDir = path.join(cwd(), "public/locales");
     const locales = fs.readdirSync(localesDir);
     expect(locales.length).toBeGreaterThan(0);
 
     const keysToCheck = [
-      ...catalogs.flatMap(catalog => [catalog.title, catalog.description]),
+      catalog.title,
+      catalog.description,
       ...entries.flatMap(entry => [entry.name, entry.description, ...entry.series.map(series => series.name)]),
     ];
     for (const key of keysToCheck) {

@@ -4,29 +4,23 @@ import { CuratedHistoricalCategory } from "@/lib/curatedHistoricalData";
 import { ExternalDataset } from "@/lib/api/utility";
 import serveTea from "@/lib/i18nServer";
 import type { CuratedGeoArea, CuratedHistoricalEntryData } from "@/fetchers/getCuratedHistoricalData";
-import type { CuratedHistoricalCatalogKey } from "@/lib/curatedHistoricalData";
 
 /**
- * One of the org landing page's browsable historical data sections: a curated
- * catalog fetched for the org's geo area, grouped by category. Renders nothing
- * when no entry has data for the area, so callers can include it unconditionally.
+ * The org landing page's browsable historical data: the curated catalog fetched
+ * for the org's geo area, grouped by category. Renders nothing when no entry
+ * has data for the area, so callers can include it unconditionally.
  */
 export default async function CuratedHistoricalData({
-  catalog: catalogKey,
   geoArea,
 }: {
-  catalog: CuratedHistoricalCatalogKey,
   geoArea: CuratedGeoArea,
 }) {
   const t = await serveTea("pages");
-  const catalog = await getCuratedHistoricalData(t, catalogKey, geoArea);
+  const catalog = await getCuratedHistoricalData(t, geoArea);
 
   if (catalog.entries.length === 0) return null;
 
   const categoryLabels: Record<CuratedHistoricalCategory, string> = {
-    [CuratedHistoricalCategory.Emissions]: t("pages:home.curated_historical.category_emissions"),
-    [CuratedHistoricalCategory.Population]: t("pages:home.curated_historical.category_population"),
-    [CuratedHistoricalCategory.Geography]: t("pages:home.curated_historical.category_geography"),
     [CuratedHistoricalCategory.WindPower]: t("pages:home.curated_historical.category_wind_power"),
     [CuratedHistoricalCategory.SolarPower]: t("pages:home.curated_historical.category_solar_power"),
     [CuratedHistoricalCategory.Vehicles]: t("pages:home.curated_historical.category_vehicles"),
