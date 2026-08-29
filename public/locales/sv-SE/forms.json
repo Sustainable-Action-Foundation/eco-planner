@@ -14,7 +14,10 @@
     "no_groups": "Organisationen har inga grupper ännu. Chefer kan skapa grupper.",
     "no_access": "Ingen åtkomst",
     "read_only": "Läsa",
-    "read_write": "Läsa och redigera"
+    "read_write": "Läsa och redigera",
+    "granted_groups_only_description": "Dold för alla utom de grupper som ges åtkomst nedan.",
+    "org_members_description": "Alla medlemmar i organisationen kan se den; grupper nedan kan även redigera.",
+    "all_users_description": "Syns för alla, inloggade eller inte. Redigering styrs fortfarande av gruppåtkomsten nedan."
   },
   "action": {
     "action_description": "Beskrivning",

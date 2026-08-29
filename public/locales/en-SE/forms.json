@@ -14,7 +14,10 @@
     "no_groups": "The organization has no groups yet. Managers can create groups.",
     "no_access": "No access",
     "read_only": "Read",
-    "read_write": "Read and edit"
+    "read_write": "Read and edit",
+    "granted_groups_only_description": "Hidden from everyone except the groups given access below.",
+    "org_members_description": "Every member of the organization can see it; groups below may also edit.",
+    "all_users_description": "Visible to anyone, logged in or not. Editing still follows the group access below."
   },
   "action": {
     "action_description": "Description",
