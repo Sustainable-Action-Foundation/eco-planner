@@ -509,8 +509,8 @@ function GoalPanelControls({
           icon={<IconPlus aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />}
           testId="admin-panel-add-menu"
         >
-          {/* Historical data is added once; editing it lives under the edit menu */}
-          {links.historicalCreateLink && !goal.historical ? <Link href={links.historicalCreateLink} className={panelItemClass} data-testid="historical-data-create-link">
+          {/* Offered alongside the edit menu's entry; both forms accept a first entry or a replacement */}
+          {links.historicalCreateLink ? <Link href={links.historicalCreateLink} className={panelItemClass} data-testid="historical-data-create-link">
             <span>{t("components:table_menu.historical_data")}</span>
             <IconChartHistogram aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
           </Link> : null}
