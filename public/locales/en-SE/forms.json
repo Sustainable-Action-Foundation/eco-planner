@@ -154,7 +154,7 @@
         "title": "Create a data series for your goals baseline",
         "type": "Baseline type",
         "first_year_value": "Use the first value of your goal as a baseline.",
-        "first_defined_year": "Use the first non-zero value of your goal as a baseline.",
+        "first_defined_year": "Use the first value of your goal that isn't zero as the baseline. Leading years with the value 0 are skipped, so the baseline becomes the first year with an actual value.",
         "custom": "Create a baseline by manually inputting years and values.",
         "another_goal": "Copy another goal and use it as your baseline.",
         "inherit_error": "$t(common:goal_definite_one): <strong>{{goal}}</strong> is being used as a baseline but there was an issue when trying to automatically select it. If you wish to keep using this goal as your baseline you must either:",
