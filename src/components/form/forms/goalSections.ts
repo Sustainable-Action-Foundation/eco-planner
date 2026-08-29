@@ -159,6 +159,12 @@ export function parseDataSeriesSection(formData: FormData, t: TFunction): {
   if (!dataSeries || !isDateValuesWithUnit(dataSeries)) {
     throw new GoalFormError(`${t("forms:goal.errors.invalid_date_values")} ${String(dataSeries)}`); // Im not sure about String(dataSeries)?
   }
+  // A year without a value passes native validation but leaves no data points;
+  // reject it here rather than relying on a later section (e.g. the baseline
+  // derivation) to notice the empty series.
+  if (Object.keys(dataSeries.dateValues).length === 0) {
+    throw new GoalFormError(t("forms:goal.errors.missing_date_values"));
+  }
 
   return { dataSeries, dataSeriesRecipe };
 }
