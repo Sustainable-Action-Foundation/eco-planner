@@ -115,7 +115,7 @@ export function DataSeriesVariableEditor({
 
   if (!variable) {
     console.error(`Variable "${variableId}" not found in recipe`, { recipe, variableId, variable, availableDataSeries });
-    throw new RecipeError(`Variable "${variableId}" not found in recipe`);
+    throw new RecipeError(`Variable "${variableId}" not found in formula`);
   }
 
   if (!isDataSeriesVariable(variable)) {

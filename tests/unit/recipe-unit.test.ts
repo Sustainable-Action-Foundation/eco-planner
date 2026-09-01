@@ -183,7 +183,7 @@ test.describe("Recipe evaluator and factories", () => {
   });
 
   test("from invalid JSON string throws", () => {
-    expect(() => Recipe.from("{not valid json")).toThrow("Invalid serialized recipe format");
+    expect(() => Recipe.from("{not valid json")).toThrow("Invalid serialized formula format");
   });
 
   test("checkValidity skips template recipes", async () => {
@@ -255,7 +255,7 @@ test.describe("Recipe evaluator and factories", () => {
 
     const validity = await recipe.checkValidity();
     expect(validity.good).toBe(false);
-    expect(validity.error).toContain("Error evaluating recipe equation");
+    expect(validity.error).toContain("Error evaluating formula equation");
   });
 
   test("evaluate handles IDs needing normalization and collisions", async () => {
