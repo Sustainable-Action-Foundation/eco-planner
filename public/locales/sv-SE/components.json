@@ -224,6 +224,13 @@
       "parent_population": "Befolkning (överordnad målbana)",
       "parent_value": "Överordnad målbana"
     },
+    "default_reach_target_recipe": {
+      "name": "Nå ett målvärde till ett visst år",
+      "parent_value": "Överordnad målbana",
+      "start_year": "Startår",
+      "target": "Målvärde",
+      "target_year": "Målår"
+    },
     "default_scalar_recipe": {
       "name": "Skala utifrån fast värde",
       "parent_value": "Överordnad målbana",
