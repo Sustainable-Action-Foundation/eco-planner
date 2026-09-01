@@ -1,6 +1,6 @@
 {
   "name": "eco-planner",
-  "version": "0.17.9",
+  "version": "0.17.10",
   "license": "AGPL-3.0-only",
   "private": true,
   "description": "A tool intended to help planning actions to achieve local environmental goals",
