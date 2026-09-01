@@ -6,7 +6,7 @@ import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput } from 
 import { BaselineType, DataSeriesType, GoalDataTarget, GoalVisibility, HistoricalDataType } from "@/types/enums";
 import { GoalFormName } from "@/types/form-names";
 import { goalVisibilityFromFlags, goalVisibilityToFlags, isGoalVisibility } from "@/functions/goalVisibility";
-import { IconCaretRightFilled, IconEye, IconEyeOff, IconStar } from "@tabler/icons-react";
+import { IconChevronDown, IconChevronUp, IconEye, IconEyeOff, IconStar } from "@tabler/icons-react";
 import { waitForRecipeFormSyncs } from "@/components/recipe";
 import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -65,7 +65,7 @@ export default function GoalForm({
   const [historicalDataType, setHistoricalDataType] = useState<HistoricalDataType>(() => resolveHistoricalDataType(currentGoal));
 
   // Baseline and historical data are optional, so their sections start collapsed
-  // unless the goal already has one; the summary shows the current choice.
+  // unless the goal already has one; the toggle shows the current choice.
   const [baselineOpen, setBaselineOpen] = useState<boolean>(() => !!currentGoal?.baseline);
   const [historicalOpen, setHistoricalOpen] = useState<boolean>(() => !!currentGoal?.historical);
   // Inline records so every key stays a literal inside t()
@@ -433,34 +433,38 @@ export default function GoalForm({
           {t("forms:goal.data_series.baseline.title")}
         </legend>
 
-        <details
-          className={`smooth ${styles['action-details']}`}
-          open={baselineOpen}
-          onToggle={(e) => setBaselineOpen(e.currentTarget.open)}
-          data-testid="baseline-section"
+        {/* Optional section: a plain toggle shows the current choice and reveals the inputs (kept mounted, only hidden) */}
+        <button
+          type="button"
+          className="flex align-items-center justify-content-space-between gap-50 smooth margin-bottom-100 width-100"
+          style={{ backgroundColor: 'white', border: '1px solid var(--gray-80)', padding: '.5rem .75rem', boxShadow: 'none', transform: 'none', fontSize: '1rem', textShadow: '0 0' }}
+          aria-expanded={baselineOpen}
+          aria-controls="baseline-section"
+          data-testid="baseline-section-toggle"
+          onClick={() => setBaselineOpen((open) => !open)}
         >
-          <summary className="flex justify-content-space-between align-items-center gap-50 padding-50 cursor-pointer">
-            <span className="flex align-items-center gap-25">
-              <IconCaretRightFilled className={`${styles['caret']}`} height={20} width={20} style={{ minWidth: '20px' }} aria-hidden="true" />
-              {t("forms:goal.data_series.baseline.type")}
-            </span>
-            <span className="font-weight-normal">{baselineTypeLabels[baselineType]}</span>
-          </summary>
-          <div className={`padding-50 ${styles['action-details-body']}`}>
-            <BaselineSeriesSection
-              goal={currentGoal}
-              baselineType={baselineType}
-              initialBaselineType={resolveBaselineType(currentGoal)}
-              dataSeries={previewDataSerie}
-              setBaselineType={setBaselineType}
-              setPreviewBaselineSerie={setPreviewBaselineSerie}
-              hasInitializedInitial={baselineHasInitializedInitial}
-              hasInitializedInitialNonZero={baselineHasInitializedInitialNonZero}
-              hasInitializedManual={baselineHasInitializedManual}
-              hasInitializedInherited={baselineHasInitializedInherited}
-            />
-          </div>
-        </details>
+          <span>{baselineTypeLabels[baselineType]}</span>
+          <span className="flex align-items-center gap-25 font-weight-normal" style={{ color: 'var(--gray-20)' }}>
+            {baselineOpen ? t("common:tsx.hide") : t("common:tsx.show")}
+            {baselineOpen
+              ? <IconChevronUp aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+              : <IconChevronDown aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />}
+          </span>
+        </button>
+        <div id="baseline-section" className={baselineOpen ? "" : "display-none"} data-testid="baseline-section">
+          <BaselineSeriesSection
+            goal={currentGoal}
+            baselineType={baselineType}
+            initialBaselineType={resolveBaselineType(currentGoal)}
+            dataSeries={previewDataSerie}
+            setBaselineType={setBaselineType}
+            setPreviewBaselineSerie={setPreviewBaselineSerie}
+            hasInitializedInitial={baselineHasInitializedInitial}
+            hasInitializedInitialNonZero={baselineHasInitializedInitialNonZero}
+            hasInitializedManual={baselineHasInitializedManual}
+            hasInitializedInherited={baselineHasInitializedInherited}
+          />
+        </div>
       </fieldset>
 
       {/* Historical series input section */}
@@ -473,32 +477,35 @@ export default function GoalForm({
         >
           {t("forms:goal.data_series.historical.title")}
         </legend>
-        <details
-          className={`smooth min-width-0 ${styles['action-details']}`}
-          open={historicalOpen}
-          onToggle={(e) => setHistoricalOpen(e.currentTarget.open)}
-          data-testid="historical-section"
+        <button
+          type="button"
+          className="flex align-items-center justify-content-space-between gap-50 smooth margin-bottom-100 width-100"
+          style={{ backgroundColor: 'white', border: '1px solid var(--gray-80)', padding: '.5rem .75rem', boxShadow: 'none', transform: 'none', fontSize: '1rem', textShadow: '0 0' }}
+          aria-expanded={historicalOpen}
+          aria-controls="historical-section"
+          data-testid="historical-section-toggle"
+          onClick={() => setHistoricalOpen((open) => !open)}
         >
-          <summary className="flex justify-content-space-between align-items-center gap-50 padding-50 cursor-pointer">
-            <span className="flex align-items-center gap-25">
-              <IconCaretRightFilled className={`${styles['caret']}`} height={20} width={20} style={{ minWidth: '20px' }} aria-hidden="true" />
-              {t("forms:goal.data_series.historical.type")}
-            </span>
-            <span className="font-weight-normal">{historicalTypeLabels[historicalDataType]}</span>
-          </summary>
-          <div className={`padding-50 min-width-0 ${styles['action-details-body']}`}>
-            <HistoricalSeriesSection
-              goal={currentGoal}
-              historicalDataType={historicalDataType}
-              setHistoricalDataType={setHistoricalDataType}
-              setPreviewHistoricalSerie={setPreviewHistoricalSerie}
-              setPreviewHistoricalRecipe={setPreviewHistoricalRecipe}
-              hasInitializedNone={historicalHasInitializedNone}
-              hasInitializedExternal={historicalHasInitializedExternal}
-              hasInitializedManual={historicalHasInitializedCustom}
-            />
-          </div>
-        </details>
+          <span>{historicalTypeLabels[historicalDataType]}</span>
+          <span className="flex align-items-center gap-25 font-weight-normal" style={{ color: 'var(--gray-20)' }}>
+            {historicalOpen ? t("common:tsx.hide") : t("common:tsx.show")}
+            {historicalOpen
+              ? <IconChevronUp aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+              : <IconChevronDown aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />}
+          </span>
+        </button>
+        <div id="historical-section" className={`min-width-0 ${historicalOpen ? "" : "display-none"}`} data-testid="historical-section">
+          <HistoricalSeriesSection
+            goal={currentGoal}
+            historicalDataType={historicalDataType}
+            setHistoricalDataType={setHistoricalDataType}
+            setPreviewHistoricalSerie={setPreviewHistoricalSerie}
+            setPreviewHistoricalRecipe={setPreviewHistoricalRecipe}
+            hasInitializedNone={historicalHasInitializedNone}
+            hasInitializedExternal={historicalHasInitializedExternal}
+            hasInitializedManual={historicalHasInitializedCustom}
+          />
+        </div>
       </fieldset>
 
       <div className="margin-top-200 min-width-0">

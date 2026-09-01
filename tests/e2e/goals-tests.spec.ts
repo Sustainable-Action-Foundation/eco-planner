@@ -23,11 +23,11 @@ async function fillManualDataSeries(page: Page, rows: Array<[number | string, nu
   }
 }
 
-/** The goal form keeps the baseline section collapsed until the goal has one; open it before picking a type. */
+/** The goal form keeps the baseline section hidden until the goal has one; reveal it before picking a type. */
 async function openBaselineSection(page: Page) {
-  const section = page.getByTestId("baseline-section");
-  if (!(await section.evaluate((details) => (details as HTMLDetailsElement).open))) {
-    await section.locator("summary").click();
+  const toggle = page.getByTestId("baseline-section-toggle");
+  if ((await toggle.getAttribute("aria-expanded")) !== "true") {
+    await toggle.click();
   }
 }
 
