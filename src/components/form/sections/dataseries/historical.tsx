@@ -9,7 +9,7 @@ import { dataSeriesToDateValues, Recipe, type SerializedRecipe } from "@/functio
 import { IconCheck } from "@tabler/icons-react";
 import { RecipeSync } from "@/components/recipe/output/recipeSync";
 import { HistoricalDataType, UnitFlags } from "@/types/enums";
-import { resolveHistoricalDataType } from "../../forms/goal";
+import { resolveHistoricalDataType } from "../../forms/goalSections";
 
 // TODO: Historical data should not be required in a goal form
 // TODO: Should have a "no historical values selection"

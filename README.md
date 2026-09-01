@@ -2,7 +2,7 @@
 A tool intended to help planning actions to achieve local environmental goals
 
 ## Copyright
-Copyright (C) 2023-2025 Sustainable Action Foundation
+Copyright (C) 2023-2026 Sustainable Action Foundation
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, version 3.
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
@@ -12,18 +12,17 @@ You should have received a copy of the GNU Affero General Public License along w
 ## Setup
 This tool requires the following environment variables to be set:
 - `IRON_SESSION_PASSWORD`: Should be a string at least 32 characters long. This is used to encrypt the session cookie from the Iron Session library.
-- `DATABASE_URL`: Should be a connection string to a database. This is used by Prisma to connect to the database. The default configuration expects a MySQL/MariaDB database but this can be changed in the `prisma/schema.prisma` file.
-- `MAIL_HOST`: The SMTP host to use for sending emails.
-- `MAIL_USER`: The username to use when connecting to the SMTP host.
-- `MAIL_PASSWORD`: The password to use when connecting to the SMTP host.
-  - These `MAIL_`-variables are used in `src/mailClient.ts` to send emails using Nodemailer. Depending on how your SMTP host is set up, you might need to change the port and security settings as well as the authMethod.
-  - Yau could also use other transports than SMTP, see [the Nodemailer site](https://www.nodemailer.com/transports/) for more information.
+- `DATABASE_URL`: Should be a connection string to a database. This is used by Prisma to connect to the database. The client connects through `@prisma/adapter-mariadb`, so a MySQL/MariaDB database is expected; targeting something else requires changing both the adapter setup in `src/lib/prisma/prisma.ts` and the `provider` in `prisma/schema.prisma`.
+- `MAIL_TENANT_ID`, `MAIL_CLIENT_ID`, `MAIL_CLIENT_SECRET`: Credentials for a Microsoft Entra app registration, used to send mail through Microsoft Graph with the client credentials flow.
+- `MAIL_USER`: The mailbox mail is sent from, e.g. `noreply@example.org`. Must exist in the tenant.
+  - These `MAIL_`-variables are used in `src/mailClient.ts`. The app registration needs the application permissions `Mail.Send`, plus `Mail.ReadWrite` for the mailbox check in `verify()`.
+- `BASE_URL` (optional): The public URL of the deployment, used when building absolute links (e.g. in emails). Defaults to `http://localhost:3000` in development and the production URL otherwise, see `src/lib/baseUrl.ts`.
 
-If you want to target a different type of database, you might want to remove the existing `prisma/migrations` folder and start from scratch with `yarn prisma migrate dev --create-only` to generate new migration files after changing the `provider` field in the prisma schema file.
+On startup the app runs a self-test (`src/instrumentation.ts`) which checks the session password, mail configuration and database connection, and logs a warning for anything misconfigured.
 
 1. Install dependencies with `yarn install`
-2. If you're setting up the database for the first time (for example, a clean development database), run `yarn prisma migrate deploy` to apply the existing migrations to the database, or `yarn prisma migrate dev` if you do not have any migration files.
-    - The recommended development database is using the [MySQL Installer](https://dev.mysql.com/downloads/installer/) to set up MySQL Workbench and MySQL Server for development.
+2. If you're setting up the database for the first time (for example, a clean development database), run `yarn prisma migrate deploy` to apply the existing migrations to the database..
+    - Any local MariaDB/MySQL server works for development, whether installed natively or run as a docker container.
 
 Now you should be able to run the app with `yarn dev` and access it at http://localhost:3000 or build it with `yarn build` and run it with `yarn start`.
 
@@ -31,43 +30,45 @@ Our package.json comes configured with a preinstall script that runs `git update
 If you for some reason need to update the default version of the file, run `git update-index --no-skip-worktree src/lib/LEAPList.json` to allow git to track changes to the file again.
 
 ### I18N
-We use i18next for internationalization. If you use VS Code we recommend installing the [i18n ally](https://marketplace.visualstudio.com/items?itemName=Lokalise.i18n-ally) extension to help keep track of translation keys. It might require some configuration to work with our project, namely enabling [namespaces](vscode://settings/i18n-ally.namespace) and setting [default namespace](vscode://settings/i18n-ally.defaultNamespace) to `common`.
+We use i18next for internationalization. See [locales.md](/locales.md) for the full documentation on namespaces, key conventions and formatters. If you use VS Code we recommend installing the [i18n ally](https://marketplace.visualstudio.com/items?itemName=Lokalise.i18n-ally) extension to help keep track of translation keys. It might require some configuration to work with our project, namely enabling [namespaces](vscode://settings/i18n-ally.namespace) and setting [default namespace](vscode://settings/i18n-ally.defaultNamespace) to `common`.
 
 ## Recipe Editor notes
-The recipe editor lives in a context provider and keeps the recipe state there. There are a whole bunch of components that may live inside of it to allow for viewing, editing and evaluating recipes. 
+The recipe editor lives in a context provider and keeps the recipe state there. There are a whole bunch of components that may live inside of it to allow for viewing, editing and evaluating recipes.
 
 ## Backend notes
-We use the function unstable_cache from Next.js, which currently returns cached `Date`s in stringified form (See this [GitHub issue](https://github.com/vercel/next.js/issues/51613)). Remember to always create a `new Date()` from the date value whenever you use one, until this problem is fixed.
+We use the `'use cache'` directive from Next.js together with `cacheTag()` for caching fetcher results, which currently returns cached `Date`s in stringified form (see this [GitHub issue](https://github.com/vercel/next.js/issues/51613) about the same behavior in `unstable_cache`). Remember to always create a `new Date()` from the date value whenever you use one, until this problem is fixed.
 
 ## Database structure
-See image, or refer to [schema.prisma](/prisma/schema.prisma) for the full, up-to-date schema.
-![Database Schema](/public/images/eco-planner.png "Database Schema")
+Refer to [schema.prisma](/prisma/schema.prisma) for the full, up-to-date schema.
 
-## Playwright unit tests
-### Outdated instructions, currently the tests start a set of dockers to test against when running `yarn test`
-This project uses [Playwright](https://playwright.dev/) for testing the web application. The tests can be run locally using:
-```bash
-# Please follow project setup instructions above first so the tests have the necessary environment variables and database to run against.
+## Testing
+This project uses [Playwright](https://playwright.dev/) for both unit tests and end-to-end tests.
 
-# First
-yarn run build
-# Then
-yarn run test:run
-```
-They can also be run via a docker compose file ([compose.testing.yaml](/docker/compose.testing.yaml)) which will run the tests in a docker container with an included db. This is what is used in the CI pipeline. Run the docker compose with:
 ```bash
-docker compose -f docker/compose.testing.yaml up
+# Unit tests (no running app needed)
+yarn test:unit
+
+# End-to-end tests; starts the app and a database via docker compose (docker/compose.testing.yaml) and runs against http://localhost:8081
+yarn test:e2e
+
+# Both of the above
+yarn test
+
+# Screenshot tests
+yarn test:screenshot
 ```
+
+To run the e2e tests against an app you host yourself instead of the docker stack, set `SAF_LOCAL_TESTS=true` (and optionally `SAF_SKIP_BUILD=true` to skip rebuilding); the test runner will then start the app with `yarn build && yarn start`. The target URL can be overridden with `BASE_URL`.
 
 ## Components
 
 ### Generic components
-Generic components are components whose functionality is not tied to this project. They are independently redistributable and function on their own within other next.js projects without any dependancies. Examples include the [attributedImage.tsx component](/src/components/images/attributedImage.tsx) or the [header.tsx](/src/components/header/header.tsx) component. 
+Generic components are components whose functionality is not tied to this project. They are independently redistributable and function on their own within other next.js projects without any dependencies. Examples include the [attributedImage.tsx component](/src/components/generic/images/attributedImage.tsx) or the [header component](/src/components/generic/header/).
 
 All generic components are located within the [generic folder.](/src/components/generic)
 
 ### Project specific components
-Project specific components are located directly under the [components folder.](/src/components/) Theese are components which are dependent on this projects structure in order to function. This may include files such as [goals.tsx](/src/components/tables/goals.tsx) which are dependant on the `Roadmap` type.
+Project specific components are located directly under the [components folder.](/src/components/) These are components which are dependent on this project's structure in order to function. This may include files such as [goals.tsx](/src/components/tables/goals.tsx) which depend on project types like `RoadmapIteration` and `AccessLevel`.
 
 ***Component folder structure***
 ```
@@ -88,7 +89,7 @@ Project specific components are located directly under the [components folder.](
 
 ## CSS
 
-There are 3 different ways of writing css for this project: [Semantic Style Sheets](#semanticstylesheets), [CSS Modules](#cssmodules) and [Global CSS](#globalcss). 
+There are 3 different ways of writing css for this project: [Semantic Style Sheets](#semanticstylesheets), [CSS Modules](#cssmodules) and [Global CSS](#globalcss).
 
 > **<span style="color:#4169E1;">🛈</span> Note**
 >
@@ -96,10 +97,10 @@ There are 3 different ways of writing css for this project: [Semantic Style Shee
 
 <div id="semanticstylesheets"></div>
 
-### Semantic Style Sheets 
-This project uses a custom made version of [Semantic Style Sheets v.0.4.0](https://github.com/Axelgustavschnurer/semantic-style-sheets) to add commonly used utility classes. The code for this can be located within [/src/styles/utility.css.](/src/styles/utility.css) 
+### Semantic Style Sheets
+This project uses a custom made version of [Semantic Style Sheets v.0.4.0](https://github.com/Axelgustavschnurer/semantic-style-sheets) to add commonly used utility classes. The code for this can be located within [/src/styles/main.css](/src/styles/main.css), which is pulled in through [global.css](/src/styles/global.css).
 
-<TODO remove this and replace with site docs when those are added >
+<!-- TODO remove this and replace with site docs when those are added -->
 
 <div id="cssmodules"></div>
 
@@ -114,40 +115,40 @@ In some areas there is a larger requirement to have more complicated styling, wh
 1. Create file `component.tsx`
 ```jsx
 export default function Component() {
-    return (
-        <p>Hello World!<p>
-    )
+  return (
+    <p>Hello World!</p>
+  );
 }
 ```
 
 2. Create file `component.module.css`
 ```css
 .componentStyling {
-    color: red;
+  color: red;
 }
 ```
 3. Import `component.module.css` to `component.tsx`
 ```jsx
-import styles from './component.module.css'
+import styles from "./component.module.css";
 
 export default function Component() {
-    return (
-        <p>Hello World!<p>
-    )
+  return (
+    <p>Hello World!</p>
+  );
 }
-``` 
+```
 
-4. Add the styling to the `component.tsx` component 
+4. Add the styling to the `component.tsx` component
 
 ```jsx
-import styles from './styles.module.css'
+import styles from "./component.module.css";
 
 export default function Component() {
-    return (
-        <p className={styles.componentStyling}>Hello World!<p>
-    )
+  return (
+    <p className={styles.componentStyling}>Hello World!</p>
+  );
 }
-``` 
+```
 
 <div id="globalcss"></div>
 
@@ -157,9 +158,11 @@ export default function Component() {
 >
 > *Using global styling often leads to css files which are difficult to read and maintain. It may also cause specificity problems. Ensure that your decision to use global styling is well thought through.*
 
-This project contains a [global.css](/src/styles/global.css) file to style  elements which should have a consistent appearance across the application. This may for example include buttons or forms. The file also contains variables for colors, contained within the css `:root{}` element.
+This project contains a [global.css](/src/styles/global.css) file to style elements which should have a consistent appearance across the application. This may for example include buttons or forms. The color variables live in [colors.css](/src/styles/colors.css), contained within the css `:root{}` element and imported by global.css.
 
 ## Styling
 
 ### Color Palette
+The base colors below are defined in [colors.css](/src/styles/colors.css), each with a `--name-10` to `--name-90` lightness ramp.
+
 ![Color Palette](/public/images/palette.png "Color Palette")

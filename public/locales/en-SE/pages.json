@@ -32,7 +32,9 @@
     "grid": "Grid",
     "list": "List",
     "search_actions": "Search $t(common:count.action)",
+    "show_all": "Show all $t(common:count.action)",
     "show_as": "Visa som",
+    "show_fewer": "Show fewer",
     "shown_results": "Showing $t(common:count.action)",
     "title": "Title",
     "visit_action": "Visit $t(common:action_definite_one)"
@@ -75,13 +77,54 @@
   },
   "goal_edit": {
     "breadcrumb": "$t(common:edit.goal)",
-    "title": "$t(common:edit.goal): {{goalName}}"
-  },
-  "historical_data": {
-    "breadcrumb": "Edit historical data"
+    "title": "$t(common:edit.goal): {{goalName}}",
+    "data_series": {
+      "breadcrumb": "Edit data series",
+      "title": "Edit data series: {{goalName}}"
+    },
+    "baseline": {
+      "breadcrumb": "Edit baseline",
+      "title": "Edit baseline: {{goalName}}"
+    },
+    "historical": {
+      "breadcrumb": "Edit historical data",
+      "title": "Edit historical data: {{goalName}}"
+    },
+    "historical_create": {
+      "breadcrumb": "Add historical data",
+      "title": "Add historical data: {{goalName}}"
+    }
   },
   "home": {
     "create_roadmap": "$t(common:new.roadmap)",
+    "curated_historical": {
+      "cars_by_fuel_description": "Number of registered passenger cars in traffic at the end of each year, by fuel type.",
+      "cars_by_fuel_name": "Passenger cars in traffic by fuel",
+      "category_solar_power": "Solar power",
+      "category_vehicles": "Vehicles",
+      "category_wind_power": "Wind power",
+      "description": "Statistics selected for following the energy and transport transition in your area, fetched directly from the Swedish Energy Agency and Transport Analysis.",
+      "fuel_diesel": "Diesel",
+      "fuel_electric": "Electric",
+      "fuel_ethanol": "Ethanol",
+      "fuel_gas": "Gas",
+      "fuel_hybrid": "Hybrid",
+      "fuel_other": "Other",
+      "fuel_petrol": "Petrol",
+      "fuel_plugin_hybrid": "Plug-in hybrid",
+      "solar_capacity_description": "Installed capacity of grid-connected photovoltaic installations at the end of each year, in megawatts, all size classes.",
+      "solar_capacity_name": "Installed solar power capacity",
+      "solar_installations_description": "Number of grid-connected photovoltaic installations, all size classes.",
+      "solar_installations_name": "Grid-connected solar installations",
+      "source": "Source",
+      "title": "Energy and transport in {{area}}",
+      "wind_capacity_description": "Installed capacity of the wind turbines at the end of each year, in megawatts.",
+      "wind_capacity_name": "Installed wind power capacity",
+      "wind_production_description": "Electricity produced by wind turbines during the year, in gigawatt hours. Only published at county and national level.",
+      "wind_production_name": "Wind power production",
+      "wind_turbines_description": "Number of wind turbines in operation at the end of each year.",
+      "wind_turbines_name": "Wind turbines"
+    },
     "filter": "Filter",
     "org_nav_label": "Organization views",
     "public_tab": "All public $t(common:roadmap_other)",

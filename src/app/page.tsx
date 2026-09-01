@@ -12,7 +12,11 @@ import Link from "next/link";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { getActions, getRoadmapIterations, getRoadmaps, getUserOrgs } from "@/fetchers";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import Actions from "@/components/pages/sections/actions";
+import CuratedHistoricalData from "@/components/pages/sections/historicalData";
+import Image from "next/image";
+import { Suspense } from "react";
 import SearchRoadmaps from "@/components/form/filters/searchRoadmaps";
 import SortRoadmaps from "@/components/form/filters/sortRoadmaps";
 import styles from "./page.module.css";
@@ -43,11 +47,16 @@ export default async function Page(
   // user's orgs (guest ones included) and the public view. The default is the
   // first proper membership: org-less users and pure guests get the public view
   // and reach their org through its tab, since a guest's org landing only holds
-  // what their groups are explicitly granted.
+  // what their groups are explicitly granted. Super admins get every org in the
+  // switcher (memberships first), so one without a membership lands on the
+  // first org instead of the public view.
   const orgParam = searchParams['org'] ? (Array.isArray(searchParams['org']) ? searchParams['org'][0] : searchParams['org']) : '';
   const selectedOrg = orgParam === 'public'
     ? null
-    : userOrgs.find(org => org.id === orgParam) ?? userOrgs.find(org => !org.isGuest) ?? null;
+    : userOrgs.find(org => org.id === orgParam)
+      ?? userOrgs.find(org => org.isMember && !org.isGuest)
+      ?? (accessContext?.isSuperAdmin ? userOrgs[0] : null)
+      ?? null;
 
   const typeFilter = searchParams['typeFilter'] ? (Array.isArray(searchParams['typeFilter']) ? searchParams['typeFilter'] : [searchParams['typeFilter']]) : [];
   const sortBy = searchParams['sortBy'] ? (Array.isArray(searchParams['sortBy']) ? (searchParams['sortBy'][0] as RoadmapSortBy) : (searchParams['sortBy'] as RoadmapSortBy)) : RoadmapSortBy.Default;
@@ -55,11 +64,15 @@ export default async function Page(
 
   // Get the latest version ids, then fetch proper iterations with access and counts
   const latestIterationIds = roadmaps.flatMap(roadmap => {
-    if (!roadmap.iterations.length) {
+    // Unlisted iterations only count as the latest for users who can edit the roadmap
+    const candidates = hasEditAccess(accessChecker(roadmap, accessContext))
+      ? roadmap.iterations
+      : roadmap.iterations.filter(iteration => !iteration.is_unlisted);
+    if (!candidates.length) {
       return [];
     }
 
-    const latestIteration = roadmap.iterations.reduce((current, candidate) =>
+    const latestIteration = candidates.reduce((current, candidate) =>
       candidate.version > current.version ? candidate : current,
     );
 
@@ -199,6 +212,16 @@ export default async function Page(
         <section className="margin-block-300">
           <Actions actions={orgActions} />
         </section>
+
+        { // Curated historical data needs a geo area to localize to
+          selectedOrg.geoArea ?
+            <section className="margin-block-300">
+              {/* The section fetches from external statistics APIs; don't block the rest of the page on a cold cache */}
+              <Suspense fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
+                <CuratedHistoricalData geoArea={selectedOrg.geoArea} />
+              </Suspense>
+            </section>
+            : null}
       </> : <>
       <div className="rounded width-100 margin-bottom-100 margin-top-300 position-relative overflow-hidden" style={{ height: '350px' }}>
         <AttributedImage src="/images/solar.jpg" alt="" sizes="(max-width: 1250px) 100vw, 1250px">

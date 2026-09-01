@@ -222,6 +222,9 @@ async function applyBaselineSection(tx: Prisma.TransactionClient, authorId: stri
     const { baseline_id } = await tx.goals.findUniqueOrThrow({ where: { id: goalId }, select: { baseline_id: true } });
     await assertConnectableSeries(tx, section.baselineId, baseline_id);
     await tx.goals.update({ where: { id: goalId }, data: { baseline: { connect: { id: section.baselineId } } } });
+  } else if (section.baselineId === null) {
+    // An explicit null (and no payload) means "no baseline": drop the current one
+    await tx.goals.update({ where: { id: goalId }, data: { baseline: { disconnect: true } } });
   }
 }
 

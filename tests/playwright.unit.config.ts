@@ -59,5 +59,35 @@ export default defineConfig({
       retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
       use: {},
     },
+    {
+      name: "Table catalog unit tests",
+      testMatch: ["unit/table-catalog.test.ts"],
+      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
+      use: {},
+    },
+    {
+      name: "Curated historical catalog unit tests",
+      testMatch: ["unit/curated-historical.test.ts"],
+      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
+      use: {},
+    },
+    {
+      name: "PxWeb table list unit tests",
+      testMatch: ["unit/px-web-tables.test.ts"],
+      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
+      use: {},
+    },
+    {
+      name: "Decimal input parsing unit tests",
+      testMatch: ["unit/parse-decimal-input.test.ts"],
+      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
+      use: {},
+    },
+    {
+      name: "Goal visibility unit tests",
+      testMatch: ["unit/goal-visibility.test.ts"],
+      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
+      use: {},
+    },
   ],
 });

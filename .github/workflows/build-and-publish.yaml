@@ -266,7 +266,10 @@ jobs:
           $SSH "$SSH_DEST" 'mkdir -p ~/eco-planner'
           $SSH "$SSH_DEST" 'install -m 600 /dev/stdin ~/eco-planner/.env' < deploy.env
           $SSH "$SSH_DEST" 'cat > ~/eco-planner/compose.yaml' < docker/compose.staging.yaml
-          $SSH "$SSH_DEST" 'cd ~/eco-planner && docker compose --env-file .env pull --quiet && docker compose --env-file .env up -d --wait --wait-timeout 300 && docker image prune -f'
+          # Prune before pulling, and with -a: every deploy pulls new sha-tagged images, which never become
+          # dangling, and a prune that only runs after a successful `up` can't rescue a host whose disk is
+          # already full (the seed dies on ENOSPC). Images used by the running stack survive the prune.
+          $SSH "$SSH_DEST" 'cd ~/eco-planner && docker image prune -a -f && docker compose --env-file .env pull --quiet && docker compose --env-file .env up -d --wait --wait-timeout 300'
 
   deploy-production:
     needs: build-and-publish
@@ -327,4 +330,7 @@ jobs:
           $SSH "$SSH_DEST" 'mkdir -p ~/eco-planner'
           $SSH "$SSH_DEST" 'install -m 600 /dev/stdin ~/eco-planner/.env' < deploy.env
           $SSH "$SSH_DEST" 'cat > ~/eco-planner/compose.yaml' < docker/compose.prod.yaml
-          $SSH "$SSH_DEST" 'cd ~/eco-planner && docker compose --env-file .env pull --quiet && docker compose --env-file .env up -d --wait --wait-timeout 300 && docker image prune -f'
+          # Prune before pulling, and with -a: every deploy pulls new sha-tagged images, which never become
+          # dangling, and a prune that only runs after a successful `up` can't rescue a host whose disk is
+          # already full (the seed dies on ENOSPC). Images used by the running stack survive the prune.
+          $SSH "$SSH_DEST" 'cd ~/eco-planner && docker image prune -a -f && docker compose --env-file .env pull --quiet && docker compose --env-file .env up -d --wait --wait-timeout 300'

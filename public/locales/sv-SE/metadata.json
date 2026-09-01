@@ -60,5 +60,8 @@
   },
   "actions": {
     "title": "Åtgärder"
+  },
+  "historical_data_create": {
+    "title": "Lägg till historisk data:"
   }
 }

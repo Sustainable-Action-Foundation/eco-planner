@@ -215,7 +215,7 @@ export function parseDateValuesFromVector(
 
   // If all values agree on one unit, that's the resulting unit; an empty
   // formatUnits means the result is genuinely unitless.
-  const units = [...new Set(vector.map(v => v.formatUnits()))];
+  const units = [...new Set(vector.map(v => cancelMatchingUnits(v).formatUnits()))];
   if (units.length === 1) {
     return {
       unit: units[0].trim() === "" ? UnitFlags.Unitless : parseUnit(units[0]),
@@ -229,6 +229,32 @@ export function parseDateValuesFromVector(
       dateValues: timeline,
     };
   }
+}
+
+/**
+ * Drops unit factors that cancel each other, e.g. `kWh antal / antal` becomes
+ * `kWh` and `t CO2e person / capita` becomes `t CO2e`. mathjs only does that in
+ * `simplify()`, which also rewrites anything it can into base units
+ * (`GWh/year` → `W`), so this cancels solely factors of the same dimension that
+ * are worth the same (aliases and identical prefixes); `kWh/Wh` or `km/m` stay.
+ */
+export function cancelMatchingUnits(unit: MathJSUnit): MathJSUnit {
+  const factorKey = (factor: MathJSUnit["units"][number]) => {
+    // The typings say `prefix` is a string, but at runtime it is the prefix object ({ name, value })
+    const prefix = factor.prefix as unknown as { name: string, value: number };
+    return `${factor.unit.base.key}|${prefix.value * factor.unit.value}`;
+  };
+  const netPowers = new Map<string, number>();
+  for (const factor of unit.units) {
+    netPowers.set(factorKey(factor), (netPowers.get(factorKey(factor)) ?? 0) + factor.power);
+  }
+  if (![...netPowers.values()].some(power => power === 0)) return unit;
+
+  // The value is stored in base units, so removing factors that net to nothing
+  // changes only how the unit is written, not what it is worth.
+  const cancelled = unit.clone();
+  cancelled.units = unit.units.filter(factor => netPowers.get(factorKey(factor)) !== 0);
+  return cancelled;
 }
 
 export function getPrevailingUnit(existingUnit: Unit, newUnit: Unit): Unit {

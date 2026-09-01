@@ -37,6 +37,24 @@ export type ApiSelectionItem = {
   valueCodes: string[];
 }
 
+/**
+ * One entry in a dataset's table catalog, as returned by `getTables`.
+ * Everything beyond `tableId`/`label` exists to power client-side filtering of the
+ * catalog, and is only present when the source's catalog endpoint provides it
+ * (PxWeb's `/tables` does; Trafa's `/structure` does not).
+ */
+export type ApiTableListEntry = {
+  tableId: string;
+  label: string;
+  /** Names of the table's variables/dimensions, in the catalog's language */
+  variableNames?: string[];
+  timeUnit?: "Annual" | "Quarterly" | "Monthly" | "Weekly" | "Other";
+  /** Possible format examples: "2024" | "2024K2" | "2024M5" | "2025W18" */
+  firstPeriod?: string | null;
+  /** Possible format examples: "2024" | "2024K2" | "2024M5" | "2025W18" */
+  lastPeriod?: string | null;
+}
+
 export type TrafaCompatTableMetadata = {
   tableId: string;
   metricDimensions: TrafaCompatMetricDimension[];
@@ -87,4 +105,6 @@ export type ApiSelectOptionBase = {
   type: "dimensionValue" | "filter";
   label?: string;
   value: string;
+  /** Free-text explanation from the source, when it provides one (e.g. Trafa metric descriptions); often the only place a unit is stated */
+  description?: string;
 }

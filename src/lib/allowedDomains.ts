@@ -355,7 +355,7 @@ export const allowedDomains = [
   "ri.se",
   "sustainable-action.org",
   "sustainable-action.ngo",
-  "viegandmaagoe.dk",
+  // "viegandmaagoe.dk",
   // "lansstyrelsen.se",
   // "stuns.se",
 ];

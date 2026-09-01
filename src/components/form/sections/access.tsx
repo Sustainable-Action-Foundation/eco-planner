@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from "react";
+import React, { useState } from "react";
+import { IconBuildingCommunity, IconLock, IconWorld } from "@tabler/icons-react";
 import type { AccessControlInfo, AccessControlInput } from "@/types";
 import { AccessLevel } from "@/lib/prisma/generated";
 import styles from '../forms.module.css';
@@ -88,41 +89,50 @@ export default function ConfigureAccess({
         {legend}
       </legend>
 
+      {/* One tier at a time, narrowest first; styled like the goal form's visibility picker */}
       <fieldset className="fieldset-unset-pseudo-class margin-bottom-100">
         <legend className="font-weight-500 margin-bottom-50">{t("forms:access_selector.visibility")}</legend>
-        <label className="flex width-fit-content margin-bottom-75 align-items-center gap-50">
-          <input
-            required={true}
-            type="radio"
-            name="visibility"
-            value="groups"
-            checked={visibility === "groups"}
-            onChange={() => changeVisibility("groups")}
-          />
-          {t("forms:access_selector.granted_groups_only")}
-        </label>
-        <label className="flex width-fit-content margin-block-75 align-items-center gap-50">
-          <input
-            type="radio"
-            name="visibility"
-            value="org"
-            checked={visibility === "org"}
-            onChange={() => changeVisibility("org")}
-          />
-          {t("forms:access_selector.org_members")}
-        </label>
-        {mayEditPublic ? (
-          <label className="flex width-fit-content margin-block-75 align-items-center gap-50">
-            <input
-              type="radio"
-              name="visibility"
-              value="public"
-              checked={visibility === "public"}
-              onChange={() => changeVisibility("public")}
-            />
-            {t("forms:access_selector.all_users")}
-          </label>
-        ) : null}
+        {([
+          {
+            value: "groups",
+            icon: <IconLock aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
+            label: t("forms:access_selector.granted_groups_only"),
+            description: t("forms:access_selector.granted_groups_only_description"),
+            available: true,
+          },
+          {
+            value: "org",
+            icon: <IconBuildingCommunity aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
+            label: t("forms:access_selector.org_members"),
+            description: t("forms:access_selector.org_members_description"),
+            available: true,
+          },
+          {
+            value: "public",
+            icon: <IconWorld aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
+            label: t("forms:access_selector.all_users"),
+            description: t("forms:access_selector.all_users_description"),
+            // is_public is only honored for org managers / super admins
+            available: mayEditPublic,
+          },
+        ] satisfies { value: Visibility, icon: React.ReactNode, label: string, description: string, available: boolean }[])
+          .filter(option => option.available)
+          .map(option => (
+            <label key={option.value} className="flex align-items-start gap-50 margin-top-50 margin-bottom-50">
+              <input
+                required={true}
+                type="radio"
+                name="visibility"
+                value={option.value}
+                checked={visibility === option.value}
+                onChange={() => changeVisibility(option.value)}
+              />
+              <span>
+                <span className="flex align-items-center gap-25" style={{ textShadow: '0 0' }}>{option.icon}{option.label}</span>
+                <span className="block" style={{ color: '#292929' }}>{option.description}</span>
+              </span>
+            </label>
+          ))}
       </fieldset>
 
       <fieldset className="fieldset-unset-pseudo-class">

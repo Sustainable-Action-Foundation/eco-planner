@@ -3,11 +3,12 @@
 import type { getRoadmaps } from "@/fetchers";
 import formSubmitter from "@/functions/formSubmitter";
 import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput } from "@/types";
-import { BaselineType, DataSeriesType, GoalDataTarget, HistoricalDataType, UnitFlags } from "@/types/enums";
+import { BaselineType, DataSeriesType, GoalDataTarget, GoalVisibility, HistoricalDataType } from "@/types/enums";
 import { GoalFormName } from "@/types/form-names";
-import { isDateValuesWithUnit } from "@/types/typeguards";
+import { goalVisibilityFromFlags, goalVisibilityToFlags, isGoalVisibility } from "@/functions/goalVisibility";
+import { IconEye, IconEyeOff, IconStar } from "@tabler/icons-react";
 import { waitForRecipeFormSyncs } from "@/components/recipe";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
 import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
@@ -16,88 +17,25 @@ import TextEditor from "../elements/textEditor/editor";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import { Recipe } from "@/functions/recipe/recipe";
 import type { SerializedRecipe } from "@/functions/recipe";
+import {
+  buildBaselineSection,
+  GoalFormError,
+  parseDataSeriesSection,
+  parseHistoricalSection,
+  parseRecipeSuggestions,
+  resolveBaselineType,
+  resolveDataSeriesType,
+  resolveHistoricalDataType,
+  useInitializedValues,
+} from "./goalSections";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 import HistoricalSeriesSection from "../sections/dataseries/historical";
 import BaselineSeriesSection from "../sections/dataseries/baseline";
 import GoalSeriesSection from "../sections/dataseries/goal";
 import { getHistoricalDatasetFromRecipe } from "@/functions/getHistoricalDataset";
-import { parseUnit } from "@/functions/unit";
 import PreviewSeries from "../sections/dataseries/preview";
 import DraggableSnapBack from "@/components/generic/draggable/draggable";
-
-function resolveDataSeriesType(goal?: Goal): DataSeriesType {
-  // Somehow missing
-  if (!goal?.data_series) return DataSeriesType.Suggested;
-
-  // Defined recipe
-  if (goal.data_series.recipe_used) {
-    const recipe = Recipe.from(goal.data_series.recipe_used.recipe);
-
-    // Manual entry stored as an inline data series recipe
-    if (recipe.isManual()) {
-      return DataSeriesType.Manual;
-    }
-    // Suggested recipe
-    else if (recipe.isSuggestedRecipe()) {
-      return DataSeriesType.Suggested;
-    }
-    // Custom recipe
-    else {
-      return DataSeriesType.Custom;
-    }
-  }
-
-  // IDK, fall back to manual input :woman_shrugging:
-  return DataSeriesType.Manual;
-}
-
-// TODO: The below never reaches initialNonZero?
-function resolveBaselineType(goal?: Goal): BaselineType {
-  // Default to first value for new goals
-  if (!goal?.baseline) return BaselineType.Initial;
-
-  // No recipe: manual value input (or a legacy baseline; both edit as custom values)
-  if (!goal.baseline.recipe_used) return BaselineType.Custom;
-
-  const recipe = Recipe.from(goal.baseline.recipe_used.recipe);
-
-  // Derived from the goal's data series (first / first non-zero value)
-  const derivation = recipe.baselineDerivation();
-  if (derivation === BaselineType.Initial || derivation === BaselineType.InitialNonZero) {
-    return derivation;
-  }
-
-  return recipe.isManual()
-    ? BaselineType.Custom
-    : BaselineType.Inherited;
-}
-
-export function resolveHistoricalDataType(goal?: Goal): HistoricalDataType {
-  const historical = goal?.historical;
-  if (!historical?.values) return HistoricalDataType.None;
-
-  // Manual entry stored as an inline data series recipe (or a legacy series with
-  // no recipe) edits as custom values; anything else (e.g. an external API
-  // selection) edits as external.
-  if (!historical.recipe_used || Recipe.from(historical.recipe_used.recipe).isManual()) {
-    return HistoricalDataType.Custom;
-  }
-  return HistoricalDataType.External;
-}
-
-// Tracks every distinct value `current` has taken since mount, as a Set.
-// Used to keep a tab's content mounted once it's been visited, even after
-// switching away — replaces one boolean state + one useEffect per enum value.
-export function useInitializedValues<T>(current: T): Set<T> {
-  const [initialized, setInitialized] = useState<Set<T>>(() => new Set([current]));
-
-  useEffect(() => {
-    setInitialized(prev => (prev.has(current) ? prev : new Set(prev).add(current)));
-  }, [current]);
-
-  return initialized;
-}
 
 export default function GoalForm({
   iterationId,
@@ -131,6 +69,7 @@ export default function GoalForm({
   const historicalHasInitializedCustom = initializedHistoricalTypes.has(HistoricalDataType.Custom);
 
   const [indicatorParameter, setIndicatorParameter] = useState<string>(currentGoal?.indicator_parameter ?? "");
+  const initialVisibility = goalVisibilityFromFlags({ is_featured: !!currentGoal?.is_featured, is_unlisted: !!currentGoal?.is_unlisted });
   // const [goalName, setGoalName] = useState<string>(currentGoal?.name ?? "");
   const [parentIterationId, setParentIterationId] = useState<string>(iterationId || "");
   const [previewDataSerie, setPreviewDataSerie] = useState<DateValuesWithUnit | null>(null);
@@ -138,7 +77,7 @@ export default function GoalForm({
   const [previewBaselineSerie, setPreviewBaselineSerie] = useState<DateValuesWithUnit | null>(null);
   const [previewHistoricalRecipe, setPreviewHistoricalRecipe] = useState<SerializedRecipe | null>(null);
 
-  // Evaluation error of the currently-selected recipe input (Suggested/Custom)  setPreviewHistoricalRecipe={setPreviewHistoricalRecipe},
+  // Evaluation error of the currently-selected recipe input (Manual/Suggested/Custom)
   // lifted out of the recipe context so submission can be blocked when it fails
   // to evaluate (e.g. an external variable with an incomplete selection).
   const [dataSeriesRecipeError, setDataSeriesRecipeError] = useState<string | null>(null);
@@ -204,7 +143,6 @@ export default function GoalForm({
     // outputs to settle so a submit right after an edit doesn't read stale data.
     await waitForRecipeFormSyncs(event.target);
 
-    const form = event.target.elements;
     const formData = new FormData(event.target);
     // List of inputs expecting a file
     const fileInputKeys: string[] = [];
@@ -218,182 +156,42 @@ export default function GoalForm({
     }
 
     // Block submission when the selected recipe input failed to evaluate (e.g. an
-    // external dataset variable with an incomplete selection). Without this the
-    // recipe is sent and only fails server-side while materializing externals (500).
-    if (
-      (dataSeriesType === DataSeriesType.Suggested || dataSeriesType === DataSeriesType.Custom)
-      && dataSeriesRecipeError
-    ) {
+    // external dataset variable with an incomplete selection, or a manual series
+    // that didn't pass the recipe type guards). Without this the recipe is sent
+    // and only fails server-side (invalid body / 500 while materializing externals).
+    if (dataSeriesRecipeError) {
       addToast(`${t("forms:goal.errors.recipe_has_error")} ${dataSeriesRecipeError}`, "error", false);
       event.target.reportValidity();
       return;
     }
 
-    // Parse recipe (optional)
-    let dataSeriesRecipe: Recipe | undefined = undefined;
-    const resultingRecipeString = formData.get(GoalFormName.ResultingRecipe) as string | null;
-    if (resultingRecipeString) {
-      try {
-        dataSeriesRecipe = Recipe.deserialize(resultingRecipeString);
-      }
-      catch (err) {
-        addToast(`${t("forms:goal.errors.failed_parse_recipe")} ${err instanceof Error ? err.message : String(err)}`, "error", false);
-        event.target.reportValidity();
-        return;
-      }
-    }
-
-    // Parse date values (required)
-    const resultingDateValuesString = formData.get(GoalFormName.ResultingDateValues) as string | null;
-    if (!resultingDateValuesString) {
-      addToast(t("forms:goal.errors.missing_date_values"), "error", false);
-      event.target.reportValidity();
-      return;
-    }
-
-    let dataSeries: DateValuesWithUnit | undefined;
+    let dataSeries: DateValuesWithUnit;
+    let dataSeriesRecipe: Recipe | undefined;
+    let baseline: DateValuesWithUnit | undefined;
+    let baselineRecipe: Recipe | undefined;
+    let historicalDataSeries: DateValuesWithUnit | undefined;
+    let historicalRecipe: Recipe | undefined;
+    let recipeSuggestions: SerializedRecipe[] | undefined;
     try {
-      dataSeries = JSON.parse(resultingDateValuesString) as DateValuesWithUnit;
-      // The DataUnit field carries a Unit-space value (flags serialize verbatim);
-      // only a missing declaration falls back to the series' own unit.
-      const dataUnitOverride = parseUnit(formData.get(GoalFormName.DataUnit) as string | null);
-      dataSeries.unit = dataUnitOverride === UnitFlags.Missing ? dataSeries.unit : dataUnitOverride;
-    } catch (err) {
-      addToast(`${t("forms:goal.errors.failed_parse_date_values")} ${err instanceof Error ? err.message : String(err)}`, "error", false);
+      ({ dataSeries, dataSeriesRecipe } = parseDataSeriesSection(formData, t));
+      ({ baseline, baselineRecipe } = await buildBaselineSection(formData, baselineType, dataSeries, t));
+      ({ historical: historicalDataSeries, historicalRecipe } = parseHistoricalSection(formData, t));
+      recipeSuggestions = parseRecipeSuggestions(formData, t);
+    }
+    catch (err) {
+      if (!(err instanceof GoalFormError)) throw err;
+      addToast(err.message, "error", false);
       event.target.reportValidity();
       return;
     }
 
-    // Validate parsed date values
-    if (
-      !dataSeries
-      || !isDateValuesWithUnit(dataSeries)
-    ) {
-      addToast(`${t("forms:goal.errors.invalid_date_values")} ${String(dataSeries)}`, "error", false); // Im not sure about String(dataSeries)?
-      event.target.reportValidity();
-      return;
-    }
-
-    let baseline: DateValuesWithUnit | undefined = undefined;
-    let baselineRecipe: Recipe | undefined = undefined;
-    if (baselineType === BaselineType.Custom || baselineType === BaselineType.Inherited) {
-      // Both flow through a recipe context: the recipe is a manual entry
-      // (Custom) or links the inherited series (Inherited), and the baseline
-      // date values are its evaluation result.
-      const baselineString = formData.get(GoalFormName.BaselineDataSeries) as string | null;
-      if (baselineString) {
-        try {
-          baseline = JSON.parse(baselineString) as DateValuesWithUnit;
-        }
-        catch (err) {
-          addToast(`${t("forms:goal.errors.failed_parse_baseline")} ${err instanceof Error ? err.message : String(err)}`, "error", false);
-          event.target.reportValidity();
-          return;
-        }
-      }
-
-      const baselineRecipeString = formData.get(GoalFormName.BaselineRecipe) as string | null;
-      if (baselineRecipeString) {
-        try {
-          baselineRecipe = Recipe.deserialize(baselineRecipeString);
-        }
-        catch (err) {
-          addToast(`${t("forms:goal.errors.failed_parse_recipe")} ${err instanceof Error ? err.message : String(err)}`, "error", false);
-          event.target.reportValidity();
-          return;
-        }
-      }
-    }
-    else if (
-      baselineType === BaselineType.Initial
-      || baselineType === BaselineType.InitialNonZero
-    ) {
-      // Derive the baseline from the submitted data series through a recipe,
-      // like the other baseline types: the equation picks the first (non-zero)
-      // value and the evaluator broadcasts it across the series' years.
-      if (Object.keys(dataSeries.dateValues).length === 0) {
-        addToast(t("forms:goal.errors.initial_baseline_error"), "error", false);
-        event.target.reportValidity();
-        return;
-      }
-
-      baselineRecipe = Recipe.fromInitialDateValue(
-        { unit: dataSeries.unit, dateValues: dataSeries.dateValues },
-        { nonZero: baselineType === BaselineType.InitialNonZero },
-      );
-      try {
-        const evaluated = await baselineRecipe.evaluate();
-        if (!evaluated) throw new Error("Baseline recipe evaluation returned no result.");
-        // The recipe evaluates unitless (see Recipe.fromInitialDateValue); the
-        // baseline keeps the data series' unit verbatim.
-        baseline = { unit: dataSeries.unit, dateValues: evaluated.dateValues };
-      }
-      catch (err) {
-        addToast(`${t("forms:goal.errors.initial_baseline_error")} ${err instanceof Error ? err.message : String(err)}`, "error", false);
-        event.target.reportValidity();
-        return;
-      }
-    }
-    if (baselineType === BaselineType.Inherited && (!baselineRecipe || !baseline)) {
-      addToast(t("forms:goal.errors.missing_inherited_baseline"), "error", false);
-      event.target.reportValidity();
-      return;
-    }
-    // Throw if baseline is missing on create
-    if (!currentGoal && !baseline) {
-      addToast(t("forms:goal.errors.missing_baseline"), "error", false);
-      event.target.reportValidity();
-      return;
-    }
-
-    let historicalDataSeries: DateValuesWithUnit | undefined = undefined;
-    const historicalDataSeriesString = formData.get(GoalFormName.HistoricalDataSeries) as string | null;
-    if (historicalDataSeriesString) {
-      try {
-        historicalDataSeries = JSON.parse(historicalDataSeriesString) as DateValuesWithUnit;
-      }
-      catch (err) {
-        addToast(`${t("forms:goal.errors.failed_parse_historical_data")} ${err instanceof Error ? err.message : String(err)}`, "error", false);
-        event.target.reportValidity();
-        return;
-      }
-    }
-
-    let historicalRecipe: Recipe | undefined = undefined;
-    const historicalRecipeString = formData.get(GoalFormName.HistoricalRecipe) as string | null;
-    if (historicalRecipeString) {
-      try {
-        const parsedHistoricalRecipe = Recipe.deserialize(historicalRecipeString);
-        // An empty recipe (external mode before a selection is completed) or a
-        // manual recipe whose grid produced no values carries no data; skip it
-        // rather than storing an orphaned recipe.
-        if (!parsedHistoricalRecipe.isEmpty() && !(parsedHistoricalRecipe.isManual() && !historicalDataSeries)) {
-          historicalRecipe = parsedHistoricalRecipe;
-        }
-      }
-      catch (err) {
-        addToast(`${t("forms:goal.errors.failed_parse_recipe")} ${err instanceof Error ? err.message : String(err)}`, "error", false);
-        event.target.reportValidity();
-        return;
-      }
-    }
-
-    let recipeSuggestions: SerializedRecipe[] | undefined = undefined;
-    const recipeSuggestionsString = formData.get(GoalFormName.RecipeSuggestions) as string | null;
-    if (recipeSuggestionsString) {
-      try {
-        recipeSuggestions = JSON.parse(recipeSuggestionsString) as SerializedRecipe[];
-      }
-      catch (err) {
-        addToast(`${t("forms:goal.errors.failed_parse_recipe_suggestions")} ${err instanceof Error ? err.message : String(err)}`, "error", false);
-        event.target.reportValidity();
-        return;
-      }
-    }
+    // The visibility radio stands in for the two listing flags the API takes
+    const visibilityValue = formData.get(GoalFormName.Visibility);
+    const visibilityFlags = goalVisibilityToFlags(isGoalVisibility(visibilityValue) ? visibilityValue : GoalVisibility.Public);
 
     // Build the JSON payload for the API
     let formContent: GoalCreateInput | GoalUpdateInput;
-    if (!currentGoal && baseline) {
+    if (!currentGoal) {
       // Create
       formContent = {
         target: GoalDataTarget.Full,
@@ -403,8 +201,7 @@ export default function GoalForm({
         name: formData.get(GoalFormName.GoalName) as string | null ?? null,
         description: formData.get(GoalFormName.Description) as string | null ?? null, // Use the hidden input for the description, which contains the latest editor content
         indicatorParameter: formData.get(GoalFormName.IndicatorParameter) as string | null ?? (event.target.reportValidity(), ""),
-        isFeatured: (form.namedItem(GoalFormName.IsFeatured) as HTMLInputElement)?.checked || false,
-        isUnlisted: (form.namedItem(GoalFormName.IsUnlisted) as HTMLInputElement)?.checked || false,
+        ...visibilityFlags,
         iterationId: iterationId || parentIterationId,
         recipeSuggestions: recipeSuggestions,
 
@@ -436,8 +233,7 @@ export default function GoalForm({
         name: formData.get(GoalFormName.GoalName) as string | null ?? undefined,
         description: formData.get(GoalFormName.Description) as string | null ?? undefined, // Use the hidden input for the description, which contains the latest editor content
         indicatorParameter: formData.get(GoalFormName.IndicatorParameter) as string | null ?? undefined,
-        isFeatured: (form.namedItem(GoalFormName.IsFeatured) as HTMLInputElement)?.checked ?? undefined,
-        isUnlisted: (form.namedItem(GoalFormName.IsUnlisted) as HTMLInputElement)?.checked ?? undefined,
+        ...visibilityFlags,
         recipeSuggestions: recipeSuggestions,
 
         dataSeriesId: undefined,
@@ -445,7 +241,8 @@ export default function GoalForm({
         dataSeriesRecipeId: undefined,
         dataSeriesRecipe: dataSeriesRecipe?.serialize() ?? undefined,
 
-        baselineId: undefined,
+        // Selecting "no baseline" on an existing goal drops its current one
+        baselineId: baselineType === BaselineType.None ? null : undefined,
         baseline: baseline,
         baselineRecipeId: undefined,
         baselineRecipe: baselineRecipe?.serialize() ?? undefined,
@@ -546,101 +343,124 @@ export default function GoalForm({
           value={indicatorParameter}
           setter={setIndicatorParameter}
         />
-        <fieldset>
+        {/* Visibility: one setting standing in for the featured/unlisted flags, like the admin panel */}
+        <fieldset className="margin-top-100">
           <legend>
-            {t("forms:goal.feature_this_goal")}
+            {t("forms:goal.visibility")}
           </legend>
-          <label className="flex align-items-center gap-50 margin-top-50 margin-bottom-100">
-            <input type="checkbox" name={GoalFormName.IsFeatured} id="isFeatured" defaultChecked={currentGoal?.is_featured} />
-            {t("forms:goal.feature_goal")}
-          </label>
-        </fieldset >
-        <fieldset>
-          <legend>
-            {t("forms:goal.unlist_this_goal")}
-          </legend>
-          <label className="flex align-items-center gap-50 margin-top-50 margin-bottom-100">
-            <input type="checkbox" name={GoalFormName.IsUnlisted} id="isUnlisted" defaultChecked={currentGoal?.is_unlisted} />
-            {t("forms:goal.unlist_goal")}
-          </label>
-        </fieldset >
+          {[
+            {
+              value: GoalVisibility.Public,
+              id: "isPublic",
+              icon: <IconEye aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
+              label: t("components:table_menu.visibility_public"),
+              description: t("forms:goal.visibility_public_description"),
+            },
+            {
+              value: GoalVisibility.Unlisted,
+              id: "isUnlisted",
+              icon: <IconEyeOff aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
+              label: t("components:table_menu.visibility_unlisted"),
+              description: t("forms:goal.visibility_unlisted_description"),
+            },
+            {
+              value: GoalVisibility.Featured,
+              id: "isFeatured",
+              icon: <IconStar aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
+              label: t("components:table_menu.visibility_featured"),
+              description: t("forms:goal.visibility_featured_description"),
+            },
+          ].map((option) => (
+            <label key={option.value} className="flex align-items-start gap-50 margin-top-50 margin-bottom-50">
+              <input
+                type="radio"
+                required={true}
+                name={GoalFormName.Visibility}
+                id={option.id}
+                value={option.value}
+                defaultChecked={initialVisibility === option.value}
+              />
+              <span>
+                <span className="flex align-items-center gap-25" style={{ textShadow: '0 0' }}>{option.icon}{option.label}</span>
+                <span className="block" style={{ color: '#292929' }}>{option.description}</span>
+              </span>
+            </label>
+          ))}
+        </fieldset>
       </fieldset>
 
       {/* Goal series input section */}
-      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200 padding-left-200`}>
-        <legend data-position={positionIndex} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.data_series.create")}</legend>
-        <fieldset className={`${styles.timeLineFieldset} margin-top-200 margin-left-400`}>
-          <legend data-position={positionIndex + 0.1} className={`  ${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.data_series.goal.title")}</legend>
-          <GoalSeriesSection
-            goal={currentGoal}
-            dataSeriesType={dataSeriesType}
-            setDataSeriesType={setDataSeriesType}
-            setIndicatorParameter={setIndicatorParameter}
-            setPreviewDataSerie={setPreviewDataSerie}
-            setDataSeriesRecipeError={setDataSeriesRecipeError}
-            hasInitializedSuggested={hasInitializedSuggested}
-            hasInitializedManual={hasInitializedManual}
-            hasInitializedCustom={hasInitializedCustom}
-          />
-        </fieldset>
-
-        {/* Baseline series input section */}
-        <fieldset className={`${styles.timeLineFieldset} margin-top-200 margin-left-400`}>
-          <legend
-            data-position={positionIndex + 0.2}
-            className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
-          >
-            {t("forms:goal.data_series.baseline.title")}
-          </legend>
-
-          <BaselineSeriesSection
-            goal={currentGoal}
-            baselineType={baselineType}
-            initialBaselineType={resolveBaselineType(currentGoal)}
-            dataSeries={previewDataSerie}
-            setBaselineType={setBaselineType}
-            setPreviewBaselineSerie={setPreviewBaselineSerie}
-            hasInitializedInitial={baselineHasInitializedInitial}
-            hasInitializedInitialNonZero={baselineHasInitializedInitialNonZero}
-            hasInitializedManual={baselineHasInitializedManual}
-            hasInitializedInherited={baselineHasInitializedInherited}
-          />
-        </fieldset>
-
-        {/* Historical series input section */}
-        <fieldset className={`${styles.timeLineFieldset} margin-top-200 min-width-0 margin-left-400`}>
-          <legend
-            data-position={positionIndex + 0.3}
-            className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
-          >
-            {t("forms:goal.data_series.historical.title")}
-          </legend>
-          <HistoricalSeriesSection
-            goal={currentGoal}
-            historicalDataType={historicalDataType}
-            setHistoricalDataType={setHistoricalDataType}
-            setPreviewHistoricalSerie={setPreviewHistoricalSerie}
-            setPreviewHistoricalRecipe={setPreviewHistoricalRecipe}
-            hasInitializedNone={historicalHasInitializedNone}
-            hasInitializedExternal={historicalHasInitializedExternal}
-            hasInitializedManual={historicalHasInitializedCustom}
-          />
-        </fieldset>
-
-        <div
-          className="margin-top-200 min-width-0 margin-left-400"
-        >
-          <strong className="block font-size-125 font-weight-bold text-align-center margin-0 padding-top-125">{t("forms:goal.preview")}</strong>
-          <p className="text-align-center margin-top-50">{t("forms:goal.preview_info")}</p>
-          <DraggableSnapBack>
-            <PreviewSeries
-              main={previewGraphSeries.main}
-              baseline={previewGraphSeries.baseline}
-              historical={previewGraphSeries.historical}
-            />
-          </DraggableSnapBack>
-        </div>
+      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.data_series.goal.title")}</legend>
+        <GoalSeriesSection
+          goal={currentGoal}
+          dataSeriesType={dataSeriesType}
+          setDataSeriesType={setDataSeriesType}
+          indicatorParameter={indicatorParameter}
+          setIndicatorParameter={setIndicatorParameter}
+          setPreviewDataSerie={setPreviewDataSerie}
+          setDataSeriesRecipeError={setDataSeriesRecipeError}
+          hasInitializedSuggested={hasInitializedSuggested}
+          hasInitializedManual={hasInitializedManual}
+          hasInitializedCustom={hasInitializedCustom}
+        />
       </fieldset>
+
+      {/* Baseline series input section */}
+      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+        <legend
+          data-position={positionIndex++}
+          className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
+        >
+          {t("forms:goal.data_series.baseline.title")}
+        </legend>
+
+        <BaselineSeriesSection
+          goal={currentGoal}
+          baselineType={baselineType}
+          initialBaselineType={resolveBaselineType(currentGoal)}
+          dataSeries={previewDataSerie}
+          setBaselineType={setBaselineType}
+          setPreviewBaselineSerie={setPreviewBaselineSerie}
+          hasInitializedInitial={baselineHasInitializedInitial}
+          hasInitializedInitialNonZero={baselineHasInitializedInitialNonZero}
+          hasInitializedManual={baselineHasInitializedManual}
+          hasInitializedInherited={baselineHasInitializedInherited}
+        />
+      </fieldset>
+
+      {/* Historical series input section */}
+      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200 min-width-0`}>
+        <legend
+          // Technically incrementing here is unused but if you add another entry after this one it will be correct
+          // eslint-disable-next-line no-useless-assignment
+          data-position={positionIndex++}
+          className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
+        >
+          {t("forms:goal.data_series.historical.title")}
+        </legend>
+        <HistoricalSeriesSection
+          goal={currentGoal}
+          historicalDataType={historicalDataType}
+          setHistoricalDataType={setHistoricalDataType}
+          setPreviewHistoricalSerie={setPreviewHistoricalSerie}
+          setPreviewHistoricalRecipe={setPreviewHistoricalRecipe}
+          hasInitializedNone={historicalHasInitializedNone}
+          hasInitializedExternal={historicalHasInitializedExternal}
+          hasInitializedManual={historicalHasInitializedCustom}
+        />
+      </fieldset>
+
+      <div className="margin-top-200 min-width-0">
+        <strong className="block font-size-125 font-weight-bold text-align-center margin-0 padding-top-125 margin-bottom-50">{t("forms:goal.preview")}</strong>
+        <DraggableSnapBack>
+          <PreviewSeries
+            main={previewGraphSeries.main}
+            baseline={previewGraphSeries.baseline}
+            historical={previewGraphSeries.historical}
+          />
+        </DraggableSnapBack>
+      </div>
 
 
       {/* Suggested recipes section 

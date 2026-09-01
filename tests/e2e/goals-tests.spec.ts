@@ -5,7 +5,7 @@ import { cwd } from "node:process";
 
 const adminFile = path.join(cwd(), "tests/.auth/admin.json");
 
-async function fillManualDataSeries(page: Page, rows: Array<[number, number]>) {
+async function fillManualDataSeries(page: Page, rows: Array<[number | string, number | string]>) {
   const insertRowButton = page.getByTestId("add-row-button");
 
   for (let i = 1; i < rows.length; i++) {
@@ -80,6 +80,45 @@ test.describe("Goals tests", () => {
     await expect(page.getByRole('main')).toContainText("goal.title_label");
   });
 
+  // Regression for #110: cells typed with a decimal comma or grouping spaces used
+  // to become NaN -> null, failing the recipe type guards so the form never
+  // submitted successfully.
+  test('Create goal with decimal comma and grouped values', async ({ page }, { project }) => {
+    await page.goto('/');
+    await page.waitForLoadState("networkidle");
+
+    await page.getByTestId('create-button').click();
+    await page.getByTestId('create-goal').click();
+    await page.waitForLoadState("networkidle");
+
+    await page.locator('#parent-roadmap').click();
+    await page.locator('#parent-roadmap-dialog-listbox li').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: '2' }).click();
+
+    await page.locator('input[name="DATA_SERIES_TYPE"][value="MANUAL"]').check();
+    await page.locator('#indicatorParameter').fill(`Decimal\\comma\\${project.name}`);
+    await page.locator('#goal-manual-unit').fill(unitRequiredOnly);
+    await page.locator('#goal-manual-unit').blur();
+
+    await fillManualDataSeries(page, [[2020, "1,5"], [2021, "18 800"], [2022, "2,25"]]);
+
+    await page.locator('#submit-button').click();
+    await page.waitForLoadState("networkidle");
+
+    await expect(page.getByRole('main')).toContainText("goal.title_label");
+
+    // Reopen in the edit form: values are stored as numbers, and the typed unit
+    // must have survived the grid edits (it used to be reset to "missing").
+    // The full form sits under the panel's edit menu
+    await page.getByTestId("admin-panel-edit-menu").click();
+    await page.getByTestId("admin-panel-edit").click();
+    await page.waitForLoadState("networkidle");
+    await page.locator('input[name="DATA_SERIES_TYPE"][value="MANUAL"]').check();
+    await expect.soft(page.locator('#goal-manual-unit')).toHaveValue(unitRequiredOnly);
+    for (const [row, expected] of [["0", "1.5"], ["1", "18800"], ["2", "2.25"]]) {
+      await expect.soft(page.locator(`#goal-dataseries [data-row="${row}"][data-column="2"] input`)).toHaveValue(expected);
+    }
+  });
+
   test('Edit goal required only', async ({ page }) => {
 
     // will only work correctly if 'Create goal required only' is run before
@@ -99,8 +138,9 @@ test.describe("Goals tests", () => {
     // Wait for page to load
     await page.locator('h1').filter({ hasText: indicatorRequiredOnly }).hover();
 
-    // Enter edit form
-    await page.getByRole('link', { name: "table_menu.edit" }).click();
+    // Enter edit form (the full form sits under the panel's edit menu)
+    await page.getByTestId("admin-panel-edit-menu").click();
+    await page.getByTestId("admin-panel-edit").click();
     await page.waitForLoadState("networkidle");
 
     // Check that everything is auto filled
@@ -121,10 +161,8 @@ test.describe("Goals tests", () => {
       await expect.soft(page.locator(`#goal-dataseries [data-row="${i}"][data-column="2"] input`)).toHaveValue(String(1));
     }
 
-    // The baseline was created as type initial (the default value); derived baselines
-    // are stored as recipes, so the form reopens on the same baseline type instead of
-    // presenting the derived values as a custom series.
-    await expect.soft(page.locator('input[name="BASELINE_TYPE"][value="INITIAL"]')).toBeChecked();
+    // No baseline is the default, so the goal was created without one
+    await expect.soft(page.locator('input[name="BASELINE_TYPE"][value="NONE"]')).toBeChecked();
 
     await expect.soft(page.locator('#isFeatured')).not.toBeChecked();
 
@@ -133,6 +171,7 @@ test.describe("Goals tests", () => {
     await page.locator('#comment-text').hover();
 
     // Reenter edit form
+    await page.getByTestId("admin-panel-edit-menu").click();
     await page.getByTestId("admin-panel-edit").click();
     await page.waitForLoadState("networkidle");
     //await expect(page.locator('#comment-text')).toBeEmpty(); TODO: There is placeholder content here so this will never be empty. Should probably check that the placeholder exists, but that should be done in another test...  
@@ -163,6 +202,7 @@ test.describe("Goals tests", () => {
     //await expect(page.locator('#comment-text')).toBeEmpty(); TODO: There is placeholder content here so this will never be empty. Should probably check that the placeholder exists, but that should be done in another test...  
 
     // Reenter edit form to see that everything is updated
+    await page.getByTestId("admin-panel-edit-menu").click();
     await page.getByTestId("admin-panel-edit").click();
     await page.waitForLoadState("networkidle");
 
@@ -247,8 +287,9 @@ test.describe("Goals tests", () => {
     // Wait for page to load
     await page.locator('h1').filter({ hasText: nameAll }).hover();
 
-    // Enter edit form
-    await page.getByRole('link', { name: "table_menu.edit" }).click();
+    // Enter edit form (the full form sits under the panel's edit menu)
+    await page.getByTestId("admin-panel-edit-menu").click();
+    await page.getByTestId("admin-panel-edit").click();
     await page.waitForLoadState("networkidle");
 
     // Check that everything is auto filled
@@ -279,6 +320,7 @@ test.describe("Goals tests", () => {
     await page.locator('h1').filter({ hasText: nameAll }).hover();
 
     // Reenter edit form
+    await page.getByTestId("admin-panel-edit-menu").click();
     await page.getByTestId("admin-panel-edit").click();
     await page.waitForLoadState("networkidle");
 
@@ -304,7 +346,7 @@ test.describe("Goals tests", () => {
     // No unit input in suggested mode: the unit comes from the recipe evaluation
 
     await page.locator('input[name="BASELINE_TYPE"][value="INITIAL"]').check();
-    await page.locator('#isFeatured').uncheck();
+    await page.locator('#isPublic').check(); // Visibility is a radio group; "public" is the non-featured, listed state
 
     // right before submitting, wait for the recipe to finish calculating by expecting there to be no issues with it
     await expect(page.getByText('recipe_editor.no_errors')).toBeVisible();
@@ -314,6 +356,7 @@ test.describe("Goals tests", () => {
     await page.locator('#comment-text').hover();
 
     // Reenter edit form
+    await page.getByTestId("admin-panel-edit-menu").click();
     await page.getByTestId("admin-panel-edit").click();
     await page.waitForLoadState("networkidle");
 

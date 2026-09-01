@@ -9,7 +9,8 @@ import SecondaryGoalSelector from "../../graphSelectors/secondaryGoalSelector";
 import { Trans, useTranslation } from "react-i18next";
 import type { DataSeries, DateValues, DateValuesWithUnit, Goal, LoginData, RoadmapIteration } from "@/types";
 import { GraphType } from "@/types/enums";
-import CopyAndScale from "@/components/modals/copyAndScale";
+// Copy and scale is shelved for now; see the comment at its render sites below.
+// import CopyAndScale from "@/components/modals/copyAndScale";
 import styles from './goal.module.css';
 import GoalGraph from "./main";
 import TabListSimple from "@/components/generic/tablist/tabListSimple";
@@ -26,8 +27,9 @@ export default function GoalGraphContainer({
   childGoals,
   iteration,
   parentGoal,
-  session,
-  roadmapOptions,
+  // Only used by the shelved copy-and-scale dialog; kept in the props so callers and re-enabling stay untouched
+  session: _session,
+  roadmapOptions: _roadmapOptions,
 }: {
   goal: Goal,
   secondaryGoal: Goal | null,
@@ -324,9 +326,14 @@ export default function GoalGraphContainer({
             <menu className={`${styles['menu']}`}>
               <GraphSelector goal={goal} currentSelection={graphType} setter={setGraphType} />
               <SecondaryGoalSelector />
+              {/*
+                Copy and scale: "borrowing" someone else's goal into your own roadmap
+                is a flow worth keeping, but the dialog needs a rework before it is
+                shipped again. Hidden until then rather than shipped half-baked.
               {(goal.data_series?.id && session.user) ?
                 <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
                 : null}
+              */}
             </menu>
             <h2 className={`${styles['heading']}`}>
               {goal.name ? goal.name : goal.indicator_parameter}
@@ -390,9 +397,11 @@ export default function GoalGraphContainer({
               <menu className={`${styles['menu']}`}>
                 <GraphSelector goal={goal} currentSelection={graphType} setter={setGraphType} />
                 <SecondaryGoalSelector />
+                {/* Copy and scale hidden until its dialog is reworked, see the note above
                 {(goal.data_series?.id && session.user) ?
                   <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
                   : null}
+                */}
               </menu>
               <h2 className={`${styles['heading']}`}>
                 {goal.name ? goal.name : goal.indicator_parameter}

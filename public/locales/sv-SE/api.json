@@ -13,8 +13,8 @@
     "action_updated": "Åtgärd uppdaterad",
     "action_deleted": "Åtgärd raderad",
     "goal_not_found": "Misslyckades att koppla poster. Angivet mål kanske inte existerar",
-    "missing_parent": "Saknar förälder. Vänligen rapportera detta problem om du inte skickar anpassade förfrågningar.",
-    "invalid_data_series": "Felaktig dataserie"
+    "missing_parent": "Saknar överordnad post. Vänligen rapportera detta problem om du inte skickar anpassade förfrågningar.",
+    "invalid_data_series": "Felaktiga värden"
   },
   "goal": {
     "goal_created": "Målbana skapad",
@@ -41,7 +41,7 @@
     "iteration_updated": "Version av färdplan uppdaterad",
     "iteration_deleted": "Version av färdplan raderad",
     "failed_fetch_latest": "Misslyckades att hämta senaste versionen av färdplanen",
-    "failed_record_connection": "Misslyckades att koppla poster. Förmodligen ogiltig färdplans- eller dataseriereferens"
+    "failed_record_connection": "Misslyckades att koppla poster. Förmodligen ogiltig referens till färdplan eller värden"
   },
   "group": {
     "manager_only": "Endast organisationens ansvariga kan hantera dess grupper",

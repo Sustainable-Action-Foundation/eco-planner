@@ -1,13 +1,16 @@
 "use client";
 
 import { closeModal, openModal } from "@/components/modals/modalFunctions";
-import type { ApiMetadataDimensionBase, ApiSelectionItem, ApiTableContent, ApiTableMetadata } from "@/lib/api/apiTypes";
+import type { ApiMetadataDimensionBase, ApiSelectionItem, ApiTableContent, ApiTableListEntry, ApiTableMetadata } from "@/lib/api/apiTypes";
 import getTableMetadata from "@/lib/api/getTableMetadata";
 import getTables from "@/lib/api/getTables";
+import { aggregateTimeUnitFacets, aggregateVariableFacets, filterTableCatalog, PXWEB_CONTENTS_PLACEHOLDER } from "@/lib/api/tableCatalog";
 import { ExternalDataset, formQueryHelper, isDataSetKeys } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Trans, useTranslation } from "react-i18next";
+import SelectMultipleSearch from "../elements/combobox/selectMultipleSearch";
 import FormWrapper from "../formWrapper";
 import styles from "./queryBuilder.module.css";
 import { IconDatabaseSearch, IconSearch, IconX } from "@tabler/icons-react";
@@ -15,6 +18,10 @@ import { useRecipe } from "@/components/recipe/context/recipeContext.use";
 import getTableContent from "@/lib/api/getTableContent";
 import { externalSelectionKey } from "@/functions/recipe";
 import { RecipeDataTypes } from "@/functions/recipe/types/enums";
+import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";
+import { isUnitFlag, parseUnit } from "@/functions/unit";
+import { allOurUnits } from "@/math";
+import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
 
 // TODO: move-history-v3: replace this with external data component once we are done!
 
@@ -32,7 +39,17 @@ export default function RecipeQueryBuilder({
   const { t } = useTranslation("components");
   // Locale has the format language-REGION, e.g. "sv-SE" or "en-US", we only need the language part
   const lang = new Intl.Locale(useContext(LocaleContext)).language;
-  const { upsertVariable } = useRecipe();
+  const { upsertVariable, getVariable } = useRecipe();
+  const variable = getVariable(variableId, RecipeDataTypes.External);
+
+  // The unit of the fetched data is not derivable from the APIs in general (Trafa
+  // never states it, PxWeb sometimes does), so the user declares it here and it is
+  // saved onto the variable. Seeded from the variable, then from a reported unit
+  // until the user types something.
+  const [unitInput, setUnitInput] = useState<string>(variable && !isUnitFlag(variable.unit) ? variable.unit : "");
+  const unitTouchedRef = useRef(false);
+  // Descriptions of the currently selected metric(s); often the only place the source states a unit
+  const [metricDescriptions, setMetricDescriptions] = useState<string[]>([]);
 
   function getInitialSelectionValue(variableCode: string) {
     const valueCode = initialSelection?.find(selection => selection.variableCode === variableCode)?.valueCodes?.[0];
@@ -45,18 +62,34 @@ export default function RecipeQueryBuilder({
   const [isLoading, setIsLoading] = useState(Boolean(initialDataSource));
   const [dataSource, setDataSource] = useState<string>(initialDataSource ?? "");
   const [selectedTableId, setSelectedTableId] = useState<string>(initialTableId ?? "");
-  const [tables, setTables] = useState<{ tableId: string, label: string }[] | null>(null);
+  const [tables, setTables] = useState<ApiTableListEntry[] | null>(null);
   const [offset, setOffset] = useState(0);
+  const [tableSearch, setTableSearch] = useState("");
+  const [variableFilters, setVariableFilters] = useState<string[]>([]);
+  const [timeUnitFilter, setTimeUnitFilter] = useState("");
+  const [coverageYearFilter, setCoverageYearFilter] = useState("");
+  // The variable filter combobox is uncontrolled, so it is reset by remounting via this key
+  const [filterResetKey, setFilterResetKey] = useState(0);
   const [tableMetadata, _setTableMetadata] = useState<ApiTableMetadata | null>(null);
   const [tableContent, setTableContent] = useState<ApiTableContent | null>(null);
   const [mainTimeDimensionId, setMainTimeDimensionId] = useState<string | null>(null);
   const [defaultMetricSelected, setDefaultMetricSelected] = useState(true);
   const hasAppliedInitialTableSelectionRef = useRef(false);
-  const hasAppliedInitialSelectionRef = useRef(false);
+  // Which page of the dialog to show; bumped to the selection page once a preset table has loaded
+  const [section, setSection] = useState(0);
 
   const modalRef = useRef<HTMLDialogElement | null>(null);
   const fieldsetRef = useRef<HTMLFieldSetElement | null>(null);
   const selectorMenuRef = useRef<HTMLDivElement | null>(null);
+
+  // The dialog is portaled to <body> because this component mounts inside other
+  // forms (goal form fieldsets, via external recipe variables): as a descendant,
+  // its required selects would join that form's native validation and silently
+  // veto submission while sitting invisible in the closed dialog. The builder
+  // reads its own controls through refs, so it needs no form owner. Portals
+  // can't render during SSR, hence the mounted gate.
+  const [isPortalMounted, setIsPortalMounted] = useState(false);
+  useEffect(() => { setIsPortalMounted(true); }, []);
 
   const tableSearchInputName = "tableSearch";
 
@@ -66,11 +99,37 @@ export default function RecipeQueryBuilder({
   const tablesListRenderingChunkSize = 50;
   const renderedTablesListMaxLength = 100;
   const initialRenderingMargin = 15;
-  const shouldRenderAllTables = (tables?.length ?? 0) <= renderedTablesListMaxLength + initialRenderingMargin;
-  const renderedTables = tables
-    ? tables.slice(
+
+  const filteredTables = useMemo(() => {
+    if (!tables) return null;
+    return filterTableCatalog(tables, { search: tableSearch, variableFilters, timeUnitFilter, coverageYearFilter });
+  }, [tables, tableSearch, variableFilters, timeUnitFilter, coverageYearFilter]);
+
+  const variableFacetOptions = useMemo(() => aggregateVariableFacets(tables ?? []), [tables]);
+
+  const timeUnitFacetOptions = useMemo(() => aggregateTimeUnitFacets(tables ?? []), [tables]);
+
+  const activeFilterCount = variableFilters.length + (timeUnitFilter ? 1 : 0) + (coverageYearFilter.trim() ? 1 : 0);
+
+  // "Label (code)" of the chosen table, as listed in the catalog. Read from state
+  // rather than the list's DOM, which is virtualized and may not hold the row.
+  const selectedTableLabel = useMemo(() => {
+    const tableId = tableMetadata?.tableId;
+    if (!tableId) return "";
+    const catalogLabel = tables?.find(table => table.tableId === tableId)?.label ?? tableId;
+    return catalogLabel.includes(tableId) ? catalogLabel : `${catalogLabel} (${tableId})`;
+  }, [tables, tableMetadata]);
+
+  const hasCoverageFacet = tables?.some(table => table.firstPeriod && table.lastPeriod) ?? false;
+  // Catalogs without per-table details (currently Trafa, whose structure listing has
+  // no dimensions) have no facets to filter on, so the filter menu is not shown at all.
+  const hasAnyFacet = variableFacetOptions.length > 0 || timeUnitFacetOptions.length > 0 || hasCoverageFacet;
+
+  const shouldRenderAllTables = (filteredTables?.length ?? 0) <= renderedTablesListMaxLength + initialRenderingMargin;
+  const renderedTables = filteredTables
+    ? filteredTables.slice(
       shouldRenderAllTables ? 0 : offset,
-      shouldRenderAllTables ? tables.length : offset + renderedTablesListMaxLength,
+      shouldRenderAllTables ? filteredTables.length : offset + renderedTablesListMaxLength,
     )
     : null;
 
@@ -96,7 +155,15 @@ export default function RecipeQueryBuilder({
     if (!dataSource) return;
 
     getTables(dataSource, lang)
-      .then(result => { setTables(result); setOffset(0); })
+      .then(result => {
+        setTables(result);
+        setOffset(0);
+        // Old filters are meaningless against a new catalog (or a new catalog language)
+        setTableSearch("");
+        setVariableFilters([]);
+        setTimeUnitFilter("");
+        setCoverageYearFilter("");
+      })
       .catch((err: unknown) => {
         const errorMessage = err instanceof Error ? err.message : String(err);
         console.error("Error fetching tables:", errorMessage);
@@ -113,7 +180,11 @@ export default function RecipeQueryBuilder({
 
     hasAppliedInitialTableSelectionRef.current = true;
     getTableMetadata(initialTableId, dataSource, undefined, lang)
-      .then(result => { setTableMetadata(result); })
+      .then(result => {
+        setTableMetadata(result);
+        // The table is already chosen, so open on the selection page
+        if (result) setSection(1);
+      })
       .catch((err: unknown) => {
         const errorMessage = err instanceof Error ? err.message : String(err);
         console.error("Error fetching initial table metadata:", errorMessage);
@@ -122,9 +193,12 @@ export default function RecipeQueryBuilder({
       .finally(() => setIsLoading(false));
   }, [dataSource, initialTableId, lang, setTableMetadata, tables]);
 
-  // Run one first query when initial values are set.
+  // Run one first query when all metrics already have values without the user touching
+  // them — from initial values, or from a single-option metric that was auto-selected.
+  // Without this, the variable fieldset (which only unlocks in handleMetricSelect's
+  // change handler) would stay disabled forever for single-metric tables.
   useEffect(() => {
-    if (!tableMetadata || !initialSelection?.length || hasAppliedInitialSelectionRef.current) return;
+    if (!tableMetadata) return;
     if (!(selectorMenuRef.current instanceof HTMLDivElement)) return;
 
     const metricSelectElements = selectorMenuRef.current.querySelectorAll("select.metric");
@@ -135,12 +209,16 @@ export default function RecipeQueryBuilder({
     });
     if (hasUnselectedMetric) return;
 
-    hasAppliedInitialSelectionRef.current = true;
+    // Only dispatch while the variable fieldset is still locked, so later metadata
+    // updates (e.g. Trafa's metric-filtered refetches) don't loop back in here.
+    const variableFieldsets = Array.from(document?.getElementsByName("variableSelectionFieldset") ?? []);
+    if (variableFieldsets.length > 0 && !variableFieldsets.some(fieldset => fieldset.hasAttribute("disabled"))) return;
+
     const firstMetricSelect = metricSelectElements[0];
     if (firstMetricSelect instanceof HTMLSelectElement) {
       firstMetricSelect.dispatchEvent(new Event("change", { bubbles: true }));
     }
-  }, [initialSelection, tableMetadata]);
+  }, [tableMetadata]);
 
   // Show or hide the loader.
   useEffect(() => {
@@ -160,7 +238,27 @@ export default function RecipeQueryBuilder({
       event.stopPropagation();
     }
   }
-  
+
+  function clearTableFilters() {
+    setTableSearch("");
+    setVariableFilters([]);
+    setTimeUnitFilter("");
+    setCoverageYearFilter("");
+    setFilterResetKey(previous => previous + 1);
+    setOffset(0);
+  }
+
+  function timeUnitLabel(timeUnit: NonNullable<ApiTableListEntry["timeUnit"]>) {
+    switch (timeUnit) {
+      case "Annual": return t("components:query_builder.time_unit_annual");
+      case "Quarterly": return t("components:query_builder.time_unit_quarterly");
+      case "Monthly": return t("components:query_builder.time_unit_monthly");
+      case "Weekly": return t("components:query_builder.time_unit_weekly");
+      case "Other": return t("components:query_builder.time_unit_other");
+      default: return timeUnit;
+    }
+  }
+
 
   function handleDataSourceSelect(dataSource: string) {
     setIsLoading(true);
@@ -168,19 +266,21 @@ export default function RecipeQueryBuilder({
     setSelectedTableId("");
     setDefaultMetricSelected(true);
     setOffset(0);
-    hasAppliedInitialTableSelectionRef.current = false;
-    hasAppliedInitialSelectionRef.current = false;
-    // Clear table metadata and content whenever the data source changes
+    // Wipe the whole table selection: the old catalog, the metadata and the content.
+    // Keeping the old catalog around let the initial-table effect match the preset
+    // table id against the previous source's list and fetch it from the new source.
+    // The preset table is deliberately not re-applied if the user switches back.
+    hasAppliedInitialTableSelectionRef.current = true;
+    setTables(null);
     setTableContent(null);
     setTableMetadata(null);
-    // Make sure submit button is disabled when the data source is changed
+    setSection(0);
   }
 
   function handleTableSelect(tableId: string) {
     setIsLoading(true);
     setSelectedTableId(tableId);
     setDefaultMetricSelected(true);
-    hasAppliedInitialSelectionRef.current = false;
 
     if (!ExternalDataset.getDatasetByAlternateName(dataSource)?.baseUrl) return;
     if (!tableId) return;
@@ -246,7 +346,7 @@ export default function RecipeQueryBuilder({
   }
 
   function handleTableListScroll(event: React.UIEvent<HTMLUListElement, UIEvent>) {
-    if (event.target && event.target instanceof HTMLElement && tables && event.target.children.length < tables.length) {
+    if (event.target && event.target instanceof HTMLElement && filteredTables && event.target.children.length < filteredTables.length) {
       if ( // This block is only executed when the user scrolls down
         renderedTables
         &&
@@ -254,7 +354,7 @@ export default function RecipeQueryBuilder({
         event.target.scrollTop + event.target.clientHeight * 2 >= event.target.scrollHeight
         &&
         /* Make sure that the very last table has not been rendered */
-        !renderedTables.includes(tables[tables.length - 1])
+        !renderedTables.includes(filteredTables[filteredTables.length - 1])
       ) {
         const newOffset = offset + tablesListRenderingChunkSize;
         setOffset(newOffset);
@@ -266,7 +366,7 @@ export default function RecipeQueryBuilder({
         event.target.scrollTop < event.target.clientHeight * 2
         &&
         /* Check that the very first table has not been rendered */
-        !renderedTables.includes(tables[0])
+        !renderedTables.includes(filteredTables[0])
       ) {
         const newOffset = Math.max(offset - tablesListRenderingChunkSize, 0);
         setOffset(newOffset);
@@ -274,12 +374,27 @@ export default function RecipeQueryBuilder({
     }
   }
 
+  function dimensionDisplayLabel(dimension: ApiMetadataDimensionBase) {
+    const label = dimension.label || dimension.name;
+    if (label === PXWEB_CONTENTS_PLACEHOLDER) return t("components:query_builder.contents_variable");
+    return label;
+  }
+
   function metricSelectionHelper(metricDimension: ApiMetadataDimensionBase, tableMetadata: ApiTableMetadata) {
     if (metricDimension.options) {
+      // A single-option PxWeb metric is auto-selected, so show it as plain text; the
+      // select stays in the DOM (hidden) since queries are built from select values.
+      const isAutoSelectedSingle = ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && metricDimension.options.length === 1;
       return (
         <label key={`metric-${tableMetadata.tableId}-${metricDimension.id}`} className="block margin-block-75">
-          {metricDimension.label || metricDimension.name}
+          {dimensionDisplayLabel(metricDimension)}
+          {isAutoSelectedSingle ?
+            <span className="block margin-block-25" lang={tableMetadata.language}>
+              {metricDimension.options[0].label || metricDimension.options[0].value}
+            </span>
+            : null}
           <select
+            style={isAutoSelectedSingle ? { display: "none" } : undefined}
             className="block margin-block-25 metric"
             required={true}
             name={metricDimension.id}
@@ -310,7 +425,7 @@ export default function RecipeQueryBuilder({
         <label key={dimension.id} className={`block margin-block-75 ${options?.classNames?.map((className: string) => className).join(" ")}`}>
           {/* Only display "optional" tags if the data source provides this information */}
           <span style={{ "textTransform": "capitalize" }}>
-            {dimension.label || dimension.name}{optionalTag(dataSource, dimension.optional ?? false)}
+            {dimensionDisplayLabel(dimension)}{optionalTag(dataSource, dimension.optional ?? false)}
           </span>
           {/* TODO: Use CSS to set proper capitalization of labels; something like `label::first-letter { text-transform: capitalize; }` */}
           <select
@@ -407,8 +522,20 @@ export default function RecipeQueryBuilder({
 
     const query = formQueryHelper(formData, tableMetadata, mainTimeDimensionId);
     const tableId = tableMetadata?.tableId ?? formData.get("externalTableId") as string ?? "";
+
+    // Surface the description of each chosen metric next to the data
+    setMetricDescriptions((tableMetadata?.metricDimensions ?? []).flatMap(metricDimension => {
+      const chosen = metricDimension.options.find(option => option.value === formData.get(metricDimension.id));
+      return chosen?.description ? [chosen.description] : [];
+    }));
+
     getTableContent(tableId, dataSource, query, lang).then(result => {
       setTableContent(result);
+      // Suggest a reported unit while the user hasn't declared one themselves
+      const reportedUnit = result?.unit?.base;
+      if (reportedUnit && !unitTouchedRef.current && isMathjsUnit(parseUnit(reportedUnit))) {
+        setUnitInput(reportedUnit);
+      }
       setIsLoading(false);
     }).catch((err: unknown) => {
       const errorMessage = err instanceof Error ? err.message : String(err);
@@ -465,6 +592,7 @@ export default function RecipeQueryBuilder({
         dataset: isDataSetKeys(dataSource) ? dataSource : prev.dataset,
         tableId: tableMetadata?.tableId ?? formData.get("externalTableId") as string ?? prev.tableId,
         selection: query,
+        unit: parseUnit(unitInput),
         dataSeriesId: selectionChanged ? null : prev.dataSeriesId,
       };
     });
@@ -500,7 +628,8 @@ export default function RecipeQueryBuilder({
         <IconDatabaseSearch strokeWidth={1.75} width={20} height={20} color='black' style={{ minWidth: '20' }} aria-hidden="true" />
       </button>
 
-      <dialog className={`rounded padding-inline-0 padding-block-0 ${styles.dialog}`} ref={modalRef} aria-modal={true} style={{ backgroundColor: 'rgb(246, 246, 246)' }}>
+      {isPortalMounted ? createPortal(
+      <dialog className={`rounded padding-inline-0 padding-block-0 ${styles.dialog} ${styles.builder}`} ref={modalRef} aria-modal={true} style={{ backgroundColor: 'rgb(246, 246, 246)' }}>
         <div className={`${styles['dialog-content']}`}>
           <div className={`${styles['dialog-header']}`}>
             <button type="button" className="grid round padding-50 transparent" disabled={isLoading} onClick={() => closeModal(modalRef)} autoFocus={true} aria-label={t("common:tsx.close")} >
@@ -509,8 +638,9 @@ export default function RecipeQueryBuilder({
             <h2 className="margin-0">{t("components:query_builder.add_data_source")}</h2>
           </div>
 
-          <div className={`${styles['dialog-body']}`}>
-            <FormWrapper>
+          <div className={`${styles['dialog-panes']}`}>
+            <div className={`${styles['dialog-pane']} ${styles['dialog-pane-form']}`}>
+            <FormWrapper section={section} labels={{ back: t("components:query_builder.change_table") }}>
               <fieldset className="position-relative" ref={fieldsetRef}>
                 <label className="margin-block-75 font-weight-500">
                   {t("components:query_builder.data_source")}
@@ -529,21 +659,96 @@ export default function RecipeQueryBuilder({
                 {dataSource ?
                   <>
                     <div className="margin-top-100 margin-bottom-25">
-                      {/* TODO: Label currently affects multiple elements, fix this */}
                       <label className="font-weight-500">
                         {t("components:query_builder.search_for_table")}
                         <div className="focusable purewhite flex align-items-center margin-top-25 padding-left-50 smooth">
                           <IconSearch strokeWidth={1.5} style={{ minWidth: '24px' }} aria-hidden="true" />
-                          <input name={tableSearchInputName} type="search" className="padding-0 margin-inline-50 flex-grow-100" onKeyDown={searchOnEnter} style={{ backgroundColor: "transparent" }} />
-                          <button type="button" className="padding-block-50 padding-inline-100 transparent font-weight-500">{t("components:query_builder.search")}</button> {/* TODO: this does not work */}
+                          <input
+                            name={tableSearchInputName}
+                            type="search"
+                            className="padding-50 margin-inline-50 flex-grow-100"
+                            value={tableSearch}
+                            onChange={e => { setTableSearch(e.target.value); setOffset(0); }}
+                            onKeyDown={searchOnEnter}
+                            style={{ backgroundColor: "transparent" }}
+                          />
                         </div>
                       </label>
                     </div>
 
+                    {hasAnyFacet ? <details className="margin-bottom-25 smooth purewhite padding-50" style={{ border: "1px solid var(--gray-80)" }}>
+                      <summary className="font-weight-500" style={{ cursor: "pointer" }}>
+                        {t("components:query_builder.filters")}{activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
+                      </summary>
+
+                      {variableFacetOptions.length > 0 ?
+                        <>
+                          <label htmlFor="tableVariableFilter" className="block margin-top-50">{t("components:query_builder.filter_by_variable")}</label>
+                          <SelectMultipleSearch
+                            key={`variable-filter-${dataSource}-${lang}-${filterResetKey}`}
+                            props={{
+                              id: "tableVariableFilter",
+                              name: "tableVariableFilter",
+                              className: "margin-block-25",
+                              placeholder: t("components:query_builder.any_variable"),
+                            }}
+                            options={variableFacetOptions.map(({ key, name, count }) => ({ name: `${name} (${count})`, value: key }))}
+                            onChange={value => {
+                              setVariableFilters((value ?? []).map(option => option.value));
+                              setOffset(0);
+                            }}
+                          />
+                        </>
+                        : null}
+
+                      {timeUnitFacetOptions.length > 0 ?
+                        <label className="block margin-block-50">
+                          {t("components:query_builder.filter_by_time_unit")}
+                          <select className="block margin-block-25 width-100" value={timeUnitFilter} onChange={e => { setTimeUnitFilter(e.target.value); setOffset(0); }}>
+                            <option value="">{t("components:query_builder.any_time_unit")}</option>
+                            {timeUnitFacetOptions.map(unit => (
+                              <option key={unit} value={unit}>{timeUnitLabel(unit)}</option>
+                            ))}
+                          </select>
+                        </label>
+                        : null}
+
+                      {hasCoverageFacet ?
+                        <label className="block margin-block-50">
+                          {t("components:query_builder.filter_has_data_for_year")}
+                          <input
+                            type="number"
+                            inputMode="numeric"
+                            min={1900}
+                            max={2200}
+                            className="block margin-block-25"
+                            value={coverageYearFilter}
+                            onChange={e => { setCoverageYearFilter(e.target.value); setOffset(0); }}
+                            onKeyDown={searchOnEnter}
+                          />
+                        </label>
+                        : null}
+
+                      {activeFilterCount > 0 || tableSearch ?
+                        <button type="button" className="transparent padding-block-25 padding-inline-50 font-weight-500" onClick={clearTableFilters}>
+                          {t("components:query_builder.clear_filters")}
+                        </button>
+                        : null}
+                    </details> : null}
+
+                    {tables && filteredTables ?
+                      <p className="margin-block-25 font-size-14px color-gray">
+                        {t("components:query_builder.showing_table_count", { shown: filteredTables.length, total: tables.length })}
+                      </p>
+                      : null}
+
                     <ul
                       id="tablesList"
-                      className={`position-relative padding-25 smooth purewhite ${styles.temporary}`} onScroll={e => handleTableListScroll(e)}
+                      className={`position-relative padding-25 smooth purewhite ${styles.scrollable}`} onScroll={e => handleTableListScroll(e)}
                       style={{ maxHeight: "300px", border: "1px solid var(--gray-80)", listStyle: "none", overflowY: 'scroll' }} >
+                      {filteredTables?.length === 0 ?
+                        <li className="padding-block-25 font-style-italic color-gray">{t("components:query_builder.no_tables_match_filters")}</li>
+                        : null}
                       {renderedTables?.map(({ tableId: id, label }) => (
                         <li
                           key={id}
@@ -573,10 +778,10 @@ export default function RecipeQueryBuilder({
               </fieldset>
 
               {tableMetadata ? <div ref={selectorMenuRef}>
-                <label className="block margin-block-75">
+                <label className={`block ${styles['selected-table-heading']}`}>
                   <Trans
                     i18nKey={"components:query_builder.selected_table"}
-                    values={{ table: document.getElementById(`table${tableMetadata.tableId}`)?.innerText }}
+                    values={{ table: selectedTableLabel }}
                     components={{ strong: <strong />, small: <small />, i: <i /> }}
                   />
                   {/* {t("components:query_builder.selected_table", { table: document.getElementById(`table${tableMetadata.id}`)?.innerText })} */}
@@ -591,13 +796,13 @@ export default function RecipeQueryBuilder({
                     ))}
                   </div>
                 </fieldset>
-                <fieldset name="variableSelectionFieldset" disabled={true} className={`margin-block-100 smooth padding-25 fieldset-unset-pseudo-class`} style={{ border: `${shouldVariableFieldsetBeVisible(tableMetadata, dataSource) ? "1px solid var(--gray-90)" : ""}`, maxHeight: "322px" }}>
+                <fieldset name="variableSelectionFieldset" disabled={true} className={`margin-block-100 smooth padding-25 fieldset-unset-pseudo-class`} style={{ border: `${shouldVariableFieldsetBeVisible(tableMetadata, dataSource) ? "1px solid var(--gray-90)" : ""}` }}>
                   {shouldVariableFieldsetBeVisible(tableMetadata, dataSource) ? (
                     <>
                       <legend className="padding-inline-50">
                         <b>{t("components:query_builder.select_values_for_table")}</b>
                       </legend>
-                      <div className={`${styles.temporary}`} style={{ maxHeight: "282px", boxSizing: "content-box", padding: ".25rem", paddingRight: ".375rem" }}>
+                      <div className="padding-25">
                         {tableMetadata.timeDimensions?.map(time => {
                           return timeVariableSelectionHelper(time, tableMetadata.language);
                         })}
@@ -620,12 +825,35 @@ export default function RecipeQueryBuilder({
 
               </div> : null}
             </FormWrapper>
-            <output className="block padding-bottom-100">
-              {/* TODO: style this better */}
+            </div>
+
+            <div className={`${styles['dialog-pane']} ${styles['dialog-preview']}`}>
+            <output className="block">
               {tableContent && tableContent.values.length > 0 ? (
-                <div className="padding-inline-100">
-                  <p>{t("components:query_builder.does_this_look_correct", { count: 5 })}</p>
-                  <table>
+                <div>
+                  <p className="margin-top-0">{t("components:query_builder.does_this_look_correct")}</p>
+                  {/* Everything that came back from the API lives in this card: the table as
+                      listed on the left (label and code), what the selection resolved to, and the values */}
+                  <div className={styles['preview-card']}>
+                  <p className="margin-top-0 font-weight-500">{t("components:query_builder.fetched_data")}</p>
+                  {(() => {
+                    const tableLabel = selectedTableLabel || tableContent.id;
+                    // Some sources (Trafa) only report the table name here, which the line above already shows
+                    const selectionLabels = tableContent.metadata
+                      .map(item => item.label)
+                      .filter((label): label is string => !!label && !tableLabel.includes(label));
+                    return (<>
+                      <p className="font-weight-500">{tableLabel}</p>
+                      {selectionLabels.length > 0 ? <p>{selectionLabels.join(", ")}</p> : null}
+                      {metricDescriptions.map(description => (
+                        <p key={description} className="font-style-italic">{description}</p>
+                      ))}
+                      {tableContent.unit?.base ?
+                        <p>{t("components:query_builder.reported_unit")}: <strong>[{tableContent.unit.base}]</strong></p>
+                        : null}
+                    </>);
+                  })()}
+                  <table className={styles['preview-table']}>
                     <thead>
                       <tr>
                         <th scope="col">{t("components:query_builder.period")}</th>
@@ -634,29 +862,55 @@ export default function RecipeQueryBuilder({
                     </thead>
                     <tbody>
                       {
-                        tableContent.values.map(({ period, value }, rowIndex) => {
-                          return (
-                            rowIndex < 5 &&
-                            <tr key={period}>
-                              <td>{period}</td>
-                              <td>{value}</td>
-                            </tr>
-                          );
-                        })
+                        tableContent.values.map(({ period, value }) => (
+                          <tr key={period}>
+                            <td>{period}</td>
+                            <td>{value}</td>
+                          </tr>
+                        ))
                       }
                     </tbody>
                   </table>
+                  </div>
                 </div>
-              ) :
-                !defaultMetricSelected &&
-                (
-                  <p className="padding-100">{t("components:query_builder.no_result_found")}</p>
-                )
-              }
+              ) : !defaultMetricSelected ? (
+                <p className="margin-0">{t("components:query_builder.no_result_found")}</p>
+              ) : (
+                <div className="flex flex-direction-column align-items-center gap-50 padding-block-100 text-align-center color-gray">
+                  <IconDatabaseSearch width={48} height={48} strokeWidth={1.25} aria-hidden="true" />
+                  <p className="margin-0 font-style-italic">{t("components:query_builder.preview_placeholder")}</p>
+                </div>
+              )}
             </output>
-            {/* TODO: Should probably only be displayed on last slide? */}
+
+            {/* Unit of the fetched data, declared by the user (the APIs rarely state it) and saved onto the variable */}
+            {tableMetadata ?
+              <div className="margin-top-100">
+                <label htmlFor={`external-unit-${variableId}`} className="block font-weight-500">
+                  {t("components:recipe_editor.unit_placeholder")}
+                </label>
+                <TextSingleAutocomplete
+                  props={{
+                    id: `external-unit-${variableId}`,
+                    name: `external-unit-${variableId}`,
+                    className: "margin-block-25",
+                    style: { width: "100%" },
+                  }}
+                  options={allOurUnits.map(unit => ({ name: unit, value: unit }))}
+                  value={unitInput}
+                  setter={(next) => {
+                    unitTouchedRef.current = true;
+                    setUnitInput(next);
+                  }}
+                />
+                <small className="block color-gray">{t("components:query_builder.unit_help")}</small>
+              </div>
+              : null}
+            </div>
+          </div>
+
+          <div className={`${styles['dialog-footer']}`}>
             <button
-              id="submit-button"
               type="button"
               className="seagreen color-purewhite block width-100"
               onClick={() => saveRecipe()}
@@ -665,7 +919,9 @@ export default function RecipeQueryBuilder({
             </button>
           </div>
         </div>
-      </dialog>
+      </dialog>,
+      document.body,
+      ) : null}
     </>
   );
 }

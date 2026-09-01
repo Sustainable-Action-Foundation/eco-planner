@@ -8,6 +8,7 @@ import Grid from "@/components/form/elements/grid/grid";
 import type { DateValues, DateValuesWithUnit } from "@/types";
 import { IconArrowsMaximize, IconArrowsMinimize, IconPlus, IconRowInsertTop, IconTrashXFilled } from "@tabler/icons-react";
 import { useToast } from "@/components/generic/toast/toastContext.use";
+import { parseDecimalInput } from "@/functions/parseDecimalInput";
 import { UnitFlags } from "@/types/enums";
 
 export default function DataSeriesGrid({
@@ -50,11 +51,17 @@ export default function DataSeriesGrid({
   // The grid's current values as a DateValuesWithUnit. The grid itself has no
   // unit input; unit is resolved elsewhere (e.g. the goal form's unit field).
   // Rows without a year or without a value are skipped (empty cells aren't data).
+  // Cell text is parsed with parseDecimalInput so a decimal comma or grouping
+  // spaces don't become NaN (which serializes to null and fails the server's
+  // DateValues guard); unparsable cells are left out here and blocked by the
+  // input's `pattern` at submit.
   const dateValuesWithUnit: DateValuesWithUnit = useMemo(() => {
     const dateValues: Record<string, number> = {};
     for (const { year, data } of value) {
-      if (!year || data === "") continue;
-      dateValues[`${year}-01-01T00:00:00.000Z`] = Number(data);
+      if (!year) continue;
+      const parsed = parseDecimalInput(data);
+      if (parsed === null) continue;
+      dateValues[`${year}-01-01T00:00:00.000Z`] = parsed;
     }
     return { unit: UnitFlags.Missing, dateValues: dateValues as DateValues };
   }, [value]);
@@ -309,7 +316,7 @@ export default function DataSeriesGrid({
                 <input
                   type="text"
                   inputMode="numeric"
-                  pattern="[0-9]*" // Matches any number which is considered a year. Might make sense to validate as a date in the future.
+                  pattern="[0-9]{4}" // A four-digit year; anything else can't form a valid ISO date key. Might make sense to validate as a date in the future.
                   required={true}
                   tabIndex={-1}
                   value={item.year === null ? '' : String(item.year)}
@@ -324,7 +331,7 @@ export default function DataSeriesGrid({
                 <input
                   type="text"
                   inputMode="decimal"
-                  pattern="[+\-]?[0-9]*[.,]?[0-9]+([eE][+\-]?[0-9]+)?"
+                  pattern="[+\-]?[0-9\s]*[.,]?[0-9]+([eE][+\-]?[0-9]+)?" // Decimal comma and grouping spaces allowed. Keep in sync with parseDecimalInput: everything this admits must parse
                   tabIndex={-1}
                   value={item.data === null ? '' : String(item.data)}
                   onChange={(e) => {

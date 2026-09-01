@@ -241,7 +241,7 @@ export function effectGraphSorter<T extends { action: { name: string, startYear:
 
 /**
  * Sorts comments by time created, newest first.
- * Since unstable_cache returns stringified dates we need to convert them to Date objects first.
+ * Since `'use cache'` returns stringified dates we need to convert them to Date objects first.
  */
 export function commentSorter<T extends { created_at: Date | string }>(a: T, b: T) {
   return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
