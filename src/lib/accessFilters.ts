@@ -20,7 +20,7 @@ export function managedOrgIds(ctx: UserAccessContext): string[] {
   return ctx.memberships.filter(m => m.role === OrgRole.MANAGER).map(m => m.orgId);
 }
 
-/** Ids of orgs where the user is a proper member (MEMBER or MANAGER; GUESTs are excluded from org_readable) */
+/** Ids of orgs where the user is a proper member (MEMBER or MANAGER; GUESTs are excluded from ORG sharing) */
 export function memberOrgIds(ctx: UserAccessContext): string[] {
   return ctx.memberships.filter(m => m.role !== OrgRole.GUEST).map(m => m.orgId);
 }

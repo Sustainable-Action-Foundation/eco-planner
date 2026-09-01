@@ -23,7 +23,7 @@ const defaultSharing: Sharing = Sharing.ORG;
  * (granted groups only / org members / everyone) plus per-group RO/RW grants.
  *
  * Sharing is manager-only on existing content; the parent decides whether to
- * render this at all. `mayEditPublic` gates the public option (is_public is
+ * render this at all. `mayEditPublic` gates the PUBLIC option (it is
  * only honored for org managers / super admins even on create).
  */
 export default function ConfigureAccess({
