@@ -6,7 +6,7 @@ import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput } from 
 import { BaselineType, DataSeriesType, GoalDataTarget, GoalVisibility, HistoricalDataType } from "@/types/enums";
 import { GoalFormName } from "@/types/form-names";
 import { goalVisibilityFromFlags, goalVisibilityToFlags, isGoalVisibility } from "@/functions/goalVisibility";
-import { IconEye, IconEyeOff, IconStar } from "@tabler/icons-react";
+import { IconCaretRightFilled, IconEye, IconEyeOff, IconStar } from "@tabler/icons-react";
 import { waitForRecipeFormSyncs } from "@/components/recipe";
 import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -63,6 +63,24 @@ export default function GoalForm({
   const baselineHasInitializedInherited = initializedBaselineTypes.has(BaselineType.Inherited);
 
   const [historicalDataType, setHistoricalDataType] = useState<HistoricalDataType>(() => resolveHistoricalDataType(currentGoal));
+
+  // Baseline and historical data are optional, so their sections start collapsed
+  // unless the goal already has one; the summary shows the current choice.
+  const [baselineOpen, setBaselineOpen] = useState<boolean>(() => !!currentGoal?.baseline);
+  const [historicalOpen, setHistoricalOpen] = useState<boolean>(() => !!currentGoal?.historical);
+  // Inline records so every key stays a literal inside t()
+  const baselineTypeLabels: Record<BaselineType, string> = {
+    [BaselineType.None]: t("forms:goal.baseline_types.none"),
+    [BaselineType.Initial]: t("forms:goal.baseline_types.initial"),
+    [BaselineType.InitialNonZero]: t("forms:goal.baseline_types.initial_non_zero"),
+    [BaselineType.Custom]: t("forms:goal.baseline_types.custom"),
+    [BaselineType.Inherited]: t("forms:goal.baseline_types.inherited"),
+  };
+  const historicalTypeLabels: Record<HistoricalDataType, string> = {
+    [HistoricalDataType.None]: t("forms:goal.data_series.historical.no_historical_title"),
+    [HistoricalDataType.External]: t("forms:goal.data_series.historical.external_title"),
+    [HistoricalDataType.Custom]: t("forms:goal.data_series.historical.custom_title"),
+  };
   const initializedHistoricalTypes = useInitializedValues(historicalDataType);
   const historicalHasInitializedNone = initializedHistoricalTypes.has(HistoricalDataType.None);
   const historicalHasInitializedExternal = initializedHistoricalTypes.has(HistoricalDataType.External);
@@ -415,18 +433,34 @@ export default function GoalForm({
           {t("forms:goal.data_series.baseline.title")}
         </legend>
 
-        <BaselineSeriesSection
-          goal={currentGoal}
-          baselineType={baselineType}
-          initialBaselineType={resolveBaselineType(currentGoal)}
-          dataSeries={previewDataSerie}
-          setBaselineType={setBaselineType}
-          setPreviewBaselineSerie={setPreviewBaselineSerie}
-          hasInitializedInitial={baselineHasInitializedInitial}
-          hasInitializedInitialNonZero={baselineHasInitializedInitialNonZero}
-          hasInitializedManual={baselineHasInitializedManual}
-          hasInitializedInherited={baselineHasInitializedInherited}
-        />
+        <details
+          className={`smooth ${styles['action-details']}`}
+          open={baselineOpen}
+          onToggle={(e) => setBaselineOpen(e.currentTarget.open)}
+          data-testid="baseline-section"
+        >
+          <summary className="flex justify-content-space-between align-items-center gap-50 padding-50 cursor-pointer">
+            <span className="flex align-items-center gap-25">
+              <IconCaretRightFilled className={`${styles['caret']}`} height={20} width={20} style={{ minWidth: '20px' }} aria-hidden="true" />
+              {t("forms:goal.data_series.baseline.type")}
+            </span>
+            <span className="font-weight-normal">{baselineTypeLabels[baselineType]}</span>
+          </summary>
+          <div className={`padding-50 ${styles['action-details-body']}`}>
+            <BaselineSeriesSection
+              goal={currentGoal}
+              baselineType={baselineType}
+              initialBaselineType={resolveBaselineType(currentGoal)}
+              dataSeries={previewDataSerie}
+              setBaselineType={setBaselineType}
+              setPreviewBaselineSerie={setPreviewBaselineSerie}
+              hasInitializedInitial={baselineHasInitializedInitial}
+              hasInitializedInitialNonZero={baselineHasInitializedInitialNonZero}
+              hasInitializedManual={baselineHasInitializedManual}
+              hasInitializedInherited={baselineHasInitializedInherited}
+            />
+          </div>
+        </details>
       </fieldset>
 
       {/* Historical series input section */}
@@ -439,16 +473,32 @@ export default function GoalForm({
         >
           {t("forms:goal.data_series.historical.title")}
         </legend>
-        <HistoricalSeriesSection
-          goal={currentGoal}
-          historicalDataType={historicalDataType}
-          setHistoricalDataType={setHistoricalDataType}
-          setPreviewHistoricalSerie={setPreviewHistoricalSerie}
-          setPreviewHistoricalRecipe={setPreviewHistoricalRecipe}
-          hasInitializedNone={historicalHasInitializedNone}
-          hasInitializedExternal={historicalHasInitializedExternal}
-          hasInitializedManual={historicalHasInitializedCustom}
-        />
+        <details
+          className={`smooth min-width-0 ${styles['action-details']}`}
+          open={historicalOpen}
+          onToggle={(e) => setHistoricalOpen(e.currentTarget.open)}
+          data-testid="historical-section"
+        >
+          <summary className="flex justify-content-space-between align-items-center gap-50 padding-50 cursor-pointer">
+            <span className="flex align-items-center gap-25">
+              <IconCaretRightFilled className={`${styles['caret']}`} height={20} width={20} style={{ minWidth: '20px' }} aria-hidden="true" />
+              {t("forms:goal.data_series.historical.type")}
+            </span>
+            <span className="font-weight-normal">{historicalTypeLabels[historicalDataType]}</span>
+          </summary>
+          <div className={`padding-50 min-width-0 ${styles['action-details-body']}`}>
+            <HistoricalSeriesSection
+              goal={currentGoal}
+              historicalDataType={historicalDataType}
+              setHistoricalDataType={setHistoricalDataType}
+              setPreviewHistoricalSerie={setPreviewHistoricalSerie}
+              setPreviewHistoricalRecipe={setPreviewHistoricalRecipe}
+              hasInitializedNone={historicalHasInitializedNone}
+              hasInitializedExternal={historicalHasInitializedExternal}
+              hasInitializedManual={historicalHasInitializedCustom}
+            />
+          </div>
+        </details>
       </fieldset>
 
       <div className="margin-top-200 min-width-0">
