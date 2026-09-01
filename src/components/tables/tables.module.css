@@ -177,4 +177,8 @@
 .roadmap-nav-ul li>details a:hover {
   background-color: var(--gray-90);
 }
- 
+
+/* Roadmap tree: drafts get green diagonal stripes (the action form marks deletions with red ones the same way) */
+.draft-iteration {
+  background-image: repeating-linear-gradient(-45deg, rgba(46, 138, 86, 0.18) 0 .375rem, transparent .375rem .75rem);
+}

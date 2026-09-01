@@ -310,7 +310,8 @@
   "roadmap_tree": {
     "no_roadmaps": "Inga $t(common:roadmap_other) hittades. Om du har några aktiva filter hittades inga $t(common:roadmap_other) som matchar dem.",
     "show_source_alt": "Visa underliggande $t(common:roadmap_version_other)",
-    "title": "{{name}} (v{{version}})"
+    "title": "{{name}} (v{{version}})",
+    "draft": "Utkast"
   },
   "sidebar": {
     "about": "Om",
