@@ -7,7 +7,8 @@
     "effects_label": "$t(common:effect_other, titleCase)",
     "expected_effect": "Expected $t(common:effect_other)",
     "no_category": "No specified category",
-    "no_effect": "No specified $t(common:effect_other)"
+    "no_effect": "No specified $t(common:effect_other)",
+    "shared_database_note": "Part of the shared action database: visible to everyone, edited by the owning organization's managers."
   },
   "action_create": {
     "bad_goal": "Could not find or do not have access to the $t(common:goal_one) in the link.",

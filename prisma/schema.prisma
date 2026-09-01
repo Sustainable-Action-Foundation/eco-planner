@@ -48,7 +48,7 @@ enum OrgRole {
 /*
  * Visibility is three separate, single-valued settings, one per level:
  * - Sharing (roadmap access control): who may access the roadmap and everything under it
- * - IterationStatus (roadmap version): draft (editors only) / unlisted (by link) / published (listed)
+ * - IterationStatus (roadmap version): draft (editors only) / published
  * - GoalListing (goal): how the goal shows up in its version's listings
  */
 
@@ -62,13 +62,12 @@ enum Sharing {
   PUBLIC
 }
 
-// Publication state of a roadmap version
+// Publication state of a roadmap version. There is deliberately no "unlisted"
+// tier here: a version is either a working area for editors or it is out.
 enum IterationStatus {
   // Work in progress: only users who can edit the roadmap can see it at all
   DRAFT
-  // Readable by everyone with access to the roadmap, but left out of listings for users who can't edit it
-  UNLISTED
-  // Readable and listed
+  // Readable per the roadmap's sharing, and listed
   PUBLISHED
 }
 
@@ -164,7 +163,7 @@ model RoadmapIterations {
   // If the parent roadmap relates to another roadmap, target_version defines which version of the related roadmap this iteration relates to
   // If target version is not found in the related roadmap, use the latest version available instead
   target_version Int?
-  // Draft / unlisted / published, see IterationStatus
+  // Draft / published, see IterationStatus
   status         IterationStatus @default(DRAFT)
   // When the version first left the draft state; informational only, the gate is `status`
   published_at   DateTime?

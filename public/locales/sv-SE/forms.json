@@ -265,8 +265,6 @@
     "status": "Status",
     "status_draft": "Utkast",
     "status_draft_description": "Bara personer som kan redigera färdplanen kan se den.",
-    "status_unlisted": "Dold",
-    "status_unlisted_description": "Kan läsas av alla med åtkomst till färdplanen, men visas inte i listor för personer som inte kan redigera den.",
     "status_published": "Publicerad",
     "status_published_description": "Kan läsas och visas i listor för alla som kan se färdplanen."
   },

@@ -4,7 +4,6 @@ import styles from '@/components/tables/tables.module.css' with { type: "css" };
 import { ControlsMenu } from '@/components/elements/controls/controls';
 import VisibilityBadges from '@/components/generic/visibility/visibilityBadges';
 import accessChecker from '@/lib/accessChecker';
-import { isIterationListed } from '@/lib/listing';
 import serveTea from "@/lib/i18nServer";
 import Link from 'next/link';
 import { iterationPath } from '@/functions/versionSlug';
@@ -51,13 +50,9 @@ export default async function RoadmapTable({
     parsedIterations.push(...iterations);
   }
 
-  // Unlisted versions are only listed for users who can edit them
-  const listedIterations = parsedIterations.filter(iteration =>
-    isIterationListed(iteration, accessChecker({ access_control: iteration.roadmap.access_control, status: iteration.status }, accessContext)),
-  );
-
-  return listedIterations.length
-    ? listedIterations.map(iteration => {
+  // Drafts only reach editors (the fetchers apply the access filter), so everything here is listed
+  return parsedIterations.length
+    ? parsedIterations.map(iteration => {
       let typeAlias = iteration.roadmap.type.toString();
       if (iteration.roadmap.type === "NATIONAL") typeAlias = t("common:scope.national");
       else if (iteration.roadmap.type === "REGIONAL") typeAlias = t("common:scope.regional");

@@ -12,7 +12,7 @@ import type { UserAccessContext } from "@/types";
  * - RW grant via a group -> read + write (content only, not sharing settings)
  * - RO grant / ORG sharing (members, not GUESTs) / PUBLIC sharing -> read
  * - Draft versions (status DRAFT) -> visible only with write access
- * - UNLISTED versions and goals are readable but left out of listings unless writable (see the *listed* helpers)
+ * - UNLISTED goals are readable but left out of listings unless writable (see listedGoalsWHERE)
  */
 
 /** Ids of orgs the user manages */
@@ -79,24 +79,6 @@ export function visibleRoadmapIterationsWHERE(ctx: UserAccessContext | null): Pr
     OR: [
       { status: { not: IterationStatus.DRAFT } },
       { roadmap: { access_control: writableAccessControlWHERE(ctx) } },
-    ],
-  };
-}
-
-/**
- * Matches roadmap versions that belong in listings for the user: visible, and
- * either not unlisted or writable (editors see their unlisted versions listed).
- */
-export function listedRoadmapIterationsWHERE(ctx: UserAccessContext | null): Prisma.RoadmapIterationsWhereInput {
-  return {
-    AND: [
-      visibleRoadmapIterationsWHERE(ctx),
-      {
-        OR: [
-          { status: { not: IterationStatus.UNLISTED } },
-          { roadmap: { access_control: writableAccessControlWHERE(ctx) } },
-        ],
-      },
     ],
   };
 }

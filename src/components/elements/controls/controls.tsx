@@ -551,7 +551,7 @@ function GoalPanelControls({
   );
 }
 
-/** Draft / unlisted / published for a roadmap version, straight from its panel. */
+/** Draft / published for a roadmap version, straight from its panel. */
 function IterationStatusControls({
   iteration,
   timestamp,
@@ -564,12 +564,10 @@ function IterationStatusControls({
   // Inline records so every key stays a literal inside t()
   const statusLabels: Record<IterationStatus, string> = {
     [IterationStatus.DRAFT]: t("components:table_menu.status_draft"),
-    [IterationStatus.UNLISTED]: t("components:table_menu.status_unlisted"),
     [IterationStatus.PUBLISHED]: t("components:table_menu.status_published"),
   };
   const statusIcons: Record<IterationStatus, React.ReactNode> = {
     [IterationStatus.DRAFT]: <IconPencil aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
-    [IterationStatus.UNLISTED]: <IconEyeOff aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
     [IterationStatus.PUBLISHED]: <IconEye aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
   };
 

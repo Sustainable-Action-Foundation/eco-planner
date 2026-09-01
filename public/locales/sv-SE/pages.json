@@ -7,7 +7,8 @@
     "effects_label": "$t(common:effect_other, titleCase)",
     "expected_effect": "Förväntad $t(common:effect_one)",
     "no_category": "Ingen angiven kategori",
-    "no_effect": "Ingen angiven $t(common:effect_one)"
+    "no_effect": "Ingen angiven $t(common:effect_one)",
+    "shared_database_note": "Ingår i den gemensamma åtgärdsdatabasen: synlig för alla, redigeras av den ägande organisationens chefer."
   },
   "action_create": {
     "bad_goal": "Kunde inte hitta, eller har inte tillgång till, $t(common:goal_definite_one) i länken.",

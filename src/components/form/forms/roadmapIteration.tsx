@@ -9,7 +9,7 @@ import type { TFunction } from "i18next";
 import { Trans, useTranslation } from "react-i18next";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import TextEditor from "../elements/textEditor/editor";
-import { IconEye, IconEyeOff, IconPencil, IconUpload } from "@tabler/icons-react";
+import { IconEye, IconPencil, IconUpload } from "@tabler/icons-react";
 import { IterationStatus } from "@/lib/prisma/generated";
 import { isIterationStatus } from "@/types/typeguards";
 import { useToast } from "@/components/generic/toast/toastContext.use";
@@ -208,7 +208,7 @@ export default function RoadmapIterationForm({
         />
         <input ref={descriptionRef} type="hidden" name="description" />
 
-        {/* Status: draft (editors only) → unlisted (by link) → published (listed) */}
+        {/* Status: draft (editors only) or published */}
         <fieldset className="margin-top-100 margin-bottom-100">
           <legend>{t("forms:roadmap_iteration.status")}</legend>
           {[
@@ -218,13 +218,6 @@ export default function RoadmapIterationForm({
               icon: <IconPencil aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
               label: t("forms:roadmap_iteration.status_draft"),
               description: t("forms:roadmap_iteration.status_draft_description"),
-            },
-            {
-              value: IterationStatus.UNLISTED,
-              id: "isUnlisted",
-              icon: <IconEyeOff aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
-              label: t("forms:roadmap_iteration.status_unlisted"),
-              description: t("forms:roadmap_iteration.status_unlisted_description"),
             },
             {
               value: IterationStatus.PUBLISHED,

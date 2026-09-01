@@ -265,8 +265,6 @@
     "status": "Status",
     "status_draft": "Draft",
     "status_draft_description": "Only people who can edit the roadmap can see it.",
-    "status_unlisted": "Unlisted",
-    "status_unlisted_description": "Readable by everyone with access to the roadmap, but left out of listings for people who can't edit it.",
     "status_published": "Published",
     "status_published_description": "Readable and listed for everyone who can see the roadmap."
   },

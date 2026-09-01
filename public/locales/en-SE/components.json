@@ -375,7 +375,6 @@
     "listing_featured": "Featured",
     "status_current": "Status: {{state}}",
     "status_draft": "Draft",
-    "status_unlisted": "Unlisted",
     "status_published": "Published"
   },
   "table_selector": {

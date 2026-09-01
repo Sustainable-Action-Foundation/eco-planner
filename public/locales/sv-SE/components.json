@@ -375,7 +375,6 @@
     "listing_featured": "Framlyft",
     "status_current": "Status: {{state}}",
     "status_draft": "Utkast",
-    "status_unlisted": "Dold",
     "status_published": "Publicerad"
   },
   "table_selector": {

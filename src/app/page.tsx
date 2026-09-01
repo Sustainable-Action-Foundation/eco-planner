@@ -13,7 +13,6 @@ import { buildMetadata } from "@/functions/buildMetadata";
 import { getActions, getRoadmapIterations, getRoadmaps, getUserOrgs } from "@/fetchers";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
-import { isIterationListed } from "@/lib/listing";
 import Actions from "@/components/pages/sections/actions";
 import CuratedHistoricalData from "@/components/pages/sections/historicalData";
 import Image from "next/image";
@@ -64,11 +63,10 @@ export default async function Page(
   const searchFilter = searchParams['searchFilter'] ? (Array.isArray(searchParams['searchFilter']) ? searchParams['searchFilter'][0] : searchParams['searchFilter']) : '';
 
   // Per roadmap: the latest published version is its node in the tree, and any
-  // drafts nest under it (drafts only reach editors; unlisted versions only
-  // count as the latest for users who can edit the roadmap)
+  // drafts nest under it (drafts only reach editors via the existing access filter)
   const treeIterationIds = roadmaps.flatMap(roadmap => {
     const accessLevel = accessChecker(roadmap, accessContext);
-    const published = roadmap.iterations.filter(iteration => iteration.status !== IterationStatus.DRAFT && isIterationListed(iteration, accessLevel));
+    const published = roadmap.iterations.filter(iteration => iteration.status === IterationStatus.PUBLISHED);
     const drafts = hasEditAccess(accessLevel) ? roadmap.iterations.filter(iteration => iteration.status === IterationStatus.DRAFT) : [];
 
     const latestPublished = published.length
