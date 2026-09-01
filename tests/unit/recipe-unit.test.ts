@@ -925,7 +925,7 @@ test.describe("Sanity checks", () => {
 });
 
 test.describe("reachBy", () => {
-  test("draws a line from the start year to the target year and holds the target after", async () => {
+  test("draws a line through the start and target years and continues at the same slope", async () => {
     const recipe = new Recipe({
       name: "Reach target",
       equation: "reachBy(year, ${start}, ${target}, ${from}, ${to})",
@@ -945,7 +945,7 @@ test.describe("reachBy", () => {
     expect(byYear[2030]).toBe(10);
     expect(byYear[2032]).toBe(30);
     expect(byYear[2034]).toBe(50);
-    expect(byYear[2050]).toBe(50);
+    expect(byYear[2050]).toBe(210);
     expect(Object.keys(byYear).length).toBe(2050 - 2030 + 1);
   });
 

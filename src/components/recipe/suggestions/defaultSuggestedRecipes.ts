@@ -208,8 +208,9 @@ export function getDefaultSuggestedRecipes(t: TFunction, parentSeries?: Prefille
     },
 
     /* Shaping a trajectory */
-    // From the parent's last known value in the start year (the current one) to a
-    // target value in a target year, linearly; see `reachBy` in `src/math.ts`
+    // From the parent's last known value in the start year (the current one)
+    // through a target value in a target year, linearly and onwards at the same
+    // slope; see `reachBy` in `src/math.ts`
     {
       id: DefaultSuggestedRecipeId.ReachTarget,
       recipe: (() => {

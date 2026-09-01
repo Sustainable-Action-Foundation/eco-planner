@@ -127,11 +127,12 @@ const customFunctions = {
   },
 
   /**
-   * A straight line from `start` in `startYear` to `target` in `endYear`, one
-   * value per entry of `years` (the evaluator's `year` axis): NaN before the
-   * start year (those years are left out of the result), the target held
-   * after the end year. `start` keeps its unit; a bare number as `target` is
-   * read in that unit, so "reach 50" over a series in MW means 50 MW.
+   * A straight line through `start` in `startYear` and `target` in `endYear`,
+   * one value per entry of `years` (the evaluator's `year` axis): NaN before
+   * the start year (those years are left out of the result), and the same
+   * slope continued past the end year. `start` keeps its unit; a bare number
+   * as `target` is read in that unit, so "reach 50" over a series in MW means
+   * 50 MW.
    */
   reachBy(years: unknown, start: unknown, target: unknown, startYear: unknown, endYear: unknown): unknown {
     const axis: unknown = mathjs.isMatrix(years) ? years.toArray() : years;
@@ -159,7 +160,7 @@ const customFunctions = {
 
     return axis.map(year => {
       if (year < from) return withUnit(NaN);
-      const fraction = Math.min((year - from) / (to - from), 1);
+      const fraction = (year - from) / (to - from);
       return withUnit(startValue + (targetValue - startValue) * fraction);
     });
   },
