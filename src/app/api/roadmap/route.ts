@@ -12,7 +12,6 @@ import type { AccessControlInput, UserAccessContext, JSONValue } from "@/types";
 import { ClientError } from "@/types/consts";
 import { isRoadmapCreate, isRoadmapUpdate } from "@/types/typeguards";
 import { revalidateTag } from "next/cache";
-import { iterationPath } from "@/functions/versionSlug";
 import { cookies } from "next/headers";
 
 /**
@@ -187,26 +186,14 @@ export async function POST(request: NextRequest) {
             },
           },
         },
-        // A roadmap starts with an empty first version so the creator lands
-        // on something to fill in (goals, a LEAP import, ...) instead of a
-        // separate "create version" step. It is published right away: who can
-        // see it is already decided by the sharing settings above.
-        iterations: {
-          create: {
-            version: 1,
-            published_at: new Date(),
-            author: { connect: { id: session.user.id } },
-          },
-        },
       },
       select: { id: true },
     });
     // Invalidate old cache; expire immediately so the page the client is redirected to sees the new roadmap
     revalidateTag('roadmap', { expire: 0 });
-    revalidateTag('roadmapIteration', { expire: 0 });
     // Return the new roadmap's ID if successful
     return Response.json({ message: t('api:roadmap.roadmap_created'), id: newRoadmap.id },
-      { status: 201, headers: { 'Location': iterationPath(newRoadmap.id, 1) } },
+      { status: 201, headers: { 'Location': `/roadmap/${newRoadmap.id}/iteration/create` } },
     );
   }
   catch (err) {
