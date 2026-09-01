@@ -6,7 +6,7 @@ import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput } from 
 import { BaselineType, DataSeriesType, GoalDataTarget, GoalVisibility, HistoricalDataType } from "@/types/enums";
 import { GoalFormName } from "@/types/form-names";
 import { goalVisibilityFromFlags, goalVisibilityToFlags, isGoalVisibility } from "@/functions/goalVisibility";
-import { IconEye, IconEyeOff, IconStar } from "@tabler/icons-react";
+import { IconChevronDown, IconChevronUp, IconEye, IconEyeOff, IconStar } from "@tabler/icons-react";
 import { waitForRecipeFormSyncs } from "@/components/recipe";
 import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -63,6 +63,24 @@ export default function GoalForm({
   const baselineHasInitializedInherited = initializedBaselineTypes.has(BaselineType.Inherited);
 
   const [historicalDataType, setHistoricalDataType] = useState<HistoricalDataType>(() => resolveHistoricalDataType(currentGoal));
+
+  // Baseline and historical data are optional, so their sections start collapsed
+  // unless the goal already has one; the toggle shows the current choice.
+  const [baselineOpen, setBaselineOpen] = useState<boolean>(() => !!currentGoal?.baseline);
+  const [historicalOpen, setHistoricalOpen] = useState<boolean>(() => !!currentGoal?.historical);
+  // Inline records so every key stays a literal inside t()
+  const baselineTypeLabels: Record<BaselineType, string> = {
+    [BaselineType.None]: t("forms:goal.baseline_types.none"),
+    [BaselineType.Initial]: t("forms:goal.baseline_types.initial"),
+    [BaselineType.InitialNonZero]: t("forms:goal.baseline_types.initial_non_zero"),
+    [BaselineType.Custom]: t("forms:goal.baseline_types.custom"),
+    [BaselineType.Inherited]: t("forms:goal.baseline_types.inherited"),
+  };
+  const historicalTypeLabels: Record<HistoricalDataType, string> = {
+    [HistoricalDataType.None]: t("forms:goal.data_series.historical.no_historical_title"),
+    [HistoricalDataType.External]: t("forms:goal.data_series.historical.external_title"),
+    [HistoricalDataType.Custom]: t("forms:goal.data_series.historical.custom_title"),
+  };
   const initializedHistoricalTypes = useInitializedValues(historicalDataType);
   const historicalHasInitializedNone = initializedHistoricalTypes.has(HistoricalDataType.None);
   const historicalHasInitializedExternal = initializedHistoricalTypes.has(HistoricalDataType.External);
@@ -415,18 +433,38 @@ export default function GoalForm({
           {t("forms:goal.data_series.baseline.title")}
         </legend>
 
-        <BaselineSeriesSection
-          goal={currentGoal}
-          baselineType={baselineType}
-          initialBaselineType={resolveBaselineType(currentGoal)}
-          dataSeries={previewDataSerie}
-          setBaselineType={setBaselineType}
-          setPreviewBaselineSerie={setPreviewBaselineSerie}
-          hasInitializedInitial={baselineHasInitializedInitial}
-          hasInitializedInitialNonZero={baselineHasInitializedInitialNonZero}
-          hasInitializedManual={baselineHasInitializedManual}
-          hasInitializedInherited={baselineHasInitializedInherited}
-        />
+        {/* Optional section: a plain toggle shows the current choice and reveals the inputs (kept mounted, only hidden) */}
+        <button
+          type="button"
+          className="flex align-items-center justify-content-space-between gap-50 smooth margin-bottom-100 width-100"
+          style={{ backgroundColor: 'white', border: '1px solid var(--gray-80)', padding: '.5rem .75rem', boxShadow: 'none', transform: 'none', fontSize: '1rem', textShadow: '0 0' }}
+          aria-expanded={baselineOpen}
+          aria-controls="baseline-section"
+          data-testid="baseline-section-toggle"
+          onClick={() => setBaselineOpen((open) => !open)}
+        >
+          <span>{baselineTypeLabels[baselineType]}</span>
+          <span className="flex align-items-center gap-25 font-weight-normal" style={{ color: 'var(--gray-20)' }}>
+            {baselineOpen ? t("common:tsx.hide") : t("common:tsx.show")}
+            {baselineOpen
+              ? <IconChevronUp aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+              : <IconChevronDown aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />}
+          </span>
+        </button>
+        <div id="baseline-section" className={baselineOpen ? "" : "display-none"} data-testid="baseline-section">
+          <BaselineSeriesSection
+            goal={currentGoal}
+            baselineType={baselineType}
+            initialBaselineType={resolveBaselineType(currentGoal)}
+            dataSeries={previewDataSerie}
+            setBaselineType={setBaselineType}
+            setPreviewBaselineSerie={setPreviewBaselineSerie}
+            hasInitializedInitial={baselineHasInitializedInitial}
+            hasInitializedInitialNonZero={baselineHasInitializedInitialNonZero}
+            hasInitializedManual={baselineHasInitializedManual}
+            hasInitializedInherited={baselineHasInitializedInherited}
+          />
+        </div>
       </fieldset>
 
       {/* Historical series input section */}
@@ -439,16 +477,35 @@ export default function GoalForm({
         >
           {t("forms:goal.data_series.historical.title")}
         </legend>
-        <HistoricalSeriesSection
-          goal={currentGoal}
-          historicalDataType={historicalDataType}
-          setHistoricalDataType={setHistoricalDataType}
-          setPreviewHistoricalSerie={setPreviewHistoricalSerie}
-          setPreviewHistoricalRecipe={setPreviewHistoricalRecipe}
-          hasInitializedNone={historicalHasInitializedNone}
-          hasInitializedExternal={historicalHasInitializedExternal}
-          hasInitializedManual={historicalHasInitializedCustom}
-        />
+        <button
+          type="button"
+          className="flex align-items-center justify-content-space-between gap-50 smooth margin-bottom-100 width-100"
+          style={{ backgroundColor: 'white', border: '1px solid var(--gray-80)', padding: '.5rem .75rem', boxShadow: 'none', transform: 'none', fontSize: '1rem', textShadow: '0 0' }}
+          aria-expanded={historicalOpen}
+          aria-controls="historical-section"
+          data-testid="historical-section-toggle"
+          onClick={() => setHistoricalOpen((open) => !open)}
+        >
+          <span>{historicalTypeLabels[historicalDataType]}</span>
+          <span className="flex align-items-center gap-25 font-weight-normal" style={{ color: 'var(--gray-20)' }}>
+            {historicalOpen ? t("common:tsx.hide") : t("common:tsx.show")}
+            {historicalOpen
+              ? <IconChevronUp aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+              : <IconChevronDown aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />}
+          </span>
+        </button>
+        <div id="historical-section" className={`min-width-0 ${historicalOpen ? "" : "display-none"}`} data-testid="historical-section">
+          <HistoricalSeriesSection
+            goal={currentGoal}
+            historicalDataType={historicalDataType}
+            setHistoricalDataType={setHistoricalDataType}
+            setPreviewHistoricalSerie={setPreviewHistoricalSerie}
+            setPreviewHistoricalRecipe={setPreviewHistoricalRecipe}
+            hasInitializedNone={historicalHasInitializedNone}
+            hasInitializedExternal={historicalHasInitializedExternal}
+            hasInitializedManual={historicalHasInitializedCustom}
+          />
+        </div>
       </fieldset>
 
       <div className="margin-top-200 min-width-0">

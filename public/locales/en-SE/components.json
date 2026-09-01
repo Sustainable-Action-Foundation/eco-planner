@@ -310,7 +310,8 @@
   "roadmap_tree": {
     "no_roadmaps": "No $t(common:roadmap_one) found. If you have any filters active, no $t(common:roadmap_one) were found that match them.",
     "show_source_alt": "Show underlying $t(common:roadmap_version_other)",
-    "title": "{{name}} (v{{version}})"
+    "title": "{{name}} (v{{version}})",
+    "draft": "Draft"
   },
   "sidebar": {
     "about": "About",
