@@ -1,4 +1,16 @@
-import { AccessLevel } from "@/lib/prisma/generated";
+import { AccessLevel, GoalListing, IterationStatus, Sharing } from "@/lib/prisma/generated";
+
+/** Enum guards for the three visibility settings (values arrive as strings from JSON). */
+export function isSharing(value: unknown): value is Sharing {
+  return typeof value === "string" && (Object.values(Sharing) as string[]).includes(value);
+}
+export function isIterationStatus(value: unknown): value is IterationStatus {
+  return typeof value === "string" && (Object.values(IterationStatus) as string[]).includes(value);
+}
+export function isGoalListing(value: unknown): value is GoalListing {
+  return typeof value === "string" && (Object.values(GoalListing) as string[]).includes(value);
+}
+
 import type { AccessControlInput, DateValues, DateValuesWithUnit, ISOIshDate, JSONValue, Unit, GoalCreateInput, GoalUpdateInput, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
 import { GoalDataTarget } from "./enums";
 
@@ -134,12 +146,8 @@ function validateGoalMetaFields(goal: Record<string, unknown>): boolean {
     console.debug(`optional goal parameter "description" has wrong type: ${typeof goal.description}`);
     return false;
   }
-  if ("isFeatured" in goal && !(typeof goal.isFeatured === 'boolean' || goal.isFeatured === undefined)) {
-    console.debug(`optional goal parameter "isFeatured" has wrong type: ${typeof goal.isFeatured}`);
-    return false;
-  }
-  if ("isUnlisted" in goal && !(typeof goal.isUnlisted === 'boolean' || goal.isUnlisted === undefined)) {
-    console.debug(`optional goal parameter "isUnlisted" has wrong type: ${typeof goal.isUnlisted}`);
+  if ("listing" in goal && !(isGoalListing(goal.listing) || goal.listing === undefined)) {
+    console.debug(`optional goal parameter "listing" has wrong value: ${JSON.stringify(goal.listing)}`);
     return false;
   }
   if ("rawTags" in goal && !isStringArrayOrNullish(goal.rawTags)) {
@@ -338,10 +346,8 @@ export function isAccessControlInput(access: unknown): access is AccessControlIn
   if (!isStandardObject(access)) return false;
   const a = access as Record<string, unknown>;
 
-  // isPublic: boolean | undefined;
-  if (!(typeof a.isPublic === 'boolean' || a.isPublic === undefined)) return false;
-  // orgReadable: boolean | undefined;
-  if (!(typeof a.orgReadable === 'boolean' || a.orgReadable === undefined)) return false;
+  // sharing: Sharing | undefined;
+  if (!(isSharing(a.sharing) || a.sharing === undefined)) return false;
 
   // grants: { groupId: string, accessLevel: AccessLevel }[] | null | undefined;
   if (a.grants === null || a.grants === undefined) return true;

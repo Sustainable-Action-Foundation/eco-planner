@@ -1,4 +1,4 @@
-import { AccessLevel, OrgRole } from "@/lib/prisma/generated";
+import { AccessLevel, OrgRole, GoalListing, IterationStatus, Sharing } from "@/lib/prisma/generated";
 import type { Prisma } from "@/lib/prisma/generated";
 import type { UserAccessContext } from "@/types";
 
@@ -10,8 +10,9 @@ import type { UserAccessContext } from "@/types";
  * - superadmin -> everything
  * - MANAGER of the AC's org -> read + write
  * - RW grant via a group -> read + write (content only, not sharing settings)
- * - RO grant / org_readable (members, not GUESTs) / is_public -> read
- * - Draft iterations (published_at == null) -> visible only with write access
+ * - RO grant / ORG sharing (members, not GUESTs) / PUBLIC sharing -> read
+ * - Draft versions (status DRAFT) -> visible only with write access
+ * - UNLISTED versions and goals are readable but left out of listings unless writable (see the *listed* helpers)
  */
 
 /** Ids of orgs the user manages */
@@ -34,16 +35,16 @@ export function allGroupIds(ctx: UserAccessContext): string[] {
  */
 export function readableAccessControlWHERE(ctx: UserAccessContext | null): Prisma.AccessControlsWhereInput {
   if (!ctx) {
-    return { is_public: true };
+    return { sharing: Sharing.PUBLIC };
   }
   if (ctx.isSuperAdmin) {
     return {};
   }
   return {
     OR: [
-      { is_public: true },
+      { sharing: Sharing.PUBLIC },
       { org_id: { in: managedOrgIds(ctx) } },
-      { org_readable: true, org_id: { in: memberOrgIds(ctx) } },
+      { sharing: Sharing.ORG, org_id: { in: memberOrgIds(ctx) } },
       { grants: { some: { group_id: { in: allGroupIds(ctx) } } } },
     ],
   };
@@ -76,8 +77,39 @@ export function visibleRoadmapIterationsWHERE(ctx: UserAccessContext | null): Pr
   return {
     roadmap: { access_control: readableAccessControlWHERE(ctx) },
     OR: [
-      { published_at: { not: null } },
+      { status: { not: IterationStatus.DRAFT } },
       { roadmap: { access_control: writableAccessControlWHERE(ctx) } },
+    ],
+  };
+}
+
+/**
+ * Matches roadmap versions that belong in listings for the user: visible, and
+ * either not unlisted or writable (editors see their unlisted versions listed).
+ */
+export function listedRoadmapIterationsWHERE(ctx: UserAccessContext | null): Prisma.RoadmapIterationsWhereInput {
+  return {
+    AND: [
+      visibleRoadmapIterationsWHERE(ctx),
+      {
+        OR: [
+          { status: { not: IterationStatus.UNLISTED } },
+          { roadmap: { access_control: writableAccessControlWHERE(ctx) } },
+        ],
+      },
+    ],
+  };
+}
+
+/**
+ * Matches goals that belong in listings (and in other goals' parent/child/sibling
+ * lookups) for the user: not unlisted, or under a writable roadmap.
+ */
+export function listedGoalsWHERE(ctx: UserAccessContext | null): Prisma.GoalsWhereInput {
+  return {
+    OR: [
+      { listing: { not: GoalListing.UNLISTED } },
+      { roadmap_iteration: { roadmap: { access_control: writableAccessControlWHERE(ctx) } } },
     ],
   };
 }

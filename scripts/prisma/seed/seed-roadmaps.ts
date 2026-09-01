@@ -1,3 +1,5 @@
+import { AccessLevel, IterationStatus, RoadmapType, Sharing } from "@/lib/prisma/generated";
+import type { RoadmapIterations, Roadmaps } from "@/lib/prisma/generated";
 /* eslint-disable no-template-curly-in-string */
 // Seeds roadmaps (with their org-owned access controls and grants), their
 // iterations, and a set of unattached "template" scaling recipes. The national
@@ -7,11 +9,9 @@
 // Access setup exercised here:
 //   - national: public, RW grant to the regular users' group (they can edit)
 //   - uppsala:  org-readable only (not public), RO grant to the group;
-//               v2 is a DRAFT (published_at = null), visible only to editors/managers
+//               v2 is a DRAFT (status DRAFT), visible only to editors/managers
 
 import { prisma } from "@/lib/prisma";
-import { AccessLevel, RoadmapType } from "@/lib/prisma/generated";
-import type { RoadmapIterations, Roadmaps } from "@/lib/prisma/generated";
 import { Recipe } from "@/functions/recipe";
 import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/enums";
 import type { SeededUsers } from "./helpers.ts";
@@ -42,7 +42,7 @@ export async function seedRoadmaps(users: SeededUsers): Promise<SeededRoadmaps> 
       type: RoadmapType.NATIONAL,
       author: { connect: { id: anita.id } },
       access_control: {
-        create: { org: { connect: { id: org.id } }, is_public: true, org_readable: true },
+        create: { org: { connect: { id: org.id } }, sharing: Sharing.PUBLIC },
       },
       ...getRandomCreatedAtAndUpdatedAt(),
       comments: { createMany: { data: makeRandomComments(users, 40) } },
@@ -55,6 +55,7 @@ export async function seedRoadmaps(users: SeededUsers): Promise<SeededRoadmaps> 
       author: { connect: { id: anita.id } },
       roadmap: { connect: { id: national.id } },
       description: "Det här är den första versionen av den nationella färdplanen.",
+      status: IterationStatus.PUBLISHED,
       published_at: getRandomDateInThePast(),
       ...getRandomCreatedAtAndUpdatedAt(),
       comments: { createMany: { data: makeRandomComments(users, 30) } },
@@ -67,6 +68,7 @@ export async function seedRoadmaps(users: SeededUsers): Promise<SeededRoadmaps> 
       author: { connect: { id: anita.id } },
       roadmap: { connect: { id: national.id } },
       description: "Det här är den andra versionen av den nationella färdplanen.",
+      status: IterationStatus.PUBLISHED,
       published_at: getRandomDateInThePast(),
       ...getRandomCreatedAtAndUpdatedAt(),
       comments: { createMany: { data: makeRandomComments(users, 30) } },
@@ -75,7 +77,7 @@ export async function seedRoadmaps(users: SeededUsers): Promise<SeededRoadmaps> 
 
   /*
    * Regional roadmap - "Uppsala län", a child of the national roadmap.
-   * Not public: org members can read it (org_readable), the group holds an RO grant,
+   * Not public: org members can read it (ORG sharing), the group holds an RO grant,
    * and its second iteration is a draft only editors/managers can see.
    */
   const uppsala = await prisma.roadmaps.create({
@@ -89,7 +91,7 @@ export async function seedRoadmaps(users: SeededUsers): Promise<SeededRoadmaps> 
       author: { connect: { id: admin.id } },
       parent_roadmap: { connect: { id: national.id } },
       access_control: {
-        create: { org: { connect: { id: org.id } }, is_public: false, org_readable: true },
+        create: { org: { connect: { id: org.id } }, sharing: Sharing.ORG },
       },
       ...getRandomCreatedAtAndUpdatedAt(),
       comments: { createMany: { data: makeRandomComments(users, 20) } },
@@ -117,6 +119,7 @@ export async function seedRoadmaps(users: SeededUsers): Promise<SeededRoadmaps> 
       roadmap: { connect: { id: uppsala.id } },
       // Related to the national roadmap it inherits from.
       target_version: 1,
+      status: IterationStatus.PUBLISHED,
       published_at: getRandomDateInThePast(),
       ...getRandomCreatedAtAndUpdatedAt(),
       comments: { createMany: { data: makeRandomComments(users, 10) } },
@@ -130,7 +133,7 @@ export async function seedRoadmaps(users: SeededUsers): Promise<SeededRoadmaps> 
       roadmap: { connect: { id: uppsala.id } },
       target_version: 2,
       // A draft: only users with edit access (managers, RW grants) can see it.
-      published_at: null,
+      status: IterationStatus.DRAFT,
       ...getRandomCreatedAtAndUpdatedAt(),
       comments: { createMany: { data: makeRandomComments(users, 10) } },
     },

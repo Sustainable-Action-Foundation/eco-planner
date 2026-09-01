@@ -1,3 +1,4 @@
+import { ActionFieldType, IterationStatus, RoadmapType, Sharing } from "@/lib/prisma/generated";
 // Light content for the extra orgs created in seed-users, so their landing
 // pages and the roadmap form have something to show: each org gets one roadmap
 // with a published iteration, a couple of goals with manual series, and a few
@@ -6,7 +7,6 @@
 // public view gets some cross-org variety; the rest stay org-readable only.
 
 import { prisma } from "@/lib/prisma";
-import { ActionFieldType, RoadmapType } from "@/lib/prisma/generated";
 import { ActionFieldHeaders, defaultActionFieldType } from "@/functions/fields";
 import type { SeededUsers } from "./helpers.ts";
 import {
@@ -33,7 +33,7 @@ export async function seedExtraOrgs(users: SeededUsers): Promise<void> {
         type: RoadmapType.ORGANIZATIONAL,
         author: { connect: { id: randomOf(members).id } },
         access_control: {
-          create: { org: { connect: { id: org.id } }, is_public: index === 0, org_readable: true },
+          create: { org: { connect: { id: org.id } }, sharing: index === 0 ? Sharing.PUBLIC : Sharing.ORG },
         },
         ...getRandomCreatedAtAndUpdatedAt(),
       },
@@ -45,6 +45,7 @@ export async function seedExtraOrgs(users: SeededUsers): Promise<void> {
         author: { connect: { id: randomOf(members).id } },
         roadmap: { connect: { id: roadmap.id } },
         description: RandomTextSE.sentence(randomInt(4, 8)),
+        status: IterationStatus.PUBLISHED,
         published_at: getRandomDateInThePast(),
         ...getRandomCreatedAtAndUpdatedAt(),
       },

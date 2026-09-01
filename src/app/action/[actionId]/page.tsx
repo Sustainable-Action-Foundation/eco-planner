@@ -55,7 +55,7 @@ export default async function Page(props: { params: Promise<{ actionId: string }
     if (action.roadmap_iteration) {
       accessLevel = accessChecker({
         access_control: action.roadmap_iteration.roadmap.access_control,
-        published_at: action.roadmap_iteration.published_at,
+        status: action.roadmap_iteration.status,
       }, accessContext);
     } else if (accessContext?.isSuperAdmin) {
       accessLevel = AccessLevel.Admin;

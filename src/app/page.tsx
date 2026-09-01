@@ -2,7 +2,7 @@ import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import AttributedImage, { AttributeText } from "@/components/generic/images/attributedImage";
 import { roadmapIterationSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
-import { OrgRole, RoadmapType } from "@/lib/prisma/generated";
+import { IterationStatus, OrgRole, RoadmapType } from "@/lib/prisma/generated";
 import RoadmapFilters from "@/components/form/filters/roadmapFilters";
 import { RoadmapSortBy } from "@/types/enums";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
@@ -13,6 +13,7 @@ import { buildMetadata } from "@/functions/buildMetadata";
 import { getActions, getRoadmapIterations, getRoadmaps, getUserOrgs } from "@/fetchers";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
+import { isIterationListed } from "@/lib/listing";
 import Actions from "@/components/pages/sections/actions";
 import CuratedHistoricalData from "@/components/pages/sections/historicalData";
 import Image from "next/image";
@@ -66,9 +67,9 @@ export default async function Page(
   // drafts nest under it (drafts only reach editors; unlisted versions only
   // count as the latest for users who can edit the roadmap)
   const treeIterationIds = roadmaps.flatMap(roadmap => {
-    const canEdit = hasEditAccess(accessChecker(roadmap, accessContext));
-    const published = roadmap.iterations.filter(iteration => iteration.published_at !== null && (canEdit || !iteration.is_unlisted));
-    const drafts = canEdit ? roadmap.iterations.filter(iteration => iteration.published_at === null) : [];
+    const accessLevel = accessChecker(roadmap, accessContext);
+    const published = roadmap.iterations.filter(iteration => iteration.status !== IterationStatus.DRAFT && isIterationListed(iteration, accessLevel));
+    const drafts = hasEditAccess(accessLevel) ? roadmap.iterations.filter(iteration => iteration.status === IterationStatus.DRAFT) : [];
 
     const latestPublished = published.length
       ? published.reduce((current, candidate) => candidate.version > current.version ? candidate : current)

@@ -1,0 +1,25 @@
+/* Small state badges shared by the roadmap tree, version list, version page and goal page */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  padding-inline: .5rem;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  white-space: nowrap;
+  color: white;
+}
+
+.draft {
+  background-color: var(--seagreen);
+}
+
+.unlisted {
+  background-color: var(--gray-40, #666);
+}
+
+.featured {
+  background-color: darkorange;
+}

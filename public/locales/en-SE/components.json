@@ -310,8 +310,7 @@
   "roadmap_tree": {
     "no_roadmaps": "No $t(common:roadmap_one) found. If you have any filters active, no $t(common:roadmap_one) were found that match them.",
     "show_source_alt": "Show underlying $t(common:roadmap_version_other)",
-    "title": "{{name}} (v{{version}})",
-    "draft": "Draft"
+    "title": "{{name}} (v{{version}})"
   },
   "sidebar": {
     "about": "About",
@@ -368,14 +367,16 @@
     "edit_data_series": "Data series",
     "edit_baseline": "Baseline",
     "edit_historical": "Historical data",
-    "visibility_public": "Public",
-    "visibility_unlisted": "Unlisted",
-    "visibility_featured": "Featured",
-    "unlist_iteration": "Unlist",
-    "list_iteration": "List",
     "add_menu_effect": "$t(common:effect_one, titleCase)",
     "add_menu_action": "$t(common:action_one, titleCase)",
-    "visibility_current": "Visibility: {{state}}"
+    "listing_current": "Listing: {{state}}",
+    "listing_listed": "Listed",
+    "listing_unlisted": "Unlisted",
+    "listing_featured": "Featured",
+    "status_current": "Status: {{state}}",
+    "status_draft": "Draft",
+    "status_unlisted": "Unlisted",
+    "status_published": "Published"
   },
   "table_selector": {
     "actions": "$t(common:action_other, titleCase)",
@@ -400,5 +401,15 @@
     "posts": "Posts",
     "roadmaps": "$t(common:roadmap_one, titleCase)",
     "roadmap_versions": "$t(common:roadmap_version_other, titleCase)"
+  },
+  "visibility_badge": {
+    "draft": "Draft",
+    "unlisted": "Unlisted",
+    "featured": "Featured"
+  },
+  "sharing_line": {
+    "public": "Visible to everyone",
+    "org": "Visible to everyone in {{org}}",
+    "groups": "Visible only to groups with access"
   }
 }

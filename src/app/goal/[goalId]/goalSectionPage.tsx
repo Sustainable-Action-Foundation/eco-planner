@@ -28,7 +28,7 @@ export async function getEditableGoal(goalId: string): Promise<Goal> {
 
   if (!goal || !accessContext || !hasEditAccess(accessChecker({
     access_control: goal.roadmap_iteration.roadmap.access_control,
-    published_at: goal.roadmap_iteration.published_at,
+    status: goal.roadmap_iteration.status,
   }, accessContext))) {
     return notFound();
   }

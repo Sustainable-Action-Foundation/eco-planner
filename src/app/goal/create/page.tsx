@@ -38,7 +38,7 @@ export default async function Page(
   // Ignore the iteration (and inform user) if it is not found or the user does not have edit access
   const badRoadmap = (
     (!iteration && typeof searchParams.iterationId == 'string') ||
-    (iteration && !hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, published_at: iteration.published_at }, accessContext)))
+    (iteration && !hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, status: iteration.status }, accessContext)))
   );
 
   const filteredRoadmaps = roadmapList.filter((roadmap) => hasEditAccess(accessChecker(roadmap, accessContext)));

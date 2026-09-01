@@ -54,7 +54,7 @@ export default async function Page(
     mayEdit = action.roadmap_iteration
       ? hasEditAccess(accessChecker({
         access_control: action.roadmap_iteration.roadmap.access_control,
-        published_at: action.roadmap_iteration.published_at,
+        status: action.roadmap_iteration.status,
       }, accessContext))
       // Roadmapless actions (the public action database) are editable by the owning org's managers
       : (accessContext.isSuperAdmin || accessContext.memberships.some(membership => membership.orgId === action.org_id && membership.role === OrgRole.MANAGER));

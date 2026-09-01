@@ -49,7 +49,7 @@ export default async function Page(props: { params: Promise<{ goalId: string }> 
   if (currentGoal) {
     goalAccessData = {
       access_control: currentGoal.roadmap_iteration.roadmap.access_control,
-      published_at: currentGoal.roadmap_iteration.published_at,
+      status: currentGoal.roadmap_iteration.status,
     };
   }
   // User must be signed in and have edit access to the goal, and the goal must exist

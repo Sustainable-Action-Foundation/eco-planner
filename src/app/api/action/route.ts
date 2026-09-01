@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
         : prisma.roadmapIterations.findUnique({
           where: { id: actionCreate.iterationId },
           select: {
-            published_at: true,
+            status: true,
             roadmap: { select: { access_control: { select: accessControlSelection } } },
           },
         }),
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
           select: {
             roadmap_iteration: {
               select: {
-                published_at: true,
+                status: true,
                 roadmap: { select: { access_control: { select: accessControlSelection } } },
               },
             },
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
 
     if (actionCreate.iterationId) {
       // Creating under an iteration requires edit access to it (also covers iterations that don't exist)
-      if (!iteration || !hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, published_at: iteration.published_at }, accessContext))) {
+      if (!iteration || !hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, status: iteration.status }, accessContext))) {
         throw new Error(ClientError.IllegalParent, { cause: 'action' });
       }
       orgId = iteration.roadmap.access_control.org_id;
@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
 
     if (goal) {
       // Creating an effect on the goal requires edit access to the goal
-      const goalAccess = accessChecker({ access_control: goal.roadmap_iteration.roadmap.access_control, published_at: goal.roadmap_iteration.published_at }, accessContext);
+      const goalAccess = accessChecker({ access_control: goal.roadmap_iteration.roadmap.access_control, status: goal.roadmap_iteration.status }, accessContext);
       if (!hasEditAccess(goalAccess)) {
         throw new Error(ClientError.IllegalParent, { cause: 'action' });
       }
@@ -245,7 +245,7 @@ export async function PUT(request: NextRequest) {
           org_id: true,
           roadmap_iteration: {
             select: {
-              published_at: true,
+              status: true,
               roadmap: { select: { access_control: { select: accessControlSelection } } },
             },
           },
@@ -260,7 +260,7 @@ export async function PUT(request: NextRequest) {
     // If no action is found or the user has no edit access to it, return AccessDenied
     const mayEdit = !currentAction ? false
       : currentAction.roadmap_iteration
-        ? hasEditAccess(accessChecker({ access_control: currentAction.roadmap_iteration.roadmap.access_control, published_at: currentAction.roadmap_iteration.published_at }, accessContext))
+        ? hasEditAccess(accessChecker({ access_control: currentAction.roadmap_iteration.roadmap.access_control, status: currentAction.roadmap_iteration.status }, accessContext))
         : managesOrg(accessContext, currentAction.org_id);
     if (!currentAction || !mayEdit) {
       throw new Error(ClientError.AccessDenied, { cause: 'action' });
@@ -367,7 +367,7 @@ export async function DELETE(request: NextRequest) {
           org_id: true,
           roadmap_iteration: {
             select: {
-              published_at: true,
+              status: true,
               roadmap: { select: { access_control: { select: accessControlSelection } } },
             },
           },
@@ -384,7 +384,7 @@ export async function DELETE(request: NextRequest) {
     // Also covers actions that don't exist at all.
     const mayDelete = !currentAction ? false
       : currentAction.roadmap_iteration
-        ? hasEditAccess(accessChecker({ access_control: currentAction.roadmap_iteration.roadmap.access_control, published_at: currentAction.roadmap_iteration.published_at }, accessContext))
+        ? hasEditAccess(accessChecker({ access_control: currentAction.roadmap_iteration.roadmap.access_control, status: currentAction.roadmap_iteration.status }, accessContext))
         : managesOrg(accessContext, currentAction.org_id);
     if (!currentAction || !mayDelete) {
       throw new Error(ClientError.AccessDenied, { cause: 'action' });

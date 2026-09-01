@@ -1,3 +1,4 @@
+import { IterationStatus } from "@/lib/prisma/generated";
 import "server-only";
 import { roadmapIterationInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
@@ -34,11 +35,11 @@ async function getCachedRoadmapIterationByVersion(roadmapId: string, version: nu
   let iteration: RoadmapIteration | null;
   try {
     if (version === "latest") {
-      // Latest published iteration; drafts are never "latest" even for users who may see them
+      // Latest non-draft iteration; drafts are never "latest" even for users who may see them
       iteration = await prisma.roadmapIterations.findFirst({
         where: {
           roadmap_id: roadmapId,
-          published_at: { not: null },
+          status: { not: IterationStatus.DRAFT },
           AND: [visibleRoadmapIterationsWHERE(accessContext)],
         },
         orderBy: { version: "desc" },

@@ -2,13 +2,15 @@ import "server-only";
 import styles from "@/components/tables/tables.module.css" with { type: "css" };
 import { ControlsMenu } from "@/components/elements/controls/controls";
 import accessChecker from "@/lib/accessChecker";
+import { IterationStatus } from "@/lib/prisma/generated";
 import type { MultiRoadmapInstance, UserAccessContext } from "@/types";
 import Link from "next/link";
 import { iterationPath } from "@/functions/versionSlug";
 import { Fragment } from "react";
 import serveTea from "@/lib/i18nServer";
 import type { TFunction } from "i18next";
-import { IconCaretRightFilled, IconPencil, IconZoomQuestion } from "@tabler/icons-react";
+import { IconCaretRightFilled, IconZoomQuestion } from "@tabler/icons-react";
+import VisibilityBadges from "@/components/generic/visibility/visibilityBadges";
 
 type RoadmapTreeProps = {
   accessContext: UserAccessContext | null;
@@ -31,12 +33,12 @@ function groupByRoadmap(iterations: MultiRoadmapInstance[]) {
   const draftsByRoadmap = new Map<string, MultiRoadmapInstance[]>();
   for (const [roadmapId, versions] of byRoadmap) {
     const newest = (candidates: MultiRoadmapInstance[]) => candidates.reduce((current, candidate) => candidate.version > current.version ? candidate : current);
-    const published = versions.filter(version => version.published_at !== null);
+    const published = versions.filter(version => version.status !== IterationStatus.DRAFT);
     const node = published.length ? newest(published) : newest(versions);
     nodes.push(node);
     draftsByRoadmap.set(
       roadmapId,
-      versions.filter(version => version.published_at === null && version.id !== node.id).sort((a, b) => b.version - a.version),
+      versions.filter(version => version.status === IterationStatus.DRAFT && version.id !== node.id).sort((a, b) => b.version - a.version),
     );
   }
   // Keep the caller's ordering (they sort by the chosen criterion)
@@ -116,7 +118,7 @@ function typeAliasFor(iteration: MultiRoadmapInstance, t: TFunction): string {
 
 /** The link + meta line for one version; drafts get a badge and green stripes. */
 function IterationLink({ iteration, t }: { iteration: MultiRoadmapInstance, t: TFunction }) {
-  const isDraft = iteration.published_at === null;
+  const isDraft = iteration.status === IterationStatus.DRAFT;
   return (
     <Link
       href={iterationPath(iteration.roadmap_id, iteration.version)}
@@ -127,12 +129,7 @@ function IterationLink({ iteration, t }: { iteration: MultiRoadmapInstance, t: T
       {/* Name, version */}
       <div className="flex align-items-center gap-50 flex-wrap-wrap">
         {t("components:roadmap_tree.title", { name: iteration.roadmap.name, version: iteration.version })}
-        {isDraft ?
-          <span className="flex align-items-center gap-25 font-size-14px font-weight-500 padding-inline-50 round" style={{ backgroundColor: 'var(--seagreen)', color: 'white', lineHeight: '1.5' }}>
-            <IconPencil aria-hidden="true" width={14} height={14} style={{ minWidth: '14px' }} />
-            {t("components:roadmap_tree.draft")}
-          </span>
-          : null}
+        <VisibilityBadges status={iteration.status} />
       </div>
       {/* Type, goal count */}
       <div className="color-gray font-size-14px text-transform-lowercase font-weight-normal">
@@ -161,7 +158,7 @@ async function NestedRoadmapRenderer({
   const t = await serveTea(["components", "common"]);
   return <>
     {childNodes.map(node => {
-      const accessLevel = accessChecker({ access_control: node.roadmap.access_control, published_at: node.published_at }, accessContext);
+      const accessLevel = accessChecker({ access_control: node.roadmap.access_control, status: node.status }, accessContext);
       const drafts = draftsByRoadmap.get(node.roadmap_id) ?? [];
       const childRoadmapNodes = allNodes.filter(potentialChild => (potentialChild.roadmap.parent_roadmap_id === node.roadmap_id) && (potentialChild.id !== node.id) && (potentialChild.roadmap.parent_roadmap_id != null));
 
@@ -194,7 +191,7 @@ async function NestedRoadmapRenderer({
                       </div>
                       <span className="flex align-items-center padding-inline-25">
                         <ControlsMenu
-                          accessLevel={accessChecker({ access_control: draft.roadmap.access_control, published_at: draft.published_at }, accessContext)}
+                          accessLevel={accessChecker({ access_control: draft.roadmap.access_control, status: draft.status }, accessContext)}
                           object={draft}
                         />
                       </span>

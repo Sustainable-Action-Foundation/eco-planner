@@ -7,6 +7,7 @@ import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import Goals from "@/components/tables/goals";
 import Comments from "@/components/comments/comments";
 import { AccessLevel } from "@/types/enums";
+import { GoalListing } from "@/lib/prisma/generated";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
@@ -14,6 +15,8 @@ import { IconArrowNarrowRight, IconBuildings, IconCircleFilled } from "@tabler/i
 import Link from "next/link";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 import { AdminPanel } from "@/components/elements/controls/controls";
+import VisibilityBadges from "@/components/generic/visibility/visibilityBadges";
+import SharingLine from "@/components/generic/visibility/sharingLine";
 import ActionTable from "@/components/tables/actions";
 import GoalGraph from "@/components/graph/graphs/goal/main";
 import graphStyles from "@/components/graph/graphs/goal/goal.module.css";
@@ -62,7 +65,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string,
   // Unlisted goals stay out of the featured strip and the public count; they
   // are only listed inside <Goals> for users with edit access
   const featuredGoals = (iteration?.goals ?? [])
-    .filter((goal) => goal.is_featured && !goal.is_unlisted)
+    .filter((goal) => goal.listing === GoalListing.FEATURED)
     .map((goal) => ({
       id: goal.id,
       name: goal.name,
@@ -73,7 +76,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string,
 
   let accessLevel: AccessLevel = AccessLevel.None;
   if (iteration) {
-    accessLevel = accessChecker({ access_control: iteration.roadmap.access_control, published_at: iteration.published_at }, accessContext);
+    accessLevel = accessChecker({ access_control: iteration.roadmap.access_control, status: iteration.status }, accessContext);
   }
 
   // 404 if the iteration doesn't exist or if the user doesn't have access to it
@@ -91,7 +94,10 @@ export default async function Page(props: { params: Promise<{ roadmapId: string,
 
     <main>
       <header className="margin-block-300" >
-        <span style={{ color: 'gray' }}>{t("pages:roadmap_iteration.version", { version: iteration.version })}</span>
+        <div className="flex align-items-center gap-50 flex-wrap-wrap">
+          <span style={{ color: 'gray' }}>{t("pages:roadmap_iteration.version", { version: iteration.version })}</span>
+          <VisibilityBadges status={iteration.status} />
+        </div>
         <h1 className="margin-0">{iteration.roadmap.name}</h1>
         <div className="margin-block-25 flex justify-content-space-between margin-bottom-50 padding-bottom-50" style={{ borderBottom: '1px solid var(--gray-80)' }}>
           {iteration.roadmap.actor ?
@@ -107,9 +113,12 @@ export default async function Page(props: { params: Promise<{ roadmapId: string,
             <IconArrowNarrowRight height={20} width={20} style={{ minWidth: '20px' }} />
           </Link>
         </div>
-        <span className="font-weight-600">
-          {t("common:count.goal", { count: iteration.goals.filter(goal => !goal.is_unlisted).length })}
-        </span>
+        <div className="flex align-items-center gap-100 flex-wrap-wrap">
+          <span className="font-weight-600">
+            {t("common:count.goal", { count: iteration.goals.filter(goal => goal.listing !== GoalListing.UNLISTED).length })}
+          </span>
+          <SharingLine accessControl={iteration.roadmap.access_control} />
+        </div>
       </header>
 
       <div className="margin-top-300">

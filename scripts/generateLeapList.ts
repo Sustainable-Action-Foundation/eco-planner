@@ -1,5 +1,5 @@
+import { IterationStatus, RoadmapType, Sharing } from "@/lib/prisma/generated";
 import { prisma } from "@/lib/prisma";
-import { RoadmapType } from "@/lib/prisma/generated";
 import fs from "node:fs";
 
 /**
@@ -16,10 +16,10 @@ async function generateLeapList() {
       where: {
         roadmap: {
           type: RoadmapType.NATIONAL,
-          access_control: { is_public: true },
+          access_control: { sharing: Sharing.PUBLIC },
         },
         // Drafts are not public content
-        published_at: { not: null },
+        status: { not: IterationStatus.DRAFT },
       },
       select: {
         goals: {

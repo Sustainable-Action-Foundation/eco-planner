@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { IconBuildingCommunity, IconLock, IconWorld } from "@tabler/icons-react";
 import type { AccessControlInfo, AccessControlInput } from "@/types";
-import { AccessLevel } from "@/lib/prisma/generated";
+import { AccessLevel, Sharing } from "@/lib/prisma/generated";
 import styles from '../forms.module.css';
 import { useTranslation } from "react-i18next";
 
@@ -15,18 +15,12 @@ const GrantChoice = {
 } as const;
 type GrantChoice = (typeof GrantChoice)[keyof typeof GrantChoice];
 
-type Visibility = "public" | "org" | "groups";
-
-function toVisibility(access: Pick<AccessControlInfo, "is_public" | "org_readable"> | undefined): Visibility {
-  if (!access) return "org";
-  if (access.is_public) return "public";
-  if (access.org_readable) return "org";
-  return "groups";
-}
+/** New roadmaps start shared with the whole org */
+const defaultSharing: Sharing = Sharing.ORG;
 
 /**
- * Sharing settings editor for an org-owned access control: overall visibility
- * (public / org members / granted groups only) plus per-group RO/RW grants.
+ * Sharing settings editor for an org-owned access control: who may read
+ * (granted groups only / org members / everyone) plus per-group RO/RW grants.
  *
  * Sharing is manager-only on existing content; the parent decides whether to
  * render this at all. `mayEditPublic` gates the public option (is_public is
@@ -43,7 +37,7 @@ export default function ConfigureAccess({
   /** The owning org's groups */
   groups: { id: string, name: string }[],
   /** Existing access control when editing; leave undefined when creating */
-  initialAccess?: Pick<AccessControlInfo, "is_public" | "org_readable" | "grants">,
+  initialAccess?: Pick<AccessControlInfo, "sharing" | "grants">,
   /** Whether the user may make the item public (org manager / super admin) */
   mayEditPublic: boolean,
   /** Called with the full sharing input whenever anything changes */
@@ -53,7 +47,7 @@ export default function ConfigureAccess({
 }) {
   const { t } = useTranslation(["forms"]);
 
-  const [visibility, setVisibility] = useState<Visibility>(toVisibility(initialAccess));
+  const [sharing, setSharing] = useState<Sharing>(initialAccess?.sharing ?? defaultSharing);
   const [grants, setGrants] = useState<Record<string, GrantChoice>>(() => {
     const initial: Record<string, GrantChoice> = {};
     for (const group of groups) {
@@ -62,25 +56,24 @@ export default function ConfigureAccess({
     return initial;
   });
 
-  const emit = (nextVisibility: Visibility, nextGrants: Record<string, GrantChoice>) => {
+  const emit = (nextSharing: Sharing, nextGrants: Record<string, GrantChoice>) => {
     onChange({
-      isPublic: nextVisibility === "public",
-      orgReadable: nextVisibility !== "groups",
+      sharing: nextSharing,
       grants: Object.entries(nextGrants)
         .filter(([, level]) => level !== GrantChoice.None)
         .map(([groupId, level]) => ({ groupId, accessLevel: level as AccessLevel })),
     });
   };
 
-  const changeVisibility = (next: Visibility) => {
-    setVisibility(next);
+  const changeSharing = (next: Sharing) => {
+    setSharing(next);
     emit(next, grants);
   };
 
   const changeGrant = (groupId: string, level: GrantChoice) => {
     const next = { ...grants, [groupId]: level };
     setGrants(next);
-    emit(visibility, next);
+    emit(sharing, next);
   };
 
   return (
@@ -94,38 +87,38 @@ export default function ConfigureAccess({
         <legend className="font-weight-500 margin-bottom-50">{t("forms:access_selector.visibility")}</legend>
         {([
           {
-            value: "groups",
+            value: Sharing.GROUPS,
             icon: <IconLock aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
             label: t("forms:access_selector.granted_groups_only"),
             description: t("forms:access_selector.granted_groups_only_description"),
             available: true,
           },
           {
-            value: "org",
+            value: Sharing.ORG,
             icon: <IconBuildingCommunity aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
             label: t("forms:access_selector.org_members"),
             description: t("forms:access_selector.org_members_description"),
             available: true,
           },
           {
-            value: "public",
+            value: Sharing.PUBLIC,
             icon: <IconWorld aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
             label: t("forms:access_selector.all_users"),
             description: t("forms:access_selector.all_users_description"),
-            // is_public is only honored for org managers / super admins
+            // PUBLIC is only honored for org managers / super admins
             available: mayEditPublic,
           },
-        ] satisfies { value: Visibility, icon: React.ReactNode, label: string, description: string, available: boolean }[])
+        ] satisfies { value: Sharing, icon: React.ReactNode, label: string, description: string, available: boolean }[])
           .filter(option => option.available)
           .map(option => (
             <label key={option.value} className="flex align-items-start gap-50 margin-top-50 margin-bottom-50">
               <input
                 required={true}
                 type="radio"
-                name="visibility"
+                name="sharing"
                 value={option.value}
-                checked={visibility === option.value}
-                onChange={() => changeVisibility(option.value)}
+                checked={sharing === option.value}
+                onChange={() => changeSharing(option.value)}
               />
               <span>
                 <span className="flex align-items-center gap-25" style={{ textShadow: '0 0' }}>{option.icon}{option.label}</span>

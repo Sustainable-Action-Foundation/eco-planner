@@ -109,8 +109,7 @@ export default function CopyAndScale({
       name: goal.name,
       description: goal.description,
       indicatorParameter: goal.indicator_parameter,
-      isFeatured: undefined,
-      isUnlisted: undefined,
+      listing: undefined,
 
       dataSeriesId: undefined,
       dataSeries: { dateValues: resultingDataSeries, unit: resultingUnit },

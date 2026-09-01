@@ -44,7 +44,7 @@ async function authorizeGoalWrite(session: IronSession<LoginData>, goalId: strin
           updated_at: true,
           roadmap_iteration: {
             select: {
-              published_at: true,
+              status: true,
               roadmap: { select: { access_control: { select: accessControlSelection } } },
             },
           },
@@ -62,7 +62,7 @@ async function authorizeGoalWrite(session: IronSession<LoginData>, goalId: strin
     }
     const access = accessChecker({
       access_control: currentGoal.roadmap_iteration.roadmap.access_control,
-      published_at: currentGoal.roadmap_iteration.published_at,
+      status: currentGoal.roadmap_iteration.status,
     }, accessContext);
     if (!hasEditAccess(access)) {
       throw new Error(ClientError.AccessDenied, { cause: 'goal' });
@@ -378,7 +378,7 @@ async function createFullGoal(session: IronSession<LoginData>, authorId: string,
       prisma.roadmapIterations.findUnique({
         where: { id: formData.iterationId },
         select: {
-          published_at: true,
+          status: true,
           roadmap: { select: { access_control: { select: accessControlSelection } } },
         },
       }),
@@ -390,7 +390,7 @@ async function createFullGoal(session: IronSession<LoginData>, authorId: string,
     if (!iteration) {
       throw new Error(ClientError.IllegalParent, { cause: 'goal' });
     }
-    const access = accessChecker({ access_control: iteration.roadmap.access_control, published_at: iteration.published_at }, accessContext);
+    const access = accessChecker({ access_control: iteration.roadmap.access_control, status: iteration.status }, accessContext);
     if (!hasEditAccess(access)) {
       throw new Error(ClientError.IllegalParent, { cause: 'goal' });
     }
@@ -476,8 +476,7 @@ async function createFullGoal(session: IronSession<LoginData>, authorId: string,
           name: formData.name,
           description: formData.description,
           indicator_parameter: formData.indicatorParameter,
-          is_featured: formData.isFeatured,
-          is_unlisted: formData.isUnlisted,
+          listing: formData.listing,
           author: { connect: { id: authorId } },
           roadmap_iteration: { connect: { id: formData.iterationId } },
           data_series: { connect: { id: dataSeriesId } },
@@ -542,8 +541,7 @@ async function updateFullGoal(session: IronSession<LoginData>, authorId: string,
           name: goal.name,
           description: goal.description,
           indicator_parameter: goal.indicatorParameter,
-          is_featured: goal.isFeatured,
-          is_unlisted: goal.isUnlisted,
+          listing: goal.listing,
         },
         select: { id: true },
       })).id;
@@ -703,7 +701,7 @@ export async function DELETE(request: NextRequest) {
         select: {
           roadmap_iteration: {
             select: {
-              published_at: true,
+              status: true,
               roadmap: { select: { access_control: { select: accessControlSelection } } },
             },
           },
@@ -719,7 +717,7 @@ export async function DELETE(request: NextRequest) {
     // Deleting a goal is a content edit and requires edit access to its iteration.
     // Also covers goals that don't exist at all.
     const access = accessChecker(
-      currentGoal ? { access_control: currentGoal.roadmap_iteration.roadmap.access_control, published_at: currentGoal.roadmap_iteration.published_at } : null,
+      currentGoal ? { access_control: currentGoal.roadmap_iteration.roadmap.access_control, status: currentGoal.roadmap_iteration.status } : null,
       accessContext,
     );
     if (!currentGoal || !hasEditAccess(access)) {

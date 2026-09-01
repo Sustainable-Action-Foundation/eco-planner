@@ -49,7 +49,7 @@ export default async function Page(
   if (goal) {
     goalAccessData = {
       access_control: goal.roadmap_iteration.roadmap.access_control,
-      published_at: goal.roadmap_iteration.published_at,
+      status: goal.roadmap_iteration.status,
     };
   }
 
@@ -60,12 +60,12 @@ export default async function Page(
   );
   const badRoadmap = (
     (!iteration && typeof searchParams.iterationId === 'string')
-    || (iteration && !hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, published_at: iteration.published_at }, accessContext)))
+    || (iteration && !hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, status: iteration.status }, accessContext)))
   );
 
   // The roadmap iterations the user can choose to add the action to (the ones they have edit access to)
   const availableIterations = iterationList.filter((iteration) =>
-    hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, published_at: iteration.published_at }, accessContext)),
+    hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, status: iteration.status }, accessContext)),
   );
 
   return (

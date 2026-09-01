@@ -2,6 +2,7 @@
 
 import { AccessLevel, GoalSortBy, ViewMode } from "@/types/enums";
 import { hasEditAccess } from "@/lib/accessChecker";
+import { GoalListing } from "@/lib/prisma/generated";
 import GoalTable from "./goalTables/goalTable";
 import TableSelector from './tableSelector/tableSelector';
 import LinkTree from './goalTables/linkTree';
@@ -31,9 +32,9 @@ export default function Goals({
 
   // Unlisted goals are hidden from the regular list; users with edit access get
   // them in a separate tab instead
-  const listedGoals = iteration.goals.filter(goal => !goal.is_unlisted);
+  const listedGoals = iteration.goals.filter(goal => goal.listing !== GoalListing.UNLISTED);
   const unlistedGoals = hasEditAccess(accessLevel ?? AccessLevel.None)
-    ? iteration.goals.filter(goal => goal.is_unlisted)
+    ? iteration.goals.filter(goal => goal.listing === GoalListing.UNLISTED)
     : [];
   const activeIteration = {
     ...iteration,
