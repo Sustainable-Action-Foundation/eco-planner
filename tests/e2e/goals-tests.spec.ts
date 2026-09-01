@@ -169,8 +169,10 @@ test.describe("Goals tests", () => {
       await expect.soft(page.locator(`#goal-dataseries [data-row="${i}"][data-column="2"] input`)).toHaveValue(String(1));
     }
 
-    // No baseline is the default, so the goal was created without one
-    await expect.soft(page.locator('input[name="BASELINE_TYPE"][value="NONE"]')).toBeChecked();
+    // The baseline was created as type initial (the default value); derived baselines
+    // are stored as recipes, so the form reopens on the same baseline type instead of
+    // presenting the derived values as a custom series.
+    await expect.soft(page.locator('input[name="BASELINE_TYPE"][value="INITIAL"]')).toBeChecked();
 
     await expect.soft(page.locator('#isFeatured')).not.toBeChecked();
 

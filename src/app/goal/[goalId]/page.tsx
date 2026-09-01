@@ -114,13 +114,20 @@ export default async function Page(
   let parentGoalIteration: RoadmapIteration | null;
   if (iteration.roadmap.parent_roadmap_id) {
     try {
-      // Get the parent roadmap iteration (if any)
+      // Get the parent roadmap iteration (if any). Only published, listed versions take part in
+      // parent/child relations: drafts and unlisted versions are work in progress or hidden on purpose.
       parentGoalIteration = await getRoadmapIterationByVersion(
         iteration.roadmap.parent_roadmap_id,
         (iteration.target_version === null || iteration.target_version === 0)
-          ? (await prisma.roadmapIterations.aggregate({ where: { roadmap_id: iteration.roadmap.parent_roadmap_id }, _max: { version: true } }))._max.version ?? 0
+          ? (await prisma.roadmapIterations.aggregate({
+            where: { roadmap_id: iteration.roadmap.parent_roadmap_id, published_at: { not: null }, is_unlisted: false },
+            _max: { version: true },
+          }))._max.version ?? 0
           : iteration.target_version,
       );
+      if (parentGoalIteration && (parentGoalIteration.published_at === null || parentGoalIteration.is_unlisted)) {
+        parentGoalIteration = null;
+      }
 
       // If there is a parent iteration, look for a goal with the same indicator parameter in it
       if (parentGoalIteration) {
@@ -135,7 +142,11 @@ export default async function Page(
 
   // Get goals with same indicator parameter in roadmap iterations working towards the one containing current goal
   // TODO: If multiple iterations in a series work towards the same target, maybe only count the one with the highest version?
-  const childIterations = unfilteredIterations.filter(child => child.roadmap.parent_roadmap_id === iteration.roadmap.id).filter(child => child.target_version === iteration.version || !child.target_version);
+  // Same guard as for the parent: drafts and unlisted versions don't count as children
+  const childIterations = unfilteredIterations
+    .filter(child => child.roadmap.parent_roadmap_id === iteration.roadmap.id)
+    .filter(child => child.target_version === iteration.version || !child.target_version)
+    .filter(child => child.published_at !== null && !child.is_unlisted);
   let childGoals: (NonNullable<Awaited<ReturnType<typeof getGoalByIndicator>>> & { roadmapName?: string })[] = [];
   if (childIterations.length > 0) {
     const goals = await Promise.all(childIterations.map(async iteration => {
