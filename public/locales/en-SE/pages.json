@@ -74,7 +74,7 @@
     "bad_roadmap": "Could not find or do not have access to the $t(common:roadmap_version_one) version in the link.\n\nUse the dropdown menu to select a $t(common:roadmap_version_one) to create $t(common:goal_other) under.",
     "breadcrumb": "$t(common:new.goal)",
     "information_icon_aria": "Information",
-    "prefilled": "The form starts out with {{names}}. Everything can still be changed before saving.",
+    "prefilled": "The form starts out from {{name}}: as the goal's historical data, and as the series the suggested methods scale. Everything can still be changed before saving.",
     "title": "$t(common:new.goal)"
   },
   "goal_edit": {
@@ -263,14 +263,12 @@
     "accepted_toast": "You are now a guest in {{org}}"
   },
   "org_historical_data": {
-    "subtitle": "Historical data for {{area}}",
-    "use_heading": "Use this data",
-    "use_description": "Start a new goal in one of your roadmaps from this series. The goal form starts out with the series filled in; the selection and everything else can be adjusted before saving.",
+    "new_goal": "New goal from this data",
+    "new_goal_description": "Opens the goal form with the series filled in.",
     "series_legend": "Series",
-    "use_as_historical": "New goal with this as historical data",
-    "use_as_historical_description": "The series is shown as the goal's history; the goal's own values are entered separately.",
-    "use_as_data_series": "New goal derived from this data",
-    "use_as_data_series_description": "The series becomes a variable in the goal's formula, ready to be built on.",
+    "subtitle": "Historical data for {{area}}",
+    "use_description": "Start a new goal in one of your roadmaps from this series. It becomes the goal's historical data and the starting point for the goal's own values; the selection and everything else can be adjusted before saving.",
+    "use_heading": "Use this data",
     "values": "Values"
   }
 }

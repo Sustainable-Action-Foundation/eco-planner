@@ -74,7 +74,7 @@
     "bad_roadmap": "Kunde inte hitta, eller har inte tillgång till, $t(common:roadmap_version_definite_one) i länken.\n\nAnvänd dropdown-menyn för att välja en $t(common:roadmap_version_one) att skapa $t(common:goal_definite_one) under.",
     "breadcrumb": "$t(common:new.goal)",
     "information_icon_aria": "Information",
-    "prefilled": "Formuläret börjar med {{names}}. Allt går fortfarande att ändra innan du sparar.",
+    "prefilled": "Formuläret utgår från {{name}}: som målbanans historiska data och som den serie de föreslagna metoderna skalar. Allt går fortfarande att ändra innan du sparar.",
     "title": "$t(common:new.goal)"
   },
   "goal_edit": {
@@ -263,14 +263,12 @@
     "accepted_toast": "Du är nu gäst i {{org}}"
   },
   "org_historical_data": {
-    "subtitle": "Historisk data för {{area}}",
-    "use_heading": "Använd dessa uppgifter",
-    "use_description": "Skapa en ny målbana i någon av era färdplaner utifrån den här serien. Formuläret börjar med serien ifylld; urvalet och allt annat går att justera innan du sparar.",
+    "new_goal": "Ny målbana utifrån dessa uppgifter",
+    "new_goal_description": "Öppnar målbaneformuläret med serien ifylld.",
     "series_legend": "Serie",
-    "use_as_historical": "Ny målbana med detta som historisk data",
-    "use_as_historical_description": "Serien visas som målbanans historik; målbanans egna värden matas in separat.",
-    "use_as_data_series": "Ny målbana härledd ur dessa uppgifter",
-    "use_as_data_series_description": "Serien blir en variabel i målbanans formel, redo att bygga vidare på.",
+    "subtitle": "Historisk data för {{area}}",
+    "use_description": "Skapa en ny målbana i någon av era färdplaner utifrån den här serien. Den blir målbanans historiska data och utgångspunkten för målbanans egna värden; urvalet och allt annat går att justera innan du sparar.",
+    "use_heading": "Använd dessa uppgifter",
     "values": "Värden"
   }
 }

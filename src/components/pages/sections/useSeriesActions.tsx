@@ -8,8 +8,9 @@ import { useTranslation } from "react-i18next";
 
 /**
  * The ways a browsable historical series can be put to use: today, starting
- * a new goal with it. Multi-series entries get a picker, since a goal takes
- * one series. The links carry the choice as a series ref (see `seriesRef`)
+ * a new goal from it (as its historical data and as the parent its suggested
+ * methods scale). Multi-series entries get a picker, since a goal takes one
+ * series. The links carry the choice as a series ref (see `seriesRef`)
  * for the goal form to resolve, so this panel stays free of the data itself.
  */
 export default function UseSeriesActions({
@@ -54,22 +55,11 @@ export default function UseSeriesActions({
         </fieldset>
         : null}
 
-      <ul className="margin-0 padding-0 flex flex-direction-column gap-75" style={{ listStyle: 'none' }}>
-        <li>
-          <Link className="button round color-purewhite pureblack font-weight-500 display-inline-flex align-items-center gap-50" href={`/goal/create?org=${org}&historical=${ref}`}>
-            {t("pages:org_historical_data.use_as_historical")}
-            <IconArrowRight aria-hidden="true" width={18} height={18} style={{ minWidth: '18px' }} />
-          </Link>
-          <p className="margin-top-25 margin-bottom-0 font-size-14px color-gray">{t("pages:org_historical_data.use_as_historical_description")}</p>
-        </li>
-        <li>
-          <Link className="button round purewhite font-weight-500 display-inline-flex align-items-center gap-50" href={`/goal/create?org=${org}&dataSeries=${ref}`}>
-            {t("pages:org_historical_data.use_as_data_series")}
-            <IconArrowRight aria-hidden="true" width={18} height={18} style={{ minWidth: '18px' }} />
-          </Link>
-          <p className="margin-top-25 margin-bottom-0 font-size-14px color-gray">{t("pages:org_historical_data.use_as_data_series_description")}</p>
-        </li>
-      </ul>
+      <Link className="button round color-purewhite pureblack font-weight-500 display-inline-flex align-items-center gap-50" href={`/goal/create?org=${org}&series=${ref}`}>
+        {t("pages:org_historical_data.new_goal")}
+        <IconArrowRight aria-hidden="true" width={18} height={18} style={{ minWidth: '18px' }} />
+      </Link>
+      <p className="margin-top-25 margin-bottom-0 font-size-14px color-gray">{t("pages:org_historical_data.new_goal_description")}</p>
     </section>
   );
 }

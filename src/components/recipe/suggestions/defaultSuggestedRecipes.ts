@@ -2,12 +2,19 @@ import { Recipe } from "@/functions/recipe/recipe";
 import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/enums";
 import type { DataSeriesVariable, ExternalVariable, ScalarVariable } from "@/functions/recipe/types";
 import type { ApiSelectionItem, DatasetKeys } from "@/lib/api/apiTypes";
-import type { DBRecipe } from "@/types";
+import type { DBRecipe, PrefilledSeries } from "@/types";
 import type { TFunction } from "i18next";
 import { UnitFlags } from "@/types/enums";
+import { parseUnit } from "@/functions/unit";
 
 /** The data series being inherited from; the user picks it in every scaling recipe. */
 const PARENT_VALUE_ID = "parent-value-dummy-uuid";
+
+/** Ids of the default suggestions that other code refers to. */
+export const DefaultSuggestedRecipeId = {
+  Scalar: "scalar-recipe-dummy-uuid",
+} as const;
+export type DefaultSuggestedRecipeId = (typeof DefaultSuggestedRecipeId)[keyof typeof DefaultSuggestedRecipeId];
 
 type ExternalPreset = { dataset: DatasetKeys, tableId: string, selection: ApiSelectionItem[] };
 
@@ -110,7 +117,12 @@ function trafaPassengerCars(drivmedel: string): ExternalPreset {
   };
 }
 
-export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
+/**
+ * @param parentSeries Stands in for the parent value in every suggestion, e.g. a
+ * browsable historical series a goal is started from: the parent is no longer
+ * something to pick but that series, ready to be scaled.
+ */
+export function getDefaultSuggestedRecipes(t: TFunction, parentSeries?: PrefilledSeries): DBRecipe[] {
   const recipes: { id: string, recipe: Recipe }[] = [
     /* Scaling by a ratio between two regions */
     {
@@ -164,7 +176,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
 
     /* Scaling by a single factor */
     {
-      id: "scalar-recipe-dummy-uuid",
+      id: DefaultSuggestedRecipeId.Scalar,
       recipe: new Recipe({
         name: t("components:recipe_editor.default_scalar_recipe.name"),
         equation: `\${${t("components:recipe_editor.default_scalar_recipe.parent_value")}} * \${${t("components:recipe_editor.default_scalar_recipe.scalar")}}`,
@@ -213,5 +225,26 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
     },
   ];
 
-  return recipes.map(({ id, recipe }) => ({ id, recipe: recipe.serialize() })) satisfies DBRecipe[];
+  return recipes.map(({ id, recipe }) => ({
+    id,
+    recipe: (parentSeries ? withParentSeries(recipe, parentSeries) : recipe).serialize(),
+  })) satisfies DBRecipe[];
+}
+
+/**
+ * The recipe with its parent-value template replaced by a concrete series. The
+ * equation refers to the parent by name, so it is rewritten to the series'
+ * name; recipes without a parent value (the combining ones) are returned as is.
+ */
+function withParentSeries(recipe: Recipe, parentSeries: PrefilledSeries): Recipe {
+  const parent = recipe.variables.find(variable => variable.id === PARENT_VALUE_ID);
+  if (!parent) return recipe;
+
+  const substitute = { ...parentSeries.variable, id: PARENT_VALUE_ID, template: false };
+  const withSeries = recipe.copy();
+  withSeries.variables = recipe.variables.map(variable => variable.id === PARENT_VALUE_ID ? substitute : variable);
+  withSeries.equation = recipe.equation.replaceAll(`\${${parent.name}}`, `\${${substitute.name}}`);
+  // Declared on the recipe like a manual series' unit, since the source's table metadata carries no usable one
+  if (parentSeries.unit) withSeries.unit = parseUnit(parentSeries.unit);
+  return withSeries;
 }

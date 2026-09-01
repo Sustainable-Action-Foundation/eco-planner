@@ -2,7 +2,7 @@ import type { accessControlSelection, actionInclusionSelection, clientSafeDataSe
 import type { Unit as MathJSUnit } from "mathjs";
 import type { OrgRole, Prisma } from "@/lib/prisma/generated";
 import type { UnitFlags } from "@/types/enums";
-import type { SerializedRecipe } from "@/functions/recipe/types";
+import type { DataSeriesVariable, ExternalVariable } from "@/functions/recipe/types";
 
 /** The access control record shape consumed by accessChecker, as selected by `accessControlSelection`. */
 export type AccessControlInfo = Prisma.AccessControlsGetPayload<{
@@ -154,22 +154,15 @@ export type DateValuesWithUnit = { dateValues: DateValues, unit: Unit };
 export type MaskedVector = { vector: MathJSUnit[], mask: Mask };
 
 /**
- * A series handed to the goal form ready to use, e.g. a browsable historical
- * series resolved from a link (see `resolveSeriesRef`). The recipe is what the
- * form's corresponding input would have produced had the user picked the series
- * there, so the form can seed that input with it.
+ * A series handed to the goal form to start a goal from, e.g. a browsable
+ * historical series resolved from a link (see `resolveSeriesRef`). The
+ * variable reads the series the way a recipe would (an external source today;
+ * a stored data series once a data lab publishes its own), so the form can seed
+ * both the historical data and the goal's recipe with it.
  */
 export type PrefilledSeries = {
   name: string;
   /** Display unit as declared by the source, if it has one. */
   unit: string | null;
-  recipe: SerializedRecipe;
-};
-
-/** What a link into the goal creation form may ask it to start out with. */
-export type GoalFormPrefill = {
-  /** Seeds the goal's own data series as an editable formula over the series. */
-  dataSeries?: PrefilledSeries;
-  /** Seeds the historical data with the series. */
-  historical?: PrefilledSeries;
+  variable: ExternalVariable | DataSeriesVariable;
 };

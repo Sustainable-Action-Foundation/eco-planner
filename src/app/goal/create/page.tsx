@@ -6,7 +6,7 @@ import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { getOneRoadmapIteration, getRoadmaps } from "@/fetchers";
-import { getGoalFormPrefill } from "@/fetchers/resolveSeriesRef";
+import { getPrefilledSeries } from "@/fetchers/resolveSeriesRef";
 import type { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -24,21 +24,20 @@ export default async function Page(
   props: {
     searchParams: Promise<{
       iterationId?: string | string[] | undefined,
-      /** With `historical`/`dataSeries`: the org whose area the series refs are resolved for (see `getGoalFormPrefill`) */
+      /** A series ref to start the goal from, resolved for the org's geo area (see `getPrefilledSeries`) */
+      series?: string | string[] | undefined,
       org?: string | string[] | undefined,
-      historical?: string | string[] | undefined,
-      dataSeries?: string | string[] | undefined,
       [key: string]: string | string[] | undefined
     }>
   },
 ) {
   const searchParams = await props.searchParams;
   const t = await serveTea("pages");
-  const [accessContext, iteration, roadmapList, { prefill, failed: badPrefill }] = await Promise.all([
+  const [accessContext, iteration, roadmapList, { series: prefill, failed: badPrefill }] = await Promise.all([
     getUserAccessContext(),
     getOneRoadmapIteration(typeof searchParams.iterationId == 'string' ? searchParams.iterationId : ''),
     getRoadmaps(),
-    getGoalFormPrefill(t, searchParams),
+    getPrefilledSeries(t, searchParams),
   ]);
 
   // Ignore the iteration (and inform user) if it is not found or the user does not have edit access
@@ -48,8 +47,6 @@ export default async function Page(
   );
 
   const filteredRoadmaps = roadmapList.filter((roadmap) => hasEditAccess(accessChecker(roadmap, accessContext)));
-
-  const prefilledNames = [prefill.dataSeries?.name, prefill.historical?.name].filter(name => !!name);
 
   return (
     <>
@@ -68,12 +65,12 @@ export default async function Page(
             {t("pages:goal_create.bad_prefill")}
           </p> : null
         }
-        {prefilledNames.length > 0 ? <p className="color-gray">
+        {prefill ? <p className="color-gray">
             <IconInfoCircle role="img" aria-label={t("pages:goal_create.information_icon_aria")} />
-            {t("pages:goal_create.prefilled", { names: prefilledNames.join(", ") })}
+            {t("pages:goal_create.prefilled", { name: prefill.name })}
           </p> : null
         }
-        <GoalForm iterationId={badRoadmap ? undefined : searchParams.iterationId as string} roadmapAlternatives={filteredRoadmaps} prefill={prefill} />
+        <GoalForm iterationId={badRoadmap ? undefined : searchParams.iterationId as string} roadmapAlternatives={filteredRoadmaps} prefill={prefill ?? undefined} />
       </div>
     </>
   );
