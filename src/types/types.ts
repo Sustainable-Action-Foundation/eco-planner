@@ -2,6 +2,7 @@ import type { accessControlSelection, actionInclusionSelection, clientSafeDataSe
 import type { Unit as MathJSUnit } from "mathjs";
 import type { OrgRole, Prisma } from "@/lib/prisma/generated";
 import type { UnitFlags } from "@/types/enums";
+import type { SerializedRecipe } from "@/functions/recipe/types";
 
 /** The access control record shape consumed by accessChecker, as selected by `accessControlSelection`. */
 export type AccessControlInfo = Prisma.AccessControlsGetPayload<{
@@ -151,3 +152,24 @@ export type Mask = Record<ISOIshDate, boolean>;
 export type DateValues = Record<ISOIshDate, number>;
 export type DateValuesWithUnit = { dateValues: DateValues, unit: Unit };
 export type MaskedVector = { vector: MathJSUnit[], mask: Mask };
+
+/**
+ * A series handed to the goal form ready to use, e.g. a browsable historical
+ * series resolved from a link (see `resolveSeriesRef`). The recipe is what the
+ * form's corresponding input would have produced had the user picked the series
+ * there, so the form can seed that input with it.
+ */
+export type PrefilledSeries = {
+  name: string;
+  /** Display unit as declared by the source, if it has one. */
+  unit: string | null;
+  recipe: SerializedRecipe;
+};
+
+/** What a link into the goal creation form may ask it to start out with. */
+export type GoalFormPrefill = {
+  /** Seeds the goal's own data series as an editable formula over the series. */
+  dataSeries?: PrefilledSeries;
+  /** Seeds the historical data with the series. */
+  historical?: PrefilledSeries;
+};

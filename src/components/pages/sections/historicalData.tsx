@@ -3,6 +3,8 @@ import { getCuratedHistoricalData } from "@/fetchers/getCuratedHistoricalData";
 import { CuratedHistoricalCategory } from "@/lib/curatedHistoricalData";
 import { ExternalDataset } from "@/lib/api/utility";
 import serveTea from "@/lib/i18nServer";
+import { IconArrowRight } from "@tabler/icons-react";
+import Link from "next/link";
 import type { CuratedGeoArea, CuratedHistoricalEntryData } from "@/fetchers/getCuratedHistoricalData";
 
 /**
@@ -11,8 +13,11 @@ import type { CuratedGeoArea, CuratedHistoricalEntryData } from "@/fetchers/getC
  * has data for the area, so callers can include it unconditionally.
  */
 export default async function CuratedHistoricalData({
+  orgId,
   geoArea,
 }: {
+  /** The org the cards link into (`/org/[orgId]/historical-data/...`) */
+  orgId: string,
   geoArea: CuratedGeoArea,
 }) {
   const t = await serveTea("pages");
@@ -53,7 +58,9 @@ export default async function CuratedHistoricalData({
             {group.entries.map(entry => (
               <li key={entry.key} className="smooth" style={{ border: '1px solid var(--gray-80)' }}>
                 <article className="padding-50 height-100 flex flex-direction-column">
-                  <h4 className="margin-block-25 font-weight-500">{entry.name}</h4>
+                  <h4 className="margin-block-25 font-weight-500">
+                    <Link href={`/org/${orgId}/historical-data/${entry.key}`} className="color-pureblack">{entry.name}</Link>
+                  </h4>
                   <CuratedHistoricalGraph
                     series={entry.series.map(series => ({ name: series.name, dateValues: series.dateValues }))}
                     unit={entry.unit}
@@ -62,6 +69,14 @@ export default async function CuratedHistoricalData({
                   <small className="color-gray">
                     {t("pages:home.curated_historical.source")}: {sourceAttribution(entry)}
                   </small>
+                  <Link
+                    href={`/org/${orgId}/historical-data/${entry.key}`}
+                    className="margin-top-50 font-size-14px font-weight-500 display-inline-flex align-items-center gap-25"
+                    style={{ alignSelf: 'flex-start' }}
+                  >
+                    {t("pages:home.curated_historical.open")}
+                    <IconArrowRight aria-hidden="true" width={16} height={16} style={{ minWidth: '16px' }} />
+                  </Link>
                 </article>
               </li>
             ))}
@@ -73,7 +88,7 @@ export default async function CuratedHistoricalData({
 }
 
 /** "Energimyndigheten (EN0105_3)", listing each distinct table the entry's series came from. */
-function sourceAttribution(entry: CuratedHistoricalEntryData): string {
+export function sourceAttribution(entry: CuratedHistoricalEntryData): string {
   const tables = new Map(entry.series.map(series => [`${series.source.dataset}/${series.source.tableId}`, series.source]));
   return [...tables.values()]
     .map(source => `${ExternalDataset.getDatasetByAlternateName(source.dataset)?.fullName ?? source.dataset} (${source.tableId})`)

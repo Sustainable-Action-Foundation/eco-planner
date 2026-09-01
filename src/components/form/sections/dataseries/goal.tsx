@@ -5,7 +5,7 @@ import type { DateValuesWithUnit, Goal } from "@/types";
 import { GoalFormName } from "@/types/form-names";
 import { IconCheck } from "@tabler/icons-react";
 import { FormSync, ManualDataSeriesInput, RecipeContextProvider, RecipeEditor, SuggestedRecipeApplier, UnitInput } from "@/components/recipe";
-import { dataSeriesToDateValues, Recipe } from "@/functions/recipe";
+import { dataSeriesToDateValues, Recipe, type SerializedRecipe } from "@/functions/recipe";
 import ParameterSync from "@/components/recipe/output/parameterSyncer";
 import { RecipeSync } from "@/components/recipe/output/recipeSync";
 import { useMemo, type Dispatch, type SetStateAction } from "react";
@@ -14,6 +14,7 @@ import { DataSeriesType, UnitFlags } from "@/types/enums";
 
 export default function GoalSeriesSection({
   goal,
+  initialRecipe,
   dataSeriesType,
   setDataSeriesType,
   indicatorParameter,
@@ -26,6 +27,8 @@ export default function GoalSeriesSection({
 
 }: {
   goal: Goal | undefined;
+  /** Seeds the recipe inputs when creating (e.g. a prefilled series to derive the goal from); the saved recipe takes precedence when editing. */
+  initialRecipe?: SerializedRecipe;
   dataSeriesType: DataSeriesType;
   setDataSeriesType: Dispatch<SetStateAction<DataSeriesType>>;
   /** The form's current indicator parameter, if it has one, for the parameter sync button's applied state */
@@ -45,10 +48,11 @@ export default function GoalSeriesSection({
 
   const initialLoadedRecipe = useMemo(() => {
     const base = goal?.data_series?.recipe_used?.recipe;
-    if (!base) return undefined;
+    if (!base) return initialRecipe;
 
     return Recipe.from(base).withEditableExternals().serialize();
-  }, [goal?.data_series?.recipe_used?.recipe]);
+  }, [goal?.data_series?.recipe_used?.recipe, initialRecipe]);
+
 
   return (
     <>
