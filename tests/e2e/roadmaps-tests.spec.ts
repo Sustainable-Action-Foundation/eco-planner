@@ -110,18 +110,22 @@ test.describe.serial("Roadmaps tests", () => {
     // Submit the form
     await page.locator('#submit-button').click();
 
-    // Creating a roadmap redirects to the iteration creation page for it
-    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/iteration\/create/);
+    // Creating a roadmap creates an empty, published first version and lands on it
+    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/v1/);
+    await expect(page.getByRole('heading', { name: roadmapNameAllFields })).toBeVisible();
 
-    // Fill in the iteration form
+    // Fill in the rest of the version through its edit form
+    await page.getByTestId('admin-panel-edit').click();
+    await expect(page.locator('#submit-button')).toBeVisible();
+
     // Fill description in the tiptap editor
     await page.locator('.tiptap').first().fill('Test All');
 
     // Since the new roadmap works towards the national roadmap, a target version can be selected; "0" means always latest
     await page.locator('#target-version').selectOption('0');
 
-    // Publish the iteration so it is visible outside the group of editors
-    await page.locator('#publish').check();
+    // The first version is published on creation
+    await expect(page.locator('#publish')).toBeChecked();
 
     // Submit the iteration form
     await page.locator('#submit-button').click();
@@ -358,14 +362,12 @@ test.describe.serial("Roadmaps tests", () => {
     // Submit the form
     await page.locator('#submit-button').click();
 
-    // Creating a roadmap redirects to the iteration creation page for it
-    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/iteration\/create/);
+    // Creating a roadmap creates an empty, published first version and lands on it
+    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/v1/);
 
-    // The iteration form has no required fields when the roadmap comes from the query;
-    // publish so the iteration is visible outside the group of editors
-    await page.locator('#publish').check();
-
-    // Submit the iteration form
+    // Round-trip the empty version through its edit form without changes
+    await page.getByTestId('admin-panel-edit').click();
+    await expect(page.locator('#publish')).toBeChecked();
     await page.locator('#submit-button').click();
 
     // Verify successful creation by checking the redirect to the new iteration's page

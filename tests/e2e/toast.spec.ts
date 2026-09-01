@@ -123,15 +123,16 @@ test.describe('Toast', () => {
     await page.locator('#submit-button').click();
 
     await expectToast(page, 'success', 'roadmap.roadmap_created');
-    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/iteration\/create/);
-
-    // The iteration form has no required fields when the roadmap comes from the
-    // query, so just publish and submit
-    await page.locator('#publish').check();
-    await page.locator('#submit-button').click();
-    await expectToast(page, 'success', 'iteration_created');
-    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/v\d+/);
+    // A new roadmap comes with an empty published first version and lands on it
+    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/v1/);
     await expect(page.getByRole('heading', { name: 'Roadmap Toast' })).toBeVisible();
+
+    // The version's edit form has no required fields, so an unchanged submit succeeds
+    await page.getByTestId('admin-panel-edit').click();
+    await expect(page.locator('#publish')).toBeChecked();
+    await page.locator('#submit-button').click();
+    await expectToast(page, 'success', 'iteration_updated');
+    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/v1/);
   });
 
   test('Goal rejects invalid submit and shows success toast', async ({ page }) => {
