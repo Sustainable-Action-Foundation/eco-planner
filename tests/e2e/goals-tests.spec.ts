@@ -348,9 +348,17 @@ test.describe("Goals tests", () => {
 
     await page.locator('#recipeVariable-parent-value-dummy-uuid').click();
     // Select first valid option from a tree dropdown combobox thingy
-    await page.locator('#recipeVariable-parent-value-dummy-uuid-dialog-tree > li').first().click();
-    await page.locator('#recipeVariable-parent-value-dummy-uuid-dialog-tree > li > ul > li').first().click();
-    await page.locator('#recipeVariable-parent-value-dummy-uuid-dialog-tree > li > ul > li > ul > li').first().click();
+    // The tree settles level by level; wait for each node and give the click room
+    // to retry (firefox intermittently reports the nodes as "not stable" for >5s)
+    const treeLevels = [
+      page.locator('#recipeVariable-parent-value-dummy-uuid-dialog-tree > li').first(),
+      page.locator('#recipeVariable-parent-value-dummy-uuid-dialog-tree > li > ul > li').first(),
+      page.locator('#recipeVariable-parent-value-dummy-uuid-dialog-tree > li > ul > li > ul > li').first(),
+    ];
+    for (const node of treeLevels) {
+      await expect(node).toBeVisible();
+      await node.click({ timeout: 15_000 });
+    }
 
     // press escape to close the dropdown, to avoid it blocking other elements
     await page.keyboard.press('Escape');
