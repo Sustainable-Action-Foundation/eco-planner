@@ -182,7 +182,8 @@ export default function RoadmapIterationForm({
 
           {roadmapTarget?.iterations.length ? <label>
             {t("forms:roadmap_iteration.roadmap_target_label", { targetName: roadmapTarget.name })}
-            <select className="block margin-top-25 margin-bottom-100 width-100" name="target-version" id="target-version" required={true} defaultValue={currentIteration?.target_version ?? ""} onChange={(e) => setTargetVersion(parseInt(e.target.value, 10) || null)}>
+            {/* A stored null target means "always latest" (the 0 option), so an existing version never reopens on the empty placeholder */}
+            <select className="block margin-top-25 margin-bottom-100 width-100" name="target-version" id="target-version" required={true} defaultValue={currentIteration ? String(currentIteration.target_version ?? 0) : ""} onChange={(e) => setTargetVersion(parseInt(e.target.value, 10) || null)}>
               <option value="">{t("forms:roadmap_iteration.roadmap_target_no_chosen")}</option>
               <option value={0}>{t("forms:roadmap_iteration.roadmap_target_always_latest")}</option>
               {roadmapTarget.iterations.map((iteration) => {

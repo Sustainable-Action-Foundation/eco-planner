@@ -23,6 +23,14 @@ async function fillManualDataSeries(page: Page, rows: Array<[number | string, nu
   }
 }
 
+/** The goal form keeps the baseline section hidden until the goal has one; reveal it before picking a type. */
+async function openBaselineSection(page: Page) {
+  const toggle = page.getByTestId("baseline-section-toggle");
+  if ((await toggle.getAttribute("aria-expanded")) !== "true") {
+    await toggle.click();
+  }
+}
+
 test.describe("Goals tests", () => {
   test.use({ storageState: adminFile });
 
@@ -161,8 +169,10 @@ test.describe("Goals tests", () => {
       await expect.soft(page.locator(`#goal-dataseries [data-row="${i}"][data-column="2"] input`)).toHaveValue(String(1));
     }
 
-    // No baseline is the default, so the goal was created without one
-    await expect.soft(page.locator('input[name="BASELINE_TYPE"][value="NONE"]')).toBeChecked();
+    // The baseline was created as type initial (the default value); derived baselines
+    // are stored as recipes, so the form reopens on the same baseline type instead of
+    // presenting the derived values as a custom series.
+    await expect.soft(page.locator('input[name="BASELINE_TYPE"][value="INITIAL"]')).toBeChecked();
 
     await expect.soft(page.locator('#isFeatured')).not.toBeChecked();
 
@@ -191,6 +201,8 @@ test.describe("Goals tests", () => {
 
     await page.locator('#goal-manual-unit').fill(unitRequiredUpdated);
     await page.locator('#goal-manual-unit').blur();
+
+    await openBaselineSection(page);
 
     await page.locator('input[name="BASELINE_TYPE"][value="INITIAL_NON_ZERO"]').check();
     await page.locator('#isFeatured').check();
@@ -252,6 +264,7 @@ test.describe("Goals tests", () => {
     await fillManualDataSeries(page, Array.from({ length: 30 }, (_, i) => [2020 + i, i]));
 
     // Form part 4
+    await openBaselineSection(page);
     await page.locator('input[name="BASELINE_TYPE"][value="INITIAL_NON_ZERO"]').check();
     /*
       await page.locator('input[name="BASELINE_TYPE"][value="INHERIT"]').check();
@@ -344,6 +357,8 @@ test.describe("Goals tests", () => {
 
     await page.getByPlaceholder('recipe_editor.scalar').fill('48');
     // No unit input in suggested mode: the unit comes from the recipe evaluation
+
+    await openBaselineSection(page);
 
     await page.locator('input[name="BASELINE_TYPE"][value="INITIAL"]').check();
     await page.locator('#isPublic').check(); // Visibility is a radio group; "public" is the non-featured, listed state

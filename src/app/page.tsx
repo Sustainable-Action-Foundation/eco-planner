@@ -62,24 +62,22 @@ export default async function Page(
   const sortBy = searchParams['sortBy'] ? (Array.isArray(searchParams['sortBy']) ? (searchParams['sortBy'][0] as RoadmapSortBy) : (searchParams['sortBy'] as RoadmapSortBy)) : RoadmapSortBy.Default;
   const searchFilter = searchParams['searchFilter'] ? (Array.isArray(searchParams['searchFilter']) ? searchParams['searchFilter'][0] : searchParams['searchFilter']) : '';
 
-  // Get the latest version ids, then fetch proper iterations with access and counts
-  const latestIterationIds = roadmaps.flatMap(roadmap => {
-    // Unlisted iterations only count as the latest for users who can edit the roadmap
-    const candidates = hasEditAccess(accessChecker(roadmap, accessContext))
-      ? roadmap.iterations
-      : roadmap.iterations.filter(iteration => !iteration.is_unlisted);
-    if (!candidates.length) {
-      return [];
-    }
+  // Per roadmap: the latest published version is its node in the tree, and any
+  // drafts nest under it (drafts only reach editors; unlisted versions only
+  // count as the latest for users who can edit the roadmap)
+  const treeIterationIds = roadmaps.flatMap(roadmap => {
+    const canEdit = hasEditAccess(accessChecker(roadmap, accessContext));
+    const published = roadmap.iterations.filter(iteration => iteration.published_at !== null && (canEdit || !iteration.is_unlisted));
+    const drafts = canEdit ? roadmap.iterations.filter(iteration => iteration.published_at === null) : [];
 
-    const latestIteration = candidates.reduce((current, candidate) =>
-      candidate.version > current.version ? candidate : current,
-    );
+    const latestPublished = published.length
+      ? published.reduce((current, candidate) => candidate.version > current.version ? candidate : current)
+      : null;
 
-    return latestIteration.id ? [latestIteration.id] : [];
+    return [...(latestPublished ? [latestPublished.id] : []), ...drafts.map(draft => draft.id)];
   });
 
-  let iterations = latestIterationIds.length ? await getRoadmapIterations(latestIterationIds) : [];
+  let iterations = treeIterationIds.length ? await getRoadmapIterations(treeIterationIds) : [];
 
   // Filter by typeFilter
   if (typeFilter.length) {
@@ -256,7 +254,8 @@ export default async function Page(
           <div className="flex align-items-center gap-100 flex-wrap-wrap justify-content-space-between margin-bottom-200 margin-top-50">
             <small className="font-size-100" aria-live="polite"> {/* TODO: Pretty sure this should have an aria-live but double check against a screenreader */}
               {t("pages:home.shown_results", {
-                shown: iterations.length,
+                // One row per roadmap; its drafts nest under it
+                shown: new Set(iterations.map(iteration => iteration.roadmap_id)).size,
                 total: roadmaps.filter((roadmap) => roadmap.iterations.length > 0).length,
               })}
             </small>

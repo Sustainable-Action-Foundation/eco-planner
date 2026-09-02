@@ -81,7 +81,7 @@ export function sanityCheckScalars(allVariables: EvalTimeVariable[], warnings: s
 
   if (cleanScalars.length === 0) return;
 
-  warnForNumericScalars("Recipe", cleanScalars, warnings);
+  warnForNumericScalars("Formula", cleanScalars, warnings);
 }
 
 export function sanityCheckDataSeries(variables: RecipeExtractionOutput, warnings: string[]) {

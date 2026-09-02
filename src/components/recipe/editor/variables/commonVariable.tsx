@@ -26,7 +26,7 @@ export function CommonVariable({
 
   const { upsertVariable, getVariable } = useRecipe();
   const variable = getVariable(variableId);
-  if (!variable) throw new RecipeError(`Variable with id "${variableId}" not found in recipe context.`);
+  if (!variable) throw new RecipeError(`Variable with id "${variableId}" not found in formula context.`);
   const [unit, setUnit] = useState<string>(variable.unit ?? "");
 
   const permissions = { ...RecipeEditorPermissions, ...incomingPermissions };
