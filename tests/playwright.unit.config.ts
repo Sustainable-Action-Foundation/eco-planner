@@ -66,6 +66,12 @@ export default defineConfig({
       use: {},
     },
     {
+      name: "Series ref unit tests",
+      testMatch: ["unit/series-ref.test.ts"],
+      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
+      use: {},
+    },
+    {
       name: "Curated historical catalog unit tests",
       testMatch: ["unit/curated-historical.test.ts"],
       retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.

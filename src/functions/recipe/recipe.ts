@@ -221,6 +221,11 @@ export class Recipe {
     const scope: Record<string, number | number[] | MathJSUnit | MathJSUnit[]> = {};
     let equation = this.equation;
 
+    // The year axis the vectors are aligned to, for equations that shape a
+    // series by year (e.g. `reachBy(year, ...)`)
+    const axisStartYear = commonStartDate.getUTCFullYear();
+    scope.year = Array.from({ length: maxTimeSpan }, (_, i) => axisStartYear + i);
+
     const nameNormalizer = (name: string) => {
       const collapsedWhitespace = name.trim().replace(/\s+/g, "_");
       const identifierSafe = collapsedWhitespace.replace(/[^A-Za-z0-9_]/g, "_");
@@ -231,7 +236,7 @@ export class Recipe {
       counts[variable.name] = (counts[variable.name] ?? 0) + 1;
       return counts;
     }, {} as Record<string, number>);
-    const usedScopeNames = new Set<string>();
+    const usedScopeNames = new Set<string>(["year"]);
 
     // Build the variable map once; the getter rebuilds it on every access.
     const variableMap = this.variableMap;

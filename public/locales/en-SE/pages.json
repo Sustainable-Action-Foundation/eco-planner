@@ -70,9 +70,11 @@
     "update_needed_attention_message": "Attention!"
   },
   "goal_create": {
+    "bad_prefill": "Could not find the data in the link, so the form starts out empty.",
     "bad_roadmap": "Could not find or do not have access to the $t(common:roadmap_version_one) version in the link.\n\nUse the dropdown menu to select a $t(common:roadmap_version_one) to create $t(common:goal_other) under.",
     "breadcrumb": "$t(common:new.goal)",
     "information_icon_aria": "Information",
+    "prefilled": "The form starts out from {{name}}: as the goal's historical data, and as the series the suggested methods scale. Everything can still be changed before saving.",
     "title": "$t(common:new.goal)"
   },
   "goal_edit": {
@@ -112,6 +114,7 @@
       "fuel_other": "Other",
       "fuel_petrol": "Petrol",
       "fuel_plugin_hybrid": "Plug-in hybrid",
+      "open": "Show and use",
       "solar_capacity_description": "Installed capacity of grid-connected photovoltaic installations at the end of each year, in megawatts, all size classes.",
       "solar_capacity_name": "Installed solar power capacity",
       "solar_installations_description": "Number of grid-connected photovoltaic installations, all size classes.",
@@ -258,5 +261,14 @@
     "signup_hint": "If you sign up with the invited email address, the invitation is accepted automatically.",
     "accept": "Join {{org}} as a guest",
     "accepted_toast": "You are now a guest in {{org}}"
+  },
+  "org_historical_data": {
+    "new_goal": "New goal from this data",
+    "new_goal_description": "Opens the goal form with the series filled in.",
+    "series_legend": "Series",
+    "subtitle": "Historical data for {{area}}",
+    "use_description": "Start a new goal in one of your roadmaps from this series. It becomes the goal's historical data and the starting point for the goal's own values; the selection and everything else can be adjusted before saving.",
+    "use_heading": "Use this data",
+    "values": "Values"
   }
 }

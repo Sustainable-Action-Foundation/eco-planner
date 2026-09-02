@@ -1,12 +1,11 @@
 "use client";
 
-import { getHistoricalSource } from "@/functions/getHistoricalDataset";
 import getTableContent from "@/lib/api/getTableContent";
 import getTableMetadata from "@/lib/api/getTableMetadata";
 import getTables from "@/lib/api/getTables";
 import { formQueryHelper, ExternalDataset } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
-import type { Goal } from "@/types";
+import type { HistoricalSource } from "@/functions/getHistoricalDataset";
 import { useContext, useCallback, useRef, useEffect, useMemo, useReducer } from "react";
 import type { SubmitEvent } from "react";
 import { useTranslation } from "react-i18next";
@@ -19,10 +18,11 @@ import type { ApiSelectionItem } from "@/lib/api/apiTypes";
 // TODO: All id's in this component must be dynamic in case it is used multiple times on the same page.
 
 export default function ExternalData({
-  goal,
+  initialSource,
   onChange,
 }: {
-  goal: Goal | undefined,
+  /** The selection the panel starts out on (e.g. a goal's saved historical source); the panel starts empty without one. */
+  initialSource: HistoricalSource | null,
   onChange?: (data: ExternalDataState) => void;
 }) {
 
@@ -30,10 +30,7 @@ export default function ExternalData({
   // Locale has the format language-REGION, e.g. "sv-SE" or "en-US", we only need the language part
   const lang = new Intl.Locale(useContext(LocaleContext)).language;
 
-  const historicalSource = useMemo(
-    () => (goal ? getHistoricalSource(goal) : null),
-    [goal],
-  );
+  const historicalSource = initialSource;
   const historicalSelection: ApiSelectionItem[] = useMemo(
     () => historicalSource?.selection ?? [],
     [historicalSource],

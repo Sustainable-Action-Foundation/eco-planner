@@ -20,6 +20,8 @@ export type CuratedGeoArea = { code: string, name: string, type: GeoAreaType };
 export type CuratedHistoricalSeriesData = Pick<CuratedSeries, "key" | "name"> & {
   /** The source that served this geo area's level. */
   source: CuratedSource;
+  /** The source's selection with the geo area's region injected: what was actually queried, reusable as-is in a recipe. */
+  selection: ApiSelectionItem[];
   dateValues: DateValues;
 };
 
@@ -42,13 +44,29 @@ export type CuratedHistoricalCatalogData = Omit<CuratedHistoricalCatalog, "entri
  */
 export async function getCuratedHistoricalData(t: TFunction, geoArea: CuratedGeoArea): Promise<CuratedHistoricalCatalogData> {
   const catalog = getCuratedHistoricalCatalog(t, geoArea.name);
+  return { ...catalog, entries: await fetchEntries(catalog.entries, geoArea) };
+}
+
+/**
+ * One curated entry for a geo area, e.g. for the entry's own page; null when
+ * the catalog has no such entry or none of its series have data for the area.
+ * Only that entry's series are fetched.
+ */
+export async function getCuratedHistoricalEntry(t: TFunction, geoArea: CuratedGeoArea, entryKey: string): Promise<CuratedHistoricalEntryData | null> {
+  const entry = getCuratedHistoricalCatalog(t, geoArea.name).entries.find(entry => entry.key === entryKey);
+  if (!entry) return null;
+  const [fetched] = await fetchEntries([entry], geoArea);
+  return fetched ?? null;
+}
+
+async function fetchEntries(catalogEntries: CuratedHistoricalEntry[], geoArea: CuratedGeoArea): Promise<CuratedHistoricalEntryData[]> {
   const area = { code: geoArea.code, type: geoArea.type };
 
   // The series are fetched one at a time per dataset (datasets in parallel):
   // on a cold cache a catalog is a dozen requests to the same upstream, and
   // Energimyndigheten in particular answers bursts with 429s.
   const seriesByDataset = new Map<DatasetKeys, { id: string, source: CuratedSource }[]>();
-  for (const entry of catalog.entries) {
+  for (const entry of catalogEntries) {
     for (const series of entry.series) {
       const source = series.sources[geoArea.type];
       if (!source) continue;
@@ -58,25 +76,27 @@ export async function getCuratedHistoricalData(t: TFunction, geoArea: CuratedGeo
     }
   }
 
-  const results = new Map<string, DateValues | null>();
+  const results = new Map<string, CachedSeries | null>();
   await Promise.all([...seriesByDataset.values()].map(async group => {
     for (const { id, source } of group) {
       results.set(id, await getCachedSeries(source, area));
     }
   }));
 
-  const entries = catalog.entries.map(entry => ({
+  const entries = catalogEntries.map(entry => ({
     ...entry,
     series: entry.series.flatMap(series => {
       const source = series.sources[geoArea.type];
-      const dateValues = results.get(`${entry.key}/${series.key}`);
-      if (!source || !dateValues || Object.keys(dateValues).length === 0) return [];
-      return [{ key: series.key, name: series.name, source, dateValues }];
+      const result = results.get(`${entry.key}/${series.key}`);
+      if (!source || !result || Object.keys(result.dateValues).length === 0) return [];
+      return [{ key: series.key, name: series.name, source, selection: result.selection, dateValues: result.dateValues }];
     }),
   }));
 
-  return { ...catalog, entries: entries.filter(entry => entry.series.length > 0) };
+  return entries.filter(entry => entry.series.length > 0);
 }
+
+type CachedSeries = { selection: ApiSelectionItem[], dateValues: DateValues };
 
 /**
  * Cache-scoped core: resolve the region, then fetch + parse one external
@@ -85,7 +105,7 @@ export async function getCuratedHistoricalData(t: TFunction, geoArea: CuratedGeo
  * tradeoff is that a transient upstream outage also sticks for the cache
  * duration (clear with `revalidateTag('curatedHistoricalData')`).
  */
-async function getCachedSeries(source: CuratedSource, geoArea: { code: string, type: GeoAreaType }): Promise<DateValues | null> {
+async function getCachedSeries(source: CuratedSource, geoArea: { code: string, type: GeoAreaType }): Promise<CachedSeries | null> {
   'use cache';
   cacheTag('curatedHistoricalData');
   cacheLife("days");
@@ -99,6 +119,7 @@ async function getCachedSeries(source: CuratedSource, geoArea: { code: string, t
       return null;
     }
 
+    const selection = [...regionSelection, ...source.selection];
     const variable: ExternalVariable = {
       // Only surfaces in warning/error logs; display names live in the catalog
       id: `curated-${tableId}`,
@@ -108,11 +129,11 @@ async function getCachedSeries(source: CuratedSource, geoArea: { code: string, t
       unit: UnitFlags.Missing,
       dataset,
       tableId,
-      selection: [...regionSelection, ...source.selection],
+      selection,
     };
 
     const { dateValues } = await fetchExternalVariableData(variable, [], getTableContent);
-    return dateValues;
+    return { selection, dateValues };
   } catch (err) {
     console.error(`Error fetching curated historical series from ${dataset} table ${tableId}`, { selection: source.selection, geoArea, err });
     return null;

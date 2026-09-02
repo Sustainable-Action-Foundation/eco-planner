@@ -224,6 +224,13 @@
       "parent_population": "Parent population",
       "parent_value": "Parent"
     },
+    "default_reach_target_recipe": {
+      "name": "Reach a target value by a year",
+      "parent_value": "Parent",
+      "start_year": "Start year",
+      "target": "Target value",
+      "target_year": "Target year"
+    },
     "default_scalar_recipe": {
       "name": "Scale by constant value",
       "parent_value": "Parent",

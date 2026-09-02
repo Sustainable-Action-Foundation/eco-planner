@@ -923,3 +923,61 @@ test.describe("Sanity checks", () => {
     expect(warningText).toContain("very long data series");
   });
 });
+
+test.describe("reachBy", () => {
+  test("draws a line through the start and target years and continues at the same slope", async () => {
+    const recipe = new Recipe({
+      name: "Reach target",
+      equation: "reachBy(year, ${start}, ${target}, ${from}, ${to})",
+      variables: [
+        scalarVariable("start", "Start", 10, "MW"),
+        scalarVariable("target", "Target", 50),
+        scalarVariable("from", "From", 2030),
+        scalarVariable("to", "To", 2034),
+      ],
+    });
+    const { result } = await evaluateWithWarnings(recipe);
+    expect(result).not.toBeNull();
+    expect(result?.unit).toBe("MW");
+    const byYear = Object.fromEntries(Object.entries(result?.dateValues ?? {}).map(([date, value]) => [new Date(date).getUTCFullYear(), value]));
+    // Years before the start year are left out, the axis defaults to 2020–2050
+    expect(byYear[2029]).toBeUndefined();
+    expect(byYear[2030]).toBe(10);
+    expect(byYear[2032]).toBe(30);
+    expect(byYear[2034]).toBe(50);
+    expect(byYear[2050]).toBe(210);
+    expect(Object.keys(byYear).length).toBe(2050 - 2030 + 1);
+  });
+
+  test("reads the last value of a series as the start", async () => {
+    const recipe = new Recipe({
+      name: "Reach target from series",
+      equation: "reachBy(year, ${series}, ${target}, ${from}, ${to})",
+      variables: [
+        inlineDataSeriesVariable({ id: "series", name: "Series", values: { "2016-01-01T00:00:00.000Z": 4, "2024-01-01T00:00:00.000Z": 8 }, pick: VectorIndexPickerOptions.Last }),
+        scalarVariable("target", "Target", 0),
+        scalarVariable("from", "From", 2026),
+        scalarVariable("to", "To", 2030),
+      ],
+    });
+    const { result } = await evaluateWithWarnings(recipe);
+    const byYear = Object.fromEntries(Object.entries(result?.dateValues ?? {}).map(([date, value]) => [new Date(date).getUTCFullYear(), value]));
+    expect(byYear[2026]).toBe(8);
+    expect(byYear[2028]).toBe(4);
+    expect(byYear[2030]).toBe(0);
+  });
+
+  test("rejects a target year before the start year", async () => {
+    const recipe = new Recipe({
+      name: "Backwards",
+      equation: "reachBy(year, ${start}, ${target}, ${from}, ${to})",
+      variables: [
+        scalarVariable("start", "Start", 1),
+        scalarVariable("target", "Target", 2),
+        scalarVariable("from", "From", 2040),
+        scalarVariable("to", "To", 2030),
+      ],
+    });
+    await expect(recipe.evaluate([])).rejects.toThrow("end year");
+  });
+});
