@@ -215,7 +215,7 @@ export default async function Page(
             <section className="margin-block-300">
               {/* The section fetches from external statistics APIs; don't block the rest of the page on a cold cache */}
               <Suspense fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
-                <CuratedHistoricalData geoArea={selectedOrg.geoArea} />
+                <CuratedHistoricalData orgId={selectedOrg.id} geoArea={selectedOrg.geoArea} />
               </Suspense>
             </section>
             : null}

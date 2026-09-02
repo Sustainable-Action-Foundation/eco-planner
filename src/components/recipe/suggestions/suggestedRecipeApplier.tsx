@@ -11,7 +11,7 @@ import { useEffect, useMemo, useState } from "react";
 import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";
 import { isUnitFlag } from "@/functions/unit";
 import { IconAlertTriangleFilled, IconInfoCircle } from "@tabler/icons-react";
-import type { ClientRoadmapIteration, DBRecipe } from "@/types";
+import type { ClientRoadmapIteration, DBRecipe, PrefilledSeries } from "@/types";
 import { RecipeEditorPermissions } from "@/types/consts";
 import { Recipe } from "@/functions/recipe/recipe";
 import { getDefaultSuggestedRecipes, TextStatus } from "@/components/recipe";
@@ -22,19 +22,25 @@ export function SuggestedRecipeApplier({
   autoInsertDefaultSuggestions = true,
   suggestedRecipes: providedSuggestedRecipes = [],
   permissions = RecipeEditorPermissions,
+  parentSeries,
+  initialRecipeId,
 }: {
   autoInsertDefaultSuggestions?: boolean;
   suggestedRecipes?: DBRecipe[];
   permissions?: RecipeEditorPermissions;
+  /** Stands in for the parent value in the default suggestions (see `getDefaultSuggestedRecipes`) */
+  parentSeries?: PrefilledSeries;
+  /** The suggestion the surrounding recipe context was seeded with, so the select agrees with it */
+  initialRecipeId?: string;
 }) {
   const { t } = useTranslation("components");
-  const defaultSuggestionRecipes = useMemo(() => getDefaultSuggestedRecipes(t), [t]);
+  const defaultSuggestionRecipes = useMemo(() => getDefaultSuggestedRecipes(t, parentSeries), [t, parentSeries]);
   const { recipe, applyRecipeUpdate, clearRecipe } = useRecipe();
 
   const [availableDataSeries, setAvailableDataSeries] = useState<{ id: string; name: string; }[]>([]);
   const [roadmapLookup, setRoadmapLookup] = useState<Record<string, ClientRoadmapIteration>>({});
   const [dataSeriesNamesById, setDataSeriesNamesById] = useState<Record<string, string>>({});
-  const [selectedRecipeId, setSelectedRecipeId] = useState<string>("");
+  const [selectedRecipeId, setSelectedRecipeId] = useState<string>(initialRecipeId ?? "");
   const suggestedRecipes = useMemo(() => autoInsertDefaultSuggestions
     ? [...defaultSuggestionRecipes, ...providedSuggestedRecipes]
     : [...providedSuggestedRecipes],

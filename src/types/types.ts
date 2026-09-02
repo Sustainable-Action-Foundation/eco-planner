@@ -2,6 +2,7 @@ import type { IterationStatus, OrgRole, Prisma } from "@/lib/prisma/generated";
 import type { accessControlSelection, actionInclusionSelection, clientSafeDataSeriesSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapIterationSelection, effectInclusionSelection, goalInclusionSelection, multiRoadmapInclusionSelection, nameSelector, recipeSelector, roadmapInclusionSelection, roadmapIterationInclusionSelection, userInfoSelector } from "@/fetchers/inclusionSelectors";
 import type { Unit as MathJSUnit } from "mathjs";
 import type { UnitFlags } from "@/types/enums";
+import type { DataSeriesVariable, ExternalVariable } from "@/functions/recipe/types";
 
 /** The access control record shape consumed by accessChecker, as selected by `accessControlSelection`. */
 export type AccessControlInfo = Prisma.AccessControlsGetPayload<{
@@ -151,3 +152,17 @@ export type Mask = Record<ISOIshDate, boolean>;
 export type DateValues = Record<ISOIshDate, number>;
 export type DateValuesWithUnit = { dateValues: DateValues, unit: Unit };
 export type MaskedVector = { vector: MathJSUnit[], mask: Mask };
+
+/**
+ * A series handed to the goal form to start a goal from, e.g. a browsable
+ * historical series resolved from a link (see `resolveSeriesRef`). The
+ * variable reads the series the way a recipe would (an external source today;
+ * a stored data series once a data lab publishes its own), so the form can seed
+ * both the historical data and the goal's recipe with it.
+ */
+export type PrefilledSeries = {
+  name: string;
+  /** Display unit as declared by the source, if it has one. */
+  unit: string | null;
+  variable: ExternalVariable | DataSeriesVariable;
+};

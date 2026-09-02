@@ -16,6 +16,7 @@ import { resolveHistoricalDataType } from "../../forms/goalSections";
 
 export default function HistoricalSeriesSection({
   goal,
+  initialRecipe,
   historicalDataType,
   setHistoricalDataType,
   setPreviewHistoricalSerie,
@@ -25,6 +26,8 @@ export default function HistoricalSeriesSection({
   hasInitializedManual,
 }: {
   goal: Goal | undefined
+  /** Seeds the external input when creating (e.g. a prefilled historical series); the saved recipe takes precedence when editing. */
+  initialRecipe?: SerializedRecipe;
   historicalDataType: HistoricalDataType;
   setHistoricalDataType: Dispatch<SetStateAction<HistoricalDataType>>;
   /** Receives the evaluated historical series for previewing (e.g. the goal form's graph); omit where no preview is shown. */
@@ -45,9 +48,9 @@ export default function HistoricalSeriesSection({
     : undefined;
 
   const externalInitialRecipe = useMemo(() => {
-    if (!savedHistoricalRecipe || manualInitialDateValues) return undefined;
+    if (!savedHistoricalRecipe || manualInitialDateValues) return initialRecipe;
     return Recipe.from(savedHistoricalRecipe).withEditableExternals().serialize();
-  }, [savedHistoricalRecipe, manualInitialDateValues]);
+  }, [savedHistoricalRecipe, manualInitialDateValues, initialRecipe]);
 
   return (
     <>
@@ -144,7 +147,7 @@ export default function HistoricalSeriesSection({
               initialRecipe={externalInitialRecipe}
               availableDataSeries={goal?.historical?.recipe_used?.source_data_series}
             >
-              <ExternalDataSeriesInput goal={goal} />
+              <ExternalDataSeriesInput />
               <FormSync
                 RecipeFormElement={<input name={GoalFormName.HistoricalRecipe} />}
                 DateValuesFormElement={<input name={GoalFormName.HistoricalDataSeries} />}

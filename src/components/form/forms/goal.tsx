@@ -2,7 +2,7 @@
 
 import type { getRoadmaps } from "@/fetchers";
 import formSubmitter from "@/functions/formSubmitter";
-import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput } from "@/types";
+import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput, PrefilledSeries } from "@/types";
 import { BaselineType, DataSeriesType, GoalDataTarget, HistoricalDataType } from "@/types/enums";
 import { GoalListing } from "@/lib/prisma/generated";
 import { GoalFormName } from "@/types/form-names";
@@ -24,6 +24,7 @@ import {
   parseDataSeriesSection,
   parseHistoricalSection,
   parseRecipeSuggestions,
+  prefilledSeriesRecipe,
   resolveBaselineType,
   resolveDataSeriesType,
   resolveHistoricalDataType,
@@ -42,15 +43,22 @@ export default function GoalForm({
   iterationId,
   roadmapAlternatives,
   currentGoal,
+  prefill: requestedPrefill,
 }: {
   /** The roadmap iteration the goal belongs to, if preselected */
   iterationId?: string,
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
   currentGoal?: Goal;
+  /** A series to start the goal from (see `getPrefilledSeries`); ignored when editing, where the goal's own data wins. */
+  prefill?: PrefilledSeries;
 }) {
   const { t } = useTranslation(["forms", "graphs", "common"]);
 
-  const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(() => resolveDataSeriesType(currentGoal));
+  const prefill = currentGoal ? undefined : requestedPrefill;
+
+  // A prefilled series becomes both the goal's historical data and the parent
+  // the suggested methods scale, so the goal starts out as the series as is
+  const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(() => prefill ? DataSeriesType.Suggested : resolveDataSeriesType(currentGoal));
   const initializedDataSeriesTypes = useInitializedValues(dataSeriesType);
   const hasInitializedSuggested = initializedDataSeriesTypes.has(DataSeriesType.Suggested);
   const hasInitializedManual = initializedDataSeriesTypes.has(DataSeriesType.Manual);
@@ -63,12 +71,14 @@ export default function GoalForm({
   const baselineHasInitializedManual = initializedBaselineTypes.has(BaselineType.Custom);
   const baselineHasInitializedInherited = initializedBaselineTypes.has(BaselineType.Inherited);
 
-  const [historicalDataType, setHistoricalDataType] = useState<HistoricalDataType>(() => resolveHistoricalDataType(currentGoal));
+  const [historicalDataType, setHistoricalDataType] = useState<HistoricalDataType>(() => prefill ? HistoricalDataType.External : resolveHistoricalDataType(currentGoal));
+  const prefilledHistoricalRecipe = useMemo(() => prefill ? prefilledSeriesRecipe(prefill) : undefined, [prefill]);
 
   // Baseline and historical data are optional, so their sections start collapsed
-  // unless the goal already has one; the toggle shows the current choice.
+  // unless the goal already has one (or a prefilled series fills the historical
+  // section); the toggle shows the current choice.
   const [baselineOpen, setBaselineOpen] = useState<boolean>(() => !!currentGoal?.baseline);
-  const [historicalOpen, setHistoricalOpen] = useState<boolean>(() => !!currentGoal?.historical);
+  const [historicalOpen, setHistoricalOpen] = useState<boolean>(() => !!currentGoal?.historical || !!prefill);
   // Inline records so every key stays a literal inside t()
   const baselineTypeLabels: Record<BaselineType, string> = {
     [BaselineType.None]: t("forms:goal.baseline_types.none"),
@@ -322,7 +332,7 @@ export default function GoalForm({
             type="text"
             name={GoalFormName.GoalName}
             id="goalName"
-            defaultValue={currentGoal?.name ?? undefined}
+            defaultValue={currentGoal?.name ?? prefill?.name ?? undefined}
           // onChange={(e) => setGoalName(e.target.value)}
           />
         </label>
@@ -412,6 +422,7 @@ export default function GoalForm({
         <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.data_series.goal.title")}</legend>
         <GoalSeriesSection
           goal={currentGoal}
+          prefilledSeries={prefill}
           dataSeriesType={dataSeriesType}
           setDataSeriesType={setDataSeriesType}
           indicatorParameter={indicatorParameter}
@@ -497,6 +508,7 @@ export default function GoalForm({
         <div id="historical-section" className={`min-width-0 ${historicalOpen ? "" : "display-none"}`} data-testid="historical-section">
           <HistoricalSeriesSection
             goal={currentGoal}
+            initialRecipe={prefilledHistoricalRecipe}
             historicalDataType={historicalDataType}
             setHistoricalDataType={setHistoricalDataType}
             setPreviewHistoricalSerie={setPreviewHistoricalSerie}

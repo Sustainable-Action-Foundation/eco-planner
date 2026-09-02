@@ -8,9 +8,12 @@ import type { ApexOptions } from "apexcharts";
 export default function CuratedHistoricalGraph({
   series,
   unit,
+  height,
 }: {
   series: { name: string, dateValues: DateValues }[],
   unit: string | null,
+  /** Overrides the card-sized default */
+  height?: number,
 }) {
   const chartSeries = series.map(({ name, dateValues }) => ({
     name,
@@ -59,6 +62,6 @@ export default function CuratedHistoricalGraph({
 
   // Multi-series charts need room for the legend below the plot
   return (
-    <WrappedChart options={chartOptions} series={chartSeries} type="line" height={isMultiSeries ? 260 : 200} />
+    <WrappedChart options={chartOptions} series={chartSeries} type="line" height={height ?? (isMultiSeries ? 260 : 200)} />
   );
 }

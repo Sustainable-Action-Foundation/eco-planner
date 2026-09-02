@@ -2,22 +2,30 @@ import { Recipe } from "@/functions/recipe/recipe";
 import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/enums";
 import type { DataSeriesVariable, ExternalVariable, ScalarVariable } from "@/functions/recipe/types";
 import type { ApiSelectionItem, DatasetKeys } from "@/lib/api/apiTypes";
-import type { DBRecipe } from "@/types";
+import type { DBRecipe, PrefilledSeries } from "@/types";
 import type { TFunction } from "i18next";
 import { UnitFlags } from "@/types/enums";
+import { parseUnit } from "@/functions/unit";
 
 /** The data series being inherited from; the user picks it in every scaling recipe. */
 const PARENT_VALUE_ID = "parent-value-dummy-uuid";
 
+/** Ids of the default suggestions that other code refers to. */
+export const DefaultSuggestedRecipeId = {
+  Scalar: "scalar-recipe-dummy-uuid",
+  ReachTarget: "reach-target-recipe-dummy-uuid",
+} as const;
+export type DefaultSuggestedRecipeId = (typeof DefaultSuggestedRecipeId)[keyof typeof DefaultSuggestedRecipeId];
+
 type ExternalPreset = { dataset: DatasetKeys, tableId: string, selection: ApiSelectionItem[] };
 
 /** A data series the user has to pick themselves. */
-function dataSeriesTemplate(id: string, name: string): DataSeriesVariable {
+function dataSeriesTemplate(id: string, name: string, pick: VectorIndexPickerOptions = VectorIndexPickerOptions.Default): DataSeriesVariable {
   return {
     id,
     name,
     type: RecipeDataTypes.DataSeries,
-    pick: VectorIndexPickerOptions.Default,
+    pick,
     value: undefined,
     dataSeriesId: undefined,
     unit: UnitFlags.Missing,
@@ -110,7 +118,12 @@ function trafaPassengerCars(drivmedel: string): ExternalPreset {
   };
 }
 
-export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
+/**
+ * @param parentSeries Stands in for the parent value in every suggestion, e.g. a
+ * browsable historical series a goal is started from: the parent is no longer
+ * something to pick but that series, ready to be scaled.
+ */
+export function getDefaultSuggestedRecipes(t: TFunction, parentSeries?: PrefilledSeries): DBRecipe[] {
   const recipes: { id: string, recipe: Recipe }[] = [
     /* Scaling by a ratio between two regions */
     {
@@ -164,7 +177,7 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
 
     /* Scaling by a single factor */
     {
-      id: "scalar-recipe-dummy-uuid",
+      id: DefaultSuggestedRecipeId.Scalar,
       recipe: new Recipe({
         name: t("components:recipe_editor.default_scalar_recipe.name"),
         equation: `\${${t("components:recipe_editor.default_scalar_recipe.parent_value")}} * \${${t("components:recipe_editor.default_scalar_recipe.scalar")}}`,
@@ -194,6 +207,34 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
       }),
     },
 
+    /* Shaping a trajectory */
+    // From the parent's last known value in the start year (the current one)
+    // through a target value in a target year, linearly and onwards at the same
+    // slope; see `reachBy` in `src/math.ts`
+    {
+      id: DefaultSuggestedRecipeId.ReachTarget,
+      recipe: (() => {
+        const names = {
+          parentValue: t("components:recipe_editor.default_reach_target_recipe.parent_value"),
+          target: t("components:recipe_editor.default_reach_target_recipe.target"),
+          startYear: t("components:recipe_editor.default_reach_target_recipe.start_year"),
+          targetYear: t("components:recipe_editor.default_reach_target_recipe.target_year"),
+        };
+        const scalar = (id: string, name: string, value: number): ScalarVariable => ({ id, name, type: RecipeDataTypes.Scalar, value, unit: UnitFlags.Unitless });
+        return new Recipe({
+          name: t("components:recipe_editor.default_reach_target_recipe.name"),
+          equation: `reachBy(year, \${${names.parentValue}}, \${${names.target}}, \${${names.startYear}}, \${${names.targetYear}})`,
+          variables: [
+            dataSeriesTemplate(PARENT_VALUE_ID, names.parentValue, VectorIndexPickerOptions.Last),
+            scalar("reach-target-value-dummy-uuid", names.target, 0),
+            scalar("reach-target-start-year-dummy-uuid", names.startYear, new Date().getFullYear()),
+            scalar("reach-target-year-dummy-uuid", names.targetYear, 2045),
+          ],
+          meta: { isSuggestedRecipe: true },
+        });
+      })(),
+    },
+
     /* Combining two data series */
     {
       id: "sum-recipe-dummy-uuid",
@@ -213,5 +254,32 @@ export function getDefaultSuggestedRecipes(t: TFunction): DBRecipe[] {
     },
   ];
 
-  return recipes.map(({ id, recipe }) => ({ id, recipe: recipe.serialize() })) satisfies DBRecipe[];
+  return recipes.map(({ id, recipe }) => ({
+    id,
+    recipe: (parentSeries ? withParentSeries(recipe, parentSeries) : recipe).serialize(),
+  })) satisfies DBRecipe[];
+}
+
+/**
+ * The recipe with its parent-value template replaced by a concrete series. The
+ * equation refers to the parent by name, so it is rewritten to the series'
+ * name; recipes without a parent value (the combining ones) are returned as is.
+ */
+function withParentSeries(recipe: Recipe, parentSeries: PrefilledSeries): Recipe {
+  const parent = recipe.variables.find(variable => variable.id === PARENT_VALUE_ID);
+  if (!parent) return recipe;
+
+  // The recipe decides how the parent is read (whole series, last value, ...)
+  const substitute = {
+    ...parentSeries.variable,
+    id: PARENT_VALUE_ID,
+    template: false,
+    pick: parent.type === RecipeDataTypes.Scalar ? parentSeries.variable.pick : parent.pick,
+  };
+  const withSeries = recipe.copy();
+  withSeries.variables = recipe.variables.map(variable => variable.id === PARENT_VALUE_ID ? substitute : variable);
+  withSeries.equation = recipe.equation.replaceAll(`\${${parent.name}}`, `\${${substitute.name}}`);
+  // Declared on the recipe like a manual series' unit, since the source's table metadata carries no usable one
+  if (parentSeries.unit) withSeries.unit = parseUnit(parentSeries.unit);
+  return withSeries;
 }
