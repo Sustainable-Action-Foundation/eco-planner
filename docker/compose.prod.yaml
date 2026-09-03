@@ -1,11 +1,29 @@
 name: eco-planner-production
 
 services:
+  # Applies pending prisma migrations before the app starts, so schema-touching
+  # merges can't leave the running app ahead of the database. The seed image is
+  # reused for its prisma CLI + migrations; its default CMD force-resets the
+  # database, so the command override below must stay.
+  migrate:
+    image: ghcr.io/sustainable-action-foundation/eco-planner-db-seed:${IMAGE_TAG:-edge}
+    pull_policy: always
+    restart: "no"
+    command: ["yarn", "prisma", "migrate", "deploy"]
+    networks:
+      - default
+    environment:
+      - DATABASE_URL=${DATABASE_URL:?error}
+
   app:
     # Deploys pin IMAGE_TAG to the commit (sha-<sha>); manual runs fall back to edge
     image: ghcr.io/sustainable-action-foundation/eco-planner:${IMAGE_TAG:-edge}
     pull_policy: always
     restart: always
+    # A failed migrate aborts the deploy before the old app container is replaced
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
     networks:
       - default
     ports:
