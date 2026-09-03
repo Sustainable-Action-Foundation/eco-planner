@@ -317,8 +317,7 @@
   "roadmap_tree": {
     "no_roadmaps": "Inga $t(common:roadmap_other) hittades. Om du har några aktiva filter hittades inga $t(common:roadmap_other) som matchar dem.",
     "show_source_alt": "Visa underliggande $t(common:roadmap_version_other)",
-    "title": "{{name}} (v{{version}})",
-    "draft": "Utkast"
+    "title": "{{name}} (v{{version}})"
   },
   "sidebar": {
     "about": "Om",
@@ -375,14 +374,15 @@
     "edit_data_series": "Värden",
     "edit_baseline": "Baslinje",
     "edit_historical": "Historisk data",
-    "visibility_public": "Publik",
-    "visibility_unlisted": "Dold",
-    "visibility_featured": "Framlyft",
-    "unlist_iteration": "Dölj i listor",
-    "list_iteration": "Visa i listor",
     "add_menu_effect": "$t(common:effect_one, titleCase)",
     "add_menu_action": "$t(common:action_one, titleCase)",
-    "visibility_current": "Synlighet: {{state}}"
+    "listing_current": "Listning: {{state}}",
+    "listing_listed": "Synlig",
+    "listing_unlisted": "Dold",
+    "listing_featured": "Framlyft",
+    "status_current": "Status: {{state}}",
+    "status_draft": "Utkast",
+    "status_published": "Publicerad"
   },
   "table_selector": {
     "actions": "$t(common:action_other, titleCase)",
@@ -407,5 +407,15 @@
     "posts": "Inlägg",
     "roadmaps": "$t(common:roadmap_other, titleCase)",
     "roadmap_versions": "$t(common:roadmap_version_other, titleCase)"
+  },
+  "visibility_badge": {
+    "draft": "Utkast",
+    "unlisted": "Dold",
+    "featured": "Framlyft"
+  },
+  "sharing_line": {
+    "public": "Synlig för alla",
+    "org": "Synlig för alla i {{org}}",
+    "groups": "Synlig bara för grupper med åtkomst"
   }
 }

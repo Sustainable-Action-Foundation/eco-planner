@@ -5,7 +5,7 @@ import pruneOrphans from "@/functions/pruneOrphans";
 import accessChecker, { hasAdminAccess, hasEditAccess, hasViewAccess } from "@/lib/accessChecker";
 import serveTea from "@/lib/i18nServer";
 import { prisma } from "@/lib/prisma";
-import { AccessLevel as GrantLevel, OrgRole, RoadmapType } from "@/lib/prisma/generated";
+import { AccessLevel as GrantLevel, OrgRole, RoadmapType, Sharing } from "@/lib/prisma/generated";
 import { Prisma } from "../../../../prisma/generated/client";
 import { getSession } from "@/lib/session";
 import type { AccessControlInput, UserAccessContext, JSONValue } from "@/types";
@@ -26,12 +26,13 @@ async function resolveAccessInput(
   orgId: string,
   accessContext: UserAccessContext,
   creatorMustKeepEditAccess: boolean,
-): Promise<{ ok: true, isPublic: boolean, orgReadable: boolean, grants: { group_id: string, access_level: GrantLevel }[] } | { ok: false, message: string }> {
+): Promise<{ ok: true, sharing: Sharing, grants: { group_id: string, access_level: GrantLevel }[] } | { ok: false, message: string }> {
   const isOrgAdmin = accessContext.isSuperAdmin
     || accessContext.memberships.some(membership => membership.orgId === orgId && membership.role === OrgRole.MANAGER);
 
-  const isPublic = (access?.isPublic ?? false) && isOrgAdmin;
-  const orgReadable = access?.orgReadable ?? true;
+  // PUBLIC is manager-only; anyone else asking for it gets ORG
+  const requested = access?.sharing ?? Sharing.ORG;
+  const sharing = requested === Sharing.PUBLIC && !isOrgAdmin ? Sharing.ORG : requested;
   const grants = (access?.grants ?? []).map(grant => ({ group_id: grant.groupId, access_level: grant.accessLevel }));
 
   // Every granted group must belong to the owning org (the composite FK would also
@@ -56,7 +57,7 @@ async function resolveAccessInput(
     }
   }
 
-  return { ok: true, isPublic, orgReadable, grants };
+  return { ok: true, sharing, grants };
 }
 
 /**
@@ -179,8 +180,7 @@ export async function POST(request: NextRequest) {
         access_control: {
           create: {
             org: { connect: { id: roadmap.orgId } },
-            is_public: resolvedAccess.isPublic,
-            org_readable: resolvedAccess.orgReadable,
+            sharing: resolvedAccess.sharing,
             grants: {
               createMany: { data: resolvedAccess.grants },
             },
@@ -364,8 +364,7 @@ export async function PUT(request: NextRequest) {
         ...(resolvedAccess?.ok ? {
           access_control: {
             update: {
-              is_public: resolvedAccess.isPublic,
-              org_readable: resolvedAccess.orgReadable,
+              sharing: resolvedAccess.sharing,
               grants: {
                 // Full replacement of the grant set
                 deleteMany: {},

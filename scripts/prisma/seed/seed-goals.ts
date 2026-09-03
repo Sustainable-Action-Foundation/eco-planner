@@ -1,3 +1,4 @@
+import { GoalListing } from "@/lib/prisma/generated";
 // Seeds goals and their data series. Embodies the app's philosophy that data series
 // are derived through recipes:
 //   - National v1 goals hold manually-entered series (inline manual recipes).
@@ -123,8 +124,8 @@ async function createUnlistedGoal(
       name: options.name,
       description: "Denna målbana är dold och ska bara synas för användare med redigeringsbehörighet.",
       indicator_parameter: options.indicatorParameter,
-      is_featured: options.isFeatured,
-      is_unlisted: true,
+      // Unlisted wins over featured, as it always did in the UI
+      listing: GoalListing.UNLISTED,
       author: { connect: { id: authorId } },
       roadmap_iteration: { connect: { id: iterationId } },
       ...getRandomCreatedAtAndUpdatedAt(),
@@ -151,7 +152,7 @@ async function createGoal(users: SeededUsers, options: GoalOptions): Promise<See
       name: RandomTextSE.sentence(3, 1),
       description: RandomTextSE.paragraph(randomInt(1, 3)),
       indicator_parameter: randomIndicatorParameter(),
-      is_featured: chance(0.3),
+      listing: chance(0.3) ? GoalListing.FEATURED : GoalListing.LISTED,
       author: { connect: { id: randomOf(users.all).id } },
       roadmap_iteration: { connect: { id: options.iterationId } },
       ...getRandomCreatedAtAndUpdatedAt(),

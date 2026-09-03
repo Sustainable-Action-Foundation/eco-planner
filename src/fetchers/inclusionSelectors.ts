@@ -1,15 +1,16 @@
-import type { Prisma } from "@/lib/prisma/generated";
+import { GoalListing, type Prisma } from "@/lib/prisma/generated";
 
 /**
- * The access control fields accessChecker needs: ownership org, visibility flags,
+ * The access control fields accessChecker needs: ownership org, sharing,
  * and the group grants. Group membership is resolved against the user's own
  * per-request access context, so grants only need the group id.
  */
 export const accessControlSelection = {
   id: true,
   org_id: true,
-  is_public: true,
-  org_readable: true,
+  // The org name feeds the "visible to everyone in ..." line
+  org: { select: { name: true } },
+  sharing: true,
   grants: {
     select: {
       group_id: true,
@@ -68,7 +69,7 @@ export const roadmapInclusionSelection = {
   iterations: {
     include: {
       // Displayed counts exclude unlisted goals
-      _count: { select: { goals: { where: { is_unlisted: false } } } },
+      _count: { select: { goals: { where: { listing: { not: GoalListing.UNLISTED } } } } },
       author: { select: { id: true, username: true } },
     },
   },
@@ -97,7 +98,7 @@ export const roadmapIterationInclusionSelection = {
   },
   // Displayed counts exclude unlisted goals; the goals list itself carries them
   // for users with edit access (filtered in the UI)
-  _count: { select: { goals: { where: { is_unlisted: false } } } },
+  _count: { select: { goals: { where: { listing: { not: GoalListing.UNLISTED } } } } },
   goals: {
     include: {
       _count: { select: { effects: true } },
@@ -127,8 +128,7 @@ export const clientSafeRoadmapIterationSelection = {
   description: true,
   version: true,
   target_version: true,
-  published_at: true,
-  is_unlisted: true,
+  status: true,
   roadmap: {
     select: {
       id: true,
@@ -137,7 +137,7 @@ export const clientSafeRoadmapIterationSelection = {
       type: true,
       actor: true,
       parent_roadmap_id: true,
-      access_control: { select: { is_public: true } },
+      access_control: { select: { sharing: true } },
     },
   },
   goals: {
@@ -146,8 +146,7 @@ export const clientSafeRoadmapIterationSelection = {
       name: true,
       description: true,
       indicator_parameter: true,
-      is_featured: true,
-      is_unlisted: true,
+      listing: true,
       _count: { select: { effects: true } },
       data_series: { include: dataSeriesInclusionSelection },
       baseline: { include: dataSeriesInclusionSelection },
@@ -195,7 +194,7 @@ export const multiRoadmapInclusionSelection = {
   _count: {
     select: {
       // Displayed counts exclude unlisted goals
-      goals: { where: { is_unlisted: false } },
+      goals: { where: { listing: { not: GoalListing.UNLISTED } } },
       actions: true,
     },
   },
@@ -213,12 +212,11 @@ export const clientSafeMultiRoadmapSelection = {
   description: true,
   version: true,
   target_version: true,
-  published_at: true,
-  is_unlisted: true,
+  status: true,
   _count: {
     select: {
       // Displayed counts exclude unlisted goals
-      goals: { where: { is_unlisted: false } },
+      goals: { where: { listing: { not: GoalListing.UNLISTED } } },
       actions: true,
     },
   },
@@ -230,7 +228,7 @@ export const clientSafeMultiRoadmapSelection = {
       type: true,
       actor: true,
       parent_roadmap_id: true,
-      access_control: { select: { is_public: true } },
+      access_control: { select: { sharing: true } },
     },
   },
 } satisfies Prisma.RoadmapIterationsSelect;
@@ -278,8 +276,7 @@ export const clientSafeGoalSelection = {
   name: true,
   description: true,
   indicator_parameter: true,
-  is_featured: true,
-  is_unlisted: true,
+  listing: true,
   roadmap_iteration_id: true,
   data_series: { include: dataSeriesInclusionSelection },
   baseline: { include: dataSeriesInclusionSelection },
@@ -311,7 +308,7 @@ export const actionInclusionSelection = {
       id: true,
       version: true,
       roadmap_id: true,
-      published_at: true,
+      status: true,
       author: { select: { id: true, username: true } },
       roadmap: {
         select: {
@@ -347,7 +344,7 @@ export const effectInclusionSelection = {
           id: true,
           version: true,
           roadmap_id: true,
-          published_at: true,
+          status: true,
           roadmap: {
             select: {
               id: true,
@@ -365,7 +362,7 @@ export const effectInclusionSelection = {
       roadmap_iteration_id: true,
       roadmap_iteration: {
         select: {
-          published_at: true,
+          status: true,
           roadmap: {
             select: {
               access_control: { select: accessControlSelection },

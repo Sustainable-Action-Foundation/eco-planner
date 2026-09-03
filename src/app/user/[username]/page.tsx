@@ -63,7 +63,7 @@ export default async function Page(
   ]);
 
   const editableRoadmaps = roadmaps.filter(roadmap => hasEditAccess(accessChecker(roadmap, accessContext)));
-  const editableIterations = iterations.filter(iteration => hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, published_at: iteration.published_at }, accessContext)));
+  const editableIterations = iterations.filter(iteration => hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, status: iteration.status }, accessContext)));
 
   // Get query params for filtering
   const objectsFilter = searchParams['objects'] ? (Array.isArray(searchParams['objects']) ? searchParams['objects'] : [searchParams['objects']]) : [];

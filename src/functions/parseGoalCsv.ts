@@ -1,3 +1,4 @@
+import { GoalListing } from "@/lib/prisma/generated";
 import { parseUnit } from "@/functions/unit";
 import type { DateValues, GoalCreateFull } from "@/types";
 import { GoalDataTarget } from "@/types/enums";
@@ -151,8 +152,8 @@ export function csvToGoalList(csv: string[][], scaleWarningCallback?: () => void
       indicatorParameter,
       name: undefined,
       description: undefined,
-      isFeatured: undefined,
-      isUnlisted: hideIndex === -1 ? undefined : !!row[hideIndex]?.trim(),
+      // A flagged hide column unlists the goal; otherwise the API default (listed) applies
+      listing: hideIndex === -1 ? undefined : (row[hideIndex]?.trim() ? GoalListing.UNLISTED : undefined),
       rawTags: undefined,
       dataSeries: {
         dateValues,

@@ -22,7 +22,7 @@ export const GoalFormName = {
   GoalName: "GOAL_NAME",
   Description: "DESCRIPTION",
   IndicatorParameter: "INDICATOR_PARAMETER",
-  Visibility: "VISIBILITY",
+  Listing: "LISTING",
   DataSeriesType: "DATA_SERIES_TYPE",
   BaselineType: "BASELINE_TYPE",
   DataUnit: "DATA_UNIT",

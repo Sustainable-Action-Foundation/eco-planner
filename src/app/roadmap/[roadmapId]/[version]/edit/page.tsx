@@ -54,7 +54,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string,
   ]);
 
   const access = accessChecker(
-    iteration ? { access_control: iteration.roadmap.access_control, published_at: iteration.published_at } : null,
+    iteration ? { access_control: iteration.roadmap.access_control, status: iteration.status } : null,
     accessContext,
   );
 

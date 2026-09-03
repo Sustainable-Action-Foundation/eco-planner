@@ -3,9 +3,10 @@
 import type { getRoadmaps } from "@/fetchers";
 import formSubmitter from "@/functions/formSubmitter";
 import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput, PrefilledSeries } from "@/types";
-import { BaselineType, DataSeriesType, GoalDataTarget, GoalVisibility, HistoricalDataType } from "@/types/enums";
+import { BaselineType, DataSeriesType, GoalDataTarget, HistoricalDataType } from "@/types/enums";
+import { GoalListing } from "@/lib/prisma/generated";
 import { GoalFormName } from "@/types/form-names";
-import { goalVisibilityFromFlags, goalVisibilityToFlags, isGoalVisibility } from "@/functions/goalVisibility";
+import { isGoalListing } from "@/types/typeguards";
 import { IconChevronDown, IconChevronUp, IconEye, IconEyeOff, IconStar } from "@tabler/icons-react";
 import { waitForRecipeFormSyncs } from "@/components/recipe";
 import { useMemo, useRef, useState } from "react";
@@ -97,7 +98,7 @@ export default function GoalForm({
   const historicalHasInitializedCustom = initializedHistoricalTypes.has(HistoricalDataType.Custom);
 
   const [indicatorParameter, setIndicatorParameter] = useState<string>(currentGoal?.indicator_parameter ?? "");
-  const initialVisibility = goalVisibilityFromFlags({ is_featured: !!currentGoal?.is_featured, is_unlisted: !!currentGoal?.is_unlisted });
+  const initialListing: GoalListing = currentGoal?.listing ?? GoalListing.LISTED;
   // const [goalName, setGoalName] = useState<string>(currentGoal?.name ?? "");
   const [parentIterationId, setParentIterationId] = useState<string>(iterationId || "");
   const [previewDataSerie, setPreviewDataSerie] = useState<DateValuesWithUnit | null>(null);
@@ -213,9 +214,8 @@ export default function GoalForm({
       return;
     }
 
-    // The visibility radio stands in for the two listing flags the API takes
-    const visibilityValue = formData.get(GoalFormName.Visibility);
-    const visibilityFlags = goalVisibilityToFlags(isGoalVisibility(visibilityValue) ? visibilityValue : GoalVisibility.Public);
+    const listingValue = formData.get(GoalFormName.Listing);
+    const listing: GoalListing = isGoalListing(listingValue) ? listingValue : GoalListing.LISTED;
 
     // Build the JSON payload for the API
     let formContent: GoalCreateInput | GoalUpdateInput;
@@ -229,7 +229,7 @@ export default function GoalForm({
         name: formData.get(GoalFormName.GoalName) as string | null ?? null,
         description: formData.get(GoalFormName.Description) as string | null ?? null, // Use the hidden input for the description, which contains the latest editor content
         indicatorParameter: formData.get(GoalFormName.IndicatorParameter) as string | null ?? (event.target.reportValidity(), ""),
-        ...visibilityFlags,
+        listing: listing,
         iterationId: iterationId || parentIterationId,
         recipeSuggestions: recipeSuggestions,
 
@@ -261,7 +261,7 @@ export default function GoalForm({
         name: formData.get(GoalFormName.GoalName) as string | null ?? undefined,
         description: formData.get(GoalFormName.Description) as string | null ?? undefined, // Use the hidden input for the description, which contains the latest editor content
         indicatorParameter: formData.get(GoalFormName.IndicatorParameter) as string | null ?? undefined,
-        ...visibilityFlags,
+        listing: listing,
         recipeSuggestions: recipeSuggestions,
 
         dataSeriesId: undefined,
@@ -371,42 +371,42 @@ export default function GoalForm({
           value={indicatorParameter}
           setter={setIndicatorParameter}
         />
-        {/* Visibility: one setting standing in for the featured/unlisted flags, like the admin panel */}
+        {/* Listing: how the goal shows up in its version's lists, like the admin panel */}
         <fieldset className="margin-top-100">
           <legend>
-            {t("forms:goal.visibility")}
+            {t("forms:goal.listing")}
           </legend>
           {[
             {
-              value: GoalVisibility.Public,
+              value: GoalListing.LISTED,
               id: "isPublic",
               icon: <IconEye aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
-              label: t("components:table_menu.visibility_public"),
-              description: t("forms:goal.visibility_public_description"),
+              label: t("components:table_menu.listing_listed"),
+              description: t("forms:goal.listing_listed_description"),
             },
             {
-              value: GoalVisibility.Unlisted,
+              value: GoalListing.UNLISTED,
               id: "isUnlisted",
               icon: <IconEyeOff aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
-              label: t("components:table_menu.visibility_unlisted"),
-              description: t("forms:goal.visibility_unlisted_description"),
+              label: t("components:table_menu.listing_unlisted"),
+              description: t("forms:goal.listing_unlisted_description"),
             },
             {
-              value: GoalVisibility.Featured,
+              value: GoalListing.FEATURED,
               id: "isFeatured",
               icon: <IconStar aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
-              label: t("components:table_menu.visibility_featured"),
-              description: t("forms:goal.visibility_featured_description"),
+              label: t("components:table_menu.listing_featured"),
+              description: t("forms:goal.listing_featured_description"),
             },
           ].map((option) => (
             <label key={option.value} className="flex align-items-start gap-50 margin-top-50 margin-bottom-50">
               <input
                 type="radio"
                 required={true}
-                name={GoalFormName.Visibility}
+                name={GoalFormName.Listing}
                 id={option.id}
                 value={option.value}
-                defaultChecked={initialVisibility === option.value}
+                defaultChecked={initialListing === option.value}
               />
               <span>
                 <span className="flex align-items-center gap-25" style={{ textShadow: '0 0' }}>{option.icon}{option.label}</span>

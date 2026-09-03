@@ -45,7 +45,7 @@ const effectParentsSelection = {
       org_id: true,
       roadmap_iteration: {
         select: {
-          published_at: true,
+          status: true,
           roadmap: { select: { access_control: { select: accessControlSelection } } },
         },
       },
@@ -55,7 +55,7 @@ const effectParentsSelection = {
     select: {
       roadmap_iteration: {
         select: {
-          published_at: true,
+          status: true,
           roadmap: { select: { access_control: { select: accessControlSelection } } },
         },
       },
@@ -71,9 +71,9 @@ type EffectParents = Prisma.EffectsGetPayload<{ select: typeof effectParentsSele
  */
 function mayEditEffectParents(parents: Pick<EffectParents, "action" | "goal">, accessContext: UserAccessContext): boolean {
   const actionEditable = parents.action.roadmap_iteration
-    ? hasEditAccess(accessChecker({ access_control: parents.action.roadmap_iteration.roadmap.access_control, published_at: parents.action.roadmap_iteration.published_at }, accessContext))
+    ? hasEditAccess(accessChecker({ access_control: parents.action.roadmap_iteration.roadmap.access_control, status: parents.action.roadmap_iteration.status }, accessContext))
     : (accessContext.isSuperAdmin || accessContext.memberships.some(membership => membership.orgId === parents.action.org_id && membership.role === OrgRole.MANAGER));
-  const goalEditable = hasEditAccess(accessChecker({ access_control: parents.goal.roadmap_iteration.roadmap.access_control, published_at: parents.goal.roadmap_iteration.published_at }, accessContext));
+  const goalEditable = hasEditAccess(accessChecker({ access_control: parents.goal.roadmap_iteration.roadmap.access_control, status: parents.goal.roadmap_iteration.status }, accessContext));
   return actionEditable && goalEditable;
 }
 

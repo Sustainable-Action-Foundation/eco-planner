@@ -2,7 +2,7 @@ import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import AttributedImage, { AttributeText } from "@/components/generic/images/attributedImage";
 import { roadmapIterationSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
-import { OrgRole, RoadmapType } from "@/lib/prisma/generated";
+import { IterationStatus, OrgRole, RoadmapType } from "@/lib/prisma/generated";
 import RoadmapFilters from "@/components/form/filters/roadmapFilters";
 import { RoadmapSortBy } from "@/types/enums";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
@@ -63,12 +63,11 @@ export default async function Page(
   const searchFilter = searchParams['searchFilter'] ? (Array.isArray(searchParams['searchFilter']) ? searchParams['searchFilter'][0] : searchParams['searchFilter']) : '';
 
   // Per roadmap: the latest published version is its node in the tree, and any
-  // drafts nest under it (drafts only reach editors; unlisted versions only
-  // count as the latest for users who can edit the roadmap)
+  // drafts nest under it (drafts only reach editors via the existing access filter)
   const treeIterationIds = roadmaps.flatMap(roadmap => {
-    const canEdit = hasEditAccess(accessChecker(roadmap, accessContext));
-    const published = roadmap.iterations.filter(iteration => iteration.published_at !== null && (canEdit || !iteration.is_unlisted));
-    const drafts = canEdit ? roadmap.iterations.filter(iteration => iteration.published_at === null) : [];
+    const accessLevel = accessChecker(roadmap, accessContext);
+    const published = roadmap.iterations.filter(iteration => iteration.status === IterationStatus.PUBLISHED);
+    const drafts = hasEditAccess(accessLevel) ? roadmap.iterations.filter(iteration => iteration.status === IterationStatus.DRAFT) : [];
 
     const latestPublished = published.length
       ? published.reduce((current, candidate) => candidate.version > current.version ? candidate : current)

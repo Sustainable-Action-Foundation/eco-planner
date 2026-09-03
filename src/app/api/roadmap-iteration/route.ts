@@ -11,7 +11,8 @@ import { findClaimedSeries } from "@/lib/seriesInvariants";
 import { getSession } from "@/lib/session";
 import type { JSONValue, RoadmapIterationCreateInput, RoadmapIterationUpdateInput } from "@/types";
 import { ClientError } from "@/types/consts";
-import { isGoalCreate } from "@/types/typeguards";
+import { isGoalCreate, isIterationStatus } from "@/types/typeguards";
+import { IterationStatus } from "@/lib/prisma/generated";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import roadmapGoalCreator from "./roadmapGoalCreator";
@@ -44,16 +45,10 @@ function isRoadmapIterationCreate(iteration: JSONValue): iteration is RoadmapIte
       iteration.targetVersion === undefined
     ) &&
 
-    // publish: boolean | undefined;
+    // status: IterationStatus | undefined;
     (
-      typeof iteration.publish === 'boolean' ||
-      iteration.publish === undefined
-    ) &&
-
-    // isUnlisted: boolean | undefined;
-    (
-      typeof iteration.isUnlisted === 'boolean' ||
-      iteration.isUnlisted === undefined
+      isIterationStatus(iteration.status) ||
+      iteration.status === undefined
     ) &&
 
     // roadmapId: string;
@@ -109,16 +104,10 @@ function isRoadmapIterationUpdate(iteration: JSONValue): iteration is RoadmapIte
       iteration.targetVersion === undefined
     ) &&
 
-    // publish: boolean | undefined;
+    // status: IterationStatus | undefined;
     (
-      typeof iteration.publish === 'boolean' ||
-      iteration.publish === undefined
-    ) &&
-
-    // isUnlisted: boolean | undefined;
-    (
-      typeof iteration.isUnlisted === 'boolean' ||
-      iteration.isUnlisted === undefined
+      isIterationStatus(iteration.status) ||
+      iteration.status === undefined
     ) &&
 
     // roadmapId?: never;
@@ -240,9 +229,9 @@ export async function POST(request: NextRequest) {
         description: iteration.description,
         version: latestVersion + 1,
         target_version: iteration.targetVersion,
-        // Drafts (published_at == null) are only visible to users with edit access
-        published_at: iteration.publish ? new Date() : null,
-        is_unlisted: iteration.isUnlisted,
+        // Drafts are only visible to users with edit access; published_at records the first publication
+        status: iteration.status ?? IterationStatus.DRAFT,
+        published_at: iteration.status && iteration.status !== IterationStatus.DRAFT ? new Date() : null,
         author: { connect: { id: session.user.id } },
         roadmap: { connect: { id: iteration.roadmapId } },
         goals: {
@@ -305,6 +294,9 @@ export async function PUT(request: NextRequest) {
   }
 
   let orgId: string;
+  // Whether this write is the version's first step out of draft (stamps published_at)
+  // eslint-disable-next-line no-useless-assignment -- the catch below returns, but the linter can't tell
+  let firstPublication = false;
 
   try {
     // Get user context and current iteration
@@ -314,6 +306,7 @@ export async function PUT(request: NextRequest) {
         where: { id: iteration.iterationId },
         select: {
           updated_at: true,
+          status: true,
           published_at: true,
           roadmap: { select: { access_control: { select: accessControlSelection } } },
         },
@@ -326,7 +319,7 @@ export async function PUT(request: NextRequest) {
 
     // Check if the iteration exists and the user has edit access to it
     const access = accessChecker(
-      currentIteration ? { access_control: currentIteration.roadmap.access_control, published_at: currentIteration.published_at } : null,
+      currentIteration ? { access_control: currentIteration.roadmap.access_control, status: currentIteration.status } : null,
       accessContext,
     );
     if (!currentIteration || !hasEditAccess(access)) {
@@ -334,6 +327,7 @@ export async function PUT(request: NextRequest) {
     }
 
     orgId = currentIteration.roadmap.access_control.org_id;
+    firstPublication = currentIteration.published_at === null && !!iteration.status && iteration.status !== IterationStatus.DRAFT;
 
     // Check if the client's data is stale
     if (!iteration.timestamp || (currentIteration.updated_at?.getTime() ?? 0) > iteration.timestamp) {
@@ -384,9 +378,9 @@ export async function PUT(request: NextRequest) {
       data: {
         description: iteration.description,
         target_version: iteration.targetVersion,
-        // publish: true publishes a draft, false unpublishes (back to draft), undefined leaves unchanged
-        ...(iteration.publish === undefined ? {} : { published_at: iteration.publish ? new Date() : null }),
-        is_unlisted: iteration.isUnlisted,
+        // undefined leaves the status unchanged; leaving draft for the first time stamps published_at
+        status: iteration.status,
+        ...(firstPublication ? { published_at: new Date() } : {}),
         goals: {
           create: roadmapGoalCreator(iteration, session.user.id, orgId),
         },
@@ -453,7 +447,7 @@ export async function DELETE(request: NextRequest) {
       prisma.roadmapIterations.findUnique({
         where: { id: iteration.id },
         select: {
-          published_at: true,
+          status: true,
           roadmap: { select: { access_control: { select: accessControlSelection } } },
         },
       }),
@@ -468,10 +462,10 @@ export async function DELETE(request: NextRequest) {
     // deleting them requires admin access (org manager or super admin).
     // Also covers iterations that don't exist at all.
     const access = accessChecker(
-      currentIteration ? { access_control: currentIteration.roadmap.access_control, published_at: currentIteration.published_at } : null,
+      currentIteration ? { access_control: currentIteration.roadmap.access_control, status: currentIteration.status } : null,
       accessContext,
     );
-    const mayDelete = currentIteration?.published_at == null ? hasEditAccess(access) : hasAdminAccess(access);
+    const mayDelete = currentIteration?.status === IterationStatus.DRAFT ? hasEditAccess(access) : hasAdminAccess(access);
     if (!currentIteration || !mayDelete) {
       throw new Error(ClientError.AccessDenied, { cause: 'roadmap iteration' });
     }

@@ -1,3 +1,4 @@
+import { GoalListing } from "@/lib/prisma/generated";
 import type { Goal, RoadmapIteration } from "@/types";
 
 export default function findSiblings(
@@ -19,7 +20,7 @@ export default function findSiblings(
     }
 
     // Unlisted goals are excluded from other goals' sibling listings
-    if (sibling.is_unlisted) {
+    if (sibling.listing === GoalListing.UNLISTED) {
       continue;
     }
 

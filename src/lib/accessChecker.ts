@@ -1,4 +1,4 @@
-import { AccessLevel as GrantLevel, OrgRole } from "@/lib/prisma/generated";
+import { AccessLevel as GrantLevel, IterationStatus, OrgRole, Sharing } from "@/lib/prisma/generated";
 import type { AccessControlled, AccessControlInfo, UserAccessContext } from "@/types";
 import { AccessLevel } from "@/types/enums";
 
@@ -7,8 +7,8 @@ import { AccessLevel } from "@/types/enums";
  * - super admin -> admin everywhere
  * - MANAGER of the access control's org -> admin (content + sharing settings + group management)
  * - RW grant via a group -> edit (content only; sharing settings are admin-only)
- * - RO grant / org_readable (members, not GUESTs) / is_public -> view
- * - Draft iterations (published_at == null) are only visible with edit access or better
+ * - RO grant / ORG sharing (members, not GUESTs) / PUBLIC sharing -> view
+ * - Draft versions (status DRAFT) are only visible with edit access or better
  *
  * Authorship is cosmetic and never grants access. The query-side counterpart to this
  * ladder lives in `@/lib/accessFilters` — keep the two in sync.
@@ -26,9 +26,9 @@ export default function accessChecker(item: AccessControlled | null | undefined,
 
   const accessLevel = accessControlLevel(item.access_control, userAccessContext);
 
-  // Draft iterations are only visible to users who could edit them.
-  // Items without a `published_at` field (roadmaps, goals, actions...) are unaffected: absent is not null.
-  if (item.published_at === null && !hasEditAccess(accessLevel)) return AccessLevel.None;
+  // Draft versions are only visible to users who could edit them.
+  // Items without a `status` field (roadmaps themselves) are unaffected.
+  if (item.status === IterationStatus.DRAFT && !hasEditAccess(accessLevel)) return AccessLevel.None;
 
   return accessLevel;
 }
@@ -50,18 +50,18 @@ function accessControlLevel(accessControl: AccessControlInfo, userAccessContext:
 
   if (userGrants.some(grant => grant.access_level === GrantLevel.RW)) return AccessLevel.Edit;
 
-  if (accessControl.is_public) return AccessLevel.View;
+  if (accessControl.sharing === Sharing.PUBLIC) return AccessLevel.View;
   // Any remaining grant is RO
   if (userGrants.length > 0) return AccessLevel.View;
   // GUESTs are cross-org contributors and only see what their groups grant (plus public content)
-  if (accessControl.org_readable && membership && membership.role !== OrgRole.GUEST) return AccessLevel.View;
+  if (accessControl.sharing === Sharing.ORG && membership && membership.role !== OrgRole.GUEST) return AccessLevel.View;
 
   // User does not have access
   return AccessLevel.None;
 }
 
 /**
- * Admin access = managing sharing settings (is_public, org_readable, grants) and org groups.
+ * Admin access = managing sharing settings (sharing, grants) and org groups.
  * Only super admins and managers of the owning org get this; RW grants deliberately don't.
  */
 export function hasAdminAccess(accessLevel: AccessLevel): boolean {

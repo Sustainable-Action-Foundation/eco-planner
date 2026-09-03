@@ -100,7 +100,7 @@ test.describe.serial("Roadmaps tests", () => {
     await page.locator('#geo-area-dialog-listbox li').filter({ hasText: 'Uppsala län' }).click();
 
     // Sharing: visible to all org members, and give the seeded group edit access
-    await page.locator('input[name="visibility"][value="org"]').check();
+    await page.locator('input[name="sharing"][value="ORG"]').check();
     await grantSelect(page, groupName).selectOption('RW');
 
     // Work towards the seeded national roadmap
@@ -216,7 +216,7 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page.locator('#geo-area')).toContainText('Uppsala län');
 
     // Verify visibility is set to org members
-    await expect(page.locator('input[name="visibility"][value="org"]')).toBeChecked();
+    await expect(page.locator('input[name="sharing"][value="ORG"]')).toBeChecked();
 
     // Verify the group grant is set to read and edit
     await expect(grantSelect(page, groupName)).toHaveValue('RW');
@@ -295,7 +295,7 @@ test.describe.serial("Roadmaps tests", () => {
     await page.locator('#actor').fill("Updated Actor All");
 
     // Edit visibility - the admin user is an org manager, so the public option is available
-    await page.locator('input[name="visibility"][value="public"]').check();
+    await page.locator('input[name="sharing"][value="PUBLIC"]').check();
 
     // Downgrade the group grant to read-only
     await grantSelect(page, groupName).selectOption('RO');
@@ -326,7 +326,7 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page.locator('#actor')).toHaveValue('Updated Actor All');
 
     // Verify visibility was changed to public
-    await expect(page.locator('input[name="visibility"][value="public"]')).toBeChecked();
+    await expect(page.locator('input[name="sharing"][value="PUBLIC"]')).toBeChecked();
 
     // Verify the group grant was downgraded to read-only
     await expect(grantSelect(page, groupName)).toHaveValue('RO');
@@ -435,7 +435,7 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page.locator('#actor')).toHaveValue('Test Required');
 
     // Verify visibility is still the default (org members)
-    await expect(page.locator('input[name="visibility"][value="org"]')).toBeChecked();
+    await expect(page.locator('input[name="sharing"][value="ORG"]')).toBeChecked();
 
     // Verify no grant was given to the group
     await expect(grantSelect(page, groupName)).toHaveValue('NONE');
@@ -518,7 +518,7 @@ test.describe.serial("Roadmaps tests", () => {
     await page.locator('#actor').fill("Updated Actor Required");
 
     // Edit visibility - only granted groups may see the roadmap
-    await page.locator('input[name="visibility"][value="groups"]').check();
+    await page.locator('input[name="sharing"][value="GROUPS"]').check();
 
     // Give the group edit access
     await grantSelect(page, groupName).selectOption('RW');
@@ -549,7 +549,7 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page.locator('#actor')).toHaveValue('Updated Actor Required');
 
     // Verify visibility was changed to granted groups only
-    await expect(page.locator('input[name="visibility"][value="groups"]')).toBeChecked();
+    await expect(page.locator('input[name="sharing"][value="GROUPS"]')).toBeChecked();
 
     // Verify the group was given edit access
     await expect(grantSelect(page, groupName)).toHaveValue('RW');

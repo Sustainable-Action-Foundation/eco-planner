@@ -31,7 +31,7 @@ async function gotoNationalV2(page: Page) {
 }
 
 /** Picks a visibility in the goal page's admin panel; the panel reloads the page once the change is saved. */
-async function setVisibility(page: Page, visibility: "public" | "unlisted" | "featured") {
+async function setVisibility(page: Page, visibility: "listed" | "unlisted" | "featured") {
   await page.getByTestId("admin-panel-visibility").click();
   await Promise.all([
     page.waitForEvent("load"),
@@ -41,9 +41,9 @@ async function setVisibility(page: Page, visibility: "public" | "unlisted" | "fe
 }
 
 /** The option the menu marks as current. */
-async function expectCurrentVisibility(page: Page, visibility: "public" | "unlisted" | "featured") {
+async function expectCurrentVisibility(page: Page, visibility: "listed" | "unlisted" | "featured") {
   await page.getByTestId("admin-panel-visibility").click();
-  for (const option of ["public", "unlisted", "featured"] as const) {
+  for (const option of ["listed", "unlisted", "featured"] as const) {
     await expect(page.getByTestId(`admin-panel-visibility-${option}`)).toHaveAttribute("aria-pressed", String(option === visibility));
   }
   // Close the menu again
@@ -79,7 +79,7 @@ test.describe.serial("Goal visibility menu", () => {
     indicator += `\\${project.name}`;
   });
 
-  test("A goal starts out public", async ({ page }) => {
+  test("A goal starts out listed", async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState("networkidle");
 
@@ -102,7 +102,7 @@ test.describe.serial("Goal visibility menu", () => {
     await page.locator('#comment-text').hover();
     goalUrl = page.url();
 
-    await expectCurrentVisibility(page, "public");
+    await expectCurrentVisibility(page, "listed");
   });
 
   test("Featuring saves and shows the goal in the featured strip", async ({ page }) => {
@@ -140,10 +140,10 @@ test.describe.serial("Goal visibility menu", () => {
     await expect(goalLinks(page, goalName).first()).toBeVisible();
   });
 
-  test("Making it public again lists it without featuring it", async ({ page }) => {
+  test("Listing it again lists it without featuring it", async ({ page }) => {
     await page.goto(goalUrl);
-    await setVisibility(page, "public");
-    await expectCurrentVisibility(page, "public");
+    await setVisibility(page, "listed");
+    await expectCurrentVisibility(page, "listed");
 
     await page.getByTestId("admin-panel-edit-menu").click();
     await page.getByTestId("admin-panel-edit").click();

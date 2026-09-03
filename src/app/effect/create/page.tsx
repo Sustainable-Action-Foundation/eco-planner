@@ -41,7 +41,7 @@ export default async function Page(
   // Roadmapless actions (the public action database) are editable by the owning org's managers
   const mayEditAction = action ? (
     action.roadmap_iteration
-      ? hasEditAccess(accessChecker({ access_control: action.roadmap_iteration.roadmap.access_control, published_at: action.roadmap_iteration.published_at }, accessContext))
+      ? hasEditAccess(accessChecker({ access_control: action.roadmap_iteration.roadmap.access_control, status: action.roadmap_iteration.status }, accessContext))
       : (accessContext?.isSuperAdmin || accessContext?.memberships.some(membership => membership.orgId === action.org_id && membership.role === OrgRole.MANAGER)) ?? false
   ) : false;
 
@@ -52,10 +52,10 @@ export default async function Page(
 
   const badGoal = (
     (!goal && typeof searchParams.goalId === 'string')
-    || (goal && !hasEditAccess(accessChecker({ access_control: goal.roadmap_iteration.roadmap.access_control, published_at: goal.roadmap_iteration.published_at }, accessContext)))
+    || (goal && !hasEditAccess(accessChecker({ access_control: goal.roadmap_iteration.roadmap.access_control, status: goal.roadmap_iteration.status }, accessContext)))
   );
 
-  const roadmapList = iterations.filter((iteration) => hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, published_at: iteration.published_at }, accessContext)));
+  const roadmapList = iterations.filter((iteration) => hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, status: iteration.status }, accessContext)));
 
   return (
     <>

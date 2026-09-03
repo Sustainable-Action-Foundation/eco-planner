@@ -1,5 +1,5 @@
 import type { SerializedRecipe } from "@/functions/recipe";
-import type { AccessLevel, ActionFieldType, ActionImpactType, RoadmapType } from "@/lib/prisma/generated";
+import type { AccessLevel, ActionFieldType, ActionImpactType, GoalListing, IterationStatus, RoadmapType, Sharing } from "@/lib/prisma/generated";
 import type { DateValuesWithUnit } from "@/types";
 // Imported as a value (not `import type`) because it's used in `typeof GoalDataTarget.*` queries below.
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
@@ -8,11 +8,11 @@ import { GoalDataTarget } from "@/types/enums";
 /**
  * Sharing settings for an access control. On create this is the initial sharing set
  * by the creator; on update only org managers (and super admins) may send it.
- * `isPublic` is only honored for managers/super admins even on create.
+ * `sharing: PUBLIC` is only honored for managers/super admins even on create.
  */
 export type AccessControlInput = {
-  isPublic: boolean | undefined;
-  orgReadable: boolean | undefined;
+  /** Who may read; PUBLIC is only honored for managers/super admins (downgraded to ORG otherwise) */
+  sharing: Sharing | undefined;
   /** Full replacement set of group grants; the groups must belong to the owning org. */
   grants: { groupId: string, accessLevel: AccessLevel }[] | null | undefined;
 };
@@ -76,10 +76,8 @@ export type RoadmapIterationCreateInput = {
   // Basic meta
   targetVersion: number | null | undefined;
   description: string | null | undefined;
-  /** True publishes immediately; otherwise the iteration is created as a draft (visible only to users with edit access) */
-  publish: boolean | undefined;
-  /** Unlisted iterations are hidden from regular roadmap listings for users without edit access */
-  isUnlisted: boolean | undefined;
+  /** Draft (editors only) / unlisted (by link) / published (listed); defaults to draft */
+  status: IterationStatus | undefined;
 
   // Relations
   /** The roadmap this is an iteration of */
@@ -103,10 +101,8 @@ export type RoadmapIterationUpdateInput = {
   // Basic meta
   description: string | null | undefined;
   targetVersion: number | null | undefined;
-  /** True publishes a draft; false unpublishes (back to draft); undefined leaves the publication state unchanged */
-  publish: boolean | undefined;
-  /** Hides from / restores to regular roadmap listings; undefined leaves it unchanged */
-  isUnlisted: boolean | undefined;
+  /** Draft / unlisted / published; undefined leaves it unchanged */
+  status: IterationStatus | undefined;
 
   // Relations
   roadmapId?: never; // Can't reassign the roadmap of an existing iteration. IT WOULD BE MAYHEM.
@@ -131,8 +127,8 @@ type GoalMetaFields = {
   name: string | null | undefined;
   description: string | null | undefined;
   indicatorParameter: string | undefined;
-  isFeatured: boolean | undefined;
-  isUnlisted: boolean | undefined;
+  /** Listed / unlisted / featured; undefined leaves it unchanged (defaults to listed on create) */
+  listing: GoalListing | undefined;
   rawTags: string[] | null | undefined; // Transform into tags relation in the server side API
 };
 

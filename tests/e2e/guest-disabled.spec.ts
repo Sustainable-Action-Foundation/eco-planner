@@ -25,7 +25,7 @@ test.describe("Guests are disabled", () => {
   });
 
   test("Org-readable content stays hidden despite the group's RO grant", async ({ page }) => {
-    // Uppsala län is org_readable (not public); Greta's group holds an RO grant on it
+    // Uppsala län is shared with the org (not public); Greta's group holds an RO grant on it
     await page.goto(`/?searchFilter=${encodeURIComponent("Uppsala")}`);
     await expect(page.getByTestId("home-title")).toBeVisible();
     await expect(page.getByRole("link", { name: /Uppsala/ })).toHaveCount(0);
