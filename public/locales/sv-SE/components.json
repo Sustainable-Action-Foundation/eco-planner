@@ -295,7 +295,13 @@
     "this_data_series": "Dessa värden",
     "delete_recipe": "Radera formel",
     "edit_recipe": "Redigera formel",
-    "evaluation_warning_title": "Varningar"
+    "evaluation_warning_title": "Varningar",
+    "default_local_share_recipe": {
+      "local": "Lokalt: {{name}}",
+      "name": "Skala utifrån lokal andel av statistiken",
+      "national": "Nationellt: {{name}}",
+      "parent_value": "Nationell målbana"
+    }
   },
   "roadmap_filters": {
     "default": "Standard",

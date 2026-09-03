@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslation } from "react-i18next";
-import type { DateValuesWithUnit, Goal, PrefilledSeries } from "@/types";
+import type { DateValuesWithUnit, Goal, GoalPrefill } from "@/types";
 import { GoalFormName } from "@/types/form-names";
 import { IconCheck } from "@tabler/icons-react";
 import { FormSync, ManualDataSeriesInput, RecipeContextProvider, RecipeEditor, SuggestedRecipeApplier, UnitInput } from "@/components/recipe";
@@ -16,7 +16,7 @@ import { DataSeriesType, UnitFlags } from "@/types/enums";
 
 export default function GoalSeriesSection({
   goal,
-  prefilledSeries,
+  prefill,
   dataSeriesType,
   setDataSeriesType,
   indicatorParameter,
@@ -30,11 +30,11 @@ export default function GoalSeriesSection({
 }: {
   goal: Goal | undefined;
   /**
-   * A series to start a new goal from: the suggested methods scale it instead
-   * of a parent goal, and the formula editor starts with it as a variable. The
-   * saved recipe takes precedence when editing.
+   * What to start a new goal from: the suggested methods scale its parent
+   * series instead of a parent goal, and the formula editor starts with it as
+   * a variable. The saved recipe takes precedence when editing.
    */
-  prefilledSeries?: PrefilledSeries;
+  prefill?: GoalPrefill;
   dataSeriesType: DataSeriesType;
   setDataSeriesType: Dispatch<SetStateAction<DataSeriesType>>;
   /** The form's current indicator parameter, if it has one, for the parameter sync button's applied state */
@@ -59,13 +59,16 @@ export default function GoalSeriesSection({
     return Recipe.from(base).withEditableExternals().serialize();
   }, [goal?.data_series?.recipe_used?.recipe]);
 
+  const prefilledSeries = prefill?.parent;
   // A prefilled series starts the suggestions on "scale by constant value" with
-  // the factor at 1 — the series as is, ready to be adjusted or scaled otherwise
+  // the factor at 1 — the series as is, ready to be adjusted or scaled otherwise;
+  // a copied national goal starts on scaling by the local share instead
+  const prefilledSuggestionId = prefill?.localShare ? DefaultSuggestedRecipeId.LocalShare : DefaultSuggestedRecipeId.Scalar;
   const prefilledSuggestion = useMemo(() => {
-    if (!prefilledSeries) return undefined;
-    const suggestion = getDefaultSuggestedRecipes(t, prefilledSeries).find(suggestion => suggestion.id === DefaultSuggestedRecipeId.Scalar);
+    if (!prefill) return undefined;
+    const suggestion = getDefaultSuggestedRecipes(t, prefill.parent, prefill.localShare).find(suggestion => suggestion.id === prefilledSuggestionId);
     return suggestion ? Recipe.from(suggestion.recipe).serialize() : undefined;
-  }, [prefilledSeries, t]);
+  }, [prefill, prefilledSuggestionId, t]);
   const suggestedInitialRecipe = savedRecipe ?? prefilledSuggestion;
   const customInitialRecipe = useMemo(
     () => savedRecipe ?? (prefilledSeries ? prefilledSeriesRecipe(prefilledSeries) : undefined),
@@ -152,7 +155,8 @@ export default function GoalSeriesSection({
             >
               <SuggestedRecipeApplier
                 parentSeries={goal ? undefined : prefilledSeries}
-                initialRecipeId={prefilledSuggestion && !savedRecipe ? DefaultSuggestedRecipeId.Scalar : undefined}
+                localShare={goal ? undefined : prefill?.localShare}
+                initialRecipeId={prefilledSuggestion && !savedRecipe ? prefilledSuggestionId : undefined}
               />
               <UnitInput
                 id="goal-suggested-unit"

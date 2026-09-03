@@ -2,7 +2,7 @@ import { Recipe } from "@/functions/recipe/recipe";
 import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/enums";
 import type { DataSeriesVariable, ExternalVariable, ScalarVariable } from "@/functions/recipe/types";
 import type { ApiSelectionItem, DatasetKeys } from "@/lib/api/apiTypes";
-import type { DBRecipe, PrefilledSeries } from "@/types";
+import type { DBRecipe, GoalPrefill, PrefilledSeries } from "@/types";
 import type { TFunction } from "i18next";
 import { UnitFlags } from "@/types/enums";
 import { parseUnit } from "@/functions/unit";
@@ -14,6 +14,7 @@ const PARENT_VALUE_ID = "parent-value-dummy-uuid";
 export const DefaultSuggestedRecipeId = {
   Scalar: "scalar-recipe-dummy-uuid",
   ReachTarget: "reach-target-recipe-dummy-uuid",
+  LocalShare: "local-share-recipe-dummy-uuid",
 } as const;
 export type DefaultSuggestedRecipeId = (typeof DefaultSuggestedRecipeId)[keyof typeof DefaultSuggestedRecipeId];
 
@@ -119,12 +120,46 @@ function trafaPassengerCars(drivmedel: string): ExternalPreset {
 }
 
 /**
+ * `parent * local / national`: a national goal scaled by the area's share of the
+ * statistic it concerns, both read at their latest value. Offered when a goal
+ * is copied with a local series (see `GoalPrefill.localShare`); the two
+ * externals are fully specified, so only the goal itself is left to confirm.
+ */
+function localShareRecipe(t: TFunction, share: NonNullable<GoalPrefill["localShare"]>): Recipe {
+  const parentValue = t("components:recipe_editor.default_local_share_recipe.parent_value");
+  const local: ExternalVariable | DataSeriesVariable = {
+    ...share.local.variable,
+    id: "local-share-local-dummy-uuid",
+    name: t("components:recipe_editor.default_local_share_recipe.local", { name: share.local.name }),
+    pick: VectorIndexPickerOptions.Last,
+    template: false,
+  };
+  const national: ExternalVariable | DataSeriesVariable = {
+    ...share.national.variable,
+    id: "local-share-national-dummy-uuid",
+    name: t("components:recipe_editor.default_local_share_recipe.national", { name: share.national.name }),
+    pick: VectorIndexPickerOptions.Last,
+    template: false,
+  };
+  return new Recipe({
+    name: t("components:recipe_editor.default_local_share_recipe.name"),
+    equation: `\${${parentValue}} * \${${local.name}} / \${${national.name}}`,
+    variables: [dataSeriesTemplate(PARENT_VALUE_ID, parentValue), local, national],
+    meta: { isSuggestedRecipe: true },
+  });
+}
+
+/**
  * @param parentSeries Stands in for the parent value in every suggestion, e.g. a
  * browsable historical series a goal is started from: the parent is no longer
  * something to pick but that series, ready to be scaled.
+ * @param localShare Adds the local-share scaling suggestion first, for a copied
+ * national goal (see {@link localShareRecipe}).
  */
-export function getDefaultSuggestedRecipes(t: TFunction, parentSeries?: PrefilledSeries): DBRecipe[] {
+export function getDefaultSuggestedRecipes(t: TFunction, parentSeries?: PrefilledSeries, localShare?: GoalPrefill["localShare"]): DBRecipe[] {
   const recipes: { id: string, recipe: Recipe }[] = [
+    ...(localShare ? [{ id: DefaultSuggestedRecipeId.LocalShare, recipe: localShareRecipe(t, localShare) }] : []),
+
     /* Scaling by a ratio between two regions */
     {
       id: "area-recipe-dummy-uuid",

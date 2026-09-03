@@ -11,7 +11,7 @@ import { useEffect, useMemo, useState } from "react";
 import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";
 import { isUnitFlag } from "@/functions/unit";
 import { IconAlertTriangleFilled, IconInfoCircle } from "@tabler/icons-react";
-import type { ClientRoadmapIteration, DBRecipe, PrefilledSeries } from "@/types";
+import type { ClientRoadmapIteration, DBRecipe, GoalPrefill, PrefilledSeries } from "@/types";
 import { RecipeEditorPermissions } from "@/types/consts";
 import { Recipe } from "@/functions/recipe/recipe";
 import type { SerializedRecipe } from "@/functions/recipe/types";
@@ -27,6 +27,7 @@ export function SuggestedRecipeApplier({
   suggestedRecipes: providedSuggestedRecipes = [],
   permissions = RecipeEditorPermissions,
   parentSeries,
+  localShare,
   initialRecipeId,
 }: {
   autoInsertDefaultSuggestions?: boolean;
@@ -34,11 +35,13 @@ export function SuggestedRecipeApplier({
   permissions?: RecipeEditorPermissions;
   /** Stands in for the parent value in the default suggestions (see `getDefaultSuggestedRecipes`) */
   parentSeries?: PrefilledSeries;
+  /** Adds the local-share scaling suggestion (see `getDefaultSuggestedRecipes`) */
+  localShare?: GoalPrefill["localShare"];
   /** The suggestion the surrounding recipe context was seeded with, so the select agrees with it */
   initialRecipeId?: string;
 }) {
   const { t } = useTranslation("components");
-  const defaultSuggestionRecipes = useMemo(() => getDefaultSuggestedRecipes(t, parentSeries), [t, parentSeries]);
+  const defaultSuggestionRecipes = useMemo(() => getDefaultSuggestedRecipes(t, parentSeries, localShare), [t, parentSeries, localShare]);
   const { recipe, applyRecipeUpdate, clearRecipe } = useRecipe();
 
   // The suggested method the context was seeded with: editing a goal that was

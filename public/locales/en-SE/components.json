@@ -295,7 +295,13 @@
     "this_data_series": "This data series",
     "delete_recipe": "Delete formula",
     "edit_recipe": "Edit formula",
-    "evaluation_warning_title": "Warnings"
+    "evaluation_warning_title": "Warnings",
+    "default_local_share_recipe": {
+      "local": "Local: {{name}}",
+      "name": "Scale by local share of the statistic",
+      "national": "National: {{name}}",
+      "parent_value": "National goal"
+    }
   },
   "roadmap_filters": {
     "default": "Default",

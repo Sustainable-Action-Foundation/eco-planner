@@ -3,7 +3,7 @@ import path from "node:path";
 import { cwd } from "node:process";
 import { expect, test } from "playwright/test";
 
-import { buildRegionSelection, CuratedHistoricalCategory, CuratedRegionKind, findRegionCodeByLabel, getCuratedHistoricalCatalog } from "../../src/lib/curatedHistoricalData";
+import { buildRegionSelection, CuratedHistoricalCategory, CuratedRegionKind, findRegionCodeByLabel, getCuratedHistoricalCatalog, getNationalGoalMappings } from "../../src/lib/curatedHistoricalData";
 import { ExternalDataset } from "../../src/lib/api/utility";
 import { GeoAreaType } from "../../src/lib/prisma/generated";
 import type { CuratedSource } from "../../src/lib/curatedHistoricalData";
@@ -170,5 +170,35 @@ test.describe("Curated region resolution", () => {
 
   test("None selects nothing", () => {
     expect(buildRegionSelection({ kind: CuratedRegionKind.None }, nation)).toEqual([]);
+  });
+});
+
+test.describe("National goal mappings", () => {
+  const mappings = getNationalGoalMappings();
+
+  test("each national goal maps to existing catalog series, in order of preference", () => {
+    expect(mappings.length).toBeGreaterThan(0);
+    const indicators = mappings.map(mapping => mapping.indicatorParameter);
+    expect(new Set(indicators).size, "duplicate indicator parameters").toBe(indicators.length);
+
+    for (const mapping of mappings) {
+      // LEAP paths use single backslashes; a doubled one is a quoting mistake
+      expect(mapping.indicatorParameter, mapping.indicatorParameter).not.toContain("\\\\");
+      expect(mapping.series.length, `series of ${mapping.indicatorParameter}`).toBeGreaterThan(0);
+      for (const candidate of mapping.series) {
+        const entry = entries.find(entry => entry.key === candidate.entryKey);
+        expect(entry, `entry ${candidate.entryKey} of ${mapping.indicatorParameter}`).toBeTruthy();
+        expect(entry?.series.some(series => series.key === candidate.seriesKey), `series ${candidate.entryKey}/${candidate.seriesKey} of ${mapping.indicatorParameter}`).toBe(true);
+      }
+    }
+  });
+
+  test("every mapped goal has a candidate series covering municipalities", () => {
+    for (const mapping of mappings) {
+      const municipal = mapping.series.some(candidate =>
+        entries.find(entry => entry.key === candidate.entryKey)?.series.find(series => series.key === candidate.seriesKey)?.sources[GeoAreaType.MUNICIPALITY],
+      );
+      expect(municipal, `municipal coverage of ${mapping.indicatorParameter}`).toBe(true);
+    }
   });
 });

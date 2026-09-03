@@ -76,7 +76,8 @@
     "breadcrumb": "$t(common:new.goal)",
     "information_icon_aria": "Information",
     "prefilled": "The form starts out from {{name}}: as the goal's historical data, and as the series the suggested methods scale. Everything can still be changed before saving.",
-    "title": "$t(common:new.goal)"
+    "title": "$t(common:new.goal)",
+    "prefilled_copy": "The form starts out from the national goal {{goal}}, scaled by your share of {{series}}, which also becomes the goal's historical data. Everything can still be changed before saving."
   },
   "goal_edit": {
     "breadcrumb": "$t(common:edit.goal)",
@@ -134,7 +135,17 @@
     "public_tab": "All public $t(common:roadmap_other)",
     "search_roadmaps": "Search among $t(common:count.roadmap)",
     "shown_results": "Showing {{shown}} out of {{total}} $t(common:roadmap, {\"count\": {{total}}})",
-    "title": "$t(common:roadmap_other, titleCase)"
+    "title": "$t(common:roadmap_other, titleCase)",
+    "national_goals": {
+      "copy": "Copy to your roadmap",
+      "create_roadmap": "Create a roadmap first.",
+      "description": "Goals in the national scenarios that can be followed up with statistics for your area. A copy starts from the national goal scaled by your share of the statistic, with the local data as its historical data. Everything can be adjusted before saving.",
+      "latest_value": "Latest {{value}} {{unit}} ({{year}}).",
+      "local_series": "Local data: {{series}} for {{area}}.",
+      "national_goal": "National goal",
+      "no_roadmap": "Copies go into one of the organization's roadmaps, and you have none yet.",
+      "title": "National goals to copy to {{area}}"
+    }
   },
   "info": {
     "breadcrumb": "Information",

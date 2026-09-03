@@ -59,6 +59,17 @@ export async function getCuratedHistoricalEntry(t: TFunction, geoArea: CuratedGe
   return fetched ?? null;
 }
 
+/**
+ * A subset of the catalog's entries for a geo area, fetched together (see
+ * `fetchEntries` for why that matters), in catalog order. Unknown keys are
+ * ignored; entries without data for the area are dropped like elsewhere.
+ */
+export async function getCuratedHistoricalEntries(t: TFunction, geoArea: CuratedGeoArea, entryKeys: Iterable<string>): Promise<CuratedHistoricalEntryData[]> {
+  const wanted = new Set(entryKeys);
+  const entries = getCuratedHistoricalCatalog(t, geoArea.name).entries.filter(entry => wanted.has(entry.key));
+  return entries.length ? fetchEntries(entries, geoArea) : [];
+}
+
 async function fetchEntries(catalogEntries: CuratedHistoricalEntry[], geoArea: CuratedGeoArea): Promise<CuratedHistoricalEntryData[]> {
   const area = { code: geoArea.code, type: geoArea.type };
 

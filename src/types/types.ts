@@ -166,3 +166,31 @@ export type PrefilledSeries = {
   unit: string | null;
   variable: ExternalVariable | DataSeriesVariable;
 };
+
+/**
+ * Everything the goal creation form is started with from a link (see
+ * `getGoalPrefill`): a series for the historical section, the series the
+ * suggested methods scale, and, when a goal is being copied, its fields and a
+ * national reference for scaling it down to the org's area.
+ */
+export type GoalPrefill = {
+  /** Seeds the historical section; the goal's own local statistic */
+  historical: PrefilledSeries;
+  /** What the suggested methods scale: the historical series itself, or a copied goal's data series */
+  parent: PrefilledSeries;
+  /** The goal being copied, if any: its fields seed the form */
+  copy?: {
+    name: string | null;
+    description: string | null;
+    indicatorParameter: string;
+  };
+  /**
+   * The historical statistic at the level of the copied goal (the nation), so
+   * a suggested method can scale the goal by the local share of it
+   * (`goal * local / national`)
+   */
+  localShare?: {
+    local: PrefilledSeries;
+    national: PrefilledSeries;
+  };
+};
