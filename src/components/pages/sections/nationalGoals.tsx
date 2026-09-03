@@ -1,6 +1,7 @@
 import CuratedHistoricalGraph from "@/components/graph/graphs/curatedHistoricalGraph";
 import { getNationalGoalMatches } from "@/fetchers/getNationalGoalMatches";
 import { goalDisplayName, indicatorParameterContext } from "@/functions/goalName";
+import { scaleToLocal } from "@/functions/localScale";
 import { formatSeriesRef, SeriesRefKind } from "@/lib/seriesRef";
 import serveTea from "@/lib/i18nServer";
 import { IconArrowRight, IconInfoCircle } from "@tabler/icons-react";
@@ -83,6 +84,7 @@ async function GoalCard({ match, orgId, canCreateGoals, area }: { match: Nationa
   // A multi-series entry's series are only distinct together with the entry
   const seriesName = `${entry.name}${series.name !== entry.name ? `: ${series.name}` : ""}`;
   const latest = Object.entries(series.dateValues).sort(([a], [b]) => a.localeCompare(b)).at(-1);
+  const projection = scaleToLocal(goal.dateValues, series.dateValues);
 
   const ref = encodeURIComponent(formatSeriesRef({ kind: SeriesRefKind.Curated, entryKey: entry.key, seriesKey: series.key }));
   const href = `/goal/create?org=${encodeURIComponent(orgId)}&series=${ref}&from=${encodeURIComponent(goal.id)}`;
@@ -94,9 +96,18 @@ async function GoalCard({ match, orgId, canCreateGoals, area }: { match: Nationa
           <Link href={`/goal/${goal.id}`} className="color-pureblack">{name}</Link>
         </h4>
         {context ? <small className="color-gray margin-bottom-25">{context}</small> : null}
+        {/* The national goal, and what a copy would look like: the local history continued by the goal's trajectory scaled to it */}
         <CuratedHistoricalGraph
           series={[{ name: t("pages:home.national_goals.national_goal"), dateValues: goal.dateValues }]}
           unit={goal.unit}
+          secondary={{
+            unit: entry.unit,
+            series: [
+              { name: t("pages:home.national_goals.local_history", { area }), dateValues: series.dateValues },
+              ...(projection ? [{ name: t("pages:home.national_goals.local_projection", { area }), dateValues: projection, dashed: true }] : []),
+            ],
+          }}
+          height={260}
         />
         <p className="margin-block-25 font-size-14px color-gray flex-grow-100">
           {t("pages:home.national_goals.local_series", { series: seriesName, area })}

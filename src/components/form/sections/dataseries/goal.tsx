@@ -62,11 +62,11 @@ export default function GoalSeriesSection({
   const prefilledSeries = prefill?.parent;
   // A prefilled series starts the suggestions on "scale by constant value" with
   // the factor at 1 — the series as is, ready to be adjusted or scaled otherwise;
-  // a copied national goal starts on scaling by the local share instead
-  const prefilledSuggestionId = prefill?.localShare ? DefaultSuggestedRecipeId.LocalShare : DefaultSuggestedRecipeId.Scalar;
+  // a copied goal starts on scaling its trajectory to the local level instead
+  const prefilledSuggestionId = prefill?.localReference ? DefaultSuggestedRecipeId.LocalScale : DefaultSuggestedRecipeId.Scalar;
   const prefilledSuggestion = useMemo(() => {
     if (!prefill) return undefined;
-    const suggestion = getDefaultSuggestedRecipes(t, prefill.parent, prefill.localShare).find(suggestion => suggestion.id === prefilledSuggestionId);
+    const suggestion = getDefaultSuggestedRecipes(t, prefill.parent, prefill.localReference).find(suggestion => suggestion.id === prefilledSuggestionId);
     return suggestion ? Recipe.from(suggestion.recipe).serialize() : undefined;
   }, [prefill, prefilledSuggestionId, t]);
   const suggestedInitialRecipe = savedRecipe ?? prefilledSuggestion;
@@ -155,7 +155,7 @@ export default function GoalSeriesSection({
             >
               <SuggestedRecipeApplier
                 parentSeries={goal ? undefined : prefilledSeries}
-                localShare={goal ? undefined : prefill?.localShare}
+                localReference={goal ? undefined : prefill?.localReference}
                 initialRecipeId={prefilledSuggestion && !savedRecipe ? prefilledSuggestionId : undefined}
               />
               <UnitInput

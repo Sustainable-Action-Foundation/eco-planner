@@ -1,11 +1,12 @@
 {
   "common": {
-    "parent_counterpart": "Motsvarande $t(common:goal_one) i {{parent}}",
     "baseline_scenario": "Basscenario",
-    "expected_outcome": "Förväntat utfall",
-    "unknown_roadmap": "Okänd $t(common:roadmap_version_one)",
     "change_graph_type": "Ändra graftyp",
-    "historical_series": "{{label}} (historisk)"
+    "expected_outcome": "Förväntat utfall",
+    "historical_series": "{{label}} (historisk)",
+    "historical_unit_mismatch": "Den historiska datan är i {{historical}} men målbanan i {{goal}}; värdena ritas som de är, utan omräkning.",
+    "parent_counterpart": "Motsvarande $t(common:goal_one) i {{parent}}",
+    "unknown_roadmap": "Okänd $t(common:roadmap_version_one)"
   },
   "action_graph": {
     "actions": "$t(common:action_other, titleCase)"

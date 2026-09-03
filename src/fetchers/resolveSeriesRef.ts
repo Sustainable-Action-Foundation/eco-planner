@@ -3,13 +3,14 @@ import { getCuratedHistoricalEntry } from "@/fetchers/getCuratedHistoricalData";
 import { getOneGoal } from "@/fetchers/getOneGoal";
 import { getUserOrgs } from "@/fetchers/getUserOrgs";
 import { goalDisplayName } from "@/functions/goalName";
+import { localAnchor } from "@/functions/localScale";
 import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/enums";
-import { GeoAreaType } from "@/lib/prisma/generated";
 import { parseSeriesRef, SeriesRefKind } from "@/lib/seriesRef";
+import { parseUnit } from "@/functions/unit";
 import { UnitFlags } from "@/types/enums";
 import type { CuratedGeoArea } from "@/fetchers/getCuratedHistoricalData";
 import type { SeriesRef } from "@/lib/seriesRef";
-import type { GoalPrefill, PrefilledSeries } from "@/types";
+import type { DateValues, GoalPrefill, PrefilledSeries } from "@/types";
 import type { TFunction } from "i18next";
 
 /**
@@ -39,13 +40,14 @@ export async function resolveSeriesRef(t: TFunction, ref: SeriesRef, geoArea: Cu
           name,
           type: RecipeDataTypes.External,
           pick: VectorIndexPickerOptions.Default,
-          // The unit is declared on the recipes built from this instead (see
-          // `prefilledSeriesRecipe`): the table metadata carries no usable one
-          unit: UnitFlags.Missing,
+          // The catalog's declared unit, since the table metadata carries no usable
+          // one; lets evaluation convert and check it like any other unit
+          unit: parseUnit(entry.unit),
           dataset: series.source.dataset,
           tableId: series.source.tableId,
           selection: series.selection,
         },
+        dateValues: series.dateValues,
       };
     }
     default: {
@@ -53,9 +55,6 @@ export async function resolveSeriesRef(t: TFunction, ref: SeriesRef, geoArea: Cu
     }
   }
 }
-
-/** Curated refs resolved for a copied national goal's own level: the whole country. */
-const NATION_GEO_AREA: CuratedGeoArea = { code: "00", name: "Sverige", type: GeoAreaType.NATION };
 
 /**
  * A goal to copy, as the parent the suggested methods scale: a variable
@@ -81,6 +80,7 @@ async function resolveCopiedGoal(goalId: string): Promise<{ series: PrefilledSer
         dataSeriesId: goal.data_series.id,
         value: null,
       },
+      dateValues: Object.fromEntries(goal.data_series.values.map(record => [record.timestamp.toISOString(), record.value])) as DateValues,
     },
     copy: {
       name: goal.name,
@@ -95,7 +95,7 @@ async function resolveCopiedGoal(goalId: string): Promise<{ series: PrefilledSer
  * params: `series` carries a ref (see `seriesRef`) resolved for the geo area of
  * the org named by `org`, and `from` optionally names a goal to copy, whose
  * data series then becomes the parent the suggested methods scale, with the
- * series as a local reference for scaling it down. `failed` is true when a
+ * series as the local level to scale it to. `failed` is true when a
  * param was given but could not be resolved (or the org isn't one of the
  * user's), so the page can say the link didn't work rather than silently
  * starting empty.
@@ -117,22 +117,18 @@ export async function getGoalPrefill(
     return { prefill: { historical, parent: historical }, failed: false };
   }
 
-  // Copying a goal: the local statistic once more (with its own variable id) and
-  // the national one make up the share the goal is scaled by
-  const [copied, local, national] = await Promise.all([
-    resolveCopiedGoal(params.from),
-    resolveSeriesRef(t, ref, geoArea),
-    resolveSeriesRef(t, ref, NATION_GEO_AREA),
-  ]);
+  // Copying a goal: the local statistic once more (with its own variable id) is
+  // the level the goal's trajectory is scaled to
+  const [copied, local] = await Promise.all([resolveCopiedGoal(params.from), resolveSeriesRef(t, ref, geoArea)]);
   if (!copied || !local) return { prefill: null, failed: true };
 
+  // A goal that is zero in the anchor year has no development to follow from
+  // the local level; the copy then starts from the goal as is
+  const anchor = localAnchor(local.dateValues ?? {}, copied.series.dateValues ?? {});
+  const localReference = anchor && anchor.goalValue !== 0 ? { series: local, year: anchor.year, goalValue: anchor.goalValue } : undefined;
+
   return {
-    prefill: {
-      historical,
-      parent: copied.series,
-      copy: copied.copy,
-      ...(national ? { localShare: { local, national } } : {}),
-    },
+    prefill: { historical, parent: copied.series, copy: copied.copy, ...(localReference ? { localReference } : {}) },
     failed: false,
   };
 }

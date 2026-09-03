@@ -296,11 +296,11 @@
     "delete_recipe": "Radera formel",
     "edit_recipe": "Redigera formel",
     "evaluation_warning_title": "Varningar",
-    "default_local_share_recipe": {
-      "local": "Lokalt: {{name}}",
-      "name": "Skala utifrån lokal andel av statistiken",
-      "national": "Nationellt: {{name}}",
-      "parent_value": "Nationell målbana"
+    "default_local_scale_recipe": {
+      "goal": "Nationell målbana: {{name}}",
+      "goal_in_year": "Nationell målbana {{year}}: {{name}}",
+      "local": "Lokalt {{year}}: {{name}}",
+      "name": "Följ den nationella målbanans utveckling från lokalt värde"
     }
   },
   "roadmap_filters": {

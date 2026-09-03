@@ -77,7 +77,7 @@
     "information_icon_aria": "Information",
     "prefilled": "Formuläret utgår från {{name}}: som målbanans historiska data och som den serie de föreslagna metoderna skalar. Allt går fortfarande att ändra innan du sparar.",
     "title": "$t(common:new.goal)",
-    "prefilled_copy": "Formuläret utgår från den nationella målbanan {{goal}}, skalad efter er andel av {{series}}, som också blir målbanans historiska data. Allt går fortfarande att ändra innan du sparar."
+    "prefilled_copy": "Formuläret utgår från den nationella målbanan {{goal}}: kopian följer dess utveckling från det senaste lokala värdet för {{series}}, som också blir målbanans historiska data. Allt går fortfarande att ändra innan du sparar."
   },
   "goal_edit": {
     "breadcrumb": "$t(common:edit.goal)",
@@ -139,8 +139,10 @@
     "national_goals": {
       "copy": "Kopiera till er färdplan",
       "create_roadmap": "Skapa en färdplan först.",
-      "description": "Målbanor i de nationella scenarierna som går att följa upp med statistik för ert område. En kopia utgår från den nationella målbanan skalad efter er andel av statistiken, med de lokala uppgifterna som historisk data. Allt går att justera innan du sparar.",
+      "description": "Målbanor i de nationella scenarierna som går att följa upp med statistik för ert område. En kopia utgår från de lokala uppgifterna och följer den nationella målbanans utveckling, med uppgifterna som historisk data. Allt går att justera innan du sparar.",
       "latest_value": "Senast {{value}} {{unit}} ({{year}}).",
+      "local_history": "{{area}} hittills",
+      "local_projection": "{{area}} som kopia",
       "local_series": "Lokala uppgifter: {{series}} för {{area}}.",
       "national_goal": "Nationell målbana",
       "no_roadmap": "Kopior hamnar i en av organisationens färdplaner, och ni har ingen ännu.",

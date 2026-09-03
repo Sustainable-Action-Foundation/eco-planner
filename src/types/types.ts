@@ -165,6 +165,8 @@ export type PrefilledSeries = {
   /** Display unit as declared by the source, if it has one. */
   unit: string | null;
   variable: ExternalVariable | DataSeriesVariable;
+  /** The series' values when known at resolve time (the variable still reads them from the source) */
+  dateValues?: DateValues;
 };
 
 /**
@@ -185,12 +187,17 @@ export type GoalPrefill = {
     indicatorParameter: string;
   };
   /**
-   * The historical statistic at the level of the copied goal (the nation), so
-   * a suggested method can scale the goal by the local share of it
-   * (`goal * local / national`)
+   * The local statistic a copied goal's trajectory is scaled to:
+   * `local(latest) * goal / goal(year)`, the two joined at the year of the
+   * local series' latest value, so the copy follows the goal's development
+   * from the local level and is in the statistic's own unit (the goal's unit
+   * cancels out, which sidesteps mislabeled units)
    */
-  localShare?: {
-    local: PrefilledSeries;
-    national: PrefilledSeries;
+  localReference?: {
+    series: PrefilledSeries;
+    /** The year of the series' latest value */
+    year: number;
+    /** The copied goal's value that year (or the nearest year it has) */
+    goalValue: number;
   };
 };

@@ -1,11 +1,12 @@
 {
   "common": {
-    "parent_counterpart": "Corresponding $t(common:goal_one) in {{parent}}",
     "baseline_scenario": "Baseline scenario",
     "change_graph_type": "Change graph type",
     "expected_outcome": "Expected outcome",
-    "unknown_roadmap": "Unknown $t(common:roadmap_version_one)",
-    "historical_series": "{{label}} (historical)"
+    "historical_series": "{{label}} (historical)",
+    "historical_unit_mismatch": "The historical data is in {{historical}} but the goal in {{goal}}; the values are drawn as they are, without conversion.",
+    "parent_counterpart": "Corresponding $t(common:goal_one) in {{parent}}",
+    "unknown_roadmap": "Unknown $t(common:roadmap_version_one)"
   },
   "action_graph": {
     "actions": "$t(common:action_other, titleCase)"

@@ -77,7 +77,7 @@
     "information_icon_aria": "Information",
     "prefilled": "The form starts out from {{name}}: as the goal's historical data, and as the series the suggested methods scale. Everything can still be changed before saving.",
     "title": "$t(common:new.goal)",
-    "prefilled_copy": "The form starts out from the national goal {{goal}}, scaled by your share of {{series}}, which also becomes the goal's historical data. Everything can still be changed before saving."
+    "prefilled_copy": "The form starts out from the national goal {{goal}}: the copy follows its development from the latest local value of {{series}}, which also becomes the goal's historical data. Everything can still be changed before saving."
   },
   "goal_edit": {
     "breadcrumb": "$t(common:edit.goal)",
@@ -139,8 +139,10 @@
     "national_goals": {
       "copy": "Copy to your roadmap",
       "create_roadmap": "Create a roadmap first.",
-      "description": "Goals in the national scenarios that can be followed up with statistics for your area. A copy starts from the national goal scaled by your share of the statistic, with the local data as its historical data. Everything can be adjusted before saving.",
+      "description": "Goals in the national scenarios that can be followed up with statistics for your area. A copy starts from the local data and follows the national goal's development, with the data as its historical data. Everything can be adjusted before saving.",
       "latest_value": "Latest {{value}} {{unit}} ({{year}}).",
+      "local_history": "{{area}} so far",
+      "local_projection": "{{area}} as a copy",
       "local_series": "Local data: {{series}} for {{area}}.",
       "national_goal": "National goal",
       "no_roadmap": "Copies go into one of the organization's roadmaps, and you have none yet.",
