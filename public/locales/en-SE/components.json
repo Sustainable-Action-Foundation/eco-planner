@@ -176,6 +176,7 @@
     "add_new_recipe": "Add new formula",
     "apply_paramater_question": "Use the same indicator parameter as the parent goal?",
     "apply_parameter": "Use <strong>{{indicator}}</strong> as indicator parameter",
+    "current_method_option": "{{name}} (current)",
     "parameter_applied": "The indicator parameter is <strong>{{indicator}}</strong>",
     "apply_unit": "Copy resulting unit to form",
     "cancel_editing_recipe": "Cancel",

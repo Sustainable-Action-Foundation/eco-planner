@@ -14,9 +14,13 @@ import { IconAlertTriangleFilled, IconInfoCircle } from "@tabler/icons-react";
 import type { ClientRoadmapIteration, DBRecipe, PrefilledSeries } from "@/types";
 import { RecipeEditorPermissions } from "@/types/consts";
 import { Recipe } from "@/functions/recipe/recipe";
+import type { SerializedRecipe } from "@/functions/recipe/types";
 import { getDefaultSuggestedRecipes, TextStatus } from "@/components/recipe";
 import styles from "../recipe.module.css" with {type: "css"};
 import { getRecipeRoadmapData } from "../context/roadmapDataCache";
+
+/** Select value for the recipe the context was seeded with (a goal's saved method when editing). */
+const CURRENT_RECIPE_ID = "current-recipe";
 
 export function SuggestedRecipeApplier({
   autoInsertDefaultSuggestions = true,
@@ -37,10 +41,19 @@ export function SuggestedRecipeApplier({
   const defaultSuggestionRecipes = useMemo(() => getDefaultSuggestedRecipes(t, parentSeries), [t, parentSeries]);
   const { recipe, applyRecipeUpdate, clearRecipe } = useRecipe();
 
+  // The suggested method the context was seeded with: editing a goal that was
+  // made from a suggestion lands here with its saved recipe already in the
+  // context, and the select must start on something real or the (required)
+  // field blocks submission. Offered as its own option so switching to another
+  // method and back restores the saved recipe.
+  const [initialContextRecipe] = useState<SerializedRecipe | null>(
+    () => !initialRecipeId && recipe.isSuggestedRecipe() && !recipe.isEmpty() ? recipe.serialize() : null,
+  );
+
   const [availableDataSeries, setAvailableDataSeries] = useState<{ id: string; name: string; }[]>([]);
   const [roadmapLookup, setRoadmapLookup] = useState<Record<string, ClientRoadmapIteration>>({});
   const [dataSeriesNamesById, setDataSeriesNamesById] = useState<Record<string, string>>({});
-  const [selectedRecipeId, setSelectedRecipeId] = useState<string>(initialRecipeId ?? "");
+  const [selectedRecipeId, setSelectedRecipeId] = useState<string>(initialRecipeId ?? (initialContextRecipe ? CURRENT_RECIPE_ID : ""));
   const suggestedRecipes = useMemo(() => autoInsertDefaultSuggestions
     ? [...defaultSuggestionRecipes, ...providedSuggestedRecipes]
     : [...providedSuggestedRecipes],
@@ -113,6 +126,16 @@ export function SuggestedRecipeApplier({
     const recipeId = e.target.value;
     setSelectedRecipeId(recipeId);
 
+    if (recipeId === CURRENT_RECIPE_ID && initialContextRecipe) {
+      applyRecipeUpdate(Recipe.from(initialContextRecipe))
+        .catch((err: unknown) => {
+          const errorMessage = err instanceof Error ? err.message : String(err);
+          console.error("Failed to restore the initial recipe", errorMessage);
+          clearRecipe();
+        });
+      return;
+    }
+
     const selectedSuggestion = suggestedRecipes.find(r => r.id === recipeId);
     if (!selectedSuggestion) {
       console.error("Selected suggested recipe not found", recipeId);
@@ -148,6 +171,11 @@ export function SuggestedRecipeApplier({
         onChange={handleChange}
       >
         <option disabled={true} value={""}>{t("common:tsx.generic_select")}</option>
+        {initialContextRecipe ?
+          <option value={CURRENT_RECIPE_ID}>
+            {t("components:recipe_editor.current_method_option", { name: Recipe.from(initialContextRecipe).name })}
+          </option>
+          : null}
         {suggestedRecipes.map(suggestedRecipe => (
           <option key={suggestedRecipe.id} value={suggestedRecipe.id}> {/* TODO: The selected value needs to be preselected */}
             {Recipe.from(suggestedRecipe.recipe).name ?? t("components:copy_and_scale.unnamed_suggestion")}

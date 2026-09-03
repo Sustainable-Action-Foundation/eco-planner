@@ -176,6 +176,7 @@
     "add_new_recipe": "Lägg till ny formel",
     "apply_paramater_question": "Använd samma indikatorparameter som den överordnade målbanan?",
     "apply_parameter": "Använd <strong>{{indicator}}</strong> som indikatorparameter",
+    "current_method_option": "{{name}} (nuvarande)",
     "parameter_applied": "Indikatorparametern är <strong>{{indicator}}</strong>",
     "apply_unit": "Kopiera resulterande enhet till formuläret",
     "cancel_editing_recipe": "Avbryt",
