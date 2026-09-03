@@ -7,7 +7,8 @@
     "effects_label": "$t(common:effect_other, titleCase)",
     "expected_effect": "Förväntad $t(common:effect_one)",
     "no_category": "Ingen angiven kategori",
-    "no_effect": "Ingen angiven $t(common:effect_one)"
+    "no_effect": "Ingen angiven $t(common:effect_one)",
+    "shared_database_note": "Ingår i den gemensamma åtgärdsdatabasen: synlig för alla, redigeras av den ägande organisationens chefer."
   },
   "action_create": {
     "bad_goal": "Kunde inte hitta, eller har inte tillgång till, $t(common:goal_definite_one) i länken.",
@@ -70,9 +71,11 @@
     "update_needed_attention_message": "Uppmärksamhet!"
   },
   "goal_create": {
+    "bad_prefill": "Kunde inte hitta uppgifterna i länken, så formuläret börjar tomt.",
     "bad_roadmap": "Kunde inte hitta, eller har inte tillgång till, $t(common:roadmap_version_definite_one) i länken.\n\nAnvänd dropdown-menyn för att välja en $t(common:roadmap_version_one) att skapa $t(common:goal_definite_one) under.",
     "breadcrumb": "$t(common:new.goal)",
     "information_icon_aria": "Information",
+    "prefilled": "Formuläret utgår från {{name}}: som målbanans historiska data och som den serie de föreslagna metoderna skalar. Allt går fortfarande att ändra innan du sparar.",
     "title": "$t(common:new.goal)"
   },
   "goal_edit": {
@@ -112,6 +115,7 @@
       "fuel_other": "Övriga",
       "fuel_petrol": "Bensin",
       "fuel_plugin_hybrid": "Laddhybrid",
+      "open": "Visa och använd",
       "solar_capacity_description": "Installerad effekt för nätanslutna solcellsanläggningar vid årets slut, i megawatt, alla effektklasser.",
       "solar_capacity_name": "Installerad solcellseffekt",
       "solar_installations_description": "Antal nätanslutna solcellsanläggningar, alla effektklasser.",
@@ -258,5 +262,14 @@
     "signup_hint": "Om du registrerar dig med den inbjudna e-postadressen godkänns inbjudan automatiskt.",
     "accept": "Gå med i {{org}} som gäst",
     "accepted_toast": "Du är nu gäst i {{org}}"
+  },
+  "org_historical_data": {
+    "new_goal": "Ny målbana utifrån dessa uppgifter",
+    "new_goal_description": "Öppnar målbaneformuläret med serien ifylld.",
+    "series_legend": "Serie",
+    "subtitle": "Historisk data för {{area}}",
+    "use_description": "Skapa en ny målbana i någon av era färdplaner utifrån den här serien. Den blir målbanans historiska data och utgångspunkten för målbanans egna värden; urvalet och allt annat går att justera innan du sparar.",
+    "use_heading": "Använd dessa uppgifter",
+    "values": "Värden"
   }
 }

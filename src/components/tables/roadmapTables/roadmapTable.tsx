@@ -2,7 +2,8 @@ import "server-only";
 import type { MultiRoadmapInstance, Roadmap, UserAccessContext } from "@/types";
 import styles from '@/components/tables/tables.module.css' with { type: "css" };
 import { ControlsMenu } from '@/components/elements/controls/controls';
-import accessChecker, { hasEditAccess } from '@/lib/accessChecker';
+import VisibilityBadges from '@/components/generic/visibility/visibilityBadges';
+import accessChecker from '@/lib/accessChecker';
 import serveTea from "@/lib/i18nServer";
 import Link from 'next/link';
 import { iterationPath } from '@/functions/versionSlug';
@@ -49,14 +50,9 @@ export default async function RoadmapTable({
     parsedIterations.push(...iterations);
   }
 
-  // Unlisted iterations are only listed for users who can edit them
-  const listedIterations = parsedIterations.filter(iteration => {
-    if (!iteration.is_unlisted) return true;
-    return hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, published_at: iteration.published_at }, accessContext));
-  });
-
-  return listedIterations.length
-    ? listedIterations.map(iteration => {
+  // Drafts only reach editors (the fetchers apply the access filter), so everything here is listed
+  return parsedIterations.length
+    ? parsedIterations.map(iteration => {
       let typeAlias = iteration.roadmap.type.toString();
       if (iteration.roadmap.type === "NATIONAL") typeAlias = t("common:scope.national");
       else if (iteration.roadmap.type === "REGIONAL") typeAlias = t("common:scope.regional");
@@ -64,13 +60,14 @@ export default async function RoadmapTable({
       else if (iteration.roadmap.type === "LOCAL") typeAlias = t("common:scope.local");
       else if (iteration.roadmap.type === "OTHER") typeAlias = t("common:scope.other");
 
-      const accessLevel = accessChecker({ access_control: iteration.roadmap.access_control, published_at: iteration.published_at }, accessContext);
+      const accessLevel = accessChecker({ access_control: iteration.roadmap.access_control, status: iteration.status }, accessContext);
       return (
         <div className='flex gap-100 justify-content-space-between align-items-center' key={iteration.id}>
           <Link href={iterationPath(iteration.roadmap.id, iteration.version)} className={`${styles.roadmapLink} flex-grow-100`}>
             {/* Name, version */}
-            <span className={styles.linkTitle}>
+            <span className={`${styles.linkTitle} flex align-items-center gap-50 flex-wrap-wrap`}>
               {t("components:roadmap_table.title", { name: iteration.roadmap.name, version: iteration.version })}
+              <VisibilityBadges status={iteration.status} />
             </span>
             {/* Type, goal count */}
             <span className={styles.linkInfo}>

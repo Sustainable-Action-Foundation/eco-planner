@@ -1,11 +1,13 @@
 'use client';
 
 import { useTranslation } from "react-i18next";
-import type { DateValuesWithUnit, Goal } from "@/types";
+import type { DateValuesWithUnit, Goal, PrefilledSeries } from "@/types";
 import { GoalFormName } from "@/types/form-names";
 import { IconCheck } from "@tabler/icons-react";
 import { FormSync, ManualDataSeriesInput, RecipeContextProvider, RecipeEditor, SuggestedRecipeApplier, UnitInput } from "@/components/recipe";
 import { dataSeriesToDateValues, Recipe } from "@/functions/recipe";
+import { DefaultSuggestedRecipeId, getDefaultSuggestedRecipes } from "@/components/recipe/suggestions/defaultSuggestedRecipes";
+import { prefilledSeriesRecipe } from "../../forms/goalSections";
 import ParameterSync from "@/components/recipe/output/parameterSyncer";
 import { RecipeSync } from "@/components/recipe/output/recipeSync";
 import { useMemo, type Dispatch, type SetStateAction } from "react";
@@ -14,6 +16,7 @@ import { DataSeriesType, UnitFlags } from "@/types/enums";
 
 export default function GoalSeriesSection({
   goal,
+  prefilledSeries,
   dataSeriesType,
   setDataSeriesType,
   indicatorParameter,
@@ -26,6 +29,12 @@ export default function GoalSeriesSection({
 
 }: {
   goal: Goal | undefined;
+  /**
+   * A series to start a new goal from: the suggested methods scale it instead
+   * of a parent goal, and the formula editor starts with it as a variable. The
+   * saved recipe takes precedence when editing.
+   */
+  prefilledSeries?: PrefilledSeries;
   dataSeriesType: DataSeriesType;
   setDataSeriesType: Dispatch<SetStateAction<DataSeriesType>>;
   /** The form's current indicator parameter, if it has one, for the parameter sync button's applied state */
@@ -37,18 +46,32 @@ export default function GoalSeriesSection({
   hasInitializedManual: boolean;
   hasInitializedCustom: boolean;
 }) {
-  const { t } = useTranslation(["forms", "common"]);
+  const { t } = useTranslation(["forms", "common", "components"]);
 
   const manualInitialDateValues = goal?.data_series
     ? dataSeriesToDateValues(goal.data_series)
     : undefined;
 
-  const initialLoadedRecipe = useMemo(() => {
+  const savedRecipe = useMemo(() => {
     const base = goal?.data_series?.recipe_used?.recipe;
     if (!base) return undefined;
 
     return Recipe.from(base).withEditableExternals().serialize();
   }, [goal?.data_series?.recipe_used?.recipe]);
+
+  // A prefilled series starts the suggestions on "scale by constant value" with
+  // the factor at 1 — the series as is, ready to be adjusted or scaled otherwise
+  const prefilledSuggestion = useMemo(() => {
+    if (!prefilledSeries) return undefined;
+    const suggestion = getDefaultSuggestedRecipes(t, prefilledSeries).find(suggestion => suggestion.id === DefaultSuggestedRecipeId.Scalar);
+    return suggestion ? Recipe.from(suggestion.recipe).serialize() : undefined;
+  }, [prefilledSeries, t]);
+  const suggestedInitialRecipe = savedRecipe ?? prefilledSuggestion;
+  const customInitialRecipe = useMemo(
+    () => savedRecipe ?? (prefilledSeries ? prefilledSeriesRecipe(prefilledSeries) : undefined),
+    [savedRecipe, prefilledSeries],
+  );
+
 
   return (
     <>
@@ -124,10 +147,13 @@ export default function GoalSeriesSection({
         {hasInitializedSuggested ?
           <fieldset className={`${dataSeriesType !== DataSeriesType.Suggested ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Suggested}>
             <RecipeContextProvider
-              initialRecipe={initialLoadedRecipe}
+              initialRecipe={suggestedInitialRecipe}
               availableDataSeries={goal?.data_series?.recipe_used?.source_data_series}
             >
-              <SuggestedRecipeApplier />
+              <SuggestedRecipeApplier
+                parentSeries={goal ? undefined : prefilledSeries}
+                initialRecipeId={prefilledSuggestion && !savedRecipe ? DefaultSuggestedRecipeId.Scalar : undefined}
+              />
               <UnitInput
                 id="goal-suggested-unit"
                 staticProvidedUnit={parseUnit(goal?.data_series?.unit)}
@@ -186,7 +212,7 @@ export default function GoalSeriesSection({
         {hasInitializedCustom ?
           <fieldset className={`${dataSeriesType !== DataSeriesType.Custom ? "display-none" : ""}`} disabled={dataSeriesType !== DataSeriesType.Custom}>
             <RecipeContextProvider
-              initialRecipe={initialLoadedRecipe}
+              initialRecipe={customInitialRecipe}
               availableDataSeries={goal?.data_series?.recipe_used?.source_data_series}
             >
               <RecipeEditor />

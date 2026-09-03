@@ -2,11 +2,12 @@
 
 import type { getRoadmaps } from "@/fetchers";
 import formSubmitter from "@/functions/formSubmitter";
-import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput } from "@/types";
-import { BaselineType, DataSeriesType, GoalDataTarget, GoalVisibility, HistoricalDataType } from "@/types/enums";
+import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput, PrefilledSeries } from "@/types";
+import { BaselineType, DataSeriesType, GoalDataTarget, HistoricalDataType } from "@/types/enums";
+import { GoalListing } from "@/lib/prisma/generated";
 import { GoalFormName } from "@/types/form-names";
-import { goalVisibilityFromFlags, goalVisibilityToFlags, isGoalVisibility } from "@/functions/goalVisibility";
-import { IconEye, IconEyeOff, IconStar } from "@tabler/icons-react";
+import { isGoalListing } from "@/types/typeguards";
+import { IconChevronDown, IconChevronUp, IconEye, IconEyeOff, IconStar } from "@tabler/icons-react";
 import { waitForRecipeFormSyncs } from "@/components/recipe";
 import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -23,6 +24,7 @@ import {
   parseDataSeriesSection,
   parseHistoricalSection,
   parseRecipeSuggestions,
+  prefilledSeriesRecipe,
   resolveBaselineType,
   resolveDataSeriesType,
   resolveHistoricalDataType,
@@ -41,15 +43,22 @@ export default function GoalForm({
   iterationId,
   roadmapAlternatives,
   currentGoal,
+  prefill: requestedPrefill,
 }: {
   /** The roadmap iteration the goal belongs to, if preselected */
   iterationId?: string,
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
   currentGoal?: Goal;
+  /** A series to start the goal from (see `getPrefilledSeries`); ignored when editing, where the goal's own data wins. */
+  prefill?: PrefilledSeries;
 }) {
   const { t } = useTranslation(["forms", "graphs", "common"]);
 
-  const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(() => resolveDataSeriesType(currentGoal));
+  const prefill = currentGoal ? undefined : requestedPrefill;
+
+  // A prefilled series becomes both the goal's historical data and the parent
+  // the suggested methods scale, so the goal starts out as the series as is
+  const [dataSeriesType, setDataSeriesType] = useState<DataSeriesType>(() => prefill ? DataSeriesType.Suggested : resolveDataSeriesType(currentGoal));
   const initializedDataSeriesTypes = useInitializedValues(dataSeriesType);
   const hasInitializedSuggested = initializedDataSeriesTypes.has(DataSeriesType.Suggested);
   const hasInitializedManual = initializedDataSeriesTypes.has(DataSeriesType.Manual);
@@ -62,14 +71,34 @@ export default function GoalForm({
   const baselineHasInitializedManual = initializedBaselineTypes.has(BaselineType.Custom);
   const baselineHasInitializedInherited = initializedBaselineTypes.has(BaselineType.Inherited);
 
-  const [historicalDataType, setHistoricalDataType] = useState<HistoricalDataType>(() => resolveHistoricalDataType(currentGoal));
+  const [historicalDataType, setHistoricalDataType] = useState<HistoricalDataType>(() => prefill ? HistoricalDataType.External : resolveHistoricalDataType(currentGoal));
+  const prefilledHistoricalRecipe = useMemo(() => prefill ? prefilledSeriesRecipe(prefill) : undefined, [prefill]);
+
+  // Baseline and historical data are optional, so their sections start collapsed
+  // unless the goal already has one (or a prefilled series fills the historical
+  // section); the toggle shows the current choice.
+  const [baselineOpen, setBaselineOpen] = useState<boolean>(() => !!currentGoal?.baseline);
+  const [historicalOpen, setHistoricalOpen] = useState<boolean>(() => !!currentGoal?.historical || !!prefill);
+  // Inline records so every key stays a literal inside t()
+  const baselineTypeLabels: Record<BaselineType, string> = {
+    [BaselineType.None]: t("forms:goal.baseline_types.none"),
+    [BaselineType.Initial]: t("forms:goal.baseline_types.initial"),
+    [BaselineType.InitialNonZero]: t("forms:goal.baseline_types.initial_non_zero"),
+    [BaselineType.Custom]: t("forms:goal.baseline_types.custom"),
+    [BaselineType.Inherited]: t("forms:goal.baseline_types.inherited"),
+  };
+  const historicalTypeLabels: Record<HistoricalDataType, string> = {
+    [HistoricalDataType.None]: t("forms:goal.data_series.historical.no_historical_title"),
+    [HistoricalDataType.External]: t("forms:goal.data_series.historical.external_title"),
+    [HistoricalDataType.Custom]: t("forms:goal.data_series.historical.custom_title"),
+  };
   const initializedHistoricalTypes = useInitializedValues(historicalDataType);
   const historicalHasInitializedNone = initializedHistoricalTypes.has(HistoricalDataType.None);
   const historicalHasInitializedExternal = initializedHistoricalTypes.has(HistoricalDataType.External);
   const historicalHasInitializedCustom = initializedHistoricalTypes.has(HistoricalDataType.Custom);
 
   const [indicatorParameter, setIndicatorParameter] = useState<string>(currentGoal?.indicator_parameter ?? "");
-  const initialVisibility = goalVisibilityFromFlags({ is_featured: !!currentGoal?.is_featured, is_unlisted: !!currentGoal?.is_unlisted });
+  const initialListing: GoalListing = currentGoal?.listing ?? GoalListing.LISTED;
   // const [goalName, setGoalName] = useState<string>(currentGoal?.name ?? "");
   const [parentIterationId, setParentIterationId] = useState<string>(iterationId || "");
   const [previewDataSerie, setPreviewDataSerie] = useState<DateValuesWithUnit | null>(null);
@@ -185,9 +214,8 @@ export default function GoalForm({
       return;
     }
 
-    // The visibility radio stands in for the two listing flags the API takes
-    const visibilityValue = formData.get(GoalFormName.Visibility);
-    const visibilityFlags = goalVisibilityToFlags(isGoalVisibility(visibilityValue) ? visibilityValue : GoalVisibility.Public);
+    const listingValue = formData.get(GoalFormName.Listing);
+    const listing: GoalListing = isGoalListing(listingValue) ? listingValue : GoalListing.LISTED;
 
     // Build the JSON payload for the API
     let formContent: GoalCreateInput | GoalUpdateInput;
@@ -201,7 +229,7 @@ export default function GoalForm({
         name: formData.get(GoalFormName.GoalName) as string | null ?? null,
         description: formData.get(GoalFormName.Description) as string | null ?? null, // Use the hidden input for the description, which contains the latest editor content
         indicatorParameter: formData.get(GoalFormName.IndicatorParameter) as string | null ?? (event.target.reportValidity(), ""),
-        ...visibilityFlags,
+        listing: listing,
         iterationId: iterationId || parentIterationId,
         recipeSuggestions: recipeSuggestions,
 
@@ -233,7 +261,7 @@ export default function GoalForm({
         name: formData.get(GoalFormName.GoalName) as string | null ?? undefined,
         description: formData.get(GoalFormName.Description) as string | null ?? undefined, // Use the hidden input for the description, which contains the latest editor content
         indicatorParameter: formData.get(GoalFormName.IndicatorParameter) as string | null ?? undefined,
-        ...visibilityFlags,
+        listing: listing,
         recipeSuggestions: recipeSuggestions,
 
         dataSeriesId: undefined,
@@ -304,7 +332,7 @@ export default function GoalForm({
             type="text"
             name={GoalFormName.GoalName}
             id="goalName"
-            defaultValue={currentGoal?.name ?? undefined}
+            defaultValue={currentGoal?.name ?? prefill?.name ?? undefined}
           // onChange={(e) => setGoalName(e.target.value)}
           />
         </label>
@@ -343,42 +371,42 @@ export default function GoalForm({
           value={indicatorParameter}
           setter={setIndicatorParameter}
         />
-        {/* Visibility: one setting standing in for the featured/unlisted flags, like the admin panel */}
+        {/* Listing: how the goal shows up in its version's lists, like the admin panel */}
         <fieldset className="margin-top-100">
           <legend>
-            {t("forms:goal.visibility")}
+            {t("forms:goal.listing")}
           </legend>
           {[
             {
-              value: GoalVisibility.Public,
+              value: GoalListing.LISTED,
               id: "isPublic",
               icon: <IconEye aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
-              label: t("components:table_menu.visibility_public"),
-              description: t("forms:goal.visibility_public_description"),
+              label: t("components:table_menu.listing_listed"),
+              description: t("forms:goal.listing_listed_description"),
             },
             {
-              value: GoalVisibility.Unlisted,
+              value: GoalListing.UNLISTED,
               id: "isUnlisted",
               icon: <IconEyeOff aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
-              label: t("components:table_menu.visibility_unlisted"),
-              description: t("forms:goal.visibility_unlisted_description"),
+              label: t("components:table_menu.listing_unlisted"),
+              description: t("forms:goal.listing_unlisted_description"),
             },
             {
-              value: GoalVisibility.Featured,
+              value: GoalListing.FEATURED,
               id: "isFeatured",
               icon: <IconStar aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
-              label: t("components:table_menu.visibility_featured"),
-              description: t("forms:goal.visibility_featured_description"),
+              label: t("components:table_menu.listing_featured"),
+              description: t("forms:goal.listing_featured_description"),
             },
           ].map((option) => (
             <label key={option.value} className="flex align-items-start gap-50 margin-top-50 margin-bottom-50">
               <input
                 type="radio"
                 required={true}
-                name={GoalFormName.Visibility}
+                name={GoalFormName.Listing}
                 id={option.id}
                 value={option.value}
-                defaultChecked={initialVisibility === option.value}
+                defaultChecked={initialListing === option.value}
               />
               <span>
                 <span className="flex align-items-center gap-25" style={{ textShadow: '0 0' }}>{option.icon}{option.label}</span>
@@ -394,6 +422,7 @@ export default function GoalForm({
         <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.data_series.goal.title")}</legend>
         <GoalSeriesSection
           goal={currentGoal}
+          prefilledSeries={prefill}
           dataSeriesType={dataSeriesType}
           setDataSeriesType={setDataSeriesType}
           indicatorParameter={indicatorParameter}
@@ -415,18 +444,38 @@ export default function GoalForm({
           {t("forms:goal.data_series.baseline.title")}
         </legend>
 
-        <BaselineSeriesSection
-          goal={currentGoal}
-          baselineType={baselineType}
-          initialBaselineType={resolveBaselineType(currentGoal)}
-          dataSeries={previewDataSerie}
-          setBaselineType={setBaselineType}
-          setPreviewBaselineSerie={setPreviewBaselineSerie}
-          hasInitializedInitial={baselineHasInitializedInitial}
-          hasInitializedInitialNonZero={baselineHasInitializedInitialNonZero}
-          hasInitializedManual={baselineHasInitializedManual}
-          hasInitializedInherited={baselineHasInitializedInherited}
-        />
+        {/* Optional section: a plain toggle shows the current choice and reveals the inputs (kept mounted, only hidden) */}
+        <button
+          type="button"
+          className="flex align-items-center justify-content-space-between gap-50 smooth margin-bottom-100 width-100"
+          style={{ backgroundColor: 'white', border: '1px solid var(--gray-80)', padding: '.5rem .75rem', boxShadow: 'none', transform: 'none', fontSize: '1rem', textShadow: '0 0' }}
+          aria-expanded={baselineOpen}
+          aria-controls="baseline-section"
+          data-testid="baseline-section-toggle"
+          onClick={() => setBaselineOpen((open) => !open)}
+        >
+          <span>{baselineTypeLabels[baselineType]}</span>
+          <span className="flex align-items-center gap-25 font-weight-normal" style={{ color: 'var(--gray-20)' }}>
+            {baselineOpen ? t("common:tsx.hide") : t("common:tsx.show")}
+            {baselineOpen
+              ? <IconChevronUp aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+              : <IconChevronDown aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />}
+          </span>
+        </button>
+        <div id="baseline-section" className={baselineOpen ? "" : "display-none"} data-testid="baseline-section">
+          <BaselineSeriesSection
+            goal={currentGoal}
+            baselineType={baselineType}
+            initialBaselineType={resolveBaselineType(currentGoal)}
+            dataSeries={previewDataSerie}
+            setBaselineType={setBaselineType}
+            setPreviewBaselineSerie={setPreviewBaselineSerie}
+            hasInitializedInitial={baselineHasInitializedInitial}
+            hasInitializedInitialNonZero={baselineHasInitializedInitialNonZero}
+            hasInitializedManual={baselineHasInitializedManual}
+            hasInitializedInherited={baselineHasInitializedInherited}
+          />
+        </div>
       </fieldset>
 
       {/* Historical series input section */}
@@ -439,16 +488,36 @@ export default function GoalForm({
         >
           {t("forms:goal.data_series.historical.title")}
         </legend>
-        <HistoricalSeriesSection
-          goal={currentGoal}
-          historicalDataType={historicalDataType}
-          setHistoricalDataType={setHistoricalDataType}
-          setPreviewHistoricalSerie={setPreviewHistoricalSerie}
-          setPreviewHistoricalRecipe={setPreviewHistoricalRecipe}
-          hasInitializedNone={historicalHasInitializedNone}
-          hasInitializedExternal={historicalHasInitializedExternal}
-          hasInitializedManual={historicalHasInitializedCustom}
-        />
+        <button
+          type="button"
+          className="flex align-items-center justify-content-space-between gap-50 smooth margin-bottom-100 width-100"
+          style={{ backgroundColor: 'white', border: '1px solid var(--gray-80)', padding: '.5rem .75rem', boxShadow: 'none', transform: 'none', fontSize: '1rem', textShadow: '0 0' }}
+          aria-expanded={historicalOpen}
+          aria-controls="historical-section"
+          data-testid="historical-section-toggle"
+          onClick={() => setHistoricalOpen((open) => !open)}
+        >
+          <span>{historicalTypeLabels[historicalDataType]}</span>
+          <span className="flex align-items-center gap-25 font-weight-normal" style={{ color: 'var(--gray-20)' }}>
+            {historicalOpen ? t("common:tsx.hide") : t("common:tsx.show")}
+            {historicalOpen
+              ? <IconChevronUp aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+              : <IconChevronDown aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />}
+          </span>
+        </button>
+        <div id="historical-section" className={`min-width-0 ${historicalOpen ? "" : "display-none"}`} data-testid="historical-section">
+          <HistoricalSeriesSection
+            goal={currentGoal}
+            initialRecipe={prefilledHistoricalRecipe}
+            historicalDataType={historicalDataType}
+            setHistoricalDataType={setHistoricalDataType}
+            setPreviewHistoricalSerie={setPreviewHistoricalSerie}
+            setPreviewHistoricalRecipe={setPreviewHistoricalRecipe}
+            hasInitializedNone={historicalHasInitializedNone}
+            hasInitializedExternal={historicalHasInitializedExternal}
+            hasInitializedManual={historicalHasInitializedCustom}
+          />
+        </div>
       </fieldset>
 
       <div className="margin-top-200 min-width-0">

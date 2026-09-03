@@ -1,12 +1,12 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useRecipe } from "../context/recipeContext.use";
 import { Recipe } from "@/functions/recipe/recipe";
 import { isDataSetKeys } from "@/lib/api/utility";
 import ExternalData from "@/components/form/api/externalData";
 import type { ExternalDataState } from "@/components/types";
-import type { Goal } from "@/types";
+import { getHistoricalSourceFromRecipe } from "@/functions/getHistoricalDataset";
 
 /**
  * The external API selection wired into the recipe context: as the user builds
@@ -16,16 +16,16 @@ import type { Goal } from "@/types";
  * reads the result via `FormSync`, and the server materializes the selection
  * into a `DataSeries` on save.
  *
- * Must be rendered inside a `RecipeContextProvider` (seed it with the saved
- * recipe via `withEditableExternals()` when editing so the initial output and
- * context agree).
+ * Must be rendered inside a `RecipeContextProvider`. The selection panel starts
+ * out on whatever external source the provider was seeded with (a saved
+ * historical recipe via `withEditableExternals()` when editing, or a prefilled
+ * series), so the initial output, the panel and the context all agree.
  */
-export function ExternalDataSeriesInput({
-  goal,
-}: {
-  goal: Goal | undefined;
-}) {
+export function ExternalDataSeriesInput() {
   const { recipe, applyRecipeUpdate } = useRecipe();
+
+  // Read once: later selections flow through the panel itself
+  const [initialSource] = useState(() => getHistoricalSourceFromRecipe(recipe));
 
   // Keep the external variable's id stable across selections so the recipe
   // identity only changes when the selection actually changes.
@@ -49,7 +49,7 @@ export function ExternalDataSeriesInput({
 
   return (
     <ExternalData
-      goal={goal}
+      initialSource={initialSource}
       onChange={handleChange}
     />
   );

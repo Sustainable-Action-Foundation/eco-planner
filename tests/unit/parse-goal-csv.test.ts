@@ -1,4 +1,5 @@
 import { expect, test } from "playwright/test";
+import { GoalListing } from "../../src/lib/prisma/generated";
 
 import { csvToGoalList, parseGoalCsv } from "../../src/functions/parseGoalCsv";
 import { GoalDataTarget, UnitFlags } from "../../src/types/enums";
@@ -81,24 +82,24 @@ test.describe("csvToGoalList", () => {
   test("unlists rows flagged in a hide column labelled in the metadata row", () => {
     // LEAP writes "Hide:" above an otherwise unlabelled column
     const goals = csvToGoalList(parseGoalCsv(buffer(`Hide:;Area:;LEAP\n\n;${headers}\nx;A;ton;1;2\n;B;ton;1;2`)));
-    expect(goals.map(goal => goal.isUnlisted)).toEqual([true, false]);
+    expect(goals.map(goal => goal.listing)).toEqual([GoalListing.UNLISTED, undefined]);
   });
 
   test("unlists rows flagged in a Hide header column", () => {
     const goals = csvToGoalList(parseGoalCsv(buffer(`Hide;${headers}\nx;A;ton;1;2\n;B;ton;1;2`)));
-    expect(goals.map(goal => goal.isUnlisted)).toEqual([true, false]);
+    expect(goals.map(goal => goal.listing)).toEqual([GoalListing.UNLISTED, undefined]);
   });
 
   test("accepts Unlisted and Dold as hide column labels", () => {
     for (const label of ["Unlisted", "Dold", "dold:"]) {
       const goals = csvToGoalList(parseGoalCsv(buffer(`${label};${headers}\nx;A;ton;1;2\n;B;ton;1;2`)));
-      expect(goals.map(goal => goal.isUnlisted), label).toEqual([true, false]);
+      expect(goals.map(goal => goal.listing), label).toEqual([GoalListing.UNLISTED, undefined]);
     }
   });
 
-  test("leaves isUnlisted undefined without a hide column", () => {
+  test("leaves listing undefined without a hide column", () => {
     const goals = csvToGoalList(parseGoalCsv(buffer(`${headers}\nA;ton;1;2`)));
-    expect(goals[0].isUnlisted).toBeUndefined();
+    expect(goals[0].listing).toBeUndefined();
   });
 
   test("warns about the deprecated Scale header", () => {

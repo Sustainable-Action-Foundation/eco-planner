@@ -210,7 +210,9 @@ export function parseDateValuesFromVector(
   for (let i = 0; i < vector.length; i++) {
     const dateKey = keys[i];
     if (mask[dateKey]) continue; // Skip masked, non defined, values
-    timeline[dateKey] = vector[i].toNumber();
+    const value = vector[i].toNumber();
+    if (Number.isNaN(value)) continue; // An equation's way of leaving a year out (see `reachBy`)
+    timeline[dateKey] = value;
   }
 
   // If all values agree on one unit, that's the resulting unit; an empty

@@ -150,7 +150,7 @@ export class Recipe {
     const serialized = this.serialize();
     const asObject = JSON.parse(serialized) as JSONValue;
     if (!isRecipe(asObject)) {
-      throw new RecipeError("Invalid recipe format");
+      throw new RecipeError("Invalid formula format");
     }
 
     if (this.equation.trim() === "") {
@@ -221,6 +221,11 @@ export class Recipe {
     const scope: Record<string, number | number[] | MathJSUnit | MathJSUnit[]> = {};
     let equation = this.equation;
 
+    // The year axis the vectors are aligned to, for equations that shape a
+    // series by year (e.g. `reachBy(year, ...)`)
+    const axisStartYear = commonStartDate.getUTCFullYear();
+    scope.year = Array.from({ length: maxTimeSpan }, (_, i) => axisStartYear + i);
+
     const nameNormalizer = (name: string) => {
       const collapsedWhitespace = name.trim().replace(/\s+/g, "_");
       const identifierSafe = collapsedWhitespace.replace(/[^A-Za-z0-9_]/g, "_");
@@ -231,7 +236,7 @@ export class Recipe {
       counts[variable.name] = (counts[variable.name] ?? 0) + 1;
       return counts;
     }, {} as Record<string, number>);
-    const usedScopeNames = new Set<string>();
+    const usedScopeNames = new Set<string>(["year"]);
 
     // Build the variable map once; the getter rebuilds it on every access.
     const variableMap = this.variableMap;
@@ -309,7 +314,7 @@ export class Recipe {
       result = normalizeResult(rawResult);
     }
     catch (err) {
-      throw new MathjsError("Error evaluating recipe equation: " + (err as Error).message);
+      throw new MathjsError("Error evaluating formula equation: " + (err as Error).message);
     }
 
     if (result instanceof mathjs.Unit) {
@@ -542,7 +547,7 @@ export class Recipe {
       return JSON.parse(serialized) as JSONValue;
     }
     catch {
-      throw new RecipeError("Invalid serialized recipe format, not a valid JSON string");
+      throw new RecipeError("Invalid serialized formula format, not a valid JSON string");
     }
   }
 
@@ -554,7 +559,7 @@ export class Recipe {
     const normalized = Recipe.normalizeRecipeObject(obj);
 
     if (!isRecipe(normalized)) {
-      throw new RecipeError("Invalid object format for recipe, object does not conform to Recipe type");
+      throw new RecipeError("Invalid object format for formula, object does not conform to the formula type");
     }
 
     return new Recipe({
@@ -573,14 +578,14 @@ export class Recipe {
    */
   private static normalizeRecipeObject(obj: JSONValue): JSONValue {
     if (typeof obj !== "object" || obj === null) {
-      throw new RecipeError("Invalid object format for recipe, expected an object");
+      throw new RecipeError("Invalid object format for formula, expected an object");
     }
     // If it's DB shaped it will have {id:string, recipe: JSONValue}
     if ("recipe" in obj) {
       const recipeField = obj.recipe;
 
       if (typeof recipeField !== "object" && typeof recipeField !== "string") {
-        throw new RecipeError("Invalid object format for recipe, 'recipe' field is not an object or string");
+        throw new RecipeError("Invalid object format for formula, 'recipe' field is not an object or string");
       }
 
       if (typeof recipeField === "string") {
@@ -588,7 +593,7 @@ export class Recipe {
           return JSON.parse(recipeField) as JSONValue;
         }
         catch {
-          throw new RecipeError("Invalid object format for recipe, 'recipe' field is a string but not a valid JSON string");
+          throw new RecipeError("Invalid object format for formula, 'recipe' field is a string but not a valid JSON string");
         }
       }
 

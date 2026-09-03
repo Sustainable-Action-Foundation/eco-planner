@@ -63,5 +63,8 @@
   },
   "historical_data_create": {
     "title": "Add historical data:"
+  },
+  "org_historical_data": {
+    "title": "Historical data: {{name}}"
   }
 }

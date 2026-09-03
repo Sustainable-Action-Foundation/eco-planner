@@ -50,14 +50,14 @@ export default async function Page(props: { params: Promise<{ actionId: string, 
   // Roadmapless actions (the public action database) are editable by the owning org's managers
   const mayEditAction = effect ? (
     effect.action.roadmap_iteration
-      ? hasEditAccess(accessChecker({ access_control: effect.action.roadmap_iteration.roadmap.access_control, published_at: effect.action.roadmap_iteration.published_at }, accessContext))
+      ? hasEditAccess(accessChecker({ access_control: effect.action.roadmap_iteration.roadmap.access_control, status: effect.action.roadmap_iteration.status }, accessContext))
       : (accessContext?.isSuperAdmin || accessContext?.memberships.some(membership => membership.orgId === effect.action.org_id && membership.role === OrgRole.MANAGER)) ?? false
   ) : false;
 
   if (
     !effect
     || !mayEditAction
-    || !hasEditAccess(accessChecker({ access_control: effect.goal.roadmap_iteration.roadmap.access_control, published_at: effect.goal.roadmap_iteration.published_at }, accessContext))
+    || !hasEditAccess(accessChecker({ access_control: effect.goal.roadmap_iteration.roadmap.access_control, status: effect.goal.roadmap_iteration.status }, accessContext))
   ) {
     return (
       <div className="container-text margin-inline-auto">
@@ -73,7 +73,7 @@ export default async function Page(props: { params: Promise<{ actionId: string, 
   }
 
   /** TODO: redundant? the getRoadmapIterations function already does checks? */
-  const roadmapList = iterations.filter((iteration) => hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, published_at: iteration.published_at }, accessContext)));
+  const roadmapList = iterations.filter((iteration) => hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, status: iteration.status }, accessContext)));
 
   return (
     <>

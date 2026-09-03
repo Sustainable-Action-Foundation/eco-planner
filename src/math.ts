@@ -125,6 +125,45 @@ const customFunctions = {
     );
     return found ?? flat[0];
   },
+
+  /**
+   * A straight line through `start` in `startYear` and `target` in `endYear`,
+   * one value per entry of `years` (the evaluator's `year` axis): NaN before
+   * the start year (those years are left out of the result), and the same
+   * slope continued past the end year. `start` keeps its unit; a bare number
+   * as `target` is read in that unit, so "reach 50" over a series in MW means
+   * 50 MW.
+   */
+  reachBy(years: unknown, start: unknown, target: unknown, startYear: unknown, endYear: unknown): unknown {
+    const axis: unknown = mathjs.isMatrix(years) ? years.toArray() : years;
+    if (!Array.isArray(axis) || !axis.every(year => typeof year === "number")) {
+      throw new Error("reachBy expects the year axis as its first argument.");
+    }
+    const toNumber = (value: unknown, what: string): number => {
+      if (mathjs.isUnit(value)) return value.toNumber();
+      if (typeof value === "number") return value;
+      throw new Error(`reachBy expects a number for ${what}.`);
+    };
+    const from = toNumber(startYear, "the start year");
+    const to = toNumber(endYear, "the end year");
+    if (to <= from) throw new Error("reachBy expects the end year to come after the start year.");
+
+    // Arithmetic on plain numbers in the start's unit: mathjs turns a unitless
+    // Unit times a number into a bare number, which the vector must not hold
+    const startUnit = mathjs.isUnit(start) ? start : mathjs.unit(toNumber(start, "the start value"));
+    const unit = startUnit.units.length > 0 ? startUnit.formatUnits() : null;
+    const startValue = startUnit.toNumber();
+    const targetValue = mathjs.isUnit(target) && target.units.length > 0 && unit
+      ? target.toNumber(unit)
+      : toNumber(target, "the target value");
+    const withUnit = (value: number) => unit ? mathjs.unit(value, unit) : mathjs.unit(value);
+
+    return axis.map(year => {
+      if (year < from) return withUnit(NaN);
+      const fraction = (year - from) / (to - from);
+      return withUnit(startValue + (targetValue - startValue) * fraction);
+    });
+  },
 };
 
 mathjs.import(customFunctions);

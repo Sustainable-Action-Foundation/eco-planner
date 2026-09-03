@@ -63,5 +63,8 @@
   },
   "historical_data_create": {
     "title": "Lägg till historisk data:"
+  },
+  "org_historical_data": {
+    "title": "Historisk data: {{name}}"
   }
 }

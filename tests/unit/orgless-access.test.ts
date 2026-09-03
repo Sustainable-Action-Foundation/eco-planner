@@ -2,7 +2,7 @@ import { expect, test } from "playwright/test";
 
 import accessChecker, { hasCommentAccess, hasEditAccess, hasViewAccess } from "../../src/lib/accessChecker";
 import { AccessLevel } from "../../src/types/enums";
-import { AccessLevel as GrantLevel, OrgRole } from "../../src/lib/prisma/generated";
+import { AccessLevel as GrantLevel, IterationStatus, OrgRole, Sharing } from "../../src/lib/prisma/generated";
 import type { AccessControlInfo, UserAccessContext } from "../../src/types";
 
 /**
@@ -23,8 +23,8 @@ function accessControl(overrides?: Partial<AccessControlInfo>): AccessControlInf
   return {
     id: "ac-id",
     org_id: "org-id",
-    is_public: false,
-    org_readable: true,
+    org: { name: "Org" },
+    sharing: Sharing.ORG,
     grants: [],
     ...overrides,
   };
@@ -32,13 +32,13 @@ function accessControl(overrides?: Partial<AccessControlInfo>): AccessControlInf
 
 test.describe("Orgless users cannot create or edit anything", () => {
   test("public content is view-only", () => {
-    const level = accessChecker({ access_control: accessControl({ is_public: true }) }, orgless);
+    const level = accessChecker({ access_control: accessControl({ sharing: Sharing.PUBLIC }) }, orgless);
     expect(level).toBe(AccessLevel.View);
     expect(hasEditAccess(level)).toBe(false);
   });
 
   test("org-readable content is invisible without a membership", () => {
-    const level = accessChecker({ access_control: accessControl({ org_readable: true }) }, orgless);
+    const level = accessChecker({ access_control: accessControl({ sharing: Sharing.ORG }) }, orgless);
     expect(level).toBe(AccessLevel.None);
   });
 
@@ -56,14 +56,14 @@ test.describe("Orgless users cannot create or edit anything", () => {
 
   test("drafts stay hidden even when public", () => {
     const level = accessChecker({
-      access_control: accessControl({ is_public: true }),
-      published_at: null,
+      access_control: accessControl({ sharing: Sharing.PUBLIC }),
+      status: IterationStatus.DRAFT,
     }, orgless);
     expect(level).toBe(AccessLevel.None);
   });
 
   test("commenting on public content still works (view + signed in)", () => {
-    const level = accessChecker({ access_control: accessControl({ is_public: true }) }, orgless);
+    const level = accessChecker({ access_control: accessControl({ sharing: Sharing.PUBLIC }) }, orgless);
     expect(hasCommentAccess(level, orgless)).toBe(true);
   });
 

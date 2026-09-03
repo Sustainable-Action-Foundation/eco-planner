@@ -1,6 +1,6 @@
 "use client";
 
-import type { DateValuesWithUnit, Goal } from "@/types";
+import type { DateValuesWithUnit, Goal, PrefilledSeries } from "@/types";
 import { BaselineType, DataSeriesType, HistoricalDataType, UnitFlags } from "@/types/enums";
 import { GoalFormName } from "@/types/form-names";
 import { isDateValuesWithUnit } from "@/types/typeguards";
@@ -29,6 +29,22 @@ export class GoalFormError extends Error {
 /** Formats a translated error prefix with an underlying error's message, as the goal form toasts do. */
 function withDetails(prefix: string, err: unknown): string {
   return `${prefix} ${err instanceof Error ? err.message : String(err)}`;
+}
+
+/**
+ * A recipe that just reads a prefilled series (see {@link PrefilledSeries}):
+ * what the historical external input or the formula editor would hold had the
+ * user picked the series there. The source's unit is declared on the recipe,
+ * like a manual series' is.
+ */
+export function prefilledSeriesRecipe(series: PrefilledSeries): SerializedRecipe {
+  const recipe = new Recipe({
+    name: series.name,
+    equation: `\${${series.variable.id}}`,
+    variables: [series.variable],
+    unit: series.unit ? parseUnit(series.unit) : UnitFlags.Missing,
+  });
+  return recipe.serialize();
 }
 
 /*
@@ -63,8 +79,9 @@ export function resolveDataSeriesType(goal?: Goal): DataSeriesType {
 
 // TODO: The below never reaches initialNonZero?
 export function resolveBaselineType(goal?: Goal): BaselineType {
-  // No baseline yet (new goals start without one)
-  if (!goal?.baseline) return BaselineType.None;
+  // New goals default to deriving the baseline from the first value; an existing goal without one shows as such
+  if (!goal) return BaselineType.Initial;
+  if (!goal.baseline) return BaselineType.None;
 
   // No recipe: manual value input (or a legacy baseline; both edit as custom values)
   if (!goal.baseline.recipe_used) return BaselineType.Custom;

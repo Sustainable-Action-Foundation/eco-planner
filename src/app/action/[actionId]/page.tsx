@@ -5,6 +5,7 @@ import { getSession } from "@/lib/session";
 import { ActionFieldType, OrgRole } from "@/lib/prisma/generated";
 import { cookies } from "next/headers";
 import Link from "next/link";
+import { IconWorld } from "@tabler/icons-react";
 import { notFound } from "next/navigation";
 import { AccessLevel } from "@/types/enums";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
@@ -55,7 +56,7 @@ export default async function Page(props: { params: Promise<{ actionId: string }
     if (action.roadmap_iteration) {
       accessLevel = accessChecker({
         access_control: action.roadmap_iteration.roadmap.access_control,
-        published_at: action.roadmap_iteration.published_at,
+        status: action.roadmap_iteration.status,
       }, accessContext);
     } else if (accessContext?.isSuperAdmin) {
       accessLevel = AccessLevel.Admin;
@@ -104,6 +105,13 @@ export default async function Page(props: { params: Promise<{ actionId: string }
             </ul>
           }
           <p className="margin-top-0 margin-bottom-100">{action.start_year} - {action.end_year}</p>
+          {/* Roadmapless actions follow no roadmap's sharing: say so, since nothing else on the page does */}
+          {!action.roadmap_iteration ?
+            <span className="inline-flex align-items-center gap-25 margin-bottom-100" style={{ color: 'gray' }} data-testid="sharing-line">
+              <IconWorld aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+              {t("pages:action.shared_database_note")}
+            </span>
+            : null}
         </section>
 
         <section className="margin-block-300">

@@ -1,6 +1,6 @@
 {
   "access_selector": {
-    "all_users": "Alla användare",
+    "all_users": "Alla",
     "custom": "Välj specifika användare och/eller grupper",
     "groups": "Grupper",
     "me_only": "Enbart jag",
@@ -193,10 +193,6 @@
       "recipe_has_error": "Värdena kan inte sparas eftersom formeln har ett fel. Åtgärda det innan du sparar:",
       "missing_historical_data": "Ingen historisk data har angetts eller valts."
     },
-    "visibility": "Synlighet",
-    "visibility_public_description": "Syns i listor och i $t(common:roadmap_version_definite_one).",
-    "visibility_unlisted_description": "Visas bara i listor för dem med redigeringsbehörighet, men går fortfarande att öppna via direktlänk.",
-    "visibility_featured_description": "Lyfts fram överst i $t(common:roadmap_version_definite_one).",
     "goal_count": "{{count}} $t(common:goal, {\"count\":{{count}}})",
     "goal_description": "Beskrivning",
     "goal_description_legend": "Uppgifter om $t(common:goal_definite_one)",
@@ -216,7 +212,11 @@
     "suggested_inheritance": "Härleda",
     "unit_interpreted_as": "Enheten tolkas som:",
     "unit_not_interpreted": "Enheten kunde inte tolkas. Du kan fortfarande spara $t(common:goal_definite_one), men viss funktionalitet kan saknas.",
-    "unnamed_goal": "Namnlös $t(common:goal_one)"
+    "unnamed_goal": "Namnlös $t(common:goal_one)",
+    "listing": "Listning",
+    "listing_listed_description": "Syns i listor och i $t(common:roadmap_version_definite_one).",
+    "listing_unlisted_description": "Visas bara i listor för dem med redigeringsbehörighet, men går fortfarande att öppna via direktlänk.",
+    "listing_featured_description": "Lyfts fram överst i $t(common:roadmap_version_definite_one)."
   },
   "roadmap": {
     "actor": "Aktör",
@@ -226,7 +226,7 @@
     "description_legend": "Uppgifter om $t(common:roadmap_definite_one)",
     "description_required": "Vänligen lägg till en beskrivning",
     "legend_editability": "Vem får redigera färdplansserien?",
-    "legend_visibility": "Vem får se färdplansserien?",
+    "legend_visibility": "Delning",
     "name": "Namn",
     "no_chosen_roadmap_scope": "Välj en typ",
     "relationship_label": "Överordnad färdplan",
@@ -262,13 +262,11 @@
     "scale_deprecated_extended": "$t(forms:roadmap_iteration.scale_deprecated) Om kolumnen innehåller några skalor, vänligen baka in dem i enheten eller värdet istället. Exempel: använd 'MW' som enhet istället för att använda 'kW' med skala 'tusen'.",
     "unknown_error": "Okänt fel",
     "upload_goals": "Ladda upp $t(common:goal_other)",
-    "visibility": "Synlighet",
-    "visibility_draft": "Utkast",
-    "visibility_draft_description": "Bara personer som kan redigera färdplanen kan se den.",
-    "visibility_unlisted": "Dold",
-    "visibility_unlisted_description": "Visas inte i listor över färdplaner för personer som inte kan redigera färdplanen, men går att öppna via direktlänk.",
-    "visibility_public": "Publik",
-    "visibility_public_description": "Publicerad och synlig för alla som kan se färdplanen."
+    "status": "Status",
+    "status_draft": "Utkast",
+    "status_draft_description": "Bara personer som kan redigera färdplanen kan se den.",
+    "status_published": "Publicerad",
+    "status_published_description": "Kan läsas och visas i listor för alla som kan se färdplanen."
   },
   "text_editor_menu": {
     "bold": "Fetstil",

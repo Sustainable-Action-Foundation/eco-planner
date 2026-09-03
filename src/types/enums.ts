@@ -107,28 +107,3 @@ export const UnitFlags = {
   Missing: "MISSING_UNIT",
 } as const;
 export type UnitFlags = (typeof UnitFlags)[keyof typeof UnitFlags];
-
-/**
- * The listing state of a goal as one setting: the admin panel exposes it as a
- * single select rather than the two underlying flags (`is_featured`,
- * `is_unlisted`), since an unlisted goal is never featured anyway.
- * See `functions/goalVisibility.ts` for the mapping.
- */
-export const GoalVisibility = {
-  Public: "PUBLIC",
-  Unlisted: "UNLISTED",
-  Featured: "FEATURED",
-} as const;
-export type GoalVisibility = (typeof GoalVisibility)[keyof typeof GoalVisibility];
-
-/**
- * A roadmap iteration's publication state as one tiered setting, standing in
- * for the two underlying fields (`published_at`, `is_unlisted`) in the form.
- * See `functions/iterationVisibility.ts` for the mapping.
- */
-export const IterationVisibility = {
-  Draft: "DRAFT",
-  Unlisted: "UNLISTED",
-  Public: "PUBLIC",
-} as const;
-export type IterationVisibility = (typeof IterationVisibility)[keyof typeof IterationVisibility];

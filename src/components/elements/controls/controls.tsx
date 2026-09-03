@@ -4,16 +4,16 @@ import styles from './controls.module.css' with { type: "css" };
 import Link from "next/link";
 import React, { useRef, useState } from "react";
 import type { Action, Effect, Goal, GoalUpdateInput, Roadmap, RoadmapIteration, RoadmapIterationUpdateInput } from "@/types";
-import { AccessLevel, GoalDataTarget, GoalVisibility } from "@/types/enums";
+import { AccessLevel, GoalDataTarget } from "@/types/enums";
+import { GoalListing, IterationStatus } from "@/lib/prisma/generated";
 import ConfirmDelete from "@/components/modals/confirmDelete";
 import { openModal } from "@/components/modals/modalFunctions";
 import { useTranslation } from "react-i18next";
-import { IconArrowBackUp, IconChartHistogram, IconCheck, IconChevronDown, IconDotsVertical, IconEdit, IconEye, IconEyeOff, IconPlus, IconStar, IconTrashXFilled, IconX } from "@tabler/icons-react";
+import { IconArrowBackUp, IconChartHistogram, IconCheck, IconChevronDown, IconDotsVertical, IconEdit, IconEye, IconEyeOff, IconPencil, IconPlus, IconStar, IconTrashXFilled, IconX } from "@tabler/icons-react";
 import { hasAdminAccess, hasEditAccess } from '@/lib/accessChecker';
 import type { TFunction } from 'i18next';
 import formSubmitter from '@/functions/formSubmitter';
 import { iterationPath } from '@/functions/versionSlug';
-import { goalVisibilityFromFlags, goalVisibilityToFlags } from '@/functions/goalVisibility';
 
 /*
   TODO:
@@ -34,16 +34,15 @@ type ActionMenuEntry = Pick<Action, "id" | "name" | "org_id" | "roadmap_iteratio
 type GoalMenuEntry = Pick<Goal, "id" | "name" | "indicator_parameter" | "roadmap_iteration_id"> & {
   roadmap_iteration: Pick<RoadmapIteration, "id" | "version"> & { roadmap: Pick<Roadmap, "id" | "name"> };
   // Read by AdminPanel's goal-only features; optional so leaner goal rows still fit the menu shape
-  is_featured?: Goal["is_featured"];
-  is_unlisted?: Goal["is_unlisted"];
+  listing?: Goal["listing"];
   historical?: Goal["historical"];
 };
 
 type IterationMenuEntry = Pick<RoadmapIteration, "id" | "version"> & {
   roadmap: Pick<Roadmap, "id" | "name">;
   _count?: { goals: number };
-  // Read by AdminPanel's unlisting toggle; optional so leaner iteration rows still fit the menu shape
-  is_unlisted?: RoadmapIteration["is_unlisted"];
+  // Read by AdminPanel's status menu; optional so leaner iteration rows still fit the menu shape
+  status?: RoadmapIteration["status"];
 };
 
 type RoadmapMenuEntry = Pick<Roadmap, "id" | "name"> & {
@@ -424,53 +423,45 @@ function GoalPanelControls({
 }) {
   const { t } = useTranslation(["components", "common", "forms"]);
 
-  const visibility = goalVisibilityFromFlags({ is_featured: !!goal.is_featured, is_unlisted: !!goal.is_unlisted });
-  // Inline record so every key stays a literal inside t()
-  const visibilityLabels: Record<GoalVisibility, string> = {
-    [GoalVisibility.Public]: t("components:table_menu.visibility_public"),
-    [GoalVisibility.Unlisted]: t("components:table_menu.visibility_unlisted"),
-    [GoalVisibility.Featured]: t("components:table_menu.visibility_featured"),
+  // Inline records so every key stays a literal inside t()
+  const listingLabels: Record<GoalListing, string> = {
+    [GoalListing.LISTED]: t("components:table_menu.listing_listed"),
+    [GoalListing.UNLISTED]: t("components:table_menu.listing_unlisted"),
+    [GoalListing.FEATURED]: t("components:table_menu.listing_featured"),
   };
-  const visibilityIcons: Record<GoalVisibility, React.ReactNode> = {
-    [GoalVisibility.Public]: <IconEye aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
-    [GoalVisibility.Unlisted]: <IconEyeOff aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
-    [GoalVisibility.Featured]: <IconStar aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
-  };
-  // Same explanations as the goal form's visibility radio; notably that "unlisted" still opens from a link
-  const visibilityDescriptions: Record<GoalVisibility, string> = {
-    [GoalVisibility.Public]: t("forms:goal.visibility_public_description"),
-    [GoalVisibility.Unlisted]: t("forms:goal.visibility_unlisted_description"),
-    [GoalVisibility.Featured]: t("forms:goal.visibility_featured_description"),
+  const listingIcons: Record<GoalListing, React.ReactNode> = {
+    [GoalListing.LISTED]: <IconEye aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
+    [GoalListing.UNLISTED]: <IconEyeOff aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
+    [GoalListing.FEATURED]: <IconStar aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
   };
 
   return (
     <>
-      {/* Listing state, when the row carries the flags to derive it from */}
-      {goal.is_featured !== undefined && goal.is_unlisted !== undefined ?
+      {/* Listing, when the row carries it */}
+      {goal.listing !== undefined ?
         <PanelDropdown
           id="admin-panel-visibility"
-          label={t("components:table_menu.visibility_current", { state: visibilityLabels[visibility] })}
-          icon={visibilityIcons[visibility]}
+          label={t("components:table_menu.listing_current", { state: listingLabels[goal.listing] })}
+          icon={listingIcons[goal.listing]}
           testId="admin-panel-visibility"
         >
-          {(Object.values(GoalVisibility)).map((option) => (
+          {(Object.values(GoalListing)).map((option) => (
             <button
               key={option}
               type="button"
               className={panelItemClass}
               style={{ boxShadow: 'none', cursor: 'pointer', transform: 'none', whiteSpace: 'nowrap' }}
-              aria-pressed={option === visibility}
-              title={visibilityDescriptions[option]}
+              aria-pressed={option === goal.listing}
               data-testid={`admin-panel-visibility-${option.toLowerCase()}`}
               onClick={(e) => {
                 e.currentTarget.closest<HTMLElement>('[popover]')?.hidePopover();
-                if (option === visibility) return;
-                // Full-target update touching only the listing flags; everything undefined is left unchanged
+                if (option === goal.listing) return;
+                // Full-target update touching only the listing; everything undefined is left unchanged
                 formSubmitter('/api/goal', JSON.stringify({
                   target: GoalDataTarget.Full,
                   goalId: goal.id,
                   timestamp: timestamp, // Only needed for edits
-                  ...goalVisibilityToFlags(option),
+                  listing: option,
 
                   name: undefined,
                   description: undefined,
@@ -498,10 +489,10 @@ function GoalPanelControls({
               }}
             >
               <span className="flex gap-25 align-items-center">
-                {visibilityIcons[option]}
-                {visibilityLabels[option]}
+                {listingIcons[option]}
+                {listingLabels[option]}
               </span>
-              {option === visibility
+              {option === goal.listing
                 ? <IconCheck aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
                 : <span aria-hidden="true" style={{ minWidth: '20px' }} />}
             </button>
@@ -560,47 +551,65 @@ function GoalPanelControls({
   );
 }
 
-/** Unlists (or lists again) a roadmap iteration straight from its panel. */
-function IterationUnlistToggle({
+/** Draft / published for a roadmap version, straight from its panel. */
+function IterationStatusControls({
   iteration,
   timestamp,
 }: {
-  iteration: IterationMenuEntry & { is_unlisted: boolean };
+  iteration: IterationMenuEntry & { status: IterationStatus };
   timestamp: number;
 }) {
   const { t } = useTranslation(["components", "common"]);
 
+  // Inline records so every key stays a literal inside t()
+  const statusLabels: Record<IterationStatus, string> = {
+    [IterationStatus.DRAFT]: t("components:table_menu.status_draft"),
+    [IterationStatus.PUBLISHED]: t("components:table_menu.status_published"),
+  };
+  const statusIcons: Record<IterationStatus, React.ReactNode> = {
+    [IterationStatus.DRAFT]: <IconPencil aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
+    [IterationStatus.PUBLISHED]: <IconEye aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />,
+  };
+
   return (
-    <button
-      type="button"
-      className={panelItemClass}
-      style={{ boxShadow: 'none', cursor: 'pointer', transform: 'none', whiteSpace: 'nowrap' }}
-      data-testid="admin-panel-unlist"
-      onClick={() => {
-        // Touches only the listing flag; everything undefined is left unchanged
-        formSubmitter('/api/roadmap-iteration', JSON.stringify({
-          iterationId: iteration.id,
-          timestamp: timestamp,
-          isUnlisted: !iteration.is_unlisted,
-          description: undefined,
-          targetVersion: undefined,
-          publish: undefined,
-          goals: undefined,
-        } satisfies RoadmapIterationUpdateInput), 'PUT', t);
-      }}
+    <PanelDropdown
+      id="admin-panel-status"
+      label={t("components:table_menu.status_current", { state: statusLabels[iteration.status] })}
+      icon={statusIcons[iteration.status]}
+      testId="admin-panel-status"
     >
-      {iteration.is_unlisted ? (
-        <>
-          <span className='margin-right-25'>{t("components:table_menu.list_iteration")}</span>
-          <IconEye aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
-        </>
-      ) : (
-        <>
-          <span className='margin-right-25'>{t("components:table_menu.unlist_iteration")}</span>
-          <IconEyeOff aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
-        </>
-      )}
-    </button>
+      {(Object.values(IterationStatus)).map((option) => (
+        <button
+          key={option}
+          type="button"
+          className={panelItemClass}
+          style={{ boxShadow: 'none', cursor: 'pointer', transform: 'none', whiteSpace: 'nowrap' }}
+          aria-pressed={option === iteration.status}
+          data-testid={`admin-panel-status-${option.toLowerCase()}`}
+          onClick={(e) => {
+            e.currentTarget.closest<HTMLElement>('[popover]')?.hidePopover();
+            if (option === iteration.status) return;
+            // Touches only the status; everything undefined is left unchanged
+            formSubmitter('/api/roadmap-iteration', JSON.stringify({
+              iterationId: iteration.id,
+              timestamp: timestamp,
+              status: option,
+              description: undefined,
+              targetVersion: undefined,
+              goals: undefined,
+            } satisfies RoadmapIterationUpdateInput), 'PUT', t);
+          }}
+        >
+          <span className="flex gap-25 align-items-center">
+            {statusIcons[option]}
+            {statusLabels[option]}
+          </span>
+          {option === iteration.status
+            ? <IconCheck aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+            : <span aria-hidden="true" style={{ minWidth: '20px' }} />}
+        </button>
+      ))}
+    </PanelDropdown>
   );
 }
 
@@ -623,8 +632,8 @@ export function AdminPanel(
 
   // Goals get their own controls (listing select, add/edit menus); the guard also narrows for their payloads
   const goal = isGoalEntry(object) ? object : null;
-  // Iterations get the unlisting toggle when the entry carries the flag
-  const iteration = isIterationEntry(object) && typeof object.is_unlisted === "boolean" ? { ...object, is_unlisted: object.is_unlisted } : null;
+  // Iterations get the status menu when the entry carries the status
+  const iteration = isIterationEntry(object) && object.status !== undefined ? { ...object, status: object.status } : null;
 
   return (
     <aside className="margin-block-300">
@@ -640,7 +649,7 @@ export function AdminPanel(
                 <GoalPanelControls goal={goal} links={links} timestamp={timestamp} />
               ) : (
                 <>
-                  {iteration ? <IterationUnlistToggle iteration={iteration} timestamp={timestamp} /> : null}
+                  {iteration ? <IterationStatusControls iteration={iteration} timestamp={timestamp} /> : null}
                   <nav className="display-contents">
                     {links.creationLink ? <Link href={links.creationLink} className={panelItemClass}>
                       <span>{links.creationDescription}</span>

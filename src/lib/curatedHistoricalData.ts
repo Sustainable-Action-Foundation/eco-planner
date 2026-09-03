@@ -58,9 +58,12 @@ export type CuratedHistoricalEntry = {
   name: string;
   description: string;
   /**
-   * Display unit, shared by all series in the entry. Declared here rather than
-   * read from the source table, since table metadata units are inconsistent
-   * (e.g. Energimyndigheten reports "Antal, MW, GWh" for every category).
+   * Unit shared by all series in the entry, both for display and as the unit a
+   * goal started from the entry gets, so it has to parse (see `parseUnit` and
+   * the custom units in `src/math.ts`; counts are "antal"). Declared here
+   * rather than read from the source table, since table metadata units are
+   * inconsistent (e.g. Energimyndigheten reports "Antal, MW, GWh" for every
+   * category).
    */
   unit: string | null;
   /** One chart per entry; multi-series entries render one line per series. */
@@ -153,7 +156,7 @@ function getEnergyTransportEntries(t: TFunction): CuratedHistoricalEntry[] {
       category: CuratedHistoricalCategory.WindPower,
       name: t("pages:home.curated_historical.wind_turbines_name"),
       description: t("pages:home.curated_historical.wind_turbines_description"),
-      unit: null,
+      unit: "antal",
       series: [{
         key: "wind-turbines",
         name: t("pages:home.curated_historical.wind_turbines_name"),
@@ -189,7 +192,7 @@ function getEnergyTransportEntries(t: TFunction): CuratedHistoricalEntry[] {
       category: CuratedHistoricalCategory.SolarPower,
       name: t("pages:home.curated_historical.solar_installations_name"),
       description: t("pages:home.curated_historical.solar_installations_description"),
-      unit: null,
+      unit: "antal",
       series: [{
         key: "solar-installations",
         name: t("pages:home.curated_historical.solar_installations_name"),
@@ -213,7 +216,7 @@ function getEnergyTransportEntries(t: TFunction): CuratedHistoricalEntry[] {
       category: CuratedHistoricalCategory.Vehicles,
       name: t("pages:home.curated_historical.cars_by_fuel_name"),
       description: t("pages:home.curated_historical.cars_by_fuel_description"),
-      unit: null,
+      unit: "antal",
       // Every fuel in the table's "drivmedel" dimension except the total, which
       // would flatten the others in a shared chart
       series: [

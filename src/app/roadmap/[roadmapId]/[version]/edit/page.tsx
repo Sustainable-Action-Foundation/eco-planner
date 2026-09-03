@@ -1,5 +1,5 @@
 import RoadmapIterationForm from "@/components/form/forms/roadmapIteration";
-import { getRoadmapIterationByVersion, getUserAccessContext } from "@/fetchers";
+import { getRoadmapIterationByVersion, getRoadmaps, getUserAccessContext } from "@/fetchers";
 import { parseVersionSlug } from "@/functions/versionSlug";
 import { getSession } from '@/lib/session';
 import { cookies } from 'next/headers';
@@ -43,15 +43,18 @@ export default async function Page(props: { params: Promise<{ roadmapId: string,
   if (version == null) {
     return notFound();
   }
-  const [t, session, accessContext, iteration] = await Promise.all([
+  const [t, session, accessContext, iteration, roadmapAlternatives] = await Promise.all([
     serveTea("pages"),
     getSession(await cookies()),
     getUserAccessContext(),
     getRoadmapIterationByVersion(params.roadmapId, version),
+    // Lets the form find the roadmap this one works towards, for the target version select.
+    // Unfiltered on purpose: that roadmap only needs to be visible, not editable.
+    getRoadmaps(),
   ]);
 
   const access = accessChecker(
-    iteration ? { access_control: iteration.roadmap.access_control, published_at: iteration.published_at } : null,
+    iteration ? { access_control: iteration.roadmap.access_control, status: iteration.status } : null,
     accessContext,
   );
 
@@ -70,6 +73,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string,
         </h1>
         <RoadmapIterationForm
           currentIteration={iteration}
+          roadmapAlternatives={roadmapAlternatives}
         />
       </div>
     </>

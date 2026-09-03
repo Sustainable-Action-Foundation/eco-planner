@@ -2,7 +2,7 @@ import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import AttributedImage, { AttributeText } from "@/components/generic/images/attributedImage";
 import { roadmapIterationSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
-import { OrgRole, RoadmapType } from "@/lib/prisma/generated";
+import { IterationStatus, OrgRole, RoadmapType } from "@/lib/prisma/generated";
 import RoadmapFilters from "@/components/form/filters/roadmapFilters";
 import { RoadmapSortBy } from "@/types/enums";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
@@ -62,24 +62,21 @@ export default async function Page(
   const sortBy = searchParams['sortBy'] ? (Array.isArray(searchParams['sortBy']) ? (searchParams['sortBy'][0] as RoadmapSortBy) : (searchParams['sortBy'] as RoadmapSortBy)) : RoadmapSortBy.Default;
   const searchFilter = searchParams['searchFilter'] ? (Array.isArray(searchParams['searchFilter']) ? searchParams['searchFilter'][0] : searchParams['searchFilter']) : '';
 
-  // Get the latest version ids, then fetch proper iterations with access and counts
-  const latestIterationIds = roadmaps.flatMap(roadmap => {
-    // Unlisted iterations only count as the latest for users who can edit the roadmap
-    const candidates = hasEditAccess(accessChecker(roadmap, accessContext))
-      ? roadmap.iterations
-      : roadmap.iterations.filter(iteration => !iteration.is_unlisted);
-    if (!candidates.length) {
-      return [];
-    }
+  // Per roadmap: the latest published version is its node in the tree, and any
+  // drafts nest under it (drafts only reach editors via the existing access filter)
+  const treeIterationIds = roadmaps.flatMap(roadmap => {
+    const accessLevel = accessChecker(roadmap, accessContext);
+    const published = roadmap.iterations.filter(iteration => iteration.status === IterationStatus.PUBLISHED);
+    const drafts = hasEditAccess(accessLevel) ? roadmap.iterations.filter(iteration => iteration.status === IterationStatus.DRAFT) : [];
 
-    const latestIteration = candidates.reduce((current, candidate) =>
-      candidate.version > current.version ? candidate : current,
-    );
+    const latestPublished = published.length
+      ? published.reduce((current, candidate) => candidate.version > current.version ? candidate : current)
+      : null;
 
-    return latestIteration.id ? [latestIteration.id] : [];
+    return [...(latestPublished ? [latestPublished.id] : []), ...drafts.map(draft => draft.id)];
   });
 
-  let iterations = latestIterationIds.length ? await getRoadmapIterations(latestIterationIds) : [];
+  let iterations = treeIterationIds.length ? await getRoadmapIterations(treeIterationIds) : [];
 
   // Filter by typeFilter
   if (typeFilter.length) {
@@ -218,7 +215,7 @@ export default async function Page(
             <section className="margin-block-300">
               {/* The section fetches from external statistics APIs; don't block the rest of the page on a cold cache */}
               <Suspense fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
-                <CuratedHistoricalData geoArea={selectedOrg.geoArea} />
+                <CuratedHistoricalData orgId={selectedOrg.id} geoArea={selectedOrg.geoArea} />
               </Suspense>
             </section>
             : null}
@@ -256,7 +253,8 @@ export default async function Page(
           <div className="flex align-items-center gap-100 flex-wrap-wrap justify-content-space-between margin-bottom-200 margin-top-50">
             <small className="font-size-100" aria-live="polite"> {/* TODO: Pretty sure this should have an aria-live but double check against a screenreader */}
               {t("pages:home.shown_results", {
-                shown: iterations.length,
+                // One row per roadmap; its drafts nest under it
+                shown: new Set(iterations.map(iteration => iteration.roadmap_id)).size,
                 total: roadmaps.filter((roadmap) => roadmap.iterations.length > 0).length,
               })}
             </small>

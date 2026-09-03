@@ -89,8 +89,11 @@ test.describe("Query builder", () => {
     await searchInput.fill("");
     await expect(tableList).toHaveCount(4);
 
-    // Open the filter panel.
-    await dialog.locator("summary", { hasText: "query_builder.filters" }).click();
+    // Open the filter panel. WebKit intermittently reports the summary as "not
+    // stable" for >5s while the dialog's panes settle, so wait and allow retries.
+    const filtersSummary = dialog.locator("summary", { hasText: "query_builder.filters" });
+    await expect(filtersSummary).toBeVisible();
+    await filtersSummary.click({ timeout: 15_000 });
 
     // Variable facet: the contents placeholder is not offered, and selecting
     // "Region" narrows the list to the only table containing that variable.
@@ -98,7 +101,7 @@ test.describe("Query builder", () => {
     const facetListbox = dialog.locator("#tableVariableFilter-dialog-listbox");
     await expect(facetListbox.locator("li").first()).toBeVisible();
     await expect(facetListbox).not.toContainText("ApiContentsVariableName");
-    await facetListbox.locator("li", { hasText: "Region (1)" }).click();
+    await facetListbox.locator("li", { hasText: "Region (1)" }).click({ timeout: 15_000 });
     // Close the combobox dropdown by moving focus elsewhere (Escape would close the whole <dialog>).
     await searchInput.click();
     await expect(tableList).toHaveCount(1);

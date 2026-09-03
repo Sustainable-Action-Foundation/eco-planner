@@ -4,6 +4,7 @@ import Comments from "@/components/comments/comments";
 import ActionGraph from "@/components/graph/graphs/actionTimeline";
 import EffectTable from "@/components/tables/effects";
 import { AdminPanel } from "@/components/elements/controls/controls";
+import VisibilityBadges from "@/components/generic/visibility/visibilityBadges";
 import { getGoalByIndicator, getOneGoal, getOneRoadmapIteration, getRoadmapIterationByVersion, getRoadmapIterations } from "@/fetchers";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
@@ -12,6 +13,7 @@ import serveTea from "@/lib/i18nServer";
 import { prisma } from "@/lib/prisma";
 import type { AccessControlled, Goal, MultiRoadmapInstance, RoadmapIteration, UserAccessContext } from "@/types";
 import { AccessLevel } from "@/types/enums";
+import { IterationStatus } from "@/lib/prisma/generated";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -94,7 +96,7 @@ export default async function Page(
   if (goal) {
     const goalAccessData: AccessControlled = {
       access_control: goal.roadmap_iteration.roadmap.access_control,
-      published_at: goal.roadmap_iteration.published_at,
+      status: goal.roadmap_iteration.status,
     };
     accessLevel = accessChecker(goalAccessData, accessContext);
   }
@@ -106,7 +108,7 @@ export default async function Page(
 
   // Create a list of roadmap iterations the user can copy and scale the goal to
   const roadmapOptions = unfilteredIterations.filter(iteration => {
-    return hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, published_at: iteration.published_at }, accessContext));
+    return hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, status: iteration.status }, accessContext));
   }).map(iteration => ({ id: iteration.id, name: iteration.roadmap.name, version: iteration.version, actor: iteration.roadmap.actor }));
 
   // Fetch parent goal
@@ -114,13 +116,20 @@ export default async function Page(
   let parentGoalIteration: RoadmapIteration | null;
   if (iteration.roadmap.parent_roadmap_id) {
     try {
-      // Get the parent roadmap iteration (if any)
+      // Get the parent roadmap iteration (if any). Only published, listed versions take part in
+      // parent/child relations: drafts and unlisted versions are work in progress or hidden on purpose.
       parentGoalIteration = await getRoadmapIterationByVersion(
         iteration.roadmap.parent_roadmap_id,
         (iteration.target_version === null || iteration.target_version === 0)
-          ? (await prisma.roadmapIterations.aggregate({ where: { roadmap_id: iteration.roadmap.parent_roadmap_id }, _max: { version: true } }))._max.version ?? 0
+          ? (await prisma.roadmapIterations.aggregate({
+            where: { roadmap_id: iteration.roadmap.parent_roadmap_id, status: IterationStatus.PUBLISHED },
+            _max: { version: true },
+          }))._max.version ?? 0
           : iteration.target_version,
       );
+      if (parentGoalIteration && parentGoalIteration.status !== IterationStatus.PUBLISHED) {
+        parentGoalIteration = null;
+      }
 
       // If there is a parent iteration, look for a goal with the same indicator parameter in it
       if (parentGoalIteration) {
@@ -135,7 +144,11 @@ export default async function Page(
 
   // Get goals with same indicator parameter in roadmap iterations working towards the one containing current goal
   // TODO: If multiple iterations in a series work towards the same target, maybe only count the one with the highest version?
-  const childIterations = unfilteredIterations.filter(child => child.roadmap.parent_roadmap_id === iteration.roadmap.id).filter(child => child.target_version === iteration.version || !child.target_version);
+  // Same guard as for the parent: drafts and unlisted versions don't count as children
+  const childIterations = unfilteredIterations
+    .filter(child => child.roadmap.parent_roadmap_id === iteration.roadmap.id)
+    .filter(child => child.target_version === iteration.version || !child.target_version)
+    .filter(child => child.status === IterationStatus.PUBLISHED);
   let childGoals: (NonNullable<Awaited<ReturnType<typeof getGoalByIndicator>>> & { roadmapName?: string })[] = [];
   if (childIterations.length > 0) {
     const goals = await Promise.all(childIterations.map(async iteration => {
@@ -177,7 +190,10 @@ export default async function Page(
 
       <main>
         <header className="margin-block-300" style={{ fontSize: 'smaller' }}>
-          <span style={{ color: 'gray' }}>{t("pages:roadmap_iteration.version", { version: iteration.version })}</span>
+          <div className="flex align-items-center gap-50 flex-wrap-wrap">
+            <span style={{ color: 'gray' }}>{t("pages:roadmap_iteration.version", { version: iteration.version })}</span>
+            <VisibilityBadges status={iteration.status} listing={goal.listing} />
+          </div>
           <span className="block margin-0 font-weight-600" style={{ fontSize: '1.15rem' }}>{iteration.roadmap.name}</span> {/* TODO: Check semantics of this  */}
           <div className="margin-block-25 flex justify-content-space-between margin-bottom-50 padding-bottom-50" style={{ borderBottom: '1px solid var(--gray-80)' }}>
             <div className="flex gap-25 align-items-center">

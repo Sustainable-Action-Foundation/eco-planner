@@ -45,6 +45,41 @@ enum OrgRole {
 // is always stored as a string; this only informs the UI (input widget, display).
 // List-ness is structural, not typed: multiple fields sharing a header collapse
 // into a list in the UI when their type supports it (i.e. is not PARAGRAPH).
+/*
+ * Visibility is three separate, single-valued settings, one per level:
+ * - Sharing (roadmap access control): who may access the roadmap and everything under it
+ * - IterationStatus (roadmap version): draft (editors only) / published
+ * - GoalListing (goal): how the goal shows up in its version's listings
+ */
+
+// Who may read a roadmap (and its versions, goals, actions...). Writing always goes through grants / org managers.
+enum Sharing {
+  // Only groups with a grant (plus the owning org's managers)
+  GROUPS
+  // Every proper member of the owning org (GUESTs excluded), plus granted groups
+  ORG
+  // Anyone, signed in or not
+  PUBLIC
+}
+
+// Publication state of a roadmap version. There is deliberately no "unlisted"
+// tier here: a version is either a working area for editors or it is out.
+enum IterationStatus {
+  // Work in progress: only users who can edit the roadmap can see it at all
+  DRAFT
+  // Readable per the roadmap's sharing, and listed
+  PUBLISHED
+}
+
+// How a goal shows up in its version's listings; access itself follows the version
+enum GoalListing {
+  LISTED
+  // Left out of listings (and of other goals' parent/child/sibling lookups) for users who can't edit it
+  UNLISTED
+  // Listed and highlighted at the top of the version page
+  FEATURED
+}
+
 enum ActionFieldType {
   PARAGRAPH
   DATE
@@ -128,12 +163,10 @@ model RoadmapIterations {
   // If the parent roadmap relates to another roadmap, target_version defines which version of the related roadmap this iteration relates to
   // If target version is not found in the related roadmap, use the latest version available instead
   target_version Int?
-  // When this iteration was published; null means draft, visible only to users with RW access (or better) via the roadmap's access control
+  // Draft / published, see IterationStatus
+  status         IterationStatus @default(DRAFT)
+  // When the version first left the draft state; informational only, the gate is `status`
   published_at   DateTime?
-  // Unlisted iterations are hidden from regular roadmap listings; they are only
-  // listed for users with edit access to the roadmap. Direct links still resolve
-  // with normal read access.
-  is_unlisted    Boolean   @default(false)
 
   comments Comments[] @relation("roadmap_iteration_comments")
   goals    Goals[]    @relation("roadmap_iteration_goals")
@@ -164,12 +197,8 @@ model Goals {
   // Will be something similar to "Key\Energiomvandlingsanläggningar\Insatta bränslen för elproduktion\Naturgas", as defined by LEAP
   indicator_parameter String  @db.Text
 
-  // The graphs of featured Goals' DataSeries will be shown as thumbnails on the roadmap page
-  is_featured Boolean @default(false)
-  // Unlisted goals are hidden from regular goal listings; they are only listed
-  // for users with edit access to the iteration. Direct links still resolve
-  // with normal read access.
-  is_unlisted Boolean @default(false)
+  // Listed / unlisted / featured, see GoalListing
+  listing GoalListing @default(LISTED)
 
   // A series of data points representing the goals for each year
   data_series_id String?     @unique
@@ -475,10 +504,8 @@ model AccessControls {
   org_id String
   org    Orgs   @relation(fields: [org_id], references: [id], onDelete: Cascade)
 
-  // If public, it grants read access to everyone (account or not) regardless of grants
-  is_public    Boolean @default(false)
-  // If org readable, all members of the owning org get read access; disable together with is_public for org-internal need-to-know objects
-  org_readable Boolean @default(true)
+  // Who may read, see Sharing
+  sharing Sharing @default(ORG)
 
   grants AccessGrants[]
 

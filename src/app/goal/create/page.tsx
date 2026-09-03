@@ -6,6 +6,7 @@ import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { getOneRoadmapIteration, getRoadmaps } from "@/fetchers";
+import { getPrefilledSeries } from "@/fetchers/resolveSeriesRef";
 import type { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -23,22 +24,26 @@ export default async function Page(
   props: {
     searchParams: Promise<{
       iterationId?: string | string[] | undefined,
+      /** A series ref to start the goal from, resolved for the org's geo area (see `getPrefilledSeries`) */
+      series?: string | string[] | undefined,
+      org?: string | string[] | undefined,
       [key: string]: string | string[] | undefined
     }>
   },
 ) {
   const searchParams = await props.searchParams;
-  const [t, accessContext, iteration, roadmapList] = await Promise.all([
-    serveTea("pages"),
+  const t = await serveTea("pages");
+  const [accessContext, iteration, roadmapList, { series: prefill, failed: badPrefill }] = await Promise.all([
     getUserAccessContext(),
     getOneRoadmapIteration(typeof searchParams.iterationId == 'string' ? searchParams.iterationId : ''),
     getRoadmaps(),
+    getPrefilledSeries(t, searchParams),
   ]);
 
   // Ignore the iteration (and inform user) if it is not found or the user does not have edit access
   const badRoadmap = (
     (!iteration && typeof searchParams.iterationId == 'string') ||
-    (iteration && !hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, published_at: iteration.published_at }, accessContext)))
+    (iteration && !hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, status: iteration.status }, accessContext)))
   );
 
   const filteredRoadmaps = roadmapList.filter((roadmap) => hasEditAccess(accessChecker(roadmap, accessContext)));
@@ -55,7 +60,17 @@ export default async function Page(
             {t("pages:goal_create.bad_roadmap")}
           </p> : null
         }
-        <GoalForm iterationId={badRoadmap ? undefined : searchParams.iterationId as string} roadmapAlternatives={filteredRoadmaps} />
+        {badPrefill ? <p style={{ color: 'red' }}>
+            <IconInfoCircle role="img" aria-label={t("pages:goal_create.information_icon_aria")} />
+            {t("pages:goal_create.bad_prefill")}
+          </p> : null
+        }
+        {prefill ? <p className="color-gray">
+            <IconInfoCircle role="img" aria-label={t("pages:goal_create.information_icon_aria")} />
+            {t("pages:goal_create.prefilled", { name: prefill.name })}
+          </p> : null
+        }
+        <GoalForm iterationId={badRoadmap ? undefined : searchParams.iterationId as string} roadmapAlternatives={filteredRoadmaps} prefill={prefill ?? undefined} />
       </div>
     </>
   );

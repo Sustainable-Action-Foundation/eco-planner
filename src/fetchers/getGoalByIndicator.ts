@@ -1,3 +1,4 @@
+import { GoalListing } from "@/lib/prisma/generated";
 import "server-only";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
@@ -40,7 +41,7 @@ async function getCachedGoalByIndicator(iterationId: string, indicatorParameter:
       where: {
         indicator_parameter: indicatorParameter,
         // Unlisted goals are excluded from other goals' parent/child listings
-        is_unlisted: false,
+        listing: { not: GoalListing.UNLISTED },
         // If unit is specified, get a goal with the specified unit
         ...(unit !== undefined ? { data_series: { unit: unit } } : {}),
         roadmap_iteration: {
