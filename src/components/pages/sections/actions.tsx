@@ -104,7 +104,7 @@ export default function Actions({
   }, [actions, searchFilter, tagFilter]);
 
   return (
-    <search className="flex flex-wrap-wrap gap-200">
+    <search className="gap-300 grid" style={{gridTemplateColumns: "25ch 1fr"}}>
       <menu className={`margin-0 smooth padding-50 flex-grow-100 ${styles['actions-menu']}`} >
         <fieldset className="width-100 fieldset-unset-pseudo-class">
           <legend>{t("pages:actions.show_as")}</legend>
@@ -135,7 +135,7 @@ export default function Actions({
         {/*<h2 className="padding-bottom-50 margin-block-100 font-weight-500" style={{ fontSize: '1.25rem', borderBottom: '1px solid var(--gray)' }}>{t('pages:actions.filter')}</h2>  */}
       </menu>
 
-      <div className="flex-grow-infinity max-width-100">
+      <div className="min-width-0 max-width-100">
         <h2 id="search-title" className="margin-top-0 margin-bottom-50">
           {t("pages:actions.search_actions", { count: actions?.length })}
         </h2>
