@@ -8,7 +8,7 @@ import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/ty
 import { parseSeriesRef, SeriesRefKind } from "@/lib/seriesRef";
 import { parseUnit } from "@/functions/unit";
 import { UnitFlags } from "@/types/enums";
-import type { CuratedGeoArea } from "@/fetchers/getCuratedHistoricalData";
+import type { CuratedGeoArea, CuratedHistoricalEntryData, CuratedHistoricalSeriesData } from "@/fetchers/getCuratedHistoricalData";
 import type { SeriesRef } from "@/lib/seriesRef";
 import type { DateValues, GoalPrefill, PrefilledSeries } from "@/types";
 import type { TFunction } from "i18next";
@@ -29,26 +29,7 @@ export async function resolveSeriesRef(t: TFunction, ref: SeriesRef, geoArea: Cu
       const entry = await getCuratedHistoricalEntry(t, geoArea, ref.entryKey);
       const series = entry?.series.find(series => series.key === ref.seriesKey);
       if (!entry || !series) return null;
-
-      // A multi-series entry's series are only distinct together with the entry ("Passenger cars by fuel: Electric")
-      const name = entry.series.length > 1 ? `${entry.name}: ${series.name}` : entry.name;
-      return {
-        name,
-        unit: entry.unit,
-        variable: {
-          id: crypto.randomUUID(),
-          name,
-          type: RecipeDataTypes.External,
-          pick: VectorIndexPickerOptions.Default,
-          // The catalog's declared unit, since the table metadata carries no usable
-          // one; lets evaluation convert and check it like any other unit
-          unit: parseUnit(entry.unit),
-          dataset: series.source.dataset,
-          tableId: series.source.tableId,
-          selection: series.selection,
-        },
-        dateValues: series.dateValues,
-      };
+      return curatedPrefilledSeries(entry, series);
     }
     default: {
       return null;
@@ -57,36 +38,91 @@ export async function resolveSeriesRef(t: TFunction, ref: SeriesRef, geoArea: Cu
 }
 
 /**
- * A goal to copy, as the parent the suggested methods scale: a variable
- * linked to its data series (read through the access-checked series fetcher
- * at evaluation time, so no values travel in the link). Null when the goal
- * isn't visible to the user or has no data series.
+ * A curated series as something to start a goal from: an external variable
+ * reading it from its source, the same one the form's external data input
+ * builds when the user picks that selection by hand. The series' own values
+ * come along for anything that wants them without re-fetching.
  */
-async function resolveCopiedGoal(goalId: string): Promise<{ series: PrefilledSeries, copy: NonNullable<GoalPrefill["copy"]> } | null> {
+export function curatedPrefilledSeries(entry: Pick<CuratedHistoricalEntryData, "name" | "unit"> & { series: { length: number } }, series: CuratedHistoricalSeriesData): PrefilledSeries {
+  // A multi-series entry's series are only distinct together with the entry ("Passenger cars by fuel: Electric")
+  const name = entry.series.length > 1 ? `${entry.name}: ${series.name}` : entry.name;
+  return {
+    name,
+    unit: entry.unit,
+    variable: {
+      id: crypto.randomUUID(),
+      name,
+      type: RecipeDataTypes.External,
+      pick: VectorIndexPickerOptions.Default,
+      // The catalog's declared unit, since the table metadata carries no usable
+      // one; lets evaluation convert and check it like any other unit
+      unit: parseUnit(entry.unit),
+      dataset: series.source.dataset,
+      tableId: series.source.tableId,
+      selection: series.selection,
+    },
+    dateValues: series.dateValues,
+  };
+}
+
+/**
+ * A goal's data series as the parent the suggested methods scale: a variable
+ * linked to the series (read through the access-checked series fetcher at
+ * evaluation time, so no values travel in a link).
+ */
+export function goalPrefilledSeries(goal: { name: string | null, indicatorParameter: string, unit: string | null, dataSeriesId: string, dateValues: DateValues }): PrefilledSeries {
+  const name = goalDisplayName({ name: goal.name, indicator_parameter: goal.indicatorParameter });
+  return {
+    name,
+    unit: goal.unit || null,
+    variable: {
+      id: crypto.randomUUID(),
+      name,
+      type: RecipeDataTypes.DataSeries,
+      pick: VectorIndexPickerOptions.Default,
+      unit: UnitFlags.Missing,
+      dataSeriesId: goal.dataSeriesId,
+      value: null,
+    },
+    dateValues: goal.dateValues,
+  };
+}
+
+/**
+ * Everything a copy of a goal starts from, given the goal and the local series
+ * it is scaled to (see `GoalPrefill`). A goal that is zero in the anchor year
+ * has no development to follow from the local level (nor has an empty series
+ * an anchor); the copy then starts from the goal as is.
+ */
+export function copyPrefill(
+  goal: Parameters<typeof goalPrefilledSeries>[0] & { description: string | null },
+  entry: Parameters<typeof curatedPrefilledSeries>[0],
+  series: CuratedHistoricalSeriesData,
+): GoalPrefill {
+  const parent = goalPrefilledSeries(goal);
+  const historical = curatedPrefilledSeries(entry, series);
+  // The local statistic once more, with its own variable id, for the scaling recipe
+  const local = curatedPrefilledSeries(entry, series);
+  const anchor = localAnchor(series.dateValues, goal.dateValues);
+  return {
+    historical,
+    parent,
+    copy: { name: goal.name, description: goal.description, indicatorParameter: goal.indicatorParameter },
+    ...(anchor && anchor.goalValue !== 0 ? { localReference: { series: local, year: anchor.year, goalValue: anchor.goalValue } } : {}),
+  };
+}
+
+/** The goal named by `from`, as visible to the user and with a data series to copy; null otherwise. */
+async function resolveCopiedGoal(goalId: string): Promise<Parameters<typeof copyPrefill>[0] | null> {
   const goal = await getOneGoal(goalId);
   if (!goal?.data_series) return null;
-
-  const name = goalDisplayName(goal);
   return {
-    series: {
-      name,
-      unit: goal.data_series.unit || null,
-      variable: {
-        id: crypto.randomUUID(),
-        name,
-        type: RecipeDataTypes.DataSeries,
-        pick: VectorIndexPickerOptions.Default,
-        unit: UnitFlags.Missing,
-        dataSeriesId: goal.data_series.id,
-        value: null,
-      },
-      dateValues: Object.fromEntries(goal.data_series.values.map(record => [record.timestamp.toISOString(), record.value])) as DateValues,
-    },
-    copy: {
-      name: goal.name,
-      description: goal.description,
-      indicatorParameter: goal.indicator_parameter,
-    },
+    name: goal.name,
+    description: goal.description,
+    indicatorParameter: goal.indicator_parameter,
+    unit: goal.data_series.unit,
+    dataSeriesId: goal.data_series.id,
+    dateValues: Object.fromEntries(goal.data_series.values.map(record => [record.timestamp.toISOString(), record.value])) as DateValues,
   };
 }
 
@@ -117,18 +153,12 @@ export async function getGoalPrefill(
     return { prefill: { historical, parent: historical }, failed: false };
   }
 
-  // Copying a goal: the local statistic once more (with its own variable id) is
-  // the level the goal's trajectory is scaled to
-  const [copied, local] = await Promise.all([resolveCopiedGoal(params.from), resolveSeriesRef(t, ref, geoArea)]);
-  if (!copied || !local) return { prefill: null, failed: true };
-
-  // A goal that is zero in the anchor year has no development to follow from
-  // the local level; the copy then starts from the goal as is
-  const anchor = localAnchor(local.dateValues ?? {}, copied.series.dateValues ?? {});
-  const localReference = anchor && anchor.goalValue !== 0 ? { series: local, year: anchor.year, goalValue: anchor.goalValue } : undefined;
+  const [copied, entry] = await Promise.all([resolveCopiedGoal(params.from), getCuratedHistoricalEntry(t, geoArea, ref.entryKey)]);
+  const series = entry?.series.find(series => series.key === ref.seriesKey);
+  if (!copied || !entry || !series) return { prefill: null, failed: true };
 
   return {
-    prefill: { historical, parent: copied.series, copy: copied.copy, ...(localReference ? { localReference } : {}) },
+    prefill: copyPrefill(copied, entry, series),
     failed: false,
   };
 }

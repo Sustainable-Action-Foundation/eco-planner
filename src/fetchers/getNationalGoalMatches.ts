@@ -20,12 +20,16 @@ export type NationalGoalMatch = {
   goal: {
     id: string;
     name: string | null;
+    description: string | null;
     indicatorParameter: string;
     unit: string | null;
+    dataSeriesId: string;
     dateValues: DateValues;
   };
   roadmap: { id: string, name: string, version: number, iterationId: string };
   entry: Omit<CuratedHistoricalEntryData, "series">;
+  /** How many series the entry has for the area (a multi-series entry's series are named together with it) */
+  entrySeriesCount: number;
   series: CuratedHistoricalSeriesData;
 };
 
@@ -55,8 +59,10 @@ export async function getNationalGoalMatches(t: TFunction, geoArea: CuratedGeoAr
       goal: {
         id: goal.id,
         name: goal.name,
+        description: goal.description,
         indicatorParameter: goal.indicator_parameter,
         unit: goal.data_series.unit || null,
+        dataSeriesId: goal.data_series.id,
         dateValues: Object.fromEntries(goal.data_series.values.map(record => [record.timestamp.toISOString(), record.value])) as DateValues,
       },
       roadmap: {
@@ -66,6 +72,7 @@ export async function getNationalGoalMatches(t: TFunction, geoArea: CuratedGeoAr
         iterationId: goal.roadmap_iteration.id,
       },
       entry,
+      entrySeriesCount: local.entry.series.length,
       series: local.series,
     }];
   });
@@ -105,8 +112,9 @@ async function getCachedNationalGoals(indicatorParameters: string[], accessConte
       select: {
         id: true,
         name: true,
+        description: true,
         indicator_parameter: true,
-        data_series: { select: { unit: true, values: { select: { timestamp: true, value: true } } } },
+        data_series: { select: { id: true, unit: true, values: { select: { timestamp: true, value: true } } } },
         roadmap_iteration: { select: { id: true, version: true, roadmap: { select: { id: true, name: true } } } },
       },
       orderBy: [{ roadmap_iteration: { roadmap: { name: "asc" } } }, { indicator_parameter: "asc" }],

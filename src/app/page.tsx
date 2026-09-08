@@ -154,11 +154,14 @@ export default async function Page(
   const orgActions = selectedOrg
     ? (await getActions()).filter(action => action.org_id === selectedOrg.id)
     : null;
-  // Whether a copied national goal has somewhere to go: a version of one of the org's roadmaps the user can edit
-  const canCreateGoals = !!selectedOrg && roadmaps.some(roadmap =>
-    roadmap.access_control.org_id === selectedOrg.id
-    && roadmap.iterations.some(iteration => hasEditAccess(accessChecker({ access_control: roadmap.access_control, status: iteration.status }, accessContext))),
-  );
+  // Where a copied national goal can go: the versions of the org's roadmaps the user can edit
+  const copyTargets = selectedOrg
+    ? roadmaps
+      .filter(roadmap => roadmap.access_control.org_id === selectedOrg.id)
+      .flatMap(roadmap => roadmap.iterations
+        .filter(iteration => hasEditAccess(accessChecker({ access_control: roadmap.access_control, status: iteration.status }, accessContext)))
+        .map(iteration => ({ id: iteration.id, roadmapId: roadmap.id, version: iteration.version, name: t("common:roadmap_version_name", { name: roadmap.name, version: iteration.version }) })))
+    : [];
 
   return <>
     <Breadcrumb />
@@ -230,7 +233,7 @@ export default async function Page(
           selectedOrg.geoArea ?
             <section className="margin-block-300">
               <Suspense fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
-                <NationalGoals orgId={selectedOrg.id} geoArea={selectedOrg.geoArea} canCreateGoals={canCreateGoals} />
+                <NationalGoals orgId={selectedOrg.id} geoArea={selectedOrg.geoArea} iterations={copyTargets} />
               </Suspense>
             </section>
             : null}

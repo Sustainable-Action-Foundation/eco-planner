@@ -138,6 +138,11 @@
     "title": "$t(common:roadmap_other, titleCase)",
     "national_goals": {
       "copy": "Copy to your roadmap",
+      "copy_all": "Copy all {{count}} as they are",
+      "copy_all_done": "{{created}} goals copied, {{skipped}} already existed.",
+      "copy_all_failed": "Could not copy: {{names}}",
+      "copy_all_progress": "Copying {{done}} of {{total}} …",
+      "copy_all_target": "To roadmap version",
       "create_roadmap": "Create a roadmap first.",
       "description": "Goals in the national scenarios that can be followed up with statistics for your area. A copy starts from the local data and follows the national goal's development, with the data as its historical data. Everything can be adjusted before saving.",
       "latest_value": "Latest {{value}} {{unit}} ({{year}}).",

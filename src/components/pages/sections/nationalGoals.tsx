@@ -1,5 +1,7 @@
 import CuratedHistoricalGraph from "@/components/graph/graphs/curatedHistoricalGraph";
+import CopyAllNationalGoals from "@/components/pages/sections/copyAllNationalGoals";
 import { getNationalGoalMatches } from "@/fetchers/getNationalGoalMatches";
+import { copyPrefill } from "@/fetchers/resolveSeriesRef";
 import { goalDisplayName, indicatorParameterContext } from "@/functions/goalName";
 import { scaleToLocal } from "@/functions/localScale";
 import { formatSeriesRef, SeriesRefKind } from "@/lib/seriesRef";
@@ -8,6 +10,7 @@ import { IconArrowRight, IconInfoCircle } from "@tabler/icons-react";
 import Link from "next/link";
 import type { CuratedGeoArea } from "@/fetchers/getCuratedHistoricalData";
 import type { NationalGoalMatch } from "@/fetchers/getNationalGoalMatches";
+import type { CopyTargetIteration } from "@/components/pages/sections/copyAllNationalGoals";
 
 /**
  * The org landing page's national goals to adopt: goals in the national
@@ -20,18 +23,26 @@ import type { NationalGoalMatch } from "@/fetchers/getNationalGoalMatches";
 export default async function NationalGoals({
   orgId,
   geoArea,
-  canCreateGoals,
+  iterations,
 }: {
   /** The org the copies are for; its geo area localizes the series */
   orgId: string,
   geoArea: CuratedGeoArea,
-  /** Whether the user can add goals to one of the org's roadmaps; otherwise the section points to creating a roadmap first */
-  canCreateGoals: boolean,
+  /** The versions of the org's roadmaps the user can add goals to; without any, the section points to creating a roadmap first */
+  iterations: CopyTargetIteration[],
 }) {
   const t = await serveTea(["pages", "common"]);
   const matches = await getNationalGoalMatches(t, geoArea);
+  const canCreateGoals = iterations.length > 0;
 
   if (matches.length === 0) return null;
+
+  // What each card's link would start the form with, for copying them all at once
+  const copies = matches.map(match => ({
+    goalId: match.goal.id,
+    name: goalDisplayName({ name: match.goal.name, indicator_parameter: match.goal.indicatorParameter }),
+    prefill: copyPrefill(match.goal, { ...match.entry, series: { length: match.entrySeriesCount } }, match.series),
+  }));
 
   // One group per roadmap version, in fetch order
   const groups: { roadmap: NationalGoalMatch["roadmap"], matches: NationalGoalMatch[] }[] = [];
@@ -48,6 +59,8 @@ export default async function NationalGoals({
     <p className="margin-top-0 margin-bottom-100 color-gray">
       {t("pages:home.national_goals.description")}
     </p>
+
+    {canCreateGoals ? <CopyAllNationalGoals copies={copies} iterations={iterations} /> : null}
 
     {!canCreateGoals ?
       <p className="flex gap-50 align-items-center margin-top-0 margin-bottom-100 padding-50 smooth" style={{ border: '1px solid var(--gray-80)' }}>

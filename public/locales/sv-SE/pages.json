@@ -138,6 +138,11 @@
     "title": "$t(common:roadmap_other, titleCase)",
     "national_goals": {
       "copy": "Kopiera till er färdplan",
+      "copy_all": "Kopiera alla {{count}} som de är",
+      "copy_all_done": "{{created}} målbanor kopierade, {{skipped}} fanns redan.",
+      "copy_all_failed": "Kunde inte kopiera: {{names}}",
+      "copy_all_progress": "Kopierar {{done}} av {{total}} …",
+      "copy_all_target": "Till färdplansversion",
       "create_roadmap": "Skapa en färdplan först.",
       "description": "Målbanor i de nationella scenarierna som går att följa upp med statistik för ert område. En kopia utgår från de lokala uppgifterna och följer den nationella målbanans utveckling, med uppgifterna som historisk data. Allt går att justera innan du sparar.",
       "latest_value": "Senast {{value}} {{unit}} ({{year}}).",
