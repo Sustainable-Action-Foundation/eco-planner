@@ -219,21 +219,21 @@ export default async function Page(
           <Actions actions={orgActions} />
         </section>
 
-        { // Curated historical data needs a geo area to localize to
+        { // National goals the org can copy with its own historical data; needs a geo area to localize to
           selectedOrg.geoArea ?
             <section className="margin-block-300">
-              {/* The section fetches from external statistics APIs; don't block the rest of the page on a cold cache */}
+              {/* The sections fetch from external statistics APIs; don't block the rest of the page on a cold cache */}
               <Suspense fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
-                <CuratedHistoricalData orgId={selectedOrg.id} geoArea={selectedOrg.geoArea} />
+                <NationalGoals orgId={selectedOrg.id} geoArea={selectedOrg.geoArea} iterations={copyTargets} />
               </Suspense>
             </section>
             : null}
 
-        { // National goals the org can copy with its own historical data; same localization
+        { // The curated statistics themselves, same localization
           selectedOrg.geoArea ?
             <section className="margin-block-300">
               <Suspense fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
-                <NationalGoals orgId={selectedOrg.id} geoArea={selectedOrg.geoArea} iterations={copyTargets} />
+                <CuratedHistoricalData orgId={selectedOrg.id} geoArea={selectedOrg.geoArea} />
               </Suspense>
             </section>
             : null}
