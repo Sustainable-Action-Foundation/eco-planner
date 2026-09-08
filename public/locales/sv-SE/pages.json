@@ -68,7 +68,13 @@
     "sub_goals": "Underliggande $t(common:goal_other)",
     "title_label": "$t(common:goal_one, titleCase)",
     "update_needed": "Uppdatera din $t(common:goal_one) för att få den senaste informationen.",
-    "update_needed_attention_message": "Uppmärksamhet!"
+    "update_needed_attention_message": "Uppmärksamhet!",
+    "use_locally": {
+      "description": "Målbanan går att följa upp med lokal statistik ({{series}}). En kopia utgår från de lokala uppgifterna och följer den nationella målbanans utveckling; allt går att justera innan du sparar.",
+      "heading": "Använd i lokal färdplan",
+      "link": "Använd i färdplan",
+      "link_org": "Använd i färdplan ({{org}})"
+    }
   },
   "goal_create": {
     "bad_prefill": "Kunde inte hitta uppgifterna i länken, så formuläret börjar tomt.",

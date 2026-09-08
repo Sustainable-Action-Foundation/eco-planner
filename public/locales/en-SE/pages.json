@@ -68,7 +68,13 @@
     "sub_goals": "Sub-$t(common:goal_other)",
     "title_label": "$t(common:goal_one, titleCase)",
     "update_needed": "Update your $t(common:goal_one) to get the latest information.",
-    "update_needed_attention_message": "Attention!"
+    "update_needed_attention_message": "Attention!",
+    "use_locally": {
+      "description": "The goal can be followed up with local statistics ({{series}}). A copy starts from the local data and follows the national goal's development; everything can be adjusted before saving.",
+      "heading": "Use in a local roadmap",
+      "link": "Use in roadmap",
+      "link_org": "Use in roadmap ({{org}})"
+    }
   },
   "goal_create": {
     "bad_prefill": "Could not find the data in the link, so the form starts out empty.",

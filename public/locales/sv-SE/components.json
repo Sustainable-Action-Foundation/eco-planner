@@ -67,6 +67,7 @@
   "goals": {
     "listed_tab": "$t(common:goal_other, titleCase) ({{count}})",
     "loading_alt": "Laddar",
+    "localizable_only_filter": "Visa enbart $t(common:goal_other) som går att använda lokalt",
     "new_goal": "$t(common:new.goal)",
     "recipe_only_filter": "Visa enbart $t(common:goal_other) med formel",
     "search": "Sök bland $t(common:goal_other)",

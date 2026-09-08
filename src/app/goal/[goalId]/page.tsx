@@ -23,6 +23,9 @@ import type { TFunction } from "i18next";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 import type { Metadata } from "next";
 import GoalGraphContainer from "@/components/graph/graphs/goal/container";
+import UseGoalLocally from "@/components/pages/sections/useGoalLocally";
+import Image from "next/image";
+import { Suspense } from "react";
 
 export async function generateMetadata(props: {
   params: Promise<{ goalId: string }>,
@@ -248,6 +251,11 @@ export default async function Page(
             content={goal.description}
           />
           : null}
+
+        {/* A national goal with local statistics behind it can be taken into the user's own roadmaps; fetches from the statistics APIs, so it streams in */}
+        <Suspense fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
+          <UseGoalLocally goal={goal} roadmapType={iteration.roadmap.type} />
+        </Suspense>
 
         {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
         <section className="margin-top-300">
