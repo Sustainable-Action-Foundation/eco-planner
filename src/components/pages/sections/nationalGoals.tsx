@@ -37,12 +37,15 @@ export default async function NationalGoals({
 
   if (matches.length === 0) return null;
 
-  // What each card's link would start the form with, for copying them all at once
-  const copies = matches.map(match => ({
-    goalId: match.goal.id,
-    name: goalDisplayName({ name: match.goal.name, indicator_parameter: match.goal.indicatorParameter }),
-    prefill: copyPrefill(match.goal, { ...match.entry, series: { length: match.entrySeriesCount } }, match.series),
-  }));
+  // What each card's link would start the form with, for copying them all at
+  // once; only the goals with something to scale from (see `copyPrefill`)
+  const copies = matches
+    .map(match => ({
+      goalId: match.goal.id,
+      name: goalDisplayName({ name: match.goal.name, indicator_parameter: match.goal.indicatorParameter }),
+      prefill: copyPrefill(match.goal, { ...match.entry, series: { length: match.entrySeriesCount } }, match.series),
+    }))
+    .filter(copy => copy.prefill.localReference);
 
   // One group per roadmap version, in fetch order
   const groups: { roadmap: NationalGoalMatch["roadmap"], matches: NationalGoalMatch[] }[] = [];

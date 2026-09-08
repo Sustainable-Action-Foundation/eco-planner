@@ -26,7 +26,9 @@ export type CopyTargetIteration = { id: string, roadmapId: string, version: numb
  * card's link with nothing changed (local history, the trajectory scaled to
  * the local level, a first-value baseline). Goals the version already has
  * (same indicator parameter) are skipped, so the button can be pressed again
- * after the catalog grows.
+ * after the catalog grows. Only goals with something to scale from are
+ * offered: copied as is they would be the national figures, which is never
+ * what a local roadmap wants.
  */
 export default function CopyAllNationalGoals({ copies, iterations }: { copies: NationalGoalCopy[], iterations: CopyTargetIteration[] }) {
   const { t } = useTranslation(["pages", "forms", "components", "common"]);
@@ -41,11 +43,9 @@ export default function CopyAllNationalGoals({ copies, iterations }: { copies: N
     const target = iterations.find(iteration => iteration.id === iterationId);
     if (!target) return;
 
-    // Goals the version already has are skipped, and so are goals with nothing
-    // to scale from (zero in the anchor year): copied as is they would be the
-    // national figures, which is never what a local roadmap wants
+    // Goals the version already has are skipped
     const existing = new Set((await clientSafeGetOneRoadmapIteration(target.id))?.goals.map(goal => goal.indicator_parameter) ?? []);
-    const pending = copies.filter(copy => copy.prefill.localReference && !existing.has(copy.prefill.copy?.indicatorParameter ?? ""));
+    const pending = copies.filter(copy => !existing.has(copy.prefill.copy?.indicatorParameter ?? ""));
     setProgress({ done: 0, total: pending.length });
 
     const failed: string[] = [];
