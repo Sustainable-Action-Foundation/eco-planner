@@ -107,7 +107,7 @@
       "category_solar_power": "Solar power",
       "category_vehicles": "Vehicles",
       "category_wind_power": "Wind power",
-      "description": "Statistics selected for following the energy and transport transition in your area, fetched directly from the Swedish Energy Agency and Transport Analysis.",
+      "description": "Selected statistics for following the energy and transport transition in the area, fetched directly from the Swedish Energy Agency and Transport Analysis.",
       "fuel_diesel": "Diesel",
       "fuel_electric": "Electric",
       "fuel_ethanol": "Ethanol",
@@ -137,20 +137,20 @@
     "shown_results": "Showing {{shown}} out of {{total}} $t(common:roadmap, {\"count\": {{total}}})",
     "title": "$t(common:roadmap_other, titleCase)",
     "national_goals": {
-      "copy": "Copy to your roadmap",
-      "copy_all": "Copy all {{count}} as they are",
+      "copy": "Use in roadmap",
+      "copy_all": "Use all {{count}} in roadmap",
       "copy_all_done": "{{created}} goals copied, {{skipped}} already existed.",
       "copy_all_failed": "Could not copy: {{names}}",
       "copy_all_progress": "Copying {{done}} of {{total}} …",
       "copy_all_target": "To roadmap version",
       "create_roadmap": "Create a roadmap first.",
-      "description": "Goals in the national scenarios that can be followed up with statistics for your area. A copy starts from the local data and follows the national goal's development, with the data as its historical data. Everything can be adjusted before saving.",
+      "description": "Goals in the national scenarios that can be followed up with statistics for the area. A copy starts from the local data and follows the national goal's development, with the data as its historical data. Everything can be adjusted before saving.",
       "latest_value": "Latest {{value}} {{unit}} ({{year}}).",
       "local_history": "{{area}} so far",
       "local_projection": "{{area}} as a copy",
       "local_series": "Local data: {{series}} for {{area}}.",
       "national_goal": "National goal",
-      "no_roadmap": "Copies go into one of the organization's roadmaps, and you have none yet.",
+      "no_roadmap": "Copies go into one of the organization's roadmaps, and there is none yet.",
       "title": "National goals to copy to {{area}}"
     }
   },
@@ -286,7 +286,7 @@
     "new_goal_description": "Opens the goal form with the series filled in.",
     "series_legend": "Series",
     "subtitle": "Historical data for {{area}}",
-    "use_description": "Start a new goal in one of your roadmaps from this series. It becomes the goal's historical data and the starting point for the goal's own values; the selection and everything else can be adjusted before saving.",
+    "use_description": "Start a new goal in one of the organization's roadmaps from this series. It becomes the goal's historical data and the starting point for the goal's own values; the selection and everything else can be adjusted before saving.",
     "use_heading": "Use this data",
     "values": "Values"
   }
