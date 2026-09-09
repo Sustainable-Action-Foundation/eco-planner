@@ -37,17 +37,27 @@ export function FormSync({
   UnitFormElement,
   RecipeFormElement,
   DateValuesFormElement,
+  ErrorFormElement,
 }: {
   DataSeriesFormElement?: React.ReactElement<HTMLInputElement>;
   UnitFormElement?: React.ReactElement<HTMLInputElement>;
   RecipeFormElement?: React.ReactElement<HTMLInputElement>;
   DateValuesFormElement?: React.ReactElement<HTMLInputElement>;
+  /**
+   * The evaluation error message, empty when the recipe evaluated. Read this
+   * from the form data after `waitForRecipeFormSyncs` rather than mirroring
+   * `RecipeSync`'s `onError` into state: it lands in the same commit as the
+   * settle marker, while state fed through a callback lags a render behind
+   * and a submit right after an edit would read the previous evaluation's error.
+   */
+  ErrorFormElement?: React.ReactElement<HTMLInputElement>;
 }) {
   const {
     recipe,
     resultingDataSeries,
     resultingUnit,
     isEvaluationPending,
+    error,
   } = useRecipe();
 
   const effectiveUnit = useMemo(() => {
@@ -79,6 +89,12 @@ export function FormSync({
     })}
     {!!UnitFormElement && React.cloneElement(UnitFormElement, {
       value: effectiveUnit,
+      type: "hidden",
+      hidden: true,
+      readOnly: true,
+    })}
+    {!!ErrorFormElement && React.cloneElement(ErrorFormElement, {
+      value: error ?? "",
       type: "hidden",
       hidden: true,
       readOnly: true,
