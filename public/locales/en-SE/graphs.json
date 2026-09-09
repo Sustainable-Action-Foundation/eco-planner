@@ -24,7 +24,9 @@
     "compare_with_goal": "Compared against $t(common:goal_one) {{goalName}}",
     "historical_data_source": "1. The historical data in the graph is fetched from <a>{{source}}</a>",
     "historical_footnote": "1. {{label}}. Fetched from <a>{{source}}</a>",
-    "historical_footnote_no_source": "1. {{label}}"
+    "historical_footnote_no_source": "1. {{label}}",
+    "use_goal": "Use",
+    "use_goal_title": "Use in a roadmap"
   },
   "graph_selector": {
     "goal": "$t(common:goal_one, titleCase)",

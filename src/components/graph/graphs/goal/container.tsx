@@ -16,10 +16,27 @@ import HistoricalFootnote, { hasHistoricalFootnote, historicalSeriesName } from 
 import TabListSimple from "@/components/generic/tablist/tabListSimple";
 import findSiblings from "@/functions/findSiblings";
 import ChildGraphContainer from "./child/container";
-import { IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
+import { IconArrowRight, IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
+import Link from "next/link";
 // import SiblingGraph from "./sibling/siblings";
 
 type TimestampedValue = { timestamp: Date; value: number };
+
+/** The toolbar's way into the user's own roadmaps: a copy started from this goal (the panel below the graph says more). */
+function UseGoalLink({ href }: { href: string }) {
+  const { t } = useTranslation("graphs");
+  return (
+    <Link
+      href={href}
+      title={t("graphs:graph_graph.use_goal_title")}
+      className="seagreen color-purewhite smooth font-weight-500 font-size-75 line-height-150 flex align-items-center gap-25"
+      style={{ padding: '.3rem .6rem' }}
+    >
+      {t("graphs:graph_graph.use_goal")}
+      <IconArrowRight aria-hidden="true" width={16} height={16} style={{ minWidth: '16px' }} />
+    </Link>
+  );
+}
 
 export default function GoalGraphContainer({
   goal,
@@ -27,12 +44,15 @@ export default function GoalGraphContainer({
   childGoals,
   iteration,
   parentGoal,
+  useHref,
 }: {
   goal: Goal,
   secondaryGoal: Goal | null,
   childGoals: Goal[],
   iteration: RoadmapIteration,
   parentGoal: Goal | null,
+  /** Where "use this goal" goes (the goal form prefilled from it, see `getGoalPrefill`); null when the user has no roadmap to put a copy in */
+  useHref?: string | null,
 }) {
   const { t } = useTranslation("graphs");
 
@@ -318,6 +338,7 @@ export default function GoalGraphContainer({
             <menu className={`${styles['menu']}`}>
               <GraphSelector goal={goal} currentSelection={graphType} setter={setGraphType} />
               <SecondaryGoalSelector />
+              {useHref ? <UseGoalLink href={useHref} /> : null}
             </menu>
             <h2 className={`${styles['heading']}`}>
               {goal.name ? goal.name : goal.indicator_parameter}
@@ -373,6 +394,7 @@ export default function GoalGraphContainer({
               <menu className={`${styles['menu']}`}>
                 <GraphSelector goal={goal} currentSelection={graphType} setter={setGraphType} />
                 <SecondaryGoalSelector />
+                {useHref ? <UseGoalLink href={useHref} /> : null}
               </menu>
               <h2 className={`${styles['heading']}`}>
                 {goal.name ? goal.name : goal.indicator_parameter}

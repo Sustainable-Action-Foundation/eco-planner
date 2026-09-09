@@ -259,6 +259,7 @@ export default async function Page(
           <GoalGraphContainer
             goal={goal}
             parentGoal={parentGoal}
+            useHref={canCreateGoals ? `/goal/create?from=${encodeURIComponent(goal.id)}` : null}
             childGoals={childGoals}
             iteration={iteration}
             secondaryGoal={secondaryGoal}
