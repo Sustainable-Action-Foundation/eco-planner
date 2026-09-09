@@ -234,6 +234,53 @@ function getEnergyTransportEntries(t: TFunction): CuratedHistoricalEntry[] {
 }
 
 /**
+ * A national goal (by LEAP indicator parameter) and the curated series that
+ * measure the same thing locally, in order of preference: the first series
+ * with data for an org's area is the one offered when the goal is copied.
+ */
+export type NationalGoalMapping = {
+  indicatorParameter: string;
+  series: { entryKey: string, seriesKey: string }[];
+};
+
+/**
+ * Which national goals an org can copy with its own historical data: the
+ * goals in the national scenarios whose indicator parameter is one of these.
+ * Kept next to the catalog since the two have to agree on entry/series keys.
+ *
+ * Units are not reconciled here (LEAP labels annual wind and solar production
+ * "GW" where the statistics are GWh and MW): copies scale the national goal by
+ * the local share of the statistic, which is a plain ratio, so the copy keeps
+ * the national goal's unit.
+ */
+export function getNationalGoalMappings(): NationalGoalMapping[] {
+  const carsByFuel = (fuel: string, seriesKey: string): NationalGoalMapping => ({
+    indicatorParameter: `Key\\Landtransporter\\Personbilar\\${fuel}\\Antal bilar`,
+    series: [{ entryKey: "cars-by-fuel", seriesKey }],
+  });
+  const production = (source: string) => `Key\\Energiomvandlingsanläggningar\\Årlig elproduktion\\${source}`;
+
+  return [
+    carsByFuel("Bensinbilar", "petrol"),
+    carsByFuel("Dieselbilar", "diesel"),
+    carsByFuel("Elbilar", "electric"),
+    carsByFuel("Etanolbilar", "ethanol"),
+    carsByFuel("Fordonsgasbilar", "gas"),
+    carsByFuel("Laddhybridbilar", "plugin-hybrid"),
+    {
+      indicatorParameter: production("Vindkraft landbaserad"),
+      // Production is the closer measure but has no municipal table; capacity covers every level
+      series: [
+        { entryKey: "wind-production", seriesKey: "wind-production" },
+        { entryKey: "wind-capacity", seriesKey: "wind-capacity" },
+      ],
+    },
+    { indicatorParameter: production("Solkraft tak"), series: [{ entryKey: "solar-capacity", seriesKey: "solar-capacity" }] },
+    { indicatorParameter: production("Solkraft mark"), series: [{ entryKey: "solar-capacity", seriesKey: "solar-capacity" }] },
+  ];
+}
+
+/**
  * Finds the positional value code whose label starts with the geo area code,
  * for `PxWebLabelPrefix` regions. The trailing space matters: "01 " must not
  * match "0114 Upplands Väsby".

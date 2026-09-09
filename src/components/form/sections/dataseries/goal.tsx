@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslation } from "react-i18next";
-import type { DateValuesWithUnit, Goal, PrefilledSeries } from "@/types";
+import type { DateValuesWithUnit, Goal, GoalPrefill } from "@/types";
 import { GoalFormName } from "@/types/form-names";
 import { IconCheck } from "@tabler/icons-react";
 import { FormSync, ManualDataSeriesInput, RecipeContextProvider, RecipeEditor, SuggestedRecipeApplier, UnitInput } from "@/components/recipe";
@@ -16,13 +16,12 @@ import { DataSeriesType, UnitFlags } from "@/types/enums";
 
 export default function GoalSeriesSection({
   goal,
-  prefilledSeries,
+  prefill,
   dataSeriesType,
   setDataSeriesType,
   indicatorParameter,
   setIndicatorParameter,
   setPreviewDataSerie,
-  setDataSeriesRecipeError,
   hasInitializedSuggested,
   hasInitializedManual,
   hasInitializedCustom,
@@ -30,18 +29,17 @@ export default function GoalSeriesSection({
 }: {
   goal: Goal | undefined;
   /**
-   * A series to start a new goal from: the suggested methods scale it instead
-   * of a parent goal, and the formula editor starts with it as a variable. The
-   * saved recipe takes precedence when editing.
+   * What to start a new goal from: the suggested methods scale its parent
+   * series instead of a parent goal, and the formula editor starts with it as
+   * a variable. The saved recipe takes precedence when editing.
    */
-  prefilledSeries?: PrefilledSeries;
+  prefill?: GoalPrefill;
   dataSeriesType: DataSeriesType;
   setDataSeriesType: Dispatch<SetStateAction<DataSeriesType>>;
   /** The form's current indicator parameter, if it has one, for the parameter sync button's applied state */
   indicatorParameter?: string;
   setIndicatorParameter: Dispatch<SetStateAction<string>>;
   setPreviewDataSerie: Dispatch<SetStateAction<DateValuesWithUnit | null>>;
-  setDataSeriesRecipeError: Dispatch<SetStateAction<string | null>>;
   hasInitializedSuggested: boolean;
   hasInitializedManual: boolean;
   hasInitializedCustom: boolean;
@@ -59,13 +57,16 @@ export default function GoalSeriesSection({
     return Recipe.from(base).withEditableExternals().serialize();
   }, [goal?.data_series?.recipe_used?.recipe]);
 
+  const prefilledSeries = prefill?.parent;
   // A prefilled series starts the suggestions on "scale by constant value" with
-  // the factor at 1 — the series as is, ready to be adjusted or scaled otherwise
+  // the factor at 1 — the series as is, ready to be adjusted or scaled otherwise;
+  // a copied goal starts on scaling its trajectory to the local level instead
+  const prefilledSuggestionId = prefill?.localReference ? DefaultSuggestedRecipeId.LocalScale : DefaultSuggestedRecipeId.Scalar;
   const prefilledSuggestion = useMemo(() => {
-    if (!prefilledSeries) return undefined;
-    const suggestion = getDefaultSuggestedRecipes(t, prefilledSeries).find(suggestion => suggestion.id === DefaultSuggestedRecipeId.Scalar);
+    if (!prefill) return undefined;
+    const suggestion = getDefaultSuggestedRecipes(t, prefill.parent, prefill.localReference).find(suggestion => suggestion.id === prefilledSuggestionId);
     return suggestion ? Recipe.from(suggestion.recipe).serialize() : undefined;
-  }, [prefilledSeries, t]);
+  }, [prefill, prefilledSuggestionId, t]);
   const suggestedInitialRecipe = savedRecipe ?? prefilledSuggestion;
   const customInitialRecipe = useMemo(
     () => savedRecipe ?? (prefilledSeries ? prefilledSeriesRecipe(prefilledSeries) : undefined),
@@ -152,7 +153,8 @@ export default function GoalSeriesSection({
             >
               <SuggestedRecipeApplier
                 parentSeries={goal ? undefined : prefilledSeries}
-                initialRecipeId={prefilledSuggestion && !savedRecipe ? DefaultSuggestedRecipeId.Scalar : undefined}
+                localReference={goal ? undefined : prefill?.localReference}
+                initialRecipeId={prefilledSuggestion && !savedRecipe ? prefilledSuggestionId : undefined}
               />
               <UnitInput
                 id="goal-suggested-unit"
@@ -160,6 +162,7 @@ export default function GoalSeriesSection({
               />
               <FormSync
                 RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
+                ErrorFormElement={<input name={GoalFormName.RecipeError} />}
                 UnitFormElement={<input name={GoalFormName.DataUnit} />}
                 DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
               />
@@ -170,7 +173,6 @@ export default function GoalSeriesSection({
               />
               <RecipeSync
                 onDateValues={setPreviewDataSerie}
-                onError={setDataSeriesRecipeError}
                 active={dataSeriesType === DataSeriesType.Suggested}
               />
             </RecipeContextProvider>
@@ -195,12 +197,12 @@ export default function GoalSeriesSection({
               />
               <FormSync
                 RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
+                ErrorFormElement={<input name={GoalFormName.RecipeError} />}
                 UnitFormElement={<input name={GoalFormName.DataUnit} />}
                 DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
               />
               <RecipeSync
                 onDateValues={setPreviewDataSerie}
-                onError={setDataSeriesRecipeError}
                 active={dataSeriesType === DataSeriesType.Manual}
               />
             </RecipeContextProvider>
@@ -222,6 +224,7 @@ export default function GoalSeriesSection({
               />
               <FormSync
                 RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
+                ErrorFormElement={<input name={GoalFormName.RecipeError} />}
                 UnitFormElement={<input name={GoalFormName.DataUnit} />}
                 DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
               />
@@ -232,7 +235,6 @@ export default function GoalSeriesSection({
               />
               <RecipeSync
                 onDateValues={setPreviewDataSerie}
-                onError={setDataSeriesRecipeError}
                 active={dataSeriesType === DataSeriesType.Custom}
               />
             </RecipeContextProvider>

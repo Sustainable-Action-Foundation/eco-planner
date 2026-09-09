@@ -2,7 +2,7 @@
 
 import type { getRoadmaps } from "@/fetchers";
 import formSubmitter from "@/functions/formSubmitter";
-import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput, PrefilledSeries } from "@/types";
+import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalPrefill, GoalUpdateInput } from "@/types";
 import { BaselineType, DataSeriesType, GoalDataTarget, HistoricalDataType } from "@/types/enums";
 import { GoalListing } from "@/lib/prisma/generated";
 import { GoalFormName } from "@/types/form-names";
@@ -50,8 +50,8 @@ export default function GoalForm({
   iterationId?: string,
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
   currentGoal?: Goal;
-  /** A series to start the goal from (see `getPrefilledSeries`); ignored when editing, where the goal's own data wins. */
-  prefill?: PrefilledSeries;
+  /** What to start the goal from (see `getGoalPrefill`); ignored when editing, where the goal's own data wins. */
+  prefill?: GoalPrefill;
 }) {
   const { t } = useTranslation(["forms", "graphs", "common"]);
 
@@ -73,7 +73,7 @@ export default function GoalForm({
   const baselineHasInitializedInherited = initializedBaselineTypes.has(BaselineType.Inherited);
 
   const [historicalDataType, setHistoricalDataType] = useState<HistoricalDataType>(() => prefill ? HistoricalDataType.External : resolveHistoricalDataType(currentGoal));
-  const prefilledHistoricalRecipe = useMemo(() => prefill ? prefilledSeriesRecipe(prefill) : undefined, [prefill]);
+  const prefilledHistoricalRecipe = useMemo(() => prefill ? prefilledSeriesRecipe(prefill.historical) : undefined, [prefill]);
 
   // Baseline and historical data are optional, so their sections start collapsed
   // unless the goal already has one (or a prefilled series fills the historical
@@ -98,7 +98,10 @@ export default function GoalForm({
   const historicalHasInitializedExternal = initializedHistoricalTypes.has(HistoricalDataType.External);
   const historicalHasInitializedCustom = initializedHistoricalTypes.has(HistoricalDataType.Custom);
 
-  const [indicatorParameter, setIndicatorParameter] = useState<string>(currentGoal?.indicator_parameter ?? "");
+  const [indicatorParameter, setIndicatorParameter] = useState<string>(currentGoal?.indicator_parameter ?? prefill?.copy?.indicatorParameter ?? "");
+  // A copied goal keeps its name (none for imported scenarios, whose indicator
+  // parameter is copied too); a goal started from a series is named after it
+  const initialName = currentGoal?.name ?? (prefill?.copy ? prefill.copy.name : prefill?.historical.name) ?? undefined;
   const initialListing: GoalListing = currentGoal?.listing ?? GoalListing.LISTED;
   // const [goalName, setGoalName] = useState<string>(currentGoal?.name ?? "");
   const [parentIterationId, setParentIterationId] = useState<string>(iterationId || "");
@@ -110,7 +113,6 @@ export default function GoalForm({
   // Evaluation error of the currently-selected recipe input (Manual/Suggested/Custom)
   // lifted out of the recipe context so submission can be blocked when it fails
   // to evaluate (e.g. an external variable with an incomplete selection).
-  const [dataSeriesRecipeError, setDataSeriesRecipeError] = useState<string | null>(null);
   const descriptionRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
@@ -189,8 +191,10 @@ export default function GoalForm({
     // external dataset variable with an incomplete selection, or a manual series
     // that didn't pass the recipe type guards). Without this the recipe is sent
     // and only fails server-side (invalid body / 500 while materializing externals).
-    if (dataSeriesRecipeError) {
-      addToast(`${t("forms:goal.errors.recipe_has_error")} ${dataSeriesRecipeError}`, "error", false);
+    // Read from the form data, which the syncs above settled (see FormSync)
+    const recipeError = formData.get(GoalFormName.RecipeError);
+    if (typeof recipeError === "string" && recipeError) {
+      addToast(`${t("forms:goal.errors.recipe_has_error")} ${recipeError}`, "error", false);
       event.target.reportValidity();
       return;
     }
@@ -333,7 +337,7 @@ export default function GoalForm({
             type="text"
             name={GoalFormName.GoalName}
             id="goalName"
-            defaultValue={currentGoal?.name ?? prefill?.name ?? undefined}
+            defaultValue={initialName}
           // onChange={(e) => setGoalName(e.target.value)}
           />
         </label>
@@ -345,7 +349,7 @@ export default function GoalForm({
           ariaLabelledBy="description-label"
           placeholder={t("forms:text_editor_menu.default_placeholder")}
           editable={true}
-          content={currentGoal ? currentGoal.description : ""}
+          content={currentGoal?.description ?? prefill?.copy?.description ?? ""}
           updater={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
         />
         {/* hidden input containing the text editor output */}
@@ -361,7 +365,7 @@ export default function GoalForm({
             name: GoalFormName.IndicatorParameter,
             placeholder: t("forms:combobox.default_autocomplete_placeholder"),
             className: "margin-top-25 margin-bottom-100",
-            defaultValue: currentGoal?.indicator_parameter ?? undefined,
+            defaultValue: currentGoal?.indicator_parameter ?? prefill?.copy?.indicatorParameter ?? undefined,
           }}
           options={indicatorParameters}
           fuseOptions={{
@@ -423,14 +427,13 @@ export default function GoalForm({
         <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.data_series.goal.title")}</legend>
         <GoalSeriesSection
           goal={currentGoal}
-          prefilledSeries={prefill}
+          prefill={prefill}
           dataSeriesType={dataSeriesType}
           setDataSeriesType={setDataSeriesType}
           indicatorParameter={indicatorParameter}
           setIndicatorParameter={setIndicatorParameter}
           setPreviewDataSerie={setPreviewDataSerie}
-          setDataSeriesRecipeError={setDataSeriesRecipeError}
-          hasInitializedSuggested={hasInitializedSuggested}
+            hasInitializedSuggested={hasInitializedSuggested}
           hasInitializedManual={hasInitializedManual}
           hasInitializedCustom={hasInitializedCustom}
         />

@@ -15,6 +15,7 @@ import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import Actions from "@/components/pages/sections/actions";
 import CuratedHistoricalData from "@/components/pages/sections/historicalData";
+import NationalGoals from "@/components/pages/sections/nationalGoals";
 import Image from "next/image";
 import { Suspense } from "react";
 import SearchRoadmaps from "@/components/form/filters/searchRoadmaps";
@@ -153,6 +154,14 @@ export default async function Page(
   const orgActions = selectedOrg
     ? (await getActions()).filter(action => action.org_id === selectedOrg.id)
     : null;
+  // Where a copied national goal can go: the versions of the org's roadmaps the user can edit
+  const copyTargets = selectedOrg
+    ? roadmaps
+      .filter(roadmap => roadmap.access_control.org_id === selectedOrg.id)
+      .flatMap(roadmap => roadmap.iterations
+        .filter(iteration => hasEditAccess(accessChecker({ access_control: roadmap.access_control, status: iteration.status }, accessContext)))
+        .map(iteration => ({ id: iteration.id, roadmapId: roadmap.id, version: iteration.version, name: t("common:roadmap_version_name", { name: roadmap.name, version: iteration.version }) })))
+    : [];
 
   return <>
     <Breadcrumb />
@@ -210,10 +219,19 @@ export default async function Page(
           <Actions actions={orgActions} />
         </section>
 
-        { // Curated historical data needs a geo area to localize to
+        { // National goals the org can copy with its own historical data; needs a geo area to localize to
           selectedOrg.geoArea ?
             <section className="margin-block-300">
-              {/* The section fetches from external statistics APIs; don't block the rest of the page on a cold cache */}
+              {/* The sections fetch from external statistics APIs; don't block the rest of the page on a cold cache */}
+              <Suspense fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
+                <NationalGoals orgId={selectedOrg.id} geoArea={selectedOrg.geoArea} iterations={copyTargets} />
+              </Suspense>
+            </section>
+            : null}
+
+        { // The curated statistics themselves, same localization
+          selectedOrg.geoArea ?
+            <section className="margin-block-300">
               <Suspense fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
                 <CuratedHistoricalData orgId={selectedOrg.id} geoArea={selectedOrg.geoArea} />
               </Suspense>

@@ -5,9 +5,10 @@ import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import Goals from "@/components/tables/goals";
+import { getNationalGoalMappings } from "@/lib/curatedHistoricalData";
 import Comments from "@/components/comments/comments";
 import { AccessLevel } from "@/types/enums";
-import { GoalListing } from "@/lib/prisma/generated";
+import { GoalListing, RoadmapType } from "@/lib/prisma/generated";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
@@ -201,7 +202,11 @@ export default async function Page(props: { params: Promise<{ roadmapId: string,
 
       <section className="margin-block-300">
         <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:roadmap_iteration.all_goals")}</h2>
-        <Goals iteration={iteration} accessLevel={accessLevel} />
+        <Goals
+          iteration={iteration}
+          accessLevel={accessLevel}
+          localizableIndicators={iteration.roadmap.type === RoadmapType.NATIONAL ? getNationalGoalMappings().map(mapping => mapping.indicatorParameter) : undefined}
+        />
       </section>
 
       <section className="margin-block-300">

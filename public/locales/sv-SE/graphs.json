@@ -5,7 +5,8 @@
     "expected_outcome": "Förväntat utfall",
     "unknown_roadmap": "Okänd $t(common:roadmap_version_one)",
     "change_graph_type": "Ändra graftyp",
-    "historical_data_footnoted": "$t(common:historical_data) (1)"
+    "historical_data_footnoted": "$t(common:historical_data) (1)",
+    "historical_unit_mismatch": "Den historiska datan är i {{historical}} men målbanan i {{goal}}; värdena ritas som de är, utan omräkning."
   },
   "action_graph": {
     "actions": "$t(common:action_other, titleCase)"

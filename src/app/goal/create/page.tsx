@@ -6,7 +6,7 @@ import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { getOneRoadmapIteration, getRoadmaps } from "@/fetchers";
-import { getPrefilledSeries } from "@/fetchers/resolveSeriesRef";
+import { getGoalPrefill } from "@/fetchers/resolveSeriesRef";
 import type { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -24,20 +24,22 @@ export default async function Page(
   props: {
     searchParams: Promise<{
       iterationId?: string | string[] | undefined,
-      /** A series ref to start the goal from, resolved for the org's geo area (see `getPrefilledSeries`) */
+      /** A series ref to start the goal from, resolved for the org's geo area (see `getGoalPrefill`) */
       series?: string | string[] | undefined,
       org?: string | string[] | undefined,
+      /** A goal to copy, scaled to the org's area by the series */
+      from?: string | string[] | undefined,
       [key: string]: string | string[] | undefined
     }>
   },
 ) {
   const searchParams = await props.searchParams;
   const t = await serveTea("pages");
-  const [accessContext, iteration, roadmapList, { series: prefill, failed: badPrefill }] = await Promise.all([
+  const [accessContext, iteration, roadmapList, { prefill, failed: badPrefill }] = await Promise.all([
     getUserAccessContext(),
     getOneRoadmapIteration(typeof searchParams.iterationId == 'string' ? searchParams.iterationId : ''),
     getRoadmaps(),
-    getPrefilledSeries(t, searchParams),
+    getGoalPrefill(t, searchParams),
   ]);
 
   // Ignore the iteration (and inform user) if it is not found or the user does not have edit access
@@ -67,7 +69,9 @@ export default async function Page(
         }
         {prefill ? <p className="color-gray">
             <IconInfoCircle role="img" aria-label={t("pages:goal_create.information_icon_aria")} />
-            {t("pages:goal_create.prefilled", { name: prefill.name })}
+            {prefill.copy
+              ? t("pages:goal_create.prefilled_copy", { goal: prefill.parent.name, series: prefill.historical.name })
+              : t("pages:goal_create.prefilled", { name: prefill.historical.name })}
           </p> : null
         }
         <GoalForm iterationId={badRoadmap ? undefined : searchParams.iterationId as string} roadmapAlternatives={filteredRoadmaps} prefill={prefill ?? undefined} />

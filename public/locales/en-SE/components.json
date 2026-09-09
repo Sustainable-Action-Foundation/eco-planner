@@ -67,6 +67,7 @@
   "goals": {
     "listed_tab": "$t(common:goal_other, titleCase) ({{count}})",
     "loading_alt": "Loading",
+    "localizable_only_filter": "Only show $t(common:goal_other) usable locally",
     "new_goal": "New $t(common:goal_one)",
     "recipe_only_filter": "Only show $t(common:goal_other) with formulas",
     "search": "Search $t(common:goal_other)",
@@ -300,7 +301,13 @@
     "this_data_series": "This data series",
     "delete_recipe": "Delete formula",
     "edit_recipe": "Edit formula",
-    "evaluation_warning_title": "Warnings"
+    "evaluation_warning_title": "Warnings",
+    "default_local_scale_recipe": {
+      "goal": "National goal: {{name}}",
+      "goal_in_year": "National goal {{year}}: {{name}}",
+      "local": "Local {{year}}: {{name}}",
+      "name": "Follow the national goal's development from the local value"
+    }
   },
   "roadmap_filters": {
     "default": "Default",

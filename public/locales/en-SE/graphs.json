@@ -5,7 +5,8 @@
     "change_graph_type": "Change graph type",
     "expected_outcome": "Expected outcome",
     "unknown_roadmap": "Unknown $t(common:roadmap_version_one)",
-    "historical_data_footnoted": "$t(common:historical_data) (1)"
+    "historical_data_footnoted": "$t(common:historical_data) (1)",
+    "historical_unit_mismatch": "The historical data is in {{historical}} but the goal in {{goal}}; the values are drawn as they are, without conversion."
   },
   "action_graph": {
     "actions": "$t(common:action_other, titleCase)"

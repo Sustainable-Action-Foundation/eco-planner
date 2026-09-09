@@ -2,7 +2,7 @@ import { Recipe } from "@/functions/recipe/recipe";
 import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/enums";
 import type { DataSeriesVariable, ExternalVariable, ScalarVariable } from "@/functions/recipe/types";
 import type { ApiSelectionItem, DatasetKeys } from "@/lib/api/apiTypes";
-import type { DBRecipe, PrefilledSeries } from "@/types";
+import type { DBRecipe, GoalPrefill, PrefilledSeries } from "@/types";
 import type { TFunction } from "i18next";
 import { UnitFlags } from "@/types/enums";
 import { parseUnit } from "@/functions/unit";
@@ -14,6 +14,7 @@ const PARENT_VALUE_ID = "parent-value-dummy-uuid";
 export const DefaultSuggestedRecipeId = {
   Scalar: "scalar-recipe-dummy-uuid",
   ReachTarget: "reach-target-recipe-dummy-uuid",
+  LocalScale: "local-scale-recipe-dummy-uuid",
   Trend: "trend-recipe-dummy-uuid",
 } as const;
 export type DefaultSuggestedRecipeId = (typeof DefaultSuggestedRecipeId)[keyof typeof DefaultSuggestedRecipeId];
@@ -120,12 +121,56 @@ function trafaPassengerCars(drivmedel: string): ExternalPreset {
 }
 
 /**
+ * `local(latest) * goal / goal(year)`: a copied (national) goal's trajectory
+ * scaled to the local level of the statistic it concerns, the two joined at
+ * the year of the local series' latest value. Offered when a goal is copied
+ * with a local series (see `GoalPrefill.localReference`). Every variable is
+ * concrete, so there is nothing left to pick; the unit is left to evaluation,
+ * which makes it the statistic's (the goal's own unit cancels out).
+ */
+function localScaleRecipe(t: TFunction, goal: PrefilledSeries, reference: NonNullable<GoalPrefill["localReference"]>): Recipe {
+  const goalSeries: ExternalVariable | DataSeriesVariable = {
+    ...goal.variable,
+    id: "local-scale-goal-dummy-uuid",
+    name: t("components:recipe_editor.default_local_scale_recipe.goal", { name: goal.name }),
+    pick: VectorIndexPickerOptions.Default,
+    template: false,
+  };
+  // The goal's unit, so the ratio to the goal series is dimensionless
+  const goalUnit = goal.unit ? parseUnit(goal.unit) : UnitFlags.Unitless;
+  const goalInYear: ScalarVariable = {
+    id: "local-scale-goal-in-year-dummy-uuid",
+    name: t("components:recipe_editor.default_local_scale_recipe.goal_in_year", { name: goal.name, year: reference.year }),
+    type: RecipeDataTypes.Scalar,
+    value: reference.goalValue,
+    unit: goalUnit,
+  };
+  const localLatest: ExternalVariable | DataSeriesVariable = {
+    ...reference.series.variable,
+    id: "local-scale-local-dummy-uuid",
+    name: t("components:recipe_editor.default_local_scale_recipe.local", { name: reference.series.name, year: reference.year }),
+    pick: VectorIndexPickerOptions.Last,
+    template: false,
+  };
+  return new Recipe({
+    name: t("components:recipe_editor.default_local_scale_recipe.name"),
+    equation: `\${${localLatest.name}} * \${${goalSeries.name}} / \${${goalInYear.name}}`,
+    variables: [localLatest, goalSeries, goalInYear],
+    meta: { isSuggestedRecipe: true },
+  });
+}
+
+/**
  * @param parentSeries Stands in for the parent value in every suggestion, e.g. a
  * browsable historical series a goal is started from: the parent is no longer
  * something to pick but that series, ready to be scaled.
+ * @param localReference Adds the local scaling suggestion first, for a copied
+ * goal (see {@link localScaleRecipe}); needs `parentSeries`.
  */
-export function getDefaultSuggestedRecipes(t: TFunction, parentSeries?: PrefilledSeries): DBRecipe[] {
+export function getDefaultSuggestedRecipes(t: TFunction, parentSeries?: PrefilledSeries, localReference?: GoalPrefill["localReference"]): DBRecipe[] {
   const recipes: { id: string, recipe: Recipe }[] = [
+    ...(parentSeries && localReference ? [{ id: DefaultSuggestedRecipeId.LocalScale, recipe: localScaleRecipe(t, parentSeries, localReference) }] : []),
+
     /* Scaling by a ratio between two regions */
     {
       id: "area-recipe-dummy-uuid",

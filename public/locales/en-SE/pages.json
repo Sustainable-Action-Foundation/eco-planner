@@ -68,7 +68,13 @@
     "sub_goals": "Sub-$t(common:goal_other)",
     "title_label": "$t(common:goal_one, titleCase)",
     "update_needed": "Update your $t(common:goal_one) to get the latest information.",
-    "update_needed_attention_message": "Attention!"
+    "update_needed_attention_message": "Attention!",
+    "use_locally": {
+      "description": "The goal can be followed up with local statistics ({{series}}). A copy starts from the local data and follows the national goal's development; everything can be adjusted before saving.",
+      "heading": "Use in a local roadmap",
+      "link": "Use in roadmap",
+      "link_org": "Use in roadmap ({{org}})"
+    }
   },
   "goal_create": {
     "bad_prefill": "Could not find the data in the link, so the form starts out empty.",
@@ -76,7 +82,8 @@
     "breadcrumb": "$t(common:new.goal)",
     "information_icon_aria": "Information",
     "prefilled": "The form starts out from {{name}}: as the goal's historical data, and as the series the suggested methods scale. Everything can still be changed before saving.",
-    "title": "$t(common:new.goal)"
+    "title": "$t(common:new.goal)",
+    "prefilled_copy": "The form starts out from the national goal {{goal}}: the copy follows its development from the latest local value of {{series}}, which also becomes the goal's historical data. Everything can still be changed before saving."
   },
   "goal_edit": {
     "breadcrumb": "$t(common:edit.goal)",
@@ -106,7 +113,7 @@
       "category_solar_power": "Solar power",
       "category_vehicles": "Vehicles",
       "category_wind_power": "Wind power",
-      "description": "Statistics selected for following the energy and transport transition in your area, fetched directly from the Swedish Energy Agency and Transport Analysis.",
+      "description": "Selected statistics for following the energy and transport transition in the area, fetched directly from the Swedish Energy Agency and Transport Analysis.",
       "fuel_diesel": "Diesel",
       "fuel_electric": "Electric",
       "fuel_ethanol": "Ethanol",
@@ -134,7 +141,24 @@
     "public_tab": "All public $t(common:roadmap_other)",
     "search_roadmaps": "Search among $t(common:count.roadmap)",
     "shown_results": "Showing {{shown}} out of {{total}} $t(common:roadmap, {\"count\": {{total}}})",
-    "title": "$t(common:roadmap_other, titleCase)"
+    "title": "$t(common:roadmap_other, titleCase)",
+    "national_goals": {
+      "copy": "Use in roadmap",
+      "copy_all": "Use all {{count}} in roadmap",
+      "copy_all_done": "{{created}} goals copied, {{skipped}} already existed.",
+      "copy_all_failed": "Could not copy: {{names}}",
+      "copy_all_progress": "Copying {{done}} of {{total}} …",
+      "copy_all_target": "To roadmap version",
+      "create_roadmap": "Create a roadmap first.",
+      "description": "Goals in the national scenarios that can be followed up with statistics for the area. A copy starts from the local data and follows the national goal's development, with the data as its historical data. Everything can be adjusted before saving.",
+      "latest_value": "Latest {{value}} {{unit}} ({{year}}).",
+      "local_history": "{{area}} so far",
+      "local_projection": "{{area}} as a copy",
+      "local_series": "Local data: {{series}} for {{area}}.",
+      "national_goal": "National goal",
+      "no_roadmap": "Copies go into one of the organization's roadmaps, and there is none yet.",
+      "title": "National goals to copy to {{area}}"
+    }
   },
   "info": {
     "breadcrumb": "Information",
@@ -268,7 +292,7 @@
     "new_goal_description": "Opens the goal form with the series filled in.",
     "series_legend": "Series",
     "subtitle": "Historical data for {{area}}",
-    "use_description": "Start a new goal in one of your roadmaps from this series. It becomes the goal's historical data and the starting point for the goal's own values; the selection and everything else can be adjusted before saving.",
+    "use_description": "Start a new goal in one of the organization's roadmaps from this series. It becomes the goal's historical data and the starting point for the goal's own values; the selection and everything else can be adjusted before saving.",
     "use_heading": "Use this data",
     "values": "Values"
   }
