@@ -18,6 +18,7 @@ import { useMemo, useRef, useState, type SubmitEvent } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { GoalGraph } from "@/components/graph/graphs/goal/main";
 import { getHistoricalDatasetFromRecipe } from "@/functions/getHistoricalDataset";
+import HistoricalFootnote, { historicalSeriesName } from "@/components/graph/historicalFootnote";
 import { IconTrashXFilled, IconX } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 
@@ -48,12 +49,12 @@ export default function HistoricalForm({
   const [previewHistoricalSerie, setPreviewHistoricalSerie] = useState<DateValuesWithUnit | null>(null);
   const [timestamp] = useState(() => Date.now());
 
-  const historicalLabel = useMemo(() => {
-    if (!previewHistoricalRecipe) return "";
+  const historicalSource = useMemo(() => {
+    if (!previewHistoricalRecipe) return null;
     try {
-      return getHistoricalDatasetFromRecipe(Recipe.from(previewHistoricalRecipe)).label ?? "";
+      return getHistoricalDatasetFromRecipe(Recipe.from(previewHistoricalRecipe));
     } catch {
-      return "";
+      return null;
     }
   }, [previewHistoricalRecipe]);
 
@@ -62,9 +63,9 @@ export default function HistoricalForm({
     baseline: storedSeriesForGraph(goal.baseline, t("graphs:common.baseline_scenario")),
     historical: (goal.data_series && previewHistoricalSerie?.dateValues) ? {
       ...previewHistoricalSerie,
-      name: historicalLabel ? t("graphs:common.historical_series", { label: historicalLabel }) : t("common:historical_data"),
+      name: historicalSeriesName(t, historicalSource),
     } : undefined,
-  }), [previewHistoricalSerie, historicalLabel, t, goal.baseline, goal.data_series, goal.name]);
+  }), [previewHistoricalSerie, historicalSource, t, goal.baseline, goal.data_series, goal.name]);
 
   // The section's inputs live in a recipe context; its FormSync injects the
   // resulting recipe and date values as hidden fields, read out here on submit.
@@ -141,6 +142,7 @@ export default function HistoricalForm({
             series={previewGraphSeries}
           />
         </output>
+        <HistoricalFootnote source={historicalSource} className="font-size-14px text-align-center margin-block-50" />
       </div>
       <div className="margin-top-400 padding-top-100 margin-bottom-100 min-width-0" style={{ borderTop: "1px solid var(--gray-80)" }}>
         <button

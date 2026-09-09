@@ -104,6 +104,21 @@ mathjs.createUnit(customUnits);
 // always the metric tonne, so redefine it; "kton"/"Mton" follow from the prefixes.
 mathjs.createUnit("ton", { definition: "1 tonne", prefixes: "short" }, { override: true });
 
+/** A unit's or number's value; NaN for anything else. */
+function toNumber(value: unknown): number {
+  if (mathjs.isUnit(value)) return value.toNumber();
+  return typeof value === "number" ? value : NaN;
+}
+
+/** The evaluator's `year` axis as passed to a function's first argument. */
+function toYearAxis(years: unknown, functionName: string): number[] {
+  const axis: unknown = mathjs.isMatrix(years) ? years.toArray() : years;
+  if (!Array.isArray(axis) || !axis.every(year => typeof year === "number")) {
+    throw new Error(`${functionName} expects the year axis as its first argument.`);
+  }
+  return axis;
+}
+
 /**
  * Custom functions available in recipe equations through the mathjs parser.
  */
@@ -111,19 +126,57 @@ const customFunctions = {
   /**
    * First element of a vector whose value is non-zero, falling back to the
    * first element when every value is zero. Mathjs has no built-in for this;
-   * used by derived-baseline recipe equations (`firstNonZero(${...})`).
+   * used by derived-baseline recipe equations (`firstNonZero(${...})`). NaN
+   * entries are years the series has no value for and are skipped.
    */
   firstNonZero(input: unknown): unknown {
     const values: unknown = mathjs.isMatrix(input) ? input.toArray() : input;
     if (!Array.isArray(values) || values.length === 0) {
       throw new Error("firstNonZero expects a non-empty vector.");
     }
-    const flat = values.flat(Infinity) as unknown[];
-    const found = flat.find(value => mathjs.isUnit(value)
-      ? value.toNumber() !== 0
-      : typeof value === "number" && value !== 0,
-    );
+    const flat = (values.flat(Infinity) as unknown[]).filter(value => !Number.isNaN(toNumber(value)));
+    const found = flat.find(value => toNumber(value) !== 0);
     return found ?? flat[0];
+  },
+
+  /**
+   * The straight line fitted (least squares) through a series' known years,
+   * one value per entry of `years` (the evaluator's `year` axis): NaN before
+   * the first known year and, when `untilYear` is given, after it; the line
+   * continues over any gaps and past the last known year up to the axis end
+   * otherwise. Needs the whole series (not a picked value) with at least two
+   * known values. Keeps the series' unit.
+   */
+  trend(years: unknown, series: unknown, untilYear?: unknown): unknown {
+    const axis = toYearAxis(years, "trend");
+    const raw: unknown = mathjs.isMatrix(series) ? series.toArray() : series;
+    if (!Array.isArray(raw) || raw.length !== axis.length) {
+      throw new Error("trend expects the whole series as its second argument.");
+    }
+    const values: unknown[] = raw;
+    const until = untilYear === undefined ? Infinity : toNumber(untilYear);
+    if (Number.isNaN(until)) throw new Error("trend expects a number for the end year.");
+
+    const points = axis.flatMap((year, i) => {
+      const value = toNumber(values[i]);
+      return Number.isNaN(value) ? [] : [{ year, value }];
+    });
+    if (points.length < 2) throw new Error("trend needs at least two known values to fit a line.");
+
+    const meanYear = points.reduce((sum, p) => sum + p.year, 0) / points.length;
+    const meanValue = points.reduce((sum, p) => sum + p.value, 0) / points.length;
+    const slope = points.reduce((sum, p) => sum + (p.year - meanYear) * (p.value - meanValue), 0)
+      / points.reduce((sum, p) => sum + (p.year - meanYear) ** 2, 0);
+    const firstYear = points[0].year;
+
+    const sample = values[axis.indexOf(firstYear)];
+    const unit = mathjs.isUnit(sample) && sample.units.length > 0 ? sample.formatUnits() : null;
+    const withUnit = (value: number) => unit ? mathjs.unit(value, unit) : mathjs.unit(value);
+
+    return axis.map(year => year < firstYear || year > until
+      ? withUnit(NaN)
+      : withUnit(meanValue + slope * (year - meanYear)),
+    );
   },
 
   /**
@@ -135,27 +188,24 @@ const customFunctions = {
    * 50 MW.
    */
   reachBy(years: unknown, start: unknown, target: unknown, startYear: unknown, endYear: unknown): unknown {
-    const axis: unknown = mathjs.isMatrix(years) ? years.toArray() : years;
-    if (!Array.isArray(axis) || !axis.every(year => typeof year === "number")) {
-      throw new Error("reachBy expects the year axis as its first argument.");
-    }
-    const toNumber = (value: unknown, what: string): number => {
-      if (mathjs.isUnit(value)) return value.toNumber();
-      if (typeof value === "number") return value;
-      throw new Error(`reachBy expects a number for ${what}.`);
+    const axis = toYearAxis(years, "reachBy");
+    const numberFor = (value: unknown, what: string): number => {
+      const number = toNumber(value);
+      if (Number.isNaN(number)) throw new Error(`reachBy expects a number for ${what}.`);
+      return number;
     };
-    const from = toNumber(startYear, "the start year");
-    const to = toNumber(endYear, "the end year");
+    const from = numberFor(startYear, "the start year");
+    const to = numberFor(endYear, "the end year");
     if (to <= from) throw new Error("reachBy expects the end year to come after the start year.");
 
     // Arithmetic on plain numbers in the start's unit: mathjs turns a unitless
     // Unit times a number into a bare number, which the vector must not hold
-    const startUnit = mathjs.isUnit(start) ? start : mathjs.unit(toNumber(start, "the start value"));
+    const startUnit = mathjs.isUnit(start) ? start : mathjs.unit(numberFor(start, "the start value"));
     const unit = startUnit.units.length > 0 ? startUnit.formatUnits() : null;
     const startValue = startUnit.toNumber();
     const targetValue = mathjs.isUnit(target) && target.units.length > 0 && unit
       ? target.toNumber(unit)
-      : toNumber(target, "the target value");
+      : numberFor(target, "the target value");
     const withUnit = (value: number) => unit ? mathjs.unit(value, unit) : mathjs.unit(value);
 
     return axis.map(year => {

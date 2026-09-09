@@ -1,12 +1,12 @@
 {
   "common": {
-    "baseline_scenario": "Basscenario",
-    "change_graph_type": "Ändra graftyp",
-    "expected_outcome": "Förväntat utfall",
-    "historical_series": "{{label}} (historisk)",
-    "historical_unit_mismatch": "Den historiska datan är i {{historical}} men målbanan i {{goal}}; värdena ritas som de är, utan omräkning.",
     "parent_counterpart": "Motsvarande $t(common:goal_one) i {{parent}}",
-    "unknown_roadmap": "Okänd $t(common:roadmap_version_one)"
+    "baseline_scenario": "Basscenario",
+    "expected_outcome": "Förväntat utfall",
+    "unknown_roadmap": "Okänd $t(common:roadmap_version_one)",
+    "change_graph_type": "Ändra graftyp",
+    "historical_data_footnoted": "$t(common:historical_data) (1)",
+    "historical_unit_mismatch": "Den historiska datan är i {{historical}} men målbanan i {{goal}}; värdena ritas som de är, utan omräkning."
   },
   "action_graph": {
     "actions": "$t(common:action_other, titleCase)"
@@ -22,7 +22,9 @@
   },
   "graph_graph": {
     "compare_with_goal": "Jämfört mot $t(common:goal_one) {{goalName}}",
-    "historical_data_source": "Den historiska datan i grafen är hämtad från <a>{{source}}</a>"
+    "historical_data_source": "1. Den historiska datan i grafen är hämtad från <a>{{source}}</a>",
+    "historical_footnote": "1. {{label}}. Hämtad från <a>{{source}}</a>",
+    "historical_footnote_no_source": "1. {{label}}"
   },
   "graph_selector": {
     "goal": "$t(common:goal_one, titleCase)",

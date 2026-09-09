@@ -3,7 +3,6 @@ import { expect, test } from "playwright/test";
 
 import mathjs from "../../src/math";
 import {
-  ANDMasks,
   Recipe,
   dateValuesToDBDateRecord,
   dataSeriesToDateValues,
@@ -746,63 +745,33 @@ test.describe("Vector and mask utilities", () => {
     expect(() => pickDateValues(dateValues, 2020.5)).toThrow("Invalid pick value");
   });
 
-  test("transformDateValuesToVector sets mask for missing years", () => {
-    const transformed = transformDateValuesToVector({
+  test("transformDateValuesToVector leaves missing years as NaN", () => {
+    const vector = transformDateValuesToVector({
       unit: parseUnit("kg"),
       dateValues: {
         [isoYear(2020)]: 1,
         [isoYear(2022)]: 3,
       },
-    }, new Date("2020-01-01T00:00:00Z"), 4);
+    }, [2020, 2021, 2022, 2023]);
 
-    expect(transformed.vector).toHaveLength(4);
-    expect(transformed.vector[1].toNumber()).toBe(0);
-    expect(transformed.mask[isoYear(2020)]).toBe(false);
-    expect(transformed.mask[isoYear(2021)]).toBe(true);
-    expect(transformed.mask[isoYear(2022)]).toBe(false);
+    expect(vector).toHaveLength(4);
+    expect(vector.map(value => value.toNumber())).toEqual([1, NaN, 3, NaN]);
+    expect(vector[1].formatUnits()).toBe("kg");
   });
 
-  test("parseDateValuesFromVector throws on vector/mask length mismatch", () => {
-    expect(() => parseDateValuesFromVector({
-      vector: [mathjs.unit(1, "kg")],
-      mask: {
-        [isoYear(2020)]: false,
-        [isoYear(2021)]: false,
-      },
-    })).toThrow("Vector length does not match mask length");
+  test("parseDateValuesFromVector throws on vector/axis length mismatch", () => {
+    expect(() => parseDateValuesFromVector([mathjs.unit(1, "kg")], [2020, 2021])).toThrow("does not match the year axis");
   });
 
-  test("parseDateValuesFromVector marks the unit as missing when units differ", () => {
-    const parsed = parseDateValuesFromVector({
-      vector: [
-        mathjs.unit(1, "kg"),
-        mathjs.unit(2, "g"),
-      ],
-      mask: {
-        [isoYear(2020)]: false,
-        [isoYear(2021)]: false,
-      },
-    });
+  test("parseDateValuesFromVector skips NaN years and marks the unit as missing when units differ", () => {
+    const parsed = parseDateValuesFromVector([
+      mathjs.unit(1, "kg"),
+      mathjs.unit(NaN, "kg"),
+      mathjs.unit(2, "g"),
+    ], [2020, 2021, 2022]);
 
     expect(parsed.unit).toBe(UnitFlags.Missing);
-    expect(parsed.dateValues[isoYear(2020)]).toBe(1);
-    expect(parsed.dateValues[isoYear(2021)]).toBe(2);
-  });
-
-  test("ANDMasks merges with logical OR semantics over true-mask flags", () => {
-    const combined = ANDMasks([
-      {
-        [isoYear(2020)]: false,
-        [isoYear(2021)]: true,
-      },
-      {
-        [isoYear(2020)]: true,
-        [isoYear(2021)]: false,
-      },
-    ]);
-
-    expect(combined[isoYear(2020)]).toBe(true);
-    expect(combined[isoYear(2021)]).toBe(true);
+    expect(parsed.dateValues).toEqual({ [isoYear(2020)]: 1, [isoYear(2022)]: 2 });
   });
 
   test("unit helpers: getPrevailingUnit and isMathjsUnit", () => {
@@ -979,5 +948,88 @@ test.describe("reachBy", () => {
       ],
     });
     await expect(recipe.evaluate([])).rejects.toThrow("end year");
+  });
+});
+
+test.describe("trend", () => {
+  const byYear = (result: DateValuesWithUnit | null) => Object.fromEntries(
+    Object.entries(result?.dateValues ?? {}).map(([date, value]) => [new Date(date).getUTCFullYear(), value]),
+  );
+
+  test("fits a line through the known years and continues it to the axis horizon", async () => {
+    const recipe = new Recipe({
+      name: "Trend",
+      equation: "trend(year, ${series})",
+      variables: [
+        inlineDataSeriesVariable({
+          id: "series",
+          name: "Series",
+          // Exactly on the line 100 - 2 * (year - 2016), with a gap in 2018
+          values: { [isoYear(2016)]: 100, [isoYear(2017)]: 98, [isoYear(2019)]: 94, [isoYear(2024)]: 84 },
+          unit: parseUnit("kt CO2e"),
+        }),
+      ],
+    });
+    const { result } = await evaluateWithWarnings(recipe);
+    expect(result?.unit).toBe("kt CO2e");
+    const years = byYear(result);
+    expect(years[2016]).toBeCloseTo(100);
+    expect(years[2018]).toBeCloseTo(96);
+    expect(years[2030]).toBeCloseTo(72);
+    expect(years[2050]).toBeCloseTo(32);
+    expect(Object.keys(years).length).toBe(2050 - 2016 + 1);
+  });
+
+  test("stops at the end year and leaves years before the first known one out", async () => {
+    const recipe = new Recipe({
+      name: "Trend until",
+      equation: "trend(year, ${series}, ${until})",
+      variables: [
+        inlineDataSeriesVariable({ id: "series", name: "Series", values: { [isoYear(2020)]: 1, [isoYear(2021)]: 3, [isoYear(2022)]: 2 } }),
+        inlineDataSeriesVariable({ id: "other", name: "Other", values: { [isoYear(2010)]: 0 } }),
+        scalarVariable("until", "Until", 2030),
+      ],
+    });
+    const { result } = await evaluateWithWarnings(recipe);
+    expect(result?.unit).toBe(UnitFlags.Unitless);
+    const years = byYear(result);
+    // The axis starts in 2010 because of the other series; the trend does not backcast
+    expect(years[2019]).toBeUndefined();
+    expect(years[2021]).toBeCloseTo(2);
+    expect(years[2030]).toBeCloseTo(6.5);
+    expect(years[2031]).toBeUndefined();
+  });
+
+  test("rejects a picked value and a series with fewer than two known values", async () => {
+    const picked = new Recipe({
+      name: "Picked",
+      equation: "trend(year, ${series})",
+      variables: [
+        inlineDataSeriesVariable({ id: "series", name: "Series", values: { [isoYear(2020)]: 1, [isoYear(2021)]: 3 }, pick: VectorIndexPickerOptions.Last }),
+      ],
+    });
+    await expect(picked.evaluate([])).rejects.toThrow("whole series");
+
+    const single = new Recipe({
+      name: "Single",
+      equation: "trend(year, ${series})",
+      variables: [
+        inlineDataSeriesVariable({ id: "series", name: "Series", values: { [isoYear(2020)]: 1 } }),
+      ],
+    });
+    await expect(single.evaluate([])).rejects.toThrow("at least two known values");
+  });
+
+  test("elementwise arithmetic still only covers years both series have", async () => {
+    const recipe = new Recipe({
+      name: "Sum",
+      equation: "${a} + ${b}",
+      variables: [
+        inlineDataSeriesVariable({ id: "a", name: "A", values: { [isoYear(2016)]: 1, [isoYear(2020)]: 2, [isoYear(2021)]: 3 } }),
+        inlineDataSeriesVariable({ id: "b", name: "B", values: { [isoYear(2020)]: 10, [isoYear(2021)]: 20, [isoYear(2030)]: 30 } }),
+      ],
+    });
+    const { result } = await evaluateWithWarnings(recipe);
+    expect(byYear(result)).toEqual({ 2020: 12, 2021: 23 });
   });
 });

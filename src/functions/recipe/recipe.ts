@@ -1,5 +1,4 @@
-import type { DataSeries, DateValuesWithUnit, JSONValue, Mask, Unit } from "@/types";
-import { isISOIshDate } from "@/types/typeguards";
+import type { DataSeries, DateValuesWithUnit, JSONValue, Unit } from "@/types";
 import mathjs from "@/math";
 import type { Unit as MathJSUnit } from "mathjs";
 import type { ApiSelectionItem, ApiTableContent, DatasetKeys } from "@/lib/api/apiTypes";
@@ -7,11 +6,16 @@ import type { ExternalVariable, RecipeExtractionOutput, RecipeVariable, Serializ
 import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/enums";
 import { MathjsError, RecipeError } from "@/functions/recipe/types/errors";
 import { isEvalTimeSeries, isEvalTimeVariable, isRecipe } from "@/functions/recipe/types/typeguards";
-import { ANDMasks, parseDateValuesFromVector, transformDateValuesToVector } from "@/functions/recipe/vectorAndMaskUtils";
+import { parseDateValuesFromVector, transformDateValuesToVector } from "@/functions/recipe/vectorAndMaskUtils";
 import { extractDataSeries, extractExternalDatasets, extractScalars } from "@/functions/recipe/extractors";
 import { sanityCheckDataSeries, sanityCheckExternalDatasets, sanityCheckScalars } from "@/functions/recipe/sanityChecks";
 import { isUnitFlag, parseUnit } from "@/functions/unit";
 import { UnitFlags } from "@/types/enums";
+
+/** Where the year axis starts when no series sets it (scalar-only recipes). */
+export const DefaultAxisStartYear = 2020;
+/** The year axis always reaches at least this far, so projections have somewhere to go. */
+export const AxisHorizonYear = 2050;
 
 /**
  * Deterministic JSON serialization: object keys are sorted recursively so that
@@ -171,46 +175,20 @@ export class Recipe {
     const evalTimeVars = allVars.filter(v => isEvalTimeVariable(v, { silent: true }));
     const seriesVariables = allVars.filter(v => isEvalTimeSeries(v, { silent: true }));
 
-    const [commonStartDate, commonEndDate] = seriesVariables.length > 0
-      ? (() => {
-        const startYears = seriesVariables.map(v => {
-          const dates = Object.keys(v.series.dateValues).sort();
-          return new Date(dates[0]).getUTCFullYear();
-        });
-        const endYears = seriesVariables.map(v => {
-          const dates = Object.keys(v.series.dateValues).sort();
-          return new Date(dates[dates.length - 1]).getUTCFullYear();
-        });
-        const commonStartYear = Math.max(...startYears);
-        const commonEndYear = Math.min(...endYears);
-        return [
-          new Date(`${commonStartYear}-01-01T00:00:00.000Z`),
-          new Date(`${commonEndYear}-01-01T00:00:00.000Z`),
-        ];
-      })()
-      : [
-        new Date(`2020-01-01T00:00:00.000Z`),
-        new Date(`2050-01-01T00:00:00.000Z`),
-      ];
-    // +1 since the diff would miss one fence post year
-    const maxTimeSpan = commonEndDate.getUTCFullYear() - commonStartDate.getUTCFullYear() + 1;
+    // The year axis every series is aligned to: from the earliest year any
+    // series has up to the horizon, so a projection (`trend`, `reachBy`) has
+    // room past the last known year. Years a series lacks are NaN in its
+    // vector and drop out of the result unless a function fills them.
+    const seriesYears = seriesVariables.flatMap(v => Object.keys(v.series.dateValues).map(date => new Date(date).getUTCFullYear()));
+    const axisStartYear = seriesYears.length > 0 ? Math.min(...seriesYears) : DefaultAxisStartYear;
+    const axisEndYear = Math.max(...seriesYears, AxisHorizonYear);
+    const axis = Array.from({ length: axisEndYear - axisStartYear + 1 }, (_, i) => axisStartYear + i);
 
-    if (maxTimeSpan <= 0) {
-      throw new RecipeError("The selected data series have no overlapping years; cannot evaluate. Adjust their date ranges or picks.");
-    }
-
-    const masks: Mask[] = [];
     for (const ds of seriesVariables) {
-      const { mask, vector } = transformDateValuesToVector(
-        ds.series,
-        commonStartDate,
-        maxTimeSpan,
-      );
-      masks.push(mask);
       evalTimeVars.push({
         id: ds.id,
         displayName: ds.displayName,
-        value: vector,
+        value: transformDateValuesToVector(ds.series, axis),
       });
     }
 
@@ -221,10 +199,8 @@ export class Recipe {
     const scope: Record<string, number | number[] | MathJSUnit | MathJSUnit[]> = {};
     let equation = this.equation;
 
-    // The year axis the vectors are aligned to, for equations that shape a
-    // series by year (e.g. `reachBy(year, ...)`)
-    const axisStartYear = commonStartDate.getUTCFullYear();
-    scope.year = Array.from({ length: maxTimeSpan }, (_, i) => axisStartYear + i);
+    // For equations that shape a series by year (e.g. `reachBy(year, ...)`)
+    scope.year = axis;
 
     const nameNormalizer = (name: string) => {
       const collapsedWhitespace = name.trim().replace(/\s+/g, "_");
@@ -319,34 +295,14 @@ export class Recipe {
 
     if (result instanceof mathjs.Unit) {
       warnings.push("Equation returned a scalar, applying to all fields.");
-      result = Array(maxTimeSpan).fill(result.clone()) as MathJSUnit[];
+      result = Array(axis.length).fill(result.clone()) as MathJSUnit[];
     }
 
-    const outputMask: Mask = masks.length > 0
-      ? ANDMasks(masks)
-      : (() => {
-        const generatedMask: Mask = {};
-        const vectorLength = Array.isArray(result) ? result.length : 1;
+    const evaluated = parseDateValuesFromVector(result, axis);
+    if (Object.keys(evaluated.dateValues).length === 0) {
+      throw new RecipeError("The result has no values: the selected data series have no overlapping years. Adjust their date ranges or picks.");
+    }
 
-        for (let i = 0; i < vectorLength; i++) {
-          const currentYear = commonStartDate.getUTCFullYear() + i;
-          const isoYearString = new Date(`${currentYear}-01-01T00:00:00Z`).toISOString();
-          if (!isISOIshDate(isoYearString)) {
-            throw new RecipeError(`Generated invalid ISOIshDate string: "${isoYearString}"`);
-          }
-          generatedMask[isoYearString] = false;
-        }
-
-        return generatedMask;
-      })();
-
-    const evaluated = parseDateValuesFromVector(
-      {
-        vector: result,
-        mask: outputMask,
-      },
-    );
- 
     // A declared unit overrides the evaluated one. "Missing" means nothing was
     // declared; an explicit "unitless" declaration does override.
     return this.unit === UnitFlags.Missing ? evaluated : { ...evaluated, unit: this.unit };
