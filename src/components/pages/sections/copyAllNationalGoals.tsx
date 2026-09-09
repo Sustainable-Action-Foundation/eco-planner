@@ -102,6 +102,7 @@ async function buildCopyPayload(prefill: GoalPrefill, iterationId: string, t: TF
   if (!suggestion || !scaled) throw new Error("The copy has nothing to scale from");
   const dataSeriesRecipe = Recipe.from(suggestion.recipe).serialize();
   const dataSeries: DateValuesWithUnit = { dateValues: scaled, unit: parseUnit(prefill.localReference?.series.unit) };
+  if (!prefill.historical) throw new Error("A national goal copy needs its local series");
   const historical: DateValuesWithUnit = { dateValues: prefill.historical.dateValues ?? {}, unit: parseUnit(prefill.historical.unit) };
   const { baseline, baselineRecipe } = await buildBaselineSection(new FormData(), BaselineType.Initial, dataSeries, t);
 

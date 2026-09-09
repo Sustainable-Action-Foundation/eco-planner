@@ -69,9 +69,11 @@ export default async function Page(
         }
         {prefill ? <p className="color-gray">
             <IconInfoCircle role="img" aria-label={t("pages:goal_create.information_icon_aria")} />
-            {prefill.copy
+            {prefill.copy && prefill.historical
               ? t("pages:goal_create.prefilled_copy", { goal: prefill.parent.name, series: prefill.historical.name })
-              : t("pages:goal_create.prefilled", { name: prefill.historical.name })}
+              : prefill.copy
+                ? t("pages:goal_create.prefilled_goal", { goal: prefill.parent.name })
+                : t("pages:goal_create.prefilled", { name: prefill.parent.name })}
           </p> : null
         }
         <GoalForm iterationId={badRoadmap ? undefined : searchParams.iterationId as string} roadmapAlternatives={filteredRoadmaps} prefill={prefill ?? undefined} />

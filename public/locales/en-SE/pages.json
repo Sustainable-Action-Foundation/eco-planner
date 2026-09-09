@@ -74,6 +74,10 @@
       "heading": "Use in a local roadmap",
       "link": "Use in roadmap",
       "link_org": "Use in roadmap ({{org}})"
+    },
+    "use_in_roadmap": {
+      "description": "Start a new goal in one of the organization's roadmaps from this one: it becomes the starting point the suggested methods scale, and the name, description and indicator parameter come along. Everything can be adjusted before saving.",
+      "heading": "Use in a roadmap"
     }
   },
   "goal_create": {
@@ -83,7 +87,8 @@
     "information_icon_aria": "Information",
     "prefilled": "The form starts out from {{name}}: as the goal's historical data, and as the series the suggested methods scale. Everything can still be changed before saving.",
     "title": "$t(common:new.goal)",
-    "prefilled_copy": "The form starts out from the national goal {{goal}}: the copy follows its development from the latest local value of {{series}}, which also becomes the goal's historical data. Everything can still be changed before saving."
+    "prefilled_copy": "The form starts out from the national goal {{goal}}: the copy follows its development from the latest local value of {{series}}, which also becomes the goal's historical data. Everything can still be changed before saving.",
+    "prefilled_goal": "The form starts out from the goal {{goal}}: it is the starting point the suggested methods scale, and its details are filled in. Everything can still be changed before saving."
   },
   "goal_edit": {
     "breadcrumb": "$t(common:edit.goal)",

@@ -172,8 +172,8 @@ export type PrefilledSeries = {
  * national reference for scaling it down to the org's area.
  */
 export type GoalPrefill = {
-  /** Seeds the historical section; the goal's own local statistic */
-  historical: PrefilledSeries;
+  /** Seeds the historical section (a copied goal's local statistic); absent when a goal is copied as is */
+  historical?: PrefilledSeries;
   /** What the suggested methods scale: the historical series itself, or a copied goal's data series */
   parent: PrefilledSeries;
   /** The goal being copied, if any: its fields seed the form */

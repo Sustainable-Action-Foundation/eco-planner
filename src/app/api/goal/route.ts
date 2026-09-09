@@ -4,16 +4,18 @@ import { accessControlSelection } from "@/fetchers/inclusionSelectors";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { iterationPath } from "@/functions/versionSlug";
 import { Recipe } from "@/functions/recipe/recipe";
+import { RecipeDataTypes } from "@/functions/recipe/types/enums";
 import { manualDataSeriesCreateData, resolveRecipeExternals, upsertRecipe } from "@/functions/recipe/persistence";
 import type { ResolvedExternals, SerializedRecipe } from "@/functions/recipe";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 import { serializeUnit } from "@/functions/unit";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import serveTea from "@/lib/i18nServer";
+import { visibleDataSeriesWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@PRISMA-NAMESPACE-ONLY";
 import { getSession } from "@/lib/session";
-import type { BaselineFields, DataSeriesFields, DateValuesWithUnit, GoalCreateFull, GoalUpdateFull, HistoricalFields, JSONValue, LoginData, RecipeSuggestionsFields } from "@/types";
+import type { BaselineFields, DataSeriesFields, DateValuesWithUnit, GoalCreateFull, GoalUpdateFull, HistoricalFields, JSONValue, LoginData, RecipeSuggestionsFields, UserAccessContext } from "@/types";
 import { GoalDataTarget } from "@/types/enums";
 import { ClientError } from "@/types/consts";
 import { isGoalCreate, isGoalUpdate } from "@/types/typeguards";
@@ -25,12 +27,20 @@ import type { IronSession } from "iron-session";
 /**
  * Authorizes a write to an existing goal (used by Full update and all sectional
  * create/update branches): validates the session, that the goal exists and the
- * user has edit access via its iteration's roadmap, and that the provided
- * timestamp isn't stale. Returns an error `Response` to return immediately, or
+ * user has edit access via its iteration's roadmap, that the provided
+ * timestamp isn't stale, and that the series the recipes link to are readable.
+ * Returns an error `Response` to return immediately, or
  * `{ ok: true, orgId }` — the org owning the goal's roadmap, which also owns any
  * series/recipes created by the write.
  */
-async function authorizeGoalWrite(session: IronSession<LoginData>, goalId: string, timestamp: number, t: TFunction): Promise<{ error: Response } | { ok: true, orgId: string }> {
+async function authorizeGoalWrite(
+  session: IronSession<LoginData>,
+  goalId: string,
+  timestamp: number,
+  /** The recipes the write stores, whose linked series must be readable (see `assertReadableLinkedSeries`) */
+  recipes: (SerializedRecipe | null | undefined)[],
+  t: TFunction,
+): Promise<{ error: Response } | { ok: true, orgId: string }> {
   if (!session.user?.id) {
     return { error: Response.json({ message: t('api:common.unauthorized') }, { status: 401, headers: { 'Location': '/login' } }) };
   }
@@ -72,6 +82,8 @@ async function authorizeGoalWrite(session: IronSession<LoginData>, goalId: strin
       throw new Error(ClientError.StaleData, { cause: 'goal' });
     }
 
+    await assertReadableLinkedSeries(recipes, accessContext);
+
     return { ok: true, orgId: currentGoal.roadmap_iteration.roadmap.access_control.org_id };
   }
   catch (err) {
@@ -86,9 +98,38 @@ async function authorizeGoalWrite(session: IronSession<LoginData>, goalId: strin
       if (err.message === ClientError.AccessDenied) {
         return { error: Response.json({ message: ClientError.AccessDenied }, { status: 403 }) };
       }
+      if (err.message === ClientError.IllegalSource) {
+        return { error: Response.json({ message: ClientError.IllegalSource }, { status: 403 }) };
+      }
     }
     console.error(err);
     return { error: Response.json({ message: t('api:common.server_error') }, { status: 500 }) };
+  }
+}
+
+/**
+ * Checks that every stored data series the recipes link to (a parent goal's
+ * series, an inherited baseline) is one the user can read; the goal's own
+ * access says nothing about theirs. Externals materialized on an earlier save
+ * carry `externalSource` and no visibility of their own, so they are skipped.
+ * Throws `ClientError.IllegalSource` otherwise.
+ */
+async function assertReadableLinkedSeries(recipes: (SerializedRecipe | null | undefined)[], accessContext: UserAccessContext): Promise<void> {
+  const ids = new Set<string>();
+  for (const raw of recipes) {
+    if (!raw) continue;
+    for (const variable of Recipe.from(raw).variables) {
+      if (variable.type === RecipeDataTypes.DataSeries && !variable.externalSource && variable.dataSeriesId) ids.add(variable.dataSeriesId);
+    }
+  }
+  if (ids.size === 0) return;
+
+  const visible = await prisma.dataSeries.findMany({
+    where: { id: { in: [...ids] }, ...visibleDataSeriesWHERE(accessContext) },
+    select: { id: true },
+  });
+  if (visible.length !== ids.size) {
+    throw new Error(ClientError.IllegalSource, { cause: 'goal' });
   }
 }
 
@@ -395,7 +436,10 @@ async function createFullGoal(session: IronSession<LoginData>, authorId: string,
       throw new Error(ClientError.IllegalParent, { cause: 'goal' });
     }
     orgId = iteration.roadmap.access_control.org_id;
-    // TODO: Access checks for goals used in recipe
+    await assertReadableLinkedSeries(
+      [formData.dataSeriesRecipe, formData.baselineRecipe, formData.historicalRecipe, ...(formData.recipeSuggestions ?? [])],
+      accessContext,
+    );
   }
   catch (err) {
     if (err instanceof Error) {
@@ -405,6 +449,9 @@ async function createFullGoal(session: IronSession<LoginData>, authorId: string,
       }
       if (err.message === ClientError.IllegalParent) {
         return Response.json({ message: ClientError.IllegalParent }, { status: 403 });
+      }
+      if (err.message === ClientError.IllegalSource) {
+        return Response.json({ message: ClientError.IllegalSource }, { status: 403 });
       }
     }
     console.error(err);
@@ -509,7 +556,8 @@ async function createFullGoal(session: IronSession<LoginData>, authorId: string,
  * Updates every section of an existing goal at once (Full PUT).
  */
 async function updateFullGoal(session: IronSession<LoginData>, authorId: string, goal: GoalUpdateFull, t: TFunction): Promise<Response> {
-  const auth = await authorizeGoalWrite(session, goal.goalId, goal.timestamp, t);
+  const auth = await authorizeGoalWrite(session, goal.goalId, goal.timestamp,
+    [goal.dataSeriesRecipe, goal.baselineRecipe, goal.historicalRecipe, ...(goal.recipeSuggestions ?? [])], t);
   if ("error" in auth) return auth.error;
   const orgId = auth.orgId;
 
@@ -589,22 +637,22 @@ export async function POST(request: NextRequest) {
       return createFullGoal(session, authorId, formData, t);
     }
     case GoalDataTarget.DataSeries: {
-      const auth = await authorizeGoalWrite(session, formData.goalId, formData.timestamp, t);
+      const auth = await authorizeGoalWrite(session, formData.goalId, formData.timestamp, [formData.dataSeriesRecipe], t);
       if ("error" in auth) return auth.error;
       return writeDataSeriesSection(authorId, auth.orgId, formData.goalId, formData, t);
     }
     case GoalDataTarget.Baseline: {
-      const auth = await authorizeGoalWrite(session, formData.goalId, formData.timestamp, t);
+      const auth = await authorizeGoalWrite(session, formData.goalId, formData.timestamp, [formData.baselineRecipe], t);
       if ("error" in auth) return auth.error;
       return writeBaselineSection(authorId, auth.orgId, formData.goalId, formData, t);
     }
     case GoalDataTarget.Historical: {
-      const auth = await authorizeGoalWrite(session, formData.goalId, formData.timestamp, t);
+      const auth = await authorizeGoalWrite(session, formData.goalId, formData.timestamp, [formData.historicalRecipe], t);
       if ("error" in auth) return auth.error;
       return writeHistoricalSection(authorId, auth.orgId, formData.goalId, formData, t);
     }
     case GoalDataTarget.RecipeSuggestions: {
-      const auth = await authorizeGoalWrite(session, formData.goalId, formData.timestamp, t);
+      const auth = await authorizeGoalWrite(session, formData.goalId, formData.timestamp, formData.recipeSuggestions ?? [], t);
       if ("error" in auth) return auth.error;
       return writeRecipeSuggestionsSection(authorId, auth.orgId, formData.goalId, formData, t);
     }
@@ -642,22 +690,22 @@ export async function PUT(request: NextRequest) {
       return updateFullGoal(session, authorId, goal, t);
     }
     case GoalDataTarget.DataSeries: {
-      const auth = await authorizeGoalWrite(session, goal.goalId, goal.timestamp, t);
+      const auth = await authorizeGoalWrite(session, goal.goalId, goal.timestamp, [goal.dataSeriesRecipe], t);
       if ("error" in auth) return auth.error;
       return writeDataSeriesSection(authorId, auth.orgId, goal.goalId, goal, t);
     }
     case GoalDataTarget.Baseline: {
-      const auth = await authorizeGoalWrite(session, goal.goalId, goal.timestamp, t);
+      const auth = await authorizeGoalWrite(session, goal.goalId, goal.timestamp, [goal.baselineRecipe], t);
       if ("error" in auth) return auth.error;
       return writeBaselineSection(authorId, auth.orgId, goal.goalId, goal, t);
     }
     case GoalDataTarget.Historical: {
-      const auth = await authorizeGoalWrite(session, goal.goalId, goal.timestamp, t);
+      const auth = await authorizeGoalWrite(session, goal.goalId, goal.timestamp, [goal.historicalRecipe], t);
       if ("error" in auth) return auth.error;
       return writeHistoricalSection(authorId, auth.orgId, goal.goalId, goal, t);
     }
     case GoalDataTarget.RecipeSuggestions: {
-      const auth = await authorizeGoalWrite(session, goal.goalId, goal.timestamp, t);
+      const auth = await authorizeGoalWrite(session, goal.goalId, goal.timestamp, goal.recipeSuggestions ?? [], t);
       if ("error" in auth) return auth.error;
       return writeRecipeSuggestionsSection(authorId, auth.orgId, goal.goalId, goal, t);
     }

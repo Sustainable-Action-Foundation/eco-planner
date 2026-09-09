@@ -5,6 +5,7 @@ export const ClientError = {
   AccessDenied: "You either don't have access to this entry or are trying to edit an entry that doesn't exist",
   BadSession: "Bad session cookie; you have been logged out. Please log in and try again.",
   IllegalParent: "You are trying to connect this object to a parent you don't have access to or that doesn't exist",
+  IllegalSource: "You are trying to use a data series you don't have access to or that doesn't exist",
   StaleData: "Stale data; please refresh and try again",
 } as const;
 

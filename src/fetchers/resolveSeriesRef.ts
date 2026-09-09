@@ -129,9 +129,9 @@ async function resolveCopiedGoal(goalId: string): Promise<Parameters<typeof copy
 /**
  * What the goal creation form should start from, from its link's search
  * params: `series` carries a ref (see `seriesRef`) resolved for the geo area of
- * the org named by `org`, and `from` optionally names a goal to copy, whose
- * data series then becomes the parent the suggested methods scale, with the
- * series as the local level to scale it to. `failed` is true when a
+ * the org named by `org`, and `from` names a goal to copy, whose data series
+ * then becomes the parent the suggested methods scale, with the series (when
+ * given) as the local level to scale it to. `failed` is true when a
  * param was given but could not be resolved (or the org isn't one of the
  * user's), so the page can say the link didn't work rather than silently
  * starting empty.
@@ -140,7 +140,20 @@ export async function getGoalPrefill(
   t: TFunction,
   params: { org?: string | string[], series?: string | string[], from?: string | string[] },
 ): Promise<{ prefill: GoalPrefill | null, failed: boolean }> {
-  if (typeof params.series !== "string") return { prefill: null, failed: typeof params.from === "string" };
+  if (typeof params.series !== "string") {
+    if (typeof params.from !== "string") return { prefill: null, failed: false };
+    // A goal copied as is: its series is what the suggested methods scale, and
+    // its fields seed the form; no local statistic to anchor to
+    const copied = await resolveCopiedGoal(params.from);
+    if (!copied) return { prefill: null, failed: true };
+    return {
+      prefill: {
+        parent: goalPrefilledSeries(copied),
+        copy: { name: copied.name, description: copied.description, indicatorParameter: copied.indicatorParameter },
+      },
+      failed: false,
+    };
+  }
 
   const ref = parseSeriesRef(params.series);
   const orgId = typeof params.org === "string" ? params.org : "";

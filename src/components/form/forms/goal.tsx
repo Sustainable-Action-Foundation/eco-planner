@@ -72,14 +72,14 @@ export default function GoalForm({
   const baselineHasInitializedManual = initializedBaselineTypes.has(BaselineType.Custom);
   const baselineHasInitializedInherited = initializedBaselineTypes.has(BaselineType.Inherited);
 
-  const [historicalDataType, setHistoricalDataType] = useState<HistoricalDataType>(() => prefill ? HistoricalDataType.External : resolveHistoricalDataType(currentGoal));
-  const prefilledHistoricalRecipe = useMemo(() => prefill ? prefilledSeriesRecipe(prefill.historical) : undefined, [prefill]);
+  const [historicalDataType, setHistoricalDataType] = useState<HistoricalDataType>(() => prefill?.historical ? HistoricalDataType.External : resolveHistoricalDataType(currentGoal));
+  const prefilledHistoricalRecipe = useMemo(() => prefill?.historical ? prefilledSeriesRecipe(prefill.historical) : undefined, [prefill]);
 
   // Baseline and historical data are optional, so their sections start collapsed
   // unless the goal already has one (or a prefilled series fills the historical
   // section); the toggle shows the current choice.
   const [baselineOpen, setBaselineOpen] = useState<boolean>(() => !!currentGoal?.baseline);
-  const [historicalOpen, setHistoricalOpen] = useState<boolean>(() => !!currentGoal?.historical || !!prefill);
+  const [historicalOpen, setHistoricalOpen] = useState<boolean>(() => !!currentGoal?.historical || !!prefill?.historical);
   // Inline records so every key stays a literal inside t()
   const baselineTypeLabels: Record<BaselineType, string> = {
     [BaselineType.None]: t("forms:goal.baseline_types.none"),
@@ -101,7 +101,7 @@ export default function GoalForm({
   const [indicatorParameter, setIndicatorParameter] = useState<string>(currentGoal?.indicator_parameter ?? prefill?.copy?.indicatorParameter ?? "");
   // A copied goal keeps its name (none for imported scenarios, whose indicator
   // parameter is copied too); a goal started from a series is named after it
-  const initialName = currentGoal?.name ?? (prefill?.copy ? prefill.copy.name : prefill?.historical.name) ?? undefined;
+  const initialName = currentGoal?.name ?? (prefill?.copy ? prefill.copy.name : prefill?.historical?.name) ?? undefined;
   const initialListing: GoalListing = currentGoal?.listing ?? GoalListing.LISTED;
   // const [goalName, setGoalName] = useState<string>(currentGoal?.name ?? "");
   const [parentIterationId, setParentIterationId] = useState<string>(iterationId || "");
