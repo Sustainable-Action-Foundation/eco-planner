@@ -1,6 +1,5 @@
 import type { IterationStatus, OrgRole, Prisma } from "@/lib/prisma/generated";
 import type { accessControlSelection, actionInclusionSelection, clientSafeDataSeriesSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapIterationSelection, effectInclusionSelection, goalInclusionSelection, multiRoadmapInclusionSelection, nameSelector, recipeSelector, roadmapInclusionSelection, roadmapIterationInclusionSelection, userInfoSelector } from "@/fetchers/inclusionSelectors";
-import type { Unit as MathJSUnit } from "mathjs";
 import type { UnitFlags } from "@/types/enums";
 import type { DataSeriesVariable, ExternalVariable } from "@/functions/recipe/types";
 
@@ -147,11 +146,8 @@ export type UserAccessContext = {
  */
 export type Unit = string & { __unitStringBrand: never } | typeof UnitFlags[keyof typeof UnitFlags];
 export type ISOIshDate = `${number}-${number}-${number}T00:00:00${`.000` | ``}Z`;
-/** True: missing value, False: defined value. It masks/"covers" the undefined values */
-export type Mask = Record<ISOIshDate, boolean>;
 export type DateValues = Record<ISOIshDate, number>;
 export type DateValuesWithUnit = { dateValues: DateValues, unit: Unit };
-export type MaskedVector = { vector: MathJSUnit[], mask: Mask };
 
 /**
  * A series handed to the goal form to start a goal from, e.g. a browsable

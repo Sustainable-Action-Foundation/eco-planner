@@ -242,6 +242,11 @@
       "name": "Summa av A och B (A + B)",
       "second": "Värden B"
     },
+    "default_trend_recipe": {
+      "end_year": "Slutår",
+      "name": "Fortsätt trenden",
+      "parent_value": "Överordnad målbana"
+    },
     "delete_variable": "Radera variabel:",
     "edit_variable": "Redigera variabel",
     "editing_recipe_named": "Redigerar formeln {{name}}",

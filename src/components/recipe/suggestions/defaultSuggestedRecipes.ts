@@ -14,6 +14,7 @@ const PARENT_VALUE_ID = "parent-value-dummy-uuid";
 export const DefaultSuggestedRecipeId = {
   Scalar: "scalar-recipe-dummy-uuid",
   ReachTarget: "reach-target-recipe-dummy-uuid",
+  Trend: "trend-recipe-dummy-uuid",
 } as const;
 export type DefaultSuggestedRecipeId = (typeof DefaultSuggestedRecipeId)[keyof typeof DefaultSuggestedRecipeId];
 
@@ -229,6 +230,33 @@ export function getDefaultSuggestedRecipes(t: TFunction, parentSeries?: Prefille
             scalar("reach-target-value-dummy-uuid", names.target, 0),
             scalar("reach-target-start-year-dummy-uuid", names.startYear, new Date().getFullYear()),
             scalar("reach-target-year-dummy-uuid", names.targetYear, 2045),
+          ],
+          meta: { isSuggestedRecipe: true },
+        });
+      })(),
+    },
+
+    // The line fitted through the parent's known years, continued up to an end
+    // year; see `trend` in `src/math.ts`
+    {
+      id: DefaultSuggestedRecipeId.Trend,
+      recipe: (() => {
+        const names = {
+          parentValue: t("components:recipe_editor.default_trend_recipe.parent_value"),
+          endYear: t("components:recipe_editor.default_trend_recipe.end_year"),
+        };
+        return new Recipe({
+          name: t("components:recipe_editor.default_trend_recipe.name"),
+          equation: `trend(year, \${${names.parentValue}}, \${${names.endYear}})`,
+          variables: [
+            dataSeriesTemplate(PARENT_VALUE_ID, names.parentValue, VectorIndexPickerOptions.Whole),
+            {
+              id: "trend-end-year-dummy-uuid",
+              name: names.endYear,
+              type: RecipeDataTypes.Scalar,
+              value: 2045,
+              unit: UnitFlags.Unitless,
+            } satisfies ScalarVariable,
           ],
           meta: { isSuggestedRecipe: true },
         });
