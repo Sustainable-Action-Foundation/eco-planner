@@ -1,6 +1,7 @@
 "use client";
 
 import GoalSeriesSection from "@/components/form/sections/dataseries/goal";
+import { GoalFormName } from "@/types/form-names";
 import { GoalGraph } from "@/components/graph/graphs/goal/main";
 import { waitForRecipeFormSyncs } from "@/components/recipe";
 import { useToast } from "@/components/generic/toast/toastContext.use";
@@ -44,7 +45,6 @@ export default function DataSeriesForm({
   const [previewDataSerie, setPreviewDataSerie] = useState<DateValuesWithUnit | null>(null);
   // Evaluation error of the currently-selected recipe input (Suggested/Custom),
   // lifted out of the recipe context so submission can be blocked when it fails
-  const [dataSeriesRecipeError, setDataSeriesRecipeError] = useState<string | null>(null);
   const [timestamp] = useState(() => Date.now());
 
   // A baseline derived from the series' first (non-zero) value goes stale when
@@ -65,15 +65,16 @@ export default function DataSeriesForm({
     // outputs to settle so a submit right after an edit doesn't read stale data.
     await waitForRecipeFormSyncs(event.target);
 
+    const formData = new FormData(event.target);
+
     // Block submission when the selected input failed to evaluate (an external
     // dataset variable with an incomplete selection, or a manual series that
     // didn't pass the recipe type guards), as the full goal form does
-    if (dataSeriesRecipeError) {
-      addToast(`${t("forms:goal.errors.recipe_has_error")} ${dataSeriesRecipeError}`, "error", false);
+    const recipeError = formData.get(GoalFormName.RecipeError);
+    if (typeof recipeError === "string" && recipeError) {
+      addToast(`${t("forms:goal.errors.recipe_has_error")} ${recipeError}`, "error", false);
       return;
     }
-
-    const formData = new FormData(event.target);
 
     let dataSeries: DateValuesWithUnit;
     let dataSeriesRecipe: Awaited<ReturnType<typeof parseDataSeriesSection>>["dataSeriesRecipe"];
@@ -134,7 +135,6 @@ export default function DataSeriesForm({
         setDataSeriesType={setDataSeriesType}
         setIndicatorParameter={() => { /* The indicator parameter is goal metadata, outside this section; the suggestion is ignored here */ }}
         setPreviewDataSerie={setPreviewDataSerie}
-        setDataSeriesRecipeError={setDataSeriesRecipeError}
         hasInitializedSuggested={initializedTypes.has(DataSeriesType.Suggested)}
         hasInitializedManual={initializedTypes.has(DataSeriesType.Manual)}
         hasInitializedCustom={initializedTypes.has(DataSeriesType.Custom)}

@@ -22,7 +22,6 @@ export default function GoalSeriesSection({
   indicatorParameter,
   setIndicatorParameter,
   setPreviewDataSerie,
-  setDataSeriesRecipeError,
   hasInitializedSuggested,
   hasInitializedManual,
   hasInitializedCustom,
@@ -41,7 +40,6 @@ export default function GoalSeriesSection({
   indicatorParameter?: string;
   setIndicatorParameter: Dispatch<SetStateAction<string>>;
   setPreviewDataSerie: Dispatch<SetStateAction<DateValuesWithUnit | null>>;
-  setDataSeriesRecipeError: Dispatch<SetStateAction<string | null>>;
   hasInitializedSuggested: boolean;
   hasInitializedManual: boolean;
   hasInitializedCustom: boolean;
@@ -160,6 +158,7 @@ export default function GoalSeriesSection({
               />
               <FormSync
                 RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
+                ErrorFormElement={<input name={GoalFormName.RecipeError} />}
                 UnitFormElement={<input name={GoalFormName.DataUnit} />}
                 DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
               />
@@ -170,7 +169,6 @@ export default function GoalSeriesSection({
               />
               <RecipeSync
                 onDateValues={setPreviewDataSerie}
-                onError={setDataSeriesRecipeError}
                 active={dataSeriesType === DataSeriesType.Suggested}
               />
             </RecipeContextProvider>
@@ -195,12 +193,12 @@ export default function GoalSeriesSection({
               />
               <FormSync
                 RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
+                ErrorFormElement={<input name={GoalFormName.RecipeError} />}
                 UnitFormElement={<input name={GoalFormName.DataUnit} />}
                 DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
               />
               <RecipeSync
                 onDateValues={setPreviewDataSerie}
-                onError={setDataSeriesRecipeError}
                 active={dataSeriesType === DataSeriesType.Manual}
               />
             </RecipeContextProvider>
@@ -222,6 +220,7 @@ export default function GoalSeriesSection({
               />
               <FormSync
                 RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
+                ErrorFormElement={<input name={GoalFormName.RecipeError} />}
                 UnitFormElement={<input name={GoalFormName.DataUnit} />}
                 DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
               />
@@ -232,7 +231,6 @@ export default function GoalSeriesSection({
               />
               <RecipeSync
                 onDateValues={setPreviewDataSerie}
-                onError={setDataSeriesRecipeError}
                 active={dataSeriesType === DataSeriesType.Custom}
               />
             </RecipeContextProvider>

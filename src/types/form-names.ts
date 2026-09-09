@@ -28,6 +28,8 @@ export const GoalFormName = {
   DataUnit: "DATA_UNIT",
   ResultingRecipe: "RESULTING_RECIPE",
   ResultingDateValues: "RESULTING_DATE_VALUES",
+  /** The selected data series input's evaluation error, empty when it evaluated */
+  RecipeError: "RECIPE_ERROR",
   BaselineDataSeries: "BASELINE_DATA_SERIES",
   BaselineRecipe: "BASELINE_RECIPE",
   HistoricalDataSeries: "HISTORICAL_DATA_SERIES",

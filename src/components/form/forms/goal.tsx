@@ -110,7 +110,6 @@ export default function GoalForm({
   // Evaluation error of the currently-selected recipe input (Manual/Suggested/Custom)
   // lifted out of the recipe context so submission can be blocked when it fails
   // to evaluate (e.g. an external variable with an incomplete selection).
-  const [dataSeriesRecipeError, setDataSeriesRecipeError] = useState<string | null>(null);
   const descriptionRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
@@ -189,8 +188,10 @@ export default function GoalForm({
     // external dataset variable with an incomplete selection, or a manual series
     // that didn't pass the recipe type guards). Without this the recipe is sent
     // and only fails server-side (invalid body / 500 while materializing externals).
-    if (dataSeriesRecipeError) {
-      addToast(`${t("forms:goal.errors.recipe_has_error")} ${dataSeriesRecipeError}`, "error", false);
+    // Read from the form data, which the syncs above settled (see FormSync)
+    const recipeError = formData.get(GoalFormName.RecipeError);
+    if (typeof recipeError === "string" && recipeError) {
+      addToast(`${t("forms:goal.errors.recipe_has_error")} ${recipeError}`, "error", false);
       event.target.reportValidity();
       return;
     }
@@ -429,8 +430,7 @@ export default function GoalForm({
           indicatorParameter={indicatorParameter}
           setIndicatorParameter={setIndicatorParameter}
           setPreviewDataSerie={setPreviewDataSerie}
-          setDataSeriesRecipeError={setDataSeriesRecipeError}
-          hasInitializedSuggested={hasInitializedSuggested}
+            hasInitializedSuggested={hasInitializedSuggested}
           hasInitializedManual={hasInitializedManual}
           hasInitializedCustom={hasInitializedCustom}
         />
