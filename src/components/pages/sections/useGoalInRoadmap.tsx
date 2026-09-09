@@ -45,13 +45,13 @@ export default async function UseGoalInRoadmap({
       <div className="flex gap-50 flex-wrap-wrap">
         {local.length > 0
           ? local.map(target => (
-            <Link key={target.orgId} className="button round color-purewhite pureblack font-weight-500 display-inline-flex align-items-center gap-50" href={target.href}>
+            <Link key={target.orgId} className="button round color-purewhite seagreen font-weight-500 display-inline-flex align-items-center gap-50" href={target.href}>
               {local.length > 1 ? t("pages:goal.use_locally.link_org", { org: target.orgName }) : t("pages:goal.use_locally.link")}
               <IconArrowRight aria-hidden="true" width={18} height={18} style={{ minWidth: '18px' }} />
             </Link>
           ))
           : (
-            <Link className="button round color-purewhite pureblack font-weight-500 display-inline-flex align-items-center gap-50" href={href}>
+            <Link className="button round color-purewhite seagreen font-weight-500 display-inline-flex align-items-center gap-50" href={href}>
               {t("pages:goal.use_locally.link")}
               <IconArrowRight aria-hidden="true" width={18} height={18} style={{ minWidth: '18px' }} />
             </Link>
