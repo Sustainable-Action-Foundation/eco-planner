@@ -30,7 +30,7 @@ function UseGoalLink({ href }: { href: string }) {
       href={href}
       title={t("graphs:graph_graph.use_goal_title")}
       className="seagreen color-purewhite smooth font-weight-500 font-size-75 line-height-150 flex align-items-center gap-25"
-      style={{ padding: '.3rem .6rem' }}
+      style={{ padding: '.3rem .6rem', textDecoration: 'none' }}
     >
       {t("graphs:graph_graph.use_goal")}
       <IconArrowRight aria-hidden="true" width={16} height={16} style={{ minWidth: '16px' }} />
