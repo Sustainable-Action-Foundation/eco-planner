@@ -348,15 +348,17 @@ test.describe("Goals tests", () => {
 
     await page.locator('#recipeVariable-parent-value-dummy-uuid').click();
     // Select first valid option from a tree dropdown combobox thingy
-    // The tree settles level by level; wait for each node and give the click room
-    // to retry (firefox intermittently reports the nodes as "not stable" for >5s)
+    // The tree settles level by level as every roadmap version's data is fetched
+    // (firefox has needed well over the default 10s for the second level on CI);
+    // wait for each node and give the click room to retry (firefox intermittently
+    // reports the nodes as "not stable" for >5s)
     const treeLevels = [
       page.locator('#recipeVariable-parent-value-dummy-uuid-dialog-tree > li').first(),
       page.locator('#recipeVariable-parent-value-dummy-uuid-dialog-tree > li > ul > li').first(),
       page.locator('#recipeVariable-parent-value-dummy-uuid-dialog-tree > li > ul > li > ul > li').first(),
     ];
     for (const node of treeLevels) {
-      await expect(node).toBeVisible();
+      await expect(node).toBeVisible({ timeout: 30_000 });
       await node.click({ timeout: 15_000 });
     }
 
