@@ -6,13 +6,14 @@ import { useState } from "react";
 import { calculatePredictedOutcome, getStoredGraphType } from "../../functions/graphFunctions";
 import GraphSelector from "../../graphSelectors/graphSelector";
 import SecondaryGoalSelector from "../../graphSelectors/secondaryGoalSelector";
-import { Trans, useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import type { DataSeries, DateValues, DateValuesWithUnit, Goal, LoginData, RoadmapIteration } from "@/types";
 import { GraphType } from "@/types/enums";
 // Copy and scale is shelved for now; see the comment at its render sites below.
 // import CopyAndScale from "@/components/modals/copyAndScale";
 import styles from './goal.module.css';
 import GoalGraph from "./main";
+import HistoricalFootnote, { hasHistoricalFootnote, historicalSeriesName } from "@/components/graph/historicalFootnote";
 import TabListSimple from "@/components/generic/tablist/tabListSimple";
 import findSiblings from "@/functions/findSiblings";
 import ChildGraphContainer from "./child/container";
@@ -49,10 +50,8 @@ export default function GoalGraphContainer({
   const [graphType, setGraphType] = useState<GraphType | "">(getStoredGraphType(goal.id));
   const [isStacked, setIsStacked] = useState<boolean>(true);
 
-  const historicalDatasetLabel = getHistoricalDataset(goal).label;
-  const historicalLabel = historicalDatasetLabel
-    ? `${historicalDatasetLabel} (${t("common:historical_data")})`
-    : t("common:historical_data");
+  const historicalSource = getHistoricalDataset(goal);
+  const historicalLabel = historicalSeriesName(t, historicalSource);
 
   const siblings = findSiblings(iteration, goal);
   const siblingsSeries: Array<(DataSeries | DateValuesWithUnit) & { name: string }> = findSiblings(iteration, goal)
@@ -315,7 +314,11 @@ export default function GoalGraphContainer({
     }
   };
 
-  const { dataset } = getHistoricalDataset(goal);
+  const historicalFooter = goal.historical && hasHistoricalFootnote(historicalSource) ?
+    <footer className={`${styles['footer']}`}>
+      <HistoricalFootnote source={historicalSource} />
+    </footer>
+    : null;
 
   if (!(childGoals.length > 0) && !(siblings.length > 1)) {
     return (
@@ -348,15 +351,7 @@ export default function GoalGraphContainer({
             {graphSwitch(graphType || GraphType.Main)}
           </div>
 
-          {goal.historical && dataset ?
-            <footer className={`${styles['footer']}`} >
-              <Trans
-                i18nKey="graphs:graph_graph.historical_data_source"
-                components={{ a: <a href={dataset.userFacingUrl} target="_blank" rel="noreferrer" /> }}
-                tOptions={{ source: dataset.fullName ?? dataset.userFacingUrl }}
-              />
-            </footer>
-            : null}
+          {historicalFooter}
         </div>
       </section>
     );
@@ -416,15 +411,7 @@ export default function GoalGraphContainer({
               {graphSwitch(graphType || GraphType.Main)}
             </div>
 
-            {goal.historical && dataset ?
-              <footer className={`${styles['footer']}`} >
-                <Trans
-                  i18nKey="graphs:graph_graph.historical_data_source"
-                  components={{ a: <a href={dataset.userFacingUrl} target="_blank" rel="noreferrer" /> }}
-                  tOptions={{ source: dataset.fullName ?? dataset.userFacingUrl }}
-                />
-              </footer>
-              : null}
+            {historicalFooter}
           </div>
         </TabListSimple.TabPanel>
 

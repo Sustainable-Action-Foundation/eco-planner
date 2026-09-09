@@ -5,7 +5,7 @@
     "change_graph_type": "Change graph type",
     "expected_outcome": "Expected outcome",
     "unknown_roadmap": "Unknown $t(common:roadmap_version_one)",
-    "historical_series": "{{label}} (historical)"
+    "historical_data_footnoted": "$t(common:historical_data) (1)"
   },
   "action_graph": {
     "actions": "$t(common:action_other, titleCase)"
@@ -21,7 +21,9 @@
   },
   "graph_graph": {
     "compare_with_goal": "Compared against $t(common:goal_one) {{goalName}}",
-    "historical_data_source": "The historical data in the graph is fetched from <a>{{source}}</a>"
+    "historical_data_source": "1. The historical data in the graph is fetched from <a>{{source}}</a>",
+    "historical_footnote": "1. {{label}}. Fetched from <a>{{source}}</a>",
+    "historical_footnote_no_source": "1. {{label}}"
   },
   "graph_selector": {
     "goal": "$t(common:goal_one, titleCase)",

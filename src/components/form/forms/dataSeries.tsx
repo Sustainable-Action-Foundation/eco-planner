@@ -21,6 +21,8 @@ import {
   storedSeriesForGraph,
   useInitializedValues,
 } from "./goalSections";
+import { getHistoricalDataset } from "@/functions/getHistoricalDataset";
+import HistoricalFootnote from "@/components/graph/historicalFootnote";
 
 /**
  * Edits only the main data series of an existing goal: the goal form's data
@@ -154,6 +156,7 @@ export default function DataSeriesForm({
             }}
           />
         </output>
+        <HistoricalFootnote source={getHistoricalDataset(goal)} className="font-size-14px text-align-center margin-block-50" />
       </div>
 
       <div className="margin-top-400 padding-top-100 margin-bottom-100 min-width-0" style={{ borderTop: "1px solid var(--gray-80)" }}>

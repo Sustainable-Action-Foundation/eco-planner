@@ -36,6 +36,7 @@ import HistoricalSeriesSection from "../sections/dataseries/historical";
 import BaselineSeriesSection from "../sections/dataseries/baseline";
 import GoalSeriesSection from "../sections/dataseries/goal";
 import { getHistoricalDatasetFromRecipe } from "@/functions/getHistoricalDataset";
+import { historicalSeriesName } from "@/components/graph/historicalFootnote";
 import PreviewSeries from "../sections/dataseries/preview";
 import DraggableSnapBack from "@/components/generic/draggable/draggable";
 
@@ -115,12 +116,12 @@ export default function GoalForm({
 
   const { addToast } = useToast();
 
-  const historicalLabel = useMemo(() => {
-    if (!previewHistoricalRecipe) return "";
+  const historicalSource = useMemo(() => {
+    if (!previewHistoricalRecipe) return null;
     try {
-      return getHistoricalDatasetFromRecipe(Recipe.from(previewHistoricalRecipe)).label ?? "";
+      return getHistoricalDatasetFromRecipe(Recipe.from(previewHistoricalRecipe));
     } catch {
-      return "";
+      return null;
     }
   }, [previewHistoricalRecipe]);
 
@@ -137,11 +138,11 @@ export default function GoalForm({
       dateValues: previewBaselineSerie.dateValues,
     },
     historical: (previewHistoricalSerie?.dateValues && previewDataSerie) && {
-      name: historicalLabel ? t("graphs:common.historical_series", { label: historicalLabel }) : t("common:historical_data"),
+      name: historicalSeriesName(t, historicalSource),
       unit: previewDataSerie.unit, // TODO: For now we lie and say that historical and preview data series share the same unit. Should make sure that we sync properly in the future though.
       dateValues: previewHistoricalSerie.dateValues,
     },
-  }), [previewDataSerie, previewBaselineSerie, previewHistoricalSerie, historicalLabel, t]);
+  }), [previewDataSerie, previewBaselineSerie, previewHistoricalSerie, historicalSource, t]);
 
 
   const parentIterations = useMemo(() => {
@@ -527,6 +528,7 @@ export default function GoalForm({
             main={previewGraphSeries.main}
             baseline={previewGraphSeries.baseline}
             historical={previewGraphSeries.historical}
+            historicalSource={historicalSource}
           />
         </DraggableSnapBack>
       </div>

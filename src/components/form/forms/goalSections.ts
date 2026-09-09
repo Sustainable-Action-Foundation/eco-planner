@@ -8,6 +8,7 @@ import { Recipe } from "@/functions/recipe/recipe";
 import { dataSeriesToDateValues, type SerializedRecipe } from "@/functions/recipe";
 import { parseUnit } from "@/functions/unit";
 import { getHistoricalDataset } from "@/functions/getHistoricalDataset";
+import { historicalSeriesName } from "@/components/graph/historicalFootnote";
 import type { TFunction } from "i18next";
 import { useEffect, useState } from "react";
 
@@ -323,11 +324,7 @@ export function storedSeriesForGraph(
   }
 }
 
-/** The goal's stored historical series for the graph, named after its source dataset when known. */
+/** The goal's stored historical series for the graph; pair it with a `HistoricalFootnote` for the source. */
 export function storedHistoricalForGraph(goal: Pick<Goal, "historical">, t: TFunction) {
-  const label = goal.historical ? getHistoricalDataset(goal).label : null;
-  return storedSeriesForGraph(
-    goal.historical,
-    label ? t("graphs:common.historical_series", { label }) : t("common:historical_data"),
-  );
+  return storedSeriesForGraph(goal.historical, historicalSeriesName(t, getHistoricalDataset(goal)));
 }
