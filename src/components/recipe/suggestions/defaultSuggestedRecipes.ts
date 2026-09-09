@@ -2,7 +2,9 @@ import { Recipe } from "@/functions/recipe/recipe";
 import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/enums";
 import type { DataSeriesVariable, ExternalVariable, ScalarVariable } from "@/functions/recipe/types";
 import type { ApiSelectionItem, DatasetKeys } from "@/lib/api/apiTypes";
-import type { DBRecipe, GoalPrefill, PrefilledSeries } from "@/types";
+import type { DBRecipe, GeoAreaRef, GoalPrefill, PrefilledSeries } from "@/types";
+import { buildRegionSelection, CuratedRegionKind } from "@/lib/curatedHistoricalData";
+import type { CuratedRegion } from "@/lib/curatedHistoricalData";
 import type { TFunction } from "i18next";
 import { UnitFlags } from "@/types/enums";
 import { parseUnit } from "@/functions/unit";
@@ -15,11 +17,26 @@ export const DefaultSuggestedRecipeId = {
   Scalar: "scalar-recipe-dummy-uuid",
   ReachTarget: "reach-target-recipe-dummy-uuid",
   LocalScale: "local-scale-recipe-dummy-uuid",
+  Population: "population-recipe-dummy-uuid",
   Trend: "trend-recipe-dummy-uuid",
 } as const;
 export type DefaultSuggestedRecipeId = (typeof DefaultSuggestedRecipeId)[keyof typeof DefaultSuggestedRecipeId];
 
-type ExternalPreset = { dataset: DatasetKeys, tableId: string, selection: ApiSelectionItem[] };
+/** A fixed table and selection, with how a geo area is put into it (see `buildRegionSelection`). */
+type ExternalPreset = { dataset: DatasetKeys, tableId: string, selection: ApiSelectionItem[], region: CuratedRegion };
+
+/**
+ * What the default suggestions are built around: the series they scale, a local
+ * statistic to anchor a copy to, and the areas on both ends of an area ratio.
+ */
+export type SuggestedRecipeContext = {
+  /** Stands in for the parent value in every suggestion, e.g. a copied goal's series or a browsable historical series */
+  parentSeries?: PrefilledSeries;
+  /** A local statistic a copied goal is scaled to (see `GoalPrefill.localReference`) */
+  localReference?: GoalPrefill["localReference"];
+  /** The areas of the copied goal's roadmap and of the target roadmap, for the ratio methods' externals */
+  geo?: { source?: GeoAreaRef | null, target?: GeoAreaRef | null };
+};
 
 /** A data series the user has to pick themselves. */
 function dataSeriesTemplate(id: string, name: string, pick: VectorIndexPickerOptions = VectorIndexPickerOptions.Default): DataSeriesVariable {
@@ -37,23 +54,30 @@ function dataSeriesTemplate(id: string, name: string, pick: VectorIndexPickerOpt
 
 /**
  * An external variable the user completes themselves. With a preset, the table and
- * selection are fixed and only the region is left to choose; without one the whole
- * query is up to the user.
+ * selection are fixed and only the region is left to choose; with a geo area as
+ * well, the region is filled in too and nothing is left to pick. Without a
+ * preset the whole query is up to the user.
  */
-function externalTemplate(id: string, name: string, preset?: ExternalPreset): ExternalVariable {
+function externalTemplate(id: string, name: string, preset?: ExternalPreset, geoArea?: GeoAreaRef | null): ExternalVariable {
+  const region = preset && geoArea ? buildRegionSelection(preset.region, geoArea) : null;
   return {
     id,
     name,
     type: RecipeDataTypes.External,
     dataset: preset?.dataset ?? null,
     tableId: preset?.tableId ?? null,
-    selection: preset?.selection ?? [],
+    selection: [...(region ?? []), ...(preset?.selection ?? [])],
     // Scale by the latest known value so a projected parent series keeps its full
     // date range instead of being cut down to the years the external table covers.
     pick: VectorIndexPickerOptions.Last,
     unit: UnitFlags.Missing,
-    template: true,
+    template: region === null,
   };
+}
+
+/** Whether a preset's region can be filled in for an area without asking the table (see `buildRegionSelection`). */
+function presetCoversArea(preset: ExternalPreset, geoArea: GeoAreaRef | null | undefined): boolean {
+  return !!geoArea && buildRegionSelection(preset.region, geoArea) !== null;
 }
 
 /**
@@ -61,14 +85,19 @@ function externalTemplate(id: string, name: string, preset?: ExternalPreset): Ex
  * `idPrefix` keeps variable ids distinct between presets: the editor keys its rows by
  * variable id, so shared ids would keep one preset's editor state alive under another.
  */
-function ratioRecipe(idPrefix: string, names: { name: string, parentValue: string, parentExternal: string, childExternal: string }, preset?: ExternalPreset): Recipe {
+function ratioRecipe(
+  idPrefix: string,
+  names: { name: string, parentValue: string, parentExternal: string, childExternal: string },
+  preset?: ExternalPreset,
+  geo?: SuggestedRecipeContext["geo"],
+): Recipe {
   return new Recipe({
     name: names.name,
     equation: `\${${names.parentValue}} * \${${names.childExternal}} / \${${names.parentExternal}}`,
     variables: [
       dataSeriesTemplate(PARENT_VALUE_ID, names.parentValue),
-      externalTemplate(`${idPrefix}-parent-external-dummy-uuid`, names.parentExternal, preset),
-      externalTemplate(`${idPrefix}-child-external-dummy-uuid`, names.childExternal, preset),
+      externalTemplate(`${idPrefix}-parent-external-dummy-uuid`, names.parentExternal, preset, geo?.source),
+      externalTemplate(`${idPrefix}-child-external-dummy-uuid`, names.childExternal, preset, geo?.target),
     ],
     meta: { isSuggestedRecipe: true },
   });
@@ -87,7 +116,10 @@ function combineRecipe(idPrefix: string, names: { name: string, first: string, s
   });
 }
 
-// SCB land area (km²); region left to the user
+// SCB's region dimension takes the area codes themselves, at every level
+const scbRegion: CuratedRegion = { kind: CuratedRegionKind.PxWebCode, variableCode: "Region" };
+
+// SCB land area (km²)
 const scbLandArea: ExternalPreset = {
   dataset: "SCB",
   tableId: "TAB6420",
@@ -97,18 +129,24 @@ const scbLandArea: ExternalPreset = {
     // Square kilometers (hectares would be "000007E1")
     { variableCode: "ContentsCode", valueCodes: ["000007DY"] },
   ],
+  region: scbRegion,
 };
 
-// SCB population; region left to the user
+// SCB population at year end, from the density table (TAB628: nation, counties and
+// municipalities 1991 onwards; the plain population table is split per year)
 const scbPopulation: ExternalPreset = {
   dataset: "SCB",
-  tableId: "BE0101N1",
+  tableId: "TAB628",
   selection: [
-    { variableCode: "ContentsCode", valueCodes: ["000007E1"] },
+    // Both sexes
+    { variableCode: "Kon", valueCodes: ["1+2"] },
+    // Population ("Folkmängd"; "BE0101U3" is the land area, "BE0101U1" the density)
+    { variableCode: "ContentsCode", valueCodes: ["BE0101U2"] },
   ],
+  region: scbRegion,
 };
 
-// Trafa passenger cars in traffic at year end for one fuel ("drivmedel"); county/municipality left to the user
+// Trafa passenger cars in traffic at year end for one fuel ("drivmedel")
 function trafaPassengerCars(drivmedel: string): ExternalPreset {
   return {
     dataset: "Trafa",
@@ -117,7 +155,21 @@ function trafaPassengerCars(drivmedel: string): ExternalPreset {
       { variableCode: "metric", valueCodes: ["itrfslut"] },
       { variableCode: "drivmedel", valueCodes: [drivmedel] },
     ],
+    region: { kind: CuratedRegionKind.Trafa },
   };
+}
+
+/**
+ * The suggestion the form should start on: a copied goal follows its local
+ * statistic when there is one, else it is scaled by population between the
+ * two roadmaps' areas when both are known, else it is taken as is (a factor
+ * of 1, ready to be adjusted).
+ */
+export function preferredSuggestedRecipeId(context: SuggestedRecipeContext): DefaultSuggestedRecipeId {
+  if (!context.parentSeries) return DefaultSuggestedRecipeId.Scalar;
+  if (context.localReference) return DefaultSuggestedRecipeId.LocalScale;
+  if (presetCoversArea(scbPopulation, context.geo?.source) && presetCoversArea(scbPopulation, context.geo?.target)) return DefaultSuggestedRecipeId.Population;
+  return DefaultSuggestedRecipeId.Scalar;
 }
 
 /**
@@ -161,13 +213,13 @@ function localScaleRecipe(t: TFunction, goal: PrefilledSeries, reference: NonNul
 }
 
 /**
- * @param parentSeries Stands in for the parent value in every suggestion, e.g. a
- * browsable historical series a goal is started from: the parent is no longer
- * something to pick but that series, ready to be scaled.
- * @param localReference Adds the local scaling suggestion first, for a copied
- * goal (see {@link localScaleRecipe}); needs `parentSeries`.
+ * The default suggestions, shaped by their context (see {@link SuggestedRecipeContext}):
+ * the parent series stands in for the parent value in every suggestion, a local
+ * reference adds the local scaling suggestion first, and known areas fill in the
+ * regions of the ratio methods so nothing is left to pick.
  */
-export function getDefaultSuggestedRecipes(t: TFunction, parentSeries?: PrefilledSeries, localReference?: GoalPrefill["localReference"]): DBRecipe[] {
+export function getDefaultSuggestedRecipes(t: TFunction, context: SuggestedRecipeContext = {}): DBRecipe[] {
+  const { parentSeries, localReference, geo } = context;
   const recipes: { id: string, recipe: Recipe }[] = [
     ...(parentSeries && localReference ? [{ id: DefaultSuggestedRecipeId.LocalScale, recipe: localScaleRecipe(t, parentSeries, localReference) }] : []),
 
@@ -179,16 +231,16 @@ export function getDefaultSuggestedRecipes(t: TFunction, parentSeries?: Prefille
         parentValue: t("components:recipe_editor.default_area_recipe.parent_value"),
         parentExternal: t("components:recipe_editor.default_area_recipe.parent_area"),
         childExternal: t("components:recipe_editor.default_area_recipe.child_area"),
-      }, scbLandArea),
+      }, scbLandArea, geo),
     },
     {
-      id: "population-recipe-dummy-uuid",
+      id: DefaultSuggestedRecipeId.Population,
       recipe: ratioRecipe("population", {
         name: t("components:recipe_editor.default_population_recipe.name"),
         parentValue: t("components:recipe_editor.default_population_recipe.parent_value"),
         parentExternal: t("components:recipe_editor.default_population_recipe.parent_population"),
         childExternal: t("components:recipe_editor.default_population_recipe.child_population"),
-      }, scbPopulation),
+      }, scbPopulation, geo),
     },
     // Electric cars ("El"), e.g. for scaling charging infrastructure
     {
@@ -198,7 +250,7 @@ export function getDefaultSuggestedRecipes(t: TFunction, parentSeries?: Prefille
         parentValue: t("components:recipe_editor.default_electric_cars_recipe.parent_value"),
         parentExternal: t("components:recipe_editor.default_electric_cars_recipe.parent_cars"),
         childExternal: t("components:recipe_editor.default_electric_cars_recipe.child_cars"),
-      }, trafaPassengerCars("103")),
+      }, trafaPassengerCars("103"), geo),
     },
     // All passenger cars ("Totalt"), e.g. for scaling an electric car goal so both regions get the same share
     {
@@ -208,7 +260,7 @@ export function getDefaultSuggestedRecipes(t: TFunction, parentSeries?: Prefille
         parentValue: t("components:recipe_editor.default_passenger_cars_recipe.parent_value"),
         parentExternal: t("components:recipe_editor.default_passenger_cars_recipe.parent_cars"),
         childExternal: t("components:recipe_editor.default_passenger_cars_recipe.child_cars"),
-      }, trafaPassengerCars("t1")),
+      }, trafaPassengerCars("t1"), geo),
     },
     // Any external source, chosen entirely by the user
     {

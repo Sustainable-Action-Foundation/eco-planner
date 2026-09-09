@@ -6,7 +6,8 @@ import { GoalFormName } from "@/types/form-names";
 import { IconCheck } from "@tabler/icons-react";
 import { FormSync, ManualDataSeriesInput, RecipeContextProvider, RecipeEditor, SuggestedRecipeApplier, UnitInput } from "@/components/recipe";
 import { dataSeriesToDateValues, Recipe } from "@/functions/recipe";
-import { DefaultSuggestedRecipeId, getDefaultSuggestedRecipes } from "@/components/recipe/suggestions/defaultSuggestedRecipes";
+import { DefaultSuggestedRecipeId, getDefaultSuggestedRecipes, preferredSuggestedRecipeId } from "@/components/recipe/suggestions/defaultSuggestedRecipes";
+import type { SuggestedRecipeContext } from "@/components/recipe/suggestions/defaultSuggestedRecipes";
 import { prefilledSeriesRecipe } from "../../forms/goalSections";
 import ParameterSync from "@/components/recipe/output/parameterSyncer";
 import { RecipeSync } from "@/components/recipe/output/recipeSync";
@@ -17,6 +18,7 @@ import { DataSeriesType, UnitFlags } from "@/types/enums";
 export default function GoalSeriesSection({
   goal,
   prefill,
+  geo,
   dataSeriesType,
   setDataSeriesType,
   indicatorParameter,
@@ -34,6 +36,8 @@ export default function GoalSeriesSection({
    * a variable. The saved recipe takes precedence when editing.
    */
   prefill?: GoalPrefill;
+  /** The areas of the copied goal's roadmap and of the target roadmap, for the area-ratio methods */
+  geo?: SuggestedRecipeContext["geo"];
   dataSeriesType: DataSeriesType;
   setDataSeriesType: Dispatch<SetStateAction<DataSeriesType>>;
   /** The form's current indicator parameter, if it has one, for the parameter sync button's applied state */
@@ -58,15 +62,20 @@ export default function GoalSeriesSection({
   }, [goal?.data_series?.recipe_used?.recipe]);
 
   const prefilledSeries = prefill?.parent;
-  // A prefilled series starts the suggestions on "scale by constant value" with
-  // the factor at 1 — the series as is, ready to be adjusted or scaled otherwise;
-  // a copied goal starts on scaling its trajectory to the local level instead
-  const prefilledSuggestionId = prefill?.localReference ? DefaultSuggestedRecipeId.LocalScale : DefaultSuggestedRecipeId.Scalar;
+  // What the suggestions are built around when starting from a prefill; the
+  // saved recipe takes precedence when editing
+  const suggestionContext = useMemo<SuggestedRecipeContext | undefined>(
+    () => goal || !prefill ? undefined : { parentSeries: prefill.parent, localReference: prefill.localReference, geo },
+    [goal, prefill, geo],
+  );
+  // The suggestion the form starts on: local statistic, else population between
+  // the two areas, else the series as is (a factor of 1, ready to be adjusted)
+  const prefilledSuggestionId = suggestionContext ? preferredSuggestedRecipeId(suggestionContext) : DefaultSuggestedRecipeId.Scalar;
   const prefilledSuggestion = useMemo(() => {
-    if (!prefill) return undefined;
-    const suggestion = getDefaultSuggestedRecipes(t, prefill.parent, prefill.localReference).find(suggestion => suggestion.id === prefilledSuggestionId);
+    if (!suggestionContext) return undefined;
+    const suggestion = getDefaultSuggestedRecipes(t, suggestionContext).find(suggestion => suggestion.id === prefilledSuggestionId);
     return suggestion ? Recipe.from(suggestion.recipe).serialize() : undefined;
-  }, [prefill, prefilledSuggestionId, t]);
+  }, [suggestionContext, prefilledSuggestionId, t]);
   const suggestedInitialRecipe = savedRecipe ?? prefilledSuggestion;
   const customInitialRecipe = useMemo(
     () => savedRecipe ?? (prefilledSeries ? prefilledSeriesRecipe(prefilledSeries) : undefined),
@@ -152,8 +161,7 @@ export default function GoalSeriesSection({
               availableDataSeries={goal?.data_series?.recipe_used?.source_data_series}
             >
               <SuggestedRecipeApplier
-                parentSeries={goal ? undefined : prefilledSeries}
-                localReference={goal ? undefined : prefill?.localReference}
+                context={suggestionContext}
                 initialRecipeId={prefilledSuggestion && !savedRecipe ? prefilledSuggestionId : undefined}
               />
               <UnitInput

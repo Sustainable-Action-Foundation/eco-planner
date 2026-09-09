@@ -1,4 +1,4 @@
-import type { IterationStatus, OrgRole, Prisma } from "@/lib/prisma/generated";
+import type { IterationStatus, OrgRole, Prisma, GeoAreaType } from "@/lib/prisma/generated";
 import type { accessControlSelection, actionInclusionSelection, clientSafeDataSeriesSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapIterationSelection, effectInclusionSelection, goalInclusionSelection, multiRoadmapInclusionSelection, nameSelector, recipeSelector, roadmapInclusionSelection, roadmapIterationInclusionSelection, userInfoSelector } from "@/fetchers/inclusionSelectors";
 import type { UnitFlags } from "@/types/enums";
 import type { DataSeriesVariable, ExternalVariable } from "@/functions/recipe/types";
@@ -149,6 +149,9 @@ export type ISOIshDate = `${number}-${number}-${number}T00:00:00${`.000` | ``}Z`
 export type DateValues = Record<ISOIshDate, number>;
 export type DateValuesWithUnit = { dateValues: DateValues, unit: Unit };
 
+/** A geo area as carried around the UI: the SCB area code, its name, and which level it is. */
+export type GeoAreaRef = { code: string, name: string, type: GeoAreaType };
+
 /**
  * A series handed to the goal form to start a goal from, e.g. a browsable
  * historical series resolved from a link (see `resolveSeriesRef`). The
@@ -182,6 +185,14 @@ export type GoalPrefill = {
     description: string | null;
     indicatorParameter: string;
   };
+  /** The copied goal's roadmap area, the "from" side of an area-ratio scaling */
+  sourceGeoArea?: GeoAreaRef;
+  /**
+   * For a copied goal the curated catalog can measure locally: the local
+   * statistic per geo area code of the roadmaps the user can copy into, so the
+   * form can switch history and scaling to the target roadmap's area
+   */
+  byArea?: Record<string, { historical: PrefilledSeries, localReference: NonNullable<GoalPrefill["localReference"]> }>;
   /**
    * The local statistic a copied goal's trajectory is scaled to:
    * `local(latest) * goal / goal(year)`, the two joined at the year of the

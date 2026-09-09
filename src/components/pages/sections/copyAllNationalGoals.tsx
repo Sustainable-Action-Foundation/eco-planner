@@ -96,7 +96,7 @@ export default function CopyAllNationalGoals({ copies, iterations }: { copies: N
 
 /** The goal form's create payload for a copy left as prefilled; the prefill has to carry a local reference. */
 async function buildCopyPayload(prefill: GoalPrefill, iterationId: string, t: TFunction): Promise<GoalCreateInput> {
-  const suggestion = getDefaultSuggestedRecipes(t, prefill.parent, prefill.localReference).find(recipe => recipe.id === DefaultSuggestedRecipeId.LocalScale);
+  const suggestion = getDefaultSuggestedRecipes(t, { parentSeries: prefill.parent, localReference: prefill.localReference }).find(recipe => recipe.id === DefaultSuggestedRecipeId.LocalScale);
   // What the method evaluates to (the same math as the preview), in the local statistic's unit
   const scaled = prefill.localReference ? scaleToLocal(prefill.parent.dateValues ?? {}, prefill.localReference.series.dateValues ?? {}) : null;
   if (!suggestion || !scaled) throw new Error("The copy has nothing to scale from");

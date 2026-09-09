@@ -11,11 +11,12 @@ import { useEffect, useMemo, useState } from "react";
 import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";
 import { isUnitFlag } from "@/functions/unit";
 import { IconAlertTriangleFilled, IconInfoCircle } from "@tabler/icons-react";
-import type { ClientRoadmapIteration, DBRecipe, GoalPrefill, PrefilledSeries } from "@/types";
+import type { ClientRoadmapIteration, DBRecipe } from "@/types";
 import { RecipeEditorPermissions } from "@/types/consts";
 import { Recipe } from "@/functions/recipe/recipe";
 import type { SerializedRecipe } from "@/functions/recipe/types";
 import { getDefaultSuggestedRecipes, TextStatus } from "@/components/recipe";
+import type { SuggestedRecipeContext } from "@/components/recipe/suggestions/defaultSuggestedRecipes";
 import styles from "../recipe.module.css" with {type: "css"};
 import { getRecipeRoadmapData } from "../context/roadmapDataCache";
 
@@ -26,22 +27,19 @@ export function SuggestedRecipeApplier({
   autoInsertDefaultSuggestions = true,
   suggestedRecipes: providedSuggestedRecipes = [],
   permissions = RecipeEditorPermissions,
-  parentSeries,
-  localReference,
+  context,
   initialRecipeId,
 }: {
   autoInsertDefaultSuggestions?: boolean;
   suggestedRecipes?: DBRecipe[];
   permissions?: RecipeEditorPermissions;
-  /** Stands in for the parent value in the default suggestions (see `getDefaultSuggestedRecipes`) */
-  parentSeries?: PrefilledSeries;
-  /** Adds the local scaling suggestion for a copied goal (see `getDefaultSuggestedRecipes`) */
-  localReference?: GoalPrefill["localReference"];
+  /** What the default suggestions are built around (see `getDefaultSuggestedRecipes`) */
+  context?: SuggestedRecipeContext;
   /** The suggestion the surrounding recipe context was seeded with, so the select agrees with it */
   initialRecipeId?: string;
 }) {
   const { t } = useTranslation("components");
-  const defaultSuggestionRecipes = useMemo(() => getDefaultSuggestedRecipes(t, parentSeries, localReference), [t, parentSeries, localReference]);
+  const defaultSuggestionRecipes = useMemo(() => getDefaultSuggestedRecipes(t, context), [t, context]);
   const { recipe, applyRecipeUpdate, clearRecipe } = useRecipe();
 
   // The suggested method the context was seeded with: editing a goal that was
