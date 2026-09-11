@@ -14,7 +14,8 @@
     "action_deleted": "Åtgärd raderad",
     "goal_not_found": "Misslyckades att koppla poster. Angivet mål kanske inte existerar",
     "missing_parent": "Saknar överordnad post. Vänligen rapportera detta problem om du inte skickar anpassade förfrågningar.",
-    "invalid_data_series": "Felaktiga värden"
+    "invalid_data_series": "Felaktiga värden",
+    "invalid_origin": "Ursprungsåtgärden hittades inte, är åtgärden själv, eller åtgärden används redan som ursprung av andra"
   },
   "goal": {
     "goal_created": "Målbana skapad",

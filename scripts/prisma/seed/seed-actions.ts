@@ -1,6 +1,6 @@
 // Seeds actions and the effects that connect them to goals. Covers action inheritance
-// (v2 actions inherit from v1), orphaned actions (no effects), a roadmapless action
-// (the public action database), free-form fields, and comments.
+// (v2 actions inherit from v1), orphaned actions (no effects), roadmapless actions
+// (the public action database), a copy linked to its origin, free-form fields, and comments.
 
 import { prisma } from "@/lib/prisma";
 import { ActionFieldType, ActionImpactType } from "@/lib/prisma/generated";
@@ -59,13 +59,20 @@ export async function seedActions(
    * One roadmapless action: the org-maintained public action database.
    */
   await createAction(users, null, {});
+
+  /*
+   * A linked pair: an original in the action database and a copy of it under Uppsala v1,
+   * so the neighbours section has something to show (and a member behind roadmap access).
+   */
+  const originId = await createAction(users, null, {});
+  await createAction(users, iterations.uppsalaV1.id, { originActionId: originId });
 }
 
 /** Creates an action with a random spread of free-form fields and comments. */
 async function createAction(
   users: SeededUsers,
   iterationId: string | null,
-  options: { parentActionId?: string },
+  options: { parentActionId?: string, originActionId?: string },
 ): Promise<string> {
   const startYear = randomInt(2020, 2030);
 
@@ -93,6 +100,7 @@ async function createAction(
       author: { connect: { id: randomOf(users.all).id } },
       ...(iterationId ? { roadmap_iteration: { connect: { id: iterationId } } } : {}),
       ...(options.parentActionId ? { parent_action: { connect: { id: options.parentActionId } } } : {}),
+      ...(options.originActionId ? { origin_action: { connect: { id: options.originActionId } } } : {}),
       ...getRandomCreatedAtAndUpdatedAt(),
       comments: { createMany: { data: makeRandomComments(users, randomInt(0, 6)) } },
     },

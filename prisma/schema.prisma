@@ -321,6 +321,14 @@ model Actions {
   parent_action    Actions?  @relation("action_inheritance", fields: [parent_action_id], references: [id], onDelete: SetNull)
   child_actions    Actions[] @relation("action_inheritance")
 
+  // The action this one is a copy of, when another org's action (typically the municipality's
+  // catalogue) is the original. Distinct from `parent_action_id` (version inheritance within a
+  // roadmap): this links equal copies across orgs so they can find each other and, later, sync.
+  // One level only: an origin never has an origin of its own.
+  origin_action_id String?
+  origin_action    Actions?  @relation("action_origin", fields: [origin_action_id], references: [id], onDelete: SetNull)
+  derived_actions  Actions[] @relation("action_origin")
+
   // Comments related to this action
   comments Comments[] @relation("action_comments")
 
@@ -329,6 +337,8 @@ model Actions {
   author    Users?  @relation("action_author", fields: [author_id], references: [id], onDelete: SetNull)
 
   fields ActionFields[] @relation("action_fields")
+
+  @@index([origin_action_id])
 }
 
 model ActionFields {

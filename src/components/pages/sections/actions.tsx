@@ -76,6 +76,17 @@ export default function Actions({
     else slowDebounce(key, value);
   };
 
+  // How many visible actions share each origin (the origin itself included), keyed by the origin's id.
+  // Counted over the visible list only, so private copies never inflate the badge.
+  const neighbourCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const action of actions ?? []) {
+      const rootId = action.origin_action_id ?? action.id;
+      counts.set(rootId, (counts.get(rootId) ?? 0) + 1);
+    }
+    return counts;
+  }, [actions]);
+
   const filteredActions = useMemo(() => {
     if (!actions) return actions;
 
@@ -230,7 +241,19 @@ export default function Actions({
                 <article className="flex flex-direction-column height-100">
                   {/* TODO: render the key value pairs more pretty */}
                   <Link href={`/action/${action.id}`} className="discrete-link padding-block-75 padding-inline-50 block flex-grow-100">
-                    <div className={` color-gray font-size-14px ${styles['action-years']}`}>{action.start_year} - {action.end_year}</div>
+                    <div className={`flex gap-25 align-items-center color-gray font-size-14px ${styles['action-years']}`}>
+                      <span>{action.start_year} - {action.end_year}</span>
+                      {/* Linked copies: how many other visible actions share this action's origin */}
+                      {(neighbourCounts.get(action.origin_action_id ?? action.id) ?? 1) > 1 ?
+                        <span
+                          className="smooth padding-inline-25"
+                          style={{ fontSize: '12px', backgroundColor: 'var(--gray-90)', border: '1px solid var(--gray-80)' }}
+                          title={t('pages:actions.neighbour_badge_title')}
+                        >
+                          {t('pages:actions.neighbour_badge', { count: (neighbourCounts.get(action.origin_action_id ?? action.id) ?? 1) - 1 })}
+                        </span>
+                        : null}
+                    </div>
                     <h2 className={`margin-0 ${styles['action-title']}`}>{action.name}</h2>
                     {/* One line of tag cards; overflowing tags are cut off with an ellipsis */}
                     {action.fields.some(field => field.header === ActionFieldHeaders.Tag) &&

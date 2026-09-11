@@ -14,7 +14,8 @@
     "action_deleted": "Action deleted",
     "goal_not_found": "Failed to connect records. Given goal might not exist",
     "missing_parent": "Missing parent. Please report this problem unless you are sending custom requests.",
-    "invalid_data_series": "Bad data series"
+    "invalid_data_series": "Bad data series",
+    "invalid_origin": "The origin action was not found, is the action itself, or the action already serves as the origin of other copies"
   },
   "goal": {
     "goal_created": "Goal created",
