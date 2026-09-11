@@ -143,16 +143,39 @@ function TreeNode({
   );
 }
 
+/**
+ * `next` with the expansion state (`expanded`, `loading`, fetched `childNodes`)
+ * of matching nodes in `prev` carried over, so a re-render of the caller with
+ * a fresh `treeItems` array doesn't collapse what the user has opened.
+ */
+function withExpansionState(next: TreeItem[], prev: TreeItem[]): TreeItem[] {
+  const previous = new Map(prev.map(item => [item.value, item]));
+  return next.map(item => {
+    const old = previous.get(item.value);
+    if (!old) return item;
+    const childNodes = item.childNodes ?? old.childNodes;
+    return {
+      ...item,
+      expanded: old.expanded ?? item.expanded,
+      loading: old.loading,
+      childNodes: childNodes && old.childNodes ? withExpansionState(childNodes, old.childNodes) : childNodes,
+    };
+  });
+}
+
 export default function SelectSingleTree({
   treeItems,
   props,
   defaultValue,
   onChange,
+  loading = false,
 }: {
   treeItems: TreeItem[];
   props: InputElement;
   defaultValue?: TreeItem; // TODO: Should also allow for a boolean which sets default to first value if enabled
   onChange?: (value: TreeItem | null) => void
+  /** The items are still being fetched: shows a loading row instead of "no results" */
+  loading?: boolean;
 }) {
   const { t } = useTranslation(["forms"]);
 
@@ -195,9 +218,9 @@ export default function SelectSingleTree({
     return true;
   }, [value, props.required]);
 
+  // New items from the caller keep whatever the user has expanded (see withExpansionState)
   useEffect(() => {
-    setItems(treeItems);
-    setFlattenedItems(flattenTree(treeItems));
+    setItems(prev => withExpansionState(treeItems, prev));
   }, [treeItems]);
 
   useEffect(() => {
@@ -341,8 +364,14 @@ export default function SelectSingleTree({
               onSelect={handleNodeSelect}
             />
           ))
+        ) : loading ? (
+          // Not a tree item (role-wise), so it can't be mistaken for one while the items load
+          <li role="presentation" className={`${styles['no-results']} flex gap-25 align-items-center`} style={{ padding: '.5rem' }} aria-live="polite">
+            <Image src='/loaders/ring-resize.svg' alt="" width={16} height={16} />
+            {t("forms:combobox.loading")}
+          </li>
         ) : (
-          <li className={`${styles['no-results']} font-weight-600`} style={{ padding: '.5rem' }}> {/* TODO: For whatever reason i need to set padding here but not for the selectsingleserach no results <li>. They are seemingly implemented the same way so probably figure out why this is. */}
+          <li role="presentation" className={`${styles['no-results']} font-weight-600`} style={{ padding: '.5rem' }}> {/* TODO: For whatever reason i need to set padding here but not for the selectsingleserach no results <li>. They are seemingly implemented the same way so probably figure out why this is. */}
             {t("common:tsx.no_results")}
           </li>
         )}

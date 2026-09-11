@@ -352,10 +352,12 @@ test.describe("Goals tests", () => {
     // (firefox has needed well over the default 10s for the second level on CI);
     // wait for each node and give the click room to retry (firefox intermittently
     // reports the nodes as "not stable" for >5s)
+    // Real nodes only: while the roadmap data loads the list holds a placeholder row
+    const node = 'li[role="treeitem"]';
     const treeLevels = [
-      page.locator('#recipeVariable-parent-value-dummy-uuid-dialog-tree > li').first(),
-      page.locator('#recipeVariable-parent-value-dummy-uuid-dialog-tree > li > ul > li').first(),
-      page.locator('#recipeVariable-parent-value-dummy-uuid-dialog-tree > li > ul > li > ul > li').first(),
+      page.locator(`#recipeVariable-parent-value-dummy-uuid-dialog-tree > ${node}`).first(),
+      page.locator(`#recipeVariable-parent-value-dummy-uuid-dialog-tree > ${node} > ul > ${node}`).first(),
+      page.locator(`#recipeVariable-parent-value-dummy-uuid-dialog-tree > ${node} > ul > ${node} > ul > ${node}`).first(),
     ];
     for (const node of treeLevels) {
       await expect(node).toBeVisible({ timeout: 30_000 });

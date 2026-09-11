@@ -53,6 +53,7 @@ export function SuggestedRecipeApplier({
 
   const [availableDataSeries, setAvailableDataSeries] = useState<{ id: string; name: string; }[]>([]);
   const [roadmapLookup, setRoadmapLookup] = useState<Record<string, ClientRoadmapIteration>>({});
+  const [roadmapsLoaded, setRoadmapsLoaded] = useState(false);
   const [dataSeriesNamesById, setDataSeriesNamesById] = useState<Record<string, string>>({});
   const [selectedRecipeId, setSelectedRecipeId] = useState<string>(initialRecipeId ?? (initialContextRecipe ? CURRENT_RECIPE_ID : ""));
   const suggestedRecipes = useMemo(() => autoInsertDefaultSuggestions
@@ -107,7 +108,8 @@ export function SuggestedRecipeApplier({
       .catch((err: unknown) => {
         const errorMessage = err instanceof Error ? err.message : String(err);
         console.error("Failed to fetch roadmaps", errorMessage);
-      });
+      })
+      .finally(() => setRoadmapsLoaded(true));
   }, [t]);
 
   // Validate suggested recipe structures
@@ -250,6 +252,7 @@ export function SuggestedRecipeApplier({
                     variableId={variableId}
                     availableDataSeries={availableDataSeries}
                     roadmapLookup={roadmapLookup}
+                    loading={!roadmapsLoaded}
                     dataSeriesNamesById={dataSeriesNamesById}
                     permissions={{ ...permissions }}
                   />

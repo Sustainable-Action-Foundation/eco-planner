@@ -69,7 +69,8 @@
     "select_multiple_options": "Välj ett eller flera alternativ",
     "select_or_leave": "Välj eller lämna blankt",
     "select_single_option": "Välj ett alternativ",
-    "show_suggestions": "Visa förslag"
+    "show_suggestions": "Visa förslag",
+    "loading": "Laddar …"
   },
   "data_series_input": {
     "action": "Åtgärd",
