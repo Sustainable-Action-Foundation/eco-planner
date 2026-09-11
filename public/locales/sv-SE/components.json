@@ -30,8 +30,6 @@
   },
   "copy_and_scale": {
     "add_variable": "Lägg till variabel",
-    "copy_and_scale": "Kopiera och skala",
-    "create_scaled_copy": "Skapa skalad kopia",
     "custom_recipe": "Egen formel",
     "custom_recipe_placeholder": "t.ex. (${var1} + ${var2}) / 2",
     "data_series_value": "Värde",
@@ -41,11 +39,7 @@
     "recipe_label": "Formel: ",
     "recipe_variables": "Formelns variabler",
     "resulting_data_series": "Resulterande värden",
-    "select_roadmap_version": "I vilken $t(common:roadmap_version_one) vill du placera den skalade $t(common:goal_definite_one)?",
-    "select_roadmap_version_option": "Välj $t(common:roadmap_version_one)",
-    "title": "Kopiera och skala $t(common:goal_definite_one) {{goalName}}",
-    "unnamed_suggestion": "Namnlöst förslag",
-    "version": "version"
+    "unnamed_suggestion": "Namnlöst förslag"
   },
   "draggable": {
     "drag_to_snap": "Dra över för att fästa panelen",

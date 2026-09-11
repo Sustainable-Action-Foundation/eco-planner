@@ -7,20 +7,36 @@ import { calculatePredictedOutcome, getStoredGraphType } from "../../functions/g
 import GraphSelector from "../../graphSelectors/graphSelector";
 import SecondaryGoalSelector from "../../graphSelectors/secondaryGoalSelector";
 import { useTranslation } from "react-i18next";
-import type { DataSeries, DateValues, DateValuesWithUnit, Goal, LoginData, RoadmapIteration } from "@/types";
+import type { DataSeries, DateValues, DateValuesWithUnit, Goal, RoadmapIteration } from "@/types";
 import { GraphType } from "@/types/enums";
 // Copy and scale is shelved for now; see the comment at its render sites below.
-// import CopyAndScale from "@/components/modals/copyAndScale";
 import styles from './goal.module.css';
 import GoalGraph from "./main";
 import HistoricalFootnote, { hasHistoricalFootnote, historicalSeriesName } from "@/components/graph/historicalFootnote";
 import TabListSimple from "@/components/generic/tablist/tabListSimple";
 import findSiblings from "@/functions/findSiblings";
 import ChildGraphContainer from "./child/container";
-import { IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
+import { IconArrowRight, IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
+import Link from "next/link";
 // import SiblingGraph from "./sibling/siblings";
 
 type TimestampedValue = { timestamp: Date; value: number };
+
+/** The toolbar's way into the user's own roadmaps: a copy started from this goal (the panel below the graph says more). */
+function UseGoalLink({ href }: { href: string }) {
+  const { t } = useTranslation("graphs");
+  return (
+    <Link
+      href={href}
+      title={t("graphs:graph_graph.use_goal_title")}
+      className="seagreen color-purewhite smooth font-weight-500 font-size-75 line-height-150 flex align-items-center gap-25"
+      style={{ padding: '.3rem .6rem', textDecoration: 'none' }}
+    >
+      {t("graphs:graph_graph.use_goal")}
+      <IconArrowRight aria-hidden="true" width={16} height={16} style={{ minWidth: '16px' }} />
+    </Link>
+  );
+}
 
 export default function GoalGraphContainer({
   goal,
@@ -28,22 +44,15 @@ export default function GoalGraphContainer({
   childGoals,
   iteration,
   parentGoal,
-  // Only used by the shelved copy-and-scale dialog; kept in the props so callers and re-enabling stay untouched
-  session: _session,
-  roadmapOptions: _roadmapOptions,
+  useHref,
 }: {
   goal: Goal,
   secondaryGoal: Goal | null,
   childGoals: Goal[],
   iteration: RoadmapIteration,
   parentGoal: Goal | null,
-  session: LoginData,
-  roadmapOptions: {
-    id: string;
-    name: string;
-    version: number;
-    actor: string | null;
-  }[]
+  /** Where "use this goal" goes (the goal form prefilled from it, see `getGoalPrefill`); null when the user has no roadmap to put a copy in */
+  useHref?: string | null,
 }) {
   const { t } = useTranslation("graphs");
 
@@ -329,14 +338,7 @@ export default function GoalGraphContainer({
             <menu className={`${styles['menu']}`}>
               <GraphSelector goal={goal} currentSelection={graphType} setter={setGraphType} />
               <SecondaryGoalSelector />
-              {/*
-                Copy and scale: "borrowing" someone else's goal into your own roadmap
-                is a flow worth keeping, but the dialog needs a rework before it is
-                shipped again. Hidden until then rather than shipped half-baked.
-              {(goal.data_series?.id && session.user) ?
-                <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
-                : null}
-              */}
+              {useHref ? <UseGoalLink href={useHref} /> : null}
             </menu>
             <h2 className={`${styles['heading']}`}>
               {goal.name ? goal.name : goal.indicator_parameter}
@@ -392,11 +394,7 @@ export default function GoalGraphContainer({
               <menu className={`${styles['menu']}`}>
                 <GraphSelector goal={goal} currentSelection={graphType} setter={setGraphType} />
                 <SecondaryGoalSelector />
-                {/* Copy and scale hidden until its dialog is reworked, see the note above
-                {(goal.data_series?.id && session.user) ?
-                  <CopyAndScale goal={goal} roadmapOptions={roadmapOptions} />
-                  : null}
-                */}
+                {useHref ? <UseGoalLink href={useHref} /> : null}
               </menu>
               <h2 className={`${styles['heading']}`}>
                 {goal.name ? goal.name : goal.indicator_parameter}

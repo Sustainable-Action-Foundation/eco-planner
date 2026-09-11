@@ -74,6 +74,10 @@
       "heading": "Använd i lokal färdplan",
       "link": "Använd i färdplan",
       "link_org": "Använd i färdplan ({{org}})"
+    },
+    "use_in_roadmap": {
+      "description": "Skapa en ny målbana i någon av organisationens färdplaner utifrån den här: den blir utgångspunkten som de föreslagna metoderna skalar, och namn, beskrivning och indikatorparameter följer med. Allt går att justera innan du sparar.",
+      "heading": "Använd i färdplan"
     }
   },
   "goal_create": {
@@ -83,7 +87,8 @@
     "information_icon_aria": "Information",
     "prefilled": "Formuläret utgår från {{name}}: som målbanans historiska data och som den serie de föreslagna metoderna skalar. Allt går fortfarande att ändra innan du sparar.",
     "title": "$t(common:new.goal)",
-    "prefilled_copy": "Formuläret utgår från den nationella målbanan {{goal}}: kopian följer dess utveckling från det senaste lokala värdet för {{series}}, som också blir målbanans historiska data. Allt går fortfarande att ändra innan du sparar."
+    "prefilled_copy": "Formuläret utgår från den nationella målbanan {{goal}}: kopian följer dess utveckling från det senaste lokala värdet för {{series}}, som också blir målbanans historiska data. Allt går fortfarande att ändra innan du sparar.",
+    "prefilled_goal": "Formuläret utgår från målbanan {{goal}}: den är utgångspunkten som de föreslagna metoderna skalar, och dess uppgifter är ifyllda. Allt går fortfarande att ändra innan du sparar."
   },
   "goal_edit": {
     "breadcrumb": "$t(common:edit.goal)",

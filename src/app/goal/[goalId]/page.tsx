@@ -23,7 +23,7 @@ import type { TFunction } from "i18next";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 import type { Metadata } from "next";
 import GoalGraphContainer from "@/components/graph/graphs/goal/container";
-import UseGoalLocally from "@/components/pages/sections/useGoalLocally";
+import UseGoalInRoadmap from "@/components/pages/sections/useGoalInRoadmap";
 import Image from "next/image";
 import { Suspense } from "react";
 
@@ -73,9 +73,8 @@ export default async function Page(
     props.searchParams,
   ]);
 
-  const [t, session, accessContext, { goal, iteration }, secondaryGoal, unfilteredIterations] = await Promise.all([
+  const [t, accessContext, { goal, iteration }, secondaryGoal, unfilteredIterations] = await Promise.all([
     serveTea("pages"),
-    getSession(await cookies()),
     getUserAccessContext(),
     getOneGoal(params.goalId).then(async goal => ({
       goal,
@@ -85,7 +84,6 @@ export default async function Page(
     getRoadmapIterations(),
   ]) satisfies [ // Did this cause of the nested promises so I wanna have some sanity here:3
     TFunction,
-    Awaited<ReturnType<typeof getSession>>,
     UserAccessContext | null,
     {
       goal: Goal | null;
@@ -109,10 +107,9 @@ export default async function Page(
     return notFound();
   }
 
-  // Create a list of roadmap iterations the user can copy and scale the goal to
-  const roadmapOptions = unfilteredIterations.filter(iteration => {
-    return hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, status: iteration.status }, accessContext));
-  }).map(iteration => ({ id: iteration.id, name: iteration.roadmap.name, version: iteration.version, actor: iteration.roadmap.actor }));
+  // Whether a copy of the goal has somewhere to go: a roadmap version the user can edit
+  const canCreateGoals = unfilteredIterations.some(iteration =>
+    hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, status: iteration.status }, accessContext)));
 
   // Fetch parent goal
   let parentGoal: Goal | null = null;
@@ -254,7 +251,7 @@ export default async function Page(
 
         {/* A national goal with local statistics behind it can be taken into the user's own roadmaps; fetches from the statistics APIs, so it streams in */}
         <Suspense fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
-          <UseGoalLocally goal={goal} roadmapType={iteration.roadmap.type} />
+          <UseGoalInRoadmap goal={goal} roadmapType={iteration.roadmap.type} canCreateGoals={canCreateGoals} />
         </Suspense>
 
         {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
@@ -262,11 +259,10 @@ export default async function Page(
           <GoalGraphContainer
             goal={goal}
             parentGoal={parentGoal}
+            useHref={canCreateGoals ? `/goal/create?from=${encodeURIComponent(goal.id)}` : null}
             childGoals={childGoals}
             iteration={iteration}
             secondaryGoal={secondaryGoal}
-            session={{ user: session.user }}
-            roadmapOptions={roadmapOptions}
           />
 
         </section>

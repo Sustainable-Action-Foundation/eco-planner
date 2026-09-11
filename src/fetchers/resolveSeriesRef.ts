@@ -1,5 +1,10 @@
 import "server-only";
-import { getCuratedHistoricalEntry } from "@/fetchers/getCuratedHistoricalData";
+import { getCuratedHistoricalEntries, getCuratedHistoricalEntry } from "@/fetchers/getCuratedHistoricalData";
+import { findLocalSeries } from "@/fetchers/getNationalGoalMatches";
+import { getRoadmaps } from "@/fetchers/getRoadmaps";
+import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
+import { getNationalGoalMappings } from "@/lib/curatedHistoricalData";
 import { getOneGoal } from "@/fetchers/getOneGoal";
 import { getUserOrgs } from "@/fetchers/getUserOrgs";
 import { goalDisplayName } from "@/functions/goalName";
@@ -10,7 +15,7 @@ import { parseUnit } from "@/functions/unit";
 import { UnitFlags } from "@/types/enums";
 import type { CuratedGeoArea, CuratedHistoricalEntryData, CuratedHistoricalSeriesData } from "@/fetchers/getCuratedHistoricalData";
 import type { SeriesRef } from "@/lib/seriesRef";
-import type { DateValues, GoalPrefill, PrefilledSeries } from "@/types";
+import type { DateValues, GeoAreaRef, GoalPrefill, PrefilledSeries } from "@/types";
 import type { TFunction } from "i18next";
 
 /**
@@ -113,7 +118,7 @@ export function copyPrefill(
 }
 
 /** The goal named by `from`, as visible to the user and with a data series to copy; null otherwise. */
-async function resolveCopiedGoal(goalId: string): Promise<Parameters<typeof copyPrefill>[0] | null> {
+async function resolveCopiedGoal(goalId: string): Promise<(Parameters<typeof copyPrefill>[0] & { geoArea: GeoAreaRef | null }) | null> {
   const goal = await getOneGoal(goalId);
   if (!goal?.data_series) return null;
   return {
@@ -123,15 +128,44 @@ async function resolveCopiedGoal(goalId: string): Promise<Parameters<typeof copy
     unit: goal.data_series.unit,
     dataSeriesId: goal.data_series.id,
     dateValues: Object.fromEntries(goal.data_series.values.map(record => [record.timestamp.toISOString(), record.value])) as DateValues,
+    geoArea: goal.roadmap_iteration.roadmap.geo_area,
   };
+}
+
+/**
+ * For a copied goal the curated catalog can measure locally: the local
+ * statistic for every area the user could copy the goal into (the areas of
+ * the roadmaps they can edit), keyed by area code, so the form can follow the
+ * target roadmap. Empty for goals outside the mapping.
+ */
+async function localStatisticsByArea(t: TFunction, copied: Parameters<typeof copyPrefill>[0]): Promise<NonNullable<GoalPrefill["byArea"]>> {
+  const byArea: NonNullable<GoalPrefill["byArea"]> = {};
+  const mapping = getNationalGoalMappings().find(mapping => mapping.indicatorParameter === copied.indicatorParameter);
+  if (!mapping) return byArea;
+
+  const [roadmaps, accessContext] = await Promise.all([getRoadmaps(), getUserAccessContext()]);
+  const areas = new Map<string, GeoAreaRef>();
+  for (const roadmap of roadmaps) {
+    if (roadmap.geo_area && hasEditAccess(accessChecker(roadmap, accessContext))) areas.set(roadmap.geo_area.code, roadmap.geo_area);
+  }
+
+  // One area at a time: the statistics APIs answer bursts with 429s
+  for (const area of areas.values()) {
+    const entries = await getCuratedHistoricalEntries(t, area, mapping.series.map(candidate => candidate.entryKey));
+    const local = findLocalSeries(mapping, entries);
+    if (!local) continue;
+    const { historical, localReference } = copyPrefill(copied, local.entry, local.series);
+    if (historical && localReference) byArea[area.code] = { historical, localReference };
+  }
+  return byArea;
 }
 
 /**
  * What the goal creation form should start from, from its link's search
  * params: `series` carries a ref (see `seriesRef`) resolved for the geo area of
- * the org named by `org`, and `from` optionally names a goal to copy, whose
- * data series then becomes the parent the suggested methods scale, with the
- * series as the local level to scale it to. `failed` is true when a
+ * the org named by `org`, and `from` names a goal to copy, whose data series
+ * then becomes the parent the suggested methods scale, with the series (when
+ * given) as the local level to scale it to. `failed` is true when a
  * param was given but could not be resolved (or the org isn't one of the
  * user's), so the page can say the link didn't work rather than silently
  * starting empty.
@@ -140,7 +174,23 @@ export async function getGoalPrefill(
   t: TFunction,
   params: { org?: string | string[], series?: string | string[], from?: string | string[] },
 ): Promise<{ prefill: GoalPrefill | null, failed: boolean }> {
-  if (typeof params.series !== "string") return { prefill: null, failed: typeof params.from === "string" };
+  if (typeof params.series !== "string") {
+    if (typeof params.from !== "string") return { prefill: null, failed: false };
+    // A goal copied as is: its series is what the suggested methods scale, and
+    // its fields seed the form; the local statistic, if the catalog has one,
+    // follows whichever roadmap the form is pointed at
+    const copied = await resolveCopiedGoal(params.from);
+    if (!copied) return { prefill: null, failed: true };
+    return {
+      prefill: {
+        parent: goalPrefilledSeries(copied),
+        copy: { name: copied.name, description: copied.description, indicatorParameter: copied.indicatorParameter },
+        sourceGeoArea: copied.geoArea ?? undefined,
+        byArea: await localStatisticsByArea(t, copied),
+      },
+      failed: false,
+    };
+  }
 
   const ref = parseSeriesRef(params.series);
   const orgId = typeof params.org === "string" ? params.org : "";
@@ -158,7 +208,11 @@ export async function getGoalPrefill(
   if (!copied || !entry || !series) return { prefill: null, failed: true };
 
   return {
-    prefill: copyPrefill(copied, entry, series),
+    prefill: {
+      ...copyPrefill(copied, entry, series),
+      sourceGeoArea: copied.geoArea ?? undefined,
+      byArea: await localStatisticsByArea(t, copied),
+    },
     failed: false,
   };
 }

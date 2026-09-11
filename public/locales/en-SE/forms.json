@@ -69,7 +69,8 @@
     "select_multiple_options": "Select one or multiple options",
     "select_or_leave": "Select or leave blank",
     "select_single_option": "Select an option",
-    "show_suggestions": "Show suggestions"
+    "show_suggestions": "Show suggestions",
+    "loading": "Loading …"
   },
   "data_series_input": {
     "action": "Action",

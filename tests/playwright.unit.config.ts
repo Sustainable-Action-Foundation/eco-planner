@@ -78,6 +78,12 @@ export default defineConfig({
       use: {},
     },
     {
+      name: "Suggested recipes unit tests",
+      testMatch: ["unit/suggested-recipes.test.ts"],
+      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
+      use: {},
+    },
+    {
       name: "Local scale unit tests",
       testMatch: ["unit/local-scale.test.ts"],
       retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.

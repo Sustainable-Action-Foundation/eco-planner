@@ -30,8 +30,6 @@
   },
   "copy_and_scale": {
     "add_variable": "Add variable",
-    "copy_and_scale": "Copy and scale",
-    "create_scaled_copy": "Create scaled copy",
     "custom_recipe": "Custom formula",
     "custom_recipe_placeholder": "e.g. (${var1} + ${var2}) / 2",
     "data_series_value": "Value",
@@ -41,11 +39,7 @@
     "recipe_label": "Formula: ",
     "recipe_variables": "Formula variables",
     "resulting_data_series": "Resulting data series",
-    "select_roadmap_version": "In which $t(common:roadmap_version_one) do you want to place the scaled $t(common:goal_one)?",
-    "select_roadmap_version_option": "Select $t(common:roadmap_version_one)",
-    "title": "Copy and scale $t(common:goal_one) {{goalName}}",
-    "unnamed_suggestion": "Unnamed suggestion",
-    "version": "version"
+    "unnamed_suggestion": "Unnamed suggestion"
   },
   "draggable": {
     "drag_to_snap": "Drag over to snap back",
