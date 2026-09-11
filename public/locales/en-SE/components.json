@@ -301,6 +301,37 @@
       "goal_in_year": "National goal {{year}}: {{name}}",
       "local": "Local {{year}}: {{name}}",
       "name": "Follow the national goal's development from the local value"
+    },
+    "leap_scaling": {
+      "consumption_based": "(consumption-based)",
+      "copy_name": "Copy unchanged (intensity, share or national parameter)",
+      "denominators": {
+        "BUSES": "buses in traffic",
+        "DISTRICT_HEATING_FUEL_CLASS": "district heating fuel input, same fuel class",
+        "DISTRICT_HEATING_PRODUCTION": "district heating production",
+        "DWELLING_AREA": "dwelling area per person",
+        "ELECTRICITY_FUEL_CLASS": "electricity fuel input, same fuel class",
+        "ELECTRICITY_PRODUCTION": "electricity production of the same kind",
+        "ENERGY_USE_AGRICULTURE_FORESTRY": "energy use in agriculture and forestry",
+        "ENERGY_USE_FUEL_CLASS": "energy use in the sector, same fuel class",
+        "ENERGY_USE_HOUSEHOLDS": "household energy use",
+        "ENERGY_USE_INDUSTRY_CONSTRUCTION": "energy use in industry and construction",
+        "ENERGY_USE_SERVICES": "energy use in services",
+        "HEAVY_TRUCKS": "heavy trucks in traffic",
+        "LIGHT_TRUCKS": "light trucks in traffic",
+        "PASSENGER_CARS": "passenger cars in traffic",
+        "POPULATION": "population",
+        "POPULATION_FORECAST": "population forecast"
+      },
+      "factor": "Factor",
+      "local": "{{area}}: {{what}}",
+      "national": "Sweden: {{what}}",
+      "national_goal": "National goal",
+      "population_latest_name": "Scale by population (latest value)",
+      "population_yearly_name": "Scale by population forecast, per year",
+      "ratio_latest_name": "Scale by {{what}} (latest value)",
+      "ratio_yearly_name": "Scale by {{what}}, per year",
+      "zero_name": "Set to zero (no such plant locally)"
     }
   },
   "roadmap_filters": {

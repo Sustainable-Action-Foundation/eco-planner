@@ -301,6 +301,37 @@
       "goal_in_year": "Nationell målbana {{year}}: {{name}}",
       "local": "Lokalt {{year}}: {{name}}",
       "name": "Följ den nationella målbanans utveckling från lokalt värde"
+    },
+    "leap_scaling": {
+      "consumption_based": "(konsumtionsbaserat)",
+      "copy_name": "Kopiera oförändrad (intensitet, andel eller nationell parameter)",
+      "denominators": {
+        "BUSES": "bussar i trafik",
+        "DISTRICT_HEATING_FUEL_CLASS": "insatt bränsle i fjärrvärme, samma bränsleklass",
+        "DISTRICT_HEATING_PRODUCTION": "fjärrvärmeproduktion",
+        "DWELLING_AREA": "bostadsarea per person",
+        "ELECTRICITY_FUEL_CLASS": "insatt bränsle i elproduktion, samma bränsleklass",
+        "ELECTRICITY_PRODUCTION": "elproduktion av samma slag",
+        "ENERGY_USE_AGRICULTURE_FORESTRY": "energianvändning i jord- och skogsbruk",
+        "ENERGY_USE_FUEL_CLASS": "energianvändning i sektorn, samma bränsleklass",
+        "ENERGY_USE_HOUSEHOLDS": "hushållens energianvändning",
+        "ENERGY_USE_INDUSTRY_CONSTRUCTION": "energianvändning i industri och bygg",
+        "ENERGY_USE_SERVICES": "energianvändning i tjänstesektorn",
+        "HEAVY_TRUCKS": "tunga lastbilar i trafik",
+        "LIGHT_TRUCKS": "lätta lastbilar i trafik",
+        "PASSENGER_CARS": "personbilar i trafik",
+        "POPULATION": "befolkning",
+        "POPULATION_FORECAST": "befolkningsprognos"
+      },
+      "factor": "Faktor",
+      "local": "{{area}}: {{what}}",
+      "national": "Riket: {{what}}",
+      "national_goal": "Nationell målbana",
+      "population_latest_name": "Skala utifrån befolkning (senaste värde)",
+      "population_yearly_name": "Skala utifrån befolkningsprognos, per år",
+      "ratio_latest_name": "Skala utifrån {{what}} (senaste värde)",
+      "ratio_yearly_name": "Skala utifrån {{what}}, per år",
+      "zero_name": "Sätt till noll (anläggningen finns inte lokalt)"
     }
   },
   "roadmap_filters": {

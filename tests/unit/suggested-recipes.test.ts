@@ -54,10 +54,10 @@ test.describe("Default suggestions and areas", () => {
   });
 
   test("a copy prefers its local statistic, then population, then the series as is", () => {
-    expect(preferredSuggestedRecipeId({ parentSeries, localReference, geo: { source: sweden, target: boden } })).toBe(DefaultSuggestedRecipeId.LocalScale);
-    expect(preferredSuggestedRecipeId({ parentSeries, geo: { source: sweden, target: boden } })).toBe(DefaultSuggestedRecipeId.Population);
-    expect(preferredSuggestedRecipeId({ parentSeries, geo: { source: sweden, target: null } })).toBe(DefaultSuggestedRecipeId.Scalar);
-    expect(preferredSuggestedRecipeId({ parentSeries })).toBe(DefaultSuggestedRecipeId.Scalar);
-    expect(preferredSuggestedRecipeId({})).toBe(DefaultSuggestedRecipeId.Scalar);
+    expect(preferredSuggestedRecipeId(identityT, { parentSeries, localReference, geo: { source: sweden, target: boden } })).toBe(DefaultSuggestedRecipeId.LocalScale);
+    expect(preferredSuggestedRecipeId(identityT, { parentSeries, geo: { source: sweden, target: boden } })).toBe(DefaultSuggestedRecipeId.Population);
+    expect(preferredSuggestedRecipeId(identityT, { parentSeries, geo: { source: sweden, target: null } })).toBe(DefaultSuggestedRecipeId.Scalar);
+    expect(preferredSuggestedRecipeId(identityT, { parentSeries })).toBe(DefaultSuggestedRecipeId.Scalar);
+    expect(preferredSuggestedRecipeId(identityT, {})).toBe(DefaultSuggestedRecipeId.Scalar);
   });
 });

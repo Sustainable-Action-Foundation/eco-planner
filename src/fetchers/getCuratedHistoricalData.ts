@@ -44,7 +44,7 @@ export type CuratedHistoricalCatalogData = Omit<CuratedHistoricalCatalog, "entri
  */
 export async function getCuratedHistoricalData(t: TFunction, geoArea: CuratedGeoArea): Promise<CuratedHistoricalCatalogData> {
   const catalog = getCuratedHistoricalCatalog(t, geoArea.name);
-  return { ...catalog, entries: await fetchEntries(catalog.entries, geoArea) };
+  return { ...catalog, entries: await fetchEntries(catalog.entries.filter(entry => entry.listed !== false), geoArea) };
 }
 
 /**

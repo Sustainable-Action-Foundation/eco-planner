@@ -16,6 +16,7 @@ import { RecipeEditorPermissions } from "@/types/consts";
 import { Recipe } from "@/functions/recipe/recipe";
 import type { SerializedRecipe } from "@/functions/recipe/types";
 import { getDefaultSuggestedRecipes, TextStatus } from "@/components/recipe";
+import { getSuggestedRecipesFor } from "@/components/recipe/suggestions/defaultSuggestedRecipes";
 import type { SuggestedRecipeContext } from "@/components/recipe/suggestions/defaultSuggestedRecipes";
 import styles from "../recipe.module.css" with {type: "css"};
 import { getRecipeRoadmapData } from "../context/roadmapDataCache";
@@ -39,7 +40,8 @@ export function SuggestedRecipeApplier({
   initialRecipeId?: string;
 }) {
   const { t } = useTranslation("components");
-  const defaultSuggestionRecipes = useMemo(() => getDefaultSuggestedRecipes(t, context), [t, context]);
+  // A goal with methods of its own shows only those (see getSuggestedRecipesFor)
+  const defaultSuggestionRecipes = useMemo(() => context ? getSuggestedRecipesFor(t, context) : getDefaultSuggestedRecipes(t), [t, context]);
   const { recipe, applyRecipeUpdate, clearRecipe } = useRecipe();
 
   // The suggested method the context was seeded with: editing a goal that was
