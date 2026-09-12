@@ -60,7 +60,12 @@
       "short": "Short text"
     },
     "field_placeholder_paragraph": "Longer text...",
-    "field_placeholder_short": "Shorter text..."
+    "field_placeholder_short": "Shorter text...",
+    "origin_legend": "Original",
+    "origin_description": "Is this action a copy of another organization's action, such as the municipality's? Link it to the original so the copies can find each other and be synced.",
+    "origin_label": "Original action",
+    "origin_placeholder": "Choose an original (optional)",
+    "origin_unlink": "Unlink from the original"
   },
   "combobox": {
     "default_autocomplete_placeholder": "Type to view suggestions",

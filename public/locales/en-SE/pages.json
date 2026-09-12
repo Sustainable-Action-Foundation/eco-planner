@@ -8,7 +8,15 @@
     "expected_effect": "Expected $t(common:effect_other)",
     "no_category": "No specified category",
     "no_effect": "No specified $t(common:effect_other)",
-    "shared_database_note": "Part of the shared action database: visible to everyone, edited by the owning organization's managers."
+    "shared_database_note": "Part of the shared action database: visible to everyone, edited by the owning organization's managers.",
+    "neighbours_label": "Neighbouring actions",
+    "neighbours_copy_description": "This action is a copy of {{origin}}'s original. The original and other organizations' copies of the same action are listed here.",
+    "neighbours_origin_description_one": "{{count}} organization has a copy of this action.",
+    "neighbours_origin_description_other": "{{count}} organizations have copies of this action.",
+    "neighbours_self_differs": "This copy differs from the original.",
+    "neighbour_origin_badge": "Original",
+    "neighbour_differs": "Differs",
+    "visit_neighbour": "View action"
   },
   "action_create": {
     "bad_goal": "Could not find or do not have access to the $t(common:goal_one) in the link.",
@@ -38,7 +46,10 @@
     "show_fewer": "Show fewer",
     "shown_results": "Showing $t(common:count.action)",
     "title": "Title",
-    "visit_action": "Visit $t(common:action_definite_one)"
+    "visit_action": "Visit $t(common:action_definite_one)",
+    "neighbour_badge_one": "+{{count}} organization",
+    "neighbour_badge_other": "+{{count}} organizations",
+    "neighbour_badge_title": "The same action exists at other organizations"
   },
   "common": {
     "external_resources": "External resources"

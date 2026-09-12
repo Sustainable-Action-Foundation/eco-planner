@@ -8,7 +8,15 @@
     "expected_effect": "Förväntad $t(common:effect_one)",
     "no_category": "Ingen angiven kategori",
     "no_effect": "Ingen angiven $t(common:effect_one)",
-    "shared_database_note": "Ingår i den gemensamma åtgärdsdatabasen: synlig för alla, redigeras av den ägande organisationens chefer."
+    "shared_database_note": "Ingår i den gemensamma åtgärdsdatabasen: synlig för alla, redigeras av den ägande organisationens chefer.",
+    "neighbours_label": "Grannåtgärder",
+    "neighbours_copy_description": "Den här åtgärden är en kopia av {{origin}}s original. Här listas originalet och andra organisationers kopior av samma åtgärd.",
+    "neighbours_origin_description_one": "{{count}} organisation har en kopia av den här åtgärden.",
+    "neighbours_origin_description_other": "{{count}} organisationer har kopior av den här åtgärden.",
+    "neighbours_self_differs": "Den här kopian skiljer sig från originalet.",
+    "neighbour_origin_badge": "Original",
+    "neighbour_differs": "Skiljer sig",
+    "visit_neighbour": "Visa åtgärd"
   },
   "action_create": {
     "bad_goal": "Kunde inte hitta, eller har inte tillgång till, $t(common:goal_definite_one) i länken.",
@@ -38,7 +46,10 @@
     "show_fewer": "Visa färre",
     "shown_results": "Visar $t(common:count.action)",
     "title": "Titel",
-    "visit_action": "Gå till $t(common:action_definite_one)"
+    "visit_action": "Gå till $t(common:action_definite_one)",
+    "neighbour_badge_one": "+{{count}} organisation",
+    "neighbour_badge_other": "+{{count}} organisationer",
+    "neighbour_badge_title": "Samma åtgärd finns hos fler organisationer"
   },
   "common": {
     "external_resources": "Externa resurser"

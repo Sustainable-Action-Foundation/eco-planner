@@ -6,6 +6,7 @@ import pruneOrphans from "@/functions/pruneOrphans";
 import { iterationPath } from "@/functions/versionSlug";
 import { manualDataSeriesCreateData } from "@/functions/recipe/persistence";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
+import { visibleActionsWHERE } from "@/lib/accessFilters";
 import serveTea from "@/lib/i18nServer";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@PRISMA-NAMESPACE-ONLY";
@@ -21,6 +22,32 @@ import { cookies } from "next/headers";
 function managesOrg(accessContext: UserAccessContext, orgId: string): boolean {
   return accessContext.isSuperAdmin
     || accessContext.memberships.some(membership => membership.orgId === orgId && membership.role === OrgRole.MANAGER);
+}
+
+/**
+ * Resolves the origin an action may link to: the id to store, `null` to unlink, `undefined` to leave
+ * the link alone. Links stay one level deep, so a target that is itself a copy resolves to its own origin.
+ * Returns `false` for a target the user can't see (or that doesn't exist), a self-link, or when the
+ * action already serves as the origin of other copies.
+ */
+async function resolveOriginActionId(
+  input: string | null | undefined,
+  selfId: string | undefined,
+  accessContext: UserAccessContext,
+): Promise<string | null | undefined | false> {
+  if (input === undefined || input === null) return input;
+  if (input === selfId) return false;
+
+  const [target, derivedCount] = await Promise.all([
+    prisma.actions.findUnique({
+      where: { ...visibleActionsWHERE(accessContext), id: input },
+      select: { id: true, origin_action_id: true },
+    }),
+    selfId ? prisma.actions.count({ where: { origin_action_id: selfId } }) : 0,
+  ]);
+  if (!target || derivedCount > 0) return false;
+  const rootId = target.origin_action_id ?? target.id;
+  return rootId === selfId ? false : rootId;
 }
 
 /**
@@ -56,10 +83,11 @@ export async function POST(request: NextRequest) {
 
   let orgId: string;
   let goalOrgId: string | null = null;
+  let accessContext: UserAccessContext;
 
   // Auth
   try {
-    const [accessContext, iteration, goal] = await Promise.all([
+    const [foundAccessContext, iteration, goal] = await Promise.all([
       getAccessContextById(session.user.id),
       !actionCreate.iterationId
         ? null
@@ -86,9 +114,10 @@ export async function POST(request: NextRequest) {
     ]);
 
     // If no user is found or the found user falsely claims to be a super admin, they have a bad session cookie and should be logged out
-    if (!accessContext || (session.user.isSuperAdmin && !accessContext.isSuperAdmin)) {
+    if (!foundAccessContext || (session.user.isSuperAdmin && !foundAccessContext.isSuperAdmin)) {
       throw new Error(ClientError.BadSession, { cause: 'action' });
     }
+    accessContext = foundAccessContext;
 
     // Also return IllegalParent if a goalId is provided and no valid goal is found
     if (!goal && actionCreate.goalId) {
@@ -151,6 +180,14 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Actions may be created as a copy of another (visible) action
+  const originActionId = await resolveOriginActionId(actionCreate.originActionId, undefined, accessContext);
+  if (originActionId === false) {
+    return Response.json({ message: t('api:action.invalid_origin') },
+      { status: 400 },
+    );
+  }
+
   // Create the action
   try {
     const newActionId = (await prisma.actions.create({
@@ -163,6 +200,7 @@ export async function POST(request: NextRequest) {
         org: { connect: { id: orgId } },
         roadmap_iteration: actionCreate.iterationId ? { connect: { id: actionCreate.iterationId } } : undefined,
         parent_action: actionCreate.parentActionId ? { connect: { id: actionCreate.parentActionId } } : undefined,
+        origin_action: originActionId ? { connect: { id: originActionId } } : undefined,
         fields: actionCreate.fields?.length
           ? { createMany: { data: actionCreate.fields.map((field, index) => ({ header: field.header, value: field.value, type: parseActionFieldType(field.type), order: index })) } }
           : undefined,
@@ -234,9 +272,11 @@ export async function PUT(request: NextRequest) {
     );
   }
 
+  let accessContext: UserAccessContext;
+
   // Auth
   try {
-    const [accessContext, currentAction] = await Promise.all([
+    const [foundAccessContext, currentAction] = await Promise.all([
       getAccessContextById(session.user.id),
       prisma.actions.findUnique({
         where: { id: action.actionId },
@@ -253,9 +293,10 @@ export async function PUT(request: NextRequest) {
       }),
     ]);
     // If no user is found or the found user falsely claims to be a super admin, they have a bad session cookie and should be logged out
-    if (!accessContext || (session.user.isSuperAdmin && !accessContext.isSuperAdmin)) {
+    if (!foundAccessContext || (session.user.isSuperAdmin && !foundAccessContext.isSuperAdmin)) {
       throw new Error(ClientError.BadSession, { cause: 'action' });
     }
+    accessContext = foundAccessContext;
 
     // If no action is found or the user has no edit access to it, return AccessDenied
     const mayEdit = !currentAction ? false
@@ -296,6 +337,14 @@ export async function PUT(request: NextRequest) {
     }
   }
 
+  // `null` unlinks, an id links, `undefined` leaves the origin alone
+  const originActionId = await resolveOriginActionId(action.originActionId, action.actionId, accessContext);
+  if (originActionId === false) {
+    return Response.json({ message: t('api:action.invalid_origin') },
+      { status: 400 },
+    );
+  }
+
   // Update the action
   try {
     const updatedActionId = (await prisma.actions.update({
@@ -307,6 +356,9 @@ export async function PUT(request: NextRequest) {
         indicator_parameter: action.indicatorParameter,
         start_year: action.startYear,
         end_year: action.endYear,
+        ...(originActionId === undefined ? {} : {
+          origin_action: originActionId ? { connect: { id: originActionId } } : { disconnect: true },
+        }),
         // Full replacement of the field set, if provided
         ...(action.fields === undefined ? {} : {
           fields: {
