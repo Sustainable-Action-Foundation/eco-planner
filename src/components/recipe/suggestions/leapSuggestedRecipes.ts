@@ -164,13 +164,15 @@ function factorRecipe(t: TFunction, id: string, name: string, factor: number): {
 }
 
 /**
- * The methods the LEAP scaling rule gives a copied goal in the target area, in
- * order of preference; empty when the rule needs an area the target isn't.
+ * The methods the LEAP scaling rule gives a goal copied from a national
+ * scenario into the target area, in order of preference; empty for goals of
+ * other roadmaps and when the rule needs an area the target isn't.
  */
 export function getLeapSuggestedRecipes(t: TFunction, context: SuggestedRecipeContext): DBRecipe[] {
   const { parentSeries, indicatorParameter } = context;
   const target = context.geo?.target ?? null;
-  if (!parentSeries || !indicatorParameter) return [];
+  // The rules are written for the seeded national scenarios, not for any goal whose indicator happens to look like a LEAP row
+  if (!parentSeries || !indicatorParameter || !context.nationalScenario) return [];
   const rule = getLeapScalingRule(indicatorParameter);
   if (!rule) return [];
 

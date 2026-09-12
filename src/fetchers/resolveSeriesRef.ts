@@ -16,6 +16,7 @@ import { UnitFlags } from "@/types/enums";
 import type { CuratedGeoArea, CuratedHistoricalEntryData, CuratedHistoricalSeriesData } from "@/fetchers/getCuratedHistoricalData";
 import type { SeriesRef } from "@/lib/seriesRef";
 import type { DateValues, GeoAreaRef, GoalPrefill, PrefilledSeries } from "@/types";
+import type { RoadmapType } from "@/lib/prisma/generated";
 import { Recipe } from "@/functions/recipe/recipe";
 import type { SerializedRecipe } from "@/functions/recipe/types";
 import type { TFunction } from "i18next";
@@ -120,7 +121,7 @@ export function copyPrefill(
 }
 
 /** The goal named by `from`, as visible to the user and with a data series to copy; null otherwise. */
-async function resolveCopiedGoal(goalId: string): Promise<(Parameters<typeof copyPrefill>[0] & { geoArea: GeoAreaRef | null, storedSuggestions: SerializedRecipe[] }) | null> {
+async function resolveCopiedGoal(goalId: string): Promise<(Parameters<typeof copyPrefill>[0] & { geoArea: GeoAreaRef | null, roadmapType: RoadmapType, storedSuggestions: SerializedRecipe[] }) | null> {
   const goal = await getOneGoal(goalId);
   if (!goal?.data_series) return null;
   return {
@@ -131,6 +132,7 @@ async function resolveCopiedGoal(goalId: string): Promise<(Parameters<typeof cop
     dataSeriesId: goal.data_series.id,
     dateValues: Object.fromEntries(goal.data_series.values.map(record => [record.timestamp.toISOString(), record.value])) as DateValues,
     geoArea: goal.roadmap_iteration.roadmap.geo_area,
+    roadmapType: goal.roadmap_iteration.roadmap.type,
     storedSuggestions: goal.recipe_suggestions.map(row => Recipe.from(row.recipe).serialize()),
   };
 }
@@ -189,6 +191,7 @@ export async function getGoalPrefill(
         parent: goalPrefilledSeries(copied),
         copy: { name: copied.name, description: copied.description, indicatorParameter: copied.indicatorParameter },
         sourceGeoArea: copied.geoArea ?? undefined,
+        sourceRoadmapType: copied.roadmapType,
         storedSuggestions: copied.storedSuggestions,
         byArea: await localStatisticsByArea(t, copied),
       },
@@ -215,6 +218,7 @@ export async function getGoalPrefill(
     prefill: {
       ...copyPrefill(copied, entry, series),
       sourceGeoArea: copied.geoArea ?? undefined,
+      sourceRoadmapType: copied.roadmapType,
       storedSuggestions: copied.storedSuggestions,
       byArea: await localStatisticsByArea(t, copied),
     },

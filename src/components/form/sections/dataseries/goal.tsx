@@ -14,6 +14,7 @@ import { RecipeSync } from "@/components/recipe/output/recipeSync";
 import { useMemo, type Dispatch, type SetStateAction } from "react";
 import { parseUnit } from "@/functions/unit";
 import { DataSeriesType, UnitFlags } from "@/types/enums";
+import { RoadmapType } from "@/lib/prisma/generated";
 
 export default function GoalSeriesSection({
   goal,
@@ -70,6 +71,7 @@ export default function GoalSeriesSection({
       localReference: prefill.localReference,
       geo,
       indicatorParameter: prefill.copy?.indicatorParameter,
+      nationalScenario: prefill.sourceRoadmapType === RoadmapType.NATIONAL,
       storedSuggestions: prefill.storedSuggestions,
     },
     [goal, prefill, geo],

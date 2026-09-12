@@ -1,4 +1,4 @@
-import type { IterationStatus, OrgRole, Prisma, GeoAreaType } from "@/lib/prisma/generated";
+import type { IterationStatus, OrgRole, Prisma, GeoAreaType, RoadmapType } from "@/lib/prisma/generated";
 import type { accessControlSelection, actionInclusionSelection, clientSafeDataSeriesSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapIterationSelection, effectInclusionSelection, goalInclusionSelection, multiRoadmapInclusionSelection, nameSelector, recipeSelector, roadmapInclusionSelection, roadmapIterationInclusionSelection, userInfoSelector } from "@/fetchers/inclusionSelectors";
 import type { UnitFlags } from "@/types/enums";
 import type { DataSeriesVariable, ExternalVariable, SerializedRecipe } from "@/functions/recipe/types";
@@ -189,6 +189,8 @@ export type GoalPrefill = {
   };
   /** The copied goal's roadmap area, the "from" side of an area-ratio scaling */
   sourceGeoArea?: GeoAreaRef;
+  /** The copied goal's roadmap type: only goals of national scenarios (the seeded LEAP scenarios) get the LEAP scaling methods */
+  sourceRoadmapType?: RoadmapType;
   /**
    * For a copied goal the curated catalog can measure locally: the local
    * statistic per geo area code of the roadmaps the user can copy into, so the

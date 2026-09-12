@@ -110,7 +110,7 @@ function externals(id: string, recipes: ReturnType<typeof getLeapSuggestedRecipe
 
 test.describe("LEAP suggested methods", () => {
   test("a ratio rule gives a per-year method with extend() and a latest-value method, regions filled in", () => {
-    const recipes = getLeapSuggestedRecipes(identityT, { parentSeries, indicatorParameter: `${K}Service\\Arbetsmaskiner\\Service\\Energibehov`, geo: { source: sweden, target: boden } });
+    const recipes = getLeapSuggestedRecipes(identityT, { parentSeries, indicatorParameter: `${K}Service\\Arbetsmaskiner\\Service\\Energibehov`, geo: { source: sweden, target: boden }, nationalScenario: true });
     expect(recipes.map(recipe => recipe.id)).toEqual([LeapSuggestedRecipeId.RatioYearly, LeapSuggestedRecipeId.RatioLatest]);
     const yearly = Recipe.from(recipes[0].recipe);
     expect(yearly.equation).toContain("extend(year,");
@@ -125,7 +125,7 @@ test.describe("LEAP suggested methods", () => {
   });
 
   test("a share rule divides the local share by the national share, part and whole variables apart", () => {
-    const recipes = getLeapSuggestedRecipes(identityT, { parentSeries, indicatorParameter: `${K}Landtransporter\\Personbilar\\Elbilar\\Andel av personbilar`, geo: { source: sweden, target: boden } });
+    const recipes = getLeapSuggestedRecipes(identityT, { parentSeries, indicatorParameter: `${K}Landtransporter\\Personbilar\\Elbilar\\Andel av personbilar`, geo: { source: sweden, target: boden }, nationalScenario: true });
     expect(recipes.map(recipe => recipe.id)).toEqual([LeapSuggestedRecipeId.ShareYearly, LeapSuggestedRecipeId.ShareLatest]);
     const yearly = Recipe.from(recipes[0].recipe);
     // Built by concatenation so the literal isn't mistaken for a template string
@@ -139,7 +139,7 @@ test.describe("LEAP suggested methods", () => {
   });
 
   test("population uses the municipal forecast locally and the national forecast for the nation", () => {
-    const recipes = getLeapSuggestedRecipes(identityT, { parentSeries, indicatorParameter: `${K}Luftfart\\Inrikes\\Bränsleanvändning inrikes flyg`, geo: { source: sweden, target: boden } });
+    const recipes = getLeapSuggestedRecipes(identityT, { parentSeries, indicatorParameter: `${K}Luftfart\\Inrikes\\Bränsleanvändning inrikes flyg`, geo: { source: sweden, target: boden }, nationalScenario: true });
     const [local, national] = externals(LeapSuggestedRecipeId.PopulationYearly, recipes);
     expect(local.tableId).toBe("TAB6299");
     expect(national.tableId).toBe("TAB6579");
@@ -148,12 +148,15 @@ test.describe("LEAP suggested methods", () => {
   });
 
   test("a copied LEAP goal shows only its own methods and starts on the first", () => {
-    const context = { parentSeries, indicatorParameter: `${K}Bränslen\\andel låginblandad HVO`, geo: { source: sweden, target: boden } };
+    const context = { parentSeries, indicatorParameter: `${K}Bränslen\\andel låginblandad HVO`, geo: { source: sweden, target: boden }, nationalScenario: true };
     const offered = getSuggestedRecipesFor(identityT, context);
     expect(offered.map(recipe => recipe.id)).toEqual([LeapSuggestedRecipeId.Copy]);
     expect(preferredSuggestedRecipeId(identityT, context)).toBe(LeapSuggestedRecipeId.Copy);
     // A goal without a rule gets the defaults
-    expect(getSuggestedRecipesFor(identityT, { parentSeries, indicatorParameter: "Demand\\Other", geo: { source: sweden, target: boden } }).map(recipe => recipe.id)).toContain(DefaultSuggestedRecipeId.Population);
+    expect(getSuggestedRecipesFor(identityT, { parentSeries, indicatorParameter: "Demand\\Other", geo: { source: sweden, target: boden }, nationalScenario: true }).map(recipe => recipe.id)).toContain(DefaultSuggestedRecipeId.Population);
+    // So does a goal outside the national scenarios, however LEAP-like its indicator
+    expect(getSuggestedRecipesFor(identityT, { parentSeries, indicatorParameter: `${K}Bränslen\\andel låginblandad HVO`, geo: { source: sweden, target: boden } }).map(recipe => recipe.id)).toContain(DefaultSuggestedRecipeId.Population);
+    expect(getLeapSuggestedRecipes(identityT, { parentSeries, indicatorParameter: `${K}Bränslen\\andel låginblandad HVO`, geo: { source: sweden, target: boden } })).toEqual([]);
   });
 });
 
