@@ -6,7 +6,7 @@ import { GoalFormName } from "@/types/form-names";
 import { IconCheck } from "@tabler/icons-react";
 import { FormSync, ManualDataSeriesInput, RecipeContextProvider, RecipeEditor, SuggestedRecipeApplier, UnitInput } from "@/components/recipe";
 import { dataSeriesToDateValues, Recipe } from "@/functions/recipe";
-import { DefaultSuggestedRecipeId, getDefaultSuggestedRecipes, preferredSuggestedRecipeId } from "@/components/recipe/suggestions/defaultSuggestedRecipes";
+import { DefaultSuggestedRecipeId, getSuggestedRecipesFor, preferredSuggestedRecipeId } from "@/components/recipe/suggestions/defaultSuggestedRecipes";
 import type { SuggestedRecipeContext } from "@/components/recipe/suggestions/defaultSuggestedRecipes";
 import { prefilledSeriesRecipe } from "../../forms/goalSections";
 import ParameterSync from "@/components/recipe/output/parameterSyncer";
@@ -65,15 +65,21 @@ export default function GoalSeriesSection({
   // What the suggestions are built around when starting from a prefill; the
   // saved recipe takes precedence when editing
   const suggestionContext = useMemo<SuggestedRecipeContext | undefined>(
-    () => goal || !prefill ? undefined : { parentSeries: prefill.parent, localReference: prefill.localReference, geo },
+    () => goal || !prefill ? undefined : {
+      parentSeries: prefill.parent,
+      localReference: prefill.localReference,
+      geo,
+      indicatorParameter: prefill.copy?.indicatorParameter,
+      storedSuggestions: prefill.storedSuggestions,
+    },
     [goal, prefill, geo],
   );
   // The suggestion the form starts on: local statistic, else population between
   // the two areas, else the series as is (a factor of 1, ready to be adjusted)
-  const prefilledSuggestionId = suggestionContext ? preferredSuggestedRecipeId(suggestionContext) : DefaultSuggestedRecipeId.Scalar;
+  const prefilledSuggestionId = suggestionContext ? preferredSuggestedRecipeId(t, suggestionContext) : DefaultSuggestedRecipeId.Scalar;
   const prefilledSuggestion = useMemo(() => {
     if (!suggestionContext) return undefined;
-    const suggestion = getDefaultSuggestedRecipes(t, suggestionContext).find(suggestion => suggestion.id === prefilledSuggestionId);
+    const suggestion = getSuggestedRecipesFor(t, suggestionContext).find(suggestion => suggestion.id === prefilledSuggestionId);
     return suggestion ? Recipe.from(suggestion.recipe).serialize() : undefined;
   }, [suggestionContext, prefilledSuggestionId, t]);
   const suggestedInitialRecipe = savedRecipe ?? prefilledSuggestion;

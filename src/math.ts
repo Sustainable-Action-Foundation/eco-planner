@@ -187,6 +187,34 @@ const customFunctions = {
    * as `target` is read in that unit, so "reach 50" over a series in MW means
    * 50 MW.
    */
+  /**
+   * The series carried across the `years` axis: years before the first known
+   * value take that value, every later unknown year (a gap, or the years after
+   * the last value) takes the previous known one. Lets a statistic that ends
+   * in 2024, or has a secrecy-suppressed year, serve as a per-year factor over
+   * a goal's whole horizon. Keeps the series' unit.
+   */
+  extend(years: unknown, series: unknown): unknown {
+    const axis = toYearAxis(years, "extend");
+    const raw: unknown = mathjs.isMatrix(series) ? series.toArray() : series;
+    if (!Array.isArray(raw) || raw.length !== axis.length) {
+      throw new Error("extend expects the whole series as its second argument.");
+    }
+    const values: unknown[] = raw;
+    const known = values.map((value, i) => ({ i, value: toNumber(value) })).filter(entry => !Number.isNaN(entry.value));
+    if (known.length === 0) return values;
+
+    const sample = values[known[0].i];
+    const unit = mathjs.isUnit(sample) && sample.units.length > 0 ? sample.formatUnits() : null;
+    const withUnit = (value: number) => unit ? mathjs.unit(value, unit) : mathjs.unit(value);
+    let carried = known[0].value;
+    return values.map(value => {
+      const number = toNumber(value);
+      if (!Number.isNaN(number)) { carried = number; return value; }
+      return withUnit(carried);
+    });
+  },
+
   reachBy(years: unknown, start: unknown, target: unknown, startYear: unknown, endYear: unknown): unknown {
     const axis = toYearAxis(years, "reachBy");
     const numberFor = (value: unknown, what: string): number => {

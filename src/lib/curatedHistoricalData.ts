@@ -6,6 +6,8 @@ export const CuratedHistoricalCategory = {
   WindPower: "WIND_POWER",
   SolarPower: "SOLAR_POWER",
   Vehicles: "VEHICLES",
+  HydroPower: "HYDRO_POWER",
+  DistrictHeating: "DISTRICT_HEATING",
 } as const;
 export type CuratedHistoricalCategory = (typeof CuratedHistoricalCategory)[keyof typeof CuratedHistoricalCategory];
 
@@ -68,6 +70,12 @@ export type CuratedHistoricalEntry = {
   unit: string | null;
   /** One chart per entry; multi-series entries render one line per series. */
   series: CuratedSeries[];
+  /**
+   * Shown on the org landing page and browsable on its own page (the default);
+   * unlisted entries only serve as local counterparts of national goals (see
+   * `getNationalGoalMappings`).
+   */
+  listed?: boolean;
 };
 
 export type CuratedHistoricalCatalog = {
@@ -143,6 +151,34 @@ function carsByFuelSource(drivmedel: string): CuratedSource {
     tableId: "t10026",
     selection: [
       { variableCode: "metric", valueCodes: ["itrfslut"] },
+      { variableCode: "drivmedel", valueCodes: [drivmedel] },
+    ],
+    region: { kind: CuratedRegionKind.Trafa },
+  };
+}
+
+/** SCB municipal energy statistics: one production type of a table, every level in the "Region" dimension. */
+function scbEnergySource(tableId: string, contentsCode: string, productionType: string, fuel: string): CuratedSource {
+  return {
+    dataset: "SCB",
+    tableId,
+    selection: [
+      { variableCode: "Produktionssatt", valueCodes: [productionType] },
+      { variableCode: "Bransle", valueCodes: [fuel] },
+      { variableCode: "ContentsCode", valueCodes: [contentsCode] },
+    ],
+    region: { kind: CuratedRegionKind.PxWebCode, variableCode: "Region" },
+  };
+}
+
+/** Trafa t10023 (trucks): count in traffic at year end for one truck type ("fslagh": 22 light, 23 heavy) and fuel. */
+function trucksByFuelSource(truckType: string, drivmedel: string): CuratedSource {
+  return {
+    dataset: "Trafa",
+    tableId: "t10023",
+    selection: [
+      { variableCode: "metric", valueCodes: ["itrfslut"] },
+      { variableCode: "fslagh", valueCodes: [truckType] },
       { variableCode: "drivmedel", valueCodes: [drivmedel] },
     ],
     region: { kind: CuratedRegionKind.Trafa },
@@ -230,6 +266,49 @@ function getEnergyTransportEntries(t: TFunction): CuratedHistoricalEntry[] {
         { key: "other", name: t("pages:home.curated_historical.fuel_other"), sources: allLevels(carsByFuelSource("109")) },
       ],
     },
+    // Local counterparts of national goals only (see getNationalGoalMappings); not browsed
+    {
+      key: "light-trucks-by-fuel",
+      category: CuratedHistoricalCategory.Vehicles,
+      name: t("pages:home.curated_historical.light_trucks_by_fuel_name"),
+      description: t("pages:home.curated_historical.light_trucks_by_fuel_description"),
+      unit: "antal",
+      listed: false,
+      series: [
+        { key: "petrol", name: t("pages:home.curated_historical.fuel_petrol"), sources: allLevels(trucksByFuelSource("22", "101")) },
+        { key: "diesel", name: t("pages:home.curated_historical.fuel_diesel"), sources: allLevels(trucksByFuelSource("22", "102")) },
+        { key: "electric", name: t("pages:home.curated_historical.fuel_electric"), sources: allLevels(trucksByFuelSource("22", "103")) },
+        { key: "plugin-hybrid", name: t("pages:home.curated_historical.fuel_plugin_hybrid"), sources: allLevels(trucksByFuelSource("22", "105")) },
+        { key: "ethanol", name: t("pages:home.curated_historical.fuel_ethanol"), sources: allLevels(trucksByFuelSource("22", "106")) },
+        { key: "gas", name: t("pages:home.curated_historical.fuel_gas"), sources: allLevels(trucksByFuelSource("22", "107")) },
+      ],
+    },
+    {
+      key: "hydro-production",
+      category: CuratedHistoricalCategory.HydroPower,
+      name: t("pages:home.curated_historical.hydro_production_name"),
+      description: t("pages:home.curated_historical.hydro_production_description"),
+      unit: "MWh",
+      listed: false,
+      series: [{
+        key: "hydro-production",
+        name: t("pages:home.curated_historical.hydro_production_name"),
+        sources: allLevels(scbEnergySource("TAB3451", "EN0203AD", "4.1", "17")),
+      }],
+    },
+    {
+      key: "district-heating-production",
+      category: CuratedHistoricalCategory.DistrictHeating,
+      name: t("pages:home.curated_historical.district_heating_production_name"),
+      description: t("pages:home.curated_historical.district_heating_production_description"),
+      unit: "MWh",
+      listed: false,
+      series: [{
+        key: "district-heating-production",
+        name: t("pages:home.curated_historical.district_heating_production_name"),
+        sources: allLevels(scbEnergySource("TAB3452", "EN0203AC", "Totalt", "20")),
+      }],
+    },
   ];
 }
 
@@ -277,6 +356,15 @@ export function getNationalGoalMappings(): NationalGoalMapping[] {
     },
     { indicatorParameter: production("Solkraft tak"), series: [{ entryKey: "solar-capacity", seriesKey: "solar-capacity" }] },
     { indicatorParameter: production("Solkraft mark"), series: [{ entryKey: "solar-capacity", seriesKey: "solar-capacity" }] },
+    { indicatorParameter: production("Vattenkraft"), series: [{ entryKey: "hydro-production", seriesKey: "hydro-production" }] },
+    {
+      indicatorParameter: `Key\\Energiomvandlingsanläggningar\\Årlig fjärrvärmeproduktion\\Kraftvärme och värmeverk`,
+      series: [{ entryKey: "district-heating-production", seriesKey: "district-heating-production" }],
+    },
+    ...[["bensin", "petrol"], ["diesel", "diesel"], ["el", "electric"], ["laddhybrid", "plugin-hybrid"], ["etanol", "ethanol"], ["fordonsgas", "gas"]].map(([fuel, seriesKey]) => ({
+      indicatorParameter: `Key\\Landtransporter\\Lätta lastbilar\\${fuel}lastbilar`,
+      series: [{ entryKey: "light-trucks-by-fuel", seriesKey }],
+    })),
   ];
 }
 

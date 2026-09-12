@@ -1,6 +1,6 @@
 import { Recipe } from "@/functions/recipe/recipe";
 import { RecipeDataTypes, VectorIndexPickerOptions } from "@/functions/recipe/types/enums";
-import type { DataSeriesVariable, ExternalVariable, ScalarVariable } from "@/functions/recipe/types";
+import type { DataSeriesVariable, ExternalVariable, ScalarVariable, SerializedRecipe } from "@/functions/recipe/types";
 import type { ApiSelectionItem, DatasetKeys } from "@/lib/api/apiTypes";
 import type { DBRecipe, GeoAreaRef, GoalPrefill, PrefilledSeries } from "@/types";
 import { buildRegionSelection, CuratedRegionKind } from "@/lib/curatedHistoricalData";
@@ -8,9 +8,10 @@ import type { CuratedRegion } from "@/lib/curatedHistoricalData";
 import type { TFunction } from "i18next";
 import { UnitFlags } from "@/types/enums";
 import { parseUnit } from "@/functions/unit";
+import { getLeapSuggestedRecipes } from "@/components/recipe/suggestions/leapSuggestedRecipes";
 
 /** The data series being inherited from; the user picks it in every scaling recipe. */
-const PARENT_VALUE_ID = "parent-value-dummy-uuid";
+export const PARENT_VALUE_ID = "parent-value-dummy-uuid";
 
 /** Ids of the default suggestions that other code refers to. */
 export const DefaultSuggestedRecipeId = {
@@ -32,6 +33,10 @@ type ExternalPreset = { dataset: DatasetKeys, tableId: string, selection: ApiSel
 export type SuggestedRecipeContext = {
   /** Stands in for the parent value in every suggestion, e.g. a copied goal's series or a browsable historical series */
   parentSeries?: PrefilledSeries;
+  /** The copied goal's indicator parameter: LEAP rows get their own methods (see `leapSuggestedRecipes`) */
+  indicatorParameter?: string;
+  /** Methods stored on the copied goal itself (`Goals.recipe_suggestions`), serialized */
+  storedSuggestions?: SerializedRecipe[];
   /** A local statistic a copied goal is scaled to (see `GoalPrefill.localReference`) */
   localReference?: GoalPrefill["localReference"];
   /** The areas of the copied goal's roadmap and of the target roadmap, for the ratio methods' externals */
@@ -39,7 +44,7 @@ export type SuggestedRecipeContext = {
 };
 
 /** A data series the user has to pick themselves. */
-function dataSeriesTemplate(id: string, name: string, pick: VectorIndexPickerOptions = VectorIndexPickerOptions.Default): DataSeriesVariable {
+export function dataSeriesTemplate(id: string, name: string, pick: VectorIndexPickerOptions = VectorIndexPickerOptions.Default): DataSeriesVariable {
   return {
     id,
     name,
@@ -165,8 +170,11 @@ function trafaPassengerCars(drivmedel: string): ExternalPreset {
  * two roadmaps' areas when both are known, else it is taken as is (a factor
  * of 1, ready to be adjusted).
  */
-export function preferredSuggestedRecipeId(context: SuggestedRecipeContext): DefaultSuggestedRecipeId {
+export function preferredSuggestedRecipeId(t: TFunction, context: SuggestedRecipeContext): string {
   if (!context.parentSeries) return DefaultSuggestedRecipeId.Scalar;
+  // A goal with methods of its own starts on the first of them
+  const own = getGoalSuggestedRecipes(context, t);
+  if (own.length > 0) return own[0].id;
   if (context.localReference) return DefaultSuggestedRecipeId.LocalScale;
   if (presetCoversArea(scbPopulation, context.geo?.source) && presetCoversArea(scbPopulation, context.geo?.target)) return DefaultSuggestedRecipeId.Population;
   return DefaultSuggestedRecipeId.Scalar;
@@ -210,6 +218,33 @@ function localScaleRecipe(t: TFunction, goal: PrefilledSeries, reference: NonNul
     variables: [localLatest, goalSeries, goalInYear],
     meta: { isSuggestedRecipe: true },
   });
+}
+
+/**
+ * The methods offered for a context: a goal with methods of its own (stored on
+ * it, or LEAP rules for its indicator parameter) shows only those; any other
+ * goal gets the defaults.
+ */
+export function getSuggestedRecipesFor(t: TFunction, context: SuggestedRecipeContext): DBRecipe[] {
+  const own = getGoalSuggestedRecipes(context, t);
+  return own.length > 0 ? own : getDefaultSuggestedRecipes(t, context);
+}
+
+/**
+ * A goal's own methods: the ones stored on it, then the local-statistic method
+ * when the catalog measures it locally, then what the LEAP scaling rules say
+ * for its indicator parameter. Empty for goals without any.
+ */
+export function getGoalSuggestedRecipes(context: SuggestedRecipeContext, t: TFunction): DBRecipe[] {
+  if (!context.parentSeries) return [];
+  const stored = (context.storedSuggestions ?? []).map((serialized, index) => ({
+    id: `stored-suggestion-${index}`,
+    recipe: withParentSeries(Recipe.from(serialized), context.parentSeries as PrefilledSeries).serialize(),
+  }));
+  const local = context.localReference
+    ? [{ id: DefaultSuggestedRecipeId.LocalScale, recipe: localScaleRecipe(t, context.parentSeries, context.localReference).serialize() }]
+    : [];
+  return [...stored, ...local, ...getLeapSuggestedRecipes(t, context)];
 }
 
 /**
@@ -390,19 +425,21 @@ export function getDefaultSuggestedRecipes(t: TFunction, context: SuggestedRecip
  * equation refers to the parent by name, so it is rewritten to the series'
  * name; recipes without a parent value (the combining ones) are returned as is.
  */
-function withParentSeries(recipe: Recipe, parentSeries: PrefilledSeries): Recipe {
-  const parent = recipe.variables.find(variable => variable.id === PARENT_VALUE_ID);
+export function withParentSeries(recipe: Recipe, parentSeries: PrefilledSeries): Recipe {
+  // The template parent: ours by id, or a stored suggestion's first pickable data series
+  const parent = recipe.variables.find(variable => variable.id === PARENT_VALUE_ID)
+    ?? recipe.variables.find(variable => variable.type === RecipeDataTypes.DataSeries && variable.template);
   if (!parent) return recipe;
 
   // The recipe decides how the parent is read (whole series, last value, ...)
   const substitute = {
     ...parentSeries.variable,
-    id: PARENT_VALUE_ID,
+    id: parent.id,
     template: false,
     pick: parent.type === RecipeDataTypes.Scalar ? parentSeries.variable.pick : parent.pick,
   };
   const withSeries = recipe.copy();
-  withSeries.variables = recipe.variables.map(variable => variable.id === PARENT_VALUE_ID ? substitute : variable);
+  withSeries.variables = recipe.variables.map(variable => variable.id === parent.id ? substitute : variable);
   withSeries.equation = recipe.equation.replaceAll(`\${${parent.name}}`, `\${${substitute.name}}`);
   // Declared on the recipe like a manual series' unit, since the source's table metadata carries no usable one
   if (parentSeries.unit) withSeries.unit = parseUnit(parentSeries.unit);

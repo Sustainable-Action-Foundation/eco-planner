@@ -1,7 +1,7 @@
 import type { IterationStatus, OrgRole, Prisma, GeoAreaType } from "@/lib/prisma/generated";
 import type { accessControlSelection, actionInclusionSelection, clientSafeDataSeriesSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapIterationSelection, effectInclusionSelection, goalInclusionSelection, multiRoadmapInclusionSelection, nameSelector, recipeSelector, roadmapInclusionSelection, roadmapIterationInclusionSelection, userInfoSelector } from "@/fetchers/inclusionSelectors";
 import type { UnitFlags } from "@/types/enums";
-import type { DataSeriesVariable, ExternalVariable } from "@/functions/recipe/types";
+import type { DataSeriesVariable, ExternalVariable, SerializedRecipe } from "@/functions/recipe/types";
 
 /** The access control record shape consumed by accessChecker, as selected by `accessControlSelection`. */
 export type AccessControlInfo = Prisma.AccessControlsGetPayload<{
@@ -179,6 +179,8 @@ export type GoalPrefill = {
   historical?: PrefilledSeries;
   /** What the suggested methods scale: the historical series itself, or a copied goal's data series */
   parent: PrefilledSeries;
+  /** Methods stored on the copied goal (`Goals.recipe_suggestions`), serialized; shown instead of the defaults */
+  storedSuggestions?: SerializedRecipe[];
   /** The goal being copied, if any: its fields seed the form */
   copy?: {
     name: string | null;
