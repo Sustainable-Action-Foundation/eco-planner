@@ -132,7 +132,7 @@ export default function BaselineForm({
           <GoalGraph
             chartType="preview"
             series={{
-              main: storedSeriesForGraph(goal.data_series, goal.name ?? t("common:goal_one")),
+              main: storedSeriesForGraph(goal.data_series, goal.name || t("common:goal_one")),
               baseline: previewBaselineSerie?.dateValues ? { ...previewBaselineSerie, name: t("graphs:common.baseline_scenario") } : undefined,
               historical: storedHistoricalForGraph(goal, t),
             }}

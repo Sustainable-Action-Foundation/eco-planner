@@ -2,6 +2,7 @@ import { expect, test } from "playwright/test";
 import type { Page } from "playwright/test";
 import path from "node:path";
 import { cwd } from "node:process";
+import { indicatorParameterLeaf } from "../../src/functions/goalName";
 
 const adminFile = path.join(cwd(), "tests/.auth/admin.json");
 
@@ -152,7 +153,8 @@ test.describe("Goals tests", () => {
     await page.waitForLoadState("networkidle");
 
     // Check that everything is auto filled
-    await expect.soft(page.locator('#goalName')).toBeEmpty();
+    // An unnamed goal goes by the leaf of its indicator parameter, which the field shows
+    await expect.soft(page.locator('#goalName')).toHaveValue(indicatorParameterLeaf(indicatorRequiredOnly));
     await expect.soft(page.locator('#description')).toBeEmpty();
 
     // Expect the form to remember that we chose manual input, even though this is not the default choice

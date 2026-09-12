@@ -59,7 +59,7 @@ export default function HistoricalForm({
   }, [previewHistoricalRecipe]);
 
   const previewGraphSeries = useMemo(() => ({
-    main: storedSeriesForGraph(goal.data_series, goal.name ?? t("common:goal_one")), // todo: use full leap param fallback
+    main: storedSeriesForGraph(goal.data_series, goal.name || t("common:goal_one")), // todo: use full leap param fallback
     baseline: storedSeriesForGraph(goal.baseline, t("graphs:common.baseline_scenario")),
     historical: (goal.data_series && previewHistoricalSerie?.dateValues) ? {
       ...previewHistoricalSerie,

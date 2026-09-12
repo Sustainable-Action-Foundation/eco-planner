@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { getEditableGoal, GoalSectionPage, goalSectionMetadata } from "../../goalSectionPage";
 
 export async function generateMetadata(props: { params: Promise<{ goalId: string }> }): Promise<Metadata> {
-  return goalSectionMetadata(props, "historical-data/edit", (t, goal) => `${t("metadata:goal_edit.title")} ${goal?.name ?? goal?.indicator_parameter ?? ""}`);
+  return goalSectionMetadata(props, "historical-data/edit", (t, goal) => `${t("metadata:goal_edit.title")} ${goal?.name || goal?.indicator_parameter || ""}`);
 }
 
 export default async function Page(props: { params: Promise<{ goalId: string }> }) {

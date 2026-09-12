@@ -3,6 +3,7 @@ import { getAccessContextById } from "@/fetchers/getUserAccessContext";
 import { accessControlSelection } from "@/fetchers/inclusionSelectors";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { iterationPath } from "@/functions/versionSlug";
+import { normalizeGoalName } from "@/functions/goalName";
 import { Recipe } from "@/functions/recipe/recipe";
 import { RecipeDataTypes } from "@/functions/recipe/types/enums";
 import { manualDataSeriesCreateData, resolveRecipeExternals, upsertRecipe } from "@/functions/recipe/persistence";
@@ -520,7 +521,7 @@ async function createFullGoal(session: IronSession<LoginData>, authorId: string,
       // Create goal, connecting the (just-created/verified) section series by id
       const createdId = (await tx.goals.create({
         data: {
-          name: formData.name,
+          name: normalizeGoalName(formData.name),
           description: formData.description,
           indicator_parameter: formData.indicatorParameter,
           listing: formData.listing,
@@ -586,7 +587,7 @@ async function updateFullGoal(session: IronSession<LoginData>, authorId: string,
       goalId = (await tx.goals.update({
         where: { id: goal.goalId },
         data: {
-          name: goal.name,
+          name: normalizeGoalName(goal.name),
           description: goal.description,
           indicator_parameter: goal.indicatorParameter,
           listing: goal.listing,

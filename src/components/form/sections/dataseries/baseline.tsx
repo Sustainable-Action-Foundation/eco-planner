@@ -273,7 +273,7 @@ function InheritingBaseline({initialBaselineType}: {initialBaselineType: Baselin
     if (!inheritedSeries?.id) return;
 
     void applyRecipeUpdate(() => Recipe.fromLinkedDataSeries({
-      name: goalData.name ?? t("forms:goal.unnamed_goal"),
+      name: goalData.name || t("forms:goal.unnamed_goal"),
       dataSeriesId: inheritedSeries.id,
       unit: parseUnit(inheritedSeries.unit),
       variableId: variableIdRef.current,
@@ -295,7 +295,7 @@ function InheritingBaseline({initialBaselineType}: {initialBaselineType: Baselin
               if (!iterationData) return [];
               return iterationData.goals.map((goal): TreeItem => ({
                 value: goal.id,
-                name: `${(!goal.data_series) ? t("forms:goal.data_missing") : ""}${goal.name ?? t("forms:goal.unnamed_goal")}: ${goal.indicator_parameter} (${goal.data_series?.unit === null ? t("common:tsx.unitless") : goal.data_series?.unit || t("common:tsx.unit_missing")})`,
+                name: `${(!goal.data_series) ? t("forms:goal.data_missing") : ""}${goal.name || t("forms:goal.unnamed_goal")}: ${goal.indicator_parameter} (${goal.data_series?.unit === null ? t("common:tsx.unitless") : goal.data_series?.unit || t("common:tsx.unit_missing")})`,
                 expanded: null,
               }));
             },

@@ -144,7 +144,7 @@ function buildLinks(
     object.name ||= object.action?.name
       ? t("components:table_menu.effect_from_action", { source: object.action.name })
       : object.goal
-        ? (object.goal.name ?? object.goal.indicator_parameter)
+        ? (object.goal.name || object.goal.indicator_parameter)
         : t("components:table_menu.effect_missing_name");
 
     object.id ??= { actionId: object.action_id, goalId: object.goal_id };

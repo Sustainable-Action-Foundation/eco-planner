@@ -1,5 +1,5 @@
 import { expect, test } from "playwright/test";
-import { goalDisplayName, indicatorParameterContext, indicatorParameterLeaf } from "../../src/functions/goalName";
+import { goalDisplayName, indicatorParameterContext, indicatorParameterLeaf, normalizeGoalName } from "../../src/functions/goalName";
 
 test.describe("Goal names from indicator parameters", () => {
   const indicator = "Key\\Landtransporter\\Personbilar\\Elbilar\\Antal bilar";
@@ -12,6 +12,14 @@ test.describe("Goal names from indicator parameters", () => {
     expect(goalDisplayName({ name: null, indicator_parameter: indicator })).toBe("Antal bilar");
     expect(goalDisplayName({ name: "", indicator_parameter: indicator })).toBe("Antal bilar");
     expect(indicatorParameterLeaf("Antal bilar")).toBe("Antal bilar");
+  });
+
+  test("a blank name is stored as no name", () => {
+    expect(normalizeGoalName("")).toBeNull();
+    expect(normalizeGoalName("   ")).toBeNull();
+    expect(normalizeGoalName(null)).toBeNull();
+    expect(normalizeGoalName(" Elbilar i Boden ")).toBe("Elbilar i Boden");
+    expect(normalizeGoalName(undefined)).toBeUndefined();
   });
 
   test("the context drops the leaf and the leading Key", () => {
