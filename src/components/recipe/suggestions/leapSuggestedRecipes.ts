@@ -19,6 +19,9 @@ import type { SuggestedRecipeContext } from "./defaultSuggestedRecipes";
  * - per year: `goal * extend(year, local) / extend(year, national)`, a factor
  *   for every year of the horizon, held constant past the last statistic;
  * - latest: the same ratio read once at the latest value, a plain factor.
+ *
+ * A share rule (rule 5) has the same two shapes with `(local part / local
+ * whole) / (national part / national whole)` as the factor.
  */
 
 export const LeapSuggestedRecipeId = {
@@ -28,6 +31,8 @@ export const LeapSuggestedRecipeId = {
   PopulationLatest: "leap-population-latest-recipe-dummy-uuid",
   RatioYearly: "leap-ratio-yearly-recipe-dummy-uuid",
   RatioLatest: "leap-ratio-latest-recipe-dummy-uuid",
+  ShareYearly: "leap-share-yearly-recipe-dummy-uuid",
+  ShareLatest: "leap-share-latest-recipe-dummy-uuid",
 } as const;
 export type LeapSuggestedRecipeId = (typeof LeapSuggestedRecipeId)[keyof typeof LeapSuggestedRecipeId];
 
@@ -55,14 +60,14 @@ function external(id: string, name: string, source: ScalingSource, area: GeoArea
  * The local and national variables of every denominator, or null when one
  * can't be read for the target area. Equations refer to them by id.
  */
-function denominatorVariables(t: TFunction, denominators: ScalingDenominator[], target: GeoAreaRef, pick: VectorIndexPickerOptions): { variables: ExternalVariable[], local: string[], national: string[] } | null {
+function denominatorVariables(t: TFunction, denominators: ScalingDenominator[], target: GeoAreaRef, pick: VectorIndexPickerOptions, idPrefix = "leap"): { variables: ExternalVariable[], local: string[], national: string[] } | null {
   const variables: ExternalVariable[] = [];
   const local: string[] = [];
   const national: string[] = [];
   denominators.forEach((denominator, index) => {
     const what = t(`components:recipe_editor.leap_scaling.denominators.${denominator.label}`);
-    const localVariable = external(`leap-local-${index}-dummy-uuid`, t("components:recipe_editor.leap_scaling.local", { area: target.name, what }), denominator.local, target, pick);
-    const nationalVariable = external(`leap-national-${index}-dummy-uuid`, t("components:recipe_editor.leap_scaling.national", { what }), denominator.national ?? denominator.local, NATION, pick);
+    const localVariable = external(`${idPrefix}-local-${index}-dummy-uuid`, t("components:recipe_editor.leap_scaling.local", { area: target.name, what }), denominator.local, target, pick);
+    const nationalVariable = external(`${idPrefix}-national-${index}-dummy-uuid`, t("components:recipe_editor.leap_scaling.national", { what }), denominator.national ?? denominator.local, NATION, pick);
     if (localVariable && nationalVariable) {
       variables.push(localVariable, nationalVariable);
       local.push(`\${${localVariable.id}}`);
@@ -101,6 +106,41 @@ function ratioRecipes(t: TFunction, ids: { yearly: string, latest: string }, nam
         name: names.latest,
         equation: `\${${parentValue}} * ${sum(latest.local)} / ${sum(latest.national)}`,
         variables: [dataSeriesTemplate(PARENT_VALUE_ID, parentValue), ...latest.variables],
+        meta: { isSuggestedRecipe: true },
+      }),
+    });
+  }
+  return recipes;
+}
+
+/** `goal * (local part / local whole) / (national part / national whole)`, per year or at the latest value. */
+function shareRecipes(t: TFunction, names: { yearly: string, latest: string }, part: ScalingDenominator[], whole: ScalingDenominator[], target: GeoAreaRef): { id: string, recipe: Recipe }[] {
+  const parentValue = t("components:recipe_editor.leap_scaling.national_goal");
+  const recipes: { id: string, recipe: Recipe }[] = [];
+
+  const yearlyPart = denominatorVariables(t, part, target, VectorIndexPickerOptions.Default, "leap-part");
+  const yearlyWhole = denominatorVariables(t, whole, target, VectorIndexPickerOptions.Default, "leap-whole");
+  if (yearlyPart && yearlyWhole) {
+    const ext = (terms: string[]) => `extend(year, ${sum(terms)})`;
+    recipes.push({
+      id: LeapSuggestedRecipeId.ShareYearly,
+      recipe: new Recipe({
+        name: names.yearly,
+        equation: `\${${parentValue}} .* (${ext(yearlyPart.local)} ./ ${ext(yearlyWhole.local)}) ./ (${ext(yearlyPart.national)} ./ ${ext(yearlyWhole.national)})`,
+        variables: [dataSeriesTemplate(PARENT_VALUE_ID, parentValue), ...yearlyPart.variables, ...yearlyWhole.variables],
+        meta: { isSuggestedRecipe: true },
+      }),
+    });
+  }
+  const latestPart = denominatorVariables(t, part, target, VectorIndexPickerOptions.Last, "leap-part");
+  const latestWhole = denominatorVariables(t, whole, target, VectorIndexPickerOptions.Last, "leap-whole");
+  if (latestPart && latestWhole) {
+    recipes.push({
+      id: LeapSuggestedRecipeId.ShareLatest,
+      recipe: new Recipe({
+        name: names.latest,
+        equation: `\${${parentValue}} * (${sum(latestPart.local)} / ${sum(latestWhole.local)}) / (${sum(latestPart.national)} / ${sum(latestWhole.national)})`,
+        variables: [dataSeriesTemplate(PARENT_VALUE_ID, parentValue), ...latestPart.variables, ...latestWhole.variables],
         meta: { isSuggestedRecipe: true },
       }),
     });
@@ -166,6 +206,15 @@ export function getLeapSuggestedRecipes(t: TFunction, context: SuggestedRecipeCo
         { yearly: LeapSuggestedRecipeId.RatioYearly, latest: LeapSuggestedRecipeId.RatioLatest },
         { yearly: t("components:recipe_editor.leap_scaling.ratio_yearly_name", { what }), latest: t("components:recipe_editor.leap_scaling.ratio_latest_name", { what }) },
         rule.denominators, target));
+      break;
+    }
+    case LeapScalingKind.Share: {
+      if (!target) break;
+      const part = t(`components:recipe_editor.leap_scaling.denominators.${rule.part[0].label}`);
+      const whole = t(`components:recipe_editor.leap_scaling.denominators.${rule.whole[0].label}`);
+      recipes.push(...shareRecipes(t,
+        { yearly: t("components:recipe_editor.leap_scaling.share_yearly_name", { part, whole }), latest: t("components:recipe_editor.leap_scaling.share_latest_name", { part, whole }) },
+        rule.part, rule.whole, target));
       break;
     }
     default: {

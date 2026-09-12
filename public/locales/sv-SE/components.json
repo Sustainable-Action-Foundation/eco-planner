@@ -313,13 +313,16 @@
         "ELECTRICITY_FUEL_CLASS": "insatt bränsle i elproduktion, samma bränsleklass",
         "ELECTRICITY_PRODUCTION": "elproduktion av samma slag",
         "ENERGY_USE_AGRICULTURE_FORESTRY": "energianvändning i jord- och skogsbruk",
+        "ENERGY_USE_APARTMENT_BUILDINGS": "energianvändning i flerbostadshus",
         "ENERGY_USE_FUEL_CLASS": "energianvändning i sektorn, samma bränsleklass",
         "ENERGY_USE_HOUSEHOLDS": "hushållens energianvändning",
         "ENERGY_USE_INDUSTRY_CONSTRUCTION": "energianvändning i industri och bygg",
         "ENERGY_USE_SERVICES": "energianvändning i tjänstesektorn",
+        "ENERGY_USE_SMALL_HOUSES": "energianvändning i småhus",
         "HEAVY_TRUCKS": "tunga lastbilar i trafik",
         "LIGHT_TRUCKS": "lätta lastbilar i trafik",
         "PASSENGER_CARS": "personbilar i trafik",
+        "PASSENGER_CARS_ALL": "personbilar i trafik, alla drivmedel",
         "POPULATION": "befolkning",
         "POPULATION_FORECAST": "befolkningsprognos"
       },
@@ -331,6 +334,8 @@
       "population_yearly_name": "Skala utifrån befolkningsprognos, per år",
       "ratio_latest_name": "Skala utifrån {{what}} (senaste värde)",
       "ratio_yearly_name": "Skala utifrån {{what}}, per år",
+      "share_latest_name": "Skala utifrån lokal andel ({{part}} av {{whole}}, senaste värde)",
+      "share_yearly_name": "Skala utifrån lokal andel ({{part}} av {{whole}}), per år",
       "zero_name": "Sätt till noll (anläggningen finns inte lokalt)"
     }
   },

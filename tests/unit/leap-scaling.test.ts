@@ -25,8 +25,10 @@ test.describe("LEAP scaling rules", () => {
   test("intensities, shares and policy rows are copied unchanged", () => {
     for (const indicator of [
       `${K}Bostäder och lokaler\\Småhus\\Värmebehov per kvadratmeter uppvärmd yta`,
-      `${K}Landtransporter\\Personbilar\\Elbilar\\Andel av personbilar`,
+      `${K}Landtransporter\\Personbilar\\Elbilar\\Andel av personbilskm`,
       `${K}Landtransporter\\Personbilar\\Elbilar\\kWh per km`,
+      `${K}Bostäder och lokaler\\Småhus\\VP berg procentandel värmebehov`,
+      `${K}Bostäder och lokaler\\Lokaler\\Övrig elvärme procentandel värmebehov`,
       `${K}Landtransporter\\Personbilar\\Cykelstrategi`,
       `${K}Bränslen\\andel låginblandad HVO`,
       `${K}Landtransporter\\Bussar\\Fyra av tio reser kollektivt`,
@@ -72,6 +74,26 @@ test.describe("LEAP scaling rules", () => {
     expect(bus.denominators[0].local.tableId).toBe("t10021");
   });
 
+  test("composed shares scale by the local share over the national share", () => {
+    const cars = getLeapScalingRule(`${K}Landtransporter\\Personbilar\\Elbilar\\Andel av personbilar`);
+    if (cars?.kind !== LeapScalingKind.Share) throw new Error("expected a share");
+    expect(cars.part[0].local.selection).toContainEqual({ variableCode: "drivmedel", valueCodes: ["103"] });
+    expect(cars.whole[0].local.selection).toContainEqual({ variableCode: "drivmedel", valueCodes: ["t1"] });
+    const perCapita = getLeapScalingRule(`${K}Landtransporter\\Personbilar\\personbil per capita`);
+    if (perCapita?.kind !== LeapScalingKind.Share) throw new Error("expected a share");
+    expect(perCapita.whole[0].local.tableId).toBe("TAB628");
+    const heating = getLeapScalingRule(`${K}Bostäder och lokaler\\Lokaler\\Naturgas och biogas procentandel värmebehov`);
+    if (heating?.kind !== LeapScalingKind.Share) throw new Error("expected a share");
+    // Two categories (public services + other services) times two gas classes, over the two category totals
+    expect(heating.part.map(d => d.local.selection.find(i => i.variableCode === "Bransle")?.valueCodes[0])).toEqual(["915", "930", "915", "930"]);
+    expect(heating.whole.map(d => d.local.selection.find(i => i.variableCode === "Forbrukningskategri")?.valueCodes[0])).toEqual(["931", "951"]);
+    expect(heating.whole.every(d => d.local.selection.some(i => i.variableCode === "Bransle" && i.valueCodes[0] === "955"))).toBe(true);
+    const oil = getLeapScalingRule(`${K}Bostäder och lokaler\\Småhus\\Olja procentandel värmebehov`);
+    if (oil?.kind !== LeapScalingKind.Share) throw new Error("expected a share");
+    expect(oil.part[0].local.selection).toContainEqual({ variableCode: "Bransle", valueCodes: ["905"] });
+    expect(oil.part[0].local.selection).toContainEqual({ variableCode: "Forbrukningskategri", valueCodes: ["98"] });
+  });
+
   test("point sources and unknown rows", () => {
     expect(getLeapScalingRule(`${K}Industri\\Cementindustri\\CCS`)?.kind).toBe(LeapScalingKind.Point);
     expect(getLeapScalingRule(`${K}Energiomvandlingsanläggningar\\Årlig elproduktion\\Ny kärnkraft`)?.kind).toBe(LeapScalingKind.Point);
@@ -100,6 +122,20 @@ test.describe("LEAP suggested methods", () => {
     // The parent slot is the copied goal's series and the copy keeps its unit
     expect(yearly.variables.some(variable => variable.type === RecipeDataTypes.DataSeries && variable.dataSeriesId === parentSeries.variable.dataSeriesId)).toBe(true);
     expect(yearly.unit).toBe("GW");
+  });
+
+  test("a share rule divides the local share by the national share, part and whole variables apart", () => {
+    const recipes = getLeapSuggestedRecipes(identityT, { parentSeries, indicatorParameter: `${K}Landtransporter\\Personbilar\\Elbilar\\Andel av personbilar`, geo: { source: sweden, target: boden } });
+    expect(recipes.map(recipe => recipe.id)).toEqual([LeapSuggestedRecipeId.ShareYearly, LeapSuggestedRecipeId.ShareLatest]);
+    const yearly = Recipe.from(recipes[0].recipe);
+    // Built by concatenation so the literal isn't mistaken for a template string
+    const ref = (name: string) => "$" + `{${name}}`;
+    const [goal, pl, wl, pn, wn] = ["Nationell", "leap-part-local-0-dummy-uuid", "leap-whole-local-0-dummy-uuid", "leap-part-national-0-dummy-uuid", "leap-whole-national-0-dummy-uuid"].map(ref);
+    expect(yearly.equation).toBe(`${goal} .* (extend(year, ${pl}) ./ extend(year, ${wl})) ./ (extend(year, ${pn}) ./ extend(year, ${wn}))`);
+    const variables = externals(LeapSuggestedRecipeId.ShareYearly, recipes);
+    expect(variables).toHaveLength(4);
+    expect(variables.map(variable => variable.selection.find(item => item.variableCode === "drivmedel")?.valueCodes[0])).toEqual(["103", "103", "t1", "t1"]);
+    expect(Recipe.from(recipes[1].recipe).equation).toBe(`${goal} * (${pl} / ${wl}) / (${pn} / ${wn})`);
   });
 
   test("population uses the municipal forecast locally and the national forecast for the nation", () => {
