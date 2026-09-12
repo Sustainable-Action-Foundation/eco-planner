@@ -2,7 +2,7 @@
 
 import type { getRoadmaps } from "@/fetchers";
 import formSubmitter from "@/functions/formSubmitter";
-import { goalDisplayName } from "@/functions/goalName";
+import { indicatorParameterLeaf } from "@/functions/goalName";
 import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalPrefill, GoalUpdateInput } from "@/types";
 import { BaselineType, DataSeriesType, GoalDataTarget, HistoricalDataType } from "@/types/enums";
 import { GoalListing } from "@/lib/prisma/generated";
@@ -125,14 +125,11 @@ export default function GoalForm({
   const historicalHasInitializedCustom = initializedHistoricalTypes.has(HistoricalDataType.Custom);
 
   const [indicatorParameter, setIndicatorParameter] = useState<string>(currentGoal?.indicator_parameter ?? prefill?.copy?.indicatorParameter ?? "");
-  // The field shows the goal by the name it goes by elsewhere: its own, or the
-  // leaf of its indicator parameter when it has none (imported scenarios name
-  // nothing). A copy is named the same way; a goal started from a series after it.
-  const initialName = currentGoal
-    ? goalDisplayName(currentGoal)
-    : prefill?.copy
-      ? goalDisplayName({ name: prefill.copy.name, indicator_parameter: prefill.copy.indicatorParameter })
-      : prefill?.historical?.name;
+  // A copied goal keeps its name (none for imported scenarios, whose indicator
+  // parameter is copied too); a goal started from a series is named after it.
+  // An unnamed goal goes by the leaf of its indicator parameter, shown as the
+  // placeholder rather than stored as a name.
+  const initialName = currentGoal?.name ?? (prefill?.copy ? prefill.copy.name : prefill?.historical?.name) ?? undefined;
   const initialListing: GoalListing = currentGoal?.listing ?? GoalListing.LISTED;
   // const [goalName, setGoalName] = useState<string>(currentGoal?.name ?? "");
   const [previewDataSerie, setPreviewDataSerie] = useState<DateValuesWithUnit | null>(null);
@@ -368,6 +365,7 @@ export default function GoalForm({
             name={GoalFormName.GoalName}
             id="goalName"
             defaultValue={initialName}
+            placeholder={indicatorParameterLeaf(indicatorParameter)}
           // onChange={(e) => setGoalName(e.target.value)}
           />
         </label>

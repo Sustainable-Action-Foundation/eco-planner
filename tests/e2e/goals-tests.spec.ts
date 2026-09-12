@@ -153,8 +153,9 @@ test.describe("Goals tests", () => {
     await page.waitForLoadState("networkidle");
 
     // Check that everything is auto filled
-    // An unnamed goal goes by the leaf of its indicator parameter, which the field shows
-    await expect.soft(page.locator('#goalName')).toHaveValue(indicatorParameterLeaf(indicatorRequiredOnly));
+    // An unnamed goal goes by the leaf of its indicator parameter, shown as the placeholder
+    await expect.soft(page.locator('#goalName')).toBeEmpty();
+    await expect.soft(page.locator('#goalName')).toHaveAttribute('placeholder', indicatorParameterLeaf(indicatorRequiredOnly));
     await expect.soft(page.locator('#description')).toBeEmpty();
 
     // Expect the form to remember that we chose manual input, even though this is not the default choice
