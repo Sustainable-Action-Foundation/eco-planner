@@ -6,16 +6,52 @@ import getTables from "@/lib/api/getTables";
 import { formQueryHelper, ExternalDataset } from "@/lib/api/utility";
 import { LocaleContext } from "@/lib/i18nClient";
 import type { HistoricalSource } from "@/functions/getHistoricalDataset";
-import { useContext, useCallback, useRef, useEffect, useMemo, useReducer } from "react";
+import { useContext, useCallback, useRef, useEffect, useMemo, useReducer, useState } from "react";
+import { IconAlertTriangle, IconCheck } from "@tabler/icons-react";
 import type { SubmitEvent } from "react";
 import { useTranslation } from "react-i18next";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
 import { getInitialSelectionValue, shouldVariableFieldsetBeVisible, metricSelectionHelper, optionalTag, timeVariableSelectionHelper, variableSelectionHelper, externalDataReducer, EXTERNAL_SELECTION_DETACHED_FORM } from "./helpers";
 import type { ExternalData, ExternalDataState } from "@/components/types";
-import type { ApiSelectionItem } from "@/lib/api/apiTypes";
+import type { ApiSelectionItem, ApiTableContent } from "@/lib/api/apiTypes";
 
 // TODO: Maybe this should not be in /api
 // TODO: All id's in this component must be dynamic in case it is used multiple times on the same page.
+
+/**
+ * The state of the selection in one line: what is still to pick, that it is
+ * being fetched, that the table has no values for it, or what series it gives.
+ */
+function SelectionStatus({ missing, fetching, content }: { missing: string[], fetching: boolean, content: ApiTableContent | null }) {
+  const { t } = useTranslation("components");
+
+  if (missing.length > 0) {
+    return (
+      <p role="status" className="flex gap-25 align-items-center margin-top-0 margin-bottom-100" style={{ color: 'var(--orange, #b45309)' }}>
+        <IconAlertTriangle aria-hidden="true" width={18} height={18} style={{ minWidth: '18px' }} />
+        {t("components:query_builder.selection_incomplete", { fields: missing.join(", ") })}
+      </p>
+    );
+  }
+  if (fetching) {
+    return <p role="status" className="margin-top-0 margin-bottom-100 color-gray">{t("components:query_builder.loading")}</p>;
+  }
+  const periods = (content?.values ?? []).filter(entry => entry.value !== null && entry.value !== undefined && entry.value !== "").map(entry => entry.period).sort();
+  if (periods.length === 0) {
+    return (
+      <p role="status" className="flex gap-25 align-items-center margin-top-0 margin-bottom-100" style={{ color: 'var(--orange, #b45309)' }}>
+        <IconAlertTriangle aria-hidden="true" width={18} height={18} style={{ minWidth: '18px' }} />
+        {t("components:query_builder.no_values_for_selection")}
+      </p>
+    );
+  }
+  return (
+    <p role="status" className="flex gap-25 align-items-center margin-top-0 margin-bottom-100 color-gray">
+      <IconCheck aria-hidden="true" width={18} height={18} style={{ minWidth: '18px' }} />
+      {t("components:query_builder.series_summary", { count: periods.length, first: periods[0], last: periods[periods.length - 1] })}
+    </p>
+  );
+}
 
 export default function ExternalData({
   initialSource,
@@ -49,6 +85,9 @@ export default function ExternalData({
   };
 
   const [state, dispatch] = useReducer(externalDataReducer, initialState);
+  // What the status line below the selection says: the dimensions still to pick, and whether a fetch is in flight
+  const [missing, setMissing] = useState<string[]>([]);
+  const [fetching, setFetching] = useState(false);
   const { dataSource, table, tables, tableMetadata, tableContent, selection, mainTimeDimensionId } = state;
   const datasetInfo = useMemo(
     () => ExternalDataset.getDatasetByAlternateName(dataSource),
@@ -68,6 +107,16 @@ export default function ExternalData({
     const elements = sectionRef.current.querySelectorAll<HTMLSelectElement | HTMLInputElement>("select, input");
     const isValid = Array.from(elements).every(el => el.checkValidity());
 
+    // The dimensions still to pick, by their labels, for the status line
+    const labels = new Map<string, string>();
+    if (tableMetadata) {
+      for (const dimension of tableMetadata.metricDimensions) labels.set(dimension.id, dimension.label === "ApiContentsVariableName" ? t("components:query_builder.contents_variable") : dimension.label || dimension.name);
+      for (const dimension of tableMetadata.timeDimensions) labels.set(dimension.id, t("components:query_builder.period"));
+      for (const dimension of tableMetadata.regularDimensions) labels.set(dimension.id, dimension.label || dimension.name);
+      for (const hierarchy of tableMetadata.hierarchies ?? []) for (const child of hierarchy.children) labels.set(child.id, child.label || child.name);
+    }
+    setMissing(Array.from(elements).filter(el => el.name && labels.has(el.name) && !el.checkValidity()).map(el => labels.get(el.name) as string));
+
     const nativeFormData = new FormData();
     elements.forEach(el => {
       if (el.name) nativeFormData.append(el.name, el.value);
@@ -76,7 +125,7 @@ export default function ExternalData({
     const query = formQueryHelper(nativeFormData, tableMetadata, mainTimeDimensionId);
 
     return { query, isValid };
-  }, [tableMetadata, mainTimeDimensionId]);
+  }, [tableMetadata, mainTimeDimensionId, t]);
 
 
   const refreshTrafaMetadata = useCallback((
@@ -109,6 +158,7 @@ export default function ExternalData({
       return;
     }
 
+    setFetching(true);
     getTableContent(table ? table.tableId : "", dataSource, query, lang)
       .then(result => {
         dispatch({ type: "SET_CONTENT", content: result, selection: query });
@@ -117,7 +167,8 @@ export default function ExternalData({
         const errorMessage = err instanceof Error ? err.message : String(err);
         console.error("Error fetching table content:", errorMessage);
         dispatch({ type: "SET_CONTENT", content: null, selection: null });
-      });
+      })
+      .finally(() => setFetching(false));
   }, [dataSource, lang, table]);
 
   const tryGetResult = useCallback((event?: React.ChangeEvent<HTMLSelectElement> | SubmitEvent<HTMLFormElement> | Event) => {
@@ -179,7 +230,7 @@ export default function ExternalData({
           </small>
           : null}
         <select
-          defaultValue={historicalSource?.dataset ?? ''}
+          value={dataSource}
           className="block margin-top-25 margin-bottom-100 width-100"
           form={EXTERNAL_SELECTION_DETACHED_FORM}
           required={true}
@@ -314,6 +365,9 @@ export default function ExternalData({
           </p>
         )}
       </fieldset>
+
+      {/* What the selection amounts to right now, so an unfinished one doesn't fail silently */}
+      {table && tableMetadata ? <SelectionStatus missing={missing} fetching={fetching} content={tableContent} /> : null}
     </div>
   );
 }
