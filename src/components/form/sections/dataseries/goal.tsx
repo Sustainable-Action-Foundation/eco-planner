@@ -1,12 +1,13 @@
 'use client';
 
 import { useTranslation } from "react-i18next";
-import type { DateValuesWithUnit, Goal, PrefilledSeries } from "@/types";
+import type { DateValuesWithUnit, Goal, GoalPrefill } from "@/types";
 import { GoalFormName } from "@/types/form-names";
 import { IconCheck } from "@tabler/icons-react";
 import { FormSync, ManualDataSeriesInput, RecipeContextProvider, RecipeEditor, SuggestedRecipeApplier, UnitInput } from "@/components/recipe";
 import { dataSeriesToDateValues, Recipe } from "@/functions/recipe";
-import { DefaultSuggestedRecipeId, getDefaultSuggestedRecipes } from "@/components/recipe/suggestions/defaultSuggestedRecipes";
+import { DefaultSuggestedRecipeId, getSuggestedRecipesFor, preferredSuggestedRecipeId } from "@/components/recipe/suggestions/defaultSuggestedRecipes";
+import type { SuggestedRecipeContext } from "@/components/recipe/suggestions/defaultSuggestedRecipes";
 import { prefilledSeriesRecipe } from "../../forms/goalSections";
 import ParameterSync from "@/components/recipe/output/parameterSyncer";
 import { RecipeSync } from "@/components/recipe/output/recipeSync";
@@ -16,13 +17,13 @@ import { DataSeriesType, UnitFlags } from "@/types/enums";
 
 export default function GoalSeriesSection({
   goal,
-  prefilledSeries,
+  prefill,
+  geo,
   dataSeriesType,
   setDataSeriesType,
   indicatorParameter,
   setIndicatorParameter,
   setPreviewDataSerie,
-  setDataSeriesRecipeError,
   hasInitializedSuggested,
   hasInitializedManual,
   hasInitializedCustom,
@@ -30,18 +31,19 @@ export default function GoalSeriesSection({
 }: {
   goal: Goal | undefined;
   /**
-   * A series to start a new goal from: the suggested methods scale it instead
-   * of a parent goal, and the formula editor starts with it as a variable. The
-   * saved recipe takes precedence when editing.
+   * What to start a new goal from: the suggested methods scale its parent
+   * series instead of a parent goal, and the formula editor starts with it as
+   * a variable. The saved recipe takes precedence when editing.
    */
-  prefilledSeries?: PrefilledSeries;
+  prefill?: GoalPrefill;
+  /** The areas of the copied goal's roadmap and of the target roadmap, for the area-ratio methods */
+  geo?: SuggestedRecipeContext["geo"];
   dataSeriesType: DataSeriesType;
   setDataSeriesType: Dispatch<SetStateAction<DataSeriesType>>;
   /** The form's current indicator parameter, if it has one, for the parameter sync button's applied state */
   indicatorParameter?: string;
   setIndicatorParameter: Dispatch<SetStateAction<string>>;
   setPreviewDataSerie: Dispatch<SetStateAction<DateValuesWithUnit | null>>;
-  setDataSeriesRecipeError: Dispatch<SetStateAction<string | null>>;
   hasInitializedSuggested: boolean;
   hasInitializedManual: boolean;
   hasInitializedCustom: boolean;
@@ -59,13 +61,27 @@ export default function GoalSeriesSection({
     return Recipe.from(base).withEditableExternals().serialize();
   }, [goal?.data_series?.recipe_used?.recipe]);
 
-  // A prefilled series starts the suggestions on "scale by constant value" with
-  // the factor at 1 — the series as is, ready to be adjusted or scaled otherwise
+  const prefilledSeries = prefill?.parent;
+  // What the suggestions are built around when starting from a prefill; the
+  // saved recipe takes precedence when editing
+  const suggestionContext = useMemo<SuggestedRecipeContext | undefined>(
+    () => goal || !prefill ? undefined : {
+      parentSeries: prefill.parent,
+      localReference: prefill.localReference,
+      geo,
+      indicatorParameter: prefill.copy?.indicatorParameter,
+      storedSuggestions: prefill.storedSuggestions,
+    },
+    [goal, prefill, geo],
+  );
+  // The suggestion the form starts on: local statistic, else population between
+  // the two areas, else the series as is (a factor of 1, ready to be adjusted)
+  const prefilledSuggestionId = suggestionContext ? preferredSuggestedRecipeId(t, suggestionContext) : DefaultSuggestedRecipeId.Scalar;
   const prefilledSuggestion = useMemo(() => {
-    if (!prefilledSeries) return undefined;
-    const suggestion = getDefaultSuggestedRecipes(t, prefilledSeries).find(suggestion => suggestion.id === DefaultSuggestedRecipeId.Scalar);
+    if (!suggestionContext) return undefined;
+    const suggestion = getSuggestedRecipesFor(t, suggestionContext).find(suggestion => suggestion.id === prefilledSuggestionId);
     return suggestion ? Recipe.from(suggestion.recipe).serialize() : undefined;
-  }, [prefilledSeries, t]);
+  }, [suggestionContext, prefilledSuggestionId, t]);
   const suggestedInitialRecipe = savedRecipe ?? prefilledSuggestion;
   const customInitialRecipe = useMemo(
     () => savedRecipe ?? (prefilledSeries ? prefilledSeriesRecipe(prefilledSeries) : undefined),
@@ -151,8 +167,8 @@ export default function GoalSeriesSection({
               availableDataSeries={goal?.data_series?.recipe_used?.source_data_series}
             >
               <SuggestedRecipeApplier
-                parentSeries={goal ? undefined : prefilledSeries}
-                initialRecipeId={prefilledSuggestion && !savedRecipe ? DefaultSuggestedRecipeId.Scalar : undefined}
+                context={suggestionContext}
+                initialRecipeId={prefilledSuggestion && !savedRecipe ? prefilledSuggestionId : undefined}
               />
               <UnitInput
                 id="goal-suggested-unit"
@@ -160,6 +176,7 @@ export default function GoalSeriesSection({
               />
               <FormSync
                 RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
+                ErrorFormElement={<input name={GoalFormName.RecipeError} />}
                 UnitFormElement={<input name={GoalFormName.DataUnit} />}
                 DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
               />
@@ -170,7 +187,6 @@ export default function GoalSeriesSection({
               />
               <RecipeSync
                 onDateValues={setPreviewDataSerie}
-                onError={setDataSeriesRecipeError}
                 active={dataSeriesType === DataSeriesType.Suggested}
               />
             </RecipeContextProvider>
@@ -195,12 +211,12 @@ export default function GoalSeriesSection({
               />
               <FormSync
                 RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
+                ErrorFormElement={<input name={GoalFormName.RecipeError} />}
                 UnitFormElement={<input name={GoalFormName.DataUnit} />}
                 DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
               />
               <RecipeSync
                 onDateValues={setPreviewDataSerie}
-                onError={setDataSeriesRecipeError}
                 active={dataSeriesType === DataSeriesType.Manual}
               />
             </RecipeContextProvider>
@@ -222,6 +238,7 @@ export default function GoalSeriesSection({
               />
               <FormSync
                 RecipeFormElement={<input name={GoalFormName.ResultingRecipe} />}
+                ErrorFormElement={<input name={GoalFormName.RecipeError} />}
                 UnitFormElement={<input name={GoalFormName.DataUnit} />}
                 DateValuesFormElement={<input name={GoalFormName.ResultingDateValues} />}
               />
@@ -232,7 +249,6 @@ export default function GoalSeriesSection({
               />
               <RecipeSync
                 onDateValues={setPreviewDataSerie}
-                onError={setDataSeriesRecipeError}
                 active={dataSeriesType === DataSeriesType.Custom}
               />
             </RecipeContextProvider>

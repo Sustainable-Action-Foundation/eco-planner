@@ -2,14 +2,15 @@
 
 import type { getRoadmaps } from "@/fetchers";
 import formSubmitter from "@/functions/formSubmitter";
-import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalUpdateInput, PrefilledSeries } from "@/types";
+import { indicatorParameterLeaf } from "@/functions/goalName";
+import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalPrefill, GoalUpdateInput } from "@/types";
 import { BaselineType, DataSeriesType, GoalDataTarget, HistoricalDataType } from "@/types/enums";
 import { GoalListing } from "@/lib/prisma/generated";
 import { GoalFormName } from "@/types/form-names";
 import { isGoalListing } from "@/types/typeguards";
 import { IconChevronDown, IconChevronUp, IconEye, IconEyeOff, IconStar } from "@tabler/icons-react";
 import { waitForRecipeFormSyncs } from "@/components/recipe";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
 import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
@@ -36,6 +37,7 @@ import HistoricalSeriesSection from "../sections/dataseries/historical";
 import BaselineSeriesSection from "../sections/dataseries/baseline";
 import GoalSeriesSection from "../sections/dataseries/goal";
 import { getHistoricalDatasetFromRecipe } from "@/functions/getHistoricalDataset";
+import { historicalSeriesName } from "@/components/graph/historicalFootnote";
 import PreviewSeries from "../sections/dataseries/preview";
 import DraggableSnapBack from "@/components/generic/draggable/draggable";
 
@@ -49,12 +51,28 @@ export default function GoalForm({
   iterationId?: string,
   roadmapAlternatives: Awaited<ReturnType<typeof getRoadmaps>>,
   currentGoal?: Goal;
-  /** A series to start the goal from (see `getPrefilledSeries`); ignored when editing, where the goal's own data wins. */
-  prefill?: PrefilledSeries;
+  /** What to start the goal from (see `getGoalPrefill`); ignored when editing, where the goal's own data wins. */
+  prefill?: GoalPrefill;
 }) {
   const { t } = useTranslation(["forms", "graphs", "common"]);
 
-  const prefill = currentGoal ? undefined : requestedPrefill;
+  const [parentIterationId, setParentIterationId] = useState<string>(iterationId || "");
+
+  // The target roadmap's area decides which local statistic a copy follows
+  // and the "to" side of an area ratio; the prefill carries one per area
+  const targetIterationId = iterationId || parentIterationId;
+  const targetGeo = useMemo(
+    () => (roadmapAlternatives ?? []).find(roadmap => roadmap.iterations.some(iteration => iteration.id === targetIterationId))?.geo_area ?? null,
+    [roadmapAlternatives, targetIterationId],
+  );
+  const prefill = useMemo(() => {
+    if (currentGoal || !requestedPrefill) return undefined;
+    const forArea = targetGeo ? requestedPrefill.byArea?.[targetGeo.code] : undefined;
+    return forArea ? { ...requestedPrefill, ...forArea } : requestedPrefill;
+  }, [currentGoal, requestedPrefill, targetGeo]);
+  const geo = useMemo(() => ({ source: prefill?.sourceGeoArea ?? null, target: targetGeo }), [prefill?.sourceGeoArea, targetGeo]);
+  // The sections seeded from the prefill remount when the area changes
+  const areaKey = currentGoal ? "edit" : (targetGeo?.code ?? "none");
 
   // A prefilled series becomes both the goal's historical data and the parent
   // the suggested methods scale, so the goal starts out as the series as is
@@ -71,14 +89,23 @@ export default function GoalForm({
   const baselineHasInitializedManual = initializedBaselineTypes.has(BaselineType.Custom);
   const baselineHasInitializedInherited = initializedBaselineTypes.has(BaselineType.Inherited);
 
-  const [historicalDataType, setHistoricalDataType] = useState<HistoricalDataType>(() => prefill ? HistoricalDataType.External : resolveHistoricalDataType(currentGoal));
-  const prefilledHistoricalRecipe = useMemo(() => prefill ? prefilledSeriesRecipe(prefill) : undefined, [prefill]);
+  const [historicalDataType, setHistoricalDataType] = useState<HistoricalDataType>(() => prefill?.historical ? HistoricalDataType.External : resolveHistoricalDataType(currentGoal));
+  const prefilledHistoricalRecipe = useMemo(() => prefill?.historical ? prefilledSeriesRecipe(prefill.historical) : undefined, [prefill]);
 
   // Baseline and historical data are optional, so their sections start collapsed
   // unless the goal already has one (or a prefilled series fills the historical
   // section); the toggle shows the current choice.
   const [baselineOpen, setBaselineOpen] = useState<boolean>(() => !!currentGoal?.baseline);
-  const [historicalOpen, setHistoricalOpen] = useState<boolean>(() => !!currentGoal?.historical || !!prefill);
+  const [historicalOpen, setHistoricalOpen] = useState<boolean>(() => !!currentGoal?.historical || !!prefill?.historical);
+  // A new target area brings (or drops) a local statistic: the historical
+  // section follows, and the remount below re-seeds its contents
+  useEffect(() => {
+    if (currentGoal) return;
+    setHistoricalDataType(prefill?.historical ? HistoricalDataType.External : HistoricalDataType.None);
+    setHistoricalOpen(!!prefill?.historical);
+    // Only when the area changes, not on every prefill identity change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [areaKey]);
   // Inline records so every key stays a literal inside t()
   const baselineTypeLabels: Record<BaselineType, string> = {
     [BaselineType.None]: t("forms:goal.baseline_types.none"),
@@ -97,10 +124,14 @@ export default function GoalForm({
   const historicalHasInitializedExternal = initializedHistoricalTypes.has(HistoricalDataType.External);
   const historicalHasInitializedCustom = initializedHistoricalTypes.has(HistoricalDataType.Custom);
 
-  const [indicatorParameter, setIndicatorParameter] = useState<string>(currentGoal?.indicator_parameter ?? "");
+  const [indicatorParameter, setIndicatorParameter] = useState<string>(currentGoal?.indicator_parameter ?? prefill?.copy?.indicatorParameter ?? "");
+  // A copied goal keeps its name (none for imported scenarios, whose indicator
+  // parameter is copied too); a goal started from a series is named after it.
+  // An unnamed goal goes by the leaf of its indicator parameter, shown as the
+  // placeholder rather than stored as a name.
+  const initialName = currentGoal?.name ?? (prefill?.copy ? prefill.copy.name : prefill?.historical?.name) ?? undefined;
   const initialListing: GoalListing = currentGoal?.listing ?? GoalListing.LISTED;
   // const [goalName, setGoalName] = useState<string>(currentGoal?.name ?? "");
-  const [parentIterationId, setParentIterationId] = useState<string>(iterationId || "");
   const [previewDataSerie, setPreviewDataSerie] = useState<DateValuesWithUnit | null>(null);
   const [previewHistoricalSerie, setPreviewHistoricalSerie] = useState<DateValuesWithUnit | null>(null);
   const [previewBaselineSerie, setPreviewBaselineSerie] = useState<DateValuesWithUnit | null>(null);
@@ -109,18 +140,17 @@ export default function GoalForm({
   // Evaluation error of the currently-selected recipe input (Manual/Suggested/Custom)
   // lifted out of the recipe context so submission can be blocked when it fails
   // to evaluate (e.g. an external variable with an incomplete selection).
-  const [dataSeriesRecipeError, setDataSeriesRecipeError] = useState<string | null>(null);
   const descriptionRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
   const { addToast } = useToast();
 
-  const historicalLabel = useMemo(() => {
-    if (!previewHistoricalRecipe) return "";
+  const historicalSource = useMemo(() => {
+    if (!previewHistoricalRecipe) return null;
     try {
-      return getHistoricalDatasetFromRecipe(Recipe.from(previewHistoricalRecipe)).label ?? "";
+      return getHistoricalDatasetFromRecipe(Recipe.from(previewHistoricalRecipe));
     } catch {
-      return "";
+      return null;
     }
   }, [previewHistoricalRecipe]);
 
@@ -137,11 +167,11 @@ export default function GoalForm({
       dateValues: previewBaselineSerie.dateValues,
     },
     historical: (previewHistoricalSerie?.dateValues && previewDataSerie) && {
-      name: historicalLabel ? t("graphs:common.historical_series", { label: historicalLabel }) : t("common:historical_data"),
+      name: historicalSeriesName(t, historicalSource),
       unit: previewDataSerie.unit, // TODO: For now we lie and say that historical and preview data series share the same unit. Should make sure that we sync properly in the future though.
       dateValues: previewHistoricalSerie.dateValues,
     },
-  }), [previewDataSerie, previewBaselineSerie, previewHistoricalSerie, historicalLabel, t]);
+  }), [previewDataSerie, previewBaselineSerie, previewHistoricalSerie, historicalSource, t]);
 
 
   const parentIterations = useMemo(() => {
@@ -188,8 +218,10 @@ export default function GoalForm({
     // external dataset variable with an incomplete selection, or a manual series
     // that didn't pass the recipe type guards). Without this the recipe is sent
     // and only fails server-side (invalid body / 500 while materializing externals).
-    if (dataSeriesRecipeError) {
-      addToast(`${t("forms:goal.errors.recipe_has_error")} ${dataSeriesRecipeError}`, "error", false);
+    // Read from the form data, which the syncs above settled (see FormSync)
+    const recipeError = formData.get(GoalFormName.RecipeError);
+    if (typeof recipeError === "string" && recipeError) {
+      addToast(`${t("forms:goal.errors.recipe_has_error")} ${recipeError}`, "error", false);
       event.target.reportValidity();
       return;
     }
@@ -332,7 +364,8 @@ export default function GoalForm({
             type="text"
             name={GoalFormName.GoalName}
             id="goalName"
-            defaultValue={currentGoal?.name ?? prefill?.name ?? undefined}
+            defaultValue={initialName}
+            placeholder={indicatorParameterLeaf(indicatorParameter)}
           // onChange={(e) => setGoalName(e.target.value)}
           />
         </label>
@@ -344,7 +377,7 @@ export default function GoalForm({
           ariaLabelledBy="description-label"
           placeholder={t("forms:text_editor_menu.default_placeholder")}
           editable={true}
-          content={currentGoal ? currentGoal.description : ""}
+          content={currentGoal?.description ?? prefill?.copy?.description ?? ""}
           updater={(json) => descriptionRef.current ? descriptionRef.current.value = JSON.stringify(json) : null}
         />
         {/* hidden input containing the text editor output */}
@@ -360,7 +393,7 @@ export default function GoalForm({
             name: GoalFormName.IndicatorParameter,
             placeholder: t("forms:combobox.default_autocomplete_placeholder"),
             className: "margin-top-25 margin-bottom-100",
-            defaultValue: currentGoal?.indicator_parameter ?? undefined,
+            defaultValue: currentGoal?.indicator_parameter ?? prefill?.copy?.indicatorParameter ?? undefined,
           }}
           options={indicatorParameters}
           fuseOptions={{
@@ -421,15 +454,16 @@ export default function GoalForm({
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
         <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.data_series.goal.title")}</legend>
         <GoalSeriesSection
+          key={areaKey}
           goal={currentGoal}
-          prefilledSeries={prefill}
+          prefill={prefill}
+          geo={geo}
           dataSeriesType={dataSeriesType}
           setDataSeriesType={setDataSeriesType}
           indicatorParameter={indicatorParameter}
           setIndicatorParameter={setIndicatorParameter}
           setPreviewDataSerie={setPreviewDataSerie}
-          setDataSeriesRecipeError={setDataSeriesRecipeError}
-          hasInitializedSuggested={hasInitializedSuggested}
+            hasInitializedSuggested={hasInitializedSuggested}
           hasInitializedManual={hasInitializedManual}
           hasInitializedCustom={hasInitializedCustom}
         />
@@ -507,6 +541,7 @@ export default function GoalForm({
         </button>
         <div id="historical-section" className={`min-width-0 ${historicalOpen ? "" : "display-none"}`} data-testid="historical-section">
           <HistoricalSeriesSection
+            key={areaKey}
             goal={currentGoal}
             initialRecipe={prefilledHistoricalRecipe}
             historicalDataType={historicalDataType}
@@ -527,6 +562,7 @@ export default function GoalForm({
             main={previewGraphSeries.main}
             baseline={previewGraphSeries.baseline}
             historical={previewGraphSeries.historical}
+            historicalSource={historicalSource}
           />
         </DraggableSnapBack>
       </div>

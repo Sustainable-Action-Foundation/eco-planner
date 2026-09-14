@@ -4,6 +4,7 @@ export { getActions } from "./getActions";
 export { getGoalByIndicator } from "./getGoalByIndicator";
 export { getNames } from "./getNames";
 export { getOneAction } from "./getOneAction";
+export { getActionNeighbours } from "./getActionNeighbours";
 export { getOneEffect } from "./getOneEffect";
 export { getOneGoal } from "./getOneGoal";
 export { getOneRecipe } from "./getOneRecipe";

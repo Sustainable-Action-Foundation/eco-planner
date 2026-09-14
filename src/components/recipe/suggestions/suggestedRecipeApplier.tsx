@@ -11,36 +11,53 @@ import { useEffect, useMemo, useState } from "react";
 import { isMathjsUnit } from "@/functions/recipe/vectorAndMaskUtils";
 import { isUnitFlag } from "@/functions/unit";
 import { IconAlertTriangleFilled, IconInfoCircle } from "@tabler/icons-react";
-import type { ClientRoadmapIteration, DBRecipe, PrefilledSeries } from "@/types";
+import type { ClientRoadmapIteration, DBRecipe } from "@/types";
 import { RecipeEditorPermissions } from "@/types/consts";
 import { Recipe } from "@/functions/recipe/recipe";
+import type { SerializedRecipe } from "@/functions/recipe/types";
 import { getDefaultSuggestedRecipes, TextStatus } from "@/components/recipe";
+import { getSuggestedRecipesFor } from "@/components/recipe/suggestions/defaultSuggestedRecipes";
+import type { SuggestedRecipeContext } from "@/components/recipe/suggestions/defaultSuggestedRecipes";
 import styles from "../recipe.module.css" with {type: "css"};
 import { getRecipeRoadmapData } from "../context/roadmapDataCache";
+
+/** Select value for the recipe the context was seeded with (a goal's saved method when editing). */
+const CURRENT_RECIPE_ID = "current-recipe";
 
 export function SuggestedRecipeApplier({
   autoInsertDefaultSuggestions = true,
   suggestedRecipes: providedSuggestedRecipes = [],
   permissions = RecipeEditorPermissions,
-  parentSeries,
+  context,
   initialRecipeId,
 }: {
   autoInsertDefaultSuggestions?: boolean;
   suggestedRecipes?: DBRecipe[];
   permissions?: RecipeEditorPermissions;
-  /** Stands in for the parent value in the default suggestions (see `getDefaultSuggestedRecipes`) */
-  parentSeries?: PrefilledSeries;
+  /** What the default suggestions are built around (see `getDefaultSuggestedRecipes`) */
+  context?: SuggestedRecipeContext;
   /** The suggestion the surrounding recipe context was seeded with, so the select agrees with it */
   initialRecipeId?: string;
 }) {
   const { t } = useTranslation("components");
-  const defaultSuggestionRecipes = useMemo(() => getDefaultSuggestedRecipes(t, parentSeries), [t, parentSeries]);
+  // A goal with methods of its own shows only those (see getSuggestedRecipesFor)
+  const defaultSuggestionRecipes = useMemo(() => context ? getSuggestedRecipesFor(t, context) : getDefaultSuggestedRecipes(t), [t, context]);
   const { recipe, applyRecipeUpdate, clearRecipe } = useRecipe();
+
+  // The suggested method the context was seeded with: editing a goal that was
+  // made from a suggestion lands here with its saved recipe already in the
+  // context, and the select must start on something real or the (required)
+  // field blocks submission. Offered as its own option so switching to another
+  // method and back restores the saved recipe.
+  const [initialContextRecipe] = useState<SerializedRecipe | null>(
+    () => !initialRecipeId && recipe.isSuggestedRecipe() && !recipe.isEmpty() ? recipe.serialize() : null,
+  );
 
   const [availableDataSeries, setAvailableDataSeries] = useState<{ id: string; name: string; }[]>([]);
   const [roadmapLookup, setRoadmapLookup] = useState<Record<string, ClientRoadmapIteration>>({});
+  const [roadmapsLoaded, setRoadmapsLoaded] = useState(false);
   const [dataSeriesNamesById, setDataSeriesNamesById] = useState<Record<string, string>>({});
-  const [selectedRecipeId, setSelectedRecipeId] = useState<string>(initialRecipeId ?? "");
+  const [selectedRecipeId, setSelectedRecipeId] = useState<string>(initialRecipeId ?? (initialContextRecipe ? CURRENT_RECIPE_ID : ""));
   const suggestedRecipes = useMemo(() => autoInsertDefaultSuggestions
     ? [...defaultSuggestionRecipes, ...providedSuggestedRecipes]
     : [...providedSuggestedRecipes],
@@ -93,7 +110,8 @@ export function SuggestedRecipeApplier({
       .catch((err: unknown) => {
         const errorMessage = err instanceof Error ? err.message : String(err);
         console.error("Failed to fetch roadmaps", errorMessage);
-      });
+      })
+      .finally(() => setRoadmapsLoaded(true));
   }, [t]);
 
   // Validate suggested recipe structures
@@ -112,6 +130,16 @@ export function SuggestedRecipeApplier({
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const recipeId = e.target.value;
     setSelectedRecipeId(recipeId);
+
+    if (recipeId === CURRENT_RECIPE_ID && initialContextRecipe) {
+      applyRecipeUpdate(Recipe.from(initialContextRecipe))
+        .catch((err: unknown) => {
+          const errorMessage = err instanceof Error ? err.message : String(err);
+          console.error("Failed to restore the initial recipe", errorMessage);
+          clearRecipe();
+        });
+      return;
+    }
 
     const selectedSuggestion = suggestedRecipes.find(r => r.id === recipeId);
     if (!selectedSuggestion) {
@@ -148,6 +176,11 @@ export function SuggestedRecipeApplier({
         onChange={handleChange}
       >
         <option disabled={true} value={""}>{t("common:tsx.generic_select")}</option>
+        {initialContextRecipe ?
+          <option value={CURRENT_RECIPE_ID}>
+            {t("components:recipe_editor.current_method_option", { name: Recipe.from(initialContextRecipe).name })}
+          </option>
+          : null}
         {suggestedRecipes.map(suggestedRecipe => (
           <option key={suggestedRecipe.id} value={suggestedRecipe.id}> {/* TODO: The selected value needs to be preselected */}
             {Recipe.from(suggestedRecipe.recipe).name ?? t("components:copy_and_scale.unnamed_suggestion")}
@@ -221,6 +254,7 @@ export function SuggestedRecipeApplier({
                     variableId={variableId}
                     availableDataSeries={availableDataSeries}
                     roadmapLookup={roadmapLookup}
+                    loading={!roadmapsLoaded}
                     dataSeriesNamesById={dataSeriesNamesById}
                     permissions={{ ...permissions }}
                   />

@@ -51,16 +51,131 @@ function updateNodeInTree(
   });
 }
 
+/**
+ * Lives at module level on purpose: declaring it inside `SelectSingleTree` made it a new
+ * component type on every render, so React remounted every tree node whenever the parent
+ * re-rendered (e.g. a recipe evaluation finishing). A remount between mousedown and mouseup
+ * swallows the click, which made expanding nodes flaky in e2e tests.
+ */
+function TreeNode({
+  item,
+  depth = 0,
+  flattenedItems,
+  selectedValue,
+  treeItemsRef,
+  onToggle,
+  onSelect,
+}: {
+  item: TreeItem,
+  depth?: number,
+  flattenedItems: Array<TreeItem>,
+  selectedValue: string | undefined,
+  treeItemsRef: React.RefObject<(HTMLLIElement | null)[]>,
+  onToggle: (item: TreeItem) => void,
+  onSelect: (item: TreeItem) => void,
+}) {
+  const index = flattenedItems.findIndex(i => i.value === item.value);
+  const expandable = item.expanded !== null || item.onExpand !== undefined;
+
+  return (
+    <li
+      role="treeitem"
+      id={`${item.value}`}
+      ref={(el) => { treeItemsRef.current[index] = el; }}
+      aria-level={depth + 1}
+      aria-selected={(item.expanded === null || item.onExpand === undefined) && item.value === selectedValue}
+      aria-expanded={expandable ? !!item.expanded : undefined}
+    >
+      <div
+        className={`flex gap-25 align-items-center justify-content-space-between`}
+        onClick={() => expandable ? onToggle(item) : onSelect(item)}
+      >
+        {(item.onExpand || (item.childNodes && item.childNodes.length > 0))
+          ? <span className="flex gap-25 align-items-center">
+            {item.loading ?
+              <Image
+                src='/loaders/ring-resize.svg'
+                alt=""
+                width={16}
+                height={16}
+              />
+              :
+              <IconCaretRightFilled
+                width={16}
+                height={16}
+                style={{
+                  minWidth: '16px',
+                  transform: item.expanded ? 'rotate(90deg)' : 'rotate(0deg)',
+                }}
+              />
+            }
+            {item.name}
+          </span>
+          : item.name
+        }
+
+      </div>
+      {item.expanded && item.childNodes ? <ul
+        role="group"
+        style={{
+          listStyle: 'none',
+          borderLeft: '1px dashed var(--gray)',
+          marginInlineStart: 'calc(12px + 0.25rem)',
+          paddingInlineStart: '.5rem',
+          marginBlock: '1px',
+        }}
+        className="margin-0 padding-inline-start-75"
+      >
+        {item.childNodes.map((child, index) => (
+          <TreeNode
+            key={index}
+            item={child}
+            depth={depth + 1}
+            flattenedItems={flattenedItems}
+            selectedValue={selectedValue}
+            treeItemsRef={treeItemsRef}
+            onToggle={onToggle}
+            onSelect={onSelect}
+          />
+        ))}
+      </ul> : null}
+    </li>
+  );
+}
+
+/**
+ * `next` with the expansion state (`expanded`, `loading`, fetched `childNodes`)
+ * of matching nodes in `prev` carried over, so a re-render of the caller with
+ * a fresh `treeItems` array doesn't collapse what the user has opened.
+ */
+function withExpansionState(next: TreeItem[], prev: TreeItem[]): TreeItem[] {
+  const previous = new Map(prev.map(item => [item.value, item]));
+  return next.map(item => {
+    const old = previous.get(item.value);
+    if (!old) return item;
+    const childNodes = item.childNodes ?? old.childNodes;
+    return {
+      ...item,
+      expanded: old.expanded ?? item.expanded,
+      loading: old.loading,
+      childNodes: childNodes && old.childNodes ? withExpansionState(childNodes, old.childNodes) : childNodes,
+    };
+  });
+}
+
 export default function SelectSingleTree({
   treeItems,
   props,
   defaultValue,
   onChange,
+  loading = false,
 }: {
   treeItems: TreeItem[];
   props: InputElement;
   defaultValue?: TreeItem; // TODO: Should also allow for a boolean which sets default to first value if enabled
   onChange?: (value: TreeItem | null) => void
+  /** The items are still being fetched: shows a loading row instead of "no results" */
+  loading?: boolean;
 }) {
   const { t } = useTranslation(["forms"]);
 
@@ -103,9 +218,9 @@ export default function SelectSingleTree({
     return true;
   }, [value, props.required]);
 
+  // New items from the caller keep whatever the user has expanded (see withExpansionState)
   useEffect(() => {
-    setItems(treeItems);
-    setFlattenedItems(flattenTree(treeItems));
+    setItems(prev => withExpansionState(treeItems, prev));
   }, [treeItems]);
 
   useEffect(() => {
@@ -141,85 +256,14 @@ export default function SelectSingleTree({
     }
   };
 
-  function TreeNode({
-    item,
-    onUpdate,
-    depth = 0,
-  }: {
-    item: TreeItem,
-    onUpdate: (value: string, updater: (n: TreeItem) => TreeItem) => void,
-    depth?: number
-  }) {
-    const index = flattenedItems.findIndex(i => i.value === item.value);
+  function handleNodeToggle(item: TreeItem) {
+    void toggleNode(item);
+    toggleRef.current?.focus();
+  }
 
-    return (
-      <li
-        role="treeitem"
-        id={`${item.value}`}
-        ref={(el) => { treeItemsRef.current[index] = el; }}
-        aria-level={depth + 1}
-        aria-selected={(item.expanded === null || item.onExpand === undefined) && item.value === value?.value}
-        aria-expanded={
-          (item.expanded !== null || item.onExpand !== undefined)
-            ? !!item.expanded
-            : undefined}
-      >
-        <div
-          className={`flex gap-25 align-items-center justify-content-space-between`}
-          onClick={
-            item.expanded !== null || item.onExpand !== undefined
-              ? () => { 
-                void toggleNode(item);
-                toggleRef.current?.focus();
-              } 
-              : () => { 
-                setValue(item?.value !== value?.value ? item : null);
-                setMenuOpen(false);
-              }
-          }
-        >
-          {(item.onExpand || (item.childNodes && item.childNodes.length > 0))
-            ? <span className="flex gap-25 align-items-center">
-              {item.loading ?
-                <Image
-                  src='/loaders/ring-resize.svg'
-                  alt=""
-                  width={16}
-                  height={16}
-                />
-                :
-                <IconCaretRightFilled
-                  width={16}
-                  height={16}
-                  style={{
-                    minWidth: '16px',
-                    transform: item.expanded ? 'rotate(90deg)' : 'rotate(0deg)',
-                  }}
-                />
-              }
-              {item.name}
-            </span>
-            : item.name
-          }
-
-        </div>
-        {item.expanded && item.childNodes ? <ul
-          role="group"
-          style={{
-            listStyle: 'none',
-            borderLeft: '1px dashed var(--gray)',
-            marginInlineStart: 'calc(12px + 0.25rem)',
-            paddingInlineStart: '.5rem',
-            marginBlock: '1px',
-          }}
-          className="margin-0 padding-inline-start-75"
-        >
-          {item.childNodes.map((child, index) => (
-            <TreeNode key={index} item={child} onUpdate={onUpdate} depth={depth + 1} />
-          ))}
-        </ul> : null}
-      </li>
-    );
+  function handleNodeSelect(item: TreeItem) {
+    setValue(item.value !== value?.value ? item : null);
+    setMenuOpen(false);
   }
 
   return (
@@ -310,10 +354,24 @@ export default function SelectSingleTree({
       >
         {items.length > 0 ? (
           items.map((treeItem, index) => (
-            <TreeNode key={index} item={treeItem} onUpdate={handleUpdateNode} />
+            <TreeNode
+              key={index}
+              item={treeItem}
+              flattenedItems={flattenedItems}
+              selectedValue={value?.value}
+              treeItemsRef={treeItemsRef}
+              onToggle={handleNodeToggle}
+              onSelect={handleNodeSelect}
+            />
           ))
+        ) : loading ? (
+          // Not a tree item (role-wise), so it can't be mistaken for one while the items load
+          <li role="presentation" className={`${styles['no-results']} flex gap-25 align-items-center`} style={{ padding: '.5rem' }} aria-live="polite">
+            <Image src='/loaders/ring-resize.svg' alt="" width={16} height={16} />
+            {t("forms:combobox.loading")}
+          </li>
         ) : (
-          <li className={`${styles['no-results']} font-weight-600`} style={{ padding: '.5rem' }}> {/* TODO: For whatever reason i need to set padding here but not for the selectsingleserach no results <li>. They are seemingly implemented the same way so probably figure out why this is. */}
+          <li role="presentation" className={`${styles['no-results']} font-weight-600`} style={{ padding: '.5rem' }}> {/* TODO: For whatever reason i need to set padding here but not for the selectsingleserach no results <li>. They are seemingly implemented the same way so probably figure out why this is. */}
             {t("common:tsx.no_results")}
           </li>
         )}

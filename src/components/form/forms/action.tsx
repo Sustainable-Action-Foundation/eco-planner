@@ -13,6 +13,8 @@ import { Recipe } from "@/functions/recipe/recipe";
 import TextSingleAutocomplete from "@/components/form/elements/combobox/textSingleAutocomplete";
 import { clientSafeGetAllTags } from "@/fetchers/clientSafeGetAllTags";
 import { clientSafeGetAllFieldHeaders } from "@/fetchers/clientSafeGetAllFieldHeaders";
+import { clientSafeGetActionOptions, type ActionOption } from "@/fetchers/clientSafeGetActionOptions";
+import SelectSingleSearch from "@/components/form/elements/combobox/selectSingleSearch";
 import { useEffect, useState } from "react";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
@@ -68,6 +70,21 @@ export default function ActionForm({
     clientSafeGetAllTags().then(setTagSuggestions).catch(() => setTagSuggestions([]));
     clientSafeGetAllFieldHeaders().then(setHeaderSuggestions).catch(() => setHeaderSuggestions([]));
   }, []);
+
+  // The action this one is a copy of (another org's original), picked among the visible actions.
+  // Pre-linked copies start out with their current origin; clearing the picker unlinks on save.
+  const [originActionId, setOriginActionId] = useState<string>(() => currentAction?.origin_action_id ?? "");
+  const [actionOptions, setActionOptions] = useState<ActionOption[]>([]);
+  // Remounts the picker when the link is cleared, since it keeps its own selection once touched
+  const [originPickerKey, setOriginPickerKey] = useState(0);
+  useEffect(() => {
+    clientSafeGetActionOptions().then(setActionOptions).catch(() => setActionOptions([]));
+  }, []);
+  // Neither the action itself nor its own copies can be its origin; copies of other originals resolve to their original server-side
+  const originOptions = actionOptions
+    .filter(option => option.id !== currentAction?.id && option.originActionId !== currentAction?.id)
+    .map(option => ({ name: `${option.orgName}${option.roadmapName ? ` (${option.roadmapName})` : ""}: ${option.name}`, value: option.id }));
+  const currentOriginOption = originOptions.find(option => option.value === originActionId);
 
   function addTag() {
     const value = tagDraft.trim();
@@ -179,6 +196,8 @@ export default function ActionForm({
           .map(value => ({ header: ActionFieldHeaders.Tag as string, value, type: defaultActionFieldType(ActionFieldHeaders.Tag) })),
       ],
       parentActionId: currentAction?.parent_action_id ?? undefined,
+      // On edit, an empty picker unlinks; on create, it simply links nothing
+      originActionId: originActionId || (currentAction ? null : undefined),
       dataSeries,
       impactType: goalId && !currentAction
         ? (form.namedItem(ActionFormName.ImpactType) as HTMLInputElement)?.value as ActionImpactType
@@ -477,6 +496,34 @@ export default function ActionForm({
         </button>
       </fieldset>
 
+
+      {/* Linking to the original this action is a copy of (typically the municipality's catalogue entry) */}
+      <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+        <legend data-position={positionIndex++} className={`${styles.timeLineLegend} font-weight-bold padding-block-125`}>{t("forms:action.origin_legend")}</legend>
+        <p className="margin-top-0 margin-bottom-50" style={{ color: 'gray' }}>{t("forms:action.origin_description")}</p>
+        <label htmlFor="origin-action">{t("forms:action.origin_label")}</label>
+        <SelectSingleSearch
+          key={originPickerKey}
+          props={{
+            className: "margin-top-25 margin-bottom-50",
+            id: "origin-action",
+            name: "origin-action",
+            placeholder: t("forms:action.origin_placeholder"),
+          }}
+          defaultValue={currentOriginOption}
+          onChange={(value) => setOriginActionId(value?.value ?? "")}
+          options={originOptions}
+        />
+        {originActionId ?
+          <button
+            type="button"
+            className="margin-bottom-100"
+            onClick={() => { setOriginActionId(""); setOriginPickerKey(key => key + 1); }}
+          >
+            {t("forms:action.origin_unlink")}
+          </button>
+          : null}
+      </fieldset>
 
       {
         (goalId && !currentAction) ?

@@ -7,6 +7,7 @@ import { GoalGraph } from "@/components/graph/graphs/goal/main";
 import { useState } from "react";
 import { IconGraphFilled, IconTableFilled } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import HistoricalFootnote, { type HistoricalSourceInfo } from "@/components/graph/historicalFootnote";
 
 function SeriesTable({
   series,
@@ -79,10 +80,13 @@ export default function PreviewSeries({
   main,
   baseline,
   historical,
+  historicalSource,
 }: {
   main: (DateValuesWithUnit & { name: string }) | undefined | null;
   baseline: (DateValuesWithUnit & { name: string }) | undefined | null;
   historical: (DateValuesWithUnit & { name: string }) | undefined | null;
+  /** Where the historical series comes from, shown as a footnote its legend points to */
+  historicalSource?: HistoricalSourceInfo | null;
 }) {
   const { t } = useTranslation(["components"]);
 
@@ -129,6 +133,7 @@ export default function PreviewSeries({
             historical={historical}
           />
         }
+        {historical ? <HistoricalFootnote source={historicalSource} className="font-size-14px text-align-center margin-block-25" /> : null}
       </div>
     </>
   );

@@ -1,8 +1,7 @@
-import type { IterationStatus, OrgRole, Prisma } from "@/lib/prisma/generated";
+import type { IterationStatus, OrgRole, Prisma, GeoAreaType } from "@/lib/prisma/generated";
 import type { accessControlSelection, actionInclusionSelection, clientSafeDataSeriesSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapIterationSelection, effectInclusionSelection, goalInclusionSelection, multiRoadmapInclusionSelection, nameSelector, recipeSelector, roadmapInclusionSelection, roadmapIterationInclusionSelection, userInfoSelector } from "@/fetchers/inclusionSelectors";
-import type { Unit as MathJSUnit } from "mathjs";
 import type { UnitFlags } from "@/types/enums";
-import type { DataSeriesVariable, ExternalVariable } from "@/functions/recipe/types";
+import type { DataSeriesVariable, ExternalVariable, SerializedRecipe } from "@/functions/recipe/types";
 
 /** The access control record shape consumed by accessChecker, as selected by `accessControlSelection`. */
 export type AccessControlInfo = Prisma.AccessControlsGetPayload<{
@@ -147,11 +146,11 @@ export type UserAccessContext = {
  */
 export type Unit = string & { __unitStringBrand: never } | typeof UnitFlags[keyof typeof UnitFlags];
 export type ISOIshDate = `${number}-${number}-${number}T00:00:00${`.000` | ``}Z`;
-/** True: missing value, False: defined value. It masks/"covers" the undefined values */
-export type Mask = Record<ISOIshDate, boolean>;
 export type DateValues = Record<ISOIshDate, number>;
 export type DateValuesWithUnit = { dateValues: DateValues, unit: Unit };
-export type MaskedVector = { vector: MathJSUnit[], mask: Mask };
+
+/** A geo area as carried around the UI: the SCB area code, its name, and which level it is. */
+export type GeoAreaRef = { code: string, name: string, type: GeoAreaType };
 
 /**
  * A series handed to the goal form to start a goal from, e.g. a browsable
@@ -165,4 +164,49 @@ export type PrefilledSeries = {
   /** Display unit as declared by the source, if it has one. */
   unit: string | null;
   variable: ExternalVariable | DataSeriesVariable;
+  /** The series' values when known at resolve time (the variable still reads them from the source) */
+  dateValues?: DateValues;
+};
+
+/**
+ * Everything the goal creation form is started with from a link (see
+ * `getGoalPrefill`): a series for the historical section, the series the
+ * suggested methods scale, and, when a goal is being copied, its fields and a
+ * national reference for scaling it down to the org's area.
+ */
+export type GoalPrefill = {
+  /** Seeds the historical section (a copied goal's local statistic); absent when a goal is copied as is */
+  historical?: PrefilledSeries;
+  /** What the suggested methods scale: the historical series itself, or a copied goal's data series */
+  parent: PrefilledSeries;
+  /** Methods stored on the copied goal (`Goals.recipe_suggestions`), serialized; shown instead of the defaults */
+  storedSuggestions?: SerializedRecipe[];
+  /** The goal being copied, if any: its fields seed the form */
+  copy?: {
+    name: string | null;
+    description: string | null;
+    indicatorParameter: string;
+  };
+  /** The copied goal's roadmap area, the "from" side of an area-ratio scaling */
+  sourceGeoArea?: GeoAreaRef;
+  /**
+   * For a copied goal the curated catalog can measure locally: the local
+   * statistic per geo area code of the roadmaps the user can copy into, so the
+   * form can switch history and scaling to the target roadmap's area
+   */
+  byArea?: Record<string, { historical: PrefilledSeries, localReference: NonNullable<GoalPrefill["localReference"]> }>;
+  /**
+   * The local statistic a copied goal's trajectory is scaled to:
+   * `local(latest) * goal / goal(year)`, the two joined at the year of the
+   * local series' latest value, so the copy follows the goal's development
+   * from the local level and is in the statistic's own unit (the goal's unit
+   * cancels out, which sidesteps mislabeled units)
+   */
+  localReference?: {
+    series: PrefilledSeries;
+    /** The year of the series' latest value */
+    year: number;
+    /** The copied goal's value that year (or the nearest year it has) */
+    goalValue: number;
+  };
 };

@@ -98,12 +98,15 @@ export function DataSeriesVariableEditor({
   availableDataSeries = [],
   dataSeriesNamesById = {},
   roadmapLookup = {},
+  loading = false,
 }: {
   variableId: string;
   permissions?: RecipeEditorPermissions;
   availableDataSeries?: AvailableDataSeries;
   dataSeriesNamesById?: Record<string, string>;
   roadmapLookup?: Record<string, ClientRoadmapIteration>;
+  /** The roadmap data behind the tree is still being fetched */
+  loading?: boolean;
 }) {
   const { t } = useTranslation("components");
   const { recipe, upsertVariable, getVariable } = useRecipe();
@@ -153,6 +156,7 @@ export function DataSeriesVariableEditor({
           }}
           defaultValue={defaultTreeValue}
           treeItems={treeItems}
+          loading={loading}
           onChange={handleDataSeriesChange}
         />
       </div>
@@ -172,12 +176,15 @@ export function DataSeriesVariableSimpleEditor({
   permissions: incomingPermissions,
   dataSeriesNamesById = {},
   roadmapLookup = {},
+  loading = false,
 }: {
   variableId: string;
   availableDataSeries?: AvailableRoadmapOption[];
   permissions?: RecipeEditorPermissions;
   dataSeriesNamesById?: Record<string, string>;
   roadmapLookup?: Record<string, ClientRoadmapIteration>;
+  /** The roadmap data behind the tree is still being fetched */
+  loading?: boolean;
 }) {
   const { t } = useTranslation("components");
   const { recipe, upsertVariable, getVariable } = useRecipe();
@@ -218,6 +225,7 @@ export function DataSeriesVariableSimpleEditor({
       }}
       defaultValue={defaultTreeValue}
       treeItems={treeItems}
+      loading={loading}
       onChange={handleDataSeriesChange}
     />
   );

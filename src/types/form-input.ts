@@ -241,6 +241,12 @@ export type ActionInput = {
   /** Action to inherit from, if any */
   parentActionId: string | null | undefined;
 
+  /**
+   * The action this one is a copy of (another org's original). `null` unlinks,
+   * `undefined` leaves the link unchanged. Must be visible to the user.
+   */
+  originActionId: string | null | undefined;
+
   dataSeries: DateValuesWithUnit | undefined;
   impactType: ActionImpactType | undefined;
 

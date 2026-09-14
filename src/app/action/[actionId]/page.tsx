@@ -11,6 +11,7 @@ import { AccessLevel } from "@/types/enums";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import Comments from "@/components/comments/comments";
 import EffectTable from "@/components/tables/effects";
+import ActionNeighbours from "@/components/actions/actionNeighbours";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
@@ -130,6 +131,8 @@ export default async function Page(props: { params: Promise<{ actionId: string }
             </div>
           ))}
         </section>
+
+        <ActionNeighbours action={action} />
 
         <section className="margin-block-300">
           <h2 className="margin-block-100 padding-bottom-50" style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:action.effects_label")}</h2>

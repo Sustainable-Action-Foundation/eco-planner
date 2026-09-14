@@ -1,4 +1,4 @@
-import type { DataSeries, DateValues, DateValuesWithUnit, Goal, ISOIshDate, Mask, MaskedVector, Unit } from "@/types";
+import type { DataSeries, DateValues, DateValuesWithUnit, Goal, ISOIshDate, Unit } from "@/types";
 import { UnitFlags } from "@/types/enums";
 import { isISOIshDate } from "@/types/typeguards";
 import { isUnitFlag, parseUnit } from "@/functions/unit";
@@ -124,95 +124,50 @@ export function pickDateValues(
   throw new RecipeError(`pickDateValues: Unknown VectorIndexPickerOption '${(pick as string | number).toString()}'.`);
 }
 
-export function transformDateValuesToVector(
-  dateValues: DateValuesWithUnit,
-  commonStartDate: Date,
-  maxTimeSpan: number,
-): MaskedVector {
-
-  const { dateValues: timeline, unit } = dateValues;
-
-  const vector: MathJSUnit[] = [];
-  const mask: Record<string, boolean> = {};
-
-  for (let i = 0; i < maxTimeSpan; i++) {
-    const currentYear = commonStartDate.getUTCFullYear() + i;
-
-    const isoYearString = new Date(`${currentYear}-01-01T00:00:00Z`).toISOString();
-    if (!isISOIshDate(isoYearString)) {
-      throw new RecipeError(`VectorConvert: Generated invalid ISO date string '${isoYearString}'.`);
-    }
-
-    if (isoYearString in timeline) {
-      const value = timeline[isoYearString];
-      vector.push(
-        isUnitFlag(unit)
-          ? mathjs.unit(value)
-          : mathjs.unit(value, unit),
-      );
-      mask[isoYearString] = false; // Defined value
-    }
-    else {
-      vector.push(
-        isUnitFlag(unit)
-          ? mathjs.unit(0)
-          : mathjs.unit(0, unit),
-      );
-      mask[isoYearString] = true; // Masked, non defined value
-    }
+/** The ISO date the evaluator keys a year's value by. */
+export function isoYearDate(year: number): ISOIshDate {
+  const isoYearString = new Date(`${year}-01-01T00:00:00Z`).toISOString();
+  if (!isISOIshDate(isoYearString)) {
+    throw new RecipeError(`VectorConvert: Generated invalid ISO date string '${isoYearString}'.`);
   }
-
-  return { vector, mask };
+  return isoYearString;
 }
 
-/** 
- * Example of input -> parsed output
- * 
- * | i  | Value | Mask   | Date (defined value)  |
- * |----|-------|--------|-----------------------|
- * |  0 |     0 |  true  |  2021 (first in mask) |
- * |  1 |     0 |  true  |  2022                 |
- * |  2 |     0 |  false |  2023: 0              |
- * |  3 |     0 |  false |  2024: 0              |
- * |  4 |     1 |  false |  2025: 1              |
- * |  5 |     2 |  false |  2026: 2              |
- * |  6 |     0 |  true  |  2027                 |
- * |  7 |     3 |  false |  2028: 3              |
- * |  8 |     4 |  false |  2029: 4              |
- * |  9 |     5 |  false |  2030: 5              |
- * | 10 |     0 |  true  |  2031                 |
- * | 11 |     0 |  true  |  2032                 |
- * | 12 |     0 |  true  |  2033                 |
- * | 13 |     6 |  false |  2034: 6              |
- * | 14 |     0 |  true  |  2035                 |
- * | 15 |     0 |  true  |  2036                 |
- * | 16 |     0 |  true  |  2037                 |
- * | 17 |     0 |  true  |  2038                 |
- * | 18 |     0 |  true  |  2039                 |
+/**
+ * The series as a vector with one entry per year of `axis`. Years the series
+ * has no value for are NaN: arithmetic carries a NaN along, so a year that any
+ * elementwise operand lacks is left out of the result (see
+ * `parseDateValuesFromVector`), while functions over the whole series
+ * (`firstNonZero`, `trend`) skip them and may fill them in.
+ */
+export function transformDateValuesToVector(
+  dateValues: DateValuesWithUnit,
+  axis: number[],
+): MathJSUnit[] {
+  const { dateValues: timeline, unit } = dateValues;
+  return axis.map(year => {
+    const value = timeline[isoYearDate(year)] ?? NaN;
+    return isUnitFlag(unit) ? mathjs.unit(value) : mathjs.unit(value, unit);
+  });
+}
+
+/**
+ * Reads a result vector back into date values, one entry per year of `axis`;
+ * NaN entries are years without a value.
  */
 export function parseDateValuesFromVector(
-  maskedVector: MaskedVector,
+  vector: MathJSUnit[],
+  axis: number[],
 ): DateValuesWithUnit {
-
-  const { vector, mask } = maskedVector;
-
-  if (vector.length !== Object.keys(mask).length) {
-    throw new RecipeError("VectorConvert: Vector length does not match mask length.");
+  if (vector.length !== axis.length) {
+    throw new RecipeError("VectorConvert: Vector length does not match the year axis.");
   }
 
   const timeline: DateValues = {};
-
-  const keys = Object.keys(mask).sort();
-  if (!keys.every(key => isISOIshDate(key))) {
-    throw new RecipeError("VectorConvert: Mask contains invalid ISO date strings.");
-  }
-
   for (let i = 0; i < vector.length; i++) {
-    const dateKey = keys[i];
-    if (mask[dateKey]) continue; // Skip masked, non defined, values
     const value = vector[i].toNumber();
-    if (Number.isNaN(value)) continue; // An equation's way of leaving a year out (see `reachBy`)
-    timeline[dateKey] = value;
+    if (Number.isNaN(value)) continue;
+    timeline[isoYearDate(axis[i])] = value;
   }
 
   // If all values agree on one unit, that's the resulting unit; an empty
@@ -274,18 +229,6 @@ export function isMathjsUnit(unit: Unit): boolean {
   catch {
     return false;
   }
-}
-
-export function ANDMasks(masks: Mask[]): Mask {
-  const isoDates = [...new Set(masks.flatMap(mask => Object.keys(mask)))];
-  if (!isoDates.every(key => isISOIshDate(key))) {
-    throw new RecipeError("MaskCombine: Masks contain invalid ISOIshDate keys.");
-  }
-  const combinedMask: Mask = {};
-  for (const isoDate of isoDates) {
-    combinedMask[isoDate] = masks.some(mask => mask[isoDate] === true);
-  }
-  return combinedMask;
 }
 
 export function dataSeriesToDateValues(dataSeries: DataSeries | Goal["data_series"]): DateValuesWithUnit {

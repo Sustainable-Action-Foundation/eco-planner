@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { useRecipe } from "../context/recipeContext.use";
+import { RecipeDataTypes } from "@/functions/recipe/types/enums";
 import { Recipe } from "@/functions/recipe/recipe";
 import { isDataSetKeys } from "@/lib/api/utility";
 import ExternalData from "@/components/form/api/externalData";
@@ -38,13 +39,27 @@ export function ExternalDataSeriesInput() {
     if (!data?.table || !data.tableContent || !data.selection || !isDataSetKeys(data.dataSource)) return;
     const { table, dataSource, selection } = data;
 
-    void applyRecipeUpdate(() => Recipe.fromExternalSource({
-      name: table.label || dataSource,
-      dataset: dataSource,
-      tableId: table.tableId,
-      selection,
-      variableId: variableIdRef.current,
-    }));
+    void applyRecipeUpdate((current) => {
+      const next = Recipe.fromExternalSource({
+        name: table.label || dataSource,
+        dataset: dataSource,
+        tableId: table.tableId,
+        selection,
+        variableId: variableIdRef.current,
+      });
+
+      // A unit can't be read from the source (see the extractor), so one declared
+      // on the current recipe (a catalog prefill, a saved recipe) survives as
+      // long as the selection stays within the same table; the panel pushes the
+      // initial selection again once it has loaded, which must not drop it
+      const currentVariable = current.variables.find(variable => variable.id === variableIdRef.current);
+      const sameTable = currentVariable?.type === RecipeDataTypes.External && currentVariable.dataset === dataSource && currentVariable.tableId === table.tableId;
+      if (sameTable) {
+        next.variables = [{ ...next.variables[0], unit: currentVariable.unit }];
+        next.unit = current.unit;
+      }
+      return next;
+    });
   }, [applyRecipeUpdate]);
 
   return (

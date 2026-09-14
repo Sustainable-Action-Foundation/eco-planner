@@ -29,6 +29,8 @@ export default async function CuratedHistoricalData({
     [CuratedHistoricalCategory.WindPower]: t("pages:home.curated_historical.category_wind_power"),
     [CuratedHistoricalCategory.SolarPower]: t("pages:home.curated_historical.category_solar_power"),
     [CuratedHistoricalCategory.Vehicles]: t("pages:home.curated_historical.category_vehicles"),
+    [CuratedHistoricalCategory.HydroPower]: t("pages:home.curated_historical.category_hydro_power"),
+    [CuratedHistoricalCategory.DistrictHeating]: t("pages:home.curated_historical.category_district_heating"),
   };
 
   const categories = Object.values(CuratedHistoricalCategory)

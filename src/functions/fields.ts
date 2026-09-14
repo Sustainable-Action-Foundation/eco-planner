@@ -105,3 +105,16 @@ export function actionFieldLabel(header: string, t: TFunction): string {
   const key = headerLabelKeys(t)[header];
   return key ? t(key) : header;
 }
+
+/**
+ * Whether two actions' content (name, years and descriptive fields, in order) differ.
+ * Used to flag a copy that has drifted from its origin; tags count as content too.
+ */
+export function actionContentDiffers(
+  a: { name: string, start_year: number | null, end_year: number | null, fields: { header: string, value: string }[] },
+  b: { name: string, start_year: number | null, end_year: number | null, fields: { header: string, value: string }[] },
+): boolean {
+  if (a.name !== b.name || a.start_year !== b.start_year || a.end_year !== b.end_year) return true;
+  if (a.fields.length !== b.fields.length) return true;
+  return a.fields.some((field, index) => field.header !== b.fields[index].header || field.value !== b.fields[index].value);
+}

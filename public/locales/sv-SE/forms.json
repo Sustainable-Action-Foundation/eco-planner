@@ -60,7 +60,12 @@
       "short": "Kort text"
     },
     "field_placeholder_paragraph": "Längre text...",
-    "field_placeholder_short": "Kortare text..."
+    "field_placeholder_short": "Kortare text...",
+    "origin_legend": "Original",
+    "origin_description": "Är åtgärden en kopia av en annan organisations åtgärd, till exempel kommunens? Koppla den till originalet så hittar kopiorna varandra och kan synkas.",
+    "origin_label": "Originalåtgärd",
+    "origin_placeholder": "Välj original (valfritt)",
+    "origin_unlink": "Ta bort kopplingen till originalet"
   },
   "combobox": {
     "default_autocomplete_placeholder": "Skriv för att se förslag",
@@ -69,7 +74,8 @@
     "select_multiple_options": "Välj ett eller flera alternativ",
     "select_or_leave": "Välj eller lämna blankt",
     "select_single_option": "Välj ett alternativ",
-    "show_suggestions": "Visa förslag"
+    "show_suggestions": "Visa förslag",
+    "loading": "Laddar …"
   },
   "data_series_input": {
     "action": "Åtgärd",

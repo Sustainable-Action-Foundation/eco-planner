@@ -1,3 +1,4 @@
+import { goalDisplayName } from "@/functions/goalName";
 import { goalSorterTree } from "@/lib/sorters";
 import type { GoalTree, GoalTreeEntry } from "@/types";
 import type { TFunction } from "i18next";
@@ -29,7 +30,7 @@ export default function goalsToTree(goals: Array<GoalTreeEntry | null>, t: TFunc
     // Includes a zero width non-joiner to decrease risk of colliding with user input
     // Otherwise, a param subsection could theoretically collide with a goal name/parameter and prevent the rendering of either the goal link or the param subsection <details> element
     // Example: Nameless goal with parameter "test" and unit "kg" would collide with a goal with parameter "test (kg)\\whatever"
-    const indicatorName = goal.name ?? goal.indicator_parameter.split('\\').at(-1);
+    const indicatorName = goalDisplayName(goal);
     const unit = goal.data_series?.unit === null
       ? t("common:tsx.unitless")
       : goal.data_series?.unit ?? t("common:tsx.unit_missing");

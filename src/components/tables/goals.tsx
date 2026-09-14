@@ -18,9 +18,12 @@ import { IconSearch } from '@tabler/icons-react';
 export default function Goals({
   iteration,
   accessLevel,
+  localizableIndicators,
 }: {
   iteration: NonNullable<Awaited<ReturnType<typeof getOneRoadmapIteration>>>,
-  accessLevel?: AccessLevel
+  accessLevel?: AccessLevel,
+  /** Indicator parameters the curated catalog can measure locally (a national roadmap's goals that can be taken into a local one); enables the filter */
+  localizableIndicators?: string[],
 }) {
   const { t } = useTranslation("components");
 
@@ -28,6 +31,8 @@ export default function Goals({
   const [sortBy, setSortBy] = useState<GoalSortBy>(getStoredGoalSortBy() || GoalSortBy.Default);
   const [searchFilter, setSearchFilter] = useState<string>('');
   const [recipeOnly, setRecipeOnly] = useState<boolean>(false);
+  const [localizableOnly, setLocalizableOnly] = useState<boolean>(false);
+  const localizable = new Set(localizableIndicators ?? []);
   const [showUnlisted, setShowUnlisted] = useState<boolean>(false);
 
   // Unlisted goals are hidden from the regular list; users with edit access get
@@ -52,6 +57,13 @@ export default function Goals({
           return true;
         }
       }),
+    };
+  }
+
+  if (localizableOnly) {
+    filteredIteration = {
+      ...filteredIteration,
+      goals: filteredIteration.goals.filter(goal => localizable.has(goal.indicator_parameter)),
     };
   }
 
@@ -106,6 +118,12 @@ export default function Goals({
           {t("components:goals.recipe_only_filter")}
           <input checked={recipeOnly} onChange={() => setRecipeOnly(!recipeOnly)} type='checkbox' />
         </label>
+        {localizable.size > 0 ?
+          <label className='flex align-items-center gap-50'>
+            {t("components:goals.localizable_only_filter")}
+            <input checked={localizableOnly} onChange={() => setLocalizableOnly(!localizableOnly)} type='checkbox' />
+          </label>
+          : null}
         {viewMode === ViewMode.Table && (
           <label className="font-weight-bold">
             {t("components:goals.sort_by")}

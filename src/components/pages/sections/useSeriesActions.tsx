@@ -55,7 +55,7 @@ export default function UseSeriesActions({
         </fieldset>
         : null}
 
-      <Link className="button round color-purewhite pureblack font-weight-500 display-inline-flex align-items-center gap-50" href={`/goal/create?org=${org}&series=${ref}`}>
+      <Link className="button round color-purewhite seagreen font-weight-500 display-inline-flex align-items-center gap-50" href={`/goal/create?org=${org}&series=${ref}`}>
         {t("pages:org_historical_data.new_goal")}
         <IconArrowRight aria-hidden="true" width={18} height={18} style={{ minWidth: '18px' }} />
       </Link>

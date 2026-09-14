@@ -8,7 +8,15 @@
     "expected_effect": "Expected $t(common:effect_other)",
     "no_category": "No specified category",
     "no_effect": "No specified $t(common:effect_other)",
-    "shared_database_note": "Part of the shared action database: visible to everyone, edited by the owning organization's managers."
+    "shared_database_note": "Part of the shared action database: visible to everyone, edited by the owning organization's managers.",
+    "neighbours_label": "Neighbouring actions",
+    "neighbours_copy_description": "This action is a copy of {{origin}}'s original. The original and other organizations' copies of the same action are listed here.",
+    "neighbours_origin_description_one": "{{count}} organization has a copy of this action.",
+    "neighbours_origin_description_other": "{{count}} organizations have copies of this action.",
+    "neighbours_self_differs": "This copy differs from the original.",
+    "neighbour_origin_badge": "Original",
+    "neighbour_differs": "Differs",
+    "visit_neighbour": "View action"
   },
   "action_create": {
     "bad_goal": "Could not find or do not have access to the $t(common:goal_one) in the link.",
@@ -38,7 +46,10 @@
     "show_fewer": "Show fewer",
     "shown_results": "Showing $t(common:count.action)",
     "title": "Title",
-    "visit_action": "Visit $t(common:action_definite_one)"
+    "visit_action": "Visit $t(common:action_definite_one)",
+    "neighbour_badge_one": "+{{count}} organization",
+    "neighbour_badge_other": "+{{count}} organizations",
+    "neighbour_badge_title": "The same action exists at other organizations"
   },
   "common": {
     "external_resources": "External resources"
@@ -68,7 +79,17 @@
     "sub_goals": "Sub-$t(common:goal_other)",
     "title_label": "$t(common:goal_one, titleCase)",
     "update_needed": "Update your $t(common:goal_one) to get the latest information.",
-    "update_needed_attention_message": "Attention!"
+    "update_needed_attention_message": "Attention!",
+    "use_locally": {
+      "description": "The goal can be followed up with local statistics ({{series}}). A copy starts from the local data and follows the national goal's development; everything can be adjusted before saving.",
+      "heading": "Use in a local roadmap",
+      "link": "Use in roadmap",
+      "link_org": "Use in roadmap ({{org}})"
+    },
+    "use_in_roadmap": {
+      "description": "Start a new goal in one of the organization's roadmaps from this one: it becomes the starting point the suggested methods scale, and the name, description and indicator parameter come along. Everything can be adjusted before saving.",
+      "heading": "Use in a roadmap"
+    }
   },
   "goal_create": {
     "bad_prefill": "Could not find the data in the link, so the form starts out empty.",
@@ -76,7 +97,9 @@
     "breadcrumb": "$t(common:new.goal)",
     "information_icon_aria": "Information",
     "prefilled": "The form starts out from {{name}}: as the goal's historical data, and as the series the suggested methods scale. Everything can still be changed before saving.",
-    "title": "$t(common:new.goal)"
+    "title": "$t(common:new.goal)",
+    "prefilled_copy": "The form starts out from the national goal {{goal}}: the copy follows its development from the latest local value of {{series}}, which also becomes the goal's historical data. Everything can still be changed before saving.",
+    "prefilled_goal": "The form starts out from the goal {{goal}}: it is the starting point the suggested methods scale, and its details are filled in. Everything can still be changed before saving."
   },
   "goal_edit": {
     "breadcrumb": "$t(common:edit.goal)",
@@ -103,10 +126,14 @@
     "curated_historical": {
       "cars_by_fuel_description": "Number of registered passenger cars in traffic at the end of each year, by fuel type.",
       "cars_by_fuel_name": "Passenger cars in traffic by fuel",
+      "category_district_heating": "District heating",
+      "category_hydro_power": "Hydro power",
       "category_solar_power": "Solar power",
       "category_vehicles": "Vehicles",
       "category_wind_power": "Wind power",
-      "description": "Statistics selected for following the energy and transport transition in your area, fetched directly from the Swedish Energy Agency and Transport Analysis.",
+      "description": "Selected statistics for following the energy and transport transition in the area, fetched directly from the Swedish Energy Agency and Transport Analysis.",
+      "district_heating_production_description": "Annual district heating production in megawatt hours, all production types, from SCB's municipal energy statistics.",
+      "district_heating_production_name": "District heating production",
       "fuel_diesel": "Diesel",
       "fuel_electric": "Electric",
       "fuel_ethanol": "Ethanol",
@@ -115,6 +142,10 @@
       "fuel_other": "Other",
       "fuel_petrol": "Petrol",
       "fuel_plugin_hybrid": "Plug-in hybrid",
+      "hydro_production_description": "Annual electricity production from hydro power in megawatt hours, from SCB's municipal energy statistics.",
+      "hydro_production_name": "Hydro power production",
+      "light_trucks_by_fuel_description": "Registered light trucks (up to 3 500 kg) in traffic at year end, by fuel.",
+      "light_trucks_by_fuel_name": "Light trucks in traffic by fuel",
       "open": "Show and use",
       "solar_capacity_description": "Installed capacity of grid-connected photovoltaic installations at the end of each year, in megawatts, all size classes.",
       "solar_capacity_name": "Installed solar power capacity",
@@ -134,7 +165,24 @@
     "public_tab": "All public $t(common:roadmap_other)",
     "search_roadmaps": "Search among $t(common:count.roadmap)",
     "shown_results": "Showing {{shown}} out of {{total}} $t(common:roadmap, {\"count\": {{total}}})",
-    "title": "$t(common:roadmap_other, titleCase)"
+    "title": "$t(common:roadmap_other, titleCase)",
+    "national_goals": {
+      "copy": "Use in roadmap",
+      "copy_all": "Use all {{count}} in roadmap",
+      "copy_all_done": "{{created}} goals copied, {{skipped}} already existed.",
+      "copy_all_failed": "Could not copy: {{names}}",
+      "copy_all_progress": "Copying {{done}} of {{total}} …",
+      "copy_all_target": "To roadmap version",
+      "create_roadmap": "Create a roadmap first.",
+      "description": "Goals in the national scenarios that can be followed up with statistics for the area. A copy starts from the local data and follows the national goal's development, with the data as its historical data. Everything can be adjusted before saving.",
+      "latest_value": "Latest {{value}} {{unit}} ({{year}}).",
+      "local_history": "{{area}} so far",
+      "local_projection": "{{area}} as a copy",
+      "local_series": "Local data: {{series}} for {{area}}.",
+      "national_goal": "National goal",
+      "no_roadmap": "Copies go into one of the organization's roadmaps, and there is none yet.",
+      "title": "National goals to copy to {{area}}"
+    }
   },
   "info": {
     "breadcrumb": "Information",
@@ -268,7 +316,7 @@
     "new_goal_description": "Opens the goal form with the series filled in.",
     "series_legend": "Series",
     "subtitle": "Historical data for {{area}}",
-    "use_description": "Start a new goal in one of your roadmaps from this series. It becomes the goal's historical data and the starting point for the goal's own values; the selection and everything else can be adjusted before saving.",
+    "use_description": "Start a new goal in one of the organization's roadmaps from this series. It becomes the goal's historical data and the starting point for the goal's own values; the selection and everything else can be adjusted before saving.",
     "use_heading": "Use this data",
     "values": "Values"
   }

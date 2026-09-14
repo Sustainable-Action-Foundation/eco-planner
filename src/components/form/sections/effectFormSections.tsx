@@ -122,7 +122,7 @@ export function GoalSelector({
             <option value="" disabled={true}>{t("forms:effect.select_goal")}</option>
             {roadmapData?.goals.map(goalOption => (
               <option key={`goal-selector${goalOption.id}`} value={goalOption.id} disabled={!!goal && goalOption.id !== goal.id}>
-                {`${goalOption.name ?? t("forms:effect.unnamed_goal")}: ${goalOption.indicator_parameter} (${goalOption.data_series?.unit === null ? t("common:tsx.unitless") : goalOption.data_series?.unit || t("common:tsx.unit_missing")})`}
+                {`${goalOption.name || t("forms:effect.unnamed_goal")}: ${goalOption.indicator_parameter} (${goalOption.data_series?.unit === null ? t("common:tsx.unitless") : goalOption.data_series?.unit || t("common:tsx.unit_missing")})`}
               </option>
             ))}
           </select>

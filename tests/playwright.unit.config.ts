@@ -78,6 +78,30 @@ export default defineConfig({
       use: {},
     },
     {
+      name: "LEAP scaling unit tests",
+      testMatch: ["unit/leap-scaling.test.ts"],
+      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
+      use: {},
+    },
+    {
+      name: "Suggested recipes unit tests",
+      testMatch: ["unit/suggested-recipes.test.ts"],
+      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
+      use: {},
+    },
+    {
+      name: "Local scale unit tests",
+      testMatch: ["unit/local-scale.test.ts"],
+      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
+      use: {},
+    },
+    {
+      name: "Goal name unit tests",
+      testMatch: ["unit/goal-name.test.ts"],
+      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
+      use: {},
+    },
+    {
       name: "PxWeb table list unit tests",
       testMatch: ["unit/px-web-tables.test.ts"],
       retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
@@ -92,6 +116,12 @@ export default defineConfig({
     {
       name: "Listing unit tests",
       testMatch: ["unit/listing.test.ts"],
+      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
+      use: {},
+    },
+    {
+      name: "Action origins unit tests",
+      testMatch: ["unit/action-origins.test.ts"],
       retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
       use: {},
     },

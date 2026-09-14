@@ -30,8 +30,6 @@
   },
   "copy_and_scale": {
     "add_variable": "Add variable",
-    "copy_and_scale": "Copy and scale",
-    "create_scaled_copy": "Create scaled copy",
     "custom_recipe": "Custom formula",
     "custom_recipe_placeholder": "e.g. (${var1} + ${var2}) / 2",
     "data_series_value": "Value",
@@ -41,11 +39,7 @@
     "recipe_label": "Formula: ",
     "recipe_variables": "Formula variables",
     "resulting_data_series": "Resulting data series",
-    "select_roadmap_version": "In which $t(common:roadmap_version_one) do you want to place the scaled $t(common:goal_one)?",
-    "select_roadmap_version_option": "Select $t(common:roadmap_version_one)",
-    "title": "Copy and scale $t(common:goal_one) {{goalName}}",
-    "unnamed_suggestion": "Unnamed suggestion",
-    "version": "version"
+    "unnamed_suggestion": "Unnamed suggestion"
   },
   "draggable": {
     "drag_to_snap": "Drag over to snap back",
@@ -67,6 +61,7 @@
   "goals": {
     "listed_tab": "$t(common:goal_other, titleCase) ({{count}})",
     "loading_alt": "Loading",
+    "localizable_only_filter": "Only show $t(common:goal_other) usable locally",
     "new_goal": "New $t(common:goal_one)",
     "recipe_only_filter": "Only show $t(common:goal_other) with formulas",
     "search": "Search $t(common:goal_other)",
@@ -176,6 +171,7 @@
     "add_new_recipe": "Add new formula",
     "apply_paramater_question": "Use the same indicator parameter as the parent goal?",
     "apply_parameter": "Use <strong>{{indicator}}</strong> as indicator parameter",
+    "current_method_option": "{{name}} (current)",
     "parameter_applied": "The indicator parameter is <strong>{{indicator}}</strong>",
     "apply_unit": "Copy resulting unit to form",
     "cancel_editing_recipe": "Cancel",
@@ -241,6 +237,11 @@
       "name": "Sum of two data series (A + B)",
       "second": "Data series B"
     },
+    "default_trend_recipe": {
+      "end_year": "End year",
+      "name": "Continue the trend",
+      "parent_value": "Parent"
+    },
     "delete_variable": "Delete variable:",
     "edit_variable": "Edit variable",
     "editing_recipe_named": "Editing formula {{name}}",
@@ -294,7 +295,44 @@
     "this_data_series": "This data series",
     "delete_recipe": "Delete formula",
     "edit_recipe": "Edit formula",
-    "evaluation_warning_title": "Warnings"
+    "evaluation_warning_title": "Warnings",
+    "default_local_scale_recipe": {
+      "goal": "National goal: {{name}}",
+      "goal_in_year": "National goal {{year}}: {{name}}",
+      "local": "Local {{year}}: {{name}}",
+      "name": "Follow the national goal's development from the local value"
+    },
+    "leap_scaling": {
+      "consumption_based": "(consumption-based)",
+      "copy_name": "Copy unchanged (intensity, share or national parameter)",
+      "denominators": {
+        "BUSES": "buses in traffic",
+        "DISTRICT_HEATING_FUEL_CLASS": "district heating fuel input, same fuel class",
+        "DISTRICT_HEATING_PRODUCTION": "district heating production",
+        "DWELLING_AREA": "dwelling area per person",
+        "ELECTRICITY_FUEL_CLASS": "electricity fuel input, same fuel class",
+        "ELECTRICITY_PRODUCTION": "electricity production of the same kind",
+        "ENERGY_USE_AGRICULTURE_FORESTRY": "energy use in agriculture and forestry",
+        "ENERGY_USE_FUEL_CLASS": "energy use in the sector, same fuel class",
+        "ENERGY_USE_HOUSEHOLDS": "household energy use",
+        "ENERGY_USE_INDUSTRY_CONSTRUCTION": "energy use in industry and construction",
+        "ENERGY_USE_SERVICES": "energy use in services",
+        "HEAVY_TRUCKS": "heavy trucks in traffic",
+        "LIGHT_TRUCKS": "light trucks in traffic",
+        "PASSENGER_CARS": "passenger cars in traffic",
+        "POPULATION": "population",
+        "POPULATION_FORECAST": "population forecast"
+      },
+      "factor": "Factor",
+      "local": "{{area}}: {{what}}",
+      "national": "Sweden: {{what}}",
+      "national_goal": "National goal",
+      "population_latest_name": "Scale by population (latest value)",
+      "population_yearly_name": "Scale by population forecast, per year",
+      "ratio_latest_name": "Scale by {{what}} (latest value)",
+      "ratio_yearly_name": "Scale by {{what}}, per year",
+      "zero_name": "Set to zero (no such plant locally)"
+    }
   },
   "roadmap_filters": {
     "default": "Default",

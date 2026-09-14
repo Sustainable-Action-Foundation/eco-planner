@@ -19,6 +19,8 @@ import {
   storedSeriesForGraph,
   useInitializedValues,
 } from "./goalSections";
+import { getHistoricalDataset } from "@/functions/getHistoricalDataset";
+import HistoricalFootnote from "@/components/graph/historicalFootnote";
 
 /**
  * Edits only the baseline of an existing goal: the goal form's baseline section
@@ -130,12 +132,13 @@ export default function BaselineForm({
           <GoalGraph
             chartType="preview"
             series={{
-              main: storedSeriesForGraph(goal.data_series, goal.name ?? t("common:goal_one")),
+              main: storedSeriesForGraph(goal.data_series, goal.name || t("common:goal_one")),
               baseline: previewBaselineSerie?.dateValues ? { ...previewBaselineSerie, name: t("graphs:common.baseline_scenario") } : undefined,
               historical: storedHistoricalForGraph(goal, t),
             }}
           />
         </output>
+        <HistoricalFootnote source={getHistoricalDataset(goal)} className="font-size-14px text-align-center margin-block-50" />
       </div>
 
       <div className="margin-top-400 padding-top-100 margin-bottom-100 min-width-0" style={{ borderTop: "1px solid var(--gray-80)" }}>

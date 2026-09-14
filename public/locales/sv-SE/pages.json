@@ -8,7 +8,15 @@
     "expected_effect": "Förväntad $t(common:effect_one)",
     "no_category": "Ingen angiven kategori",
     "no_effect": "Ingen angiven $t(common:effect_one)",
-    "shared_database_note": "Ingår i den gemensamma åtgärdsdatabasen: synlig för alla, redigeras av den ägande organisationens chefer."
+    "shared_database_note": "Ingår i den gemensamma åtgärdsdatabasen: synlig för alla, redigeras av den ägande organisationens chefer.",
+    "neighbours_label": "Grannåtgärder",
+    "neighbours_copy_description": "Den här åtgärden är en kopia av {{origin}}s original. Här listas originalet och andra organisationers kopior av samma åtgärd.",
+    "neighbours_origin_description_one": "{{count}} organisation har en kopia av den här åtgärden.",
+    "neighbours_origin_description_other": "{{count}} organisationer har kopior av den här åtgärden.",
+    "neighbours_self_differs": "Den här kopian skiljer sig från originalet.",
+    "neighbour_origin_badge": "Original",
+    "neighbour_differs": "Skiljer sig",
+    "visit_neighbour": "Visa åtgärd"
   },
   "action_create": {
     "bad_goal": "Kunde inte hitta, eller har inte tillgång till, $t(common:goal_definite_one) i länken.",
@@ -38,7 +46,10 @@
     "show_fewer": "Visa färre",
     "shown_results": "Visar $t(common:count.action)",
     "title": "Titel",
-    "visit_action": "Gå till $t(common:action_definite_one)"
+    "visit_action": "Gå till $t(common:action_definite_one)",
+    "neighbour_badge_one": "+{{count}} organisation",
+    "neighbour_badge_other": "+{{count}} organisationer",
+    "neighbour_badge_title": "Samma åtgärd finns hos fler organisationer"
   },
   "common": {
     "external_resources": "Externa resurser"
@@ -68,7 +79,17 @@
     "sub_goals": "Underliggande $t(common:goal_other)",
     "title_label": "$t(common:goal_one, titleCase)",
     "update_needed": "Uppdatera din $t(common:goal_one) för att få den senaste informationen.",
-    "update_needed_attention_message": "Uppmärksamhet!"
+    "update_needed_attention_message": "Uppmärksamhet!",
+    "use_locally": {
+      "description": "Målbanan går att följa upp med lokal statistik ({{series}}). En kopia utgår från de lokala uppgifterna och följer den nationella målbanans utveckling; allt går att justera innan du sparar.",
+      "heading": "Använd i lokal färdplan",
+      "link": "Använd i färdplan",
+      "link_org": "Använd i färdplan ({{org}})"
+    },
+    "use_in_roadmap": {
+      "description": "Skapa en ny målbana i någon av organisationens färdplaner utifrån den här: den blir utgångspunkten som de föreslagna metoderna skalar, och namn, beskrivning och indikatorparameter följer med. Allt går att justera innan du sparar.",
+      "heading": "Använd i färdplan"
+    }
   },
   "goal_create": {
     "bad_prefill": "Kunde inte hitta uppgifterna i länken, så formuläret börjar tomt.",
@@ -76,7 +97,9 @@
     "breadcrumb": "$t(common:new.goal)",
     "information_icon_aria": "Information",
     "prefilled": "Formuläret utgår från {{name}}: som målbanans historiska data och som den serie de föreslagna metoderna skalar. Allt går fortfarande att ändra innan du sparar.",
-    "title": "$t(common:new.goal)"
+    "title": "$t(common:new.goal)",
+    "prefilled_copy": "Formuläret utgår från den nationella målbanan {{goal}}: kopian följer dess utveckling från det senaste lokala värdet för {{series}}, som också blir målbanans historiska data. Allt går fortfarande att ändra innan du sparar.",
+    "prefilled_goal": "Formuläret utgår från målbanan {{goal}}: den är utgångspunkten som de föreslagna metoderna skalar, och dess uppgifter är ifyllda. Allt går fortfarande att ändra innan du sparar."
   },
   "goal_edit": {
     "breadcrumb": "$t(common:edit.goal)",
@@ -103,10 +126,14 @@
     "curated_historical": {
       "cars_by_fuel_description": "Antal registrerade personbilar i trafik vid årets slut, uppdelat per drivmedel.",
       "cars_by_fuel_name": "Personbilar i trafik per drivmedel",
+      "category_district_heating": "Fjärrvärme",
+      "category_hydro_power": "Vattenkraft",
       "category_solar_power": "Solkraft",
       "category_vehicles": "Fordon",
       "category_wind_power": "Vindkraft",
-      "description": "Utvald statistik för att följa energi- och transportomställningen i ert område, hämtad direkt från Energimyndigheten och Trafikanalys.",
+      "description": "Utvald statistik för att följa energi- och transportomställningen i området, hämtad direkt från Energimyndigheten och Trafikanalys.",
+      "district_heating_production_description": "Årlig fjärrvärmeproduktion i megawattimmar, alla produktionssätt, enligt SCB:s kommunala energistatistik.",
+      "district_heating_production_name": "Fjärrvärmeproduktion",
       "fuel_diesel": "Diesel",
       "fuel_electric": "El",
       "fuel_ethanol": "Etanol",
@@ -115,6 +142,10 @@
       "fuel_other": "Övriga",
       "fuel_petrol": "Bensin",
       "fuel_plugin_hybrid": "Laddhybrid",
+      "hydro_production_description": "Årlig elproduktion från vattenkraft i megawattimmar, enligt SCB:s kommunala energistatistik.",
+      "hydro_production_name": "Vattenkraftproduktion",
+      "light_trucks_by_fuel_description": "Antal registrerade lätta lastbilar (högst 3 500 kg) i trafik vid årets slut, uppdelat per drivmedel.",
+      "light_trucks_by_fuel_name": "Lätta lastbilar i trafik per drivmedel",
       "open": "Visa och använd",
       "solar_capacity_description": "Installerad effekt för nätanslutna solcellsanläggningar vid årets slut, i megawatt, alla effektklasser.",
       "solar_capacity_name": "Installerad solcellseffekt",
@@ -134,7 +165,24 @@
     "public_tab": "Alla publika $t(common:roadmap_other)",
     "search_roadmaps": "Sök bland $t(common:count.roadmap)",
     "shown_results": "Visar {{shown}} av {{total}} $t(common:roadmap, {\"count\": {{total}}})",
-    "title": "$t(common:roadmap_other, titleCase)"
+    "title": "$t(common:roadmap_other, titleCase)",
+    "national_goals": {
+      "copy": "Använd i färdplan",
+      "copy_all": "Använd alla {{count}} i färdplan",
+      "copy_all_done": "{{created}} målbanor kopierade, {{skipped}} fanns redan.",
+      "copy_all_failed": "Kunde inte kopiera: {{names}}",
+      "copy_all_progress": "Kopierar {{done}} av {{total}} …",
+      "copy_all_target": "Till färdplansversion",
+      "create_roadmap": "Skapa en färdplan först.",
+      "description": "Målbanor i de nationella scenarierna som går att följa upp med statistik för området. En kopia utgår från de lokala uppgifterna och följer den nationella målbanans utveckling, med uppgifterna som historisk data. Allt går att justera innan du sparar.",
+      "latest_value": "Senast {{value}} {{unit}} ({{year}}).",
+      "local_history": "{{area}} hittills",
+      "local_projection": "{{area}} som kopia",
+      "local_series": "Lokala uppgifter: {{series}} för {{area}}.",
+      "national_goal": "Nationell målbana",
+      "no_roadmap": "Kopior hamnar i en av organisationens färdplaner, och det finns ingen ännu.",
+      "title": "Nationella målbanor att kopiera till {{area}}"
+    }
   },
   "info": {
     "breadcrumb": "Information",
@@ -268,7 +316,7 @@
     "new_goal_description": "Öppnar målbaneformuläret med serien ifylld.",
     "series_legend": "Serie",
     "subtitle": "Historisk data för {{area}}",
-    "use_description": "Skapa en ny målbana i någon av era färdplaner utifrån den här serien. Den blir målbanans historiska data och utgångspunkten för målbanans egna värden; urvalet och allt annat går att justera innan du sparar.",
+    "use_description": "Skapa en ny målbana i någon av organisationens färdplaner utifrån den här serien. Den blir målbanans historiska data och utgångspunkten för målbanans egna värden; urvalet och allt annat går att justera innan du sparar.",
     "use_heading": "Använd dessa uppgifter",
     "values": "Värden"
   }

@@ -66,6 +66,7 @@ const dataSeriesInclusionSelection = {
 
 /** Full detail view of a top-level roadmap: its iterations, tree relations, comments, and access control. */
 export const roadmapInclusionSelection = {
+  geo_area: { select: { code: true, name: true, type: true } },
   iterations: {
     include: {
       // Displayed counts exclude unlisted goals
@@ -94,6 +95,7 @@ export const roadmapIterationInclusionSelection = {
     include: {
       access_control: { select: accessControlSelection },
       child_roadmaps: { select: { id: true, name: true } },
+      geo_area: { select: { code: true, name: true, type: true } },
     },
   },
   // Displayed counts exclude unlisted goals; the goals list itself carries them
@@ -137,6 +139,7 @@ export const clientSafeRoadmapIterationSelection = {
       type: true,
       actor: true,
       parent_roadmap_id: true,
+      geo_area: { select: { code: true, name: true, type: true } },
       access_control: { select: { sharing: true } },
     },
   },
@@ -257,6 +260,7 @@ export const goalInclusionSelection = {
           id: true,
           name: true,
           parent_roadmap_id: true,
+          geo_area: { select: { code: true, name: true, type: true } },
           access_control: { select: accessControlSelection },
         },
       },
