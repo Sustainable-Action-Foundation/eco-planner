@@ -36,7 +36,10 @@ export function filterTableCatalog(tables: ApiTableListEntry[], filters: TableCa
       // Sub-yearly periods like "2024K2" parse to their year, since parseInt stops at the first non-digit
       const firstYear = parseInt(table.firstPeriod ?? "", 10);
       const lastYear = parseInt(table.lastPeriod ?? "", 10);
-      if (Number.isNaN(firstYear) || Number.isNaN(lastYear) || coverageYear < firstYear || coverageYear > lastYear) return false;
+      // A table without a declared range (Energimyndigheten leaves it out for tables
+      // whose time dimension has no role) has unknown coverage, not none: keep it
+      const known = !Number.isNaN(firstYear) && !Number.isNaN(lastYear);
+      if (known && (coverageYear < firstYear || coverageYear > lastYear)) return false;
     }
     return true;
   });
