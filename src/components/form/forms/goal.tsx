@@ -246,6 +246,13 @@ export default function GoalForm({
       return;
     }
 
+    // A historical selection that was started but never completed would be
+    // dropped silently; say so instead of saving a goal without the history
+    if (historicalDataType !== HistoricalDataType.None && !historicalRecipe) {
+      addToast(t("forms:goal.errors.missing_historical_data"), "error", false);
+      return;
+    }
+
     const listingValue = formData.get(GoalFormName.Listing);
     const listing: GoalListing = isGoalListing(listingValue) ? listingValue : GoalListing.LISTED;
 

@@ -36,7 +36,8 @@ export function metricSelectionHelper({
   if (metricDimension.options) {
     return (
       <label key={`metric-${tableMetadata.tableId}-${metricDimension.id}`}>
-        {metricDimension.label || metricDimension.name}
+        {/* Energimyndigheten labels its contents dimension with an internal name */}
+        {metricDimension.label === "ApiContentsVariableName" ? t("components:query_builder.contents_variable") : (metricDimension.label || metricDimension.name)}
         <select className="block margin-top-25 margin-bottom-100 width-100 metric"
           form={EXTERNAL_SELECTION_DETACHED_FORM}
           required={true}
@@ -97,7 +98,9 @@ export function timeVariableSelectionHelper({
         required={!time.optional}
         name={time.id}
         id={time.id}
-        defaultValue={getInitialSelectionValue(time.id, historicalSelection) ?? (time.options.length === 1 ? time.options[0].value : "")}
+        // A series wants every period: pxWeb tables start from the earliest one
+        // (the query wraps it in FROM(), see formQueryHelper); Trafa's interval is left to pick
+        defaultValue={getInitialSelectionValue(time.id, historicalSelection) ?? (time.options.length === 1 || datasetInfo?.api === "PxWeb" ? time.options[0]?.value ?? "" : "")}
         onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
           tryGetResult(e);
         }}
@@ -156,7 +159,10 @@ export function variableSelectionHelper({
         >
           { // If only one value is available, don't show a placeholder option
             (ExternalDataset.getDatasetByAlternateName(dataSource)?.api !== "PxWeb" ||
-              (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && dimension.options.length > 1)) ? <option value="" className={`font-style-italic color-gray`}>{t("components:query_builder.select_value")}</option> : null
+              (ExternalDataset.getDatasetByAlternateName(dataSource)?.api === "PxWeb" && dimension.options.length > 1))
+              // An optional dimension left blank is eliminated by the source, i.e. summed over
+              ? <option value="" className={`font-style-italic color-gray`}>{dimension.optional ? t("components:query_builder.all_values") : t("components:query_builder.select_value")}</option>
+              : null
           }
           {dimension.options?.map(({ label, value }) => (
             <option key={`${dimension.id}-${value}`} value={value} lang={tableMetadata.language}>{label || value}</option>

@@ -89,9 +89,10 @@ test.describe("filterTableCatalog", () => {
   });
 
   test("coverage year must fall within the table's period range", () => {
-    expect(filterTableCatalog(catalog, { coverageYearFilter: "2012" })).toEqual([biogas]);
-    expect(filterTableCatalog(catalog, { coverageYearFilter: "2020" })).toEqual([solar, biogas, prices]);
-    expect(filterTableCatalog(catalog, { coverageYearFilter: "2025" })).toEqual([]);
+    // Tables without a declared range (grain, trafa) have unknown coverage and stay
+    expect(filterTableCatalog(catalog, { coverageYearFilter: "2012" })).toEqual([biogas, grain, trafa]);
+    expect(filterTableCatalog(catalog, { coverageYearFilter: "2020" })).toEqual([solar, biogas, prices, grain, trafa]);
+    expect(filterTableCatalog(catalog, { coverageYearFilter: "2025" })).toEqual([grain, trafa]);
   });
 
   test("coverage year parses sub-yearly period formats like 2020K1", () => {
@@ -99,8 +100,8 @@ test.describe("filterTableCatalog", () => {
     expect(filterTableCatalog([prices], { coverageYearFilter: "2019" })).toEqual([]);
   });
 
-  test("coverage year excludes tables without period info", () => {
-    expect(filterTableCatalog([grain, trafa], { coverageYearFilter: "2020" })).toEqual([]);
+  test("coverage year keeps tables without period info, whose coverage is unknown rather than none", () => {
+    expect(filterTableCatalog([grain, trafa], { coverageYearFilter: "2020" })).toEqual([grain, trafa]);
   });
 
   test("non-year coverage input is ignored", () => {
@@ -114,7 +115,7 @@ test.describe("filterTableCatalog", () => {
       variableFilters: ["år"],
       timeUnitFilter: "Annual",
       coverageYearFilter: "2016",
-    })).toEqual([solar, biogas]);
+    })).toEqual([solar, biogas, grain]);
   });
 });
 
@@ -156,3 +157,4 @@ test.describe("aggregateTimeUnitFacets", () => {
     expect(aggregateTimeUnitFacets([trafa])).toEqual([]);
   });
 });
+

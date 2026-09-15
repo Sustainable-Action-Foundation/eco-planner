@@ -107,14 +107,24 @@ export function actionFieldLabel(header: string, t: TFunction): string {
 }
 
 /**
- * Whether two actions' content (name, years and descriptive fields, in order) differ.
- * Used to flag a copy that has drifted from its origin; tags count as content too.
+ * Whether a copy's content has drifted from its origin: the name or years differ, or any
+ * descriptive field group present on the copy (values in order) differs from the origin's group
+ * under the same header. Headers only the origin carries (e.g. the responsibles written onto a
+ * municipality's catalogue entry) are extra information there, not drift of the copy.
  */
 export function actionContentDiffers(
-  a: { name: string, start_year: number | null, end_year: number | null, fields: { header: string, value: string }[] },
-  b: { name: string, start_year: number | null, end_year: number | null, fields: { header: string, value: string }[] },
+  copy: { name: string, start_year: number | null, end_year: number | null, fields: { header: string, value: string }[] },
+  origin: { name: string, start_year: number | null, end_year: number | null, fields: { header: string, value: string }[] },
 ): boolean {
-  if (a.name !== b.name || a.start_year !== b.start_year || a.end_year !== b.end_year) return true;
-  if (a.fields.length !== b.fields.length) return true;
-  return a.fields.some((field, index) => field.header !== b.fields[index].header || field.value !== b.fields[index].value);
+  if (copy.name !== origin.name || copy.start_year !== origin.start_year || copy.end_year !== origin.end_year) return true;
+  const valuesByHeader = (fields: { header: string, value: string }[]) => {
+    const groups = new Map<string, string[]>();
+    for (const field of fields) groups.set(field.header, [...(groups.get(field.header) ?? []), field.value]);
+    return groups;
+  };
+  const originGroups = valuesByHeader(origin.fields);
+  return [...valuesByHeader(copy.fields)].some(([header, values]) => {
+    const originValues = originGroups.get(header);
+    return !originValues || originValues.length !== values.length || originValues.some((value, index) => value !== values[index]);
+  });
 }

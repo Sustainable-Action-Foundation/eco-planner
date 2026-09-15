@@ -2,6 +2,7 @@ import { expect, test } from "playwright/test";
 import type { Page } from "playwright/test";
 import path from "node:path";
 import { cwd } from "node:process";
+import { orgLandingHref } from "../lib/org-switcher";
 
 const adminFile = path.join(cwd(), "tests/.auth/admin.json");
 const verifiedFile = path.join(cwd(), "tests/.auth/verified.json");
@@ -13,8 +14,7 @@ const seededGroupName = "Hållbarhetsgruppen";
 /** Opens the management page of the seeded org via its landing page's manager link */
 async function openManagePage(page: Page) {
   await page.goto("/");
-  const orgHref = await page.locator('nav[aria-label*="org_nav_label"]').getByRole("link", { name: orgName }).getAttribute("href");
-  await page.goto(orgHref ?? "/");
+  await page.goto(await orgLandingHref(page, orgName));
   await expect(page.getByTestId("home-title")).toHaveText(orgName);
   // The expect's longer timeout absorbs slow streaming under parallel suite load
   const manageLink = page.getByRole("link", { name: "org_groups.manage_groups" });
@@ -157,13 +157,13 @@ test.describe("Org management access", () => {
 
   test("Regular members get no manage link and no page", async ({ page }) => {
     await page.goto("/");
-    const orgHref = await page.locator('nav[aria-label*="org_nav_label"]').getByRole("link", { name: orgName }).getAttribute("href");
-    await page.goto(orgHref ?? "/");
+    const orgHref = await orgLandingHref(page, orgName);
+    await page.goto(orgHref);
     await expect(page.getByTestId("home-title")).toHaveText(orgName);
     await expect(page.getByRole("link", { name: "org_groups.manage_groups" })).toHaveCount(0);
 
     // The management page itself hides behind a 404 (the org id is in the landing URL)
-    const orgId = new URL(orgHref ?? "", "http://localhost").searchParams.get("org");
+    const orgId = new URL(orgHref, "http://localhost").searchParams.get("org");
     await page.goto(`/org/${orgId}/groups`);
     await expect(page.getByText("404.title")).toBeVisible();
     await expect(page.getByTestId("members-details")).toHaveCount(0);

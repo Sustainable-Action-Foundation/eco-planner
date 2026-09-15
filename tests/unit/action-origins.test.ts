@@ -104,13 +104,17 @@ test.describe("action origin backfill", () => {
 });
 
 test.describe("actionContentDiffers", () => {
-  const base = { name: "A", start_year: 2025, end_year: null, fields: [{ header: "NR", value: "1" }] };
+  const origin = { name: "A", start_year: 2025, end_year: null, fields: [{ header: "NR", value: "1" }, { header: "Ansvariga", value: "KS" }] };
+  const copy = { ...origin, fields: [{ header: "NR", value: "1" }] };
 
-  test("is false for equal content and true for any changed part", () => {
-    expect(actionContentDiffers(base, { ...base, fields: [{ header: "NR", value: "1" }] })).toBe(false);
-    expect(actionContentDiffers(base, { ...base, name: "B" })).toBe(true);
-    expect(actionContentDiffers(base, { ...base, end_year: 2030 })).toBe(true);
-    expect(actionContentDiffers(base, { ...base, fields: [{ header: "NR", value: "2" }] })).toBe(true);
-    expect(actionContentDiffers(base, { ...base, fields: [] })).toBe(true);
+  test("ignores headers only the origin carries, flags any change on the copy", () => {
+    expect(actionContentDiffers(copy, origin)).toBe(false);
+    expect(actionContentDiffers({ ...copy, name: "B" }, origin)).toBe(true);
+    expect(actionContentDiffers({ ...copy, end_year: 2030 }, origin)).toBe(true);
+    expect(actionContentDiffers({ ...copy, fields: [{ header: "NR", value: "2" }] }, origin)).toBe(true);
+    expect(actionContentDiffers({ ...copy, fields: [{ header: "NR", value: "1" }, { header: "NR", value: "1b" }] }, origin)).toBe(true);
+    expect(actionContentDiffers({ ...copy, fields: [{ header: "NR", value: "1" }, { header: "Team", value: "X" }] }, origin)).toBe(true);
+    // A copy that dropped a field is not flagged: only what the copy says is compared
+    expect(actionContentDiffers({ ...copy, fields: [] }, origin)).toBe(false);
   });
 });

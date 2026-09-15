@@ -32,11 +32,24 @@ export function ExternalDataSeriesInput() {
   // identity only changes when the selection actually changes.
   const variableIdRef = useRef<string>(recipe.variables[0]?.id ?? crypto.randomUUID());
 
-  // Push a completed selection into the recipe context. An incomplete or
-  // cleared selection intentionally leaves the recipe untouched: when editing,
-  // the provider is seeded with the saved recipe before anything is picked.
+  // Whether this panel has pushed a complete selection since it mounted
+  const hadSelectionRef = useRef(false);
+
+  // Push a completed selection into the recipe context. An incomplete
+  // selection leaves the recipe untouched while the panel is still loading
+  // (when editing, the provider is seeded with the saved recipe before
+  // anything is picked), but once a complete selection has been pushed, a
+  // cleared one empties the recipe again: otherwise the form would silently
+  // save the previous selection.
   const handleChange = useCallback((data: ExternalDataState) => {
-    if (!data?.table || !data.tableContent || !data.selection || !isDataSetKeys(data.dataSource)) return;
+    if (!data?.table || !data.tableContent || !data.selection || !isDataSetKeys(data.dataSource)) {
+      if (hadSelectionRef.current && data?.tableMetadata) {
+        hadSelectionRef.current = false;
+        void applyRecipeUpdate(() => Recipe.getEmpty());
+      }
+      return;
+    }
+    hadSelectionRef.current = true;
     const { table, dataSource, selection } = data;
 
     void applyRecipeUpdate((current) => {
