@@ -13,6 +13,9 @@ import { GeoAreaType } from "@/lib/prisma/generated";
  * 2. Resident-driven totals scale by population, per year with the forecasts.
  * 3. Sector totals scale by the sector's own local energy use, never by population.
  * 4. Fuel detail inside a known aggregate scales by its class, keeping the national mix.
+ * 5. Shares composed from local tables (a fuel's cars over all cars, a carrier's
+ *    energy over the sector's) scale by the local share over the national share
+ *    of the same composition, so a definitional bias cancels.
  *
  * Rows where the catalog has an exact local series (`getNationalGoalMappings`)
  * get the local-statistic method on top of what the rule here says. Point
@@ -57,7 +60,10 @@ export const DenominatorLabel = {
   LightTrucks: "LIGHT_TRUCKS",
   Buses: "BUSES",
   PassengerCars: "PASSENGER_CARS",
+  PassengerCarsAll: "PASSENGER_CARS_ALL",
   DwellingArea: "DWELLING_AREA",
+  EnergyUseSmallHouses: "ENERGY_USE_SMALL_HOUSES",
+  EnergyUseApartmentBuildings: "ENERGY_USE_APARTMENT_BUILDINGS",
 } as const;
 export type DenominatorLabel = (typeof DenominatorLabel)[keyof typeof DenominatorLabel];
 
@@ -68,6 +74,8 @@ export const LeapScalingKind = {
   Population: "POPULATION",
   /** Rules 3 and 4: by the ratio of a local statistic to the national one */
   Ratio: "RATIO",
+  /** Rule 5: by a share composed locally over the same share nationally */
+  Share: "SHARE",
   /** A point source: no honest scaler, only "as is" or zero */
   Point: "POINT",
 } as const;
@@ -77,6 +85,7 @@ export type LeapScalingRule =
   | { kind: typeof LeapScalingKind.Copy }
   | { kind: typeof LeapScalingKind.Population, /** Only defensible under a consumption-based framing (rail, shipping) */ consumptionBased?: boolean }
   | { kind: typeof LeapScalingKind.Ratio, /** Summed when several */ denominators: ScalingDenominator[] }
+  | { kind: typeof LeapScalingKind.Share, /** The share is `part / whole`, each summed when several */ part: ScalingDenominator[], whole: ScalingDenominator[] }
   | { kind: typeof LeapScalingKind.Point };
 
 const ALL_LEVELS = [GeoAreaType.NATION, GeoAreaType.COUNTY, GeoAreaType.MUNICIPALITY];
@@ -164,6 +173,17 @@ const sectorCategories: Record<string, string[]> = {
   "Skogsbruk": ["911"],
   "Byggverksamhet": ["921"],
 };
+// TAB3654 consumer categories per LEAP building type, for the heating carrier shares
+const buildingCategories: Record<string, string[]> = {
+  "Småhus": ["98"],
+  "Flerbostadshus": ["97"],
+  "Lokaler": ["931", "951"],
+};
+const buildingLabels: Record<string, DenominatorLabel> = {
+  "Småhus": DenominatorLabel.EnergyUseSmallHouses,
+  "Flerbostadshus": DenominatorLabel.EnergyUseApartmentBuildings,
+  "Lokaler": DenominatorLabel.EnergyUseServices,
+};
 const sectorLabels: Record<string, DenominatorLabel> = {
   "Hushåll": DenominatorLabel.EnergyUseHouseholds,
   "Service": DenominatorLabel.EnergyUseServices,
@@ -177,7 +197,7 @@ function fuelClass(fuel: string): string | null {
   const name = fuel.toLowerCase();
   if (/^el\b|^el till|^el exkl|elektricitet/.test(name)) return "16";
   if (/fjärrvärme/.test(name)) return "14";
-  if (/eldningsolja|eo1|eo2|lättoljor|tjockolja/.test(name)) return "905";
+  if (/eldningsolja|eo1|eo2|lättoljor|tjockolja|^olja\b/.test(name)) return "905";
   if (/gasol|naturgas|stadsgas|hyttgas|masugnsgas/.test(name)) return "915";
   if (/torv|^kol\b|^koks\b|fossilt avfall|avfall fossilt|övriga bränslen fossilt/.test(name)) return "910";
   if (/biogas/.test(name)) return "930";
@@ -190,6 +210,26 @@ const copy: LeapScalingRule = { kind: LeapScalingKind.Copy };
 const point: LeapScalingRule = { kind: LeapScalingKind.Point };
 const byPopulation: LeapScalingRule = { kind: LeapScalingKind.Population };
 const ratio = (...denominators: ScalingDenominator[]): LeapScalingRule => ({ kind: LeapScalingKind.Ratio, denominators });
+const share = (part: ScalingDenominator[], whole: ScalingDenominator[]): LeapScalingRule => ({ kind: LeapScalingKind.Share, part, whole });
+
+/**
+ * Rule 5 for a "<carrier> procentandel värmebehov" row: the carrier's energy
+ * over the building type's total, both from TAB3654. Heat pumps and electric
+ * heating hide inside the electricity class, so those rows keep rule 1.
+ */
+function heatingCarrierShare(building: string, leaf: string): LeapScalingRule | null {
+  const categories = buildingCategories[building];
+  const match = /^(.+?) procentandel värmebehov$/.exec(leaf);
+  if (!categories || !match) return null;
+  const carrier = match[1];
+  if (/^VP|elvärme/i.test(carrier)) return copy;
+  const classes = /^Naturgas och biogas/i.test(carrier) ? ["915", "930"] : [fuelClass(carrier)].filter((cls): cls is string => cls !== null);
+  if (classes.length === 0) return copy;
+  return share(
+    categories.flatMap(category => classes.map(cls => energyUse(DenominatorLabel.EnergyUseFuelClass, category, cls))),
+    categories.map(category => energyUse(buildingLabels[building], category)),
+  );
+}
 
 /** Rule 1: intensities, shares, policy flags and the like are copied unchanged. */
 const INTENSITY_OR_SHARE = /per (kvadratmeter|m2|km|capita|fordon|flygavgång|flygenkelresa|fordonskm)|^kWh per km|^körsträcka per|andel|procent|^Fyra av tio|vektor$|^Miljözon|^Snabbare införande|strategi$|reseavdrag|Klimatdeklaration|Styrmedel|^Bilpool|bredband|differentiering|energiprocentandel/i;
@@ -210,11 +250,20 @@ export function getLeapScalingRule(indicatorParameter: string): LeapScalingRule 
 
   if (branch === "Bostäder och lokaler") {
     if (/Uppvärmd area per capita/.test(leaf) && rest[0] !== "Lokaler") return ratio(dwellingArea);
-    return copy;
+    return heatingCarrierShare(rest[0] ?? "", leaf) ?? copy;
   }
 
   if (branch === "Landtransporter") {
     const [group, sub] = rest;
+    if (group === "Personbilar") {
+      // Rule 5 before the share/intensity check: these two are composed from the fleet count
+      const allCars = vehicles(DenominatorLabel.PassengerCarsAll, "t10026", "t1");
+      if (leaf === "Andel av personbilar" && sub) {
+        const fuel = carFuel(sub);
+        if (fuel) return share([vehicles(DenominatorLabel.PassengerCars, "t10026", fuel)], [allCars]);
+      }
+      if (leaf === "personbil per capita") return share([allCars], [population]);
+    }
     if (INTENSITY_OR_SHARE.test(leaf)) return copy;
     if (group === "Personbilar") {
       if (leaf === "Antal bilar" && sub) return ratio(vehicles(DenominatorLabel.PassengerCars, "t10026", carFuel(sub) ?? "t1"));

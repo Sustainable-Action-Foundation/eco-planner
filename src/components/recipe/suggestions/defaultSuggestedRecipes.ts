@@ -33,8 +33,15 @@ type ExternalPreset = { dataset: DatasetKeys, tableId: string, selection: ApiSel
 export type SuggestedRecipeContext = {
   /** Stands in for the parent value in every suggestion, e.g. a copied goal's series or a browsable historical series */
   parentSeries?: PrefilledSeries;
-  /** The copied goal's indicator parameter: LEAP rows get their own methods (see `leapSuggestedRecipes`) */
+  /** The copied goal's indicator parameter, which names its LEAP row */
   indicatorParameter?: string;
+  /**
+   * Whether the copied goal is in a national scenario (a roadmap of type
+   * NATIONAL: the seeded LEAP scenarios). Only then does the indicator
+   * parameter give the goal the LEAP scaling methods (see `leapSuggestedRecipes`);
+   * any other goal with a LEAP-looking indicator gets the usual defaults.
+   */
+  nationalScenario?: boolean;
   /** Methods stored on the copied goal itself (`Goals.recipe_suggestions`), serialized */
   storedSuggestions?: SerializedRecipe[];
   /** A local statistic a copied goal is scaled to (see `GoalPrefill.localReference`) */

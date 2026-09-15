@@ -84,6 +84,18 @@ export default defineConfig({
       use: {},
     },
     {
+      name: "LEAP national series unit tests",
+      testMatch: ["unit/leap-national-series.test.ts"],
+      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
+      use: {},
+    },
+    {
+      name: "National historical fill unit tests",
+      testMatch: ["unit/national-historical.test.ts"],
+      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
+      use: {},
+    },
+    {
       name: "Suggested recipes unit tests",
       testMatch: ["unit/suggested-recipes.test.ts"],
       retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.

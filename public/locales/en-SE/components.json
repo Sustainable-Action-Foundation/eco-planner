@@ -317,13 +317,16 @@
         "ELECTRICITY_FUEL_CLASS": "electricity fuel input, same fuel class",
         "ELECTRICITY_PRODUCTION": "electricity production of the same kind",
         "ENERGY_USE_AGRICULTURE_FORESTRY": "energy use in agriculture and forestry",
+        "ENERGY_USE_APARTMENT_BUILDINGS": "energy use in apartment buildings",
         "ENERGY_USE_FUEL_CLASS": "energy use in the sector, same fuel class",
         "ENERGY_USE_HOUSEHOLDS": "household energy use",
         "ENERGY_USE_INDUSTRY_CONSTRUCTION": "energy use in industry and construction",
         "ENERGY_USE_SERVICES": "energy use in services",
+        "ENERGY_USE_SMALL_HOUSES": "energy use in detached houses",
         "HEAVY_TRUCKS": "heavy trucks in traffic",
         "LIGHT_TRUCKS": "light trucks in traffic",
         "PASSENGER_CARS": "passenger cars in traffic",
+        "PASSENGER_CARS_ALL": "passenger cars in traffic, all fuels",
         "POPULATION": "population",
         "POPULATION_FORECAST": "population forecast"
       },
@@ -335,6 +338,8 @@
       "population_yearly_name": "Scale by population forecast, per year",
       "ratio_latest_name": "Scale by {{what}} (latest value)",
       "ratio_yearly_name": "Scale by {{what}}, per year",
+      "share_latest_name": "Scale by the local share ({{part}} of {{whole}}, latest value)",
+      "share_yearly_name": "Scale by the local share ({{part}} of {{whole}}), per year",
       "zero_name": "Set to zero (no such plant locally)"
     }
   },

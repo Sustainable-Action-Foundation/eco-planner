@@ -260,6 +260,7 @@ export const goalInclusionSelection = {
           id: true,
           name: true,
           parent_roadmap_id: true,
+          type: true,
           geo_area: { select: { code: true, name: true, type: true } },
           access_control: { select: accessControlSelection },
         },
