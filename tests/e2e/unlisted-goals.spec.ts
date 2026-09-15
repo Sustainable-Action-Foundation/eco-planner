@@ -2,6 +2,7 @@ import { expect, test } from "playwright/test";
 import type { Page } from "playwright/test";
 import path from "node:path";
 import { cwd } from "node:process";
+import { orgLandingHref } from "../lib/org-switcher";
 
 const adminFile = path.join(cwd(), "tests/.auth/admin.json");
 const verifiedFile = path.join(cwd(), "tests/.auth/verified.json");
@@ -35,11 +36,9 @@ async function gotoNationalV1(page: Page) {
 /** Opens Uppsala län v1; org-readable, so it is reached through an org landing rather than the public tab. */
 async function gotoUppsalaV1(page: Page, viaOrgTab: boolean) {
   if (viaOrgTab) {
-    // Multi-org users (admin) may default to another org's landing; go via the Sustainable Action tab
+    // Multi-org users (admin) may default to another org's landing; go via the Sustainable Action entry in the switcher
     await page.goto("/");
-    const orgHref = await page.locator('nav[aria-label*="org_nav_label"]').getByRole("link", { name: "Sustainable Action" }).getAttribute("href");
-    expect(orgHref).toBeTruthy();
-    await page.goto(`${orgHref}&searchFilter=${encodeURIComponent("Uppsala")}`);
+    await page.goto(`${await orgLandingHref(page, "Sustainable Action")}&searchFilter=${encodeURIComponent("Uppsala")}`);
   } else {
     // Single-org users land straight on their org's landing
     await page.goto(`/?searchFilter=${encodeURIComponent("Uppsala")}`);

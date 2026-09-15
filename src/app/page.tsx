@@ -20,6 +20,7 @@ import Image from "next/image";
 import { Suspense } from "react";
 import SearchRoadmaps from "@/components/form/filters/searchRoadmaps";
 import SortRoadmaps from "@/components/form/filters/sortRoadmaps";
+import OrgSelect from "@/components/form/filters/orgSelect";
 import styles from "./page.module.css";
 import type { Metadata } from "next";
 
@@ -31,6 +32,9 @@ export async function generateMetadata(): Promise<Metadata> {
     og_image_url: undefined,
   });
 }
+
+/** Above this many orgs the switcher is a select instead of a row of chips */
+const maxOrgChips = 4;
 
 export default async function Page(
   props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> },
@@ -169,21 +173,25 @@ export default async function Page(
     <main>
       {userOrgs.length > 0 ?
         <nav className="flex gap-50 flex-wrap-wrap margin-top-300" aria-label={t("pages:home.org_nav_label")}>
-          {userOrgs.map(org => (
-            <Link
-              key={org.id}
-              href={`/?org=${org.id}`}
-              className={`button round smooth${selectedOrg?.id === org.id ? ' seagreen color-purewhite font-weight-500' : ''}`}
-            >
-              {org.name}
-            </Link>
-          ))}
-          <Link
-            href="/?org=public"
-            className={`button round smooth${!selectedOrg ? ' seagreen color-purewhite font-weight-500' : ''}`}
-          >
-            {t("pages:home.public_tab")}
-          </Link>
+          {userOrgs.length > maxOrgChips
+            ? <OrgSelect orgs={userOrgs.map(org => ({ id: org.id, name: org.name }))} selectedOrgId={selectedOrg?.id ?? null} />
+            : <>
+              {userOrgs.map(org => (
+                <Link
+                  key={org.id}
+                  href={`/?org=${org.id}`}
+                  className={`button round smooth${selectedOrg?.id === org.id ? ' seagreen color-purewhite font-weight-500' : ''}`}
+                >
+                  {org.name}
+                </Link>
+              ))}
+              <Link
+                href="/?org=public"
+                className={`button round smooth${!selectedOrg ? ' seagreen color-purewhite font-weight-500' : ''}`}
+              >
+                {t("pages:home.public_tab")}
+              </Link>
+            </>}
         </nav>
         : null}
 

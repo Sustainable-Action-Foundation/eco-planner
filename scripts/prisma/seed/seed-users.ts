@@ -96,12 +96,13 @@ export async function seedUsers(): Promise<SeededUsers> {
 
   // Extra orgs with random names and @example.com-style domains, each with a
   // few flavor users of their own (email at the org's domain, password
-  // "password" — nothing logs in as them). Admin is enrolled in the first two
-  // (one managed, one as plain member) so the start page switcher shows several
-  // tabs; the last one has no admin membership at all and is only reachable
-  // through the super-admin override, so its first flavor user manages it.
+  // "password" — nothing logs in as them). Admin is enrolled in the first three
+  // (one managed, two as plain member) so the start page switcher holds more
+  // orgs than its chip limit and renders as a select; the last one has no admin
+  // membership at all and is only reachable through the super-admin override,
+  // so its first flavor user manages it.
   const flavorPassword = await bcrypt.hash("password", 10);
-  const adminRoles: (OrgRole | null)[] = [OrgRole.MANAGER, OrgRole.MEMBER, null];
+  const adminRoles: (OrgRole | null)[] = [OrgRole.MANAGER, OrgRole.MEMBER, OrgRole.MEMBER, null];
   const usedNames = new Set([org.name]);
   const usedDomains = new Set([org.domain]);
   const usedUsernames = new Set([admin.username, anita.username, anton.username, greta.username]);
