@@ -2,8 +2,10 @@ import type { ApiSelectionItem, DatasetKeys } from "@/lib/api/apiTypes";
 
 /*
  * The national statistic that measures a LEAP row of the seeded national
- * scenarios, for rows the curated catalog has no series for (those are in
- * `getNationalGoalMappings`, with the nation as one of their levels). Only
+ * scenarios, in the row's own unit, for filling the goals' historical data
+ * (scripts/prisma/fill-national-historical.ts). Rows the curated catalog
+ * measures at every level (`getNationalGoalMappings`) are here too when the
+ * national series needs a unit conversion the catalog doesn't carry. Only
  * direct matches: the same quantity in the same or a convertible unit, per
  * ignore/martin-mail/external-sources/leap-scaling-tables.md. Rows the
  * statistics define differently are left out on purpose, e.g. heat demand per
@@ -65,8 +67,13 @@ const balanceCarrierCodes: Record<string, string> = {
   "Övriga bränslen": "35",
 };
 
-/** EN0202_25 net electricity production per kind of plant; hydro, wind and solar are in the curated catalog. */
+/** Trafa "drivmedel" codes per LEAP passenger car type and truck fuel prefix. */
+const carTypes: Record<string, string> = { Bensinbilar: "101", Dieselbilar: "102", Elbilar: "103", Laddhybridbilar: "105", Etanolbilar: "106", Fordonsgasbilar: "107" };
+const truckFuels: Record<string, string> = { bensin: "101", diesel: "102", el: "103", laddhybrid: "105", etanol: "106", fordonsgas: "107" };
+
+/** EN0202_25 net electricity production per kind of plant. Wind and solar are split land/sea and roof/ground in LEAP, which the statistic isn't. */
 const electricityKinds: Record<string, string> = {
+  "Vattenkraft": "0",
   "Befintligt kärnkraft": "3",
   "Industriell kraftvärme": "4",
   "Kraftvärme": "5",
@@ -109,11 +116,14 @@ export function getLeapNationalSource(indicatorParameter: string): LeapNationalS
   if (branch === "Landtransporter") {
     const [group, sub] = rest;
     if (group === "Personbilar") {
+      if (leaf === "Antal bilar" && sub && carTypes[sub]) return trafa("t10026", { metric: "itrfslut", drivmedel: carTypes[sub] }, "antal");
       if (leaf === "kWh per km" && sub && carFuelCategories[sub]) return stem("EN_IND5-4E", { Drivmedelskategori: carFuelCategories[sub] }, "kWh/100 km", 0.01);
       if (leaf === "Fordonskm") return trafa("t04010", { metric: "fordonkm", fslag: "10" }, "miljoner km", 1e6);
       return null;
     }
     if (group === "Lätta lastbilar") {
+      const fuel = /^(bensin|diesel|el|laddhybrid|etanol|fordonsgas)lastbilar$/.exec(leaf)?.[1];
+      if (fuel) return trafa("t10023", { metric: "itrfslut", fslagh: "22", drivmedel: truckFuels[fuel] }, "antal");
       if (leaf === "fordonskm lastbilar") return trafa("t04010", { metric: "fordonkm", fslag: "21" }, "miljoner km", 1e6);
       if (leaf === "antal lastbilar") return trafa("t10023", { metric: "itrfslut", fslagh: "22", drivmedel: "t1" }, "antal");
       return null;

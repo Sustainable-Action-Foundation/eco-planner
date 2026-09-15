@@ -1,6 +1,5 @@
 import { expect, test } from "playwright/test";
 import { getLeapNationalSource } from "../../src/lib/leapNationalSeries";
-import { getNationalGoalMappings } from "../../src/lib/curatedHistoricalData";
 
 const K = "Key\\";
 
@@ -15,12 +14,13 @@ test.describe("LEAP national series", () => {
   });
 
   test("electricity production per kind is TWh scaled to LEAP's average GW", () => {
-    const nuclear = getLeapNationalSource(`${K}Energiomvandlingsanläggningar\\Årlig elproduktion\\Befintligt kärnkraft`);
-    expect(nuclear).toMatchObject({ tableId: "EN0202_25", unit: "TWh" });
-    expect(nuclear?.selection).toContainEqual({ variableCode: "Kraftslag", valueCodes: ["3"] });
-    expect(nuclear?.scale).toBeCloseTo(1 / 8.76);
-    // Hydro, wind and solar are the catalog's (every level), not here
+    const hydro = getLeapNationalSource(`${K}Energiomvandlingsanläggningar\\Årlig elproduktion\\Vattenkraft`);
+    expect(hydro).toMatchObject({ tableId: "EN0202_25", unit: "TWh" });
+    expect(hydro?.selection).toContainEqual({ variableCode: "Kraftslag", valueCodes: ["0"] });
+    expect(hydro?.scale).toBeCloseTo(1 / 8.76);
+    // LEAP splits wind and solar in ways the statistic doesn't
     expect(getLeapNationalSource(`${K}Energiomvandlingsanläggningar\\Årlig elproduktion\\Vindkraft landbaserad`)).toBeNull();
+    expect(getLeapNationalSource(`${K}Energiomvandlingsanläggningar\\Årlig elproduktion\\Solkraft tak`)).toBeNull();
   });
 
   test("fuel input totals and named fuels, never the biofuel row that counts waste", () => {
@@ -49,15 +49,14 @@ test.describe("LEAP national series", () => {
     expect(getLeapNationalSource(`${K}Landtransporter\\Personbilar\\Laddhybridbilar\\kWh per km`)).toBeNull();
     expect(getLeapNationalSource(`${K}Landtransporter\\Personbilar\\Fordonskm`)).toMatchObject({ dataset: "Trafa", tableId: "t04010", scale: 1e6 });
     expect(getLeapNationalSource(`${K}Landtransporter\\Lätta lastbilar\\antal lastbilar`)?.selection).toContainEqual({ variableCode: "fslagh", valueCodes: ["22"] });
+    expect(getLeapNationalSource(`${K}Landtransporter\\Lätta lastbilar\\ellastbilar`)?.selection).toContainEqual({ variableCode: "drivmedel", valueCodes: ["103"] });
+    expect(getLeapNationalSource(`${K}Landtransporter\\Personbilar\\Laddhybridbilar\\Antal bilar`)).toMatchObject({ tableId: "t10026", unit: "antal", scale: 1 });
   });
 
-  test("rows the statistics define differently, and the catalog's rows, have no source here", () => {
+  test("rows the statistics define differently have no source", () => {
     expect(getLeapNationalSource(`${K}Bostäder och lokaler\\Småhus\\Värmebehov per kvadratmeter uppvärmd yta`)).toBeNull();
     expect(getLeapNationalSource(`${K}Industri\\Cementindustri\\Naturgas`)).toBeNull();
     expect(getLeapNationalSource(`${K}Produktion av industrivaror\\Cement`)).toBeNull();
     expect(getLeapNationalSource("Demand\\Something")).toBeNull();
-    for (const mapping of getNationalGoalMappings()) {
-      expect(getLeapNationalSource(mapping.indicatorParameter), mapping.indicatorParameter).toBeNull();
-    }
   });
 });
