@@ -56,7 +56,12 @@ export default async function getPxWebTableMetadata(tableId: string, externalDat
 
   const metricNames = data.role.metric ?? [];
 
-  const timeNames = data.role.time ?? [];
+  // Some providers (Energimyndigheten) don't declare the time role; recognise the
+  // usual time dimension names so the period isn't offered as a pick-one value
+  const looksLikeTime = (text: string | undefined) => !!text && /^(tid|år|ar|year|månad|manad|month|kvartal|quarter|vecka|week|period)$/i.test(text.trim());
+  const timeNames = (data.role.time ?? []).length > 0
+    ? data.role.time ?? []
+    : Object.keys(data.dimension).filter(name => !metricNames.includes(name) && (looksLikeTime(name) || looksLikeTime(data.dimension[name].label)));
 
   // Get all dimensions for the table and add to correct array in tableDetails
   for (const dimensionName in data.dimension) {
