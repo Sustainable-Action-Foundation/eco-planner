@@ -177,7 +177,7 @@
       "description": "Goals in the national scenarios that can be followed up with statistics for the area. A copy starts from the local data and follows the national goal's development, with the data as its historical data. Everything can be adjusted before saving.",
       "latest_value": "Latest {{value}} {{unit}} ({{year}}).",
       "local_history": "{{area}} so far",
-      "local_projection": "{{area}} as a copy",
+      "local_projection": "{{area}} ahead",
       "local_series": "Local data: {{series}} for {{area}}.",
       "national_goal": "National goal",
       "no_roadmap": "Copies go into one of the organization's roadmaps, and there is none yet.",

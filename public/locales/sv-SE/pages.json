@@ -177,7 +177,7 @@
       "description": "Målbanor i de nationella scenarierna som går att följa upp med statistik för området. En kopia utgår från de lokala uppgifterna och följer den nationella målbanans utveckling, med uppgifterna som historisk data. Allt går att justera innan du sparar.",
       "latest_value": "Senast {{value}} {{unit}} ({{year}}).",
       "local_history": "{{area}} hittills",
-      "local_projection": "{{area}} som kopia",
+      "local_projection": "{{area}} framåt",
       "local_series": "Lokala uppgifter: {{series}} för {{area}}.",
       "national_goal": "Nationell målbana",
       "no_roadmap": "Kopior hamnar i en av organisationens färdplaner, och det finns ingen ännu.",
