@@ -54,6 +54,12 @@ export default defineConfig({
       use: {},
     },
     {
+      name: "LEAP copy planning unit tests",
+      testMatch: ["unit/leap-copy-plan.test.ts"],
+      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
+      use: {},
+    },
+    {
       name: "Orgless access unit tests",
       testMatch: ["unit/orgless-access.test.ts"],
       retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.

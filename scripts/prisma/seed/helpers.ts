@@ -12,6 +12,7 @@ import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils"
 import type { DateValues } from "@/types";
 import { isISOIshDate } from "@/types/typeguards";
 import type { Groups, Orgs, Users } from "@/lib/prisma/generated";
+import type { SeedPlace } from "./places.ts";
 import { RandomTextSE } from "../randomText";
 import { parseUnit } from "@/functions/unit";
 import { UnitFlags } from "@/types/enums";
@@ -27,8 +28,8 @@ export type SeededUsers = {
   all: Users[];
   /** The org owning all seeded content; admin manages it, anita and anton are members. */
   org: Orgs;
-  /** Extra orgs with light content and flavor members of their own; admin manages the first, is a member of the second, and has no membership in the last. */
-  extraOrgs: { org: Orgs, members: Users[] }[];
+  /** The geo-tagged place orgs (see places.ts) with their own members; the first member manages the place. */
+  places: { place: SeedPlace, org: Orgs, members: Users[] }[];
   /** A group containing the two regular users, used to test grant-based sharing. */
   group: Groups;
 };

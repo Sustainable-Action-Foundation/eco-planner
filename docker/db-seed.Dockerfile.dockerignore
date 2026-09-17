@@ -7,6 +7,8 @@ prisma/generated/
 !src/functions/
 !src/lib/
 !src/types/
+!src/components/recipe/suggestions/
+!public/locales/
 !scripts/lib/
 !scripts/prisma/
 

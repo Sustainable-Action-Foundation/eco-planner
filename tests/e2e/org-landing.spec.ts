@@ -2,6 +2,7 @@ import { expect, test } from "playwright/test";
 import path from "node:path";
 import { cwd } from "node:process";
 import { orgLandingHref, orgSwitcher } from "../lib/org-switcher";
+import { seedPlaces } from "../../scripts/prisma/seed/places";
 
 const adminFile = path.join(cwd(), "tests/.auth/admin.json");
 const verifiedFile = path.join(cwd(), "tests/.auth/verified.json");
@@ -13,12 +14,12 @@ test.describe("Org landing page (multi-org manager)", () => {
 
   test("The switcher is a select listing every org for a super admin plus the public view", async ({ page }) => {
     await page.goto("/");
-    // admin is a super admin: Sustainable Action + three extra orgs (random names)
-    // they are a member of + the extra org they are NOT a member of + the public
-    // view: past the chip limit, so a select rather than a row of chips
+    // admin is a super admin: Sustainable Action + every seeded place (member
+    // of some, not of others) + the public view: past the chip limit, so a
+    // select rather than a row of chips
     await expect(orgSwitcher(page).getByRole("link")).toHaveCount(0);
     const options = orgSwitcher(page).locator("select option");
-    await expect(options).toHaveCount(6);
+    await expect(options).toHaveCount(1 + seedPlaces.length + 1);
     await expect(options.filter({ hasText: orgName })).toHaveCount(1);
     await expect(options.last()).toHaveText("home.public_tab");
   });

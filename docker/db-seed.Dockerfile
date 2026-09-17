@@ -69,6 +69,9 @@ COPY --chown=node:node src/functions ./src/functions
 COPY --chown=node:node src/lib ./src/lib
 COPY --chown=node:node src/types ./src/types
 COPY --chown=node:node src/math.ts ./src/math.ts
+# The seed builds the copied goals' recipes with the app's suggestion builders, named through the Swedish locale
+COPY --chown=node:node src/components/recipe/suggestions ./src/components/recipe/suggestions
+COPY --chown=node:node public/locales ./public/locales
 
 # Dependencies
 COPY --from=deps --chown=node:node /app/node_modules ./node_modules
