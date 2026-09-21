@@ -41,6 +41,10 @@
   "goal_definite_other": "the goals",
   "goal_one": "goal",
   "goal_other": "goals",
+  "goal_title": {
+    "area_level": "{{name}} | {{area}}",
+    "national_level": "{{name}} | national level"
+  },
   "baseline_definite_one": "the baseline",
   "baseline_definite_other": "the baselines",
   "baseline_one": "baseline",

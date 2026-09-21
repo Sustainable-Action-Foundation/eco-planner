@@ -15,6 +15,7 @@ import GoalGraph from "./main";
 import HistoricalFootnote, { hasHistoricalFootnote, historicalSeriesName } from "@/components/graph/historicalFootnote";
 import TabListSimple from "@/components/generic/tablist/tabListSimple";
 import findSiblings from "@/functions/findSiblings";
+import { goalTitleWithLevel } from "@/functions/goalName";
 import ChildGraphContainer from "./child/container";
 import { IconArrowRight, IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
 import Link from "next/link";
@@ -341,7 +342,7 @@ export default function GoalGraphContainer({
               {useHref ? <UseGoalLink href={useHref} /> : null}
             </menu>
             <h2 className={`${styles['heading']}`}>
-              {goal.name ? goal.name : goal.indicator_parameter}
+              {goalTitleWithLevel(t, goal, goal.roadmap_iteration.roadmap)}
             </h2>
             {secondaryGoal ? <p className="margin-block-0 margin-inline-auto text-align-center">
               {t("graphs:graph_graph.compare_with_goal", { goalName: secondaryGoal.name || secondaryGoal.indicator_parameter })}
@@ -397,7 +398,7 @@ export default function GoalGraphContainer({
                 {useHref ? <UseGoalLink href={useHref} /> : null}
               </menu>
               <h2 className={`${styles['heading']}`}>
-                {goal.name ? goal.name : goal.indicator_parameter}
+                {goalTitleWithLevel(t, goal, goal.roadmap_iteration.roadmap)}
               </h2>
               {secondaryGoal ? <p className="margin-block-0 margin-inline-auto text-align-center">
                 {t("graphs:graph_graph.compare_with_goal", { goalName: secondaryGoal.name || secondaryGoal.indicator_parameter })}

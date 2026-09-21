@@ -18,6 +18,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { buildMetadata } from "@/functions/buildMetadata";
+import { goalTitleWithLevel } from "@/functions/goalName";
 import { IconAlertTriangle, IconArrowNarrowRight, IconBuildings } from "@tabler/icons-react";
 import type { TFunction } from "i18next";
 import TextEditor from "@/components/form/elements/textEditor/editor";
@@ -52,7 +53,7 @@ export async function generateMetadata(props: {
   }
 
   return buildMetadata({
-    title: goal?.name,
+    title: goal ? goalTitleWithLevel(t, goal, goal.roadmap_iteration.roadmap) : undefined,
     description: goal?.description,
     og_url: `/goal/${params.goalId}`,
     og_image_url: undefined, // TODO: Use graph api here once ready
@@ -225,18 +226,10 @@ export default async function Page(
         }
 
         <header>
-          {goal.name ? (
-            <>
-              <small style={{ color: 'gray' }}>{t("pages:goal.title_label")}</small> {/* TODO: Probably use span here instead */}
-              <h1 className="margin-0" style={{ fontSize: '3rem', lineHeight: '1' }}>{goal.name}</h1>
-              <small style={{ color: 'gray' }}>{goal.indicator_parameter}</small> {/* TODO: Probably use span here instead */}
-            </>
-          ) :
-            <>
-              <small style={{ color: 'gray' }}>{t("pages:goal.title_label")}</small> {/* TODO: Probably use span here instead */}
-              <h1 className="margin-0" style={{ lineHeight: '1' }}>{goal.indicator_parameter}</h1>
-            </>
-          }
+          <small style={{ color: 'gray' }}>{t("pages:goal.title_label")}</small> {/* TODO: Probably use span here instead */}
+          {/* Suffixed with the goal's level (national / area name) so copies scaled into local roadmaps aren't mistaken for the national original */}
+          <h1 className="margin-0" style={{ fontSize: '3rem', lineHeight: '1' }}>{goalTitleWithLevel(t, goal, iteration.roadmap)}</h1>
+          <small style={{ color: 'gray' }}>{goal.indicator_parameter}</small> {/* TODO: Probably use span here instead */}
         </header>
 
         {goal.description ?
