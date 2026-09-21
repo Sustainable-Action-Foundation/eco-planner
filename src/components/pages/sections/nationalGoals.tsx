@@ -6,7 +6,8 @@ import { goalDisplayName, indicatorParameterContext } from "@/functions/goalName
 import { scaleToLocal } from "@/functions/localScale";
 import { formatSeriesRef, SeriesRefKind } from "@/lib/seriesRef";
 import serveTea from "@/lib/i18nServer";
-import { IconArrowRight, IconInfoCircle } from "@tabler/icons-react";
+import PendingLink from "@/components/generic/links/pendingLink";
+import { IconInfoCircle } from "@tabler/icons-react";
 import Link from "next/link";
 import type { CuratedGeoArea } from "@/fetchers/getCuratedHistoricalData";
 import type { NationalGoalMatch } from "@/fetchers/getNationalGoalMatches";
@@ -134,14 +135,14 @@ async function GoalCard({ match, orgId, canCreateGoals, area }: { match: Nationa
           })}` : null}
         </p>
         {canCreateGoals ?
-          <Link
+          <PendingLink
             href={href}
             className="margin-top-50 font-size-14px font-weight-500 display-inline-flex align-items-center gap-25"
             style={{ alignSelf: 'flex-start' }}
+            iconSize={16}
           >
             {t("pages:home.national_goals.copy")}
-            <IconArrowRight aria-hidden="true" width={16} height={16} style={{ minWidth: '16px' }} />
-          </Link>
+          </PendingLink>
           : null}
       </article>
     </li>

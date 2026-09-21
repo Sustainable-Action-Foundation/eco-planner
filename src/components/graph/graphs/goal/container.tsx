@@ -17,8 +17,8 @@ import TabListSimple from "@/components/generic/tablist/tabListSimple";
 import findSiblings from "@/functions/findSiblings";
 import { goalTitleWithLevel } from "@/functions/goalName";
 import ChildGraphContainer from "./child/container";
-import { IconArrowRight, IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
-import Link from "next/link";
+import { IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
+import PendingLink from "@/components/generic/links/pendingLink";
 // import SiblingGraph from "./sibling/siblings";
 
 type TimestampedValue = { timestamp: Date; value: number };
@@ -27,15 +27,15 @@ type TimestampedValue = { timestamp: Date; value: number };
 function UseGoalLink({ href }: { href: string }) {
   const { t } = useTranslation("graphs");
   return (
-    <Link
+    <PendingLink
       href={href}
       title={t("graphs:graph_graph.use_goal_title")}
       className="seagreen color-purewhite smooth font-weight-500 font-size-75 line-height-150 flex align-items-center gap-25"
       style={{ padding: '.3rem .6rem', textDecoration: 'none' }}
+      iconSize={16}
     >
       {t("graphs:graph_graph.use_goal")}
-      <IconArrowRight aria-hidden="true" width={16} height={16} style={{ minWidth: '16px' }} />
-    </Link>
+    </PendingLink>
   );
 }
 

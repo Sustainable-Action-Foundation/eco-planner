@@ -1,0 +1,15 @@
+/* While the navigation is pending (the spinner is showing), the link is inert */
+.link:has([data-pending]) {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.spinner {
+  animation: pending-link-spin 0.8s linear infinite;
+}
+
+@keyframes pending-link-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
