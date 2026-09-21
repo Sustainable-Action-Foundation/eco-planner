@@ -205,6 +205,8 @@
     "goal_name": "Name",
     "invert_goal": "Invert the $t(common:goal_one) (divide by this $t(common:goal_one) rather than multiply)",
     "leap_parameter": "Indicator parameter",
+    "no_roadmap": "A $t(common:goal_one) goes into a $t(common:roadmap_one), and you have no $t(common:roadmap_one) you can edit yet.",
+    "no_roadmap_create": "Create a $t(common:roadmap_one) first.",
     "preview": "Preview graph",
     "relationship_label": "$t(common:roadmap_one)",
     "relationship_no_chosen": "Choose $t(common:roadmap_one)",

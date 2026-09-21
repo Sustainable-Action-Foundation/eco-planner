@@ -87,8 +87,10 @@
       "link_org": "Använd i färdplan ({{org}})"
     },
     "use_in_roadmap": {
+      "create_roadmap": "Skapa en färdplan först.",
       "description": "Skapa en ny målbana i någon av organisationens färdplaner utifrån den här: den blir utgångspunkten som de föreslagna metoderna skalar, och namn, beskrivning och indikatorparameter följer med. Allt går att justera innan du sparar.",
-      "heading": "Använd i färdplan"
+      "heading": "Använd i färdplan",
+      "no_roadmap": "En kopia hamnar i en färdplan du kan redigera, och det finns ingen ännu."
     }
   },
   "goal_create": {

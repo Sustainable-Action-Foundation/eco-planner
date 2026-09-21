@@ -205,6 +205,8 @@
     "goal_name": "Namn",
     "invert_goal": "Invertera $t(common:goal_definite_one) (dividera med denna $t(common:goal_one) istället för att multiplicera)",
     "leap_parameter": "Indikatorparameter",
+    "no_roadmap": "En $t(common:goal_one) hamnar i en $t(common:roadmap_one), och du har ingen $t(common:roadmap_one) att redigera ännu.",
+    "no_roadmap_create": "Skapa en $t(common:roadmap_one) först.",
     "preview": "Förhandsgranskning",
     "relationship_label": "$t(common:roadmap_one)",
     "relationship_no_chosen": "Välj $t(common:roadmap_one)",

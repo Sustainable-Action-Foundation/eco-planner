@@ -87,8 +87,10 @@
       "link_org": "Use in roadmap ({{org}})"
     },
     "use_in_roadmap": {
+      "create_roadmap": "Create a roadmap first.",
       "description": "Start a new goal in one of the organization's roadmaps from this one: it becomes the starting point the suggested methods scale, and the name, description and indicator parameter come along. Everything can be adjusted before saving.",
-      "heading": "Use in a roadmap"
+      "heading": "Use in a roadmap",
+      "no_roadmap": "A copy goes into a roadmap you can edit, and there is none yet."
     }
   },
   "goal_create": {
