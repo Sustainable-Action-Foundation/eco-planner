@@ -173,7 +173,8 @@ export async function POST(request: NextRequest) {
         name: roadmap.name,
         description: roadmap.description,
         type: roadmap.type,
-        actor: roadmap.actor,
+        // Blank actors are stored as null (cf. `normalizeGoalName`)
+        actor: roadmap.actor?.trim() || null,
         geo_area: roadmap.geoAreaCode ? { connect: { code: roadmap.geoAreaCode } } : undefined,
         parent_roadmap: roadmap.parentRoadmapId ? { connect: { id: roadmap.parentRoadmapId } } : undefined,
         author: { connect: { id: session.user.id } },
@@ -354,7 +355,8 @@ export async function PUT(request: NextRequest) {
         name: roadmap.name,
         description: roadmap.description,
         type: roadmap.type,
-        actor: roadmap.actor,
+        // Blank actors clear to null (cf. `normalizeGoalName`); undefined leaves the stored value alone
+        actor: roadmap.actor === undefined ? undefined : roadmap.actor?.trim() || null,
         geo_area: roadmap.geoAreaCode === undefined ? undefined
           : roadmap.geoAreaCode === null ? { disconnect: true }
             : { connect: { code: roadmap.geoAreaCode } },

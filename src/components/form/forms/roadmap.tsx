@@ -93,7 +93,7 @@ export default function RoadmapForm({
         name: (form.namedItem("name") as HTMLInputElement)?.value,
         description: (form.namedItem("description") as HTMLInputElement | null)?.value,
         type: ((form.namedItem("type") as HTMLSelectElement)?.value as RoadmapType) || undefined,
-        actor: (form.namedItem("actor") as HTMLInputElement)?.value ?? undefined,
+        actor: (form.namedItem("actor") as HTMLInputElement)?.value || null,
         geoAreaCode: geoAreaCode,
         // Sharing settings are only sent when the user may (and did) edit them
         access: mayEditSharing ? access : undefined,
@@ -185,7 +185,7 @@ export default function RoadmapForm({
             className: "margin-top-25 margin-bottom-100",
             id: "actor",
             name: "actor",
-            required: true,
+            // Optional, like in the database; requiring it here locked old actor-less roadmaps out of saving
             defaultValue: currentRoadmap?.actor ?? undefined,
             placeholder: roadmapType === "REGIONAL" || roadmapType === "MUNICIPAL" ? t("forms:combobox.default_autocomplete_placeholder") : t("forms:roadmap.actor"),
           }}
