@@ -38,13 +38,16 @@ async function pickFirstDataSeries(page: Page, combobox: Locator, roadmapName = 
   if (!id) throw new Error("Data series combobox has no id");
 
   const tree = page.locator(`#${id}-dialog-tree`);
-  // Both versions of the roadmap match; either is fine. The roadmap list is
-  // fetched on mount, so give it room to settle on a fat DB.
+  // Both versions of the roadmap match; either is fine. The roadmap list (all
+  // accessible roadmap versions incl. the huge LEAP ones) is fetched on mount,
+  // which takes a long while on the fat CI DB under 3-browser load, so wait
+  // until the fetch has settled before drilling in. Callers mark themselves
+  // test.slow() to cover the worst case.
   const roadmap = tree.locator("> li").filter({ hasText: roadmapName }).first();
-  await expect(roadmap).toBeVisible({ timeout: 15_000 });
+  await expect(roadmap).toBeVisible({ timeout: 45_000 });
   await roadmap.click(); // expand the roadmap
-  await roadmap.locator("> ul > li").first().click(); // expand first goal
-  await roadmap.locator("> ul > li > ul > li").first().click(); // select first data series leaf
+  await roadmap.locator("> ul > li").first().click({ timeout: 15_000 }); // expand first goal
+  await roadmap.locator("> ul > li > ul > li").first().click({ timeout: 15_000 }); // select first data series leaf
 
   // Close the dropdown so it doesn't block elements below it.
   await page.keyboard.press("Escape");
@@ -106,6 +109,7 @@ test.describe("Recipe tests", () => {
   test.use({ storageState: adminFile });
 
   test("Suggested recipe evaluates a series from a data series", async ({ page }) => {
+    test.slow(); // the roadmap tree fetch alone can eat most of the default timeout on CI
     await openGoalForm(page);
 
     // Use a suggested recipe (the scalar preset: parent data series * scalar).
@@ -129,6 +133,7 @@ test.describe("Recipe tests", () => {
   });
 
   test("Custom recipe editor evaluates a series", async ({ page }) => {
+    test.slow(); // the roadmap tree fetch alone can eat most of the default timeout on CI
     await openGoalForm(page);
 
     await page.getByRole("radio", { name: "goal.custom_recipe" }).check();

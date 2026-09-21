@@ -70,8 +70,10 @@ test.describe.serial("Action origin linking", () => {
     await page.locator('#submit-button').click();
     await expect(page.getByRole('heading', { name: copyName })).toBeVisible();
     await expect(page.getByTestId('action-neighbours')).toHaveCount(0);
-    // The origin page is cached per tag; give the revalidation a moment by reloading until it's gone
-    await page.goto(originUrl);
+    // The origin page is cached per tag; give the revalidation a moment by reloading until it's gone.
+    // The post-submit page may still fire a refresh that aborts our navigation
+    // (firefox reports NS_BINDING_ABORTED), so tolerate one aborted attempt.
+    await page.goto(originUrl).catch(() => page.goto(originUrl));
     await expect.poll(async () => {
       await page.reload();
       return page.getByTestId('action-neighbours').count();

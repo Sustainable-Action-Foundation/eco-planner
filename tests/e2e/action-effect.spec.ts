@@ -93,6 +93,8 @@ test.describe.serial("Action & Effect tests", () => {
     actionNameRequiredFields = `Test Action  ${testInfo.project.name}`;
     // Navigate to the action creation form
     await page.goto('/');
+    // Let the startpage settle before poking the sidebar (webkit reported the button unstable under CI load)
+    await page.waitForLoadState("networkidle");
     await page.getByTestId("create-button").click();
     await page.getByTestId("create-action").click();
 
@@ -118,6 +120,8 @@ test.describe.serial("Action & Effect tests", () => {
     // which only lists that org's own content
     await page.goto('/?org=public');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
+    // Roadmap page SSR is slow on a fat DB; wait generously before the load-state hover
+    await expect(page.getByRole('heading', { name: "Rikets färdplan" })).toBeVisible({ timeout: 15_000 });
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
     await page.getByRole('link', { name: actionNameRequiredFields }).first().click();
     await page.waitForLoadState("networkidle");

@@ -86,7 +86,8 @@ test.describe("Goals tests", () => {
     await page.locator('#submit-button').click();
     await page.waitForLoadState("networkidle");
 
-    await expect(page.getByRole('main')).toContainText("goal.title_label");
+    // Post-create SSR of the goal page is slow on a fat DB; be generous
+    await expect(page.getByRole('main')).toContainText("goal.title_label", { timeout: 20_000 });
   });
 
   // Regression for #110: cells typed with a decimal comma or grouping spaces used
@@ -113,7 +114,8 @@ test.describe("Goals tests", () => {
     await page.locator('#submit-button').click();
     await page.waitForLoadState("networkidle");
 
-    await expect(page.getByRole('main')).toContainText("goal.title_label");
+    // Post-create SSR of the goal page is slow on a fat DB; be generous
+    await expect(page.getByRole('main')).toContainText("goal.title_label", { timeout: 20_000 });
 
     // Reopen in the edit form: values are stored as numbers, and the typed unit
     // must have survived the grid edits (it used to be reset to "missing").
@@ -146,7 +148,7 @@ test.describe("Goals tests", () => {
     await page.getByRole('link', { name: indicatorRequiredOnly }).first().click();
     // Wait for page to load. An unnamed goal's h1 only shows the indicator leaf
     // (plus the level suffix), so match the full indicator in the small below it.
-    await expect(page.getByTestId('goal-indicator-parameter')).toHaveText(indicatorRequiredOnly);
+    await expect(page.getByTestId('goal-indicator-parameter')).toHaveText(indicatorRequiredOnly, { timeout: 15_000 });
 
     // Enter edit form (the full form sits under the panel's edit menu)
     await page.getByTestId("admin-panel-edit-menu").click();
@@ -182,7 +184,8 @@ test.describe("Goals tests", () => {
 
     // Submit 
     await page.locator('#submit-button').click();
-    await page.locator('#comment-text').hover();
+    // Post-submit SSR of the goal page is slow on a fat DB; wait generously instead of a bare hover
+    await expect(page.locator('#comment-text')).toBeVisible({ timeout: 20_000 });
 
     // Reenter edit form
     await page.getByTestId("admin-panel-edit-menu").click();
@@ -213,7 +216,8 @@ test.describe("Goals tests", () => {
 
     // Submit
     await page.locator('#submit-button').click();
-    await page.locator('#comment-text').hover();
+    // Post-submit SSR of the goal page is slow on a fat DB; wait generously instead of a bare hover
+    await expect(page.locator('#comment-text')).toBeVisible({ timeout: 20_000 });
     // await page.waitForLoadState("networkidle");
     //await expect(page.locator('#comment-text')).toBeEmpty(); TODO: There is placeholder content here so this will never be empty. Should probably check that the placeholder exists, but that should be done in another test...  
 
@@ -236,7 +240,8 @@ test.describe("Goals tests", () => {
 
     // Submit without changes to see that the form is not broken
     await page.locator('#submit-button').click();
-    await page.locator('#comment-text').hover();
+    // Post-submit SSR of the goal page is slow on a fat DB; wait generously instead of a bare hover
+    await expect(page.locator('#comment-text')).toBeVisible({ timeout: 20_000 });
   });
 
   test('Create goal all', async ({ page }) => {
@@ -281,8 +286,9 @@ test.describe("Goals tests", () => {
     await page.locator('#submit-button').click();
     await page.waitForLoadState("networkidle");
 
-    // The title is suffixed with the goal's level (rendered via goal_title.* in cimode), so containment rather than equality
-    await expect(page.getByRole('heading').nth(1)).toContainText(nameAll);
+    // The title is suffixed with the goal's level (rendered via goal_title.* in cimode), so containment rather
+    // than equality; generous timeout since post-create SSR of the goal page is slow on a fat DB
+    await expect(page.getByRole('heading').nth(1)).toContainText(nameAll, { timeout: 20_000 });
     await expect(page.locator('#rich-description')).toHaveText(descriptionAll);
   });
 
@@ -302,8 +308,8 @@ test.describe("Goals tests", () => {
     // Navigate to goal
     await page.getByRole('radio', { name: "table_selector.table" }).click();
     await page.getByRole('link', { name: nameAll }).first().click();
-    // Wait for page to load
-    await page.locator('h1').filter({ hasText: nameAll }).hover();
+    // Wait for page to load (generously; the goal page SSR is slow on a fat DB)
+    await expect(page.locator('h1').filter({ hasText: nameAll })).toBeVisible({ timeout: 15_000 });
 
     // Enter edit form (the full form sits under the panel's edit menu)
     await page.getByTestId("admin-panel-edit-menu").click();
@@ -335,7 +341,8 @@ test.describe("Goals tests", () => {
 
     // Submit
     await page.locator('#submit-button').click();
-    await page.locator('h1').filter({ hasText: nameAll }).hover();
+    // Post-submit SSR of the goal page is slow on a fat DB; wait generously instead of a bare hover
+    await expect(page.locator('h1').filter({ hasText: nameAll })).toBeVisible({ timeout: 20_000 });
 
     // Reenter edit form
     await page.getByTestId("admin-panel-edit-menu").click();
@@ -385,7 +392,8 @@ test.describe("Goals tests", () => {
 
     // Submit
     await page.locator('#submit-button').click();
-    await page.locator('#comment-text').hover();
+    // Post-submit SSR of the goal page is slow on a fat DB; wait generously instead of a bare hover
+    await expect(page.locator('#comment-text')).toBeVisible({ timeout: 20_000 });
 
     // Reenter edit form
     await page.getByTestId("admin-panel-edit-menu").click();
