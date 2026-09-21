@@ -211,7 +211,6 @@
     "title": "Uppdatera lösenord"
   },
   "profile": {
-    "handle_data": "Hantera min data",
     "my_posts": "Mina inlägg",
     "roadmaps": "$t(common:roadmap_other, titleCase)",
     "roadmap_versions": "$t(common:roadmap_version_other, titleCase)",

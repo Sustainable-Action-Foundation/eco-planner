@@ -211,7 +211,6 @@
     "title": "Update password"
   },
   "profile": {
-    "handle_data": "Data management",
     "my_posts": "My posts",
     "roadmaps": "$t(common:roadmap_one, titleCase)",
     "roadmap_versions": "$t(common:roadmap_version_other, titleCase)",

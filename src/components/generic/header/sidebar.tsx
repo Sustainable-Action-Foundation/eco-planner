@@ -7,8 +7,7 @@ import Link from 'next/link';
 import { LanguageSwitcher } from "@/components/languageSwitcher";
 import serveTea from "@/lib/i18nServer";
 import { PopoverButton, Popover } from '@/components/generic/popovers/popovers';
-import { IconBrush, IconHome, IconInfoCircle, IconList, IconLogin2, IconLogout2, IconMenu2, IconPlus, IconSettings, IconUser, IconUserPlus, IconWorld, IconX } from '@tabler/icons-react';
-import GraphCookie from '@/components/cookies/graphCookie';
+import { IconBrush, IconHome, IconInfoCircle, IconList, IconLogin2, IconLogout2, IconMenu2, IconPlus, IconUser, IconUserPlus, IconWorld, IconX } from '@tabler/icons-react';
 import { getUserAccessContext } from '@/fetchers';
 import { OrgRole } from '@/lib/prisma/generated';
 import DisabledCreateButton from '@/components/buttons/disabledCreateButton';
@@ -157,35 +156,6 @@ export default async function Sidebar() {
                 </button>
               </div>
               <LanguageSwitcher />
-            </fieldset>
-          </Popover>
-          <PopoverButton
-            anchorName='--settings-popover-button'
-            popoverTarget='settings-popover'
-            className='transparent rounded'
-            data-testid='settings-button'
-          >
-            <IconSettings aria-hidden="true" />
-            {t("components:sidebar.settings")}
-          </PopoverButton>
-          <Popover
-            id='settings-popover'
-            popover='auto'
-            positionAnchor='--settings-popover-button'
-            anchorInlinePosition='end'
-            popoverDirection={{ vertical: 'up' }}
-            margin='1.5rem'
-          >
-            <fieldset className='padding-25 smooth fieldset-unset-pseudo-class' style={{ backgroundColor: 'white', border: '1px solid silver' }}>
-              <div
-                className='padding-bottom-50 margin-bottom-25 margin-inline-25 flex gap-300 justify-content-space-between align-items-center'
-                style={{ borderBottom: '1px solid var(--gray)' }}>
-                <legend className='font-weight-600'>{t("components:sidebar.settings")}</legend>
-                <button type="button" popoverTarget='settings-popover' aria-label={t("components:sidebar.close_menu_settings")} className='transparent grid padding-25 round'>
-                  <IconX aria-hidden='true' width={16} height={16} />
-                </button>
-              </div>
-              <GraphCookie className='margin-block-25 padding-50' style={{ width: '300px', gap: '.75rem' }} />
             </fieldset>
           </Popover>
         </div>

@@ -83,14 +83,6 @@ test.describe('Screenshot tests', () => {
     await page.screenshot({ path: `${outputDir}/languageMenuPopped/${openState}-${worker}.jpeg`, fullPage: false, animations: "disabled" });
     await page.screenshot({ path: `${outputDir}/languageMenuPopped-fullPage/${openState}-${worker}.jpeg`, fullPage: true, animations: "disabled" });
     await safePressEscape(page);
-
-    // Settings popover
-    await expect.soft(page.getByTestId('settings-button')).toBeVisible();
-    await page.getByTestId('settings-button').click({ force: true });
-    await expect.soft(page.locator('#allowStorage')).toBeVisible();
-    await page.screenshot({ path: `${outputDir}/settingsMenuPopped/${openState}-${worker}.jpeg`, fullPage: false, animations: "disabled" });
-    await page.screenshot({ path: `${outputDir}/settingsMenuPopped-fullPage/${openState}-${worker}.jpeg`, fullPage: true, animations: "disabled" });
-    await safePressEscape(page);
   }
 
   test('Sidebar pics', async ({ page }, metadata) => {

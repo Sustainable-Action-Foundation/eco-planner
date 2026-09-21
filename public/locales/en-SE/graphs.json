@@ -17,9 +17,6 @@
   "child_graph_selector": {
     "target_goals": "$t(common:goal_other, titleCase)"
   },
-  "graph_cookie": {
-    "save_preferences": "Save future view changes between sessions and page navigations"
-  },
   "graph_graph": {
     "compare_with_goal": "Compared against $t(common:goal_one) {{goalName}}",
     "historical_data_source": "1. The historical data in the graph is fetched from <a>{{source}}</a>",

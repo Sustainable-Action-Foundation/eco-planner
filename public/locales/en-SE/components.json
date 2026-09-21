@@ -371,7 +371,6 @@
     "actions_database": "$t(common:action_other, titleCase)",
     "close_menu_create": "Close menu: Create",
     "close_menu_language": "Close menu: Select language",
-    "close_menu_settings": "Close menu: Settings",
     "create": "Create",
     "create_account": "Create account",
     "create_needs_org": "You need to be a member of an organization to create content.",
@@ -379,7 +378,6 @@
     "language": "Language",
     "language_alt": "Select language",
     "my_profile": "My account",
-    "settings": "Settings",
     "toggle_menu_alt": "Toggle menu"
   },
   "signup": {

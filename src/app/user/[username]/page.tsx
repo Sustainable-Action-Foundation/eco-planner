@@ -1,4 +1,3 @@
-import GraphCookie from '@/components/cookies/graphCookie';
 import UserFilters from '@/components/form/filters/userFilters';
 import { ControlsMenu } from '@/components/elements/controls/controls';
 import accessChecker, { hasEditAccess } from '@/lib/accessChecker';
@@ -119,13 +118,6 @@ export default async function Page(
       <h1 className='margin-bottom-0'>{userdata.username}</h1>
       <small style={{ color: 'var(--gray-50)' }}>@{userdata.username}</small>
     </section>
-    
-    {session.user?.username === username ?
-      <section className='margin-block-300'>
-        <h2>{t("pages:profile.handle_data")}</h2>
-        <GraphCookie />
-      </section>
-      : null}
 
     <section className='margin-block-300'>
       <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>

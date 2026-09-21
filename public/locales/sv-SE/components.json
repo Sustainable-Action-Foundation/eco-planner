@@ -371,7 +371,6 @@
     "actions_database": "$t(common:action_other, titleCase)",
     "close_menu_create": "Stäng meny: Skapa",
     "close_menu_language": "Stäng meny: Välj språk",
-    "close_menu_settings": "Stäng meny: Inställningar",
     "create": "Skapa",
     "create_account": "Skapa konto",
     "create_needs_org": "Du behöver vara medlem i en organisation för att skapa innehåll.",
@@ -379,7 +378,6 @@
     "language": "Språk",
     "language_alt": "Välj språk",
     "my_profile": "Mitt konto",
-    "settings": "Inställningar",
     "toggle_menu_alt": "Växla meny"
   },
   "signup": {
