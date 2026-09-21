@@ -2,7 +2,9 @@
 
 import areaCodes from "@/lib/areaCodes.json" with { type: "json" };
 import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" with { type: "json" };
-import type { AccessControlInput, Roadmap, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
+import type { AccessControlInput, JSONValue, Roadmap, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
+import { isStandardObject } from "@/types/typeguards";
+import Link from "next/link";
 import type { OrgOption } from "@/fetchers/getOrgOptions";
 import { OrgRole, RoadmapType } from "@/lib/prisma/generated";
 import { useRef, useState } from "react";
@@ -36,6 +38,8 @@ export default function RoadmapForm({
   const [actor, setActor] = useState<string>(currentRoadmap?.actor ?? "");
   const [orgId, setOrgId] = useState<string>(currentRoadmap?.access_control.org_id ?? (orgOptions.length === 1 ? orgOptions[0].id : ""));
   const [access, setAccess] = useState<AccessControlInput | undefined>(undefined);
+  // After a successful create: the iteration creation page for the new roadmap
+  const [createdTarget, setCreatedTarget] = useState<string | null>(null);
   const { addToast } = useToast();
   const router = useRouter();
 
@@ -104,11 +108,39 @@ export default function RoadmapForm({
 
     const formJSON = JSON.stringify(formData);
 
-    formSubmitter('/api/roadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading, undefined, undefined, undefined, addToast, (url) => router.push(url));
+    // On create, also render an explicit success state with a link to the iteration form,
+    // so the user still knows what happened and where to go if the client-side navigation
+    // is blocked (e.g. by an adblocker). A roadmap without an iteration is otherwise hard to find.
+    const onCreated = !currentRoadmap ? (data: { body: JSONValue, location?: string | null }) => {
+      setIsLoading(false);
+      const newId = isStandardObject(data.body) && 'id' in data.body && typeof data.body.id === 'string' ? data.body.id : null;
+      const target = data.location ?? (newId ? `/roadmap/${newId}/iteration/create` : '/');
+      if (isStandardObject(data.body) && 'message' in data.body && typeof data.body.message === 'string' && data.body.message) {
+        addToast(data.body.message, "success");
+      }
+      setCreatedTarget(target);
+      router.push(target);
+    } : undefined;
+
+    formSubmitter('/api/roadmap', formJSON, currentRoadmap ? 'PUT' : 'POST', t, setIsLoading, undefined, onCreated, undefined, addToast, (url) => router.push(url));
   }
 
   // Indexes for the data-position attribute in the legend elements
   let positionIndex = 1;
+
+  // Success state after creating; normally the user is redirected past this, but if the
+  // navigation is blocked they still see what happened and where to go next
+  if (createdTarget) {
+    return (
+      <section className="margin-top-200 padding-100 smooth" style={{ border: '1px solid var(--gray-80)' }}>
+        <h2 className="margin-top-0 margin-bottom-50">{t("forms:roadmap.created_title")}</h2>
+        <p className="margin-bottom-100">{t("forms:roadmap.created_description")}</p>
+        <Link href={createdTarget} className="button seagreen color-purewhite round block text-align-center" style={{ fontSize: '14px' }}>
+          {t("forms:roadmap.created_cta")}
+        </Link>
+      </section>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} >
