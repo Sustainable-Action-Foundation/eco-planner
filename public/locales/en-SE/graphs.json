@@ -6,7 +6,9 @@
     "expected_outcome": "Expected outcome",
     "unknown_roadmap": "Unknown $t(common:roadmap_version_one)",
     "historical_data_footnoted": "$t(common:historical_data) (1)",
-    "historical_unit_mismatch": "The historical data is in {{historical}} but the goal in {{goal}}; the values are drawn as they are, without conversion."
+    "historical_unit_mismatch": "The historical data is in {{historical}} but the goal in {{goal}}; the values are drawn as they are, without conversion.",
+    "y_axis_left": "yₗ",
+    "y_axis_right": "yᵣ"
   },
   "action_graph": {
     "actions": "$t(common:action_other, titleCase)"
