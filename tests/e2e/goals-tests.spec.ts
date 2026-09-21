@@ -144,8 +144,9 @@ test.describe("Goals tests", () => {
     // Navigate to goal
     await page.getByRole('radio', { name: "table_selector.table" }).click();
     await page.getByRole('link', { name: indicatorRequiredOnly }).first().click();
-    // Wait for page to load
-    await page.locator('h1').filter({ hasText: indicatorRequiredOnly }).hover();
+    // Wait for page to load. An unnamed goal's h1 only shows the indicator leaf
+    // (plus the level suffix), so match the full indicator in the small below it.
+    await expect(page.getByTestId('goal-indicator-parameter')).toHaveText(indicatorRequiredOnly);
 
     // Enter edit form (the full form sits under the panel's edit menu)
     await page.getByTestId("admin-panel-edit-menu").click();
@@ -280,7 +281,8 @@ test.describe("Goals tests", () => {
     await page.locator('#submit-button').click();
     await page.waitForLoadState("networkidle");
 
-    await expect(page.getByRole('heading').nth(1)).toHaveText(nameAll);
+    // The title is suffixed with the goal's level (rendered via goal_title.* in cimode), so containment rather than equality
+    await expect(page.getByRole('heading').nth(1)).toContainText(nameAll);
     await expect(page.locator('#rich-description')).toHaveText(descriptionAll);
   });
 

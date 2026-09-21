@@ -229,7 +229,7 @@ export default async function Page(
           <small style={{ color: 'gray' }}>{t("pages:goal.title_label")}</small> {/* TODO: Probably use span here instead */}
           {/* Suffixed with the goal's level (national / area name) so copies scaled into local roadmaps aren't mistaken for the national original */}
           <h1 className="margin-0" style={{ fontSize: '3rem', lineHeight: '1' }}>{goalTitleWithLevel(t, goal, iteration.roadmap)}</h1>
-          <small style={{ color: 'gray' }}>{goal.indicator_parameter}</small> {/* TODO: Probably use span here instead */}
+          <small style={{ color: 'gray' }} data-testid="goal-indicator-parameter">{goal.indicator_parameter}</small> {/* TODO: Probably use span here instead */}
         </header>
 
         {goal.description ?
