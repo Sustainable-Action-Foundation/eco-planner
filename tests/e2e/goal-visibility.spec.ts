@@ -32,6 +32,8 @@ async function gotoNationalV2(page: Page) {
 
 /** Picks a visibility in the goal page's admin panel; the panel reloads the page once the change is saved. */
 async function setVisibility(page: Page, visibility: "listed" | "unlisted" | "featured") {
+  // The goal page renders slowly on a fat DB; wait for the panel before poking it
+  await expect(page.getByTestId("admin-panel-visibility")).toBeVisible({ timeout: 15_000 });
   await page.getByTestId("admin-panel-visibility").click();
   await Promise.all([
     page.waitForEvent("load"),
@@ -99,7 +101,9 @@ test.describe.serial("Goal visibility menu", () => {
     await fillManualDataSeries(page, Array.from({ length: 10 }, (_, i) => [2020 + i, 1]));
 
     await page.locator('#submit-button').click();
-    await page.locator('#comment-text').hover();
+    // Post-create SSR of the goal page is slow on a fat DB; wait out the navigation instead of a bare hover
+    await page.waitForURL(/\/goal\//, { timeout: 15_000 });
+    await expect(page.locator('#comment-text')).toBeVisible({ timeout: 15_000 });
     goalUrl = page.url();
 
     await expectCurrentVisibility(page, "listed");
