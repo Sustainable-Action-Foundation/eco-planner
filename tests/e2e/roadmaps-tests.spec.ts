@@ -104,7 +104,7 @@ test.describe.serial("Roadmaps tests", () => {
     await grantSelect(page, groupName).selectOption('RW');
 
     // Work towards the seeded national roadmap
-    await page.locator('#parent-roadmap').click();
+    await page.locator('#parent-roadmap').click({ timeout: 20_000 });
     await page.locator('#parent-roadmap-dialog-listbox li').filter({ hasText: 'Rikets färdplan' }).click();
 
     // Submit the form
@@ -137,11 +137,11 @@ test.describe.serial("Roadmaps tests", () => {
     // The front page links to the latest iteration of each roadmap
     await openRoadmapFromHome(page, roadmapNameAllFields);
 
-    // Wait for the iteration page to load
-    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/v\d+$/);
+    // Wait for the iteration page to load (blocking navigation; the SSR is slow on a fat DB)
+    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/v\d+$/, { timeout: 20_000 });
 
     // Click the edit button
-    await page.getByTestId('admin-panel-edit').click();
+    await page.getByTestId('admin-panel-edit').filter({ visible: true }).click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/v\d+\/edit/);
@@ -157,7 +157,7 @@ test.describe.serial("Roadmaps tests", () => {
 
     // Verify the save was successful
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/v\d+$/);
-    await expect(page.getByTestId('admin-panel-edit')).toBeVisible();
+    await expect(page.getByTestId('admin-panel-edit').filter({ visible: true })).toBeVisible();
   });
 
   test("Iteration id route redirects to version slug - All Fields", async ({ page }) => {
@@ -196,7 +196,7 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
 
     // Click the edit button
-    await page.getByTestId('admin-panel-edit').click();
+    await page.getByTestId('admin-panel-edit').filter({ visible: true }).click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
@@ -237,7 +237,7 @@ test.describe.serial("Roadmaps tests", () => {
     await openRoadmapFromHome(page, roadmapNameAllFields);
 
     // Click the edit button
-    await page.getByTestId('admin-panel-edit').click();
+    await page.getByTestId('admin-panel-edit').filter({ visible: true }).click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/v\d+\/edit/);
@@ -252,7 +252,7 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/v\d+$/);
 
     // Click the edit button again to verify all changes were saved
-    await page.getByTestId('admin-panel-edit').click();
+    await page.getByTestId('admin-panel-edit').filter({ visible: true }).click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/v\d+\/edit/);
@@ -277,7 +277,7 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
 
     // Click the edit button
-    await page.getByTestId('admin-panel-edit').click();
+    await page.getByTestId('admin-panel-edit').filter({ visible: true }).click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
@@ -308,7 +308,7 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page.getByRole('heading', { name: roadmapNameAllFieldsUpdated })).toBeVisible();
 
     // Click the edit button again to verify all changes were saved
-    await page.getByTestId('admin-panel-edit').click();
+    await page.getByTestId('admin-panel-edit').filter({ visible: true }).click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
@@ -386,7 +386,7 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/v\d+$/);
 
     // Click the edit button
-    await page.getByTestId('admin-panel-edit').click();
+    await page.getByTestId('admin-panel-edit').filter({ visible: true }).click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/v\d+\/edit/);
@@ -399,7 +399,7 @@ test.describe.serial("Roadmaps tests", () => {
 
     // Verify the save was successful
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/v\d+$/);
-    await expect(page.getByTestId('admin-panel-edit')).toBeVisible();
+    await expect(page.getByTestId('admin-panel-edit').filter({ visible: true })).toBeVisible();
   });
 
   test("Edit roadmap, no changes - Required Fields", async ({ page }) => {
@@ -417,7 +417,7 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
 
     // Click the edit button
-    await page.getByTestId('admin-panel-edit').click();
+    await page.getByTestId('admin-panel-edit').filter({ visible: true }).click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
@@ -457,7 +457,7 @@ test.describe.serial("Roadmaps tests", () => {
     await page.getByRole('link', { name: `${roadmapNameRequiredFields}` }).first().click();
 
     // Click the edit button
-    await page.getByTestId('admin-panel-edit').click();
+    await page.getByTestId('admin-panel-edit').filter({ visible: true }).click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/v\d+\/edit/);
@@ -472,7 +472,7 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/v\d+$/);
 
     // Click the edit button again to verify all changes were saved
-    await page.getByTestId('admin-panel-edit').click();
+    await page.getByTestId('admin-panel-edit').filter({ visible: true }).click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/v\d+\/edit/);
@@ -500,7 +500,7 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
 
     // Click the edit button
-    await page.getByTestId('admin-panel-edit').click();
+    await page.getByTestId('admin-panel-edit').filter({ visible: true }).click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);
@@ -531,7 +531,7 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(page.getByRole('heading', { name: roadmapNameRequiredFieldsUpdated })).toBeVisible();
 
     // Click the edit button again to verify all changes were saved
-    await page.getByTestId('admin-panel-edit').click();
+    await page.getByTestId('admin-panel-edit').filter({ visible: true }).click();
 
     // Wait for edit page to load
     await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/edit/);

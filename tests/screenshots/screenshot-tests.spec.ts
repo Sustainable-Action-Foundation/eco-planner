@@ -202,7 +202,7 @@ test.describe('Screenshots Admin', () => {
     await takeScreenshot(sendPageName, page, metadata.project.name);
 
     // Roadmap Edit
-    await page.getByTestId('admin-panel-edit').click();
+    await page.getByTestId('admin-panel-edit').filter({ visible: true }).click();
     await expect.soft(page.locator('#submit-button')).toBeVisible();
     sendPageName = "editRoadmap"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
@@ -243,7 +243,7 @@ test.describe('Screenshots Admin', () => {
     await takeScreenshot(sendPageName, page, metadata.project.name);
 
     // Iteration Edit
-    await page.getByTestId('admin-panel-edit').click();
+    await page.getByTestId('admin-panel-edit').filter({ visible: true }).click();
 
     await expect.soft(page.locator('#submit-button')).toBeVisible();
     sendPageName = "editIteration"; // What the screenshot is of
@@ -291,8 +291,8 @@ test.describe('Screenshots Admin', () => {
     sendPageName = "goal"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
 
-    await page.getByTestId('admin-panel-edit-menu').click();
-    await page.getByTestId('admin-panel-edit').click();
+    await page.getByTestId('admin-panel-edit-menu').filter({ visible: true }).click();
+    await page.getByTestId('admin-panel-edit').filter({ visible: true }).click();
 
     await expect.soft(page.locator('#submit-button')).toBeVisible();
     sendPageName = "editGoal"; // What the screenshot is of

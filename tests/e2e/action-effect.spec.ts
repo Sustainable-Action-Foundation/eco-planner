@@ -7,7 +7,8 @@ const adminFile = path.join(cwd(), "tests/.auth/admin.json");
 
 /** The repeatable descriptive-field rows of the action form: one <details> accordion per group. */
 function actionFieldRows(page: Page) {
-  return page.getByTestId('action-field-row');
+  // Scope to the visible form: hidden Activity routes keep earlier form instances in the DOM
+  return page.getByTestId('action-field-row').filter({ visible: true });
 }
 
 /** The rows are collapsed <details>; open them all so their inputs become visible/fillable */
@@ -126,7 +127,7 @@ test.describe.serial("Action & Effect tests", () => {
     await page.getByRole('link', { name: actionNameRequiredFields }).first().click();
     await page.waitForLoadState("networkidle");
     await page.getByRole('heading', { name: actionNameRequiredFields }).hover();
-    await page.getByTestId("admin-panel-edit").click();
+    await page.getByTestId("admin-panel-edit").filter({ visible: true }).click();
 
 
     await page.locator('#actionName').hover(); // This is needed to make sure the name field is loaded before checking its content, otherwise it will be empty and the test will fail.        
@@ -150,7 +151,7 @@ test.describe.serial("Action & Effect tests", () => {
 
     await page.getByRole('heading', { name: actionNameRequiredFields }).hover();
     await page.waitForLoadState("networkidle");
-    await page.getByTestId("admin-panel-edit").click();
+    await page.getByTestId("admin-panel-edit").filter({ visible: true }).click();
 
     // Update the name
     await page.locator('#actionName').fill(actionNameRequiredFieldsUpdated);
@@ -216,7 +217,7 @@ test.describe.serial("Action & Effect tests", () => {
 
     await page.waitForLoadState("networkidle");
     await page.getByRole('heading', { name: actionNameAllFields }).hover();
-    await page.getByTestId("admin-panel-edit").click();
+    await page.getByTestId("admin-panel-edit").filter({ visible: true }).click();
 
     await expect(page.locator('#actionName')).toHaveValue(actionNameAllFields);
 
@@ -238,7 +239,7 @@ test.describe.serial("Action & Effect tests", () => {
 
     await page.waitForLoadState("networkidle");
 
-    await expect(page.getByTestId("admin-panel-edit")).toBeVisible();
+    await expect(page.getByTestId("admin-panel-edit").filter({ visible: true })).toBeVisible();
   });
 
   test("Edit Action - All Fields", async ({ page }, testInfo) => {
@@ -253,7 +254,7 @@ test.describe.serial("Action & Effect tests", () => {
 
     await page.waitForLoadState("networkidle");
     await page.getByRole('heading', { name: actionNameAllFields }).hover();
-    await page.getByTestId("admin-panel-edit").click();
+    await page.getByTestId("admin-panel-edit").filter({ visible: true }).click();
 
     // Update the name and every descriptive field; the description has its own dedicated input
     await page.locator('#actionName').fill(actionNameAllFieldsUpdated);
@@ -274,7 +275,7 @@ test.describe.serial("Action & Effect tests", () => {
     await page.waitForLoadState("networkidle");
 
     // Verify that everything is updated correctly
-    await page.getByTestId("admin-panel-edit").click();
+    await page.getByTestId("admin-panel-edit").filter({ visible: true }).click();
 
     await expect(page.locator('#actionName')).toHaveValue(actionNameAllFieldsUpdated);
 
@@ -368,7 +369,8 @@ test.describe.serial("Action & Effect tests", () => {
 
     // Display: groups appear in entry order, list values in entry order (B before A).
     // These headers are no longer canonical, so they render verbatim rather than translated.
-    const mainText = (await page.locator('main').textContent())?.replace(/\s+/g, ' ') ?? '';
+    // Hidden Activity routes keep their own <main> in the DOM; read the visible one
+    const mainText = (await page.locator('main').filter({ visible: true }).textContent())?.replace(/\s+/g, ' ') ?? '';
     const ce = mainText.indexOf('COST_EFFICIENCY');
     const eo = mainText.indexOf('EXPECTED_OUTCOME');
     const ra = mainText.indexOf('RELEVANT_ACTORS');
@@ -380,7 +382,7 @@ test.describe.serial("Action & Effect tests", () => {
     expect(listItems.indexOf('Actor B')).toBeLessThan(listItems.indexOf('Actor A'));
 
     // Edit round-trip: same group order, same value order within the list
-    await page.getByTestId("admin-panel-edit").click();
+    await page.getByTestId("admin-panel-edit").filter({ visible: true }).click();
     await expect(actionFieldRows(page).first()).toBeVisible();
     const headers = await actionFieldRows(page).getByTestId('action-field-header').evaluateAll(els => els.map(el => (el as HTMLInputElement).value));
     expect(headers).toEqual(['COST_EFFICIENCY', 'EXPECTED_OUTCOME', 'RELEVANT_ACTORS']);

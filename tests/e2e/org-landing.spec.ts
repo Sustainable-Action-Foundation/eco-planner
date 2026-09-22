@@ -17,6 +17,8 @@ test.describe("Org landing page (multi-org manager)", () => {
     // admin is a super admin: Sustainable Action + every seeded place (member
     // of some, not of others) + the public view: past the chip limit, so a
     // select rather than a row of chips
+    // The switcher streams in with the dynamic content; wait for it to render before counting
+    await orgSwitcher(page).locator("select, a").first().waitFor({ timeout: 15_000 });
     await expect(orgSwitcher(page).getByRole("link")).toHaveCount(0);
     const options = orgSwitcher(page).locator("select option");
     await expect(options).toHaveCount(1 + seedPlaces.length + 1);

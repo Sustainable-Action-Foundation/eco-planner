@@ -15,7 +15,7 @@ async function openGoalForm(page: Page) {
   await page.getByTestId("create-goal").click();
   await page.waitForLoadState("networkidle");
 
-  await page.locator("#parent-roadmap").click();
+  await page.locator("#parent-roadmap").click({ timeout: 20_000 });
   // Match "Rikets färdplan" version 2 specifically, to avoid selecting the wrong roadmap (mirrors goals-tests).
   await page.locator("#parent-roadmap-dialog-listbox li")
     .filter({ hasText: "Rikets färdplan" })
