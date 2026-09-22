@@ -48,6 +48,12 @@ export default function GroupManager({ management }: { management: OrgManagement
   return (
     <>
       <section className="margin-bottom-300">
+        <h2 className="font-size-125">{t("pages:org_groups.org_heading")}</h2>
+        {/* Keyed on the name so a router.refresh() after renaming remounts with fresh data */}
+        <RenameOrg key={management.org.name} org={management.org} />
+      </section>
+
+      <section className="margin-bottom-300">
         <h2 className="font-size-125">{t("pages:org_groups.members_heading")}</h2>
         <details data-testid="members-details">
           <summary className="padding-block-25" style={{ cursor: 'pointer' }}>
@@ -70,6 +76,51 @@ export default function GroupManager({ management }: { management: OrgManagement
         <CreateGroup orgId={management.org.id} members={management.members} />
       </section>
     </>
+  );
+}
+
+/** Text input to rename the org; the save button stays disabled until the name actually changes */
+function RenameOrg({ org }: { org: OrgManagement["org"] }) {
+  const { t } = useTranslation(["pages", "common"]);
+  const { addToast } = useToast();
+  const router = useRouter();
+
+  const [name, setName] = useState(org.name);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const unchanged = name.trim() === org.name || !name.trim();
+
+  function rename(event: React.SyntheticEvent<HTMLFormElement>) {
+    event.preventDefault();
+    formSubmitter('/api/org', JSON.stringify({
+      orgId: org.id,
+      name: name.trim(),
+    }), 'PUT', t, setIsLoading, undefined, () => {
+      addToast(t("pages:org_groups.renamed_toast", { name: name.trim() }), "success");
+      router.refresh();
+    }, (err) => {
+      setIsLoading(false);
+      addToast(errorMessage(err, t), "error");
+    }, addToast);
+  }
+
+  return (
+    <form onSubmit={rename} className="flex gap-50 flex-wrap-wrap align-items-flex-end" data-testid="org-rename-form">
+      <label className="font-weight-500">
+        {t("pages:org_groups.org_name_label")}
+        <input
+          className="margin-top-25 block"
+          type="text"
+          required={true}
+          data-testid="org-name"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+        />
+      </label>
+      <button type="submit" className="seagreen color-purewhite" disabled={isLoading || unchanged} data-testid="org-rename-save">
+        {t("common:tsx.save")}
+      </button>
+    </form>
   );
 }
 
