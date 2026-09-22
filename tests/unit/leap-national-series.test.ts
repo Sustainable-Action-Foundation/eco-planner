@@ -18,9 +18,14 @@ test.describe("LEAP national series", () => {
     expect(hydro).toMatchObject({ tableId: "EN0202_25", unit: "TWh" });
     expect(hydro?.selection).toContainEqual({ variableCode: "Kraftslag", valueCodes: ["0"] });
     expect(hydro?.scale).toBeCloseTo(1 / 8.76);
-    // LEAP splits wind and solar in ways the statistic doesn't
+    // LEAP splits wind land/sea, which the statistic doesn't
     expect(getLeapNationalSource(`${K}Energiomvandlingsanläggningar\\Årlig elproduktion\\Vindkraft landbaserad`)).toBeNull();
-    expect(getLeapNationalSource(`${K}Energiomvandlingsanläggningar\\Årlig elproduktion\\Solkraft tak`)).toBeNull();
+    // Both solar rows carry the national total (no roof/ground statistic)
+    for (const solar of ["Solkraft tak", "Solkraft mark"]) {
+      const source = getLeapNationalSource(`${K}Energiomvandlingsanläggningar\\Årlig elproduktion\\${solar}`);
+      expect(source).toMatchObject({ tableId: "EN0202_25", unit: "TWh" });
+      expect(source?.selection).toContainEqual({ variableCode: "Kraftslag", valueCodes: ["2"] });
+    }
   });
 
   test("fuel input totals and named fuels, never the biofuel row that counts waste", () => {
