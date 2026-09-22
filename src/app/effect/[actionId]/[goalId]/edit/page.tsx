@@ -84,6 +84,8 @@ export default async function Page(props: { params: Promise<{ actionId: string, 
           {t("pages:effect_edit.title")}
         </h1>
         <EffectForm
+          // Keyed so a revisit after saving remounts the preserved form with fresh data (see goal edit)
+          key={new Date(effect.updated_at).getTime()}
           currentEffect={effect}
           roadmaps={roadmapList}
         />

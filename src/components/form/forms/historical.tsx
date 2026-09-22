@@ -1,5 +1,6 @@
 "use client";
 
+import { useFormTimestamp } from "./useFormTimestamp";
 import HistoricalDataSection from "@/components/form/sections/dataseries/historical";
 import {
   GoalFormError,
@@ -47,7 +48,7 @@ export default function HistoricalForm({
   const initializedHistoricalTypes = useInitializedValues(historicalDataType);
   const [previewHistoricalRecipe, setPreviewHistoricalRecipe] = useState<SerializedRecipe | null>(null);
   const [previewHistoricalSerie, setPreviewHistoricalSerie] = useState<DateValuesWithUnit | null>(null);
-  const [timestamp] = useState(() => Date.now());
+  const timestamp = useFormTimestamp();
 
   const historicalSource = useMemo(() => {
     if (!previewHistoricalRecipe) return null;

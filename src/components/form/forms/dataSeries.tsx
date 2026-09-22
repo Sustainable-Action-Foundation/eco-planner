@@ -1,5 +1,6 @@
 "use client";
 
+import { useFormTimestamp } from "./useFormTimestamp";
 import GoalSeriesSection from "@/components/form/sections/dataseries/goal";
 import { GoalFormName } from "@/types/form-names";
 import { GoalGraph } from "@/components/graph/graphs/goal/main";
@@ -45,7 +46,7 @@ export default function DataSeriesForm({
   const [previewDataSerie, setPreviewDataSerie] = useState<DateValuesWithUnit | null>(null);
   // Evaluation error of the currently-selected recipe input (Suggested/Custom),
   // lifted out of the recipe context so submission can be blocked when it fails
-  const [timestamp] = useState(() => Date.now());
+  const timestamp = useFormTimestamp();
 
   // A baseline derived from the series' first (non-zero) value goes stale when
   // the series changes, so it is re-derived and written after the series lands

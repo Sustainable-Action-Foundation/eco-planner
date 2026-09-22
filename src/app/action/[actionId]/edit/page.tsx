@@ -77,7 +77,8 @@ export default async function Page(
             version: action.roadmap_iteration?.version,
           })}
         </h1>
-        <ActionForm iterationId={action.roadmap_iteration_id ?? undefined} currentAction={action} roadmaps={[]} />
+        {/* Keyed so a revisit after saving remounts the preserved form with fresh data (see goal edit) */}
+        <ActionForm key={new Date(action.updated_at).getTime()} iterationId={action.roadmap_iteration_id ?? undefined} currentAction={action} roadmaps={[]} />
       </div>
     </>
   );

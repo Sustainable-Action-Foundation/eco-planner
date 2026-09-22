@@ -20,7 +20,8 @@ export default async function Page(props: { params: Promise<{ goalId: string }> 
       breadcrumb={t("pages:goal_edit.data_series.breadcrumb")}
       title={t("pages:goal_edit.data_series.title", { goalName: goal.name || goal.indicator_parameter })}
     >
-      <DataSeriesForm goal={goal} />
+      {/* Keyed so a revisit after saving remounts the preserved form with fresh data (see goal edit) */}
+      <DataSeriesForm key={new Date(goal.updated_at).getTime()} goal={goal} />
     </GoalSectionPage>
   );
 }
