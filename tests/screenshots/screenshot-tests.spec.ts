@@ -270,24 +270,17 @@ test.describe('Screenshots Admin', () => {
     await page.getByRole('link', { name: "Rikets färdplan" }).click(metadata.project.name.includes("Galaxy") ? { force: true } : undefined);
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
 
-    const URL = page.url();
-    let i = 0;
+    // Open a goal via the table view: the default tree hides leaves inside collapsed
+    // branches, and the old index-based click loop starved against hidden Activity
+    // routes (its unscoped #select-graphType/home-title recovery checks matched the
+    // wrong copies until the test timed out).
+    const force = metadata.project.name.includes("Galaxy") ? { force: true } : undefined;
+    await page.locator('input[name="table"][value="TABLE"]').filter({ visible: true }).first().check(force);
+    await expect(page.locator('#goalTable').filter({ visible: true })).toBeVisible();
+    await page.locator('main a[href^="/goal/"]').filter({ visible: true }).first().click(force);
 
-    while (URL === page.url()) { // Loop to open all of the tree items to find a goal
-      try {
-        await page.getByRole('listitem').nth(i).click();
-        i++;
-      } catch {
-        if (await page.locator('#select-graphType').isVisible()) {
-          break;
-        } else {
-          // How do you throw an error good?
-          await expect(page.getByTestId('home-title')).toBeVisible(); // Needed it to throw an error and stop the test but didn't know a good way to do that
-        }
-      }
-    }
-
-    await expect.soft(page.locator('#select-graphType')).toBeVisible();
+    // The goal page SSR is slow on a fat DB
+    await expect.soft(page.locator('#select-graphType').filter({ visible: true })).toBeVisible({ timeout: 20_000 });
     sendPageName = "goal"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
 
