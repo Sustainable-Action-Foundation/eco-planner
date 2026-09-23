@@ -1,5 +1,6 @@
 'use client';
 
+import { useFormTimestamp } from "./useFormTimestamp";
 import formSubmitter from "@/functions/formSubmitter";
 import { csvToGoalList, parseGoalCsv } from "@/functions/parseGoalCsv";
 import type { GoalCreateFull, Roadmap, RoadmapIteration, RoadmapIterationCreateInput, RoadmapIterationUpdateInput } from "@/types";
@@ -42,7 +43,7 @@ export default function RoadmapIterationForm({
 
   const [currentFile, setCurrentFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [timestamp] = useState<number>(() => Date.now());
+  const timestamp = useFormTimestamp();
   // New iterations start as drafts
   const initialStatus: IterationStatus = currentIteration?.status ?? IterationStatus.DRAFT;
   const [roadmapId, setRoadmapId] = useState<string>(currentIteration?.roadmap_id || defaultRoadmapId || "");

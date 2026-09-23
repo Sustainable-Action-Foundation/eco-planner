@@ -20,7 +20,8 @@ export default async function Page(props: { params: Promise<{ goalId: string }> 
       breadcrumb={t("pages:goal_edit.historical.breadcrumb")}
       title={t("pages:goal_edit.historical.title", { goalName: goal.name || goal.indicator_parameter })}
     >
-      <HistoricalForm goal={goal} mode={HistoricalFormMode.Edit} />
+      {/* Keyed so a revisit after saving remounts the preserved form with fresh data (see goal edit) */}
+      <HistoricalForm key={new Date(goal.updated_at).getTime()} goal={goal} mode={HistoricalFormMode.Edit} />
     </GoalSectionPage>
   );
 }

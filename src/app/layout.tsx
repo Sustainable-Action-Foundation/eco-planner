@@ -8,6 +8,11 @@ import { getLocale } from "@/functions/getLocale";
 import { ToastContextProvider } from '@/components/generic/toast/toastContext.provider';
 import ToastList from '@/components/generic/toast/toastList';
 
+// The app is session-driven (cookies in this layout and most pages), so routes are
+// allowed to block instead of promising an instant static shell. Remove per segment
+// when adopting Suspense/"use cache" shells route by route.
+export const instant = false;
+
 export default async function RootLayout(
   { children }: { children: React.ReactNode, },
 ) {

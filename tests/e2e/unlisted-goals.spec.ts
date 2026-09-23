@@ -162,7 +162,7 @@ test.describe.serial("Unlisted goal creation", () => {
     await page.getByTestId('create-goal').click();
     await page.waitForLoadState("networkidle");
 
-    await page.locator('#parent-roadmap').click();
+    await page.locator('#parent-roadmap').click({ timeout: 20_000 });
     await page.locator('#parent-roadmap-dialog-listbox li').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: '2' }).click();
 
     await page.locator('#goalName').fill(goalName);
@@ -178,11 +178,11 @@ test.describe.serial("Unlisted goal creation", () => {
     await page.locator('#submit-button').click();
     // Post-create SSR of the goal page is slow on a fat DB; wait out the navigation instead of a bare hover
     await page.waitForURL(/\/goal\//, { timeout: 15_000 });
-    await expect(page.locator('#comment-text')).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('#comment-text').filter({ visible: true })).toBeVisible({ timeout: 15_000 });
 
     // The checkbox round-trips in the edit form
-    await page.getByTestId("admin-panel-edit-menu").click();
-    await page.getByTestId("admin-panel-edit").click();
+    await page.getByTestId("admin-panel-edit-menu").filter({ visible: true }).click();
+    await page.getByTestId("admin-panel-edit").filter({ visible: true }).click();
     await page.waitForLoadState("networkidle");
     await expect(page.locator('#isUnlisted')).toBeChecked();
   });

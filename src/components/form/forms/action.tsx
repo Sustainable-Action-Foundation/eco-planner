@@ -1,5 +1,6 @@
 "use client";
 
+import { useFormTimestamp } from "./useFormTimestamp";
 import { ActionFieldHeaders, defaultActionFieldType, groupActionFields, parseCsvList } from "@/functions/fields";
 import formSubmitter from "@/functions/formSubmitter";
 import type { Action, ActionInput, DateValuesWithUnit, MultiRoadmapInstance } from "@/types";
@@ -34,7 +35,7 @@ export default function ActionForm({
   roadmaps: MultiRoadmapInstance[],
 }) {
   const { t } = useTranslation(["forms", "common"]);
-  const [timestamp] = useState(() => Date.now());
+  const timestamp = useFormTimestamp();
   const router = useRouter();
 
   const { addToast } = useToast();

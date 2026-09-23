@@ -1,5 +1,6 @@
 'use client';
 
+import { useFormTimestamp } from "./useFormTimestamp";
 import areaCodes from "@/lib/areaCodes.json" with { type: "json" };
 import countiesAndMunicipalities from "@/lib/countiesAndMunicipalities.json" with { type: "json" };
 import type { AccessControlInput, JSONValue, Roadmap, RoadmapCreateInput, RoadmapUpdateInput } from "@/types";
@@ -43,7 +44,7 @@ export default function RoadmapForm({
   const { addToast } = useToast();
   const router = useRouter();
 
-  const [timestamp] = useState(() => Date.now());
+  const timestamp = useFormTimestamp();
 
   const selectedOrg = orgOptions.find(org => org.id === orgId);
   // Sharing settings are manager-only on existing content; on create the creator sets the initial sharing

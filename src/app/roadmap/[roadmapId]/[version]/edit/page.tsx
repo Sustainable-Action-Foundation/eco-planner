@@ -72,6 +72,8 @@ export default async function Page(props: { params: Promise<{ roadmapId: string,
           {t("pages:roadmap_iteration_edit.title")} {/* TODO: Need a better name here... */}
         </h1>
         <RoadmapIterationForm
+          // Keyed so a revisit after saving remounts the preserved form with fresh data (see goal edit)
+          key={new Date(iteration.updated_at).getTime()}
           currentIteration={iteration}
           roadmapAlternatives={roadmapAlternatives}
         />

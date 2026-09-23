@@ -38,7 +38,8 @@ test.describe("Sidebar tests", () => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
-    const homeTitle = page.getByTestId("home-title");
+    // Scope to the visible instance; hidden Activity routes can keep their own copy
+    const homeTitle = page.getByTestId("home-title").filter({ visible: true });
 
     await expect(homeTitle, "Page is not in cimode").toHaveText("home.title");
 
@@ -46,10 +47,10 @@ test.describe("Sidebar tests", () => {
 
     // The switcher updates the SSR title via router.refresh(), a full re-render
     // of the startpage that is slow on a fat CI DB; wait generously
-    await expect(homeTitle, "Page is not in English").toHaveText("Roadmaps", { timeout: 20_000 });
+    await expect(homeTitle, "Page is not in English").toHaveText("Roadmaps", { timeout: 45_000 });
 
     await switchLanguage(page, localeAliases[Locales.svSE]);
 
-    await expect(homeTitle, "Page is not in Swedish").toHaveText("Färdplaner", { timeout: 20_000 });
+    await expect(homeTitle, "Page is not in Swedish").toHaveText("Färdplaner", { timeout: 45_000 });
   });
 });

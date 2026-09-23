@@ -1,5 +1,6 @@
 'use client';
 
+import { useFormTimestamp } from "./useFormTimestamp";
 import formSubmitter from "@/functions/formSubmitter";
 import type { Action, DateValuesWithUnit, Effect, EffectInput, Goal, MultiRoadmapInstance } from "@/types";
 import { EffectFormName } from "@/types/form-names";
@@ -27,7 +28,7 @@ export default function EffectForm({
   roadmaps: MultiRoadmapInstance[],
 }) {
   const { t } = useTranslation(["forms", "common"]);
-  const [timestamp] = useState(() => Date.now());
+  const timestamp = useFormTimestamp();
   const router = useRouter();
 
   const { addToast } = useToast();

@@ -15,11 +15,29 @@ let sendPageName = ""; // Denotes what a screenshot is of
 /*
   To run screenshot tests locally you must run: yarn screenshot
 */
+// Browsers refuse screenshot buffers over 32767 device pixels on a side. Full pages on a
+// fat DB exceed that at mobile deviceScaleFactors (e.g. Galaxy S9+ at 4.5x), so cap the
+// full-page capture height; pages that fit are captured exactly as before.
+const maxScreenshotPixels = 32767;
+
 async function takeScreenshot(pageName: string, page: Page, worker: string) {
   await isSidebarOpen(page, true);
 
   await page.screenshot({ path: `${outputDir}/${pageName}/${worker}.jpeg`, fullPage: false, animations: "disabled" });
-  await page.screenshot({ path: `${outputDir}/${pageName}-fullPage/${worker}.jpeg`, fullPage: true, animations: "disabled" });
+
+  const fullPagePath = `${outputDir}/${pageName}-fullPage/${worker}.jpeg`;
+  const { dpr, pageHeight } = await page.evaluate(() => ({
+    dpr: window.devicePixelRatio,
+    pageHeight: document.documentElement.scrollHeight,
+  }));
+  const maxCssHeight = Math.floor(maxScreenshotPixels / dpr);
+  if (pageHeight > maxCssHeight) {
+    // fullPage + clip captures beyond the viewport, cropped to a buffer the browser accepts
+    const width = page.viewportSize()?.width ?? 1280;
+    await page.screenshot({ path: fullPagePath, fullPage: true, clip: { x: 0, y: 0, width, height: maxCssHeight }, animations: "disabled" });
+  } else {
+    await page.screenshot({ path: fullPagePath, fullPage: true, animations: "disabled" });
+  }
 }
 
 async function safePressEscape(page: Page) {
@@ -202,7 +220,7 @@ test.describe('Screenshots Admin', () => {
     await takeScreenshot(sendPageName, page, metadata.project.name);
 
     // Roadmap Edit
-    await page.getByTestId('admin-panel-edit').click();
+    await page.getByTestId('admin-panel-edit').filter({ visible: true }).click();
     await expect.soft(page.locator('#submit-button')).toBeVisible();
     sendPageName = "editRoadmap"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
@@ -243,7 +261,7 @@ test.describe('Screenshots Admin', () => {
     await takeScreenshot(sendPageName, page, metadata.project.name);
 
     // Iteration Edit
-    await page.getByTestId('admin-panel-edit').click();
+    await page.getByTestId('admin-panel-edit').filter({ visible: true }).click();
 
     await expect.soft(page.locator('#submit-button')).toBeVisible();
     sendPageName = "editIteration"; // What the screenshot is of
@@ -270,29 +288,22 @@ test.describe('Screenshots Admin', () => {
     await page.getByRole('link', { name: "Rikets färdplan" }).click(metadata.project.name.includes("Galaxy") ? { force: true } : undefined);
     await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
 
-    const URL = page.url();
-    let i = 0;
+    // Open a goal via the table view: the default tree hides leaves inside collapsed
+    // branches, and the old index-based click loop starved against hidden Activity
+    // routes (its unscoped #select-graphType/home-title recovery checks matched the
+    // wrong copies until the test timed out).
+    const force = metadata.project.name.includes("Galaxy") ? { force: true } : undefined;
+    await page.locator('input[name="table"][value="TABLE"]').filter({ visible: true }).first().check(force);
+    await expect(page.locator('#goalTable').filter({ visible: true })).toBeVisible();
+    await page.locator('main a[href^="/goal/"]').filter({ visible: true }).first().click(force);
 
-    while (URL === page.url()) { // Loop to open all of the tree items to find a goal
-      try {
-        await page.getByRole('listitem').nth(i).click();
-        i++;
-      } catch {
-        if (await page.locator('#select-graphType').isVisible()) {
-          break;
-        } else {
-          // How do you throw an error good?
-          await expect(page.getByTestId('home-title')).toBeVisible(); // Needed it to throw an error and stop the test but didn't know a good way to do that
-        }
-      }
-    }
-
-    await expect.soft(page.locator('#select-graphType')).toBeVisible();
+    // The goal page SSR is slow on a fat DB
+    await expect.soft(page.locator('#select-graphType').filter({ visible: true })).toBeVisible({ timeout: 20_000 });
     sendPageName = "goal"; // What the screenshot is of
     await takeScreenshot(sendPageName, page, metadata.project.name);
 
-    await page.getByTestId('admin-panel-edit-menu').click();
-    await page.getByTestId('admin-panel-edit').click();
+    await page.getByTestId('admin-panel-edit-menu').filter({ visible: true }).click();
+    await page.getByTestId('admin-panel-edit').filter({ visible: true }).click();
 
     await expect.soft(page.locator('#submit-button')).toBeVisible();
     sendPageName = "editGoal"; // What the screenshot is of

@@ -36,7 +36,8 @@ async function setVisibility(page: Page, visibility: "listed" | "unlisted" | "fe
   await expect(page.getByTestId("admin-panel-visibility")).toBeVisible({ timeout: 15_000 });
   await page.getByTestId("admin-panel-visibility").click();
   await Promise.all([
-    page.waitForEvent("load"),
+    // The save triggers a full page load; the goal page's SSR is slow on a fat DB
+    page.waitForEvent("load", { timeout: 20_000 }),
     page.getByTestId(`admin-panel-visibility-${visibility}`).click(),
   ]);
   await expect(page.getByTestId("admin-panel-visibility")).toBeVisible();
@@ -89,7 +90,7 @@ test.describe.serial("Goal visibility menu", () => {
     await page.getByTestId('create-goal').click();
     await page.waitForLoadState("networkidle");
 
-    await page.locator('#parent-roadmap').click();
+    await page.locator('#parent-roadmap').click({ timeout: 20_000 });
     await page.locator('#parent-roadmap-dialog-listbox li').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: '2' }).click();
 
     await page.locator('#goalName').fill(goalName);
@@ -103,7 +104,7 @@ test.describe.serial("Goal visibility menu", () => {
     await page.locator('#submit-button').click();
     // Post-create SSR of the goal page is slow on a fat DB; wait out the navigation instead of a bare hover
     await page.waitForURL(/\/goal\//, { timeout: 15_000 });
-    await expect(page.locator('#comment-text')).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('#comment-text').filter({ visible: true })).toBeVisible({ timeout: 15_000 });
     goalUrl = page.url();
 
     await expectCurrentVisibility(page, "listed");
@@ -115,8 +116,8 @@ test.describe.serial("Goal visibility menu", () => {
     await expectCurrentVisibility(page, "featured");
 
     // The flags round-trip in the full edit form
-    await page.getByTestId("admin-panel-edit-menu").click();
-    await page.getByTestId("admin-panel-edit").click();
+    await page.getByTestId("admin-panel-edit-menu").filter({ visible: true }).click();
+    await page.getByTestId("admin-panel-edit").filter({ visible: true }).click();
     await expect(page.locator('#isFeatured')).toBeChecked();
     await expect(page.locator('#isUnlisted')).not.toBeChecked();
 
@@ -131,8 +132,8 @@ test.describe.serial("Goal visibility menu", () => {
     await setVisibility(page, "unlisted");
     await expectCurrentVisibility(page, "unlisted");
 
-    await page.getByTestId("admin-panel-edit-menu").click();
-    await page.getByTestId("admin-panel-edit").click();
+    await page.getByTestId("admin-panel-edit-menu").filter({ visible: true }).click();
+    await page.getByTestId("admin-panel-edit").filter({ visible: true }).click();
     await expect(page.locator('#isUnlisted')).toBeChecked();
     await expect(page.locator('#isFeatured')).not.toBeChecked();
 
@@ -149,8 +150,8 @@ test.describe.serial("Goal visibility menu", () => {
     await setVisibility(page, "listed");
     await expectCurrentVisibility(page, "listed");
 
-    await page.getByTestId("admin-panel-edit-menu").click();
-    await page.getByTestId("admin-panel-edit").click();
+    await page.getByTestId("admin-panel-edit-menu").filter({ visible: true }).click();
+    await page.getByTestId("admin-panel-edit").filter({ visible: true }).click();
     await expect(page.locator('#isUnlisted')).not.toBeChecked();
     await expect(page.locator('#isFeatured')).not.toBeChecked();
 
