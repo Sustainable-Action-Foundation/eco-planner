@@ -52,6 +52,11 @@
     "updated": "Group updated",
     "deleted": "Group deleted"
   },
+  "org": {
+    "not_found": "Organization not found",
+    "name_taken": "An organization with that name already exists",
+    "renamed": "Organization renamed"
+  },
   "orgMembership": {
     "not_found": "Membership not found",
     "own_role": "You cannot change your own role",

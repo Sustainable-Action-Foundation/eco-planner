@@ -1,8 +1,7 @@
 "use client";
 
+import PendingLink from "@/components/generic/links/pendingLink";
 import { formatSeriesRef, SeriesRefKind } from "@/lib/seriesRef";
-import { IconArrowRight } from "@tabler/icons-react";
-import Link from "next/link";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -55,10 +54,9 @@ export default function UseSeriesActions({
         </fieldset>
         : null}
 
-      <Link className="button round color-purewhite seagreen font-weight-500 display-inline-flex align-items-center gap-50" href={`/goal/create?org=${org}&series=${ref}`}>
+      <PendingLink className="button round color-purewhite seagreen font-weight-500 display-inline-flex align-items-center gap-50" href={`/goal/create?org=${org}&series=${ref}`}>
         {t("pages:org_historical_data.new_goal")}
-        <IconArrowRight aria-hidden="true" width={18} height={18} style={{ minWidth: '18px' }} />
-      </Link>
+      </PendingLink>
       <p className="margin-top-25 margin-bottom-0 font-size-14px color-gray">{t("pages:org_historical_data.new_goal_description")}</p>
     </section>
   );

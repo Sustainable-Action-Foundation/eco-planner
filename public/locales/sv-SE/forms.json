@@ -205,6 +205,8 @@
     "goal_name": "Namn",
     "invert_goal": "Invertera $t(common:goal_definite_one) (dividera med denna $t(common:goal_one) istället för att multiplicera)",
     "leap_parameter": "Indikatorparameter",
+    "no_roadmap": "En $t(common:goal_one) hamnar i en $t(common:roadmap_one), och du har ingen $t(common:roadmap_one) att redigera ännu.",
+    "no_roadmap_create": "Skapa en $t(common:roadmap_one) först.",
     "preview": "Förhandsgranskning",
     "relationship_label": "$t(common:roadmap_one)",
     "relationship_no_chosen": "Välj $t(common:roadmap_one)",
@@ -242,7 +244,10 @@
     "org": "Ägande organisation",
     "no_chosen_org": "Välj en organisation",
     "geo_area": "Geografiskt område (för statistik)",
-    "no_chosen_geo_area": "Inget geografiskt område"
+    "no_chosen_geo_area": "Inget geografiskt område",
+    "created_title": "Färdplanen skapades",
+    "created_description": "Skapa dess första $t(common:roadmap_version_one) för att kunna fylla den med målbanor och åtgärder. Utan en version syns färdplanen inte i listorna.",
+    "created_cta": "Skapa första $t(common:roadmap_version_definite_one)"
   },
   "roadmap_iteration": {
     "bad_decoding": "Filen verkar använda en okänd kodning då den tolkade texten innehåller tecknet '�' som indikerar att något tecken inte kunde tolkas korrekt (antagligen Å, Ä eller Ö).\nDu kan fortfarande använda den här filen, men om du inte är helt säker på att den *ska* innehålla tecknet '�' så rekommenderas att du konverterar filen till UTF-8-kodning och försöker igen.",

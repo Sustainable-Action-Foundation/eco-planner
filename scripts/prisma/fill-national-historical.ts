@@ -13,6 +13,8 @@
  *   yarn tsx --conditions=react-server scripts/prisma/fill-national-historical.ts                # markdown report, writes nothing
  *   yarn tsx --conditions=react-server scripts/prisma/fill-national-historical.ts --sql > x.sql  # one transaction to run on the target db
  *   yarn tsx --conditions=react-server scripts/prisma/fill-national-historical.ts --write        # write straight to DATABASE_URL
+ *   --roadmap <text>  only goals of national roadmaps whose name contains the text (prod has several
+ *                     national scenarios; the seeded LEAP one is "Scenario Lokal miljöhänsyn från Energimyndigheten")
  *   --only <text>     only goals whose indicator parameter contains the text
  *   --author <userId> author for series and recipes when neither the goal nor its roadmap has one
  *
@@ -47,16 +49,19 @@ function argValue(args: string[], flag: string): string | null {
 }
 
 async function main() {
+  // The fetchers log retries with console.debug; stdout is the report or the SQL
+  console.debug = (...data: unknown[]) => console.error(...data);
   const args = process.argv.slice(2);
   const emitSql = args.includes("--sql");
   const write = args.includes("--write");
   const only = argValue(args, "--only");
+  const roadmap = argValue(args, "--roadmap");
   const fallbackAuthor = argValue(args, "--author");
 
   const goals = await prisma.goals.findMany({
     where: {
       historical_id: null,
-      roadmap_iteration: { roadmap: { type: RoadmapType.NATIONAL } },
+      roadmap_iteration: { roadmap: { type: RoadmapType.NATIONAL, ...(roadmap ? { name: { contains: roadmap } } : {}) } },
       ...(only ? { indicator_parameter: { contains: only } } : {}),
     },
     select: {

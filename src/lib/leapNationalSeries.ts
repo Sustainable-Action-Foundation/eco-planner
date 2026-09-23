@@ -71,9 +71,18 @@ const balanceCarrierCodes: Record<string, string> = {
 const carTypes: Record<string, string> = { Bensinbilar: "101", Dieselbilar: "102", Elbilar: "103", Laddhybridbilar: "105", Etanolbilar: "106", Fordonsgasbilar: "107" };
 const truckFuels: Record<string, string> = { bensin: "101", diesel: "102", el: "103", laddhybrid: "105", etanol: "106", fordonsgas: "107" };
 
-/** EN0202_25 net electricity production per kind of plant. Wind and solar are split land/sea and roof/ground in LEAP, which the statistic isn't. */
+/**
+ * EN0202_25 net electricity production per kind of plant. Wind is split
+ * land/sea in LEAP, which the statistic isn't. LEAP's solar roof/ground split
+ * has no statistic either (EN0123_1 only splits by size class, TAB3451 has one
+ * "solkraft" row), but LEAP's own base year carries the national total in both
+ * solar rows — as does the curated catalog (`getNationalGoalMappings`) — so
+ * both solar goals get the total, not a made-up split.
+ */
 const electricityKinds: Record<string, string> = {
   "Vattenkraft": "0",
+  "Solkraft tak": "2",
+  "Solkraft mark": "2",
   "Befintligt kärnkraft": "3",
   "Industriell kraftvärme": "4",
   "Kraftvärme": "5",

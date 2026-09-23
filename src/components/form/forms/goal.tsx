@@ -8,7 +8,8 @@ import { BaselineType, DataSeriesType, GoalDataTarget, HistoricalDataType } from
 import { GoalListing } from "@/lib/prisma/generated";
 import { GoalFormName } from "@/types/form-names";
 import { isGoalListing } from "@/types/typeguards";
-import { IconChevronDown, IconChevronUp, IconEye, IconEyeOff, IconStar } from "@tabler/icons-react";
+import { IconChevronDown, IconChevronUp, IconEye, IconEyeOff, IconInfoCircle, IconStar } from "@tabler/icons-react";
+import Link from "next/link";
 import { waitForRecipeFormSyncs } from "@/components/recipe";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -336,6 +337,9 @@ export default function GoalForm({
   // Index for data-position attribute in legend elements (for accessibility)
   let positionIndex = 1;
 
+  // A new goal has to go into a roadmap version the user can edit; without one the form is a dead end, so say so
+  const missingRoadmap = !(iterationId || currentGoal?.roadmap_iteration_id) && parentIterations.length === 0;
+
   return (
     <form onSubmit={(event) => { void handleSubmit(event); }} name="goalForm">
       {/* This hidden submit button prevents submitting by pressing enter, to avoid accidental submission */}
@@ -345,18 +349,29 @@ export default function GoalForm({
       {!(iterationId || currentGoal?.roadmap_iteration_id) ?
         <fieldset className={`${styles.timeLineFieldset} width-100`}>
           <legend data-position={positionIndex++} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>{t("forms:goal.choose_relationship")}</legend>
-          <label htmlFor="parent-roadmap">{t("forms:goal.relationship_label")}</label> {/* TODO: i18n, title case */}
-          <SelectSingleSearch
-            props={{
-              required: true,
-              className: "margin-top-25 margin-bottom-100",
-              id: "parent-roadmap",
-              name: "parent-roadmap",
-              placeholder: `${t("common:tsx.select")}  ${t("common:roadmap_one")}`,
-            }}
-            onChange={(value) => value?.value ? setParentIterationId(value.value) : setParentIterationId("")}
-            options={parentIterations}
-          />
+          {missingRoadmap ?
+            <p className="flex gap-50 align-items-center margin-block-0 padding-50 smooth" style={{ border: '1px solid var(--gray-80)' }}>
+              <IconInfoCircle aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+              <span>
+                {t("forms:goal.no_roadmap")}{" "}
+                <Link href="/roadmap/create">{t("forms:goal.no_roadmap_create")}</Link>
+              </span>
+            </p>
+            : <>
+              <label htmlFor="parent-roadmap">{t("forms:goal.relationship_label")}</label> {/* TODO: i18n, title case */}
+              <SelectSingleSearch
+                props={{
+                  required: true,
+                  className: "margin-top-25 margin-bottom-100",
+                  id: "parent-roadmap",
+                  name: "parent-roadmap",
+                  placeholder: `${t("common:tsx.select")}  ${t("common:roadmap_one")}`,
+                }}
+                onChange={(value) => value?.value ? setParentIterationId(value.value) : setParentIterationId("")}
+                options={parentIterations}
+              />
+            </>
+          }
         </fieldset>
         : null
       }
@@ -603,6 +618,7 @@ export default function GoalForm({
           style={{ fontSize: '14px', transform: 'none' }}
           type="submit"
           id="submit-button"
+          disabled={missingRoadmap}
         >
           {currentGoal ? t("common:tsx.save") : t("forms:goal.create")}
         </button>

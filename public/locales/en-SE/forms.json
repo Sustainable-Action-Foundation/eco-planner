@@ -205,6 +205,8 @@
     "goal_name": "Name",
     "invert_goal": "Invert the $t(common:goal_one) (divide by this $t(common:goal_one) rather than multiply)",
     "leap_parameter": "Indicator parameter",
+    "no_roadmap": "A $t(common:goal_one) goes into a $t(common:roadmap_one), and you have no $t(common:roadmap_one) you can edit yet.",
+    "no_roadmap_create": "Create a $t(common:roadmap_one) first.",
     "preview": "Preview graph",
     "relationship_label": "$t(common:roadmap_one)",
     "relationship_no_chosen": "Choose $t(common:roadmap_one)",
@@ -242,7 +244,10 @@
     "org": "Owning organization",
     "no_chosen_org": "Choose an organization",
     "geo_area": "Geographic area (for statistics)",
-    "no_chosen_geo_area": "No geographic area"
+    "no_chosen_geo_area": "No geographic area",
+    "created_title": "The roadmap was created",
+    "created_description": "Create its first $t(common:roadmap_version_one) to be able to fill it with goals and actions. Without a version the roadmap is not shown in the lists.",
+    "created_cta": "Create the first $t(common:roadmap_version_one)"
   },
   "roadmap_iteration": {
     "bad_decoding": "The file seems to use an unknown encoding as the interpreted text contains the character '�' which indicates that a character could not be interpreted correctly (probably Å, Ä or Ö).\nYou can still use this file, but if you are not completely sure that it *should* contain the character '�' it is recommended that you convert the file to UTF-8 encoding and try again.",

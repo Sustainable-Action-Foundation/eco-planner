@@ -15,9 +15,10 @@ import GoalGraph from "./main";
 import HistoricalFootnote, { hasHistoricalFootnote, historicalSeriesName } from "@/components/graph/historicalFootnote";
 import TabListSimple from "@/components/generic/tablist/tabListSimple";
 import findSiblings from "@/functions/findSiblings";
+import { goalTitleWithLevel } from "@/functions/goalName";
 import ChildGraphContainer from "./child/container";
-import { IconArrowRight, IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
-import Link from "next/link";
+import { IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
+import PendingLink from "@/components/generic/links/pendingLink";
 // import SiblingGraph from "./sibling/siblings";
 
 type TimestampedValue = { timestamp: Date; value: number };
@@ -26,15 +27,15 @@ type TimestampedValue = { timestamp: Date; value: number };
 function UseGoalLink({ href }: { href: string }) {
   const { t } = useTranslation("graphs");
   return (
-    <Link
+    <PendingLink
       href={href}
       title={t("graphs:graph_graph.use_goal_title")}
       className="seagreen color-purewhite smooth font-weight-500 font-size-75 line-height-150 flex align-items-center gap-25"
       style={{ padding: '.3rem .6rem', textDecoration: 'none' }}
+      iconSize={16}
     >
       {t("graphs:graph_graph.use_goal")}
-      <IconArrowRight aria-hidden="true" width={16} height={16} style={{ minWidth: '16px' }} />
-    </Link>
+    </PendingLink>
   );
 }
 
@@ -341,7 +342,7 @@ export default function GoalGraphContainer({
               {useHref ? <UseGoalLink href={useHref} /> : null}
             </menu>
             <h2 className={`${styles['heading']}`}>
-              {goal.name ? goal.name : goal.indicator_parameter}
+              {goalTitleWithLevel(t, goal, goal.roadmap_iteration.roadmap)}
             </h2>
             {secondaryGoal ? <p className="margin-block-0 margin-inline-auto text-align-center">
               {t("graphs:graph_graph.compare_with_goal", { goalName: secondaryGoal.name || secondaryGoal.indicator_parameter })}
@@ -397,7 +398,7 @@ export default function GoalGraphContainer({
                 {useHref ? <UseGoalLink href={useHref} /> : null}
               </menu>
               <h2 className={`${styles['heading']}`}>
-                {goal.name ? goal.name : goal.indicator_parameter}
+                {goalTitleWithLevel(t, goal, goal.roadmap_iteration.roadmap)}
               </h2>
               {secondaryGoal ? <p className="margin-block-0 margin-inline-auto text-align-center">
                 {t("graphs:graph_graph.compare_with_goal", { goalName: secondaryGoal.name || secondaryGoal.indicator_parameter })}

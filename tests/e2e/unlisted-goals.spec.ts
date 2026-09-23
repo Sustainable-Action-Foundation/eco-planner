@@ -176,7 +176,9 @@ test.describe.serial("Unlisted goal creation", () => {
     await page.locator('#isUnlisted').check();
 
     await page.locator('#submit-button').click();
-    await page.locator('#comment-text').hover();
+    // Post-create SSR of the goal page is slow on a fat DB; wait out the navigation instead of a bare hover
+    await page.waitForURL(/\/goal\//, { timeout: 15_000 });
+    await expect(page.locator('#comment-text')).toBeVisible({ timeout: 15_000 });
 
     // The checkbox round-trips in the edit form
     await page.getByTestId("admin-panel-edit-menu").click();

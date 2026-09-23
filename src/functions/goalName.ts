@@ -1,9 +1,33 @@
+import type { TFunction } from "i18next";
+import { RoadmapType } from "@/lib/prisma/generated";
+
 /**
  * What a goal is called in listings: its name, or the last segment of its
  * LEAP indicator parameter when it has none (imported scenarios name nothing).
  */
 export function goalDisplayName(goal: { name: string | null, indicator_parameter: string }): string {
   return goal.name || indicatorParameterLeaf(goal.indicator_parameter);
+}
+
+/**
+ * The display name suffixed with the goal's level, so national goals and their
+ * local copies are told apart: "Antal bilar | nationell nivå" on a national
+ * roadmap, "Antal bilar | Boden" on one tied to a geo area. Roadmaps with
+ * neither get the bare display name. Display-only — never store it.
+ */
+export function goalTitleWithLevel(
+  t: TFunction,
+  goal: { name: string | null, indicator_parameter: string },
+  roadmap: { type: RoadmapType, geo_area: { name: string } | null },
+): string {
+  const name = goalDisplayName(goal);
+  if (roadmap.type === RoadmapType.NATIONAL) {
+    return t("common:goal_title.national_level", { name });
+  }
+  if (roadmap.geo_area?.name) {
+    return t("common:goal_title.area_level", { name, area: roadmap.geo_area.name });
+  }
+  return name;
 }
 
 /**

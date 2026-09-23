@@ -87,8 +87,10 @@
       "link_org": "Använd i färdplan ({{org}})"
     },
     "use_in_roadmap": {
+      "create_roadmap": "Skapa en färdplan först.",
       "description": "Skapa en ny målbana i någon av organisationens färdplaner utifrån den här: den blir utgångspunkten som de föreslagna metoderna skalar, och namn, beskrivning och indikatorparameter följer med. Allt går att justera innan du sparar.",
-      "heading": "Använd i färdplan"
+      "heading": "Använd i färdplan",
+      "no_roadmap": "En kopia hamnar i en färdplan du kan redigera, och det finns ingen ännu."
     }
   },
   "goal_create": {
@@ -177,7 +179,7 @@
       "description": "Målbanor i de nationella scenarierna som går att följa upp med statistik för området. En kopia utgår från de lokala uppgifterna och följer den nationella målbanans utveckling, med uppgifterna som historisk data. Allt går att justera innan du sparar.",
       "latest_value": "Senast {{value}} {{unit}} ({{year}}).",
       "local_history": "{{area}} hittills",
-      "local_projection": "{{area}} som kopia",
+      "local_projection": "{{area}} framåt",
       "local_series": "Lokala uppgifter: {{series}} för {{area}}.",
       "national_goal": "Nationell målbana",
       "no_roadmap": "Kopior hamnar i en av organisationens färdplaner, och det finns ingen ännu.",
@@ -211,7 +213,6 @@
     "title": "Uppdatera lösenord"
   },
   "profile": {
-    "handle_data": "Hantera min data",
     "my_posts": "Mina inlägg",
     "roadmaps": "$t(common:roadmap_other, titleCase)",
     "roadmap_versions": "$t(common:roadmap_version_other, titleCase)",
@@ -271,6 +272,9 @@
     "heading": "Hantera {{org}}",
     "description": "Grupper samlar medlemmar så att innehåll kan delas med dem genom åtkomstbehörigheter. Om en grupp tas bort försvinner även dess behörigheter.",
     "manage_groups": "Hantera organisation",
+    "org_heading": "Organisation",
+    "org_name_label": "Organisationsnamn",
+    "renamed_toast": "Organisationen bytte namn till \"{{name}}\"",
     "name_label": "Gruppnamn",
     "members_legend": "Medlemmar",
     "create_group": "Skapa grupp",

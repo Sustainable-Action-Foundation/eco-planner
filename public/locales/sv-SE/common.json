@@ -41,6 +41,10 @@
   "goal_definite_other": "målbanorna",
   "goal_one": "målbana",
   "goal_other": "målbanor",
+  "goal_title": {
+    "area_level": "{{name}} | {{area}}",
+    "national_level": "{{name}} | nationell nivå"
+  },
   "baseline_definite_one": "baslinjen",
   "baseline_definite_other": "baslinjerna",
   "baseline_one": "baslinje",

@@ -44,10 +44,12 @@ test.describe("Sidebar tests", () => {
 
     await switchLanguage(page, localeAliases[Locales.enSE]);
 
-    await expect(homeTitle, "Page is not in English").toHaveText("Roadmaps");
+    // The switcher updates the SSR title via router.refresh(), a full re-render
+    // of the startpage that is slow on a fat CI DB; wait generously
+    await expect(homeTitle, "Page is not in English").toHaveText("Roadmaps", { timeout: 20_000 });
 
     await switchLanguage(page, localeAliases[Locales.svSE]);
 
-    await expect(homeTitle, "Page is not in Swedish").toHaveText("Färdplaner");
+    await expect(homeTitle, "Page is not in Swedish").toHaveText("Färdplaner", { timeout: 20_000 });
   });
 });

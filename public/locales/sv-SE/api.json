@@ -52,6 +52,11 @@
     "updated": "Gruppen uppdaterades",
     "deleted": "Gruppen togs bort"
   },
+  "org": {
+    "not_found": "Organisationen hittades inte",
+    "name_taken": "En organisation med det namnet finns redan",
+    "renamed": "Organisationen bytte namn"
+  },
   "orgMembership": {
     "not_found": "Medlemskapet hittades inte",
     "own_role": "Du kan inte ändra din egen roll",

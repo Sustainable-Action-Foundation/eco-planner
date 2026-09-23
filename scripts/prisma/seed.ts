@@ -1,13 +1,15 @@
 // DO NOT SEED PRODUCTION DATABASE
 //
 // Entry point for seeding. This file only orchestrates: it connects, runs each
-// seed module in dependency order (users -> roadmaps -> goals -> actions), and
-// handles teardown/errors. The actual seed data and the shared helpers live in
-// ./seed/*.
+// seed module in dependency order (users -> roadmaps -> goals -> actions ->
+// national scenario and its copies -> place content), and handles
+// teardown/errors. The actual seed data and the shared helpers live in ./seed/*.
 //
 // The seed covers every table in the schema and leans on recipes for derived data
 // (see ./seed/helpers.ts and ./seed/seed-goals.ts), matching the app's philosophy
-// that data series are produced through recipes.
+// that data series are produced through recipes. The orgs are real places (see
+// ./seed/places.ts) and each gets a copy of the national LEAP scenario scaled to
+// its area from a committed statistics snapshot (see ./seed/seed-leap.ts).
 
 import { prisma } from "@/lib/prisma";
 import { colors } from "../lib/colors.ts";
@@ -16,7 +18,9 @@ import { seedUsers } from "./seed/seed-users.ts";
 import { seedRoadmaps } from "./seed/seed-roadmaps.ts";
 import { seedGoals } from "./seed/seed-goals.ts";
 import { seedActions } from "./seed/seed-actions.ts";
-import { seedExtraOrgs } from "./seed/seed-extra-orgs.ts";
+import { seedLeap } from "./seed/seed-leap.ts";
+import { seedPlaceContent } from "./seed/seed-place-content.ts";
+import { seedT } from "./seed/i18n.ts";
 
 prisma.$connect().catch((err: unknown) => {
   console.error(colors.yellow(`
@@ -29,11 +33,13 @@ prisma.$connect().catch((err: unknown) => {
 
 async function main() {
   await seedGeoAreas();
+  const t = await seedT();
   const users = await seedUsers();
   const { iterations } = await seedRoadmaps(users);
   const goals = await seedGoals(users, iterations);
   await seedActions(users, iterations, goals);
-  await seedExtraOrgs(users);
+  const leap = await seedLeap(users, t);
+  await seedPlaceContent(users, leap);
 }
 
 main().then(async () => {

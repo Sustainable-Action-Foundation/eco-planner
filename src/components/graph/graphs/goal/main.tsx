@@ -223,37 +223,45 @@ export function GoalGraph({
   }
   const allTimestamps = Array.from(allTimestampsSet).sort((a, b) => a - b);
 
+  // Two y-axes exist exactly when a comparison series is drawn (it gets its own
+  // opposite axis below). Tag every legend entry with which axis it's plotted
+  // against — left for everything, right for the comparison. The suffix goes on
+  // the series names themselves so Apex's seriesName→axis mapping stays intact.
+  const twoYAxes = !!(comparison && dateValueMaps.comparison);
+  const leftAxisSuffix = twoYAxes ? ` ${t("graphs:common.y_axis_left")}` : "";
+  const rightAxisSuffix = twoYAxes ? ` ${t("graphs:common.y_axis_right")}` : "";
+
   // TODO: Need to add z-index so this is always on top! (probably want to handle typing so its easier to accept correct things for each dataseries)
-  if (main && dateValueMaps.main) { // TODO: i dislike the way i handle area types here, figure out a better way ... 
-    chart.push(toChartSeries(dateValueMaps.main, allTimestamps, main.name, chartOptionsType ?? 'line', color_palette.main.color));
-    mainYAxis?.push(main.name);
+  if (main && dateValueMaps.main) { // TODO: i dislike the way i handle area types here, figure out a better way ...
+    chart.push(toChartSeries(dateValueMaps.main, allTimestamps, main.name + leftAxisSuffix, chartOptionsType ?? 'line', color_palette.main.color));
+    mainYAxis?.push(main.name + leftAxisSuffix);
     colors.push(color_palette.main.color);
     opacities.push(chartOptionsType === "area" ? 0.3 : 1); // TODO: Weird stuff is happening with opacities...
   }
 
   if (baseline && dateValueMaps.baseline) {
-    chart.push(toChartSeries(dateValueMaps.baseline, allTimestamps, baseline.name, "line", color_palette.baseline.color));
-    mainYAxis?.push(baseline.name);
+    chart.push(toChartSeries(dateValueMaps.baseline, allTimestamps, baseline.name + leftAxisSuffix, "line", color_palette.baseline.color));
+    mainYAxis?.push(baseline.name + leftAxisSuffix);
     colors.push(color_palette.baseline.color);
     opacities.push(color_palette.baseline.fillOpacity);
   }
 
   if (historical && dateValueMaps.historical) {
-    chart.push(toChartSeries(dateValueMaps.historical, allTimestamps, historical.name, "area", color_palette.historical.color));
-    mainYAxis?.push(historical.name);
+    chart.push(toChartSeries(dateValueMaps.historical, allTimestamps, historical.name + leftAxisSuffix, "area", color_palette.historical.color));
+    mainYAxis?.push(historical.name + leftAxisSuffix);
     colors.push(color_palette.historical.color);
     opacities.push(color_palette.historical.fillOpacity);
   }
 
   if (predictedOutcome && dateValueMaps.predictedOutcome) {
-    chart.push(toChartSeries(dateValueMaps.predictedOutcome, allTimestamps, predictedOutcome.name, "line", color_palette.predictedOutcome.color));
-    mainYAxis?.push(predictedOutcome.name);
+    chart.push(toChartSeries(dateValueMaps.predictedOutcome, allTimestamps, predictedOutcome.name + leftAxisSuffix, "line", color_palette.predictedOutcome.color));
+    mainYAxis?.push(predictedOutcome.name + leftAxisSuffix);
     colors.push(color_palette.predictedOutcome.color);
     opacities.push(color_palette.predictedOutcome.fillOpacity);
   }
 
   if (comparison && dateValueMaps.comparison) {
-    chart.push(toChartSeries(dateValueMaps.comparison, allTimestamps, comparison.name, "line", color_palette.comparison.color));
+    chart.push(toChartSeries(dateValueMaps.comparison, allTimestamps, comparison.name + rightAxisSuffix, "line", color_palette.comparison.color));
 
     (options.yaxis as ApexYAxis[]).push({
       title: {
@@ -267,7 +275,7 @@ export function GoalGraph({
         })}`,
       },
       labels: { formatter: graphNumberFormatter },
-      seriesName: comparison.name,
+      seriesName: comparison.name + rightAxisSuffix,
       opposite: true,
     });
 
@@ -276,8 +284,8 @@ export function GoalGraph({
   }
 
   if (parent && dateValueMaps.parent) {
-    chart.push(toChartSeries(dateValueMaps.parent, allTimestamps, parent.name, "line", color_palette.parentGoal.color)); // TODO: Rename parentGoal --> parent
-    mainYAxis?.push(parent.name);
+    chart.push(toChartSeries(dateValueMaps.parent, allTimestamps, parent.name + leftAxisSuffix, "line", color_palette.parentGoal.color)); // TODO: Rename parentGoal --> parent
+    mainYAxis?.push(parent.name + leftAxisSuffix);
     colors.push(color_palette.parentGoal.color);
     opacities.push(color_palette.parentGoal.fillOpacity);
   }
@@ -290,8 +298,8 @@ export function GoalGraph({
         const siblingMap = siblingMaps[index];
         const siblingColor = getSiblingColor(index, siblings.length + 1, color_palette.main.color);
 
-        chart.push(toChartSeries(siblingMap, allTimestamps, sibling.name, 'area', siblingColor));
-        mainYAxis?.push(sibling.name);
+        chart.push(toChartSeries(siblingMap, allTimestamps, sibling.name + leftAxisSuffix, 'area', siblingColor));
+        mainYAxis?.push(sibling.name + leftAxisSuffix);
         colors.push(siblingColor);
         opacities.push(0.3); // TODO: Weird stuff is happening with opacities...
       });

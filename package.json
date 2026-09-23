@@ -1,6 +1,6 @@
 {
   "name": "eco-planner",
-  "version": "0.17.14",
+  "version": "0.17.15",
   "license": "AGPL-3.0-only",
   "private": true,
   "description": "A tool intended to help planning actions to achieve local environmental goals",
@@ -15,6 +15,7 @@
     "start": "next start",
     "lint": "tsc --noEmit -p ./tsconfig.json && eslint -c ./eslint.config.ts",
     "check:version": "tsx scripts/checkVersionBump.ts",
+    "check:ahead": "tsx scripts/checkCommitsAhead.ts",
     "check:locales": "tsx scripts/findDeadLocaleKeys.ts",
     "test": "yarn test:unit & yarn test:e2e",
     "test:e2e": "playwright test -c tests/playwright.e2e.config.ts",

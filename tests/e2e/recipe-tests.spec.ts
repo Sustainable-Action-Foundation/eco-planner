@@ -24,19 +24,30 @@ async function openGoalForm(page: Page) {
 }
 
 /**
- * Selects the first available data series in a SelectSingleTree combobox by drilling
- * roadmap -> goal -> data series, then closes the dropdown. Seeded national goals always
- * have a data series, so the first-of-each chain resolves to a valid leaf.
+ * Selects a data series in a SelectSingleTree combobox by drilling
+ * roadmap -> goal -> data series, then closes the dropdown. The tree lists every
+ * roadmap version the user can read — including the seeded LEAP scenarios with
+ * hundreds of goals, which take too long to expand — so it drills into a known
+ * small roadmap by name instead of taking the first node. The seeded national
+ * goals always have a data series, so the first-of-each chain below the roadmap
+ * resolves to a valid leaf.
  */
-async function pickFirstDataSeries(page: Page, combobox: Locator) {
+async function pickFirstDataSeries(page: Page, combobox: Locator, roadmapName = "Rikets färdplan") {
   await combobox.click();
   const id = await combobox.getAttribute("id");
   if (!id) throw new Error("Data series combobox has no id");
 
   const tree = page.locator(`#${id}-dialog-tree`);
-  await tree.locator("> li").first().click(); // expand first roadmap
-  await tree.locator("> li > ul > li").first().click(); // expand first goal
-  await tree.locator("> li > ul > li > ul > li").first().click(); // select first data series leaf
+  // Both versions of the roadmap match; either is fine. The roadmap list (all
+  // accessible roadmap versions incl. the huge LEAP ones) is fetched on mount,
+  // which takes a long while on the fat CI DB under 3-browser load, so wait
+  // until the fetch has settled before drilling in. Callers mark themselves
+  // test.slow() to cover the worst case.
+  const roadmap = tree.locator("> li").filter({ hasText: roadmapName }).first();
+  await expect(roadmap).toBeVisible({ timeout: 45_000 });
+  await roadmap.click(); // expand the roadmap
+  await roadmap.locator("> ul > li").first().click({ timeout: 15_000 }); // expand first goal
+  await roadmap.locator("> ul > li > ul > li").first().click({ timeout: 15_000 }); // select first data series leaf
 
   // Close the dropdown so it doesn't block elements below it.
   await page.keyboard.press("Escape");
@@ -98,6 +109,7 @@ test.describe("Recipe tests", () => {
   test.use({ storageState: adminFile });
 
   test("Suggested recipe evaluates a series from a data series", async ({ page }) => {
+    test.slow(); // the roadmap tree fetch alone can eat most of the default timeout on CI
     await openGoalForm(page);
 
     // Use a suggested recipe (the scalar preset: parent data series * scalar).
@@ -121,6 +133,7 @@ test.describe("Recipe tests", () => {
   });
 
   test("Custom recipe editor evaluates a series", async ({ page }) => {
+    test.slow(); // the roadmap tree fetch alone can eat most of the default timeout on CI
     await openGoalForm(page);
 
     await page.getByRole("radio", { name: "goal.custom_recipe" }).check();
