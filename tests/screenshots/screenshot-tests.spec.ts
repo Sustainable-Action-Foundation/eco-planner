@@ -15,11 +15,29 @@ let sendPageName = ""; // Denotes what a screenshot is of
 /*
   To run screenshot tests locally you must run: yarn screenshot
 */
+// Browsers refuse screenshot buffers over 32767 device pixels on a side. Full pages on a
+// fat DB exceed that at mobile deviceScaleFactors (e.g. Galaxy S9+ at 4.5x), so cap the
+// full-page capture height; pages that fit are captured exactly as before.
+const maxScreenshotPixels = 32767;
+
 async function takeScreenshot(pageName: string, page: Page, worker: string) {
   await isSidebarOpen(page, true);
 
   await page.screenshot({ path: `${outputDir}/${pageName}/${worker}.jpeg`, fullPage: false, animations: "disabled" });
-  await page.screenshot({ path: `${outputDir}/${pageName}-fullPage/${worker}.jpeg`, fullPage: true, animations: "disabled" });
+
+  const fullPagePath = `${outputDir}/${pageName}-fullPage/${worker}.jpeg`;
+  const { dpr, pageHeight } = await page.evaluate(() => ({
+    dpr: window.devicePixelRatio,
+    pageHeight: document.documentElement.scrollHeight,
+  }));
+  const maxCssHeight = Math.floor(maxScreenshotPixels / dpr);
+  if (pageHeight > maxCssHeight) {
+    // fullPage + clip captures beyond the viewport, cropped to a buffer the browser accepts
+    const width = page.viewportSize()?.width ?? 1280;
+    await page.screenshot({ path: fullPagePath, fullPage: true, clip: { x: 0, y: 0, width, height: maxCssHeight }, animations: "disabled" });
+  } else {
+    await page.screenshot({ path: fullPagePath, fullPage: true, animations: "disabled" });
+  }
 }
 
 async function safePressEscape(page: Page) {

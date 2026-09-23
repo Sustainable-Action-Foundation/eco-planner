@@ -121,12 +121,12 @@ test.describe.serial("Action & Effect tests", () => {
     // which only lists that org's own content
     await page.goto('/?org=public');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
-    // Roadmap page SSR is slow on a fat DB; wait generously before the load-state hover
+    // Roadmap page SSR is slow on a fat DB; wait generously and give the hover room to retry while streaming settles
     await expect(page.getByRole('heading', { name: "Rikets färdplan" })).toBeVisible({ timeout: 15_000 });
-    await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
+    await page.getByRole('heading', { name: "Rikets färdplan" }).hover({ timeout: 15_000 });
     await page.getByRole('link', { name: actionNameRequiredFields }).first().click();
     await page.waitForLoadState("networkidle");
-    await page.getByRole('heading', { name: actionNameRequiredFields }).hover();
+    await page.getByRole('heading', { name: actionNameRequiredFields }).hover({ timeout: 15_000 });
     await page.getByTestId("admin-panel-edit").filter({ visible: true }).click();
 
 
@@ -146,10 +146,12 @@ test.describe.serial("Action & Effect tests", () => {
     // which only lists that org's own content
     await page.goto('/?org=public');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
-    await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
+    // Roadmap page SSR is slow on a fat DB; wait generously and give the hover room to retry while streaming settles
+    await expect(page.getByRole('heading', { name: "Rikets färdplan" })).toBeVisible({ timeout: 15_000 });
+    await page.getByRole('heading', { name: "Rikets färdplan" }).hover({ timeout: 15_000 });
     await page.getByRole('link', { name: actionNameRequiredFields }).first().click(); // TODO (fix): The tests doesn't seem to click on the right name here and therefore they fail.
 
-    await page.getByRole('heading', { name: actionNameRequiredFields }).hover();
+    await page.getByRole('heading', { name: actionNameRequiredFields }).hover({ timeout: 15_000 });
     await page.waitForLoadState("networkidle");
     await page.getByTestId("admin-panel-edit").filter({ visible: true }).click();
 
@@ -212,11 +214,13 @@ test.describe.serial("Action & Effect tests", () => {
     // which only lists that org's own content
     await page.goto('/?org=public');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
-    await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
+    // Roadmap page SSR is slow on a fat DB; wait generously and give the hover room to retry while streaming settles
+    await expect(page.getByRole('heading', { name: "Rikets färdplan" })).toBeVisible({ timeout: 15_000 });
+    await page.getByRole('heading', { name: "Rikets färdplan" }).hover({ timeout: 15_000 });
     await page.getByRole('link', { name: actionNameAllFields }).first().click();
 
     await page.waitForLoadState("networkidle");
-    await page.getByRole('heading', { name: actionNameAllFields }).hover();
+    await page.getByRole('heading', { name: actionNameAllFields }).hover({ timeout: 15_000 });
     await page.getByTestId("admin-panel-edit").filter({ visible: true }).click();
 
     await expect(page.locator('#actionName')).toHaveValue(actionNameAllFields);
@@ -249,11 +253,13 @@ test.describe.serial("Action & Effect tests", () => {
     // which only lists that org's own content
     await page.goto('/?org=public');
     await page.getByRole('link', { name: "Rikets färdplan" }).click();
-    await page.getByRole('heading', { name: "Rikets färdplan" }).hover();
+    // Roadmap page SSR is slow on a fat DB; wait generously and give the hover room to retry while streaming settles
+    await expect(page.getByRole('heading', { name: "Rikets färdplan" })).toBeVisible({ timeout: 15_000 });
+    await page.getByRole('heading', { name: "Rikets färdplan" }).hover({ timeout: 15_000 });
     await page.getByRole('link', { name: actionNameAllFields }).first().click();
 
     await page.waitForLoadState("networkidle");
-    await page.getByRole('heading', { name: actionNameAllFields }).hover();
+    await page.getByRole('heading', { name: actionNameAllFields }).hover({ timeout: 15_000 });
     await page.getByTestId("admin-panel-edit").filter({ visible: true }).click();
 
     // Update the name and every descriptive field; the description has its own dedicated input
