@@ -168,6 +168,18 @@
     "search_roadmaps": "Sök bland $t(common:count.roadmap)",
     "shown_results": "Visar {{shown}} av {{total}} $t(common:roadmap, {\"count\": {{total}}})",
     "title": "$t(common:roadmap_other, titleCase)",
+    "liked_goals": {
+      "copied_one": "Kopierad till en av organisationens färdplaner",
+      "copied_other": "Kopierad till {{count}} av organisationens färdplaner",
+      "copy": "Använd i färdplan",
+      "description": "Målbanor som organisationens medlemmar har gillat, mest gillade först. Målbanor från andra organisationer kan kopieras till organisationens egna färdplaner härifrån; de som redan kopierats är markerade.",
+      "empty": "Inga gillade målbanor än. Gilla målbanor på deras sidor så samlas de här.",
+      "rank": "Plats {{rank}}",
+      "title": "Målbanor organisationen vill jobba med",
+      "total_likes_one": "{{count}} gilla-markering totalt",
+      "total_likes_other": "{{count}} gilla-markeringar totalt",
+      "total_likes_title": "Gilla-markeringar från alla, även andra organisationer"
+    },
     "national_goals": {
       "copy": "Använd i färdplan",
       "copy_all": "Använd alla {{count}} i färdplan",

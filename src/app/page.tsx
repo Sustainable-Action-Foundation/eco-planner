@@ -16,6 +16,7 @@ import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import Actions from "@/components/pages/sections/actions";
 import CuratedHistoricalData from "@/components/pages/sections/historicalData";
 import NationalGoals from "@/components/pages/sections/nationalGoals";
+import LikedGoals from "@/components/pages/sections/likedGoals";
 import Image from "next/image";
 import { Suspense } from "react";
 import SearchRoadmaps from "@/components/form/filters/searchRoadmaps";
@@ -225,6 +226,13 @@ export default async function Page(
 
         <section className="margin-block-300">
           <Actions actions={orgActions} />
+        </section>
+
+        {/* The goals the org's members have liked, ranked; copies from the list go into the org's roadmaps */}
+        <section className="margin-block-300">
+          <Suspense fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
+            <LikedGoals orgId={selectedOrg.id} canCreateGoals={copyTargets.length > 0} />
+          </Suspense>
         </section>
 
         { // National goals the org can copy with its own historical data; needs a geo area to localize to

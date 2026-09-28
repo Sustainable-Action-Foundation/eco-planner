@@ -72,5 +72,10 @@
     "email_mismatch": "Den här inbjudan skickades till en annan e-postadress än ditt kontos",
     "accepted": "Inbjudan godkänd",
     "revoked": "Inbjudan återkallad"
+  },
+  "goalLike": {
+    "liked": "Målbanan gillad",
+    "not_found": "Målbanan finns inte eller så saknar du åtkomst till den",
+    "unliked": "Gilla-markeringen borttagen"
   }
 }

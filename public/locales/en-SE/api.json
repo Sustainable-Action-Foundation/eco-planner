@@ -72,5 +72,10 @@
     "email_mismatch": "This invitation was sent to a different email address than your account's",
     "accepted": "Invite accepted",
     "revoked": "Invite revoked"
+  },
+  "goalLike": {
+    "liked": "Goal liked",
+    "not_found": "The goal does not exist or you do not have access to it",
+    "unliked": "Like removed"
   }
 }

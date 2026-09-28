@@ -168,6 +168,18 @@
     "search_roadmaps": "Search among $t(common:count.roadmap)",
     "shown_results": "Showing {{shown}} out of {{total}} $t(common:roadmap, {\"count\": {{total}}})",
     "title": "$t(common:roadmap_other, titleCase)",
+    "liked_goals": {
+      "copied_one": "Copied into a roadmap of the organization",
+      "copied_other": "Copied into {{count}} of the organization's roadmaps",
+      "copy": "Use in roadmap",
+      "description": "Goals that the organization's members have liked, the most liked first. Goals from other organizations can be copied into the organization's own roadmaps from here; the ones already copied are marked.",
+      "empty": "No liked goals yet. Like goals on their pages and they gather here.",
+      "rank": "Rank {{rank}}",
+      "title": "Goals the organization wants to work on",
+      "total_likes_one": "{{count}} like in total",
+      "total_likes_other": "{{count}} likes in total",
+      "total_likes_title": "Likes from everyone, including other organizations"
+    },
     "national_goals": {
       "copy": "Use in roadmap",
       "copy_all": "Use all {{count}} in roadmap",
