@@ -133,10 +133,47 @@ function recordDialogs(page: Page): string[] {
   return messages;
 }
 
-/** Clicks the visible submit button and resolves with the status of the PUT it triggers */
+/** What the browser did with a submit click, read off the form after the fact (see `submitForm`) */
+type SubmitProbe = { submits: number, invalid: string[], valid: boolean, active: string | null };
+
+/**
+ * Clicks the visible submit button and resolves with the status of the PUT it triggers.
+ *
+ * WebKit on a loaded CI runner has swallowed the click of a re-shown form: the
+ * button took focus but no submit event followed, no validation bubble, no
+ * request (run 36440759048, both attempts). The submit handler waits for the
+ * recipe syncs (up to 5s) before fetching, so a request is expected within
+ * seconds of a real submit; when none shows up the click is repeated once, and
+ * the probe attached to the form says whether the first click submitted at all
+ * or constraint validation blocked it.
+ */
 async function submitForm(page: Page, apiPath: string): Promise<number> {
-  const response = page.waitForResponse((res) => new URL(res.url()).pathname === apiPath && res.request().method() === "PUT", { timeout: 30_000 });
-  await page.locator("#submit-button").filter({ visible: true }).click();
+  const isPut = (url: string, method: string) => new URL(url).pathname === apiPath && method === "PUT";
+  const button = page.locator("#submit-button").filter({ visible: true });
+  await button.evaluate((element) => {
+    const form = element.closest("form");
+    if (!form) throw new Error("submit button outside a form");
+    const probe = { submits: 0, invalid: [] as string[] };
+    form.addEventListener("submit", () => { probe.submits++; }, { capture: true });
+    form.addEventListener("invalid", (event) => { probe.invalid.push((event.target as HTMLElement | null)?.outerHTML.slice(0, 120) ?? "?"); }, { capture: true });
+    (window as unknown as { __submitProbe: typeof probe }).__submitProbe = probe;
+  });
+  const readProbe = () => button.evaluate((element): SubmitProbe => {
+    const form = element.closest("form");
+    const probe = (window as unknown as { __submitProbe?: { submits: number, invalid: string[] } }).__submitProbe ?? { submits: -1, invalid: [] };
+    return { ...probe, valid: form?.checkValidity() ?? false, active: document.activeElement?.outerHTML.slice(0, 120) ?? null };
+  });
+
+  const response = page.waitForResponse((res) => isPut(res.url(), res.request().method()), { timeout: 30_000 });
+  const sent = page.waitForRequest((req) => isPut(req.url(), req.method()), { timeout: 8_000 }).then(() => true, () => false);
+  await button.click();
+  if (!(await sent)) {
+    const probe = await readProbe();
+    console.warn(`submit click produced no ${apiPath} request within 8s; retrying once. Probe: ${JSON.stringify(probe)}`);
+    // A submit that is merely slow would double-save (and 409) on a second click; only a click that never submitted is repeated
+    expect(probe.submits, "the first click submitted after all, not retrying").toBe(0);
+    await button.click();
+  }
   return (await response).status();
 }
 
