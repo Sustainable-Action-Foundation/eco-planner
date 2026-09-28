@@ -228,9 +228,11 @@ export default async function Page(
           <Actions actions={orgActions} />
         </section>
 
+        {/* The streamed sections below are keyed by org: a switch then shows their fallbacks at once
+            instead of the navigation (a transition) holding the whole page until the new org's data is in */}
         {/* The goals the org's members have liked, ranked; copies from the list go into the org's roadmaps */}
         <section className="margin-block-300">
-          <Suspense fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
+          <Suspense key={selectedOrg.id} fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
             <LikedGoals orgId={selectedOrg.id} canCreateGoals={copyTargets.length > 0} />
           </Suspense>
         </section>
@@ -239,7 +241,7 @@ export default async function Page(
           selectedOrg.geoArea ?
             <section className="margin-block-300">
               {/* The sections fetch from external statistics APIs; don't block the rest of the page on a cold cache */}
-              <Suspense fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
+              <Suspense key={selectedOrg.id} fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
                 <NationalGoals orgId={selectedOrg.id} geoArea={selectedOrg.geoArea} iterations={copyTargets} />
               </Suspense>
             </section>
@@ -248,7 +250,7 @@ export default async function Page(
         { // The curated statistics themselves, same localization
           selectedOrg.geoArea ?
             <section className="margin-block-300">
-              <Suspense fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
+              <Suspense key={selectedOrg.id} fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
                 <CuratedHistoricalData orgId={selectedOrg.id} geoArea={selectedOrg.geoArea} />
               </Suspense>
             </section>
