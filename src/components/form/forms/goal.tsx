@@ -1,5 +1,6 @@
 'use client';
 
+import { useFormTimestamp } from "./useFormTimestamp";
 import type { getRoadmaps } from "@/fetchers";
 import formSubmitter from "@/functions/formSubmitter";
 import { indicatorParameterLeaf } from "@/functions/goalName";
@@ -184,7 +185,7 @@ export default function GoalForm({
     );
   }, [roadmapAlternatives, t]);
 
-  const [timestamp] = useState(() => Date.now());
+  const timestamp = useFormTimestamp();
 
   const indicatorParameters = useMemo(() => {
     return [...new Set(parameterOptions)].map(option => ({

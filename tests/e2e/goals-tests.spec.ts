@@ -66,7 +66,7 @@ test.describe("Goals tests", () => {
     await page.waitForLoadState("networkidle");
 
     // Form Part 1
-    await page.locator('#parent-roadmap').click();
+    await page.locator('#parent-roadmap').click({ timeout: 20_000 });
     await page.locator('#parent-roadmap-dialog-listbox li').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: '2' }).click(); // Checks for Rikets färdplan to be contained in an option, with version 2 to avoid selecting the wrong roadmap
 
     // Form Part 2 is optional, so we skip it
@@ -101,7 +101,7 @@ test.describe("Goals tests", () => {
     await page.getByTestId('create-goal').click();
     await page.waitForLoadState("networkidle");
 
-    await page.locator('#parent-roadmap').click();
+    await page.locator('#parent-roadmap').click({ timeout: 20_000 });
     await page.locator('#parent-roadmap-dialog-listbox li').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: '2' }).click();
 
     await page.locator('input[name="DATA_SERIES_TYPE"][value="MANUAL"]').check();
@@ -120,13 +120,15 @@ test.describe("Goals tests", () => {
     // Reopen in the edit form: values are stored as numbers, and the typed unit
     // must have survived the grid edits (it used to be reset to "missing").
     // The full form sits under the panel's edit menu
-    await page.getByTestId("admin-panel-edit-menu").click();
-    await page.getByTestId("admin-panel-edit").click();
+    await page.getByTestId("admin-panel-edit-menu").filter({ visible: true }).click();
+    await page.getByTestId("admin-panel-edit").filter({ visible: true }).click();
     await page.waitForLoadState("networkidle");
-    await page.locator('input[name="DATA_SERIES_TYPE"][value="MANUAL"]').check();
-    await expect.soft(page.locator('#goal-manual-unit')).toHaveValue(unitRequiredOnly);
+    // The create form stays mounted in a hidden Activity boundary after the client-side
+    // navigation, so scope the shared form ids to the visible edit form.
+    await page.locator('input[name="DATA_SERIES_TYPE"][value="MANUAL"]').filter({ visible: true }).check();
+    await expect.soft(page.locator('#goal-manual-unit').filter({ visible: true })).toHaveValue(unitRequiredOnly);
     for (const [row, expected] of [["0", "1.5"], ["1", "18800"], ["2", "2.25"]]) {
-      await expect.soft(page.locator(`#goal-dataseries [data-row="${row}"][data-column="2"] input`)).toHaveValue(expected);
+      await expect.soft(page.locator(`#goal-dataseries [data-row="${row}"][data-column="2"] input`).filter({ visible: true })).toHaveValue(expected);
     }
   });
 
@@ -151,8 +153,8 @@ test.describe("Goals tests", () => {
     await expect(page.getByTestId('goal-indicator-parameter')).toHaveText(indicatorRequiredOnly, { timeout: 15_000 });
 
     // Enter edit form (the full form sits under the panel's edit menu)
-    await page.getByTestId("admin-panel-edit-menu").click();
-    await page.getByTestId("admin-panel-edit").click();
+    await page.getByTestId("admin-panel-edit-menu").filter({ visible: true }).click();
+    await page.getByTestId("admin-panel-edit").filter({ visible: true }).click();
     await page.waitForLoadState("networkidle");
 
     // Check that everything is auto filled
@@ -185,11 +187,11 @@ test.describe("Goals tests", () => {
     // Submit 
     await page.locator('#submit-button').click();
     // Post-submit SSR of the goal page is slow on a fat DB; wait generously instead of a bare hover
-    await expect(page.locator('#comment-text')).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator('#comment-text').filter({ visible: true })).toBeVisible({ timeout: 20_000 });
 
     // Reenter edit form
-    await page.getByTestId("admin-panel-edit-menu").click();
-    await page.getByTestId("admin-panel-edit").click();
+    await page.getByTestId("admin-panel-edit-menu").filter({ visible: true }).click();
+    await page.getByTestId("admin-panel-edit").filter({ visible: true }).click();
     await page.waitForLoadState("networkidle");
     //await expect(page.locator('#comment-text')).toBeEmpty(); TODO: There is placeholder content here so this will never be empty. Should probably check that the placeholder exists, but that should be done in another test...  
 
@@ -217,13 +219,13 @@ test.describe("Goals tests", () => {
     // Submit
     await page.locator('#submit-button').click();
     // Post-submit SSR of the goal page is slow on a fat DB; wait generously instead of a bare hover
-    await expect(page.locator('#comment-text')).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator('#comment-text').filter({ visible: true })).toBeVisible({ timeout: 20_000 });
     // await page.waitForLoadState("networkidle");
     //await expect(page.locator('#comment-text')).toBeEmpty(); TODO: There is placeholder content here so this will never be empty. Should probably check that the placeholder exists, but that should be done in another test...  
 
     // Reenter edit form to see that everything is updated
-    await page.getByTestId("admin-panel-edit-menu").click();
-    await page.getByTestId("admin-panel-edit").click();
+    await page.getByTestId("admin-panel-edit-menu").filter({ visible: true }).click();
+    await page.getByTestId("admin-panel-edit").filter({ visible: true }).click();
     await page.waitForLoadState("networkidle");
 
     await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorRequiredUpdated);
@@ -241,7 +243,7 @@ test.describe("Goals tests", () => {
     // Submit without changes to see that the form is not broken
     await page.locator('#submit-button').click();
     // Post-submit SSR of the goal page is slow on a fat DB; wait generously instead of a bare hover
-    await expect(page.locator('#comment-text')).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator('#comment-text').filter({ visible: true })).toBeVisible({ timeout: 20_000 });
   });
 
   test('Create goal all', async ({ page }) => {
@@ -254,7 +256,7 @@ test.describe("Goals tests", () => {
     await page.waitForLoadState("networkidle");
 
     // Form Part 1
-    await page.locator('#parent-roadmap').click();
+    await page.locator('#parent-roadmap').click({ timeout: 20_000 });
     await page.locator('#parent-roadmap-dialog-listbox li').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: '2' }).click(); // Checks for Rikets färdplan to be contained in an option, with version 2 to avoid selecting the wrong roadmap
 
     // Form Part 2
@@ -309,11 +311,11 @@ test.describe("Goals tests", () => {
     await page.getByRole('radio', { name: "table_selector.table" }).click();
     await page.getByRole('link', { name: nameAll }).first().click();
     // Wait for page to load (generously; the goal page SSR is slow on a fat DB)
-    await expect(page.locator('h1').filter({ hasText: nameAll })).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('h1').filter({ hasText: nameAll }).filter({ visible: true })).toBeVisible({ timeout: 15_000 });
 
     // Enter edit form (the full form sits under the panel's edit menu)
-    await page.getByTestId("admin-panel-edit-menu").click();
-    await page.getByTestId("admin-panel-edit").click();
+    await page.getByTestId("admin-panel-edit-menu").filter({ visible: true }).click();
+    await page.getByTestId("admin-panel-edit").filter({ visible: true }).click();
     await page.waitForLoadState("networkidle");
 
     // Check that everything is auto filled
@@ -342,11 +344,11 @@ test.describe("Goals tests", () => {
     // Submit
     await page.locator('#submit-button').click();
     // Post-submit SSR of the goal page is slow on a fat DB; wait generously instead of a bare hover
-    await expect(page.locator('h1').filter({ hasText: nameAll })).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator('h1').filter({ hasText: nameAll }).filter({ visible: true })).toBeVisible({ timeout: 20_000 });
 
     // Reenter edit form
-    await page.getByTestId("admin-panel-edit-menu").click();
-    await page.getByTestId("admin-panel-edit").click();
+    await page.getByTestId("admin-panel-edit-menu").filter({ visible: true }).click();
+    await page.getByTestId("admin-panel-edit").filter({ visible: true }).click();
     await page.waitForLoadState("networkidle");
 
     // Editing form
@@ -393,11 +395,11 @@ test.describe("Goals tests", () => {
     // Submit
     await page.locator('#submit-button').click();
     // Post-submit SSR of the goal page is slow on a fat DB; wait generously instead of a bare hover
-    await expect(page.locator('#comment-text')).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator('#comment-text').filter({ visible: true })).toBeVisible({ timeout: 20_000 });
 
     // Reenter edit form
-    await page.getByTestId("admin-panel-edit-menu").click();
-    await page.getByTestId("admin-panel-edit").click();
+    await page.getByTestId("admin-panel-edit-menu").filter({ visible: true }).click();
+    await page.getByTestId("admin-panel-edit").filter({ visible: true }).click();
     await page.waitForLoadState("networkidle");
 
     // Check that edits have saved

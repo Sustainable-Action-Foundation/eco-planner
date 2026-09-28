@@ -18,10 +18,10 @@ export default defineConfig({
   // One retry in case of flaky tests
   retries: 1,
 
-  timeout: 60 * 1000, // Max time one test can run for
+  timeout: 90 * 1000, // Max time one test can run for; the heavy goal-edit flows exceeded 60s on loaded CI webkit
 
   expect: {
-    timeout: 10 * 1000, // Max time expect() should wait for the condition to be met.
+    timeout: 15 * 1000, // Max time expect() should wait for the condition to be met.
   },
 
   // Reporter to use
@@ -49,8 +49,9 @@ export default defineConfig({
     locale: "cimode",
     timezoneId: "Europe/Stockholm",
 
-    // Shorter timeouts for actions to make tests that will fail, fail faster. 
-    actionTimeout: 5 * 1000, // Timeout for click, fill etc.
+    // Timeout for click, fill etc. The old fail-fast 5s was calibrated before the fat
+    // seed; under 3-browser CI load streamed pages routinely stay unstable for longer.
+    actionTimeout: 15 * 1000,
   },
 
   // Web server
@@ -98,7 +99,8 @@ export default defineConfig({
     },
     {
       name: "webkit 1080p",
-      use: { ...devices["Desktop Safari"], viewport: { width: 1920, height: 1080 } },
+      // Webkit is consistently the slowest to settle under CI load; give its actions extra room
+      use: { ...devices["Desktop Safari"], viewport: { width: 1920, height: 1080 }, actionTimeout: 20 * 1000 },
       dependencies: ["setup"],
     },
   ],

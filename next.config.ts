@@ -29,9 +29,7 @@ const nextConfig: NextConfig = {
     },
   } : {}),
   output: process.env.CI ? "standalone" : undefined,
-  experimental: {
-    useCache: true,
-  },
+  cacheComponents: true,
 };
 
 export default nextConfig;

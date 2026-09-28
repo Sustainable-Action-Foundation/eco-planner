@@ -70,6 +70,9 @@ export default async function Page(props: { params: Promise<{ goalId: string }> 
           })}
         </h1>
         <GoalForm
+          // Remount when the goal changes: revisiting the route restores the preserved
+          // (hidden) form instance, whose defaults and stale-data timestamp predate the save
+          key={new Date(currentGoal.updated_at).getTime()}
           iterationId={currentGoal.roadmap_iteration_id}
           currentGoal={currentGoal}
           roadmapAlternatives={roadmapList}
