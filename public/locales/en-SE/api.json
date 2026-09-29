@@ -55,7 +55,9 @@
   "org": {
     "not_found": "Organization not found",
     "name_taken": "An organization with that name already exists",
-    "renamed": "Organization renamed"
+    "renamed": "Organization renamed",
+    "area_updated": "Organization area updated",
+    "unknown_area": "Unknown area"
   },
   "orgMembership": {
     "not_found": "Membership not found",

@@ -107,3 +107,11 @@ export const UnitFlags = {
   Missing: "MISSING_UNIT",
 } as const;
 export type UnitFlags = (typeof UnitFlags)[keyof typeof UnitFlags];
+
+/** Whose likes an org landing's ranked list counts: the org's own members, or the members of every org in its area */
+export const LikeScope = {
+  Org: "ORG",
+  Area: "AREA",
+  County: "COUNTY",
+} as const;
+export type LikeScope = (typeof LikeScope)[keyof typeof LikeScope];

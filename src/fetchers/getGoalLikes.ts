@@ -2,6 +2,9 @@ import "server-only";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { listedGoalsWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
+import { GeoAreaType } from "@/lib/prisma/generated";
+import { LikeScope } from "@/types/enums";
+import type { Prisma } from "@PRISMA-NAMESPACE-ONLY";
 import type { UserAccessContext } from "@/types";
 import { cacheTag } from "next/cache";
 
@@ -19,8 +22,10 @@ export type LikedGoal = {
   roadmap: { id: string, name: string, version: number },
   /** The org owning the goal's roadmap */
   org: { id: string, name: string },
-  /** Likes from members of the landing's org: what the list is ranked by */
+  /** Likes from the members in scope (the landing's org, or every org in its area): what the list is ranked by */
   likeCount: number,
+  /** How many of the orgs in scope have a member who liked the goal */
+  orgCount: number,
   /** Likes from everyone */
   totalLikeCount: number,
   latestLikeAt: Date,
@@ -56,27 +61,73 @@ async function getCachedGoalLikeSummary(goalId: string, accessContext: UserAcces
   }
 }
 
+/** A scope the org's list of liked goals can be viewed in, see `getLikeScopes` */
+export type LikeScopeOption = {
+  scope: LikeScope,
+  /** The area the scope covers; null for the org's own scope */
+  area: { code: string, name: string } | null,
+};
+
 /**
- * The goals an org's members have liked, ranked by how many of the members
- * liked them and then by the most recent like, so the org can see which goals
- * its people want to work on. Only goals the requesting user can see and that
- * belong in listings are included; likes from outside the org count towards
- * `totalLikeCount` but not the ranking.
+ * The scopes an org's liked goals can be compiled over. Always the org itself;
+ * an org placed in a municipality or county also gets that area, which gathers
+ * the likes of every org placed in it (a county includes its municipalities),
+ * and a municipal org gets its county on top. That is how the companies and
+ * organizations of a municipality prioritize together.
  */
-export async function getLikedGoals(orgId: string): Promise<LikedGoal[]> {
-  const accessContext = await getUserAccessContext();
-  if (!accessContext) return [];
-  return getCachedLikedGoals(orgId, accessContext);
+export async function getLikeScopes(orgId: string): Promise<LikeScopeOption[]> {
+  'use cache';
+  cacheTag('database', 'org');
+
+  const scopes: LikeScopeOption[] = [{ scope: LikeScope.Org, area: null }];
+  try {
+    const org = await prisma.orgs.findUnique({
+      where: { id: orgId },
+      select: { geo_area: { select: { code: true, name: true, type: true, parent: { select: { code: true, name: true, type: true } } } } },
+    });
+    const area = org?.geo_area;
+    if (area && area.type !== GeoAreaType.NATION) {
+      scopes.push({ scope: LikeScope.Area, area: { code: area.code, name: area.name } });
+    }
+    if (area?.type === GeoAreaType.MUNICIPALITY && area.parent?.type === GeoAreaType.COUNTY) {
+      scopes.push({ scope: LikeScope.County, area: { code: area.parent.code, name: area.parent.name } });
+    }
+  }
+  catch (err) {
+    console.error("Error fetching like scopes:", { err });
+  }
+  return scopes;
 }
 
-async function getCachedLikedGoals(orgId: string, accessContext: UserAccessContext): Promise<LikedGoal[]> {
+/**
+ * The goals liked within a scope of the org (see `getLikeScopes`; its own
+ * members by default), ranked by how many of the members in scope liked them
+ * and then by the most recent like, so the org, or its whole area, can see
+ * which goals people want to work on. Only goals the requesting user can see
+ * and that belong in listings are included; likes from outside the scope
+ * count towards `totalLikeCount` but not the ranking. A scope the org doesn't
+ * have falls back to the org itself.
+ */
+export async function getLikedGoals(orgId: string, scope: LikeScope = LikeScope.Org): Promise<LikedGoal[]> {
+  const accessContext = await getUserAccessContext();
+  if (!accessContext) return [];
+  const area = (await getLikeScopes(orgId)).find(option => option.scope === scope)?.area ?? null;
+  return getCachedLikedGoals(orgId, area?.code ?? null, accessContext);
+}
+
+async function getCachedLikedGoals(orgId: string, areaCode: string | null, accessContext: UserAccessContext): Promise<LikedGoal[]> {
   'use cache';
   cacheTag('database', 'goalLike', 'goal', 'roadmap', 'roadmapIteration', 'dataSeries', 'org');
 
   try {
+    // Whose likes count: members of the org, or of any org placed in the area or in an area directly under it
+    const inScope: Prisma.OrgMembershipsWhereInput = areaCode
+      ? { org: { geo_area: { OR: [{ code: areaCode }, { parent_code: areaCode }] } } }
+      : { org_id: orgId };
+
     const goals = await prisma.goals.findMany({
       where: {
-        likes: { some: { user: { memberships: { some: { org_id: orgId } } } } },
+        likes: { some: { user: { memberships: { some: inScope } } } },
         roadmap_iteration: visibleRoadmapIterationsWHERE(accessContext),
         AND: [listedGoalsWHERE(accessContext)],
       },
@@ -95,7 +146,7 @@ async function getCachedLikedGoals(orgId: string, accessContext: UserAccessConte
           select: {
             user_id: true,
             created_at: true,
-            user: { select: { memberships: { where: { org_id: orgId }, select: { org_id: true } } } },
+            user: { select: { memberships: { where: inScope, select: { org_id: true } } } },
           },
         },
       },
@@ -104,16 +155,18 @@ async function getCachedLikedGoals(orgId: string, accessContext: UserAccessConte
     const copiesBySource = await findCopies(orgId, accessContext, goals.flatMap(goal => goal.data_series_id ? [goal.data_series_id] : []));
 
     const liked = goals.map(goal => {
-      const orgLikes = goal.likes.filter(like => like.user.memberships.length > 0);
+      // One like per user and goal, so a member of several orgs in scope still counts once
+      const scopedLikes = goal.likes.filter(like => like.user.memberships.length > 0);
       return {
         id: goal.id,
         name: goal.name,
         indicatorParameter: goal.indicator_parameter,
         roadmap: { id: goal.roadmap_iteration.roadmap.id, name: goal.roadmap_iteration.roadmap.name, version: goal.roadmap_iteration.version },
         org: { id: goal.roadmap_iteration.roadmap.access_control.org_id, name: goal.roadmap_iteration.roadmap.access_control.org.name },
-        likeCount: orgLikes.length,
+        likeCount: scopedLikes.length,
+        orgCount: new Set(scopedLikes.flatMap(like => like.user.memberships.map(membership => membership.org_id))).size,
         totalLikeCount: goal.likes.length,
-        latestLikeAt: new Date(Math.max(...orgLikes.map(like => like.created_at.getTime()))),
+        latestLikeAt: new Date(Math.max(...scopedLikes.map(like => like.created_at.getTime()))),
         likedByViewer: goal.likes.some(like => like.user_id === accessContext.id),
         copies: goal.data_series_id ? copiesBySource.get(goal.data_series_id) ?? [] : [],
       };

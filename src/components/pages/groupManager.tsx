@@ -6,6 +6,9 @@ import { useTranslation } from "react-i18next";
 import formSubmitter from "@/functions/formSubmitter";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import SelectMultipleSearch from "@/components/form/elements/combobox/selectMultipleSearch";
+import SelectSingleSearch from "@/components/form/elements/combobox/selectSingleSearch";
+import areaCodes from "@/lib/areaCodes.json" with { type: "json" };
+import { areaSorter } from "@/lib/sorters";
 import type { Option } from "@/components/types";
 import type { OrgManagement } from "@/fetchers/getOrgManagement";
 import { OrgRole } from "@/lib/prisma/generated";
@@ -51,6 +54,8 @@ export default function GroupManager({ management }: { management: OrgManagement
         <h2 className="font-size-125">{t("pages:org_groups.org_heading")}</h2>
         {/* Keyed on the name so a router.refresh() after renaming remounts with fresh data */}
         <RenameOrg key={management.org.name} org={management.org} />
+        {/* Keyed on the area for the same reason */}
+        <OrgArea key={management.org.geoAreaCode ?? "none"} org={management.org} />
       </section>
 
       <section className="margin-bottom-300">
@@ -120,6 +125,66 @@ function RenameOrg({ org }: { org: OrgManagement["org"] }) {
       <button type="submit" className="seagreen color-purewhite" disabled={isLoading || unchanged} data-testid="org-rename-save">
         {t("common:tsx.save")}
       </button>
+    </form>
+  );
+}
+
+/** The areas an org can be placed in, by name; the nation isn't a place to gather an area's organizations in */
+const areaOptions: Option[] = Object.entries(areaCodes)
+  .filter(([, code]) => code !== "00")
+  .sort((a, b) => areaSorter([a[0], a[1]], [b[0], b[1]]))
+  .map(([name, code]) => ({ name, value: code }));
+
+/**
+ * Places the org in a municipality or county. The org landing localizes its
+ * statistics to the area, and the likes of all organizations placed in the
+ * same area can be compiled together there.
+ */
+function OrgArea({ org }: { org: OrgManagement["org"] }) {
+  const { t } = useTranslation(["pages", "common", "forms"]);
+  const { addToast } = useToast();
+  const router = useRouter();
+
+  const [code, setCode] = useState(org.geoAreaCode ?? "");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const current = areaOptions.find(option => option.value === org.geoAreaCode);
+  const unchanged = code === (org.geoAreaCode ?? "");
+
+  function save(event: React.SyntheticEvent<HTMLFormElement>) {
+    event.preventDefault();
+    formSubmitter('/api/org', JSON.stringify({
+      orgId: org.id,
+      geoAreaCode: code || null,
+    }), 'PUT', t, setIsLoading, undefined, () => {
+      setIsLoading(false);
+      addToast(t("pages:org_groups.area_saved_toast"), "success");
+      router.refresh();
+    }, (err) => {
+      setIsLoading(false);
+      addToast(errorMessage(err, t), "error");
+    }, addToast);
+  }
+
+  return (
+    <form onSubmit={save} className="margin-top-100" data-testid="org-area-form">
+      <label className="font-weight-500" htmlFor="org-area">{t("pages:org_groups.area_label")}</label>
+      <p className="margin-block-25 color-gray font-size-14px">{t("pages:org_groups.area_description")}</p>
+      <div className="flex gap-50 flex-wrap-wrap align-items-flex-end">
+        <SelectSingleSearch
+          props={{
+            id: "org-area",
+            name: "org-area",
+            placeholder: t("forms:combobox.select_or_leave"),
+          }}
+          defaultValue={current ?? false}
+          options={[{ name: t("pages:org_groups.area_none"), value: "" }, ...areaOptions]}
+          onChange={(option) => setCode(option?.value ?? "")}
+        />
+        <button type="submit" className="seagreen color-purewhite" disabled={isLoading || unchanged} data-testid="org-area-save">
+          {t("common:tsx.save")}
+        </button>
+      </div>
     </form>
   );
 }

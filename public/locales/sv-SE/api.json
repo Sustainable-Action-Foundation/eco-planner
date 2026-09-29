@@ -55,7 +55,9 @@
   "org": {
     "not_found": "Organisationen hittades inte",
     "name_taken": "En organisation med det namnet finns redan",
-    "renamed": "Organisationen bytte namn"
+    "renamed": "Organisationen bytte namn",
+    "area_updated": "Organisationens område uppdaterat",
+    "unknown_area": "Okänt område"
   },
   "orgMembership": {
     "not_found": "Medlemskapet hittades inte",

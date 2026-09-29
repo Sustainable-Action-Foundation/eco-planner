@@ -4,7 +4,7 @@ import AttributedImage, { AttributeText } from "@/components/generic/images/attr
 import { roadmapIterationSorter, roadmapSorterAZ, roadmapSorterGoalAmount } from "@/lib/sorters";
 import { IterationStatus, OrgRole, RoadmapType } from "@/lib/prisma/generated";
 import RoadmapFilters from "@/components/form/filters/roadmapFilters";
-import { RoadmapSortBy } from "@/types/enums";
+import { LikeScope, RoadmapSortBy } from "@/types/enums";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import RoadmapTree from "@/components/tables/roadmapTables/roadmapTree";
 import serveTea from "@/lib/i18nServer";
@@ -16,7 +16,7 @@ import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import Actions from "@/components/pages/sections/actions";
 import CuratedHistoricalData from "@/components/pages/sections/historicalData";
 import NationalGoals from "@/components/pages/sections/nationalGoals";
-import LikedGoals from "@/components/pages/sections/likedGoals";
+import LikedGoals, { likeScopeParam } from "@/components/pages/sections/likedGoals";
 import Image from "next/image";
 import { Suspense } from "react";
 import SearchRoadmaps from "@/components/form/filters/searchRoadmaps";
@@ -63,6 +63,10 @@ export default async function Page(
       ?? userOrgs.find(org => org.isMember && !org.isGuest)
       ?? (accessContext?.isSuperAdmin ? userOrgs[0] : null)
       ?? null;
+
+  // Whose likes the liked-goals list counts: the org's own members unless the link says otherwise
+  const likeScopeValue = Array.isArray(searchParams[likeScopeParam]) ? searchParams[likeScopeParam][0] : searchParams[likeScopeParam];
+  const likeScope = Object.values(LikeScope).find(scope => scope.toLowerCase() === likeScopeValue?.toLowerCase()) ?? LikeScope.Org;
 
   const typeFilter = searchParams['typeFilter'] ? (Array.isArray(searchParams['typeFilter']) ? searchParams['typeFilter'] : [searchParams['typeFilter']]) : [];
   const sortBy = searchParams['sortBy'] ? (Array.isArray(searchParams['sortBy']) ? (searchParams['sortBy'][0] as RoadmapSortBy) : (searchParams['sortBy'] as RoadmapSortBy)) : RoadmapSortBy.Default;
@@ -232,8 +236,8 @@ export default async function Page(
             instead of the navigation (a transition) holding the whole page until the new org's data is in */}
         {/* The goals the org's members have liked, ranked; copies from the list go into the org's roadmaps */}
         <section className="margin-block-300">
-          <Suspense key={selectedOrg.id} fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
-            <LikedGoals orgId={selectedOrg.id} canCreateGoals={copyTargets.length > 0} />
+          <Suspense key={`${selectedOrg.id}:${likeScope}`} fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
+            <LikedGoals orgId={selectedOrg.id} scope={likeScope} searchParams={searchParams} canCreateGoals={copyTargets.length > 0} />
           </Suspense>
         </section>
 
