@@ -1,11 +1,12 @@
 import { expect, test } from "playwright/test";
-import { DefaultSuggestedRecipeId, getDefaultSuggestedRecipes, preferredSuggestedRecipeId } from "../../src/components/recipe/suggestions/defaultSuggestedRecipes";
+import { copySuggestionContext, DefaultSuggestedRecipeId, getDefaultSuggestedRecipes, isUnscaledSuggestion, preferredSuggestedRecipeId, preferredSuggestion, prefillForArea } from "../../src/components/recipe/suggestions/defaultSuggestedRecipes";
 import { RecipeDataTypes, VectorIndexPickerOptions } from "../../src/functions/recipe/types/enums";
 import { Recipe } from "../../src/functions/recipe/recipe";
-import { GeoAreaType } from "../../src/lib/prisma/generated";
+import { LeapSuggestedRecipeId } from "../../src/components/recipe/suggestions/leapSuggestedRecipes";
+import { GeoAreaType, RoadmapType } from "../../src/lib/prisma/generated";
 import { UnitFlags } from "../../src/types/enums";
 import type { ExternalVariable } from "../../src/functions/recipe/types";
-import type { GeoAreaRef, PrefilledSeries } from "../../src/types";
+import type { GeoAreaRef, GoalPrefill, PrefilledSeries } from "../../src/types";
 import type { TFunction } from "i18next";
 
 const identityT = ((key: string) => key) as TFunction;
@@ -59,5 +60,34 @@ test.describe("Default suggestions and areas", () => {
     expect(preferredSuggestedRecipeId(identityT, { parentSeries, geo: { source: sweden, target: null } })).toBe(DefaultSuggestedRecipeId.Scalar);
     expect(preferredSuggestedRecipeId(identityT, { parentSeries })).toBe(DefaultSuggestedRecipeId.Scalar);
     expect(preferredSuggestedRecipeId(identityT, {})).toBe(DefaultSuggestedRecipeId.Scalar);
+  });
+
+  test("a prefill follows the target area's local statistic, and picks its method like the form", () => {
+    const prefill: GoalPrefill = {
+      parent: parentSeries,
+      copy: { name: null, description: null, indicatorParameter: "Antal bilar" },
+      sourceGeoArea: sweden,
+      sourceRoadmapType: RoadmapType.NATIONAL,
+      byArea: { [boden.code]: { historical: localReference.series, localReference } },
+    };
+    const uppsala: GeoAreaRef = { code: "0380", name: "Uppsala", type: GeoAreaType.MUNICIPALITY };
+
+    // Boden has the statistic: the copy follows it
+    const inBoden = prefillForArea(prefill, boden);
+    expect(inBoden.localReference).toBe(localReference);
+    expect(preferredSuggestion(identityT, copySuggestionContext(inBoden, { source: sweden, target: boden }))?.id).toBe(DefaultSuggestedRecipeId.LocalScale);
+
+    // Uppsala doesn't: population between the areas
+    const inUppsala = prefillForArea(prefill, uppsala);
+    expect(inUppsala.localReference).toBeUndefined();
+    expect(preferredSuggestion(identityT, copySuggestionContext(inUppsala, { source: sweden, target: uppsala }))?.id).toBe(DefaultSuggestedRecipeId.Population);
+
+    // No area at all: the series as is, which is not a scaling
+    const nowhere = preferredSuggestion(identityT, copySuggestionContext(prefillForArea(prefill, null), { source: sweden, target: null }));
+    expect(nowhere?.id).toBe(DefaultSuggestedRecipeId.Scalar);
+    expect(isUnscaledSuggestion(nowhere?.id ?? "")).toBe(true);
+    expect(isUnscaledSuggestion(LeapSuggestedRecipeId.Copy)).toBe(true);
+    expect(isUnscaledSuggestion(DefaultSuggestedRecipeId.LocalScale)).toBe(false);
+    expect(isUnscaledSuggestion(LeapSuggestedRecipeId.ShareYearly)).toBe(false);
   });
 });

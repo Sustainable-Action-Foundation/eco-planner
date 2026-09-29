@@ -38,6 +38,7 @@ import { useRouter } from "next/navigation";
 import HistoricalSeriesSection from "../sections/dataseries/historical";
 import BaselineSeriesSection from "../sections/dataseries/baseline";
 import GoalSeriesSection from "../sections/dataseries/goal";
+import { prefillForArea } from "@/components/recipe/suggestions/defaultSuggestedRecipes";
 import { getHistoricalDatasetFromRecipe } from "@/functions/getHistoricalDataset";
 import { historicalSeriesName } from "@/components/graph/historicalFootnote";
 import PreviewSeries from "../sections/dataseries/preview";
@@ -69,8 +70,7 @@ export default function GoalForm({
   );
   const prefill = useMemo(() => {
     if (currentGoal || !requestedPrefill) return undefined;
-    const forArea = targetGeo ? requestedPrefill.byArea?.[targetGeo.code] : undefined;
-    return forArea ? { ...requestedPrefill, ...forArea } : requestedPrefill;
+    return prefillForArea(requestedPrefill, targetGeo);
   }, [currentGoal, requestedPrefill, targetGeo]);
   const geo = useMemo(() => ({ source: prefill?.sourceGeoArea ?? null, target: targetGeo }), [prefill?.sourceGeoArea, targetGeo]);
   // The sections seeded from the prefill remount when the area changes

@@ -137,25 +137,28 @@ async function resolveCopiedGoal(goalId: string): Promise<(Parameters<typeof cop
   };
 }
 
-/**
- * For a copied goal the curated catalog can measure locally: the local
- * statistic for every area the user could copy the goal into (the areas of
- * the roadmaps they can edit), keyed by area code, so the form can follow the
- * target roadmap. Empty for goals outside the mapping.
- */
-async function localStatisticsByArea(t: TFunction, copied: Parameters<typeof copyPrefill>[0]): Promise<NonNullable<GoalPrefill["byArea"]>> {
-  const byArea: NonNullable<GoalPrefill["byArea"]> = {};
-  const mapping = getNationalGoalMappings().find(mapping => mapping.indicatorParameter === copied.indicatorParameter);
-  if (!mapping) return byArea;
-
+/** The areas the user could copy a goal into: those of the roadmaps they can edit. */
+async function editableRoadmapAreas(): Promise<GeoAreaRef[]> {
   const [roadmaps, accessContext] = await Promise.all([getRoadmaps(), getUserAccessContext()]);
   const areas = new Map<string, GeoAreaRef>();
   for (const roadmap of roadmaps) {
     if (roadmap.geo_area && hasEditAccess(accessChecker(roadmap, accessContext))) areas.set(roadmap.geo_area.code, roadmap.geo_area);
   }
+  return [...areas.values()];
+}
+
+/**
+ * For a copied goal the curated catalog can measure locally: the local
+ * statistic for each of the areas, keyed by area code, so the form can follow
+ * the target roadmap. Empty for goals outside the mapping.
+ */
+async function localStatisticsByArea(t: TFunction, copied: Parameters<typeof copyPrefill>[0], areas: GeoAreaRef[]): Promise<NonNullable<GoalPrefill["byArea"]>> {
+  const byArea: NonNullable<GoalPrefill["byArea"]> = {};
+  const mapping = getNationalGoalMappings().find(mapping => mapping.indicatorParameter === copied.indicatorParameter);
+  if (!mapping) return byArea;
 
   // One area at a time: the statistics APIs answer bursts with 429s
-  for (const area of areas.values()) {
+  for (const area of areas) {
     const entries = await getCuratedHistoricalEntries(t, area, mapping.series.map(candidate => candidate.entryKey));
     const local = findLocalSeries(mapping, entries);
     if (!local) continue;
@@ -163,6 +166,34 @@ async function localStatisticsByArea(t: TFunction, copied: Parameters<typeof cop
     if (historical && localReference) byArea[area.code] = { historical, localReference };
   }
   return byArea;
+}
+
+/**
+ * What a preview of the goal scaled to the user's own areas starts from: the
+ * prefill the goal form would get from the goal's "use in roadmap" link, with
+ * the local statistics of the areas of the user's orgs, and those areas. The
+ * preview picks its method from it like the form does (see
+ * `preferredSuggestion`), so it shows what a copy would start as. Null when the
+ * goal can't be copied or the user has no org with an area.
+ */
+export async function getScaledPreviewPrefill(t: TFunction, goalId: string): Promise<{ prefill: GoalPrefill, areas: GeoAreaRef[] } | null> {
+  const orgs = (await getUserOrgs()).filter(org => org.isMember && !org.isGuest);
+  const areas = [...new Map(orgs.flatMap(org => org.geoArea ? [[org.geoArea.code, org.geoArea] as const] : [])).values()];
+  if (areas.length === 0) return null;
+
+  const copied = await resolveCopiedGoal(goalId);
+  if (!copied) return null;
+  return {
+    prefill: {
+      parent: goalPrefilledSeries(copied),
+      copy: { name: copied.name, description: copied.description, indicatorParameter: copied.indicatorParameter },
+      sourceGeoArea: copied.geoArea ?? undefined,
+      sourceRoadmapType: copied.roadmapType,
+      storedSuggestions: copied.storedSuggestions,
+      byArea: await localStatisticsByArea(t, copied, areas),
+    },
+    areas,
+  };
 }
 
 /**
@@ -193,7 +224,7 @@ export async function getGoalPrefill(
         sourceGeoArea: copied.geoArea ?? undefined,
         sourceRoadmapType: copied.roadmapType,
         storedSuggestions: copied.storedSuggestions,
-        byArea: await localStatisticsByArea(t, copied),
+        byArea: await localStatisticsByArea(t, copied, await editableRoadmapAreas()),
       },
       failed: false,
     };
@@ -220,7 +251,7 @@ export async function getGoalPrefill(
       sourceGeoArea: copied.geoArea ?? undefined,
       sourceRoadmapType: copied.roadmapType,
       storedSuggestions: copied.storedSuggestions,
-      byArea: await localStatisticsByArea(t, copied),
+      byArea: await localStatisticsByArea(t, copied, await editableRoadmapAreas()),
     },
     failed: false,
   };

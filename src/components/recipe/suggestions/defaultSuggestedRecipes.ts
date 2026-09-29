@@ -8,7 +8,8 @@ import type { CuratedRegion } from "@/lib/curatedHistoricalData";
 import type { TFunction } from "i18next";
 import { UnitFlags } from "@/types/enums";
 import { parseUnit } from "@/functions/unit";
-import { getLeapSuggestedRecipes } from "@/components/recipe/suggestions/leapSuggestedRecipes";
+import { getLeapSuggestedRecipes, LeapSuggestedRecipeId } from "@/components/recipe/suggestions/leapSuggestedRecipes";
+import { RoadmapType } from "@/lib/prisma/generated";
 
 /** The data series being inherited from; the user picks it in every scaling recipe. */
 export const PARENT_VALUE_ID = "parent-value-dummy-uuid";
@@ -185,6 +186,48 @@ export function preferredSuggestedRecipeId(t: TFunction, context: SuggestedRecip
   if (context.localReference) return DefaultSuggestedRecipeId.LocalScale;
   if (presetCoversArea(scbPopulation, context.geo?.source) && presetCoversArea(scbPopulation, context.geo?.target)) return DefaultSuggestedRecipeId.Population;
   return DefaultSuggestedRecipeId.Scalar;
+}
+
+/**
+ * The prefill as it applies to a target area: the area's local statistic, when
+ * the prefill carries one (see `GoalPrefill.byArea`), becomes the history and
+ * what the copy is scaled to.
+ */
+export function prefillForArea(prefill: GoalPrefill, target: GeoAreaRef | null): GoalPrefill {
+  const forArea = target ? prefill.byArea?.[target.code] : undefined;
+  return forArea ? { ...prefill, ...forArea } : prefill;
+}
+
+/**
+ * What the suggestions for a goal started from a prefill are built around,
+ * with the prefill already resolved for the target area (see `prefillForArea`).
+ * Shared by the goal form and the previews of what a copy would be, so both
+ * land on the same method.
+ */
+export function copySuggestionContext(prefill: GoalPrefill, geo: SuggestedRecipeContext["geo"]): SuggestedRecipeContext {
+  return {
+    parentSeries: prefill.parent,
+    localReference: prefill.localReference,
+    geo,
+    indicatorParameter: prefill.copy?.indicatorParameter,
+    nationalScenario: prefill.sourceRoadmapType === RoadmapType.NATIONAL,
+    storedSuggestions: prefill.storedSuggestions,
+  };
+}
+
+/** The suggestion the form starts on (see `preferredSuggestedRecipeId`), as offered for the context. */
+export function preferredSuggestion(t: TFunction, context: SuggestedRecipeContext): DBRecipe | undefined {
+  const id = preferredSuggestedRecipeId(t, context);
+  return getSuggestedRecipesFor(t, context).find(suggestion => suggestion.id === id);
+}
+
+/**
+ * Whether a suggestion takes the series as is rather than scaling it: the
+ * plain factor of 1 that is left when nothing else applies, or a LEAP rule
+ * saying the goal is the same everywhere (a share, a blend).
+ */
+export function isUnscaledSuggestion(id: string): boolean {
+  return id === DefaultSuggestedRecipeId.Scalar || id === LeapSuggestedRecipeId.Copy;
 }
 
 /**
