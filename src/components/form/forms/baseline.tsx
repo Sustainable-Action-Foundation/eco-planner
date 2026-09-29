@@ -1,5 +1,6 @@
 "use client";
 
+import { useFormTimestamp } from "./useFormTimestamp";
 import BaselineSeriesSection from "@/components/form/sections/dataseries/baseline";
 import { GoalGraph } from "@/components/graph/graphs/goal/main";
 import { waitForRecipeFormSyncs } from "@/components/recipe";
@@ -40,7 +41,7 @@ export default function BaselineForm({
   const [baselineType, setBaselineType] = useState<BaselineType>(initialBaselineType);
   const initializedTypes = useInitializedValues(baselineType);
   const [previewBaselineSerie, setPreviewBaselineSerie] = useState<DateValuesWithUnit | null>(null);
-  const [timestamp] = useState(() => Date.now());
+  const timestamp = useFormTimestamp();
 
   // The goal form feeds the section its live data series preview; here the
   // stored series is the fixed source the derived baseline types read from

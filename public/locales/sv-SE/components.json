@@ -462,5 +462,10 @@
     "public": "Synlig för alla",
     "org": "Synlig för alla i {{org}}",
     "groups": "Synlig bara för grupper med åtkomst"
+  },
+  "like_button": {
+    "failed": "Kunde inte spara gilla-markeringen: {{details}}",
+    "like": "Gilla målbanan",
+    "unlike": "Ta bort din gilla-markering"
   }
 }

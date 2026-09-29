@@ -41,7 +41,7 @@ async function selectRiketsRoadmap(page: Page) {
 }
 
 async function selectParentRiketsRoadmap(page: Page) {
-  await page.locator('#parent-roadmap').click();
+  await page.locator('#parent-roadmap').click({ timeout: 20_000 });
   await page.locator('#parent-roadmap-dialog-listbox li').filter({ hasText: 'Rikets färdplan' }).filter({ hasText: '2' }).click(); // This place shows it as `"version": 2` rather than `v2`, so we just look for a "2"
 }
 

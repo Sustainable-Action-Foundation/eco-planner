@@ -21,7 +21,7 @@ test.describe("Historical Data Tests", () => {
     // Instead, we should go to the first goal in the list of goals in this test, and the second one in the other test.
     await page.getByTestId('featured-goals').first().click();
     // The historical form sits under the panel's edit menu (also for a first entry)
-    await page.getByTestId('admin-panel-edit-menu').click();
+    await page.getByTestId('admin-panel-edit-menu').filter({ visible: true }).click();
     await page.getByTestId('historical-data-link').click();
 
     // Switch to manual input
@@ -75,7 +75,7 @@ test.describe("Historical Data Tests", () => {
     // Instead, we should go to the second goal in the list of goals in this test, and the first one in the first test.
     await page.getByTestId('featured-goals').first().click();
     // The historical form sits under the panel's edit menu (also for a first entry)
-    await page.getByTestId('admin-panel-edit-menu').click();
+    await page.getByTestId('admin-panel-edit-menu').filter({ visible: true }).click();
     await page.getByTestId('historical-data-link').click();
 
     // Switch to external dataset input

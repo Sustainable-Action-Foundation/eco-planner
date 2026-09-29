@@ -214,10 +214,12 @@ model Goals {
   recipe_suggestions Recipes[] @relation("inheritance_suggestions")
 
   // Comments related to this goal
-  comments Comments[] @relation("goal_comments")
+  comments Comments[]  @relation("goal_comments")
+  // Users who liked this goal, see GoalLikes
+  likes    GoalLikes[] @relation("goal_likes")
   // Tags for this goal
   // Tags are used to categorize goals, such as "climate", "energy", "transport", etc.
-  tags     GoalTags[] @relation("goal_tags")
+  tags     GoalTags[]  @relation("goal_tags")
 
   // Author of this goal, used for visual purposes only, not for access control
   author_id String?
@@ -280,6 +282,21 @@ model Recipes {
   // The one data series this recipe produces; null for recipes not (yet) attached to a series, e.g. inheritance suggestion templates
   derived_data_series DataSeries?  @relation("recipe_used")
   source_data_series  DataSeries[] @relation("source_data_series")
+}
+
+// A user's like on a goal: one per user and goal, kept with its timestamp so
+// the org landing can rank liked goals by count and recency. Goes away with
+// either the goal or the user.
+model GoalLikes {
+  created_at DateTime @default(now())
+
+  goal_id String
+  goal    Goals  @relation("goal_likes", fields: [goal_id], references: [id], onDelete: Cascade)
+  user_id String
+  user    Users  @relation("user_goal_likes", fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@id([goal_id, user_id])
+  @@index([user_id])
 }
 
 model GoalTags {
@@ -559,6 +576,8 @@ model Users {
   authored_roadmaps           Roadmaps[]          @relation("roadmap_author")
   authored_data_series        DataSeries[]        @relation("data_series_author")
   authored_comments           Comments[]          @relation("comment_author")
+
+  goal_likes GoalLikes[] @relation("user_goal_likes")
 
   sent_guest_invites GuestInvites[] @relation("sent_guest_invites")
 

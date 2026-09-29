@@ -63,6 +63,8 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
           {t("pages:roadmap_edit.title", { name: currentRoadmap.name })}
         </h1>
         <RoadmapForm
+          // Keyed so a revisit after saving remounts the preserved form with fresh data (see goal edit)
+          key={new Date(currentRoadmap.updated_at).getTime()}
           isSuperAdmin={session.user.isSuperAdmin}
           orgOptions={orgOptions}
           parentRoadmapOptions={parentRoadmapOptions.filter(roadmap => roadmap.id !== currentRoadmap.id)}

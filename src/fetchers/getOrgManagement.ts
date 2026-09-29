@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { OrgRole } from "@/lib/prisma/generated";
 
 export type OrgManagement = {
-  org: { id: string, name: string },
+  org: { id: string, name: string, /** SCB code of the area the org is placed in */ geoAreaCode: string | null },
   /** All memberships of the org (group membership hangs off these, not off users) */
   members: {
     membershipId: string,
@@ -40,6 +40,7 @@ export async function getOrgManagement(orgId: string): Promise<OrgManagement | n
       select: {
         id: true,
         name: true,
+        geo_area_code: true,
         memberships: {
           select: {
             id: true,
@@ -75,7 +76,7 @@ export async function getOrgManagement(orgId: string): Promise<OrgManagement | n
     }
 
     return {
-      org: { id: org.id, name: org.name },
+      org: { id: org.id, name: org.name, geoAreaCode: org.geo_area_code },
       members: org.memberships.map(membership => ({
         membershipId: membership.id,
         username: membership.user.username,

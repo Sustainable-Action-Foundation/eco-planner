@@ -55,7 +55,9 @@
   "org": {
     "not_found": "Organisationen hittades inte",
     "name_taken": "En organisation med det namnet finns redan",
-    "renamed": "Organisationen bytte namn"
+    "renamed": "Organisationen bytte namn",
+    "area_updated": "Organisationens område uppdaterat",
+    "unknown_area": "Okänt område"
   },
   "orgMembership": {
     "not_found": "Medlemskapet hittades inte",
@@ -72,5 +74,10 @@
     "email_mismatch": "Den här inbjudan skickades till en annan e-postadress än ditt kontos",
     "accepted": "Inbjudan godkänd",
     "revoked": "Inbjudan återkallad"
+  },
+  "goalLike": {
+    "liked": "Målbanan gillad",
+    "not_found": "Målbanan finns inte eller så saknar du åtkomst till den",
+    "unliked": "Gilla-markeringen borttagen"
   }
 }

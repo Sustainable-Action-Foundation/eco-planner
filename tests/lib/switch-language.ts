@@ -2,14 +2,15 @@ import { uniqueLocales } from "../../i18n.config";
 import { expect, type Page } from "playwright/test";
 
 export async function switchLanguage(page: Page, languageAlias: string) {
+  // Scope to visible elements; hidden Activity routes may keep their own copies in the DOM
   // Open dialog
-  const dialogButton = page.getByTestId("language-switcher-dialog-button");
+  const dialogButton = page.getByTestId("language-switcher-dialog-button").filter({ visible: true });
   await expect(dialogButton, "Language switcher dialog button is not visible").toBeVisible();
   const oldText = await dialogButton.textContent();
   await dialogButton.click();
 
   // Wait for the language options
-  const options = page.getByTestId("language-switcher-options");
+  const options = page.getByTestId("language-switcher-options").filter({ visible: true });
   await options.waitFor({ state: "visible" });
   await expect(options, "Language switcher options are not visible").toBeVisible();
 
@@ -18,7 +19,7 @@ export async function switchLanguage(page: Page, languageAlias: string) {
   expect(optionCount, `Language switcher options count is not ${uniqueLocales.length}`).toBe(uniqueLocales.length);
 
   // Select the language option
-  const option = page.getByTestId(`language-switcher-option-${languageAlias}`);
+  const option = page.getByTestId(`language-switcher-option-${languageAlias}`).filter({ visible: true });
   await expect(option, `Language switcher option for ${languageAlias} is not visible`).toBeVisible();
   const currentlyChecked = await option.getAttribute("data-checked");
   await option.click();
