@@ -25,6 +25,8 @@ import TextEditor from "@/components/form/elements/textEditor/editor";
 import type { Metadata } from "next";
 import GoalGraphContainer from "@/components/graph/graphs/goal/container";
 import UseGoalInRoadmap from "@/components/pages/sections/useGoalInRoadmap";
+import LikeGoalButton from "@/components/buttons/likeGoalButton";
+import { getGoalLikeSummary } from "@/fetchers/getGoalLikes";
 import Image from "next/image";
 import { Suspense } from "react";
 
@@ -107,6 +109,8 @@ export default async function Page(
   if (!goal || !accessLevel || !iteration) {
     return notFound();
   }
+
+  const likes = await getGoalLikeSummary(goal.id);
 
   // Whether a copy of the goal has somewhere to go: a roadmap version the user can edit
   const canCreateGoals = unfilteredIterations.some(iteration =>
@@ -201,10 +205,14 @@ export default async function Page(
               <IconBuildings strokeWidth={1.75} width={20} height={20} style={{ minWidth: '20px' }} />
               {iteration.roadmap.actor}
             </div>
-            <Link href={`/roadmap/${iteration.roadmap_id}`} className="discrete-link flex gap-25 align-items-center" style={{ lineHeight: '1' }}>
-              {t("pages:roadmap_iteration.show_series")}
-              <IconArrowNarrowRight height={20} width={20} style={{ minWidth: '20px' }} />
-            </Link>
+            <div className="flex gap-50 align-items-center">
+              {/* Signed-in readers can like the goal; the likes rank it on their org's landing page */}
+              {accessContext ? <LikeGoalButton goalId={goal.id} liked={likes.likedByViewer} likeCount={likes.likeCount} /> : null}
+              <Link href={`/roadmap/${iteration.roadmap_id}`} className="discrete-link flex gap-25 align-items-center" style={{ lineHeight: '1' }}>
+                {t("pages:roadmap_iteration.show_series")}
+                <IconArrowNarrowRight height={20} width={20} style={{ minWidth: '20px' }} />
+              </Link>
+            </div>
           </div>
         </header>
 

@@ -462,5 +462,10 @@
     "public": "Visible to everyone",
     "org": "Visible to everyone in {{org}}",
     "groups": "Visible only to groups with access"
+  },
+  "like_button": {
+    "failed": "Could not save the like: {{details}}",
+    "like": "Like this goal",
+    "unlike": "Remove your like"
   }
 }

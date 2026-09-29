@@ -55,7 +55,9 @@
   "org": {
     "not_found": "Organization not found",
     "name_taken": "An organization with that name already exists",
-    "renamed": "Organization renamed"
+    "renamed": "Organization renamed",
+    "area_updated": "Organization area updated",
+    "unknown_area": "Unknown area"
   },
   "orgMembership": {
     "not_found": "Membership not found",
@@ -72,5 +74,10 @@
     "email_mismatch": "This invitation was sent to a different email address than your account's",
     "accepted": "Invite accepted",
     "revoked": "Invite revoked"
+  },
+  "goalLike": {
+    "liked": "Goal liked",
+    "not_found": "The goal does not exist or you do not have access to it",
+    "unliked": "Like removed"
   }
 }
