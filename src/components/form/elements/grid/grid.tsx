@@ -4,6 +4,21 @@ import type { GridCell, GridColumnHeader, GridRowHeader, GridRow, GridElement } 
 import React, { useEffect, useState } from "react";
 import { handleKeyDownGrid } from "./functions";
 
+/* pointerType of the latest pointerdown in any grid. click events don't carry
+ * pointerType, so the cell click handler reads the gesture's pointer type from
+ * here. Module scope rather than a ref: only one pointer interaction happens at
+ * a time, and eslint's react-hooks/refs can't follow refs through cloneElement props. */
+let lastPointerType: string | null = null;
+
+/** Whether the interaction that led to a click came from a coarse pointer (finger/pen).
+ * Prefer the per-event pointerType so hybrid devices behave right; fall back to a
+ * media query for browsers without pointer events. */
+function isCoarsePointer(pointerType: string | null) {
+  if (pointerType === "touch" || pointerType === "pen") return true;
+  if (pointerType === "mouse") return false;
+  return typeof window !== "undefined" && !!window.matchMedia?.("(pointer: coarse)").matches;
+}
+
 
 function setFocusOnGrid(
   id: string,
@@ -155,17 +170,50 @@ export default function Grid({
   const [editMode, setEditMode] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!focusedCell) { 
+    if (!focusedCell) {
       setFocusOnGrid(props.id);
       return;
     }
 
-    setFocusOnGridcell(props.id, { row: focusedCell.row, column: focusedCell.column });
-
+    /* When editing, focus the input directly instead of going via the cell:
+     * a blur+refocus here would close an on-screen keyboard already raised by
+     * the touch tap handler below. focus() on the already-focused element is a no-op. */
     if (editMode) {
       setFocusInGridcell(props.id, { row: focusedCell.row, column: focusedCell.column });
+    } else {
+      setFocusOnGridcell(props.id, { row: focusedCell.row, column: focusedCell.column });
     }
   }, [props.id, focusedCell, editMode]);
+
+  /* No double-tap on touch: a tap selects the cell and edits it directly.
+   * The input must be focused synchronously in the gesture's call stack
+   * (not in the focus effect) or mobile browsers won't raise the soft keyboard. */
+  function enterEditOnCell(rowIndex: number, columnIndex: number) {
+    setFocusedCell({ row: rowIndex, column: columnIndex });
+    setEditMode(true);
+    setFocusInGridcell(props.id, { row: rowIndex, column: columnIndex });
+  }
+
+  function handleCellClick(rowIndex: number, columnIndex: number) {
+    if (!focusedCell) {
+      setFocusedCell({ row: 0, column: 1 }); // Column 0 are unfocusable rowheaders
+    }
+
+    if (focusedCell && (focusedCell.row !== rowIndex || focusedCell.column !== columnIndex)) {
+      setEditMode(false);  // Exit edit mode (only) when pressing another cell
+    }
+
+    setFocusedCell({
+      row: rowIndex,
+      column: columnIndex,
+    });
+
+    /* click is the last event of a tap (after the compatibility mousedown has
+     * settled native focus), so nothing steals focus from the input afterwards. */
+    if (isCoarsePointer(lastPointerType)) {
+      enterEditOnCell(rowIndex, columnIndex);
+    }
+  }
 
   const childrenArray = React.Children.toArray(children);
 
@@ -185,9 +233,12 @@ export default function Grid({
       role="grid"
       aria-labelledby={ariaLabelledBy}
       onFocusCapture={() => {
-        if (!focusedCell) {
-          setFocusedCell({row: 0, column: 1}); // Column 0 are unfocusable rowheaders
-        }
+        /* Functional update: a tap's click handler may have already selected a cell
+         * in the same event batch (its focus() lands here), and that selection must win. */
+        setFocusedCell((previous) => previous ?? { row: 0, column: 1 }); // Column 0 are unfocusable rowheaders
+      }}
+      onPointerDownCapture={(e) => {
+        lastPointerType = e.pointerType || null;
       }}
     >
       <thead className="display-contents">
@@ -231,20 +282,7 @@ export default function Grid({
                       deleteCurrentRow,
                       deleteCurrentGridCellContents,
                     }),
-                  onClick: () => {
-                    if (!focusedCell) {
-                      setFocusedCell({ row: 0, column: 1 }); // Column 0 are unfocusable rowheaders
-                    }
-
-                    if (focusedCell && (focusedCell.row !== rowIndex || focusedCell.column !== columnIndex)) {
-                      setEditMode(false);  // Exit edit mode (only) when pressing another cell
-                    }
-
-                    setFocusedCell({
-                      row: rowIndex,
-                      column: columnIndex,
-                    });
-                  },
+                  onClick: () => handleCellClick(rowIndex, columnIndex),
                   onDoubleClick: () => {
                     setEditMode(true); // Enter edit mode when double clicking a cell
                   },
