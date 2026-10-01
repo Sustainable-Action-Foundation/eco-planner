@@ -44,7 +44,7 @@ export default async function NationalGoals({
     .map(match => ({
       goalId: match.goal.id,
       name: goalDisplayName({ name: match.goal.name, indicator_parameter: match.goal.indicatorParameter }),
-      prefill: copyPrefill(match.goal, { ...match.entry, series: { length: match.entrySeriesCount } }, match.series),
+      prefill: copyPrefill(t, match.goal, { ...match.entry, series: { length: match.entrySeriesCount } }, match.series),
     }))
     .filter(copy => copy.prefill.localReference);
 

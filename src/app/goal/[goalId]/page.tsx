@@ -13,7 +13,7 @@ import serveTea from "@/lib/i18nServer";
 import { prisma } from "@/lib/prisma";
 import type { AccessControlled, Goal, MultiRoadmapInstance, RoadmapIteration, UserAccessContext } from "@/types";
 import { AccessLevel } from "@/types/enums";
-import { IterationStatus } from "@/lib/prisma/generated";
+import { IterationStatus, RoadmapType } from "@/lib/prisma/generated";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -25,6 +25,7 @@ import TextEditor from "@/components/form/elements/textEditor/editor";
 import type { Metadata } from "next";
 import GoalGraphContainer from "@/components/graph/graphs/goal/container";
 import UseGoalInRoadmap from "@/components/pages/sections/useGoalInRoadmap";
+import ScaledGoalPreview from "@/components/pages/sections/scaledGoalPreview";
 import LikeGoalButton from "@/components/buttons/likeGoalButton";
 import { getGoalLikeSummary } from "@/fetchers/getGoalLikes";
 import Image from "next/image";
@@ -254,6 +255,13 @@ export default async function Page(
         <Suspense fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
           <UseGoalInRoadmap goal={goal} roadmapType={iteration.roadmap.type} canCreateGoals={canCreateGoals} />
         </Suspense>
+
+        {/* What a copy of a national goal would be in the user's own area; reads the local statistics, so it streams in too */}
+        {accessContext && iteration.roadmap.type === RoadmapType.NATIONAL ?
+          <Suspense fallback={null}>
+            <ScaledGoalPreview goalId={goal.id} />
+          </Suspense>
+          : null}
 
         {/* TODO: Add a way to exclude actions by unchecking them in a list or something. Might need to be moved to a client component together with ActionGraph */}
         <section className="margin-top-300">
