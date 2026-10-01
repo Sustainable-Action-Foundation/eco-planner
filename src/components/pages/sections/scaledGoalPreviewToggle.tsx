@@ -47,12 +47,19 @@ export default function ScaledGoalPreviewToggle({ prefill, areas }: { prefill: G
   }, []);
 
   const area = areas.find(area => area.code === areaCode) ?? areas[0];
-  const { forArea, suggestion } = useMemo(() => {
+  const { forArea, suggestion, method, invalid } = useMemo(() => {
     const forArea = prefillForArea(prefill, area);
-    return { forArea, suggestion: preferredSuggestion(t, copySuggestionContext(forArea, { source: prefill.sourceGeoArea ?? null, target: area })) };
+    try {
+      const suggestion = preferredSuggestion(t, copySuggestionContext(forArea, { source: prefill.sourceGeoArea ?? null, target: area }));
+      return { forArea, suggestion, method: suggestion ? Recipe.from(suggestion.recipe).name : null, invalid: null };
+    }
+    catch (err) {
+      // A suggestion the recipe type rejects (e.g. a stored one that no longer parses): the section says so rather than taking the page down
+      console.error("Invalid suggested method for the scaled preview", err);
+      return { forArea, suggestion: undefined, method: null, invalid: err instanceof Error ? err.message : "" };
+    }
   }, [prefill, area, t]);
   const isScaled = !!suggestion && !isUnscaledSuggestion(suggestion.id);
-  const method = suggestion ? Recipe.from(suggestion.recipe).name : null;
 
   const key = `${area.code}:${suggestion?.id ?? ""}`;
   useEffect(() => {
@@ -102,7 +109,14 @@ export default function ScaledGoalPreviewToggle({ prefill, areas }: { prefill: G
         : null}
     </div>
 
-    {enabled && !isScaled ?
+    {enabled && invalid !== null ?
+      <p className="flex gap-50 align-items-center margin-top-100 margin-bottom-0" role="alert" data-testid="scaled-preview-failed">
+        <IconInfoCircle aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
+        <span>{t("pages:goal.scaled_preview.failed", { error: invalid })}</span>
+      </p>
+      : null}
+
+    {enabled && invalid === null && !isScaled ?
       <p className="flex gap-50 align-items-center margin-top-100 margin-bottom-0" data-testid="scaled-preview-unscaled">
         <IconInfoCircle aria-hidden="true" width={20} height={20} style={{ minWidth: '20px' }} />
         <span>

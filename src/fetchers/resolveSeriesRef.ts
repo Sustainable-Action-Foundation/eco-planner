@@ -76,10 +76,12 @@ export function curatedPrefilledSeries(entry: Pick<CuratedHistoricalEntryData, "
 /**
  * A goal's data series as the parent the suggested methods scale: a variable
  * linked to the series (read through the access-checked series fetcher at
- * evaluation time, so no values travel in a link).
+ * evaluation time, so no values travel in a link). The recipes refer to the
+ * variable by name, so a goal with neither a name nor an indicator parameter
+ * is called "goal": an empty name would make every suggestion invalid.
  */
-export function goalPrefilledSeries(goal: { name: string | null, indicatorParameter: string, unit: string | null, dataSeriesId: string, dateValues: DateValues }): PrefilledSeries {
-  const name = goalDisplayName({ name: goal.name, indicator_parameter: goal.indicatorParameter });
+export function goalPrefilledSeries(t: TFunction, goal: { name: string | null, indicatorParameter: string, unit: string | null, dataSeriesId: string, dateValues: DateValues }): PrefilledSeries {
+  const name = goalDisplayName({ name: goal.name, indicator_parameter: goal.indicatorParameter }) || t("common:goal_one");
   return {
     name,
     unit: goal.unit || null,
@@ -103,11 +105,12 @@ export function goalPrefilledSeries(goal: { name: string | null, indicatorParame
  * an anchor); the copy then starts from the goal as is.
  */
 export function copyPrefill(
-  goal: Parameters<typeof goalPrefilledSeries>[0] & { description: string | null },
+  t: TFunction,
+  goal: Parameters<typeof goalPrefilledSeries>[1] & { description: string | null },
   entry: Parameters<typeof curatedPrefilledSeries>[0],
   series: CuratedHistoricalSeriesData,
 ): GoalPrefill {
-  const parent = goalPrefilledSeries(goal);
+  const parent = goalPrefilledSeries(t, goal);
   const historical = curatedPrefilledSeries(entry, series);
   // The local statistic once more, with its own variable id, for the scaling recipe
   const local = curatedPrefilledSeries(entry, series);
@@ -121,7 +124,7 @@ export function copyPrefill(
 }
 
 /** The goal named by `from`, as visible to the user and with a data series to copy; null otherwise. */
-async function resolveCopiedGoal(goalId: string): Promise<(Parameters<typeof copyPrefill>[0] & { geoArea: GeoAreaRef | null, roadmapType: RoadmapType, storedSuggestions: SerializedRecipe[] }) | null> {
+async function resolveCopiedGoal(goalId: string): Promise<(Parameters<typeof copyPrefill>[1] & { geoArea: GeoAreaRef | null, roadmapType: RoadmapType, storedSuggestions: SerializedRecipe[] }) | null> {
   const goal = await getOneGoal(goalId);
   if (!goal?.data_series) return null;
   return {
@@ -152,7 +155,7 @@ async function editableRoadmapAreas(): Promise<GeoAreaRef[]> {
  * statistic for each of the areas, keyed by area code, so the form can follow
  * the target roadmap. Empty for goals outside the mapping.
  */
-async function localStatisticsByArea(t: TFunction, copied: Parameters<typeof copyPrefill>[0], areas: GeoAreaRef[]): Promise<NonNullable<GoalPrefill["byArea"]>> {
+async function localStatisticsByArea(t: TFunction, copied: Parameters<typeof copyPrefill>[1], areas: GeoAreaRef[]): Promise<NonNullable<GoalPrefill["byArea"]>> {
   const byArea: NonNullable<GoalPrefill["byArea"]> = {};
   const mapping = getNationalGoalMappings().find(mapping => mapping.indicatorParameter === copied.indicatorParameter);
   if (!mapping) return byArea;
@@ -162,7 +165,7 @@ async function localStatisticsByArea(t: TFunction, copied: Parameters<typeof cop
     const entries = await getCuratedHistoricalEntries(t, area, mapping.series.map(candidate => candidate.entryKey));
     const local = findLocalSeries(mapping, entries);
     if (!local) continue;
-    const { historical, localReference } = copyPrefill(copied, local.entry, local.series);
+    const { historical, localReference } = copyPrefill(t, copied, local.entry, local.series);
     if (historical && localReference) byArea[area.code] = { historical, localReference };
   }
   return byArea;
@@ -185,7 +188,7 @@ export async function getScaledPreviewPrefill(t: TFunction, goalId: string): Pro
   if (!copied) return null;
   return {
     prefill: {
-      parent: goalPrefilledSeries(copied),
+      parent: goalPrefilledSeries(t, copied),
       copy: { name: copied.name, description: copied.description, indicatorParameter: copied.indicatorParameter },
       sourceGeoArea: copied.geoArea ?? undefined,
       sourceRoadmapType: copied.roadmapType,
@@ -219,7 +222,7 @@ export async function getGoalPrefill(
     if (!copied) return { prefill: null, failed: true };
     return {
       prefill: {
-        parent: goalPrefilledSeries(copied),
+        parent: goalPrefilledSeries(t, copied),
         copy: { name: copied.name, description: copied.description, indicatorParameter: copied.indicatorParameter },
         sourceGeoArea: copied.geoArea ?? undefined,
         sourceRoadmapType: copied.roadmapType,
@@ -247,7 +250,7 @@ export async function getGoalPrefill(
 
   return {
     prefill: {
-      ...copyPrefill(copied, entry, series),
+      ...copyPrefill(t, copied, entry, series),
       sourceGeoArea: copied.geoArea ?? undefined,
       sourceRoadmapType: copied.roadmapType,
       storedSuggestions: copied.storedSuggestions,
