@@ -9,7 +9,7 @@ import { BaselineType, DataSeriesType, GoalDataTarget, HistoricalDataType } from
 import { GoalListing } from "@/lib/prisma/generated";
 import { GoalFormName } from "@/types/form-names";
 import { isGoalListing } from "@/types/typeguards";
-import { IconChevronDown, IconChevronUp, IconEye, IconEyeOff, IconInfoCircle, IconStar } from "@tabler/icons-react";
+import { IconChevronDown, IconChevronUp, IconEye, IconEyeOff, IconInfoCircle, IconLoader2, IconStar } from "@tabler/icons-react";
 import Link from "next/link";
 import { waitForRecipeFormSyncs } from "@/components/recipe";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -144,6 +144,9 @@ export default function GoalForm({
   // to evaluate (e.g. an external variable with an incomplete selection).
   const descriptionRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  // While the submit settles the recipes and awaits the API: the button shows
+  // it and ignores further clicks (a second submit would create a second goal)
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { addToast } = useToast();
 
@@ -199,7 +202,19 @@ export default function GoalForm({
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.target.reportValidity();
     event.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await submit(event);
+    }
+    catch (err) {
+      setIsSubmitting(false);
+      throw err;
+    }
+  }
 
+  /** The submit proper; every early return and the API's error path hand the button back. */
+  async function submit(event: React.ChangeEvent<HTMLFormElement>) {
     // The recipe contexts evaluate on a debounce; wait for their FormSync
     // outputs to settle so a submit right after an edit doesn't read stale data.
     await waitForRecipeFormSyncs(event.target);
@@ -213,6 +228,7 @@ export default function GoalForm({
     if (formData.entries().some(([key, value]) => value instanceof File && !fileInputKeys.includes(key))) {
       addToast(t("forms:goal.errors.unexpected_file_object"), "error", false);
       event.target.reportValidity();
+      setIsSubmitting(false);
       return;
     }
 
@@ -225,6 +241,7 @@ export default function GoalForm({
     if (typeof recipeError === "string" && recipeError) {
       addToast(`${t("forms:goal.errors.recipe_has_error")} ${recipeError}`, "error", false);
       event.target.reportValidity();
+      setIsSubmitting(false);
       return;
     }
 
@@ -245,6 +262,7 @@ export default function GoalForm({
       if (!(err instanceof GoalFormError)) throw err;
       addToast(err.message, "error", false);
       event.target.reportValidity();
+      setIsSubmitting(false);
       return;
     }
 
@@ -252,6 +270,7 @@ export default function GoalForm({
     // dropped silently; say so instead of saving a goal without the history
     if (historicalDataType !== HistoricalDataType.None && !historicalRecipe) {
       addToast(t("forms:goal.errors.missing_historical_data"), "error", false);
+      setIsSubmitting(false);
       return;
     }
 
@@ -332,7 +351,7 @@ export default function GoalForm({
     const formJSON = JSON.stringify(formContent);
 
     // Submit the form to the API (POST for new, PUT for edit)
-    formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST', t, undefined, undefined, undefined, undefined, addToast, (url) => router.push(url));
+    formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST', t, setIsSubmitting, undefined, undefined, undefined, addToast, (url) => router.push(url));
   }
 
   // Index for data-position attribute in legend elements (for accessibility)
@@ -619,8 +638,10 @@ export default function GoalForm({
           style={{ fontSize: '14px', transform: 'none' }}
           type="submit"
           id="submit-button"
-          disabled={missingRoadmap}
+          disabled={missingRoadmap || isSubmitting}
+          aria-busy={isSubmitting}
         >
+          {isSubmitting ? <IconLoader2 data-pending="true" aria-hidden="true" width={16} height={16} className={styles.spinner} /> : null}
           {currentGoal ? t("common:tsx.save") : t("forms:goal.create")}
         </button>
       </div>
