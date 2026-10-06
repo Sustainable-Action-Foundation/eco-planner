@@ -51,6 +51,13 @@
     "no_effects": "Det finns inga $t(common:effect_other) att visa.",
     "wanna_create_effect": "Vill du skapa en?"
   },
+  "goal_actions": {
+    "impact_type": "Typ av påverkan",
+    "no_actions": "Det finns inga $t(common:action_other) kopplade till $t(common:goal_definite_one) ännu.",
+    "no_data_series": "$t(common:effect_definite_one, titleCase) saknar värden.",
+    "no_foreign_effects": "Inga $t(common:action_other) utanför $t(common:roadmap_version_definite_one) påverkar $t(common:goal_definite_one).",
+    "view_action": "Gå till $t(common:action_definite_one)"
+  },
   "goal_table": {
     "action_count": "Antal $t(common:action_other)",
     "goal_name": "Målbannamn",
