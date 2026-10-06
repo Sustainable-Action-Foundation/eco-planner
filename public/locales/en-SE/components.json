@@ -51,6 +51,13 @@
     "no_effects": "There are no $t(common:effect_other) to display.",
     "wanna_create_effect": "Do you want to create one?"
   },
+  "goal_actions": {
+    "impact_type": "Impact type",
+    "no_actions": "No $t(common:action_other) are linked to $t(common:goal_definite_one) yet.",
+    "no_data_series": "$t(common:effect_definite_one, titleCase) has no values.",
+    "no_foreign_effects": "No $t(common:action_other) outside $t(common:roadmap_version_definite_one) affect $t(common:goal_definite_one).",
+    "view_action": "Go to $t(common:action_definite_one)"
+  },
   "goal_table": {
     "action_count": "$t(common:action_other, titleCase)",
     "goal_name": "$t(common:goal_one, titleCase) name",

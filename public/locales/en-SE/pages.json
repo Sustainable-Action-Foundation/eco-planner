@@ -70,10 +70,11 @@
   "goal": {
     "action_timeline": "$t(common:action_one, titleCase) timeline",
     "actions_for_goal": "$t(common:action_other, titleCase) for {{goalName}}",
-    "create_new_action": "$t(common:new.action)",
+    "add_action": "Add $t(common:action_one)",
     "description": "Description",
+    "foreign_effects": "$t(common:effect_other, titleCase) from other $t(common:action_other)",
     "goals_working_towards": "$t(common:goal_other, titleCase) working towards {{goalName}}",
-    "link_existing_action": "Link $t(common:effect_one) to an existing $t(common:action_one)",
+    "link_effect": "Link $t(common:effect_one)",
     "menu": "Menu",
     "related_goals": "Related $t(common:goal_other)",
     "scaled_preview": {
