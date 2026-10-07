@@ -33,7 +33,6 @@ prisma/transition_planner*
 test-results/
 playwright-report*/
 tests/.auth/
-# Also matches tests/out (screenshot viewer output)
 out
 
 # Local config files

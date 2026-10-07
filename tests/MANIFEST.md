@@ -3,7 +3,10 @@
 Written 2026-10-07 when the whole test suite was deleted for a clean slate. It records what the
 old suite covered, what it got wrong, and which tests the new suite should contain. The old
 files are recoverable from git at `a3edab07` (`git show a3edab07:tests/e2e/goals-tests.spec.ts`
-and so on).
+and so on; `goal-copy.spec.ts` only ever existed on dev, see `7ecdee09`).
+
+The screenshot layer (config, spec, viewer templater, GitHub Pages workflow) was removed outright
+rather than reset: it was unused and slow.
 
 Three sections:
 
@@ -15,20 +18,19 @@ Three sections:
 
 ## Harness
 
-Everything here survived the reset. Playwright is the runner for all three layers.
+Everything here survived the reset. Playwright is the runner for both layers.
 
 | Script | Config | Matches | Needs |
 |---|---|---|---|
 | `yarn test:unit` | `playwright.unit.config.ts` | `unit/**/*.test.ts` | nothing (no DB, no app) |
 | `yarn test:e2e` | `playwright.e2e.config.ts` | `e2e/**/*.spec.ts` | app on :8081 (docker stack or `SAF_LOCAL_TESTS=true`) |
-| `yarn test:screenshot` | `playwright.screenshot.config.ts` | `screenshots/**/*.spec.ts` | same as e2e, 18 viewport projects |
-| `yarn test` | both unit and e2e | | |
+| `yarn test` | both | | |
 
-All scripts pass `--pass-with-no-tests` so an empty layer is green rather than "No tests found".
+Both scripts pass `--pass-with-no-tests` so an empty layer is green rather than "No tests found".
 
 - **Auth states.** `login.setup.ts` logs in through the `/login` form and saves
-  `tests/.auth/{admin,verified,guest}.json` (gitignored). The e2e and screenshot configs run it
-  as the `setup` project before the browser projects. It also holds two `setup.fail` negatives
+  `tests/.auth/{admin,verified,guest}.json` (gitignored). The e2e config runs it as the `setup`
+  project before the browser projects. It also holds two `setup.fail` negatives
   (unverified user, bad credentials) which are the only login-failure checks left.
 - **Seed users** (`scripts/prisma/seed/seed-users.ts`): `admin/admin` (super admin, manager of
   "Sustainable Action"), `anita/anita` (plain member), `anton/anton` (unverified, cannot log in),
@@ -42,9 +44,6 @@ All scripts pass `--pass-with-no-tests` so an empty layer is green rather than "
   (`orgLandingHref` reads `/?org=<id>` off the start page), `switch-language.ts` (sidebar
   language dialog), `stemFixtures.ts` (deterministic PxWeb `/tables` + metadata for STEM
   EN0123_1, for `page.route` mocks and fetch stubs).
-- **Screenshot viewer** `screenshots/screenshot-templater/` builds `tests/out/index.html` from
-  `tests/out/screenshots/**`; `.github/workflows/screenshots.yaml` publishes it to GitHub Pages
-  from `main`. With no screenshot spec it publishes an empty page until one is written.
 - **CI** (`.github/workflows/build-and-publish.yaml`) runs `yarn test` on push/PR to `main` and
   `dev`; a failed test step blocks the image push. The docker test stack is
   `docker/compose.testing.yaml` (mariadb + seed image + app).
@@ -59,7 +58,8 @@ All scripts pass `--pass-with-no-tests` so an empty layer is green rather than "
 
 ## The deleted suite
 
-38 test files, 1 screenshot spec, roughly 8 100 lines. Numbers are per file at `a3edab07`.
+39 test files and 1 screenshot spec, roughly 8 200 lines. Numbers are per file at `a3edab07`
+(`goal-copy.spec.ts` at `7ecdee09`).
 
 ### Unit (`tests/unit/`, 19 files, 3 055 lines)
 
@@ -85,7 +85,7 @@ All scripts pass `--pass-with-no-tests` so an empty layer is green rather than "
 | `series-ref.test.ts` (24) | `lib/seriesRef.ts` | `curated:<entry>/<series>` round trip, case-insensitive kind, 13 malformed inputs rejected. Complete. |
 | `listing.test.ts` (23) | `lib/listing.isGoalListed` | LISTED/FEATURED for viewers, UNLISTED only for editors. |
 
-### E2E (`tests/e2e/`, 19 files, 3 804 lines, chromium + firefox + webkit at 1920×1080)
+### E2E (`tests/e2e/`, 20 files, 3 935 lines, chromium + firefox + webkit at 1920×1080)
 
 | File | Auth | What it checked |
 |---|---|---|
@@ -104,18 +104,20 @@ All scripts pass `--pass-with-no-tests` so an empty layer is green rather than "
 | `locales-page.spec.ts` (97) | anonymous | `/tests/locale` dev page: formatters change their input, > 400 keys with equal server/client counts in en and sv, no `[EMPTY]`/`[MISSING]` after switching. |
 | `org-landing.spec.ts` (97) | admin / anita / anonymous | Super admin gets a select with every org + public; can traverse a non-member org; default view is an org landing; landing shows readable roadmaps, search and manage link; `?org=public` restores hero; `searchFilter` deep link works; single-org member gets chips and no manage link; anonymous gets no switcher. |
 | `action-origin.spec.ts` (93) | admin, serial, afterAll DELETE | Create origin, create copy linked via `#origin-action` picker → neighbours section with origin badge and one drifted row; origin lists the copy; unlink removes the section on both sides (poll with reload). |
+| `goal-copy.spec.ts` (131) | Boden and Kiruna members via `/api/login`; admin to look up the goal | "Use in roadmap" from a LEAP goal page → `/goal/create?from=` prefill → pick the member's roadmap, wait for `RECIPE_EVALUATION_PENDING` to clear; a copy the roadmap already has → POST 409, `already_in_roadmap` toast, submit button re-enabled without spinner; first copy into an empty roadmap → 201 and redirect, second → 409; deletes the copy in `finally`. Added by PR #155. |
 | `scaled-preview.spec.ts` (91) | Boden member; anita | On a copied-as-is LEAP goal the preview toggle names the org, says "as is", persists across reload; no toggle for a member without an org area. Scaling methods untested (live statistics APIs). |
 | `guest-disabled.spec.ts` (67) | greta; admin | Guest gets public page without org tabs, no org-readable content despite RO grant, no edit despite RW grant; invite links 404; guest-invite API 404 for managers; signup domain allowlist enforced. |
 | `sidebar.spec.ts` (55) | anonymous | Language switcher initial language is "Test", option aliases, switching changes `home-title` to "Roadmaps" then "Färdplaner". |
 | `login.spec.ts` (29) | anita | Logout removes the `eco_planner` cookie. |
 
-### Screenshot (`tests/screenshots/screenshot-tests.spec.ts`, 348 lines)
+### Screenshot (removed, not reset)
 
-Anonymous: start page (sidebar closed and open), create and language popovers, signup, login.
-Admin: logged-in start page, `/@admin` profile, roadmap create/view/edit, iteration create/view/edit,
-goal create/view/edit, action create and `/actions`, effect create. Each in viewport and full
-page (clipped at 32 767 device pixels), 18 viewport × browser projects. No assertions beyond
-`expect.soft` visibility of a landmark; it was a visual gallery, not a regression check.
+`tests/screenshots/screenshot-tests.spec.ts` (348 lines) took viewport and full-page JPEGs of the
+start page, popovers, auth pages and every create/view/edit page across 18 viewport × browser
+projects, and a templater built a gallery that CI published to GitHub Pages. It asserted nothing
+beyond `expect.soft` landmark visibility, nobody looked at the gallery, and the job was the
+slowest in CI. Config, spec, templater and workflow are gone; `tests/out` is only in `.gitignore`
+through the generic `out` rule.
 
 ### Coverage map at deletion
 
@@ -125,7 +127,7 @@ page (clipped at 32 767 device pixels), 18 viewport × browser projects. No asse
 | CSV / decimal parsing, series refs, table catalog filters | good (unit) |
 | Access checker ladder | partial (orgless + 3 member cases; no super admin, guest, anonymous, GROUPS) |
 | Roadmap / iteration create, edit, publish, redirects | good (e2e) |
-| Goal manual-series create/edit, visibility, unlisted, likes | good (e2e) |
+| Goal manual-series create/edit, visibility, unlisted, likes, duplicate copy 409 | good (e2e) |
 | Action create/edit, field order, origin linking, effects on goal page | good (e2e) |
 | Org landing, switcher, groups, roles, rename, area | good (e2e) |
 | Caching / Activity / stale-form guard | good (e2e) |
@@ -134,7 +136,8 @@ page (clipped at 32 767 device pixels), 18 viewport × browser projects. No asse
 | Recipes with external data, scaling methods, `/api/recalculate` | none |
 | Historical-data pages, data-series edit, baseline edit | none |
 | Signup, verify, password reset, profile page, `/info` | none |
-| Comments, UI delete flows, copy/use-goal flow, effect edit | none |
+| Comments, UI delete flows, effect edit | none |
+| Copy / use-goal flow | 409 path only (`goal-copy`); scaled methods untested |
 | API route contracts (validation, status codes, 403/404/409) | incidental only |
 | Mobile / narrow viewports | none (one test at 1280×600) |
 | Typeguards (`src/types/typeguards.ts`, recipe typeguards, ~1 000 lines) | none |
@@ -146,8 +149,8 @@ page (clipped at 32 767 device pixels), 18 viewport × browser projects. No asse
 
 Keep these in mind when writing the new one.
 
-- **Test data hygiene was the biggest problem.** Only `caching`, `action-origin` and `goal-likes`
-  cleaned up. Everything else piled entities onto "Rikets färdplan v2" per browser per retry,
+- **Test data hygiene was the biggest problem.** Only `caching`, `action-origin`, `goal-likes`
+  and `goal-copy` cleaned up. Everything else piled entities onto "Rikets färdplan v2" per browser per retry,
   which made `.first()` picks and name lookups drift and is the root of the "seed-fattened
   e2e DB" bug card. `org-management` mutated Anita's role mid-run while other specs assumed she
   was a plain member. New e2e specs should create what they need through `/api/*` in a fixture
@@ -327,9 +330,9 @@ project to the e2e config (reusing the `setup` auth states, or logging in via `/
 - `goal-recipe.spec.ts` — suggested scalar over a picked parent series, custom equation
   evaluates, recipe error surfaces via the form (read `RECIPE_ERROR` from the form data after
   `waitForRecipeFormSyncs`), unfinished external selection blocks submit.
-- `goal-copy.spec.ts` — the use-goal-in-roadmap panel → `/goal/create?from=` prefill, local
-  share recipe, copied badge, duplicate copy → 409 feedback, scaled preview toggle on a national
-  goal (as-is method; scaling methods need a statistics stub).
+- `goal-copy.spec.ts` — restore the old one (prefill, 409 on duplicate with the toast and the
+  button coming back, cleanup) and add: local share recipe, copied badge, scaled preview toggle
+  on a national goal (as-is method; scaling methods need a statistics stub).
 - `action-lifecycle.spec.ts` — create with descriptive fields, order persists, origin link and
   unlink, effect on the goal page (own vs foreign rows), effect edit, delete action.
 - `org.spec.ts` — landing per role (select vs chips vs none), traverse as super admin,
@@ -363,13 +366,13 @@ project to the e2e config (reusing the `setup` auth states, or logging in via `/
 - Roadmap tree view interactions and child-roadmap nesting.
 - Comments on a goal.
 
-### Screenshot (`tests/screenshots/`)
+### Visual regression (only if someone will look at the diffs)
 
-- Restore a leaner gallery spec: one page per route group, three viewports (1080p, 1080p-vert,
-  Galaxy S9+), chromium only on PRs and all browsers on `main`. Full-page clip logic from the old
-  spec is worth keeping. Consider `toHaveScreenshot` with committed baselines for the five most
-  design-sensitive pages (start, org landing, goal, roadmap, create goal) so the job can fail,
-  not just publish.
+The gallery is gone and should not come back. If visual checks are ever wanted, use
+`toHaveScreenshot` with committed baselines on at most five design-sensitive pages (start, org
+landing, goal, roadmap, create goal), chromium only, inside the e2e project, so the job fails on
+a diff instead of publishing pictures. The old spec's full-page clip at 32 767 device pixels is
+the one piece worth copying from `a3edab07:tests/screenshots/screenshot-tests.spec.ts`.
 
 ### Harness work that unblocks the above
 

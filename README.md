@@ -53,9 +53,6 @@ yarn test:e2e
 
 # Both of the above
 yarn test
-
-# Screenshot tests
-yarn test:screenshot
 ```
 
 To run the e2e tests against an app you host yourself instead of the docker stack, set `SAF_LOCAL_TESTS=true` (and optionally `SAF_SKIP_BUILD=true` to skip rebuilding); the test runner will then start the app with `yarn build && yarn start`. The target URL can be overridden with `BASE_URL`.
