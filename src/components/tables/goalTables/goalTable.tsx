@@ -53,6 +53,7 @@ export default function GoalTable({
         roadmap_iteration: stripGoals(iteration),
         effects: [],
         comments: [],
+        attachments: [],
         baseline: null,
       });
     }

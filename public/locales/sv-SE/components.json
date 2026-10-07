@@ -22,6 +22,26 @@
     "send": "Skicka",
     "deleted_user": "Raderad användare"
   },
+  "attachments": {
+    "count": "{{count}} dokument",
+    "count_one": "Ett dokument",
+    "count_other": "{{count}} dokument",
+    "count_zero": "Inga dokument",
+    "choose_files": "Bifoga en rapport eller annat underlag",
+    "allowed_hint": "PDF, Office-dokument, text, bilder och zip-arkiv, högst {{maxSize}} per fil.",
+    "full": "Inlägget har redan det högsta antalet dokument ({{max}}).",
+    "upload": "Ladda upp",
+    "uploading": "Laddar upp {{name}}…",
+    "upload_failed": "Kunde inte ladda upp {{name}}: {{details}}",
+    "too_large": "{{name}} är större än {{maxSize}}.",
+    "type_not_allowed": "{{name}} är inte en filtyp som kan bifogas.",
+    "delete": "Ta bort {{name}}",
+    "confirm_delete": "Ta bort {{name}}? Det går inte att ångra.",
+    "delete_failed": "Kunde inte ta bort {{name}}: {{details}}",
+    "empty": "Inga dokument är bifogade ännu.",
+    "deleted_user": "Raderad användare",
+    "relative_time": "{{date, timeAgo}}"
+  },
   "confirm_delete": {
     "confirmation": "Är du säker på att du vill radera inlägget <strong>{{targetName}}</strong>?<br />Detta går inte att ångra.",
     "delete_post": "Radera inlägg",

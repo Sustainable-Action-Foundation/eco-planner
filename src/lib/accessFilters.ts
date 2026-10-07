@@ -188,3 +188,37 @@ export function visibleDataSeriesWHERE(ctx: UserAccessContext | null): Prisma.Da
     ],
   };
 }
+
+/**
+ * Matches attachments the user may see: those hanging off a visible action, goal,
+ * roadmap or iteration. Attachments have no access control of their own.
+ */
+export function visibleAttachmentsWHERE(ctx: UserAccessContext | null): Prisma.AttachmentsWhereInput {
+  const visibleIterations = visibleRoadmapIterationsWHERE(ctx);
+  return {
+    OR: [
+      { action: visibleActionsWHERE(ctx) },
+      { goal: { roadmap_iteration: visibleIterations } },
+      { roadmap: { access_control: readableAccessControlWHERE(ctx) } },
+      { roadmap_iteration: visibleIterations },
+    ],
+  };
+}
+
+/**
+ * Matches attachments the user may remove: attaching and detaching are content edits
+ * on the parent, so this mirrors edit access to the action, goal, roadmap or iteration.
+ */
+export function editableAttachmentsWHERE(ctx: UserAccessContext | null): Prisma.AttachmentsWhereInput {
+  const writableIteration: Prisma.RoadmapIterationsWhereInput = {
+    roadmap: { access_control: writableAccessControlWHERE(ctx) },
+  };
+  return {
+    OR: [
+      { action: editableActionsWHERE(ctx) },
+      { goal: { roadmap_iteration: writableIteration } },
+      { roadmap: { access_control: writableAccessControlWHERE(ctx) } },
+      { roadmap_iteration: writableIteration },
+    ],
+  };
+}

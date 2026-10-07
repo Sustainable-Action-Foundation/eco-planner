@@ -1,4 +1,5 @@
 import type { NextRequest } from "next/server";
+import { removeStoredFiles, storedKeysUnder } from "@/lib/attachments";
 import { getAccessContextById } from "@/fetchers/getUserAccessContext";
 import { accessControlSelection } from "@/fetchers/inclusionSelectors";
 import pruneOrphans from "@/functions/pruneOrphans";
@@ -469,6 +470,8 @@ export async function DELETE(request: NextRequest) {
 
   // Delete the roadmap
   try {
+    // The attached files don't cascade with the rows, so note them before the delete
+    const storedKeys = await storedKeysUnder("roadmap", roadmap.id);
     const deletedRoadmap = await prisma.roadmaps.delete({
       where: {
         id: roadmap.id,
@@ -478,6 +481,7 @@ export async function DELETE(request: NextRequest) {
         access_control: { select: { org_id: true } },
       },
     });
+    await removeStoredFiles(storedKeys);
     // Prune any orphaned comments
     await pruneOrphans();
     // Invalidate old cache; expire immediately so the pages the client lands on

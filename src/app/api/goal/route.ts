@@ -1,4 +1,5 @@
 import type { NextRequest } from "next/server";
+import { removeStoredFiles, storedKeysUnder } from "@/lib/attachments";
 import { getAccessContextById } from "@/fetchers/getUserAccessContext";
 import { accessControlSelection } from "@/fetchers/inclusionSelectors";
 import pruneOrphans from "@/functions/pruneOrphans";
@@ -838,6 +839,8 @@ export async function DELETE(request: NextRequest) {
 
   // Delete the goal
   try {
+    // The attached files don't cascade with the rows, so note them before the delete
+    const storedKeys = await storedKeysUnder("goal", goal.id);
     const deletedGoal = await prisma.goals.delete({
       where: {
         id: goal.id,
@@ -847,6 +850,7 @@ export async function DELETE(request: NextRequest) {
         roadmap_iteration: { select: { roadmap_id: true, version: true } },
       },
     });
+    await removeStoredFiles(storedKeys);
     // Invalidate old cache; expire immediately so the iteration page the client lands on
     // doesn't keep listing the deleted goal. Its effects were cascade-deleted and show
     // on action pages, so the action tag expires too.

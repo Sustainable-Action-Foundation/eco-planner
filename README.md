@@ -17,6 +17,7 @@ This tool requires the following environment variables to be set:
 - `MAIL_TENANT_ID`, `MAIL_CLIENT_ID`, `MAIL_CLIENT_SECRET`: Credentials for a Microsoft Entra app registration, used to send mail through Microsoft Graph with the client credentials flow.
 - `MAIL_USER`: The mailbox mail is sent from, e.g. `noreply@example.org`. Must exist in the tenant.
   - These `MAIL_`-variables are used in `src/mailClient.ts`. The app registration needs the application permissions `Mail.Send`, plus `Mail.ReadWrite` for the mailbox check in `verify()`.
+- `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`: An S3-compatible bucket for documents attached to roadmaps, goals and actions (Hetzner Object Storage in production, e.g. endpoint `https://fsn1.your-objectstorage.com` with region `fsn1`). Optional: without them the attachment forms refuse uploads. Keep the bucket private; downloads go through short-lived presigned links from `/api/attachment/[id]`.
 - `BASE_URL` (optional): The public URL of the deployment, used when building absolute links (e.g. in emails). Defaults to `http://localhost:3000` in development and the production URL otherwise, see `src/lib/baseUrl.ts`.
 
 On startup the app runs a self-test (`src/instrumentation.ts`) which checks the session password, mail configuration and database connection, and logs a warning for anything misconfigured.

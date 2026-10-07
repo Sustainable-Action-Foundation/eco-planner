@@ -80,5 +80,16 @@
     "liked": "Goal liked",
     "not_found": "The goal does not exist or you do not have access to it",
     "unliked": "Like removed"
+  },
+  "attachment": {
+    "not_found": "The post does not exist or you do not have permission to edit its documents",
+    "storage_unavailable": "File storage is not available right now",
+    "too_large": "The file is larger than the {{maxSize}} MB limit",
+    "type_not_allowed": "That file type cannot be attached",
+    "too_many": "A post can carry at most {{max}} documents",
+    "rate_limited": "Too many uploads in a short time, please wait a minute",
+    "uploaded": "{{name}} attached",
+    "upload_failed": "The file could not be stored",
+    "deleted": "Document removed"
   }
 }
