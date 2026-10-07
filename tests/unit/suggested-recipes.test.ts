@@ -65,7 +65,7 @@ test.describe("Default suggestions and areas", () => {
   test("a prefill follows the target area's local statistic, and picks its method like the form", () => {
     const prefill: GoalPrefill = {
       parent: parentSeries,
-      copy: { name: null, description: null, indicatorParameter: "Antal bilar" },
+      copy: { id: "goal-id", name: null, description: null, indicatorParameter: "Antal bilar" },
       sourceGeoArea: sweden,
       sourceRoadmapType: RoadmapType.NATIONAL,
       byArea: { [boden.code]: { historical: localReference.series, localReference } },

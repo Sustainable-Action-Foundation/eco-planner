@@ -181,8 +181,9 @@ export type GoalPrefill = {
   parent: PrefilledSeries;
   /** Methods stored on the copied goal (`Goals.recipe_suggestions`), serialized; shown instead of the defaults */
   storedSuggestions?: SerializedRecipe[];
-  /** The goal being copied, if any: its fields seed the form */
+  /** The goal being copied, if any: its fields seed the form, and its id goes with the created goal (see `GoalCreateFull.copiedFromGoalId`) */
   copy?: {
+    id: string;
     name: string | null;
     description: string | null;
     indicatorParameter: string;

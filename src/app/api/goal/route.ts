@@ -3,7 +3,7 @@ import { getAccessContextById } from "@/fetchers/getUserAccessContext";
 import { accessControlSelection } from "@/fetchers/inclusionSelectors";
 import pruneOrphans from "@/functions/pruneOrphans";
 import { iterationPath } from "@/functions/versionSlug";
-import { normalizeGoalName } from "@/functions/goalName";
+import { goalDisplayName, normalizeGoalName } from "@/functions/goalName";
 import { Recipe } from "@/functions/recipe/recipe";
 import { RecipeDataTypes } from "@/functions/recipe/types/enums";
 import { manualDataSeriesCreateData, resolveRecipeExternals, upsertRecipe } from "@/functions/recipe/persistence";
@@ -132,6 +132,34 @@ async function assertReadableLinkedSeries(recipes: (SerializedRecipe | null | un
   if (visible.length !== ids.size) {
     throw new Error(ClientError.IllegalSource, { cause: 'goal' });
   }
+}
+
+/**
+ * The goal a copy (the copy/use flow, which names the goal it copies) would
+ * duplicate: a goal already in the target iteration with the same indicator
+ * parameter whose data series is computed from the copied goal's series (a
+ * copy keeps no record of its origin beyond its recipe; see `findCopies` in
+ * getGoalLikes). Only declared copies are checked: a goal that merely derives
+ * from another one is whatever the user made it. Null when there's nothing
+ * to check or the iteration has no such goal.
+ */
+async function findCopyInIteration(
+  iterationId: string,
+  indicatorParameter: string,
+  copiedFromGoalId: string | null | undefined,
+): Promise<{ name: string | null, indicator_parameter: string } | null> {
+  if (!copiedFromGoalId) return null;
+  const source = await prisma.goals.findUnique({ where: { id: copiedFromGoalId }, select: { data_series_id: true } });
+  if (!source?.data_series_id) return null;
+
+  return prisma.goals.findFirst({
+    where: {
+      roadmap_iteration_id: iterationId,
+      indicator_parameter: indicatorParameter,
+      data_series: { recipe_used: { source_data_series: { some: { id: source.data_series_id } } } },
+    },
+    select: { name: true, indicator_parameter: true },
+  });
 }
 
 /** Resolves a recipe's external variables before a transaction, or null when there's no recipe. */
@@ -441,6 +469,11 @@ async function createFullGoal(session: IronSession<LoginData>, authorId: string,
       [formData.dataSeriesRecipe, formData.baselineRecipe, formData.historicalRecipe, ...(formData.recipeSuggestions ?? [])],
       accessContext,
     );
+    const duplicate = await findCopyInIteration(formData.iterationId, formData.indicatorParameter, formData.copiedFromGoalId);
+    if (duplicate) {
+      return Response.json({ message: t('api:goal.already_in_roadmap', { goal: goalDisplayName({ name: duplicate.name, indicator_parameter: duplicate.indicator_parameter }) }) },
+        { status: 409 });
+    }
   }
   catch (err) {
     if (err instanceof Error) {
