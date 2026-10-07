@@ -10,7 +10,7 @@ const CI = boolEnv("CI", false);
 
 export default defineConfig({
   testDir: "./",
-  testMatch: "e2e/**/*.spec.ts",
+  testMatch: ["e2e/**/*.spec.ts", "api/**/*.spec.ts"],
 
   // fullyParallel: true,
   workers: "80%",
@@ -88,17 +88,27 @@ export default defineConfig({
       testMatch: "*.setup.ts",
     },
     {
+      // Request-only contract tests against /api/* and page status codes; no browser
+      name: "api",
+      testMatch: "api/**/*.spec.ts",
+      dependencies: ["setup"],
+      retries: 0,
+    },
+    {
       name: "chromium 1080p",
+      testMatch: "e2e/**/*.spec.ts",
       use: { ...devices["Desktop Chrome"], viewport: { width: 1920, height: 1080 }, channel: "chromium" },
       dependencies: ["setup"],
     },
     {
       name: "firefox 1080p",
+      testMatch: "e2e/**/*.spec.ts",
       use: { ...devices["Desktop Firefox"], viewport: { width: 1920, height: 1080 } },
       dependencies: ["setup"],
     },
     {
       name: "webkit 1080p",
+      testMatch: "e2e/**/*.spec.ts",
       // Webkit is consistently the slowest to settle under CI load; give its actions extra room
       use: { ...devices["Desktop Safari"], viewport: { width: 1920, height: 1080 }, actionTimeout: 20 * 1000 },
       dependencies: ["setup"],
