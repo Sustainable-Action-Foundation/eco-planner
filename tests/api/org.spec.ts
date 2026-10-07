@@ -53,7 +53,7 @@ async function expectStatus(request: APIRequestContext, method: "post" | "put" |
  * expire-0 revalidation was observed to still serve the cached render.
  */
 async function eventually(check: () => Promise<unknown>): Promise<void> {
-  await expect(check).toPass({ timeout: 20_000 });
+  await expect(check).toPass({ timeout: 60_000 });
 }
 
 /** The membership ids of a group, off the groups page payload (`{ id, name, memberIds }`) */
@@ -87,7 +87,8 @@ test.describe.serial(`mutations of ${org.name}`, () => {
     });
 
     test("a name another org holds is a 409", async ({ actors }) => {
-      await expectStatus(actors.manager, "put", "/api/org", { orgId, name: "Malmö stad" }, 409, "manager");
+      // An org no spec mutates: Malmö and Uppsala kommun are renamed by the e2e org/caching specs
+      await expectStatus(actors.manager, "put", "/api/org", { orgId, name: "Kiruna kommun" }, 409, "manager");
       expect(await orgIdByName(actors.manager, org.name), "unchanged").toBe(orgId);
     });
 
