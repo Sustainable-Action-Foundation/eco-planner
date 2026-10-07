@@ -676,6 +676,7 @@ export function AdminPanel(
                 type="button"
                 className={`flex gap-50 justify-content-space-between align-items-center button smooth font-size-14px
                 ${styles['object-menu-button']}`} style={{ textShadow: 'none', color: 'white', backgroundColor: "#f03b3b", border: '0' }}
+                data-testid="delete-post"
                 onClick={() => openModal(deletionRef)}
               >
                 {t("components:table_menu.delete")}
