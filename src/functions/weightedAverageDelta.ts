@@ -9,9 +9,10 @@ const YEARLY_INTEREST_DECAY = 0.1;
  * 
  * The number is based on how large the changes are relative to the max change in the series
  * and how close they are in time from now (a change next year is more interesting than a change in 10 years).
+ * @param now The reference time for the decay; injectable for tests, defaults to the current date.
  */
-export default function dataSeriesInterest(dataSeries: DataSeries): number {
-  const currentDate = new Date();
+export default function dataSeriesInterest(dataSeries: DataSeries, now: Date = new Date()): number {
+  const currentDate = now;
 
   const dateValues = dataSeriesToDateValues(dataSeries);
   const dates = Object.keys(dateValues.dateValues).sort();
@@ -59,7 +60,11 @@ export default function dataSeriesInterest(dataSeries: DataSeries): number {
   return averageInterest;
 }
 
-function derive(dataSeries: DateValues): DateValues {
+/**
+ * The yearly rate of change between consecutive points, keyed by the later date.
+ * Points whose own or previous value is not finite are left out.
+ */
+export function derive(dataSeries: DateValues): DateValues {
   const dates = Object.keys(dataSeries).sort();
   const derived: DateValues = {};
 
