@@ -8,11 +8,13 @@ import "server-only";
 import type { JSONValue } from "@/types";
 import { isStandardObject } from "@/types/typeguards";
 import type { ApiTableContent, ApiSelectionItem } from "../apiTypes";
-import { ExternalDataset } from "../utility";
+import { ExternalDataset, sleep } from "../utility";
+import type { Sleep } from "../utility";
 import getPxWebTableMetadata from "./getPxWebTableMetadata";
 import type { PxWebTableContent } from "./pxWebApiV2Types";
 
-export default async function getPxWebTableContent(tableId: string, externalDataset: string, selection: ApiSelectionItem[], language?: string) {
+/** @param wait How to wait before retrying after a 429; injectable for tests. */
+export default async function getPxWebTableContent(tableId: string, externalDataset: string, selection: ApiSelectionItem[], language?: string, wait: Sleep = sleep) {
   // Get the base URL for the external dataset, defaulting to SCB
   const dataset = ExternalDataset.getDatasetByAlternateName(externalDataset) ?? ExternalDataset.SCB;
   const url = new URL(`./tables/${tableId}/data`, dataset.baseUrl);
@@ -31,7 +33,7 @@ export default async function getPxWebTableContent(tableId: string, externalData
   };
 
   // If no time selection is provided, try to add a default time selection to the payload
-  const times = await getPxWebTableMetadata(tableId, externalDataset).then(result => result ? result.timeDimensions : undefined);
+  const times = await getPxWebTableMetadata(tableId, externalDataset, undefined, wait).then(result => result ? result.timeDimensions : undefined);
   if (times && times.length !== 1 && !times.every(time => payload.selection.some(item => item.variableCode === time.id))) {
     console.debug(`Too many time dimensions (${times.length}) to automatically select one to include all periods for; please ensure all time dimensions have defined selections. tableId: ${tableId}; dataset: ${externalDataset}`);
     return null;
@@ -56,7 +58,7 @@ export default async function getPxWebTableContent(tableId: string, externalData
       const retryAfterSeconds = parseInt(response.headers.get("Retry-After") ?? "", 10);
       const waitMs = (Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0 ? retryAfterSeconds : 10) * 1000;
       console.debug(`Received 429 status, retrying in ${waitMs / 1000} seconds...`, { url });
-      await new Promise(resolve => setTimeout(resolve, waitMs));
+      await wait(waitMs);
       response = await fetch(url, {
         method: 'POST',
         body: JSON.stringify(payload),

@@ -1,8 +1,10 @@
 import type { PxWebCompatTableMetadata } from "../apiTypes";
-import { ExternalDataset } from "../utility";
+import { ExternalDataset, sleep } from "../utility";
+import type { Sleep } from "../utility";
 import type { PxWebMetricDimension, PxWebStandardDimension, PxWebTableMetadata, PxWebCompatMetricDimension, PxWebCompatTimeDimension, PxWebCompatRegularDimension, PxWebCompatDimensionValue } from "./pxWebApiV2Types";
 
-export default async function getPxWebTableMetadata(tableId: string, externalDataset: string, language?: string): Promise<PxWebCompatTableMetadata | null> {
+/** @param wait How to wait before retrying after a 429; injectable for tests. */
+export default async function getPxWebTableMetadata(tableId: string, externalDataset: string, language?: string, wait: Sleep = sleep): Promise<PxWebCompatTableMetadata | null> {
   if (!tableId || !externalDataset) {
     console.debug("getPxWebTableMetadata called without required parameters, returning early", { tableId, externalDataset, language });
     return null;
@@ -29,8 +31,8 @@ export default async function getPxWebTableMetadata(tableId: string, externalDat
     } else if (response.status === 429) {
       // Wait 10 seconds and try again
       console.debug(`Received 429 status, retrying in 10 seconds...`, { url, response });
-      await new Promise(resolve => setTimeout(resolve, 10000));
-      return await getPxWebTableMetadata(tableId, externalDataset, language);
+      await wait(10000);
+      return await getPxWebTableMetadata(tableId, externalDataset, language, wait);
     } else if (response.status === 404) {
       console.error(`${response.status}; No metadata found for table ${tableId} in dataset ${externalDataset}`, { url, response });
       return null;

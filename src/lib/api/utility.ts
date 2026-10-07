@@ -3,6 +3,10 @@ import type { ApiSelectionItem, ApiTableContent, ApiTableMetadata, DatasetData, 
 
 // TODO: Refactor file
 
+/** Waits `ms` milliseconds; the PxWeb fetchers take it as a parameter so tests can run their 429 retries without waiting. */
+export type Sleep = (ms: number) => Promise<void>;
+export const sleep: Sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 export function isDataSetKeys(value: unknown): value is DatasetKeys {
   return typeof value === "string" && ExternalDataset.knownDatasetKeys.includes(value as DatasetKeys);
 }
