@@ -472,14 +472,21 @@ export async function DELETE(request: NextRequest) {
       },
       select: {
         id: true,
+        access_control: { select: { org_id: true } },
       },
     });
     // Prune any orphaned comments
     await pruneOrphans();
-    // Invalidate old cache
-    revalidateTag('roadmap', 'max');
+    // Invalidate old cache; expire immediately so the pages the client lands on
+    // don't keep serving the deleted roadmap. The cascade also removed its
+    // iterations, goals and actions, so their tags expire too.
+    revalidateTag('roadmap', { expire: 0 });
+    revalidateTag('roadmapIteration', { expire: 0 });
+    revalidateTag('goal', { expire: 0 });
+    revalidateTag('action', { expire: 0 });
     return Response.json({ message: t('api:roadmap.roadmap_deleted'), id: deletedRoadmap.id },
-      { status: 200, headers: { 'Location': `/` } },
+      // Redirect to the owning org's landing page, where the roadmap was listed
+      { status: 200, headers: { 'Location': `/?org=${deletedRoadmap.access_control.org_id}` } },
     );
   }
   catch (err) {

@@ -503,8 +503,12 @@ export async function DELETE(request: NextRequest) {
     });
     // Prune any orphaned comments
     await pruneOrphans();
-    // Invalidate old cache
-    revalidateTag('roadmapIteration', 'max');
+    // Invalidate old cache; expire immediately so the roadmap page the client lands on
+    // doesn't keep listing the deleted iteration. The cascade also removed its
+    // goals and actions, so their tags expire too.
+    revalidateTag('roadmapIteration', { expire: 0 });
+    revalidateTag('goal', { expire: 0 });
+    revalidateTag('action', { expire: 0 });
     return Response.json({ message: t('api:roadmapIteration.iteration_deleted'), id: deletedIteration.id },
       // Redirect to the parent roadmap
       { status: 200, headers: { 'Location': `/roadmap/${deletedIteration.roadmap_id}` } },

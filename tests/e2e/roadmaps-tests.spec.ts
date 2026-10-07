@@ -555,4 +555,29 @@ test.describe.serial("Roadmaps tests", () => {
     await expect(grantSelect(page, groupName)).toHaveValue('RW');
   });
 
+  test("Delete roadmap - Required Fields", async ({ page }) => {
+
+    await openRoadmapFromHome(page, roadmapNameRequiredFieldsUpdated);
+
+    // Go from the iteration page to its parent roadmap page
+    await page.getByTestId('show-roadmap').click();
+    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+$/);
+    const roadmapUrl = page.url();
+
+    // Delete from the admin panel; the dialog asks for the name as confirmation
+    await page.getByTestId('delete-post').filter({ visible: true }).click();
+    await page.locator('input[id^="delete-name-input"]').filter({ visible: true }).fill(roadmapNameRequiredFieldsUpdated);
+    await page.locator('dialog button[type="submit"]').filter({ visible: true }).click();
+
+    // The delete redirects to the owning org's landing page, never to the deleted roadmap
+    await expect(page).toHaveURL(/\/\?org=[a-zA-Z0-9-]+$/);
+
+    // The landing page renders fresh: the deleted roadmap is gone without a second reload
+    await expect(page.getByRole('link', { name: roadmapNameRequiredFieldsUpdated })).toHaveCount(0);
+
+    // The deleted roadmap's own page no longer renders from cache
+    await page.goto(roadmapUrl);
+    await expect(page.getByText('404.title')).toBeVisible();
+  });
+
 });

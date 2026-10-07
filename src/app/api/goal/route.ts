@@ -806,8 +806,11 @@ export async function DELETE(request: NextRequest) {
         roadmap_iteration: { select: { roadmap_id: true, version: true } },
       },
     });
-    // Invalidate old cache
-    revalidateTag('goal', 'max');
+    // Invalidate old cache; expire immediately so the iteration page the client lands on
+    // doesn't keep listing the deleted goal. Its effects were cascade-deleted and show
+    // on action pages, so the action tag expires too.
+    revalidateTag('goal', { expire: 0 });
+    revalidateTag('action', { expire: 0 });
     return Response.json({ message: t('api:goal.goal_deleted'), id: deletedGoal.id },
       // Redirect to the parent iteration
       { status: 200, headers: { 'Location': iterationPath(deletedGoal.roadmap_iteration.roadmap_id, deletedGoal.roadmap_iteration.version) } },
