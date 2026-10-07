@@ -106,7 +106,7 @@ export function goalPrefilledSeries(t: TFunction, goal: { name: string | null, i
  */
 export function copyPrefill(
   t: TFunction,
-  goal: Parameters<typeof goalPrefilledSeries>[1] & { description: string | null },
+  goal: Parameters<typeof goalPrefilledSeries>[1] & { id: string, description: string | null },
   entry: Parameters<typeof curatedPrefilledSeries>[0],
   series: CuratedHistoricalSeriesData,
 ): GoalPrefill {
@@ -118,7 +118,7 @@ export function copyPrefill(
   return {
     historical,
     parent,
-    copy: { name: goal.name, description: goal.description, indicatorParameter: goal.indicatorParameter },
+    copy: { id: goal.id, name: goal.name, description: goal.description, indicatorParameter: goal.indicatorParameter },
     ...(anchor && anchor.goalValue !== 0 ? { localReference: { series: local, year: anchor.year, goalValue: anchor.goalValue } } : {}),
   };
 }
@@ -128,6 +128,7 @@ async function resolveCopiedGoal(goalId: string): Promise<(Parameters<typeof cop
   const goal = await getOneGoal(goalId);
   if (!goal?.data_series) return null;
   return {
+    id: goal.id,
     name: goal.name,
     description: goal.description,
     indicatorParameter: goal.indicator_parameter,
@@ -189,7 +190,7 @@ export async function getScaledPreviewPrefill(t: TFunction, goalId: string): Pro
   return {
     prefill: {
       parent: goalPrefilledSeries(t, copied),
-      copy: { name: copied.name, description: copied.description, indicatorParameter: copied.indicatorParameter },
+      copy: { id: copied.id, name: copied.name, description: copied.description, indicatorParameter: copied.indicatorParameter },
       sourceGeoArea: copied.geoArea ?? undefined,
       sourceRoadmapType: copied.roadmapType,
       storedSuggestions: copied.storedSuggestions,
@@ -223,7 +224,7 @@ export async function getGoalPrefill(
     return {
       prefill: {
         parent: goalPrefilledSeries(t, copied),
-        copy: { name: copied.name, description: copied.description, indicatorParameter: copied.indicatorParameter },
+        copy: { id: copied.id, name: copied.name, description: copied.description, indicatorParameter: copied.indicatorParameter },
         sourceGeoArea: copied.geoArea ?? undefined,
         sourceRoadmapType: copied.roadmapType,
         storedSuggestions: copied.storedSuggestions,

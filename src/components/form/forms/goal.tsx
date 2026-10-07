@@ -292,6 +292,7 @@ export default function GoalForm({
         listing: listing,
         iterationId: iterationId || parentIterationId,
         recipeSuggestions: recipeSuggestions,
+        copiedFromGoalId: prefill?.copy?.id ?? null,
 
         dataSeriesId: null,
         dataSeries: dataSeries,
