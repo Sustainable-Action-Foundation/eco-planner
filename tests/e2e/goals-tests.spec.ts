@@ -24,6 +24,16 @@ async function fillManualDataSeries(page: Page, rows: Array<[number | string, nu
   }
 }
 
+/**
+ * The indicator parameter input is one text box per path segment; the joined
+ * "\"-separated path (the stored format) sits in a hidden input. Filling the
+ * first box (#indicatorParameter) with a full path splits it across the boxes.
+ * Scoped to the visible form since hidden Activity boundaries keep stale forms mounted.
+ */
+function indicatorValue(page: Page) {
+  return page.locator('form[name="goalForm"]').filter({ visible: true }).getByTestId('indicator-parameter-value');
+}
+
 /** The goal form keeps the baseline section hidden until the goal has one; reveal it before picking a type. */
 async function openBaselineSection(page: Page) {
   const toggle = page.getByTestId("baseline-section-toggle");
@@ -168,7 +178,10 @@ test.describe("Goals tests", () => {
 
     // Set to manual input in case it isn't, to see if the values are saved correctly at least
     await page.locator('input[name="DATA_SERIES_TYPE"][value="MANUAL"]').check();
-    await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorRequiredOnly);
+    await expect.soft(indicatorValue(page)).toHaveValue(indicatorRequiredOnly);
+    // An existing goal's indicator loads pre-split into one box per segment
+    await expect.soft(page.getByTestId('indicator-segment-0').filter({ visible: true })).toHaveValue(indicatorRequiredOnly.split("\\")[0]);
+    await expect.soft(page.getByTestId('indicator-segment-1').filter({ visible: true })).toHaveValue(indicatorRequiredOnly.split("\\")[1]);
     // A saved unit reopens as the override input's value
     await expect.soft(page.locator('#goal-manual-unit')).toHaveValue(unitRequiredOnly);
 
@@ -228,7 +241,7 @@ test.describe("Goals tests", () => {
     await page.getByTestId("admin-panel-edit").filter({ visible: true }).click();
     await page.waitForLoadState("networkidle");
 
-    await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorRequiredUpdated);
+    await expect.soft(indicatorValue(page)).toHaveValue(indicatorRequiredUpdated);
     await expect.soft(page.locator('#goal-manual-unit')).toHaveValue(unitRequiredUpdated);
 
     for (let i = 0; i < 10; i++) {
@@ -328,7 +341,7 @@ test.describe("Goals tests", () => {
     // Set to manual input in case it isn't, to see if the values are saved correctly at least
     await page.locator('input[name="DATA_SERIES_TYPE"][value="MANUAL"]').check();
 
-    await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorAll);
+    await expect.soft(indicatorValue(page)).toHaveValue(indicatorAll);
     // A saved unit reopens as the override input's value
     await expect.soft(page.locator('#goal-manual-unit')).toHaveValue(unitAll);
     for (let i = 0; i < 30; i++) {
@@ -406,7 +419,7 @@ test.describe("Goals tests", () => {
     await expect.soft(page.locator('#goalName')).toHaveValue(nameAllUpdated);
     await expect.soft(page.locator('#description')).toHaveText(descriptionAllUpdated);
 
-    await expect.soft(page.locator('#indicatorParameter')).toHaveValue(indicatorAllUpdated);
+    await expect.soft(indicatorValue(page)).toHaveValue(indicatorAllUpdated);
 
     await expect.soft(page.getByRole('radio', { name: 'goal.suggested_inheritance' })).toBeChecked();
     // TODO: some checks on the recipe to ensure it matches expectations?
@@ -415,5 +428,43 @@ test.describe("Goals tests", () => {
     await expect.soft(page.locator('input[name="BASELINE_TYPE"][value="INITIAL"]')).toBeChecked();
 
     await expect(page.locator('#isFeatured')).not.toBeChecked();
+  });
+
+  // The segmented indicator input: one box per path segment, joined with "\" in
+  // a hidden input (the stored format). Nothing is submitted here.
+  test('Indicator segment boxes', async ({ page }) => {
+    await page.goto('/goal/create');
+    await page.waitForLoadState("networkidle");
+
+    const box = (index: number) => page.getByTestId(`indicator-segment-${index}`).filter({ visible: true });
+
+    // Typing in the trailing empty box appends a segment; a fresh empty box
+    // appears after it without stealing focus
+    await box(0).pressSequentially('Utsläpp');
+    await expect(box(0)).toBeFocused();
+    await expect(box(0)).toHaveValue('Utsläpp');
+    await expect(box(1)).toBeVisible();
+    await expect(indicatorValue(page)).toHaveValue('Utsläpp');
+
+    // A typed separator ("/" or "\") commits the segment and moves to the next box
+    await box(1).pressSequentially('Transporter/');
+    await expect(box(1)).toHaveValue('Transporter');
+    await expect(box(2)).toBeFocused();
+    await page.keyboard.type('Personbilar');
+    await expect(indicatorValue(page)).toHaveValue('Utsläpp\\Transporter\\Personbilar');
+
+    // Pasting/filling a full path into the first box replaces the whole path,
+    // split across the boxes (either separator works)
+    await box(0).fill('Energi/Industri/Processer');
+    await expect(box(0)).toHaveValue('Energi');
+    await expect(box(1)).toHaveValue('Industri');
+    await expect(box(2)).toHaveValue('Processer');
+    await expect(indicatorValue(page)).toHaveValue('Energi\\Industri\\Processer');
+
+    // Emptying a middle box removes that segment on blur
+    await box(1).fill('');
+    await box(1).blur();
+    await expect(indicatorValue(page)).toHaveValue('Energi\\Processer');
+    await expect(box(1)).toHaveValue('Processer');
   });
 });
