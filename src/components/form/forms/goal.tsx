@@ -15,7 +15,7 @@ import { waitForRecipeFormSyncs } from "@/components/recipe";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
-import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
+import IndicatorSegmentsInput from "../elements/indicatorSegments";
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
 import TextEditor from "../elements/textEditor/editor";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
@@ -190,12 +190,7 @@ export default function GoalForm({
 
   const timestamp = useFormTimestamp();
 
-  const indicatorParameters = useMemo(() => {
-    return [...new Set(parameterOptions)].map(option => ({
-      name: option,
-      value: option,
-    }));
-  }, []);
+  const indicatorParameterSuggestions = useMemo(() => [...new Set(parameterOptions)], []);
 
   // TODO: Error messages were translated directly from English to Swedish when switching to toasts.
   // They can likely be translated better.
@@ -430,22 +425,14 @@ export default function GoalForm({
         <label htmlFor="indicatorParameter">
           {t("forms:goal.leap_parameter")} 
         </label>
-        <TextSingleAutocomplete
-          props={{
-            id: "indicatorParameter",
-            name: GoalFormName.IndicatorParameter,
-            placeholder: t("forms:combobox.default_autocomplete_placeholder"),
-            className: "margin-top-25 margin-bottom-100",
-            defaultValue: currentGoal?.indicator_parameter ?? prefill?.copy?.indicatorParameter ?? undefined,
-          }}
-          options={indicatorParameters}
-          fuseOptions={{
-            threshold: 0.3,
-            ignoreLocation: true,
-            minMatchCharLength: 2,
-          }}
+        <IndicatorSegmentsInput
+          id="indicatorParameter"
+          name={GoalFormName.IndicatorParameter}
+          className="margin-top-25 margin-bottom-100"
           value={indicatorParameter}
           setter={setIndicatorParameter}
+          iterationId={currentGoal?.roadmap_iteration_id ?? (targetIterationId || undefined)}
+          knownPaths={indicatorParameterSuggestions}
         />
         {/* Listing: how the goal shows up in its version's lists, like the admin panel */}
         <fieldset className="margin-top-100">
