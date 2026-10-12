@@ -1,6 +1,7 @@
 import "server-only";
 import "dotenv/config";
 import { makeMariaDBAdapter } from "@/lib/prisma/mariadb-adapter";
+import { recordQuery } from "@/lib/prisma/dbStats";
 import { PrismaClient } from "../../../prisma/generated/client";
 
 const globalForPrisma = global as unknown as { prisma?: PrismaClient };
@@ -12,7 +13,13 @@ const initPrisma = () => {
   const { DATABASE_URL } = process.env;
   if (!DATABASE_URL) throw new Error("DATABASE_URL is not defined");
 
-  prismaClient = new PrismaClient(makeMariaDBAdapter(DATABASE_URL));
+  const client = new PrismaClient({
+    ...makeMariaDBAdapter(DATABASE_URL),
+    // Query events feed the always-on counters in dbStats.ts (and SAF_DB_TRACE summaries)
+    log: [{ emit: "event", level: "query" }],
+  });
+  client.$on("query", recordQuery);
+  prismaClient = client as unknown as PrismaClient;
 
   if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prismaClient;
 
