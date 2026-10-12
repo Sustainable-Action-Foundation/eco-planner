@@ -1,4 +1,5 @@
 import getUserHash from "@/functions/getUserHash";
+import { connection } from "next/server";
 import type { NextRequest } from "next/server";
 
 /**
@@ -8,6 +9,10 @@ import type { NextRequest } from "next/server";
  * everywhere else every request is a 404.
  */
 export async function GET(request: NextRequest) {
+  // Without this the env check below finishes before any request data is read, so with
+  // Cache Components `next build` prerenders the handler: the image is built without
+  // TEST_ENVIRONMENT, and the 404 would be baked in for the test stack too
+  await connection();
   if (process.env.TEST_ENVIRONMENT !== "testing") {
     return Response.json({ message: "Not found" }, { status: 404 });
   }
