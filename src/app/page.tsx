@@ -6,11 +6,11 @@ import { IterationStatus, OrgRole, RoadmapType } from "@/lib/prisma/generated";
 import RoadmapFilters from "@/components/form/filters/roadmapFilters";
 import { LikeScope, RoadmapSortBy } from "@/types/enums";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
-import RoadmapTree from "@/components/tables/roadmapTables/roadmapTree";
+import RoadmapTree, { type TreeIteration } from "@/components/tables/roadmapTables/roadmapTree";
 import serveTea from "@/lib/i18nServer";
 import Link from "next/link";
 import { buildMetadata } from "@/functions/buildMetadata";
-import { getActionSummaries, getRoadmapIterations, getRoadmaps, getUserOrgs } from "@/fetchers";
+import { getActionSummaries, getRoadmaps, getUserOrgs } from "@/fetchers";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import Actions from "@/components/pages/sections/actions";
@@ -73,8 +73,9 @@ export default async function Page(
   const searchFilter = searchParams['searchFilter'] ? (Array.isArray(searchParams['searchFilter']) ? searchParams['searchFilter'][0] : searchParams['searchFilter']) : '';
 
   // Per roadmap: the latest published version is its node in the tree, and any
-  // drafts nest under it (drafts only reach editors via the existing access filter)
-  const treeIterationIds = roadmaps.flatMap(roadmap => {
+  // drafts nest under it (drafts only reach editors via the existing access filter).
+  // Built from the roadmaps already fetched above rather than a second iteration query.
+  let iterations: TreeIteration[] = roadmaps.flatMap(roadmap => {
     const accessLevel = accessChecker(roadmap, accessContext);
     const published = roadmap.iterations.filter(iteration => iteration.status === IterationStatus.PUBLISHED);
     const drafts = hasEditAccess(accessLevel) ? roadmap.iterations.filter(iteration => iteration.status === IterationStatus.DRAFT) : [];
@@ -83,10 +84,12 @@ export default async function Page(
       ? published.reduce((current, candidate) => candidate.version > current.version ? candidate : current)
       : null;
 
-    return [...(latestPublished ? [latestPublished.id] : []), ...drafts.map(draft => draft.id)];
+    const { geo_area: _geoArea, iterations: _iterations, child_roadmaps: _children, comments: _comments, author: _author, access_control, ...roadmapColumns } = roadmap;
+    return [...(latestPublished ? [latestPublished] : []), ...drafts]
+      .map(iteration => ({ ...iteration, roadmap: { ...roadmapColumns, access_control } }));
   });
-
-  let iterations = treeIterationIds.length ? await getRoadmapIterations(treeIterationIds) : [];
+  // Same base order the iteration query used to give (id breaks ties between same-named roadmaps)
+  iterations.sort((a, b) => roadmapIterationSorter(a, b) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 
   // Filter by typeFilter
   if (typeFilter.length) {
