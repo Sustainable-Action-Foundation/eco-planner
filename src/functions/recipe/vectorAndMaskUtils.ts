@@ -1,4 +1,4 @@
-import type { DataSeries, DateValues, DateValuesWithUnit, Goal, ISOIshDate, Unit } from "@/types";
+import type { DateValues, DateValuesWithUnit, ISOIshDate, PlottedSeries, Unit } from "@/types";
 import { UnitFlags } from "@/types/enums";
 import { isISOIshDate } from "@/types/typeguards";
 import { isUnitFlag, parseUnit } from "@/functions/unit";
@@ -231,7 +231,7 @@ export function isMathjsUnit(unit: Unit): boolean {
   }
 }
 
-export function dataSeriesToDateValues(dataSeries: DataSeries | Goal["data_series"]): DateValuesWithUnit {
+export function dataSeriesToDateValues(dataSeries: PlottedSeries | null | undefined): DateValuesWithUnit {
   if (!dataSeries?.values) {
     throw new RecipeError("DataSeriesToDateValues: Goal data series is missing or does not contain values.");
   }

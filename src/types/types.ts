@@ -1,5 +1,5 @@
 import type { IterationStatus, OrgRole, Prisma, GeoAreaType, RoadmapType } from "@/lib/prisma/generated";
-import type { accessControlSelection, actionInclusionSelection, clientSafeDataSeriesSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapIterationSelection, effectInclusionSelection, goalInclusionSelection, multiRoadmapInclusionSelection, nameSelector, recipeSelector, roadmapInclusionSelection, roadmapIterationInclusionSelection, userInfoSelector } from "@/fetchers/inclusionSelectors";
+import type { accessControlSelection, actionInclusionSelection, clientSafeDataSeriesSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapIterationSelection, effectInclusionSelection, goalInclusionSelection, multiRoadmapInclusionSelection, nameSelector, recipeSelector, relatedGoalSelection, roadmapInclusionSelection, roadmapIterationInclusionSelection, siblingGoalSelection, userInfoSelector } from "@/fetchers/inclusionSelectors";
 import type { UnitFlags } from "@/types/enums";
 import type { DataSeriesVariable, ExternalVariable, SerializedRecipe } from "@/functions/recipe/types";
 
@@ -78,6 +78,22 @@ export type ClientMultiRoadmapInstance = Prisma.RoadmapIterationsGetPayload<{
 export type Goal = Prisma.GoalsGetPayload<{
   include: typeof goalInclusionSelection
 }>;
+
+/** A parent or child goal on the goal page, see `relatedGoalSelection`. */
+export type RelatedGoal = Prisma.GoalsGetPayload<{
+  select: typeof relatedGoalSelection
+}>;
+
+/** A sibling candidate on the goal page, see `siblingGoalSelection`. */
+export type SiblingGoal = Prisma.GoalsGetPayload<{
+  select: typeof siblingGoalSelection
+}>;
+
+/** The least a stored series needs to be plotted or turned into DateValues. */
+export type PlottedSeries = {
+  unit: string | null,
+  values: { timestamp: Date, value: number }[],
+};
 
 export type ClientGoal = Prisma.GoalsGetPayload<{
   select: typeof clientSafeGoalSelection

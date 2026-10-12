@@ -7,7 +7,7 @@ import { calculatePredictedOutcome, getStoredGraphType } from "../../functions/g
 import GraphSelector from "../../graphSelectors/graphSelector";
 import SecondaryGoalSelector from "../../graphSelectors/secondaryGoalSelector";
 import { useTranslation } from "react-i18next";
-import type { DataSeries, DateValues, DateValuesWithUnit, Goal, RoadmapIteration } from "@/types";
+import type { DataSeries, DateValues, DateValuesWithUnit, Goal, RelatedGoal, SiblingGoal } from "@/types";
 import { GraphType } from "@/types/enums";
 // Copy and scale is shelved for now; see the comment at its render sites below.
 import styles from './goal.module.css';
@@ -43,15 +43,16 @@ export default function GoalGraphContainer({
   goal,
   secondaryGoal,
   childGoals,
-  iteration,
+  siblingCandidates,
   parentGoal,
   useHref,
 }: {
   goal: Goal,
   secondaryGoal: Goal | null,
-  childGoals: Goal[],
-  iteration: RoadmapIteration,
-  parentGoal: Goal | null,
+  childGoals: RelatedGoal[],
+  /** Goals in the same roadmap version under the same indicator parent path (see `getGoalSiblings`); `findSiblings` picks the actual siblings */
+  siblingCandidates: SiblingGoal[],
+  parentGoal: RelatedGoal | null,
   /** Where "use this goal" goes (the goal form prefilled from it, see `getGoalPrefill`); null when the user has no roadmap to put a copy in */
   useHref?: string | null,
 }) {
@@ -63,8 +64,8 @@ export default function GoalGraphContainer({
   const historicalSource = getHistoricalDataset(goal);
   const historicalLabel = historicalSeriesName(t, historicalSource);
 
-  const siblings = findSiblings(iteration, goal);
-  const siblingsSeries: Array<(DataSeries | DateValuesWithUnit) & { name: string }> = findSiblings(iteration, goal)
+  const siblings = findSiblings(siblingCandidates, goal);
+  const siblingsSeries: Array<(DataSeries | DateValuesWithUnit) & { name: string }> = siblings
     .filter(
       (sibling): sibling is typeof sibling & { name: string; data_series: NonNullable<typeof sibling.data_series> } =>
         sibling.name != null && sibling.data_series != null,
@@ -476,7 +477,7 @@ export default function GoalGraphContainer({
                 </nav>
               </footer>
             </div>
-            {/* <SiblingGraph iteration={iteration} goal={goal} />*/}
+            {/* <SiblingGraph siblingCandidates={siblingCandidates} goal={goal} />*/}
           </TabListSimple.TabPanel>
           : null}
       </TabListSimple>

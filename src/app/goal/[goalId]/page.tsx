@@ -6,13 +6,12 @@ import GoalActionEffectList from "@/components/pages/sections/goalActionEffects"
 import { AdminPanel } from "@/components/elements/controls/controls";
 import EntityTimestamps from "@/components/generic/timestamps/entityTimestamps";
 import VisibilityBadges from "@/components/generic/visibility/visibilityBadges";
-import { getGoalByIndicator, getOneGoal, getOneRoadmapIteration, getRoadmapIterationByVersion, getRoadmapIterations } from "@/fetchers";
+import { getGoalByIndicator, getGoalSiblings, getOneGoal, getRoadmapIterations } from "@/fetchers";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import { getSession } from "@/lib/session";
 import serveTea from "@/lib/i18nServer";
-import { prisma } from "@/lib/prisma";
-import type { AccessControlled, Goal, MultiRoadmapInstance, RoadmapIteration, UserAccessContext } from "@/types";
+import type { AccessControlled, Goal, MultiRoadmapInstance, RelatedGoal, SiblingGoal, UserAccessContext } from "@/types";
 import { AccessLevel } from "@/types/enums";
 import { IterationStatus, RoadmapType } from "@/lib/prisma/generated";
 import { cookies } from "next/headers";
@@ -64,6 +63,12 @@ export async function generateMetadata(props: {
   });
 }
 
+/** The like button with the viewer's like state; per viewer, so it streams in on its own instead of holding up the page */
+async function GoalLikes({ goalId }: { goalId: string }) {
+  const likes = await getGoalLikeSummary(goalId);
+  return <LikeGoalButton goalId={goalId} liked={likes.likedByViewer} likeCount={likes.likeCount} />;
+}
+
 export default async function Page(
   props: {
     params: Promise<{ goalId: string }>,
@@ -78,12 +83,14 @@ export default async function Page(
     props.searchParams,
   ]);
 
-  const [t, accessContext, { goal, iteration }, secondaryGoal, unfilteredIterations] = await Promise.all([
+  const [t, accessContext, { goal, siblingCandidates }, secondaryGoal, unfilteredIterations] = await Promise.all([
     serveTea("pages"),
     getUserAccessContext(),
+    // Only the sibling candidates are loaded from the goal's roadmap version: the version and
+    // roadmap fields the page shows come with the goal itself
     getOneGoal(params.goalId).then(async goal => ({
       goal,
-      iteration: goal ? await getOneRoadmapIteration(goal.roadmap_iteration_id) : null,
+      siblingCandidates: goal ? await getGoalSiblings(goal.roadmap_iteration_id, goal.indicator_parameter) : [],
     })),
     typeof searchParams.secondaryGoal === "string" ? getOneGoal(searchParams.secondaryGoal) : null,
     getRoadmapIterations(),
@@ -92,7 +99,7 @@ export default async function Page(
     UserAccessContext | null,
     {
       goal: Goal | null;
-      iteration: RoadmapIteration | null;
+      siblingCandidates: SiblingGoal[];
     },
     Goal | null,
     MultiRoadmapInstance[],
@@ -108,44 +115,32 @@ export default async function Page(
   }
 
   // 404 if the goal doesn't exist or if the user doesn't have access to it
-  if (!goal || !accessLevel || !iteration) {
+  if (!goal || !accessLevel) {
     return notFound();
   }
-
-  const likes = await getGoalLikeSummary(goal.id);
+  const iteration = goal.roadmap_iteration;
 
   // Whether a copy of the goal has somewhere to go: a roadmap version the user can edit
   const canCreateGoals = unfilteredIterations.some(iteration =>
     hasEditAccess(accessChecker({ access_control: iteration.roadmap.access_control, status: iteration.status }, accessContext)));
 
   // Fetch parent goal
-  let parentGoal: Goal | null = null;
-  let parentGoalIteration: RoadmapIteration | null;
-  if (iteration.roadmap.parent_roadmap_id) {
-    try {
-      // Get the parent roadmap iteration (if any). Only published, listed versions take part in
-      // parent/child relations: drafts and unlisted versions are work in progress or hidden on purpose.
-      parentGoalIteration = await getRoadmapIterationByVersion(
-        iteration.roadmap.parent_roadmap_id,
-        (iteration.target_version === null || iteration.target_version === 0)
-          ? (await prisma.roadmapIterations.aggregate({
-            where: { roadmap_id: iteration.roadmap.parent_roadmap_id, status: IterationStatus.PUBLISHED },
-            _max: { version: true },
-          }))._max.version ?? 0
-          : iteration.target_version,
-      );
-      if (parentGoalIteration && parentGoalIteration.status !== IterationStatus.PUBLISHED) {
-        parentGoalIteration = null;
-      }
+  let parentGoal: RelatedGoal | null = null;
+  const parentRoadmapId = iteration.roadmap.parent_roadmap_id;
+  if (parentRoadmapId) {
+    // The parent roadmap's iteration, picked from the visible iterations already fetched: the
+    // targeted version, or the latest published one without a target. Only published versions take
+    // part in parent/child relations: drafts are work in progress. (All published versions of a
+    // roadmap share its visibility, so the visible list holds the latest published one if any.)
+    const publishedParentIterations = unfilteredIterations
+      .filter(candidate => candidate.roadmap_id === parentRoadmapId && candidate.status === IterationStatus.PUBLISHED);
+    const parentGoalIteration = (iteration.target_version === null || iteration.target_version === 0)
+      ? publishedParentIterations.reduce<MultiRoadmapInstance | null>((latest, candidate) => !latest || candidate.version > latest.version ? candidate : latest, null)
+      : publishedParentIterations.find(candidate => candidate.version === iteration.target_version) ?? null;
 
-      // If there is a parent iteration, look for a goal with the same indicator parameter in it
-      if (parentGoalIteration) {
-        parentGoal = await getGoalByIndicator(parentGoalIteration.id, goal.indicator_parameter, goal.data_series?.unit);
-      }
-    }
-    catch (err) {
-      parentGoal = null;
-      console.error(err);
+    // If there is a parent iteration, look for a goal with the same indicator parameter in it
+    if (parentGoalIteration) {
+      parentGoal = await getGoalByIndicator(parentGoalIteration.id, goal.indicator_parameter, goal.data_series?.unit);
     }
   }
 
@@ -156,36 +151,18 @@ export default async function Page(
     .filter(child => child.roadmap.parent_roadmap_id === iteration.roadmap.id)
     .filter(child => child.target_version === iteration.version || !child.target_version)
     .filter(child => child.status === IterationStatus.PUBLISHED);
-  let childGoals: (NonNullable<Awaited<ReturnType<typeof getGoalByIndicator>>> & { roadmapName?: string })[] = [];
+  let childGoals: RelatedGoal[] = [];
   if (childIterations.length > 0) {
     const goals = await Promise.all(childIterations.map(async iteration => {
       return getGoalByIndicator(iteration.id, goal.indicator_parameter, goal.data_series?.unit || undefined);
     }));
     childGoals = goals.filter(child => child !== null);
-    for (const child of childGoals) {
-      child.roadmapName = childIterations.find(iteration => iteration.id === child.roadmap_iteration_id)?.roadmap.name;
-    }
   }
 
-  let shouldUpdate = false;
-  // If using a recipe, check all source data series if their updated_at is newer than this data series last updated
-  if (goal.data_series?.recipe_used_id) {
-    const sourceDataSeries = await prisma.recipes.findMany({
-      where: {
-        id: goal.data_series.recipe_used_id,
-      },
-      select: {
-        source_data_series: { select: { id: true, updated_at: true } },
-      },
-    });
-    for (const source of sourceDataSeries) {
-      for (const dataSeries of source.source_data_series) {
-        if (dataSeries.updated_at > goal.data_series.updated_at) {
-          shouldUpdate = true;
-        }
-      }
-    }
-  }
+  // If using a recipe, check whether any of its source data series was updated after this data series
+  const goalSeries = goal.data_series;
+  const shouldUpdate = !!goalSeries?.recipe_used?.source_data_series
+    .some(source => source.updated_at > goalSeries.updated_at);
 
   // Actions in the goal's own roadmap version vs. actions from elsewhere (another
   // version's actions, or versionless actions from the public action database).
@@ -216,7 +193,11 @@ export default async function Page(
             </div>
             <div className="flex gap-50 align-items-center">
               {/* Signed-in readers can like the goal; the likes rank it on their org's landing page */}
-              {accessContext ? <LikeGoalButton goalId={goal.id} liked={likes.likedByViewer} likeCount={likes.likeCount} /> : null}
+              {accessContext ?
+                <Suspense fallback={null}>
+                  <GoalLikes goalId={goal.id} />
+                </Suspense>
+                : null}
               <Link href={`/roadmap/${iteration.roadmap_id}`} className="discrete-link flex gap-25 align-items-center" style={{ lineHeight: '1' }}>
                 {t("pages:roadmap_iteration.show_series")}
                 <IconArrowNarrowRight height={20} width={20} style={{ minWidth: '20px' }} />
@@ -279,7 +260,7 @@ export default async function Page(
             parentGoal={parentGoal}
             useHref={canCreateGoals ? `/goal/create?from=${encodeURIComponent(goal.id)}` : null}
             childGoals={childGoals}
-            iteration={iteration}
+            siblingCandidates={siblingCandidates}
             secondaryGoal={secondaryGoal}
           />
 

@@ -2,6 +2,7 @@ import "server-only";
 
 export { getActions } from "./getActions";
 export { getGoalByIndicator } from "./getGoalByIndicator";
+export { getGoalSiblings } from "./getGoalSiblings";
 export { getNames } from "./getNames";
 export { getOneAction } from "./getOneAction";
 export { getActionNeighbours } from "./getActionNeighbours";
