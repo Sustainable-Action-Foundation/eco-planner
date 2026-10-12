@@ -4,7 +4,7 @@ import type { Sleep } from "../utility";
 import type { PxWebMetricDimension, PxWebStandardDimension, PxWebTableMetadata, PxWebCompatMetricDimension, PxWebCompatTimeDimension, PxWebCompatRegularDimension, PxWebCompatDimensionValue } from "./pxWebApiV2Types";
 
 /** @param wait How to wait before retrying after a 429; injectable for tests. */
-export default async function getPxWebTableMetadata(tableId: string, externalDataset: string, language?: string, wait: Sleep = sleep): Promise<PxWebCompatTableMetadata | null> {
+export default async function getPxWebTableMetadata(tableId: string, externalDataset: string, language?: string, wait: Sleep = sleep, isRetry = false): Promise<PxWebCompatTableMetadata | null> {
   if (!tableId || !externalDataset) {
     console.debug("getPxWebTableMetadata called without required parameters, returning early", { tableId, externalDataset, language });
     return null;
@@ -28,11 +28,15 @@ export default async function getPxWebTableMetadata(tableId: string, externalDat
     const response = await fetch(url, { method: 'GET' });
     if (response.ok) {
       data = await response.json() as PxWebTableMetadata;
-    } else if (response.status === 429) {
-      // Wait 10 seconds and try again
-      console.debug(`Received 429 status, retrying in 10 seconds...`, { url, response });
-      await wait(10000);
-      return await getPxWebTableMetadata(tableId, externalDataset, language, wait);
+    } else if (response.status === 429 && !isRetry) {
+      // Rate limited; wait out the upstream's Retry-After (or 10 seconds) and try once more. Retrying
+      // without bound kept cache fills (and every request waiting on them) hanging while the upstream
+      // kept answering 429.
+      const retryAfterSeconds = parseInt(response.headers.get("Retry-After") ?? "", 10);
+      const waitMs = (Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0 ? retryAfterSeconds : 10) * 1000;
+      console.debug(`Received 429 status, retrying in ${waitMs / 1000} seconds...`, { url });
+      await wait(waitMs);
+      return await getPxWebTableMetadata(tableId, externalDataset, language, wait, true);
     } else if (response.status === 404) {
       console.error(`${response.status}; No metadata found for table ${tableId} in dataset ${externalDataset}`, { url, response });
       return null;
