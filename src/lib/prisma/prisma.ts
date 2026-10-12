@@ -44,4 +44,5 @@ const disconnect = () => {
 };
 process.on("beforeExit", disconnect);
 process.on("exit", disconnect);
-process.on("uncaughtException", disconnect);
+// Deliberately no "uncaughtException" hook: Next's router server registers its own (log and keep
+// serving), so a disconnect here only tore down the shared pool under every in-flight request.
