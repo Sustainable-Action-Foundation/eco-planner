@@ -37,6 +37,9 @@ function entry(text: string, overrides: Partial<CacheEntry> = {}): CacheEntry {
   };
 }
 
+/** Tag revalidation timestamps are rounded to whole ms, so a get in the same half-millisecond may still see the entry */
+const settle = () => new Promise(resolve => setTimeout(resolve, 2));
+
 async function read(found: CacheEntry | undefined): Promise<string | undefined> {
   return found ? await new Response(found.value).text() : undefined;
 }
@@ -78,6 +81,7 @@ test.describe("upstream cache handler", () => {
     const handler = await loadHandler(dir);
     await handler.set("key-a", Promise.resolve(entry("old", { timestamp: Date.now() - 1000 })));
     await handler.updateTags(["curatedHistoricalData"], { expire: 0 });
+    await settle();
     expect(await handler.get("key-a", [])).toBeUndefined();
 
     const restarted = await loadHandler(dir);
@@ -103,6 +107,7 @@ test.describe("upstream cache handler", () => {
     expect(await read(await handler.get("key-a", []))).toBe("kept");
 
     await handler.updateTags(["_N_T_/"], { expire: 0 });
+    await settle();
     expect(await handler.getExpiration(["_N_T_/"])).toBeGreaterThan(0);
     expect(await handler.getExpiration(["_N_T_/other"])).toBe(0);
     expect(await handler.get("key-a", ["_N_T_/"])).toBeUndefined();

@@ -22,13 +22,16 @@
  * rate-limited upstream wants. Note that Next puts the build id into every cache key, so a new
  * deploy starts empty; expired files (old builds' included) are pruned at startup.
  *
+ * `next dev` always uses the build id "development", so persisting there would serve results parsed
+ * by old code after a restart: the directory is wiped at startup in dev unless SAF_CACHE_DIR opts in.
+ *
  * @typedef {import("next/dist/server/lib/cache-handlers/types").CacheHandler} CacheHandler
  * @typedef {import("next/dist/server/lib/cache-handlers/types").CacheEntry} CacheEntry
  * @typedef {{ key: string, tags: string[], stale: number, timestamp: number, expire: number, revalidate: number, value: string }} StoredEntry
  * @typedef {{ stale?: number, expired?: number }} TagState
  */
 import { createHash } from "node:crypto";
-import { mkdirSync, readFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync } from "node:fs";
 import { readdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -44,8 +47,11 @@ const tags = new Map();
 /** @type {Map<string, Promise<void>>} */
 const pendingSets = new Map();
 
+const persistent = process.env.NODE_ENV !== "development" || !!process.env.SAF_CACHE_DIR;
+
 let usable = true;
 try {
+  if (!persistent) rmSync(dir, { recursive: true, force: true });
   mkdirSync(entriesDir, { recursive: true });
   try {
     for (const [tag, state] of Object.entries(JSON.parse(readFileSync(tagsFile, "utf8")))) tags.set(tag, state);
@@ -81,7 +87,15 @@ async function writeAtomic(/** @type {string} */ file, /** @type {string} */ con
 /** Removes entries past their expire time, from any build (Next keys include the build id) */
 async function prune() {
   let removed = 0;
-  for (const name of await readdir(entriesDir)) {
+  /** @type {string[]} */
+  let names = [];
+  try {
+    names = await readdir(entriesDir);
+  } catch (err) {
+    console.warn("[upstream cache] cannot list entries for pruning", entriesDir, err);
+    return;
+  }
+  for (const name of names) {
     const file = path.join(entriesDir, name);
     try {
       if (name.endsWith(".tmp")) {
