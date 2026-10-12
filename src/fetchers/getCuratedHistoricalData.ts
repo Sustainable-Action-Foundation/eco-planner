@@ -139,7 +139,7 @@ type CachedSeries = { selection: ApiSelectionItem[], dateValues: DateValues };
  * every render, but only for minutes (clear either with `revalidateTag('curatedHistoricalData')`).
  */
 async function getCachedSeries(source: CuratedSource, geoArea: { code: string, type: GeoAreaType }): Promise<CachedSeries | null> {
-  'use cache';
+  'use cache: upstream';
   cacheTag('curatedHistoricalData');
 
   let failed = false;
@@ -203,7 +203,7 @@ async function resolveRegionSelection(source: CuratedSource, geoArea: { code: st
  * that their own result rests on a failure.
  */
 async function getCachedPxWebTableMetadata(tableId: string, dataset: DatasetKeys): Promise<{ metadata: PxWebCompatTableMetadata | null, failed: boolean }> {
-  'use cache';
+  'use cache: upstream';
   cacheTag('curatedHistoricalData');
 
   let failed = false;

@@ -28,7 +28,7 @@ export default async function scbPopulationQuery(areaCode: string, parentAreaCod
 }
 
 async function getCachedQuery(areaCode: string) {
-  'use cache';
+  'use cache: upstream';
   cacheTag('scbPopulationQuery');
 
   const selection = [

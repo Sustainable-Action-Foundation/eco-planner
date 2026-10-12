@@ -1,6 +1,7 @@
 import type { GlobalEnv } from "@/types";
 import type { NextConfig } from "next";
 import { execSync } from "node:child_process";
+import path from "node:path";
 import packageJSON from "./package.json" with { type: "json" };
 import { getCommitsAhead } from "@root/scripts/checkCommitsAhead";
 
@@ -30,6 +31,10 @@ const nextConfig: NextConfig = {
   } : {}),
   output: process.env.CI ? "standalone" : undefined,
   cacheComponents: true,
+  cacheHandlers: {
+    // `'use cache: upstream'`: external statistics persisted on disk across restarts (SAF_CACHE_DIR)
+    upstream: path.resolve("src/lib/cache/upstreamCacheHandler.mjs"),
+  },
 };
 
 export default nextConfig;

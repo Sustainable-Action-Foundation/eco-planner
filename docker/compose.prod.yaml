@@ -28,6 +28,13 @@ services:
       - default
     ports:
       - "8081:8081"
+    # External statistics ('use cache: upstream') are cached on disk in /app/.next/cache/upstream
+    # (SAF_CACHE_DIR), which already survives `docker restart`. To keep it when the container is
+    # recreated with the same image too, mount a named volume there (and declare `upstream-cache:`
+    # under a top-level `volumes:`). A new image starts empty regardless (Next puts the build id in
+    # every cache key).
+    # volumes:
+    #   - upstream-cache:/app/.next/cache/upstream
     environment:
       # Database connection string
       - DATABASE_URL=${DATABASE_URL:?error}
