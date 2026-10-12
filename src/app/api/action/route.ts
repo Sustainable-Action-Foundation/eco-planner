@@ -225,6 +225,10 @@ export async function POST(request: NextRequest) {
 
     // Invalidate old cache
     revalidateTag('action', { expire: 0 });
+    // A nested effect also lands on the goal
+    if (actionCreate.dataSeries && actionCreate.goalId && goalOrgId) {
+      revalidateTag('goal', { expire: 0 });
+    }
     // Return the new action's ID if successful
     return Response.json({ message: t('api:action.action_created'), id: newActionId },
       { status: 201, headers: { 'Location': `/action/${newActionId}` } },

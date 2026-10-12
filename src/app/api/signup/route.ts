@@ -1,4 +1,5 @@
 import type { NextRequest } from "next/server";
+import { revalidateTag } from "next/cache";
 import { allowedDomains, orgDomainAliases } from "@/lib/allowedDomains";
 import { OrgRole } from "@/lib/prisma/generated";
 import { prisma } from "@/lib/prisma";
@@ -139,6 +140,8 @@ export async function POST(request: NextRequest) {
       { status: 500 },
     );
   }
+  // getUserInfo may hold a cached null for this username from before it was registered
+  revalidateTag('user', { expire: 0 });
 
   // Send verification email. This is done after creating the user to avoid sending an email if the user creation fails.
   // If the sendMail function fails, the user is still created and can try to verify their email later.

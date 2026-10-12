@@ -242,6 +242,8 @@ export async function POST(request: NextRequest) {
     });
     // Invalidate old cache
     revalidateTag('roadmapIteration', { expire: 0 });
+    // The iteration form creates and copies goals
+    revalidateTag('goal', { expire: 0 });
     // Return the new iteration's ID if successful
     return Response.json({ message: t('api:roadmapIteration.iteration_created'), id: newIteration.id },
       { status: 201, headers: { 'Location': iterationPath(newIteration.roadmap_id, newIteration.version) } },
@@ -391,6 +393,8 @@ export async function PUT(request: NextRequest) {
     await pruneOrphans();
     // Invalidate old cache
     revalidateTag('roadmapIteration', { expire: 0 });
+    // The iteration form creates and copies goals
+    revalidateTag('goal', { expire: 0 });
     // Return the iteration's ID if successful
     return Response.json({ message: t('api:roadmapIteration.iteration_updated'), id: updatedIteration.id },
       { status: 200, headers: { 'Location': iterationPath(updatedIteration.roadmap_id, updatedIteration.version) } },
