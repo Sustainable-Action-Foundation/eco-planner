@@ -2,10 +2,10 @@ import "server-only";
 import { getCuratedHistoricalEntries } from "@/fetchers/getCuratedHistoricalData";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { uncachedFallback } from "@/fetchers/cacheFallback";
-import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
+import { publishedIterationsOfTypeWHERE } from "@/lib/accessFilters";
 import { getNationalGoalMappings } from "@/lib/curatedHistoricalData";
 import { prisma } from "@/lib/prisma";
-import { GoalListing, IterationStatus, RoadmapType } from "@/lib/prisma/generated";
+import { GoalListing, RoadmapType } from "@/lib/prisma/generated";
 import type { CuratedGeoArea, CuratedHistoricalEntryData, CuratedHistoricalSeriesData } from "@/fetchers/getCuratedHistoricalData";
 import type { NationalGoalMapping } from "@/lib/curatedHistoricalData";
 import type { DateValues, UserAccessContext } from "@/types";
@@ -105,11 +105,7 @@ async function getCachedNationalGoals(indicatorParameters: string[], accessConte
       indicator_parameter: { in: indicatorParameters },
       listing: { not: GoalListing.UNLISTED },
       data_series: { isNot: null },
-      roadmap_iteration: {
-        ...visibleRoadmapIterationsWHERE(accessContext),
-        status: IterationStatus.PUBLISHED,
-        roadmap: { type: RoadmapType.NATIONAL },
-      },
+      roadmap_iteration: publishedIterationsOfTypeWHERE(accessContext, RoadmapType.NATIONAL),
     },
     select: {
       id: true,
