@@ -44,7 +44,9 @@ export const Seed = {
 
 /** Logs the request context in through `/api/login`; the session cookie sticks to the context. */
 export async function loginAs(request: APIRequestContext, username: string, password?: string): Promise<void> {
-  const response = await request.post("/api/login", { data: { username, password: password ?? username } });
+  const send = () => request.post("/api/login", { data: { username, password: password ?? username } });
+  // A loaded server occasionally drops the socket ("socket hang up"); a login is safe to resend
+  const response = await send().catch(async () => send());
   expect(response.status(), `login of ${username}: ${await response.text()}`).toBe(200);
 }
 

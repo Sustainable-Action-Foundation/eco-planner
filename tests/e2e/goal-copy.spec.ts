@@ -1,6 +1,6 @@
 import path from "node:path";
 import { cwd } from "node:process";
-import type { APIRequestContext, Page } from "playwright/test";
+import type { APIRequestContext, Page, Request } from "playwright/test";
 import { seedPlaces } from "../../scripts/prisma/seed/places";
 import areaCodes from "../../src/lib/areaCodes.json" with { type: "json" };
 import { loginAs, loginContext, memberContext, publicGoalId, Seed } from "../lib/api";
@@ -55,10 +55,18 @@ async function openCopyForm(page: Page, goalId: string, roadmap: string) {
 
 /** Submits the copy form and resolves with the goal API's answer */
 async function submitCopy(page: Page) {
-  const [response] = await Promise.all([
-    page.waitForResponse(response => new URL(response.url()).pathname === "/api/goal" && response.request().method() === "POST", { timeout: 30_000 }),
-    submitButton(page).click(),
-  ]);
+  const isGoalPost = (request: Request) => new URL(request.url()).pathname === "/api/goal" && request.method() === "POST";
+  // WebKit now and then swallows the click: wait for the request (not the slow response) and
+  // click once more only if none went out, so a submit is never sent twice
+  let request = page.waitForRequest(isGoalPost, { timeout: 15_000 });
+  await submitButton(page).click();
+  request = request.catch(async () => {
+    const retry = page.waitForRequest(isGoalPost, { timeout: 15_000 });
+    await submitButton(page).click();
+    return retry;
+  });
+  const response = await (await request).response();
+  if (!response) throw new Error("the goal POST got no answer");
   return response;
 }
 

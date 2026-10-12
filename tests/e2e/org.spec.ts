@@ -64,15 +64,16 @@ async function expectPublicView(page: Page) {
 
 /**
  * `page.goto` that survives the page's own pending client navigation (a
- * `router.refresh()` after a save): Firefox aborts the goto with
- * NS_BINDING_ABORTED instead of superseding it, so go once more.
+ * `router.refresh()` after a save): Firefox and WebKit abort the goto
+ * instead of superseding it, so go once more.
  */
 async function gotoSettled(page: Page, url: string) {
   try {
     await page.goto(url);
   }
   catch (err) {
-    if (!/NS_BINDING_ABORTED|frame was detached/.test(String(err))) throw err;
+    // Firefox: NS_BINDING_ABORTED / NS_ERROR_FAILURE; WebKit: "interrupted by another navigation"
+    if (!/NS_BINDING_ABORTED|NS_ERROR_FAILURE|interrupted by another navigation|frame was detached/.test(String(err))) throw err;
     await page.goto(url);
   }
 }
