@@ -2,7 +2,7 @@
 
 import { clientSafeDataSeriesSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { uncachedFallback } from "@/fetchers/cacheFallback";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleDataSeriesWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { DataSeries, UserAccessContext } from "@/types";
@@ -23,14 +23,16 @@ async function clientSafeGetCachedDataSeries(id: string, accessContext: UserAcce
   'use cache';
   cacheTag('database', 'dataSeries', 'action', 'goal', 'roadmap', 'roadmapIteration');
 
-  const dataSeries: DataSeries | null = await prisma.dataSeries.findUnique({
-    where: {
-      id,
-      // AND keeps the filter's optional unique-key fields out of the WhereUniqueInput type
-      AND: [visibleDataSeriesWHERE(accessContext)],
-    },
-    select: clientSafeDataSeriesSelection,
-  }) satisfies DataSeries | null;
+  return boundedFill("clientSafeGetCachedDataSeries", async () => {
+    const dataSeries: DataSeries | null = await prisma.dataSeries.findUnique({
+      where: {
+        id,
+        // AND keeps the filter's optional unique-key fields out of the WhereUniqueInput type
+        AND: [visibleDataSeriesWHERE(accessContext)],
+      },
+      select: clientSafeDataSeriesSelection,
+    }) satisfies DataSeries | null;
 
-  return dataSeries;
+    return dataSeries;
+  });
 }

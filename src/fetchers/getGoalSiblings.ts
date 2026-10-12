@@ -1,7 +1,7 @@
 import "server-only";
 import { siblingGoalSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { uncachedFallback } from "@/fetchers/cacheFallback";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { GoalListing } from "@/lib/prisma/generated";
 import { prisma } from "@/lib/prisma";
@@ -36,26 +36,28 @@ async function getCachedGoalSiblings(iterationId: string, prefixes: string[] | n
   'use cache';
   cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'dataSeries');
 
-  const listed = await prisma.goals.findMany({
-    where: {
-      roadmap_iteration_id: iterationId,
-      roadmap_iteration: visibleRoadmapIterationsWHERE(accessContext),
-      // Unlisted goals are excluded from other goals' sibling listings
-      listing: { not: GoalListing.UNLISTED },
-    },
-    select: { id: true, indicator_parameter: true },
+  return boundedFill("getCachedGoalSiblings", async () => {
+    const listed = await prisma.goals.findMany({
+      where: {
+        roadmap_iteration_id: iterationId,
+        roadmap_iteration: visibleRoadmapIterationsWHERE(accessContext),
+        // Unlisted goals are excluded from other goals' sibling listings
+        listing: { not: GoalListing.UNLISTED },
+      },
+      select: { id: true, indicator_parameter: true },
+    });
+    const candidateIds = listed
+      .filter(goal => !prefixes || prefixes.some(prefix => goal.indicator_parameter.startsWith(prefix)))
+      .map(goal => goal.id);
+    if (candidateIds.length === 0) return [];
+
+    const siblings = await prisma.goals.findMany({
+      where: { id: { in: candidateIds } },
+      select: siblingGoalSelection,
+      orderBy: { id: "asc" },
+    }) satisfies SiblingGoal[];
+
+    // Same order as the iteration's goal list the siblings used to be picked from
+    return siblings.sort(goalSorter);
   });
-  const candidateIds = listed
-    .filter(goal => !prefixes || prefixes.some(prefix => goal.indicator_parameter.startsWith(prefix)))
-    .map(goal => goal.id);
-  if (candidateIds.length === 0) return [];
-
-  const siblings = await prisma.goals.findMany({
-    where: { id: { in: candidateIds } },
-    select: siblingGoalSelection,
-    orderBy: { id: "asc" },
-  }) satisfies SiblingGoal[];
-
-  // Same order as the iteration's goal list the siblings used to be picked from
-  return siblings.sort(goalSorter);
 }

@@ -1,7 +1,7 @@
 import "server-only";
 import { userInfoSelector } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { uncachedFallback } from "@/fetchers/cacheFallback";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { readableAccessControlWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { roadmapIterationSorter, roadmapSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
@@ -30,28 +30,30 @@ async function getCachedUserInfo(username: string, accessContext: UserAccessCont
   'use cache';
   cacheTag('database', 'user', 'roadmap', 'roadmapIteration', 'goal', 'action', 'org');
 
-  // The filters collapse the ladder into the query: anonymous visitors only match public
-  // content, superadmins match everything, everyone else matches what their memberships grant.
-  const fetchedUser = await prisma.users.findUnique({
-    where: { username },
-    select: {
-      ...userInfoSelector,
-      authored_roadmaps: {
-        where: {
-          access_control: readableAccessControlWHERE(accessContext),
+  return boundedFill("getCachedUserInfo", async () => {
+    // The filters collapse the ladder into the query: anonymous visitors only match public
+    // content, superadmins match everything, everyone else matches what their memberships grant.
+    const fetchedUser = await prisma.users.findUnique({
+      where: { username },
+      select: {
+        ...userInfoSelector,
+        authored_roadmaps: {
+          where: {
+            access_control: readableAccessControlWHERE(accessContext),
+          },
+          include: userInfoSelector.authored_roadmaps.include,
         },
-        include: userInfoSelector.authored_roadmaps.include,
+        authored_roadmap_iterations: {
+          where: visibleRoadmapIterationsWHERE(accessContext),
+          include: userInfoSelector.authored_roadmap_iterations.include,
+        },
       },
-      authored_roadmap_iterations: {
-        where: visibleRoadmapIterationsWHERE(accessContext),
-        include: userInfoSelector.authored_roadmap_iterations.include,
-      },
-    },
+    });
+
+    // Sort roadmaps and iterations
+    fetchedUser?.authored_roadmaps.sort(roadmapSorter);
+    fetchedUser?.authored_roadmap_iterations.sort(roadmapIterationSorter);
+
+    return fetchedUser;
   });
-
-  // Sort roadmaps and iterations
-  fetchedUser?.authored_roadmaps.sort(roadmapSorter);
-  fetchedUser?.authored_roadmap_iterations.sort(roadmapIterationSorter);
-
-  return fetchedUser;
 };

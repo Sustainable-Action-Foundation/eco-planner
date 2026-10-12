@@ -1,7 +1,7 @@
 import "server-only";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { uncachedFallback } from "@/fetchers/cacheFallback";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { effectSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
@@ -30,15 +30,17 @@ async function getCachedGoal(id: string, accessContext: UserAccessContext | null
   'use cache';
   cacheTag('database', 'goal', 'action', 'dataSeries', 'roadmap', 'roadmapIteration', 'org');
 
-  const goal: Goal | null = await prisma.goals.findUnique({
-    where: {
-      id,
-      roadmap_iteration: visibleRoadmapIterationsWHERE(accessContext),
-    },
-    include: goalInclusionSelection,
-  }) satisfies Goal | null;
+  return boundedFill("getCachedGoal", async () => {
+    const goal: Goal | null = await prisma.goals.findUnique({
+      where: {
+        id,
+        roadmap_iteration: visibleRoadmapIterationsWHERE(accessContext),
+      },
+      include: goalInclusionSelection,
+    }) satisfies Goal | null;
 
-  goal?.effects.sort(effectSorter);
+    goal?.effects.sort(effectSorter);
 
-  return goal;
+    return goal;
+  });
 };

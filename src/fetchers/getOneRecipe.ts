@@ -1,7 +1,7 @@
 import "server-only";
 import { recipeSelector } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { uncachedFallback } from "@/fetchers/cacheFallback";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleDataSeriesWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { DBRecipe, UserAccessContext } from "@/types";
@@ -26,14 +26,16 @@ async function getCachedRecipe(id: string, accessContext: UserAccessContext | nu
   'use cache';
   cacheTag('database', 'recipe', 'dataSeries', 'roadmap', 'roadmapIteration');
 
-  const recipe: DBRecipe | null = await prisma.recipes.findUnique({
-    where: {
-      id,
-      // Super admins may also fetch recipes not attached to any series (e.g. suggestion templates)
-      ...(accessContext?.isSuperAdmin ? {} : { derived_data_series: visibleDataSeriesWHERE(accessContext) }),
-    },
-    select: recipeSelector,
-  }) satisfies DBRecipe | null;
+  return boundedFill("getCachedRecipe", async () => {
+    const recipe: DBRecipe | null = await prisma.recipes.findUnique({
+      where: {
+        id,
+        // Super admins may also fetch recipes not attached to any series (e.g. suggestion templates)
+        ...(accessContext?.isSuperAdmin ? {} : { derived_data_series: visibleDataSeriesWHERE(accessContext) }),
+      },
+      select: recipeSelector,
+    }) satisfies DBRecipe | null;
 
-  return recipe;
+    return recipe;
+  });
 }

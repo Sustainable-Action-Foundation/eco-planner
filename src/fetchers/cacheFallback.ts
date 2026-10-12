@@ -29,3 +29,43 @@ export async function uncachedFallback<T>(
     return fallback;
   }
 }
+
+/** Default bound for one cached fill, see `boundedFill`. Override with `SAF_CACHE_FILL_TIMEOUT_MS`. */
+const DEFAULT_FILL_TIMEOUT_MS = 20_000;
+
+function fillTimeoutMs(): number {
+  const value = Number(process.env.SAF_CACHE_FILL_TIMEOUT_MS);
+  return Number.isFinite(value) && value > 0 ? value : DEFAULT_FILL_TIMEOUT_MS;
+}
+
+export class CacheFillTimeoutError extends Error {
+  constructor(label: string, ms: number) {
+    super(`Cache fill "${label}" did not settle within ${ms} ms`);
+    this.name = "CacheFillTimeoutError";
+  }
+}
+
+/**
+ * Bounds a cached fill: the body of a `'use cache'` DB reader runs inside this, and if it has not
+ * settled after `SAF_CACHE_FILL_TIMEOUT_MS` (default 20 s) the fill rejects instead.
+ *
+ * Concurrent requests for the same cache key wait on one in-flight fill, so a hung fill (a stuck
+ * connection, a starved pool) used to hold every one of them for Next's internal ~60 s (the prod
+ * wedge). A rejected fill is not cached and each waiting uncached wrapper falls back for its own
+ * request (`uncachedFallback`); the next request retries. Prisma queries cannot be aborted, so the
+ * query itself runs on and its late result or error is dropped.
+ */
+export async function boundedFill<T>(label: string, fill: () => Promise<T>): Promise<T> {
+  const ms = fillTimeoutMs();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new CacheFillTimeoutError(label, ms)), ms);
+  });
+  try {
+    // race() subscribes to both, so a fill that rejects after the timeout is not an unhandled rejection
+    return await Promise.race([fill(), timeout]);
+  }
+  finally {
+    clearTimeout(timer);
+  }
+}

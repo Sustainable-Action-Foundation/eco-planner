@@ -1,6 +1,6 @@
 import "server-only";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { uncachedFallback } from "@/fetchers/cacheFallback";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { prisma } from "@/lib/prisma";
 import { OrgRole } from "@/lib/prisma/generated";
 import type { GeoAreaType } from "@/lib/prisma/generated";
@@ -58,9 +58,11 @@ async function getCachedOrgs(orgIds: string[] | null): Promise<{ id: string, nam
   'use cache';
   cacheTag('database', 'org');
 
-  return await prisma.orgs.findMany({
-    where: orgIds ? { id: { in: orgIds } } : {},
-    select: { id: true, name: true, geo_area: { select: { code: true, name: true, type: true } } },
-    orderBy: { name: 'asc' },
+  return boundedFill("getCachedOrgs", async () => {
+    return await prisma.orgs.findMany({
+      where: orgIds ? { id: { in: orgIds } } : {},
+      select: { id: true, name: true, geo_area: { select: { code: true, name: true, type: true } } },
+      orderBy: { name: 'asc' },
+    });
   });
 }

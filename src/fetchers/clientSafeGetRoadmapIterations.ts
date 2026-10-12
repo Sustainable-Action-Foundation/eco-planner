@@ -2,7 +2,7 @@
 
 import { clientSafeMultiRoadmapSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { uncachedFallback } from "@/fetchers/cacheFallback";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { roadmapIterationSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
@@ -24,15 +24,17 @@ async function getCachedClientSafeRoadmapIterations(accessContext: UserAccessCon
   'use cache';
   cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action');
 
-  const iterations: ClientMultiRoadmapInstance[] = await prisma.roadmapIterations.findMany({
-    where: visibleRoadmapIterationsWHERE(accessContext),
-    select: clientSafeMultiRoadmapSelection,
-  }) satisfies ClientMultiRoadmapInstance[];
+  return boundedFill("getCachedClientSafeRoadmapIterations", async () => {
+    let iterations: ClientMultiRoadmapInstance[] = await prisma.roadmapIterations.findMany({
+      where: visibleRoadmapIterationsWHERE(accessContext),
+      select: clientSafeMultiRoadmapSelection,
+    }) satisfies ClientMultiRoadmapInstance[];
 
-  // Prisma loads the roadmaps in a second query, so a roadmap deleted in between leaves
-  // its iteration without one (despite the type); drop those instead of crashing the sort
-  iterations = iterations.filter(iteration => (iteration.roadmap as typeof iteration.roadmap | null) !== null);
-  iterations.sort(roadmapIterationSorter);
+    // Prisma loads the roadmaps in a second query, so a roadmap deleted in between leaves
+    // its iteration without one (despite the type); drop those instead of crashing the sort
+    iterations = iterations.filter(iteration => (iteration.roadmap as typeof iteration.roadmap | null) !== null);
+    iterations.sort(roadmapIterationSorter);
 
-  return iterations;
+    return iterations;
+  });
 }

@@ -1,7 +1,7 @@
 import "server-only";
 import { multiRoadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { uncachedFallback } from "@/fetchers/cacheFallback";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { roadmapIterationSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
@@ -30,18 +30,20 @@ async function getCachedRoadmapIterations(accessContext: UserAccessContext | nul
   // goal/action are included because the returned iterations carry goal and action counts
   cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action', 'org');
 
-  const iterations: MultiRoadmapInstance[] = await prisma.roadmapIterations.findMany({
-    where: {
-      ...(iterationIds ? { id: { in: iterationIds } } : {}), // If iterationIds is provided, filter by it
-      ...visibleRoadmapIterationsWHERE(accessContext),
-    },
-    include: multiRoadmapInclusionSelection,
-  }) satisfies MultiRoadmapInstance[];
+  return boundedFill("getCachedRoadmapIterations", async () => {
+    let iterations: MultiRoadmapInstance[] = await prisma.roadmapIterations.findMany({
+      where: {
+        ...(iterationIds ? { id: { in: iterationIds } } : {}), // If iterationIds is provided, filter by it
+        ...visibleRoadmapIterationsWHERE(accessContext),
+      },
+      include: multiRoadmapInclusionSelection,
+    }) satisfies MultiRoadmapInstance[];
 
-  // Prisma loads the roadmaps in a second query, so a roadmap deleted in between leaves
-  // its iteration without one (despite the type); drop those instead of crashing the sort
-  iterations = iterations.filter(iteration => (iteration.roadmap as typeof iteration.roadmap | null) !== null);
-  iterations.sort(roadmapIterationSorter);
+    // Prisma loads the roadmaps in a second query, so a roadmap deleted in between leaves
+    // its iteration without one (despite the type); drop those instead of crashing the sort
+    iterations = iterations.filter(iteration => (iteration.roadmap as typeof iteration.roadmap | null) !== null);
+    iterations.sort(roadmapIterationSorter);
 
-  return iterations;
+    return iterations;
+  });
 };

@@ -2,7 +2,7 @@
 
 import { clientSafeGoalSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { uncachedFallback } from "@/fetchers/cacheFallback";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { ClientGoal, UserAccessContext } from "@/types";
@@ -24,13 +24,15 @@ async function clientSafeGetCachedGoal(id: string, accessContext: UserAccessCont
   'use cache';
   cacheTag('database', 'goal', 'action', 'dataSeries', 'roadmap', 'roadmapIteration');
 
-  const goal: ClientGoal | null = await prisma.goals.findUnique({
-    where: {
-      id,
-      roadmap_iteration: visibleRoadmapIterationsWHERE(accessContext),
-    },
-    select: clientSafeGoalSelection,
-  }) satisfies ClientGoal | null;
+  return boundedFill("clientSafeGetCachedGoal", async () => {
+    const goal: ClientGoal | null = await prisma.goals.findUnique({
+      where: {
+        id,
+        roadmap_iteration: visibleRoadmapIterationsWHERE(accessContext),
+      },
+      select: clientSafeGoalSelection,
+    }) satisfies ClientGoal | null;
 
-  return goal;
+    return goal;
+  });
 }

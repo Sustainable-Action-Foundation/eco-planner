@@ -1,7 +1,7 @@
 import "server-only";
 import { actionInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { uncachedFallback } from "@/fetchers/cacheFallback";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleActionsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { Action, UserAccessContext } from "@/types";
@@ -29,14 +29,16 @@ async function getCachedAction(id: string, accessContext: UserAccessContext | nu
   'use cache';
   cacheTag('database', 'action', 'goal', 'roadmap', 'roadmapIteration', 'dataSeries', 'org');
 
-  const action: Action | null = await prisma.actions.findUnique({
-    where: {
-      // Spread first: the filter type has an optional `id` that would otherwise widen the unique key
-      ...visibleActionsWHERE(accessContext),
-      id,
-    },
-    include: actionInclusionSelection,
-  }) satisfies Action | null;
+  return boundedFill("getCachedAction", async () => {
+    const action: Action | null = await prisma.actions.findUnique({
+      where: {
+        // Spread first: the filter type has an optional `id` that would otherwise widen the unique key
+        ...visibleActionsWHERE(accessContext),
+        id,
+      },
+      include: actionInclusionSelection,
+    }) satisfies Action | null;
 
-  return action;
+    return action;
+  });
 };

@@ -2,7 +2,7 @@
 
 import { clientSafeRoadmapIterationSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { uncachedFallback } from "@/fetchers/cacheFallback";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { goalSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
@@ -25,16 +25,18 @@ async function getCachedClientSafeRoadmapIteration(id: string, accessContext: Us
   'use cache';
   cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action', 'dataSeries');
 
-  const iteration: ClientRoadmapIteration | null = await prisma.roadmapIterations.findUnique({
-    where: {
-      // Spread first: the filter type has an optional `id` that would otherwise widen the unique key
-      ...visibleRoadmapIterationsWHERE(accessContext),
-      id,
-    },
-    select: clientSafeRoadmapIterationSelection,
-  }) satisfies ClientRoadmapIteration | null;
+  return boundedFill("getCachedClientSafeRoadmapIteration", async () => {
+    const iteration: ClientRoadmapIteration | null = await prisma.roadmapIterations.findUnique({
+      where: {
+        // Spread first: the filter type has an optional `id` that would otherwise widen the unique key
+        ...visibleRoadmapIterationsWHERE(accessContext),
+        id,
+      },
+      select: clientSafeRoadmapIterationSelection,
+    }) satisfies ClientRoadmapIteration | null;
 
-  iteration?.goals.sort(goalSorter);
+    iteration?.goals.sort(goalSorter);
 
-  return iteration;
+    return iteration;
+  });
 }

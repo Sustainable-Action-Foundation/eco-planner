@@ -1,6 +1,6 @@
 import "server-only";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { uncachedFallback } from "@/fetchers/cacheFallback";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleActionsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { UserAccessContext } from "@/types";
@@ -38,17 +38,19 @@ async function getCachedActionNeighbours(rootId: string, selfId: string, accessC
   'use cache';
   cacheTag('database', 'action', 'roadmap', 'roadmapIteration', 'org');
 
-  const neighbours = await prisma.actions.findMany({
-    where: {
-      AND: [
-        { OR: [{ id: rootId }, { origin_action_id: rootId }] },
-        { id: { not: selfId } },
-        visibleActionsWHERE(accessContext),
-      ],
-    },
-    select: actionNeighbourSelection,
-    orderBy: [{ org: { name: 'asc' } }, { name: 'asc' }],
+  return boundedFill("getCachedActionNeighbours", async () => {
+    const neighbours = await prisma.actions.findMany({
+      where: {
+        AND: [
+          { OR: [{ id: rootId }, { origin_action_id: rootId }] },
+          { id: { not: selfId } },
+          visibleActionsWHERE(accessContext),
+        ],
+      },
+      select: actionNeighbourSelection,
+      orderBy: [{ org: { name: 'asc' } }, { name: 'asc' }],
+    });
+    // The origin first, then the copies
+    return neighbours.sort((a, b) => Number(b.id === rootId) - Number(a.id === rootId));
   });
-  // The origin first, then the copies
-  return neighbours.sort((a, b) => Number(b.id === rootId) - Number(a.id === rootId));
 }

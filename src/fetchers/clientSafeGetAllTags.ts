@@ -1,7 +1,7 @@
 'use server';
 
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { uncachedFallback } from "@/fetchers/cacheFallback";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { ActionFieldHeaders } from "@/functions/fields";
 import { visibleActionsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
@@ -21,14 +21,16 @@ async function clientSafeGetCachedAllTags(accessContext: UserAccessContext | nul
   'use cache';
   cacheTag('database', 'action', 'roadmap', 'roadmapIteration');
 
-  const fields: { value: string }[] = await prisma.actionFields.findMany({
-    where: {
-      header: ActionFieldHeaders.Tag,
-      action: visibleActionsWHERE(accessContext),
-    },
-    select: { value: true },
-    distinct: ['value'],
-  });
+  return boundedFill("clientSafeGetCachedAllTags", async () => {
+    const fields: { value: string }[] = await prisma.actionFields.findMany({
+      where: {
+        header: ActionFieldHeaders.Tag,
+        action: visibleActionsWHERE(accessContext),
+      },
+      select: { value: true },
+      distinct: ['value'],
+    });
 
-  return fields.map(field => field.value).sort((a, b) => a.localeCompare(b));
+    return fields.map(field => field.value).sort((a, b) => a.localeCompare(b));
+  });
 }

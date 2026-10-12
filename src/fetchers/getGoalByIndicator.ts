@@ -2,7 +2,7 @@ import { GoalListing } from "@/lib/prisma/generated";
 import "server-only";
 import { relatedGoalSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { uncachedFallback } from "@/fetchers/cacheFallback";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { effectSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
@@ -36,22 +36,24 @@ async function getCachedGoalByIndicator(iterationId: string, indicatorParameter:
   'use cache';
   cacheTag('database', 'goal', 'action', 'dataSeries', 'roadmap', 'roadmapIteration');
 
-  const goal: RelatedGoal | null = await prisma.goals.findFirst({
-    where: {
-      indicator_parameter: indicatorParameter,
-      // Unlisted goals are excluded from other goals' parent/child listings
-      listing: { not: GoalListing.UNLISTED },
-      // If unit is specified, get a goal with the specified unit
-      ...(unit !== undefined ? { data_series: { unit: unit } } : {}),
-      roadmap_iteration: {
-        id: iterationId,
-        ...visibleRoadmapIterationsWHERE(accessContext),
+  return boundedFill("getCachedGoalByIndicator", async () => {
+    const goal: RelatedGoal | null = await prisma.goals.findFirst({
+      where: {
+        indicator_parameter: indicatorParameter,
+        // Unlisted goals are excluded from other goals' parent/child listings
+        listing: { not: GoalListing.UNLISTED },
+        // If unit is specified, get a goal with the specified unit
+        ...(unit !== undefined ? { data_series: { unit: unit } } : {}),
+        roadmap_iteration: {
+          id: iterationId,
+          ...visibleRoadmapIterationsWHERE(accessContext),
+        },
       },
-    },
-    select: relatedGoalSelection,
+      select: relatedGoalSelection,
+    });
+
+    goal?.effects.sort(effectSorter);
+
+    return goal;
   });
-
-  goal?.effects.sort(effectSorter);
-
-  return goal;
 };

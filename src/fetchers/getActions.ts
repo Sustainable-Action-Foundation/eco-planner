@@ -1,7 +1,7 @@
 import "server-only";
 import { actionInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { uncachedFallback } from "@/fetchers/cacheFallback";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleActionsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { Action, UserAccessContext } from "@/types";
@@ -26,11 +26,13 @@ async function getCachedActions(accessContext: UserAccessContext | null): Promis
   'use cache';
   cacheTag('database', 'action', 'goal', 'roadmap', 'roadmapIteration', 'dataSeries', 'org');
 
-  // TODO: Use a different inclusion selection, probably excluding effects and parent roadmap
-  const actions: Action[] = await prisma.actions.findMany({
-    where: visibleActionsWHERE(accessContext),
-    include: actionInclusionSelection,
-  });
+  return boundedFill("getCachedActions", async () => {
+    // TODO: Use a different inclusion selection, probably excluding effects and parent roadmap
+    const actions: Action[] = await prisma.actions.findMany({
+      where: visibleActionsWHERE(accessContext),
+      include: actionInclusionSelection,
+    });
 
-  return actions;
+    return actions;
+  });
 }

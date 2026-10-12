@@ -1,7 +1,7 @@
 import "server-only";
 import { multiRoadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { uncachedFallback } from "@/fetchers/cacheFallback";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { roadmapIterationSorter } from "@/lib/sorters";
 import type { Prisma } from "@/lib/prisma/generated";
@@ -38,23 +38,25 @@ async function getCachedRoadmapSubset(accessContext: UserAccessContext | null, a
   'use cache';
   cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action', 'org');
 
-  const iterations: Prisma.RoadmapIterationsGetPayload<{
-    include: typeof roadmapSubsetSelect;
-  }>[] = await prisma.roadmapIterations.findMany({
-    where: {
-      // AND avoids clobbering the `roadmap` key inside the visibility filter
-      AND: [
-        { roadmap: { actor: actor ?? undefined } },
-        visibleRoadmapIterationsWHERE(accessContext),
-      ],
-    },
-    include: roadmapSubsetSelect,
+  return boundedFill("getCachedRoadmapSubset", async () => {
+    let iterations: Prisma.RoadmapIterationsGetPayload<{
+      include: typeof roadmapSubsetSelect;
+    }>[] = await prisma.roadmapIterations.findMany({
+      where: {
+        // AND avoids clobbering the `roadmap` key inside the visibility filter
+        AND: [
+          { roadmap: { actor: actor ?? undefined } },
+          visibleRoadmapIterationsWHERE(accessContext),
+        ],
+      },
+      include: roadmapSubsetSelect,
+    });
+
+    // Prisma loads the roadmaps in a second query, so a roadmap deleted in between leaves
+    // its iteration without one (despite the type); drop those instead of crashing the sort
+    iterations = iterations.filter(iteration => (iteration.roadmap as typeof iteration.roadmap | null) !== null);
+    iterations.sort(roadmapIterationSorter);
+
+    return iterations;
   });
-
-  // Prisma loads the roadmaps in a second query, so a roadmap deleted in between leaves
-  // its iteration without one (despite the type); drop those instead of crashing the sort
-  iterations = iterations.filter(iteration => (iteration.roadmap as typeof iteration.roadmap | null) !== null);
-  iterations.sort(roadmapIterationSorter);
-
-  return iterations;
 };

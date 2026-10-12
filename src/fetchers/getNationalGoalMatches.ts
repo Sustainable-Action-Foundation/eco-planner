@@ -1,7 +1,7 @@
 import "server-only";
 import { getCuratedHistoricalEntries } from "@/fetchers/getCuratedHistoricalData";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { uncachedFallback } from "@/fetchers/cacheFallback";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { publishedIterationsOfTypeWHERE } from "@/lib/accessFilters";
 import { getNationalGoalMappings } from "@/lib/curatedHistoricalData";
 import { prisma } from "@/lib/prisma";
@@ -100,29 +100,31 @@ async function getCachedNationalGoals(indicatorParameters: string[], accessConte
   'use cache';
   cacheTag('database', 'goal', 'roadmap', 'roadmapIteration', 'dataSeries');
 
-  const goals = await prisma.goals.findMany({
-    where: {
-      indicator_parameter: { in: indicatorParameters },
-      listing: { not: GoalListing.UNLISTED },
-      data_series: { isNot: null },
-      roadmap_iteration: publishedIterationsOfTypeWHERE(accessContext, RoadmapType.NATIONAL),
-    },
-    select: {
-      id: true,
-      name: true,
-      description: true,
-      indicator_parameter: true,
-      data_series: { select: { id: true, unit: true, values: { select: { timestamp: true, value: true }, orderBy: { timestamp: "asc" } } } },
-      roadmap_iteration: { select: { id: true, version: true, roadmap: { select: { id: true, name: true } } } },
-    },
-    orderBy: [{ roadmap_iteration: { roadmap: { name: "asc" } } }, { indicator_parameter: "asc" }],
-  });
+  return boundedFill("getCachedNationalGoals", async () => {
+    const goals = await prisma.goals.findMany({
+      where: {
+        indicator_parameter: { in: indicatorParameters },
+        listing: { not: GoalListing.UNLISTED },
+        data_series: { isNot: null },
+        roadmap_iteration: publishedIterationsOfTypeWHERE(accessContext, RoadmapType.NATIONAL),
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        indicator_parameter: true,
+        data_series: { select: { id: true, unit: true, values: { select: { timestamp: true, value: true }, orderBy: { timestamp: "asc" } } } },
+        roadmap_iteration: { select: { id: true, version: true, roadmap: { select: { id: true, name: true } } } },
+      },
+      orderBy: [{ roadmap_iteration: { roadmap: { name: "asc" } } }, { indicator_parameter: "asc" }],
+    });
 
-  // Only the latest published version of each roadmap
-  const latestVersion = new Map<string, number>();
-  for (const goal of goals) {
-    const { roadmap, version } = goal.roadmap_iteration;
-    latestVersion.set(roadmap.id, Math.max(latestVersion.get(roadmap.id) ?? -Infinity, version));
-  }
-  return goals.filter(goal => goal.roadmap_iteration.version === latestVersion.get(goal.roadmap_iteration.roadmap.id));
+    // Only the latest published version of each roadmap
+    const latestVersion = new Map<string, number>();
+    for (const goal of goals) {
+      const { roadmap, version } = goal.roadmap_iteration;
+      latestVersion.set(roadmap.id, Math.max(latestVersion.get(roadmap.id) ?? -Infinity, version));
+    }
+    return goals.filter(goal => goal.roadmap_iteration.version === latestVersion.get(goal.roadmap_iteration.roadmap.id));
+  });
 }

@@ -1,7 +1,7 @@
 import "server-only";
 import { roadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { uncachedFallback } from "@/fetchers/cacheFallback";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { readableAccessControlWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { Roadmap, UserAccessContext } from "@/types";
@@ -29,22 +29,24 @@ async function getCachedRoadmap(id: string, accessContext: UserAccessContext | n
   'use cache';
   cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'org');
 
-  const roadmap: Roadmap | null = await prisma.roadmaps.findUnique({
-    where: {
-      id,
-      access_control: readableAccessControlWHERE(accessContext),
-    },
-    include: {
-      ...roadmapInclusionSelection,
-      iterations: {
-        where: visibleRoadmapIterationsWHERE(accessContext),
-        include: roadmapInclusionSelection.iterations.include,
+  return boundedFill("getCachedRoadmap", async () => {
+    const roadmap: Roadmap | null = await prisma.roadmaps.findUnique({
+      where: {
+        id,
+        access_control: readableAccessControlWHERE(accessContext),
       },
-    },
+      include: {
+        ...roadmapInclusionSelection,
+        iterations: {
+          where: visibleRoadmapIterationsWHERE(accessContext),
+          include: roadmapInclusionSelection.iterations.include,
+        },
+      },
+    });
+
+    // Sort iterations newest version first
+    roadmap?.iterations.sort((a, b) => b.version - a.version);
+
+    return roadmap;
   });
-
-  // Sort iterations newest version first
-  roadmap?.iterations.sort((a, b) => b.version - a.version);
-
-  return roadmap;
 };

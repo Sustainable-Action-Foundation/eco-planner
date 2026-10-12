@@ -2,7 +2,7 @@ import { IterationStatus } from "@/lib/prisma/generated";
 import "server-only";
 import { roadmapIterationInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
-import { uncachedFallback } from "@/fetchers/cacheFallback";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { goalSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
@@ -33,31 +33,33 @@ async function getCachedRoadmapIterationByVersion(roadmapId: string, version: nu
   'use cache';
   cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action', 'dataSeries', 'org');
 
-  let iteration: RoadmapIteration | null;
-  if (version === "latest") {
-    // Latest non-draft iteration; drafts are never "latest" even for users who may see them
-    iteration = await prisma.roadmapIterations.findFirst({
-      where: {
-        roadmap_id: roadmapId,
-        status: { not: IterationStatus.DRAFT },
-        AND: [visibleRoadmapIterationsWHERE(accessContext)],
-      },
-      orderBy: { version: "desc" },
-      include: roadmapIterationInclusionSelection,
-    }) satisfies RoadmapIteration | null;
-  }
-  else {
-    iteration = await prisma.roadmapIterations.findUnique({
-      where: {
-        roadmap_version: { roadmap_id: roadmapId, version },
-        // AND keeps the filter's optional unique-key fields out of the WhereUniqueInput type
-        AND: [visibleRoadmapIterationsWHERE(accessContext)],
-      },
-      include: roadmapIterationInclusionSelection,
-    }) satisfies RoadmapIteration | null;
-  }
+  return boundedFill("getCachedRoadmapIterationByVersion", async () => {
+    let iteration: RoadmapIteration | null;
+    if (version === "latest") {
+      // Latest non-draft iteration; drafts are never "latest" even for users who may see them
+      iteration = await prisma.roadmapIterations.findFirst({
+        where: {
+          roadmap_id: roadmapId,
+          status: { not: IterationStatus.DRAFT },
+          AND: [visibleRoadmapIterationsWHERE(accessContext)],
+        },
+        orderBy: { version: "desc" },
+        include: roadmapIterationInclusionSelection,
+      }) satisfies RoadmapIteration | null;
+    }
+    else {
+      iteration = await prisma.roadmapIterations.findUnique({
+        where: {
+          roadmap_version: { roadmap_id: roadmapId, version },
+          // AND keeps the filter's optional unique-key fields out of the WhereUniqueInput type
+          AND: [visibleRoadmapIterationsWHERE(accessContext)],
+        },
+        include: roadmapIterationInclusionSelection,
+      }) satisfies RoadmapIteration | null;
+    }
 
-  iteration?.goals.sort(goalSorter);
+    iteration?.goals.sort(goalSorter);
 
-  return iteration;
+    return iteration;
+  });
 };
