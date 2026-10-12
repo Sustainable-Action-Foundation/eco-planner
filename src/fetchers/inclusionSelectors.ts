@@ -56,11 +56,12 @@ const dataSeriesInclusionSelection = {
       recipe: true,
       // The recipe's source data series (incl. materialized external data) so the
       // editor can read them as canon instead of re-fetching upstream APIs.
-      source_data_series: { select: { id: true, unit: true, values: true } },
+      source_data_series: { select: { id: true, unit: true, values: { orderBy: { timestamp: "asc" } } } },
     },
   },
   values: {
     select: { timestamp: true, value: true },
+    orderBy: { timestamp: "asc" },
   },
 } satisfies Prisma.DataSeriesSelect;
 
@@ -292,7 +293,7 @@ export const clientSafeGoalSelection = {
 export const clientSafeDataSeriesSelection = {
   id: true,
   unit: true,
-  values: true,
+  values: { orderBy: { timestamp: "asc" } },
 } satisfies Prisma.DataSeriesSelect;
 
 export const actionInclusionSelection = {

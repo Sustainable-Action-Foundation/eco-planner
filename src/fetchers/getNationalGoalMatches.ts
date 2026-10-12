@@ -114,7 +114,7 @@ async function getCachedNationalGoals(indicatorParameters: string[], accessConte
         name: true,
         description: true,
         indicator_parameter: true,
-        data_series: { select: { id: true, unit: true, values: { select: { timestamp: true, value: true } } } },
+        data_series: { select: { id: true, unit: true, values: { select: { timestamp: true, value: true }, orderBy: { timestamp: "asc" } } } },
         roadmap_iteration: { select: { id: true, version: true, roadmap: { select: { id: true, name: true } } } },
       },
       orderBy: [{ roadmap_iteration: { roadmap: { name: "asc" } } }, { indicator_parameter: "asc" }],
