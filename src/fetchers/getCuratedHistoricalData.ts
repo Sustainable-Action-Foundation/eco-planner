@@ -9,7 +9,7 @@ import { buildRegionSelection, CuratedRegionKind, findRegionCodeByLabel, getCura
 import { UnitFlags } from "@/types/enums";
 import { cacheLife, cacheTag } from "next/cache";
 import type { CuratedHistoricalCatalog, CuratedHistoricalEntry, CuratedSeries, CuratedSource } from "@/lib/curatedHistoricalData";
-import type { ApiSelectionItem, ApiTableContent, DatasetKeys } from "@/lib/api/apiTypes";
+import type { ApiSelectionItem, ApiTableContent, DatasetKeys, PxWebCompatTableMetadata, UpstreamFailureReporter } from "@/lib/api/apiTypes";
 import type { ExternalVariable } from "@/functions/recipe/types";
 import type { DateValues } from "@/types";
 import type { GeoAreaType } from "@/lib/prisma/generated";
@@ -110,21 +110,29 @@ async function fetchEntries(catalogEntries: CuratedHistoricalEntry[], geoArea: C
 type CachedSeries = { selection: ApiSelectionItem[], dateValues: DateValues };
 
 /**
- * Cache-scoped core: resolve the region, then fetch + parse one external
- * series. Failures are cached as null rather than thrown so an area a table
- * doesn't cover doesn't re-hit the upstream API on every page view; the
- * tradeoff is that a transient upstream outage also sticks for the cache
- * duration (clear with `revalidateTag('curatedHistoricalData')`).
+ * Cache-scoped core: resolve the region, then fetch + parse one external series. A series the
+ * upstream has no data for is cached as null for days, so an area a table doesn't cover doesn't
+ * re-hit the upstream API on every page view. A failed request (network error, rate limit, server
+ * error) is cached as null too, rather than thrown, so a rate-limited upstream isn't hit again on
+ * every render, but only for minutes (clear either with `revalidateTag('curatedHistoricalData')`).
  */
 async function getCachedSeries(source: CuratedSource, geoArea: { code: string, type: GeoAreaType }): Promise<CachedSeries | null> {
   'use cache';
   cacheTag('curatedHistoricalData');
-  cacheLife("days");
 
+  let failed = false;
+  const series = await fetchSeries(source, geoArea, () => { failed = true; });
+  // Exactly one cacheLife per invocation (the docs allow choosing it conditionally)
+  if (failed) cacheLife("minutes");
+  else cacheLife("days");
+  return series;
+}
+
+async function fetchSeries(source: CuratedSource, geoArea: { code: string, type: GeoAreaType }, onFailure: UpstreamFailureReporter): Promise<CachedSeries | null> {
   const { dataset, tableId } = source;
 
   try {
-    const regionSelection = await resolveRegionSelection(source, geoArea);
+    const regionSelection = await resolveRegionSelection(source, geoArea, onFailure);
     if (!regionSelection) {
       console.debug(`Curated historical series from ${dataset} table ${tableId} has no region matching geo area ${geoArea.code}`);
       return null;
@@ -143,7 +151,7 @@ async function getCachedSeries(source: CuratedSource, geoArea: { code: string, t
       selection,
     };
 
-    const { dateValues } = await fetchExternalVariableData(variable, [], getTableContent);
+    const { dateValues } = await fetchExternalVariableData(variable, [], (tableId, dataset, selection) => getTableContent(tableId, dataset, selection, onFailure));
     return { selection, dateValues };
   } catch (err) {
     console.error(`Error fetching curated historical series from ${dataset} table ${tableId}`, { selection: source.selection, geoArea, err });
@@ -151,13 +159,14 @@ async function getCachedSeries(source: CuratedSource, geoArea: { code: string, t
   }
 }
 
-async function resolveRegionSelection(source: CuratedSource, geoArea: { code: string, type: GeoAreaType }): Promise<ApiSelectionItem[] | null> {
+async function resolveRegionSelection(source: CuratedSource, geoArea: { code: string, type: GeoAreaType }, onFailure: UpstreamFailureReporter): Promise<ApiSelectionItem[] | null> {
   if (source.region.kind !== CuratedRegionKind.PxWebLabelPrefix) {
     return buildRegionSelection(source.region, geoArea);
   }
 
   const { variableCode } = source.region;
-  const metadata = await getCachedPxWebTableMetadata(source.tableId, source.dataset);
+  const { metadata, failed } = await getCachedPxWebTableMetadata(source.tableId, source.dataset);
+  if (failed) onFailure();
   const dimension = metadata?.regularDimensions.find(dimension => dimension.id === variableCode);
   if (!dimension) {
     console.error(`Curated historical source ${source.dataset} table ${source.tableId} has no region dimension "${variableCode}"`);
@@ -166,22 +175,29 @@ async function resolveRegionSelection(source: CuratedSource, geoArea: { code: st
   return buildRegionSelection(source.region, geoArea, findRegionCodeByLabel(dimension.options, geoArea.code));
 }
 
-/** Region resolution needs the same table's metadata for every series and area; share it across them. */
-async function getCachedPxWebTableMetadata(tableId: string, dataset: DatasetKeys) {
+/**
+ * Region resolution needs the same table's metadata for every series and area; share it across
+ * them. `failed` marks a failed request, cached for minutes instead of days, and tells callers
+ * that their own result rests on a failure.
+ */
+async function getCachedPxWebTableMetadata(tableId: string, dataset: DatasetKeys): Promise<{ metadata: PxWebCompatTableMetadata | null, failed: boolean }> {
   'use cache';
   cacheTag('curatedHistoricalData');
-  cacheLife("days");
 
-  return getPxWebTableMetadata(tableId, dataset);
+  let failed = false;
+  const metadata = await getPxWebTableMetadata(tableId, dataset, undefined, undefined, { onFailure: () => { failed = true; } });
+  if (failed) cacheLife("minutes");
+  else cacheLife("days");
+  return { metadata, failed };
 }
 
 /** Cache-safe counterpart of `getTableContent`: the same dispatch, over the unguarded cores. */
-async function getTableContent(tableId: string, externalDataset: string, selection: ApiSelectionItem[]): Promise<ApiTableContent | null> {
+async function getTableContent(tableId: string, externalDataset: string, selection: ApiSelectionItem[], onFailure: UpstreamFailureReporter): Promise<ApiTableContent | null> {
   const dataset = ExternalDataset.getDatasetByAlternateName(externalDataset);
   if (dataset?.api === "PxWeb") {
-    return getPxWebTableContent(tableId, externalDataset, selection, "sv");
+    return getPxWebTableContent(tableId, externalDataset, selection, "sv", undefined, onFailure);
   } else if (dataset?.api === "Trafa") {
-    return getTrafaTableContent(tableId, selection, "sv");
+    return getTrafaTableContent(tableId, selection, "sv", onFailure);
   }
   return null;
 }

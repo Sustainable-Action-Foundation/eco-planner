@@ -7,6 +7,11 @@ import type { ApiSelectionItem, ApiTableContent, ApiTableMetadata, DatasetData, 
 export type Sleep = (ms: number) => Promise<void>;
 export const sleep: Sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
+/** Upstream statuses that may pass on retry: rate limiting and server errors */
+export function isTransientStatus(status: number): boolean {
+  return status === 429 || status >= 500;
+}
+
 export function isDataSetKeys(value: unknown): value is DatasetKeys {
   return typeof value === "string" && ExternalDataset.knownDatasetKeys.includes(value as DatasetKeys);
 }

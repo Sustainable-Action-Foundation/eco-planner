@@ -7,14 +7,17 @@ import "server-only";
 
 import type { JSONValue } from "@/types";
 import { isStandardObject } from "@/types/typeguards";
-import type { ApiTableContent, ApiSelectionItem } from "../apiTypes";
-import { ExternalDataset, sleep } from "../utility";
+import type { ApiTableContent, ApiSelectionItem, UpstreamFailureReporter } from "../apiTypes";
+import { ExternalDataset, isTransientStatus, sleep } from "../utility";
 import type { Sleep } from "../utility";
 import getPxWebTableMetadata from "./getPxWebTableMetadata";
 import type { PxWebTableContent } from "./pxWebApiV2Types";
 
-/** @param wait How to wait before retrying after a 429; injectable for tests. */
-export default async function getPxWebTableContent(tableId: string, externalDataset: string, selection: ApiSelectionItem[], language?: string, wait: Sleep = sleep) {
+/**
+ * @param wait How to wait before retrying after a 429; injectable for tests.
+ * @param onFailure Called when a request failed transiently (network error, 429 after one retry, 5xx), including the metadata lookup
+ */
+export default async function getPxWebTableContent(tableId: string, externalDataset: string, selection: ApiSelectionItem[], language?: string, wait: Sleep = sleep, onFailure?: UpstreamFailureReporter) {
   // Get the base URL for the external dataset, defaulting to SCB
   const dataset = ExternalDataset.getDatasetByAlternateName(externalDataset) ?? ExternalDataset.SCB;
   const url = new URL(`./tables/${tableId}/data`, dataset.baseUrl);
@@ -33,7 +36,7 @@ export default async function getPxWebTableContent(tableId: string, externalData
   };
 
   // If no time selection is provided, try to add a default time selection to the payload
-  const times = await getPxWebTableMetadata(tableId, externalDataset, undefined, wait).then(result => result ? result.timeDimensions : undefined);
+  const times = await getPxWebTableMetadata(tableId, externalDataset, undefined, wait, { onFailure }).then(result => result ? result.timeDimensions : undefined);
   if (times && times.length !== 1 && !times.every(time => payload.selection.some(item => item.variableCode === time.id))) {
     console.debug(`Too many time dimensions (${times.length}) to automatically select one to include all periods for; please ensure all time dimensions have defined selections. tableId: ${tableId}; dataset: ${externalDataset}`);
     return null;
@@ -68,6 +71,7 @@ export default async function getPxWebTableContent(tableId: string, externalData
     if (!response.ok) {
       const errorText = await response.text();
       console.error(errorText);
+      if (isTransientStatus(response.status)) onFailure?.();
     }
 
     if (response.ok) {
@@ -84,6 +88,7 @@ export default async function getPxWebTableContent(tableId: string, externalData
   }
   catch (error) {
     console.error("Error fetching table content from PxWeb API", { error });
+    onFailure?.();
     return null;
   }
 

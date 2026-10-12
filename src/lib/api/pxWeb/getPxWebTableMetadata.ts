@@ -1,10 +1,19 @@
-import type { PxWebCompatTableMetadata } from "../apiTypes";
-import { ExternalDataset, sleep } from "../utility";
+import type { PxWebCompatTableMetadata, UpstreamFailureReporter } from "../apiTypes";
+import { ExternalDataset, isTransientStatus, sleep } from "../utility";
 import type { Sleep } from "../utility";
 import type { PxWebMetricDimension, PxWebStandardDimension, PxWebTableMetadata, PxWebCompatMetricDimension, PxWebCompatTimeDimension, PxWebCompatRegularDimension, PxWebCompatDimensionValue } from "./pxWebApiV2Types";
 
-/** @param wait How to wait before retrying after a 429; injectable for tests. */
-export default async function getPxWebTableMetadata(tableId: string, externalDataset: string, language?: string, wait: Sleep = sleep, isRetry = false): Promise<PxWebCompatTableMetadata | null> {
+/**
+ * @param wait How to wait before retrying after a 429; injectable for tests.
+ * @param options.onFailure Called when the request failed transiently (network error, 429 after one retry, 5xx); not for a 404
+ */
+export default async function getPxWebTableMetadata(
+  tableId: string,
+  externalDataset: string,
+  language?: string,
+  wait: Sleep = sleep,
+  options: { onFailure?: UpstreamFailureReporter, isRetry?: boolean } = {},
+): Promise<PxWebCompatTableMetadata | null> {
   if (!tableId || !externalDataset) {
     console.debug("getPxWebTableMetadata called without required parameters, returning early", { tableId, externalDataset, language });
     return null;
@@ -28,7 +37,7 @@ export default async function getPxWebTableMetadata(tableId: string, externalDat
     const response = await fetch(url, { method: 'GET' });
     if (response.ok) {
       data = await response.json() as PxWebTableMetadata;
-    } else if (response.status === 429 && !isRetry) {
+    } else if (response.status === 429 && !options.isRetry) {
       // Rate limited; wait out the upstream's Retry-After (or 10 seconds) and try once more. Retrying
       // without bound kept cache fills (and every request waiting on them) hanging while the upstream
       // kept answering 429.
@@ -36,17 +45,19 @@ export default async function getPxWebTableMetadata(tableId: string, externalDat
       const waitMs = (Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0 ? retryAfterSeconds : 10) * 1000;
       console.debug(`Received 429 status, retrying in ${waitMs / 1000} seconds...`, { url });
       await wait(waitMs);
-      return await getPxWebTableMetadata(tableId, externalDataset, language, wait, true);
+      return await getPxWebTableMetadata(tableId, externalDataset, language, wait, { ...options, isRetry: true });
     } else if (response.status === 404) {
       console.error(`${response.status}; No metadata found for table ${tableId} in dataset ${externalDataset}`, { url, response });
       return null;
     } else {
       console.error(`Unusual status ${response.status}; No metadata found for table ${tableId} in dataset ${externalDataset}`, { url, response });
+      if (isTransientStatus(response.status)) options.onFailure?.();
       return null;
     }
   }
   catch (error) {
     console.error("Error fetching table metadata from PxWeb API", { error }, `Query URL: ${url}`);
+    options.onFailure?.();
     return null;
   }
 
