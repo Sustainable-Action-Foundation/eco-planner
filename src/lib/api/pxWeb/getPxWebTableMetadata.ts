@@ -1,5 +1,5 @@
 import type { PxWebCompatTableMetadata, UpstreamFailureReporter } from "../apiTypes";
-import { ExternalDataset, isTransientStatus, sleep } from "../utility";
+import { ExternalDataset, isTransientStatus, retryAfterMs, sleep } from "../utility";
 import type { Sleep } from "../utility";
 import type { PxWebMetricDimension, PxWebStandardDimension, PxWebTableMetadata, PxWebCompatMetricDimension, PxWebCompatTimeDimension, PxWebCompatRegularDimension, PxWebCompatDimensionValue } from "./pxWebApiV2Types";
 
@@ -37,12 +37,11 @@ export default async function getPxWebTableMetadata(
     const response = await fetch(url, { method: 'GET' });
     if (response.ok) {
       data = await response.json() as PxWebTableMetadata;
-    } else if (response.status === 429 && !options.isRetry) {
-      // Rate limited; wait out the upstream's Retry-After (or 10 seconds) and try once more. Retrying
-      // without bound kept cache fills (and every request waiting on them) hanging while the upstream
-      // kept answering 429.
-      const retryAfterSeconds = parseInt(response.headers.get("Retry-After") ?? "", 10);
-      const waitMs = (Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0 ? retryAfterSeconds : 10) * 1000;
+    } else if (response.status === 429 && !options.isRetry && retryAfterMs(response) !== null) {
+      // Rate limited; wait out the upstream's Retry-After (capped, or 10 seconds) and try once more.
+      // Retrying without bound kept cache fills (and every request waiting on them) hanging while
+      // the upstream kept answering 429; a Retry-After above the cap is a transient failure below.
+      const waitMs = retryAfterMs(response) ?? 0;
       console.debug(`Received 429 status, retrying in ${waitMs / 1000} seconds...`, { url });
       await wait(waitMs);
       return await getPxWebTableMetadata(tableId, externalDataset, language, wait, { ...options, isRetry: true });

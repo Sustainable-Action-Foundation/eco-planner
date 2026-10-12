@@ -12,6 +12,20 @@ export function isTransientStatus(status: number): boolean {
   return status === 429 || status >= 500;
 }
 
+/** Longest a 429 retry may wait. Upstream fetches run inside cache fills, so a long wait stalls every request waiting on that entry. */
+export const MaxRetryAfterMs = 15_000;
+
+/**
+ * How long a 429 asks us to wait before retrying, in ms: the response's Retry-After (default 10 s),
+ * or null when it exceeds `MaxRetryAfterMs`. A null means "don't retry now": report the failure so
+ * the empty result is cached for minutes and the next request tries again.
+ */
+export function retryAfterMs(response: Response): number | null {
+  const retryAfterSeconds = parseInt(response.headers.get("Retry-After") ?? "", 10);
+  const waitMs = (Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0 ? retryAfterSeconds : 10) * 1000;
+  return waitMs <= MaxRetryAfterMs ? waitMs : null;
+}
+
 export function isDataSetKeys(value: unknown): value is DatasetKeys {
   return typeof value === "string" && ExternalDataset.knownDatasetKeys.includes(value as DatasetKeys);
 }

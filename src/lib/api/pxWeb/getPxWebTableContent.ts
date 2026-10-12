@@ -8,7 +8,7 @@ import "server-only";
 import type { JSONValue } from "@/types";
 import { isStandardObject } from "@/types/typeguards";
 import type { ApiTableContent, ApiSelectionItem, UpstreamFailureReporter } from "../apiTypes";
-import { ExternalDataset, isTransientStatus, sleep } from "../utility";
+import { ExternalDataset, isTransientStatus, retryAfterMs, sleep } from "../utility";
 import type { Sleep } from "../utility";
 import getPxWebTableMetadata from "./getPxWebTableMetadata";
 import type { PxWebTableContent } from "./pxWebApiV2Types";
@@ -56,10 +56,10 @@ export default async function getPxWebTableContent(tableId: string, externalData
       body: JSON.stringify(payload),
       headers: { 'Content-Type': 'application/json' },
     });
-    if (response.status === 429) {
-      // Rate limited; wait out the upstream's Retry-After (or 10 seconds, like getPxWebTableMetadata) and try once more
-      const retryAfterSeconds = parseInt(response.headers.get("Retry-After") ?? "", 10);
-      const waitMs = (Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0 ? retryAfterSeconds : 10) * 1000;
+    const waitMs = response.status === 429 ? retryAfterMs(response) : null;
+    if (waitMs !== null) {
+      // Rate limited; wait out the upstream's Retry-After (capped, like getPxWebTableMetadata) and try
+      // once more. A Retry-After above the cap falls through as a transient failure instead.
       console.debug(`Received 429 status, retrying in ${waitMs / 1000} seconds...`, { url });
       await wait(waitMs);
       response = await fetch(url, {
