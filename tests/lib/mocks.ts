@@ -12,7 +12,7 @@ import { stemSolarMetadataFixture, stemTablesFixture } from "./stemFixtures";
  */
 
 export const STEM_API_ORIGIN = "https://api.pxexternal2.energimyndigheten.se";
-export const SCB_API_ORIGIN = "https://api.scb.se";
+export const SCB_API_ORIGIN = "https://statistikdatabasen.scb.se";
 
 /** A deterministic SCB `/tables` catalog in the same shape as the STEM fixture */
 export const scbTablesFixture: PxWebTableArray = {

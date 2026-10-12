@@ -241,24 +241,39 @@ test.describe.serial("Signup, verification and password reset", () => {
   });
 
   test("the reset link sets a new password that logs in", async ({ page }) => {
-    await page.goto("/password");
-    await visible(page, "#email").fill(user.email);
-    const request = page.waitForResponse(res => res.url().endsWith("/api/password") && res.request().method() === "POST");
-    await page.getByRole("button", { name: "password.submit" }).filter({ visible: true }).click();
-    expect((await request).status()).toBe(200);
+    // The form only submits through its React onSubmit: a click that lands before hydration
+    // (seen on Firefox) does a native submit instead, so retry until the request goes out.
+    // A second request only mints a newer token, and mailToken reads the latest one.
+    let status = 0;
+    await expect(async () => {
+      await page.goto("/password");
+      await visible(page, "#email").fill(user.email);
+      const request = page.waitForResponse(res => res.url().endsWith("/api/password") && res.request().method() === "POST", { timeout: 5_000 });
+      await page.getByRole("button", { name: "password.submit" }).filter({ visible: true }).click();
+      status = (await request).status();
+    }).toPass({ timeout: 45_000 });
+    expect(status).toBe(200);
 
     const hash = await mailToken(page.request, user.email);
-    await page.goto(`/password/reset?email=${encodeURIComponent(user.email)}&hash=${hash}`);
-    await visible(page, "#password").fill(user.newPassword);
-    const reset = page.waitForResponse(res => res.url().endsWith("/api/password") && res.request().method() === "PATCH");
-    await page.getByRole("button", { name: "password_reset.submit" }).filter({ visible: true }).click();
-    expect((await reset).status()).toBe(200);
-    await expect(page).toHaveURL("/login");
+    // The request form reloads /password after the 200 (formSubmitter follows Location),
+    // which would cut off a navigation here; follow the link in a tab of its own
+    const resetPage = await page.context().newPage();
+    // Same hydration race as above; a retry only happens when no request went out, so the token is still unused
+    let resetStatus = 0;
+    await expect(async () => {
+      await resetPage.goto(`/password/reset?email=${encodeURIComponent(user.email)}&hash=${hash}`);
+      await visible(resetPage, "#password").fill(user.newPassword);
+      const reset = resetPage.waitForResponse(res => res.url().endsWith("/api/password") && res.request().method() === "PATCH", { timeout: 5_000 });
+      await resetPage.getByRole("button", { name: "password_reset.submit" }).filter({ visible: true }).click();
+      resetStatus = (await reset).status();
+    }).toPass({ timeout: 45_000 });
+    expect(resetStatus).toBe(200);
+    await expect(resetPage).toHaveURL("/login");
 
     // The old password is gone, the new one works
-    const stale = await page.request.post("/api/login", { data: { username: user.username, password: user.password } });
+    const stale = await resetPage.request.post("/api/login", { data: { username: user.username, password: user.password } });
     expect(stale.status()).toBe(400);
-    expect(await submitLogin(page, user.username, user.newPassword)).toBe(200);
-    await expect(page.getByTestId("logout-button").filter({ visible: true })).toBeVisible();
+    expect(await submitLogin(resetPage, user.username, user.newPassword)).toBe(200);
+    await expect(resetPage.getByTestId("logout-button").filter({ visible: true })).toBeVisible();
   });
 });

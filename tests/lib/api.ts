@@ -223,7 +223,18 @@ export async function createEffect(request: APIRequestContext, goalId: string, a
 
 /** DELETE /api/roadmap; cascades to iterations, goals, series, actions and effects. */
 export async function deleteRoadmap(request: APIRequestContext, id: string, expectedStatus = 200): Promise<void> {
-  const response = await request.delete("/api/roadmap", { data: { id } });
+  // Cleanup must survive a momentary dropped connection (ECONNRESET on a loaded dev server): retry once
+  const send = () => request.delete("/api/roadmap", { data: { id } });
+  let retried = false;
+  const response = await send().catch(async () => {
+    retried = true;
+    return send();
+  });
+  if (retried && expectedStatus === 200 && response.status() !== 200) {
+    // The lost first attempt may have deleted it already; what matters is that it is gone
+    expect(await pageStatus(request, `/roadmap/${id}`), `cleanup of roadmap ${id} after a retry`).toBe(404);
+    return;
+  }
   expect(response.status(), `cleanup of roadmap ${id}: ${await response.text()}`).toBe(expectedStatus);
 }
 
@@ -530,7 +541,7 @@ export async function publicGoalId(request: APIRequestContext, roadmapName: stri
   expect(href, `link of roadmap "${roadmapName}"`).toBeTruthy();
 
   // The seeded scenario's version page is several megabytes; give it more than the default request timeout
-  const response = await request.get(href ?? "", { timeout: 180_000 });
+  const response = await request.get(href ?? "", { timeout: 300_000 });
   expect(response.status(), `GET ${href}`).toBe(200);
   const html = await response.text();
   const roadmap = [...html.matchAll(/self\.__next_f\.push\(\[1,("(?:[^"\\]|\\.)*")\]\)/g)].map(match => JSON.parse(match[1]) as string).join("");

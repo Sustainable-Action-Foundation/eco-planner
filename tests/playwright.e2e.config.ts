@@ -13,7 +13,8 @@ export default defineConfig({
   testMatch: ["e2e/**/*.spec.ts", "api/**/*.spec.ts"],
 
   // fullyParallel: true,
-  workers: "80%",
+  // Locally the dev server shares the machine with the browsers; more workers only choke it
+  workers: CI ? "80%" : 2,
 
   // One retry in case of flaky tests
   retries: 1,
@@ -93,24 +94,36 @@ export default defineConfig({
       testMatch: "api/**/*.spec.ts",
       dependencies: ["setup"],
       retries: 0,
+      // Request timeout: streamed pages on a loaded shared server exceed the browser-action default
+      use: { actionTimeout: 60 * 1000 },
     },
     {
       name: "chromium 1080p",
       testMatch: "e2e/**/*.spec.ts",
+      testIgnore: "e2e/mobile.spec.ts",
       use: { ...devices["Desktop Chrome"], viewport: { width: 1920, height: 1080 }, channel: "chromium" },
       dependencies: ["setup"],
     },
     {
       name: "firefox 1080p",
       testMatch: "e2e/**/*.spec.ts",
+      testIgnore: "e2e/mobile.spec.ts",
       use: { ...devices["Desktop Firefox"], viewport: { width: 1920, height: 1080 } },
       dependencies: ["setup"],
     },
     {
       name: "webkit 1080p",
       testMatch: "e2e/**/*.spec.ts",
+      testIgnore: "e2e/mobile.spec.ts",
       // Webkit is consistently the slowest to settle under CI load; give its actions extra room
       use: { ...devices["Desktop Safari"], viewport: { width: 1920, height: 1080 }, actionTimeout: 20 * 1000 },
+      dependencies: ["setup"],
+    },
+    {
+      // Narrow touch viewport: only the mobile spec (drawer, create menu, table scroll, language dialog)
+      name: "mobile chromium",
+      testMatch: "e2e/mobile.spec.ts",
+      use: { ...devices["Galaxy S9+"], channel: "chromium" },
       dependencies: ["setup"],
     },
   ],

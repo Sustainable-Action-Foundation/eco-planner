@@ -1,4 +1,4 @@
-import { test as base } from "playwright/test";
+import { expect, test as base } from "playwright/test";
 import type { APIRequestContext } from "playwright/test";
 import { createIteration, createRoadmap, deleteRoadmap, loginAs, orgIdByName, Seed, uniqueLabel } from "./api";
 
@@ -22,7 +22,8 @@ export type Sandbox = {
 
 export const test = base.extend<{ admin: APIRequestContext, sandbox: Sandbox }>({
   admin: async ({ playwright, baseURL }, use) => {
-    const request = await playwright.request.newContext({ baseURL });
+    // Streamed pages read back through it (pageEntity) can exceed the 15 s action timeout on a loaded shared server
+    const request = await playwright.request.newContext({ baseURL, timeout: 60_000 });
     await loginAs(request, Seed.admin.username, Seed.admin.password);
     await use(request);
     await request.dispose();
@@ -41,4 +42,4 @@ export const test = base.extend<{ admin: APIRequestContext, sandbox: Sandbox }>(
   },
 });
 
-export { expect } from "playwright/test";
+export { expect };
