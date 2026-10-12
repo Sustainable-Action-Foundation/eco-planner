@@ -1,6 +1,7 @@
 import "server-only";
 import { effectInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleActionsWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { Effect, UserAccessContext } from "@/types";
@@ -17,7 +18,7 @@ import { cacheTag } from "next/cache";
  */
 export async function getOneEffect(actionId: string, goalId: string): Promise<Effect | null> {
   const accessContext = await getUserAccessContext();
-  return getCachedEffect(actionId, goalId, accessContext);
+  return uncachedFallback(() => getCachedEffect(actionId, goalId, accessContext), null, `Error fetching effect with actionId ${actionId} and goalId ${goalId}:`);
 }
 
 /**
@@ -28,22 +29,15 @@ async function getCachedEffect(actionId: string, goalId: string, accessContext: 
   'use cache';
   cacheTag('database', 'action', 'goal', 'effect');
 
-  let effect: Effect | null;
-  try {
-    effect = await prisma.effects.findUnique({
-      where: {
-        id: { action_id: actionId, goal_id: goalId },
-        // Requires access to both the action and the goal
-        action: visibleActionsWHERE(accessContext),
-        goal: { roadmap_iteration: visibleRoadmapIterationsWHERE(accessContext) },
-      },
-      include: effectInclusionSelection,
-    }) satisfies Effect | null;
-  }
-  catch (err) {
-    console.error(`Error fetching effect with actionId ${actionId} and goalId ${goalId}:`, { err });
-    return null;
-  }
+  const effect: Effect | null = await prisma.effects.findUnique({
+    where: {
+      id: { action_id: actionId, goal_id: goalId },
+      // Requires access to both the action and the goal
+      action: visibleActionsWHERE(accessContext),
+      goal: { roadmap_iteration: visibleRoadmapIterationsWHERE(accessContext) },
+    },
+    include: effectInclusionSelection,
+  }) satisfies Effect | null;
 
   return effect;
 };

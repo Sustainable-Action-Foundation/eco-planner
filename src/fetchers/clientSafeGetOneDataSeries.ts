@@ -2,6 +2,7 @@
 
 import { clientSafeDataSeriesSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleDataSeriesWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { DataSeries, UserAccessContext } from "@/types";
@@ -15,28 +16,21 @@ import { cacheTag } from "next/cache";
  */
 export async function clientSafeGetOneDataSeries(id: string): Promise<DataSeries | null> {
   const accessContext = await getUserAccessContext();
-  return clientSafeGetCachedDataSeries(id, accessContext);
+  return uncachedFallback(() => clientSafeGetCachedDataSeries(id, accessContext), null, "Error fetching data series", { id });
 }
 
 async function clientSafeGetCachedDataSeries(id: string, accessContext: UserAccessContext | null): Promise<DataSeries | null> {
   'use cache';
   cacheTag('database', 'dataSeries', 'action', 'goal');
 
-  let dataSeries: DataSeries | null;
-  try {
-    dataSeries = await prisma.dataSeries.findUnique({
-      where: {
-        id,
-        // AND keeps the filter's optional unique-key fields out of the WhereUniqueInput type
-        AND: [visibleDataSeriesWHERE(accessContext)],
-      },
-      select: clientSafeDataSeriesSelection,
-    }) satisfies DataSeries | null;
-  }
-  catch (err) {
-    console.error("Error fetching data series", { error: err });
-    return null;
-  }
+  const dataSeries: DataSeries | null = await prisma.dataSeries.findUnique({
+    where: {
+      id,
+      // AND keeps the filter's optional unique-key fields out of the WhereUniqueInput type
+      AND: [visibleDataSeriesWHERE(accessContext)],
+    },
+    select: clientSafeDataSeriesSelection,
+  }) satisfies DataSeries | null;
 
   return dataSeries;
 }

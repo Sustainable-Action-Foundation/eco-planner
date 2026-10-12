@@ -1,6 +1,7 @@
 import "server-only";
 import { getCuratedHistoricalEntries } from "@/fetchers/getCuratedHistoricalData";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { getNationalGoalMappings } from "@/lib/curatedHistoricalData";
 import { prisma } from "@/lib/prisma";
@@ -42,7 +43,9 @@ export type NationalGoalMatch = {
  */
 export async function getNationalGoalMatches(t: TFunction, geoArea: CuratedGeoArea): Promise<NationalGoalMatch[]> {
   const mappings = getNationalGoalMappings();
-  const goals = await getCachedNationalGoals(mappings.map(mapping => mapping.indicatorParameter), await getUserAccessContext());
+  const indicatorParameters = mappings.map(mapping => mapping.indicatorParameter);
+  const accessContext = await getUserAccessContext();
+  const goals = await uncachedFallback(() => getCachedNationalGoals(indicatorParameters, accessContext), [], "Error fetching national goals");
   if (goals.length === 0) return [];
 
   const mappingByIndicator = new Map(mappings.map(mapping => [mapping.indicatorParameter, mapping]));
@@ -97,39 +100,33 @@ async function getCachedNationalGoals(indicatorParameters: string[], accessConte
   'use cache';
   cacheTag('database', 'goal', 'roadmap', 'roadmapIteration', 'dataSeries');
 
-  try {
-    const goals = await prisma.goals.findMany({
-      where: {
-        indicator_parameter: { in: indicatorParameters },
-        listing: { not: GoalListing.UNLISTED },
-        data_series: { isNot: null },
-        roadmap_iteration: {
-          ...visibleRoadmapIterationsWHERE(accessContext),
-          status: IterationStatus.PUBLISHED,
-          roadmap: { type: RoadmapType.NATIONAL },
-        },
+  const goals = await prisma.goals.findMany({
+    where: {
+      indicator_parameter: { in: indicatorParameters },
+      listing: { not: GoalListing.UNLISTED },
+      data_series: { isNot: null },
+      roadmap_iteration: {
+        ...visibleRoadmapIterationsWHERE(accessContext),
+        status: IterationStatus.PUBLISHED,
+        roadmap: { type: RoadmapType.NATIONAL },
       },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        indicator_parameter: true,
-        data_series: { select: { id: true, unit: true, values: { select: { timestamp: true, value: true }, orderBy: { timestamp: "asc" } } } },
-        roadmap_iteration: { select: { id: true, version: true, roadmap: { select: { id: true, name: true } } } },
-      },
-      orderBy: [{ roadmap_iteration: { roadmap: { name: "asc" } } }, { indicator_parameter: "asc" }],
-    });
+    },
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      indicator_parameter: true,
+      data_series: { select: { id: true, unit: true, values: { select: { timestamp: true, value: true }, orderBy: { timestamp: "asc" } } } },
+      roadmap_iteration: { select: { id: true, version: true, roadmap: { select: { id: true, name: true } } } },
+    },
+    orderBy: [{ roadmap_iteration: { roadmap: { name: "asc" } } }, { indicator_parameter: "asc" }],
+  });
 
-    // Only the latest published version of each roadmap
-    const latestVersion = new Map<string, number>();
-    for (const goal of goals) {
-      const { roadmap, version } = goal.roadmap_iteration;
-      latestVersion.set(roadmap.id, Math.max(latestVersion.get(roadmap.id) ?? -Infinity, version));
-    }
-    return goals.filter(goal => goal.roadmap_iteration.version === latestVersion.get(goal.roadmap_iteration.roadmap.id));
+  // Only the latest published version of each roadmap
+  const latestVersion = new Map<string, number>();
+  for (const goal of goals) {
+    const { roadmap, version } = goal.roadmap_iteration;
+    latestVersion.set(roadmap.id, Math.max(latestVersion.get(roadmap.id) ?? -Infinity, version));
   }
-  catch (err) {
-    console.error("Error fetching national goals", { err });
-    return [];
-  }
+  return goals.filter(goal => goal.roadmap_iteration.version === latestVersion.get(goal.roadmap_iteration.roadmap.id));
 }

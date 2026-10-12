@@ -1,5 +1,6 @@
 import "server-only";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { uncachedFallback } from "@/fetchers/cacheFallback";
 import { listedGoalsWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import { GeoAreaType } from "@/lib/prisma/generated";
@@ -37,28 +38,22 @@ export type LikedGoal = {
 /** How many likes a goal has and whether the current user gave one of them. Zero and false for goals the user can't see. */
 export async function getGoalLikeSummary(goalId: string): Promise<GoalLikeSummary> {
   const accessContext = await getUserAccessContext();
-  return getCachedGoalLikeSummary(goalId, accessContext);
+  return uncachedFallback(() => getCachedGoalLikeSummary(goalId, accessContext), { likeCount: 0, likedByViewer: false }, "Error fetching goal likes:");
 }
 
 async function getCachedGoalLikeSummary(goalId: string, accessContext: UserAccessContext | null): Promise<GoalLikeSummary> {
   'use cache';
   cacheTag('database', 'goalLike', 'goal');
 
-  try {
-    const goal = await prisma.goals.findUnique({
-      where: { id: goalId, roadmap_iteration: visibleRoadmapIterationsWHERE(accessContext) },
-      select: {
-        _count: { select: { likes: true } },
-        likes: accessContext ? { where: { user_id: accessContext.id }, select: { user_id: true } } : false,
-      },
-    });
-    if (!goal) return { likeCount: 0, likedByViewer: false };
-    return { likeCount: goal._count.likes, likedByViewer: (goal.likes ?? []).length > 0 };
-  }
-  catch (err) {
-    console.error("Error fetching goal likes:", { err });
-    return { likeCount: 0, likedByViewer: false };
-  }
+  const goal = await prisma.goals.findUnique({
+    where: { id: goalId, roadmap_iteration: visibleRoadmapIterationsWHERE(accessContext) },
+    select: {
+      _count: { select: { likes: true } },
+      likes: accessContext ? { where: { user_id: accessContext.id }, select: { user_id: true } } : false,
+    },
+  });
+  if (!goal) return { likeCount: 0, likedByViewer: false };
+  return { likeCount: goal._count.likes, likedByViewer: (goal.likes ?? []).length > 0 };
 }
 
 /** A scope the org's list of liked goals can be viewed in, see `getLikeScopes` */
@@ -76,25 +71,24 @@ export type LikeScopeOption = {
  * organizations of a municipality prioritize together.
  */
 export async function getLikeScopes(orgId: string): Promise<LikeScopeOption[]> {
+  return uncachedFallback(() => getCachedLikeScopes(orgId), [{ scope: LikeScope.Org, area: null }], "Error fetching like scopes:");
+}
+
+async function getCachedLikeScopes(orgId: string): Promise<LikeScopeOption[]> {
   'use cache';
   cacheTag('database', 'org');
 
   const scopes: LikeScopeOption[] = [{ scope: LikeScope.Org, area: null }];
-  try {
-    const org = await prisma.orgs.findUnique({
-      where: { id: orgId },
-      select: { geo_area: { select: { code: true, name: true, type: true, parent: { select: { code: true, name: true, type: true } } } } },
-    });
-    const area = org?.geo_area;
-    if (area && area.type !== GeoAreaType.NATION) {
-      scopes.push({ scope: LikeScope.Area, area: { code: area.code, name: area.name } });
-    }
-    if (area?.type === GeoAreaType.MUNICIPALITY && area.parent?.type === GeoAreaType.COUNTY) {
-      scopes.push({ scope: LikeScope.County, area: { code: area.parent.code, name: area.parent.name } });
-    }
+  const org = await prisma.orgs.findUnique({
+    where: { id: orgId },
+    select: { geo_area: { select: { code: true, name: true, type: true, parent: { select: { code: true, name: true, type: true } } } } },
+  });
+  const area = org?.geo_area;
+  if (area && area.type !== GeoAreaType.NATION) {
+    scopes.push({ scope: LikeScope.Area, area: { code: area.code, name: area.name } });
   }
-  catch (err) {
-    console.error("Error fetching like scopes:", { err });
+  if (area?.type === GeoAreaType.MUNICIPALITY && area.parent?.type === GeoAreaType.COUNTY) {
+    scopes.push({ scope: LikeScope.County, area: { code: area.parent.code, name: area.parent.name } });
   }
   return scopes;
 }
@@ -112,72 +106,66 @@ export async function getLikedGoals(orgId: string, scope: LikeScope = LikeScope.
   const accessContext = await getUserAccessContext();
   if (!accessContext) return [];
   const area = (await getLikeScopes(orgId)).find(option => option.scope === scope)?.area ?? null;
-  return getCachedLikedGoals(orgId, area?.code ?? null, accessContext);
+  return uncachedFallback(() => getCachedLikedGoals(orgId, area?.code ?? null, accessContext), [], "Error fetching liked goals:");
 }
 
 async function getCachedLikedGoals(orgId: string, areaCode: string | null, accessContext: UserAccessContext): Promise<LikedGoal[]> {
   'use cache';
   cacheTag('database', 'goalLike', 'goal', 'roadmap', 'roadmapIteration', 'dataSeries', 'org');
 
-  try {
-    // Whose likes count: members of the org, or of any org placed in the area or in an area directly under it
-    const inScope: Prisma.OrgMembershipsWhereInput = areaCode
-      ? { org: { geo_area: { OR: [{ code: areaCode }, { parent_code: areaCode }] } } }
-      : { org_id: orgId };
+  // Whose likes count: members of the org, or of any org placed in the area or in an area directly under it
+  const inScope: Prisma.OrgMembershipsWhereInput = areaCode
+    ? { org: { geo_area: { OR: [{ code: areaCode }, { parent_code: areaCode }] } } }
+    : { org_id: orgId };
 
-    const goals = await prisma.goals.findMany({
-      where: {
-        likes: { some: { user: { memberships: { some: inScope } } } },
-        roadmap_iteration: visibleRoadmapIterationsWHERE(accessContext),
-        AND: [listedGoalsWHERE(accessContext)],
-      },
-      select: {
-        id: true,
-        name: true,
-        indicator_parameter: true,
-        data_series_id: true,
-        roadmap_iteration: {
-          select: {
-            version: true,
-            roadmap: { select: { id: true, name: true, access_control: { select: { org_id: true, org: { select: { name: true } } } } } },
-          },
-        },
-        likes: {
-          select: {
-            user_id: true,
-            created_at: true,
-            user: { select: { memberships: { where: inScope, select: { org_id: true } } } },
-          },
+  const goals = await prisma.goals.findMany({
+    where: {
+      likes: { some: { user: { memberships: { some: inScope } } } },
+      roadmap_iteration: visibleRoadmapIterationsWHERE(accessContext),
+      AND: [listedGoalsWHERE(accessContext)],
+    },
+    select: {
+      id: true,
+      name: true,
+      indicator_parameter: true,
+      data_series_id: true,
+      roadmap_iteration: {
+        select: {
+          version: true,
+          roadmap: { select: { id: true, name: true, access_control: { select: { org_id: true, org: { select: { name: true } } } } } },
         },
       },
-    });
+      likes: {
+        select: {
+          user_id: true,
+          created_at: true,
+          user: { select: { memberships: { where: inScope, select: { org_id: true } } } },
+        },
+      },
+    },
+  });
 
-    const copiesBySource = await findCopies(orgId, accessContext, goals.flatMap(goal => goal.data_series_id ? [goal.data_series_id] : []));
+  const copiesBySource = await findCopies(orgId, accessContext, goals.flatMap(goal => goal.data_series_id ? [goal.data_series_id] : []));
 
-    const liked = goals.map(goal => {
-      // One like per user and goal, so a member of several orgs in scope still counts once
-      const scopedLikes = goal.likes.filter(like => like.user.memberships.length > 0);
-      return {
-        id: goal.id,
-        name: goal.name,
-        indicatorParameter: goal.indicator_parameter,
-        roadmap: { id: goal.roadmap_iteration.roadmap.id, name: goal.roadmap_iteration.roadmap.name, version: goal.roadmap_iteration.version },
-        org: { id: goal.roadmap_iteration.roadmap.access_control.org_id, name: goal.roadmap_iteration.roadmap.access_control.org.name },
-        likeCount: scopedLikes.length,
-        orgCount: new Set(scopedLikes.flatMap(like => like.user.memberships.map(membership => membership.org_id))).size,
-        totalLikeCount: goal.likes.length,
-        latestLikeAt: new Date(Math.max(...scopedLikes.map(like => like.created_at.getTime()))),
-        likedByViewer: goal.likes.some(like => like.user_id === accessContext.id),
-        copies: goal.data_series_id ? copiesBySource.get(goal.data_series_id) ?? [] : [],
-      };
-    });
+  const liked = goals.map(goal => {
+    // One like per user and goal, so a member of several orgs in scope still counts once
+    const scopedLikes = goal.likes.filter(like => like.user.memberships.length > 0);
+    return {
+      id: goal.id,
+      name: goal.name,
+      indicatorParameter: goal.indicator_parameter,
+      roadmap: { id: goal.roadmap_iteration.roadmap.id, name: goal.roadmap_iteration.roadmap.name, version: goal.roadmap_iteration.version },
+      org: { id: goal.roadmap_iteration.roadmap.access_control.org_id, name: goal.roadmap_iteration.roadmap.access_control.org.name },
+      likeCount: scopedLikes.length,
+      orgCount: new Set(scopedLikes.flatMap(like => like.user.memberships.map(membership => membership.org_id))).size,
+      totalLikeCount: goal.likes.length,
+      latestLikeAt: new Date(Math.max(...scopedLikes.map(like => like.created_at.getTime()))),
+      likedByViewer: goal.likes.some(like => like.user_id === accessContext.id),
+      copies: goal.data_series_id ? copiesBySource.get(goal.data_series_id) ?? [] : [],
+    };
+  });
 
-    return liked.sort((a, b) => b.likeCount - a.likeCount || b.latestLikeAt.getTime() - a.latestLikeAt.getTime() || a.id.localeCompare(b.id));
-  }
-  catch (err) {
-    console.error("Error fetching liked goals:", { err });
-    return [];
-  }
+  return liked.sort((a, b) => b.likeCount - a.likeCount || b.latestLikeAt.getTime() - a.latestLikeAt.getTime() || a.id.localeCompare(b.id));
 }
 
 /**

@@ -1,6 +1,7 @@
 import "server-only";
 import { roadmapIterationInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { goalSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
@@ -16,7 +17,7 @@ import { cacheTag } from "next/cache";
  */
 export async function getOneRoadmapIteration(id: string): Promise<RoadmapIteration | null> {
   const accessContext = await getUserAccessContext();
-  return await getCachedRoadmapIteration(id, accessContext);
+  return uncachedFallback(() => getCachedRoadmapIteration(id, accessContext), null, `Error fetching roadmap iteration with ID ${id}:`);
 }
 
 /**
@@ -29,21 +30,14 @@ async function getCachedRoadmapIteration(id: string, accessContext: UserAccessCo
   'use cache';
   cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action');
 
-  let iteration: RoadmapIteration | null;
-  try {
-    iteration = await prisma.roadmapIterations.findUnique({
-      where: {
-        // Spread first: the filter type has an optional `id` that would otherwise widen the unique key
-        ...visibleRoadmapIterationsWHERE(accessContext),
-        id,
-      },
-      include: roadmapIterationInclusionSelection,
-    }) satisfies RoadmapIteration | null;
-  }
-  catch (err) {
-    console.error(`Error fetching roadmap iteration with ID ${id}:`, { err });
-    return null;
-  }
+  const iteration: RoadmapIteration | null = await prisma.roadmapIterations.findUnique({
+    where: {
+      // Spread first: the filter type has an optional `id` that would otherwise widen the unique key
+      ...visibleRoadmapIterationsWHERE(accessContext),
+      id,
+    },
+    include: roadmapIterationInclusionSelection,
+  }) satisfies RoadmapIteration | null;
 
   iteration?.goals.sort(goalSorter);
 

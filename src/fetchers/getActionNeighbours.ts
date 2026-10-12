@@ -1,5 +1,6 @@
 import "server-only";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleActionsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { UserAccessContext } from "@/types";
@@ -30,30 +31,24 @@ export type ActionNeighbour = Awaited<ReturnType<typeof prisma.actions.findMany<
 export async function getActionNeighbours(action: { id: string, origin_action_id: string | null }): Promise<ActionNeighbour[]> {
   const rootId = action.origin_action_id ?? action.id;
   const accessContext = await getUserAccessContext();
-  return getCachedActionNeighbours(rootId, action.id, accessContext);
+  return uncachedFallback(() => getCachedActionNeighbours(rootId, action.id, accessContext), [], `Error fetching neighbours of action ${action.id}`);
 }
 
 async function getCachedActionNeighbours(rootId: string, selfId: string, accessContext: UserAccessContext | null): Promise<ActionNeighbour[]> {
   'use cache';
   cacheTag('database', 'action');
 
-  try {
-    const neighbours = await prisma.actions.findMany({
-      where: {
-        AND: [
-          { OR: [{ id: rootId }, { origin_action_id: rootId }] },
-          { id: { not: selfId } },
-          visibleActionsWHERE(accessContext),
-        ],
-      },
-      select: actionNeighbourSelection,
-      orderBy: [{ org: { name: 'asc' } }, { name: 'asc' }],
-    });
-    // The origin first, then the copies
-    return neighbours.sort((a, b) => Number(b.id === rootId) - Number(a.id === rootId));
-  }
-  catch (err) {
-    console.error(`Error fetching neighbours of action ${selfId}`, { err });
-    return [];
-  }
+  const neighbours = await prisma.actions.findMany({
+    where: {
+      AND: [
+        { OR: [{ id: rootId }, { origin_action_id: rootId }] },
+        { id: { not: selfId } },
+        visibleActionsWHERE(accessContext),
+      ],
+    },
+    select: actionNeighbourSelection,
+    orderBy: [{ org: { name: 'asc' } }, { name: 'asc' }],
+  });
+  // The origin first, then the copies
+  return neighbours.sort((a, b) => Number(b.id === rootId) - Number(a.id === rootId));
 }

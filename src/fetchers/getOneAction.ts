@@ -1,6 +1,7 @@
 import "server-only";
 import { actionInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleActionsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { Action, UserAccessContext } from "@/types";
@@ -15,7 +16,7 @@ import { cacheTag } from "next/cache";
  */
 export async function getOneAction(id: string): Promise<Action | null> {
   const accessContext = await getUserAccessContext();
-  return getCachedAction(id, accessContext);
+  return uncachedFallback(() => getCachedAction(id, accessContext), null, `Error fetching action with id ${id}`);
 }
 
 /**
@@ -28,21 +29,14 @@ async function getCachedAction(id: string, accessContext: UserAccessContext | nu
   'use cache';
   cacheTag('database', 'action');
 
-  let action: Action | null;
-  try {
-    action = await prisma.actions.findUnique({
-      where: {
-        // Spread first: the filter type has an optional `id` that would otherwise widen the unique key
-        ...visibleActionsWHERE(accessContext),
-        id,
-      },
-      include: actionInclusionSelection,
-    }) satisfies Action | null;
-  }
-  catch (err) {
-    console.error(`Error fetching action with id ${id}`, { err });
-    return null;
-  }
+  const action: Action | null = await prisma.actions.findUnique({
+    where: {
+      // Spread first: the filter type has an optional `id` that would otherwise widen the unique key
+      ...visibleActionsWHERE(accessContext),
+      id,
+    },
+    include: actionInclusionSelection,
+  }) satisfies Action | null;
 
   return action;
 };

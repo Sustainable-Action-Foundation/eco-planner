@@ -1,6 +1,7 @@
 import "server-only";
 import { userInfoSelector } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { uncachedFallback } from "@/fetchers/cacheFallback";
 import { readableAccessControlWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { roadmapIterationSorter, roadmapSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
@@ -16,7 +17,7 @@ import { cacheTag } from "next/cache";
  */
 export async function getUserInfo(username: string) {
   const accessContext = await getUserAccessContext();
-  return getCachedUserInfo(username, accessContext);
+  return uncachedFallback(() => getCachedUserInfo(username, accessContext), null, "Error fetching user info", { username });
 }
 
 /**
@@ -31,32 +32,26 @@ async function getCachedUserInfo(username: string, accessContext: UserAccessCont
 
   // The filters collapse the ladder into the query: anonymous visitors only match public
   // content, superadmins match everything, everyone else matches what their memberships grant.
-  try {
-    const fetchedUser = await prisma.users.findUnique({
-      where: { username },
-      select: {
-        ...userInfoSelector,
-        authored_roadmaps: {
-          where: {
-            access_control: readableAccessControlWHERE(accessContext),
-          },
-          include: userInfoSelector.authored_roadmaps.include,
+  const fetchedUser = await prisma.users.findUnique({
+    where: { username },
+    select: {
+      ...userInfoSelector,
+      authored_roadmaps: {
+        where: {
+          access_control: readableAccessControlWHERE(accessContext),
         },
-        authored_roadmap_iterations: {
-          where: visibleRoadmapIterationsWHERE(accessContext),
-          include: userInfoSelector.authored_roadmap_iterations.include,
-        },
+        include: userInfoSelector.authored_roadmaps.include,
       },
-    });
+      authored_roadmap_iterations: {
+        where: visibleRoadmapIterationsWHERE(accessContext),
+        include: userInfoSelector.authored_roadmap_iterations.include,
+      },
+    },
+  });
 
-    // Sort roadmaps and iterations
-    fetchedUser?.authored_roadmaps.sort(roadmapSorter);
-    fetchedUser?.authored_roadmap_iterations.sort(roadmapIterationSorter);
+  // Sort roadmaps and iterations
+  fetchedUser?.authored_roadmaps.sort(roadmapSorter);
+  fetchedUser?.authored_roadmap_iterations.sort(roadmapIterationSorter);
 
-    return fetchedUser;
-  }
-  catch (err) {
-    console.error("Error fetching user info", { err });
-    return null;
-  }
+  return fetchedUser;
 };

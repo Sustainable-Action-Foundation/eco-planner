@@ -1,6 +1,7 @@
 import "server-only";
 import { recipeSelector } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleDataSeriesWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { DBRecipe, UserAccessContext } from "@/types";
@@ -14,7 +15,7 @@ import { cacheTag } from "next/cache";
  */
 export async function getOneRecipe(id: string): Promise<DBRecipe | null> {
   const accessContext = await getUserAccessContext();
-  return getCachedRecipe(id, accessContext);
+  return uncachedFallback(() => getCachedRecipe(id, accessContext), null, "Error fetching recipe", { id });
 }
 
 /**
@@ -25,21 +26,14 @@ async function getCachedRecipe(id: string, accessContext: UserAccessContext | nu
   'use cache';
   cacheTag('database', 'recipe', 'dataSeries');
 
-  let recipe: DBRecipe | null;
-  try {
-    recipe = await prisma.recipes.findUnique({
-      where: {
-        id,
-        // Super admins may also fetch recipes not attached to any series (e.g. suggestion templates)
-        ...(accessContext?.isSuperAdmin ? {} : { derived_data_series: visibleDataSeriesWHERE(accessContext) }),
-      },
-      select: recipeSelector,
-    }) satisfies DBRecipe | null;
-  }
-  catch (err) {
-    console.error("Error fetching recipe", { err });
-    return null;
-  }
+  const recipe: DBRecipe | null = await prisma.recipes.findUnique({
+    where: {
+      id,
+      // Super admins may also fetch recipes not attached to any series (e.g. suggestion templates)
+      ...(accessContext?.isSuperAdmin ? {} : { derived_data_series: visibleDataSeriesWHERE(accessContext) }),
+    },
+    select: recipeSelector,
+  }) satisfies DBRecipe | null;
 
   return recipe;
 }

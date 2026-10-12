@@ -2,6 +2,7 @@
 
 import { clientSafeGoalSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { ClientGoal, UserAccessContext } from "@/types";
@@ -16,27 +17,20 @@ import { cacheTag } from "next/cache";
  */
 export async function clientSafeGetOneGoal(id: string): Promise<ClientGoal | null> {
   const accessContext = await getUserAccessContext();
-  return clientSafeGetCachedGoal(id, accessContext);
+  return uncachedFallback(() => clientSafeGetCachedGoal(id, accessContext), null, "Error fetching goal", { id });
 }
 
 async function clientSafeGetCachedGoal(id: string, accessContext: UserAccessContext | null): Promise<ClientGoal | null> {
   'use cache';
   cacheTag('database', 'goal', 'action', 'dataSeries');
 
-  let goal: ClientGoal | null;
-  try {
-    goal = await prisma.goals.findUnique({
-      where: {
-        id,
-        roadmap_iteration: visibleRoadmapIterationsWHERE(accessContext),
-      },
-      select: clientSafeGoalSelection,
-    }) satisfies ClientGoal | null;
-  }
-  catch (err) {
-    console.error("Error fetching goal", { error: err });
-    return null;
-  }
+  const goal: ClientGoal | null = await prisma.goals.findUnique({
+    where: {
+      id,
+      roadmap_iteration: visibleRoadmapIterationsWHERE(accessContext),
+    },
+    select: clientSafeGoalSelection,
+  }) satisfies ClientGoal | null;
 
   return goal;
 }

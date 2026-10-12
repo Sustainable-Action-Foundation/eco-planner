@@ -2,6 +2,7 @@ import { GoalListing } from "@/lib/prisma/generated";
 import "server-only";
 import { goalInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { effectSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
@@ -21,7 +22,7 @@ import { cacheTag } from "next/cache";
  */
 export async function getGoalByIndicator(iterationId: string, indicatorParameter: string, unit?: string | null) {
   const accessContext = await getUserAccessContext();
-  return getCachedGoalByIndicator(iterationId, indicatorParameter, unit, accessContext);
+  return uncachedFallback(() => getCachedGoalByIndicator(iterationId, indicatorParameter, unit, accessContext), null, `Error fetching goal with indicator parameter ${indicatorParameter} and unit ${unit} for iteration ${iterationId}`);
 }
 
 /**
@@ -35,27 +36,20 @@ async function getCachedGoalByIndicator(iterationId: string, indicatorParameter:
   'use cache';
   cacheTag('database', 'goal', 'action', 'dataSeries');
 
-  let goal: Goal | null;
-  try {
-    goal = await prisma.goals.findFirst({
-      where: {
-        indicator_parameter: indicatorParameter,
-        // Unlisted goals are excluded from other goals' parent/child listings
-        listing: { not: GoalListing.UNLISTED },
-        // If unit is specified, get a goal with the specified unit
-        ...(unit !== undefined ? { data_series: { unit: unit } } : {}),
-        roadmap_iteration: {
-          id: iterationId,
-          ...visibleRoadmapIterationsWHERE(accessContext),
-        },
+  const goal: Goal | null = await prisma.goals.findFirst({
+    where: {
+      indicator_parameter: indicatorParameter,
+      // Unlisted goals are excluded from other goals' parent/child listings
+      listing: { not: GoalListing.UNLISTED },
+      // If unit is specified, get a goal with the specified unit
+      ...(unit !== undefined ? { data_series: { unit: unit } } : {}),
+      roadmap_iteration: {
+        id: iterationId,
+        ...visibleRoadmapIterationsWHERE(accessContext),
       },
-      include: goalInclusionSelection,
-    });
-  }
-  catch (err) {
-    console.error(`Error fetching goal with indicator parameter ${indicatorParameter} and unit ${unit} for iteration ${iterationId}`, { err });
-    return null;
-  }
+    },
+    include: goalInclusionSelection,
+  });
 
   goal?.effects.sort(effectSorter);
 

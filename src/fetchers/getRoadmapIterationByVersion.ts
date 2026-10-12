@@ -2,6 +2,7 @@ import { IterationStatus } from "@/lib/prisma/generated";
 import "server-only";
 import { roadmapIterationInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { goalSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
@@ -18,7 +19,7 @@ import { cacheTag } from "next/cache";
  */
 export async function getRoadmapIterationByVersion(roadmapId: string, version: number | "latest"): Promise<RoadmapIteration | null> {
   const accessContext = await getUserAccessContext();
-  return getCachedRoadmapIterationByVersion(roadmapId, version, accessContext);
+  return uncachedFallback(() => getCachedRoadmapIterationByVersion(roadmapId, version, accessContext), null, "Error fetching roadmap iteration by version", { roadmapId, version });
 }
 
 /**
@@ -33,33 +34,27 @@ async function getCachedRoadmapIterationByVersion(roadmapId: string, version: nu
   cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action');
 
   let iteration: RoadmapIteration | null;
-  try {
-    if (version === "latest") {
-      // Latest non-draft iteration; drafts are never "latest" even for users who may see them
-      iteration = await prisma.roadmapIterations.findFirst({
-        where: {
-          roadmap_id: roadmapId,
-          status: { not: IterationStatus.DRAFT },
-          AND: [visibleRoadmapIterationsWHERE(accessContext)],
-        },
-        orderBy: { version: "desc" },
-        include: roadmapIterationInclusionSelection,
-      }) satisfies RoadmapIteration | null;
-    }
-    else {
-      iteration = await prisma.roadmapIterations.findUnique({
-        where: {
-          roadmap_version: { roadmap_id: roadmapId, version },
-          // AND keeps the filter's optional unique-key fields out of the WhereUniqueInput type
-          AND: [visibleRoadmapIterationsWHERE(accessContext)],
-        },
-        include: roadmapIterationInclusionSelection,
-      }) satisfies RoadmapIteration | null;
-    }
+  if (version === "latest") {
+    // Latest non-draft iteration; drafts are never "latest" even for users who may see them
+    iteration = await prisma.roadmapIterations.findFirst({
+      where: {
+        roadmap_id: roadmapId,
+        status: { not: IterationStatus.DRAFT },
+        AND: [visibleRoadmapIterationsWHERE(accessContext)],
+      },
+      orderBy: { version: "desc" },
+      include: roadmapIterationInclusionSelection,
+    }) satisfies RoadmapIteration | null;
   }
-  catch (err) {
-    console.error("Error fetching roadmap iteration by version", { err });
-    return null;
+  else {
+    iteration = await prisma.roadmapIterations.findUnique({
+      where: {
+        roadmap_version: { roadmap_id: roadmapId, version },
+        // AND keeps the filter's optional unique-key fields out of the WhereUniqueInput type
+        AND: [visibleRoadmapIterationsWHERE(accessContext)],
+      },
+      include: roadmapIterationInclusionSelection,
+    }) satisfies RoadmapIteration | null;
   }
 
   iteration?.goals.sort(goalSorter);

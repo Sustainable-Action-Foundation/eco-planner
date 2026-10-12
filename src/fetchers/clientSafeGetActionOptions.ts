@@ -1,6 +1,7 @@
 'use server';
 
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleActionsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { UserAccessContext } from "@/types";
@@ -20,35 +21,29 @@ export type ActionOption = {
  */
 export async function clientSafeGetActionOptions(): Promise<ActionOption[]> {
   const accessContext = await getUserAccessContext();
-  return clientSafeGetCachedActionOptions(accessContext);
+  return uncachedFallback(() => clientSafeGetCachedActionOptions(accessContext), [], "Error fetching action options");
 }
 
 async function clientSafeGetCachedActionOptions(accessContext: UserAccessContext | null): Promise<ActionOption[]> {
   'use cache';
   cacheTag('database', 'action');
 
-  try {
-    const actions = await prisma.actions.findMany({
-      where: visibleActionsWHERE(accessContext),
-      select: {
-        id: true,
-        name: true,
-        origin_action_id: true,
-        org: { select: { name: true } },
-        roadmap_iteration: { select: { roadmap: { select: { name: true } } } },
-      },
-      orderBy: [{ org: { name: 'asc' } }, { name: 'asc' }],
-    });
-    return actions.map(action => ({
-      id: action.id,
-      name: action.name,
-      orgName: action.org.name,
-      originActionId: action.origin_action_id,
-      roadmapName: action.roadmap_iteration?.roadmap.name ?? null,
-    }));
-  }
-  catch (err) {
-    console.error("Error fetching action options", { error: err });
-    return [];
-  }
+  const actions = await prisma.actions.findMany({
+    where: visibleActionsWHERE(accessContext),
+    select: {
+      id: true,
+      name: true,
+      origin_action_id: true,
+      org: { select: { name: true } },
+      roadmap_iteration: { select: { roadmap: { select: { name: true } } } },
+    },
+    orderBy: [{ org: { name: 'asc' } }, { name: 'asc' }],
+  });
+  return actions.map(action => ({
+    id: action.id,
+    name: action.name,
+    orgName: action.org.name,
+    originActionId: action.origin_action_id,
+    roadmapName: action.roadmap_iteration?.roadmap.name ?? null,
+  }));
 }
