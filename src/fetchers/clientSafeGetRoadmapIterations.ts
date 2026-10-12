@@ -22,7 +22,7 @@ export async function clientSafeGetRoadmapIterations(): Promise<ClientMultiRoadm
 
 async function getCachedClientSafeRoadmapIterations(accessContext: UserAccessContext | null): Promise<ClientMultiRoadmapInstance[]> {
   'use cache';
-  cacheTag('database', 'roadmap', 'roadmapIteration');
+  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action');
 
   const iterations: ClientMultiRoadmapInstance[] = await prisma.roadmapIterations.findMany({
     where: visibleRoadmapIterationsWHERE(accessContext),

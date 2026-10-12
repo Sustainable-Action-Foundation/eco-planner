@@ -27,7 +27,7 @@ export async function getOneEffect(actionId: string, goalId: string): Promise<Ef
  */
 async function getCachedEffect(actionId: string, goalId: string, accessContext: UserAccessContext | null): Promise<Effect | null> {
   'use cache';
-  cacheTag('database', 'action', 'goal', 'effect');
+  cacheTag('database', 'action', 'goal', 'effect', 'roadmap', 'roadmapIteration', 'dataSeries', 'org');
 
   const effect: Effect | null = await prisma.effects.findUnique({
     where: {

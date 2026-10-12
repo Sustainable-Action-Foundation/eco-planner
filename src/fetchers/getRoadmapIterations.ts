@@ -22,13 +22,13 @@ export async function getRoadmapIterations(iterationIds?: string[]): Promise<Mul
 
 /**
  * Caches all roadmap iterations the user has access to.
- * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap', 'roadmapIteration']`, which is done in relevant API routes.
+ * Cache is invalidated when `revalidateTag()` is called on one of the tags in its `cacheTag()` call, which is done in relevant API routes.
  * @param accessContext Requesting user's access context (null for anonymous visitors); part of the cache key.
  */
 async function getCachedRoadmapIterations(accessContext: UserAccessContext | null, iterationIds?: string[]): Promise<MultiRoadmapInstance[]> {
   'use cache';
   // goal/action are included because the returned iterations carry goal and action counts
-  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action');
+  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action', 'org');
 
   const iterations: MultiRoadmapInstance[] = await prisma.roadmapIterations.findMany({
     where: {

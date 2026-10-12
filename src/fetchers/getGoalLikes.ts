@@ -43,7 +43,7 @@ export async function getGoalLikeSummary(goalId: string): Promise<GoalLikeSummar
 
 async function getCachedGoalLikeSummary(goalId: string, accessContext: UserAccessContext | null): Promise<GoalLikeSummary> {
   'use cache';
-  cacheTag('database', 'goalLike', 'goal');
+  cacheTag('database', 'goalLike', 'goal', 'roadmap', 'roadmapIteration');
 
   const goal = await prisma.goals.findUnique({
     where: { id: goalId, roadmap_iteration: visibleRoadmapIterationsWHERE(accessContext) },

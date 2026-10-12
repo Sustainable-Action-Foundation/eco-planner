@@ -26,7 +26,7 @@ export async function clientSafeGetActionOptions(): Promise<ActionOption[]> {
 
 async function clientSafeGetCachedActionOptions(accessContext: UserAccessContext | null): Promise<ActionOption[]> {
   'use cache';
-  cacheTag('database', 'action');
+  cacheTag('database', 'action', 'roadmap', 'roadmapIteration', 'org');
 
   const actions = await prisma.actions.findMany({
     where: visibleActionsWHERE(accessContext),

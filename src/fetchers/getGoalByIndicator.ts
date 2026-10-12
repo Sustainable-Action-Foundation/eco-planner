@@ -27,14 +27,14 @@ export async function getGoalByIndicator(iterationId: string, indicatorParameter
 
 /**
  * Caches the matching goal's graph data.
- * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'goal', 'action', 'dataSeries']`, which is done in relevant API routes.
+ * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'goal', 'action', 'dataSeries', 'roadmap', 'roadmapIteration']`, which is done in relevant API routes.
  * @param iterationId ID of the roadmap iteration to search for the goal in
  * @param indicatorParameter Indicator parameter of the goal to cache
  * @param accessContext Requesting user's access context (null for anonymous visitors); part of the cache key.
  */
 async function getCachedGoalByIndicator(iterationId: string, indicatorParameter: string, unit: string | undefined | null, accessContext: UserAccessContext | null): Promise<RelatedGoal | null> {
   'use cache';
-  cacheTag('database', 'goal', 'action', 'dataSeries');
+  cacheTag('database', 'goal', 'action', 'dataSeries', 'roadmap', 'roadmapIteration');
 
   const goal: RelatedGoal | null = await prisma.goals.findFirst({
     where: {

@@ -23,7 +23,7 @@ export async function clientSafeGetOneRoadmapIteration(id: string): Promise<Clie
 
 async function getCachedClientSafeRoadmapIteration(id: string, accessContext: UserAccessContext | null): Promise<ClientRoadmapIteration | null> {
   'use cache';
-  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action');
+  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action', 'dataSeries');
 
   const iteration: ClientRoadmapIteration | null = await prisma.roadmapIterations.findUnique({
     where: {

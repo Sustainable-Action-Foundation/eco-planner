@@ -36,7 +36,7 @@ export async function getActionNeighbours(action: { id: string, origin_action_id
 
 async function getCachedActionNeighbours(rootId: string, selfId: string, accessContext: UserAccessContext | null): Promise<ActionNeighbour[]> {
   'use cache';
-  cacheTag('database', 'action');
+  cacheTag('database', 'action', 'roadmap', 'roadmapIteration', 'org');
 
   const neighbours = await prisma.actions.findMany({
     where: {

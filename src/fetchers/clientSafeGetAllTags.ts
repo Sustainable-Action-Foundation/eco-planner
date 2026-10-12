@@ -19,7 +19,7 @@ export async function clientSafeGetAllTags(): Promise<string[]> {
 
 async function clientSafeGetCachedAllTags(accessContext: UserAccessContext | null): Promise<string[]> {
   'use cache';
-  cacheTag('database', 'action');
+  cacheTag('database', 'action', 'roadmap', 'roadmapIteration');
 
   const fields: { value: string }[] = await prisma.actionFields.findMany({
     where: {

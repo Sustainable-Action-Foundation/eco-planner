@@ -21,13 +21,13 @@ export async function getOneRoadmap(id: string): Promise<Roadmap | null> {
 
 /**
  * Caches the specified roadmap.
- * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap', 'roadmapIteration']`, which is done in relevant API routes.
+ * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap', 'roadmapIteration', 'goal', 'org']`, which is done in relevant API routes.
  * @param id ID of the roadmap to cache
  * @param accessContext Requesting user's access context (null for anonymous visitors); part of the cache key.
  */
 async function getCachedRoadmap(id: string, accessContext: UserAccessContext | null): Promise<Roadmap | null> {
   'use cache';
-  cacheTag('database', 'roadmap', 'roadmapIteration');
+  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'org');
 
   const roadmap: Roadmap | null = await prisma.roadmaps.findUnique({
     where: {

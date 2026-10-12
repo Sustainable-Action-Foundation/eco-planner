@@ -20,7 +20,7 @@ export async function getNames() {
 
 /**
  * Caches names and ids of all roadmaps, goals, and actions.
- * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap', 'goal', 'action']`, which is done in relevant API routes.
+ * Cache is invalidated when `revalidateTag()` is called on one of the tags in its `cacheTag()` call, which is done in relevant API routes.
  * @param accessContext Requesting user's access context (null for anonymous visitors); part of the cache key.
  */
 async function getCachedNames(accessContext: UserAccessContext | null) {

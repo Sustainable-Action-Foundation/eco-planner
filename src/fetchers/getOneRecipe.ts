@@ -24,7 +24,7 @@ export async function getOneRecipe(id: string): Promise<DBRecipe | null> {
  */
 async function getCachedRecipe(id: string, accessContext: UserAccessContext | null): Promise<DBRecipe | null> {
   'use cache';
-  cacheTag('database', 'recipe', 'dataSeries');
+  cacheTag('database', 'recipe', 'dataSeries', 'roadmap', 'roadmapIteration');
 
   const recipe: DBRecipe | null = await prisma.recipes.findUnique({
     where: {

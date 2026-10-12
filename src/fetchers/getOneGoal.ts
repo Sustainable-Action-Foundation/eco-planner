@@ -22,13 +22,13 @@ export async function getOneGoal(id: string): Promise<Goal | null> {
 
 /**
  * Caches the specified goal and all effects for that goal.
- * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'goal', 'action', 'dataSeries']`, which is done in relevant API routes.
+ * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'goal', 'action', 'dataSeries', 'roadmap', 'roadmapIteration', 'org']`, which is done in relevant API routes.
  * @param id ID of the goal to cache
  * @param accessContext Requesting user's access context (null for anonymous visitors); part of the cache key.
  */
 async function getCachedGoal(id: string, accessContext: UserAccessContext | null): Promise<Goal | null> {
   'use cache';
-  cacheTag('database', 'goal', 'action', 'dataSeries');
+  cacheTag('database', 'goal', 'action', 'dataSeries', 'roadmap', 'roadmapIteration', 'org');
 
   const goal: Goal | null = await prisma.goals.findUnique({
     where: {

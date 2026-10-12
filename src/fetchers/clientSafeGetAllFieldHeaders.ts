@@ -21,7 +21,7 @@ export async function clientSafeGetAllFieldHeaders(): Promise<string[]> {
 
 async function clientSafeGetCachedAllFieldHeaders(accessContext: UserAccessContext | null): Promise<string[]> {
   'use cache';
-  cacheTag('database', 'action');
+  cacheTag('database', 'action', 'roadmap', 'roadmapIteration');
 
   const fields: { header: string }[] = await prisma.actionFields.findMany({
     where: {

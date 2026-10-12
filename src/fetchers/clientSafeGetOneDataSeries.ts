@@ -21,7 +21,7 @@ export async function clientSafeGetOneDataSeries(id: string): Promise<DataSeries
 
 async function clientSafeGetCachedDataSeries(id: string, accessContext: UserAccessContext | null): Promise<DataSeries | null> {
   'use cache';
-  cacheTag('database', 'dataSeries', 'action', 'goal');
+  cacheTag('database', 'dataSeries', 'action', 'goal', 'roadmap', 'roadmapIteration');
 
   const dataSeries: DataSeries | null = await prisma.dataSeries.findUnique({
     where: {

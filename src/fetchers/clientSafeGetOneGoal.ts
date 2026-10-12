@@ -22,7 +22,7 @@ export async function clientSafeGetOneGoal(id: string): Promise<ClientGoal | nul
 
 async function clientSafeGetCachedGoal(id: string, accessContext: UserAccessContext | null): Promise<ClientGoal | null> {
   'use cache';
-  cacheTag('database', 'goal', 'action', 'dataSeries');
+  cacheTag('database', 'goal', 'action', 'dataSeries', 'roadmap', 'roadmapIteration');
 
   const goal: ClientGoal | null = await prisma.goals.findUnique({
     where: {
