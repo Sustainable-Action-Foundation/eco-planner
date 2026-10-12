@@ -470,6 +470,10 @@
     "org": "Visible to everyone in {{org}}",
     "groups": "Visible only to groups with access"
   },
+  "entity_timestamps": {
+    "created": "Created {{date, datetime}}",
+    "updated": "Updated {{date, datetime}}"
+  },
   "like_button": {
     "failed": "Could not save the like: {{details}}",
     "like": "Like this goal",

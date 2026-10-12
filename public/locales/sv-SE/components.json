@@ -470,6 +470,10 @@
     "org": "Synlig för alla i {{org}}",
     "groups": "Synlig bara för grupper med åtkomst"
   },
+  "entity_timestamps": {
+    "created": "Skapad {{date, datetime}}",
+    "updated": "Uppdaterad {{date, datetime}}"
+  },
   "like_button": {
     "failed": "Kunde inte spara gilla-markeringen: {{details}}",
     "like": "Gilla målbanan",

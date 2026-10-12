@@ -16,6 +16,7 @@ import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
 import { buildMetadata } from "@/functions/buildMetadata";
 import { AdminPanel } from "@/components/elements/controls/controls";
+import EntityTimestamps from "@/components/generic/timestamps/entityTimestamps";
 import type { Metadata } from "next";
 
 export async function generateMetadata(props: { params: Promise<{ actionId: string }> }): Promise<Metadata> {
@@ -105,7 +106,8 @@ export default async function Page(props: { params: Promise<{ actionId: string }
               ))}
             </ul>
           }
-          <p className="margin-top-0 margin-bottom-100">{action.start_year} - {action.end_year}</p>
+          <p className="margin-top-0 margin-bottom-25">{action.start_year} - {action.end_year}</p>
+          <EntityTimestamps createdAt={action.created_at} updatedAt={action.updated_at} className="margin-bottom-100" />
           {/* Roadmapless actions follow no roadmap's sharing: say so, since nothing else on the page does */}
           {!action.roadmap_iteration ?
             <span className="inline-flex align-items-center gap-25 margin-bottom-100" style={{ color: 'gray' }} data-testid="sharing-line">

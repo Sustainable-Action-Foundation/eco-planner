@@ -16,6 +16,7 @@ import { IconArrowNarrowRight, IconBuildings, IconCircleFilled } from "@tabler/i
 import Link from "next/link";
 import TextEditor from "@/components/form/elements/textEditor/editor";
 import { AdminPanel } from "@/components/elements/controls/controls";
+import EntityTimestamps from "@/components/generic/timestamps/entityTimestamps";
 import VisibilityBadges from "@/components/generic/visibility/visibilityBadges";
 import SharingLine from "@/components/generic/visibility/sharingLine";
 import ActionTable from "@/components/tables/actions";
@@ -120,6 +121,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string,
           </span>
           <SharingLine accessControl={iteration.roadmap.access_control} />
         </div>
+        <EntityTimestamps createdAt={iteration.created_at} updatedAt={iteration.updated_at} className="margin-top-25" />
       </header>
 
       <div className="margin-top-300">

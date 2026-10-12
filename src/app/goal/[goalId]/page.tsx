@@ -4,6 +4,7 @@ import Comments from "@/components/comments/comments";
 import ActionGraph from "@/components/graph/graphs/actionTimeline";
 import GoalActionEffectList from "@/components/pages/sections/goalActionEffects";
 import { AdminPanel } from "@/components/elements/controls/controls";
+import EntityTimestamps from "@/components/generic/timestamps/entityTimestamps";
 import VisibilityBadges from "@/components/generic/visibility/visibilityBadges";
 import { getGoalByIndicator, getOneGoal, getOneRoadmapIteration, getRoadmapIterationByVersion, getRoadmapIterations } from "@/fetchers";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
@@ -246,6 +247,7 @@ export default async function Page(
           {/* Suffixed with the goal's level (national / area name) so copies scaled into local roadmaps aren't mistaken for the national original */}
           <h1 className="margin-0" style={{ fontSize: '3rem', lineHeight: '1' }}>{goalTitleWithLevel(t, goal, iteration.roadmap)}</h1>
           <small style={{ color: 'gray' }} data-testid="goal-indicator-parameter">{goal.indicator_parameter}</small> {/* TODO: Probably use span here instead */}
+          <EntityTimestamps createdAt={goal.created_at} updatedAt={goal.updated_at} className="margin-top-25" />
         </header>
 
         {goal.description ?
