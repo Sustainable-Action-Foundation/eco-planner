@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { expect, test } from "playwright/test";
 
 import accessChecker, { hasEditAccess, hasViewAccess } from "../../src/lib/accessChecker";
@@ -196,6 +198,14 @@ test.describe("published iterations of a roadmap type keep the access filter", (
       ]);
       expect(visibleRoadmapIterationsWHERE(ctx).roadmap?.access_control).toEqual(readableAccessControlWHERE(ctx));
     }
+  });
+
+  test("national goal matches build their iteration filter with the helper", () => {
+    // The helper is only a fix if the call site uses it: a spread next to a `roadmap:` key is the
+    // shape that overwrote the access filter. The fetcher is server-only, so this checks its source.
+    const source = fs.readFileSync(path.join(process.cwd(), "src/fetchers/getNationalGoalMatches.ts"), "utf-8");
+    expect(source).toContain("publishedIterationsOfTypeWHERE(accessContext, RoadmapType.NATIONAL)");
+    expect(source).not.toMatch(/\.\.\.visibleRoadmapIterationsWHERE\(/);
   });
 });
 
