@@ -1,5 +1,5 @@
 import type { IterationStatus, OrgRole, Prisma, GeoAreaType, RoadmapType } from "@/lib/prisma/generated";
-import type { accessControlSelection, actionInclusionSelection, clientSafeDataSeriesSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapIterationSelection, effectInclusionSelection, goalInclusionSelection, multiRoadmapInclusionSelection, nameSelector, recipeSelector, relatedGoalSelection, roadmapInclusionSelection, roadmapIterationInclusionSelection, siblingGoalSelection, userInfoSelector } from "@/fetchers/inclusionSelectors";
+import type { accessControlSelection, actionInclusionSelection, actionSummarySelection, clientSafeDataSeriesSelection, clientSafeGoalSelection, clientSafeMultiRoadmapSelection, clientSafeRoadmapIterationSelection, effectInclusionSelection, goalInclusionSelection, multiRoadmapInclusionSelection, nameSelector, recipeSelector, relatedGoalSelection, roadmapInclusionSelection, roadmapIterationInclusionSelection, siblingGoalSelection, userInfoSelector } from "@/fetchers/inclusionSelectors";
 import type { UnitFlags } from "@/types/enums";
 import type { DataSeriesVariable, ExternalVariable, SerializedRecipe } from "@/functions/recipe/types";
 
@@ -101,6 +101,11 @@ export type ClientGoal = Prisma.GoalsGetPayload<{
 
 export type Action = Prisma.ActionsGetPayload<{
   include: typeof actionInclusionSelection
+}>;
+
+/** An action as the action list shows it */
+export type ActionSummary = Prisma.ActionsGetPayload<{
+  select: typeof actionSummarySelection
 }>;
 
 export type Effect = Prisma.EffectsGetPayload<{

@@ -372,6 +372,17 @@ export const actionInclusionSelection = {
   fields: { orderBy: { order: 'asc' as const } },
 } satisfies Prisma.ActionsInclude;
 
+/** What an action list card shows (see the `Actions` section); `getActionSummaries` selects only this. */
+export const actionSummarySelection = {
+  id: true,
+  name: true,
+  start_year: true,
+  end_year: true,
+  origin_action_id: true,
+  author: { select: { username: true } },
+  fields: { select: { header: true, value: true, type: true }, orderBy: { order: 'asc' as const } },
+} satisfies Prisma.ActionsSelect;
+
 export const effectInclusionSelection = {
   data_series: { include: dataSeriesInclusionSelection },
   // `select` (not `include`) on action/goal: the effect edit flow only needs their

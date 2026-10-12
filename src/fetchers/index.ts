@@ -1,6 +1,7 @@
 import "server-only";
 
 export { getActions } from "./getActions";
+export { getActionSummaries } from "./getActionSummaries";
 export { getGoalByIndicator } from "./getGoalByIndicator";
 export { getGoalSiblings } from "./getGoalSiblings";
 export { getNames } from "./getNames";

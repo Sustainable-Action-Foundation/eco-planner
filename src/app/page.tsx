@@ -10,7 +10,7 @@ import RoadmapTree from "@/components/tables/roadmapTables/roadmapTree";
 import serveTea from "@/lib/i18nServer";
 import Link from "next/link";
 import { buildMetadata } from "@/functions/buildMetadata";
-import { getActions, getRoadmapIterations, getRoadmaps, getUserOrgs } from "@/fetchers";
+import { getActionSummaries, getRoadmapIterations, getRoadmaps, getUserOrgs } from "@/fetchers";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import accessChecker, { hasEditAccess } from "@/lib/accessChecker";
 import Actions from "@/components/pages/sections/actions";
@@ -160,9 +160,6 @@ export default async function Page(
   const orgIterations = selectedOrg
     ? iterations.filter(iteration => iteration.roadmap.access_control.org_id === selectedOrg.id)
     : [];
-  const orgActions = selectedOrg
-    ? (await getActions()).filter(action => action.org_id === selectedOrg.id)
-    : null;
   // Where a copied national goal can go: the versions of the org's roadmaps the user can edit
   const copyTargets = selectedOrg
     ? roadmaps
@@ -229,7 +226,9 @@ export default async function Page(
         </section>
 
         <section className="margin-block-300">
-          <Actions actions={orgActions} />
+          <Suspense key={selectedOrg.id} fallback={<Image src={'/loaders/3-dots-move.svg'} width={24} height={24} alt='' aria-live="polite" />}>
+            <OrgActions orgId={selectedOrg.id} />
+          </Suspense>
         </section>
 
         {/* The streamed sections below are keyed by org: a switch then shows their fallbacks at once
@@ -321,4 +320,9 @@ export default async function Page(
       </section>  */}
     </main>
   </>;
+}
+
+/** The org's actions, streamed in their own boundary so the shell never waits on them */
+async function OrgActions({ orgId }: { orgId: string }) {
+  return <Actions actions={await getActionSummaries(orgId)} />;
 }
