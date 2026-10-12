@@ -13,6 +13,7 @@ You should have received a copy of the GNU Affero General Public License along w
 This tool requires the following environment variables to be set:
 - `IRON_SESSION_PASSWORD`: Should be a string at least 32 characters long. This is used to encrypt the session cookie from the Iron Session library.
 - `DATABASE_URL`: Should be a connection string to a database. This is used by Prisma to connect to the database. The client connects through `@prisma/adapter-mariadb`, so a MySQL/MariaDB database is expected; targeting something else requires changing both the adapter setup in `src/lib/prisma/prisma.ts` and the `provider` in `prisma/schema.prisma`.
+  - Optional pool params in the query string (Prisma's names): `connection_limit` (default 10), `pool_timeout` in seconds (default 10), `connect_timeout` in seconds (default 1), e.g. `mysql://user:pass@host:3306/db?connection_limit=10&pool_timeout=10`. Recommended values per environment are in [`caching.md`](caching.md#database-pool).
 - `MAIL_TENANT_ID`, `MAIL_CLIENT_ID`, `MAIL_CLIENT_SECRET`: Credentials for a Microsoft Entra app registration, used to send mail through Microsoft Graph with the client credentials flow.
 - `MAIL_USER`: The mailbox mail is sent from, e.g. `noreply@example.org`. Must exist in the tenant.
   - These `MAIL_`-variables are used in `src/mailClient.ts`. The app registration needs the application permissions `Mail.Send`, plus `Mail.ReadWrite` for the mailbox check in `verify()`.
