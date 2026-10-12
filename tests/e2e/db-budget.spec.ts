@@ -16,19 +16,21 @@ import { orgLandingHref } from "../lib/org-switcher";
 
 /**
  * Max Prisma statements per warm page load (admin, fat seed). Measured 2026-10-12 against
- * `next dev` (db-slim workstream A); budget = measured + ~25% slack, rounded up.
- * Warm loads are almost entirely the uncached access-context lookup (3 statements per
- * getUserAccessContext() call), repeated by every fetcher on the page.
+ * `next dev`; budget = measured + ~25% slack, rounded up.
+ * Warm loads are only the access-context lookup (3 statements, once per request since it is
+ * memoized with React `cache()`): every DB fetcher is served from its 'use cache' entry. Any
+ * growth here is an uncached query or a lookup that lost its request memoization.
+ * History: before the request memoization (db-slim workstream A) these were 24 / 24 / 29 / 12.
  */
 const QueryBudget = {
-  /** `/`, admin's default org landing. Measured: 24 (8 access-context lookups) */
-  Startpage: 30,
-  /** `/?org=<Boden>`. Measured: 24 (8 access-context lookups) */
-  OrgLanding: 30,
-  /** First (unlisted, LEAP-copied) goal in table view of Bodens klimatfärdplan. Measured: 29 (9 lookups + recipes) */
-  GoalPage: 37,
-  /** Bodens klimatfärdplan, latest iteration. Measured: 12 (4 access-context lookups) */
-  RoadmapIteration: 15,
+  /** `/`, admin's default org landing. Measured: 3 */
+  Startpage: 4,
+  /** `/?org=<Boden>`. Measured: 3 */
+  OrgLanding: 4,
+  /** First (unlisted, LEAP-copied) goal in table view of Bodens klimatfärdplan. Measured: 3 */
+  GoalPage: 4,
+  /** Bodens klimatfärdplan, latest iteration. Measured: 3 */
+  RoadmapIteration: 4,
 } as const;
 
 const REPEATS = 3;
