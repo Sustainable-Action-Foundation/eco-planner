@@ -68,7 +68,7 @@ services:
     ports:
       - "8081:8081"
     environment:
-      # TEST_ENVIRONMENT should affect as little as possible, currently only for setting secure cookie flag to false in session cookies since webkit doesn't exclude localhost from https-requirement for secure cookies, and suppressing a console log in health route.
+      # TEST_ENVIRONMENT should affect as little as possible, currently only for setting secure cookie flag to false in session cookies since webkit doesn't exclude localhost from https-requirement for secure cookies, suppressing a console log in health route, and exposing /api/test/db-stats for the query-budget canary.
       - TEST_ENVIRONMENT=testing
       # Database connection string
       - DATABASE_URL=${TEST_DATABASE_URL:-mysql://root:admin@db:3306/eco-planner}
