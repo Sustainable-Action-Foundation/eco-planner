@@ -57,6 +57,13 @@ yarn test
 
 To run the e2e tests against an app you host yourself instead of the docker stack, set `SAF_LOCAL_TESTS=true` (and optionally `SAF_SKIP_BUILD=true` to skip rebuilding); the test runner will then start the app with `yarn build && yarn start`. The target URL can be overridden with `BASE_URL`.
 
+### DB instrumentation
+Every Prisma statement is counted in-process (`src/lib/prisma/dbStats.ts`; cheap and always on).
+
+- `SAF_DB_TRACE=true yarn next dev` additionally prints a summary per burst of queries (flushed 250 ms after the last one, so roughly per request): count, DB time, span, the 3 slowest statements and a per-table histogram. Dev only: it logs SQL. Note that statement durations are wall time around the driver call, so a busy event loop (e.g. a large render) inflates them.
+- `GET /api/test/db-stats` returns the cumulative `{ queries, dbMs }`. It is 404 in production builds unless `TEST_ENVIRONMENT=testing` (the docker test stack) and never touches the DB.
+- `tests/e2e/db-budget.spec.ts` is a query-budget canary: it measures how many statements a warm load of the startpage, an org landing, a goal page and a roadmap iteration costs (admin, fat seed) and fails past the budgets at the top of the file (measured baseline + ~25%). It runs in its own `db-budget` project after all browser projects, since the counters are process-global. Run it alone with `yarn playwright test -c tests/playwright.e2e.config.ts --project=setup` followed by `--project=db-budget --no-deps`. Playwright request interception (`page.route`) makes Chromium send `Cache-Control: no-cache`, which makes `next dev` bypass every `'use cache'` entry, so the canary must not use it.
+
 ## Components
 
 ### Generic components
