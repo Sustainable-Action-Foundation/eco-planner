@@ -70,12 +70,28 @@ export async function getCuratedHistoricalEntries(t: TFunction, geoArea: Curated
   return entries.length ? fetchEntries(entries, geoArea) : [];
 }
 
+/**
+ * How many series of one dataset (one upstream) are requested at once on a cold cache.
+ * Energimyndigheten (STEM) answers even 2 concurrent requests with 429s (measured 2026-10-12,
+ * despite the PxWeb path's retry after Retry-After), so it stays strictly serial, and so does SCB
+ * (also PxWeb, rate-limited per IP, not measured). Trafa took 3 at a time without complaint;
+ * drop it to 2 if it starts answering 429.
+ */
+const seriesConcurrency: Record<DatasetKeys, number> = {
+  STEM: 1,
+  SCB: 1,
+  SSB: 1,
+  Trafa: 3,
+};
+
 async function fetchEntries(catalogEntries: CuratedHistoricalEntry[], geoArea: CuratedGeoArea): Promise<CuratedHistoricalEntryData[]> {
   const area = { code: geoArea.code, type: geoArea.type };
 
-  // The series are fetched one at a time per dataset (datasets in parallel):
-  // on a cold cache a catalog is a dozen requests to the same upstream, and
-  // Energimyndigheten in particular answers bursts with 429s.
+  // Datasets are fetched in parallel, but within a dataset at most
+  // `seriesConcurrency[dataset]` series at a time: on a cold cache a catalog is
+  // a dozen requests to the same upstream, and Energimyndigheten in particular
+  // answers bursts with 429s. Strictly one at a time made a cold Trafa catalog
+  // (8 series at ~300 ms) take ~2.5 s.
   const seriesByDataset = new Map<DatasetKeys, { id: string, source: CuratedSource }[]>();
   for (const entry of catalogEntries) {
     for (const series of entry.series) {
@@ -88,10 +104,16 @@ async function fetchEntries(catalogEntries: CuratedHistoricalEntry[], geoArea: C
   }
 
   const results = new Map<string, CachedSeries | null>();
-  await Promise.all([...seriesByDataset.values()].map(async group => {
-    for (const { id, source } of group) {
-      results.set(id, await getCachedSeries(source, area));
-    }
+  await Promise.all([...seriesByDataset].map(async ([dataset, group]) => {
+    // A few workers drain the dataset's queue, so no more than that many requests are in flight per upstream
+    let next = 0;
+    const worker = async () => {
+      while (next < group.length) {
+        const { id, source } = group[next++];
+        results.set(id, await getCachedSeries(source, area));
+      }
+    };
+    await Promise.all(Array.from({ length: Math.min(seriesConcurrency[dataset], group.length) }, worker));
   }));
 
   const entries = catalogEntries.map(entry => ({
