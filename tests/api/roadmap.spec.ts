@@ -239,7 +239,8 @@ test.describe("Delete", () => {
 
     const response = await admin.delete("/api/roadmap", { data: { id } });
     expect(response.status(), await response.text()).toBe(200);
-    expect(response.headers()["location"]).toBe("/");
+    // The client follows Location to the owning org's landing page
+    expect(response.headers()["location"]).toBe(`/?org=${sandbox.orgId}`);
 
     await expectPageStatus(admin, `/roadmap/${id}`, 404);
     await expectPageStatus(admin, `/roadmap/${id}/v1`, 404);
