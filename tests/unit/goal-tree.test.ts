@@ -1,10 +1,10 @@
 import { expect, test } from "playwright/test";
 import type { TFunction } from "i18next";
 
-import findSiblings from "../../src/functions/findSiblings";
+import findSiblings, { siblingIndicatorPrefixes } from "../../src/functions/findSiblings";
 import goalsToTree from "../../src/functions/goalsToTree";
 import { GoalListing } from "../../src/lib/prisma/generated";
-import type { Goal, GoalTree, GoalTreeEntry, RoadmapIteration } from "../../src/types";
+import type { GoalTree, GoalTreeEntry } from "../../src/types";
 
 /*
  * Both functions walk the backslash-separated indicator parameter. The tree
@@ -91,18 +91,16 @@ test.describe("goalsToTree", () => {
 });
 
 test.describe("findSiblings", () => {
-  function goal(id: string, indicator: string, options: { unit?: string | null, listing?: GoalListing, noSeries?: boolean } = {}): Goal {
+  type Candidate = Parameters<typeof findSiblings>[1];
+  function goal(id: string, indicator: string, options: { unit?: string | null, listing?: GoalListing, noSeries?: boolean } = {}): Candidate {
     return {
       id,
-      name: null,
       indicator_parameter: indicator,
       listing: options.listing ?? GoalListing.LISTED,
-      data_series: options.noSeries ? null : { id: `${id}-series`, unit: options.unit === undefined ? "st" : options.unit },
-    } as unknown as Goal;
+      data_series: options.noSeries ? null : { unit: options.unit === undefined ? "st" : options.unit },
+    };
   }
-  // The iteration's goal rows are a slimmer shape than `Goal`; findSiblings only reads the shared fields
-  const iteration = (goals: Goal[]) => ({ goals: goals as unknown as RoadmapIteration["goals"] }) as unknown as RoadmapIteration;
-  const ids = (goals: RoadmapIteration["goals"]) => goals.map(g => g.id).sort();
+  const ids = (goals: Candidate[]) => goals.map(g => g.id).sort();
 
   const self = goal("self", "Key\\Transport\\Cars\\Count");
   const sibling = goal("sibling", "Key\\Transport\\Cars\\Share");
@@ -115,18 +113,18 @@ test.describe("findSiblings", () => {
   const featured = goal("featured", "Key\\Transport\\Cars\\Star", { listing: GoalListing.FEATURED });
 
   test("siblings share the path, the level and the unit; Key and Demand are interchangeable", () => {
-    const found = findSiblings(iteration([self, sibling, demandSibling, otherUnit, deeper, shallower, cousin, unlisted, featured]), self);
+    const found = findSiblings([self, sibling, demandSibling, otherUnit, deeper, shallower, cousin, unlisted, featured], self);
     expect(ids(found)).toEqual(["demand", "featured", "sibling"]);
   });
 
   test("the goal itself is never its own sibling", () => {
-    expect(findSiblings(iteration([self]), self)).toEqual([]);
+    expect(findSiblings([self], self)).toEqual([]);
   });
 
   test("unlisted goals are left out of other goals' siblings", () => {
-    expect(findSiblings(iteration([self, unlisted]), self)).toEqual([]);
+    expect(findSiblings([self, unlisted], self)).toEqual([]);
     // ... but an unlisted goal still finds its own listed siblings
-    expect(ids(findSiblings(iteration([self, unlisted]), unlisted))).toEqual(["self"]);
+    expect(ids(findSiblings([self, unlisted], unlisted))).toEqual(["self"]);
   });
 
   test("units must match exactly, including both being unitless or missing", () => {
@@ -134,14 +132,23 @@ test.describe("findSiblings", () => {
     const unitlessToo = goal("unitless-too", "Key\\A\\Y", { unit: null });
     const noSeries = goal("no-series", "Key\\A\\Z", { noSeries: true });
     const noSeriesToo = goal("no-series-too", "Key\\A\\W", { noSeries: true });
-    expect(ids(findSiblings(iteration([unitless, unitlessToo, noSeries, noSeriesToo]), unitless))).toEqual(["unitless-too"]);
-    expect(ids(findSiblings(iteration([unitless, unitlessToo, noSeries, noSeriesToo]), noSeries))).toEqual(["no-series-too"]);
+    expect(ids(findSiblings([unitless, unitlessToo, noSeries, noSeriesToo], unitless))).toEqual(["unitless-too"]);
+    expect(ids(findSiblings([unitless, unitlessToo, noSeries, noSeriesToo], noSeries))).toEqual(["no-series-too"]);
   });
 
   test("top-level goals are siblings of each other", () => {
     const a = goal("a", "Key\\A");
     const b = goal("b", "B");
     const c = goal("c", "Demand\\C");
-    expect(ids(findSiblings(iteration([a, b, c]), a))).toEqual(["b", "c"]);
+    expect(ids(findSiblings([a, b, c], a))).toEqual(["b", "c"]);
+  });
+
+  test("the candidate prefixes cover every sibling, and top-level goals need no prefix", () => {
+    const prefixes = siblingIndicatorPrefixes(self.indicator_parameter);
+    expect(prefixes).toEqual(["Transport\\Cars\\", "Key\\Transport\\Cars\\", "Demand\\Transport\\Cars\\"]);
+    for (const found of findSiblings([sibling, demandSibling, featured], self)) {
+      expect(prefixes?.some(prefix => found.indicator_parameter.startsWith(prefix)), found.id).toBe(true);
+    }
+    expect(siblingIndicatorPrefixes("Key\\A")).toBeNull();
   });
 });

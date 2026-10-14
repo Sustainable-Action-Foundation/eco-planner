@@ -1,4 +1,4 @@
-import { getActions } from "@/fetchers";
+import { getActionSummaries } from "@/fetchers";
 import Actions from "../../components/pages/sections/actions";
 import serveTea from "@/lib/i18nServer"; 
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
@@ -19,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Page() {
   const [t, actions] = await Promise.all([
     serveTea("pages"),
-    getActions(),
+    getActionSummaries(),
   ]);
 
   return (

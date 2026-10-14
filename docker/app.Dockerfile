@@ -125,6 +125,9 @@ COPY ./public ./public
 # Copy built application with proper ownership
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Disk cache for external statistics (see SAF_CACHE_DIR in next.config.ts); created here so a
+# volume mounted on it starts out owned by the app user
+RUN mkdir -p ./.next/cache/upstream && chown -R nextjs:nodejs ./.next/cache
 
 # App has an API endpoint which always returns 200 OK.
 # Probe every 3s during startup, then relax to 30s steady-state.

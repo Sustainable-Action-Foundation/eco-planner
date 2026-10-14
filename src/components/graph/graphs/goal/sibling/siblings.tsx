@@ -5,7 +5,7 @@ import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
-import type { Goal, RoadmapIteration } from "@/types";
+import type { Goal, SiblingGoal } from "@/types";
 import { stroke, marker } from "../../../config";
 import styles from '../goal.module.css';
 import type { ApexAxisChartSeries } from "apexcharts";
@@ -16,15 +16,15 @@ import type { ApexAxisChartSeries } from "apexcharts";
  * A graph that shows how a goal stacks up against its siblings (other goals in the same roadmap version with similar indicator parameters and same unit).
  */
 export default function SiblingGraph({
-  iteration,
+  siblingCandidates,
   goal,
 }: {
-  iteration: RoadmapIteration;
+  siblingCandidates: SiblingGoal[];
   goal: Goal;
 }) {
   const { t } = useTranslation("graphs");
 
-  const siblings = findSiblings(iteration, goal);
+  const siblings = findSiblings(siblingCandidates, goal);
   const dataPoints: ApexAxisChartSeries = [];
   const [isStacked, setIsStacked] = useState(true);
 

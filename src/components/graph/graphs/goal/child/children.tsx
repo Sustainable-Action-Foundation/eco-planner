@@ -2,7 +2,7 @@
 
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
-import type { Goal } from "@/types";
+import type { Goal, RelatedGoal } from "@/types";
 import { isISOIshDate } from "@/types/typeguards";
 import { useTranslation } from "react-i18next";
 import { color_palette, stroke, marker } from "../../../config";
@@ -17,7 +17,7 @@ export default function GoalChildGraph({
   isStacked,
 }: {
   goal: Goal,
-  childGoals: Goal[],
+  childGoals: RelatedGoal[],
   isStacked: boolean,
 }) {
   const { t } = useTranslation("graphs");

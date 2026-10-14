@@ -3,7 +3,7 @@
 import WrappedChart, { graphNumberFormatter } from "@/lib/chartWrapper";
 import { calculatePredictedOutcome } from "../../../functions/graphFunctions";
 import { useTranslation } from "react-i18next";
-import type { Goal } from "@/types";
+import type { Goal, RelatedGoal } from "@/types";
 import { isISOIshDate } from "@/types/typeguards";
 import { dataSeriesToDateValues } from "@/functions/recipe/vectorAndMaskUtils";
 import type { ApexAxisChartSeries } from "apexcharts";
@@ -14,7 +14,7 @@ export default function PredictionChildGraph({
   isStacked,
 }: {
   goal: Goal;
-  childGoals: Goal[];
+  childGoals: RelatedGoal[];
   isStacked: boolean,
 }) {
   const { t } = useTranslation("graphs");

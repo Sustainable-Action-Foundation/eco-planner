@@ -1,6 +1,7 @@
 'use server';
 
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleActionsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { UserAccessContext } from "@/types";
@@ -20,14 +21,14 @@ export type ActionOption = {
  */
 export async function clientSafeGetActionOptions(): Promise<ActionOption[]> {
   const accessContext = await getUserAccessContext();
-  return clientSafeGetCachedActionOptions(accessContext);
+  return uncachedFallback(() => clientSafeGetCachedActionOptions(accessContext), [], "Error fetching action options");
 }
 
 async function clientSafeGetCachedActionOptions(accessContext: UserAccessContext | null): Promise<ActionOption[]> {
   'use cache';
-  cacheTag('database', 'action');
+  cacheTag('database', 'action', 'roadmap', 'roadmapIteration', 'org');
 
-  try {
+  return boundedFill("clientSafeGetCachedActionOptions", async () => {
     const actions = await prisma.actions.findMany({
       where: visibleActionsWHERE(accessContext),
       select: {
@@ -46,9 +47,5 @@ async function clientSafeGetCachedActionOptions(accessContext: UserAccessContext
       originActionId: action.origin_action_id,
       roadmapName: action.roadmap_iteration?.roadmap.name ?? null,
     }));
-  }
-  catch (err) {
-    console.error("Error fetching action options", { error: err });
-    return [];
-  }
+  });
 }

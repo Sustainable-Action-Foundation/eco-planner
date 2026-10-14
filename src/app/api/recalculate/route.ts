@@ -122,8 +122,9 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Invalidate old cache
-    revalidateTag('dataSeries', 'max');
+    // Invalidate old cache. Expire now (not 'max'): the user who recalculated, and a chained
+    // recalculation reading this series as input, must see the new values on the next read
+    revalidateTag('dataSeries', { expire: 0 });
     return Response.json({ message: "Data series updated", id: updatedDataSeries.id },
       { status: 200 },
     );

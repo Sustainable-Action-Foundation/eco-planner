@@ -9,7 +9,7 @@ import { buildRegionSelection, CuratedRegionKind, findRegionCodeByLabel, getCura
 import { UnitFlags } from "@/types/enums";
 import { cacheLife, cacheTag } from "next/cache";
 import type { CuratedHistoricalCatalog, CuratedHistoricalEntry, CuratedSeries, CuratedSource } from "@/lib/curatedHistoricalData";
-import type { ApiSelectionItem, ApiTableContent, DatasetKeys } from "@/lib/api/apiTypes";
+import type { ApiSelectionItem, ApiTableContent, DatasetKeys, PxWebCompatTableMetadata, UpstreamFailureReporter } from "@/lib/api/apiTypes";
 import type { ExternalVariable } from "@/functions/recipe/types";
 import type { DateValues } from "@/types";
 import type { GeoAreaType } from "@/lib/prisma/generated";
@@ -70,12 +70,28 @@ export async function getCuratedHistoricalEntries(t: TFunction, geoArea: Curated
   return entries.length ? fetchEntries(entries, geoArea) : [];
 }
 
+/**
+ * How many series of one dataset (one upstream) are requested at once on a cold cache.
+ * Energimyndigheten (STEM) answers even 2 concurrent requests with 429s (measured 2026-10-12,
+ * despite the PxWeb path's retry after Retry-After), so it stays strictly serial, and so does SCB
+ * (also PxWeb, rate-limited per IP, not measured). Trafa took 3 at a time without complaint;
+ * drop it to 2 if it starts answering 429.
+ */
+const seriesConcurrency: Record<DatasetKeys, number> = {
+  STEM: 1,
+  SCB: 1,
+  SSB: 1,
+  Trafa: 3,
+};
+
 async function fetchEntries(catalogEntries: CuratedHistoricalEntry[], geoArea: CuratedGeoArea): Promise<CuratedHistoricalEntryData[]> {
   const area = { code: geoArea.code, type: geoArea.type };
 
-  // The series are fetched one at a time per dataset (datasets in parallel):
-  // on a cold cache a catalog is a dozen requests to the same upstream, and
-  // Energimyndigheten in particular answers bursts with 429s.
+  // Datasets are fetched in parallel, but within a dataset at most
+  // `seriesConcurrency[dataset]` series at a time: on a cold cache a catalog is
+  // a dozen requests to the same upstream, and Energimyndigheten in particular
+  // answers bursts with 429s. Strictly one at a time made a cold Trafa catalog
+  // (8 series at ~300 ms) take ~2.5 s.
   const seriesByDataset = new Map<DatasetKeys, { id: string, source: CuratedSource }[]>();
   for (const entry of catalogEntries) {
     for (const series of entry.series) {
@@ -88,10 +104,16 @@ async function fetchEntries(catalogEntries: CuratedHistoricalEntry[], geoArea: C
   }
 
   const results = new Map<string, CachedSeries | null>();
-  await Promise.all([...seriesByDataset.values()].map(async group => {
-    for (const { id, source } of group) {
-      results.set(id, await getCachedSeries(source, area));
-    }
+  await Promise.all([...seriesByDataset].map(async ([dataset, group]) => {
+    // A few workers drain the dataset's queue, so no more than that many requests are in flight per upstream
+    let next = 0;
+    const worker = async () => {
+      while (next < group.length) {
+        const { id, source } = group[next++];
+        results.set(id, await getCachedSeries(source, area));
+      }
+    };
+    await Promise.all(Array.from({ length: Math.min(seriesConcurrency[dataset], group.length) }, worker));
   }));
 
   const entries = catalogEntries.map(entry => ({
@@ -110,21 +132,29 @@ async function fetchEntries(catalogEntries: CuratedHistoricalEntry[], geoArea: C
 type CachedSeries = { selection: ApiSelectionItem[], dateValues: DateValues };
 
 /**
- * Cache-scoped core: resolve the region, then fetch + parse one external
- * series. Failures are cached as null rather than thrown so an area a table
- * doesn't cover doesn't re-hit the upstream API on every page view; the
- * tradeoff is that a transient upstream outage also sticks for the cache
- * duration (clear with `revalidateTag('curatedHistoricalData')`).
+ * Cache-scoped core: resolve the region, then fetch + parse one external series. A series the
+ * upstream has no data for is cached as null for days, so an area a table doesn't cover doesn't
+ * re-hit the upstream API on every page view. A failed request (network error, rate limit, server
+ * error) is cached as null too, rather than thrown, so a rate-limited upstream isn't hit again on
+ * every render, but only for minutes (clear either with `revalidateTag('curatedHistoricalData')`).
  */
 async function getCachedSeries(source: CuratedSource, geoArea: { code: string, type: GeoAreaType }): Promise<CachedSeries | null> {
-  'use cache';
+  'use cache: upstream';
   cacheTag('curatedHistoricalData');
-  cacheLife("days");
 
+  let failed = false;
+  const series = await fetchSeries(source, geoArea, () => { failed = true; });
+  // Exactly one cacheLife per invocation (the docs allow choosing it conditionally)
+  if (failed) cacheLife("minutes");
+  else cacheLife("days");
+  return series;
+}
+
+async function fetchSeries(source: CuratedSource, geoArea: { code: string, type: GeoAreaType }, onFailure: UpstreamFailureReporter): Promise<CachedSeries | null> {
   const { dataset, tableId } = source;
 
   try {
-    const regionSelection = await resolveRegionSelection(source, geoArea);
+    const regionSelection = await resolveRegionSelection(source, geoArea, onFailure);
     if (!regionSelection) {
       console.debug(`Curated historical series from ${dataset} table ${tableId} has no region matching geo area ${geoArea.code}`);
       return null;
@@ -143,7 +173,7 @@ async function getCachedSeries(source: CuratedSource, geoArea: { code: string, t
       selection,
     };
 
-    const { dateValues } = await fetchExternalVariableData(variable, [], getTableContent);
+    const { dateValues } = await fetchExternalVariableData(variable, [], (tableId, dataset, selection) => getTableContent(tableId, dataset, selection, onFailure));
     return { selection, dateValues };
   } catch (err) {
     console.error(`Error fetching curated historical series from ${dataset} table ${tableId}`, { selection: source.selection, geoArea, err });
@@ -151,13 +181,14 @@ async function getCachedSeries(source: CuratedSource, geoArea: { code: string, t
   }
 }
 
-async function resolveRegionSelection(source: CuratedSource, geoArea: { code: string, type: GeoAreaType }): Promise<ApiSelectionItem[] | null> {
+async function resolveRegionSelection(source: CuratedSource, geoArea: { code: string, type: GeoAreaType }, onFailure: UpstreamFailureReporter): Promise<ApiSelectionItem[] | null> {
   if (source.region.kind !== CuratedRegionKind.PxWebLabelPrefix) {
     return buildRegionSelection(source.region, geoArea);
   }
 
   const { variableCode } = source.region;
-  const metadata = await getCachedPxWebTableMetadata(source.tableId, source.dataset);
+  const { metadata, failed } = await getCachedPxWebTableMetadata(source.tableId, source.dataset);
+  if (failed) onFailure();
   const dimension = metadata?.regularDimensions.find(dimension => dimension.id === variableCode);
   if (!dimension) {
     console.error(`Curated historical source ${source.dataset} table ${source.tableId} has no region dimension "${variableCode}"`);
@@ -166,22 +197,29 @@ async function resolveRegionSelection(source: CuratedSource, geoArea: { code: st
   return buildRegionSelection(source.region, geoArea, findRegionCodeByLabel(dimension.options, geoArea.code));
 }
 
-/** Region resolution needs the same table's metadata for every series and area; share it across them. */
-async function getCachedPxWebTableMetadata(tableId: string, dataset: DatasetKeys) {
-  'use cache';
+/**
+ * Region resolution needs the same table's metadata for every series and area; share it across
+ * them. `failed` marks a failed request, cached for minutes instead of days, and tells callers
+ * that their own result rests on a failure.
+ */
+async function getCachedPxWebTableMetadata(tableId: string, dataset: DatasetKeys): Promise<{ metadata: PxWebCompatTableMetadata | null, failed: boolean }> {
+  'use cache: upstream';
   cacheTag('curatedHistoricalData');
-  cacheLife("days");
 
-  return getPxWebTableMetadata(tableId, dataset);
+  let failed = false;
+  const metadata = await getPxWebTableMetadata(tableId, dataset, undefined, undefined, { onFailure: () => { failed = true; } });
+  if (failed) cacheLife("minutes");
+  else cacheLife("days");
+  return { metadata, failed };
 }
 
 /** Cache-safe counterpart of `getTableContent`: the same dispatch, over the unguarded cores. */
-async function getTableContent(tableId: string, externalDataset: string, selection: ApiSelectionItem[]): Promise<ApiTableContent | null> {
+async function getTableContent(tableId: string, externalDataset: string, selection: ApiSelectionItem[], onFailure: UpstreamFailureReporter): Promise<ApiTableContent | null> {
   const dataset = ExternalDataset.getDatasetByAlternateName(externalDataset);
   if (dataset?.api === "PxWeb") {
-    return getPxWebTableContent(tableId, externalDataset, selection, "sv");
+    return getPxWebTableContent(tableId, externalDataset, selection, "sv", undefined, onFailure);
   } else if (dataset?.api === "Trafa") {
-    return getTrafaTableContent(tableId, selection, "sv");
+    return getTrafaTableContent(tableId, selection, "sv", onFailure);
   }
   return null;
 }

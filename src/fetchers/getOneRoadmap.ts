@@ -1,6 +1,7 @@
 import "server-only";
 import { roadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { readableAccessControlWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { Roadmap, UserAccessContext } from "@/types";
@@ -15,22 +16,21 @@ import { cacheTag } from "next/cache";
  */
 export async function getOneRoadmap(id: string): Promise<Roadmap | null> {
   const accessContext = await getUserAccessContext();
-  return getCachedRoadmap(id, accessContext);
+  return uncachedFallback(() => getCachedRoadmap(id, accessContext), null, "Error fetching roadmap:", { id });
 }
 
 /**
  * Caches the specified roadmap.
- * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap', 'roadmapIteration']`, which is done in relevant API routes.
+ * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap', 'roadmapIteration', 'goal', 'org']`, which is done in relevant API routes.
  * @param id ID of the roadmap to cache
  * @param accessContext Requesting user's access context (null for anonymous visitors); part of the cache key.
  */
 async function getCachedRoadmap(id: string, accessContext: UserAccessContext | null): Promise<Roadmap | null> {
   'use cache';
-  cacheTag('database', 'roadmap', 'roadmapIteration');
+  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'org');
 
-  let roadmap: Roadmap | null;
-  try {
-    roadmap = await prisma.roadmaps.findUnique({
+  return boundedFill("getCachedRoadmap", async () => {
+    const roadmap: Roadmap | null = await prisma.roadmaps.findUnique({
       where: {
         id,
         access_control: readableAccessControlWHERE(accessContext),
@@ -43,14 +43,10 @@ async function getCachedRoadmap(id: string, accessContext: UserAccessContext | n
         },
       },
     });
-  }
-  catch (err) {
-    console.error("Error fetching roadmap:", { err });
-    return null;
-  }
 
-  // Sort iterations newest version first
-  roadmap?.iterations.sort((a, b) => b.version - a.version);
+    // Sort iterations newest version first
+    roadmap?.iterations.sort((a, b) => b.version - a.version);
 
-  return roadmap;
+    return roadmap;
+  });
 };

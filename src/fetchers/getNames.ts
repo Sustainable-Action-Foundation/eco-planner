@@ -1,6 +1,7 @@
 import "server-only";
 import { nameSelector } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { readableAccessControlWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { NameObject, UserAccessContext } from "@/types";
@@ -14,21 +15,20 @@ import { cacheTag } from "next/cache";
  */
 export async function getNames() {
   const accessContext = await getUserAccessContext();
-  return getCachedNames(accessContext);
+  return uncachedFallback(() => getCachedNames(accessContext), [], "Error fetching names");
 }
 
 /**
  * Caches names and ids of all roadmaps, goals, and actions.
- * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap', 'goal', 'action']`, which is done in relevant API routes.
+ * Cache is invalidated when `revalidateTag()` is called on one of the tags in its `cacheTag()` call, which is done in relevant API routes.
  * @param accessContext Requesting user's access context (null for anonymous visitors); part of the cache key.
  */
 async function getCachedNames(accessContext: UserAccessContext | null) {
   'use cache';
   cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action');
 
-  let names: NameObject[];
-  try {
-    names = await prisma.roadmaps.findMany({
+  return boundedFill("getCachedNames", async () => {
+    const names: NameObject[] = await prisma.roadmaps.findMany({
       where: {
         access_control: readableAccessControlWHERE(accessContext),
       },
@@ -40,11 +40,7 @@ async function getCachedNames(accessContext: UserAccessContext | null) {
         },
       },
     });
-  }
-  catch (err) {
-    console.error("Error fetching names", { err });
-    return [];
-  }
 
-  return names;
+    return names;
+  });
 };

@@ -1,5 +1,6 @@
 import "server-only";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { listedGoalsWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import { GeoAreaType } from "@/lib/prisma/generated";
@@ -37,14 +38,14 @@ export type LikedGoal = {
 /** How many likes a goal has and whether the current user gave one of them. Zero and false for goals the user can't see. */
 export async function getGoalLikeSummary(goalId: string): Promise<GoalLikeSummary> {
   const accessContext = await getUserAccessContext();
-  return getCachedGoalLikeSummary(goalId, accessContext);
+  return uncachedFallback(() => getCachedGoalLikeSummary(goalId, accessContext), { likeCount: 0, likedByViewer: false }, "Error fetching goal likes:");
 }
 
 async function getCachedGoalLikeSummary(goalId: string, accessContext: UserAccessContext | null): Promise<GoalLikeSummary> {
   'use cache';
-  cacheTag('database', 'goalLike', 'goal');
+  cacheTag('database', 'goalLike', 'goal', 'roadmap', 'roadmapIteration');
 
-  try {
+  return boundedFill("getCachedGoalLikeSummary", async () => {
     const goal = await prisma.goals.findUnique({
       where: { id: goalId, roadmap_iteration: visibleRoadmapIterationsWHERE(accessContext) },
       select: {
@@ -54,11 +55,7 @@ async function getCachedGoalLikeSummary(goalId: string, accessContext: UserAcces
     });
     if (!goal) return { likeCount: 0, likedByViewer: false };
     return { likeCount: goal._count.likes, likedByViewer: (goal.likes ?? []).length > 0 };
-  }
-  catch (err) {
-    console.error("Error fetching goal likes:", { err });
-    return { likeCount: 0, likedByViewer: false };
-  }
+  });
 }
 
 /** A scope the org's list of liked goals can be viewed in, see `getLikeScopes` */
@@ -76,11 +73,15 @@ export type LikeScopeOption = {
  * organizations of a municipality prioritize together.
  */
 export async function getLikeScopes(orgId: string): Promise<LikeScopeOption[]> {
+  return uncachedFallback(() => getCachedLikeScopes(orgId), [{ scope: LikeScope.Org, area: null }], "Error fetching like scopes:");
+}
+
+async function getCachedLikeScopes(orgId: string): Promise<LikeScopeOption[]> {
   'use cache';
   cacheTag('database', 'org');
 
-  const scopes: LikeScopeOption[] = [{ scope: LikeScope.Org, area: null }];
-  try {
+  return boundedFill("getCachedLikeScopes", async () => {
+    const scopes: LikeScopeOption[] = [{ scope: LikeScope.Org, area: null }];
     const org = await prisma.orgs.findUnique({
       where: { id: orgId },
       select: { geo_area: { select: { code: true, name: true, type: true, parent: { select: { code: true, name: true, type: true } } } } },
@@ -92,11 +93,8 @@ export async function getLikeScopes(orgId: string): Promise<LikeScopeOption[]> {
     if (area?.type === GeoAreaType.MUNICIPALITY && area.parent?.type === GeoAreaType.COUNTY) {
       scopes.push({ scope: LikeScope.County, area: { code: area.parent.code, name: area.parent.name } });
     }
-  }
-  catch (err) {
-    console.error("Error fetching like scopes:", { err });
-  }
-  return scopes;
+    return scopes;
+  });
 }
 
 /**
@@ -112,14 +110,14 @@ export async function getLikedGoals(orgId: string, scope: LikeScope = LikeScope.
   const accessContext = await getUserAccessContext();
   if (!accessContext) return [];
   const area = (await getLikeScopes(orgId)).find(option => option.scope === scope)?.area ?? null;
-  return getCachedLikedGoals(orgId, area?.code ?? null, accessContext);
+  return uncachedFallback(() => getCachedLikedGoals(orgId, area?.code ?? null, accessContext), [], "Error fetching liked goals:");
 }
 
 async function getCachedLikedGoals(orgId: string, areaCode: string | null, accessContext: UserAccessContext): Promise<LikedGoal[]> {
   'use cache';
   cacheTag('database', 'goalLike', 'goal', 'roadmap', 'roadmapIteration', 'dataSeries', 'org');
 
-  try {
+  return boundedFill("getCachedLikedGoals", async () => {
     // Whose likes count: members of the org, or of any org placed in the area or in an area directly under it
     const inScope: Prisma.OrgMembershipsWhereInput = areaCode
       ? { org: { geo_area: { OR: [{ code: areaCode }, { parent_code: areaCode }] } } }
@@ -173,11 +171,7 @@ async function getCachedLikedGoals(orgId: string, areaCode: string | null, acces
     });
 
     return liked.sort((a, b) => b.likeCount - a.likeCount || b.latestLikeAt.getTime() - a.latestLikeAt.getTime() || a.id.localeCompare(b.id));
-  }
-  catch (err) {
-    console.error("Error fetching liked goals:", { err });
-    return [];
-  }
+  });
 }
 
 /**

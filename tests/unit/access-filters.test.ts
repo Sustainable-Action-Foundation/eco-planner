@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { expect, test } from "playwright/test";
 
 import accessChecker, { hasEditAccess, hasViewAccess } from "../../src/lib/accessChecker";
@@ -8,6 +10,7 @@ import {
   listedGoalsWHERE,
   managedOrgIds,
   memberOrgIds,
+  publishedIterationsOfTypeWHERE,
   readableAccessControlWHERE,
   visibleActionsWHERE,
   visibleDataSeriesWHERE,
@@ -15,7 +18,7 @@ import {
   writableAccessControlWHERE,
 } from "../../src/lib/accessFilters";
 import { isGoalListed } from "../../src/lib/listing";
-import { AccessLevel as GrantLevel, GoalListing, IterationStatus, Sharing } from "../../src/lib/prisma/generated";
+import { AccessLevel as GrantLevel, GoalListing, IterationStatus, RoadmapType, Sharing } from "../../src/lib/prisma/generated";
 import type { AccessControlInfo } from "../../src/types";
 import { accessControls, contexts, IDLE_GROUP, ORG, OTHER_ORG, RO_GROUP, RW_GROUP, type AccessControlName, type ContextName } from "../lib/access-contexts";
 
@@ -166,6 +169,44 @@ test.describe("visible iterations agree with accessChecker on drafts", () => {
       }
     });
   }
+});
+
+test.describe("published iterations of a roadmap type keep the access filter", () => {
+  // Regression: spreading visibleRoadmapIterationsWHERE next to `roadmap: { type }` replaced its
+  // `roadmap.access_control`, so goals on non-public national roadmaps matched for everyone.
+  for (const contextName of contextNames) {
+    test(`${contextName}`, () => {
+      const where = publishedIterationsOfTypeWHERE(contexts[contextName], RoadmapType.NATIONAL);
+      for (const iteration of iterations) {
+        const level = accessChecker(iteration, contexts[contextName]);
+        for (const type of [RoadmapType.NATIONAL, RoadmapType.MUNICIPAL]) {
+          const typed = { ...iteration, roadmap: { ...iteration.roadmap, type } };
+          const expected = hasViewAccess(level) && iteration.status === IterationStatus.PUBLISHED && type === RoadmapType.NATIONAL;
+          expect(matches(where, typed), `${contextName} matches ${type} ${iteration.name}`).toBe(expected);
+        }
+      }
+    });
+  }
+
+  test("access and type are ANDed rather than merged into one roadmap clause", () => {
+    for (const ctx of [contexts.anonymous, contexts.orgless]) {
+      const where = publishedIterationsOfTypeWHERE(ctx, RoadmapType.NATIONAL);
+      expect(Object.keys(where)).toEqual(["AND"]);
+      expect(where.AND).toEqual([
+        visibleRoadmapIterationsWHERE(ctx),
+        { status: IterationStatus.PUBLISHED, roadmap: { type: RoadmapType.NATIONAL } },
+      ]);
+      expect(visibleRoadmapIterationsWHERE(ctx).roadmap?.access_control).toEqual(readableAccessControlWHERE(ctx));
+    }
+  });
+
+  test("national goal matches build their iteration filter with the helper", () => {
+    // The helper is only a fix if the call site uses it: a spread next to a `roadmap:` key is the
+    // shape that overwrote the access filter. The fetcher is server-only, so this checks its source.
+    const source = fs.readFileSync(path.join(process.cwd(), "src/fetchers/getNationalGoalMatches.ts"), "utf-8");
+    expect(source).toContain("publishedIterationsOfTypeWHERE(accessContext, RoadmapType.NATIONAL)");
+    expect(source).not.toMatch(/\.\.\.visibleRoadmapIterationsWHERE\(/);
+  });
 });
 
 test.describe("listed goals agree with isGoalListed", () => {

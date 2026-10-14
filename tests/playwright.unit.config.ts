@@ -33,5 +33,11 @@ export default defineConfig({
       name: "unit",
       retries: 0, // Deterministic, no browser; a flaky unit test is a bug
     },
+    {
+      name: "Upstream cache handler unit tests",
+      testMatch: ["unit/upstream-cache-handler.test.ts"],
+      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
+      use: {},
+    },
   ],
 });

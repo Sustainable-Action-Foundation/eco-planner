@@ -8,6 +8,8 @@ export const webserverURL = process.env.BASE_URL || "http://localhost:8081";
 
 const CI = boolEnv("CI", false);
 
+const budgetSpec = "e2e/db-budget.spec.ts";
+
 export default defineConfig({
   testDir: "./",
   testMatch: ["e2e/**/*.spec.ts", "api/**/*.spec.ts"],
@@ -100,21 +102,21 @@ export default defineConfig({
     {
       name: "chromium 1080p",
       testMatch: "e2e/**/*.spec.ts",
-      testIgnore: "e2e/mobile.spec.ts",
+      testIgnore: ["e2e/mobile.spec.ts", budgetSpec],
       use: { ...devices["Desktop Chrome"], viewport: { width: 1920, height: 1080 }, channel: "chromium" },
       dependencies: ["setup"],
     },
     {
       name: "firefox 1080p",
       testMatch: "e2e/**/*.spec.ts",
-      testIgnore: "e2e/mobile.spec.ts",
+      testIgnore: ["e2e/mobile.spec.ts", budgetSpec],
       use: { ...devices["Desktop Firefox"], viewport: { width: 1920, height: 1080 } },
       dependencies: ["setup"],
     },
     {
       name: "webkit 1080p",
       testMatch: "e2e/**/*.spec.ts",
-      testIgnore: "e2e/mobile.spec.ts",
+      testIgnore: ["e2e/mobile.spec.ts", budgetSpec],
       // Webkit is consistently the slowest to settle under CI load; give its actions extra room
       use: { ...devices["Desktop Safari"], viewport: { width: 1920, height: 1080 }, actionTimeout: 20 * 1000 },
       dependencies: ["setup"],
@@ -125,6 +127,14 @@ export default defineConfig({
       testMatch: "e2e/mobile.spec.ts",
       use: { ...devices["Galaxy S9+"], channel: "chromium" },
       dependencies: ["setup"],
+    },
+    {
+      // The query-budget canary reads process-global DB counters, so it must run alone:
+      // after every browser project, never concurrently with other specs
+      name: "db-budget",
+      testMatch: budgetSpec,
+      use: { ...devices["Desktop Chrome"], viewport: { width: 1920, height: 1080 }, channel: "chromium" },
+      dependencies: ["api", "chromium 1080p", "firefox 1080p", "webkit 1080p", "mobile chromium"],
     },
   ],
 });

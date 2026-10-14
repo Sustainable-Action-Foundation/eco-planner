@@ -1,6 +1,7 @@
 import "server-only";
 import { actionInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleActionsWHERE } from "@/lib/accessFilters";
 import { prisma } from "@/lib/prisma";
 import type { Action, UserAccessContext } from "@/types";
@@ -15,22 +16,21 @@ import { cacheTag } from "next/cache";
  */
 export async function getOneAction(id: string): Promise<Action | null> {
   const accessContext = await getUserAccessContext();
-  return getCachedAction(id, accessContext);
+  return uncachedFallback(() => getCachedAction(id, accessContext), null, `Error fetching action with id ${id}`);
 }
 
 /**
  * Caches the specified action.
- * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'action']`, which is done in relevant API routes.
+ * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'action', 'goal', 'roadmap', 'roadmapIteration', 'dataSeries', 'org']`, which is done in relevant API routes.
  * @param id ID of the action to cache
  * @param accessContext Requesting user's access context (null for anonymous visitors); part of the cache key.
  */
 async function getCachedAction(id: string, accessContext: UserAccessContext | null): Promise<Action | null> {
   'use cache';
-  cacheTag('database', 'action');
+  cacheTag('database', 'action', 'goal', 'roadmap', 'roadmapIteration', 'dataSeries', 'org');
 
-  let action: Action | null;
-  try {
-    action = await prisma.actions.findUnique({
+  return boundedFill("getCachedAction", async () => {
+    const action: Action | null = await prisma.actions.findUnique({
       where: {
         // Spread first: the filter type has an optional `id` that would otherwise widen the unique key
         ...visibleActionsWHERE(accessContext),
@@ -38,11 +38,7 @@ async function getCachedAction(id: string, accessContext: UserAccessContext | nu
       },
       include: actionInclusionSelection,
     }) satisfies Action | null;
-  }
-  catch (err) {
-    console.error(`Error fetching action with id ${id}`, { err });
-    return null;
-  }
 
-  return action;
+    return action;
+  });
 };

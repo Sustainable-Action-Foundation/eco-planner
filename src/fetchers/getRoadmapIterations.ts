@@ -1,6 +1,7 @@
 import "server-only";
 import { multiRoadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { roadmapIterationSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
@@ -16,38 +17,33 @@ import { cacheTag } from "next/cache";
  */
 export async function getRoadmapIterations(iterationIds?: string[]): Promise<MultiRoadmapInstance[]> {
   const accessContext = await getUserAccessContext();
-  return getCachedRoadmapIterations(accessContext, iterationIds);
+  return uncachedFallback(() => getCachedRoadmapIterations(accessContext, iterationIds), [], "Error fetching roadmap iterations");
 }
 
 /**
  * Caches all roadmap iterations the user has access to.
- * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap', 'roadmapIteration']`, which is done in relevant API routes.
+ * Cache is invalidated when `revalidateTag()` is called on one of the tags in its `cacheTag()` call, which is done in relevant API routes.
  * @param accessContext Requesting user's access context (null for anonymous visitors); part of the cache key.
  */
 async function getCachedRoadmapIterations(accessContext: UserAccessContext | null, iterationIds?: string[]): Promise<MultiRoadmapInstance[]> {
   'use cache';
   // goal/action are included because the returned iterations carry goal and action counts
-  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action');
+  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action', 'org');
 
-  let iterations: MultiRoadmapInstance[];
-  try {
-    iterations = await prisma.roadmapIterations.findMany({
+  return boundedFill("getCachedRoadmapIterations", async () => {
+    let iterations: MultiRoadmapInstance[] = await prisma.roadmapIterations.findMany({
       where: {
         ...(iterationIds ? { id: { in: iterationIds } } : {}), // If iterationIds is provided, filter by it
         ...visibleRoadmapIterationsWHERE(accessContext),
       },
       include: multiRoadmapInclusionSelection,
     }) satisfies MultiRoadmapInstance[];
-  }
-  catch (err) {
-    console.error("Error fetching roadmap iterations", { err });
-    return [];
-  }
 
-  // Prisma loads the roadmaps in a second query, so a roadmap deleted in between leaves
-  // its iteration without one (despite the type); drop those instead of crashing the sort
-  iterations = iterations.filter(iteration => (iteration.roadmap as typeof iteration.roadmap | null) !== null);
-  iterations.sort(roadmapIterationSorter);
+    // Prisma loads the roadmaps in a second query, so a roadmap deleted in between leaves
+    // its iteration without one (despite the type); drop those instead of crashing the sort
+    iterations = iterations.filter(iteration => (iteration.roadmap as typeof iteration.roadmap | null) !== null);
+    iterations.sort(roadmapIterationSorter);
 
-  return iterations;
+    return iterations;
+  });
 };

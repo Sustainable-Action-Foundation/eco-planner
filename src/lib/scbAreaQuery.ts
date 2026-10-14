@@ -27,9 +27,8 @@ export default async function scbAreaQuery(areaCode: string, parentAreaCode?: st
 }
 
 async function getCachedQuery(areaCode: string) {
-  'use cache';
+  'use cache: upstream';
   cacheTag('scbAreaQuery');
-  cacheLife("days");
 
   const selection = [
     // Selected area
@@ -42,7 +41,12 @@ async function getCachedQuery(areaCode: string) {
     { variableCode: "Tid", valueCodes: ["TOP(1)"] },
   ];
 
-  const result = await getPxWebTableContent("TAB6420", "SCB", selection, undefined);
+  // A failed request is cached too (re-hitting a rate-limited upstream on every render is worse),
+  // but only for minutes; an answer, including "no value", for days. One cacheLife per invocation.
+  let failed = false;
+  const result = await getPxWebTableContent("TAB6420", "SCB", selection, undefined, undefined, () => { failed = true; });
+  if (failed) cacheLife("minutes");
+  else cacheLife("days");
 
   if (!result) return null;
   // Get first (hopefully only) value

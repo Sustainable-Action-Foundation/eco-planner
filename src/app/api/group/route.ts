@@ -7,6 +7,7 @@ import { getSession } from "@/lib/session";
 import type { UserAccessContext } from "@/types";
 import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
+import { revalidateTag } from "next/cache";
 
 // Group management: org managers (and super admins) create, rename, re-member
 // and delete their org's groups. Deleting a group cascades away its memberships
@@ -202,6 +203,9 @@ export async function DELETE(request: NextRequest) {
       { status: 500 },
     );
   }
+
+  // The group's grants cascade away with it; access-control payloads (e.g. the sharing editor) list them
+  revalidateTag('roadmap', { expire: 0 });
 
   return Response.json({ message: t('api:group.deleted') },
     { status: 200 },

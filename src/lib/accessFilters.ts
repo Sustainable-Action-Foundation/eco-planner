@@ -1,5 +1,5 @@
 import { AccessLevel, OrgRole, GoalListing, IterationStatus, Sharing } from "@/lib/prisma/generated";
-import type { Prisma } from "@/lib/prisma/generated";
+import type { Prisma, RoadmapType } from "@/lib/prisma/generated";
 import type { UserAccessContext } from "@/types";
 
 /*
@@ -79,6 +79,19 @@ export function visibleRoadmapIterationsWHERE(ctx: UserAccessContext | null): Pr
     OR: [
       { status: { not: IterationStatus.DRAFT } },
       { roadmap: { access_control: writableAccessControlWHERE(ctx) } },
+    ],
+  };
+}
+
+/**
+ * Matches published, visible iterations of roadmaps of one type. Combined with AND: spreading
+ * `visibleRoadmapIterationsWHERE` next to a `roadmap` key would replace its roadmap access filter.
+ */
+export function publishedIterationsOfTypeWHERE(ctx: UserAccessContext | null, type: RoadmapType): Prisma.RoadmapIterationsWhereInput {
+  return {
+    AND: [
+      visibleRoadmapIterationsWHERE(ctx),
+      { status: IterationStatus.PUBLISHED, roadmap: { type } },
     ],
   };
 }

@@ -395,6 +395,8 @@ async function writeSection(
   try {
     await prisma.$transaction((tx) => apply(tx, externals));
     revalidateTag('goal', { expire: 0 });
+    // Series values and recipes are written too (getOneRecipe feeds /api/recalculate)
+    revalidateTag('dataSeries', { expire: 0 });
     return Response.json({ message: t('api:goal.goal_updated'), id: goalId }, { status: 200, headers: { 'Location': `/goal/${goalId}` } });
   }
   catch (err) { return clientErrorResponse(err, t); }
@@ -429,6 +431,8 @@ async function writeRecipeSuggestionsSection(authorId: string, orgId: string, go
     await prisma.$transaction((tx) => applyRecipeSuggestionsSection(tx, authorId, orgId, goalId, section.recipeSuggestions, resolvedList));
     void pruneOrphans();
     revalidateTag('goal', { expire: 0 });
+    // Series values and recipes are written too (getOneRecipe feeds /api/recalculate)
+    revalidateTag('dataSeries', { expire: 0 });
     return Response.json({ message: t('api:goal.goal_updated'), id: goalId }, { status: 200, headers: { 'Location': `/goal/${goalId}` } });
   }
   catch (err) { return clientErrorResponse(err, t); }
@@ -573,6 +577,8 @@ async function createFullGoal(session: IronSession<LoginData>, authorId: string,
     });
 
     revalidateTag('goal', { expire: 0 });
+    // Series values and recipes are written too (getOneRecipe feeds /api/recalculate)
+    revalidateTag('dataSeries', { expire: 0 });
     return Response.json({ message: t('api:goal.goal_created'), id: goalId },
       { status: 201, headers: { 'Location': `/goal/${goalId}` } },
     );
@@ -637,6 +643,8 @@ async function updateFullGoal(session: IronSession<LoginData>, authorId: string,
     // Prune any orphaned comments
     void pruneOrphans();
     revalidateTag('goal', { expire: 0 });
+    // Series values and recipes are written too (getOneRecipe feeds /api/recalculate)
+    revalidateTag('dataSeries', { expire: 0 });
     return Response.json({ message: t('api:goal.goal_updated'), id: goalId },
       { status: 200, headers: { 'Location': `/goal/${goalId}` } },
     );

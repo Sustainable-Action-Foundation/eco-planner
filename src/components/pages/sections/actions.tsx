@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import styles from "./sections.module.css";
-import type { Action } from "@/types";
+import type { ActionSummary } from "@/types";
 import { IconArrowNarrowRight, IconChevronDown, IconChevronUp, IconLayoutGridFilled, IconList, IconPlus, IconSearch, IconUser } from "@tabler/icons-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -17,7 +17,7 @@ const collapsedActionCount = 9;
 export default function Actions({
   actions,
 }: {
-  actions: Action[] | null,
+  actions: ActionSummary[] | null,
 }) {
 
   const { t } = useTranslation(["pages", "forms"]);

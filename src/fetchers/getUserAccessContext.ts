@@ -4,25 +4,13 @@ import { OrgRole } from "@/lib/prisma/generated";
 import { getSession } from "@/lib/session";
 import type { UserAccessContext } from "@/types";
 import { cookies } from "next/headers";
-
-/**
- * Builds the requesting user's access context (super_admin flag + org roles + group ids) fresh from the database.
- * Deliberately uncached: manager edits to groups and grants must apply on the user's next request, without re-login.
- *
- * Returns null for anonymous visitors and for stale sessions whose user no longer exists.
- */
-export async function getUserAccessContext(): Promise<UserAccessContext | null> {
-  const session = await getSession(await cookies());
-  if (!session.user?.isLoggedIn) {
-    return null;
-  }
-  return getAccessContextById(session.user.id);
-}
+import { cache } from "react";
 
 /**
  * Same as `getUserAccessContext`, for callers that have already read the session (e.g. API routes).
+ * Request-scoped memoization only applies during a React server render; route handlers get one lookup per call.
  */
-export async function getAccessContextById(userId: string): Promise<UserAccessContext | null> {
+export const getAccessContextById = cache(async (userId: string): Promise<UserAccessContext | null> => {
   try {
     const user = await prisma.users.findUnique({
       where: { id: userId },
@@ -62,4 +50,20 @@ export async function getAccessContextById(userId: string): Promise<UserAccessCo
     console.error("Error building user access context", { err });
     return null;
   }
-}
+});
+
+/**
+ * Builds the requesting user's access context (super_admin flag + org roles + group ids) fresh from the database.
+ * Deliberately not cached across requests: manager edits to groups and grants must apply on the user's next request,
+ * without re-login. Within one request it is memoized with React `cache()` (request-scoped), so the layout, the page
+ * and every fetcher share one lookup.
+ *
+ * Returns null for anonymous visitors and for stale sessions whose user no longer exists.
+ */
+export const getUserAccessContext = cache(async (): Promise<UserAccessContext | null> => {
+  const session = await getSession(await cookies());
+  if (!session.user?.isLoggedIn) {
+    return null;
+  }
+  return getAccessContextById(session.user.id);
+});

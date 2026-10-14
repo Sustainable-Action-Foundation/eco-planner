@@ -1,6 +1,7 @@
 import "server-only";
 import { userInfoSelector } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { readableAccessControlWHERE, visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { roadmapIterationSorter, roadmapSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
@@ -16,22 +17,22 @@ import { cacheTag } from "next/cache";
  */
 export async function getUserInfo(username: string) {
   const accessContext = await getUserAccessContext();
-  return getCachedUserInfo(username, accessContext);
+  return uncachedFallback(() => getCachedUserInfo(username, accessContext), null, "Error fetching user info", { username });
 }
 
 /**
  * Caches basic user information and all (accessible) roadmaps and roadmap iterations authored by the user.
- * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'user', 'roadmap', 'roadmapIteration']`, which is done in relevant API routes.
+ * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'user', 'roadmap', 'roadmapIteration', 'goal', 'action', 'org']`, which is done in relevant API routes.
  * @param username Username of the user to get
  * @param accessContext Requesting user's access context (null for anonymous visitors); part of the cache key.
  */
 async function getCachedUserInfo(username: string, accessContext: UserAccessContext | null) {
   'use cache';
-  cacheTag('database', 'user', 'roadmap', 'roadmapIteration');
+  cacheTag('database', 'user', 'roadmap', 'roadmapIteration', 'goal', 'action', 'org');
 
-  // The filters collapse the ladder into the query: anonymous visitors only match public
-  // content, superadmins match everything, everyone else matches what their memberships grant.
-  try {
+  return boundedFill("getCachedUserInfo", async () => {
+    // The filters collapse the ladder into the query: anonymous visitors only match public
+    // content, superadmins match everything, everyone else matches what their memberships grant.
     const fetchedUser = await prisma.users.findUnique({
       where: { username },
       select: {
@@ -54,9 +55,5 @@ async function getCachedUserInfo(username: string, accessContext: UserAccessCont
     fetchedUser?.authored_roadmap_iterations.sort(roadmapIterationSorter);
 
     return fetchedUser;
-  }
-  catch (err) {
-    console.error("Error fetching user info", { err });
-    return null;
-  }
+  });
 };
