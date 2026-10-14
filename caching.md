@@ -223,7 +223,7 @@ The mariadb pool is **fixed-size**: `minimumIdle` defaults to `connectionLimit`,
 | Environment | Recommended | Why |
 | --- | --- | --- |
 | dev (`yarn dev`, local MariaDB) | none (10 / 10 s) | One pool, kept across HMR via `globalThis`. |
-| docker test stack (`compose.testing.yaml`, e2e `--workers=3`) | `?connection_limit=10&pool_timeout=20` | Parallel workers burst; a longer wait beats spurious acquire timeouts that read as test flakes. |
+| docker test stack (`compose.testing.yaml`, parallel e2e workers: 80% of cores on CI) | `?connection_limit=10&pool_timeout=20` | Parallel workers burst; a longer wait beats spurious acquire timeouts that read as test flakes. |
 | staging | `?connection_limit=5&pool_timeout=10` | Low traffic, shares a box. |
 | prod (one app container next to MariaDB) | `?connection_limit=5&pool_timeout=10&connect_timeout=5` | A render is ~23 short queries; 5 is plenty for current traffic and halves the idle footprint. The tunnel incident saw ~20 idle pooled connections with the default 10/10 s, consistent with two pools of 10 (which processes held them was not determined); explicit small pools keep that bounded. |
 | tooling over an SSH tunnel (Prisma Studio, scripts) | `?connection_limit=2&connect_timeout=5` | Few connections through the tunnel; 1 s connect is too tight over SSH. |
