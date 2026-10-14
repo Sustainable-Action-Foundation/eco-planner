@@ -231,9 +231,13 @@ test.describe("Tag revalidation reaches other pages over client navigation", () 
         await expect(orgSwitcher(page).locator("select option, a").filter({ hasText: orgName })).toHaveCount(1);
       }
       finally {
-        // Put the seeded name back whatever happened above
-        const restored = await restorer.put("/api/org", { data: { orgId, name: orgName } });
-        expect(restored.status(), "restoring the seeded org name").toBe(200);
+        // Put the seeded name back whatever happened above. The restorer sat idle through the
+        // test, so its kept-alive socket may already be closed by the server ("socket hang up"):
+        // resend until it lands, or a leftover name breaks every later run of this test
+        await expect(async () => {
+          const restored = await restorer.put("/api/org", { data: { orgId, name: orgName } });
+          expect(restored.status(), "restoring the seeded org name").toBe(200);
+        }).toPass({ timeout: 60_000 });
       }
     }).finally(() => restorer.dispose());
   });

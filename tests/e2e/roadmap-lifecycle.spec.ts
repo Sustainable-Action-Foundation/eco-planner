@@ -152,6 +152,9 @@ test.describe.serial("Roadmap lifecycle, all fields", () => {
 
   test("a changed version description round-trips through the form", async ({ page }) => {
     await page.goto(`/roadmap/${roadmapId}/v1/edit`);
+    // Fill only once the editor holds the stored text: on Firefox a fill that beats the editor's
+    // initial content gets that content appended after the typed text
+    await expect(editor(page)).toHaveText(`Version ${name}`);
     await editor(page).fill(`Updated version ${name}`);
     const saved = await submitAndWait(page, "/api/roadmap-iteration", "PUT");
     expect(saved.status()).toBe(200);
@@ -166,6 +169,8 @@ test.describe.serial("Roadmap lifecycle, all fields", () => {
   test("changed roadmap fields round-trip through the form", async ({ page }) => {
     await page.goto(`/roadmap/${roadmapId}/edit`);
     await visible(page, "#name").fill(`${name} updated`);
+    // As above: let the editor load the stored description before replacing it
+    await expect(editor(page)).toHaveText(`Description ${name}`);
     await editor(page).fill(`Updated description ${name}`);
     await visible(page, "#type").selectOption("OTHER");
     await visible(page, "#actor").fill(`Updated actor ${name}`);
