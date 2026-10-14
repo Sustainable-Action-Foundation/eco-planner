@@ -1,4 +1,5 @@
-import "server-only";
+// No `server-only` marker here: this module is pure and unit-tested; its only
+// consumer (`@/lib/api/guardExternalApi`) carries the marker.
 
 type Bucket = { tokens: number; last: number };
 
@@ -18,11 +19,11 @@ export type RateLimitOptions = {
  * docker/compose.prod.yaml). If the app is ever scaled horizontally, back this with a
  * shared store (e.g. Redis) so limits hold across instances.
  *
+ * @param now The current time in ms since epoch; injectable for tests, defaults to `Date.now()`.
  * @returns true if a token was available and consumed (allow the call), false if the
  *          caller is over budget (deny).
  */
-export function consumeToken(key: string, { capacity, refillPerSecond }: RateLimitOptions): boolean {
-  const now = Date.now();
+export function consumeToken(key: string, { capacity, refillPerSecond }: RateLimitOptions, now: number = Date.now()): boolean {
   const bucket = buckets.get(key) ?? { tokens: capacity, last: now };
 
   // Refill lazily based on time elapsed since the bucket was last touched.

@@ -6,7 +6,8 @@ import { cookies } from "next/headers";
 import type { JSONValue } from "@/types";
 
 export async function POST(request: NextRequest) {
-  const data = await request.json() as JSONValue;
+  // A body that isn't JSON is a client error, not a crash
+  const data = await (request.json() as Promise<JSONValue>).catch(() => null);
   if (!data || typeof data !== 'object' || Array.isArray(data)) {
     return Response.json({ message: 'Invalid request body' },
       { status: 400 },

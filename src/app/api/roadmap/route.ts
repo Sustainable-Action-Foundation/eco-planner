@@ -382,6 +382,14 @@ export async function PUT(request: NextRequest) {
     await pruneOrphans();
     // Invalidate old cache; expire immediately so the follow-up navigation sees the update
     revalidateTag('roadmap', { expire: 0 });
+    if (resolvedAccess?.ok) {
+      // Sharing decides who may read everything under the roadmap, and those fetchers are cached
+      // per viewer without the roadmap tag: expire them too, or a narrowed roadmap's goals and
+      // actions stay readable (and a widened one's stay hidden) until something else expires them
+      for (const tag of ['roadmapIteration', 'goal', 'action', 'effect', 'dataSeries', 'goalLike']) {
+        revalidateTag(tag, { expire: 0 });
+      }
+    }
     // Return the updated roadmap's ID if successful
     return Response.json({ message: t('api:roadmap.roadmap_updated'), id: updatedRoadmap.id },
       { status: 200, headers: { 'Location': `/roadmap/${updatedRoadmap.id}` } },

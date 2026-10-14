@@ -3,16 +3,19 @@ import { copyCandidates, CopyMethod, ExternalRegistry, findLocalStatistic, mater
 import type { NationalGoalSeed } from "../../scripts/lib/leapCopyPlan";
 import { curatedKey, requiredStatistics, snapshotDateValues, toSnapshotValues } from "../../scripts/lib/statisticsSnapshot";
 import type { StatisticsSnapshot } from "../../scripts/lib/statisticsSnapshot";
+import { externalSelectionKey } from "../../src/functions/recipe/extractors";
 import { Recipe } from "../../src/functions/recipe/recipe";
 import { RecipeDataTypes } from "../../src/functions/recipe/types/enums";
 import { GeoAreaType, GoalListing } from "../../src/lib/prisma/generated";
+import type { ApiSelectionItem, DatasetKeys } from "../../src/lib/api/apiTypes";
 import type { GeoAreaRef } from "../../src/types";
 import type { TFunction } from "i18next";
 
 /*
  * The seed's copy planner against a hand-made statistics snapshot: which
  * method a national goal gets in an area, how externals are materialized once
- * per selection, and that the copies evaluate to what the methods say.
+ * per selection, and that the copies evaluate to what the methods say. This is
+ * the one place the LEAP scaling rules run through real recipe evaluation.
  */
 
 const t = ((key: string, options?: Record<string, unknown>) => options ? `${key} ${JSON.stringify(options)}` : key) as TFunction;
@@ -36,12 +39,16 @@ function goal(indicatorParameter: string, unit: string | null, value: (year: num
   };
 }
 
-const populationKeyLocal = '["SCB","TAB628",[{"variableCode":"ContentsCode","valueCodes":["BE0101U2"]},{"variableCode":"Kon","valueCodes":["1+2"]},{"variableCode":"Region","valueCodes":["2582"]}]]';
-const populationKeyNation = '["SCB","TAB628",[{"variableCode":"ContentsCode","valueCodes":["BE0101U2"]},{"variableCode":"Kon","valueCodes":["1+2"]},{"variableCode":"Region","valueCodes":["00"]}]]';
-const forecastKeyLocal = '["SCB","TAB6299",[{"variableCode":"ContentsCode","valueCodes":["000006MS"]},{"variableCode":"Region","valueCodes":["2582"]}]]';
-const forecastKeyNation = '["SCB","TAB6579",[{"variableCode":"ContentsCode","valueCodes":["000007YG"]}]]';
-const electricCarsLocal = '["Trafa","t10026",[{"variableCode":"drivmedel","valueCodes":["103"]},{"variableCode":"metric","valueCodes":["itrfslut"]},{"variableCode":"regkom","valueCodes":["2582"]},{"variableCode":"reglan","valueCodes":["25"]}]]';
-const electricCarsNation = '["Trafa","t10026",[{"variableCode":"drivmedel","valueCodes":["103"]},{"variableCode":"metric","valueCodes":["itrfslut"]}]]';
+/** A snapshot series keyed the way the app keys selections (order-insensitive). */
+const selectionKey = (dataset: DatasetKeys, tableId: string, selection: Record<string, string>) =>
+  externalSelectionKey(dataset, tableId, Object.entries(selection).map(([variableCode, code]): ApiSelectionItem => ({ variableCode, valueCodes: [code] })));
+
+const populationKeyLocal = selectionKey("SCB", "TAB628", { ContentsCode: "BE0101U2", Kon: "1+2", Region: "2582" });
+const populationKeyNation = selectionKey("SCB", "TAB628", { ContentsCode: "BE0101U2", Kon: "1+2", Region: "00" });
+const forecastKeyLocal = selectionKey("SCB", "TAB6299", { ContentsCode: "000006MS", Region: "2582" });
+const forecastKeyNation = selectionKey("SCB", "TAB6579", { ContentsCode: "000007YG" });
+const electricCarsLocal = selectionKey("Trafa", "t10026", { drivmedel: "103", metric: "itrfslut", regkom: "2582", reglan: "25" });
+const electricCarsNation = selectionKey("Trafa", "t10026", { drivmedel: "103", metric: "itrfslut" });
 
 const snapshot: StatisticsSnapshot = {
   fetchedAt: "2026-09-15T00:00:00.000Z",
@@ -59,7 +66,7 @@ const snapshot: StatisticsSnapshot = {
   },
 };
 
-test.describe("LEAP copy planning", () => {
+test.describe("copyCandidates", () => {
   test("a row the catalog measures locally follows the local statistic, with the LEAP methods behind it", () => {
     const electric = goal(`${K}Landtransporter\\Personbilar\\Elbilar\\Antal bilar`, null, year => 1_000_000 * (year - 2021));
     const local = findLocalStatistic(t, snapshot, electric.indicatorParameter, boden);
@@ -69,8 +76,8 @@ test.describe("LEAP copy planning", () => {
   });
 
   test("a resident-driven total is scaled by population, per year first", () => {
-    const heating = goal(`${K}Befolkning\\Befolkning`, "personer", year => 10_000_000 + 10_000 * (year - 2022));
-    const methods = copyCandidates(t, heating, boden, null).map(candidate => candidate.method);
+    const population = goal(`${K}Befolkning\\Befolkning`, "personer", year => 10_000_000 + 10_000 * (year - 2022));
+    const methods = copyCandidates(t, population, boden, null).map(candidate => candidate.method);
     expect(methods).toEqual([CopyMethod.LeapYearly, CopyMethod.LeapLatest, CopyMethod.Population]);
   });
 
@@ -86,7 +93,9 @@ test.describe("LEAP copy planning", () => {
     const methods = copyCandidates(t, other, boden, null).map(candidate => candidate.method);
     expect(methods).toEqual([CopyMethod.Population]);
   });
+});
 
+test.describe("ExternalRegistry / materializeRecipe", () => {
   test("externals are materialized once per selection and the recipe reads the materialized series", () => {
     const registry = new ExternalRegistry(snapshot);
     const population = goal(`${K}Befolkning\\Befolkning`, null, () => 1);
@@ -101,8 +110,22 @@ test.describe("LEAP copy planning", () => {
     expect(materialized.every(variable => variable.type !== RecipeDataTypes.External)).toBe(true);
     expect(materialized.filter(variable => variable.type === RecipeDataTypes.DataSeries && variable.externalSource)).toHaveLength(2);
     expect(first?.sourceIds).toHaveLength(3);
+
+    // Materializing the same selection again returns the same series
+    expect(materializeRecipe(yearly.recipe, registry)?.sourceIds).toEqual(first?.sourceIds);
+    expect(registry.all()).toHaveLength(4);
   });
 
+  test("a selection the snapshot lacks makes the recipe unmaterializable", () => {
+    const registry = new ExternalRegistry({ ...snapshot, series: {} });
+    const population = goal(`${K}Befolkning\\Befolkning`, null, () => 1);
+    const [yearly] = copyCandidates(t, population, boden, null);
+    expect(materializeRecipe(yearly.recipe, registry)).toBeNull();
+    expect(registry.all()).toHaveLength(0);
+  });
+});
+
+test.describe("planCopy", () => {
   test("a copy evaluates to the national goal times the local share", async () => {
     const registry = new ExternalRegistry(snapshot);
     const population = goal(`${K}Befolkning\\Befolkning`, "personer", () => 10_000_000);
@@ -140,21 +163,29 @@ test.describe("LEAP copy planning", () => {
     for (const value of Object.values(planned?.series.dateValues ?? {})) expect(value).toBeCloseTo(100_000, 3);
   });
 
+  test("no usable statistics at all gives no plan and one failure per method", async () => {
+    const empty: StatisticsSnapshot = { ...snapshot, series: {} };
+    const registry = new ExternalRegistry(empty);
+    const population = goal(`${K}Befolkning\\Befolkning`, "personer", () => 10_000_000);
+    const { planned, failures } = await planCopy(t, population, boden, empty, registry, seriesGetter(new Map([[population.dataSeriesId, population]]), registry));
+    expect(planned).toBeNull();
+    expect(failures).toHaveLength(copyCandidates(t, population, boden, null).length);
+  });
+});
+
+test.describe("statisticsSnapshot", () => {
   test("the required statistics cover both sides of every method plus the local anchors and national history", () => {
     const requests = requiredStatistics(t, [`${K}Landtransporter\\Personbilar\\Elbilar\\Antal bilar`, `${K}Befolkning\\Befolkning`], [boden]);
     const keys = requests.map(request => request.key);
-    expect(keys).toContain(electricCarsLocal);
-    expect(keys).toContain(electricCarsNation);
-    expect(keys).toContain(forecastKeyLocal);
-    expect(keys).toContain(forecastKeyNation);
-    expect(keys).toContain(populationKeyLocal);
-    expect(keys).toContain(populationKeyNation);
-    expect(keys).toContain(curatedKey("cars-by-fuel", "electric", "2582"));
+    for (const key of [electricCarsLocal, electricCarsNation, forecastKeyLocal, forecastKeyNation, populationKeyLocal, populationKeyNation, curatedKey("cars-by-fuel", "electric", "2582")]) {
+      expect(keys).toContain(key);
+    }
     expect(new Set(keys).size).toBe(keys.length);
   });
 
   test("snapshot values round-trip through the app's date values", () => {
     const values = years(2020, 2022, year => year);
     expect(toSnapshotValues(snapshotDateValues({ dataset: "SCB", tableId: "x", selection: [], values }))).toEqual(values);
+    expect(() => snapshotDateValues({ dataset: "SCB", tableId: "x", selection: [], values: { "20x0": 1 } })).toThrow("Bad year");
   });
 });

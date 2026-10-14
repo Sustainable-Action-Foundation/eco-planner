@@ -58,6 +58,9 @@ async function getCachedRoadmapSubset(accessContext: UserAccessContext | null, a
     return [];
   }
 
+  // Prisma loads the roadmaps in a second query, so a roadmap deleted in between leaves
+  // its iteration without one (despite the type); drop those instead of crashing the sort
+  iterations = iterations.filter(iteration => (iteration.roadmap as typeof iteration.roadmap | null) !== null);
   iterations.sort(roadmapIterationSorter);
 
   return iterations;
