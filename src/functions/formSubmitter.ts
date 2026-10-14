@@ -96,7 +96,11 @@ export default function formSubmitter(
         alert(`${t("common:errors.something_went_wrong_with_details", { details: err.message })}`);
       };
     } else if (isStandardObject(err) && 'message' in err && typeof err.message === 'string') {
-      alert(`${t("common:errors.something_went_wrong_with_details", { details: err.message })}`);
+      if (createToast) {
+        createToast(err.message, "error", false);
+      } else {
+        alert(`${t("common:errors.something_went_wrong_with_details", { details: err.message })}`);
+      }
       if ("location" in err && typeof err.location === 'string') {
         window.location.href = err.location;
       }

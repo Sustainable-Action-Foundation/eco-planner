@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import RoadmapTable from "@/components/tables/roadmapTables/roadmapTable";
 import { AdminPanel } from "@/components/elements/controls/controls";
+import EntityTimestamps from "@/components/generic/timestamps/entityTimestamps";
 import SharingLine from "@/components/generic/visibility/sharingLine";
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
 import serveTea from "@/lib/i18nServer";
@@ -67,6 +68,7 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
           <span style={{ color: 'gray' }}>{t("pages:roadmap.title_legend")}</span>
           <h1 className="margin-0">{roadmap.name}</h1>
           <SharingLine accessControl={roadmap.access_control} className="margin-block-25" />
+          <EntityTimestamps createdAt={roadmap.created_at} updatedAt={roadmap.updated_at} className="margin-bottom-50" />
           <small className="block">{t("pages:roadmap.description_legend")}</small>
           <div className="margin-block-100">
             <TextEditor

@@ -194,6 +194,8 @@ export type GoalCreateFull = {
   iterationId: string; // The roadmap iteration the goal belongs to
   indicatorParameter: string; // Required on create
   dataSeries: DateValuesWithUnit; // Required on create
+  /** The goal this one is a copy of (the copy/use flow): the API refuses a second copy of it in the same roadmap version */
+  copiedFromGoalId?: string | null;
 } & GoalMetaFields & DataSeriesFields & BaselineFields & HistoricalFields & RecipeSuggestionsFields;
 
 /** Update every section of an existing goal at once. */

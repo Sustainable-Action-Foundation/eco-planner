@@ -6,7 +6,7 @@ import { GoalFormName } from "@/types/form-names";
 import { IconCheck } from "@tabler/icons-react";
 import { FormSync, ManualDataSeriesInput, RecipeContextProvider, RecipeEditor, SuggestedRecipeApplier, UnitInput } from "@/components/recipe";
 import { dataSeriesToDateValues, Recipe } from "@/functions/recipe";
-import { DefaultSuggestedRecipeId, getSuggestedRecipesFor, preferredSuggestedRecipeId } from "@/components/recipe/suggestions/defaultSuggestedRecipes";
+import { copySuggestionContext, preferredSuggestion } from "@/components/recipe/suggestions/defaultSuggestedRecipes";
 import type { SuggestedRecipeContext } from "@/components/recipe/suggestions/defaultSuggestedRecipes";
 import { prefilledSeriesRecipe } from "../../forms/goalSections";
 import ParameterSync from "@/components/recipe/output/parameterSyncer";
@@ -14,7 +14,6 @@ import { RecipeSync } from "@/components/recipe/output/recipeSync";
 import { useMemo, type Dispatch, type SetStateAction } from "react";
 import { parseUnit } from "@/functions/unit";
 import { DataSeriesType, UnitFlags } from "@/types/enums";
-import { RoadmapType } from "@/lib/prisma/generated";
 
 export default function GoalSeriesSection({
   goal,
@@ -66,24 +65,14 @@ export default function GoalSeriesSection({
   // What the suggestions are built around when starting from a prefill; the
   // saved recipe takes precedence when editing
   const suggestionContext = useMemo<SuggestedRecipeContext | undefined>(
-    () => goal || !prefill ? undefined : {
-      parentSeries: prefill.parent,
-      localReference: prefill.localReference,
-      geo,
-      indicatorParameter: prefill.copy?.indicatorParameter,
-      nationalScenario: prefill.sourceRoadmapType === RoadmapType.NATIONAL,
-      storedSuggestions: prefill.storedSuggestions,
-    },
+    () => goal || !prefill ? undefined : copySuggestionContext(prefill, geo),
     [goal, prefill, geo],
   );
   // The suggestion the form starts on: local statistic, else population between
   // the two areas, else the series as is (a factor of 1, ready to be adjusted)
-  const prefilledSuggestionId = suggestionContext ? preferredSuggestedRecipeId(t, suggestionContext) : DefaultSuggestedRecipeId.Scalar;
-  const prefilledSuggestion = useMemo(() => {
-    if (!suggestionContext) return undefined;
-    const suggestion = getSuggestedRecipesFor(t, suggestionContext).find(suggestion => suggestion.id === prefilledSuggestionId);
-    return suggestion ? Recipe.from(suggestion.recipe).serialize() : undefined;
-  }, [suggestionContext, prefilledSuggestionId, t]);
+  const preferred = useMemo(() => suggestionContext ? preferredSuggestion(t, suggestionContext) : undefined, [suggestionContext, t]);
+  const prefilledSuggestionId = preferred?.id;
+  const prefilledSuggestion = useMemo(() => preferred ? Recipe.from(preferred.recipe).serialize() : undefined, [preferred]);
   const suggestedInitialRecipe = savedRecipe ?? prefilledSuggestion;
   const customInitialRecipe = useMemo(
     () => savedRecipe ?? (prefilledSeries ? prefilledSeriesRecipe(prefilledSeries) : undefined),

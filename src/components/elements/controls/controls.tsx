@@ -636,7 +636,7 @@ export function AdminPanel(
   const iteration = isIterationEntry(object) && object.status !== undefined ? { ...object, status: object.status } : null;
 
   return (
-    <aside className="margin-block-300">
+    <aside className={`margin-block-300 ${styles['admin-panel']}`}>
       <div className='flex justify-content-space-between align-items-flex-end flex-wrap-wrap margin-bottom-50 gap-25'>
         <h1 className="font-weight-600 margin-0" style={{ fontSize: '1.25rem' }}>{t("components:table_menu.admin_panel_title")}</h1>
         <small className='font-style-italic'>{t("components:table_menu.admin_panel_info")}</small>
@@ -676,6 +676,7 @@ export function AdminPanel(
                 type="button"
                 className={`flex gap-50 justify-content-space-between align-items-center button smooth font-size-14px
                 ${styles['object-menu-button']}`} style={{ textShadow: 'none', color: 'white', backgroundColor: "#f03b3b", border: '0' }}
+                data-testid="delete-post"
                 onClick={() => openModal(deletionRef)}
               >
                 {t("components:table_menu.delete")}

@@ -417,9 +417,10 @@ export async function DELETE(request: NextRequest) {
     const deletedEffect = await prisma.effects.delete({
       where: { id: { action_id: effect.actionId, goal_id: effect.goalId } },
     });
-    // Invalidate old cache
-    revalidateTag('action', 'max');
-    revalidateTag('goal', 'max');
+    // Invalidate old cache; expire immediately (like POST/PUT) so the reloaded page
+    // doesn't keep listing the deleted effect
+    revalidateTag('action', { expire: 0 });
+    revalidateTag('goal', { expire: 0 });
     // Return success
     return Response.json({ message: t('api:effect.effect_deleted'), actionId: deletedEffect.action_id, goalId: deletedEffect.goal_id },
       { status: 200 },

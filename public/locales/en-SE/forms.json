@@ -203,6 +203,13 @@
     "goal_description": "Description",
     "goal_description_legend": "Details about the $t(common:goal_one)",
     "goal_name": "Name",
+    "indicator_segments": {
+      "add_placeholder": "Add level",
+      "exists_in_version": "Already used in this $t(common:roadmap_one)",
+      "no_suggestions": "No matching existing indicators",
+      "segment_label": "Indicator parameter, level {{index}}",
+      "suggestions_title": "Suggestions for level {{index}}"
+    },
     "invert_goal": "Invert the $t(common:goal_one) (divide by this $t(common:goal_one) rather than multiply)",
     "leap_parameter": "Indicator parameter",
     "no_roadmap": "A $t(common:goal_one) goes into a $t(common:roadmap_one), and you have no $t(common:roadmap_one) you can edit yet.",

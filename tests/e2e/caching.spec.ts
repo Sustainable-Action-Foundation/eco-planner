@@ -123,7 +123,7 @@ const test = base.extend<{ fixtures: Fixtures }>({
   },
 });
 
-/** Records every native dialog (the forms `alert()` API rejections) and dismisses it */
+/** Records every native dialog and dismisses it; the forms toast their API rejections, so none is expected */
 function recordDialogs(page: Page): string[] {
   const messages: string[] = [];
   page.on("dialog", (dialog) => {
@@ -376,7 +376,8 @@ test.describe("Concurrent-edit guard", () => {
       // B, whose form predates A's save and was never hidden, is turned away
       await pageB.locator("#goalName").filter({ visible: true }).fill(`${fixtures.goalName} from B`);
       expect(await submitForm(pageB, "/api/goal")).toBe(409);
-      await expect.poll(() => dialogsB.length, { message: "the stale-data alert" }).toBe(1);
+      await expect(pageB.getByTestId("toast-list"), "the stale-data toast").toContainText("Stale data");
+      expect(dialogsB).toEqual([]);
       expect(pageB.url()).toMatch(new RegExp(`/goal/${fixtures.goalId}/edit$`));
 
       // A's version is what stuck

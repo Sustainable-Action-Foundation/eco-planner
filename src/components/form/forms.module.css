@@ -286,3 +286,15 @@
     display: none;
   }
 }
+/* The submit button's spinner while the form is submitting */
+.spinner {
+  animation: form-submit-spin 0.8s linear infinite;
+  vertical-align: middle;
+  margin-right: .25rem;
+}
+
+@keyframes form-submit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -87,7 +87,7 @@ export default async function Page(
           </p> : null
         }
         {badRoadmap ? <p style={{ color: 'red' }}>
-            <IconInfoCircle role="img" ria-label={t("pages:action_create.information_icon_aria")} />
+            <IconInfoCircle role="img" aria-label={t("pages:action_create.information_icon_aria")} />
             {t("pages:action_create.bad_roadmap")}
           </p> : null
         }

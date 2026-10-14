@@ -267,6 +267,11 @@ export function isGoalCreate(goal: unknown): goal is GoalCreateInput {
         console.debug(`goal missing required parameter "indicatorParameter" or it is not a string`);
         return false;
       }
+      // copiedFromGoalId?: string | null;
+      if ("copiedFromGoalId" in g && !isStringOrNullish(g.copiedFromGoalId)) {
+        console.debug(`optional goal parameter "copiedFromGoalId" has wrong type: ${typeof g.copiedFromGoalId}`);
+        return false;
+      }
       return validateGoalMetaFields(g)
         && validateDataSeriesFields(g, true)
         && validateBaselineFields(g)

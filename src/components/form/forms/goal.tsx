@@ -9,13 +9,13 @@ import { BaselineType, DataSeriesType, GoalDataTarget, HistoricalDataType } from
 import { GoalListing } from "@/lib/prisma/generated";
 import { GoalFormName } from "@/types/form-names";
 import { isGoalListing } from "@/types/typeguards";
-import { IconChevronDown, IconChevronUp, IconEye, IconEyeOff, IconInfoCircle, IconStar } from "@tabler/icons-react";
+import { IconChevronDown, IconChevronUp, IconEye, IconEyeOff, IconInfoCircle, IconLoader2, IconStar } from "@tabler/icons-react";
 import Link from "next/link";
 import { waitForRecipeFormSyncs } from "@/components/recipe";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from '../forms.module.css';
-import TextSingleAutocomplete from "../elements/combobox/textSingleAutocomplete";
+import IndicatorSegmentsInput from "../elements/indicatorSegments";
 import parameterOptions from "@/lib/LEAPList.json" with { type: "json" };
 import TextEditor from "../elements/textEditor/editor";
 import SelectSingleSearch from "../elements/combobox/selectSingleSearch";
@@ -38,6 +38,7 @@ import { useRouter } from "next/navigation";
 import HistoricalSeriesSection from "../sections/dataseries/historical";
 import BaselineSeriesSection from "../sections/dataseries/baseline";
 import GoalSeriesSection from "../sections/dataseries/goal";
+import { prefillForArea } from "@/components/recipe/suggestions/defaultSuggestedRecipes";
 import { getHistoricalDatasetFromRecipe } from "@/functions/getHistoricalDataset";
 import { historicalSeriesName } from "@/components/graph/historicalFootnote";
 import PreviewSeries from "../sections/dataseries/preview";
@@ -69,8 +70,7 @@ export default function GoalForm({
   );
   const prefill = useMemo(() => {
     if (currentGoal || !requestedPrefill) return undefined;
-    const forArea = targetGeo ? requestedPrefill.byArea?.[targetGeo.code] : undefined;
-    return forArea ? { ...requestedPrefill, ...forArea } : requestedPrefill;
+    return prefillForArea(requestedPrefill, targetGeo);
   }, [currentGoal, requestedPrefill, targetGeo]);
   const geo = useMemo(() => ({ source: prefill?.sourceGeoArea ?? null, target: targetGeo }), [prefill?.sourceGeoArea, targetGeo]);
   // The sections seeded from the prefill remount when the area changes
@@ -144,6 +144,9 @@ export default function GoalForm({
   // to evaluate (e.g. an external variable with an incomplete selection).
   const descriptionRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  // While the submit settles the recipes and awaits the API: the button shows
+  // it and ignores further clicks (a second submit would create a second goal)
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { addToast } = useToast();
 
@@ -187,19 +190,26 @@ export default function GoalForm({
 
   const timestamp = useFormTimestamp();
 
-  const indicatorParameters = useMemo(() => {
-    return [...new Set(parameterOptions)].map(option => ({
-      name: option,
-      value: option,
-    }));
-  }, []);
+  const indicatorParameterSuggestions = useMemo(() => [...new Set(parameterOptions)], []);
 
   // TODO: Error messages were translated directly from English to Swedish when switching to toasts.
   // They can likely be translated better.
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.target.reportValidity();
     event.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await submit(event);
+    }
+    catch (err) {
+      setIsSubmitting(false);
+      throw err;
+    }
+  }
 
+  /** The submit proper; every early return and the API's error path hand the button back. */
+  async function submit(event: React.ChangeEvent<HTMLFormElement>) {
     // The recipe contexts evaluate on a debounce; wait for their FormSync
     // outputs to settle so a submit right after an edit doesn't read stale data.
     await waitForRecipeFormSyncs(event.target);
@@ -213,6 +223,7 @@ export default function GoalForm({
     if (formData.entries().some(([key, value]) => value instanceof File && !fileInputKeys.includes(key))) {
       addToast(t("forms:goal.errors.unexpected_file_object"), "error", false);
       event.target.reportValidity();
+      setIsSubmitting(false);
       return;
     }
 
@@ -225,6 +236,7 @@ export default function GoalForm({
     if (typeof recipeError === "string" && recipeError) {
       addToast(`${t("forms:goal.errors.recipe_has_error")} ${recipeError}`, "error", false);
       event.target.reportValidity();
+      setIsSubmitting(false);
       return;
     }
 
@@ -245,6 +257,7 @@ export default function GoalForm({
       if (!(err instanceof GoalFormError)) throw err;
       addToast(err.message, "error", false);
       event.target.reportValidity();
+      setIsSubmitting(false);
       return;
     }
 
@@ -252,6 +265,7 @@ export default function GoalForm({
     // dropped silently; say so instead of saving a goal without the history
     if (historicalDataType !== HistoricalDataType.None && !historicalRecipe) {
       addToast(t("forms:goal.errors.missing_historical_data"), "error", false);
+      setIsSubmitting(false);
       return;
     }
 
@@ -273,6 +287,7 @@ export default function GoalForm({
         listing: listing,
         iterationId: iterationId || parentIterationId,
         recipeSuggestions: recipeSuggestions,
+        copiedFromGoalId: prefill?.copy?.id ?? null,
 
         dataSeriesId: null,
         dataSeries: dataSeries,
@@ -332,7 +347,7 @@ export default function GoalForm({
     const formJSON = JSON.stringify(formContent);
 
     // Submit the form to the API (POST for new, PUT for edit)
-    formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST', t, undefined, undefined, undefined, undefined, addToast, (url) => router.push(url));
+    formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST', t, setIsSubmitting, undefined, undefined, undefined, addToast, (url) => router.push(url));
   }
 
   // Index for data-position attribute in legend elements (for accessibility)
@@ -410,22 +425,14 @@ export default function GoalForm({
         <label htmlFor="indicatorParameter">
           {t("forms:goal.leap_parameter")} 
         </label>
-        <TextSingleAutocomplete
-          props={{
-            id: "indicatorParameter",
-            name: GoalFormName.IndicatorParameter,
-            placeholder: t("forms:combobox.default_autocomplete_placeholder"),
-            className: "margin-top-25 margin-bottom-100",
-            defaultValue: currentGoal?.indicator_parameter ?? prefill?.copy?.indicatorParameter ?? undefined,
-          }}
-          options={indicatorParameters}
-          fuseOptions={{
-            threshold: 0.3,
-            ignoreLocation: true,
-            minMatchCharLength: 2,
-          }}
+        <IndicatorSegmentsInput
+          id="indicatorParameter"
+          name={GoalFormName.IndicatorParameter}
+          className="margin-top-25 margin-bottom-100"
           value={indicatorParameter}
           setter={setIndicatorParameter}
+          iterationId={currentGoal?.roadmap_iteration_id ?? (targetIterationId || undefined)}
+          knownPaths={indicatorParameterSuggestions}
         />
         {/* Listing: how the goal shows up in its version's lists, like the admin panel */}
         <fieldset className="margin-top-100">
@@ -619,8 +626,10 @@ export default function GoalForm({
           style={{ fontSize: '14px', transform: 'none' }}
           type="submit"
           id="submit-button"
-          disabled={missingRoadmap}
+          disabled={missingRoadmap || isSubmitting}
+          aria-busy={isSubmitting}
         >
+          {isSubmitting ? <IconLoader2 data-pending="true" aria-hidden="true" width={16} height={16} className={styles.spinner} /> : null}
           {currentGoal ? t("common:tsx.save") : t("forms:goal.create")}
         </button>
       </div>

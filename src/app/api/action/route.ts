@@ -475,8 +475,11 @@ export async function DELETE(request: NextRequest) {
     });
     // Prune any orphaned comments
     await pruneOrphans();
-    // Invalidate old cache
-    revalidateTag('action', 'max');
+    // Invalidate old cache; expire immediately so the iteration page the client lands on
+    // doesn't keep listing the deleted action. Its effects were cascade-deleted and show
+    // on goal pages, so the goal tag expires too.
+    revalidateTag('action', { expire: 0 });
+    revalidateTag('goal', { expire: 0 });
     return Response.json({ message: t('api:action.action_deleted'), id: deletedAction.id },
       // Redirect to the parent iteration, or the action database for roadmapless actions
       { status: 200, headers: { 'Location': deletedAction.roadmap_iteration ? iterationPath(deletedAction.roadmap_iteration.roadmap_id, deletedAction.roadmap_iteration.version) : '/' } },

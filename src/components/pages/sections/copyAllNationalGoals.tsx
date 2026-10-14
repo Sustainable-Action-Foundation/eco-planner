@@ -117,6 +117,7 @@ async function buildCopyPayload(prefill: GoalPrefill, iterationId: string, t: TF
     listing: GoalListing.LISTED,
     iterationId,
     recipeSuggestions: undefined,
+    copiedFromGoalId: prefill.copy?.id ?? null,
 
     dataSeriesId: null,
     dataSeries,

@@ -21,6 +21,7 @@
     "goal_created": "Goal created",
     "goal_updated": "Goal updated",
     "goal_deleted": "Goal deleted",
+    "already_in_roadmap": "The goal is already in the roadmap: {{goal}}",
     "roadmap_not_found": "Failed to connect records. Given roadmap might not exist"
   },
   "effect": {
