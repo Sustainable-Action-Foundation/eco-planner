@@ -9,7 +9,8 @@ import getUserHash from "@/functions/getUserHash";
 import { baseUrl } from "@/lib/baseUrl";
 import serveTea from "@/lib/i18nServer";
 import type { JSONValue } from "@/types";
-import { isValidUsername, usernameMaxLength, usernameMinLength } from "@/functions/username";
+import { isValidUsername, normalizeUsername, usernameKey, usernameMaxLength, usernameMinLength } from "@/functions/username";
+import { emailDomain, normalizeEmail } from "@/functions/email";
 
 export async function POST(request: NextRequest) {
   const t = await serveTea("email");
@@ -18,8 +19,9 @@ export async function POST(request: NextRequest) {
   if (!body || typeof body !== "object" || Array.isArray(body) || !(typeof body.username === 'string') || !(typeof body.email === 'string') || !(typeof body.password === 'string')) {
     return Response.json({ message: 'Invalid body; username, email, and password are required' }, { status: 400 });
   }
-  const { username, email, password } = body;
-  const lowercaseEmail = email.toLowerCase();
+  const { password } = body;
+  const username = normalizeUsername(body.username);
+  const lowercaseEmail = normalizeEmail(body.email);
 
   // Usernames appear in /user/[username] URLs, so restrict them to URL-safe characters
   if (!isValidUsername(username)) {
@@ -32,7 +34,7 @@ export async function POST(request: NextRequest) {
   // but we want to return a more specific error message
   const usernameExists = await prisma.users.findUnique({
     where: {
-      username: username,
+      username_lower: usernameKey(username),
     },
   });
 
@@ -55,8 +57,8 @@ export async function POST(request: NextRequest) {
   }
 
   // Check if email belongs to an allowed domain
-  // Get the part after last '@' to support emails like `"john@doe"@example.com`, and trim any whitespace or trailing '>' character (e.g. if the email is in the format `John Doe <john.doe@example.com>`)
-  const domain = lowercaseEmail.split('@').pop()?.trim().replace(/>$/, '').trim();
+  // The part after the last '@', to support emails like `"john@doe"@example.com`
+  const domain = emailDomain(lowercaseEmail);
   /** A regex matching domain names according to RFC 1035 and RFC 1123 */
   const domainRegex = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)*$/;
   if (!domainRegex.test(domain ?? '')) {
@@ -121,6 +123,7 @@ export async function POST(request: NextRequest) {
     await prisma.users.create({
       data: {
         username: username,
+        username_lower: usernameKey(username),
         email: lowercaseEmail,
         password_hash: hashedPassword,
         ...(org ? {

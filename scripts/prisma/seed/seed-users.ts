@@ -34,23 +34,23 @@ export async function seedUsers(): Promise<SeededUsers> {
 
   /** A super admin, username and password 'admin'. */
   const admin = await prisma.users.create({
-    data: { username: "admin", password_hash: adminPassword, is_super_admin: true, is_verified: true, email: "admin@sustainable-action.ngo" },
+    data: { username: "admin", username_lower: "admin".toLowerCase(), password_hash: adminPassword, is_super_admin: true, is_verified: true, email: "admin@sustainable-action.ngo" },
   });
   /** Anita is a regular, verified user. */
   const anita = await prisma.users.create({
-    data: { username: "Anita", password_hash: anitaPassword, is_super_admin: false, is_verified: true, email: "anita@sustainable-action.ngo" },
+    data: { username: "Anita", username_lower: "Anita".toLowerCase(), password_hash: anitaPassword, is_super_admin: false, is_verified: true, email: "anita@sustainable-action.ngo" },
   });
   /** Anton is a regular user who's been too lazy to verify their email. */
   const anton = await prisma.users.create({
-    data: { username: "Anton", password_hash: antonPassword, is_super_admin: false, is_verified: false, email: "anton@sustainable-action.ngo" },
+    data: { username: "Anton", username_lower: "Anton".toLowerCase(), password_hash: antonPassword, is_super_admin: false, is_verified: false, email: "anton@sustainable-action.ngo" },
   });
   /** Greta is a GUEST: while guests are disabled her memberships must grant nothing. */
   const greta = await prisma.users.create({
-    data: { username: "Greta", password_hash: gretaPassword, is_super_admin: false, is_verified: true, email: "greta@example.com" },
+    data: { username: "Greta", username_lower: "Greta".toLowerCase(), password_hash: gretaPassword, is_super_admin: false, is_verified: true, email: "greta@example.com" },
   });
   /** Poor little Orgless has no org memberships at all: sees only public content and cannot create anything. */
   await prisma.users.create({
-    data: { username: "orgless", password_hash: orglessPassword, is_super_admin: false, is_verified: true, email: "orgless@unclaimed.example.com" },
+    data: { username: "orgless", username_lower: "orgless".toLowerCase(), password_hash: orglessPassword, is_super_admin: false, is_verified: true, email: "orgless@unclaimed.example.com" },
   });
 
   // The org that owns the test fixtures and the national scenario; its domain matches the users' emails so signup auto-joins.
@@ -108,6 +108,7 @@ export async function seedUsers(): Promise<SeededUsers> {
       members.push(await prisma.users.create({
         data: {
           username: slug,
+          username_lower: slug.toLowerCase(),
           password_hash: memberPassword,
           is_super_admin: false,
           is_verified: true,

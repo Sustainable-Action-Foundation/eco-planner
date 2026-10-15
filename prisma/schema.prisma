@@ -45,7 +45,7 @@ enum OrgRole {
 // is always stored as a string; this only informs the UI (input widget, display).
 // List-ness is structural, not typed: multiple fields sharing a header collapse
 // into a list in the UI when their type supports it (i.e. is not PARAGRAPH).
-/*
+/**
  * Visibility is three separate, single-valued settings, one per level:
  * - Sharing (roadmap access control): who may access the roadmap and everything under it
  * - IterationStatus (roadmap version): draft (editors only) / published
@@ -157,7 +157,7 @@ model RoadmapIterations {
 
   // The roadmap this is an iteration of
   roadmap_id     String
-  roadmap        Roadmaps  @relation("roadmap_iterations", fields: [roadmap_id], references: [id], onDelete: Cascade)
+  roadmap        Roadmaps        @relation("roadmap_iterations", fields: [roadmap_id], references: [id], onDelete: Cascade)
   // The version of the roadmap
   version        Int
   // If the parent roadmap relates to another roadmap, target_version defines which version of the related roadmap this iteration relates to
@@ -559,11 +559,13 @@ model AccessGrants {
 }
 
 model Users {
-  id            String  @id @default(uuid())
-  username      String  @unique
-  email         String  @unique
-  password_hash String
-  is_verified   Boolean @default(false) // Has verified email
+  id             String  @id @default(uuid())
+  username       String  @unique
+  /// Lowercased `username`; the lookup/uniqueness key so auth doesn't depend on the DB collation (see usernameKey())
+  username_lower String  @unique
+  email          String  @unique
+  password_hash  String
+  is_verified    Boolean @default(false) // Has verified email
 
   is_super_admin Boolean @default(false)
 

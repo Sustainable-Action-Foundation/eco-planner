@@ -1,4 +1,5 @@
 import getUserHash from "@/functions/getUserHash";
+import { normalizeEmail } from "@/functions/email";
 import { connection } from "next/server";
 import type { NextRequest } from "next/server";
 
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest) {
     return Response.json({ message: "Not found" }, { status: 404 });
   }
 
-  const email = request.nextUrl.searchParams.get("email")?.trim().toLowerCase();
+  const email = normalizeEmail(request.nextUrl.searchParams.get("email") ?? "");
   if (!email) {
     return Response.json({ message: "email is required" }, { status: 400 });
   }

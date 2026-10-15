@@ -7,6 +7,7 @@ import { roadmapIterationSorter, roadmapSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
 import type { UserAccessContext } from "@/types";
 import { cacheTag } from "next/cache";
+import { usernameKey } from "@/functions/username";
 
 /**
  * Gets basic user information and all (accessible) roadmaps and roadmap iterations authored by the user.
@@ -34,7 +35,7 @@ async function getCachedUserInfo(username: string, accessContext: UserAccessCont
     // The filters collapse the ladder into the query: anonymous visitors only match public
     // content, superadmins match everything, everyone else matches what their memberships grant.
     const fetchedUser = await prisma.users.findUnique({
-      where: { username },
+      where: { username_lower: usernameKey(username) },
       select: {
         ...userInfoSelector,
         authored_roadmaps: {

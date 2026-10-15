@@ -36,3 +36,17 @@ export function usernameFromParam(param: string): string {
     return stripped;
   }
 }
+
+/** Trims surrounding whitespace; this is the form stored and displayed. */
+export function normalizeUsername(raw: string): string {
+  return raw.trim();
+}
+
+/**
+ * The case-folded key a username is looked up and kept unique by (`Users.username_lower`).
+ * Keeping it as a column means login and signup don't depend on the database's
+ * collation being case-insensitive, while the stored `username` keeps its display casing.
+ */
+export function usernameKey(raw: string): string {
+  return normalizeUsername(raw).toLowerCase();
+}

@@ -6,6 +6,7 @@ import mailClient from "@/mailClient";
 import { prisma } from "@/lib/prisma";
 import type { JSONValue } from "@/types";
 import type { NextRequest } from "next/server";
+import { normalizeEmail } from "@/functions/email";
 
 /** Sends a password reset email to the given address. */
 export async function POST(request: NextRequest) {
@@ -17,18 +18,21 @@ export async function POST(request: NextRequest) {
     return Response.json({ message: 'Email is required' }, { status: 400 });
   }
 
+  const email = normalizeEmail(body.email);
+
   // Get hash based on user data (used as key for verification)
   // Also indirectly checks if user exists, but we don't want to expose that information (since this searches by email rather than ID, it could be used to check if an email is registered)
-  const userHash = await getUserHash(body.email.toLowerCase()).catch(() => null);
+  const userHash = await getUserHash(email).catch(() => null);
   if (!userHash) {
     return Response.json({ message: 'If the user exists, an email will be sent to reset the password' }, { status: 200, headers: { 'Location': '/password' } });
   }
 
   const mailContent = {
     from: t("email:common.from", { emailServer: process.env.MAIL_USER }),
-    to: body.email,
+    to: email,
     subject: t("email:reset.subject"),
-    text: t("email:reset.body", { baseUrl: baseUrl, email: body.email, userHash: userHash }),
+    // The link carries the same normalized address the hash was computed for
+    text: t("email:reset.body", { baseUrl: baseUrl, email: email, userHash: userHash }),
   };
 
   try {
@@ -49,7 +53,8 @@ export async function PATCH(request: NextRequest) {
   if (!body || typeof body !== "object" || Array.isArray(body) || !(typeof body.email === 'string') || !(typeof body.hash === 'string') || !(typeof body.newPassword === 'string')) {
     return Response.json({ message: 'Invalid body; email, hash, and new password are required' }, { status: 400 });
   }
-  const { email, hash, newPassword } = body;
+  const { hash, newPassword } = body;
+  const email = normalizeEmail(body.email);
 
   // Hash password
   const saltRounds: number = 11;

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import type { JSONValue } from "@/types";
+import { usernameKey } from "@/functions/username";
 
 /** Compared against when the user doesn't exist, so that path costs about as much as a real check (same 11 rounds as signup) */
 const DUMMY_HASH = "$2b$11$iKytgNxZ21SdVTS29GV0muWl/Mp1pbscD0Zd6CZF6OSETNin36Z8e";
@@ -40,9 +41,10 @@ export async function POST(request: NextRequest) {
 
   // Validate credentials. A missing/unverified user is expected control flow,
   // not an error worth a stack trace in the server log.
+  // The lookup goes through the case-folded key so it works regardless of DB collation.
   const user = await prisma.users.findUnique({
     where: {
-      username: username,
+      username_lower: usernameKey(username),
       is_verified: true,
     },
     select: {
@@ -73,17 +75,6 @@ export async function POST(request: NextRequest) {
   };
 
   await session.save();
-
-  // if (remember) {
-  //   session.updateConfig({
-  //     ...options,
-  //     cookieOptions: {
-  //       ...options.cookieOptions,
-  //       maxAge: 14 * 24 * 60 * 60, // 14 days in seconds
-  //     }
-  //   });
-  //   session.save();
-  // }
 
   return Response.json({ message: 'Login successful' },
     { status: 200 },

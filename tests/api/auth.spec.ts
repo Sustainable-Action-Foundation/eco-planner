@@ -77,6 +77,21 @@ test.describe("/api/login and /api/logout", () => {
     }
   });
 
+  test("the username is matched case-insensitively and trimmed, independent of DB collation", async ({ playwright, baseURL }) => {
+    // Seeded as "Anita"; the lookup goes through Users.username_lower
+    for (const username of ["anita", "ANITA", " Anita "]) {
+      const request = await requestAs(playwright, baseURL);
+      try {
+        const response = await request.post("/api/login", { data: { username, password: Seed.anita.password } });
+        expect(response.status(), `${JSON.stringify(username)}: ${await response.text()}`).toBe(200);
+        expect(await sessionCookie(request), JSON.stringify(username)).toBeTruthy();
+      }
+      finally {
+        await request.dispose();
+      }
+    }
+  });
+
   test("unknown, unverified and wrong-password logins get the same answer", async ({ request }) => {
     const attempts = [
       { username: "no-such-user-ever", password: "x" },
@@ -132,12 +147,14 @@ test.describe("/api/signup rejections", () => {
     expect((await response.json() as { message: string }).message).toContain("not allowed");
   });
 
-  test("a taken username is refused before anything is created", async ({ request }) => {
-    const response = await request.post("/api/signup", {
-      data: { username: Seed.admin.username, email: `taken.username.${Date.now().toString(36)}@boden.se`, password: "password1234" },
-    });
-    expect(response.status(), await response.text()).toBe(400);
-    expect((await response.json() as { message: string }).message).toContain("already taken");
+  test("a taken username is refused before anything is created, case-insensitively", async ({ request }) => {
+    for (const username of [Seed.admin.username, Seed.admin.username.toUpperCase(), ` ${Seed.admin.username} `]) {
+      const response = await request.post("/api/signup", {
+        data: { username, email: `taken.username.${Date.now().toString(36)}@boden.se`, password: "password1234" },
+      });
+      expect(response.status(), `${JSON.stringify(username)}: ${await response.text()}`).toBe(400);
+      expect((await response.json() as { message: string }).message).toContain("already taken");
+    }
   });
 
   test("a taken email is refused, case-insensitively", async ({ request }, testInfo) => {
@@ -193,7 +210,7 @@ test.describe.serial("signup, verification and password reset", () => {
   });
 
   test("a resend request answers the same whether or not the address exists", async ({ request }) => {
-    for (const address of [email, "nobody.at.all@boden.se"]) {
+    for (const address of [email, email.toUpperCase(), "nobody.at.all@boden.se"]) {
       const response = await request.post("/api/verify", { data: { email: address } });
       expect(response.status(), `${address}: ${await response.text()}`).toBe(200);
       expect(response.headers()["location"]).toBe("/verify");
@@ -209,12 +226,13 @@ test.describe.serial("signup, verification and password reset", () => {
     expect(login.status(), "still unverified").toBe(400);
   });
 
-  test("the mailed token verifies the account, which then logs in and sees its domain's org", async ({ playwright, baseURL }) => {
+  test("the mailed token verifies the account even when the address is typed in another casing", async ({ playwright, baseURL }) => {
     const request = await requestAs(playwright, baseURL);
     try {
+      // The token is keyed by the normalized address, so the casing of the typed address must not matter
       const hash = await mailToken(request, email);
       verificationHash = hash;
-      const response = await request.patch("/api/verify", { data: { email, hash } });
+      const response = await request.patch("/api/verify", { data: { email: ` ${email.toUpperCase()} `, hash } });
       expect(response.status(), await response.text()).toBe(200);
       expect(response.headers()["location"]).toBe("/login");
 
@@ -253,8 +271,8 @@ test.describe.serial("signup, verification and password reset", () => {
       const wrong = await request.patch("/api/password", { data: { email, hash: "0".repeat(64), newPassword } });
       expect(wrong.status(), await wrong.text()).toBe(400);
 
-      const hash = await mailToken(request, email);
-      const response = await request.patch("/api/password", { data: { email, hash, newPassword } });
+      const hash = await mailToken(request, email.toUpperCase());
+      const response = await request.patch("/api/password", { data: { email: email.toUpperCase(), hash, newPassword } });
       expect(response.status(), await response.text()).toBe(200);
       expect(response.headers()["location"]).toBe("/login");
 

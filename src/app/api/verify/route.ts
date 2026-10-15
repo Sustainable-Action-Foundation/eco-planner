@@ -5,6 +5,7 @@ import mailClient, { type MailOptions } from "@/mailClient";
 import { prisma } from "@/lib/prisma";
 import type { JSONValue } from "@/types";
 import type { NextRequest } from "next/server";
+import { normalizeEmail } from "@/functions/email";
 
 /** Sends a verification email to the given address. */
 export async function POST(request: NextRequest) {
@@ -15,18 +16,21 @@ export async function POST(request: NextRequest) {
     return Response.json({ message: 'Email is required' }, { status: 400 });
   }
 
+  const email = normalizeEmail(body.email);
+
   // Get hash based on user data (used as key for verification)
   // Also indirectly checks if user exists but we don't want to expose that information (since this searches by email rather than ID, it could be used to check if an email is registered)
-  const userHash = await getUserHash(body.email.toLowerCase()).catch(() => null);
+  const userHash = await getUserHash(email).catch(() => null);
   if (!userHash) {
     return Response.json({ message: 'If the user exists and is unverified, an email with instructions for verification will be sent' }, { status: 200, headers: { 'Location': '/verify' } });
   }
 
   const mailContent: MailOptions = {
     from: t("email:common.from", { emailServer: process.env.MAIL_USER }),
-    to: body.email.toLowerCase(),
+    to: email,
     subject: t("email:verification.subject"),
-    text: t("email:verification.body", { baseUrl: baseUrl, email: body.email, userHash: userHash }),
+    // The link carries the same normalized address the hash was computed for
+    text: t("email:verification.body", { baseUrl: baseUrl, email: email, userHash: userHash }),
   };
 
   try {
@@ -47,7 +51,8 @@ export async function PATCH(request: NextRequest) {
   if (!body || typeof body !== 'object' || Array.isArray(body) || typeof body.email !== 'string' || typeof body.hash !== 'string') {
     return Response.json({ message: 'Invalid body; email and hash are required' }, { status: 400 });
   }
-  const { email, hash } = body;
+  const { hash } = body;
+  const email = normalizeEmail(body.email);
 
   // Compare the provided hash with the hash of the user object
   // Fails with the same message if the user does not exist
