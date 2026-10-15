@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { getSession, options } from "@/lib/session";
+import { getSession, sessionOptionsFor } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
@@ -26,18 +26,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Create session, set maxAge if user toggled remember me. The seal's ttl must be set
-  // too: iron-session only derives it from maxAge when maxAge is omitted, so a maxAge
-  // alone left the seal at its 14-day default and "remember me" expired after two weeks.
-  const yearInSeconds = 365 * 24 * 60 * 60;
-  const session = await getSession(await cookies(), remember ? {
-    ...options,
-    ttl: yearInSeconds,
-    cookieOptions: {
-      ...options.cookieOptions,
-      maxAge: yearInSeconds,
-    },
-  } : options);
+  // Create session, persistent if the user toggled remember me
+  const session = await getSession(await cookies(), sessionOptionsFor(remember === true));
 
   // Validate credentials. A missing/unverified user is expected control flow,
   // not an error worth a stack trace in the server log.
@@ -55,8 +45,8 @@ export async function POST(request: NextRequest) {
     },
   });
 
-  // Unknown, unverified and wrong-password logins get the same answer, and the
-  // dummy compare keeps the timing close, so the endpoint doesn't reveal which accounts exist.
+  // Unknown, unverified, link-only (no password) and wrong-password logins get the same answer, and
+  // the dummy compare keeps the timing close, so the endpoint doesn't reveal which accounts exist.
   const passwordMatches = await bcrypt.compare(password, user?.password_hash ?? DUMMY_HASH);
 
   if (!user || !passwordMatches) {

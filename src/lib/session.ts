@@ -19,6 +19,23 @@ export const options: SessionOptions = {
   },
 };
 
+/** A year, the lifetime of a "remember me" session cookie. */
+const rememberMaxAgeSeconds = 365 * 24 * 60 * 60;
+
+/**
+ * Session options for a login: a browser-session cookie by default, a persistent
+ * one-year cookie when the user asked to be remembered.
+ */
+export function sessionOptionsFor(remember: boolean): SessionOptions {
+  return remember ? {
+    ...options,
+    cookieOptions: {
+      ...options.cookieOptions,
+      maxAge: rememberMaxAgeSeconds,
+    },
+  } : options;
+}
+
 /**
  * Reads login data from cookies
  */

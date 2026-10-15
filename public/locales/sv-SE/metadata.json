@@ -18,6 +18,9 @@
     "title": "Logga in",
     "description": "Logga in till Eco - planner"
   },
+  "login_link": {
+    "description": "Logga in med en länk från mejlet"
+  },
   "roadmap_iteration_edit": {
     "title": "Redigera färdplan:"
   },

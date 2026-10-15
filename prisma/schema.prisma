@@ -453,6 +453,23 @@ model Orgs {
 // signing up with the invited email) consumes the invite by deleting it, so the
 // table only ever holds pending invites. An invited email may sign up even when
 // its domain is not in the allowed list.
+/// A pending email login link (passwordless login). Only the SHA-256 of the token is
+/// stored; the token itself travels in the mail. One pending link per email: a new
+/// request replaces the old one, and redeeming deletes the row (single use).
+model LoginTokens {
+  token_hash String   @id
+  /// Normalized (see normalizeEmail); the user may not exist yet (first login creates the account)
+  email      String
+  created_at DateTime @default(now())
+  expires_at DateTime
+  /// Whether the session minted on redemption should be persistent ("remember me")
+  remember   Boolean  @default(false)
+  /// Same-site path to send the user to after login, sanitized at request time
+  redirect   String?
+
+  @@index([email])
+}
+
 model GuestInvites {
   token      String   @id @default(uuid())
   email      String
@@ -564,7 +581,8 @@ model Users {
   /// Lowercased `username`; the lookup/uniqueness key so auth doesn't depend on the DB collation (see usernameKey())
   username_lower String  @unique
   email          String  @unique
-  password_hash  String
+  /// Null for accounts created through an email login link; they sign in with links only
+  password_hash  String?
   is_verified    Boolean @default(false) // Has verified email
 
   is_super_admin Boolean @default(false)

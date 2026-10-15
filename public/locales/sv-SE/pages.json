@@ -233,6 +233,14 @@
   "login": {
     "breadcrumb": "$t(common:tsx.login)"
   },
+  "login_link": {
+    "title": "Logga in med länk",
+    "description": "Klicka på knappen för att logga in.",
+    "submit": "Logga in",
+    "missing": "Den här sidan behöver öppnas via länken i mejlet.",
+    "invalid": "Länken är ogiltig eller har gått ut. Begär en ny inloggningslänk.",
+    "back_to_login": "Till inloggningen"
+  },
   "password": {
     "breadcrumb": "Återställ lösenord",
     "description": "Har du glömt ditt lösenord? Fyll i din e‑postadress här så skickar vi ett e‑postmeddelande med instruktioner för att återställa lösenordet.",

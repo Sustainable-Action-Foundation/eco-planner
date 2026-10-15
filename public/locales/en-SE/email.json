@@ -17,5 +17,13 @@
   "invite": {
     "subject": "You have been invited to {{orgName}} on $t(common:layout.app_name_compact)",
     "body": "Hello! You have been invited to join {{orgName}} as a guest on $t(common:layout.app_name_compact). Follow this link to accept:\n{{baseUrl}}/invite/{{token}}\n\nIf you don't have an account yet, sign up with this email address and the invitation is accepted automatically."
+  },
+  "login": {
+    "subject": "Your login link to $t(common:layout.app_name_compact)",
+    "body": "Hello! Click the link to sign in to $t(common:layout.app_name_compact). It is valid for 15 minutes and can only be used once:\n{{link}}\n\nIf you did not request this link you can ignore this email. Don't forward it: whoever has the link can sign in as you."
+  },
+  "welcome": {
+    "subject": "Welcome to $t(common:layout.app_name_compact)",
+    "body": "Welcome to $t(common:layout.app_name_compact)! An account for {{email}} is created when you sign in for the first time. Click the link to sign in. It is valid for 15 minutes and can only be used once:\n{{link}}\n\nIf you did not request this link you can ignore this email. Don't forward it: whoever has the link can sign in as you."
   }
 }

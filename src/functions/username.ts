@@ -50,3 +50,20 @@ export function normalizeUsername(raw: string): string {
 export function usernameKey(raw: string): string {
   return normalizeUsername(raw).toLowerCase();
 }
+
+/**
+ * A username for an account created from an email address alone (login-link
+ * signup): the local part with disallowed characters folded to "-", padded or
+ * truncated into the allowed length. Collisions are resolved by the caller
+ * (`-2`, `-3`, …), which has the database.
+ */
+export function deriveUsername(email: string): string {
+  const localPart = email.slice(0, email.lastIndexOf("@") === -1 ? undefined : email.lastIndexOf("@"));
+  let base = localPart
+    .replace(/[^\p{L}\p{M}\p{N}._-]+/gu, "-")
+    .replace(/^[-._]+|[-._]+$/g, "");
+  if ([...base].length < usernameMinLength) {
+    base = base ? `${base}-user` : "user";
+  }
+  return [...base].slice(0, usernameMaxLength).join("");
+}

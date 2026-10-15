@@ -18,6 +18,9 @@
     "title": "Log in",
     "description": "Log in to Eco - planner"
   },
+  "login_link": {
+    "description": "Sign in with a link from the email"
+  },
   "roadmap_iteration_edit": {
     "title": "Edit roadmap:"
   },

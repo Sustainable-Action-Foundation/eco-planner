@@ -6,8 +6,9 @@ export async function proxy(req: NextRequest) {
   const session = await getSession(await cookies());
   const response = NextResponse.next();
 
-  // Redirect away from login page if already logged in
-  if (req.nextUrl.pathname.startsWith('/login')) {
+  // Redirect away from login page if already logged in. The link interstitial is exempt:
+  // redeeming a login link replaces the session, which is how you switch accounts.
+  if (req.nextUrl.pathname.startsWith('/login') && !req.nextUrl.pathname.startsWith('/login/link')) {
     if (session.user?.isLoggedIn === true) {
       return NextResponse.redirect(new URL('/', req.url));
     }

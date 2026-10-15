@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { revalidateTag } from "next/cache";
-import { allowedDomains, orgDomainAliases } from "@/lib/allowedDomains";
+import { enrollmentFor } from "@/lib/enrollment";
 import { OrgRole } from "@/lib/prisma/generated";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
@@ -10,7 +10,7 @@ import { baseUrl } from "@/lib/baseUrl";
 import serveTea from "@/lib/i18nServer";
 import type { JSONValue } from "@/types";
 import { isValidUsername, normalizeUsername, usernameKey, usernameMaxLength, usernameMinLength } from "@/functions/username";
-import { emailDomain, normalizeEmail } from "@/functions/email";
+import { normalizeEmail } from "@/functions/email";
 
 export async function POST(request: NextRequest) {
   const t = await serveTea("email");
@@ -56,13 +56,10 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Check if email belongs to an allowed domain
-  // The part after the last '@', to support emails like `"john@doe"@example.com`
-  const domain = emailDomain(lowercaseEmail);
-  /** A regex matching domain names according to RFC 1035 and RFC 1123 */
-  const domainRegex = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)*$/;
-  if (!domainRegex.test(domain ?? '')) {
-    return Response.json({ message: `Failed to parse domain '${domain}'.` },
+  // Check if email belongs to an allowed domain, and find the org owning it (shared with login-link redemption)
+  const enrollment = await enrollmentFor(lowercaseEmail);
+  if (!enrollment.domain) {
+    return Response.json({ message: `Failed to parse the domain of '${lowercaseEmail}'.` },
       { status: 400 },
     );
   }
@@ -75,10 +72,8 @@ export async function POST(request: NextRequest) {
   //   select: { org_id: true },
   // });
 
-  // Check if the domain ends with any of the allowed domains (to allow subdomains)
-  if (!allowedDomains.some((allowedDomain) => (domain === allowedDomain) || (domain ?? '').endsWith('.' + allowedDomain))
-    /* && pendingInvites.length === 0 */) {
-    return Response.json({ message: `Email domain '${domain}' is not allowed` },
+  if (!enrollment.allowed /* && pendingInvites.length === 0 */) {
+    return Response.json({ message: `Email domain '${enrollment.domain}' is not allowed` },
       { status: 400 },
     );
   }
@@ -98,22 +93,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Find the org owning this email domain, if any. Matches the exact domain or a parent domain
-  // (e.g. "stadshuset.goteborg.se" joins an org with domain "goteborg.se"); prefers the most specific match.
-  // Orgs are curated, so unlike the old per-domain user groups nothing is auto-created here:
-  // users from unclaimed domains sign up without an org and can be invited into one later.
-  // Aliased domains (e.g. sustainable-action.ngo) enroll into their canonical domain's org
-  const domainCandidates = (domain ?? '').split('.').map((_, i, parts) => parts.slice(i).join('.'))
-    .map(candidate => orgDomainAliases[candidate] ?? candidate);
-  const matchingOrgs = await prisma.orgs.findMany({
-    where: { domain: { in: domainCandidates } },
-    select: { id: true, domain: true },
-  });
-  const org = matchingOrgs.sort((a, b) => (b.domain?.length ?? 0) - (a.domain?.length ?? 0)).at(0);
-
   // NOTE: Guests are disabled until further notice. When they return, signup
   // consumes any pending invites into GUEST memberships:
-  // const invitedOrgIds = [...new Set(pendingInvites.map(invite => invite.org_id))].filter(orgId => orgId !== org?.id);
+  // const invitedOrgIds = [...new Set(pendingInvites.map(invite => invite.org_id))].filter(orgId => orgId !== enrollment.orgId);
   // ... and inside the creation below:
   //   memberships: { create: [ ...member entry..., ...invitedOrgIds.map(orgId => ({ org: { connect: { id: orgId } }, role: OrgRole.GUEST })) ] }
   //   await tx.guestInvites.deleteMany({ where: { email: lowercaseEmail } });
@@ -126,10 +108,10 @@ export async function POST(request: NextRequest) {
         username_lower: usernameKey(username),
         email: lowercaseEmail,
         password_hash: hashedPassword,
-        ...(org ? {
+        ...(enrollment.orgId ? {
           memberships: {
             create: {
-              org: { connect: { id: org.id } },
+              org: { connect: { id: enrollment.orgId } },
               role: OrgRole.MEMBER,
             },
           },

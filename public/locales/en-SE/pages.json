@@ -233,6 +233,14 @@
   "login": {
     "breadcrumb": "Log in"
   },
+  "login_link": {
+    "title": "Sign in with link",
+    "description": "Click the button to sign in.",
+    "submit": "Sign in",
+    "missing": "This page has to be opened through the link in the email.",
+    "invalid": "The link is invalid or has expired. Request a new login link.",
+    "back_to_login": "Back to login"
+  },
   "password": {
     "breadcrumb": "Reset password",
     "description": "Forgot your password? Enter your email here and we will send an email with instructions to reset your password.",
