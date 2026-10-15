@@ -576,14 +576,16 @@ model AccessGrants {
 }
 
 model Users {
-  id             String  @id @default(uuid())
-  username       String  @unique
+  id              String  @id @default(uuid())
+  username        String  @unique
   /// Lowercased `username`; the lookup/uniqueness key so auth doesn't depend on the DB collation (see usernameKey())
-  username_lower String  @unique
-  email          String  @unique
+  username_lower  String  @unique
+  email           String  @unique
   /// Null for accounts created through an email login link; they sign in with links only
-  password_hash  String?
-  is_verified    Boolean @default(false) // Has verified email
+  password_hash   String?
+  is_verified     Boolean @default(false) // Has verified email
+  /// Bumped to log the user out everywhere: sessions carry the version they were issued with and are only honoured while it matches
+  session_version Int     @default(0)
 
   is_super_admin Boolean @default(false)
 

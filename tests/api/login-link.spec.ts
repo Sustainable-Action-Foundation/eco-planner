@@ -1,39 +1,16 @@
 import { expect, test as base } from "playwright/test";
 import type { APIRequestContext, PlaywrightWorkerArgs } from "playwright/test";
 import { orgIdByName, SESSION_COOKIE, startPageTitle } from "../lib/api";
+import { freshContext, linkPlace, newLinkUser as createLinkUser, outbox, redeem, requestLink, uniqueEmail, uniqueIp } from "../lib/login-link";
 
 /*
  * Passwordless login: POST /api/login-link mails a one-time link, PATCH redeems it.
- * Mail is stubbed under TEST_ENVIRONMENT=testing; the last mail per address is read
- * back through /api/test/outbox (see @/mailClient). The mail work runs after the
- * response (`after()`), so the outbox is polled.
- *
- * The route throttles per address (3, then ~1 per 5 min) and per client IP (10, then
- * ~1 per min; Next fills X-Forwarded-For from the socket when a client sends none), so
- * every request context here carries its own fake X-Forwarded-For, and "existing
- * users" are created through the link flow with unique addresses rather than seeded
- * ones, which would run out of budget across tests. Link-created accounts cannot be
- * deleted through the API; they linger under the allowlisted seed domain boden.se.
+ * Mail is stubbed under TEST_ENVIRONMENT=testing and read back through
+ * /api/test/outbox; see tests/lib/login-link.ts for the helpers and for why every
+ * context has its own client IP and every test its own link-created users.
  */
 
-const place = { orgName: "Bodens kommun", domain: "boden.se" };
-
-let ipCounter = Math.floor(Math.random() * 0x10000);
-/**
- * A fake client address unique to this worker and call (TEST-NET-2 is never routed).
- * The random start matters: the server's buckets outlive a test run, so a rerun
- * against the same server must not replay the addresses of the previous one.
- */
-function uniqueIp(workerIndex: number): string {
-  ipCounter++;
-  return `198.51.${(workerIndex * 64 + (ipCounter >> 8)) & 255}.${ipCounter & 255}`;
-}
-
-/** A fresh, unauthenticated request context with its own client IP */
-async function freshContext(playwright: PlaywrightWorkerArgs["playwright"], baseURL: string | undefined, workerIndex: number, ip = uniqueIp(workerIndex)): Promise<APIRequestContext> {
-  // cimode, like the browser projects: mails then carry their keys, and the interpolations as JSON after "::"
-  return playwright.request.newContext({ baseURL, extraHTTPHeaders: { "x-forwarded-for": ip, "accept-language": "cimode" } });
-}
+const place = linkPlace;
 
 /** `request` with its own client IP per test, so the per-IP throttle never crosses tests */
 const test = base.extend<{ request: APIRequestContext }>({
@@ -44,67 +21,16 @@ const test = base.extend<{ request: APIRequestContext }>({
   },
 });
 
-/** A unique address under `domain` */
-function uniqueEmail(prefix: string, domain = place.domain): string {
-  return `${prefix}.${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}@${domain}`;
-}
-
 async function sessionCookie(request: APIRequestContext) {
   const state = await request.storageState();
   return state.cookies.find(cookie => cookie.name === SESSION_COOKIE);
 }
 
-type Outbox = { to: string, subject: string, text: string, sentAt: string };
-
-/** The last mail to `email`, or null */
-async function outbox(request: APIRequestContext, email: string): Promise<Outbox | null> {
-  const response = await request.get(`/api/test/outbox?email=${encodeURIComponent(email)}`);
-  if (response.status() === 404) return null;
-  expect(response.status(), await response.text()).toBe(200);
-  return await response.json() as Outbox;
-}
-
-/** The token from the `/login/link#t=…` URL in a mail (cimode renders the interpolation as JSON after `::`) */
-function tokenIn(mail: Outbox): string | null {
-  return mail.text.match(/\/login\/link#t=([A-Za-z0-9_-]+)/)?.[1] ?? null;
-}
-
-/** Requests a link and waits for the mail; resolves with the token in it. */
-async function requestLink(request: APIRequestContext, email: string, extra: Record<string, unknown> = {}): Promise<{ token: string, mail: Outbox }> {
-  const before = (await outbox(request, email))?.sentAt;
-  const response = await request.post("/api/login-link", { data: { email, ...extra } });
-  expect(response.status(), await response.text()).toBe(200);
-  let mail: Outbox = { to: "", subject: "", text: "", sentAt: "" };
-  await expect.poll(async () => {
-    const latest = await outbox(request, email);
-    if (latest && latest.sentAt !== before) {
-      mail = latest;
-    }
-    return mail.sentAt;
-  }, { message: `a new mail to ${email}`, timeout: 15_000 }).toBeTruthy();
-  const token = tokenIn(mail);
-  expect(token, `token in: ${mail.text}`).toBeTruthy();
-  return { token: token ?? "", mail };
-}
-
-/** Redeems a token on `request`; resolves with the response. */
-async function redeem(request: APIRequestContext, token: string) {
-  return request.patch("/api/login-link", { data: { token } });
-}
-
-/** Creates an account through the link flow (one request of the address's budget); the context stays logged out. */
+/** Creates an account through the link flow; resolves with its address (the creating context is disposed, so nothing stays logged in). */
 async function newLinkUser(playwright: PlaywrightWorkerArgs["playwright"], baseURL: string | undefined, workerIndex: number, prefix = "user"): Promise<string> {
-  const email = uniqueEmail(prefix);
-  const context = await freshContext(playwright, baseURL, workerIndex);
-  try {
-    const { token } = await requestLink(context, email);
-    const response = await redeem(context, token);
-    expect(response.status(), `creating ${email}: ${await response.text()}`).toBe(200);
-  }
-  finally {
-    await context.dispose();
-  }
-  return email;
+  const created = await createLinkUser(playwright, baseURL, workerIndex, prefix);
+  await created.request.dispose();
+  return created.email;
 }
 
 /** Waits long enough for any `after()` work of earlier requests to have run */

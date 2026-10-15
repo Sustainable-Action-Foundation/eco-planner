@@ -68,6 +68,7 @@ export async function PATCH(request: NextRequest) {
   }
 
   // Update password. We also set isVerified to true, since the user has verified their email address by clicking the link in the email.
+  // A reset also logs the user out everywhere (session_version), in case the old password was compromised.
   try {
     await prisma.users.update({
       where: {
@@ -76,6 +77,7 @@ export async function PATCH(request: NextRequest) {
       data: {
         password_hash: hashedPassword,
         is_verified: true,
+        session_version: { increment: 1 },
       },
     });
   } catch {

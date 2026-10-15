@@ -1,7 +1,9 @@
 import type { IronSession, SessionOptions } from "iron-session";
 import { getIronSession } from "iron-session";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import { cache } from "react";
 import type { LoginData } from "@/types";
+import { prisma } from "@/lib/prisma";
 
 
 /** How long a login lasts by default, in seconds: 30 days. */
@@ -38,8 +40,36 @@ export function sessionOptionsFor(remember: boolean): SessionOptions {
 }
 
 /**
- * Reads login data from cookies
+ * Unseals the session cookie without checking it against the database. For the
+ * proxy (redirect decisions only, on every request) and for the routes that issue
+ * or destroy sessions. Everything that trusts `session.user` uses {@link getSession}.
+ */
+export async function readSession(cookies: ReadonlyRequestCookies, sessionOptions?: SessionOptions): Promise<IronSession<LoginData>> {
+  return getIronSession<LoginData>(cookies, sessionOptions ?? options);
+}
+
+/**
+ * Whether a session issued with `sessionVersion` for `userId` is still honoured.
+ * Memoized per request with React `cache()`, so a page render pays one lookup however
+ * many fetchers read the session; route handlers pay one per call.
+ */
+const isSessionCurrent = cache(async (userId: string, sessionVersion: number): Promise<boolean> => {
+  const user = await prisma.users.findUnique({ where: { id: userId }, select: { session_version: true } });
+  return user !== null && user.session_version === sessionVersion;
+});
+
+/**
+ * Reads login data from cookies and checks it against the database. The cookie is
+ * stateless (iron-session), so "log out everywhere" works by bumping
+ * `Users.session_version`: a session issued under an older version, or for a user
+ * who no longer exists, reads as anonymous here. The stale cookie itself is left in
+ * place because server components may not set cookies during render; the next
+ * login or logout replaces it.
  */
 export async function getSession(cookies: ReadonlyRequestCookies, sessionOptions?: SessionOptions): Promise<IronSession<LoginData>> {
-  return getIronSession<LoginData>(cookies, sessionOptions ?? options);
-};
+  const session = await readSession(cookies, sessionOptions);
+  if (session.user?.isLoggedIn && !(await isSessionCurrent(session.user.id, session.user.sessionVersion ?? 0))) {
+    delete session.user;
+  }
+  return session;
+}

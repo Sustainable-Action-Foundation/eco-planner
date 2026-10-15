@@ -1,9 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { getSession } from '@/lib/session';
+import { readSession } from '@/lib/session';
 import { cookies } from 'next/headers';
 
 export async function proxy(req: NextRequest) {
-  const session = await getSession(await cookies());
+  // Unchecked read: the proxy only decides redirects, and runs on every request
+  const session = await readSession(await cookies());
   const response = NextResponse.next();
 
   // Redirect away from login page if already logged in. The link interstitial is exempt:

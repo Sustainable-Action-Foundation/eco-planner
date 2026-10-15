@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { getSession, sessionOptionsFor } from "@/lib/session";
+import { readSession, sessionOptionsFor } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Create session, persistent if the user toggled remember me
-  const session = await getSession(await cookies(), sessionOptionsFor(remember === true));
+  const session = await readSession(await cookies(), sessionOptionsFor(remember === true));
 
   // Validate credentials. A missing/unverified user is expected control flow,
   // not an error worth a stack trace in the server log.
@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
       username: true,
       password_hash: true,
       is_super_admin: true,
+      session_version: true,
     },
   });
 
@@ -62,6 +63,7 @@ export async function POST(request: NextRequest) {
     username: user.username,
     isLoggedIn: true,
     isSuperAdmin: user.is_super_admin,
+    sessionVersion: user.session_version,
   };
 
   await session.save();

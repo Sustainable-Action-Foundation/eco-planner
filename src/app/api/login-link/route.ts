@@ -1,7 +1,7 @@
 import { after, type NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import { getSession, sessionOptionsFor } from "@/lib/session";
+import { readSession, sessionOptionsFor } from "@/lib/session";
 import { consumeToken } from "@/lib/rateLimit";
 import { hashToken, loginTokenTtlMs, looksLikeEmail, mintToken } from "@/lib/authToken";
 import { enrollmentFor } from "@/lib/enrollment";
@@ -135,7 +135,7 @@ export async function PATCH(request: NextRequest) {
 
   let user = await prisma.users.findUnique({
     where: { email },
-    select: { id: true, username: true, is_super_admin: true, is_verified: true },
+    select: { id: true, username: true, is_super_admin: true, is_verified: true, session_version: true },
   });
 
   if (!user) {
@@ -156,7 +156,7 @@ export async function PATCH(request: NextRequest) {
           memberships: { create: { org: { connect: { id: enrollment.orgId } }, role: OrgRole.MEMBER } },
         } : {}),
       },
-      select: { id: true, username: true, is_super_admin: true, is_verified: true },
+      select: { id: true, username: true, is_super_admin: true, is_verified: true, session_version: true },
     });
   }
   else if (!user.is_verified) {
@@ -165,12 +165,13 @@ export async function PATCH(request: NextRequest) {
   }
 
   // Replaces any existing session (switching accounts through a link is fine)
-  const session = await getSession(await cookies(), sessionOptionsFor(remember));
+  const session = await readSession(await cookies(), sessionOptionsFor(remember));
   session.user = {
     id: user.id,
     username: user.username,
     isLoggedIn: true,
     isSuperAdmin: user.is_super_admin,
+    sessionVersion: user.session_version,
   };
   await session.save();
 
