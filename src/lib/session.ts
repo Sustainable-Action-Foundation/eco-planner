@@ -4,36 +4,37 @@ import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension
 import type { LoginData } from "@/types";
 
 
-// Config stuff for Iron-Session
-export const options: SessionOptions = {
-  // Compilation works fine without the password environment variable, but it will crash at runtime if it's not set.
-  // This is intentional to allow building the project without the password, and then setting it when deploying/running.
-  password: process.env.IRON_SESSION_PASSWORD ?? "",
-  cookieName: "eco_planner",
-  cookieOptions: {
-    // Undefined maxAge results in so called "session cookies", which are deleted when the browsing session ends.
-    // This results in GDPR-compliant login cookies (with a "remember me"-checkbox or similar we may set a maxAge and keep the cookie between sessions)
-    maxAge: undefined,
-    // Uses https in production and http in development
-    secure: process.env.NODE_ENV === "production" && process.env.TEST_ENVIRONMENT !== "testing",
-  },
-};
-
-/** A year, the lifetime of a "remember me" session cookie. */
-const rememberMaxAgeSeconds = 365 * 24 * 60 * 60;
+/** How long a login lasts by default, in seconds: 30 days. */
+export const sessionLifetimeSeconds = 30 * 24 * 60 * 60;
+/** How long a login lasts with "remember me", in seconds: a year. */
+export const rememberedSessionLifetimeSeconds = 365 * 24 * 60 * 60;
 
 /**
- * Session options for a login: a browser-session cookie by default, a persistent
- * one-year cookie when the user asked to be remembered.
+ * Options for a given lifetime. Both the cookie's maxAge and the seal's ttl are set:
+ * iron-session only derives one from the other when maxAge is left out, so a maxAge
+ * alone would leave the seal at the 14-day default and log the user out early.
  */
-export function sessionOptionsFor(remember: boolean): SessionOptions {
-  return remember ? {
-    ...options,
+function optionsWithLifetime(seconds: number): SessionOptions {
+  return {
+    // Compilation works fine without the password environment variable, but it will crash at runtime if it's not set.
+    // This is intentional to allow building the project without the password, and then setting it when deploying/running.
+    password: process.env.IRON_SESSION_PASSWORD ?? "",
+    cookieName: "eco_planner",
+    ttl: seconds,
     cookieOptions: {
-      ...options.cookieOptions,
-      maxAge: rememberMaxAgeSeconds,
+      maxAge: seconds,
+      // Uses https in production and http in development
+      secure: process.env.NODE_ENV === "production" && process.env.TEST_ENVIRONMENT !== "testing",
     },
-  } : options;
+  };
+}
+
+/** Config for reading sessions and for the default (30-day) login. */
+export const options: SessionOptions = optionsWithLifetime(sessionLifetimeSeconds);
+
+/** Session options for a login: 30 days by default, a year when the user asked to be remembered. */
+export function sessionOptionsFor(remember: boolean): SessionOptions {
+  return remember ? optionsWithLifetime(rememberedSessionLifetimeSeconds) : options;
 }
 
 /**

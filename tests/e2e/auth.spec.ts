@@ -114,15 +114,17 @@ test.describe("Login form", () => {
     expect(await sessionCookie(page)).toBeUndefined();
   });
 
-  test("successful login shows the logout button with a session cookie", async ({ page }) => {
+  test("successful login shows the logout button with a 30-day session cookie", async ({ page }) => {
     expect(await submitLogin(page, Seed.anita.username, Seed.anita.password)).toBe(200);
 
     await expect(page.getByTestId("logout-button").filter({ visible: true })).toBeVisible();
     await expect(page).toHaveURL("/");
     const cookie = await sessionCookie(page);
     expect(cookie).toBeDefined();
-    // Without "remember me" the cookie has no maxAge: a browser-session cookie
-    expect(cookie?.expires).toBe(-1);
+    // Without "remember me" the login lasts 30 days (src/lib/session.ts)
+    const daysLeft = ((cookie?.expires ?? -1) - Date.now() / 1000) / (24 * 60 * 60);
+    expect(daysLeft).toBeGreaterThan(29);
+    expect(daysLeft).toBeLessThanOrEqual(31);
   });
 
   test("remember me sets an expiring cookie", async ({ page }) => {

@@ -18,6 +18,11 @@ async function sessionCookie(request: APIRequestContext) {
   return state.cookies.find(cookie => cookie.name === SESSION_COOKIE);
 }
 
+/** Days until a cookie's `expires` (seconds since epoch); -1 (a browser-session cookie) gives a negative number */
+function daysLeft(expires: number | undefined): number {
+  return ((expires ?? -1) - Date.now() / 1000) / (24 * 60 * 60);
+}
+
 /** A unique, URL-safe username (see isValidUsername): letters, digits, ".", "_", "-" */
 function uniqueUsername(testInfo: Parameters<typeof uniqueLabel>[0], prefix: string): string {
   return uniqueLabel(testInfo, prefix).replace(/[^\p{L}\p{N}._-]+/gu, "-");
@@ -32,8 +37,9 @@ test.describe("/api/login and /api/logout", () => {
       expect(response.headers()["set-cookie"], "set-cookie header").toContain(`${SESSION_COOKIE}=`);
       const cookie = await sessionCookie(request);
       expect(cookie?.value, "session cookie stored on the context").toBeTruthy();
-      // A session cookie: no persisted expiry unless "remember" was asked for
-      expect(cookie?.expires).toBe(-1);
+      // A 30-day login by default (src/lib/session.ts); a year with "remember"
+      expect(daysLeft(cookie?.expires)).toBeGreaterThan(29);
+      expect(daysLeft(cookie?.expires)).toBeLessThanOrEqual(31);
     }
     finally {
       await request.dispose();
@@ -46,7 +52,8 @@ test.describe("/api/login and /api/logout", () => {
       const response = await request.post("/api/login", { data: { username: Seed.anita.username, password: Seed.anita.password, remember: true } });
       expect(response.status(), await response.text()).toBe(200);
       const cookie = await sessionCookie(request);
-      expect(cookie?.expires ?? -1, "persistent cookie expiry").toBeGreaterThan(Date.now() / 1000);
+      expect(daysLeft(cookie?.expires), "a year").toBeGreaterThan(300);
+      expect(daysLeft(cookie?.expires)).toBeLessThanOrEqual(366);
     }
     finally {
       await request.dispose();

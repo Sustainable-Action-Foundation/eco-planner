@@ -201,7 +201,9 @@ test.describe("PATCH /api/login-link", () => {
     expect(response.headers()["location"]).toBe("/");
     const cookie = await sessionCookie(request);
     expect(cookie?.value, "session cookie").toBeTruthy();
-    expect(cookie?.expires, "a browser-session cookie without remember").toBe(-1);
+    const daysLeft = ((cookie?.expires ?? -1) - Date.now() / 1000) / (24 * 60 * 60);
+    expect(daysLeft, "the default 30-day login without remember").toBeGreaterThan(29);
+    expect(daysLeft).toBeLessThanOrEqual(31);
     // Auto-joined by domain at creation: the start page is the landing of the org owning boden.se
     expect(await startPageTitle(request)).toBe(place.orgName);
 
@@ -215,7 +217,8 @@ test.describe("PATCH /api/login-link", () => {
     const response = await redeem(request, token);
     expect(response.status(), await response.text()).toBe(200);
     expect((await response.json() as { redirect: string }).redirect).toBe("/roadmap/create");
-    expect((await sessionCookie(request))?.expires ?? -1).toBeGreaterThan(Date.now() / 1000);
+    const rememberedDays = (((await sessionCookie(request))?.expires ?? -1) - Date.now() / 1000) / (24 * 60 * 60);
+    expect(rememberedDays, "a year with remember").toBeGreaterThan(300);
 
     const evil = await freshContext(playwright, baseURL, testInfo.workerIndex);
     try {
