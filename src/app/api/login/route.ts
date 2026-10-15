@@ -25,12 +25,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Create session, set maxAge if user toggled remember me
+  // Create session, set maxAge if user toggled remember me. The seal's ttl must be set
+  // too: iron-session only derives it from maxAge when maxAge is omitted, so a maxAge
+  // alone left the seal at its 14-day default and "remember me" expired after two weeks.
+  const yearInSeconds = 365 * 24 * 60 * 60;
   const session = await getSession(await cookies(), remember ? {
     ...options,
+    ttl: yearInSeconds,
     cookieOptions: {
       ...options.cookieOptions,
-      maxAge: 365 * 24 * 60 * 60, // Standard year in seconds
+      maxAge: yearInSeconds,
     },
   } : options);
 
