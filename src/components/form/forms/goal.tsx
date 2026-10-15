@@ -8,8 +8,10 @@ import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalPrefill, GoalUpdate
 import { BaselineType, DataSeriesType, GoalDataTarget, HistoricalDataType } from "@/types/enums";
 import { GoalListing } from "@/lib/prisma/generated";
 import { GoalFormName } from "@/types/form-names";
-import { isGoalListing } from "@/types/typeguards";
-import { IconChevronDown, IconChevronUp, IconEye, IconEyeOff, IconInfoCircle, IconLoader2, IconStar } from "@tabler/icons-react";
+import { isGoalListing, isStandardObject } from "@/types/typeguards";
+import { IconChevronDown, IconChevronUp, IconEye, IconEyeOff, IconInfoCircle, IconLoader2, IconPaperclip, IconStar } from "@tabler/icons-react";
+import { allowedAttachmentAccept, formatFileSize, MaxAttachmentBytes, MaxAttachmentsPerObject } from "@/functions/attachments";
+import { acceptableFiles, chosenFiles, uploadAttachments } from "@/components/attachments/uploadAttachments";
 import Link from "next/link";
 import { waitForRecipeFormSyncs } from "@/components/recipe";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -57,7 +59,7 @@ export default function GoalForm({
   /** What to start the goal from (see `getGoalPrefill`); ignored when editing, where the goal's own data wins. */
   prefill?: GoalPrefill;
 }) {
-  const { t } = useTranslation(["forms", "graphs", "common"]);
+  const { t, i18n } = useTranslation(["forms", "graphs", "common", "components"]);
 
   const [parentIterationId, setParentIterationId] = useState<string>(iterationId || "");
 
@@ -216,7 +218,7 @@ export default function GoalForm({
 
     const formData = new FormData(event.target);
     // List of inputs expecting a file
-    const fileInputKeys: string[] = [];
+    const fileInputKeys: string[] = [GoalFormName.Attachments];
 
     // Basic validation to ensure no unexpected File objects are present
     // Allows us to safely cast all formData values to (string | null) later
@@ -271,6 +273,17 @@ export default function GoalForm({
 
     const listingValue = formData.get(GoalFormName.Listing);
     const listing: GoalListing = isGoalListing(listingValue) ? listingValue : GoalListing.LISTED;
+
+    // Documents chosen while creating are attached once the goal exists. Refusals
+    // stop the submit here, so a goal isn't created with a file silently dropped.
+    const notify = { t, language: i18n.language, addToast };
+    const files = currentGoal ? [] : chosenFiles(formData.getAll(GoalFormName.Attachments));
+    const attachments = acceptableFiles(files, 0, notify);
+    if (!attachments || attachments.length !== files.length) {
+      event.target.reportValidity();
+      setIsSubmitting(false);
+      return;
+    }
 
     // Build the JSON payload for the API
     let formContent: GoalCreateInput | GoalUpdateInput;
@@ -347,7 +360,24 @@ export default function GoalForm({
     const formJSON = JSON.stringify(formContent);
 
     // Submit the form to the API (POST for new, PUT for edit)
-    formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST', t, setIsSubmitting, undefined, undefined, undefined, addToast, (url) => router.push(url));
+    if (attachments.length === 0) {
+      formSubmitter('/api/goal', formJSON, currentGoal ? 'PUT' : 'POST', t, setIsSubmitting, undefined, undefined, undefined, addToast, (url) => router.push(url));
+      return;
+    }
+
+    // With documents to attach, the goal page is only shown once they have been sent;
+    // the button stays busy until then (the replacement handler skips the setter)
+    formSubmitter('/api/goal', formJSON, 'POST', t, setIsSubmitting, undefined, ({ body, location }) => {
+      const response = isStandardObject(body) && !Array.isArray(body) ? body : {};
+      const goalId = typeof response.id === "string" ? response.id : null;
+      const message = typeof response.message === "string" ? response.message : null;
+      if (message) addToast(message, "success");
+      void (goalId ? uploadAttachments(attachments, goalId, notify) : Promise.resolve())
+        .then(() => {
+          setIsSubmitting(false);
+          router.push(location ?? (goalId ? `/goal/${goalId}` : "../"));
+        });
+    }, undefined, addToast);
   }
 
   // Index for data-position attribute in legend elements (for accessibility)
@@ -618,6 +648,32 @@ export default function GoalForm({
         />
       </fieldset>
       */}
+
+      {/* Documents to attach, create only: an existing goal attaches from its page, where the list lives */}
+      {!currentGoal ?
+        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
+          {/* Last section, so the position isn't advanced further */}
+          <legend data-position={positionIndex} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>
+            {t("forms:goal.attachments_legend")}
+          </legend>
+          <label className="block">
+            <span className="flex align-items-center gap-25 margin-bottom-25">
+              <IconPaperclip aria-hidden="true" width={18} height={18} style={{ minWidth: '18px' }} />
+              {t("forms:goal.attachments_label")}
+            </span>
+            <input
+              type="file"
+              name={GoalFormName.Attachments}
+              multiple={true}
+              accept={allowedAttachmentAccept}
+              data-testid="goal-attachment-input"
+            />
+          </label>
+          <small className="block margin-top-25" style={{ color: 'gray' }}>
+            {t("forms:goal.attachments_description", { maxSize: formatFileSize(MaxAttachmentBytes, i18n.language), max: MaxAttachmentsPerObject })}
+          </small>
+        </fieldset>
+        : null}
 
       {/* Submit button */}
       <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>

@@ -11,11 +11,23 @@ import type findTypeFromId from "@/functions/findTypeFromId";
  * remove the files once the rows are gone.
  */
 
-/** The parents an attachment can hang off, named as `findTypeFromId` names them (they double as cache tags). */
-export type AttachmentParent = NonNullable<Awaited<ReturnType<typeof findTypeFromId>>>;
+/** What `findTypeFromId` can name; attachments hang off all but the roadmap itself. */
+type ObjectType = NonNullable<Awaited<ReturnType<typeof findTypeFromId>>>;
+
+/**
+ * The objects an attachment can hang off, named as `findTypeFromId` names them (they double
+ * as cache tags). The roadmap itself is left out on purpose: its page is a menu people
+ * shouldn't need to linger on, so documents go on the versions instead.
+ */
+export type AttachmentParent = Exclude<ObjectType, "roadmap">;
+
+/** True when attachments may hang off objects of this type. */
+export function isAttachmentParent(type: ObjectType): type is AttachmentParent {
+  return type !== "roadmap";
+}
 
 /** Matches every attachment under the given object, including those on its descendants. */
-export function attachmentsUnderWHERE(parent: AttachmentParent, id: string): Prisma.AttachmentsWhereInput {
+export function attachmentsUnderWHERE(parent: ObjectType, id: string): Prisma.AttachmentsWhereInput {
   switch (parent) {
     case "action":
       return { action_id: id };
@@ -32,7 +44,6 @@ export function attachmentsUnderWHERE(parent: AttachmentParent, id: string): Pri
     case "roadmap":
       return {
         OR: [
-          { roadmap_id: id },
           { roadmap_iteration: { roadmap_id: id } },
           { goal: { roadmap_iteration: { roadmap_id: id } } },
           { action: { roadmap_iteration: { roadmap_id: id } } },
@@ -45,7 +56,7 @@ export function attachmentsUnderWHERE(parent: AttachmentParent, id: string): Pri
 }
 
 /** The storage keys of every attachment under the object, to remove after the object is deleted. */
-export async function storedKeysUnder(parent: AttachmentParent, id: string): Promise<string[]> {
+export async function storedKeysUnder(parent: ObjectType, id: string): Promise<string[]> {
   try {
     const rows = await prisma.attachments.findMany({ where: attachmentsUnderWHERE(parent, id), select: { storage_key: true } });
     return rows.map(row => row.storage_key);

@@ -135,8 +135,6 @@ model Roadmaps {
 
   // Comments related to this roadmap
   comments    Comments[]    @relation("roadmap_comments")
-  // Documents attached to this roadmap
-  attachments Attachments[] @relation("roadmap_attachments")
 
   // Author of this roadmap, used for visual purposes only, not for access control
   author_id String?
@@ -457,16 +455,15 @@ model Attachments {
   author_id String?
   author    Users?  @relation("attachment_author", fields: [author_id], references: [id], onDelete: SetNull)
 
-  // Like comments, an attachment belongs to exactly one of an action, a goal, a roadmap iteration, or a roadmap.
-  // Enforced in code (see the attachment API), as prisma cannot express the XOR constraint.
+  // An attachment belongs to exactly one of an action, a goal, or a roadmap iteration (not the roadmap
+  // itself, which has no page people should linger on). Enforced in code (see the attachment API), as
+  // prisma cannot express the XOR constraint.
   action_id            String?
   action               Actions?           @relation("action_attachments", fields: [action_id], references: [id], onDelete: Cascade)
   goal_id              String?
   goal                 Goals?             @relation("goal_attachments", fields: [goal_id], references: [id], onDelete: Cascade)
   roadmap_iteration_id String?
   roadmap_iteration    RoadmapIterations? @relation("roadmap_iteration_attachments", fields: [roadmap_iteration_id], references: [id], onDelete: Cascade)
-  roadmap_id           String?
-  roadmap              Roadmaps?          @relation("roadmap_attachments", fields: [roadmap_id], references: [id], onDelete: Cascade)
 }
 
 model Orgs {

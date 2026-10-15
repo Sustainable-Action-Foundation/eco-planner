@@ -231,6 +231,9 @@
     "listing": "Listning",
     "listing_listed_description": "Syns i listor och i $t(common:roadmap_version_definite_one).",
     "listing_unlisted_description": "Visas bara i listor för dem med redigeringsbehörighet, men går fortfarande att öppna via direktlänk.",
+    "attachments_legend": "Underlag",
+    "attachments_label": "Bifoga rapporter eller annat underlag",
+    "attachments_description": "PDF, Office-dokument, text, bilder och zip-arkiv, högst {{maxSize}} per fil och {{max}} filer. Filerna laddas upp när målbanan har skapats; fler kan bifogas från målbanans sida.",
     "listing_featured_description": "Lyfts fram överst i $t(common:roadmap_version_definite_one)."
   },
   "roadmap": {

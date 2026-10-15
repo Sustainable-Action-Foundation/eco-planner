@@ -35,6 +35,8 @@ export const GoalFormName = {
   HistoricalDataSeries: "HISTORICAL_DATA_SERIES",
   HistoricalRecipe: "HISTORICAL_RECIPE",
   RecipeSuggestions: "RECIPE_SUGGESTIONS",
+  /** Documents to attach once the goal exists (create only; existing goals attach from their page) */
+  Attachments: "ATTACHMENTS",
 } as const;
 export type GoalFormName = (typeof GoalFormName)[keyof typeof GoalFormName];
 

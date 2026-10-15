@@ -4,7 +4,6 @@ import { getSession } from "@/lib/session";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import RoadmapTable from "@/components/tables/roadmapTables/roadmapTable";
-import Attachments from "@/components/attachments/attachments";
 import { AdminPanel } from "@/components/elements/controls/controls";
 import EntityTimestamps from "@/components/generic/timestamps/entityTimestamps";
 import SharingLine from "@/components/generic/visibility/sharingLine";
@@ -91,11 +90,6 @@ export default async function Page(props: { params: Promise<{ roadmapId: string 
           <RoadmapTable accessContext={accessContext} roadmap={roadmap} />
         </section>
       </main>
-
-      {/* Reports and other documents backing the roadmap as a whole; versions carry their own */}
-      <section className="margin-block-500">
-        <Attachments attachments={roadmap.attachments} objectId={roadmap.id} canEdit={hasEditAccess(accessLevel)} />
-      </section>
     </>
   );
 }

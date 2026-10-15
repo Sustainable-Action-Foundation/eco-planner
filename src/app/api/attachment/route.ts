@@ -2,7 +2,7 @@ import findTypeFromId from "@/functions/findTypeFromId";
 import { attachmentContentType, AttachmentRejection, MaxAttachmentBytes, MaxAttachmentsPerObject, rejectAttachment, sanitizeAttachmentName } from "@/functions/attachments";
 import { getAccessContextById } from "@/fetchers/getUserAccessContext";
 import { editableActionsWHERE, editableAttachmentsWHERE, writableAccessControlWHERE } from "@/lib/accessFilters";
-import type { AttachmentParent } from "@/lib/attachments";
+import { isAttachmentParent, type AttachmentParent } from "@/lib/attachments";
 import serveTea from "@/lib/i18nServer";
 import { deleteStoredObjects, isObjectStorageConfigured, putStoredObject } from "@/lib/objectStorage";
 import { prisma } from "@/lib/prisma";
@@ -16,7 +16,7 @@ import type { NextRequest } from "next/server";
 import { randomUUID } from "node:crypto";
 
 /*
- * Documents attached to a roadmap, version, goal or action. The file goes to the
+ * Documents attached to a version, goal or action. The file goes to the
  * bucket, the row to the database. Attaching and removing are content edits, so
  * they take the same edit access as editing the object itself.
  *
@@ -36,8 +36,6 @@ async function mayEditParent(parent: AttachmentParent, id: string, ctx: UserAcce
       return !!await prisma.actions.findUnique({ where: { id, AND: [editableActionsWHERE(ctx)] }, select: { id: true } });
     case "goal":
       return !!await prisma.goals.findUnique({ where: { id, roadmap_iteration: writableIteration }, select: { id: true } });
-    case "roadmap":
-      return !!await prisma.roadmaps.findUnique({ where: { id, access_control: writableAccessControlWHERE(ctx) }, select: { id: true } });
     case "roadmapIteration":
       return !!await prisma.roadmapIterations.findUnique({ where: { id, ...writableIteration }, select: { id: true } });
     default:
@@ -115,8 +113,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // A roadmap id is answered like an unknown one: its page carries no documents
   const parent = await findTypeFromId(objectId);
-  if (!parent || !await mayEditParent(parent, objectId, accessContext)) {
+  if (!parent || !isAttachmentParent(parent) || !await mayEditParent(parent, objectId, accessContext)) {
     // The object doesn't exist, or the user can't edit it; the same answer for both
     return Response.json({ message: t("api:attachment.not_found") },
       { status: 404 },
@@ -131,7 +130,6 @@ export async function POST(request: NextRequest) {
   const parentColumn = {
     action_id: parent === "action" ? objectId : null,
     goal_id: parent === "goal" ? objectId : null,
-    roadmap_id: parent === "roadmap" ? objectId : null,
     roadmap_iteration_id: parent === "roadmapIteration" ? objectId : null,
   };
 
@@ -192,7 +190,7 @@ export async function DELETE(request: NextRequest) {
     // Found only if the user may edit whichever object it hangs off
     const attachment = await prisma.attachments.findFirst({
       where: { id: body.id, AND: [editableAttachmentsWHERE(accessContext)] },
-      select: { id: true, storage_key: true, action_id: true, goal_id: true, roadmap_id: true, roadmap_iteration_id: true },
+      select: { id: true, storage_key: true, action_id: true, goal_id: true, roadmap_iteration_id: true },
     });
     if (!attachment) {
       return Response.json({ message: t("api:attachment.not_found") },
@@ -203,7 +201,7 @@ export async function DELETE(request: NextRequest) {
     await prisma.attachments.delete({ where: { id: attachment.id } });
     await deleteStoredObjects([attachment.storage_key]);
 
-    const parent: AttachmentParent = attachment.action_id ? "action" : attachment.goal_id ? "goal" : attachment.roadmap_id ? "roadmap" : "roadmapIteration";
+    const parent: AttachmentParent = attachment.action_id ? "action" : attachment.goal_id ? "goal" : "roadmapIteration";
     revalidateTag(parent, { expire: 0 });
     return Response.json({ message: t("api:attachment.deleted") },
       { status: 200 },

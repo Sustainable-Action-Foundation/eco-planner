@@ -1,9 +1,10 @@
 'use client';
 
 import { useToast } from "@/components/generic/toast/toastContext.use";
-import { allowedAttachmentAccept, attachmentDownloadPath, AttachmentRejection, formatFileSize, MaxAttachmentBytes, MaxAttachmentsPerObject, rejectAttachment } from "@/functions/attachments";
+import { allowedAttachmentAccept, attachmentDownloadPath, formatFileSize, MaxAttachmentBytes, MaxAttachmentsPerObject } from "@/functions/attachments";
 import type { Attachments as AttachmentModel } from "@/lib/prisma/generated";
 import { isStandardObject } from "@/types/typeguards";
+import { acceptableFiles, chosenFiles, uploadAttachments } from "./uploadAttachments";
 import { IconFileDescription, IconFileTypePdf, IconFileTypeXls, IconFileTypeZip, IconPhoto, IconTrash, IconUpload } from "@tabler/icons-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,7 +17,7 @@ export type AttachmentEntry = Pick<AttachmentModel, "id" | "name" | "size" | "co
 };
 
 /**
- * The documents attached to a roadmap, version, goal or action: a list with download
+ * The documents attached to a version, goal or action: a list with download
  * links, and for editors an upload form and a remove button per file. The server's
  * list is the truth; after a change the route is refreshed so it catches up.
  */
@@ -32,35 +33,15 @@ export default function Attachments({ attachments, objectId, canEdit }: { attach
 
   async function upload(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const files = Array.from(fileInput.current?.files ?? []);
+    const files = chosenFiles(fileInput.current?.files);
     if (files.length === 0 || pending) return;
 
-    for (const file of files) {
-      // The same guards as the API, so a refusal shows before the upload starts
-      const rejection = rejectAttachment(file);
-      if (rejection === AttachmentRejection.TooLarge) {
-        addToast(t("components:attachments.too_large", { name: file.name, maxSize: formatFileSize(MaxAttachmentBytes, i18n.language) }), "error", false);
-        continue;
-      }
-      if (rejection !== null) {
-        addToast(t("components:attachments.type_not_allowed", { name: file.name }), "error", false);
-        continue;
-      }
+    // The same guards as the API, so a refusal shows before the upload starts
+    const notify = { t, language: i18n.language, addToast };
+    const accepted = acceptableFiles(files, attachments.length, notify);
+    if (!accepted) return;
 
-      setPending(file.name);
-      const body = new FormData();
-      body.set("objectId", objectId);
-      body.set("file", file, file.name);
-      try {
-        const response = await fetch("/api/attachment", { method: "POST", body });
-        const data: unknown = await response.json().catch(() => null);
-        const message = isStandardObject(data) && "message" in data && typeof data.message === "string" ? data.message : `${response.status}`;
-        if (!response.ok) throw new Error(message);
-        addToast(message, "success");
-      } catch (error) {
-        addToast(t("components:attachments.upload_failed", { name: file.name, details: error instanceof Error ? error.message : String(error) }), "error", false);
-      }
-    }
+    await uploadAttachments(accepted, objectId, notify, setPending);
 
     setPending(null);
     if (fileInput.current) fileInput.current.value = "";

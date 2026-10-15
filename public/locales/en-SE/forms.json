@@ -231,6 +231,9 @@
     "listing": "Listing",
     "listing_listed_description": "Shown in listings and in the $t(common:roadmap_version_one).",
     "listing_unlisted_description": "Only listed for users with edit access, but still opens from a direct link.",
+    "attachments_legend": "Supporting documents",
+    "attachments_label": "Attach reports or other supporting documents",
+    "attachments_description": "PDF, Office documents, text, images and zip archives, at most {{maxSize}} per file and {{max}} files. They are uploaded once the goal exists; more can be attached from the goal page.",
     "listing_featured_description": "Highlighted at the top of the $t(common:roadmap_version_one)."
   },
   "roadmap": {

@@ -87,11 +87,6 @@ export const roadmapInclusionSelection = {
       author: { select: { id: true, username: true } },
     },
   },
-  attachments: {
-    include: {
-      author: { select: { id: true, username: true } },
-    },
-  },
   author: { select: { id: true, username: true } },
   access_control: { select: accessControlSelection },
 } satisfies Prisma.RoadmapsInclude;

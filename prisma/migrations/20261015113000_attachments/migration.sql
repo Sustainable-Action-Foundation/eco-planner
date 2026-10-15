@@ -11,7 +11,6 @@ CREATE TABLE `Attachments` (
     `action_id` VARCHAR(191) NULL,
     `goal_id` VARCHAR(191) NULL,
     `roadmap_iteration_id` VARCHAR(191) NULL,
-    `roadmap_id` VARCHAR(191) NULL,
 
     UNIQUE INDEX `Attachments_storage_key_key`(`storage_key`),
     PRIMARY KEY (`id`)
@@ -28,6 +27,3 @@ ALTER TABLE `Attachments` ADD CONSTRAINT `Attachments_goal_id_fkey` FOREIGN KEY 
 
 -- AddForeignKey
 ALTER TABLE `Attachments` ADD CONSTRAINT `Attachments_roadmap_iteration_id_fkey` FOREIGN KEY (`roadmap_iteration_id`) REFERENCES `RoadmapIterations`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `Attachments` ADD CONSTRAINT `Attachments_roadmap_id_fkey` FOREIGN KEY (`roadmap_id`) REFERENCES `Roadmaps`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
