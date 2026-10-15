@@ -77,9 +77,20 @@ test.describe("/api/login and /api/logout", () => {
     }
   });
 
-  test("an unknown user gets the same answer as an unverified one", async ({ request }) => {
-    const response = await request.post("/api/login", { data: { username: "no-such-user-ever", password: "x" } });
-    expect(response.status(), await response.text()).toBe(400);
+  test("unknown, unverified and wrong-password logins get the same answer", async ({ request }) => {
+    const attempts = [
+      { username: "no-such-user-ever", password: "x" },
+      { username: Seed.anton.username, password: Seed.anton.password },
+      { username: Seed.anita.username, password: "not-the-password" },
+    ];
+    const answers = [];
+    for (const data of attempts) {
+      const response = await request.post("/api/login", { data });
+      answers.push({ status: response.status(), body: await response.json() as unknown });
+    }
+    expect(answers[0].status).toBe(400);
+    expect(answers[1]).toEqual(answers[0]);
+    expect(answers[2]).toEqual(answers[0]);
   });
 
   test("a body that is not JSON is a 400", async ({ request }) => {

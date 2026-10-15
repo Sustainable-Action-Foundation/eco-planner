@@ -76,6 +76,8 @@ const mailClient = {
           toRecipients: [{ emailAddress: { address: options.to } }],
           ...(options.from ? { from: { emailAddress: { address: senderMailbox, name: options.from } } } : {}),
         },
+        // Auth mails carry live links; don't keep copies in the sender's Sent Items
+        saveToSentItems: false,
       }),
     });
     if (!response.ok) {

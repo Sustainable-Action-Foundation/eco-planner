@@ -1,5 +1,6 @@
 import { expect, test } from "playwright/test";
 
+import { safeRedirectPath } from "../../src/functions/safeRedirectPath";
 import truncateText from "../../src/functions/truncateText";
 import { isValidUsername, usernameFromParam, usernameMaxLength, usernameMinLength } from "../../src/functions/username";
 import { iterationPath, parseVersionSlug } from "../../src/functions/versionSlug";
@@ -112,5 +113,20 @@ test.describe("truncateText", () => {
     expect(result.endsWith("…")).toBe(true);
     expect(result.length).toBeLessThanOrEqual(6);
     expect("abcdefghij".startsWith(result.slice(0, -1))).toBe(true);
+  });
+});
+
+test.describe("Safe redirect paths", () => {
+  test("keeps same-origin relative paths", () => {
+    for (const path of ["/", "/roadmap/create", "/goal/abc/edit?x=1#y", "/@anita"]) {
+      expect(safeRedirectPath(path), path).toBe(path);
+    }
+  });
+
+  test("falls back for anything that could leave the origin", () => {
+    for (const path of [null, undefined, "", "https://evil.com", "evil.com", "//evil.com", "/\\evil.com", "/\t/evil.com", "javascript:alert(1)"]) {
+      expect(safeRedirectPath(path), JSON.stringify(path)).toBe("/");
+    }
+    expect(safeRedirectPath("//evil.com", "/home")).toBe("/home");
   });
 });
