@@ -93,7 +93,7 @@ export default function Login() {
         <div className={`${styles["login-error-message"]} flex flex-direction-column-reversed rounded margin-block-75 padding-75 ${errorMessage ? "opacity-1" : "opacity-0"}`}
           key={errorKey} data-testid="login-error-message">
           <IconExclamationCircle width={24} height={24} aria-hidden="true" className="margin-right-50" />
-          <p style={{ minHeight: "1.5rem" }} className="margin-0" aria-hidden={!!errorMessage}>
+          <p style={{ minHeight: "1.5rem" }} className="margin-0" role="alert" aria-hidden={!errorMessage}>
             {errorMessage}
           </p>
         </div>
