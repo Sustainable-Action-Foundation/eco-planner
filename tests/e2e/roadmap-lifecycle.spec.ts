@@ -126,6 +126,11 @@ test.describe.serial("Roadmap lifecycle, all fields", () => {
     const saved = await submitAndWait(page, "/api/roadmap-iteration", "PUT");
     expect(saved.status()).toBe(200);
     await expect(page).toHaveURL(`/roadmap/${roadmapId}/v1`, { timeout: navigationTimeout });
+
+    // The description travels in a hidden input the editor fills in; a save before it did wiped the text
+    await gotoUntil(page, `/roadmap/${roadmapId}/v1/edit`, async () => {
+      await expect(editor(page)).toHaveText(`Version ${name}`, { timeout: 5_000 });
+    });
   });
 
   test("saving the roadmap form without changes keeps every field", async ({ page }) => {
@@ -148,6 +153,10 @@ test.describe.serial("Roadmap lifecycle, all fields", () => {
     expect(saved.status()).toBe(200);
     await expect(page).toHaveURL(`/roadmap/${roadmapId}`, { timeout: navigationTimeout });
     await expect(visible(page, "h1").filter({ hasText: name })).toBeVisible();
+
+    await gotoUntil(page, `/roadmap/${roadmapId}/edit`, async () => {
+      await expect(editor(page)).toHaveText(`Description ${name}`, { timeout: 5_000 });
+    });
   });
 
   test("a changed version description round-trips through the form", async ({ page }) => {
