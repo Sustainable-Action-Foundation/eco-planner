@@ -1,6 +1,7 @@
 import "server-only";
 import { roadmapIterationInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { goalSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
@@ -16,22 +17,21 @@ import { cacheTag } from "next/cache";
  */
 export async function getOneRoadmapIteration(id: string): Promise<RoadmapIteration | null> {
   const accessContext = await getUserAccessContext();
-  return await getCachedRoadmapIteration(id, accessContext);
+  return uncachedFallback(() => getCachedRoadmapIteration(id, accessContext), null, `Error fetching roadmap iteration with ID ${id}:`);
 }
 
 /**
  * Caches the specified roadmap iteration and all goals for that iteration.
- * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap', 'roadmapIteration', 'goal']`, which is done in relevant API routes.
+ * Cache is invalidated when `revalidateTag()` is called on one of the tags in its `cacheTag()` call, which is done in relevant API routes.
  * @param id ID of the iteration to cache
  * @param accessContext Requesting user's access context (null for anonymous visitors); part of the cache key.
  */
 async function getCachedRoadmapIteration(id: string, accessContext: UserAccessContext | null): Promise<RoadmapIteration | null> {
   'use cache';
-  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action');
+  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action', 'dataSeries', 'org');
 
-  let iteration: RoadmapIteration | null;
-  try {
-    iteration = await prisma.roadmapIterations.findUnique({
+  return boundedFill("getCachedRoadmapIteration", async () => {
+    const iteration: RoadmapIteration | null = await prisma.roadmapIterations.findUnique({
       where: {
         // Spread first: the filter type has an optional `id` that would otherwise widen the unique key
         ...visibleRoadmapIterationsWHERE(accessContext),
@@ -39,13 +39,9 @@ async function getCachedRoadmapIteration(id: string, accessContext: UserAccessCo
       },
       include: roadmapIterationInclusionSelection,
     }) satisfies RoadmapIteration | null;
-  }
-  catch (err) {
-    console.error(`Error fetching roadmap iteration with ID ${id}:`, { err });
-    return null;
-  }
 
-  iteration?.goals.sort(goalSorter);
+    iteration?.goals.sort(goalSorter);
 
-  return iteration;
+    return iteration;
+  });
 };

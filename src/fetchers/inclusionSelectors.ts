@@ -56,11 +56,13 @@ const dataSeriesInclusionSelection = {
       recipe: true,
       // The recipe's source data series (incl. materialized external data) so the
       // editor can read them as canon instead of re-fetching upstream APIs.
-      source_data_series: { select: { id: true, unit: true, values: true } },
+      // updated_at feeds the goal page's "a source is newer than this series" check
+      source_data_series: { select: { id: true, unit: true, updated_at: true, values: { orderBy: { timestamp: "asc" } } } },
     },
   },
   values: {
     select: { timestamp: true, value: true },
+    orderBy: { timestamp: "asc" },
   },
 } satisfies Prisma.DataSeriesSelect;
 
@@ -259,6 +261,7 @@ export const goalInclusionSelection = {
         select: {
           id: true,
           name: true,
+          actor: true,
           parent_roadmap_id: true,
           type: true,
           geo_area: { select: { code: true, name: true, type: true } },
@@ -276,6 +279,46 @@ export const goalInclusionSelection = {
 } satisfies Prisma.GoalsInclude;
 
 /** "Client safe" versions should be used with `select: ` instead of `include: ` */
+/** The plotted values of a series and its unit: all a related goal's graph needs. */
+const plottedSeriesSelection = {
+  unit: true,
+  values: {
+    select: { timestamp: true, value: true },
+    orderBy: { timestamp: "asc" },
+  },
+} satisfies Prisma.DataSeriesSelect;
+
+/**
+ * A parent or child goal as the goal page's graphs use it: identity, the target and baseline
+ * series and the effects' series (for the predicted outcome), and the roadmap name for labels.
+ */
+export const relatedGoalSelection = {
+  id: true,
+  name: true,
+  indicator_parameter: true,
+  roadmap_iteration_id: true,
+  data_series: { select: plottedSeriesSelection },
+  baseline: { select: plottedSeriesSelection },
+  effects: {
+    select: {
+      impact_type: true,
+      data_series: { select: plottedSeriesSelection },
+      // Sort key (effectSorter), so summed outcomes add up in the same order as on the goal's own page
+      action: { select: { name: true } },
+    },
+  },
+  roadmap_iteration: { select: { roadmap: { select: { name: true } } } },
+} satisfies Prisma.GoalsSelect;
+
+/** A sibling candidate on the goal page (`findSiblings` makes the final match). */
+export const siblingGoalSelection = {
+  id: true,
+  name: true,
+  indicator_parameter: true,
+  listing: true,
+  data_series: { select: plottedSeriesSelection },
+} satisfies Prisma.GoalsSelect;
+
 export const clientSafeGoalSelection = {
   id: true,
   name: true,
@@ -292,7 +335,7 @@ export const clientSafeGoalSelection = {
 export const clientSafeDataSeriesSelection = {
   id: true,
   unit: true,
-  values: true,
+  values: { orderBy: { timestamp: "asc" } },
 } satisfies Prisma.DataSeriesSelect;
 
 export const actionInclusionSelection = {
@@ -328,6 +371,17 @@ export const actionInclusionSelection = {
   author: { select: { id: true, username: true } },
   fields: { orderBy: { order: 'asc' as const } },
 } satisfies Prisma.ActionsInclude;
+
+/** What an action list card shows (see the `Actions` section); `getActionSummaries` selects only this. */
+export const actionSummarySelection = {
+  id: true,
+  name: true,
+  start_year: true,
+  end_year: true,
+  origin_action_id: true,
+  author: { select: { username: true } },
+  fields: { select: { header: true, value: true, type: true }, orderBy: { order: 'asc' as const } },
+} satisfies Prisma.ActionsSelect;
 
 export const effectInclusionSelection = {
   data_series: { include: dataSeriesInclusionSelection },

@@ -1,130 +1,204 @@
-import { expect, test } from "playwright/test";
-import type { Browser, BrowserContext, Page } from "playwright/test";
 import path from "node:path";
 import { cwd } from "node:process";
-import { memberSlug } from "../../scripts/prisma/seed/places";
+import type { APIRequestContext, Page, Request } from "playwright/test";
+import { seedPlaces } from "../../scripts/prisma/seed/places";
+import areaCodes from "../../src/lib/areaCodes.json" with { type: "json" };
+import { loginAs, loginContext, memberContext, publicGoalId, Seed } from "../lib/api";
+import { expect, test } from "../lib/fixtures";
+import { gotoUntil, openGoalCreateIn, visible, waitForRecipeFormSyncs } from "../lib/forms";
+import { withLock } from "../lib/lock";
 
 const adminFile = path.join(cwd(), "tests/.auth/admin.json");
 
 /*
- * Copying a goal into one's own roadmap from its page ("use in roadmap"):
- * a copy the roadmap already has is refused with a message and the form's
- * submit button comes back, instead of a second copy or an endless spinner.
- * Only a goal the LEAP rules copy as is is used: scaling methods read the
- * statistics APIs.
+ * Copying a national goal into one's own roadmap from its page ("use in
+ * roadmap"), the org landing marking the liked goals the org has copied, and
+ * the goal page's preview of a national goal at the member's own area. Only
+ * a goal the LEAP rules copy as is is used: every scaling method reads the
+ * statistics APIs, which the app server calls and a browser test can't mock.
  */
 
-/** A context signed in as a seeded place member (scripts/prisma/seed/places.ts): "First Last", password "password". */
-async function memberContext(browser: Browser, name: string): Promise<BrowserContext> {
-  const context = await browser.newContext({ storageState: { cookies: [], origins: [] } });
-  const response = await context.request.post("/api/login", { data: { username: memberSlug(name), password: "password" } });
-  expect(response.status(), `login of ${name}`).toBe(200);
-  return context;
-}
+/** A blend share: the LEAP rule copies it as is */
+const leafAsIs = "andel låginblandad HVO";
 
-/** Switches the goal list to table view; the default tree view hides leaves inside collapsed branches. */
-async function useTableView(page: Page) {
-  await page.locator('input[name="table"][value="TABLE"]').filter({ visible: true }).first().check();
-  await expect(page.locator("#goalTable").filter({ visible: true })).toBeVisible();
-}
+const boden = seedPlaces.find(place => place.name === "Bodens kommun");
+if (!boden?.roadmapName) throw new Error("The seed has no Boden roadmap");
+/** Boden's geo area name, as the preview toggle names it */
+const bodenArea = Object.entries(areaCodes).find(([, code]) => code === boden.geoCode)?.[0] ?? "";
 
-/** Opens the latest version of a national roadmap from the public landing. */
-async function gotoNationalRoadmap(page: Page, name: RegExp) {
-  await page.goto("/?org=public");
-  const href = await page.getByRole("link", { name }).first().getAttribute("href");
-  expect(href).toBeTruthy();
-  await page.goto(href ?? "");
-  await expect(page.getByTestId("show-roadmap").filter({ visible: true })).toBeVisible();
+function submitButton(page: Page) {
+  return visible(page, "#submit-button");
 }
 
 /**
- * The page of a goal of the national LEAP scenario, by its indicator
- * parameter's leaf. Looked up as the super admin: the seed may keep the
- * scenario's goals unlisted, which only editors get to list.
+ * From the goal's page, follows "use in roadmap" to the prefilled goal form
+ * and points it at the version of `roadmap`. Waits for the recipe sections to
+ * settle (they remount for the roadmap's area): a submit before that would
+ * be rejected for missing data instead.
  */
-async function leapGoalHref(browser: Browser, leaf: string): Promise<string> {
-  const context = await browser.newContext({ storageState: adminFile });
-  const page = await context.newPage();
-  await gotoNationalRoadmap(page, /LEAP Lokal miljöhänsyn/);
-  const unlisted = page.getByTestId("unlisted-goals-tab").filter({ visible: true });
-  if (await unlisted.count() > 0) await unlisted.click();
-  await useTableView(page);
-  const href = await page.locator("#goalTable").filter({ visible: true }).getByRole("link", { name: new RegExp(`${leaf}$`) }).first().getAttribute("href");
-  await context.close();
-  expect(href).toBeTruthy();
-  return href ?? "";
-}
-
-/** From a goal's page, follows "use in roadmap" to the prefilled goal form and points it at the named roadmap. */
-async function openCopyForm(page: Page, goalHref: string, roadmap: string) {
-  await page.goto(goalHref);
-  await page.locator('a[href^="/goal/create?from="]').filter({ visible: true }).first().click();
-  await expect(page.locator("form[name=goalForm]").filter({ visible: true })).toBeVisible();
-
-  await page.locator("#parent-roadmap").filter({ visible: true }).click();
-  await page.locator("#parent-roadmap-dialog-listbox li").filter({ visible: true }).filter({ hasText: roadmap }).first().click();
-
-  // The recipe sections evaluate on a debounce (and remount for the roadmap's
-  // area); submitting before they settle yields a "no data" rejection instead
+async function openCopyForm(page: Page, goalId: string, roadmap: string) {
+  await page.goto(`/goal/${goalId}`);
+  const useLink = visible(page, `a[href="/goal/create?from=${goalId}"]`).first();
+  await expect(useLink).toBeVisible({ timeout: 30_000 });
+  await useLink.click();
+  // A client navigation: the URL changes once the (slow) form page has answered
+  await expect(page).toHaveURL(`/goal/create?from=${goalId}`, { timeout: 90_000 });
+  await openGoalCreateIn(page, roadmap, `/goal/create?from=${goalId}`);
+  // Evaluating the prefilled method fetches the scenario's series through a server action, which can
+  // take longer than `waitForRecipeFormSyncs` allows on a loaded server; give it room first
   await expect.poll(
-    () => page.locator('form[name=goalForm] input[name="RECIPE_EVALUATION_PENDING"]:enabled').evaluateAll(inputs => inputs.map(input => (input as HTMLInputElement).value)),
-    { timeout: 30_000 },
+    () => page.locator('form[name="goalForm"] input[name="RECIPE_EVALUATION_PENDING"]:enabled').evaluateAll(inputs => inputs.map(input => (input as HTMLInputElement).value)),
+    { timeout: 120_000 },
   ).not.toContain("true");
+  await waitForRecipeFormSyncs(page);
 }
 
-function submitButton(page: Page) {
-  return page.locator("#submit-button").filter({ visible: true });
-}
-
-/** Submits the copy form and returns the goal API's answer. */
+/** Submits the copy form and resolves with the goal API's answer */
 async function submitCopy(page: Page) {
-  const [response] = await Promise.all([
-    page.waitForResponse(response => response.url().includes("/api/goal") && response.request().method() === "POST"),
-    submitButton(page).click(),
-  ]);
+  const isGoalPost = (request: Request) => new URL(request.url()).pathname === "/api/goal" && request.method() === "POST";
+  // WebKit now and then swallows the click: wait for the request (not the slow response) and
+  // click once more only if none went out, so a submit is never sent twice
+  let request = page.waitForRequest(isGoalPost, { timeout: 15_000 });
+  await submitButton(page).click();
+  request = request.catch(async () => {
+    const retry = page.waitForRequest(isGoalPost, { timeout: 15_000 });
+    await submitButton(page).click();
+    return retry;
+  });
+  const response = await (await request).response();
+  if (!response) throw new Error("the goal POST got no answer");
   return response;
 }
 
+/** A refused copy says why and hands the button back, without leaving the form */
+async function expectRefusedCopy(page: Page) {
+  const response = await submitCopy(page);
+  expect(response.status(), await response.text()).toBe(409);
+  // The toast carries the API's message, translated on the server, which names the existing copy
+  await expect(page.getByTestId("toast-list").filter({ visible: true })).toContainText(leafAsIs);
+  await expect(submitButton(page)).toBeEnabled();
+  await expect(submitButton(page).locator("[data-pending]")).toHaveCount(0);
+  await expect(page).toHaveURL(/\/goal\/create/);
+}
+
+/** Whether `request`'s user currently likes the goal, read off its like button on the goal page */
+async function likedByViewer(request: APIRequestContext, goalId: string): Promise<boolean> {
+  // The scenario's goal pages are slow to render; read the raw page with a generous timeout
+  const response = await request.get(`/goal/${goalId}`, { timeout: 180_000 });
+  expect(response.status()).toBe(200);
+  const match = (await response.text()).match(new RegExp(`\\\\?"goalId\\\\?":\\\\?"${goalId}\\\\?",\\\\?"liked\\\\?":(true|false)`));
+  expect(match, "the goal page's like button").toBeTruthy();
+  return match?.[1] === "true";
+}
+
 test.describe("Copying a goal into a roadmap", () => {
-  test("A copy the roadmap already has is refused with a message and the button comes back", async ({ browser }) => {
-    // The seed copies every LEAP goal into Boden's roadmap
-    const context = await memberContext(browser, "Maja Sandberg");
-    const page = await context.newPage();
-    await openCopyForm(page, await leapGoalHref(browser, "andel låginblandad HVO"), "Boden");
+  test.describe.configure({ mode: "serial" });
+  // The LEAP goal page and the copy form are heavy on the seeded DB
+  test.beforeEach(() => test.slow());
 
-    const response = await submitCopy(page);
-    expect(response.status()).toBe(409);
+  let goalId = "";
 
-    await expect(page.getByTestId("toast-list")).toContainText("already_in_roadmap");
-    await expect(submitButton(page)).toBeEnabled();
-    await expect(submitButton(page).locator("[data-pending]")).toHaveCount(0);
-    await expect(page).toHaveURL(/\/goal\/create/);
-    await context.close();
+  test.beforeAll(async ({ playwright, baseURL }) => {
+    // The scenario's version page is slow to render on the seeded DB
+    test.setTimeout(600_000);
+    const admin = await playwright.request.newContext({ baseURL });
+    await loginAs(admin, Seed.admin.username, Seed.admin.password);
+    goalId = await publicGoalId(admin, Seed.leapScenario, leafAsIs);
+    await admin.dispose();
   });
 
-  test("A first copy goes through, a second is refused", async ({ browser }) => {
-    // Kiruna's roadmap starts out empty
-    const context = await memberContext(browser, "Lars Niia");
-    const page = await context.newPage();
-    const goalHref = await leapGoalHref(browser, "andel låginblandad HVO");
-
-    await openCopyForm(page, goalHref, "Kiruna");
-    const created = await submitCopy(page);
-    expect(created.status()).toBe(201);
-    const { id } = await created.json() as { id: string };
-    await expect(page).toHaveURL(new RegExp(`/goal/${id}`));
-
+  test("a copy the roadmap already has is refused with a message and the button comes back", async ({ browser }) => {
+    // The seed copies every LEAP goal into Boden's roadmap
+    const context = await memberContext(browser, "Maja Sandberg");
     try {
-      await openCopyForm(page, goalHref, "Kiruna");
-      const refused = await submitCopy(page);
-      expect(refused.status()).toBe(409);
-      await expect(page.getByTestId("toast-list")).toContainText("already_in_roadmap");
-      await expect(submitButton(page)).toBeEnabled();
+      const page = await context.newPage();
+      await openCopyForm(page, goalId, boden.roadmapName ?? "");
+      await expectRefusedCopy(page);
     }
     finally {
-      // Leave the roadmap as it was for the next run
-      const deleted = await context.request.delete("/api/goal", { data: { id } });
-      expect(deleted.status()).toBe(200);
+      await context.close();
+    }
+  });
+
+  test.describe("into a roadmap of the user's org", () => {
+    test.use({ storageState: adminFile });
+
+    test("a first copy goes through, is marked on the org's liked goals, and a second is refused", async ({ page, admin, sandbox }) => {
+      // The org's copies of this goal and the admin's like of it are shared by every browser project
+      await withLock("goal-copy-leap-as-is", async () => {
+        const likedBefore = await likedByViewer(admin, goalId);
+        const like = await admin.post("/api/goal-like", { data: { goalId } });
+        expect(like.status(), await like.text()).toBe(200);
+        const likedRow = visible(page, `[data-testid="liked-goal"][data-goal-id="${goalId}"]`);
+        try {
+          // Liked but not yet copied into any roadmap of the org
+          await gotoUntil(page, `/?org=${sandbox.orgId}`, async () => {
+            await expect(likedRow).toBeVisible({ timeout: 5_000 });
+            await expect(likedRow.getByTestId("liked-goal-copied")).toHaveCount(0, { timeout: 5_000 });
+          }, 90_000);
+
+          await openCopyForm(page, goalId, `Sandbox ${sandbox.label}`);
+          const created = await submitCopy(page);
+          expect(created.status(), await created.text()).toBe(201);
+          const { id: copyId } = await created.json() as { id: string };
+          await expect(page).toHaveURL(`/goal/${copyId}`, { timeout: 90_000 });
+          await expect(page.getByTestId("goal-indicator-parameter").filter({ visible: true })).toContainText(leafAsIs, { timeout: 30_000 });
+
+          // The landing now says the org has it, naming the copy
+          await gotoUntil(page, `/?org=${sandbox.orgId}`, async () => {
+            await expect(likedRow.getByTestId("liked-goal-copied")).toBeVisible({ timeout: 5_000 });
+          }, 90_000);
+          await expect(likedRow.getByTestId("liked-goal-copied")).toHaveAttribute("title", new RegExp(leafAsIs));
+
+          await openCopyForm(page, goalId, `Sandbox ${sandbox.label}`);
+          await expectRefusedCopy(page);
+        }
+        finally {
+          // The copies go with the sandbox; the like is put back as it was
+          if (!likedBefore) {
+            const unlike = await admin.delete("/api/goal-like", { data: { goalId } });
+            expect(unlike.status(), await unlike.text()).toBe(200);
+          }
+        }
+      });
+    });
+  });
+
+  test("a member of an org with an area can preview the goal there; it is copied as is", async ({ browser }) => {
+    const context = await memberContext(browser, "Nils Forsberg");
+    try {
+      const page = await context.newPage();
+      await page.goto(`/goal/${goalId}`);
+
+      const toggle = page.getByTestId("scaled-preview-toggle").filter({ visible: true });
+      await expect(toggle).toBeVisible({ timeout: 30_000 });
+      await expect(toggle.locator("xpath=..")).toContainText(`"area":"${bodenArea}"`);
+      await expect(toggle).not.toBeChecked();
+      await expect(page.getByTestId("scaled-preview-unscaled")).toHaveCount(0);
+
+      await toggle.check();
+      await expect(page.getByTestId("scaled-preview-unscaled").filter({ visible: true })).toContainText("goal.scaled_preview.as_is");
+      await expect(page.getByTestId("scaled-preview-result")).toHaveCount(0);
+
+      // The choice follows the user to the next goal page
+      await page.reload();
+      await expect(page.getByTestId("scaled-preview-toggle").filter({ visible: true })).toBeChecked({ timeout: 30_000 });
+    }
+    finally {
+      await context.close();
+    }
+  });
+
+  test("a member whose org has no area is not offered the preview", async ({ browser }) => {
+    const context = await loginContext(browser, Seed.anita.username, Seed.anita.password);
+    try {
+      const page = await context.newPage();
+      await page.goto(`/goal/${goalId}`);
+      // The preview's section streams in next to the use-in-roadmap panel
+      await expect(visible(page, "h2").filter({ hasText: /goal\.use_(in_roadmap|locally)\.heading/ })).toBeVisible({ timeout: 30_000 });
+      await expect(page.getByTestId("scaled-preview-toggle")).toHaveCount(0);
+    }
+    finally {
       await context.close();
     }
   });

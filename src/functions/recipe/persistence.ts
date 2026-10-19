@@ -7,32 +7,13 @@ import getTableContent from "@/lib/api/getTableContent";
 import type { DataSeriesVariable, ExternalSource, RecipeVariable, ResolvedExternals, SerializedRecipe } from "@/functions/recipe";
 import { dateValuesToDBDateRecord } from "@/functions/recipe/vectorAndMaskUtils";
 import { serializeUnit } from "@/functions/unit";
-import type { DateValuesWithUnit } from "@/types";
 
 /** True if two external selections are equivalent (order-insensitive). */
 function sameExternalSource(a: ExternalSource, b: ExternalSource): boolean {
   return externalSelectionKey(a.dataset, a.tableId, a.selection) === externalSelectionKey(b.dataset, b.tableId, b.selection);
 }
 
-/**
- * Builds the nested create data for a hand-entered data series: the series plus
- * its producing inline manual recipe (`meta.isManual`), both owned by `orgId`.
- * Usable in any nested `create:` position for a DataSeries relation.
- */
-export function manualDataSeriesCreateData(dateValues: DateValuesWithUnit, orgId: string, authorId: string) {
-  return {
-    org: { connect: { id: orgId } },
-    author: { connect: { id: authorId } },
-    unit: serializeUnit(dateValues.unit), // db keeps the legacy convention
-    values: { createMany: { data: dateValuesToDBDateRecord(dateValues.dateValues) } },
-    recipe_used: {
-      create: {
-        recipe: Recipe.fromManualDateValues(dateValues).serialize(),
-        org: { connect: { id: orgId } },
-      },
-    },
-  };
-}
+export { manualDataSeriesCreateData } from "@/functions/recipe/manualDataSeries";
 
 /**
  * Decides, for every edit-time `External` variable in a recipe, whether its data

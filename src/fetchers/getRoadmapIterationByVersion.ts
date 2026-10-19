@@ -2,6 +2,7 @@ import { IterationStatus } from "@/lib/prisma/generated";
 import "server-only";
 import { roadmapIterationInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { goalSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
@@ -18,22 +19,22 @@ import { cacheTag } from "next/cache";
  */
 export async function getRoadmapIterationByVersion(roadmapId: string, version: number | "latest"): Promise<RoadmapIteration | null> {
   const accessContext = await getUserAccessContext();
-  return getCachedRoadmapIterationByVersion(roadmapId, version, accessContext);
+  return uncachedFallback(() => getCachedRoadmapIterationByVersion(roadmapId, version, accessContext), null, "Error fetching roadmap iteration by version", { roadmapId, version });
 }
 
 /**
  * Caches the specified roadmap iteration and all goals for that iteration.
- * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap', 'roadmapIteration', 'goal']`, which is done in relevant API routes.
+ * Cache is invalidated when `revalidateTag()` is called on one of the tags in its `cacheTag()` call, which is done in relevant API routes.
  * @param roadmapId ID of the roadmap to search for a specific version of
  * @param version Version number of the iteration to cache, or "latest" for the latest published iteration
  * @param accessContext Requesting user's access context (null for anonymous visitors); part of the cache key.
  */
 async function getCachedRoadmapIterationByVersion(roadmapId: string, version: number | "latest", accessContext: UserAccessContext | null): Promise<RoadmapIteration | null> {
   'use cache';
-  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action');
+  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action', 'dataSeries', 'org');
 
-  let iteration: RoadmapIteration | null;
-  try {
+  return boundedFill("getCachedRoadmapIterationByVersion", async () => {
+    let iteration: RoadmapIteration | null;
     if (version === "latest") {
       // Latest non-draft iteration; drafts are never "latest" even for users who may see them
       iteration = await prisma.roadmapIterations.findFirst({
@@ -56,13 +57,9 @@ async function getCachedRoadmapIterationByVersion(roadmapId: string, version: nu
         include: roadmapIterationInclusionSelection,
       }) satisfies RoadmapIteration | null;
     }
-  }
-  catch (err) {
-    console.error("Error fetching roadmap iteration by version", { err });
-    return null;
-  }
 
-  iteration?.goals.sort(goalSorter);
+    iteration?.goals.sort(goalSorter);
 
-  return iteration;
+    return iteration;
+  });
 };

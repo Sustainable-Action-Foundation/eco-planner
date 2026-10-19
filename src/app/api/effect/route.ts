@@ -175,6 +175,7 @@ export async function POST(request: NextRequest) {
     // Invalidate old cache
     revalidateTag('action', { expire: 0 });
     revalidateTag('goal', { expire: 0 });
+    revalidateTag('dataSeries', { expire: 0 });
     // Return success
     return Response.json({ message: t('api:effect.effect_created'), actionId: newEffect.action_id, goalId: newEffect.goal_id },
       { status: 201 },
@@ -315,6 +316,7 @@ export async function PUT(request: NextRequest) {
     // Invalidate old cache
     revalidateTag('action', { expire: 0 });
     revalidateTag('goal', { expire: 0 });
+    revalidateTag('dataSeries', { expire: 0 });
     // Return success
     return Response.json({ message: t('api:effect.effect_updated'), actionId: updatedEffect.action_id, goalId: updatedEffect.goal_id },
       { status: 200 },
@@ -421,6 +423,7 @@ export async function DELETE(request: NextRequest) {
     // doesn't keep listing the deleted effect
     revalidateTag('action', { expire: 0 });
     revalidateTag('goal', { expire: 0 });
+    revalidateTag('dataSeries', { expire: 0 });
     // Return success
     return Response.json({ message: t('api:effect.effect_deleted'), actionId: deletedEffect.action_id, goalId: deletedEffect.goal_id },
       { status: 200 },

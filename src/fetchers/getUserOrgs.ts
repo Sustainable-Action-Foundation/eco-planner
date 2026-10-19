@@ -1,5 +1,6 @@
 import "server-only";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { prisma } from "@/lib/prisma";
 import { OrgRole } from "@/lib/prisma/generated";
 import type { GeoAreaType } from "@/lib/prisma/generated";
@@ -32,7 +33,8 @@ export async function getUserOrgs(): Promise<UserOrg[]> {
     return [];
   }
 
-  const orgs = await getCachedOrgs(accessContext.isSuperAdmin ? null : accessContext.memberships.map(membership => membership.orgId));
+  const orgIds = accessContext.isSuperAdmin ? null : accessContext.memberships.map(membership => membership.orgId);
+  const orgs = await uncachedFallback(() => getCachedOrgs(orgIds), [], "Error fetching user orgs");
   const userOrgs = orgs.map(org => {
     const membership = accessContext.memberships.find(membership => membership.orgId === org.id);
     return {
@@ -56,15 +58,11 @@ async function getCachedOrgs(orgIds: string[] | null): Promise<{ id: string, nam
   'use cache';
   cacheTag('database', 'org');
 
-  try {
+  return boundedFill("getCachedOrgs", async () => {
     return await prisma.orgs.findMany({
       where: orgIds ? { id: { in: orgIds } } : {},
       select: { id: true, name: true, geo_area: { select: { code: true, name: true, type: true } } },
       orderBy: { name: 'asc' },
     });
-  }
-  catch (err) {
-    console.error("Error fetching user orgs", { err });
-    return [];
-  }
+  });
 }

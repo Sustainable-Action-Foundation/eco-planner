@@ -1,12 +1,10 @@
-import fs from "node:fs";
-import path from "node:path";
-import { cwd } from "node:process";
 import { expect, test } from "playwright/test";
 
 import { buildRegionSelection, CuratedHistoricalCategory, CuratedRegionKind, findRegionCodeByLabel, getCuratedHistoricalCatalog, getNationalGoalMappings } from "../../src/lib/curatedHistoricalData";
+import type { CuratedSource } from "../../src/lib/curatedHistoricalData";
 import { ExternalDataset } from "../../src/lib/api/utility";
 import { GeoAreaType } from "../../src/lib/prisma/generated";
-import type { CuratedSource } from "../../src/lib/curatedHistoricalData";
+import { filteredLocales, getAllJSONFlattened, isKeyDefined } from "../../scripts/lib/localeKeyScan";
 import type { TFunction } from "i18next";
 
 /** Identity t: entries carry their literal i18n keys so they can be checked against the locale files. */
@@ -85,20 +83,27 @@ test.describe("Curated historical data catalog", () => {
     }
   });
 
-  test("a Trafa source is not selected for a level its region kind cannot express", () => {
+  test("a region-less source only serves the nation", () => {
     for (const { label, source } of sources) {
       if (source.region.kind === CuratedRegionKind.None) {
-        // A region-less source can only be correct for one level, the nation
         expect(label, `region-less source ${label}`).toMatch(new RegExp(`@${GeoAreaType.NATION}$`));
       }
     }
   });
 
+  test("unlisted entries exist for national goal mappings, listed ones are browsable", () => {
+    const mapped = new Set(getNationalGoalMappings().flatMap(mapping => mapping.series.map(candidate => candidate.entryKey)));
+    for (const entry of entries) {
+      if (entry.listed === false) {
+        expect(mapped.has(entry.key), `unlisted entry "${entry.key}" is not the local counterpart of any national goal`).toBe(true);
+      }
+    }
+    expect(entries.some(entry => entry.listed !== false)).toBe(true);
+  });
+
   test("catalog title, entry names and descriptions are literal keys defined in every locale", () => {
-    // The locale key scanner only covers .tsx files, so the catalog's .ts keys are checked here
-    const localesDir = path.join(cwd(), "public/locales");
-    const locales = fs.readdirSync(localesDir);
-    expect(locales.length).toBeGreaterThan(0);
+    const allJSON = getAllJSONFlattened();
+    expect(filteredLocales.length).toBeGreaterThan(0);
 
     const keysToCheck = [
       catalog.title,
@@ -109,18 +114,24 @@ test.describe("Curated historical data catalog", () => {
       expect(key).toMatch(/^pages:home\.curated_historical\./);
     }
 
-    for (const locale of locales) {
-      const pages = JSON.parse(fs.readFileSync(path.join(localesDir, locale, "pages.json"), "utf-8")) as Record<string, unknown>;
+    for (const locale of filteredLocales) {
       for (const key of keysToCheck) {
-        const keyPath = key.replace(/^pages:/, "").split(".");
-        let value: unknown = pages;
-        for (const segment of keyPath) {
-          expect(value, `"${key}" in ${locale}`).toBeInstanceOf(Object);
-          value = (value as Record<string, unknown>)[segment];
-        }
-        expect(typeof value, `"${key}" in ${locale}`).toBe("string");
-        expect(value, `"${key}" in ${locale}`).not.toBe("");
+        expect(isKeyDefined(key, allJSON[locale]), `"${key}" in ${locale}`).toBe(true);
       }
+    }
+  });
+
+  test("the area name is interpolated into the title and nowhere else", () => {
+    const calls: { key: string, options?: unknown }[] = [];
+    const recordingT = ((key: string, options?: unknown) => { calls.push({ key, options }); return key; }) as TFunction;
+    getCuratedHistoricalCatalog(recordingT, "Boden");
+
+    expect(calls.filter(call => call.key === "pages:home.curated_historical.title")).toEqual([{ key: "pages:home.curated_historical.title", options: { area: "Boden" } }]);
+    expect(calls.filter(call => call.key !== "pages:home.curated_historical.title").every(call => call.options === undefined)).toBe(true);
+    // The English value actually uses the interpolation
+    const allJSON = getAllJSONFlattened();
+    for (const locale of filteredLocales) {
+      expect(allJSON[locale]["pages:home.curated_historical.title"], locale).toContain("{{area}}");
     }
   });
 });
@@ -143,11 +154,13 @@ test.describe("Curated region resolution", () => {
     expect(findRegionCodeByLabel(options, "0180")).toBe("3");
     expect(findRegionCodeByLabel(options, "0181")).toBeNull();
     expect(findRegionCodeByLabel([{ value: "0" }], "00")).toBeNull();
+    expect(findRegionCodeByLabel([], "00")).toBeNull();
   });
 
   test("PxWebCode passes the geo area code straight through", () => {
     const region = { kind: CuratedRegionKind.PxWebCode, variableCode: "Region" } as const;
     expect(buildRegionSelection(region, municipality)).toEqual([{ variableCode: "Region", valueCodes: ["0180"] }]);
+    expect(buildRegionSelection(region, county)).toEqual([{ variableCode: "Region", valueCodes: ["01"] }]);
     expect(buildRegionSelection(region, nation)).toEqual([{ variableCode: "Region", valueCodes: ["00"] }]);
   });
 
@@ -168,8 +181,36 @@ test.describe("Curated region resolution", () => {
     expect(buildRegionSelection(region, nation)).toEqual([]);
   });
 
+  test("Trafa derives the county from the municipality code, for a catalog source", () => {
+    const electricCars = entries.find(entry => entry.key === "cars-by-fuel")?.series.find(series => series.key === "electric");
+    const source = electricCars?.sources[GeoAreaType.MUNICIPALITY];
+    if (!source) throw new Error("cars-by-fuel/electric has no municipal source");
+    expect(source.region.kind).toBe(CuratedRegionKind.Trafa);
+
+    // Boden (2582) lies in Norrbottens län (25); the county goes first, then the municipality
+    const boden = { code: "2582", type: GeoAreaType.MUNICIPALITY };
+    const region = buildRegionSelection(source.region, boden);
+    expect(region).toEqual([
+      { variableCode: "reglan", valueCodes: ["25"] },
+      { variableCode: "regkom", valueCodes: ["2582"] },
+    ]);
+    // Combined with the fixed selection, every variable is still selected once
+    const codes = [...(region ?? []), ...source.selection].map(item => item.variableCode);
+    expect(new Set(codes).size).toBe(codes.length);
+
+    // The county itself, and a county on its own
+    expect(buildRegionSelection(source.region, { code: "25", type: GeoAreaType.COUNTY })).toEqual([{ variableCode: "reglan", valueCodes: ["25"] }]);
+    expect(buildRegionSelection(source.region, { code: "1480", type: GeoAreaType.MUNICIPALITY })?.[0]).toEqual({ variableCode: "reglan", valueCodes: ["14"] });
+  });
+
   test("None selects nothing", () => {
     expect(buildRegionSelection({ kind: CuratedRegionKind.None }, nation)).toEqual([]);
+    expect(buildRegionSelection({ kind: CuratedRegionKind.None }, municipality)).toEqual([]);
+  });
+
+  test("an unknown region kind or area type is an error", () => {
+    expect(() => buildRegionSelection({ kind: "SOMETHING" } as unknown as Parameters<typeof buildRegionSelection>[0], nation)).toThrow(/Unknown curated region kind/);
+    expect(() => buildRegionSelection({ kind: CuratedRegionKind.Trafa }, { code: "1", type: "PLANET" as GeoAreaType })).toThrow(/Unknown geo area type/);
   });
 });
 

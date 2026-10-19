@@ -1,5 +1,5 @@
 import { getLocalStorage, getSessionStorage, setLocalStorage, setSessionStorage } from "@/functions/localStorage";
-import type { DataSeries, DateValues, DateValuesWithUnit, Effect, Goal, ISOIshDate } from "@/types";
+import type { DateValues, DateValuesWithUnit, ISOIshDate, PlottedSeries } from "@/types";
 import { ChildGraphType, GraphType, UnitFlags } from "@/types/enums";
 import { isISOIshDate } from "@/types/typeguards";
 import { ActionImpactType } from "@/lib/prisma/generated";
@@ -75,7 +75,7 @@ export function setStoredChildGraphType(graphType: ChildGraphType, goalId?: stri
  * To get relative y-values, divide all values by the first non-zero, non-null y-value (and multiply by 100 if you want percentages).
  * To get delta y-values, subtract the previous y-value from all y-values, preferably back to front to avoid needing a copy of the array.
  */
-export function calculatePredictedOutcome(effects: Effect[] | Goal["effects"], baselineValue: DataSeries | number | Goal["baseline"]) {
+export function calculatePredictedOutcome(effects: { impact_type: ActionImpactType, data_series: PlottedSeries | null }[], baselineValue: PlottedSeries | number | null | undefined) {
   if (effects.length < 1) {
     return [];
   }

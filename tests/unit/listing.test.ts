@@ -10,14 +10,21 @@ import { AccessLevel } from "../../src/types/enums";
  */
 
 test.describe("isGoalListed", () => {
-  test("listed and featured goals are listed for everyone with access", () => {
+  test("listed and featured goals are listed at every access level", () => {
     for (const listing of [GoalListing.LISTED, GoalListing.FEATURED]) {
-      expect(isGoalListed({ listing }, AccessLevel.View)).toBe(true);
+      for (const level of Object.values(AccessLevel)) {
+        expect(isGoalListed({ listing }, level), `${listing} at ${JSON.stringify(level)}`).toBe(true);
+      }
     }
   });
 
   test("unlisted goals are only listed for editors", () => {
     expect(isGoalListed({ listing: GoalListing.UNLISTED }, AccessLevel.View)).toBe(false);
     expect(isGoalListed({ listing: GoalListing.UNLISTED }, AccessLevel.Edit)).toBe(true);
+  });
+
+  test("no access never lists an unlisted goal, admin always does", () => {
+    expect(isGoalListed({ listing: GoalListing.UNLISTED }, AccessLevel.None)).toBe(false);
+    expect(isGoalListed({ listing: GoalListing.UNLISTED }, AccessLevel.Admin)).toBe(true);
   });
 });

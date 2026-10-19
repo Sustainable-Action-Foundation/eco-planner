@@ -380,7 +380,10 @@ export async function PUT(request: NextRequest) {
     });
     // Prune any orphaned comments
     await pruneOrphans();
-    // Invalidate old cache; expire immediately so the follow-up navigation sees the update
+    // Invalidate old cache; expire immediately so the follow-up navigation sees the update.
+    // Sharing decides who may read everything under the roadmap; every access-filtered reader
+    // (goals, actions, effects, series, likes) declares `roadmap` for that reason (caching.md),
+    // so this one tag also expires them when sharing or grants change.
     revalidateTag('roadmap', { expire: 0 });
     // Return the updated roadmap's ID if successful
     return Response.json({ message: t('api:roadmap.roadmap_updated'), id: updatedRoadmap.id },

@@ -45,8 +45,19 @@ async function getAccessToken() {
   return cachedToken.token;
 }
 
+/**
+ * The test stack has no outbound mail: under TEST_ENVIRONMENT=testing nothing is
+ * sent and the mailbox check passes, so signup/verify/reset flows complete without
+ * Graph credentials. Tests read the emailed token back through /api/test/mail-token.
+ */
+const isTestEnvironment = process.env.TEST_ENVIRONMENT === "testing";
+
 const mailClient = {
   async sendMail(options: MailOptions) {
+    if (isTestEnvironment) {
+      console.info(`[mail stub] not sending "${options.subject}" to ${options.to}`);
+      return;
+    }
     const token = await getAccessToken();
 
     const response = await fetch(`https://graph.microsoft.com/v1.0/users/${encodeURIComponent(senderMailbox)}/sendMail`, {
@@ -65,6 +76,8 @@ const mailClient = {
           toRecipients: [{ emailAddress: { address: options.to } }],
           ...(options.from ? { from: { emailAddress: { address: senderMailbox, name: options.from } } } : {}),
         },
+        // Auth mails carry live links; don't keep copies in the sender's Sent Items
+        saveToSentItems: false,
       }),
     });
     if (!response.ok) {
@@ -74,6 +87,9 @@ const mailClient = {
 
   /** Checks that the credentials are valid and that the sender mailbox is reachable with the granted permissions. */
   async verify() {
+    if (isTestEnvironment) {
+      return;
+    }
     const token = await getAccessToken();
 
     const response = await fetch(`https://graph.microsoft.com/v1.0/users/${encodeURIComponent(senderMailbox)}/mailFolders/inbox`, {

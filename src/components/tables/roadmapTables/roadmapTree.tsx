@@ -12,10 +12,13 @@ import type { TFunction } from "i18next";
 import { IconCaretRightFilled, IconZoomQuestion } from "@tabler/icons-react";
 import VisibilityBadges from "@/components/generic/visibility/visibilityBadges";
 
+/** One roadmap version as the tree shows it: a `MultiRoadmapInstance` without the action count */
+export type TreeIteration = Omit<MultiRoadmapInstance, "_count"> & { _count: { goals: number } };
+
 type RoadmapTreeProps = {
   accessContext: UserAccessContext | null;
   /** The versions to show: per roadmap its latest published one plus any drafts the user may see */
-  iterations: MultiRoadmapInstance[];
+  iterations: TreeIteration[];
 };
 
 /**
@@ -23,16 +26,16 @@ type RoadmapTreeProps = {
  * version, or its newest draft when nothing is published) and the remaining
  * drafts, which nest under that node.
  */
-function groupByRoadmap(iterations: MultiRoadmapInstance[]) {
-  const byRoadmap = new Map<string, MultiRoadmapInstance[]>();
+function groupByRoadmap(iterations: TreeIteration[]) {
+  const byRoadmap = new Map<string, TreeIteration[]>();
   for (const iteration of iterations) {
     byRoadmap.set(iteration.roadmap_id, [...(byRoadmap.get(iteration.roadmap_id) ?? []), iteration]);
   }
 
-  const nodes: MultiRoadmapInstance[] = [];
-  const draftsByRoadmap = new Map<string, MultiRoadmapInstance[]>();
+  const nodes: TreeIteration[] = [];
+  const draftsByRoadmap = new Map<string, TreeIteration[]>();
   for (const [roadmapId, versions] of byRoadmap) {
-    const newest = (candidates: MultiRoadmapInstance[]) => candidates.reduce((current, candidate) => candidate.version > current.version ? candidate : current);
+    const newest = (candidates: TreeIteration[]) => candidates.reduce((current, candidate) => candidate.version > current.version ? candidate : current);
     const published = versions.filter(version => version.status !== IterationStatus.DRAFT);
     const node = published.length ? newest(published) : newest(versions);
     nodes.push(node);
@@ -88,7 +91,7 @@ export default async function RoadmapTree({
   );
 }
 
-function typeAliasFor(iteration: MultiRoadmapInstance, t: TFunction): string {
+function typeAliasFor(iteration: TreeIteration, t: TFunction): string {
   switch (iteration.roadmap.type) {
     case "NATIONAL": {
       return t("common:scope.national");
@@ -117,7 +120,7 @@ function typeAliasFor(iteration: MultiRoadmapInstance, t: TFunction): string {
 }
 
 /** The link + meta line for one version; drafts get a badge and green stripes. */
-function IterationLink({ iteration, t }: { iteration: MultiRoadmapInstance, t: TFunction }) {
+function IterationLink({ iteration, t }: { iteration: TreeIteration, t: TFunction }) {
   const isDraft = iteration.status === IterationStatus.DRAFT;
   return (
     <Link
@@ -150,9 +153,9 @@ async function NestedRoadmapRenderer({
   draftsByRoadmap,
   accessContext,
 }: {
-  allNodes: MultiRoadmapInstance[],
-  childNodes: MultiRoadmapInstance[],
-  draftsByRoadmap: Map<string, MultiRoadmapInstance[]>,
+  allNodes: TreeIteration[],
+  childNodes: TreeIteration[],
+  draftsByRoadmap: Map<string, TreeIteration[]>,
   accessContext: RoadmapTreeProps['accessContext'],
 }) {
   const t = await serveTea(["components", "common"]);

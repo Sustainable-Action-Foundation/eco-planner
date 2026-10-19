@@ -30,116 +30,12 @@ export default defineConfig({
   },
   projects: [
     {
-      name: "Locale files validation",
-      testMatch: ["unit/locale-files.test.ts"],
-      retries: 0, // File reading can't be flaky, so no retries needed.
-      use: {},
+      name: "unit",
+      retries: 0, // Deterministic, no browser; a flaky unit test is a bug
     },
     {
-      name: "Recipe unit tests",
-      testMatch: ["unit/recipe-unit.test.ts"],
-      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
-      use: {},
-    },
-    {
-      name: "Action fields unit tests",
-      testMatch: ["unit/action-fields.test.ts"],
-      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
-      use: {},
-    },
-    {
-      name: "Goal CSV parsing unit tests",
-      testMatch: ["unit/parse-goal-csv.test.ts"],
-      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
-      use: {},
-    },
-    {
-      name: "LEAP copy planning unit tests",
-      testMatch: ["unit/leap-copy-plan.test.ts"],
-      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
-      use: {},
-    },
-    {
-      name: "Orgless access unit tests",
-      testMatch: ["unit/orgless-access.test.ts"],
-      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
-      use: {},
-    },
-    {
-      name: "Table catalog unit tests",
-      testMatch: ["unit/table-catalog.test.ts"],
-      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
-      use: {},
-    },
-    {
-      name: "Series ref unit tests",
-      testMatch: ["unit/series-ref.test.ts"],
-      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
-      use: {},
-    },
-    {
-      name: "Curated historical catalog unit tests",
-      testMatch: ["unit/curated-historical.test.ts"],
-      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
-      use: {},
-    },
-    {
-      name: "LEAP scaling unit tests",
-      testMatch: ["unit/leap-scaling.test.ts"],
-      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
-      use: {},
-    },
-    {
-      name: "LEAP national series unit tests",
-      testMatch: ["unit/leap-national-series.test.ts"],
-      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
-      use: {},
-    },
-    {
-      name: "National historical fill unit tests",
-      testMatch: ["unit/national-historical.test.ts"],
-      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
-      use: {},
-    },
-    {
-      name: "Suggested recipes unit tests",
-      testMatch: ["unit/suggested-recipes.test.ts"],
-      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
-      use: {},
-    },
-    {
-      name: "Local scale unit tests",
-      testMatch: ["unit/local-scale.test.ts"],
-      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
-      use: {},
-    },
-    {
-      name: "Goal name unit tests",
-      testMatch: ["unit/goal-name.test.ts"],
-      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
-      use: {},
-    },
-    {
-      name: "PxWeb table list unit tests",
-      testMatch: ["unit/px-web-tables.test.ts"],
-      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
-      use: {},
-    },
-    {
-      name: "Decimal input parsing unit tests",
-      testMatch: ["unit/parse-decimal-input.test.ts"],
-      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
-      use: {},
-    },
-    {
-      name: "Listing unit tests",
-      testMatch: ["unit/listing.test.ts"],
-      retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
-      use: {},
-    },
-    {
-      name: "Action origins unit tests",
-      testMatch: ["unit/action-origins.test.ts"],
+      name: "Upstream cache handler unit tests",
+      testMatch: ["unit/upstream-cache-handler.test.ts"],
       retries: 0, // These tests are deterministic and should not be flaky, so no retries needed.
       use: {},
     },

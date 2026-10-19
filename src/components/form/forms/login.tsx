@@ -7,6 +7,7 @@ import styles from '../forms.module.css';
 import { useTranslation } from "react-i18next";
 import { IconExclamationCircle, IconEye, IconEyeOff, IconLock, IconUser } from "@tabler/icons-react";
 import type { TFunction } from "i18next";
+import { safeRedirectPath } from "@/functions/safeRedirectPath";
 
 function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction, router: ReturnType<typeof useRouter>, setErrorMessage: React.Dispatch<React.SetStateAction<string | null>>, setErrorKey: React.Dispatch<React.SetStateAction<number>>) {
   event.preventDefault();
@@ -29,8 +30,7 @@ function handleSubmit(event: React.ChangeEvent<HTMLFormElement>, t: TFunction, r
   }).then((res) => {
     if (res.ok) {
       // Redirect to the page the user came from, or to the home page.
-      const from = new URLSearchParams(window.location.search).get('from');
-      router.push(from || '/');
+      router.push(safeRedirectPath(new URLSearchParams(window.location.search).get('from')));
       router.refresh();
     } else {
       setErrorKey(prevKey => prevKey + 1);

@@ -5,8 +5,8 @@
 // call this directly — safe because it does no request-scoped work (no cookies()/session).
 import "server-only";
 
-import type { ApiSelectionItem, ApiTableContent } from "../apiTypes";
-import { ExternalDataset } from "../utility";
+import type { ApiSelectionItem, ApiTableContent, UpstreamFailureReporter } from "../apiTypes";
+import { ExternalDataset, isTransientStatus } from "../utility";
 import type { TrafaDataResponse } from "./trafaTypes";
 import { getTrafaSearchQueryString } from "./trafaUtility";
 
@@ -14,7 +14,10 @@ import { getTrafaSearchQueryString } from "./trafaUtility";
 // This means that everything here in the `trafa` folder is somewhat useless for international implementations,
 // but can be useful to show how to implement a new data provider which doesn't follow the pxWebV2 standard.
 
-export default async function getTrafaTableContent(tableId: string, selection: ApiSelectionItem[], language?: string) {
+/**
+ * @param onFailure Called when the request failed transiently (network error, 429, 5xx)
+ */
+export default async function getTrafaTableContent(tableId: string, selection: ApiSelectionItem[], language?: string, onFailure?: UpstreamFailureReporter) {
   const searchQuery = getTrafaSearchQueryString(selection);
 
   const url = new URL('./data', ExternalDataset.Trafa.baseUrl);
@@ -40,11 +43,13 @@ export default async function getTrafaTableContent(tableId: string, selection: A
       data = await response.json() as TrafaDataResponse;
     } else {
       console.error("bad response", response);
+      if (isTransientStatus(response.status)) onFailure?.();
       return null;
     }
   }
   catch (err) {
     console.error("Error fetching table content from Trafa API", { err });
+    onFailure?.();
     return null;
   }
 

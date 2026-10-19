@@ -29,5 +29,19 @@ test.describe("parseDecimalInput", () => {
     expect(parseDecimalInput("1.2.3")).toBeNull();
     expect(parseDecimalInput("1,234.5")).toBeNull();
     expect(parseDecimalInput("Infinity")).toBeNull();
+    expect(parseDecimalInput("NaN")).toBeNull();
+  });
+
+  test("does not parse a number with trailing garbage as the leading digits", () => {
+    expect(parseDecimalInput("12abc")).toBeNull();
+    expect(parseDecimalInput("12 abc")).toBeNull();
+    expect(parseDecimalInput("1,5x")).toBeNull();
+    expect(parseDecimalInput("abc12")).toBeNull();
+  });
+
+  test("zero and negative zero parse as numbers, not null", () => {
+    expect(parseDecimalInput("0")).toBe(0);
+    expect(parseDecimalInput("-0")).toBe(-0);
+    expect(parseDecimalInput("0,0")).toBe(0);
   });
 });

@@ -108,7 +108,10 @@ export function getAllJSONFlattened(): Record<string, Record<string, string>> {
 
 /** Get every file where t might be implemented as an array of objects storing the file path and their content as text */
 export function getAllTSXFiles() {
-  const allTSXPaths = fs.globSync(["src/**/*.{tsx,ts}", "!scripts/**/*", "!src/prisma/generated/**/*", "!.prisma/**/*", "!src/.prisma/**/*", "!prisma/generated/**/*"]);
+  // Node's globSync has no "!pattern" negation; the generated Prisma client is skipped through `exclude`
+  const allTSXPaths = fs.globSync("src/**/*.{tsx,ts}", {
+    exclude: (entry: string) => /(^|[\\/])(\.prisma|prisma[\\/]generated)([\\/]|$)/.test(entry),
+  });
 
   return allTSXPaths.map(filePath => {
     const contentRaw = fs.readFileSync(filePath, "utf-8");

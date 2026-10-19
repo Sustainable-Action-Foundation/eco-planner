@@ -29,15 +29,16 @@ i18nServer.services.formatter?.add("possessive", possessive);
 i18nServer.services.formatter?.add("timeAgo", relativeTime);
 
 /**
- * An async function to serve the i18n instance for server components.
- * Should fix issues with i18n being desynchronized between server and client.
+ * A translator bound to the request's locale, for server components and route handlers.
+ * The i18next instance is shared by every request in the process, so its language is never
+ * switched here: a switch would leak into whatever else is rendering at the same time (pages
+ * that await the database between fetching their translator and using it). The request's
+ * locale is loaded into the shared store and fixed into the returned `t` instead.
  * @param ns - Any additional namespaces to load
  */
 export default async function serveTea(
   ns?: string | string[],
 ): Promise<TFunction> {
-  const lng = i18nServer.language;
-
   const [cookieContent, headerContent] = await Promise.all([
     cookies(),
     headers(),
@@ -47,13 +48,12 @@ export default async function serveTea(
     headerContent.get("accept-language"),
   );
 
-  if (locale !== lng) {
-    await i18nServer.changeLanguage(locale);
-  }
-
+  // Both loads are idempotent. The language goes first so that a namespace new to this
+  // process is loaded for it too (namespaces load for the preloaded languages).
+  await i18nServer.loadLanguages(locale);
   if (ns) {
     await i18nServer.loadNamespaces(ns);
   }
 
-  return i18nServer.t;
+  return i18nServer.getFixedT(locale);
 }

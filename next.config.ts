@@ -1,6 +1,7 @@
 import type { GlobalEnv } from "@/types";
 import type { NextConfig } from "next";
 import { execSync } from "node:child_process";
+import path from "node:path";
 import packageJSON from "./package.json" with { type: "json" };
 import { getCommitsAhead } from "@root/scripts/checkCommitsAhead";
 
@@ -30,6 +31,17 @@ const nextConfig: NextConfig = {
   } : {}),
   output: process.env.CI ? "standalone" : undefined,
   cacheComponents: true,
+  // Size of the in-memory LRU behind 'use cache' (Next's default handler; an entry counts the bytes
+  // of its serialized value plus its key). The default 50 MB is too small for this app: DB entries
+  // are per user (the access context is part of the key) and one big roadmap version with its
+  // goals' series is ~6.7 MB per user (fat seed, 531 goals), so a few users opening a few big
+  // roadmaps evicted everything else, org landings included (~0.15 MB per user and org). 256 MB
+  // holds ~35 such roadmap entries next to the small ones.
+  cacheMaxMemorySize: 256 * 1024 * 1024,
+  cacheHandlers: {
+    // `'use cache: upstream'`: external statistics persisted on disk across restarts (SAF_CACHE_DIR)
+    upstream: path.resolve("src/lib/cache/upstreamCacheHandler.mjs"),
+  },
 };
 
 export default nextConfig;

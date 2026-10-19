@@ -1,67 +1,79 @@
 import { expect, test } from "playwright/test";
+import type { Page } from "playwright/test";
 import path from "node:path";
 import { cwd } from "node:process";
+import { seedPlaces } from "../../scripts/prisma/seed/places";
+import { Seed } from "../lib/api";
+import { orgSwitcher } from "../lib/org-switcher";
+import { visible } from "../lib/forms";
 
-const adminFile = path.join(cwd(), "tests/.auth/admin.json");
+/*
+ * Guests are DISABLED until further notice: a GUEST membership must grant
+ * nothing. Greta is the seeded canary, a GUEST of "Sustainable Action" and a
+ * member of its group, which holds an RW grant on the public national roadmap
+ * and an RO grant on the org-shared regional one. anita, a plain member in the
+ * same group, is the positive control: what she sees, Greta must not. When
+ * guests come back, replace this suite with positive coverage.
+ * (The invite page 404 is in smoke.spec.ts, the guest APIs in tests/api.)
+ */
+
 const guestFile = path.join(cwd(), "tests/.auth/guest.json");
+const verifiedFile = path.join(cwd(), "tests/.auth/verified.json");
 
-// Guests are DISABLED until further notice (see "disabled until further notice"
-// in the source): GUEST memberships must grant nothing and the invite flow is
-// dead. Greta is the seeded canary: a GUEST in Sustainable Action AND a member
-// of Hållbarhetsgruppen, which holds an RW grant on the national roadmap and an
-// RO grant on the org-readable Uppsala roadmap. If guests ever leak access,
-// these tests catch it. When guests are re-enabled, this suite is expected to
-// fail and should be replaced with positive coverage.
+/** Org-shared roadmaps whose names contain "Uppsala": the regional one (RO grant to Greta's group) and Uppsala kommun's */
+const orgSharedUppsala = [Seed.regionalRoadmap, ...seedPlaces.filter(place => place.sharing === "ORG" && place.name.includes("Uppsala")).map(place => place.roadmapName)];
+
+/** The roadmap links of the visible start page */
+function roadmapLinks(page: Page, name: string | RegExp) {
+  return visible(page, "main").locator('a[href^="/roadmap/"]').filter({ hasText: name });
+}
+
+/** Opens the national roadmap's latest version through the public start page's search */
+async function openNationalRoadmap(page: Page) {
+  await page.goto(`/?org=public&searchFilter=${encodeURIComponent(Seed.nationalRoadmap)}`);
+  const link = roadmapLinks(page, Seed.nationalRoadmap).first();
+  await expect(link).toBeVisible();
+  await link.click();
+  await expect(page).toHaveURL(/\/roadmap\/[0-9a-f-]+\/v\d+$/, { timeout: 30_000 });
+  await expect(page.getByTestId("show-roadmap").filter({ visible: true })).toBeVisible({ timeout: 30_000 });
+}
 
 test.describe("Guests are disabled", () => {
   test.use({ storageState: guestFile });
 
-  test("A guest gets the public start page without org tabs", async ({ page }) => {
+  test("a guest gets the public start page without the org switcher", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByTestId("home-title")).toBeVisible();
-    // No org switcher, and the public image hero rather than an org landing
-    await expect(page.locator('nav[aria-label*="org_nav_label"]')).toHaveCount(0);
-    await expect(page.locator("main img").first()).toBeVisible();
+    // The roadmap search and the image hero only exist on the public view (an org landing has neither)
+    await expect(visible(page, "#roadmap-search-title")).toBeVisible();
+    await expect(visible(page, "main img").first()).toBeVisible();
+    await expect(orgSwitcher(page)).toHaveCount(0);
   });
 
-  test("Org-readable content stays hidden despite the group's RO grant", async ({ page }) => {
-    // Uppsala län is shared with the org (not public); Greta's group holds an RO grant on it
+  test("org-shared roadmaps stay hidden despite the group's RO grant", async ({ page }) => {
     await page.goto(`/?searchFilter=${encodeURIComponent("Uppsala")}`);
-    await expect(page.getByTestId("home-title")).toBeVisible();
-    await expect(page.getByRole("link", { name: /Uppsala/ })).toHaveCount(0);
+    await expect(page.getByTestId("home-title").filter({ visible: true })).toBeVisible();
+    // The search ran on the public view
+    await expect(visible(page, "#roadmap-search-title")).toBeVisible();
+    for (const name of orgSharedUppsala) {
+      await expect(roadmapLinks(page, name)).toHaveCount(0);
+    }
   });
 
-  test("The group's RW grant confers no edit access on public content", async ({ page }) => {
-    await page.goto(`/?searchFilter=${encodeURIComponent("Rikets färdplan")}`);
-    // Public content is still readable, like for any anonymous visitor
-    await page.getByRole("link", { name: "Rikets färdplan" }).first().click();
-    await expect(page).toHaveURL(/\/roadmap\/[a-zA-Z0-9-]+\/v\d+$/);
-    // ...but the RW grant through the group must not surface any admin controls
+  test("the group's RW grant confers no edit controls on public content", async ({ page }) => {
+    await openNationalRoadmap(page);
     await expect(page.getByTestId("admin-panel-edit")).toHaveCount(0);
-  });
-
-  test("Invite links dead-end in a 404", async ({ page }) => {
-    await page.goto("/invite/00000000-0000-0000-0000-000000000000");
-    await expect(page.getByText("404.title")).toBeVisible();
+    await expect(page.getByTestId("admin-panel-new-action")).toHaveCount(0);
   });
 });
 
-test.describe("Guest invite endpoints are dead", () => {
-  test.use({ storageState: adminFile });
+test.describe("Guest canary controls", () => {
+  test.use({ storageState: verifiedFile });
 
-  test("Even org managers cannot send, accept, or revoke invites", async ({ request }) => {
-    const send = await request.post("/api/guest-invite", { data: { orgId: "x", email: "a@b.se" } });
-    expect(send.status()).toBe(404);
-    const accept = await request.put("/api/guest-invite", { data: { token: "00000000-0000-0000-0000-000000000000" } });
-    expect(accept.status()).toBe(404);
-    const revoke = await request.delete("/api/guest-invite", { data: { token: "00000000-0000-0000-0000-000000000000" } });
-    expect(revoke.status()).toBe(404);
-  });
+  test("a member of the same group sees the org-shared roadmap and the edit controls", async ({ page }) => {
+    await page.goto(`/?org=public&searchFilter=${encodeURIComponent(Seed.regionalRoadmap)}`);
+    await expect(roadmapLinks(page, Seed.regionalRoadmap).first()).toBeVisible();
 
-  test("Signup enforces the domain allowlist with no invite bypass", async ({ request }) => {
-    const signup = await request.post("/api/signup", {
-      data: { username: "NotInvited", email: "not.invited@invite-test.example", password: "password1234" },
-    });
-    expect(signup.status()).toBe(400);
+    await openNationalRoadmap(page);
+    await expect(page.getByTestId("admin-panel-edit").filter({ visible: true })).toBeVisible();
   });
 });

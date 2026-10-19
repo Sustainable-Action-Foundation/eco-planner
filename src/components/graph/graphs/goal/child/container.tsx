@@ -8,7 +8,7 @@ import { percentAndFraction } from "../../../graphSelectors/graphSelector";
 import ChildGraphSelector from "../../../graphSelectors/childGraphSelector";
 import { useTranslation } from "react-i18next";
 import { IconChartAreaLineFilled, IconLink } from "@tabler/icons-react";
-import type { Goal } from "@/types";
+import type { Goal, RelatedGoal } from "@/types";
 import { ChildGraphType } from "@/types/enums";
 import styles from '../goal.module.css';
 
@@ -17,7 +17,7 @@ export default function ChildGraphContainer({
   childGoals,
 }: {
   goal: Goal;
-  childGoals: Goal[];
+  childGoals: RelatedGoal[];
 }) {
   const { t } = useTranslation("graphs");
 

@@ -4,6 +4,13 @@ import type { TrafaCompatHierarchy, TrafaCompatMetricDimension, TrafaCompatRegul
 /** The external datasets we know how to talk to. */
 export type DatasetKeys = "SCB" | "Trafa" | "SSB" | "STEM";
 
+/**
+ * Called by the external API cores when a request failed for a reason that may pass (network
+ * error, rate limit, server error), as opposed to the upstream answering that there is no such
+ * data. Cached callers use it to cache a failure only briefly.
+ */
+export type UpstreamFailureReporter = () => void;
+
 /** How to reach a single external dataset; see `ExternalDataset` in `./utility` for the instances. */
 export type DatasetData = {
   baseUrl: string,

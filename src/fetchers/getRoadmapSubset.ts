@@ -1,6 +1,7 @@
 import "server-only";
 import { multiRoadmapInclusionSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { roadmapIterationSorter } from "@/lib/sorters";
 import type { Prisma } from "@/lib/prisma/generated";
@@ -17,7 +18,7 @@ import { cacheTag } from "next/cache";
  */
 export async function getRoadmapSubset(actor?: string) {
   const accessContext = await getUserAccessContext();
-  return getCachedRoadmapSubset(accessContext, actor);
+  return uncachedFallback(() => getCachedRoadmapSubset(accessContext, actor), [], "Error fetching roadmap iteration subset");
 }
 
 // Also include the ids of goals and actions under the selected iterations
@@ -29,20 +30,18 @@ const roadmapSubsetSelect = {
 
 /**
  * Caches a subset of roadmap iterations the user has access to, based on the parameters passed to the function.
- * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap', 'roadmapIteration']`, which is done in relevant API routes.
+ * Cache is invalidated when `revalidateTag()` is called on one of its tags `['database', 'roadmap', 'roadmapIteration', 'goal', 'action', 'org']`, which is done in relevant API routes.
  * @param accessContext Requesting user's access context (null for anonymous visitors); part of the cache key.
  * @param actor Actor to filter by
  */
 async function getCachedRoadmapSubset(accessContext: UserAccessContext | null, actor?: string) {
   'use cache';
-  cacheTag('database', 'roadmap', 'roadmapIteration');
+  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action', 'org');
 
-  let iterations: Prisma.RoadmapIterationsGetPayload<{
-    include: typeof roadmapSubsetSelect;
-  }>[];
-
-  try {
-    iterations = await prisma.roadmapIterations.findMany({
+  return boundedFill("getCachedRoadmapSubset", async () => {
+    let iterations: Prisma.RoadmapIterationsGetPayload<{
+      include: typeof roadmapSubsetSelect;
+    }>[] = await prisma.roadmapIterations.findMany({
       where: {
         // AND avoids clobbering the `roadmap` key inside the visibility filter
         AND: [
@@ -52,13 +51,12 @@ async function getCachedRoadmapSubset(accessContext: UserAccessContext | null, a
       },
       include: roadmapSubsetSelect,
     });
-  }
-  catch (err) {
-    console.error("Error fetching roadmap iteration subset", { err });
-    return [];
-  }
 
-  iterations.sort(roadmapIterationSorter);
+    // Prisma loads the roadmaps in a second query, so a roadmap deleted in between leaves
+    // its iteration without one (despite the type); drop those instead of crashing the sort
+    iterations = iterations.filter(iteration => (iteration.roadmap as typeof iteration.roadmap | null) !== null);
+    iterations.sort(roadmapIterationSorter);
 
-  return iterations;
+    return iterations;
+  });
 };

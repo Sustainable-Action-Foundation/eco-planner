@@ -40,7 +40,13 @@ const TextEditor = ({
   }, [content]);
 
   const editor = useEditor({
-    immediatelyRender: true,
+    // Create the editor in an effect, not during render. There is no server-side editor
+    // anyway (tiptap disables immediate rendering under SSR), and an editor created during
+    // render is destroyed by tiptap's one-millisecond "was it mounted?" timer whenever
+    // React's passive effects are late (busy machine, hydration). The replacement editor
+    // then appends the stored content after whatever was typed meanwhile, and `updater`
+    // callbacks fired by the destroyed instance are lost.
+    immediatelyRender: false,
     editable,
     onUpdate: ({ editor }) => {
       if (updater) updater(editor.getJSON());

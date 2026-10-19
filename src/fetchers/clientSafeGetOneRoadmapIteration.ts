@@ -2,6 +2,7 @@
 
 import { clientSafeRoadmapIterationSelection } from "@/fetchers/inclusionSelectors";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
+import { boundedFill, uncachedFallback } from "@/fetchers/cacheFallback";
 import { visibleRoadmapIterationsWHERE } from "@/lib/accessFilters";
 import { goalSorter } from "@/lib/sorters";
 import { prisma } from "@/lib/prisma";
@@ -17,16 +18,15 @@ import { cacheTag } from "next/cache";
  */
 export async function clientSafeGetOneRoadmapIteration(id: string): Promise<ClientRoadmapIteration | null> {
   const accessContext = await getUserAccessContext();
-  return getCachedClientSafeRoadmapIteration(id, accessContext);
+  return uncachedFallback(() => getCachedClientSafeRoadmapIteration(id, accessContext), null, "Error fetching roadmap iteration", { id });
 }
 
 async function getCachedClientSafeRoadmapIteration(id: string, accessContext: UserAccessContext | null): Promise<ClientRoadmapIteration | null> {
   'use cache';
-  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action');
+  cacheTag('database', 'roadmap', 'roadmapIteration', 'goal', 'action', 'dataSeries');
 
-  let iteration: ClientRoadmapIteration | null;
-  try {
-    iteration = await prisma.roadmapIterations.findUnique({
+  return boundedFill("getCachedClientSafeRoadmapIteration", async () => {
+    const iteration: ClientRoadmapIteration | null = await prisma.roadmapIterations.findUnique({
       where: {
         // Spread first: the filter type has an optional `id` that would otherwise widen the unique key
         ...visibleRoadmapIterationsWHERE(accessContext),
@@ -34,13 +34,9 @@ async function getCachedClientSafeRoadmapIteration(id: string, accessContext: Us
       },
       select: clientSafeRoadmapIterationSelection,
     }) satisfies ClientRoadmapIteration | null;
-  }
-  catch (err) {
-    console.error("Error fetching roadmap iteration", { err });
-    return null;
-  }
 
-  iteration?.goals.sort(goalSorter);
+    iteration?.goals.sort(goalSorter);
 
-  return iteration;
+    return iteration;
+  });
 }
