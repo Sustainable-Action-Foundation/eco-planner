@@ -88,9 +88,10 @@ test.describe("POST /api/login-link", () => {
     expect((await outbox(request, email))?.sentAt, "no 4th mail").toBe(last);
   });
 
-  test("the per-IP throttle keys on the first X-Forwarded-For hop", async ({ request, playwright, baseURL }, testInfo) => {
+  test("the per-IP throttle keys on the last X-Forwarded-For hop (the one the proxy appends)", async ({ request, playwright, baseURL }, testInfo) => {
     const ip = uniqueIp(testInfo.workerIndex);
-    const sameIp = await freshContext(playwright, baseURL, testInfo.workerIndex, `${ip}, 10.0.0.1`);
+    // A client-supplied first hop must not become the key: the prod proxy appends the real address after it
+    const sameIp = await freshContext(playwright, baseURL, testInfo.workerIndex, `203.0.113.7, ${ip}`);
     try {
       const mailed: string[] = [];
       for (let i = 0; i < 11; i++) {

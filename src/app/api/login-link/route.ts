@@ -26,7 +26,7 @@ import type { JSONValue } from "@/types";
 
 /** Per address: a burst of 3, then about one link per 5 minutes */
 const EMAIL_BUDGET = { capacity: 3, refillPerSecond: 1 / 300 } as const;
-/** Per client IP (first hop of X-Forwarded-For): a burst of 10, then about one per minute */
+/** Per client IP (last hop of X-Forwarded-For): a burst of 10, then about one per minute */
 const IP_BUDGET = { capacity: 10, refillPerSecond: 1 / 60 } as const;
 
 const genericMessage = "If this address can sign in, a login link has been sent to it";
@@ -55,10 +55,11 @@ export async function POST(request: NextRequest) {
 
   // Throttle silently: an over-budget request gets the same answer and sends nothing,
   // so the throttle itself can't be used to tell real addresses from fake ones.
-  // Next fills X-Forwarded-For from the socket when the client sends none, so behind the
-  // TLS proxy the first hop is whatever the proxy puts there (verify it overwrites a
-  // client-supplied header; otherwise this bucket is bypassable and only the per-address one holds).
-  const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  // The prod nginx appends the connecting address to any X-Forwarded-For the client sent
+  // ($proxy_add_x_forwarded_for), so the last hop is the one the proxy saw and the first
+  // is whatever the client typed; Next fills the header from the socket when there is
+  // none. Only a request that reaches the app port without the proxy can spoof the last hop.
+  const clientIp = request.headers.get("x-forwarded-for")?.split(",").pop()?.trim();
   if (!consumeToken(`login-link:email:${email}`, EMAIL_BUDGET)) {
     return generic();
   }
