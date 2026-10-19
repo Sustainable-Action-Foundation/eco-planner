@@ -2805,15 +2805,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bcryptjs@npm:^3.0.3":
-  version: 3.0.3
-  resolution: "bcryptjs@npm:3.0.3"
-  bin:
-    bcrypt: bin/bcrypt
-  checksum: 10c0/127c94699f07eab5fbbb89d600c3f0e36ae6fd001e028139740b41fffb62a23a2743523fb88f442ae3308a27d4843b97ccb9e436d78f5c5899be187d0972c6d5
-  languageName: node
-  linkType: hard
-
 "better-result@npm:^2.7.0":
   version: 2.9.0
   resolution: "better-result@npm:2.9.0"
@@ -3401,7 +3392,6 @@ __metadata:
     "@types/react-dom": "npm:^19.2.4"
     accept-language: "npm:^3.0.20"
     apexcharts: "npm:^6.8.0"
-    bcryptjs: "npm:^3.0.3"
     client-only: "npm:^0.0.1"
     cookies-next: "npm:^6.1.1"
     dotenv: "npm:^17.4.2"

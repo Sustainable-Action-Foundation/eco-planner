@@ -187,34 +187,4 @@ test.describe("PATCH /api/login-link", () => {
     const again = await requestLink(request, email);
     expect(again.mail.subject, "now an existing user").toContain("login.subject");
   });
-
-  test("a link-created account has no password: password login is refused like any bad login", async ({ request, playwright, baseURL }, testInfo) => {
-    const email = await newLinkUser(playwright, baseURL, testInfo.workerIndex, "nopassword");
-    const username = email.split("@")[0];
-    for (const password of ["", "anything", "null"]) {
-      const login = await request.post("/api/login", { data: { username, password } });
-      expect(login.status(), JSON.stringify(password)).toBe(400);
-    }
-    expect(await sessionCookie(request)).toBeUndefined();
-  });
-
-  test("a link also verifies a user who never clicked their verification mail", async ({ request }) => {
-    // A password signup is unverified until its mail is followed; a login link proves the address just as well
-    const email = uniqueEmail("unverified");
-    const username = email.split("@")[0];
-    const password = "password1234";
-    const signup = await request.post("/api/signup", { data: { username, email, password } });
-    expect(signup.status(), await signup.text()).toBe(200);
-    expect((await request.post("/api/login", { data: { username, password } })).status(), "unverified: no password login yet").toBe(400);
-
-    const { token } = await requestLink(request, email);
-    const response = await redeem(request, token);
-    expect(response.status(), await response.text()).toBe(200);
-    expect(await sessionCookie(request), "logged in").toBeTruthy();
-
-    // Verified by the link: the password now works too
-    const fresh = await request.post("/api/logout");
-    expect(fresh.status()).toBe(200);
-    expect((await request.post("/api/login", { data: { username, password } })).status(), "verified").toBe(200);
-  });
 });

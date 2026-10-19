@@ -30,7 +30,7 @@ async function landingLikeCount(request: APIRequestContext, url: string, goalId:
 
 test("liking and unliking are idempotent and report the count", async ({ admin, sandbox, playwright, baseURL }) => {
   const goalId = await createGoal(admin, sandbox.iterationId, { name: `Liked ${sandbox.label}` });
-  const anita = await requestAs(playwright, baseURL, Seed.anita.username, Seed.anita.password);
+  const anita = await requestAs(playwright, baseURL, Seed.anita.username);
   try {
     expect(await like(anita, goalId, "post")).toMatchObject({ liked: true, likeCount: 1 });
     expect(await like(anita, goalId, "post"), "a second like does not double count").toMatchObject({ liked: true, likeCount: 1 });
@@ -47,7 +47,7 @@ test("liking and unliking are idempotent and report the count", async ({ admin, 
 test("a like needs a session, a body and a visible goal", async ({ admin, sandbox, playwright, baseURL }) => {
   const goalId = await createGoal(admin, sandbox.iterationId, { name: `Unlikeable ${sandbox.label}` });
   const anonymous = await requestAs(playwright, baseURL);
-  const orgless = await requestAs(playwright, baseURL, Seed.orgless.username, Seed.orgless.password);
+  const orgless = await requestAs(playwright, baseURL, Seed.orgless.username);
   try {
     for (const method of ["post", "delete"] as const) {
       const response = await anonymous[method]("/api/goal-like", { data: { goalId } });
@@ -71,8 +71,8 @@ test("a like needs a session, a body and a visible goal", async ({ admin, sandbo
 test("the org landing counts likes in the org's county", async ({ admin, sandbox, playwright, baseURL }) => {
   // A public goal so members of the place orgs can see it
   const roadmapId = await createRoadmap(admin, sandbox.orgId, { name: `Public ${sandbox.label}`, access: { sharing: "PUBLIC", grants: [] } });
-  const maja = await requestAs(playwright, baseURL, memberSlug("Maja Sandberg"), Seed.memberPassword); // Bodens kommun (Norrbotten)
-  const lars = await requestAs(playwright, baseURL, memberSlug("Lars Niia"), Seed.memberPassword); // Kiruna kommun (Norrbotten)
+  const maja = await requestAs(playwright, baseURL, memberSlug("Maja Sandberg")); // Bodens kommun (Norrbotten)
+  const lars = await requestAs(playwright, baseURL, memberSlug("Lars Niia")); // Kiruna kommun (Norrbotten)
   try {
     const iterationId = await createIteration(admin, roadmapId);
     const goalId = await createGoal(admin, iterationId, { name: `Scoped ${sandbox.label}` });

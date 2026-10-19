@@ -1,82 +1,91 @@
-import { expect, test } from "playwright/test";
-import type { APIRequestContext, Page, TestInfo } from "playwright/test";
-import { loginAs, Seed, SESSION_COOKIE, uniqueLabel } from "../lib/api";
+import { expect, test as base } from "playwright/test";
+import type { APIRequestContext, Page } from "playwright/test";
+import { loginAs, Seed, SESSION_COOKIE } from "../lib/api";
+import { linkPlace, outbox, requestLink, tokenIn, uniqueEmail, uniqueIp } from "../lib/login-link";
 import { visible } from "../lib/forms";
 
 /*
- * Browser auth flows: the login form, logout, signup through the mailed
- * verification link, and the mailed password reset. Every test starts without
+ * Browser auth flows: requesting a login link from /login and /signup, the
+ * /login/link interstitial that redeems it, and logout. Every test starts without
  * stored state (the setup project's states are for the other specs).
  *
- * Mail never leaves the test server: under TEST_ENVIRONMENT=testing the mail
- * client is a no-op and `/api/test/mail-token` hands out the hash the mail
- * would have carried. Signed-up users cannot be deleted through the API, so
- * each run leaves one `e2e-*@boden.se` user behind (unique per project, retry
- * and run).
+ * Mail never leaves the test server: under TEST_ENVIRONMENT=testing the mail client
+ * records the last mail per address and /api/test/outbox hands it back. Link-created
+ * users cannot be deleted through the API, so each run leaves a few `e2e-*@boden.se`
+ * users behind (unique per project, retry and run).
+ *
+ * The link route throttles per client IP, and every browser here would otherwise
+ * share the test server's view of one address, so each test's context presents its
+ * own X-Forwarded-For (see tests/lib/login-link.ts).
  */
+
+const test = base.extend({
+  context: async ({ context }, use, testInfo) => {
+    await context.setExtraHTTPHeaders({ "x-forwarded-for": uniqueIp(testInfo.workerIndex) });
+    await use(context);
+  },
+});
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
 /** Seeded place whose domain is both allowlisted and owned by an org (scripts/prisma/seed/places.ts) */
-const place = { orgName: "Bodens kommun", domain: "boden.se" };
+const place = linkPlace;
 /** A domain outside src/lib/allowedDomains.ts */
 const strangerDomain = "example.com";
-
-/** uniqueLabel() with the characters a username may not contain folded away (src/functions/username.ts) */
-function uniqueUsername(testInfo: TestInfo): string {
-  return uniqueLabel(testInfo, "e2e").toLowerCase().replace(/[^\p{L}\p{N}._-]+/gu, "-");
-}
 
 async function sessionCookie(page: Page) {
   return (await page.context().cookies()).find(cookie => cookie.name === SESSION_COOKIE);
 }
 
-/** Fills the login form and submits it; resolves with the `/api/login` status. */
-async function submitLogin(page: Page, username: string, password: string, remember = false): Promise<number> {
-  await visible(page, "#username").fill(username);
-  await visible(page, "#password").fill(password);
+/** Days until the session cookie expires */
+function daysLeft(expires: number | undefined): number {
+  return ((expires ?? -1) - Date.now() / 1000) / (24 * 60 * 60);
+}
+
+/** Fills the email form on the current page and submits it; resolves with the `/api/login-link` status. */
+async function submitEmail(page: Page, email: string, remember = false): Promise<number> {
+  await visible(page, "#email").fill(email);
   if (remember) await visible(page, "#remember").check();
-  const response = page.waitForResponse(res => res.url().endsWith("/api/login") && res.request().method() === "POST");
+  const response = page.waitForResponse(res => res.url().endsWith("/api/login-link") && res.request().method() === "POST");
   await visible(page, "#submit-button").click();
   return (await response).status();
 }
 
-/** The inline error box under the login form; it is always in the DOM and fades in on failure */
+/** The "check your inbox" panel that replaces the form after a request */
+function sentPanel(page: Page) {
+  return page.getByTestId("login-link-sent").filter({ visible: true });
+}
+
+/** The inline error box under the form; it is always in the DOM and fades in on failure */
 function loginError(page: Page) {
   return page.getByTestId("login-error-message").filter({ visible: true });
 }
 
-/**
- * The hash a verification/reset mail would have linked to, from the test-only
- * route (gated on TEST_ENVIRONMENT=testing). Mail is a no-op in that env, so
- * this is the only way the browser flow gets at the token.
- */
-async function mailToken(request: APIRequestContext, email: string): Promise<string> {
-  const response = await request.get(`/api/test/mail-token?email=${encodeURIComponent(email)}`);
-  expect(response.status(), `mail token for ${email}: ${await response.text()}`).toBe(200);
-  const body = await response.json() as { hash?: string, token?: string };
-  const hash = body.hash ?? body.token;
-  expect(typeof hash, "mail token body").toBe("string");
-  return hash ?? "";
+/** Waits for a mail to `email` newer than `after` and returns the token in it */
+async function mailedToken(request: APIRequestContext, email: string, after?: string): Promise<{ token: string, subject: string }> {
+  let subject = "";
+  let token: string | null = null;
+  await expect.poll(async () => {
+    const mail = await outbox(request, email);
+    if (mail && mail.sentAt !== after) {
+      subject = mail.subject;
+      token = tokenIn(mail);
+    }
+    return token;
+  }, { message: `a login link mailed to ${email}`, timeout: 15_000 }).toBeTruthy();
+  return { token: token ?? "", subject };
 }
 
-/** Captures the next `alert()`; the signup form reports rejections that way */
-function nextAlert(page: Page): Promise<string> {
-  return new Promise(resolve => page.once("dialog", dialog => {
-    const message = dialog.message();
-    dialog.dismiss().then(() => resolve(message)).catch(() => resolve(message));
-  }));
-}
-
-/** Submits the signup form; resolves with the `/api/signup` response. */
-async function submitSignup(page: Page, user: { username: string, email: string, password: string }) {
-  await page.goto("/signup");
-  await visible(page, "#username").fill(user.username);
-  await visible(page, "#email").fill(user.email);
-  await visible(page, "#password").fill(user.password);
-  const response = page.waitForResponse(res => res.url().endsWith("/api/signup") && res.request().method() === "POST");
-  await visible(page, "#submit-button").click();
-  return await response;
+/** Opens the mailed link and clicks through the interstitial; resolves with the PATCH status. */
+async function redeemInBrowser(page: Page, token: string): Promise<number> {
+  await page.goto(`/login/link#t=${token}`);
+  const button = page.getByRole("button", { name: "login_link.submit" }).filter({ visible: true });
+  await expect(button).toBeVisible();
+  // The token is scrubbed from the address bar before anything else happens
+  expect(page.url()).not.toContain("#");
+  const response = page.waitForResponse(res => res.url().endsWith("/api/login-link") && res.request().method() === "PATCH");
+  await button.click();
+  return (await response).status();
 }
 
 test.describe("Login form", () => {
@@ -84,64 +93,107 @@ test.describe("Login form", () => {
     await page.goto("/login");
   });
 
-  test("empty submit is stopped by the required fields", async ({ page }) => {
+  test("empty submit is stopped by the required field", async ({ page }) => {
     let requests = 0;
-    page.on("request", request => { if (request.url().endsWith("/api/login")) requests++; });
+    page.on("request", request => { if (request.url().endsWith("/api/login-link")) requests++; });
 
     await visible(page, "#submit-button").click();
 
     await expect.poll(() => page.locator("form:invalid").filter({ visible: true }).count()).toBeGreaterThan(0);
-    await expect(visible(page, "#username:invalid")).toHaveCount(1);
+    await expect(visible(page, "#email:invalid")).toHaveCount(1);
     // Nothing reached the API, so the inline error stays faded out
     await expect(loginError(page)).toHaveClass(/opacity-0/);
     expect(requests).toBe(0);
   });
 
-  test("wrong password shows the inline error", async ({ page }) => {
-    expect(await submitLogin(page, Seed.anita.username, "not-the-password")).toBe(400);
+  test("an address the server cannot use shows the inline error", async ({ page }) => {
+    // Browsers accept "a@b" as an email; the route wants a dot after the @
+    expect(await submitEmail(page, "nobody@localhost")).toBe(400);
 
     await expect(loginError(page)).toHaveClass(/opacity-1/);
-    await expect(loginError(page)).toHaveText(/login\.invalid_credentials/);
-    await expect(page.getByTestId("logout-button")).toHaveCount(0);
+    await expect(loginError(page)).toHaveText(/login\.invalid_email/);
+    await expect(sentPanel(page)).toHaveCount(0);
     expect(await sessionCookie(page)).toBeUndefined();
   });
 
-  test("unverified user cannot log in", async ({ page }) => {
-    expect(await submitLogin(page, Seed.anton.username, Seed.anton.password)).toBe(400);
-
-    await expect(loginError(page)).toHaveClass(/opacity-1/);
-    await expect(loginError(page)).toHaveText(/login\.invalid_credentials/);
+  test("the inbox panel reads the same for an allowlisted stranger and an unknown domain", async ({ page }) => {
+    const stranger = uniqueEmail("e2e-stranger", strangerDomain);
+    expect(await submitEmail(page, stranger)).toBe(200);
+    await expect(sentPanel(page)).toBeVisible();
+    await expect(sentPanel(page).getByRole("status")).toContainText(stranger);
+    // Nothing was logged in, nothing was mailed (a control request settles the route's deferred work first)
     expect(await sessionCookie(page)).toBeUndefined();
+    await requestLink(page.request, uniqueEmail("e2e-settle"));
+    expect(await outbox(page.request, stranger), "no mail outside the allowlist").toBeNull();
+
+    // Back to the form, prefilled, for the next address
+    await sentPanel(page).getByRole("button", { name: "login.other_address" }).click();
+    await expect(visible(page, "#email")).toHaveValue(stranger);
+    await visible(page, "#email").clear();
+    const newcomer = uniqueEmail("e2e-newcomer");
+    expect(await submitEmail(page, newcomer)).toBe(200);
+    await expect(sentPanel(page).getByRole("status")).toContainText(newcomer);
+    const { subject } = await mailedToken(page.request, newcomer);
+    expect(subject, "a first-time address gets the welcome mail").toContain("welcome.subject");
   });
+});
 
-  test("successful login shows the logout button with a 30-day session cookie", async ({ page }) => {
-    expect(await submitLogin(page, Seed.anita.username, Seed.anita.password)).toBe(200);
+test("the link page needs the token from the mail", async ({ page }) => {
+  await page.goto("/login/link");
+  await expect(page.getByTestId("login-link-error").filter({ visible: true })).toHaveText(/login_link\.missing/);
+  await expect(page.getByRole("link", { name: "login_link.back_to_login" }).filter({ visible: true })).toHaveAttribute("href", "/login");
+});
 
-    await expect(page.getByTestId("logout-button").filter({ visible: true })).toBeVisible();
+test.describe.serial("An account through a link", () => {
+  // One throwaway user per project/retry/run; it stays in the DB (no delete API for users)
+  const email = uniqueEmail("e2e-link");
+
+  test("signup mails a welcome link that creates the account and lands in the place org", async ({ page }) => {
+    await page.goto("/signup");
+    await expect(page.getByRole("heading", { level: 1 }).filter({ visible: true })).toHaveText("signup.create_account");
+    expect(await submitEmail(page, email)).toBe(200);
+    await expect(sentPanel(page)).toBeVisible();
+    const { token, subject } = await mailedToken(page.request, email);
+    expect(subject).toContain("welcome.subject");
+
+    expect(await redeemInBrowser(page, token)).toBe(200);
     await expect(page).toHaveURL("/");
-    const cookie = await sessionCookie(page);
-    expect(cookie).toBeDefined();
+    await expect(page.getByTestId("logout-button").filter({ visible: true })).toBeVisible();
     // Without "remember me" the login lasts 30 days (src/lib/session.ts)
-    const daysLeft = ((cookie?.expires ?? -1) - Date.now() / 1000) / (24 * 60 * 60);
-    expect(daysLeft).toBeGreaterThan(29);
-    expect(daysLeft).toBeLessThanOrEqual(31);
+    const cookie = await sessionCookie(page);
+    expect(daysLeft(cookie?.expires)).toBeGreaterThan(29);
+    expect(daysLeft(cookie?.expires)).toBeLessThanOrEqual(31);
+
+    // Auto-joined by email domain: the start page is the place's org landing
+    await expect(page.getByTestId("home-title").filter({ visible: true })).toHaveText(place.orgName);
+    await expect(page.locator('nav[aria-label*="org_nav_label"]').filter({ visible: true }).getByRole("link", { name: place.orgName })).toBeVisible();
+
+    // The link was spent by the redemption
+    expect(await redeemInBrowser(page, token)).toBe(400);
+    await expect(page.getByTestId("login-link-error").filter({ visible: true })).toHaveText(/login_link\.invalid/);
   });
 
-  test("remember me sets an expiring cookie", async ({ page }) => {
-    expect(await submitLogin(page, Seed.anita.username, Seed.anita.password, true)).toBe(200);
+  test("logging in again with remember me and a from= target", async ({ page }) => {
+    // Anonymous visitors to a create page are sent to /login with the page as from=
+    await page.goto("/roadmap/create");
+    await expect(page).toHaveURL(/\/login\?from=%2Froadmap%2Fcreate/);
+    await expect(page.getByRole("heading", { level: 1 }).filter({ visible: true })).toHaveText("tsx.login");
 
+    const before = (await outbox(page.request, email))?.sentAt;
+    expect(await submitEmail(page, email, true)).toBe(200);
+    const { token, subject } = await mailedToken(page.request, email, before);
+    expect(subject, "an existing user gets the login mail").toContain("login.subject");
+
+    expect(await redeemInBrowser(page, token)).toBe(200);
+    await expect(page).toHaveURL("/roadmap/create");
     await expect(page.getByTestId("logout-button").filter({ visible: true })).toBeVisible();
-    const cookie = await sessionCookie(page);
-    expect(cookie).toBeDefined();
-    // /api/login sets maxAge to a year; allow for clock drift and a slow run
-    const daysLeft = ((cookie?.expires ?? 0) - Date.now() / 1000) / (24 * 60 * 60);
-    expect(daysLeft).toBeGreaterThan(300);
-    expect(daysLeft).toBeLessThanOrEqual(366);
+    // Remembered: the cookie lasts a year
+    expect(daysLeft((await sessionCookie(page))?.expires)).toBeGreaterThan(300);
   });
 });
 
 test("logout removes the session cookie and the start page offers login again", async ({ page }) => {
-  await loginAs(page.request, Seed.anita.username, Seed.anita.password);
+  await loginAs(page.request, Seed.anita.username);
   await page.goto("/");
   expect(await sessionCookie(page)).toBeDefined();
 
@@ -155,127 +207,4 @@ test("logout removes the session cookie and the start page offers login again", 
   await expect.poll(() => sessionCookie(page)).toBeUndefined();
   // The public start page, not an org landing
   await expect(page.getByTestId("home-title").filter({ visible: true })).toHaveText("home.title");
-});
-
-test.describe("Signup rejections", () => {
-  test("duplicate username is rejected", async ({ page }, testInfo) => {
-    const alert = nextAlert(page);
-    const response = await submitSignup(page, {
-      username: Seed.anita.username,
-      email: `${uniqueUsername(testInfo)}@${place.domain}`,
-      password: "password",
-    });
-
-    expect(response.status()).toBe(400);
-    expect((await response.json() as { message: string }).message).toContain("already taken");
-    expect(await alert).toContain("signup.signup_failed_motivated");
-    await expect(page).toHaveURL("/signup");
-  });
-
-  test("email outside the allowlist is rejected", async ({ page }, testInfo) => {
-    const username = uniqueUsername(testInfo);
-    const alert = nextAlert(page);
-    const response = await submitSignup(page, {
-      username,
-      email: `${username}@${strangerDomain}`,
-      password: "password",
-    });
-
-    expect(response.status()).toBe(400);
-    expect((await response.json() as { message: string }).message).toContain("not allowed");
-    expect(await alert).toContain("signup.signup_failed_motivated");
-    await expect(page).toHaveURL("/signup");
-
-    // Nothing was created: the username is still free for the API
-    const retry = await page.request.post("/api/login", { data: { username, password: "password" } });
-    expect(retry.status()).toBe(400);
-  });
-});
-
-test.describe.serial("Signup, verification and password reset", () => {
-  // One throwaway user per project/retry/run; it stays in the DB (no delete API for users)
-  const user = { username: "", email: "", password: "first-password", newPassword: "second-password" };
-
-  test.beforeAll(({ }, testInfo) => {
-    user.username = uniqueUsername(testInfo);
-    user.email = `${user.username}@${place.domain}`;
-  });
-
-  test("signup creates an unverified user and lands on the verify page", async ({ page }) => {
-    const response = await submitSignup(page, user);
-    expect(response.status(), await response.text()).toBe(200);
-    expect((await response.json() as { message: string }).message).toBe("User created");
-
-    await expect(page).toHaveURL("/verify");
-    await expect(page.getByRole("heading", { level: 1 }).filter({ visible: true })).toHaveText("verify.title");
-
-    // Unverified until the mailed link is followed
-    const login = await page.request.post("/api/login", { data: { username: user.username, password: user.password } });
-    expect(login.status()).toBe(400);
-  });
-
-  test("duplicate email is rejected", async ({ page }, testInfo) => {
-    const alert = nextAlert(page);
-    const response = await submitSignup(page, { username: `${uniqueUsername(testInfo)}-dupe`, email: user.email, password: "password" });
-
-    expect(response.status()).toBe(400);
-    expect((await response.json() as { message: string }).message).toContain("already in use");
-    expect(await alert).toContain("signup.signup_failed_motivated");
-  });
-
-  test("the verification link verifies the user, who lands in the place org", async ({ page }) => {
-    const hash = await mailToken(page.request, user.email);
-    // The link as src/app/api/signup/route.ts mails it (public/locales/*/email.json)
-    await page.goto(`/verify/confirm?email=${encodeURIComponent(user.email)}&hash=${hash}`);
-
-    const verify = page.waitForResponse(res => res.url().endsWith("/api/verify") && res.request().method() === "PATCH");
-    await page.getByRole("button", { name: "verify_confirm.submit" }).filter({ visible: true }).click();
-    expect((await verify).status()).toBe(200);
-    // formSubmitter follows the Location header
-    await expect(page).toHaveURL("/login");
-
-    expect(await submitLogin(page, user.username, user.password)).toBe(200);
-    await expect(page.getByTestId("logout-button").filter({ visible: true })).toBeVisible();
-
-    // Auto-joined by email domain: the start page is the place's org landing
-    await expect(page.getByTestId("home-title").filter({ visible: true })).toHaveText(place.orgName);
-    await expect(page.locator('nav[aria-label*="org_nav_label"]').filter({ visible: true }).getByRole("link", { name: place.orgName })).toBeVisible();
-  });
-
-  test("the reset link sets a new password that logs in", async ({ page }) => {
-    // The form only submits through its React onSubmit: a click that lands before hydration
-    // (seen on Firefox) does a native submit instead, so retry until the request goes out.
-    // A second request only mints a newer token, and mailToken reads the latest one.
-    let status = 0;
-    await expect(async () => {
-      await page.goto("/password");
-      await visible(page, "#email").fill(user.email);
-      const request = page.waitForResponse(res => res.url().endsWith("/api/password") && res.request().method() === "POST", { timeout: 5_000 });
-      await page.getByRole("button", { name: "password.submit" }).filter({ visible: true }).click();
-      status = (await request).status();
-    }).toPass({ timeout: 45_000 });
-    expect(status).toBe(200);
-
-    const hash = await mailToken(page.request, user.email);
-    // The request form reloads /password after the 200 (formSubmitter follows Location),
-    // which would cut off a navigation here; follow the link in a tab of its own
-    const resetPage = await page.context().newPage();
-    // Same hydration race as above; a retry only happens when no request went out, so the token is still unused
-    let resetStatus = 0;
-    await expect(async () => {
-      await resetPage.goto(`/password/reset?email=${encodeURIComponent(user.email)}&hash=${hash}`);
-      await visible(resetPage, "#password").fill(user.newPassword);
-      const reset = resetPage.waitForResponse(res => res.url().endsWith("/api/password") && res.request().method() === "PATCH", { timeout: 5_000 });
-      await resetPage.getByRole("button", { name: "password_reset.submit" }).filter({ visible: true }).click();
-      resetStatus = (await reset).status();
-    }).toPass({ timeout: 45_000 });
-    expect(resetStatus).toBe(200);
-    await expect(resetPage).toHaveURL("/login");
-
-    // The old password is gone, the new one works
-    const stale = await resetPage.request.post("/api/login", { data: { username: user.username, password: user.password } });
-    expect(stale.status()).toBe(400);
-    expect(await submitLogin(resetPage, user.username, user.newPassword)).toBe(200);
-    await expect(resetPage.getByTestId("logout-button").filter({ visible: true })).toBeVisible();
-  });
 });

@@ -1,4 +1,4 @@
-import Signup from "@/components/form/forms/signup";
+import Login from "@/components/form/forms/login";
 import AttributedImage, { AttributeText } from "@/components/generic/images/attributedImage";
 import styles from "./page.module.css" with { type: "css" };
 import { Breadcrumb } from "@/components/breadcrumbs/breadcrumb";
@@ -24,7 +24,7 @@ export default async function Page() {
       <Breadcrumb customSections={[t("pages:signup.breadcrumb")]} />
 
       <main className={`${styles.gridLayout} container margin-auto padding-block-500 grid gap-300 align-items-center`}>
-        <Signup />
+        <Login variant="signup" />
         <div className={`${styles.image} position-relative width-100 rounded overflow-hidden`}>
           <AttributedImage src="/images/hydro.jpg" alt="" sizes="(max-width: 1250px) 100vw, 555px">
             <div className="width-100 padding-100">

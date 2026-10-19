@@ -68,10 +68,6 @@
 
 /* Login/Signup forms */
 
-.showPasswordButton:hover {
-  box-shadow: initial;
-}
-
 .padding {
   padding-right: 3rem;
 

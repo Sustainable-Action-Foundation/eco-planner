@@ -25,7 +25,9 @@ export default function LoginLinkButton() {
       setState({ kind: "ready", token });
     }
     else {
-      setState({ kind: "missing" });
+      // Only a first look without a token means "missing": React may run this effect again
+      // (dev strict mode) after the hash has already been scrubbed above
+      setState(previous => previous.kind === "loading" ? { kind: "missing" } : previous);
     }
   }, []);
 

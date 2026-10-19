@@ -4,12 +4,6 @@
     "short_title": "Eco - planner",
     "description": "Ett verktyg som stödjer Sveriges klimatomställning genom lokala handlingsplaner, gemensam åtgärdsdatabas och samarbete kring färdplaner."
   },
-  "verify_confirm": {
-    "description": "Verifiera din e‑postadress"
-  },
-  "password_reset": {
-    "description": "Uppdatera lösenord"
-  },
   "signup": {
     "title": "Skapa konto",
     "description": "Skapa ett konto hos Eco - planner"

@@ -241,20 +241,6 @@
     "invalid": "Länken är ogiltig eller har gått ut. Begär en ny inloggningslänk.",
     "back_to_login": "Till inloggningen"
   },
-  "password": {
-    "breadcrumb": "Återställ lösenord",
-    "description": "Har du glömt ditt lösenord? Fyll i din e‑postadress här så skickar vi ett e‑postmeddelande med instruktioner för att återställa lösenordet.",
-    "input_label": "E-post",
-    "submit": "Skicka",
-    "title": "Återställ lösenord"
-  },
-  "password_reset": {
-    "breadcrumb": "Uppdatera lösenord",
-    "description": "Fyll i ditt nya lösenord nedan och klicka på knappen för att uppdatera ditt lösenord.",
-    "password": "Nytt lösenord",
-    "submit": "Byt lösenord",
-    "title": "Uppdatera lösenord"
-  },
   "profile": {
     "my_posts": "Mina inlägg",
     "roadmaps": "$t(common:roadmap_other, titleCase)",
@@ -296,19 +282,6 @@
   },
   "signup": {
     "breadcrumb": "Skapa konto"
-  },
-  "verify": {
-    "description": "Ett meddelande har skickats till din e‑postadress. Verifiera din e‑postadress genom att följa instruktionerna i e‑postmeddelandet.",
-    "input_label": "E-post",
-    "submit_resend": "Skicka nytt mail",
-    "title": "Verifiera din e‑postadress",
-    "troubleshooting_description": "Kolla i din skräppost eller fyll i din e‑postadress nedan och klicka på knappen för att få ett nytt e‑postmeddelande.",
-    "troubleshooting_title": "Har du inte fått något meddelande?"
-  },
-  "verify_confirm": {
-    "description": "Verifiera din e‑postadress genom att klicka på knappen nedan.",
-    "submit": "Verifiera min e‑postadress",
-    "title": "Verifiera din e‑postadress"
   },
   "org_groups": {
     "title": "Hantera organisation",

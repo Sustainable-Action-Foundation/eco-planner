@@ -91,14 +91,16 @@
   },
   "login": {
     "create_account": "Skapa konto",
-    "forgot_password": "Glömt lösenordet?",
-    "invalid_credentials": "Inloggningen misslyckades. Kontrollera dina uppgifter och att din e-post är verifierad.",
-    "login_failed": "Inloggningen misslyckades. Kontrollera dina uppgifter och försök igen.",
+    "description": "Ange din e‑postadress så skickar vi en inloggningslänk. Inget lösenord behövs.",
+    "email": "E‑postadress",
+    "invalid_email": "Det där ser inte ut som en e‑postadress. Kontrollera adressen och försök igen.",
+    "link_sent": "Om {{email}} kan logga in har vi skickat en inloggningslänk dit. Länken gäller i 15 minuter och kan bara användas en gång.",
+    "link_sent_hint": "Inget mejl? Kolla skräpposten, eller begär en ny länk om det dröjer.",
+    "login_failed": "Länken kunde inte skickas. Försök igen.",
     "no_account": "Har du inget konto?",
-    "password": "Lösenord",
+    "other_address": "Använd en annan adress",
     "remember_me": "Kom ihåg mig",
-    "username": "Användarnamn",
-    "verify_account": "Verifiera mitt konto"
+    "send_link": "Skicka inloggningslänk"
   },
   "logout_button": {
     "failed": "Utloggningen misslyckades"
@@ -390,13 +392,8 @@
   "signup": {
     "already_have_account": "Har du redan ett konto?",
     "create_account": "Skapa konto",
-    "disclaimer": "Din organisation måste ha tecknat ett användaravtal med oss för att du ska kunna skapa ett konto.\n\nVid frågor eller funderingar, vänligen kontakta",
-    "email": "E‑postadress",
-    "password": "Lösenord",
-    "signup_failed": "Registreringen misslyckades. Försök igen.",
-    "signup_failed_motivated": "Registreringen misslyckades. Skäl: {{reason}}",
-    "username": "Användarnamn",
-    "username_requirements": "{{min}}-{{max}} tecken: bokstäver, siffror, punkter, understreck eller bindestreck"
+    "description": "Ange e‑postadressen du har hos din organisation. Vi skickar en inloggningslänk, och kontot skapas när du loggar in första gången. Konton kan bara skapas med adresser från deltagande organisationer.",
+    "disclaimer": "Din organisation måste ha tecknat ett användaravtal med oss för att du ska kunna skapa ett konto.\n\nVid frågor eller funderingar, vänligen kontakta"
   },
   "table_menu": {
     "add_effect_from_existing_action": "Lägg till $t(common:effect_one)",

@@ -4,12 +4,6 @@
     "short_title": "Eco - planner",
     "description": "A tool that supports Sweden's climate transition through local action plans, a shared measures database, and collaboration on roadmaps."
   },
-  "verify_confirm": {
-    "description": "Verify your email."
-  },
-  "password_reset": {
-    "description": "Update password"
-  },
   "signup": {
     "title": "Create account",
     "description": "Create an Eco - planner account"

@@ -5,9 +5,8 @@ import { normalizeEmail } from "@/functions/email";
 
 /**
  * Test-only: the last mail the stubbed mail client "sent" to `?email=`, so the
- * suite can follow login links, whose tokens are random and hashed at rest (unlike
- * the recomputable verify/reset hashes behind /api/test/mail-token). Exists only
- * under TEST_ENVIRONMENT=testing; everywhere else every request is a 404.
+ * suite can follow login links, whose tokens are random and hashed at rest. Exists
+ * only under TEST_ENVIRONMENT=testing; everywhere else every request is a 404.
  */
 export async function GET(request: NextRequest) {
   // Without this the env check below finishes before any request data is read, so with

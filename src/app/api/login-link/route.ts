@@ -150,7 +150,6 @@ export async function PATCH(request: NextRequest) {
         username,
         username_lower: usernameKey(username),
         email,
-        password_hash: null,
         is_verified: true,
         ...(enrollment.orgId ? {
           memberships: { create: { org: { connect: { id: enrollment.orgId } }, role: OrgRole.MEMBER } },

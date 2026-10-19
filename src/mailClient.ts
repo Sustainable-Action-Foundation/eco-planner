@@ -47,8 +47,8 @@ async function getAccessToken() {
 
 /**
  * The test stack has no outbound mail: under TEST_ENVIRONMENT=testing nothing is
- * sent and the mailbox check passes, so signup/verify/reset flows complete without
- * Graph credentials. Tests read the emailed token back through /api/test/mail-token.
+ * sent and the mailbox check passes, so the login-link flow completes without Graph
+ * credentials. Tests read the mail back through /api/test/outbox.
  */
 const isTestEnvironment = process.env.TEST_ENVIRONMENT === "testing";
 

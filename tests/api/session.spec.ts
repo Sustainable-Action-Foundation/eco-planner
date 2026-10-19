@@ -1,6 +1,6 @@
 import { expect, test } from "playwright/test";
 import type { APIRequestContext } from "playwright/test";
-import { mailToken, SESSION_COOKIE, startPageTitle } from "../lib/api";
+import { SESSION_COOKIE, startPageTitle } from "../lib/api";
 import { freshContext, linkLogin, linkPlace, newLinkUser } from "../lib/login-link";
 
 /*
@@ -70,26 +70,6 @@ test.describe("POST /api/logout { everywhere: true }", () => {
 });
 
 test.describe("session revocation elsewhere", () => {
-  test("a password reset logs the user out everywhere", async ({ playwright, baseURL }, testInfo) => {
-    const { email, request: laptop } = await newLinkUser(playwright, baseURL, testInfo.workerIndex, "reset");
-    const resetter = await freshContext(playwright, baseURL, testInfo.workerIndex);
-    try {
-      expect(await authedStatus(laptop)).not.toBe(401);
-      const hash = await mailToken(resetter, email);
-      const response = await resetter.patch("/api/password", { data: { email, hash, newPassword: "a-brand-new-password" } });
-      expect(response.status(), await response.text()).toBe(200);
-      expect(await authedStatus(laptop), "the old session is gone").toBe(401);
-
-      // The new password logs in and is honoured
-      const login = await resetter.post("/api/login", { data: { username: email.split("@")[0], password: "a-brand-new-password" } });
-      expect(login.status(), await login.text()).toBe(200);
-      expect(await authedStatus(resetter)).not.toBe(401);
-    }
-    finally {
-      await Promise.all([laptop.dispose(), resetter.dispose()]);
-    }
-  });
-
   test("a revoked session reads as anonymous on pages too, cookie or not", async ({ playwright, baseURL }, testInfo) => {
     const { email, request: laptop } = await newLinkUser(playwright, baseURL, testInfo.workerIndex, "pages");
     const phone = await freshContext(playwright, baseURL, testInfo.workerIndex);

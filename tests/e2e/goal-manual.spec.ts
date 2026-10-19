@@ -85,7 +85,7 @@ test.describe.serial("Manual goal", () => {
   test.beforeAll(async ({ playwright, baseURL }, testInfo) => {
     label = uniqueLabel(testInfo);
     admin = await playwright.request.newContext({ baseURL });
-    await loginAs(admin, Seed.admin.username, Seed.admin.password);
+    await loginAs(admin, Seed.admin.username);
     roadmapId = await createRoadmap(admin, await orgIdByName(admin, Seed.orgName), { name: `Sandbox ${label}` });
     const iterationId = await createIteration(admin, roadmapId);
     // A listed neighbour keeps the goal table on screen while the goal under test is unlisted
@@ -256,7 +256,7 @@ test.describe.serial("Manual goal", () => {
   });
 
   test("a read-only member sees neither the tab nor the goal, but its link still resolves", async ({ browser }) => {
-    const context = await loginContext(browser, Seed.anita.username, Seed.anita.password);
+    const context = await loginContext(browser, Seed.anita.username);
     try {
       const page = await context.newPage();
       await page.goto(`/roadmap/${roadmapId}/v1`);
