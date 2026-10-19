@@ -54,7 +54,10 @@ services:
       - default
       - staging_network
     ports:
-      - "8081:8081"
+      # Loopback only: the host nginx terminates TLS and proxies to 127.0.0.1:8081. Published
+      # on 0.0.0.0 the app answered plain http straight from the internet, bypassing the proxy
+      # (and letting clients spoof X-Forwarded-For, which the login-link throttle keys on).
+      - "127.0.0.1:8081:8081"
     environment:
       # Database connection string
       - DATABASE_URL=${DATABASE_URL}
