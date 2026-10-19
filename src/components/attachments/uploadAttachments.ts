@@ -2,6 +2,7 @@ import { AttachmentRejection, formatFileSize, MaxAttachmentBytes, MaxAttachments
 import type { ToastType } from "@/components/generic/toast/types";
 import { isStandardObject } from "@/types/typeguards";
 import type { TFunction } from "i18next";
+import type { JSONValue } from "@/types";
 
 /*
  * The client side of attaching files: the same guards as the API, run before any
@@ -69,4 +70,29 @@ export async function uploadAttachments(
     }
   }
   return { uploaded };
+}
+
+/**
+ * A `formSubmitter` success handler for create forms with documents chosen: toasts the
+ * API's message, uploads the files to the new object, then navigates. The object page
+ * is only shown once the files are sent, so the caller keeps its button busy until `done`.
+ */
+export function thenAttach(
+  files: File[],
+  notify: Notify,
+  navigate: (url: string) => void,
+  fallbackPath: (id: string | null) => string,
+  done?: () => void,
+): (data: { body: JSONValue, location?: string | null }) => void {
+  return ({ body, location }) => {
+    const response = isStandardObject(body) && !Array.isArray(body) ? body : {};
+    const id = typeof response.id === "string" ? response.id : null;
+    const message = typeof response.message === "string" ? response.message : null;
+    if (message) notify.addToast(message, "success");
+    void (id ? uploadAttachments(files, id, notify) : Promise.resolve())
+      .then(() => {
+        done?.();
+        navigate(location ?? fallbackPath(id));
+      });
+  };
 }

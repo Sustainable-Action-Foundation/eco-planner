@@ -20,7 +20,9 @@ import { useEffect, useState } from "react";
 import { useToast } from "@/components/generic/toast/toastContext.use";
 import { useRouter } from "next/navigation";
 import { UnitFlags } from "@/types/enums";
-import { IconPilcrow, IconWriting, IconCalendar, IconCaretRightFilled } from "@tabler/icons-react";
+import { IconPilcrow, IconWriting, IconCalendar, IconCaretRightFilled, IconLoader2 } from "@tabler/icons-react";
+import { acceptableFiles, chosenFiles, thenAttach } from "@/components/attachments/uploadAttachments";
+import CreateAttachmentsFieldset from "@/components/attachments/createAttachmentsFieldset";
 
 export default function ActionForm({
   goalId,
@@ -34,8 +36,10 @@ export default function ActionForm({
   currentAction?: Action,
   roadmaps: MultiRoadmapInstance[],
 }) {
-  const { t } = useTranslation(["forms", "common"]);
+  const { t, i18n } = useTranslation(["forms", "common", "components"]);
   const timestamp = useFormTimestamp();
+  // Busy while the action is saved and, when creating, while chosen documents upload
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
   const { addToast } = useToast();
@@ -134,6 +138,7 @@ export default function ActionForm({
 
   function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isSubmitting) return;
 
     // TAG-headed fields are managed by the dedicated tags input
     if (fields.some(field => field.header.trim() === ActionFieldHeaders.Tag)) {
@@ -172,6 +177,13 @@ export default function ActionForm({
       }
     }
 
+    // Documents chosen while creating are attached once the action exists. Refusals
+    // stop the submit here, so an action isn't created with a file silently dropped.
+    const notify = { t, language: i18n.language, addToast };
+    const files = currentAction ? [] : chosenFiles(new FormData(event.target).getAll(ActionFormName.Attachments));
+    const attachments = acceptableFiles(files, 0, notify);
+    if (attachments?.length !== files.length) return;
+
     const formContent: ActionInput = {
       actionId: currentAction ? currentAction.id : undefined,
       iterationId: iterationId ?? (form.namedItem(ActionFormName.RoadmapId) as HTMLInputElement)?.value ?? undefined,
@@ -208,7 +220,16 @@ export default function ActionForm({
 
     const formJSON = JSON.stringify(formContent);
 
-    formSubmitter('/api/action', formJSON, currentAction ? 'PUT' : 'POST', t, undefined, undefined, undefined, undefined, addToast, (url) => router.push(url));
+    setIsSubmitting(true);
+    if (attachments.length === 0) {
+      formSubmitter('/api/action', formJSON, currentAction ? 'PUT' : 'POST', t, setIsSubmitting, undefined, undefined, undefined, addToast, (url) => router.push(url));
+      return;
+    }
+
+    // With documents to attach, the action page is only shown once they have been sent
+    formSubmitter('/api/action', formJSON, 'POST', t, setIsSubmitting, undefined,
+      thenAttach(attachments, notify, (url) => router.push(url), (id) => id ? `/action/${id}` : "../", () => setIsSubmitting(false)),
+      undefined, addToast);
   }
 
   // Indexes for the data-position attribute in the legend elements
@@ -531,8 +552,6 @@ export default function ActionForm({
           // TODO: Allow conversion between absolute and delta like in effectForm?
           <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
             <legend
-              // Technically incrementing here is unused but if you add a another entry after this one it will be correct
-              // eslint-disable-next-line no-useless-assignment
               data-position={positionIndex++}
               className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>
               {t("forms:action.expected_effect_legend")}
@@ -559,13 +578,27 @@ export default function ActionForm({
           : null
       }
 
+      {/* Documents to attach, create only: an existing action attaches from its page, where the list lives */}
+      {/* Last section, so the position isn't advanced further */}
+      {!currentAction ?
+        <CreateAttachmentsFieldset
+          name={ActionFormName.Attachments}
+          position={positionIndex}
+          description={t("forms:action.attachments_description")}
+          testId="action-attachment-input"
+        />
+        : null}
+
       <div className="margin-top-400 padding-top-100 margin-bottom-100" style={{ borderTop: '1px solid var(--gray-80)' }}>
         <button
           className="text-align-center seagreen color-purewhite width-100"
           style={{ fontSize: '14px', transform: 'none' }}
           type="submit"
           id="submit-button"
+          disabled={isSubmitting}
+          aria-busy={isSubmitting}
         >
+          {isSubmitting ? <IconLoader2 data-pending="true" aria-hidden="true" width={16} height={16} className={styles.spinner} /> : null}
           {currentAction ? t("common:tsx.save") : t("forms:action.create")}
         </button>
       </div>

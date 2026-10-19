@@ -8,10 +8,10 @@ import type { DateValuesWithUnit, Goal, GoalCreateInput, GoalPrefill, GoalUpdate
 import { BaselineType, DataSeriesType, GoalDataTarget, HistoricalDataType } from "@/types/enums";
 import { GoalListing } from "@/lib/prisma/generated";
 import { GoalFormName } from "@/types/form-names";
-import { isGoalListing, isStandardObject } from "@/types/typeguards";
-import { IconChevronDown, IconChevronUp, IconEye, IconEyeOff, IconInfoCircle, IconLoader2, IconPaperclip, IconStar } from "@tabler/icons-react";
-import { allowedAttachmentAccept, formatFileSize, MaxAttachmentBytes, MaxAttachmentsPerObject } from "@/functions/attachments";
-import { acceptableFiles, chosenFiles, uploadAttachments } from "@/components/attachments/uploadAttachments";
+import { isGoalListing } from "@/types/typeguards";
+import { IconChevronDown, IconChevronUp, IconEye, IconEyeOff, IconInfoCircle, IconLoader2, IconStar } from "@tabler/icons-react";
+import { acceptableFiles, chosenFiles, thenAttach } from "@/components/attachments/uploadAttachments";
+import CreateAttachmentsFieldset from "@/components/attachments/createAttachmentsFieldset";
 import Link from "next/link";
 import { waitForRecipeFormSyncs } from "@/components/recipe";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -279,7 +279,7 @@ export default function GoalForm({
     const notify = { t, language: i18n.language, addToast };
     const files = currentGoal ? [] : chosenFiles(formData.getAll(GoalFormName.Attachments));
     const attachments = acceptableFiles(files, 0, notify);
-    if (!attachments || attachments.length !== files.length) {
+    if (attachments?.length !== files.length) {
       event.target.reportValidity();
       setIsSubmitting(false);
       return;
@@ -367,17 +367,9 @@ export default function GoalForm({
 
     // With documents to attach, the goal page is only shown once they have been sent;
     // the button stays busy until then (the replacement handler skips the setter)
-    formSubmitter('/api/goal', formJSON, 'POST', t, setIsSubmitting, undefined, ({ body, location }) => {
-      const response = isStandardObject(body) && !Array.isArray(body) ? body : {};
-      const goalId = typeof response.id === "string" ? response.id : null;
-      const message = typeof response.message === "string" ? response.message : null;
-      if (message) addToast(message, "success");
-      void (goalId ? uploadAttachments(attachments, goalId, notify) : Promise.resolve())
-        .then(() => {
-          setIsSubmitting(false);
-          router.push(location ?? (goalId ? `/goal/${goalId}` : "../"));
-        });
-    }, undefined, addToast);
+    formSubmitter('/api/goal', formJSON, 'POST', t, setIsSubmitting, undefined,
+      thenAttach(attachments, notify, (url) => router.push(url), (id) => id ? `/goal/${id}` : "../", () => setIsSubmitting(false)),
+      undefined, addToast);
   }
 
   // Index for data-position attribute in legend elements (for accessibility)
@@ -575,8 +567,6 @@ export default function GoalForm({
       {/* Historical series input section */}
       <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200 min-width-0`}>
         <legend
-          // Technically incrementing here is unused but if you add another entry after this one it will be correct
-          // eslint-disable-next-line no-useless-assignment
           data-position={positionIndex++}
           className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}
         >
@@ -650,29 +640,14 @@ export default function GoalForm({
       */}
 
       {/* Documents to attach, create only: an existing goal attaches from its page, where the list lives */}
+      {/* Last section, so the position isn't advanced further */}
       {!currentGoal ?
-        <fieldset className={`${styles.timeLineFieldset} width-100 margin-top-200`}>
-          {/* Last section, so the position isn't advanced further */}
-          <legend data-position={positionIndex} className={`${styles.timeLineLegend} padding-block-125 font-weight-bold`}>
-            {t("forms:goal.attachments_legend")}
-          </legend>
-          <label className="block">
-            <span className="flex align-items-center gap-25 margin-bottom-25">
-              <IconPaperclip aria-hidden="true" width={18} height={18} style={{ minWidth: '18px' }} />
-              {t("forms:goal.attachments_label")}
-            </span>
-            <input
-              type="file"
-              name={GoalFormName.Attachments}
-              multiple={true}
-              accept={allowedAttachmentAccept}
-              data-testid="goal-attachment-input"
-            />
-          </label>
-          <small className="block margin-top-25" style={{ color: 'gray' }}>
-            {t("forms:goal.attachments_description", { maxSize: formatFileSize(MaxAttachmentBytes, i18n.language), max: MaxAttachmentsPerObject })}
-          </small>
-        </fieldset>
+        <CreateAttachmentsFieldset
+          name={GoalFormName.Attachments}
+          position={positionIndex}
+          description={t("forms:goal.attachments_description")}
+          testId="goal-attachment-input"
+        />
         : null}
 
       {/* Submit button */}

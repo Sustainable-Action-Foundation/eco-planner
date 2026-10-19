@@ -56,8 +56,16 @@ export const ActionFormName = {
   ResultingDateValues: "RESULTING_DATE_VALUES",
   StartYear: "START_YEAR",
   EndYear: "END_YEAR",
+  /** Documents to attach once the action exists (create only; existing actions attach from their page) */
+  Attachments: "ATTACHMENTS",
   // The old fixed inputs (description, cost efficiency, expected outcome, project
   // manager, relevant actors, category booleans) are gone: actions now carry
   // free-form ActionFields rows instead (see functions/fields.ts)
 } as const;
 export type ActionFormName = (typeof ActionFormName)[keyof typeof ActionFormName];
+
+export const RoadmapIterationFormName = {
+  /** Documents to attach once the version exists (create only; existing versions attach from their page) */
+  Attachments: "ATTACHMENTS",
+} as const;
+export type RoadmapIterationFormName = (typeof RoadmapIterationFormName)[keyof typeof RoadmapIterationFormName];
