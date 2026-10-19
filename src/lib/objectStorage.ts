@@ -10,10 +10,14 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
  * Configured with S3_ENDPOINT (e.g. https://fsn1.your-objectstorage.com), S3_REGION
  * (the location, e.g. fsn1), S3_BUCKET, S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY.
  * Without them uploads are refused with a clear message instead of failing halfway.
+ * S3_PUBLIC_ENDPOINT is for setups where browsers reach the bucket by another address
+ * than the app does (the docker test stack); download links are signed for it.
  */
 
 type StorageConfig = {
   endpoint: string;
+  /** Where download links point; the same as `endpoint` unless overridden */
+  publicEndpoint: string;
   region: string;
   bucket: string;
   accessKeyId: string;
@@ -24,10 +28,11 @@ type StorageConfig = {
 const downloadLinkLifetime = 5 * 60;
 
 function readConfig(): StorageConfig | null {
-  const { S3_ENDPOINT, S3_REGION, S3_BUCKET, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY } = process.env;
+  const { S3_ENDPOINT, S3_PUBLIC_ENDPOINT, S3_REGION, S3_BUCKET, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY } = process.env;
   if (!S3_ENDPOINT || !S3_BUCKET || !S3_ACCESS_KEY_ID || !S3_SECRET_ACCESS_KEY) return null;
   return {
     endpoint: S3_ENDPOINT,
+    publicEndpoint: S3_PUBLIC_ENDPOINT || S3_ENDPOINT,
     // Hetzner locations double as regions; "auto" is fine for providers that don't care
     region: S3_REGION || "auto",
     bucket: S3_BUCKET,
@@ -36,20 +41,30 @@ function readConfig(): StorageConfig | null {
   };
 }
 
-let cached: { client: S3Client, bucket: string } | null = null;
+type Storage = {
+  client: S3Client;
+  /** Signs download links; a separate client when browsers reach the bucket by another address */
+  presigner: S3Client;
+  bucket: string;
+};
 
-function storage(): { client: S3Client, bucket: string } | null {
+let cached: Storage | null = null;
+
+function storage(): Storage | null {
   if (cached) return cached;
   const config = readConfig();
   if (!config) return null;
+  const clientFor = (endpoint: string) => new S3Client({
+    endpoint,
+    region: config.region,
+    credentials: { accessKeyId: config.accessKeyId, secretAccessKey: config.secretAccessKey },
+    // Path-style URLs work without wildcard DNS for the bucket and on every S3-compatible provider
+    forcePathStyle: true,
+  });
+  const client = clientFor(config.endpoint);
   cached = {
-    client: new S3Client({
-      endpoint: config.endpoint,
-      region: config.region,
-      credentials: { accessKeyId: config.accessKeyId, secretAccessKey: config.secretAccessKey },
-      // Path-style URLs work without wildcard DNS for the bucket and on every S3-compatible provider
-      forcePathStyle: true,
-    }),
+    client,
+    presigner: config.publicEndpoint === config.endpoint ? client : clientFor(config.publicEndpoint),
     bucket: config.bucket,
   };
   return cached;
@@ -103,7 +118,7 @@ export async function presignedDownloadUrl(key: string, fileName: string, conten
   if (!store) throw new Error("Object storage is not configured");
   // RFC 5987 encoding keeps non-ASCII names intact; the plain fallback is for old clients
   const asciiName = fileName.replace(/[^\x20-\x7e]/g, "_").replace(/["\\]/g, "_");
-  return getSignedUrl(store.client, new GetObjectCommand({
+  return getSignedUrl(store.presigner, new GetObjectCommand({
     Bucket: store.bucket,
     Key: key,
     ResponseContentType: contentType,

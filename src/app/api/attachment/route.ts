@@ -25,8 +25,10 @@ import { randomUUID } from "node:crypto";
  * like the external API proxies).
  */
 
-/** Uploads per user: a burst of 10, then about 3 a minute. */
-const uploadRate = { capacity: 10, refillPerSecond: 3 / 60 };
+/** Uploads per user: a burst of 10, then about 3 a minute. The test stack uploads far more than a person would. */
+const uploadRate = process.env.TEST_ENVIRONMENT === "testing"
+  ? { capacity: 1000, refillPerSecond: 10 }
+  : { capacity: 10, refillPerSecond: 3 / 60 };
 
 /** True when the user may attach to and detach from the object. */
 async function mayEditParent(parent: AttachmentParent, id: string, ctx: UserAccessContext): Promise<boolean> {
@@ -69,12 +71,6 @@ export async function POST(request: NextRequest) {
   if (!accessContext) {
     return Response.json({ message: t("api:common.unauthorized") },
       { status: 401, headers: { 'Location': '/login' } },
-    );
-  }
-
-  if (!isObjectStorageConfigured()) {
-    return Response.json({ message: t("api:attachment.storage_unavailable") },
-      { status: 503 },
     );
   }
 
@@ -138,6 +134,13 @@ export async function POST(request: NextRequest) {
     if (count >= MaxAttachmentsPerObject) {
       return Response.json({ message: t("api:attachment.too_many", { max: MaxAttachmentsPerObject }) },
         { status: 409 },
+      );
+    }
+
+    // Checked last, so every other refusal behaves the same with or without a bucket
+    if (!isObjectStorageConfigured()) {
+      return Response.json({ message: t("api:attachment.storage_unavailable") },
+        { status: 503 },
       );
     }
 
