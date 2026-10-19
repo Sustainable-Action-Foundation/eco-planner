@@ -475,5 +475,14 @@
     "failed": "Could not save the like: {{details}}",
     "like": "Like this goal",
     "unlike": "Remove your like"
+  },
+  "logout_everywhere": {
+    "title": "Log out everywhere",
+    "button_self": "Log out everywhere",
+    "button_other": "Log {{name}} out everywhere",
+    "confirm_self": "Every device of yours is signed out, including this one. Continue?",
+    "confirm_other": "{{name}} is signed out of every device. Continue?",
+    "done": "{{name}} is logged out everywhere.",
+    "failed": "Could not log out everywhere. Please try again."
   }
 }

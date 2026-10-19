@@ -1,6 +1,6 @@
 import { expect, test } from "playwright/test";
 import type { APIRequestContext } from "playwright/test";
-import { SESSION_COOKIE, startPageTitle } from "../lib/api";
+import { requestAs, Seed, SESSION_COOKIE, startPageTitle } from "../lib/api";
 import { freshContext, linkLogin, linkPlace, newLinkUser } from "../lib/login-link";
 
 /*
@@ -66,6 +66,59 @@ test.describe("POST /api/logout { everywhere: true }", () => {
   test("logged out already: still a 200", async ({ request }) => {
     const response = await request.post("/api/logout", { data: { everywhere: true } });
     expect(response.status(), await response.text()).toBe(200);
+  });
+});
+
+test.describe("POST /api/logout { everywhere: true, userId }: an admin revokes another user", () => {
+  /** The user id behind a profile page: the props of its "log out everywhere" button in the RSC payload (quotes are escaped there) */
+  async function userIdOf(request: APIRequestContext, username: string): Promise<string> {
+    const response = await request.get(`/user/${encodeURIComponent(username)}`);
+    expect(response.status(), `profile of ${username}`).toBe(200);
+    const match = (await response.text()).match(new RegExp(`username\\\\?":\\\\?"${username}\\\\?",\\\\?"userId\\\\?":\\\\?"([0-9a-f-]{36})`));
+    expect(match, `user id of ${username} on the profile page`).toBeTruthy();
+    return match?.[1] ?? "";
+  }
+
+  test("a super admin logs the user out of every device and keeps their own session", async ({ playwright, baseURL }, testInfo) => {
+    const { email, request: laptop } = await newLinkUser(playwright, baseURL, testInfo.workerIndex, "revoked");
+    const admin = await requestAs(playwright, baseURL, Seed.admin.username);
+    try {
+      const userId = await userIdOf(admin, email.split("@")[0]);
+      expect(await authedStatus(laptop)).not.toBe(401);
+
+      const response = await admin.post("/api/logout", { data: { everywhere: true, userId } });
+      expect(response.status(), await response.text()).toBe(200);
+      expect(await authedStatus(laptop), "the user's device is logged out").toBe(401);
+      expect(await authedStatus(admin), "the admin stays logged in").not.toBe(401);
+      expect(await sessionCookie(admin), "the admin's cookie is untouched").toBeTruthy();
+
+      // The user can log in again
+      await linkLogin(laptop, email);
+      expect(await authedStatus(laptop)).not.toBe(401);
+    }
+    finally {
+      await Promise.all([laptop.dispose(), admin.dispose()]);
+    }
+  });
+
+  test("anyone else is refused, and the body has to make sense", async ({ playwright, baseURL }, testInfo) => {
+    const { request: member } = await newLinkUser(playwright, baseURL, testInfo.workerIndex, "member");
+    const { email: victimEmail, request: victim } = await newLinkUser(playwright, baseURL, testInfo.workerIndex, "victim");
+    const admin = await requestAs(playwright, baseURL, Seed.admin.username);
+    const anon = await freshContext(playwright, baseURL, testInfo.workerIndex);
+    try {
+      const victimId = await userIdOf(admin, victimEmail.split("@")[0]);
+
+      expect((await member.post("/api/logout", { data: { everywhere: true, userId: victimId } })).status(), "a plain member").toBe(403);
+      expect(await authedStatus(member), "the member's own session is not touched by the refusal").not.toBe(401);
+      expect((await anon.post("/api/logout", { data: { everywhere: true, userId: victimId } })).status(), "anonymous").toBe(401);
+      expect((await admin.post("/api/logout", { data: { userId: victimId } })).status(), "userId without everywhere").toBe(400);
+      expect((await admin.post("/api/logout", { data: { everywhere: true, userId: "00000000-0000-0000-0000-000000000000" } })).status(), "unknown user").toBe(404);
+      expect(await authedStatus(victim), "the victim is still logged in").not.toBe(401);
+    }
+    finally {
+      await Promise.all([member.dispose(), victim.dispose(), admin.dispose(), anon.dispose()]);
+    }
   });
 });
 

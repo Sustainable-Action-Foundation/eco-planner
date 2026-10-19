@@ -1,7 +1,7 @@
 import { expect, test as base } from "playwright/test";
 import type { APIRequestContext, Page } from "playwright/test";
 import { loginAs, Seed, SESSION_COOKIE } from "../lib/api";
-import { linkPlace, outbox, requestLink, tokenIn, uniqueEmail, uniqueIp } from "../lib/login-link";
+import { linkLogin, linkPlace, newLinkUser, outbox, requestLink, tokenIn, uniqueEmail, uniqueIp } from "../lib/login-link";
 import { visible } from "../lib/forms";
 
 /*
@@ -207,4 +207,32 @@ test("logout removes the session cookie and the start page offers login again", 
   await expect.poll(() => sessionCookie(page)).toBeUndefined();
   // The public start page, not an org landing
   await expect(page.getByTestId("home-title").filter({ visible: true })).toHaveText("home.title");
+});
+
+test("log out everywhere from the profile page signs out this browser and the other device", async ({ page, playwright, baseURL }, testInfo) => {
+  // The "other device" is an API context logged in as the same link-created user
+  const { email, request: phone } = await newLinkUser(playwright, baseURL, testInfo.workerIndex, "e2e-everywhere");
+  try {
+    await linkLogin(page.request, email);
+    const username = email.split("@")[0];
+    await page.goto(`/user/${encodeURIComponent(username)}`);
+    const section = page.getByTestId("sessions-section").filter({ visible: true });
+    await expect(section).toBeVisible();
+    await section.getByTestId("logout-everywhere-button").click();
+
+    const logout = page.waitForResponse(res => res.url().endsWith("/api/logout") && res.request().method() === "POST");
+    await page.getByTestId("logout-everywhere-confirm").filter({ visible: true }).click();
+    expect((await logout).status()).toBe(200);
+
+    // This browser is logged out and sent home
+    await expect(page).toHaveURL("/");
+    await expect(page.getByTestId("logout-button")).toHaveCount(0);
+    await expect.poll(() => sessionCookie(page)).toBeUndefined();
+    // The other device still holds its cookie, but the server no longer honours it
+    const like = await phone.post("/api/goal-like", { data: { goalId: "00000000-0000-0000-0000-000000000000" } });
+    expect(like.status(), "the other device is logged out").toBe(401);
+  }
+  finally {
+    await phone.dispose();
+  }
 });

@@ -475,5 +475,14 @@
     "failed": "Kunde inte spara gilla-markeringen: {{details}}",
     "like": "Gilla målbanan",
     "unlike": "Ta bort din gilla-markering"
+  },
+  "logout_everywhere": {
+    "title": "Logga ut överallt",
+    "button_self": "Logga ut överallt",
+    "button_other": "Logga ut {{name}} överallt",
+    "confirm_self": "Alla dina enheter loggas ut, även den här. Vill du fortsätta?",
+    "confirm_other": "{{name}} loggas ut från alla enheter. Vill du fortsätta?",
+    "done": "{{name}} är utloggad överallt.",
+    "failed": "Det gick inte att logga ut överallt. Försök igen."
   }
 }

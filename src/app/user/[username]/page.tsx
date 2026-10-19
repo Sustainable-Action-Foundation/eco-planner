@@ -12,6 +12,7 @@ import { iterationPath } from '@/functions/versionSlug';
 import { getRoadmapIterations, getRoadmaps, getUserInfo } from "@/fetchers";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { usernameFromParam } from "@/functions/username";
+import LogoutEverywhereButton from "@/components/buttons/logoutEverywhereButton";
 import type { Metadata } from "next";
 
 export async function generateMetadata(props: {
@@ -113,11 +114,23 @@ export default async function Page(
 
   toggleRoadmaps();
 
+  const ownPage = session.user?.username === username;
+  // Super admins can log another user out everywhere (a lost laptop, a leaver)
+  const canRevokeOther = !ownPage && session.user?.isSuperAdmin === true;
+
   return <main>
     <section className='margin-block-300'>
       <h1 className='margin-bottom-0'>{userdata.username}</h1>
       <small style={{ color: 'var(--gray-50)' }}>@{userdata.username}</small>
     </section>
+
+    {ownPage || canRevokeOther ?
+      <section className='margin-block-300' data-testid="sessions-section">
+        <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:profile.sessions")}</h2>
+        <p>{ownPage ? t("pages:profile.sessions_description_self") : t("pages:profile.sessions_description_other", { name: userdata.username })}</p>
+        <LogoutEverywhereButton username={userdata.username} userId={ownPage ? undefined : userdata.id} />
+      </section>
+      : null}
 
     <section className='margin-block-300'>
       <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>

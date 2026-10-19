@@ -1,4 +1,4 @@
-import { readSession } from "@/lib/session";
+import { getSession, readSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
@@ -8,10 +8,35 @@ import type { JSONValue } from "@/types";
  * Logs out. With `{ everywhere: true }` in the body, also invalidates every other
  * session of the user by bumping `Users.session_version` (see getSession): devices
  * holding an older cookie read as anonymous on their next request.
+ *
+ * With `{ everywhere: true, userId }` a super admin revokes another user's sessions
+ * instead (a lost laptop, a leaver) and keeps their own.
  */
 export async function POST(request: NextRequest) {
   const body = await (request.json() as Promise<JSONValue>).catch(() => null);
-  const everywhere = !!body && typeof body === "object" && !Array.isArray(body) && body.everywhere === true;
+  const options = body && typeof body === "object" && !Array.isArray(body) ? body : {};
+  const everywhere = options.everywhere === true;
+  const userId = typeof options.userId === "string" ? options.userId : null;
+
+  if (userId) {
+    if (!everywhere) {
+      return Response.json({ message: "userId only makes sense with everywhere: true" }, { status: 400 });
+    }
+    // Acting on someone else needs a session that is actually honoured, not just a cookie
+    const session = await getSession(await cookies());
+    if (!session.user?.isLoggedIn) {
+      return Response.json({ message: "Unauthorized" }, { status: 401 });
+    }
+    if (!session.user.isSuperAdmin || userId === session.user.id) {
+      return Response.json({ message: "Forbidden" }, { status: 403 });
+    }
+    const target = await prisma.users.findUnique({ where: { id: userId }, select: { id: true } });
+    if (!target) {
+      return Response.json({ message: "No such user" }, { status: 404 });
+    }
+    await prisma.users.update({ where: { id: userId }, data: { session_version: { increment: 1 } } });
+    return Response.json({ message: "Logged the user out everywhere" }, { status: 200 });
+  }
 
   const session = await readSession(await cookies());
 

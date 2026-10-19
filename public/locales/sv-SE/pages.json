@@ -247,7 +247,10 @@
     "roadmap_versions": "$t(common:roadmap_version_other, titleCase)",
     "user_posts": "{{name, possessive, titleCase}} inlägg",
     "version_count_one": "{{count}} version",
-    "version_count_other": "{{count}} versioner"
+    "version_count_other": "{{count}} versioner",
+    "sessions": "Inloggningar",
+    "sessions_description_self": "Du förblir inloggad i 30 dagar efter varje inloggning, eller ett år om du valde \"Kom ihåg mig\". Har du loggat in på en delad eller borttappad dator kan du logga ut överallt: alla enheter loggas ut, även den här, och nästa inloggningslänk fungerar som vanligt.",
+    "sessions_description_other": "Som administratör kan du logga ut {{name}} från alla enheter. Användaren kan logga in igen med en ny inloggningslänk."
   },
   "roadmap_iteration": {
     "all_actions": "Alla $t(common:action_other)",
