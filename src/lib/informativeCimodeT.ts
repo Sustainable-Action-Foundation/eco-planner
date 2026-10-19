@@ -6,10 +6,14 @@ import type { TFunction, i18n } from "i18next";
  * Whether the extra information should be shown, or just the translation result.
  */
 function shouldExpand(instance: i18n, options?: TOptions): boolean {
+  // A fixed-language t (the server's per-request translator) passes the language it
+  // renders in; it decides, since the shared instance's own language is unrelated to it
+  if (options?.lng) {
+    return options.lng === Locales.test;
+  }
   return (
     instance.language === Locales.test ||
-    instance.resolvedLanguage === Locales.test ||
-    options?.lng === Locales.test
+    instance.resolvedLanguage === Locales.test
   );
 }
 
