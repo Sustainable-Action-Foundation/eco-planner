@@ -149,7 +149,10 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=edge
+            # Pinned to main: prod pulls :edge, and a bare type=edge follows the
+            # repo's default branch — flipping the default to dev must not
+            # repoint prod's tag
+            type=edge,branch=main
             type=ref,event=branch
             # Immutable per-commit tag; deploys pin this so rollback = redeploy an older run
             type=sha,format=long
@@ -162,7 +165,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.SEED_IMAGE_NAME }}
           tags: |
-            type=edge
+            type=edge,branch=main
             type=ref,event=branch
             type=sha,format=long
             type=semver,pattern={{major}}.{{minor}}
