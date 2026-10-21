@@ -375,4 +375,9 @@ export const allowedDomains = [
  */
 export const orgDomainAliases: Record<string, string> = {
   "sustainable-action.org": "sustainable-action.ngo",
+  // Bodens kommun's bolag join the municipality's org (workshop 2026-11-12)
+  "bodensenergi.se": "boden.se",
+  "bodenbo.se": "boden.se",
+  "restprodukter.se": "boden.se",
+  "bodenbusinessagency.com": "boden.se",
 };
