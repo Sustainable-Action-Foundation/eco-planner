@@ -94,7 +94,7 @@
     "description": "Enter your email address and we will send you a login link. No password needed.",
     "email": "Email",
     "invalid_email": "That does not look like an email address. Check it and try again.",
-    "link_sent": "If {{email}} can sign in, we have sent a login link there. It is valid for 15 minutes and can only be used once.",
+    "link_sent": "A login link has been sent to <strong>{{email}}</strong>. It is valid for 15 minutes.",
     "link_sent_hint": "No email? Check your spam folder, or request a new link if it takes a while.",
     "login_failed": "The link could not be sent. Please try again.",
     "no_account": "Don't have an account?",

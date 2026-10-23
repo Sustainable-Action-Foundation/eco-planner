@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import styles from '../forms.module.css';
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { IconExclamationCircle, IconMail, IconMailCheck } from "@tabler/icons-react";
 
 /**
@@ -67,7 +67,9 @@ export default function Login({ variant = "login" }: { variant?: "login" | "sign
         <div className="flex gap-100 align-items-flex-start margin-block-100">
           <IconMailCheck style={{ minWidth: '24px' }} aria-hidden="true" />
           <div>
-            <p className="margin-top-0" role="status">{t("components:login.link_sent", { email: sentTo })}</p>
+            <p className="margin-top-0" role="status">
+              <Trans i18nKey="components:login.link_sent" values={{ email: sentTo }} components={{ strong: <strong /> }} />
+            </p>
             <p>{t("components:login.link_sent_hint")}</p>
           </div>
         </div>

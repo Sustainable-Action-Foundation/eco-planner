@@ -94,7 +94,7 @@
     "description": "Ange din e‑postadress så skickar vi en inloggningslänk. Inget lösenord behövs.",
     "email": "E‑postadress",
     "invalid_email": "Det där ser inte ut som en e‑postadress. Kontrollera adressen och försök igen.",
-    "link_sent": "Om {{email}} kan logga in har vi skickat en inloggningslänk dit. Länken gäller i 15 minuter och kan bara användas en gång.",
+    "link_sent": "En inloggningslänk har skickats till <strong>{{email}}</strong>. Den är giltig i 15 minuter.",
     "link_sent_hint": "Inget mejl? Kolla skräpposten, eller begär en ny länk om det dröjer.",
     "login_failed": "Länken kunde inte skickas. Försök igen.",
     "no_account": "Har du inget konto?",
