@@ -23,6 +23,15 @@ function rows(page: Page) {
   return section(page).getByTestId("attachment-row");
 }
 
+/**
+ * The file input of a create form. It is hidden behind a button (the site hides the native
+ * file button, and WebKit then draws nothing of a file input), so it is found through the
+ * form that is shown rather than by its own visibility; files are set on it directly.
+ */
+function formFileInput(page: Page, prefix: string) {
+  return visible(page, "form").getByTestId(`${prefix}-input`);
+}
+
 /** A small text file for the file inputs */
 function textFile(name: string, content: string) {
   return { name, mimeType: "text/plain", buffer: Buffer.from(content) };
@@ -134,10 +143,13 @@ test.describe("Attachments", () => {
     await page.waitForURL(/\/action\/create/);
     await pickSandboxInActionForm(page, sandbox.label);
     await visible(page, "#actionName").fill(name);
-    await page.getByTestId("action-attachment-input").filter({ visible: true }).setInputFiles([
+    await expect(visible(page, "form").getByTestId("action-attachment-button")).toBeVisible();
+    await formFileInput(page, "action-attachment").setInputFiles([
       textFile("Underlag A.txt", "a"),
       textFile("Underlag B.txt", "b"),
     ]);
+    // The chosen files are listed before anything is sent
+    await expect(visible(page, "form").getByTestId("action-attachment-row")).toHaveCount(2);
 
     // The action is created first, then each file is sent to it, then the page shows the action
     const uploads = await uploadsDuring(page, async () => {
@@ -158,7 +170,7 @@ test.describe("Attachments", () => {
     await page.waitForURL(/\/action\/create/);
     await pickSandboxInActionForm(page, sandbox.label);
     await visible(page, "#actionName").fill(`Refused action ${sandbox.label}`);
-    await page.getByTestId("action-attachment-input").filter({ visible: true }).setInputFiles({ name: "setup.exe", mimeType: "application/octet-stream", buffer: Buffer.from("MZ") });
+    await formFileInput(page, "action-attachment").setInputFiles({ name: "setup.exe", mimeType: "application/octet-stream", buffer: Buffer.from("MZ") });
 
     let created = 0;
     page.on("request", request => {
@@ -176,7 +188,7 @@ test.describe("Attachments", () => {
     await page.goto(`/roadmap/${sandbox.roadmapId}/iteration/create`);
     // The sandbox roadmap has no parent, so the form asks for no target version; only the status is required
     await visible(page, "#publish").check();
-    await page.getByTestId("roadmap-iteration-attachment-input").filter({ visible: true }).setInputFiles(textFile("Versionsunderlag.txt", "v2"));
+    await formFileInput(page, "roadmap-iteration-attachment").setInputFiles(textFile("Versionsunderlag.txt", "v2"));
 
     const uploads = await uploadsDuring(page, async () => {
       expect(await submitForm(page, "/api/roadmap-iteration", "POST")).toBe(201);

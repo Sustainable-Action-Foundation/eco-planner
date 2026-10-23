@@ -297,7 +297,7 @@ export default function RoadmapIterationForm({
           name={RoadmapIterationFormName.Attachments}
           position={positionIndex}
           description={t("forms:roadmap_iteration.attachments_description")}
-          testId="roadmap-iteration-attachment-input"
+          testId="roadmap-iteration-attachment"
         />
         : null}
 

@@ -646,7 +646,7 @@ export default function GoalForm({
           name={GoalFormName.Attachments}
           position={positionIndex}
           description={t("forms:goal.attachments_description")}
-          testId="goal-attachment-input"
+          testId="goal-attachment"
         />
         : null}
 

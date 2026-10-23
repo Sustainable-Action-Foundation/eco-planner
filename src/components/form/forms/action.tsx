@@ -585,7 +585,7 @@ export default function ActionForm({
           name={ActionFormName.Attachments}
           position={positionIndex}
           description={t("forms:action.attachments_description")}
-          testId="action-attachment-input"
+          testId="action-attachment"
         />
         : null}
 
