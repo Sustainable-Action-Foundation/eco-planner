@@ -1,7 +1,7 @@
 import { expect, test as base } from "playwright/test";
 import type { APIRequestContext, PlaywrightWorkerArgs } from "playwright/test";
 import { orgIdByName, SESSION_COOKIE, startPageTitle } from "../lib/api";
-import { freshContext, linkPlace, newLinkUser as createLinkUser, outbox, redeem, requestLink, uniqueEmail, uniqueIp } from "../lib/login-link";
+import { freshContext, linkPlace, newLinkUser as createLinkUser, onboard, outbox, redeem, requestLink, uniqueEmail, uniqueIp } from "../lib/login-link";
 
 /*
  * Passwordless login: POST /api/login-link mails a one-time link, PATCH redeems it.
@@ -168,12 +168,14 @@ test.describe("PATCH /api/login-link", () => {
     expect((await redeem(request, second.token)).status(), "the current one does").toBe(200);
   });
 
-  test("the first login on an allowlisted domain creates a verified member of the domain's org", async ({ request }) => {
+  test("the first login on an allowlisted domain creates a verified member of the domain's org and lands in onboarding", async ({ request }) => {
     const email = uniqueEmail("First.Login");
     const { token } = await requestLink(request, email);
     const response = await redeem(request, token);
     expect(response.status(), await response.text()).toBe(200);
     expect(await sessionCookie(request), "logged in").toBeTruthy();
+    // No name yet: the login continues to /welcome, which then goes on to the real target
+    expect((await response.json() as { redirect: string }).redirect).toBe("/welcome?from=%2F");
     expect(await startPageTitle(request)).toBe(place.orgName);
     const orgId = await orgIdByName(request, place.orgName);
     expect(await startPageTitle(request, `/?org=${orgId}`)).toBe(place.orgName);
@@ -184,8 +186,13 @@ test.describe("PATCH /api/login-link", () => {
     expect(profile.status()).toBe(200);
     expect(await profile.text()).toContain(localPart);
 
-    // Verified on creation: the next link is a plain login
+    // Verified on creation: the next link is a plain login, still via onboarding until the name is set
     const again = await requestLink(request, email);
     expect(again.mail.subject, "now an existing user").toContain("login.subject");
+    expect((await (await redeem(request, again.token)).json() as { redirect: string }).redirect).toBe("/welcome?from=%2F");
+
+    await onboard(request, { firstName: "First", lastName: "Login" });
+    const named = await requestLink(request, email);
+    expect((await (await redeem(request, named.token)).json() as { redirect: string }).redirect, "onboarded: straight to the target").toBe("/");
   });
 });

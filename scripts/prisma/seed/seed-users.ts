@@ -25,23 +25,23 @@ import { memberSlug, seedPlaces } from "./places.ts";
 export async function seedUsers(): Promise<SeededUsers> {
   /** A super admin, username 'admin'. */
   const admin = await prisma.users.create({
-    data: { username: "admin", username_lower: "admin".toLowerCase(), is_super_admin: true, is_verified: true, email: "admin@sustainable-action.ngo" },
+    data: { username: "admin", username_lower: "admin".toLowerCase(), first_name: "Ada", last_name: "Administratör", is_super_admin: true, is_verified: true, email: "admin@sustainable-action.ngo" },
   });
   /** Anita is a regular, verified user. */
   const anita = await prisma.users.create({
-    data: { username: "Anita", username_lower: "Anita".toLowerCase(), is_super_admin: false, is_verified: true, email: "anita@sustainable-action.ngo" },
+    data: { username: "Anita", username_lower: "Anita".toLowerCase(), first_name: "Anita", last_name: "Andersson", is_super_admin: false, is_verified: true, email: "anita@sustainable-action.ngo" },
   });
   /** Anton is a regular user who's been too lazy to verify their email. */
   const anton = await prisma.users.create({
-    data: { username: "Anton", username_lower: "Anton".toLowerCase(), is_super_admin: false, is_verified: false, email: "anton@sustainable-action.ngo" },
+    data: { username: "Anton", username_lower: "Anton".toLowerCase(), first_name: "Anton", last_name: "Antonsson", is_super_admin: false, is_verified: false, email: "anton@sustainable-action.ngo" },
   });
   /** Greta is a GUEST: while guests are disabled her memberships must grant nothing. */
   const greta = await prisma.users.create({
-    data: { username: "Greta", username_lower: "Greta".toLowerCase(), is_super_admin: false, is_verified: true, email: "greta@example.com" },
+    data: { username: "Greta", username_lower: "Greta".toLowerCase(), first_name: "Greta", last_name: "Gran", is_super_admin: false, is_verified: true, email: "greta@example.com" },
   });
   /** Poor little Orgless has no org memberships at all: sees only public content and cannot create anything. */
   await prisma.users.create({
-    data: { username: "orgless", username_lower: "orgless".toLowerCase(), is_super_admin: false, is_verified: true, email: "orgless@unclaimed.example.com" },
+    data: { username: "orgless", username_lower: "orgless".toLowerCase(), first_name: "Olle", last_name: "Orglös", is_super_admin: false, is_verified: true, email: "orgless@unclaimed.example.com" },
   });
 
   // The org that owns the test fixtures and the national scenario; its domain matches the users' emails so signup auto-joins.
@@ -96,10 +96,14 @@ export async function seedUsers(): Promise<SeededUsers> {
     const members = [];
     for (const name of place.members) {
       const slug = memberSlug(name);
+      // Roster names are "First Last"
+      const [firstName, ...rest] = name.split(" ");
       members.push(await prisma.users.create({
         data: {
           username: slug,
           username_lower: slug.toLowerCase(),
+          first_name: firstName,
+          last_name: rest.join(" "),
          
           is_super_admin: false,
           is_verified: true,

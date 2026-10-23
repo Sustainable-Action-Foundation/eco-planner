@@ -13,6 +13,8 @@ import { getRoadmapIterations, getRoadmaps, getUserInfo } from "@/fetchers";
 import { getUserAccessContext } from "@/fetchers/getUserAccessContext";
 import { usernameFromParam } from "@/functions/username";
 import LogoutEverywhereButton from "@/components/buttons/logoutEverywhereButton";
+import NameForm from "@/components/form/forms/nameForm";
+import { displayName } from "@/functions/personName";
 import type { Metadata } from "next";
 
 export async function generateMetadata(props: {
@@ -117,18 +119,26 @@ export default async function Page(
   const ownPage = session.user?.username === username;
   // Super admins can log another user out everywhere (a lost laptop, a leaver)
   const canRevokeOther = !ownPage && session.user?.isSuperAdmin === true;
+  const name = displayName(userdata);
 
   return <main>
     <section className='margin-block-300'>
-      <h1 className='margin-bottom-0'>{userdata.username}</h1>
-      <small style={{ color: 'var(--gray-50)' }}>@{userdata.username}</small>
+      <h1 className='margin-bottom-0'>{name}</h1>
     </section>
+
+    {ownPage ?
+      <section className='margin-block-300' data-testid="name-section">
+        <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:profile.name")}</h2>
+        <p>{t("pages:profile.name_description")}</p>
+        <NameForm firstName={userdata.first_name} lastName={userdata.last_name} />
+      </section>
+      : null}
 
     {ownPage || canRevokeOther ?
       <section className='margin-block-300' data-testid="sessions-section">
         <h2 className='margin-bottom-100 padding-bottom-50' style={{ borderBottom: '1px solid var(--gray)' }}>{t("pages:profile.sessions")}</h2>
-        <p>{ownPage ? t("pages:profile.sessions_description_self") : t("pages:profile.sessions_description_other", { name: userdata.username })}</p>
-        <LogoutEverywhereButton username={userdata.username} userId={ownPage ? undefined : userdata.id} />
+        <p>{ownPage ? t("pages:profile.sessions_description_self") : t("pages:profile.sessions_description_other", { name })}</p>
+        <LogoutEverywhereButton username={name} userId={ownPage ? undefined : userdata.id} />
       </section>
       : null}
 
@@ -137,7 +147,7 @@ export default async function Page(
         {session.user?.username === username ?
           t("pages:profile.my_posts")
           :
-          t("pages:profile.user_posts", { name: userdata.username })
+          t("pages:profile.user_posts", { name })
         }
       </h2>
 

@@ -70,11 +70,11 @@ test.describe("POST /api/logout { everywhere: true }", () => {
 });
 
 test.describe("POST /api/logout { everywhere: true, userId }: an admin revokes another user", () => {
-  /** The user id behind a profile page: the props of its "log out everywhere" button in the RSC payload (quotes are escaped there) */
+  /** The user id behind a profile page: the `userId` prop of its "log out everywhere" button in the RSC payload (quotes are escaped there) */
   async function userIdOf(request: APIRequestContext, username: string): Promise<string> {
     const response = await request.get(`/user/${encodeURIComponent(username)}`);
     expect(response.status(), `profile of ${username}`).toBe(200);
-    const match = (await response.text()).match(new RegExp(`username\\\\?":\\\\?"${username}\\\\?",\\\\?"userId\\\\?":\\\\?"([0-9a-f-]{36})`));
+    const match = (await response.text()).match(/userId\\?":\\?"([0-9a-f-]{36})/);
     expect(match, `user id of ${username} on the profile page`).toBeTruthy();
     return match?.[1] ?? "";
   }

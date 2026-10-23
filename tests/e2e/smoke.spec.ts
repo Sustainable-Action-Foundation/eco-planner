@@ -72,6 +72,7 @@ const routes: Route[] = [
   { name: "/signup", url: () => "/signup", anonymous: ok, anita: home, admin: home },
   // The link interstitial is exempt from the logged-in redirect: redeeming a link is how you switch accounts
   { name: "/login/link", url: () => "/login/link", anonymous: ok, anita: ok, admin: ok },
+  { name: "/welcome", url: () => "/welcome", anonymous: login, anita: ok, admin: ok },
   { name: "/user/<username>", url: () => `/user/${Seed.admin.username}`, anonymous: ok, anita: ok, admin: ok },
   { name: "/@<username>", url: () => `/@${Seed.anita.username}`, anonymous: ok, anita: ok, admin: ok },
   { name: "/actions", url: () => "/actions", anonymous: ok, anita: ok, admin: ok },

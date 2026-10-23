@@ -136,7 +136,7 @@ export async function PATCH(request: NextRequest) {
 
   let user = await prisma.users.findUnique({
     where: { email },
-    select: { id: true, username: true, is_super_admin: true, is_verified: true, session_version: true },
+    select: { id: true, username: true, is_super_admin: true, is_verified: true, session_version: true, first_name: true, last_name: true },
   });
 
   if (!user) {
@@ -156,7 +156,7 @@ export async function PATCH(request: NextRequest) {
           memberships: { create: { org: { connect: { id: enrollment.orgId } }, role: OrgRole.MEMBER } },
         } : {}),
       },
-      select: { id: true, username: true, is_super_admin: true, is_verified: true, session_version: true },
+      select: { id: true, username: true, is_super_admin: true, is_verified: true, session_version: true, first_name: true, last_name: true },
     });
   }
   else if (!user.is_verified) {
@@ -175,7 +175,9 @@ export async function PATCH(request: NextRequest) {
   };
   await session.save();
 
-  const target = safeRedirectPath(redirect);
+  // Onboarding: whoever has not given their name yet is asked for it first, then continues
+  const destination = safeRedirectPath(redirect);
+  const target = user.first_name && user.last_name ? destination : `/welcome?from=${encodeURIComponent(destination)}`;
   return Response.json({ message: "Login successful", redirect: target }, { status: 200, headers: { Location: target } });
 }
 

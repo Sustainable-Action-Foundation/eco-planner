@@ -1,4 +1,5 @@
 "use client";
+import { displayName } from "@/functions/personName";
 
 import { useMemo, useState, useTransition } from "react";
 import styles from "./sections.module.css";
@@ -284,7 +285,7 @@ export default function Actions({
                   <div className="flex justify-content-space-between align-items-center padding-inline-50 padding-bottom-50">
                     <Link href={`/action/${action.id}`} className={`flex gap-25 align-items-center discrete-link font-size-14px ${styles['action-user']}`}>
                       <IconUser width={20} height={20} style={{ maxWidth: '20px' }} aria-label={`${t('pages:actions.author')}:`} />
-                      {action.author?.username}
+                      {action.author ? displayName(action.author) : null}
                     </Link>
                     <Link href={`/action/${action.id}`} className={`flex gap-25 align-items-center discrete-link font-size-14px ${styles['action-link']}`}>
                       {t('pages:actions.visit_action')}

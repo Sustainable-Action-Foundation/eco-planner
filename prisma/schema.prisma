@@ -581,6 +581,9 @@ model Users {
   /// Lowercased `username`; the lookup/uniqueness key so auth doesn't depend on the DB collation (see usernameKey())
   username_lower  String  @unique
   email           String  @unique
+  /// Asked for at first login (onboarding); shown wherever a person is named. Null until then, when `username` is shown instead
+  first_name      String?
+  last_name       String?
   is_verified     Boolean @default(false) // Has verified email
   /// Bumped to log the user out everywhere: sessions carry the version they were issued with and are only honoured while it matches
   session_version Int     @default(0)

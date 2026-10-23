@@ -30,12 +30,12 @@ function roleLabel(role: OrgRole, t: TFunction): string {
   }
 }
 
-/** A member as a combobox option, searchable by username. Plain members get no
+/** A member as a combobox option, searchable by name. Plain members get no
  * suffix: "(Member)" reads too much like "(Manager)" at a glance, and it's the
  * overwhelmingly common case anyway. */
 function memberOption(member: OrgManagement["members"][number], t: TFunction): Option {
   return {
-    name: member.role === OrgRole.MEMBER ? member.username : `${member.username} (${roleLabel(member.role, t)})`,
+    name: member.role === OrgRole.MEMBER ? member.name : `${member.name} (${roleLabel(member.role, t)})`,
     value: member.membershipId,
   };
 }
@@ -269,7 +269,7 @@ function GroupList({ management }: { management: OrgManagement }) {
     return <p className="margin-block-100">{t("pages:org_groups.no_groups")}</p>;
   }
 
-  const usernames = new Map(management.members.map(member => [member.membershipId, member.username]));
+  const names = new Map(management.members.map(member => [member.membershipId, member.name]));
 
   return (
     <ul className="margin-0 padding-0" style={{ listStyle: 'none' }}>
@@ -290,7 +290,7 @@ function GroupList({ management }: { management: OrgManagement }) {
                 <p className="margin-0 color-gray white-space-nowrap text-overflow-ellipsis overflow-hidden">
                   {t("pages:org_groups.member_count", { count: group.memberIds.length })}
                   {group.memberIds.length > 0
-                    ? ` · ${group.memberIds.map(id => usernames.get(id)).filter(Boolean).join(", ")}`
+                    ? ` · ${group.memberIds.map(id => names.get(id)).filter(Boolean).join(", ")}`
                     : null}
                 </p>
               </div>
@@ -317,7 +317,7 @@ function MemberRoles({ management }: { management: OrgManagement }) {
       membershipId: member.membershipId,
       role,
     }), 'PUT', t, setIsLoading, undefined, () => {
-      addToast(t("pages:org_groups.role_updated_toast", { name: member.username }), "success");
+      addToast(t("pages:org_groups.role_updated_toast", { name: member.name }), "success");
       router.refresh();
     }, (err) => {
       setIsLoading(false);
@@ -334,7 +334,7 @@ function MemberRoles({ management }: { management: OrgManagement }) {
         return (
           <li key={member.membershipId} className="flex gap-100 align-items-center margin-block-25 font-size-14px" data-testid="member-row">
             <span className="flex-grow-100 white-space-nowrap text-overflow-ellipsis overflow-hidden">
-              {member.username}
+              {member.name}
               {/* Proper members are home here — nothing to annotate. Guests show where
                   they come from, or that they have no home org at all. */}
               {member.role === OrgRole.GUEST ? (

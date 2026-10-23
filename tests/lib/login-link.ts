@@ -79,10 +79,30 @@ export async function linkLogin(request: APIRequestContext, email: string): Prom
   expect(response.status(), `link login of ${email}: ${await response.text()}`).toBe(200);
 }
 
-/** Creates an account through the link flow with a unique address; the returned context is logged in as it. */
-export async function newLinkUser(playwright: PlaywrightWorkerArgs["playwright"], baseURL: string | undefined, workerIndex: number, prefix = "user"): Promise<{ email: string, request: APIRequestContext }> {
+/** The name the test suite gives a link-created user: "<Prefix> Testsson" */
+export function testName(prefix: string): { firstName: string, lastName: string } {
+  const first = prefix.replace(/[^\p{L}\p{N}]+/gu, " ").trim() || "Test";
+  return { firstName: first.charAt(0).toUpperCase() + first.slice(1), lastName: "Testsson" };
+}
+
+/** Completes onboarding for the context's user: sets first and last name (PATCH /api/user). */
+export async function onboard(request: APIRequestContext, name: { firstName: string, lastName: string }): Promise<void> {
+  const response = await request.patch("/api/user", { data: name });
+  expect(response.status(), `onboarding: ${await response.text()}`).toBe(200);
+}
+
+/**
+ * Creates an account through the link flow with a unique address; the returned context is
+ * logged in as it. The user is onboarded (named) unless `onboarded` is false, so later
+ * logins redirect straight to their target instead of to /welcome.
+ */
+export async function newLinkUser(playwright: PlaywrightWorkerArgs["playwright"], baseURL: string | undefined, workerIndex: number, prefix = "user", onboarded = true): Promise<{ email: string, request: APIRequestContext, name: { firstName: string, lastName: string } }> {
   const email = uniqueEmail(prefix);
   const request = await freshContext(playwright, baseURL, workerIndex);
   await linkLogin(request, email);
-  return { email, request };
+  const name = testName(prefix);
+  if (onboarded) {
+    await onboard(request, name);
+  }
+  return { email, request, name };
 }

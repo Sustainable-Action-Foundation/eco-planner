@@ -63,5 +63,8 @@
   },
   "org_historical_data": {
     "title": "Historisk data: {{name}}"
+  },
+  "welcome": {
+    "description": "Fyll i ditt namn"
   }
 }

@@ -484,5 +484,12 @@
     "confirm_other": "{{name}} loggas ut från alla enheter. Vill du fortsätta?",
     "done": "{{name}} är utloggad överallt.",
     "failed": "Det gick inte att logga ut överallt. Försök igen."
+  },
+  "name_form": {
+    "first_name": "Förnamn",
+    "last_name": "Efternamn",
+    "continue": "Fortsätt",
+    "saved": "Namnet är sparat.",
+    "failed": "Namnet kunde inte sparas. Kontrollera fälten och försök igen."
   }
 }

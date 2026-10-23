@@ -157,8 +157,15 @@ test.describe.serial("An account through a link", () => {
     expect(subject).toContain("welcome.subject");
 
     expect(await redeemInBrowser(page, token)).toBe(200);
-    await expect(page).toHaveURL("/");
+    // Onboarding first: the name is asked once, then the login continues to its target
+    await expect(page).toHaveURL("/welcome?from=%2F");
     await expect(page.getByTestId("logout-button").filter({ visible: true })).toBeVisible();
+    await visible(page, "#firstName").fill("Elin");
+    await visible(page, "#lastName").fill("Exempelsson");
+    const saved = page.waitForResponse(res => res.url().endsWith("/api/user") && res.request().method() === "PATCH");
+    await visible(page, "#save-name").click();
+    expect((await saved).status()).toBe(200);
+    await expect(page).toHaveURL("/");
     // Without "remember me" the login lasts 30 days (src/lib/session.ts)
     const cookie = await sessionCookie(page);
     expect(daysLeft(cookie?.expires)).toBeGreaterThan(29);
@@ -167,6 +174,11 @@ test.describe.serial("An account through a link", () => {
     // Auto-joined by email domain: the start page is the place's org landing
     await expect(page.getByTestId("home-title").filter({ visible: true })).toHaveText(place.orgName);
     await expect(page.locator('nav[aria-label*="org_nav_label"]').filter({ visible: true }).getByRole("link", { name: place.orgName })).toBeVisible();
+
+    // The name is what the profile shows now, and it can be edited there
+    await page.goto(`/user/${encodeURIComponent(email.split("@")[0])}`);
+    await expect(page.getByRole("heading", { level: 1 }).filter({ visible: true })).toHaveText("Elin Exempelsson");
+    await expect(page.getByTestId("name-section").filter({ visible: true }).locator("#firstName")).toHaveValue("Elin");
 
     // The link was spent by the redemption
     expect(await redeemInBrowser(page, token)).toBe(400);
@@ -185,6 +197,7 @@ test.describe.serial("An account through a link", () => {
     expect(subject, "an existing user gets the login mail").toContain("login.subject");
 
     expect(await redeemInBrowser(page, token)).toBe(200);
+    // Onboarded already: straight to the target
     await expect(page).toHaveURL("/roadmap/create");
     await expect(page.getByTestId("logout-button").filter({ visible: true })).toBeVisible();
     // Remembered: the cookie lasts a year

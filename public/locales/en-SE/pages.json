@@ -250,7 +250,9 @@
     "version_count_other": "{{count}} versions",
     "sessions": "Logins",
     "sessions_description_self": "You stay signed in for 30 days after each login, or a year if you chose \"Remember me\". If you signed in on a shared or lost computer you can log out everywhere: every device is signed out, including this one, and the next login link works as usual.",
-    "sessions_description_other": "As an administrator you can sign {{name}} out of every device. They can sign in again with a new login link."
+    "sessions_description_other": "As an administrator you can sign {{name}} out of every device. They can sign in again with a new login link.",
+    "name": "Your name",
+    "name_description": "Shown wherever you are named, for example as the author of actions and comments."
   },
   "roadmap_iteration": {
     "all_actions": "All $t(common:action_other)",
@@ -346,5 +348,9 @@
     "use_description": "Start a new goal in one of the organization's roadmaps from this series. It becomes the goal's historical data and the starting point for the goal's own values; the selection and everything else can be adjusted before saving.",
     "use_heading": "Use this data",
     "values": "Values"
+  },
+  "welcome": {
+    "title": "Welcome!",
+    "description": "You are signed in. Tell us your name so your colleagues can see who wrote what. We only ask this once; signing in is always just your email address."
   }
 }
